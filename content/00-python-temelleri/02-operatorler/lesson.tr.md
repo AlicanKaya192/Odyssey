@@ -1,6 +1,6 @@
 # Operatörler ve Döngüler
 
-Bu bölüm henüz İngilizceye çevrilmedi. Uygulamayı İngilizce kullanırken bu sayfayı açarsan üstte bir uyarı şeridi görecek ve Türkçe içeriği okuyacaksın.
+Bu bölümde sayılarla işlem yapmayı, değerleri karşılaştırmayı ve bir listenin elemanları üzerinde tek tek gezmeyi öğreneceksin. Bunlar sonraki her bölümde kullanacağın temel araçlar.
 
 ## Aritmetik operatörler
 
