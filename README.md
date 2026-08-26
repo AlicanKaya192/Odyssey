@@ -11,17 +11,21 @@ Geliştirme aşamasında. Şu an temel iskelet kuruluyor.
 ## Gereksinimler
 
 - Windows 10 / 11
-- Python 3.12 veya 3.13
+- Python 3.10 – 3.14 (temiz bir CPython kurulumu)
+
+Anaconda'nın Python'u ile kurmayın. Anaconda kendi MSVC runtime kütüphanelerini taşıyor ve Qt'nin DLL'leri bunları yüklediğinde uygulama açılmıyor.
 
 ## Kurulum (geliştirme)
 
 ```bash
-py -3.13 -m venv .venv
-.venv\Scripts\pip install -r requirements.txt
-.venv\Scripts\python app\main.py
+py -3.14 tools/setup_env.py
 ```
 
-Alıştırmaların çalıştığı ortam ayrıdır ve uygulama ilk açılışta onu kendisi kurar.
+Bu komut hem uygulamanın çalıştığı ortamı hem de alıştırmaların çalıştığı ayrı ortamı kurar. Ardından:
+
+```bash
+.venv\Scripts\python app\main.py
+```
 
 ## Diller
 
