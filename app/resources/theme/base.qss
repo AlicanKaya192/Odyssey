@@ -51,6 +51,13 @@ QFrame[role="separator"] {
 
 /* --- Başlıklar ve metin --------------------------------------------------- */
 
+/* Etiketler kendi zeminini taşımamalı. Aksi halde farklı renkteki bir yüzeyin
+ * üzerinde durduklarında arkalarında uyumsuz bir dikdörtgen görünüyor —
+ * özellikle koyu temada göze batıyor. */
+QLabel {
+    background-color: transparent;
+}
+
 QLabel[role="title"] {
     font-size: @font_xxl@px;
     font-weight: 600;
@@ -148,7 +155,10 @@ QListView {
     padding: @space_sm@px;
     font-size: @font_md@px;
     outline: none;
-    show-decoration-selected: 1;
+    /* 0 = seçim yalnızca satırın kendisini kaplasın. 1 yapılırsa seçim
+     * genişleme okunun bulunduğu alana da taşıyor ve orayı Qt kendi
+     * varsayılan mavisiyle boyuyor. */
+    show-decoration-selected: 0;
 }
 
 QTreeView::item,
@@ -171,8 +181,11 @@ QListView::item:selected {
     font-weight: 600;
 }
 
-QTreeView::branch {
+QTreeView::branch,
+QTreeView::branch:selected,
+QTreeView::branch:hover {
     background: transparent;
+    border-image: none;
 }
 
 /* --- Metin girişleri ------------------------------------------------------ */
@@ -232,10 +245,13 @@ QComboBox QAbstractItemView {
 
 /* --- Ders metni (QTextBrowser) -------------------------------------------- */
 
+/* İç boşluk bilerek sıfır: ders metninin çevresindeki boşluğu yerleşim
+ * yönetiyor. İkisi birden boşluk verirse genişlik tahmin edilemez hâle
+ * geliyor ve dar panellerde metin iki kelimelik sütuna sıkışıyor. */
 QTextBrowser {
     background-color: @surface@;
     border: none;
-    padding: @space_xl@px;
+    padding: 0px;
     font-size: @font_md@px;
 }
 
