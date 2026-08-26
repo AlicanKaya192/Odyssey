@@ -33,7 +33,7 @@ from ..core.catalog import Catalog, Chapter
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..resources.icons import icon, pixmap
-from ..resources.theme.tokens import NODE_STATES, PALETTES, SPACING
+from ..resources.theme.tokens import CONTENT_WIDTH, NODE_STATES, PALETTES, SPACING
 from ..widgets.common import Card, StatBlock, section_label
 from ..widgets.effects import apply_shadow, refresh_shadow, repolish
 
@@ -49,6 +49,27 @@ def scroll_page(widget: QWidget) -> QScrollArea:
     area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
     area.setWidget(widget)
     return area
+
+
+def centered_column(inner: QWidget) -> QWidget:
+    """İçeriği sabit genişlikte bir sütuna alıp ekranın ortasına yerleştirir.
+
+    Makette yol ve modül kartları uçlara yayılmıyor, ortada toplanıyor.
+    Geniş ekranda içeriğin sağa sola dağılması hem dağınık duruyor hem de
+    göz her satırda uzun bir yol kat ediyor.
+    """
+    holder = QWidget()
+    row = QHBoxLayout(holder)
+    row.setContentsMargins(0, 0, 0, 0)
+    row.setSpacing(0)
+
+    inner.setMaximumWidth(CONTENT_WIDTH)
+    inner.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+
+    row.addStretch(1)
+    row.addWidget(inner, 10)
+    row.addStretch(1)
+    return holder
 
 
 class HeroCard(QFrame):
@@ -221,12 +242,13 @@ class ModulesView(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
 
-        page = QWidget()
-        self._page_layout = QVBoxLayout(page)
+        column = QWidget()
+        self._page_layout = QVBoxLayout(column)
         self._page_layout.setContentsMargins(
             SPACING["xl"], SPACING["xl"], SPACING["xl"], SPACING["xxl"]
         )
         self._page_layout.setSpacing(SPACING["lg"])
+        page = centered_column(column)
 
         self._hero = HeroCard(language)
         self._page_layout.addWidget(self._hero)
@@ -387,11 +409,11 @@ class PathView(QWidget):
         self._page = QWidget()
         self._layout = QVBoxLayout(self._page)
         self._layout.setContentsMargins(
-            SPACING["xxl"], SPACING["xl"], SPACING["xxl"], SPACING["xxl"]
+            SPACING["xl"], SPACING["xl"], SPACING["xl"], SPACING["xxl"]
         )
         self._layout.setSpacing(0)
 
-        outer.addWidget(scroll_page(self._page))
+        outer.addWidget(scroll_page(centered_column(self._page)))
 
     @property
     def chapter_id(self) -> str:

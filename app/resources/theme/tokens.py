@@ -53,6 +53,10 @@ READING_WIDTH = 680
 # Sağdaki sayfa içi başlık listesinin genişliği.
 TOC_WIDTH = 250
 
+# Öğrenme yolu ve modül kartlarının kapladığı sütun genişliği. Maketteki
+# ölçü; içerik ekranın ortasında toplanıyor, uçlara yayılmıyor.
+CONTENT_WIDTH = 820
+
 # Sol ikon şeridinin genişliği.
 RAIL_WIDTH = 76
 

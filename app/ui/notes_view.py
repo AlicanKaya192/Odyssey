@@ -14,6 +14,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -127,9 +128,20 @@ class NotesView(QWidget):
 
         for index, document in enumerate(self._documents):
             title = self._language.pick(document.get("title"))
-            button = QPushButton(f"{index + 1:02d}    {title}")
+            button = QPushButton()
             button.setProperty("variant", "listitem")
             button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.setToolTip(title)
+
+            # Uzun başlıklar paneli taşırmasın: QPushButton metni satıra
+            # bölemediği için sığmayan kısım üç noktayla kısaltılıyor.
+            etiket = f"{index + 1:02d}    {title}"
+            metrics = QFontMetrics(button.font())
+            button.setText(
+                metrics.elidedText(
+                    etiket, Qt.TextElideMode.ElideRight, LIST_WIDTH - SPACING["xxl"] - 16
+                )
+            )
             button.clicked.connect(lambda _=False, i=index: self._select(i))
             self._list_layout.insertWidget(self._list_layout.count() - 1, button)
             self._buttons.append(button)

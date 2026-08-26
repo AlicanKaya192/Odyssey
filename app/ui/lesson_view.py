@@ -64,10 +64,14 @@ def build_document_css(mode: str) -> str:
         font-size: {FONT_SIZES['md']}pt;
         line-height: 165%;
     }}
-    h1 {{ font-size: {FONT_SIZES['display']}pt; font-weight: 700; margin-bottom: 6px; }}
-    h2 {{ font-size: {FONT_SIZES['xl']}pt; font-weight: 660; margin-top: 32px; }}
-    h3 {{ font-size: {FONT_SIZES['lg']}pt; font-weight: 640; margin-top: 22px; }}
-    p  {{ margin: 14px 0; }}
+    h1 {{ font-size: {FONT_SIZES['display']}pt; font-weight: 700;
+          color: {palette['text']}; margin-bottom: 6px; }}
+    h2 {{ font-size: {FONT_SIZES['xl']}pt; font-weight: 660;
+          color: {palette['text']}; margin-top: 32px; }}
+    h3 {{ font-size: {FONT_SIZES['lg']}pt; font-weight: 640;
+          color: {palette['text']}; margin-top: 22px; }}
+    p  {{ margin: 14px 0; color: {palette['text']}; }}
+    li {{ color: {palette['text']}; }}
     a  {{ color: {palette['accent']}; }}
     hr {{ border: 1px solid {palette['border']}; }}
     code {{
@@ -81,6 +85,7 @@ def build_document_css(mode: str) -> str:
         font-size: {FONT_SIZES['sm']}pt;
         background-color: {palette['code_bg']};
         color: {palette['text']};
+        border: 1px solid {palette['border']};
         padding: 16px 18px;
         margin: 16px 0;
     }}
@@ -98,10 +103,11 @@ def build_document_css(mode: str) -> str:
     }}
     td {{ padding: 11px 15px; border: 1px solid {palette['border']}; }}
     blockquote {{
-        color: {palette['text_muted']};
+        background-color: {palette['accent_soft']};
+        color: {palette['text']};
         border-left: 3px solid {palette['accent']};
-        padding-left: 14px;
-        margin-left: 0;
+        padding: 14px 18px;
+        margin: 20px 0;
     }}
     """
 
@@ -193,7 +199,6 @@ class TableOfContents(QWidget):
             self._buttons.append(button)
 
         self.set_active(0)
-        self.setVisible(bool(headings))
 
     def _go(self, heading: str, index: int) -> None:
         self.set_active(index)
@@ -236,7 +241,9 @@ class LessonView(QWidget):
         self._mode = "light"
         self._source = ""
         self._compact = compact
+        self._show_toc = show_toc and not compact
         self._headings: list[str] = []
+        self._meta: list[str] = []
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -292,8 +299,11 @@ class LessonView(QWidget):
 
         row.addWidget(column, 8)
 
-        self._toc = TableOfContents(language)
-        if not compact and show_toc:
+        # Ebeveyn her durumda veriliyor. Ebeveynsiz bir widget Qt'de üst
+        # seviye pencere sayılıyor; kullanılmadığı ekranlarda görünür
+        # yapıldığı anda ayrı bir pencere olarak açılıyordu.
+        self._toc = TableOfContents(language, container)
+        if self._show_toc:
             row.addWidget(self._toc, 0, Qt.AlignmentFlag.AlignTop)
         else:
             self._toc.hide()
@@ -307,6 +317,16 @@ class LessonView(QWidget):
         self._column = column
 
     # --- içerik -----------------------------------------------------------
+
+    def set_meta(self, items: list[str]) -> None:
+        """Başlığın altındaki bilgi satırı: süre, alıştırma ve sınav sayısı.
+
+        Markdown'ın içine yerleştiriliyor ki başlıkla aynı akışta dursun ve
+        metinle birlikte kaysın.
+        """
+        self._meta = [item for item in items if item]
+        if self._source:
+            self._render()
 
     def show_lesson(
         self,
@@ -342,7 +362,8 @@ class LessonView(QWidget):
         self._render()
 
     def set_progress(self, percent: int, caption: str) -> None:
-        self._toc.set_progress(percent, caption)
+        if self._show_toc:
+            self._toc.set_progress(percent, caption)
 
     def footer_layout(self) -> QHBoxLayout:
         """Ders metninin altındaki düğme sırası."""
@@ -350,10 +371,35 @@ class LessonView(QWidget):
 
     # --- çizim ------------------------------------------------------------
 
+    def _meta_html(self) -> str:
+        """Bilgi satırını, ilk başlığın hemen altına girecek HTML olarak üretir."""
+        if not self._meta:
+            return ""
+        palette = PALETTES.get(self._mode, PALETTES["light"])
+        birlesik = "&nbsp;&nbsp;·&nbsp;&nbsp;".join(self._meta)
+        return (
+            f'<p style="color:{palette["text_muted"]}; '
+            f'font-size:{FONT_SIZES["sm"]}pt; margin-top:0;">{birlesik}</p>'
+        )
+
+    def _with_meta(self, source: str) -> str:
+        """Bilgi satırını ilk başlıktan sonraya yerleştirir."""
+        meta = self._meta_html()
+        if not meta:
+            return source
+
+        lines = source.splitlines()
+        for index, line in enumerate(lines):
+            if line.startswith("# "):
+                lines.insert(index + 1, f"\n{meta}\n")
+                return "\n".join(lines)
+
+        return f"{meta}\n\n{source}"
+
     def _render(self) -> None:
-        self._browser.setHtml(render_markdown(self._source, self._mode))
+        self._browser.setHtml(render_markdown(self._with_meta(self._source), self._mode))
         self._headings = HEADING_PATTERN.findall(self._source)
-        if not self._compact:
+        if self._show_toc:
             self._toc.set_headings(self._headings, self._scroll_to_heading)
         self._fit_height()
 
@@ -393,7 +439,8 @@ class LessonView(QWidget):
         self._render()
 
     def retranslate(self) -> None:
-        self._toc.retranslate()
+        if self._show_toc:
+            self._toc.retranslate()
         if self._translation_banner.isVisible():
             self._translation_banner.set_text(
                 self._language.t("content.translation_missing")

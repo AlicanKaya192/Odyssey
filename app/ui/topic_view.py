@@ -163,11 +163,25 @@ class TopicView(QWidget):
             self._panes.append("exercise")
             self._load_exercise()
 
+        self._lesson.set_meta(self._meta_items(section))
         self._store.mark_lesson_read(chapter_id, section_id)
         self._update_progress_box(state)
         self.retranslate()
         self._segments.set_current(0, notify=False)
         self._show_pane(0)
+
+    def _meta_items(self, section) -> list[str]:
+        """Ders başlığının altındaki bilgi satırının parçaları."""
+        items = [f"{section.estimated_minutes} dakika"]
+
+        if self._exercises:
+            items.append(
+                f"{len(self._exercises)} {self._language.t('tabs.exercise').lower()}"
+            )
+        if "quiz" in self._panes:
+            items.append(self._language.t("tabs.quiz").lower())
+
+        return items
 
     def _load_exercise(self) -> None:
         if not self._exercises or self._section is None:
