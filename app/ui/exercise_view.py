@@ -27,6 +27,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+import html
+
 from ..core.catalog import Exercise
 from ..core.grader import Feedback, describe, summarise
 from ..core.language import LanguageManager
@@ -35,11 +37,11 @@ from ..core.progress import ProgressStore
 from ..core.runner import RunResult, run_code
 from ..resources.theme.tokens import FONTS, SPACING
 from ..widgets.code_editor import CodeEditor
-from ..widgets.common import Chip, section_label
 from ..widgets.effects import repolish
-from .lesson_view import LessonView
+from .lesson_view import LessonView, render_markdown
 
-DIFFICULTY_TONES = {1: "success", 2: "warning", 3: "danger"}
+# Zorluk göstergesi: dolu/boş daire. Renk körlüğü için renge ek olarak biçim.
+DIFFICULTY_LABELS = {1: "●○○", 2: "●●○", 3: "●●●"}
 
 
 class RunWorker(QThread):
@@ -63,135 +65,6 @@ class RunWorker(QThread):
         )
 
 
-class HintRow(QFrame):
-    """Tek bir ipucu kademesi. Kapalıyken yalnızca başlığı görünür."""
-
-    revealed = Signal(int)
-
-    def __init__(
-        self,
-        level: int,
-        text: str,
-        language: LanguageManager,
-        revealed: bool = False,
-        parent: QWidget | None = None,
-    ) -> None:
-        super().__init__(parent)
-        self._text = text
-        self._language = language
-        self._level = level
-        self._revealed = revealed
-
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(
-            SPACING["md"], SPACING["sm"], SPACING["md"], SPACING["sm"]
-        )
-        layout.setSpacing(SPACING["sm"])
-
-        self._badge = QLabel(str(level))
-        self._badge.setProperty("role", "chip")
-        self._badge.setProperty("tone", "accent")
-        self._badge.setFixedWidth(26)
-        layout.addWidget(self._badge, 0, Qt.AlignmentFlag.AlignTop)
-
-        self._label = QLabel()
-        self._label.setWordWrap(True)
-        self._label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        layout.addWidget(self._label, 1)
-
-        self._button = QPushButton()
-        self._button.setProperty("variant", "small")
-        self._button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._button.clicked.connect(self.reveal)
-        layout.addWidget(self._button, 0, Qt.AlignmentFlag.AlignTop)
-
-        self._refresh()
-
-    def reveal(self) -> None:
-        self._revealed = True
-        self._refresh()
-        self.revealed.emit(self._level)
-
-    def _refresh(self) -> None:
-        if self._revealed:
-            self._label.setText(self._text)
-            self._label.setProperty("role", "")
-            self._button.hide()
-        else:
-            self._label.setText(self._language.t(f"hint.level{min(self._level, 3)}"))
-            self._label.setProperty("role", "muted")
-            self._button.setText(self._language.t("hint.show"))
-            self._button.show()
-        repolish(self._label)
-
-
-class HintBox(QFrame):
-    """İpucu kademelerini taşıyan kutu."""
-
-    def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
-        super().__init__(parent)
-        self._language = language
-        self.setProperty("surface", "card")
-
-        self._layout = QVBoxLayout(self)
-        self._layout.setContentsMargins(0, 0, 0, 0)
-        self._layout.setSpacing(0)
-
-        header = QWidget()
-        header_layout = QHBoxLayout(header)
-        header_layout.setContentsMargins(
-            SPACING["md"], SPACING["sm"], SPACING["md"], SPACING["sm"]
-        )
-        self._title = section_label("")
-        header_layout.addWidget(self._title)
-        header_layout.addStretch(1)
-        self._layout.addWidget(header)
-
-        self._rows: list[HintRow] = []
-        # Dil değişince satırlar yeniden kuruluyor; kullanıcının açtığı
-        # kademeler kapanmasın diye kaçıncıya kadar açtığı hatırlanıyor.
-        self._revealed_upto = 1
-
-    def reset(self) -> None:
-        """Yeni bir alıştırmaya geçerken açılmış ipuçlarını sıfırlar."""
-        self._revealed_upto = 1
-
-    def note_revealed(self, level: int) -> None:
-        self._revealed_upto = max(self._revealed_upto, level)
-
-    def set_hints(self, hints: list[dict]) -> None:
-        # `deleteLater()` tek başına yetmiyor: widget yerleşimden hemen
-        # çıkmadığı için satırlar üst üste birikiyordu. Önce yerleşimden
-        # koparıp sonra siliyoruz.
-        for row in self._rows:
-            self._layout.removeWidget(row)
-            row.setParent(None)
-            row.deleteLater()
-        self._rows = []
-
-        if not hints:
-            self.hide()
-            return
-
-        for index, hint in enumerate(hints, start=1):
-            text = self._language.pick(hint)
-            if not text:
-                continue
-            # İlk kademe kendiliğinden açık: yardım isteyen kişiyi bir tık
-            # daha uğraştırmanın öğretici bir tarafı yok.
-            row = HintRow(
-                index, text, self._language, revealed=(index <= self._revealed_upto)
-            )
-            row.revealed.connect(self.note_revealed)
-            self._layout.addWidget(row)
-            self._rows.append(row)
-
-        self.setVisible(bool(self._rows))
-
-    def retranslate(self) -> None:
-        self._title.setText(self._language.t("hint.title").upper())
-        for row in self._rows:
-            row._refresh()
 
 
 class CheckRow(QFrame):
@@ -300,6 +173,8 @@ class ExerciseView(QWidget):
         self._chapter_id = ""
         self._section_id = ""
         self._worker: RunWorker | None = None
+        # Kaçıncı ipucu kademesine kadar açıldığı. Sıfır: hepsi kapalı.
+        self._revealed = 0
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -307,7 +182,8 @@ class ExerciseView(QWidget):
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(self._build_brief())
         splitter.addWidget(self._build_work())
-        splitter.setSizes([420, 720])
+        # Maketteki oran: yönerge 340-430 arası, kalanı çalışma alanı.
+        splitter.setSizes([430, 770])
         splitter.setStretchFactor(1, 1)
         layout.addWidget(splitter)
 
@@ -316,43 +192,96 @@ class ExerciseView(QWidget):
     def _build_brief(self) -> QWidget:
         """Sol panel: başlık, etiketler, yönerge ve ipuçları.
 
-        Dışarıya ayrıca bir kaydırma alanı konmuyor: yönergenin kendi
-        kaydırması var, iç içe iki kaydırma alanı yüksekliği belirsiz
-        bırakıp ipucu kutusunun taşmasına yol açıyordu.
+        Hepsi tek bir belge olarak çiziliyor. Önceden başlık ve etiketler Qt
+        widget'ı, yönerge ise HTML'di; iki ayrı motorun yazı tipleri ve
+        boşlukları tutmadığı için ekran sıkışık ve orantısız duruyordu.
         """
         panel = QFrame()
         panel.setProperty("surface", "plain")
 
         layout = QVBoxLayout(panel)
-        layout.setContentsMargins(
-            SPACING["lg"], SPACING["lg"], SPACING["lg"], SPACING["lg"]
-        )
-        layout.setSpacing(SPACING["sm"])
-
-        self._title = QLabel()
-        self._title.setProperty("role", "subtitle")
-        self._title.setWordWrap(True)
-        layout.addWidget(self._title)
-
-        chips = QHBoxLayout()
-        chips.setSpacing(SPACING["xs"])
-        self._difficulty_chip = Chip()
-        self._time_chip = Chip()
-        chips.addWidget(self._difficulty_chip)
-        chips.addWidget(self._time_chip)
-        chips.addStretch(1)
-        layout.addLayout(chips)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
         self._prompt = LessonView(self._language, compact=True)
-        layout.addWidget(self._prompt, 1)
-
-        self._hints = HintBox(self._language)
-        self._hints.setSizePolicy(
-            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum
-        )
-        layout.addWidget(self._hints, 0)
+        self._prompt.action.connect(self._on_prompt_action)
+        layout.addWidget(self._prompt)
 
         return panel
+
+    def _on_prompt_action(self, action: str) -> None:
+        """Yönerge içindeki bağlantılar: ipucu kademelerini açar."""
+        if action.startswith("hint-"):
+            try:
+                level = int(action.split("-", 1)[1])
+            except ValueError:
+                return
+            self._revealed = max(self._revealed, level)
+            self._refresh_prompt()
+
+    def _hints_html(self) -> str:
+        """İpucu kutusunu maketteki yapıyla üretir.
+
+        Kademeler kapalı başlar; kullanıcı istediği kadarını açar. Açılmış
+        kademe metni markdown olarak çevriliyor, böylece içindeki kod
+        blokları da renklendiriliyor.
+        """
+        if self._exercise is None or not self._exercise.hints:
+            return ""
+
+        rows = []
+        for level, hint in enumerate(self._exercise.hints, start=1):
+            text = self._language.pick(hint)
+            if not text:
+                continue
+
+            if level <= self._revealed:
+                body, _ = render_markdown(text)
+                inner = f'<div class="tx open">{body}</div>'
+                button = ""
+            else:
+                label = html.escape(self._language.t(f"hint.level{min(level, 3)}"))
+                inner = f'<div class="tx">{label}</div>'
+                button = (
+                    f'<a class="show" href="app:hint-{level}">'
+                    f'{html.escape(self._language.t("hint.show"))}</a>'
+                )
+
+            rows.append(
+                f'<div class="hint"><div class="lv">{level}</div>{inner}{button}</div>'
+            )
+
+        if not rows:
+            return ""
+
+        title = html.escape(self._language.t("hint.title"))
+        return f'<div class="hintbox"><div class="hd">{title}</div>{"".join(rows)}</div>'
+
+    def _chips_html(self) -> str:
+        if self._exercise is None:
+            return ""
+
+        difficulty = self._exercise.difficulty
+        tone = {1: "easy", 2: "mid", 3: "hard"}.get(difficulty, "")
+        label = html.escape(
+            f"{self._language.t('exercise.difficulty')}: "
+            f"{DIFFICULTY_LABELS.get(difficulty, '')}"
+        )
+        return (
+            f'<div class="chips"><span class="chip {tone}">{label}</span></div>'
+        )
+
+    def _refresh_prompt(self) -> None:
+        """Yönergeyi başlık, etiket ve ipuçlarıyla birlikte yeniden çizer."""
+        if self._exercise is None:
+            return
+
+        prompt = self._exercise.prompt_for(self._language.language)
+        body = prompt.path.read_text(encoding="utf-8") if prompt and prompt.exists else ""
+        title = self._language.pick(self._exercise.title)
+
+        self._prompt.set_extra(self._hints_html())
+        self._prompt.show_text(f"# {title}\n\n{self._chips_html()}\n\n{body}")
 
     # --- sağ: editör ve sonuçlar -----------------------------------------
 
@@ -432,17 +361,13 @@ class ExerciseView(QWidget):
         self._chapter_id = chapter_id
         self._section_id = section_id
 
-        prompt = exercise.prompt_for(self._language.language)
-        if prompt and prompt.exists:
-            self._prompt.show_lesson(prompt.path, prompt.is_fallback)
-        else:
-            self._prompt.show_text("")
+        # Yeni alıştırmada ipuçları kapalı başlar.
+        self._revealed = 0
+        self._refresh_prompt()
 
         saved = self._store.exercise_code(chapter_id, section_id, exercise.id)
         self._editor.setPlainText(saved or exercise.starter_code)
 
-        self._hints.reset()
-        self._hints.set_hints(exercise.hints)
         self._clear_results()
         self.retranslate()
 
@@ -532,23 +457,8 @@ class ExerciseView(QWidget):
         self._run_button.setText(self._language.t("exercise.run"))
         self._reset_button.setText(self._language.t("exercise.reset"))
         self._shortcut_hint.setText("Ctrl + Enter")
-        self._hints.retranslate()
-        self._prompt.retranslate()
 
-        if self._exercise is None:
-            return
-
-        self._title.setText(self._language.pick(self._exercise.title))
-
-        difficulty = self._exercise.difficulty
-        self._difficulty_chip.setText(
-            f"{self._language.t('exercise.difficulty')}: "
-            f"{'●' * difficulty}{'○' * max(0, 3 - difficulty)}"
-        )
-        self._difficulty_chip.set_tone(DIFFICULTY_TONES.get(difficulty, ""))
-        self._time_chip.setText(f"~{self._exercise.timeout_sec * 30 // 60 or 5} dk")
-
-        prompt = self._exercise.prompt_for(self._language.language)
-        if prompt and prompt.exists:
-            self._prompt.show_lesson(prompt.path, prompt.is_fallback)
-        self._hints.set_hints(self._exercise.hints)
+        # Başlık, etiketler ve ipuçları belgenin içinde olduğu için dil
+        # değişince yönergeyi baştan çizmek yeterli.
+        if self._exercise is not None:
+            self._refresh_prompt()

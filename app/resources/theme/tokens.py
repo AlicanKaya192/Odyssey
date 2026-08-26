@@ -159,11 +159,15 @@ SYNTAX = {
 # --- Bölüm durumları -------------------------------------------------------
 # Yol ekranındaki düğümlerin görünümü. Renge ek olarak simge de var, çünkü
 # durumu yalnızca renkle anlatmak renk körü kullanıcıyı dışarıda bırakır.
+#
+# `not_started` için simge yok: kilit kaldırıldığı için asma kilit yanıltıcı
+# olurdu, boş yuvarlak da bomboş duruyordu. Onun yerine bölümün sıra numarası
+# yazılıyor — hem doluluk veriyor hem "kaçıncı bölümdeyim" sorusunu cevaplıyor.
 NODE_STATES = {
     "completed": {"symbol": "✓", "color": "success"},
     "current": {"symbol": "▶", "color": "accent"},
     "in_progress": {"symbol": "◐", "color": "warning"},
-    "not_started": {"symbol": "○", "color": "border_strong"},
+    "not_started": {"symbol": "", "color": "border_strong"},
 }
 
 

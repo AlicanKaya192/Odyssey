@@ -24,10 +24,13 @@ PATHS: dict[str, str] = {
         '<circle cx="12" cy="8" r="4"/>'
         '<path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>'
     ),
+    # Megafon: gövde sola doğru açılan bir koni, altında tutamak. Önceki
+    # çizim hoparlöre benziyordu; ses ikonuyla karışıyordu.
     "megaphone": (
-        '<path d="M3 11v2a1 1 0 0 0 1 1h2l4 4V6L6 10H4a1 1 0 0 0-1 1z"/>'
-        '<path d="M14 8a5 5 0 0 1 0 8"/>'
-        '<path d="M17 5a9 9 0 0 1 0 14"/>'
+        '<path d="m3 11 15-7v16L3 13z"/>'
+        '<path d="M3 11H2.5A1.5 1.5 0 0 0 1 12.5v0A1.5 1.5 0 0 0 2.5 14H3z"/>'
+        '<path d="M6 14v5a2 2 0 0 0 4 0v-3.6"/>'
+        '<path d="M21 9v6"/>'
     ),
     "settings": (
         '<circle cx="12" cy="12" r="3"/>'

@@ -92,7 +92,9 @@ class HeroCard(QFrame):
         layout.addWidget(self._title)
 
         self._subtitle = QLabel()
-        self._subtitle.setStyleSheet("color:rgba(255,255,255,0.9); font-size:14px;")
+        self._subtitle.setStyleSheet(
+            "color:rgba(255,255,255,0.92); font-size:14px; font-weight:600;"
+        )
         self._subtitle.setWordWrap(True)
         layout.addWidget(self._subtitle)
         layout.addSpacing(SPACING["md"])
@@ -347,6 +349,7 @@ class PathNode(QWidget):
         title: str,
         caption: str,
         state: str,
+        order: int = 0,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
@@ -357,7 +360,10 @@ class PathNode(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(SPACING["md"])
 
-        self.button = QPushButton(NODE_STATES.get(state, NODE_STATES["not_started"])["symbol"])
+        # Başlanmamış bölümde simge yerine sıra numarası duruyor: kilit
+        # kaldırıldığı için asma kilit yanıltıcı, boş yuvarlak ise bomboş.
+        symbol = NODE_STATES.get(state, NODE_STATES["not_started"])["symbol"]
+        self.button = QPushButton(symbol or str(order))
         self.button.setProperty("variant", "node")
         self.button.setProperty("state", state)
         self.button.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -463,6 +469,7 @@ class PathView(QWidget):
                 self._language.pick(section.title),
                 self._caption_for(section, state),
                 state,
+                order=index + 1,
             )
             node.opened.connect(self.section_opened)
 

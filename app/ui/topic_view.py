@@ -78,6 +78,7 @@ class TopicView(QWidget):
         for widget in (self._lesson, self._notes, self._pdf, self._quiz, self._exercise):
             self._stack.addWidget(widget)
 
+        self._lesson.action.connect(self._on_lesson_action)
         self._quiz.completed.connect(self._on_quiz_completed)
         self._exercise.solved.connect(self._on_exercise_solved)
 
@@ -164,6 +165,7 @@ class TopicView(QWidget):
             self._load_exercise()
 
         self._lesson.set_meta(self._meta_items(section))
+        self._lesson.set_footer(self._footer_items())
         self._store.mark_lesson_read(chapter_id, section_id)
         self._update_progress_box(state)
         self.retranslate()
@@ -182,6 +184,48 @@ class TopicView(QWidget):
             items.append(self._language.t("tabs.quiz").lower())
 
         return items
+
+    def _footer_items(self) -> list[tuple[str, str, bool]]:
+        """Ders metninin altındaki gezinme düğmeleri.
+
+        Bir sonraki adım olarak sınav varsa ona, yoksa alıştırmaya yollar;
+        ikisi de yoksa yalnızca önceki bölüm düğmesi kalır.
+        """
+        if self._section is None:
+            return []
+
+        previous, following = self._catalog.neighbours(
+            self._section.chapter_id, self._section.id
+        )
+        buttons: list[tuple[str, str, bool]] = [
+            (
+                "previous-section" if previous else "",
+                self._language.t("nav.previous"),
+                False,
+            )
+        ]
+
+        if "quiz" in self._panes:
+            buttons.append(("go-quiz", self._language.t("tabs.quiz"), True))
+        elif self._exercises:
+            buttons.append(("go-exercise", self._language.t("tabs.exercise"), True))
+        elif following:
+            buttons.append(("next-section", self._language.t("nav.next"), True))
+
+        return buttons
+
+    def _on_lesson_action(self, action: str) -> None:
+        if action == "go-quiz" and "quiz" in self._panes:
+            self._segments.set_current(self._panes.index("quiz"))
+        elif action == "go-exercise" and "exercise" in self._panes:
+            self._segments.set_current(self._panes.index("exercise"))
+        elif action in ("next-section", "previous-section") and self._section is not None:
+            previous, following = self._catalog.neighbours(
+                self._section.chapter_id, self._section.id
+            )
+            target = following if action == "next-section" else previous
+            if target:
+                self.show_section(target.chapter_id, target.id)
 
     def _load_exercise(self) -> None:
         if not self._exercises or self._section is None:

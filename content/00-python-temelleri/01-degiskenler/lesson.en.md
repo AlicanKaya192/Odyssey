@@ -28,13 +28,9 @@ If you use single quotes and the text itself contains a single quote, Python can
 wrong = 'Alican's car'   # SyntaxError
 ```
 
-Python reads `'Alican'` as the string and then cannot make sense of `s car`. The fix is to **escape** the quote with a backslash:
+Python reads `'Alican'` as the string and then cannot make sense of `s car`.
 
-```python
-correct = 'Alican\'s car'
-```
-
-This is called an **escape character** in Python. Alternatively, use double quotes on the outside: `"Alican's car"`.
+> **The fix:** escape the quote with a backslash: `'Alican\'s car'`. This is called an **escape character** in Python. Alternatively, use double quotes on the outside: `"Alican's car"` — usually the more readable option.
 
 ## Working with text
 

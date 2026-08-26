@@ -87,19 +87,11 @@ class NotesView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
+        # Önceki/Sonraki düğmeleri belgenin içinde duruyor; böylece maketteki
+        # görünümü birebir alıyorlar ve metinle birlikte kayıyorlar.
         self._reader = LessonView(self._language, show_toc=False)
+        self._reader.action.connect(self._on_action)
         layout.addWidget(self._reader, 1)
-
-        footer = self._reader.footer_layout()
-        self._previous_button = QPushButton()
-        self._previous_button.clicked.connect(lambda: self._step(-1))
-        footer.addWidget(self._previous_button)
-        footer.addStretch(1)
-
-        self._next_button = QPushButton()
-        self._next_button.setProperty("variant", "primary")
-        self._next_button.clicked.connect(lambda: self._step(1))
-        footer.addWidget(self._next_button)
 
         self._empty = QLabel()
         self._empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -108,6 +100,12 @@ class NotesView(QWidget):
         self._empty.hide()
 
         return holder
+
+    def _on_action(self, action: str) -> None:
+        if action == "next":
+            self._step(1)
+        elif action == "previous":
+            self._step(-1)
 
     # --- içerik -----------------------------------------------------------
 
@@ -180,9 +178,22 @@ class NotesView(QWidget):
             body = resolved.read_text(encoding="utf-8")
             fallback = document.get("_fallback", False)
 
-        self._reader.show_text(f"# {title}\n\n*{counter}*\n\n{body}")
-        if fallback:
-            pass  # dil geri düşüşü şeridi ders sayfasında gösteriliyor
+        self._reader.show_text(f"# {title}\n\n{body}")
+        self._reader.set_meta([counter])
+        self._reader.set_footer(
+            [
+                (
+                    "previous" if self._current > 0 else "",
+                    self._language.t("notes.previous"),
+                    False,
+                ),
+                (
+                    "next" if self._current < len(self._documents) - 1 else "",
+                    self._language.t("notes.next"),
+                    True,
+                ),
+            ]
+        )
 
         for index, button in enumerate(self._buttons):
             button.setProperty("active", "true" if index == self._current else "false")
@@ -216,8 +227,4 @@ class NotesView(QWidget):
 
     def retranslate(self) -> None:
         self._list_title.setText(self._language.t("notes.list_title").upper())
-        self._previous_button.setText(self._language.t("notes.previous"))
-        self._next_button.setText(self._language.t("notes.next"))
-        self._previous_button.setEnabled(self._current > 0)
-        self._next_button.setEnabled(self._current < len(self._documents) - 1)
         self._reader.retranslate()

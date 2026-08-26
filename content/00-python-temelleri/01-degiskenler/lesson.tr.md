@@ -28,13 +28,9 @@ Tek tırnak kullanırken metnin içinde de tek tırnak geçiyorsa Python nerede 
 hata = 'Alican'ın arabası'   # SyntaxError
 ```
 
-Python `'Alican'` kısmını metin olarak görür, sonrasında gelen `ın arabası` kısmını anlamlandıramaz. Çözüm, ters eğik çizgi ile tırnağı **kaçırmaktır**:
+Python `'Alican'` kısmını metin olarak görür, sonrasında gelen `ın arabası` kısmını anlamlandıramaz.
 
-```python
-dogru = 'Alican\'ın arabası'
-```
-
-Buna Python'da **kaçış karakteri** denir. Alternatif olarak dıştaki tırnağı çift yapabilirsin: `"Alican'ın arabası"`.
+> **Çözüm:** Ters eğik çizgi ile tırnağı kaçırmaktır: `'Alican\'ın arabası'`. Buna Python'da **kaçış karakteri** denir. Alternatif olarak dıştaki tırnağı çift yapabilirsin: `"Alican'ın arabası"` — bu genelde daha okunaklıdır.
 
 ## Metinlerle işlem yapmak
 

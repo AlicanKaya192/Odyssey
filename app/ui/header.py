@@ -54,13 +54,14 @@ class ScreenHeader(QFrame):
         titles.addWidget(self._subtitle)
 
         layout.addLayout(titles)
-        layout.addSpacing(SPACING["lg"])
+
+        # Esneme başlıkla denetim arasında: ekrana özel denetim (segmented
+        # control) sağa yaslanıyor, ortada asılı kalmıyor.
+        layout.addStretch(1)
 
         self._slot = QHBoxLayout()
         self._slot.setSpacing(SPACING["sm"])
         layout.addLayout(self._slot)
-
-        layout.addStretch(1)
         self.set_mode(self._mode)
 
     def set_titles(self, title: str, subtitle: str = "") -> None:
