@@ -44,6 +44,25 @@ TOKEN_PATTERN = re.compile(
 )
 
 
+def _is_assignment_target(source: str, position: int) -> bool:
+    """Bu adın hemen ardından değer ataması geliyor mu?
+
+    `isim = "Alican"` içindeki `isim` evet; `a == b` içindeki `a` hayır.
+    `+=`, `-=` gibi birleşik atamalar da sayılıyor.
+    """
+    rest = source[position:]
+    stripped = rest.lstrip(" \t")
+
+    if not stripped.startswith("="):
+        # +=, -=, *= gibi birleşik atamalar
+        if len(stripped) >= 2 and stripped[0] in "+-*/%" and stripped[1] == "=":
+            return True
+        return False
+
+    # Tek '=' atama, '==' karşılaştırma.
+    return not stripped.startswith("==")
+
+
 def highlight_python(source: str, mode: str = "light") -> str:
     """Python kodunu renklendirilmiş HTML'e çevirir."""
     colors = SYNTAX.get(mode, SYNTAX["light"])
@@ -73,6 +92,10 @@ def highlight_python(source: str, mode: str = "light") -> str:
             parts.append(span("constant", text, bold=True))
         elif text in BUILTINS and source[match.end():match.end() + 1] == "(":
             parts.append(span("builtin", text))
+        elif _is_assignment_target(source, match.end()):
+            # Değer atanan değişken adı ayrı renkte. Gözün "burada ne
+            # tanımlanıyor" sorusunu tek bakışta cevaplaması için.
+            parts.append(span("variable", text))
         else:
             parts.append(html.escape(text))
 

@@ -150,12 +150,26 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
 /* --- ipucu kutusu ve şeritler --------------------------------------- */
 
 .content blockquote {{
+    position: relative;
     background: {p['accent_soft']};
     border-left: 3px solid {p['accent']};
     border-radius: 0 12px 12px 0;
-    padding: 16px 20px; margin: 22px 0; font-size: 14.5px;
+    padding: 16px 20px 16px 52px; margin: 22px 0; font-size: 14.5px;
 }}
-.content blockquote p {{ margin: 0; }}
+/* Ampul: ipucu kutusunun göze çarpması için. Konumlandırma ile veriliyor,
+ * flex ile değil — flex olsaydı kutudaki her paragraf yan yana dizilirdi. */
+.content blockquote::before {{
+    content: "💡";
+    position: absolute;
+    left: 18px;
+    top: 15px;
+    font-size: 17px;
+    line-height: 1.35;
+}}
+.content blockquote > :first-child {{ margin-top: 0; }}
+.content blockquote > :last-child {{ margin-bottom: 0; }}
+.content blockquote p {{ margin: 0 0 8px; }}
+.content blockquote pre {{ margin: 10px 0; }}
 
 .banner {{
     border-radius: 12px; padding: 13px 18px; margin-bottom: 26px;
@@ -208,6 +222,27 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
     color: {p['text']}; border-radius: 8px; padding: 6px 13px; white-space: nowrap;
 }}
 .hint a.show:hover {{ background: {p['surface_hover']}; }}
+
+/* --- sürüm notları -------------------------------------------------- */
+
+.relcard {{
+    background: {p['surface']}; border: 1px solid {p['border']};
+    border-radius: 18px; padding: 26px 30px; margin-bottom: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+}}
+.relcard .v {{ display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }}
+.relcard .v b {{ font-size: 19px; font-weight: 700; color: {p['text']}; }}
+.relcard .v .new {{
+    background: {p['accent']}; color: #fff; font-size: 11px; font-weight: 750;
+    padding: 3px 9px; border-radius: 999px; letter-spacing: .4px;
+}}
+.relcard .v .dt {{ color: {p['text_muted']}; font-size: 13px; margin-left: auto; }}
+.relcard h4 {{
+    font-size: 13px; font-weight: 700; color: {p['text_muted']};
+    text-transform: uppercase; letter-spacing: .6px; margin: 18px 0 8px;
+}}
+.relcard ul {{ margin: 0; padding-left: 20px; }}
+.relcard li {{ margin: 6px 0; font-size: 14.5px; color: {p['text']}; }}
 
 /* --- alt gezinme ---------------------------------------------------- */
 

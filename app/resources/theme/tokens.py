@@ -138,6 +138,9 @@ SYNTAX_LIGHT = {
     "comment": "#8A9099",
     "definition": "#B8860B",
     "decorator": "#0E7490",
+    # Değer atanan değişken adı. Makette turuncu; kodun neresinde tanım
+    # yapıldığı tek bakışta görünüyor.
+    "variable": "#C2410C",
 }
 
 SYNTAX_DARK = {
@@ -149,6 +152,7 @@ SYNTAX_DARK = {
     "comment": "#5F6773",
     "definition": "#FFCB6B",
     "decorator": "#89DDFF",
+    "variable": "#F78C6C",
 }
 
 SYNTAX = {

@@ -4,39 +4,32 @@ Kök dizindeki `CHANGELOG.md` dosyasını okuyup kart hâlinde gösterir. Böyle
 sürüm notları tek yerde yazılıyor: GitHub'da yayınlanan sürüm açıklamasıyla
 uygulamanın içinde görünen metin aynı kaynaktan geliyor.
 
+Kartlar diğer belge alanları gibi `DocumentView` ile çiziliyor; maketteki
+kart tasarımı (yuvarlak köşe, gölge, "YENİ" rozeti) birebir uygulanıyor.
+
 Dosya biçimi:
 
     ## [0.3] — 26 Ağustos 2026
     ### Eklendi
     - ...
-    ### Düzeltildi
-    - ...
 """
 
 from __future__ import annotations
 
+import html
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QScrollArea,
-    QSizePolicy,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ..core.language import LanguageManager
 from ..paths import install_root
-from ..resources.theme.tokens import READING_WIDTH, SPACING
-from ..widgets.common import Card
-from ..widgets.effects import repolish
+from ..widgets.document_view import DocumentView
 
-VERSION_PATTERN = re.compile(r"^##\s*\[?([^\]\n—-]+)\]?\s*(?:[—-]\s*(.+))?$")
+# `(?!#)` şart: bu olmadan `### Eklendi` satırı da sürüm başlığı sanılıyor ve
+# her grup ayrı bir kart olarak çiziliyordu.
+VERSION_PATTERN = re.compile(r"^##(?!#)\s*\[?([^\]\n—-]+)\]?\s*(?:[—-]\s*(.+))?$")
 GROUP_PATTERN = re.compile(r"^###\s+(.+)$")
 ITEM_PATTERN = re.compile(r"^[-*]\s+(.+)$")
 
@@ -57,7 +50,6 @@ def parse_changelog(path: Path) -> list[Release]:
 
     releases: list[Release] = []
     current: Release | None = None
-    group: str = ""
 
     for line in path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
@@ -69,7 +61,6 @@ def parse_changelog(path: Path) -> list[Release]:
                 date=(version_match.group(2) or "").strip(),
             )
             releases.append(current)
-            group = ""
             continue
 
         if current is None:
@@ -77,8 +68,7 @@ def parse_changelog(path: Path) -> list[Release]:
 
         group_match = GROUP_PATTERN.match(stripped)
         if group_match:
-            group = group_match.group(1).strip()
-            current.groups.append((group, []))
+            current.groups.append((group_match.group(1).strip(), []))
             continue
 
         item_match = ITEM_PATTERN.match(stripped)
@@ -90,120 +80,62 @@ def parse_changelog(path: Path) -> list[Release]:
     return releases
 
 
-class ReleaseCard(Card):
-    """Bir sürümün kartı."""
-
-    def __init__(
-        self,
-        release: Release,
-        language: LanguageManager,
-        newest: bool,
-        mode: str,
-        parent: QWidget | None = None,
-    ) -> None:
-        super().__init__(parent, mode, padding=SPACING["lg"])
-        self.body.setSpacing(SPACING["sm"])
-
-        header = QHBoxLayout()
-        header.setSpacing(SPACING["sm"])
-
-        version = QLabel(release.version)
-        version.setProperty("role", "subtitle")
-        header.addWidget(version)
-
-        if newest:
-            badge = QLabel(language.t("release.new"))
-            badge.setProperty("role", "chip")
-            badge.setProperty("tone", "accent")
-            header.addWidget(badge)
-
-        header.addStretch(1)
-
-        if release.date:
-            date = QLabel(release.date)
-            date.setProperty("role", "muted")
-            header.addWidget(date)
-
-        self.body.addLayout(header)
-
-        for title, items in release.groups:
-            if title:
-                group_label = QLabel(title.upper())
-                group_label.setProperty("role", "section")
-                self.body.addSpacing(SPACING["sm"])
-                self.body.addWidget(group_label)
-
-            for item in items:
-                bullet = QLabel(f"•  {item}")
-                bullet.setWordWrap(True)
-                bullet.setContentsMargins(SPACING["sm"], 0, 0, 0)
-                self.body.addWidget(bullet)
-
-
 class ReleaseView(QWidget):
     """Sürüm notlarının listelendiği ekran."""
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._language = language
-        self._mode = "light"
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-
-        container = QWidget()
-        row = QHBoxLayout(container)
-        row.setContentsMargins(
-            SPACING["xl"], SPACING["xl"], SPACING["xl"], SPACING["xxl"]
-        )
-        row.addStretch(1)
-
-        column = QWidget()
-        column.setMaximumWidth(READING_WIDTH + 80)
-        column.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-        self._column = QVBoxLayout(column)
-        self._column.setContentsMargins(0, 0, 0, 0)
-        self._column.setSpacing(SPACING["md"])
-
-        row.addWidget(column, 8)
-        row.addStretch(1)
-
-        scroll.setWidget(container)
-        layout.addWidget(scroll)
+        self._document = DocumentView(self)
+        layout.addWidget(self._document)
 
         self.refresh()
 
     def refresh(self) -> None:
         """`CHANGELOG.md`'yi yeniden okur."""
-        while self._column.count():
-            item = self._column.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
-
         releases = parse_changelog(install_root() / "CHANGELOG.md")
 
         if not releases:
-            empty = QLabel(self._language.t("release.empty"))
-            empty.setProperty("role", "muted")
-            empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self._column.addWidget(empty)
-            self._column.addStretch(1)
-            return
-
-        for index, release in enumerate(releases):
-            self._column.addWidget(
-                ReleaseCard(release, self._language, index == 0, self._mode)
+            body = (
+                f'<p class="meta">{html.escape(self._language.t("release.empty"))}</p>'
             )
-        self._column.addStretch(1)
+        else:
+            body = "".join(
+                self._card(release, newest=index == 0)
+                for index, release in enumerate(releases)
+            )
+
+        self._document.set_body(
+            f'<div class="page narrow"><div class="content">{body}</div></div>'
+        )
+
+    def _card(self, release: Release, newest: bool) -> str:
+        badge = (
+            f'<span class="new">{html.escape(self._language.t("release.new"))}</span>'
+            if newest
+            else ""
+        )
+        date = f'<span class="dt">{html.escape(release.date)}</span>' if release.date else ""
+
+        parts = [
+            f'<div class="v"><b>{html.escape(release.version)}</b>{badge}{date}</div>'
+        ]
+
+        for title, items in release.groups:
+            if title:
+                parts.append(f"<h4>{html.escape(title)}</h4>")
+            if items:
+                bullets = "".join(f"<li>{html.escape(item)}</li>" for item in items)
+                parts.append(f"<ul>{bullets}</ul>")
+
+        return f'<div class="relcard">{"".join(parts)}</div>'
 
     def set_mode(self, mode: str) -> None:
-        self._mode = mode
-        self.refresh()
+        self._document.set_mode(mode)
 
     def retranslate(self) -> None:
         self.refresh()

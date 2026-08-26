@@ -180,16 +180,17 @@ class NotesView(QWidget):
 
         self._reader.show_text(f"# {title}\n\n{body}")
         self._reader.set_meta([counter])
+        # Oklar gideceği yönü gösteriyor: geri sola, ileri sağa.
         self._reader.set_footer(
             [
                 (
                     "previous" if self._current > 0 else "",
-                    self._language.t("notes.previous"),
+                    f"←  {self._language.t('notes.previous')}",
                     False,
                 ),
                 (
                     "next" if self._current < len(self._documents) - 1 else "",
-                    self._language.t("notes.next"),
+                    f"{self._language.t('notes.next')}  →",
                     True,
                 ),
             ]

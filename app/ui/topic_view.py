@@ -200,17 +200,19 @@ class TopicView(QWidget):
         buttons: list[tuple[str, str, bool]] = [
             (
                 "previous-section" if previous else "",
-                self._language.t("nav.previous"),
+                f"←  {self._language.t('nav.previous')}",
                 False,
             )
         ]
 
         if "quiz" in self._panes:
-            buttons.append(("go-quiz", self._language.t("tabs.quiz"), True))
+            buttons.append(("go-quiz", f"{self._language.t('tabs.quiz')}  →", True))
         elif self._exercises:
-            buttons.append(("go-exercise", self._language.t("tabs.exercise"), True))
+            buttons.append(
+                ("go-exercise", f"{self._language.t('tabs.exercise')}  →", True)
+            )
         elif following:
-            buttons.append(("next-section", self._language.t("nav.next"), True))
+            buttons.append(("next-section", f"{self._language.t('nav.next')}  →", True))
 
         return buttons
 

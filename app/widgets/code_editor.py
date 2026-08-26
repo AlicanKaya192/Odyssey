@@ -1,12 +1,17 @@
 """Kod editörü: satır numarası, Python renklendirmesi ve girinti yardımı.
 
-QScintilla gibi ağır bir bağımlılık eklemek yerine Qt'nin kendi
-`QPlainTextEdit`'i üzerine kuruldu. İhtiyacımız olan şeyler sınırlı:
-okunabilir bir yazı tipi, satır numarası, temel renklendirme ve Tab'ın
-boşluğa dönmesi.
+`QTextEdit` üzerine kurulu. `QPlainTextEdit` daha hafif olurdu ama satır
+aralığını hiç desteklemiyor — `setLineHeight` de blok kenar boşluğu da
+sessizce yok sayılıyor ve satırlar iç içe görünüyor. Bizim dosyalarımız
+birkaç yüz satırı geçmeyeceği için `QTextEdit`'in ek maliyeti önemsiz.
+
+Renkler ders metinlerindeki kod bloklarıyla aynı sözlükten geliyor; editörde
+turuncu olan anlatımda da turuncu.
 """
 
 from __future__ import annotations
+
+import re
 
 from PySide6.QtCore import QRect, QSize, Qt, Signal
 from PySide6.QtGui import (
@@ -16,15 +21,19 @@ from PySide6.QtGui import (
     QKeyEvent,
     QPainter,
     QSyntaxHighlighter,
+    QTextBlockFormat,
     QTextCharFormat,
     QTextCursor,
     QTextFormat,
 )
-from PySide6.QtWidgets import QPlainTextEdit, QTextEdit, QWidget
+from PySide6.QtWidgets import QTextEdit, QWidget
 
-from ..resources.theme.tokens import FONTS, PALETTES
+from ..resources.theme.tokens import FONTS, PALETTES, SYNTAX
 
 INDENT = "    "  # Python'da girinti 4 boşluk
+
+# Satır aralığı. Varsayılan (%100) kodda satırları iç içe gösteriyor.
+LINE_HEIGHT_PERCENT = 165
 
 KEYWORDS = [
     "and", "as", "assert", "async", "await", "break", "class", "continue",
@@ -43,42 +52,17 @@ BUILTINS = [
 ]
 
 
-def _syntax_colors(mode: str) -> dict[str, str]:
-    """Renklendirme renkleri. Tema ile uyumlu kalsın diye paletten türetiliyor."""
-    if mode == "dark":
-        return {
-            "keyword": "#C792EA",
-            "constant": "#F78C6C",
-            "builtin": "#82AAFF",
-            "string": "#C3E88D",
-            "number": "#F78C6C",
-            "comment": "#5F6773",
-            "definition": "#FFCB6B",
-            "decorator": "#89DDFF",
-        }
-    return {
-        "keyword": "#8B31C7",
-        "constant": "#B45309",
-        "builtin": "#1D4ED8",
-        "string": "#15803D",
-        "number": "#B45309",
-        "comment": "#8A9099",
-        "definition": "#B8860B",
-        "decorator": "#0E7490",
-    }
-
-
 class PythonHighlighter(QSyntaxHighlighter):
     """Python sözdizimi renklendirmesi.
 
     Bilinçli olarak basit tutuldu: anahtar kelimeler, sabitler, hazır
-    fonksiyonlar, metinler, sayılar, yorumlar ve tanımlar. Üç tırnaklı
-    metinler blok durumu ile takip ediliyor.
+    fonksiyonlar, atanan değişken adları, metinler, sayılar, yorumlar ve
+    tanımlar.
     """
 
     def __init__(self, document, mode: str = "light") -> None:
         super().__init__(document)
-        self._rules: list[tuple[object, QTextCharFormat]] = []
+        self._rules: list[tuple[object, QTextCharFormat, int]] = []
         self._string_format = QTextCharFormat()
         self.set_mode(mode)
 
@@ -93,56 +77,61 @@ class PythonHighlighter(QSyntaxHighlighter):
 
     def set_mode(self, mode: str) -> None:
         """Tema değişince renkleri yenile."""
-        import re
-
-        colors = _syntax_colors(mode)
+        colors = SYNTAX.get(mode, SYNTAX["light"])
         self._rules = []
 
         keyword_format = self._format(colors["keyword"], bold=True)
         for word in KEYWORDS:
-            self._rules.append((re.compile(rf"\b{word}\b"), keyword_format))
+            self._rules.append((re.compile(rf"\b{word}\b"), keyword_format, 0))
 
         constant_format = self._format(colors["constant"], bold=True)
         for word in CONSTANTS:
-            self._rules.append((re.compile(rf"\b{word}\b"), constant_format))
+            self._rules.append((re.compile(rf"\b{word}\b"), constant_format, 0))
 
         builtin_format = self._format(colors["builtin"])
         for word in BUILTINS:
-            self._rules.append((re.compile(rf"\b{word}\b(?=\s*\()"), builtin_format))
+            self._rules.append((re.compile(rf"\b{word}\b(?=\s*\()"), builtin_format, 0))
 
-        # def / class sonrası gelen ad
+        # Değer atanan değişken adı: `isim = ...` ve `toplam += ...`
         self._rules.append(
-            (re.compile(r"\b(?:def|class)\s+(\w+)"), self._format(colors["definition"], bold=True))
+            (
+                re.compile(r"\b([A-Za-z_]\w*)\s*(?:[+\-*/%]?=)(?!=)"),
+                self._format(colors["variable"]),
+                1,
+            )
         )
-        self._rules.append((re.compile(r"@\w+"), self._format(colors["decorator"])))
+
         self._rules.append(
-            (re.compile(r"\b\d+\.?\d*([eE][+-]?\d+)?\b"), self._format(colors["number"]))
+            (re.compile(r"\b(?:def|class)\s+(\w+)"), self._format(colors["definition"], bold=True), 1)
+        )
+        self._rules.append((re.compile(r"@\w+"), self._format(colors["decorator"]), 0))
+        self._rules.append(
+            (re.compile(r"\b\d+\.?\d*(?:[eE][+-]?\d+)?\b"), self._format(colors["number"]), 0)
         )
 
         string_format = self._format(colors["string"])
-        self._rules.append((re.compile(r"'[^'\\\n]*(\\.[^'\\\n]*)*'"), string_format))
-        self._rules.append((re.compile(r'"[^"\\\n]*(\\.[^"\\\n]*)*"'), string_format))
+        self._rules.append((re.compile(r"'[^'\\\n]*(?:\\.[^'\\\n]*)*'"), string_format, 0))
+        self._rules.append((re.compile(r'"[^"\\\n]*(?:\\.[^"\\\n]*)*"'), string_format, 0))
         self._string_format = string_format
 
-        # Yorum en sona: metin içindeki # işaretinin yorum sanılmaması için
-        # önce metinler boyanıyor, yorum kuralı onların üzerine yazmıyor.
-        self._rules.append((re.compile(r"#[^\n]*"), self._format(colors["comment"], italic=True)))
+        # Yorum en sona: metinler önce boyanıyor, yorum kuralı üzerine yazmıyor.
+        self._rules.append(
+            (re.compile(r"#[^\n]*"), self._format(colors["comment"], italic=True), 0)
+        )
 
         self.rehighlight()
 
     def highlightBlock(self, text: str) -> None:  # noqa: N802 (Qt adlandırması)
-        for pattern, fmt in self._rules:
+        for pattern, fmt, group in self._rules:
             for match in pattern.finditer(text):
-                # def/class kuralında yalnızca adı boya, anahtar kelimeyi değil.
-                start, end = (match.span(1) if match.lastindex else match.span())
-                self.setFormat(start, end - start, fmt)
+                start, end = match.span(group) if group else match.span()
+                if start >= 0:
+                    self.setFormat(start, end - start, fmt)
 
         self._highlight_multiline(text)
 
     def _highlight_multiline(self, text: str) -> None:
         """Üç tırnaklı metinleri satırlar boyunca takip eder."""
-        import re
-
         delimiters = ('"""', "'''")
 
         if self.previousBlockState() > 0:
@@ -159,16 +148,15 @@ class PythonHighlighter(QSyntaxHighlighter):
             start_from = 0
 
         for index, delimiter in enumerate(delimiters):
-            match = re.search(re.escape(delimiter), text[start_from:])
-            if not match:
+            found = text.find(delimiter, start_from)
+            if found == -1:
                 continue
-            start = start_from + match.start()
-            end = text.find(delimiter, start + 3)
+            end = text.find(delimiter, found + 3)
             if end == -1:
-                self.setFormat(start, len(text) - start, self._string_format)
+                self.setFormat(found, len(text) - found, self._string_format)
                 self.setCurrentBlockState(index + 1)
             else:
-                self.setFormat(start, end - start + 3, self._string_format)
+                self.setFormat(found, end - found + 3, self._string_format)
             return
 
 
@@ -186,7 +174,7 @@ class LineNumberArea(QWidget):
         self._editor.paint_line_numbers(event)
 
 
-class CodeEditor(QPlainTextEdit):
+class CodeEditor(QTextEdit):
     """Alıştırmaların yazıldığı editör."""
 
     run_requested = Signal()
@@ -204,32 +192,62 @@ class CodeEditor(QPlainTextEdit):
         self.setFont(font)
 
         self.setTabStopDistance(QFontMetrics(font).horizontalAdvance(" ") * 4)
-        self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+        self.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
+        self.setAcceptRichText(False)
         self.setProperty("role", "code")
 
-        self.blockCountChanged.connect(self._update_margin)
-        self.updateRequest.connect(self._update_line_area)
+        self.document().blockCountChanged.connect(self._on_blocks_changed)
+        self.verticalScrollBar().valueChanged.connect(self._line_area.update)
+        self.textChanged.connect(self._on_text_changed)
         self.cursorPositionChanged.connect(self._highlight_current_line)
 
         self._update_margin()
+        self._apply_line_spacing()
         self._highlight_current_line()
+
+    # --- satır aralığı ----------------------------------------------------
+
+    def _apply_line_spacing(self) -> None:
+        """Satır aralığını açar.
+
+        `QPlainTextEdit` bu ayarı yok sayıyordu; `QTextEdit` uyguluyor.
+        Yeni yazılan satırlar da aralığı alsın diye her metin değişiminde
+        tekrar uygulanıyor.
+        """
+        cursor = self.textCursor()
+        position = cursor.position()
+
+        block_format = QTextBlockFormat()
+        block_format.setLineHeight(
+            LINE_HEIGHT_PERCENT,
+            QTextBlockFormat.LineHeightTypes.ProportionalHeight.value,
+        )
+
+        # Sinyal döngüsüne girmemek için değişiklik sessizce uygulanıyor.
+        self.textChanged.disconnect(self._on_text_changed)
+        cursor.select(QTextCursor.SelectionType.Document)
+        cursor.mergeBlockFormat(block_format)
+        cursor.clearSelection()
+        cursor.setPosition(min(position, len(self.toPlainText())))
+        self.setTextCursor(cursor)
+        self.textChanged.connect(self._on_text_changed)
+
+    def _on_text_changed(self) -> None:
+        self._apply_line_spacing()
+        self._line_area.update()
+
+    def _on_blocks_changed(self, _count: int) -> None:
+        self._update_margin()
+        self._line_area.update()
 
     # --- satır numarası ---------------------------------------------------
 
     def line_number_width(self) -> int:
-        digits = max(2, len(str(max(1, self.blockCount()))))
-        return 16 + self.fontMetrics().horizontalAdvance("9") * digits
+        digits = max(2, len(str(max(1, self.document().blockCount()))))
+        return 20 + self.fontMetrics().horizontalAdvance("9") * digits
 
     def _update_margin(self) -> None:
         self.setViewportMargins(self.line_number_width(), 0, 0, 0)
-
-    def _update_line_area(self, rect: QRect, dy: int) -> None:
-        if dy:
-            self._line_area.scroll(0, dy)
-        else:
-            self._line_area.update(0, rect.y(), self._line_area.width(), rect.height())
-        if rect.contains(self.viewport().rect()):
-            self._update_margin()
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
@@ -239,33 +257,46 @@ class CodeEditor(QPlainTextEdit):
         )
 
     def paint_line_numbers(self, event) -> None:
+        """Satır numaralarını çizer.
+
+        `QTextEdit`'te `firstVisibleBlock()` yok; blokların yerleri belge
+        düzeninden okunup kaydırma miktarı çıkarılıyor.
+        """
         palette = PALETTES.get(self._mode, PALETTES["light"])
         painter = QPainter(self._line_area)
         painter.fillRect(event.rect(), QColor(palette["code_bg"]))
 
-        block = self.firstVisibleBlock()
-        number = block.blockNumber()
-        top = self.blockBoundingGeometry(block).translated(self.contentOffset()).top()
-        bottom = top + self.blockBoundingRect(block).height()
+        document = self.document()
+        layout = document.documentLayout()
+        offset = self.verticalScrollBar().value()
         current = self.textCursor().blockNumber()
 
-        while block.isValid() and top <= event.rect().bottom():
-            if block.isVisible() and bottom >= event.rect().top():
+        block = document.begin()
+        while block.isValid():
+            rect = layout.blockBoundingRect(block)
+            top = rect.top() - offset
+
+            if top > event.rect().bottom():
+                break
+
+            if top + rect.height() >= event.rect().top() and block.isVisible():
                 painter.setPen(
-                    QColor(palette["text"] if number == current else palette["text_muted"])
+                    QColor(
+                        palette["text"]
+                        if block.blockNumber() == current
+                        else palette["text_muted"]
+                    )
                 )
                 painter.drawText(
                     0,
                     int(top),
-                    self._line_area.width() - 8,
-                    self.fontMetrics().height(),
-                    Qt.AlignmentFlag.AlignRight,
-                    str(number + 1),
+                    self._line_area.width() - 10,
+                    int(rect.height()),
+                    Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
+                    str(block.blockNumber() + 1),
                 )
+
             block = block.next()
-            top = bottom
-            bottom = top + self.blockBoundingRect(block).height()
-            number += 1
 
     def _highlight_current_line(self) -> None:
         palette = PALETTES.get(self._mode, PALETTES["light"])
@@ -275,6 +306,7 @@ class CodeEditor(QPlainTextEdit):
         selection.cursor = self.textCursor()
         selection.cursor.clearSelection()
         self.setExtraSelections([selection])
+        self._line_area.update()
 
     # --- düzenleme kolaylıkları -------------------------------------------
 
