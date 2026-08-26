@@ -1,0 +1,556 @@
+"""Öğrenme yolu: modül kartları ve bölüm düğümleri.
+
+İki katmanlı bir yapı var. Ana ekranda modüller kart hâlinde duruyor; bir
+modüle girince o modülün bölümleri zigzag bir yol üzerinde sıralanıyor.
+
+Neden iki katman: müfredat tamamlandığında 23 modül ve ~180 bölüm olacak.
+Hepsini tek bir yola dizmek dakikalarca kaydırma demek. Modül kartları hem
+düzeni koruyor hem de "nerede ne kadar ilerledim" sorusunu tek bakışta
+cevaplıyor.
+
+Bölümler kilitli değil: sıra önerilir ama istenen bölüme her zaman girilir,
+tamamlanmış bölümlere tekrar dönülebilir.
+"""
+
+from __future__ import annotations
+
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
+)
+
+from ..core.catalog import Catalog, Chapter
+from ..core.language import LanguageManager
+from ..core.progress import ProgressStore
+from ..resources.icons import icon, pixmap
+from ..resources.theme.tokens import NODE_STATES, PALETTES, SPACING
+from ..widgets.common import Card, StatBlock, section_label
+from ..widgets.effects import apply_shadow, refresh_shadow, repolish
+
+# Düğümlerin soldan uzaklıkları — yol bu değerlerle zigzag çiziyor.
+ZIGZAG = [30, 120, 170, 120, 30]
+
+
+def scroll_page(widget: QWidget) -> QScrollArea:
+    """İçeriği kaydırılabilir bir yüzeye koyar."""
+    area = QScrollArea()
+    area.setWidgetResizable(True)
+    area.setFrameShape(QFrame.Shape.NoFrame)
+    area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    area.setWidget(widget)
+    return area
+
+
+class HeroCard(QFrame):
+    """Üstteki karşılama kartı: kaldığın yer ve özet sayılar."""
+
+    resume = Signal()
+
+    def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._language = language
+        self.setProperty("role", "hero")
+        apply_shadow(self, "light", strong=True)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(SPACING["xl"], SPACING["lg"], SPACING["xl"], SPACING["lg"])
+        layout.setSpacing(SPACING["xs"])
+
+        self._title = QLabel()
+        self._title.setStyleSheet("color:#FFFFFF; font-size:23px; font-weight:700;")
+        layout.addWidget(self._title)
+
+        self._subtitle = QLabel()
+        self._subtitle.setStyleSheet("color:rgba(255,255,255,0.9); font-size:14px;")
+        self._subtitle.setWordWrap(True)
+        layout.addWidget(self._subtitle)
+        layout.addSpacing(SPACING["md"])
+
+        stats = QHBoxLayout()
+        stats.setSpacing(SPACING["xl"])
+        self._stats = {
+            key: StatBlock("0", "", inverse=True)
+            for key in ("sections", "exercises", "streak", "progress")
+        }
+        for block in self._stats.values():
+            stats.addWidget(block)
+        stats.addStretch(1)
+        layout.addLayout(stats)
+
+    def update_stats(
+        self,
+        name: str,
+        resume_text: str,
+        sections: int,
+        exercises: int,
+        streak: int,
+        progress: int,
+    ) -> None:
+        self._title.setText(
+            self._language.t("home.welcome_named", name=name)
+            if name
+            else self._language.t("home.welcome")
+        )
+        self._subtitle.setText(resume_text)
+
+        self._stats["sections"].set_value(str(sections))
+        self._stats["exercises"].set_value(str(exercises))
+        self._stats["streak"].set_value(str(streak))
+        self._stats["progress"].set_value(f"%{progress}")
+        self.retranslate()
+
+    def set_mode(self, mode: str) -> None:
+        refresh_shadow(self, mode, strong=True)
+
+    def retranslate(self) -> None:
+        for key in self._stats:
+            self._stats[key].set_label(self._language.t(f"home.stat_{key}"))
+
+
+class ModuleCard(QFrame):
+    """Tek bir modülü temsil eden tıklanabilir kart.
+
+    Düğme yerine çerçeve: genel `QPushButton` stil kuralındaki `min-height`,
+    Python'dan verilen en küçük yüksekliği eziyor ve kart eziliyordu.
+    """
+
+    clicked = Signal()
+
+    def __init__(
+        self,
+        chapter: Chapter,
+        language: LanguageManager,
+        mode: str,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self._chapter = chapter
+        self._language = language
+        self.setProperty("variant", "module")
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        apply_shadow(self, mode)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(SPACING["lg"], SPACING["lg"], SPACING["lg"], SPACING["lg"])
+        layout.setSpacing(SPACING["sm"])
+
+        header = QHBoxLayout()
+        header.setSpacing(SPACING["sm"])
+
+        self._icon = QLabel()
+        self._icon.setPixmap(pixmap("book", chapter.color, 22))
+        self._icon.setFixedWidth(24)
+        header.addWidget(self._icon, 0, Qt.AlignmentFlag.AlignTop)
+
+        self._title = QLabel()
+        self._title.setProperty("role", "subtitle")
+        self._title.setWordWrap(True)
+        header.addWidget(self._title, 1)
+        layout.addLayout(header)
+
+        self._description = QLabel()
+        self._description.setProperty("role", "muted")
+        self._description.setWordWrap(True)
+        layout.addWidget(self._description)
+        layout.addStretch(1)
+
+        self._bar = QProgressBar()
+        self._bar.setTextVisible(False)
+        layout.addWidget(self._bar)
+
+        self._caption = QLabel()
+        self._caption.setProperty("role", "muted")
+        layout.addWidget(self._caption)
+
+    @property
+    def chapter_id(self) -> str:
+        return self._chapter.id
+
+    def update_progress(self, completed: int, total: int) -> None:
+        percent = round(completed * 100 / total) if total else 0
+        self._bar.setRange(0, 100)
+        self._bar.setValue(percent)
+        self._caption.setText(
+            self._language.t("module.progress", done=completed, total=total, percent=percent)
+        )
+
+    def mouseReleaseEvent(self, event) -> None:  # noqa: N802
+        if event.button() == Qt.MouseButton.LeftButton and self.rect().contains(event.pos()):
+            self.clicked.emit()
+        super().mouseReleaseEvent(event)
+
+    def set_mode(self, mode: str) -> None:
+        refresh_shadow(self, mode)
+
+    def retranslate(self) -> None:
+        self._title.setText(self._language.pick(self._chapter.title))
+        self._description.setText(self._language.pick(self._chapter.description))
+
+
+class ModulesView(QWidget):
+    """Modül kartlarının listelendiği ana ekran."""
+
+    module_opened = Signal(str)
+    resume_requested = Signal()
+
+    def __init__(
+        self,
+        catalog: Catalog,
+        language: LanguageManager,
+        store: ProgressStore,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self._catalog = catalog
+        self._language = language
+        self._store = store
+        self._mode = "light"
+        self._cards: list[ModuleCard] = []
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+
+        page = QWidget()
+        self._page_layout = QVBoxLayout(page)
+        self._page_layout.setContentsMargins(
+            SPACING["xl"], SPACING["xl"], SPACING["xl"], SPACING["xxl"]
+        )
+        self._page_layout.setSpacing(SPACING["lg"])
+
+        self._hero = HeroCard(language)
+        self._page_layout.addWidget(self._hero)
+
+        self._modules_label = section_label("")
+        self._page_layout.addWidget(self._modules_label)
+
+        self._grid = QGridLayout()
+        self._grid.setSpacing(SPACING["md"])
+        self._page_layout.addLayout(self._grid)
+        self._page_layout.addStretch(1)
+
+        outer.addWidget(scroll_page(page))
+        self._build_cards()
+
+    def _build_cards(self) -> None:
+        for index, chapter in enumerate(self._catalog.chapters):
+            card = ModuleCard(chapter, self._language, self._mode)
+            card.clicked.connect(lambda c=chapter.id: self.module_opened.emit(c))
+            self._grid.addWidget(card, index // 2, index % 2)
+            self._cards.append(card)
+
+    def refresh(self) -> None:
+        """İlerleme verilerini veritabanından okuyup ekranı günceller."""
+        total_sections = 0
+        completed_sections = 0
+
+        for card in self._cards:
+            chapter = self._catalog.chapter(card.chapter_id)
+            if chapter is None:
+                continue
+
+            done = 0
+            for section in chapter.sections:
+                state = self._store.section_state(
+                    chapter.id, section.id, len(section.exercises)
+                )
+                if state.status(section.requires_quiz, section.requires_exercises) == "completed":
+                    done += 1
+
+            card.update_progress(done, len(chapter.sections))
+            card.retranslate()
+            total_sections += len(chapter.sections)
+            completed_sections += done
+
+        self._hero.update_stats(
+            name=self._store.profile().get("first_name", ""),
+            resume_text=self._resume_text(),
+            sections=completed_sections,
+            exercises=self._store.solved_exercise_count(),
+            streak=self._store.streak(),
+            progress=round(completed_sections * 100 / total_sections) if total_sections else 0,
+        )
+        self._modules_label.setText(self._language.t("home.modules").upper())
+
+    def _resume_text(self) -> str:
+        last = self._store.last_visited()
+        if last is None:
+            first = self._catalog.all_sections
+            if not first:
+                return ""
+            section = first[0]
+            chapter = self._catalog.chapter(section.chapter_id)
+        else:
+            section = self._catalog.section(*last)
+            if section is None:
+                return ""
+            chapter = self._catalog.chapter(section.chapter_id)
+
+        return self._language.t(
+            "home.resume",
+            chapter=self._language.pick(chapter.title) if chapter else "",
+            section=self._language.pick(section.title),
+        )
+
+    def set_mode(self, mode: str) -> None:
+        self._mode = mode
+        self._hero.set_mode(mode)
+        for card in self._cards:
+            card.set_mode(mode)
+
+    def retranslate(self) -> None:
+        self.refresh()
+        self._hero.retranslate()
+
+
+class PathNode(QWidget):
+    """Yol üzerindeki tek bir bölüm: yuvarlak düğme ve yanında başlık."""
+
+    opened = Signal(str, str)
+
+    def __init__(
+        self,
+        chapter_id: str,
+        section_id: str,
+        title: str,
+        caption: str,
+        state: str,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self._chapter_id = chapter_id
+        self._section_id = section_id
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["md"])
+
+        self.button = QPushButton(NODE_STATES.get(state, NODE_STATES["not_started"])["symbol"])
+        self.button.setProperty("variant", "node")
+        self.button.setProperty("state", state)
+        self.button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.button.clicked.connect(
+            lambda: self.opened.emit(self._chapter_id, self._section_id)
+        )
+        layout.addWidget(self.button, 0, Qt.AlignmentFlag.AlignTop)
+
+        labels = QVBoxLayout()
+        labels.setSpacing(0)
+        labels.addSpacing(SPACING["md"])
+
+        self._title = QLabel(title)
+        self._title.setProperty("role", "heading")
+        self._title.setWordWrap(True)
+        labels.addWidget(self._title)
+
+        self._caption = QLabel(caption)
+        self._caption.setProperty("role", "muted")
+        self._caption.setWordWrap(True)
+        labels.addWidget(self._caption)
+        labels.addStretch(1)
+
+        layout.addLayout(labels, 1)
+
+
+class PathView(QWidget):
+    """Bir modülün bölümlerini yol hâlinde gösterir."""
+
+    section_opened = Signal(str, str)
+    back_requested = Signal()
+
+    def __init__(
+        self,
+        catalog: Catalog,
+        language: LanguageManager,
+        store: ProgressStore,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self._catalog = catalog
+        self._language = language
+        self._store = store
+        self._chapter_id = ""
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+
+        self._page = QWidget()
+        self._layout = QVBoxLayout(self._page)
+        self._layout.setContentsMargins(
+            SPACING["xxl"], SPACING["xl"], SPACING["xxl"], SPACING["xxl"]
+        )
+        self._layout.setSpacing(0)
+
+        outer.addWidget(scroll_page(self._page))
+
+    @property
+    def chapter_id(self) -> str:
+        """Şu an gösterilen modülün id'si."""
+        return self._chapter_id
+
+    def show_chapter(self, chapter_id: str) -> None:
+        """Modülün yolunu kurar."""
+        self._chapter_id = chapter_id
+        self._rebuild()
+
+    def refresh(self) -> None:
+        if self._chapter_id:
+            self._rebuild()
+
+    def _rebuild(self) -> None:
+        while self._layout.count():
+            item = self._layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        chapter = self._catalog.chapter(self._chapter_id)
+        if chapter is None:
+            return
+
+        header = QLabel(self._language.pick(chapter.title))
+        header.setProperty("role", "title")
+        self._layout.addWidget(header)
+
+        description = QLabel(self._language.pick(chapter.description))
+        description.setProperty("role", "muted")
+        description.setWordWrap(True)
+        self._layout.addWidget(description)
+        self._layout.addSpacing(SPACING["xl"])
+
+        # "Şu an buradasın" işareti: tamamlanmamış ilk bölüm.
+        current_index = self._current_index(chapter)
+
+        for index, section in enumerate(chapter.sections):
+            state = self._state_of(chapter.id, section)
+            if index == current_index and state != "completed":
+                state = "current"
+
+            node = PathNode(
+                chapter.id,
+                section.id,
+                self._language.pick(section.title),
+                self._caption_for(section, state),
+                state,
+            )
+            node.opened.connect(self.section_opened)
+
+            row = QHBoxLayout()
+            row.setContentsMargins(ZIGZAG[index % len(ZIGZAG)], 0, 0, 0)
+            row.addWidget(node)
+            row.addStretch(1)
+            container = QWidget()
+            container.setLayout(row)
+            self._layout.addWidget(container)
+
+            if index < len(chapter.sections) - 1:
+                self._layout.addWidget(self._connector(index, state == "completed"))
+
+        self._layout.addStretch(1)
+
+    def _connector(self, index: int, done: bool) -> QWidget:
+        holder = QWidget()
+        layout = QHBoxLayout(holder)
+        layout.setContentsMargins(ZIGZAG[index % len(ZIGZAG)] + 35, 0, 0, 0)
+
+        line = QFrame()
+        line.setProperty("role", "connector")
+        line.setProperty("done", "true" if done else "false")
+        line.setFixedHeight(30)
+        layout.addWidget(line)
+        layout.addStretch(1)
+        return holder
+
+    def _state_of(self, chapter_id: str, section) -> str:
+        state = self._store.section_state(chapter_id, section.id, len(section.exercises))
+        return state.status(section.requires_quiz, section.requires_exercises)
+
+    def _current_index(self, chapter: Chapter) -> int:
+        for index, section in enumerate(chapter.sections):
+            if self._state_of(chapter.id, section) != "completed":
+                return index
+        return -1
+
+    def _caption_for(self, section, state: str) -> str:
+        progress = self._store.section_state(
+            self._chapter_id, section.id, len(section.exercises)
+        )
+        minutes = section.estimated_minutes
+
+        if state == "completed":
+            return self._language.t("path.caption_completed", minutes=minutes)
+        if state == "current":
+            return self._language.t("path.caption_current", minutes=minutes)
+        if state == "in_progress":
+            return self._language.t(
+                "path.caption_partial",
+                done=progress.exercises_solved,
+                total=max(progress.exercises_total, 1),
+            )
+        return self._language.t("path.caption_new", minutes=minutes)
+
+    def set_mode(self, mode: str) -> None:
+        self._rebuild()
+
+    def retranslate(self) -> None:
+        self._rebuild()
+
+
+class JourneyView(QStackedWidget):
+    """Modül kartları ile yol arasında geçiş yapan kapsayıcı."""
+
+    section_opened = Signal(str, str)
+    # Başlık şeridindeki geri düğmesi buna bakarak görünüp kayboluyor.
+    view_changed = Signal()
+
+    def __init__(
+        self,
+        catalog: Catalog,
+        language: LanguageManager,
+        store: ProgressStore,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self.modules = ModulesView(catalog, language, store)
+        self.path = PathView(catalog, language, store)
+
+        self.addWidget(self.modules)
+        self.addWidget(self.path)
+
+        self.modules.module_opened.connect(self.open_module)
+        self.path.section_opened.connect(self.section_opened)
+
+    def open_module(self, chapter_id: str) -> None:
+        self.path.show_chapter(chapter_id)
+        self.setCurrentWidget(self.path)
+        self.view_changed.emit()
+
+    def show_modules(self) -> None:
+        self.modules.refresh()
+        self.setCurrentWidget(self.modules)
+        self.view_changed.emit()
+
+    @property
+    def showing_path(self) -> bool:
+        return self.currentWidget() is self.path
+
+    def refresh(self) -> None:
+        self.modules.refresh()
+        self.path.refresh()
+
+    def set_mode(self, mode: str) -> None:
+        self.modules.set_mode(mode)
+        self.path.set_mode(mode)
+
+    def retranslate(self) -> None:
+        self.modules.retranslate()
+        self.path.retranslate()

@@ -1,8 +1,13 @@
-"""Ana pencere: kenar çubuğu, içerik sekmeleri ve gezinme.
+"""Ana pencere.
 
-Yerleşim üç sütun: solda bölüm ağacı, ortada içerik, üstte ince bir başlık
-şeridi. Üstte kalabalık bir araç çubuğu yok — bölüm başlığı, ilerleme ve
-ayarlar dışında bir şey durmuyor.
+Yapı: solda dar ikon şeridi, sağında o an açık olan ekran. Ekranlar arasında
+geçiş `QStackedWidget` ile yapılıyor.
+
+Ekranlar:
+  journey   — modül kartları ve öğrenme yolu
+  topic     — bir bölümün içeriği
+  profile   — kullanıcı bilgileri ve istatistikler
+  releases  — sürüm notları
 """
 
 from __future__ import annotations
@@ -10,267 +15,229 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
-    QFrame,
-    QHBoxLayout,
-    QLabel,
     QMainWindow,
-    QPushButton,
-    QSplitter,
-    QTabWidget,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
 
-from ..core.catalog import Catalog, Section
+from ..core.catalog import Catalog
 from ..core.language import LanguageManager
+from ..core.progress import ProgressStore
 from ..core.theme import ThemeManager
 from ..paths import content_dir
-from ..resources.theme.tokens import SPACING
-from .exercise_view import ExerciseView
-from .lesson_view import LessonView
-from .pdf_view import PdfView
-from .quiz_view import QuizView
+from .header import ScreenHeader
+from .journey_view import JourneyView
+from .profile_view import ProfileView
+from .rail import Rail
+from .release_view import ReleaseView
 from .settings_dialog import SettingsDialog
-from .sidebar import Sidebar
+from .topic_view import TopicView
+
+
+class Screen(QWidget):
+    """Başlık şeridi ve içerikten oluşan basit bir ekran kabı."""
+
+    def __init__(self, header: ScreenHeader, body: QWidget) -> None:
+        super().__init__()
+        self.header = header
+        self.body = body
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(header)
+        layout.addWidget(body, 1)
 
 
 class MainWindow(QMainWindow):
     """Uygulamanın ana penceresi."""
 
-    def __init__(self, language: LanguageManager, theme: ThemeManager) -> None:
+    def __init__(
+        self,
+        language: LanguageManager,
+        theme: ThemeManager,
+        store: ProgressStore,
+    ) -> None:
         super().__init__()
         self._language = language
         self._theme = theme
+        self._store = store
         self._catalog = Catalog.load(content_dir())
-        self._current: Section | None = None
-        self._solved: set[tuple[str, str, str]] = set()
 
-        self.resize(1360, 880)
-        self.setMinimumSize(1040, 680)
+        self.resize(1400, 900)
+        self.setMinimumSize(1080, 700)
 
         central = QWidget()
         self.setCentralWidget(central)
 
-        layout = QVBoxLayout(central)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        root = QVBoxLayout(central)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
 
-        layout.addWidget(self._build_header())
-        layout.addWidget(self._build_body(), 1)
+        body = QWidget()
+        from PySide6.QtWidgets import QHBoxLayout
 
-        self._sidebar.set_catalog(self._catalog)
+        row = QHBoxLayout(body)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(0)
+
+        self._rail = Rail(language)
+        self._rail.navigate.connect(self._navigate)
+        row.addWidget(self._rail)
+
+        self._stack = QStackedWidget()
+        row.addWidget(self._stack, 1)
+        root.addWidget(body)
+
+        self._build_screens()
         self._install_shortcuts()
 
         language.language_changed.connect(self._on_language_changed)
         theme.theme_changed.connect(self._on_theme_changed)
 
-        # İlk açılışta ilk alt bölümü göster.
-        first = self._catalog.all_sections
-        if first:
-            self._open(first[0].chapter_id, first[0].id)
-
+        self._navigate("journey")
         self.retranslate()
 
-    # --- yerleşim ---------------------------------------------------------
+    # --- ekranlar ---------------------------------------------------------
 
-    def _build_header(self) -> QWidget:
-        header = QFrame()
-        header.setProperty("surface", "alt")
-        header.setFixedHeight(72)
+    def _build_screens(self) -> None:
+        # Öğrenme yolu
+        self._journey = JourneyView(self._catalog, self._language, self._store)
+        self._journey.section_opened.connect(self._open_section)
+        self._journey.view_changed.connect(self._update_headers)
+        self._journey_header = ScreenHeader(self._language)
+        self._journey_header.back_clicked.connect(self._journey_back)
+        self._journey_screen = Screen(self._journey_header, self._journey)
 
-        layout = QHBoxLayout(header)
-        layout.setContentsMargins(SPACING["lg"], SPACING["md"], SPACING["lg"], SPACING["md"])
-        layout.setSpacing(SPACING["md"])
+        # Bölüm içeriği (kendi başlığını taşıyor)
+        self._topic = TopicView(self._catalog, self._language, self._store)
+        self._topic.back_requested.connect(self._topic_back)
+        self._topic.progress_changed.connect(self._journey.refresh)
 
-        titles = QVBoxLayout()
-        titles.setSpacing(0)
+        # Profil
+        self._profile = ProfileView(self._catalog, self._language, self._store)
+        self._profile.saved.connect(self._journey.refresh)
+        self._profile_header = ScreenHeader(self._language)
+        self._profile_screen = Screen(self._profile_header, self._profile)
 
-        self._section_title = QLabel()
-        self._section_title.setProperty("role", "subtitle")
-        titles.addWidget(self._section_title)
+        # Sürüm notları
+        self._releases = ReleaseView(self._language)
+        self._releases_header = ScreenHeader(self._language)
+        self._releases_screen = Screen(self._releases_header, self._releases)
 
-        self._chapter_title = QLabel()
-        self._chapter_title.setProperty("role", "muted")
-        titles.addWidget(self._chapter_title)
-
-        layout.addLayout(titles)
-        layout.addStretch(1)
-
-        self._previous_button = QPushButton()
-        self._previous_button.clicked.connect(self._go_previous)
-        layout.addWidget(self._previous_button)
-
-        self._next_button = QPushButton()
-        self._next_button.setProperty("variant", "primary")
-        self._next_button.clicked.connect(self._go_next)
-        layout.addWidget(self._next_button)
-
-        self._settings_button = QPushButton("⚙")
-        self._settings_button.setProperty("variant", "ghost")
-        self._settings_button.setFixedWidth(44)
-        self._settings_button.clicked.connect(self._open_settings)
-        layout.addWidget(self._settings_button)
-
-        return header
-
-    def _build_body(self) -> QWidget:
-        self._splitter = QSplitter(Qt.Orientation.Horizontal)
-
-        self._sidebar = Sidebar(self._language)
-        self._sidebar.section_selected.connect(self._open)
-        self._splitter.addWidget(self._sidebar)
-
-        self._tabs = QTabWidget()
-        self._tabs.setDocumentMode(True)
-
-        self._lesson_view = LessonView(self._language)
-        self._pdf_view = PdfView(self._language)
-        self._quiz_view = QuizView(self._language)
-        self._exercise_view = ExerciseView(self._language)
-        self._exercise_view.solved.connect(self._on_exercise_solved)
-
-        self._splitter.addWidget(self._tabs)
-        self._splitter.setSizes([300, 1060])
-        self._splitter.setCollapsible(0, True)
-        self._splitter.setStretchFactor(1, 1)
-
-        return self._splitter
+        for widget in (
+            self._journey_screen,
+            self._topic,
+            self._profile_screen,
+            self._releases_screen,
+        ):
+            self._stack.addWidget(widget)
 
     def _install_shortcuts(self) -> None:
-        QShortcut(QKeySequence("Ctrl+B"), self, self._toggle_sidebar)
-        QShortcut(QKeySequence("Ctrl+Right"), self, self._go_next)
-        QShortcut(QKeySequence("Ctrl+Left"), self, self._go_previous)
         QShortcut(QKeySequence("Ctrl+,"), self, self._open_settings)
+        QShortcut(QKeySequence(Qt.Key.Key_Escape), self, self._escape)
 
     # --- gezinme ----------------------------------------------------------
 
-    def _open(self, chapter_id: str, section_id: str) -> None:
-        """Bir alt bölümü açar ve sekmeleri içeriğine göre kurar."""
-        section = self._catalog.section(chapter_id, section_id)
-        if section is None:
+    def _navigate(self, key: str) -> None:
+        if key == "settings":
+            self._open_settings()
             return
 
-        self._current = section
-        self._tabs.clear()
-        language_code = self._language.language
+        if key == "journey":
+            self._journey.show_modules()
+            self._stack.setCurrentWidget(self._journey_screen)
+        elif key == "profile":
+            self._profile.refresh()
+            self._stack.setCurrentWidget(self._profile_screen)
+        elif key == "releases":
+            self._releases.refresh()
+            self._stack.setCurrentWidget(self._releases_screen)
 
-        for block in section.blocks:
-            if block.type == "lesson":
-                resolved = block.file_for(language_code)
-                self._lesson_view.show_lesson(
-                    resolved.path if resolved else None,
-                    resolved.is_fallback if resolved else False,
-                )
-                self._tabs.addTab(self._lesson_view, self._language.t("tabs.lesson"))
+        self._rail.set_current(key)
+        self._update_headers()
 
-            elif block.type == "pdf":
-                resolved = block.file_for(language_code)
-                self._pdf_view.show_pdf(
-                    resolved.path if resolved else None,
-                    self._language.pick(block.title),
-                )
-                self._tabs.addTab(self._pdf_view, self._language.t("tabs.pdf"))
+    def _open_section(self, chapter_id: str, section_id: str) -> None:
+        self._topic.show_section(chapter_id, section_id)
+        self._stack.setCurrentWidget(self._topic)
+        self._rail.set_current("journey")
 
-            elif block.type == "quiz":
-                resolved = block.file_for(language_code)
-                if resolved and resolved.exists:
-                    self._quiz_view.show_quiz(resolved.path, block.pass_score)
-                    self._tabs.addTab(self._quiz_view, self._language.t("tabs.quiz"))
+    def _topic_back(self) -> None:
+        """Bölümden yola dön; ilerleme değişmiş olabilir, yenile."""
+        self._journey.refresh()
+        self._stack.setCurrentWidget(self._journey_screen)
+        self._update_headers()
 
-        exercises = section.exercises
-        if exercises:
-            self._exercise_view.show_exercise(exercises[0])
-            label = self._language.t("tabs.exercise")
-            if len(exercises) > 1:
-                label = f"{label} (1/{len(exercises)})"
-            self._tabs.addTab(self._exercise_view, label)
+    def _journey_back(self) -> None:
+        """Yoldan modül listesine dön."""
+        self._journey.show_modules()
+        self._update_headers()
 
-        self._sidebar.select(chapter_id, section_id)
-        self._update_header()
+    def _escape(self) -> None:
+        """Kaçış tuşu bir seviye geri gider."""
+        current = self._stack.currentWidget()
+        if current is self._topic:
+            self._topic_back()
+        elif current is self._journey_screen and self._journey.showing_path:
+            self._journey_back()
 
-    def _update_header(self) -> None:
-        if self._current is None:
-            return
+    def _update_headers(self) -> None:
+        showing_path = self._journey.showing_path
+        self._journey_header.set_back(showing_path, self._language.t("path.back"))
 
-        chapter = self._catalog.chapter(self._current.chapter_id)
-        self._section_title.setText(self._language.pick(self._current.title))
-        self._chapter_title.setText(
-            self._language.pick(chapter.title) if chapter else ""
-        )
-
-        previous, following = self._catalog.neighbours(
-            self._current.chapter_id, self._current.id
-        )
-        self._previous_button.setEnabled(previous is not None)
-        self._next_button.setEnabled(following is not None)
-
-    def _go_next(self) -> None:
-        if self._current is None:
-            return
-        _, following = self._catalog.neighbours(self._current.chapter_id, self._current.id)
-        if following:
-            self._open(following.chapter_id, following.id)
-
-    def _go_previous(self) -> None:
-        if self._current is None:
-            return
-        previous, _ = self._catalog.neighbours(self._current.chapter_id, self._current.id)
-        if previous:
-            self._open(previous.chapter_id, previous.id)
-
-    def _toggle_sidebar(self) -> None:
-        sizes = self._splitter.sizes()
-        if sizes[0] > 0:
-            self._sidebar_width = sizes[0]
-            self._splitter.setSizes([0, sum(sizes)])
+        if showing_path:
+            # Yoldayken başlık modülün adını göstersin; "Öğrenme Yolu" yazmak
+            # kullanıcıya hangi modülde olduğunu söylemiyor.
+            chapter = self._catalog.chapter(self._journey.path.chapter_id)
+            self._journey_header.set_titles(
+                self._language.pick(chapter.title) if chapter else "",
+                self._language.t("nav.path"),
+            )
         else:
-            width = getattr(self, "_sidebar_width", 300)
-            self._splitter.setSizes([width, sum(sizes) - width])
-
-    # --- olaylar ----------------------------------------------------------
-
-    def _on_exercise_solved(self, exercise_id: str) -> None:
-        """Alıştırma çözüldüğünde kenar çubuğundaki durumu güncelle.
-
-        Kalıcı ilerleme kaydı M3'te veritabanına bağlanacak; şimdilik yalnızca
-        bu oturum boyunca tutuluyor.
-        """
-        if self._current is None:
-            return
-
-        key = (self._current.chapter_id, self._current.id, exercise_id)
-        self._solved.add(key)
-
-        total = len(self._current.exercises)
-        done = sum(
-            1 for c, s, _ in self._solved
-            if c == self._current.chapter_id and s == self._current.id
+            self._journey_header.set_titles(
+                self._language.t("nav.path"), self._language.t("app.subtitle")
+            )
+        self._profile_header.set_titles(self._language.t("profile.title"))
+        self._releases_header.set_titles(
+            self._language.t("release.title"), self._language.t("release.subtitle")
         )
-        status = "completed" if done >= total else "in_progress"
-        self._sidebar.set_status(self._current.chapter_id, self._current.id, status)
+
+    # --- ayarlar ----------------------------------------------------------
 
     def _open_settings(self) -> None:
         dialog = SettingsDialog(self._language, self._theme, self)
         self._language.language_changed.connect(dialog.retranslate)
         dialog.exec()
 
+        # Seçimler kalıcı olsun diye veritabanına yazılıyor.
+        self._store.set_setting("language", self._language.language)
+        self._store.set_setting("theme", self._theme.mode)
+
+    # --- olaylar ----------------------------------------------------------
+
     def _on_language_changed(self, _code: str) -> None:
         self.retranslate()
-        if self._current is not None:
-            self._open(self._current.chapter_id, self._current.id)
 
     def _on_theme_changed(self, mode: str) -> None:
-        self._lesson_view.set_mode(mode)
-        self._exercise_view.set_mode(mode)
-        self._quiz_view.set_mode(mode)
+        self._rail.set_mode(mode)
+        self._journey.set_mode(mode)
+        self._journey_header.set_mode(mode)
+        self._topic.set_mode(mode)
+        self._profile.set_mode(mode)
+        self._profile_header.set_mode(mode)
+        self._releases.set_mode(mode)
+        self._releases_header.set_mode(mode)
 
     def retranslate(self) -> None:
         self.setWindowTitle(self._language.t("app.title"))
-        self._previous_button.setText(self._language.t("nav.previous"))
-        self._next_button.setText(self._language.t("nav.next"))
-        self._settings_button.setToolTip(self._language.t("settings.title"))
-        self._sidebar.retranslate()
-        self._exercise_view.retranslate()
-        self._quiz_view.retranslate()
-        self._lesson_view.retranslate()
-        self._update_header()
+        self._rail.retranslate()
+        self._journey.retranslate()
+        self._topic.retranslate()
+        self._profile.retranslate()
+        self._releases.retranslate()
+        self._update_headers()
+
+    def closeEvent(self, event) -> None:  # noqa: N802
+        self._store.close()
+        super().closeEvent(event)

@@ -43,17 +43,20 @@ def main() -> int:
             f"Ayrıntı: {exc}"
         ) from exc
 
+    from app.core.progress import ProgressStore
     from app.ui.main_window import MainWindow
 
     application = QApplication(sys.argv)
     application.setApplicationName("Proje A")
     application.setApplicationVersion(APP_VERSION)
 
-    language = LanguageManager("tr")
-    theme = ThemeManager("system")
+    # Ayarlar kullanıcının kendi bilgisayarındaki veritabanından okunuyor.
+    store = ProgressStore()
+    language = LanguageManager(store.setting("language", "tr"))
+    theme = ThemeManager(store.setting("theme", "system"))
     theme.apply(application)
 
-    window = MainWindow(language, theme)
+    window = MainWindow(language, theme, store)
     # Tema başlangıçta da görünümlere bildirilsin.
     window._on_theme_changed(theme.effective_mode)
     window.show()

@@ -4,12 +4,8 @@
  * tarafından, seçili temanın belirteçleriyle doldurulur. Widget'ların içine
  * dağınık stil yazılmaz.
  *
- * Tasarım kararları:
- *  - Boşluklar 8px'in katları. Qt'nin varsayılanları dar olduğu için her yerde
- *    bilinçli olarak geniş değerler kullanılıyor.
- *  - Kenarlıklar ince ve düşük kontrastlı; ayrımı çizgiden çok boşluk yapıyor.
- *  - Kaydırma çubukları ince ve oksuz.
- *  - Odak halkası her yerde aynı: vurgu renginde 2px kenarlık.
+ * Qt'nin stil dosyaları gölge desteklemiyor; gölgeler
+ * app/widgets/effects.py içindeki yardımcıyla veriliyor.
  */
 
 /* --- Genel ---------------------------------------------------------------- */
@@ -21,20 +17,26 @@ QWidget {
     font-size: @font_md@px;
 }
 
-QMainWindow,
-QDialog {
-    background-color: @bg@;
-}
+QMainWindow, QDialog { background-color: @bg@; }
+QWidget:disabled { color: @text_muted@; }
 
-QWidget:disabled {
-    color: @text_muted@;
-}
+/* Etiketler kendi zeminini taşımamalı; farklı renkteki bir yüzeyin üzerinde
+ * arkalarında uyumsuz dikdörtgen görünüyor. */
+QLabel { background-color: transparent; }
 
-/* Yüzey rolündeki kapsayıcılar */
-QFrame[surface="true"] {
+QScrollArea, QScrollArea > QWidget > QWidget { background-color: transparent; }
+
+/* --- Yüzeyler ------------------------------------------------------------- */
+
+QFrame[surface="card"] {
     background-color: @surface@;
     border: 1px solid @border@;
     border-radius: @radius_lg@px;
+}
+
+QFrame[surface="plain"] {
+    background-color: @surface@;
+    border: none;
 }
 
 QFrame[surface="alt"] {
@@ -42,32 +44,108 @@ QFrame[surface="alt"] {
     border: none;
 }
 
-/* Ayırıcı çizgi */
 QFrame[role="separator"] {
     background-color: @border@;
     max-height: 1px;
     border: none;
 }
 
+/* --- Sol ikon şeridi ------------------------------------------------------ */
+
+QFrame[role="rail"] {
+    background-color: @surface_alt@;
+    border: none;
+    border-right: 1px solid @border@;
+}
+
+QPushButton[variant="rail"] {
+    background-color: transparent;
+    border: none;
+    border-radius: @radius_lg@px;
+    padding: 0;
+    min-width: 52px;
+    max-width: 52px;
+    min-height: 50px;
+    max-height: 50px;
+    font-size: @font_xl@px;
+    color: @text_muted@;
+}
+
+QPushButton[variant="rail"]:hover { background-color: @surface_hover@; }
+
+QPushButton[variant="rail"][active="true"] {
+    background-color: @accent_soft@;
+    color: @accent@;
+}
+
+QLabel[role="logo"] {
+    background-color: @accent@;
+    color: #FFFFFF;
+    border-radius: @radius_md@px;
+    font-size: @font_lg@px;
+    font-weight: 800;
+    min-width: 40px;
+    max-width: 40px;
+    min-height: 40px;
+    max-height: 40px;
+}
+
+/* --- Üst şerit ------------------------------------------------------------ */
+
+QFrame[role="topbar"] {
+    background-color: @surface@;
+    border: none;
+    border-bottom: 1px solid @border@;
+}
+
+/* --- Segmented control ---------------------------------------------------- */
+
+QFrame[role="segment-group"] {
+    background-color: @surface_alt@;
+    border: none;
+    border-radius: @radius_md@px;
+}
+
+QPushButton[variant="segment"] {
+    background-color: transparent;
+    border: none;
+    border-radius: @radius_sm@px;
+    padding: 8px 17px;
+    font-size: @font_sm@px;
+    font-weight: 600;
+    color: @text_muted@;
+}
+
+QPushButton[variant="segment"]:hover { color: @text@; }
+
+QPushButton[variant="segment"][active="true"] {
+    background-color: @surface@;
+    color: @text@;
+}
+
 /* --- Başlıklar ve metin --------------------------------------------------- */
 
-/* Etiketler kendi zeminini taşımamalı. Aksi halde farklı renkteki bir yüzeyin
- * üzerinde durduklarında arkalarında uyumsuz bir dikdörtgen görünüyor —
- * özellikle koyu temada göze batıyor. */
-QLabel {
-    background-color: transparent;
+QLabel[role="display"] {
+    font-size: @font_display@px;
+    font-weight: 700;
+    color: @text@;
 }
 
 QLabel[role="title"] {
     font-size: @font_xxl@px;
-    font-weight: 600;
+    font-weight: 700;
     color: @text@;
-    padding: 0;
 }
 
 QLabel[role="subtitle"] {
     font-size: @font_lg@px;
-    font-weight: 600;
+    font-weight: 650;
+    color: @text@;
+}
+
+QLabel[role="heading"] {
+    font-size: @font_md@px;
+    font-weight: 650;
     color: @text@;
 }
 
@@ -79,10 +157,39 @@ QLabel[role="muted"] {
 QLabel[role="section"] {
     color: @text_muted@;
     font-size: @font_xs@px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 1px;
-    text-transform: uppercase;
 }
+
+QLabel[role="chip"] {
+    background-color: @surface_alt@;
+    color: @text_muted@;
+    border-radius: @radius_pill@px;
+    padding: 5px 12px;
+    font-size: @font_xs@px;
+    font-weight: 650;
+}
+
+QLabel[role="chip"][tone="success"] {
+    background-color: @success_soft@;
+    color: @success@;
+}
+
+QLabel[role="chip"][tone="warning"] {
+    background-color: @warning_soft@;
+    color: @warning@;
+}
+
+QLabel[role="chip"][tone="accent"] {
+    background-color: @accent_soft@;
+    color: @accent@;
+}
+
+QLabel[tone="success"] { color: @success@; }
+QLabel[tone="danger"]  { color: @danger@; }
+QLabel[tone="warning"] { color: @warning@; }
+QLabel[tone="accent"]  { color: @accent@; }
+QLabel[tone="inverse"] { color: #FFFFFF; }
 
 /* --- Düğmeler ------------------------------------------------------------- */
 
@@ -91,19 +198,14 @@ QPushButton {
     color: @text@;
     border: 1px solid @border_strong@;
     border-radius: @radius_md@px;
-    padding: 9px 18px;
-    font-size: @font_md@px;
-    font-weight: 500;
+    padding: 11px 21px;
+    font-size: @font_sm@px;
+    font-weight: 600;
     min-height: 20px;
 }
 
-QPushButton:hover {
-    background-color: @surface_hover@;
-}
-
-QPushButton:pressed {
-    background-color: @surface_alt@;
-}
+QPushButton:hover  { background-color: @surface_hover@; }
+QPushButton:pressed { background-color: @surface_alt@; }
 
 QPushButton:disabled {
     color: @text_muted@;
@@ -113,7 +215,7 @@ QPushButton:disabled {
 
 QPushButton[variant="primary"] {
     background-color: @accent@;
-    color: @text_inverse@;
+    color: #FFFFFF;
     border: 1px solid @accent@;
 }
 
@@ -132,7 +234,7 @@ QPushButton[variant="ghost"] {
     background-color: transparent;
     border: 1px solid transparent;
     color: @text_muted@;
-    padding: 7px 12px;
+    padding: 8px 14px;
 }
 
 QPushButton[variant="ghost"]:hover {
@@ -140,99 +242,162 @@ QPushButton[variant="ghost"]:hover {
     color: @text@;
 }
 
-QPushButton:focus {
-    outline: none;
-    border-color: @accent@;
+QPushButton[variant="small"] {
+    padding: 7px 14px;
+    font-size: @font_xs@px;
 }
 
-/* --- Kenar çubuğu (bölüm ağacı) ------------------------------------------- */
+QPushButton:focus { outline: none; border-color: @accent@; }
 
-QTreeView,
-QListView {
-    background-color: @surface_alt@;
+/* Sayfa içi başlık listesi (sağ sütun) */
+QPushButton[variant="toc"] {
+    background-color: transparent;
     border: none;
-    border-radius: @radius_md@px;
-    padding: @space_sm@px;
-    font-size: @font_md@px;
-    outline: none;
-    /* 0 = seçim yalnızca satırın kendisini kaplasın. 1 yapılırsa seçim
-     * genişleme okunun bulunduğu alana da taşıyor ve orayı Qt kendi
-     * varsayılan mavisiyle boyuyor. */
-    show-decoration-selected: 0;
+    border-left: 2px solid @border@;
+    border-radius: 0;
+    padding: 7px 0 7px 14px;
+    text-align: left;
+    font-size: @font_sm@px;
+    font-weight: 500;
+    color: @text_muted@;
 }
 
-QTreeView::item,
-QListView::item {
-    padding: 9px 10px;
-    border-radius: @radius_sm@px;
-    margin: 1px 0;
+QPushButton[variant="toc"]:hover { color: @text@; }
+
+QPushButton[variant="toc"][active="true"] {
+    color: @accent@;
+    border-left-color: @accent@;
+    font-weight: 650;
+}
+
+/* Ders notu listesi (sol sütun) */
+QPushButton[variant="listitem"] {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: @radius_md@px;
+    padding: 12px 14px;
+    text-align: left;
+    font-size: @font_sm@px;
+    font-weight: 500;
     color: @text@;
 }
 
-QTreeView::item:hover,
-QListView::item:hover {
-    background-color: @surface_hover@;
+QPushButton[variant="listitem"]:hover { background-color: @surface_hover@; }
+
+QPushButton[variant="listitem"][active="true"] {
+    background-color: @surface@;
+    border-color: @border@;
+    font-weight: 650;
 }
 
-QTreeView::item:selected,
-QListView::item:selected {
-    background-color: @accent_soft@;
-    color: @accent@;
-    font-weight: 600;
+/* --- Öğrenme yolu düğümleri ----------------------------------------------- */
+
+QPushButton[variant="node"] {
+    min-width: 74px; max-width: 74px;
+    min-height: 74px; max-height: 74px;
+    border-radius: 37px;
+    font-size: @font_xxl@px;
+    font-weight: 700;
+    padding: 0;
+    border: 3px solid transparent;
 }
 
-QTreeView::branch,
-QTreeView::branch:selected,
-QTreeView::branch:hover {
-    background: transparent;
-    border-image: none;
+QPushButton[variant="node"][state="completed"] {
+    background-color: @success@;
+    color: #FFFFFF;
+}
+
+QPushButton[variant="node"][state="current"] {
+    background-color: @accent@;
+    color: #FFFFFF;
+    border-color: @accent_soft@;
+}
+
+QPushButton[variant="node"][state="in_progress"] {
+    background-color: @warning@;
+    color: #FFFFFF;
+}
+
+QPushButton[variant="node"][state="not_started"] {
+    background-color: @surface_alt@;
+    color: @text_muted@;
+    border-color: @border@;
+}
+
+QPushButton[variant="node"]:hover { border-color: @accent@; }
+
+QFrame[role="connector"] {
+    background-color: @border@;
+    border: none;
+    border-radius: 2px;
+    max-width: 4px;
+    min-width: 4px;
+}
+
+QFrame[role="connector"][done="true"] { background-color: @success@; }
+
+/* Modül kartı.
+ * QPushButton kullanılmıyor: genel düğme kuralındaki `min-height` widget'a
+ * Python'dan verilen en küçük yüksekliği eziyor ve kart eziliyordu. Tıklama
+ * QFrame üzerinde yakalanıyor. */
+QFrame[variant="module"] {
+    background-color: @surface@;
+    border: 1px solid @border@;
+    border-radius: @radius_lg@px;
+    min-height: 150px;
+}
+
+QFrame[variant="module"]:hover { border-color: @accent@; }
+
+/* Karşılama kartı: vurgu renginden ikinci renge geçiş */
+QFrame[role="hero"] {
+    border: none;
+    border-radius: @radius_xl@px;
+    background-color: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 @accent@, stop:1 @accent_second@
+    );
 }
 
 /* --- Metin girişleri ------------------------------------------------------ */
 
-QLineEdit,
-QTextEdit,
-QPlainTextEdit,
-QSpinBox,
-QComboBox {
+QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QComboBox {
     background-color: @surface@;
     color: @text@;
     border: 1px solid @border_strong@;
     border-radius: @radius_md@px;
-    padding: 9px 12px;
+    padding: 10px 13px;
     selection-background-color: @accent@;
-    selection-color: @text_inverse@;
+    selection-color: #FFFFFF;
 }
 
-QLineEdit:focus,
-QTextEdit:focus,
-QPlainTextEdit:focus,
-QSpinBox:focus,
-QComboBox:focus {
-    border-color: @accent@;
-}
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus,
+QSpinBox:focus, QComboBox:focus { border-color: @accent@; }
 
-QLineEdit:disabled,
-QTextEdit:disabled,
-QPlainTextEdit:disabled {
+QLineEdit:disabled, QTextEdit:disabled, QPlainTextEdit:disabled {
     background-color: @surface_alt@;
     color: @text_muted@;
 }
 
-/* Kod editörü ve çıktı alanı */
 QPlainTextEdit[role="code"] {
     background-color: @code_bg@;
     font-family: @font_mono@;
     font-size: @font_sm@px;
-    border-radius: @radius_md@px;
+    border: none;
+    border-radius: 0;
     padding: @space_md@px;
-    line-height: 150%;
 }
 
-QComboBox::drop-down {
-    border: none;
-    width: 28px;
+QPlainTextEdit[role="output"] {
+    background-color: @code_bg@;
+    font-family: @font_mono@;
+    font-size: @font_xs@px;
+    border: 1px solid @border@;
+    border-radius: @radius_md@px;
+    padding: @space_sm@px @space_md@px;
 }
+
+QComboBox::drop-down { border: none; width: 28px; }
 
 QComboBox QAbstractItemView {
     background-color: @surface@;
@@ -243,13 +408,12 @@ QComboBox QAbstractItemView {
     selection-color: @accent@;
 }
 
-/* --- Ders metni (QTextBrowser) -------------------------------------------- */
+/* --- Ders metni ----------------------------------------------------------- */
 
-/* İç boşluk bilerek sıfır: ders metninin çevresindeki boşluğu yerleşim
- * yönetiyor. İkisi birden boşluk verirse genişlik tahmin edilemez hâle
- * geliyor ve dar panellerde metin iki kelimelik sütuna sıkışıyor. */
+/* İç boşluk sıfır: metnin çevresindeki boşluğu yerleşim yönetiyor. İkisi
+ * birden boşluk verirse genişlik tahmin edilemez hâle geliyor. */
 QTextBrowser {
-    background-color: @surface@;
+    background-color: transparent;
     border: none;
     padding: 0px;
     font-size: @font_md@px;
@@ -257,89 +421,54 @@ QTextBrowser {
 
 /* --- Sınav seçenekleri ---------------------------------------------------- */
 
-QRadioButton,
-QCheckBox {
-    spacing: 10px;
-    padding: 10px 12px;
+QRadioButton, QCheckBox {
+    spacing: 11px;
+    padding: 11px 13px;
     border-radius: @radius_md@px;
     background-color: transparent;
+    font-size: @font_sm@px;
 }
 
-QRadioButton:hover,
-QCheckBox:hover {
-    background-color: @surface_hover@;
-}
+QRadioButton:hover, QCheckBox:hover { background-color: @surface_hover@; }
 
-QRadioButton::indicator,
-QCheckBox::indicator {
+QRadioButton::indicator, QCheckBox::indicator {
     width: 18px;
     height: 18px;
     border: 2px solid @border_strong@;
     background-color: @surface@;
 }
 
-QRadioButton::indicator {
-    border-radius: 10px;
-}
+QRadioButton::indicator { border-radius: 10px; }
+QCheckBox::indicator { border-radius: 5px; }
 
-QCheckBox::indicator {
-    border-radius: 5px;
-}
-
-QRadioButton::indicator:checked,
-QCheckBox::indicator:checked {
+QRadioButton::indicator:checked, QCheckBox::indicator:checked {
     border-color: @accent@;
     background-color: @accent@;
 }
 
-/* --- Sekmeler ------------------------------------------------------------- */
-
-QTabWidget::pane {
-    border: none;
-    border-top: 1px solid @border@;
-    top: -1px;
+QRadioButton[tone="success"], QCheckBox[tone="success"] {
+    background-color: @success_soft@;
+    color: @success@;
 }
 
-QTabBar::tab {
-    background: transparent;
-    color: @text_muted@;
-    padding: 10px 18px;
-    margin-right: @space_xs@px;
-    border: none;
-    border-bottom: 2px solid transparent;
-    font-size: @font_md@px;
-    font-weight: 500;
-}
-
-QTabBar::tab:hover {
-    color: @text@;
-}
-
-QTabBar::tab:selected {
-    color: @accent@;
-    border-bottom-color: @accent@;
-    font-weight: 600;
-}
-
-QTabBar:focus {
-    outline: none;
+QRadioButton[tone="danger"], QCheckBox[tone="danger"] {
+    background-color: @danger_soft@;
+    color: @danger@;
 }
 
 /* --- İlerleme çubuğu ------------------------------------------------------ */
 
 QProgressBar {
-    background-color: @surface_alt@;
+    background-color: @border@;
     border: none;
-    border-radius: 5px;
-    height: 8px;
+    border-radius: 4px;
+    max-height: 7px;
+    min-height: 7px;
     text-align: center;
     color: transparent;
 }
 
-QProgressBar::chunk {
-    background-color: @accent@;
-    border-radius: 5px;
-}
+QProgressBar::chunk { background-color: @accent@; border-radius: 4px; }
 
 /* --- Geri bildirim şeritleri ---------------------------------------------- */
 
@@ -361,10 +490,25 @@ QFrame[banner="warning"] {
     border-radius: @radius_md@px;
 }
 
-QLabel[tone="success"] { color: @success@; }
-QLabel[tone="danger"]  { color: @danger@; }
-QLabel[tone="warning"] { color: @warning@; }
-QLabel[tone="accent"]  { color: @accent@; }
+QFrame[banner="accent"] {
+    background-color: @accent_soft@;
+    border: none;
+    border-left: 3px solid @accent@;
+    border-radius: @radius_sm@px;
+}
+
+/* Kontrol sonucu satırları: kenarlık yok, yalnızca yumuşak zemin */
+QFrame[check="passed"] {
+    background-color: @success_soft@;
+    border: none;
+    border-radius: @radius_md@px;
+}
+
+QFrame[check="failed"] {
+    background-color: @danger_soft@;
+    border: none;
+    border-radius: @radius_md@px;
+}
 
 /* --- Kaydırma çubukları --------------------------------------------------- */
 
@@ -381,9 +525,7 @@ QScrollBar::handle:vertical {
     margin: 2px;
 }
 
-QScrollBar::handle:vertical:hover {
-    background: @text_muted@;
-}
+QScrollBar::handle:vertical:hover { background: @text_muted@; }
 
 QScrollBar:horizontal {
     background: transparent;
@@ -398,42 +540,22 @@ QScrollBar::handle:horizontal {
     margin: 2px;
 }
 
-QScrollBar::handle:horizontal:hover {
-    background: @text_muted@;
+QScrollBar::handle:horizontal:hover { background: @text_muted@; }
+
+QScrollBar::add-line, QScrollBar::sub-line {
+    height: 0; width: 0; border: none; background: none;
 }
 
-QScrollBar::add-line,
-QScrollBar::sub-line {
-    height: 0;
-    width: 0;
-    border: none;
-    background: none;
-}
-
-QScrollBar::add-page,
-QScrollBar::sub-page {
-    background: none;
-}
+QScrollBar::add-page, QScrollBar::sub-page { background: none; }
 
 /* --- Ayırıcı kollar ------------------------------------------------------- */
 
-QSplitter::handle {
-    background-color: transparent;
-}
+QSplitter::handle { background-color: transparent; }
+QSplitter::handle:horizontal { width: @space_sm@px; }
+QSplitter::handle:vertical { height: @space_sm@px; }
+QSplitter::handle:hover { background-color: @border@; }
 
-QSplitter::handle:horizontal {
-    width: @space_sm@px;
-}
-
-QSplitter::handle:vertical {
-    height: @space_sm@px;
-}
-
-QSplitter::handle:hover {
-    background-color: @border@;
-}
-
-/* --- İpucu balonu --------------------------------------------------------- */
+/* --- İpucu balonu ve menü ------------------------------------------------- */
 
 QToolTip {
     background-color: @surface@;
@@ -444,8 +566,6 @@ QToolTip {
     font-size: @font_sm@px;
 }
 
-/* --- Menü ----------------------------------------------------------------- */
-
 QMenu {
     background-color: @surface@;
     border: 1px solid @border@;
@@ -453,18 +573,6 @@ QMenu {
     padding: @space_xs@px;
 }
 
-QMenu::item {
-    padding: 8px 20px 8px 14px;
-    border-radius: @radius_sm@px;
-}
-
-QMenu::item:selected {
-    background-color: @accent_soft@;
-    color: @accent@;
-}
-
-QMenu::separator {
-    height: 1px;
-    background-color: @border@;
-    margin: @space_xs@px 0;
-}
+QMenu::item { padding: 8px 20px 8px 14px; border-radius: @radius_sm@px; }
+QMenu::item:selected { background-color: @accent_soft@; color: @accent@; }
+QMenu::separator { height: 1px; background-color: @border@; margin: @space_xs@px 0; }

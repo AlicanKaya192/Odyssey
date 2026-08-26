@@ -94,6 +94,16 @@ class Block:
         relative = self.raw.get("dir")
         return self.directory / relative if relative else None
 
+    @property
+    def documents(self) -> list[dict]:
+        """`notes` bloğundaki ders notlarının listesi.
+
+        Her not: ``{"id", "title": {"tr", "en"}, "file": "notlar/01.{lang}.md"}``
+        Notlar PDF değil metin olarak tutuluyor; uygulama içinde aranabilsin,
+        kopyalanabilsin ve temayla uyumlu görünsün diye.
+        """
+        return list(self.raw.get("documents", []))
+
 
 @dataclass
 class Exercise:
@@ -118,6 +128,16 @@ class Exercise:
     @property
     def checks(self) -> list[dict]:
         return list(self.raw.get("checks", []))
+
+    @property
+    def hints(self) -> list[dict]:
+        """Kademeli ipuçları.
+
+        Her kademe ``{"tr": ..., "en": ...}`` biçiminde bir metin. Sıra
+        yönlendiren ipucundan çözüme doğru gider; kullanıcı hangi kademeye
+        kadar bakacağına kendisi karar verir.
+        """
+        return list(self.raw.get("hints", []))
 
     def prompt_for(self, language: str) -> LocalizedFile | None:
         prompts = self.raw.get("prompt", {})

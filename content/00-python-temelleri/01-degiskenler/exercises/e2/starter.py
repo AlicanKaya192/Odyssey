@@ -1,6 +1,4 @@
-def yas_hesapla(yas_metin):
-    # Metni sayıya çevir, 5 ekle ve döndür.
-    pass
+# Fonksiyonunu burada tanımla.
 
 
-# Fonksiyonu "25" ile çağır ve sonucu yazdır.
+# Sonra "25" ile çağır ve sonucu yazdır.

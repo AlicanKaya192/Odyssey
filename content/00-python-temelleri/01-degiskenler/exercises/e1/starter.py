@@ -1,5 +1,4 @@
-# Değişkenleri buraya tanımla.
-takim = ""
-yil = 0
+# Değişkenlerini burada tanımla.
+
 
 # Sonra ekrana yazdır.

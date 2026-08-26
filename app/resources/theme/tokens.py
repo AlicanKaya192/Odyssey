@@ -4,15 +4,13 @@ Arayüzdeki hiçbir renk veya ölçü doğrudan widget'ın içine yazılmaz; hep
 buradan gelir. Böylece tema değiştirmek veya boşlukları topluca ayarlamak
 tek dosyayı düzenlemekle mümkün oluyor.
 
-Ferahlığın büyük kısmı SPACING ölçeğinden geliyor. Qt'nin varsayılan kenar
-boşlukları çok dar; burada 8px tabanlı bir ölçek kullanıp ekranlarda bilinçli
-olarak büyük değerleri tercih ediyoruz.
+Değerler `Plan/tasarim/maket.html` maketiyle birebir aynı tutuluyor; maket
+değişirse burası da değişir.
 """
 
 from __future__ import annotations
 
 # --- Boşluk ölçeği (8px tabanlı) -------------------------------------------
-# Ara değer gerektiğinde 4 kullanılabilir ama kural 8'in katlarıdır.
 SPACING = {
     "xs": 4,
     "sm": 8,
@@ -24,51 +22,58 @@ SPACING = {
 
 # --- Köşe yarıçapları ------------------------------------------------------
 RADIUS = {
-    "sm": 6,
-    "md": 10,
-    "lg": 14,
+    "sm": 8,
+    "md": 12,
+    "lg": 18,
+    "xl": 24,
     "pill": 999,
 }
 
 # --- Yazı tipleri ----------------------------------------------------------
 FONTS = {
     # Windows 11'de Segoe UI Variable var, yoksa Segoe UI'a düşer.
-    "ui": '"Segoe UI Variable Text", "Segoe UI", "Inter", sans-serif',
+    "ui": '"Segoe UI Variable Text", "Segoe UI", sans-serif',
     "mono": '"Cascadia Code", "Cascadia Mono", "Consolas", monospace',
 }
 
 FONT_SIZES = {
     "xs": 12,
     "sm": 13,
-    "md": 14,     # gövde metni
-    "lg": 16,
+    "md": 15,     # gövde metni
+    "lg": 17,
     "xl": 20,
-    "xxl": 26,    # sayfa başlığı
+    "xxl": 24,
+    "display": 31,  # ders başlığı
 }
 
-# Ders metninin en fazla kaç piksel genişleyebileceği. Satırlar ekran boyunca
-# uzarsa göz satır başını kaybediyor; bu sınır yaklaşık 75 karaktere denk gelir.
-READING_WIDTH = 760
+# Ders metninin en fazla kaç piksel genişleyebileceği. Yaklaşık 70 karaktere
+# denk gelir; tipografi araştırmalarında rahat okuma aralığı 45-75 karakter.
+READING_WIDTH = 680
+
+# Sağdaki sayfa içi başlık listesinin genişliği.
+TOC_WIDTH = 250
+
+# Sol ikon şeridinin genişliği.
+RAIL_WIDTH = 76
 
 # --- Renk paletleri --------------------------------------------------------
-# Nötr bir zemin ve tek bir vurgu rengi. Doğru/yanlış geri bildirimi renkle
-# birlikte ikonla da veriliyor, sadece renge güvenmiyoruz.
 
 LIGHT = {
-    "bg": "#FBFBFD",            # pencere zemini
-    "surface": "#FFFFFF",       # kartlar, içerik alanı
-    "surface_alt": "#F4F5F7",   # kenar çubuğu, ikincil yüzeyler
-    "surface_hover": "#EDEFF3",
-    "border": "#E4E6EB",
-    "border_strong": "#D0D4DB",
+    "bg": "#F7F8FA",
+    "surface": "#FFFFFF",
+    "surface_alt": "#F1F3F7",
+    "surface_hover": "#E9ECF2",
+    "border": "#E3E6EC",
+    "border_strong": "#CFD4DE",
 
-    "text": "#1A1D21",
-    "text_muted": "#6B7280",
+    "text": "#12151A",
+    "text_muted": "#666F7D",
     "text_inverse": "#FFFFFF",
 
     "accent": "#4F46E5",
     "accent_hover": "#4338CA",
     "accent_soft": "#EEF0FE",
+    "accent_second": "#7C3AED",   # karşılama kartındaki geçiş rengi
 
     "success": "#15803D",
     "success_soft": "#ECFDF3",
@@ -77,35 +82,40 @@ LIGHT = {
     "warning": "#B45309",
     "warning_soft": "#FFFBEB",
 
-    "code_bg": "#F6F7F9",
-    "shadow": "rgba(16, 24, 40, 0.06)",
+    "code_bg": "#F4F6F9",
+    # Qt'nin stil dosyaları gölgeyi desteklemiyor; gölgeler
+    # QGraphicsDropShadowEffect ile veriliyor, renkleri burada.
+    "shadow": (16, 24, 40, 26),
+    "shadow_strong": (16, 24, 40, 42),
 }
 
 DARK = {
-    "bg": "#16181D",
-    "surface": "#1C1F26",
-    "surface_alt": "#22262E",
-    "surface_hover": "#2A2F38",
-    "border": "#2E333D",
-    "border_strong": "#3C424E",
+    "bg": "#0F1116",
+    "surface": "#171A21",
+    "surface_alt": "#1D212A",
+    "surface_hover": "#262B36",
+    "border": "#272C36",
+    "border_strong": "#39404E",
 
-    "text": "#E8EAED",
-    "text_muted": "#9AA0AA",
-    "text_inverse": "#16181D",
+    "text": "#E9ECF1",
+    "text_muted": "#98A1AF",
+    "text_inverse": "#0F1116",
 
-    "accent": "#7C74F0",
-    "accent_hover": "#8F88F5",
-    "accent_soft": "#262640",
+    "accent": "#8B84FF",
+    "accent_hover": "#9E98FF",
+    "accent_soft": "#221F3D",
+    "accent_second": "#6D5BF5",
 
     "success": "#4ADE80",
-    "success_soft": "#16281E",
+    "success_soft": "#12251A",
     "danger": "#F87171",
-    "danger_soft": "#2A1A1C",
+    "danger_soft": "#2A1618",
     "warning": "#FBBF24",
-    "warning_soft": "#2A2314",
+    "warning_soft": "#2A2212",
 
-    "code_bg": "#181B21",
-    "shadow": "rgba(0, 0, 0, 0.35)",
+    "code_bg": "#12151B",
+    "shadow": (0, 0, 0, 90),
+    "shadow_strong": (0, 0, 0, 140),
 }
 
 PALETTES = {
@@ -113,18 +123,66 @@ PALETTES = {
     "dark": DARK,
 }
 
+# --- Kod renklendirme ------------------------------------------------------
+
+SYNTAX_LIGHT = {
+    "keyword": "#8B31C7",
+    "constant": "#B45309",
+    "builtin": "#1D4ED8",
+    "string": "#15803D",
+    "number": "#B45309",
+    "comment": "#8A9099",
+    "definition": "#B8860B",
+    "decorator": "#0E7490",
+}
+
+SYNTAX_DARK = {
+    "keyword": "#C792EA",
+    "constant": "#F78C6C",
+    "builtin": "#82AAFF",
+    "string": "#C3E88D",
+    "number": "#F78C6C",
+    "comment": "#5F6773",
+    "definition": "#FFCB6B",
+    "decorator": "#89DDFF",
+}
+
+SYNTAX = {
+    "light": SYNTAX_LIGHT,
+    "dark": SYNTAX_DARK,
+}
+
+# --- Bölüm durumları -------------------------------------------------------
+# Yol ekranındaki düğümlerin görünümü. Renge ek olarak simge de var, çünkü
+# durumu yalnızca renkle anlatmak renk körü kullanıcıyı dışarıda bırakır.
+NODE_STATES = {
+    "completed": {"symbol": "✓", "color": "success"},
+    "current": {"symbol": "▶", "color": "accent"},
+    "in_progress": {"symbol": "◐", "color": "warning"},
+    "not_started": {"symbol": "○", "color": "border_strong"},
+}
+
 
 def build_variables(mode: str) -> dict[str, str]:
     """Seçilen temanın tüm belirteçlerini tek bir sözlükte toplar.
 
-    QSS şablonundaki ``{isim}`` yer tutucuları bu sözlükle doldurulur.
+    QSS şablonundaki yer tutucular bu sözlükle doldurulur. Gölge renkleri
+    demet olarak saklandığı için dışarıda bırakılıyor.
     """
     palette = PALETTES.get(mode, LIGHT)
 
-    variables: dict[str, str] = dict(palette)
+    variables: dict[str, str] = {
+        key: value for key, value in palette.items() if isinstance(value, str)
+    }
     variables.update({f"space_{k}": str(v) for k, v in SPACING.items()})
     variables.update({f"radius_{k}": str(v) for k, v in RADIUS.items()})
     variables.update({f"font_{k}": str(v) for k, v in FONT_SIZES.items()})
     variables["font_ui"] = FONTS["ui"]
     variables["font_mono"] = FONTS["mono"]
     return variables
+
+
+def shadow_color(mode: str, strong: bool = False) -> tuple[int, int, int, int]:
+    """Gölge rengini (r, g, b, alfa) olarak döndürür."""
+    palette = PALETTES.get(mode, LIGHT)
+    return palette["shadow_strong"] if strong else palette["shadow"]
