@@ -16,7 +16,7 @@ Bu bölümde sayılarla işlem yapmayı, değerleri karşılaştırmayı ve bir 
 
 `/` her zaman ondalıklı sayı (`float`) döndürür, `7 / 1` bile `7.0` verir. Tam sayı istiyorsan `//` kullan.
 
-`%` operatörü özellikle bir sayının çift mi tek mi olduğunu anlamak için işe yarar: `sayi % 2 == 0` ise sayı çifttir.
+`%` operatörü özellikle bir sayının çift mi tek mi olduğunu anlamak için işe yarar: `number % 2 == 0` ise sayı çifttir.
 
 ## Karşılaştırma operatörleri
 
@@ -35,10 +35,10 @@ Dikkat: `=` atama yapar, `==` karşılaştırır. Bu ikisini karıştırmak en s
 Bir listenin elemanları üzerinde tek tek gezmek için `for` kullanırız:
 
 ```python
-sayilar = [1, 2, 3, 4, 5]
+numbers = [1, 2, 3, 4, 5]
 
-for sayi in sayilar:
-    print(sayi)
+for number in numbers:
+    print(number)
 ```
 
 Döngünün gövdesi **girintili** yazılır. Python'da girinti süslü parantezin yerini tutar, bu yüzden isteğe bağlı değildir.
@@ -48,16 +48,16 @@ Döngünün gövdesi **girintili** yazılır. Python'da girinti süslü parantez
 Bir listedeki sayıları toplamak istersek, önce boş bir birikeç değişkeni tanımlar, sonra döngüde üzerine ekleriz:
 
 ```python
-sayilar = [1, 2, 3, 4, 5]
-toplam = 0
+numbers = [1, 2, 3, 4, 5]
+total = 0
 
-for sayi in sayilar:
-    toplam = toplam + sayi
+for number in numbers:
+    total = total + number
 
-print(toplam)   # 15
+print(total)   # 15
 ```
 
-`toplam = toplam + sayi` yerine kısaca `toplam += sayi` da yazabilirsin, ikisi aynı şeydir.
+`total = total + number` yerine kısaca `total += number` da yazabilirsin, ikisi aynı şeydir.
 
 Python'da hazır bir `sum()` fonksiyonu da var ve aynı işi tek satırda yapar. Ama döngünün nasıl çalıştığını anlamadan `sum()` kullanmak, sonraki bölümlerde işini zorlaştırır. Bu yüzden alıştırmada `sum()` kullanmanı istemiyorum.
 

@@ -15,14 +15,14 @@ Metnin içine doğrudan yazılamayan karakterler için **kaçış karakteri** ku
 Bir metni tek tırnakla açtıysan, içindeki tek tırnak metni erken bitirir:
 
 ```python
-hata = 'Alican'ın arabası'
+wrong = 'Alican'ın arabası'
 ```
 
 Python `'Alican'` kısmını metin sanar, kalanını anlamlandıramaz ve `SyntaxError` verir. İki çözümü var:
 
 ```python
-dogru1 = 'Alican\'ın arabası'    # tırnağı kaçır
-dogru2 = "Alican'ın arabası"     # dış tırnağı çift yap
+right1 = 'Alican\'ın arabası'    # tırnağı kaçır
+right2 = "Alican'ın arabası"     # dış tırnağı çift yap
 ```
 
 İkincisi genelde daha okunaklıdır. Kaçış karakterini ancak başka çare kalmadığında kullan.
@@ -45,7 +45,7 @@ Birinci satır
 Dosya yolu yazarken ters eğik çizgiler sorun çıkarır çünkü Python onları kaçış karakteri sanar. Metnin önüne `r` koyarsan kaçış işlemi tamamen kapanır:
 
 ```python
-yol = r"C:\Users\yeni\belgeler"
+path = r"C:\Users\yeni\belgeler"
 ```
 
 `r` olmasaydı `\U`, `\y` ve `\b` kaçış karakteri olarak yorumlanır ve yol bozulurdu. Buna **ham metin** (raw string) denir; dosya yollarında ve düzenli ifadelerde çok işine yarayacak.

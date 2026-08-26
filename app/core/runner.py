@@ -31,8 +31,10 @@ from ..paths import exercise_python, sandbox_dir, workspace_dir
 KILL_GRACE_SEC = 5
 
 # Alıştırma klasöründe kopyalanmayacak dosyalar: bunlar meta veri ve çözüm.
-SKIPPED_NAMES = {"exercise.json", "solution.py", "starter.py"}
+SKIPPED_NAMES = {"exercise.json"}
 SKIPPED_SUFFIXES = {".md"}
+# starter.py, starter.tr.py, solution.en.py ... hepsi disarida kalir.
+SKIPPED_PREFIXES = ("starter", "solution", "prompt")
 
 
 @dataclass
@@ -117,7 +119,11 @@ def _prepare_workspace(exercise_dir: Path | None) -> Path:
     # Alıştırmanın ihtiyaç duyduğu veri dosyalarını (CSV gibi) yanına al.
     if exercise_dir and exercise_dir.exists():
         for item in exercise_dir.iterdir():
-            if item.name in SKIPPED_NAMES or item.suffix in SKIPPED_SUFFIXES:
+            if (
+                item.name in SKIPPED_NAMES
+                or item.suffix in SKIPPED_SUFFIXES
+                or item.name.startswith(SKIPPED_PREFIXES)
+            ):
                 continue
             if item.is_file():
                 shutil.copy2(item, directory / item.name)

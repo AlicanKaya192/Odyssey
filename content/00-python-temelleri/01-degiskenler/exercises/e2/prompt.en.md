@@ -1,4 +1,4 @@
-Write a function called `yas_hesapla`.
+Write a function called `calculate_age`.
 
 The function should:
 

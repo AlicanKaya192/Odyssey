@@ -1,7 +1,7 @@
-sayilar = [1, 2, 3, 4, 5]
+numbers = [1, 2, 3, 4, 5]
 
-toplam = 0
-for sayi in sayilar:
-    toplam += sayi
+total = 0
+for number in numbers:
+    total += number
 
-print(toplam)
+print(total)

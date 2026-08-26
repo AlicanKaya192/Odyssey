@@ -1,4 +1,4 @@
-takim = "Beşiktaş"
-yil = 1903
+language = "Python"
+year = 1991
 
-print(takim, yil)
+print(language, year)

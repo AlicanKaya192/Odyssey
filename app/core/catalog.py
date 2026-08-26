@@ -150,21 +150,39 @@ class Exercise:
         used = language if prompts.get(language) else FALLBACK_LANGUAGE
         return LocalizedFile(resolved, used, used != language)
 
-    @property
-    def starter_code(self) -> str:
-        name = self.raw.get("starter")
+    def _code_for(self, key: str, language: str) -> str:
+        """`starter` / `solution` dosyasını dile göre okur.
+
+        Dosya adında `{lang}` varsa kullanıcının diline göre çözülür; yorum
+        satırları böylece okunabilir kalıyor. İstenen dil yoksa Türkçesine
+        düşülür.
+        """
+        name = self.raw.get(key)
         if not name:
             return ""
+
+        if "{lang}" in name:
+            wanted = self.directory / name.replace("{lang}", language)
+            if wanted.exists():
+                return wanted.read_text(encoding="utf-8")
+            name = name.replace("{lang}", FALLBACK_LANGUAGE)
+
         path = self.directory / name
         return path.read_text(encoding="utf-8") if path.exists() else ""
 
+    def starter_code_for(self, language: str) -> str:
+        return self._code_for("starter", language)
+
+    def solution_code_for(self, language: str) -> str:
+        return self._code_for("solution", language)
+
+    @property
+    def starter_code(self) -> str:
+        return self._code_for("starter", FALLBACK_LANGUAGE)
+
     @property
     def solution_code(self) -> str:
-        name = self.raw.get("solution")
-        if not name:
-            return ""
-        path = self.directory / name
-        return path.read_text(encoding="utf-8") if path.exists() else ""
+        return self._code_for("solution", FALLBACK_LANGUAGE)
 
     @classmethod
     def load(cls, directory: Path) -> "Exercise":

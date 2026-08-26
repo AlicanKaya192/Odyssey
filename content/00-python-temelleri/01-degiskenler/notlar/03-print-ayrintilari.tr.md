@@ -5,9 +5,9 @@
 Virgül kullanınca Python değerleri yan yana yazar ve **araya kendisi boşluk koyar**. Tipler farklı olsa bile sorun çıkmaz:
 
 ```python
-isim = "Alican"
-yil = 2001
-print(isim, yil)      # Alican 2001
+name = "Alican"
+year = 2001
+print(name, year)      # Alican 2001
 ```
 
 Bu, `+` ile birleştirmeye göre hem daha kısa hem daha güvenli. `+` kullanmak isteseydin sayıyı önce `str()` ile çevirmen gerekirdi.
@@ -37,15 +37,15 @@ Aynı satırda devam etmek istediğinde işine yarar.
 Metnin içine değişken yerleştirmenin en temiz yolu:
 
 ```python
-isim = "Alican"
-yas = 25
-print(f"{isim} {yas} yaşında.")
+name = "Alican"
+age = 25
+print(f"{name} {age} yaşında.")
 ```
 
 f-string içinde işlem de yapabilirsin:
 
 ```python
-print(f"5 yıl sonra {yas + 5} olacak.")
+print(f"5 yıl sonra {age + 5} olacak.")
 ```
 
 Ondalıklı sayılarda basamak sayısını sınırlamak için iki nokta ve biçim kodu kullanılır:

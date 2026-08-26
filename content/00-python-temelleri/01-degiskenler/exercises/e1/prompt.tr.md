@@ -1,14 +1,14 @@
 İki değişken tanımla:
 
-- `takim` adında bir değişken oluştur ve içine `Beşiktaş` yaz.
-- `yil` adında bir değişken oluştur ve içine `1903` sayısını koy.
+- `language` adında bir değişken oluştur ve içine `Python` yaz.
+- `year` adında bir değişken oluştur ve içine `1991` sayısını koy.
 
 Sonra ekrana tek satır halinde şunu yazdır:
 
 ```
-Beşiktaş 1903
+Python 1991
 ```
 
-Takım adı ile yıl arasında **tek boşluk** olmalı.
+Dil adı ile yıl arasında **tek boşluk** olmalı.
 
-> İpucu: `print()` içinde virgül kullanırsan Python araya boşluğu kendisi koyar.
+> Değişken adlarını İngilizce seçiyoruz. Gerçek Python kodu da böyle yazılır; ayrıca uygulamayı İngilizce kullananlar Türkçe karakterleri klavyelerinde bulamıyor.

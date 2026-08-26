@@ -1,6 +1,6 @@
-def yas_hesapla(yas_metin):
-    yas = int(yas_metin)
-    return yas + 5
+def calculate_age(age_text):
+    age = int(age_text)
+    return age + 5
 
 
-print(yas_hesapla("25"))
+print(calculate_age("25"))

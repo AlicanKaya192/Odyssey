@@ -166,15 +166,64 @@ def _check_quiz(where: str, path: Path, coverage: list[Coverage]) -> list[str]:
     return problems
 
 
+def _check_ascii(where: str, exercise) -> list[str]:
+    """Kullanıcının yazmak zorunda kaldığı her şey ASCII olmalı.
+
+    İngilizce klavyede `ş ğ ı İ ç ö ü` yok. `takim = "Beşiktaş"` isteyen bir
+    alıştırmayı İngilizce kullanan biri çözemez. Ders metni bu kurala girmez;
+    orası okunur, yazılmaz.
+    """
+    problems: list[str] = []
+
+    def denetle(etiket: str, value) -> None:
+        if not isinstance(value, str):
+            return
+        if not value.isascii():
+            disi = sorted({ch for ch in value if not ch.isascii()})
+            problems.append(
+                f"{where}/{exercise.id}: {etiket} ASCII değil "
+                f"({''.join(disi)}) -> {value!r}"
+            )
+
+    for check in exercise.checks:
+        kind = check.get("type")
+        if kind == "variable":
+            denetle("değişken adı", check.get("name"))
+            denetle("beklenen değer", check.get("equals"))
+        elif kind == "function":
+            denetle("fonksiyon adı", check.get("name"))
+            for case in check.get("cases", []):
+                for argument in case.get("args", []):
+                    denetle("örnek argüman", argument)
+                denetle("beklenen dönüş", case.get("returns"))
+        elif kind == "stdout":
+            denetle("beklenen çıktı", check.get("expected"))
+        elif kind == "ast_forbid":
+            denetle("yasaklı çağrı", check.get("call"))
+
+    return problems
+
+
 def _check_exercise(where: str, exercise) -> list[str]:
     problems: list[str] = []
 
     if not exercise.checks:
         problems.append(f"{where}/{exercise.id}: hiç kontrol tanımlanmamış")
 
+    problems.extend(_check_ascii(where, exercise))
+
     for name in ("starter", "solution"):
         value = exercise.raw.get(name)
-        if value and not (exercise.directory / value).exists():
+        if not value:
+            continue
+        if "{lang}" in value:
+            for lang in LANGUAGES:
+                if not (exercise.directory / value.replace("{lang}", lang)).exists():
+                    problems.append(
+                        f"{where}/{exercise.id}: {name} dosyası yok "
+                        f"({value.replace('{lang}', lang)})"
+                    )
+        elif not (exercise.directory / value).exists():
             problems.append(f"{where}/{exercise.id}: {name} dosyası yok ({value})")
 
     if exercise.raw.get("solution"):

@@ -37,21 +37,21 @@ Python reads `'Alican'` as the string and then cannot make sense of `s car`.
 To join two strings together, use `+`:
 
 ```python
-team = "Beşiktaş"
-team2 = "Fenerbahçe"
-print(team + team2)      # BeşiktaşFenerbahçe
+team = "Galatasaray"
+team2 = "Trabzonspor"
+print(team + team2)      # GalatasarayTrabzonspor
 ```
 
 Careful: everything you join with `+` must **be a string**. If you want a space in between, you have to add it yourself:
 
 ```python
-print(team + " " + team2)   # Beşiktaş Fenerbahçe
+print(team + " " + team2)   # Galatasaray Trabzonspor
 ```
 
 To repeat a string, use `*`:
 
 ```python
-print(team * 2)    # BeşiktaşBeşiktaş
+print(team * 2)    # GalatasarayGalatasaray
 ```
 
 You cannot multiply two strings by each other — that raises an error.
@@ -61,7 +61,7 @@ You cannot multiply two strings by each other — that raises an error.
 Use `type()` to find out the type of a variable:
 
 ```python
-team = "Beşiktaş"
+team = "Galatasaray"
 year = 1903
 
 print(type(team))   # <class 'str'>
@@ -72,7 +72,7 @@ The basic types you will use most often:
 
 | Type | Holds | Example |
 |---|---|---|
-| `str` | text | `"Beşiktaş"` |
+| `str` | text | `"Galatasaray"` |
 | `int` | whole number | `1903` |
 | `float` | decimal number | `3.14` |
 | `bool` | true/false | `True`, `False` |

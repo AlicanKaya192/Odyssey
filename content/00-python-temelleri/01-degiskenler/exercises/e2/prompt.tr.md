@@ -1,4 +1,4 @@
-`yas_hesapla` adında bir fonksiyon yaz.
+`calculate_age` adında bir fonksiyon yaz.
 
 Bu fonksiyon:
 

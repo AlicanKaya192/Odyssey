@@ -366,7 +366,9 @@ class ExerciseView(QWidget):
         self._refresh_prompt()
 
         saved = self._store.exercise_code(chapter_id, section_id, exercise.id)
-        self._editor.setPlainText(saved or exercise.starter_code)
+        self._editor.setPlainText(
+            saved or exercise.starter_code_for(self._language.language)
+        )
 
         self._clear_results()
         self.retranslate()
@@ -443,7 +445,9 @@ class ExerciseView(QWidget):
     def _reset(self) -> None:
         if self._exercise is None:
             return
-        self._editor.setPlainText(self._exercise.starter_code)
+        self._editor.setPlainText(
+            self._exercise.starter_code_for(self._language.language)
+        )
         self._clear_results()
 
     # --- tema ve dil ------------------------------------------------------

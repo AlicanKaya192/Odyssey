@@ -35,10 +35,10 @@ Careful: `=` assigns, `==` compares. Mixing these two up is one of the most comm
 To visit the items of a list one at a time, use `for`:
 
 ```python
-sayilar = [1, 2, 3, 4, 5]
+numbers = [1, 2, 3, 4, 5]
 
-for sayi in sayilar:
-    print(sayi)
+for number in numbers:
+    print(number)
 ```
 
 The body of the loop is written **indented**. In Python indentation takes the place of curly braces, so it is not optional.
@@ -48,16 +48,16 @@ The body of the loop is written **indented**. In Python indentation takes the pl
 To sum the numbers in a list, first define an accumulator variable, then add to it inside the loop:
 
 ```python
-sayilar = [1, 2, 3, 4, 5]
-toplam = 0
+numbers = [1, 2, 3, 4, 5]
+total = 0
 
-for sayi in sayilar:
-    toplam = toplam + sayi
+for number in numbers:
+    total = total + number
 
-print(toplam)   # 15
+print(total)   # 15
 ```
 
-Instead of `toplam = toplam + sayi` you can write the shorter `toplam += sayi` — they mean the same thing.
+Instead of `total = total + number` you can write the shorter `total += number` — they mean the same thing.
 
 Python also has a built-in `sum()` function that does this in one line. But using `sum()` before you understand how a loop works will make the later sections harder for you. That is why the exercise asks you not to use it.
 
