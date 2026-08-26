@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QDialog,
     QFormLayout,
     QHBoxLayout,
+    QLabel,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -58,8 +59,12 @@ class SettingsDialog(QDialog):
         self._theme_box = QComboBox()
         self._theme_box.currentIndexChanged.connect(self._on_theme)
 
-        self._language_label = form.addRow("", self._language_box)
-        form.addRow("", self._theme_box)
+        # Etiketler açıkça oluşturuluyor: addRow'a boş metin verilirse Qt
+        # etiket üretmiyor ve labelForField() None dönüyor.
+        self._language_label = QLabel()
+        self._theme_label = QLabel()
+        form.addRow(self._language_label, self._language_box)
+        form.addRow(self._theme_label, self._theme_box)
         layout.addLayout(form)
 
         buttons = QHBoxLayout()
@@ -98,9 +103,5 @@ class SettingsDialog(QDialog):
         self._theme_box.setCurrentIndex(self._theme_box.findData(current))
         self._theme_box.blockSignals(False)
 
-        self._form.labelForField(self._language_box).setText(
-            self._language.t("settings.language")
-        )
-        self._form.labelForField(self._theme_box).setText(
-            self._language.t("settings.theme")
-        )
+        self._language_label.setText(self._language.t("settings.language"))
+        self._theme_label.setText(self._language.t("settings.theme"))
