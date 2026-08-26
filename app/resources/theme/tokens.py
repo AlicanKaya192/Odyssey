@@ -160,6 +160,32 @@ SYNTAX = {
     "dark": SYNTAX_DARK,
 }
 
+# --- Şerit simgelerinin renkleri -------------------------------------------
+# Makette her bölümün simgesi kendi renginde. Tek renk şeridi cansız
+# bırakıyor; renkler ayrıca "hangi bölümdeyim" sorusunu simgeye bakmadan
+# cevaplıyor. Koyu ve açık tema için ayrı tonlar, ikisinde de okunaklı olsun.
+RAIL_COLORS = {
+    "light": {
+        "journey": "#4F46E5",
+        "profile": "#0E7490",
+        "links": "#B45309",
+        "extras": "#15803D",
+        "license": "#7C3AED",
+        "releases": "#BE185D",
+        "settings": "#6B7280",
+    },
+    "dark": {
+        "journey": "#8B84FF",
+        "profile": "#22D3EE",
+        "links": "#FBBF24",
+        "extras": "#4ADE80",
+        "license": "#C4B5FD",
+        "releases": "#F472B6",
+        "settings": "#98A1AF",
+    },
+}
+
+
 # --- Bölüm durumları -------------------------------------------------------
 # Yol ekranındaki düğümlerin görünümü. Renge ek olarak simge de var, çünkü
 # durumu yalnızca renkle anlatmak renk körü kullanıcıyı dışarıda bırakır.

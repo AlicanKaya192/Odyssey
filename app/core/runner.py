@@ -25,7 +25,10 @@ import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..paths import exercise_python, sandbox_dir, workspace_dir
+from ..paths import exercise_python, is_frozen, sandbox_dir, workspace_dir
+
+# Paketlenmiş uygulamanın kendini denetleyici olarak çağırdığı bayrak.
+HARNESS_FLAG = "--run-harness"
 
 # Süreç ağacını öldürdükten sonra beklenecek azami süre.
 KILL_GRACE_SEC = 5
@@ -77,11 +80,33 @@ def interpreter() -> Path:
     """Kullanıcı kodunu çalıştıracak Python.
 
     Alıştırma ortamı kuruluysa o kullanılır (numpy, pandas oradadır).
-    Kurulu değilse uygulamanın kendi Python'una düşülür; böylece ortam
-    kurulmadan da temel alıştırmalar çalışabilir.
+    Kurulu değilse uygulamanın kendi yorumlayıcısına düşülür; böylece ortam
+    kurulmadan da standart kütüphaneyle çözülen alıştırmalar çalışır.
     """
     dedicated = exercise_python()
     return dedicated if dedicated.exists() else Path(sys.executable)
+
+
+def _harness_command(job_path: Path) -> list[str]:
+    """Denetleyiciyi çalıştıracak komutu kurar.
+
+    Paketlenmiş `.exe` içinde ayrı bir `python.exe` yok; `sys.executable`
+    uygulamanın kendisi. Onu doğrudan çağırmak arayüzü ikinci kez açardı.
+    Bu yüzden uygulama kendini özel bir bayrakla çağırıyor: `main.py` bu
+    bayrağı görünce arayüzü hiç kurmadan denetleyiciyi çalıştırıyor.
+
+    Alıştırma ortamı kuruluysa (numpy, pandas gerektiren bölümler için)
+    normal yol izlenir.
+    """
+    dedicated = exercise_python()
+
+    if dedicated.exists():
+        return [str(dedicated), "-I", str(sandbox_dir() / "harness.py"), str(job_path)]
+
+    if is_frozen():
+        return [sys.executable, HARNESS_FLAG, str(job_path)]
+
+    return [sys.executable, "-I", str(sandbox_dir() / "harness.py"), str(job_path)]
 
 
 def exercise_env_ready() -> bool:
@@ -159,12 +184,7 @@ def run_code(
             encoding="utf-8",
         )
 
-        command = [
-            str(interpreter()),
-            "-I",  # izole mod
-            str(sandbox_dir() / "harness.py"),
-            str(job_path),
-        ]
+        command = _harness_command(job_path)
 
         # Windows'ta arkada siyah konsol penceresi açılmasın.
         creation_flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0

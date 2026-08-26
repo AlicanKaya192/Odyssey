@@ -27,9 +27,12 @@ from ..core.language import LanguageManager
 from ..paths import install_root
 from ..widgets.document_view import DocumentView
 
-# `(?!#)` şart: bu olmadan `### Eklendi` satırı da sürüm başlığı sanılıyor ve
-# her grup ayrı bir kart olarak çiziliyordu.
-VERSION_PATTERN = re.compile(r"^##(?!#)\s*\[?([^\]\n—-]+)\]?\s*(?:[—-]\s*(.+))?$")
+# Sürüm başlığı iki şart taşıyor:
+#   `(?!#)`  — `### Eklendi` gibi alt başlıklar sürüm sanılmasın.
+#   `(\d...)` — numara rakamla başlar. Bu olmadan dosyadaki açıklama
+#              başlıkları ("## Sürüm numaraları nasıl ilerliyor?") da sürüm
+#              olarak listeleniyordu.
+VERSION_PATTERN = re.compile(r"^##(?!#)\s*\[?(\d[^\]\n—-]*)\]?\s*(?:[—-]\s*(.+))?$")
 GROUP_PATTERN = re.compile(r"^###\s+(.+)$")
 ITEM_PATTERN = re.compile(r"^[-*]\s+(.+)$")
 
@@ -95,9 +98,25 @@ class ReleaseView(QWidget):
 
         self.refresh()
 
+    def _changelog_path(self) -> Path:
+        """Seçili dilin sürüm notu dosyası.
+
+        İngilizcesi yoksa Türkçesine düşer; sürüm notu boş kalmasın.
+        """
+        if self._language.language != "tr":
+            wanted = install_root() / f"CHANGELOG.{self._language.language}.md"
+            if wanted.exists():
+                return wanted
+        return install_root() / "CHANGELOG.md"
+
+    def latest_version(self) -> str:
+        """En yeni sürüm numarası; bildirim noktası buna bakıyor."""
+        releases = parse_changelog(self._changelog_path())
+        return releases[0].version if releases else ""
+
     def refresh(self) -> None:
-        """`CHANGELOG.md`'yi yeniden okur."""
-        releases = parse_changelog(install_root() / "CHANGELOG.md")
+        """Sürüm notlarını seçili dilde okur."""
+        releases = parse_changelog(self._changelog_path())
 
         if not releases:
             body = (

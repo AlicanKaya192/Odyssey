@@ -1,4 +1,4 @@
-"""Uygulamanın giriş noktası.
+"""Odyssey — uygulamanın giriş noktası.
 
 Çalıştırmak için:
     .venv\\Scripts\\python app\\main.py
@@ -16,9 +16,56 @@ if __package__ in (None, ""):
 
 from app.core.language import LanguageManager  # noqa: E402
 from app.core.theme import ThemeManager  # noqa: E402
+from app.core.runner import HARNESS_FLAG  # noqa: E402
 from app.version import APP_VERSION  # noqa: E402
 
 MIN_PYTHON = (3, 10)
+
+
+def _run_harness_if_asked() -> bool:
+    """Uygulama denetleyici olarak mı çağrıldı?
+
+    Paketlenmiş `.exe` içinde ayrı bir `python.exe` yok. Alıştırma kodunu
+    ayrı bir süreçte çalıştırmak için uygulama kendini `--run-harness`
+    bayrağıyla çağırıyor; bu durumda arayüz hiç kurulmadan `sandbox/harness.py`
+    çalıştırılıyor.
+
+    Çalıştırıldıysa True döner ve program orada biter.
+    """
+    if len(sys.argv) < 3 or sys.argv[1] != HARNESS_FLAG:
+        return False
+
+    from app.paths import sandbox_dir
+
+    harness = sandbox_dir() / "harness.py"
+    source = harness.read_text(encoding="utf-8")
+
+    # Denetleyici tek başına ayakta duran bir script; kendi `main()`'ini
+    # çalıştırması için argümanları onun beklediği hâle getiriyoruz.
+    sys.argv = [str(harness), sys.argv[2]]
+    exec(compile(source, str(harness), "exec"), {"__name__": "__main__", "__file__": str(harness)})
+    return True
+
+
+def _claim_taskbar_identity() -> None:
+    """Windows görev çubuğunda uygulamanın kendi simgesini göstermesini sağlar.
+
+    Aksi hâlde Windows uygulamayı "Python" sayıyor ve simgesini pencereye
+    verdiğimiz simgeyle değiştirmiyor. Kendimize ayrı bir kimlik tanıtınca
+    görev çubuğu doğru simgeyi çiziyor.
+    """
+    if sys.platform != "win32":
+        return
+
+    try:
+        import ctypes
+
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+            "AlicanKaya.Odyssey"
+        )
+    except Exception:
+        # Simge biraz yanlış görünsün ama uygulama açılsın.
+        pass
 
 
 def check_python() -> None:
@@ -30,6 +77,10 @@ def check_python() -> None:
 
 
 def main() -> int:
+    # Denetleyici olarak çağrıldıysak arayüzü hiç kurmadan işi yapıp çıkıyoruz.
+    if _run_harness_if_asked():
+        return 0
+
     check_python()
 
     try:
@@ -43,12 +94,19 @@ def main() -> int:
             f"Ayrıntı: {exc}"
         ) from exc
 
+    from PySide6.QtGui import QIcon
+
     from app.core.progress import ProgressStore
     from app.ui.main_window import MainWindow
 
     application = QApplication(sys.argv)
-    application.setApplicationName("Proje A")
+    application.setApplicationName("Odyssey")
     application.setApplicationVersion(APP_VERSION)
+
+    _claim_taskbar_identity()
+    icon_path = Path(__file__).resolve().parent / "resources" / "icon.ico"
+    if icon_path.exists():
+        application.setWindowIcon(QIcon(str(icon_path)))
 
     # Ayarlar kullanıcının kendi bilgisayarındaki veritabanından okunuyor.
     store = ProgressStore()

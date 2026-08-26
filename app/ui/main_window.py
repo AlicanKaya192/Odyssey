@@ -97,7 +97,11 @@ class MainWindow(QMainWindow):
         language.language_changed.connect(self._on_language_changed)
         theme.theme_changed.connect(self._on_theme_changed)
 
+        # Temayı pencere kendisi uyguluyor; çağıranın hatırlamasına gerek yok.
+        self._on_theme_changed(theme.effective_mode)
+
         self._navigate("journey")
+        self._refresh_notifications()
         self.retranslate()
 
     # --- ekranlar ---------------------------------------------------------
@@ -122,7 +126,8 @@ class MainWindow(QMainWindow):
         self._profile_header = ScreenHeader(self._language)
         self._profile_screen = Screen(self._profile_header, self._profile)
 
-        # Bağlantılar, projeler ve lisans
+        # Bağlantılarım, Ekstra İçerikler ve Lisans — üçü ayrı menü öğesi
+        # ama aynı düzeni paylaştıkları için tek görünüm çiziyor.
         self._about = AboutView(self._language)
         self._about_header = ScreenHeader(self._language)
         self._about_screen = Screen(self._about_header, self._about)
@@ -141,6 +146,16 @@ class MainWindow(QMainWindow):
         ):
             self._stack.addWidget(widget)
 
+    def _refresh_notifications(self) -> None:
+        """Okunmamış sürüm notu varsa şeritte nokta gösterir.
+
+        Nokta süs değil: `CHANGELOG.md`'deki en yeni sürüm, kullanıcının en
+        son baktığı sürümden farklıysa çıkıyor.
+        """
+        latest = self._releases.latest_version()
+        seen = self._store.setting("seen_version", "")
+        self._rail.set_notification("releases", bool(latest) and latest != seen)
+
     def _install_shortcuts(self) -> None:
         QShortcut(QKeySequence("Ctrl+,"), self, self._open_settings)
         QShortcut(QKeySequence(Qt.Key.Key_Escape), self, self._escape)
@@ -158,12 +173,16 @@ class MainWindow(QMainWindow):
         elif key == "profile":
             self._profile.refresh()
             self._stack.setCurrentWidget(self._profile_screen)
-        elif key == "about":
+        elif key in ("links", "extras", "license"):
+            self._about.show_section(key)
             self._about.refresh()
             self._stack.setCurrentWidget(self._about_screen)
         elif key == "releases":
             self._releases.refresh()
             self._stack.setCurrentWidget(self._releases_screen)
+            # Bakıldı: bildirim noktası sönsün ve bir daha çıkmasın.
+            self._store.set_setting("seen_version", self._releases.latest_version())
+            self._rail.set_notification("releases", False)
 
         self._rail.set_current(key)
         self._update_headers()
@@ -209,9 +228,7 @@ class MainWindow(QMainWindow):
                 self._language.t("nav.path"), self._language.t("app.subtitle")
             )
         self._profile_header.set_titles(self._language.t("profile.title"))
-        self._about_header.set_titles(
-            self._language.t("about.title"), self._language.t("about.subtitle")
-        )
+        self._about_header.set_titles(self._language.t(f"nav.{self._about.section}"))
         self._releases_header.set_titles(
             self._language.t("release.title"), self._language.t("release.subtitle")
         )

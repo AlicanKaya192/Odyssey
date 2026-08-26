@@ -1,12 +1,11 @@
-"""Hakkında ekranı: bağlantılar, projeler ve lisans.
+"""Bağlantılarım, Ekstra İçerikler ve Lisans ekranları.
 
-Üç bölüm segmented control ile ayrılıyor:
+Üçü ayrı menü öğesi; şeritten doğrudan girilir. Aynı sınıf üçünü de
+çiziyor, çünkü hepsi aynı düzeni paylaşıyor: kart ızgarası ve altta telif
+satırı.
 
-- **Bağlantılar** — proje sahibinin GitHub, LinkedIn, portfolyo ve Medium
-  adresleri.
-- **Ekstra İçerikler** — buradaki müfredatın ötesine geçmek isteyenler için
-  açık kaynak projeler.
-- **Lisans** — uygulamanın ve içeriğin lisansı, telif satırı.
+Kartlar ikişerli diziliyor — dördünü alt alta uzatmak hem yer israfı hem de
+hepsini bir arada görmeyi engelliyordu.
 
 Bağlantılar uygulamanın içinde açılmıyor; tıklanınca sistemin tarayıcısına
 gidiyor. Uygulama kendi başına ağa çıkmıyor, yalnızca kullanıcının açık
@@ -28,7 +27,7 @@ from ..paths import content_dir, install_root
 from ..version import APP_VERSION
 from ..widgets.document_view import DocumentView
 
-SECTIONS = ("links", "projects", "license")
+SECTIONS = ("links", "extras", "license")
 
 
 def load_about() -> dict:
@@ -41,7 +40,7 @@ def load_about() -> dict:
 
 
 class AboutView(QWidget):
-    """Bağlantılar, projeler ve lisans."""
+    """Bağlantılar, projeler veya lisans — hangisi seçiliyse onu gösterir."""
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -60,50 +59,38 @@ class AboutView(QWidget):
 
     # --- gezinme ----------------------------------------------------------
 
+    @property
+    def section(self) -> str:
+        """Hangi bölüm gösteriliyor: links, extras veya license."""
+        return self._section
+
     def show_section(self, name: str) -> None:
-        if name in SECTIONS:
+        if name in SECTIONS and name != self._section:
             self._section = name
             self.refresh()
+        elif name in SECTIONS:
+            self._section = name
 
     def _on_action(self, action: str) -> None:
-        """Sayfa içindeki bağlantılar.
-
-        `open:<adres>` sistem tarayıcısında açar; başka bir şey uygulama
-        içinde gezinme demektir.
-        """
+        """Sayfa içindeki bağlantılar sistem tarayıcısında açılır."""
         if action.startswith("open:"):
             QDesktopServices.openUrl(QUrl(action[len("open:"):]))
-            return
-        self.show_section(action)
 
     # --- çizim ------------------------------------------------------------
 
     def refresh(self) -> None:
         builders = {
             "links": self._links_html,
-            "projects": self._projects_html,
+            "extras": self._extras_html,
             "license": self._license_html,
         }
         body = builders[self._section]()
 
         self._document.set_body(
             '<div class="page narrow"><div class="content">'
-            f"{self._segments_html()}{body}{self._footnote_html()}"
+            f"{body}{self._footnote_html()}"
             "</div></div>"
         )
-
-    def _segments_html(self) -> str:
-        labels = {
-            "links": self._language.t("about.links"),
-            "projects": self._language.t("about.projects"),
-            "license": self._language.t("about.license"),
-        }
-        buttons = "".join(
-            f'<a href="app:{name}" class="{"pri" if name == self._section else ""}">'
-            f"{html.escape(labels[name])}</a>"
-            for name in SECTIONS
-        )
-        return f'<div class="foot" style="margin:0 0 28px;padding:0;border:none">{buttons}</div>'
 
     def _author_html(self) -> str:
         author = self._data.get("author", {})
@@ -119,46 +106,51 @@ class AboutView(QWidget):
             f"<span>{html.escape(tagline)}</span></div></div>"
         )
 
-    def _card(self, title: str, url: str, description: str, go_label: str) -> str:
+    def _card(self, title: str, url: str, description: str) -> str:
+        go = self._language.t("about.open")
         return (
             f'<a class="linkcard" href="app:open:{html.escape(url)}">'
             f'<div class="row"><b>{html.escape(title)}</b>'
-            f'<span class="go">{html.escape(go_label)} →</span></div>'
+            f'<span class="go">{html.escape(go)} →</span></div>'
             f"<p>{html.escape(description)}</p>"
             f'<div class="url">{html.escape(url)}</div></a>'
         )
 
+    def _grid(self, cards: list[str]) -> str:
+        return f'<div class="cardgrid">{"".join(cards)}</div>'
+
     def _links_html(self) -> str:
-        cards = "".join(
+        cards = [
             self._card(
                 item.get("label", ""),
                 item.get("url", ""),
                 self._language.pick(item.get("description")),
-                self._language.t("about.open"),
             )
             for item in self._data.get("links", [])
-        )
-        return f"{self._author_html()}{cards}"
+        ]
+        return f"{self._author_html()}{self._grid(cards)}"
 
-    def _projects_html(self) -> str:
-        intro = f'<p class="meta">{html.escape(self._language.t("about.projects_intro"))}</p>'
-        cards = "".join(
+    def _extras_html(self) -> str:
+        intro = f'<p class="meta">{html.escape(self._language.t("about.extras_intro"))}</p>'
+        cards = [
             self._card(
                 self._language.pick(item.get("title")),
                 item.get("url", ""),
                 self._language.pick(item.get("description")),
-                self._language.t("about.open"),
             )
             for item in self._data.get("projects", [])
+        ]
+        return (
+            f"<h1>{html.escape(self._language.t('nav.extras'))}</h1>"
+            f"{intro}{self._grid(cards)}"
         )
-        return f"<h1>{html.escape(self._language.t('about.projects'))}</h1>{intro}{cards}"
 
     def _license_html(self) -> str:
         path = install_root() / "LICENSE"
         text = path.read_text(encoding="utf-8") if path.exists() else ""
 
         return (
-            f"<h1>{html.escape(self._language.t('about.license'))}</h1>"
+            f"<h1>{html.escape(self._language.t('nav.license'))}</h1>"
             f"<p>{html.escape(self._language.t('about.license_summary'))}</p>"
             f'<div class="licensebox">{html.escape(text)}</div>'
             f"<h2>{html.escape(self._language.t('about.content_license'))}</h2>"

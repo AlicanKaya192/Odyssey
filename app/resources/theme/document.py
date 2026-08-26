@@ -246,10 +246,19 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
 
 /* --- bağlantı ve proje kartları ------------------------------------- */
 
+/* Kartlar ikişerli dizilir; alt alta uzayan tek sütun hem yer israfı hem
+ * dördünü bir arada görmeyi engelliyordu. Dar pencerede tek sütuna düşer. */
+.cardgrid {{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 14px;
+    align-items: stretch;
+}}
+
 .linkcard {{
-    display: block; text-decoration: none;
+    display: flex; flex-direction: column; text-decoration: none;
     background: {p['surface']}; border: 1px solid {p['border']};
-    border-radius: 18px; padding: 20px 24px; margin-bottom: 14px;
+    border-radius: 18px; padding: 20px 24px;
     box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
 }}
 .linkcard:hover {{ border-color: {p['accent']}; }}
@@ -259,10 +268,10 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
     margin-left: auto; color: {p['accent']}; font-size: 14px; font-weight: 650;
     white-space: nowrap;
 }}
-.linkcard p {{ margin: 8px 0 0; font-size: 14px; color: {p['text_muted']}; }}
+.linkcard p {{ margin: 8px 0 0; font-size: 14px; color: {p['text_muted']}; flex: 1; }}
 .linkcard .url {{
-    margin-top: 10px; font-family: {FONTS['mono']}; font-size: 12.5px;
-    color: {p['text_muted']}; word-break: break-all;
+    margin-top: 12px; font-family: {FONTS['mono']}; font-size: 12px;
+    color: {p['text_muted']}; word-break: break-all; opacity: .8;
 }}
 
 .who {{

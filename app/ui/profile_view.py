@@ -1,7 +1,7 @@
 """Profil ekranı.
 
 Ad, soyad ve istatistikler. Bütün bilgiler kullanıcının kendi bilgisayarında,
-`%APPDATA%\\ProjeA\\progress.db` içinde duruyor — sunucu yok, hesap yok,
+`%APPDATA%\\Odyssey\\progress.db` içinde duruyor — sunucu yok, hesap yok,
 hiçbir veri dışarı çıkmıyor.
 
 Rozet duvarı bu ekrana M4 aşamasında eklenecek.
@@ -9,7 +9,7 @@ Rozet duvarı bu ekrana M4 aşamasında eklenecek.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QTimer, Qt, Signal
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
@@ -107,6 +107,14 @@ class ProfileView(QWidget):
         card.body.addLayout(fields)
 
         buttons = QHBoxLayout()
+
+        # Kaydedildi bilgisi düğmenin yanında beliriyor. Hiçbir geri bildirim
+        # vermeyince kullanıcı kaydın işleyip işlemediğini anlayamıyordu.
+        self._saved_note = QLabel()
+        self._saved_note.setProperty("tone", "success")
+        self._saved_note.hide()
+        buttons.addWidget(self._saved_note)
+
         buttons.addStretch(1)
         self._save_button = QPushButton()
         self._save_button.setProperty("variant", "primary")
@@ -182,7 +190,14 @@ class ProfileView(QWidget):
         self._store.set_profile(
             self._first_name.text().strip(), self._last_name.text().strip()
         )
+        self._show_saved()
         self.saved.emit()
+
+    def _show_saved(self) -> None:
+        """Kaydedildi bilgisini gösterir, birkaç saniye sonra gizler."""
+        self._saved_note.setText(f"✓  {self._language.t('profile.saved')}")
+        self._saved_note.show()
+        QTimer.singleShot(3000, self._saved_note.hide)
 
     # --- tema ve dil ------------------------------------------------------
 

@@ -1,6 +1,6 @@
 """İlerleme, profil, notlar ve ayarların saklandığı yer.
 
-Her şey kullanıcının kendi bilgisayarında, `%APPDATA%\\ProjeA\\progress.db`
+Her şey kullanıcının kendi bilgisayarında, `%APPDATA%\\Odyssey\\progress.db`
 dosyasında duruyor. Sunucu yok, hesap yok, internete hiçbir veri gitmiyor.
 
 Veritabanı ilk günden sürümlü: `schema_version` tablosu hangi göçlerin
