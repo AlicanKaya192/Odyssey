@@ -46,6 +46,28 @@ SCROLL_SPY = """
 </script>
 """
 
+# Dersin sonuna gelindiğinde bir kez haber verir. Bölümü açmak okumak
+# sayılmıyor; kullanıcı metnin sonuna inince "okundu" işaretleniyor.
+READ_TRACKER = """
+<script>
+(function () {
+  let bildirildi = false;
+  function bak() {
+    if (bildirildi) return;
+    const kalan = document.body.scrollHeight - window.scrollY - window.innerHeight;
+    // Sayfa zaten kısa ise (kaydırma yoksa) okunmuş sayılır.
+    if (kalan <= 80) {
+      bildirildi = true;
+      window.location.href = 'app:lesson-read';
+    }
+  }
+  window.addEventListener('scroll', bak, { passive: true });
+  window.addEventListener('resize', bak);
+  setTimeout(bak, 1200);
+})();
+</script>
+"""
+
 
 def render_markdown(text: str) -> tuple[str, list[tuple[str, str]]]:
     """Markdown'ı HTML'e çevirir ve ikinci seviye başlıkları döndürür.
@@ -77,12 +99,18 @@ class LessonView(QWidget):
         parent: QWidget | None = None,
         compact: bool = False,
         show_toc: bool = True,
+        track_reading: bool = False,
     ) -> None:
-        """`compact`, dar bir panelde (alıştırma yönergesi gibi) kullanılır."""
+        """`compact`, dar bir panelde (alıştırma yönergesi gibi) kullanılır.
+
+        `track_reading` açıkken, kullanıcı metnin sonuna indiğinde
+        `action` sinyaliyle `lesson-read` bildirilir.
+        """
         super().__init__(parent)
         self._language = language
         self._compact = compact
         self._show_toc = show_toc and not compact
+        self._track_reading = track_reading
 
         self._source = ""
         self._meta: list[str] = []
@@ -171,9 +199,11 @@ class LessonView(QWidget):
             page_class = "page narrow"
             aside = ""
 
+        scripts = (SCROLL_SPY if aside else "") + (
+            READ_TRACKER if self._track_reading else ""
+        )
         self._document.set_body(
-            f'<div class="{page_class}">{content}{aside}</div>'
-            + (SCROLL_SPY if aside else "")
+            f'<div class="{page_class}">{content}{aside}</div>{scripts}'
         )
 
     def _banner_html(self, tone: str, text: str) -> str:
@@ -224,21 +254,29 @@ class LessonView(QWidget):
         )
 
     def _footer_html(self) -> str:
-        if not self._footer:
+        """Alt gezinme düğmeleri.
+
+        Gidilecek yeri olmayan düğme hiç çizilmiyor. Soluk ama tıklanamaz bir
+        düğme bırakmak kullanıcıyı boşuna uğraştırıyor; son nottayken
+        "Sonraki not" görünmemeli.
+        """
+        available = [(a, label, primary) for a, label, primary in self._footer if a]
+        if not available:
             return ""
 
         buttons = []
-        for index, (action, label, primary) in enumerate(self._footer):
-            classes = []
-            if primary:
-                classes.append("pri")
-            if index == len(self._footer) - 1 and len(self._footer) > 1:
+        for index, (action, label, primary) in enumerate(available):
+            classes = ["pri"] if primary else []
+            # Sağa yaslama: birden fazla düğme varsa sonuncusu, tek düğme
+            # varsa yalnızca birincil olan sağa gider.
+            if (index == len(available) - 1 and len(available) > 1) or (
+                len(available) == 1 and primary
+            ):
                 classes.append("sp")
-            if not action:
-                classes.append("off")
+
             attribute = f' class="{" ".join(classes)}"' if classes else ""
             buttons.append(
-                f'<a href="app:{action or "none"}"{attribute}>{html.escape(label)}</a>'
+                f'<a href="app:{action}"{attribute}>{html.escape(label)}</a>'
             )
 
         return f'<div class="foot">{"".join(buttons)}</div>'

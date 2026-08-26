@@ -69,7 +69,7 @@ class TopicView(QWidget):
         layout.addWidget(self.header)
 
         self._stack = QStackedWidget()
-        self._lesson = LessonView(language)
+        self._lesson = LessonView(language, track_reading=True)
         self._notes = NotesView(language)
         self._pdf = PdfView(language)
         self._quiz = QuizView(language)
@@ -82,8 +82,11 @@ class TopicView(QWidget):
         self._quiz.completed.connect(self._on_quiz_completed)
         self._exercise.solved.connect(self._on_exercise_solved)
 
-        layout.addWidget(self._stack, 1)
+        # Geçiş şeridi içeriğin üstünde: altta, sonuç panelinin de altında
+        # dururken görülmüyordu ve ikinci alıştırmanın varlığı fark
+        # edilmiyordu.
         layout.addWidget(self._build_exercise_switcher())
+        layout.addWidget(self._stack, 1)
 
     def _build_exercise_switcher(self) -> QWidget:
         """Birden fazla alıştırma varsa aralarında geçiş şeridi."""
@@ -166,24 +169,44 @@ class TopicView(QWidget):
 
         self._lesson.set_meta(self._meta_items(section))
         self._lesson.set_footer(self._footer_items())
-        self._store.mark_lesson_read(chapter_id, section_id)
+        # Bölümü açmak okumak değil: "okundu" işareti, kullanıcı metnin
+        # sonuna indiğinde `lesson-read` bildirimiyle konuyor.
         self._update_progress_box(state)
         self.retranslate()
         self._segments.set_current(0, notify=False)
         self._show_pane(0)
 
     def _meta_items(self, section) -> list[str]:
-        """Ders başlığının altındaki bilgi satırının parçaları."""
-        items = [f"{section.estimated_minutes} dakika"]
+        """Ders başlığının altındaki bilgi satırının parçaları.
+
+        Başına simge konuyor; makette de öyle ve satır bir metin yığını
+        olmaktan çıkıp okunabilir hâle geliyor.
+        """
+        items = [f"📖  {section.estimated_minutes} {self._language.t('common.minutes')}"]
 
         if self._exercises:
             items.append(
-                f"{len(self._exercises)} {self._language.t('tabs.exercise').lower()}"
+                f"✏️  {len(self._exercises)} {self._language.t('tabs.exercise').lower()}"
             )
         if "quiz" in self._panes:
-            items.append(self._language.t("tabs.quiz").lower())
+            items.append(
+                f"📝  {self._quiz_length()} {self._language.t('quiz.questions_short')}"
+            )
 
         return items
+
+    def _quiz_length(self) -> int:
+        """Sınavdaki soru sayısı."""
+        import json
+
+        for block in (self._section.blocks if self._section else []):
+            if block.type != "quiz":
+                continue
+            resolved = block.file_for(self._language.language)
+            if resolved and resolved.exists:
+                with resolved.path.open(encoding="utf-8") as handle:
+                    return len(json.load(handle).get("questions", []))
+        return 0
 
     def _footer_items(self) -> list[tuple[str, str, bool]]:
         """Ders metninin altındaki gezinme düğmeleri.
@@ -217,7 +240,11 @@ class TopicView(QWidget):
         return buttons
 
     def _on_lesson_action(self, action: str) -> None:
-        if action == "go-quiz" and "quiz" in self._panes:
+        if action == "lesson-read" and self._section is not None:
+            self._store.mark_lesson_read(self._section.chapter_id, self._section.id)
+            self._refresh_progress()
+            self.progress_changed.emit()
+        elif action == "go-quiz" and "quiz" in self._panes:
             self._segments.set_current(self._panes.index("quiz"))
         elif action == "go-exercise" and "exercise" in self._panes:
             self._segments.set_current(self._panes.index("exercise"))
@@ -276,21 +303,54 @@ class TopicView(QWidget):
         self._stack.setCurrentWidget(widget)
         self._update_switcher()
 
+    def _refresh_progress(self) -> None:
+        """İlerlemeyi veritabanından tazeleyip kutuya yazar."""
+        if self._section is None:
+            return
+        state = self._store.section_state(
+            self._section.chapter_id, self._section.id, len(self._exercises)
+        )
+        self._update_progress_box(state)
+
     def _update_progress_box(self, state) -> None:
+        """Sağdaki ilerleme kutusunu gerçek duruma göre yazar.
+
+        Her parça kendi durumunu gösteriyor: bitmişse ✓, bitmemişse ○.
+        Önceden bölüm açılır açılmaz ders "okundu" sayıldığı için hiçbir şey
+        yapılmadan tik görünüyordu.
+        """
         if self._section is None:
             return
 
-        parts = []
+        parts: list[float] = []
+        labels: list[str] = []
+
         if "lesson" in self._panes:
-            parts.append(1 if state.lesson_read else 0)
+            done = bool(state.lesson_read)
+            parts.append(1.0 if done else 0.0)
+            labels.append(
+                f"{'✓' if done else '○'} {self._language.t('progress.lesson')}"
+            )
+
         if "quiz" in self._panes:
-            parts.append(1 if state.quiz_passed else 0)
+            done = bool(state.quiz_passed)
+            parts.append(1.0 if done else 0.0)
+            score = f" ({state.quiz_score})" if state.quiz_score is not None else ""
+            labels.append(
+                f"{'✓' if done else '○'} {self._language.t('progress.quiz')}{score}"
+            )
+
         if self._exercises:
-            parts.append(state.exercises_solved / max(len(self._exercises), 1))
+            total = len(self._exercises)
+            solved = state.exercises_solved
+            parts.append(solved / total)
+            labels.append(
+                f"{'✓' if solved >= total else '○'} "
+                f"{self._language.t('progress.exercises')} {solved}/{total}"
+            )
 
         percent = round(sum(parts) * 100 / len(parts)) if parts else 0
-        caption = f"{self._language.t('tabs.exercise')}: {state.exercises_solved}/{len(self._exercises)}"
-        self._lesson.set_progress(percent, caption)
+        self._lesson.set_progress(percent, "  ·  ".join(labels))
 
     # --- olaylar ----------------------------------------------------------
 
@@ -300,9 +360,11 @@ class TopicView(QWidget):
         self._store.record_quiz(
             self._section.chapter_id, self._section.id, score, passed
         )
+        self._refresh_progress()
         self.progress_changed.emit()
 
     def _on_exercise_solved(self, _exercise_id: str) -> None:
+        self._refresh_progress()
         self.progress_changed.emit()
 
     # --- tema ve dil ------------------------------------------------------
