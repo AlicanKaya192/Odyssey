@@ -72,6 +72,18 @@ PATHS: dict[str, str] = {
         'c0-4 3-6 5-8 1-1 3-2 3-3z"/>'
     ),
     "chevron-right": '<path d="m9 18 6-6-6-6"/>',
+    "link": (
+        '<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/>'
+        '<path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>'
+    ),
+    "package": (
+        '<path d="m12 2 9 5v10l-9 5-9-5V7z"/>'
+        '<path d="m3 7 9 5 9-5"/><path d="M12 12v10"/>'
+    ),
+    "scale": (
+        '<path d="M12 3v18"/><path d="M7 21h10"/><path d="M5 7h14"/>'
+        '<path d="m5 7-3 7h6z"/><path d="m19 7-3 7h6z"/>'
+    ),
 }
 
 
@@ -86,9 +98,17 @@ def svg_markup(name: str, color: str, stroke: float = 2.0, filled: bool = False)
     )
 
 
-def icon(name: str, color: str = "#666F7D", size: int = 22, filled: bool = False) -> QIcon:
-    """İkonu istenen renk ve boyutta bir QIcon olarak üretir."""
-    renderer = QSvgRenderer(QByteArray(svg_markup(name, color, filled=filled).encode("utf-8")))
+def icon(
+    name: str,
+    color: str = "#666F7D",
+    size: int = 22,
+    filled: bool = False,
+    stroke: float = 2.0,
+) -> QIcon:
+    """İkonu istenen renk, boyut ve çizgi kalınlığında bir QIcon olarak üretir."""
+    renderer = QSvgRenderer(
+        QByteArray(svg_markup(name, color, stroke=stroke, filled=filled).encode("utf-8"))
+    )
 
     # Yüksek DPI ekranlarda bulanık görünmemesi için iki katı çözünürlükte
     # çizip ölçekliyoruz.

@@ -45,6 +45,10 @@ Kodun ayrı bir işlemde, izole bir çalışma klasöründe çalıştırılır. 
 
 Uygulama çevrimdışı çalışır. Tek istisna, açılışta yapılan güncelleme kontrolüdür; bu da ayarlardan kapatılabilir.
 
+"Bağlantılar ve Projeler" bölümündeki adresler uygulamanın içinde açılmaz; tıkladığında sistemin tarayıcısına gider. Yani uygulama kendi başına ağa çıkmaz, yalnızca senin açık isteğinle bir adres açılır.
+
 ## Lisans
 
-Belirlenecek.
+MIT Lisansı — Copyright (c) 2026 Alican Kaya. Ayrıntılar için [LICENSE](LICENSE) dosyasına bak.
+
+Ders içeriği [Data Science Roadmap](https://github.com/AlicanKaya192/Data-Science-RoadMap) projesinden geliyor ve aynı lisansa tabi.

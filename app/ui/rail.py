@@ -6,7 +6,7 @@ notları ve ayarlar. Dar tutulması bilinçli — asıl yer içeriğe kalsın.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtWidgets import QFrame, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from ..core.language import LanguageManager
@@ -18,8 +18,13 @@ from ..widgets.effects import repolish
 DESTINATIONS = [
     ("journey", "home", "nav.path"),
     ("profile", "user", "nav.profile"),
+    ("about", "link", "nav.about"),
     ("releases", "megaphone", "nav.releases"),
 ]
+
+# Pasif ikonun çizgi kalınlığı. İnce çizgi koyu zeminde siliniyordu.
+STROKE_ACTIVE = 2.3
+STROKE_IDLE = 2.1
 
 
 class Rail(QFrame):
@@ -83,19 +88,26 @@ class Rail(QFrame):
         self._refresh_icons()
 
     def _refresh_icons(self) -> None:
+        """İkonları seçili duruma ve temaya göre yeniden çizer.
+
+        Pasif ikonlar `text_muted` rengindeydi ve koyu zeminde neredeyse
+        siliniyordu. Artık gövde metniyle aynı renkte, biraz daha kalın
+        çizgiyle çiziliyorlar; seçili olan vurgu renginde.
+        """
         palette = PALETTES.get(self._mode, PALETTES["light"])
 
         for key, button in self._buttons.items():
             active = key == self._current
-            button.setProperty("active", "true" if active else "false")
             button.setIcon(
                 icon(
                     button.property("icon_name"),
-                    palette["accent"] if active else palette["text_muted"],
-                    22,
+                    palette["accent"] if active else palette["text"],
+                    24,
+                    stroke=STROKE_ACTIVE if active else STROKE_IDLE,
                 )
             )
-            button.setIconSize(button.iconSize().scaled(22, 22, Qt.AspectRatioMode.KeepAspectRatio))
+            button.setIconSize(QSize(24, 24))
+            button.setProperty("active", "true" if active else "false")
             repolish(button)
 
     def retranslate(self) -> None:

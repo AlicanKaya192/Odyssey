@@ -244,6 +244,53 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
 .relcard ul {{ margin: 0; padding-left: 20px; }}
 .relcard li {{ margin: 6px 0; font-size: 14.5px; color: {p['text']}; }}
 
+/* --- bağlantı ve proje kartları ------------------------------------- */
+
+.linkcard {{
+    display: block; text-decoration: none;
+    background: {p['surface']}; border: 1px solid {p['border']};
+    border-radius: 18px; padding: 20px 24px; margin-bottom: 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+}}
+.linkcard:hover {{ border-color: {p['accent']}; }}
+.linkcard .row {{ display: flex; align-items: center; gap: 12px; }}
+.linkcard b {{ font-size: 16.5px; font-weight: 660; color: {p['text']}; }}
+.linkcard .go {{
+    margin-left: auto; color: {p['accent']}; font-size: 14px; font-weight: 650;
+    white-space: nowrap;
+}}
+.linkcard p {{ margin: 8px 0 0; font-size: 14px; color: {p['text_muted']}; }}
+.linkcard .url {{
+    margin-top: 10px; font-family: {FONTS['mono']}; font-size: 12.5px;
+    color: {p['text_muted']}; word-break: break-all;
+}}
+
+.who {{
+    display: flex; align-items: center; gap: 18px; margin-bottom: 30px;
+    padding: 24px 26px; border-radius: 24px;
+    background: linear-gradient(135deg, {p['accent']} 0%, {p['accent_second']} 100%);
+}}
+.who .av {{
+    flex: 0 0 auto; width: 58px; height: 58px; border-radius: 50%;
+    background: rgba(255,255,255,.22); color: #fff;
+    display: grid; place-items: center; font-size: 23px; font-weight: 750;
+}}
+.who b {{ display: block; font-size: 21px; font-weight: 720; color: #fff; }}
+.who span {{ font-size: 14px; color: rgba(255,255,255,.92); }}
+
+.licensebox {{
+    background: {p['code_bg']}; border: 1px solid {p['border']};
+    border-radius: 12px; padding: 20px 22px; margin: 18px 0;
+    font-family: {FONTS['mono']}; font-size: 12.5px;
+    line-height: 1.75; white-space: pre-wrap; color: {p['text_muted']};
+}}
+
+.footnote {{
+    margin-top: 40px; padding-top: 22px;
+    border-top: 1px solid {p['border']};
+    font-size: 13px; color: {p['text_muted']}; text-align: center;
+}}
+
 /* --- alt gezinme ---------------------------------------------------- */
 
 .foot {{

@@ -27,6 +27,7 @@ from ..core.progress import ProgressStore
 from ..core.theme import ThemeManager
 from ..paths import content_dir
 from .header import ScreenHeader
+from .about_view import AboutView
 from .journey_view import JourneyView
 from .profile_view import ProfileView
 from .rail import Rail
@@ -121,6 +122,11 @@ class MainWindow(QMainWindow):
         self._profile_header = ScreenHeader(self._language)
         self._profile_screen = Screen(self._profile_header, self._profile)
 
+        # Bağlantılar, projeler ve lisans
+        self._about = AboutView(self._language)
+        self._about_header = ScreenHeader(self._language)
+        self._about_screen = Screen(self._about_header, self._about)
+
         # Sürüm notları
         self._releases = ReleaseView(self._language)
         self._releases_header = ScreenHeader(self._language)
@@ -130,6 +136,7 @@ class MainWindow(QMainWindow):
             self._journey_screen,
             self._topic,
             self._profile_screen,
+            self._about_screen,
             self._releases_screen,
         ):
             self._stack.addWidget(widget)
@@ -151,6 +158,9 @@ class MainWindow(QMainWindow):
         elif key == "profile":
             self._profile.refresh()
             self._stack.setCurrentWidget(self._profile_screen)
+        elif key == "about":
+            self._about.refresh()
+            self._stack.setCurrentWidget(self._about_screen)
         elif key == "releases":
             self._releases.refresh()
             self._stack.setCurrentWidget(self._releases_screen)
@@ -199,6 +209,9 @@ class MainWindow(QMainWindow):
                 self._language.t("nav.path"), self._language.t("app.subtitle")
             )
         self._profile_header.set_titles(self._language.t("profile.title"))
+        self._about_header.set_titles(
+            self._language.t("about.title"), self._language.t("about.subtitle")
+        )
         self._releases_header.set_titles(
             self._language.t("release.title"), self._language.t("release.subtitle")
         )
@@ -226,6 +239,8 @@ class MainWindow(QMainWindow):
         self._topic.set_mode(mode)
         self._profile.set_mode(mode)
         self._profile_header.set_mode(mode)
+        self._about.set_mode(mode)
+        self._about_header.set_mode(mode)
         self._releases.set_mode(mode)
         self._releases_header.set_mode(mode)
 
@@ -235,6 +250,7 @@ class MainWindow(QMainWindow):
         self._journey.retranslate()
         self._topic.retranslate()
         self._profile.retranslate()
+        self._about.retranslate()
         self._releases.retranslate()
         self._update_headers()
 
