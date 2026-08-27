@@ -36,6 +36,23 @@ VERSION_PATTERN = re.compile(r"^##(?!#)\s*\[?(\d[^\]\n—-]*)\]?\s*(?:[—-]\s*(
 GROUP_PATTERN = re.compile(r"^###\s+(.+)$")
 ITEM_PATTERN = re.compile(r"^[-*]\s+(.+)$")
 
+# Madde metinlerinde satır içi markdown kullanılıyor. Metin ham basılırsa
+# yıldızlar ve ters tırnaklar ekranda göründüğü için burada HTML'e çevriliyor.
+INLINE_CODE_PATTERN = re.compile(r"`([^`]+)`")
+INLINE_BOLD_PATTERN = re.compile(r"\*\*(.+?)\*\*")
+
+
+def _inline(text: str) -> str:
+    """`**kalın**` ve `` `kod` `` işaretlerini HTML'e çevirir.
+
+    Önce kaçış uygulanıyor; böylece metindeki `<` işareti etiket sanılmıyor.
+    Kod ile kalın sırası önemli: kod bloğunun içindeki yıldızlar kalın
+    yazıya dönüşmesin diye kod önce işleniyor.
+    """
+    escaped = html.escape(text)
+    escaped = INLINE_CODE_PATTERN.sub(r"<code>\1</code>", escaped)
+    return INLINE_BOLD_PATTERN.sub(r"<strong>\1</strong>", escaped)
+
 
 @dataclass
 class Release:
@@ -148,7 +165,7 @@ class ReleaseView(QWidget):
             if title:
                 parts.append(f"<h4>{html.escape(title)}</h4>")
             if items:
-                bullets = "".join(f"<li>{html.escape(item)}</li>" for item in items)
+                bullets = "".join(f"<li>{_inline(item)}</li>" for item in items)
                 parts.append(f"<ul>{bullets}</ul>")
 
         return f'<div class="relcard">{"".join(parts)}</div>'

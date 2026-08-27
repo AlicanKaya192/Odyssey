@@ -21,6 +21,25 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.1.3] — 27 August 2026
+
+### Added
+- A **Getting Started** section: what Python is, your first program, how the application works, and an installation note.
+- A **Conditionals** section: if / elif / else, the order of conditions, truthiness.
+- A **Loops** section: for, while, range, with notes on break and continue.
+- Two lecture notes for Operators: arithmetic operators, assignment and comparison.
+
+### Changed
+- The Python Fundamentals module was reorganised. The order is now: Getting Started, Variables, Operators, Conditionals, Loops.
+- Loops were split out of Operators into their own section; the two did not belong together.
+- The Operators lecture notes now open as text instead of a PDF.
+- Quiz explanations now look like the callout box used in lessons.
+
+### Fixed
+- The second exercise in Variables asked you to write a function, but functions had not been taught at that point. It was replaced with something the lesson actually covers: converting text to a number.
+- Bold and code markers in the release notes were shown raw on screen; they are now rendered as formatting.
+- During the reorganisation two exercises kept their old identifier even though their content had changed completely, so opening one showed the code you had written for the previous exercise. The identifiers were separated and the exercises now start empty.
+
 ## [0.1.2] — 27 August 2026
 
 ### Added

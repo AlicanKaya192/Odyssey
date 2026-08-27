@@ -12,10 +12,10 @@ gerekmez; yalnızca değişen içerik paketi iner.
 # Ayrıntısı CHANGELOG.md'nin başında yazılı.
 
 # Uygulama kodunun sürümü.
-APP_VERSION = "0.1.2"
+APP_VERSION = "0.1.3"
 
 # Müfredat içeriğinin sürümü. content/manifest.json ile birlikte kullanılır.
-CONTENT_VERSION = "0.1.2"
+CONTENT_VERSION = "0.1.3"
 
 # Veritabanı şemasının sürümü. Bu sayı arttığında, açılışta eksik göçler
 # sırayla uygulanır ve kullanıcının mevcut verisi korunur.

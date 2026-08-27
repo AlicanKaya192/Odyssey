@@ -1,74 +1,74 @@
 <div align="right">
-  <b>Türkçe</b> · <a href="./README.en.md">English</a>
+  <a href="./README.tr.md">Türkçe</a> · <b>English</b>
 </div>
 
 # Odyssey
 
-Data Science ve Machine Learning konularını bölüm bölüm öğreten, tamamen çevrimdışı çalışan bir masaüstü uygulaması.
+A fully offline desktop application that teaches Data Science and Machine Learning, one section at a time.
 
-Her bölümde konu anlatımı, ders notları ve alıştırmalar var. Bölümü tamamlamak için sınavı geçmen ve kod alıştırmalarını çözmen gerekiyor. Kodu uygulamanın içinde yazıyorsun, program onu çalıştırıp çıktısını ve sonucunu kontrol ediyor. Yapay zeka kullanılmıyor; kontroller önceden tanımlı ve deterministik.
+Every section has a lesson, lecture notes and exercises. To complete a section you need to pass the quiz and solve the coding exercises. You write the code inside the application and it runs your code, then checks the output and the result. No artificial intelligence is involved; the checks are predefined and deterministic.
 
-## Durum
+## Status
 
-Erken geliştirme aşaması (`0.1.2`). Uygulama uçtan uca çalışıyor ama içerik henüz başlangıç seviyesinde.
+Early development (`0.1.3`). The application works end to end, but the content is still at the beginning.
 
-**Çalışanlar:** öğrenme yolu, konu anlatımı, ders notları, sınav, kod alıştırmaları ve otomatik kontrol, kademeli ipuçları, hata açıklamaları, kalıcı ilerleme kaydı, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema.
+**Working:** learning path, lessons, lecture notes, quizzes, coding exercises with automatic checking, graded hints, error explanations, persistent progress, Turkish/English interface and content, light and dark themes.
 
-**Henüz yok:** müfredatın tamamı (şu an Python Temelleri modülünün iki bölümü var, hedef 23 modül), rozetler, kullanıcının kendi not alanı, uygulama içi güncelleme sistemi.
+**Not there yet:** the full curriculum (five sections of the Python Fundamentals module exist today; the target is 23 modules), badges, a place for your own notes, the in-app update system.
 
-Yol haritası [CHANGELOG.md](CHANGELOG.md) dosyasında ilerliyor.
+The roadmap moves along in [CHANGELOG.en.md](CHANGELOG.en.md).
 
-## Kurulum
+## Installing
 
-Python kurmak istemiyorsan [Releases](https://github.com/AlicanKaya192/Odyssey/releases) sayfasından hazır paketi indir, klasörü aç ve `Odyssey.exe` dosyasını çalıştır. Kuruluma, yönetici hakkına veya Python'a gerek yok.
+If you would rather not install Python, download the ready-made package from [Releases](https://github.com/AlicanKaya192/Odyssey/releases), extract the folder and run `Odyssey.exe`. No installation, no admin rights, no Python needed.
 
-## Gereksinimler (kaynaktan çalıştırmak için)
+## Requirements (for running from source)
 
 - Windows 10 / 11
-- Python 3.10 – 3.14 (temiz bir CPython kurulumu)
+- Python 3.10 – 3.14 (a clean CPython installation)
 
-Anaconda'nın Python'u ile kurmayın. Anaconda kendi MSVC runtime kütüphanelerini taşıyor ve Qt'nin DLL'leri bunları yüklediğinde uygulama açılmıyor.
+Do not use Anaconda's Python. Anaconda ships its own MSVC runtime libraries, and when Qt's DLLs load those, the application will not start.
 
-## Kurulum (geliştirme)
+## Setting up (development)
 
 ```bash
 py -3.14 tools/setup_env.py
 ```
 
-Bu komut hem uygulamanın çalıştığı ortamı hem de alıştırmaların çalıştığı ayrı ortamı kurar. Ardından:
+This command creates both the environment the application runs in and the separate environment the exercises run in. Then:
 
 ```bash
 .venv\Scripts\python app\main.py
 ```
 
-## Diller
+## Languages
 
-Arayüz ve içerik Türkçe ve İngilizce. Ayarlardan istediğin an değiştirebilirsin, uygulamayı yeniden başlatmana gerek yok. Bir bölümün İngilizce çevirisi henüz yoksa Türkçesi gösterilir ve üstte bunu belirten bir uyarı çıkar.
+Both the interface and the content are available in Turkish and English. You can switch at any time from Settings, without restarting. If a section has not been translated into English yet, the Turkish version is shown with a notice at the top.
 
-## Verilerin nerede duruyor?
+## Where is your data kept?
 
-İlerlemen, sınav notların, yazdığın kodlar, notların ve profilin `%APPDATA%\Odyssey\` klasöründeki veritabanında tutulur. Uygulamayı güncellediğinde veya silip yeniden kurduğunda bu klasöre dokunulmaz, ilerlemen kaybolmaz.
+Your progress, quiz scores, the code you write, your notes and your profile are stored in a database inside `%APPDATA%\Odyssey\`. Updating the application, or removing and reinstalling it, does not touch that folder — your progress is not lost.
 
-## Alıştırmalar nasıl kontrol ediliyor?
+## How are exercises checked?
 
-Kodun ayrı bir işlemde, izole bir çalışma klasöründe çalıştırılır. Ardından çıktısı, oluşturduğu değişkenler ve tanımladığı fonksiyonlar beklenen değerlerle karşılaştırılır. Kontrollerin tamamı önceden tanımlıdır; kod değerlendirmesinde herhangi bir dış servis kullanılmaz.
+Your code runs in a separate process, inside an isolated working folder. Its output, the variables it creates and the functions it defines are then compared against expected values. Every check is predefined; no external service takes part in evaluating your code.
 
-**Not:** Bu bir güvenlik sandbox'ı değildir. Kendi yazdığın kodu kendi bilgisayarında çalıştırıyorsun. Sistemin sağladığı şey izole bir çalışma klasörü, zaman aşımı sınırı, çıktı sınırı ve kodun hata vermesi durumunda uygulamanın çökmemesidir.
+**Note:** this is not a security sandbox. You are running your own code on your own machine. What the system provides is an isolated working folder, a timeout, an output limit, and the guarantee that the application does not crash when your code raises an error.
 
-## İnternet
+## Internet
 
-Uygulama tamamen çevrimdışı çalışır. Şu an hiçbir ağ çağrısı yapmıyor.
+The application works entirely offline. It makes no network calls at all right now.
 
-İleride açılışta bir güncelleme kontrolü eklenecek (yeni sürüm var mı diye bakmak için); geldiğinde ayarlardan kapatılabilir olacak. Henüz yok.
+An update check on startup is planned for later, so the app can tell you when a new version exists; it will be switchable from Settings when it arrives. It does not exist yet.
 
-"Bağlantılar ve Projeler" bölümündeki adresler uygulamanın içinde açılmaz; tıkladığında sistemin tarayıcısına gider. Yani uygulama kendi başına ağa çıkmaz, yalnızca senin açık isteğinle bir adres açılır.
+Addresses in the "Links and Extra Content" sections do not open inside the application; clicking one hands it to your system browser. The application never reaches the network on its own — an address opens only because you asked for it.
 
-## Katkıda bulunma
+## Contributing
 
-Issue ve pull request'ler açıktır. Önce [CONTRIBUTING.md](CONTRIBUTING.md) ve [Davranış Kuralları](CODE_OF_CONDUCT.md) dosyalarını okumanı rica ederim.
+Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md) first.
 
-## Lisans
+## Licence
 
-MIT Lisansı — Copyright (c) 2026 Alican Kaya. Ayrıntılar için [LICENSE](LICENSE) dosyasına bak.
+MIT Licence — Copyright (c) 2026 Alican Kaya. See [LICENSE](LICENSE) for details.
 
-Ders içeriği [Data Science Roadmap](https://github.com/AlicanKaya192/Data-Science-RoadMap) projesinden geliyor ve aynı lisansa tabi.
+The course content comes from the [Data Science Roadmap](https://github.com/AlicanKaya192/Data-Science-RoadMap) project and falls under the same licence.

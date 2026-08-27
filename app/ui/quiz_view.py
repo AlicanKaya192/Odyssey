@@ -63,9 +63,32 @@ class QuestionCard(QFrame):
             self._buttons.append(button)
             layout.addWidget(button)
 
-        self._feedback = QLabel()
-        self._feedback.setWordWrap(True)
+        # Açıklama, konu anlatımındaki ipucu kutusuyla aynı görünümde:
+        # ampul simgesi, vurgu renginde sol kenar ve dolgulu zemin. Düz metin
+        # olarak bırakıldığında şıkların arasında kaybolup gidiyordu.
+        self._feedback = QFrame()
+        self._feedback.setProperty("banner", "accent")
         self._feedback.hide()
+
+        feedback_layout = QHBoxLayout(self._feedback)
+        feedback_layout.setContentsMargins(
+            SPACING["md"], SPACING["sm"], SPACING["md"], SPACING["sm"]
+        )
+        feedback_layout.setSpacing(SPACING["sm"])
+
+        self._feedback_icon = QLabel("💡")
+        self._feedback_icon.setFixedWidth(20)
+        self._feedback_icon.setAlignment(Qt.AlignmentFlag.AlignTop)
+        feedback_layout.addWidget(self._feedback_icon)
+
+        self._feedback_text = QLabel()
+        self._feedback_text.setWordWrap(True)
+        self._feedback_text.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+        feedback_layout.addWidget(self._feedback_text, 1)
+
+        layout.addSpacing(SPACING["xs"])
         layout.addWidget(self._feedback)
 
         self._index = index
@@ -96,10 +119,7 @@ class QuestionCard(QFrame):
 
         explanation = self._language.pick(self._question.get("explanation"))
         if explanation:
-            self._feedback.setText(
-                f"{self._language.t('quiz.explanation')}: {explanation}"
-            )
-            self._feedback.setProperty("role", "muted")
+            self._feedback_text.setText(explanation)
             self._feedback.show()
 
     def reset(self) -> None:
@@ -129,9 +149,7 @@ class QuestionCard(QFrame):
         if self._answered:
             explanation = self._language.pick(self._question.get("explanation"))
             if explanation:
-                self._feedback.setText(
-                    f"{self._language.t('quiz.explanation')}: {explanation}"
-                )
+                self._feedback_text.setText(explanation)
 
 
 class QuizView(QWidget):

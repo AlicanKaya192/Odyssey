@@ -19,6 +19,25 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.1.3] — 27 Ağustos 2026
+
+### Eklendi
+- **Başlangıç** bölümü: Python nedir, ilk program, uygulamanın nasıl çalıştığı ve kurulum notu.
+- **Koşul Durumları** bölümü: if / elif / else, koşul sırası, doğruluk değerleri.
+- **Döngüler** bölümü: for, while, range, break ve continue notlarıyla.
+- Operatörler bölümüne iki ders notu: aritmetik operatörler, atama ve karşılaştırma.
+
+### Değişti
+- Python Temelleri modülü yeniden düzenlendi. Sıra artık: Başlangıç, Değişkenler, Operatörler, Koşullar, Döngüler.
+- Döngüler operatörlerden ayrılıp kendi bölümü oldu; ikisi tek bölüme sığmıyordu.
+- Operatörler bölümünün ders notu PDF yerine metin olarak açılıyor.
+- Sınavlardaki açıklamalar artık ders anlatımındaki ipucu kutusuyla aynı görünümde.
+
+### Düzeltildi
+- Değişkenler bölümünün ikinci alıştırması fonksiyon yazmayı istiyordu, ama fonksiyonlar o noktada henüz anlatılmamıştı. Alıştırma o dersin gerçekten öğrettiği şeyle değiştirildi: metinden sayıya dönüşüm.
+- Sürüm notlarındaki kalın yazı ve kod işaretleri ekranda ham görünüyordu; artık biçimlendirilmiş olarak çiziliyor.
+- Yeniden düzenleme sırasında iki alıştırma, içeriği tamamen değişmesine rağmen eski kimliğini korumuştu. Bu yüzden açtığınızda önceki alıştırmada yazdığınız kod karşınıza geliyordu. Kimlikler ayrıştırıldı, alıştırmalar artık boş başlıyor.
+
 ## [0.1.2] — 27 Ağustos 2026
 
 ### Eklendi
