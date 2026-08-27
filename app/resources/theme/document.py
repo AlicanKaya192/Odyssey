@@ -236,6 +236,15 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
     background: {p['accent']}; color: #fff; font-size: 11px; font-weight: 750;
     padding: 3px 9px; border-radius: 999px; letter-spacing: .4px;
 }}
+/* Yapım aşaması rozeti. "YENİ" gibi dolu değil, çerçeveli ve sakin —
+   dikkat çekmesi değil, bilgi vermesi gerekiyor. */
+.relcard .v .stage {{
+    /* Yazı rengi zeminden geliyor: açık temada kırmızı koyu, koyu temada
+       açık ton. Sabit beyaz yazsaydık koyu temada okunmazdı. */
+    background: {p['danger']}; color: {p['bg']};
+    font-size: 11px; font-weight: 750; letter-spacing: .6px;
+    padding: 3px 10px; border-radius: 8px;
+}}
 .relcard .v .dt {{ color: {p['text_muted']}; font-size: 13px; margin-left: auto; }}
 .relcard h4 {{
     font-size: 13px; font-weight: 700; color: {p['text_muted']};
@@ -293,6 +302,28 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
     font-family: {FONTS['mono']}; font-size: 12.5px;
     line-height: 1.75; white-space: pre-wrap; color: {p['text_muted']};
 }}
+
+/* Sürüm notlarının alt sayfa düğmeleri. */
+.pager {{
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin: 34px 0 8px; flex-wrap: wrap;
+}}
+.pager .pg {{
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 38px; height: 38px; padding: 0 12px;
+    border: 1px solid {p['border']}; border-radius: 10px;
+    background: {p['surface']}; color: {p['text_muted']};
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    transition: border-color .15s, color .15s, background .15s;
+}}
+.pager a.pg:hover {{
+    color: {p['text']}; border-color: {p['accent']};
+}}
+.pager .pg.on {{
+    background: {p['accent']}; border-color: {p['accent']};
+    color: #FFFFFF;
+}}
+.pager .pg.off {{ opacity: .38; }}
 
 .footnote {{
     margin-top: 40px; padding-top: 22px;

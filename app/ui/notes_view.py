@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import (
     QFrame,
@@ -38,6 +38,10 @@ LIST_WIDTH = 270
 class NotesView(QWidget):
     """Bir bölümün ders notları."""
 
+    # Son notun sonundaki düğmeye basıldığında yayılır; bölümdeki bir sonraki
+    # adıma (sınav ya da alıştırma) geçilmesi isteniyor demektir.
+    advance = Signal()
+
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._language = language
@@ -45,6 +49,9 @@ class NotesView(QWidget):
         self._directory: Path | None = None
         self._current = 0
         self._buttons: list[QPushButton] = []
+        # Son notun altında görünecek "devam et" düğmesinin etiketi. Bölümde
+        # notlardan sonra ne geliyorsa (sınav, alıştırma) onun adı yazılıyor.
+        self._advance_label: str | None = None
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -106,6 +113,47 @@ class NotesView(QWidget):
             self._step(1)
         elif action == "previous":
             self._step(-1)
+        elif action == "advance":
+            self.advance.emit()
+
+    def set_advance_label(self, label: str | None) -> None:
+        """Son notun sonunda görünecek "devam et" düğmesinin adını belirler.
+
+        `None` verilirse düğme çizilmiyor; bölümde notlardan sonra bir adım
+        yoksa kullanıcıyı boşluğa yollamanın anlamı yok.
+        """
+        self._advance_label = label
+        if self._documents:
+            self._apply_footer()
+
+    def _apply_footer(self) -> None:
+        """Not okuyucusunun altındaki gezinme düğmeleri.
+
+        Notlar arasında ileri geri gezilir; **son notta** ileri düğmesi
+        bölümün bir sonraki adımına (sınav ya da alıştırma) dönüşür. Böylece
+        okuyan kişi ders notunu bitirdiğinde sol menüye gitmek zorunda
+        kalmadan devam edebiliyor.
+        """
+        son_not = self._current >= len(self._documents) - 1
+
+        if son_not and self._advance_label:
+            ileri = ("advance", f"{self._advance_label}  →", True)
+        elif son_not:
+            ileri = ("", "", True)
+        else:
+            ileri = ("next", f"{self._language.t('notes.next')}  →", True)
+
+        # Oklar gideceği yönü gösteriyor: geri sola, ileri sağa.
+        self._reader.set_footer(
+            [
+                (
+                    "previous" if self._current > 0 else "",
+                    f"←  {self._language.t('notes.previous')}",
+                    False,
+                ),
+                ileri,
+            ]
+        )
 
     # --- içerik -----------------------------------------------------------
 
@@ -180,21 +228,7 @@ class NotesView(QWidget):
 
         self._reader.show_text(f"# {title}\n\n{body}")
         self._reader.set_meta([counter])
-        # Oklar gideceği yönü gösteriyor: geri sola, ileri sağa.
-        self._reader.set_footer(
-            [
-                (
-                    "previous" if self._current > 0 else "",
-                    f"←  {self._language.t('notes.previous')}",
-                    False,
-                ),
-                (
-                    "next" if self._current < len(self._documents) - 1 else "",
-                    f"{self._language.t('notes.next')}  →",
-                    True,
-                ),
-            ]
-        )
+        self._apply_footer()
 
         for index, button in enumerate(self._buttons):
             button.setProperty("active", "true" if index == self._current else "false")

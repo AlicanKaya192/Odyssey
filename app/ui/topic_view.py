@@ -81,6 +81,7 @@ class TopicView(QWidget):
         self._lesson.action.connect(self._on_lesson_action)
         self._quiz.completed.connect(self._on_quiz_completed)
         self._exercise.solved.connect(self._on_exercise_solved)
+        self._notes.advance.connect(self._on_notes_advance)
 
         # Geçiş şeridi içeriğin üstünde: altta, sonuç panelinin de altında
         # dururken görülmüyordu ve ikinci alıştırmanın varlığı fark
@@ -89,7 +90,12 @@ class TopicView(QWidget):
         layout.addWidget(self._stack, 1)
 
     def _build_exercise_switcher(self) -> QWidget:
-        """Birden fazla alıştırma varsa aralarında geçiş şeridi."""
+        """Birden fazla alıştırma varsa aralarında geçiş şeridi.
+
+        Sayı düz bir yazı olarak duruyordu ve kimse fark etmiyordu. Artık
+        numaralar birer düğme: hem "burada üç alıştırma var" bilgisini
+        bakar bakmaz veriyor, hem de istediğine doğrudan atlatıyor.
+        """
         self._switcher = QFrame()
         self._switcher.setProperty("role", "topbar")
         self._switcher.hide()
@@ -101,19 +107,18 @@ class TopicView(QWidget):
         layout.setSpacing(SPACING["sm"])
 
         self._switcher_label = QLabel()
-        self._switcher_label.setProperty("role", "muted")
+        self._switcher_label.setProperty("role", "heading")
         layout.addWidget(self._switcher_label)
+
         layout.addStretch(1)
 
-        self._previous_exercise = QPushButton()
-        self._previous_exercise.setProperty("variant", "small")
-        self._previous_exercise.clicked.connect(lambda: self._step_exercise(-1))
-        layout.addWidget(self._previous_exercise)
-
-        self._next_exercise = QPushButton()
-        self._next_exercise.setProperty("variant", "small")
-        self._next_exercise.clicked.connect(lambda: self._step_exercise(1))
-        layout.addWidget(self._next_exercise)
+        # Numara düğmeleri sağda, eskiden Önceki/Sonraki'nin durduğu yerde.
+        # O iki düğme kaldırıldı: numaralar onların yaptığı her şeyi yapıyor
+        # ve üstüne kaç alıştırma olduğunu, hangisinin çözüldüğünü gösteriyor.
+        self._number_row = QHBoxLayout()
+        self._number_row.setSpacing(SPACING["xs"])
+        self._number_buttons: list[QPushButton] = []
+        layout.addLayout(self._number_row)
 
         return self._switcher
 
@@ -208,11 +213,30 @@ class TopicView(QWidget):
                     return len(json.load(handle).get("questions", []))
         return 0
 
+    def _pane_labels(self) -> dict[str, str]:
+        """Bölüm sekmelerinin seçili dildeki adları."""
+        return {
+            "lesson": self._language.t("tabs.lesson"),
+            "notes": self._language.t("tabs.pdf"),
+            "pdf": self._language.t("tabs.pdf_file"),
+            "quiz": self._language.t("tabs.quiz"),
+            "exercise": self._language.t("tabs.exercise"),
+        }
+
+    def _pane_after(self, name: str) -> str | None:
+        """Verilen sekmeden sonra gelen sekme; sonuncuysa `None`."""
+        if name not in self._panes:
+            return None
+        index = self._panes.index(name) + 1
+        return self._panes[index] if index < len(self._panes) else None
+
     def _footer_items(self) -> list[tuple[str, str, bool]]:
         """Ders metninin altındaki gezinme düğmeleri.
 
-        Bir sonraki adım olarak sınav varsa ona, yoksa alıştırmaya yollar;
-        ikisi de yoksa yalnızca önceki bölüm düğmesi kalır.
+        İleri düğmesi bölümün **bir sonraki sekmesine** yollar. Sırayı
+        `section.json` belirlediği için, ders notu olan bir bölümde önce ders
+        notuna gidiliyor; sınava atlamıyor. Bölümde ders metninden sonra
+        hiçbir şey yoksa sonraki bölüme geçiliyor.
         """
         if self._section is None:
             return []
@@ -228,33 +252,54 @@ class TopicView(QWidget):
             )
         ]
 
-        if "quiz" in self._panes:
-            buttons.append(("go-quiz", f"{self._language.t('tabs.quiz')}  →", True))
-        elif self._exercises:
-            buttons.append(
-                ("go-exercise", f"{self._language.t('tabs.exercise')}  →", True)
-            )
+        sonraki = self._pane_after("lesson")
+        if sonraki:
+            label = self._pane_labels()[sonraki]
+            buttons.append((f"go-{sonraki}", f"{label}  →", True))
         elif following:
             buttons.append(("next-section", f"{self._language.t('nav.next')}  →", True))
 
         return buttons
 
+    def _mark_lesson_read(self) -> None:
+        """Ders metnini okunmuş işaretler.
+
+        İki yerden çağrılıyor: metnin sonuna inildiğinde gelen `lesson-read`
+        bildiriminden ve metnin en altındaki ileri düğmesinden. İkisi de
+        kullanıcının sayfanın sonuna ulaştığı anlamına geliyor; bölümü açmak
+        tek başına yetmiyor.
+        """
+        if self._section is None:
+            return
+        self._store.mark_lesson_read(self._section.chapter_id, self._section.id)
+        self._refresh_progress()
+        self.progress_changed.emit()
+
     def _on_lesson_action(self, action: str) -> None:
-        if action == "lesson-read" and self._section is not None:
-            self._store.mark_lesson_read(self._section.chapter_id, self._section.id)
-            self._refresh_progress()
-            self.progress_changed.emit()
-        elif action == "go-quiz" and "quiz" in self._panes:
-            self._segments.set_current(self._panes.index("quiz"))
-        elif action == "go-exercise" and "exercise" in self._panes:
-            self._segments.set_current(self._panes.index("exercise"))
+        if action == "lesson-read":
+            self._mark_lesson_read()
+        elif action.startswith("go-"):
+            hedef = action[3:]
+            if hedef in self._panes:
+                # Bu düğme ders metninin en altında duruyor; oraya ulaşıp
+                # basmak konuyu okumuş olmak demek.
+                self._mark_lesson_read()
+                self._segments.set_current(self._panes.index(hedef))
         elif action in ("next-section", "previous-section") and self._section is not None:
+            if action == "next-section":
+                self._mark_lesson_read()
             previous, following = self._catalog.neighbours(
                 self._section.chapter_id, self._section.id
             )
             target = following if action == "next-section" else previous
             if target:
                 self.show_section(target.chapter_id, target.id)
+
+    def _on_notes_advance(self) -> None:
+        """Son ders notunun altındaki düğme: bölümün sonraki adımına geç."""
+        hedef = self._pane_after("notes")
+        if hedef and hedef in self._panes:
+            self._segments.set_current(self._panes.index(hedef))
 
     def _load_exercise(self) -> None:
         if not self._exercises or self._section is None:
@@ -266,23 +311,51 @@ class TopicView(QWidget):
         )
         self._update_switcher()
 
-    def _step_exercise(self, delta: int) -> None:
-        self._exercise_index = max(
-            0, min(self._exercise_index + delta, len(self._exercises) - 1)
-        )
-        self._load_exercise()
-
     def _update_switcher(self) -> None:
         many = len(self._exercises) > 1
         self._switcher.setVisible(many and self._current_pane() == "exercise")
         if not many:
             return
+
         self._switcher_label.setText(
             f"{self._language.t('tabs.exercise')} "
             f"{self._exercise_index + 1} / {len(self._exercises)}"
         )
-        self._previous_exercise.setEnabled(self._exercise_index > 0)
-        self._next_exercise.setEnabled(self._exercise_index < len(self._exercises) - 1)
+        self._rebuild_numbers()
+
+    def _rebuild_numbers(self) -> None:
+        """Alıştırma numaralarını yeniden çizer.
+
+        Çözülmüş alıştırmanın numarasının yanında onay işareti duruyor;
+        böylece kaç tanesini bitirdiğin de aynı yerden görünüyor.
+        """
+        while self._number_row.count():
+            item = self._number_row.takeAt(0)
+            if item.widget():
+                item.widget().setParent(None)
+                item.widget().deleteLater()
+        self._number_buttons = []
+
+        if self._section is None:
+            return
+
+        for index, exercise in enumerate(self._exercises):
+            solved = self._store.exercise_solved(
+                self._section.chapter_id, self._section.id, exercise.id
+            )
+            button = QPushButton(f"{index + 1} ✓" if solved else str(index + 1))
+            button.setProperty("variant", "number")
+            button.setProperty("active", "true" if index == self._exercise_index else "false")
+            button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.setToolTip(self._language.pick(exercise.title))
+            button.clicked.connect(lambda _=False, i=index: self._go_exercise(i))
+            self._number_row.addWidget(button)
+            self._number_buttons.append(button)
+
+    def _go_exercise(self, index: int) -> None:
+        if 0 <= index < len(self._exercises) and index != self._exercise_index:
+            self._exercise_index = index
+            self._load_exercise()
 
     def _current_pane(self) -> str:
         if not self._panes:
@@ -377,18 +450,15 @@ class TopicView(QWidget):
         self._exercise.set_mode(mode)
 
     def retranslate(self) -> None:
-        labels = {
-            "lesson": self._language.t("tabs.lesson"),
-            "notes": self._language.t("tabs.pdf"),
-            "pdf": self._language.t("tabs.pdf_file"),
-            "quiz": self._language.t("tabs.quiz"),
-            "exercise": self._language.t("tabs.exercise"),
-        }
+        labels = self._pane_labels()
         self._segments.set_labels([labels[name] for name in self._panes])
 
+        # Son ders notunun altındaki düğme, notlardan sonra ne geliyorsa
+        # onun adını taşıyor. Dil değişince etiketi de değişiyor.
+        sonraki = self._pane_after("notes")
+        self._notes.set_advance_label(labels[sonraki] if sonraki else None)
+
         self.header.set_back(True, self._language.t("path.back_to_path"))
-        self._previous_exercise.setText(self._language.t("nav.previous"))
-        self._next_exercise.setText(self._language.t("nav.next"))
 
         if self._section is not None:
             chapter = self._catalog.chapter(self._section.chapter_id)

@@ -14,7 +14,11 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.core.language import LanguageManager  # noqa: E402
+from app.core.language import (  # noqa: E402
+    AVAILABLE_LANGUAGES,
+    LanguageManager,
+    system_language,
+)
 from app.core.theme import ThemeManager  # noqa: E402
 from app.core.runner import HARNESS_FLAG  # noqa: E402
 from app.version import APP_VERSION  # noqa: E402
@@ -47,12 +51,32 @@ def _run_harness_if_asked() -> bool:
     return True
 
 
+def _icon_file():
+    """Uygulama simgesinin yolu.
+
+    `install_root()` üzerinden çözülüyor; paketlenmiş hâlde dosyalar
+    `_internal` altına taşındığı için `__file__`'a göre hesaplamak orada
+    yanlış yere bakıyordu. Bulunamazsa `.png` ile deneniyor.
+    """
+    from app.paths import install_root
+
+    root = install_root() / "app" / "resources"
+    for name in ("icon.ico", "icon.png"):
+        candidate = root / name
+        if candidate.exists():
+            return candidate
+    return None
+
+
 def _claim_taskbar_identity() -> None:
     """Windows görev çubuğunda uygulamanın kendi simgesini göstermesini sağlar.
 
     Aksi hâlde Windows uygulamayı "Python" sayıyor ve simgesini pencereye
     verdiğimiz simgeyle değiştirmiyor. Kendimize ayrı bir kimlik tanıtınca
     görev çubuğu doğru simgeyi çiziyor.
+
+    Ölçüldü: bu çağrı olmadan kaynaktan çalıştırıldığında görev çubuğunda
+    Python'un simgesi çıkıyor, uygulamanınki değil.
     """
     if sys.platform != "win32":
         return
@@ -104,20 +128,41 @@ def main() -> int:
     application.setApplicationVersion(APP_VERSION)
 
     _claim_taskbar_identity()
-    icon_path = Path(__file__).resolve().parent / "resources" / "icon.ico"
-    if icon_path.exists():
-        application.setWindowIcon(QIcon(str(icon_path)))
+    icon_path = _icon_file()
+    icon = QIcon(str(icon_path)) if icon_path else QIcon()
+    if not icon.isNull():
+        application.setWindowIcon(icon)
 
     # Ayarlar kullanıcının kendi bilgisayarındaki veritabanından okunuyor.
     store = ProgressStore()
-    language = LanguageManager(store.setting("language", "tr"))
+
+    # İlk açılışta dil, bilgisayarın diline göre seçiliyor ve kaydediliyor.
+    # Kayıtlı bir seçim varsa ona dokunulmuyor: kullanıcı ayarlardan İngilizce
+    # dediyse, Türkçe bir Windows'ta bile İngilizce açılmalı.
+    saved_language = store.setting("language", "")
+    if saved_language not in AVAILABLE_LANGUAGES:
+        saved_language = system_language()
+        store.set_setting("language", saved_language)
+    language = LanguageManager(saved_language)
     theme = ThemeManager(store.setting("theme", "system"))
     theme.apply(application)
 
     window = MainWindow(language, theme, store)
+    # Simge pencereye de ayrıca veriliyor. Windows görev çubuğu ve Alt+Tab
+    # listesi uygulamanınkini değil, pencerenin kendi simgesini okuyor.
+    if not icon.isNull():
+        window.setWindowIcon(icon)
     # Tema başlangıçta da görünümlere bildirilsin.
     window._on_theme_changed(theme.effective_mode)
     window.show()
+
+    # Beta uyarısı pencere göründükten sonra çıkıyor; boş ekranın önünde
+    # açılan bir kutu, uygulamanın açılmadığı izlenimi veriyor.
+    from app.ui.beta_notice import BetaNoticeDialog, mark_seen, should_show
+
+    if should_show(store):
+        BetaNoticeDialog(language, window).exec()
+        mark_seen(store)
 
     return application.exec()
 

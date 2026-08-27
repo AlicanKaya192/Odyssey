@@ -32,6 +32,34 @@ AVAILABLE_LANGUAGES = {
 }
 
 
+def system_language() -> str:
+    """İşletim sisteminin dili.
+
+    İlk açılışta hangi dille başlanacağını belirliyor. Bilgisayarı Türkçe olan
+    biri uygulamayı da Türkçe görsün diye. Desteklemediğimiz bir dilse
+    İngilizceye düşülüyor — Türkçe bilmeyen birine Türkçe arayüz açmak,
+    ayarları bulup değiştirmesini bile zorlaştırıyor.
+
+    Kullanıcı ayarlardan bir dil seçtiği anda bu algılama devre dışı kalıyor;
+    seçim veritabanına yazılıyor ve bundan sonra o geçerli oluyor.
+
+    **`uiLanguages()` kullanılıyor, `name()` değil.** İkisi farklı şeyler:
+    `name()` bölgesel biçimi veriyor (tarih ve sayı yazımı), `uiLanguages()`
+    ise Windows'un arayüz dilini. Bu ikisi sık sık ayrışıyor — bu proje
+    geliştirilen makinede `name()` `en_US` derken arayüz dili Türkçeydi.
+    `name()` kullanılsaydı Türkçe bir Windows'ta uygulama İngilizce açılırdı.
+
+    Liste tercih sırasında geliyor; desteklediğimiz ilk dil seçiliyor.
+    """
+    from PySide6.QtCore import QLocale
+
+    for tag in QLocale.system().uiLanguages():
+        code = tag.replace("_", "-").split("-")[0].lower()
+        if code in AVAILABLE_LANGUAGES:
+            return code
+    return "en"
+
+
 def _load_catalog(language: str) -> dict[str, str]:
     path = I18N_DIR / f"{language}.json"
     if not path.exists():

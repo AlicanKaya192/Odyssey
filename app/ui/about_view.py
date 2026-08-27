@@ -29,6 +29,9 @@ from ..widgets.document_view import DocumentView
 
 SECTIONS = ("links", "extras", "license")
 
+# Lisansın özgün dili. Bu dilde ayrıca çeviri gösterilmiyor.
+FALLBACK_LICENSE_LANGUAGE = "en"
+
 
 def load_about() -> dict:
     """`content/about.json` dosyasını okur."""
@@ -146,16 +149,35 @@ class AboutView(QWidget):
         )
 
     def _license_html(self) -> str:
-        path = install_root() / "LICENSE"
-        text = path.read_text(encoding="utf-8") if path.exists() else ""
+        """Lisans ekranı.
+
+        Lisans metni seçili dilde gösteriliyor — ekranın geri kalanı gibi.
+        Türkçede çeviri, İngilizcede özgün metin. İki dilde de ekranın yapısı
+        aynı: tek bir lisans kutusu, altında ders içeriğinin lisansı.
+
+        Çevirinin yanına özgün İngilizce metni de koymayı denedik; ekranı
+        gereksiz yere ikiye bölüyordu. Bağlayıcı metin uygulamayla birlikte
+        gelen `LICENSE` dosyasında ve depoda zaten duruyor.
+        """
+        translation = self._license_translation()
+        if not translation:
+            original = install_root() / "LICENSE"
+            translation = original.read_text(encoding="utf-8") if original.exists() else ""
 
         return (
             f"<h1>{html.escape(self._language.t('nav.license'))}</h1>"
             f"<p>{html.escape(self._language.t('about.license_summary'))}</p>"
-            f'<div class="licensebox">{html.escape(text)}</div>'
+            f'<div class="licensebox">{html.escape(translation)}</div>'
             f"<h2>{html.escape(self._language.t('about.content_license'))}</h2>"
             f"<p>{html.escape(self._language.t('about.content_license_text'))}</p>"
         )
+
+    def _license_translation(self) -> str:
+        """Seçili dil için lisans çevirisi; İngilizcede çeviri yok."""
+        if self._language.language == FALLBACK_LICENSE_LANGUAGE:
+            return ""
+        path = install_root() / "app" / "resources" / f"LICENSE.{self._language.language}.txt"
+        return path.read_text(encoding="utf-8") if path.exists() else ""
 
     def _footnote_html(self) -> str:
         """En alttaki telif satırı."""

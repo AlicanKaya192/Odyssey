@@ -16,7 +16,7 @@ from pathlib import Path
 
 import markdown
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import QTimer, Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ..core.language import LanguageManager
@@ -48,25 +48,25 @@ SCROLL_SPY = """
 
 # Dersin sonuna gelindiğinde bir kez haber verir. Bölümü açmak okumak
 # sayılmıyor; kullanıcı metnin sonuna inince "okundu" işaretleniyor.
-READ_TRACKER = """
-<script>
+# Sayfanın sonuna inilip inilmediğini soran ölçüm. Python tarafından
+# aralıklarla çalıştırılıyor; sayfanın kendisi haber veremiyor, çünkü
+# Chromium kullanıcı tıklaması olmadan `app:` adresine gitmeyi engelliyor —
+# sayfa içine konan bir betiğin `location.href` ataması sessizce düşüyor.
+#
+# `document.scrollingElement` kaydırmayı hangi öğe yapıyorsa onu veriyor;
+# `body` üzerinden hesaplamak her düzende doğru sonuç vermiyor.
+# `clientHeight > 0` şartı, daha çizilmemiş sayfanın "okundu" sayılmasını
+# engelliyor. Sayfa ekrana sığıyorsa (kaydırma yoksa) okunmuş sayılıyor.
+READ_PROBE = """
 (function () {
-  let bildirildi = false;
-  function bak() {
-    if (bildirildi) return;
-    const kalan = document.body.scrollHeight - window.scrollY - window.innerHeight;
-    // Sayfa zaten kısa ise (kaydırma yoksa) okunmuş sayılır.
-    if (kalan <= 80) {
-      bildirildi = true;
-      window.location.href = 'app:lesson-read';
-    }
-  }
-  window.addEventListener('scroll', bak, { passive: true });
-  window.addEventListener('resize', bak);
-  setTimeout(bak, 1200);
-})();
-</script>
+  var el = document.scrollingElement || document.documentElement;
+  if (!el || el.clientHeight <= 0) return false;
+  return (el.scrollHeight - el.scrollTop - el.clientHeight) <= 80;
+})()
 """
+
+# Ölçümün sıklığı. Okundu işareti konunca zamanlayıcı duruyor.
+READ_POLL_MS = 1000
 
 
 def render_markdown(text: str) -> tuple[str, list[tuple[str, str]]]:
@@ -127,6 +127,12 @@ class LessonView(QWidget):
         self._document.action.connect(self.action)
         layout.addWidget(self._document)
 
+        # Okuma takibi: sayfaya sorup sonuna inilmiş mi diye bakıyoruz.
+        self._read_reported = False
+        self._read_timer = QTimer(self)
+        self._read_timer.setInterval(READ_POLL_MS)
+        self._read_timer.timeout.connect(self._probe_reading)
+
     # --- içerik -----------------------------------------------------------
 
     def show_lesson(
@@ -147,7 +153,27 @@ class LessonView(QWidget):
         if is_fallback:
             self._banners.append(("warn", self._language.t("content.translation_missing")))
 
+        # Yeni ders: okuma takibi baştan başlıyor.
+        self._read_reported = False
         self._render()
+
+    def _probe_reading(self) -> None:
+        """Sayfaya "metnin sonuna inildi mi" diye sorar."""
+        if self._read_reported:
+            self._read_timer.stop()
+            return
+        # Ders sekmesi görünmüyorken ölçüm anlamsız; kullanıcı sınavdayken
+        # dersi okunmuş saymak yanlış olurdu.
+        if not self.isVisible():
+            return
+        self._document.page().runJavaScript(READ_PROBE, self._on_read_probe)
+
+    def _on_read_probe(self, reached: object) -> None:
+        if self._read_reported or not reached:
+            return
+        self._read_reported = True
+        self._read_timer.stop()
+        self.action.emit("lesson-read")
 
     def show_text(self, text: str) -> None:
         """Hazır markdown metnini gösterir (alıştırma yönergesi gibi)."""
@@ -199,12 +225,12 @@ class LessonView(QWidget):
             page_class = "page narrow"
             aside = ""
 
-        scripts = (SCROLL_SPY if aside else "") + (
-            READ_TRACKER if self._track_reading else ""
-        )
+        scripts = SCROLL_SPY if aside else ""
         self._document.set_body(
             f'<div class="{page_class}">{content}{aside}</div>{scripts}'
         )
+        if self._track_reading and not self._read_reported:
+            self._read_timer.start()
 
     def _banner_html(self, tone: str, text: str) -> str:
         icon = "✓" if tone == "ok" else "!"

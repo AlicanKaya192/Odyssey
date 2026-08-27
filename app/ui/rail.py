@@ -21,14 +21,27 @@ from ..resources.theme.tokens import PALETTES, RAIL_COLORS, RAIL_WIDTH, SPACING
 from ..widgets.effects import repolish
 
 # (ekran anahtarı, ikon adı, çeviri anahtarı)
-DESTINATIONS = [
+# Şerit iki öbeğe ayrılıyor.
+#
+# Üstte, logonun altında, her gün girilen ekranlar duruyor: öğrenme yolu,
+# profil, projeler. Altta, ayar simgesinin hemen üstünde, ara sıra açılan
+# ekranlar var: sürüm notları, bağlantılar, lisans. İkisinin arasındaki
+# boşluk, "burası günlük kullanım, şurası referans" ayrımını gözle görünür
+# hâle getiriyor.
+TOP_DESTINATIONS = [
     ("journey", "home", "nav.path"),
     ("profile", "user", "nav.profile"),
-    ("links", "link", "nav.links"),
     ("extras", "package", "nav.extras"),
-    ("license", "scale", "nav.license"),
-    ("releases", "megaphone", "nav.releases"),
 ]
+
+BOTTOM_DESTINATIONS = [
+    ("releases", "megaphone", "nav.releases"),
+    ("links", "link", "nav.links"),
+    ("license", "scale", "nav.license"),
+]
+
+# Çevirilerin ve renklerin dolaştığı tam liste.
+DESTINATIONS = TOP_DESTINATIONS + BOTTOM_DESTINATIONS
 
 ICON_SIZE = 24
 STROKE_ACTIVE = 2.4
@@ -89,12 +102,20 @@ class Rail(QFrame):
         layout.addWidget(self._logo, 0, Qt.AlignmentFlag.AlignHCenter)
         layout.addSpacing(SPACING["md"])
 
-        for key, icon_name, _ in DESTINATIONS:
+        for key, icon_name, _ in TOP_DESTINATIONS:
             layout.addWidget(
                 self._make_button(key, icon_name), 0, Qt.AlignmentFlag.AlignHCenter
             )
 
+        # Boşluk iki öbeğin arasında: alt öbek ayar simgesine yapışık kalıyor.
         layout.addStretch(1)
+
+        for key, icon_name, _ in BOTTOM_DESTINATIONS:
+            layout.addWidget(
+                self._make_button(key, icon_name), 0, Qt.AlignmentFlag.AlignHCenter
+            )
+
+        layout.addSpacing(SPACING["sm"])
         layout.addWidget(
             self._make_button("settings", "settings"), 0, Qt.AlignmentFlag.AlignHCenter
         )

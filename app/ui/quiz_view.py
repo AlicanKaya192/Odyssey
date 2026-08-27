@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
     QFrame,
@@ -26,16 +26,78 @@ from PySide6.QtWidgets import (
 
 from ..core.language import LanguageManager
 from ..resources.theme.tokens import READING_WIDTH, SPACING
+from ..widgets import richtext
+
+
+class OptionRow(QWidget):
+    """Tek bir şık: yuvarlak seçim düğmesi ve yanında metni.
+
+    `QRadioButton` zengin metin çizemiyor, bu yüzden şık metni ayrı bir
+    `QLabel` olarak duruyor. Metne tıklamak da şıkkı seçiyor; kullanan kişi
+    için ikisi tek bir düğme gibi davranıyor.
+    """
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 2, 0, 2)
+        layout.setSpacing(SPACING["sm"])
+
+        self.button = QRadioButton()
+        self.button.setCursor(Qt.CursorShape.PointingHandCursor)
+        layout.addWidget(self.button, 0, Qt.AlignmentFlag.AlignTop)
+
+        self.label = QLabel()
+        self.label.setWordWrap(True)
+        self.label.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.label.installEventFilter(self)
+        layout.addWidget(self.label, 1)
+
+    def eventFilter(self, watched, event):  # noqa: N802 (Qt adlandırması)
+        if (
+            watched is self.label
+            and event.type() == QEvent.Type.MouseButtonRelease
+            and self.button.isEnabled()
+        ):
+            self.button.setChecked(True)
+            return True
+        return super().eventFilter(watched, event)
+
+    def set_text(self, text: str, mode: str) -> None:
+        self.label.setText(richtext.render(text, mode))
+
+    def set_enabled(self, enabled: bool) -> None:
+        self.button.setEnabled(enabled)
+        self.label.setCursor(
+            Qt.CursorShape.PointingHandCursor
+            if enabled
+            else Qt.CursorShape.ArrowCursor
+        )
+
+    def set_tone(self, tone: str) -> None:
+        for widget in (self.button, self.label):
+            widget.setProperty("tone", tone)
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
 
 
 class QuestionCard(QFrame):
     """Tek bir soru."""
 
-    def __init__(self, index: int, question: dict, language: LanguageManager) -> None:
+    def __init__(
+        self,
+        index: int,
+        question: dict,
+        language: LanguageManager,
+        mode: str = "light",
+    ) -> None:
         super().__init__()
         self._question = question
         self._language = language
         self._answered = False
+        self._mode = mode
+        self._total = 0
         self.setProperty("surface", "true")
 
         layout = QVBoxLayout(self)
@@ -46,8 +108,9 @@ class QuestionCard(QFrame):
         self._number.setProperty("role", "section")
         layout.addWidget(self._number)
 
-        self._text = QLabel(language.pick(question.get("text")))
+        self._text = QLabel()
         self._text.setWordWrap(True)
+        self._text.setTextFormat(Qt.TextFormat.RichText)
         self._text.setProperty("role", "subtitle")
         layout.addWidget(self._text)
         layout.addSpacing(SPACING["xs"])
@@ -55,13 +118,16 @@ class QuestionCard(QFrame):
         self._group = QButtonGroup(self)
         self._buttons: list[QRadioButton] = []
 
+        self._rows: list[OptionRow] = []
+
         options = language.pick(question.get("options"), []) or []
-        for position, option in enumerate(options):
-            button = QRadioButton(option)
-            button.setProperty("index", position)
-            self._group.addButton(button, position)
-            self._buttons.append(button)
-            layout.addWidget(button)
+        for position, _ in enumerate(options):
+            row = OptionRow()
+            row.button.setProperty("index", position)
+            self._group.addButton(row.button, position)
+            self._buttons.append(row.button)
+            self._rows.append(row)
+            layout.addWidget(row)
 
         # Açıklama, konu anlatımındaki ipucu kutusuyla aynı görünümde:
         # ampul simgesi, vurgu renginde sol kenar ve dolgulu zemin. Düz metin
@@ -83,6 +149,7 @@ class QuestionCard(QFrame):
 
         self._feedback_text = QLabel()
         self._feedback_text.setWordWrap(True)
+        self._feedback_text.setTextFormat(Qt.TextFormat.RichText)
         self._feedback_text.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
@@ -108,48 +175,56 @@ class QuestionCard(QFrame):
         self._answered = True
         correct = int(self._question.get("answer", -1))
 
-        for position, button in enumerate(self._buttons):
-            button.setEnabled(False)
+        for position, row in enumerate(self._rows):
+            row.set_enabled(False)
             if position == correct:
-                button.setProperty("tone", "success")
+                row.set_tone("success")
             elif position == self.selected:
-                button.setProperty("tone", "danger")
-            button.style().unpolish(button)
-            button.style().polish(button)
+                row.set_tone("danger")
 
         explanation = self._language.pick(self._question.get("explanation"))
         if explanation:
-            self._feedback_text.setText(explanation)
+            self._feedback_text.setText(
+                richtext.render(explanation, self._mode)
+            )
             self._feedback.show()
 
     def reset(self) -> None:
         self._answered = False
         self._group.setExclusive(False)
-        for button in self._buttons:
-            button.setChecked(False)
-            button.setEnabled(True)
-            button.setProperty("tone", "")
-            button.style().unpolish(button)
-            button.style().polish(button)
+        for row in self._rows:
+            row.button.setChecked(False)
+            row.set_enabled(True)
+            row.set_tone("")
         self._group.setExclusive(True)
         self._feedback.hide()
 
     def retranslate(self, total: int = 0) -> None:
+        self._total = total or self._total
         self._number.setText(
             self._language.t("quiz.question", current=self._index + 1, total=total)
             if total
             else f"{self._index + 1}."
         )
-        self._text.setText(self._language.pick(self._question.get("text")))
+        self._text.setText(
+            richtext.render(self._language.pick(self._question.get("text")), self._mode)
+        )
 
         options = self._language.pick(self._question.get("options"), []) or []
-        for button, option in zip(self._buttons, options):
-            button.setText(option)
+        for row, option in zip(self._rows, options):
+            row.set_text(option, self._mode)
 
         if self._answered:
             explanation = self._language.pick(self._question.get("explanation"))
             if explanation:
-                self._feedback_text.setText(explanation)
+                self._feedback_text.setText(
+                    richtext.render(explanation, self._mode)
+                )
+
+    def set_mode(self, mode: str) -> None:
+        """Tema değişince kod parçalarının renkleri yeniden üretiliyor."""
+        self._mode = mode
+        self.retranslate(self._total)
 
 
 class QuizView(QWidget):
@@ -162,6 +237,7 @@ class QuizView(QWidget):
         self._language = language
         self._cards: list[QuestionCard] = []
         self._pass_score = 70
+        self._mode = "light"
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -221,7 +297,7 @@ class QuizView(QWidget):
             data = json.load(handle)
 
         for index, question in enumerate(data.get("questions", [])):
-            card = QuestionCard(index, question, self._language)
+            card = QuestionCard(index, question, self._language, self._mode)
             self._cards.append(card)
             self._cards_holder.addWidget(card)
 
@@ -281,8 +357,12 @@ class QuizView(QWidget):
         self._submit_button.show()
 
     def set_mode(self, mode: str) -> None:
-        # Renkler tema dosyasından geliyor, ek iş gerekmiyor.
-        pass
+        """Arayüz renkleri tema dosyasından geliyor, ama soru metinlerindeki
+        kod parçaları HTML içine gömülü renklerle çiziliyor; onları elle
+        yenilemek gerekiyor."""
+        self._mode = mode
+        for card in self._cards:
+            card.set_mode(mode)
 
     def retranslate(self) -> None:
         self._submit_button.setText(self._language.t("quiz.submit"))
