@@ -8,6 +8,11 @@ açılıyor ve başlangıç saniyeler sürüyor. Klasör hâlinde dağıtım hem
 açılıyor hem de güncelleme sırasında yalnızca değişen dosyalar
 değiştirilebiliyor.
 
+PyInstaller **çapraz derleme yapmıyor**: Windows'ta çalıştırıldığında
+yalnızca Windows paketi çıkıyor. macOS için `.app` üretmek isteyen bir
+Mac'te aynı komutu çalıştırmalı; script gerekli farkları (simge biçimi,
+çalıştırılabilir dosya adı, veri ayıracı) kendisi hallediyor.
+
 Kullanım:
     .venv\\Scripts\\python tools/build_exe.py
     .venv\\Scripts\\python tools/build_exe.py --temiz   # önce eskiyi sil
@@ -27,7 +32,18 @@ from app.version import APP_VERSION  # noqa: E402
 
 APP_NAME = "Odyssey"
 ENTRY = PROJECT_ROOT / "app" / "main.py"
-ICON = PROJECT_ROOT / "app" / "resources" / "icon.ico"
+
+# Simge biçimi platforma göre değişiyor: Windows `.ico`, macOS `.icns`,
+# Linux `.png`. Yanlış biçim verilirse PyInstaller simgeyi sessizce
+# atlıyor ve uygulama genel bir simgeyle çıkıyor.
+ICON_BY_PLATFORM = {
+    "win32": "icon.ico",
+    "darwin": "icon.icns",
+}
+ICON = (
+    PROJECT_ROOT / "app" / "resources"
+    / ICON_BY_PLATFORM.get(sys.platform, "icon.png")
+)
 
 # Uygulamayla birlikte gidecek klasörler: (kaynak, paket içindeki yer)
 DATA = [
@@ -97,7 +113,14 @@ def folder_size(path: Path) -> str:
 
 def main() -> int:
     if not ICON.exists():
-        print("Simge bulunamadı. Önce: python tools/build_icon.py")
+        print(f"Simge bulunamadı: {ICON.name}")
+        if sys.platform == "win32":
+            print("Önce: python tools/build_icon.py")
+        else:
+            print(
+                f"{sys.platform} için {ICON.name} gerekiyor; "
+                "build_icon.py şimdilik yalnızca .ico üretiyor."
+            )
         return 1
 
     if "--temiz" in sys.argv:
@@ -114,7 +137,9 @@ def main() -> int:
         return result.returncode
 
     output = PROJECT_ROOT / "dist" / APP_NAME
-    exe = output / f"{APP_NAME}.exe"
+    exe = output / (
+        f"{APP_NAME}.exe" if sys.platform == "win32" else APP_NAME
+    )
 
     print()
     if exe.exists():

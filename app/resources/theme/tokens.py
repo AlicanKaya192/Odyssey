@@ -31,9 +31,22 @@ RADIUS = {
 
 # --- Yazı tipleri ----------------------------------------------------------
 FONTS = {
-    # Windows 11'de Segoe UI Variable var, yoksa Segoe UI'a düşer.
-    "ui": '"Segoe UI Variable Text", "Segoe UI", sans-serif',
-    "mono": '"Cascadia Code", "Cascadia Mono", "Consolas", monospace',
+    # Sıra platforma göre çalışıyor: Windows ilk ikisini bulup duruyor,
+    # macOS onları bulamayıp SF Pro'ya, Linux ise Inter/Ubuntu'ya düşüyor.
+    # Sonda yalnızca `sans-serif` kalsaydı, Windows dışında Qt'nin varsayılan
+    # yazı tipi çıkıyordu ve arayüz bambaşka görünüyordu.
+    "ui": (
+        '"Segoe UI Variable Text", "Segoe UI", '        # Windows
+        '"SF Pro Text", "Helvetica Neue", '             # macOS
+        '"Inter", "Ubuntu", "Noto Sans", '              # Linux
+        "sans-serif"
+    ),
+    "mono": (
+        '"Cascadia Code", "Cascadia Mono", "Consolas", '   # Windows
+        '"SF Mono", "Menlo", '                            # macOS
+        '"DejaVu Sans Mono", "Liberation Mono", '         # Linux
+        "monospace"
+    ),
 }
 
 FONT_SIZES = {
