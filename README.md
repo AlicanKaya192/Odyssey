@@ -10,11 +10,11 @@ Every section has a lesson, lecture notes and exercises. To complete a section y
 
 ## Status
 
-Early development (`0.1.3`). The application works end to end, but the content is still at the beginning.
+Early development (`0.2.0`). The application works end to end, but the content is still at the beginning.
 
 **Working:** learning path, lessons, lecture notes, quizzes, coding exercises with automatic checking, graded hints, error explanations, persistent progress, Turkish/English interface and content, light and dark themes.
 
-**Not there yet:** the full curriculum (five sections of the Python Fundamentals module exist today; the target is 23 modules), badges, a place for your own notes, the in-app update system.
+**Not there yet:** the full curriculum (eight sections of the Python Fundamentals module exist today; the target is 23 modules), badges, a place for your own notes, the in-app update system.
 
 The roadmap moves along in [CHANGELOG.en.md](CHANGELOG.en.md).
 

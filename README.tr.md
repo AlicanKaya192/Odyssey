@@ -10,11 +10,11 @@ Her bölümde konu anlatımı, ders notları ve alıştırmalar var. Bölümü t
 
 ## Durum
 
-Erken geliştirme aşaması (`0.1.3`). Uygulama uçtan uca çalışıyor ama içerik henüz başlangıç seviyesinde.
+Erken geliştirme aşaması (`0.2.0`). Uygulama uçtan uca çalışıyor ama içerik henüz başlangıç seviyesinde.
 
 **Çalışanlar:** öğrenme yolu, konu anlatımı, ders notları, sınav, kod alıştırmaları ve otomatik kontrol, kademeli ipuçları, hata açıklamaları, kalıcı ilerleme kaydı, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema.
 
-**Henüz yok:** müfredatın tamamı (şu an Python Temelleri modülünün beş bölümü var, hedef 23 modül), rozetler, kullanıcının kendi not alanı, uygulama içi güncelleme sistemi.
+**Henüz yok:** müfredatın tamamı (şu an Python Temelleri modülünün sekiz bölümü var, hedef 23 modül), rozetler, kullanıcının kendi not alanı, uygulama içi güncelleme sistemi.
 
 Yol haritası [CHANGELOG.md](CHANGELOG.md) dosyasında ilerliyor.
 
