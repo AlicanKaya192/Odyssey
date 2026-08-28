@@ -22,6 +22,8 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.2.0] — 27 Ağustos 2026
 
 ### Eklendi
+- Açılış ekranı: uygulama simgesi ve adı, ana pencere kurulurken görünüyor. Önceden Chromium yüklenene kadar ekranda hiçbir belirti yoktu.
+- Öğrenme yolunda henüz yazılmamış bölümler de görünüyor: soluk, tıklanmayan halkalar ve "Yakında" yazısı. Python Temelleri'nin geri kalanı (modüller, hata yakalama, dosya işlemleri, OOP, SQLite, genel tekrar) böyle listelendi.
 - Her bölümde artık **en az üç alıştırma** var; toplam 6'dan 18'e çıktı. Yeni alıştırmalar kolaydan zora sıralı ve yalnızca o bölüme kadar anlatılmış kavramları kullanıyor.
 - Uygulama ilk açılışta bilgisayarın arayüz diline göre açılıyor: Windows'u Türkçe olan Türkçe, başka bir dilde olan İngilizce görüyor. Ayarlardan bir dil seçildiği anda bu devreye girmiyor, seçim geçerli oluyor.
 - Açılışta kapalı beta uyarısı: uygulamanın kararsız çalışabileceği, hata ve çökme görülebileceği ve geri bildirimin nasıl iletileceği yazıyor. Sürüm başına bir kez çıkıyor.

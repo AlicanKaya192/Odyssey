@@ -24,6 +24,8 @@ lecture note does not mean downloading the whole application again.
 ## [0.2.0] — 27 August 2026
 
 ### Added
+- A splash screen: the application icon and name appear while the main window is being built. Until now nothing appeared on screen until Chromium had loaded.
+- Sections that have not been written yet now appear on the learning path as faded, unclickable circles marked "Coming soon". The rest of Python Fundamentals (modules, error handling, file handling, OOP, SQLite, review) is listed this way.
 - Every section now has **at least three exercises**; the total went from 6 to 18. The new ones are ordered from easy to hard and use only the concepts taught up to that section.
 - The application now opens in the language of your computer's interface: Turkish on a Turkish Windows, English otherwise. Once you pick a language in Settings, that choice wins and detection no longer applies.
 - A closed beta notice on startup: it says the application may be unstable, that you may hit errors and crashes, and how to send feedback. It appears once per version.

@@ -275,6 +275,16 @@ class Chapter:
     def icon(self) -> str:
         return self.raw.get("icon", "book")
 
+    @property
+    def planned(self) -> list[dict]:
+        """Henüz yazılmamış ama yol üzerinde gösterilecek bölümler.
+
+        Yalnızca başlık taşıyorlar; klasörleri yok, içerik doğrulayıcısı
+        onlara bakmıyor ve ilerleme kaydı tutulmuyor. Amaç, modülün nereye
+        gittiğini baştan göstermek.
+        """
+        return list(self.raw.get("planned", []))
+
     @classmethod
     def load(cls, directory: Path) -> "Chapter":
         raw = _read_json(directory / "chapter.json")

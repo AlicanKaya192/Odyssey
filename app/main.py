@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
 
 # Doğrudan `python app/main.py` ile çalıştırıldığında proje kökü içe aktarma
@@ -121,7 +122,11 @@ def main() -> int:
     from PySide6.QtGui import QIcon
 
     from app.core.progress import ProgressStore
-    from app.ui.main_window import MainWindow
+    from app.ui.splash import close_splash, show_splash
+
+    # `main_window` burada içe aktarılmıyor: QtWebEngine'i o zincir yüklüyor
+    # ve birkaç saniye sürüyor. Açılış ekranı tam o beklemeyi göstermek için
+    # var, dolayısıyla ondan **sonra** aktarılıyor.
 
     application = QApplication(sys.argv)
     application.setApplicationName("Odyssey")
@@ -134,7 +139,18 @@ def main() -> int:
         application.setWindowIcon(icon)
 
     # Ayarlar kullanıcının kendi bilgisayarındaki veritabanından okunuyor.
+    # Bu ucuz bir iş; açılış ekranından önce yapılıyor ki ekran doğru temada
+    # açılsın. Ağır olan kısım ana pencerenin kurulması (Chromium).
     store = ProgressStore()
+    theme = ThemeManager(store.setting("theme", "system"))
+    theme.apply(application)
+
+    # Açılış ekranı, ağır kurulum başlamadan önce açılıyor: o kurulum bitene
+    # kadar ekranda hiçbir belirti olmuyordu ve uygulama açılmamış gibi
+    # duruyordu.
+    splash_started = time.monotonic()
+    splash = show_splash(icon_path, theme.effective_mode)
+    application.processEvents()
 
     # İlk açılışta dil, bilgisayarın diline göre seçiliyor ve kaydediliyor.
     # Kayıtlı bir seçim varsa ona dokunulmuyor: kullanıcı ayarlardan İngilizce
@@ -144,8 +160,9 @@ def main() -> int:
         saved_language = system_language()
         store.set_setting("language", saved_language)
     language = LanguageManager(saved_language)
-    theme = ThemeManager(store.setting("theme", "system"))
-    theme.apply(application)
+
+    # Ağır kısım burada: bu satır QtWebEngine'i yüklüyor.
+    from app.ui.main_window import MainWindow
 
     window = MainWindow(language, theme, store)
     # Simge pencereye de ayrıca veriliyor. Windows görev çubuğu ve Alt+Tab
@@ -155,6 +172,8 @@ def main() -> int:
     # Tema başlangıçta da görünümlere bildirilsin.
     window._on_theme_changed(theme.effective_mode)
     window.show()
+
+    close_splash(splash, window, splash_started)
 
     # Beta uyarısı pencere göründükten sonra çıkıyor; boş ekranın önünde
     # açılan bir kutu, uygulamanın açılmadığı izlenimi veriyor.

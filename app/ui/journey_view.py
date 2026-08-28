@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
+    QGraphicsOpacityEffect,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -39,6 +40,10 @@ from ..widgets.effects import apply_shadow, refresh_shadow, repolish
 
 # Düğümlerin soldan uzaklıkları — yol bu değerlerle zigzag çiziyor.
 ZIGZAG = [30, 120, 170, 120, 30]
+
+# Henüz yazılmamış bölümlerin solukluğu. Okunacak kadar açık,
+# yazılmışlarla karışmayacak kadar soluk.
+PLANNED_OPACITY = 0.45
 
 
 def scroll_page(widget: QWidget) -> QScrollArea:
@@ -366,10 +371,17 @@ class PathNode(QWidget):
         self.button = QPushButton(symbol or str(order))
         self.button.setProperty("variant", "node")
         self.button.setProperty("state", state)
-        self.button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.button.clicked.connect(
-            lambda: self.opened.emit(self._chapter_id, self._section_id)
-        )
+
+        if state == "planned":
+            # Henüz içeriği yok: tıklanmıyor, imleç değişmiyor. Boş bir
+            # bölüm açmak, "bozuk" izlenimi veriyor.
+            self.button.setEnabled(False)
+        else:
+            self.button.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.button.clicked.connect(
+                lambda: self.opened.emit(self._chapter_id, self._section_id)
+            )
+
         layout.addWidget(self.button, 0, Qt.AlignmentFlag.AlignTop)
 
         labels = QVBoxLayout()
@@ -378,6 +390,7 @@ class PathNode(QWidget):
 
         self._title = QLabel(title)
         self._title.setProperty("role", "heading")
+        self._title.setProperty("muted", "true" if state == "planned" else "false")
         self._title.setWordWrap(True)
         labels.addWidget(self._title)
 
@@ -388,6 +401,14 @@ class PathNode(QWidget):
         labels.addStretch(1)
 
         layout.addLayout(labels, 1)
+
+        if state == "planned":
+            # Kesik çerçeve tek başına yetmiyordu: yazılmış ama başlanmamış
+            # bölümle yazılmamış bölüm ekranda birbirine çok benziyordu.
+            # Soluklaştırma ayrımı bir bakışta veriyor.
+            solukluk = QGraphicsOpacityEffect(self)
+            solukluk.setOpacity(PLANNED_OPACITY)
+            self.setGraphicsEffect(solukluk)
 
 
 class PathView(QWidget):
@@ -481,8 +502,36 @@ class PathView(QWidget):
             container.setLayout(row)
             self._layout.addWidget(container)
 
-            if index < len(chapter.sections) - 1:
+            son_gercek = index == len(chapter.sections) - 1
+            if not son_gercek or chapter.planned:
                 self._layout.addWidget(self._connector(index, state == "completed"))
+
+        # Henüz yazılmamış bölümler: soluk, tıklanmayan halkalar. Modülün
+        # nereye gittiğini baştan göstermek, "burası bu kadarmış" izlenimini
+        # önlüyor.
+        taban = len(chapter.sections)
+        for offset, planlanan in enumerate(chapter.planned):
+            index = taban + offset
+
+            node = PathNode(
+                chapter.id,
+                planlanan.get("id", ""),
+                self._language.pick(planlanan.get("title")),
+                self._language.t("path.planned"),
+                "planned",
+                order=index + 1,
+            )
+
+            row = QHBoxLayout()
+            row.setContentsMargins(ZIGZAG[index % len(ZIGZAG)], 0, 0, 0)
+            row.addWidget(node)
+            row.addStretch(1)
+            container = QWidget()
+            container.setLayout(row)
+            self._layout.addWidget(container)
+
+            if offset < len(chapter.planned) - 1:
+                self._layout.addWidget(self._connector(index, False))
 
         self._layout.addStretch(1)
 
