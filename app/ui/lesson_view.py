@@ -176,37 +176,50 @@ class LessonView(QWidget):
         self.action.emit("lesson-read")
 
     def show_text(self, text: str) -> None:
-        """Hazır markdown metnini gösterir (alıştırma yönergesi gibi)."""
+        """Hazır markdown metnini gösterir (alıştırma yönergesi gibi).
+
+        Metin öncekiyle aynıysa kaydırma korunuyor. Alıştırma yönergesi her
+        ipucu açılışında baştan çiziliyor — metin değişmediği hâlde sayfa
+        başa fırlıyordu.
+        """
+        ayni = text == self._source
         self._source = text
         self._banners = []
-        self._render()
+        self._render(keep_scroll=ayni)
 
     def set_meta(self, items: list[str]) -> None:
         """Başlığın altındaki bilgi satırı: süre, alıştırma ve sınav sayısı."""
         self._meta = [item for item in items if item]
         if self._source:
-            self._render()
+            self._render(keep_scroll=True)
 
     def set_progress(self, percent: int, caption: str) -> None:
         self._progress = (percent, caption)
         if self._source:
-            self._render()
+            self._render(keep_scroll=True)
 
     def set_footer(self, buttons: list[tuple[str, str, bool]]) -> None:
         """Alt gezinme düğmeleri: (eylem, metin, birincil mi)."""
         self._footer = buttons
         if self._source:
-            self._render()
+            self._render(keep_scroll=True)
 
     def set_extra(self, html_after: str) -> None:
         """Metnin altına eklenecek hazır HTML (alıştırma ipucu kutusu gibi)."""
         self._extra = html_after
         if self._source:
-            self._render()
+            self._render(keep_scroll=True)
 
     # --- çizim ------------------------------------------------------------
 
-    def _render(self) -> None:
+    def _render(self, keep_scroll: bool = False) -> None:
+        """Sayfayı çizer.
+
+        `keep_scroll`, **aynı** belgenin yeniden çizildiği çağrılar için:
+        ilerleme kutusu, alt düğmeler ve ipucu kutusu değişince sayfa baştan
+        yükleniyor ve okuyan kişi en başa fırlıyordu. Yeni ders yüklenirken
+        bayrak verilmiyor, sayfa başa dönüyor.
+        """
         body, headings = render_markdown(self._source)
 
         parts = ["".join(self._banner_html(tone, text) for tone, text in self._banners)]
@@ -227,7 +240,8 @@ class LessonView(QWidget):
 
         scripts = SCROLL_SPY if aside else ""
         self._document.set_body(
-            f'<div class="{page_class}">{content}{aside}</div>{scripts}'
+            f'<div class="{page_class}">{content}{aside}</div>{scripts}',
+            keep_scroll=keep_scroll,
         )
         if self._track_reading and not self._read_reported:
             self._read_timer.start()

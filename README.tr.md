@@ -10,7 +10,7 @@ Her bölümde konu anlatımı, ders notları ve alıştırmalar var. Bölümü t
 
 ## Durum
 
-Erken geliştirme aşaması (`0.2.0`). Uygulama uçtan uca çalışıyor ama içerik henüz başlangıç seviyesinde.
+Erken geliştirme aşaması (`0.3.0`). Uygulama uçtan uca çalışıyor ama içerik henüz başlangıç seviyesinde.
 
 **Çalışanlar:** öğrenme yolu, konu anlatımı, ders notları, sınav, kod alıştırmaları ve otomatik kontrol, kademeli ipuçları, hata açıklamaları, kalıcı ilerleme kaydı, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema.
 

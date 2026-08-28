@@ -19,11 +19,30 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.3.0] — 28 Ağustos 2026
+
+### Eklendi
+- Ana ekran artık öğrenme patikalarıyla açılıyor: Python, Veri Bilimi, Makine Öğrenmesi ve SQL, 2x2 dizilmiş dört kart. İçeriği hazır olmayan üçü kilit simgesiyle ve soluk görünüyor; Veri Bilimi ile Makine Öğrenmesi kartlarında önce Python patikasının bitirilmesi öneriliyor. İlerleme çubuğu patika kartının üzerinde duruyor.
+- Patikada tek modül varsa modül listesi atlanıyor ve doğrudan konulara gidiliyor; tek kartlık bir ekrana ikinci kez tıklatmanın faydası yoktu. Geri dönüş de aynı yolu izliyor.
+- Açılış ekranı: uygulama simgesi ve adı, ana pencere kurulurken görünüyor. Önceden Chromium yüklenene kadar ekranda hiçbir belirti yoktu.
+- Öğrenme yolunda henüz yazılmamış bölümler de görünüyor: soluk, tıklanmayan halkalar ve "Yakında" yazısı. Python Temelleri'nin geri kalanı (modüller, hata yakalama, dosya işlemleri, OOP, SQLite, genel tekrar) böyle listelendi.
+
+### Değişti
+- Ders notu ekranı yeniden tasarlandı. Soldaki 270 piksellik liste paneli kaldırıldı; bir bölümde en çok üç not olduğu için o panel hem ağır duruyor hem de metni sağa itiyordu. Notlar artık metnin üstünde ince bir sekme sırası ve tek not varsa sıra hiç çizilmiyor.
+- Ekran başlıkları yeniden tasarlandı. Şerit sayfa içeriğiyle aynı sütuna hizalandı: başlık pencerenin en solunda, içerik ise ortada duruyordu ve ikisi birbirine bağlı görünmüyordu. Şeridin ayrı zemin rengi kaldırıldı; sayfanın üstünde kopuk bir blok gibi duruyordu, artık aynı zeminde ve yalnızca ince bir çizgiyle ayrılıyor. Başlık büyüdü (17px → 26px), üstüne ekranın bağlamını söyleyen küçük bir satır ve solundaki renkli çubuk geldi; renk sol şeritteki simgeyle aynı. Yazılar şeridin dikeyde tam ortasında.
+- Windows başlık çubuğu artık uygulamanın rengini alıyor. Koyu temada pencere koyu, çubuk açık kalıyor ve ekran ikiye bölünmüş gibi duruyordu. Ayarlar ve açılış uyarısı pencereleri de aynı renge uyuyor.
+
+### Düzeltildi
+- Ders metninde aşağı inince sayfa aniden başa dönüyordu. Sona ulaşınca "okundu" işaretleniyor, bu da ilerleme kutusunu güncelliyor ve belge baştan yükleniyordu. Aynı şey alıştırma yönergesinde ipucu açılınca da oluyordu. Belge yeniden çizilirken okunan yer artık korunuyor.
+- Alıştırmayı doğru çözünce numarasındaki onay işareti hemen belirmiyordu; ancak başka bir alıştırmaya geçince ya da bölüm yeniden açılınca görünüyordu.
+- Konu ekranındaki sekmelerin arkasındaki dolu kutu kaldırıldı; şerit sayfayla aynı zemine geçince üstte yamalı duruyordu. Seçili sekme artık altındaki çizgiyle belli oluyor ve sekmeler birbirine yapışmıyor.
+- Bölüm başlığındaki süre birimi İngilizcede de "dk" yazıyordu; artık çevirilerden geliyor.
+- Karşılama kartındaki sayaç etiketleri artık baş harfleri büyük yazılıyor: "Tamamlanan Bölüm", "Çözülen Alıştırma".
+- Büyük harfle yazılan başlıklarda Türkçe `i` harfi yanlış dönüşüyordu: "ÖĞRENME PATIKALARI" çıkıyordu, doğrusu "ÖĞRENME PATİKALARI". Python'un `upper()` metodu `i` harfini `I` yapıyor; artık dile göre dönüştürülüyor.
+
 ## [0.2.0] — 27 Ağustos 2026
 
 ### Eklendi
-- Açılış ekranı: uygulama simgesi ve adı, ana pencere kurulurken görünüyor. Önceden Chromium yüklenene kadar ekranda hiçbir belirti yoktu.
-- Öğrenme yolunda henüz yazılmamış bölümler de görünüyor: soluk, tıklanmayan halkalar ve "Yakında" yazısı. Python Temelleri'nin geri kalanı (modüller, hata yakalama, dosya işlemleri, OOP, SQLite, genel tekrar) böyle listelendi.
 - Her bölümde artık **en az üç alıştırma** var; toplam 6'dan 18'e çıktı. Yeni alıştırmalar kolaydan zora sıralı ve yalnızca o bölüme kadar anlatılmış kavramları kullanıyor.
 - Uygulama ilk açılışta bilgisayarın arayüz diline göre açılıyor: Windows'u Türkçe olan Türkçe, başka bir dilde olan İngilizce görüyor. Ayarlardan bir dil seçildiği anda bu devreye girmiyor, seçim geçerli oluyor.
 - Açılışta kapalı beta uyarısı: uygulamanın kararsız çalışabileceği, hata ve çökme görülebileceği ve geri bildirimin nasıl iletileceği yazıyor. Sürüm başına bir kez çıkıyor.

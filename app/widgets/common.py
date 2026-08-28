@@ -73,8 +73,10 @@ class SegmentedControl(QFrame):
         self.setProperty("role", "segment-group")
 
         self._layout = QHBoxLayout(self)
-        self._layout.setContentsMargins(4, 4, 4, 4)
-        self._layout.setSpacing(2)
+        # Kutu kalktığı için iç dolguya gerek yok; aralık ise arttı, sekmeler
+        # birbirine yapışık duruyordu.
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(SPACING["md"])
         self._buttons: list[QPushButton] = []
         self._current = 0
 

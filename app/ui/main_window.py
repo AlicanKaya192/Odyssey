@@ -28,6 +28,8 @@ from ..core.theme import ThemeManager
 from ..paths import content_dir
 from .header import ScreenHeader
 from .about_view import AboutView
+from . import titlebar
+from ..resources.theme.tokens import RAIL_COLORS
 from .journey_view import JourneyView
 from .profile_view import ProfileView
 from .rail import Rail
@@ -199,8 +201,8 @@ class MainWindow(QMainWindow):
         self._update_headers()
 
     def _journey_back(self) -> None:
-        """Yoldan modül listesine dön."""
-        self._journey.show_modules()
+        """Bir seviye yukarı: yoldan modüllere, modüllerden patikalara."""
+        self._journey.back()
         self._update_headers()
 
     def _escape(self) -> None:
@@ -208,14 +210,18 @@ class MainWindow(QMainWindow):
         current = self._stack.currentWidget()
         if current is self._topic:
             self._topic_back()
-        elif current is self._journey_screen and self._journey.showing_path:
+        elif current is self._journey_screen and not self._journey.showing_tracks:
             self._journey_back()
 
     def _update_headers(self) -> None:
-        showing_path = self._journey.showing_path
-        self._journey_header.set_back(showing_path, self._language.t("path.back"))
+        # Üç katman var: patikalar -> modüller -> yol. Geri düğmesi en üst
+        # katman dışında hep görünüyor ve bir seviye yukarı çıkarıyor.
+        en_ustte = self._journey.showing_tracks
+        self._journey_header.set_back(
+            not en_ustte, self._language.t("path.back")
+        )
 
-        if showing_path:
+        if self._journey.showing_path:
             # Yoldayken başlık modülün adını göstersin; "Öğrenme Yolu" yazmak
             # kullanıcıya hangi modülde olduğunu söylemiyor.
             chapter = self._catalog.chapter(self._journey.path.chapter_id)
@@ -223,14 +229,26 @@ class MainWindow(QMainWindow):
                 self._language.pick(chapter.title) if chapter else "",
                 self._language.t("nav.path"),
             )
+        elif not en_ustte:
+            # Modül listesindeyken patikanın adı yazıyor.
+            self._journey_header.set_titles(
+                self._language.pick(self._journey.track_title),
+                self._language.t("nav.path"),
+            )
         else:
             self._journey_header.set_titles(
-                self._language.t("nav.path"), self._language.t("app.subtitle")
+                self._language.t("nav.path"), self._language.t("app.title")
             )
-        self._profile_header.set_titles(self._language.t("profile.title"))
-        self._about_header.set_titles(self._language.t(f"nav.{self._about.section}"))
+        self._profile_header.set_titles(
+            self._language.t("profile.title"), self._language.t("app.title")
+        )
+        self._about_header.set_titles(
+            self._language.t(f"nav.{self._about.section}"),
+            self._language.t("app.title"),
+        )
+        self._apply_header_accents(self._theme.effective_mode)
         self._releases_header.set_titles(
-            self._language.t("release.title"), self._language.t("release.subtitle")
+            self._language.t("release.title"), self._language.t("app.title")
         )
 
     # --- ayarlar ----------------------------------------------------------
@@ -238,6 +256,9 @@ class MainWindow(QMainWindow):
     def _open_settings(self) -> None:
         dialog = SettingsDialog(self._language, self._theme, self)
         self._language.language_changed.connect(dialog.retranslate)
+        # Ayrı pencerelerin başlık çubuğu da temaya uysun; biri boyalı biri
+        # değilken göze çarpıyor.
+        titlebar.apply(dialog, self._theme.effective_mode)
         dialog.exec()
 
         # Seçimler kalıcı olsun diye veritabanına yazılıyor.
@@ -249,7 +270,29 @@ class MainWindow(QMainWindow):
     def _on_language_changed(self, _code: str) -> None:
         self.retranslate()
 
+    def _apply_header_accents(self, mode: str) -> None:
+        """Her başlığa şeritteki simgesiyle aynı rengi verir.
+
+        Ekranlar arasında gezerken aynı rengin devam etmesi, nerede
+        olunduğunu yazıdan önce renkten okutuyor.
+        """
+        colors = RAIL_COLORS.get(mode, RAIL_COLORS["light"])
+        for key, header in (
+            ("journey", self._journey_header),
+            ("profile", self._profile_header),
+            ("releases", self._releases_header),
+        ):
+            header.set_accent(colors[key])
+
+        # Hakkımda ekranı üç bölüm taşıyor; rengi seçili bölüme göre.
+        self._about_header.set_accent(colors.get(self._about.section, colors["links"]))
+        self._topic.header.set_accent(colors["journey"])
+
     def _on_theme_changed(self, mode: str) -> None:
+        # Windows başlık çubuğu Qt'nin dışında kalıyor; koyu temada pencere
+        # koyu, çubuk açık kalıp ekran ikiye bölünmüş gibi duruyordu.
+        titlebar.apply(self, mode)
+
         self._rail.set_mode(mode)
         self._journey.set_mode(mode)
         self._journey_header.set_mode(mode)
@@ -260,6 +303,7 @@ class MainWindow(QMainWindow):
         self._about_header.set_mode(mode)
         self._releases.set_mode(mode)
         self._releases_header.set_mode(mode)
+        self._apply_header_accents(mode)
 
     def retranslate(self) -> None:
         self.setWindowTitle(self._language.t("app.title"))

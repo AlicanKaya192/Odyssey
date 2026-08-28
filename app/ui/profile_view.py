@@ -212,7 +212,7 @@ class ProfileView(QWidget):
         self._first_name.setPlaceholderText(self._language.t("profile.first_name"))
         self._last_name.setPlaceholderText(self._language.t("profile.last_name"))
         self._save_button.setText(self._language.t("common.save"))
-        self._stats_title.setText(self._language.t("profile.title").upper())
+        self._stats_title.setText(self._language.t_upper("profile.title"))
 
         for key in STAT_KEYS:
             self._stats[key].set_label(self._language.t(f"profile.stats.{key}"))

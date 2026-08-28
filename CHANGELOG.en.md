@@ -21,11 +21,30 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.3.0] — 28 August 2026
+
+### Added
+- The home screen now opens with learning tracks: Python, Data Science, Machine Learning and SQL, laid out as four cards in a 2x2 grid. The three without content yet are faded and carry a lock; the Data Science and Machine Learning cards suggest finishing the Python track first. The progress bar now sits on the track card.
+- When a track holds a single module the module list is skipped and you go straight to the topics; clicking through a one-card screen served no purpose. Going back follows the same route.
+- A splash screen: the application icon and name appear while the main window is being built. Until now nothing appeared on screen until Chromium had loaded.
+- Sections that have not been written yet now appear on the learning path as faded, unclickable circles marked "Coming soon". The rest of Python Fundamentals (modules, error handling, file handling, OOP, SQLite, review) is listed this way.
+
+### Changed
+- The lecture notes screen was redesigned. The 270-pixel list panel on the left was removed; a section holds three notes at most, so that panel was both heavy and pushed the text to the right. The notes are now a slim row of tabs above the text, and with a single note the row is not drawn at all.
+- The screen headers were redesigned. The bar is now aligned with the same column as the page content: the title sat at the far left of the window while the content was centred, so the two did not look connected. The bar's separate background was removed; it looked like a detached block sitting on top of the page and now shares the page's background, separated only by a thin line. The title is larger (17px to 26px), with a small context line above it and a coloured bar beside it, in the same colour as its icon in the left rail. The text sits vertically centred in the bar.
+- The Windows title bar now takes the application's colour. In dark mode the window was dark while the bar stayed light, which split the screen in two. The settings and startup notice windows follow the same colour.
+
+### Fixed
+- Scrolling down through a lesson suddenly jumped back to the top. Reaching the end marks it as read, which updates the progress box and reloaded the document. The same happened in an exercise brief when a hint was revealed. The reading position is now kept when a document is redrawn.
+- Solving an exercise did not put the tick on its number straight away; it only appeared after switching to another exercise or reopening the section.
+- The filled box behind the tabs on the topic screen was removed; it looked like a patch once the bar shared the page's background. The selected tab is now marked by an underline, and the tabs no longer sit on top of each other.
+- The duration in a section heading was written in Turkish even in English; it now comes from the translations.
+- The counter labels on the welcome card are now capitalised: "Sections Completed", "Exercises Solved".
+- Headings written in capitals mangled the Turkish letter `i`: the app showed "ÖĞRENME PATIKALARI" where it should read "ÖĞRENME PATİKALARI". Python's `upper()` turns `i` into `I`; the conversion now follows the selected language.
+
 ## [0.2.0] — 27 August 2026
 
 ### Added
-- A splash screen: the application icon and name appear while the main window is being built. Until now nothing appeared on screen until Chromium had loaded.
-- Sections that have not been written yet now appear on the learning path as faded, unclickable circles marked "Coming soon". The rest of Python Fundamentals (modules, error handling, file handling, OOP, SQLite, review) is listed this way.
 - Every section now has **at least three exercises**; the total went from 6 to 18. The new ones are ordered from easy to hard and use only the concepts taught up to that section.
 - The application now opens in the language of your computer's interface: Turkish on a Turkish Windows, English otherwise. Once you pick a language in Settings, that choice wins and detection no longer applies.
 - A closed beta notice on startup: it says the application may be unstable, that you may hit errors and crashes, and how to send feedback. It appears once per version.

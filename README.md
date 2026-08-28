@@ -10,7 +10,7 @@ Every section has a lesson, lecture notes and exercises. To complete a section y
 
 ## Status
 
-Early development (`0.2.0`). The application works end to end, but the content is still at the beginning.
+Early development (`0.3.0`). The application works end to end, but the content is still at the beginning.
 
 **Working:** learning path, lessons, lecture notes, quizzes, coding exercises with automatic checking, graded hints, error explanations, persistent progress, Turkish/English interface and content, light and dark themes.
 

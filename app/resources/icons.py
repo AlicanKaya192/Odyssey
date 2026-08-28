@@ -80,6 +80,37 @@ PATHS: dict[str, str] = {
         '<path d="m12 2 9 5v10l-9 5-9-5V7z"/>'
         '<path d="m3 7 9 5 9-5"/><path d="M12 12v10"/>'
     ),
+    # --- patika simgeleri -------------------------------------------------
+    # Python: iki iç içe geçmiş kıvrım, dilin logosuna gönderme.
+    "python": (
+        '<path d="M12 3c-3 0-4 1.4-4 3v2h8v1H6c-1.7 0-3 1.4-3 3.5S4.3 16 6 16h1.5"/>'
+        '<path d="M12 21c3 0 4-1.4 4-3v-2H8v-1h10c1.7 0 3-1.4 3-3.5S19.7 8 18 8h-1.5"/>'
+        '<circle cx="10" cy="6" r=".6" fill="currentColor"/>'
+        '<circle cx="14" cy="18" r=".6" fill="currentColor"/>'
+    ),
+    # Veri bilimi: sütun grafiği.
+    "chart": (
+        '<path d="M3 21h18"/><path d="M6 21V10"/>'
+        '<path d="M11 21V4"/><path d="M16 21v-7"/><path d="M21 21v-3"/>'
+    ),
+    # Makine öğrenmesi: birbirine bağlı düğümler.
+    "network": (
+        '<circle cx="5" cy="7" r="2"/><circle cx="5" cy="17" r="2"/>'
+        '<circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>'
+        '<path d="M7 8.2 10.2 11"/><path d="M7 15.8 10.2 13"/><path d="M14 12h3"/>'
+    ),
+    # SQL: veritabanı silindiri.
+    "database": (
+        '<ellipse cx="12" cy="5.5" rx="8" ry="3"/>'
+        '<path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13"/>'
+        '<path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>'
+    ),
+    # Kilit: içeriği henüz olmayan patikalarda.
+    "lock": (
+        '<rect x="4" y="10" width="16" height="10" rx="2"/>'
+        '<path d="M8 10V7a4 4 0 0 1 8 0v3"/>'
+    ),
+
     "scale": (
         '<path d="M12 3v18"/><path d="M7 21h10"/><path d="M5 7h14"/>'
         '<path d="m5 7-3 7h6z"/><path d="m19 7-3 7h6z"/>'

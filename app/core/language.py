@@ -32,6 +32,21 @@ AVAILABLE_LANGUAGES = {
 }
 
 
+# Python'un `upper()` metodu Türkçede yanlış sonuç veriyor: `i` harfini `I`
+# yapıyor, oysa Türkçede karşılığı `İ`. "Öğrenme patikaları" başlığı ekranda
+# "ÖĞRENME PATIKALARI" diye çıkıyordu. Çeviri tablosu bunu düzeltiyor;
+# `ı` -> `I` dönüşümünü Python zaten doğru yapıyor ama açıkça yazmak
+# okuyanın kafasını karıştırmıyor.
+TURKISH_UPPERCASE = str.maketrans({"i": "İ", "ı": "I"})
+
+
+def upper(text: str, language: str) -> str:
+    """Metni seçili dilin kurallarına göre büyütür."""
+    if language == "tr":
+        return text.translate(TURKISH_UPPERCASE).upper()
+    return text.upper()
+
+
 def system_language() -> str:
     """İşletim sisteminin dili.
 
@@ -83,6 +98,10 @@ class LanguageManager(QObject):
     def _load(self, language: str) -> None:
         if language not in self._catalogs:
             self._catalogs[language] = _load_catalog(language)
+
+    def t_upper(self, key: str, **kwargs) -> str:
+        """Çeviriyi alıp seçili dilin kurallarına göre büyütür."""
+        return upper(self.t(key, **kwargs), self._language)
 
     @property
     def language(self) -> str:

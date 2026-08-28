@@ -5,8 +5,11 @@ uygulama içinde aranabiliyor, kopyalanabiliyor, yazı boyutu kullanıcının
 ayarına uyuyor ve açık/koyu temayla uyumlu duruyor. Gömülü bir PDF bunların
 hiçbirini yapamıyor.
 
-Bir bölümde birden fazla not olabilir; solda liste, sağda seçili notun metni
-duruyor. İlerleyen modüllerde not sayısı arttığında bu yapı bozulmuyor.
+**Not seçimi metnin üstünde, kenarda değil.** Önce solda 270px'lik dolu bir
+liste paneli vardı. Bir bölümde en çok üç, çoğunlukla iki not olduğu için o
+panel hem gereğinden ağır duruyor hem de metni sağa itip ortalamayı
+bozuyordu. Şimdi notlar üstte ince bir sekme sırası; tek not varsa sıra hiç
+çizilmiyor ve ekranda yalnızca metin kalıyor.
 """
 
 from __future__ import annotations
@@ -14,25 +17,13 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFontMetrics
-from PySide6.QtWidgets import (
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QPushButton,
-    QScrollArea,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from ..core.catalog import Block
 from ..core.language import LanguageManager
-from ..resources.theme.tokens import SPACING
-from ..widgets.common import section_label
-from ..widgets.effects import repolish
+from ..resources.theme.tokens import READING_WIDTH, SPACING
+from ..widgets.common import SegmentedControl
 from .lesson_view import LessonView
-
-LIST_WIDTH = 270
 
 
 class NotesView(QWidget):
@@ -48,54 +39,16 @@ class NotesView(QWidget):
         self._documents: list[dict] = []
         self._directory: Path | None = None
         self._current = 0
-        self._buttons: list[QPushButton] = []
         # Son notun altında görünecek "devam et" düğmesinin etiketi. Bölümde
         # notlardan sonra ne geliyorsa (sınav, alıştırma) onun adı yazılıyor.
         self._advance_label: str | None = None
 
-        layout = QHBoxLayout(self)
+        layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        layout.addWidget(self._build_list())
-        layout.addWidget(self._build_document(), 1)
+        layout.addWidget(self._build_selector())
 
-    def _build_list(self) -> QWidget:
-        panel = QFrame()
-        panel.setProperty("surface", "alt")
-        panel.setFixedWidth(LIST_WIDTH)
-
-        outer = QVBoxLayout(panel)
-        outer.setContentsMargins(0, 0, 0, 0)
-
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.Shape.NoFrame)
-
-        holder = QWidget()
-        self._list_layout = QVBoxLayout(holder)
-        self._list_layout.setContentsMargins(
-            SPACING["md"], SPACING["lg"], SPACING["md"], SPACING["lg"]
-        )
-        self._list_layout.setSpacing(2)
-
-        self._list_title = section_label("")
-        self._list_layout.addWidget(self._list_title)
-        self._list_layout.addSpacing(SPACING["xs"])
-        self._list_layout.addStretch(1)
-
-        scroll.setWidget(holder)
-        outer.addWidget(scroll)
-        return panel
-
-    def _build_document(self) -> QWidget:
-        holder = QWidget()
-        layout = QVBoxLayout(holder)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        # Önceki/Sonraki düğmeleri belgenin içinde duruyor; böylece maketteki
-        # görünümü birebir alıyorlar ve metinle birlikte kayıyorlar.
         self._reader = LessonView(self._language, show_toc=False)
         self._reader.action.connect(self._on_action)
         layout.addWidget(self._reader, 1)
@@ -106,6 +59,36 @@ class NotesView(QWidget):
         layout.addWidget(self._empty)
         self._empty.hide()
 
+    def _build_selector(self) -> QWidget:
+        """Notlar arasında geçiş sırası.
+
+        Genişlik `READING_WIDTH`: belgenin kendi metin sütunu bu ölçüyü
+        kullanıyor. `CONTENT_WIDTH` (820px) verilseydi sekmeler metinden
+        70 piksel solda başlıyordu — ölçüldü.
+        """
+        holder = QWidget()
+        row = QHBoxLayout(holder)
+        row.setContentsMargins(
+            SPACING["xl"], SPACING["md"], SPACING["xl"], 0
+        )
+        row.setSpacing(0)
+
+        inner = QWidget()
+        inner.setMaximumWidth(READING_WIDTH)
+        column = QHBoxLayout(inner)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(0)
+
+        self._tabs = SegmentedControl()
+        self._tabs.changed.connect(self._select)
+        column.addWidget(self._tabs)
+        column.addStretch(1)
+
+        row.addStretch(1)
+        row.addWidget(inner, 10)
+        row.addStretch(1)
+
+        self._selector = holder
         return holder
 
     def _on_action(self, action: str) -> None:
@@ -131,8 +114,8 @@ class NotesView(QWidget):
 
         Notlar arasında ileri geri gezilir; **son notta** ileri düğmesi
         bölümün bir sonraki adımına (sınav ya da alıştırma) dönüşür. Böylece
-        okuyan kişi ders notunu bitirdiğinde sol menüye gitmek zorunda
-        kalmadan devam edebiliyor.
+        okuyan kişi ders notunu bitirdiğinde yukarı çıkmak zorunda kalmadan
+        devam edebiliyor.
         """
         son_not = self._current >= len(self._documents) - 1
 
@@ -162,38 +145,21 @@ class NotesView(QWidget):
         self._documents = block.documents
         self._directory = block.directory
         self._current = 0
-        self._rebuild_list()
+        self._rebuild_tabs()
         self._show_current()
 
-    def _rebuild_list(self) -> None:
-        while self._list_layout.count() > 2:
-            item = self._list_layout.takeAt(1)
-            if item.widget():
-                item.widget().deleteLater()
-        self._buttons = []
-
-        for index, document in enumerate(self._documents):
-            title = self._language.pick(document.get("title"))
-            button = QPushButton()
-            button.setProperty("variant", "listitem")
-            button.setCursor(Qt.CursorShape.PointingHandCursor)
-            button.setToolTip(title)
-
-            # Uzun başlıklar paneli taşırmasın: QPushButton metni satıra
-            # bölemediği için sığmayan kısım üç noktayla kısaltılıyor.
-            etiket = f"{index + 1:02d}    {title}"
-            metrics = QFontMetrics(button.font())
-            button.setText(
-                metrics.elidedText(
-                    etiket, Qt.TextElideMode.ElideRight, LIST_WIDTH - SPACING["xxl"] - 16
-                )
-            )
-            button.clicked.connect(lambda _=False, i=index: self._select(i))
-            self._list_layout.insertWidget(self._list_layout.count() - 1, button)
-            self._buttons.append(button)
+    def _rebuild_tabs(self) -> None:
+        """Sekmeleri kurar. Tek not varsa sıra hiç görünmüyor."""
+        basliklar = [
+            self._language.pick(document.get("title")) for document in self._documents
+        ]
+        self._tabs.set_items(basliklar)
+        self._tabs.set_current(self._current, notify=False)
+        self._selector.setVisible(len(self._documents) > 1)
 
     def _select(self, index: int) -> None:
         self._current = max(0, min(index, len(self._documents) - 1))
+        self._tabs.set_current(self._current, notify=False)
         self._show_current()
 
     def _step(self, delta: int) -> None:
@@ -202,11 +168,11 @@ class NotesView(QWidget):
     def _show_current(self) -> None:
         has_notes = bool(self._documents)
         self._reader.setVisible(has_notes)
+        self._selector.setVisible(has_notes and len(self._documents) > 1)
         self._empty.setVisible(not has_notes)
 
         if not has_notes:
             self._empty.setText(self._language.t("notes.empty"))
-            self.retranslate()
             return
 
         document = self._documents[self._current]
@@ -221,20 +187,12 @@ class NotesView(QWidget):
 
         if resolved is None or not resolved.exists():
             body = f"*{self._language.t('content.not_found', path=document.get('file', '-'))}*"
-            fallback = False
         else:
             body = resolved.read_text(encoding="utf-8")
-            fallback = document.get("_fallback", False)
 
         self._reader.show_text(f"# {title}\n\n{body}")
         self._reader.set_meta([counter])
         self._apply_footer()
-
-        for index, button in enumerate(self._buttons):
-            button.setProperty("active", "true" if index == self._current else "false")
-            repolish(button)
-
-        self.retranslate()
 
     def _resolve(self, document: dict) -> Path | None:
         """Not dosyasının yolunu seçili dile göre çözer."""
@@ -261,5 +219,7 @@ class NotesView(QWidget):
         self._reader.set_mode(mode)
 
     def retranslate(self) -> None:
-        self._list_title.setText(self._language.t("notes.list_title").upper())
+        self._rebuild_tabs()
+        if self._documents:
+            self._show_current()
         self._reader.retranslate()

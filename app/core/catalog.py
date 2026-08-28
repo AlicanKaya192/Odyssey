@@ -311,10 +311,51 @@ class Chapter:
 
 
 @dataclass
+class Track:
+    """Bir öğrenme patikası: Python, Veri Bilimi, Makine Öğrenmesi, SQL.
+
+    Modüllerin üstünde duran katman. Bir patikanın henüz modülü yoksa ana
+    ekranda kilitli görünüyor — hangi konuların geleceğini baştan göstermek,
+    "uygulamada bu kadarı var" izlenimini önlüyor.
+    """
+
+    id: str
+    raw: dict
+    chapters: list[Chapter] = field(default_factory=list)
+
+    @property
+    def title(self) -> dict[str, str]:
+        return self.raw.get("title", {})
+
+    @property
+    def description(self) -> dict[str, str]:
+        return self.raw.get("description", {})
+
+    @property
+    def color(self) -> str:
+        return self.raw.get("color", "#4F46E5")
+
+    @property
+    def icon(self) -> str:
+        return self.raw.get("icon", "book")
+
+    @property
+    def prerequisite(self) -> str:
+        """Önce bitirilmesi önerilen patikanın kimliği; yoksa boş."""
+        return self.raw.get("prerequisite", "")
+
+    @property
+    def locked(self) -> bool:
+        """İçeriği henüz yazılmamış patika kilitli sayılıyor."""
+        return not self.chapters
+
+
+@dataclass
 class Catalog:
     """Bütün müfredat."""
 
     chapters: list[Chapter] = field(default_factory=list)
+    tracks: list[Track] = field(default_factory=list)
 
     @classmethod
     def load(cls, content_dir: Path) -> "Catalog":
@@ -325,7 +366,32 @@ class Catalog:
             p for p in content_dir.iterdir()
             if p.is_dir() and (p / "chapter.json").exists()
         )
-        return cls(chapters=[Chapter.load(p) for p in directories])
+        chapters = [Chapter.load(p) for p in directories]
+        return cls(chapters=chapters, tracks=cls._load_tracks(content_dir, chapters))
+
+    @staticmethod
+    def _load_tracks(content_dir: Path, chapters: list[Chapter]) -> list[Track]:
+        """`tracks.json` varsa patikaları kurar.
+
+        Dosya yoksa tek bir patika üretiliyor: eski davranış korunuyor ve
+        ekran boş kalmıyor.
+        """
+        path = content_dir / "tracks.json"
+        if not path.exists():
+            return []
+
+        by_id = {chapter.id: chapter for chapter in chapters}
+        tracks: list[Track] = []
+        for raw in _read_json(path).get("tracks", []):
+            track_id = raw.get("id", "")
+            secili = [
+                by_id[cid] for cid in raw.get("chapters", []) if cid in by_id
+            ]
+            tracks.append(Track(id=track_id, raw=raw, chapters=secili))
+        return tracks
+
+    def track(self, track_id: str) -> Track | None:
+        return next((t for t in self.tracks if t.id == track_id), None)
 
     def chapter(self, chapter_id: str) -> Chapter | None:
         return next((c for c in self.chapters if c.id == chapter_id), None)

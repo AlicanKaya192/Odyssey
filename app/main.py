@@ -180,7 +180,11 @@ def main() -> int:
     from app.ui.beta_notice import BetaNoticeDialog, mark_seen, should_show
 
     if should_show(store):
-        BetaNoticeDialog(language, window).exec()
+        from app.ui import titlebar
+
+        notice = BetaNoticeDialog(language, window)
+        titlebar.apply(notice, theme.effective_mode)
+        notice.exec()
         mark_seen(store)
 
     return application.exec()

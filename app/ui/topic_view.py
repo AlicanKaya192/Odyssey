@@ -438,6 +438,10 @@ class TopicView(QWidget):
 
     def _on_exercise_solved(self, _exercise_id: str) -> None:
         self._refresh_progress()
+        # Numara düğmelerindeki onay işareti veritabanından okunuyor;
+        # çözüldüğü anda yenilenmezse tik ancak başka bir alıştırmaya
+        # geçince ya da bölüm yeniden açılınca beliriyordu.
+        self._update_switcher()
         self.progress_changed.emit()
 
     # --- tema ve dil ------------------------------------------------------
@@ -465,7 +469,8 @@ class TopicView(QWidget):
             self.header.set_titles(
                 self._language.pick(self._section.title),
                 f"{self._language.pick(chapter.title) if chapter else ''} · "
-                f"{self._section.estimated_minutes} dk",
+                f"{self._section.estimated_minutes} "
+                f"{self._language.t('common.minutes')}",
             )
 
         self._lesson.retranslate()

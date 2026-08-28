@@ -30,7 +30,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..core.catalog import Catalog, Chapter
+from ..core.catalog import Catalog, Chapter, Track
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..resources.icons import icon, pixmap
@@ -44,6 +44,10 @@ ZIGZAG = [30, 120, 170, 120, 30]
 # Henüz yazılmamış bölümlerin solukluğu. Okunacak kadar açık,
 # yazılmışlarla karışmayacak kadar soluk.
 PLANNED_OPACITY = 0.45
+
+# Kilitli patikanın solukluğu. Okunuyor ama açılabilir olanlarla
+# karışmıyor.
+LOCKED_OPACITY = 0.5
 
 
 def scroll_page(widget: QWidget) -> QScrollArea:
@@ -226,6 +230,262 @@ class ModuleCard(QFrame):
         self._description.setText(self._language.pick(self._chapter.description))
 
 
+class TrackCard(QFrame):
+    """Bir öğrenme patikasını temsil eden kart.
+
+    İçeriği henüz yazılmamış patika kilitli: soluk, tıklanmıyor, köşesinde
+    kilit simgesi duruyor. Kilitlileri gizlemek yerine göstermek, uygulamanın
+    nereye gittiğini baştan anlatıyor.
+    """
+
+    clicked = Signal()
+
+    def __init__(
+        self,
+        track: Track,
+        language: LanguageManager,
+        mode: str,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self._track = track
+        self._language = language
+        self._completed = 0
+        self._total = 0
+        self.setProperty("variant", "module")
+        self.setProperty("locked", "true" if track.locked else "false")
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.setMinimumHeight(164)
+
+        if not track.locked:
+            self.setCursor(Qt.CursorShape.PointingHandCursor)
+            apply_shadow(self, mode)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(
+            SPACING["lg"], SPACING["lg"], SPACING["lg"], SPACING["lg"]
+        )
+        layout.setSpacing(SPACING["sm"])
+
+        header = QHBoxLayout()
+        header.setSpacing(SPACING["sm"])
+
+        self._icon = QLabel()
+        self._icon.setPixmap(pixmap(track.icon, track.color, 26))
+        self._icon.setFixedWidth(28)
+        header.addWidget(self._icon, 0, Qt.AlignmentFlag.AlignTop)
+
+        self._title = QLabel()
+        self._title.setProperty("role", "subtitle")
+        self._title.setWordWrap(True)
+        header.addWidget(self._title, 1)
+
+        if track.locked:
+            kilit = QLabel()
+            kilit.setPixmap(pixmap("lock", PALETTES[mode]["text_muted"], 18))
+            kilit.setFixedWidth(20)
+            header.addWidget(kilit, 0, Qt.AlignmentFlag.AlignTop)
+        header.addLayout(QVBoxLayout())
+
+        layout.addLayout(header)
+
+        self._description = QLabel()
+        self._description.setProperty("role", "muted")
+        self._description.setWordWrap(True)
+        layout.addWidget(self._description)
+        layout.addStretch(1)
+
+        # İlerleme çubuğu yalnızca açık patikada: kilitlide gösterilecek
+        # bir ilerleme yok, boş çubuk kafa karıştırıyor.
+        self._bar = QProgressBar()
+        self._bar.setTextVisible(False)
+        self._bar.setVisible(not track.locked)
+        layout.addWidget(self._bar)
+
+        # Alt satır: kilitlide durum, açıkta ilerleme.
+        self._caption = QLabel()
+        self._caption.setProperty("role", "muted")
+        self._caption.setWordWrap(True)
+        layout.addWidget(self._caption)
+
+        if track.locked:
+            solukluk = QGraphicsOpacityEffect(self)
+            solukluk.setOpacity(LOCKED_OPACITY)
+            self.setGraphicsEffect(solukluk)
+
+    @property
+    def track_id(self) -> str:
+        return self._track.id
+
+    def update_progress(self, completed: int, total: int) -> None:
+        """Patikanın altındaki modüllerin toplam ilerlemesi."""
+        self._completed = completed
+        self._total = total
+        percent = round(completed * 100 / total) if total else 0
+        self._bar.setRange(0, 100)
+        self._bar.setValue(percent)
+
+    def mouseReleaseEvent(self, event) -> None:  # noqa: N802
+        if self._track.locked:
+            return
+        if event.button() == Qt.MouseButton.LeftButton and self.rect().contains(event.pos()):
+            self.clicked.emit()
+        super().mouseReleaseEvent(event)
+
+    def set_mode(self, mode: str) -> None:
+        if not self._track.locked:
+            refresh_shadow(self, mode)
+
+    def retranslate(self) -> None:
+        self._title.setText(self._language.pick(self._track.title))
+        self._description.setText(self._language.pick(self._track.description))
+
+        if self._track.locked:
+            # Kilitli patikada ön koşul ipucu daha yararlı: "içerik yok"
+            # bilgisini kilit simgesi zaten veriyor.
+            self._caption.setText(
+                self._language.t("track.prerequisite")
+                if self._track.prerequisite
+                else self._language.t("track.locked")
+            )
+        else:
+            percent = (
+                round(self._completed * 100 / self._total) if self._total else 0
+            )
+            self._caption.setText(
+                self._language.t(
+                    "module.progress",
+                    done=self._completed,
+                    total=self._total,
+                    percent=percent,
+                )
+            )
+
+
+class TracksView(QWidget):
+    """Patika kartlarının 2x2 dizildiği ana ekran."""
+
+    track_opened = Signal(str)
+    resume_requested = Signal()
+
+    def __init__(
+        self,
+        catalog: Catalog,
+        language: LanguageManager,
+        store: ProgressStore,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self._catalog = catalog
+        self._language = language
+        self._store = store
+        self._mode = "light"
+        self._cards: list[TrackCard] = []
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+
+        column = QWidget()
+        self._page_layout = QVBoxLayout(column)
+        self._page_layout.setContentsMargins(
+            SPACING["xl"], SPACING["xl"], SPACING["xl"], SPACING["xxl"]
+        )
+        self._page_layout.setSpacing(SPACING["lg"])
+
+        self._hero = HeroCard(language)
+        self._page_layout.addWidget(self._hero)
+
+        self._label = section_label("")
+        self._page_layout.addWidget(self._label)
+
+        self._grid = QGridLayout()
+        self._grid.setSpacing(SPACING["md"])
+        self._page_layout.addLayout(self._grid)
+        self._page_layout.addStretch(1)
+
+        outer.addWidget(scroll_page(centered_column(column)))
+        self._build_cards()
+
+    def _build_cards(self) -> None:
+        for index, track in enumerate(self._catalog.tracks):
+            card = TrackCard(track, self._language, self._mode)
+            card.clicked.connect(lambda t=track.id: self.track_opened.emit(t))
+            self._grid.addWidget(card, index // 2, index % 2)
+            self._cards.append(card)
+
+    def _chapter_progress(self, chapter) -> tuple[int, int]:
+        """Bir modülde kaç bölüm tamamlandı, kaç bölüm var."""
+        biten = 0
+        for section in chapter.sections:
+            state = self._store.section_state(
+                chapter.id, section.id, len(section.exercises)
+            )
+            if state.status(
+                section.requires_quiz, section.requires_exercises
+            ) == "completed":
+                biten += 1
+        return biten, len(chapter.sections)
+
+    def refresh(self) -> None:
+        toplam = 0
+        biten = 0
+
+        for card in self._cards:
+            track = self._catalog.track(card.track_id)
+            if track is None:
+                continue
+            t_biten = t_toplam = 0
+            for chapter in track.chapters:
+                b, s = self._chapter_progress(chapter)
+                t_biten += b
+                t_toplam += s
+            card.update_progress(t_biten, t_toplam)
+            biten += t_biten
+            toplam += t_toplam
+
+        self._hero.update_stats(
+            name=self._store.profile().get("first_name", ""),
+            resume_text=self._resume_text(),
+            sections=biten,
+            exercises=self._store.solved_exercise_count(),
+            streak=self._store.streak(),
+            progress=round(biten * 100 / toplam) if toplam else 0,
+        )
+        self.retranslate()
+
+    def _resume_text(self) -> str:
+        """Kaldığın yer. Modül ekranındakiyle aynı mantık."""
+        last = self._store.last_visited()
+        if last is None:
+            sections = self._catalog.all_sections
+            if not sections:
+                return ""
+            section = sections[0]
+        else:
+            section = self._catalog.section(*last)
+            if section is None:
+                return ""
+
+        chapter = self._catalog.chapter(section.chapter_id)
+        return self._language.t(
+            "home.resume",
+            chapter=self._language.pick(chapter.title) if chapter else "",
+            section=self._language.pick(section.title),
+        )
+
+    def set_mode(self, mode: str) -> None:
+        self._mode = mode
+        self._hero.set_mode(mode)
+        for card in self._cards:
+            card.set_mode(mode)
+
+    def retranslate(self) -> None:
+        self._label.setText(self._language.t_upper("track.section_label"))
+        self._hero.retranslate()
+        for card in self._cards:
+            card.retranslate()
+
+
 class ModulesView(QWidget):
     """Modül kartlarının listelendiği ana ekran."""
 
@@ -245,6 +505,7 @@ class ModulesView(QWidget):
         self._store = store
         self._mode = "light"
         self._cards: list[ModuleCard] = []
+        self._track_id = ""
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -271,8 +532,24 @@ class ModulesView(QWidget):
         outer.addWidget(scroll_page(page))
         self._build_cards()
 
+    def show_track(self, track_id: str) -> None:
+        """Yalnızca bu patikanın modüllerini gösterir."""
+        self._track_id = track_id
+        self._build_cards()
+        self.refresh()
+
     def _build_cards(self) -> None:
-        for index, chapter in enumerate(self._catalog.chapters):
+        while self._grid.count():
+            item = self._grid.takeAt(0)
+            if item.widget():
+                item.widget().setParent(None)
+                item.widget().deleteLater()
+        self._cards = []
+
+        track = self._catalog.track(self._track_id)
+        chapters = track.chapters if track else self._catalog.chapters
+
+        for index, chapter in enumerate(chapters):
             card = ModuleCard(chapter, self._language, self._mode)
             card.clicked.connect(lambda c=chapter.id: self.module_opened.emit(c))
             self._grid.addWidget(card, index // 2, index % 2)
@@ -309,7 +586,7 @@ class ModulesView(QWidget):
             streak=self._store.streak(),
             progress=round(completed_sections * 100 / total_sections) if total_sections else 0,
         )
-        self._modules_label.setText(self._language.t("home.modules").upper())
+        self._modules_label.setText(self._language.t_upper("home.modules"))
 
     def _resume_text(self) -> str:
         last = self._store.last_visited()
@@ -598,14 +875,45 @@ class JourneyView(QStackedWidget):
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
+        self._catalog = catalog
+
+        # Üç katman: patikalar -> modüller -> yol.
+        self.tracks = TracksView(catalog, language, store)
         self.modules = ModulesView(catalog, language, store)
         self.path = PathView(catalog, language, store)
 
+        self.addWidget(self.tracks)
         self.addWidget(self.modules)
         self.addWidget(self.path)
 
+        self.tracks.track_opened.connect(self.open_track)
         self.modules.module_opened.connect(self.open_module)
         self.path.section_opened.connect(self.section_opened)
+
+        self._track_id = ""
+        self._skipped_modules = False
+
+    def open_track(self, track_id: str) -> None:
+        """Patikayı açar.
+
+        Patikada tek modül varsa modül listesi atlanıyor: tek kartlık bir
+        ekranda "Python Temelleri"ne bir kez daha tıklatmanın kimseye
+        faydası yok. Birden fazla modül olduğunda liste gerekiyor, o zaman
+        gösteriliyor.
+        """
+        self._track_id = track_id
+        track = self._catalog.track(track_id)
+        chapters = track.chapters if track else []
+
+        if len(chapters) == 1:
+            self._skipped_modules = True
+            self.open_module(chapters[0].id)
+            return
+
+        self._skipped_modules = False
+        self.modules.show_track(track_id)
+        self.setCurrentWidget(self.modules)
+        self.view_changed.emit()
 
     def open_module(self, chapter_id: str) -> None:
         self.path.show_chapter(chapter_id)
@@ -613,22 +921,49 @@ class JourneyView(QStackedWidget):
         self.view_changed.emit()
 
     def show_modules(self) -> None:
-        self.modules.refresh()
-        self.setCurrentWidget(self.modules)
+        """Patika ekranına döner: şeritteki "Öğrenme Yolu" buraya gidiyor."""
+        self.tracks.refresh()
+        self.setCurrentWidget(self.tracks)
+        self.view_changed.emit()
+
+    def back(self) -> None:
+        """Bir seviye yukarı çıkar.
+
+        Modül listesi atlanmışsa geri de atlıyor; yoksa kullanıcı gelirken
+        görmediği bir ekrana düşüyor.
+        """
+        if self.currentWidget() is self.path and not self._skipped_modules:
+            self.modules.refresh()
+            self.setCurrentWidget(self.modules)
+        else:
+            self.tracks.refresh()
+            self.setCurrentWidget(self.tracks)
         self.view_changed.emit()
 
     @property
     def showing_path(self) -> bool:
         return self.currentWidget() is self.path
 
+    @property
+    def showing_tracks(self) -> bool:
+        return self.currentWidget() is self.tracks
+
+    @property
+    def track_title(self) -> dict:
+        track = self._catalog.track(self._track_id)
+        return track.title if track else {}
+
     def refresh(self) -> None:
+        self.tracks.refresh()
         self.modules.refresh()
         self.path.refresh()
 
     def set_mode(self, mode: str) -> None:
+        self.tracks.set_mode(mode)
         self.modules.set_mode(mode)
         self.path.set_mode(mode)
 
     def retranslate(self) -> None:
+        self.tracks.retranslate()
         self.modules.retranslate()
         self.path.retranslate()
