@@ -1,0 +1,81 @@
+{
+  "id": "annotate-grades",
+  "title": {
+    "tr": "Kapların içi",
+    "en": "Inside the containers"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Sözlük belirtiminde iki tip var ve sırası sabit: önce anahtar, sonra değer. `dict[str, int]`",
+      "en": "A dictionary annotation has two types and the order is fixed: key first, value second. `dict[str, int]`"
+    },
+    {
+      "tr": "Boş liste `[]` olarak yazılıyor ama belirtimi ayrı: `passed: list[str] = []`",
+      "en": "An empty list is written `[]`, but its annotation is separate: `passed: list[str] = []`"
+    },
+    {
+      "tr": "`average` fonksiyonunun parametresi de bir sözlük, yani onun belirtimi de `dict[str, int]`. Ortalama için `sum(values.values()) // len(values)` kullan.",
+      "en": "The parameter of `average` is a dictionary too, so its annotation is also `dict[str, int]`. Use `sum(values.values()) // len(values)` for the average."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ngrades: dict[str, int] = {\"Ada\": 90, \"Alan\": 70}\npassed: list[str] = []\n\n\ndef average(values: dict[str, int]) -> int:\n    return sum(values.values()) // len(values)\n\n\nfor name in grades:\n    if grades[name] >= 80:\n        passed.append(name)\n\n\nprint(average(grades))\nprint(passed)\n```",
+      "en": "The solution:\n\n```python\ngrades: dict[str, int] = {\"Ada\": 90, \"Alan\": 70}\npassed: list[str] = []\n\n\ndef average(values: dict[str, int]) -> int:\n    return sum(values.values()) // len(values)\n\n\nfor name in grades:\n    if grades[name] >= 80:\n        passed.append(name)\n\n\nprint(average(grades))\nprint(passed)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "annotation",
+      "variable": "grades",
+      "is": "dict[str, int]"
+    },
+    {
+      "type": "annotation",
+      "variable": "passed",
+      "is": "list[str]"
+    },
+    {
+      "type": "annotation",
+      "name": "average",
+      "params": {
+        "values": "dict[str, int]"
+      },
+      "returns": "int"
+    },
+    {
+      "type": "function",
+      "name": "average",
+      "cases": [
+        {
+          "args": [
+            {
+              "Ada": 90,
+              "Alan": 70
+            }
+          ],
+          "returns": 80
+        },
+        {
+          "args": [
+            {
+              "Ada": 100
+            }
+          ],
+          "returns": 100
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "80\n['Ada']"
+    }
+  ]
+}

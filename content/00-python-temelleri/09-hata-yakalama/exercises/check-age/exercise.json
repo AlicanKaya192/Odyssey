@@ -1,0 +1,65 @@
+{
+  "id": "check-age",
+  "title": {
+    "tr": "Hatayı kendin çıkar",
+    "en": "Raising an error yourself"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Hata çıkarmak için `raise` kullanılıyor: `raise ValueError(\"age cannot be negative\")`. Parantezin içine yazdığın metin, hatanın açıklaması oluyor.",
+      "en": "You raise an error with `raise`: `raise ValueError(\"age cannot be negative\")`. The text in the brackets becomes the error's explanation."
+    },
+    {
+      "tr": "`raise` çalıştığı anda fonksiyon biter; altındaki `return` satırına hiç gelinmez. Bu yüzden `else` yazmana gerek yok.",
+      "en": "The moment `raise` runs the function ends; the `return` below it is never reached. That is why you do not need an `else`."
+    },
+    {
+      "tr": "Hatanın kendi mesajına ulaşmak için `except ValueError as error:` yazıp `print(error)` diyorsun.",
+      "en": "To reach the error's own message you write `except ValueError as error:` and then `print(error)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef check_age(age):\n    if age < 0:\n        raise ValueError(\"age cannot be negative\")\n    return age\n\n\nfor value in [25, -3, 40]:\n    try:\n        print(check_age(value))\n    except ValueError as error:\n        print(error)\n```",
+      "en": "The solution:\n\n```python\ndef check_age(age):\n    if age < 0:\n        raise ValueError(\"age cannot be negative\")\n    return age\n\n\nfor value in [25, -3, 40]:\n    try:\n        print(check_age(value))\n    except ValueError as error:\n        print(error)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Raise",
+      "hint": {
+        "tr": "Kodunda `raise` yok. Eksi yaşta hata mesajını doğrudan yazdırmak yerine, fonksiyonun hatayı **çıkarması** isteniyor.",
+        "en": "There is no `raise` in your code. Rather than printing the message directly for a negative age, the function is asked to **raise** the error."
+      }
+    },
+    {
+      "type": "ast_require",
+      "node": "Try",
+      "hint": {
+        "tr": "Çıkardığın hatayı yakalaman da gerekiyor; `try` / `except` olmadan program ilk eksi değerde duruyor.",
+        "en": "You also have to catch the error you raised; without `try` / `except` the program stops at the first negative value."
+      }
+    },
+    {
+      "type": "function",
+      "name": "check_age",
+      "cases": [
+        { "args": [25], "returns": 25 },
+        { "args": [0], "returns": 0 },
+        { "args": [40], "returns": 40 }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "25\nage cannot be negative\n40"
+    }
+  ]
+}

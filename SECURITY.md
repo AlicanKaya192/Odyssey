@@ -1,76 +1,84 @@
-# Güvenlik Politikası
+<div align="right">
+  <a href="./SECURITY.tr.md">Türkçe</a> · <b>English</b>
+</div>
 
-## Desteklenen Sürümler
+# Security Policy
 
-Proje erken geliştirme aşamasında. Güvenlik bildirimleri her zaman **`main`
-dalının en güncel hâli** ve **en son yayınlanan sürüm** için değerlendirilir.
+## Supported Versions
 
-| Sürüm | Destekleniyor mu? |
+The project is in early development. Security reports are always evaluated
+against the **current state of the `main` branch** and the **latest published
+release**.
+
+| Version | Supported |
 |---|:-:|
-| `main` (geliştirme) | ✅ |
-| En son yayınlanan sürüm | ✅ |
-| Daha eski sürümler | ❌ |
+| `main` (development) | ✅ |
+| Latest published release | ✅ |
+| Older releases | ❌ |
 
-## Uygulamanın güvenlik yüzeyi
+## The application's security surface
 
-Bu bir masaüstü uygulaması, bir servis değil. Bilinmesi gerekenler:
+This is a desktop application, not a service. What you should know:
 
-**Sunucu yok, hesap yok, telemetri yok.** İlerlemen, profilin ve yazdığın
-kodlar yalnızca kendi bilgisayarında, `%APPDATA%\Odyssey\progress.db`
-dosyasında durur. Hiçbir veri dışarı gönderilmez.
+**No server, no account, no telemetry.** Your progress, your profile and the
+code you write stay on your own computer, in `%APPDATA%\Odyssey\progress.db`.
+No data is sent anywhere.
 
-**Uygulama şu an hiçbir ağ çağrısı yapmıyor.** İleride eklenecek güncelleme
-kontrolü ayarlardan kapatılabilir olacak.
+**The application currently makes no network calls at all.** The update check
+planned for a later version will be switchable from Settings.
 
-"Bağlantılarım" ve "Ekstra İçerikler" bölümlerindeki adresler uygulamanın
-içinde açılmaz; tıklandığında sistem tarayıcısına devredilir.
+Addresses in the "My Links" and "Extra Content" tabs do not open inside the
+application; clicking one hands it to the system browser.
 
-**Uygulama kullanıcının yazdığı Python kodunu çalıştırır.** Bu, tasarımın
-kendisi — alıştırmalar böyle kontrol ediliyor. Ancak açıkça söylemek gerekir:
+**The application runs Python code written by the user.** That is the design
+itself — it is how exercises are checked. But it needs to be stated plainly:
 
-> **Bu bir güvenlik sandbox'ı değildir.** Kullanıcı kendi kodunu kendi
-> bilgisayarında çalıştırıyor. Sistemin sağladığı şey izole bir çalışma
-> klasörü, zaman aşımı, çıktı sınırı ve kodun hata vermesi durumunda
-> uygulamanın çökmemesidir. Kötü niyetli bir kodu durdurmaz.
+> **This is not a security sandbox.** Users run their own code on their own
+> machine. What the system provides is an isolated working folder, a timeout,
+> an output limit, and the guarantee that the application does not crash when
+> the code raises an error. It will not stop malicious code.
 
-Bu yüzden **başkasından gelen alıştırma içeriğini incelemeden eklemeyin.**
-`content/` klasörüne konan bir `solution.py` veya veri dosyası, alıştırma
-çalıştırıldığında sizin haklarınızla çalışır.
+For that reason, **do not add exercise content from someone else without
+reviewing it first.** A `solution.py` or a data file placed under `content/`
+runs with your privileges when the exercise is run.
 
-## Güvenlik açığı bildirme
+## Reporting a vulnerability
 
-Aşağıdaki türde bulgular güvenlik açığı sayılır ve bildirilmesi rica olunur:
+Findings of the following kinds count as vulnerabilities and reports are
+appreciated:
 
-- Kod içinde yanlışlıkla bırakılmış bir API anahtarı, token veya kimlik bilgisi
-- Kullanıcı verisinin beklenmedik biçimde uygulama dışına çıkması
-- Uygulamanın, kullanıcı istemeden bir ağ adresine bağlanması
-- Alıştırma çalıştırıcısının, olması gerekenden fazla yetkiyle çalışması ya da
-  izole çalışma klasörünün dışına yazması
-- Bağımlılıklardan gelen ve bu projeyi doğrudan etkileyen bilinen bir açık
-- Güncelleme mekanizmasının doğrulanmamış içerik yüklemesi
+- An API key, token or credential accidentally left in the code
+- User data leaving the application in an unexpected way
+- The application connecting to a network address without the user asking
+- The exercise runner running with more privileges than it needs, or writing
+  outside its isolated working folder
+- A known vulnerability in a dependency that directly affects this project
+- The update mechanism loading unverified content
 
-**Şunlar güvenlik açığı sayılmaz:** kullanıcının kendi yazdığı kodun kendi
-dosyalarına erişebilmesi (tasarım gereği), sonsuz döngü yazan kodun CPU
-kullanması (zaman aşımıyla durdurulur).
+**These do not count as vulnerabilities:** user-written code being able to
+reach the user's own files (that is by design), and code with an infinite loop
+consuming CPU (it is stopped by the timeout).
 
-### Nasıl bildirilir
+### How to report
 
-Açığı **herkese açık bir issue'da paylaşmayın.** Bunun yerine:
+**Do not post the vulnerability in a public issue.** Instead:
 
-1. GitHub'ın [Security Advisories](https://github.com/AlicanKaya192/Odyssey/security/advisories/new)
-   bölümünden özel bir bildirim açın, ya da
-2. [GitHub profilimdeki](https://github.com/AlicanKaya192) iletişim
-   adreslerinden birinden yazın.
+1. Open a private report through GitHub's
+   [Security Advisories](https://github.com/AlicanKaya192/Odyssey/security/advisories/new),
+   or
+2. Write to one of the contact addresses on
+   [my GitHub profile](https://github.com/AlicanKaya192).
 
-Bildirimde şunlar olursa değerlendirme hızlanır: etkilenen sürüm, adım adım
-nasıl tekrarlanacağı, olası etkisi ve varsa bir düzeltme fikri.
+The review goes faster if the report includes: the affected version,
+step-by-step reproduction, the likely impact, and an idea for a fix if you
+have one.
 
-### Süreç
+### Process
 
-- **48 saat içinde** bildirimin alındığını teyit ederim.
-- **7 gün içinde** açığın geçerli olup olmadığını ve etkisini bildiririm.
-- Geçerliyse düzeltme yayınlanana kadar bilgilendirmeye devam ederim.
-- Düzeltme yayınlandığında, isterseniz sürüm notlarında adınızı anarım.
+- I confirm receipt of the report **within 48 hours**.
+- **Within 7 days** I report whether the issue is valid and what its impact is.
+- If it is valid, I keep you informed until a fix is released.
+- When the fix ships, I credit you in the release notes if you would like that.
 
-Proje tek kişilik ve gönüllü yürüyor; süreler iyi niyetli hedeflerdir, taahhüt
-değildir.
+The project is run by one person on a voluntary basis; these timelines are
+good-faith targets, not commitments.

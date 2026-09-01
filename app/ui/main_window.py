@@ -24,12 +24,16 @@ from PySide6.QtWidgets import (
 from ..core.catalog import Catalog
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
+from ..core.unlock import is_unlocked
 from ..core.theme import ThemeManager
 from ..paths import content_dir
 from .header import ScreenHeader
-from .about_view import AboutView
+from ..widgets.common import SegmentedControl
+from .about_view import SECTIONS as ABOUT_SECTIONS, AboutView
+from .confirm_dialog import ConfirmDialog
 from . import titlebar
 from ..resources.theme.tokens import RAIL_COLORS
+from .footer import Footer
 from .journey_view import JourneyView
 from .profile_view import ProfileView
 from .rail import Rail
@@ -89,8 +93,20 @@ class MainWindow(QMainWindow):
         self._rail.navigate.connect(self._navigate)
         row.addWidget(self._rail)
 
+        # İçerik ile telif şeridi alt alta; şerit soldaki ikon şeridinin
+        # sağında kalıyor, böylece ikon şeridi tepeden tabana kesintisiz.
+        content = QWidget()
+        column = QVBoxLayout(content)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(0)
+
         self._stack = QStackedWidget()
-        row.addWidget(self._stack, 1)
+        column.addWidget(self._stack, 1)
+
+        self._footer = Footer(language)
+        column.addWidget(self._footer)
+
+        row.addWidget(content, 1)
         root.addWidget(body)
 
         self._build_screens()
@@ -104,6 +120,7 @@ class MainWindow(QMainWindow):
 
         self._navigate("journey")
         self._refresh_notifications()
+        self._refresh_progress()
         self.retranslate()
 
     # --- ekranlar ---------------------------------------------------------
@@ -121,17 +138,23 @@ class MainWindow(QMainWindow):
         self._topic = TopicView(self._catalog, self._language, self._store)
         self._topic.back_requested.connect(self._topic_back)
         self._topic.progress_changed.connect(self._journey.refresh)
+        self._topic.progress_changed.connect(self._refresh_progress)
 
         # Profil
         self._profile = ProfileView(self._catalog, self._language, self._store)
         self._profile.saved.connect(self._journey.refresh)
+        self._profile.saved.connect(self._rail.refresh_avatar)
         self._profile_header = ScreenHeader(self._language)
         self._profile_screen = Screen(self._profile_header, self._profile)
 
-        # Bağlantılarım, Ekstra İçerikler ve Lisans — üçü ayrı menü öğesi
-        # ama aynı düzeni paylaştıkları için tek görünüm çiziyor.
+        # Hakkında: Bilgi, SSS, Bağlantılarım, Ekstra İçerikler ve Lisans
+        # tek ekranda, başlıktaki sekmelerle.
         self._about = AboutView(self._language)
         self._about_header = ScreenHeader(self._language)
+        self._about_segments = SegmentedControl()
+        self._about_segments.changed.connect(self._about.show_index)
+        self._about.section_changed.connect(lambda _: self._update_headers())
+        self._about_header.add_widget(self._about_segments)
         self._about_screen = Screen(self._about_header, self._about)
 
         # Sürüm notları
@@ -147,6 +170,59 @@ class MainWindow(QMainWindow):
             self._releases_screen,
         ):
             self._stack.addWidget(widget)
+
+    def warm_up(self) -> None:
+        """Bütün ekranları bir kez çizdirir.
+
+        Belge alanları Chromium ile çiziliyor ve her biri **ilk kez
+        gösterildiğinde** yüzeyi hazırlanana kadar siyah kalıyor. Ölçüldü:
+        ana ekrandan Hakkında'ya geçişte 48 ms boyunca ekran tamamen
+        siyahtı (ortalama parlaklık 0), sonra sayfa geliyordu.
+
+        Sayfanın zemin rengini vermek çözmüyor; o siyahlık Chromium'un ilk
+        karesinden **önceki** yüzeyin kendisi. Tek çare o ilk kareyi
+        kullanıcı görmeden çizdirmek.
+
+        Bu tur, pencere opaklığı sıfırken (yani görünmezken) çalışıyor;
+        `app/main.py` içindeki açılış akışına bak.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        onceki = self._stack.currentWidget()
+
+        for index in range(self._stack.count()):
+            self._stack.setCurrentIndex(index)
+            QApplication.processEvents()
+
+        # Konu ekranı kendi içinde birden fazla belge alanı taşıyor.
+        self._stack.setCurrentWidget(self._topic)
+        self._topic.warm_up()
+
+        if onceki is not None:
+            self._stack.setCurrentWidget(onceki)
+        QApplication.processEvents()
+
+    def _refresh_progress(self) -> None:
+        """Şeridin tepesindeki halkayı günceller.
+
+        Tamamlanmış bölüm sayısının toplam bölüme oranı. Profil ekranındaki
+        "Genel ilerleme" ile aynı hesap; ikisi ayrışmasın diye aynı ölçüt
+        kullanılıyor: bölüm, sınavı ve alıştırmaları bitince tamamlanmış
+        sayılıyor.
+        """
+        toplam = 0
+        biten = 0
+        for chapter in self._catalog.chapters:
+            for section in chapter.sections:
+                toplam += 1
+                state = self._store.section_state(
+                    chapter.id, section.id, len(section.exercises)
+                )
+                durum = state.status(section.requires_quiz, section.requires_exercises)
+                if durum == "completed":
+                    biten += 1
+
+        self._rail.set_progress(round(biten * 100 / toplam) if toplam else 0)
 
     def _refresh_notifications(self) -> None:
         """Okunmamış sürüm notu varsa şeritte nokta gösterir.
@@ -175,8 +251,7 @@ class MainWindow(QMainWindow):
         elif key == "profile":
             self._profile.refresh()
             self._stack.setCurrentWidget(self._profile_screen)
-        elif key in ("links", "extras", "license"):
-            self._about.show_section(key)
+        elif key == "about":
             self._about.refresh()
             self._stack.setCurrentWidget(self._about_screen)
         elif key == "releases":
@@ -190,6 +265,12 @@ class MainWindow(QMainWindow):
         self._update_headers()
 
     def _open_section(self, chapter_id: str, section_id: str) -> None:
+        # Kilitli bölüm açılmıyor. Yol ekranındaki halka zaten tıklanmıyor;
+        # bu kontrol, bölümü başka bir yerden açan bir çağrı eklenirse
+        # kilidin arkadan dolanılmamasını sağlıyor.
+        if not is_unlocked(self._catalog, self._store, chapter_id, section_id):
+            return
+
         self._topic.show_section(chapter_id, section_id)
         self._stack.setCurrentWidget(self._topic)
         self._rail.set_current("journey")
@@ -242,10 +323,18 @@ class MainWindow(QMainWindow):
         self._profile_header.set_titles(
             self._language.t("profile.title"), self._language.t("app.title")
         )
+        # Başlıkta ekranın adı sabit; hangi sekmede olduğumuzu sağdaki
+        # seçici zaten gösteriyor.
         self._about_header.set_titles(
-            self._language.t(f"nav.{self._about.section}"),
-            self._language.t("app.title"),
+            self._language.t("nav.about"), self._language.t("app.title")
         )
+        # `set_labels` seçimi bozmadan yalnızca metinleri değiştiriyor;
+        # `notify=False` ise seçiciyi güncellemenin tekrar bu metodu
+        # çağırmasını engelliyor.
+        self._about_segments.set_labels(
+            [self._language.t(f"nav.{name}") for name in ABOUT_SECTIONS]
+        )
+        self._about_segments.set_current(self._about.section_index, notify=False)
         self._apply_header_accents(self._theme.effective_mode)
         self._releases_header.set_titles(
             self._language.t("release.title"), self._language.t("app.title")
@@ -254,8 +343,11 @@ class MainWindow(QMainWindow):
     # --- ayarlar ----------------------------------------------------------
 
     def _open_settings(self) -> None:
-        dialog = SettingsDialog(self._language, self._theme, self)
+        dialog = SettingsDialog(self._language, self._theme, self._store, self)
         self._language.language_changed.connect(dialog.retranslate)
+        # Kilit ayarı değişir değişmez ekranlar yenileniyor: yol ekranındaki
+        # halkalar ve açık bölümün alt gezinme düğmeleri o an güncelleniyor.
+        dialog.lock_changed.connect(self._on_lock_changed)
         # Ayrı pencerelerin başlık çubuğu da temaya uysun; biri boyalı biri
         # değilken göze çarpıyor.
         titlebar.apply(dialog, self._theme.effective_mode)
@@ -264,6 +356,11 @@ class MainWindow(QMainWindow):
         # Seçimler kalıcı olsun diye veritabanına yazılıyor.
         self._store.set_setting("language", self._language.language)
         self._store.set_setting("theme", self._theme.mode)
+
+    def _on_lock_changed(self) -> None:
+        """Kilit ayarı değişti; kilide bakan her ekran yenileniyor."""
+        self._journey.refresh()
+        self._topic.refresh_navigation()
 
     # --- olaylar ----------------------------------------------------------
 
@@ -284,8 +381,7 @@ class MainWindow(QMainWindow):
         ):
             header.set_accent(colors[key])
 
-        # Hakkımda ekranı üç bölüm taşıyor; rengi seçili bölüme göre.
-        self._about_header.set_accent(colors.get(self._about.section, colors["links"]))
+        self._about_header.set_accent(colors["about"])
         self._topic.header.set_accent(colors["journey"])
 
     def _on_theme_changed(self, mode: str) -> None:
@@ -308,6 +404,8 @@ class MainWindow(QMainWindow):
     def retranslate(self) -> None:
         self.setWindowTitle(self._language.t("app.title"))
         self._rail.retranslate()
+        self._refresh_progress()
+        self._footer.retranslate()
         self._journey.retranslate()
         self._topic.retranslate()
         self._profile.retranslate()
@@ -316,5 +414,25 @@ class MainWindow(QMainWindow):
         self._update_headers()
 
     def closeEvent(self, event) -> None:  # noqa: N802
+        """Kapatmadan önce onay sorar, sonra veritabanını kapatır.
+
+        Uygulama uzun süre açık kalıyor; kapatma düğmesine yanlışlıkla
+        basmak, okunan yerin kaybolması demek. Kutu, verinin kaydedildiğini
+        de söylüyor — asıl merak edilen o.
+        """
+        dialog = ConfirmDialog(
+            self._language.t("quit.title"),
+            self._language.t("quit.message"),
+            self._language.t("quit.confirm"),
+            self._language.t("quit.cancel"),
+            self,
+        )
+        # Ayrı pencerelerin başlık çubuğu da temaya uysun.
+        titlebar.apply(dialog, self._theme.effective_mode)
+
+        if dialog.exec() != ConfirmDialog.DialogCode.Accepted:
+            event.ignore()
+            return
+
         self._store.close()
         super().closeEvent(event)

@@ -1,0 +1,524 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "text": {
+        "tr": "Bir dosyayı `with` ile açmanın asıl sebebi ne?",
+        "en": "What is the main reason for opening a file with `with`?"
+      },
+      "options": {
+        "tr": [
+          "Blok bitince dosya kendiliğinden kapanır, hata çıksa bile",
+          "Dosya daha hızlı okunur",
+          "Dosyanın kodlaması otomatik belirlenir",
+          "Dosya salt okunur açılır"
+        ],
+        "en": [
+          "The file closes on its own when the block ends, even if an error comes up",
+          "The file is read faster",
+          "The file's encoding is detected automatically",
+          "The file is opened read-only"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Açılan dosyanın kapatılması gerekiyor; kapatılmazsa yazdığın veri tamponda kalıp diske hiç geçmeyebiliyor.\n\n`with` kapatmayı senin yerine yapıyor ve bunu **blok içinde hata çıksa bile** yapıyor. Elle `close()` yazdığında araya giren bir hata o satıra gelinmesini engelliyor.",
+        "en": "A file you open has to be closed; if it is not, the data you wrote can sit in a buffer and never reach the disk.\n\n`with` closes it for you, and it does so **even when an error comes up inside the block**. With a hand-written `close()`, an error in between stops that line ever being reached."
+      }
+    },
+    {
+      "id": "q2",
+      "text": {
+        "tr": "`\"w\"` kipiyle var olan bir dosya açıldığında ne olur?",
+        "en": "What happens when an existing file is opened in `\"w\"` mode?"
+      },
+      "options": {
+        "tr": [
+          "İçeriği tamamen silinir",
+          "İçeriği korunur, yeni yazılanlar sona eklenir",
+          "Hata verir çünkü dosya zaten var",
+          "Dosya salt okunur açılır"
+        ],
+        "en": [
+          "Its contents are deleted entirely",
+          "Its contents are kept and new writes go to the end",
+          "It raises an error because the file already exists",
+          "The file is opened read-only"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "`\"w\"` dosyayı açar açmaz sıfırlıyor — sen daha `write` çağırmadan.\n\nSona eklemek istiyorsan `\"a\"` kullanılıyor. Dosya varsa hiç yazmak istemiyorsan `\"x\"` var; o durumda `FileExistsError` alıyorsun.",
+        "en": "`\"w\"` empties the file the moment it opens it — before you have called `write` at all.\n\nUse `\"a\"` if you want to append. If you want to refuse to write when the file exists, there is `\"x\"`, which raises a `FileExistsError`."
+      }
+    },
+    {
+      "id": "q3",
+      "text": {
+        "tr": "Bu kod ne yazdırır?\n\n```python\nwith open(\"notes.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"Ada\")\n    file.write(\"Alan\")\n\nwith open(\"notes.txt\", encoding=\"utf-8\") as file:\n    print(file.read())\n```",
+        "en": "What does this code print?\n\n```python\nwith open(\"notes.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"Ada\")\n    file.write(\"Alan\")\n\nwith open(\"notes.txt\", encoding=\"utf-8\") as file:\n    print(file.read())\n```"
+      },
+      "options": {
+        "tr": [
+          "`AdaAlan`",
+          "`Ada` ve alt satırda `Alan`",
+          "Yalnızca `Alan`",
+          "Yalnızca `Ada`"
+        ],
+        "en": [
+          "`AdaAlan`",
+          "`Ada` and `Alan` on the next line",
+          "Only `Alan`",
+          "Only `Ada`"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "`write` satır sonu koymuyor — `print` koyduğu için buna alışılıyor.\n\nİki yazma arka arkaya geldiği için içerik `AdaAlan` oluyor. Alt satıra geçmesi için `\\n` yazman gerekiyor:\n\n```python\nfile.write(\"Ada\\n\")\nfile.write(\"Alan\\n\")\n```",
+        "en": "`write` adds no line break — people get used to `print` adding one.\n\nBecause the two writes follow each other, the contents become `AdaAlan`. To move to the next line you have to write `\\n`:\n\n```python\nfile.write(\"Ada\\n\")\nfile.write(\"Alan\\n\")\n```"
+      }
+    },
+    {
+      "id": "q4",
+      "text": {
+        "tr": "`open` çağrısına `encoding=\"utf-8\"` yazmazsan ne olur?",
+        "en": "What happens if you leave `encoding=\"utf-8\"` out of an `open` call?"
+      },
+      "options": {
+        "tr": [
+          "İşletim sisteminin varsayılanı kullanılır; dosya başka bir makinede bozuk açılabilir",
+          "Dosya hiç açılmaz, hata verir",
+          "Dosya ikili (binary) kipte açılır",
+          "Hiçbir şey; `utf-8` her zaman varsayılandır"
+        ],
+        "en": [
+          "The operating system's default is used, and the file can open broken on another machine",
+          "The file does not open at all; it raises an error",
+          "The file is opened in binary mode",
+          "Nothing; `utf-8` is always the default"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Kodlama, hangi harfin diske hangi sayı olarak yazılacağını belirliyor.\n\nYazmadığında Python işletim sisteminin varsayılanını kullanıyor — Windows'ta bu `utf-8` olmayabiliyor. Sonuç: senin bilgisayarında düzgün açılan dosya başkasınınkinde `UnicodeDecodeError` veriyor ya da harfler bozuk çıkıyor.\n\nKural: her `open` çağrısına yaz.",
+        "en": "The encoding decides which number each letter becomes on disk.\n\nWhen you leave it out, Python uses the operating system's default — and on Windows that may not be `utf-8`. The result: a file that opens fine on your machine raises a `UnicodeDecodeError` on someone else's, or the letters come out broken.\n\nRule: write it in every `open` call."
+      }
+    },
+    {
+      "id": "q5",
+      "text": {
+        "tr": "Bir dosyadan okunan satır neden `\"Ada\"` ile eşleşmez?",
+        "en": "Why does a line read from a file not match `\"Ada\"`?"
+      },
+      "options": {
+        "tr": [
+          "Satırın sonunda `\\n` durduğu için",
+          "Dosyadan okunan her şey sayıya çevrildiği için",
+          "Metin karşılaştırması Python'da büyük-küçük harfe duyarsız olduğu için",
+          "`read` küçük harfe çevirdiği için"
+        ],
+        "en": [
+          "Because the line has a `\\n` at the end",
+          "Because everything read from a file is converted to a number",
+          "Because string comparison in Python ignores case",
+          "Because `read` converts to lower case"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Dosyadaki satırlar satır sonu karakteriyle bitiyor ve okurken o karakter de geliyor:\n\n```\n'Ada\\n'\n```\n\n`strip()` baştaki ve sondaki boşlukları — satır sonu dahil — temizliyor:\n\n```python\nif line.strip() == \"Ada\":\n```",
+        "en": "Lines in a file end with a newline character, and that character comes along when you read:\n\n```\n'Ada\\n'\n```\n\n`strip()` removes whitespace from both ends, the newline included:\n\n```python\nif line.strip() == \"Ada\":\n```"
+      }
+    },
+    {
+      "id": "q6",
+      "text": {
+        "tr": "Olmayan bir dosyayı okuma kipinde açmaya çalışırsan ne olur?",
+        "en": "What happens if you try to open a file that does not exist in read mode?"
+      },
+      "options": {
+        "tr": [
+          "`FileNotFoundError` verir",
+          "Boş bir dosya oluşturur",
+          "Boş metin döndürür",
+          "`None` döndürür"
+        ],
+        "en": [
+          "It raises a `FileNotFoundError`",
+          "It creates an empty file",
+          "It returns an empty string",
+          "It returns `None`"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Okuma kipi (`\"r\"`) dosya oluşturmuyor; yoksa hata veriyor.\n\nYazma kipleri (`\"w\"` ve `\"a\"`) ise oluşturuyor. Bu fark önemli: bir ayar dosyasını okurken hata yakalayıp varsayılana düşebilirsin:\n\n```python\ntry:\n    with open(\"settings.txt\", encoding=\"utf-8\") as file:\n        content = file.read()\nexcept FileNotFoundError:\n    content = \"\"\n```",
+        "en": "Read mode (`\"r\"`) does not create a file; if it is missing it raises an error.\n\nThe writing modes (`\"w\"` and `\"a\"`) do create it. That difference matters: when reading a settings file you can catch the error and fall back to a default:\n\n```python\ntry:\n    with open(\"settings.txt\", encoding=\"utf-8\") as file:\n        content = file.read()\nexcept FileNotFoundError:\n    content = \"\"\n```"
+      }
+    },
+    {
+      "id": "q7",
+      "text": {
+        "tr": "Çok büyük bir dosyayı (birkaç gigabayt) okurken hangisi doğru?",
+        "en": "Which is the right way to read a very large file (several gigabytes)?"
+      },
+      "options": {
+        "tr": [
+          "`for line in file:` ile satır satır okumak",
+          "`file.read()` ile tamamını almak",
+          "`file.read().splitlines()` ile satır listesi yapmak",
+          "Hepsi aynıdır, fark etmez"
+        ],
+        "en": [
+          "Reading line by line with `for line in file:`",
+          "Taking the whole thing with `file.read()`",
+          "Making a list of lines with `file.read().splitlines()`",
+          "They are all the same; it makes no difference"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "`read()` dosyanın **tamamını belleğe** alıyor. İki gigabaytlık bir dosya için iki gigabayt bellek gerekiyor ve çoğu bilgisayarda bu iş orada bitiyor.\n\n`for line in file:` ise her seferinde tek satır okuyor; bellekte hiçbir zaman bir satırdan fazlası durmuyor.\n\nKüçük dosyalarda üçü de aynı; fark yalnızca ölçekte ortaya çıkıyor.",
+        "en": "`read()` pulls the **whole file into memory**. A two-gigabyte file needs two gigabytes of memory, and on most machines that is where the job ends.\n\n`for line in file:` reads one line at a time; no more than a single line is ever held in memory.\n\nWith small files all three are the same; the difference only shows up at scale."
+      }
+    },
+    {
+      "id": "q8",
+      "text": {
+        "tr": "Bu kod ne yazdırır? Dikkatli oku.\n\n```python\nwith open(\"data.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"hello\")\n\nwith open(\"data.txt\", encoding=\"utf-8\") as file:\n    first = file.read()\n    second = file.read()\n\nprint(len(first), len(second))\n```",
+        "en": "What does this code print? Read it carefully.\n\n```python\nwith open(\"data.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"hello\")\n\nwith open(\"data.txt\", encoding=\"utf-8\") as file:\n    first = file.read()\n    second = file.read()\n\nprint(len(first), len(second))\n```"
+      },
+      "options": {
+        "tr": [
+          "`5 0`",
+          "`5 5`",
+          "`0 5`",
+          "Hata verir, bir dosya iki kez okunamaz"
+        ],
+        "en": [
+          "`5 0`",
+          "`5 5`",
+          "`0 5`",
+          "It raises an error; a file cannot be read twice"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Dosyanın bir **okuma imleci** var. İlk `read()` imleci sonuna kadar götürüyor; ikinci `read()` sondan başlıyor ve okuyacak bir şey bulamıyor — boş metin dönüyor.\n\nHata vermiyor, bu yüzden fark etmesi zor. Çözüm: bir kez oku, değişkende tut.\n\n```python\ncontent = file.read()\nlines = content.splitlines()\n```",
+        "en": "A file has a **read position**. The first `read()` moves it to the end; the second `read()` starts at the end and finds nothing left — it returns an empty string.\n\nIt raises no error, which is what makes it hard to spot. The fix: read once, keep it in a variable.\n\n```python\ncontent = file.read()\nlines = content.splitlines()\n```"
+      }
+    },
+    {
+      "id": "q9",
+      "text": {
+        "tr": "Bir CSV alanının **içinde virgül** varsa `line.split(\",\")` neden yetmez?",
+        "en": "Why is `line.split(\",\")` not enough when a CSV field **contains a comma**?"
+      },
+      "options": {
+        "tr": [
+          "Tırnak içindeki virgülü de ayırıcı sayıp satırı fazla parçaya böler",
+          "Virgül içeren alanlar CSV'de zaten kullanılamaz",
+          "`split` yalnızca tek karakterle çalışmaz",
+          "Satırın tamamını tek parça olarak döndürür"
+        ],
+        "en": [
+          "It treats the comma inside the quotes as a separator too and splits the row into too many parts",
+          "Fields with commas cannot be used in CSV at all",
+          "`split` does not work with a single character",
+          "It returns the whole line as one piece"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Şu satırda iki alan var, üç değil:\n\n```\nAda,\"born in London, England\"\n```\n\n`split(\",\")` tırnağı görmüyor ve satırı üçe bölüyor; veri bozuluyor.\n\n`csv` modülü tırnak içindeki virgülü görmezden geliyor:\n\n```python\nimport csv\n\nwith open(\"people.csv\", encoding=\"utf-8\", newline=\"\") as file:\n    rows = list(csv.DictReader(file))\n```",
+        "en": "This row has two fields, not three:\n\n```\nAda,\"born in London, England\"\n```\n\n`split(\",\")` cannot see the quotes and splits the row into three; the data is corrupted.\n\nThe `csv` module ignores commas inside quotes:\n\n```python\nimport csv\n\nwith open(\"people.csv\", encoding=\"utf-8\", newline=\"\") as file:\n    rows = list(csv.DictReader(file))\n```"
+      }
+    },
+    {
+      "id": "q10",
+      "text": {
+        "tr": "Bu kodun sonunda `log.txt` dosyasında ne yazıyor? Dikkatli oku.\n\n```python\nwith open(\"log.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"one\\n\")\n\nwith open(\"log.txt\", \"a\", encoding=\"utf-8\") as file:\n    file.write(\"two\\n\")\n\nwith open(\"log.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"three\\n\")\n```",
+        "en": "What is in `log.txt` at the end of this code? Read it carefully.\n\n```python\nwith open(\"log.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"one\\n\")\n\nwith open(\"log.txt\", \"a\", encoding=\"utf-8\") as file:\n    file.write(\"two\\n\")\n\nwith open(\"log.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"three\\n\")\n```"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca `three`",
+          "`one`, `two` ve `three` alt alta",
+          "`one` ve `two` alt alta",
+          "Yalnızca `one` ve `three`"
+        ],
+        "en": [
+          "Only `three`",
+          "`one`, `two` and `three` on separate lines",
+          "`one` and `two` on separate lines",
+          "Only `one` and `three`"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Adım adım:\n\n1. `\"w\"` → dosya oluşur, içinde `one` var.\n2. `\"a\"` → sona ekleniyor, içinde `one` ve `two` var.\n3. `\"w\"` → **dosya sıfırlanıyor**, ilk iki satır siliniyor ve yalnızca `three` yazılıyor.\n\nÜçüncü blok ikisinin emeğini siliyor. Gerçek hayatta bu, aylık bir kayıt dosyasının tek satırla yok olması demek. Sona ekleyecekken `\"w\"` yazmak, dosya işlemlerindeki en pahalı hata.",
+        "en": "Step by step:\n\n1. `\"w\"` → the file is created, holding `one`.\n2. `\"a\"` → it is appended to, holding `one` and `two`.\n3. `\"w\"` → **the file is emptied**, the first two lines are deleted and only `three` is written.\n\nThe third block wipes out the work of the first two. In real life that means a month of log entries vanishing in one line. Writing `\"w\"` when you meant to append is the costliest mistake in file handling."
+      }
+    },
+    {
+      "id": "q11",
+      "text": {
+        "tr": "Dosya açarken kip yazmazsan hangisi kullanılır?",
+        "en": "Which mode is used when you do not write one while opening a file?"
+      },
+      "options": {
+        "tr": [
+          "`\"r\"` — okuma",
+          "`\"w\"` — yazma",
+          "`\"a\"` — sona ekleme",
+          "`\"x\"` — yeni oluşturma"
+        ],
+        "en": [
+          "`\"r\"` — read",
+          "`\"w\"` — write",
+          "`\"a\"` — append",
+          "`\"x\"` — create new"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Varsayılan okuma kipi. Bu yüzden okurken `\"r\"` genelde hiç yazılmıyor:\n\n```python\nwith open(\"notes.txt\", encoding=\"utf-8\") as file:\n    content = file.read()\n```\n\nYazma kiplerinden biri istendiğinde açıkça belirtmek zorunlu — ve iyi ki öyle, yoksa yanlışlıkla dosya silinirdi.",
+        "en": "The default is read mode. That is why `\"r\"` is usually left out when reading:\n\n```python\nwith open(\"notes.txt\", encoding=\"utf-8\") as file:\n    content = file.read()\n```\n\nAny writing mode has to be stated explicitly — which is just as well, or files would get wiped by accident."
+      }
+    },
+    {
+      "id": "q12",
+      "text": {
+        "tr": "`file.read().splitlines()` ile `file.read()` arasındaki fark ne?",
+        "en": "What is the difference between `file.read().splitlines()` and `file.read()`?"
+      },
+      "options": {
+        "tr": [
+          "Birincisi satır listesi verir ve satır sonlarını temizler, ikincisi tek bir metin verir",
+          "Birincisi dosyayı iki kez okur",
+          "İkincisi yalnızca ilk satırı verir",
+          "İkisi de aynı listeyi verir"
+        ],
+        "en": [
+          "The first gives a list of lines with the endings stripped; the second gives one string",
+          "The first reads the file twice",
+          "The second gives only the first line",
+          "They both give the same list"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "```python\ncontent = file.read()\n# 'first\\nsecond\\n'\n\nlines = file.read().splitlines()\n# ['first', 'second']\n```\n\n`splitlines()` hem bölüyor hem satır sonlarını atıyor. `split(\"\\n\")` kullansaydın sonda boş bir eleman kalırdı.\n\nDikkat: iki satırı arka arkaya yazamazsın — ilk `read()` imleci sona götürüyor, ikincisi boş geliyor.",
+        "en": "```python\ncontent = file.read()\n# 'first\\nsecond\\n'\n\nlines = file.read().splitlines()\n# ['first', 'second']\n```\n\n`splitlines()` both splits and drops the line endings. With `split(\"\\n\")` you would be left with an empty element at the end.\n\nNote: you cannot write those two lines one after the other — the first `read()` moves the position to the end and the second comes back empty."
+      }
+    },
+    {
+      "id": "q13",
+      "text": {
+        "tr": "Bu kod çalıştıktan sonra `data.txt` dosyasında ne yazar?\n\n```python\nwith open(\"data.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"one\\n\")\n    file.write(\"two\\n\")\n```",
+        "en": "What is in `data.txt` after this code runs?\n\n```python\nwith open(\"data.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"one\\n\")\n    file.write(\"two\\n\")\n```"
+      },
+      "options": {
+        "tr": [
+          "`one` ve `two`, alt alta iki satır",
+          "`onetwo`, tek satır",
+          "Yalnızca `two`",
+          "Dosya boş kalır çünkü `close` çağrılmadı"
+        ],
+        "en": [
+          "`one` and `two` on two lines",
+          "`onetwo` on one line",
+          "Only `two`",
+          "The file is empty because `close` was never called"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "İki şey birden doğru gitmiş.\n\n**`\\n` yazılmış**, o yüzden satırlar ayrı. Yazılmasaydı `onetwo` olurdu.\n\n**`with` kullanılmış**, o yüzden blok bitince dosya kapanıyor ve tampondaki veri diske geçiyor. Elle açılıp `close` çağrılmasaydı veri kaybolabilirdi.\n\nAynı blokta iki `write` çağırmak dosyayı sıfırlamıyor; `\"w\"` yalnızca **açılışta** bir kez siliyor.",
+        "en": "Two things went right here.\n\n**The `\\n` was written**, so the lines are separate. Without it you would get `onetwo`.\n\n**`with` was used**, so the file closes when the block ends and the buffered data reaches the disk. Opened by hand without a `close`, the data could have been lost.\n\nCalling `write` twice in the same block does not wipe the file; `\"w\"` clears it once, **on opening**."
+      }
+    },
+    {
+      "id": "q14",
+      "text": {
+        "tr": "Olmayan bir dosyayı `\"a\"` kipiyle açarsan ne olur?",
+        "en": "What happens if you open a file that does not exist in `\"a\"` mode?"
+      },
+      "options": {
+        "tr": [
+          "Dosya oluşturulur",
+          "`FileNotFoundError` verir",
+          "Boş metin döndürür",
+          "Programın çalıştığı klasör silinir"
+        ],
+        "en": [
+          "The file is created",
+          "It raises a `FileNotFoundError`",
+          "It returns an empty string",
+          "The working folder is deleted"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Yazma kipleri (`\"w\"` ve `\"a\"`) dosya yoksa **oluşturuyor**. Okuma kipi (`\"r\"`) oluşturmuyor, hata veriyor.\n\nBu, kayıt dosyası tutarken işe yarıyor: ilk çalıştırmada dosya oluşuyor, sonrakilerde üstüne ekleniyor. \"Dosya var mı\" diye kontrol etmene gerek kalmıyor.\n\n`\"x\"` ise tersini yapıyor: dosya **varsa** hata veriyor.",
+        "en": "The writing modes (`\"w\"` and `\"a\"`) **create** the file when it does not exist. Read mode (`\"r\"`) does not; it raises an error.\n\nThis is useful when keeping a log: the file is created on the first run and appended to afterwards. You do not have to check whether it exists.\n\n`\"x\"` does the opposite: it fails when the file **does** exist."
+      }
+    },
+    {
+      "id": "q15",
+      "text": {
+        "tr": "`for line in file:` yazımının `file.read()` üzerindeki avantajı ne?",
+        "en": "What advantage does `for line in file:` have over `file.read()`?"
+      },
+      "options": {
+        "tr": [
+          "Dosyanın tamamını belleğe almaz, satır satır okur",
+          "Satır sonlarını kendiliğinden temizler",
+          "Dosyayı otomatik kapatır",
+          "Dosyayı iki kez okuyabilir"
+        ],
+        "en": [
+          "It does not pull the whole file into memory; it reads line by line",
+          "It strips the line endings on its own",
+          "It closes the file automatically",
+          "It can read the file twice"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "`read()` dosyanın **tamamını belleğe** alıyor. İki gigabaytlık bir dosya için iki gigabayt bellek gerekiyor.\n\n`for line in file:` her seferinde tek satır okuyor; bellekte hiçbir zaman bir satırdan fazlası durmuyor.\n\nDikkat: satır sonlarını temizlemiyor — `line.strip()` yine gerekiyor. Dosyayı da kapatmıyor, onu `with` yapıyor.",
+        "en": "`read()` pulls the **whole file into memory**. A two-gigabyte file needs two gigabytes of memory.\n\n`for line in file:` reads one line at a time; no more than a single line is ever held.\n\nNote: it does not strip the line endings — you still need `line.strip()`. Nor does it close the file; `with` does that."
+      }
+    },
+    {
+      "id": "q16",
+      "text": {
+        "tr": "Bir CSV satırındaki değerler neden `int()` ile çevrilmek zorunda?",
+        "en": "Why do the values from a CSV line have to be converted with `int()`?"
+      },
+      "options": {
+        "tr": [
+          "Dosyadan okunan her şey metin olarak gelir",
+          "CSV yalnızca metin saklayabilir ama Python sayıya kendisi çevirir",
+          "`int()` satır sonlarını temizlemek için gerekir",
+          "Çevirmek gerekmez, Python sayıları tanır"
+        ],
+        "en": [
+          "Everything read from a file arrives as text",
+          "CSV can only store text, but Python converts it itself",
+          "`int()` is needed to strip the line endings",
+          "No conversion is needed; Python recognises numbers"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Dosya baştan sona karakterlerden oluşuyor; Python `\"90\"` ile `90` arasındaki farkı kendiliğinden bilmiyor.\n\n```python\nname, value = line.split(\",\")\nscores[name] = int(value)\n```\n\nÇevirmezsen `\"90\" + \"85\"` işlemi `\"9085\"` veriyor — hata da vermiyor, sessizce yanlış çalışıyor. Sıralamada da `\"100\" < \"90\"` çıkıyor, çünkü metinler harf harf karşılaştırılıyor.",
+        "en": "A file is characters from start to finish; Python does not know on its own the difference between `\"90\"` and `90`.\n\n```python\nname, value = line.split(\",\")\nscores[name] = int(value)\n```\n\nWithout the conversion, `\"90\" + \"85\"` gives `\"9085\"` — with no error, quietly doing the wrong thing. Sorting goes wrong too: `\"100\" < \"90\"` is true, because strings are compared character by character."
+      }
+    },
+    {
+      "id": "q17",
+      "text": {
+        "tr": "`json.dump(data, file, ensure_ascii=False)` içindeki `ensure_ascii=False` ne yapar?",
+        "en": "What does `ensure_ascii=False` do in `json.dump(data, file, ensure_ascii=False)`?"
+      },
+      "options": {
+        "tr": [
+          "ASCII dışındaki harflerin okunabilir kalmasını sağlar",
+          "Dosyayı ASCII kipinde açar",
+          "Dosyanın kodlamasını belirler",
+          "JSON'u tek satıra sıkıştırır"
+        ],
+        "en": [
+          "Keeps letters outside ASCII readable",
+          "Opens the file in ASCII mode",
+          "Sets the file's encoding",
+          "Squeezes the JSON onto one line"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Varsayılan olarak `json` ASCII dışındaki harfleri kaçış dizisine çeviriyor:\n\n```\n{\"city\": \"\\u0130stanbul\"}\n```\n\n`ensure_ascii=False` ile harf olduğu gibi yazılıyor ve dosya insan tarafından okunabiliyor.\n\nKodlamayı belirleyen ayrı bir şey: o `open` çağrısındaki `encoding=\"utf-8\"`. İkisi birlikte kullanılıyor.",
+        "en": "By default `json` turns letters outside ASCII into escape sequences:\n\n```\n{\"city\": \"\\u0130stanbul\"}\n```\n\nWith `ensure_ascii=False` the letter is written as it is and the file stays readable by a person.\n\nThe encoding is a separate matter: that is `encoding=\"utf-8\"` in the `open` call. The two are used together."
+      }
+    },
+    {
+      "id": "q18",
+      "text": {
+        "tr": "Bu kod ne yazdırır?\n\n```python\nline = \"Ada\\n\"\n\nprint(line == \"Ada\")\nprint(line.strip() == \"Ada\")\n```",
+        "en": "What does this code print?\n\n```python\nline = \"Ada\\n\"\n\nprint(line == \"Ada\")\nprint(line.strip() == \"Ada\")\n```"
+      },
+      "options": {
+        "tr": [
+          "`False`, sonra `True`",
+          "`True`, sonra `True`",
+          "`False`, sonra `False`",
+          "`True`, sonra `False`"
+        ],
+        "en": [
+          "`False`, then `True`",
+          "`True`, then `True`",
+          "`False`, then `False`",
+          "`True`, then `False`"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "`\"Ada\\n\"` ile `\"Ada\"` farklı iki metin: birincisinin sonunda satır sonu karakteri var.\n\n`strip()` baştaki ve sondaki boşlukları — satır sonu dahil — temizliyor, o yüzden ikinci karşılaştırma tutuyor.\n\nDosyadan okunan her satır bu durumda oluyor. `strip()` unutmak, hata vermeyen ama hiçbir karşılaştırmanın tutmadığı sinsi bir soruna yol açıyor.",
+        "en": "`\"Ada\\n\"` and `\"Ada\"` are two different strings: the first has a newline character at the end.\n\n`strip()` removes whitespace from both ends, the newline included, so the second comparison holds.\n\nEvery line read from a file is in this state. Forgetting `strip()` causes a sneaky problem: no error, but no comparison ever matches."
+      }
+    },
+    {
+      "id": "q19",
+      "text": {
+        "tr": "`\"x\"` kipi ne zaman tercih edilir?",
+        "en": "When is the `\"x\"` mode preferred?"
+      },
+      "options": {
+        "tr": [
+          "Var olan bir dosyanın üstüne yanlışlıkla yazmayı imkânsız kılmak için",
+          "Dosyayı ikili (binary) okumak için",
+          "Dosyayı hem okuyup hem yazmak için",
+          "Büyük dosyaları hızlı okumak için"
+        ],
+        "en": [
+          "To make overwriting an existing file by accident impossible",
+          "To read the file as binary",
+          "To read and write at the same time",
+          "To read large files faster"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "`\"x\"` dosya **varsa** yazmayı reddediyor ve `FileExistsError` veriyor:\n\n```python\ntry:\n    with open(\"results.txt\", \"x\", encoding=\"utf-8\") as file:\n        file.write(\"new\\n\")\nexcept FileExistsError:\n    print(\"already exists\")\n```\n\n`\"w\"` ile aynı satır bir aylık kaydı sessizce siliyor. Üstüne yazmak istemediğin durumlarda `\"x\"` bu riski tamamen kaldırıyor.",
+        "en": "`\"x\"` refuses to write when the file **exists** and raises a `FileExistsError`:\n\n```python\ntry:\n    with open(\"results.txt\", \"x\", encoding=\"utf-8\") as file:\n        file.write(\"new\\n\")\nexcept FileExistsError:\n    print(\"already exists\")\n```\n\nThe same line with `\"w\"` quietly deletes a month of records. When you do not mean to overwrite, `\"x\"` removes that risk entirely."
+      }
+    },
+    {
+      "id": "q20",
+      "text": {
+        "tr": "Bu kod ne yazdırır? Dikkatli oku.\n\n```python\nwith open(\"a.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"x\\n\")\n\nwith open(\"a.txt\", encoding=\"utf-8\") as file:\n    for line in file:\n        pass\n    rest = file.read()\n\nprint(repr(rest))\n```",
+        "en": "What does this code print? Read it carefully.\n\n```python\nwith open(\"a.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"x\\n\")\n\nwith open(\"a.txt\", encoding=\"utf-8\") as file:\n    for line in file:\n        pass\n    rest = file.read()\n\nprint(repr(rest))\n```"
+      },
+      "options": {
+        "tr": [
+          "`''`",
+          "`'x\\n'`",
+          "`'x'`",
+          "Hata verir"
+        ],
+        "en": [
+          "`''`",
+          "`'x\\n'`",
+          "`'x'`",
+          "It raises an error"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Dosyanın bir **okuma imleci** var ve döngü onu sonuna kadar götürüyor.\n\nDöngü bittiğinde imleç dosyanın sonunda; `read()` orada okuyacak bir şey bulamıyor ve boş metin dönüyor.\n\nAynı tuzak arka arkaya iki `read()` çağırmakta da var. Kural: **bir kez oku, değişkende tut.**\n\n```python\ncontent = file.read()\nlines = content.splitlines()\nwords = content.split()\n```",
+        "en": "A file has a **read position**, and the loop takes it all the way to the end.\n\nWhen the loop finishes the position is at the end of the file; `read()` finds nothing left there and returns an empty string.\n\nThe same trap exists with two `read()` calls in a row. The rule: **read once, keep it in a variable.**\n\n```python\ncontent = file.read()\nlines = content.splitlines()\nwords = content.split()\n```"
+      }
+    }
+  ]
+}

@@ -12,8 +12,9 @@ her sürümde aynı sonucu vermiyor.
 
 İşlenen biçimler:
 
-    ```python ... ```   -> kod bloğu
+    ```python ... ```   -> kod bloğu (ders anlatımıyla aynı renklendirici)
     `kod`               -> satır içi kod
+    **kalın**           -> kalın yazı
 """
 
 from __future__ import annotations
@@ -21,10 +22,15 @@ from __future__ import annotations
 import html
 import re
 
+from ..core.highlight import highlight_python
 from ..resources.theme.tokens import FONTS, PALETTES
 
 FENCE_PATTERN = re.compile(r"```[A-Za-z]*\n(.*?)```", re.DOTALL)
 INLINE_PATTERN = re.compile(r"`([^`\n]+)`")
+
+# `**kalın**`. Ters tırnak dışarıda bırakılıyor: satır içi kodun içindeki
+# yıldızlar kalın yazıya dönüşmemeli.
+BOLD_PATTERN = re.compile(r"\*\*([^*`\n]+)\*\*")
 
 # Yazı tipi listesi çift tırnak taşıyor; `style="..."` özniteliğinin içine
 # olduğu gibi konursa özniteliği ortasından kapatıyor.
@@ -53,6 +59,12 @@ def render(text: str, mode: str = "light") -> str:
     staged = FENCE_PATTERN.sub(stash, text)
 
     escaped = html.escape(staged)
+
+    # Kalın yazı satır içi koddan **önce** işleniyor; sonra işlenseydi
+    # kod parçasının HTML'i içindeki yıldızlar da yakalanabilirdi.
+    # İşlenmediğinde ekranda `**hem de**` diye ham görünüyordu.
+    escaped = BOLD_PATTERN.sub(lambda m: f"<b>{m.group(1)}</b>", escaped)
+
     escaped = INLINE_PATTERN.sub(
         lambda m: _inline_html(m.group(1), palette), escaped
     )
@@ -60,7 +72,7 @@ def render(text: str, mode: str = "light") -> str:
 
     for index, block in enumerate(blocks):
         escaped = escaped.replace(
-            PLACEHOLDER.format(index), _block_html(block, palette)
+            PLACEHOLDER.format(index), _block_html(block, palette, mode)
         )
 
     return escaped
@@ -80,12 +92,22 @@ def _inline_html(code: str, palette: dict) -> str:
     )
 
 
-def _block_html(code: str, palette: dict) -> str:
-    """Kod bloğu. Bu metin kaçışa uğramadan saklandığı için burada kaçırılıyor."""
+def _block_html(code: str, palette: dict, mode: str) -> str:
+    """Kod bloğu.
+
+    Kod, ders anlatımındaki bloklarla **aynı renklendiriciden** geçiyor
+    (`highlight_python`). Önceden tek renk düz metin olarak basılıyordu;
+    yeni başlayan biri için `if`, sayı, metin ve fonksiyon adı aynı renkte
+    olunca kod bir harf yığınına dönüşüyordu. Sınavda gösterilen kod, aynı
+    kodu bir editörde açtığında ne görecekse ona benzemeli.
+
+    Renklendirici satır içi `style` üretiyor; Qt'nin zengin metni CSS'in
+    yalnızca bu kadarını tanıyor, sınıf tabanlı bir stil çalışmazdı.
+    """
     return (
         '<table cellpadding="8" cellspacing="0" width="100%" '
         f'style="background-color:{palette["code_bg"]};"><tr><td>'
         f'<pre style="font-family:{MONO}; color:{palette["text"]}; margin:0;">'
-        f"{html.escape(code)}"
+        f"{highlight_python(code, mode)}"
         "</pre></td></tr></table>"
     )

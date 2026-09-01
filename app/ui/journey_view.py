@@ -8,13 +8,14 @@ Hepsini tek bir yola dizmek dakikalarca kaydırma demek. Modül kartları hem
 düzeni koruyor hem de "nerede ne kadar ilerledim" sorusunu tek bakışta
 cevaplıyor.
 
-Bölümler kilitli değil: sıra önerilir ama istenen bölüme her zaman girilir,
-tamamlanmış bölümlere tekrar dönülebilir.
+Bölümler sırayla açılıyor: bir bölüm, önündeki bölüm tamamlanmadan
+açılmıyor. Tamamlanmış bölümlere istendiği zaman geri dönülebiliyor.
 """
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QGraphicsOpacityEffect,
     QFrame,
@@ -33,6 +34,7 @@ from PySide6.QtWidgets import (
 from ..core.catalog import Catalog, Chapter, Track
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
+from ..core.unlock import blocking_section
 from ..resources.icons import icon, pixmap
 from ..resources.theme.tokens import CONTENT_WIDTH, NODE_STATES, PALETTES, SPACING
 from ..widgets.common import Card, StatBlock, section_label
@@ -40,6 +42,25 @@ from ..widgets.effects import apply_shadow, refresh_shadow, repolish
 
 # Düğümlerin soldan uzaklıkları — yol bu değerlerle zigzag çiziyor.
 ZIGZAG = [30, 120, 170, 120, 30]
+
+# Halkaları birleştiren dikey çizgi: yüksekliği ve halkanın soluna göre
+# içeriden kaç piksel başladığı. Daire 74 piksel, çizgi 4; ortadan geçmesi
+# için 37 - 2 = 35.
+CONNECTOR_HEIGHT = 30
+CONNECTOR_INDENT = 35
+CONNECTOR_WIDTH = 4
+
+# Her halkanın sabit genişliği. Metne göre değişince satırlar farklı
+# genişlikte oluyor, ortalama da satır satır kayıyordu: bağlayıcı çizgiler
+# dairelerin ortasına denk gelmiyordu. Sabit genişlik hepsini aynı hizaya
+# getiriyor, uzun başlıklara da yer bırakıyor.
+NODE_WIDTH = 300
+
+# Zikzak bandının toplam genişliği: en büyük kaydırma + halka.
+BAND_WIDTH = max(ZIGZAG) + NODE_WIDTH
+
+# Kilitli bölümün halkasındaki kilit simgesinin boyu.
+LOCK_ICON_SIZE = 26
 
 # Henüz yazılmamış bölümlerin solukluğu. Okunacak kadar açık,
 # yazılmışlarla karışmayacak kadar soluk.
@@ -632,6 +653,7 @@ class PathNode(QWidget):
         caption: str,
         state: str,
         order: int = 0,
+        lock_color: str = "",
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
@@ -649,9 +671,30 @@ class PathNode(QWidget):
         self.button.setProperty("variant", "node")
         self.button.setProperty("state", state)
 
-        if state == "planned":
-            # Henüz içeriği yok: tıklanmıyor, imleç değişmiyor. Boş bir
-            # bölüm açmak, "bozuk" izlenimi veriyor.
+        if state == "locked" and lock_color:
+            # Kilitli bölümde sıra numarası yerine kilit duruyor. Numara
+            # bırakıldığında halka "henüz başlanmamış" bölümden ayırt
+            # edilemiyordu; kilidin neden kapalı olduğunu okumadan önce
+            # kapalı olduğunun görünmesi gerekiyor.
+            self.button.setText("")
+
+            # Düğme birazdan devre dışı bırakılıyor; Qt devre dışı bir
+            # düğmenin simgesini kendiliğinden grileştiriyor ve kilit
+            # #FBBF24 yerine #A5A7AC çiziliyordu (ölçüldü). Aynı görseli
+            # "devre dışı" hâl için de vererek bunu kapatıyoruz.
+            kilit = icon("lock", lock_color, LOCK_ICON_SIZE)
+            kilit.addPixmap(
+                kilit.pixmap(LOCK_ICON_SIZE, LOCK_ICON_SIZE),
+                QIcon.Mode.Disabled,
+                QIcon.State.Off,
+            )
+            self.button.setIcon(kilit)
+            self.button.setIconSize(QSize(LOCK_ICON_SIZE, LOCK_ICON_SIZE))
+
+        if state in ("planned", "locked"):
+            # "planned" henüz yazılmadı, "locked" ise önündeki bölüm
+            # bitmedi. İkisi de tıklanmıyor; boş ya da sırası gelmemiş bir
+            # bölümü açmak "bozuk" izlenimi veriyor.
             self.button.setEnabled(False)
         else:
             self.button.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -683,6 +726,10 @@ class PathNode(QWidget):
             # Kesik çerçeve tek başına yetmiyordu: yazılmış ama başlanmamış
             # bölümle yazılmamış bölüm ekranda birbirine çok benziyordu.
             # Soluklaştırma ayrımı bir bakışta veriyor.
+            #
+            # Kilitli bölüm **soluklaştırılmıyor**: soluk hâlde "hiç yok"
+            # gibi duruyordu. O bölüm var, yazılmış ve sırası gelince
+            # açılacak; onu anlatan şey kilit simgesi, silikleşme değil.
             solukluk = QGraphicsOpacityEffect(self)
             solukluk.setOpacity(PLANNED_OPACITY)
             self.setGraphicsEffect(solukluk)
@@ -706,6 +753,7 @@ class PathView(QWidget):
         self._language = language
         self._store = store
         self._chapter_id = ""
+        self._mode = "light"
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -743,13 +791,17 @@ class PathView(QWidget):
         if chapter is None:
             return
 
+        # Başlık ve açıklama ortalı: altındaki yol da ortalanınca, sola
+        # yaslı duran bu iki satır sayfadan kopuk görünüyordu.
         header = QLabel(self._language.pick(chapter.title))
         header.setProperty("role", "title")
+        header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._layout.addWidget(header)
 
         description = QLabel(self._language.pick(chapter.description))
         description.setProperty("role", "muted")
         description.setWordWrap(True)
+        description.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._layout.addWidget(description)
         self._layout.addSpacing(SPACING["xl"])
 
@@ -761,23 +813,26 @@ class PathView(QWidget):
             if index == current_index and state != "completed":
                 state = "current"
 
+            # Önündeki bölüm bitmemişse bu bölüm kilitli. "Şu an buradasın"
+            # işareti kilitli bölüme düşemiyor: ilk tamamlanmamış bölümün
+            # önü tanım gereği açık.
+            engel = blocking_section(self._catalog, self._store, chapter.id, section.id)
+            if engel is not None:
+                state = "locked"
+
+            palette = PALETTES.get(self._mode, PALETTES["light"])
             node = PathNode(
                 chapter.id,
                 section.id,
                 self._language.pick(section.title),
-                self._caption_for(section, state),
+                self._caption_for(section, state, engel),
                 state,
                 order=index + 1,
+                lock_color=palette["warning"],
             )
             node.opened.connect(self.section_opened)
 
-            row = QHBoxLayout()
-            row.setContentsMargins(ZIGZAG[index % len(ZIGZAG)], 0, 0, 0)
-            row.addWidget(node)
-            row.addStretch(1)
-            container = QWidget()
-            container.setLayout(row)
-            self._layout.addWidget(container)
+            self._layout.addWidget(self._zigzag_row(node, index))
 
             son_gercek = index == len(chapter.sections) - 1
             if not son_gercek or chapter.planned:
@@ -799,29 +854,57 @@ class PathView(QWidget):
                 order=index + 1,
             )
 
-            row = QHBoxLayout()
-            row.setContentsMargins(ZIGZAG[index % len(ZIGZAG)], 0, 0, 0)
-            row.addWidget(node)
-            row.addStretch(1)
-            container = QWidget()
-            container.setLayout(row)
-            self._layout.addWidget(container)
+            self._layout.addWidget(self._zigzag_row(node, index))
 
             if offset < len(chapter.planned) - 1:
                 self._layout.addWidget(self._connector(index, False))
 
         self._layout.addStretch(1)
 
-    def _connector(self, index: int, done: bool) -> QWidget:
-        holder = QWidget()
-        layout = QHBoxLayout(holder)
-        layout.setContentsMargins(ZIGZAG[index % len(ZIGZAG)] + 35, 0, 0, 0)
+    def _zigzag_row(self, node: QWidget, index: int) -> QWidget:
+        """Bir yol halkasını zikzak konumuna koyup satırı ortalar.
 
+        Halkalar önce yalnızca soldan boşluk verilerek diziliyordu; zikzak
+        çalışıyordu ama bandın tamamı sütunun soluna yapışıyor, sağda geniş
+        bir boşluk kalıyordu. Şimdi bandın genişliği en büyük kaydırma kadar
+        sabit sayılıyor (`max(ZIGZAG)`) ve iki yanına eşit esneme konuyor —
+        yol, hangi halkada olursak olalım ekranın ortasında duruyor.
+        """
+        kaydirma = ZIGZAG[index % len(ZIGZAG)]
+        node.setFixedWidth(NODE_WIDTH)
+
+        row = QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(0)
+        row.addStretch(1)
+        row.addSpacing(kaydirma)
+        row.addWidget(node)
+        row.addSpacing(BAND_WIDTH - kaydirma - NODE_WIDTH)
+        row.addStretch(1)
+
+        container = QWidget()
+        container.setLayout(row)
+        return container
+
+    def _connector(self, index: int, done: bool) -> QWidget:
         line = QFrame()
         line.setProperty("role", "connector")
         line.setProperty("done", "true" if done else "false")
-        line.setFixedHeight(30)
+        line.setFixedHeight(CONNECTOR_HEIGHT)
+
+        # Çizgi, halkanın dairesinin tam altında. Bandın toplam genişliği
+        # halka satırlarıyla birebir aynı (`BAND_WIDTH`); yoksa iki satır
+        # farklı genişlikte ortalanıyor ve çizgi daireden kayıyor.
+        sol = ZIGZAG[index % len(ZIGZAG)] + CONNECTOR_INDENT
+
+        holder = QWidget()
+        layout = QHBoxLayout(holder)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addStretch(1)
+        layout.addSpacing(sol)
         layout.addWidget(line)
+        layout.addSpacing(BAND_WIDTH - sol - CONNECTOR_WIDTH)
         layout.addStretch(1)
         return holder
 
@@ -835,12 +918,16 @@ class PathView(QWidget):
                 return index
         return -1
 
-    def _caption_for(self, section, state: str) -> str:
+    def _caption_for(self, section, state: str, blocker=None) -> str:
         progress = self._store.section_state(
             self._chapter_id, section.id, len(section.exercises)
         )
         minutes = section.estimated_minutes
 
+        if state == "locked" and blocker is not None:
+            return self._language.t(
+                "path.caption_locked", section=self._language.pick(blocker.title)
+            )
         if state == "completed":
             return self._language.t("path.caption_completed", minutes=minutes)
         if state == "current":
@@ -854,6 +941,9 @@ class PathView(QWidget):
         return self._language.t("path.caption_new", minutes=minutes)
 
     def set_mode(self, mode: str) -> None:
+        # Kilit simgesinin rengi temaya göre üretiliyor; mod saklanmazsa
+        # koyu temada açık temanın rengi çiziliyordu.
+        self._mode = mode
         self._rebuild()
 
     def retranslate(self) -> None:

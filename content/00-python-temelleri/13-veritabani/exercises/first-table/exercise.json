@@ -1,0 +1,66 @@
+{
+  "id": "first-table",
+  "title": {
+    "tr": "İlk tablon",
+    "en": "Your first table"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Bağlanma ve imleç alma iki ayrı adım: `connection = sqlite3.connect(\":memory:\")` sonra `cursor = connection.cursor()`.",
+      "en": "Connecting and getting a cursor are two separate steps: `connection = sqlite3.connect(\":memory:\")` then `cursor = connection.cursor()`."
+    },
+    {
+      "tr": "Tablo komutu bir metin: `cursor.execute(\"CREATE TABLE students (name TEXT, grade INTEGER)\")`. SQL komutları Python değil, metin olarak yazılıyor.",
+      "en": "The table command is a string: `cursor.execute(\"CREATE TABLE students (name TEXT, grade INTEGER)\")`. SQL commands are written as text, not as Python."
+    },
+    {
+      "tr": "Değerleri komutun içine yazma; `?` kullan ve değerleri ikinci argümanda demet olarak ver. `commit` çağırmayı unutma, yoksa veri kalıcı olmuyor.",
+      "en": "Do not write the values into the command; use `?` and supply them as a tuple in the second argument. Do not forget `commit`, or the data is not made permanent."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport sqlite3\n\nconnection = sqlite3.connect(\":memory:\")\ncursor = connection.cursor()\n\ncursor.execute(\"CREATE TABLE students (name TEXT, grade INTEGER)\")\n\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (\"Ada\", 90))\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (\"Brian\", 40))\n\nconnection.commit()\n\ncursor.execute(\"SELECT name, grade FROM students\")\nrows = cursor.fetchall()\n\nprint(rows)\nprint(len(rows))\n```",
+      "en": "The solution:\n\n```python\nimport sqlite3\n\nconnection = sqlite3.connect(\":memory:\")\ncursor = connection.cursor()\n\ncursor.execute(\"CREATE TABLE students (name TEXT, grade INTEGER)\")\n\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (\"Ada\", 90))\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (\"Brian\", 40))\n\nconnection.commit()\n\ncursor.execute(\"SELECT name, grade FROM students\")\nrows = cursor.fetchall()\n\nprint(rows)\nprint(len(rows))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import sqlite3` satırı yok.",
+        "en": "There is no `import sqlite3` line."
+      }
+    },
+    {
+      "type": "variable",
+      "name": "rows",
+      "equals": [
+        {
+          "__tuple__": [
+            "Ada",
+            90
+          ]
+        },
+        {
+          "__tuple__": [
+            "Brian",
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[('Ada', 90), ('Brian', 40)]\n2"
+    }
+  ]
+}

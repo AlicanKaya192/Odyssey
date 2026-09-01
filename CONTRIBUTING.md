@@ -1,139 +1,145 @@
-# Katkıda Bulunma Rehberi
+<div align="right">
+  <a href="./CONTRIBUTING.tr.md">Türkçe</a> · <b>English</b>
+</div>
 
-Odyssey'e katkıda bulunmak isteyenler için PR ve issue'lar tamamen açıktır.
-Başlamadan önce [Davranış Kuralları](./CODE_OF_CONDUCT.md)'nı okumanı rica ederim.
+# Contributing Guide
 
-## 📑 İçindekiler
+Issues and pull requests are open to anyone who wants to contribute to Odyssey.
+Please read the [Code of Conduct](./CODE_OF_CONDUCT.md) before you start.
 
-- [Nasıl katkıda bulunabilirim?](#nasıl-katkıda-bulunabilirim)
-- [Geliştirme ortamını kurma](#geliştirme-ortamını-kurma)
-- [Hata bildirme](#hata-bildirme)
-- [Yeni özellik önerisi](#yeni-özellik-önerisi)
-- [İçerik katkısı](#i̇çerik-katkısı)
-- [Kod standartları](#kod-standartları)
-- [Denetleyicileri çalıştırma](#denetleyicileri-çalıştırma)
-- [Pull request süreci](#pull-request-süreci)
+## 📑 Contents
 
-## Nasıl katkıda bulunabilirim?
+- [How can I contribute?](#how-can-i-contribute)
+- [Setting up a development environment](#setting-up-a-development-environment)
+- [Reporting a bug](#reporting-a-bug)
+- [Proposing a feature](#proposing-a-feature)
+- [Contributing content](#contributing-content)
+- [Code standards](#code-standards)
+- [Running the validators](#running-the-validators)
+- [Pull request process](#pull-request-process)
 
-- **Hata düzeltmeleri:** Çalışmayan bir düğme, bozuk bir yerleşim, yanlış bir
-  çeviri bulduysan issue aç ya da doğrudan PR gönder.
-- **Yeni içerik:** Yeni bir bölüm, alıştırma veya ders notu eklemek istiyorsan
-  önce bir issue ile fikrini paylaşman iyi olur. Müfredat sırası
+## How can I contribute?
+
+- **Bug fixes:** If you find a button that does nothing, a broken layout or a
+  wrong translation, open an issue or send a pull request directly.
+- **New content:** If you want to add a section, an exercise or a set of
+  lecture notes, it helps to share the idea in an issue first. The curriculum
+  order follows the
   [Data Science Roadmap](https://github.com/AlicanKaya192/Data-Science-RoadMap)
-  projesini takip ediyor.
-- **Çeviri:** Uygulama Türkçe ve İngilizce. Yeni bir dil eklemek istersen
-  `app/i18n/en.json` dosyasını referans al.
-- **Dokümantasyon:** README'lerdeki ve kod içindeki açıklamaları iyileştirmek
-  her zaman değerlidir.
+  project.
+- **Translation:** The application is available in Turkish and English. If you
+  want to add another language, use `app/i18n/en.json` as your reference.
+- **Documentation:** Improving the READMEs and the explanations inside the code
+  is always welcome.
 
-## Geliştirme ortamını kurma
+## Setting up a development environment
 
 ```bash
 py -3.14 tools/setup_env.py
 .venv\Scripts\python app\main.py
 ```
 
-**Anaconda'nın Python'unu kullanma.** Anaconda kendi (eski) MSVC runtime
-kütüphanelerini taşıyor; Qt'nin DLL'leri onları yükleyince uygulama
-`WinError 127` ile açılmıyor. Temiz bir CPython kurulumu gerekiyor.
+**Do not use Anaconda's Python.** Anaconda ships its own (older) MSVC runtime
+libraries; when Qt's DLLs load those, the application fails to start with
+`WinError 127`. A clean CPython installation is required.
 
-## Hata bildirme
+## Reporting a bug
 
-Issue açarken şunları yazarsan çok yardımcı olur:
+Including these in the issue helps a great deal:
 
-- Ne yapmaya çalıştın, ne bekliyordun, ne oldu
-- Adım adım nasıl tekrarlanır
-- Windows sürümü ve `python --version` çıktısı
-- Varsa ekran görüntüsü ve terminaldeki hata metni
+- What you were trying to do, what you expected and what happened instead
+- Step-by-step instructions to reproduce it
+- Your Windows version and the output of `python --version`
+- A screenshot and the error text from the terminal, if you have them
 
-Hazır şablon için [issue şablonlarını](.github/ISSUE_TEMPLATE) kullanabilirsin.
+You can use the [issue templates](.github/ISSUE_TEMPLATE) for a ready-made
+structure.
 
-## Yeni özellik önerisi
+## Proposing a feature
 
-Öneriyi yazarken "ne eklensin"den çok **hangi sorunu çözdüğünü** anlat. Bir
-öğrenci neyi yapamıyor, nerede tıkanıyor? Çözüm fikri varsa ekle ama zorunlu
-değil.
+When you write the proposal, describe **which problem it solves** rather than
+what should be added. What can a learner not do today, where do they get stuck?
+Add your idea for a solution if you have one, but that part is optional.
 
-## İçerik katkısı
+## Contributing content
 
-İçerik `content/` altında, JSON ve Markdown olarak duruyor. Uyulması gereken
-üç kural var:
+Content lives under `content/` as JSON and Markdown. Three rules apply:
 
-### 1. Alıştırma kodu ASCII olmalı
+### 1. Exercise code must be ASCII
 
-Kullanıcının **yazmak zorunda kaldığı** her şey — değişken adı, fonksiyon adı,
-beklenen çıktı, örnek değer — yalnızca ASCII karakter içerir. `ş ğ ı İ ç ö ü`
-geçmez.
+Everything the user is **required to type** — variable names, function names,
+expected output, sample values — contains ASCII characters only. `ş ğ ı İ ç ö ü`
+are not allowed.
 
-Sebebi: İngilizce klavyede bu harfler yok. `takim = "Beşiktaş"` isteyen bir
-alıştırmayı İngilizce kullanan biri **çözemez**.
+The reason: those letters do not exist on an English keyboard. Someone using
+the application in English **cannot solve** an exercise that asks for
+`takim = "Beşiktaş"`.
 
 ```jsonc
-// Yanlış
+// Wrong
 { "type": "variable", "name": "takim", "equals": "Beşiktaş" }
 
-// Doğru
+// Right
 { "type": "variable", "name": "team", "equals": "Galatasaray" }
 ```
 
-Değişken ve fonksiyon adları İngilizce yazılır (`team`, `year`, `total`,
-`calculate_age`). Gerçek Python kodu zaten böyle yazılır.
+Variable and function names are written in English (`team`, `year`, `total`,
+`calculate_age`). Real Python code is written that way anyway.
 
-**Ders metni bu kurala girmez** — orası okunur, yazılmaz; Türkçe karakter
-serbesttir.
+**Lesson text is exempt** — it is read, not typed, so non-ASCII characters are
+free there.
 
-### 2. Bir bölüm iki dili de tamamlanmadan bitmiş sayılmaz
+### 2. A section is not finished until both languages are
 
-Bir dersin İngilizcesini onu yeni yazmışken hazırlamak fazladan %30-40 zaman
-alıyor; aylar sonra yapmaya kalkınca kendi yazdığını baştan okumak gerektiği
-için maliyet neredeyse ikiye katlanıyor.
+Preparing the English version of a lesson while you have just written it costs
+an extra 30-40% of the time; doing it months later nearly doubles that, because
+you have to read your own writing from scratch first.
 
-`starter` ve `solution` dosyaları da `{lang}` ile ayrılır, böylece yorum
-satırları kullanıcının dilinde olur.
+`starter` and `solution` files are also split by `{lang}`, so that the comments
+are in the user's language.
 
-### 3. İçerik id'leri kalıcıdır
+### 3. Content ids are permanent
 
-Bir bölüme veya alıştırmaya bir kez id verildiyse **asla değiştirilmez**.
-Başlık ve dosya adı değişebilir, id sabit kalır — kullanıcıların ilerleme
-kayıtları o id'lere bağlı.
+Once a section or an exercise has been given an id, that id **never changes**.
+The title and the file name may change; the id stays — users' progress records
+are tied to those ids.
 
-## Kod standartları
+## Code standards
 
-- Python 3.10+ söz dizimi, tip ipuçlarıyla.
-- Renk ve ölçüler `app/resources/theme/tokens.py`'den gelir; widget'lara
-  dağınık stil yazılmaz.
-- Arayüz metinleri `app/i18n/*.json` içinde; koda sabit metin gömülmez.
-- Açıklamalar **neden** olduğunu anlatır, ne olduğunu değil. Kod zaten ne
-  olduğunu söylüyor.
-- Uygulama içinde yapay zeka veya dış servis çağrısı **yoktur**. Alıştırma
-  değerlendirmesi tamamen deterministiktir.
+- Python 3.10+ syntax, with type hints.
+- Colours and measurements come from `app/resources/theme/tokens.py`; styles are
+  not scattered across widgets.
+- Interface text lives in `app/i18n/*.json`; no strings are hard-coded.
+- Comments explain **why**, not what. The code already says what.
+- There is **no** artificial intelligence and no external service call inside
+  the application. Exercise evaluation is entirely deterministic.
 
-## Denetleyicileri çalıştırma
+## Running the validators
 
-PR göndermeden önce üçünü de çalıştır:
+Run all three before you send a pull request:
 
 ```bash
-.venv\Scripts\python tools\validate_i18n.py      # iki dil eşit mi
-.venv\Scripts\python tools\validate_content.py   # şema + ASCII + çeviri kapsamı
-.venv\Scripts\python app\main.py                 # uygulama açılıyor mu
+.venv\Scripts\python tools\validate_i18n.py      # are both languages in sync
+.venv\Scripts\python tools\validate_content.py   # schema + ASCII + translation coverage
+.venv\Scripts\python app\main.py                 # does the application start
 ```
 
-`validate_content.py` şunları yakalar: eksik dosya, geçersiz sınav cevap
-indeksi, dillere göre farklı şık sayısı, çözümün başlangıç koduyla aynı
-olması, ASCII ihlalleri ve eksik çeviriler.
+`validate_content.py` catches missing files, invalid quiz answer indices,
+differing option counts between languages, a solution identical to the starter
+code, ASCII violations and missing translations.
 
-## Pull request süreci
+## Pull request process
 
-1. Depoyu fork'la ve bir dal aç: `git checkout -b duzeltme/kisa-aciklama`
-2. Değişikliğini yap, denetleyicileri çalıştır.
-3. Commit mesajını açıklayıcı yaz: ne değişti ve **neden**.
-4. PR açarken hangi issue'yu kapattığını belirt.
+1. Fork the repository and create a branch: `git checkout -b fix/short-description`
+2. Make your change and run the validators.
+3. Write a descriptive commit message: what changed and **why**.
+4. When you open the pull request, state which issue it closes.
 
-PR'ın kabul edilmesi için:
+For a pull request to be accepted:
 
-- Denetleyiciler temiz geçmeli
-- Yeni içerik iki dilde olmalı
-- Uygulama açılıp ilgili ekran çalışmalı
+- The validators must pass cleanly
+- New content must exist in both languages
+- The application must start and the relevant screen must work
 
-Küçük yazım düzeltmeleri için issue açmana gerek yok, doğrudan PR gönderebilirsin.
+You do not need to open an issue for small typo fixes; send a pull request
+directly.

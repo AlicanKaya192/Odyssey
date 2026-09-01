@@ -1,0 +1,100 @@
+{
+  "id": "shape-family",
+  "title": {
+    "tr": "Kalıtım",
+    "en": "Inheritance"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Kalıtım parantezle yazılıyor: `class Rectangle(Shape):`. Bu, \"Rectangle bir Shape'tir\" demek ve `Shape`'in bütün metotlarını devralıyor.",
+      "en": "Inheritance is written with brackets: `class Rectangle(Shape):`. That says \"a Rectangle is a Shape\" and inherits all of `Shape`'s methods."
+    },
+    {
+      "tr": "Alt sınıf kendi `__init__` metodunu yazdığı anda üst sınıfınki kendiliğinden çalışmıyor. İlk satır olarak `super().__init__(\"rectangle\")` yazman gerekiyor.",
+      "en": "The moment a subclass writes its own `__init__`, the parent's stops running on its own. You need `super().__init__(\"rectangle\")` as the first line."
+    },
+    {
+      "tr": "`describe` metnin içine sayıyı katıyor, o yüzden `str(self.area())` gerekiyor. Dikkat: `self.area` değil `self.area()` — parantez olmadan metodun kendisini alırsın, sonucunu değil.",
+      "en": "`describe` puts a number into a string, so you need `str(self.area())`. Watch out: `self.area()` not `self.area` — without brackets you get the method itself rather than its result."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nclass Shape:\n    def __init__(self, name):\n        self.name = name\n\n    def describe(self):\n        return self.name + \" has area \" + str(self.area())\n\n\nclass Rectangle(Shape):\n    def __init__(self, width, height):\n        super().__init__(\"rectangle\")\n        self.width = width\n        self.height = height\n\n    def area(self):\n        return self.width * self.height\n\n\nclass Circle(Shape):\n    def __init__(self, radius):\n        super().__init__(\"circle\")\n        self.radius = radius\n\n    def area(self):\n        return round(math.pi * self.radius * self.radius, 2)\n```",
+      "en": "The solution:\n\n```python\nclass Shape:\n    def __init__(self, name):\n        self.name = name\n\n    def describe(self):\n        return self.name + \" has area \" + str(self.area())\n\n\nclass Rectangle(Shape):\n    def __init__(self, width, height):\n        super().__init__(\"rectangle\")\n        self.width = width\n        self.height = height\n\n    def area(self):\n        return self.width * self.height\n\n\nclass Circle(Shape):\n    def __init__(self, radius):\n        super().__init__(\"circle\")\n        self.radius = radius\n\n    def area(self):\n        return round(math.pi * self.radius * self.radius, 2)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "method",
+      "class": "Rectangle",
+      "args": [
+        3,
+        4
+      ],
+      "cases": [
+        {
+          "attribute": "name",
+          "equals": "rectangle"
+        },
+        {
+          "method": "area",
+          "args": [],
+          "returns": 12
+        },
+        {
+          "method": "describe",
+          "args": [],
+          "returns": "rectangle has area 12"
+        }
+      ]
+    },
+    {
+      "type": "method",
+      "class": "Circle",
+      "args": [
+        2
+      ],
+      "cases": [
+        {
+          "attribute": "name",
+          "equals": "circle"
+        },
+        {
+          "method": "area",
+          "args": [],
+          "returns": 12.57
+        },
+        {
+          "method": "describe",
+          "args": [],
+          "returns": "circle has area 12.57"
+        }
+      ]
+    },
+    {
+      "type": "method",
+      "class": "Shape",
+      "args": [
+        "blob"
+      ],
+      "cases": [
+        {
+          "attribute": "name",
+          "equals": "blob"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "rectangle has area 12\ncircle has area 12.57"
+    }
+  ]
+}

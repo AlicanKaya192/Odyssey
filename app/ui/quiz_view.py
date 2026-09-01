@@ -1,8 +1,21 @@
 """Sınav görünümü.
 
-Bütün sorular tek sayfada listelenir; kullanıcı istediği sırayla cevaplayıp
-hepsini birden gönderir. Gönderdikten sonra her sorunun doğru cevabı ve
-açıklaması görünür — sınavın amacı not vermek değil, öğretmek.
+İki ekran var. **Sınav sekmesine geçince sorular hemen görünmüyor**; önce
+bir başlangıç ekranı çıkıyor: kaç soru olduğu, ne kadar süre tanındığı ve
+varsa önceki denemenin notu. Hazır olduğunda "Sınavı Başlat" deniyor.
+Sorular sekmeye dokunur dokunmaz açılsaydı süre, kişi daha ne olduğunu
+anlamadan işlemeye başlardı.
+
+Başladıktan sonra bütün sorular tek sayfada listeleniyor; kullanıcı istediği
+sırayla cevaplayıp hepsini birden gönderiyor. Gönderdikten sonra her sorunun
+doğru cevabı ve açıklaması görünüyor — sınavın amacı not vermek değil,
+öğretmek.
+
+Süre dolunca sınav kendiliğinden gönderiliyor; boş kalan sorular yanlış
+sayılıyor. Sayaç sağ üst köşede duruyor, kaydırmayla kaymıyor ve içeriğin
+üstünü örtmüyor.
+
+Her denemede sorular ve şıklar yeniden karışıyor (`app/core/quiz_shuffle.py`).
 """
 
 from __future__ import annotations
@@ -10,9 +23,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from PySide6.QtCore import QEvent, Qt, Signal
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
+    QStackedWidget,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -25,8 +39,11 @@ from PySide6.QtWidgets import (
 )
 
 from ..core.language import LanguageManager
-from ..resources.theme.tokens import READING_WIDTH, SPACING
+from ..core.quiz_shuffle import prepare
+from ..resources.theme.tokens import PALETTES, READING_WIDTH, SPACING
 from ..widgets import richtext
+from ..widgets.common import Card
+from ..widgets.timer_ring import TimerRing, format_clock
 
 
 class OptionRow(QWidget):
@@ -228,7 +245,7 @@ class QuestionCard(QFrame):
 
 
 class QuizView(QWidget):
-    """Bir alt bölümün sınavı."""
+    """Bir alt bölümün sınavı: başlangıç ekranı ve sorular."""
 
     completed = Signal(int, bool)  # puan, geçti mi
 
@@ -236,10 +253,88 @@ class QuizView(QWidget):
         super().__init__(parent)
         self._language = language
         self._cards: list[QuestionCard] = []
+        self._questions: list[dict] = []
         self._pass_score = 70
         self._mode = "light"
 
+        self._time_limit = 0
+        self._left = 0
+        self._untimed = False
+        self._previous_score: int | None = None
+        self._previous_passed = False
+
+        self._timer = QTimer(self)
+        self._timer.setInterval(1000)
+        self._timer.timeout.connect(self._tick)
+
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self._stack = QStackedWidget()
+        self._stack.addWidget(self._build_start_page())
+        self._stack.addWidget(self._build_quiz_page())
+        layout.addWidget(self._stack)
+
+        # Sayaç kaydırma alanının içinde değil, görünümün kendi çocuğu:
+        # sayfa kayarken yerinde kalıyor ve metnin üstünü örtmüyor.
+        self._corner = TimerRing(58, 4, self)
+        self._corner.hide()
+
+    # --- başlangıç ekranı --------------------------------------------------
+
+    def _build_start_page(self) -> QWidget:
+        page = QWidget()
+        outer = QVBoxLayout(page)
+        outer.setContentsMargins(SPACING["xl"], SPACING["xxl"], SPACING["xl"], SPACING["xl"])
+        outer.addStretch(1)
+
+        row = QHBoxLayout()
+        row.addStretch(1)
+
+        card = Card(mode=self._mode, padding=SPACING["xl"])
+        card.setMaximumWidth(460)
+        self._start_card = card
+
+        self._start_title = QLabel()
+        self._start_title.setProperty("role", "subtitle")
+        self._start_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        card.body.addWidget(self._start_title)
+
+        self._start_help = QLabel()
+        self._start_help.setProperty("role", "muted")
+        self._start_help.setWordWrap(True)
+        self._start_help.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        card.body.addWidget(self._start_help)
+        card.body.addSpacing(SPACING["lg"])
+
+        self._preview_ring = TimerRing(112, 6)
+        card.body.addWidget(self._preview_ring, 0, Qt.AlignmentFlag.AlignHCenter)
+        card.body.addSpacing(SPACING["md"])
+
+        self._previous_label = QLabel()
+        self._previous_label.setWordWrap(True)
+        self._previous_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._previous_label.hide()
+        card.body.addWidget(self._previous_label)
+        card.body.addSpacing(SPACING["md"])
+
+        self._start_button = QPushButton()
+        self._start_button.setProperty("variant", "primary")
+        self._start_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._start_button.clicked.connect(self._start)
+        card.body.addWidget(self._start_button)
+
+        row.addWidget(card)
+        row.addStretch(1)
+        outer.addLayout(row)
+        outer.addStretch(2)
+        return page
+
+    # --- soru ekranı -------------------------------------------------------
+
+    def _build_quiz_page(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
         layout.setContentsMargins(0, 0, 0, 0)
 
         scroll = QScrollArea()
@@ -287,20 +382,44 @@ class QuizView(QWidget):
         row.addStretch(1)
         scroll.setWidget(container)
         layout.addWidget(scroll)
+        return page
 
-    def show_quiz(self, path: Path, pass_score: int = 70) -> None:
-        """Sınav dosyasını yükler."""
+    # --- yükleme -----------------------------------------------------------
+
+    def show_quiz(
+        self,
+        path: Path,
+        pass_score: int = 70,
+        time_limit_sec: int = 0,
+        previous_score: int | None = None,
+        previous_passed: bool = False,
+        untimed: bool = False,
+    ) -> None:
+        """Sınav dosyasını yükler ve başlangıç ekranını gösterir.
+
+        `untimed`, ayarlardan süre kaldırıldığında geliyor. Bölümün kendi
+        süresi `_time_limit` içinde duruyor ama sayaç çalıştırılmıyor;
+        ayar kapatıldığında bölümün süresi olduğu gibi geri geliyor.
+        """
         self._pass_score = pass_score
-        self._clear()
+        self._untimed = bool(untimed)
+        self._time_limit = max(0, int(time_limit_sec))
+        self._previous_score = previous_score
+        self._previous_passed = previous_passed
 
         with path.open(encoding="utf-8") as handle:
             data = json.load(handle)
+        self._questions = data.get("questions", [])
 
-        for index, question in enumerate(data.get("questions", [])):
-            card = QuestionCard(index, question, self._language, self._mode)
-            self._cards.append(card)
-            self._cards_holder.addWidget(card)
+        self._clear()
+        self._show_start()
 
+    def _show_start(self) -> None:
+        self._timer.stop()
+        self._corner.hide()
+        self._stack.setCurrentIndex(0)
+        self._preview_ring.set_untimed(self._untimed)
+        self._preview_ring.set_total(self._time_limit)
         self.retranslate()
 
     def _clear(self) -> None:
@@ -311,12 +430,57 @@ class QuizView(QWidget):
         self._retry_button.hide()
         self._submit_button.show()
 
-    def _submit(self) -> None:
+    # --- akış --------------------------------------------------------------
+
+    def _start(self) -> None:
+        """Soruları karıştırıp sınavı başlatır."""
+        self._clear()
+
+        for index, question in enumerate(prepare(self._questions)):
+            card = QuestionCard(index, question, self._language, self._mode)
+            self._cards.append(card)
+            self._cards_holder.addWidget(card)
+
+        self._stack.setCurrentIndex(1)
+        self.retranslate()
+
+        if self._untimed:
+            # Sayaç yok ama köşedeki halka duruyor: sınavın süresiz
+            # olduğunu sınav sırasında da görmek gerekiyor.
+            self._corner.set_untimed(True)
+            self._corner.show()
+            self._corner.raise_()
+            self._place_corner()
+        elif self._time_limit:
+            self._left = self._time_limit
+            self._corner.set_total(self._time_limit)
+            self._corner.show()
+            self._corner.raise_()
+            self._place_corner()
+            self._timer.start()
+
+    def _tick(self) -> None:
+        self._left -= 1
+        self._corner.set_left(self._left)
+        if self._left <= 0:
+            self._timer.stop()
+            # Süre bitti: boş kalanlar yanlış sayılıyor, sınav gönderiliyor.
+            self._submit(timed_out=True)
+
+    def _place_corner(self) -> None:
+        pay = SPACING["lg"]
+        self._corner.move(self.width() - self._corner.width() - pay, pay)
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._place_corner()
+
+    def _submit(self, timed_out: bool = False) -> None:
         if not self._cards:
             return
 
         unanswered = sum(1 for card in self._cards if card.selected is None)
-        if unanswered:
+        if unanswered and not timed_out:
             self._result.setText(
                 self._language.t("quiz.unanswered", count=unanswered)
             )
@@ -325,6 +489,9 @@ class QuizView(QWidget):
             self._result.style().polish(self._result)
             self._result.show()
             return
+
+        self._timer.stop()
+        self._corner.hide()
 
         correct = sum(1 for card in self._cards if card.is_correct)
         score = round(correct * 100 / len(self._cards))
@@ -339,6 +506,9 @@ class QuizView(QWidget):
             if passed
             else self._language.t("quiz.failed", pass_score=self._pass_score)
         )
+        if timed_out:
+            message = self._language.t("quiz.timed_out") + "  —  " + message
+
         self._result.setText(message)
         self._result.setProperty("tone", "success" if passed else "danger")
         self._result.style().unpolish(self._result)
@@ -347,25 +517,79 @@ class QuizView(QWidget):
 
         self._submit_button.hide()
         self._retry_button.show()
+
+        # Bir sonraki denemede "önceki notun" olarak bu görünecek.
+        self._previous_score = score
+        self._previous_passed = passed
         self.completed.emit(score, passed)
 
     def _reset(self) -> None:
-        for card in self._cards:
-            card.reset()
-        self._result.hide()
-        self._retry_button.hide()
-        self._submit_button.show()
+        """Baştan dene: başlangıç ekranına dönüyor, sorular yeniden karışıyor."""
+        self._show_start()
+
+    # --- tema ve dil -------------------------------------------------------
 
     def set_mode(self, mode: str) -> None:
         """Arayüz renkleri tema dosyasından geliyor, ama soru metinlerindeki
         kod parçaları HTML içine gömülü renklerle çiziliyor; onları elle
         yenilemek gerekiyor."""
         self._mode = mode
+        self._start_card.set_mode(mode)
+
+        palette = PALETTES.get(mode, PALETTES["light"])
+        for ring in (self._preview_ring, self._corner):
+            ring.set_colors(
+                palette["border"],
+                palette["accent"],
+                palette["warning"],
+                palette["danger"],
+                palette["text"],
+            )
+
         for card in self._cards:
             card.set_mode(mode)
 
     def retranslate(self) -> None:
         self._submit_button.setText(self._language.t("quiz.submit"))
         self._retry_button.setText(self._language.t("quiz.retry"))
+        self._start_button.setText(self._language.t("quiz.start"))
+        self._start_title.setText(self._language.t("quiz.ready_title"))
+
+        sayi = len(self._questions)
+        if self._untimed:
+            self._start_help.setText(
+                self._language.t(
+                    "quiz.ready_help_untimed", count=sayi, pass_score=self._pass_score
+                )
+            )
+        elif self._time_limit:
+            self._start_help.setText(
+                self._language.t(
+                    "quiz.ready_help",
+                    count=sayi,
+                    time=format_clock(self._time_limit),
+                    pass_score=self._pass_score,
+                )
+            )
+        else:
+            self._start_help.setText(
+                self._language.t(
+                    "quiz.ready_help_untimed", count=sayi, pass_score=self._pass_score
+                )
+            )
+
+        if self._previous_score is None:
+            self._previous_label.hide()
+        else:
+            self._previous_label.setText(
+                self._language.t("quiz.previous", score=self._previous_score)
+            )
+            self._previous_label.setProperty(
+                "tone", "success" if self._previous_passed else "danger"
+            )
+            self._previous_label.style().unpolish(self._previous_label)
+            self._previous_label.style().polish(self._previous_label)
+            self._previous_label.show()
+
         for card in self._cards:
             card.retranslate(len(self._cards))

@@ -37,6 +37,15 @@ from ..core.progress import ProgressStore
 from ..core.runner import RunResult, run_code
 from ..resources.theme.tokens import FONTS, SPACING
 from ..widgets.code_editor import CodeEditor
+
+# Çıktı kutusunun en fazla kaplayacağı yükseklik.
+#
+# Ölçüldü: bu yazı tipinde satır 14 piksel, dolgu ve kenarlıkla birlikte
+# 200 piksel ~13 satır alıyor. İçeriğin beklenen çıktısı en fazla 6 satır;
+# kalan yer öğrencinin kendi eklediği `print` satırları ve hata metni için.
+# Önce 120 pikseldi (~7 satır) ve panelde alt alta duran "Geçti" satırları
+# yüzünden daha da fazlası görünmüyordu.
+OUTPUT_MAX_HEIGHT = 200
 from ..widgets.effects import repolish
 from .lesson_view import LessonView, render_markdown
 
@@ -321,7 +330,9 @@ class ExerciseView(QWidget):
         self._output = QPlainTextEdit()
         self._output.setReadOnly(True)
         self._output.setProperty("role", "output")
-        self._output.setMaximumHeight(120)
+        # Sonuç panelinde artık tek bir "Geçti" satırı var (önce her kontrol
+        # için bir tane çiziliyordu); açılan yer çıktıya verildi.
+        self._output.setMaximumHeight(OUTPUT_MAX_HEIGHT)
         self._output.hide()
         layout.addWidget(self._output)
 

@@ -21,6 +21,162 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.4.0] — 1 September 2026
+
+### Added
+- **The quizzes grew: 150 → 250 questions.** From the Modules section onwards
+  every section has **20 questions**. The Overall Review quiz went up to
+  **50 questions** and covers all fourteen sections — from the details of
+  `print` to database work. The time limits were rescaled to match.
+- **Comprehensions, `lambda` and `sorted(key=...)` were added.** These appear
+  everywhere in real Python code yet were nowhere in the curriculum: the
+  `[x * 2 for x in items]` form, filtering, dictionary comprehensions; saying
+  what to sort a list by; and functions that take an unknown number of
+  arguments (`*args` / `**kwargs`). They went into the Lists and Functions
+  sections as a lecture note and two exercises each.
+- **Installing libraries** is now covered: `pip install`, why a virtual
+  environment is needed, `requirements.txt`, and where `ModuleNotFoundError`
+  comes from. This is the first thing needed when moving on to the Data
+  Science path, and it only appeared in two passing sentences.
+- **A hard exercise was added to the Getting Started and Variables
+  sections.** In both, the hardest exercise stopped at medium.
+- **An exercise on working with tuples** was added. Despite the section being
+  called "Lists and Tuples", no exercise asked for a tuple.
+- **Python Fundamentals is complete.** Four more sections were written and the
+  module is finished: **Working with Files** (`with`, modes, `encoding`, line
+  endings, reading a data file), **Object-Oriented Programming** (`class`,
+  `__init__`, `self`, `__str__`, inheritance), **Working with Databases**
+  (`sqlite3`, creating tables, the `?` placeholder,
+  `SELECT`/`WHERE`/`GROUP BY`, `commit`) and **Overall Review** (how the
+  pieces connect, a quick-reference page, where to go from here). All fifteen
+  sections are now open.
+- **From the Modules section onwards there are five exercises.** Each of those
+  sections has one easy, two medium and two hard exercises. The hard ones use
+  more than one section at a time rather than a single topic.
+- **Two lecture notes were added to the Conditionals section** — a comparison
+  reference and a list of condition traps. That section had none at all.
+- **A second lecture note was added to the Getting Started section:** the
+  Python data science ecosystem, what each library is for and where it is
+  taught.
+- **A Type Annotations section.** How to write down what a function expects
+  and what it gives back: `text: str`, `-> int`, `list[str]`,
+  `dict[str, int]`, `int | None` when a value may be absent, `-> None` for
+  functions that return nothing, and the `Optional[str]` spelling you meet in
+  older code. It also covers the point people get wrong most often — that
+  annotations are **not checked** at run time, so they are a note rather than
+  a rule. Two lecture notes (a type reference, a guide to decoding long
+  annotations), a ten-question quiz and three exercises.
+- **Diagrams in the lessons.** Where a drawing makes the point land faster,
+  the lessons now carry one: which part of a function signature means what,
+  which of the two types in `dict[str, int]` is the key and which is the
+  value, and what actually happens to an annotation at run time. The diagrams
+  are drawn by the page itself, so they follow the theme and scale with the
+  text.
+- **A Handling Errors section.** The two kinds of error, reading a traceback,
+  `try` / `except`, choosing which error to catch, why a bare `except` is
+  bad, `as error`, `else` and `finally`, and raising errors yourself with
+  `raise`. Two lecture notes (a glossary of error types, a guide to reading
+  tracebacks), a ten-question quiz and three exercises.
+- **The quizzes were rewritten.** Every section now has **10 questions** (it
+  was 4, and 3 in one section). The module now holds 150 questions. They get
+  harder as the sections progress, more of them rest on reading code, and
+  each section ends with one that makes you think.
+- **A Modules section.** `import`, `from ... import ...`, nicknames with
+  `as`, using your own file as a module and `if __name__ == "__main__"`.
+  Two lecture notes (a tour of the standard library, import forms and
+  common mistakes), a ten-question quiz and three exercises. In the last
+  one you import a real module file placed next to your code.
+- **API and Docker learning tracks** added. Neither has content yet, so
+  both appear locked.
+- **A setting for removing the section lock.** With it on, sections no longer
+  open in order; you can enter any of them whenever you like.
+- **A setting for removing the quiz time limit.** With it on, quizzes have no
+  time limit.
+- **A quiz start screen.** Questions no longer appear the moment you touch
+  the tab; first you see how many there are, how long you have and **your
+  previous score**. You start when you are ready.
+- **Quizzes are timed.** The time allowed per question grows as the topics
+  get harder. When the time runs out the quiz is submitted for you. The
+  clock sits in the top right corner, out of the way of the text.
+- **Questions and options are shuffled on every attempt**, and the correct
+  answer never lands in the same position more than twice in a row.
+- **About screen.** Overview, FAQ, My Links, Extra Content and Licence are now
+  on one screen, with tabs at the top to move between them.
+- **FAQ page.** The questions asked most often about the application;
+  click one to open its answer.
+- **Overview page** explaining what the application is, how it works and the
+  principles it is built on.
+- **A profile photo.** You can pick your own picture on the profile screen;
+  it also appears on the profile button in the rail. The image is copied
+  into the data folder on your computer and never sent anywhere.
+- **Sections now unlock in order.** A section stays locked until the one
+  before it is finished, and the locked circle says which section you
+  need to complete. You can still revisit anything you have finished.
+- `CS_Complete_Terminology_Guide` added to Extra Content.
+- If you did not use the variable name an exercise asked for but held the
+  right value under another name, the application now says so: "You have a
+  variable named `second` with the right value, but this exercise asks for it
+  under the name `seconds`." It used to say only that the variable was missing.
+
+### Changed
+- **The language is now chosen with TR / EN buttons in the settings.** A
+  toggle was the wrong control for a choice between two options; which side
+  meant which language was only clear once you read the description.
+- **The settings screen was reorganised.** Language and theme were dropdowns,
+  and that layout fell apart as the number of settings grew. Each setting is
+  now readable at a glance: its name and what it does on the left, and a
+  switch showing on or off by its position on the right. The settings are
+  split into Appearance and Learning.
+- **The application now opens with the dark theme.**
+- **The left rail went from seven icons to five.** My Links, Extra Content and
+  Licence became tabs on the About screen.
+- **The top of the rail shows an overall progress ring** with the percentage in
+  the middle, so how far along you are stays on screen while you read a lesson
+  or work through an exercise. Clicking it returns to the learning path.
+- **Screen titles are centred** with a thin accent line beneath them, and the
+  back button moved to the far left.
+- **The module path is centred on the page.** It used to hug the left edge.
+- **The rail icons are now two-tone.** Drawn as outlines only they looked
+  lifeless; their bodies are now lightly filled in their own colour.
+- **The light theme was softened.** The page was too bright for long
+  reading and cards were pure white. Muted text (durations, "Not
+  started", the on-this-page list) was also noticeably harder to read
+  than in the dark theme. Both were brought to the dark theme's level.
+
+### Fixed
+- **Passing an exercise produced several "Passed" lines in a row.** With up
+  to six checks in one exercise, the panel filled with them and pushed the
+  output down. It now writes a single line on success, and shows only the
+  lines that did not hold when something fails. The space that freed up went
+  to the output box, which is now nearly twice as tall.
+- **The panel said misleading things when the code failed to run.** For a
+  class missing its colon it said "you have not defined a class named Book" —
+  the class was there; the problem was the syntax. When the code does not run
+  at all, only the error itself and its line number are now shown.
+- **The screen went black for a moment the first time you opened a page.**
+  Lessons, lecture notes, About and Release Notes are drawn with a browser
+  engine, and each one showed black until its first frame arrived. That
+  first frame is now drawn at startup, before the window is visible.
+- **Lessons jumped around while you scrolled.** Reaching the end of the
+  text marks it as read, which updates the progress box on the right; that
+  update reloaded the whole page and lost your place. The box is now
+  changed where it stands, without reloading.
+- **The on-this-page list in lessons.** Scrolling to the bottom threw the
+  marker back up, and it never reached the last heading ("Summary").
+- **Code in quiz questions was shown as plain text.** There were no colours
+  and, worse, **the indentation was lost** — in Python the indentation is
+  the code. It now looks the way it does in the lessons.
+- `>=` was drawn as a single `≥` sign because of the font ligatures. It
+  now appears as written.
+- `**bold**` markup showed up raw in quiz text.
+- Opening a new lesson could start you partway down the page, at the
+  position you had reached in the previous lesson, instead of at the top.
+- **A white flash when opening pages and settings for the first time.**
+- The application appeared behind the splash screen while it was still on
+  screen, so both were visible at once. It now arrives as the splash goes.
+- Long entries in the release notes were cut off halfway; they now show in full.
+- Release-note headings read "EKLENDI" in Turkish; they now read "EKLENDİ".
+
 ## [0.3.0] — 28 August 2026
 
 ### Added

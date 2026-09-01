@@ -1,0 +1,87 @@
+{
+  "id": "student-report",
+  "title": {
+    "tr": "Uçtan uca rapor",
+    "en": "An end-to-end report"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Satır üç parçaya bölünüyor: `name, grade, city = line.split(\",\")`. `grade` metin geliyor, `int(grade)` ile çevir.",
+      "en": "The line splits into three: `name, grade, city = line.split(\",\")`. `grade` arrives as text, so convert it with `int(grade)`."
+    },
+    {
+      "tr": "Gruplarken önce geçmeyenleri atla: `if not student.is_passing(): continue`. Sonra şehir sözlükte yoksa boş liste koy, ardından ekle.",
+      "en": "When grouping, skip the failing ones first: `if not student.is_passing(): continue`. Then put an empty list in if the city is not there yet, and append."
+    },
+    {
+      "tr": "En yükseği bulmak için ikinci bir döngü yaz ve iki değişken tut: şu ana kadarki en yüksek not ve o öğrencinin adı.",
+      "en": "For the highest, write a second loop and keep two variables: the highest grade so far and that student's name."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef load_students(path: str) -> list[Student]:\n    people = []\n    with open(path, encoding=\"utf-8\") as file:\n        for line in file:\n            line = line.strip()\n            if not line:\n                continue\n            name, grade, city = line.split(\",\")\n            people.append(Student(name, int(grade), city))\n    return people\n\n\nby_city = {}\nfor student in students:\n    if not student.is_passing():\n        continue\n    if student.city not in by_city:\n        by_city[student.city] = []\n    by_city[student.city].append(student.name)\n```",
+      "en": "The solution:\n\n```python\ndef load_students(path: str) -> list[Student]:\n    people = []\n    with open(path, encoding=\"utf-8\") as file:\n        for line in file:\n            line = line.strip()\n            if not line:\n                continue\n            name, grade, city = line.split(\",\")\n            people.append(Student(name, int(grade), city))\n    return people\n\n\nby_city = {}\nfor student in students:\n    if not student.is_passing():\n        continue\n    if student.city not in by_city:\n        by_city[student.city] = []\n    by_city[student.city].append(student.name)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "annotation",
+      "name": "load_students",
+      "params": {
+        "path": "str"
+      },
+      "returns": "list[Student]"
+    },
+    {
+      "type": "method",
+      "class": "Student",
+      "args": [
+        "Ada",
+        90,
+        "London"
+      ],
+      "cases": [
+        {
+          "attribute": "city",
+          "equals": "London"
+        },
+        {
+          "method": "is_passing",
+          "args": [],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "variable",
+      "name": "by_city",
+      "equals": {
+        "London": [
+          "Ada",
+          "Alan"
+        ],
+        "NewYork": [
+          "Grace",
+          "Edith"
+        ]
+      }
+    },
+    {
+      "type": "variable",
+      "name": "best",
+      "equals": "Edith"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "5\n{'London': ['Ada', 'Alan'], 'NewYork': ['Grace', 'Edith']}\nEdith"
+    }
+  ]
+}

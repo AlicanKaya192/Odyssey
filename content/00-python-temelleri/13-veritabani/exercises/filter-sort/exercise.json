@@ -1,0 +1,73 @@
+{
+  "id": "filter-sort",
+  "title": {
+    "tr": "Süzmek ve sıralamak",
+    "en": "Filtering and sorting"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "İki parça tek komutta birleşiyor: `SELECT name, grade FROM students WHERE grade >= 50 ORDER BY grade DESC`. Sıra önemli — `WHERE` önce, `ORDER BY` sonra.",
+      "en": "The two parts go into one command: `SELECT name, grade FROM students WHERE grade >= 50 ORDER BY grade DESC`. The order matters — `WHERE` first, `ORDER BY` after."
+    },
+    {
+      "tr": "`DESC` büyükten küçüğe demek. Yazmazsan varsayılan küçükten büyüğe (`ASC`) oluyor.",
+      "en": "`DESC` means largest first. Without it the default is smallest first (`ASC`)."
+    },
+    {
+      "tr": "Şehri komuta gömme, `?` kullan: `cursor.execute(\"SELECT name FROM students WHERE city = ?\", (\"London\",))`. Sondaki virgülü unutma, yoksa `unsupported type` hatası alırsın.",
+      "en": "Do not embed the city in the command; use `?`: `cursor.execute(\"SELECT name FROM students WHERE city = ?\", (\"London\",))`. Do not forget the trailing comma, or you get an `unsupported type` error."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ncursor.execute(\n    \"SELECT name, grade FROM students WHERE grade >= 50 ORDER BY grade DESC\"\n)\npassing = cursor.fetchall()\n\ncursor.execute(\"SELECT name FROM students WHERE city = ?\", (\"London\",))\nlondoners = []\nfor row in cursor.fetchall():\n    londoners.append(row[0])\n\nprint(passing)\nprint(londoners)\n```",
+      "en": "The solution:\n\n```python\ncursor.execute(\n    \"SELECT name, grade FROM students WHERE grade >= 50 ORDER BY grade DESC\"\n)\npassing = cursor.fetchall()\n\ncursor.execute(\"SELECT name FROM students WHERE city = ?\", (\"London\",))\nlondoners = []\nfor row in cursor.fetchall():\n    londoners.append(row[0])\n\nprint(passing)\nprint(londoners)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "passing",
+      "equals": [
+        {
+          "__tuple__": [
+            "Ada",
+            90
+          ]
+        },
+        {
+          "__tuple__": [
+            "Grace",
+            75
+          ]
+        },
+        {
+          "__tuple__": [
+            "Alan",
+            60
+          ]
+        }
+      ]
+    },
+    {
+      "type": "variable",
+      "name": "londoners",
+      "equals": [
+        "Ada",
+        "Brian",
+        "Alan"
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[('Ada', 90), ('Grace', 75), ('Alan', 60)]\n['Ada', 'Brian', 'Alan']"
+    }
+  ]
+}

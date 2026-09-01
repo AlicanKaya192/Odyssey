@@ -142,7 +142,7 @@ def main() -> int:
     # Bu ucuz bir iş; açılış ekranından önce yapılıyor ki ekran doğru temada
     # açılsın. Ağır olan kısım ana pencerenin kurulması (Chromium).
     store = ProgressStore()
-    theme = ThemeManager(store.setting("theme", "system"))
+    theme = ThemeManager(store.setting("theme", "dark"))
     theme.apply(application)
 
     # Açılış ekranı, ağır kurulum başlamadan önce açılıyor: o kurulum bitene
@@ -171,7 +171,21 @@ def main() -> int:
         window.setWindowIcon(icon)
     # Tema başlangıçta da görünümlere bildirilsin.
     window._on_theme_changed(theme.effective_mode)
+
+    # Pencere **görünmez** olarak açılıyor: opaklık sıfır.
+    #
+    # İki şeyi aynı anda istiyoruz. Birincisi, pencere açılış ekranı hâlâ
+    # ekrandayken görünmemeli. İkincisi, belge alanlarının (Chromium) ilk
+    # çizimi kullanıcı görmeden yapılmalı — yoksa her birine ilk girişte
+    # ekran bir anlığına siyah kalıyor (ölçüldü: 48 ms, ortalama parlaklık
+    # sıfır).
+    #
+    # Opaklığı sıfır bir pencere işletim sistemi tarafından yine de
+    # bileşikleniyor, yani Chromium çiziyor ama kimse görmüyor. Açılış
+    # ekranı kaybolurken opaklık bire çekiliyor.
+    window.setWindowOpacity(0.0)
     window.show()
+    window.warm_up()
 
     close_splash(splash, window, splash_started)
 

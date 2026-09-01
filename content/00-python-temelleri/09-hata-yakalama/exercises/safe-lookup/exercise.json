@@ -1,0 +1,92 @@
+{
+  "id": "safe-lookup",
+  "title": {
+    "tr": "İki hatayı birden yakalamak",
+    "en": "Catching two errors at once"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`return` satırı `try` bloğunun **içinde** duruyor. Değer bulunduysa fonksiyon orada bitiyor, `except` bloğuna hiç gelinmiyor.",
+      "en": "The `return` line sits **inside** the `try` block. If the value is found the function ends there and the `except` block is never reached."
+    },
+    {
+      "tr": "İki hatayı tek blokta yakalamak için parantez kullanıyorsun: `except (KeyError, IndexError):`. Parantezsiz yazım farklı bir şey demek.",
+      "en": "You use brackets to catch two errors in one block: `except (KeyError, IndexError):`. Without the brackets it means something else."
+    },
+    {
+      "tr": "Fonksiyonun içinde `data`nın sözlük mü liste mi olduğunu kontrol etmene gerek yok. `data[key]` ikisinde de çalışıyor; hangisi olursa olsun bulunamadığında hata çıkıyor ve sen onu yakalıyorsun.",
+      "en": "You do not need to check inside the function whether `data` is a dictionary or a list. `data[key]` works for both; either way it raises an error when nothing is found, and you catch it."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef lookup(data, key):\n    try:\n        return data[key]\n    except (KeyError, IndexError):\n        return \"missing\"\n\n\nprint(lookup({\"a\": 1}, \"a\"))\nprint(lookup({\"a\": 1}, \"b\"))\nprint(lookup([10, 20], 1))\nprint(lookup([10, 20], 5))\n```",
+      "en": "The solution:\n\n```python\ndef lookup(data, key):\n    try:\n        return data[key]\n    except (KeyError, IndexError):\n        return \"missing\"\n\n\nprint(lookup({\"a\": 1}, \"a\"))\nprint(lookup({\"a\": 1}, \"b\"))\nprint(lookup([10, 20], 1))\nprint(lookup([10, 20], 5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Try",
+      "hint": {
+        "tr": "Kodunda `try` yok. Anahtarın var olup olmadığını `if` ile kontrol etmek yerine, denemesi ve hatayı yakalaması isteniyor.",
+        "en": "There is no `try` in your code. Rather than checking with `if` whether the key exists, you are asked to try it and catch the error."
+      }
+    },
+    {
+      "type": "function",
+      "name": "lookup",
+      "cases": [
+        {
+          "args": [
+            {
+              "a": 1
+            },
+            "a"
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            {
+              "a": 1
+            },
+            "b"
+          ],
+          "returns": "missing"
+        },
+        {
+          "args": [
+            [
+              10,
+              20
+            ],
+            1
+          ],
+          "returns": 20
+        },
+        {
+          "args": [
+            [
+              10,
+              20
+            ],
+            5
+          ],
+          "returns": "missing"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\nmissing\n20\nmissing"
+    }
+  ]
+}

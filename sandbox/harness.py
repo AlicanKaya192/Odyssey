@@ -88,6 +88,100 @@ def has_node_type(tree: ast.AST, node_name: str) -> bool:
     return any(isinstance(node, node_type) for node in ast.walk(tree))
 
 
+def annotation_source(node: ast.AST | None) -> str | None:
+    """Bir belirtim düğümünü metne çevirir.
+
+    `ast.unparse` biçimi normalleştiriyor: `dict[str,str]` de
+    `dict[str, str]` de aynı metne dönüyor, `str|None` de `str | None`
+    oluyor. Bu yüzden öğrenci boşluğu farklı koyduğu için düşmüyor.
+    """
+    return None if node is None else ast.unparse(node)
+
+
+def find_function(tree: ast.AST, name: str) -> ast.FunctionDef | None:
+    """Verilen adı taşıyan fonksiyon tanımını bulur."""
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name:
+            return node  # type: ignore[return-value]
+    return None
+
+
+def find_annotated_variable(tree: ast.AST, name: str) -> str | None:
+    """`sayac: int = 0` biçimindeki bir değişkenin belirtimini döndürür."""
+    for node in ast.walk(tree):
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            if node.target.id == name:
+                return annotation_source(node.annotation)
+    return None
+
+
+def compare_annotation(check: dict, tree: ast.AST | None) -> dict:
+    """Tip belirtimi kontrolü.
+
+    Belirtimler **kaynak koda** bakılarak doğrulanıyor, çalışma anına
+    değil. Sebebi: belirtim çalışma anında hiçbir şey yapmıyor — kod
+    belirtimsiz de sorunsuz çalışır. Dolayısıyla "yazdın mı" sorusunun
+    cevabı yalnızca yazılan metinde var.
+
+    İki biçimi var:
+      { "type": "annotation", "name": "to_upper",
+        "params": {"text": "str"}, "returns": "str" }
+      { "type": "annotation", "variable": "count", "is": "int" }
+    """
+    if tree is None:
+        return {"passed": False, "detail": {"unparsed": True}}
+
+    variable = check.get("variable")
+    if variable:
+        actual = find_annotated_variable(tree, variable)
+        expected = check.get("is", "")
+        if actual is None:
+            return {"passed": False, "detail": {"variable": variable, "bare": True,
+                                                "expected": expected}}
+        return {
+            "passed": actual == expected,
+            "detail": {"variable": variable, "expected": expected, "actual": actual},
+        }
+
+    name = check.get("name", "")
+    target = find_function(tree, name)
+    if target is None:
+        return {"passed": False, "detail": {"name": name, "missing": True}}
+
+    written = {
+        arg.arg: annotation_source(arg.annotation)
+        for arg in [*target.args.posonlyargs, *target.args.args, *target.args.kwonlyargs]
+    }
+
+    for param, expected in (check.get("params") or {}).items():
+        if param not in written:
+            return {"passed": False,
+                    "detail": {"name": name, "param": param, "no_param": True}}
+        actual = written[param]
+        if actual is None:
+            return {"passed": False,
+                    "detail": {"name": name, "param": param, "bare": True,
+                               "expected": expected}}
+        if actual != expected:
+            return {"passed": False,
+                    "detail": {"name": name, "param": param,
+                               "expected": expected, "actual": actual}}
+
+    expected_return = check.get("returns")
+    if expected_return is not None:
+        actual_return = annotation_source(target.returns)
+        if actual_return is None:
+            return {"passed": False,
+                    "detail": {"name": name, "returns": True, "bare": True,
+                               "expected": expected_return}}
+        if actual_return != expected_return:
+            return {"passed": False,
+                    "detail": {"name": name, "returns": True,
+                               "expected": expected_return, "actual": actual_return}}
+
+    return {"passed": True, "detail": {"name": name}}
+
+
 # --- Çalışan koda bakan kontroller ------------------------------------------
 
 
@@ -126,12 +220,47 @@ def compare_stdout(check: dict, stdout: str) -> dict:
     }
 
 
+def find_value_holder(namespace: dict, expected) -> str:
+    """Beklenen degeri tutan baska bir degiskenin adini dondurur.
+
+    Alistirmanin istedigi ad yoksa is orada bitmiyordu: "boyle bir degisken
+    tanimlamamissin" deyip geciyorduk. Oysa cogu zaman kisi isi dogru
+    yapmis, yalnizca degiskene baska bir ad vermis oluyor. Ayni degeri
+    tutan bir ad varsa onu buluyoruz ki geri bildirim "yanlis yaptin"
+    yerine "adini su yapman gerekiyor" diyebilsin.
+
+    Tip de karsilastiriliyor: True ile 1 Python'da esit, ama ogrenci
+    acisindan ayni sey degil.
+    """
+    if expected is None:
+        return ""
+
+    for ad, deger in namespace.items():
+        if ad.startswith("_"):
+            continue
+        try:
+            if type(deger) is type(expected) and deger == expected:
+                return ad
+        except Exception:
+            # Karsilastirmasi hata veren nesneler var (numpy dizileri gibi);
+            # boyle bir deger adayimiz degil.
+            continue
+    return ""
+
+
 def compare_variable(check: dict, namespace: dict) -> dict:
     """Değişken kontrolü: tanımlanmış mı ve değeri doğru mu?"""
     name = check.get("name", "")
 
     if name not in namespace:
-        return {"passed": False, "detail": {"name": name, "missing": True}}
+        return {
+            "passed": False,
+            "detail": {
+                "name": name,
+                "missing": True,
+                "lookalike": find_value_holder(namespace, check.get("equals")),
+            },
+        }
 
     actual = namespace[name]
     expected = check.get("equals")
@@ -192,11 +321,114 @@ def compare_function(check: dict, namespace: dict) -> dict:
     return {"passed": True, "detail": {"name": name, "missing": False}}
 
 
+def compare_method(check: dict, namespace: dict) -> dict:
+    """Sınıf kontrolü: nesne kurulup metotları çağrılıyor.
+
+    `function` kontrolü yalnızca üst seviye fonksiyonlara bakıyor, `variable`
+    ise nesne karşılaştıramıyor. Bir sınıfın **çalıştığını** doğrulamak için
+    nesneyi gerçekten kurup metodunu çağırmak gerekiyor.
+
+    Biçimi:
+      { "type": "method", "class": "Dog", "args": ["Rex"],
+        "cases": [
+          { "method": "speak", "args": [], "returns": "Rex says woof" },
+          { "attribute": "name", "equals": "Rex" }
+        ] }
+    """
+    name = check.get("class", "")
+    target = namespace.get(name)
+
+    if target is None:
+        return {"passed": False, "detail": {"cls": name, "missing": True}}
+    if not isinstance(target, type):
+        return {"passed": False, "detail": {"cls": name, "not_class": True}}
+
+    args = check.get("args", [])
+    try:
+        instance = target(*args)
+    except Exception as exc:
+        return {
+            "passed": False,
+            "detail": {"cls": name, "init_raised": f"{type(exc).__name__}: {exc}",
+                       "args": ", ".join(safe_repr(a) for a in args)},
+        }
+
+    for case in check.get("cases", []):
+        attribute = case.get("attribute")
+        if attribute:
+            if not hasattr(instance, attribute):
+                return {"passed": False,
+                        "detail": {"cls": name, "attribute": attribute, "no_member": True}}
+            actual = getattr(instance, attribute)
+            expected = case.get("equals")
+            if type(actual) is not type(expected) or actual != expected:
+                return {"passed": False,
+                        "detail": {"cls": name, "attribute": attribute,
+                                   "expected": safe_repr(expected),
+                                   "actual": safe_repr(actual)}}
+            continue
+
+        method = case.get("method", "")
+        bound = getattr(instance, method, None)
+        if bound is None or not callable(bound):
+            return {"passed": False,
+                    "detail": {"cls": name, "method": method, "no_member": True}}
+
+        call_args = case.get("args", [])
+        try:
+            actual = bound(*call_args)
+        except Exception as exc:
+            return {
+                "passed": False,
+                "detail": {"cls": name, "method": method,
+                           "args": ", ".join(safe_repr(a) for a in call_args),
+                           "raised": f"{type(exc).__name__}: {exc}"},
+            }
+
+        if "returns" in case and actual != case["returns"]:
+            return {
+                "passed": False,
+                "detail": {"cls": name, "method": method,
+                           "args": ", ".join(safe_repr(a) for a in call_args),
+                           "expected": safe_repr(case["returns"]),
+                           "actual": safe_repr(actual)},
+            }
+
+    return {"passed": True, "detail": {"cls": name}}
+
+
+# JSON'da demet diye bir tip yok; liste yazılınca `variable` kontrolü
+# `type(actual) is type(expected)` karşılaştırmasında düşüyordu. Demet
+# Python'da ayrı bir tip ve müfredatta öğretiliyor (`06-listeler`), ayrıca
+# `sqlite3` satırları demet döndürüyor — beklenen değerin demet olduğunu
+# yazabilmek gerekiyor.
+#
+# Bunu tipi gevşeterek değil, **açıkça yazarak** çözüyoruz:
+#
+#     { "type": "variable", "name": "point",
+#       "equals": { "__tuple__": [3, 7] } }
+#
+# İç içe de çalışıyor: `[{"__tuple__": ["Ada", 90]}]` bir demet listesi.
+TUPLE_KEY = "__tuple__"
+
+
+def revive(value):
+    """Kontrol tanımındaki demet işaretlerini gerçek demete çevirir."""
+    if isinstance(value, dict):
+        if set(value) == {TUPLE_KEY}:
+            return tuple(revive(item) for item in value[TUPLE_KEY])
+        return {key: revive(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [revive(item) for item in value]
+    return value
+
+
 def run_checks(checks: list[dict], tree: ast.AST | None, stdout: str, namespace: dict) -> list[dict]:
     """Bütün kontrolleri sırayla uygular."""
     results = []
 
     for check in checks:
+        check = revive(check)
         kind = check.get("type")
         outcome: dict
 
@@ -209,6 +441,10 @@ def run_checks(checks: list[dict], tree: ast.AST | None, stdout: str, namespace:
         elif kind == "ast_require":
             found = tree is not None and has_node_type(tree, check.get("node", ""))
             outcome = {"passed": found, "detail": {"node": check.get("node", "")}}
+        elif kind == "method":
+            outcome = compare_method(check, namespace)
+        elif kind == "annotation":
+            outcome = compare_annotation(check, tree)
         elif kind == "ast_forbid":
             forbidden = check.get("call", "")
             used = tree is not None and forbidden in called_names(tree)
@@ -266,6 +502,20 @@ def main() -> int:
     checks = job.get("checks", [])
 
     source = Path(code_path).read_text(encoding="utf-8")
+
+    # Kodun yanındaki dosyalar import edilebilsin.
+    #
+    # Denetleyici `-I` (izole kip) ile çalışıyor; o kip çalışan dosyanın
+    # klasörünü `sys.path`'ten çıkarıyor. Bunun sonucu: alıştırmanın yanına
+    # konan bir modül (`toolbox.py` gibi) kopyalandığı hâlde
+    # `ModuleNotFoundError` veriyordu — "Modüller" bölümünde kullanıcıdan
+    # tam olarak bunu yapması isteniyor.
+    #
+    # Eklenen tek klasör, o çalıştırmaya özel geçici çalışma klasörü:
+    # içinde yalnızca kullanıcının kodu ve alıştırmanın kendi dosyaları var.
+    workspace = str(Path(code_path).parent)
+    if workspace not in sys.path:
+        sys.path.insert(0, workspace)
 
     result: dict = {
         "status": "ok",

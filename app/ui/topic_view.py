@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
 from ..core.catalog import Catalog, Section
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
+from ..core.unlock import is_unlocked
 from ..resources.theme.tokens import SPACING
 from ..widgets.common import SegmentedControl
 from .exercise_view import ExerciseView
@@ -165,7 +166,17 @@ class TopicView(QWidget):
             elif block.type == "quiz":
                 resolved = block.file_for(language_code)
                 if resolved and resolved.exists:
-                    self._quiz.show_quiz(resolved.path, block.pass_score)
+                    # Önceki deneme başlangıç ekranında gösteriliyor:
+                    # "geçen sefer 60 almıştın" bilgisi, sınava girmeden
+                    # önce insanın neye hazırlandığını bilmesini sağlıyor.
+                    self._quiz.show_quiz(
+                        resolved.path,
+                        block.pass_score,
+                        time_limit_sec=block.time_limit_sec,
+                        previous_score=state.quiz_score,
+                        previous_passed=state.quiz_passed,
+                        untimed=self._store.setting("untimed_quiz", "") == "1",
+                    )
                     self._panes.append("quiz")
 
         if self._exercises:
@@ -180,6 +191,22 @@ class TopicView(QWidget):
         self.retranslate()
         self._segments.set_current(0, notify=False)
         self._show_pane(0)
+
+    def warm_up(self) -> None:
+        """Bölümün panolarını bir kez çizdirir.
+
+        Ders, notlar ve alıştırma yönergesi ayrı birer belge alanı
+        (Chromium). Her biri **ilk kez gösterildiğinde** yüzeyi oluşana
+        kadar siyah kalıyor; bu tur o ilk çizimi kullanıcı görmeden yapıyor.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        onceki = self._stack.currentIndex()
+        for index in range(self._stack.count()):
+            self._stack.setCurrentIndex(index)
+            QApplication.processEvents()
+        self._stack.setCurrentIndex(onceki)
+        QApplication.processEvents()
 
     def _meta_items(self, section) -> list[str]:
         """Ders başlığının altındaki bilgi satırının parçaları.
@@ -256,10 +283,27 @@ class TopicView(QWidget):
         if sonraki:
             label = self._pane_labels()[sonraki]
             buttons.append((f"go-{sonraki}", f"{label}  →", True))
-        elif following:
+        elif following and self._unlocked(following):
+            # Sonraki bölüm kilitliyse düğme hiç çizilmiyor. Soluk ama
+            # tıklanamaz bir düğme bırakmak kullanıcıyı boşuna uğraştırıyor;
+            # bu bölüm bitince düğme kendiliğinden beliriyor.
             buttons.append(("next-section", f"{self._language.t('nav.next')}  →", True))
 
         return buttons
+
+    def refresh_navigation(self) -> None:
+        """Alt gezinme düğmelerini yeniden kurar.
+
+        Kilit ayarı değiştiğinde çağrılıyor: "sonraki bölüm" düğmesi
+        kilitliyken hiç çizilmiyor, ayar açılınca o an belirmesi gerekiyor.
+        """
+        if self._section is None:
+            return
+        self._lesson.set_footer(self._footer_items())
+
+    def _unlocked(self, section) -> bool:
+        """Bu bölüme girilebilir mi? Kural `app/core/unlock.py` içinde."""
+        return is_unlocked(self._catalog, self._store, section.chapter_id, section.id)
 
     def _mark_lesson_read(self) -> None:
         """Ders metnini okunmuş işaretler.
@@ -292,7 +336,10 @@ class TopicView(QWidget):
                 self._section.chapter_id, self._section.id
             )
             target = following if action == "next-section" else previous
-            if target:
+            # Geri gitmek her zaman serbest; ileri gitmek kilide bakıyor.
+            # Düğme zaten çizilmiyor ama kilit kuralı tek yerde durmalı:
+            # klavye kısayolu ya da başka bir yol buraya düşerse de geçerli.
+            if target and (action == "previous-section" or self._unlocked(target)):
                 self.show_section(target.chapter_id, target.id)
 
     def _on_notes_advance(self) -> None:

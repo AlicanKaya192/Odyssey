@@ -1,23 +1,29 @@
 """Ekranların üst şeridi.
 
-İki yerleşimi var.
+Tek bir yerleşim var: **en solda geri düğmesi, ortada ekranın adı, sağda
+ekrana özel denetim.** Başlık şeridin tam ortasında duruyor.
 
-**Dar yerleşim** (varsayılan): geri düğmesi ve başlık, sayfa gövdesiyle aynı
-sütuna hizalanıyor. Şerit pencerenin en solundan başlarken içerik ortada
-duruyordu; ikisi hizalanmıyor, başlık köşede öksüz kalıyordu.
+Ortalama şöyle çalışıyor: iki yan bölge de, ikisinden geniş olanın
+genişliğine ayarlanıyor. Aradaki iki esneme eşit kalıyor, başlık da tam
+ortaya oturuyor. Yan bölgelerin **içeriği** sıkışmıyor — dar olan tarafa
+yalnızca boşluk ekleniyor. Bir ara üç bölgeye eşit genişlik verilmişti;
+o zaman denetim şeridin üçte birine sıkışıp sekmeler birbirine yapışıyordu.
+Sonra da başlık iki bölgenin arasına ortalanmıştı; bu sefer sağdaki denetim
+genişleyince başlık sola kaçıyordu.
 
-**Geniş yerleşim** (`add_widget` çağrılınca): solda geri düğmesi, ortada
-ekranın adı, sağda ekrana özel denetim. Konu ekranındaki segmented control
-dar sütuna sıkıştığında ortada asılı bir kutu gibi duruyordu.
+Önceden ikinci bir yerleşim daha vardı: denetimi olmayan ekranlarda başlık,
+sayfa gövdesiyle aynı sütuna sola hizalanıyordu. Şerit genişken başlık sol
+dipte kalıyor, ekranın ortasındaki içerikle hiç konuşmuyordu. Artık her
+ekranda ortada.
 
-Başlık, geri düğmesiyle denetimin **arasına** ortalanıyor — şeridin mutlak
-ortasına değil. Bir ara üç bölgeye eşit genişlik verilmişti; başlık gerçekten
-tam ortaya oturuyordu ama denetim şeridin üçte birine sıkışıp sekmeler
-birbirine yapışıyordu. Denetim artık doğal genişliğini alıyor.
+İki tasarım kararı:
 
-Bir tasarım kararı daha: **bağlam üstte, ad altta.** Önce büyük başlık,
-altında soluk bir açıklama vardı; ikisi de aynı ağırlıkta okunuyordu. Şimdi
-bağlam üstte küçük ve vurgu renginde, altında asıl ad büyük ve kalın.
+* **Bağlam üstte, ad altta.** Önce büyük başlık, altında soluk bir açıklama
+  vardı; ikisi de aynı ağırlıkta okunuyordu. Şimdi bağlam üstte küçük ve
+  vurgu renginde, altında asıl ad büyük ve kalın.
+* **Vurgu çizgisi başlığın altında, yatay.** Başlığın solundaki dikey çubuk,
+  başlık ortalanınca ortada asılı kalıyordu. Altına çekilen kısa yatay çizgi
+  başlığı sayfaya bağlıyor ve ortalamayı bozmuyor.
 """
 
 from __future__ import annotations
@@ -28,21 +34,20 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QPushButton,
-    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
 
 from ..core.language import LanguageManager, upper
 from ..resources.icons import icon
-from ..resources.theme.tokens import CONTENT_WIDTH, PALETTES, SPACING
+from ..resources.theme.tokens import PALETTES, SPACING
 
 HEADER_HEIGHT = 108
 
-# Başlığın solundaki ince renkli çubuğun ölçüleri. Şeridi sayfaya bağlayan
-# tek görsel öge; kaldırıldığında başlık yine havada duruyor.
-ACCENT_BAR_WIDTH = 3
-ACCENT_BAR_HEIGHT = 50
+# Başlığın altındaki kısa vurgu çizgisi. Başlık kadar uzun olursa altı çizili
+# bir bağlantıya benziyor; kısa tutulunca süs olarak okunuyor.
+ACCENT_LINE_WIDTH = 44
+ACCENT_LINE_HEIGHT = 3
 
 
 class ScreenHeader(QFrame):
@@ -55,25 +60,73 @@ class ScreenHeader(QFrame):
         self._language = language
         self._mode = "light"
         self._accent = ""
-        self._wide = False
+
+        # `_balance()` en son hangi genişliği verdi. Aynı değeri tekrar
+        # vermek yeni bir yerleşim turu başlatıyor; gereksiz.
+        self._balanced = -1
 
         self.setProperty("role", "topbar")
         self.setFixedHeight(HEADER_HEIGHT)
+
+        outer = QHBoxLayout(self)
+        outer.setContentsMargins(SPACING["lg"], 0, SPACING["lg"], 0)
+        outer.setSpacing(SPACING["md"])
 
         self._left = self._build_left()
         self._centre = self._build_centre()
         self._right = self._build_right()
 
-        self._outer = QHBoxLayout(self)
-        self._outer.setContentsMargins(SPACING["lg"], 0, SPACING["lg"], 0)
-        self._outer.setSpacing(SPACING["md"])
-        self._apply_narrow()
+        outer.addWidget(self._left, 0)
+        outer.addStretch(1)
+        outer.addWidget(self._centre, 0)
+        outer.addStretch(1)
+        outer.addWidget(self._right, 0)
 
         self.set_mode(self._mode)
+
+    def _balance(self) -> None:
+        """İki yan bölgeyi eşit genişliğe getirir.
+
+        Böylece aradaki iki esneme de eşit oluyor ve başlık şeridin tam
+        ortasına düşüyor. Dar olan tarafa yalnızca boşluk ekleniyor; içindeki
+        düğme ya da denetim kendi doğal genişliğinde kalıyor.
+
+        Ölçü, bölgelerin kendi `sizeHint`'inden değil **içeriğinden** alınıyor.
+        Bölgeye en küçük genişlik verdiğimiz an `sizeHint` de büyüyor; ondan
+        ölçseydik her çağrıda bir öncekinin üstüne biner, şerit şişerdi.
+        """
+        # `isVisible()` değil `isHidden()`: gösterilmemiş bir pencerenin
+        # içindeki her widget `isVisible() == False` döndürüyor. Ölçüm
+        # pencere açılmadan yapıldığı için geri düğmesi hep sıfır
+        # sayılıyordu ve bölgeler hiç dengelenmiyordu.
+        sol = 0 if self._back.isHidden() else self._back.sizeHint().width()
+
+        sag = 0
+        görünen = 0
+        for index in range(self._slot.count()):
+            widget = self._slot.itemAt(index).widget()
+            if widget is not None and not widget.isHidden():
+                sag += widget.sizeHint().width()
+                görünen += 1
+        if görünen > 1:
+            sag += self._slot.spacing() * (görünen - 1)
+
+        genislik = max(sol, sag)
+        if genislik == self._balanced:
+            return
+
+        self._balanced = genislik
+        self._left.setMinimumWidth(genislik)
+        self._right.setMinimumWidth(genislik)
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._balance()
 
     # --- parçalar ---------------------------------------------------------
 
     def _build_left(self) -> QWidget:
+        """Geri düğmesi şeridin en solunda; içeri girilen yön orası."""
         holder = QWidget()
         row = QHBoxLayout(holder)
         row.setContentsMargins(0, 0, 0, 0)
@@ -85,38 +138,35 @@ class ScreenHeader(QFrame):
         self._back.clicked.connect(self.back_clicked)
         self._back.hide()
         row.addWidget(self._back, 0, Qt.AlignmentFlag.AlignVCenter)
+        # Bölge dengelenirken genişleyebiliyor; düğme sola yapışık kalsın.
         row.addStretch(1)
         return holder
 
     def _build_centre(self) -> QWidget:
         holder = QWidget()
-        row = QHBoxLayout(holder)
-        row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(SPACING["md"])
-
-        self._bar = QFrame()
-        self._bar.setFixedSize(ACCENT_BAR_WIDTH, ACCENT_BAR_HEIGHT)
-        row.addWidget(self._bar, 0, Qt.AlignmentFlag.AlignVCenter)
-
-        titles = QVBoxLayout()
-        titles.setSpacing(3)
-        titles.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-        titles.addStretch(1)
+        column = QVBoxLayout(holder)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(3)
+        column.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self._eyebrow = QLabel()
         self._eyebrow.setProperty("role", "eyebrow")
-        titles.addWidget(self._eyebrow)
+        self._eyebrow.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        column.addWidget(self._eyebrow, 0, Qt.AlignmentFlag.AlignHCenter)
 
         # Boyut ve ağırlık QSS'te: uygulama stil şablonu piksel cinsinden
-        # yazı boyutu veriyor, buradan `setPointSize` ile verilen değer
-        # piksele çevrilip başlığı büyütmek yerine küçültüyordu.
+        # yazı boyutu veriyor, buradan setPointSize ile verilen değer piksele
+        # çevrilip başlığı büyütmek yerine küçültüyordu.
         self._title = QLabel()
         self._title.setProperty("role", "screen")
-        titles.addWidget(self._title)
+        self._title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        column.addWidget(self._title, 0, Qt.AlignmentFlag.AlignHCenter)
 
-        titles.addStretch(1)
-        row.addLayout(titles)
-        self._centre_row = row
+        self._line = QFrame()
+        self._line.setFixedSize(ACCENT_LINE_WIDTH, ACCENT_LINE_HEIGHT)
+        column.addSpacing(SPACING["xs"])
+        column.addWidget(self._line, 0, Qt.AlignmentFlag.AlignHCenter)
+
         return holder
 
     def _build_right(self) -> QWidget:
@@ -131,60 +181,13 @@ class ScreenHeader(QFrame):
         row.addLayout(self._slot)
         return holder
 
-    # --- yerleşim ---------------------------------------------------------
-
-    def _clear_outer(self) -> None:
-        while self._outer.count():
-            item = self._outer.takeAt(0)
-            if item.widget() is not None:
-                item.widget().setParent(None)
-
-    def _apply_narrow(self) -> None:
-        """Geri düğmesi ve başlık, sayfa gövdesiyle aynı sütunda."""
-        self._clear_outer()
-
-        column = QWidget()
-        column.setMaximumWidth(CONTENT_WIDTH)
-        column.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-
-        row = QHBoxLayout(column)
-        row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(SPACING["md"])
-        row.addWidget(self._left, 0)
-        row.addWidget(self._centre, 0)
-        row.addStretch(1)
-        row.addWidget(self._right, 0)
-
-        self._outer.addStretch(1)
-        self._outer.addWidget(column, 10)
-        self._outer.addStretch(1)
-        self._column = column
-
-    def _apply_wide(self) -> None:
-        """Solda geri düğmesi, ortada ekranın adı, sağda denetim.
-
-        Üç bölgeye eşit genişlik verilmiyor: denetim (segmented control)
-        kendi doğal genişliğini alıyor, yoksa şeridin üçte birine sıkışıp
-        sekmeler birbirine yapışıyordu. Başlık, geri düğmesiyle denetimin
-        **arasına** ortalanıyor.
-        """
-        self._clear_outer()
-
-        self._centre_row.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._outer.addWidget(self._left, 0)
-        self._outer.addStretch(1)
-        self._outer.addWidget(self._centre, 0)
-        self._outer.addStretch(1)
-        self._outer.addWidget(self._right, 0)
-        self._wide = True
-
     # --- içerik -----------------------------------------------------------
 
     def set_titles(self, title: str, eyebrow: str = "") -> None:
         """Büyük başlık ve üstündeki küçük bağlam satırı.
 
         Bağlam satırı büyük harfe çevrilirken dilin kuralı kullanılıyor:
-        Python'un `upper()` metodu Türkçede `i` harfini `I` yapıyor ve
+        Python'un upper() metodu Türkçede i harfini I yapıyor ve
         "PYTHON TEMELLERI" gibi yanlış sonuç çıkıyor.
         """
         self._title.setText(title)
@@ -193,8 +196,21 @@ class ScreenHeader(QFrame):
         )
         self._eyebrow.setVisible(bool(eyebrow))
 
+        # Yerleşimi elle tazeliyoruz. `set_back()` bu metottan önce çağrılıyor
+        # ve `_balance()` orada yan bölgelere en küçük genişlik veriyor; bu
+        # da bir yerleşim turu başlatıyor. Tur, başlık **eski** metniyken
+        # koşuyor ve orta bölgeyi o genişlikte sabitliyordu. Sonuç:
+        # "Öğrenme Yolu" için hesaplanan 171 pikselde kalan kutu, "Python
+        # Temelleri" yazınca metni iki ucundan kırpıyordu ("ython Temelle").
+        self._centre.updateGeometry()
+        self._centre.adjustSize()
+        layout = self.layout()
+        if layout is not None:
+            layout.invalidate()
+            layout.activate()
+
     def set_accent(self, color: str) -> None:
-        """Sol çubuğun ve bağlam satırının rengi.
+        """Vurgu çizgisinin ve bağlam satırının rengi.
 
         Şeritteki simgeyle aynı renk veriliyor; ekranlar arasında geçerken
         aynı rengin devam etmesi, nerede olunduğunu renkten de okutuyor.
@@ -205,8 +221,8 @@ class ScreenHeader(QFrame):
     def _apply_accent(self) -> None:
         palette = PALETTES.get(self._mode, PALETTES["light"])
         renk = self._accent or palette["accent"]
-        self._bar.setStyleSheet(
-            f"background-color: {renk}; border-radius: {ACCENT_BAR_WIDTH // 2}px;"
+        self._line.setStyleSheet(
+            f"background-color: {renk}; border-radius: {ACCENT_LINE_HEIGHT // 2}px;"
         )
         self._eyebrow.setStyleSheet(f"color: {renk};")
 
@@ -215,15 +231,12 @@ class ScreenHeader(QFrame):
         self._back.setVisible(visible)
         if text:
             self._back.setText(f"  {text}")
+        self._balance()
 
     def add_widget(self, widget: QWidget) -> None:
-        """Başlığın sağına ekrana özel bir denetim yerleştirir.
-
-        Denetim eklenince şerit dar sütundan çıkıp tüm genişliğe açılıyor.
-        """
+        """Başlığın sağına ekrana özel bir denetim yerleştirir."""
         self._slot.addWidget(widget)
-        if not self._wide:
-            self._apply_wide()
+        self._balance()
 
     def set_mode(self, mode: str) -> None:
         self._mode = mode

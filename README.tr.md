@@ -6,21 +6,25 @@
 
 Data Science ve Machine Learning konularını bölüm bölüm öğreten, tamamen çevrimdışı çalışan bir masaüstü uygulaması.
 
-Her bölümde konu anlatımı, ders notları ve alıştırmalar var. Bölümü tamamlamak için sınavı geçmen ve kod alıştırmalarını çözmen gerekiyor. Kodu uygulamanın içinde yazıyorsun, program onu çalıştırıp çıktısını ve sonucunu kontrol ediyor. Yapay zeka kullanılmıyor; kontroller önceden tanımlı ve deterministik.
+Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları var. Bir bölümü tamamlamak için sınavı geçmek ve alıştırmaları çözmek gerekiyor. Kod uygulamanın içinde yazılıyor; program onu çalıştırıyor, ardından çıktısını, oluşturduğu değişkenleri ve tanımladığı fonksiyonları kontrol ediyor. Yapay zeka kullanılmıyor — her kontrol önceden tanımlıdır ve deterministik olarak değerlendirilir, yani aynı kod her zaman aynı sonucu verir.
 
 ## Durum
 
-Erken geliştirme aşaması (`0.3.0`). Uygulama uçtan uca çalışıyor ama içerik henüz başlangıç seviyesinde.
+Erken geliştirme aşaması (`0.4.0`). Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı — yerinde; müfredat ise henüz başlangıçta.
 
-**Çalışanlar:** öğrenme yolu, konu anlatımı, ders notları, sınav, kod alıştırmaları ve otomatik kontrol, kademeli ipuçları, hata açıklamaları, kalıcı ilerleme kaydı, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema.
+**Bugünkü içerik:** Python Temelleri modülü **tamamlandı** — on beş bölüm, ilk programdan veritabanına kadar. 250 sınav sorusu, 65 kod alıştırması ve 34 ders notu; tamamı Türkçe ve İngilizce.
 
-**Henüz yok:** müfredatın tamamı (şu an Python Temelleri modülünün sekiz bölümü var, hedef 23 modül), rozetler, kullanıcının kendi not alanı, uygulama içi güncelleme sistemi.
+**Altı öğrenme patikası** tanımlı: Python açık; Veri Bilimi, Makine Öğrenmesi, SQL, API ve Docker içerikleri hazırlanana kadar kilitli görünüyor.
+
+**Çalışanlar:** öğrenme patikaları, bölüm içi başlık listesi ve okuma takibiyle konu anlatımı, ders notları, süreli sınavlar, otomatik kontrollü kod alıştırmaları, kademeli ipuçları, hata açıklamaları, sırayla açılan bölümler, kalıcı ilerleme kaydı, kendi fotoğrafınızı seçebildiğiniz profil, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema, kilidi ve sınav süresini kaldırma seçenekleri.
+
+**Henüz yok:** diğer patikaların içeriği (23 modül planlanıyor), rozetler, kullanıcının kendi not alanı, uygulama içi güncelleme sistemi.
 
 Yol haritası [CHANGELOG.md](CHANGELOG.md) dosyasında ilerliyor.
 
 ## Kurulum
 
-Python kurmak istemiyorsan [Releases](https://github.com/AlicanKaya192/Odyssey/releases) sayfasından hazır paketi indir, klasörü aç ve `Odyssey.exe` dosyasını çalıştır. Kuruluma, yönetici hakkına veya Python'a gerek yok.
+Python kurmak istemiyorsanız [Releases](https://github.com/AlicanKaya192/Odyssey/releases) sayfasından hazır paketi indirin, klasörü açın ve `Odyssey.exe` dosyasını çalıştırın. Kuruluma, yönetici hakkına veya Python'a gerek yok.
 
 ## Gereksinimler (kaynaktan çalıştırmak için)
 
@@ -43,32 +47,32 @@ Bu komut hem uygulamanın çalıştığı ortamı hem de alıştırmaların çal
 
 ## Diller
 
-Arayüz ve içerik Türkçe ve İngilizce. Ayarlardan istediğin an değiştirebilirsin, uygulamayı yeniden başlatmana gerek yok. Bir bölümün İngilizce çevirisi henüz yoksa Türkçesi gösterilir ve üstte bunu belirten bir uyarı çıkar.
+Arayüz ve içerik Türkçe ve İngilizce. Ayarlardan istediğiniz an değiştirebilirsiniz, uygulamayı yeniden başlatmaya gerek yok. Bir bölümün İngilizce çevirisi henüz yoksa Türkçesi gösterilir ve üstte bunu belirten bir uyarı çıkar.
 
-## Verilerin nerede duruyor?
+## Verileriniz nerede duruyor?
 
-İlerlemen, sınav notların, yazdığın kodlar, notların ve profilin `%APPDATA%\Odyssey\` klasöründeki veritabanında tutulur. Uygulamayı güncellediğinde veya silip yeniden kurduğunda bu klasöre dokunulmaz, ilerlemen kaybolmaz.
+İlerlemeniz, sınav notlarınız, yazdığınız kodlar, notlarınız, profiliniz ve seçtiğiniz fotoğraf `%APPDATA%\Odyssey\` klasöründe tutulur. Uygulamayı güncellediğinizde veya silip yeniden kurduğunuzda bu klasöre dokunulmaz, ilerlemeniz kaybolmaz.
 
 ## Alıştırmalar nasıl kontrol ediliyor?
 
-Kodun ayrı bir işlemde, izole bir çalışma klasöründe çalıştırılır. Ardından çıktısı, oluşturduğu değişkenler ve tanımladığı fonksiyonlar beklenen değerlerle karşılaştırılır. Kontrollerin tamamı önceden tanımlıdır; kod değerlendirmesinde herhangi bir dış servis kullanılmaz.
+Kodunuz ayrı bir işlemde, izole bir çalışma klasöründe çalıştırılır. Ardından çıktısı, oluşturduğu değişkenler ve tanımladığı fonksiyonlar beklenen değerlerle karşılaştırılır. Kontrollerin tamamı önceden tanımlıdır; kod değerlendirmesinde herhangi bir dış servis kullanılmaz.
 
-**Not:** Bu bir güvenlik sandbox'ı değildir. Kendi yazdığın kodu kendi bilgisayarında çalıştırıyorsun. Sistemin sağladığı şey izole bir çalışma klasörü, zaman aşımı sınırı, çıktı sınırı ve kodun hata vermesi durumunda uygulamanın çökmemesidir.
+**Not:** Bu bir güvenlik sandbox'ı değildir. Kendi yazdığınız kodu kendi bilgisayarınızda çalıştırıyorsunuz. Sistemin sağladığı şey izole bir çalışma klasörü, zaman aşımı sınırı, çıktı sınırı ve kodun hata vermesi durumunda uygulamanın çökmemesidir.
 
 ## İnternet
 
-Uygulama tamamen çevrimdışı çalışır. Şu an hiçbir ağ çağrısı yapmıyor.
+Uygulama tamamen çevrimdışı çalışır. Hiçbir ağ çağrısı yapmaz.
 
 İleride açılışta bir güncelleme kontrolü eklenecek (yeni sürüm var mı diye bakmak için); geldiğinde ayarlardan kapatılabilir olacak. Henüz yok.
 
-"Bağlantılar ve Projeler" bölümündeki adresler uygulamanın içinde açılmaz; tıkladığında sistemin tarayıcısına gider. Yani uygulama kendi başına ağa çıkmaz, yalnızca senin açık isteğinle bir adres açılır.
+"Bağlantılarım" ve "Ekstra İçerikler" sekmelerindeki adresler uygulamanın içinde açılmaz; tıklandığında sistemin tarayıcısına devredilir. Uygulama kendi başına ağa çıkmaz; bir adres yalnızca sizin isteğinizle açılır.
 
 ## Katkıda bulunma
 
-Issue ve pull request'ler açıktır. Önce [CONTRIBUTING.md](CONTRIBUTING.md) ve [Davranış Kuralları](CODE_OF_CONDUCT.md) dosyalarını okumanı rica ederim.
+Issue ve pull request'ler açıktır. Önce [CONTRIBUTING.tr.md](CONTRIBUTING.tr.md) ve [Davranış Kuralları](CODE_OF_CONDUCT.tr.md) dosyalarını okumanızı rica ederim. Güvenlik bildirimlerinin ayrı bir yolu var: [SECURITY.tr.md](SECURITY.tr.md).
 
 ## Lisans
 
-MIT Lisansı — Copyright (c) 2026 Alican Kaya. Ayrıntılar için [LICENSE](LICENSE) dosyasına bak.
+MIT Lisansı — Copyright (c) 2026 Alican Kaya. Ayrıntılar için [LICENSE](LICENSE) dosyasına bakın.
 
 Ders içeriği [Data Science Roadmap](https://github.com/AlicanKaya192/Data-Science-RoadMap) projesinden geliyor ve aynı lisansa tabi.

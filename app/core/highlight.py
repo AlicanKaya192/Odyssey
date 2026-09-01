@@ -108,11 +108,61 @@ def highlight_python(source: str, mode: str = "light") -> str:
 FENCE_PATTERN = re.compile(r"<pre><code(?: class=\"([^\"]*)\")?>(.*?)</code></pre>", re.DOTALL)
 
 
+# Belge alanlarında kullanılan sınıf adları. Renk değil **sınıf** yazmanın
+# sebebi: tema değişince belgeyi baştan yüklemek gerekmiyor, yalnızca stil
+# bloğu değiştiriliyor. Satır içi renk yazılsaydı her tema değişiminde bütün
+# belge yeniden yüklenirdi ve renk gecikmeli değişirdi (ölçüldü: ~190 ms).
+CLASS_PREFIX = "hl-"
+
+
+def highlight_python_classes(source: str) -> str:
+    """Python kodunu **CSS sınıflarıyla** işaretlenmiş HTML'e çevirir.
+
+    Renk taşımıyor; renkleri stil bloğu veriyor. Qt'nin zengin metni sınıf
+    tabanlı stil tanımadığı için sınav ekranı hâlâ `highlight_python`
+    kullanıyor — orada satır içi renk şart.
+    """
+    parts: list[str] = []
+    position = 0
+
+    def span(kind: str, text: str) -> str:
+        return f'<span class="{CLASS_PREFIX}{kind}">{html.escape(text)}</span>'
+
+    for match in TOKEN_PATTERN.finditer(source):
+        parts.append(html.escape(source[position:match.start()]))
+        text = match.group()
+
+        if match.lastgroup == "comment":
+            parts.append(span("comment", text))
+        elif match.lastgroup == "string":
+            parts.append(span("string", text))
+        elif match.lastgroup == "number":
+            parts.append(span("number", text))
+        elif text in KEYWORDS:
+            parts.append(span("keyword", text))
+        elif text in CONSTANTS:
+            parts.append(span("constant", text))
+        elif text in BUILTINS and source[match.end():match.end() + 1] == "(":
+            parts.append(span("builtin", text))
+        elif _is_assignment_target(source, match.end()):
+            parts.append(span("variable", text))
+        else:
+            parts.append(html.escape(text))
+
+        position = match.end()
+
+    parts.append(html.escape(source[position:]))
+    return "".join(parts)
+
+
 def highlight_code_blocks(rendered_html: str, mode: str = "light") -> str:
     """Markdown'dan çıkan HTML içindeki kod bloklarını renklendirir.
 
     `markdown` kütüphanesi kod bloklarını ``<pre><code>`` olarak üretiyor;
     içerik zaten HTML kaçışlı geldiği için önce çözüp sonra boyuyoruz.
+
+    `mode` artık kullanılmıyor: renkler sınıflarla veriliyor ve stil
+    bloğundan geliyor. Parametre, çağrı yerlerini bozmamak için duruyor.
     """
 
     def replace(match: re.Match) -> str:
@@ -123,6 +173,6 @@ def highlight_code_blocks(rendered_html: str, mode: str = "light") -> str:
         if language and language not in ("python", "py"):
             return f"<pre><code>{html.escape(body)}</code></pre>"
 
-        return f"<pre><code>{highlight_python(body, mode)}</code></pre>"
+        return f"<pre><code>{highlight_python_classes(body)}</code></pre>"
 
     return FENCE_PATTERN.sub(replace, rendered_html)

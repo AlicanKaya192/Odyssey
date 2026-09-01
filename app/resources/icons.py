@@ -76,6 +76,14 @@ PATHS: dict[str, str] = {
         '<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/>'
         '<path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>'
     ),
+    "info": (
+        '<circle cx="12" cy="12" r="9"/>'
+        '<path d="M12 11v5"/><path d="M12 7.6v.1"/>'
+    ),
+    "layers": (
+        '<path d="m12 3 9 5-9 5-9-5z"/>'
+        '<path d="m3 13 9 5 9-5"/><path d="m3 17.5 9 5 9-5"/>'
+    ),
     "package": (
         '<path d="m12 2 9 5v10l-9 5-9-5V7z"/>'
         '<path d="m3 7 9 5 9-5"/><path d="M12 12v10"/>'
@@ -118,14 +126,57 @@ PATHS: dict[str, str] = {
 }
 
 
-def svg_markup(name: str, color: str, stroke: float = 2.0, filled: bool = False) -> str:
+# İki tonlu çizim için doldurulan "gövde" yolları.
+#
+# Yalnız çizgiden oluşan ikonlar şeritte cansız duruyordu. Her ikonun asıl
+# gövdesi kendi renginde, düşük saydamlıkta doldurulunca simge ekrandan
+# ayrılıyor ama tek renkli kalıyor — tema neyse ikon o.
+#
+# Kural basit: **çekirdek şekil dolu, gerisi çizgi.** Evin gövdesi, kişinin
+# başı, megafonun konisi, dişlinin göbeği, bilgi dairesinin diski. Buraya
+# yolu yazılmayan ikon eskisi gibi yalnızca çizgiyle çiziliyor.
+DUOTONE: dict[str, str] = {
+    "home": '<path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+    "user": '<circle cx="12" cy="8" r="4"/>',
+    "megaphone": '<path d="m3 11 15-7v16L3 13z"/>',
+    "info": '<circle cx="12" cy="12" r="9"/>',
+    "settings": '<circle cx="12" cy="12" r="3"/>',
+    "layers": '<path d="m12 3 9 5-9 5-9-5z"/>',
+    "link": '<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/>',
+    "scale": "",
+}
+
+# Dolgunun saydamlığı. Daha koyusu çizgiyi yutuyor, daha açığı fark
+# edilmiyor; ikisi arasında ölçülerek seçildi.
+DUOTONE_OPACITY = 0.24
+
+
+def svg_markup(
+    name: str,
+    color: str,
+    stroke: float = 2.0,
+    filled: bool = False,
+    duotone: bool = False,
+) -> str:
     """İkonu tam bir SVG belgesine sarar."""
     path = PATHS.get(name, PATHS["chevron-right"])
     fill = color if filled else "none"
+
+    taban = ""
+    if duotone and not filled:
+        govde = DUOTONE.get(name, "")
+        if govde:
+            taban = (
+                f'<g fill="{color}" fill-opacity="{DUOTONE_OPACITY}" '
+                f'stroke="none">{govde}</g>'
+            )
+
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" '
-        f'fill="{fill}" stroke="{color}" stroke-width="{stroke}" '
-        f'stroke-linecap="round" stroke-linejoin="round">{path}</svg>'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
+        f"{taban}"
+        f'<g fill="{fill}" stroke="{color}" stroke-width="{stroke}" '
+        f'stroke-linecap="round" stroke-linejoin="round">{path}</g>'
+        f"</svg>"
     )
 
 
@@ -135,10 +186,15 @@ def icon(
     size: int = 22,
     filled: bool = False,
     stroke: float = 2.0,
+    duotone: bool = False,
 ) -> QIcon:
     """İkonu istenen renk, boyut ve çizgi kalınlığında bir QIcon olarak üretir."""
     renderer = QSvgRenderer(
-        QByteArray(svg_markup(name, color, stroke=stroke, filled=filled).encode("utf-8"))
+        QByteArray(
+            svg_markup(
+                name, color, stroke=stroke, filled=filled, duotone=duotone
+            ).encode("utf-8")
+        )
     )
 
     # Yüksek DPI ekranlarda bulanık görünmemesi için iki katı çözünürlükte

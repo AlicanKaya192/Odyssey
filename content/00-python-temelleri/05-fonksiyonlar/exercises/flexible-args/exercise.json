@@ -1,0 +1,76 @@
+{
+  "id": "flexible-args",
+  "title": {
+    "tr": "Kaç tane geleceği belli değil",
+    "en": "However many arrive"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`def total(*numbers):` yazdığında `numbers` fonksiyonun içinde bir demet oluyor. Hiç argüman verilmezse boş demet geliyor ve döngü hiç dönmüyor — sonuç zaten `0`.",
+      "en": "When you write `def total(*numbers):`, `numbers` becomes a tuple inside the function. With no arguments it is an empty tuple and the loop never runs — the result is already `0`."
+    },
+    {
+      "tr": "`def describe(label, **details):` — normal parametre önce, `**` sonra. `details` bir sözlük; içinde dolaşıp `anahtar=deger` parçalarını bir listeye topla.",
+      "en": "`def describe(label, **details):` — the ordinary parameter first, `**` after. `details` is a dictionary; loop through it and collect `key=value` pieces into a list."
+    },
+    {
+      "tr": "Parçaları birleştirmek için `\", \".join(parts)` kullanıyorsun. Liste boşsa ayrı davranman gerekiyor, yoksa `empty: ` sonunda fazladan boşluk kalıyor.",
+      "en": "Use `\", \".join(parts)` to put the pieces together. You have to handle the empty list separately, or `empty: ` is left with a trailing space."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef total(*numbers):\n    result = 0\n    for number in numbers:\n        result = result + number\n    return result\n\n\ndef describe(label, **details):\n    parts = []\n    for key in details:\n        parts.append(key + \"=\" + str(details[key]))\n    if not parts:\n        return label + \":\"\n    return label + \": \" + \", \".join(parts)\n```",
+      "en": "The solution:\n\n```python\ndef total(*numbers):\n    result = 0\n    for number in numbers:\n        result = result + number\n    return result\n\n\ndef describe(label, **details):\n    parts = []\n    for key in details:\n        parts.append(key + \"=\" + str(details[key]))\n    if not parts:\n        return label + \":\"\n    return label + \": \" + \", \".join(parts)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "total",
+      "cases": [
+        {
+          "args": [
+            1,
+            2,
+            3
+          ],
+          "returns": 6
+        },
+        {
+          "args": [],
+          "returns": 0
+        },
+        {
+          "args": [
+            5
+          ],
+          "returns": 5
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "describe",
+      "cases": [
+        {
+          "args": [
+            "empty"
+          ],
+          "returns": "empty:"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6\n0\nreport: name=Ada, city=London\nempty:"
+    }
+  ]
+}

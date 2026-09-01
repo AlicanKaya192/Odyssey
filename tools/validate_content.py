@@ -176,6 +176,17 @@ def _check_ascii(where: str, exercise) -> list[str]:
     problems: list[str] = []
 
     def denetle(etiket: str, value) -> None:
+        # Beklenen değerler liste, sözlük ya da `{"__tuple__": [...]}` olabiliyor;
+        # ASCII denetimi bunların içine de girmeli, yoksa demet içindeki bir
+        # Türkçe karakter fark edilmeden geçer.
+        if isinstance(value, dict):
+            for item in value.values():
+                denetle(etiket, item)
+            return
+        if isinstance(value, (list, tuple)):
+            for item in value:
+                denetle(etiket, item)
+            return
         if not isinstance(value, str):
             return
         if not value.isascii():
@@ -198,6 +209,25 @@ def _check_ascii(where: str, exercise) -> list[str]:
                 denetle("beklenen dönüş", case.get("returns"))
         elif kind == "stdout":
             denetle("beklenen çıktı", check.get("expected"))
+        elif kind == "method":
+            denetle("sınıf adı", check.get("class"))
+            for argument in check.get("args", []):
+                denetle("kurucu argümanı", argument)
+            for case in check.get("cases", []):
+                denetle("metot adı", case.get("method"))
+                denetle("özellik adı", case.get("attribute"))
+                for argument in case.get("args", []):
+                    denetle("örnek argüman", argument)
+                denetle("beklenen dönüş", case.get("returns"))
+                denetle("beklenen değer", case.get("equals"))
+        elif kind == "annotation":
+            denetle("fonksiyon adı", check.get("name"))
+            denetle("değişken adı", check.get("variable"))
+            denetle("beklenen belirtim", check.get("is"))
+            denetle("dönüş belirtimi", check.get("returns"))
+            for param, tip in (check.get("params") or {}).items():
+                denetle("parametre adı", param)
+                denetle("parametre belirtimi", tip)
         elif kind == "ast_forbid":
             denetle("yasaklı çağrı", check.get("call"))
 

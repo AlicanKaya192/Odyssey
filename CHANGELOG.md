@@ -19,6 +19,161 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.4.0] — 1 Eylül 2026
+
+### Eklendi
+- **Sınavlar büyütüldü: 150 → 250 soru.** Modüller bölümünden itibaren her
+  bölümde **20 soru** var. Genel Tekrar sınavı **50 soruya** çıktı ve on
+  dört bölümün tamamını kapsıyor — `print` ayrıntılarından veritabanı
+  işlemlerine kadar. Süreler de soru sayısına göre yeniden ayarlandı.
+- **Liste üreteçleri, `lambda` ve `sorted(key=...)` eklendi.** Bunlar gerçek
+  Python kodunun her yerinde olduğu hâlde müfredatta hiç geçmiyordu:
+  `[x * 2 for x in items]` yazımı, süzme, sözlük üreteci; bir listeyi neye
+  göre sıralayacağını söylemek; kaç argüman geleceği belli olmayan
+  fonksiyonlar (`*args` / `**kwargs`). Listeler ve Fonksiyonlar bölümlerine
+  birer ders notu ve ikişer alıştırma olarak girdi.
+- **Kütüphane kurmak** anlatıldı: `pip install`, sanal ortam neden gerekiyor,
+  `requirements.txt` ve `ModuleNotFoundError` neden çıkıyor. Veri Bilimi
+  patikasına geçildiğinde ilk gereken şey buydu ve yalnızca iki cümlede
+  geçiyordu.
+- **Başlangıç ve Değişkenler bölümlerine zor alıştırma eklendi.** İki bölümde
+  de en zor alıştırma orta seviyede kalıyordu.
+- **Demetlerle çalışma alıştırması** eklendi. Bölümün adı "Listeler ve
+  Demetler" olmasına rağmen hiçbir alıştırma demet istemiyordu.
+- **Python Temelleri tamamlandı.** Dört bölüm daha yazıldı ve modül bitti:
+  **Dosya İşlemleri** (`with`, kipler, `encoding`, satır sonları, veri
+  dosyası okuma), **Nesne Tabanlı Programlama** (`class`, `__init__`,
+  `self`, `__str__`, kalıtım), **Veritabanı İşlemleri** (`sqlite3`, tablo
+  kurma, `?` yer tutucusu, `SELECT`/`WHERE`/`GROUP BY`, `commit`) ve
+  **Genel Tekrar** (öğrenilenlerin birbirine nasıl bağlandığı, hızlı
+  başvuru sayfası, buradan sonrası). On beş bölümün tamamı artık açık.
+- **Modüller bölümünden itibaren alıştırma sayısı beşe çıktı.** Her bölümde
+  bir kolay, iki orta, iki zor alıştırma var. Zor olanlar tek bir konuyu
+  değil, birden fazla bölümü aynı anda kullanıyor.
+- **Koşul Durumları bölümüne iki ders notu eklendi** — karşılaştırma
+  sözlüğü ve koşul tuzakları. O bölümün hiç ders notu yoktu.
+- **Başlangıç bölümüne ikinci ders notu eklendi:** veri biliminde Python
+  ekosistemi, hangi kütüphanenin ne işe yaradığı ve nerede öğrenileceği.
+- **Tip Belirtimleri bölümü.** Bir fonksiyonun ne beklediğini ve ne
+  döndürdüğünü yazma biçimi: `text: str`, `-> int`, `list[str]`,
+  `dict[str, int]`, değer olmayabildiğinde `int | None`, değer döndürmeyen
+  fonksiyonlar için `-> None` ve eski kodda karşına çıkan `Optional[str]`
+  yazımı. Belirtimlerin çalışma anında **kontrol edilmediği**, yani bir
+  kural değil bir not oldukları ayrıca anlatılıyor. İki ders notu (tip
+  sözlüğü, uzun belirtimleri çözme rehberi), on soruluk sınav ve üç
+  alıştırma.
+- **Konu anlatımlarında şemalar.** Anlatılan şeyin çizimle daha çabuk
+  oturduğu yerlerde artık şema var: bir fonksiyon imzasının hangi parçası
+  ne demek, `dict[str, int]` içindeki iki tipin hangisinin anahtar hangisinin
+  değer olduğu, belirtimin çalışma anında ne olduğu. Şemalar sayfanın
+  kendisiyle çiziliyor; temayla birlikte renk değiştiriyor ve metinle
+  birlikte büyüyüp küçülüyor.
+- **Hata Yakalama bölümü.** İki tür hata, traceback okumak, `try` / `except`,
+  hangi hatayı yakalayacağın, çıplak `except` neden kötü, `as error`, `else`
+  ve `finally`, `raise` ile hatayı kendin çıkarmak. İki ders notu (hata
+  türleri sözlüğü, traceback okuma rehberi), on soruluk sınav ve üç alıştırma.
+- **Sınavlar yeniden yazıldı.** Her bölümde artık **10 soru** var (önce 4'tü,
+  bir bölümde 3). Modülün tamamında artık 150 soru var. Konu ilerledikçe sorular
+  zorlaşıyor, kod okumaya dayanan soruların payı artıyor ve her bölümün
+  sonunda bir tane düşündüren soru duruyor.
+- **Modüller bölümü.** `import`, `from ... import ...`, `as` ile takma ad,
+  kendi dosyanı modül olarak kullanmak ve `if __name__ == "__main__"`.
+  İki ders notu (standart kütüphane turu, import biçimleri ve sık yapılan
+  hatalar), on soruluk sınav ve üç alıştırma. Son alıştırmada yanına
+  konan gerçek bir modül dosyasını import ediyorsun.
+- **API ve Docker öğrenme patikaları** eklendi. İçerikleri henüz
+  hazırlanmadı, ikisi de kilitli görünüyor.
+- **Ayarlara kilidi kaldırma seçeneği geldi.** Açtığında bölümler sırayla
+  açılmıyor; istediğin bölüme istediğin an girebiliyorsun.
+- **Ayarlara sınav süresini kaldırma seçeneği geldi.** Açtığında sınavlarda
+  süre sınırı olmuyor.
+- **Sınav başlangıç ekranı.** Sekmeye dokununca sorular hemen açılmıyor;
+  önce kaç soru olduğu, ne kadar süre tanındığı ve **önceki denemenin notu**
+  görünüyor. Hazır olduğunda başlatıyorsun.
+- **Sınavlarda süre.** Konu zorlaştıkça soru başına tanınan süre artıyor.
+  Süre dolunca sınav kendiliğinden gönderiliyor. Sayaç sağ üst köşede,
+  kaydırmayla kaymıyor ve metnin üstünü örtmüyor.
+- **Her denemede sorular ve şıklar karışıyor.** Aynı sırada üst üste
+  ikiden fazla doğru cevap gelmiyor.
+- **Hakkında ekranı.** Bilgi, Sık Sorulanlar, Bağlantılarım, Ekstra İçerikler
+  ve Lisans tek ekranda toplandı; aralarında üstteki sekmelerle geçiliyor.
+- **Sık Sorulanlar sayfası.** Uygulama hakkında en sık sorulan sorular;
+  başlığa tıklayınca cevabı açılıyor.
+- **Bilgi sayfası.** Uygulamanın ne olduğunu, nasıl çalıştığını ve hangi
+  ilkelere göre kurulduğunu anlatıyor.
+- **Profil fotoğrafı.** Profil ekranından kendi fotoğrafını seçebiliyorsun;
+  şeritteki profil düğmesinde de görünüyor. Görsel bilgisayarındaki veri
+  klasörüne kopyalanıyor, hiçbir yere gönderilmiyor.
+- **Bölümler sırayla açılıyor.** Bir bölüm, önündeki bölüm tamamlanmadan
+  açılmıyor; kilitli halkanın altında hangi bölümü bitirmen gerektiği
+  yazıyor. Tamamladığın bölümlere istediğin zaman geri dönebiliyorsun.
+- Ekstra İçerikler'e `CS_Complete_Terminology_Guide` projesi eklendi.
+- Alıştırmada istenen değişken adını kullanmadıysan ama doğru değeri başka
+  bir adla tuttuysan, uygulama artık bunu söylüyor: "`second` adında bir
+  değişkenin var ve değeri doğru, ama alıştırma bunu `seconds` adıyla
+  istiyor." Önceden yalnızca "böyle bir değişken tanımlamamışsın" diyordu.
+
+### Değişti
+- **Ayarlarda dil seçimi TR / EN düğmeleriyle yapılıyor.** Aç/kapa anahtarı
+  iki seçenek arasında seçim için uygun değildi; hangi tarafın hangi dil
+  olduğu ancak açıklama okununca anlaşılıyordu.
+- **Ayarlar ekranı yeniden düzenlendi.** Dil ve tema açılır kutulardaydı;
+  ayar sayısı artınca bu düzen dağılıyordu. Artık her ayar tek bakışta
+  okunuyor: solda adı ve ne işe yaradığı, sağda açık mı kapalı mı olduğunu
+  konumuyla gösteren bir anahtar. Ayarlar Görünüm ve Öğrenme diye ikiye
+  ayrıldı.
+- **Program artık koyu temayla açılıyor.**
+- **Sol şerit yediden beş simgeye indi.** Bağlantılarım, Ekstra İçerikler ve
+  Lisans artık Hakkında ekranının sekmeleri.
+- **Şeridin tepesinde genel ilerleme halkası var.** Yüzde ortasında yazıyor;
+  ders okurken de, alıştırma çözerken de ne kadarını bitirdiğin ekranda
+  kalıyor. Tıklayınca öğrenme yoluna dönüyor.
+- **Ekran başlıkları ortalandı** ve altlarına ince bir vurgu çizgisi geldi;
+  geri düğmesi en sola alındı.
+- **Modül yolu sayfanın ortasına hizalandı.** Sola yaslanmış duruyordu.
+- **Şerit simgeleri iki tonlu çizildi.** Yalnız çizgiden oluşan hâlleri
+  cansız duruyordu; gövdeleri kendi renginde hafifçe dolduruldu.
+- **Açık tema yumuşatıldı.** Sayfa fazla parlaktı ve uzun metin okurken
+  gözü yoruyordu; kartlar saf beyazdı. Soluk yazılar da (süre,
+  "Başlanmadı", sayfa içi başlık listesi) koyu temadakinden belirgin
+  şekilde daha zor okunuyordu. İkisi de koyu temanın seviyesine çekildi.
+
+### Düzeltildi
+- **Alıştırmayı geçince alt alta birden fazla "Geçti" satırı çıkıyordu.**
+  Bir alıştırmada altıya kadar kontrol olduğu için panel bunlarla doluyor,
+  çıktı aşağı itiliyordu. Artık geçince tek satır yazıyor; bir şey
+  tutmadığında da yalnızca tutmayan satırlar görünüyor. Boşalan yer
+  çıktıya verildi, kutu iki katına yakın büyüdü.
+- **Kod hata verdiğinde panel yanıltıcı şeyler söylüyordu.** İki nokta
+  unutulmuş bir sınıf için "Book adında bir sınıf tanımlamamışsın"
+  yazıyordu — oysa sınıf yazılmıştı, sorun söz dizimindeydi. Kod hiç
+  çalışmadığında artık yalnızca hatanın kendisi ve satır numarası
+  gösteriliyor.
+- **Sayfalara ilk girişte ekran bir an siyah kalıyordu.** Ders anlatımı,
+  ders notu, Hakkında ve Sürüm Notları ekranları tarayıcı motoruyla
+  çiziliyor; her biri ilk kez açıldığında ilk kare gelene kadar siyah
+  görünüyordu. Bu ilk çizim artık açılışta, pencere daha görünmeden
+  yapılıyor.
+- **Konu anlatımında sayfa kayarken sıçrıyordu.** Metnin sonuna inince
+  "okundu" işareti konuyor, o da sağdaki ilerleme kutusunu güncelliyordu;
+  kutu güncellenirken sayfanın tamamı yeniden yükleniyor ve okuduğun yer
+  kayıyordu. Kutu artık sayfa yeniden yüklenmeden yerinde değişiyor.
+- **Konu anlatımında sağdaki başlık listesi.** Sayfanın sonuna inince
+  işaret yukarı fırlıyordu ve son başlığa ("Özet") hiç gelmiyordu.
+- **Sınav sorularındaki kod düz metin olarak görünüyordu.** Renk yoktu ve
+  daha kötüsü **girinti kayboluyordu** — Python'da girinti kodun kendisi.
+  Artık ders anlatımındaki kod blokları gibi görünüyor.
+- `>=` ekranda tek bir `≥` işareti olarak çiziliyordu; yazı tipinin
+  ligatürleri yüzünden. Artık yazıldığı gibi görünüyor.
+- Sınav metinlerinde `**kalın**` yazım ham görünüyordu.
+- Yeni bir konu anlatımına geçince sayfa baştan değil, bir önceki konuda
+  kalınan yerden açılabiliyordu.
+- **Sayfalara ve ayarlara ilk girişte beyaz parlama** oluyordu.
+- Uygulama, açılış ekranı hâlâ ekrandayken arkasında beliriyordu; ikisi
+  bir süre aynı anda duruyordu. Artık açılış ekranı kaybolurken geliyor.
+- Sürüm notlarında uzun maddeler yarıda kesiliyordu; artık tamamı görünüyor.
+- Sürüm notlarındaki başlıklar Türkçede "EKLENDI" yazıyordu, artık "EKLENDİ".
+
 ## [0.3.0] — 28 Ağustos 2026
 
 ### Eklendi

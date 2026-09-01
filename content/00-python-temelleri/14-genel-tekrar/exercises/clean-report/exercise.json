@@ -1,0 +1,62 @@
+{
+  "id": "clean-report",
+  "title": {
+    "tr": "Bozuk veriyi ayıklamak",
+    "en": "Sorting out broken data"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Boş satır kontrolü `try` bloğundan **önce** gelmeli: `if not line: continue`. Boş satır bozuk sayılmıyor, sayaca girmemeli.",
+      "en": "The empty-line check comes **before** the `try` block: `if not line: continue`. An empty line is not broken and must not reach the counter."
+    },
+    {
+      "tr": "İki işi tek `try` içine koy: bölme ve sayıya çevirme. İkisi de `ValueError` verdiği için tek `except` yetiyor.",
+      "en": "Put both jobs inside one `try`: the split and the conversion. Both raise `ValueError`, so a single `except` is enough."
+    },
+    {
+      "tr": "`except ValueError:` bloğunda yalnızca sayacı artır. Sözlüğe ekleme `try` içinde kaldığı için bozuk satır zaten eklenmiyor.",
+      "en": "In the `except ValueError:` block, just add one to the counter. The dictionary insert stays inside the `try`, so a broken line is never added anyway."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nscores = {}\nskipped = 0\n\nwith open(\"data.txt\", encoding=\"utf-8\") as file:\n    for line in file:\n        line = line.strip()\n        if not line:\n            continue\n        try:\n            name, value = line.split(\",\")\n            scores[name] = int(value)\n        except ValueError:\n            skipped = skipped + 1\n\n\nprint(scores)\nprint(skipped)\n```",
+      "en": "The solution:\n\n```python\nscores = {}\nskipped = 0\n\nwith open(\"data.txt\", encoding=\"utf-8\") as file:\n    for line in file:\n        line = line.strip()\n        if not line:\n            continue\n        try:\n            name, value = line.split(\",\")\n            scores[name] = int(value)\n        except ValueError:\n            skipped = skipped + 1\n\n\nprint(scores)\nprint(skipped)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Try",
+      "hint": {
+        "tr": "Kodunda `try` yok. Bozuk satırları elle kontrol etmek yerine, çevirmeyi deneyip hatayı yakalaman isteniyor.",
+        "en": "There is no `try` in your code. Rather than checking broken lines by hand, you are asked to try the conversion and catch the error."
+      }
+    },
+    {
+      "type": "variable",
+      "name": "scores",
+      "equals": {
+        "Ada": 90,
+        "Grace": 75,
+        "Alan": 60
+      }
+    },
+    {
+      "type": "variable",
+      "name": "skipped",
+      "equals": 2
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'Ada': 90, 'Grace': 75, 'Alan': 60}\n2"
+    }
+  ]
+}

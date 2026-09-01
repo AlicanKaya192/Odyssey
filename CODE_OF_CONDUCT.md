@@ -1,74 +1,81 @@
-# Katılımcı Sözleşmesi Davranış Kuralları
+<div align="right">
+  <a href="./CODE_OF_CONDUCT.tr.md">Türkçe</a> · <b>English</b>
+</div>
 
-## Taahhüdümüz
+# Contributor Covenant Code of Conduct
 
-Topluluğumuzun üyeleri, katkıda bulunanları ve liderleri olarak biz, yaş, beden
-ölçüsü, görünür veya görünmez engellilik durumu, etnik köken, cinsiyet özellikleri,
-cinsiyet kimliği ve ifadesi, deneyim seviyesi, eğitim, sosyo-ekonomik durum,
-milliyet, kişisel görünüm, ırk, din veya cinsel kimlik ve yönelim gözetmeksizin
-herkes için topluluğumuza katılımı tacizden uzak bir deneyim hâline getirmeyi
-taahhüt ediyoruz.
+## Our Pledge
 
-Açık, davetkâr, çeşitli, kapsayıcı ve sağlıklı bir topluluğa katkıda bulunacak
-şekilde hareket etmeyi ve etkileşimde bulunmayı taahhüt ediyoruz.
+We as members, contributors and leaders pledge to make participation in our
+community a harassment-free experience for everyone, regardless of age, body
+size, visible or invisible disability, ethnicity, sex characteristics, gender
+identity and expression, level of experience, education, socio-economic status,
+nationality, personal appearance, race, religion, or sexual identity and
+orientation.
 
-## Standartlarımız
+We pledge to act and interact in ways that contribute to an open, welcoming,
+diverse, inclusive and healthy community.
 
-Topluluğumuz için olumlu bir ortama katkıda bulunan davranış örnekleri:
+## Our Standards
 
-* Diğer insanlara karşı empati ve nezaket göstermek
-* Farklı görüşlere, bakış açılarına ve deneyimlere saygılı olmak
-* Yapıcı geri bildirimi nazikçe vermek ve kabul etmek
-* Hatalarımızın sorumluluğunu üstlenmek, etkilenenlerden özür dilemek ve
-  deneyimden ders çıkarmak
-* Yalnızca kendimiz için değil, topluluğun tamamı için en iyi olana odaklanmak
+Examples of behaviour that contributes to a positive environment:
 
-Kabul edilemez davranış örnekleri:
+* Demonstrating empathy and kindness toward other people
+* Being respectful of differing opinions, viewpoints and experiences
+* Giving and gracefully accepting constructive feedback
+* Accepting responsibility for our mistakes, apologising to those affected and
+  learning from the experience
+* Focusing on what is best not just for us as individuals, but for the
+  community as a whole
 
-* Cinselleştirilmiş dil veya görsellerin kullanımı; her türden cinsel ilgi
-  veya yaklaşım
-* Trollük, hakaret veya aşağılayıcı yorumlar; kişisel ya da siyasi saldırılar
-* Açık veya örtülü taciz
-* Başkalarının fiziksel adresi veya e-posta adresi gibi özel bilgilerini
-  açık izin olmadan yayımlamak
-* Profesyonel bir ortamda makul sayılmayacak diğer davranışlar
+Examples of unacceptable behaviour:
 
-## Öğrenenlere karşı ek sorumluluk
+* The use of sexualised language or imagery, and sexual attention or advances
+  of any kind
+* Trolling, insulting or derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or email address,
+  without their explicit permission
+* Other conduct which could reasonably be considered inappropriate in a
+  professional setting
 
-Bu proje, programlamaya yeni başlayan insanların kullandığı bir öğrenme
-uygulaması. Bu yüzden bir madde daha ekliyoruz:
+## An extra responsibility toward learners
 
-* **"Bu kadar basit bir şeyi nasıl bilmezsin" tonu kabul edilemez.** Sorusu
-  basit görünen biri, bir gün bu projeye katkı verecek kişidir. Soruya
-  sabırla cevap verilir ya da hiç verilmez.
+This project is a learning application used by people who are new to
+programming. That adds one more rule:
 
-## Uygulama Sorumlulukları
+* **"How do you not know something this basic?" is not acceptable.** The person
+  whose question looks trivial today is the person who contributes to this
+  project tomorrow. Answer patiently, or do not answer at all.
 
-Proje sorumluları, kabul edilebilir davranış standartlarını açıklamak ve
-uygulamakla yükümlüdür; uygunsuz bulunan davranışlara karşı adil ve gerekli
-düzeltici önlemleri alma hakkına sahiptir.
+## Enforcement Responsibilities
 
-Proje sorumluları, bu Davranış Kuralları'na uymayan yorumları, commit'leri,
-kodu, wiki düzenlemelerini, issue'ları ve diğer katkıları kaldırma, düzenleme
-veya reddetme hakkına ve sorumluluğuna sahiptir; uygun olduğunda gerekçesini
-bildirir.
+Project maintainers are responsible for clarifying and enforcing the standards
+of acceptable behaviour, and will take appropriate and fair corrective action
+in response to any behaviour they deem inappropriate.
 
-## Kapsam
+Project maintainers have the right and responsibility to remove, edit or reject
+comments, commits, code, wiki edits, issues and other contributions that are
+not aligned to this Code of Conduct, and will communicate reasons for
+moderation decisions when appropriate.
 
-Bu Davranış Kuralları tüm topluluk alanlarında geçerlidir. Ayrıca bir kişinin
-topluluğu resmî olarak temsil ettiği kamusal alanlarda da geçerlidir; örneğin
-resmî bir e-posta adresi kullanmak veya bir etkinlikte projeyi temsil etmek.
+## Scope
 
-## Bildirim
+This Code of Conduct applies within all community spaces. It also applies when
+an individual is officially representing the community in public spaces, for
+example using an official email address or representing the project at an
+event.
 
-Taciz edici, rahatsız edici ya da başka türlü kabul edilemez davranışlar
-[GitHub üzerinden](https://github.com/AlicanKaya192) proje sahibine
-bildirilebilir. Tüm şikâyetler hızlı ve adil biçimde incelenir.
+## Reporting
 
-Proje sorumluları, bir olayı bildiren kişinin gizliliğine ve güvenliğine saygı
-göstermekle yükümlüdür.
+Abusive, harassing or otherwise unacceptable behaviour may be reported to the
+project owner [through GitHub](https://github.com/AlicanKaya192). All
+complaints will be reviewed and investigated promptly and fairly.
 
-## Atıf
+Project maintainers are obligated to respect the privacy and security of the
+reporter of any incident.
 
-Bu Davranış Kuralları, [Contributor Covenant](https://www.contributor-covenant.org)
-sürüm 2.1'den uyarlanmıştır.
+## Attribution
+
+This Code of Conduct is adapted from the
+[Contributor Covenant](https://www.contributor-covenant.org), version 2.1.

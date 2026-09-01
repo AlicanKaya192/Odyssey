@@ -1,0 +1,64 @@
+{
+  "id": "parse-settings",
+  "title": {
+    "tr": "Bozuk satırları ayıklamak",
+    "en": "Sorting out broken lines"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Fonksiyon iki değer döndürebiliyor: `return key, value`. Çağıran taraf da ikisini birden alıyor: `key, value = parse_line(line)`.",
+      "en": "A function can return two values: `return key, value`. The caller takes both at once: `key, value = parse_line(line)`."
+    },
+    {
+      "tr": "Hata mesajına ulaşmak için `except ValueError as error:` yazıp `print(error)` diyorsun. Mesajı elle yeniden yazma, hatanın kendisini yazdır.",
+      "en": "To reach the error's message you write `except ValueError as error:` and then `print(error)`. Do not retype the message; print the error itself."
+    },
+    {
+      "tr": "`else` bloğu hata **çıkmadığında** çalışıyor. Sözlüğe ekleme işini oraya koyarsan, bozuk satırda yanlışlıkla ekleme yapmamış olursun.",
+      "en": "The `else` block runs when **no** error came up. Putting the dictionary insert there means you cannot accidentally insert on a broken line."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef parse_line(line):\n    if \"=\" not in line:\n        raise ValueError(\"bad line: \" + line)\n    key, value = line.split(\"=\", 1)\n    return key, value\n\n\nlines = [\"name=Ada\", \"broken\", \"city=London\"]\nsettings = {}\n\nfor line in lines:\n    try:\n        key, value = parse_line(line)\n    except ValueError as error:\n        print(error)\n    else:\n        settings[key] = value\n\n\nprint(settings)\n```",
+      "en": "The solution:\n\n```python\ndef parse_line(line):\n    if \"=\" not in line:\n        raise ValueError(\"bad line: \" + line)\n    key, value = line.split(\"=\", 1)\n    return key, value\n\n\nlines = [\"name=Ada\", \"broken\", \"city=London\"]\nsettings = {}\n\nfor line in lines:\n    try:\n        key, value = parse_line(line)\n    except ValueError as error:\n        print(error)\n    else:\n        settings[key] = value\n\n\nprint(settings)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Raise",
+      "hint": {
+        "tr": "Kodunda `raise` yok. Bozuk satırı fonksiyonun içinde yazdırmak yerine, hatayı **çıkarması** isteniyor.",
+        "en": "There is no `raise` in your code. Rather than printing about the broken line inside the function, it is asked to **raise** the error."
+      }
+    },
+    {
+      "type": "ast_require",
+      "node": "Try",
+      "hint": {
+        "tr": "Çıkardığın hatayı yakalaman da gerekiyor; `try` / `except` olmadan program bozuk satırda duruyor.",
+        "en": "You also have to catch the error you raised; without `try` / `except` the program stops at the broken line."
+      }
+    },
+    {
+      "type": "variable",
+      "name": "settings",
+      "equals": {
+        "name": "Ada",
+        "city": "London"
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "bad line: broken\n{'name': 'Ada', 'city': 'London'}"
+    }
+  ]
+}

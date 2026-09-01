@@ -6,15 +6,19 @@
 
 A fully offline desktop application that teaches Data Science and Machine Learning, one section at a time.
 
-Every section has a lesson, lecture notes and exercises. To complete a section you need to pass the quiz and solve the coding exercises. You write the code inside the application and it runs your code, then checks the output and the result. No artificial intelligence is involved; the checks are predefined and deterministic.
+Every section has a lesson, lecture notes, a quiz and coding exercises. To complete a section you need to pass the quiz and solve the exercises. You write the code inside the application; it runs your code, then checks the output, the variables it created and the functions it defined. No artificial intelligence is involved — every check is defined in advance and evaluated deterministically, so the same code always produces the same result.
 
 ## Status
 
-Early development (`0.3.0`). The application works end to end, but the content is still at the beginning.
+Early development (`0.4.0`). The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking — is in place; the curriculum is still at the beginning.
 
-**Working:** learning path, lessons, lecture notes, quizzes, coding exercises with automatic checking, graded hints, error explanations, persistent progress, Turkish/English interface and content, light and dark themes.
+**Content today:** the Python Fundamentals module is **complete** — fifteen sections, from your first program to databases. 250 quiz questions, 65 coding exercises and 34 sets of lecture notes, all of it in both Turkish and English.
 
-**Not there yet:** the full curriculum (eight sections of the Python Fundamentals module exist today; the target is 23 modules), badges, a place for your own notes, the in-app update system.
+**Six learning paths** are defined: Python is open, while Data Science, Machine Learning, SQL, API and Docker are visible but locked until their content is written.
+
+**Working:** learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises with automatic checking, graded hints, error explanations, sections that unlock in order, persistent progress, a profile with your own photo, Turkish/English interface and content, light and dark themes, and options to remove the section lock and the quiz time limit.
+
+**Not there yet:** the content for the other paths (23 modules are planned), badges, a place for your own notes, the in-app update system.
 
 The roadmap moves along in [CHANGELOG.en.md](CHANGELOG.en.md).
 
@@ -47,7 +51,7 @@ Both the interface and the content are available in Turkish and English. You can
 
 ## Where is your data kept?
 
-Your progress, quiz scores, the code you write, your notes and your profile are stored in a database inside `%APPDATA%\Odyssey\`. Updating the application, or removing and reinstalling it, does not touch that folder — your progress is not lost.
+Your progress, quiz scores, the code you write, your notes, your profile and the photo you choose are stored inside `%APPDATA%\Odyssey\`. Updating the application, or removing and reinstalling it, does not touch that folder — your progress is not lost.
 
 ## How are exercises checked?
 
@@ -57,15 +61,15 @@ Your code runs in a separate process, inside an isolated working folder. Its out
 
 ## Internet
 
-The application works entirely offline. It makes no network calls at all right now.
+The application works entirely offline. It makes no network calls at all.
 
 An update check on startup is planned for later, so the app can tell you when a new version exists; it will be switchable from Settings when it arrives. It does not exist yet.
 
-Addresses in the "Links and Extra Content" sections do not open inside the application; clicking one hands it to your system browser. The application never reaches the network on its own — an address opens only because you asked for it.
+Addresses in the "My Links" and "Extra Content" tabs do not open inside the application; clicking one hands it to your system browser. The application never reaches the network on its own — an address opens only because you asked for it.
 
 ## Contributing
 
-Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md) first.
+Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md) first. Security reports have their own route: see [SECURITY.md](SECURITY.md).
 
 ## Licence
 

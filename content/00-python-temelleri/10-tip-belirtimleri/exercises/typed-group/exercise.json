@@ -1,0 +1,120 @@
+{
+  "id": "typed-group",
+  "title": {
+    "tr": "Satırları gruplamak",
+    "en": "Grouping rows"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Satırların belirtimi `list[dict[str, str]]`: sözlüklerden oluşan liste, her sözlüğün hem anahtarı hem değeri metin.",
+      "en": "The annotation for the rows is `list[dict[str, str]]`: a list of dictionaries where both the keys and the values are strings."
+    },
+    {
+      "tr": "`group_by_city` dönüşünde her şehrin altında bir **isim listesi** var: `dict[str, list[str]]`.",
+      "en": "In the return of `group_by_city` each city holds a **list of names**: `dict[str, list[str]]`."
+    },
+    {
+      "tr": "`first_name` bazen isim bazen `None` döndürüyor, yani `-> str | None`. Döngü içinde ilk eşleşmede `return` yazarsan zaten ilkini almış olursun; döngü biterse hiç bulunamamış demektir.",
+      "en": "`first_name` returns a name sometimes and `None` other times, so it is `-> str | None`. Writing `return` at the first match inside the loop already gives you the first one; if the loop finishes, nothing was found."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef group_by_city(rows: list[dict[str, str]]) -> dict[str, list[str]]:\n    result: dict[str, list[str]] = {}\n    for row in rows:\n        city = row[\"city\"]\n        if city not in result:\n            result[city] = []\n        result[city].append(row[\"name\"])\n    return result\n\n\ndef first_name(rows: list[dict[str, str]], city: str) -> str | None:\n    for row in rows:\n        if row[\"city\"] == city:\n            return row[\"name\"]\n    return None\n```",
+      "en": "The solution:\n\n```python\ndef group_by_city(rows: list[dict[str, str]]) -> dict[str, list[str]]:\n    result: dict[str, list[str]] = {}\n    for row in rows:\n        city = row[\"city\"]\n        if city not in result:\n            result[city] = []\n        result[city].append(row[\"name\"])\n    return result\n\n\ndef first_name(rows: list[dict[str, str]], city: str) -> str | None:\n    for row in rows:\n        if row[\"city\"] == city:\n            return row[\"name\"]\n    return None\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "annotation",
+      "name": "group_by_city",
+      "params": {
+        "rows": "list[dict[str, str]]"
+      },
+      "returns": "dict[str, list[str]]"
+    },
+    {
+      "type": "annotation",
+      "name": "first_name",
+      "params": {
+        "rows": "list[dict[str, str]]",
+        "city": "str"
+      },
+      "returns": "str | None"
+    },
+    {
+      "type": "function",
+      "name": "group_by_city",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "name": "Ada",
+                "city": "London"
+              },
+              {
+                "name": "Alan",
+                "city": "London"
+              },
+              {
+                "name": "Grace",
+                "city": "New York"
+              }
+            ]
+          ],
+          "returns": {
+            "London": [
+              "Ada",
+              "Alan"
+            ],
+            "New York": [
+              "Grace"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "first_name",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "name": "Ada",
+                "city": "London"
+              }
+            ],
+            "London"
+          ],
+          "returns": "Ada"
+        },
+        {
+          "args": [
+            [
+              {
+                "name": "Ada",
+                "city": "London"
+              }
+            ],
+            "Paris"
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'London': ['Ada', 'Alan'], 'New York': ['Grace']}\nGrace\nNone"
+    }
+  ]
+}

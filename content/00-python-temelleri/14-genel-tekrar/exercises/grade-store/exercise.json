@@ -1,0 +1,99 @@
+{
+  "id": "grade-store",
+  "title": {
+    "tr": "Dayanıklı kayıt",
+    "en": "A resilient store"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`save` içinde çevirmeyi `try` bloğuna al ve `except ValueError:` içinde hemen `return False` yaz. Böylece ekleme satırına hiç gelinmiyor.",
+      "en": "In `save`, put the conversion inside a `try` and write `return False` straight away in `except ValueError:`. That way the insert line is never reached."
+    },
+    {
+      "tr": "`find` içinde `fetchone` sonucunu kontrol et: sonuç yoksa `None` geliyor ve `[0]` yazmak `TypeError` veriyor.",
+      "en": "In `find`, check the result of `fetchone`: when there is no result it is `None`, and writing `[0]` raises a `TypeError`."
+    },
+    {
+      "tr": "`AVG` boş tabloda bir satır döndürüyor ama içindeki değer `None`. Yani `row is None` değil, `row[0] is None` kontrolü gerekiyor.",
+      "en": "On an empty table `AVG` still returns a row, but the value inside it is `None`. So the check you need is `row[0] is None`, not `row is None`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef save(name: str, raw: str) -> bool:\n    try:\n        grade = int(raw)\n    except ValueError:\n        return False\n    cursor.execute(\"INSERT INTO grades VALUES (?, ?)\", (name, grade))\n    connection.commit()\n    return True\n\n\ndef average() -> int:\n    cursor.execute(\"SELECT AVG(grade) FROM grades\")\n    row = cursor.fetchone()\n    if row[0] is None:\n        return 0\n    return round(row[0])\n```",
+      "en": "The solution:\n\n```python\ndef save(name: str, raw: str) -> bool:\n    try:\n        grade = int(raw)\n    except ValueError:\n        return False\n    cursor.execute(\"INSERT INTO grades VALUES (?, ?)\", (name, grade))\n    connection.commit()\n    return True\n\n\ndef average() -> int:\n    cursor.execute(\"SELECT AVG(grade) FROM grades\")\n    row = cursor.fetchone()\n    if row[0] is None:\n        return 0\n    return round(row[0])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "annotation",
+      "name": "save",
+      "params": {
+        "name": "str",
+        "raw": "str"
+      },
+      "returns": "bool"
+    },
+    {
+      "type": "annotation",
+      "name": "find",
+      "params": {
+        "name": "str"
+      },
+      "returns": "int | None"
+    },
+    {
+      "type": "annotation",
+      "name": "average",
+      "returns": "int"
+    },
+    {
+      "type": "function",
+      "name": "find",
+      "cases": [
+        {
+          "args": [
+            "Ada"
+          ],
+          "returns": 90
+        },
+        {
+          "args": [
+            "Brian"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "Nobody"
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "save",
+      "cases": [
+        {
+          "args": [
+            "Test",
+            "bad"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nTrue\n90\nNone\n83"
+    }
+  ]
+}

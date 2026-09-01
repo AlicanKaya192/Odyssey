@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import QTimer, Qt, Signal
 from PySide6.QtWidgets import (
+    QFileDialog,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -23,13 +24,19 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..core.avatar import IMAGE_SUFFIXES, clear_avatar, has_avatar, load_avatar, save_avatar
 from ..core.catalog import Catalog
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
-from ..resources.theme.tokens import READING_WIDTH, SPACING
+from ..resources.theme.tokens import PALETTES, READING_WIDTH, SPACING
+from ..widgets.avatar import AvatarView
 from ..widgets.common import Card, StatBlock, section_label
+from ..widgets.effects import repolish
 
 STAT_KEYS = ("progress", "sections", "exercises", "quiz_average", "streak")
+
+# Profil ekranındaki fotoğrafın çapı.
+AVATAR_SIZE = 96
 
 
 class ProfileView(QWidget):
@@ -95,7 +102,20 @@ class ProfileView(QWidget):
         self._identity_help.setProperty("role", "muted")
         self._identity_help.setWordWrap(True)
         card.body.addWidget(self._identity_help)
-        card.body.addSpacing(SPACING["sm"])
+        card.body.addSpacing(SPACING["md"])
+
+        # Fotoğraf solda, ad alanları sağda. Fotoğrafı ad alanlarının altına
+        # koymak kartı gereksiz uzatıyordu; ikisi aynı satırda "kimlik"
+        # bilgisi olarak birlikte okunuyor.
+        kimlik = QHBoxLayout()
+        kimlik.setSpacing(SPACING["lg"])
+
+        self._avatar = AvatarView(AVATAR_SIZE)
+        self._avatar.clicked.connect(self._choose_photo)
+        kimlik.addWidget(self._avatar, 0, Qt.AlignmentFlag.AlignTop)
+
+        sag = QVBoxLayout()
+        sag.setSpacing(SPACING["sm"])
 
         fields = QHBoxLayout()
         fields.setSpacing(SPACING["sm"])
@@ -104,7 +124,26 @@ class ProfileView(QWidget):
         self._last_name = QLineEdit()
         fields.addWidget(self._first_name)
         fields.addWidget(self._last_name)
-        card.body.addLayout(fields)
+        sag.addLayout(fields)
+
+        foto = QHBoxLayout()
+        foto.setSpacing(SPACING["sm"])
+        self._photo_button = QPushButton()
+        self._photo_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._photo_button.clicked.connect(self._choose_photo)
+        foto.addWidget(self._photo_button)
+
+        self._photo_clear = QPushButton()
+        self._photo_clear.setProperty("variant", "ghost")
+        self._photo_clear.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._photo_clear.clicked.connect(self._remove_photo)
+        foto.addWidget(self._photo_clear)
+        foto.addStretch(1)
+        sag.addLayout(foto)
+        sag.addStretch(1)
+
+        kimlik.addLayout(sag, 1)
+        card.body.addLayout(kimlik)
 
         buttons = QHBoxLayout()
 
@@ -157,6 +196,8 @@ class ProfileView(QWidget):
         self._first_name.setText(profile.get("first_name", ""))
         self._last_name.setText(profile.get("last_name", ""))
 
+        self._refresh_avatar()
+
         started = profile.get("started_at", "")
         self._started.setText(
             self._language.t("profile.member_since", date=started[:10]) if started else ""
@@ -193,6 +234,62 @@ class ProfileView(QWidget):
         self._show_saved()
         self.saved.emit()
 
+    # --- fotoğraf ---------------------------------------------------------
+
+    def _refresh_avatar(self) -> None:
+        """Fotoğrafı, baş harfleri ve düğme yazılarını günceller."""
+        profile = self._store.profile()
+        harfler = "".join(
+            part[:1]
+            for part in (profile.get("first_name", ""), profile.get("last_name", ""))
+            if part
+        )
+        self._avatar.set_initials(harfler)
+        self._avatar.set_photo(load_avatar())
+
+        palette = PALETTES.get(self._mode, PALETTES["light"])
+        self._avatar.set_colors(palette["accent"], "#FFFFFF")
+
+        var = has_avatar()
+        self._photo_button.setText(
+            self._language.t("profile.photo_change" if var else "profile.photo_add")
+        )
+        self._photo_clear.setVisible(var)
+        self._photo_clear.setText(self._language.t("profile.photo_remove"))
+
+    def _choose_photo(self) -> None:
+        """Dosya seçtirip fotoğrafı veri klasörüne kopyalar."""
+        desenler = " ".join(f"*{uzanti}" for uzanti in IMAGE_SUFFIXES)
+        yol, _ = QFileDialog.getOpenFileName(
+            self,
+            self._language.t("profile.photo_pick_title"),
+            "",
+            f"{self._language.t('profile.photo_filter')} ({desenler})",
+        )
+        if not yol:
+            return
+
+        if save_avatar(yol):
+            self._refresh_avatar()
+            self.saved.emit()
+        else:
+            # Bozuk ya da okunamayan dosya. Sessizce yutmak yerine söylüyoruz.
+            self._saved_note.setProperty("tone", "danger")
+            self._saved_note.setText(self._language.t("profile.photo_failed"))
+            self._saved_note.show()
+            repolish(self._saved_note)
+            QTimer.singleShot(4000, self._reset_note)
+
+    def _remove_photo(self) -> None:
+        clear_avatar()
+        self._refresh_avatar()
+        self.saved.emit()
+
+    def _reset_note(self) -> None:
+        self._saved_note.hide()
+        self._saved_note.setProperty("tone", "success")
+        repolish(self._saved_note)
+
     def _show_saved(self) -> None:
         """Kaydedildi bilgisini gösterir, birkaç saniye sonra gizler."""
         self._saved_note.setText(f"✓  {self._language.t('profile.saved')}")
@@ -205,6 +302,7 @@ class ProfileView(QWidget):
         self._mode = mode
         self._identity_card.set_mode(mode)
         self._stats_card.set_mode(mode)
+        self._refresh_avatar()
 
     def retranslate(self) -> None:
         self._identity_title.setText(self._language.t("profile.welcome_title"))
@@ -212,6 +310,7 @@ class ProfileView(QWidget):
         self._first_name.setPlaceholderText(self._language.t("profile.first_name"))
         self._last_name.setPlaceholderText(self._language.t("profile.last_name"))
         self._save_button.setText(self._language.t("common.save"))
+        self._refresh_avatar()
         self._stats_title.setText(self._language.t_upper("profile.title"))
 
         for key in STAT_KEYS:

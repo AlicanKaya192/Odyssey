@@ -1,0 +1,77 @@
+{
+  "id": "student-store",
+  "title": {
+    "tr": "Ekle, güncelle, sil",
+    "en": "Insert, update, delete"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`add_student` iki komut çalıştırıyor: önce `INSERT`, sonra `SELECT COUNT(*)`. Sayıyı `cursor.fetchone()[0]` ile alıyorsun.",
+      "en": "`add_student` runs two commands: first the `INSERT`, then `SELECT COUNT(*)`. You take the number with `cursor.fetchone()[0]`."
+    },
+    {
+      "tr": "`UPDATE` komutunda değerlerin sırası SQL'deki sırayla aynı olmalı: `SET grade = ? WHERE name = ?` için `(grade, name)`. Ters yazarsan sessizce yanlış çalışıyor.",
+      "en": "In the `UPDATE` command the order of the values has to match the order in the SQL: for `SET grade = ? WHERE name = ?` it is `(grade, name)`. Swapping them fails silently."
+    },
+    {
+      "tr": "`find_grade` içinde `fetchone` sonucunu bir değişkene al ve `if row is None:` ile kontrol et. Doğrudan `[0]` yazarsan olmayan isimde `TypeError` alıyorsun.",
+      "en": "In `find_grade`, put the result of `fetchone` in a variable and check it with `if row is None:`. Writing `[0]` straight away raises a `TypeError` for a name that is not there."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef add_student(name, grade):\n    cursor.execute(\"INSERT INTO students VALUES (?, ?)\", (name, grade))\n    connection.commit()\n    cursor.execute(\"SELECT COUNT(*) FROM students\")\n    return cursor.fetchone()[0]\n\n\ndef update_grade(name, grade):\n    cursor.execute(\"UPDATE students SET grade = ? WHERE name = ?\", (grade, name))\n    connection.commit()\n    return cursor.rowcount\n\n\ndef find_grade(name):\n    cursor.execute(\"SELECT grade FROM students WHERE name = ?\", (name,))\n    row = cursor.fetchone()\n    if row is None:\n        return None\n    return row[0]\n```",
+      "en": "The solution:\n\n```python\ndef add_student(name, grade):\n    cursor.execute(\"INSERT INTO students VALUES (?, ?)\", (name, grade))\n    connection.commit()\n    cursor.execute(\"SELECT COUNT(*) FROM students\")\n    return cursor.fetchone()[0]\n\n\ndef update_grade(name, grade):\n    cursor.execute(\"UPDATE students SET grade = ? WHERE name = ?\", (grade, name))\n    connection.commit()\n    return cursor.rowcount\n\n\ndef find_grade(name):\n    cursor.execute(\"SELECT grade FROM students WHERE name = ?\", (name,))\n    row = cursor.fetchone()\n    if row is None:\n        return None\n    return row[0]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "find_grade",
+      "cases": [
+        {
+          "args": [
+            "Ada"
+          ],
+          "returns": 95
+        },
+        {
+          "args": [
+            "Brian"
+          ],
+          "returns": 40
+        },
+        {
+          "args": [
+            "Nobody"
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "update_grade",
+      "cases": [
+        {
+          "args": [
+            "Nobody",
+            10
+          ],
+          "returns": 0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\n2\n1\n95\nNone"
+    }
+  ]
+}

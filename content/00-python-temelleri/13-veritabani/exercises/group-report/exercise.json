@@ -1,0 +1,53 @@
+{
+  "id": "group-report",
+  "title": {
+    "tr": "Gruplayarak hesaplamak",
+    "en": "Calculating by group"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Komut üç parçadan oluşuyor: `SELECT city, AVG(grade) FROM students GROUP BY city ORDER BY city`. `GROUP BY` her şehir için ayrı bir satır üretiyor.",
+      "en": "The command has three parts: `SELECT city, AVG(grade) FROM students GROUP BY city ORDER BY city`. `GROUP BY` produces a separate row for each city."
+    },
+    {
+      "tr": "Her satır iki elemanlı demet: `row[0]` şehir, `row[1]` ortalama. Ortalama ondalıklı geliyor, `round(row[1])` ile tam sayıya çevir.",
+      "en": "Each row is a two-element tuple: `row[0]` is the city and `row[1]` is the average. The average is a decimal, so convert it with `round(row[1])`."
+    },
+    {
+      "tr": "En yükseği bulmak için sözlükte dolaş ve iki değişken tut: şu ana kadarki en yüksek ortalama ve o şehrin adı.",
+      "en": "To find the highest, loop over the dictionary and keep two variables: the highest average so far and that city's name."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ncursor.execute(\"SELECT city, AVG(grade) FROM students GROUP BY city ORDER BY city\")\n\nby_city = {}\nfor row in cursor.fetchall():\n    by_city[row[0]] = round(row[1])\n\nbest_city = \"\"\nbest_average = 0\nfor city in by_city:\n    if by_city[city] > best_average:\n        best_average = by_city[city]\n        best_city = city\n\nprint(by_city)\nprint(best_city)\n```",
+      "en": "The solution:\n\n```python\ncursor.execute(\"SELECT city, AVG(grade) FROM students GROUP BY city ORDER BY city\")\n\nby_city = {}\nfor row in cursor.fetchall():\n    by_city[row[0]] = round(row[1])\n\nbest_city = \"\"\nbest_average = 0\nfor city in by_city:\n    if by_city[city] > best_average:\n        best_average = by_city[city]\n        best_city = city\n\nprint(by_city)\nprint(best_city)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "by_city",
+      "equals": {
+        "London": 63,
+        "New York": 85
+      }
+    },
+    {
+      "type": "variable",
+      "name": "best_city",
+      "equals": "New York"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'London': 63, 'New York': 85}\nNew York"
+    }
+  ]
+}

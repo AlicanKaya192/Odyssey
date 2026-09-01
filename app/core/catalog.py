@@ -83,6 +83,16 @@ class Block:
     def pass_score(self) -> int:
         return int(self.raw.get("pass_score", 70))
 
+    @property
+    def time_limit_sec(self) -> int:
+        """Sınav süresi. `0` süre yok demek.
+
+        Bölümün kendi `section.json` dosyasında yazıyor: konu zorlaştıkça
+        sorular uzuyor ve kod okumak zaman istiyor, o yüzden süre soru
+        sayısından türetilmiyor, elle veriliyor.
+        """
+        return int(self.raw.get("time_limit_sec", 0))
+
     def file_for(self, language: str) -> LocalizedFile | None:
         template = self.raw.get("file")
         if not template:

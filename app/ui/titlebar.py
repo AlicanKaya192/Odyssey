@@ -38,13 +38,36 @@ def _colorref(hex_color: str) -> int:
     return (b << 16) | (g << 8) | r
 
 
-def apply(window, mode: str) -> bool:
+# Pencerenin görünür olmasını kaç tur bekleyeceğimiz. Ana pencere açılış
+# ekranı kaybolana kadar gizli duruyor; birkaç saniye sürebiliyor.
+RETRY_MS = 60
+MAX_RETRIES = 80
+
+
+def apply(window, mode: str, _kalan: int = MAX_RETRIES) -> bool:
     """Başlık çubuğunu seçili temaya boyar.
 
     Başarılıysa True döner. Windows dışında veya API yoksa sessizce False
     dönüyor: bu bir görsel iyileştirme, olmaması uygulamayı bozmuyor.
+
+    **Pencere gösterilmeden çağrılmıyor.** `winId()` henüz gösterilmemiş bir
+    pencerede yerel pencereyi o anda yaratıyor; DWM'in ardından yaptığı
+    yeniden çizim uygulamanın tamamını bir kare boyunca beyaza boyuyor.
+    Ölçüldü: çağrı gösterimden önce yapılınca ekran görüntüsünde saf beyaz
+    (255) bir kare çıkıyor, sonra yapılınca çıkmıyor. Bu yüzden pencere
+    henüz görünür değilse çağrı olay döngüsünün bir sonraki turuna
+    bırakılıyor — modal bir kutuda bu, `exec()` penceresi gösterdikten
+    hemen sonrasına denk geliyor.
     """
     if sys.platform != "win32":
+        return False
+
+    if _kalan > 0 and not window.isVisible():
+        from PySide6.QtCore import QTimer
+
+        # Pencere görünene kadar bekliyoruz. Deneme hakkı bitince yine de
+        # uyguluyoruz; renksiz bir başlık çubuğu bırakmaktan iyi.
+        QTimer.singleShot(RETRY_MS, lambda: apply(window, mode, _kalan=_kalan - 1))
         return False
 
     try:

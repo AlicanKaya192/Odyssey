@@ -1,0 +1,89 @@
+{
+  "id": "course-roster",
+  "title": {
+    "tr": "Birlikte çalışan iki sınıf",
+    "en": "Two classes working together"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`students` listesini **`__init__` içinde** kur: `self.students = []`. Sınıf seviyesinde yazarsan bütün kurslar aynı listeyi paylaşır ve bir kursa eklediğin öğrenci diğerinde de görünür.",
+      "en": "Create the `students` list **inside `__init__`**: `self.students = []`. At class level every course shares the same list, and a student you add to one course shows up in another."
+    },
+    {
+      "tr": "`enrol` iki iş yapıyor: `self.students.append(student)` ile ekliyor, sonra `return len(self.students)` ile sayıyı veriyor.",
+      "en": "`enrol` does two things: it adds with `self.students.append(student)`, then gives the count with `return len(self.students)`."
+    },
+    {
+      "tr": "Listedeki elemanlar `Student` nesneleri, yani metotlarını çağırabiliyorsun: `if student.is_passing():` ve adı `student.name`.",
+      "en": "The elements in the list are `Student` objects, so you can call their methods: `if student.is_passing():`, and the name is `student.name`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nclass Course:\n    def __init__(self, title):\n        self.title = title\n        self.students = []\n\n    def enrol(self, student):\n        self.students.append(student)\n        return len(self.students)\n\n    def passing_names(self):\n        names = []\n        for student in self.students:\n            if student.is_passing():\n                names.append(student.name)\n        return names\n```",
+      "en": "The solution:\n\n```python\nclass Course:\n    def __init__(self, title):\n        self.title = title\n        self.students = []\n\n    def enrol(self, student):\n        self.students.append(student)\n        return len(self.students)\n\n    def passing_names(self):\n        names = []\n        for student in self.students:\n            if student.is_passing():\n                names.append(student.name)\n        return names\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "method",
+      "class": "Student",
+      "args": [
+        "Ada",
+        90
+      ],
+      "cases": [
+        {
+          "attribute": "name",
+          "equals": "Ada"
+        },
+        {
+          "method": "is_passing",
+          "args": [],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "method",
+      "class": "Course",
+      "args": [
+        "Python"
+      ],
+      "cases": [
+        {
+          "attribute": "title",
+          "equals": "Python"
+        },
+        {
+          "attribute": "students",
+          "equals": []
+        },
+        {
+          "method": "passing_names",
+          "args": [],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "ast_require",
+      "node": "ClassDef",
+      "hint": {
+        "tr": "Bu alıştırmada iki sınıf tanımlaman gerekiyor: `Student` ve `Course`.",
+        "en": "This exercise asks you to define two classes: `Student` and `Course`."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n['Ada', 'Grace']"
+    }
+  ]
+}

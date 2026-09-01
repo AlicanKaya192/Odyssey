@@ -191,8 +191,9 @@ class SplashScreen(QWidget):
     def finish(self, target: QWidget | None = None) -> None:
         """Kapanış animasyonunu başlatır; bitince pencere yok ediliyor.
 
-        `target` verilirse kapanış bitince öne alınıyor. Ana pencere açılış
-        ekranının arkasında kaldığında görev çubuğunda yanıp sönüyordu.
+        `target` verilirse kapanış bitince **gösterilip** öne alınıyor. Ana
+        pencere daha önce gösterilirse açılış ekranı hâlâ ekrandayken
+        arkasında beliriyor; ikisi bir süre aynı anda duruyordu.
         """
         if self._closing:
             return
@@ -205,11 +206,20 @@ class SplashScreen(QWidget):
         fade.setEasingCurve(QEasingCurve.Type.InCubic)
 
         def bitti() -> None:
-            self.close()
-            self.deleteLater()
+            # Sıra önemli: **önce hedef gösteriliyor, sonra bu pencere
+            # kapanıyor.** Tersi olursa iki iş arasında ekranda hiç pencere
+            # kalmıyor, Qt "son pencere kapandı" deyip uygulamayı kapatıyor.
+            # Aralıklı bir hata: bazı açılışlarda uygulama kendiliğinden
+            # kapanıyordu.
             if target is not None:
+                # Pencere açılışta opaklığı sıfırla gösterilmiş olabilir
+                # (belge alanlarını ısıtmak için); burada görünür oluyor.
+                target.setWindowOpacity(1.0)
+                target.show()
                 target.raise_()
                 target.activateWindow()
+            self.close()
+            self.deleteLater()
 
         fade.finished.connect(bitti)
         fade.start()
@@ -224,8 +234,14 @@ def show_splash(icon_path: Path | None, mode: str) -> SplashScreen:
 
 
 def close_splash(splash: SplashScreen | None, target: QWidget, started_at: float) -> None:
-    """Açılış ekranını kapatır; en az `MINIMUM_MS` görünmesini garantiler."""
+    """Açılış ekranını kapatır; en az `MINIMUM_MS` görünmesini garantiler.
+
+    Ana pencere buradan gösteriliyor, daha önce değil. Önceden pencere
+    kurulur kurulmaz gösteriliyordu ve açılış ekranı hâlâ ekrandayken
+    uygulama arkasında beliriyordu — iki şey aynı anda ekranda duruyordu.
+    """
     if splash is None:
+        target.show()
         return
 
     import time

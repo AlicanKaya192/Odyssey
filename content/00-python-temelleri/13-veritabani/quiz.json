@@ -1,0 +1,524 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "`sqlite3` kullanmak için ne kurman gerekiyor?",
+        "en": "What do you need to install in order to use `sqlite3`?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbir şey; Python'un içinde geliyor",
+          "Ayrı bir veritabanı sunucusu",
+          "`pip install sqlite3` komutu",
+          "Bir kullanıcı hesabı ve şifre"
+        ],
+        "en": [
+          "Nothing; it ships inside Python",
+          "A separate database server",
+          "The command `pip install sqlite3`",
+          "A user account and a password"
+        ]
+      },
+      "explanation": {
+        "tr": "`sqlite3` standart kütüphanenin parçası. Sunucu, kurulum, hesap gerektirmiyor; veritabanının tamamı tek bir dosya.\n\nBaşka veritabanları (PostgreSQL, MySQL) ayrı bir sunucu süreci ister. SQLite bunu istemediği için masaüstü uygulamalarında ve tek kişilik işlerde yaygın kullanılıyor.",
+        "en": "`sqlite3` is part of the standard library. It needs no server, no installation and no account; the whole database is a single file.\n\nOther databases (PostgreSQL, MySQL) require a separate server process. Because SQLite does not, it is widely used in desktop applications and single-person work."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`connection.commit()` çağrılmazsa ne olur?",
+        "en": "What happens if `connection.commit()` is never called?"
+      },
+      "options": {
+        "tr": [
+          "Yapılan değişiklikler kalıcı olmaz, kaybolur",
+          "Program hata verir",
+          "Değişiklikler yine kaydedilir, `commit` isteğe bağlıdır",
+          "Veritabanı dosyası silinir"
+        ],
+        "en": [
+          "The changes are not made permanent and are lost",
+          "The program raises an error",
+          "The changes are saved anyway; `commit` is optional",
+          "The database file is deleted"
+        ]
+      },
+      "explanation": {
+        "tr": "Veritabanı değişiklikleri bir **işlem** içinde tutuyor ve `commit` çağrılana kadar kalıcı yapmıyor. `close` çağrıldığında kaydedilmemiş işlem geri alınıyor.\n\nProgram hata vermediği için fark etmesi zor: her şey çalışmış görünüyor, sonra dosyayı açtığında veri yok.\n\n`SELECT` için gerekmiyor; yalnızca değişiklik yapan komutlar için.",
+        "en": "A database keeps changes inside a **transaction** and does not make them permanent until `commit` is called. When `close` is called, an uncommitted transaction is rolled back.\n\nIt is hard to spot because no error is raised: everything looks like it worked, and then the data is not there when you open the file.\n\n`SELECT` does not need it; only commands that change something do."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Değerleri neden `?` ile veriyorsun, komutun içine yazmak yerine?",
+        "en": "Why do you supply values with `?` rather than writing them into the command?"
+      },
+      "options": {
+        "tr": [
+          "Değer komutun anlamını bozamaz; içindeki tırnak veya SQL kelimesi zararsız kalır",
+          "`?` yazımı daha hızlı çalışır",
+          "Komut içinde metin kullanmak Python'da yasaktır",
+          "`?` değerleri kendiliğinden sayıya çevirir"
+        ],
+        "en": [
+          "The value cannot change what the command means; a quote or an SQL word inside it stays harmless",
+          "The `?` form runs faster",
+          "Using strings inside a command is forbidden in Python",
+          "`?` converts values to numbers automatically"
+        ]
+      },
+      "explanation": {
+        "tr": "Yer tutucu kullandığında kütüphane değeri **veri** olarak yerleştiriyor, komutun parçası olarak değil.\n\nSomut örnek: `name` değeri `O'Brien` olsun. Metne gömersen ortadaki tırnak komutu ikiye bölüyor ve `OperationalError` alıyorsun. Kasıtlı yazılmış bir metin ise komutun anlamını değiştirebiliyor — buna **SQL enjeksiyonu** deniyor.\n\n```python\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (name, 90))\n```",
+        "en": "When you use a placeholder, the library places the value as **data**, not as part of the command.\n\nA concrete example: let `name` be `O'Brien`. Embedded in the text, the quote in the middle splits the command in two and you get an `OperationalError`. A deliberately written string can change the command's meaning — this is called **SQL injection**.\n\n```python\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (name, 90))\n```"
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "`cursor.fetchone()` sonuç bulamazsa ne döndürür?",
+        "en": "What does `cursor.fetchone()` return when it finds no result?"
+      },
+      "options": {
+        "tr": [
+          "`None`",
+          "Boş demet `()`",
+          "Boş liste `[]`",
+          "`KeyError` verir"
+        ],
+        "en": [
+          "`None`",
+          "An empty tuple `()`",
+          "An empty list `[]`",
+          "It raises a `KeyError`"
+        ]
+      },
+      "explanation": {
+        "tr": "Sonuç yoksa `fetchone` `None` döndürüyor. Kontrol etmeden kullanırsan:\n\n```\nTypeError: 'NoneType' object is not subscriptable\n```\n\nDoğrusu:\n\n```python\nrow = cursor.fetchone()\nif row is None:\n    print(\"not found\")\nelse:\n    print(row[0])\n```\n\nTip belirtimi diliyle: dönüşü `tuple | None`.",
+        "en": "When there is no result, `fetchone` returns `None`. Using it without checking gives:\n\n```\nTypeError: 'NoneType' object is not subscriptable\n```\n\nThe right way:\n\n```python\nrow = cursor.fetchone()\nif row is None:\n    print(\"not found\")\nelse:\n    print(row[0])\n```\n\nIn the language of type annotations: its return is `tuple | None`."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "`SELECT city, AVG(grade) FROM students GROUP BY city` ne yapar?",
+        "en": "What does `SELECT city, AVG(grade) FROM students GROUP BY city` do?"
+      },
+      "options": {
+        "tr": [
+          "Her şehir için ayrı bir satır döndürür ve o şehrin ortalamasını verir",
+          "Bütün öğrencilerin ortalamasını tek satırda verir",
+          "Öğrencileri şehre göre sıralar",
+          "Şehri olmayan öğrencileri siler"
+        ],
+        "en": [
+          "Returns one row per city with that city's average",
+          "Returns the average of all students in a single row",
+          "Sorts the students by city",
+          "Deletes the students who have no city"
+        ]
+      },
+      "explanation": {
+        "tr": "`GROUP BY` satırları o sütunun değerine göre gruplara ayırıyor, sonra `AVG` gibi fonksiyonlar **her grup için ayrı** çalışıyor.\n\n```\n[('London', 80.0), ('New York', 85.0)]\n```\n\nAynı işi Python'da yazmak bir sözlük kurup döngüyle doldurmak demek — on satır. Veritabanı bunu tek komutla yapıyor.",
+        "en": "`GROUP BY` splits the rows into groups by that column's value, and then functions like `AVG` run **separately for each group**.\n\n```\n[('London', 80.0), ('New York', 85.0)]\n```\n\nDoing the same in Python means building a dictionary and filling it in a loop — ten lines. The database does it in one command."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Bu satır neden hata verir?\n\n```python\ncursor.execute(\"SELECT name FROM students WHERE city = ?\", (\"London\"))\n```",
+        "en": "Why does this line raise an error?\n\n```python\ncursor.execute(\"SELECT name FROM students WHERE city = ?\", (\"London\"))\n```"
+      },
+      "options": {
+        "tr": [
+          "`(\"London\")` bir demet değil; tek elemanlı demet için sonda virgül gerekiyor",
+          "`city` sütunu metin olamaz",
+          "`?` yalnızca sayılarla kullanılır",
+          "`SELECT` komutunda parametre kullanılamaz"
+        ],
+        "en": [
+          "`(\"London\")` is not a tuple; a one-element tuple needs a trailing comma",
+          "The `city` column cannot hold text",
+          "`?` can only be used with numbers",
+          "Parameters cannot be used in a `SELECT` command"
+        ]
+      },
+      "explanation": {
+        "tr": "Python'da demeti oluşturan şey parantez değil **virgül**. `(\"London\")` yalnızca parantez içine alınmış bir metin.\n\n```python\ncursor.execute(\"... WHERE city = ?\", (\"London\",))\n```\n\nSondaki virgül tuhaf görünüyor ama gerekli. Liste de kullanılabilir: `[\"London\"]`.",
+        "en": "In Python it is the **comma** that makes a tuple, not the brackets. `(\"London\")` is just a string in brackets.\n\n```python\ncursor.execute(\"... WHERE city = ?\", (\"London\",))\n```\n\nThe trailing comma looks odd but it is necessary. A list works too: `[\"London\"]`."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Bu kod ne yazdırır? Dikkatli oku.\n\n```python\ncursor.execute(\"SELECT COUNT(*) FROM students\")\nprint(cursor.fetchone())\n```",
+        "en": "What does this code print? Read it carefully.\n\n```python\ncursor.execute(\"SELECT COUNT(*) FROM students\")\nprint(cursor.fetchone())\n```"
+      },
+      "options": {
+        "tr": [
+          "Satır sayısını demet içinde, örneğin `(3,)`",
+          "Satır sayısını düz sayı olarak, örneğin `3`",
+          "Bütün satırları liste olarak",
+          "`None`"
+        ],
+        "en": [
+          "The row count inside a tuple, for example `(3,)`",
+          "The row count as a plain number, for example `3`",
+          "Every row as a list",
+          "`None`"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek sütun istesen bile satır **demet** olarak geliyor; `SELECT` her zaman satır döndürüyor ve satırın bir sütunu var.\n\nDeğeri almak için indeks gerekiyor:\n\n```python\nprint(cursor.fetchone()[0])\n```\n```\n3\n```",
+        "en": "Even when you ask for a single column, the row comes back as a **tuple**; `SELECT` always returns rows, and this row has one column.\n\nYou need an index to get the value:\n\n```python\nprint(cursor.fetchone()[0])\n```\n```\n3\n```"
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`UPDATE students SET grade = 0` komutunda `WHERE` yazılmazsa ne olur?",
+        "en": "What happens if the command `UPDATE students SET grade = 0` has no `WHERE`?"
+      },
+      "options": {
+        "tr": [
+          "Tablodaki bütün satırların notu sıfırlanır",
+          "Komut hata verir",
+          "Hiçbir satır değişmez",
+          "Yalnızca ilk satır değişir"
+        ],
+        "en": [
+          "Every row in the table has its grade set to zero",
+          "The command raises an error",
+          "No row changes",
+          "Only the first row changes"
+        ]
+      },
+      "explanation": {
+        "tr": "`WHERE` olmadan `UPDATE` **bütün satırlara** uygulanıyor ve hata vermiyor. Aynısı `DELETE` için de geçerli: `DELETE FROM students` tabloyu tamamen boşaltıyor.\n\nGeri alma yok. Yararlı bir alışkanlık: silmeden önce aynı koşulu `SELECT` ile çalıştırıp kaç satır geldiğine bakmak.",
+        "en": "Without a `WHERE`, `UPDATE` applies to **every row** and raises no error. The same goes for `DELETE`: `DELETE FROM students` empties the table completely.\n\nThere is no undo. A useful habit: run the same condition as a `SELECT` first and see how many rows come back."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "Bu kod ne yazdırır? Dikkatli oku.\n\n```python\ncursor.execute(\"SELECT name FROM students\")\nfirst = cursor.fetchall()\nsecond = cursor.fetchall()\n\nprint(len(first), len(second))\n```\n\nTabloda 3 öğrenci var.",
+        "en": "What does this code print? Read it carefully.\n\n```python\ncursor.execute(\"SELECT name FROM students\")\nfirst = cursor.fetchall()\nsecond = cursor.fetchall()\n\nprint(len(first), len(second))\n```\n\nThere are 3 students in the table."
+      },
+      "options": {
+        "tr": [
+          "`3 0`",
+          "`3 3`",
+          "`0 3`",
+          "Hata verir"
+        ],
+        "en": [
+          "`3 0`",
+          "`3 3`",
+          "`0 3`",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Sonuç kümesi bir kez okunuyor, tıpkı bir dosyayı iki kez okumak gibi. İlk `fetchall` bütün satırları alıp imleci sona götürüyor; ikincisi okuyacak bir şey bulamıyor ve boş liste dönüyor.\n\nHata vermiyor, bu yüzden fark etmesi zor. Çözüm: bir kez oku, değişkende tut.",
+        "en": "A result set is read once, just like reading a file twice. The first `fetchall` takes every row and moves the position to the end; the second finds nothing left and returns an empty list.\n\nIt raises no error, which makes it hard to spot. The fix: read once, keep it in a variable."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Bu kod hata veriyor mu? Dikkatli oku.\n\n```python\ncursor.execute(\"CREATE TABLE students (name TEXT, grade INTEGER)\")\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (\"Ada\", \"not a number\"))\nconnection.commit()\n\ncursor.execute(\"SELECT grade FROM students\")\nprint(cursor.fetchone()[0])\n```",
+        "en": "Does this code raise an error? Read it carefully.\n\n```python\ncursor.execute(\"CREATE TABLE students (name TEXT, grade INTEGER)\")\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (\"Ada\", \"not a number\"))\nconnection.commit()\n\ncursor.execute(\"SELECT grade FROM students\")\nprint(cursor.fetchone()[0])\n```"
+      },
+      "options": {
+        "tr": [
+          "Hata vermez; `not a number` yazdırır, çünkü SQLite sütun tipini zorunlu tutmaz",
+          "`INSERT` satırında hata verir, çünkü sütun `INTEGER`",
+          "`SELECT` satırında hata verir",
+          "`0` yazdırır, metni sayıya çevirir"
+        ],
+        "en": [
+          "It raises no error; it prints `not a number`, because SQLite does not enforce the column type",
+          "It raises an error on the `INSERT` line, because the column is `INTEGER`",
+          "It raises an error on the `SELECT` line",
+          "It prints `0`, converting the text to a number"
+        ]
+      },
+      "explanation": {
+        "tr": "SQLite sütun tipini bir **öneri** sayıyor ve uymayan değeri de kabul ediyor. Diğer veritabanlarının çoğu (PostgreSQL, MySQL) bunu reddediyor.\n\nBunun pratik anlamı: veriyi doğrulama işi **sana** kalıyor. `INTEGER` yazmış olman, o sütunda gerçekten sayı olacağının garantisi değil.\n\nOkurken `int()` çevirisini `try` / `except` ile korumak burada gerçekten işe yarıyor.",
+        "en": "SQLite treats a column type as a **suggestion** and accepts values that do not match. Most other databases (PostgreSQL, MySQL) reject them.\n\nWhat that means in practice: validating the data is left **to you**. Having written `INTEGER` is no guarantee that the column really holds numbers.\n\nGuarding an `int()` conversion with `try` / `except` when reading genuinely earns its keep here."
+      }
+    },
+    {
+      "id": "q11",
+      "text": {
+        "tr": "`sqlite3.connect(\":memory:\")` ne yapar?",
+        "en": "What does `sqlite3.connect(\":memory:\")` do?"
+      },
+      "options": {
+        "tr": [
+          "Diskte dosya oluşturmadan, bellekte geçici bir veritabanı kurar",
+          "`memory.db` adında bir dosya oluşturur",
+          "Var olan bir veritabanını belleğe kopyalar",
+          "Veritabanının bellek sınırını belirler"
+        ],
+        "en": [
+          "Sets up a temporary database in memory, creating no file on disk",
+          "Creates a file called `memory.db`",
+          "Copies an existing database into memory",
+          "Sets the database's memory limit"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "`\":memory:\"` özel bir ad: veritabanı tamamen bellekte duruyor ve program bitince kayboluyor.\n\nDenemeler ve testler için ideal — diskte iz bırakmıyor, her çalıştırmada tertemiz başlıyor.\n\nKalıcı olması gerekiyorsa dosya adı veriliyor: `sqlite3.connect(\"school.db\")`. Dosya yoksa oluşturuluyor.",
+        "en": "`\":memory:\"` is a special name: the database lives entirely in memory and disappears when the program ends.\n\nIdeal for experiments and tests — it leaves nothing on disk and starts clean on every run.\n\nWhen it has to last, you give a file name: `sqlite3.connect(\"school.db\")`. The file is created if it does not exist."
+      }
+    },
+    {
+      "id": "q12",
+      "text": {
+        "tr": "`cursor.executemany` ne zaman kullanılır?",
+        "en": "When is `cursor.executemany` used?"
+      },
+      "options": {
+        "tr": [
+          "Aynı komutu çok sayıda satırla çalıştırmak için",
+          "Birden fazla farklı SQL komutunu birlikte çalıştırmak için",
+          "Bir komutu birden fazla veritabanında çalıştırmak için",
+          "Sonuçları birden fazla kez okumak için"
+        ],
+        "en": [
+          "To run the same command over many rows",
+          "To run several different SQL commands together",
+          "To run one command against several databases",
+          "To read the results more than once"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "```python\nrows = [(\"Ada\", 90), (\"Brian\", 40), (\"Grace\", 75)]\ncursor.executemany(\"INSERT INTO students VALUES (?, ?)\", rows)\n```\n\nKomut bir tane, veri çok. Döngüyle tek tek `execute` çağırmakla aynı sonucu veriyor ama hem daha kısa hem daha hızlı.\n\nHer satır, soru işareti sayısı kadar elemanlı bir demet olmalı.",
+        "en": "```python\nrows = [(\"Ada\", 90), (\"Brian\", 40), (\"Grace\", 75)]\ncursor.executemany(\"INSERT INTO students VALUES (?, ?)\", rows)\n```\n\nOne command, many rows. It gives the same result as calling `execute` in a loop, but it is both shorter and faster.\n\nEach row has to be a tuple with as many elements as there are question marks."
+      }
+    },
+    {
+      "id": "q13",
+      "text": {
+        "tr": "`ORDER BY grade DESC` ne yapar?",
+        "en": "What does `ORDER BY grade DESC` do?"
+      },
+      "options": {
+        "tr": [
+          "Sonuçları nottan büyükten küçüğe sıralar",
+          "Sonuçları nottan küçükten büyüğe sıralar",
+          "Notu olmayan satırları eler",
+          "Notları küçükten büyüğe yeniden numaralar"
+        ],
+        "en": [
+          "Sorts the results by grade, largest first",
+          "Sorts the results by grade, smallest first",
+          "Removes rows that have no grade",
+          "Renumbers the grades from smallest to largest"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "`DESC` (descending) büyükten küçüğe, `ASC` (ascending) küçükten büyüğe demek. Yazmazsan varsayılan `ASC`.\n\n```sql\nSELECT name, grade FROM students\nORDER BY grade DESC\nLIMIT 3\n```\n\n`LIMIT 3` ile birleştirilince \"en yüksek üç not\" sorusunun cevabı oluyor — Python'da döngü yazmadan.",
+        "en": "`DESC` (descending) means largest first and `ASC` (ascending) smallest first. Without one, the default is `ASC`.\n\n```sql\nSELECT name, grade FROM students\nORDER BY grade DESC\nLIMIT 3\n```\n\nCombined with `LIMIT 3` it answers \"the three highest grades\" — without writing a loop in Python."
+      }
+    },
+    {
+      "id": "q14",
+      "text": {
+        "tr": "`INTEGER PRIMARY KEY` olarak tanımlanan bir sütunda ne olur?",
+        "en": "What happens with a column defined as `INTEGER PRIMARY KEY`?"
+      },
+      "options": {
+        "tr": [
+          "SQLite değeri kendisi doldurur; her yeni satır bir sonraki sayıyı alır",
+          "Sütuna yalnızca sıfırdan büyük sayılar girilebilir",
+          "Sütun otomatik olarak sıralanır",
+          "Sütun değiştirilemez hâle gelir"
+        ],
+        "en": [
+          "SQLite fills the value itself; each new row gets the next number",
+          "Only numbers greater than zero can go into the column",
+          "The column is sorted automatically",
+          "The column becomes read-only"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "```sql\nCREATE TABLE students (\n    id INTEGER PRIMARY KEY,\n    name TEXT\n)\n```\n\n`id` sütununu `INSERT` sırasında atlayabiliyorsun; SQLite bir sonraki sayıyı kendisi koyuyor:\n\n```python\ncursor.execute(\"INSERT INTO students (name) VALUES (?)\", (\"Ada\",))\nprint(cursor.lastrowid)      # yeni satirin id degeri\n```\n\nBu, her satıra benzersiz bir kimlik veriyor — güncelleme ve silmede işe yarıyor.",
+        "en": "```sql\nCREATE TABLE students (\n    id INTEGER PRIMARY KEY,\n    name TEXT\n)\n```\n\nYou can leave the `id` column out of an `INSERT`; SQLite puts the next number in itself:\n\n```python\ncursor.execute(\"INSERT INTO students (name) VALUES (?)\", (\"Ada\",))\nprint(cursor.lastrowid)      # the new row's id\n```\n\nThis gives every row a unique identity, which pays off when updating and deleting."
+      }
+    },
+    {
+      "id": "q15",
+      "text": {
+        "tr": "`WHERE` ile `HAVING` arasındaki fark ne?",
+        "en": "What is the difference between `WHERE` and `HAVING`?"
+      },
+      "options": {
+        "tr": [
+          "`WHERE` gruplamadan önce satırları, `HAVING` gruplamadan sonra grupları süzer",
+          "İkisi aynı şeydir, `HAVING` eski yazımdır",
+          "`HAVING` yalnızca metin sütunlarında çalışır",
+          "`WHERE` yalnızca `SELECT` ile, `HAVING` yalnızca `UPDATE` ile kullanılır"
+        ],
+        "en": [
+          "`WHERE` filters rows before grouping; `HAVING` filters groups after it",
+          "They are the same; `HAVING` is the older spelling",
+          "`HAVING` only works on text columns",
+          "`WHERE` is only for `SELECT` and `HAVING` only for `UPDATE`"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Sıra önemli: önce `WHERE` satırları eliyor, sonra `GROUP BY` grupluyor, en sonda `HAVING` grupları eliyor.\n\n```sql\nSELECT city, AVG(grade)\nFROM students\nWHERE grade >= 50          -- once kalanlari at\nGROUP BY city\nHAVING AVG(grade) > 70     -- sonra zayif sehirleri at\n```\n\n`AVG` gibi bir hesabı `WHERE` içinde kullanamıyorsun; o hesap gruplama sonrası oluşuyor, o yüzden `HAVING` var.",
+        "en": "The order matters: `WHERE` removes rows first, then `GROUP BY` groups them, and finally `HAVING` removes groups.\n\n```sql\nSELECT city, AVG(grade)\nFROM students\nWHERE grade >= 50          -- drop the failing rows first\nGROUP BY city\nHAVING AVG(grade) > 70     -- then drop the weak cities\n```\n\nYou cannot use a calculation like `AVG` inside `WHERE`; that value only exists after grouping, which is why `HAVING` exists."
+      }
+    },
+    {
+      "id": "q16",
+      "text": {
+        "tr": "`cursor.rowcount` ne verir?",
+        "en": "What does `cursor.rowcount` give?"
+      },
+      "options": {
+        "tr": [
+          "Son komutun etkilediği satır sayısını",
+          "Tablodaki toplam satır sayısını",
+          "Okunmayı bekleyen satır sayısını",
+          "Veritabanındaki tablo sayısını"
+        ],
+        "en": [
+          "The number of rows the last command affected",
+          "The total number of rows in the table",
+          "The number of rows waiting to be read",
+          "The number of tables in the database"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "`UPDATE` ve `DELETE` sonrası \"kaç satır değişti\" sorusunu cevaplıyor:\n\n```python\ncursor.execute(\"UPDATE students SET grade = ? WHERE name = ?\", (95, \"Ada\"))\nprint(cursor.rowcount)      # 1, o isim yoksa 0\n```\n\nBu, \"güncelleme gerçekten oldu mu\" kontrolü için kullanılıyor. Tablodaki toplam satır için `SELECT COUNT(*)` gerekiyor.",
+        "en": "It answers \"how many rows changed\" after an `UPDATE` or `DELETE`:\n\n```python\ncursor.execute(\"UPDATE students SET grade = ? WHERE name = ?\", (95, \"Ada\"))\nprint(cursor.rowcount)      # 1, or 0 if that name is not there\n```\n\nIt is used to check whether the update actually happened. For the total number of rows you need `SELECT COUNT(*)`."
+      }
+    },
+    {
+      "id": "q17",
+      "text": {
+        "tr": "Bu kod ne yazdırır?\n\n```python\ncursor.execute(\"SELECT name FROM students WHERE grade > 200\")\nprint(cursor.fetchall())\n```",
+        "en": "What does this code print?\n\n```python\ncursor.execute(\"SELECT name FROM students WHERE grade > 200\")\nprint(cursor.fetchall())\n```"
+      },
+      "options": {
+        "tr": [
+          "`[]`",
+          "`None`",
+          "`()`",
+          "Hata verir çünkü sonuç yok"
+        ],
+        "en": [
+          "`[]`",
+          "`None`",
+          "`()`",
+          "It raises an error because there is no result"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "`fetchall` her zaman bir **liste** döndürüyor; sonuç yoksa boş liste.\n\n`fetchone` ise farklı davranıyor: sonuç yoksa `None` dönüyor ve kontrol etmeden kullanırsan `TypeError` alıyorsun.\n\nBu fark pratikte önemli: `fetchall` sonucunda doğrudan döngü kurabiliyorsun (boş listede döngü hiç dönmüyor), `fetchone` sonucunda ise önce `is None` kontrolü gerekiyor.",
+        "en": "`fetchall` always returns a **list**; an empty one when there is no result.\n\n`fetchone` behaves differently: it returns `None` when there is no result, and using it without checking gives a `TypeError`.\n\nThe difference matters in practice: you can loop straight over a `fetchall` result (a loop over an empty list simply does not run), whereas a `fetchone` result needs an `is None` check first."
+      }
+    },
+    {
+      "id": "q18",
+      "text": {
+        "tr": "SQL'de eşitlik nasıl yazılır?",
+        "en": "How is equality written in SQL?"
+      },
+      "options": {
+        "tr": [
+          "Tek eşittir: `WHERE name = ?`",
+          "Çift eşittir: `WHERE name == ?`",
+          "`WHERE name IS ?`",
+          "`WHERE name EQUALS ?`"
+        ],
+        "en": [
+          "A single equals sign: `WHERE name = ?`",
+          "A double equals sign: `WHERE name == ?`",
+          "`WHERE name IS ?`",
+          "`WHERE name EQUALS ?`"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "SQL'de tek eşittir karşılaştırma yapıyor; Python'daki gibi atama anlamı yok.\n\nPython alışkanlığıyla `==` yazarsan SQLite kabul ediyor ama PostgreSQL ve MySQL etmiyor — kodun taşınabilir olmuyor.\n\nBoşluk kontrolü ayrı: `= NULL` çalışmıyor, `IS NULL` yazılıyor.",
+        "en": "In SQL a single equals sign compares; it has no assignment meaning as in Python.\n\nIf Python habits make you write `==`, SQLite accepts it but PostgreSQL and MySQL do not — your code stops being portable.\n\nChecking for emptiness is separate: `= NULL` does not work; you write `IS NULL`."
+      }
+    },
+    {
+      "id": "q19",
+      "text": {
+        "tr": "Boş bir tabloda `SELECT AVG(grade) FROM students` ne döndürür?",
+        "en": "What does `SELECT AVG(grade) FROM students` return on an empty table?"
+      },
+      "options": {
+        "tr": [
+          "Değeri `None` olan bir satır",
+          "Boş liste",
+          "`0` değerli bir satır",
+          "Hata verir"
+        ],
+        "en": [
+          "One row whose value is `None`",
+          "An empty list",
+          "One row with the value `0`",
+          "It raises an error"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "`AVG` bir **satır** döndürüyor, ama içindeki değer `None`:\n\n```python\ncursor.execute(\"SELECT AVG(grade) FROM students\")\nprint(cursor.fetchone())      # (None,)\n```\n\nBu ince bir ayrım: `row is None` kontrolü **tutmuyor**, çünkü satır var. Kontrol edilmesi gereken `row[0] is None`.\n\n```python\nrow = cursor.fetchone()\nif row[0] is None:\n    return 0\nreturn round(row[0])\n```",
+        "en": "`AVG` returns a **row**, but the value inside it is `None`:\n\n```python\ncursor.execute(\"SELECT AVG(grade) FROM students\")\nprint(cursor.fetchone())      # (None,)\n```\n\nThis is a fine distinction: a `row is None` check does **not** hold, because there is a row. What has to be checked is `row[0] is None`.\n\n```python\nrow = cursor.fetchone()\nif row[0] is None:\n    return 0\nreturn round(row[0])\n```"
+      }
+    },
+    {
+      "id": "q20",
+      "text": {
+        "tr": "Bu kodun sonunda tabloda kaç satır olur? Dikkatli oku.\n\n```python\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (\"Ada\", 90))\nconnection.commit()\n\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (\"Brian\", 40))\nconnection.close()\n\nconnection = sqlite3.connect(\"school.db\")\ncursor = connection.cursor()\ncursor.execute(\"SELECT COUNT(*) FROM students\")\nprint(cursor.fetchone()[0])\n```",
+        "en": "How many rows are in the table at the end of this code? Read it carefully.\n\n```python\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (\"Ada\", 90))\nconnection.commit()\n\ncursor.execute(\"INSERT INTO students VALUES (?, ?)\", (\"Brian\", 40))\nconnection.close()\n\nconnection = sqlite3.connect(\"school.db\")\ncursor = connection.cursor()\ncursor.execute(\"SELECT COUNT(*) FROM students\")\nprint(cursor.fetchone()[0])\n```"
+      },
+      "options": {
+        "tr": [
+          "`1` — yalnızca Ada kaydedildi",
+          "`2` — ikisi de kaydedildi",
+          "`0` — hiçbiri kaydedilmedi",
+          "Hata verir"
+        ],
+        "en": [
+          "`1` — only Ada was saved",
+          "`2` — both were saved",
+          "`0` — neither was saved",
+          "It raises an error"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Ada'nın eklenmesinden sonra `commit` çağrılmış, o yüzden kalıcı oldu.\n\nBrian eklendikten sonra `commit` **yok**, doğrudan `close` çağrılmış. Kaydedilmemiş işlem kapatılırken **geri alınıyor** — Brian hiç yazılmadı.\n\nProgram hata vermiyor, bu yüzden fark etmesi zor: her şey çalışmış görünüyor, veri yok.\n\nUnutmamanın yolu `with` kullanmak; blok hatasız biterse `commit` kendiliğinden çağrılıyor. Ama dikkat, `with` bağlantıyı **kapatmıyor**.",
+        "en": "`commit` was called after Ada was inserted, so that became permanent.\n\nAfter Brian was inserted there is **no** `commit`, just `close`. An uncommitted transaction is **rolled back** when the connection closes — Brian was never written.\n\nThe program raises no error, which makes it hard to spot: everything looks like it worked, and the data is not there.\n\nThe way not to forget is `with`; when the block finishes without an error, `commit` is called for you. But note that `with` does **not** close the connection."
+      }
+    }
+  ]
+}

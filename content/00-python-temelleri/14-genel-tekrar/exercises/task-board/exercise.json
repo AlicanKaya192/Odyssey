@@ -1,0 +1,92 @@
+{
+  "id": "task-board",
+  "title": {
+    "tr": "Görev listesi",
+    "en": "A task board"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Varsayılan değerli parametre belirtimle birlikte şöyle yazılıyor: `def __init__(self, title: str, done: bool = False):`",
+      "en": "A parameter with a default and an annotation is written like this: `def __init__(self, title: str, done: bool = False):`"
+    },
+    {
+      "tr": "Liste belirtimini `__init__` içinde yazabiliyorsun: `self.tasks: list[Task] = []`. Sınıf seviyesinde yazarsan bütün panolar aynı listeyi paylaşır.",
+      "en": "You can write the list annotation inside `__init__`: `self.tasks: list[Task] = []`. At class level every board would share the same list."
+    },
+    {
+      "tr": "`__str__` metin döndürüyor, yazdırmıyor. `print(board.tasks[1])` çağrıldığında Python zaten dönen metni yazdırıyor.",
+      "en": "`__str__` returns a string rather than printing. When `print(board.tasks[1])` is called, Python prints what it returns."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nclass Board:\n    def __init__(self):\n        self.tasks: list[Task] = []\n\n    def add(self, task: Task) -> int:\n        self.tasks.append(task)\n        return len(self.tasks)\n\n    def pending(self) -> list[str]:\n        titles: list[str] = []\n        for task in self.tasks:\n            if not task.done:\n                titles.append(task.title)\n        return titles\n```",
+      "en": "The solution:\n\n```python\nclass Board:\n    def __init__(self):\n        self.tasks: list[Task] = []\n\n    def add(self, task: Task) -> int:\n        self.tasks.append(task)\n        return len(self.tasks)\n\n    def pending(self) -> list[str]:\n        titles: list[str] = []\n        for task in self.tasks:\n            if not task.done:\n                titles.append(task.title)\n        return titles\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "method",
+      "class": "Task",
+      "args": [
+        "write"
+      ],
+      "cases": [
+        {
+          "attribute": "done",
+          "equals": false
+        },
+        {
+          "method": "__str__",
+          "args": [],
+          "returns": "[ ] write"
+        },
+        {
+          "method": "finish",
+          "args": []
+        },
+        {
+          "attribute": "done",
+          "equals": true
+        },
+        {
+          "method": "__str__",
+          "args": [],
+          "returns": "[x] write"
+        }
+      ]
+    },
+    {
+      "type": "method",
+      "class": "Board",
+      "args": [],
+      "cases": [
+        {
+          "attribute": "tasks",
+          "equals": []
+        },
+        {
+          "method": "pending",
+          "args": [],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "annotation",
+      "name": "pending",
+      "returns": "list[str]"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n[x] test\n['write', 'ship']"
+    }
+  ]
+}

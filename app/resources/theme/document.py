@@ -11,14 +11,26 @@ tutuluyor. Renkler ve ölçüler `tokens.py`'den geliyor, elle yazılmıyor.
 
 from __future__ import annotations
 
-from .tokens import FONTS, PALETTES, READING_WIDTH, TOC_WIDTH
+from .tokens import FONTS, PALETTES, READING_WIDTH, SYNTAX, TOC_WIDTH
 
 
 def build_css(mode: str) -> str:
     """Belge stilini seçili temaya göre üretir."""
     p = PALETTES.get(mode, PALETTES["light"])
+    s = SYNTAX.get(mode, SYNTAX["light"])
 
     return f"""
+/* Kod renkleri sınıfla veriliyor, satır içi renkle değil. Böylece tema
+ * değişince belgeyi baştan yüklemek gerekmiyor; yalnızca bu stil bloğu
+ * değiştiriliyor. */
+.hl-keyword  {{ color: {s['keyword']}; font-weight: 600; }}
+.hl-constant {{ color: {s['constant']}; font-weight: 600; }}
+.hl-builtin  {{ color: {s['builtin']}; }}
+.hl-string   {{ color: {s['string']}; }}
+.hl-number   {{ color: {s['number']}; }}
+.hl-comment  {{ color: {s['comment']}; font-style: italic; }}
+.hl-variable {{ color: {s['variable']}; }}
+
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
 
 html {{ scroll-behavior: smooth; }}
@@ -184,6 +196,173 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
     color: {p['success']};
 }}
 
+/* --- ders görselleri -------------------------------------------------
+ *
+ * Şemalar sayfanın kendi HTML'i olarak çiziliyor, dışarıdan resim
+ * yüklenmiyor. Üç sebep:
+ *
+ * 1. **Tema.** Sayfaya gömülü şemaya buradaki renkler işliyor; açık/koyu
+ *    için ayrı dosya tutmak gerekmiyor. Bir `<img>` ayrı bir belge olduğu
+ *    için sayfanın stilini alamazdı.
+ * 2. **Çeviri.** Etiketler doğrudan `lesson.tr.md` / `lesson.en.md`
+ *    içinde duruyor; çevirmek için görsel düzenlemek gerekmiyor.
+ * 3. **Ölçek.** Metinle aynı yazı tipinde büyüyüp küçülüyor, bulanmıyor.
+ *
+ * Markdown tarafında iki tuzak var, ikisi de ölçüldü:
+ *
+ * - Blok HTML'in **içi markdown olarak işlenmiyor.** `<figure>` içinde
+ *   `` `str` `` yazılırsa ekranda ters tırnaklarla görünür; oraya
+ *   `<code>str</code>` yazılmalı.
+ * - Çıplak `<svg>` `<p>` içine sarılıyor, çünkü markdown `svg`'yi blok
+ *   etiketi saymıyor. Her görsel `<figure class="fig">` ile sarılıyor.
+ */
+
+figure.fig {{
+    margin: 26px 0;
+    padding: 20px 20px 14px;
+    background: {p['surface']};
+    border: 1px solid {p['border']};
+    border-radius: 14px;
+}}
+.page.compact figure.fig {{ padding: 14px 14px 10px; margin: 18px 0; }}
+
+figure.fig figcaption {{
+    margin-top: 14px;
+    font-size: 13.2px;
+    line-height: 1.55;
+    color: {p['text_muted']};
+    text-align: center;
+}}
+
+/* Elle çizilmiş şemalar için. Renkleri sayfadan alsın diye sınıfla
+ * boyanıyor; `fill="#..."` yazılmıyor. */
+figure.fig svg {{ display: block; max-width: 100%; height: auto; margin: 0 auto; }}
+figure.fig svg .ink {{ fill: {p['text']}; }}
+figure.fig svg .dim {{ fill: {p['text_muted']}; }}
+figure.fig svg .box {{ fill: {p['surface_alt']}; stroke: {p['border_strong']}; }}
+figure.fig svg .line {{ fill: none; stroke: {p['border_strong']}; stroke-width: 1.5; }}
+
+/* Dört işaret rengi. Şemada altı çizili parça ile alttaki açıklama aynı
+ * rengi taşıyor; okuyan kişi hangi açıklamanın hangi parçaya ait olduğunu
+ * okla değil renkle buluyor.
+ *
+ * Sıra rastgele değil: renklerin **birbirinden uzak** olması gerekiyor,
+ * yoksa ayırt etme işi yapılmıyor. Önce `accent` ve `accent_second` yan yana
+ * konmuştu; ölçüldü, açık temada aralarındaki fark ΔE 14 çıktı (25'in altı
+ * "zor ayırt edilir" sayılıyor) ve koyu temada ikisi de mor görünüyordu.
+ * Şimdiki sırada en yakın iki renk arasında ΔE 80 var.
+ *
+ * Renk tek ipucu değil: açıklama metni ve altı çizili parçanın konumu da
+ * eşleştiriyor. */
+.fig .m1 {{ --im: {p['accent']}; }}
+.fig .m2 {{ --im: {p['warning']}; }}
+.fig .m3 {{ --im: {p['success']}; }}
+.fig .m4 {{ --im: {p['accent_second']}; }}
+
+/* Kod anatomisi: bir satır kodun parçalarını adlandırır. */
+.anat .sig {{
+    font-family: {FONTS['mono']};
+    font-size: 14.5px;
+    line-height: 2.1;
+    background: {p['code_bg']};
+    border: 1px solid {p['border']};
+    border-radius: 10px;
+    padding: 14px 18px;
+    overflow-x: auto;
+    white-space: pre;
+    color: {p['text']};
+}}
+.anat .sig u {{
+    text-decoration: none;
+    padding-bottom: 2px;
+    border-bottom: 2.5px solid var(--im);
+}}
+.anat .legend {{ list-style: none; margin: 16px 0 0; padding: 0; }}
+.anat .legend li {{
+    position: relative;
+    margin: 9px 0;
+    padding-left: 22px;
+    font-size: 13.8px;
+    color: {p['text']};
+    text-align: left;
+}}
+.anat .legend li::before {{
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    background: var(--im);
+}}
+
+/* Akış: kutular ve aralarında oklar. */
+.fig .flow {{
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}}
+.fig .flow .node {{
+    flex: 0 1 auto;
+    min-width: 96px;
+    background: {p['surface_alt']};
+    border: 1px solid {p['border']};
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    text-align: center;
+    /* Kutu **blok** olmali, flex degil. Flex'ken icindeki `<br>` ayri bir
+     * flex ogesine donusuyor ve satiri kirmiyordu: "Belirtime" ile
+     * "hic bakmaz" ekranda bitisik yaziliyordu. `align-self` ile de dikey
+     * ortalama korunuyor. */
+    display: block;
+    align-self: center;
+}}
+.fig .flow .node b {{ font-weight: 640; }}
+.fig .flow .node code {{ font-size: 12.8px; }}
+.fig .flow .node.ok {{
+    background: {p['success_soft']};
+    border-color: {p['success']};
+    color: {p['success']};
+}}
+.fig .flow .node.no {{
+    background: {p['danger_soft']};
+    border-color: {p['danger']};
+    color: {p['danger']};
+}}
+.fig .flow .node.acc {{
+    background: {p['accent_soft']};
+    border-color: {p['accent']};
+    color: {p['accent']};
+}}
+.fig .flow .arrow {{
+    display: flex;
+    align-items: center;
+    color: {p['text_muted']};
+    font-size: 17px;
+}}
+
+/* Yan yana karşılaştırma: solda "böyle değil", sağda "böyle". */
+.fig .versus {{ display: flex; gap: 14px; flex-wrap: wrap; }}
+.fig .versus > div {{ flex: 1 1 210px; min-width: 0; }}
+.fig .versus h5 {{
+    font-size: 12.5px;
+    font-weight: 660;
+    letter-spacing: .02em;
+    margin-bottom: 8px;
+    text-align: left;
+}}
+.fig .versus .no h5 {{ color: {p['danger']}; }}
+.fig .versus .ok h5 {{ color: {p['success']}; }}
+/* Yanlis degil, yalnizca daha az bilgi veren taraf. Kirmizi kullanilirsa
+ * ogrenci onu hata sanip duzeltmeye calisiyor. */
+.fig .versus .dim h5 {{ color: {p['text_muted']}; }}
+.fig .versus pre {{ margin: 0; }}
+
 /* --- alıştırma yönergesi -------------------------------------------- */
 
 .chips {{ display: flex; gap: 8px; margin: 10px 0 22px; flex-wrap: wrap; }}
@@ -325,11 +504,60 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
 }}
 .pager .pg.off {{ opacity: .38; }}
 
-.footnote {{
-    margin-top: 40px; padding-top: 22px;
-    border-top: 1px solid {p['border']};
-    font-size: 13px; color: {p['text_muted']}; text-align: center;
+/* --- sık sorulanlar -------------------------------------------------- */
+
+/* Akordeon `<details>`/`<summary>` ile: açılıp kapanmayı tarayıcı kendi
+ * yapıyor, betiğe gerek kalmıyor. Sayfa uygulamaya kendiliğinden haber
+ * veremediği için betikle çözülen bir akordeon burada zaten çalışmazdı. */
+.faqlist {{ display: flex; flex-direction: column; gap: 10px; margin-top: 26px; }}
+
+.faq {{
+    border: 1px solid {p['border']};
+    border-radius: 14px;
+    background: {p['surface_alt']};
+    overflow: hidden;
 }}
+.faq[open] {{ border-color: {p['border_strong']}; }}
+
+/* Soru: koyu zeminli başlık. Cevabın zeminiyle arasındaki fark, hangisinin
+ * soru hangisinin cevap olduğunu okumadan belli ediyor. */
+.faq > summary {{
+    list-style: none;
+    cursor: pointer;
+    padding: 16px 52px 16px 20px;
+    position: relative;
+    background: {p['surface_alt']};
+    font-weight: 650;
+    font-size: 15px;
+    color: {p['text']};
+}}
+.faq > summary::-webkit-details-marker {{ display: none; }}
+.faq > summary:hover {{ color: {p['accent']}; }}
+
+/* Sağdaki artı işareti açıkken eksiye dönüyor. İki ayrı çizgi olarak
+ * çiziliyor; dikey olan açılınca kayboluyor. */
+.faq > summary .mark {{
+    position: absolute; right: 20px; top: 50%;
+    width: 13px; height: 13px; margin-top: -7px;
+}}
+.faq > summary .mark::before,
+.faq > summary .mark::after {{
+    content: ""; position: absolute; background: {p['text_muted']};
+    border-radius: 1px;
+}}
+.faq > summary .mark::before {{ left: 0; top: 6px; width: 13px; height: 2px; }}
+.faq > summary .mark::after {{ left: 6px; top: 0; width: 2px; height: 13px; }}
+.faq[open] > summary .mark::after {{ opacity: 0; }}
+.faq[open] > summary {{ color: {p['accent']}; }}
+
+.faq .answer {{
+    padding: 4px 20px 6px;
+    background: {p['bg']};
+    border-top: 1px solid {p['border']};
+}}
+.faq .answer p {{ margin: 12px 0; font-size: 14.5px; color: {p['text_muted']}; }}
+.faq .answer code {{ font-size: 13px; }}
+
 
 /* --- alt gezinme ---------------------------------------------------- */
 

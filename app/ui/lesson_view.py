@@ -12,6 +12,7 @@ Ders seçili dilde yoksa Türkçesi gösterilir ve üstte bunu belirten bir şer
 from __future__ import annotations
 
 import html
+import json
 from pathlib import Path
 
 import markdown
@@ -25,23 +26,54 @@ from ..widgets.document_view import DocumentView
 MARKDOWN_EXTENSIONS = ["fenced_code", "tables", "sane_lists", "toc"]
 
 # Sayfa kayarken hangi başlıkta olduğumuzu işaretleyen küçük script.
+#
+# Önce `IntersectionObserver` kullanılıyordu ve iki hatası vardı:
+#
+# 1. `rootMargin` ekranın alt %70'ini kesiyordu, yani yalnızca üst şeritteki
+#    başlıklar sayılıyordu. Sayfanın sonuna inildiğinde son başlık (genelde
+#    "Özet") o şeride hiç çıkamıyor — sayfa daha fazla kaymıyor — ve işaret
+#    ona hiç gelmiyordu.
+# 2. Tek bir çağrıda birden fazla başlık bildirilebiliyor ve döngüde **en
+#    son işlenen** kazanıyordu; sırası önemsendiği için işaret yukarı
+#    fırlıyordu.
+#
+# Yerine doğrudan konum hesabı kondu: **çizginin üstünde kalan son başlık**
+# hangisiyse o işaretleniyor. Sayfanın en dibindeyken son başlık seçiliyor,
+# çünkü orada "aşağıda daha fazlası var" diye bir şey yok.
 SCROLL_SPY = """
 <script>
 (function () {
   const links = [...document.querySelectorAll('.toc-inner a[href^="#"]')];
   if (!links.length) return;
-  const targets = links
-      .map(a => document.getElementById(a.getAttribute('href').slice(1)))
-      .filter(Boolean);
-  const spy = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      links.forEach(a => a.classList.remove('on'));
-      const hit = links.find(a => a.getAttribute('href') === '#' + entry.target.id);
-      if (hit) hit.classList.add('on');
-    });
-  }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
-  targets.forEach(t => spy.observe(t));
+
+  const targets = links.map(
+      a => document.getElementById(a.getAttribute('href').slice(1)));
+
+  // Başlığın "geçildi" sayılması için ekranın üstünden kaç piksel yukarıda
+  // olması gerektiği. Sıfır olsaydı, başlık ekranın tam tepesindeyken
+  // işaret bir önceki başlıkta kalıyordu.
+  const LINE = 120;
+
+  function update() {
+    const el = document.scrollingElement || document.documentElement;
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight <= 4;
+
+    let current = 0;
+    if (atBottom) {
+      current = links.length - 1;
+    } else {
+      for (let i = 0; i < targets.length; i++) {
+        const node = targets[i];
+        if (node && node.getBoundingClientRect().top <= LINE) current = i;
+      }
+    }
+
+    links.forEach((a, i) => a.classList.toggle('on', i === current));
+  }
+
+  document.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
 })();
 </script>
 """
@@ -67,6 +99,28 @@ READ_PROBE = """
 
 # Ölçümün sıklığı. Okundu işareti konunca zamanlayıcı duruyor.
 READ_POLL_MS = 1000
+
+# İlerleme kutusunu **belgeyi yeniden yüklemeden** güncelleyen betik.
+#
+# Önce kutu değiştiğinde sayfanın tamamı baştan çiziliyordu. Uzun bir dersi
+# okurken kişi metnin sonuna indiği an "okundu" işareti konuyor, o da kutuyu
+# güncelliyor ve belge yeniden yükleniyordu. Kaydırma konumu geri
+# yükleniyordu ama o konum en fazla dörtte bir saniye eskiydi (Python
+# tarafında aralıklarla ölçülüyor); kullanıcı hâlâ kaydırıyorsa sayfa geri
+# sıçrayıp tuhaf bir yerde duruyordu.
+#
+# Kutunun içindeki iki şeyi doğrudan değiştirmek yeterli: çubuğun genişliği
+# ve altındaki yazı. Belge yerinde kalıyor, kaydırmaya hiç dokunulmuyor.
+PROGRESS_PATCH = """
+(function () {
+  var bar = document.querySelector('.prog .bar i');
+  var cap = document.querySelector('.prog .cap');
+  if (!bar || !cap) return false;
+  bar.style.width = %WIDTH%;
+  cap.textContent = %CAPTION%;
+  return true;
+})()
+"""
 
 
 def render_markdown(text: str) -> tuple[str, list[tuple[str, str]]]:
@@ -118,6 +172,10 @@ class LessonView(QWidget):
         self._footer: list[tuple[str, str, bool]] = []
         self._extra = ""
         self._progress = (0, "")
+
+        # İlerleme kutusu şu an çizili mi? Çiziliyse güncelleme belgeyi
+        # yeniden yüklemeden yapılıyor.
+        self._has_progress_box = False
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -189,23 +247,48 @@ class LessonView(QWidget):
 
     def set_meta(self, items: list[str]) -> None:
         """Başlığın altındaki bilgi satırı: süre, alıştırma ve sınav sayısı."""
-        self._meta = [item for item in items if item]
+        yeni = [item for item in items if item]
+        if yeni == self._meta:
+            return
+        self._meta = yeni
         if self._source:
             self._render(keep_scroll=True)
 
     def set_progress(self, percent: int, caption: str) -> None:
+        """İlerleme kutusunu günceller.
+
+        Kutu ekrandaysa belge yeniden yüklenmiyor, kutunun içi yerinde
+        değiştiriliyor — okurken sayfanın sıçramaması için.
+        """
+        if (percent, caption) == self._progress:
+            return
+
         self._progress = (percent, caption)
-        if self._source:
-            self._render(keep_scroll=True)
+        if not self._source:
+            return
+
+        if self._has_progress_box:
+            self._document.page().runJavaScript(
+                PROGRESS_PATCH
+                .replace("%WIDTH%", json.dumps(f"{percent}%"))
+                .replace("%CAPTION%", json.dumps(caption))
+            )
+            return
+
+        self._render(keep_scroll=True)
 
     def set_footer(self, buttons: list[tuple[str, str, bool]]) -> None:
         """Alt gezinme düğmeleri: (eylem, metin, birincil mi)."""
+        if buttons == self._footer:
+            return
         self._footer = buttons
         if self._source:
             self._render(keep_scroll=True)
 
     def set_extra(self, html_after: str) -> None:
         """Metnin altına eklenecek hazır HTML (alıştırma ipucu kutusu gibi)."""
+        if html_after == self._extra:
+            return
         self._extra = html_after
         if self._source:
             self._render(keep_scroll=True)
@@ -220,6 +303,7 @@ class LessonView(QWidget):
         yükleniyor ve okuyan kişi en başa fırlıyordu. Yeni ders yüklenirken
         bayrak verilmiyor, sayfa başa dönüyor.
         """
+        self._document.set_lang(self._language.language)
         body, headings = render_markdown(self._source)
 
         parts = ["".join(self._banner_html(tone, text) for tone, text in self._banners)]
@@ -238,6 +322,7 @@ class LessonView(QWidget):
             page_class = "page narrow"
             aside = ""
 
+        self._has_progress_box = bool(aside)
         scripts = SCROLL_SPY if aside else ""
         self._document.set_body(
             f'<div class="{page_class}">{content}{aside}</div>{scripts}',
@@ -283,7 +368,7 @@ class LessonView(QWidget):
             '<div class="prog">'
             f'<div class="h2">{html.escape(self._language.t("section.section_progress"))}</div>'
             f'<div class="bar"><i style="width:{percent}%"></i></div>'
-            f'<div class="h2" style="margin:9px 0 0">{html.escape(caption)}</div>'
+            f'<div class="h2 cap" style="margin:9px 0 0">{html.escape(caption)}</div>'
             "</div>"
         )
 

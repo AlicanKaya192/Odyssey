@@ -34,7 +34,10 @@ HARNESS_FLAG = "--run-harness"
 KILL_GRACE_SEC = 5
 
 # Alıştırma klasöründe kopyalanmayacak dosyalar: bunlar meta veri ve çözüm.
-SKIPPED_NAMES = {"exercise.json"}
+# __pycache__: alistirma klasorunde bir kez calistirilmis bir modulden
+# kalmis olabiliyor; bayat .pyc dosyalarini calisma klasorune tasimanin
+# anlami yok.
+SKIPPED_NAMES = {"exercise.json", "__pycache__"}
 SKIPPED_SUFFIXES = {".md"}
 # starter.py, starter.tr.py, solution.en.py ... hepsi disarida kalir.
 SKIPPED_PREFIXES = ("starter", "solution", "prompt")

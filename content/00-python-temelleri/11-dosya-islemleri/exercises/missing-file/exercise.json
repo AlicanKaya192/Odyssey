@@ -1,0 +1,88 @@
+{
+  "id": "missing-file",
+  "title": {
+    "tr": "Olmayan dosya",
+    "en": "The file that is not there"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`try` bloğu `with open(...)` satırını **içine almalı**. Hata dosya açılırken çıkıyor; `with` dışarıda kalırsa yakalayamıyorsun.",
+      "en": "The `try` block has to **contain** the `with open(...)` line. The error comes up while the file is being opened; if `with` sits outside, you cannot catch it."
+    },
+    {
+      "tr": "Satırı `line.split(\"=\", 1)` ile ikiye böl. İkinci argüman \"en fazla bir kez böl\" demek; değerin içinde `=` varsa bu önemli.",
+      "en": "Split the line with `line.split(\"=\", 1)`. The second argument means \"split at most once\", which matters when the value itself contains an `=`."
+    },
+    {
+      "tr": "Hata yakalandığında `return {}` yazıyorsun. Boş sözlük döndürmek, çağıran tarafın kodunu değiştirmeden çalışmasını sağlıyor — sözlükte dolaşmak boş sözlükte de geçerli.",
+      "en": "When the error is caught you write `return {}`. Returning an empty dictionary lets the calling code work unchanged — looping over a dictionary is valid when it is empty too."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef load_settings(path):\n    values = {}\n    try:\n        with open(path, encoding=\"utf-8\") as file:\n            for line in file:\n                line = line.strip()\n                if not line:\n                    continue\n                key, value = line.split(\"=\", 1)\n                values[key] = value\n    except FileNotFoundError:\n        return {}\n    return values\n\n\nfound = load_settings(\"settings.txt\")\nmissing = load_settings(\"profile.txt\")\n\nprint(found)\nprint(missing)\n```",
+      "en": "The solution:\n\n```python\ndef load_settings(path):\n    values = {}\n    try:\n        with open(path, encoding=\"utf-8\") as file:\n            for line in file:\n                line = line.strip()\n                if not line:\n                    continue\n                key, value = line.split(\"=\", 1)\n                values[key] = value\n    except FileNotFoundError:\n        return {}\n    return values\n\n\nfound = load_settings(\"settings.txt\")\nmissing = load_settings(\"profile.txt\")\n\nprint(found)\nprint(missing)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Try",
+      "hint": {
+        "tr": "Kodunda `try` yok. Dosyanın var olup olmadığını başka türlü kontrol etmek yerine, açmayı deneyip `FileNotFoundError` yakalaman isteniyor.",
+        "en": "There is no `try` in your code. Rather than checking some other way whether the file exists, you are asked to try opening it and catch the `FileNotFoundError`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "load_settings",
+      "cases": [
+        {
+          "args": [
+            "settings.txt"
+          ],
+          "returns": {
+            "theme": "dark",
+            "lang": "en"
+          }
+        },
+        {
+          "args": [
+            "profile.txt"
+          ],
+          "returns": {}
+        },
+        {
+          "args": [
+            "nothing-here.txt"
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "variable",
+      "name": "found",
+      "equals": {
+        "theme": "dark",
+        "lang": "en"
+      }
+    },
+    {
+      "type": "variable",
+      "name": "missing",
+      "equals": {}
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'theme': 'dark', 'lang': 'en'}\n{}"
+    }
+  ]
+}

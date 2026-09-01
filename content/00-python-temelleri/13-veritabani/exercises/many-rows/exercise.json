@@ -1,0 +1,55 @@
+{
+  "id": "many-rows",
+  "title": {
+    "tr": "Çok satır eklemek",
+    "en": "Inserting many rows"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`executemany` tek komutu çok satırla çalıştırıyor: `cursor.executemany(\"INSERT INTO students VALUES (?, ?, ?)\", rows)`. Üç sütun olduğu için üç soru işareti gerekiyor.",
+      "en": "`executemany` runs one command over many rows: `cursor.executemany(\"INSERT INTO students VALUES (?, ?, ?)\", rows)`. There are three columns, so three question marks."
+    },
+    {
+      "tr": "`COUNT(*)` sonucu tek satır, tek sütun — ama yine demet olarak geliyor. Sayıyı almak için `cursor.fetchone()[0]` yazıyorsun.",
+      "en": "The `COUNT(*)` result is one row with one column — but it still comes back as a tuple. To get the number you write `cursor.fetchone()[0]`."
+    },
+    {
+      "tr": "İsimleri çıkarmak için satırlarda dolaş: her `row` bir demet, ismi `row[0]`. Boş bir listeyle başlayıp `append` ile doldur.",
+      "en": "To pull the names out, loop over the rows: each `row` is a tuple and the name is `row[0]`. Start with an empty list and fill it with `append`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ncursor.executemany(\"INSERT INTO students VALUES (?, ?, ?)\", rows)\nconnection.commit()\n\ncursor.execute(\"SELECT COUNT(*) FROM students\")\ntotal = cursor.fetchone()[0]\n\ncursor.execute(\"SELECT name FROM students\")\nnames = []\nfor row in cursor.fetchall():\n    names.append(row[0])\n\nprint(total)\nprint(names)\n```",
+      "en": "The solution:\n\n```python\ncursor.executemany(\"INSERT INTO students VALUES (?, ?, ?)\", rows)\nconnection.commit()\n\ncursor.execute(\"SELECT COUNT(*) FROM students\")\ntotal = cursor.fetchone()[0]\n\ncursor.execute(\"SELECT name FROM students\")\nnames = []\nfor row in cursor.fetchall():\n    names.append(row[0])\n\nprint(total)\nprint(names)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "total",
+      "equals": 4
+    },
+    {
+      "type": "variable",
+      "name": "names",
+      "equals": [
+        "Ada",
+        "Brian",
+        "Grace",
+        "Alan"
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4\n['Ada', 'Brian', 'Grace', 'Alan']"
+    }
+  ]
+}

@@ -22,6 +22,8 @@ SPACING = {
 
 # --- Köşe yarıçapları ------------------------------------------------------
 RADIUS = {
+    # Segment düğmesi gibi kabın içine oturan küçük parçalar için.
+    "xs": 6,
     "sm": 8,
     "md": 12,
     "lg": 18,
@@ -41,8 +43,16 @@ FONTS = {
         '"Inter", "Ubuntu", "Noto Sans", '              # Linux
         "sans-serif"
     ),
+    # Ligatürsüz yazı tipleri önde.
+    #
+    # "Cascadia Code" programcı ligatürleri taşıyor: `>=` ekranda tek bir `≥`
+    # işareti olarak çiziliyor, `!=` `≠` oluyor. Deneyimli birine hoş
+    # görünüyor ama burada Python'u yeni öğrenen biri var ve o işareti
+    # klavyesinde bulamıyor. "Cascadia Mono" aynı yazı tipinin ligatürsüz
+    # hâli; görünüm birebir aynı kalıyor, yalnızca işaretler yazıldığı gibi
+    # görünüyor.
     "mono": (
-        '"Cascadia Code", "Cascadia Mono", "Consolas", '   # Windows
+        '"Cascadia Mono", "Consolas", '                   # Windows
         '"SF Mono", "Menlo", '                            # macOS
         '"DejaVu Sans Mono", "Liberation Mono", '         # Linux
         "monospace"
@@ -75,31 +85,50 @@ RAIL_WIDTH = 76
 
 # --- Renk paletleri --------------------------------------------------------
 
+# Açık tema, koyu temaya göre yorucu buluyordu ve ölçüm bunu doğruladı:
+# sayfa parlaklığı 0.938, kartlar saf beyaz (1.000). Göz saatlerce en
+# yüksek parlaklığa bakıyordu. Daha ağırı, soluk metin koyuda 7.2:1
+# okunurken açıkta 4.8:1'de kalıyordu — süre, "Başlanmadı", sayfa içi
+# başlık listesi hep o renkle yazılıyor.
+#
+# Değerler koyu temanın rakamlarına göre seçildi, göz kararıyla değil:
+#
+#                  önce      şimdi     koyu tema
+#   sayfa L        0.938     0.836       0.006
+#   gövde metni    17.2:1    15.4:1     15.9:1
+#   soluk / yüzey   5.1:1     6.8:1      6.7:1
+#
+# Gövde metninin kontrastı biraz düştü ama 15:1 zaten fazlasıyla yeterli
+# (AA eşiği 4.5:1); kazanç, parlaklığın gözü yormayan bir yere inmesi.
 LIGHT = {
-    "bg": "#F7F8FA",
-    "surface": "#FFFFFF",
-    "surface_alt": "#F1F3F7",
-    "surface_hover": "#E9ECF2",
-    "border": "#E3E6EC",
-    "border_strong": "#CFD4DE",
+    "bg": "#E8ECF2",
+    "surface": "#F8F9FC",
+    "surface_alt": "#DDE3EC",
+    # Sol şerit sayfadan bir ton daha derin duruyor; böylece
+    # zeminden ayrılıyor ama ayrı bir yama gibi görünmüyor.
+    "rail_bg": "#DFE4EC",
+    "danger_hover": "#B91C1C",
+    "surface_hover": "#DCE2EA",
+    "border": "#CFD5E0",
+    "border_strong": "#B7BFCD",
 
     "text": "#12151A",
-    "text_muted": "#666F7D",
+    "text_muted": "#4E5867",
     "text_inverse": "#FFFFFF",
 
     "accent": "#4F46E5",
     "accent_hover": "#4338CA",
-    "accent_soft": "#EEF0FE",
+    "accent_soft": "#E4E7FC",
     "accent_second": "#7C3AED",   # karşılama kartındaki geçiş rengi
 
     "success": "#15803D",
-    "success_soft": "#ECFDF3",
+    "success_soft": "#DFF5E8",
     "danger": "#B91C1C",
-    "danger_soft": "#FEF2F2",
+    "danger_soft": "#FBE4E4",
     "warning": "#B45309",
-    "warning_soft": "#FFFBEB",
+    "warning_soft": "#FBF1D9",
 
-    "code_bg": "#F4F6F9",
+    "code_bg": "#E9EDF3",
     # Qt'nin stil dosyaları gölgeyi desteklemiyor; gölgeler
     # QGraphicsDropShadowEffect ile veriliyor, renkleri burada.
     "shadow": (16, 24, 40, 26),
@@ -110,6 +139,8 @@ DARK = {
     "bg": "#0F1116",
     "surface": "#171A21",
     "surface_alt": "#1D212A",
+    "rail_bg": "#0A0C11",
+    "danger_hover": "#F87171",
     "surface_hover": "#262B36",
     "border": "#272C36",
     "border_strong": "#39404E",
@@ -181,18 +212,14 @@ RAIL_COLORS = {
     "light": {
         "journey": "#4F46E5",
         "profile": "#0E7490",
-        "links": "#B45309",
-        "extras": "#15803D",
-        "license": "#7C3AED",
+        "about": "#B45309",
         "releases": "#BE185D",
         "settings": "#6B7280",
     },
     "dark": {
         "journey": "#8B84FF",
         "profile": "#22D3EE",
-        "links": "#FBBF24",
-        "extras": "#4ADE80",
-        "license": "#C4B5FD",
+        "about": "#FBBF24",
         "releases": "#F472B6",
         "settings": "#98A1AF",
     },
@@ -211,6 +238,10 @@ NODE_STATES = {
     "current": {"symbol": "▶", "color": "accent"},
     "in_progress": {"symbol": "◐", "color": "warning"},
     "not_started": {"symbol": "", "color": "border_strong"},
+    # Önündeki bölüm bitmeden açılmıyor. Simge yerine sıra numarası
+    # duruyor; kilidi kesik çerçeve ve soluk renk anlatıyor, altındaki
+    # açıklama da hangi bölümün beklendiğini yazıyor.
+    "locked": {"symbol": "", "color": "border_strong"},
 }
 
 

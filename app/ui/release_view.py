@@ -113,6 +113,14 @@ def parse_changelog(path: Path) -> list[Release]:
             if not current.groups:
                 current.groups.append(("", []))
             current.groups[-1][1].append(item_match.group(1).strip())
+            continue
+
+        # Devam satırı: dosyada maddeler seksen sütuna sığsın diye alt
+        # satıra taşırılıyor ve devamı boşlukla girintileniyor. Bu satırlar
+        # önce hiç okunmuyordu; uzun maddeler ekranda yarıda kesiliyordu
+        # ("...ekranın adı bir kez de sayfanın" diye bitiyordu).
+        if stripped and line[:1].isspace() and current.groups and current.groups[-1][1]:
+            current.groups[-1][1][-1] += " " + stripped
 
     return releases
 
@@ -167,6 +175,7 @@ class ReleaseView(QWidget):
         yüzden sayfa başına `PAGE_SIZE` sürüm gösteriliyor, altta sayfa
         düğmeleri duruyor.
         """
+        self._document.set_lang(self._language.language)
         releases = parse_changelog(self._changelog_path())
 
         if not releases:

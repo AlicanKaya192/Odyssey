@@ -1,0 +1,89 @@
+{
+  "id": "annotate-report",
+  "title": {
+    "tr": "İç içe kaplar",
+    "en": "Nested containers"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Değerler sayı listesi olduğunda belirtim iç içe geçiyor: `dict[str, list[int]]`. İçten dışa oku — `list[int]` sayı listesi, `dict[str, ...]` de onu metin anahtarlarla tutan sözlük.",
+      "en": "When the values are lists of numbers the annotation nests: `dict[str, list[int]]`. Read it from the inside out — `list[int]` is a list of numbers, and `dict[str, ...]` holds those under string keys."
+    },
+    {
+      "tr": "Dönüşün belirtimi farklı: fonksiyon her isme **tek bir** sayı veriyor, liste değil. Yani `-> dict[str, int]`.",
+      "en": "The return annotation is different: the function gives each name a **single** number, not a list. So it is `-> dict[str, int]`."
+    },
+    {
+      "tr": "Sözlükte dolaşırken `for name in records:` isimleri veriyor. O ismin listesi `records[name]`, listenin en büyüğü de `max(records[name])`.",
+      "en": "Looping with `for name in records:` gives you the names. That name's list is `records[name]`, and the largest value in it is `max(records[name])`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ngrades: dict[str, list[int]] = {\"Ada\": [90, 85], \"Alan\": [70, 95]}\n\n\ndef best(records: dict[str, list[int]]) -> dict[str, int]:\n    result: dict[str, int] = {}\n    for name in records:\n        result[name] = max(records[name])\n    return result\n\n\nprint(best(grades))\n```",
+      "en": "The solution:\n\n```python\ngrades: dict[str, list[int]] = {\"Ada\": [90, 85], \"Alan\": [70, 95]}\n\n\ndef best(records: dict[str, list[int]]) -> dict[str, int]:\n    result: dict[str, int] = {}\n    for name in records:\n        result[name] = max(records[name])\n    return result\n\n\nprint(best(grades))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "annotation",
+      "variable": "grades",
+      "is": "dict[str, list[int]]"
+    },
+    {
+      "type": "annotation",
+      "name": "best",
+      "params": {
+        "records": "dict[str, list[int]]"
+      },
+      "returns": "dict[str, int]"
+    },
+    {
+      "type": "function",
+      "name": "best",
+      "cases": [
+        {
+          "args": [
+            {
+              "Ada": [
+                90,
+                85
+              ],
+              "Alan": [
+                70,
+                95
+              ]
+            }
+          ],
+          "returns": {
+            "Ada": 90,
+            "Alan": 95
+          }
+        },
+        {
+          "args": [
+            {
+              "Grace": [
+                50
+              ]
+            }
+          ],
+          "returns": {
+            "Grace": 50
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'Ada': 90, 'Alan': 95}"
+    }
+  ]
+}

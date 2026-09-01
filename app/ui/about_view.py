@@ -1,41 +1,60 @@
-"""Bağlantılarım, Ekstra İçerikler ve Lisans ekranları.
+"""Hakkında ekranı.
 
-Üçü ayrı menü öğesi; şeritten doğrudan girilir. Aynı sınıf üçünü de
-çiziyor, çünkü hepsi aynı düzeni paylaşıyor: kart ızgarası ve altta telif
-satırı.
+Beş bölüm tek bir ekranda toplandı: Bilgi, SSS, Bağlantılarım, Ekstra
+İçerikler ve Lisans. Bölümler arasında başlıktaki sekmelerle geçiliyor —
+konu ekranındaki seçicinin aynısı.
 
-Kartlar ikişerli diziliyor — dördünü alt alta uzatmak hem yer israfı hem de
-hepsini bir arada görmeyi engelliyordu.
+Önce her biri şeritte ayrı bir simgeydi. Bilgi ve SSS eklenince şeritte
+dokuz simge olacaktı; hangisinin ne olduğunu öğrenmek için hepsinin üstüne
+gelmek gerekiyordu. Beşi bir araya alınca şerit yediden beşe indi ve
+bölümlerin adı simge yerine yazıyla görünür oldu.
 
 Bağlantılar uygulamanın içinde açılmıyor; tıklanınca sistemin tarayıcısına
 gidiyor. Uygulama kendi başına ağa çıkmıyor, yalnızca kullanıcının açık
 isteğiyle bir adres açılıyor.
+
+Telif satırı burada değil: pencerenin altındaki şeritte (`app/ui/footer.py`)
+ve her ekranda görünüyor.
 """
 
 from __future__ import annotations
 
 import html
 import json
-from datetime import date
 
-from PySide6.QtCore import QUrl
+import markdown
+
+from PySide6.QtCore import QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ..core.language import LanguageManager
 from ..paths import content_dir, install_root
-from ..version import APP_VERSION
 from ..widgets.document_view import DocumentView
 
-SECTIONS = ("links", "extras", "license")
+# Sekmelerin sırası. Önce uygulamanın kendisi — ne olduğu, sık sorulanlar,
+# hangi lisansla dağıtıldığı — sonra benimle ilgili olanlar: bağlantılarım
+# ve diğer projelerim.
+SECTIONS = ("info", "faq", "license", "links", "extras")
 
 # Lisansın özgün dili. Bu dilde ayrıca çeviri gösterilmiyor.
 FALLBACK_LICENSE_LANGUAGE = "en"
 
+MARKDOWN_EXTENSIONS = ["fenced_code", "tables", "sane_lists"]
+
 
 def load_about() -> dict:
     """`content/about.json` dosyasını okur."""
-    path = content_dir() / "about.json"
+    return _load_json("about.json")
+
+
+def load_faq() -> dict:
+    """`content/faq.json` dosyasını okur."""
+    return _load_json("faq.json")
+
+
+def _load_json(name: str) -> dict:
+    path = content_dir() / name
     if not path.exists():
         return {}
     with path.open(encoding="utf-8") as handle:
@@ -43,13 +62,17 @@ def load_about() -> dict:
 
 
 class AboutView(QWidget):
-    """Bağlantılar, projeler veya lisans — hangisi seçiliyse onu gösterir."""
+    """Bilgi, SSS, bağlantılar, projeler ve lisans — seçili olan gösterilir."""
+
+    # Sekme değişince yayılıyor; başlığın rengi ve alt yazısı buna bakıyor.
+    section_changed = Signal(str)
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._language = language
         self._data = load_about()
-        self._section = "links"
+        self._faq = load_faq()
+        self._section = SECTIONS[0]
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -64,15 +87,26 @@ class AboutView(QWidget):
 
     @property
     def section(self) -> str:
-        """Hangi bölüm gösteriliyor: links, extras veya license."""
+        """Hangi bölüm gösteriliyor."""
         return self._section
 
+    @property
+    def section_index(self) -> int:
+        return SECTIONS.index(self._section)
+
     def show_section(self, name: str) -> None:
-        if name in SECTIONS and name != self._section:
-            self._section = name
+        if name not in SECTIONS:
+            return
+        değişti = name != self._section
+        self._section = name
+        if değişti:
             self.refresh()
-        elif name in SECTIONS:
-            self._section = name
+            self.section_changed.emit(name)
+
+    def show_index(self, index: int) -> None:
+        """Sekme seçicisinden gelen sıra numarası."""
+        if 0 <= index < len(SECTIONS):
+            self.show_section(SECTIONS[index])
 
     def _on_action(self, action: str) -> None:
         """Sayfa içindeki bağlantılar sistem tarayıcısında açılır."""
@@ -82,7 +116,10 @@ class AboutView(QWidget):
     # --- çizim ------------------------------------------------------------
 
     def refresh(self) -> None:
+        self._document.set_lang(self._language.language)
         builders = {
+            "info": self._info_html,
+            "faq": self._faq_html,
             "links": self._links_html,
             "extras": self._extras_html,
             "license": self._license_html,
@@ -90,9 +127,7 @@ class AboutView(QWidget):
         body = builders[self._section]()
 
         self._document.set_body(
-            '<div class="page narrow"><div class="content">'
-            f"{body}{self._footnote_html()}"
-            "</div></div>"
+            f'<div class="page narrow"><div class="content">{body}</div></div>'
         )
 
     def _author_html(self) -> str:
@@ -122,6 +157,50 @@ class AboutView(QWidget):
     def _grid(self, cards: list[str]) -> str:
         return f'<div class="cardgrid">{"".join(cards)}</div>'
 
+    # --- bölümler ---------------------------------------------------------
+
+    def _info_html(self) -> str:
+        """Uygulamanın ne olduğunu anlatan metin.
+
+        Markdown olarak `content/` altında duruyor; ders metinleriyle aynı
+        yerde yazılıp aynı biçimde çiziliyor. İngilizcesi yoksa Türkçesine
+        düşüyor.
+        """
+        for code in (self._language.language, "tr"):
+            path = content_dir() / f"info.{code}.md"
+            if path.exists():
+                return markdown.markdown(
+                    path.read_text(encoding="utf-8"),
+                    extensions=MARKDOWN_EXTENSIONS,
+                )
+        return ""
+
+    def _faq_html(self) -> str:
+        """Sık sorulanlar, açılıp kapanan başlıklar hâlinde.
+
+        Açılma kapanma için betik yok: `<details>`/`<summary>` tarayıcının
+        kendi öğesi. Sayfa uygulamaya haber veremediği için (Chromium,
+        kullanıcı tıklaması olmadan `app:` adresine gitmiyor) betikle
+        çözülen bir akordeon burada çalışmazdı.
+        """
+        intro = f'<p class="meta">{html.escape(self._language.t("about.faq_intro"))}</p>'
+
+        parts = []
+        for item in self._faq.get("questions", []):
+            soru = self._language.pick(item.get("question"))
+            cevap = markdown.markdown(
+                self._language.pick(item.get("answer")),
+                extensions=MARKDOWN_EXTENSIONS,
+            )
+            parts.append(
+                "<details class='faq'>"
+                f"<summary>{html.escape(soru)}<span class='mark'></span></summary>"
+                f"<div class='answer'>{cevap}</div>"
+                "</details>"
+            )
+
+        return f"{intro}<div class='faqlist'>{''.join(parts)}</div>"
+
     def _links_html(self) -> str:
         cards = [
             self._card(
@@ -143,10 +222,7 @@ class AboutView(QWidget):
             )
             for item in self._data.get("projects", [])
         ]
-        return (
-            f"<h1>{html.escape(self._language.t('nav.extras'))}</h1>"
-            f"{intro}{self._grid(cards)}"
-        )
+        return f"{intro}{self._grid(cards)}"
 
     def _license_html(self) -> str:
         """Lisans ekranı.
@@ -165,7 +241,6 @@ class AboutView(QWidget):
             translation = original.read_text(encoding="utf-8") if original.exists() else ""
 
         return (
-            f"<h1>{html.escape(self._language.t('nav.license'))}</h1>"
             f"<p>{html.escape(self._language.t('about.license_summary'))}</p>"
             f'<div class="licensebox">{html.escape(translation)}</div>'
             f"<h2>{html.escape(self._language.t('about.content_license'))}</h2>"
@@ -178,15 +253,6 @@ class AboutView(QWidget):
             return ""
         path = install_root() / "app" / "resources" / f"LICENSE.{self._language.language}.txt"
         return path.read_text(encoding="utf-8") if path.exists() else ""
-
-    def _footnote_html(self) -> str:
-        """En alttaki telif satırı."""
-        author = self._data.get("author", {}).get("name", "")
-        return (
-            f'<div class="footnote">© {date.today().year} {html.escape(author)} · '
-            f"{html.escape(self._language.t('app.title'))} {APP_VERSION} · "
-            f"{html.escape(self._language.t('about.mit'))}</div>"
-        )
 
     # --- tema ve dil ------------------------------------------------------
 
