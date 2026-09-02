@@ -31,6 +31,8 @@ from ..core.language import LanguageManager
 from ..core.quiz_timing import UNTIMED_QUIZ_KEY, untimed_quiz
 from ..core.unlock import UNLOCK_ALL_KEY, unlock_all
 from ..core.theme import ThemeManager
+from ..core import updates
+from .update_check import UpdateWorker
 from ..resources.theme.tokens import PALETTES, SPACING
 from ..widgets.segmented import SegmentedControl
 from ..widgets.toggle_switch import ToggleSwitch
@@ -95,6 +97,8 @@ class SettingsDialog(QDialog):
     lock_changed = Signal()
     # Sınav süresi ayarı: açık bir sınav varken de o an uygulanıyor.
     timing_changed = Signal()
+    # Elle yapılan denetimin sonucu: şeritteki duyuruyu da güncelliyor.
+    update_found = Signal(object)
 
     def __init__(
         self,
@@ -107,6 +111,7 @@ class SettingsDialog(QDialog):
         self._language = language
         self._theme = theme
         self._store = store
+        self._worker: UpdateWorker | None = None
 
         modal.prepare(self)
         self.setMinimumWidth(460)
@@ -146,6 +151,29 @@ class SettingsDialog(QDialog):
         self._untimed_row = SettingRow()
         self._untimed_row.switch.toggled.connect(self._on_untimed)
         layout.addWidget(self._untimed_row)
+
+        layout.addWidget(self._separator())
+
+        # --- güncelleme ---------------------------------------------------
+        self._update_title = QLabel()
+        self._update_title.setProperty("role", "section")
+        layout.addWidget(self._update_title)
+
+        self._update_row = SettingRow()
+        self._update_row.switch.toggled.connect(self._on_update_check)
+        layout.addWidget(self._update_row)
+
+        update_bar = QHBoxLayout()
+        update_bar.setSpacing(SPACING["sm"])
+        self._check_button = QPushButton()
+        self._check_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._check_button.clicked.connect(self._check_now)
+        update_bar.addWidget(self._check_button)
+        self._update_status = QLabel()
+        self._update_status.setProperty("role", "muted")
+        self._update_status.setWordWrap(True)
+        update_bar.addWidget(self._update_status, 1)
+        layout.addLayout(update_bar)
 
         layout.addSpacing(SPACING["sm"])
 
@@ -201,13 +229,16 @@ class SettingsDialog(QDialog):
         self._untimed_row.switch.set_checked(
             untimed_quiz(self._store), animate=False
         )
+        self._update_row.switch.set_checked(
+            updates.enabled(self._store), animate=False
+        )
 
     def _paint_switches(self, mode: str) -> None:
         p = PALETTES.get(mode, PALETTES["light"])
         # Segment düğmelerinin **zeminini** QSS veriyor ama içlerindeki
         # güneş/ay birer `QIcon`; onlara QSS ulaşmıyor.
         self._theme_picker.set_icon_colors(p["text_muted"], p["text_inverse"])
-        for row in (self._unlock_row, self._untimed_row):
+        for row in (self._unlock_row, self._untimed_row, self._update_row):
             row.switch.set_colors(
                 track_off=p["surface_alt"],
                 track_on=p["accent"],
@@ -235,6 +266,49 @@ class SettingsDialog(QDialog):
         self._store.set_setting(UNTIMED_QUIZ_KEY, "1" if checked else "")
         self.timing_changed.emit()
 
+    def _on_update_check(self, checked: bool) -> None:
+        updates.set_enabled(self._store, checked)
+        self._check_button.setEnabled(checked)
+        if not checked:
+            self._set_status("")
+
+    # --- güncelleme -------------------------------------------------------
+
+    def _check_now(self) -> None:
+        """Elle denetim: "bugün zaten baktım" kuralını atlıyor."""
+        if self._worker is not None and self._worker.isRunning():
+            return
+        if not updates.should_check(self._store, ignore_interval=True):
+            return
+        self._check_button.setEnabled(False)
+        self._set_status(self._language.t("update.checking"))
+
+        self._worker = UpdateWorker(parent=self)
+        self._worker.finished_with.connect(self._on_checked)
+        self._worker.start()
+
+    def _on_checked(self, info) -> None:
+        updates.record(self._store, info)
+        self._check_button.setEnabled(updates.enabled(self._store))
+        t = self._language.t
+        if info.status == "newer":
+            self._set_status(t("update.available", version=info.version))
+        elif info.status == "current":
+            self._set_status(t("update.current"))
+        elif info.status == "offline":
+            self._set_status(t("update.offline"))
+        else:
+            self._set_status(t("update.failed"))
+        self.update_found.emit(info)
+
+    def _set_status(self, text: str) -> None:
+        """Durum satırını yazar ve pencereyi yeniden ölçer.
+
+        Pencere sabit boyutlu; satır uzayınca yazı kırpılıyordu.
+        """
+        self._update_status.setText(text)
+        modal.refit(self)
+
     # --- metinler ---------------------------------------------------------
 
     def retranslate(self) -> None:
@@ -260,3 +334,9 @@ class SettingsDialog(QDialog):
 
         self._untimed_row.title.setText(t("settings.untimed_quiz"))
         self._untimed_row.description.setText(t("settings.untimed_quiz_help"))
+
+        self._update_title.setText(t("settings.group_updates"))
+        self._update_row.title.setText(t("settings.update_check"))
+        self._update_row.description.setText(t("settings.update_check_help"))
+        self._check_button.setText(t("update.check_now"))
+        self._check_button.setEnabled(updates.enabled(self._store))

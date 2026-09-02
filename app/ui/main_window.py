@@ -12,7 +12,7 @@ Ekranlar:
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QMainWindow,
@@ -39,6 +39,9 @@ from .profile_view import ProfileView
 from .rail import Rail
 from .release_view import ReleaseView
 from .settings_dialog import SettingsDialog
+from .update_check import UpdateWorker
+from .update_notice import UpdateNoticeDialog
+from ..core import updates
 from .topic_view import TopicView
 
 
@@ -123,6 +126,19 @@ class MainWindow(QMainWindow):
         self._refresh_progress()
         self.retranslate()
 
+        # Güncelleme denetimi açılışta bir kez, arka planda. Pencere
+        # kurulurken başlatılmıyor: ağ yavaşsa açılışı bekletmesin diye
+        # `start_update_check` ilk kare çizildikten sonra çağrılıyor.
+        self._update_worker: UpdateWorker | None = None
+        self._update_startup = False
+
+        # Uygulama günlerce açık kalabiliyor; o oturumda da üç saatte bir
+        # bakılıyor. Zamanlayıcı yalnızca denetimi tetikliyor, kararı yine
+        # `updates.should_check` veriyor.
+        self._update_timer = QTimer(self)
+        self._update_timer.setInterval(updates.CHECK_INTERVAL_SEC * 1000)
+        self._update_timer.timeout.connect(self._periodic_update_check)
+
     # --- ekranlar ---------------------------------------------------------
 
     def _build_screens(self) -> None:
@@ -201,6 +217,61 @@ class MainWindow(QMainWindow):
         if onceki is not None:
             self._stack.setCurrentWidget(onceki)
         QApplication.processEvents()
+
+    def start_update_check(self) -> None:
+        """Açılışta yeni sürüm var mı diye bakar.
+
+        **Her açılışta bir kez**, aradaki süreye bakmadan: programı açıp
+        kapatan biri her seferinde güncel bilgiyi görüyor. Süre kuralı
+        yalnızca açık kalan oturumun kendi kendine yaptığı denetim için.
+
+        Ayar kapalıysa hiç iş parçacığı kurulmuyor: karar veritabanına
+        bakıyor, veritabanına da yalnızca bu iş parçacığından dokunuluyor.
+        """
+        self._update_timer.start()
+        self._run_update_check(startup=True)
+
+    def _periodic_update_check(self) -> None:
+        """Açık kalan oturumda üç saatte bir."""
+        self._run_update_check(startup=False)
+
+    def _run_update_check(self, startup: bool) -> None:
+        if self._update_worker is not None and self._update_worker.isRunning():
+            return
+        if not updates.should_check(self._store, ignore_interval=startup):
+            return
+        self._update_startup = startup
+        self._update_worker = UpdateWorker(parent=self)
+        self._update_worker.finished_with.connect(self._on_update_checked)
+        self._update_worker.start()
+
+    def _on_update_checked(self, info) -> None:
+        """Denetim bitti. Yalnızca **yeni sürüm varsa** bir şey görünüyor.
+
+        Başarısız denetim sessiz: internetin olmaması bu uygulamada bir
+        hata değil, olağan durum.
+        """
+        updates.record(self._store, info)
+        if not info.has_update:
+            return
+
+        self._footer.set_update(info.version, info.url)
+
+        # Duyuru penceresi sürüm başına bir kez ve yalnızca açılışta:
+        # ders okurken ya da sınav çözerken önüne kutu çıkmıyor.
+        if not self._update_startup:
+            return
+        if updates.already_notified(self._store, info.version):
+            return
+        updates.mark_notified(self._store, info.version)
+        self._show_update_notice(info)
+
+    def _show_update_notice(self, info) -> None:
+        from . import titlebar
+
+        notice = UpdateNoticeDialog(self._language, info, self)
+        titlebar.apply(notice, self._theme.effective_mode)
+        notice.exec()
 
     def _refresh_progress(self) -> None:
         """Şeridin tepesindeki halkayı günceller.
@@ -351,6 +422,8 @@ class MainWindow(QMainWindow):
         # Süre ayarı da aynı şekilde: açık bir sınav varsa sayaç o an
         # duruyor ya da geri geliyor.
         dialog.timing_changed.connect(self._on_timing_changed)
+        # Elle denetim yapıldıysa sonucu şeride de yansıt.
+        dialog.update_found.connect(self._on_update_checked)
         dialog.exec()
 
         # Seçimler kalıcı olsun diye veritabanına yazılıyor.
@@ -403,6 +476,7 @@ class MainWindow(QMainWindow):
         self._about_header.set_mode(mode)
         self._releases.set_mode(mode)
         self._releases_header.set_mode(mode)
+        self._footer.set_mode(mode)
         self._apply_header_accents(mode)
 
     def retranslate(self) -> None:

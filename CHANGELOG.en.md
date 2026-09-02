@@ -21,6 +21,30 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.7.0] — 2 September 2026
+
+### Added
+- **A check for new versions.** The application looks for a newer release
+  every time it starts, and every three hours if you leave it open. When
+  there is one, a link to the release page sits in the strip at the bottom
+  of the window.
+- **A notice appears when a new version is out.** Once per version, and
+  only at startup: no box interrupts you while you are reading a lesson or
+  taking a quiz. It shows the new version number, a button that opens the
+  release page, and how updating works.
+- **The application does not update itself** — you do the downloading:
+  unpack the file in place of the old one. Your progress, profile and
+  badges are kept, because they are stored separately.
+- **The check can be turned off in settings.** An "Updates" group was added
+  to the settings window: a switch turns it off, and a "Check now" button
+  looks straight away. With it off, the application never touches the
+  network.
+- The request sends nothing: no identity, no progress, no usage data. When
+  a check fails, nothing appears on screen — having no internet connection
+  is an ordinary situation in this application.
+
+---
+
 ## [0.6.0] — 2 September 2026
 
 ### Added

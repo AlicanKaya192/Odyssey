@@ -19,6 +19,29 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.7.0] — 2 Eylül 2026
+
+### Eklendi
+- **Yeni sürüm denetimi.** Uygulama her açılışta yeni bir sürüm yayınlanıp
+  yayınlanmadığına bakıyor; açık kalan bir oturumda üç saatte bir yeniden
+  bakıyor. Yeni sürüm varsa pencerenin altındaki şeritte sürüm sayfasının
+  bağlantısı duruyor.
+- **Yeni sürüm çıktığında bir bilgilendirme penceresi açılıyor.** Sürüm
+  başına bir kez ve yalnızca açılışta: ders okurken ya da sınav çözerken
+  önünüze kutu çıkmıyor. Pencerede yeni sürümün numarası, sürüm sayfasını
+  açan bir düğme ve güncellemenin nasıl yapıldığı yazıyor.
+- **Uygulama kendini güncellemiyor**, indirmeyi siz yapıyorsunuz: dosyayı
+  indirip eskisinin yerine açmanız yeterli. İlerlemeniz, profiliniz ve
+  rozetleriniz ayrı bir yerde durduğu için korunuyor.
+- **Denetim ayarlardan kapatılabiliyor.** Ayarlar penceresine "Güncelleme"
+  bölümü eklendi: anahtarla kapatılıyor ve "Şimdi denetle" düğmesiyle o an
+  bakılabiliyor. Kapalıyken uygulama ağa hiç çıkmıyor.
+- Sorguda hiçbir bilgi gönderilmiyor: kimlik, ilerleme ve kullanım verisi
+  yok. Denetim başarısız olduğunda ekranda bir şey görünmüyor — internetin
+  olmaması bu uygulamada olağan bir durum.
+
+---
+
 ## [0.6.0] — 2 Eylül 2026
 
 ### Eklendi

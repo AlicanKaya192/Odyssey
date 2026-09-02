@@ -61,6 +61,22 @@ def freeze(dialog: QDialog) -> None:
     dialog.setFixedSize(dialog.size())
 
 
+def refit(dialog: QDialog) -> None:
+    """Kilidi açıp içeriğe göre yeniden ölçer, sonra tekrar kilitler.
+
+    İçeriği sonradan değişen bir pencere için: `freeze` boyutu sabitlediği
+    için yeni bir satır eklendiğinde kırpılıyor. Genişlik korunuyor —
+    yalnızca yükseklik değişsin, pencere yazı uzunluğuna göre enine
+    oynamasın.
+    """
+    genislik = dialog.width()
+    dialog.setMinimumSize(0, 0)
+    dialog.setMaximumSize(16777215, 16777215)
+    dialog.adjustSize()
+    dialog.setFixedSize(genislik, dialog.sizeHint().height())
+    center(dialog)
+
+
 def center(dialog: QDialog) -> None:
     """Pencereyi sahibinin ortasına koyar.
 

@@ -201,6 +201,11 @@ def main() -> int:
         notice.exec()
         mark_seen(store)
 
+    # Sürüm denetimi en sona bırakıldı: açılışın hiçbir adımı ağı
+    # beklemiyor. Denetim ayrı bir iş parçacığında yapılıyor ve
+    # başarısız olduğunda hiçbir şey göstermiyor.
+    window.start_update_check()
+
     return application.exec()
 
 

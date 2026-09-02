@@ -4,13 +4,13 @@
 
 # Odyssey
 
-Data Science ve Machine Learning konularını bölüm bölüm öğreten, tamamen çevrimdışı çalışan bir masaüstü uygulaması.
+Data Science ve Machine Learning konularını bölüm bölüm öğreten, çevrimdışı çalışan bir masaüstü uygulaması.
 
 Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları var. Bir bölümü tamamlamak için sınavı geçmek ve alıştırmaları çözmek gerekiyor. Kod uygulamanın içinde yazılıyor; program onu çalıştırıyor, ardından çıktısını, oluşturduğu değişkenleri ve tanımladığı fonksiyonları kontrol ediyor. Yapay zeka kullanılmıyor — her kontrol önceden tanımlıdır ve deterministik olarak değerlendirilir, yani aynı kod her zaman aynı sonucu verir.
 
 ## Durum
 
-Erken geliştirme aşaması (`0.6.0`). Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı — yerinde; müfredat ise henüz başlangıçta.
+Erken geliştirme aşaması (`0.7.0`). Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı — yerinde; müfredat ise henüz başlangıçta.
 
 **Bugünkü içerik:** iki modül **tamamlandı**. Python Temelleri on beş bölüm, ilk programdan veritabanına kadar; Veri Bilimi on bölüm, NumPy'dan keşifçi analize kadar. 560 sınav sorusu, 115 kod alıştırması ve 54 ders notu; tamamı Türkçe ve İngilizce.
 
@@ -61,11 +61,11 @@ Kodunuz ayrı bir işlemde, izole bir çalışma klasöründe çalıştırılır
 
 ## İnternet
 
-Uygulama tamamen çevrimdışı çalışır. Hiçbir ağ çağrısı yapmaz.
+Öğrenmeyle ilgili her şey çevrimdışı çalışır: dersler, ders notları, sınavlar, alıştırmalar ve ilerlemeniz. Hiçbiri bir sunucuya uğramaz; ilerlemeniz bilgisayarınızdan çıkmaz.
 
-İleride açılışta bir güncelleme kontrolü eklenecek (yeni sürüm var mı diye bakmak için); geldiğinde ayarlardan kapatılabilir olacak. Henüz yok.
+Uygulamanın yaptığı tek ağ çağrısı var, o da açık bırakırsanız: her açılışta — ve açık kalırsa üç saatte bir — GitHub'a yeni bir sürüm yayınlanıp yayınlanmadığını sorar. Bu istekte hiçbir bilgi gönderilmez — kimlik, ilerleme, kullanım verisi yok — ve yeni bir sürüm varsa pencerenin altındaki şeritte sürüm sayfasının bağlantısı görünür. Uygulama kendini güncellemez; indirmeyi ve açmayı siz yaparsınız. **Ayarlar > Güncelleme** bölümünden kapattığınızda uygulama ağa hiç çıkmaz.
 
-"Bağlantılarım" ve "Ekstra İçerikler" sekmelerindeki adresler uygulamanın içinde açılmaz; tıklandığında sistemin tarayıcısına devredilir. Uygulama kendi başına ağa çıkmaz; bir adres yalnızca sizin isteğinizle açılır.
+"Bağlantılarım" ve "Ekstra İçerikler" sekmelerindeki adresler uygulamanın içinde açılmaz; tıklandığında sistemin tarayıcısına devredilir.
 
 ## Katkıda bulunma
 

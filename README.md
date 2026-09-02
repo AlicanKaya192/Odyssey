@@ -4,13 +4,13 @@
 
 # Odyssey
 
-A fully offline desktop application that teaches Data Science and Machine Learning, one section at a time.
+An offline desktop application that teaches Data Science and Machine Learning, one section at a time.
 
 Every section has a lesson, lecture notes, a quiz and coding exercises. To complete a section you need to pass the quiz and solve the exercises. You write the code inside the application; it runs your code, then checks the output, the variables it created and the functions it defined. No artificial intelligence is involved — every check is defined in advance and evaluated deterministically, so the same code always produces the same result.
 
 ## Status
 
-Early development (`0.6.0`). The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking — is in place; the curriculum is still at the beginning.
+Early development (`0.7.0`). The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking — is in place; the curriculum is still at the beginning.
 
 **Content today:** two modules are **complete**. Python Fundamentals has fifteen sections, from your first program to databases; Data Science has ten, from NumPy to exploratory analysis. 560 quiz questions, 115 coding exercises and 54 sets of lecture notes, all of it in both Turkish and English.
 
@@ -61,11 +61,11 @@ Your code runs in a separate process, inside an isolated working folder. Its out
 
 ## Internet
 
-The application works entirely offline. It makes no network calls at all.
+Everything about learning works offline: the lessons, the lecture notes, the quizzes, the exercises and your progress. None of it involves a server, and your progress never leaves your computer.
 
-An update check on startup is planned for later, so the app can tell you when a new version exists; it will be switchable from Settings when it arrives. It does not exist yet.
+The application makes exactly one network request, and only if you leave it on: at every start (and every three hours if you leave it open) it asks GitHub whether a newer version has been released. The request sends nothing — no identity, no progress, no usage data — and when a new version exists, a link to the release page appears in the strip at the bottom of the window. The application does not update itself; you download and unpack the new version yourself. Turn the check off under **Settings > Updates** and the application never touches the network.
 
-Addresses in the "My Links" and "Extra Content" tabs do not open inside the application; clicking one hands it to your system browser. The application never reaches the network on its own — an address opens only because you asked for it.
+Addresses in the "My Links" and "Extra Content" tabs do not open inside the application; clicking one hands it to your system browser.
 
 ## Contributing
 
