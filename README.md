@@ -10,7 +10,7 @@ Every section has a lesson, lecture notes, a quiz and coding exercises. To compl
 
 ## Status
 
-Early development (`0.4.0`). The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking — is in place; the curriculum is still at the beginning.
+Early development (`0.5.0`). The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking — is in place; the curriculum is still at the beginning.
 
 **Content today:** the Python Fundamentals module is **complete** — fifteen sections, from your first program to databases. 250 quiz questions, 65 coding exercises and 34 sets of lecture notes, all of it in both Turkish and English.
 

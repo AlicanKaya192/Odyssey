@@ -348,9 +348,9 @@ class MainWindow(QMainWindow):
         # Kilit ayarı değişir değişmez ekranlar yenileniyor: yol ekranındaki
         # halkalar ve açık bölümün alt gezinme düğmeleri o an güncelleniyor.
         dialog.lock_changed.connect(self._on_lock_changed)
-        # Ayrı pencerelerin başlık çubuğu da temaya uysun; biri boyalı biri
-        # değilken göze çarpıyor.
-        titlebar.apply(dialog, self._theme.effective_mode)
+        # Süre ayarı da aynı şekilde: açık bir sınav varsa sayaç o an
+        # duruyor ya da geri geliyor.
+        dialog.timing_changed.connect(self._on_timing_changed)
         dialog.exec()
 
         # Seçimler kalıcı olsun diye veritabanına yazılıyor.
@@ -361,6 +361,10 @@ class MainWindow(QMainWindow):
         """Kilit ayarı değişti; kilide bakan her ekran yenileniyor."""
         self._journey.refresh()
         self._topic.refresh_navigation()
+
+    def _on_timing_changed(self) -> None:
+        """Sınav süresi ayarı değişti; açık sınav o an güncelleniyor."""
+        self._topic.refresh_quiz_timing()
 
     # --- olaylar ----------------------------------------------------------
 

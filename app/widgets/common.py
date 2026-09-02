@@ -140,12 +140,14 @@ class StatBlock(QWidget):
         super().__init__(parent)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        layout.setSpacing(SPACING["xs"])
 
         self._value = QLabel(value)
         self._value.setProperty("role", "title")
         self._label = QLabel(label)
         self._label.setProperty("role", "muted")
+
+        self._label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
 
         if inverse:
             # Renkli zemin üzerinde duruyorsa metin beyaz olmalı.
@@ -154,6 +156,21 @@ class StatBlock(QWidget):
 
         layout.addWidget(self._value)
         layout.addWidget(self._label)
+
+    def set_centered(self, value: bool) -> None:
+        """Sayıyı altındaki etiketin ortasına hizalar.
+
+        İkisi de sola yaslıyken sayı etiketten çok daha kısa olduğu için
+        sola kaçmış duruyordu ("13" 24 piksel, "Çözülen alıştırma" 238).
+        Ortalamanın doğru çalışması için widget'ın **etiketi kadar geniş**
+        olması gerekiyor; çağıran taraf bloğu sola yaslıyor (ızgarada
+        `AlignLeft`, yatay dizide sondaki esneme payı), yoksa sayı bütün
+        sütunun ortasına kayıyor.
+        """
+        hiza = (
+            Qt.AlignmentFlag.AlignHCenter if value else Qt.AlignmentFlag.AlignLeft
+        )
+        self._value.setAlignment(hiza | Qt.AlignmentFlag.AlignBottom)
 
     def set_value(self, value: str) -> None:
         self._value.setText(value)

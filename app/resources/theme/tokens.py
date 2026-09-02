@@ -21,6 +21,27 @@ SPACING = {
 }
 
 # --- Köşe yarıçapları ------------------------------------------------------
+def mix(a: str, b: str, ratio: float) -> str:
+    """İki rengi `ratio` oranında karıştırır (0 = a, 1 = b).
+
+    Aynı hüzmenin kademeli tonlarını üretmek için. Palete elle üç ayrı ton
+    yazmak yerine bu kullanılıyor: elle seçilen tonlar arasındaki fark
+    düzensiz oluyordu — etkinlik ızgarasında ilk iki basamak arasında ΔE 76,
+    son ikisi arasında ΔE 14 çıkmıştı, yani son iki koyuluk ayırt
+    edilmiyordu.
+    """
+    def parcala(renk: str) -> tuple[int, int, int]:
+        return tuple(int(renk[i:i + 2], 16) for i in (1, 3, 5))
+
+    ar, ag, ab = parcala(a)
+    br, bg, bb = parcala(b)
+    return "#%02X%02X%02X" % (
+        round(ar + (br - ar) * ratio),
+        round(ag + (bg - ag) * ratio),
+        round(ab + (bb - ab) * ratio),
+    )
+
+
 RADIUS = {
     # Segment düğmesi gibi kabın içine oturan küçük parçalar için.
     "xs": 6,
@@ -104,6 +125,7 @@ LIGHT = {
     "bg": "#E8ECF2",
     "surface": "#F8F9FC",
     "surface_alt": "#DDE3EC",
+    "field": "#FFFFFF",
     # Sol şerit sayfadan bir ton daha derin duruyor; böylece
     # zeminden ayrılıyor ama ayrı bir yama gibi görünmüyor.
     "rail_bg": "#DFE4EC",
@@ -139,6 +161,7 @@ DARK = {
     "bg": "#0F1116",
     "surface": "#171A21",
     "surface_alt": "#1D212A",
+    "field": "#242A36",
     "rail_bg": "#0A0C11",
     "danger_hover": "#F87171",
     "surface_hover": "#262B36",

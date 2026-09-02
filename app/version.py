@@ -12,14 +12,16 @@ gerekmez; yalnızca değişen içerik paketi iner.
 # Ayrıntısı CHANGELOG.md'nin başında yazılı.
 
 # Uygulama kodunun sürümü.
-APP_VERSION = "0.4.0"
+APP_VERSION = "0.5.0"
 
-# Müfredat içeriğinin sürümü. content/manifest.json ile birlikte kullanılır.
-CONTENT_VERSION = "0.4.0"
+# Müfredat içeriğinin sürümü. Uygulama kodundan ayrı ilerliyor.
+CONTENT_VERSION = "0.5.0"
 
 # Veritabanı şemasının sürümü. Bu sayı arttığında, açılışta eksik göçler
-# sırayla uygulanır ve kullanıcının mevcut verisi korunur.
-SCHEMA_VERSION = 1
+# sırayla uygulanır ve kullanıcının mevcut verisi korunur. Gerçek göç
+# `app/core/progress.py` içindeki `MIGRATIONS` listesinden geliyor; burası
+# onunla aynı sayıda tutulur.
+SCHEMA_VERSION = 2
 
 # Uygulama verilerinin tutulduğu klasörün adı (%APPDATA% altında).
 APP_DIR_NAME = "Odyssey"

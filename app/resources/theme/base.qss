@@ -18,11 +18,53 @@ QWidget {
 }
 
 QMainWindow, QDialog { background-color: @bg@; }
+
+/* Çerçevesiz kip pencereler (ayarlar, profil düzenleme).
+ *
+ * Windows'un başlık çubuğu ve kenarlığı kaldırıldığı için pencerenin
+ * nerede bittiğini bir şeyin söylemesi gerekiyor; koyu temada pencere
+ * ile arkasındaki sayfa neredeyse aynı tondaydı. */
+QDialog[role="modal"] {
+    border: 1px solid @border_strong@;
+}
 QWidget:disabled { color: @text_muted@; }
 
 /* Etiketler kendi zeminini taşımamalı; farklı renkteki bir yüzeyin üzerinde
  * arkalarında uyumsuz dikdörtgen görünüyor. */
 QLabel { background-color: transparent; }
+
+/* Rozetler. Kilitli olan soluk ama **görünür**: neyin kazanılabileceğini
+ * göstermek, yalnızca kazanılanları göstermekten daha çok işe yarıyor. */
+QFrame[role="badge"] {
+    background-color: @surface_alt@;
+    border: 1px solid @border@;
+    border-radius: 24px;
+}
+
+QFrame[role="badge"][earned="true"] {
+    background-color: @accent@;
+    border: 1px solid @accent@;
+}
+
+QLabel[role="badge-name"] {
+    color: @text_muted@;
+    font-size: @font_xs@px;
+    font-weight: 600;
+}
+
+QLabel[role="badge-name"][earned="true"] { color: @text@; }
+
+QFrame[role="progress-track"] {
+    background-color: @border@;
+    border: none;
+    border-radius: 4px;
+}
+
+QFrame[role="progress-fill"] {
+    background-color: @accent@;
+    border: none;
+    border-radius: 4px;
+}
 
 QFrame[role="divider"] {
     background-color: @border@;
@@ -152,6 +194,34 @@ QPushButton[variant="pill"]:hover { color: @text@; }
 QPushButton[variant="pill"][active="true"] {
     background-color: @accent@;
     color: @text_inverse@;
+}
+
+/* Sayfa okları: yuvarlak, hafif zeminli.
+ *
+ * Önce çıplak bir simgeydi; kartın kenarında tek başına duran bir ok
+ * tıklanabilir görünmüyordu. Daire ve zemin ona bir düğme kimliği
+ * veriyor, sınırda olduğunda ise sönüyor. */
+QPushButton[variant="page-nav"] {
+    background-color: @surface_alt@;
+    border: 1px solid @border@;
+    border-radius: 17px;
+    min-width: 34px;
+    max-width: 34px;
+    min-height: 34px;
+    max-height: 34px;
+    padding: 0;
+}
+
+QPushButton[variant="page-nav"]:hover {
+    background-color: @accent_soft@;
+    border-color: @accent@;
+}
+
+QPushButton[variant="page-nav"]:pressed { background-color: @surface_hover@; }
+
+QPushButton[variant="page-nav"]:disabled {
+    background-color: transparent;
+    border-color: @border@;
 }
 
 QPushButton[variant="segment"][active="true"] {
@@ -481,8 +551,14 @@ QFrame[role="hero"] {
 
 /* --- Metin girişleri ------------------------------------------------------ */
 
+/* Giriş kutusunun zemini kendi rengi (`field`), yüzey rengi değil.
+ *
+ * Önce `surface` yazıyordu; kutu bir kartın üzerine düştüğünde kartla
+ * birebir aynı renk oluyordu (ΔE 0.0) ve geriye yalnızca kenarlık kalıp
+ * alan bir kutudan çok delik gibi görünüyordu. `field` her iki temada da
+ * hem sayfa zemininden hem kart zemininden ayrılacak şekilde seçildi. */
 QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QComboBox {
-    background-color: @surface@;
+    background-color: @field@;
     color: @text@;
     border: 1px solid @border_strong@;
     border-radius: @radius_md@px;

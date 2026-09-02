@@ -19,6 +19,50 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.5.0] — yayınlanmadı
+
+### Eklendi
+- **Rozetler geldi.** On iki rozet var: ilk programını çalıştırmak, bir
+  sınavı hatasız bitirmek, üst üste yedi gün çalışmak gibi. Kazanılmayanlar
+  da profilde duruyor ve üstlerine gelince nasıl kazanıldıkları yazıyor —
+  neyin mümkün olduğunu görmek için.
+- **Etkinlik takvimi geldi.** Bir yılın bütün günleri kare kare duruyor; bir
+  günün karesi o gün ne kadar çalıştığına göre koyulaşıyor. Bir günün
+  üstüne gelince o gün ne yaptığın yazıyor. Sağdaki listeden yıl
+  seçilebiliyor; yeni bir yıla girildiğinde o yıl kendiliğinden ekleniyor.
+  Takvim geriye dönük olarak da dolu: daha önce okuduğun dersler ve
+  çözdüğün alıştırmalar kendi tarihlerine yerleşti.
+
+### Değişti
+- **Ayarlarda tema seçimi artık iki düğme.** Ay koyu temayı, güneş açık
+  temayı seçiyor; hangisinin açık olduğu tek bakışta belli oluyor.
+  Önceden aç/kapa anahtarıydı ve "kapalı"nın koyu tema demek olduğu ancak
+  açıklamayı okuyunca anlaşılıyordu.
+- **Ayarlar ve profil düzenleme pencereleri ekranın ortasında sabit
+  duruyor.** Taşınamıyor, boyutları değiştirilemiyor.
+- **Profil sayfası yeniden düzenlendi.** Solda fotoğraf, ad ve genel
+  ilerleme; sağda rozet duvarı; altta etkinlik takvimi. Rozetler bir
+  sayfaya sığmadığında oklarla ileri geri geçiliyor. Eskiden sayfanın
+  yarısı boştu ve uzun yazılar kırpılıyordu.
+- **Öğrenme yolundaki sayılar kesir gösteriyor.** "13" yerine "13/65",
+  "3" yerine "3/15" — kaç tanesinden kaçının bittiği görünüyor. Profilde
+  aynı dört sayı ikinci kez yazıyordu, oradan kaldırıldı.
+- **Profil düzenleme ayrı bir pencerede açılıyor.** "Düzenle" dendiğinde
+  arka plan kararıyor ve ad, soyad, fotoğraf tek bir pencerede
+  dolduruluyor. Alanlar dar bir sütuna sıkıştığı için yazılar
+  okunmuyordu.
+
+### Düzeltildi
+- **Sınav süresi ayarı artık o an uygulanıyor.** Sınav açıkken ayarlardan
+  süreyi kaldırdığında sayaç anında duruyor, geri açtığında sayaç yeniden
+  başlıyor. Eskiden sınavdan çıkıp yeniden girmek gerekiyordu.
+- **Tema değiştirirken ekranın bir an bozulması giderildi.** Açıktan koyuya
+  geçerken arada stilsiz bir kare görünebiliyordu.
+- **İpuçları daha çabuk çıkıyor.** Bir şeyin üstüne geldiğinde açıklamanın
+  görünmesi için beklenen süre kısaldı.
+
+---
+
 ## [0.4.0] — 1 Eylül 2026
 
 ### Eklendi

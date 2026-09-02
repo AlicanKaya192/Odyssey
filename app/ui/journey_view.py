@@ -136,6 +136,11 @@ class HeroCard(QFrame):
             for key in ("sections", "exercises", "streak", "progress")
         }
         for block in self._stats.values():
+            # Sayı etiketinin ortasına hizalanıyor: ikisi de sola yaslıyken
+            # sayı etiketten çok kısa olduğu için sola kaçmış duruyordu.
+            # Bloklar sondaki esneme payı sayesinde etiketleri kadar
+            # genişliyor, bu yüzden ortalama doğru yere düşüyor.
+            block.set_centered(True)
             stats.addWidget(block)
         stats.addStretch(1)
         layout.addLayout(stats)
@@ -145,10 +150,18 @@ class HeroCard(QFrame):
         name: str,
         resume_text: str,
         sections: int,
+        total_sections: int,
         exercises: int,
+        total_exercises: int,
         streak: int,
         progress: int,
     ) -> None:
+        """Şeritteki dört sayıyı yeniler.
+
+        Bölüm ve alıştırma **kesir** olarak yazılıyor. Tek başına "13"
+        ilerlemeyi anlatmıyor: on üç alıştırmanın kaçta kaçı olduğu
+        bilinmeden o sayı iyi mi kötü mü belli olmuyor.
+        """
         self._title.setText(
             self._language.t("home.welcome_named", name=name)
             if name
@@ -156,8 +169,8 @@ class HeroCard(QFrame):
         )
         self._subtitle.setText(resume_text)
 
-        self._stats["sections"].set_value(str(sections))
-        self._stats["exercises"].set_value(str(exercises))
+        self._stats["sections"].set_value(f"{sections}/{total_sections}")
+        self._stats["exercises"].set_value(f"{exercises}/{total_exercises}")
         self._stats["streak"].set_value(str(streak))
         self._stats["progress"].set_value(f"%{progress}")
         self.retranslate()
@@ -468,7 +481,11 @@ class TracksView(QWidget):
             name=self._store.profile().get("first_name", ""),
             resume_text=self._resume_text(),
             sections=biten,
+            total_sections=toplam,
             exercises=self._store.solved_exercise_count(),
+            total_exercises=sum(
+                len(section.exercises) for section in self._catalog.all_sections
+            ),
             streak=self._store.streak(),
             progress=round(biten * 100 / toplam) if toplam else 0,
         )
@@ -599,11 +616,16 @@ class ModulesView(QWidget):
             total_sections += len(chapter.sections)
             completed_sections += done
 
+        total_exercises = sum(
+            len(section.exercises) for section in self._catalog.all_sections
+        )
         self._hero.update_stats(
             name=self._store.profile().get("first_name", ""),
             resume_text=self._resume_text(),
             sections=completed_sections,
+            total_sections=total_sections,
             exercises=self._store.solved_exercise_count(),
+            total_exercises=total_exercises,
             streak=self._store.streak(),
             progress=round(completed_sections * 100 / total_sections) if total_sections else 0,
         )

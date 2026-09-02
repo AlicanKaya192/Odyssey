@@ -51,6 +51,7 @@ class PdfView(QWidget):
         toolbar.addStretch(1)
 
         self._zoom_out = QPushButton("−")
+        self._zoom_out.setCursor(Qt.CursorShape.PointingHandCursor)
         self._zoom_out.setProperty("variant", "ghost")
         self._zoom_out.setFixedWidth(40)
         self._zoom_out.clicked.connect(lambda: self._zoom(-ZOOM_STEP))
@@ -61,6 +62,7 @@ class PdfView(QWidget):
         self._zoom_label.setFixedWidth(56)
 
         self._zoom_in = QPushButton("+")
+        self._zoom_in.setCursor(Qt.CursorShape.PointingHandCursor)
         self._zoom_in.setProperty("variant", "ghost")
         self._zoom_in.setFixedWidth(40)
         self._zoom_in.clicked.connect(lambda: self._zoom(ZOOM_STEP))

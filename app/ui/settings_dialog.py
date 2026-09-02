@@ -28,19 +28,28 @@ from PySide6.QtWidgets import (
 )
 
 from ..core.language import LanguageManager
+from ..core.quiz_timing import UNTIMED_QUIZ_KEY, untimed_quiz
+from ..core.unlock import UNLOCK_ALL_KEY, unlock_all
 from ..core.theme import ThemeManager
 from ..resources.theme.tokens import PALETTES, SPACING
 from ..widgets.segmented import SegmentedControl
 from ..widgets.toggle_switch import ToggleSwitch
+from . import modal
 
 # Kilit ve süre ayarlarının veritabanındaki anahtarları.
-UNLOCK_ALL_KEY = "unlock_all"
-UNTIMED_QUIZ_KEY = "untimed_quiz"
 
 # Dil bir aç/kapa ayarı değil, iki seçenek arasında seçim. Anahtar
 # kullanıldığında hangi tarafın hangi dil olduğu ancak açıklamayı okuyunca
 # anlaşılıyordu; artık iki seçenek de ekranda yazılı.
 LANGUAGE_OPTIONS = [("tr", "TR"), ("en", "EN")]
+
+# Tema seçicisi: yazı yerine simge. Ay koyu, güneş açık tema.
+#
+# Önce aç/kapa anahtarıydı ama anahtar iki durumlu bir **ayar** için doğru
+# bileşen, iki seçenek arasında **seçim** için değil: "kapalı"nın koyu tema
+# demek olduğu ancak açıklamayı okuyunca anlaşılıyordu. Dil seçicisiyle
+# aynı bileşen kullanılıyor.
+THEME_OPTIONS = [("dark", "", "moon"), ("light", "", "sun")]
 
 
 class SettingRow(QWidget):
@@ -84,6 +93,8 @@ class SettingsDialog(QDialog):
     # açık olan bölüm ekranı eski kilit durumunu göstermeye devam ediyor
     # ve kullanıcı çıkıp girmeden fark görmüyordu.
     lock_changed = Signal()
+    # Sınav süresi ayarı: açık bir sınav varken de o an uygulanıyor.
+    timing_changed = Signal()
 
     def __init__(
         self,
@@ -97,7 +108,7 @@ class SettingsDialog(QDialog):
         self._theme = theme
         self._store = store
 
-        self.setModal(True)
+        modal.prepare(self)
         self.setMinimumWidth(460)
 
         layout = QVBoxLayout(self)
@@ -111,8 +122,9 @@ class SettingsDialog(QDialog):
         self._appearance_title.setProperty("role", "section")
         layout.addWidget(self._appearance_title)
 
-        self._theme_row = SettingRow()
-        self._theme_row.switch.toggled.connect(self._on_theme)
+        self._theme_picker = SegmentedControl(THEME_OPTIONS)
+        self._theme_picker.selected.connect(self._on_theme)
+        self._theme_row = SettingRow(self._theme_picker)
         layout.addWidget(self._theme_row)
 
         self._language_picker = SegmentedControl(LANGUAGE_OPTIONS)
@@ -140,6 +152,7 @@ class SettingsDialog(QDialog):
         buttons = QHBoxLayout()
         buttons.addStretch(1)
         self._close_button = QPushButton()
+        self._close_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._close_button.setProperty("variant", "primary")
         self._close_button.clicked.connect(self.accept)
         buttons.addWidget(self._close_button)
@@ -154,10 +167,15 @@ class SettingsDialog(QDialog):
         # duruyordu.
         self._close_button.setFocus()
 
-        # Tema bu pencereden değiştiriliyor ama pencerenin kendi başlık
-        # çubuğu Windows'un çizdiği alan; stil dosyası oraya ulaşmıyor.
-        # Değişimi dinleyip çubuğu ve anahtarları yeniden boyuyoruz.
+        # Tema bu pencereden değiştiriliyor; anahtarların ve simgelerin
+        # renkleri elle veriliyor, değişimi dinleyip yeniliyoruz.
         theme.theme_changed.connect(self._on_theme_changed)
+
+        modal.freeze(self)
+
+    def showEvent(self, event) -> None:  # noqa: N802
+        super().showEvent(event)
+        modal.center(self)
 
     def _separator(self) -> QFrame:
         line = QFrame()
@@ -175,22 +193,21 @@ class SettingsDialog(QDialog):
 
         `set_checked` sinyal yaymadığı için bu, ayarları yeniden yazmıyor.
         """
-        self._theme_row.switch.set_checked(
-            self._theme.effective_mode == "light", animate=False
-        )
+        self._theme_picker.set_value(self._theme.effective_mode)
         self._language_picker.set_value(self._language.language)
         self._unlock_row.switch.set_checked(
-            self._store.setting(UNLOCK_ALL_KEY, "") == "1", animate=False
+            unlock_all(self._store), animate=False
         )
         self._untimed_row.switch.set_checked(
-            self._store.setting(UNTIMED_QUIZ_KEY, "") == "1", animate=False
+            untimed_quiz(self._store), animate=False
         )
 
     def _paint_switches(self, mode: str) -> None:
         p = PALETTES.get(mode, PALETTES["light"])
-        # Dil satırındaki denetim bir `QPushButton` grubu; onun renklerini
-        # QSS veriyor, elle boyanması gerekmiyor.
-        for row in (self._theme_row, self._unlock_row, self._untimed_row):
+        # Segment düğmelerinin **zeminini** QSS veriyor ama içlerindeki
+        # güneş/ay birer `QIcon`; onlara QSS ulaşmıyor.
+        self._theme_picker.set_icon_colors(p["text_muted"], p["text_inverse"])
+        for row in (self._unlock_row, self._untimed_row):
             row.switch.set_colors(
                 track_off=p["surface_alt"],
                 track_on=p["accent"],
@@ -201,13 +218,11 @@ class SettingsDialog(QDialog):
     # --- olaylar ----------------------------------------------------------
 
     def _on_theme_changed(self, mode: str) -> None:
-        from . import titlebar
-
-        titlebar.apply(self, mode)
+        # Pencerenin çerçevesi yok; boyanacak başlık çubuğu da yok.
         self._paint_switches(self._theme.effective_mode)
 
-    def _on_theme(self, checked: bool) -> None:
-        self._theme.set_mode("light" if checked else "dark")
+    def _on_theme(self, mode: str) -> None:
+        self._theme.set_mode(mode)
 
     def _on_language(self, code: str) -> None:
         self._language.set_language(code)
@@ -218,6 +233,7 @@ class SettingsDialog(QDialog):
 
     def _on_untimed(self, checked: bool) -> None:
         self._store.set_setting(UNTIMED_QUIZ_KEY, "1" if checked else "")
+        self.timing_changed.emit()
 
     # --- metinler ---------------------------------------------------------
 
@@ -229,8 +245,12 @@ class SettingsDialog(QDialog):
         self._appearance_title.setText(t("settings.group_appearance"))
         self._learning_title.setText(t("settings.group_learning"))
 
-        self._theme_row.title.setText(t("settings.light_theme"))
-        self._theme_row.description.setText(t("settings.light_theme_help"))
+        self._theme_row.title.setText(t("settings.theme"))
+        self._theme_row.description.setText(t("settings.theme_help"))
+        self._theme_picker.set_tooltips({
+            "dark": t("settings.theme_dark"),
+            "light": t("settings.theme_light"),
+        })
 
         self._language_row.title.setText(t("settings.language"))
         self._language_row.description.setText(t("settings.language_help"))

@@ -354,10 +354,12 @@ class ExerciseView(QWidget):
         layout.addStretch(1)
 
         self._reset_button = QPushButton()
+        self._reset_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._reset_button.clicked.connect(self._reset)
         layout.addWidget(self._reset_button)
 
         self._run_button = QPushButton()
+        self._run_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._run_button.setProperty("variant", "primary")
         self._run_button.clicked.connect(self.run)
         layout.addWidget(self._run_button)

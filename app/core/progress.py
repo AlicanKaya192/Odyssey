@@ -77,6 +77,47 @@ MIGRATIONS: list[str] = [
         day  TEXT PRIMARY KEY
     );
     """,
+    # 2 — günlük etkinlik günlüğü
+    #
+    # `study_days` yalnızca "o gün çalışıldı" diyor, ne kadar çalışıldığını
+    # söylemiyor. `updated_at` alanları da her dokunuşta üzerine yazıldığı
+    # için geçmiş tutmuyor: bir alıştırmayı iki kez açarsan ilk çözüm tarihi
+    # kayboluyor.
+    #
+    # Bu tablo **olay ekliyor, güncellemiyor** — profildeki etkinlik grafiği
+    # ve rozet koşulları ("bir günde beş alıştırma", "yedi gün üst üste")
+    # ancak böyle hesaplanabiliyor.
+    """
+    CREATE TABLE IF NOT EXISTS activity (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        day         TEXT NOT NULL,
+        kind        TEXT NOT NULL,
+        chapter_id  TEXT NOT NULL DEFAULT '',
+        section_id  TEXT NOT NULL DEFAULT '',
+        ref_id      TEXT NOT NULL DEFAULT '',
+        created_at  TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS activity_day ON activity (day);
+
+    -- Bu güncellemeden önce ilerlemiş kullanıcıların grafiği boş
+    -- açılmasın diye eldeki kayıtlardan geriye dolduruluyor. `updated_at`
+    -- son dokunuşu gösterdiği için tarihler yaklaşık; yine de gerçek veri.
+    INSERT INTO activity (day, kind, chapter_id, section_id, ref_id, created_at)
+    SELECT substr(updated_at, 1, 10), 'exercise', chapter_id, section_id,
+           exercise_id, updated_at
+    FROM exercise_progress WHERE solved = 1;
+
+    INSERT INTO activity (day, kind, chapter_id, section_id, ref_id, created_at)
+    SELECT substr(updated_at, 1, 10), 'lesson', chapter_id, section_id, '',
+           updated_at
+    FROM section_progress WHERE lesson_read = 1;
+
+    INSERT INTO activity (day, kind, chapter_id, section_id, ref_id, created_at)
+    SELECT substr(updated_at, 1, 10), 'quiz', chapter_id, section_id, '',
+           updated_at
+    FROM section_progress WHERE quiz_score IS NOT NULL;
+    """,
 ]
 
 
@@ -212,6 +253,114 @@ class ProgressStore:
                 (date.today().isoformat(),),
             )
 
+    def record_activity(
+        self,
+        kind: str,
+        chapter_id: str = "",
+        section_id: str = "",
+        ref_id: str = "",
+    ) -> None:
+        """Etkinlik günlüğüne bir olay ekler.
+
+        Bu tablo **yalnızca eklenir**, güncellenmez: profildeki grafik ve
+        rozet koşulları geçmişe bakıyor, son duruma değil.
+        """
+        with self._write() as connection:
+            connection.execute(
+                "INSERT INTO activity (day, kind, chapter_id, section_id, ref_id, created_at) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (date.today().isoformat(), kind, chapter_id, section_id, ref_id, _now()),
+            )
+
+    def activity_by_day(self, days: int = 182) -> dict[str, int]:
+        """Son `days` gün için gün başına olay sayısı.
+
+        Olayı olmayan günler sözlükte yok; çağıran taraf sıfır sayıyor.
+        """
+        basla = date.fromordinal(date.today().toordinal() - days + 1).isoformat()
+        rows = self._connection.execute(
+            "SELECT day, COUNT(*) AS n FROM activity WHERE day >= ? GROUP BY day",
+            (basla,),
+        ).fetchall()
+        return {row["day"]: row["n"] for row in rows}
+
+    def activity_years(self) -> list[int]:
+        """Etkinlik bulunan yıllar, yeniden eskiye.
+
+        İçinde bulunulan yıl her zaman listede — hiç kayıt yokken de bir
+        ızgara gösterilebilsin diye.
+        """
+        rows = self._connection.execute(
+            "SELECT DISTINCT substr(day, 1, 4) AS y FROM activity"
+        ).fetchall()
+        yillar = {int(row["y"]) for row in rows if row["y"]}
+        yillar.add(date.today().year)
+        return sorted(yillar, reverse=True)
+
+    def activity_for_year(self, year: int) -> dict[str, int]:
+        """Bir yılın gün başına olay sayısı."""
+        rows = self._connection.execute(
+            "SELECT day, COUNT(*) AS n FROM activity WHERE day LIKE ? GROUP BY day",
+            (f"{year}-%",),
+        ).fetchall()
+        return {row["day"]: row["n"] for row in rows}
+
+    def busiest_day_count(self) -> int:
+        """En yoğun günde kaç çalışma yapılmış?"""
+        row = self._connection.execute(
+            "SELECT COUNT(*) AS n FROM activity GROUP BY day ORDER BY n DESC LIMIT 1"
+        ).fetchone()
+        return row["n"] if row else 0
+
+    def best_quiz_score(self) -> int | None:
+        """En yüksek sınav puanı; hiç sınav yoksa `None`."""
+        row = self._connection.execute(
+            "SELECT MAX(quiz_score) AS s FROM section_progress"
+        ).fetchone()
+        return row["s"] if row and row["s"] is not None else None
+
+    def passed_quiz_count(self) -> int:
+        """Geçilen sınav sayısı."""
+        row = self._connection.execute(
+            "SELECT COUNT(*) AS n FROM section_progress WHERE quiz_passed = 1"
+        ).fetchone()
+        return row["n"] if row else 0
+
+    # --- rozetler ---------------------------------------------------------
+
+    def earned_badges(self) -> dict[str, str]:
+        """Kazanılmış rozetler: `id -> kazanıldığı tarih`."""
+        rows = self._connection.execute(
+            "SELECT badge_id, earned_at FROM badges"
+        ).fetchall()
+        return {row["badge_id"]: row["earned_at"] for row in rows}
+
+    def award_badge(self, badge_id: str) -> None:
+        """Rozeti kazanılmış olarak kaydeder.
+
+        `INSERT OR IGNORE`: koşul sonradan tekrar sağlansa bile ilk
+        kazanım tarihi korunuyor.
+        """
+        with self._write() as connection:
+            connection.execute(
+                "INSERT OR IGNORE INTO badges (badge_id, earned_at) VALUES (?, ?)",
+                (badge_id, _now()),
+            )
+
+    def activity_totals(self) -> dict[str, int]:
+        """Tür başına toplam olay sayısı."""
+        rows = self._connection.execute(
+            "SELECT kind, COUNT(*) AS n FROM activity GROUP BY kind"
+        ).fetchall()
+        return {row["kind"]: row["n"] for row in rows}
+
+    def active_day_count(self) -> int:
+        """Kaç ayrı günde çalışılmış?"""
+        row = self._connection.execute(
+            "SELECT COUNT(*) AS n FROM study_days"
+        ).fetchone()
+        return row["n"] if row else 0
+
     def streak(self) -> int:
         """Bugünden geriye doğru kesintisiz çalışılan gün sayısı."""
         rows = self._connection.execute(
@@ -275,12 +424,25 @@ class ProgressStore:
 
     def mark_lesson_read(self, chapter_id: str, section_id: str) -> None:
         self._touch_section(chapter_id, section_id)
+
+        # Olay yalnızca **ilk** okumada yazılıyor. Aynı dersi beş kez açmak
+        # grafikte beş olay göstermemeli; orada "ne yaptım" duruyor,
+        # "kaç kez baktım" değil.
+        row = self._connection.execute(
+            "SELECT lesson_read FROM section_progress "
+            "WHERE chapter_id = ? AND section_id = ?",
+            (chapter_id, section_id),
+        ).fetchone()
+        ilk_kez = not (row and row["lesson_read"])
+
         with self._write() as connection:
             connection.execute(
                 "UPDATE section_progress SET lesson_read = 1, updated_at = ? "
                 "WHERE chapter_id = ? AND section_id = ?",
                 (_now(), chapter_id, section_id),
             )
+        if ilk_kez:
+            self.record_activity("lesson", chapter_id, section_id)
         self.mark_study_day()
 
     def record_quiz(self, chapter_id: str, section_id: str, score: int, passed: bool) -> None:
@@ -298,6 +460,9 @@ class ProgressStore:
                 "WHERE chapter_id = ? AND section_id = ?",
                 (score, int(passed), _now(), chapter_id, section_id),
             )
+        # Sınav farklı: her deneme ayrı bir olay. Tekrar girmek gerçekten
+        # o gün yapılmış bir iş.
+        self.record_activity("quiz", chapter_id, section_id)
         self.mark_study_day()
 
     # --- alıştırma --------------------------------------------------------
@@ -332,6 +497,12 @@ class ProgressStore:
         `solved` bir kez True olduysa sonradan False'a düşürülmez: kullanıcı
         çözdükten sonra kodu kurcalarsa ilerlemesini kaybetmesin.
         """
+        # Olay yalnızca **ilk çözümde** yazılıyor: aynı alıştırmayı tekrar
+        # çalıştırmak grafiğe yeni bir olay eklememeli.
+        ilk_cozum = bool(solved) and not self.exercise_solved(
+            chapter_id, section_id, exercise_id
+        )
+
         with self._write() as connection:
             connection.execute(
                 "INSERT OR IGNORE INTO exercise_progress "
@@ -349,6 +520,8 @@ class ProgressStore:
                     + (chapter_id, section_id, exercise_id)
                 ),
             )
+        if ilk_cozum:
+            self.record_activity("exercise", chapter_id, section_id, exercise_id)
         if count_attempt:
             self.mark_study_day()
 

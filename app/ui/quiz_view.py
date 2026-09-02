@@ -260,6 +260,9 @@ class QuizView(QWidget):
         self._time_limit = 0
         self._left = 0
         self._untimed = False
+        # Sınav gönderildi mi? Sonuç etiketi "boş soru bıraktın"
+        # uyarısı için de görünüyor; ona bakmak yetmiyor.
+        self._finished = False
         self._previous_score: int | None = None
         self._previous_passed = False
 
@@ -368,11 +371,13 @@ class QuizView(QWidget):
         buttons = QHBoxLayout()
         buttons.addStretch(1)
         self._retry_button = QPushButton()
+        self._retry_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._retry_button.clicked.connect(self._reset)
         self._retry_button.hide()
         buttons.addWidget(self._retry_button)
 
         self._submit_button = QPushButton()
+        self._submit_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._submit_button.setProperty("variant", "primary")
         self._submit_button.clicked.connect(self._submit)
         buttons.addWidget(self._submit_button)
@@ -414,6 +419,61 @@ class QuizView(QWidget):
         self._clear()
         self._show_start()
 
+    def set_untimed(self, value: bool) -> None:
+        """Süre ayarını **o an** uygular; sınav açıkken de çalışır.
+
+        Ayar eskiden yalnızca `show_quiz` içinde okunuyordu, yani sınav
+        açıkken değiştirmenin hiçbir etkisi yoktu; çıkıp girmek
+        gerekiyordu.
+
+        Üç durum var:
+
+        - **Başlangıç ekranında:** halka ve yardım metni yenileniyor.
+        - **Sınav sürerken süre kaldırıldıysa:** sayaç duruyor, köşedeki
+          halka sonsuzluk işaretine dönüyor.
+        - **Sınav sürerken süre geri geldiyse:** sayaç **baştan** başlıyor.
+          Süresizken geçen zaman ölçülmüyor; kalan süreyi oradan
+          hesaplamaya çalışmak, ayarı açıp kapatan birini bir anda süresi
+          bitmiş duruma düşürürdü.
+
+        Sınav gönderildiyse yalnızca değer saklanıyor; bir sonraki
+        denemede geçerli oluyor.
+        """
+        value = bool(value)
+        if value == self._untimed:
+            return
+        self._untimed = value
+
+        if self._stack.currentIndex() == 0:
+            self._show_start()
+            return
+
+        # Sınav gönderildiyse sayaca dokunulmuyor.
+        if self._finished:
+            return
+
+        if value:
+            self._timer.stop()
+            self._corner.set_untimed(True)
+            self._corner.show()
+            self._corner.raise_()
+            self._place_corner()
+            return
+
+        self._corner.set_untimed(False)
+        if not self._time_limit:
+            # Bölümün kendi süresi yok; gösterecek sayaç da yok.
+            self._corner.hide()
+            return
+
+        self._left = self._time_limit
+        self._corner.set_total(self._time_limit)
+        self._corner.set_left(self._left)
+        self._corner.show()
+        self._corner.raise_()
+        self._place_corner()
+        self._timer.start()
+
     def _show_start(self) -> None:
         self._timer.stop()
         self._corner.hide()
@@ -423,6 +483,7 @@ class QuizView(QWidget):
         self.retranslate()
 
     def _clear(self) -> None:
+        self._finished = False
         for card in self._cards:
             card.deleteLater()
         self._cards = []
@@ -492,6 +553,7 @@ class QuizView(QWidget):
 
         self._timer.stop()
         self._corner.hide()
+        self._finished = True
 
         correct = sum(1 for card in self._cards if card.is_correct)
         score = round(correct * 100 / len(self._cards))

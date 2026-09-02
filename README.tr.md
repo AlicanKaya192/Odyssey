@@ -10,7 +10,7 @@ Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları va
 
 ## Durum
 
-Erken geliştirme aşaması (`0.4.0`). Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı — yerinde; müfredat ise henüz başlangıçta.
+Erken geliştirme aşaması (`0.5.0`). Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı — yerinde; müfredat ise henüz başlangıçta.
 
 **Bugünkü içerik:** Python Temelleri modülü **tamamlandı** — on beş bölüm, ilk programdan veritabanına kadar. 250 sınav sorusu, 65 kod alıştırması ve 34 ders notu; tamamı Türkçe ve İngilizce.
 

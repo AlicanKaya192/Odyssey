@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 
 from ..core.catalog import Catalog, Section
 from ..core.language import LanguageManager
+from ..core.quiz_timing import untimed_quiz
 from ..core.progress import ProgressStore
 from ..core.unlock import is_unlocked
 from ..resources.theme.tokens import SPACING
@@ -175,7 +176,7 @@ class TopicView(QWidget):
                         time_limit_sec=block.time_limit_sec,
                         previous_score=state.quiz_score,
                         previous_passed=state.quiz_passed,
-                        untimed=self._store.setting("untimed_quiz", "") == "1",
+                        untimed=untimed_quiz(self._store),
                     )
                     self._panes.append("quiz")
 
@@ -191,6 +192,15 @@ class TopicView(QWidget):
         self.retranslate()
         self._segments.set_current(0, notify=False)
         self._show_pane(0)
+
+    def refresh_quiz_timing(self) -> None:
+        """Sınav süresi ayarı değişti; açık sınav o an güncelleniyor.
+
+        Kilit ayarında olduğu gibi burada da ayar yalnızca ekran
+        **açılırken** okunuyordu; sınav açıkken değiştirmek hiçbir şey
+        yapmıyor, çıkıp girmek gerekiyordu.
+        """
+        self._quiz.set_untimed(untimed_quiz(self._store))
 
     def warm_up(self) -> None:
         """Bölümün panolarını bir kez çizdirir.

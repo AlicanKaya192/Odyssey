@@ -21,6 +21,50 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.5.0] — unreleased
+
+### Added
+- **Badges.** Twelve of them: running your first program, finishing a quiz
+  without a mistake, studying seven days in a row and so on. The ones you
+  have not earned stay on your profile too, and hovering over one tells you
+  how it is earned — so you can see what is there to aim for.
+- **Activity calendar.** Every day of a year is a square, and a square gets
+  darker the more you did that day. Hovering over a day tells you what you
+  did. The list on the right selects the year; a new year appears on its own
+  once it arrives. The calendar is filled in retroactively: the lessons you
+  read and the exercises you solved earlier are placed on their own dates.
+
+### Changed
+- **The theme is now picked with two buttons.** The moon selects the dark
+  theme, the sun the light one, and which one is active is obvious at a
+  glance. It used to be an on/off switch, where "off" meaning dark only
+  became clear once you read the description.
+- **The settings and profile-edit windows sit fixed in the centre of the
+  screen.** They cannot be moved or resized.
+- **The profile page was rearranged.** Photo, name and overall progress on
+  the left; the badge wall on the right; the activity calendar below. When
+  the badges do not fit on one page, arrows page through them. Half the
+  page used to be empty and longer labels were cut off.
+- **The numbers on the learning path are fractions now.** "13/65" instead
+  of "13", "3/15" instead of "3" — you can see how much of the whole is
+  done. The same four numbers appeared a second time on the profile; they
+  were removed from there.
+- **Editing your profile now opens in its own window.** Choosing "Edit"
+  dims the background and puts first name, last name and photo in one
+  window. The fields were squeezed into a narrow column before and the text
+  was unreadable.
+
+### Fixed
+- **The quiz timer setting now takes effect immediately.** Turning the
+  timer off while a quiz is open stops the countdown at once, and turning
+  it back on restarts it. You used to have to leave the quiz and re-enter.
+- **Switching themes no longer flickers.** Going from light to dark could
+  briefly show an unstyled frame.
+- **Tooltips appear sooner.** The wait before an explanation shows up when
+  you hover over something is shorter.
+
+---
+
 ## [0.4.0] — 1 September 2026
 
 ### Added
