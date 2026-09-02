@@ -22,6 +22,7 @@ from app.core.language import (  # noqa: E402
 )
 from app.core.theme import ThemeManager  # noqa: E402
 from app.core.runner import HARNESS_FLAG  # noqa: E402
+from app.core.updater import APPLY_FLAG  # noqa: E402
 from app.version import APP_VERSION  # noqa: E402
 
 MIN_PYTHON = (3, 10)
@@ -50,6 +51,29 @@ def _run_harness_if_asked() -> bool:
     sys.argv = [str(harness), sys.argv[2]]
     exec(compile(source, str(harness), "exec"), {"__name__": "__main__", "__file__": str(harness)})
     return True
+
+
+def _apply_update_if_asked() -> int | None:
+    """Uygulama güncellemeyi kuran yardımcı olarak mı çağrıldı?
+
+    `--apply-update <kurulum klasörü> <eski süreç no>` ile açıldığında
+    arayüzün tamamı kurulmuyor; küçük bir ilerleme penceresi açılıp
+    dosyalar değiştiriliyor ve uygulama yeniden başlatılıyor.
+
+    Çağrılmadıysa None döner ve olağan açılış sürer.
+    """
+    if len(sys.argv) < 4 or sys.argv[1] != APPLY_FLAG:
+        return None
+
+    from pathlib import Path as _Path
+
+    from app.ui.apply_view import run_apply
+
+    try:
+        pid = int(sys.argv[3])
+    except ValueError:
+        pid = 0
+    return run_apply(_Path(sys.argv[2]), pid)
 
 
 def _icon_file():
@@ -105,6 +129,10 @@ def main() -> int:
     # Denetleyici olarak çağrıldıysak arayüzü hiç kurmadan işi yapıp çıkıyoruz.
     if _run_harness_if_asked():
         return 0
+
+    kod = _apply_update_if_asked()
+    if kod is not None:
+        return kod
 
     check_python()
 
@@ -204,6 +232,13 @@ def main() -> int:
     # Sürüm denetimi en sona bırakıldı: açılışın hiçbir adımı ağı
     # beklemiyor. Denetim ayrı bir iş parçacığında yapılıyor ve
     # başarısız olduğunda hiçbir şey göstermiyor.
+    # Bir önceki güncellemeden kalan yedek ve indirme dosyaları burada
+    # siliniyor: yardımcı kendi klasörünü silemiyordu, çünkü o an oradan
+    # çalışıyordu.
+    from app.core.updater import cleanup as _cleanup_updates
+
+    _cleanup_updates()
+
     window.start_update_check()
 
     return application.exec()

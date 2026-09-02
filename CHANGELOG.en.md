@@ -21,6 +21,28 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.7.1] — 2 September 2026
+
+### Added
+- **Updating now happens inside the application.** The new-version notice
+  has an "Update" button: the file is downloaded (with progress), checked,
+  the application closes, the files are replaced and the new version opens
+  by itself. No more downloading and swapping folders by hand.
+- **The download can be cancelled**, and a half-finished file is removed.
+- **If something goes wrong, the old version comes back.** The old
+  installation is kept aside during the swap; if the copy cannot finish it
+  is restored, so at worst you stay on the version you had.
+- When updating is not possible (the folder cannot be written to, not
+  enough disk space), the reason is shown in place of the button, with a
+  link to the release page.
+
+### Fixed
+- **The check for new versions never returned anything.** Because releases
+  are published as pre-releases, the address the check used reported "no
+  release"; it now reads the list of releases and finds the newest one.
+
+---
+
 ## [0.7.0] — 2 September 2026
 
 ### Added

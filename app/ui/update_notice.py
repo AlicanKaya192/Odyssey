@@ -19,6 +19,7 @@ import webbrowser
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QApplication,
     QDialog,
     QHBoxLayout,
     QLabel,
@@ -27,6 +28,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..core import updater
 from ..core.language import LanguageManager
 from ..core.updates import UpdateInfo
 from ..resources.theme.tokens import SPACING
@@ -78,14 +80,50 @@ class UpdateNoticeDialog(QDialog):
         buttons.addStretch(1)
 
         self._open_button = QPushButton()
-        self._open_button.setProperty("variant", "primary")
         self._open_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._open_button.clicked.connect(self._open_page)
         buttons.addWidget(self._open_button)
+
+        # Kendi kendine güncelleme yalnızca paketlenmiş, yazılabilir ve
+        # yeri yeten bir kurulumda öneriliyor. Olmuyorsa düğme hiç
+        # görünmüyor ve sebebi ekranda yazıyor — basılıp hiçbir şey
+        # olmayan bir düğme, olmayan düğmeden kötü.
+        self._can_update, self._blocker = updater.can_self_update()
+        self._asset = updater.pick_asset(info.assets)
+        if self._asset is None and self._can_update:
+            self._can_update, self._blocker = False, "asset"
+
+        self._update_button = QPushButton()
+        self._update_button.setProperty("variant", "primary")
+        self._update_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._update_button.clicked.connect(self._start_update)
+        self._update_button.setVisible(self._can_update)
+        buttons.addWidget(self._update_button)
         layout.addLayout(buttons)
 
-        self._open_button.setDefault(True)
+        (self._update_button if self._can_update else self._open_button).setDefault(True)
+        if not self._can_update:
+            self._open_button.setProperty("variant", "primary")
+
         self.retranslate()
+
+    def _start_update(self) -> None:
+        """İndirmeyi başlatır; başarılıysa uygulamayı kapatıp devrediyor."""
+        from .update_progress import UpdateProgressDialog
+
+        pencere = UpdateProgressDialog(self._language, self._info, self._asset, self)
+        if pencere.exec() != QDialog.DialogCode.Accepted or pencere.staged is None:
+            if pencere.error and pencere.error != "cancelled":
+                self._howto.setText(self._language.t("update.download_failed"))
+            return
+
+        if not updater.start_helper(pencere.staged):
+            self._howto.setText(self._language.t("update.download_failed"))
+            return
+
+        # Yardımcı bu sürecin kapanmasını bekliyor.
+        self.accept()
+        QApplication.quit()
 
     def _open_page(self) -> None:
         """Adresi sistemin tarayıcısına veriyor; uygulama sayfayı açmıyor."""
@@ -101,6 +139,10 @@ class UpdateNoticeDialog(QDialog):
         self._body.setText(
             t("update.notice_body", version=self._info.version, current=APP_VERSION)
         )
-        self._howto.setText(t("update.notice_howto"))
+        self._howto.setText(
+            t("update.notice_howto") if self._can_update
+            else t(f"update.blocked_{self._blocker}")
+        )
         self._later_button.setText(t("update.notice_later"))
         self._open_button.setText(t("update.notice_open"))
+        self._update_button.setText(t("update.notice_update"))

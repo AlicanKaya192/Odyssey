@@ -34,10 +34,16 @@ from dataclasses import dataclass, field
 
 from ..version import APP_VERSION
 
-# Sürümlerin duyurulduğu adres. Depo public olduğunda bu adres kimlik
-# doğrulaması istemeden okunuyor; private olduğu sürece 404 dönüyor ve
-# denetim sessizce "bilinmiyor" diyor.
-RELEASES_API = "https://api.github.com/repos/AlicanKaya192/Odyssey/releases/latest"
+# Sürümlerin duyurulduğu adres. Depo public olduğunda kimlik doğrulaması
+# istemeden okunuyor; private olduğu sürece 404 dönüyor ve denetim sessizce
+# "bilinmiyor" diyor.
+#
+# **`/releases/latest` değil, liste.** İlk sürümde `latest` kullanılıyordu
+# ve depo public yapıldığında 404 döndü: o uç nokta **ön sürüm işaretli**
+# yayınları saymıyor, bizim yedi sürümümüzün de hepsi ön sürüm (uygulama
+# 0.x, yani hepsi öyle). Liste hepsini veriyor; en yüksek numaralı olan
+# seçiliyor.
+RELEASES_API = "https://api.github.com/repos/AlicanKaya192/Odyssey/releases?per_page=5"
 
 # Sürüm sayfası: denetim başarısız olsa bile kullanıcıya verilecek adres.
 RELEASES_PAGE = "https://github.com/AlicanKaya192/Odyssey/releases"
@@ -89,6 +95,9 @@ class UpdateInfo:
     status: str
     version: str = ""
     url: str = RELEASES_PAGE
+    # Sürümün indirilebilir dosyaları (ham JSON). Kurulumu yapan
+    # `updater.py` buradan kendi paketini seçiyor.
+    assets: tuple = ()
     detail: str = field(default="", repr=False)
 
     @property
@@ -198,27 +207,37 @@ def fetch_latest(url: str = "", timeout: int = TIMEOUT_SEC) -> UpdateInfo:
     except (ValueError, UnicodeDecodeError) as hata:
         return UpdateInfo(status="error", detail=str(hata))
 
-    if not isinstance(veri, dict):
+    # Liste bekleniyor; tek bir sürüm dönen bir uca bakılırsa da çalışsın
+    # diye sözlük de kabul ediliyor.
+    if isinstance(veri, dict):
+        veri = [veri]
+    if not isinstance(veri, list):
         return UpdateInfo(status="error", detail="beklenmeyen cevap")
 
-    # Taslak ve ön sürümler duyurulmuyor: `/releases/latest` zaten
-    # taslakları atlıyor, ön sürüm burada eleniyor.
-    if veri.get("draft") or veri.get("prerelease"):
-        return UpdateInfo(status="current")
+    en_iyi = None
+    en_iyi_numara: tuple[int, ...] = ()
+    for kayit in veri:
+        if not isinstance(kayit, dict) or kayit.get("draft"):
+            continue
+        numara = parse_version(str(kayit.get("tag_name") or ""))
+        if numara and numara > en_iyi_numara:
+            en_iyi, en_iyi_numara = kayit, numara
 
-    etiket = str(veri.get("tag_name") or "")
-    if not etiket:
-        return UpdateInfo(status="error", detail="tag_name yok")
+    if en_iyi is None:
+        return UpdateInfo(status="error", detail="yayınlanmış sürüm yok")
 
-    sayfa = str(veri.get("html_url") or RELEASES_PAGE)
+    etiket = str(en_iyi.get("tag_name") or "")
+    sayfa = str(en_iyi.get("html_url") or RELEASES_PAGE)
     if not sayfa.startswith("https://github.com/"):
         # Cevaptan gelen bir adresi doğrudan tarayıcıya açmıyoruz.
         sayfa = RELEASES_PAGE
 
+    dosyalar = en_iyi.get("assets")
+    dosyalar = tuple(dosyalar) if isinstance(dosyalar, list) else ()
+
     surum = etiket.lstrip("vV")
-    if is_newer(etiket):
-        return UpdateInfo(status="newer", version=surum, url=sayfa)
-    return UpdateInfo(status="current", version=surum, url=sayfa)
+    durum = "newer" if is_newer(etiket) else "current"
+    return UpdateInfo(status=durum, version=surum, url=sayfa, assets=dosyalar)
 
 
 # --- ayarla ağ arasındaki iş bölümü -----------------------------------

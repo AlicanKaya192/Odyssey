@@ -38,6 +38,20 @@ def install_root() -> Path:
     return Path(__file__).resolve().parent.parent
 
 
+def app_dir() -> Path:
+    """Uygulamanın **kurulu olduğu** klasör: `Odyssey.exe`'nin durduğu yer.
+
+    `install_root()` ile karıştırılmamalı. Paketlenmiş hâlde `install_root`
+    `_internal` klasörünü veriyor (veri dosyaları orada); güncelleme ise
+    exe'nin bulunduğu üst klasörü değiştiriyor.
+
+    Kaynak koddan çalışırken ikisi de proje kökü oluyor.
+    """
+    if is_frozen():
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent.parent
+
+
 def content_dir() -> Path:
     """Müfredat içeriğinin bulunduğu klasör."""
     return install_root() / "content"
@@ -118,6 +132,17 @@ def exercise_python() -> Path:
     if os.name == "nt":
         return env / "Scripts" / "python.exe"
     return env / "bin" / "python"
+
+
+def updates_dir() -> Path:
+    """İndirilen ve açılan güncellemelerin durduğu klasör.
+
+    Kullanıcı verisiyle aynı yerde ama ayrı bir alt klasörde: güncelleme
+    yarıda kalırsa buradaki her şey silinebiliyor, ilerleme etkilenmiyor.
+    """
+    path = user_data_dir() / "updates"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 def workspace_dir() -> Path:

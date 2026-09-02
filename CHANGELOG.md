@@ -19,6 +19,28 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.7.1] — 2 Eylül 2026
+
+### Eklendi
+- **Güncelleme artık uygulamanın içinden yapılıyor.** Yeni sürüm
+  bildiriminde "Güncelle" düğmesi var: dosya indiriliyor (ilerleme
+  görünüyor), denetleniyor, uygulama kapanıyor, dosyalar değiştiriliyor ve
+  yeni sürüm kendiliğinden açılıyor. Elle indirip klasör değiştirmeye
+  gerek kalmıyor.
+- **İndirme iptal edilebiliyor** ve yarıda kalan dosya siliniyor.
+- **Bir şey ters giderse eski sürüm geri geliyor.** Değişim sırasında
+  eski kurulum yedekte tutuluyor; kopyalama tamamlanamazsa geri alınıyor,
+  yani en kötü ihtimalle eski sürümünüzle kalıyorsunuz.
+- Güncelleme yapılamayacak bir durumda (klasöre yazılamıyor, disk yeri
+  yetmiyor) düğme yerine sebebi yazıyor ve sürüm sayfasına yönlendiriyor.
+
+### Düzeltildi
+- **Yeni sürüm denetimi hiçbir zaman sonuç vermiyordu.** Sürümler ön sürüm
+  (pre-release) olarak yayınlandığı için denetimin baktığı adres "yayın
+  yok" diyordu; artık sürüm listesine bakılıyor ve en yenisi bulunuyor.
+
+---
+
 ## [0.7.0] — 2 Eylül 2026
 
 ### Eklendi
