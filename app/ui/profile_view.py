@@ -433,6 +433,9 @@ class ProfileView(QWidget):
 
         self._year_picker = None
         self._year_holder = QWidget()
+        # Kartın içinde: kendi zeminini boyamamalı, yoksa kartta delik
+        # açıyor (genel `QWidget` kuralı sayfa zeminini veriyor).
+        self._year_holder.setProperty("role", "bare")
         tutucu = QVBoxLayout(self._year_holder)
         tutucu.setContentsMargins(0, 0, 0, 0)
         tutucu.setSpacing(0)

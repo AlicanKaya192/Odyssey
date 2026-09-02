@@ -21,7 +21,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [0.7.3] — 3 September 2026
+## [0.7.3.1] — 3 September 2026
 
 ### Changed
 - **The update box can be reached from anywhere.** Clicking the "New
@@ -32,12 +32,26 @@ lecture note does not mean downloading the whole application again.
   version is found. It used to say one existed without offering any way to
   install it.
 
+- **A module's path screen starts at the top.** The module's name and
+  description were repeated above the sections; the screen's own title
+  already carries the name, and the description sits on the card you came
+  from.
+
 ### Fixed
 - **An update notice, once dismissed, never came back.** The notice was
   recorded as "shown for this version"; because that record lives with your
   data rather than the application, anyone who went back to an older
   version or reinstalled never saw the same update again. The record now
   includes the installed version as well.
+- **The badge in the release notes marked the wrong versions as beta.** The
+  application became an open beta at 0.7.1; everything before it was alpha
+  and should be listed that way. Now 0.7.1 and later carry an orange "OPEN
+  BETA" and earlier ones a red "ALPHA".
+- **A dark patch behind the year selector in the profile.** The year button
+  next to the activity calendar looked like a hole in the card: the area
+  behind it painted the page background instead of the card. The
+  unnecessary frame around the button when there is only one year is gone
+  as well.
 
 ---
 

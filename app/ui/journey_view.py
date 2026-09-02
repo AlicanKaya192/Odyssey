@@ -110,6 +110,8 @@ class HeroCard(QFrame):
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._language = language
+        self._name = ""
+        self._resume = ""
         self.setProperty("role", "hero")
         apply_shadow(self, "light", strong=True)
 
@@ -162,12 +164,13 @@ class HeroCard(QFrame):
         ilerlemeyi anlatmıyor: on üç alıştırmanın kaçta kaçı olduğu
         bilinmeden o sayı iyi mi kötü mü belli olmuyor.
         """
-        self._title.setText(
-            self._language.t("home.welcome_named", name=name)
-            if name
-            else self._language.t("home.welcome")
-        )
-        self._subtitle.setText(resume_text)
+        # Ad ve "kaldığın yer" metni saklanıyor: dil değişince ikisi de
+        # yeniden üretilecek. Eskiden yalnızca burada yazılıyordu ve
+        # `retranslate` onlara dokunmadığı için dil değiştiğinde selamlama
+        # eski dilde kalıyordu.
+        self._name = name
+        self._resume = resume_text
+        self._render_greeting()
 
         self._stats["sections"].set_value(f"{sections}/{total_sections}")
         self._stats["exercises"].set_value(f"{exercises}/{total_exercises}")
@@ -178,7 +181,21 @@ class HeroCard(QFrame):
     def set_mode(self, mode: str) -> None:
         refresh_shadow(self, mode, strong=True)
 
+    def set_resume(self, text: str) -> None:
+        """Kaldığın yer satırı. Metni çağıran üretiyor, dil ona bağlı."""
+        self._resume = text
+        self._subtitle.setText(text)
+
+    def _render_greeting(self) -> None:
+        self._title.setText(
+            self._language.t("home.welcome_named", name=self._name)
+            if self._name
+            else self._language.t("home.welcome")
+        )
+        self._subtitle.setText(self._resume)
+
     def retranslate(self) -> None:
+        self._render_greeting()
         for key in self._stats:
             self._stats[key].set_label(self._language.t(f"home.stat_{key}"))
 
@@ -519,6 +536,11 @@ class TracksView(QWidget):
 
     def retranslate(self) -> None:
         self._label.setText(self._language.t_upper("track.section_label"))
+        # "Kaldığın yer" satırı bölüm adını taşıyor ve o ad dile bağlı;
+        # yeniden üretilmesi gerekiyor. **`refresh()` çağrılmıyor:** o da
+        # sonunda `retranslate` çağırıyor ve ikisi birbirini sonsuza kadar
+        # tetikliyor (denendi, `RecursionError`).
+        self._hero.set_resume(self._resume_text())
         self._hero.retranslate()
         for card in self._cards:
             card.retranslate()
@@ -813,19 +835,10 @@ class PathView(QWidget):
         if chapter is None:
             return
 
-        # Başlık ve açıklama ortalı: altındaki yol da ortalanınca, sola
-        # yaslı duran bu iki satır sayfadan kopuk görünüyordu.
-        header = QLabel(self._language.pick(chapter.title))
-        header.setProperty("role", "title")
-        header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._layout.addWidget(header)
-
-        description = QLabel(self._language.pick(chapter.description))
-        description.setProperty("role", "muted")
-        description.setWordWrap(True)
-        description.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._layout.addWidget(description)
-        self._layout.addSpacing(SPACING["xl"])
+        # **Modülün adı ve açıklaması burada yazmıyor.** Ekranın başlığı
+        # zaten modülün adını taşıyor (`_update_headers`), açıklaması da bir
+        # önceki ekrandaki modül kartında duruyor. Sayfanın tepesinde
+        # üçüncü kez tekrar etmek yolu aşağı itiyordu.
 
         # "Şu an buradasın" işareti: tamamlanmamış ilk bölüm.
         current_index = self._current_index(chapter)

@@ -48,6 +48,12 @@ class SegmentedControl(QFrame):
         """
         super().__init__(parent)
         self.setProperty("role", "segmented")
+        # Tek seçenek varken zemin ve kenarlık çizilmiyor. O zemin
+        # "seçilmemiş alan" demek; seçenek tek olduğunda seçilmemiş alan
+        # yok ve geriye kartın üstünde duran boş bir kutu kalıyor
+        # (profildeki yıl seçicisinde görüldü: 2026 düğmesinin arkasında
+        # anlamsız bir çerçeve).
+        self.setProperty("single", "true" if len(options) < 2 else "false")
 
         layout = QVBoxLayout(self) if vertical else QHBoxLayout(self)
         layout.setContentsMargins(3, 3, 3, 3)

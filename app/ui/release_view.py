@@ -46,20 +46,29 @@ PAGE_SIZE = 3
 INLINE_CODE_PATTERN = re.compile(r"`([^`]+)`")
 INLINE_BOLD_PATTERN = re.compile(r"\*\*(.+?)\*\*")
 
+# Açık betanın başladığı sürüm. Bundan öncesi sürüm notlarında alpha
+# olarak kalıyor.
+OPEN_BETA_FROM = (0, 7, 1)
 
-def _is_beta(version: str) -> bool:
-    """1.0'dan önceki her sürüm beta sayılıyor.
 
-    Ana numara sıfırken uygulama hâlâ yapım aşamasında; sürüm notunun yanında
-    bunu yazmak, o sürümü indiren birine ne beklemesi gerektiğini söylüyor.
-    1.0 çıktığında rozet kendiliğinden kayboluyor, ayrıca bir şey silmek
-    gerekmiyor.
+def _stage(version: str) -> str:
+    """Sürümün etiketi: `beta`, `alpha` ya da boş.
 
-    Rozet önce `ALPHA` yazıyordu; açılıştaki bilgilendirme "açık beta"
-    derken sürüm listesinin "alpha" demesi aynı şeyi iki adla anlatıyordu.
+    Uygulama **0.7.1'den itibaren açık beta**; ondan öncesi alpha'ydı ve
+    sürüm notlarında öyle kalması doğru — o sürümleri indiren kişi gerçekten
+    alpha bir program kullandı. 1.0'da rozet kendiliğinden kayboluyor.
+
+    Eşik tek yerde duruyor; açık betadan çıkıldığında burası değişecek.
     """
-    head = version.strip().lstrip("vV").split(".")[0]
-    return head.isdigit() and int(head) == 0
+    from ..core.updates import parse_version
+
+    numara = parse_version(version)
+    if not numara or numara[0] >= 1:
+        return ""
+    return "beta" if numara >= OPEN_BETA_FROM else "alpha"
+
+
+
 
 
 def _inline(text: str) -> str:
@@ -237,9 +246,11 @@ class ReleaseView(QWidget):
             if newest
             else ""
         )
+        asama = _stage(release.version)
         stage = (
-            f'<span class="stage">{html.escape(self._language.t("release.beta"))}</span>'
-            if _is_beta(release.version)
+            f'<span class="stage {asama}">'
+            f'{html.escape(self._language.t(f"release.{asama}"))}</span>'
+            if asama
             else ""
         )
         date = f'<span class="dt">{html.escape(release.date)}</span>' if release.date else ""

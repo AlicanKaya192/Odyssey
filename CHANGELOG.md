@@ -19,7 +19,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [0.7.3] — 3 Eylül 2026
+## [0.7.3.1] — 3 Eylül 2026
 
 ### Değişti
 - **Güncelleme kutusuna her yerden ulaşılıyor.** Pencerenin altındaki
@@ -30,12 +30,25 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   dönüşüyor.** Önceden yalnızca "yeni sürüm var" yazıyor ama kurmanın bir
   yolunu vermiyordu.
 
+- **Modülün yol ekranı tepeden başlıyor.** Bölümlerin üstünde modülün adı
+  ve açıklaması ikinci kez yazıyordu; ekranın başlığı zaten modülün adını
+  taşıyor, açıklaması da bir önceki ekrandaki kartta duruyor.
+
 ### Düzeltildi
 - **Bir kez kapatılan güncelleme duyurusu bir daha hiç çıkmıyordu.** Duyuru
   "şu sürüm için gösterildi" diye kaydediliyordu; eski bir sürüme dönen ya
   da uygulamayı yeniden kuran biri, kayıt kullanıcı verisinde durduğu için
   aynı güncellemeyi bir daha görmüyordu. Kayıt artık kurulu sürümü de
   içeriyor.
+- **Sürüm notlarındaki rozet yanlış sürümleri beta gösteriyordu.** Uygulama
+  0.7.1'de açık betaya geçti; ondan önceki sürümler alpha'ydı ve listede
+  öyle görünmeleri gerekiyor. Artık 0.7.1 ve sonrası turuncu "AÇIK BETA",
+  öncesi kırmızı "ALPHA".
+- **Profildeki yıl seçicisinin arkasındaki koyu leke.** Etkinlik
+  takviminin yanındaki yıl düğmesi kartın içinde bir delik gibi
+  duruyordu; arkasındaki alan kart rengi yerine sayfa zeminini
+  gösteriyordu. Tek yıl varken düğmenin etrafındaki gereksiz çerçeve de
+  kaldırıldı.
 
 ---
 

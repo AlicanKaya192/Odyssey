@@ -418,12 +418,16 @@ figure.fig svg .line {{ fill: none; stroke: {p['border_strong']}; stroke-width: 
 /* Yapım aşaması rozeti. "YENİ" gibi dolu değil, çerçeveli ve sakin —
    dikkat çekmesi değil, bilgi vermesi gerekiyor. */
 .relcard .v .stage {{
-    /* Yazı rengi zeminden geliyor: açık temada kırmızı koyu, koyu temada
+    /* Yazı rengi zeminden geliyor: açık temada rozet koyu, koyu temada
        açık ton. Sabit beyaz yazsaydık koyu temada okunmazdı. */
-    background: {p['danger']}; color: {p['bg']};
+    color: {p['bg']};
     font-size: 11px; font-weight: 750; letter-spacing: .6px;
     padding: 3px 10px; border-radius: 8px;
 }}
+/* Alpha kırmızı, açık beta turuncu: ikisi aynı renkte olsaydı sürüm
+   listesinde hangisinin ne olduğu ayırt edilmezdi. */
+.relcard .v .stage.alpha {{ background: {p['danger']}; }}
+.relcard .v .stage.beta {{ background: {p['warning']}; }}
 .relcard .v .dt {{ color: {p['text_muted']}; font-size: 13px; margin-left: auto; }}
 .relcard h4 {{
     font-size: 13px; font-weight: 700; color: {p['text_muted']};

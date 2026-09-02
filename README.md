@@ -10,7 +10,7 @@ Every section has a lesson, lecture notes, a quiz and coding exercises. To compl
 
 ## Status
 
-Early development (`0.7.3`). The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking — is in place; the curriculum is still at the beginning.
+Early development (`0.7.3.1`). The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking — is in place; the curriculum is still at the beginning.
 
 **Content today:** two modules are **complete**. Python Fundamentals has fifteen sections, from your first program to databases; Data Science has ten, from NumPy to exploratory analysis. 560 quiz questions, 115 coding exercises and 54 sets of lecture notes, all of it in both Turkish and English.
 

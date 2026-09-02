@@ -16,6 +16,7 @@ geliştirirken hemen göze çarpar).
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal
@@ -47,6 +48,49 @@ def upper(text: str, language: str) -> str:
     return text.upper()
 
 
+# Windows'un dil kimliklerinde **birincil dil** alt on bitte duruyor:
+# 0x041F (Türkçe-Türkiye) → 0x1F. Alt bölge (Türkiye, Almanya…) bizi
+# ilgilendirmiyor, dilin kendisi yeter.
+WINDOWS_PRIMARY_LANGUAGES = {
+    0x1F: "tr",
+    0x09: "en",
+}
+
+
+def _windows_ui_language() -> str:
+    """Windows'un **ekran diline** göre seçim. Sorulamazsa boş metin.
+
+    Türkçe ise `tr`, **başka herhangi bir dilse** `en` döndürüyor.
+    Desteklemediğimiz bir dili görünce Qt'nin listesine düşmek yanlış
+    olurdu: ekran dili Almancaysa kullanıcı Türkçe bilmiyor demektir, ama
+    Qt'nin tercih listesinde Türkçe ikinci sırada duruyorsa uygulama
+    Türkçe açılırdı (ölçüldü).
+
+    Neden ayrıca soruluyor: bu makinede ekran dili Türkçe (0x041F) ama
+    bölgesel biçim İngilizce (0x0409) — ikisi ayrı ayarlar ve sık
+    ayrışıyor. Qt'nin `uiLanguages()` çağrısı çoğu zaman doğru olanı
+    veriyor ama bazı kurulumlarda biçim ayarına kayıyor; o zaman Türkçe
+    bir Windows'ta uygulama İngilizce açılıyor.
+
+    `GetUserDefaultUILanguage` doğrudan ekran dilini veriyor, yani
+    kullanıcının menüleri hangi dilde gördüğünü. Sorulacak doğru soru bu.
+    """
+    if os.name != "nt":
+        return ""
+    try:
+        import ctypes
+
+        kimlik = ctypes.windll.kernel32.GetUserDefaultUILanguage()
+    except (OSError, AttributeError):
+        return ""
+
+    kod = WINDOWS_PRIMARY_LANGUAGES.get(kimlik & 0x3FF, "")
+    if kod in AVAILABLE_LANGUAGES:
+        return kod
+    # Windows cevap verdi ama dili desteklemiyoruz: İngilizce.
+    return "en" if kimlik else ""
+
+
 def system_language() -> str:
     """İşletim sisteminin dili.
 
@@ -58,6 +102,9 @@ def system_language() -> str:
     Kullanıcı ayarlardan bir dil seçtiği anda bu algılama devre dışı kalıyor;
     seçim veritabanına yazılıyor ve bundan sonra o geçerli oluyor.
 
+    **Önce Windows'un ekran diline bakılıyor**, sonra Qt'nin listesine.
+    İkisi de cevap vermezse İngilizce.
+
     **`uiLanguages()` kullanılıyor, `name()` değil.** İkisi farklı şeyler:
     `name()` bölgesel biçimi veriyor (tarih ve sayı yazımı), `uiLanguages()`
     ise Windows'un arayüz dilini. Bu ikisi sık sık ayrışıyor — bu proje
@@ -66,6 +113,10 @@ def system_language() -> str:
 
     Liste tercih sırasında geliyor; desteklediğimiz ilk dil seçiliyor.
     """
+    dogrudan = _windows_ui_language()
+    if dogrudan:
+        return dogrudan
+
     from PySide6.QtCore import QLocale
 
     for tag in QLocale.system().uiLanguages():
