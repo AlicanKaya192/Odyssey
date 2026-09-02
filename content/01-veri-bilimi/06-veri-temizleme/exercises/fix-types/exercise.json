@@ -1,0 +1,48 @@
+{
+  "id": "fix-types",
+  "title": {
+    "tr": "Tipleri düzelt",
+    "en": "Fix the types"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`pd.to_numeric(data[\"score\"], errors=\"coerce\")` çeviremediğini `NaN` yapıyor, programı durdurmuyor.",
+      "en": "`pd.to_numeric(data[\"score\"], errors=\"coerce\")` turns what it cannot convert into `NaN` instead of stopping the program."
+    },
+    {
+      "tr": "`-1` gerçek bir not değil, \"bilinmiyor\" demek. `replace(-1, np.nan)` ile gerçek eksiğe çevir. `numpy`'ı da almalısın.",
+      "en": "`-1` is not a real score but means \"unknown\". Turn it into a real gap with `replace(-1, np.nan)`. You will need to import `numpy` too."
+    },
+    {
+      "tr": "Sonuç `float64` oluyor çünkü tamsayı tipi `NaN` tutamıyor. Eksik sayısını `isna().sum()` veriyor.",
+      "en": "The result is `float64` because the integer type cannot hold `NaN`. `isna().sum()` gives the number of gaps."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\n\ndata[\"score\"] = pd.to_numeric(data[\"score\"], errors=\"coerce\")\ndata[\"score\"] = data[\"score\"].replace(-1, np.nan)\n\nprint(data[\"score\"].tolist())\nprint(str(data[\"score\"].dtype))\nprint(int(data[\"score\"].isna().sum()))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\n\ndata[\"score\"] = pd.to_numeric(data[\"score\"], errors=\"coerce\")\ndata[\"score\"] = data[\"score\"].replace(-1, np.nan)\n\nprint(data[\"score\"].tolist())\nprint(str(data[\"score\"].dtype))\nprint(int(data[\"score\"].isna().sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import pandas as pd` satırı yok.",
+        "en": "There is no `import pandas as pd` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[82.0, 74.0, 91.0, 82.0, nan, 88.0, nan]\nfloat64\n2"
+    }
+  ]
+}

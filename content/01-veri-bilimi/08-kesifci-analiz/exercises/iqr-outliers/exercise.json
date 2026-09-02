@@ -1,0 +1,48 @@
+{
+  "id": "iqr-outliers",
+  "title": {
+    "tr": "IQR ile aykırı değer",
+    "en": "Outliers with the IQR rule"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Çeyrekler `values.quantile(0.25)` ve `values.quantile(0.75)`.",
+      "en": "The quartiles are `values.quantile(0.25)` and `values.quantile(0.75)`."
+    },
+    {
+      "tr": "Sınırlar `q1 - 1.5 * iqr` ve `q3 + 1.5 * iqr`.",
+      "en": "The bounds are `q1 - 1.5 * iqr` and `q3 + 1.5 * iqr`."
+    },
+    {
+      "tr": "İki koşulu `|` ile birleştir ve **parantez koy**: `values[(values < low) | (values > high)]`.",
+      "en": "Combine the two conditions with `|` and **use brackets**: `values[(values < low) | (values > high)]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nq1 = values.quantile(0.25)\nq3 = values.quantile(0.75)\niqr = q3 - q1\n\nlow = q1 - 1.5 * iqr\nhigh = q3 + 1.5 * iqr\n\nprint(q1, q3)\nprint(low, high)\nprint(values[(values < low) | (values > high)].tolist())\nprint(round(values.mean(), 2), values.median())\n```",
+      "en": "The solution:\n\n```python\nq1 = values.quantile(0.25)\nq3 = values.quantile(0.75)\niqr = q3 - q1\n\nlow = q1 - 1.5 * iqr\nhigh = q3 + 1.5 * iqr\n\nprint(q1, q3)\nprint(low, high)\nprint(values[(values < low) | (values > high)].tolist())\nprint(round(values.mean(), 2), values.median())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import pandas as pd` satırı yok.",
+        "en": "There is no `import pandas as pd` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "49.75 52.25\n46.0 56.0\n[140]\n61.62 50.5"
+    }
+  ]
+}

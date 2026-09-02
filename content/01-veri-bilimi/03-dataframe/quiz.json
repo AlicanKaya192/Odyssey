@@ -1,0 +1,784 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "DataFrame nedir?",
+        "en": "What is a DataFrame?"
+      },
+      "options": {
+        "tr": [
+          "Ortak bir index'i paylaşan, yan yana dizilmiş seriler",
+          "İç içe geçmiş sözlüklerden oluşan bir yapı",
+          "İki boyutlu bir NumPy dizisi",
+          "Satırları tek tek işlenen bir liste"
+        ],
+        "en": [
+          "Series placed side by side, sharing one index",
+          "A structure made of nested dictionaries",
+          "A two-dimensional NumPy array",
+          "A list whose rows are processed one at a time"
+        ]
+      },
+      "explanation": {
+        "tr": "Her sütun bir seri, bütün sütunlar aynı index'i paylaşıyor. Bir sütun çektiğinde geriye seri dönmesinin sebebi bu.\n\nİki boyutlu NumPy dizisinden farkı: sütunların **adı** ve **kendi tipi** var. Bir sütun metin, diğeri sayı olabiliyor.",
+        "en": "Each column is a Series and all of them share the same index. That is why pulling out a column gives you a Series.\n\nThe difference from a two-dimensional NumPy array: columns have **names** and **their own types**. One column can be text and another numeric."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.DataFrame({\"a\": [1, 2], \"b\": [3, 4]})` kaç satır kaç sütunlu bir tablo üretir?",
+        "en": "How many rows and columns does `pd.DataFrame({\"a\": [1, 2], \"b\": [3, 4]})` produce?"
+      },
+      "options": {
+        "tr": [
+          "2 satır, 2 sütun",
+          "2 satır, 4 sütun",
+          "4 satır, 2 sütun",
+          "1 satır, 2 sütun"
+        ],
+        "en": [
+          "2 rows, 2 columns",
+          "2 rows, 4 columns",
+          "4 rows, 2 columns",
+          "1 row, 2 columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Sözlükten tablo kurarken **anahtarlar sütun adı**, listelerin uzunluğu da satır sayısı oluyor. İki anahtar → iki sütun, her liste iki elemanlı → iki satır.\n\n`shape` bunu `(2, 2)` diye veriyor: önce satır, sonra sütun.",
+        "en": "When you build a table from a dictionary the **keys become column names** and the length of the lists becomes the number of rows. Two keys means two columns, and each list has two elements so there are two rows.\n\n`shape` reports this as `(2, 2)`: rows first, then columns."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`data.shape` ne döndürür?",
+        "en": "What does `data.shape` return?"
+      },
+      "options": {
+        "tr": [
+          "`(satır sayısı, sütun sayısı)` demeti",
+          "Toplam hücre sayısı",
+          "Sütun adları",
+          "Satır sayısı"
+        ],
+        "en": [
+          "A tuple of `(number of rows, number of columns)`",
+          "The total number of cells",
+          "The column names",
+          "The number of rows"
+        ]
+      },
+      "explanation": {
+        "tr": "`shape` bir demet ve parantezsiz kullanılıyor — bir özellik, metot değil.\n\nSatır sayısını tek başına isteyeceksen `data.shape[0]` ya da `len(data)`. Toplam hücre sayısı `data.size` — o NumPy'dan gelen bir isim ve satır sayısıyla karıştırılıyor.",
+        "en": "`shape` is a tuple and is used without parentheses — it is an attribute, not a method.\n\nFor just the number of rows use `data.shape[0]` or `len(data)`. The total number of cells is `data.size` — a name inherited from NumPy that gets confused with the row count."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "`data[\"score\"]` ne döndürür?",
+        "en": "What does `data[\"score\"]` return?"
+      },
+      "options": {
+        "tr": [
+          "Bir **seri**",
+          "Tek sütunlu bir DataFrame",
+          "Bir liste",
+          "Bir NumPy dizisi"
+        ],
+        "en": [
+          "A **Series**",
+          "A one-column DataFrame",
+          "A list",
+          "A NumPy array"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek köşeli parantez seri veriyor. Dönen serinin `name` özelliği sütunun adını taşıyor.\n\nTablo isteseydin **liste** verecektin: `data[[\"score\"]]`. Aradaki fark tek bir köşeli parantez ama metotları farklı: seride `str.lower()` var, tabloda yok.",
+        "en": "Single square brackets give a Series. The Series that comes back carries the column name in its `name` attribute.\n\nIf you wanted a table you would pass a **list**: `data[[\"score\"]]`. The difference is one square bracket, but their methods differ: a Series has `str.lower()`, a table does not."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "İki sütunu birlikte seçmek için doğru yazım hangisi?",
+        "en": "Which is the correct way to select two columns together?"
+      },
+      "options": {
+        "tr": [
+          "`data[[\"name\", \"score\"]]`",
+          "`data[\"name\", \"score\"]`",
+          "`data(\"name\", \"score\")`",
+          "`data.name.score`"
+        ],
+        "en": [
+          "`data[[\"name\", \"score\"]]`",
+          "`data[\"name\", \"score\"]`",
+          "`data(\"name\", \"score\")`",
+          "`data.name.score`"
+        ]
+      },
+      "explanation": {
+        "tr": "Sütun adlarını bir **liste** olarak veriyorsun; o yüzden iç içe köşeli parantez.\n\nDıştaki parantez \"seçim yapıyorum\", içteki \"birden fazla şey istiyorum\" demek. Sonuç bir DataFrame.",
+        "en": "You pass the column names as a **list**, which is why the brackets are nested.\n\nThe outer bracket means \"I am selecting\" and the inner one \"I want more than one thing\". The result is a DataFrame."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Tabloya yeni bir sütun nasıl eklenir?",
+        "en": "How do you add a new column to a table?"
+      },
+      "options": {
+        "tr": [
+          "`data[\"bonus\"] = data[\"score\"] + 5`",
+          "`data.add_column(\"bonus\", ...)`",
+          "`data.append(\"bonus\")`",
+          "`data.columns.append(\"bonus\")`"
+        ],
+        "en": [
+          "`data[\"bonus\"] = data[\"score\"] + 5`",
+          "`data.add_column(\"bonus\", ...)`",
+          "`data.append(\"bonus\")`",
+          "`data.columns.append(\"bonus\")`"
+        ]
+      },
+      "explanation": {
+        "tr": "Sözlüğe anahtar ekler gibi: olmayan bir sütun adına atama yaparsan sütun oluşuyor.\n\nSağ taraf bir seri olduğu için vektörel işlemler geçerli — döngü yazmıyorsun. Karşılaştırma yazarsan `True`/`False` sütunu çıkıyor: `data[\"passed\"] = data[\"score\"] >= 75`.",
+        "en": "Like adding a key to a dictionary: assign to a column name that does not exist and the column is created.\n\nBecause the right-hand side is a Series, vectorised operations apply — no loop. Write a comparison and you get a `True`/`False` column: `data[\"passed\"] = data[\"score\"] >= 75`."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ndata = pd.DataFrame({\"a\": [1, 2, 3], \"b\": [4, 5, 6]})\ndata[data[\"a\"] > 1][\"b\"] = 99\nprint(data[\"b\"].tolist())\n```",
+        "en": "What does this code print?\n\n```python\ndata = pd.DataFrame({\"a\": [1, 2, 3], \"b\": [4, 5, 6]})\ndata[data[\"a\"] > 1][\"b\"] = 99\nprint(data[\"b\"].tolist())\n```"
+      },
+      "options": {
+        "tr": [
+          "`[4, 5, 6]` — hiçbir şey değişmez",
+          "`[4, 99, 99]`",
+          "`[99, 99, 99]`",
+          "Hata verir"
+        ],
+        "en": [
+          "`[4, 5, 6]` — nothing changes",
+          "`[4, 99, 99]`",
+          "`[99, 99, 99]`",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Buna **zincirli atama** deniyor. `data[data[\"a\"] > 1]` yeni bir tablo üretti, atama ona yapıldı, o tablo da hemen çöpe gitti. Özgün tablo hiç değişmedi.\n\npandas uyarı veriyor (`ChainedAssignmentError`) ama program çökmüyor — istediğin sadece olmuyor.\n\nDoğrusu tek adımda:\n\n```python\ndata.loc[data[\"a\"] > 1, \"b\"] = 99\n```\n\n**Kural:** değiştireceksen köşeli parantezi iki kez üst üste kullanma.",
+        "en": "This is called **chained assignment**. `data[data[\"a\"] > 1]` produced a new table, the assignment went into it, and it was thrown away. The original never changed.\n\npandas warns (`ChainedAssignmentError`) but the program does not crash — what you wanted simply does not happen.\n\nThe correct form, in one step:\n\n```python\ndata.loc[data[\"a\"] > 1, \"b\"] = 99\n```\n\n**The rule:** never use square brackets twice in a row when modifying."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`second = first` yazıp `second` tablosunu değiştirirsen `first` ne olur?",
+        "en": "If you write `second = first` and then modify `second`, what happens to `first`?"
+      },
+      "options": {
+        "tr": [
+          "O da değişir — ikisi aynı tabloya iki ad",
+          "Değişmez, kopya alınmıştır",
+          "Hata verir",
+          "Yalnızca sütun eklenirse değişir"
+        ],
+        "en": [
+          "It changes too — they are two names for the same table",
+          "It does not change; a copy was made",
+          "It raises an error",
+          "It only changes if a column is added"
+        ]
+      },
+      "explanation": {
+        "tr": "Atama yeni bir tablo kurmuyor, var olana ikinci bir ad veriyor.\n\nGerçek kopya için `first.copy()` gerekiyor. Bu, NumPy'daki dilim/pencere meselesinin DataFrame hâli.\n\nAynı risk fonksiyonlarda da var: bir tabloyu fonksiyona geçirip fonksiyon onu değiştirirse çağıranın tablosu da değişiyor.",
+        "en": "Assignment does not build a new table; it gives a second name to the existing one.\n\nFor a real copy you need `first.copy()`. This is the DataFrame version of NumPy's slice-is-a-view problem.\n\nThe same risk exists with functions: pass a table into a function and if the function modifies it, the caller's table changes too."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`data.head()` argümansız çağrılırsa kaç satır döndürür?",
+        "en": "How many rows does `data.head()` return when called without an argument?"
+      },
+      "options": {
+        "tr": [
+          "5",
+          "10",
+          "1",
+          "Bütün satırları"
+        ],
+        "en": [
+          "5",
+          "10",
+          "1",
+          "All of them"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan beş. `head(2)` yazarsan iki satır geliyor.\n\n`head()` ve `tail()` **sıralamıyor** — olduğu gibi baştan ya da sondan alıyor. Büyük bir veriyi ilk açtığında bütününü ekrana basmadan neye benzediğine bakmanın yolu.",
+        "en": "The default is five. `head(2)` gives you two rows.\n\n`head()` and `tail()` do **not sort** — they take from the start or the end as they are. It is how you see what a large dataset looks like without printing all of it."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`data.describe()` çıktısında metin sütunları neden görünmüyor?",
+        "en": "Why do text columns not appear in the output of `data.describe()`?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca sayısal sütunlara bakıyor; metnin ortalaması yok",
+          "Metin sütunları bozuk olduğu için",
+          "Sütun sayısı sınırlı olduğu için",
+          "Görünüyorlar, ekrana sığmıyorlar"
+        ],
+        "en": [
+          "It looks only at numeric columns; text has no average",
+          "Because the text columns are broken",
+          "Because the number of columns is limited",
+          "They do appear; they just do not fit on screen"
+        ]
+      },
+      "explanation": {
+        "tr": "Ortalama, standart sapma, çeyrekler — hiçbiri metin için tanımlı değil. pandas onları sessizce dışarıda bırakıyor.\n\nMetin sütunlarını da görmek istersen `data.describe(include=\"all\")` diyorsun; o zaman `unique`, `top`, `freq` satırları geliyor.",
+        "en": "The mean, the standard deviation, the quartiles — none of them are defined for text. pandas quietly leaves them out.\n\nIf you want to see the text columns too you write `data.describe(include=\"all\")`, which adds `unique`, `top` and `freq` rows."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`data.mean()` doğrudan çağrıldığında metin sütunu olan bir tabloda ne olur?",
+        "en": "What happens when you call `data.mean()` directly on a table containing a text column?"
+      },
+      "options": {
+        "tr": [
+          "`TypeError` — `numeric_only=True` demen gerekiyor",
+          "Metin sütunları otomatik atlanır",
+          "Metin sütunları için `NaN` döner",
+          "Metin sütunlarının uzunluk ortalaması alınır"
+        ],
+        "en": [
+          "A `TypeError` — you have to say `numeric_only=True`",
+          "The text columns are skipped automatically",
+          "`NaN` is returned for the text columns",
+          "The average length of the text is computed"
+        ]
+      },
+      "explanation": {
+        "tr": "Hata mesajı şöyle: `Cannot perform reduction 'mean' with string dtype`.\n\npandas burada bilinçli olarak sessiz kalmıyor: sen ne istediğini söylemedin, o da tahmin etmiyor.\n\n`data.mean(numeric_only=True)` dediğinde yalnızca sayısal sütunların ortalamasını veriyor. `describe()` bunu kendiliğinden yapıyor çünkü amacı zaten özet.",
+        "en": "The error message is `Cannot perform reduction 'mean' with string dtype`.\n\npandas deliberately does not stay quiet here: you did not say what you wanted, so it does not guess.\n\nWith `data.mean(numeric_only=True)` you get the mean of the numeric columns only. `describe()` does this by itself because summarising is its whole purpose."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "`len(data)` ile `data.size` arasındaki fark nedir?",
+        "en": "What is the difference between `len(data)` and `data.size`?"
+      },
+      "options": {
+        "tr": [
+          "`len` satır sayısı, `size` toplam hücre sayısı",
+          "İkisi de satır sayısı",
+          "`len` sütun sayısı, `size` satır sayısı",
+          "İkisi de toplam hücre sayısı"
+        ],
+        "en": [
+          "`len` is the number of rows, `size` the total number of cells",
+          "Both are the number of rows",
+          "`len` is columns and `size` is rows",
+          "Both are the total number of cells"
+        ]
+      },
+      "explanation": {
+        "tr": "3 satır 2 sütunlu bir tabloda `len(data)` 3, `data.size` 6 veriyor.\n\n`size` NumPy'dan gelen bir isim. **Seride** `size` satır sayısıydı; tabloda anlamı değişiyor ve bu karıştırıyor.\n\nSatır sayısı için `len(data)` ya da `data.shape[0]` daha net.",
+        "en": "On a table with 3 rows and 2 columns, `len(data)` is 3 and `data.size` is 6.\n\n`size` is a name inherited from NumPy. On a **Series** `size` was the row count; on a table its meaning changes, which is confusing.\n\nFor the row count, `len(data)` or `data.shape[0]` is clearer."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "`data.drop(columns=[\"city\"])` ne yapar?",
+        "en": "What does `data.drop(columns=[\"city\"])` do?"
+      },
+      "options": {
+        "tr": [
+          "Sütunu atılmış **yeni bir tablo** döndürür; özgün tablo değişmez",
+          "Sütunu özgün tablodan siler",
+          "Sütunun değerlerini siler ama sütunu bırakır",
+          "Hata verir"
+        ],
+        "en": [
+          "Returns a **new table** without that column; the original is unchanged",
+          "Removes the column from the original table",
+          "Clears the column's values but keeps the column",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas'ta neredeyse her metot yeni bir nesne döndürüyor. Sonucu bir yere koymazsan hiçbir şey olmuyor:\n\n```python\ndata = data.drop(columns=[\"city\"])\n```\n\nAynı kural `sort_values`, `rename`, `fillna`, `reset_index` için de geçerli. Bu, pandas'ta en sık yapılan hatalardan biri.",
+        "en": "Almost every method in pandas returns a new object. If you do not put the result somewhere, nothing happens:\n\n```python\ndata = data.drop(columns=[\"city\"])\n```\n\nThe same rule applies to `sort_values`, `rename`, `fillna` and `reset_index`. This is one of the most common pandas mistakes."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`data.sort_values(\"score\")` sonrasında index'e ne olur?",
+        "en": "What happens to the index after `data.sort_values(\"score\")`?"
+      },
+      "options": {
+        "tr": [
+          "Satırlarla birlikte taşınır; sıra `[2, 0, 1]` gibi karışık kalır",
+          "0'dan yeniden numaralanır",
+          "Silinir",
+          "Sütun adlarıyla değiştirilir"
+        ],
+        "en": [
+          "It travels with the rows; the order stays mixed, like `[2, 0, 1]`",
+          "It is renumbered from zero",
+          "It is removed",
+          "It is replaced with the column names"
+        ]
+      },
+      "explanation": {
+        "tr": "Etiketler satırlara bağlı; satır taşınınca etiketi de taşınıyor. Bu iyi bir şey: hangi satırın nereden geldiğini kaybetmiyorsun.\n\nAma dikkat: delikli bir index bıraktığında başka bir tabloyla ya da seriyle işlem yaparken **hizalama** devreye giriyor ve beklemediğin `NaN`'lar çıkabiliyor.\n\nNumaraları sıfırlamak istersen: `.reset_index(drop=True)`.",
+        "en": "Labels belong to rows; when a row moves its label moves with it. This is a good thing: you do not lose where a row came from.\n\nBut be careful: a gapped index brings **alignment** into play when you combine with another table or Series, and you can get `NaN`s you did not expect.\n\nTo renumber: `.reset_index(drop=True)`."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`data.set_index(\"name\")` ne yapar?",
+        "en": "What does `data.set_index(\"name\")` do?"
+      },
+      "options": {
+        "tr": [
+          "`name` sütununu satır etiketi yapar; artık `loc[\"Mina\"]` çalışır",
+          "Satırları `name` sütununa göre sıralar",
+          "`name` sütununu siler",
+          "Tabloyu bir seriye çevirir"
+        ],
+        "en": [
+          "Makes the `name` column the row labels; `loc[\"Mina\"]` now works",
+          "Sorts the rows by the `name` column",
+          "Deletes the `name` column",
+          "Turns the table into a Series"
+        ]
+      },
+      "explanation": {
+        "tr": "Sütun index'e taşınıyor ve normal sütunlar arasından çıkıyor. Artık satırı numarayla değil adıyla çağırabiliyorsun: `data.loc[\"Mina\", \"score\"]`.\n\nGeri almak için `reset_index()` — o da index'i sütuna geri döndürüyor.\n\nİşe yaradığı yer: iki tabloyu birleştirmek, ya da satırların gerçek bir kimliği olduğunda (öğrenci numarası, ürün kodu, tarih).",
+        "en": "The column moves into the index and leaves the ordinary columns. You can now call a row by name rather than by number: `data.loc[\"Mina\", \"score\"]`.\n\nTo undo it, `reset_index()` moves the index back into a column.\n\nWhere it is useful: joining two tables, or when the rows have a real identity (a student number, a product code, a date)."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`data.isna().sum()` ne döndürür?",
+        "en": "What does `data.isna().sum()` return?"
+      },
+      "options": {
+        "tr": [
+          "Her **sütun** için kaç eksik değer olduğunu",
+          "Tablodaki toplam eksik değer sayısını",
+          "Her satır için kaç eksik olduğunu",
+          "`True` ya da `False`"
+        ],
+        "en": [
+          "How many missing values there are in each **column**",
+          "The total number of missing values in the table",
+          "How many are missing in each row",
+          "`True` or `False`"
+        ]
+      },
+      "explanation": {
+        "tr": "`isna()` hücre hücre `True`/`False` veren bir tablo döndürüyor; `sum()` onu **sütun bazında** topluyor (varsayılan `axis=0`).\n\nTablonun tamamı için bir kez daha toplaman gerekiyor: `data.isna().sum().sum()`.\n\nBu çağrı, bir veriyi ilk açtığında `info()` ile birlikte yazılan ilk iki şeyden biri.",
+        "en": "`isna()` returns a table of `True`/`False` cell by cell, and `sum()` adds it up **per column** (`axis=0` by default).\n\nFor the whole table you sum once more: `data.isna().sum().sum()`.\n\nThis call is one of the first two things you write when you open a dataset, along with `info()`."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "pandas 3.0'da metin tutan bir sütunun `dtype` değeri nedir?",
+        "en": "In pandas 3.0, what is the `dtype` of a column holding text?"
+      },
+      "options": {
+        "tr": [
+          "`str`",
+          "`object`",
+          "`text`",
+          "`string64`"
+        ],
+        "en": [
+          "`str`",
+          "`object`",
+          "`text`",
+          "`string64`"
+        ]
+      },
+      "explanation": {
+        "tr": "Eski belgelerde ve öğreticilerde `object` göreceksin; pandas 3.0'da metin sütunları için `str` tipi geldi.\n\nPratikte fark etmiyor — `.str` metotları aynı çalışıyor. Ama `dtypes` çıktısında `object` beklerken `str` görünce şaşırmaman için bilmen gerekiyor.",
+        "en": "You will see `object` in older documentation and tutorials; pandas 3.0 introduced a `str` type for text columns.\n\nIn practice it makes no difference — the `.str` methods work the same. But it is worth knowing so you are not surprised when `dtypes` says `str` where you expected `object`."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ndata = pd.DataFrame({\"score\": [82, 74, 91]})\nprint(type(data[\"score\"]).__name__, type(data[[\"score\"]]).__name__)\n```",
+        "en": "What does this code print?\n\n```python\ndata = pd.DataFrame({\"score\": [82, 74, 91]})\nprint(type(data[\"score\"]).__name__, type(data[[\"score\"]]).__name__)\n```"
+      },
+      "options": {
+        "tr": [
+          "`Series DataFrame`",
+          "`DataFrame Series`",
+          "`Series Series`",
+          "`DataFrame DataFrame`"
+        ],
+        "en": [
+          "`Series DataFrame`",
+          "`DataFrame Series`",
+          "`Series Series`",
+          "`DataFrame DataFrame`"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı sütunu istedin, iki farklı tip aldın. Fark tek bir köşeli parantez.\n\nNeden önemli: metotları farklı. Seride `str.lower()` ve `value_counts()` var; tabloda `shape` iki değer veriyor.\n\nBir fonksiyon seri beklerken tablo verirsen (ya da tersi) genelde `AttributeError` alıyorsun ve sebebini bulmak zaman alıyor.",
+        "en": "You asked for the same column and got two different types. The difference is a single square bracket.\n\nWhy it matters: their methods differ. A Series has `str.lower()` and `value_counts()`; on a table `shape` gives two values.\n\nIf a function expects a Series and you hand it a table (or the other way round) you usually get an `AttributeError`, and finding out why takes time."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "En yüksek notu alan **satırın tamamını** almak için hangisi doğru?",
+        "en": "Which is the correct way to get the **whole row** with the highest score?"
+      },
+      "options": {
+        "tr": [
+          "`data.loc[data[\"score\"].idxmax()]`",
+          "`data[data[\"score\"].max()]`",
+          "`data.max()`",
+          "`data[\"score\"].idxmax()`"
+        ],
+        "en": [
+          "`data.loc[data[\"score\"].idxmax()]`",
+          "`data[data[\"score\"].max()]`",
+          "`data.max()`",
+          "`data[\"score\"].idxmax()`"
+        ]
+      },
+      "explanation": {
+        "tr": "İki adım var: `idxmax()` en büyüğün **satır etiketini** buluyor, `loc` o etiketteki satırın tamamını getiriyor.\n\n`idxmax()` tek başına yalnızca etiketi veriyor (örneğin `2`), satırı değil. `max()` ise değeri veriyor (`91`) — kimin aldığını söylemiyor.\n\nBu ikili, \"en çok satan ürün hangisi\" gibi soruların standart cevabı.",
+        "en": "There are two steps: `idxmax()` finds the **row label** of the largest and `loc` fetches the whole row at that label.\n\n`idxmax()` alone gives only the label (say `2`), not the row. `max()` gives the value (`91`) — it does not say whose it is.\n\nThis pair is the standard answer to questions like \"which product sold the most\"."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "`data.info()` ne gösterir?",
+        "en": "What does `data.info()` show?"
+      },
+      "options": {
+        "tr": [
+          "Sütun adları, tipleri, dolu hücre sayıları ve bellek kullanımı",
+          "Yalnızca ilk beş satırı",
+          "Sayısal sütunların istatistiklerini",
+          "Eksik değerlerin listesini"
+        ],
+        "en": [
+          "Column names, types, non-null counts and memory usage",
+          "Only the first five rows",
+          "Statistics of the numeric columns",
+          "A list of the missing values"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir veriyi ilk açtığında en çok işe yarayan çağrı. Tek ekranda iki soruyu birden cevaplıyor: **tipler doğru mu** ve **nerede eksik var**.\n\nDolu hücre sayısı toplam satır sayısından azsa o sütunda boşluk var demektir.\n\n`describe()` sayılara, `info()` yapıya bakıyor. İkisi birlikte kullanılıyor.",
+        "en": "The most useful call when you first open a dataset. It answers two questions on one screen: **are the types right** and **where are the gaps**.\n\nIf a non-null count is lower than the total number of rows, that column has gaps.\n\n`describe()` looks at the numbers and `info()` at the structure. They are used together."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`data.append(other)` yazarsan ne olur?",
+        "en": "What happens if you write `data.append(other)`?"
+      },
+      "options": {
+        "tr": [
+          "`AttributeError` — pandas 2.0'da kaldırıldı, yerine `pd.concat` var",
+          "İki tabloyu birleştirir",
+          "Yeni bir satır ekler",
+          "Sütun ekler"
+        ],
+        "en": [
+          "An `AttributeError` — it was removed in pandas 2.0; use `pd.concat` instead",
+          "It joins the two tables",
+          "It adds a new row",
+          "It adds a column"
+        ]
+      },
+      "explanation": {
+        "tr": "Eski öğreticilerde çok geçiyor ama artık yok. Yerine:\n\n```python\npd.concat([data, other])\n```\n\nZaten döngü içinde satır eklemek kötü bir fikirdi: her çağrı tabloyu baştan kuruyordu. Doğrusu satırları bir listede toplayıp sonunda tek seferde tablo kurmak.",
+        "en": "It appears in many older tutorials but it is gone. Use this instead:\n\n```python\npd.concat([data, other])\n```\n\nAdding rows in a loop was a bad idea anyway: every call rebuilt the table. The right way is to collect the rows in a list and build the table once at the end."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "CSV'den okunan bir tabloda `data[\"a\"]` `KeyError` veriyor ama sütun listede görünüyor. En olası sebep nedir?",
+        "en": "On a table read from CSV, `data[\"a\"]` raises a `KeyError` but the column appears in the list. What is the most likely reason?"
+      },
+      "options": {
+        "tr": [
+          "Sütun adında baştaki ya da sondaki boşluk var",
+          "Sütun boş",
+          "Tabloda hiç satır yok",
+          "Sütun sayısal tipte"
+        ],
+        "en": [
+          "The column name has a leading or trailing space",
+          "The column is empty",
+          "The table has no rows",
+          "The column is of a numeric type"
+        ]
+      },
+      "explanation": {
+        "tr": "`\" a \"` ile `\"a\"` farklı iki ad; ekranda ikisi de `a` gibi görünüyor.\n\nİlk iş olarak temizlemek iyi bir alışkanlık:\n\n```python\ndata.columns = data.columns.str.strip()\n```\n\nAynı şey büyük/küçük harf için de geçerli: `\"Score\"` ile `\"score\"` farklı sütunlar. Kontrol etmenin yolu `list(data.columns)` yazdırmak.",
+        "en": "`\" a \"` and `\"a\"` are two different names; on screen both look like `a`.\n\nCleaning them first is a good habit:\n\n```python\ndata.columns = data.columns.str.strip()\n```\n\nThe same applies to case: `\"Score\"` and `\"score\"` are different columns. The way to check is to print `list(data.columns)`."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Filtre hiçbir satır bırakmazsa `data[\"score\"].mean()` ne döndürür?",
+        "en": "If a filter leaves no rows, what does `data[\"score\"].mean()` return?"
+      },
+      "options": {
+        "tr": [
+          "`nan` — hata vermez",
+          "`0`",
+          "`ZeroDivisionError`",
+          "Boş bir seri"
+        ],
+        "en": [
+          "`nan` — it does not raise",
+          "`0`",
+          "A `ZeroDivisionError`",
+          "An empty Series"
+        ]
+      },
+      "explanation": {
+        "tr": "Boş bir tabloda hesaplar `nan` veriyor. Program çökmüyor, sonucu raporuna yazıyorsun ve orada `nan` görünüyor.\n\nFiltreden sonra kontrol etmek gerekiyor:\n\n```python\nselected = data[data[\"score\"] > 1000]\nif selected.empty:\n    ...\n```\n\n`shape[0]` ya da `len()` de aynı işi görüyor.",
+        "en": "On an empty table, calculations give `nan`. The program does not crash; you write the result into your report and `nan` shows up there.\n\nYou need to check after filtering:\n\n```python\nselected = data[data[\"score\"] > 1000]\nif selected.empty:\n    ...\n```\n\n`shape[0]` or `len()` does the same job."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "`data.iterrows()` ile döngü kurmak neden son çare?",
+        "en": "Why is looping with `data.iterrows()` a last resort?"
+      },
+      "options": {
+        "tr": [
+          "Her satır için bir seri nesnesi üretiyor ve çok yavaş",
+          "Satırları yanlış sırada veriyor",
+          "Yalnızca sayısal sütunlarda çalışıyor",
+          "Tabloyu değiştiriyor"
+        ],
+        "en": [
+          "It creates a Series object for every row and is very slow",
+          "It gives the rows in the wrong order",
+          "It only works on numeric columns",
+          "It modifies the table"
+        ]
+      },
+      "explanation": {
+        "tr": "Vektörel işlemin bütün kazancını geri veriyor. `data[\"total\"] = data[\"price\"] * data[\"count\"]` tek satır ve çok daha hızlı.\n\n`iterrows` yalnızca satırlar arasında gerçek bir bağımlılık olduğunda (bir öncekine bakarak karar vermek gibi) gerekiyor.\n\nBir de tuzağı var: dönen satır bir kopya; onu değiştirmek tabloyu değiştirmiyor.",
+        "en": "It gives back all the gain of vectorised work. `data[\"total\"] = data[\"price\"] * data[\"count\"]` is one line and much faster.\n\n`iterrows` is only needed when the rows genuinely depend on each other (deciding based on the previous one, for instance).\n\nThere is a trap too: the row you get is a copy, so modifying it does not modify the table."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "Sözlükten kurulan bir tabloda sütunların sırası ne olur?",
+        "en": "In a table built from a dictionary, what order are the columns in?"
+      },
+      "options": {
+        "tr": [
+          "Sözlükte yazıldıkları sıra",
+          "Alfabetik",
+          "Tiplerine göre",
+          "Rastgele"
+        ],
+        "en": [
+          "The order they were written in the dictionary",
+          "Alphabetical",
+          "By type",
+          "Random"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas sıralamıyor; sen nasıl yazdıysan öyle duruyor.\n\nBelirli bir sıra istiyorsan açıkça seçiyorsun:\n\n```python\ndata = data[[\"name\", \"city\", \"score\"]]\n```\n\nBu, bir tabloyu kaydetmeden ya da rapora koymadan önce yapılan son işlerden biri.",
+        "en": "pandas does not sort them; they stay in the order you wrote them.\n\nIf you want a particular order you select it explicitly:\n\n```python\ndata = data[[\"name\", \"city\", \"score\"]]\n```\n\nThis is one of the last things you do before saving a table or putting it in a report."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "`data.to_csv(\"out.csv\")` yazıp dosyayı tekrar okuduğunda fazladan bir sütun çıkıyor. Neden?",
+        "en": "You write `data.to_csv(\"out.csv\")`, read the file back and there is an extra column. Why?"
+      },
+      "options": {
+        "tr": [
+          "Index de dosyaya yazıldı; `index=False` demen gerekiyordu",
+          "CSV biçimi fazladan sütun ekliyor",
+          "Sütun adları iki kez yazıldı",
+          "Dosya bozuk"
+        ],
+        "en": [
+          "The index was written to the file too; you needed `index=False`",
+          "The CSV format adds an extra column",
+          "The column names were written twice",
+          "The file is corrupted"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan olarak index de bir sütun gibi yazılıyor. Geri okuduğunda adı olmadığı için `Unnamed: 0` diye görünüyor.\n\nDoğrusu:\n\n```python\ndata.to_csv(\"out.csv\", index=False)\n```\n\nIndex'in gerçek bir anlamı varsa (tarih, ürün kodu) yazdırmak isteyebilirsin — ama o zaman geri okurken `index_col=0` demen gerekiyor.",
+        "en": "By default the index is written like another column. When you read it back it has no name, so it shows up as `Unnamed: 0`.\n\nThe correct form:\n\n```python\ndata.to_csv(\"out.csv\", index=False)\n```\n\nIf the index means something real (a date, a product code) you may want to write it — but then you have to say `index_col=0` when reading it back."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 0,
+      "text": {
+        "tr": "`data[\"passed\"] = data[\"score\"] >= 75` ne üretir?",
+        "en": "What does `data[\"passed\"] = data[\"score\"] >= 75` produce?"
+      },
+      "options": {
+        "tr": [
+          "`True`/`False` değerlerinden oluşan yeni bir sütun",
+          "Yalnızca geçenlerden oluşan yeni bir tablo",
+          "Geçenlerin sayısını",
+          "Hata verir"
+        ],
+        "en": [
+          "A new column of `True`/`False` values",
+          "A new table containing only those who passed",
+          "The number of people who passed",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Karşılaştırma satır satır yapılıyor ve her satır için bir doğruluk değeri çıkıyor. Sonuç tabloyla **aynı boyda** bir sütun.\n\nFiltrelemek isteseydin köşeli parantezin içine koyacaktın: `data[data[\"score\"] >= 75]` — o zaman yalnızca uyan satırlar kalıyor.\n\nKaç kişi geçtiğini `data[\"passed\"].sum()` veriyor; `True` toplamada 1 sayılıyor.",
+        "en": "The comparison is made row by row and produces a truth value for each. The result is a column **the same length** as the table.\n\nIf you wanted to filter you would put it inside the square brackets: `data[data[\"score\"] >= 75]`, which leaves only the matching rows.\n\n`data[\"passed\"].sum()` gives how many passed; `True` counts as 1 when summing."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 0,
+      "text": {
+        "tr": "`data.nunique()` ne döndürür?",
+        "en": "What does `data.nunique()` return?"
+      },
+      "options": {
+        "tr": [
+          "Her sütunda kaç **farklı** değer olduğunu",
+          "Toplam satır sayısını",
+          "Her sütunda kaç dolu hücre olduğunu",
+          "Tekrar eden satır sayısını"
+        ],
+        "en": [
+          "How many **distinct** values each column has",
+          "The total number of rows",
+          "How many non-empty cells each column has",
+          "The number of duplicated rows"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir veriyi tanımanın hızlı yolu. Sütunda satır sayısı kadar farklı değer varsa o sütun muhtemelen bir kimlik (id, isim); az sayıda farklı değer varsa kategorik bir sütun.\n\nDolu hücre sayısını `count()`, tekrar eden satırları `duplicated().sum()` veriyor.",
+        "en": "A quick way to get to know a dataset. If a column has as many distinct values as there are rows, it is probably an identifier (an id, a name); if it has few, it is a categorical column.\n\n`count()` gives the number of non-empty cells and `duplicated().sum()` the number of repeated rows."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 0,
+      "text": {
+        "tr": "Bir DataFrame'den sütun çektiğinde dönen serinin `name` özelliği ne olur?",
+        "en": "When you pull a column out of a DataFrame, what is the `name` attribute of the Series you get?"
+      },
+      "options": {
+        "tr": [
+          "Sütunun adı",
+          "Tablonun adı",
+          "Boş kalır",
+          "Index'in adı"
+        ],
+        "en": [
+          "The column's name",
+          "The table's name",
+          "It stays empty",
+          "The index's name"
+        ]
+      },
+      "explanation": {
+        "tr": "`data[\"score\"]` yazdığında dönen serinin `name` değeri `\"score\"` oluyor. Çıktının altında `Name: score, dtype: int64` diye görünen satır bu.\n\nTers yön de geçerli: bir seriye `name` verip `to_frame()` çağırırsan sütun o adı alıyor. `name`, seriyle tablo arasındaki bağ.",
+        "en": "When you write `data[\"score\"]`, the Series you get has `name` set to `\"score\"`. That is the `Name: score, dtype: int64` line you see under the output.\n\nIt works the other way too: give a Series a `name` and call `to_frame()` and the column takes that name. `name` is the link between a Series and a table."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 0,
+      "text": {
+        "tr": "Elinde 50.000 satırlık bir tablo var ve her satır için `price * count` hesaplayacaksın. En doğru yol hangisi?",
+        "en": "You have a table of 50,000 rows and need `price * count` for each row. What is the right way?"
+      },
+      "options": {
+        "tr": [
+          "`data[\"total\"] = data[\"price\"] * data[\"count\"]`",
+          "`for i, row in data.iterrows(): ...`",
+          "`data.apply(lambda row: row[\"price\"] * row[\"count\"], axis=1)`",
+          "Satırları listeye çevirip döngüyle hesaplamak"
+        ],
+        "en": [
+          "`data[\"total\"] = data[\"price\"] * data[\"count\"]`",
+          "`for i, row in data.iterrows(): ...`",
+          "`data.apply(lambda row: row[\"price\"] * row[\"count\"], axis=1)`",
+          "Converting the rows to a list and looping"
+        ]
+      },
+      "explanation": {
+        "tr": "Sütunlar birer seri; çarpım vektörel olarak, altta C'de yapılıyor. Tek satır ve en hızlısı.\n\nDiğer üçü de doğru sonuç veriyor ama her satır için Python tarafına geçiyor. `iterrows` en yavaşı, `apply(axis=1)` ondan biraz iyi, ikisi de vektörel işlemin yanında çok geride.\n\n**Kural:** \"her satır için\" diye düşünüyorsan önce dur ve sütun sütun düşünmeyi dene. Veri biliminde işlerin çoğu sütun işlemidir.",
+        "en": "Columns are Series; the multiplication happens vectorised, in C underneath. One line and the fastest.\n\nThe other three also give the right answer but cross into Python for every row. `iterrows` is the slowest and `apply(axis=1)` slightly better, and both are far behind the vectorised form.\n\n**The rule:** when you catch yourself thinking \"for each row\", stop and try thinking column by column instead. Most data work is column work."
+      }
+    }
+  ]
+}

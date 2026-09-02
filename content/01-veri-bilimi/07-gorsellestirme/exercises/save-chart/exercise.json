@@ -1,0 +1,48 @@
+{
+  "id": "save-chart",
+  "title": {
+    "tr": "Grafiği kaydet",
+    "en": "Save the chart"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`fig.savefig(\"chart.png\", dpi=150, bbox_inches=\"tight\")` dosyaya yazıyor.",
+      "en": "`fig.savefig(\"chart.png\", dpi=150, bbox_inches=\"tight\")` writes it to a file."
+    },
+    {
+      "tr": "Dosyanın var olup olmadığını `Path(\"chart.png\").exists()` söylüyor; `pathlib` almalısın.",
+      "en": "`Path(\"chart.png\").exists()` tells you whether the file is there; you need to import `pathlib`."
+    },
+    {
+      "tr": "Boyutu `Path(\"chart.png\").stat().st_size` veriyor; sıfırdan büyük olmalı. Sonra `plt.close(fig)` ile tuvali kapat.",
+      "en": "`Path(\"chart.png\").stat().st_size` gives the size; it should be greater than zero. Then close the canvas with `plt.close(fig)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nfrom pathlib import Path\n\nfig, ax = plt.subplots()\nax.hist(data[\"score\"], bins=4)\nax.set_title(\"Score distribution\")\nax.set_xlabel(\"Score\")\n\nfig.savefig(\"chart.png\", dpi=150, bbox_inches=\"tight\")\nplt.close(fig)\n\nyol = Path(\"chart.png\")\nprint(yol.exists())\nprint(yol.stat().st_size > 0)\nprint(ax.get_title())\n```",
+      "en": "The solution:\n\n```python\nfrom pathlib import Path\n\nfig, ax = plt.subplots()\nax.hist(data[\"score\"], bins=4)\nax.set_title(\"Score distribution\")\nax.set_xlabel(\"Score\")\n\nfig.savefig(\"chart.png\", dpi=150, bbox_inches=\"tight\")\nplt.close(fig)\n\npath = Path(\"chart.png\")\nprint(path.exists())\nprint(path.stat().st_size > 0)\nprint(ax.get_title())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import matplotlib` satırı yok.",
+        "en": "There is no `import matplotlib` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nTrue\nScore distribution"
+    }
+  ]
+}

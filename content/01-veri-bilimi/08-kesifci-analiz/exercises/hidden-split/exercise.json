@@ -1,0 +1,48 @@
+{
+  "id": "hidden-split",
+  "title": {
+    "tr": "Ortalamanın gizlediği şey",
+    "en": "What the average hides"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Takım ortalamaları `records.groupby(\"team\")[\"score\"].mean()`.",
+      "en": "The team averages are `records.groupby(\"team\")[\"score\"].mean()`."
+    },
+    {
+      "tr": "İki kırılım için gruplama listesi kullanılıyor: `groupby([\"team\", \"level\"])`.",
+      "en": "Two breakdowns take a list: `groupby([\"team\", \"level\"])`."
+    },
+    {
+      "tr": "İki etiketli bir sonuçtan tek değer almak için `detay[(\"A\", \"hard\")]` yazılıyor. Soruların dağılımını `crosstab` ya da `groupby([...]).size()` veriyor.",
+      "en": "To read one value out of a two-label result you write `detail[(\"A\", \"hard\")]`. The question mix comes from `crosstab` or `groupby([...]).size()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ngenel = records.groupby(\"team\")[\"score\"].mean()\ndetay = records.groupby([\"team\", \"level\"])[\"score\"].mean()\nzor = records[records[\"level\"] == \"hard\"][\"team\"].value_counts()\n\nprint(genel[\"A\"], genel[\"B\"])\nprint(genel.idxmax())\nprint(zor[\"A\"], zor[\"B\"])\nprint(detay[(\"A\", \"easy\")], detay[(\"B\", \"easy\")])\nprint(detay[(\"A\", \"hard\")], detay[(\"B\", \"hard\")])\n```",
+      "en": "The solution:\n\n```python\noverall = records.groupby(\"team\")[\"score\"].mean()\ndetail = records.groupby([\"team\", \"level\"])[\"score\"].mean()\nhard = records[records[\"level\"] == \"hard\"][\"team\"].value_counts()\n\nprint(overall[\"A\"], overall[\"B\"])\nprint(overall.idxmax())\nprint(hard[\"A\"], hard[\"B\"])\nprint(detail[(\"A\", \"easy\")], detail[(\"B\", \"easy\")])\nprint(detail[(\"A\", \"hard\")], detail[(\"B\", \"hard\")])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import pandas as pd` satırı yok.",
+        "en": "There is no `import pandas as pd` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "74.0 61.0\nA\n2 8\n80.0 85.0\n50.0 55.0"
+    }
+  ]
+}

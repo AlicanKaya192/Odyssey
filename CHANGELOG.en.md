@@ -21,7 +21,97 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [0.5.0] — unreleased
+## [0.6.0] — 2 September 2026
+
+### Added
+- **The Data Science path is open.** Its first section is "What Is Data
+  Science?": how a piece of data work runs from end to end, why data is
+  almost always a table, and which problem NumPy and pandas each answer.
+  There are twenty quiz questions and five exercises.
+- **No libraries in this section's exercises.** You take an average, filter
+  rows, pull out a column, group by city and produce a summary report from
+  raw text — all in plain Python. The point is that when you write `groupby`
+  in the next section, you know what it replaces.
+- **Two lecture notes:** *Data Glossary* (record, variable, mean versus
+  median, missing values, file formats) and *Table Recipes* (the same six
+  operations in plain Python, each shown next to its pandas form).
+- **The NumPy section.** Arithmetic on arrays without writing a loop:
+  vectorised operations, `shape` and `dtype`, reshaping, slices and fancy
+  indexing, selecting by condition, `axis` and the row/column distinction,
+  broadcasting and missing values (`np.nan`). Twenty quiz questions and five
+  exercises.
+- **NumPy traps in their own lecture note.** A slice changing the original
+  array, a decimal silently truncated in an integer array, `&` instead of
+  `and`, a single `nan` ruining the whole average, `axis` being read
+  backwards, and seven more. Most of these **do not raise an error** — the
+  program runs and gives you the wrong number.
+- **The Pandas Series section.** The structure that carries **labels**
+  alongside the values: building a Series, selecting by label, filtering by
+  condition, seeing and filling missing values, counting with
+  `value_counts` and summarising at a glance with `describe`. Twenty quiz
+  questions and five exercises.
+- **Alignment is explained.** When two Series are added, pandas matches on
+  labels rather than order, so data from two sources lines up correctly even
+  in a different order. This is exactly where NumPy gives a silently wrong
+  answer.
+- **The DataFrame Basics section.** The real table structure: building a
+  table from a dictionary, the first look with `shape` / `columns` /
+  `dtypes` / `head`, selecting and adding columns, sorting, making a column
+  the index, and summarising with `describe`. Thirty quiz questions and five
+  exercises.
+- **The Selecting and Filtering section.** Taking the part of the table you
+  care about: `loc` by label, `iloc` by position, masks built from
+  conditions, several conditions with `&` and `|`, `isin` and
+  `str.contains`, sorting and `nlargest`. Thirty quiz questions and five
+  exercises.
+- **The Grouping section.** Split, compute, combine: `groupby`, several
+  summaries with `agg`, each row's own group average with `transform`,
+  breaking down by two columns, and `pivot_table` and `crosstab`. Thirty
+  quiz questions and five exercises.
+- **The Cleaning Data section.** What real data looks like: spaces in the
+  column names, inconsistently written text, numeric columns that arrive as
+  text, duplicated records and missing values. Cleaning has an order, and
+  the section teaches it. Thirty quiz questions and five exercises.
+- **The Visualisation section.** Bar, line, histogram and scatter charts;
+  which chart answers which question, why a title and axis labels are
+  required, saving a chart to a file and putting two charts on one canvas.
+  Thirty quiz questions and five exercises.
+- **The Exploratory Data Analysis section.** What to do when a new dataset
+  lands in front of you: the order to look in, reading a `describe` output,
+  judging a group average alongside its size, correlation, finding outliers
+  with the IQR rule, and turning a finding into an honest sentence. Thirty
+  quiz questions and five exercises.
+- **The Overall Review section.** A single example that cleans and analyses
+  a raw table from end to end, the key idea of each section, and the most
+  common traps in one list. Fifty quiz questions and five exercises, plus a
+  quick reference note covering the whole module.
+- **Every section has two lecture notes:** one a reference table for the
+  topic, the other the traps people fall into. Most of the trap notes are
+  about mistakes that **raise no error**: the program runs, a number appears
+  and the result is wrong.
+- **Data Science quizzes have thirty questions.** Every section but the
+  introduction has thirty, and the Overall Review has fifty; these topics
+  need more repetition than the Python fundamentals did.
+- **Seven new badges:** completing a section on the Data Science path,
+  completing a section in two different modules, finishing the NumPy,
+  DataFrame, Cleaning Data and Visualisation sections, and completing the
+  whole path.
+
+### Changed
+- **NumPy, pandas and matplotlib now ship inside the application.** The Data
+  Science exercises use them; you do not have to install anything and you do
+  not need an internet connection. This is why the download is larger.
+
+### Fixed
+- **The comments in an exercise's starter code were not translated when you
+  changed language.** The instructions changed but the code in the editor
+  stayed in the old language, and once you had run it, it never changed
+  again. Now, as long as you have not touched the code, the comments follow
+  the language you chose. Code you have written is left alone.
+
+---
+
+## [0.5.0] — 2 September 2026
 
 ### Added
 - **Badges.** Twelve of them: running your first program, finishing a quiz

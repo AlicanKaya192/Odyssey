@@ -1,0 +1,48 @@
+{
+  "id": "table-report",
+  "title": {
+    "tr": "Tablodan rapor",
+    "en": "A report from a table"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`set_index(\"name\")` adları satır etiketi yapıyor; sonra `loc[\"Mina\", \"score\"]` çalışıyor.",
+      "en": "`set_index(\"name\")` makes the names the row labels; then `loc[\"Mina\", \"score\"]` works."
+    },
+    {
+      "tr": "En çok tekrar eden şehri `data[\"city\"].value_counts().idxmax()` veriyor.",
+      "en": "`data[\"city\"].value_counts().idxmax()` gives the most frequent city."
+    },
+    {
+      "tr": "`data.isna().sum()` sütun başına eksik sayısı veriyor; toplamı için bir kez daha `.sum()`.",
+      "en": "`data.isna().sum()` gives the missing count per column; call `.sum()` once more for the total."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nreport = data.set_index(\"name\")\n\nprint(report.loc[\"Mina\", \"score\"])\nprint(data[\"city\"].value_counts())\nprint(data[\"city\"].value_counts().idxmax())\nprint(int(data.isna().sum().sum()))\nprint(round(data[\"score\"].mean(), 2), data[\"score\"].max())\n```",
+      "en": "The solution:\n\n```python\nreport = data.set_index(\"name\")\n\nprint(report.loc[\"Mina\", \"score\"])\nprint(data[\"city\"].value_counts())\nprint(data[\"city\"].value_counts().idxmax())\nprint(int(data.isna().sum().sum()))\nprint(round(data[\"score\"].mean(), 2), data[\"score\"].max())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import pandas as pd` satırı yok.",
+        "en": "There is no `import pandas as pd` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "91\ncity\nAnkara    3\nIzmir     1\nBursa     1\nName: count, dtype: int64\nAnkara\n0\n80.6 91"
+    }
+  ]
+}

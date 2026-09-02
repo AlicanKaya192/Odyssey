@@ -1,0 +1,48 @@
+{
+  "id": "above-group",
+  "title": {
+    "tr": "Grubunun üstünde mi?",
+    "en": "Above their own group?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`transform(\"mean\")` grup ortalamasını **her satıra** yazıyor; sonuç tabloyla aynı boyda.",
+      "en": "`transform(\"mean\")` writes the group mean onto **every row**; the result is the same size as the table."
+    },
+    {
+      "tr": "`mean()` grup başına bir satır veriyor ve tabloya sütun olarak eklenemiyor — boyu tutmuyor. Fark bu.",
+      "en": "`mean()` gives one row per group and cannot be added as a column — the lengths do not match. That is the difference."
+    },
+    {
+      "tr": "Karşılaştırma yeni bir `True`/`False` sütunu üretiyor; `sum()` ile kaç tane olduğunu sayabilirsin.",
+      "en": "The comparison produces a new `True`/`False` column; `sum()` counts them."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndata[\"city_mean\"] = data.groupby(\"city\")[\"score\"].transform(\"mean\").round(1)\ndata[\"above\"] = data[\"score\"] > data[\"city_mean\"]\n\nprint(data[[\"name\", \"city\", \"score\", \"city_mean\", \"above\"]])\nprint(int(data[\"above\"].sum()))\n```",
+      "en": "The solution:\n\n```python\ndata[\"city_mean\"] = data.groupby(\"city\")[\"score\"].transform(\"mean\").round(1)\ndata[\"above\"] = data[\"score\"] > data[\"city_mean\"]\n\nprint(data[[\"name\", \"city\", \"score\", \"city_mean\", \"above\"]])\nprint(int(data[\"above\"].sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import pandas as pd` satırı yok.",
+        "en": "There is no `import pandas as pd` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "    name    city  score  city_mean  above\n0    Ada  Ankara     82       87.0  False\n1  Kerem   Izmir     74       71.3   True\n2   Mina  Ankara     91       87.0   True\n3  Deniz   Bursa     68       69.0  False\n4    Efe  Ankara     88       87.0   True\n5   Sila   Izmir     76       71.3   True\n6   Kaan   Bursa     70       69.0   True\n7    Ela   Izmir     64       71.3  False\n5"
+    }
+  ]
+}

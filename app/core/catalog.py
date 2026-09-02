@@ -183,6 +183,35 @@ class Exercise:
     def starter_code_for(self, language: str) -> str:
         return self._code_for("starter", language)
 
+    def starter_variants(self) -> list[str]:
+        """Bütün dillerdeki başlangıç kodları.
+
+        Dil listesi dosya adlarından çıkarılıyor: `starter.{lang}.py`
+        şablonu diskte hangi dillerde varsa o kadar. Böylece yeni bir dil
+        eklendiğinde burası değişmeden çalışıyor.
+        """
+        name = self.raw.get("starter")
+        if not name:
+            return []
+        if "{lang}" not in name:
+            path = self.directory / name
+            return [path.read_text(encoding="utf-8")] if path.exists() else []
+        found = sorted(self.directory.glob(name.replace("{lang}", "*")))
+        return [path.read_text(encoding="utf-8") for path in found]
+
+    def is_untouched(self, code: str) -> bool:
+        """Kod hâlâ başlangıç kodu mu — herhangi bir dilde.
+
+        Kullanıcı bir alıştırmayı açıp hiçbir şey yazmadan çalıştırdığında
+        başlangıç kodu "yazdığı kod" olarak kaydediliyor. Dil değişince o
+        kaydın yorum satırları eski dilde kalıyordu; hangi dilin başlangıç
+        kodu olursa olsun tanımak bunu çözüyor.
+        """
+        current = code.strip()
+        if not current:
+            return False
+        return any(current == variant.strip() for variant in self.starter_variants())
+
     def solution_code_for(self, language: str) -> str:
         return self._code_for("solution", language)
 

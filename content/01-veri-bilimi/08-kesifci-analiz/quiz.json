@@ -1,0 +1,784 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Keşifçi veri analizi (EDA) nedir?",
+        "en": "What is exploratory data analysis (EDA)?"
+      },
+      "options": {
+        "tr": [
+          "Soru sorup veriye bakıp yeni soru doğuran bir döngü",
+          "Analizden önce bir kez yapılan hazırlık adımı",
+          "Veriyi temizleme işlemi",
+          "Grafik çizme tekniği"
+        ],
+        "en": [
+          "A loop of asking a question, looking at the data and raising a new one",
+          "A preparation step you do once before the analysis",
+          "The process of cleaning data",
+          "A charting technique"
+        ]
+      },
+      "explanation": {
+        "tr": "Yeni başlayanlar EDA'yı \"analizden önceki hazırlık\" sanıyor; öyle değil.\n\nHer bulgu yeni bir soru doğuruyor: \"ortalama not 71\" bulgusunun hemen ardından \"kimin notu düşük, neden\" geliyor.\n\nDöngü sorular bitince değil, cevaplar bir hikâye anlatmaya başlayınca duruyor.",
+        "en": "Beginners take EDA for \"the preparation before the analysis\"; it is not.\n\nEvery finding raises a new question: \"the average score is 71\" is followed straight away by \"whose scores are low, and why\".\n\nThe loop stops not when the questions run out, but when the answers start telling a story."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Yeni bir veri açtığında ilk sorulacak iki soru hangisidir?",
+        "en": "What are the first two questions to ask when you open a new dataset?"
+      },
+      "options": {
+        "tr": [
+          "Kaç satır kaç sütun, ve tipler doğru mu",
+          "Ortalama kaç, ve medyan kaç",
+          "Hangi grafiği çizeyim, ve hangi renk",
+          "Kaç grup var, ve hangisi büyük"
+        ],
+        "en": [
+          "How many rows and columns, and are the types right",
+          "What is the mean, and what is the median",
+          "Which chart to draw, and in what colour",
+          "How many groups there are, and which is largest"
+        ]
+      },
+      "explanation": {
+        "tr": "`shape` ölçeği söylüyor: on satırla yüz bin satır farklı şeyler.\n\n`dtypes` temizlik gerekip gerekmediğini söylüyor. Bir sayı sütunu `str` görünüyorsa ortalama alamıyorsun ve `sort_values()` metin sırasına göre sıralıyor.\n\nBunu analize başlamadan önce görmen gerekiyor, ortalama alırken değil.",
+        "en": "`shape` tells you the scale: ten rows and a hundred thousand are different things.\n\n`dtypes` tells you whether cleaning is needed. If a numeric column shows as `str` you cannot take an average, and `sort_values()` sorts in text order.\n\nYou need to see that before you start the analysis, not while taking an average."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`describe()` çıktısında ortalama ile medyan birbirinden uzaksa bu ne anlama gelir?",
+        "en": "In a `describe()` output, what does it mean if the mean and the median are far apart?"
+      },
+      "options": {
+        "tr": [
+          "Dağılım çarpık, uç değerler var",
+          "Veri hatalı",
+          "Eksik değer var",
+          "İki farklı grup var"
+        ],
+        "en": [
+          "The distribution is skewed, there are extremes",
+          "The data is wrong",
+          "There are missing values",
+          "There are two different groups"
+        ]
+      },
+      "explanation": {
+        "tr": "Ortalama uç değerlerden etkileniyor, medyan etkilenmiyor. İkisi ayrışıyorsa bir tarafta ağırlık var demek.\n\nOrtalama medyandan **küçükse** aşağıda birkaç düşük değer var; **büyükse** yukarıda birkaç yüksek değer var. Gelir verilerinde neredeyse her zaman ikincisi görülüyor.\n\nBu durumda özet olarak medyan yazılıyor.",
+        "en": "The mean is affected by extremes and the median is not. If they diverge, there is weight on one side.\n\nA mean **below** the median means a few low values at the bottom; **above** it means a few high ones at the top. Income data almost always shows the second.\n\nIn that case you report the median as the summary."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Grup ortalaması neden `count` ile birlikte istenir?",
+        "en": "Why do you ask for a group average together with `count`?"
+      },
+      "options": {
+        "tr": [
+          "Küçük gruptan çıkarılan ortalama bir sonuç değil",
+          "pandas ikisini birlikte istiyor",
+          "Tablo daha güzel görünüyor",
+          "Hesaplama hızlanıyor"
+        ],
+        "en": [
+          "An average from a small group is not a conclusion",
+          "pandas requires both",
+          "The table looks nicer",
+          "It computes faster"
+        ]
+      },
+      "explanation": {
+        "tr": "İki kişilik bir grubun ortalaması 48 çıkabiliyor ama bir kişi eksik ya da fazla olsa sayı tamamen değişirdi.\n\n```python\ndata.groupby(\"city\")[\"score\"].agg([\"count\", \"mean\"])\n```\n\nOrtalamayı tek başına görsen \"o şehirde notlar düşük\" derdin. `count` seni bundan alıkoyuyor.",
+        "en": "A group of two can average 48, but one person more or less would change the number completely.\n\n```python\ndata.groupby(\"city\")[\"score\"].agg([\"count\", \"mean\"])\n```\n\nSeeing the average alone, you would say \"scores are low in that city\". `count` stops you."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Korelasyon 0.98 ne anlama gelir?",
+        "en": "What does a correlation of 0.98 mean?"
+      },
+      "options": {
+        "tr": [
+          "İki sütun güçlü şekilde birlikte artıyor",
+          "Biri ötekine sebep oluyor",
+          "İki sütun aynı",
+          "Veride %98 doğruluk var"
+        ],
+        "en": [
+          "The two columns rise together strongly",
+          "One causes the other",
+          "The two columns are identical",
+          "The data is 98% accurate"
+        ]
+      },
+      "explanation": {
+        "tr": "Korelasyon -1 ile +1 arasında bir sayı: +1'e yakınsa biri artarken öteki de artıyor, -1'e yakınsa biri artarken öteki azalıyor, 0 civarında doğrusal bir ilişki görünmüyor.\n\n**Nedensellik ayrı bir iddia.** Üç ihtimal her zaman açık: A B'ye sebep oluyor, B A'ya sebep oluyor, ya da C ikisine birden sebep oluyor.",
+        "en": "Correlation is a number between -1 and +1: near +1 they rise together, near -1 one rises as the other falls, around 0 no linear relationship is visible.\n\n**Causation is a separate claim.** Three possibilities are always open: A causes B, B causes A, or C causes both."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "IQR kuralında aykırı değer sınırı nasıl hesaplanır?",
+        "en": "How are the outlier bounds computed in the IQR rule?"
+      },
+      "options": {
+        "tr": [
+          "`q1 - 1.5 * iqr` ve `q3 + 1.5 * iqr`",
+          "Ortalama ± standart sapma",
+          "En küçük ve en büyük değer",
+          "Medyan ± 1.5"
+        ],
+        "en": [
+          "`q1 - 1.5 * iqr` and `q3 + 1.5 * iqr`",
+          "The mean ± the standard deviation",
+          "The smallest and largest value",
+          "The median ± 1.5"
+        ]
+      },
+      "explanation": {
+        "tr": "`quantile(0.25)` verinin dörtte birinin altında kaldığı değer, `quantile(0.75)` dörtte üçünün. Aradaki mesafe **çeyrekler açıklığı** (IQR).\n\nBu mesafenin 1.5 katı dışına çıkan her şey aykırı sayılıyor.\n\nÇeyrekler uç değerlerden etkilenmediği için kural bir aykırı değerin kendi sınırını genişletmesine izin vermiyor — ortalama ve standart sapmayla kurulan kuralın sorunu tam olarak bu.",
+        "en": "`quantile(0.25)` is the value a quarter of the data falls below and `quantile(0.75)` three quarters. The distance between them is the **interquartile range** (IQR).\n\nAnything more than 1.5 times that distance outside the interval counts as an outlier.\n\nBecause quartiles are unaffected by extremes, the rule does not let an outlier widen its own bounds — which is exactly the problem with a rule built on the mean and standard deviation."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Aykırı değer şüphesi varken hangi özet daha güvenilir?",
+        "en": "When you suspect an outlier, which summary is more reliable?"
+      },
+      "options": {
+        "tr": [
+          "Medyan",
+          "Ortalama",
+          "Standart sapma",
+          "Toplam"
+        ],
+        "en": [
+          "The median",
+          "The mean",
+          "The standard deviation",
+          "The sum"
+        ]
+      },
+      "explanation": {
+        "tr": "`[12, 15, 14, 13, 16, 15, 92]` serisinde ortalama 25.3, medyan 15.\n\nTek bir değer ortalamayı on puan yukarı çekti; medyan kıpırdamadı.\n\nMedyan sıralamanın ortasındaki değer olduğu için uçtaki bir sayının ne kadar büyük olduğu onu ilgilendirmiyor.",
+        "en": "In the series `[12, 15, 14, 13, 16, 15, 92]` the mean is 25.3 and the median 15.\n\nA single value pulled the mean ten points up; the median did not budge.\n\nBecause the median is the middle value of the ordering, how large the extreme number is does not concern it."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "Simpson paradoksu nedir?",
+        "en": "What is Simpson's paradox?"
+      },
+      "options": {
+        "tr": [
+          "Gruplara bölününce ortalamanın tersine dönmesi",
+          "Korelasyonun 0 çıkması",
+          "Ortalamanın medyandan büyük olması",
+          "Eksik değerlerin rastgele olmaması"
+        ],
+        "en": [
+          "An average reversing when you split into groups",
+          "A correlation coming out at 0",
+          "The mean being above the median",
+          "Missing values not being random"
+        ]
+      },
+      "explanation": {
+        "tr": "Genel ortalamada A takımı 74, B takımı 61 — A önde. Ama zorluk seviyesine göre kırınca kolay sorularda B 85'e karşı 80, zor sorularda 55'e karşı 50: **B her iki seviyede de daha iyi.**\n\nSebep dağılım: A çoğunlukla kolay soruları çözmüş, B zor olanları.\n\nGenel ortalama yalan söylemiyor, **eksik soruya cevap veriyor.**",
+        "en": "On the overall average team A is 74 and team B 61 — A is ahead. But split by difficulty, on the easy questions B is 85 against 80 and on the hard ones 55 against 50: **B is better at both levels.**\n\nThe reason is the mix: A mostly answered the easy questions and B the hard ones.\n\nThe overall average is not lying, it is **answering the wrong question.**"
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "İki grup arasında fark bulduğunda hangi soru sorulmalıdır?",
+        "en": "When you find a difference between two groups, what should you ask?"
+      },
+      "options": {
+        "tr": [
+          "Bu grupların başka bir şeyi de farklı mı",
+          "Fark yüzde kaç",
+          "Hangi grafikle gösterirsem daha etkileyici olur",
+          "Farkı nasıl büyütebilirim"
+        ],
+        "en": [
+          "Is something else different about these groups too",
+          "What percentage is the gap",
+          "Which chart would make it look most striking",
+          "How can I make the gap bigger"
+        ]
+      },
+      "explanation": {
+        "tr": "Simpson paradoksundan korunmanın yolu bu. İki takımın ortalaması farklıysa, çözdükleri soruların zorluğu da farklı olabiliyor.\n\nCevap evetse o sütuna göre de kırıyorsun:\n\n```python\ndata.groupby([\"team\", \"level\"])[\"score\"].mean()\n```\n\nGizli değişken bulunmadıkça grup farkı bir açıklama değil, bir gözlem.",
+        "en": "This is how you guard against Simpson's paradox. If two teams average differently, the difficulty of the questions they answered may differ too.\n\nIf the answer is yes, you break it down by that column as well:\n\n```python\ndata.groupby([\"team\", \"level\"])[\"score\"].mean()\n```\n\nUntil the hidden variable is found, a group difference is an observation, not an explanation."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`data.isna().sum().sum()` neden iki kez toplama içerir?",
+        "en": "Why does `data.isna().sum().sum()` sum twice?"
+      },
+      "options": {
+        "tr": [
+          "Birincisi sütun başına sayıyor, ikincisi onları topluyor",
+          "Bir yazım hatası",
+          "Satır ve sütun ayrı sayılıyor",
+          "İkincisi yüzdeye çeviriyor"
+        ],
+        "en": [
+          "The first counts per column and the second adds those up",
+          "It is a typo",
+          "Rows and columns are counted separately",
+          "The second converts to a percentage"
+        ]
+      },
+      "explanation": {
+        "tr": "`isna()` tabloyla aynı boyutta bir `True`/`False` tablosu veriyor. İlk `sum()` sütun başına toplayıp bir seri döndürüyor; ikincisi o seriyi toplayıp tek bir sayı veriyor.\n\nSütun başına dağılımı görmek genelde daha yararlı: hangi sütunda ne kadar boşluk olduğunu tek sayı söylemiyor.\n\nYüzde daha da anlamlı: `(data.isna().mean() * 100).round(1)`.",
+        "en": "`isna()` gives a `True`/`False` table the same size as the data. The first `sum()` totals per column and returns a Series; the second totals that Series into a single number.\n\nThe per-column breakdown is usually more useful: a single number does not say which column holds the gaps.\n\nA percentage says even more: `(data.isna().mean() * 100).round(1)`."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Ankette gelir sorusunu genelde yüksek gelirliler boş bırakıyor. `dropna()` ne yapar?",
+        "en": "In a survey it is mostly high earners who leave the income question blank. What does `dropna()` do?"
+      },
+      "options": {
+        "tr": [
+          "Ortalama geliri sistematik olarak düşük gösterir",
+          "Sorunu çözer",
+          "Ortalamayı yükseltir",
+          "Hiçbir şeyi değiştirmez"
+        ],
+        "en": [
+          "It makes the average income look systematically lower",
+          "It fixes the problem",
+          "It raises the average",
+          "It changes nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Boşluklar rastgele dağılmıyorsa kalan veri artık kimseyi temsil etmiyor.\n\nYüksek gelirliler atıldığında ortalama olduğundan düşük çıkıyor — hem de kimse fark etmeden, çünkü kod hatasız çalışıyor.\n\nSorulacak soru \"kaç tane boş\" değil, **\"neden boş\"**.",
+        "en": "If the blanks are not randomly distributed, the remaining data no longer represents anyone.\n\nWith the high earners dropped, the average comes out lower than it is — and nobody notices, because the code ran without error.\n\nThe question is not \"how many are blank\" but **\"why are they blank\"**."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Bir sütunda `nunique()` satır sayısına eşitse bu ne demektir?",
+        "en": "If a column's `nunique()` equals the row count, what does that mean?"
+      },
+      "options": {
+        "tr": [
+          "O sütun bir kimlik sütunu; gruplamada işe yaramıyor",
+          "Sütun temiz",
+          "Sütunda eksik değer yok",
+          "Sütun sıralı"
+        ],
+        "en": [
+          "That column is an id column; it is useless for grouping",
+          "The column is clean",
+          "The column has no missing values",
+          "The column is sorted"
+        ]
+      },
+      "explanation": {
+        "tr": "Her satırda farklı bir değer varsa gruplama her gruba bir kayıt düşürüyor; ortalama da o kaydın kendisi oluyor.\n\nMüşteri numarası, sipariş kodu, e-posta gibi sütunlar böyle. Bunlar birleştirme (`merge`) için değerli, özetleme için değil.\n\nTers uçta `nunique()` 1 ise sütun hiçbir bilgi taşımıyor; o da atılabiliyor.",
+        "en": "If every row has a different value, grouping puts one record in each group and the average is that record itself.\n\nCustomer numbers, order codes and email addresses are like this. They are valuable for joining (`merge`), not for summarising.\n\nAt the other extreme, `nunique()` of 1 means the column carries no information at all and can be dropped."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "`head()` yerine `sample()` kullanmak neden bazen daha iyidir?",
+        "en": "Why is `sample()` sometimes better than `head()`?"
+      },
+      "options": {
+        "tr": [
+          "Veri sıralıysa ilk satırlar tek bir dönemi gösteriyor",
+          "Daha hızlı",
+          "Daha az bellek kullanıyor",
+          "Eksik değerleri atlıyor"
+        ],
+        "en": [
+          "If the data is sorted, the first rows show only one period",
+          "It is faster",
+          "It uses less memory",
+          "It skips missing values"
+        ]
+      },
+      "explanation": {
+        "tr": "Veri tarihe göre sıralıysa `head()` yalnızca en eski kayıtları gösteriyor; o dönemde eksik olan bir sütun sana \"bu sütun hep boş\" gibi görünüyor.\n\n`sample(5)` tablonun her yerinden çekiyor.\n\nİkisi birlikte kullanılıyor: `head()` yapıyı, `sample()` çeşitliliği gösteriyor.",
+        "en": "If the data is sorted by date, `head()` shows only the oldest records; a column that was empty in that period looks to you like \"this column is always blank\".\n\n`sample(5)` draws from everywhere in the table.\n\nThey are used together: `head()` shows the structure and `sample()` the variety."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Dağılım grafiğine bakmadan yalnızca korelasyon sayısına güvenmek neden riskli?",
+        "en": "Why is trusting the correlation number alone, without a scatter plot, risky?"
+      },
+      "options": {
+        "tr": [
+          "Eğri bir ilişkide korelasyon 0'a yakın çıkabiliyor",
+          "Korelasyon her zaman yanlış",
+          "Sayı yuvarlanıyor",
+          "Grafik daha hızlı hesaplanıyor"
+        ],
+        "en": [
+          "With a curved relationship the correlation can come out near 0",
+          "Correlation is always wrong",
+          "The number gets rounded",
+          "A chart computes faster"
+        ]
+      },
+      "explanation": {
+        "tr": "Korelasyon **doğrusal** ilişkiyi ölçüyor. U şeklinde bir ilişkide sayı 0'a yakın çıkıyor ve \"ilişki yok\" sanılıyor, oysa ilişki fazlasıyla var.\n\nAynı korelasyon değerini veren tamamen farklı desenler çizilebiliyor — birkaç aykırı değer tek başına yüksek bir korelasyon üretebiliyor.\n\nBu yüzden sayıya bakmadan önce göze bakılıyor.",
+        "en": "Correlation measures a **linear** relationship. With a U-shaped relationship the number comes out near 0 and you conclude there is none, while there very much is.\n\nCompletely different patterns can produce the same correlation value — a couple of outliers alone can manufacture a high one.\n\nThat is why you look with your eyes before you look at the number."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Korelasyon matrisinde köşegen neden hep 1.00'dir?",
+        "en": "Why is the diagonal of a correlation matrix always 1.00?"
+      },
+      "options": {
+        "tr": [
+          "Her sütun kendisiyle tam uyumlu",
+          "Bir hesap hatası",
+          "Yuvarlamadan geliyor",
+          "Sütunlar aynı ölçekte"
+        ],
+        "en": [
+          "Every column agrees perfectly with itself",
+          "It is a calculation error",
+          "It comes from rounding",
+          "The columns are on the same scale"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir sütun kendisiyle karşılaştırıldığında mükemmel doğrusal ilişki çıkıyor.\n\nMatrisin alt ve üst üçgeni de birbirinin aynısı: A ile B'nin korelasyonu, B ile A'nınkiyle aynı. Bu yüzden tablonun yarısını okumak yetiyor.\n\n```python\ndata.corr(numeric_only=True).round(2)\n```\n\n`numeric_only=True` metin sütunları varken gerekiyor.",
+        "en": "Compared with itself, a column shows a perfect linear relationship.\n\nThe upper and lower triangles are identical too: the correlation of A with B is the same as B with A. So reading half the table is enough.\n\n```python\ndata.corr(numeric_only=True).round(2)\n```\n\n`numeric_only=True` is needed when there are text columns."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Bir grupta 2 kayıt var. Ortalaması hakkında ne söylenebilir?",
+        "en": "A group has 2 records. What can be said about its average?"
+      },
+      "options": {
+        "tr": [
+          "Bir işaret olarak okunur, sonuç olarak değil",
+          "Diğer gruplarla aynı şekilde karşılaştırılır",
+          "Kesinlikle yanlıştır",
+          "Grup silinmelidir"
+        ],
+        "en": [
+          "It is read as a hint, not as a conclusion",
+          "It is compared with the other groups just the same",
+          "It is definitely wrong",
+          "The group should be deleted"
+        ]
+      },
+      "explanation": {
+        "tr": "Sayı yanlış değil — o iki kişinin ortalaması gerçekten o. Ama o iki kişiden bir gruba genelleme yapılamıyor.\n\nKaba bir eşik olarak 30'un altındaki gruplarda dikkatli olunuyor.\n\nGrubu silmek de doğru değil; **grup büyüklüğünü raporda yazmak** doğrusu. Okuyan kişi ne kadar güveneceğine kendisi karar veriyor.",
+        "en": "The number is not wrong — that really is the average of those two people. But you cannot generalise from two people to a group.\n\nAs a rough threshold, groups below 30 are treated with care.\n\nDeleting the group is not right either; **writing the group size in the report** is. The reader then decides for themselves how much to trust it."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "İki grubun da ortalaması 70. Bu ikisinin aynı olduğu anlamına gelir mi?",
+        "en": "Two groups both average 70. Does that mean they are the same?"
+      },
+      "options": {
+        "tr": [
+          "Hayır — biri 68-72 arasında, öteki yarı 40 yarı 100 olabilir",
+          "Evet, ortalama her şeyi söyler",
+          "Sadece grup büyüklükleri eşitse",
+          "Sadece medyan da eşitse"
+        ],
+        "en": [
+          "No — one could be 68-72 and the other half 40s and half 100s",
+          "Yes, the average says everything",
+          "Only if the group sizes are equal",
+          "Only if the medians are equal too"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı ortalama, tamamen farklı iki durum. Farkı `std` gösteriyor: birincide küçük, ikincide çok büyük.\n\n```python\ndata.groupby(\"city\")[\"score\"].agg([\"count\", \"mean\", \"std\"])\n```\n\nBüyük bir `std` çoğu zaman \"burada aslında iki farklı grup var\" demek oluyor ve yeni bir kırılım arattırıyor.",
+        "en": "The same average, two completely different situations. `std` shows the difference: small in the first, very large in the second.\n\n```python\ndata.groupby(\"city\")[\"score\"].agg([\"count\", \"mean\", \"std\"])\n```\n\nA large `std` often means \"there are really two different groups here\" and sends you looking for a new breakdown."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "\"20 kayıt eksik\" ifadesi neden tek başına bilgi değildir?",
+        "en": "Why is \"20 records are missing\" not information on its own?"
+      },
+      "options": {
+        "tr": [
+          "Toplam satır sayısı bilinmeden büyüklüğü anlaşılmıyor",
+          "Sayı yanlış olabilir",
+          "Yüzde her zaman daha doğrudur",
+          "pandas farklı sayıyor"
+        ],
+        "en": [
+          "Without the total row count its size cannot be judged",
+          "The number could be wrong",
+          "A percentage is always more correct",
+          "pandas counts differently"
+        ]
+      },
+      "explanation": {
+        "tr": "100 satırda 20 eksik ciddi; 100.000 satırda 20 eksik önemsiz.\n\nTers yönde de aynı: \"%50 artış\" 2'den 3'e çıkmışsa bir şey anlatmıyor.\n\nKural: **yüzde ve ham sayı birlikte yazılıyor.** İkisinden biri her zaman yanıltıcı olabiliyor.",
+        "en": "20 missing out of 100 rows is serious; 20 out of 100,000 is nothing.\n\nThe same in the other direction: \"a 50% increase\" says nothing if it went from 2 to 3.\n\nThe rule: **the percentage and the raw count go together.** Either one alone can mislead."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "Yirmi sütunu birbiriyle karşılaştırıp yüksek bir korelasyon bulmak neden şüphelidir?",
+        "en": "Why is finding a high correlation after comparing twenty columns suspicious?"
+      },
+      "options": {
+        "tr": [
+          "Yeterince bakarsan rastlantı eseri bir şey mutlaka çıkıyor",
+          "pandas yirmiden fazla sütunda hata veriyor",
+          "Korelasyon çok sütunda yavaşlıyor",
+          "Yirmi sütun fazla veri demek"
+        ],
+        "en": [
+          "Look at enough pairs and something turns up by chance",
+          "pandas errors above twenty columns",
+          "Correlation is slow with many columns",
+          "Twenty columns is too much data"
+        ]
+      },
+      "explanation": {
+        "tr": "Bulduğun şey veride değil, aramanda. Bu kadar çift arasından birinin yüksek çıkması beklenen bir şey.\n\nDürüst yol: **soruyu önce sor**, sonra bak.\n\nVeriye bakarken doğan soruları \"bunu ayrıca doğrulamak gerekiyor\" diye not et; bulguymuş gibi yazma. Doğrulama için yeni bir veri gerekiyor.",
+        "en": "What you found is not in the data, it is in your searching. Among that many pairs, one coming out high is expected.\n\nThe honest way: **ask the question first**, then look.\n\nNote the questions that arise while looking as \"this needs separate confirmation\"; do not write them up as findings. Confirming needs fresh data."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Gelir, süre ve fiyat gibi sağa çarpık verilerde hangi özet tercih edilir?",
+        "en": "Which summary is preferred for right-skewed data like income, duration and price?"
+      },
+      "options": {
+        "tr": [
+          "Medyan",
+          "Ortalama",
+          "Toplam",
+          "Standart sapma"
+        ],
+        "en": [
+          "The median",
+          "The mean",
+          "The sum",
+          "The standard deviation"
+        ]
+      },
+      "explanation": {
+        "tr": "Birkaç büyük değer ortalamayı yukarı çekiyor ve \"ortalama kullanıcı\" diye tarif ettiğin kişi veride hiç bulunmuyor.\n\nBir mahallede on kişi asgari ücret alıyor, bir kişi milyoner: ortalama gelir kimseyi tarif etmiyor, medyan asgari ücreti gösteriyor.\n\nKontrol: `describe()`'da `mean` ile `50%` uzaksa medyan yazılıyor.",
+        "en": "A few large values pull the mean up, and the \"average user\" you describe does not exist in the data at all.\n\nTen people in a neighbourhood on minimum wage and one millionaire: the mean income describes nobody, while the median shows the minimum wage.\n\nThe check: if `mean` and `50%` are far apart in `describe()`, report the median."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Aykırı bir değeri silmeden önce sorulacak soru nedir?",
+        "en": "What do you ask before deleting an outlier?"
+      },
+      "options": {
+        "tr": [
+          "Bu bir veri hatası mı, yoksa gerçek bir uç mu",
+          "Ortalamayı ne kadar değiştiriyor",
+          "Kaç tane var",
+          "Hangi satırda"
+        ],
+        "en": [
+          "Is this a data error, or a genuine extreme",
+          "How much does it change the mean",
+          "How many are there",
+          "Which row is it in"
+        ]
+      },
+      "explanation": {
+        "tr": "Yaş 200 ise hata, silinebilir. Maaş ortalamanın 40 katıysa belki genel müdür — silersen veriyi çarpıtırsın.\n\nUç değerler bazen verinin en ilginç kısmı: dolandırıcılık tespiti tamamen onların üstüne kurulu.\n\nKural aykırıyı **buluyor**, silinip silinmeyeceğine karar vermiyor. O karar senin ve raporda yazılıyor.",
+        "en": "An age of 200 is an error and can go. A salary 40 times the average may be the chief executive — delete it and you skew the data.\n\nExtremes are sometimes the most interesting part: fraud detection is built entirely on them.\n\nThe rule **finds** the outlier, it does not decide whether to delete it. That decision is yours, and it goes in the report."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`score` sütunu `str` tipindeyken `sort_values()` ne yapar?",
+        "en": "What does `sort_values()` do when the `score` column is of type `str`?"
+      },
+      "options": {
+        "tr": [
+          "Metin sırasına göre sıralar: \"100\" \"9\"dan önce gelir",
+          "Hata verir",
+          "Sayıya çevirip sıralar",
+          "Sıralamayı atlar"
+        ],
+        "en": [
+          "It sorts in text order: \"100\" comes before \"9\"",
+          "It raises an error",
+          "It converts to numbers and sorts",
+          "It skips the sorting"
+        ]
+      },
+      "explanation": {
+        "tr": "Hata yok, uyarı yok, sonuç yanlış. Metin sıralaması karakter karakter yapılıyor ve `\"1\"` `\"9\"`dan önce geliyor.\n\nAynı sütunda `mean()` çağırmak hata veriyor ama `max()` sessizce yanlış cevap verebiliyor.\n\nBu yüzden EDA'nın ikinci adımı `dtypes`. Sessiz hatalar gürültülü hatalardan daha tehlikeli.",
+        "en": "No error, no warning, wrong result. Text sorting goes character by character and `\"1\"` comes before `\"9\"`.\n\nCalling `mean()` on the same column raises an error, but `max()` can silently give the wrong answer.\n\nThat is why step two of EDA is `dtypes`. Silent errors are more dangerous than noisy ones."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Hangi cümle veriden okunuyor, hangisi fazladan bir iddia içeriyor?",
+        "en": "Which sentence is read off the data, and which carries an extra claim?"
+      },
+      "options": {
+        "tr": [
+          "\"Bu veride X ile Y birlikte hareket ediyor\" okunuyor; \"X, Y'yi artırıyor\" iddia",
+          "İkisi de aynı",
+          "İlki iddia, ikincisi okunuyor",
+          "İkisi de iddia"
+        ],
+        "en": [
+          "\"In this data X and Y move together\" is read; \"X increases Y\" is a claim",
+          "They are the same",
+          "The first is a claim and the second is read",
+          "Both are claims"
+        ]
+      },
+      "explanation": {
+        "tr": "İkinci cümle yanlış olmak zorunda değil — ama **veri onu kanıtlamıyor.**\n\nAynı ayrım her yerde: \"Bursa'daki iki kayıt düşük\" ile \"Bursa'da notlar düşük\"; \"Ocak'ta satış arttı\" ile \"kampanya işe yaradı\".\n\nAnalizin dürüstlüğü tam olarak bu farkı korumakta. Raporun son cümlesi en tehlikeli yer.",
+        "en": "The second sentence is not necessarily false — but **the data does not prove it.**\n\nThe same distinction is everywhere: \"the two Bursa records are low\" versus \"scores are low in Bursa\"; \"sales rose in January\" versus \"the campaign worked\".\n\nThe honesty of an analysis lies exactly in keeping that difference. The last sentence of a report is the most dangerous place."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.cut(data[\"age\"], bins=[20, 30, 40, 60])` ne yapar?",
+        "en": "What does `pd.cut(data[\"age\"], bins=[20, 30, 40, 60])` do?"
+      },
+      "options": {
+        "tr": [
+          "Sayısal sütunu aralıklara — kategoriye — çevirir",
+          "Satırları siler",
+          "Yaşı yuvarlar",
+          "Grafik çizer"
+        ],
+        "en": [
+          "Turns a numeric column into ranges — into categories",
+          "Deletes rows",
+          "Rounds the ages",
+          "Draws a chart"
+        ]
+      },
+      "explanation": {
+        "tr": "Sonuç `(20, 30]`, `(30, 40]`, `(40, 60]` gibi aralıklardan oluşan bir sütun oluyor ve `value_counts()` ya da `groupby` ile kullanılabiliyor.\n\nYaşın kendisiyle gruplamak işe yaramıyor: 28 ile 29 ayrı grup oluyor. Yaş aralığıyla gruplamak okunaklı bir tablo veriyor.\n\nAralıklar varsayılan olarak sağdan kapalı: `(20, 30]` 30'u içeriyor, 20'yi içermiyor.",
+        "en": "The result is a column of ranges like `(20, 30]`, `(30, 40]`, `(40, 60]`, usable with `value_counts()` or `groupby`.\n\nGrouping by age itself is useless: 28 and 29 become separate groups. Grouping by age band gives a readable table.\n\nBy default the ranges are closed on the right: `(20, 30]` includes 30 and excludes 20."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "`data.corr()` bir tabloda metin sütunları varken ne yapılmalı?",
+        "en": "What should you do when calling `data.corr()` on a table with text columns?"
+      },
+      "options": {
+        "tr": [
+          "`numeric_only=True` vermek",
+          "Metin sütunlarını silmek şart",
+          "Metinleri sayıya çevirmek şart",
+          "Bir şey yapmaya gerek yok"
+        ],
+        "en": [
+          "Pass `numeric_only=True`",
+          "The text columns must be deleted",
+          "The text must be converted to numbers",
+          "Nothing is needed"
+        ]
+      },
+      "explanation": {
+        "tr": "Korelasyon yalnızca sayısal sütunlarda anlamlı. `numeric_only=True` metin sütunlarını sessizce dışarıda bırakıyor.\n\nAlternatif olarak sütunları elle seçebiliyorsun:\n\n```python\ndata[[\"age\", \"hours\", \"score\"]].corr().round(2)\n```\n\nİkincisi daha açık: tabloda hangi sütunların olduğunu kod söylüyor.",
+        "en": "Correlation only makes sense for numeric columns. `numeric_only=True` silently leaves the text columns out.\n\nAlternatively you select the columns yourself:\n\n```python\ndata[[\"age\", \"hours\", \"score\"]].corr().round(2)\n```\n\nThe second is more explicit: the code says which columns are in the table."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "`describe()`'da `count` satır sayısından küçükse bu ne anlama gelir?",
+        "en": "In `describe()`, what does it mean if `count` is below the row count?"
+      },
+      "options": {
+        "tr": [
+          "O sütunda eksik değer var",
+          "Veri sıralı değil",
+          "Sütun metin tipinde",
+          "Aykırı değer var"
+        ],
+        "en": [
+          "That column has missing values",
+          "The data is not sorted",
+          "The column is of text type",
+          "There is an outlier"
+        ]
+      },
+      "explanation": {
+        "tr": "`count` **dolu** hücreleri sayıyor. Tablo 10 satırsa ve bir sütunda `count` 8 ise orada iki boşluk var.\n\nDikkat edilecek nokta şu: ortalama o sekiz değer üzerinden hesaplanıyor, on değil. pandas eksikleri sessizce atlıyor.\n\nBu yüzden `describe()`'dan önce `isna().sum()` çalıştırılıyor.",
+        "en": "`count` counts the **filled** cells. If the table has 10 rows and a column shows a `count` of 8, there are two gaps there.\n\nThe thing to notice: the mean is computed over those eight values, not ten. pandas skips the missing ones silently.\n\nThat is why `isna().sum()` is run before `describe()`."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 0,
+      "text": {
+        "tr": "Bir kategorik sütunda `value_counts()` iki şeyi birden gösterir. Nedir bunlar?",
+        "en": "`value_counts()` on a categorical column shows two things at once. What are they?"
+      },
+      "options": {
+        "tr": [
+          "Kaç farklı değer var ve dağılım dengeli mi",
+          "Ortalama ve medyan",
+          "Eksik değer ve tip",
+          "En büyük ve en küçük değer"
+        ],
+        "en": [
+          "How many distinct values there are, and whether they are balanced",
+          "The mean and the median",
+          "The missing values and the type",
+          "The largest and smallest value"
+        ]
+      },
+      "explanation": {
+        "tr": "Satır sayısı kaç kategori olduğunu, sayıların kendisi dengeyi gösteriyor.\n\nDengesizlik önemli: bir grupta iki kayıt varsa o grubun ortalaması hakkında söyleyebileceğin şey çok az. Gruplamaya geçmeden bunu görmüş oluyorsun.\n\n`normalize=True` aynı bilgiyi oran olarak veriyor; çok satırlı tablolarda daha okunaklı.",
+        "en": "The number of lines tells you how many categories there are, and the counts themselves tell you the balance.\n\nThe imbalance matters: if a group has two records, there is very little you can say about its average. You see that before you move on to grouping.\n\n`normalize=True` gives the same information as proportions; more readable on large tables."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 0,
+      "text": {
+        "tr": "`describe()` çıktısında `max` değeri 999 ve sütun yaş. İlk düşünülmesi gereken nedir?",
+        "en": "In a `describe()` output the `max` is 999 and the column is age. What comes to mind first?"
+      },
+      "options": {
+        "tr": [
+          "999 muhtemelen \"bilinmiyor\" yerine yazılmış bir kod",
+          "Veride çok yaşlı biri var",
+          "Sütun yanlış sıralanmış",
+          "Ortalama yanlış hesaplanmış"
+        ],
+        "en": [
+          "999 is probably a code standing in for \"unknown\"",
+          "There is a very old person in the data",
+          "The column is sorted wrongly",
+          "The mean was computed wrongly"
+        ]
+      },
+      "explanation": {
+        "tr": "Eski sistemlerde boş değer yerine 999, -1 ya da 0 yazmak yaygın bir alışkanlıktı. pandas bunları sayı olarak görüyor ve ortalamaya katıyor.\n\n`min`/`max` kontrolünün amacı tam olarak bu: mantıksız uç bir değer genelde veri hatasına ya da gizli bir koda işaret ediyor.\n\nÇözüm onu `NaN` yapmak: `data[\"age\"] = data[\"age\"].replace(999, None)`.",
+        "en": "In older systems it was common to write 999, -1 or 0 instead of a blank. pandas sees these as numbers and includes them in the mean.\n\nThat is exactly the purpose of checking `min`/`max`: an implausible extreme usually points to a data error or a hidden code.\n\nThe fix is to turn it into `NaN`: `data[\"age\"] = data[\"age\"].replace(999, None)`."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 0,
+      "text": {
+        "tr": "İyi bir bulgu cümlesi üç şey söyler. Hangisi eksik olursa cümle yanıltıcı olur?",
+        "en": "A good finding says three things. Which one, if missing, makes it misleading?"
+      },
+      "options": {
+        "tr": [
+          "Neyi söylemediği",
+          "Kimin yazdığı",
+          "Hangi araçla hesaplandığı",
+          "Kaç satır kod yazıldığı"
+        ],
+        "en": [
+          "What it is not saying",
+          "Who wrote it",
+          "Which tool computed it",
+          "How many lines of code it took"
+        ]
+      },
+      "explanation": {
+        "tr": "İyi bir bulgu cümlesi: ne gördün, ne kadar güçlü, ve neyi söylemiyorsun.\n\n> Bu veride çalışma saati ile not arasında güçlü bir ilişki var (korelasyon 0.98). Bursa'daki ortalama düşük görünüyor ama orada yalnızca iki kayıt var, bu yüzden şehir hakkında bir sonuç çıkarılamıyor.\n\nSınırı yazmayan bir cümle, okuyanın olmayan bir kesinlik varsaymasına yol açıyor.",
+        "en": "A good finding says: what you saw, how strong it is, and what you are not saying.\n\n> In this data there is a strong relationship between study hours and score (correlation 0.98). The Bursa average looks low, but there are only two records there, so no conclusion can be drawn about the city.\n\nA sentence that omits the limit lets the reader assume a certainty that is not there."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 0,
+      "text": {
+        "tr": "EDA'da bir adımın çıktısı bir sonraki adımı nasıl belirler?",
+        "en": "How does the output of one EDA step determine the next?"
+      },
+      "options": {
+        "tr": [
+          "`describe`'da ortalama ile medyan uzaksa aykırı değere bakılır",
+          "Sıra sabittir, çıktıya bakılmaz",
+          "Her adım bağımsızdır",
+          "Sıra alfabetiktir"
+        ],
+        "en": [
+          "If the mean and median are far apart in `describe`, you go and look for outliers",
+          "The order is fixed and the output is ignored",
+          "Each step is independent",
+          "The order is alphabetical"
+        ]
+      },
+      "explanation": {
+        "tr": "EDA bir kontrol listesi gibi görünüyor ama aslında bir döngü: her çıktı bir sonraki soruyu doğuruyor.\n\n`value_counts`'ta dengesiz bir grup görüyorsan gruplamada dikkatli oluyorsun; `describe`'da mantıksız bir `max` görüyorsan o sütunu temizliyorsun; büyük bir `std` görüyorsan yeni bir kırılım arıyorsun.\n\nSıra bir başlangıç noktası, ezberlenecek bir tarif değil.",
+        "en": "EDA looks like a checklist but is really a loop: every output raises the next question.\n\nAn unbalanced group in `value_counts` makes you careful when grouping; an implausible `max` in `describe` sends you to clean that column; a large `std` sends you looking for a new breakdown.\n\nThe order is a starting point, not a recipe to memorise."
+      }
+    }
+  ]
+}

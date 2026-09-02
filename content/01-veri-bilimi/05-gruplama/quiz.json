@@ -1,0 +1,784 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "`groupby` hangi üç adımı yapar?",
+        "en": "What three steps does `groupby` perform?"
+      },
+      "options": {
+        "tr": [
+          "Böl, hesapla, birleştir",
+          "Sırala, filtrele, yazdır",
+          "Oku, temizle, kaydet",
+          "Kopyala, değiştir, geri yaz"
+        ],
+        "en": [
+          "Split, apply, combine",
+          "Sort, filter, print",
+          "Read, clean, save",
+          "Copy, modify, write back"
+        ]
+      },
+      "explanation": {
+        "tr": "Satırlar anahtara göre kümelere ayrılıyor, her küme için bir sonuç üretiliyor, sonuçlar tek tabloda toplanıyor.\n\nSen yalnızca \"neye göre\" ve \"ne hesaplansın\" diyorsun; üç adımın hepsini pandas yapıyor. İlk bölümde bunu elle yazmıştın — iki sözlük ve bir döngüyle.",
+        "en": "The rows are split into buckets by a key, one result is produced per bucket, and the results are gathered into one table.\n\nYou only say \"by what\" and \"what to compute\"; pandas does all three steps. In the first section you wrote this by hand — with two dictionaries and a loop."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`data.groupby(\"city\")[\"score\"].mean()` ne döndürür?",
+        "en": "What does `data.groupby(\"city\")[\"score\"].mean()` return?"
+      },
+      "options": {
+        "tr": [
+          "Index'i şehirler olan bir **seri**",
+          "Bir DataFrame",
+          "Tek bir sayı",
+          "Bir sözlük"
+        ],
+        "en": [
+          "A **Series** whose index is the cities",
+          "A DataFrame",
+          "A single number",
+          "A dictionary"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek sütundan tek hesap istediğin için sonuç seri: index gruplar, değerler hesaplanan sayılar.\n\nTablo isteseydin ya `agg` ile birden fazla hesap yapacaktın ya da `[[\"score\"]]` yazacaktın.\n\nSonuç bir seri olduğu için üzerine `idxmax()`, `sort_values()` gibi seri metotlarını uygulayabiliyorsun.",
+        "en": "You asked for one calculation on one column, so the result is a Series: groups as the index, the computed numbers as the values.\n\nFor a table you would either do several calculations with `agg` or write `[[\"score\"]]`.\n\nBecause it is a Series you can call Series methods on it like `idxmax()` and `sort_values()`."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`groupby` sonucundaki gruplar hangi sırada gelir?",
+        "en": "In what order do the groups come back from `groupby`?"
+      },
+      "options": {
+        "tr": [
+          "Alfabetik — veride hangi sırada olduklarından bağımsız",
+          "Veride ilk göründükleri sırada",
+          "Grup büyüklüğüne göre",
+          "Rastgele"
+        ],
+        "en": [
+          "Alphabetically — regardless of their order in the data",
+          "In the order they first appear in the data",
+          "By group size",
+          "Randomly"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas anahtarları kendiliğinden sıralıyor.\n\nGenelde iyi ama iki durumda sorun: sıralı bir anahtar varsa (ay adları, \"düşük/orta/yüksek\") alfabetik sıra anlamsız oluyor.\n\n`sort=False` verirsen veride ilk görülme sırası korunuyor; büyük veride biraz da hızlanıyor.",
+        "en": "pandas sorts the keys by itself.\n\nUsually that is fine, but it causes trouble in two cases: when the key has a natural order (month names, \"low/medium/high\"), alphabetical order is meaningless.\n\nPassing `sort=False` keeps the order of first appearance and is slightly faster on large data."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "`groupby(\"city\").count()` ile `groupby(\"city\").size()` arasındaki fark nedir?",
+        "en": "What is the difference between `groupby(\"city\").count()` and `groupby(\"city\").size()`?"
+      },
+      "options": {
+        "tr": [
+          "`count()` dolu hücreleri, `size()` bütün satırları sayar",
+          "İkisi de aynı",
+          "`size()` sütun sayısını verir",
+          "`count()` grup sayısını verir"
+        ],
+        "en": [
+          "`count()` counts filled cells, `size()` counts all rows",
+          "They are the same",
+          "`size()` gives the number of columns",
+          "`count()` gives the number of groups"
+        ]
+      },
+      "explanation": {
+        "tr": "Eksik değer yoksa ikisi aynı sonucu veriyor; olduğunda ayrışıyorlar.\n\n\"Bu grupta kaç kayıt var\" sorusunun cevabı `size()`. `count()` yazarsan eksik değerli satırları kaçırıyorsun.\n\n`count()` ayrıca sütun başına ayrı sayı veriyor — hangi sütunda ne kadar boşluk olduğunu grup grup görmek için işe yarıyor.",
+        "en": "With no missing values they give the same answer; with them they diverge.\n\nThe answer to \"how many records are in this group\" is `size()`. If you write `count()` you miss the rows with missing values.\n\n`count()` also gives a separate number per column — useful for seeing how many gaps each column has, group by group."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nd = pd.DataFrame({\"g\": [\"a\", \"a\", None], \"v\": [1, 2, 3]})\nprint(d.groupby(\"g\")[\"v\"].sum())\n```",
+        "en": "What does this code print?\n\n```python\nd = pd.DataFrame({\"g\": [\"a\", \"a\", None], \"v\": [1, 2, 3]})\nprint(d.groupby(\"g\")[\"v\"].sum())\n```"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca `a: 3` — anahtarı eksik satır hiçbir gruba girmiyor",
+          "`a: 3` ve `NaN: 3`",
+          "`a: 6`",
+          "Hata verir"
+        ],
+        "en": [
+          "Only `a: 3` — the row with a missing key joins no group",
+          "`a: 3` and `NaN: 3`",
+          "`a: 6`",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Toplam 6 olması gerekirdi ama 3 çıkıyor. Üçüncü satırın anahtarı boş olduğu için **sonuçtan tamamen kayboldu**.\n\nHata yok, uyarı yok. Rapordaki toplam yanlış çıkıyor ve sebebini aramak saatler alıyor.\n\nGörmek için `dropna=False` veriyorsun. **Alışkanlık:** gruplamadan önce anahtar sütununda `isna().sum()` çalıştır.",
+        "en": "The total should have been 6 but it is 3. The third row's key was empty, so it **vanished from the result entirely**.\n\nNo error, no warning. The total in your report is wrong and finding out why takes hours.\n\nTo see them you pass `dropna=False`. **A habit worth having:** run `isna().sum()` on the key column before grouping."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`agg` ile adlandırılmış sütun üretmenin doğru yazımı nedir?",
+        "en": "What is the correct form for producing named columns with `agg`?"
+      },
+      "options": {
+        "tr": [
+          "`agg(ortalama=(\"score\", \"mean\"))`",
+          "`agg(\"score\", \"mean\", name=\"ortalama\")`",
+          "`agg({\"ortalama\": \"score.mean\"})`",
+          "`agg([\"score\", \"mean\"])`"
+        ],
+        "en": [
+          "`agg(average=(\"score\", \"mean\"))`",
+          "`agg(\"score\", \"mean\", name=\"average\")`",
+          "`agg({\"average\": \"score.mean\"})`",
+          "`agg([\"score\", \"mean\"])`"
+        ]
+      },
+      "explanation": {
+        "tr": "Yazım: `yeni_ad=(\"hangi sütun\", \"hangi hesap\")`.\n\nBu biçim rapor üretirken en okunaklısı: sütun adını sen veriyorsun ve neyin nereden hesaplandığı tek bakışta görünüyor.\n\n`agg([\"count\", \"mean\"])` de çalışıyor ama sütun adları hesabın adı oluyor; `agg({\"score\": \"mean\"})` ise sütun başına farklı hesap için.",
+        "en": "The form is `new_name=(\"which column\", \"which calculation\")`.\n\nIt reads best when producing a report: you choose the column names, and what is computed from where is visible at a glance.\n\n`agg([\"count\", \"mean\"])` also works but names the columns after the calculations; `agg({\"score\": \"mean\"})` is for a different calculation per column."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`groupby` sonucunda grup anahtarı nereye gider?",
+        "en": "Where does the group key go in the result of `groupby`?"
+      },
+      "options": {
+        "tr": [
+          "Index'e — sütun olarak kalmaz",
+          "Yeni bir sütuna",
+          "Silinir",
+          "Sütun adlarına"
+        ],
+        "en": [
+          "Into the index — it does not stay a column",
+          "Into a new column",
+          "It is removed",
+          "Into the column names"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu yüzden `result[\"Ankara\"]` çalışıyor ama `result[0]` çalışmıyor.\n\nSütun olarak kalmasını istiyorsan iki yol var:\n\n```python\ndata.groupby(\"city\", as_index=False)[\"score\"].mean()\ndata.groupby(\"city\")[\"score\"].mean().reset_index()\n```\n\nSonucu başka bir tabloyla birleştirecekseniz ya da dosyaya yazacaksanız bu biçim gerekiyor.",
+        "en": "This is why `result[\"Ankara\"]` works but `result[0]` does not.\n\nIf you want it to stay a column there are two ways:\n\n```python\ndata.groupby(\"city\", as_index=False)[\"score\"].mean()\ndata.groupby(\"city\")[\"score\"].mean().reset_index()\n```\n\nYou need that shape if you are going to join the result with another table or write it to a file."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "İki anahtara göre gruplayınca sonucun index'i ne olur?",
+        "en": "What happens to the index when you group by two keys?"
+      },
+      "options": {
+        "tr": [
+          "İki seviyeli olur (MultiIndex)",
+          "İki ayrı sütun olur",
+          "Anahtarlar birleştirilip tek metin olur",
+          "Değişmez"
+        ],
+        "en": [
+          "It becomes two-level (a MultiIndex)",
+          "It becomes two separate columns",
+          "The keys are joined into a single string",
+          "It does not change"
+        ]
+      },
+      "explanation": {
+        "tr": "Çok seviyeli index'le çalışmak zahmetli: seçim kuralları değişiyor.\n\nÇoğu zaman ilk iş düzleştirmek oluyor:\n\n```python\nresult.reset_index()   # seviyeler sutuna doner\nresult.unstack()       # ikinci anahtar sutun olur (pivot gibi)\n```\n\nÇıktıda boş görünen hücreler bir öncekiyle aynı demek; pandas tekrar yazmıyor.",
+        "en": "A MultiIndex is awkward to work with: the selection rules change.\n\nMost of the time the first thing you do is flatten it:\n\n```python\nresult.reset_index()   # the levels become columns\nresult.unstack()       # the second key becomes columns (like a pivot)\n```\n\nThe cells that look empty in the output mean \"the same as above\"; pandas does not repeat them."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`pivot_table` ne yapar?",
+        "en": "What does `pivot_table` do?"
+      },
+      "options": {
+        "tr": [
+          "Bir anahtarı satır, ötekini sütun yapıp hücrelere hesabı koyar",
+          "Tabloyu devirir",
+          "Satırları sütunlara çevirir",
+          "Tabloyu sıralar"
+        ],
+        "en": [
+          "Puts one key as rows and the other as columns, with the calculation in the cells",
+          "Transposes the table",
+          "Turns rows into columns",
+          "Sorts the table"
+        ]
+      },
+      "explanation": {
+        "tr": "Excel'deki pivot tablonun aynısı. İki anahtarlı `groupby` ile aynı bilgiyi veriyor ama okunması çok daha kolay bir biçimde.\n\n`groupby([\"a\", \"b\"]).mean().unstack()` ile aynı sonucu alıyorsun; `pivot_table` daha açık yazılıyor.\n\nBoş hücreler o kombinasyonun veride **hiç olmadığı** anlamına geliyor.",
+        "en": "The same thing as a pivot table in Excel. It gives the same information as a two-key `groupby` but in a much more readable shape.\n\nYou get the same result with `groupby([\"a\", \"b\"]).mean().unstack()`; `pivot_table` states it more clearly.\n\nEmpty cells mean that combination **does not exist** in the data."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Pivot tablodaki `NaN` hücre ne anlama gelir?",
+        "en": "What does a `NaN` cell in a pivot table mean?"
+      },
+      "options": {
+        "tr": [
+          "O kombinasyon veride hiç yok",
+          "Hesap sıfır çıktı",
+          "Hesap yapılamadı",
+          "Hücre bozuk"
+        ],
+        "en": [
+          "That combination does not exist in the data",
+          "The calculation came out as zero",
+          "The calculation failed",
+          "The cell is corrupted"
+        ]
+      },
+      "explanation": {
+        "tr": "Ankara'da C notu alan kimse yoksa o hücre `NaN` oluyor. Bu, \"Ankara'da C ortalaması sıfır\" demek **değil**.\n\nİkisini karıştırmamak gerekiyor. `fill_value=0` ile sıfır yazdırabilirsin ama o zaman sonraki hesaplarda o sıfırlar gerçek ölçüm gibi davranıyor ve ortalamaları aşağı çekiyor.\n\nRaporda sıfır gördüğünde \"bu bir ölçüm mü, boşluk mu\" diye sormak gerekiyor.",
+        "en": "If nobody in Ankara has a C, that cell is `NaN`. It does **not** mean \"the C average in Ankara is zero\".\n\nThe two should not be confused. You could print zeros with `fill_value=0`, but then those zeros behave like real measurements in later calculations and drag the averages down.\n\nWhen you see a zero in a report you have to ask whether it is a measurement or a gap."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`transform(\"mean\")` ile `mean()` arasındaki fark nedir?",
+        "en": "What is the difference between `transform(\"mean\")` and `mean()`?"
+      },
+      "options": {
+        "tr": [
+          "`transform` her satıra grubunun sonucunu yazar; tablo aynı boyda kalır",
+          "`transform` daha hızlıdır",
+          "`transform` yalnızca sayısal sütunlarda çalışır",
+          "İkisi aynı sonucu verir"
+        ],
+        "en": [
+          "`transform` writes each group's result onto every row; the table stays the same size",
+          "`transform` is faster",
+          "`transform` only works on numeric columns",
+          "They give the same result"
+        ]
+      },
+      "explanation": {
+        "tr": "`mean()` grup başına **bir satır** veriyor (tablo küçülüyor), `transform(\"mean\")` **satır başına bir değer** veriyor (tablo aynı boyda kalıyor).\n\nBu yüzden `transform` sonucu doğrudan tabloya sütun olarak eklenebiliyor:\n\n```python\ndata[\"city_mean\"] = data.groupby(\"city\")[\"score\"].transform(\"mean\")\n```\n\n\"Bu satır kendi grubunun ortalamasının üstünde mi\" sorusu ancak böyle cevaplanıyor.",
+        "en": "`mean()` gives **one row per group** (the table shrinks), `transform(\"mean\")` gives **one value per row** (the table stays the same size).\n\nThat is why a `transform` result can be added to the table as a column directly:\n\n```python\ndata[\"city_mean\"] = data.groupby(\"city\")[\"score\"].transform(\"mean\")\n```\n\nThe question \"is this row above its own group's average\" can only be answered this way."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Grup başına **en yüksek notu alan kişinin tamamını** bulmak için hangisi doğru?",
+        "en": "Which is the correct way to find the **whole row** of the top scorer in each group?"
+      },
+      "options": {
+        "tr": [
+          "`data.loc[data.groupby(\"city\")[\"score\"].idxmax()]`",
+          "`data.groupby(\"city\")[\"score\"].max()`",
+          "`data.groupby(\"city\").max()`",
+          "`data.groupby(\"city\")[\"name\"].max()`"
+        ],
+        "en": [
+          "`data.loc[data.groupby(\"city\")[\"score\"].idxmax()]`",
+          "`data.groupby(\"city\")[\"score\"].max()`",
+          "`data.groupby(\"city\").max()`",
+          "`data.groupby(\"city\")[\"name\"].max()`"
+        ]
+      },
+      "explanation": {
+        "tr": "`idxmax()` grup başına birer **satır etiketi** veriyor; `loc` de o satırların tamamını getiriyor — adıyla, şehriyle, notuyla.\n\n`max()` yalnızca sayıyı veriyor, kimin olduğunu söylemiyor. `groupby(\"city\").max()` ise her sütunun en büyüğünü ayrı ayrı alıyor ve **karışık satırlar** üretiyor: bir kişinin adı, başka birinin notu.\n\n**Dikkat:** beraberlikte `idxmax` ilk satırı alıyor.",
+        "en": "`idxmax()` gives one **row label** per group, and `loc` fetches those whole rows — with the name, the city and the score.\n\n`max()` gives only the number, not whose it is. `groupby(\"city\").max()` takes the maximum of each column separately and produces **mixed-up rows**: one person's name with another's score.\n\n**Careful:** on a tie, `idxmax` takes the first row."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nd = pd.DataFrame({\"g\": [\"a\", \"a\", \"b\"], \"v\": [1.0, None, 3.0]})\nprint(d.groupby(\"g\")[\"v\"].mean().tolist())\n```",
+        "en": "What does this code print?\n\n```python\nd = pd.DataFrame({\"g\": [\"a\", \"a\", \"b\"], \"v\": [1.0, None, 3.0]})\nprint(d.groupby(\"g\")[\"v\"].mean().tolist())\n```"
+      },
+      "options": {
+        "tr": [
+          "`[1.0, 3.0]` — eksik değer hesaba girmiyor",
+          "`[0.5, 3.0]`",
+          "`[nan, 3.0]`",
+          "`[1.5, 3.0]`"
+        ],
+        "en": [
+          "`[1.0, 3.0]` — the missing value does not enter the calculation",
+          "`[0.5, 3.0]`",
+          "`[nan, 3.0]`",
+          "`[1.5, 3.0]`"
+        ]
+      },
+      "explanation": {
+        "tr": "`a` grubunda iki satır var ama biri boş; ortalama yalnızca 1.0'dan hesaplanıyor.\n\nBu, serideki davranışın aynısı: pandas eksikleri atlıyor. NumPy olsaydı `nan` verirdi.\n\nDoğru mu? Duruma bağlı. Ama **kaç değerin atlandığını bilmeden** ortalamaya güvenmemek gerekiyor: `count()` ile `size()` birlikte bakılıyor.",
+        "en": "Group `a` has two rows but one is empty; the mean is computed from 1.0 alone.\n\nThis is the same behaviour as on a Series: pandas skips the missing ones. NumPy would have given `nan`.\n\nIs it right? It depends. But you should not trust an average **without knowing how many values were skipped**: look at `count()` and `size()` together."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`data.groupby(\"city\")[\"score\"].mean().idxmax()` ne verir?",
+        "en": "What does `data.groupby(\"city\")[\"score\"].mean().idxmax()` give you?"
+      },
+      "options": {
+        "tr": [
+          "En yüksek ortalamaya sahip **şehrin adını**",
+          "En yüksek ortalamayı",
+          "En yüksek notu",
+          "En kalabalık şehri"
+        ],
+        "en": [
+          "The **name of the city** with the highest average",
+          "The highest average",
+          "The highest score",
+          "The most populated city"
+        ]
+      },
+      "explanation": {
+        "tr": "Grup sonucu bir seri ve index'i şehir adları; `idxmax()` en büyük değerin **index etiketini** veriyor.\n\n\"Hangi şehirde satış en yüksek\", \"hangi ay en çok kazandırdı\" gibi soruların cevabı tam olarak bu iki satır.\n\nDeğerin kendisini isteseydin `.max()` yazacaktın.",
+        "en": "The group result is a Series indexed by city name; `idxmax()` gives the **index label** of the largest value.\n\nQuestions like \"which city has the highest sales\" or \"which month earned the most\" are answered by exactly these two lines.\n\nFor the value itself you would write `.max()`."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`data.groupby(\"city\", as_index=False)[\"score\"].mean()` ne döndürür?",
+        "en": "What does `data.groupby(\"city\", as_index=False)[\"score\"].mean()` return?"
+      },
+      "options": {
+        "tr": [
+          "`city` ve `score` sütunlu bir tablo — anahtar sütun olarak kalır",
+          "Index'i şehirler olan bir seri",
+          "Yalnızca ortalamaları",
+          "Hata verir"
+        ],
+        "en": [
+          "A table with `city` and `score` columns — the key stays a column",
+          "A Series indexed by city",
+          "Only the averages",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan davranış anahtarı index'e taşımak; `as_index=False` bunu kapatıyor.\n\nSonucu başka bir tabloyla birleştirecekseniz ya da CSV'ye yazacaksanız bu biçim gerekiyor — index'e taşınmış bir anahtarla birleştirme yapmak zahmetli.\n\nAynı şeyi sonradan `reset_index()` ile de yapabiliyorsun.",
+        "en": "The default is to move the key into the index; `as_index=False` turns that off.\n\nYou need this shape if you are going to join the result with another table or write it to CSV — joining on a key that has moved into the index is awkward.\n\nYou can also do the same afterwards with `reset_index()`."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Grup başına birden fazla hesap yapmak için ne kullanılır?",
+        "en": "What do you use to do several calculations per group?"
+      },
+      "options": {
+        "tr": [
+          "`agg`",
+          "`apply`",
+          "`transform`",
+          "`map`"
+        ],
+        "en": [
+          "`agg`",
+          "`apply`",
+          "`transform`",
+          "`map`"
+        ]
+      },
+      "explanation": {
+        "tr": "`agg([\"count\", \"mean\", \"max\"])` üç sütunlu bir tablo veriyor.\n\n`apply` de çalışıyor ama her grup için Python'a geri dönüyor ve daha yavaş. `transform` farklı bir iş yapıyor: sonucu satırlara dağıtıyor.\n\nHazır bir hesap varsa adını metin olarak vermek en hızlısı: `agg(\"mean\")`. Lambda yalnızca hazırı olmayan hesaplar için.",
+        "en": "`agg([\"count\", \"mean\", \"max\"])` gives a three-column table.\n\n`apply` also works but goes back into Python for every group and is slower. `transform` does a different job: it spreads the result across the rows.\n\nIf a built-in calculation exists, passing its name as a string is fastest: `agg(\"mean\")`. A lambda is only for calculations that have no built-in."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "`data.groupby(\"city\")[\"score\"]` ile `data.groupby(\"city\")[[\"score\"]]` arasındaki fark nedir?",
+        "en": "What is the difference between `data.groupby(\"city\")[\"score\"]` and `data.groupby(\"city\")[[\"score\"]]`?"
+      },
+      "options": {
+        "tr": [
+          "İlki seri, ikincisi tek sütunlu tablo döndürür",
+          "İkisi aynı",
+          "İkincisi hata verir",
+          "İlki daha yavaş"
+        ],
+        "en": [
+          "The first returns a Series and the second a one-column table",
+          "They are the same",
+          "The second raises an error",
+          "The first is slower"
+        ]
+      },
+      "explanation": {
+        "tr": "DataFrame'deki aynı kural burada da geçerli: tek köşeli parantez seri, çift köşeli parantez tablo.\n\nHangisini seçeceğin sonrasında ne yapacağına bağlı: `idxmax()` gibi seri metotları için birincisi, başka bir tabloyla birleştirmek için ikincisi.",
+        "en": "The same rule as on a DataFrame applies here: single square brackets give a Series, double ones a table.\n\nWhich you pick depends on what you do next: the first for Series methods like `idxmax()`, the second for joining with another table."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod kaç satırlık bir sonuç üretir?\n\n```python\n# data 8 satirlik, 3 farkli sehir var\ndata.groupby(\"city\")[\"score\"].transform(\"mean\")\n```",
+        "en": "How many rows does this produce?\n\n```python\n# data has 8 rows and 3 distinct cities\ndata.groupby(\"city\")[\"score\"].transform(\"mean\")\n```"
+      },
+      "options": {
+        "tr": [
+          "8 — satır sayısı kadar",
+          "3 — grup sayısı kadar",
+          "1",
+          "24"
+        ],
+        "en": [
+          "8 — one per row",
+          "3 — one per group",
+          "1",
+          "24"
+        ]
+      },
+      "explanation": {
+        "tr": "`transform` tabloyu **aynı boyda** bırakıyor: her satıra kendi grubunun sonucu yazılıyor.\n\nBu yüzden doğrudan sütun olarak eklenebiliyor. `mean()` olsaydı 3 satır dönerdi ve tabloya eklenemezdi — boyu tutmazdı.\n\nKural: rapor üretiyorsan `agg`, satırla grubunu karşılaştıracaksan `transform`.",
+        "en": "`transform` keeps the table the **same size**: each row gets its own group's result.\n\nThat is why it can be added as a column directly. `mean()` would have returned 3 rows and could not be added — the lengths would not match.\n\nThe rule: `agg` for a report, `transform` for comparing a row with its group."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "Gruplamadan önce hangi kontrolü yapmak iyi bir alışkanlıktır?",
+        "en": "What check is a good habit before grouping?"
+      },
+      "options": {
+        "tr": [
+          "Anahtar sütununda `isna().sum()` çalıştırmak",
+          "Tabloyu sıralamak",
+          "Index'i sıfırlamak",
+          "Sütun adlarını büyütmek"
+        ],
+        "en": [
+          "Running `isna().sum()` on the key column",
+          "Sorting the table",
+          "Resetting the index",
+          "Uppercasing the column names"
+        ]
+      },
+      "explanation": {
+        "tr": "Anahtarı eksik satırlar **hiçbir gruba girmiyor** ve sonuçtan sessizce kayboluyor. Toplamlar tutmuyor, sebebi görünmüyor.\n\nÖnce kaç tane olduğunu bilirsen ne yapacağına karar verebiliyorsun: `dropna=False` ile ayrı bir grup yapmak, doldurmak, ya da bilerek atmak.\n\nAynı kontrol hesaplanan sütun için de yararlı — orada eksikler atlanıyor ve ortalama az sayıdan hesaplanıyor.",
+        "en": "Rows with a missing key **join no group** and vanish from the result silently. The totals do not add up and the reason is invisible.\n\nIf you know how many there are first, you can decide what to do: make them a separate group with `dropna=False`, fill them, or drop them deliberately.\n\nThe same check is useful for the computed column too — there the missing ones are skipped and the average is computed from fewer values."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "`data.groupby([\"city\", \"grade\"])[\"score\"].mean().reset_index()` kaç sütunlu bir tablo verir?",
+        "en": "How many columns does `data.groupby([\"city\", \"grade\"])[\"score\"].mean().reset_index()` produce?"
+      },
+      "options": {
+        "tr": [
+          "3 — `city`, `grade` ve `score`",
+          "2",
+          "1",
+          "Grup sayısı kadar"
+        ],
+        "en": [
+          "3 — `city`, `grade` and `score`",
+          "2",
+          "1",
+          "As many as there are groups"
+        ]
+      },
+      "explanation": {
+        "tr": "`reset_index()` iki index seviyesini iki sütuna çeviriyor; hesaplanan değer de üçüncü sütun oluyor.\n\nElinde normal bir tablo kalıyor: filtreleyebiliyor, sıralayabiliyor, başka bir tabloyla birleştirebiliyorsun.\n\nÇok seviyeli index'le çalışmak zahmetli olduğu için bu, gruplamadan sonra en sık yapılan adım.",
+        "en": "`reset_index()` turns the two index levels into two columns, and the computed value becomes the third.\n\nYou are left with an ordinary table: you can filter it, sort it and join it with another table.\n\nBecause a MultiIndex is awkward, this is the most common step right after grouping."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`pivot_table(..., fill_value=0)` ne yapar ve riski nedir?",
+        "en": "What does `pivot_table(..., fill_value=0)` do, and what is the risk?"
+      },
+      "options": {
+        "tr": [
+          "Boş hücrelere 0 yazar; o sıfırlar sonraki hesaplarda gerçek ölçüm gibi davranır",
+          "Sıfır olan hücreleri boşaltır",
+          "Tabloyu sıfırdan kurar",
+          "Hiçbir riski yoktur"
+        ],
+        "en": [
+          "Writes 0 into the empty cells; those zeros then behave like real measurements",
+          "Empties the cells that are zero",
+          "Rebuilds the table from scratch",
+          "There is no risk"
+        ]
+      },
+      "explanation": {
+        "tr": "Görsel olarak daha temiz duruyor ama anlamı değiştiriyor: \"veri yok\" ile \"ölçüm sıfır\" aynı şey değil.\n\nO tablodan sonra ortalama alırsan sıfırlar hesaba giriyor ve sonucu aşağı çekiyor.\n\nSayı sayıyorsan (`aggfunc=\"count\"`) sıfır doğru bir cevap; ortalama alıyorsan genelde `NaN` bırakmak daha dürüst.",
+        "en": "It looks tidier but changes the meaning: \"no data\" and \"the measurement was zero\" are not the same thing.\n\nIf you then take an average from that table, the zeros enter the calculation and drag the result down.\n\nWhen counting (`aggfunc=\"count\"`) zero is a correct answer; when averaging, leaving `NaN` is usually more honest."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Grup sonucunu büyükten küçüğe sıralamak için ne yapılır?",
+        "en": "How do you sort a group result from largest to smallest?"
+      },
+      "options": {
+        "tr": [
+          "`.sort_values(ascending=False)`",
+          "`.sort_index()`",
+          "`groupby(sort=False)`",
+          "`.sort()`"
+        ],
+        "en": [
+          "`.sort_values(ascending=False)`",
+          "`.sort_index()`",
+          "`groupby(sort=False)`",
+          "`.sort()`"
+        ]
+      },
+      "explanation": {
+        "tr": "Grup sonucu bir seri; seride öğrendiğin her şey geçerli.\n\n`sort_index()` etikete göre sıralıyor — zaten alfabetik geldiği için bir şey değiştirmiyor. `groupby(sort=False)` gruplama sırasını etkiliyor, değere göre sıralamıyor.\n\n\"En yüksek üç şehir\" için: `.sort_values(ascending=False).head(3)`.",
+        "en": "A group result is a Series; everything you learned about Series applies.\n\n`sort_index()` sorts by label — and since it already comes back alphabetically, that changes nothing. `groupby(sort=False)` affects the grouping order, not sorting by value.\n\nFor \"the top three cities\": `.sort_values(ascending=False).head(3)`."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "`data.groupby(\"city\").filter(lambda g: len(g) > 2)` ne döndürür?",
+        "en": "What does `data.groupby(\"city\").filter(lambda g: len(g) > 2)` return?"
+      },
+      "options": {
+        "tr": [
+          "İkiden fazla satırı olan grupların **satırlarını**",
+          "Grup adlarını",
+          "Grup büyüklüklerini",
+          "Bir maske"
+        ],
+        "en": [
+          "The **rows** of the groups that have more than two rows",
+          "The group names",
+          "The group sizes",
+          "A mask"
+        ]
+      },
+      "explanation": {
+        "tr": "`filter` grup **seçiyor**, satır değil: bir grup koşula uymuyorsa o grubun bütün satırları düşüyor.\n\nSonuç orijinal tablo biçiminde geliyor, hesaplanmış bir özet değil.\n\nİşe yaradığı yer: \"yalnızca en az on satışı olan şehirleri incele\" gibi durumlar — küçük gruplar istatistiksel olarak güvenilmez oluyor.",
+        "en": "`filter` selects **groups**, not rows: if a group does not match, all of its rows drop out.\n\nThe result comes back in the shape of the original table, not as a computed summary.\n\nWhere it helps: cases like \"only look at cities with at least ten sales\" — small groups are statistically unreliable."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki iki satır aynı sonucu verir mi?\n\n```python\ndata[\"city\"].value_counts()\ndata.groupby(\"city\").size()\n```",
+        "en": "Do these two lines give the same result?\n\n```python\ndata[\"city\"].value_counts()\ndata.groupby(\"city\").size()\n```"
+      },
+      "options": {
+        "tr": [
+          "Sayılar aynı ama sıra farklı: biri çoktan aza, öteki alfabetik",
+          "Tamamen aynılar",
+          "Farklı sayılar veriyorlar",
+          "İkincisi hata veriyor"
+        ],
+        "en": [
+          "The numbers are the same but the order differs: one is most-first, the other alphabetical",
+          "They are identical",
+          "They give different numbers",
+          "The second raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "`value_counts()` **çoktan aza** sıralıyor; `groupby(...).size()` **alfabetik**.\n\nBir fark daha: `value_counts()` varsayılan olarak eksik değerleri saymıyor, `size()` sayıyor.\n\nTek sütun için `value_counts()` daha kısa; başka hesaplar da gerekiyorsa `groupby` gerekiyor.",
+        "en": "`value_counts()` sorts **most-first**; `groupby(...).size()` sorts **alphabetically**.\n\nThere is one more difference: `value_counts()` does not count missing values by default, while `size()` does.\n\nFor a single column `value_counts()` is shorter; if you need other calculations too, you need `groupby`."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "Bir grubun bütün değerleri eksikse `sum()` ne döndürür?",
+        "en": "If all the values in a group are missing, what does `sum()` return?"
+      },
+      "options": {
+        "tr": [
+          "`0.0` — `mean()` ise `nan` verir",
+          "`nan`",
+          "Hata verir",
+          "Grup sonuçtan düşer"
+        ],
+        "en": [
+          "`0.0` — while `mean()` gives `nan`",
+          "`nan`",
+          "It raises an error",
+          "The group drops out"
+        ]
+      },
+      "explanation": {
+        "tr": "Boş bir toplamın matematiksel sonucu sıfır kabul ediliyor; boş bir ortalama ise tanımsız.\n\nSonuç: raporunda sıfır görüyorsun ama ortada hiç veri yok. Sıfır ile \"veri yok\" aynı şey değil ve bu ayrımı `sum()` sana göstermiyor.\n\nGüvenli yol: `count()` ile birlikte bakmak. Sayı sıfırsa toplam da anlamsız.",
+        "en": "The mathematical result of an empty sum is taken to be zero; an empty mean is undefined.\n\nThe consequence: you see a zero in your report while there is no data at all. Zero and \"no data\" are not the same, and `sum()` does not show you the difference.\n\nThe safe way: look at it together with `count()`. If the count is zero, the total is meaningless too."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "Ay adlarına göre gruplayıp sonucu sıraladın ve \"Agustos, Aralik, Ekim...\" çıktı. Neden?",
+        "en": "You grouped by month name, and the result came out as \"April, August, December...\". Why?"
+      },
+      "options": {
+        "tr": [
+          "Gruplar alfabetik sıralanıyor; ay adlarının doğal sırası korunmuyor",
+          "Veri bozuk",
+          "`groupby` sıralamayı desteklemiyor",
+          "Ay adları sayı olmalı"
+        ],
+        "en": [
+          "Groups are sorted alphabetically; the natural order of month names is not kept",
+          "The data is corrupted",
+          "`groupby` does not support sorting",
+          "Month names have to be numbers"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas anahtarı metin olarak görüyor ve alfabetik sıralıyor. Sıralı anlamı olan anahtarlarda (aylar, \"düşük/orta/yüksek\", beden bedenleri) bu anlamsız çıkıyor.\n\nİki çözüm: sonucu istediğin sırayla yeniden dizmek,\n\n```python\nresult.reindex([\"Ocak\", \"Subat\", \"Mart\", ...])\n```\n\nya da sütunu baştan sıralı bir kategori tipine çevirmek. İkincisi büyük projelerde tercih ediliyor.",
+        "en": "pandas sees the key as text and sorts it alphabetically. On keys with a meaningful order (months, \"low/medium/high\", clothing sizes) that comes out meaningless.\n\nTwo fixes: reorder the result the way you want,\n\n```python\nresult.reindex([\"January\", \"February\", \"March\", ...])\n```\n\nor convert the column to an ordered categorical type up front. The second is preferred in larger projects."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 0,
+      "text": {
+        "tr": "`groupby(...).agg(lambda x: x.max() - x.min())` yerine ne tercih edilir ve neden?",
+        "en": "What is preferred over `groupby(...).agg(lambda x: x.max() - x.min())`, and why?"
+      },
+      "options": {
+        "tr": [
+          "Hazır bir hesap varsa adını vermek; lambda her grup için Python'a dönüyor",
+          "`apply` kullanmak",
+          "Döngü yazmak",
+          "Hiçbiri; lambda en hızlısı"
+        ],
+        "en": [
+          "Passing the name of a built-in if one exists; a lambda goes back into Python per group",
+          "Using `apply`",
+          "Writing a loop",
+          "None; a lambda is the fastest"
+        ]
+      },
+      "explanation": {
+        "tr": "`agg(\"mean\")` gibi metin verildiğinde pandas kendi hızlı yolunu kullanıyor. Lambda verdiğinde her grup için Python fonksiyonu çağrılıyor.\n\nBuradaki örnekte hazır bir karşılığı yok, o yüzden lambda makul. Ama `mean`, `sum`, `max` gibi işler için lambda yazmak boşuna yavaşlatıyor.\n\n`apply` daha da yavaş: her grup için bir grup nesnesi kuruyor.",
+        "en": "Given a string like `agg(\"mean\")`, pandas uses its own fast path. Given a lambda, a Python function is called for every group.\n\nIn this example there is no built-in equivalent, so a lambda is reasonable. But writing one for `mean`, `sum` or `max` slows things down for nothing.\n\n`apply` is slower still: it builds a group object for every group."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 0,
+      "text": {
+        "tr": "`data.groupby(\"city\").max()` neden yanıltıcı olabilir?",
+        "en": "Why can `data.groupby(\"city\").max()` be misleading?"
+      },
+      "options": {
+        "tr": [
+          "Her sütunun en büyüğünü ayrı ayrı alır; ortaya var olmayan bir satır çıkabilir",
+          "Yalnızca ilk sütuna bakar",
+          "Metin sütunlarını atlar",
+          "Hata verir"
+        ],
+        "en": [
+          "It takes the maximum of each column separately; the result can be a row that never existed",
+          "It only looks at the first column",
+          "It skips text columns",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir sütunun en büyüğü bir kişiden, başka sütunun en büyüğü başka kişiden geliyor. Sonuç satırı gerçek bir kaydı temsil etmiyor.\n\nGerçek satırı istiyorsan `idxmax` + `loc` kullanıyorsun:\n\n```python\ndata.loc[data.groupby(\"city\")[\"score\"].idxmax()]\n```\n\nBu, veri işlerinde sessizce yanlış sonuç üreten klasik hatalardan biri.",
+        "en": "The maximum of one column comes from one person and the maximum of another from someone else. The resulting row does not represent a real record.\n\nIf you want the real row you use `idxmax` plus `loc`:\n\n```python\ndata.loc[data.groupby(\"city\")[\"score\"].idxmax()]\n```\n\nThis is one of the classic mistakes that produce a silently wrong answer in data work."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 0,
+      "text": {
+        "tr": "Grup sonucunu bir CSV dosyasına yazacaksın. Hangi biçim daha uygun?",
+        "en": "You are going to write a group result to a CSV file. Which shape is more suitable?"
+      },
+      "options": {
+        "tr": [
+          "`as_index=False` ya da `reset_index()` ile anahtarı sütun yapmak",
+          "Varsayılan hâliyle bırakmak",
+          "Önce pivot tabloya çevirmek",
+          "Fark etmez"
+        ],
+        "en": [
+          "Making the key a column with `as_index=False` or `reset_index()`",
+          "Leaving it as it is",
+          "Converting it to a pivot table first",
+          "It makes no difference"
+        ]
+      },
+      "explanation": {
+        "tr": "Anahtar index'te kalırsa `to_csv` onu ayrı bir sütun gibi yazıyor ama adı olmayabiliyor; dosyayı geri okuduğunda `Unnamed: 0` gibi bir sütunla uğraşıyorsun.\n\nAnahtarı sütun yaptığında dosya düz ve okunaklı oluyor:\n\n```python\nrapor = data.groupby(\"city\", as_index=False)[\"score\"].mean()\nrapor.to_csv(\"rapor.csv\", index=False)\n```",
+        "en": "If the key stays in the index, `to_csv` writes it like a separate column but it may have no name; reading the file back you end up dealing with a column called `Unnamed: 0`.\n\nWith the key as a column the file is flat and readable:\n\n```python\nreport = data.groupby(\"city\", as_index=False)[\"score\"].mean()\nreport.to_csv(\"report.csv\", index=False)\n```"
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 0,
+      "text": {
+        "tr": "Şu rapor isteniyor: her şehir için kişi sayısı, ortalama not ve en yüksek not; ortalamaya göre büyükten küçüğe sıralı. Hangisi doğru?",
+        "en": "You need this report: per city, the number of people, the average score and the highest score, sorted by average, largest first. Which is correct?"
+      },
+      "options": {
+        "tr": [
+          "`groupby(\"city\").agg(...)` ile üç sütun üretip `sort_values(\"ortalama\", ascending=False)`",
+          "Üç ayrı `groupby` çağırıp sonuçları elle birleştirmek",
+          "`pivot_table` kullanmak",
+          "Satır satır döngü yazmak"
+        ],
+        "en": [
+          "Produce three columns with `groupby(\"city\").agg(...)`, then `sort_values(\"average\", ascending=False)`",
+          "Call `groupby` three times and merge the results by hand",
+          "Use `pivot_table`",
+          "Write a row-by-row loop"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek çağrıda üç hesap:\n\n```python\ndata.groupby(\"city\").agg(\n    kisi=(\"name\", \"count\"),\n    ortalama=(\"score\", \"mean\"),\n    en_yuksek=(\"score\", \"max\"),\n).round(1).sort_values(\"ortalama\", ascending=False)\n```\n\nÜç ayrı `groupby` de doğru sonuç veriyor ama veriyi üç kez dolaşıyor ve birleştirmek fazladan iş.\n\n`pivot_table` iki anahtarlı durumlar için; burada tek anahtar var.",
+        "en": "Three calculations in one call:\n\n```python\ndata.groupby(\"city\").agg(\n    people=(\"name\", \"count\"),\n    average=(\"score\", \"mean\"),\n    highest=(\"score\", \"max\"),\n).round(1).sort_values(\"average\", ascending=False)\n```\n\nThree separate `groupby` calls also give the right answer but walk the data three times, and merging them is extra work.\n\n`pivot_table` is for two-key situations; here there is only one key."
+      }
+    }
+  ]
+}

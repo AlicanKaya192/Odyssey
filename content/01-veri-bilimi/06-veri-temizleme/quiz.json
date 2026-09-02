@@ -1,0 +1,784 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Veri temizliğinde ilk yapılması gereken nedir?",
+        "en": "What is the first thing to do when cleaning data?"
+      },
+      "options": {
+        "tr": [
+          "Veriye bakmak: `shape`, `dtypes`, `isna().sum()`, `head()`",
+          "Eksik değerleri doldurmak",
+          "Tekrarları atmak",
+          "Grafiği çizmek"
+        ],
+        "en": [
+          "Looking at it: `shape`, `dtypes`, `isna().sum()`, `head()`",
+          "Filling the missing values",
+          "Dropping the duplicates",
+          "Drawing a chart"
+        ]
+      },
+      "explanation": {
+        "tr": "Neyi temizleyeceğini bilmeden temizlemeye başlayamıyorsun. İlk dört çağrı sana kaç kayıt olduğunu, tiplerin doğru olup olmadığını ve nerede boşluk olduğunu söylüyor.\n\n`info()` bu bilgilerin çoğunu tek ekranda veriyor; bir veriyi açtığında ilk yazılan şey o.",
+        "en": "You cannot start cleaning without knowing what to clean. Those four calls tell you how many records there are, whether the types are right and where the gaps are.\n\n`info()` gives most of this on one screen; it is the first thing you write when you open a dataset."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Temizlik adımlarının doğru sırası hangisidir?",
+        "en": "What is the correct order of the cleaning steps?"
+      },
+      "options": {
+        "tr": [
+          "Sütun adları → metin → tip → tekrar → eksik",
+          "Eksik → tip → metin → sütun adları",
+          "Tekrar → eksik → tip → metin",
+          "Sıra fark etmez"
+        ],
+        "en": [
+          "Column names → text → types → duplicates → missing",
+          "Missing → types → text → column names",
+          "Duplicates → missing → types → text",
+          "The order does not matter"
+        ]
+      },
+      "explanation": {
+        "tr": "İki sebep var:\n\n- **Metin tipten önce:** `\" 82 \"` metni sayıya çevrilebiliyor, ama tutarsız yazımlar tip dönüşümünden sonra düzeltilemiyor.\n- **Eksik en sonda:** tip dönüşümü yeni eksikler üretiyor (`\"abc\"` → `NaN`). Önce doldurup sonra çevirirsen o hücreleri kaçırıyorsun.\n\nTekrarlar da metin temizlendikten sonra görünüyor: `\"Ada \"` ile `\"Ada\"` temizlenmeden tekrar sayılmıyor.",
+        "en": "There are two reasons:\n\n- **Text before types:** the text `\" 82 \"` can still be converted, but inconsistent spellings cannot be fixed after a type conversion.\n- **Missing last:** type conversion creates new gaps (`\"abc\"` becomes `NaN`). Fill first and convert afterwards and you miss those cells.\n\nDuplicates also only become visible after the text is cleaned: `\"Ada \"` and `\"Ada\"` do not count as duplicates until then."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`data[\"a\"]` `KeyError` veriyor ama sütun listede görünüyor. En olası sebep nedir?",
+        "en": "`data[\"a\"]` raises a `KeyError` but the column appears in the list. What is the most likely reason?"
+      },
+      "options": {
+        "tr": [
+          "Sütun adında görünmeyen bir boşluk var: `\" a \"`",
+          "Sütun boş",
+          "Tablo bozuk",
+          "Sütun sayısal tipte"
+        ],
+        "en": [
+          "The column name has an invisible space: `\" a \"`",
+          "The column is empty",
+          "The table is corrupted",
+          "The column is numeric"
+        ]
+      },
+      "explanation": {
+        "tr": "`\" a \"` ile `\"a\"` iki ayrı ad; ekranda ikisi de `a` gibi görünüyor.\n\nBu yüzden temizliğin ilk işi sütun adları oluyor:\n\n```python\ndata.columns = data.columns.str.strip().str.lower()\n```\n\nAynı şey büyük/küçük harf için de geçerli: `\"Score\"` ile `\"score\"` farklı sütunlar. `list(data.columns)` yazdırmak sorunu görünür kılıyor.",
+        "en": "`\" a \"` and `\"a\"` are two different names; both look like `a` on screen.\n\nThat is why cleaning the column names is the first job:\n\n```python\ndata.columns = data.columns.str.strip().str.lower()\n```\n\nThe same applies to case: `\"Score\"` and `\"score\"` are different columns. Printing `list(data.columns)` makes the problem visible."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.to_numeric(s, errors=\"coerce\")` ne yapar?",
+        "en": "What does `pd.to_numeric(s, errors=\"coerce\")` do?"
+      },
+      "options": {
+        "tr": [
+          "Çeviremediği değerleri `NaN` yapar, programı durdurmaz",
+          "Çeviremediği değerleri atar",
+          "Hata verir",
+          "Metni olduğu gibi bırakır"
+        ],
+        "en": [
+          "Turns the values it cannot convert into `NaN` without stopping the program",
+          "Drops the values it cannot convert",
+          "Raises an error",
+          "Leaves the text as it is"
+        ]
+      },
+      "explanation": {
+        "tr": "Gerçek veride her zaman bir bozuk hücre oluyor. `astype(float)` deneseydin tek bir `\"abc\"` yüzünden bütün program dururdu.\n\n`coerce` sorunu tek hücreye hapsediyor; sonra kaç tanesinin bozulduğunu sayıp ne yapacağına karar ediyorsun.\n\nAynı argüman `pd.to_datetime` için de var.",
+        "en": "There is always a broken cell in real data. With `astype(float)`, a single `\"abc\"` would stop the whole program.\n\n`coerce` confines the problem to one cell; you then count how many broke and decide what to do.\n\nThe same argument exists for `pd.to_datetime`."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nd = pd.DataFrame({\"a\": [1, None, 3], \"b\": [None, 2, 3]})\nprint(d.dropna().shape)\n```",
+        "en": "What does this code print?\n\n```python\nd = pd.DataFrame({\"a\": [1, None, 3], \"b\": [None, 2, 3]})\nprint(d.dropna().shape)\n```"
+      },
+      "options": {
+        "tr": [
+          "`(1, 2)` — herhangi bir sütunu boş olan satır atılıyor",
+          "`(3, 2)` — hiçbir şey atılmıyor",
+          "`(2, 2)`",
+          "`(0, 2)`"
+        ],
+        "en": [
+          "`(1, 2)` — a row is dropped if any column is empty",
+          "`(3, 2)` — nothing is dropped",
+          "`(2, 2)`",
+          "`(0, 2)`"
+        ]
+      },
+      "explanation": {
+        "tr": "Çıplak `dropna()` çok agresif: **herhangi bir** sütunu boş olan satırı atıyor. Üç satırdan biri kaldı.\n\nYirmi sütunlu bir tabloda bu, ilgilenmediğin sütunlar yüzünden verinin yarısını kaybetmek demek.\n\n**Doğrusu:** `data.dropna(subset=[\"score\"])` — hangi sütunun dolu olması gerektiğini söylüyorsun.",
+        "en": "A bare `dropna()` is very aggressive: it drops a row if **any** column is empty. One row survived out of three.\n\nOn a table with twenty columns that means losing half your data because of columns you do not care about.\n\n**The right way:** `data.dropna(subset=[\"score\"])` — you say which column has to be filled."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Eksik değerleri sıfırla doldurmanın riski nedir?",
+        "en": "What is the risk of filling missing values with zero?"
+      },
+      "options": {
+        "tr": [
+          "\"Ölçüm sıfırdı\" demek olur ve ortalamayı aşağı çeker",
+          "Hiçbir riski yok",
+          "Tip değişir",
+          "Satırlar kaybolur"
+        ],
+        "en": [
+          "It says \"the measurement was zero\" and drags the average down",
+          "There is no risk",
+          "The type changes",
+          "Rows are lost"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıfır bir ölçüm, eksik değer ölçümün olmaması. İkisini karıştırmak veriyi olduğundan kötü gösteriyor.\n\n`[1, None, 3]` serisinin ortalaması 2.0; sıfırla doldurunca 1.33 oluyor.\n\nSıfır **gerçekten** doğru cevapsa (satış yok = 0 satış) doldur. \"Bilinmiyor\" demekse doldurma ya da ortalamayla doldur.",
+        "en": "Zero is a measurement; a missing value is the absence of one. Confusing them makes the data look worse than it is.\n\nThe mean of `[1, None, 3]` is 2.0; filled with zero it becomes 1.33.\n\nIf zero **really is** the right answer (no sales = 0 sales), fill it. If it means \"unknown\", do not fill it, or fill it with the mean."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Ortalamayla doldurmanın etkisi nedir?",
+        "en": "What is the effect of filling with the mean?"
+      },
+      "options": {
+        "tr": [
+          "Ortalamayı korur ama yayılımı (standart sapmayı) azaltır",
+          "Hem ortalamayı hem yayılımı korur",
+          "Ortalamayı yükseltir",
+          "Hiçbir etkisi yoktur"
+        ],
+        "en": [
+          "It preserves the mean but reduces the spread (the standard deviation)",
+          "It preserves both the mean and the spread",
+          "It raises the mean",
+          "It has no effect"
+        ]
+      },
+      "explanation": {
+        "tr": "Eklediğin her değer tam ortada duruyor, o yüzden veri olduğundan daha uyumlu görünüyor.\n\nAz sayıda eksikte sorun değil; çoksa raporun ya da modelin yanıltıcı oluyor.\n\nUç değer varsa **medyanla** doldurmak daha güvenli: `[1, 2, 3, 100]` serisinin ortalaması 26.5, medyanı 2.5.",
+        "en": "Every value you add sits exactly in the middle, so the data looks more consistent than it is.\n\nWith few gaps that is fine; with many, your report or model becomes misleading.\n\nWhen there are extreme values, filling with the **median** is safer: the mean of `[1, 2, 3, 100]` is 26.5 and the median 2.5."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`\"Ankara\"`, `\"ANKARA\"` ve `\"Ankara \"` değerleri temizlenmeden gruplanırsa ne olur?",
+        "en": "What happens if `\"Ankara\"`, `\"ANKARA\"` and `\"Ankara \"` are grouped without cleaning?"
+      },
+      "options": {
+        "tr": [
+          "Üç ayrı grup oluşur ve sayılar bölünür",
+          "pandas onları birleştirir",
+          "Hata verir",
+          "Yalnızca ilki sayılır"
+        ],
+        "en": [
+          "They become three separate groups and the counts are split",
+          "pandas merges them",
+          "It raises an error",
+          "Only the first is counted"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas için bunlar üç farklı metin. Ankara üç gruba bölünüyor ve hiçbirinin ortalaması doğru olmuyor.\n\nGruplamadan önce tekilleştirmek gerekiyor:\n\n```python\ndata[\"city\"] = data[\"city\"].str.strip().str.title()\n```\n\n**Kontrol yolu:** `data[\"city\"].nunique()` beklediğinden büyükse tutarsız yazım var demektir.",
+        "en": "To pandas these are three different strings. Ankara is split into three groups and none of their averages is right.\n\nYou have to standardise before grouping:\n\n```python\ndata[\"city\"] = data[\"city\"].str.strip().str.title()\n```\n\n**A way to check:** if `data[\"city\"].nunique()` is larger than you expect, there are inconsistent spellings."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`data[\"city\"].lower()` yazarsan ne olur?",
+        "en": "What happens if you write `data[\"city\"].lower()`?"
+      },
+      "options": {
+        "tr": [
+          "`AttributeError` — seri bir metin değil, `.str` gerekiyor",
+          "Bütün değerler küçük harfe döner",
+          "Yalnızca ilk değer değişir",
+          "Hiçbir şey olmaz"
+        ],
+        "en": [
+          "An `AttributeError` — a Series is not a string; you need `.str`",
+          "Every value is lowercased",
+          "Only the first value changes",
+          "Nothing happens"
+        ]
+      },
+      "explanation": {
+        "tr": "`data[\"city\"]` bir metin değil, **metinlerden oluşan bir seri**. Metin metotları `.str` üzerinden geliyor:\n\n```python\ndata[\"city\"].str.lower()\n```\n\nAynı yapı tarihlerde `.dt`, kategorilerde `.cat` olarak var. Bunlara \"erişimci\" (accessor) deniyor.",
+        "en": "`data[\"city\"]` is not a string but a **Series of strings**. Text methods come through `.str`:\n\n```python\ndata[\"city\"].str.lower()\n```\n\nThe same structure exists as `.dt` for dates and `.cat` for categories. These are called accessors."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`data.duplicated()` neyi işaretler?",
+        "en": "What does `data.duplicated()` mark?"
+      },
+      "options": {
+        "tr": [
+          "İkinci ve sonraki kopyaları — ilki tutulur",
+          "Bütün kopyaları",
+          "Yalnızca ilk kopyayı",
+          "Eksik değerli satırları"
+        ],
+        "en": [
+          "The second and later copies — the first is kept",
+          "All the copies",
+          "Only the first copy",
+          "The rows with missing values"
+        ]
+      },
+      "explanation": {
+        "tr": "İki aynı satır varsa `[False, True]` dönüyor. `drop_duplicates()` de bu yüzden ilkini tutuyor.\n\nSonuncuyu tutmak istiyorsan `keep=\"last\"` diyorsun — tarih sırasıyla gelen kayıtlarda genelde sonuncusu güncel olanı.\n\nTekrarların **hepsini** görmek için `duplicated(keep=False)`; silmeden önce bakmak iyi bir alışkanlık.",
+        "en": "With two identical rows it returns `[False, True]`. That is why `drop_duplicates()` keeps the first.\n\nTo keep the last you say `keep=\"last\"` — in records arriving in date order the last one is usually the current one.\n\nTo see **all** the duplicates use `duplicated(keep=False)`; looking before deleting is a good habit."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`duplicated()` ile `duplicated(subset=[\"id\"])` arasındaki fark nedir?",
+        "en": "What is the difference between `duplicated()` and `duplicated(subset=[\"id\"])`?"
+      },
+      "options": {
+        "tr": [
+          "İlki bütün sütunların aynı olmasını ister, ikincisi yalnızca o sütuna bakar",
+          "İkisi aynı",
+          "İkincisi daha yavaş",
+          "İkincisi yalnızca sayılarda çalışır"
+        ],
+        "en": [
+          "The first needs every column to match, the second looks only at that column",
+          "They are the same",
+          "The second is slower",
+          "The second only works on numbers"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı öğrenci iki kez girilmiş ama notlardan biri farklıysa çıplak `duplicated()` bunu tekrar saymıyor.\n\nGerçek veride genelde bir **kimlik sütununa** bakılıyor: aynı numara iki kez varsa diğer sütunlar farklı olsa bile o bir tekrar.\n\nHangisinin doğru olduğu veriye bağlı ve bu bir karar — raporunda söylemen gerekiyor.",
+        "en": "If the same student was entered twice but one of the scores differs, a bare `duplicated()` does not count it as a duplicate.\n\nIn real data you usually look at an **identity column**: if the same number appears twice, that is a duplicate even if the other columns differ.\n\nWhich is correct depends on the data, and it is a decision — you have to state it in your report."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Gerçek veride `-1`, `999` ve `\"N/A\"` gibi değerler genelde ne anlama gelir?",
+        "en": "In real data, what do values like `-1`, `999` and `\"N/A\"` usually mean?"
+      },
+      "options": {
+        "tr": [
+          "\"Eksik\" — gerçek `NaN`'a çevrilmeleri gerekir",
+          "Gerçek ölçümler",
+          "Hatalı satırlar",
+          "Tekrar eden kayıtlar"
+        ],
+        "en": [
+          "\"Missing\" — they need to be turned into real `NaN`",
+          "Real measurements",
+          "Broken rows",
+          "Duplicated records"
+        ]
+      },
+      "explanation": {
+        "tr": "Bunlar **sahte eksik değerler**. Öyle bırakırsan ortalamaya karışıyorlar ve sonucu bozuyorlar:\n\n```python\npd.Series([1, -1, 3]).mean()   # 1.0, oysa dogrusu 2.0\n```\n\nİlk işlerden biri onları gerçek `NaN`'a çevirmek:\n\n```python\ndata[\"score\"] = data[\"score\"].replace(-1, np.nan)\n```\n\n`isna().sum()` sıfır çıkıyor diye veri temiz sanma.",
+        "en": "These are **fake missing values**. Left as they are, they get mixed into the averages and ruin the result:\n\n```python\npd.Series([1, -1, 3]).mean()   # 1.0, when it should be 2.0\n```\n\nOne of the first jobs is turning them into real `NaN`:\n\n```python\ndata[\"score\"] = data[\"score\"].replace(-1, np.nan)\n```\n\nDo not assume the data is clean just because `isna().sum()` is zero."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.Series([1.0, None]).astype(int)` ne yapar?",
+        "en": "What does `pd.Series([1.0, None]).astype(int)` do?"
+      },
+      "options": {
+        "tr": [
+          "Hata verir — tamsayı tipi `NaN` tutamıyor",
+          "`[1, 0]` verir",
+          "`[1, nan]` verir",
+          "Eksik satırı atar"
+        ],
+        "en": [
+          "It raises an error — the integer type cannot hold `NaN`",
+          "It gives `[1, 0]`",
+          "It gives `[1, nan]`",
+          "It drops the missing row"
+        ]
+      },
+      "explanation": {
+        "tr": "`IntCastingNaNError` alıyorsun. Önce boşlukları halletmen gerekiyor:\n\n```python\ns.fillna(0).astype(int)\ns.dropna().astype(int)\n```\n\nBir de `astype(int)` **kırpıyor**, yuvarlamıyor: `1.9` → `1`. Yuvarlamak istiyorsan önce `round()`.",
+        "en": "You get an `IntCastingNaNError`. You have to deal with the gaps first:\n\n```python\ns.fillna(0).astype(int)\ns.dropna().astype(int)\n```\n\nAlso, `astype(int)` **truncates** rather than rounding: `1.9` becomes `1`. If you want rounding, call `round()` first."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "IQR yöntemiyle aykırı değer sınırları nasıl hesaplanır?",
+        "en": "How are outlier bounds computed with the IQR method?"
+      },
+      "options": {
+        "tr": [
+          "Q1 - 1.5 x IQR ve Q3 + 1.5 x IQR",
+          "Ortalama ± standart sapma",
+          "En küçük ve en büyük değer",
+          "Medyan ± 10"
+        ],
+        "en": [
+          "Q1 - 1.5 x IQR and Q3 + 1.5 x IQR",
+          "The mean plus or minus the standard deviation",
+          "The minimum and the maximum",
+          "The median plus or minus 10"
+        ]
+      },
+      "explanation": {
+        "tr": "IQR = Q3 - Q1, yani çeyrekler arası açıklık. Bu açıklığın 1.5 katından uzaktakiler aykırı sayılıyor.\n\n```python\nq1, q3 = s.quantile(0.25), s.quantile(0.75)\niqr = q3 - q1\naykiri = s[(s < q1 - 1.5*iqr) | (s > q3 + 1.5*iqr)]\n```\n\nOrtalama ve standart sapma temelli yöntemler de var ama onlar uç değerlerden **kendileri etkileniyor**; IQR çeyreklere baktığı için daha dayanıklı.",
+        "en": "IQR = Q3 - Q1, the interquartile range. Anything more than 1.5 times that away counts as an outlier.\n\n```python\nq1, q3 = s.quantile(0.25), s.quantile(0.75)\niqr = q3 - q1\noutliers = s[(s < q1 - 1.5*iqr) | (s > q3 + 1.5*iqr)]\n```\n\nThere are methods based on the mean and standard deviation too, but those are themselves **affected by the extremes**; IQR looks at quartiles and is more robust."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Aykırı bir değer bulduğunda ilk ne yapmalısın?",
+        "en": "What should you do first when you find an outlier?"
+      },
+      "options": {
+        "tr": [
+          "Sebebini sormalısın: gerçek uç değer mi, giriş hatası mı?",
+          "Hemen silmelisin",
+          "Ortalamayla değiştirmelisin",
+          "Görmezden gelmelisin"
+        ],
+        "en": [
+          "Ask why it is there: a real extreme value or a data-entry mistake?",
+          "Delete it immediately",
+          "Replace it with the mean",
+          "Ignore it"
+        ]
+      },
+      "explanation": {
+        "tr": "100 puanlık bir sınavda 1000 varsa giriş hatası; maaş listesinde 900 bin varsa gerçek olabilir — CEO da bir çalışan.\n\nSebebini bilmeden silmek veriyi **güzelleştirmek** oluyor, temizlemek değil. Ve sildiğini raporunda söylemen gerekiyor.\n\n`clip` bir orta yol: kaydı kaybetmeden değeri sınıra çekiyor.",
+        "en": "1000 in an exam scored out of 100 is a mistake; 900 thousand in a salary list could be real — the CEO is an employee too.\n\nDeleting without knowing is **prettifying** the data, not cleaning it. And you have to say in your report that you deleted it.\n\n`clip` is a middle ground: it pulls the value to the bound without losing the record."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`s.clip(0, 100)` ne yapar?",
+        "en": "What does `s.clip(0, 100)` do?"
+      },
+      "options": {
+        "tr": [
+          "Sınırların dışındaki değerleri sınıra çeker",
+          "Sınırların dışındaki satırları atar",
+          "Sınırlar arasındaki değerleri seçer",
+          "Değerleri 0-100 arasına ölçekler"
+        ],
+        "en": [
+          "Pulls values outside the bounds to the bounds",
+          "Drops the rows outside the bounds",
+          "Selects the values between the bounds",
+          "Scales the values into 0-100"
+        ]
+      },
+      "explanation": {
+        "tr": "`[-5, 50, 150]` → `[0, 50, 100]`. Kayıt kaybolmuyor, yalnızca değer sınırlanıyor.\n\nAlan bilgisi olduğunda çok kullanışlı: not 0-100 arasında olmak zorundaysa, dışına çıkanları kırpmak makul bir düzeltme.\n\nSatırı atmakla arasındaki fark: `clip` diğer sütunlardaki bilgiyi koruyor.",
+        "en": "`[-5, 50, 150]` becomes `[0, 50, 100]`. No record is lost, only the value is bounded.\n\nVery useful when you have domain knowledge: if a score has to be between 0 and 100, trimming what falls outside is a reasonable fix.\n\nThe difference from dropping the row: `clip` keeps the information in the other columns."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "`data.isna().mean()` ne verir?",
+        "en": "What does `data.isna().mean()` give you?"
+      },
+      "options": {
+        "tr": [
+          "Sütun başına eksik **oranı**",
+          "Sütun başına eksik sayısı",
+          "Ortalama değerleri",
+          "Eksik satır sayısı"
+        ],
+        "en": [
+          "The **proportion** of missing values per column",
+          "The count of missing values per column",
+          "The mean values",
+          "The number of missing rows"
+        ]
+      },
+      "explanation": {
+        "tr": "`isna()` `True`/`False` veriyor; ortalaması `True` oranını veriyor.\n\nOran, sayıdan daha çok işe yarıyor: \"50 eksik\" tek başına bir şey söylemiyor, \"%2 eksik\" ya da \"%60 eksik\" söylüyor.\n\n%2 eksikse atmak makul; %60 eksikse o sütunu kullanıp kullanmamayı sorgulamak gerekiyor.",
+        "en": "`isna()` gives `True`/`False`; its mean gives the proportion of `True`.\n\nA proportion is more useful than a count: \"50 missing\" says nothing on its own, \"2% missing\" or \"60% missing\" does.\n\nAt 2% dropping is reasonable; at 60% you have to question whether to use that column at all."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Ham veri dosyasının üzerine temizlenmiş hâli yazmak neden kötü bir fikirdir?",
+        "en": "Why is it a bad idea to write the cleaned data over the raw file?"
+      },
+      "options": {
+        "tr": [
+          "Temizlik adımlarındaki bir hatayı sonradan fark ettiğinde dönecek yer kalmıyor",
+          "Dosya bozuluyor",
+          "pandas buna izin vermiyor",
+          "Dosya boyutu büyüyor"
+        ],
+        "en": [
+          "When you notice a mistake in your cleaning steps later, there is nowhere to go back to",
+          "The file gets corrupted",
+          "pandas does not allow it",
+          "The file gets larger"
+        ]
+      },
+      "explanation": {
+        "tr": "Temizlik **geri alınamaz** bir işlem. Yanlış bir eşiği üç gün sonra fark ediyorsun ve ham veriye dönmen gerekiyor.\n\nDoğrusu ayrı bir dosyaya yazmak: `temiz.csv`.\n\nAynı sebeple bellekte de kopyayla çalışıyorsun: `data = raw.copy()`.",
+        "en": "Cleaning is **irreversible**. You notice a wrong threshold three days later and need to go back to the raw data.\n\nThe right way is to write to a separate file: `clean.csv`.\n\nFor the same reason you work on a copy in memory: `data = raw.copy()`."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ns = pd.Series([1.0, None, 3.0])\nprint(s.mean(), s.fillna(0).mean())\n```",
+        "en": "What does this code print?\n\n```python\ns = pd.Series([1.0, None, 3.0])\nprint(s.mean(), s.fillna(0).mean())\n```"
+      },
+      "options": {
+        "tr": [
+          "`2.0 1.3333333333333333`",
+          "`2.0 2.0`",
+          "`nan 1.33`",
+          "`1.33 2.0`"
+        ],
+        "en": [
+          "`2.0 1.3333333333333333`",
+          "`2.0 2.0`",
+          "`nan 1.33`",
+          "`1.33 2.0`"
+        ]
+      },
+      "explanation": {
+        "tr": "İlk hesap eksiği **atlıyor** ve iki değerin ortalamasını alıyor: 2.0.\n\nİkincisi eksiği sıfır sayıyor ve üç değerin ortalamasını alıyor: 1.33.\n\nAradaki fark, \"bilinmiyor\" ile \"sıfır\" arasındaki farkın sayısal karşılığı. Hangisinin doğru olduğu veriye bağlı ama **farkında olarak** seçmen gerekiyor.",
+        "en": "The first skips the gap and averages two values: 2.0.\n\nThe second treats the gap as zero and averages three values: 1.33.\n\nThe difference between them is the numerical consequence of the difference between \"unknown\" and \"zero\". Which is right depends on the data, but you have to choose **knowingly**."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "`data.columns = data.columns.str.strip().str.lower()` ne yapar?",
+        "en": "What does `data.columns = data.columns.str.strip().str.lower()` do?"
+      },
+      "options": {
+        "tr": [
+          "Sütun adlarındaki boşlukları atar ve küçük harfe çevirir",
+          "Sütun değerlerini temizler",
+          "Sütunları alfabetik sıralar",
+          "Sütunları siler"
+        ],
+        "en": [
+          "Strips the spaces from the column names and lowercases them",
+          "Cleans the column values",
+          "Sorts the columns alphabetically",
+          "Deletes the columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Sütun adları da bir seri gibi davranıyor, `.str` metotları onlarda da çalışıyor ve zincirlenebiliyor.\n\nSonucu `data.columns` değişkenine geri atamak gerekiyor — metot yeni bir nesne döndürüyor, kendiliğinden değişmiyor.\n\nBundan sonra sütun adlarının nasıl yazıldığını düşünmek zorunda kalmıyorsun; hepsi küçük harf ve boşluksuz.",
+        "en": "The column names behave like a Series, so the `.str` methods work on them and can be chained.\n\nYou have to assign the result back to `data.columns` — the method returns a new object and does not change it in place.\n\nAfter this you never have to think about how the column names are spelled; they are all lowercase with no spaces."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Metin temizliğini tip dönüşümünden önce yapmanın sebebi nedir?",
+        "en": "Why is text cleaning done before type conversion?"
+      },
+      "options": {
+        "tr": [
+          "`\" 82 \"` metni sayıya çevrilebiliyor ama tutarsız yazımlar dönüşümden sonra düzeltilemiyor",
+          "Tip dönüşümü metin metotlarını bozuyor",
+          "Sıra fark etmiyor",
+          "pandas başka sıraya izin vermiyor"
+        ],
+        "en": [
+          "The text `\" 82 \"` can still be converted, but inconsistent spellings cannot be fixed afterwards",
+          "Type conversion breaks the text methods",
+          "The order does not matter",
+          "pandas allows no other order"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir sütunu sayıya çevirdikten sonra `.str` metotları artık çalışmıyor — o artık metin değil.\n\nAma sayısal sütunlarda genelde metin temizliğine gerek de olmuyor; asıl sebep şu: **hangi sütunun sayı olacağını** metin temizliğinden sonra daha net görüyorsun.\n\nTekrarlar da metin temizlendikten sonra ortaya çıkıyor: `\"Ada \"` ile `\"Ada\"` temizlenmeden tekrar sayılmıyor.",
+        "en": "Once a column is converted to numeric, the `.str` methods no longer work — it is not text any more.\n\nBut numeric columns rarely need text cleaning anyway; the real reason is this: you see **which column should be numeric** more clearly after cleaning the text.\n\nDuplicates also surface after the text is cleaned: `\"Ada \"` and `\"Ada\"` do not count as duplicates until then."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`data.dropna(subset=[\"score\"])` ile `data.dropna()` arasındaki fark nedir?",
+        "en": "What is the difference between `data.dropna(subset=[\"score\"])` and `data.dropna()`?"
+      },
+      "options": {
+        "tr": [
+          "İlki yalnızca o sütuna bakar, ikincisi herhangi bir sütunu boş olan satırı atar",
+          "İkisi aynı",
+          "İlki daha agresif",
+          "İlki sütun atar"
+        ],
+        "en": [
+          "The first looks only at that column; the second drops a row if any column is empty",
+          "They are the same",
+          "The first is more aggressive",
+          "The first drops columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Çıplak `dropna()` yirmi sütunlu bir tabloda verinin yarısını götürebiliyor — ilgilenmediğin sütunlar yüzünden.\n\n`subset` ile hangi sütunun dolu olması gerektiğini söylüyorsun.\n\nBir de `thresh` var: `dropna(thresh=3)` en az üç dolu hücresi olan satırları tutuyor — kısmen dolu kayıtları kurtarmak için.",
+        "en": "A bare `dropna()` can take half your data on a twenty-column table — because of columns you do not care about.\n\nWith `subset` you say which column has to be filled.\n\nThere is also `thresh`: `dropna(thresh=3)` keeps rows with at least three filled cells — for rescuing partly filled records."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "`data[\"city\"].nunique()` beklediğinden büyük çıkıyor. Bu ne anlama gelir?",
+        "en": "`data[\"city\"].nunique()` comes out larger than you expected. What does that mean?"
+      },
+      "options": {
+        "tr": [
+          "Aynı değerin farklı yazımları var — metin temizliği gerekiyor",
+          "Veride çok fazla şehir var",
+          "Sütun bozuk",
+          "Eksik değerler sayılıyor"
+        ],
+        "en": [
+          "The same value has several spellings — the text needs cleaning",
+          "There are simply many cities",
+          "The column is corrupted",
+          "The missing values are being counted"
+        ]
+      },
+      "explanation": {
+        "tr": "`\"Ankara\"`, `\"ankara\"` ve `\"Ankara \"` üç farklı değer sayılıyor.\n\nBu, metin temizliğine ihtiyacın olduğunu anlamanın en hızlı yolu: beklediğin sayıyı biliyorsan (üç şehir) ve `nunique()` altı diyorsa sorun görünür oluyor.\n\n`value_counts()` de aynı işi görüyor ve hangi yazımların olduğunu gösteriyor.",
+        "en": "`\"Ankara\"`, `\"ankara\"` and `\"Ankara \"` count as three different values.\n\nThis is the quickest way to realise the text needs cleaning: if you know what to expect (three cities) and `nunique()` says six, the problem becomes visible.\n\n`value_counts()` does the same job and shows you which spellings are there."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Bir sütunun %60'ı eksikse ne yapmak makul?",
+        "en": "If 60% of a column is missing, what is a reasonable thing to do?"
+      },
+      "options": {
+        "tr": [
+          "O sütunu kullanıp kullanmamayı sorgulamak",
+          "Ortalamayla doldurmak",
+          "Sıfırla doldurmak",
+          "Eksik satırları atmak"
+        ],
+        "en": [
+          "Question whether to use that column at all",
+          "Fill with the mean",
+          "Fill with zero",
+          "Drop the missing rows"
+        ]
+      },
+      "explanation": {
+        "tr": "%60'ı uydurma bir değerle dolan bir sütun artık ölçüm değil, tahmin. Onunla yapılan her analiz o tahmine dayanıyor.\n\nSatırları atmak da olmuyor: verinin %60'ını kaybediyorsun.\n\nGenelde ya sütun bırakılıyor, ya \"bu bilgi var mı yok mu\" diye ikili bir sütuna çevriliyor (eksik olması bile bir bilgi olabiliyor).",
+        "en": "A column that is 60% filled with a made-up value is no longer a measurement but a guess. Every analysis using it rests on that guess.\n\nDropping the rows does not work either: you lose 60% of your data.\n\nUsually the column is either left out or turned into a binary \"was this recorded at all\" column — the fact that it is missing can itself be information."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "`s.str.strip()` eksik değerlere ne yapar?",
+        "en": "What does `s.str.strip()` do to missing values?"
+      },
+      "options": {
+        "tr": [
+          "Dokunmaz, `NaN` olarak bırakır",
+          "Boş metne çevirir",
+          "Hata verir",
+          "Atar"
+        ],
+        "en": [
+          "It leaves them alone as `NaN`",
+          "It turns them into empty strings",
+          "It raises an error",
+          "It drops them"
+        ]
+      },
+      "explanation": {
+        "tr": "`.str` metotları eksik değerleri atlıyor. `[\"a \", None]` serisinde sonuç `[\"a\", nan]` oluyor.\n\nBu iyi bir davranış: temizlik sırasında eksik değerlerin durumu değişmiyor ve sonra onlarla ayrıca ilgileniyorsun.\n\nAynı sebeple `str.contains` eksik değerler için `False` veriyor — filtreden düşüyorlar.",
+        "en": "The `.str` methods skip missing values. On `[\"a \", None]` the result is `[\"a\", nan]`.\n\nThis is good behaviour: the state of the missing values does not change during cleaning and you deal with them separately afterwards.\n\nFor the same reason `str.contains` gives `False` for missing values — they drop out of the filter."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "Temizlik sırasında `raw.copy()` kullanmanın sebebi nedir?",
+        "en": "Why do you use `raw.copy()` while cleaning?"
+      },
+      "options": {
+        "tr": [
+          "Ham veriyi bozmadan çalışmak için — atama kopya üretmiyor",
+          "Daha hızlı olduğu için",
+          "pandas bunu zorunlu tuttuğu için",
+          "Bellek kullanımını azaltmak için"
+        ],
+        "en": [
+          "To work without damaging the raw data — assignment does not make a copy",
+          "Because it is faster",
+          "Because pandas requires it",
+          "To use less memory"
+        ]
+      },
+      "explanation": {
+        "tr": "`data = raw` yazarsan iki ad aynı tabloyu gösteriyor; birini değiştirince öteki de değişiyor.\n\nTemizlik geri alınamaz bir işlem, o yüzden ham hâli elde tutmak gerekiyor. Bir eşiği yanlış seçtiğini fark ettiğinde `raw`'a dönüp baştan başlıyorsun.\n\n`copy()` bellek kullanıyor — o yüzden çok büyük verilerde dikkatli olunuyor, ama küçük ve orta boy verilerde bedeli düşük.",
+        "en": "If you write `data = raw`, two names point at the same table; change one and the other changes.\n\nCleaning is irreversible, so you need to keep the raw version. When you realise you chose a threshold wrongly, you go back to `raw` and start again.\n\n`copy()` uses memory — so on very large data you are careful, but on small and medium data the cost is low."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nd = pd.DataFrame({\"a\": [1, 1, 2]})\nprint(d.drop_duplicates().index.tolist())\n```",
+        "en": "What does this code print?\n\n```python\nd = pd.DataFrame({\"a\": [1, 1, 2]})\nprint(d.drop_duplicates().index.tolist())\n```"
+      },
+      "options": {
+        "tr": [
+          "`[0, 2]` — ilk kopya tutulur, index korunur",
+          "`[0, 1]`",
+          "`[1, 2]`",
+          "`[0, 1, 2]`"
+        ],
+        "en": [
+          "`[0, 2]` — the first copy is kept and the index is preserved",
+          "`[0, 1]`",
+          "`[1, 2]`",
+          "`[0, 1, 2]`"
+        ]
+      },
+      "explanation": {
+        "tr": "İki şey birden görünüyor: **ilk** kayıt tutuluyor (index 0), ve kalan satırların **etiketleri korunuyor** (index 2 olduğu gibi kalıyor).\n\nFiltrelemedeki davranışın aynısı: index yeniden numaralanmıyor.\n\nNumaraları sıfırlamak istiyorsan `.reset_index(drop=True)` eklemen gerekiyor — özellikle sonucu başka bir tabloyla birleştirecekseniz.",
+        "en": "Two things are visible at once: the **first** record is kept (index 0), and the **labels of the remaining rows are preserved** (index 2 stays as it is).\n\nThe same behaviour as filtering: the index is not renumbered.\n\nTo renumber you add `.reset_index(drop=True)` — especially if you are going to combine the result with another table."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 0,
+      "text": {
+        "tr": "Temizlikte hangi kararların raporda belirtilmesi gerekir?",
+        "en": "Which decisions need to be stated in the report?"
+      },
+      "options": {
+        "tr": [
+          "Kaç kayıt atıldığı, eksiklerin nasıl doldurulduğu, aykırı değerlere ne yapıldığı",
+          "Hiçbiri; temizlik teknik bir ayrıntı",
+          "Yalnızca kullanılan kütüphane sürümü",
+          "Yalnızca satır sayısı"
+        ],
+        "en": [
+          "How many records were dropped, how gaps were filled, what was done with outliers",
+          "None; cleaning is a technical detail",
+          "Only the library version used",
+          "Only the number of rows"
+        ]
+      },
+      "explanation": {
+        "tr": "Temizlik kararları **sonucu değiştiriyor**. Ortalamayla doldurmak yayılımı azaltıyor, aykırı değeri silmek dağılımı değiştiriyor, satır atmak örneklemi küçültüyor.\n\nBu kararları görmeyen biri sonucu yanlış yorumluyor. \"Yedi kayıtla başladık, dördüyle bitirdik\" cümlesi raporun parçası.\n\nBilimsel çalışmada buna tekrarlanabilirlik deniyor: başkası aynı adımları izleyip aynı sonuca ulaşabilmeli.",
+        "en": "Cleaning decisions **change the result**. Filling with the mean reduces the spread, deleting an outlier changes the distribution, dropping rows shrinks the sample.\n\nSomeone who cannot see those decisions will misread the result. \"We started with seven records and finished with four\" is part of the report.\n\nIn scientific work this is called reproducibility: someone else should be able to follow the same steps and reach the same result."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 0,
+      "text": {
+        "tr": "`data.info()` hangi soruları birden cevaplar?",
+        "en": "Which questions does `data.info()` answer at once?"
+      },
+      "options": {
+        "tr": [
+          "Tipler doğru mu ve nerede eksik var",
+          "Ortalama ve medyan ne",
+          "Hangi satırlar tekrar ediyor",
+          "Aykırı değer var mı"
+        ],
+        "en": [
+          "Are the types right, and where are the gaps",
+          "What are the mean and the median",
+          "Which rows are duplicated",
+          "Are there outliers"
+        ]
+      },
+      "explanation": {
+        "tr": "`info()` her sütun için tipi ve **dolu hücre sayısını** gösteriyor. Dolu sayısı toplam satır sayısından azsa orada boşluk var.\n\nSayı olması gereken bir sütun `str` görünüyorsa tip sorunu var.\n\nİkisi de temizliğin ilk iki adımını belirliyor. `describe()` sayılara bakıyor, `info()` yapıya — ikisi birlikte kullanılıyor.",
+        "en": "`info()` shows the type and the **non-null count** for every column. If the non-null count is lower than the total number of rows, there are gaps there.\n\nIf a column that should be numeric shows as `str`, there is a type problem.\n\nBoth decide the first two steps of cleaning. `describe()` looks at the numbers and `info()` at the structure — they are used together."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 0,
+      "text": {
+        "tr": "Bir CSV dosyası okudun. `isna().sum()` sıfır diyor. Veri temiz mi?",
+        "en": "You read a CSV file and `isna().sum()` says zero. Is the data clean?"
+      },
+      "options": {
+        "tr": [
+          "Hayır — eksikler `\"N/A\"`, `-1`, `999` gibi sahte değerlerde saklanıyor olabilir",
+          "Evet, eksik yoksa temizdir",
+          "Yalnızca sayısal sütunlar temizdir",
+          "Hayır, ama yalnızca tekrarlar kalmıştır"
+        ],
+        "en": [
+          "No — the gaps may be hidden in fake values like `\"N/A\"`, `-1` or `999`",
+          "Yes; no gaps means clean",
+          "Only the numeric columns are clean",
+          "No, but only duplicates remain"
+        ]
+      },
+      "explanation": {
+        "tr": "`isna()` yalnızca gerçek `NaN`'ları görüyor. Bir veri toplama formunda \"bilinmiyor\" yerine `-1` yazılmışsa pandas onu geçerli bir sayı sanıyor.\n\nAyrıca temizlik yalnızca eksikten ibaret değil: tutarsız yazımlar, yanlış tipler, tekrarlar ve aykırı değerler de var. Hiçbirini `isna()` göstermiyor.\n\n**Yapılacak:** her sütunda `value_counts()` ya da `describe()` çalıştırıp gerçekten hangi değerlerin bulunduğuna bakmak.",
+        "en": "`isna()` only sees real `NaN`s. If a data-entry form wrote `-1` instead of \"unknown\", pandas takes it as a valid number.\n\nCleaning is also not only about gaps: there are inconsistent spellings, wrong types, duplicates and outliers. `isna()` shows none of them.\n\n**What to do:** run `value_counts()` or `describe()` on each column and look at what values are actually there."
+      }
+    }
+  ]
+}

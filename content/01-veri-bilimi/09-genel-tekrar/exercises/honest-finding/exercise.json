@@ -1,0 +1,48 @@
+{
+  "id": "honest-finding",
+  "title": {
+    "tr": "Dürüst bulgu",
+    "en": "An honest finding"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "IQR kuralı: `q1 - 1.5 * iqr` ve `q3 + 1.5 * iqr`.",
+      "en": "The IQR rule: `q1 - 1.5 * iqr` and `q3 + 1.5 * iqr`."
+    },
+    {
+      "tr": "Aykırı değerleri iki koşulu `|` ile birleştirip seçiyorsun; parantez şart.",
+      "en": "You select the outliers by combining two conditions with `|`; brackets are required."
+    },
+    {
+      "tr": "Son satırda grup tablosunu `agg([\"count\", \"mean\"])` ile alıp `round(1)` uygula.",
+      "en": "For the last block take the group table with `agg([\"count\", \"mean\"])` and apply `round(1)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nsure = data[\"minutes\"]\nq1 = sure.quantile(0.25)\nq3 = sure.quantile(0.75)\niqr = q3 - q1\nlow = q1 - 1.5 * iqr\nhigh = q3 + 1.5 * iqr\n\nprint(sure[(sure < low) | (sure > high)].tolist())\nprint(round(sure.mean(), 2), sure.median())\nprint(data.groupby(\"team\")[\"minutes\"].agg([\"count\", \"mean\"]).round(1))\n```",
+      "en": "The solution:\n\n```python\nminutes = data[\"minutes\"]\nq1 = minutes.quantile(0.25)\nq3 = minutes.quantile(0.75)\niqr = q3 - q1\nlow = q1 - 1.5 * iqr\nhigh = q3 + 1.5 * iqr\n\nprint(minutes[(minutes < low) | (minutes > high)].tolist())\nprint(round(minutes.mean(), 2), minutes.median())\nprint(data.groupby(\"team\")[\"minutes\"].agg([\"count\", \"mean\"]).round(1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import pandas as pd` satırı yok.",
+        "en": "There is no `import pandas as pd` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[240]\n51.5 30.5\n      count  mean\nteam\nA         4  31.0\nB         4  82.2\nC         2  31.0"
+    }
+  ]
+}

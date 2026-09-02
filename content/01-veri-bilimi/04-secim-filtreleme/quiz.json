@@ -1,0 +1,784 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "`iloc` neye göre seçim yapar?",
+        "en": "What does `iloc` select by?"
+      },
+      "options": {
+        "tr": [
+          "Konuma — sıfırdan başlayan sıra numarasına",
+          "Etikete",
+          "Sütun adına",
+          "Değere"
+        ],
+        "en": [
+          "By position — the row number starting at zero",
+          "By label",
+          "By column name",
+          "By value"
+        ]
+      },
+      "explanation": {
+        "tr": "`iloc` \"integer location\" demek. Index ne olursa olsun sıfırdan sayıyor.\n\n`loc` ise etikete bakıyor. Index sayılardan oluştuğunda ikisi aynı şeyi yapıyor gibi görünüyor, ama filtreden sonra index delik deşik olduğunda fark ortaya çıkıyor.",
+        "en": "`iloc` means \"integer location\". It counts from zero whatever the index is.\n\n`loc` goes by label. When the index is numeric the two look like they do the same thing, but the difference appears once filtering leaves the index full of holes."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`data.iloc[1:3]` kaç satır döndürür?",
+        "en": "How many rows does `data.iloc[1:3]` return?"
+      },
+      "options": {
+        "tr": [
+          "2 — bitiş dâhil değil",
+          "3 — bitiş dâhil",
+          "1",
+          "Tablonun tamamı"
+        ],
+        "en": [
+          "2 — the end is excluded",
+          "3 — the end is included",
+          "1",
+          "The whole table"
+        ]
+      },
+      "explanation": {
+        "tr": "`iloc` dilimleri Python kuralına uyuyor: bitiş dışarıda. 1. ve 2. satırlar geliyor.\n\n`loc` böyle davranmıyor — orada bitiş **dâhil**. İki aracın iki farklı kuralı var ve bu en sık karıştırılan şeylerden biri.",
+        "en": "`iloc` slices follow the Python rule: the end is excluded. You get rows 1 and 2.\n\n`loc` does not behave this way — there the end is **included**. Two tools with two different rules, and one of the most confused points in pandas."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`by_name.loc[\"Ada\":\"Mina\"]` kaç satır döndürür (Ada, Kerem, Mina sırasında)?",
+        "en": "How many rows does `by_name.loc[\"Ada\":\"Mina\"]` return (in the order Ada, Kerem, Mina)?"
+      },
+      "options": {
+        "tr": [
+          "3 — `loc` dilimlerinde **bitiş dâhil**",
+          "2 — bitiş hariç",
+          "1",
+          "Hata verir"
+        ],
+        "en": [
+          "3 — in `loc` slices the **end is included**",
+          "2 — the end is excluded",
+          "1",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Mina da içeride. Bu, pandas'ın Python'dan ayrıldığı yer.\n\nSebebi mantıklı: etiketlerle çalışırken \"Mina'dan bir önceki\" demek anlamsız — etiketler metin olabiliyor ve sayısal bir sıraları olmayabiliyor.\n\n**Sonuç:** `loc` ile `iloc` aynı sayıda satır verirse tesadüf, kural değil.",
+        "en": "Mina is included. This is where pandas departs from Python.\n\nThe reason is sensible: with labels, \"the one before Mina\" is meaningless — labels can be text and need not have a numeric order.\n\n**So:** if `loc` and `iloc` return the same number of rows, that is a coincidence, not a rule."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "`data.iloc[0, 2]` ne seçer?",
+        "en": "What does `data.iloc[0, 2]` select?"
+      },
+      "options": {
+        "tr": [
+          "İlk satırın üçüncü sütunundaki hücreyi",
+          "İlk iki satırı",
+          "Sıfırıncı ve ikinci satırları",
+          "Üçüncü sütunun tamamını"
+        ],
+        "en": [
+          "The cell in the third column of the first row",
+          "The first two rows",
+          "Rows zero and two",
+          "The whole third column"
+        ]
+      },
+      "explanation": {
+        "tr": "Virgülün solu satır, sağı sütun — ikisi de sıfırdan başlıyor.\n\nBirden fazla satır ya da sütun istiyorsan liste veriyorsun: `data.iloc[[0, 2], [1, 3]]`. Bütününü istiyorsan `:` yazıyorsun: `data.iloc[:, 0]` ilk sütunun tamamı.",
+        "en": "Rows to the left of the comma, columns to the right — both starting at zero.\n\nFor several rows or columns you pass a list: `data.iloc[[0, 2], [1, 3]]`. For all of them you write `:`: `data.iloc[:, 0]` is the whole first column."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kodun sonucu ne olur?\n\n```python\nhigh = data[data[\"score\"] > 80]\nprint(high.index.tolist())\n```\n(orijinal index 0-5 arası, üç satır koşula uyuyor: 0, 2, 4)",
+        "en": "What is the result of this code?\n\n```python\nhigh = data[data[\"score\"] > 80]\nprint(high.index.tolist())\n```\n(the original index is 0-5 and three rows match: 0, 2, 4)"
+      },
+      "options": {
+        "tr": [
+          "`[0, 2, 4]` — seçilmeyenlerin numaraları atlanıyor",
+          "`[0, 1, 2]` — yeniden numaralanıyor",
+          "`[1, 3, 5]`",
+          "Index silinir"
+        ],
+        "en": [
+          "`[0, 2, 4]` — the numbers of the unselected rows are skipped",
+          "`[0, 1, 2]` — it is renumbered",
+          "`[1, 3, 5]`",
+          "The index is removed"
+        ]
+      },
+      "explanation": {
+        "tr": "Etiketler satırlara bağlı; satır kalıyorsa etiketi de kalıyor. Filtreden sonra **delikli index** normal.\n\nİki sonucu var: `high.loc[1]` artık `KeyError` veriyor, ve başka bir seriyle işlem yaparsan hizalama beklemediğin `NaN`'lar üretebiliyor.\n\nNumaraları sıfırlamak için: `high.reset_index(drop=True)`.",
+        "en": "Labels belong to rows; if a row stays its label stays. A **gapped index** after filtering is normal.\n\nIt has two consequences: `high.loc[1]` now raises a `KeyError`, and combining with another Series can produce `NaN`s you did not expect through alignment.\n\nTo renumber: `high.reset_index(drop=True)`."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "İki koşulu birleştirmek için hangisi doğru?",
+        "en": "Which is the correct way to combine two conditions?"
+      },
+      "options": {
+        "tr": [
+          "`data[(a > 1) & (b < 5)]`",
+          "`data[a > 1 and b < 5]`",
+          "`data[a > 1 & b < 5]`",
+          "`data[(a > 1) and (b < 5)]`"
+        ],
+        "en": [
+          "`data[(a > 1) & (b < 5)]`",
+          "`data[a > 1 and b < 5]`",
+          "`data[a > 1 & b < 5]`",
+          "`data[(a > 1) and (b < 5)]`"
+        ]
+      },
+      "explanation": {
+        "tr": "İki kural birden: **`&` kullanılıyor** (`and` değil) ve **her koşul parantez içinde**.\n\n`and` tek bir doğruluk değeri bekliyor; elinde satır sayısı kadar var, `ValueError` alıyorsun.\n\nParantezi unutmak daha sinsi: `&` karşılaştırmadan **önce** çalışıyor ve bambaşka bir şey hesaplıyor.",
+        "en": "Two rules at once: **use `&`** (not `and`) and put **each condition in parentheses**.\n\n`and` expects a single truth value; you have one per row, so you get a `ValueError`.\n\nForgetting the parentheses is sneakier: `&` runs **before** the comparison and computes something entirely different."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`data[data[\"score\"] > 70 & data[\"score\"] < 90]` yazarsan ne olur?",
+        "en": "What happens if you write `data[data[\"score\"] > 70 & data[\"score\"] < 90]`?"
+      },
+      "options": {
+        "tr": [
+          "`ValueError` — `&` karşılaştırmadan önce çalışıyor",
+          "Doğru sonucu verir",
+          "Boş tablo döner",
+          "Yalnızca ilk koşulu uygular"
+        ],
+        "en": [
+          "A `ValueError` — `&` runs before the comparison",
+          "It gives the right answer",
+          "It returns an empty table",
+          "It applies only the first condition"
+        ]
+      },
+      "explanation": {
+        "tr": "Python'da `&` operatörünün önceliği `>` ve `<`'den yüksek. Yani ifade şöyle okunuyor: `data[\"score\"] > (70 & data[\"score\"]) < 90`.\n\nDoğrusu her koşulu parantezlemek:\n\n```python\ndata[(data[\"score\"] > 70) & (data[\"score\"] < 90)]\n```\n\nBurada hata alman şanslı; bazı ifadelerde hata bile vermeden yanlış sonuç çıkıyor.",
+        "en": "In Python the `&` operator binds tighter than `>` and `<`. The expression is read as `data[\"score\"] > (70 & data[\"score\"]) < 90`.\n\nThe fix is to parenthesise each condition:\n\n```python\ndata[(data[\"score\"] > 70) & (data[\"score\"] < 90)]\n```\n\nYou are lucky to get an error here; in some expressions you get a wrong answer without one."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`data[\"city\"].isin([\"Ankara\", \"Izmir\"])` ne döndürür?",
+        "en": "What does `data[\"city\"].isin([\"Ankara\", \"Izmir\"])` return?"
+      },
+      "options": {
+        "tr": [
+          "Her satır için `True`/`False` taşıyan bir maske",
+          "O şehirlerdeki satırlardan oluşan bir tablo",
+          "Kaç satırın uyduğunu",
+          "Şehirlerin listesini"
+        ],
+        "en": [
+          "A mask of `True`/`False`, one per row",
+          "A table of the rows in those cities",
+          "How many rows match",
+          "A list of the cities"
+        ]
+      },
+      "explanation": {
+        "tr": "`isin` **maske** üretiyor, seçim yapmıyor. Seçmek için köşeli parantezin içine koyman gerekiyor:\n\n```python\ndata[data[\"city\"].isin([\"Ankara\", \"Izmir\"])]\n```\n\nBirçok değeri `|` ile bağlamanın kısa yolu bu. Tersini almak için başına `~` koyuyorsun.",
+        "en": "`isin` produces a **mask**; it does not select. To select you put it inside the square brackets:\n\n```python\ndata[data[\"city\"].isin([\"Ankara\", \"Izmir\"])]\n```\n\nIt is the short way of chaining many values with `|`. To invert it you put `~` in front."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`data[\"age\"].between(21, 22)` hangi değerleri `True` yapar?",
+        "en": "Which values does `data[\"age\"].between(21, 22)` mark as `True`?"
+      },
+      "options": {
+        "tr": [
+          "21 ve 22 dâhil, ikisinin arasındakiler",
+          "21 dâhil, 22 hariç",
+          "21 hariç, 22 dâhil",
+          "Yalnızca tam ortadakiler"
+        ],
+        "en": [
+          "21 and 22 included, and everything between",
+          "21 included, 22 excluded",
+          "21 excluded, 22 included",
+          "Only the exact middle"
+        ]
+      },
+      "explanation": {
+        "tr": "`between` **iki ucu da** içeri alıyor. Python dilimlerine alışkınsan bunu `21 <= x < 22` sanabiliyorsun.\n\nBir ucu dışarıda bırakmak istiyorsan söylemen gerekiyor:\n\n```python\ns.between(21, 22, inclusive=\"left\")\n```",
+        "en": "`between` includes **both ends**. If you are used to Python slices you may read it as `21 <= x < 22`.\n\nTo leave an end out you have to say so:\n\n```python\ns.between(21, 22, inclusive=\"left\")\n```"
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Bir maskenin tersini almak için ne kullanılır?",
+        "en": "What do you use to invert a mask?"
+      },
+      "options": {
+        "tr": [
+          "`~`",
+          "`not`",
+          "`!`",
+          "`-`"
+        ],
+        "en": [
+          "`~`",
+          "`not`",
+          "`!`",
+          "`-`"
+        ]
+      },
+      "explanation": {
+        "tr": "`data[~data[\"city\"].isin([\"Ankara\"])]` Ankara'da **olmayanları** veriyor.\n\n`not` çalışmıyor — `and` / `or` ile aynı sebep: tek bir doğruluk değeri bekliyor.\n\n`!=` ile de yazılabiliyor ama çok değer varsa `~isin` çok daha kısa.",
+        "en": "`data[~data[\"city\"].isin([\"Ankara\"])]` gives you everyone **not** in Ankara.\n\n`not` does not work — the same reason as `and` and `or`: it expects a single truth value.\n\nYou can also write it with `!=`, but with many values `~isin` is far shorter."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yapar?\n\n```python\ndata[data[\"score\"] < 75][\"score\"] = 0\n```",
+        "en": "What does this code do?\n\n```python\ndata[data[\"score\"] < 75][\"score\"] = 0\n```"
+      },
+      "options": {
+        "tr": [
+          "Hiçbir şey — ara tablo üretilip çöpe atılıyor",
+          "75'in altındaki notları sıfırlar",
+          "Bütün notları sıfırlar",
+          "Hata verir ve program durur"
+        ],
+        "en": [
+          "Nothing — an intermediate table is produced and thrown away",
+          "Sets the scores below 75 to zero",
+          "Sets every score to zero",
+          "It raises an error and the program stops"
+        ]
+      },
+      "explanation": {
+        "tr": "Buna **zincirli atama** deniyor. İlk köşeli parantez yeni bir tablo üretti, atama ona yapıldı, o tablo da hemen çöpe gitti. Özgün tablo değişmedi.\n\npandas bir uyarı veriyor ama program çökmüyor — istediğin sadece olmuyor.\n\nDoğrusu tek adımda:\n\n```python\ndata.loc[data[\"score\"] < 75, \"score\"] = 0\n```",
+        "en": "This is called **chained assignment**. The first square bracket produced a new table, the assignment went into it, and it was thrown away. The original did not change.\n\npandas issues a warning but the program does not crash — what you wanted simply does not happen.\n\nThe correct form is one step:\n\n```python\ndata.loc[data[\"score\"] < 75, \"score\"] = 0\n```"
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Koşula uyan satırların bir sütununu değiştirmek için doğru yazım hangisi?",
+        "en": "Which is the correct way to change one column of the rows matching a condition?"
+      },
+      "options": {
+        "tr": [
+          "`data.loc[maske, \"score\"] = 0`",
+          "`data[maske][\"score\"] = 0`",
+          "`data[maske, \"score\"] = 0`",
+          "`data[\"score\"][maske] = 0`"
+        ],
+        "en": [
+          "`data.loc[mask, \"score\"] = 0`",
+          "`data[mask][\"score\"] = 0`",
+          "`data[mask, \"score\"] = 0`",
+          "`data[\"score\"][mask] = 0`"
+        ]
+      },
+      "explanation": {
+        "tr": "Seçim ve atama **tek bir `loc` çağrısında** olmalı: solda satır koşulu, sağda sütun adı.\n\nDiğerleri ya hiçbir şey yapmıyor (zincirli atama) ya da hata veriyor.\n\n**Kural:** tabloyu değiştirecekseniz köşeli parantezi iki kez üst üste kullanmayın.",
+        "en": "The selection and the assignment belong in **a single `loc` call**: the row condition on the left, the column name on the right.\n\nThe others either do nothing (chained assignment) or raise an error.\n\n**The rule:** never use square brackets twice in a row when modifying a table."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "`data.query(\"score > 80 and city == 'Ankara'\")` çalışır mı?",
+        "en": "Does `data.query(\"score > 80 and city == 'Ankara'\")` work?"
+      },
+      "options": {
+        "tr": [
+          "Evet — `query` içinde `and` çalışıyor, orası Python değil",
+          "Hayır, `&` kullanmak gerekiyor",
+          "Hayır, `query` diye bir metot yok",
+          "Yalnızca sayısal sütunlarda çalışıyor"
+        ],
+        "en": [
+          "Yes — `and` works inside `query`; that is not Python",
+          "No, you have to use `&`",
+          "No, there is no such method as `query`",
+          "It only works on numeric columns"
+        ]
+      },
+      "explanation": {
+        "tr": "`query` içindeki metin pandas'ın kendi küçük dili olarak yorumlanıyor; orada `and`, `or`, `in` normal çalışıyor.\n\nSütun adları tırnaksız, metin değerler tek tırnakta. Dışarıdaki bir değişkeni kullanmak için `@` koyuyorsun: `query(\"score > @limit\")`.\n\nÜç dört koşullu ifadelerde köşeli parantezli yazımdan çok daha okunaklı.",
+        "en": "The text inside `query` is read as pandas's own small language, where `and`, `or` and `in` work normally.\n\nColumn names go without quotes and text values in single quotes. To use an outside variable you prefix it with `@`: `query(\"score > @limit\")`.\n\nWith three or four conditions it reads far better than the square-bracket form."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`data.nlargest(2, \"score\")` ile `data.sort_values(\"score\", ascending=False).head(2)` arasındaki fark nedir?",
+        "en": "What is the difference between `data.nlargest(2, \"score\")` and `data.sort_values(\"score\", ascending=False).head(2)`?"
+      },
+      "options": {
+        "tr": [
+          "Sonuç aynı; `nlargest` hepsini sıralamadığı için büyük veride daha hızlı",
+          "`nlargest` daha yavaş",
+          "Farklı sonuç veriyorlar",
+          "`nlargest` yalnızca serilerde çalışıyor"
+        ],
+        "en": [
+          "The result is the same; `nlargest` is faster on large data because it does not sort everything",
+          "`nlargest` is slower",
+          "They give different results",
+          "`nlargest` only works on Series"
+        ]
+      },
+      "explanation": {
+        "tr": "`sort_values` bütün tabloyu sıralıyor, sonra ilk ikisini alıyorsun. `nlargest` yalnızca en büyük ikiyi arıyor.\n\nAltı satırda fark yok; altı milyon satırda var.\n\nBeraberlik olduğunda ikisi de **tabloya giriş sırasına** göre ilkini alıyor. Beraberliği kendin çözmek istiyorsan ikinci bir ölçüt veriyorsun.",
+        "en": "`sort_values` sorts the whole table and then you take the first two. `nlargest` only looks for the top two.\n\nAt six rows there is no difference; at six million there is.\n\nOn a tie both take the first one by **entry order**. If you want to break the tie yourself, give a second criterion."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Filtre hiçbir satır bırakmazsa ne olur?",
+        "en": "What happens if a filter leaves no rows?"
+      },
+      "options": {
+        "tr": [
+          "Boş bir tablo döner; hesaplar `nan` verir, hata olmaz",
+          "`KeyError` alırsın",
+          "`None` döner",
+          "Özgün tablo döner"
+        ],
+        "en": [
+          "An empty table comes back; calculations give `nan` and there is no error",
+          "You get a `KeyError`",
+          "It returns `None`",
+          "It returns the original table"
+        ]
+      },
+      "explanation": {
+        "tr": "`shape` `(0, sütun sayısı)` oluyor ve `mean()` `nan` veriyor. Program çökmüyor, sonuç raporuna `nan` olarak giriyor.\n\nFiltreden sonra kontrol etmek gerekiyor:\n\n```python\nif selected.empty:\n    ...\n```\n\n`len(selected)` ya da `selected.shape[0]` de aynı işi görüyor.",
+        "en": "`shape` becomes `(0, number of columns)` and `mean()` gives `nan`. The program does not crash; the result goes into your report as `nan`.\n\nYou need to check after filtering:\n\n```python\nif selected.empty:\n    ...\n```\n\n`len(selected)` or `selected.shape[0]` does the same job."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`(data[\"score\"] >= 80).sum()` ne verir?",
+        "en": "What does `(data[\"score\"] >= 80).sum()` give you?"
+      },
+      "options": {
+        "tr": [
+          "Koşula uyan **satır sayısını**",
+          "Uyan satırların not toplamını",
+          "Bütün notların toplamını",
+          "`True` ya da `False`"
+        ],
+        "en": [
+          "The **number of rows** matching the condition",
+          "The total score of the matching rows",
+          "The total of all scores",
+          "`True` or `False`"
+        ]
+      },
+      "explanation": {
+        "tr": "Karşılaştırma bir `True`/`False` serisi üretiyor; toplarken `True` 1, `False` 0 sayılıyor.\n\nFiltrelemeden \"kaç tane var\" öğrenmenin en kısa yolu bu.\n\nNotların toplamını isteseydin önce seçmen gerekirdi: `data.loc[data[\"score\"] >= 80, \"score\"].sum()`.",
+        "en": "The comparison produces a Series of `True`/`False`; when summing, `True` counts as 1 and `False` as 0.\n\nIt is the shortest way to learn \"how many\" without filtering.\n\nFor the total of the scores you would have to select first: `data.loc[data[\"score\"] >= 80, \"score\"].sum()`."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Filtreden sonra `high.loc[1]` neden `KeyError` verebilir?",
+        "en": "Why can `high.loc[1]` raise a `KeyError` after filtering?"
+      },
+      "options": {
+        "tr": [
+          "`1` etiketli satır filtreden geçmemiş olabilir",
+          "`loc` filtrelenmiş tablolarda çalışmıyor",
+          "Index sıfırlanmıştır",
+          "`loc` yalnızca metin etiketlerde çalışıyor"
+        ],
+        "en": [
+          "The row labelled `1` may not have survived the filter",
+          "`loc` does not work on filtered tables",
+          "The index was reset",
+          "`loc` only works with text labels"
+        ]
+      },
+      "explanation": {
+        "tr": "`loc` etiket arıyor; o etiket yoksa hata veriyor. Filtre satırı attıysa etiketi de gitmiş oluyor.\n\n**İlk satırı** istiyorsan `iloc[0]` her zaman çalışıyor.\n\nKural: \"ilk\", \"son\", \"üçüncü\" diyorsan `iloc`; bir ada ya da koda göre arıyorsan `loc`.",
+        "en": "`loc` looks for a label and raises if it is not there. If the filter removed the row, its label went with it.\n\nIf you want the **first row**, `iloc[0]` always works.\n\nThe rule: if you say \"first\", \"last\" or \"third\", use `iloc`; if you look for a name or a code, use `loc`."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nhigh = data[data[\"score\"] > 80]\nhigh[\"score\"] = 0\nprint(data[\"score\"].tolist())\n```",
+        "en": "What does this code print?\n\n```python\nhigh = data[data[\"score\"] > 80]\nhigh[\"score\"] = 0\nprint(data[\"score\"].tolist())\n```"
+      },
+      "options": {
+        "tr": [
+          "Özgün notları — filtrelenmiş tablo bir kopya",
+          "Sıfırlanmış notları",
+          "Boş bir liste",
+          "Hata verir"
+        ],
+        "en": [
+          "The original scores — a filtered table is a copy",
+          "The zeroed scores",
+          "An empty list",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas 3.0'da filtre sonucu gerçek bir **kopya**; onu değiştirmek kaynağı etkilemiyor.\n\nİyi haber gibi ama ters yönde tuzak: özgün tabloyu değiştirmek istiyorsan filtre sonucuna atamak işe yaramıyor.\n\nTek `loc` çağrısı gerekiyor: `data.loc[data[\"score\"] > 80, \"score\"] = 0`.",
+        "en": "In pandas 3.0 the result of a filter is a real **copy**; modifying it does not affect the source.\n\nThat sounds like good news but is a trap in the other direction: if you want to change the original, assigning to the filtered result does nothing.\n\nYou need a single `loc` call: `data.loc[data[\"score\"] > 80, \"score\"] = 0`."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`data.iloc[:, 0]` ne seçer?",
+        "en": "What does `data.iloc[:, 0]` select?"
+      },
+      "options": {
+        "tr": [
+          "İlk sütunun tamamını",
+          "İlk satırın tamamını",
+          "İlk hücreyi",
+          "Bütün tabloyu"
+        ],
+        "en": [
+          "The whole first column",
+          "The whole first row",
+          "The first cell",
+          "The whole table"
+        ]
+      },
+      "explanation": {
+        "tr": "`:` \"bütün satırlar\" demek; virgülden sonraki `0` ilk sütunu seçiyor.\n\nİlk satırın tamamı `data.iloc[0]` ya da `data.iloc[0, :]`.\n\nSonuç bir **seri** — tek sütun aldığın için.",
+        "en": "The `:` means \"all rows\"; the `0` after the comma picks the first column.\n\nThe whole first row is `data.iloc[0]` or `data.iloc[0, :]`.\n\nThe result is a **Series**, because you took a single column."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "`data[data[\"name\"].str.contains(\"A\")]` yazdığında adı eksik olan satırlara ne olur?",
+        "en": "In `data[data[\"name\"].str.contains(\"A\")]`, what happens to rows with a missing name?"
+      },
+      "options": {
+        "tr": [
+          "`False` sayılıp filtreden düşerler",
+          "`True` sayılırlar",
+          "Hata verirler",
+          "Olduğu gibi kalırlar"
+        ],
+        "en": [
+          "They count as `False` and drop out of the filter",
+          "They count as `True`",
+          "They raise an error",
+          "They stay as they are"
+        ]
+      },
+      "explanation": {
+        "tr": "Eksik değer eşleşmiyor sayılıyor ve seçime girmiyor. Çoğu zaman istediğin bu.\n\nAma \"eksik olanları da göreyim\" diyorsan ayrıca eklemen gerekiyor:\n\n```python\nmask = data[\"name\"].str.contains(\"A\") | data[\"name\"].isna()\n```\n\nBir de `.str` olmadan çalışmıyor: `data[\"name\"].contains(...)` diye bir şey yok.",
+        "en": "A missing value counts as not matching and does not enter the selection. Usually that is what you want.\n\nBut if you want to see the missing ones too you have to add them:\n\n```python\nmask = data[\"name\"].str.contains(\"A\") | data[\"name\"].isna()\n```\n\nAlso, it does not work without `.str`: there is no `data[\"name\"].contains(...)`."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`data[data[\"city\"] == \"ankara\"]` boş dönüyor ama tabloda Ankara var. Neden?",
+        "en": "`data[data[\"city\"] == \"ankara\"]` comes back empty although Ankara is in the table. Why?"
+      },
+      "options": {
+        "tr": [
+          "Karşılaştırma büyük/küçük harfe duyarlı",
+          "`==` metinlerde çalışmıyor",
+          "Sütun adı yanlış",
+          "Filtreler yalnızca sayılarda çalışıyor"
+        ],
+        "en": [
+          "The comparison is case-sensitive",
+          "`==` does not work on text",
+          "The column name is wrong",
+          "Filters only work on numbers"
+        ]
+      },
+      "explanation": {
+        "tr": "`\"ankara\"` ile `\"Ankara\"` farklı iki metin. Gerçek veride aynı şehir üç farklı yazımla geliyor.\n\nİki çözüm var: ya karşılaştırmayı harf duyarsız yaparsın,\n\n```python\ndata[data[\"city\"].str.lower() == \"ankara\"]\n```\n\nya da veriyi baştan tekilleştirirsin:\n\n```python\ndata[\"city\"] = data[\"city\"].str.strip().str.title()\n```\n\nİkincisi daha iyi: sorunu bir kez çözüyorsun.",
+        "en": "`\"ankara\"` and `\"Ankara\"` are two different strings. In real data the same city arrives in three different spellings.\n\nThere are two fixes: either make the comparison case-insensitive,\n\n```python\ndata[data[\"city\"].str.lower() == \"ankara\"]\n```\n\nor standardise the data up front:\n\n```python\ndata[\"city\"] = data[\"city\"].str.strip().str.title()\n```\n\nThe second is better: you solve the problem once."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`data.loc[maske, \"score\"]` ne döndürür?",
+        "en": "What does `data.loc[mask, \"score\"]` return?"
+      },
+      "options": {
+        "tr": [
+          "Koşula uyan satırların `score` sütunu — bir seri",
+          "Bütün sütunlarıyla uyan satırlar",
+          "Bir sayı",
+          "Bir maske"
+        ],
+        "en": [
+          "The `score` column of the matching rows — a Series",
+          "The matching rows with all their columns",
+          "A single number",
+          "A mask"
+        ]
+      },
+      "explanation": {
+        "tr": "`loc[satır, sütun]` yazımı hem satırı hem sütunu birlikte seçiyor. Tek sütun istediğin için sonuç bir seri.\n\nÜstüne doğrudan hesap yapabiliyorsun: `data.loc[maske, \"score\"].mean()`.\n\nBütün sütunları isteseydin sütun kısmını yazmayacaktın: `data.loc[maske]` ya da `data[maske]`.",
+        "en": "The `loc[row, column]` form selects both at once. You asked for one column, so the result is a Series.\n\nYou can calculate on it directly: `data.loc[mask, \"score\"].mean()`.\n\nFor all the columns you would leave the column part out: `data.loc[mask]` or `data[mask]`."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Bir tabloyu filtreledin ve sonucu başka bir seriyle topladın; beklemediğin `NaN`'lar çıktı. Sebebi nedir?",
+        "en": "You filtered a table, combined the result with another Series, and got unexpected `NaN`s. Why?"
+      },
+      "options": {
+        "tr": [
+          "Filtre delikli bir index bıraktı; etiketler eşleşmiyor",
+          "Filtreleme değerleri bozdu",
+          "İki tablonun uzunlukları farklı",
+          "Toplama işlemi tablolarda çalışmıyor"
+        ],
+        "en": [
+          "The filter left a gapped index; the labels do not match",
+          "Filtering corrupted the values",
+          "The two have different lengths",
+          "Addition does not work on tables"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas etikete göre hizalıyor. Filtre `[0, 2, 4]` bıraktıysa ve diğer seri `[0, 1, 2]` ile geliyorsa yalnızca ortak etiketler eşleşiyor.\n\nUzunlukların eşit olması yetmiyor; önemli olan **etiketler**.\n\nİki çözüm: `reset_index(drop=True)` ile numaraları sıfırla, ya da `.values` ile etiketleri devre dışı bırak.",
+        "en": "pandas aligns by label. If the filter left `[0, 2, 4]` and the other Series comes with `[0, 1, 2]`, only the shared labels match.\n\nEqual lengths are not enough; what matters is the **labels**.\n\nTwo fixes: `reset_index(drop=True)` to renumber, or `.values` to take the labels out of the picture."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Bir şehirdeki en yüksek notlu kişinin **adını** bulmak için hangisi doğru?",
+        "en": "Which is the correct way to find the **name** of the highest scorer in one city?"
+      },
+      "options": {
+        "tr": [
+          "Önce şehre göre filtrele, sonra `loc[selected[\"score\"].idxmax(), \"name\"]`",
+          "`data[\"score\"].max()`",
+          "`data.nlargest(1, \"score\")[\"city\"]`",
+          "`data[\"name\"].max()`"
+        ],
+        "en": [
+          "Filter by city first, then `loc[selected[\"score\"].idxmax(), \"name\"]`",
+          "`data[\"score\"].max()`",
+          "`data.nlargest(1, \"score\")[\"city\"]`",
+          "`data[\"name\"].max()`"
+        ]
+      },
+      "explanation": {
+        "tr": "İki adım: önce filtre, sonra o filtrelenmiş tabloda `idxmax()` ile en büyüğün etiketini bul, `loc` ile adını al.\n\n**Dikkat:** `idxmax()` çağrısını filtrelenmiş tabloda yapmalısın; özgün tabloda yaparsan başka bir şehirdeki kişiyi bulabilirsin.\n\n`max()` yalnızca değeri veriyor, kimin olduğunu söylemiyor. `data[\"name\"].max()` ise alfabetik olarak en son adı veriyor — anlamsız.",
+        "en": "Two steps: filter first, then find the label of the largest with `idxmax()` on the filtered table and take the name with `loc`.\n\n**Careful:** the `idxmax()` call has to be on the filtered table; on the original you could find someone from another city.\n\n`max()` gives only the value, not whose it is. `data[\"name\"].max()` gives the alphabetically last name — meaningless."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "`data.iloc[[0, 3], [1, 2]]` ne seçer?",
+        "en": "What does `data.iloc[[0, 3], [1, 2]]` select?"
+      },
+      "options": {
+        "tr": [
+          "0. ve 3. satırların 1. ve 2. sütunlarını",
+          "0'dan 3'e kadar satırları",
+          "Dört ayrı hücreyi köşegen olarak",
+          "Hata verir"
+        ],
+        "en": [
+          "Columns 1 and 2 of rows 0 and 3",
+          "Rows from 0 to 3",
+          "Four separate cells diagonally",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "İki liste veriyorsun: soldaki satırlar, sağdaki sütunlar. Sonuç 2x2'lik bir tablo.\n\nDilim (`0:3`) ile liste (`[0, 3]`) farklı: dilim aralık, liste tek tek seçim. Liste sıralı olmak zorunda da değil.\n\nAynı yazım `loc` ile de çalışıyor, orada etiket listesi veriyorsun.",
+        "en": "You pass two lists: rows on the left, columns on the right. The result is a 2x2 table.\n\nA slice (`0:3`) and a list (`[0, 3]`) are different: a slice is a range, a list is an individual selection. The list does not even have to be in order.\n\nThe same form works with `loc`, where you pass lists of labels."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "`query` içinde dışarıdaki bir Python değişkenini nasıl kullanırsın?",
+        "en": "How do you use an outside Python variable inside `query`?"
+      },
+      "options": {
+        "tr": [
+          "Başına `@` koyarsın: `query(\"score > @limit\")`",
+          "Doğrudan yazarsın: `query(\"score > limit\")`",
+          "f-string kullanırsın",
+          "Kullanılamaz"
+        ],
+        "en": [
+          "You prefix it with `@`: `query(\"score > @limit\")`",
+          "You write it directly: `query(\"score > limit\")`",
+          "You use an f-string",
+          "You cannot"
+        ]
+      },
+      "explanation": {
+        "tr": "`@` işareti pandas'a \"bu bir sütun adı değil, dışarıdaki bir değişken\" diyor.\n\n`@` koymazsan pandas `limit` diye bir sütun arıyor ve bulamayınca hata veriyor.\n\nf-string de çalışıyor ama metin değerlerde tırnak kaçışı sorun çıkarıyor; `@` daha temiz.",
+        "en": "The `@` tells pandas \"this is not a column name but an outside variable\".\n\nWithout it pandas looks for a column called `limit` and raises when it cannot find one.\n\nAn f-string also works but quoting gets awkward with text values; `@` is cleaner."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 0,
+      "text": {
+        "tr": "`data.sample(3)` ne yapar?",
+        "en": "What does `data.sample(3)` do?"
+      },
+      "options": {
+        "tr": [
+          "Rastgele üç satır seçer",
+          "İlk üç satırı verir",
+          "En büyük üç değeri verir",
+          "Üç sütun seçer"
+        ],
+        "en": [
+          "Selects three random rows",
+          "Gives the first three rows",
+          "Gives the three largest values",
+          "Selects three columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Büyük bir veriyi tanımanın iyi bir yolu: `head()` her zaman baştan alıyor ve veri sıralıysa yanıltıcı olabiliyor. `sample` her yerden alıyor.\n\nSonucun tekrarlanabilir olmasını istiyorsan tohum veriyorsun: `data.sample(3, random_state=42)`.\n\nBeklenen çıktısı olan bir alıştırmada `random_state` şart.",
+        "en": "A good way to get to know a large dataset: `head()` always takes from the top, which can mislead if the data is sorted. `sample` takes from everywhere.\n\nIf you want the result to be repeatable, give a seed: `data.sample(3, random_state=42)`.\n\nIn an exercise with an expected output, `random_state` is essential."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki iki satır aynı sonucu verir mi?\n\n```python\ndata[data[\"score\"] > 80][\"name\"]\ndata.loc[data[\"score\"] > 80, \"name\"]\n```",
+        "en": "Do these two lines give the same result?\n\n```python\ndata[data[\"score\"] > 80][\"name\"]\ndata.loc[data[\"score\"] > 80, \"name\"]\n```"
+      },
+      "options": {
+        "tr": [
+          "Evet, **okumak** için ikisi de aynı; ama **yazmak** için yalnızca ikincisi çalışıyor",
+          "Hayır, farklı satırlar döndürüyorlar",
+          "Evet, tamamen aynılar",
+          "Hayır, ilki hata veriyor"
+        ],
+        "en": [
+          "Yes, for **reading** they are the same; but for **writing** only the second works",
+          "No, they return different rows",
+          "Yes, they are completely identical",
+          "No, the first one raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Okurken fark yok, ikisi de aynı seriyi veriyor. Fark **atama** yaparken ortaya çıkıyor:\n\n```python\ndata[data[\"score\"] > 80][\"name\"] = \"X\"   # hicbir sey olmaz\ndata.loc[data[\"score\"] > 80, \"name\"] = \"X\"  # calisir\n```\n\nBu yüzden alışkanlık olarak `loc` yazmak daha güvenli: okurken de yazarken de doğru çalışıyor.",
+        "en": "For reading there is no difference; both give the same Series. The difference appears when **assigning**:\n\n```python\ndata[data[\"score\"] > 80][\"name\"] = \"X\"   # nothing happens\ndata.loc[data[\"score\"] > 80, \"name\"] = \"X\"  # works\n```\n\nSo writing `loc` out of habit is safer: it works correctly both for reading and for writing."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 0,
+      "text": {
+        "tr": "Üç koşullu bir filtre yazacaksın ve ifade okunmaz hâle geldi. Ne yaparsın?",
+        "en": "You need a filter with three conditions and the expression has become unreadable. What do you do?"
+      },
+      "options": {
+        "tr": [
+          "Maskeyi ayrı bir değişkende kurarım ya da `query` kullanırım",
+          "Üç ayrı filtreyi üst üste uygularım",
+          "Döngüyle satır satır dolaşırım",
+          "Koşul sayısını azaltırım"
+        ],
+        "en": [
+          "Build the mask in a separate variable, or use `query`",
+          "Apply three separate filters one after another",
+          "Loop through the rows",
+          "Reduce the number of conditions"
+        ]
+      },
+      "explanation": {
+        "tr": "İki temiz yol var:\n\n```python\nmask = (data[\"score\"] > 70) & (data[\"age\"] < 25) & (data[\"city\"] == \"Ankara\")\nselected = data[mask]\n```\n\nya da:\n\n```python\nselected = data.query(\"score > 70 and age < 25 and city == 'Ankara'\")\n```\n\nÜst üste filtre uygulamak da doğru sonuç veriyor ama her adımda ara tablo üretiyor ve okuması daha zor.",
+        "en": "There are two clean ways:\n\n```python\nmask = (data[\"score\"] > 70) & (data[\"age\"] < 25) & (data[\"city\"] == \"Ankara\")\nselected = data[mask]\n```\n\nor:\n\n```python\nselected = data.query(\"score > 70 and age < 25 and city == 'Ankara'\")\n```\n\nApplying filters one after another also gives the right answer, but it builds an intermediate table at each step and reads worse."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 0,
+      "text": {
+        "tr": "Bir tabloda \"ilk satır\" almak istiyorsun ve tablo daha önce filtrelenmiş. Hangisini kullanmalısın?",
+        "en": "You want \"the first row\" of a table that has already been filtered. Which should you use?"
+      },
+      "options": {
+        "tr": [
+          "`iloc[0]` — konum her zaman çalışıyor",
+          "`loc[0]` — etiket daha güvenilir",
+          "`head(1)` yerine ikisi de olmaz",
+          "İkisi de aynı sonucu verir"
+        ],
+        "en": [
+          "`iloc[0]` — position always works",
+          "`loc[0]` — labels are more reliable",
+          "Neither; you must use `head(1)`",
+          "They give the same result"
+        ]
+      },
+      "explanation": {
+        "tr": "Filtre `0` etiketli satırı atmış olabilir; o zaman `loc[0]` `KeyError` veriyor. `iloc[0]` her zaman kalan satırların ilkini veriyor.\n\nBu, bu bölümün en pratik kuralı: **sıradan bahsediyorsan `iloc`, kimlikten bahsediyorsan `loc`.**\n\n`head(1)` de çalışıyor ama seri değil tek satırlık **tablo** döndürüyor — sonra bir sütun çekeceksen fark ediyor.",
+        "en": "The filter may have removed the row labelled `0`, in which case `loc[0]` raises a `KeyError`. `iloc[0]` always gives the first of the remaining rows.\n\nThis is the most practical rule in this section: **if you are talking about position use `iloc`, if you are talking about identity use `loc`.**\n\n`head(1)` also works but returns a one-row **table** rather than a Series — which matters if you then pull out a column."
+      }
+    }
+  ]
+}

@@ -378,7 +378,12 @@ class ExerciseView(QWidget):
         self._revealed = 0
         self._refresh_prompt()
 
+        # Kaydedilen kod hâlâ başlangıç kodunun kendisiyse (kullanıcı bir
+        # şey yazmadan çalıştırmış) o kayda tutunmuyoruz: dili şimdiki dile
+        # göre seçiyoruz. Yazılmış bir kod varsa dokunulmuyor.
         saved = self._store.exercise_code(chapter_id, section_id, exercise.id)
+        if saved and exercise.is_untouched(saved):
+            saved = ""
         self._editor.setPlainText(
             saved or exercise.starter_code_for(self._language.language)
         )
@@ -479,3 +484,22 @@ class ExerciseView(QWidget):
         # değişince yönergeyi baştan çizmek yeterli.
         if self._exercise is not None:
             self._refresh_prompt()
+            self._sync_starter_language()
+
+    def _sync_starter_language(self) -> None:
+        """Başlangıç kodunun yorum satırlarını şimdiki dile çevirir.
+
+        Yalnızca kullanıcı koda dokunmadıysa yapılıyor. Yazılmış bir kod
+        varsa yerinde bırakılıyor: dil değiştirmek kimsenin yazdığını
+        silmemeli.
+        """
+        if self._exercise is None:
+            return
+
+        current = self._editor.toPlainText()
+        if not self._exercise.is_untouched(current):
+            return
+
+        wanted = self._exercise.starter_code_for(self._language.language)
+        if wanted.strip() != current.strip():
+            self._editor.setPlainText(wanted)

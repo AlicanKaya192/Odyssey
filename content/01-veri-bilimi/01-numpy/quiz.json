@@ -1,0 +1,784 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "NumPy'ın listelerden hızlı olmasının temel sebebi nedir?",
+        "en": "What is the basic reason NumPy is faster than lists?"
+      },
+      "options": {
+        "tr": [
+          "Dizi tek tipte veri tutuyor, her eleman için ayrı tip bilgisi saklamıyor",
+          "Diziler bellekte daha az yer kaplıyor çünkü sıkıştırılıyor",
+          "NumPy kodu paralel çalıştırıyor",
+          "Diziler her zaman sıralı tutuluyor"
+        ],
+        "en": [
+          "An array holds a single type and does not store type information per element",
+          "Arrays take less memory because they are compressed",
+          "NumPy runs the code in parallel",
+          "Arrays are always kept sorted"
+        ]
+      },
+      "explanation": {
+        "tr": "Python listesi her eleman için ayrı bir nesne ve ayrı tip bilgisi tutuyor. Dizi ise \"hepsi `int64`\" deyip ham sayıları yan yana saklıyor.\n\nİkinci sebep de döngünün Python'da değil altta C'de dönmesi. İkisi birlikte büyük veride saniyelerle ölçülen fark yaratıyor.",
+        "en": "A Python list keeps a separate object with its own type information for every element. An array says \"all of these are `int64`\" and stores the raw numbers side by side.\n\nThe second reason is that the loop runs in C underneath rather than in Python. Together they make a difference measured in seconds on large data."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`np.array([1, 2, 3]) * np.array([2, 3, 4])` ne döndürür?",
+        "en": "What does `np.array([1, 2, 3]) * np.array([2, 3, 4])` return?"
+      },
+      "options": {
+        "tr": [
+          "`[2 6 12]` — eleman eleman çarpım",
+          "`20` — nokta çarpımı",
+          "Altı elemanlı bir dizi",
+          "Hata verir, şekiller çarpılamaz"
+        ],
+        "en": [
+          "`[2 6 12]` — element by element",
+          "`20` — the dot product",
+          "An array of six elements",
+          "An error; the shapes cannot be multiplied"
+        ]
+      },
+      "explanation": {
+        "tr": "NumPy'da `*` **eleman eleman** çarpıyor. Buna vektörel işlem deniyor: döngü yazmadan bütün dizi üzerinde işlem yapıyorsun.\n\nMatris çarpımı isteyen `@` operatörünü kullanıyor: `a @ b`.",
+        "en": "In NumPy `*` multiplies **element by element**. This is called a vectorised operation: you work on the whole array without writing a loop.\n\nIf you want matrix multiplication you use the `@` operator: `a @ b`."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`np.array([[1, 2, 3], [4, 5, 6]]).shape` ne döndürür?",
+        "en": "What does `np.array([[1, 2, 3], [4, 5, 6]]).shape` return?"
+      },
+      "options": {
+        "tr": [
+          "`(2, 3)`",
+          "`(3, 2)`",
+          "`6`",
+          "`2`"
+        ],
+        "en": [
+          "`(2, 3)`",
+          "`(3, 2)`",
+          "`6`",
+          "`2`"
+        ]
+      },
+      "explanation": {
+        "tr": "`shape` bir demet: önce satır, sonra sütun. İki satır, üç sütun var.\n\nToplam eleman sayısını `size` veriyor (6), boyut sayısını `ndim` (2). `len(a)` ise yalnızca **ilk** boyutu veriyor: 2.",
+        "en": "`shape` is a tuple: rows first, then columns. There are two rows and three columns.\n\n`size` gives the total number of elements (6) and `ndim` the number of dimensions (2). `len(a)` gives only the **first** dimension: 2."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nvalues = np.array([1, 2, 3])\nvalues[0] = 9.7\nprint(values)\n```",
+        "en": "What does this code print?\n\n```python\nvalues = np.array([1, 2, 3])\nvalues[0] = 9.7\nprint(values)\n```"
+      },
+      "options": {
+        "tr": [
+          "`[9 2 3]`",
+          "`[9.7 2.  3. ]`",
+          "`[10  2  3]`",
+          "Hata verir"
+        ],
+        "en": [
+          "`[9 2 3]`",
+          "`[9.7 2.  3. ]`",
+          "`[10  2  3]`",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Dizinin tipi `int64` ve NumPy tipi değiştirmiyor — değeri **kırpıyor**. Yuvarlamıyor da: 9.7 → 9.\n\nHata yok, uyarı yok. Ortalama hesaplayıp tamsayı diziye geri yazarken bu sessizce başa geliyor. Çözüm diziyi baştan ondalık kurmak: `np.array([1, 2, 3], dtype=float)`.",
+        "en": "The array's type is `int64` and NumPy does not change the type — it **truncates** the value. It does not even round: 9.7 becomes 9.\n\nNo error, no warning. This bites silently when you compute an average and write it back into an integer array. The fix is to build the array as decimal: `np.array([1, 2, 3], dtype=float)`."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nvalues = np.array([1, 2, 3, 4, 5])\npart = values[1:3]\npart[0] = 99\nprint(values)\n```",
+        "en": "What does this code print?\n\n```python\nvalues = np.array([1, 2, 3, 4, 5])\npart = values[1:3]\npart[0] = 99\nprint(values)\n```"
+      },
+      "options": {
+        "tr": [
+          "`[ 1 99  3  4  5]` — dilim özgün diziye açılan bir pencere",
+          "`[1 2 3 4 5]` — dilim bir kopya, özgün dizi değişmez",
+          "`[99  2  3  4  5]`",
+          "Hata verir"
+        ],
+        "en": [
+          "`[ 1 99  3  4  5]` — a slice is a window onto the original array",
+          "`[1 2 3 4 5]` — a slice is a copy, the original does not change",
+          "`[99  2  3  4  5]`",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "NumPy'da dilim **kopya değil**, aynı verinin üstünde bir pencere (view). Onu değiştirince özgün dizi de değişiyor.\n\nPython listesinde böyle olmuyor; `liste[1:3]` gerçek bir kopya veriyor. Bu, listeden gelen alışkanlığı bozan bir davranış ve sessiz hataların büyük kaynağı.\n\nKopya istiyorsan açıkça iste: `values[1:3].copy()`.",
+        "en": "In NumPy a slice is **not a copy** but a window (a view) onto the same data. Changing it changes the original.\n\nA Python list does not behave this way; `some_list[1:3]` gives a real copy. This breaks the habit you bring from lists and is a large source of silent bugs.\n\nIf you want a copy, ask for it: `values[1:3].copy()`."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`scores[scores > 50 and scores < 90]` yazarsan ne olur?",
+        "en": "What happens if you write `scores[scores > 50 and scores < 90]`?"
+      },
+      "options": {
+        "tr": [
+          "`ValueError` — dizinin tek bir doğruluk değeri yok",
+          "İki koşula da uyan elemanlar gelir",
+          "Yalnızca ilk koşula uyanlar gelir",
+          "Boş bir dizi döner"
+        ],
+        "en": [
+          "A `ValueError` — an array has no single truth value",
+          "You get the elements matching both conditions",
+          "You get only the ones matching the first condition",
+          "You get an empty array"
+        ]
+      },
+      "explanation": {
+        "tr": "`and` tek bir `True`/`False` bekliyor; elindeyse her eleman için bir tane var.\n\nDoğrusu `&` ve **parantez**:\n\n```python\nscores[(scores > 50) & (scores < 90)]\n```\n\nParantezi unutmak daha kötü: `&` karşılaştırmadan önce çalışıyor ve hata vermeden bambaşka bir şey hesaplıyor.",
+        "en": "`and` expects a single `True`/`False`; what you have is one per element.\n\nThe correct form uses `&` and **parentheses**:\n\n```python\nscores[(scores > 50) & (scores < 90)]\n```\n\nForgetting the parentheses is worse: `&` runs before the comparison and computes something entirely different without any error."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`matrix` iki satır üç sütunluysa `matrix.sum(axis=0)` kaç elemanlı bir dizi verir?",
+        "en": "If `matrix` has two rows and three columns, how many elements does `matrix.sum(axis=0)` return?"
+      },
+      "options": {
+        "tr": [
+          "3 — sütun başına bir sonuç",
+          "2 — satır başına bir sonuç",
+          "6 — her hücre için bir sonuç",
+          "1 — tek bir toplam"
+        ],
+        "en": [
+          "3 — one result per column",
+          "2 — one result per row",
+          "6 — one result per cell",
+          "1 — a single total"
+        ]
+      },
+      "explanation": {
+        "tr": "`axis=0` **satır boyutunu yok ediyor**; geriye sütun başına birer sonuç kalıyor, yani üç sayı.\n\nHatırlama yolu: axis \"hangi boyut kaybolacak\" demek. Emin olamıyorsan çıktının uzunluğuna bak — `(2, 3)` dizide `axis=0` üç, `axis=1` iki eleman veriyor.",
+        "en": "`axis=0` **removes the row dimension**, leaving one result per column — three numbers.\n\nA way to remember: axis means \"which dimension disappears\". If you are unsure, look at the length of the output — on a `(2, 3)` array `axis=0` gives three elements and `axis=1` gives two."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "Bir tabloda satırlar kayıt, sütunlar özellik. \"Her özelliğin ortalaması\" için hangisi doğru?",
+        "en": "In a table the rows are records and the columns are attributes. Which is right for \"the average of each attribute\"?"
+      },
+      "options": {
+        "tr": [
+          "`data.mean(axis=0)`",
+          "`data.mean(axis=1)`",
+          "`data.mean()`",
+          "`data.mean(axis=-1)`"
+        ],
+        "en": [
+          "`data.mean(axis=0)`",
+          "`data.mean(axis=1)`",
+          "`data.mean()`",
+          "`data.mean(axis=-1)`"
+        ]
+      },
+      "explanation": {
+        "tr": "Her özellik bir sütun; sütun başına sonuç isteniyorsa satırlar yok edilecek, yani `axis=0`.\n\nVeri biliminde en sık kullanılan hâli bu: \"bütün müşterilerin ortalama yaşı, ortalama harcaması, ortalama sipariş sayısı\" — hepsi sütun bazında.",
+        "en": "Each attribute is a column; if you want a result per column then the rows disappear, which is `axis=0`.\n\nThis is the form used most in data science: \"the average age, average spend and average order count across all customers\" — all of them per column."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`np.array([80.0, np.nan, 90.0]).mean()` ne döndürür?",
+        "en": "What does `np.array([80.0, np.nan, 90.0]).mean()` return?"
+      },
+      "options": {
+        "tr": [
+          "`nan` — tek bir eksik değer bütün sonucu bozuyor",
+          "`85.0` — eksik değer atlanıyor",
+          "`56.67` — eksik değer sıfır sayılıyor",
+          "Hata verir"
+        ],
+        "en": [
+          "`nan` — a single missing value ruins the whole result",
+          "`85.0` — the missing value is skipped",
+          "`56.67` — the missing value counts as zero",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu bilinçli: bilinmeyen bir sayıyla toplamın sonucu da bilinmiyor. NumPy sessizce sıfır saymıyor, sana \"burada eksik var\" diyor.\n\nEksikleri atlamak istiyorsan `np.nanmean(scores)` kullanacaksın — sonuç 85.0.",
+        "en": "This is deliberate: a total that includes an unknown number is also unknown. NumPy does not quietly treat it as zero; it tells you there is something missing.\n\nIf you want to skip the missing ones you use `np.nanmean(scores)` — the result is 85.0."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Bir dizideki eksik değerleri nasıl bulursun?",
+        "en": "How do you find the missing values in an array?"
+      },
+      "options": {
+        "tr": [
+          "`np.isnan(a)`",
+          "`a == np.nan`",
+          "`a is np.nan`",
+          "`a.count(np.nan)`"
+        ],
+        "en": [
+          "`np.isnan(a)`",
+          "`a == np.nan`",
+          "`a is np.nan`",
+          "`a.count(np.nan)`"
+        ]
+      },
+      "explanation": {
+        "tr": "`np.nan == np.nan` sonucu **`False`**. Bilinmeyen bir sayı başka bir bilinmeyen sayıya eşit değil; bu yüzden eşitlikle arayamıyorsun.\n\n`np.isnan(a)` sana `True`/`False` dizisi veriyor. Kaç tane olduğunu `np.isnan(a).sum()`, boş olmayanları `a[~np.isnan(a)]` veriyor.",
+        "en": "`np.nan == np.nan` is **`False`**. An unknown number is not equal to another unknown number, so you cannot search for it with equality.\n\n`np.isnan(a)` gives you an array of `True`/`False`. `np.isnan(a).sum()` counts them and `a[~np.isnan(a)]` gives the ones that are not missing."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`np.arange(0, 10, 2)` ve `np.linspace(0, 10, 2)` arasındaki fark nedir?",
+        "en": "What is the difference between `np.arange(0, 10, 2)` and `np.linspace(0, 10, 2)`?"
+      },
+      "options": {
+        "tr": [
+          "`arange` **adımı** alıyor, `linspace` **kaç eleman** istediğini",
+          "`arange` ondalık, `linspace` tamsayı üretiyor",
+          "İkisi de aynı şeyi yapıyor",
+          "`linspace` yalnızca iki boyutlu dizilerde çalışıyor"
+        ],
+        "en": [
+          "`arange` takes a **step**, `linspace` takes **how many elements** you want",
+          "`arange` produces decimals and `linspace` integers",
+          "They do the same thing",
+          "`linspace` only works on two-dimensional arrays"
+        ]
+      },
+      "explanation": {
+        "tr": "`np.arange(0, 10, 2)` → `[0 2 4 6 8]` (ikişer adım, bitiş dışarıda).\n`np.linspace(0, 10, 2)` → `[ 0. 10.]` (iki eleman, uçlar dâhil).\n\nÜçüncü argüman ikisinde bambaşka anlama geliyor; en sık karıştırılan ikili bu. Ondalık adım gerekiyorsa `linspace` tercih ediliyor: `arange` ondalıkta bazen bir eleman fazla veriyor.",
+        "en": "`np.arange(0, 10, 2)` gives `[0 2 4 6 8]` (steps of two, end excluded).\n`np.linspace(0, 10, 2)` gives `[ 0. 10.]` (two elements, ends included).\n\nThe third argument means something completely different in each; this is the pair that gets confused most. When you need a decimal step, prefer `linspace`: with decimals `arange` sometimes gives one element too many."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "`np.arange(6).reshape(2, 4)` ne yapar?",
+        "en": "What does `np.arange(6).reshape(2, 4)` do?"
+      },
+      "options": {
+        "tr": [
+          "`ValueError` verir — 6 eleman 8 hücreye sığmıyor",
+          "Eksik hücreleri sıfırla doldurur",
+          "İlk 6 hücreyi doldurup gerisini bırakır",
+          "3'e 2'lik bir dizi verir"
+        ],
+        "en": [
+          "Raises a `ValueError` — 6 elements do not fit into 8 cells",
+          "Fills the missing cells with zeros",
+          "Fills the first 6 cells and leaves the rest",
+          "Gives a 3-by-2 array"
+        ]
+      },
+      "explanation": {
+        "tr": "`reshape` veriyi **yeniden düzenliyor**, çoğaltmıyor. Eleman sayısı tutmak zorunda: 6 eleman `(2, 3)` ya da `(3, 2)` olabiliyor.\n\nBir boyutu hesaplatmak istiyorsan `-1` yaz: `a.reshape(2, -1)` sütun sayısını kendisi buluyor.",
+        "en": "`reshape` **rearranges** the data, it does not create more. The number of elements has to match: 6 elements can be `(2, 3)` or `(3, 2)`.\n\nIf you want one dimension worked out for you, write `-1`: `a.reshape(2, -1)` finds the column count itself."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "`scores = np.array([45, 82, 91, 60])` için `scores.argmax()` ne döndürür?",
+        "en": "For `scores = np.array([45, 82, 91, 60])`, what does `scores.argmax()` return?"
+      },
+      "options": {
+        "tr": [
+          "`2` — en büyük elemanın sırası",
+          "`91` — en büyük değer",
+          "`3`",
+          "`True`"
+        ],
+        "en": [
+          "`2` — the position of the largest element",
+          "`91` — the largest value",
+          "`3`",
+          "`True`"
+        ]
+      },
+      "explanation": {
+        "tr": "`arg` ile başlayan fonksiyonlar **indeks** veriyor, değer değil. En büyük eleman 91 ve o üçüncü sırada, yani indeks 2.\n\nBu ayrım işe yarıyor: adları başka bir dizide tutuyorsan `names[scores.argmax()]` sana en yüksek notu alanın adını veriyor.",
+        "en": "Functions starting with `arg` give you an **index**, not a value. The largest element is 91 and it is third, so index 2.\n\nThe distinction is useful: if you keep the names in another array, `names[scores.argmax()]` gives you the name of the person with the highest score."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nmatrix = np.array([[1, 2, 3], [4, 5, 6]])\nbonus = np.array([10, 20, 30])\nprint(matrix + bonus)\n```",
+        "en": "What does this code print?\n\n```python\nmatrix = np.array([[1, 2, 3], [4, 5, 6]])\nbonus = np.array([10, 20, 30])\nprint(matrix + bonus)\n```"
+      },
+      "options": {
+        "tr": [
+          "`[[11 22 33]\n [14 25 36]]` — `bonus` her satıra ekleniyor",
+          "Hata verir, şekiller uyuşmuyor",
+          "`[[11 22 33]]` — yalnızca ilk satır",
+          "`[15 27 39]`"
+        ],
+        "en": [
+          "`[[11 22 33]\n [14 25 36]]` — `bonus` is added to each row",
+          "An error; the shapes do not match",
+          "`[[11 22 33]]` — only the first row",
+          "`[15 27 39]`"
+        ]
+      },
+      "explanation": {
+        "tr": "Buna **yayılma** (broadcasting) deniyor: NumPy küçük diziyi büyüğe uyduruyor. Üç elemanlı `bonus` iki satırın her birine ayrı ayrı ekleniyor.\n\nKural: şekiller sondan başa karşılaştırılıyor ve her basamakta ya eşit olmaları ya da birinin 1 olması gerekiyor. Burada sütun sayıları eşit (3), satır tarafında `bonus`'un boyutu yok, o yüzden tekrarlanıyor.",
+        "en": "This is called **broadcasting**: NumPy stretches the smaller array to fit the larger one. The three-element `bonus` is added to each of the two rows separately.\n\nThe rule: shapes are compared from the end backwards, and at each position they must either be equal or one must be 1. Here the column counts match (3) and `bonus` has no row dimension, so it is repeated."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`(scores > 70).sum()` ne verir?",
+        "en": "What does `(scores > 70).sum()` give you?"
+      },
+      "options": {
+        "tr": [
+          "70'ten büyük kaç eleman olduğunu",
+          "70'ten büyük elemanların toplamını",
+          "`True` ya da `False`",
+          "70'ten büyük elemanları içeren bir dizi"
+        ],
+        "en": [
+          "How many elements are greater than 70",
+          "The total of the elements greater than 70",
+          "`True` or `False`",
+          "An array of the elements greater than 70"
+        ]
+      },
+      "explanation": {
+        "tr": "`scores > 70` bir `True`/`False` dizisi veriyor. Toplarken `True` 1, `False` 0 sayılıyor; sonuç kaç tane `True` olduğu.\n\nElemanların toplamını isteseydin önce seçmen gerekirdi: `scores[scores > 70].sum()`.",
+        "en": "`scores > 70` gives an array of `True`/`False`. When you add them up `True` counts as 1 and `False` as 0, so the result is how many are `True`.\n\nIf you wanted the total of the elements you would have to select first: `scores[scores > 70].sum()`."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Bir döngü içinde diziye eleman eklemek neden kötü bir fikir?",
+        "en": "Why is appending to an array inside a loop a bad idea?"
+      },
+      "options": {
+        "tr": [
+          "Dizinin boyutu sabit; her ekleme diziyi baştan kuruyor",
+          "NumPy `append` fonksiyonunu desteklemiyor",
+          "Diziler yalnızca sayı tutabildiği için",
+          "Döngüler NumPy'da hiç çalışmıyor"
+        ],
+        "en": [
+          "An array has a fixed size; every append rebuilds it from scratch",
+          "NumPy does not support an `append` function",
+          "Because arrays can only hold numbers",
+          "Loops do not work in NumPy at all"
+        ]
+      },
+      "explanation": {
+        "tr": "`np.append` çalışıyor ama her çağrıda yeni bir dizi ayırıp bütün veriyi kopyalıyor. Döngü içinde bin kez çağırırsan bin kez kopyalıyorsun.\n\nDoğrusu: önce Python listesinde topla, sonunda bir kez `np.array(collected)` de. Dizinin sabit boyutlu olması NumPy'ın hızının sebebi — ona rağmen büyütmeye çalışmak o hızı geri veriyor.",
+        "en": "`np.append` works, but every call allocates a new array and copies all the data. Call it a thousand times in a loop and you copy a thousand times.\n\nThe right way: collect into a Python list first and call `np.array(collected)` once at the end. An array's fixed size is the reason NumPy is fast — fighting it gives that speed back."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "`np.array([1, 2.5, 3])` dizisinin `dtype` değeri nedir?",
+        "en": "What is the `dtype` of `np.array([1, 2.5, 3])`?"
+      },
+      "options": {
+        "tr": [
+          "`float64` — hepsi ortak tipe çevriliyor",
+          "`int64` — çoğunluk tamsayı",
+          "`object` — karışık tipler ayrı ayrı tutuluyor",
+          "Hata verir, tipler karışık olamaz"
+        ],
+        "en": [
+          "`float64` — they are all converted to a common type",
+          "`int64` — most of them are integers",
+          "`object` — mixed types are kept separately",
+          "It raises an error; types cannot be mixed"
+        ]
+      },
+      "explanation": {
+        "tr": "Dizi tek tip tutuyor. Farklı tipler verildiğinde NumPy hepsini **veri kaybı olmayacak** ortak tipe çeviriyor: tamsayılar ondalığa dönüşüyor.\n\nTers yönde olsaydı kayıp olurdu, o yüzden NumPy o yöne gitmiyor — ama sen elle atama yaparsan (`values[0] = 9.7`) kırpma yapıyor.",
+        "en": "An array holds a single type. Given different types, NumPy converts them all to a common type that **loses no data**: the integers become decimals.\n\nThe other direction would lose data, so NumPy does not go that way — but if you assign by hand (`values[0] = 9.7`) it does truncate."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nvalues = np.array([10, 20, 30, 40, 50])\nprint(values[[0, 3, 4]])\n```",
+        "en": "What does this code print?\n\n```python\nvalues = np.array([10, 20, 30, 40, 50])\nprint(values[[0, 3, 4]])\n```"
+      },
+      "options": {
+        "tr": [
+          "`[10 40 50]`",
+          "`[10 20 30]`",
+          "`[0 3 4]`",
+          "Hata verir"
+        ],
+        "en": [
+          "`[10 40 50]`",
+          "`[10 20 30]`",
+          "`[0 3 4]`",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Buna **fancy index** deniyor: bir indeks listesi vererek istediğin elemanları seçiyorsun. Seçim sıralı olmak zorunda değil; `values[[4, 0]]` de çalışıyor.\n\nDilimden bir farkı daha var: fancy index **gerçek bir kopya** veriyor, pencere değil.",
+        "en": "This is called **fancy indexing**: you pass a list of indices and get the elements you asked for. The selection does not have to be in order; `values[[4, 0]]` works too.\n\nThere is one more difference from a slice: fancy indexing gives you a **real copy**, not a window."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "Bir dizinin gerçek kopyasını nasıl alırsın?",
+        "en": "How do you take a real copy of an array?"
+      },
+      "options": {
+        "tr": [
+          "`a.copy()`",
+          "`a[:]`",
+          "`np.array(a, copy=False)`",
+          "`a`"
+        ],
+        "en": [
+          "`a.copy()`",
+          "`a[:]`",
+          "`np.array(a, copy=False)`",
+          "`a`"
+        ]
+      },
+      "explanation": {
+        "tr": "`a[:]` bir dilim ve NumPy'da dilim **pencere**; onu değiştirirsen özgün dizi de değişiyor. Python listesinde `liste[:]` kopya veriyordu, alışkanlık buradan geliyor.\n\n`a` ise zaten aynı nesne. Kopya için açıkça `a.copy()` demek gerekiyor.\n\nKontrol yolu: kopyanın `.base` değeri `None`, pencerenin `.base` değeri özgün diziyi gösteriyor.",
+        "en": "`a[:]` is a slice, and in NumPy a slice is a **window**; changing it changes the original. In a Python list `some_list[:]` gives a copy, which is where the habit comes from.\n\n`a` is simply the same object. For a copy you have to say `a.copy()` explicitly.\n\nA way to check: a copy has `.base` of `None`, while a window's `.base` points at the original array."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nmatrix = np.array([[3, 8], [5, 2], [9, 4]])\nprint(matrix.sum(axis=1))\nprint(matrix.max(axis=0))\n```",
+        "en": "What does this code print?\n\n```python\nmatrix = np.array([[3, 8], [5, 2], [9, 4]])\nprint(matrix.sum(axis=1))\nprint(matrix.max(axis=0))\n```"
+      },
+      "options": {
+        "tr": [
+          "`[11  7 13]` ve `[9 8]`",
+          "`[17 14]` ve `[8 5 9]`",
+          "`[11  7 13]` ve `[8 5 9]`",
+          "`[17 14]` ve `[9 8]`"
+        ],
+        "en": [
+          "`[11  7 13]` and `[9 8]`",
+          "`[17 14]` and `[8 5 9]`",
+          "`[11  7 13]` and `[8 5 9]`",
+          "`[17 14]` and `[9 8]`"
+        ]
+      },
+      "explanation": {
+        "tr": "`axis=1` sütun boyutunu yok ediyor: her **satır** için bir toplam çıkıyor — 3+8=11, 5+2=7, 9+4=13. Dizi üç satırlı olduğu için sonuç üç elemanlı.\n\n`axis=0` satır boyutunu yok ediyor: her **sütun** için bir en büyük — birinci sütunda 9, ikinci sütunda 8. Sonuç iki elemanlı.\n\nEmin olamadığında çıktının uzunluğuna bakmak yeterli: hangi boyut kaldıysa o.",
+        "en": "`axis=1` removes the column dimension: one total per **row** — 3+8=11, 5+2=7, 9+4=13. The array has three rows, so the result has three elements.\n\n`axis=0` removes the row dimension: one maximum per **column** — 9 in the first column, 8 in the second. The result has two elements.\n\nWhen you are unsure, the length of the output is enough to tell: whichever dimension survived."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`np.zeros(3).dtype` nedir?",
+        "en": "What is `np.zeros(3).dtype`?"
+      },
+      "options": {
+        "tr": [
+          "`float64` — varsayılan tip ondalık",
+          "`int64` — sıfırlar tamsayı",
+          "`bool`",
+          "Diziye ne konduğuna göre değişir"
+        ],
+        "en": [
+          "`float64` — the default type is decimal",
+          "`int64` — zeros are integers",
+          "`bool`",
+          "It depends on what you put in the array"
+        ]
+      },
+      "explanation": {
+        "tr": "`zeros`, `ones` ve `linspace` varsayılan olarak **ondalık** dizi üretiyor. Tamsayı istiyorsan söylemen gerekiyor:\n\n```python\nnp.zeros(3, dtype=int)\n```\n\n`arange` ise verdiğin argümanlara bakıyor: `np.arange(5)` tamsayı, `np.arange(5.0)` ondalık.",
+        "en": "`zeros`, `ones` and `linspace` produce a **decimal** array by default. If you want integers you have to say so:\n\n```python\nnp.zeros(3, dtype=int)\n```\n\n`arange` looks at the arguments you give it: `np.arange(5)` is integer, `np.arange(5.0)` is decimal."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`np.array([1, 2, 3]) / 2` ne döndürür?",
+        "en": "What does `np.array([1, 2, 3]) / 2` return?"
+      },
+      "options": {
+        "tr": [
+          "`[0.5 1.  1.5]` — sonuç ondalık",
+          "`[0 1 1]` — tamsayı bölme",
+          "`[1 2 3]`",
+          "Hata verir, diziyi sayıya bölemezsin"
+        ],
+        "en": [
+          "`[0.5 1.  1.5]` — the result is decimal",
+          "`[0 1 1]` — integer division",
+          "`[1 2 3]`",
+          "An error; you cannot divide an array by a number"
+        ]
+      },
+      "explanation": {
+        "tr": "`/` her zaman ondalık sonuç veriyor — tıpkı düz Python'daki gibi. Girdi tamsayı olsa bile çıktı `float64`.\n\nTamsayı bölme istiyorsan `//` kullanıyorsun: `np.array([1, 2, 3]) // 2` → `[0 1 1]`.\n\nBu, ortalama hesaplarında işine yarıyor: bölme sonucu asla sessizce kırpılmıyor.",
+        "en": "`/` always gives a decimal result — just like in plain Python. Even with integer input the output is `float64`.\n\nIf you want integer division you use `//`: `np.array([1, 2, 3]) // 2` gives `[0 1 1]`.\n\nThis helps when computing averages: the result of a division is never silently truncated."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "`matrix` üç satır iki sütunluysa `matrix.T.shape` nedir?",
+        "en": "If `matrix` has three rows and two columns, what is `matrix.T.shape`?"
+      },
+      "options": {
+        "tr": [
+          "`(2, 3)` — satırlar sütun oluyor",
+          "`(3, 2)` — değişmiyor",
+          "`(6,)` — düzleşiyor",
+          "`(2, 2)`"
+        ],
+        "en": [
+          "`(2, 3)` — the rows become columns",
+          "`(3, 2)` — it does not change",
+          "`(6,)` — it flattens",
+          "`(2, 2)`"
+        ]
+      },
+      "explanation": {
+        "tr": "`.T` **devrik** demek: satırlarla sütunlar yer değiştiriyor. `(3, 2)` olan `(2, 3)` oluyor.\n\nVeri işlerinde şöyle gerekiyor: kayıtlar sütunlarda, özellikler satırlarda gelen bir veriyi standart hâle (kayıt = satır) çevirmek için.\n\n`.T` de bir **pencere** veriyor, kopya değil — değiştirirsen özgün dizi de değişiyor.",
+        "en": "`.T` means **transpose**: rows and columns swap places. A `(3, 2)` becomes `(2, 3)`.\n\nIn data work you need it when the data arrives with records in the columns and attributes in the rows, and you want the standard shape (record = row).\n\n`.T` also gives you a **window**, not a copy — modify it and the original changes too."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "`np.where(a > 5, 1, 0)` ne yapar?",
+        "en": "What does `np.where(a > 5, 1, 0)` do?"
+      },
+      "options": {
+        "tr": [
+          "Koşula uyan yerlere 1, uymayanlara 0 yazan **yeni bir dizi** verir",
+          "5'ten büyük elemanları verir",
+          "5'ten büyük elemanların indekslerini verir",
+          "Diziyi yerinde değiştirir"
+        ],
+        "en": [
+          "Returns a **new array** with 1 where the condition holds and 0 where it does not",
+          "Returns the elements greater than 5",
+          "Returns the indices of the elements greater than 5",
+          "Modifies the array in place"
+        ]
+      },
+      "explanation": {
+        "tr": "`a = [3, 8, 1, 9, 4]` için sonuç `[0 1 0 1 0]`. Dizinin **boyu değişmiyor**; her hücre ya birinci ya ikinci değerle doluyor.\n\n`a[a > 5]` ile karıştırma: o yalnızca uyanları getiriyor ve dizi kısalıyor. `where` ise her elemana bir karşılık veriyor — kategori üretmek için kullanılıyor (\"geçti/kaldı\", \"yüksek/düşük\").\n\nTek argümanla çağrılırsa (`np.where(a > 5)`) indeksleri veriyor.",
+        "en": "For `a = [3, 8, 1, 9, 4]` the result is `[0 1 0 1 0]`. The **length does not change**; every cell is filled with either the first or the second value.\n\nDo not confuse it with `a[a > 5]`, which brings only the matching ones and shortens the array. `where` gives one answer per element — it is used to produce categories (\"pass/fail\", \"high/low\").\n\nCalled with a single argument (`np.where(a > 5)`) it returns the indices."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "`(a > 5).any()` ile `(a > 5).all()` arasındaki fark nedir?",
+        "en": "What is the difference between `(a > 5).any()` and `(a > 5).all()`?"
+      },
+      "options": {
+        "tr": [
+          "`any` en az biri uyuyorsa, `all` hepsi uyuyorsa `True` verir",
+          "`any` sayı verir, `all` doğruluk değeri",
+          "İkisi de aynı, `all` daha yeni",
+          "`any` ilk elemana, `all` son elemana bakar"
+        ],
+        "en": [
+          "`any` is `True` if at least one matches, `all` if every one does",
+          "`any` returns a number and `all` a boolean",
+          "They are the same; `all` is just newer",
+          "`any` looks at the first element and `all` at the last"
+        ]
+      },
+      "explanation": {
+        "tr": "İkisi de tek bir `True`/`False` veriyor. \"Hiç eksik değer var mı?\" için `np.isnan(a).any()`, \"hepsi geçti mi?\" için `(scores >= 60).all()`.\n\nKaç tane uyduğunu isteseydin `.sum()` kullanacaktın — `True` toplarken 1 sayılıyor.",
+        "en": "Both give a single `True`/`False`. For \"is there any missing value?\" you use `np.isnan(a).any()`, and for \"did everyone pass?\" `(scores >= 60).all()`.\n\nIf you wanted how many match you would use `.sum()` — `True` counts as 1 when adding up."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "`np.unique(np.array([3, 1, 3, 2, 1]))` ne döndürür?",
+        "en": "What does `np.unique(np.array([3, 1, 3, 2, 1]))` return?"
+      },
+      "options": {
+        "tr": [
+          "`[1 2 3]` — tekrarsız ve **sıralı**",
+          "`[3 1 2]` — tekrarsız, ilk görülme sırasıyla",
+          "`3` — kaç farklı değer olduğu",
+          "`[3 1 3 2 1]` — değişmez"
+        ],
+        "en": [
+          "`[1 2 3]` — distinct and **sorted**",
+          "`[3 1 2]` — distinct, in order of first appearance",
+          "`3` — how many distinct values there are",
+          "`[3 1 3 2 1]` — unchanged"
+        ]
+      },
+      "explanation": {
+        "tr": "`np.unique` tekrarları atıyor **ve sıralıyor**. Sıralama sürpriz olabiliyor: özgün sırayı korumuyor.\n\nKaç farklı değer olduğunu isteseydin `len(np.unique(a))` yazacaktın. Her değerden kaçar tane olduğunu ise `np.unique(a, return_counts=True)` veriyor — kategorik bir sütunu incelerken en çok kullanılan çağrı bu.",
+        "en": "`np.unique` drops duplicates **and sorts**. The sorting can be a surprise: it does not keep the original order.\n\nIf you wanted how many distinct values there are you would write `len(np.unique(a))`. To get how many of each there are, `np.unique(a, return_counts=True)` — the call used most when inspecting a categorical column."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 0,
+      "text": {
+        "tr": "`m` üç satır iki sütunlu bir dizi. `m.size` ve `len(m)` ne döndürür?",
+        "en": "`m` is an array with three rows and two columns. What do `m.size` and `len(m)` return?"
+      },
+      "options": {
+        "tr": [
+          "`6` ve `3`",
+          "`6` ve `6`",
+          "`3` ve `2`",
+          "`(3, 2)` ve `3`"
+        ],
+        "en": [
+          "`6` and `3`",
+          "`6` and `6`",
+          "`3` and `2`",
+          "`(3, 2)` and `3`"
+        ]
+      },
+      "explanation": {
+        "tr": "`size` **toplam hücre** sayısı: 3 x 2 = 6. `len` ise yalnızca **ilk boyutu** veriyor, yani satır sayısı: 3.\n\nBu ayrım iki boyutta kafa karıştırıyor. Sütun sayısını istiyorsan `m.shape[1]` yazıyorsun.\n\nTek boyutlu dizide ikisi aynı sonucu veriyor; fark yalnızca çok boyutta ortaya çıkıyor.",
+        "en": "`size` is the **total number of cells**: 3 x 2 = 6. `len` gives only the **first dimension**, the number of rows: 3.\n\nThis catches people out in two dimensions. For the number of columns you write `m.shape[1]`.\n\nOn a one-dimensional array both give the same answer; the difference only shows up in more dimensions."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 0,
+      "text": {
+        "tr": "`np.sort(values)` çağırdıktan sonra `values` dizisi sıralanmış olur mu?",
+        "en": "After calling `np.sort(values)`, is the `values` array sorted?"
+      },
+      "options": {
+        "tr": [
+          "Hayır — `np.sort` sıralanmış bir **kopya** döndürüyor",
+          "Evet — diziyi yerinde sıralıyor",
+          "Yalnızca dizi tamsayıysa sıralanır",
+          "Hata verir"
+        ],
+        "en": [
+          "No — `np.sort` returns a sorted **copy**",
+          "Yes — it sorts the array in place",
+          "Only if the array holds integers",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "`np.sort(values)` özgün diziye dokunmuyor; sonucu bir değişkene almazsan kaybediyorsun.\n\nYerinde sıralamak istiyorsan metot hâlini kullanıyorsun: `values.sort()` — o `None` döndürüyor ve diziyi değiştiriyor.\n\nAynı ikilik düz Python'da da var: `sorted(liste)` kopya, `liste.sort()` yerinde.",
+        "en": "`np.sort(values)` does not touch the original; if you do not assign the result to a variable you lose it.\n\nTo sort in place you use the method form: `values.sort()` — it returns `None` and modifies the array.\n\nThe same pair exists in plain Python: `sorted(some_list)` gives a copy, `some_list.sort()` sorts in place."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 0,
+      "text": {
+        "tr": "`np.arange(12).reshape(3, -1)` ne şekilde bir dizi verir?",
+        "en": "What shape does `np.arange(12).reshape(3, -1)` produce?"
+      },
+      "options": {
+        "tr": [
+          "`(3, 4)` — `-1` \"kalanı sen hesapla\" demek",
+          "`(3, 12)`",
+          "`(3, 1)`",
+          "Hata verir, `-1` geçerli bir boyut değil"
+        ],
+        "en": [
+          "`(3, 4)` — `-1` means \"work the rest out\"",
+          "`(3, 12)`",
+          "`(3, 1)`",
+          "An error; `-1` is not a valid dimension"
+        ]
+      },
+      "explanation": {
+        "tr": "`-1` NumPy'a \"bu boyutu sen hesapla\" diyor. 12 eleman, 3 satır isteniyorsa sütun sayısı 4 olmak zorunda.\n\nYalnızca **bir** boyutta `-1` yazılabiliyor; ikisinde birden yazarsan hangisinin ne olacağı belirsiz kalıyor ve hata alıyorsun.\n\n`a.reshape(-1)` ise diziyi tek sıraya düzleştiriyor — en sık kullanılan hâli bu.",
+        "en": "`-1` tells NumPy to work that dimension out. With 12 elements and 3 rows requested, the column count has to be 4.\n\nYou can only write `-1` in **one** dimension; writing it in two leaves it ambiguous and you get an error.\n\n`a.reshape(-1)` flattens the array into a single row — the form used most often."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 0,
+      "text": {
+        "tr": "Rastgele sayı üreten bir alıştırmanın çıktısı her çalıştırmada aynı olsun istiyorsun. Ne yaparsın?",
+        "en": "You want an exercise that generates random numbers to produce the same output every run. What do you do?"
+      },
+      "options": {
+        "tr": [
+          "Rastgele sayı üretmeden önce `np.random.seed(42)` çağırırım",
+          "`np.random.randint` yerine `np.arange` kullanırım",
+          "Sonucu sıralarım",
+          "Bunu yapmak mümkün değil"
+        ],
+        "en": [
+          "Call `np.random.seed(42)` before generating the numbers",
+          "Use `np.arange` instead of `np.random.randint`",
+          "Sort the result",
+          "It is not possible"
+        ]
+      },
+      "explanation": {
+        "tr": "`seed` rastgele sayı üretecinin başlangıç noktasını sabitliyor. Aynı tohumla aynı sıra geliyor — `np.random.seed(42)` sonrası `np.random.randint(0, 100, 3)` her makinede `[51 92 14]` veriyor.\n\nBunlara \"sözde rastgele\" (pseudo-random) deniyor: gerçekten rastgele değiller, bir formülden geliyorlar. Bu bir eksiklik değil, tam tersi: deneyin tekrarlanabilir olması bilimsel çalışmada şart.\n\n`seed` çağırmazsan her çalıştırmada farklı sonuç geliyor ve beklenen çıktısı olan bir alıştırma yazılamıyor.",
+        "en": "`seed` fixes the starting point of the random number generator. The same seed gives the same sequence — after `np.random.seed(42)`, `np.random.randint(0, 100, 3)` gives `[51 92 14]` on every machine.\n\nThese are called pseudo-random: they are not truly random but come from a formula. That is not a shortcoming but the point — a repeatable experiment is essential in scientific work.\n\nWithout `seed` you get a different result on every run, and you cannot write an exercise that expects a specific output."
+      }
+    }
+  ]
+}

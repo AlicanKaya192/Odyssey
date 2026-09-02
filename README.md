@@ -10,11 +10,11 @@ Every section has a lesson, lecture notes, a quiz and coding exercises. To compl
 
 ## Status
 
-Early development (`0.5.0`). The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking — is in place; the curriculum is still at the beginning.
+Early development (`0.6.0`). The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking — is in place; the curriculum is still at the beginning.
 
-**Content today:** the Python Fundamentals module is **complete** — fifteen sections, from your first program to databases. 250 quiz questions, 65 coding exercises and 34 sets of lecture notes, all of it in both Turkish and English.
+**Content today:** two modules are **complete**. Python Fundamentals has fifteen sections, from your first program to databases; Data Science has ten, from NumPy to exploratory analysis. 560 quiz questions, 115 coding exercises and 54 sets of lecture notes, all of it in both Turkish and English.
 
-**Six learning paths** are defined: Python is open, while Data Science, Machine Learning, SQL, API and Docker are visible but locked until their content is written.
+**Six learning paths** are defined: Python and Data Science are open, while Machine Learning, SQL, API and Docker are visible but locked until their content is written.
 
 **Working:** learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises with automatic checking, graded hints, error explanations, sections that unlock in order, persistent progress, a profile with your own photo, Turkish/English interface and content, light and dark themes, and options to remove the section lock and the quiz time limit.
 

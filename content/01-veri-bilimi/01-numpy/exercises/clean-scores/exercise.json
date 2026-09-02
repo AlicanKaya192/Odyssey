@@ -1,0 +1,48 @@
+{
+  "id": "clean-scores",
+  "title": {
+    "tr": "Eksik notları doldur",
+    "en": "Fill the missing scores"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`np.isnan(scores)` hangi hücrelerin boş olduğunu `True`/`False` olarak veriyor; `.sum()` ile sayabilirsin (`True` = 1).",
+      "en": "`np.isnan(scores)` tells you which cells are empty as `True`/`False`; `.sum()` counts them (`True` is 1)."
+    },
+    {
+      "tr": "Ortalamayı `scores.mean()` ile alamazsın — sonuç `nan` çıkar. `np.nanmean(scores)` boşları atlıyor.",
+      "en": "You cannot use `scores.mean()` — the result is `nan`. `np.nanmean(scores)` skips the empty ones."
+    },
+    {
+      "tr": "Önce `scores.copy()` al; dilim ya da doğrudan atama özgün diziyi bozuyor. Sonra `filled[np.isnan(filled)] = average` ile boşları doldur.",
+      "en": "Take `scores.copy()` first; a slice or a direct assignment would corrupt the original. Then fill the gaps with `filled[np.isnan(filled)] = average`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\n\nscores = np.array([80.0, np.nan, 90.0, 70.0, np.nan, 60.0])\n\nmissing = np.isnan(scores).sum()\naverage = np.nanmean(scores)\n\nfilled = scores.copy()\nfilled[np.isnan(filled)] = average\n\nprint(missing)\nprint(average)\nprint(filled)\nprint(round(filled.mean(), 2))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\n\nscores = np.array([80.0, np.nan, 90.0, 70.0, np.nan, 60.0])\n\nmissing = np.isnan(scores).sum()\naverage = np.nanmean(scores)\n\nfilled = scores.copy()\nfilled[np.isnan(filled)] = average\n\nprint(missing)\nprint(average)\nprint(filled)\nprint(round(filled.mean(), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import numpy as np` satırı yok.",
+        "en": "There is no `import numpy as np` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\n75.0\n[80. 75. 90. 70. 75. 60.]\n75.0"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "full-pipeline",
+  "title": {
+    "tr": "Baştan sona boru hattı",
+    "en": "The pipeline end to end"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra önemli: metin → tip → tekrar → eksik. Şehri düzeltmeden gruplama doğru çıkmıyor.",
+      "en": "The order matters: text → type → duplicates → gaps. Grouping is wrong until the city is fixed."
+    },
+    {
+      "tr": "`pd.to_numeric(..., errors=\"coerce\")` çeviremediği `\"abc\"` değerini `NaN` yapıyor.",
+      "en": "`pd.to_numeric(..., errors=\"coerce\")` turns the `\"abc\"` it cannot convert into `NaN`."
+    },
+    {
+      "tr": "Tekrarı kimlikle at: `drop_duplicates(subset=[\"id\"])`. Eksikleri saymayı **atmadan önce** yap.",
+      "en": "Drop duplicates by id: `drop_duplicates(subset=[\"id\"])`. Count the gaps **before** dropping them."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndata = raw.copy()\ndata[\"city\"] = data[\"city\"].str.strip().str.title()\ndata[\"score\"] = pd.to_numeric(data[\"score\"], errors=\"coerce\")\n\nbaslangic = len(data)\ndata = data.drop_duplicates(subset=[\"id\"])\ntekrarsiz = len(data)\neksik = int(data[\"score\"].isna().sum())\ndata = data.dropna(subset=[\"score\"])\n\nprint(baslangic, tekrarsiz, eksik, len(data))\nprint(data.groupby(\"city\")[\"score\"].agg([\"count\", \"mean\"]))\n```",
+      "en": "The solution:\n\n```python\ndata = raw.copy()\ndata[\"city\"] = data[\"city\"].str.strip().str.title()\ndata[\"score\"] = pd.to_numeric(data[\"score\"], errors=\"coerce\")\n\nstart = len(data)\ndata = data.drop_duplicates(subset=[\"id\"])\nunique_rows = len(data)\nmissing = int(data[\"score\"].isna().sum())\ndata = data.dropna(subset=[\"score\"])\n\nprint(start, unique_rows, missing, len(data))\nprint(data.groupby(\"city\")[\"score\"].agg([\"count\", \"mean\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import pandas as pd` satırı yok.",
+        "en": "There is no `import pandas as pd` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "7 6 2 4\n        count  mean\ncity\nAnkara      2  86.5\nIzmir       2  71.0"
+    }
+  ]
+}

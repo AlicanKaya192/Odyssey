@@ -1,0 +1,48 @@
+{
+  "id": "helper-filters",
+  "title": {
+    "tr": "Hazır süzgeçler",
+    "en": "The built-in filters"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`isin` bir liste alıyor: `data[\"city\"].isin([\"Izmir\", \"Bursa\"])`.",
+      "en": "`isin` takes a list: `data[\"city\"].isin([\"Izmir\", \"Bursa\"])`."
+    },
+    {
+      "tr": "`between(21, 22)` iki ucu da içeri alıyor. Tersini almak için maskenin başına `~` koy.",
+      "en": "`between(21, 22)` includes both ends. To invert a mask, put `~` in front of it."
+    },
+    {
+      "tr": "`nlargest(2, \"score\")` en büyük iki satırı veriyor — sıralayıp `head(2)` almakla aynı sonuç, tek çağrıda.",
+      "en": "`nlargest(2, \"score\")` gives the two largest rows — the same as sorting and taking `head(2)`, in one call."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nprint(data[data[\"city\"].isin([\"Izmir\", \"Bursa\"])][[\"name\", \"city\"]])\nprint(data[data[\"age\"].between(21, 22)][\"name\"].tolist())\nprint(data[~data[\"city\"].isin([\"Ankara\"])][\"name\"].tolist())\nprint(data.nlargest(2, \"score\")[[\"name\", \"score\"]])\n```",
+      "en": "The solution:\n\n```python\nprint(data[data[\"city\"].isin([\"Izmir\", \"Bursa\"])][[\"name\", \"city\"]])\nprint(data[data[\"age\"].between(21, 22)][\"name\"].tolist())\nprint(data[~data[\"city\"].isin([\"Ankara\"])][\"name\"].tolist())\nprint(data.nlargest(2, \"score\")[[\"name\", \"score\"]])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import pandas as pd` satırı yok.",
+        "en": "There is no `import pandas as pd` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "    name   city\n1  Kerem  Izmir\n3  Deniz  Bursa\n5   Sila  Izmir\n['Ada', 'Mina', 'Efe']\n['Kerem', 'Deniz', 'Sila']\n   name  score\n2  Mina     91\n4   Efe     88"
+    }
+  ]
+}

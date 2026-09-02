@@ -1,0 +1,48 @@
+{
+  "id": "pivot-report",
+  "title": {
+    "tr": "Pivot tablo",
+    "en": "A pivot table"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`pivot_table(index=..., columns=..., values=..., aggfunc=...)` — satır bir anahtar, sütun öteki.",
+      "en": "`pivot_table(index=..., columns=..., values=..., aggfunc=...)` — one key as rows, the other as columns."
+    },
+    {
+      "tr": "Varsayılan hesap zaten ortalama, ama `aggfunc=\"mean\"` yazmak daha açık.",
+      "en": "The default calculation is already the mean, but writing `aggfunc=\"mean\"` is clearer."
+    },
+    {
+      "tr": "Boş hücreleri saymak için `table.isna().sum().sum()` kullan; `int()` ile sayıya çevir.",
+      "en": "Use `table.isna().sum().sum()` to count the empty cells; wrap it in `int()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ntable = data.pivot_table(\n    index=\"city\", columns=\"grade\", values=\"score\", aggfunc=\"mean\"\n)\n\nprint(table)\nprint(int(table.isna().sum().sum()))\nprint(table.loc[\"Ankara\", \"B\"])\n```",
+      "en": "The solution:\n\n```python\ntable = data.pivot_table(\n    index=\"city\", columns=\"grade\", values=\"score\", aggfunc=\"mean\"\n)\n\nprint(table)\nprint(int(table.isna().sum().sum()))\nprint(table.loc[\"Ankara\", \"B\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import pandas as pd` satırı yok.",
+        "en": "There is no `import pandas as pd` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "grade      A     B     C\ncity                    \nAnkara  86.5  88.0   NaN\nBursa    NaN  70.0  68.0\nIzmir   76.0  74.0  64.0\n2\n88.0"
+    }
+  ]
+}

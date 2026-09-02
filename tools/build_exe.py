@@ -58,15 +58,36 @@ DATA = [
 
 # QtWebEngine'in yardımcı süreci ve kaynakları elle toplanmalı; PyInstaller
 # bunları kendiliğinden bulamıyor.
-COLLECT = ["PySide6.QtWebEngineCore", "PySide6.QtWebEngineWidgets"]
+#
+# NumPy, pandas ve matplotlib de elle toplanıyor. **Uygulama onları hiç
+# import etmiyor** — kullanan taraf, alıştırma kodunu çalıştıran
+# denetleyici. PyInstaller import zincirini takip ettiği için onları
+# kendiliğinden bulmuyor; `--collect-all` ile açıkça isteniyor.
+#
+# Neden pakete gömülüyor: Veri Bilimi bölümlerinin alıştırmaları bu üç
+# kütüphaneyi istiyor. Alternatif, kullanıcıya ilk açılışta bir sanal ortam
+# kurdurmaktı; o da internet bağlantısı ve yüz megabaytlık bir indirme
+# demek. Uygulamanın sözü "indir ve çalıştır" olduğu için gömme seçildi.
+COLLECT = [
+    "PySide6.QtWebEngineCore",
+    "PySide6.QtWebEngineWidgets",
+    "numpy",
+    "pandas",
+    "matplotlib",
+]
 
 # Gereksiz yere paketi büyüten, kullanılmayan Qt modülleri.
+#
+# `unittest` burada değil: matplotlib pyparsing'i, pyparsing da kendi
+# `testing` modülünü paket açılışında import ediyor ve o da `unittest`
+# istiyor. Dışarıda bırakılınca paketlenmiş sürümde `import matplotlib`
+# `ModuleNotFoundError: No module named 'unittest'` veriyor — ölçüldü.
 EXCLUDE = [
     "PySide6.Qt3DCore", "PySide6.Qt3DRender", "PySide6.Qt3DAnimation",
     "PySide6.QtCharts", "PySide6.QtDataVisualization", "PySide6.QtQuick3D",
     "PySide6.QtMultimedia", "PySide6.QtBluetooth", "PySide6.QtNfc",
     "PySide6.QtSensors", "PySide6.QtSerialPort", "PySide6.QtTest",
-    "tkinter", "unittest", "pydoc_data",
+    "tkinter", "pydoc_data",
 ]
 
 

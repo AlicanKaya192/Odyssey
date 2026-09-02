@@ -38,10 +38,32 @@ def load_definitions(path) -> list[dict]:
         return json.load(handle).get("badges", [])
 
 
-def _completed_sections(catalog, store) -> tuple[int, int]:
-    """(tamamlanan bölüm, tamamlanan modül) sayısı."""
+# Veri Bilimi modülünün kimliği (`content/` altındaki klasör adı).
+DATA_CHAPTER = "01-veri-bilimi"
+
+# Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
+NUMPY_SECTION = (DATA_CHAPTER, "01-numpy")
+DATAFRAME_SECTION = (DATA_CHAPTER, "03-dataframe")
+CLEANING_SECTION = (DATA_CHAPTER, "06-veri-temizleme")
+CHART_SECTION = (DATA_CHAPTER, "07-gorsellestirme")
+
+# Patikanın tamamına bağlı rozet için: modüldeki bölüm sayısı.
+DATA_SECTION_COUNT = 10
+
+
+def _completed_sections(
+    catalog, store
+) -> tuple[int, int, dict[str, int], set[tuple[str, str]]]:
+    """(bölüm, modül, modül başına bölüm, biten bölümlerin kimlikleri).
+
+    Üçüncü değer modül kimliğinden sayıya: hangi modülde kaç bölüm bitmiş.
+    Dördüncüsü `(modül, bölüm)` çiftlerinden bir küme — tek bir bölüme
+    bağlı rozetler bunu kullanıyor.
+    """
     bolum = 0
     modul = 0
+    modul_basina: dict[str, int] = {}
+    bitenler: set[tuple[str, str]] = set()
     for chapter in catalog.chapters:
         hepsi = True
         for section in chapter.sections:
@@ -50,11 +72,13 @@ def _completed_sections(catalog, store) -> tuple[int, int]:
             )
             if state.status(section.requires_quiz, section.requires_exercises) == "completed":
                 bolum += 1
+                modul_basina[chapter.id] = modul_basina.get(chapter.id, 0) + 1
+                bitenler.add((chapter.id, section.id))
             else:
                 hepsi = False
         if hepsi and chapter.sections:
             modul += 1
-    return bolum, modul
+    return bolum, modul, modul_basina, bitenler
 
 
 def evaluate(catalog, store) -> dict[str, bool]:
@@ -66,7 +90,7 @@ def evaluate(catalog, store) -> dict[str, bool]:
     """
     alistirma = store.solved_exercise_count()
     seri = store.streak()
-    bolum, modul = _completed_sections(catalog, store)
+    bolum, modul, modul_basina, bitenler = _completed_sections(catalog, store)
     turler = store.activity_totals()
     en_yogun = store.busiest_day_count()
     en_iyi = store.best_quiz_score()
@@ -85,6 +109,16 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "streak-7": seri >= 7,
         "busy-day": en_yogun >= 5,
         "reader": turler.get("lesson", 0) >= 10,
+        # Patikaya bağlı rozetler modül kimliğine bakıyor. Kimlik
+        # `content/` altındaki klasör adı; modül yeniden adlandırılırsa
+        # burası da değişmeli.
+        "data-start": modul_basina.get(DATA_CHAPTER, 0) >= 1,
+        "two-chapters": len(modul_basina) >= 2,
+        "first-library": NUMPY_SECTION in bitenler,
+        "first-table": DATAFRAME_SECTION in bitenler,
+        "data-clean": CLEANING_SECTION in bitenler,
+        "first-chart": CHART_SECTION in bitenler,
+        "data-explorer": modul_basina.get(DATA_CHAPTER, 0) >= DATA_SECTION_COUNT,
     }
 
 

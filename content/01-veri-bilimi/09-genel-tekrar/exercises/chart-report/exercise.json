@@ -1,0 +1,48 @@
+{
+  "id": "chart-report",
+  "title": {
+    "tr": "Rapor grafiği",
+    "en": "The report chart"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Grup ortalaması bir seri veriyor: `index` şehirler, `values` sayılar.",
+      "en": "The group average gives a Series: `index` is the cities and `values` the numbers."
+    },
+    {
+      "tr": "Çubuk grafik ikisini ayrı istiyor: `ax.bar(ortalama.index, ortalama.values)`.",
+      "en": "A bar chart wants them separately: `ax.bar(averages.index, averages.values)`."
+    },
+    {
+      "tr": "Ekseni `ax.set_ylim(0, 100)` ile zorla, sonra `fig.savefig(...)` ve `plt.close(fig)`.",
+      "en": "Force the axis with `ax.set_ylim(0, 100)`, then `fig.savefig(...)` and `plt.close(fig)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nortalama = data.groupby(\"city\")[\"score\"].mean().round(1)\nprint(ortalama.to_dict())\n\nfig, ax = plt.subplots()\nax.bar(ortalama.index, ortalama.values)\nax.set_ylim(0, 100)\nax.set_title(\"Average score by city\")\nax.set_ylabel(\"Score\")\n\nfig.savefig(\"report.png\", dpi=150, bbox_inches=\"tight\")\nplt.close(fig)\n\nprint(len(ax.patches), int(ax.get_ylim()[1]), ax.get_title(), Path(\"report.png\").exists())\n```",
+      "en": "The solution:\n\n```python\naverages = data.groupby(\"city\")[\"score\"].mean().round(1)\nprint(averages.to_dict())\n\nfig, ax = plt.subplots()\nax.bar(averages.index, averages.values)\nax.set_ylim(0, 100)\nax.set_title(\"Average score by city\")\nax.set_ylabel(\"Score\")\n\nfig.savefig(\"report.png\", dpi=150, bbox_inches=\"tight\")\nplt.close(fig)\n\nprint(len(ax.patches), int(ax.get_ylim()[1]), ax.get_title(), Path(\"report.png\").exists())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import pandas as pd` satırı yok.",
+        "en": "There is no `import pandas as pd` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'Ankara': 80.0, 'Bursa': 45.0, 'Izmir': 76.5}\n3 100 Average score by city True"
+    }
+  ]
+}

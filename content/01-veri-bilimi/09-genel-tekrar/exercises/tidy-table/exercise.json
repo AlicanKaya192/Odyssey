@@ -1,0 +1,48 @@
+{
+  "id": "tidy-table",
+  "title": {
+    "tr": "Tabloyu toparla",
+    "en": "Tidy up the table"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ham veriyi bozmamak için `data = raw.copy()` ile başla.",
+      "en": "Start with `data = raw.copy()` so the raw data stays intact."
+    },
+    {
+      "tr": "Sütun adları: `data.columns = data.columns.str.strip().str.lower()`.",
+      "en": "Column names: `data.columns = data.columns.str.strip().str.lower()`."
+    },
+    {
+      "tr": "Şehirler için `.str.strip().str.title()`, notlar için `pd.to_numeric(...)`.",
+      "en": "For the cities `.str.strip().str.title()`, for the scores `pd.to_numeric(...)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndata = raw.copy()\ndata.columns = data.columns.str.strip().str.lower()\ndata[\"name\"] = data[\"name\"].str.strip()\ndata[\"city\"] = data[\"city\"].str.strip().str.title()\ndata[\"score\"] = pd.to_numeric(data[\"score\"], errors=\"coerce\")\n\nprint(data.columns.tolist())\nprint(data.dtypes.astype(str).tolist())\nprint(data[\"city\"].value_counts().to_dict())\nprint(round(data[\"score\"].mean(), 2))\n```",
+      "en": "The solution:\n\n```python\ndata = raw.copy()\ndata.columns = data.columns.str.strip().str.lower()\ndata[\"name\"] = data[\"name\"].str.strip()\ndata[\"city\"] = data[\"city\"].str.strip().str.title()\ndata[\"score\"] = pd.to_numeric(data[\"score\"], errors=\"coerce\")\n\nprint(data.columns.tolist())\nprint(data.dtypes.astype(str).tolist())\nprint(data[\"city\"].value_counts().to_dict())\nprint(round(data[\"score\"].mean(), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import pandas as pd` satırı yok.",
+        "en": "There is no `import pandas as pd` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['name', 'city', 'score']\n['str', 'str', 'int64']\n{'Ankara': 3, 'Izmir': 2, 'Bursa': 1}\n79.83"
+    }
+  ]
+}

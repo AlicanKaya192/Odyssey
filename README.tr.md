@@ -10,11 +10,11 @@ Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları va
 
 ## Durum
 
-Erken geliştirme aşaması (`0.5.0`). Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı — yerinde; müfredat ise henüz başlangıçta.
+Erken geliştirme aşaması (`0.6.0`). Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı — yerinde; müfredat ise henüz başlangıçta.
 
-**Bugünkü içerik:** Python Temelleri modülü **tamamlandı** — on beş bölüm, ilk programdan veritabanına kadar. 250 sınav sorusu, 65 kod alıştırması ve 34 ders notu; tamamı Türkçe ve İngilizce.
+**Bugünkü içerik:** iki modül **tamamlandı**. Python Temelleri on beş bölüm, ilk programdan veritabanına kadar; Veri Bilimi on bölüm, NumPy'dan keşifçi analize kadar. 560 sınav sorusu, 115 kod alıştırması ve 54 ders notu; tamamı Türkçe ve İngilizce.
 
-**Altı öğrenme patikası** tanımlı: Python açık; Veri Bilimi, Makine Öğrenmesi, SQL, API ve Docker içerikleri hazırlanana kadar kilitli görünüyor.
+**Altı öğrenme patikası** tanımlı: Python ve Veri Bilimi açık; Makine Öğrenmesi, SQL, API ve Docker içerikleri hazırlanana kadar kilitli görünüyor.
 
 **Çalışanlar:** öğrenme patikaları, bölüm içi başlık listesi ve okuma takibiyle konu anlatımı, ders notları, süreli sınavlar, otomatik kontrollü kod alıştırmaları, kademeli ipuçları, hata açıklamaları, sırayla açılan bölümler, kalıcı ilerleme kaydı, kendi fotoğrafınızı seçebildiğiniz profil, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema, kilidi ve sınav süresini kaldırma seçenekleri.
 

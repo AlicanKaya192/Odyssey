@@ -1,0 +1,784 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Bir pandas serisini NumPy dizisinden ayıran şey nedir?",
+        "en": "What distinguishes a pandas Series from a NumPy array?"
+      },
+      "options": {
+        "tr": [
+          "Değerlerin yanında bir **index** (etiket dizisi) taşıması",
+          "Farklı tipleri bir arada tutabilmesi",
+          "Daha hızlı olması",
+          "Yalnızca metin tutabilmesi"
+        ],
+        "en": [
+          "It carries an **index** (a set of labels) alongside the values",
+          "It can hold different types together",
+          "It is faster",
+          "It can only hold text"
+        ]
+      },
+      "explanation": {
+        "tr": "Seri = değerler + index. Değerler zaten bir NumPy dizisi; index onun üstüne eklenen şey.\n\nHız NumPy'dan geliyor, tek tip kuralı da. Serinin kattığı şey **etiket**: `scores[\"Mina\"]` yazabiliyorsun ve filtreledikten sonra kimin hangi değeri taşıdığını kaybetmiyorsun.",
+        "en": "A Series is values plus an index. The values are already a NumPy array; the index is what is added on top.\n\nThe speed comes from NumPy, and so does the single-type rule. What a Series adds is **labels**: you can write `scores[\"Mina\"]`, and after filtering you do not lose which value belongs to whom."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.Series([82, 74, 91])` yazarsan index ne olur?",
+        "en": "If you write `pd.Series([82, 74, 91])`, what is the index?"
+      },
+      "options": {
+        "tr": [
+          "0, 1, 2 — pandas sıfırdan numaralar",
+          "1, 2, 3",
+          "Index olmaz",
+          "Değerlerin kendisi index olur"
+        ],
+        "en": [
+          "0, 1, 2 — pandas numbers from zero",
+          "1, 2, 3",
+          "There is no index",
+          "The values themselves become the index"
+        ]
+      },
+      "explanation": {
+        "tr": "Index vermezsen pandas `RangeIndex` kuruyor: 0'dan başlayan sayılar.\n\nBu, listeye benzediği için tanıdık geliyor ama bir farkı var: sonradan filtreleme yaparsan bu numaralar **korunuyor**, yeniden numaralanmıyor. `[0, 2, 5]` gibi delikli bir index görmek normal.",
+        "en": "If you do not give an index, pandas builds a `RangeIndex`: numbers starting at zero.\n\nThis feels familiar because it looks like a list, but there is a difference: if you filter later, those numbers are **kept**, not renumbered. Seeing a gapped index like `[0, 2, 5]` is normal."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.Series({\"Ankara\": 5, \"Izmir\": 4})` ne üretir?",
+        "en": "What does `pd.Series({\"Ankara\": 5, \"Izmir\": 4})` produce?"
+      },
+      "options": {
+        "tr": [
+          "Index'i `Ankara`, `Izmir`; değerleri 5, 4 olan bir seri",
+          "İki elemanlı bir sözlük",
+          "Index'i 0, 1 olan bir seri",
+          "Hata verir, sözlükten seri kurulamaz"
+        ],
+        "en": [
+          "A Series with index `Ankara`, `Izmir` and values 5, 4",
+          "A dictionary with two items",
+          "A Series with index 0, 1",
+          "An error; you cannot build a Series from a dictionary"
+        ]
+      },
+      "explanation": {
+        "tr": "Sözlükten seri kurarken **anahtarlar index**, değerler de değerler oluyor. Doğal bir eşleşme: sözlük zaten \"etiketten değere\" bir yapı.\n\nTers yön de var: `s.to_dict()` seriyi sözlüğe çeviriyor.",
+        "en": "When you build a Series from a dictionary, the **keys become the index** and the values become the values. It is a natural match: a dictionary is already a label-to-value structure.\n\nThe reverse exists too: `s.to_dict()` turns a Series into a dictionary."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\na = pd.Series([1, 2, 3], index=[\"x\", \"y\", \"z\"])\nb = pd.Series([10, 20, 30], index=[\"z\", \"y\", \"x\"])\nprint((a + b).tolist())\n```",
+        "en": "What does this code print?\n\n```python\na = pd.Series([1, 2, 3], index=[\"x\", \"y\", \"z\"])\nb = pd.Series([10, 20, 30], index=[\"z\", \"y\", \"x\"])\nprint((a + b).tolist())\n```"
+      },
+      "options": {
+        "tr": [
+          "`[31, 22, 13]` — etiketler eşleştirilerek toplanıyor",
+          "`[11, 22, 33]` — sırayla toplanıyor",
+          "Hata verir, index'ler farklı sırada",
+          "`[nan, nan, nan]`"
+        ],
+        "en": [
+          "`[31, 22, 13]` — they are added by matching labels",
+          "`[11, 22, 33]` — they are added in order",
+          "An error; the indexes are in a different order",
+          "`[nan, nan, nan]`"
+        ]
+      },
+      "explanation": {
+        "tr": "Buna **hizalama** deniyor: pandas sıraya değil etikete bakıyor. `x` ile `x` (1+30), `y` ile `y` (2+20), `z` ile `z` (3+10).\n\nNumPy olsaydı sırayla toplar ve `[11, 22, 33]` verirdi — **sessizce yanlış**. İki farklı kaynaktan gelen veriyi birleştirirken hizalama seni tam olarak bundan koruyor.",
+        "en": "This is called **alignment**: pandas matches on labels, not order. `x` with `x` (1+30), `y` with `y` (2+20), `z` with `z` (3+10).\n\nNumPy would have added them in order and given `[11, 22, 33]` — **silently wrong**. When you combine data from two sources, alignment protects you from exactly this."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Bir etiket yalnızca serilerden birinde varsa toplama sonucunda o etiket ne olur?",
+        "en": "If a label exists in only one of the two Series, what happens to it in the sum?"
+      },
+      "options": {
+        "tr": [
+          "`NaN` olur — pandas uydurmak yerine \"bilinmiyor\" diyor",
+          "Diğer seride sıfır kabul edilir",
+          "Sonuçtan atılır",
+          "Hata verir"
+        ],
+        "en": [
+          "It becomes `NaN` — rather than making something up, pandas says \"unknown\"",
+          "It is treated as zero in the other Series",
+          "It is dropped from the result",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıfır saymak yanlış olurdu: değer sıfır değil, **bilinmiyor**. pandas ikisini ayırıyor.\n\nSıfır saymasını istiyorsan açıkça söylüyorsun:\n\n```python\na.add(b, fill_value=0)\n```",
+        "en": "Treating it as zero would be wrong: the value is not zero, it is **unknown**. pandas keeps the two apart.\n\nIf you do want it treated as zero you say so explicitly:\n\n```python\na.add(b, fill_value=0)\n```"
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.Series([80.0, None, 90.0]).mean()` ne döndürür?",
+        "en": "What does `pd.Series([80.0, None, 90.0]).mean()` return?"
+      },
+      "options": {
+        "tr": [
+          "`85.0` — pandas eksik değeri atlıyor",
+          "`nan` — tek bir eksik değer sonucu bozuyor",
+          "`56.67` — eksik değer sıfır sayılıyor",
+          "Hata verir"
+        ],
+        "en": [
+          "`85.0` — pandas skips the missing value",
+          "`nan` — a single missing value ruins the result",
+          "`56.67` — the missing value counts as zero",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "**Burası NumPy'dan farklı.** `np.array([80.0, np.nan, 90.0]).mean()` sonucu `nan` veriyordu; pandas eksikleri kendiliğinden atlıyor.\n\nKolaylık gibi ama riski var: yüz kaydın seksen tanesi boşsa da ortalama gelir ve sen fark etmezsin. Bu yüzden `count()` ile `size` karşılaştırılıyor.\n\nEksiklerin sayılmasını istiyorsan: `s.mean(skipna=False)`.",
+        "en": "**This is where pandas differs from NumPy.** `np.array([80.0, np.nan, 90.0]).mean()` gave `nan`; pandas skips the missing ones by itself.\n\nIt looks like a convenience but carries a risk: if eighty of a hundred records are empty an average still comes back and you may not notice. That is why `count()` is compared with `size`.\n\nIf you want the missing ones counted: `s.mean(skipna=False)`."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`s.count()` ile `s.size` arasındaki fark nedir?",
+        "en": "What is the difference between `s.count()` and `s.size`?"
+      },
+      "options": {
+        "tr": [
+          "`count()` **dolu** hücreleri, `size` hepsini sayar",
+          "`count()` farklı değerleri, `size` toplamı sayar",
+          "İkisi de aynı sonucu verir",
+          "`size` bir metot, `count()` bir özellik"
+        ],
+        "en": [
+          "`count()` counts the **filled** cells, `size` counts all of them",
+          "`count()` counts distinct values and `size` the total",
+          "They give the same result",
+          "`size` is a method and `count()` an attribute"
+        ]
+      },
+      "explanation": {
+        "tr": "İkisi farklıysa **eksik değer var** demektir. Bu, bir seriye bakarken ilk yapılacak kontrol.\n\nDikkat: `size` bir özellik (parantezsiz), `count()` bir metot (parantezli). Karıştırmak kolay.\n\nFarklı değer sayısını isteseydin `nunique()` kullanacaktın.",
+        "en": "If the two differ, **there are missing values**. This is the first check to make when you look at a Series.\n\nNote: `size` is an attribute (no parentheses) and `count()` is a method (with parentheses). Easy to mix up.\n\nFor the number of distinct values you would use `nunique()`."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nvalues = pd.Series([1.0, None, 3.0])\nvalues.fillna(0)\nprint(values.isna().sum())\n```",
+        "en": "What does this code print?\n\n```python\nvalues = pd.Series([1.0, None, 3.0])\nvalues.fillna(0)\nprint(values.isna().sum())\n```"
+      },
+      "options": {
+        "tr": [
+          "`1` — `fillna` yeni bir seri döndürdü, özgün seri değişmedi",
+          "`0` — boşluk dolduruldu",
+          "`3`",
+          "Hata verir"
+        ],
+        "en": [
+          "`1` — `fillna` returned a new Series and the original did not change",
+          "`0` — the gap was filled",
+          "`3`",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "`fillna` sonucu bir yere koymadın, o da kayboldu. pandas'ta neredeyse **her metot** yeni bir nesne döndürüyor: `dropna`, `sort_values`, `astype`, `round`, `replace`.\n\nDoğrusu:\n\n```python\nvalues = values.fillna(0)\n```\n\nBu, pandas'ta en sık yapılan hatalardan biri — kod hata vermiyor, sadece hiçbir şey olmuyor.",
+        "en": "You did not put the result of `fillna` anywhere, so it was lost. Almost **every method** in pandas returns a new object: `dropna`, `sort_values`, `astype`, `round`, `replace`.\n\nThe correct form:\n\n```python\nvalues = values.fillna(0)\n```\n\nThis is one of the most common pandas mistakes — the code does not fail, nothing simply happens."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`s = pd.Series([10, 20, 30], index=[2, 0, 1])` için `s[0]` ne döndürür?",
+        "en": "For `s = pd.Series([10, 20, 30], index=[2, 0, 1])`, what does `s[0]` return?"
+      },
+      "options": {
+        "tr": [
+          "`20` — `0` **etiketini** taşıyan eleman",
+          "`10` — ilk eleman",
+          "`30`",
+          "Hata verir"
+        ],
+        "en": [
+          "`20` — the element carrying the **label** `0`",
+          "`10` — the first element",
+          "`30`",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Index sayılardan oluştuğunda köşeli parantez belirsiz: etiket mi, sıra mı? pandas **etiket** olarak yorumluyor.\n\nBu yüzden iki açık yol var:\n\n```python\ns.loc[0]    # etikete gore  -> 20\ns.iloc[0]   # siraya gore   -> 10\n```\n\n**Kural:** sıra istiyorsan her zaman `iloc` yaz, index'in ne olduğunu düşünmek zorunda kalma.",
+        "en": "When the index is made of numbers, square brackets are ambiguous: label or position? pandas reads it as a **label**.\n\nThat is why there are two explicit ways:\n\n```python\ns.loc[0]    # by label    -> 20\ns.iloc[0]   # by position -> 10\n```\n\n**The rule:** if you want a position, always write `iloc` and never have to think about what the index is."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.Series([1, None, 3]).dtype` nedir?",
+        "en": "What is `pd.Series([1, None, 3]).dtype`?"
+      },
+      "options": {
+        "tr": [
+          "`float64` — tamsayı tipi `NaN` tutamıyor",
+          "`int64` — sayılar tamsayı",
+          "`object` — karışık tip",
+          "`bool`"
+        ],
+        "en": [
+          "`float64` — the integer type cannot hold `NaN`",
+          "`int64` — the numbers are integers",
+          "`object` — a mixed type",
+          "`bool`"
+        ]
+      },
+      "explanation": {
+        "tr": "`NaN` bir ondalık değer; tamsayı dizisinde yeri yok. pandas seriyi ondalığa çeviriyor ve `1` yerine `1.0` görüyorsun.\n\nGeri çevirmek de eksik varken çalışmıyor:\n\n```python\npd.Series([1.0, None, 3.0]).astype(int)\n# IntCastingNaNError\n```\n\nÖnce `dropna()` ya da `fillna(...)`, sonra `astype(int)`.",
+        "en": "`NaN` is a decimal value; it has no place in an integer array. pandas converts the Series to decimal and you see `1.0` where you expected `1`.\n\nConverting back does not work while a gap is there:\n\n```python\npd.Series([1.0, None, 3.0]).astype(int)\n# IntCastingNaNError\n```\n\nFirst `dropna()` or `fillna(...)`, then `astype(int)`."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`cities.value_counts()` ne döndürür?",
+        "en": "What does `cities.value_counts()` return?"
+      },
+      "options": {
+        "tr": [
+          "Her değerden kaç tane olduğunu, çoktan aza sıralı bir seri",
+          "Tekrarsız değerlerin listesi",
+          "Kaç farklı değer olduğunu gösteren bir sayı",
+          "Değerlerin toplamını"
+        ],
+        "en": [
+          "A Series of how many of each value there are, most first",
+          "A list of the distinct values",
+          "A number showing how many distinct values there are",
+          "The total of the values"
+        ]
+      },
+      "explanation": {
+        "tr": "Sonuç bir **seri**: index'i değerler, değerleri sayılar. Çoktan aza sıralı geliyor.\n\nBir seri olduğu için üzerinde işlem yapabiliyorsun: `counts.idxmax()` en çok tekrar edeni, `counts.head(3)` ilk üçünü veriyor.\n\nKaç farklı değer olduğunu isteseydin `nunique()`, listesini isteseydin `unique()` kullanacaktın.",
+        "en": "The result is a **Series**: the values become the index and the counts the values. It comes sorted most first.\n\nBecause it is a Series you can work on it: `counts.idxmax()` gives the most frequent, `counts.head(3)` the top three.\n\nFor how many distinct values there are you would use `nunique()`, and for the list of them `unique()`."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "NumPy'ın `argmax`'i ile pandas'ın `idxmax`'i arasındaki fark nedir?",
+        "en": "What is the difference between NumPy's `argmax` and pandas's `idxmax`?"
+      },
+      "options": {
+        "tr": [
+          "`argmax` sırayı, `idxmax` **etiketi** verir",
+          "`argmax` değeri, `idxmax` sırayı verir",
+          "İkisi de aynı şeyi yapar",
+          "`idxmax` yalnızca metin serilerinde çalışır"
+        ],
+        "en": [
+          "`argmax` gives the position, `idxmax` gives the **label**",
+          "`argmax` gives the value and `idxmax` the position",
+          "They do the same thing",
+          "`idxmax` only works on text Series"
+        ]
+      },
+      "explanation": {
+        "tr": "NumPy'da etiket olmadığı için `argmax` yalnızca sıra verebiliyordu ve adları başka bir dizide tutup `names[scores.argmax()]` yazman gerekiyordu.\n\npandas'ta index zaten orada: `scores.idxmax()` doğrudan `\"Mina\"` diyor. Serinin index taşımasının işe yaradığı en net örneklerden biri.",
+        "en": "In NumPy there are no labels, so `argmax` could only give a position and you had to keep the names in another array and write `names[scores.argmax()]`.\n\nIn pandas the index is already there: `scores.idxmax()` says `\"Mina\"` directly. One of the clearest examples of the index earning its keep."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Bir seride koşullu seçim yaptığında (`scores[scores > 80]`) sonuçta ne olur?",
+        "en": "When you select by condition on a Series (`scores[scores > 80]`), what do you get?"
+      },
+      "options": {
+        "tr": [
+          "Koşula uyan değerler, **etiketleriyle birlikte** bir seri",
+          "Yalnızca değerlerden oluşan bir NumPy dizisi",
+          "`True`/`False` dizisi",
+          "Uyan elemanların indeksleri"
+        ],
+        "en": [
+          "A Series of the matching values **with their labels**",
+          "A NumPy array of just the values",
+          "An array of `True`/`False`",
+          "The indices of the matching elements"
+        ]
+      },
+      "explanation": {
+        "tr": "Sonuç yine bir seri; etiketler korunuyor. Filtreledikten sonra kimin hangi değeri taşıdığını kaybetmiyorsun.\n\nNumPy'da aynı işlem yalnızca sayıları veriyordu ve hangi satırdan geldiklerini takip etmek sana kalıyordu.\n\n`scores > 80` ifadesinin **kendisi** `True`/`False` serisi; köşeli parantezin içine konduğunda seçim yapıyor.",
+        "en": "The result is still a Series and the labels are kept. After filtering you do not lose which value belongs to whom.\n\nIn NumPy the same operation gave you only the numbers and tracking which row they came from was up to you.\n\nThe expression `scores > 80` **itself** is a Series of `True`/`False`; putting it inside the square brackets performs the selection."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`cities.str.lower()` yerine `cities.lower()` yazarsan ne olur?",
+        "en": "What happens if you write `cities.lower()` instead of `cities.str.lower()`?"
+      },
+      "options": {
+        "tr": [
+          "`AttributeError` — seri bir metin değil, metinlerden oluşan bir kap",
+          "Aynı sonucu verir",
+          "Yalnızca ilk elemanı küçültür",
+          "Seriyi yerinde değiştirir"
+        ],
+        "en": [
+          "An `AttributeError` — a Series is not a string but a container of strings",
+          "It gives the same result",
+          "It lowercases only the first element",
+          "It modifies the Series in place"
+        ]
+      },
+      "explanation": {
+        "tr": "`cities` bir seri; `lower` diye bir metodu yok. Metin metotları `.str` üzerinden geliyor:\n\n```python\ncities.str.lower()\ncities.str.strip()\ncities.str.contains(\"An\")\n```\n\nAynı yapı tarihler için `.dt`, kategoriler için `.cat` ile var. Bunlara \"erişimci\" (accessor) deniyor.",
+        "en": "`cities` is a Series and has no `lower` method. Text methods come through `.str`:\n\n```python\ncities.str.lower()\ncities.str.strip()\ncities.str.contains(\"An\")\n```\n\nThe same structure exists as `.dt` for dates and `.cat` for categories. These are called accessors."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`s.describe()` çıktısındaki `50%` satırı neyi gösterir?",
+        "en": "In the output of `s.describe()`, what does the `50%` row show?"
+      },
+      "options": {
+        "tr": [
+          "Medyanı — sıralandığında tam ortadaki değeri",
+          "Değerlerin yarısını",
+          "Ortalamanın yarısını",
+          "Eksik değerlerin oranını"
+        ],
+        "en": [
+          "The median — the middle value once sorted",
+          "Half of the values",
+          "Half of the mean",
+          "The proportion of missing values"
+        ]
+      },
+      "explanation": {
+        "tr": "`25%`, `50%` ve `75%` çeyrekler; ortadaki medyan.\n\n`describe()` ile ortalama ve medyanı yan yana görüyorsun. **Birbirinden uzaklarsa** veride uç değer var demektir — bir sütuna ilk bakışta anlaşılması gereken şey bu.\n\n`count` satırı da bedava bir bilgi veriyor: dolu kayıt sayısı. Toplam kayıttan azsa eksik değer var.",
+        "en": "`25%`, `50%` and `75%` are the quartiles; the middle one is the median.\n\n`describe()` puts the mean and the median side by side. If they are **far apart**, there are extreme values in the data — the thing to notice at first glance at a column.\n\nThe `count` row gives you something for free too: the number of filled records. If it is lower than the total, there are missing values."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`Series.unique()` ile `np.unique()` arasındaki fark nedir?",
+        "en": "What is the difference between `Series.unique()` and `np.unique()`?"
+      },
+      "options": {
+        "tr": [
+          "`np.unique` sıralar, `Series.unique()` görülme sırasını korur",
+          "`Series.unique()` sıralar, `np.unique` korumaz",
+          "İkisi de sıralar",
+          "`Series.unique()` yalnızca sayılarda çalışır"
+        ],
+        "en": [
+          "`np.unique` sorts, `Series.unique()` keeps the order of appearance",
+          "`Series.unique()` sorts and `np.unique` does not",
+          "Both of them sort",
+          "`Series.unique()` only works on numbers"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı adı taşıyan iki fonksiyon, iki farklı davranış. `[\"Izmir\", \"Ankara\", \"Izmir\"]` için `np.unique` `['Ankara', 'Izmir']`, `Series.unique()` ise `['Izmir', 'Ankara']` veriyor.\n\nSıralı istiyorsan açıkça söylüyorsun: `sorted(s.unique())`.\n\nİki kütüphaneyi birlikte kullanırken bu tür küçük farklar sessiz hataya dönüşebiliyor.",
+        "en": "Two functions with the same name and two different behaviours. For `[\"Izmir\", \"Ankara\", \"Izmir\"]`, `np.unique` gives `['Ankara', 'Izmir']` while `Series.unique()` gives `['Izmir', 'Ankara']`.\n\nIf you want them sorted you say so: `sorted(s.unique())`.\n\nWhen you use the two libraries together, small differences like this can turn into silent bugs."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Boş bir serinin (`pd.Series([], dtype=float)`) ortalaması nedir?",
+        "en": "What is the mean of an empty Series (`pd.Series([], dtype=float)`)?"
+      },
+      "options": {
+        "tr": [
+          "`nan` — hata vermiyor",
+          "`0.0`",
+          "`ZeroDivisionError`",
+          "`None`"
+        ],
+        "en": [
+          "`nan` — it does not raise",
+          "`0.0`",
+          "A `ZeroDivisionError`",
+          "`None`"
+        ]
+      },
+      "explanation": {
+        "tr": "Düz Python'da `sum([]) / len([])` sıfıra bölme hatası veriyordu. pandas hata vermiyor, `nan` veriyor.\n\nBu, **filtreden sonra** sık karşına çıkıyor: koşula uyan hiçbir satır kalmadıysa ortalama `nan` oluyor. Fark etmezsen raporuna `nan` yazıyorsun.\n\nKontrol etmenin yolu filtre sonrası `size` ya da `empty` bakmak.",
+        "en": "In plain Python `sum([]) / len([])` raised a division-by-zero error. pandas does not raise, it gives `nan`.\n\nThis comes up **after filtering**: if no rows matched, the average becomes `nan`. If you do not notice, you write `nan` into your report.\n\nThe way to check is to look at `size` or `empty` after filtering."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "`s.apply(lambda x: x * 2)` ile `s * 2` arasındaki fark nedir?",
+        "en": "What is the difference between `s.apply(lambda x: x * 2)` and `s * 2`?"
+      },
+      "options": {
+        "tr": [
+          "Sonuç aynı, ama `apply` çok daha yavaş — arkada Python döngüsü dönüyor",
+          "`apply` daha hızlı",
+          "`s * 2` yalnızca tamsayılarda çalışır",
+          "`apply` seriyi yerinde değiştirir"
+        ],
+        "en": [
+          "The result is the same, but `apply` is much slower — there is a Python loop behind it",
+          "`apply` is faster",
+          "`s * 2` only works on integers",
+          "`apply` modifies the Series in place"
+        ]
+      },
+      "explanation": {
+        "tr": "`apply` her eleman için Python fonksiyonunu çağırıyor ve vektörel işlemin bütün hız kazancını geri veriyor.\n\n**Kural:** vektörel bir karşılığı varsa onu kullan. `apply` gerçekten karmaşık, satır satır düşünmeyi gerektiren işler için — örneğin bir metni ayrıştırıp içinden bir şey çıkarmak.",
+        "en": "`apply` calls a Python function for every element and gives back all the speed a vectorised operation earned.\n\n**The rule:** if there is a vectorised equivalent, use it. `apply` is for work that is genuinely complex and has to be thought about row by row — parsing a string and pulling something out of it, for example."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ns = pd.Series([\"a\", \"b\", None, \"a\"])\nprint(s.value_counts().sum())\nprint(s.size)\n```",
+        "en": "What does this code print?\n\n```python\ns = pd.Series([\"a\", \"b\", None, \"a\"])\nprint(s.value_counts().sum())\nprint(s.size)\n```"
+      },
+      "options": {
+        "tr": [
+          "`3` ve `4` — `value_counts` eksikleri saymıyor",
+          "`4` ve `4`",
+          "`3` ve `3`",
+          "`2` ve `4`"
+        ],
+        "en": [
+          "`3` and `4` — `value_counts` does not count the missing ones",
+          "`4` and `4`",
+          "`3` and `3`",
+          "`2` and `4`"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan olarak `NaN` sayılmıyor: `a` iki, `b` bir, toplam üç. Ama seride dört hücre var.\n\nSaymasını istiyorsan söylüyorsun:\n\n```python\ns.value_counts(dropna=False)\n```\n\n\"Bu sütunda toplam kaç kayıt var\" diye `value_counts().sum()` yazmak, eksikleri sessizce kaçırmak demek.",
+        "en": "By default `NaN` is not counted: two `a`, one `b`, three in total. But the Series has four cells.\n\nIf you want it counted you say so:\n\n```python\ns.value_counts(dropna=False)\n```\n\nWriting `value_counts().sum()` to answer \"how many records are in this column\" means silently missing the empty ones."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Bir seriyi filtreledin, sonra başka bir seriyle topladın ve beklemediğin `NaN`'lar çıktı. En olası sebep nedir?",
+        "en": "You filtered a Series, added it to another one, and got unexpected `NaN`s. What is the most likely reason?"
+      },
+      "options": {
+        "tr": [
+          "Filtreleme index'i koruyor; iki serinin etiketleri artık eşleşmiyor",
+          "Filtreleme sonuçları bozuyor",
+          "Toplama işlemi serilerde çalışmıyor",
+          "Serilerin uzunlukları farklı"
+        ],
+        "en": [
+          "Filtering keeps the index; the labels of the two Series no longer match",
+          "Filtering corrupts the results",
+          "Addition does not work on Series",
+          "The two Series have different lengths"
+        ]
+      },
+      "explanation": {
+        "tr": "Filtreleme index'i **yeniden numaralamıyor**: `[0, 2, 5]` gibi delikli bir index kalıyor. Diğer seri `[0, 1, 2]` ile geliyorsa yalnızca ortak etiketler eşleşiyor, gerisi `NaN`.\n\nUzunlukların eşit olması yetmiyor; önemli olan **etiketler**.\n\nİki çözüm: `reset_index(drop=True)` ile numaraları sıfırla, ya da `.values` ile etiketleri devre dışı bırak.",
+        "en": "Filtering does **not renumber** the index: you are left with a gapped index like `[0, 2, 5]`. If the other Series comes with `[0, 1, 2]`, only the shared labels match and the rest become `NaN`.\n\nEqual lengths are not enough; what matters is the **labels**.\n\nTwo fixes: `reset_index(drop=True)` to renumber, or `.values` to take the labels out of the picture."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`s` index'i `a, b, c, d` olan bir seri. `s.loc[\"a\":\"c\"]` kaç eleman döndürür?",
+        "en": "`s` is a Series with index `a, b, c, d`. How many elements does `s.loc[\"a\":\"c\"]` return?"
+      },
+      "options": {
+        "tr": [
+          "3 — `loc` dilimlerinde **bitiş de dâhil**",
+          "2 — bitiş hariç, Python dilimleri gibi",
+          "4 — hepsi",
+          "Hata verir, metinle dilim alınamaz"
+        ],
+        "en": [
+          "3 — in `loc` slices the **end is included**",
+          "2 — the end is excluded, like Python slices",
+          "4 — all of them",
+          "An error; you cannot slice with strings"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu, pandas'ın Python'dan **ayrıldığı** noktalardan biri. `s.iloc[0:3]` üç eleman veriyor (bitiş hariç, Python kuralı) ama `s.loc[\"a\":\"c\"]` de üç eleman veriyor — çünkü `loc` bitişi **içeri alıyor**.\n\nSebebi mantıklı: etiketle çalışırken \"c'den bir öncekine kadar\" demek anlamsız; etiketlerin bir sırası olmayabiliyor.\n\n**Sonuç:** `loc` ile `iloc` aynı sayıda eleman verirse tesadüf, kural değil.",
+        "en": "This is one of the places pandas **departs** from Python. `s.iloc[0:3]` gives three elements (end excluded, the Python rule) and `s.loc[\"a\":\"c\"]` also gives three — because `loc` **includes** the end.\n\nThe reason is sensible: with labels, \"up to the one before c\" is meaningless; labels need not have an order at all.\n\n**So:** if `loc` and `iloc` give the same number of elements, that is a coincidence, not a rule."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`s.sort_values()` çağırdığında index'e ne olur?",
+        "en": "What happens to the index when you call `s.sort_values()`?"
+      },
+      "options": {
+        "tr": [
+          "Değerlerle birlikte taşınır — etiketler değerlerine bağlı kalır",
+          "0'dan yeniden numaralanır",
+          "Silinir",
+          "Alfabetik sıralanır"
+        ],
+        "en": [
+          "It travels with the values — the labels stay attached to their values",
+          "It is renumbered from zero",
+          "It is removed",
+          "It is sorted alphabetically"
+        ]
+      },
+      "explanation": {
+        "tr": "`pd.Series([3, 1, 2]).sort_values()` sonucunda index `[1, 2, 0]` oluyor: değer 1 baştaki index 1'iyle, değer 2 index 2'siyle geliyor.\n\nBu iyi bir şey — sıraladıktan sonra hangi değerin kime ait olduğunu kaybetmiyorsun. Ama sonra başka bir seriyle işlem yaparsan **hizalama** devreye giriyor ve delikli index sürpriz `NaN`'lar üretebiliyor.\n\nNumaraları sıfırlamak istiyorsan: `.reset_index(drop=True)`.",
+        "en": "After `pd.Series([3, 1, 2]).sort_values()` the index is `[1, 2, 0]`: the value 1 comes with its original index 1, the value 2 with its index 2.\n\nThis is a good thing — after sorting you do not lose which value belongs to whom. But if you then combine it with another Series, **alignment** kicks in and a gapped index can produce surprise `NaN`s.\n\nTo renumber: `.reset_index(drop=True)`."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "`s.isin([\"Ankara\", \"Izmir\"])` ne döndürür?",
+        "en": "What does `s.isin([\"Ankara\", \"Izmir\"])` return?"
+      },
+      "options": {
+        "tr": [
+          "Her eleman için `True`/`False` taşıyan bir seri",
+          "Listedeki değerleri içeren bir seri",
+          "Kaç tanesinin listede olduğunu",
+          "`True` ya da `False`"
+        ],
+        "en": [
+          "A Series of `True`/`False`, one per element",
+          "A Series of the values that are in the list",
+          "How many of them are in the list",
+          "`True` or `False`"
+        ]
+      },
+      "explanation": {
+        "tr": "`isin` bir **maske** üretiyor, seçim yapmıyor. Seçmek için köşeli parantezin içine koyman gerekiyor:\n\n```python\nselected = s[s.isin([\"Ankara\", \"Izmir\"])]\n```\n\nBirçok değeri tek tek `|` ile bağlamanın kısa yolu bu:\n`(s == \"Ankara\") | (s == \"Izmir\")` yerine tek satır.\n\nTersini almak için `~` kullanılıyor: `s[~s.isin([...])]`.",
+        "en": "`isin` produces a **mask**, it does not select. To select you put it inside the square brackets:\n\n```python\nselected = s[s.isin([\"Ankara\", \"Izmir\"])]\n```\n\nIt is the short way of chaining many values with `|`: one line instead of `(s == \"Ankara\") | (s == \"Izmir\")`.\n\nFor the opposite you use `~`: `s[~s.isin([...])]`."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "`s.map({\"a\": 1, \"b\": 2})` ne yapar?",
+        "en": "What does `s.map({\"a\": 1, \"b\": 2})` do?"
+      },
+      "options": {
+        "tr": [
+          "Her değeri sözlükteki karşılığıyla değiştirir",
+          "Sözlüğü seriye ekler",
+          "Sözlükteki anahtarları index yapar",
+          "Yalnızca sözlükte olan satırları tutar"
+        ],
+        "en": [
+          "Replaces every value with its counterpart in the dictionary",
+          "Adds the dictionary to the Series",
+          "Makes the dictionary keys the index",
+          "Keeps only the rows that are in the dictionary"
+        ]
+      },
+      "explanation": {
+        "tr": "Kategorik bir sütunu sayıya çevirmenin en kısa yolu bu: `\"düşük\"/\"orta\"/\"yüksek\"` → `1/2/3`.\n\n**Dikkat:** sözlükte olmayan bir değer `NaN` oluyor, hata vermiyor. Dönüşümden sonra `isna().sum()` ile kontrol etmek iyi bir alışkanlık.\n\nDeğiştirmek yerine sadece bazılarını düzeltmek istiyorsan `replace` daha uygun: o, eşleşmeyenleri olduğu gibi bırakıyor.",
+        "en": "This is the shortest way to turn a categorical column into numbers: `\"low\"/\"medium\"/\"high\"` into `1/2/3`.\n\n**Careful:** a value that is not in the dictionary becomes `NaN` rather than raising. Checking `isna().sum()` after the conversion is a good habit.\n\nIf you want to fix only some values rather than replace all of them, `replace` fits better: it leaves the unmatched ones alone."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.Series([1.9, 2.1]).astype(int)` ne döndürür?",
+        "en": "What does `pd.Series([1.9, 2.1]).astype(int)` return?"
+      },
+      "options": {
+        "tr": [
+          "`[1, 2]` — ondalık kısım atılıyor, yuvarlanmıyor",
+          "`[2, 2]` — en yakına yuvarlanıyor",
+          "`[2, 3]` — yukarı yuvarlanıyor",
+          "Hata verir"
+        ],
+        "en": [
+          "`[1, 2]` — the decimal part is dropped, not rounded",
+          "`[2, 2]` — rounded to the nearest",
+          "`[2, 3]` — rounded up",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "`astype(int)` **kırpıyor**, yuvarlamıyor: 1.9 → 1. NumPy'daki davranışın aynısı.\n\nYuvarlamak istiyorsan önce söylüyorsun: `s.round().astype(int)`.\n\nBir de eksik değer varsa hiç çalışmıyor:\n\n```python\npd.Series([1.0, None]).astype(int)\n# IntCastingNaNError\n```\n\nÖnce `dropna()` ya da `fillna(...)` gerekiyor.",
+        "en": "`astype(int)` **truncates**, it does not round: 1.9 becomes 1. The same behaviour as in NumPy.\n\nIf you want rounding you say so first: `s.round().astype(int)`.\n\nAnd it does not work at all when there is a missing value:\n\n```python\npd.Series([1.0, None]).astype(int)\n# IntCastingNaNError\n```\n\nYou need `dropna()` or `fillna(...)` first."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "`s.value_counts(normalize=True)` ne verir?",
+        "en": "What does `s.value_counts(normalize=True)` give you?"
+      },
+      "options": {
+        "tr": [
+          "Her değerin **oranını** (toplamı 1)",
+          "Sayıları 0 ile 100 arasına ölçekler",
+          "Değerleri normalleştirir",
+          "Sayıları alfabetik sıralar"
+        ],
+        "en": [
+          "The **proportion** of each value (adding up to 1)",
+          "Scales the counts between 0 and 100",
+          "Normalises the values",
+          "Sorts the counts alphabetically"
+        ]
+      },
+      "explanation": {
+        "tr": "`[\"a\", \"a\", \"b\"]` için `[0.667, 0.333]` veriyor.\n\nOran, ham sayıdan daha çok işe yarıyor: \"Ankara 3\" tek başına bir şey söylemiyor, \"Ankara %50\" söylüyor. Farklı boyutlardaki veri kümelerini karşılaştırırken de gerekli.\n\nYüzde olarak isteyeceksen 100 ile çarpıyorsun: `s.value_counts(normalize=True) * 100`.",
+        "en": "For `[\"a\", \"a\", \"b\"]` it gives `[0.667, 0.333]`.\n\nA proportion is more useful than a raw count: \"Ankara 3\" says nothing on its own, \"Ankara 50%\" does. It is also what you need when comparing datasets of different sizes.\n\nFor percentages you multiply by 100: `s.value_counts(normalize=True) * 100`."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.Series(5, index=[\"a\", \"b\", \"c\"])` ne üretir?",
+        "en": "What does `pd.Series(5, index=[\"a\", \"b\", \"c\"])` produce?"
+      },
+      "options": {
+        "tr": [
+          "Üç elemanlı, hepsi 5 olan bir seri",
+          "Tek elemanlı bir seri",
+          "Beş elemanlı bir seri",
+          "Hata verir, değer listesi gerekiyor"
+        ],
+        "en": [
+          "A Series of three elements, all of them 5",
+          "A Series with a single element",
+          "A Series of five elements",
+          "An error; a list of values is required"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek bir değer verildiğinde pandas onu bütün index'e **yayıyor**. NumPy'daki yayılmanın (broadcasting) aynısı.\n\nİşe yaradığı yer: bir tabloya sabit değerli yeni bir sütun eklemek, ya da bir hesabın başlangıç değerlerini kurmak.\n\n`np.full(3, 5)` ile aynı fikir; farkı index taşıması.",
+        "en": "Given a single value, pandas **spreads** it across the whole index. The same broadcasting as in NumPy.\n\nWhere it is useful: adding a new column with a constant value to a table, or setting up the starting values of a calculation.\n\nThe same idea as `np.full(3, 5)`; the difference is that this one carries an index."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 0,
+      "text": {
+        "tr": "Bir serinin `name` özelliği ne işe yarar?",
+        "en": "What is a Series' `name` attribute for?"
+      },
+      "options": {
+        "tr": [
+          "Seri bir tabloya girdiğinde **sütun adı** olur",
+          "Serinin index'ini adlandırır",
+          "Dosyaya kaydederken kullanılır",
+          "Hiçbir işe yaramaz, yalnızca gösterim içindir"
+        ],
+        "en": [
+          "It becomes the **column name** when the Series goes into a table",
+          "It names the Series' index",
+          "It is used when saving to a file",
+          "It does nothing; it is only for display"
+        ]
+      },
+      "explanation": {
+        "tr": "`s.name = \"score\"` dedikten sonra `s.to_frame()` çağırırsan sütunun adı `score` oluyor.\n\nTers yönde de geçerli: bir DataFrame'den sütun çektiğinde (`data[\"score\"]`) dönen seri o adı taşıyor. Yani `name`, seriyle tablo arasındaki bağ.\n\n`value_counts()` çıktısında gördüğün `Name: count` satırı da bu: pandas sonuca kendisi ad veriyor.",
+        "en": "After `s.name = \"score\"`, calling `s.to_frame()` gives a column called `score`.\n\nIt works the other way too: when you pull a column out of a DataFrame (`data[\"score\"]`), the Series you get carries that name. So `name` is the link between a Series and a table.\n\nThe `Name: count` line you see in `value_counts()` output is the same thing: pandas names the result itself."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 0,
+      "text": {
+        "tr": "`s.head(3)` ne döndürür?",
+        "en": "What does `s.head(3)` return?"
+      },
+      "options": {
+        "tr": [
+          "İlk üç satırı — veriye ilk bakışta kullanılır",
+          "En büyük üç değeri",
+          "İlk üç satırın ortalamasını",
+          "Rastgele üç satır"
+        ],
+        "en": [
+          "The first three rows — used for a first look at the data",
+          "The three largest values",
+          "The mean of the first three rows",
+          "Three random rows"
+        ]
+      },
+      "explanation": {
+        "tr": "`head()` ve `tail()` **sıralamıyor**, olduğu gibi ilk ya da son satırları veriyor. Argüman vermezsen beş satır geliyor.\n\nBüyük bir veriyi ilk açtığında ilk yapılan şey bu: bütününü ekrana basmadan neye benzediğine bakmak.\n\nEn büyük üçünü isteseydin `s.nlargest(3)` ya da `s.sort_values(ascending=False).head(3)` yazacaktın.",
+        "en": "`head()` and `tail()` do **not sort**; they give you the first or last rows as they are. Without an argument you get five rows.\n\nThis is the first thing you do when you open a large dataset: look at what it resembles without printing the whole thing.\n\nFor the three largest you would write `s.nlargest(3)` or `s.sort_values(ascending=False).head(3)`."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 0,
+      "text": {
+        "tr": "Elinde iki seri var: `scores` (index: öğrenci adları) ve filtrelenmiş `passed = scores[scores >= 60]`. `passed.reset_index(drop=True)` ne yapar?",
+        "en": "You have two Series: `scores` (indexed by student name) and the filtered `passed = scores[scores >= 60]`. What does `passed.reset_index(drop=True)` do?"
+      },
+      "options": {
+        "tr": [
+          "Öğrenci adlarını **atar** ve index'i 0'dan numaralar",
+          "Adları korur, yalnızca sırayı düzeltir",
+          "Serinin değerlerini sıfırlar",
+          "Özgün `scores` serisini geri verir"
+        ],
+        "en": [
+          "**Throws away** the student names and numbers the index from zero",
+          "Keeps the names and only fixes the order",
+          "Resets the values of the Series",
+          "Gives back the original `scores` Series"
+        ]
+      },
+      "explanation": {
+        "tr": "`drop=True` \"eski index'i sakla**ma**\" demek. Öğrenci adları gidiyor, geriye 0, 1, 2 kalıyor.\n\n`drop=False` (varsayılan) olsaydı eski index bir **sütuna** dönüşüyor ve sonuç DataFrame oluyordu — bir sonraki bölümün konusu.\n\n**Ne zaman gerekir:** filtrelemeden sonra başka bir seriyle işlem yapacaksan. Filtreleme delikli bir index bırakıyor ve hizalama beklemediğin `NaN`'lar üretiyor. Ama adlar gerçekten gerekliyse index'i atmak veri kaybı demek — önce bunu düşünmen gerekiyor.",
+        "en": "`drop=True` means \"do **not** keep the old index\". The student names go and 0, 1, 2 are left.\n\nWith `drop=False` (the default) the old index would turn into a **column** and the result would be a DataFrame — the subject of the next section.\n\n**When you need it:** after filtering, if you are going to combine with another Series. Filtering leaves a gapped index and alignment produces `NaN`s you did not expect. But if the names actually matter, throwing the index away is losing data — that is the thing to think about first."
+      }
+    }
+  ]
+}

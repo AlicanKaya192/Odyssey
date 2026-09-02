@@ -19,7 +19,91 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [0.5.0] — yayınlanmadı
+## [0.6.0] — 2 Eylül 2026
+
+### Eklendi
+- **Veri Bilimi patikası açıldı.** İlk bölümü "Veri Bilimi Nedir?": bir veri
+  işinin baştan sona nasıl yürüdüğü, verinin neden hep tablo olduğu ve
+  NumPy ile pandas'ın hangi soruna cevap verdiği. Yirmi sınav sorusu ve beş
+  alıştırma var.
+- **Bu bölümün alıştırmalarında kütüphane yok.** Ortalama alıyorsun, satır
+  filtreliyorsun, sütun çıkarıyorsun, şehre göre grupluyorsun ve ham
+  metinden bir özet rapor üretiyorsun — hepsi düz Python'la. Amaç, sonraki
+  bölümde `groupby` yazdığında onun neyin yerine geçtiğini biliyor olman.
+- **İki ders notu:** *Veri Sözlüğü* (kayıt, değişken, ortalama-medyan farkı,
+  eksik değer, dosya biçimleri) ve *Tablo Tarifleri* (aynı altı işlemin düz
+  Python karşılığı, yanında pandas'taki hâliyle).
+- **NumPy bölümü.** Dizilerle döngü yazmadan hesap: vektörel işlemler,
+  `shape` ve `dtype`, yeniden şekillendirme, dilim ve fancy index, koşulla
+  seçme, `axis` ile satır/sütun ayrımı, yayılma ve eksik değerler
+  (`np.nan`). Yirmi sınav sorusu ve beş alıştırma.
+- **NumPy tuzakları ayrı bir ders notunda.** Dilimin özgün diziyi
+  değiştirmesi, tamsayı diziye ondalık yazınca sessizce kırpılması,
+  `and` yerine `&`, tek bir `nan`'ın bütün ortalamayı bozması,
+  `axis`'in ters anlaşılması ve yedi tanesi daha. Bu hataların çoğu
+  **hata vermiyor** — program çalışıyor ve yanlış sayıyı veriyor.
+- **Pandas Serileri bölümü.** Değerlerin yanında **etiket** taşıyan yapı:
+  seri kurmak, etikete göre seçmek, koşulla filtrelemek, eksik değerleri
+  görüp doldurmak, `value_counts` ile saymak ve `describe` ile tek bakışta
+  özet almak. Yirmi sınav sorusu ve beş alıştırma.
+- **Hizalama anlatıldı.** İki seri toplanırken pandas sıraya değil etikete
+  bakıyor; iki farklı kaynaktan gelen veri karışık sırada olsa bile doğru
+  eşleşiyor. NumPy'ın sessizce yanlış sonuç verdiği yer tam burası.
+- **DataFrame Temelleri bölümü.** Asıl tablo yapısı: sözlükten tablo
+  kurmak, `shape` / `columns` / `dtypes` / `head` ile ilk bakış, sütun
+  seçmek ve eklemek, sıralamak, bir sütunu index yapmak ve `describe` ile
+  özet almak. Otuz sınav sorusu ve beş alıştırma.
+- **Seçim ve Filtreleme bölümü.** Tablodan ilgilendiğin kısmı almak:
+  `loc` etiketle, `iloc` sırayla, koşullardan üretilen maskeler, `&` ve `|`
+  ile birden çok koşul, `isin` ve `str.contains`, sıralama ve `nlargest`.
+  Otuz sınav sorusu ve beş alıştırma.
+- **Gruplama bölümü.** Böl, hesapla, birleştir: `groupby`, `agg` ile birden
+  çok özet, `transform` ile her satıra kendi grup ortalaması, iki sütuna
+  göre kırılım ve `pivot_table` ile `crosstab`. Otuz sınav sorusu ve beş
+  alıştırma.
+- **Veri Temizleme bölümü.** Gerçek verinin hâli: sütun adlarındaki
+  boşluklar, tutarsız yazılmış metinler, metin gelen sayı sütunları,
+  tekrar eden kayıtlar ve eksik değerler. Temizliğin bir sırası var ve
+  bölüm o sırayı öğretiyor. Otuz sınav sorusu ve beş alıştırma.
+- **Görselleştirme bölümü.** Çubuk, çizgi, histogram ve dağılım grafiği;
+  hangi soruya hangi grafiğin cevap verdiği, başlık ve eksen etiketinin
+  neden zorunlu olduğu, grafiği dosyaya kaydetmek ve bir tuvale iki grafik
+  koymak. Otuz sınav sorusu ve beş alıştırma.
+- **Keşifçi Veri Analizi bölümü.** Eline yeni bir veri geldiğinde ne
+  yapacağın: bakılacak sıra, `describe` çıktısını okumak, grup ortalamasını
+  büyüklüğüyle birlikte değerlendirmek, korelasyon, IQR kuralıyla aykırı
+  değer bulmak ve bulguyu dürüst bir cümleye çevirmek. Otuz sınav sorusu ve
+  beş alıştırma.
+- **Genel Tekrar bölümü.** Ham bir tabloyu baştan sona temizleyip
+  analiz eden tek bir örnek, bölüm bölüm anahtar fikirler ve en sık düşülen
+  tuzakların tek listesi. Elli sınav sorusu ve beş alıştırma; ayrıca
+  modülün tamamını kapsayan bir hızlı başvuru notu.
+- **Her bölümde iki ders notu var:** biri o konunun başvuru tablosu, öteki
+  o konuda düşülen tuzaklar. Tuzak notlarının çoğu **hata vermeyen**
+  hatalar üzerine: program çalışıyor, sayı çıkıyor ve sonuç yanlış oluyor.
+- **Veri Bilimi sınavları otuz soru.** Giriş bölümü dışındaki her bölümde
+  otuz soru var, Genel Tekrar'da elli; bu konular Python temellerine göre
+  daha çok tekrar istiyor.
+- **Yedi yeni rozet:** Veri Bilimi patikasında bir bölüm tamamlamak, iki
+  farklı modülde birer bölüm tamamlamak, NumPy, DataFrame, Veri Temizleme
+  ve Görselleştirme bölümlerini bitirmek, ve patikanın tamamını
+  tamamlamak.
+
+### Değişti
+- **NumPy, pandas ve matplotlib artık uygulamanın içinde geliyor.** Veri
+  Bilimi alıştırmaları bu kütüphaneleri kullanıyor; ayrıca bir şey kurman
+  gerekmiyor, internet bağlantısı da gerekmiyor. Paket bu yüzden büyüdü.
+
+### Düzeltildi
+- **Alıştırmanın başlangıç kodundaki yorum satırları dil değişince
+  çevrilmiyordu.** Dili değiştirdiğinde yönerge çevriliyor ama editördeki
+  kod eski dilde kalıyordu; bir kez çalıştırdıysan bir daha hiç
+  değişmiyordu. Artık koda dokunmadıysan yorumlar seçtiğin dile geçiyor.
+  Yazdığın kod olduğu gibi duruyor.
+
+---
+
+## [0.5.0] — 2 Eylül 2026
 
 ### Eklendi
 - **Rozetler geldi.** On iki rozet var: ilk programını çalıştırmak, bir

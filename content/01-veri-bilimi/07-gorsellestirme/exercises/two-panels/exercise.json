@@ -1,0 +1,48 @@
+{
+  "id": "two-panels",
+  "title": {
+    "tr": "Yan yana iki grafik",
+    "en": "Two charts side by side"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`fig, (sol, sag) = plt.subplots(1, 2, figsize=(10, 4))` iki çizim alanı veriyor.",
+      "en": "`fig, (left, right) = plt.subplots(1, 2, figsize=(10, 4))` gives you two drawing areas."
+    },
+    {
+      "tr": "Her alan ayrı bir eksen: `sol.bar(...)`, `sag.scatter(...)`. Başlıkları da ayrı ayrı veriyorsun.",
+      "en": "Each area is its own axes: `left.bar(...)`, `right.scatter(...)`. You set their titles separately too."
+    },
+    {
+      "tr": "Tuvaldeki alan sayısını `len(fig.axes)` veriyor. `fig.tight_layout()` alanların birbirine girmesini engelliyor.",
+      "en": "`len(fig.axes)` gives the number of areas on the canvas. `fig.tight_layout()` stops them overlapping."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nfig, (sol, sag) = plt.subplots(1, 2, figsize=(10, 4))\n\nsol.bar(data[\"city\"], data[\"score\"])\nsol.set_ylim(0, 100)\nsol.set_title(\"Scores\")\n\nsag.scatter(data[\"hours\"], data[\"score\"])\nsag.set_title(\"Hours vs score\")\nsag.set_xlabel(\"Hours\")\n\nfig.tight_layout()\n\nprint(len(fig.axes))\nprint(len(sol.patches))\nprint(sol.get_title(), \"|\", sag.get_title())\nprint(int(sol.get_ylim()[1]))\n```",
+      "en": "The solution:\n\n```python\nfig, (left, right) = plt.subplots(1, 2, figsize=(10, 4))\n\nleft.bar(data[\"city\"], data[\"score\"])\nleft.set_ylim(0, 100)\nleft.set_title(\"Scores\")\n\nright.scatter(data[\"hours\"], data[\"score\"])\nright.set_title(\"Hours vs score\")\nright.set_xlabel(\"Hours\")\n\nfig.tight_layout()\n\nprint(len(fig.axes))\nprint(len(left.patches))\nprint(left.get_title(), \"|\", right.get_title())\nprint(int(left.get_ylim()[1]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Import",
+      "hint": {
+        "tr": "`import matplotlib` satırı yok.",
+        "en": "There is no `import matplotlib` line."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\n4\nScores | Hours vs score\n100"
+    }
+  ]
+}
