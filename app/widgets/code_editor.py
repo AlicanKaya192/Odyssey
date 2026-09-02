@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import re
 
-from PySide6.QtCore import QRect, QSize, Qt, Signal
+from PySide6.QtCore import QRect, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QColor,
     QFont,
@@ -182,6 +182,7 @@ class CodeEditor(QTextEdit):
     def __init__(self, parent: QWidget | None = None, mode: str = "light") -> None:
         super().__init__(parent)
         self._mode = mode
+        self._spacing_queued = False
         self._line_area = LineNumberArea(self)
         self._highlighter = PythonHighlighter(self.document(), mode)
 
@@ -207,13 +208,31 @@ class CodeEditor(QTextEdit):
 
     # --- satır aralığı ----------------------------------------------------
 
+    def _schedule_line_spacing(self) -> None:
+        """Satır aralığını olay bittikten **sonra** uygulanmak üzere sıraya alır.
+
+        **Belge, kendi değişim sinyalinin içinden değiştirilmiyor.** Eskiden
+        `textChanged` gelir gelmez blok biçimi uygulanıyordu ve bu, Qt'nin o
+        an sürdürdüğü düzenlemeyi bozuyordu: boş bir satırdayken Enter'a
+        basmak hiçbir şey yapmıyor, satır arası boşluk bırakılamıyordu
+        (ölçüldü: üç Enter, sıfır yeni satır). Biçim artık olay
+        tamamlandıktan sonra uygulanıyor.
+        """
+        if self._spacing_queued:
+            return
+        self._spacing_queued = True
+        QTimer.singleShot(0, self._apply_line_spacing)
+
     def _apply_line_spacing(self) -> None:
         """Satır aralığını açar.
 
         `QPlainTextEdit` bu ayarı yok sayıyordu; `QTextEdit` uyguluyor.
-        Yeni yazılan satırlar da aralığı alsın diye her metin değişiminde
-        tekrar uygulanıyor.
+        Yeni satırlar da aralığı alsın diye satır sayısı değiştikçe tekrar
+        uygulanıyor — her tuş vuruşunda değil, yalnızca satır eklenip
+        silindiğinde.
         """
+        self._spacing_queued = False
+
         cursor = self.textCursor()
         position = cursor.position()
 
@@ -223,22 +242,32 @@ class CodeEditor(QTextEdit):
             QTextBlockFormat.LineHeightTypes.ProportionalHeight.value,
         )
 
-        # Sinyal döngüsüne girmemek için değişiklik sessizce uygulanıyor.
-        self.textChanged.disconnect(self._on_text_changed)
-        cursor.select(QTextCursor.SelectionType.Document)
-        cursor.mergeBlockFormat(block_format)
-        cursor.clearSelection()
-        cursor.setPosition(min(position, len(self.toPlainText())))
-        self.setTextCursor(cursor)
-        self.textChanged.connect(self._on_text_changed)
+        # Biçim ayrı bir imleçle uygulanıyor; kullanıcının imleci ve seçimi
+        # yerinde kalıyor.
+        bicimleyici = QTextCursor(self.document())
+        bicimleyici.select(QTextCursor.SelectionType.Document)
+        bicimleyici.mergeBlockFormat(block_format)
+
+        if cursor.position() != position:
+            cursor.setPosition(min(position, len(self.toPlainText())))
+            self.setTextCursor(cursor)
+
+    def setPlainText(self, text: str) -> None:  # noqa: N802
+        """Metni yükler ve satır aralığını yeniden uygular.
+
+        Satır sayısı değişmeyen bir yükleme `blockCountChanged` yaymıyor;
+        aralık o durumda uygulanmadan kalıyordu.
+        """
+        super().setPlainText(text)
+        self._schedule_line_spacing()
 
     def _on_text_changed(self) -> None:
-        self._apply_line_spacing()
         self._line_area.update()
 
     def _on_blocks_changed(self, _count: int) -> None:
         self._update_margin()
         self._line_area.update()
+        self._schedule_line_spacing()
 
     # --- satır numarası ---------------------------------------------------
 

@@ -47,13 +47,16 @@ INLINE_CODE_PATTERN = re.compile(r"`([^`]+)`")
 INLINE_BOLD_PATTERN = re.compile(r"\*\*(.+?)\*\*")
 
 
-def _is_alpha(version: str) -> bool:
-    """1.0'dan önceki her sürüm alpha sayılıyor.
+def _is_beta(version: str) -> bool:
+    """1.0'dan önceki her sürüm beta sayılıyor.
 
     Ana numara sıfırken uygulama hâlâ yapım aşamasında; sürüm notunun yanında
     bunu yazmak, o sürümü indiren birine ne beklemesi gerektiğini söylüyor.
     1.0 çıktığında rozet kendiliğinden kayboluyor, ayrıca bir şey silmek
     gerekmiyor.
+
+    Rozet önce `ALPHA` yazıyordu; açılıştaki bilgilendirme "açık beta"
+    derken sürüm listesinin "alpha" demesi aynı şeyi iki adla anlatıyordu.
     """
     head = version.strip().lstrip("vV").split(".")[0]
     return head.isdigit() and int(head) == 0
@@ -235,8 +238,8 @@ class ReleaseView(QWidget):
             else ""
         )
         stage = (
-            f'<span class="stage">{html.escape(self._language.t("release.alpha"))}</span>'
-            if _is_alpha(release.version)
+            f'<span class="stage">{html.escape(self._language.t("release.beta"))}</span>'
+            if _is_beta(release.version)
             else ""
         )
         date = f'<span class="dt">{html.escape(release.date)}</span>' if release.date else ""

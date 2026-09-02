@@ -21,6 +21,27 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.7.2] — 3 September 2026
+
+### Changed
+- **The badge in the release notes reads "BETA"** rather than "ALPHA": the
+  startup notice said open beta while the list used a different word.
+- **The startup notice now says "open beta"** rather than closed beta. The
+  sentence about the application's network use was updated too: the one
+  connection is the version check, and it can be turned off in settings.
+
+### Fixed
+- **Enter did nothing on an empty line in the exercise editor.** You could
+  not leave extra blank lines between blocks of code; the line-spacing
+  setting was applied in the middle of the text change and swallowed the
+  key.
+- **The lesson stayed in the old language when you switched languages.**
+  Changing the language in settings translated the labels but left the
+  lesson text as it was, so you had to leave the section and come back. The
+  lesson is now translated straight away.
+
+---
+
 ## [0.7.1] — 2 September 2026
 
 ### Added

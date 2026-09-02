@@ -56,6 +56,9 @@ class TopicView(QWidget):
         self._panes: list[str] = []
         self._exercises: list = []
         self._exercise_index = 0
+        # Ders metninin hangi dilde okunduğu; dil değişince yeniden okumak
+        # için gerekiyor.
+        self._lesson_language = ""
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -143,12 +146,7 @@ class TopicView(QWidget):
 
         for block in section.blocks:
             if block.type == "lesson":
-                resolved = block.file_for(language_code)
-                self._lesson.show_lesson(
-                    resolved.path if resolved else None,
-                    resolved.is_fallback if resolved else False,
-                    completed=completed,
-                )
+                self._load_lesson(block, completed)
                 self._panes.append("lesson")
 
             elif block.type == "notes":
@@ -192,6 +190,44 @@ class TopicView(QWidget):
         self.retranslate()
         self._segments.set_current(0, notify=False)
         self._show_pane(0)
+
+    def _load_lesson(self, block, completed: bool) -> None:
+        """Ders metnini seçili dilde yükler."""
+        resolved = block.file_for(self._language.language)
+        self._lesson_language = self._language.language
+        self._lesson.show_lesson(
+            resolved.path if resolved else None,
+            resolved.is_fallback if resolved else False,
+            completed=completed,
+        )
+
+    def _reload_lesson_language(self) -> None:
+        """Dil değiştiyse ders metnini yeniden okur.
+
+        Ders anlatımı **dosyadan** geliyor (`lesson.tr.md` / `lesson.en.md`)
+        ve bir kez okunup bellekte tutuluyor. `retranslate` yalnızca o
+        metni yeniden çiziyordu; dil değişince etiketler çevriliyor ama
+        ders eski dilde kalıyordu ve kullanıcının bölümden çıkıp girmesi
+        gerekiyordu.
+
+        Aynı sınıf hata daha önce alıştırmanın başlangıç kodunda da
+        çıkmıştı: **dosyadan gelen dile bağlı içerik `retranslate` ile
+        tazelenmeli.**
+        """
+        if self._section is None or self._lesson_language == self._language.language:
+            return
+
+        state = self._store.section_state(
+            self._section.chapter_id, self._section.id, len(self._exercises)
+        )
+        completed = state.status(
+            self._section.requires_quiz, self._section.requires_exercises
+        ) == "completed"
+
+        for block in self._section.blocks:
+            if block.type == "lesson":
+                self._load_lesson(block, completed)
+                break
 
     def refresh_quiz_timing(self) -> None:
         """Sınav süresi ayarı değişti; açık sınav o an güncelleniyor.
@@ -530,6 +566,7 @@ class TopicView(QWidget):
                 f"{self._language.t('common.minutes')}",
             )
 
+        self._reload_lesson_language()
         self._lesson.retranslate()
         self._notes.retranslate()
         self._quiz.retranslate()

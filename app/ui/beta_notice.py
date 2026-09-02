@@ -1,6 +1,6 @@
 """Açılışta çıkan beta uyarısı.
 
-Uygulama henüz kapalı beta sürümünde. Kullanan kişi karşılaşacağı şeyi
+Uygulama açık beta sürümünde. Kullanan kişi karşılaşacağı şeyi
 baştan bilsin diye ilk açılışta kısa bir bilgilendirme çıkıyor: kararsız
 çalışabilir, hata verebilir, eksik bölümler olabilir.
 

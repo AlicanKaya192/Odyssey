@@ -19,6 +19,25 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.7.2] — 3 Eylül 2026
+
+### Değişti
+- **Sürüm notlarındaki rozet "BETA" yazıyor**, "ALPHA" değil: açılıştaki
+  bilgilendirme "açık beta" derken liste başka bir ad kullanıyordu.
+- **Açılıştaki bilgilendirme "açık beta" diyor**, kapalı beta değil.
+  Uygulamanın ağ kullanımını anlatan cümle de güncellendi: tek bağlantı
+  sürüm denetimi ve ayarlardan kapatılabiliyor.
+
+### Düzeltildi
+- **Alıştırma editöründe boş satırda Enter çalışmıyordu.** Kodun arasına
+  fazladan boş satır bırakmak mümkün değildi; satır aralığı ayarı, metin
+  değişiminin tam ortasında uygulandığı için tuşu yutuyordu.
+- **Konu anlatımı, dil değiştirildiğinde eski dilde kalıyordu.** Ayarlardan
+  dili değiştirdiğinizde etiketler çevriliyor ama ders metni aynı kalıyor,
+  bölümden çıkıp girmeniz gerekiyordu. Artık ders anında çevriliyor.
+
+---
+
 ## [0.7.1] — 2 Eylül 2026
 
 ### Eklendi

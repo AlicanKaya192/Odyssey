@@ -127,6 +127,34 @@ def build_command() -> list[str]:
     return command
 
 
+UNRELEASED_MARKS = ("yayınlanmadı", "unreleased")
+
+
+def changelog_dated() -> str:
+    """Bu sürümün değişiklik günlüğü tarihlendi mi?
+
+    Boş metin döndürürse sorun yok; değilse eksik dosyanın adı.
+
+    **Neden derlemeden önce bakılıyor:** günlük dosyaları pakete olduğu
+    gibi giriyor ve uygulamanın Sürüm Notları ekranı onları gösteriyor.
+    0.7.1 tarihlenmeden derlendi ve yayınlanan pakette sürüm
+    "yayınlanmadı" yazıyordu — kullanıcı indirdiği sürümün yayınlanmadığını
+    okuyordu.
+    """
+    eksik = []
+    for ad in ("CHANGELOG.md", "CHANGELOG.en.md"):
+        yol = PROJECT_ROOT / ad
+        if not yol.exists():
+            continue
+        for satir in yol.read_text(encoding="utf-8").splitlines():
+            if not satir.startswith(f"## [{APP_VERSION}]"):
+                continue
+            if any(mark in satir.lower() for mark in UNRELEASED_MARKS):
+                eksik.append(ad)
+            break
+    return ", ".join(eksik)
+
+
 def folder_size(path: Path) -> str:
     total = sum(f.stat().st_size for f in path.rglob("*") if f.is_file())
     return f"{total / 1024 / 1024:.0f} MB"
@@ -142,6 +170,13 @@ def main() -> int:
                 f"{sys.platform} için {ICON.name} gerekiyor; "
                 "build_icon.py şimdilik yalnızca .ico üretiyor."
             )
+        return 1
+
+    eksik = changelog_dated()
+    if eksik:
+        print(f"{eksik}: {APP_VERSION} başlığı hâlâ 'yayınlanmadı' diyor.")
+        print("Önce tarihi yazın; paket günlüğü olduğu gibi taşıyor ve")
+        print("uygulamanın Sürüm Notları ekranı bunu gösteriyor.")
         return 1
 
     if "--temiz" in sys.argv:
