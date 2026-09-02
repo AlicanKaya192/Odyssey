@@ -21,6 +21,26 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.7.3] — 3 September 2026
+
+### Changed
+- **The update box can be reached from anywhere.** Clicking the "New
+  version" line at the bottom of the window now opens the update box
+  instead of a browser, so you can install it from there or go to the
+  release page.
+- **The "Check now" button in settings turns into "Update"** when a new
+  version is found. It used to say one existed without offering any way to
+  install it.
+
+### Fixed
+- **An update notice, once dismissed, never came back.** The notice was
+  recorded as "shown for this version"; because that record lives with your
+  data rather than the application, anyone who went back to an older
+  version or reinstalled never saw the same update again. The record now
+  includes the installed version as well.
+
+---
+
 ## [0.7.2] — 3 September 2026
 
 ### Changed

@@ -36,6 +36,7 @@ from .update_check import UpdateWorker
 from ..resources.theme.tokens import PALETTES, SPACING
 from ..widgets.segmented import SegmentedControl
 from ..widgets.toggle_switch import ToggleSwitch
+from ..widgets.effects import repolish
 from . import modal
 
 # Kilit ve süre ayarlarının veritabanındaki anahtarları.
@@ -99,6 +100,8 @@ class SettingsDialog(QDialog):
     timing_changed = Signal()
     # Elle yapılan denetimin sonucu: şeritteki duyuruyu da güncelliyor.
     update_found = Signal(object)
+    # Kullanıcı ayarlardan güncellemeyi başlatmak istedi.
+    update_requested = Signal(object)
 
     def __init__(
         self,
@@ -112,6 +115,8 @@ class SettingsDialog(QDialog):
         self._theme = theme
         self._store = store
         self._worker: UpdateWorker | None = None
+        # Elle denetimde bulunan sürüm; düğme buna göre "Güncelle" oluyor.
+        self._found = None
 
         modal.prepare(self)
         self.setMinimumWidth(460)
@@ -167,7 +172,7 @@ class SettingsDialog(QDialog):
         update_bar.setSpacing(SPACING["sm"])
         self._check_button = QPushButton()
         self._check_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._check_button.clicked.connect(self._check_now)
+        self._check_button.clicked.connect(self._on_update_button)
         update_bar.addWidget(self._check_button)
         self._update_status = QLabel()
         self._update_status.setProperty("role", "muted")
@@ -274,6 +279,20 @@ class SettingsDialog(QDialog):
 
     # --- güncelleme -------------------------------------------------------
 
+    def _on_update_button(self) -> None:
+        """Düğme iki iş yapıyor: denetle, ya da bulunanı kur.
+
+        Denetim "yeni sürüm var" dediğinde düğme **Güncelle**'ye dönüşüyor.
+        Önceden yalnızca durum satırına yazıyordu: kullanıcı güncelleme
+        olduğunu öğreniyor ama ayarlardan kuramıyordu (Alican bunu
+        bildirdi).
+        """
+        if self._found is not None:
+            self.accept()
+            self.update_requested.emit(self._found)
+            return
+        self._check_now()
+
     def _check_now(self) -> None:
         """Elle denetim: "bugün zaten baktım" kuralını atlıyor."""
         if self._worker is not None and self._worker.isRunning():
@@ -292,6 +311,10 @@ class SettingsDialog(QDialog):
         self._check_button.setEnabled(updates.enabled(self._store))
         t = self._language.t
         if info.status == "newer":
+            self._found = info
+            self._check_button.setText(t("update.notice_update"))
+            self._check_button.setProperty("variant", "primary")
+            repolish(self._check_button)
             self._set_status(t("update.available", version=info.version))
         elif info.status == "current":
             self._set_status(t("update.current"))
@@ -338,5 +361,8 @@ class SettingsDialog(QDialog):
         self._update_title.setText(t("settings.group_updates"))
         self._update_row.title.setText(t("settings.update_check"))
         self._update_row.description.setText(t("settings.update_check_help"))
-        self._check_button.setText(t("update.check_now"))
+        self._check_button.setText(
+            t("update.notice_update") if self._found is not None
+            else t("update.check_now")
+        )
         self._check_button.setEnabled(updates.enabled(self._store))

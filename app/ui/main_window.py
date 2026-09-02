@@ -131,6 +131,11 @@ class MainWindow(QMainWindow):
         # `start_update_check` ilk kare çizildikten sonra çağrılıyor.
         self._update_worker: UpdateWorker | None = None
         self._update_startup = False
+        # Bulunan son güncelleme; şeritteki duyuruya tıklanınca gereken
+        # bilgi burada duruyor.
+        self._update_info = None
+
+        self._footer.update_clicked.connect(self._on_footer_update)
 
         # Uygulama günlerce açık kalabiliyor; o oturumda da üç saatte bir
         # bakılıyor. Zamanlayıcı yalnızca denetimi tetikliyor, kararı yine
@@ -255,6 +260,7 @@ class MainWindow(QMainWindow):
         if not info.has_update:
             return
 
+        self._update_info = info
         self._footer.set_update(info.version, info.url)
 
         # Duyuru penceresi sürüm başına bir kez ve yalnızca açılışta:
@@ -265,6 +271,16 @@ class MainWindow(QMainWindow):
             return
         updates.mark_notified(self._store, info.version)
         self._show_update_notice(info)
+
+    def _on_footer_update(self) -> None:
+        """Şeritteki duyuruya tıklandı.
+
+        Kutu **her zaman** açılıyor: "sürüm başına bir kez" kuralı yalnızca
+        kendiliğinden çıkan duyuru için. Kullanıcı tıkladıysa görmek
+        istiyordur.
+        """
+        if self._update_info is not None:
+            self._show_update_notice(self._update_info)
 
     def _show_update_notice(self, info) -> None:
         from . import titlebar
@@ -424,6 +440,9 @@ class MainWindow(QMainWindow):
         dialog.timing_changed.connect(self._on_timing_changed)
         # Elle denetim yapıldıysa sonucu şeride de yansıt.
         dialog.update_found.connect(self._on_update_checked)
+        # Ayarlardan "Güncelle" denince kutu açılıyor: kullanıcı orada
+        # güncelleme olduğunu öğrenip hiçbir şey yapamıyordu.
+        dialog.update_requested.connect(self._show_update_notice)
         dialog.exec()
 
         # Seçimler kalıcı olsun diye veritabanına yazılıyor.

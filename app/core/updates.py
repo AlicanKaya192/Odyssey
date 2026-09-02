@@ -68,9 +68,17 @@ CHECK_INTERVAL_SEC = 3 * 60 * 60
 UPDATE_CHECK_KEY = "update_check"
 LAST_CHECK_KEY = "update_last_check"
 
-# Duyuru penceresinin gösterildiği son sürüm. Aynı sürüm için pencere bir
-# kez açılıyor; her açılışta çıkan bir kutu okunmadan kapatılan bir engele
-# dönüşüyor. Şeritteki satır ise kalıcı — orada durması rahatsız etmiyor.
+# Duyuru penceresinin en son hangi durum için açıldığı. Aynı durum için
+# pencere bir kez açılıyor; her açılışta çıkan bir kutu okunmadan
+# kapatılan bir engele dönüşüyor. Şeritteki satır ise kalıcı — orada
+# durması rahatsız etmiyor.
+#
+# **Kayıt "kurulu sürüm -> duyurulan sürüm" çifti**, yalnızca duyurulan
+# sürüm değil. Tek başına sürüm yazıldığında şu oluyordu: 0.7.1'den
+# 0.7.2 duyurusunu görüp kapatan biri, sonra 0.7.1'e geri döndüğünde bir
+# daha hiç duyuru almıyordu — kayıt uygulamayla değil kullanıcı verisiyle
+# duruyor ve kurulumu değiştirmek onu temizlemiyor (Alican'ın makinesinde
+# görüldü).
 NOTIFIED_KEY = "update_notified"
 
 # Denetim varsayılan olarak **açık**. Kapatan biri hiç ağa çıkmıyor.
@@ -173,13 +181,18 @@ def mark_checked(store) -> None:
     store.set_setting(LAST_CHECK_KEY, str(int(time.time())))
 
 
+def _notify_mark(version: str) -> str:
+    """Duyuru kaydının değeri: kurulu sürüm ve duyurulan sürüm birlikte."""
+    return f"{APP_VERSION}->{version}"
+
+
 def already_notified(store, version: str) -> bool:
-    """Bu sürümün duyuru penceresi daha önce açıldı mı?"""
-    return bool(version) and store.setting(NOTIFIED_KEY, "") == version
+    """Bu durumun duyuru penceresi daha önce açıldı mı?"""
+    return bool(version) and store.setting(NOTIFIED_KEY, "") == _notify_mark(version)
 
 
 def mark_notified(store, version: str) -> None:
-    store.set_setting(NOTIFIED_KEY, version)
+    store.set_setting(NOTIFIED_KEY, _notify_mark(version))
 
 
 def fetch_latest(url: str = "", timeout: int = TIMEOUT_SEC) -> UpdateInfo:

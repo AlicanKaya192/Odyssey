@@ -18,7 +18,7 @@ import json
 from datetime import date
 from html import escape
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QWidget
 
 from ..core.language import LanguageManager
@@ -39,6 +39,11 @@ def _author_name() -> str:
 class Footer(QFrame):
     """Telif, sürüm ve lisans bilgisini taşıyan ince şerit."""
 
+    # Yeni sürüm duyurusuna tıklandı. Şerit bağlantıyı kendisi açmıyor:
+    # tarayıcıya atmak kullanıcıyı sürüm sayfasında bırakıyordu, oysa
+    # uygulama güncellemeyi kendisi kurabiliyor. Karar pencerede veriliyor.
+    update_clicked = Signal()
+
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._language = language
@@ -58,10 +63,11 @@ class Footer(QFrame):
         self._label = QLabel()
         self._label.setProperty("role", "footnote")
         self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._label.setOpenExternalLinks(True)
+        self._label.setOpenExternalLinks(False)
         self._label.setTextInteractionFlags(
             Qt.TextInteractionFlag.LinksAccessibleByMouse
         )
+        self._label.linkActivated.connect(lambda _: self.update_clicked.emit())
         layout.addWidget(self._label, 1)
 
         self.retranslate()

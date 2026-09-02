@@ -10,7 +10,7 @@ Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları va
 
 ## Durum
 
-Erken geliştirme aşaması (`0.7.2`). Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı — yerinde; müfredat ise henüz başlangıçta.
+Erken geliştirme aşaması (`0.7.3`). Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı — yerinde; müfredat ise henüz başlangıçta.
 
 **Bugünkü içerik:** iki modül **tamamlandı**. Python Temelleri on beş bölüm, ilk programdan veritabanına kadar; Veri Bilimi on bölüm, NumPy'dan keşifçi analize kadar. 560 sınav sorusu, 115 kod alıştırması ve 54 ders notu; tamamı Türkçe ve İngilizce.
 

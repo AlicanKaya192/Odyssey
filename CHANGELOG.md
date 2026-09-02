@@ -19,6 +19,26 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.7.3] — 3 Eylül 2026
+
+### Değişti
+- **Güncelleme kutusuna her yerden ulaşılıyor.** Pencerenin altındaki
+  "Yeni sürüm" yazısına tıklamak artık tarayıcıyı açmak yerine güncelleme
+  kutusunu açıyor; oradan ister kurabiliyor, ister sürüm sayfasına
+  gidebiliyorsunuz.
+- **Ayarlardaki "Şimdi denetle" düğmesi, güncelleme bulunca "Güncelle"ye
+  dönüşüyor.** Önceden yalnızca "yeni sürüm var" yazıyor ama kurmanın bir
+  yolunu vermiyordu.
+
+### Düzeltildi
+- **Bir kez kapatılan güncelleme duyurusu bir daha hiç çıkmıyordu.** Duyuru
+  "şu sürüm için gösterildi" diye kaydediliyordu; eski bir sürüme dönen ya
+  da uygulamayı yeniden kuran biri, kayıt kullanıcı verisinde durduğu için
+  aynı güncellemeyi bir daha görmüyordu. Kayıt artık kurulu sürümü de
+  içeriyor.
+
+---
+
 ## [0.7.2] — 3 Eylül 2026
 
 ### Değişti
