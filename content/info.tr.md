@@ -39,14 +39,16 @@ incelenebilir, değiştirilebilir ve yeniden dağıtılabilir.
 
 ## Şu an nerede?
 
-Erken geliştirme aşamasındadır. Uygulama uçtan uca çalışır durumdadır:
-öğrenme yolu, konu anlatımı, ders notları, sınavlar, kod alıştırmaları,
-kademeli ipuçları, ilerleme kaydı, Türkçe/İngilizce arayüz ve açık/koyu tema
-hazırdır.
+Uygulama açık beta sürümündedir ve uçtan uca çalışır: öğrenme yolu, konu
+anlatımı, ders notları, sınavlar, kod alıştırmaları, kademeli ipuçları,
+ilerleme kaydı, profil ve rozetler, Türkçe/İngilizce arayüz, açık/koyu tema
+ve uygulama içi güncelleme hazırdır.
 
-Müfredat genişlemeye devam ediyor. Şu an Python Temelleri modülü yayında;
-hedef 23 modüldür. Rozetler, kişisel not alanı ve uygulama içi güncelleme
-sistemi yol haritasında yer alıyor.
+Üç patika yayındadır: **Python Temelleri**, **Veri Bilimi** ve **Makine
+Öğrenmesi**. Toplamda 38 bölüm, 1073 sınav sorusu ve 180 kod alıştırması
+bulunur. SQL, API ve Docker patikaları hazırlanmaktadır.
+
+Bölüm içinde kendi notunuzu tutabileceğiniz alan yol haritasındadır.
 
 Hangi değişikliğin hangi sürümde geldiğini **Sürüm Notları** ekranından
 izleyebilirsiniz.

@@ -1,5 +1,3 @@
-# Filtreleme Tuzakları
-
 ## 1. Filtreden sonra index delik deşik
 
 ```python

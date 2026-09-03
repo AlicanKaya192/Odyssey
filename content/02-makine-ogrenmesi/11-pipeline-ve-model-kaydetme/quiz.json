@@ -1,0 +1,940 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 3,
+      "text": {
+        "tr": "`Pipeline` ne yapıyor?",
+        "en": "What does `Pipeline` do?"
+      },
+      "options": {
+        "tr": [
+          "Veriyi hızlandırıyor",
+          "Modeli diske kaydediyor",
+          "Hiperparametre arıyor",
+          "Ön işleme adımlarını ve modeli tek bir nesneye bağlıyor"
+        ],
+        "en": [
+          "It speeds up the data",
+          "It saves the model to disk",
+          "It searches hyperparameters",
+          "It ties the preprocessing steps and the model into a single object"
+        ]
+      },
+      "explanation": {
+        "tr": "`fit` çağrıldığında son adım dışındaki her adımın `fit_transform`'u, son adımın `fit`'i çalışıyor.\n\nBöylece ön işlemenin öğrendikleri modelle birlikte duruyor ve birlikte kaydediliyor.\n\nKaydetme `joblib`'in, arama `GridSearchCV`'nin işi.",
+        "en": "When `fit` is called, every step but the last runs `fit_transform` and the last runs `fit`.\n\nThis keeps what the preprocessing learned together with the model, and they are saved together.\n\nSaving is `joblib`'s job and searching `GridSearchCV`'s."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 1,
+      "text": {
+        "tr": "Bir pipeline'da `predict` çağrıldığında adımlar ne yapıyor?",
+        "en": "What do the steps do when `predict` is called on a pipeline?"
+      },
+      "options": {
+        "tr": [
+          "Yeniden öğreniyorlar",
+          "Eğitimde öğrendiklerini uyguluyorlar; hiçbiri yeniden öğrenmiyor",
+          "Atlanıyorlar",
+          "Yalnızca son adım çalışıyor"
+        ],
+        "en": [
+          "They learn again",
+          "They apply what they learned during training; none learns again",
+          "They are skipped",
+          "Only the last step runs"
+        ]
+      },
+      "explanation": {
+        "tr": "Her adımın `transform`'u, sonra son adımın `predict`'i çalışıyor. Medyan eğitimde hesaplandı ve orada kaldı.\n\nBu, bölüm 04'ün \"önce ayır, sonra dokun\" kuralını yapısal hâle getiriyor.\n\nAdımlar atlanmıyor; atlansaydı model kodlanmamış metin görürdü.",
+        "en": "Each step runs `transform` and the last runs `predict`. The median was computed during training and stayed there.\n\nThis turns section 04's \"split first, touch afterwards\" into structure.\n\nThe steps are not skipped; if they were, the model would see unencoded text."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`ColumnTransformer` ne için var?",
+        "en": "What is `ColumnTransformer` for?"
+      },
+      "options": {
+        "tr": [
+          "Farklı sütun gruplarına farklı işlem uygulamak",
+          "Sütunları yeniden adlandırmak",
+          "Sütun sayısını azaltmak",
+          "Eksik değerleri saymak"
+        ],
+        "en": [
+          "Applying different treatment to different groups of columns",
+          "Renaming columns",
+          "Reducing the column count",
+          "Counting missing values"
+        ]
+      },
+      "explanation": {
+        "tr": "Sayısal sütunlara medyan + ölçekleme, metin sütunlarına mod + kodlama gerekiyor; ikisi tek bir dönüştürücüyle yapılamıyor.\n\nHer eleman üç parçalı: (ad, dönüştürücü, sütun listesi).\n\nSütun azaltmak PCA'nın işi.",
+        "en": "The numeric columns need median + scaling and the text ones mode + encoding; one transformer cannot do both.\n\nEach element has three parts: (name, transformer, column list).\n\nReducing columns is PCA's job."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 1,
+      "text": {
+        "tr": "`ColumnTransformer`'da `remainder` varsayılanı ne yapıyor?",
+        "en": "What does `ColumnTransformer`'s default `remainder` do?"
+      },
+      "options": {
+        "tr": [
+          "Listelenmemiş sütunları olduğu gibi geçiriyor",
+          "Listelenmemiş sütunları sessizce atıyor",
+          "Hata veriyor",
+          "Listelenmemiş sütunları ölçekliyor"
+        ],
+        "en": [
+          "It passes unlisted columns through untouched",
+          "It silently discards unlisted columns",
+          "It raises an error",
+          "It scales unlisted columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan `\"drop\"`. Veriye yeni bir sütun eklendiğinde modele hiç girmiyor ve kimse fark etmiyor.\n\n`remainder=\"passthrough\"` onları olduğu gibi geçiriyor.\n\nSessiz olması tehlikeli kısmı: hata verse fark edilirdi.",
+        "en": "The default is `\"drop\"`. When a new column is added to the data it never reaches the model and nobody notices.\n\n`remainder=\"passthrough\"` passes them through untouched.\n\nBeing silent is the dangerous part: an error would be noticed."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "`OneHotEncoder(handle_unknown=\"ignore\")` neyi çözüyor?",
+        "en": "What does `OneHotEncoder(handle_unknown=\"ignore\")` solve?"
+      },
+      "options": {
+        "tr": [
+          "Eksik değerleri",
+          "Ölçek farkını",
+          "Eğitimde görülmemiş bir kategori geldiğinde hata verilmesini",
+          "Sınıf dengesizliğini"
+        ],
+        "en": [
+          "Missing values",
+          "Scale differences",
+          "The error raised when a category unseen during training arrives",
+          "Class imbalance"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan davranış hata vermek; `ignore` o satırın bütün kategori sütunlarını sıfır yapıyor.\n\nBu ayar olmadan üretimdeki model ilk beklenmedik değerde çöküyor.\n\nEksik değerler `SimpleImputer`'ın işi; kodlayıcı onlarla ilgilenmiyor.",
+        "en": "The default is to raise; `ignore` sets all that row's category columns to zero.\n\nWithout this setting a production model dies on the first unexpected value.\n\nMissing values are `SimpleImputer`'s job; the encoder does not handle them."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 2,
+      "text": {
+        "tr": "`SimpleImputer(strategy=\"median\")` neden metin sütunlarında kullanılamıyor?",
+        "en": "Why can `SimpleImputer(strategy=\"median\")` not be used on text columns?"
+      },
+      "options": {
+        "tr": [
+          "Çok yavaş olduğu için",
+          "sklearn izin verdiği hâlde anlamsız",
+          "Metnin medyanı tanımlı değil; orada `most_frequent` kullanılıyor",
+          "Metin sütunları eksik değer içermez"
+        ],
+        "en": [
+          "Because it is too slow",
+          "sklearn allows it but it is meaningless",
+          "Text has no median; `most_frequent` is used there",
+          "Text columns hold no missing values"
+        ]
+      },
+      "explanation": {
+        "tr": "Medyan sıralanabilir sayılar için tanımlı. Kategoriler için karşılığı en sık görülen değer.\n\n`strategy=\"constant\", fill_value=\"unknown\"` da bir seçenek — eksikliğin kendisi bilgi taşıyorsa.\n\nBu bölümün verisinde `city` sütununda 24 eksik değer var.",
+        "en": "The median is defined for orderable numbers. For categories the counterpart is the most frequent value.\n\n`strategy=\"constant\", fill_value=\"unknown\"` is another option — when the missingness itself carries information.\n\nIn this section's data the `city` column has 24 missing values."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 1,
+      "text": {
+        "tr": "Pipeline `cross_val_score`'a verilince ne oluyor?",
+        "en": "What happens when a pipeline is handed to `cross_val_score`?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca model yeniden eğitiliyor",
+          "Her katın içinde bütün adımlar baştan eğitiliyor",
+          "Adımlar bir kez eğitilip paylaşılıyor",
+          "Çapraz doğrulama atlanıyor"
+        ],
+        "en": [
+          "Only the model is retrained",
+          "Every step is retrained inside each fold",
+          "The steps are fitted once and shared",
+          "The cross validation is skipped"
+        ]
+      },
+      "explanation": {
+        "tr": "Birinci katın medyanı o katın eğitim kısmından, ikinci katınki ikinci kattan geliyor.\n\nBu, sızıntıyı bir dikkat meselesi olmaktan çıkarıp yapısal olarak imkânsız hâle getiriyor.\n\nAdımlar paylaşılsaydı doğrulama kısmı ön işlemenin gördüğü satırlardan oluşurdu.",
+        "en": "The first fold's median comes from that fold's training part, the second fold's from the second.\n\nThis turns leakage from a matter of care into something structurally impossible.\n\nIf the steps were shared, the validation part would consist of rows the preprocessing had already seen."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 1,
+      "text": {
+        "tr": "Ölçekleyiciyi `fit_transform` edip sonucu `cross_val_score`'a vermek neden sorunlu?",
+        "en": "Why is it a problem to `fit_transform` a scaler and hand the result to `cross_val_score`?"
+      },
+      "options": {
+        "tr": [
+          "Yavaş olduğu için",
+          "Ölçekleyici bütün eğitim verisini gördü; her katın doğrulama kısmı ona tanıdık",
+          "Sonuç değişmediği için",
+          "sklearn hata verdiği için"
+        ],
+        "en": [
+          "Because it is slow",
+          "The scaler saw all the training data; each fold's validation part is familiar to it",
+          "Because the result does not change",
+          "Because sklearn raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Sessiz bir sızıntı: hata yok, uyarı yok, yalnızca olduğundan iyi bir skor.\n\nÖlçekleme için etki genelde küçük ama hedefe bakan bir adım varsa büyüyor.\n\nÖlçüldü: özellik seçimi çapraz doğrulamanın dışında yapıldığında 6,4 puanlık uydurma kazanç.",
+        "en": "A silent leak: no error, no warning, just a score better than reality.\n\nFor scaling the effect is usually small, but it grows when a step looks at the target.\n\nMeasured: with feature selection done outside the cross validation, a fabricated 6.4-point gain."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 3,
+      "text": {
+        "tr": "200 gürültü sütunu eklenip `SelectKBest` çapraz doğrulamanın dışında çalıştırıldığında CV 0.780, pipeline içinde 0.716 çıkıyor. Fark nereden geliyor?",
+        "en": "With 200 noise columns added, `SelectKBest` outside cross validation gives 0.780 and inside a pipeline 0.716. Where does the gap come from?"
+      },
+      "options": {
+        "tr": [
+          "Pipeline yavaş çalıştığı için",
+          "Rastgelelikten",
+          "Gürültü sütunları gerçekten bilgi taşıyor",
+          "Seçici bütün eğitim verisine bakıp tesadüfen hedefe benzeyen gürültü sütunlarını seçti"
+        ],
+        "en": [
+          "Because the pipeline runs slower",
+          "From randomness",
+          "The noise columns really carry information",
+          "The selector looked at all the training data and picked noise columns that happened to resemble the target"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: seçilen 15 sütunun 8'i saf gürültü. 209 sütun arasından 15 seçerken tesadüfen hedefe benzeyen sütun bulmak kolay.\n\nSonra aynı veride doğrulanınca iyi görünüyorlar — çünkü seçim zaten o veriye göre yapılmıştı.\n\nPipeline içinde her kat kendi seçimini yapıyor ve numara bozuluyor.",
+        "en": "Measured: 8 of the 15 selected columns are pure noise. Picking 15 out of 209, it is easy to find columns that happen to resemble the target.\n\nValidated on that same data they look good — because the selection was made on it.\n\nInside a pipeline each fold makes its own selection and the trick falls apart."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Hangi adımlar pipeline'ın içinde olmalı?",
+        "en": "Which steps belong inside the pipeline?"
+      },
+      "options": {
+        "tr": [
+          "Hedefe bakan ve veriden bir şey öğrenen her adım",
+          "Yalnızca ölçekleme",
+          "Yalnızca model",
+          "Hiçbiri; pipeline yalnızca kolaylık"
+        ],
+        "en": [
+          "Every step that looks at the target or learns anything from the data",
+          "Only the scaling",
+          "Only the model",
+          "None; a pipeline is only a convenience"
+        ]
+      },
+      "explanation": {
+        "tr": "Doldurma, ölçekleme, kodlama, özellik seçimi, hedef kodlaması, aykırı değer atma — hepsi.\n\nOrtak yanları veriden bir şey öğrenmeleri; öğrendikleri şey doğrulama kısmından gelirse sızıntı oluyor.\n\nSütun adı değiştirmek gibi hiçbir şey öğrenmeyen adımlar dışarıda kalabiliyor.",
+        "en": "Imputing, scaling, encoding, feature selection, target encoding, outlier removal — all of them.\n\nWhat they share is that they learn something from the data; if what they learn comes from the validation part, that is leakage.\n\nSteps that learn nothing, like renaming a column, can stay outside."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`GridSearchCV` ızgarasında anahtar nasıl yazılıyor?",
+        "en": "How are the keys written in a `GridSearchCV` grid?"
+      },
+      "options": {
+        "tr": [
+          "Adım adları ve parametre adı iki alt çizgiyle",
+          "Adım adı ve parametre tek alt çizgiyle",
+          "Nokta ile",
+          "Yalnızca parametre adıyla"
+        ],
+        "en": [
+          "The step names and the parameter name with two underscores",
+          "The step name and parameter with a single underscore",
+          "With a dot",
+          "With the parameter name alone"
+        ]
+      },
+      "explanation": {
+        "tr": "`model__C`, `prepare__num__impute__strategy`. Kaç seviye olursa olsun aynı kural.\n\nTek alt çizgi yazılırsa `GridSearchCV` \"böyle bir parametre yok\" diyor.\n\nBu, bölümün en çok karıştırılan yeri.",
+        "en": "`model__C`, `prepare__num__impute__strategy`. The same rule holds however many levels deep.\n\nWith a single underscore `GridSearchCV` says there is no such parameter.\n\nThis is the most confusing thing in the section."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 2,
+      "text": {
+        "tr": "`prepare__num__impute__strategy` anahtarı neyi gösteriyor?",
+        "en": "What does the key `prepare__num__impute__strategy` point to?"
+      },
+      "options": {
+        "tr": [
+          "Modelin bir parametresini",
+          "Pipeline'ın adını",
+          "`prepare` adımının `num` bölümündeki `impute` adımının `strategy` parametresini",
+          "Sütun adını"
+        ],
+        "en": [
+          "A parameter of the model",
+          "The pipeline's name",
+          "The `strategy` parameter of the `impute` step inside the `num` part of the `prepare` step",
+          "A column name"
+        ]
+      },
+      "explanation": {
+        "tr": "Dört seviye: Pipeline adımı, ColumnTransformer bölümü, iç Pipeline adımı, parametre.\n\nBöylece doldurma stratejisi de bir hiperparametre oluyor — \"medyan mı ortalama mı\" sorusu tahminle değil ölçümle cevaplanıyor.\n\nModelin parametresi `model__C` diye yazılıyor.",
+        "en": "Four levels: the Pipeline step, the ColumnTransformer part, the inner Pipeline step, the parameter.\n\nThis makes the imputation strategy a hyperparameter too — \"median or mean\" gets answered by measurement rather than guesswork.\n\nThe model's parameter is written `model__C`."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 2,
+      "text": {
+        "tr": "`search.best_score_` neyi veriyor?",
+        "en": "What does `search.best_score_` give?"
+      },
+      "options": {
+        "tr": [
+          "Test kümesindeki skoru",
+          "Eğitim doğruluğunu",
+          "En iyi ayarın eğitim tarafındaki çapraz doğrulama ortalamasını",
+          "Bütün noktaların ortalamasını"
+        ],
+        "en": [
+          "The score on the test set",
+          "The training accuracy",
+          "The best setting's cross-validation mean on the training side",
+          "The mean of every point"
+        ]
+      },
+      "explanation": {
+        "tr": "Test kümesine hiç dokunulmuyor; arama tamamen eğitim tarafında yapılıyor.\n\nDahası bu sayı iyimser: birçok nokta arasından en iyisi seçildiği için, seçim bir tür aşırı uyum.\n\nSon rapor `search.predict(X_test)` ile test kümesinde yapılıyor.",
+        "en": "The test set is never touched; the search happens entirely on the training side.\n\nMoreover the number is optimistic: choosing the best of many points is itself a kind of overfitting.\n\nThe final report is made on the test set with `search.predict(X_test)`."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`search.best_estimator_` ne içeriyor?",
+        "en": "What does `search.best_estimator_` contain?"
+      },
+      "options": {
+        "tr": [
+          "En iyi ayarla bütün eğitim verisinde yeniden eğitilmiş pipeline'ı",
+          "Yalnızca en iyi parametreleri",
+          "Bütün modelleri",
+          "Test tahminlerini"
+        ],
+        "en": [
+          "The pipeline retrained on all the training data with the best settings",
+          "Only the best parameters",
+          "Every model",
+          "The test predictions"
+        ]
+      },
+      "explanation": {
+        "tr": "`refit=True` varsayılan olduğu için arama bittiğinde hazır geliyor; `search.predict(...)` doğrudan onu kullanıyor.\n\nParametrelerin kendisi `best_params_` içinde.\n\nHer noktanın ayrıntısı `cv_results_` içinde.",
+        "en": "Since `refit=True` is the default, it comes ready when the search finishes; `search.predict(...)` uses it directly.\n\nThe parameters themselves live in `best_params_`.\n\nThe detail for every point is in `cv_results_`."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 2,
+      "text": {
+        "tr": "Bir ızgara araması CV skorunu 0.738'den 0.744'e çıkarıyor ama test skoru ikisinde de 0.793. Bu ne demek?",
+        "en": "A grid search raises the CV score from 0.738 to 0.744 but the test score is 0.793 either way. What does that mean?"
+      },
+      "options": {
+        "tr": [
+          "Arama hatalı",
+          "Test kümesi bozuk",
+          "Bu veride aranan ayarlar önemli değil; iyileşme başka yerden gelmeli",
+          "Daha çok nokta aranmalı"
+        ],
+        "en": [
+          "The search is faulty",
+          "The test set is broken",
+          "On this data the searched settings do not matter; improvement must come from elsewhere",
+          "More points should be searched"
+        ]
+      },
+      "explanation": {
+        "tr": "0.006'lık CV kazancı zaten yayılımın altında. Sekiz nokta tarandı, kırk model eğitildi ve test skoru kıpırdamadı.\n\nBu bir başarısızlık değil, bir bilgi: daha çok veri, daha iyi özellik ya da farklı bir model gerekiyor.\n\nBunu ölçmeden bilmenin yolu yoktu.",
+        "en": "The 0.006 CV gain sits below the spread anyway. Eight points were searched, forty models trained, and the test score did not budge.\n\nThat is not a failure but information: more data, better features or a different model is needed.\n\nThere was no way to know that without measuring."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`RandomizedSearchCV`, `GridSearchCV`'den ne zaman daha uygun?",
+        "en": "When is `RandomizedSearchCV` more suitable than `GridSearchCV`?"
+      },
+      "options": {
+        "tr": [
+          "Parametre sayısı arttığında; ızgara üstel büyürken rastgele arama aynı sürede daha geniş alanı tarıyor",
+          "Her zaman",
+          "Yalnızca regresyonda",
+          "Veri küçük olduğunda"
+        ],
+        "en": [
+          "When the parameter count grows; the grid grows exponentially while a random search covers more ground in the same time",
+          "Always",
+          "Only for regression",
+          "When the data is small"
+        ]
+      },
+      "explanation": {
+        "tr": "Üç parametre ve beşer değer 125 nokta demek; her nokta beş kat eğitim demek.\n\n`n_iter` ile kaç nokta deneneceği seçiliyor ve arayüz aynı.\n\nKüçük ızgaralarda `GridSearchCV` her noktayı garanti ettiği için tercih ediliyor.",
+        "en": "Three parameters with five values each means 125 points; each point means five folds of training.\n\n`n_iter` sets how many points to try and the interface is the same.\n\nOn small grids `GridSearchCV` is preferred because it guarantees every point."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 3,
+      "text": {
+        "tr": "`joblib.dump(pipe, ...)` ne kaydediyor?",
+        "en": "What does `joblib.dump(pipe, ...)` save?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca model katsayılarını",
+          "Eğitim verisini",
+          "Yalnızca ayarları",
+          "Bütün adımları: medyanlar, mod, kodlayıcının kategorileri, ölçek değerleri, katsayılar ve sütun sırası"
+        ],
+        "en": [
+          "Only the model's coefficients",
+          "The training data",
+          "Only the settings",
+          "Every step: the medians, the mode, the encoder's categories, the scaling values, the coefficients and the column order"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu yüzden yüklenen model ham veriyle — eksik değerli ham veriyle bile — çalışabiliyor.\n\nYalnızca son adım kaydedilseydi ön işlemenin öğrendikleri kaybolurdu.\n\nEğitim verisi dosyaya girmiyor.",
+        "en": "This is why the loaded model works on raw data — even raw data with missing values.\n\nHad only the last step been saved, what the preprocessing learned would be lost.\n\nThe training data does not go into the file."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 1,
+      "text": {
+        "tr": "Kaydedilen `joblib` dosyası aşağıdakilerden hangisini **taşımıyor**?",
+        "en": "Which of these does a saved `joblib` file **not** carry?"
+      },
+      "options": {
+        "tr": [
+          "Ölçekleyicinin ortalamasını",
+          "Seçtiğin karar eşiğini",
+          "Kodlayıcının kategorilerini",
+          "Sütun sırasını"
+        ],
+        "en": [
+          "The scaler's mean",
+          "The decision threshold you chose",
+          "The encoder's categories",
+          "The column order"
+        ]
+      },
+      "explanation": {
+        "tr": "`predict()` her zaman 0.5 kullanıyor; bölüm 09'da seçtiğin eşik yalnızca senin kodunda duruyor.\n\nNot edilmezse modeli kullanan bir sonraki kişi `predict()` çağırıyor ve sessizce başka bir modeli çalıştırmış oluyor.\n\nKütüphane sürümleri, eğitim verisi ve ölçtüğün skorlar da dosyada yok.",
+        "en": "`predict()` always uses 0.5; the threshold you chose in section 09 lives only in your own code.\n\nUnnoted, the next person calls `predict()` and silently runs a different model.\n\nThe library versions, the training data and the scores you measured are absent too."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 1,
+      "text": {
+        "tr": "`joblib` neden `pickle` yerine tercih ediliyor?",
+        "en": "Why is `joblib` preferred over `pickle`?"
+      },
+      "options": {
+        "tr": [
+          "Daha güvenli olduğu için",
+          "Büyük NumPy dizilerinde daha hızlı ve daha küçük dosya ürettiği için",
+          "Sürüm uyumunu çözdüğü için",
+          "Metin dosyası ürettiği için"
+        ],
+        "en": [
+          "Because it is safer",
+          "Because it is faster with large NumPy arrays and produces smaller files",
+          "Because it solves version compatibility",
+          "Because it produces a text file"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı işi yapıyor, aynı riskleri taşıyor — ikisi de yüklerken Python nesnesi kuruyor, ikisi de güvenilmeyen dosyada tehlikeli.\n\nSürüm uyumu ikisinde de sorun.\n\nÜretilen dosya ikili, metin değil.",
+        "en": "It does the same job with the same risks — both construct Python objects on load and both are dangerous with untrusted files.\n\nVersion compatibility is a problem for both.\n\nThe file produced is binary, not text."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 2,
+      "text": {
+        "tr": "`joblib.load` ile ilgili güvenlik uyarısı ne?",
+        "en": "What is the security warning about `joblib.load`?"
+      },
+      "options": {
+        "tr": [
+          "Dosyayı bozabiliyor",
+          "İnternete bağlanıyor",
+          "Dosyanın içindeki Python nesnelerini kuruyor; güvenilmeyen bir dosya kod çalıştırabiliyor",
+          "Veriyi diske yazıyor"
+        ],
+        "en": [
+          "It can corrupt the file",
+          "It connects to the internet",
+          "It constructs the Python objects inside the file; an untrusted file can run code",
+          "It writes data to disk"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu `pickle` tabanlı her biçim için geçerli.\n\nKendi ürettiğin dosyalar dışında dikkatli olmak gerekiyor.\n\nAğ bağlantısı yok; yükleme tamamen yerel.",
+        "en": "This holds for every pickle-based format.\n\nBe careful with anything you did not produce yourself.\n\nThere is no network connection; loading is entirely local."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Farklı bir scikit-learn sürümünde `joblib` dosyası açılırsa ne olabilir?",
+        "en": "What can happen if a `joblib` file is opened under a different scikit-learn version?"
+      },
+      "options": {
+        "tr": [
+          "Çalışabilir, uyarı verip yanlış çalışabilir, ya da hiç açılmayabilir",
+          "Her zaman sorunsuz çalışır",
+          "Dosya otomatik güncellenir",
+          "Model yeniden eğitilir"
+        ],
+        "en": [
+          "It may work, may warn and work incorrectly, or may not open at all",
+          "It always works fine",
+          "The file updates itself",
+          "The model retrains itself"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu yüzden modelin yanına `requirements.txt` konuyor.\n\n`InconsistentVersionWarning` \"muhtemelen sorun yok\" demiyor; \"kontrol et\" diyor.\n\nDosya kendini güncellemiyor ve yeniden eğitmiyor; içindeki nesneler olduğu gibi kuruluyor.",
+        "en": "This is why a `requirements.txt` sits beside the model.\n\n`InconsistentVersionWarning` does not say \"probably fine\"; it says \"check\".\n\nThe file does not update or retrain itself; the objects inside are constructed as they are."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 3,
+      "text": {
+        "tr": "Modelin yanına konan not neden gerekiyor?",
+        "en": "Why is a note beside the model necessary?"
+      },
+      "options": {
+        "tr": [
+          "Dosya boyutunu küçültmek için",
+          "sklearn zorunlu tuttuğu için",
+          "Modeli hızlandırmak için",
+          "Dosya modelin ne yaptığını, neyle eğitildiğini ve hangi eşikle kullanılacağını taşımıyor"
+        ],
+        "en": [
+          "To shrink the file",
+          "Because sklearn requires it",
+          "To speed the model up",
+          "The file does not carry what the model does, what it was trained on, or which threshold to use"
+        ]
+      },
+      "explanation": {
+        "tr": "Altı ay sonra elinde adı `model.joblib` olan, ne yaptığı belirsiz bir ikili dosya kalıyor.\n\nEn pahalı eksik genelde \"neyi kasten dışarıda bıraktık\" bilgisi oluyor.\n\nYirmi satırlık bir metin dosyası yeterli.",
+        "en": "Six months later you are left with a binary file called `model.joblib` and no idea what it does.\n\nThe most expensive omission is usually \"what did we deliberately leave out\".\n\nA twenty-line text file is enough."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 1,
+      "text": {
+        "tr": "Model kayması (drift) ne demek?",
+        "en": "What is drift?"
+      },
+      "options": {
+        "tr": [
+          "Modelin dosyasının bozulması",
+          "Üretimdeki verinin zamanla eğitim verisinden uzaklaşması ve modelin sessizce kötüleşmesi",
+          "Modelin yavaşlaması",
+          "Sürüm uyumsuzluğu"
+        ],
+        "en": [
+          "The model's file becoming corrupt",
+          "Production data drifting away from the training data over time, quietly worsening the model",
+          "The model getting slower",
+          "A version mismatch"
+        ]
+      },
+      "explanation": {
+        "tr": "İki türü var: veri kayması (girdilerin dağılımı değişiyor) ve kavram kayması (girdi-hedef ilişkisi değişiyor).\n\nİkincisi daha sinsi: girdiler aynı görünüyor ama model artık yanlış.\n\nÇözüm izleme ve düzenli yeniden eğitim — ve yeni modeli eskisiyle karşılaştırmak.",
+        "en": "It comes in two kinds: data drift (the input distribution changes) and concept drift (the input-target relationship changes).\n\nThe second is sneakier: the inputs look the same but the model is now wrong.\n\nThe answer is monitoring and regular retraining — and comparing the new model with the old."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Kaydedilen model dosyası mı yoksa eğitim betiği mi daha değerli?",
+        "en": "Which is more valuable, the saved model file or the training script?"
+      },
+      "options": {
+        "tr": [
+          "Eğitim betiği; modeli yeniden üretebilmek dosyayı saklamaktan daha değerli",
+          "Model dosyası",
+          "İkisi de gereksiz",
+          "Fark etmez"
+        ],
+        "en": [
+          "The training script; being able to reproduce the model is worth more than keeping the file",
+          "The model file",
+          "Both are unnecessary",
+          "It makes no difference"
+        ]
+      },
+      "explanation": {
+        "tr": "Dosya bir sürümde açılmayabiliyor; betik varsa model yeniden üretiliyor.\n\nBunun için `random_state` sabitlenmiş olmalı — yoksa aynı betik aynı modeli vermiyor.\n\nElbette ikisi de saklanıyor; soru hangisinin kaybı daha pahalı.",
+        "en": "The file may not open under some version; with the script the model can be rebuilt.\n\nFor that, `random_state` must be fixed — otherwise the same script does not give the same model.\n\nBoth are kept, of course; the question is which loss costs more."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 3,
+      "text": {
+        "tr": "`make_pipeline` ile `Pipeline` arasındaki fark ne?",
+        "en": "What is the difference between `make_pipeline` and `Pipeline`?"
+      },
+      "options": {
+        "tr": [
+          "`make_pipeline` daha hızlı",
+          "`make_pipeline` ön işleme yapamıyor",
+          "Fark yok",
+          "`make_pipeline` adımlara kendi ad veriyor; `GridSearchCV` anahtarları okunmaz oluyor"
+        ],
+        "en": [
+          "`make_pipeline` is faster",
+          "`make_pipeline` cannot do preprocessing",
+          "There is no difference",
+          "`make_pipeline` names the steps itself, which makes `GridSearchCV` keys unreadable"
+        ]
+      },
+      "explanation": {
+        "tr": "Adları sınıf adından üretiyor: `standardscaler`, `logisticregression`. Hızlı yazılıyor ama ızgara anahtarı `logisticregression__C` oluyor.\n\nAyar araması yapılacaksa adları elle vermek daha okunur.\n\nİkisi de aynı işi yapıyor ve aynı hızda çalışıyor.",
+        "en": "It derives the names from the class names: `standardscaler`, `logisticregression`. Quick to write, but the grid key becomes `logisticregression__C`.\n\nWhen a search is planned, naming the steps by hand reads better.\n\nBoth do the same job at the same speed."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 2,
+      "text": {
+        "tr": "Bir pipeline'ın son adımı ne olmak zorunda?",
+        "en": "What must a pipeline's last step be?"
+      },
+      "options": {
+        "tr": [
+          "Bir dönüştürücü",
+          "Bir ölçekleyici",
+          "Bir tahminci (`fit` ve `predict` metotları olan)",
+          "Bir `ColumnTransformer`"
+        ],
+        "en": [
+          "A transformer",
+          "A scaler",
+          "An estimator (with `fit` and `predict` methods)",
+          "A `ColumnTransformer`"
+        ]
+      },
+      "explanation": {
+        "tr": "Öncekiler dönüştürücü olmak zorunda (`fit` ve `transform`), sonuncusu tahminci.\n\nSon adım da dönüştürücü olabiliyor — o zaman pipeline `predict` değil `transform` sunuyor ve başka bir pipeline'ın adımı olabiliyor.\n\n`pipe[:-1].transform(X)` yalnızca ön işlemeyi çalıştırıyor.",
+        "en": "The earlier steps must be transformers (`fit` and `transform`) and the last an estimator.\n\nThe last step can also be a transformer — the pipeline then offers `transform` rather than `predict` and can be a step in another pipeline.\n\n`pipe[:-1].transform(X)` runs the preprocessing only."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 0,
+      "text": {
+        "tr": "Ön işleme sonrası sütun adları nereden okunuyor?",
+        "en": "Where do the column names after preprocessing come from?"
+      },
+      "options": {
+        "tr": [
+          "`pipe.named_steps[\"prepare\"].get_feature_names_out()`",
+          "`X.columns`",
+          "`pipe.columns`",
+          "Elle yazılıyor"
+        ],
+        "en": [
+          "`pipe.named_steps[\"prepare\"].get_feature_names_out()`",
+          "`X.columns`",
+          "`pipe.columns`",
+          "They are written by hand"
+        ]
+      },
+      "explanation": {
+        "tr": "İki metin sütunu altı sütuna açıldığı için `X.columns` artık geçerli değil; katsayıları okurken tek doğru kaynak bu.\n\nÖlçülen çıktı: `num__tenure`, `num__monthly`, `num__support`, `cat__city_Ankara` ... toplam dokuz.\n\nÖnekler `verbose_feature_names_out=False` ile kaldırılabiliyor.",
+        "en": "Since two text columns opened into six, `X.columns` no longer applies; this is the only correct source when reading coefficients.\n\nThe measured output: `num__tenure`, `num__monthly`, `num__support`, `cat__city_Ankara` ... nine in total.\n\nThe prefixes can be removed with `verbose_feature_names_out=False`."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 3,
+      "text": {
+        "tr": "İki metin sütunu (3'er kategori) ve üç sayısal sütun ön işlemeden geçince kaç sütun oluyor?",
+        "en": "How many columns result when two text columns (3 categories each) and three numeric columns are preprocessed?"
+      },
+      "options": {
+        "tr": [
+          "5",
+          "6",
+          "11",
+          "9"
+        ],
+        "en": [
+          "5",
+          "6",
+          "11",
+          "9"
+        ]
+      },
+      "explanation": {
+        "tr": "Üç sayısal sütun olduğu gibi kalıyor, iki metin sütunu 3 + 3 = 6 sütuna açılıyor. Toplam 9.\n\n`drop=\"first\"` verilseydi her kategoriden biri atılıp 3 + 2 + 2 = 7 olurdu.\n\nÖlçülen çıktı da 9 sütun veriyor.",
+        "en": "The three numeric columns stay as they are and the two text columns open into 3 + 3 = 6. Nine in total.\n\nWith `drop=\"first\"` one category from each would be dropped, giving 3 + 2 + 2 = 7.\n\nThe measured output gives nine columns too."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 3,
+      "text": {
+        "tr": "Aynı ön işleyici nesnesini iki farklı pipeline'da paylaşmak neden sorunlu?",
+        "en": "Why is it a problem to share one preprocessor object between two pipelines?"
+      },
+      "options": {
+        "tr": [
+          "Bellek yetmiyor",
+          "sklearn izin vermiyor",
+          "Sorun değil",
+          "İkinci `fit` birincinin öğrendiklerinin üstüne yazıyor; iki pipeline aynı nesneyi paylaşıyor"
+        ],
+        "en": [
+          "Memory runs out",
+          "sklearn does not allow it",
+          "It is not a problem",
+          "The second `fit` overwrites what the first learned; both pipelines share one object"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu yüzden ön işleyici bir fonksiyonla üretiliyor ve her pipeline kendi kopyasını alıyor.\n\nÇapraz doğrulama sırasında sklearn klonluyor, ama elle `fit` çağrıldığında paylaşım gerçek bir sorun.\n\nBellekle ilgisi yok.",
+        "en": "This is why the preprocessor is built by a function and each pipeline gets its own copy.\n\nDuring cross validation sklearn clones it, but when `fit` is called by hand the sharing is a real problem.\n\nMemory has nothing to do with it."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 2,
+      "text": {
+        "tr": "Bölüm 04'ün \"önce ayır, sonra dokun\" kuralı pipeline ile ne oluyor?",
+        "en": "What happens to section 04's \"split first, touch afterwards\" rule with a pipeline?"
+      },
+      "options": {
+        "tr": [
+          "Geçersiz oluyor",
+          "İki katına çıkıyor",
+          "Dikkat meselesi olmaktan çıkıp yapısal olarak garanti altına alınıyor",
+          "Yalnızca ölçekleme için geçerli kalıyor"
+        ],
+        "en": [
+          "It stops applying",
+          "It doubles",
+          "It stops being a matter of care and becomes structurally guaranteed",
+          "It applies only to scaling"
+        ]
+      },
+      "explanation": {
+        "tr": "Pipeline'ı yanlış sırada çalıştırmanın bir yolu yok: `fit` eğitimde, `transform` testte.\n\nKural geçersiz olmuyor — tam tersine, artık ihlal edilemiyor.\n\nÇapraz doğrulamanın içinde de aynı garanti geçerli.",
+        "en": "There is no way to run a pipeline in the wrong order: `fit` on training, `transform` on test.\n\nThe rule does not stop applying — on the contrary, it can no longer be broken.\n\nThe same guarantee holds inside cross validation too."
+      }
+    },
+    {
+      "id": "q31",
+      "answer": 3,
+      "text": {
+        "tr": "Yüklenen bir pipeline'a eksik değerli ham bir satır verilirse ne oluyor?",
+        "en": "What happens when a raw row with missing values is handed to a loaded pipeline?"
+      },
+      "options": {
+        "tr": [
+          "Hata veriyor",
+          "Satırı atlıyor",
+          "Sıfır döndürüyor",
+          "Eğitimde öğrenilen medyan ve modla doldurup tahmin üretiyor"
+        ],
+        "en": [
+          "It raises an error",
+          "It skips the row",
+          "It returns zero",
+          "It fills them with the median and mode learned during training and produces a prediction"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `city` ve `monthly` eksik olan satır için olasılık 0.466 — kararsız ama çalışıyor.\n\nElle hazırlanmış bir modelde bu satır çökme olurdu, ya da daha kötüsü medyanı yeniden hesaplayıp sessizce yanlış tahmin üretirdi.\n\n0.466 dürüst bir cevap: \"bu abone hakkında yeterli bilgim yok.\"",
+        "en": "Measured: for the row missing `city` and `monthly` the probability is 0.466 — undecided, but working.\n\nWith a hand-prepared model that row would crash, or worse, recompute the median and quietly produce a wrong prediction.\n\n0.466 is an honest answer: \"I do not know enough about this subscriber.\""
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 1,
+      "text": {
+        "tr": "Tam bir makine öğrenmesi akışında test kümesi hangi adımda açılıyor?",
+        "en": "At which step of a full machine learning flow is the test set opened?"
+      },
+      "options": {
+        "tr": [
+          "Ön işlemeyi kurarken",
+          "Model seçimi ve ayar bittikten sonra, son raporu vermek için",
+          "Çapraz doğrulama sırasında",
+          "Izgara ararken"
+        ],
+        "en": [
+          "While building the preprocessing",
+          "After model selection and tuning are done, to give the final report",
+          "During cross validation",
+          "While searching the grid"
+        ]
+      },
+      "explanation": {
+        "tr": "Ön işleme, karşılaştırma ve arama tamamen eğitim tarafında yapılıyor.\n\nTest kümesine ikinci kez bakıp ayar değiştirirsen o skor artık dürüst değil.\n\nBu, bölüm 05'ten beri tekrarlanan tek kural.",
+        "en": "Preprocessing, comparison and searching all happen on the training side.\n\nIf you look at the test set a second time and change a setting, that score is no longer honest.\n\nThis is the single rule repeated since section 05."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 0,
+      "text": {
+        "tr": "Bu bölümün tek cümlelik özeti ne?",
+        "en": "What is this section in one sentence?"
+      },
+      "options": {
+        "tr": [
+          "Ön işlemenin tamamı modelin parçası; o yüzden birlikte eğitiliyor ve birlikte kaydediliyor",
+          "Pipeline kodu kısaltıyor",
+          "GridSearchCV her zaman skoru yükseltiyor",
+          "joblib her sürümde çalışıyor"
+        ],
+        "en": [
+          "All the preprocessing is part of the model, which is why they are trained and saved together",
+          "A pipeline shortens the code",
+          "GridSearchCV always raises the score",
+          "joblib works under every version"
+        ]
+      },
+      "explanation": {
+        "tr": "Kodun kısalması yan fayda; asıl kazanç sızıntının imkânsızlaşması ve modelin eksiksiz kaydedilmesi.\n\nÖlçüldü: ızgara araması bu veride test skorunu hiç değiştirmedi.\n\nSürüm uyumu `joblib`'in bilinen sınırı.",
+        "en": "Shorter code is a side benefit; the real gains are that leakage becomes impossible and the model is saved complete.\n\nMeasured: the grid search did not change the test score at all on this data.\n\nVersion compatibility is a known limit of `joblib`."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 2,
+      "text": {
+        "tr": "`pipe[:-1].transform(X)` ne veriyor?",
+        "en": "What does `pipe[:-1].transform(X)` give?"
+      },
+      "options": {
+        "tr": [
+          "Modelin tahminini",
+          "Ham veriyi",
+          "Yalnızca ön işlemeden geçmiş veriyi",
+          "Sütun adlarını"
+        ],
+        "en": [
+          "The model's prediction",
+          "The raw data",
+          "The data after preprocessing only",
+          "The column names"
+        ]
+      },
+      "explanation": {
+        "tr": "Dilimleme pipeline'ın son adımını (modeli) dışarıda bırakıyor; geriye yalnızca dönüştürücüler kalıyor.\n\nÖn işlemenin ne ürettiğini incelemek için pratik bir yol.\n\nSütun adları `get_feature_names_out()` ile alınıyor.",
+        "en": "The slice leaves out the pipeline's last step (the model), keeping only the transformers.\n\nA practical way to inspect what the preprocessing produces.\n\nThe column names come from `get_feature_names_out()`."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 1,
+      "text": {
+        "tr": "Model bir kez eğitilip kaydedildikten sonra üretimde ne izlenmeli?",
+        "en": "Once a model is trained and saved, what should be monitored in production?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca dosya boyutu",
+          "Tahminlerin dağılımı ve gerçek sonuçlar geldikçe skor",
+          "Yalnızca çalışma süresi",
+          "Hiçbir şey; model sabit"
+        ],
+        "en": [
+          "Only the file size",
+          "The distribution of the predictions and the score as real outcomes arrive",
+          "Only the runtime",
+          "Nothing; the model is fixed"
+        ]
+      },
+      "explanation": {
+        "tr": "Model sabit ama veri değil. Birden herkese \"ayrılır\" demeye başladıysa bir şey olmuş demektir.\n\nDüzenli yeniden eğitim de gerekiyor — ve yeni model eskisiyle karşılaştırılıyor, çünkü her zaman daha iyi olmuyor.\n\nDosya boyutu ve süre işletme sorunları, model kalitesi değil.",
+        "en": "The model is fixed but the data is not. If it suddenly says \"leaves\" to everyone, something happened.\n\nRegular retraining is needed too — and the new model is compared with the old, because it is not always better.\n\nFile size and runtime are operational matters, not model quality."
+      }
+    },
+    {
+      "id": "q36",
+      "answer": 3,
+      "text": {
+        "tr": "Bir pipeline'ın adımına dışarıdan nasıl ulaşılıyor?",
+        "en": "How do you reach a step of a pipeline from outside?"
+      },
+      "options": {
+        "tr": [
+          "`pipe.model`",
+          "`pipe.get(\"model\")`",
+          "Ulaşılamıyor",
+          "`pipe.named_steps[\"model\"]` ya da dizin ile `pipe[-1]`"
+        ],
+        "en": [
+          "`pipe.model`",
+          "`pipe.get(\"model\")`",
+          "You cannot",
+          "`pipe.named_steps[\"model\"]` or by index, `pipe[-1]`"
+        ]
+      },
+      "explanation": {
+        "tr": "Adım adları kurarken verdiğin dizeler; `named_steps` onları sözlük gibi sunuyor.\n\nKatsayıları okumak için `pipe.named_steps[\"model\"].coef_` kullanılıyor.\n\nDizin de çalışıyor: `pipe[-1]` son adım, `pipe[:-1]` ön işleme.",
+        "en": "The step names are the strings you gave when building it; `named_steps` exposes them like a dict.\n\nTo read the coefficients use `pipe.named_steps[\"model\"].coef_`.\n\nIndexing works too: `pipe[-1]` is the last step and `pipe[:-1]` the preprocessing."
+      }
+    }
+  ]
+}

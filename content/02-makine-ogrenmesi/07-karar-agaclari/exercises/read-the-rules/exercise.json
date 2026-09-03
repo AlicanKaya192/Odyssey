@@ -1,0 +1,40 @@
+{
+  "id": "read-the-rules",
+  "title": {
+    "tr": "Kuralları oku",
+    "en": "Read the rules"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "`export_text(model, feature_names=list(X.columns))` ağacın kurallarını metne çeviriyor.",
+      "en": "`export_text(model, feature_names=list(X.columns))` writes the tree's rules out as text."
+    },
+    {
+      "tr": "Kök bölünmesinin özelliği `X.columns[model.tree_.feature[0]]`, eşiği `model.tree_.threshold[0]`.",
+      "en": "The root split's feature is `X.columns[model.tree_.feature[0]]` and its threshold `model.tree_.threshold[0]`."
+    },
+    {
+      "tr": "`get_n_leaves()` ve `get_depth()` ağacın boyutunu veriyor; `int()` ile tam sayıya çeviriyorsun.",
+      "en": "`get_n_leaves()` and `get_depth()` give the tree's size; wrap them in `int()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.tree import export_text\n\nmodel = DecisionTreeClassifier(max_depth=2, random_state=42)\nmodel.fit(X_train, y_train)\n\nprint(export_text(model, feature_names=list(X.columns)))\nprint(X.columns[model.tree_.feature[0]],\n      round(float(model.tree_.threshold[0]), 2))\nprint(int(model.get_n_leaves()), int(model.get_depth()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.tree import export_text\n\nmodel = DecisionTreeClassifier(max_depth=2, random_state=42)\nmodel.fit(X_train, y_train)\n\nprint(export_text(model, feature_names=list(X.columns)))\nprint(X.columns[model.tree_.feature[0]],\n      round(float(model.tree_.threshold[0]), 2))\nprint(int(model.get_n_leaves()), int(model.get_depth()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "|--- visits <= 18.50\n|   |--- income <= 137500.00\n|   |   |--- class: 1\n|   |--- income >  137500.00\n|   |   |--- class: 0\n|--- visits >  18.50\n|   |--- income <= 41500.00\n|   |   |--- class: 0\n|   |--- income >  41500.00\n|   |   |--- class: 0\n\nvisits 18.5\n4 2"
+    }
+  ]
+}

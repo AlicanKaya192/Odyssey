@@ -1,5 +1,3 @@
-# Data Glossary
-
 Words you will keep running into when you read about data science or open a
 library's documentation. You do not need to memorise them now; come back here
 when you get stuck.

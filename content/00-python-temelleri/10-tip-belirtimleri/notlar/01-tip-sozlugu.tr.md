@@ -1,5 +1,3 @@
-# Tip Sözlüğü
-
 Karşılaşacağın belirtimlerin listesi. Ezberlemek için değil, takıldığında
 bakmak için.
 

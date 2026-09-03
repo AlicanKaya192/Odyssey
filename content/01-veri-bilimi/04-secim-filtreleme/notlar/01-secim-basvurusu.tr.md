@@ -1,5 +1,3 @@
-# Seçim Başvurusu
-
 `data` bir DataFrame, `s` bir seri.
 
 ## iloc — sıraya göre

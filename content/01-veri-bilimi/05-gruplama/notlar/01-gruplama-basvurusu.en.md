@@ -1,5 +1,3 @@
-# Grouping Reference
-
 `data` is a DataFrame.
 
 ## Basic grouping

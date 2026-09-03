@@ -1,0 +1,40 @@
+{
+  "id": "scaling-decides",
+  "title": {
+    "tr": "Ölçekleme kararı veriyor",
+    "en": "Scaling decides"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 150,
+  "hints": [
+    {
+      "tr": "Aynı `KMeans` ayarını iki kez kullanıyorsun: bir kez ham `X`, bir kez `X_scaled` üzerinde.",
+      "en": "You use the same `KMeans` settings twice: once on the raw `X`, once on `X_scaled`."
+    },
+    {
+      "tr": "İki silüet de **ölçekli** uzayda hesaplanıyor; yoksa iki sayı karşılaştırılamaz.",
+      "en": "Both silhouettes are computed in the **scaled** space; otherwise the two numbers are not comparable."
+    },
+    {
+      "tr": "`adjusted_rand_score` iki etiket dizisini karşılaştırıyor; küme numaralarına bakmıyor.",
+      "en": "`adjusted_rand_score` compares two label arrays; it ignores the cluster numbers."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"shoppers.csv\")\ncolumns = [\"spend\", \"visits\", \"items\", \"returns\"]\nX = df[columns]\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\n\nimport numpy as np\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import adjusted_rand_score, silhouette_score\n\nraw_labels = KMeans(n_clusters=4, random_state=42,\n                    n_init=10).fit_predict(X)\nscaled_labels = KMeans(n_clusters=4, random_state=42,\n                       n_init=10).fit_predict(X_scaled)\n\nfor name, labels in ((\"raw\", raw_labels), (\"scaled\", scaled_labels)):\n    print(name, sorted(np.bincount(labels).tolist()),\n          round(float(silhouette_score(X_scaled, labels)), 3))\n\ndf[\"cluster\"] = raw_labels\nprint(df.groupby(\"cluster\")[[\"spend\", \"visits\"]].mean().round(1))\n\nprint(round(float(adjusted_rand_score(raw_labels, scaled_labels)), 3))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"shoppers.csv\")\ncolumns = [\"spend\", \"visits\", \"items\", \"returns\"]\nX = df[columns]\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\n\nimport numpy as np\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import adjusted_rand_score, silhouette_score\n\nraw_labels = KMeans(n_clusters=4, random_state=42,\n                    n_init=10).fit_predict(X)\nscaled_labels = KMeans(n_clusters=4, random_state=42,\n                       n_init=10).fit_predict(X_scaled)\n\nfor name, labels in ((\"raw\", raw_labels), (\"scaled\", scaled_labels)):\n    print(name, sorted(np.bincount(labels).tolist()),\n          round(float(silhouette_score(X_scaled, labels)), 3))\n\ndf[\"cluster\"] = raw_labels\nprint(df.groupby(\"cluster\")[[\"spend\", \"visits\"]].mean().round(1))\n\nprint(round(float(adjusted_rand_score(raw_labels, scaled_labels)), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "raw [33, 47, 95, 175] 0.202\nscaled [70, 79, 99, 102] 0.517\n         spend  visits\ncluster                \n0         52.4     9.8\n1        481.5    15.2\n2        184.5     8.4\n3        348.4    14.9\n0.602"
+    }
+  ]
+}

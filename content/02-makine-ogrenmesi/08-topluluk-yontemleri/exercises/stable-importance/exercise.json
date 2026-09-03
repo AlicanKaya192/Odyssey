@@ -1,0 +1,40 @@
+{
+  "id": "stable-importance",
+  "title": {
+    "tr": "Kararlı önem",
+    "en": "Steadier importance"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 150,
+  "hints": [
+    {
+      "tr": "İki modelin `feature_importances_` değerleri karşılaştırılıyor; `float()` NumPy sayısını temizliyor.",
+      "en": "You compare the two models' `feature_importances_`; `float()` cleans up the NumPy number."
+    },
+    {
+      "tr": "Sıfır önem alan sütun sayısını `sum(1 for v in ... if v == 0)` ile sayabilirsin.",
+      "en": "Count the zero-importance columns with `sum(1 for v in ... if v == 0)`."
+    },
+    {
+      "tr": "Son satırda ağacın kaç sütuna sıfır verdiği ile ormanınki yan yana yazdırılıyor.",
+      "en": "The last line prints how many columns the tree zeroed next to the forest's count."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.tree import DecisionTreeClassifier\n\ntree = DecisionTreeClassifier(max_depth=2, random_state=42)\ntree.fit(X_train, y_train)\nforest = RandomForestClassifier(n_estimators=200, random_state=42)\nforest.fit(X_train, y_train)\n\nfor name, model in ((\"tree\", tree), (\"forest\", forest)):\n    values = [round(float(value), 3) for value in model.feature_importances_]\n    print(name, *values)\n\ntree_zeros = sum(1 for value in tree.feature_importances_ if value == 0)\nforest_zeros = sum(1 for value in forest.feature_importances_ if value == 0)\nprint(tree_zeros, forest_zeros)\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.tree import DecisionTreeClassifier\n\ntree = DecisionTreeClassifier(max_depth=2, random_state=42)\ntree.fit(X_train, y_train)\nforest = RandomForestClassifier(n_estimators=200, random_state=42)\nforest.fit(X_train, y_train)\n\nfor name, model in ((\"tree\", tree), (\"forest\", forest)):\n    values = [round(float(value), 3) for value in model.feature_importances_]\n    print(name, *values)\n\ntree_zeros = sum(1 for value in tree.feature_importances_ if value == 0)\nforest_zeros = sum(1 for value in forest.feature_importances_ if value == 0)\nprint(tree_zeros, forest_zeros)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "tree 0.0 0.454 0.546\nforest 0.232 0.344 0.424\n1 0"
+    }
+  ]
+}

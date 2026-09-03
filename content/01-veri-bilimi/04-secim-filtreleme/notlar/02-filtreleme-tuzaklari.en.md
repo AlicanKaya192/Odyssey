@@ -1,5 +1,3 @@
-# Filtering Traps
-
 ## 1. After filtering, the index is full of holes
 
 ```python

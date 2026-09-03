@@ -1,0 +1,40 @@
+{
+  "id": "precision-recall",
+  "title": {
+    "tr": "Precision ve recall",
+    "en": "Precision and recall"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Precision `tp / (tp + fp)`, recall `tp / (tp + fn)`. Paydalar farklı; hangisinin ne olduğunu karıştırma.",
+      "en": "Precision is `tp / (tp + fp)`, recall is `tp / (tp + fn)`. The denominators differ; do not mix them up."
+    },
+    {
+      "tr": "F1 harmonik ortalama: `2 * p * r / (p + r)`.",
+      "en": "F1 is the harmonic mean: `2 * p * r / (p + r)`."
+    },
+    {
+      "tr": "Son satırda kendi sonuçlarını sklearn'in `precision_score`, `recall_score`, `f1_score` çıktılarıyla karşılaştırıyorsun.",
+      "en": "On the last line you compare your own results with sklearn's `precision_score`, `recall_score` and `f1_score`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"students.csv\")\nX = df[[\"hours\", \"prev_score\", \"attendance\"]]\ny = df[\"passed\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nmodel = LogisticRegression(max_iter=1000)\nmodel.fit(X_train, y_train)\nprediction = model.predict(X_test)\n\nfrom sklearn.metrics import (confusion_matrix, f1_score, precision_score,\n                             recall_score)\n\ntn, fp, fn, tp = confusion_matrix(y_test, prediction).ravel()\n\nprecision = tp / (tp + fp)\nrecall = tp / (tp + fn)\nf1 = 2 * precision * recall / (precision + recall)\n\nprint(round(precision, 3))\nprint(round(recall, 3))\nprint(round(f1, 3))\nprint(round(precision_score(y_test, prediction), 3),\n      round(recall_score(y_test, prediction), 3),\n      round(f1_score(y_test, prediction), 3))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"students.csv\")\nX = df[[\"hours\", \"prev_score\", \"attendance\"]]\ny = df[\"passed\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nmodel = LogisticRegression(max_iter=1000)\nmodel.fit(X_train, y_train)\nprediction = model.predict(X_test)\n\nfrom sklearn.metrics import (confusion_matrix, f1_score, precision_score,\n                             recall_score)\n\ntn, fp, fn, tp = confusion_matrix(y_test, prediction).ravel()\n\nprecision = tp / (tp + fp)\nrecall = tp / (tp + fn)\nf1 = 2 * precision * recall / (precision + recall)\n\nprint(round(precision, 3))\nprint(round(recall, 3))\nprint(round(f1, 3))\nprint(round(precision_score(y_test, prediction), 3),\n      round(recall_score(y_test, prediction), 3),\n      round(f1_score(y_test, prediction), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.839\n0.963\n0.897\n0.839 0.963 0.897"
+    }
+  ]
+}

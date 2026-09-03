@@ -1,0 +1,44 @@
+{
+  "id": "search-the-grid",
+  "title": {
+    "tr": "Izgarayı tara",
+    "en": "Search the grid"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 250,
+  "hints": [
+    {
+      "tr": "Izgara anahtarları adım adlarıyla parametre adını **iki alt çizgiyle** birleştiriyor.",
+      "en": "The grid keys join the step names and the parameter name with **two underscores**."
+    },
+    {
+      "tr": "`prepare` adımının `num` bölümündeki `impute` adımına ulaşmak üç seviye: `prepare__num__impute__strategy`.",
+      "en": "Reaching the `impute` step inside the `num` part of `prepare` takes three levels: `prepare__num__impute__strategy`."
+    },
+    {
+      "tr": "Her noktanın ortalaması `search.cv_results_[\"mean_test_score\"]`, ayarları `search.cv_results_[\"params\"]` içinde.",
+      "en": "Each point's mean is in `search.cv_results_[\"mean_test_score\"]` and its settings in `search.cv_results_[\"params\"]`."
+    },
+    {
+      "tr": "Son satırda aramanın test skoru ile ayarsız pipeline'ın test skoru karşılaştırılıyor.",
+      "en": "The last line compares the search's test score with the untuned pipeline's."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"subscribers.csv\")\nX = df.drop(columns=\"churn\")\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\ntext = [\"city\", \"plan\"]\n\n\ndef make_preprocessor():\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]), text),\n    ])\n\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.model_selection import GridSearchCV, StratifiedKFold\n\npipe = Pipeline([\n    (\"prepare\", make_preprocessor()),\n    (\"model\", LogisticRegression(max_iter=1000)),\n])\n\nfolds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\ngrid = {\n    \"prepare__num__impute__strategy\": [\"median\", \"mean\"],\n    \"model__C\": [0.01, 0.1, 1, 10],\n}\n\nsearch = GridSearchCV(pipe, grid, cv=folds, scoring=\"accuracy\")\nsearch.fit(X_train, y_train)\n\nfor params, mean in zip(search.cv_results_[\"params\"],\n                        search.cv_results_[\"mean_test_score\"]):\n    print(params[\"prepare__num__impute__strategy\"], params[\"model__C\"],\n          round(float(mean), 3))\n\nprint(search.best_params_[\"prepare__num__impute__strategy\"],\n      search.best_params_[\"model__C\"], round(float(search.best_score_), 3))\n\nplain = Pipeline([\n    (\"prepare\", make_preprocessor()),\n    (\"model\", LogisticRegression(max_iter=1000)),\n])\nplain.fit(X_train, y_train)\nprint(round(accuracy_score(y_test, search.predict(X_test)), 3),\n      round(accuracy_score(y_test, plain.predict(X_test)), 3))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"subscribers.csv\")\nX = df.drop(columns=\"churn\")\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\ntext = [\"city\", \"plan\"]\n\n\ndef make_preprocessor():\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]), text),\n    ])\n\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.model_selection import GridSearchCV, StratifiedKFold\n\npipe = Pipeline([\n    (\"prepare\", make_preprocessor()),\n    (\"model\", LogisticRegression(max_iter=1000)),\n])\n\nfolds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\ngrid = {\n    \"prepare__num__impute__strategy\": [\"median\", \"mean\"],\n    \"model__C\": [0.01, 0.1, 1, 10],\n}\n\nsearch = GridSearchCV(pipe, grid, cv=folds, scoring=\"accuracy\")\nsearch.fit(X_train, y_train)\n\nfor params, mean in zip(search.cv_results_[\"params\"],\n                        search.cv_results_[\"mean_test_score\"]):\n    print(params[\"prepare__num__impute__strategy\"], params[\"model__C\"],\n          round(float(mean), 3))\n\nprint(search.best_params_[\"prepare__num__impute__strategy\"],\n      search.best_params_[\"model__C\"], round(float(search.best_score_), 3))\n\nplain = Pipeline([\n    (\"prepare\", make_preprocessor()),\n    (\"model\", LogisticRegression(max_iter=1000)),\n])\nplain.fit(X_train, y_train)\nprint(round(accuracy_score(y_test, search.predict(X_test)), 3),\n      round(accuracy_score(y_test, plain.predict(X_test)), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "median 0.01 0.711\nmean 0.01 0.704\nmedian 0.1 0.74\nmean 0.1 0.74\nmedian 1 0.738\nmean 1 0.744\nmedian 10 0.736\nmean 10 0.736\nmean 1 0.744\n0.793 0.793"
+    }
+  ]
+}

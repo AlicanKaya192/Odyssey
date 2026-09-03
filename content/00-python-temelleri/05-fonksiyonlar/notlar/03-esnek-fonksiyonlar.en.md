@@ -1,5 +1,3 @@
-# Flexible Functions
-
 Three more advanced features of functions. You will rarely need to write
 them, but you will constantly need to **read** them — they appear in every
 library's signatures.

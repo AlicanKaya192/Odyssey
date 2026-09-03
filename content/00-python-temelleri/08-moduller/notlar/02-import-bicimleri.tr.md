@@ -1,5 +1,3 @@
-# Import Biçimleri ve Sık Karşılaşılan Hatalar
-
 ## Dört biçim, tek iş
 
 ```python

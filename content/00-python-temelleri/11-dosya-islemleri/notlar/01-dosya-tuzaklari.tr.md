@@ -1,5 +1,3 @@
-# Dosya Tuzakları
-
 Dosya işlemlerinde hatalar pahalı: çoğu hata vermiyor, sessizce **veri
 kaybettiriyor**. Aşağıdakiler en sık düşülenler.
 

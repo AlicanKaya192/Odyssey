@@ -12,10 +12,10 @@ gerekmez; yalnızca değişen içerik paketi iner.
 # Ayrıntısı CHANGELOG.md'nin başında yazılı.
 
 # Uygulama kodunun sürümü.
-APP_VERSION = "0.7.3.1"
+APP_VERSION = "0.7.4"
 
 # Müfredat içeriğinin sürümü. Uygulama kodundan ayrı ilerliyor.
-CONTENT_VERSION = "0.6.0"
+CONTENT_VERSION = "0.7.0"
 
 # Veritabanı şemasının sürümü. Bu sayı arttığında, açılışta eksik göçler
 # sırayla uygulanır ve kullanıcının mevcut verisi korunur. Gerçek göç

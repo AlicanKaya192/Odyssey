@@ -1,5 +1,3 @@
-# Gruplama Tuzakları
-
 ## 1. Anahtarı eksik satırlar sessizce düşüyor
 
 ```python

@@ -1,5 +1,3 @@
-# Seri Tuzakları
-
 pandas kolaylık sağlarken sessizce karar veriyor. Aşağıdakiler o kararların
 seni şaşırttığı yerler.
 

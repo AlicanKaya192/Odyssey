@@ -1,5 +1,3 @@
-# DataFrame Tuzakları
-
 ## 1. Zincirli atama hiçbir şey yapmıyor
 
 ```python

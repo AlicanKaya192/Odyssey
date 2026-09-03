@@ -1,0 +1,49 @@
+{
+  "id": "roc-and-pr",
+  "title": {
+    "tr": "İki eğri iki hikaye",
+    "en": "Two curves two stories"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 200,
+  "hints": [
+    {
+      "tr": "`roc_curve` ve `precision_recall_curve` `sklearn.metrics` içinde; ikisi de üç değer döndürüyor.",
+      "en": "`roc_curve` and `precision_recall_curve` live in `sklearn.metrics`; both return three values."
+    },
+    {
+      "tr": "`precision_recall_curve` sırayla `precision, recall, thresholds` veriyor — grafikte x ekseni recall.",
+      "en": "`precision_recall_curve` returns `precision, recall, thresholds` in that order — recall goes on the x axis."
+    },
+    {
+      "tr": "İki eğriyi yan yana koymak için `plt.subplots(1, 2)` kullanabilirsin.",
+      "en": "Use `plt.subplots(1, 2)` to place the two curves side by side."
+    },
+    {
+      "tr": "Ortalama precision'ın taban çizgisi pozitif oranı: `y_test.mean()`.",
+      "en": "Average precision's baseline is the positive rate: `y_test.mean()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"transactions.csv\")\nX = df[[\"amount\", \"hour\", \"attempts\"]]\ny = df[\"fraud\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nscaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import (average_precision_score, precision_recall_curve,\n                             roc_auc_score, roc_curve)\n\nlogreg = LogisticRegression(max_iter=1000)\nlogreg.fit(X_train_scaled, y_train)\nlogreg_probability = logreg.predict_proba(X_test_scaled)[:, 1]\n\nforest = RandomForestClassifier(n_estimators=200, random_state=42)\nforest.fit(X_train, y_train)\nforest_probability = forest.predict_proba(X_test)[:, 1]\n\nauc = roc_auc_score(y_test, logreg_probability)\naverage = average_precision_score(y_test, logreg_probability)\nprint(\"logreg\", round(auc, 3), round(average, 3))\nprint(\"forest\", round(roc_auc_score(y_test, forest_probability), 3),\n      round(average_precision_score(y_test, forest_probability), 3))\nprint(round(float(y_test.mean()), 3))\n\nfpr, tpr, _ = roc_curve(y_test, logreg_probability)\nprecision, recall, _ = precision_recall_curve(y_test, logreg_probability)\n\nfigure, axes = plt.subplots(1, 2)\naxes[0].plot(fpr, tpr)\naxes[0].set_xlabel(\"fpr\")\naxes[0].set_ylabel(\"tpr\")\naxes[0].set_title(\"ROC\")\naxes[1].plot(recall, precision)\naxes[1].set_xlabel(\"recall\")\naxes[1].set_ylabel(\"precision\")\naxes[1].set_title(\"PR\")\nfigure.tight_layout()\nfigure.savefig(\"chart.png\")\n\nprint(round(auc - average, 3))\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"transactions.csv\")\nX = df[[\"amount\", \"hour\", \"attempts\"]]\ny = df[\"fraud\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nscaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import (average_precision_score, precision_recall_curve,\n                             roc_auc_score, roc_curve)\n\nlogreg = LogisticRegression(max_iter=1000)\nlogreg.fit(X_train_scaled, y_train)\nlogreg_probability = logreg.predict_proba(X_test_scaled)[:, 1]\n\nforest = RandomForestClassifier(n_estimators=200, random_state=42)\nforest.fit(X_train, y_train)\nforest_probability = forest.predict_proba(X_test)[:, 1]\n\nauc = roc_auc_score(y_test, logreg_probability)\naverage = average_precision_score(y_test, logreg_probability)\nprint(\"logreg\", round(auc, 3), round(average, 3))\nprint(\"forest\", round(roc_auc_score(y_test, forest_probability), 3),\n      round(average_precision_score(y_test, forest_probability), 3))\nprint(round(float(y_test.mean()), 3))\n\nfpr, tpr, _ = roc_curve(y_test, logreg_probability)\nprecision, recall, _ = precision_recall_curve(y_test, logreg_probability)\n\nfigure, axes = plt.subplots(1, 2)\naxes[0].plot(fpr, tpr)\naxes[0].set_xlabel(\"fpr\")\naxes[0].set_ylabel(\"tpr\")\naxes[0].set_title(\"ROC\")\naxes[1].plot(recall, precision)\naxes[1].set_xlabel(\"recall\")\naxes[1].set_ylabel(\"precision\")\naxes[1].set_title(\"PR\")\nfigure.tight_layout()\nfigure.savefig(\"chart.png\")\n\nprint(round(auc - average, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "logreg 0.908 0.525\nforest 0.834 0.426\n0.056\n0.383"
+    },
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    }
+  ]
+}

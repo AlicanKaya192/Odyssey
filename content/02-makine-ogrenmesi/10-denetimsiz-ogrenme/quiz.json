@@ -1,0 +1,914 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 3,
+      "text": {
+        "tr": "Denetimsiz öğrenmeyi denetimliden ayıran şey ne?",
+        "en": "What separates unsupervised learning from supervised?"
+      },
+      "options": {
+        "tr": [
+          "Daha az veri gerekiyor",
+          "Daha hızlı çalışıyor",
+          "Ölçekleme gerektirmiyor",
+          "Hedef sütunu (`y`) yok"
+        ],
+        "en": [
+          "It needs less data",
+          "It runs faster",
+          "It needs no scaling",
+          "There is no target column (`y`)"
+        ]
+      },
+      "explanation": {
+        "tr": "Elinde yalnızca `X` var; kimsenin etiketlediği bir doğru cevap yok.\n\nBu yüzden \"model %92 doğru\" diye bir cümle kurulamıyor; elindeki ölçüler sonucun ne kadar derli toplu olduğunu söylüyor, ne kadar doğru olduğunu değil.\n\nÖlçekleme hâlâ gerekiyor — k-ortalamalar da PCA da ondan etkileniyor.",
+        "en": "You have only `X`; there is no right answer anyone labelled.\n\nThis is why the sentence \"the model is 92% correct\" cannot be written; the metrics you have say how tidy the result is, not how right it is.\n\nScaling is still needed — both k-means and PCA are affected by it."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 1,
+      "text": {
+        "tr": "K-ortalamalar nasıl çalışıyor?",
+        "en": "How does k-means work?"
+      },
+      "options": {
+        "tr": [
+          "Kayıtları etiketlerine göre ayırıyor",
+          "Merkezler seçiyor, kayıtları en yakın merkeze atıyor, merkezleri ortalamaya taşıyor ve tekrarlıyor",
+          "Bir ağaç kurup dallara ayırıyor",
+          "Varyansı en çok taşıyan yönleri buluyor"
+        ],
+        "en": [
+          "It separates records by their labels",
+          "It picks centres, assigns records to the nearest, moves the centres to the mean and repeats",
+          "It builds a tree and splits into branches",
+          "It finds the directions carrying the most variance"
+        ]
+      },
+      "explanation": {
+        "tr": "Merkezler kıpırdamayana kadar dönüyor; adı da buradan geliyor — k tane ortalama.\n\nEtiket yok, dolayısıyla etikete göre ayırmak mümkün değil.\n\nVaryans yönlerini bulmak PCA'nın işi, ağaç kurmak karar ağacının.",
+        "en": "It loops until the centres stop moving; that is where the name comes from — k means.\n\nThere are no labels, so separating by label is impossible.\n\nFinding variance directions is PCA's job and building a tree is a decision tree's."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 2,
+      "text": {
+        "tr": "`n_clusters` ne tür bir parametre?",
+        "en": "What kind of parameter is `n_clusters`?"
+      },
+      "options": {
+        "tr": [
+          "Model verinin kaç grup içerdiğini kendi buluyor",
+          "Otomatik ayarlanan bir hiperparametre",
+          "Bir girdi; kaç küme isteneceğini sen söylüyorsun",
+          "Yalnızca hız için"
+        ],
+        "en": [
+          "The model finds how many groups the data holds by itself",
+          "A hyperparameter tuned automatically",
+          "An input; you say how many clusters you want",
+          "It only affects speed"
+        ]
+      },
+      "explanation": {
+        "tr": "\"Dört grup bul\" dersen dört bulur, \"üç\" dersen üç. Verinin kaç grup içerdiğine dair bir fikri yok.\n\nBu yüzden `k` seçimi ayrı bir iş ve dirsek ile silüet o iş için var.\n\nDBSCAN gibi yöntemler `k` istemiyor; küme sayısını yoğunluktan çıkarıyorlar.",
+        "en": "Say \"find four groups\" and it finds four; say \"three\" and it finds three. It has no notion of how many groups the data holds.\n\nThis is why choosing `k` is a separate task, and why the elbow and silhouette exist.\n\nMethods like DBSCAN need no `k`; they derive the count from density."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 2,
+      "text": {
+        "tr": "K-ortalamalarda `fit_predict` neden kullanılıyor?",
+        "en": "Why is `fit_predict` used with k-means?"
+      },
+      "options": {
+        "tr": [
+          "Daha hızlı olduğu için",
+          "sklearn `fit` metodunu desteklemediği için",
+          "Tahmin edilecek ayrı bir test kümesi yok; model aynı veriyi hem öğreniyor hem etiketliyor",
+          "Ölçekleme yaptığı için"
+        ],
+        "en": [
+          "Because it is faster",
+          "Because sklearn does not support `fit`",
+          "There is no separate test set to predict on; the model learns from and labels the same data",
+          "Because it does the scaling"
+        ]
+      },
+      "explanation": {
+        "tr": "Denetimli öğrenmede `fit(X_train, y_train)` ve `predict(X_test)` ayrı; burada hedef de test kümesi de yok.\n\n`fit` ayrıca çağrılabiliyor; `labels_` niteliği aynı sonucu veriyor.\n\nÖlçekleme ayrı bir adım, modelin işi değil.",
+        "en": "In supervised learning `fit(X_train, y_train)` and `predict(X_test)` are separate; here there is neither a target nor a test set.\n\n`fit` can still be called on its own; the `labels_` attribute gives the same result.\n\nScaling is a separate step, not the model's job."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 3,
+      "text": {
+        "tr": "K-ortalamalarda ölçekleme neden zorunlu?",
+        "en": "Why is scaling mandatory for k-means?"
+      },
+      "options": {
+        "tr": [
+          "Model daha hızlı çalışsın diye",
+          "sklearn zorunlu tuttuğu için",
+          "Küme numaraları sabitlensin diye",
+          "Uzaklığa dayandığı için; büyük yayılımlı sütun bütün mesafeyi ele geçiriyor"
+        ],
+        "en": [
+          "To make the model faster",
+          "Because sklearn requires it",
+          "To keep the cluster numbers stable",
+          "Because it rests on distance; the widest-spread column takes over the whole metric"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: ölçekli silüet 0.517, ölçeksiz 0.202. `spend` sütununun yayılımı 155, `returns` sütununun 1.5.\n\nAynı sebep KNN'de de geçerliydi. Karar ağaçlarında geçerli değil, çünkü ağaç sıralamaya bakıyor.\n\nKüme numaraları ölçeklemeden bağımsız olarak tohuma göre değişiyor.",
+        "en": "Measured: the scaled silhouette is 0.517 and the unscaled 0.202. `spend` has a spread of 155 and `returns` of 1.5.\n\nThe same reason applied to KNN. It does not apply to decision trees, which look at ordering.\n\nCluster numbers change with the seed regardless of scaling."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Ölçeklenmemiş kümelemede küme boyutları 33, 47, 95, 175 çıkıyor. Bu ne anlatıyor?",
+        "en": "Unscaled clustering gives cluster sizes 33, 47, 95, 175. What does that say?"
+      },
+      "options": {
+        "tr": [
+          "Bir küme verinin yarısını yutmuş; iki gerçek grup birleşmiş",
+          "Kümeler dengeli",
+          "Model çalışmamış",
+          "Veri bozuk"
+        ],
+        "en": [
+          "One cluster swallowed half the data; two real groups merged",
+          "The clusters are balanced",
+          "The model did not run",
+          "The data is corrupt"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçekli hâlde boyutlar 70, 79, 99, 102 — dört dengeli grup.\n\nProfil tablosu ne olduğunu söylüyor: iki düşük harcamalı grup tek yığın olmuş, buna karşılık yüksek harcamalılar yalnızca `spend` sütununa göre ikiye bölünmüş (481.5 ve 348.4, ziyaretleri neredeyse aynı).\n\nModel dört gerçek grup yerine tek bir sütunun dört dilimini bulmuş.",
+        "en": "Scaled, the sizes are 70, 79, 99, 102 — four balanced groups.\n\nThe profile table says what happened: the two low-spend groups became one heap, while the high spenders were split in two by `spend` alone (481.5 and 348.4, with nearly identical visit counts).\n\nInstead of four real groups the model found four slices of one column."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 1,
+      "text": {
+        "tr": "Eylemsizlik (inertia) ne ölçüyor?",
+        "en": "What does inertia measure?"
+      },
+      "options": {
+        "tr": [
+          "Kümeler arasındaki uzaklığı",
+          "Her kaydın kendi merkezine uzaklığının karesi toplamını",
+          "Küme sayısını",
+          "Modelin doğruluğunu"
+        ],
+        "en": [
+          "The distance between clusters",
+          "The sum of squared distances from each record to its own centre",
+          "The number of clusters",
+          "The model's accuracy"
+        ]
+      },
+      "explanation": {
+        "tr": "`k` arttıkça mutlaka düşüyor — `k` kayıt sayısına eşit olsaydı sıfır olurdu.\n\nBu yüzden \"en düşük eylemsizlik\" diye bir hedef yok; bakılan şey eğrinin nerede yavaşladığı.\n\nDoğruluk diye bir ölçü burada yok, çünkü doğru cevap yok.",
+        "en": "It necessarily falls as `k` grows — it would be zero if `k` equalled the record count.\n\nSo \"the lowest inertia\" is not a target; what you look for is where the curve slows.\n\nThere is no accuracy metric here, because there is no right answer."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 3,
+      "text": {
+        "tr": "Dirsek yöntemi nedir?",
+        "en": "What is the elbow method?"
+      },
+      "options": {
+        "tr": [
+          "Eylemsizliği sıfırlayan `k`'yı seçmek",
+          "Silüeti maksimize etmek",
+          "Küme sayısını ikiye katlamak",
+          "Eylemsizlik eğrisinin büküldüğü, düşüşün yavaşladığı noktayı seçmek"
+        ],
+        "en": [
+          "Picking the `k` that makes inertia zero",
+          "Maximising the silhouette",
+          "Doubling the number of clusters",
+          "Picking the point where the inertia curve bends and the drop slows"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçülen: 695.9 → 388.8 → 265.6 büyük düşüşler, sonra 212.7 → 189.6 → 167.3 yavaşlıyor. Dirsek 3 ile 4 arasında.\n\nEylemsizliği sıfırlamak her kaydı kendi kümesine koymak demek — anlamsız.\n\nSilüet ayrı bir araç ve bu veride farklı bir cevap veriyor.",
+        "en": "Measured: 695.9 → 388.8 → 265.6 are large drops, then 212.7 → 189.6 → 167.3 slows. The elbow sits between 3 and 4.\n\nMaking inertia zero means putting every record in its own cluster — meaningless.\n\nThe silhouette is a separate tool and gives a different answer on this data."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 3,
+      "text": {
+        "tr": "Silüet skoru neyi ölçüyor?",
+        "en": "What does the silhouette score measure?"
+      },
+      "options": {
+        "tr": [
+          "Kümelerin doğru olup olmadığını",
+          "Küme sayısını",
+          "Açıklanan varyansı",
+          "Her kaydın kendi kümesine ne kadar yakın, en yakın diğer kümeye ne kadar uzak olduğunu"
+        ],
+        "en": [
+          "Whether the clusters are correct",
+          "The number of clusters",
+          "The explained variance",
+          "How close each record is to its own cluster and how far from the nearest other"
+        ]
+      },
+      "explanation": {
+        "tr": "−1 ile +1 arası; yüksek olması kümelerin derli toplu olduğunu gösteriyor.\n\n\"Doğru\" diye bir kavram burada yok — doğru cevap olmadığı için hiçbir ölçü doğruluğu ölçemiyor.\n\nAçıklanan varyans PCA'nın ölçüsü.",
+        "en": "Between −1 and +1; a high value shows the clusters are tidy.\n\nThere is no notion of \"correct\" here — with no right answer, no metric can measure correctness.\n\nExplained variance is PCA's metric."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 2,
+      "text": {
+        "tr": "Silüet `k=3` diyor ama veri dört gruptan üretilmiş. Bu ne gösteriyor?",
+        "en": "The silhouette says `k=3` but the data was generated from four groups. What does this show?"
+      },
+      "options": {
+        "tr": [
+          "Silüet bozuk",
+          "Veri yanlış üretilmiş",
+          "Silüet \"kümeler ne kadar derli toplu\" sorusunu cevaplıyor, \"kaç gerçek grup var\" sorusunu değil",
+          "Dört grup yanlış"
+        ],
+        "en": [
+          "The silhouette is broken",
+          "The data was generated wrongly",
+          "The silhouette answers \"how tidy are the clusters\", not \"how many real groups are there\"",
+          "Four groups is wrong"
+        ]
+      },
+      "explanation": {
+        "tr": "Nadir uğrayanlar ile sık gelen browser'lar uzayda birbirine yakın duruyor; üçe indirince ikisi birleşiyor ve silüet 0.008 artıyor.\n\nAma iş açısından anlamlı bir ayrım kayboluyor: biri hiç gelmiyor, öteki ayda 19 kez giriyor.\n\n0.525 ile 0.517 arasındaki fark zaten ölçüm gürültüsü kadar.",
+        "en": "The rare visitors and the frequent browsers sit close together in space; merging into three raises the silhouette by 0.008.\n\nBut a distinction that matters to the business is lost: one never comes, the other visits 19 times a month.\n\nThe gap between 0.525 and 0.517 is no larger than the measurement noise anyway."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 1,
+      "text": {
+        "tr": "`k` nasıl seçilmeli?",
+        "en": "How should `k` be chosen?"
+      },
+      "options": {
+        "tr": [
+          "Silüeti maksimize ederek",
+          "Araçlarla aralık daraltılıp profil tablosuna bakılarak karar verilerek",
+          "Her zaman 3 alarak",
+          "Eylemsizliği sıfırlayarak"
+        ],
+        "en": [
+          "By maximising the silhouette",
+          "By narrowing the range with the tools and deciding from the profile table",
+          "By always taking 3",
+          "By making inertia zero"
+        ]
+      },
+      "explanation": {
+        "tr": "Dirsek ile silüet aralığı 2-8'den 3-4'e indiriyor; gerisini kümelerin ortalamalarına bakan insan seçiyor.\n\nSilüeti maksimize etmek bir yöntem değil: gürültüde bile `k` arttıkça artıyor.\n\n`k` bir ölçüm sonucu değil, bir karar.",
+        "en": "The elbow and the silhouette narrow the range from 2-8 to 3-4; a person reading the cluster means picks the rest.\n\nMaximising the silhouette is not a method: it rises with `k` even on noise.\n\n`k` is not a measurement result but a decision."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 3,
+      "text": {
+        "tr": "Tamamen rastgele bir veriye `KMeans` uygulanınca ne oluyor?",
+        "en": "What happens when `KMeans` is applied to purely random data?"
+      },
+      "options": {
+        "tr": [
+          "Hata veriyor",
+          "Tek küme döndürüyor",
+          "Boş sonuç döndürüyor",
+          "İstenen sayıda küme döndürüyor ve silüet pozitif çıkıyor"
+        ],
+        "en": [
+          "It raises an error",
+          "It returns a single cluster",
+          "It returns an empty result",
+          "It returns the requested number of clusters and the silhouette comes out positive"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: 350 satırlık rastgele veride `k=4` ile boyutlar 80, 82, 94, 94 ve silüet 0.181.\n\nBirinci ders: küme döndürmesi, küme olduğunun kanıtı değil. Algoritma ne verirsen bölüyor.\n\nİkinci ders: gürültüde silüet `k` arttıkça artıyor (0.169 → 0.185), yani maksimize etmek bir yöntem değil.",
+        "en": "Measured: with `k=4` on 350 rows of random data the sizes are 80, 82, 94, 94 and the silhouette 0.181.\n\nThe first lesson: returning clusters is not proof that clusters exist. The algorithm partitions whatever you give it.\n\nThe second: on noise the silhouette rises with `k` (0.169 → 0.185), so maximising it is not a method."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 2,
+      "text": {
+        "tr": "Silüetin 0.517 çıkması tek başına ne söylüyor?",
+        "en": "What does a silhouette of 0.517 say on its own?"
+      },
+      "options": {
+        "tr": [
+          "Kümeler kesinlikle gerçek",
+          "Model %51,7 doğru",
+          "Tek başına az şey; bir referansla karşılaştırılması gerekiyor",
+          "Beş küme olmalı"
+        ],
+        "en": [
+          "The clusters are definitely real",
+          "The model is 51.7% correct",
+          "Little on its own; it needs comparing against a reference",
+          "There should be five clusters"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı boyutta rastgele veride 0.181 çıkıyor. Asıl bilgi aradaki yaklaşık üç katlık oran.\n\nİki değer birbirine yakın çıksaydı (0.22'ye karşı 0.18) kümelerin keyfi bölmeler olduğu düşünülmeliydi.\n\nSilüet bir doğruluk oranı değil; öyle okumak yanlış.",
+        "en": "On random data of the same shape it comes out as 0.181. The information is the roughly threefold ratio between them.\n\nHad they come out close (0.22 against 0.18) you would have to treat the clusters as arbitrary partitions.\n\nThe silhouette is not an accuracy rate; reading it as one is wrong."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 1,
+      "text": {
+        "tr": "Küme numaraları (0, 1, 2, 3) ne anlama geliyor?",
+        "en": "What do the cluster numbers (0, 1, 2, 3) mean?"
+      },
+      "options": {
+        "tr": [
+          "Küme büyüklüğü sırası",
+          "Hiçbir şey; tohum değişince yer değiştiriyorlar",
+          "Merkeze uzaklık sırası",
+          "Kalite sırası"
+        ],
+        "en": [
+          "The order of cluster size",
+          "Nothing; they move around when the seed changes",
+          "The order of distance to the centre",
+          "A quality ranking"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `random_state` 0, 1 ve 2 ile aynı gruplar farklı numaralar alıyor.\n\n\"Küme 0\" diye bir şey yok; bir sonraki çalıştırmada başka bir gruba düşüyor.\n\nBu yüzden iki kümelemeyi etiketleriyle karşılaştırmak yanlış; `adjusted_rand_score` kullanılıyor.",
+        "en": "Measured: with `random_state` 0, 1 and 2 the same groups get different numbers.\n\nThere is no such thing as \"cluster 0\"; on the next run it lands on a different group.\n\nThis is why comparing two clusterings by their labels is wrong; `adjusted_rand_score` is used instead."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`adjusted_rand_score` neye bakıyor?",
+        "en": "What does `adjusted_rand_score` look at?"
+      },
+      "options": {
+        "tr": [
+          "Aynı iki kaydın iki kümelemede de aynı grupta olup olmadığına",
+          "Küme numaralarının eşleşmesine",
+          "Silüete",
+          "Küme sayısına"
+        ],
+        "en": [
+          "Whether the same two records are in the same group in both clusterings",
+          "Whether the cluster numbers match",
+          "The silhouette",
+          "The number of clusters"
+        ]
+      },
+      "explanation": {
+        "tr": "Numaralar tohuma göre değiştiği için doğrudan karşılaştırılamıyor; ARI gruplamanın kendisine bakıyor.\n\n1.0 birebir aynı gruplama, 0 rastgele kadar benzer demek.\n\nÖlçüldü: ölçekli ile ölçeksiz kümeleme arasında 0.602 — gerçekten farklı iki gruplama.",
+        "en": "Since the numbers change with the seed they cannot be compared directly; ARI looks at the grouping itself.\n\n1.0 means exactly the same grouping and 0 means as similar as chance.\n\nMeasured: 0.602 between the scaled and unscaled clusterings — two genuinely different groupings."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 3,
+      "text": {
+        "tr": "PCA ne yapıyor?",
+        "en": "What does PCA do?"
+      },
+      "options": {
+        "tr": [
+          "Kayıtları gruplara ayırıyor",
+          "Eksik değerleri dolduruyor",
+          "Aykırı değerleri siliyor",
+          "Sütun sayısını azaltıyor; varyansı en çok taşıyan yönleri buluyor"
+        ],
+        "en": [
+          "It splits records into groups",
+          "It fills missing values",
+          "It removes outliers",
+          "It reduces the number of columns by finding the directions carrying the most variance"
+        ]
+      },
+      "explanation": {
+        "tr": "Kümeleme değil, boyut indirgeme. Dört sütunu ikiye indiriyor ve ne kadar bilgi kaldığını söylüyor.\n\nÖlçüldü: iki bileşen varyansın %88,5'ini taşıyor.\n\nGruplara ayırmak k-ortalamaların işi; ikisi birlikte de kullanılabiliyor.",
+        "en": "Not clustering but dimension reduction. It turns four columns into two and tells you how much information remains.\n\nMeasured: two components carry 88.5% of the variance.\n\nSplitting into groups is k-means' job; the two can also be used together."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "`explained_variance_ratio_` neyi veriyor?",
+        "en": "What does `explained_variance_ratio_` give?"
+      },
+      "options": {
+        "tr": [
+          "Her bileşenin verinin varyansının ne kadarını taşıdığını",
+          "Her bileşenin doğruluğunu",
+          "Küme sayısını",
+          "Bileşenlerin ağırlıklarını"
+        ],
+        "en": [
+          "How much of the data's variance each component carries",
+          "Each component's accuracy",
+          "The number of clusters",
+          "The components' weights"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `[0.662, 0.223, 0.088, 0.027]` — birinci bileşen %66,2, ikincisi %22,3.\n\nKümülatifi alınarak kaç bileşen tutulacağı seçiliyor; %85-95 yaygın bir eşik.\n\nAğırlıklar ayrı bir nitelikte: `components_`.",
+        "en": "Measured: `[0.662, 0.223, 0.088, 0.027]` — the first component 66.2%, the second 22.3%.\n\nTaking the cumulative sum decides how many components to keep; 85-95% is a common threshold.\n\nThe weights live in a separate attribute: `components_`."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 1,
+      "text": {
+        "tr": "İki bileşen varyansın %88,5'ini taşıyorsa ne kaybedildi?",
+        "en": "If two components carry 88.5% of the variance, what was lost?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbir şey",
+          "Bilginin %11,5'i",
+          "Kayıtların %11,5'i",
+          "İki küme"
+        ],
+        "en": [
+          "Nothing",
+          "11.5% of the information",
+          "11.5% of the records",
+          "Two clusters"
+        ]
+      },
+      "explanation": {
+        "tr": "Dört sütun ikiye indirildi; geri kalan iki bileşenin taşıdığı %11,5 atıldı.\n\nKayıt sayısı değişmiyor — PCA sütunları azaltıyor, satırları değil.\n\nBu veride atılan kısım kümeleri karıştıran gürültüydü: ARI 1.0 çıktı, hiçbir müşteri yer değiştirmedi.",
+        "en": "Four columns became two; the 11.5% carried by the remaining two components was discarded.\n\nThe record count does not change — PCA reduces columns, not rows.\n\nOn this data the discarded part was the noise blurring the clusters: ARI came out 1.0 and not one customer moved."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "Bir PCA bileşeninin ağırlıkları `[0.531, 0.426, 0.540, 0.495]` çıkıyor. Bu ne anlatıyor?",
+        "en": "A PCA component's weights come out as `[0.531, 0.426, 0.540, 0.495]`. What does that say?"
+      },
+      "options": {
+        "tr": [
+          "Dört sütun da benzer ağırlıkta; bu eksen \"genel hareketlilik\"",
+          "Yalnızca birinci sütun önemli",
+          "Bileşen bozuk",
+          "Sütunlar ilişkisiz"
+        ],
+        "en": [
+          "All four have similar weight; that axis is \"overall activity\"",
+          "Only the first column matters",
+          "The component is broken",
+          "The columns are unrelated"
+        ]
+      },
+      "explanation": {
+        "tr": "Dördü de pozitif ve birbirine yakın: sağa gittikçe her şeyi çok yapan müşteri.\n\nİkinci bileşen farklı: `visits` ve `returns` artı, `spend` ve `items` eksi — yani \"çok geliyor ama az alıyor\".\n\nBu yorum ağırlık tablosuna bakılarak elle yapılıyor; PCA bileşenlere ad vermiyor.",
+        "en": "All four are positive and close together: the further right, the more a customer does of everything.\n\nThe second component differs: `visits` and `returns` positive, `spend` and `items` negative — that is, \"comes often but buys little\".\n\nThat reading is done by hand from the weight table; PCA gives components no names."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 3,
+      "text": {
+        "tr": "PCA'nın bedeli ne?",
+        "en": "What does PCA cost?"
+      },
+      "options": {
+        "tr": [
+          "Hız",
+          "Kayıt sayısı",
+          "Küme sayısı",
+          "Yorumlanabilirlik; yeni sütunlar orijinal sütunların karışımı"
+        ],
+        "en": [
+          "Speed",
+          "The record count",
+          "The number of clusters",
+          "Interpretability; the new columns are mixtures of the original ones"
+        ]
+      },
+      "explanation": {
+        "tr": "Yeni sütunların adı `PC1` ve `PC2`. \"Harcama arttıkça şu oluyor\" gibi bir cümle artık kurulamıyor.\n\nHız genelde artıyor, çünkü sütun sayısı azalıyor.\n\nKayıt sayısı değişmiyor.",
+        "en": "The new columns are called `PC1` and `PC2`. A sentence like \"as spend rises, this happens\" can no longer be written.\n\nSpeed usually improves, since there are fewer columns.\n\nThe record count does not change."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "PCA'dan önce ölçekleme neden zorunlu?",
+        "en": "Why is scaling mandatory before PCA?"
+      },
+      "options": {
+        "tr": [
+          "PCA negatif değer kabul etmiyor",
+          "Hız için",
+          "Varyansa baktığı için en büyük birimli sütun bütün bileşenleri ele geçiriyor",
+          "sklearn zorunlu tuttuğu için"
+        ],
+        "en": [
+          "PCA does not accept negative values",
+          "For speed",
+          "Since it works on variance, the column with the largest units takes over every component",
+          "Because sklearn requires it"
+        ]
+      },
+      "explanation": {
+        "tr": "Lira cinsinden bir harcama sütunu, adet cinsinden bir ziyaret sütununun yanında yüz kat büyük varyansa sahip; PCA birinci bileşeni tamamen ona ayırır.\n\nAynı sebep k-ortalamalarda da geçerli.\n\nPCA negatif değerlerle sorunsuz çalışıyor — ölçekleme zaten negatif değer üretiyor.",
+        "en": "A spend column in lira has a hundred times the variance of a visit count; PCA would devote the first component entirely to it.\n\nThe same reason applies to k-means.\n\nPCA works fine with negative values — scaling produces them anyway."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 2,
+      "text": {
+        "tr": "PCA sonrası silüet 0.652, tam uzayda 0.517. ARI ise 1.0. Buradan ne çıkarılır?",
+        "en": "The silhouette is 0.652 after PCA and 0.517 in the full space, while ARI is 1.0. What follows?"
+      },
+      "options": {
+        "tr": [
+          "PCA kümeleri iyileştirdi",
+          "PCA kümeleri bozdu",
+          "Gruplama birebir aynı; silüet farkı yalnızca ölçüm uzayının boyutundan geliyor",
+          "Ölçüm hatası var"
+        ],
+        "en": [
+          "PCA improved the clusters",
+          "PCA broke the clusters",
+          "The grouping is identical; the silhouette gap comes only from the dimension of the measurement space",
+          "There is a measurement error"
+        ]
+      },
+      "explanation": {
+        "tr": "ARI 1.0 hiçbir müşterinin yer değiştirmediğini söylüyor.\n\nAtılan iki boyut kümeleri birbirine karıştıran gürültüydü; onları atınca aynı gruplar daha derli toplu görünüyor.\n\nFarklı boyuttaki iki uzayın silüetleri karşılaştırılmaz.",
+        "en": "ARI 1.0 says not one customer moved.\n\nThe two discarded dimensions were the noise blurring the clusters; drop them and the same groups merely look tidier.\n\nSilhouettes from spaces of different dimension are not comparable."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 1,
+      "text": {
+        "tr": "PCA'nın kümelemeyle birlikte en pratik faydası ne?",
+        "en": "What is PCA's most practical benefit alongside clustering?"
+      },
+      "options": {
+        "tr": [
+          "Silüeti yükseltmek",
+          "Çok boyutlu veriyi iki boyutta çizebilmek",
+          "Küme sayısını belirlemek",
+          "Ölçeklemeyi gereksiz kılmak"
+        ],
+        "en": [
+          "Raising the silhouette",
+          "Being able to draw many-dimensional data in two dimensions",
+          "Deciding the number of clusters",
+          "Making scaling unnecessary"
+        ]
+      },
+      "explanation": {
+        "tr": "Dört boyutlu veriyi kâğıda dökemezsin; ikisini dökebilirsin ve kümelerin gerçekten ayrışıp ayrışmadığını gözle görebilirsin.\n\nSilüetin yükselmesi bir fayda değil, ölçüm uzayının değişmesinin yan etkisi.\n\nÖlçekleme PCA'dan önce hâlâ zorunlu.",
+        "en": "You cannot put four-dimensional data on paper, but you can put two — and see with your own eyes whether the clusters really separate.\n\nThe silhouette rising is not a benefit but a side effect of changing the measurement space.\n\nScaling before PCA is still mandatory."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Kümelemede eğitim/test ayrımı neden genelde yapılmıyor?",
+        "en": "Why is a train/test split usually not made in clustering?"
+      },
+      "options": {
+        "tr": [
+          "Tahmin edilecek bir hedef ve karşılaştırılacak bir doğru cevap yok",
+          "Veri az olduğu için",
+          "Model çok hızlı olduğu için",
+          "sklearn desteklemediği için"
+        ],
+        "en": [
+          "There is no target to predict and no right answer to compare against",
+          "Because there is little data",
+          "Because the model is very fast",
+          "Because sklearn does not support it"
+        ]
+      },
+      "explanation": {
+        "tr": "Test kümesi \"model görmediği veride ne kadar doğru\" sorusunu cevaplamak için var; burada \"doğru\" tanımlı değil.\n\nBu yüzden ölçekleyici bütün veriye uygulanabiliyor — bölüm 04'ün sızıntı kuralı burada geçerli değil.\n\nYine de `predict` ile yeni kayıtlar en yakın merkeze atanabiliyor.",
+        "en": "A test set exists to answer \"how right is the model on data it has not seen\"; here \"right\" is undefined.\n\nThis is why the scaler can be applied to all the data — section 04's leakage rule does not apply.\n\nNew records can still be assigned to the nearest centre with `predict`."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "`n_init` parametresi ne işe yarıyor?",
+        "en": "What is the `n_init` parameter for?"
+      },
+      "options": {
+        "tr": [
+          "Farklı başlangıç merkezlerinden birkaç kez deneyip en iyisini tutuyor",
+          "Küme sayısını belirliyor",
+          "Tur sayısını sınırlıyor",
+          "Ölçekleme yapıyor"
+        ],
+        "en": [
+          "It tries several different starting centres and keeps the best",
+          "It sets the number of clusters",
+          "It limits the number of rounds",
+          "It does the scaling"
+        ]
+      },
+      "explanation": {
+        "tr": "Başlangıç merkezleri rastgele; kötü bir başlangıç kötü bir sonuçta takılıyor. Model `n_init` kez baştan çalışıp eylemsizliği en düşük olanı tutuyor.\n\nTur sayısını `max_iter` sınırlıyor.\n\nKüme sayısı `n_clusters`.",
+        "en": "The initial centres are random, and a poor start gets stuck in a poor result. The model runs from scratch `n_init` times and keeps the one with the lowest inertia.\n\nThe number of rounds is limited by `max_iter`.\n\nThe cluster count is `n_clusters`."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 1,
+      "text": {
+        "tr": "`cluster_centers_` hangi uzayda duruyor?",
+        "en": "Which space does `cluster_centers_` live in?"
+      },
+      "options": {
+        "tr": [
+          "Orijinal birimlerde",
+          "Modele verilen uzayda; ölçekli veriyle eğitildiyse ölçekli uzayda",
+          "Her zaman 0-1 arasında",
+          "PCA uzayında"
+        ],
+        "en": [
+          "In the original units",
+          "In the space the model was given; if it was trained on scaled data, the scaled space",
+          "Always between 0 and 1",
+          "In PCA space"
+        ]
+      },
+      "explanation": {
+        "tr": "Orijinal birimlerde okumak için `scaler.inverse_transform(model.cluster_centers_)` gerekiyor.\n\nBu atlandığında merkezler anlamsız görünüyor: \"harcama merkezi 1.8\" gibi.\n\nPCA uzayında olması yalnızca model PCA çıktısıyla eğitildiyse söz konusu.",
+        "en": "To read them in the original units you need `scaler.inverse_transform(model.cluster_centers_)`.\n\nSkipping that makes the centres look meaningless: \"a spend centre of 1.8\".\n\nThey are in PCA space only if the model was trained on PCA output."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 2,
+      "text": {
+        "tr": "Kümelerin gerçek olup olmadığını anlamanın en pratik testi ne?",
+        "en": "What is the most practical test of whether clusters are real?"
+      },
+      "options": {
+        "tr": [
+          "Silüetin 0.5'i geçmesi",
+          "Küme sayısının çift olması",
+          "Profil tablosundaki her satıra bir isim verebilmek",
+          "Eylemsizliğin düşük olması"
+        ],
+        "en": [
+          "The silhouette exceeding 0.5",
+          "The cluster count being even",
+          "Being able to give every row of the profile table a name",
+          "The inertia being low"
+        ]
+      },
+      "explanation": {
+        "tr": "\"Sık gelen, az alan grup\" diyebiliyorsan küme bir şey anlatıyor. Satırların ortalamaları birbirine benziyorsa ve isim uyduramıyorsan yapı yok.\n\nSilüet eşiği tek başına yetmiyor — gürültüde bile pozitif çıkıyor.\n\nEylemsizlik `k` ile birlikte hep düşüyor, kalite göstergesi değil.",
+        "en": "If you can say \"the group that visits often and buys little\", the cluster is saying something. If the rows' means look alike and no name comes to mind, there is no structure.\n\nA silhouette threshold alone is not enough — it is positive even on noise.\n\nInertia always falls with `k` and is not a quality indicator."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 0,
+      "text": {
+        "tr": "Farklı tohumlarda ARI 0.6-0.7 civarında çıkıyorsa ne düşünülür?",
+        "en": "If ARI across different seeds comes out around 0.6-0.7, what does that suggest?"
+      },
+      "options": {
+        "tr": [
+          "Kümeleme kararsız; yapı zayıf olabilir",
+          "Yapı çok sağlam",
+          "Ölçekleme yapılmamış",
+          "Küme sayısı çok az"
+        ],
+        "en": [
+          "The clustering is unstable; the structure may be weak",
+          "The structure is very solid",
+          "The data was not scaled",
+          "There are too few clusters"
+        ]
+      },
+      "explanation": {
+        "tr": "Yapı sağlamsa farklı tohumlar aynı gruplamayı buluyor ve ARI 1.0'a yakın çıkıyor.\n\n0.6-0.7 algoritmanın her seferinde başka bir bölme bulduğu anlamına geliyor.\n\nBu, bölüm 08'deki kararsızlık ölçümünün kümeleme karşılığı.",
+        "en": "When the structure is solid, different seeds find the same grouping and ARI comes out near 1.0.\n\n0.6-0.7 means the algorithm finds a different partition each time.\n\nThis is the clustering counterpart of section 08's instability measurement."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 1,
+      "text": {
+        "tr": "Kümelemeyi dışarıdan doğrulamanın en güçlü yolu ne?",
+        "en": "What is the strongest way to validate a clustering from outside?"
+      },
+      "options": {
+        "tr": [
+          "Silüeti tekrar hesaplamak",
+          "Kümelemede kullanılmamış bir bilgiye göre grupların farklılaşıp farklılaşmadığına bakmak",
+          "Küme sayısını artırmak",
+          "Eylemsizliği düşürmek"
+        ],
+        "en": [
+          "Recomputing the silhouette",
+          "Checking whether the groups differ on information not used in the clustering",
+          "Increasing the cluster count",
+          "Lowering the inertia"
+        ]
+      },
+      "explanation": {
+        "tr": "Küme 2 (\"çok bakan, az alan\") gerçekse, o gruptaki müşterilerin sonraki ay iade oranı da yüksek çıkmalı.\n\nO bilgi kümelemeye sokulmaz, yoksa test anlamını kaybediyor.\n\nİçeriden hesaplanan ölçüler (silüet, eylemsizlik) bu kadar güçlü bir kanıt veremiyor.",
+        "en": "If cluster 2 (\"browses a lot, buys little\") is real, its customers should show a high return rate the following month.\n\nThat information is never fed into the clustering, or the test loses its meaning.\n\nMetrics computed from the inside (silhouette, inertia) cannot give evidence this strong."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 3,
+      "text": {
+        "tr": "Elinde etiket varsa ne yapılmalı?",
+        "en": "What should you do when you have labels?"
+      },
+      "options": {
+        "tr": [
+          "Yine de kümeleme yapmak",
+          "Etiketleri silmek",
+          "PCA yapmak",
+          "Sınıflandırma yapmak; denetimli öğrenme her zaman daha güçlü"
+        ],
+        "en": [
+          "Cluster anyway",
+          "Delete the labels",
+          "Do PCA",
+          "Classify; supervised learning is always stronger"
+        ]
+      },
+      "explanation": {
+        "tr": "Denetimsiz yöntemler etiket **olmadığında** başvurulan yollar. Etiket varken kümeleme, elindeki en değerli bilgiyi atmak demek.\n\nEtiketler kümelemeyi doğrulamak için dışarıda tutulabiliyor, ama bu ayrı bir iş.\n\nPCA etiketten bağımsız; sınıflandırmadan önce de kullanılabiliyor.",
+        "en": "Unsupervised methods are what you reach for when there are **no** labels. Clustering when you have them means throwing away the most valuable information you hold.\n\nLabels can be held out to validate a clustering, but that is a separate task.\n\nPCA is independent of labels and can be used before classification too."
+      }
+    },
+    {
+      "id": "q31",
+      "answer": 1,
+      "text": {
+        "tr": "K-ortalamalar ne tür kümeler arıyor?",
+        "en": "What kind of clusters does k-means look for?"
+      },
+      "options": {
+        "tr": [
+          "Her biçimde kümeleri",
+          "Yuvarlak, benzer boyutlu ve benzer yoğunluklu kümeleri",
+          "Yalnızca iki kümeyi",
+          "Uzun ve ince kümeleri"
+        ],
+        "en": [
+          "Clusters of any shape",
+          "Round clusters of similar size and similar density",
+          "Only two clusters",
+          "Long thin clusters"
+        ]
+      },
+      "explanation": {
+        "tr": "Her kaydı en yakın **merkeze** atadığı için doğal olarak küresel bölgeler üretiyor.\n\nHilal biçimli ya da iç içe halka biçimli iki grup verirsen ikisini de ortadan keser — matematiksel olarak doğru, iş olarak saçma.\n\nBu biçimlerde DBSCAN çok daha iyi.",
+        "en": "Because it assigns each record to the nearest **centre**, it naturally produces spherical regions.\n\nGive it two crescent-shaped or nested ring-shaped groups and it will cut both down the middle — mathematically correct, nonsense in practice.\n\nDBSCAN is far better on those shapes."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 0,
+      "text": {
+        "tr": "DBSCAN'ın k-ortalamalardan farkı ne?",
+        "en": "How does DBSCAN differ from k-means?"
+      },
+      "options": {
+        "tr": [
+          "Yoğunluğa bakıyor; `k` istemiyor ve bazı kayıtları gürültü diye işaretleyebiliyor",
+          "Daha hızlı",
+          "Yalnızca iki küme buluyor",
+          "Ölçekleme gerektirmiyor"
+        ],
+        "en": [
+          "It works on density; it needs no `k` and can mark some records as noise",
+          "It is faster",
+          "It finds only two clusters",
+          "It needs no scaling"
+        ]
+      },
+      "explanation": {
+        "tr": "Küme sayısını kendi buluyor ve hiçbir kümeye ait olmayan kayıtları dışarıda bırakabiliyor — k-ortalamalarda her kayıt bir kümeye giriyor.\n\nYuvarlak olmayan biçimlerde çok daha iyi.\n\nO da uzaklığa dayandığı için ölçekleme yine zorunlu.",
+        "en": "It finds the cluster count itself and can leave records belonging to no cluster outside — in k-means every record joins one.\n\nIt is far better on shapes that are not round.\n\nIt also rests on distance, so scaling is still mandatory."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 2,
+      "text": {
+        "tr": "t-SNE ve UMAP ne için kullanılıyor?",
+        "en": "What are t-SNE and UMAP used for?"
+      },
+      "options": {
+        "tr": [
+          "Kümeleme için",
+          "Eksik değer doldurmak için",
+          "Görselleştirme için; uzaklıkları korumadıkları için üstlerinde kümeleme yapılmıyor",
+          "Sınıflandırma için"
+        ],
+        "en": [
+          "For clustering",
+          "For filling missing values",
+          "For visualisation; since they do not preserve distances you do not cluster on top of them",
+          "For classification"
+        ]
+      },
+      "explanation": {
+        "tr": "PCA'dan çok daha güçlü görseller üretiyorlar ama ürettikleri uzaydaki mesafeler orijinal mesafelere karşılık gelmiyor.\n\nBu yüzden \"t-SNE yapıp KMeans çalıştırdım\" yaygın ama hatalı bir akış.\n\nPCA doğrusal bir dönüşüm olduğu için üstünde kümeleme yapılabiliyor.",
+        "en": "They produce far stronger visuals than PCA, but distances in the space they produce do not correspond to the original ones.\n\nThis makes \"I ran t-SNE and then KMeans\" a common but mistaken workflow.\n\nPCA is a linear transformation, so clustering on top of it is fine."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 0,
+      "text": {
+        "tr": "Kümeleme sonucunu bir paydaşa sunarken ne yapılmamalı?",
+        "en": "What should you not do when presenting a clustering to a stakeholder?"
+      },
+      "options": {
+        "tr": [
+          "\"Model %X doğrulukta\" demek",
+          "Küme boyutlarını vermek",
+          "Kümelere isim vermek",
+          "Belirsizliği söylemek"
+        ],
+        "en": [
+          "Say \"the model is X% accurate\"",
+          "Give the cluster sizes",
+          "Give the clusters names",
+          "State the uncertainty"
+        ]
+      },
+      "explanation": {
+        "tr": "Böyle bir sayı yok; doğru cevap olmadığı için doğruluk hesaplanamıyor.\n\nSorulduğunda cevap verememek daha kötü — baştan söylenmeli.\n\nİsim vermek, boyutları vermek ve belirsizliği söylemek doğru sunumun üç parçası.",
+        "en": "No such number exists; with no right answer, accuracy cannot be computed.\n\nBeing unable to answer when asked is worse — say it up front.\n\nNaming the clusters, giving the sizes and stating the uncertainty are the three parts of a good presentation."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 2,
+      "text": {
+        "tr": "Bu bölümün tek cümlelik özeti ne?",
+        "en": "What is this section in one sentence?"
+      },
+      "options": {
+        "tr": [
+          "Kümeleme sınıflandırmadan daha güçlü",
+          "Silüeti maksimize etmek yeterli",
+          "Algoritma her zaman bir cevap veriyor; cevabın anlamlı olup olmadığına karar veren sensin",
+          "PCA her zaman kullanılmalı"
+        ],
+        "en": [
+          "Clustering is stronger than classification",
+          "Maximising the silhouette is enough",
+          "The algorithm always gives an answer; you are the one who decides whether it means anything",
+          "PCA should always be used"
+        ]
+      },
+      "explanation": {
+        "tr": "Gürültüde bile dört küme ve pozitif silüet çıkıyor. Ölçüler sonucun ne kadar derli toplu olduğunu söylüyor, anlamlı olup olmadığını değil.\n\nEtiket varsa sınıflandırma her zaman daha güçlü.\n\nPCA yalnızca gerektiğinde kullanılıyor; yorumlanabilirliği azaltıyor.",
+        "en": "Even on noise you get four clusters and a positive silhouette. The metrics say how tidy the result is, not whether it means anything.\n\nWith labels, classification is always stronger.\n\nPCA is used only when needed; it reduces interpretability."
+      }
+    }
+  ]
+}

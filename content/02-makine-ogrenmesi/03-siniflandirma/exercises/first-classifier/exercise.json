@@ -1,0 +1,40 @@
+{
+  "id": "first-classifier",
+  "title": {
+    "tr": "İlk sınıflandırıcı",
+    "en": "Your first classifier"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Model `sklearn.linear_model` içindeki `LogisticRegression`. Adında regresyon geçse de sınıflandırma yapıyor.",
+      "en": "The model is `LogisticRegression` from `sklearn.linear_model`. Its name says regression but it classifies."
+    },
+    {
+      "tr": "`stratify=y` ayırmada sınıf oranını iki tarafta da koruyor; olmadan sayılar tutmaz.",
+      "en": "`stratify=y` keeps the class proportions on both sides of the split; without it the numbers will not match."
+    },
+    {
+      "tr": "Taban çizgi en sık görülen sınıf: `y_train.mode()[0]`. Onu her test kaydı için tahmin ediyorsun.",
+      "en": "The baseline is the most frequent class: `y_train.mode()[0]`. You predict it for every test record."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"students.csv\")\nX = df[[\"hours\", \"prev_score\", \"attendance\"]]\ny = df[\"passed\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nmodel = LogisticRegression(max_iter=1000)\nmodel.fit(X_train, y_train)\nprediction = model.predict(X_test)\n\nfrom sklearn.metrics import accuracy_score\n\nmost_common = y_train.mode()[0]\nbaseline = accuracy_score(y_test, [most_common] * len(y_test))\naccuracy = accuracy_score(y_test, prediction)\n\nprint(len(X_train), len(X_test))\nprint(round(baseline, 3), round(accuracy, 3))\nprint(\"better\" if accuracy > baseline else \"worse\")\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"students.csv\")\nX = df[[\"hours\", \"prev_score\", \"attendance\"]]\ny = df[\"passed\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nmodel = LogisticRegression(max_iter=1000)\nmodel.fit(X_train, y_train)\nprediction = model.predict(X_test)\n\nfrom sklearn.metrics import accuracy_score\n\nmost_common = y_train.mode()[0]\nbaseline = accuracy_score(y_test, [most_common] * len(y_test))\naccuracy = accuracy_score(y_test, prediction)\n\nprint(len(X_train), len(X_test))\nprint(round(baseline, 3), round(accuracy, 3))\nprint(\"better\" if accuracy > baseline else \"worse\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "120 40\n0.675 0.85\nbetter"
+    }
+  ]
+}

@@ -1,0 +1,914 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Kalıntı (residual) nedir?",
+        "en": "What is a residual?"
+      },
+      "options": {
+        "tr": [
+          "Tek bir kaydın hatası: `gerçek - tahmin`",
+          "Modelin toplam hatası",
+          "Modelin doğruluk oranı",
+          "Test kümesinin boyutu"
+        ],
+        "en": [
+          "The error of a single record: `actual - predicted`",
+          "The model's total error",
+          "The model's accuracy",
+          "The size of the test set"
+        ]
+      },
+      "explanation": {
+        "tr": "Kalıntı tek bir tahminin hatası. Bütün regresyon ölçüleri bu sayılardan türüyor; farkları onları nasıl topladıklarında.\n\nİşareti de bilgi taşıyor: pozitif kalıntı modelin **düşük**, negatif kalıntı **yüksek** tahmin ettiği anlamına geliyor.\n\nToplam hata ise kalıntıların bir araya getirilmiş hâli — MAE, MSE, RMSE hepsi o işi farklı yapıyor.",
+        "en": "A residual is the error of a single prediction. Every regression measure is derived from these numbers; what separates them is how they add them up.\n\nThe sign carries information too: a positive residual means the model predicted **too low**, a negative one **too high**.\n\nThe total error is the residuals brought together — MAE, MSE and RMSE each do that differently."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Pozitif bir kalıntı ne anlama geliyor?",
+        "en": "What does a positive residual mean?"
+      },
+      "options": {
+        "tr": [
+          "Model gerçek değerden düşük tahmin etmiş",
+          "Model gerçek değerden yüksek tahmin etmiş",
+          "Model isabet etmiş",
+          "Tahmin pozitif bir sayı"
+        ],
+        "en": [
+          "The model predicted lower than the actual value",
+          "The model predicted higher than the actual value",
+          "The model was right",
+          "The prediction is a positive number"
+        ]
+      },
+      "explanation": {
+        "tr": "`gerçek - tahmin` pozitifse gerçek değer daha büyük demek: model az söylemiş.\n\nBu ayrım kalıntı grafiğini okurken işe yarıyor. Kalıntılar bir bölgede hep pozitifse model orada sistematik olarak düşük tahmin ediyor.\n\nTahminin kendisinin pozitif ya da negatif olması ayrı bir şey; kalıntının işaretiyle ilgisi yok.",
+        "en": "If `actual - predicted` is positive, the actual value is larger: the model said too little.\n\nThe distinction earns its keep when reading a residual plot. If the residuals are all positive in one region, the model predicts systematically low there.\n\nWhether the prediction itself is positive or negative is a separate matter, unrelated to the residual's sign."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 2,
+      "text": {
+        "tr": "MAE hesaplanırken neden mutlak değer alınıyor?",
+        "en": "Why is the absolute value taken when computing MAE?"
+      },
+      "options": {
+        "tr": [
+          "Sonucu küçültmek için",
+          "Hesabı hızlandırmak için",
+          "Pozitif ve negatif kalıntılar birbirini götürmesin diye",
+          "Birimi değiştirmek için"
+        ],
+        "en": [
+          "To make the result smaller",
+          "To speed up the computation",
+          "So positive and negative residuals do not cancel out",
+          "To change the unit"
+        ]
+      },
+      "explanation": {
+        "tr": "İşaretler kalırsa +15 ile -15 toplandığında sıfır çıkıyor ve model kusursuz görünüyor.\n\nMutlak değer yanılmanın **yönünü** değil **miktarını** ölçüyor. Kare almak da aynı sorunu çözüyor, ama farklı bir bedelle: büyük hataları orantısız cezalandırıyor.\n\nMAE'nin birimi hedefin birimiyle aynı kalıyor; mutlak değer birimi değiştirmiyor.",
+        "en": "With the signs kept, +15 and -15 sum to zero and the model looks perfect.\n\nThe absolute value measures the **size** of the mistake, not its direction. Squaring solves the same problem but at a different cost: it punishes large errors disproportionately.\n\nMAE's unit stays the target's unit; the absolute value does not change it."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 3,
+      "text": {
+        "tr": "MSE'nin birimi nedir?",
+        "en": "What is MSE's unit?"
+      },
+      "options": {
+        "tr": [
+          "Hedefin birimi",
+          "Yüzde",
+          "Birimsiz",
+          "Hedefin biriminin karesi"
+        ],
+        "en": [
+          "The target's unit",
+          "A percentage",
+          "It has none",
+          "The target's unit squared"
+        ]
+      },
+      "explanation": {
+        "tr": "Kalıntının karesi alındığı için birim de kareleniyor: fiyat lira ise MSE \"lira kare\" oluyor — anlamı olmayan bir birim.\n\nBu yüzden karekökü alınıyor ve **RMSE** hedefin birimine dönüyor.\n\nBirimsiz olan R²; yüzdeyle konuşan MAPE.",
+        "en": "Because the residual is squared, so is the unit: if the price is in lira, MSE is in \"lira squared\" — a unit with no meaning.\n\nThat is why the square root is taken, and **RMSE** returns to the target's unit.\n\nThe unitless one is R²; the one that speaks in percentages is MAPE."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "İki model aynı test kümesinde ölçülüyor: ikisinin de MAE'si 10.0, ama birinin RMSE'si 10.0 ötekinin 31.62. Bu ne anlatıyor?",
+        "en": "Two models measured on the same test set both have MAE 10.0, but one has RMSE 10.0 and the other 31.62. What does that tell you?"
+      },
+      "options": {
+        "tr": [
+          "İkinci modelin hesabı yanlış",
+          "İkinci model daha iyi",
+          "İkinci modelde birkaç çok büyük hata var",
+          "İki model birebir aynı"
+        ],
+        "en": [
+          "The second model's computation is wrong",
+          "The second model is better",
+          "The second model has a few very large errors",
+          "The two models are identical"
+        ]
+      },
+      "explanation": {
+        "tr": "MAE her hatayı eşit sayıyor; RMSE kare aldığı için büyük hataları öne çıkarıyor. Aradaki uçurum, hataların **eşit dağılmadığını** söylüyor.\n\nBirinci model her tahminde 10 yanılıyor olabilir; ikincisi çoğunu tam bilip birinde 100 yanılıyor.\n\nHangisinin daha iyi olduğu probleme bağlı: tek büyük hata felaketse ikincisi kötü, küçük hatalar birikiyorsa birincisi kötü.",
+        "en": "MAE counts every error equally; RMSE squares them and so brings large ones to the front. The gap says the errors are **not evenly spread**.\n\nThe first model may be off by 10 on every prediction; the second gets most exactly right and misses one by 100.\n\nWhich is better depends on the problem: if one large error is a disaster the second is bad; if small errors accumulate the first is bad."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 3,
+      "text": {
+        "tr": "RMSE ile MAE arasındaki ilişki için hangisi her zaman doğru?",
+        "en": "Which is always true of the relationship between RMSE and MAE?"
+      },
+      "options": {
+        "tr": [
+          "RMSE her zaman MAE'den küçüktür",
+          "İkisi her zaman eşittir",
+          "Aralarında sabit bir ilişki yoktur",
+          "RMSE her zaman MAE'den büyük ya da ona eşittir"
+        ],
+        "en": [
+          "RMSE is always smaller than MAE",
+          "They are always equal",
+          "There is no fixed relationship",
+          "RMSE is always greater than or equal to MAE"
+        ]
+      },
+      "explanation": {
+        "tr": "Kare almak büyük değerleri öne çıkardığı için RMSE aşağı inemiyor. Bütün hatalar birebir aynıysa ikisi eşit oluyor; her farklılık RMSE'yi yukarı itiyor.\n\nBu yüzden **iki sayı birlikte** yazılıyor: aradaki fark tek başına bilgi taşıyor.\n\nFark büyükse birkaç uç hata var demek; küçükse hatalar dengeli dağılmış.",
+        "en": "Because squaring brings large values forward, RMSE cannot fall below MAE. They are equal when every error is identical; any variation pushes RMSE up.\n\nThat is why **both numbers are written**: the gap between them is information on its own.\n\nA wide gap means a few extreme errors; a narrow one means the errors are evenly spread."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 1,
+      "text": {
+        "tr": "Tek bir büyük hatanın felaket olduğu bir problemde (uçuş süresi tahmini gibi) hangi ölçü daha uygun?",
+        "en": "For a problem where one large error is a disaster (estimating a flight time, say), which measure fits better?"
+      },
+      "options": {
+        "tr": [
+          "MAE",
+          "RMSE",
+          "MAPE",
+          "Hepsi eşit derecede uygun"
+        ],
+        "en": [
+          "MAE",
+          "RMSE",
+          "MAPE",
+          "They are all equally suitable"
+        ]
+      },
+      "explanation": {
+        "tr": "RMSE kare aldığı için büyük hataları orantısız cezalandırıyor — istenen davranış tam olarak bu.\n\nMAE bir büyük hatayla birkaç küçük hatayı aynı görüyor; bu problemde yanıltıcı.\n\nTersi durumda — küçük sapmaların biriktiği, tek büyük sapmanın önemsiz olduğu problemlerde — MAE daha doğru ölçü.",
+        "en": "RMSE squares the errors and so punishes large ones disproportionately — exactly the behaviour you want here.\n\nMAE treats one large error the same as several small ones, which is misleading for this problem.\n\nThe other way round — where small deviations accumulate and one large one hardly matters — MAE is the better measure."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "R²'nin sıfır noktası neye karşılık geliyor?",
+        "en": "What does R²'s zero point correspond to?"
+      },
+      "options": {
+        "tr": [
+          "Her şeye ortalamayı diyen taban çizgi",
+          "Modelin hiç hata yapmaması",
+          "Rastgele tahmin",
+          "Modelin eğitilmemiş olması"
+        ],
+        "en": [
+          "A baseline that predicts the mean for everything",
+          "The model making no errors at all",
+          "Random guessing",
+          "The model being untrained"
+        ]
+      },
+      "explanation": {
+        "tr": "R² formülü `1 - ss_res / ss_tot`; `ss_tot` taban çizginin hatası. İkisi eşitken oran 1, R² 0 oluyor.\n\nHiç hata yoksa `ss_res` sıfır ve R² 1 çıkıyor.\n\nÖnceki bölümde elle kurduğun taban çizgi bu ölçünün içine gömülü — R² zaten bir karşılaştırma.",
+        "en": "The formula is `1 - ss_res / ss_tot`, where `ss_tot` is the baseline's error. When the two are equal the ratio is 1 and R² is 0.\n\nWith no error at all `ss_res` is zero and R² comes out 1.\n\nThe baseline you built by hand in the previous section is built into this measure — R² is already a comparison."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 3,
+      "text": {
+        "tr": "Bir modelin R² değeri -0.2 çıktı. Ne yapmak gerekiyor?",
+        "en": "A model's R² came out as -0.2. What should you do?"
+      },
+      "options": {
+        "tr": [
+          "Modeli kullanmak; negatif R² normaldir",
+          "R² yerine MAE'ye bakıp devam etmek",
+          "Test kümesini büyütmek",
+          "Modeli atmak; ortalamayı söylemekten kötü tahmin ediyor"
+        ],
+        "en": [
+          "Use the model; a negative R² is normal",
+          "Look at MAE instead and carry on",
+          "Enlarge the test set",
+          "Discard it; it predicts worse than saying the mean"
+        ]
+      },
+      "explanation": {
+        "tr": "Negatif R², modelin taban çizginin **altına** düştüğü anlamına geliyor: hiçbir şey öğrenmeyen bir satır ondan iyi.\n\nBaşka bir ölçüye geçmek sorunu çözmüyor, yalnızca görünmez kılıyor.\n\nBöyle bir sonuç genelde modelin veriye uymadığını ya da bir yerde bir şeyin ters gittiğini söylüyor; önce sebebi aranıyor.",
+        "en": "A negative R² means the model fell **below** the baseline: a line that learns nothing does better.\n\nSwitching to another measure does not solve the problem, only hides it.\n\nSuch a result usually says the model does not suit the data or something went wrong somewhere; you look for the cause first."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 1,
+      "text": {
+        "tr": "R² neden iki farklı problemi karşılaştırmaya uygun?",
+        "en": "Why is R² suitable for comparing two different problems?"
+      },
+      "options": {
+        "tr": [
+          "Her zaman 0 ile 1 arasında olduğu için",
+          "Birimsiz bir oran olduğu için",
+          "Kare tabanlı olduğu için",
+          "sklearn'de varsayılan olduğu için"
+        ],
+        "en": [
+          "Because it is always between 0 and 1",
+          "Because it is a unitless ratio",
+          "Because it is square-based",
+          "Because it is sklearn's default"
+        ]
+      },
+      "explanation": {
+        "tr": "Ev fiyatında MAE 18.5, sıcaklıkta MAE 2.1 — birimleri farklı olduğu için karşılaştırılamıyorlar. R²'nin birimi yok, ikisinde de aynı ölçekte konuşuyor.\n\n\"Her zaman 0 ile 1 arasında\" doğru değil: R² negatif olabiliyor.\n\nBirimsizliğin bedeli var: R² ne kadar yanıldığını söylemiyor. Rapora ikisi birden giriyor.",
+        "en": "MAE 18.5 for house prices and MAE 2.1 for temperatures cannot be compared, because their units differ. R² has no unit and speaks on the same scale for both.\n\n\"Always between 0 and 1\" is false: R² can be negative.\n\nBeing unitless has a cost: R² does not say how far off you are. Reports carry both."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "MAPE hangi durumda kullanılamaz?",
+        "en": "When can MAPE not be used?"
+      },
+      "options": {
+        "tr": [
+          "Hedefte sıfır değerler varsa",
+          "Hedef çok büyük sayılardan oluşuyorsa",
+          "Özellik sayısı fazlaysa",
+          "Model doğrusalsa"
+        ],
+        "en": [
+          "When the target contains zeros",
+          "When the target consists of very large numbers",
+          "When there are many features",
+          "When the model is linear"
+        ]
+      },
+      "explanation": {
+        "tr": "MAPE hatayı gerçek değere bölüyor; gerçek değer sıfırsa bölme tanımsız kalıyor. Sıfıra çok yakın değerlerde de yüzde uçuyor.\n\nSatış tahmininde sıfır satılan gün, sensör verisinde sıfır ölçüm — sık karşılaşılan bir durum.\n\nİkinci sorunu simetrik olmaması: düşük tahmin etmenin cezası üstten sınırlı, yüksek tahmin etmeninki değil.",
+        "en": "MAPE divides the error by the actual value; when that value is zero the division is undefined. With near-zero values the percentage flies off.\n\nA day with zero sales in a forecast, a zero reading in sensor data — a common situation.\n\nIts second problem is asymmetry: the penalty for predicting low is capped, the one for predicting high is not."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 1,
+      "text": {
+        "tr": "MAPE'nin simetrik olmaması ne sonuç doğuruyor?",
+        "en": "What is the consequence of MAPE not being symmetric?"
+      },
+      "options": {
+        "tr": [
+          "Hesap yavaşlıyor",
+          "Model sistematik olarak düşük tahmin etmeye kayıyor",
+          "Sonuç her zaman negatif çıkıyor",
+          "Yalnızca büyük hatalar sayılıyor"
+        ],
+        "en": [
+          "The computation slows down",
+          "The model drifts towards predicting systematically low",
+          "The result always comes out negative",
+          "Only large errors count"
+        ]
+      },
+      "explanation": {
+        "tr": "100 yerine 0 demek %100 hata; 100 yerine 200 demek de %100. Ama 100 yerine 300 demek %200 — yukarı doğru ceza sınırsız, aşağı doğru %100'de duruyor.\n\nMAPE'ye göre optimize edilen bir model bu asimetriyi fark ediyor ve güvenli tarafa, yani düşük tahmine kayıyor.\n\nÖlçünün kendisi modelin davranışını değiştirebiliyor; ölçü seçimi masum bir tercih değil.",
+        "en": "Saying 0 instead of 100 is a 100% error; so is saying 200 instead of 100. But saying 300 instead of 100 is 200% — the penalty upwards is unbounded while downwards it stops at 100%.\n\nA model optimised against MAPE notices this asymmetry and drifts to the safe side, which is predicting low.\n\nThe measure itself can change the model's behaviour; choosing one is not an innocent preference."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 3,
+      "text": {
+        "tr": "Doğrusal regresyonun eğitim kalıntılarının ortalaması sıfıra çok yakın çıktı. Bu ne gösteriyor?",
+        "en": "The mean of a linear regression's training residuals came out very close to zero. What does that show?"
+      },
+      "options": {
+        "tr": [
+          "Modelin çok iyi olduğunu",
+          "Veride hata olduğunu",
+          "Modelin ezberlediğini",
+          "Yöntemin bir sonucunu; başarı göstergesi değil"
+        ],
+        "en": [
+          "That the model is very good",
+          "That there is an error in the data",
+          "That the model memorised",
+          "A consequence of the method; it is not a sign of success"
+        ]
+      },
+      "explanation": {
+        "tr": "Doğrusal regresyon kalıntıları sıfır etrafında dengeleyecek şekilde çalışıyor; ortalamanın sıfıra yakın çıkması kaçınılmaz.\n\nBu yüzden ortalamaya bakmak bilgi vermiyor. Bakılan şey **dağılım**: kalıntılar ne kadar yayılmış ve bir desen taşıyor mu.\n\nBerbat bir modelin de kalıntı ortalaması sıfır çıkabiliyor.",
+        "en": "Linear regression works in a way that balances the residuals around zero; a mean close to zero is unavoidable.\n\nSo looking at the mean tells you nothing. What you look at is the **spread**: how far the residuals scatter and whether they carry a pattern.\n\nA terrible model can have a mean residual of zero too."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 3,
+      "text": {
+        "tr": "Kalıntıları modelde olmayan bir sütuna karşı çizdin ve -0.94 korelasyon buldun. Bu ne anlatıyor?",
+        "en": "You plotted the residuals against a column not in the model and found a correlation of -0.94. What does that tell you?"
+      },
+      "options": {
+        "tr": [
+          "Veride hata var",
+          "Model aşırı öğrenmiş",
+          "Kalıntılar rastgele dağılmış",
+          "O sütunu modele eklemek modeli iyileştirir"
+        ],
+        "en": [
+          "There is an error in the data",
+          "The model has overfitted",
+          "The residuals are randomly scattered",
+          "Adding that column to the model will improve it"
+        ]
+      },
+      "explanation": {
+        "tr": "Kalıntıda desen, modelin **kaçırdığı** bir bilginin hâlâ orada durduğu anlamına geliyor.\n\n-0.94 gibi güçlü bir korelasyon, o sütunun hedefle ilişkisinin modele hiç girmediğini söylüyor. Eklemek doğrudan iyileşme getiriyor.\n\nRastgele dağılmış kalıntılarda korelasyon sıfıra yakın çıkıyor; oradaki durum \"model çıkarılabileni çıkarmış\" oluyor.",
+        "en": "A pattern in the residuals means information the model **missed** is still sitting there.\n\nA correlation as strong as -0.94 says that column's relationship with the target never entered the model. Adding it brings a direct improvement.\n\nRandomly scattered residuals give a correlation near zero; that situation reads as \"the model extracted what it could\"."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 2,
+      "text": {
+        "tr": "Kalıntı incelemesi neden eğitim verisinde yapılabiliyor?",
+        "en": "Why may residual analysis be done on the training data?"
+      },
+      "options": {
+        "tr": [
+          "Kural gevşek olduğu için",
+          "Eğitim verisi daha temiz olduğu için",
+          "Orada ölçüm değil teşhis yapıldığı için",
+          "Test verisi kullanılamadığı için"
+        ],
+        "en": [
+          "Because the rule is loose",
+          "Because the training data is cleaner",
+          "Because what happens there is diagnosis, not measurement",
+          "Because the test data cannot be used"
+        ]
+      },
+      "explanation": {
+        "tr": "\"Eğitimde ölçme\" kuralı **başarı sayısı** üretmekle ilgili. Kalıntı grafiği bir başarı sayısı üretmiyor; modelin neyi kaçırdığını gösteriyor.\n\nEğitim kümesi daha büyük olduğu için desen orada daha net görünüyor.\n\nTest kümesi ölçüm için el değmemiş kalıyor — ve teste ne kadar bakarsan onu o kadar tüketiyorsun.",
+        "en": "The \"never measure on training\" rule is about producing a **performance number**. A residual plot produces no performance number; it shows what the model missed.\n\nThe training set is larger, so a pattern shows up more clearly there.\n\nThe test set stays untouched for measurement — and the more you look at it, the more you spend it."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Kalıntı grafiğinde tahmin büyüdükçe kalıntılar da büyüyorsa (huni şekli) ne oluyor?",
+        "en": "In a residual plot, if the residuals grow as the prediction grows (a funnel shape), what is happening?"
+      },
+      "options": {
+        "tr": [
+          "Hata mutlak değil oransal; hedefi dönüştürmek ya da oransal ölçüye geçmek gerekiyor",
+          "Model ezberlemiş",
+          "Veri sızıntısı var",
+          "Model yeterince eğitilmemiş"
+        ],
+        "en": [
+          "The error is proportional rather than absolute; transform the target or move to a proportional measure",
+          "The model memorised",
+          "There is data leakage",
+          "The model was not trained enough"
+        ]
+      },
+      "explanation": {
+        "tr": "Küçük değerlerde 5, büyük değerlerde 50 birim yanılan bir model aslında **oransal olarak** aynı yanılıyor olabilir.\n\nMAE bu durumda büyük kayıtların hatasıyla doluyor ve küçük kayıtlardaki performans görünmez kalıyor.\n\nÇözüm hedefin logaritmasını modellemek ya da MAPE gibi oransal bir ölçüye geçmek.",
+        "en": "A model off by 5 units on small values and 50 on large ones may be off by the same **proportion** throughout.\n\nMAE then fills up with the errors on the large records and performance on the small ones stays invisible.\n\nThe fix is to model the logarithm of the target or move to a proportional measure like MAPE."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 1,
+      "text": {
+        "tr": "Kalıntı grafiğinde U şeklinde bir desen görüyorsun. Bu ne anlatıyor?",
+        "en": "You see a U-shaped pattern in a residual plot. What does it tell you?"
+      },
+      "options": {
+        "tr": [
+          "Model çok iyi",
+          "İlişki doğrusal değil; model düz çizgi çekmeye çalışıyor",
+          "Veri eksik",
+          "Test kümesi çok küçük"
+        ],
+        "en": [
+          "The model is very good",
+          "The relationship is not linear; the model is trying to draw a straight line",
+          "The data has gaps",
+          "The test set is too small"
+        ]
+      },
+      "explanation": {
+        "tr": "Kalıntılar ortada bir yöne, uçlarda öteki yöne kayıyorsa doğru bir eğriye zorla oturtulmuş demek.\n\nÇözüm karesel terim eklemek ya da eğri ilişkileri yakalayabilen bir modele geçmek — karar ağacı, topluluk yöntemleri.\n\nDesensiz, sıfır etrafında rastgele dağılmış kalıntılar istenen durum.",
+        "en": "If the residuals lean one way in the middle and the other way at the ends, a line has been forced onto a curve.\n\nThe fix is to add a squared term or move to a model that captures curves — a decision tree, an ensemble method.\n\nResiduals with no pattern, scattered randomly around zero, are what you want."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 1,
+      "text": {
+        "tr": "sklearn'de `mean_squared_error` ne döndürüyor?",
+        "en": "What does sklearn's `mean_squared_error` return?"
+      },
+      "options": {
+        "tr": [
+          "RMSE'yi",
+          "MSE'yi; karekökünü sen alıyorsun",
+          "MAE'yi",
+          "R² değerini"
+        ],
+        "en": [
+          "RMSE",
+          "MSE; you take the square root yourself",
+          "MAE",
+          "The R² value"
+        ]
+      },
+      "explanation": {
+        "tr": "Fonksiyon adı ne diyorsa onu döndürüyor: karelerin ortalaması.\n\nRMSE için `mean_squared_error(...) ** 0.5` yazılıyor. Bu sık karıştırılıyor ve raporlara MSE, RMSE diye giriyor — sayı olduğundan çok daha büyük görünüyor.\n\nBirimine bakmak iyi bir kontrol: MSE hedefin biriminin karesinde, RMSE hedefin biriminde.",
+        "en": "The function returns what its name says: the mean of the squares.\n\nFor RMSE you write `mean_squared_error(...) ** 0.5`. This gets confused often, and MSE ends up in reports labelled RMSE — making the number look far larger than it is.\n\nChecking the unit is a good test: MSE is in the target's unit squared, RMSE in the target's unit."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 2,
+      "text": {
+        "tr": "`r2_score(prediction, y_test)` yazmak neden tehlikeli?",
+        "en": "Why is writing `r2_score(prediction, y_test)` dangerous?"
+      },
+      "options": {
+        "tr": [
+          "Hata verir",
+          "Sonucu negatife çevirir",
+          "Hata vermeden yanlış bir sayı üretir",
+          "Yavaş çalışır"
+        ],
+        "en": [
+          "It raises an error",
+          "It turns the result negative",
+          "It produces a wrong number without raising an error",
+          "It runs slowly"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıra her zaman `(gerçek, tahmin)`. R² simetrik olmadığı için ters yazınca farklı bir sayı çıkıyor — ve hiçbir uyarı gelmiyor.\n\nMAE simetrik olduğu için aynı hatayı affediyor; bu da yanlış alışkanlığın fark edilmeden yerleşmesine yol açıyor.\n\nSessizce yanlış sonuç veren hatalar, gürültülü hata verenlerden daha tehlikeli.",
+        "en": "The order is always `(actual, predicted)`. R² is not symmetric, so reversing it gives a different number — with no warning at all.\n\nMAE is symmetric and forgives the same mistake, which lets the wrong habit settle in unnoticed.\n\nErrors that silently give a wrong answer are more dangerous than the loud ones."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "İki modelin MAE'si hangi durumda karşılaştırılabilir?",
+        "en": "When are two models' MAEs comparable?"
+      },
+      "options": {
+        "tr": [
+          "Aynı test kümesinde ölçülmüşlerse",
+          "Her zaman",
+          "Aynı algoritma kullanıyorlarsa",
+          "Aynı sayıda özellik varsa"
+        ],
+        "en": [
+          "When they were measured on the same test set",
+          "Always",
+          "When they use the same algorithm",
+          "When they have the same number of features"
+        ]
+      },
+      "explanation": {
+        "tr": "Farklı ayrımlarda ölçülen sayılar farklı sınavlardan alınmış notlar gibi: biri kolay soruları çekmiş olabilir.\n\nBu yüzden model karşılaştırırken `random_state` sabit tutuluyor ve ikisi de aynı `X_test` üzerinde ölçülüyor.\n\nFarklı problemleri karşılaştırmak için MAE hiç uygun değil — orada birimsiz bir ölçü, yani R² gerekiyor.",
+        "en": "Numbers measured on different splits are like marks from different exams: one may have drawn the easier questions.\n\nThat is why `random_state` is held fixed when comparing models, and both are measured on the same `X_test`.\n\nMAE is not suitable for comparing different problems at all — that needs a unitless measure, which is R²."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "Bir regresyon raporunda hangisi bulunmak zorunda değil?",
+        "en": "Which of these does a regression report not need?"
+      },
+      "options": {
+        "tr": [
+          "Hangi veride ölçüldüğü",
+          "Taban çizginin aynı ölçüsü",
+          "Modelin eğitim süresi",
+          "Modelin nerede yanıldığı"
+        ],
+        "en": [
+          "What data it was measured on",
+          "The same measure for the baseline",
+          "The model's training time",
+          "Where the model goes wrong"
+        ]
+      },
+      "explanation": {
+        "tr": "Eğitim süresi bir mühendislik ayrıntısı; sonucun doğruluğu ya da anlamı hakkında bir şey söylemiyor.\n\nÖteki üçü sayının **anlamını** kuruyor: bağlamı, kıyas noktası ve zayıf tarafı.\n\nEn sık atlanan, modelin nerede yanıldığı. Bütün hataları tek bir grupta toplanan model, ortalaması iyi olsa bile kullanılamaz.",
+        "en": "Training time is an engineering detail; it says nothing about the correctness or meaning of the result.\n\nThe other three establish what the number **means**: its context, its yardstick and its weak side.\n\nThe most often skipped is where the model goes wrong. A model whose errors all fall in one group is unusable however good its average."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 3,
+      "text": {
+        "tr": "MAE 18.5 çıkan bir sonuç için hangi ek bilgi \"iyi mi kötü mü\" sorusunu cevaplıyor?",
+        "en": "For a result with MAE 18.5, which extra piece of information answers \"is that good or bad\"?"
+      },
+      "options": {
+        "tr": [
+          "Modelin özellik sayısı",
+          "Modelin eğitim süresi",
+          "Kullanılan kütüphanenin sürümü",
+          "Taban çizginin aynı ölçüdeki değeri"
+        ],
+        "en": [
+          "The model's number of features",
+          "The model's training time",
+          "The library version used",
+          "The baseline's value on the same measure"
+        ]
+      },
+      "explanation": {
+        "tr": "Taban çizgi 82.29 ise 18.5 büyük başarı; 20 ise neredeyse hiçbir şey.\n\nBu yüzden \"iyi\" kelimesi her zaman bir kıyasla birlikte kullanılıyor.\n\nR² bunu ölçünün içine gömüyor: sıfır noktası zaten taban çizgi.",
+        "en": "If the baseline is 82.29, then 18.5 is a large success; if it is 20, almost nothing.\n\nThat is why the word \"good\" always comes with a comparison.\n\nR² builds this into the measure itself: its zero point is the baseline."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "Kalıntılarda hiçbir desen görünmüyorsa ne sonuç çıkar?",
+        "en": "If no pattern shows in the residuals, what follows?"
+      },
+      "options": {
+        "tr": [
+          "Model başarısız",
+          "Veri sızıntısı var",
+          "Ölçü yanlış seçilmiş",
+          "Model bu veriden çıkarılabileni çıkarmış; daha iyisi için yeni veri gerekiyor"
+        ],
+        "en": [
+          "The model failed",
+          "There is data leakage",
+          "The measure was chosen wrongly",
+          "The model extracted what this data allows; doing better needs new data"
+        ]
+      },
+      "explanation": {
+        "tr": "Desensiz kalıntı, kalan hatanın gürültü olduğu anlamına geliyor — elindeki sütunlarla açıklanabilecek bir şey kalmamış.\n\nBu durumda daha karmaşık bir model denemek genelde işe yaramıyor; gereken şey **yeni bilgi**, yani yeni sütun ya da daha çok kayıt.\n\nBu da bir sonuç ve rapora yazılıyor.",
+        "en": "Residuals with no pattern mean the remaining error is noise — nothing explainable with the columns you have is left.\n\nTrying a more complex model usually does not help here; what is needed is **new information**, that is a new column or more records.\n\nThat is a result too, and it goes in the report."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 1,
+      "text": {
+        "tr": "R² için \"hedefteki değişkenliğin %94'ünü açıklıyor\" cümlesindeki sorun nedir?",
+        "en": "What is the problem with saying \"R² explains 94% of the variation in the target\"?"
+      },
+      "options": {
+        "tr": [
+          "Yüzde hesabı yanlış",
+          "\"Açıklamak\" bir uyum ölçüsünü sebep bilgisine çeviriyor",
+          "R² yüzde olarak yazılamaz",
+          "0.94 çok düşük bir değer"
+        ],
+        "en": [
+          "The percentage is computed wrongly",
+          "\"Explaining\" turns a measure of fit into knowledge of causes",
+          "R² cannot be written as a percentage",
+          "0.94 is a very low value"
+        ]
+      },
+      "explanation": {
+        "tr": "Yaygın ama gevşek bir ifade. R² bir **uyum** ölçüsü: modelin tahminleri gerçek değerlere ne kadar yakın.\n\nModel neyi neden açıkladığını bilmiyor; birlikte değişimi yakalıyor, sebebi değil.\n\nÖnceki modülün korelasyon-nedensellik kuralı burada da geçerli ve yüksek bir R² onu değiştirmiyor.",
+        "en": "A common but loose phrase. R² is a measure of **fit**: how close the model's predictions are to the actual values.\n\nThe model does not know what it explained or why; it captures things varying together, not causes.\n\nThe correlation-causation rule from the previous module applies here too, and a high R² does not change it."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 2,
+      "text": {
+        "tr": "`ss_res` ve `ss_tot` sırasıyla neyi ölçüyor?",
+        "en": "What do `ss_res` and `ss_tot` measure, respectively?"
+      },
+      "options": {
+        "tr": [
+          "Eğitim hatası ve test hatası",
+          "MAE ve RMSE",
+          "Modelin hatası ve taban çizginin hatası",
+          "Kalıntı ortalaması ve kalıntı yayılımı"
+        ],
+        "en": [
+          "The training error and the test error",
+          "MAE and RMSE",
+          "The model's error and the baseline's error",
+          "The residual mean and the residual spread"
+        ]
+      },
+      "explanation": {
+        "tr": "`ss_res` kalıntıların karelerinin toplamı — modelin toplam hatası. `ss_tot` her değerin ortalamadan farkının karesi — taban çizginin toplam hatası.\n\nR² ikisinin oranından geliyor: `1 - ss_res / ss_tot`.\n\nİkisi eşitse model taban çizgi kadar (R² = 0); `ss_res` daha büyükse taban çizgiden kötü (R² negatif).",
+        "en": "`ss_res` is the sum of squared residuals — the model's total error. `ss_tot` is the sum of squared distances from the mean — the baseline's total error.\n\nR² comes from the ratio: `1 - ss_res / ss_tot`.\n\nWhen they are equal the model matches the baseline (R² = 0); when `ss_res` is larger it is worse than the baseline (R² is negative)."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "Hedefin ölçeği kayıtlar arasında çok değişiyorsa (bazıları 10, bazıları 10.000) MAE'nin sorunu ne?",
+        "en": "If the target's scale varies a lot between records (some 10, some 10,000), what is MAE's problem?"
+      },
+      "options": {
+        "tr": [
+          "Büyük kayıtların hatasıyla dolup küçük kayıtlardaki performansı gizliyor",
+          "Hesaplanamıyor",
+          "Her zaman sıfır çıkıyor",
+          "Yalnızca pozitif değerlerle çalışıyor"
+        ],
+        "en": [
+          "It fills up with the errors on the large records and hides performance on the small ones",
+          "It cannot be computed",
+          "It always comes out zero",
+          "It only works with positive values"
+        ]
+      },
+      "explanation": {
+        "tr": "10.000'lik bir kayıtta 500 birim yanılmak, 10'luk bir kayıtta 5 birim yanılmaktan yüz kat büyük görünüyor — oysa ikisi de %5.\n\nOrtalama alındığında büyük kayıtlar sonucu belirliyor ve küçüklerdeki başarı ya da başarısızlık kayboluyor.\n\nÇözüm oransal bir ölçüye geçmek (MAPE) ya da hedefin logaritmasını modellemek.",
+        "en": "Being off by 500 on a record of 10,000 looks a hundred times worse than being off by 5 on a record of 10 — yet both are 5%.\n\nWhen averaged, the large records decide the result and success or failure on the small ones disappears.\n\nThe fix is to move to a proportional measure (MAPE) or model the logarithm of the target."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 1,
+      "text": {
+        "tr": "Bir modelin en büyük kalıntısı 26 yaşındaki bir evde çıktı ve model yaşı bilmiyor. Bundan çıkan ilk soru ne olmalı?",
+        "en": "A model's largest residual falls on a 26-year-old house, and the model does not know about age. What should the first question be?"
+      },
+      "options": {
+        "tr": [
+          "O kaydı veriden atmalı mıyım?",
+          "Bu tek bir kayıt mı, yoksa yaşa bağlı bir desen mi var?",
+          "Daha karmaşık bir model mi kurmalıyım?",
+          "Test kümesini mi büyütmeliyim?"
+        ],
+        "en": [
+          "Should I drop that record?",
+          "Is this one record, or is there a pattern tied to age?",
+          "Should I build a more complex model?",
+          "Should I enlarge the test set?"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek bir kayıt tesadüf de olabilir. Karar vermeden önce bütün kalıntılara bakmak gerekiyor.\n\nKalıntı grafiği bu soruyu cevaplıyor: yaşa karşı çizildiğinde desen varsa mesele tek kayıt değil, eksik bir sütun.\n\nKaydı atmak en kötü seçenek: modelin yanıldığı yerleri silmek modeli iyileştirmiyor, ölçümü bozuyor.",
+        "en": "A single record may be a coincidence. Before deciding anything you look at all the residuals.\n\nThe residual plot answers this: plotted against age, a pattern means the issue is not one record but a missing column.\n\nDropping the record is the worst option: deleting the places a model fails does not improve the model, it corrupts the measurement."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 3,
+      "text": {
+        "tr": "Sınıflandırma probleminde MAE kullanmak neden anlamsız?",
+        "en": "Why is using MAE meaningless for a classification problem?"
+      },
+      "options": {
+        "tr": [
+          "MAE yavaş çalışır",
+          "MAE yalnızca pozitif sayılarla çalışır",
+          "sklearn buna izin vermez",
+          "Kategoriler arasındaki fark bir sayı değil"
+        ],
+        "en": [
+          "MAE is slow",
+          "MAE only works with positive numbers",
+          "sklearn does not allow it",
+          "The difference between categories is not a number"
+        ]
+      },
+      "explanation": {
+        "tr": "\"Kedi\" ile \"köpek\" arasındaki uzaklık diye bir şey yok; kalıntı da yok. MAE'nin dayandığı çıkarma işlemi tanımsız.\n\nSınıflar sayıya kodlanmış olsa bile (0, 1, 2) aradaki mesafe uydurma: 2 ile 0 arasındaki fark, 1 ile 0 arasındakinin iki katı değil.\n\nOrada accuracy, precision, recall ve karışıklık matrisi kullanılıyor — bir sonraki bölümün konusu.",
+        "en": "There is no such thing as a distance between \"cat\" and \"dog\"; there is no residual either. The subtraction MAE rests on is undefined.\n\nEven when classes are coded as numbers (0, 1, 2), the distances are invented: the gap between 2 and 0 is not twice the gap between 1 and 0.\n\nAccuracy, precision, recall and the confusion matrix are used there — the next section's subject."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 1,
+      "text": {
+        "tr": "Kalıntı grafiğine sıfır çizgisi (`axhline(0)`) neden ekleniyor?",
+        "en": "Why is a zero line (`axhline(0)`) added to a residual plot?"
+      },
+      "options": {
+        "tr": [
+          "Grafik daha güzel görünsün diye",
+          "Desen ancak o çizgiye göre okunabildiği için",
+          "matplotlib bunu zorunlu tuttuğu için",
+          "Kalıntıları sıfırlamak için"
+        ],
+        "en": [
+          "To make the chart look nicer",
+          "Because a pattern can only be read against that line",
+          "Because matplotlib requires it",
+          "To zero out the residuals"
+        ]
+      },
+      "explanation": {
+        "tr": "Kalıntının işareti bilgi taşıyor: sıfırın üstü düşük tahmin, altı yüksek tahmin.\n\nÇizgi olmadan noktaların hangi tarafta olduğu gözle ayırt edilemiyor ve eksen ölçeği değiştikçe algı kayıyor.\n\nKüçük bir ayrıntı ama grafiğin okunabilirliğini belirleyen şey.",
+        "en": "The residual's sign carries information: above zero is an underprediction, below is an overprediction.\n\nWithout the line you cannot tell by eye which side a point is on, and the perception shifts as the axis scale changes.\n\nA small detail, but the one that decides whether the chart can be read."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 2,
+      "text": {
+        "tr": "MSE yerine MAE seçmenin bir sebebi ne olabilir?",
+        "en": "What could be a reason to choose MAE over MSE?"
+      },
+      "options": {
+        "tr": [
+          "MAE her zaman daha küçüktür",
+          "MAE daha hızlı hesaplanır",
+          "Veride aykırı değerler var ve onların sonucu domine etmesini istemiyorsun",
+          "MSE yalnızca sınıflandırmada kullanılır"
+        ],
+        "en": [
+          "MAE is always smaller",
+          "MAE computes faster",
+          "The data has outliers and you do not want them to dominate the result",
+          "MSE is only used for classification"
+        ]
+      },
+      "explanation": {
+        "tr": "Kare almak aykırı bir kaydın hatasını orantısız büyütüyor; tek bir uç değer bütün ölçüyü belirleyebiliyor.\n\nMAE her hatayı eşit sayıyor ve bu yüzden aykırı değerlere dayanıklı.\n\nAma bu her zaman istenen davranış değil: aykırı değer gerçekten pahalı bir hataysa, RMSE'nin onu öne çıkarması doğru olan.",
+        "en": "Squaring blows up an outlier's error disproportionately; a single extreme value can decide the whole measure.\n\nMAE counts every error equally and is therefore robust to outliers.\n\nBut that is not always the behaviour you want: if the outlier really is an expensive mistake, RMSE bringing it forward is the right thing."
+      }
+    },
+    {
+      "id": "q31",
+      "answer": 2,
+      "text": {
+        "tr": "Aynı modelin sonucu dört ölçüyle yazıldı: MAE 18.50, RMSE 22.86, R² 0.943, MAPE 0.063. Hangisi doğru?",
+        "en": "One model's result written with four measures: MAE 18.50, RMSE 22.86, R² 0.943, MAPE 0.063. Which is correct?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca R² doğru",
+          "Yalnızca MAE doğru",
+          "Dördü de aynı sonucu farklı sorulara göre anlatıyor",
+          "Sayılar tutarsız, bir hata var"
+        ],
+        "en": [
+          "Only R² is correct",
+          "Only MAE is correct",
+          "All four describe the same result, each answering a different question",
+          "The numbers are inconsistent; there is a mistake"
+        ]
+      },
+      "explanation": {
+        "tr": "Hiçbiri ötekinden \"doğru\" değil. MAE ne kadar yanıldığını, RMSE büyük hata olup olmadığını, R² taban çizgiye göre nerede olduğunu, MAPE oransal hatayı söylüyor.\n\nRMSE'nin MAE'den büyük olması beklenen bir şey; tutarsızlık değil.\n\nRapora birkaçı birden yazılıyor, çünkü tek bir sayı tek bir soruya cevap veriyor.",
+        "en": "None is more \"correct\" than the others. MAE says how far off you are, RMSE whether there are large errors, R² where you stand against the baseline, MAPE the proportional error.\n\nRMSE being larger than MAE is expected, not an inconsistency.\n\nSeveral go in a report together, because one number answers one question."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 0,
+      "text": {
+        "tr": "Bir ölçü seçerken sorulacak asıl soru nedir?",
+        "en": "What is the real question when choosing a measure?"
+      },
+      "options": {
+        "tr": [
+          "Bu problemde büyük bir hata, küçük hataların toplamından daha mı pahalı?",
+          "Hangi ölçü daha popüler?",
+          "Hangi ölçü daha yüksek sayı veriyor?",
+          "sklearn hangisini varsayılan yapıyor?"
+        ],
+        "en": [
+          "In this problem, is one large error more expensive than the sum of several small ones?",
+          "Which measure is more popular?",
+          "Which measure gives a higher number?",
+          "Which one does sklearn use by default?"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçü seçmek teknik değil, **iş kararı**. Cevap evetse RMSE, hayırsa MAE.\n\n\"Hangi ölçü daha yüksek sayı veriyor\" sorusu sonucu güzelleştirmeye çalışmak; ölçü sonuçtan sonra seçilmiyor.\n\nsklearn'in varsayılanı bir kolaylık, bir tavsiye değil.",
+        "en": "Choosing a measure is not a technical decision but a **business** one. If the answer is yes, RMSE; if no, MAE.\n\nAsking which measure gives a higher number is trying to prettify the result; the measure is not chosen after seeing it.\n\nsklearn's default is a convenience, not a recommendation."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 0,
+      "text": {
+        "tr": "Kalıntılarda birkaç uç değer (çok büyük kalıntı) görüyorsun. İlk yapılacak ne?",
+        "en": "You see a few extreme values (very large residuals). What do you do first?"
+      },
+      "options": {
+        "tr": [
+          "O kayıtlara tek tek bakmak; veri hatası olabilirler",
+          "O kayıtları veriden atmak",
+          "Ölçüyü değiştirmek",
+          "Modeli daha uzun eğitmek"
+        ],
+        "en": [
+          "Look at those records one by one; they may be data errors",
+          "Drop those records",
+          "Change the measure",
+          "Train the model longer"
+        ]
+      },
+      "explanation": {
+        "tr": "Uç kalıntı iki şeyden biri olabiliyor: veri hatası (yanlış girilmiş bir fiyat) ya da modelin bilmediği gerçek bir durum.\n\nİkisi farklı işlem gerektiriyor, o yüzden önce bakılıyor.\n\nBakmadan atmak, modelin yanıldığı yerleri silmek demek: ölçüm güzelleşiyor ama model iyileşmiyor.",
+        "en": "An extreme residual is one of two things: a data error (a price entered wrongly) or a real situation the model does not know about.\n\nThe two call for different treatment, so you look first.\n\nDropping them unseen means deleting the places the model fails: the measurement gets prettier while the model stays the same."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 2,
+      "text": {
+        "tr": "Kalıntı grafiğinin yatay eksenine modelde **olmayan** bir sütun koymanın amacı nedir?",
+        "en": "What is the point of putting a column that is **not** in the model on a residual plot's horizontal axis?"
+      },
+      "options": {
+        "tr": [
+          "Grafiği çeşitlendirmek",
+          "Veriyi temizlemek",
+          "O sütunu eklemenin modeli iyileştirip iyileştirmeyeceğini görmek",
+          "Aykırı değerleri bulmak"
+        ],
+        "en": [
+          "To vary the chart",
+          "To clean the data",
+          "To see whether adding that column would improve the model",
+          "To find outliers"
+        ]
+      },
+      "explanation": {
+        "tr": "Elindeki ama modele koymadığın bir sütuna karşı kalıntıda desen çıkıyorsa, o sütun hâlâ kullanılmamış bilgi taşıyor demek.\n\nBu, model kurmadan önce hangi sütunların işe yarayacağını tahmin etmenin en doğrudan yolu.\n\nDesen yoksa o sütunu eklemek muhtemelen bir şey değiştirmiyor — deneme maliyetinden tasarruf.",
+        "en": "If the residuals show a pattern against a column you have but did not include, that column still carries unused information.\n\nThis is the most direct way to guess which columns will help before building anything.\n\nIf there is no pattern, adding that column probably changes nothing — saving you the cost of trying."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 1,
+      "text": {
+        "tr": "Bir model raporu \"R² 0.98\" diyor ve başka bir şey yazmıyor. En büyük eksik ne?",
+        "en": "A model report says \"R² 0.98\" and nothing else. What is the biggest omission?"
+      },
+      "options": {
+        "tr": [
+          "MAE değeri",
+          "Ölçümün hangi veride yapıldığı",
+          "Kullanılan model türü",
+          "Eğitim süresi"
+        ],
+        "en": [
+          "The MAE value",
+          "What data the measurement was made on",
+          "The kind of model used",
+          "The training time"
+        ]
+      },
+      "explanation": {
+        "tr": "0.98 eğitim verisinde ölçüldüyse bir şey söylemiyor — model ezberlemiş olabilir. Testte ölçüldüyse gerçekten iyi bir sonuç.\n\nİki durum arasında dağlar kadar fark var ve rapor bunu söylemiyorsa sayı okunamıyor.\n\nMAE ve model türü de faydalı ama sayının **geçerliliğini** belirleyen şey ölçümün nerede yapıldığı.",
+        "en": "If 0.98 was measured on the training data it says nothing — the model may have memorised. If measured on the test set it is genuinely a good result.\n\nThe difference between the two is enormous, and if the report does not say, the number cannot be read.\n\nMAE and the kind of model are useful too, but what decides the number's **validity** is where it was measured."
+      }
+    }
+  ]
+}

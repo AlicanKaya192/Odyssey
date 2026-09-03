@@ -1,5 +1,3 @@
-# SQL Sözlüğü
-
 Bu bölümde kullanacağın SQL komutlarının listesi. Takıldığında buraya bak.
 
 SQL, Python değil — ayrı bir dil. Veritabanına ne istediğini SQL ile

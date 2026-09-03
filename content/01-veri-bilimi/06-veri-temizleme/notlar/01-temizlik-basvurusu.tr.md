@@ -1,5 +1,3 @@
-# Temizlik Başvurusu
-
 ## Keşif
 
 | Yazım | Ne gösterir |

@@ -1,0 +1,45 @@
+{
+  "id": "boundary-plot",
+  "title": {
+    "tr": "Karar sınırını çiz",
+    "en": "Draw the decision boundary"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 150,
+  "hints": [
+    {
+      "tr": "Bu kez iki özellik kullanılıyor (`income` ve `visits`) — düzlem çizilebilsin diye.",
+      "en": "This time two features are used (`income` and `visits`) so the plane can be drawn."
+    },
+    {
+      "tr": "Izgara için `np.meshgrid(np.linspace(-2.5, 2.5, 200), np.linspace(-2.5, 2.5, 200))`, tahmin için `np.c_[grid_x.ravel(), grid_y.ravel()]`.",
+      "en": "For the grid, `np.meshgrid(np.linspace(-2.5, 2.5, 200), np.linspace(-2.5, 2.5, 200))`; to predict, `np.c_[grid_x.ravel(), grid_y.ravel()]`."
+    },
+    {
+      "tr": "Bölgeleri `ax.contourf(grid_x, grid_y, zone, alpha=0.25, levels=1)` boyuyor; noktalar `ax.scatter(..., c=y_train)` ile çiziliyor.",
+      "en": "`ax.contourf(grid_x, grid_y, zone, alpha=0.25, levels=1)` colours the regions; the points come from `ax.scatter(..., c=y_train)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nfig, axes = plt.subplots(1, 2, figsize=(11, 4.5))\n\nfor ax, k in zip(axes, (1, 15)):\n    model = KNeighborsClassifier(n_neighbors=k)\n    model.fit(X_train_scaled, y_train)\n    zone = model.predict(grid).reshape(grid_x.shape)\n    ax.contourf(grid_x, grid_y, zone, alpha=0.25, levels=1)\n    ax.scatter(X_train_scaled[:, 0], X_train_scaled[:, 1], c=y_train, s=14)\n    score = accuracy_score(y_test, model.predict(X_test_scaled))\n    ax.set_title(f\"k = {k}\")\n    ax.set_xlabel(\"income (scaled)\")\n    ax.set_ylabel(\"visits (scaled)\")\n    print(k, round(score, 3))\n\nfig.tight_layout()\nfig.savefig(\"chart.png\")\n```",
+      "en": "The solution:\n\n```python\nfig, axes = plt.subplots(1, 2, figsize=(11, 4.5))\n\nfor ax, k in zip(axes, (1, 15)):\n    model = KNeighborsClassifier(n_neighbors=k)\n    model.fit(X_train_scaled, y_train)\n    zone = model.predict(grid).reshape(grid_x.shape)\n    ax.contourf(grid_x, grid_y, zone, alpha=0.25, levels=1)\n    ax.scatter(X_train_scaled[:, 0], X_train_scaled[:, 1], c=y_train, s=14)\n    score = accuracy_score(y_test, model.predict(X_test_scaled))\n    ax.set_title(f\"k = {k}\")\n    ax.set_xlabel(\"income (scaled)\")\n    ax.set_ylabel(\"visits (scaled)\")\n    print(k, round(score, 3))\n\nfig.tight_layout()\nfig.savefig(\"chart.png\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 0.9\n15 0.9"
+    },
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    }
+  ]
+}

@@ -1,5 +1,3 @@
-# Where to Go From Here
-
 The Data Science module is finished. This note answers "what do I do now".
 
 ## An honest assessment first

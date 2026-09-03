@@ -1,0 +1,40 @@
+{
+  "id": "forest-vs-tree",
+  "title": {
+    "tr": "Orman mı ağaç mı",
+    "en": "Forest or tree"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 150,
+  "hints": [
+    {
+      "tr": "`RandomForestClassifier` ve `GradientBoostingClassifier` `sklearn.ensemble` içinde.",
+      "en": "`RandomForestClassifier` and `GradientBoostingClassifier` live in `sklearn.ensemble`."
+    },
+    {
+      "tr": "Her model için **iki** ölçüm var: test doğruluğu ve eğitim tarafındaki çapraz doğrulama.",
+      "en": "There are **two** measurements per model: the test accuracy and cross validation on the training side."
+    },
+    {
+      "tr": "Son satırda test kazananı ile CV kazananı karşılaştırılıyor; farklıysa `different` yazdırıyorsun.",
+      "en": "The last line compares the test winner with the CV winner; print `different` if they differ."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.model_selection import StratifiedKFold, cross_val_score\nfrom sklearn.tree import DecisionTreeClassifier\n\nskf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\nmodels = [\n    (\"tree\", DecisionTreeClassifier(max_depth=2, random_state=42)),\n    (\"forest\", RandomForestClassifier(n_estimators=200, random_state=42)),\n    (\"boosting\", GradientBoostingClassifier(random_state=42)),\n]\n\nbaseline = accuracy_score(y_test, [y_train.mode()[0]] * len(y_test))\nprint(round(baseline, 3))\n\nrows = []\nfor name, model in models:\n    model.fit(X_train, y_train)\n    test_score = accuracy_score(y_test, model.predict(X_test))\n    scores = cross_val_score(model, X_train, y_train, cv=skf)\n    rows.append((name, test_score, float(scores.mean())))\n    print(name, round(test_score, 3),\n          round(float(scores.mean()), 3), round(float(scores.std()), 3))\n\nbest_test = max(rows, key=lambda row: row[1])[0]\nbest_cv = max(rows, key=lambda row: row[2])[0]\nprint(best_test, best_cv)\nprint(\"different\" if best_test != best_cv else \"same\")\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.model_selection import StratifiedKFold, cross_val_score\nfrom sklearn.tree import DecisionTreeClassifier\n\nskf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\nmodels = [\n    (\"tree\", DecisionTreeClassifier(max_depth=2, random_state=42)),\n    (\"forest\", RandomForestClassifier(n_estimators=200, random_state=42)),\n    (\"boosting\", GradientBoostingClassifier(random_state=42)),\n]\n\nbaseline = accuracy_score(y_test, [y_train.mode()[0]] * len(y_test))\nprint(round(baseline, 3))\n\nrows = []\nfor name, model in models:\n    model.fit(X_train, y_train)\n    test_score = accuracy_score(y_test, model.predict(X_test))\n    scores = cross_val_score(model, X_train, y_train, cv=skf)\n    rows.append((name, test_score, float(scores.mean())))\n    print(name, round(test_score, 3),\n          round(float(scores.mean()), 3), round(float(scores.std()), 3))\n\nbest_test = max(rows, key=lambda row: row[1])[0]\nbest_cv = max(rows, key=lambda row: row[2])[0]\nprint(best_test, best_cv)\nprint(\"different\" if best_test != best_cv else \"same\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.7\ntree 0.96 0.827 0.049\nforest 0.9 0.867 0.063\nboosting 0.88 0.873 0.053\ntree boosting\ndifferent"
+    }
+  ]
+}

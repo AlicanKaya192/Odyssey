@@ -1,0 +1,40 @@
+{
+  "id": "count-the-trees",
+  "title": {
+    "tr": "Kaç ağaç yeter",
+    "en": "How many trees"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 150,
+  "hints": [
+    {
+      "tr": "`n_estimators` ağaç sayısı. Her değer için modeli baştan kurup eğitiyorsun.",
+      "en": "`n_estimators` is the tree count. Build and train the model afresh for each value."
+    },
+    {
+      "tr": "Her satırda iki ölçüm var: eğitim ve test doğruluğu.",
+      "en": "There are two measurements per line: the training and the test accuracy."
+    },
+    {
+      "tr": "Son satırda 25 ile 300 ağacın test skorları karşılaştırılıyor.",
+      "en": "The last line compares the test scores of 25 and 300 trees."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\n\nscores = {}\nfor count in (1, 5, 25, 100, 300):\n    model = RandomForestClassifier(n_estimators=count, random_state=42)\n    model.fit(X_train, y_train)\n    train_score = accuracy_score(y_train, model.predict(X_train))\n    test_score = accuracy_score(y_test, model.predict(X_test))\n    scores[count] = round(test_score, 3)\n    print(count, round(train_score, 3), round(test_score, 3))\n\nprint(\"same\" if scores[25] == scores[300] else \"different\")\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\n\nscores = {}\nfor count in (1, 5, 25, 100, 300):\n    model = RandomForestClassifier(n_estimators=count, random_state=42)\n    model.fit(X_train, y_train)\n    train_score = accuracy_score(y_train, model.predict(X_train))\n    test_score = accuracy_score(y_test, model.predict(X_test))\n    scores[count] = round(test_score, 3)\n    print(count, round(train_score, 3), round(test_score, 3))\n\nprint(\"same\" if scores[25] == scores[300] else \"different\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 0.947 0.72\n5 0.993 0.84\n25 1.0 0.9\n100 1.0 0.9\n300 1.0 0.9\nsame"
+    }
+  ]
+}

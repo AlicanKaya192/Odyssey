@@ -1,5 +1,3 @@
-# Standart Kütüphaneden Sık Kullanılanlar
-
 Bu not bir referans; baştan sona okumak zorunda değilsin. Alıştırma çözerken
 "bunu yapan hazır bir şey var mıydı" diye aklına geldiğinde buraya bak.
 

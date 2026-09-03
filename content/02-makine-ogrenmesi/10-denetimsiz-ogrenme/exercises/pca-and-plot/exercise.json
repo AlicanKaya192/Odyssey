@@ -1,0 +1,49 @@
+{
+  "id": "pca-and-plot",
+  "title": {
+    "tr": "Dört sütunu ikiye indir",
+    "en": "Four columns into two"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 200,
+  "hints": [
+    {
+      "tr": "`PCA(n_components=2)` ve `fit_transform`; oranlar `pca.explained_variance_ratio_` içinde.",
+      "en": "`PCA(n_components=2)` and `fit_transform`; the ratios live in `pca.explained_variance_ratio_`."
+    },
+    {
+      "tr": "Kümülatif oran için `numpy.cumsum(...)`; bütün bileşenler için `PCA()` parametresiz kurulur.",
+      "en": "For the cumulative ratio use `numpy.cumsum(...)`; for every component construct `PCA()` with no arguments."
+    },
+    {
+      "tr": "Serpme grafiğinde renk için `plt.scatter(Z[:, 0], Z[:, 1], c=labels)`.",
+      "en": "For colour in the scatter use `plt.scatter(Z[:, 0], Z[:, 1], c=labels)`."
+    },
+    {
+      "tr": "`adjusted_rand_score` iki kümelemeyi karşılaştırıyor: tam uzaydaki ve PCA uzayındaki.",
+      "en": "`adjusted_rand_score` compares the two clusterings: the full-space one and the PCA-space one."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"shoppers.csv\")\ncolumns = [\"spend\", \"visits\", \"items\", \"returns\"]\nX = df[columns]\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\n\nimport numpy as np\nfrom sklearn.cluster import KMeans\nfrom sklearn.decomposition import PCA\nfrom sklearn.metrics import adjusted_rand_score, silhouette_score\n\nfull_pca = PCA()\nfull_pca.fit(X_scaled)\ncumulative = np.cumsum(full_pca.explained_variance_ratio_)\nprint([round(float(value), 3) for value in cumulative])\n\npca = PCA(n_components=2)\nZ = pca.fit_transform(X_scaled)\nfor component in pca.components_:\n    print([round(float(weight), 3) for weight in component])\n\nfull_labels = KMeans(n_clusters=4, random_state=42,\n                     n_init=10).fit_predict(X_scaled)\npca_labels = KMeans(n_clusters=4, random_state=42, n_init=10).fit_predict(Z)\n\nprint(round(float(silhouette_score(X_scaled, full_labels)), 3),\n      round(float(silhouette_score(Z, pca_labels)), 3))\nprint(round(float(adjusted_rand_score(full_labels, pca_labels)), 3))\n\nplt.scatter(Z[:, 0], Z[:, 1], c=full_labels)\nplt.xlabel(\"pc1\")\nplt.ylabel(\"pc2\")\nplt.title(\"Shoppers in two components\")\nplt.savefig(\"chart.png\")\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"shoppers.csv\")\ncolumns = [\"spend\", \"visits\", \"items\", \"returns\"]\nX = df[columns]\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\n\nimport numpy as np\nfrom sklearn.cluster import KMeans\nfrom sklearn.decomposition import PCA\nfrom sklearn.metrics import adjusted_rand_score, silhouette_score\n\nfull_pca = PCA()\nfull_pca.fit(X_scaled)\ncumulative = np.cumsum(full_pca.explained_variance_ratio_)\nprint([round(float(value), 3) for value in cumulative])\n\npca = PCA(n_components=2)\nZ = pca.fit_transform(X_scaled)\nfor component in pca.components_:\n    print([round(float(weight), 3) for weight in component])\n\nfull_labels = KMeans(n_clusters=4, random_state=42,\n                     n_init=10).fit_predict(X_scaled)\npca_labels = KMeans(n_clusters=4, random_state=42, n_init=10).fit_predict(Z)\n\nprint(round(float(silhouette_score(X_scaled, full_labels)), 3),\n      round(float(silhouette_score(Z, pca_labels)), 3))\nprint(round(float(adjusted_rand_score(full_labels, pca_labels)), 3))\n\nplt.scatter(Z[:, 0], Z[:, 1], c=full_labels)\nplt.xlabel(\"pc1\")\nplt.ylabel(\"pc2\")\nplt.title(\"Shoppers in two components\")\nplt.savefig(\"chart.png\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.662, 0.885, 0.973, 1.0]\n[0.531, 0.426, 0.54, 0.495]\n[-0.471, 0.659, -0.425, 0.403]\n0.517 0.652\n1.0"
+    },
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    }
+  ]
+}

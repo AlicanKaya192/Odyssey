@@ -38,17 +38,31 @@ def load_definitions(path) -> list[dict]:
         return json.load(handle).get("badges", [])
 
 
-# Veri Bilimi modülünün kimliği (`content/` altındaki klasör adı).
+# Modül kimlikleri (`content/` altındaki klasör adları).
 DATA_CHAPTER = "01-veri-bilimi"
+ML_CHAPTER = "02-makine-ogrenmesi"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 NUMPY_SECTION = (DATA_CHAPTER, "01-numpy")
 DATAFRAME_SECTION = (DATA_CHAPTER, "03-dataframe")
 CLEANING_SECTION = (DATA_CHAPTER, "06-veri-temizleme")
 CHART_SECTION = (DATA_CHAPTER, "07-gorsellestirme")
+FIRST_MODEL_SECTION = (ML_CHAPTER, "01-ilk-model")
+METRICS_SECTION = (ML_CHAPTER, "02-regresyon-metrikleri")
+CLASSIFY_SECTION = (ML_CHAPTER, "03-siniflandirma")
+PREP_SECTION = (ML_CHAPTER, "04-veri-hazirlama")
+VALIDATION_SECTION = (ML_CHAPTER, "05-dogrulama")
+KNN_SECTION = (ML_CHAPTER, "06-knn")
+TREE_SECTION = (ML_CHAPTER, "07-karar-agaclari")
+ENSEMBLE_SECTION = (ML_CHAPTER, "08-topluluk-yontemleri")
+IMBALANCE_SECTION = (ML_CHAPTER, "09-dengesiz-veri")
+UNSUPERVISED_SECTION = (ML_CHAPTER, "10-denetimsiz-ogrenme")
+PIPELINE_SECTION = (ML_CHAPTER, "11-pipeline-ve-model-kaydetme")
+ML_REVIEW_SECTION = (ML_CHAPTER, "12-genel-tekrar")
 
-# Patikanın tamamına bağlı rozet için: modüldeki bölüm sayısı.
+# Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 DATA_SECTION_COUNT = 10
+ML_SECTION_COUNT = 13
 
 
 def _completed_sections(
@@ -113,12 +127,26 @@ def evaluate(catalog, store) -> dict[str, bool]:
         # `content/` altındaki klasör adı; modül yeniden adlandırılırsa
         # burası da değişmeli.
         "data-start": modul_basina.get(DATA_CHAPTER, 0) >= 1,
+        "model-start": modul_basina.get(ML_CHAPTER, 0) >= 1,
+        "first-model": FIRST_MODEL_SECTION in bitenler,
+        "error-reader": METRICS_SECTION in bitenler,
+        "class-divider": CLASSIFY_SECTION in bitenler,
+        "leak-hunter": PREP_SECTION in bitenler,
+        "honest-measure": VALIDATION_SECTION in bitenler,
+        "neighbourhood": KNN_SECTION in bitenler,
+        "rule-reader": TREE_SECTION in bitenler,
+        "many-trees": ENSEMBLE_SECTION in bitenler,
+        "rare-signal": IMBALANCE_SECTION in bitenler,
+        "group-finder": UNSUPERVISED_SECTION in bitenler,
+        "one-object": PIPELINE_SECTION in bitenler,
+        "ml-review": ML_REVIEW_SECTION in bitenler,
         "two-chapters": len(modul_basina) >= 2,
         "first-library": NUMPY_SECTION in bitenler,
         "first-table": DATAFRAME_SECTION in bitenler,
         "data-clean": CLEANING_SECTION in bitenler,
         "first-chart": CHART_SECTION in bitenler,
         "data-explorer": modul_basina.get(DATA_CHAPTER, 0) >= DATA_SECTION_COUNT,
+        "ml-complete": modul_basina.get(ML_CHAPTER, 0) >= ML_SECTION_COUNT,
     }
 
 

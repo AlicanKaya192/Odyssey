@@ -1,0 +1,914 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 1,
+      "text": {
+        "tr": "Karar ağacı tahmini nasıl üretiyor?",
+        "en": "How does a decision tree produce a prediction?"
+      },
+      "options": {
+        "tr": [
+          "En yakın komşulara bakarak",
+          "Sorulara cevap vererek bir yaprağa inerek",
+          "Katsayılarla çarparak",
+          "Ortalama alarak"
+        ],
+        "en": [
+          "By looking at the nearest neighbours",
+          "By answering questions down to a leaf",
+          "By multiplying with coefficients",
+          "By taking an average"
+        ]
+      },
+      "explanation": {
+        "tr": "Kök soruya cevap veriyorsun, o dala iniyorsun, sonraki soruya cevap veriyorsun ve bir yaprağa varıyorsun. Yaprağın etiketi tahmin.\n\nUzaklık hesabı yok — o KNN'in yöntemi. Katsayı da yok — o doğrusal modellerin.\n\nYapı iç içe `if` koşullarına benziyor ve bu yüzden kurallar cümleye çevrilebiliyor.",
+        "en": "You answer the root question, descend that branch, answer the next and arrive at a leaf. The leaf's label is the prediction.\n\nThere is no distance computation — that is KNN's method. Nor coefficients — those belong to linear models.\n\nThe structure resembles nested `if` conditions, which is why the rules turn into sentences."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Ağaç bir bölünmeyi neye göre seçiyor?",
+        "en": "On what basis does a tree choose a split?"
+      },
+      "options": {
+        "tr": [
+          "Safsızlığı en çok düşüren soruyu seçerek",
+          "Rastgele",
+          "En çok kaydı ayıran soruyu seçerek",
+          "Sütun sırasına göre"
+        ],
+        "en": [
+          "By taking the question that reduces impurity most",
+          "At random",
+          "By taking the question that separates the most records",
+          "By column order"
+        ]
+      },
+      "explanation": {
+        "tr": "Ağaç her adımda bütün özellikleri ve bütün olası eşikleri deniyor, her birinin safsızlığı ne kadar düşürdüğünü ölçüyor ve en iyisini alıyor.\n\nSafsızlık `gini` ile ölçülüyor: 0 saf, 0.5 en karışık. Regresyonda safsızlık yerine varyans düşürülüyor.\n\nSeçim **açgözlü**: o anki en iyiyi alıyor, iki adım sonrasına bakmıyor.",
+        "en": "At each step the tree tries every feature and every possible threshold, measures how much each reduces impurity, and takes the best.\n\nImpurity is measured with `gini`: 0 pure, 0.5 the most mixed. For regression, variance is reduced instead.\n\nThe choice is **greedy**: it takes the best available now without looking two steps ahead."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`gini = 0` ne anlama geliyor?",
+        "en": "What does `gini = 0` mean?"
+      },
+      "options": {
+        "tr": [
+          "Düğümdeki bütün kayıtlar aynı sınıftan — saf",
+          "Düğümde hiç kayıt yok",
+          "Bölünme başarısız",
+          "İki sınıf yarı yarıya"
+        ],
+        "en": [
+          "Every record in the node is of the same class — pure",
+          "The node has no records",
+          "The split failed",
+          "The two classes are half and half"
+        ]
+      },
+      "explanation": {
+        "tr": "Safsızlık sıfırsa o düğümde karışıklık yok; hepsi tek bir sınıf.\n\nİki sınıf yarı yarıya olduğunda gini 0.5 çıkıyor — en karışık hâl.\n\nAğaç safsızlığı düşürmeye çalışıyor, yani yaprakları mümkün olduğunca saf yapmaya.",
+        "en": "Zero impurity means there is no mixture in that node; all of them are one class.\n\nWhen two classes are half and half, gini comes out 0.5 — the most mixed state.\n\nThe tree tries to reduce impurity, that is to make its leaves as pure as it can."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 1,
+      "text": {
+        "tr": "Ağacın \"açgözlü\" (greedy) olması ne demek?",
+        "en": "What does it mean that a tree is \"greedy\"?"
+      },
+      "options": {
+        "tr": [
+          "Çok bellek kullanıyor",
+          "O anki en iyi bölünmeyi seçiyor, ileriye bakmıyor",
+          "Bütün veriyi saklıyor",
+          "Çok derin oluyor"
+        ],
+        "en": [
+          "It uses a lot of memory",
+          "It takes the best split available now without looking ahead",
+          "It stores all the data",
+          "It grows very deep"
+        ]
+      },
+      "explanation": {
+        "tr": "Her adımda yalnızca o adımı en iyileyen soruyu seçiyor; \"şimdi biraz kötü ama iki adım sonra çok iyi\" bir bölünmeyi kaçırabiliyor.\n\nBütün olasılıkları denemek hesaplanamayacak kadar pahalı olduğu için bu bir tasarım tercihi.\n\nAçgözlülüğün bir yan etkisi de kararsızlık: ilk bölünme kıl payı değişince altındaki her şey değişiyor.",
+        "en": "At each step it takes only the question that optimises that step; it can miss a \"slightly bad now, very good two steps later\" split.\n\nTrying every possibility is computationally impossible, so this is a design choice.\n\nA side effect of greediness is instability: when the first split flips by a hair, everything beneath it changes."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Ağaçta ölçekleme neden gerekmiyor?",
+        "en": "Why does a tree not need scaling?"
+      },
+      "options": {
+        "tr": [
+          "Ağaç sıralamaya bakıyor; ölçekleme eşiği kaydırıyor ama sıralamayı değiştirmiyor",
+          "Ağaç veriyi kendi ölçekliyor",
+          "Ağaç yalnızca küçük sayılarla çalışıyor",
+          "Gerekiyor ama etkisi az"
+        ],
+        "en": [
+          "A tree looks at ordering; scaling moves the threshold but not the ordering",
+          "The tree scales the data itself",
+          "A tree only works with small numbers",
+          "It is needed, but the effect is small"
+        ]
+      },
+      "explanation": {
+        "tr": "`income <= 137500` sorusu ölçeklendikten sonra `income_scaled <= 0.42` oluyor. Eşik değişiyor ama hangi kayıtların üstte kaldığı değişmiyor.\n\nÖlçüldü: ölçeklemesiz 0.80, ölçekli 0.80 — birebir aynı. Aynı veride KNN'de fark 0.28'di.\n\nAynı sebeple ağaçlar aykırı değerlere de dayanıklı: uç bir değer yalnızca \"eşiğin üstünde\".",
+        "en": "The question `income <= 137500` becomes `income_scaled <= 0.42` after scaling. The threshold changes but which records fall above it does not.\n\nMeasured: unscaled 0.80, scaled 0.80 — identical. On the same data the difference for KNN was 0.28.\n\nFor the same reason trees are robust to outliers: an extreme value is merely \"above the threshold\"."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Aynı veride KNN ölçeklemeden 0.28 kazanırken ağaç 0.00 kazanıyor. Bundan ne çıkar?",
+        "en": "On the same data scaling gains KNN 0.28 and a tree 0.00. What follows?"
+      },
+      "options": {
+        "tr": [
+          "Ölçekleme modelin neye baktığına bağlı bir adım",
+          "Ölçekleme gereksiz bir adım",
+          "Ağaç daha iyi bir model",
+          "Ölçüm yanlış"
+        ],
+        "en": [
+          "Scaling is a step that depends on what the model looks at",
+          "Scaling is an unnecessary step",
+          "The tree is the better model",
+          "The measurement is wrong"
+        ]
+      },
+      "explanation": {
+        "tr": "\"Her zaman ölçekle\" diye bir kural yok. Uzaklık kullananlarda (KNN, SVM, kümeleme) zorunlu; eşik kullananlarda (ağaç, orman, gradyan artırma) gereksiz.\n\nAğaçta ölçekleme yapmanın zararı yok ama faydası da yok — boşa harcanan bir adım.\n\nHangi modelin kazandığı ayrı bir soru; bu veride KNN 0.92, ağaç 0.80 veriyor.",
+        "en": "There is no rule saying \"always scale\". It is compulsory for anything using distance (KNN, SVM, clustering) and unnecessary for anything using thresholds (trees, forests, gradient boosting).\n\nScaling a tree does no harm and no good — a wasted step.\n\nWhich model wins is a separate question; on this data KNN gives 0.92 and the tree 0.80."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 2,
+      "text": {
+        "tr": "Sınırsız derinlikte bir ağacın eğitim doğruluğu 1.000 çıkıyor. Bu ne gösteriyor?",
+        "en": "A tree with no depth limit reaches a training accuracy of 1.000. What does that show?"
+      },
+      "options": {
+        "tr": [
+          "Model kusursuz",
+          "Veri çok temiz",
+          "Ağaç her kaydı ayrı bir yaprağa koyup ezberlemiş",
+          "Ölçekleme gerekiyor"
+        ],
+        "en": [
+          "The model is perfect",
+          "The data is very clean",
+          "The tree put each record in its own leaf and memorised",
+          "Scaling is needed"
+        ]
+      },
+      "explanation": {
+        "tr": "Derinlik sınırı yoksa ağaç bölünmeye devam edip her yaprağa tek kayıt bırakabiliyor; o zaman eğitim verisinde hiç yanılmıyor.\n\nTest doğruluğu aynı anda 0.88'de takılı kalıyor — bölüm 05'in aşırı öğrenme tablosu.\n\nÇözüm derinliği sınırlamak ya da `min_samples_leaf` ile yaprağa alt sınır koymak.",
+        "en": "Without a depth limit the tree can keep splitting until each leaf holds one record; then it never errs on the training data.\n\nThe test accuracy stalls at 0.88 at the same time — section 05's overfitting table.\n\nThe fix is to limit the depth or set a floor on leaf size with `min_samples_leaf`."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 1,
+      "text": {
+        "tr": "`min_samples_leaf` ne yapıyor?",
+        "en": "What does `min_samples_leaf` do?"
+      },
+      "options": {
+        "tr": [
+          "Ağacın derinliğini sınırlıyor",
+          "Bir yaprakta en az kaç kayıt olacağını söylüyor",
+          "Kaç özellik denendiğini sınırlıyor",
+          "Bölünme ölçütünü değiştiriyor"
+        ],
+        "en": [
+          "Limits the tree's depth",
+          "Says how many records a leaf must hold at least",
+          "Limits how many features are tried",
+          "Changes the split criterion"
+        ]
+      },
+      "explanation": {
+        "tr": "Derinliği sınırlamadan da ezberi engelliyor: yaprakta en az 5 kayıt zorunluysa tek bir kaydı ezberleyen dal oluşamıyor.\n\n`max_depth` ile birlikte kullanmak yaygın: biri üst sınır koyuyor, öteki derin dalların tek kayda inmesini engelliyor.\n\nKaç özellik denendiğini `max_features` sınırlıyor; bölünme ölçütü `criterion`.",
+        "en": "It blocks memorising without limiting depth: if a leaf must hold at least 5 records, no branch can form around a single one.\n\nUsing it with `max_depth` is common: one sets an upper bound, the other stops deep branches from narrowing to one record.\n\n`max_features` limits how many features are tried; the split criterion is `criterion`."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 1,
+      "text": {
+        "tr": "Derinlik seçilirken test tablosuna bakmak neden yanlış?",
+        "en": "Why is choosing the depth from the test table wrong?"
+      },
+      "options": {
+        "tr": [
+          "Test tablosu hesaplanamaz",
+          "Test kümesi karar sürecine giriyor ve skoru dürüst olmaktan çıkıyor",
+          "Derinlik zaten sabit",
+          "Test tablosu her zaman yanlış"
+        ],
+        "en": [
+          "The test table cannot be computed",
+          "The test set enters the decision and its score stops being honest",
+          "The depth is fixed anyway",
+          "The test table is always wrong"
+        ]
+      },
+      "explanation": {
+        "tr": "Derinlik bir hiperparametre ve hiperparametreler doğrulama tarafında seçiliyor.\n\nAyrıca küçük test kümelerinde tablo zaten gürültülü: ölçülen örnekte test sütunu 0.82 → 0.96 → 0.80 → 0.88 diye zıplıyor.\n\nDoğrusu: eğitim tarafında çapraz doğrulama, teste sonda bir kez bakmak.",
+        "en": "Depth is a hyperparameter, and hyperparameters are chosen on the validation side.\n\nOn small test sets the table is noisy anyway: in the measured example the test column jumps 0.82 → 0.96 → 0.80 → 0.88.\n\nThe right way: cross validation on the training side, one look at the test set at the end."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Çapraz doğrulamada derinlik 2 (0.827 ± 0.049) ve `none` (0.820 ± 0.091) çıktı. Hangisi tercih edilir?",
+        "en": "Cross validation gives depth 2 (0.827 ± 0.049) and `none` (0.820 ± 0.091). Which is preferred?"
+      },
+      "options": {
+        "tr": [
+          "Derinlik 2; hem ortalaması yüksek hem yayılımı küçük",
+          "`none`; daha karmaşık model",
+          "Fark etmez",
+          "İkisinin ortalaması"
+        ],
+        "en": [
+          "Depth 2; higher mean and smaller spread",
+          "`none`; the more complex model",
+          "It makes no difference",
+          "The average of the two"
+        ]
+      },
+      "explanation": {
+        "tr": "Ortalama zaten 2'de yüksek, ama asıl fark yayılımda: 0.049'a karşı 0.091. `none` çok daha kararsız, yani sonucu şansa daha bağlı.\n\nBu, bölüm 06'nın tersi bir durum: orada bütün k'lar gürültü aralığındaydı ve çapraz doğrulama ayırt edemiyordu.\n\nAynı araç, iki farklı sonuç — o yüzden her seferinde yayılıma bakılıyor.",
+        "en": "The mean is already higher at 2, but the real difference is in the spread: 0.049 against 0.091. `none` is far less stable, meaning its result depends more on luck.\n\nThis is the opposite of section 06, where every k sat inside the noise and cross validation could not separate them.\n\nThe same tool, two different outcomes — which is why you look at the spread every time."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 2,
+      "text": {
+        "tr": "`export_text` ne işe yarıyor?",
+        "en": "What is `export_text` for?"
+      },
+      "options": {
+        "tr": [
+          "Veriyi dosyaya yazıyor",
+          "Modeli kaydediyor",
+          "Ağacın kurallarını metne çeviriyor",
+          "Grafik çiziyor"
+        ],
+        "en": [
+          "Writes the data to a file",
+          "Saves the model",
+          "Writes the tree's rules out as text",
+          "Draws a chart"
+        ]
+      },
+      "explanation": {
+        "tr": "Ağacın en değerli yanı okunabilir olması ve bu fonksiyon o okunabilirliği veriyor.\n\n`feature_names` vermeyi unutursan sütun adları yerine `feature_0` gibi yazıyor ve kural anlaşılmaz kalıyor.\n\nÇizim isteniyorsa `plot_tree` kullanılıyor.",
+        "en": "A tree's most valuable quality is being readable, and this function is what delivers that.\n\nForget `feature_names` and it writes `feature_0` instead of the column names, leaving the rule unreadable.\n\nFor a drawing you use `plot_tree`."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 3,
+      "text": {
+        "tr": "Bir bölünmenin iki yaprağı da aynı sınıfı veriyor. Ağaç neden bölmüş?",
+        "en": "Both leaves of a split give the same class. Why did the tree split?"
+      },
+      "options": {
+        "tr": [
+          "Hata yapmış",
+          "Rastgele bölünmüş",
+          "Derinliği doldurmak için",
+          "Etiketi değil safsızlığı en iyilediği için; iki yaprağın güven düzeyi farklı"
+        ],
+        "en": [
+          "It made a mistake",
+          "It split at random",
+          "To fill up the depth",
+          "Because it optimises impurity, not the label; the two leaves differ in confidence"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçülen örnekte sol yaprak 11'e 9 (gini 0.495, neredeyse yarı yarıya), sağ yaprak 74'e 1 (gini 0.026, neredeyse saf).\n\nÇoğunlukları aynı ama biri neredeyse kesin, öteki yazı tura.\n\nFark `predict_proba` çağırınca ortaya çıkıyor: %55'e karşı %99. Yalnızca `predict` kullanan biri bu iki kaydı aynı sayıyor.",
+        "en": "In the measured example the left leaf is 11 to 9 (gini 0.495, almost half and half) and the right is 74 to 1 (gini 0.026, almost pure).\n\nTheir majorities are the same but one is nearly certain and the other a coin flip.\n\nThe difference shows up in `predict_proba`: 55% against 99%. Someone using only `predict` treats those two records as the same."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Bir yaprakta `samples = 3` yazıyor. Bu neden önemli?",
+        "en": "A leaf says `samples = 3`. Why does that matter?"
+      },
+      "options": {
+        "tr": [
+          "O yaprağın kuralı üç kayda dayanıyor; genellenebilir olmayabilir",
+          "Ağaç çok derin",
+          "Veri bozuk",
+          "Bölünme başarısız"
+        ],
+        "en": [
+          "That leaf's rule rests on three records; it may not generalise",
+          "The tree is too deep",
+          "The data is corrupted",
+          "The split failed"
+        ]
+      },
+      "explanation": {
+        "tr": "Kural okurken her zaman iki şey birlikte bakılıyor: kuralın kendisi ve kaç kayda dayandığı.\n\nÜç kişiye bakarak kurulmuş bir kural, tesadüfü kural sanmak olabiliyor.\n\n`min_samples_leaf` tam olarak bunu engellemek için var: yaprağa alt sınır koyuyor.",
+        "en": "When reading a rule you always look at two things together: the rule itself and how many records it rests on.\n\nA rule built by looking at three people may be a coincidence mistaken for a rule.\n\n`min_samples_leaf` exists precisely to prevent this: it sets a floor on leaf size."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 3,
+      "text": {
+        "tr": "`feature_importances_` neyi ölçüyor?",
+        "en": "What does `feature_importances_` measure?"
+      },
+      "options": {
+        "tr": [
+          "Sütunların hedefle korelasyonunu",
+          "Sütunların sebep olma derecesini",
+          "Sütunlardaki eksik değer sayısını",
+          "O sütunla yapılan bölünmelerin safsızlığı ne kadar düşürdüğünü"
+        ],
+        "en": [
+          "The columns' correlation with the target",
+          "How causal the columns are",
+          "The number of missing values per column",
+          "How much the splits made on that column reduced impurity"
+        ]
+      },
+      "explanation": {
+        "tr": "Toplamları 1 ve ağacın içindeki bölünmelerden hesaplanıyor.\n\nKorelasyondan farklı: ağaç bir sütunu hiç kullanmamış olabilir ve önemi 0 çıkabilir, oysa korelasyonu yüksektir.\n\nSebep olma derecesini ölçen bir şey değil — bu, en pahalı yorum hatası.",
+        "en": "They add up to 1 and are computed from the splits inside the tree.\n\nDifferent from correlation: a tree may never have used a column, giving it an importance of 0 even though its correlation is high.\n\nIt does not measure causality — that is the most expensive interpretation mistake."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Bir sütunun önemi 0.0 çıktı. Doğru okuma hangisi?",
+        "en": "A column's importance came out 0.0. Which reading is correct?"
+      },
+      "options": {
+        "tr": [
+          "Bu ağaç o sütunu kullanmamış; ilgisiz olduğu anlamına gelmiyor",
+          "O sütun hedefle ilgisiz",
+          "Sütun bozuk",
+          "Sütun atılmalı"
+        ],
+        "en": [
+          "This tree did not use it; that does not mean it is unrelated",
+          "That column is unrelated to the target",
+          "The column is corrupted",
+          "The column should be dropped"
+        ]
+      },
+      "explanation": {
+        "tr": "Derinlik 2'lik bir ağaçta yalnızca üç bölünme var; sıra o sütuna gelmemiş olabilir. Ölçülen örnekte derinlik 3 yapılınca aynı sütunun önemi 0.169'a çıkıyor.\n\nİkinci sebep ilişkili sütunlar: iki sütun neredeyse aynıysa ağaç birini seçiyor, öteki sıfır alıyor.\n\nSütunu atmadan önce çıkarıp modelin ne kadar kötüleştiğine bakmak gerekiyor.",
+        "en": "A tree of depth 2 has only three splits; that column's turn may never have come. In the measured example, raising the depth to 3 gives the same column an importance of 0.169.\n\nA second cause is correlated columns: if two are nearly the same, the tree picks one and the other gets zero.\n\nBefore dropping a column, remove it and see how far the model worsens."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 2,
+      "text": {
+        "tr": "İki sütun birbirinin neredeyse aynısı. Özellik öneminde ne olur?",
+        "en": "Two columns are nearly identical. What happens to their importances?"
+      },
+      "options": {
+        "tr": [
+          "İkisi de yüksek çıkar",
+          "İkisi de sıfır çıkar",
+          "Ağaç birini seçer, öteki sıfıra yakın önem alır",
+          "Ağaç hata verir"
+        ],
+        "en": [
+          "Both come out high",
+          "Both come out zero",
+          "The tree picks one and the other gets near-zero importance",
+          "The tree raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ağaç ilkini kullandıktan sonra ikincisine ihtiyaç duymuyor; aynı bilgi zaten hesaba girmiş oluyor.\n\nYanlış sonuç: \"ikinci sütun işe yaramıyor.\" Doğrusu: \"ikizi zaten seçildiği için ağaç ona ihtiyaç duymadı.\"\n\nPermütasyon önemi bu tuzağı **çözmüyor**: biri karıştırılsa bile öteki aynı bilgiyi taşıdığı için skor düşmüyor.",
+        "en": "After using the first the tree does not need the second; the same information has already entered.\n\nThe wrong conclusion: \"the second column is useless.\" The right one: \"the tree did not need it because its twin was already chosen.\"\n\nPermutation importance does **not** solve this trap: shuffle one and the score does not fall, because the other carries the same information."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "Veriye müşteri numarası sütunu koyulursa ne olur?",
+        "en": "What happens if a customer id column is put into the data?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbir şey",
+          "Model hata verir",
+          "Ağaç onunla her kaydı ayırabilir ve o sütun en önemli görünür",
+          "Doğruluk düşer"
+        ],
+        "en": [
+          "Nothing",
+          "The model raises an error",
+          "The tree can separate every record with it and it looks the most important",
+          "The accuracy falls"
+        ]
+      },
+      "explanation": {
+        "tr": "Her kaydın numarası farklı olduğu için ağaç istediği kadar ince bölünme yapabiliyor; eğitim verisinde kusursuz oluyor.\n\nAma numara hiçbir bilgi taşımıyor: yeni bir müşteri geldiğinde o kural işe yaramıyor.\n\nKimlik, sıra numarası, tarih damgası gibi sütunlar modele girmeden çıkarılıyor.",
+        "en": "Because every record's number is different the tree can split as finely as it likes and becomes perfect on the training data.\n\nBut the number carries no information: when a new customer arrives that rule is worth nothing.\n\nColumns like ids, sequence numbers and timestamps are removed before the data reaches the model."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 1,
+      "text": {
+        "tr": "Çok değerli (sürekli sayısal) sütunların önemi neden şişiyor?",
+        "en": "Why do high-cardinality (continuous numeric) columns get inflated importance?"
+      },
+      "options": {
+        "tr": [
+          "Daha büyük sayılar taşıdıkları için",
+          "Binlerce olası eşik arasından tesadüfen iyi bir bölünme bulmak daha kolay olduğu için",
+          "Ağaç sayısal sütunları tercih ettiği için",
+          "Ölçeklenmedikleri için"
+        ],
+        "en": [
+          "Because they carry larger numbers",
+          "Because finding a good split by chance among thousands of thresholds is easier",
+          "Because the tree prefers numeric columns",
+          "Because they are not scaled"
+        ]
+      },
+      "explanation": {
+        "tr": "İki kategorili bir sütunda tek bir olası eşik var; sürekli bir sütunda binlerce.\n\nAğaç ikincisinde şansa bağlı olarak daha iyi bir bölünme bulabiliyor ve o sütunun önemi olduğundan yüksek çıkıyor.\n\nSayıların büyüklüğüyle ilgisi yok — ağaç ölçekten etkilenmiyor.",
+        "en": "A two-category column offers one possible threshold; a continuous one offers thousands.\n\nThe tree can stumble on a better split in the second by chance, and that column's importance comes out higher than it should.\n\nIt has nothing to do with the size of the numbers — a tree is unaffected by scale."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 1,
+      "text": {
+        "tr": "`permutation_importance` nasıl çalışıyor?",
+        "en": "How does `permutation_importance` work?"
+      },
+      "options": {
+        "tr": [
+          "Ağacın bölünmelerini sayıyor",
+          "Bir sütunu karıştırıp skorun ne kadar düştüğüne bakıyor",
+          "Korelasyon hesaplıyor",
+          "Sütunları sıralıyor"
+        ],
+        "en": [
+          "It counts the tree's splits",
+          "It shuffles a column and sees how far the score falls",
+          "It computes correlations",
+          "It sorts the columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Skor çok düşüyorsa o sütun gerçekten kullanılıyor demek.\n\nİki üstünlüğü var: **test kümesinde** ölçülebiliyor (yani genelleşen bilgiyi gösteriyor) ve çok değerli sütunlar şişmiyor.\n\nBölünme sayan `feature_importances_` yalnızca eğitim verisinden hesaplanıyor.",
+        "en": "A large fall means that column really is being used.\n\nIt has two advantages: it can be measured **on the test set** (so it shows information that generalises) and high-cardinality columns do not inflate.\n\n`feature_importances_`, which counts splits, is computed from the training data alone."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 2,
+      "text": {
+        "tr": "Veriden birkaç satır çıkarıp ağacı yeniden eğitirsen ne olabilir?",
+        "en": "What can happen if you remove a few rows and retrain the tree?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbir şey değişmez",
+          "Ağaç hata verir",
+          "Kök bölünmesi bile değişebilir; ağaç baştan şekillenebilir",
+          "Yalnızca yapraklar değişir"
+        ],
+        "en": [
+          "Nothing changes",
+          "The tree raises an error",
+          "Even the root split can change; the tree can be reshaped entirely",
+          "Only the leaves change"
+        ]
+      },
+      "explanation": {
+        "tr": "Sebebi açgözlülük: ilk bölünme iki aday arasında kıl payı karar veriyor ve o karar değişince altındaki her şey değişiyor.\n\nİki sonucu var: tek bir ağacın kurallarını \"keşfedilmiş gerçek\" gibi sunmak yanlış, ve özellik önemi de kararsız.\n\nÇözüm çok sayıda ağacın ortalamasını almak — bir sonraki bölümün konusu.",
+        "en": "The cause is greediness: the first split decides between two candidates by a hair, and when that flips everything beneath it changes.\n\nIt has two consequences: presenting one tree's rules as \"a discovered truth\" is wrong, and feature importance is unstable too.\n\nThe fix is averaging many trees — the next section."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Ağacın kararsızlığına karşı çözüm nedir?",
+        "en": "What is the fix for a tree's instability?"
+      },
+      "options": {
+        "tr": [
+          "Çok sayıda ağaç kurup ortalamasını almak",
+          "Derinliği artırmak",
+          "Ölçekleme yapmak",
+          "Daha çok özellik eklemek"
+        ],
+        "en": [
+          "Building many trees and averaging them",
+          "Raising the depth",
+          "Scaling the data",
+          "Adding more features"
+        ]
+      },
+      "explanation": {
+        "tr": "Rastgele orman ve gradyan artırma tam olarak bunu yapıyor: tek bir ağacın kararsızlığı, birçok ağacın ortalamasında sönüyor.\n\nDerinliği artırmak tersine kararsızlığı büyütüyor.\n\nÖlçekleme ağacı hiç etkilemiyor, özellik eklemek de kararsızlıkla ilgili değil.",
+        "en": "Random forests and gradient boosting do exactly that: a single tree's instability dissolves in the average of many.\n\nRaising the depth makes the instability worse, not better.\n\nScaling does not affect a tree at all, and adding features has nothing to do with instability."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 3,
+      "text": {
+        "tr": "Bu bölümde ağaç 0.80, KNN 0.92 verdi. Bundan ne sonuç çıkar?",
+        "en": "In this section the tree gave 0.80 and KNN 0.92. What follows?"
+      },
+      "options": {
+        "tr": [
+          "Ağaçlar kötü modeller",
+          "Ağaç yanlış kurulmuş",
+          "Ölçekleme eksik",
+          "Bu veride KNN daha uygun; model seçimi ölçüm işi"
+        ],
+        "en": [
+          "Trees are bad models",
+          "The tree was built wrongly",
+          "Scaling is missing",
+          "KNN suits this data better; choosing a model is a matter of measurement"
+        ]
+      },
+      "explanation": {
+        "tr": "Ağaç basamaklı kurallar kuruyor; sınır düzgün ve eğriyse her basamakta biraz kaybediyor.\n\nBölüm 05'te tersini görmüştük: araba verisinde ağacın hatası 64, doğrusal regresyonunki 16.5'ti.\n\nHangisinin kazanacağı verinin şekline bağlı ve önceden bilmenin yolu yok — bu yüzden ölçülüyor.",
+        "en": "A tree builds stepped rules; when the boundary is smooth and curved it loses a little at every step.\n\nWe saw the reverse in section 05: on the car data the tree's error was 64 and linear regression's 16.5.\n\nWhich one wins depends on the shape of the data and there is no way to know in advance — which is why you measure."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 2,
+      "text": {
+        "tr": "Ağacın hangi avantajı doğrusal modelde yok?",
+        "en": "Which advantage does a tree have that a linear model does not?"
+      },
+      "options": {
+        "tr": [
+          "Daha hızlı eğitiliyor",
+          "Daha az bellek kullanıyor",
+          "Etkileşimleri kendiliğinden yakalıyor (\"genç **ve** az giren\")",
+          "Ölçekleme gerektiriyor"
+        ],
+        "en": [
+          "It trains faster",
+          "It uses less memory",
+          "It captures interactions by itself (\"young **and** rarely visiting\")",
+          "It requires scaling"
+        ]
+      },
+      "explanation": {
+        "tr": "Doğrusal regresyon her sütuna ayrı katsayı veriyor; iki koşulun birleşimini ayrıca tanımlamak gerekiyor.\n\nAğacın dalları zaten iç içe koşullar, yani \"genç ve az giren\" kuralı doğal olarak oluşuyor.\n\nAğaç ölçekleme gerektirmiyor — bu bir avantaj ama son seçenek onu ters yazmış.",
+        "en": "Linear regression gives each column its own coefficient; the combination of two conditions has to be defined separately.\n\nA tree's branches are already nested conditions, so a rule like \"young and rarely visiting\" forms naturally.\n\nA tree does not require scaling — that is an advantage, but the last option states it backwards."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 2,
+      "text": {
+        "tr": "Regresyon ağacında yaprakta ne duruyor?",
+        "en": "What sits in a leaf of a regression tree?"
+      },
+      "options": {
+        "tr": [
+          "Bir sınıf",
+          "Bir katsayı",
+          "O gruptaki kayıtların ortalaması",
+          "Bir eşik"
+        ],
+        "en": [
+          "A class",
+          "A coefficient",
+          "The mean of the records in that group",
+          "A threshold"
+        ]
+      },
+      "explanation": {
+        "tr": "Sınıflandırmada yaprakta çoğunluk sınıfı, regresyonda ortalama duruyor. Safsızlık yerine varyans düşürülüyor.\n\nBunun bir sonucu var: regresyon ağacı **basamaklı** tahmin üretiyor, sürekli bir eğri çizemiyor.\n\nBölüm 05'te ölçülmüştü: araba verisinde ağaç 64, doğrusal regresyon 16.5. Sebebi tam olarak bu.",
+        "en": "In classification a leaf holds the majority class; in regression it holds the mean. Variance is reduced instead of impurity.\n\nThis has a consequence: a regression tree produces **stepped** predictions and cannot draw a continuous curve.\n\nIt was measured in section 05: on the car data the tree gave 64 and linear regression 16.5. That is exactly why."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 3,
+      "text": {
+        "tr": "`DecisionTreeClassifier`'a `random_state` neden veriliyor?",
+        "en": "Why is `random_state` passed to `DecisionTreeClassifier`?"
+      },
+      "options": {
+        "tr": [
+          "Veriyi karıştırmak için",
+          "Ölçekleme için",
+          "Gerekmiyor",
+          "Eşit derecede iyi iki bölünme arasında rastgele seçim yapıldığı için"
+        ],
+        "en": [
+          "To shuffle the data",
+          "For scaling",
+          "It is not needed",
+          "Because it chooses at random between two equally good splits"
+        ]
+      },
+      "explanation": {
+        "tr": "Ağaç eğitimi tamamen belirlenimli değil: aynı safsızlık düşüşünü veren iki bölünme varsa aralarından rastgele seçiyor.\n\nVermezsen her çalıştırmada farklı ağaç ve farklı sonuç çıkabiliyor; sonuç tekrar edilemiyor.\n\nRastgeleliği sabitlemek bölüm 00'dan beri tekrarlanan bir alışkanlık.",
+        "en": "Training a tree is not fully deterministic: when two splits give the same drop in impurity it picks between them at random.\n\nWithout it you can get a different tree and a different result on every run; the result cannot be reproduced.\n\nFixing randomness is a habit repeated since section 00."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 1,
+      "text": {
+        "tr": "Ağaçlar kategorik sütunlarla doğrudan çalışabiliyor mu?",
+        "en": "Can trees work directly with categorical columns?"
+      },
+      "options": {
+        "tr": [
+          "Evet, sklearn metin sütunlarını kabul ediyor",
+          "sklearn'de hayır; kodlama gerekiyor",
+          "Yalnızca iki kategorili sütunlarda",
+          "Yalnızca ölçeklenirse"
+        ],
+        "en": [
+          "Yes, sklearn accepts text columns",
+          "Not in sklearn; they have to be encoded",
+          "Only for two-category columns",
+          "Only if scaled"
+        ]
+      },
+      "explanation": {
+        "tr": "Ağacın mantığı kategoriyle çalışmaya uygun ama sklearn'in uygulaması metin kabul etmiyor; `pd.get_dummies` gerekiyor.\n\nBazı kütüphaneler (LightGBM gibi) kategoriyi doğrudan alabiliyor.\n\nÖlçekleme gerekmiyor ama **kodlama** gerekiyor — ikisi farklı şeyler.",
+        "en": "A tree's logic suits categories, but sklearn's implementation does not accept text; `pd.get_dummies` is needed.\n\nSome libraries (LightGBM among them) take categories directly.\n\nScaling is not needed but **encoding** is — the two are different things."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 1,
+      "text": {
+        "tr": "Ağacın aykırı değerlere dayanıklı olmasının sebebi ne?",
+        "en": "Why are trees robust to outliers?"
+      },
+      "options": {
+        "tr": [
+          "Aykırı değerleri atıyor",
+          "Uç bir değer yalnızca \"eşiğin üstünde\" grubuna giriyor",
+          "Ortalama alıyor",
+          "Ölçekleme yapıyor"
+        ],
+        "en": [
+          "It removes the outliers",
+          "An extreme value simply falls in the \"above the threshold\" group",
+          "It takes an average",
+          "It scales the data"
+        ]
+      },
+      "explanation": {
+        "tr": "Ağaç değerin **büyüklüğüyle** değil, eşiğe göre hangi tarafta kaldığıyla ilgileniyor. 100 kat büyük bir değer de 1.1 kat büyük bir değer de aynı tarafta.\n\nDoğrusal regresyonda aynı aykırı değer katsayıyı ciddi biçimde kaydırıyor.\n\nAynı sebep ölçeklemeye ihtiyaç duymamalarını da açıklıyor.",
+        "en": "A tree cares not about the **size** of a value but about which side of the threshold it falls on. A value a hundred times larger and one 1.1 times larger are on the same side.\n\nIn linear regression the same outlier shifts the coefficient considerably.\n\nThe same reason explains why they need no scaling."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 2,
+      "text": {
+        "tr": "Bir ağaç kuralını paydaşa sunarken ne söylenmeli?",
+        "en": "When presenting a tree's rule to a stakeholder, what must be said?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca kural",
+          "Yalnızca doğruluk oranı",
+          "Kural, kaç kayda dayandığı ve ne kadar kesin olduğu",
+          "Yalnızca özellik önemleri"
+        ],
+        "en": [
+          "The rule alone",
+          "The accuracy alone",
+          "The rule, how many records it rests on and how certain it is",
+          "The feature importances alone"
+        ]
+      },
+      "explanation": {
+        "tr": "`samples` kaç kayda dayandığını, `value` dağılımı ne kadar kesin olduğunu söylüyor. 11'e 9 ile 74'e 1 aynı şey değil.\n\nYalnızca kuralı söylemek, dayanak ve güven olmadan yanıltıcı.\n\nVe her zaman: bu bir kural, bir sebep açıklaması değil.",
+        "en": "`samples` says how many records it rests on and the `value` breakdown how certain it is. 11 to 9 and 74 to 1 are not the same thing.\n\nStating only the rule, without its basis and confidence, is misleading.\n\nAnd always: this is a rule, not an explanation of a cause."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 2,
+      "text": {
+        "tr": "`gini` yerine `entropy` kullanmak sonucu nasıl etkiliyor?",
+        "en": "How does using `entropy` instead of `gini` affect the result?"
+      },
+      "options": {
+        "tr": [
+          "Çok farklı ağaçlar çıkıyor",
+          "Entropy her zaman daha iyi",
+          "Sonuçlar genelde çok yakın çıkıyor",
+          "Entropy yalnızca regresyonda çalışıyor"
+        ],
+        "en": [
+          "Very different trees come out",
+          "Entropy is always better",
+          "The results are usually very close",
+          "Entropy only works for regression"
+        ]
+      },
+      "explanation": {
+        "tr": "İkisi de safsızlığı ölçen benzer fonksiyonlar; seçtikleri bölünmeler genelde aynı ya da çok yakın oluyor.\n\nEntropy biraz daha pahalı hesaplanıyor (logaritma içeriyor) ama pratikte fark edilir bir üstünlük sağlamıyor.\n\nRegresyonda ikisi de kullanılmıyor; orada `squared_error` var.",
+        "en": "Both are similar functions measuring impurity; the splits they choose are usually the same or very close.\n\nEntropy is slightly more expensive to compute (it involves a logarithm) but brings no noticeable advantage in practice.\n\nNeither is used for regression; there you have `squared_error`."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 3,
+      "text": {
+        "tr": "Ağacın `predict_proba` çıktısı nereden geliyor?",
+        "en": "Where does a tree's `predict_proba` output come from?"
+      },
+      "options": {
+        "tr": [
+          "Ayrı bir modelden",
+          "Uzaklıklardan",
+          "Katsayılardan",
+          "Kaydın düştüğü yaprağın sınıf dağılımından"
+        ],
+        "en": [
+          "From a separate model",
+          "From distances",
+          "From coefficients",
+          "From the class breakdown of the leaf the record lands in"
+        ]
+      },
+      "explanation": {
+        "tr": "Yaprakta `value = [74, 1]` yazıyorsa o yaprağa düşen bir kayıt için olasılık 74/75 = %99 çıkıyor.\n\nBu yüzden aynı sınıfı veren iki yaprak farklı olasılıklar üretebiliyor: biri %55, öteki %99.\n\nEşik ayarı (bölüm 03) tam olarak bu olasılığı kullanıyor.",
+        "en": "If a leaf says `value = [74, 1]`, a record landing there gets a probability of 74/75 = 99%.\n\nThis is why two leaves giving the same class can produce different probabilities: 55% for one, 99% for the other.\n\nThreshold tuning (section 03) uses exactly this probability."
+      }
+    },
+    {
+      "id": "q31",
+      "answer": 0,
+      "text": {
+        "tr": "`ccp_alpha` parametresi ne yapıyor?",
+        "en": "What does the `ccp_alpha` parameter do?"
+      },
+      "options": {
+        "tr": [
+          "Ağacı büyütüp sonra gereksiz dalları kesiyor (budama)",
+          "Ağacı derinleştiriyor",
+          "Ölçekleme yapıyor",
+          "Sınıf ağırlığı veriyor"
+        ],
+        "en": [
+          "Grows the tree and then cuts its useless branches (pruning)",
+          "Deepens the tree",
+          "Does the scaling",
+          "Sets class weights"
+        ]
+      },
+      "explanation": {
+        "tr": "Derinlik sınırlamaktan daha esnek bir yol: ağaç önce serbestçe büyüyor, sonra katkısı zayıf dallar kesiliyor.\n\n`alpha` büyüdükçe daha çok dal kesiliyor ve ağaç küçülüyor.\n\nSınıf ağırlığı `class_weight` ile veriliyor; dengesiz veride işe yarıyor.",
+        "en": "A more flexible route than limiting depth: the tree grows freely first and branches that contribute little are cut afterwards.\n\nThe larger `alpha` is, the more branches get cut and the smaller the tree.\n\nClass weights are set with `class_weight`; useful on imbalanced data."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 3,
+      "text": {
+        "tr": "Ağacın kuralları neden \"keskin\" (sharp) diye anılıyor?",
+        "en": "Why are a tree's rules called \"sharp\"?"
+      },
+      "options": {
+        "tr": [
+          "Kurallar kısa olduğu için",
+          "Kurallar okunabilir olduğu için",
+          "Ağaç hızlı olduğu için",
+          "18.5 ile 18.6 arasında model için bir uçurum olduğu için"
+        ],
+        "en": [
+          "Because the rules are short",
+          "Because the rules are readable",
+          "Because the tree is fast",
+          "Because for the model there is a chasm between 18.5 and 18.6"
+        ]
+      },
+      "explanation": {
+        "tr": "Eşiğin bir tarafında bir tahmin, öteki tarafında bambaşka bir tahmin var; arada geçiş yok.\n\nGerçekte 18.5 ile 18.6 ziyaret arasında böyle bir fark yok. Ağaçların basamaklı yapısı buradan geliyor.\n\nDoğrusal modeller tersine yumuşak: girdi biraz değişince çıktı da biraz değişiyor.",
+        "en": "On one side of the threshold there is one prediction and on the other an entirely different one, with no transition between.\n\nIn reality there is no such difference between 18.5 and 18.6 visits. The stepped nature of trees comes from this.\n\nLinear models are the opposite, smooth: a small change in the input makes a small change in the output."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 1,
+      "text": {
+        "tr": "Ağaç eğitildikten sonra `tree_.feature[0]` neyi veriyor?",
+        "en": "After training, what does `tree_.feature[0]` give?"
+      },
+      "options": {
+        "tr": [
+          "En önemli sütunu",
+          "Kök bölünmesinde kullanılan sütunun sırasını",
+          "Yaprak sayısını",
+          "Ağacın derinliğini"
+        ],
+        "en": [
+          "The most important column",
+          "The index of the column used in the root split",
+          "The number of leaves",
+          "The tree's depth"
+        ]
+      },
+      "explanation": {
+        "tr": "`tree_.feature` dizisi düğüm sırasına göre; ilk eleman her zaman kök. `X.columns[...]` ile sütun adına çevriliyor.\n\nKök bölünmesinde kullanılan sütun genelde en önemli olan oluyor ama bu bir kural değil — önem bütün bölünmelerden hesaplanıyor.\n\nYaprak sayısı `get_n_leaves()`, derinlik `get_depth()`.",
+        "en": "The `tree_.feature` array follows node order; the first element is always the root. `X.columns[...]` turns it into a column name.\n\nThe column used at the root is usually the most important one, but that is not a rule — importance is computed from all the splits.\n\nThe leaf count is `get_n_leaves()` and the depth `get_depth()`."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 3,
+      "text": {
+        "tr": "Ağaçlarda özellik önemi kararsız olabiliyor. Neden?",
+        "en": "Feature importance can be unstable in trees. Why?"
+      },
+      "options": {
+        "tr": [
+          "Hesaplama hatası",
+          "Ölçekleme yapılmadığı için",
+          "Sütun sayısı fazla olduğu için",
+          "Ağacın kendisi kararsız; birkaç satır değişince kök bölünmesi bile değişebiliyor"
+        ],
+        "en": [
+          "A computation error",
+          "Because there is no scaling",
+          "Because there are too many columns",
+          "The tree itself is unstable; a few rows can change even the root split"
+        ]
+      },
+      "explanation": {
+        "tr": "Önem, ağacın içindeki bölünmelerden hesaplanıyor; ağaç değişince önem de değişiyor.\n\nBugün `visits` en önemli çıkabiliyor, on satır sonra `income`.\n\nBu yüzden tek bir ağacın önem sıralamasını kesin bir bulgu gibi sunmak yanlış; topluluk yöntemleri hem modeli hem önemi kararlı hâle getiriyor.",
+        "en": "Importance is computed from the splits inside the tree; when the tree changes, so does the importance.\n\nToday `visits` can come out most important, ten rows later `income`.\n\nPresenting a single tree's importance ranking as a firm finding is therefore wrong; ensemble methods stabilise both the model and the importances."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 3,
+      "text": {
+        "tr": "Ağaç modelinde ölçekleme yapmanın sonucu ne?",
+        "en": "What is the consequence of scaling for a tree model?"
+      },
+      "options": {
+        "tr": [
+          "Model iyileşiyor",
+          "Model bozuluyor",
+          "Doğruluk düşüyor",
+          "Zararı yok ama faydası da yok; boşa harcanan bir adım"
+        ],
+        "en": [
+          "The model improves",
+          "The model breaks",
+          "The accuracy falls",
+          "It does no harm and no good; a wasted step"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: ölçeklemesiz 0.80, ölçekli 0.80 — birebir aynı.\n\nBozulma da olmuyor çünkü sıralama korunuyor; ağaç aynı bölünmeleri buluyor, yalnızca eşik sayıları farklı yazılıyor.\n\nZaman ve kod karmaşıklığı dışında bir bedeli yok, ama o da bir bedel.",
+        "en": "Measured: unscaled 0.80, scaled 0.80 — identical.\n\nNothing breaks either, because the ordering is preserved; the tree finds the same splits, only the threshold numbers are written differently.\n\nIt costs nothing but time and code complexity — though that is a cost too."
+      }
+    }
+  ]
+}

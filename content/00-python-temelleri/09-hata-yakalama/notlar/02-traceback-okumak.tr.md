@@ -1,5 +1,3 @@
-# Traceback Nasıl Okunur
-
 Hata çıktığında ekrana basılan o uzun yazının adı **traceback**. Korkutucu
 görünüyor ama düzenli bir yapısı var ve okuması öğrenilince hatanın yerini
 saniyeler içinde buluyorsun.

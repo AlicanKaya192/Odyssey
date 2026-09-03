@@ -1,0 +1,40 @@
+{
+  "id": "first-clusters",
+  "title": {
+    "tr": "İlk kümeler",
+    "en": "The first clusters"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 150,
+  "hints": [
+    {
+      "tr": "`KMeans(n_clusters=4, random_state=42, n_init=10)` ve `fit_predict` yeterli.",
+      "en": "`KMeans(n_clusters=4, random_state=42, n_init=10)` and `fit_predict` are enough."
+    },
+    {
+      "tr": "Küme boyutları için `numpy.bincount(labels)`; listeye çevirmeyi unutma.",
+      "en": "For the cluster sizes use `numpy.bincount(labels)`; remember to turn it into a list."
+    },
+    {
+      "tr": "Profil tablosu: etiketi yeni bir sütun yapıp `groupby(\"cluster\")[columns].mean().round(1)`.",
+      "en": "The profile table: make the labels a new column and use `groupby(\"cluster\")[columns].mean().round(1)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"shoppers.csv\")\ncolumns = [\"spend\", \"visits\", \"items\", \"returns\"]\nX = df[columns]\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\n\nimport numpy as np\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\n\nmodel = KMeans(n_clusters=4, random_state=42, n_init=10)\nlabels = model.fit_predict(X_scaled)\n\nprint(np.bincount(labels).tolist())\n\ndf[\"cluster\"] = labels\nprint(df.groupby(\"cluster\")[columns].mean().round(1))\n\nprint(round(float(silhouette_score(X_scaled, labels)), 3))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"shoppers.csv\")\ncolumns = [\"spend\", \"visits\", \"items\", \"returns\"]\nX = df[columns]\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\n\nimport numpy as np\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\n\nmodel = KMeans(n_clusters=4, random_state=42, n_init=10)\nlabels = model.fit_predict(X_scaled)\n\nprint(np.bincount(labels).tolist())\n\ndf[\"cluster\"] = labels\nprint(df.groupby(\"cluster\")[columns].mean().round(1))\n\nprint(round(float(silhouette_score(X_scaled, labels)), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[79, 102, 70, 99]\n         spend  visits  items  returns\ncluster                               \n0        428.2    15.2   23.4      3.3\n1         45.8     3.2    4.2      0.3\n2         63.9    19.3    6.4      2.6\n3        180.2     8.4   11.3      1.1\n0.517"
+    }
+  ]
+}

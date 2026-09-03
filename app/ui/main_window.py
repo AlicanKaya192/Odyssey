@@ -22,11 +22,18 @@ from PySide6.QtWidgets import (
 )
 
 from ..core.catalog import Catalog
+from ..core.discord_presence import (
+    BUTTON_LABEL,
+    PROJECT_URL,
+    RELEASES_URL,
+    DiscordPresence,
+)
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.unlock import is_unlocked
 from ..core.theme import ThemeManager
 from ..paths import content_dir
+from ..version import APP_VERSION
 from .header import ScreenHeader
 from ..widgets.common import SegmentedControl
 from .about_view import SECTIONS as ABOUT_SECTIONS, AboutView
@@ -74,6 +81,12 @@ class MainWindow(QMainWindow):
         self._theme = theme
         self._store = store
         self._catalog = Catalog.load(content_dir())
+
+        # Discord'da "Odyssey kullanıyor" yazısı. Discord kapalıysa ya da
+        # kurulu değilse hiçbir şey olmuyor; ayrı bir iş parçacığında
+        # dönüyor ve arayüzü hiçbir koşulda bekletmiyor.
+        self._presence = DiscordPresence(self._store)
+        self._presence_where = ("", "")
 
         self.resize(1400, 900)
         self.setMinimumSize(1080, 700)
@@ -143,6 +156,13 @@ class MainWindow(QMainWindow):
         self._update_timer = QTimer(self)
         self._update_timer.setInterval(updates.CHECK_INTERVAL_SEC * 1000)
         self._update_timer.timeout.connect(self._periodic_update_check)
+
+        # Discord'daki yazı **en sonda** başlatılıyor: metin önce
+        # hazırlanıyor, sonra bağlantı kuruluyor. Ters sırada ilk çerçeve
+        # boş gidiyor ve kullanıcı bir an "Odyssey" dışında bir şey
+        # görmüyordu.
+        self._set_presence_location()
+        self._presence.start()
 
     # --- ekranlar ---------------------------------------------------------
 
@@ -349,6 +369,9 @@ class MainWindow(QMainWindow):
             self._rail.set_notification("releases", False)
 
         self._rail.set_current(key)
+        # Bu geçişlerin hepsi bölümden çıkmak demek; Discord'da bölüm adı
+        # kalırsa kullanıcı çoktan başka ekrandayken orada donmuş görünüyor.
+        self._set_presence_location()
         self._update_headers()
 
     def _open_section(self, chapter_id: str, section_id: str) -> None:
@@ -361,17 +384,72 @@ class MainWindow(QMainWindow):
         self._topic.show_section(chapter_id, section_id)
         self._stack.setCurrentWidget(self._topic)
         self._rail.set_current("journey")
+        self._set_presence_location(chapter_id, section_id)
+
+    def _on_presence_changed(self) -> None:
+        self._presence.refresh_setting()
+        self._refresh_presence()
+
+    def _set_presence_location(
+        self, chapter_id: str = "", section_id: str = ""
+    ) -> None:
+        """Kullanıcının nerede olduğunu kaydeder ve Discord'a yansıtır.
+
+        Argümansız çağrılmak "artık bir bölümde değil" demek. Bu ayrım
+        önemli: eskiden konum yalnızca **doluysa** yazılıyordu, dolayısıyla
+        bölümden çıkınca eski bölüm saklı kalıyor ve Discord'daki yazı
+        orada donuyordu.
+        """
+        self._presence_where = (chapter_id, section_id)
+        self._refresh_presence()
+
+    def _refresh_presence(self) -> None:
+        """Saklanan konumu, kullanıcının dilinde metne çevirip gönderir.
+
+        Konumu değiştirmiyor; yalnızca yeniden üretiyor. Dil değişiminde
+        `retranslate` buraya geliyor, yoksa Discord'da eski dil kalıyor.
+        """
+        chapter_id, section_id = self._presence_where
+
+        t = self._language.t
+        details = "Odyssey"
+        state = t("presence.browsing")
+
+        chapter = self._catalog.chapter(chapter_id) if chapter_id else None
+        if chapter is not None:
+            details = self._language.pick(chapter.title) or "Odyssey"
+            section = (
+                self._catalog.section(chapter_id, section_id)
+                if section_id
+                else None
+            )
+            if section is not None:
+                state = self._language.pick(section.title) or state
+
+        self._presence.set_activity(
+            details,
+            state,
+            large_text=f"Odyssey {APP_VERSION}",
+            buttons=[
+                # "GitHub" marka adı, çevrilmiyor; "İndir" bir eylem,
+                # kullanıcının dilinde yazılıyor.
+                {"label": BUTTON_LABEL, "url": PROJECT_URL},
+                {"label": t("presence.download"), "url": RELEASES_URL},
+            ],
+        )
 
     def _topic_back(self) -> None:
         """Bölümden yola dön; ilerleme değişmiş olabilir, yenile."""
         self._journey.refresh()
         self._stack.setCurrentWidget(self._journey_screen)
         self._update_headers()
+        self._set_presence_location()
 
     def _journey_back(self) -> None:
         """Bir seviye yukarı: yoldan modüllere, modüllerden patikalara."""
         self._journey.back()
         self._update_headers()
+        self._set_presence_location()
 
     def _escape(self) -> None:
         """Kaçış tuşu bir seviye geri gider."""
@@ -438,6 +516,10 @@ class MainWindow(QMainWindow):
         # Süre ayarı da aynı şekilde: açık bir sınav varsa sayaç o an
         # duruyor ya da geri geliyor.
         dialog.timing_changed.connect(self._on_timing_changed)
+        # Discord ayarı da anında uygulanıyor: kapatıldığında yazı hemen
+        # siliniyor, açıldığında hemen görünüyor. Ayarın etkisini görmek
+        # için uygulamayı kapatıp açmak gerekmiyor.
+        dialog.presence_changed.connect(self._on_presence_changed)
         # Elle denetim yapıldıysa sonucu şeride de yansıt.
         dialog.update_found.connect(self._on_update_checked)
         # Ayarlardan "Güncelle" denince kutu açılıyor: kullanıcı orada
@@ -509,6 +591,9 @@ class MainWindow(QMainWindow):
         self._about.retranslate()
         self._releases.retranslate()
         self._update_headers()
+        # Discord'daki yazı da kullanıcının dilinde; `retranslate` onu
+        # yeniden üretmezse orada eski dil kalıyor.
+        self._refresh_presence()
 
     def closeEvent(self, event) -> None:  # noqa: N802
         """Kapatmadan önce onay sorar, sonra veritabanını kapatır.
@@ -531,5 +616,8 @@ class MainWindow(QMainWindow):
             event.ignore()
             return
 
+        # Discord'daki yazı silinsin; yoksa kapatılan uygulama hâlâ
+        # kullanılıyor gibi görünüyor.
+        self._presence.stop()
         self._store.close()
         super().closeEvent(event)

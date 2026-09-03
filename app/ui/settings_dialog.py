@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..core.language import LanguageManager
+from ..core import discord_presence
 from ..core.quiz_timing import UNTIMED_QUIZ_KEY, untimed_quiz
 from ..core.unlock import UNLOCK_ALL_KEY, unlock_all
 from ..core.theme import ThemeManager
@@ -98,6 +99,8 @@ class SettingsDialog(QDialog):
     lock_changed = Signal()
     # Sınav süresi ayarı: açık bir sınav varken de o an uygulanıyor.
     timing_changed = Signal()
+
+    presence_changed = Signal()
     # Elle yapılan denetimin sonucu: şeritteki duyuruyu da güncelliyor.
     update_found = Signal(object)
     # Kullanıcı ayarlardan güncellemeyi başlatmak istedi.
@@ -156,6 +159,10 @@ class SettingsDialog(QDialog):
         self._untimed_row = SettingRow()
         self._untimed_row.switch.toggled.connect(self._on_untimed)
         layout.addWidget(self._untimed_row)
+
+        self._presence_row = SettingRow()
+        self._presence_row.switch.toggled.connect(self._on_presence)
+        layout.addWidget(self._presence_row)
 
         layout.addWidget(self._separator())
 
@@ -237,13 +244,17 @@ class SettingsDialog(QDialog):
         self._update_row.switch.set_checked(
             updates.enabled(self._store), animate=False
         )
+        self._presence_row.switch.set_checked(
+            discord_presence.enabled(self._store), animate=False
+        )
 
     def _paint_switches(self, mode: str) -> None:
         p = PALETTES.get(mode, PALETTES["light"])
         # Segment düğmelerinin **zeminini** QSS veriyor ama içlerindeki
         # güneş/ay birer `QIcon`; onlara QSS ulaşmıyor.
         self._theme_picker.set_icon_colors(p["text_muted"], p["text_inverse"])
-        for row in (self._unlock_row, self._untimed_row, self._update_row):
+        for row in (self._unlock_row, self._untimed_row,
+                    self._presence_row, self._update_row):
             row.switch.set_colors(
                 track_off=p["surface_alt"],
                 track_on=p["accent"],
@@ -270,6 +281,10 @@ class SettingsDialog(QDialog):
     def _on_untimed(self, checked: bool) -> None:
         self._store.set_setting(UNTIMED_QUIZ_KEY, "1" if checked else "")
         self.timing_changed.emit()
+
+    def _on_presence(self, checked: bool) -> None:
+        discord_presence.set_enabled(self._store, checked)
+        self.presence_changed.emit()
 
     def _on_update_check(self, checked: bool) -> None:
         updates.set_enabled(self._store, checked)
@@ -357,6 +372,8 @@ class SettingsDialog(QDialog):
 
         self._untimed_row.title.setText(t("settings.untimed_quiz"))
         self._untimed_row.description.setText(t("settings.untimed_quiz_help"))
+        self._presence_row.title.setText(t("settings.discord"))
+        self._presence_row.description.setText(t("settings.discord_help"))
 
         self._update_title.setText(t("settings.group_updates"))
         self._update_row.title.setText(t("settings.update_check"))

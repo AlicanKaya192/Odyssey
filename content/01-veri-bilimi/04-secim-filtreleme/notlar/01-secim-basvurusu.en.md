@@ -1,5 +1,3 @@
-# Selection Reference
-
 `data` is a DataFrame, `s` a Series.
 
 ## iloc — by position

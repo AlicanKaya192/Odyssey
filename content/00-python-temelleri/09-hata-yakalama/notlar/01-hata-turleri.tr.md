@@ -1,5 +1,3 @@
-# Sık Karşılaşılan Hata Türleri
-
 Bu not bir sözlük. Ekranda bir hata gördüğünde adını buradan arayıp ne demek
 istediğini bulabilirsin.
 

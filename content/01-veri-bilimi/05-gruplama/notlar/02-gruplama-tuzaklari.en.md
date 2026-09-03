@@ -1,5 +1,3 @@
-# Grouping Traps
-
 ## 1. Rows with a missing key drop out silently
 
 ```python

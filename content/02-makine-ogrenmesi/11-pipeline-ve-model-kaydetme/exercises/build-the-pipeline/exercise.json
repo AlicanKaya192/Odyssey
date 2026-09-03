@@ -1,0 +1,40 @@
+{
+  "id": "build-the-pipeline",
+  "title": {
+    "tr": "Pipeline kur",
+    "en": "Build the pipeline"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 150,
+  "hints": [
+    {
+      "tr": "`ColumnTransformer` üç elemanlı demetler alıyor: (ad, dönüştürücü, sütun listesi).",
+      "en": "`ColumnTransformer` takes three-element tuples: (name, transformer, column list)."
+    },
+    {
+      "tr": "Sayısal sütunlar için `SimpleImputer(strategy=\"median\")` + `StandardScaler()`, metin için `most_frequent` + `OneHotEncoder(handle_unknown=\"ignore\")`.",
+      "en": "For the numeric columns `SimpleImputer(strategy=\"median\")` + `StandardScaler()`, for text `most_frequent` + `OneHotEncoder(handle_unknown=\"ignore\")`."
+    },
+    {
+      "tr": "Ön işleme sonrası sütun adları `pipe.named_steps[\"prepare\"].get_feature_names_out()` içinde.",
+      "en": "The column names after preprocessing live in `pipe.named_steps[\"prepare\"].get_feature_names_out()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"subscribers.csv\")\nprint(df.isna().sum().to_dict())\n\nX = df.drop(columns=\"churn\")\ny = df[\"churn\"]\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\ntext = [\"city\", \"plan\"]\n\npreprocessor = ColumnTransformer([\n    (\"num\", Pipeline([\n        (\"impute\", SimpleImputer(strategy=\"median\")),\n        (\"scale\", StandardScaler()),\n    ]), numeric),\n    (\"cat\", Pipeline([\n        (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n        (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n    ]), text),\n])\n\npipe = Pipeline([\n    (\"prepare\", preprocessor),\n    (\"model\", LogisticRegression(max_iter=1000)),\n])\npipe.fit(X_train, y_train)\n\nbaseline = accuracy_score(y_test, [y_train.mode()[0]] * len(y_test))\nprint(round(baseline, 3),\n      round(accuracy_score(y_test, pipe.predict(X_test)), 3))\n\nnames = [str(name) for name\n         in pipe.named_steps[\"prepare\"].get_feature_names_out()]\nprint(len(names))\nprint(names)\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"subscribers.csv\")\nprint(df.isna().sum().to_dict())\n\nX = df.drop(columns=\"churn\")\ny = df[\"churn\"]\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\ntext = [\"city\", \"plan\"]\n\npreprocessor = ColumnTransformer([\n    (\"num\", Pipeline([\n        (\"impute\", SimpleImputer(strategy=\"median\")),\n        (\"scale\", StandardScaler()),\n    ]), numeric),\n    (\"cat\", Pipeline([\n        (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n        (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n    ]), text),\n])\n\npipe = Pipeline([\n    (\"prepare\", preprocessor),\n    (\"model\", LogisticRegression(max_iter=1000)),\n])\npipe.fit(X_train, y_train)\n\nbaseline = accuracy_score(y_test, [y_train.mode()[0]] * len(y_test))\nprint(round(baseline, 3),\n      round(accuracy_score(y_test, pipe.predict(X_test)), 3))\n\nnames = [str(name) for name\n         in pipe.named_steps[\"prepare\"].get_feature_names_out()]\nprint(len(names))\nprint(names)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'city': 24, 'plan': 0, 'tenure': 0, 'monthly': 48, 'support': 30, 'churn': 0}\n0.573 0.793\n9\n['num__tenure', 'num__monthly', 'num__support', 'cat__city_Ankara', 'cat__city_Bursa', 'cat__city_Izmir', 'cat__plan_basic', 'cat__plan_plus', 'cat__plan_pro']"
+    }
+  ]
+}

@@ -1,5 +1,3 @@
-# Installing Libraries
-
 `math` and `datetime` ship with Python. But `pandas`, `numpy` and `requests`
 do not — you have to install those.
 

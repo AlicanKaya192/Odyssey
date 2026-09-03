@@ -1,5 +1,3 @@
-# Comparison Reference
-
 A list of what you can put inside a condition. Look here when you get stuck.
 
 ## Comparison operators

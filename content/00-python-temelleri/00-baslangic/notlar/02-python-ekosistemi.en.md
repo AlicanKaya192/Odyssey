@@ -1,5 +1,3 @@
-# The Python Data Science Ecosystem
-
 In this section you are only writing `print`. But it helps to know where you
 are heading — so here is the map.
 

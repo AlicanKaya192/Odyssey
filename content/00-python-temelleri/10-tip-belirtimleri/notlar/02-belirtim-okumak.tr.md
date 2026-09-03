@@ -1,5 +1,3 @@
-# Uzun Belirtimleri Okumak
-
 Gerçek kodda böyle satırlar var:
 
 ```python

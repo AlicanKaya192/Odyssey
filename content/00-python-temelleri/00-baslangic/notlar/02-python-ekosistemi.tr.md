@@ -1,5 +1,3 @@
-# Veri Biliminde Python Ekosistemi
-
 Bu bölümde yalnızca `print` yazıyorsun. Ama nereye gittiğini bilmek işe
 yarıyor — o yüzden yol haritası burada.
 

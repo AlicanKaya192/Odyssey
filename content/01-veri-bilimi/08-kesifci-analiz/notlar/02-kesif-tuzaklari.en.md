@@ -1,5 +1,3 @@
-# Exploration Traps
-
 None of the mistakes in this note are code mistakes. The code runs, a number
 comes out, and **the wrong conclusion is drawn from the number.**
 

@@ -59,13 +59,13 @@ DATA = [
 # QtWebEngine'in yardımcı süreci ve kaynakları elle toplanmalı; PyInstaller
 # bunları kendiliğinden bulamıyor.
 #
-# NumPy, pandas ve matplotlib de elle toplanıyor. **Uygulama onları hiç
+# NumPy, pandas, matplotlib ve scikit-learn de elle toplanıyor. **Uygulama onları hiç
 # import etmiyor** — kullanan taraf, alıştırma kodunu çalıştıran
 # denetleyici. PyInstaller import zincirini takip ettiği için onları
 # kendiliğinden bulmuyor; `--collect-all` ile açıkça isteniyor.
 #
-# Neden pakete gömülüyor: Veri Bilimi bölümlerinin alıştırmaları bu üç
-# kütüphaneyi istiyor. Alternatif, kullanıcıya ilk açılışta bir sanal ortam
+# Neden pakete gömülüyor: Veri Bilimi ve Makine Öğrenmesi bölümlerinin
+# alıştırmaları bu kütüphaneleri istiyor. Alternatif, kullanıcıya ilk açılışta bir sanal ortam
 # kurdurmaktı; o da internet bağlantısı ve yüz megabaytlık bir indirme
 # demek. Uygulamanın sözü "indir ve çalıştır" olduğu için gömme seçildi.
 COLLECT = [
@@ -74,6 +74,7 @@ COLLECT = [
     "numpy",
     "pandas",
     "matplotlib",
+    "sklearn",
 ]
 
 # Gereksiz yere paketi büyüten, kullanılmayan Qt modülleri.

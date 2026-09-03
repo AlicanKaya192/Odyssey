@@ -1,5 +1,3 @@
-# Data File Formats
-
 There is more than one way to keep data on disk. Knowing which to use when
 will pay off once you move on to data science.
 

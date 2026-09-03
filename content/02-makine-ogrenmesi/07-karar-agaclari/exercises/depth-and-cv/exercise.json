@@ -1,0 +1,40 @@
+{
+  "id": "depth-and-cv",
+  "title": {
+    "tr": "Derinliği seç",
+    "en": "Choose the depth"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "Önce derinlik tablosu: her derinlik için eğitim ve test doğruluğu.",
+      "en": "First the depth table: training and test accuracy per depth."
+    },
+    {
+      "tr": "Sonra çapraz doğrulama: `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` ve yalnızca **eğitim** verisi.",
+      "en": "Then cross validation: `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` on the **training** data only."
+    },
+    {
+      "tr": "`None` yazdırırken `none` görünmesi için `d if d else \"none\"` kullanılıyor.",
+      "en": "To print `none` for `None`, use `d if d else \"none\"`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.model_selection import StratifiedKFold, cross_val_score\n\nfor depth in (1, 2, 3, 5, 8, None):\n    model = DecisionTreeClassifier(max_depth=depth, random_state=42)\n    model.fit(X_train, y_train)\n    train_score = accuracy_score(y_train, model.predict(X_train))\n    test_score = accuracy_score(y_test, model.predict(X_test))\n    print(depth if depth else \"none\",\n          round(train_score, 3), round(test_score, 3))\n\nskf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\nbest_depth = None\nbest_mean = -1.0\n\nfor depth in (1, 2, 3, 5, None):\n    scores = cross_val_score(\n        DecisionTreeClassifier(max_depth=depth, random_state=42),\n        X_train, y_train, cv=skf)\n    print(depth if depth else \"none\",\n          round(float(scores.mean()), 3), round(float(scores.std()), 3))\n    if scores.mean() > best_mean:\n        best_mean = scores.mean()\n        best_depth = depth\n\nprint(best_depth)\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.model_selection import StratifiedKFold, cross_val_score\n\nfor depth in (1, 2, 3, 5, 8, None):\n    model = DecisionTreeClassifier(max_depth=depth, random_state=42)\n    model.fit(X_train, y_train)\n    train_score = accuracy_score(y_train, model.predict(X_train))\n    test_score = accuracy_score(y_test, model.predict(X_test))\n    print(depth if depth else \"none\",\n          round(train_score, 3), round(test_score, 3))\n\nskf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\nbest_depth = None\nbest_mean = -1.0\n\nfor depth in (1, 2, 3, 5, None):\n    scores = cross_val_score(\n        DecisionTreeClassifier(max_depth=depth, random_state=42),\n        X_train, y_train, cv=skf)\n    print(depth if depth else \"none\",\n          round(float(scores.mean()), 3), round(float(scores.std()), 3))\n    if scores.mean() > best_mean:\n        best_mean = scores.mean()\n        best_depth = depth\n\nprint(best_depth)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 0.807 0.82\n2 0.88 0.96\n3 0.933 0.8\n5 0.993 0.88\n8 1.0 0.88\nnone 1.0 0.88\n1 0.753 0.062\n2 0.827 0.049\n3 0.773 0.057\n5 0.813 0.086\nnone 0.82 0.091\n2"
+    }
+  ]
+}

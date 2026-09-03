@@ -1,5 +1,3 @@
-# Liste Üreteçleri
-
 Bir listeden başka bir liste üretmek en sık yaptığın işlerden biri. Şu ana
 kadar döngüyle yaptın:
 

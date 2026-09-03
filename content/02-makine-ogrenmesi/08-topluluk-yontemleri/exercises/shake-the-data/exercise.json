@@ -1,0 +1,40 @@
+{
+  "id": "shake-the-data",
+  "title": {
+    "tr": "Veriyi salla",
+    "en": "Shake the data"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 150,
+  "hints": [
+    {
+      "tr": "Eğitim verisinin %90'ını almak için `X_train.sample(frac=0.9, random_state=t)`; etiketleri `y_train.loc[ornek.index]` ile eşliyorsun.",
+      "en": "Take 90% of the training data with `X_train.sample(frac=0.9, random_state=t)`; match the labels with `y_train.loc[sample.index]`."
+    },
+    {
+      "tr": "Her turda **iki** model eğitiliyor: ağaç (`max_depth=3`) ve orman (200 ağaç). İkisinin de `random_state=42`.",
+      "en": "Two models are trained per round: a tree (`max_depth=3`) and a forest (200 trees). Both with `random_state=42`."
+    },
+    {
+      "tr": "Ağacın kök eşiği `model.tree_.threshold[0]`; bir ondalığa yuvarlanıyor.",
+      "en": "The tree's root threshold is `model.tree_.threshold[0]`, rounded to one decimal."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.tree import DecisionTreeClassifier\n\ntree_scores = []\nforest_scores = []\nthresholds = []\n\nfor seed in range(6):\n    sample = X_train.sample(frac=0.9, random_state=seed)\n    labels = y_train.loc[sample.index]\n\n    tree = DecisionTreeClassifier(max_depth=3, random_state=42)\n    tree.fit(sample, labels)\n    forest = RandomForestClassifier(n_estimators=200, random_state=42)\n    forest.fit(sample, labels)\n\n    tree_scores.append(round(accuracy_score(y_test, tree.predict(X_test)), 3))\n    forest_scores.append(\n        round(accuracy_score(y_test, forest.predict(X_test)), 3))\n    thresholds.append(round(float(tree.tree_.threshold[0]), 1))\n\nprint(tree_scores)\nprint(forest_scores)\nprint(thresholds)\nprint(round(max(tree_scores) - min(tree_scores), 2),\n      round(max(forest_scores) - min(forest_scores), 2))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.tree import DecisionTreeClassifier\n\ntree_scores = []\nforest_scores = []\nthresholds = []\n\nfor seed in range(6):\n    sample = X_train.sample(frac=0.9, random_state=seed)\n    labels = y_train.loc[sample.index]\n\n    tree = DecisionTreeClassifier(max_depth=3, random_state=42)\n    tree.fit(sample, labels)\n    forest = RandomForestClassifier(n_estimators=200, random_state=42)\n    forest.fit(sample, labels)\n\n    tree_scores.append(round(accuracy_score(y_test, tree.predict(X_test)), 3))\n    forest_scores.append(\n        round(accuracy_score(y_test, forest.predict(X_test)), 3))\n    thresholds.append(round(float(tree.tree_.threshold[0]), 1))\n\nprint(tree_scores)\nprint(forest_scores)\nprint(thresholds)\nprint(round(max(tree_scores) - min(tree_scores), 2),\n      round(max(forest_scores) - min(forest_scores), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.92, 0.88, 0.78, 0.8, 0.8, 0.84]\n[0.9, 0.84, 0.86, 0.9, 0.9, 0.92]\n[16.5, 15.5, 16.5, 18.5, 28.5, 18.5]\n0.14 0.08"
+    }
+  ]
+}

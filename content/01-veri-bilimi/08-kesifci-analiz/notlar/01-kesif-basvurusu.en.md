@@ -1,5 +1,3 @@
-# Exploration Reference
-
 Assuming `import pandas as pd` and a table called `data`.
 
 ## The order

@@ -1,5 +1,3 @@
-# SQL Reference
-
 A list of the SQL commands you will use in this section. Look here when you
 get stuck.
 

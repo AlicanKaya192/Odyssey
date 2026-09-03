@@ -1,0 +1,40 @@
+{
+  "id": "first-tree",
+  "title": {
+    "tr": "İlk ağaç",
+    "en": "Your first tree"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Model `sklearn.tree` içindeki `DecisionTreeClassifier`; `max_depth=3` ve `random_state=42` veriliyor.",
+      "en": "The model is `DecisionTreeClassifier` from `sklearn.tree`; pass `max_depth=3` and `random_state=42`."
+    },
+    {
+      "tr": "Taban çizgi yine en sık sınıf: `y_train.mode()[0]`.",
+      "en": "The baseline is again the most frequent class: `y_train.mode()[0]`."
+    },
+    {
+      "tr": "KNN karşılaştırması için `k=25` ve **ölçeklenmiş** veri gerekiyor — bölüm 06'daki sağlam seçim.",
+      "en": "The KNN comparison needs `k=25` and **scaled** data — the robust choice from section 06."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.preprocessing import StandardScaler\n\nbaseline = accuracy_score(y_test, [y_train.mode()[0]] * len(y_test))\n\ntree = DecisionTreeClassifier(max_depth=3, random_state=42)\ntree.fit(X_train, y_train)\ntree_score = accuracy_score(y_test, tree.predict(X_test))\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nknn = KNeighborsClassifier(n_neighbors=25)\nknn.fit(scaler.transform(X_train), y_train)\nknn_score = accuracy_score(y_test, knn.predict(scaler.transform(X_test)))\n\nprint(round(baseline, 3), round(tree_score, 3), round(knn_score, 3))\nprint(\"better\" if tree_score > baseline else \"worse\")\nprint(\"knn\" if knn_score > tree_score else \"tree\")\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.preprocessing import StandardScaler\n\nbaseline = accuracy_score(y_test, [y_train.mode()[0]] * len(y_test))\n\ntree = DecisionTreeClassifier(max_depth=3, random_state=42)\ntree.fit(X_train, y_train)\ntree_score = accuracy_score(y_test, tree.predict(X_test))\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nknn = KNeighborsClassifier(n_neighbors=25)\nknn.fit(scaler.transform(X_train), y_train)\nknn_score = accuracy_score(y_test, knn.predict(scaler.transform(X_test)))\n\nprint(round(baseline, 3), round(tree_score, 3), round(knn_score, 3))\nprint(\"better\" if tree_score > baseline else \"worse\")\nprint(\"knn\" if knn_score > tree_score else \"tree\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.7 0.8 0.92\nbetter\nknn"
+    }
+  ]
+}

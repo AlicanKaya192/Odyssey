@@ -1,5 +1,3 @@
-# DataFrame Reference
-
 Everything assumes `import pandas as pd`, with `data` being a DataFrame.
 
 ## Creating

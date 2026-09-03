@@ -39,14 +39,16 @@ the source can be read, modified and redistributed.
 
 ## Where things stand
 
-The application is in early development. It works end to end: the learning
-path, lessons, lecture notes, quizzes, coding exercises, staged hints,
-progress tracking, a Turkish/English interface and light and dark themes are
-all in place.
+The application is in open beta and works end to end: the learning path,
+lessons, lecture notes, quizzes, coding exercises, staged hints, progress
+tracking, a profile with badges, a Turkish/English interface, light and dark
+themes and in-app updates are all in place.
 
-The curriculum continues to grow. The Python Fundamentals module is published
-today; the target is 23 modules. Badges, a personal notes area and an in-app
-update system are on the roadmap.
+Three paths are published: **Python Fundamentals**, **Data Science** and
+**Machine Learning**. Together they hold 38 sections, 1073 quiz questions and
+180 coding exercises. The SQL, API and Docker paths are in preparation.
+
+A personal notes area inside each section is on the roadmap.
 
 You can follow which change arrived in which version from the **Release
 Notes** screen.

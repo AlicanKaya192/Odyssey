@@ -1,0 +1,40 @@
+{
+  "id": "k-sweep",
+  "title": {
+    "tr": "k neyi ayarlıyor",
+    "en": "What k tunes"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Her `k` için iki ölçüm var: eğitim kümesindeki ve test kümesindeki doğruluk.",
+      "en": "There are two measurements per `k`: accuracy on the training set and on the test set."
+    },
+    {
+      "tr": "Ölçeklenmiş veriyle çalışıyorsun; ham veriyle sayılar tutmaz.",
+      "en": "You work with the scaled data; the numbers will not match on raw data."
+    },
+    {
+      "tr": "`k=1`'de eğitim doğruluğunun ne çıktığına dikkat et — sebebini yönerge açıklıyor.",
+      "en": "Watch what the training accuracy comes out as at `k=1` — the brief explains why."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nX_train_scaled = scaler.transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nfrom sklearn.metrics import accuracy_score\n\nfor k in (1, 3, 5, 9, 15, 25):\n    model = KNeighborsClassifier(n_neighbors=k)\n    model.fit(X_train_scaled, y_train)\n    train_score = accuracy_score(y_train, model.predict(X_train_scaled))\n    test_score = accuracy_score(y_test, model.predict(X_test_scaled))\n    print(k, round(train_score, 3), round(test_score, 3))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nX_train_scaled = scaler.transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nfrom sklearn.metrics import accuracy_score\n\nfor k in (1, 3, 5, 9, 15, 25):\n    model = KNeighborsClassifier(n_neighbors=k)\n    model.fit(X_train_scaled, y_train)\n    train_score = accuracy_score(y_train, model.predict(X_train_scaled))\n    test_score = accuracy_score(y_test, model.predict(X_test_scaled))\n    print(k, round(train_score, 3), round(test_score, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 1.0 0.82\n3 0.94 0.86\n5 0.94 0.92\n9 0.927 0.9\n15 0.92 0.88\n25 0.927 0.92"
+    }
+  ]
+}

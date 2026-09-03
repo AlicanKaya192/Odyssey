@@ -1,0 +1,914 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 3,
+      "text": {
+        "tr": "Sınıflandırmada neden MAE ve R² kullanılmıyor?",
+        "en": "Why are MAE and R² not used in classification?"
+      },
+      "options": {
+        "tr": [
+          "Çok yavaş çalıştıkları için",
+          "sklearn izin vermediği için",
+          "Sonuçları her zaman sıfır çıktığı için",
+          "Kategoriler arasında çıkarma işlemi tanımsız olduğu için"
+        ],
+        "en": [
+          "Because they are too slow",
+          "Because sklearn does not allow it",
+          "Because they always come out zero",
+          "Because subtraction between categories is undefined"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu ölçüler kalıntıya dayanıyor: `gerçek - tahmin`. \"Kedi\" ile \"köpek\" arasında böyle bir fark yok.\n\nSınıflar 0 ve 1 diye kodlanmış olsa bile aradaki mesafe uydurma. Üç sınıfta durum daha açık: 2 ile 0 arasındaki fark, 1 ile 0 arasındakinin iki katı değil.\n\nOnun yerine doğru/yanlış sayımına dayanan bir ölçü ailesi kullanılıyor.",
+        "en": "These measures rest on the residual: `actual - predicted`. There is no such difference between \"cat\" and \"dog\".\n\nEven with classes coded 0 and 1, the distance is invented. With three classes it is clearer: the gap between 2 and 0 is not twice the gap between 1 and 0.\n\nA family of measures based on counting right and wrong answers is used instead."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 1,
+      "text": {
+        "tr": "`LogisticRegression` adında \"regresyon\" geçmesine rağmen ne yapıyor?",
+        "en": "Despite \"regression\" in its name, what does `LogisticRegression` do?"
+      },
+      "options": {
+        "tr": [
+          "Regresyon",
+          "Sınıflandırma",
+          "Kümeleme",
+          "Boyut indirgeme"
+        ],
+        "en": [
+          "Regression",
+          "Classification",
+          "Clustering",
+          "Dimension reduction"
+        ]
+      },
+      "explanation": {
+        "tr": "İsim tarihsel bir kalıntı; model kategorik hedef için kullanılıyor ve `predict` sınıf döndürüyor.\n\nİçeride bir olasılık hesaplanıyor ve o olasılık bir eşiğe göre sınıfa çevriliyor — \"regresyon\" kısmı bu olasılık hesabından geliyor.\n\nsklearn'de `sklearn.linear_model` altında duruyor, `LinearRegression` ile aynı yerde; bu da karışıklığa katkıda bulunuyor.",
+        "en": "The name is a historical leftover; the model is used for a categorical target and `predict` returns a class.\n\nInside, a probability is computed and turned into a class by a threshold — the \"regression\" part comes from that probability computation.\n\nIn sklearn it sits under `sklearn.linear_model`, the same place as `LinearRegression`, which adds to the confusion."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Sınıflandırmada taban çizgi nasıl kurulur?",
+        "en": "How is a baseline built for classification?"
+      },
+      "options": {
+        "tr": [
+          "Her şeye en sık görülen sınıfı tahmin ederek",
+          "Rastgele sınıf atayarak",
+          "Ortalamayı tahmin ederek",
+          "Modeli iki kez eğiterek"
+        ],
+        "en": [
+          "By predicting the most frequent class for everything",
+          "By assigning classes at random",
+          "By predicting the mean",
+          "By training the model twice"
+        ]
+      },
+      "explanation": {
+        "tr": "Regresyonda ortalama, sınıflandırmada en sık sınıf. `y_train.mode()[0]` veriyor.\n\nRastgele atama da bir taban çizgi ama daha zayıf: en sık sınıfı söylemek her zaman ondan iyi ya da ona eşit.\n\nsklearn'de hazırı `DummyClassifier(strategy=\"most_frequent\")`.",
+        "en": "The mean for regression, the most frequent class for classification. `y_train.mode()[0]` gives it.\n\nRandom assignment is a baseline too, but a weaker one: predicting the most frequent class is always as good or better.\n\nsklearn's ready-made version is `DummyClassifier(strategy=\"most_frequent\")`."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 3,
+      "text": {
+        "tr": "Verinin %95'i tek bir sınıfa ait. Modelin doğruluğu %94 çıktı. Bu ne anlama geliyor?",
+        "en": "95% of the data belongs to one class. The model's accuracy came out at 94%. What does that mean?"
+      },
+      "options": {
+        "tr": [
+          "Model çok başarılı",
+          "Doğruluk yanlış hesaplanmış",
+          "Veri kümesi çok küçük",
+          "Model taban çizgiden kötü; hiçbir şey öğrenmemiş bir satır %95 doğru olurdu"
+        ],
+        "en": [
+          "The model is very successful",
+          "The accuracy was computed wrongly",
+          "The dataset is too small",
+          "The model is worse than the baseline; a line that learns nothing would be 95% correct"
+        ]
+      },
+      "explanation": {
+        "tr": "\"Hepsi çoğunluk sınıfı\" diyen tek satırlık kural %95 doğru oluyor. %94 bunun altında.\n\nDoğruluğun en büyük sorunu bu: dengesiz veride sayı yüksek çıkıyor ama bilgi taşımıyor.\n\nBöyle veride precision, recall ve karışıklık matrisine bakılıyor.",
+        "en": "A one-line rule saying \"all of them are the majority class\" is 95% correct. 94% is below that.\n\nThis is accuracy's biggest problem: on imbalanced data the number comes out high but carries no information.\n\nOn such data you look at precision, recall and the confusion matrix."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 1,
+      "text": {
+        "tr": "sklearn'in `confusion_matrix` çıktısında sol üst köşedeki sayı nedir?",
+        "en": "In sklearn's `confusion_matrix` output, what is the number in the top-left corner?"
+      },
+      "options": {
+        "tr": [
+          "TP",
+          "TN",
+          "FP",
+          "FN"
+        ],
+        "en": [
+          "TP",
+          "TN",
+          "FP",
+          "FN"
+        ]
+      },
+      "explanation": {
+        "tr": "sklearn matrisi `[[TN, FP], [FN, TP]]` sırasıyla veriyor: **satırlar gerçek, sütunlar tahmin**.\n\nSol üst köşe hem gerçeğin hem tahminin 0 olduğu hücre, yani doğru negatif.\n\n`.ravel()` bu dördü tek satırda dağıtmayı sağlıyor: `tn, fp, fn, tp = cm.ravel()`.",
+        "en": "sklearn returns the matrix as `[[TN, FP], [FN, TP]]`: **rows are actual, columns predicted**.\n\nThe top-left cell is where both the actual and the predicted value are 0, that is the true negative.\n\n`.ravel()` lets you unpack all four on one line: `tn, fp, fn, tp = cm.ravel()`."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 2,
+      "text": {
+        "tr": "Precision'ın formülü nedir?",
+        "en": "What is the formula for precision?"
+      },
+      "options": {
+        "tr": [
+          "`TP / (TP + FN)`",
+          "`(TP + TN) / toplam`",
+          "`TP / (TP + FP)`",
+          "`TN / (TN + FP)`"
+        ],
+        "en": [
+          "`TP / (TP + FN)`",
+          "`(TP + TN) / total`",
+          "`TP / (TP + FP)`",
+          "`TN / (TN + FP)`"
+        ]
+      },
+      "explanation": {
+        "tr": "Precision'ın paydası **senin pozitif tahminlerin**: doğru olanlar artı yanlış alarmlar.\n\nCevapladığı soru: \"1 dediklerimin kaçı gerçekten 1?\"\n\nİlk seçenek recall, üçüncüsü doğruluk, dördüncüsü specificity.",
+        "en": "Precision's denominator is **your positive predictions**: the correct ones plus the false alarms.\n\nThe question it answers: \"of those I called 1, how many really are?\"\n\nThe first option is recall, the third accuracy, the fourth specificity."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 2,
+      "text": {
+        "tr": "Recall neyi ölçüyor?",
+        "en": "What does recall measure?"
+      },
+      "options": {
+        "tr": [
+          "Tahminlerinin ne kadar temiz olduğunu",
+          "Toplam doğruluğu",
+          "Gerçek pozitiflerin kaçını bulabildiğini",
+          "Modelin hızını"
+        ],
+        "en": [
+          "How clean your predictions are",
+          "The overall accuracy",
+          "How many of the real positives you found",
+          "The model's speed"
+        ]
+      },
+      "explanation": {
+        "tr": "Recall'ın paydası **gerçekte var olan pozitifler**: bulduklarınla kaçırdıklarının toplamı.\n\nTahminlerin ne kadar temiz olduğunu ölçen precision.\n\nAyrımı akılda tutmanın yolu paydaya bakmak: precision'ın paydası senin tahminlerin, recall'ınki gerçekte var olanlar.",
+        "en": "Recall's denominator is **the positives that actually exist**: what you found plus what you missed.\n\nHow clean your predictions are is measured by precision.\n\nThe way to keep them apart is the denominator: precision's is your predictions, recall's is what actually exists."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "Bir spam filtresinde hangi ölçü öncelikli?",
+        "en": "For a spam filter, which measure takes priority?"
+      },
+      "options": {
+        "tr": [
+          "Precision",
+          "Recall",
+          "İkisi de eşit derecede",
+          "Hiçbiri; doğruluk yeterli"
+        ],
+        "en": [
+          "Precision",
+          "Recall",
+          "Both equally",
+          "Neither; accuracy is enough"
+        ]
+      },
+      "explanation": {
+        "tr": "Spam filtresinde pahalı olan hata, **gerçek bir e-postayı spam'e atmak** — kullanıcı önemli bir mesajı kaçırıyor.\n\nBir spam'in gelen kutusuna düşmesi ise sadece rahatsız edici; kullanıcı siliyor.\n\nYanlış alarm pahalıysa precision, kaçırmak pahalıysa recall önceliklidir.",
+        "en": "For a spam filter the expensive mistake is **sending a real email to spam** — the user misses something important.\n\nOne spam landing in the inbox is merely annoying; the user deletes it.\n\nWhen a false alarm is expensive, precision takes priority; when a miss is expensive, recall does."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 1,
+      "text": {
+        "tr": "Bir kanser taramasında hangi ölçü öncelikli?",
+        "en": "For a cancer screening, which measure takes priority?"
+      },
+      "options": {
+        "tr": [
+          "Precision",
+          "Recall",
+          "Doğruluk",
+          "F1"
+        ],
+        "en": [
+          "Precision",
+          "Recall",
+          "Accuracy",
+          "F1"
+        ]
+      },
+      "explanation": {
+        "tr": "Kaçırılan bir hasta ilerliyor; yanlış alarm ise ek bir tetkikle çözülüyor.\n\nİki hatanın maliyeti arasında dağlar kadar fark var ve recall kaçırmayı ölçen taraf.\n\nBu genelde eşiği düşürerek yapılıyor: daha çok yanlış alarm kabul edilip kaçırma azaltılıyor.",
+        "en": "A missed patient's disease progresses; a false alarm is settled with one extra test.\n\nThe gap between the costs of the two errors is enormous, and recall is the side that measures missing.\n\nThis is usually done by lowering the threshold: more false alarms are accepted in exchange for fewer misses."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 2,
+      "text": {
+        "tr": "F1 neden sıradan ortalama değil de harmonik ortalama?",
+        "en": "Why is F1 a harmonic mean rather than an ordinary average?"
+      },
+      "options": {
+        "tr": [
+          "Hesaplaması daha kolay olduğu için",
+          "Her zaman daha büyük değer verdiği için",
+          "Biri çok düşükse sonucun da düşük çıkması için",
+          "Gelenek olduğu için"
+        ],
+        "en": [
+          "Because it is easier to compute",
+          "Because it always gives a larger value",
+          "So that if either is very low, the result is low too",
+          "Because it is the convention"
+        ]
+      },
+      "explanation": {
+        "tr": "Precision 1.0, recall 0.02 olan bir model tek kişiye \"pozitif\" deyip tutturuyor — işe yaramaz bir model.\n\nSıradan ortalama 0.51 verirdi ve kabul edilebilir görünürdü. Harmonik ortalama 0.039 veriyor.\n\nHarmonik ortalama küçük değere ağırlık veriyor; \"ikisi de makul olmalı\" kuralını sayıya çeviriyor.",
+        "en": "A model with precision 1.0 and recall 0.02 calls one person positive and gets it right — a useless model.\n\nAn ordinary average would give 0.51 and look acceptable. The harmonic mean gives 0.039.\n\nThe harmonic mean leans towards the smaller value; it turns \"both must be reasonable\" into a number."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 1,
+      "text": {
+        "tr": "`model.predict_proba(X_test)[:, 1]` ne döndürüyor?",
+        "en": "What does `model.predict_proba(X_test)[:, 1]` return?"
+      },
+      "options": {
+        "tr": [
+          "Tahmin edilen sınıfları",
+          "Pozitif sınıfın olasılığını",
+          "Negatif sınıfın olasılığını",
+          "Modelin katsayılarını"
+        ],
+        "en": [
+          "The predicted classes",
+          "The positive class's probability",
+          "The negative class's probability",
+          "The model's coefficients"
+        ]
+      },
+      "explanation": {
+        "tr": "`predict_proba` her sınıf için bir sütun döndürüyor; `[:, 0]` negatif, `[:, 1]` pozitif sınıfın olasılığı.\n\nSınıfları döndüren `predict`. Eşik oynatmak için olasılık gerekiyor, sınıf değil.\n\nSütunu karıştırmak sessiz bir hata: kod çalışıyor, sonuçlar tersine dönüyor.",
+        "en": "`predict_proba` returns one column per class; `[:, 0]` is the negative class's probability, `[:, 1]` the positive one's.\n\n`predict` is what returns classes. Moving a threshold needs the probability, not the class.\n\nTaking the wrong column is a silent bug: the code runs and the results invert."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 3,
+      "text": {
+        "tr": "`predict` varsayılan olarak olasılığı hangi değere göre kesiyor?",
+        "en": "By default, at what value does `predict` cut the probability?"
+      },
+      "options": {
+        "tr": [
+          "0.0",
+          "1.0",
+          "Veriye göre değişiyor",
+          "0.5"
+        ],
+        "en": [
+          "0.0",
+          "1.0",
+          "It varies with the data",
+          "0.5"
+        ]
+      },
+      "explanation": {
+        "tr": "0.5 bir hesap sonucu değil, bir **varsayılan**. Modelin öğrendiği bir şey değil.\n\nDeğiştirmek için `predict_proba` alınıp eşik elle uygulanıyor — model yeniden eğitilmiyor.\n\nÇoğu gerçek problemde 0.5 doğru eşik değil; problemin hangi hatayı daha pahalı bulduğuna göre kaydırılıyor.",
+        "en": "The 0.5 is not the result of a calculation but a **default**. It is not something the model learned.\n\nTo change it you take `predict_proba` and apply the threshold yourself — the model is not retrained.\n\nIn most real problems 0.5 is not the right threshold; it moves according to which error the problem finds more expensive."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Eşiği düşürmek ne yapıyor?",
+        "en": "What does lowering the threshold do?"
+      },
+      "options": {
+        "tr": [
+          "Recall'ı artırıyor, precision'ı düşürüyor",
+          "İkisini de artırıyor",
+          "Precision'ı artırıyor, recall'ı düşürüyor",
+          "Hiçbir şeyi değiştirmiyor"
+        ],
+        "en": [
+          "Raises recall and lowers precision",
+          "Raises both",
+          "Raises precision and lowers recall",
+          "Changes nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Eşiği düşürmek modelin daha kolay \"1\" demesi demek: daha az kaçırıyor (recall ↑) ama daha çok yanlış alarm veriyor (precision ↓).\n\n**İkisini birden artırmak eşikle mümkün değil** — bu bir takas. Gerçek iyileşme ancak daha iyi model ya da daha iyi özelliklerle geliyor.\n\nHangi yöne kaydırılacağı, hangi hatanın daha pahalı olduğuna bağlı.",
+        "en": "Lowering the threshold makes the model say \"1\" more readily: it misses less (recall ↑) but raises more false alarms (precision ↓).\n\n**Raising both with a threshold is impossible** — it is a trade. Real improvement only comes from a better model or better features.\n\nWhich way to move it depends on which error is more expensive."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 1,
+      "text": {
+        "tr": "Eşik nerede seçilmeli?",
+        "en": "Where should the threshold be chosen?"
+      },
+      "options": {
+        "tr": [
+          "Test kümesinde",
+          "Doğrulama kümesinde",
+          "Eğitim kümesinde",
+          "Rastgele"
+        ],
+        "en": [
+          "On the test set",
+          "On a validation set",
+          "On the training set",
+          "At random"
+        ]
+      },
+      "explanation": {
+        "tr": "Eşik bir **hiperparametre**: onu seçmek için birçok değer deneniyor.\n\nBu denemeler test kümesinde yapılırsa test, karar sürecinin parçası oluyor ve skoru dürüst olmaktan çıkıyor.\n\nDoğru yol: doğrulama kümesinde seç, test kümesine sonda bir kez bak.",
+        "en": "The threshold is a **hyperparameter**: choosing it means trying many values.\n\nIf those trials happen on the test set, the test becomes part of the decision and its score stops being honest.\n\nThe right way: choose on a validation set, look at the test set once, at the end."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 3,
+      "text": {
+        "tr": "`train_test_split`'e `stratify=y` vermek ne yapıyor?",
+        "en": "What does passing `stratify=y` to `train_test_split` do?"
+      },
+      "options": {
+        "tr": [
+          "Veriyi sıralıyor",
+          "Test kümesini büyütüyor",
+          "Rastgeleliği kapatıyor",
+          "Sınıf oranını eğitim ve testte aynı tutuyor"
+        ],
+        "en": [
+          "Sorts the data",
+          "Enlarges the test set",
+          "Turns randomness off",
+          "Keeps the class proportions the same in training and test"
+        ]
+      },
+      "explanation": {
+        "tr": "Olmadan rastgele ayrım testte ve eğitimde farklı sınıf oranları bırakabiliyor; ölçüm ayrımın şansına bağlı hâle geliyor.\n\nKüçük veri kümelerinde ve dengesiz sınıflarda etkisi büyük: az olan sınıftan teste hiç kayıt düşmeyebiliyor.\n\nSınıflandırmada neredeyse her zaman veriliyor.",
+        "en": "Without it a random split can leave different class proportions in training and test, making the measurement depend on the luck of the split.\n\nOn small datasets and imbalanced classes the effect is large: the rare class may get no records in the test set at all.\n\nIn classification it is passed almost always."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 2,
+      "text": {
+        "tr": "`classification_report` neden tek bir doğruluk sayısından daha bilgilendirici?",
+        "en": "Why is `classification_report` more informative than a single accuracy figure?"
+      },
+      "options": {
+        "tr": [
+          "Daha hızlı çalıştığı için",
+          "Renkli çıktı verdiği için",
+          "Her sınıf için ayrı precision, recall ve F1 verdiği için",
+          "Modeli de eğittiği için"
+        ],
+        "en": [
+          "Because it runs faster",
+          "Because its output is coloured",
+          "Because it gives precision, recall and F1 per class",
+          "Because it trains the model too"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir model bir sınıfta çok iyi, ötekinde çok kötü olabiliyor: `1` sınıfında recall 0.96 iken `0` sınıfında 0.62.\n\nTek doğruluk sayısı bu farkı tamamen gizliyor.\n\nRapor ayrıca `support` sütunuyla her sınıfta kaç kayıt olduğunu veriyor; dengesizlik oradan okunuyor.",
+        "en": "A model can be very good on one class and very poor on another: recall 0.96 on class `1` but 0.62 on class `0`.\n\nA single accuracy figure hides that difference completely.\n\nThe report also gives a `support` column with the number of records per class; that is where you read the imbalance."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "`classification_report`'taki `support` sütunu neyi gösteriyor?",
+        "en": "What does the `support` column in `classification_report` show?"
+      },
+      "options": {
+        "tr": [
+          "Modelin güven düzeyini",
+          "Kaç özellik kullanıldığını",
+          "Her sınıfta kaç kayıt olduğunu",
+          "Eğitim süresini"
+        ],
+        "en": [
+          "The model's confidence level",
+          "How many features were used",
+          "How many records each class has",
+          "The training time"
+        ]
+      },
+      "explanation": {
+        "tr": "`support` her sınıfın test kümesindeki kayıt sayısı: 13'e 27 gibi.\n\nBu sayı olmadan precision ve recall yanıltıcı olabiliyor — üç kayıtlık bir sınıfta %100 recall pek bir şey söylemiyor.\n\nDengesizliğin ilk okunduğu yer de burası.",
+        "en": "`support` is the number of records each class has in the test set: 13 against 27, say.\n\nWithout it precision and recall can mislead — 100% recall on a class with three records says very little.\n\nIt is also the first place you read the imbalance."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Karışıklık matrisinden doğruluk nasıl hesaplanıyor?",
+        "en": "How is accuracy computed from the confusion matrix?"
+      },
+      "options": {
+        "tr": [
+          "`(TP + TN) / toplam`",
+          "`TP / toplam`",
+          "`(TP + FP) / toplam`",
+          "`TP / (TP + FP)`"
+        ],
+        "en": [
+          "`(TP + TN) / total`",
+          "`TP / total`",
+          "`(TP + FP) / total`",
+          "`TP / (TP + FP)`"
+        ]
+      },
+      "explanation": {
+        "tr": "Doğru bilinen kayıtlar iki hücrede: doğru pozitifler ve doğru negatifler. Toplam ise dört hücrenin toplamı.\n\nBu, doğruluğun neden dengesiz veride yanıltıcı olduğunu da açıklıyor: büyük sınıfın TN'leri sayıyı tek başına yukarı çekebiliyor.\n\nSon seçenek precision.",
+        "en": "The records you got right sit in two cells: the true positives and the true negatives. The total is the sum of all four cells.\n\nThis also explains why accuracy misleads on imbalanced data: the majority class's TNs can lift the number on their own.\n\nThe last option is precision."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 2,
+      "text": {
+        "tr": "Yanlış pozitif sayısı yanlış negatiften çok daha fazlaysa model ne yapıyor?",
+        "en": "If false positives far outnumber false negatives, what is the model doing?"
+      },
+      "options": {
+        "tr": [
+          "\"0\" demeye eğilimli",
+          "Rastgele karar veriyor",
+          "\"1\" demeye eğilimli",
+          "Aşırı öğrenmiş"
+        ],
+        "en": [
+          "Leaning towards saying \"0\"",
+          "Deciding at random",
+          "Leaning towards saying \"1\"",
+          "Overfitting"
+        ]
+      },
+      "explanation": {
+        "tr": "Yanlış pozitif, gerçek 0'a 1 demek. Çok sayıda olması modelin cömertçe \"1\" dediğini gösteriyor.\n\nBu iyi mi kötü mü probleme bağlı: kaçırmanın pahalı olduğu bir işte istenen davranış, yanlış alarmın pahalı olduğu bir işte sorun.\n\nEşiği yükseltmek bu eğilimi azaltıyor.",
+        "en": "A false positive is calling a real 0 a 1. A large number of them shows the model says \"1\" generously.\n\nWhether that is good or bad depends on the problem: it is the desired behaviour where missing is expensive, a problem where false alarms are.\n\nRaising the threshold reduces the tendency."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "`LogisticRegression`'a `max_iter=1000` vermenin sebebi ne?",
+        "en": "Why pass `max_iter=1000` to `LogisticRegression`?"
+      },
+      "options": {
+        "tr": [
+          "Varsayılan tur sayısı bazı verilerde yetmeyip uyarı ürettiği için",
+          "Modeli daha doğru yapmak için",
+          "Daha hızlı çalışsın diye",
+          "Zorunlu olduğu için"
+        ],
+        "en": [
+          "Because the default number of rounds is not enough for some data and produces a warning",
+          "To make the model more accurate",
+          "To make it run faster",
+          "Because it is required"
+        ]
+      },
+      "explanation": {
+        "tr": "Model çözümü aramak için döngü kuruyor; varsayılan 100 tur bazı veri kümelerinde yakınsamaya yetmiyor ve `ConvergenceWarning` çıkıyor.\n\nSayıyı büyütmek modeli \"daha doğru\" yapmıyor, aramanın tamamlanmasını sağlıyor.\n\nUyarı sürerse asıl çözüm genelde özellikleri ölçeklemek — 4. bölümün konusu.",
+        "en": "The model loops while searching for a solution; the default of 100 rounds is not enough to converge on some datasets and a `ConvergenceWarning` appears.\n\nRaising the number does not make the model \"more accurate\", it lets the search finish.\n\nIf the warning persists, the real fix is usually to scale the features — that is section 4."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "`precision_score`'a `zero_division=0` vermek ne işe yarıyor?",
+        "en": "What is `zero_division=0` for in `precision_score`?"
+      },
+      "options": {
+        "tr": [
+          "Sonucu sıfırlıyor",
+          "Sıfır değerlerini veriden atıyor",
+          "Hiç pozitif tahmin yokken paydanın sıfır olduğu durumu ele alıyor",
+          "Hesabı hızlandırıyor"
+        ],
+        "en": [
+          "It zeroes the result",
+          "It removes zero values from the data",
+          "It handles the case where no positive prediction was made and the denominator is zero",
+          "It speeds the computation up"
+        ]
+      },
+      "explanation": {
+        "tr": "Precision'ın paydası `TP + FP`; model hiç pozitif tahmin yapmamışsa bu sıfır oluyor.\n\nsklearn varsayılan olarak uyarı verip 0 döndürüyor; parametre bu davranışı açıkça belirtmeyi sağlıyor.\n\nEşik çok yükseltildiğinde tam olarak bu durum oluşuyor — eşik taraması yaparken sık karşılaşılıyor.",
+        "en": "Precision's denominator is `TP + FP`; if the model made no positive prediction at all, that is zero.\n\nsklearn warns and returns 0 by default; the parameter lets you state that behaviour explicitly.\n\nThis is exactly what happens when the threshold is pushed very high — a common situation when sweeping thresholds."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Bir sınıflandırma raporunda eşiği yazmak neden önemli?",
+        "en": "Why does writing down the threshold matter in a classification report?"
+      },
+      "options": {
+        "tr": [
+          "Aynı model farklı eşiklerde bambaşka sayılar ürettiği için",
+          "Kod okunabilirliği için",
+          "sklearn zorunlu tuttuğu için",
+          "Eğitim süresini etkilediği için"
+        ],
+        "en": [
+          "Because the same model produces entirely different numbers at different thresholds",
+          "For code readability",
+          "Because sklearn requires it",
+          "Because it affects the training time"
+        ]
+      },
+      "explanation": {
+        "tr": "Precision 0.818 ile 0.889 arasında, recall 1.0 ile 0.889 arasında geziniyor — yalnızca eşik değiştiği için.\n\nEşik yazılmamışsa sonuç tekrar edilemiyor ve iki rapor karşılaştırılamıyor.\n\nAynı sebeple `random_state` da yazılıyor: sonucu üreten her ayar rapora giriyor.",
+        "en": "Precision moves between 0.818 and 0.889 and recall between 1.0 and 0.889 — purely because the threshold changed.\n\nWithout it the result cannot be reproduced and two reports cannot be compared.\n\n`random_state` is written for the same reason: every setting that produced the result goes in the report."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "Specificity neyi ölçüyor?",
+        "en": "What does specificity measure?"
+      },
+      "options": {
+        "tr": [
+          "Gerçek pozitiflerin kaçını bulduğunu",
+          "Tahminlerin ne kadar temiz olduğunu",
+          "Genel doğruluğu",
+          "Gerçek negatiflerin kaçını doğru bıraktığını"
+        ],
+        "en": [
+          "How many of the real positives you found",
+          "How clean your predictions are",
+          "The overall accuracy",
+          "How many of the real negatives you correctly left alone"
+        ]
+      },
+      "explanation": {
+        "tr": "Specificity `TN / (TN + FP)`: negatif tarafın recall'ı.\n\nRecall pozitif sınıfa, specificity negatif sınıfa bakıyor. İkisi birlikte modelin iki taraftaki davranışını anlatıyor.\n\nROC eğrisi tam olarak bu ikisinin takasını çiziyor.",
+        "en": "Specificity is `TN / (TN + FP)`: recall for the negative side.\n\nRecall looks at the positive class, specificity at the negative one. Together they describe the model's behaviour on both sides.\n\nThe ROC curve plots exactly the trade-off between these two."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 2,
+      "text": {
+        "tr": "`fbeta_score(y_test, prediction, beta=2)` neyi öne çıkarıyor?",
+        "en": "What does `fbeta_score(y_test, prediction, beta=2)` favour?"
+      },
+      "options": {
+        "tr": [
+          "Precision'ı",
+          "Doğruluğu",
+          "Recall'ı",
+          "İkisini eşit ağırlıkta"
+        ],
+        "en": [
+          "Precision",
+          "Accuracy",
+          "Recall",
+          "Both equally"
+        ]
+      },
+      "explanation": {
+        "tr": "`beta > 1` recall'a, `beta < 1` precision'a ağırlık veriyor. `beta=1` F1'in kendisi — ikisi eşit.\n\nİki hatanın maliyeti gerçekten yakın değilse F1 yanıltıcı; `fbeta` o dengesizliği sayıya çevirmeyi sağlıyor.\n\nHastalık taramasında `beta=2`, otomatik onay sisteminde `beta=0.5` tipik seçimler.",
+        "en": "`beta > 1` weights recall, `beta < 1` weights precision. `beta=1` is F1 itself — the two equal.\n\nIf the two errors do not really cost about the same, F1 misleads; `fbeta` lets you put that imbalance into the number.\n\n`beta=2` for disease screening and `beta=0.5` for an automatic approval system are typical choices."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "Çok sınıflı bir problemde `macro` ve `weighted` ortalama arasındaki fark nedir?",
+        "en": "In a multiclass problem, what is the difference between the `macro` and `weighted` averages?"
+      },
+      "options": {
+        "tr": [
+          "`macro` her sınıfı eşit ağırlıkta sayar, `weighted` kayıt sayısına göre ağırlıklandırır",
+          "`macro` daha hızlıdır",
+          "`weighted` her zaman daha büyüktür",
+          "İkisi aynı sonucu verir"
+        ],
+        "en": [
+          "`macro` weighs every class equally while `weighted` weighs by record count",
+          "`macro` is faster",
+          "`weighted` is always larger",
+          "They give the same result"
+        ]
+      },
+      "explanation": {
+        "tr": "Dengesiz veride ikisi çok farklı çıkıyor: `weighted` büyük sınıfın başarısını, `macro` küçük sınıftaki başarısızlığı öne çıkarıyor.\n\nAzınlık sınıfı önemliyse `macro` daha dürüst bir resim veriyor.\n\nHangisinin kullanıldığı rapora yazılıyor; yazılmadığında iki sayı karşılaştırılamıyor.",
+        "en": "On imbalanced data the two come out very differently: `weighted` foregrounds the large class's success, `macro` the small class's failure.\n\nWhen the minority class matters, `macro` gives the more honest picture.\n\nWhich one was used goes in the report; without it two numbers cannot be compared."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 1,
+      "text": {
+        "tr": "Eşiği oynatarak hem precision hem recall artırılabilir mi?",
+        "en": "Can moving the threshold raise both precision and recall?"
+      },
+      "options": {
+        "tr": [
+          "Evet, doğru eşikle",
+          "Hayır; eşik bir takas, biri artarken öteki azalıyor",
+          "Evet, ama yalnızca dengeli veride",
+          "Yalnızca model yeniden eğitilirse"
+        ],
+        "en": [
+          "Yes, with the right threshold",
+          "No; the threshold is a trade — one rises as the other falls",
+          "Yes, but only on balanced data",
+          "Only if the model is retrained"
+        ]
+      },
+      "explanation": {
+        "tr": "Eşik yalnızca kararın verildiği noktayı kaydırıyor; modelin ayırt etme gücünü değiştirmiyor.\n\nİkisini birden artırmak için daha iyi bir model ya da daha iyi özellikler gerekiyor — yani modelin gerçekten daha iyi ayırt etmesi.\n\nEşik ayarı bedava bir iyileşme değil, bir tercihin ifadesi.",
+        "en": "The threshold only moves where the decision is made; it does not change the model's power to discriminate.\n\nRaising both requires a better model or better features — that is, the model genuinely separating the classes better.\n\nTuning the threshold is not free improvement but the expression of a preference."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 0,
+      "text": {
+        "tr": "`accuracy_score(prediction, y_test)` yazmak sınıflandırmada sorun çıkarır mı?",
+        "en": "Does writing `accuracy_score(prediction, y_test)` cause a problem in classification?"
+      },
+      "options": {
+        "tr": [
+          "Doğruluk için çıkarmaz ama alışkanlık yanlış; precision ve recall ters yazınca yer değiştiriyor",
+          "Her zaman hata verir",
+          "Sonucu her zaman sıfır yapar",
+          "Hiçbir yerde sorun değil"
+        ],
+        "en": [
+          "Not for accuracy, but the habit is wrong; precision and recall swap places when reversed",
+          "It always raises an error",
+          "It always makes the result zero",
+          "It is never a problem"
+        ]
+      },
+      "explanation": {
+        "tr": "Doğruluk simetrik: kaç tanesinin uyuştuğunu sayıyor, sıra önemli değil.\n\nAma precision ve recall simetrik değil. Ters yazınca biri ötekinin yerine geçiyor ve **hata alınmıyor**.\n\nKural her yerde aynı: önce gerçek, sonra tahmin.",
+        "en": "Accuracy is symmetric: it counts how many match, and the order does not matter.\n\nBut precision and recall are not symmetric. Reversed, one takes the other's place and **no error is raised**.\n\nThe rule is the same everywhere: actual first, then predicted."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 1,
+      "text": {
+        "tr": "Bir modelin `1` sınıfında recall'ı 0.96, `0` sınıfında 0.62. Bu ne anlatıyor?",
+        "en": "A model's recall is 0.96 on class `1` and 0.62 on class `0`. What does that tell you?"
+      },
+      "options": {
+        "tr": [
+          "Model kusursuz",
+          "Model `0` sınıfını bulmakta çok daha kötü",
+          "Veri sızıntısı var",
+          "Model aşırı öğrenmiş"
+        ],
+        "en": [
+          "The model is perfect",
+          "The model is far worse at finding class `0`",
+          "There is data leakage",
+          "The model has overfitted"
+        ]
+      },
+      "explanation": {
+        "tr": "Recall her sınıf için ayrı hesaplanıyor: `0` sınıfının recall'ı, gerçek 0'ların kaçını yakaladığını söylüyor.\n\n0.62, gerçek 0'ların üçte birinden fazlasını kaçırdığı anlamına geliyor.\n\nTek bir doğruluk sayısı (%85) bu dengesizliği tamamen gizliyordu — `classification_report`'un sınıf başına satır vermesinin sebebi bu.",
+        "en": "Recall is computed per class: class `0`'s recall says how many of the real 0s it caught.\n\n0.62 means it missed more than a third of them.\n\nA single accuracy figure (85%) hid that imbalance completely — which is why `classification_report` gives a row per class."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 1,
+      "text": {
+        "tr": "Gerçek bir projede \"recall en az %90 olsun\" kısıtını kim belirliyor?",
+        "en": "In a real project, who sets a constraint like \"recall must be at least 90%\"?"
+      },
+      "options": {
+        "tr": [
+          "Model kuran mühendis tek başına",
+          "İşi yapan taraf; alan bilgisiyle verilen bir karar",
+          "sklearn varsayılan olarak",
+          "Veri kümesinin boyutu"
+        ],
+        "en": [
+          "The engineer building the model, alone",
+          "The people doing the work; a decision made with domain knowledge",
+          "sklearn, by default",
+          "The size of the dataset"
+        ]
+      },
+      "explanation": {
+        "tr": "\"Geçecek öğrencilerin en fazla %10'unu kaçırabiliriz\" cümlesi teknik bir cümle değil; bir maliyet kararı.\n\nModeli kuran kişi bu sayıyı uyduramıyor — hangi hatanın ne kadara mal olduğunu bilen taraf söylüyor.\n\nKısıt belirlendikten sonrası mühendislik işi: o kısıt altında öteki ölçüyü en iyileyen eşiği bulmak.",
+        "en": "\"We can afford to miss at most 10% of the students who will pass\" is not a technical sentence; it is a cost decision.\n\nWhoever builds the model cannot invent that number — the people who know what each error costs state it.\n\nOnce the constraint is set, the rest is engineering: find the threshold that optimises the other measure under it."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 3,
+      "text": {
+        "tr": "Doğruluk hangi durumda tek başına güvenilir bir ölçü?",
+        "en": "When is accuracy a reliable measure on its own?"
+      },
+      "options": {
+        "tr": [
+          "Her zaman",
+          "Veri büyükken",
+          "Model doğrusalken",
+          "Sınıflar dengeliyken ve iki hata türü eşit maliyetliyken"
+        ],
+        "en": [
+          "Always",
+          "When the data is large",
+          "When the model is linear",
+          "When the classes are balanced and both kinds of error cost the same"
+        ]
+      },
+      "explanation": {
+        "tr": "İki koşul birden gerekiyor. Sınıflar dengesizse taban çizgi zaten yüksek çıkıyor; hataların maliyeti farklıysa tek sayı yanlış karara götürüyor.\n\nVerinin büyüklüğü ya da modelin türü bu konuda bir şey değiştirmiyor.\n\nKoşullardan biri bile sağlanmıyorsa precision, recall ve karışıklık matrisine geçiliyor.",
+        "en": "Both conditions are needed. If the classes are imbalanced the baseline is already high; if the errors cost differently, one number leads to the wrong decision.\n\nThe size of the data or the kind of model changes nothing here.\n\nIf even one condition fails, you move to precision, recall and the confusion matrix."
+      }
+    },
+    {
+      "id": "q31",
+      "answer": 2,
+      "text": {
+        "tr": "`DummyClassifier(strategy=\"most_frequent\")` ne işe yarıyor?",
+        "en": "What is `DummyClassifier(strategy=\"most_frequent\")` for?"
+      },
+      "options": {
+        "tr": [
+          "Eksik değerleri doldurmak",
+          "Veriyi dengelemek",
+          "Taban çizgiyi sklearn'in üç adımıyla kurmak",
+          "Modeli hızlandırmak"
+        ],
+        "en": [
+          "Filling missing values",
+          "Balancing the data",
+          "Building the baseline through sklearn's three steps",
+          "Speeding the model up"
+        ]
+      },
+      "explanation": {
+        "tr": "Taban çizgiyi elle de hesaplayabiliyorsun; `DummyClassifier` aynı işi `fit`/`predict` ile yapıyor.\n\nFaydası karşılaştırmanın tek biçim kalması: taban çizgi de bir model gibi ölçülüyor.\n\n`strategy` seçenekleri arasında `stratified`, `uniform` ve `constant` da var.",
+        "en": "You can compute the baseline by hand; `DummyClassifier` does the same job through `fit`/`predict`.\n\nThe benefit is that the comparison stays uniform: the baseline is measured like any other model.\n\nIts `strategy` options also include `stratified`, `uniform` and `constant`."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 0,
+      "text": {
+        "tr": "Bir yanlış negatif (FN) hastalık teşhisinde ne demek?",
+        "en": "In a disease diagnosis, what is a false negative (FN)?"
+      },
+      "options": {
+        "tr": [
+          "Hasta birine sağlıklı demek",
+          "Sağlıklı birine hasta demek",
+          "Hastayı doğru bulmak",
+          "Sağlıklıyı doğru bulmak"
+        ],
+        "en": [
+          "Telling an ill person they are healthy",
+          "Telling a healthy person they are ill",
+          "Correctly finding an ill patient",
+          "Correctly clearing a healthy person"
+        ]
+      },
+      "explanation": {
+        "tr": "FN: gerçek 1, tahmin 0 — gözden kaçan hasta. Recall'ın paydasında duran ve onu düşüren şey bu.\n\nSağlıklı birine hasta demek yanlış pozitif; precision'ı düşüren taraf.\n\nİkisi arasındaki maliyet farkı hangi ölçünün öncelikli olduğunu belirliyor.",
+        "en": "FN: actual 1, predicted 0 — a patient who slips through. It is what sits in recall's denominator and drags it down.\n\nTelling a healthy person they are ill is a false positive; that is the side that lowers precision.\n\nThe difference in cost between the two decides which measure takes priority."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 3,
+      "text": {
+        "tr": "Bir model hiç pozitif tahmin yapmıyor. Precision ve recall ne olur?",
+        "en": "A model makes no positive predictions at all. What happens to precision and recall?"
+      },
+      "options": {
+        "tr": [
+          "İkisi de 1.0",
+          "İkisi de 0.5",
+          "Precision 1.0, recall 1.0",
+          "Recall 0, precision tanımsız (paydası sıfır)"
+        ],
+        "en": [
+          "Both are 1.0",
+          "Both are 0.5",
+          "Precision 1.0, recall 1.0",
+          "Recall is 0 and precision is undefined (its denominator is zero)"
+        ]
+      },
+      "explanation": {
+        "tr": "Hiç pozitif tahmin yoksa `TP` ve `FP` sıfır: precision'ın paydası `TP + FP` = 0, yani tanımsız. sklearn uyarıp 0 döndürüyor.\n\nRecall'ın paydası `TP + FN` sıfır değil (gerçek pozitifler duruyor) ama payı sıfır: recall 0.\n\nEşik çok yükseltildiğinde tam olarak bu duruma geliniyor.",
+        "en": "With no positive predictions, `TP` and `FP` are zero: precision's denominator `TP + FP` is 0, so it is undefined. sklearn warns and returns 0.\n\nRecall's denominator `TP + FN` is not zero (the real positives are still there) but its numerator is: recall is 0.\n\nPushing the threshold very high leads to exactly this state."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 1,
+      "text": {
+        "tr": "Karışıklık matrisine bakmanın doğruluğa göre asıl üstünlüğü nedir?",
+        "en": "What is the real advantage of looking at the confusion matrix over accuracy?"
+      },
+      "options": {
+        "tr": [
+          "Daha hızlı hesaplanması",
+          "Modelin hangi yönde yanıldığını göstermesi",
+          "Daha büyük sayı vermesi",
+          "Eğitim verisinde de çalışması"
+        ],
+        "en": [
+          "It computes faster",
+          "It shows in which direction the model errs",
+          "It gives a larger number",
+          "It works on training data too"
+        ]
+      },
+      "explanation": {
+        "tr": "Doğruluk iki hata türünü tek sayıya karıştırıp aralarındaki farkı siliyor.\n\nMatris bu farkı geri veriyor: model \"1\" demeye mi eğilimli, \"0\" demeye mi; kaçırıyor mu, yanlış alarm mı veriyor.\n\nKarar bu yönden veriliyor — hangi hatanın pahalı olduğu probleme göre değişiyor.",
+        "en": "Accuracy blends the two kinds of error into one number and erases the difference between them.\n\nThe matrix gives that difference back: does the model lean towards \"1\" or \"0\"; does it miss, or does it cry wolf?\n\nThe decision is made from that direction — which error is expensive depends on the problem."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 3,
+      "text": {
+        "tr": "Sınıflandırmada takas eğrisi (precision ve recall'ın eşiğe göre değişimi) neyi gösteriyor?",
+        "en": "What does the trade-off curve (precision and recall against threshold) show?"
+      },
+      "options": {
+        "tr": [
+          "Modelin eğitim süresini",
+          "Hangi özelliğin önemli olduğunu",
+          "Verideki eksik değerleri",
+          "Eşik değiştikçe iki ölçünün ters yönde hareket ettiğini"
+        ],
+        "en": [
+          "The model's training time",
+          "Which feature is important",
+          "The missing values in the data",
+          "That as the threshold moves, the two measures go in opposite directions"
+        ]
+      },
+      "explanation": {
+        "tr": "Eğri, eşiğin her değeri için iki ölçüyü birden gösteriyor: biri yükselirken öteki düşüyor.\n\nKesiştikleri nokta dengenin olduğu yer, ama \"doğru\" eşik orası olmak zorunda değil — problem hangi hatayı pahalı buluyorsa eşik o tarafa kayıyor.\n\nBu eğri, eşik seçimini bir tahmin olmaktan çıkarıp bir karara çeviriyor.",
+        "en": "The curve shows both measures for every value of the threshold: as one rises the other falls.\n\nWhere they cross is the point of balance, but the \"right\" threshold need not be there — it moves towards whichever error the problem finds expensive.\n\nThe curve turns choosing a threshold from a guess into a decision."
+      }
+    }
+  ]
+}

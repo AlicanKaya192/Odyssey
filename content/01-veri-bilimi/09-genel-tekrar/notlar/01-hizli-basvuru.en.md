@@ -1,5 +1,3 @@
-# Quick Reference
-
 The whole module on one page. Assuming `import numpy as np`,
 `import pandas as pd` and a table called `data`.
 

@@ -1,5 +1,3 @@
-# DataFrame Traps
-
 ## 1. Chained assignment does nothing
 
 ```python

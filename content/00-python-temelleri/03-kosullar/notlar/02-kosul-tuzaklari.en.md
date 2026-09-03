@@ -1,5 +1,3 @@
-# Condition Traps
-
 The places beginners most often go wrong with conditions. All of them come
 from real mistakes; most of them **raise no error** and simply behave
 incorrectly — which is what makes them dangerous.

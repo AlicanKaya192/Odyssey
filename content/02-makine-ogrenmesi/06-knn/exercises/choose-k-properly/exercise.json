@@ -1,0 +1,40 @@
+{
+  "id": "choose-k-properly",
+  "title": {
+    "tr": "k'yı dürüstçe seç",
+    "en": "Choose k honestly"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "`StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` ve `cross_val_score` kullanılıyor; çapraz doğrulama **yalnızca eğitim** verisinde.",
+      "en": "Use `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` and `cross_val_score`; cross validation runs on the **training data only**."
+    },
+    {
+      "tr": "Her `k` için ortalamayı ve yayılımı saklıyorsun: `scores.mean()` ve `scores.std()`.",
+      "en": "Keep the mean and the spread for each `k`: `scores.mean()` and `scores.std()`."
+    },
+    {
+      "tr": "Gürültü eşiği: en iyi ortalamadan **onun kendi yayılımı** çıkarılıyor. O eşiğin üstünde kalan k'lardan **en büyüğü** seçiliyor.",
+      "en": "The noise threshold: subtract **its own spread** from the best mean. Among the k values above that threshold, take the **largest**."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nX_train_scaled = scaler.transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.model_selection import StratifiedKFold, cross_val_score\n\nskf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\n\nrecords = []\nfor k in (1, 3, 5, 7, 9, 15, 25):\n    scores = cross_val_score(KNeighborsClassifier(n_neighbors=k),\n                             X_train_scaled, y_train, cv=skf,\n                             scoring=\"accuracy\")\n    mean = float(scores.mean())\n    spread = float(scores.std())\n    records.append((k, mean, spread))\n    print(k, round(mean, 3), round(spread, 3))\n\nbest = max(records, key=lambda row: row[1])\nlimit = best[1] - best[2]\nrobust = max(k for k, mean, _ in records if mean >= limit)\n\nfor k in (best[0], robust):\n    model = KNeighborsClassifier(n_neighbors=k)\n    model.fit(X_train_scaled, y_train)\n    print(k, round(accuracy_score(y_test, model.predict(X_test_scaled)), 3))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nX_train_scaled = scaler.transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.model_selection import StratifiedKFold, cross_val_score\n\nskf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\n\nrecords = []\nfor k in (1, 3, 5, 7, 9, 15, 25):\n    scores = cross_val_score(KNeighborsClassifier(n_neighbors=k),\n                             X_train_scaled, y_train, cv=skf,\n                             scoring=\"accuracy\")\n    mean = float(scores.mean())\n    spread = float(scores.std())\n    records.append((k, mean, spread))\n    print(k, round(mean, 3), round(spread, 3))\n\nbest = max(records, key=lambda row: row[1])\nlimit = best[1] - best[2]\nrobust = max(k for k, mean, _ in records if mean >= limit)\n\nfor k in (best[0], robust):\n    model = KNeighborsClassifier(n_neighbors=k)\n    model.fit(X_train_scaled, y_train)\n    print(k, round(accuracy_score(y_test, model.predict(X_test_scaled)), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 0.913 0.04\n3 0.893 0.039\n5 0.9 0.052\n7 0.873 0.057\n9 0.88 0.062\n15 0.893 0.053\n25 0.88 0.054\n1 0.82\n25 0.92"
+    }
+  ]
+}

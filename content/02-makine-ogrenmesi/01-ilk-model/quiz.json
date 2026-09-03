@@ -1,0 +1,940 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "sklearn'de bir modelin üç adımı hangisidir?",
+        "en": "What are the three steps of a model in sklearn?"
+      },
+      "options": {
+        "tr": [
+          "oku, temizle, çiz",
+          "eğit, ölç, kaydet",
+          "kur, eğit (`fit`), tahmin et (`predict`)",
+          "ayır, ölçekle, eğit"
+        ],
+        "en": [
+          "read, clean, plot",
+          "train, measure, save",
+          "build, train (`fit`), predict (`predict`)",
+          "split, scale, train"
+        ]
+      },
+      "explanation": {
+        "tr": "Her sklearn modeli aynı üçü taşıyor: nesneyi kur, `fit` ile öğrensin, `predict` ile uygula.\n\nBu tasarım kasıtlı: doğrusal regresyondan karar ağacına geçmek genelde tek satır değiştirmek demek.\n\nÖlçekleme ve temizlik ayrı adımlar; onlar modelin değil hazırlığın parçası.",
+        "en": "Every sklearn model carries the same three: build the object, let it learn with `fit`, apply it with `predict`.\n\nThe design is deliberate: moving from linear regression to a decision tree usually means changing one line.\n\nScaling and cleaning are separate steps; they belong to preparation, not to the model."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 3,
+      "text": {
+        "tr": "`model.coef_` ve `model.intercept_` ne zaman var oluyor?",
+        "en": "When do `model.coef_` and `model.intercept_` come into existence?"
+      },
+      "options": {
+        "tr": [
+          "Model kurulduğu anda",
+          "`predict` çağrıldıktan sonra",
+          "Veri okunduğu anda",
+          "`fit` çağrıldıktan sonra"
+        ],
+        "en": [
+          "The moment the model is built",
+          "After `predict` is called",
+          "The moment the data is read",
+          "After `fit` is called"
+        ]
+      },
+      "explanation": {
+        "tr": "sklearn'de **alt çizgiyle biten** her isim, eğitimden sonra oluşan bir değer demek. Kural her modelde geçerli.\n\n`fit` çağrılmadan bakarsan `NotFittedError` alıyorsun — henüz öğrenilmiş bir şey yok.\n\nAynısı `predict` için de geçerli: eğitilmemiş bir model tahmin üretemiyor.",
+        "en": "In sklearn every name **ending in an underscore** is a value that comes into existence after training. The rule holds for every model.\n\nLook before `fit` is called and you get a `NotFittedError` — nothing has been learned yet.\n\nThe same applies to `predict`: an untrained model cannot produce predictions."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Doğrusal regresyonda `coef_` neyi söylüyor?",
+        "en": "In linear regression, what does `coef_` tell you?"
+      },
+      "options": {
+        "tr": [
+          "Özellik bir birim artınca hedefin ne kadar değiştiğini",
+          "Modelin doğruluk oranını",
+          "Kaç örnekle eğitildiğini",
+          "Tahminin ne kadar güvenilir olduğunu"
+        ],
+        "en": [
+          "How much the target changes when the feature goes up by one unit",
+          "The model's accuracy",
+          "How many samples it was trained on",
+          "How reliable the prediction is"
+        ]
+      },
+      "explanation": {
+        "tr": "`coef_` eğim: metrekare bir birim artınca fiyat 2.43 artıyorsa `coef_` 2.43.\n\n`intercept_` ise doğrunun nereden geçtiğini belirliyor — tek başına genelde anlamsız bir sayı (sıfır metrekarelik evin fiyatı).\n\nİkisi birlikte modelin öğrendiği kuralın tamamı: `hedef = coef_ x ozellik + intercept_`.",
+        "en": "`coef_` is the slope: if the price rises by 2.43 when the area goes up by one unit, `coef_` is 2.43.\n\n`intercept_` fixes where the line sits — usually a meaningless number on its own (the price of a zero square metre house).\n\nTogether they are the whole rule the model learned: `target = coef_ x feature + intercept_`."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 1,
+      "text": {
+        "tr": "`X = df[\"area\"]` yazıp `fit` çağırınca ne oluyor?",
+        "en": "What happens if you write `X = df[\"area\"]` and call `fit`?"
+      },
+      "options": {
+        "tr": [
+          "Model normal çalışıyor",
+          "`Expected 2D array, got 1D array` hatası alıyorsun",
+          "Model sessizce yanlış sonuç veriyor",
+          "Sütun otomatik tabloya çevriliyor"
+        ],
+        "en": [
+          "The model works normally",
+          "You get an `Expected 2D array, got 1D array` error",
+          "The model silently gives a wrong result",
+          "The column is converted to a table automatically"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek parantez bir **Series** veriyor: tek boyutlu. sklearn `X` için tablo bekliyor.\n\nDoğrusu çift parantez: `df[[\"area\"]]` bir **DataFrame**, tek sütunlu bir tablo.\n\n`y` için tek parantez doğru — hedef zaten tek sütun.",
+        "en": "Single brackets give a **Series**: one-dimensional. sklearn expects a table for `X`.\n\nThe fix is double brackets: `df[[\"area\"]]` is a **DataFrame**, a table with one column.\n\nSingle brackets are correct for `y` — the target is a single column anyway."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "Tek özellikle çalışırken bile `X`'in tablo olması neden gerekiyor?",
+        "en": "Why must `X` be a table even when you work with a single feature?"
+      },
+      "options": {
+        "tr": [
+          "pandas öyle istediği için",
+          "Bellek daha az kullanılsın diye",
+          "Modeller çok özellikle çalışacak şekilde yazıldığı için",
+          "Hız için"
+        ],
+        "en": [
+          "Because pandas requires it",
+          "To use less memory",
+          "Because the models are written to work with many features",
+          "For speed"
+        ]
+      },
+      "explanation": {
+        "tr": "sklearn'in arayüzü tek biçim: `X` her zaman satırların örnek, sütunların özellik olduğu bir tablo.\n\nTek özellik bu düzende **tek sütunlu bir tablo** oluyor; ayrı bir kural yok.\n\nAynı tekdüzelik sayesinde bir modelden ötekine geçerken kodun kalanı değişmiyor.",
+        "en": "sklearn's interface has one shape: `X` is always a table whose rows are samples and columns are features.\n\nA single feature is **a table with one column** in that scheme; there is no separate rule.\n\nThe same uniformity is why the rest of your code does not change when you move from one model to another."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 1,
+      "text": {
+        "tr": "`train_test_split` ne döndürüyor ve hangi sırayla?",
+        "en": "What does `train_test_split` return, and in what order?"
+      },
+      "options": {
+        "tr": [
+          "`X_train, y_train, X_test, y_test`",
+          "`X_train, X_test, y_train, y_test`",
+          "`train, test`",
+          "`X, y, X_test, y_test`"
+        ],
+        "en": [
+          "`X_train, y_train, X_test, y_test`",
+          "`X_train, X_test, y_train, y_test`",
+          "`train, test`",
+          "`X, y, X_test, y_test`"
+        ]
+      },
+      "explanation": {
+        "tr": "Dört parça, sabit sırayla: önce `X`'in iki parçası, sonra `y`'nin iki parçası.\n\nSırayı karıştırmak **hata vermiyor** — kod çalışıyor, model eğitim yerine test verisiyle eğitiliyor ve sonuç saçmalıyor. Bu yüzden en sinsi hatalardan biri.\n\nHızlı kontrol: `len(X_train)` `len(X_test)`'ten büyük olmalı.",
+        "en": "Four pieces in a fixed order: the two parts of `X` first, then the two parts of `y`.\n\nGetting it wrong raises **no error** — the code runs, the model trains on the test data instead, and the result is nonsense. That makes it one of the sneakier mistakes.\n\nA quick check: `len(X_train)` must be larger than `len(X_test)`."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 3,
+      "text": {
+        "tr": "`random_state=42` yazmazsan ne olur?",
+        "en": "What happens if you leave out `random_state=42`?"
+      },
+      "options": {
+        "tr": [
+          "Kod hata verir",
+          "Model daha kötü olur",
+          "Ayrım rastgele olmaz",
+          "Her çalıştırmada farklı bir ayrım ve farklı bir sonuç çıkar"
+        ],
+        "en": [
+          "The code raises an error",
+          "The model gets worse",
+          "The split stops being random",
+          "Every run gives a different split and a different result"
+        ]
+      },
+      "explanation": {
+        "tr": "Ayrım rastgele yapılıyor; sabitlenmezse her çalıştırmada başka satırlar teste düşüyor.\n\nSonuç: MAE her seferinde farklı çıkıyor ve iki modeli karşılaştırmak imkânsızlaşıyor — fark modelden mi geldi, ayrımdan mı belli olmuyor.\n\nSabitlemek modeli iyileştirmiyor, **karşılaştırmayı mümkün kılıyor**. 42 yaygın bir gelenek, sihirli bir sayı değil.",
+        "en": "The split is random; without fixing it, different rows land in the test set on every run.\n\nThe MAE comes out different each time and comparing two models becomes impossible — you cannot tell whether the difference came from the model or the split.\n\nFixing it does not improve the model, it **makes comparison possible**. 42 is a common convention, not a magic number."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 3,
+      "text": {
+        "tr": "`test_size=0.25` ne anlama geliyor?",
+        "en": "What does `test_size=0.25` mean?"
+      },
+      "options": {
+        "tr": [
+          "Verinin %25'i eğitime ayrılıyor",
+          "Test 25 kayıttan oluşuyor",
+          "Modelin başarısı %25 hedefleniyor",
+          "Verinin %25'i teste ayrılıyor"
+        ],
+        "en": [
+          "25% of the data is kept for training",
+          "The test set has 25 records",
+          "The model targets 25% performance",
+          "25% of the data is kept for testing"
+        ]
+      },
+      "explanation": {
+        "tr": "Oran **teste** ayrılan payı veriyor; geri kalanı eğitime gidiyor. 40 kayıtlık bir dosyada 30 eğitim, 10 test.\n\n0.2 ile 0.3 arası yaygın: azı ölçümü güvenilmez yapıyor, çoğu eğitecek veriyi azaltıyor.\n\nSayı vermek de mümkün (`test_size=10`), ama oran veri büyüklüğünden bağımsız çalıştığı için daha sık kullanılıyor.",
+        "en": "The ratio gives the share kept for **testing**; the rest goes to training. In a 40-record file that is 30 for training and 10 for testing.\n\nBetween 0.2 and 0.3 is common: less makes the measurement unreliable, more leaves too little to train on.\n\nYou can pass a count instead (`test_size=10`), but the ratio is used more often because it works regardless of the dataset's size."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 1,
+      "text": {
+        "tr": "Modelin başarısını `model.score(X_train, y_train)` ile ölçmek neden yanıltıcı?",
+        "en": "Why is measuring performance with `model.score(X_train, y_train)` misleading?"
+      },
+      "options": {
+        "tr": [
+          "Skor her zaman 1 çıkar",
+          "Model o veriyi gördü; skor öğrenmeyi değil ezberi ölçüyor",
+          "`score` yalnızca sınıflandırmada çalışır",
+          "Eğitim verisi çok küçüktür"
+        ],
+        "en": [
+          "The score always comes out 1",
+          "The model has seen that data; the score measures memorisation, not learning",
+          "`score` only works for classification",
+          "The training set is too small"
+        ]
+      },
+      "explanation": {
+        "tr": "Eğitim skoru \"gördüğünü ne kadar hatırlıyor\" sorusunun cevabı; asıl merak edilen soru \"görmediğinde ne yapıyor\".\n\nYine de tamamen değersiz değil: **iki skoru birlikte** görmek aşırı öğrenmeyi ortaya çıkarıyor (eğitim 0.99, test 0.62).\n\nRapora giren sayı test skoru.",
+        "en": "The training score answers \"how much of what it saw does it remember\"; the question that matters is \"what does it do with what it has not seen\".\n\nIt is not worthless though: seeing **both scores together** reveals overfitting (training 0.99, test 0.62).\n\nThe number that goes in the report is the test score."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 2,
+      "text": {
+        "tr": "`mean_absolute_error(y_test, prediction)` çağrısında argümanların sırası neden önemli?",
+        "en": "Why does the argument order matter in `mean_absolute_error(y_test, prediction)`?"
+      },
+      "options": {
+        "tr": [
+          "Ters yazılırsa hata alınıyor",
+          "İlk argüman her zaman tahmin olmalı",
+          "MAE'de fark yaratmıyor ama kural (gerçek, tahmin) ve R² gibi ölçüler ters sırada yanlış sonuç veriyor",
+          "Sıranın hiçbir yerde önemi yok"
+        ],
+        "en": [
+          "Reversing it raises an error",
+          "The first argument must always be the prediction",
+          "It makes no difference for MAE, but the rule is (actual, predicted) and measures like R² give a wrong answer when reversed",
+          "The order never matters anywhere"
+        ]
+      },
+      "explanation": {
+        "tr": "MAE simetrik olduğu için ters yazmayı affediyor; alışkanlığı yanlış kurdurup asıl hatayı başka yerde çıkarıyor.\n\n`r2_score(prediction, y_test)` affetmiyor: **hata vermeden** yanlış bir sayı üretiyor.\n\nsklearn'in her yerinde kural aynı: önce gerçek, sonra tahmin.",
+        "en": "MAE forgives the reversal because it is symmetric; it lets you build the wrong habit and the real damage shows up elsewhere.\n\n`r2_score(prediction, y_test)` does not forgive it: it produces a wrong number **without raising an error**.\n\nThe rule is the same everywhere in sklearn: actual first, then predicted."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 3,
+      "text": {
+        "tr": "Regresyonda `model.score(X_test, y_test)` hangi değeri döndürüyor?",
+        "en": "For regression, what does `model.score(X_test, y_test)` return?"
+      },
+      "options": {
+        "tr": [
+          "Doğruluk oranını (accuracy)",
+          "MAE'yi",
+          "Hata sayısını",
+          "R² değerini"
+        ],
+        "en": [
+          "Accuracy",
+          "The MAE",
+          "The number of errors",
+          "The R² value"
+        ]
+      },
+      "explanation": {
+        "tr": "Regresyon modellerinde `score` R² döndürüyor: 1'e yakın iyi, 0 taban çizgi kadar, **negatif taban çizgiden kötü**.\n\nSınıflandırma modellerinde aynı çağrı accuracy döndürüyor — `score`'un ne verdiği modelin türüne bağlı.\n\nBu yüzden rapora `score` yerine ölçünün adını yazmak daha açık: \"R² 0.94\", \"MAE 18.5\".",
+        "en": "For regression models `score` returns R²: close to 1 is good, 0 is as good as the baseline, **negative is worse than the baseline**.\n\nFor classification models the same call returns accuracy — what `score` gives depends on the kind of model.\n\nThat is why writing the measure's name in a report is clearer than writing `score`: \"R² 0.94\", \"MAE 18.5\"."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 1,
+      "text": {
+        "tr": "R² değerinin negatif çıkması ne demek?",
+        "en": "What does a negative R² mean?"
+      },
+      "options": {
+        "tr": [
+          "Hesaplama hatası var",
+          "Model, her şeye ortalamayı diyen taban çizgiden kötü",
+          "Model kusursuz",
+          "Veri negatif değerler içeriyor"
+        ],
+        "en": [
+          "There is a computation error",
+          "The model is worse than a baseline that predicts the mean for everything",
+          "The model is perfect",
+          "The data contains negative values"
+        ]
+      },
+      "explanation": {
+        "tr": "R²'nin 0 noktası taban çizgi: hiçbir şey öğrenmeden ortalamayı söylemek. Negatif değer, modelin bunun **altına** düştüğü anlamına geliyor.\n\nBir hata değil, bir sonuç — ve genelde modelin veriye uymadığını ya da bir şeyin ters gittiğini söylüyor.\n\nBöyle bir sayı gördüğünde model atılıyor, açıklanmıyor.",
+        "en": "R²'s zero point is the baseline: predicting the mean without learning anything. A negative value means the model fell **below** that.\n\nIt is not an error but a result — and usually says the model does not suit the data or something went wrong.\n\nWhen you see such a number the model gets discarded, not explained."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 3,
+      "text": {
+        "tr": "Taban çizgi ne zaman kurulmalı?",
+        "en": "When should the baseline be built?"
+      },
+      "options": {
+        "tr": [
+          "Modelden sonra",
+          "Rapor yazılırken",
+          "Hiç gerekmiyor",
+          "Modelden önce"
+        ],
+        "en": [
+          "After the model",
+          "While writing the report",
+          "It is not needed at all",
+          "Before the model"
+        ]
+      },
+      "explanation": {
+        "tr": "Teknik olarak sonra da hesaplanabilir; sorun teknik değil, insan doğasıyla ilgili.\n\nModelin sayısını gördükten sonra taban çizgi kurmak, beklentiyi sonuca göre ayarlamayı kolaylaştırıyor: \"olsa olsa bu kadar olur\" demek kolay oluyor.\n\nGeçilecek çizgi belliyken model kurmak, sonucu gördükten sonra çizgi çizmekten farklı bir iş.",
+        "en": "Technically it can be computed afterwards; the problem is not technical but human.\n\nBuilding the baseline after seeing the model's number makes it easy to adjust your expectation to the result: \"well, that is about as good as it gets\".\n\nBuilding a model with the line to beat already drawn is a different job from drawing the line after seeing the result."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 3,
+      "text": {
+        "tr": "Bir modelin MAE'si 18.5, taban çizginin MAE'si 82.29. Bu ne anlama geliyor?",
+        "en": "A model's MAE is 18.5 and the baseline's is 82.29. What does that mean?"
+      },
+      "options": {
+        "tr": [
+          "Model kusursuz çalışıyor",
+          "Model taban çizgiden kötü",
+          "İki sayı karşılaştırılamaz",
+          "Model hatayı yaklaşık %77 azaltmış, öğrendiği bir şey var"
+        ],
+        "en": [
+          "The model works perfectly",
+          "The model is worse than the baseline",
+          "The two numbers cannot be compared",
+          "The model cut the error by about 77%; it has learned something"
+        ]
+      },
+      "explanation": {
+        "tr": "18.5 tek başına bir şey söylemiyor; 82.29'un yanında çok şey söylüyor.\n\nKusursuz değil — hâlâ ortalama 18.5 birim yanılıyor. Ama hiçbir şey öğrenmeyen tahminin çok ötesinde.\n\nİki sayı **aynı test kümesinde ve aynı ölçüyle** hesaplandığı için karşılaştırılabiliyor. Farklı ayrımlardan gelen sayılar karşılaştırılmıyor.",
+        "en": "18.5 says nothing on its own; next to 82.29 it says a great deal.\n\nIt is not perfect — it is still off by 18.5 units on average. But it is far beyond a prediction that learns nothing.\n\nThe two numbers are comparable because they were computed **on the same test set with the same measure**. Numbers from different splits are not compared."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 2,
+      "text": {
+        "tr": "Bir modelde `LinearRegression` yerine `DecisionTreeRegressor` kullanmak istiyorsun. Ne kadar kod değişiyor?",
+        "en": "You want a `DecisionTreeRegressor` instead of `LinearRegression`. How much code changes?"
+      },
+      "options": {
+        "tr": [
+          "Bütün akış",
+          "Ölçüm kısmı da değişmeli",
+          "İçe aktarma ve modelin kurulduğu satır",
+          "Veri yeniden okunmalı"
+        ],
+        "en": [
+          "The whole flow",
+          "The measurement part changes too",
+          "The import and the line where the model is built",
+          "The data must be read again"
+        ]
+      },
+      "explanation": {
+        "tr": "Ayırma, `fit`, `predict` ve ölçüm aynı kalıyor — sklearn'in tekdüze arayüzü tam olarak bunun için var.\n\nBir uyarı: hazırlık adımları modele göre değişebiliyor. KNN mesafeye baktığı için ölçekleme istiyor, ağaç istemiyor.\n\nAma o hazırlık işi, modelin üç adımının dışında.",
+        "en": "Splitting, `fit`, `predict` and the measurement stay the same — sklearn's uniform interface exists for exactly this.\n\nOne caveat: preparation steps can differ by model. KNN works on distance so it wants scaling; a tree does not.\n\nBut that preparation sits outside the model's three steps."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 2,
+      "text": {
+        "tr": "Model `area` için 2.77, `age` için -3.35 katsayısı öğrendi. Doğru okuma hangisi?",
+        "en": "A model learned a coefficient of 2.77 for `area` and -3.35 for `age`. Which reading is correct?"
+      },
+      "options": {
+        "tr": [
+          "Yaş fiyat üzerinde daha etkili, çünkü 3.35 daha büyük",
+          "Yaş fiyatın düşmesine sebep oluyor",
+          "Metrekare arttıkça fiyat artıyor, yaşı büyük evlerin fiyatı düşük çıkıyor",
+          "İki özellik de aynı derecede önemli"
+        ],
+        "en": [
+          "Age has more effect on price because 3.35 is larger",
+          "Age causes the price to fall",
+          "As area rises the price rises, and older houses come out cheaper",
+          "The two features are equally important"
+        ]
+      },
+      "explanation": {
+        "tr": "Katsayının **işareti** yönü söylüyor; büyüklüğü tek başına önem sırası vermiyor.\n\nMetrekare 45-165 arasında, yaş 0-30 arasında geziniyor. Katsayı sütunun **birimine** bağlı olduğu için ikisi kıyaslanmıyor — kıyaslamak için önce ölçeklemek gerekiyor.\n\nSebep iddiası da modelden çıkmıyor: model birlikte değişimi görüyor, sebebi değil.",
+        "en": "The **sign** of a coefficient tells you the direction; its size alone does not rank importance.\n\nArea ranges from 45 to 165 and age from 0 to 30. Because a coefficient depends on its column's **unit**, the two are not comparable — comparing them requires scaling first.\n\nNor does a causal claim come out of a model: it sees things varying together, not why."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 1,
+      "text": {
+        "tr": "`model.predict(95)` yazınca ne oluyor?",
+        "en": "What happens when you write `model.predict(95)`?"
+      },
+      "options": {
+        "tr": [
+          "95 için tahmin döner",
+          "Hata alınır; girdi de tablo olmalı: `[[95]]`",
+          "Model yeniden eğitilir",
+          "Tahmin listesi döner"
+        ],
+        "en": [
+          "It returns the prediction for 95",
+          "You get an error; the input must be a table too: `[[95]]`",
+          "The model is retrained",
+          "It returns a list of predictions"
+        ]
+      },
+      "explanation": {
+        "tr": "`predict` de `fit` gibi tablo bekliyor: satırlar örnek, sütunlar özellik.\n\nTek bir tahmin isterken bile bu geçerli — tek satırlık, tek sütunlu bir tablo: `[[95]]`.\n\nDönen değer de bir dizi; tek sayıyı almak için `[0]` gerekiyor.",
+        "en": "`predict` expects a table just like `fit` does: rows are samples, columns are features.\n\nThat holds even for a single prediction — a table with one row and one column: `[[95]]`.\n\nThe return value is an array too; getting the single number out needs `[0]`."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Eğitim verisinde 90 ve 100 metrekarelik evler var ama 95 yok. Model 95 için nasıl tahmin üretebiliyor?",
+        "en": "The training data has 90 and 100 square metre houses but no 95. How can the model predict for 95?"
+      },
+      "options": {
+        "tr": [
+          "Veriden çıkardığı kuralı 95'e uyguluyor",
+          "En yakın kaydı kopyalıyor",
+          "Ortalama alıyor",
+          "Üretemiyor, hata veriyor"
+        ],
+        "en": [
+          "It applies the rule it derived from the data to 95",
+          "It copies the nearest record",
+          "It takes an average",
+          "It cannot; it raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Model tek tek kayıtları değil, onların arasındaki **kuralı** saklıyor: `fiyat = 2.43 x metrekare + 33.36`.\n\nKural bir formül olduğu için her girdiye uygulanabiliyor — 95 de dahil.\n\nEn yakın kaydı kopyalamak farklı bir yöntem: KNN. Aynı sonucu vermiyor ve ayrı bir bölümün konusu.",
+        "en": "The model does not store the individual records but the **rule** between them: `price = 2.43 x area + 33.36`.\n\nBecause the rule is a formula it can be applied to any input — 95 included.\n\nCopying the nearest record is a different method: KNN. It does not give the same answer and is its own section."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 2,
+      "text": {
+        "tr": "`ValueError: Input contains NaN` hatası ne anlama geliyor?",
+        "en": "What does `ValueError: Input contains NaN` mean?"
+      },
+      "options": {
+        "tr": [
+          "Veri çok büyük",
+          "Sütun adları yanlış",
+          "Veride eksik değerler var ve model onlarla çalışamıyor",
+          "Model eğitilmemiş"
+        ],
+        "en": [
+          "The data is too large",
+          "The column names are wrong",
+          "The data has missing values and the model cannot work with them",
+          "The model is not trained"
+        ]
+      },
+      "explanation": {
+        "tr": "sklearn eksik değerle çalışmıyor (birkaç ağaç tabanlı model dışında). Doldurmak ya da o satırları atmak gerekiyor.\n\nAma bu karar **ayırmadan sonra** verilmeli: bütün veriye bakıp ortalamayla doldurmak, test verisinin bilgisini eğitime sızdırıyor.\n\nÖnceki modülde öğrendiğin temizlik işi burada da yarısını oluşturuyor.",
+        "en": "sklearn does not work with missing values (apart from a few tree-based models). You have to fill them or drop those rows.\n\nBut that decision must come **after the split**: filling with a mean computed over all the data leaks test information into training.\n\nThe cleaning work you learned in the previous module is still half the job here."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 3,
+      "text": {
+        "tr": "Doğrusal regresyonun `fit` çağrısı aslında ne yapıyor?",
+        "en": "What is linear regression's `fit` call actually doing?"
+      },
+      "options": {
+        "tr": [
+          "Veriyi hafızaya alıyor",
+          "Veriyi ayırıyor",
+          "Grafiği çiziyor",
+          "Hatayı en aza indiren eğim ve kesişimi buluyor"
+        ],
+        "en": [
+          "Storing the data in memory",
+          "Splitting the data",
+          "Drawing the chart",
+          "Finding the slope and intercept that minimise the error"
+        ]
+      },
+      "explanation": {
+        "tr": "Önceki bölümde eşiği döngüyle arıyordun; `fit` de aynı işi yapıyor, yalnızca aradığı iki sayı ve arama doğrudan hesapla yapılıyor.\n\nVeriyi hafızaya almak farklı bir yaklaşım — KNN öyle çalışıyor ve bu yüzden \"tembel\" model deniyor.\n\nDoğrusal regresyon eğitimden sonra veriyi tutmuyor; elinde kalan iki sayı.",
+        "en": "In the previous section you searched for a threshold with a loop; `fit` does the same job, except it searches for two numbers and computes them directly.\n\nStoring the data is a different approach — that is how KNN works, which is why it is called a \"lazy\" model.\n\nLinear regression keeps no data after training; what it holds is two numbers."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "MAE ile R² arasındaki pratik fark nedir?",
+        "en": "What is the practical difference between MAE and R²?"
+      },
+      "options": {
+        "tr": [
+          "MAE hedefin biriminde konuşuyor, R² birimsiz bir oran",
+          "MAE yalnızca sınıflandırmada kullanılıyor",
+          "R² her zaman MAE'den büyüktür",
+          "İkisi aynı şeyi ölçüyor"
+        ],
+        "en": [
+          "MAE speaks in the target's unit while R² is a unitless ratio",
+          "MAE is only used for classification",
+          "R² is always larger than MAE",
+          "They measure the same thing"
+        ]
+      },
+      "explanation": {
+        "tr": "MAE anlaşılır: \"ortalama 18.5 bin lira yanılıyorum\". Ama farklı problemlerin MAE'leri karşılaştırılamıyor — birimleri farklı.\n\nR² birimsiz olduğu için karşılaştırılabiliyor, ama tek başına ne kadar yanıldığını söylemiyor.\n\nRapora ikisi birden yazılıyor: biri anlaşılır, öteki karşılaştırılabilir.",
+        "en": "MAE is understandable: \"I am off by 18.5 thousand on average\". But MAEs from different problems cannot be compared — the units differ.\n\nR² is unitless so it can be compared, but on its own it does not say how far off you are.\n\nReports carry both: one is understandable, the other comparable."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 3,
+      "text": {
+        "tr": "`train_test_split`'in varsayılan davranışında veri nasıl bölünüyor?",
+        "en": "How does `train_test_split` divide the data by default?"
+      },
+      "options": {
+        "tr": [
+          "Baştan keserek: ilk %75 eğitim, son %25 test",
+          "Sondan keserek",
+          "Sütuna göre sıralayarak",
+          "Rastgele karıştırarak"
+        ],
+        "en": [
+          "By cutting from the top: the first 75% training, the last 25% test",
+          "By cutting from the bottom",
+          "By sorting on a column",
+          "By shuffling at random"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan `shuffle=True`: satırlar karıştırılıp öyle bölünüyor.\n\nBunun sebebi var. Dosya metrekareye göre sıralıysa baştan kesmek eğitimi küçük evlere, testi büyüklere ayırırdı — model hiç görmediği bir aralıkta sınava girerdi.\n\nZaman serisinde ise durum tersine dönüyor: orada karıştırmak geleceği geçmişe sızdırıyor ve `shuffle=False` gerekiyor.",
+        "en": "The default is `shuffle=True`: the rows are shuffled and then divided.\n\nThere is a reason. If the file were sorted by area, cutting from the top would train on small houses and test on large ones — the model would sit an exam on a range it never saw.\n\nFor time series it is the other way round: shuffling there leaks the future into the past, and `shuffle=False` is needed."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 2,
+      "text": {
+        "tr": "`X` ve `y` farklı uzunlukta olursa ne oluyor?",
+        "en": "What happens if `X` and `y` have different lengths?"
+      },
+      "options": {
+        "tr": [
+          "Model kısa olanı kullanıyor",
+          "Eksik olanlar sıfırla dolduruluyor",
+          "`inconsistent numbers of samples` hatası alınıyor",
+          "Sorun çıkmıyor"
+        ],
+        "en": [
+          "The model uses the shorter one",
+          "The missing ones are filled with zeros",
+          "An `inconsistent numbers of samples` error is raised",
+          "Nothing goes wrong"
+        ]
+      },
+      "explanation": {
+        "tr": "Her örneğin bir doğru cevabı olmak zorunda; sayılar tutmuyorsa hangi cevabın hangi satıra ait olduğu belirsiz.\n\nsklearn bu durumu sessizce geçmiyor, hemen hata veriyor — iyi ki öyle.\n\nGenelde sebebi, `X` ve `y` alındıktan sonra birinde satır atmak ya da filtre uygulamak oluyor.",
+        "en": "Every sample must have one right answer; if the counts do not match, which answer belongs to which row is undefined.\n\nsklearn does not pass over this silently, it raises an error immediately — fortunately.\n\nThe usual cause is dropping rows or filtering one of them after `X` and `y` were taken."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Modeli iki özellikle eğitip tek özellikle tahmin istersen ne olur?",
+        "en": "What if you train a model on two features and then ask for a prediction with one?"
+      },
+      "options": {
+        "tr": [
+          "`X has 1 features, but ... expecting 2` hatası alınır",
+          "Model eksik özelliği tahmin eder",
+          "İlk özellik kullanılır",
+          "Model yeniden eğitilir"
+        ],
+        "en": [
+          "An `X has 1 features, but ... expecting 2` error is raised",
+          "The model guesses the missing feature",
+          "The first feature is used",
+          "The model is retrained"
+        ]
+      },
+      "explanation": {
+        "tr": "Model kaç özellikle eğitildiğini hatırlıyor (`n_features_in_`) ve tahmin isterken aynısını bekliyor.\n\nSütun **sırası** da önemli: eğitimde `[\"area\", \"age\"]` verip tahminde `[\"age\", \"area\"]` vermek hata değil ama yanlış sonuç doğuruyor.\n\nGüvenli alışkanlık: sütun listesini bir değişkende tutup iki yerde de onu kullanmak.",
+        "en": "The model remembers how many features it was trained on (`n_features_in_`) and expects the same at prediction time.\n\nColumn **order** matters too: passing `[\"area\", \"age\"]` in training and `[\"age\", \"area\"]` in prediction is not an error but gives a wrong result.\n\nThe safe habit: keep the column list in a variable and use it in both places."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 2,
+      "text": {
+        "tr": "İkinci bir özellik eklemek her zaman modeli iyileştirir mi?",
+        "en": "Does adding a second feature always improve the model?"
+      },
+      "options": {
+        "tr": [
+          "Evet, daha çok bilgi her zaman daha iyidir",
+          "Evet, ama yalnızca sayısal özelliklerde",
+          "Hayır; ilgisiz ya da gürültülü bir özellik sonucu kötüleştirebilir",
+          "Hayır, ikinci özellik hiçbir zaman yardımcı olmaz"
+        ],
+        "en": [
+          "Yes, more information is always better",
+          "Yes, but only for numeric features",
+          "No; an irrelevant or noisy feature can make the result worse",
+          "No, a second feature never helps"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu örnekte `age` eklemek hatayı 18.5'ten 7.13'e düşürdü çünkü fiyat gerçekten yaşa bağlıydı.\n\nAma hedefle ilgisi olmayan bir sütun modele gürültü katıyor; özellikle veri azken bu, ezberlemeyi kolaylaştırıyor.\n\nKarar ölçümle veriliyor: özelliği ekle, testte ölç, kıyasla. \"Daha çok sütun daha iyi\" bir kural değil.",
+        "en": "Here adding `age` brought the error down from 18.5 to 7.13 because the price really did depend on age.\n\nBut a column unrelated to the target adds noise; with little data it makes memorisation easier.\n\nThe decision is made by measurement: add the feature, measure on the test set, compare. \"More columns is better\" is not a rule."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "`model = LinearRegression().fit(X_train, y_train)` yazmak neden çalışıyor?",
+        "en": "Why does `model = LinearRegression().fit(X_train, y_train)` work?"
+      },
+      "options": {
+        "tr": [
+          "`fit` modelin kendisini döndürdüğü için",
+          "`fit` bir kopya döndürdüğü için",
+          "Python bunu otomatik düzelttiği için",
+          "Çalışmıyor, hata veriyor"
+        ],
+        "en": [
+          "Because `fit` returns the model itself",
+          "Because `fit` returns a copy",
+          "Because Python fixes it automatically",
+          "It does not work; it raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "sklearn'de `fit` eğitimi yapıp **aynı nesneyi** döndürüyor, bu yüzden zincirlenebiliyor.\n\nKopya döndürmüyor: `fit`'ten önceki ve sonraki `model` aynı nesne. Bu ayrım önemli, çünkü aynı modeli tekrar `fit` etmek eskisini siliyor.\n\nZincirleme kısalık sağlıyor ama zorunlu değil; iki satır yazmak da doğru.",
+        "en": "In sklearn `fit` does the training and returns **the same object**, so it can be chained.\n\nIt does not return a copy: `model` before and after `fit` is the same object. That distinction matters, because fitting the same model again wipes out the previous training.\n\nChaining is shorter but not required; writing two lines is equally correct."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 0,
+      "text": {
+        "tr": "Bu bölümdeki akışın doğru sırası hangisi?",
+        "en": "What is the correct order of the flow in this section?"
+      },
+      "options": {
+        "tr": [
+          "oku → ayır → taban çizgi → eğit → ölç",
+          "oku → eğit → ayır → ölç",
+          "ayır → oku → ölç → eğit",
+          "eğit → ayır → oku → ölç"
+        ],
+        "en": [
+          "read → split → baseline → train → measure",
+          "read → train → split → measure",
+          "split → read → measure → train",
+          "train → split → read → measure"
+        ]
+      },
+      "explanation": {
+        "tr": "Ayırmadan eğitmek, test verisini de eğitime katıyor ve ölçümü anlamsız kılıyor.\n\nTaban çizgi eğitimden önce kuruluyor ki geçilecek çizgi belli olsun.\n\nBu sıra bundan sonraki bütün bölümlerde aynı kalıyor; değişen yalnızca eğitim adımındaki model.",
+        "en": "Training before splitting pulls the test data into training and makes the measurement meaningless.\n\nThe baseline is built before training so the line to beat is known in advance.\n\nThis order stays the same for every section that follows; only the model in the training step changes."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 1,
+      "text": {
+        "tr": "`DummyRegressor(strategy=\"mean\")` ne işe yarıyor?",
+        "en": "What is `DummyRegressor(strategy=\"mean\")` for?"
+      },
+      "options": {
+        "tr": [
+          "Eksik değerleri dolduruyor",
+          "Taban çizgiyi bir model olarak kuruyor",
+          "Veriyi ölçekliyor",
+          "Modeli hızlandırıyor"
+        ],
+        "en": [
+          "Filling missing values",
+          "Building the baseline as a model",
+          "Scaling the data",
+          "Speeding the model up"
+        ]
+      },
+      "explanation": {
+        "tr": "Taban çizgiyi elle de hesaplayabiliyorsun; `DummyRegressor` aynı işi sklearn'in üç adımıyla yapıyor.\n\nFaydası, taban çizginin de bir model gibi davranması: aynı `fit`/`predict`/`score` çağrılarıyla ölçülüyor, karşılaştırma tek biçim kalıyor.\n\nSınıflandırma tarafındaki karşılığı `DummyClassifier`.",
+        "en": "You can compute the baseline by hand; `DummyRegressor` does the same job through sklearn's three steps.\n\nThe benefit is that the baseline behaves like a model: it is measured with the same `fit`/`predict`/`score` calls, so the comparison stays uniform.\n\nIts classification counterpart is `DummyClassifier`."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 0,
+      "text": {
+        "tr": "Doğrusal regresyon hangi durumda yetersiz kalıyor?",
+        "en": "When does linear regression fall short?"
+      },
+      "options": {
+        "tr": [
+          "Özellikle hedef arasındaki ilişki düz bir doğru değilse",
+          "Veri çok büyükse",
+          "Özellik sayısı ikiden fazlaysa",
+          "Hedef pozitif sayılardan oluşuyorsa"
+        ],
+        "en": [
+          "When the relationship between feature and target is not a straight line",
+          "When the data is very large",
+          "When there are more than two features",
+          "When the target consists of positive numbers"
+        ]
+      },
+      "explanation": {
+        "tr": "Model adı üstünde doğrusal: bir doğru (çok özellikte bir düzlem) çiziyor. İlişki eğriyse o eğriyi yakalayamıyor.\n\nÇok özellik sorun değil — doğrusal regresyon onlarca özellikle çalışabiliyor.\n\nEğri ilişkiler için karar ağaçları ve topluluk yöntemleri var; 7. ve 8. bölümün konusu.",
+        "en": "The name says it: linear regression draws a line (a plane with many features). If the relationship is curved, it cannot capture that curve.\n\nMany features are not a problem — linear regression works with dozens.\n\nFor curved relationships there are decision trees and ensemble methods; sections 7 and 8."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 1,
+      "text": {
+        "tr": "Aynı veriyle `random_state=42` yerine `random_state=7` yazsan ne olur?",
+        "en": "What changes if you write `random_state=7` instead of `random_state=42` on the same data?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbir şey değişmez",
+          "Ayrım değişir, MAE de biraz değişir",
+          "Model daha iyi olur",
+          "Hata alınır"
+        ],
+        "en": [
+          "Nothing changes",
+          "The split changes and so does the MAE, a little",
+          "The model gets better",
+          "An error is raised"
+        ]
+      },
+      "explanation": {
+        "tr": "Farklı sayı, farklı ayrım demek: teste başka satırlar düşüyor ve ölçüm biraz kayıyor.\n\nBu bir sorun değil, bir hatırlatma: **tek bir ayrımın sonucu kısmen şansa bağlı.**\n\nDaha güvenilir ölçüm için veriyi birden çok kez farklı biçimde ayırıp ortalamak gerekiyor — buna çapraz doğrulama deniyor.",
+        "en": "A different number means a different split: other rows land in the test set and the measurement shifts a little.\n\nThat is not a problem but a reminder: **the result of a single split is partly luck.**\n\nFor a more reliable measurement you split the data several different ways and average — that is called cross validation."
+      }
+    },
+    {
+      "id": "q31",
+      "answer": 3,
+      "text": {
+        "tr": "Modelin `intercept_` değeri -1.48 çıktı. Bu ne anlama geliyor?",
+        "en": "A model's `intercept_` came out as -1.48. What does that mean?"
+      },
+      "options": {
+        "tr": [
+          "Model hatalı çalışıyor",
+          "Fiyatlar negatif",
+          "Model eğitilmemiş",
+          "Doğrunun nereden geçtiğini belirleyen sayı; tek başına yorumlanmıyor"
+        ],
+        "en": [
+          "The model is faulty",
+          "The prices are negative",
+          "The model is not trained",
+          "It is the number that places the line; it is not interpreted on its own"
+        ]
+      },
+      "explanation": {
+        "tr": "Kesişim, özelliklerin hepsi sıfırken hedefin alacağı değer — burada sıfır metrekarelik bir evin fiyatı. Öyle bir ev yok.\n\nİşi anlamlı bir tahmin üretmek değil, doğruyu doğru yüksekliğe oturtmak. Negatif çıkması gayet olağan.\n\nYorumlanan şey `coef_`; `intercept_` genelde teknik bir ayrıntı olarak kalıyor.",
+        "en": "The intercept is the value the target takes when every feature is zero — here the price of a zero square metre house. No such house exists.\n\nIts job is not to produce a meaningful prediction but to place the line at the right height. Coming out negative is perfectly ordinary.\n\nWhat gets interpreted is `coef_`; `intercept_` usually stays a technical detail."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 0,
+      "text": {
+        "tr": "Bir grafikte test noktaları modelin doğrusunun etrafına dağılmış. Uzakta kalan noktalar ne anlatıyor?",
+        "en": "On a chart the test points are scattered around the model's line. What do the distant points tell you?"
+      },
+      "options": {
+        "tr": [
+          "Modelin o kayıtlarda yanıldığını; ölçünün sayıya çevirdiği şey bu dağılım",
+          "Veride hata var",
+          "Model eğitilmemiş",
+          "O noktalar aykırı değer, atılmalı"
+        ],
+        "en": [
+          "That the model missed those records; that spread is what the measure turns into a number",
+          "There is an error in the data",
+          "The model is not trained",
+          "Those points are outliers and should be dropped"
+        ]
+      },
+      "explanation": {
+        "tr": "MAE ve R² bu dağılımın özeti. Grafik özetin arkasını gösteriyor: **nerede** yanılıyor.\n\nUzak noktalar illa hata ya da aykırı değer değil; genelde modelin bilmediği bir şeyin izi. Bu örnekte fiyat yaşa da bağlıydı ve tek özellikli model yaşı görmüyordu.\n\nBir modelin nerede yanıldığı, ne kadar doğru olduğu kadar önemli.",
+        "en": "MAE and R² are a summary of that spread. The chart shows what is behind the summary: **where** it goes wrong.\n\nDistant points are not necessarily errors or outliers; usually they are the trace of something the model does not know. Here the price also depended on age, and the single-feature model could not see age.\n\nWhere a model is wrong matters as much as how often it is right."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 2,
+      "text": {
+        "tr": "`from sklearn import LinearRegression` yazınca ne oluyor?",
+        "en": "What happens if you write `from sklearn import LinearRegression`?"
+      },
+      "options": {
+        "tr": [
+          "Çalışır",
+          "Model kurulur ama eğitilemez",
+          "Hata alınır; sınıf `sklearn.linear_model` alt paketinde",
+          "Uyarı verir ama çalışır"
+        ],
+        "en": [
+          "It works",
+          "The model is built but cannot be trained",
+          "You get an error; the class lives in the `sklearn.linear_model` subpackage",
+          "It warns but works"
+        ]
+      },
+      "explanation": {
+        "tr": "sklearn tek parça değil: her şey kendi alt paketinde duruyor.\n\n`linear_model` doğrusal modelleri, `tree` ağaçları, `metrics` ölçüleri, `model_selection` ayırma araçlarını taşıyor.\n\nDoğru satır: `from sklearn.linear_model import LinearRegression`.",
+        "en": "sklearn is not one piece: everything lives in its own subpackage.\n\n`linear_model` holds the linear models, `tree` the trees, `metrics` the measures, `model_selection` the splitting tools.\n\nThe correct line is `from sklearn.linear_model import LinearRegression`."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 0,
+      "text": {
+        "tr": "Bir modelin test skoru 0.94, eğitim skoru 0.95. Bu ne gösteriyor?",
+        "en": "A model scores 0.94 on the test set and 0.95 on training. What does that show?"
+      },
+      "options": {
+        "tr": [
+          "İki skor birbirine yakın; ezber işareti yok",
+          "Aşırı öğrenme var",
+          "Model yetersiz öğrenmiş",
+          "Veri sızıntısı var"
+        ],
+        "en": [
+          "The two scores are close; there is no sign of memorisation",
+          "There is overfitting",
+          "The model is underfitting",
+          "There is data leakage"
+        ]
+      },
+      "explanation": {
+        "tr": "Aşırı öğrenmenin işareti iki skor arasındaki **uçurum** (0.99'a karşı 0.62 gibi). Burada fark ihmal edilebilir.\n\nYetersiz öğrenmede ikisi de düşük olurdu; 0.94 düşük değil.\n\nBu yüzden eğitim skoru tek başına anlamsız olsa da test skoruyla **birlikte** bilgi taşıyor.",
+        "en": "The sign of overfitting is a **gap** between the two scores (0.99 against 0.62, say). Here the difference is negligible.\n\nUnderfitting would leave both low; 0.94 is not low.\n\nSo although the training score means nothing on its own, it carries information **alongside** the test score."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 1,
+      "text": {
+        "tr": "Aynı `model` nesnesine ikinci kez `fit` çağırırsan ne olur?",
+        "en": "What happens if you call `fit` a second time on the same `model` object?"
+      },
+      "options": {
+        "tr": [
+          "İki eğitim birleşir",
+          "Önceki eğitim silinir, model baştan öğrenir",
+          "Hata alınır",
+          "İkinci çağrı yok sayılır"
+        ],
+        "en": [
+          "The two trainings are combined",
+          "The previous training is wiped and the model learns from scratch",
+          "An error is raised",
+          "The second call is ignored"
+        ]
+      },
+      "explanation": {
+        "tr": "sklearn'de `fit` bir sıfırlama: model o çağrıdaki veriyle baştan öğreniyor, eskisini hatırlamıyor.\n\nBu yüzden \"veriyi parça parça verip modeli biriktirmek\" bu yolla olmuyor. Onu destekleyen modellerde ayrı bir çağrı var: `partial_fit`.\n\nPratikte sık karşılaşılan sonucu şu: döngü içinde `fit` çağırınca elinde yalnızca **son** eğitim kalıyor.",
+        "en": "In sklearn `fit` is a reset: the model learns from scratch with the data of that call and remembers nothing of the previous one.\n\nSo \"feeding the data in pieces to accumulate training\" does not work this way. Models that support it have a separate call: `partial_fit`.\n\nA common practical consequence: calling `fit` inside a loop leaves you with only the **last** training."
+      }
+    },
+    {
+      "id": "q36",
+      "answer": 1,
+      "text": {
+        "tr": "Bir raporda \"modelin MAE'si 18.5\" yazıyor. Eksik olan nedir?",
+        "en": "A report says \"the model's MAE is 18.5\". What is missing?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbir şey eksik değil",
+          "Hangi veride ölçüldüğü ve taban çizginin ne olduğu",
+          "Modelin eğitim süresi",
+          "Kullanılan kütüphanenin sürümü"
+        ],
+        "en": [
+          "Nothing is missing",
+          "What data it was measured on and what the baseline was",
+          "The model's training time",
+          "The version of the library used"
+        ]
+      },
+      "explanation": {
+        "tr": "18.5 tek başına iyi mi kötü mü söylemiyor. Taban çizgi 82.29 ise büyük başarı, 20 ise neredeyse hiçbir şey.\n\nÖlçümün **test kümesinde** yapıldığı da yazılmalı; eğitimde ölçülmüş bir sayı bambaşka bir şey anlatıyor.\n\nBir modelin nerede yanıldığı da rapora giriyor. Sürüm ve süre teknik ayrıntı, sonucun anlamını değiştirmiyor.",
+        "en": "18.5 on its own says nothing about good or bad. If the baseline is 82.29 it is a large success; if it is 20, almost nothing.\n\nThe report must also say the measurement was made **on the test set**; a number measured on training data means something entirely different.\n\nWhere the model goes wrong belongs in the report too. Versions and timings are technical details that do not change the meaning of the result."
+      }
+    }
+  ]
+}

@@ -1,5 +1,3 @@
-# Temizlik Tuzakları
-
 ## 1. `dropna()` düşündüğünden çok satır atıyor
 
 ```python

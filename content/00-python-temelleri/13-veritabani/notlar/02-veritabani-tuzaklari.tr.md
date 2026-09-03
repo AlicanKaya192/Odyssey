@@ -1,5 +1,3 @@
-# Veritabanı Tuzakları
-
 Veritabanı hataları iki gruba ayrılıyor: hemen hata verenler ve sessizce veri
 kaybettirenler. İkinci grup daha tehlikeli.
 

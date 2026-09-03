@@ -1,5 +1,3 @@
-# Reading Long Annotations
-
 Real code contains lines like this:
 
 ```python

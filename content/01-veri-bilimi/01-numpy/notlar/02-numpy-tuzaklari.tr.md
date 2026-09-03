@@ -1,5 +1,3 @@
-# NumPy Tuzakları
-
 NumPy'ın çoğu hatası **hata vermiyor.** Program çalışıyor, sana bir sayı
 veriyor ve o sayı yanlış oluyor. Aşağıdakiler en sık düşülenler.
 

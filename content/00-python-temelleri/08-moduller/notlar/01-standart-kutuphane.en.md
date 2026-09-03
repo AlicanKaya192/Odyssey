@@ -1,5 +1,3 @@
-# Commonly Used Parts of the Standard Library
-
 This note is a reference; you do not have to read it end to end. Come back
 when you are working on an exercise and think "wasn't there something ready
 made for this?".

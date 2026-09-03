@@ -1,5 +1,3 @@
-# Where to Go From Here
-
 Python Fundamentals is finished. This note answers the question "what now?"
 
 ## An honest assessment first

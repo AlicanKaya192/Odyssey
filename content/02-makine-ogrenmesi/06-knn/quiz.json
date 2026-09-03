@@ -1,0 +1,914 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "KNN'de `fit` çağrısı ne yapıyor?",
+        "en": "What does the `fit` call do in KNN?"
+      },
+      "options": {
+        "tr": [
+          "Eğitim verisini saklıyor",
+          "Kuralı veriden çıkarıyor",
+          "Uzaklıkları hesaplıyor",
+          "Katsayıları hesaplıyor"
+        ],
+        "en": [
+          "Stores the training data",
+          "Derives the rule from the data",
+          "Computes the distances",
+          "Computes the coefficients"
+        ]
+      },
+      "explanation": {
+        "tr": "KNN hiçbir şey öğrenmiyor: `fit` yalnızca veriyi hafızaya alıyor ve anında bitiyor.\n\nAsıl iş `predict`'te: yeni nokta için her eğitim satırına uzaklık hesaplanıyor.\n\nBu yüzden KNN'e **tembel** model deniyor; maliyet eğitimden tahmin anına kayıyor.",
+        "en": "KNN learns nothing: `fit` merely takes the data into memory and finishes instantly.\n\nThe real work happens in `predict`: a distance to every training row is computed for the new point.\n\nThis is why KNN is called a **lazy** model; the cost moves from training to prediction time."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 1,
+      "text": {
+        "tr": "KNN'in maliyet dağılımı öteki modellerden nasıl ayrılıyor?",
+        "en": "How does KNN's cost profile differ from other models?"
+      },
+      "options": {
+        "tr": [
+          "Eğitim pahalı, tahmin ucuz",
+          "Eğitim ucuz, tahmin pahalı",
+          "İkisi de ucuz",
+          "İkisi de pahalı"
+        ],
+        "en": [
+          "Training expensive, prediction cheap",
+          "Training cheap, prediction expensive",
+          "Both cheap",
+          "Both expensive"
+        ]
+      },
+      "explanation": {
+        "tr": "Doğrusal regresyon eğitimde hesap yapıp iki sayı saklıyor; tahmin tek bir çarpma-toplama.\n\nKNN eğitimde hiçbir şey yapmıyor ama her tahminde bütün eğitim verisine bakıyor. Bir milyon satırda her tahmin bir milyon uzaklık hesabı demek.\n\n`algorithm=\"kd_tree\"` bunu hızlandırıyor ama özellik sayısı arttıkça o da etkisini kaybediyor.",
+        "en": "Linear regression does the computation during training and stores two numbers; a prediction is one multiply-add.\n\nKNN does nothing during training but consults the whole training set on every prediction. On a million rows, each prediction means a million distance computations.\n\n`algorithm=\"kd_tree\"` speeds this up, but it too loses its effect as the number of features grows."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "KNN sınıflandırmada tahmini nasıl üretiyor?",
+        "en": "How does KNN produce a prediction for classification?"
+      },
+      "options": {
+        "tr": [
+          "En yakın k komşu arasında oy çokluğuyla",
+          "En yakın k komşunun ortalamasını alarak",
+          "Bütün veriye bakarak",
+          "Rastgele seçerek"
+        ],
+        "en": [
+          "By a majority vote among the nearest k neighbours",
+          "By averaging the nearest k neighbours",
+          "By looking at all the data",
+          "By choosing at random"
+        ]
+      },
+      "explanation": {
+        "tr": "Sınıflandırmada oy çokluğu, regresyonda ortalama. Aynı fikir, iki farklı birleştirme.\n\nBütün veriye bakılıyor ama yalnızca **uzaklıkları hesaplamak** için; karara giren en yakın `k` tanesi.\n\nOylar eşit kalmasın diye ikili sınıflandırmada `k` tek sayı seçiliyor.",
+        "en": "A majority vote for classification, the mean for regression. The same idea, two ways of combining.\n\nAll the data is consulted, but only to **compute distances**; only the nearest `k` enter the decision.\n\nAn odd `k` is chosen for binary classification so the votes cannot tie."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 2,
+      "text": {
+        "tr": "Aynı nokta için `k=1` A, `k=3` B cevabını veriyor. Bu ne gösteriyor?",
+        "en": "For the same point `k=1` says A and `k=3` says B. What does that show?"
+      },
+      "options": {
+        "tr": [
+          "Modelde bir hata var",
+          "Veri bozuk",
+          "`k` küçük bir ayrıntı değil, modelin kendisi",
+          "Ölçekleme yapılmamış"
+        ],
+        "en": [
+          "There is a bug in the model",
+          "The data is corrupted",
+          "`k` is not a small detail; it is the model itself",
+          "The scaling was skipped"
+        ]
+      },
+      "explanation": {
+        "tr": "En yakın komşu A etiketli olabilir ama sonraki iki komşu B ise, üçe bakıldığında sonuç değişiyor.\n\nBu bir hata değil, `k`'nın tanımı gereği. Her `k` farklı bir model demek.\n\nBu yüzden `k` bir hiperparametre ve dikkatle seçilmesi gerekiyor — göz kararıyla değil, çapraz doğrulamayla.",
+        "en": "The nearest neighbour may be labelled A, but if the next two are B, looking at three changes the result.\n\nThat is not a bug but what `k` means. Every `k` is a different model.\n\nWhich is why `k` is a hyperparameter and has to be chosen carefully — with cross validation, not by eye."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 3,
+      "text": {
+        "tr": "KNN'de ölçekleme neden zorunlu?",
+        "en": "Why is scaling compulsory for KNN?"
+      },
+      "options": {
+        "tr": [
+          "Hesap hızlansın diye",
+          "Eksik değerler için",
+          "sklearn zorunlu tuttuğu için",
+          "Uzaklık hesabını büyük aralıklı sütun tek başına belirlemesin diye"
+        ],
+        "en": [
+          "To speed up the computation",
+          "For missing values",
+          "Because sklearn requires it",
+          "So a wide-range column does not decide the distance on its own"
+        ]
+      },
+      "explanation": {
+        "tr": "Geliri 12.000-200.000 arasında olan bir sütunun yanında 1-50 arasındaki ziyaret sayısı, kareler toplandığında görünmüyor bile.\n\nÖlçeklemesiz KNN aslında yalnızca en büyük aralıklı sütuna bakıyor; ötekiler modele verilmiş ama kullanılmıyor.\n\nÖlçülen sonuç: doğruluk 0.64'ten 0.92'ye çıkıyor.",
+        "en": "Next to a column running 12,000-200,000, a visit count of 1-50 does not even show up once the squares are summed.\n\nUnscaled, KNN really only looks at the widest-range column; the others were handed to the model and go unused.\n\nThe measured result: accuracy rises from 0.64 to 0.92."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Ölçeklenmemiş KNN doğruluğu 0.64, taban çizgi 0.70 çıktı. Bu ne anlama geliyor?",
+        "en": "An unscaled KNN scores 0.64 while the baseline is 0.70. What does that mean?"
+      },
+      "options": {
+        "tr": [
+          "Model, hiçbir şey öğrenmeyen bir satırdan daha kötü",
+          "Model iyi çalışıyor",
+          "Taban çizgi yanlış hesaplanmış",
+          "KNN bu veriye uygun değil"
+        ],
+        "en": [
+          "The model is worse than a line that learns nothing",
+          "The model works well",
+          "The baseline was computed wrongly",
+          "KNN does not suit this data"
+        ]
+      },
+      "explanation": {
+        "tr": "Taban çizgi \"herkese en sık sınıfı de\" diyen tek satırlık kural. Model onun altında kalıyorsa kurmamış olmak daha iyi.\n\nSuçlu KNN değil, ölçeklemenin atlanması: aynı model ölçeklendiğinde 0.92 veriyor.\n\nBu, taban çizgi kurmanın neden zorunlu olduğunu gösteriyor — onsuz 0.64'ün kötü olduğunu fark edemezdin.",
+        "en": "The baseline is a one-line rule saying \"tell everyone the most frequent class\". If the model falls below it, not building one is better.\n\nThe culprit is not KNN but the skipped scaling: the same model gives 0.92 once scaled.\n\nThis shows why building a baseline is compulsory — without it you could not notice that 0.64 is bad."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 1,
+      "text": {
+        "tr": "`k=1` seçildiğinde eğitim doğruluğu neden 1.000 çıkıyor?",
+        "en": "Why does the training accuracy come out as 1.000 when `k=1`?"
+      },
+      "options": {
+        "tr": [
+          "Model çok iyi",
+          "Her eğitim noktasının kendine en yakın komşusu kendisidir",
+          "Ölçekleme yüzünden",
+          "Veri çok küçük"
+        ],
+        "en": [
+          "The model is very good",
+          "Every training point's own nearest neighbour is itself",
+          "Because of the scaling",
+          "The data is too small"
+        ]
+      },
+      "explanation": {
+        "tr": "Uzaklık sıfır; model o noktanın etiketini kendisinden okuyor ve hiç yanılmıyor.\n\nBu bir başarı değil, `k=1`'in tanımı gereği. Testte 0.82'ye düşüyor.\n\nBölüm 05'in aşırı öğrenme tablosunun ders kitabı örneği: eğitim kusursuz, test zayıf.",
+        "en": "The distance is zero; the model reads that point's label off itself and never errs.\n\nThat is not an achievement but what `k=1` means. On test it drops to 0.82.\n\nA textbook example of section 05's overfitting table: perfect on training, weak on test."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 1,
+      "text": {
+        "tr": "`k` çok büyük seçilirse ne olur?",
+        "en": "What happens if `k` is chosen too large?"
+      },
+      "options": {
+        "tr": [
+          "Model ezberler",
+          "Sınırlar bulanıklaşır; k veri sayısına eşitse model taban çizgiye döner",
+          "Hesap hızlanır",
+          "Ölçekleme gereksizleşir"
+        ],
+        "en": [
+          "The model memorises",
+          "The boundaries blur; at k equal to the record count it becomes the baseline",
+          "The computation speeds up",
+          "Scaling becomes unnecessary"
+        ]
+      },
+      "explanation": {
+        "tr": "`k` bütün veri sayısına eşit olsaydı her tahmin bütün etiketlerin oyu olurdu — yani her şeye en sık sınıf.\n\nEzberleme küçük `k`'nın sorunu; `k=1` eğitim verisini kusursuz biliyor.\n\nBüyük `k` küçük grupları da siliyor: azınlıkta kalan gerçek bir örüntü çoğunluk içinde eriyor.",
+        "en": "If `k` equalled the number of records, every prediction would be a vote of all the labels — the most frequent class for everything.\n\nMemorising is small `k`'s problem; `k=1` knows the training data perfectly.\n\nA large `k` also erases small groups: a real pattern in the minority dissolves into the majority."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 2,
+      "text": {
+        "tr": "İkili sınıflandırmada `k` neden tek sayı seçiliyor?",
+        "en": "Why is an odd `k` chosen for binary classification?"
+      },
+      "options": {
+        "tr": [
+          "Daha hızlı olduğu için",
+          "Bellek için",
+          "Oylar eşit kalmasın diye",
+          "sklearn öyle istediği için"
+        ],
+        "en": [
+          "Because it is faster",
+          "For memory",
+          "So that the votes cannot tie",
+          "Because sklearn wants it"
+        ]
+      },
+      "explanation": {
+        "tr": "`k=2` ve komşulardan biri A biri B ise oylar 1-1 kalıyor; kararı bir kural belirlemek zorunda oluyor.\n\nTek sayıda bu durum oluşmuyor.\n\nÜçten fazla sınıf varsa tek sayı da yetmiyor; orada eşitlik ihtimali yine var ve sklearn kendi kuralıyla çözüyor.",
+        "en": "With `k=2` and one neighbour A and one B, the votes stand at 1-1 and some rule has to break the tie.\n\nWith an odd number that cannot happen.\n\nWith more than two classes an odd number is not enough either; a tie is still possible and sklearn resolves it with its own rule."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 3,
+      "text": {
+        "tr": "Çapraz doğrulamada `k=1` en yüksek ortalamayı verdi (0.913) ama yayılım 0.040 ve bütün k'lar bu aralıkta. Ne yapılmalı?",
+        "en": "In cross validation `k=1` gave the highest mean (0.913) but the spread is 0.040 and every k sits inside it. What should you do?"
+      },
+      "options": {
+        "tr": [
+          "`k=1`'i seçmek; en yüksek ortalama o",
+          "Çapraz doğrulamayı tekrar yapmak",
+          "Test kümesine bakıp seçmek",
+          "Fark gürültünün içinde olduğu için daha sağlam (büyük) bir k seçmek"
+        ],
+        "en": [
+          "Choose `k=1`; it has the highest mean",
+          "Run the cross validation again",
+          "Look at the test set and choose",
+          "Choose a more robust (larger) k, since the difference sits inside the noise"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölüm 05'in kuralı: farkın yayılımdan büyük olması gerekiyor. Burada değil.\n\nAyırt edilemiyorsa seçim başka bir ölçütle yapılıyor ve KNN'de o ölçüt belli: büyük `k` daha sağlam, çünkü tek bir komşuya bağlı değil.\n\nÖlçüldü: `k=1` testte 0.820, `k=25` testte 0.920. Naif seçim on puan kaybettiriyor.",
+        "en": "Section 05's rule: the difference has to exceed the spread. Here it does not.\n\nWhen they cannot be separated, the choice is made on another ground, and for KNN that ground is clear: a larger `k` is more robust because it does not hang on a single neighbour.\n\nMeasured: `k=1` gives 0.820 on test and `k=25` gives 0.920. The naive choice costs ten points."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 2,
+      "text": {
+        "tr": "Yukarıdaki durumda çapraz doğrulama işe yaramadı mı?",
+        "en": "In that situation, did cross validation fail?"
+      },
+      "options": {
+        "tr": [
+          "Evet, yanlış k'yı seçti",
+          "Evet, tekrar yapılmalıydı",
+          "Hayır; yayılımı verdiği için farkın anlamsız olduğunu görebildik",
+          "Fark etmez"
+        ],
+        "en": [
+          "Yes, it picked the wrong k",
+          "Yes, it should have been repeated",
+          "No; because it gave the spread we could see the difference was meaningless",
+          "It makes no difference"
+        ]
+      },
+      "explanation": {
+        "tr": "Çapraz doğrulama bir seçim yapmıyor, iki sayı veriyor: ortalama ve yayılım.\n\nYalnızca ortalamaya bakan biri `k=1`'i seçer ve neden kaybettiğini anlamaz. Yayılıma bakan biri \"bu fark anlamsız\" diyebiliyor.\n\nAraç doğru çalıştı; yanlış olan onu eksik okumak olurdu.",
+        "en": "Cross validation does not make a choice, it gives two numbers: a mean and a spread.\n\nSomeone looking only at the mean picks `k=1` and never learns why they lost. Someone looking at the spread can say \"this difference is meaningless\".\n\nThe tool worked; reading it incompletely would have been the mistake."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 3,
+      "text": {
+        "tr": "`k=1` ve `k=15` aynı test doğruluğunu (0.90) veriyor. Bu iki model aynı mı?",
+        "en": "`k=1` and `k=15` give the same test accuracy (0.90). Are the two models the same?"
+      },
+      "options": {
+        "tr": [
+          "Evet, aynı sayı aynı model demek",
+          "Evet, k yalnızca hızı etkiliyor",
+          "Ölçüm yanlış olmalı",
+          "Hayır; karar sınırları bambaşka"
+        ],
+        "en": [
+          "Yes, the same number means the same model",
+          "Yes, k only affects speed",
+          "The measurement must be wrong",
+          "No; their decision boundaries are entirely different"
+        ]
+      },
+      "explanation": {
+        "tr": "`k=1`'in sınırı parçalı: tek tek noktaların etrafında adacıklar var, model gürültüyü ezberlemiş.\n\n`k=15`'in sınırı tek bir düzgün eğri: aykırı kayıtlar çoğunluk içinde erimiş.\n\nYeni veri geldiğinde ikisi çok farklı davranacak. Tek bir sayı modeli anlatmıyor — bir modelin **nasıl** karar verdiği, ne kadar doğru olduğu kadar önemli.",
+        "en": "`k=1`'s boundary is fragmented: little islands around individual points, the model memorised the noise.\n\n`k=15`'s boundary is a single smooth curve: odd records dissolved into the majority.\n\nOn new data the two will behave very differently. One number does not describe a model — **how** a model decides matters as much as how often it is right."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Boyut laneti (curse of dimensionality) ne demek?",
+        "en": "What is the curse of dimensionality?"
+      },
+      "options": {
+        "tr": [
+          "Özellik sayısı arttıkça noktalar birbirinden neredeyse eşit uzaklıkta olur",
+          "Çok veri hesap süresini artırır",
+          "Çok sütun belleği doldurur",
+          "Ölçekleme imkânsız hâle gelir"
+        ],
+        "en": [
+          "As the number of features grows, points end up almost equally far from one another",
+          "Lots of data makes the computation slow",
+          "Many columns fill the memory",
+          "Scaling becomes impossible"
+        ]
+      },
+      "explanation": {
+        "tr": "Her yeni özellik uzaklığa bir terim daha ekliyor; terim sayısı arttıkça toplamlar birbirine benziyor.\n\nEn yakın komşuyla en uzak komşu arasındaki fark eriyor ve \"en yakın\" seçimi rastgeleye dönüşüyor.\n\nKNN bundan doğrudan etkileniyor: üç beş özellikte çok iyi çalışan yöntem, otuz sütunda çöküyor.",
+        "en": "Every new feature adds another term to the distance; as the terms multiply, the sums resemble one another.\n\nThe difference between the nearest and the furthest neighbour melts away and choosing the \"nearest\" turns into a coin flip.\n\nKNN is directly affected: a method that works beautifully with three or five features collapses at thirty columns."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 1,
+      "text": {
+        "tr": "Elli sütunlu bir veride KNN zayıf kalıyor. Hangisi çözüm **değil**?",
+        "en": "KNN is weak on data with fifty columns. Which of these is **not** a fix?"
+      },
+      "options": {
+        "tr": [
+          "Özellik sayısını azaltmak",
+          "`k` değerini artırmak",
+          "Boyut indirgeme uygulamak",
+          "Ağaç tabanlı bir modele geçmek"
+        ],
+        "en": [
+          "Reducing the number of features",
+          "Raising `k`",
+          "Applying dimension reduction",
+          "Moving to a tree-based model"
+        ]
+      },
+      "explanation": {
+        "tr": "`k`'yı artırmak gürültüye karşı yardımcı ama boyut lanetini çözmüyor: uzaklığın anlamını kaybetmesi `k`'dan bağımsız bir sorun.\n\nÖteki üçü doğru yönde: sütun sayısını azaltmak, PCA gibi bir yöntemle boyutu indirmek, ya da uzaklık kullanmayan bir modele geçmek.\n\nAğaçlar eşiklerle çalıştığı için bu sorundan etkilenmiyor.",
+        "en": "Raising `k` helps against noise but does not solve the curse: distance losing its meaning is a problem independent of `k`.\n\nThe other three point the right way: fewer columns, reducing dimension with something like PCA, or moving to a model that does not use distance.\n\nTrees work with thresholds, so they are unaffected."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 2,
+      "text": {
+        "tr": "`weights=\"distance\"` ayarı ne yapıyor?",
+        "en": "What does the `weights=\"distance\"` setting do?"
+      },
+      "options": {
+        "tr": [
+          "Uzaklıkları normalleştiriyor",
+          "Ölçekleme yapıyor",
+          "Yakın komşuların oyuna daha çok ağırlık veriyor",
+          "`k`'yı otomatik seçiyor"
+        ],
+        "en": [
+          "Normalises the distances",
+          "Does the scaling",
+          "Gives the nearer neighbours' votes more weight",
+          "Chooses `k` automatically"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan `uniform`'da beş komşunun oyu eşit; `distance` ile yakın olan daha çok söz sahibi oluyor.\n\nMantıklı görünüyor ama **otomatik olarak daha iyi değil**: ölçülen bir örnekte doğruluğu 0.92'den 0.88'e düşürdü.\n\nSebebi, çok yakın bir komşuya aşırı güç vermesi ve modeli `k=1`'e yaklaştırması — yani ezberlemeye.",
+        "en": "With the default `uniform` all five votes are equal; with `distance` the nearer ones get more say.\n\nIt sounds sensible but is **not automatically better**: in a measured example it dropped the accuracy from 0.92 to 0.88.\n\nThe reason is that it gives a very close neighbour overwhelming power and drifts the model towards `k=1` — that is, towards memorising."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "KNN regresyonda tahmini nasıl üretiyor?",
+        "en": "How does KNN produce a prediction for regression?"
+      },
+      "options": {
+        "tr": [
+          "En yakın k komşunun hedef değerlerinin ortalamasıyla",
+          "Oy çokluğuyla",
+          "Doğru denklemiyle",
+          "En yakın komşunun etiketiyle"
+        ],
+        "en": [
+          "By averaging the nearest k neighbours' target values",
+          "By majority vote",
+          "With a line equation",
+          "With the nearest neighbour's label"
+        ]
+      },
+      "explanation": {
+        "tr": "Sınıflandırmada oy çokluğu, regresyonda ortalama. Sınıf `KNeighborsRegressor`.\n\nDördüncü seçenek `k=1` durumunun özel hâli; genel kural ortalama.\n\nBölüm 04'te ölçülmüştü: araba verisinde ölçeklemesiz KNN 171.49, ölçekli 51.48 veriyordu.",
+        "en": "A majority vote for classification, the mean for regression. The class is `KNeighborsRegressor`.\n\nThe fourth option is the special case of `k=1`; the general rule is the mean.\n\nIt was measured in section 04: on the car data, unscaled KNN gave 171.49 and scaled 51.48."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 1,
+      "text": {
+        "tr": "KNN eksik değer içeren veriyle neden çalışamıyor?",
+        "en": "Why can KNN not work with data containing missing values?"
+      },
+      "options": {
+        "tr": [
+          "Bellek yetmiyor",
+          "`NaN` ile bir sayı arasında uzaklık tanımsız",
+          "sklearn izin vermiyor",
+          "Ölçekleme bozuluyor"
+        ],
+        "en": [
+          "It runs out of memory",
+          "There is no defined distance between `NaN` and a number",
+          "sklearn does not allow it",
+          "The scaling breaks"
+        ]
+      },
+      "explanation": {
+        "tr": "Uzaklık bir çıkarma işlemine dayanıyor ve eksik değerle bu tanımsız.\n\nİki yol var: bölüm 04'teki gibi doldurmak ya da `KNNImputer` kullanmak — eksik değeri en yakın komşuların değeriyle dolduran araç.\n\n`KNNImputer` kendisi de KNN olduğu için o da ölçekleme istiyor ve o da ayırmadan sonra uygulanıyor.",
+        "en": "Distance rests on a subtraction, and with a missing value that is undefined.\n\nThere are two routes: fill them as in section 04, or use `KNNImputer` — a tool that fills a missing value from its nearest neighbours.\n\nBeing a KNN itself, `KNNImputer` also wants scaling and is also applied after the split."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 2,
+      "text": {
+        "tr": "`model.kneighbors(X_test[:1])` ne döndürüyor?",
+        "en": "What does `model.kneighbors(X_test[:1])` return?"
+      },
+      "options": {
+        "tr": [
+          "Tahmini",
+          "Katsayıları",
+          "Uzaklıkları ve komşuların eğitim verisindeki satır numaralarını",
+          "Doğruluk oranını"
+        ],
+        "en": [
+          "The prediction",
+          "The coefficients",
+          "The distances and the neighbours' row numbers in the training data",
+          "The accuracy"
+        ]
+      },
+      "explanation": {
+        "tr": "KNN'in yorumlanabilir tarafı bu: modelin **hangi kayıtlara bakarak** karar verdiğini gösteriyor.\n\nKatsayı yok ama gerekçe var: \"bu müşteriye ayrılacak dedim çünkü ona en benzeyen beş müşterinin dördü ayrılmıştı.\"\n\nBazı işlerde bu, bir katsayıdan daha ikna edici oluyor.",
+        "en": "This is KNN's interpretable side: it shows **which records** the model consulted.\n\nThere are no coefficients but there is a reason: \"I said this customer will leave because four of the five most similar customers did.\"\n\nIn some settings that is more convincing than a coefficient."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 2,
+      "text": {
+        "tr": "Öklid uzaklığı nasıl hesaplanıyor?",
+        "en": "How is Euclidean distance computed?"
+      },
+      "options": {
+        "tr": [
+          "Farkların mutlak değerlerinin toplamı",
+          "Farkların çarpımı",
+          "Farkların karelerinin toplamının karekökü",
+          "En büyük fark"
+        ],
+        "en": [
+          "The sum of the absolute differences",
+          "The product of the differences",
+          "The square root of the sum of the squared differences",
+          "The largest difference"
+        ]
+      },
+      "explanation": {
+        "tr": "İki nokta arasındaki düz çizgi mesafesi. Kare almanın iki işi var: işareti yok ediyor ve büyük farkları öne çıkarıyor.\n\nİkincisi ölçekleme sorununun kaynağı: bir sütundaki 100.000'lik fark kare alındığında ötekini iyice eziyor.\n\nFarkların mutlak değerlerinin toplamı **Manhattan** uzaklığı; o da bir seçenek (`metric=\"manhattan\"`).",
+        "en": "The straight-line distance between two points. Squaring does two jobs: it removes the sign and foregrounds large differences.\n\nThe second is the source of the scaling problem: once squared, a gap of 100,000 in one column crushes the other.\n\nThe sum of the absolute differences is **Manhattan** distance; that is an option too (`metric=\"manhattan\"`)."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 3,
+      "text": {
+        "tr": "Metin verisinde kosinüs benzerliği neden tercih ediliyor?",
+        "en": "Why is cosine similarity preferred for text data?"
+      },
+      "options": {
+        "tr": [
+          "Daha hızlı olduğu için",
+          "Negatif değer vermediği için",
+          "Ölçekleme gerektirmediği için",
+          "Belgenin uzunluğunu değil yönünü ölçtüğü için"
+        ],
+        "en": [
+          "Because it is faster",
+          "Because it gives no negative values",
+          "Because it needs no scaling",
+          "Because it measures the document's direction, not its length"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı konudan bahseden iki belgede kelime oranları benziyor ama uzunlukları çok farklı olabiliyor.\n\nÖklid uzun belgeyi uzak sayıyor; kosinüs yalnızca açıya baktığı için ikisini yakın buluyor.\n\nGenel kural: büyüklük değil **oran** önemliyse kosinüs.",
+        "en": "Two documents on the same subject have similar word proportions but can differ wildly in length.\n\nEuclidean calls the long document distant; cosine, looking only at the angle, finds them close.\n\nThe general rule: when **proportion** matters rather than magnitude, use cosine."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "KNN aşağıdaki durumlardan hangisinde iyi bir seçim?",
+        "en": "In which of these is KNN a good choice?"
+      },
+      "options": {
+        "tr": [
+          "Elli sütunlu veri",
+          "Milyonlarca satırlık veri, hızlı tahmin gerekiyor",
+          "Az özellikli, sınırları eğri ve karmaşık veri",
+          "Katsayı yorumu isteniyor"
+        ],
+        "en": [
+          "Data with fifty columns",
+          "Millions of rows where predictions must be fast",
+          "Data with few features and complex, curved boundaries",
+          "When coefficient interpretation is wanted"
+        ]
+      },
+      "explanation": {
+        "tr": "KNN sınırın şeklini önceden varsaymıyor; eğri ve karmaşık ayrımları doğal olarak yakalıyor.\n\nÖteki üçü KNN'in zayıf tarafları: çok sütunda boyut laneti, çok satırda yavaş tahmin, ve katsayı diye bir şey yok.\n\nYine de yorum tamamen imkânsız değil: `kneighbors` hangi komşulara bakıldığını gösteriyor.",
+        "en": "KNN assumes nothing about the shape of the boundary; it captures curved, complex separations naturally.\n\nThe other three are its weak sides: the curse of dimensionality with many columns, slow predictions with many rows, and there is no such thing as a coefficient.\n\nInterpretation is not entirely impossible though: `kneighbors` shows which neighbours were consulted."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 2,
+      "text": {
+        "tr": "One-hot kodlanmış sütunlar KNN'de nasıl bir sorun çıkarıyor?",
+        "en": "What problem do one-hot encoded columns cause for KNN?"
+      },
+      "options": {
+        "tr": [
+          "Hiç sorun çıkarmıyor",
+          "Modeli çökertiyorlar",
+          "Uzaklığa 0/1 olarak girdikleri için ölçeklenmiş sayısal sütunlardan az ağırlık taşıyorlar",
+          "Ölçeklemeyi imkânsız kılıyorlar"
+        ],
+        "en": [
+          "They cause no problem",
+          "They break the model",
+          "Entering the distance as 0/1, they carry less weight than scaled numeric columns",
+          "They make scaling impossible"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçeklenmiş sayısal sütunlar -3 ile +3 arasında geziniyor; one-hot sütunlar yalnızca 0 ya da 1.\n\nDengelemek gerekirse kodlanmış sütunlar da ölçekleniyor ya da ağırlıklı bir uzaklık kullanılıyor.\n\nAyrıca çok kategorili bir sütun onlarca sütun ürettiği için boyut lanetini de besliyor.",
+        "en": "Scaled numeric columns range from -3 to +3; one-hot columns are only 0 or 1.\n\nWhen that needs balancing, the encoded columns get scaled too, or a weighted distance is used.\n\nA column with many categories also feeds the curse of dimensionality, since it turns into dozens of columns."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "`algorithm=\"kd_tree\"` ayarı neyi değiştiriyor?",
+        "en": "What does the `algorithm=\"kd_tree\"` setting change?"
+      },
+      "options": {
+        "tr": [
+          "Sonucu",
+          "`k` değerini",
+          "Uzaklık ölçüsünü",
+          "Yalnızca hızı"
+        ],
+        "en": [
+          "The result",
+          "The value of `k`",
+          "The distance measure",
+          "Only the speed"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı komşuları buluyor ama daha hızlı buluyor: her satıra tek tek bakmak yerine ağaç yapısıyla arama alanını daraltıyor.\n\nBüyük veride tahmin süresini ciddi biçimde düşürüyor.\n\nAma özellik sayısı arttıkça o da etkisini kaybediyor — boyut laneti burada da devrede.",
+        "en": "It finds the same neighbours, just faster: instead of visiting every row it narrows the search with a tree structure.\n\nOn large data it cuts prediction time considerably.\n\nBut it too loses its effect as the number of features grows — the curse of dimensionality applies here as well."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 1,
+      "text": {
+        "tr": "KNN'de `k`'yı test kümesine bakarak seçmenin sorunu ne?",
+        "en": "What is wrong with choosing `k` by looking at the test set?"
+      },
+      "options": {
+        "tr": [
+          "Yavaş",
+          "Test kümesi karar sürecine giriyor ve skoru dürüst olmaktan çıkıyor",
+          "`k` yanlış çıkıyor",
+          "Sorun yok"
+        ],
+        "en": [
+          "It is slow",
+          "The test set enters the decision and its score stops being honest",
+          "You get the wrong `k`",
+          "Nothing is wrong"
+        ]
+      },
+      "explanation": {
+        "tr": "`k` bir hiperparametre ve hiperparametreler doğrulama tarafında seçiliyor.\n\nTest tablosuna bakıp en yüksek doğruluğu veren `k`'yı seçmek, o skoru artık bir ölçüm olmaktan çıkarıyor — ayar zaten o veriye göre seçildi.\n\nDoğrusu: eğitim tarafında çapraz doğrulama, teste sonda bir kez bakmak.",
+        "en": "`k` is a hyperparameter, and hyperparameters are chosen on the validation side.\n\nReading the test table and picking the `k` with the highest accuracy stops that score from being a measurement — the setting was already chosen to suit that data.\n\nThe right way: cross validation on the training side, and one look at the test set at the end."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 2,
+      "text": {
+        "tr": "KNN neden \"tembel\" (lazy) model diye anılıyor?",
+        "en": "Why is KNN called a \"lazy\" model?"
+      },
+      "options": {
+        "tr": [
+          "Yavaş çalıştığı için",
+          "Az doğru olduğu için",
+          "Eğitimde iş yapmayıp her şeyi tahmin anına ertelediği için",
+          "Az bellek kullandığı için"
+        ],
+        "en": [
+          "Because it runs slowly",
+          "Because it is inaccurate",
+          "Because it does no work during training and defers everything to prediction time",
+          "Because it uses little memory"
+        ]
+      },
+      "explanation": {
+        "tr": "`fit` yalnızca veriyi saklıyor; kural çıkarma diye bir adım yok.\n\nBellek kullanımı tam tersine **yüksek**: bütün eğitim verisini tutmak zorunda.\n\nDoğruluğu da düşük değil — az özellikli verilerde çok iyi çalışıyor. \"Tembel\" yalnızca ne zaman çalıştığını anlatıyor.",
+        "en": "`fit` merely stores the data; there is no rule-deriving step.\n\nIts memory use is the opposite of low: it has to keep the entire training set.\n\nNor is it inaccurate — on data with few features it works very well. \"Lazy\" describes only when it does its work."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 1,
+      "text": {
+        "tr": "KNN'in sonucu bir doğrusal modelden nasıl ayrılıyor?",
+        "en": "How does a KNN's result differ from a linear model's?"
+      },
+      "options": {
+        "tr": [
+          "KNN katsayı öğreniyor",
+          "KNN bir kural saklamıyor; bütün eğitim verisini saklıyor",
+          "KNN daha az bellek kullanıyor",
+          "Fark yok"
+        ],
+        "en": [
+          "KNN learns coefficients",
+          "KNN stores no rule; it stores the whole training set",
+          "KNN uses less memory",
+          "There is no difference"
+        ]
+      },
+      "explanation": {
+        "tr": "Doğrusal regresyon eğitimden sonra iki sayı tutuyor (`coef_`, `intercept_`) ve veriyi unutuyor.\n\nKNN'in \"öğrendiği\" şey verinin kendisi. Bu yüzden `coef_` gibi bir değeri yok.\n\nSonuç: bellek yüksek, tahmin yavaş, ama sınırın şekli hakkında hiçbir varsayım yok.",
+        "en": "After training, linear regression keeps two numbers (`coef_`, `intercept_`) and forgets the data.\n\nWhat KNN \"learned\" is the data itself. That is why it has no value like `coef_`.\n\nThe result: high memory, slow predictions, but no assumption at all about the shape of the boundary."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 0,
+      "text": {
+        "tr": "Karar sınırı grafiği neyi gösteriyor?",
+        "en": "What does a decision boundary chart show?"
+      },
+      "options": {
+        "tr": [
+          "Düzlemin hangi bölgesine hangi sınıfın söylendiğini",
+          "Modelin eğitim süresini",
+          "Özelliklerin önemini",
+          "Verideki eksik değerleri"
+        ],
+        "en": [
+          "Which class is predicted for each region of the plane",
+          "The model's training time",
+          "The importance of the features",
+          "The missing values in the data"
+        ]
+      },
+      "explanation": {
+        "tr": "Düzlemdeki her nokta için tahmin üretip renklendirdiğinde modelin bölgeleri nasıl ayırdığı görünüyor.\n\nİki özellikle çizilebiliyor; üç ve fazlasında çizmek mümkün değil.\n\nAynı doğruluğu veren iki modelin sınırları bambaşka olabiliyor — sayı tek başına modeli anlatmıyor.",
+        "en": "Producing a prediction for every point of the plane and colouring it shows how the model divides the regions.\n\nIt can be drawn with two features; with three or more it cannot.\n\nTwo models with the same accuracy can have entirely different boundaries — a number alone does not describe a model."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 1,
+      "text": {
+        "tr": "`StratifiedKFold` KNN sınıflandırmasında neden tercih ediliyor?",
+        "en": "Why is `StratifiedKFold` preferred for KNN classification?"
+      },
+      "options": {
+        "tr": [
+          "Daha hızlı",
+          "Her katta sınıf oranını koruyor",
+          "Ölçekleme yapıyor",
+          "`k`'yı seçiyor"
+        ],
+        "en": [
+          "It is faster",
+          "It keeps the class proportions in every fold",
+          "It does the scaling",
+          "It chooses `k`"
+        ]
+      },
+      "explanation": {
+        "tr": "Dengesiz veride sıradan `KFold` bir kata azınlık sınıfından hiç kayıt koymayabiliyor; o kattaki ölçüm anlamsız kalıyor.\n\nBu, KNN'e özel bir kural değil — bütün sınıflandırma modelleri için geçerli.\n\nAyırma sırasında da aynı sebeple `stratify=y` veriliyor.",
+        "en": "On imbalanced data a plain `KFold` may leave a fold with no records of the minority class, making that fold's measurement meaningless.\n\nThis is not a KNN-specific rule — it holds for every classification model.\n\n`stratify=y` is passed at split time for the same reason."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 3,
+      "text": {
+        "tr": "KNN'de ölçekleyici nerede öğretiliyor?",
+        "en": "Where is the scaler fitted for KNN?"
+      },
+      "options": {
+        "tr": [
+          "Bütün veride",
+          "Her kümede ayrı ayrı",
+          "Ölçekleyici öğretilmiyor",
+          "Yalnızca eğitim verisinde, sonra ikisine de uygulanıyor"
+        ],
+        "en": [
+          "On all the data",
+          "Separately on each set",
+          "The scaler is not fitted",
+          "On the training data only, then applied to both"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölüm 04'ün kuralı burada da geçerli: `fit` eğitimde, `transform` ikisinde.\n\nBütün veride `fit` etmek sızıntı; her kümede ayrı ayrı `fit` etmek ise iki kümeyi farklı ölçeklere taşıyor ve model eğitimde gördüğünden başka bir şeyle sınanıyor.\n\nÜçüncü seçenek özellikle sinsi: kod çalışıyor, hata vermiyor, sonuç bozuluyor.",
+        "en": "Section 04's rule holds here too: `fit` on training, `transform` on both.\n\nFitting on all the data is leakage; fitting separately on each set puts the two on different scales and the model is tested on something other than what it saw.\n\nThe third option is especially sneaky: the code runs, raises nothing, and the result is corrupted."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdakilerden hangisi KNN'in **zayıf** olduğu bir durum?",
+        "en": "In which of these is KNN **weak**?"
+      },
+      "options": {
+        "tr": [
+          "Otuz özellikli veri",
+          "İki özellikli, eğri sınırlı veri",
+          "Küçük veri kümesi",
+          "Hızlı bir taban çizgi gerekiyor"
+        ],
+        "en": [
+          "Thirty features",
+          "Two features with a curved boundary",
+          "A small dataset",
+          "You need a quick baseline"
+        ]
+      },
+      "explanation": {
+        "tr": "Boyut laneti: otuz sütunda noktalar birbirinden neredeyse eşit uzaklıkta oluyor ve \"en yakın\" seçimi rastgeleye dönüşüyor.\n\nÖteki üçü KNN'in güçlü tarafları: az özellikte eğri sınırları doğal yakalıyor, küçük veride hızlı, ve kurulumu tek satır olduğu için iyi bir taban çizgi.\n\nÇözüm: özellik azaltmak, boyut indirgemek ya da ağaç tabanlı bir modele geçmek.",
+        "en": "The curse of dimensionality: with thirty columns points end up almost equally far apart and choosing the \"nearest\" turns into a coin flip.\n\nThe other three are its strengths: with few features it captures curved boundaries naturally, it is fast on small data, and being one line to build it makes a good baseline.\n\nThe fixes: fewer features, dimension reduction, or a tree-based model."
+      }
+    },
+    {
+      "id": "q31",
+      "answer": 3,
+      "text": {
+        "tr": "Bir modelin doğruluğu 0.90 ama karar sınırı parçalı ve adacıklarla dolu. Ne düşünmeli?",
+        "en": "A model's accuracy is 0.90 but its decision boundary is fragmented and full of islands. What should you think?"
+      },
+      "options": {
+        "tr": [
+          "Model iyi, sayı yeterli",
+          "Ölçekleme yapılmamış",
+          "Veri çok büyük",
+          "Model gürültüyü ezberlemiş olabilir; yeni veride farklı davranabilir"
+        ],
+        "en": [
+          "The model is good, the number is enough",
+          "The scaling was skipped",
+          "The data is too large",
+          "The model may have memorised the noise; it can behave differently on new data"
+        ]
+      },
+      "explanation": {
+        "tr": "Parçalı sınır, modelin tek tek kayıtların etrafına bölge oyduğunu gösteriyor — küçük `k`'nın tipik davranışı.\n\nAynı doğruluğu veren daha düzgün bir sınır, aynı veriye farklı bir açıdan bakıyor ve yeni kayıtlarda daha güvenilir oluyor.\n\nBu, tek bir ölçünün neden yetmediğinin görsel hâli: sayı aynı, model değil.",
+        "en": "A fragmented boundary shows the model has carved regions around individual records — the typical behaviour of a small `k`.\n\nA smoother boundary with the same accuracy looks at the same data differently and is more reliable on new records.\n\nThis is the visual form of why one measure is not enough: the same number, a different model."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 0,
+      "text": {
+        "tr": "KNN'i taban çizgiyle karşılaştırmak neden özellikle önemli?",
+        "en": "Why is comparing KNN with the baseline especially important?"
+      },
+      "options": {
+        "tr": [
+          "Ölçekleme atlandığında model taban çizginin altına düşebiliyor",
+          "Hesap kolay olduğu için",
+          "sklearn öyle istediği için",
+          "`k` seçmek için gerekli"
+        ],
+        "en": [
+          "Because with the scaling skipped the model can fall below the baseline",
+          "Because the computation is easy",
+          "Because sklearn wants it",
+          "It is needed to choose `k`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçülen örnekte ölçeklemesiz doğruluk 0.64, taban çizgi 0.70 idi. Taban çizgi olmadan 0.64'ün kötü olduğunu fark etmek mümkün değil.\n\n\"%64 doğru\" cümlesi tek başına makul görünüyor; ancak kıyas noktasıyla birlikte anlam kazanıyor.\n\nBu kural KNN'e özel değil ama KNN'de bir ayar hatası sonucu bu kadar aşağı çektiği için burada daha görünür.",
+        "en": "In the measured example the unscaled accuracy was 0.64 and the baseline 0.70. Without the baseline there is no way to notice 0.64 is bad.\n\n\"64% correct\" sounds reasonable on its own; it only takes on meaning next to a yardstick.\n\nThe rule is not KNN-specific, but it is more visible here because one configuration mistake drags the result this far down."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 0,
+      "text": {
+        "tr": "`KNNImputer` ne yapıyor?",
+        "en": "What does `KNNImputer` do?"
+      },
+      "options": {
+        "tr": [
+          "Eksik değeri en yakın komşuların değeriyle dolduruyor",
+          "Modeli hızlandırıyor",
+          "Aykırı değerleri atıyor",
+          "Ölçekleme yapıyor"
+        ],
+        "en": [
+          "Fills a missing value from its nearest neighbours' values",
+          "Speeds the model up",
+          "Removes outliers",
+          "Does the scaling"
+        ]
+      },
+      "explanation": {
+        "tr": "Ortalama ya da medyanla doldurmaya göre daha akıllı: benzer kayıtların o sütundaki değerine bakıyor.\n\nKendisi de KNN olduğu için iki kuralı miras alıyor: **ölçekleme istiyor** ve **ayırmadan sonra** uygulanıyor.\n\nMaliyeti yüksek; büyük veride basit doldurma tercih edilebiliyor.",
+        "en": "Smarter than filling with a mean or median: it looks at what similar records hold in that column.\n\nBeing a KNN itself it inherits two rules: **it wants scaling** and it is applied **after the split**.\n\nIt is expensive; on large data simple imputation may be preferred."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 3,
+      "text": {
+        "tr": "`k` seçerken \"gürültü aralığı\" ne demek?",
+        "en": "What does \"the noise range\" mean when choosing `k`?"
+      },
+      "options": {
+        "tr": [
+          "Verideki hatalı kayıtlar",
+          "Test kümesinin boyutu",
+          "Uzaklık ölçüsündeki sapma",
+          "En iyi CV ortalamasından onun yayılımı çıkarılarak bulunan eşik"
+        ],
+        "en": [
+          "The faulty records in the data",
+          "The size of the test set",
+          "The deviation in the distance measure",
+          "The threshold found by subtracting the best CV mean's own spread from it"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu eşiğin üstünde kalan bütün `k` değerleri, en iyiden istatistiksel olarak ayırt edilemiyor.\n\nAralarından seçim yapmak için başka bir ölçüt gerekiyor — KNN'de daha büyük `k` daha sağlam olduğu için o seçiliyor.\n\nÖlçüldü: eşik uygulanmadığında `k=1` seçiliyor ve testte on puan kaybediliyor.",
+        "en": "Every `k` above that threshold is statistically indistinguishable from the best one.\n\nChoosing between them needs another criterion — for KNN a larger `k` is more robust, so that is the one taken.\n\nMeasured: without the threshold `k=1` gets chosen and ten points are lost on the test set."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 1,
+      "text": {
+        "tr": "KNN'de tahmin süresi neden veri büyüdükçe artıyor?",
+        "en": "Why does KNN's prediction time grow with the data?"
+      },
+      "options": {
+        "tr": [
+          "Model karmaşıklaşıyor",
+          "Her tahminde bütün eğitim satırlarına uzaklık hesaplanıyor",
+          "Bellek doluyor",
+          "Ölçekleme yavaşlıyor"
+        ],
+        "en": [
+          "The model gets more complex",
+          "A distance to every training row is computed for each prediction",
+          "The memory fills up",
+          "The scaling slows down"
+        ]
+      },
+      "explanation": {
+        "tr": "Model bir kural saklamadığı için her tahminde veriye dönüp bakmak zorunda.\n\nBir milyon satırlık veride her tahmin bir milyon uzaklık hesabı demek; öteki modellerde tahmin sabit zamanlı.\n\n`algorithm=\"kd_tree\"` arama alanını daraltarak yardımcı oluyor ama sorunu tamamen çözmüyor.",
+        "en": "Because the model stores no rule, it has to go back to the data on every prediction.\n\nOn a million rows each prediction means a million distance computations; in other models prediction is constant-time.\n\n`algorithm=\"kd_tree\"` helps by narrowing the search but does not remove the problem."
+      }
+    }
+  ]
+}

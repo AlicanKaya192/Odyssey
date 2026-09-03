@@ -1,5 +1,3 @@
-# NumPy Reference
-
 A list to look at when you get stuck on the exercises. Everything assumes
 `import numpy as np`.
 

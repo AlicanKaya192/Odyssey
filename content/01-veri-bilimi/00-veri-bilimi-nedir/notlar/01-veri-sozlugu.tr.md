@@ -1,5 +1,3 @@
-# Veri Sözlüğü
-
 Veri bilimiyle ilgili bir yazı okurken ya da bir kütüphanenin belgesine
 bakarken sürekli karşına çıkacak kelimeler. Hepsini şimdi ezberlemene gerek
 yok; tıkandığında buraya dön.

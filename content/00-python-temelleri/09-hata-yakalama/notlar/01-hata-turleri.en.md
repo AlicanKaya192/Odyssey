@@ -1,5 +1,3 @@
-# Errors You Will Meet Often
-
 This note is a glossary. When you see an error on screen you can look up its
 name here and find out what it is trying to say.
 

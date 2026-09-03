@@ -1,5 +1,3 @@
-# DataFrame Başvurusu
-
 `import pandas as pd` yapıldığı varsayılıyor. `data` bir DataFrame.
 
 ## Oluşturma

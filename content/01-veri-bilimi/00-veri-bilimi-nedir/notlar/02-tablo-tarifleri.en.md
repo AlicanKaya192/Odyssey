@@ -1,5 +1,3 @@
-# Table Recipes (without libraries)
-
 The six operations you need most often on a list of dictionaries, in plain
 Python. You can look here while you work on the exercises.
 

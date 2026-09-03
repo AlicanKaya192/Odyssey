@@ -1,5 +1,3 @@
-# Special Methods
-
 Methods whose names start and end with two underscores are called **special
 methods**: `__init__`, `__str__`, `__len__`. You do not call them directly;
 Python calls them for you in particular situations.

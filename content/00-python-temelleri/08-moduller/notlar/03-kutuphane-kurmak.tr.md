@@ -1,5 +1,3 @@
-# Kütüphane Kurmak
-
 `math` ve `datetime` Python'la birlikte geliyor. Ama `pandas`, `numpy`,
 `requests` gelmiyor — onları kurman gerekiyor.
 

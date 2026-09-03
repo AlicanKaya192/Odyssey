@@ -1,0 +1,45 @@
+{
+  "id": "draw-the-tree",
+  "title": {
+    "tr": "Ağacı çiz",
+    "en": "Draw the tree"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 150,
+  "hints": [
+    {
+      "tr": "`plot_tree` `sklearn.tree` içinde; `feature_names`, `class_names`, `filled=True` ve `ax=ax` veriliyor.",
+      "en": "`plot_tree` lives in `sklearn.tree`; pass `feature_names`, `class_names`, `filled=True` and `ax=ax`."
+    },
+    {
+      "tr": "Önem değerleri `model.feature_importances_`; sütun adlarıyla `zip` edip yazdırıyorsun.",
+      "en": "The importances are `model.feature_importances_`; `zip` them with the column names and print."
+    },
+    {
+      "tr": "En önemli sütunu bulmak için `max(...)` kullanılıyor; `float()` NumPy sayısını temizliyor.",
+      "en": "Use `max(...)` to find the most important column; `float()` cleans up the NumPy number."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nimport matplotlib.pyplot as plt\nfrom sklearn.tree import plot_tree\n\nmodel = DecisionTreeClassifier(max_depth=2, random_state=42)\nmodel.fit(X_train, y_train)\n\npairs = list(zip(X.columns, model.feature_importances_))\nfor name, value in pairs:\n    print(name, round(float(value), 3))\nprint(max(pairs, key=lambda row: row[1])[0])\n\nfig, ax = plt.subplots(figsize=(11, 5))\nplot_tree(model, feature_names=list(X.columns),\n          class_names=[\"stays\", \"leaves\"],\n          filled=True, rounded=True, fontsize=9, ax=ax)\nfig.tight_layout()\nfig.savefig(\"chart.png\")\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nimport matplotlib.pyplot as plt\nfrom sklearn.tree import plot_tree\n\nmodel = DecisionTreeClassifier(max_depth=2, random_state=42)\nmodel.fit(X_train, y_train)\n\npairs = list(zip(X.columns, model.feature_importances_))\nfor name, value in pairs:\n    print(name, round(float(value), 3))\nprint(max(pairs, key=lambda row: row[1])[0])\n\nfig, ax = plt.subplots(figsize=(11, 5))\nplot_tree(model, feature_names=list(X.columns),\n          class_names=[\"stays\", \"leaves\"],\n          filled=True, rounded=True, fontsize=9, ax=ax)\nfig.tight_layout()\nfig.savefig(\"chart.png\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "age 0.0\nincome 0.454\nvisits 0.546\nvisits"
+    },
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    }
+  ]
+}

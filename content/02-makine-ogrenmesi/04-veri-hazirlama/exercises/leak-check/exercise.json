@@ -1,0 +1,44 @@
+{
+  "id": "leak-check",
+  "title": {
+    "tr": "Sızıntının maliyeti",
+    "en": "What leakage costs"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Veri tamamen rastgele: `rng.normal(size=(80, 300))` ve hedef de rastgele. Öğrenilecek hiçbir şey yok.",
+      "en": "The data is entirely random: `rng.normal(size=(80, 300))`, and so is the target. There is nothing to learn."
+    },
+    {
+      "tr": "Bir sütunun hedefle ilişkisi `abs(X[c].corr(y))`; hepsini birden almak için `X.apply(lambda c: abs(c.corr(y)))`.",
+      "en": "A column's relationship with the target is `abs(X[c].corr(y))`; for all at once, `X.apply(lambda c: abs(c.corr(y)))`."
+    },
+    {
+      "tr": "En yüksek beşini almak: `correlations.sort_values(ascending=False).head(5).index.tolist()`.",
+      "en": "Taking the top five: `correlations.sort_values(ascending=False).head(5).index.tolist()`."
+    },
+    {
+      "tr": "Sızıntılı yolda seçimi **bütün veride** yapıp sonra ayırıyorsun; temiz yolda **önce ayırıp** seçimi yalnızca eğitimde yapıyorsun.",
+      "en": "In the leaky path you select on **all the data** and split afterwards; in the clean path you **split first** and select on training only."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import r2_score\nfrom sklearn.model_selection import train_test_split\n\n# SIZINTILI: secim butun veriye bakiyor\ncorrelations = X.apply(lambda c: abs(c.corr(y)))\nchosen = correlations.sort_values(ascending=False).head(5).index.tolist()\nA_train, A_test, ay_train, ay_test = train_test_split(\n    X[chosen], y, test_size=0.25, random_state=42)\nleaky = LinearRegression().fit(A_train, ay_train)\nprint(round(r2_score(ay_test, leaky.predict(A_test)), 3))\n\n# TEMIZ: once ayir, secimi yalnizca egitimde yap\nB_train, B_test, by_train, by_test = train_test_split(\n    X, y, test_size=0.25, random_state=42)\ntrain_correlations = B_train.apply(lambda c: abs(c.corr(by_train)))\nclean_choice = train_correlations.sort_values(ascending=False).head(5).index.tolist()\nclean = LinearRegression().fit(B_train[clean_choice], by_train)\nprint(round(r2_score(by_test, clean.predict(B_test[clean_choice])), 3))\n```",
+      "en": "The solution:\n\n```python\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import r2_score\nfrom sklearn.model_selection import train_test_split\n\n# LEAKY: the selection looks at all the data\ncorrelations = X.apply(lambda c: abs(c.corr(y)))\nchosen = correlations.sort_values(ascending=False).head(5).index.tolist()\nA_train, A_test, ay_train, ay_test = train_test_split(\n    X[chosen], y, test_size=0.25, random_state=42)\nleaky = LinearRegression().fit(A_train, ay_train)\nprint(round(r2_score(ay_test, leaky.predict(A_test)), 3))\n\n# CLEAN: split first, select on training only\nB_train, B_test, by_train, by_test = train_test_split(\n    X, y, test_size=0.25, random_state=42)\ntrain_correlations = B_train.apply(lambda c: abs(c.corr(by_train)))\nclean_choice = train_correlations.sort_values(ascending=False).head(5).index.tolist()\nclean = LinearRegression().fit(B_train[clean_choice], by_train)\nprint(round(r2_score(by_test, clean.predict(B_test[clean_choice])), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.442\n-0.273"
+    }
+  ]
+}

@@ -1,5 +1,3 @@
-# NumPy Traps
-
 Most NumPy mistakes **do not raise an error.** The program runs, hands you a
 number, and the number is wrong. These are the ones people hit most.
 

@@ -423,7 +423,35 @@ def revive(value):
     return value
 
 
-def run_checks(checks: list[dict], tree: ast.AST | None, stdout: str, namespace: dict) -> list[dict]:
+def check_artifact(check: dict, artifacts: list[dict]) -> dict:
+    """İstenen dosya üretilmiş mi?
+
+    Önceden bu, alıştırmanın `Path("chart.png").exists()` yazdırıp
+    `stdout`'ta `True` beklemesiyle yapılıyordu: kullanıcı dosyanın
+    varlığını **kendisi** kontrol etmek zorunda kalıyordu. Bu kontrol tipi
+    o işi motora aldı; alıştırma "grafiği kaydet" demekle yetiniyor.
+    """
+    istenen = str(check.get("name", ""))
+    en_az = int(check.get("min_bytes", 0))
+
+    for dosya in artifacts:
+        if dosya["name"] != istenen:
+            continue
+        yeterli = dosya["bytes"] >= en_az
+        return {
+            "passed": yeterli,
+            "detail": {"name": istenen, "bytes": dosya["bytes"], "min_bytes": en_az},
+        }
+    return {"passed": False, "detail": {"name": istenen, "missing": True}}
+
+
+def run_checks(
+    checks: list[dict],
+    tree: ast.AST | None,
+    stdout: str,
+    namespace: dict,
+    artifacts: list[dict] | None = None,
+) -> list[dict]:
     """Bütün kontrolleri sırayla uygular."""
     results = []
 
@@ -445,6 +473,8 @@ def run_checks(checks: list[dict], tree: ast.AST | None, stdout: str, namespace:
             outcome = compare_method(check, namespace)
         elif kind == "annotation":
             outcome = compare_annotation(check, tree)
+        elif kind == "artifact":
+            outcome = check_artifact(check, artifacts or [])
         elif kind == "ast_forbid":
             forbidden = check.get("call", "")
             used = tree is not None and forbidden in called_names(tree)
@@ -491,6 +521,50 @@ def format_user_traceback(exc: BaseException, code_path: str) -> dict:
     }
 
 
+# Kullanıcının kodu bir dosya üretmişse (grafik, rapor) onu görebilmeli.
+# Toplanan biçimler ve sınırlar:
+IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".svg"}
+
+# Dört dosya, bir alıştırmanın üretebileceği makul en fazla görsel:
+# "yan yana iki grafik" alıştırmasında bile tek dosya çıkıyor.
+MAX_ARTIFACTS = 4
+
+# Tek dosya için üst sınır. `dpi=150` ile kaydedilen bir grafik 100-300 KB
+# arasında; 5 MB, yanlışlıkla dev bir görüntü üreten kodun arayüzü
+# kilitlemesini engelliyor.
+MAX_ARTIFACT_BYTES = 5 * 1024 * 1024
+
+
+def collect_artifacts(workspace: Path, before: set[str]) -> list[dict]:
+    """Kodun **bu çalıştırmada** ürettiği görselleri listeler.
+
+    Çalıştırmadan önceki dosya listesi karşılaştırılıyor: alıştırmanın
+    yanında hazır duran veri dosyaları ve görseller kullanıcının ürettiği
+    sanılmasın.
+    """
+    bulunan: list[dict] = []
+    try:
+        girdiler = sorted(workspace.iterdir(), key=lambda p: p.name)
+    except OSError:
+        return bulunan
+
+    for yol in girdiler:
+        if len(bulunan) >= MAX_ARTIFACTS:
+            break
+        if not yol.is_file() or yol.name in before:
+            continue
+        if yol.suffix.lower() not in IMAGE_SUFFIXES:
+            continue
+        try:
+            boyut = yol.stat().st_size
+        except OSError:
+            continue
+        if boyut == 0 or boyut > MAX_ARTIFACT_BYTES:
+            continue
+        bulunan.append({"name": yol.name, "path": str(yol), "bytes": boyut})
+    return bulunan
+
+
 def main() -> int:
     if len(sys.argv) < 2:
         print("Kullanım: harness.py <job.json>", file=sys.stderr)
@@ -524,7 +598,15 @@ def main() -> int:
         "truncated": False,
         "error": None,
         "checks": [],
+        "artifacts": [],
     }
+
+    # Çalıştırmadan önceki dosyalar: sonrasında ne üretildiğini bilmek için.
+    workspace_dir = Path(workspace)
+    try:
+        onceki_dosyalar = {p.name for p in workspace_dir.iterdir()}
+    except OSError:
+        onceki_dosyalar = set()
 
     # 1) Önce kaynağı ayrıştır. Sözdizimi hatası varsa kod hiç çalışmaz ama
     #    yine de düzgün bir hata mesajı verebiliriz.
@@ -560,9 +642,13 @@ def main() -> int:
     result["stderr"] = stderr
     result["truncated"] = truncated_out or truncated_err
 
+    # Kod hata verse bile üretilmiş dosyalar gösteriliyor: yarıda kalan
+    # bir grafik de neyin yanlış gittiğini anlatıyor.
+    result["artifacts"] = collect_artifacts(workspace_dir, onceki_dosyalar)
+
     # 3) Kod hata verse bile kontrolleri uygula: kısmen doğru bir çözümde
     #    hangi adımların tuttuğunu görmek öğrenciye yol gösterir.
-    result["checks"] = run_checks(checks, tree, stdout, namespace)
+    result["checks"] = run_checks(checks, tree, stdout, namespace, result["artifacts"])
 
     result_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
     return 0

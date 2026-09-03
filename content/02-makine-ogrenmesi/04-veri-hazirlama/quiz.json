@@ -1,0 +1,940 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 1,
+      "text": {
+        "tr": "Veri hazırlığının temel kuralı nedir?",
+        "en": "What is the basic rule of data preparation?"
+      },
+      "options": {
+        "tr": [
+          "Önce hazırla, sonra ayır",
+          "Önce ayır, sonra hazırla",
+          "Hazırlığı hem eğitimde hem testte ayrı ayrı öğren",
+          "Sıra önemli değil"
+        ],
+        "en": [
+          "Prepare first, then split",
+          "Split first, then prepare",
+          "Learn the preparation separately on training and on test",
+          "The order does not matter"
+        ]
+      },
+      "explanation": {
+        "tr": "Hazırlığın her adımı veriden bir şey öğreniyor: ortalama, standart sapma, kategori listesi.\n\nO bilgi bütün veriden çıkarılırsa test satırları hesaba giriyor ve skor olduğundan yüksek çıkıyor.\n\nHazırlığı iki kümede ayrı ayrı öğrenmek de yanlış: o zaman iki küme farklı ölçeklere gidiyor ve model eğitimde gördüğünden başka bir şeyle sınanıyor.",
+        "en": "Every preparation step learns something from the data: a mean, a standard deviation, a list of categories.\n\nIf that comes from all the data, the test rows enter the arithmetic and the score comes out higher than it should.\n\nLearning the preparation separately on each set is wrong too: the two sets then end up on different scales and the model is tested on something other than what it was trained on."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 2,
+      "text": {
+        "tr": "`ValueError: Input contains NaN` hatası ne demek?",
+        "en": "What does `ValueError: Input contains NaN` mean?"
+      },
+      "options": {
+        "tr": [
+          "Veri çok büyük",
+          "Sütun adları yanlış",
+          "Veride eksik değerler var",
+          "Model eğitilmemiş"
+        ],
+        "en": [
+          "The data is too large",
+          "The column names are wrong",
+          "The data has missing values",
+          "The model is not trained"
+        ]
+      },
+      "explanation": {
+        "tr": "sklearn eksik değerle çalışmıyor (birkaç ağaç tabanlı model dışında).\n\nİki seçenek var: doldurmak ya da o satırları atmak. Hangisi seçilirse seçilsin, karar **ayırmadan sonra** uygulanıyor.\n\nEksikleri görmek için `df.isna().sum()` kullanılıyor.",
+        "en": "sklearn does not work with missing values (apart from a few tree-based models).\n\nThere are two options: fill them or drop those rows. Whichever you choose, the decision is applied **after the split**.\n\n`df.isna().sum()` shows you where the gaps are."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Eksik değerleri doldururken ortalama nereden hesaplanmalı?",
+        "en": "When filling missing values, where should the mean come from?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca eğitim verisinden",
+          "Bütün veriden",
+          "Yalnızca test verisinden",
+          "Her kümeden kendi ortalaması"
+        ],
+        "en": [
+          "From the training data only",
+          "From all the data",
+          "From the test data only",
+          "Each set from its own mean"
+        ]
+      },
+      "explanation": {
+        "tr": "Bütün veriden hesaplamak test satırlarının bilgisini eğitime sızdırıyor.\n\nHer kümeden kendi ortalamasını almak da yanlış: iki küme farklı değerlerle doluyor ve model eğitimde gördüğünden başka bir dağılımla sınanıyor.\n\nDoğrusu: eğitimden hesapla, **aynı sayıyı** ikisine de uygula.",
+        "en": "Computing it over all the data leaks the test rows' information into training.\n\nFilling each set with its own mean is wrong too: the two sets get different values and the model is tested on a different distribution from the one it saw.\n\nThe right way: compute it on training and apply **the same number** to both."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Eğitim ortalaması 1.458, bütün verinin ortalaması 1.457 çıktı. Ne yapmalı?",
+        "en": "The training mean is 1.458 and the mean over all the data is 1.457. What should you do?"
+      },
+      "options": {
+        "tr": [
+          "Yine eğitim ortalamasını kullanmak; kural farkın büyüklüğüyle ilgili değil",
+          "Fark küçük olduğu için bütün veriyi kullanmak",
+          "İkisinin ortalamasını almak",
+          "Doldurmaktan vazgeçmek"
+        ],
+        "en": [
+          "Still use the training mean; the rule is not about the size of the difference",
+          "Use all the data, since the difference is small",
+          "Take the average of the two",
+          "Give up on filling"
+        ]
+      },
+      "explanation": {
+        "tr": "Bugün fark 0.001; başka bir veride, aykırı bir değer test tarafına düşerse 0.3 olabiliyor.\n\nKuralı \"fark küçükse gerek yok\" diye uygularsan, farkın büyük olduğu günü göremezsin — çünkü farkı ölçmek için zaten iki hesabı da yapmış olman gerekir.\n\nMesele sayının kendisi değil, ölçümün dürüst olup olmadığı.",
+        "en": "Today the difference is 0.001; on other data, with an outlier landing on the test side, it could be 0.3.\n\nApply the rule as \"no need when the difference is small\" and you will never see the day it is large — because measuring the difference requires doing both computations anyway.\n\nThe issue is not the number but whether the measurement is honest."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "Aykırı değer içeren bir sütunu doldururken ortalama yerine ne tercih edilir?",
+        "en": "When filling a column that contains outliers, what is preferred over the mean?"
+      },
+      "options": {
+        "tr": [
+          "Sıfır",
+          "En büyük değer",
+          "Medyan",
+          "Rastgele bir değer"
+        ],
+        "en": [
+          "Zero",
+          "The largest value",
+          "The median",
+          "A random value"
+        ]
+      },
+      "explanation": {
+        "tr": "Ortalama tek bir uç kayıttan etkileniyor; medyan etkilenmiyor.\n\nBir sütunda 999999 gibi bir değer varsa ortalama yukarı kayıyor ve doldurulan bütün satırlar o kaymayı taşıyor.\n\nsklearn tarafında karşılığı `SimpleImputer(strategy=\"median\")`.",
+        "en": "A mean is pulled by a single extreme record; a median is not.\n\nIf a column holds something like 999999, the mean shifts upwards and every filled row carries that shift.\n\nIn sklearn the equivalent is `SimpleImputer(strategy=\"median\")`."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 3,
+      "text": {
+        "tr": "`could not convert string to float: 'diesel'` hatası neyi gösteriyor?",
+        "en": "What does `could not convert string to float: 'diesel'` show?"
+      },
+      "options": {
+        "tr": [
+          "Sütunda yazım hatası var",
+          "Model bozuk",
+          "Dosya okunamamış",
+          "Metin sütunu kodlanmadan modele verilmiş"
+        ],
+        "en": [
+          "There is a typo in the column",
+          "The model is broken",
+          "The file could not be read",
+          "A text column was given to the model without encoding"
+        ]
+      },
+      "explanation": {
+        "tr": "Model sayıyla çalışıyor; kategorik bir sütun önce sayıya çevrilmeli.\n\nSıra yoksa one-hot kodlama (`pd.get_dummies`), sıra varsa sıralı kodlama kullanılıyor.\n\nSütunu tamamen atmak da bir seçenek ama bilgiyi kaybettiriyor — bu örnekte `fuel` ve `gearbox` eklemek hatayı yarıya indiriyor.",
+        "en": "A model works with numbers; a categorical column has to be turned into numbers first.\n\nWith no order, one-hot encoding (`pd.get_dummies`); with an order, ordinal encoding.\n\nDropping the column is an option too, but it loses information — in this example adding `fuel` and `gearbox` halves the error."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 2,
+      "text": {
+        "tr": "`petrol=0, diesel=1, lpg=2` demek neden yanlış?",
+        "en": "Why is `petrol=0, diesel=1, lpg=2` wrong?"
+      },
+      "options": {
+        "tr": [
+          "Sayılar çok küçük",
+          "pandas bunu desteklemiyor",
+          "Kategoriler arasında olmayan bir sıra uyduruyor",
+          "Sütun adları bozuluyor"
+        ],
+        "en": [
+          "The numbers are too small",
+          "pandas does not support it",
+          "It invents an order that does not exist between the categories",
+          "It corrupts the column names"
+        ]
+      },
+      "explanation": {
+        "tr": "Model için `lpg` artık `petrol`'ün iki katı ve `diesel` tam ortası. Yakıt türleri arasında böyle bir ilişki yok.\n\nOne-hot kodlama her kategoriye kendi sütununu vererek bu sorunu çözüyor.\n\nSıra **gerçekten** varsa (düşük/orta/yüksek) sayıya çevirmek doğru; buna sıralı kodlama deniyor.",
+        "en": "To the model `lpg` is now twice `petrol` and `diesel` exactly halfway. No such relationship exists between fuel types.\n\nOne-hot encoding solves this by giving each category its own column.\n\nWhen an order **really** exists (low/medium/high), turning it into numbers is right; that is called ordinal encoding."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.get_dummies(df, columns=[\"fuel\"])` üç kategorili bir sütuna ne yapıyor?",
+        "en": "What does `pd.get_dummies(df, columns=[\"fuel\"])` do to a column with three categories?"
+      },
+      "options": {
+        "tr": [
+          "Üç yeni sütun üretir; her satırda yalnızca biri 1 olur",
+          "Sütunu siler",
+          "Sütunu 0, 1, 2 değerlerine çevirir",
+          "Sütunu metin olarak bırakır"
+        ],
+        "en": [
+          "Produces three new columns, exactly one of them 1 per row",
+          "Deletes the column",
+          "Turns the column into 0, 1, 2",
+          "Leaves the column as text"
+        ]
+      },
+      "explanation": {
+        "tr": "`fuel_petrol`, `fuel_diesel`, `fuel_lpg` — her satırda o satırın kategorisi 1, ötekiler 0.\n\nBöylece kategoriler arasında sıra uydurulmuyor; her biri bağımsız bir sütun.\n\n`drop_first=True` verilirse bir sütun atılıyor: üç kategori iki sütunla da anlatılabiliyor (ikisi de 0 ise üçüncüsüdür).",
+        "en": "`fuel_petrol`, `fuel_diesel`, `fuel_lpg` — in each row that row's category is 1 and the others 0.\n\nNo order is invented between them; each is an independent column.\n\nWith `drop_first=True` one column is dropped: three categories can also be described with two (if both are 0, it is the third)."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 1,
+      "text": {
+        "tr": "Hangi durumda kategoriyi sayıya çevirmek (sıralı kodlama) doğru?",
+        "en": "When is turning a category into numbers (ordinal encoding) correct?"
+      },
+      "options": {
+        "tr": [
+          "Her zaman",
+          "Kategoriler arasında gerçek bir sıra varsa",
+          "Kategori sayısı azsa",
+          "Model ağaç tabanlıysa"
+        ],
+        "en": [
+          "Always",
+          "When the categories really do have an order",
+          "When there are few categories",
+          "When the model is tree-based"
+        ]
+      },
+      "explanation": {
+        "tr": "`düşük < orta < yüksek` ya da `ilkokul < lise < üniversite` gerçek bir sıra taşıyor; `0, 1, 2` bu sırayı doğru anlatıyor.\n\n`petrol`, `diesel`, `lpg` taşımıyor; orada one-hot gerekiyor.\n\nKategori sayısının azlığı ya da model türü bu kararı değiştirmiyor — belirleyen şey sıranın gerçekten var olup olmaması.",
+        "en": "`low < medium < high` or `primary < secondary < university` carry a real order; `0, 1, 2` describes it correctly.\n\n`petrol`, `diesel`, `lpg` do not; one-hot is needed there.\n\nThe number of categories or the kind of model does not change this decision — what decides it is whether the order actually exists."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 2,
+      "text": {
+        "tr": "Yüzlerce kategorisi olan bir sütunu (şehir gibi) one-hot kodlamanın riski nedir?",
+        "en": "What is the risk of one-hot encoding a column with hundreds of categories (a city, say)?"
+      },
+      "options": {
+        "tr": [
+          "Hesaplama hata verir",
+          "Kategoriler kaybolur",
+          "Özellik sayısı örnek sayısına yaklaşır ve model ezberler",
+          "pandas bunu yapamaz"
+        ],
+        "en": [
+          "The computation raises an error",
+          "The categories are lost",
+          "The number of features approaches the number of samples and the model memorises",
+          "pandas cannot do it"
+        ]
+      },
+      "explanation": {
+        "tr": "120 satırlık bir veriye 200 sütun eklemek, modele her satırı ayrı ayrı tanıma imkânı veriyor.\n\nÇözümler: az görülen kategorileri \"diğer\" altında toplamak, kategoriyi başka bir bilgiyle değiştirmek (şehir yerine nüfus gibi), ya da bu tür sütunlarla başa çıkabilen modeller kullanmak.\n\nKod çalışıyor; sorun sonucun güvenilirliğinde.",
+        "en": "Adding 200 columns to 120 rows gives the model a way to recognise each row individually.\n\nThe fixes: group rare categories under \"other\", replace the category with another piece of information (population instead of city), or use models that handle such columns.\n\nThe code runs; the problem is in how much the result can be trusted."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 1,
+      "text": {
+        "tr": "Ölçeklemesiz KNN'in MAE'si 171.49, ölçekli KNN'inki 51.48. Bunun sebebi ne?",
+        "en": "Unscaled KNN has MAE 171.49 and scaled KNN 51.48. What causes that?"
+      },
+      "options": {
+        "tr": [
+          "Ölçekleme modeli değiştiriyor",
+          "Büyük aralıklı sütun mesafeyi tek başına belirliyor",
+          "Ölçekleme veriyi temizliyor",
+          "KNN ölçekli veriyle daha hızlı çalışıyor"
+        ],
+        "en": [
+          "Scaling changes the model",
+          "The wide-range column decides the distance on its own",
+          "Scaling cleans the data",
+          "KNN runs faster on scaled data"
+        ]
+      },
+      "explanation": {
+        "tr": "`km` 10.000-300.000 arasında, `engine` 1.0-2.0 arasında. Mesafe hesabında `engine`'deki 1 birimlik fark, `km`'deki 250.000'in yanında yok hükmünde.\n\nÖlçeklemesiz KNN aslında yalnızca `km`'ye bakıyor; öteki sütunlar sanki yokmuş gibi davranıyor.\n\nÖlçekleme modeli değiştirmiyor, sütunları karşılaştırılabilir hâle getiriyor.",
+        "en": "`km` runs 10,000-300,000 and `engine` 1.0-2.0. In a distance computation a difference of 1 in `engine` counts for nothing next to 250,000 in `km`.\n\nUnscaled, KNN is really only looking at `km`; the other columns behave as if they were not there.\n\nScaling does not change the model, it makes the columns comparable."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 1,
+      "text": {
+        "tr": "Doğrusal regresyon ölçeklemeden neden etkilenmiyor?",
+        "en": "Why is linear regression unaffected by scaling?"
+      },
+      "options": {
+        "tr": [
+          "Ölçekleme yapmadığı için",
+          "Her sütun için ayrı katsayı öğrenip onu sütunun ölçeğine göre ayarladığı için",
+          "Yalnızca küçük sayılarla çalıştığı için",
+          "Etkileniyor, ama az"
+        ],
+        "en": [
+          "Because it does not scale",
+          "Because it learns a separate coefficient per column and tunes it to that column's scale",
+          "Because it only works with small numbers",
+          "It is affected, just slightly"
+        ]
+      },
+      "explanation": {
+        "tr": "`km` büyük sayılarsa katsayısı küçük çıkıyor; çarpımları aynı yere geliyor. Ölçekli ve ölçeksiz MAE birebir aynı (34.63).\n\nYine de bir fayda var: ölçeklenmiş veride katsayılar **karşılaştırılabilir** hâle geliyor.\n\nDüzenlileştirme (regularization) devreye girdiğinde durum değişiyor — orada katsayıların büyüklüğü cezalandırıldığı için ölçek önem kazanıyor.",
+        "en": "If `km` is in large numbers its coefficient comes out small; the products land in the same place. Scaled and unscaled MAE are identical (34.63).\n\nThere is still a benefit: on scaled data the coefficients become **comparable**.\n\nThis changes once regularisation enters — there the size of the coefficients is penalised, so scale starts to matter."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Hangi model ölçeklemeden etkilenmez?",
+        "en": "Which model is not affected by scaling?"
+      },
+      "options": {
+        "tr": [
+          "Karar ağacı",
+          "KNN",
+          "KMeans kümeleme",
+          "Sinir ağı"
+        ],
+        "en": [
+          "A decision tree",
+          "KNN",
+          "KMeans clustering",
+          "A neural network"
+        ]
+      },
+      "explanation": {
+        "tr": "Ağaç \"km 150.000'den büyük mü\" diye soruyor; sütunun ölçeği bu soruyu değiştirmiyor. Eşik nerede olursa olsun aynı bölünme oluşuyor.\n\nÖteki üçü mesafe ya da ağırlık büyüklüğü kullanıyor ve ölçekten doğrudan etkileniyor.\n\nGenel ayrım: **mesafe kullananlar etkileniyor, eşik kullananlar etkilenmiyor.**",
+        "en": "A tree asks \"is km above 150,000\"; the column's scale does not change that question. Wherever the threshold sits, the same split happens.\n\nThe other three use distance or the size of a weight and are directly affected.\n\nThe general split: **anything using distance is affected, anything using thresholds is not.**"
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 3,
+      "text": {
+        "tr": "`scaler.fit_transform(X_test)` yazmak neden yanlış?",
+        "en": "Why is writing `scaler.fit_transform(X_test)` wrong?"
+      },
+      "options": {
+        "tr": [
+          "Hata verir",
+          "Çok yavaştır",
+          "Test verisini bozar",
+          "Ölçekleyiciyi test verisine göre yeniden öğretir: hem sızıntı hem farklı ölçek"
+        ],
+        "en": [
+          "It raises an error",
+          "It is very slow",
+          "It corrupts the test data",
+          "It re-teaches the scaler on the test data: leakage, and different scales"
+        ]
+      },
+      "explanation": {
+        "tr": "`fit` öğrenme, `transform` uygulama. Teste `fit` çağırmak, test verisinin ortalamasını ve standart sapmasını hesaplamak demek.\n\nİki sonucu birden var: modelin görmemesi gereken veriden bilgi çıkarılıyor **ve** iki küme farklı ölçeklere gidiyor.\n\nDoğrusu: `fit_transform` eğitimde, `transform` testte.",
+        "en": "`fit` learns, `transform` applies. Calling `fit` on the test set means computing the test set's mean and standard deviation.\n\nThat has two consequences at once: information is drawn from data the model must not see, **and** the two sets end up on different scales.\n\nThe right way: `fit_transform` on training, `transform` on test."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 2,
+      "text": {
+        "tr": "`StandardScaler` ne yapıyor?",
+        "en": "What does `StandardScaler` do?"
+      },
+      "options": {
+        "tr": [
+          "Değerleri 0 ile 1 arasına sıkıştırır",
+          "Aykırı değerleri atar",
+          "Ortalamayı 0, standart sapmayı 1 yapar",
+          "Eksikleri doldurur"
+        ],
+        "en": [
+          "Squeezes values between 0 and 1",
+          "Removes outliers",
+          "Sets the mean to 0 and the standard deviation to 1",
+          "Fills the gaps"
+        ]
+      },
+      "explanation": {
+        "tr": "Her sütundan ortalaması çıkarılıp standart sapmasına bölünüyor; sütunlar ortak bir ölçeğe geliyor.\n\n0-1 arasına sıkıştıran `MinMaxScaler`. Aykırı değere dayanıklı olan `RobustScaler` (medyan ve çeyreklikleri kullanıyor).\n\nHiçbiri eksik değerle ilgilenmiyor; onlar daha önce halledilmiş olmalı.",
+        "en": "Each column has its mean subtracted and is divided by its standard deviation; the columns arrive at a common scale.\n\n`MinMaxScaler` is the one that squeezes into 0-1. `RobustScaler` is the one robust to outliers (it uses the median and quartiles).\n\nNone of them deals with missing values; those must already be handled."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 2,
+      "text": {
+        "tr": "Veri sızıntısı ne demek?",
+        "en": "What is data leakage?"
+      },
+      "options": {
+        "tr": [
+          "Verinin diske sığmaması",
+          "Verinin başkasına gitmesi",
+          "Modelin, tahmin anında elinde olmayacak bir bilgiyi eğitimde görmesi",
+          "Eksik değerlerin çok olması"
+        ],
+        "en": [
+          "The data not fitting on disk",
+          "The data reaching someone else",
+          "The model seeing, during training, information it will not have at prediction time",
+          "Having too many missing values"
+        ]
+      },
+      "explanation": {
+        "tr": "Sonuç her zaman aynı: test skoru olduğundan yüksek çıkıyor ve model gerçek kullanımda o kadar iyi olmuyor.\n\nEn kötü tarafı sessiz olması — hata mesajı yok, uyarı yok, yalnızca beklenenden güzel bir sayı.\n\nDört tipik kaynağı var: hazırlığı ayırmadan önce yapmak, özellik seçimini bütün veride yapmak, zamanı karıştırmak, hedefi taşıyan bir sütun kullanmak.",
+        "en": "The result is always the same: the test score comes out higher than it should and the model is not that good in real use.\n\nThe worst part is how quiet it is — no error, no warning, just a number prettier than expected.\n\nIt has four typical sources: preparing before splitting, selecting features on all the data, mixing up time, and using a column that carries the target."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "300 rastgele sütunlu, hedefiyle hiçbir ilişkisi olmayan bir veride sızıntılı seçim R² 0.442 veriyor. Bu ne anlatıyor?",
+        "en": "On data with 300 random columns and no relationship to the target, leaky selection gives R² 0.442. What does that tell you?"
+      },
+      "options": {
+        "tr": [
+          "Sızıntı, olmayan bir modeli var gösterebiliyor",
+          "Veride gizli bir örüntü varmış",
+          "R² yanlış hesaplanmış",
+          "300 sütun çok fazla"
+        ],
+        "en": [
+          "Leakage can make a non-existent model look real",
+          "There was a hidden pattern in the data",
+          "The R² was computed wrongly",
+          "300 columns is too many"
+        ]
+      },
+      "explanation": {
+        "tr": "Veride hiçbir ilişki yok; doğru kurulan model R² -0.273 veriyor, yani \"öğrenilecek bir şey yok\" diyor.\n\n300 rastgele sütundan bazıları tesadüfen test satırlarıyla uyuşuyor. Seçim bütün veriye bakarak yapıldığında tam olarak onlar seçiliyor, sonra aynı test verisinde ölçülüyor.\n\nSütun sayısı sorunu büyütüyor ama sebebi değil — sebep seçimin nerede yapıldığı.",
+        "en": "There is no relationship in the data; the correctly built model gives R² -0.273, saying \"there is nothing to learn\".\n\nAmong 300 random columns some happen to agree with the test rows. When the selection looks at all the data, those are exactly the ones it picks, and the measurement is then taken on that same test data.\n\nThe number of columns makes it worse but is not the cause — the cause is where the selection happened."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Model R² 0.99 verdi ve bu beklenenden çok yüksek. İlk ne yapmalı?",
+        "en": "A model gave R² 0.99, far higher than expected. What do you do first?"
+      },
+      "options": {
+        "tr": [
+          "Sızıntı aramak",
+          "Sonucu paylaşmak",
+          "Modeli daha karmaşık yapmak",
+          "Test kümesini büyütmek"
+        ],
+        "en": [
+          "Look for leakage",
+          "Share the result",
+          "Make the model more complex",
+          "Enlarge the test set"
+        ]
+      },
+      "explanation": {
+        "tr": "Beklenenden çok yüksek başarı, genelde bir başarı değil bir belirti.\n\nBakılacak yerler: hedeften türetilmiş bir sütun var mı, hazırlık ayırmadan önce mi yapıldı, özellikler bütün veriye bakarak mı seçildi.\n\n\"Sonuç çok iyi\" cümlesinin ardından gelen ilk soru \"neden bu kadar iyi\" olmalı.",
+        "en": "Performance far higher than expected is usually not an achievement but a symptom.\n\nWhere to look: is there a column derived from the target, was the preparation done before the split, were the features chosen by looking at all the data?\n\nThe first question after \"the result is very good\" should be \"why is it this good\"."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 2,
+      "text": {
+        "tr": "Zaman serisi verisinde `train_test_split`'i varsayılan ayarlarla kullanmanın sorunu ne?",
+        "en": "What is the problem with using `train_test_split` with its defaults on time series data?"
+      },
+      "options": {
+        "tr": [
+          "Çok yavaş çalışır",
+          "Sütun sayısı bozulur",
+          "Rastgele karıştırma geleceği geçmişe sızdırır",
+          "Sorun yok"
+        ],
+        "en": [
+          "It is too slow",
+          "It corrupts the column count",
+          "The random shuffle leaks the future into the past",
+          "There is no problem"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan `shuffle=True` satırları karıştırıyor; model yarını görüp dünü tahmin etmiş oluyor.\n\nGerçek kullanımda böyle bir imkân yok, o yüzden ölçüm gerçeği yansıtmıyor.\n\nZaman verisinde bölme tarihe göre yapılıyor: geçmiş eğitim, gelecek test.",
+        "en": "The default `shuffle=True` shuffles the rows; the model ends up seeing tomorrow and predicting yesterday.\n\nNo such possibility exists in real use, so the measurement does not reflect reality.\n\nWith time data the split is made by date: the past for training, the future for testing."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Bir hastalığı \"hastaneye yatış tarihi\" sütunuyla tahmin etmek neden sızıntı?",
+        "en": "Why is predicting an illness from an \"admission date\" column leakage?"
+      },
+      "options": {
+        "tr": [
+          "Yatış, teşhisten sonra oluşuyor; tahmin anında elde olmayacak bir bilgi",
+          "Tarih sütunları modele giremez",
+          "Tarihler çok büyük sayılar",
+          "Sütunda eksik değer var"
+        ],
+        "en": [
+          "Admission happens after diagnosis; it is information you will not have at prediction time",
+          "Date columns cannot enter a model",
+          "Dates are very large numbers",
+          "The column has missing values"
+        ]
+      },
+      "explanation": {
+        "tr": "Model harika çalışıyor çünkü cevabı doğrudan söyleyen bir sütun var.\n\nGerçek kullanımda tahmin yatıştan **önce** yapılacak; o sütun boş olacak ve model işe yaramayacak.\n\nKontrol sorusu her sütun için aynı: **bu bilgi tahmin anında elimde olacak mı?**",
+        "en": "The model works beautifully because a column hands it the answer.\n\nIn real use the prediction will be made **before** admission; that column will be empty and the model will be useless.\n\nThe check is the same for every column: **will I have this information at prediction time?**"
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 3,
+      "text": {
+        "tr": "Bir sütunun yarısından fazlası eksikse ne yapmak daha dürüst?",
+        "en": "If more than half a column is missing, what is the more honest thing to do?"
+      },
+      "options": {
+        "tr": [
+          "Ortalamayla doldurmak",
+          "Sıfırla doldurmak",
+          "O satırların hepsini atmak",
+          "Sütunu tamamen atmak"
+        ],
+        "en": [
+          "Fill it with the mean",
+          "Fill it with zero",
+          "Drop all those rows",
+          "Drop the column entirely"
+        ]
+      },
+      "explanation": {
+        "tr": "Verinin yarısından fazlasını uydurmak, o sütunu bilgi değil gürültü hâline getiriyor.\n\nSatırları atmak da olmaz: verinin yarısını kaybedersin ve kalan satırlar da temsili olmayabilir (eksiklik rastgele olmayabilir).\n\nBazen eksikliğin **kendisi** bilgi taşıyor; o durumda \"bu değer var mı\" diye ikili bir sütun üretmek daha faydalı.",
+        "en": "Inventing more than half a column turns it from information into noise.\n\nDropping the rows will not do either: you lose half the data, and the rows left may not be representative (the missingness may not be random).\n\nSometimes the absence **itself** carries information; then producing a binary \"is this value present\" column is more useful."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 3,
+      "text": {
+        "tr": "pandas 3'te metin sütunlarını bulmak için hangisi çalışıyor?",
+        "en": "In pandas 3, which of these finds the text columns?"
+      },
+      "options": {
+        "tr": [
+          "`df.dtypes == \"object\"`",
+          "`df.columns.str.isalpha()`",
+          "`df.info()`",
+          "`df.select_dtypes(exclude=\"number\")`"
+        ],
+        "en": [
+          "`df.dtypes == \"object\"`",
+          "`df.columns.str.isalpha()`",
+          "`df.info()`",
+          "`df.select_dtypes(exclude=\"number\")`"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas 3'te metin sütunları artık `object` değil; eski kaynaklardaki kontrol **boş liste** veriyor ve hata da vermiyor.\n\n\"Sayı olmayan sütunlar\" demek hem çalışıyor hem de niyeti daha açık anlatıyor.\n\n`df.info()` ekrana yazdırıyor ama liste döndürmüyor; koda bağlanamıyor.",
+        "en": "In pandas 3 text columns are no longer `object`; the check from older sources returns an **empty list** and raises nothing.\n\nSaying \"the columns that are not numbers\" both works and states the intent more clearly.\n\n`df.info()` prints to the screen but returns no list; you cannot build on it."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 2,
+      "text": {
+        "tr": "`SimpleImputer(strategy=\"most_frequent\")` hangi sütunlar için uygun?",
+        "en": "Which columns is `SimpleImputer(strategy=\"most_frequent\")` suitable for?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca sayısal",
+          "Yalnızca tarih",
+          "Kategorik sütunlar",
+          "Hiçbiri"
+        ],
+        "en": [
+          "Numeric only",
+          "Dates only",
+          "Categorical columns",
+          "None"
+        ]
+      },
+      "explanation": {
+        "tr": "Kategorik bir sütunda ortalama alınamıyor; en sık görülen değer mantıklı bir doldurma.\n\nSayısal sütunlarda `mean` ya da `median` kullanılıyor.\n\nAynı `SimpleImputer` nesnesi bütün sütunlara tek bir strateji uyguluyor; farklı türler için ayrı nesneler ya da `ColumnTransformer` gerekiyor.",
+        "en": "You cannot take a mean of a categorical column; the most frequent value is a sensible fill.\n\nFor numeric columns `mean` or `median` is used.\n\nOne `SimpleImputer` applies a single strategy to every column; different kinds need separate objects or a `ColumnTransformer`."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 3,
+      "text": {
+        "tr": "`get_dummies` yerine `OneHotEncoder` ne zaman gerekiyor?",
+        "en": "When is `OneHotEncoder` needed instead of `get_dummies`?"
+      },
+      "options": {
+        "tr": [
+          "Her zaman",
+          "Kategori sayısı azken",
+          "pandas kullanılmadığında",
+          "Testte eğitimde görülmeyen bir kategori olabileceğinde"
+        ],
+        "en": [
+          "Always",
+          "When there are few categories",
+          "When pandas is not used",
+          "When the test set may hold a category not seen in training"
+        ]
+      },
+      "explanation": {
+        "tr": "`get_dummies` iki kümeye ayrı ayrı uygulandığında **farklı sütunlar** üretiyor ve model çöküyor.\n\n`OneHotEncoder` eğitimdeki kategori listesini hatırlıyor; `handle_unknown=\"ignore\"` ile yeni kategorileri sessizce atıyor.\n\nAynı sebeple sklearn'in `Pipeline`'ına da o giriyor: eğitimde öğrenip testte uygulayan bir nesne.",
+        "en": "Applied separately to the two sets, `get_dummies` produces **different columns** and the model breaks.\n\n`OneHotEncoder` remembers the training categories; with `handle_unknown=\"ignore\"` it drops new ones quietly.\n\nFor the same reason it is what goes into sklearn's `Pipeline`: an object that learns on training and applies on test."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 1,
+      "text": {
+        "tr": "Hazırlık adımlarının doğru sırası hangisi?",
+        "en": "Which is the correct order of the preparation steps?"
+      },
+      "options": {
+        "tr": [
+          "oku → doldur → kodla → ölçekle → ayır → eğit",
+          "oku → ayır → doldur → kodla → ölçekle → eğit",
+          "oku → ayır → eğit → doldur → ölçekle",
+          "oku → ölçekle → ayır → doldur → eğit"
+        ],
+        "en": [
+          "read → fill → encode → scale → split → train",
+          "read → split → fill → encode → scale → train",
+          "read → split → train → fill → scale",
+          "read → scale → split → fill → train"
+        ]
+      },
+      "explanation": {
+        "tr": "Ayırma en başta duruyor; ondan sonraki her adım eğitimde öğrenilip ikisine birden uygulanıyor.\n\nEğitim adımı en sonda: modele verilecek veri tamamen hazır olmalı.\n\nBu sıra elle uygulanınca zahmetli; `Pipeline` bütün adımları tek nesnede toplayıp sızıntıyı yapısal olarak engelliyor.",
+        "en": "The split sits right at the front; every step after it is learned on training and applied to both.\n\nTraining comes last: the data handed to the model must be completely ready.\n\nApplied by hand this order is laborious; `Pipeline` gathers every step into one object and prevents leakage structurally."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 3,
+      "text": {
+        "tr": "`Pipeline` sızıntıyı nasıl engelliyor?",
+        "en": "How does `Pipeline` prevent leakage?"
+      },
+      "options": {
+        "tr": [
+          "Veriyi kontrol ederek",
+          "Uyarı vererek",
+          "Test verisini gizleyerek",
+          "`fit` çağrıldığında bütün adımları yalnızca eğitim verisinde öğrenerek"
+        ],
+        "en": [
+          "By checking the data",
+          "By raising a warning",
+          "By hiding the test data",
+          "By learning every step on the training data only when `fit` is called"
+        ]
+      },
+      "explanation": {
+        "tr": "`pipe.fit(X_train, y_train)` ölçekleyiciyi, doldurucuyu ve modeli sırayla **yalnızca eğitimde** öğretiyor.\n\n`pipe.predict(X_test)` ise öğrenileni uyguluyor, yeniden öğrenmiyor.\n\nSızıntı yapmak için özel çaba göstermek gerekiyor — bir adımı unutma ihtimali ortadan kalkıyor.",
+        "en": "`pipe.fit(X_train, y_train)` teaches the scaler, the imputer and the model in turn, **on training only**.\n\n`pipe.predict(X_test)` applies what was learned; it does not learn again.\n\nLeaking now takes deliberate effort — the chance of forgetting a step disappears."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 2,
+      "text": {
+        "tr": "`fuel` ve `gearbox` sütunlarını modele eklemek MAE'yi 32.58'den 16.42'ye düşürdü. Bundan çıkan sonuç ne?",
+        "en": "Adding the `fuel` and `gearbox` columns brought MAE from 32.58 down to 16.42. What follows?"
+      },
+      "options": {
+        "tr": [
+          "One-hot kodlama her zaman modeli iyileştirir",
+          "Sayısal sütunlar gereksizmiş",
+          "Bu iki sütun fiyatı gerçekten belirliyormuş; sayısal olmadıkları için dışarıda kalmışlardı",
+          "Veri kümesi çok küçükmüş"
+        ],
+        "en": [
+          "One-hot encoding always improves a model",
+          "The numeric columns were unnecessary",
+          "Those two columns really do drive the price; they were left out only for not being numbers",
+          "The dataset was too small"
+        ]
+      },
+      "explanation": {
+        "tr": "Kodlama bir teknik; iyileşme sütunların taşıdığı bilgiden geliyor.\n\nHedefle ilgisi olmayan bir kategorik sütun kodlandığında model iyileşmiyor, hatta gürültü ekliyor.\n\nBuradaki ders: metin olduğu için dışarıda bırakılan sütunlar, kaybedilmiş bilgi olabilir.",
+        "en": "The encoding is a technique; the improvement comes from the information those columns carry.\n\nEncoding a categorical column unrelated to the target does not improve the model and may add noise.\n\nThe lesson here: columns left out for being text can be lost information."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 1,
+      "text": {
+        "tr": "Ölçeklemenin doğrusal regresyonda sağladığı fayda nedir?",
+        "en": "What benefit does scaling bring to linear regression?"
+      },
+      "options": {
+        "tr": [
+          "Hatayı düşürür",
+          "Katsayıları birbiriyle karşılaştırılabilir hâle getirir",
+          "Eğitimi hızlandırır",
+          "Hiçbir faydası yoktur"
+        ],
+        "en": [
+          "It lowers the error",
+          "It makes the coefficients comparable with each other",
+          "It speeds up training",
+          "It brings no benefit at all"
+        ]
+      },
+      "explanation": {
+        "tr": "Hata değişmiyor — ölçekli ve ölçeksiz MAE birebir aynı (34.63).\n\nAma bölüm 01'de \"3.35 > 2.77 diye yaş daha önemli denmez\" demiştik; sebebi sütunların farklı birimlerde olmasıydı. Ölçekledikten sonra katsayılar aynı ölçekte konuşuyor ve kıyaslanabiliyor.\n\nDüzenlileştirmeli modellerde ise ölçekleme hatayı da etkiliyor.",
+        "en": "The error does not change — scaled and unscaled MAE are identical (34.63).\n\nBut in section 1 we said \"you cannot claim age matters more because 3.35 > 2.77\"; the reason was that the columns were in different units. After scaling the coefficients speak on the same scale and can be compared.\n\nWith regularised models scaling affects the error as well."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 3,
+      "text": {
+        "tr": "Sızıntının etkisi bu bölümdeki ölçekleme örneğinde çok küçük çıktı (51.48'e karşı 51.69). Bundan ne sonuç çıkar?",
+        "en": "In this section's scaling example the effect of leakage was tiny (51.48 against 51.69). What follows from that?"
+      },
+      "options": {
+        "tr": [
+          "Kural gevşetilebilir",
+          "Ölçekleme gereksizmiş",
+          "Ölçüm yanlış yapılmış",
+          "Sızıntının büyüklüğü ne sızdığına bağlı; kural yine de uygulanır"
+        ],
+        "en": [
+          "The rule can be relaxed",
+          "Scaling was unnecessary",
+          "The measurement was made wrongly",
+          "How large a leak is depends on what leaked; the rule still applies"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı bölümde özellik seçimi sızıntısı R²'yi -0.273'ten 0.442'ye taşıyor — yani tamamen uydurma bir sonuç üretiyor.\n\nBüyüklük ne sızdığına bağlı ve önceden bilinemiyor.\n\nKuralı \"etkisi küçükse boş ver\" diye uygulamak, etkinin büyük olduğu durumu göremeden geçmek demek.",
+        "en": "In the same section a feature-selection leak moves R² from -0.273 to 0.442 — producing an entirely fictional result.\n\nThe size depends on what leaked and cannot be known in advance.\n\nApplying the rule as \"ignore it when the effect is small\" means walking past the case where it is large."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 0,
+      "text": {
+        "tr": "Eksik değeri olan bir satırı atmak ne zaman kabul edilebilir?",
+        "en": "When is dropping a row with a missing value acceptable?"
+      },
+      "options": {
+        "tr": [
+          "Veri bolsa ve eksiklik rastgeleyse",
+          "Her zaman",
+          "Yalnızca sayısal sütunlarda",
+          "Asla"
+        ],
+        "en": [
+          "When there is plenty of data and the missingness is random",
+          "Always",
+          "Only for numeric columns",
+          "Never"
+        ]
+      },
+      "explanation": {
+        "tr": "120 satırın 14'ünü atmak verinin sekizde birini kaybetmek demek; az veride bu lüks yok.\n\nDaha önemlisi eksikliğin **neden** olduğu: belirli bir grupta yoğunlaşıyorsa (örneğin eski araçlarda motor bilgisi yoksa) o satırları atmak veriyi çarpıtıyor.\n\nEksiklik rastgele değilse doldurmak da atmak da dikkat istiyor.",
+        "en": "Dropping 14 of 120 rows means losing an eighth of the data; with little data you cannot afford it.\n\nMore importantly, **why** the values are missing: if they cluster in one group (say older cars have no engine data), dropping those rows distorts the data.\n\nWhen the missingness is not random, both filling and dropping need care."
+      }
+    },
+    {
+      "id": "q31",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdakilerden hangisi veri sızıntısı **değil**?",
+        "en": "Which of these is **not** data leakage?"
+      },
+      "options": {
+        "tr": [
+          "Eksikleri eğitim ortalamasıyla doldurmak",
+          "Ölçeklemeyi bütün veride yapmak",
+          "Özellikleri bütün veriye bakarak seçmek",
+          "Test kümesine bakarak eşik seçmek"
+        ],
+        "en": [
+          "Filling gaps with the training mean",
+          "Scaling on all the data",
+          "Selecting features by looking at all the data",
+          "Choosing a threshold by looking at the test set"
+        ]
+      },
+      "explanation": {
+        "tr": "Eğitim ortalamasıyla doldurmak **doğru** olan yol: bilgi yalnızca eğitimden geliyor.\n\nÖteki üçünde test verisinin bilgisi karara giriyor.\n\nSon seçenek biraz farklı bir sızıntı türü: veri değil **karar** sızıyor, ama sonuç aynı — test skoru dürüst olmaktan çıkıyor.",
+        "en": "Filling with the training mean is the **correct** approach: the information comes from training only.\n\nIn the other three the test set's information enters the decision.\n\nThe last option is a slightly different kind of leak: what leaks is not data but a **decision** — yet the result is the same, the test score stops being honest."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 1,
+      "text": {
+        "tr": "Bir sütunun hedefle korelasyonu 0.99 çıktı. İlk düşünülecek ne?",
+        "en": "A column's correlation with the target is 0.99. What is the first thing to consider?"
+      },
+      "options": {
+        "tr": [
+          "Harika bir özellik bulundu",
+          "Bu sütun hedeften türetilmiş olabilir",
+          "Korelasyon yanlış hesaplandı",
+          "Sütunu ölçeklemek gerekiyor"
+        ],
+        "en": [
+          "A brilliant feature has been found",
+          "This column may be derived from the target",
+          "The correlation was computed wrongly",
+          "The column needs scaling"
+        ]
+      },
+      "explanation": {
+        "tr": "Gerçek verilerde 0.99'luk bir ilişki nadir; çoğu zaman sütun hedefin kendisinin başka bir yazılışı oluyor.\n\nÖrnek: \"toplam ödeme\" ile \"satın aldı mı\" tahmin etmek, ya da hedefin birimini değiştirip sütun olarak eklemek.\n\nBöyle bir sütun modelin skorunu uçuruyor ve gerçek kullanımda hiçbir işe yaramıyor.",
+        "en": "In real data a relationship of 0.99 is rare; more often the column is the target written another way.\n\nExamples: predicting \"did they buy\" from \"total paid\", or adding the target in different units as a column.\n\nSuch a column sends the score through the roof and is worth nothing in real use."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 3,
+      "text": {
+        "tr": "Veri hazırlığında \"aynı değeri ikisine de uygula\" kuralının sebebi nedir?",
+        "en": "Why does data preparation say \"apply the same value to both\"?"
+      },
+      "options": {
+        "tr": [
+          "Kod kısalsın diye",
+          "Hesap hızlansın diye",
+          "pandas öyle istediği için",
+          "İki küme farklı dünyalara gitmesin diye"
+        ],
+        "en": [
+          "To keep the code short",
+          "To speed up the computation",
+          "Because pandas requires it",
+          "So the two sets do not end up in different worlds"
+        ]
+      },
+      "explanation": {
+        "tr": "Test kümesini kendi ortalamasıyla doldurmak ya da kendi ölçeğiyle ölçeklemek, modeli eğitimde gördüğünden başka bir şeyle sınamak demek.\n\nGerçek kullanımda da böyle olacak: yeni bir kayıt geldiğinde onun \"kendi ortalaması\" diye bir şey olmuyor; eğitimde öğrenilen değer uygulanıyor.\n\nYani kural yalnızca sızıntıyla değil, gerçeğe uygunlukla da ilgili.",
+        "en": "Filling the test set with its own mean, or scaling it to its own scale, means testing the model on something other than what it was trained on.\n\nReal use works the same way: when a new record arrives it has no \"own mean\"; the value learned in training is what gets applied.\n\nSo the rule is not only about leakage but about matching reality."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 3,
+      "text": {
+        "tr": "Eksikliğin kendisinin bilgi taşıdığı durumda ne yapılabilir?",
+        "en": "When the absence itself carries information, what can you do?"
+      },
+      "options": {
+        "tr": [
+          "Satırı atmak",
+          "Sıfırla doldurmak",
+          "Sütunu atmak",
+          "\"Bu değer var mı\" diye ikili bir sütun eklemek"
+        ],
+        "en": [
+          "Drop the row",
+          "Fill it with zero",
+          "Drop the column",
+          "Add a binary \"is this value present\" column"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir müşterinin gelir bilgisini vermemesi, gelirinin bilinmemesinden farklı bir şey söyleyebiliyor.\n\nEksikliği ayrı bir sütuna taşımak, hem değeri doldurmayı hem de \"eksikti\" bilgisini korumayı sağlıyor.\n\nSıfırla doldurmak en kötüsü: model sıfırı gerçek bir değer sanıyor ve dağılımı bozuyor.",
+        "en": "A customer not stating their income can say something different from their income being unknown.\n\nMoving the absence into its own column lets you fill the value and keep the fact that it was missing.\n\nFilling with zero is the worst option: the model takes zero for a real value and the distribution is distorted."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 1,
+      "text": {
+        "tr": "`MinMaxScaler` ile `StandardScaler` arasındaki fark nedir?",
+        "en": "What is the difference between `MinMaxScaler` and `StandardScaler`?"
+      },
+      "options": {
+        "tr": [
+          "MinMax daha hızlıdır",
+          "MinMax değerleri 0-1 arasına sıkıştırır, Standard ortalamayı 0 standart sapmayı 1 yapar",
+          "Standard yalnızca sınıflandırmada kullanılır",
+          "İkisi aynı sonucu verir"
+        ],
+        "en": [
+          "MinMax is faster",
+          "MinMax squeezes values into 0-1 while Standard sets the mean to 0 and the standard deviation to 1",
+          "Standard is only used for classification",
+          "They give the same result"
+        ]
+      },
+      "explanation": {
+        "tr": "`MinMaxScaler` sınırlı bir aralık gerektiğinde işe yarıyor ama aykırı değere çok duyarlı: tek bir uç kayıt bütün ötekileri dar bir bölgeye sıkıştırıyor.\n\n`StandardScaler` varsayılan seçim; aykırı değerden etkileniyor ama daha az.\n\nAykırı değer çoksa `RobustScaler` var: medyan ve çeyreklikleri kullandığı için uçlardan etkilenmiyor.",
+        "en": "`MinMaxScaler` helps when a bounded range is needed but is very sensitive to outliers: one extreme record squeezes everything else into a narrow band.\n\n`StandardScaler` is the default choice; outliers affect it too, but less.\n\nWith many outliers there is `RobustScaler`: it uses the median and quartiles, so the extremes do not move it."
+      }
+    },
+    {
+      "id": "q36",
+      "answer": 1,
+      "text": {
+        "tr": "Hedef sütununu (`y`) da ölçeklemek gerekir mi?",
+        "en": "Does the target column (`y`) need scaling too?"
+      },
+      "options": {
+        "tr": [
+          "Evet, her zaman",
+          "Genelde gerekmiyor ve sonuçları yorumlamayı zorlaştırıyor",
+          "Yalnızca sınıflandırmada",
+          "Yalnızca KNN kullanılırken"
+        ],
+        "en": [
+          "Yes, always",
+          "Usually not, and it makes the results harder to interpret",
+          "Only in classification",
+          "Only when using KNN"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçekleme sütunları birbiriyle karşılaştırılabilir hâle getirmek için yapılıyor; hedef tek sütun olduğu için karşılaştıracağı bir şey yok.\n\nHedefi ölçeklersen MAE de ölçekli birimde çıkıyor: ortalama 0.3 birim yanılmak hiçbir şey anlatmıyor.\n\nSınıflandırmada hedef zaten kategori; ölçekleme söz konusu bile değil.",
+        "en": "Scaling exists to make columns comparable with each other; the target is a single column, so there is nothing to compare it with.\n\nScale the target and MAE comes out in scaled units: being off by 0.3 on average says nothing.\n\nIn classification the target is a category anyway; scaling does not arise."
+      }
+    }
+  ]
+}

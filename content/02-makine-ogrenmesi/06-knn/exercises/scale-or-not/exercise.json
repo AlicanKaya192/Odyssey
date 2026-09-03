@@ -1,0 +1,40 @@
+{
+  "id": "scale-or-not",
+  "title": {
+    "tr": "Ölçeklemenin bedeli",
+    "en": "What scaling is worth"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Sınıflandırmada ayırmaya `stratify=y` veriliyor; sınıf oranı iki tarafta da korunuyor.",
+      "en": "For classification the split takes `stratify=y`; the class proportions are kept on both sides."
+    },
+    {
+      "tr": "Taban çizgi en sık sınıf: `y_train.mode()[0]` değerini her test kaydı için tahmin ediyorsun.",
+      "en": "The baseline is the most frequent class: predict `y_train.mode()[0]` for every test record."
+    },
+    {
+      "tr": "İki KNN kuruyorsun: biri `X_train` ile, öteki `scaler.transform(X_train)` ile. `k` ikisinde de 5.",
+      "en": "You build two KNNs: one on `X_train`, one on `scaler.transform(X_train)`. `k` is 5 for both."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nX_train_scaled = scaler.transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nfrom sklearn.metrics import accuracy_score\n\nbaseline = accuracy_score(y_test, [y_train.mode()[0]] * len(y_test))\n\nraw = KNeighborsClassifier(n_neighbors=5)\nraw.fit(X_train, y_train)\nraw_score = accuracy_score(y_test, raw.predict(X_test))\n\nscaled = KNeighborsClassifier(n_neighbors=5)\nscaled.fit(X_train_scaled, y_train)\nscaled_score = accuracy_score(y_test, scaled.predict(X_test_scaled))\n\nprint(len(X_train), len(X_test))\nprint(round(baseline, 3))\nprint(round(raw_score, 3), round(scaled_score, 3))\nprint(\"worse\" if raw_score < baseline else \"better\")\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nX_train_scaled = scaler.transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nfrom sklearn.metrics import accuracy_score\n\nbaseline = accuracy_score(y_test, [y_train.mode()[0]] * len(y_test))\n\nraw = KNeighborsClassifier(n_neighbors=5)\nraw.fit(X_train, y_train)\nraw_score = accuracy_score(y_test, raw.predict(X_test))\n\nscaled = KNeighborsClassifier(n_neighbors=5)\nscaled.fit(X_train_scaled, y_train)\nscaled_score = accuracy_score(y_test, scaled.predict(X_test_scaled))\n\nprint(len(X_train), len(X_test))\nprint(round(baseline, 3))\nprint(round(raw_score, 3), round(scaled_score, 3))\nprint(\"worse\" if raw_score < baseline else \"better\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "150 50\n0.7\n0.64 0.92\nworse"
+    }
+  ]
+}

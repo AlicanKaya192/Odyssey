@@ -1,0 +1,44 @@
+{
+  "id": "leak-in-cv",
+  "title": {
+    "tr": "Çapraz doğrulamada sızıntı",
+    "en": "A leak inside cross validation"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 200,
+  "hints": [
+    {
+      "tr": "Ön işleme çıktısına `numpy.hstack` ile 200 sütunluk gürültü ekleniyor.",
+      "en": "Add 200 columns of noise to the preprocessed output with `numpy.hstack`."
+    },
+    {
+      "tr": "Yanlış yolda `SelectKBest(...).fit(wide, y_train)` çapraz doğrulamadan **önce** çalışıyor.",
+      "en": "In the wrong version, `SelectKBest(...).fit(wide, y_train)` runs **before** the cross validation."
+    },
+    {
+      "tr": "Doğru yolda seçici pipeline'ın bir adımı: `Pipeline([(\"select\", ...), (\"model\", ...)])`.",
+      "en": "In the right version the selector is a pipeline step: `Pipeline([(\"select\", ...), (\"model\", ...)])`."
+    },
+    {
+      "tr": "Seçilen sütun indeksleri `selector.get_support(indices=True)` ile alınıyor; ilk dokuzu gerçek sütun.",
+      "en": "The selected indices come from `selector.get_support(indices=True)`; the first nine are the real columns."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"subscribers.csv\")\nX = df.drop(columns=\"churn\")\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\ntext = [\"city\", \"plan\"]\n\n\ndef make_preprocessor():\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]), text),\n    ])\n\nimport numpy as np\nfrom sklearn.feature_selection import SelectKBest, f_classif\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import StratifiedKFold, cross_val_score\n\nprepared = make_preprocessor().fit_transform(X_train, y_train)\nreal_count = prepared.shape[1]\n\nrng = np.random.default_rng(7)\nnoise = rng.normal(0, 1, (len(X_train), 200))\nwide = np.hstack([prepared, noise])\nprint(wide.shape[1])\n\nfolds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\n\nselector = SelectKBest(f_classif, k=15).fit(wide, y_train)\npicked = selector.transform(wide)\nwrong = cross_val_score(LogisticRegression(max_iter=1000), picked,\n                        y_train, cv=folds)\nprint(round(float(wrong.mean()), 3))\n\nhonest = Pipeline([\n    (\"select\", SelectKBest(f_classif, k=15)),\n    (\"model\", LogisticRegression(max_iter=1000)),\n])\nright = cross_val_score(honest, wide, y_train, cv=folds)\nprint(round(float(right.mean()), 3))\n\nprint(round(float(wrong.mean() - right.mean()), 3))\n\nchosen = selector.get_support(indices=True)\nprint(int((chosen >= real_count).sum()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"subscribers.csv\")\nX = df.drop(columns=\"churn\")\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\ntext = [\"city\", \"plan\"]\n\n\ndef make_preprocessor():\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]), text),\n    ])\n\nimport numpy as np\nfrom sklearn.feature_selection import SelectKBest, f_classif\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import StratifiedKFold, cross_val_score\n\nprepared = make_preprocessor().fit_transform(X_train, y_train)\nreal_count = prepared.shape[1]\n\nrng = np.random.default_rng(7)\nnoise = rng.normal(0, 1, (len(X_train), 200))\nwide = np.hstack([prepared, noise])\nprint(wide.shape[1])\n\nfolds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\n\nselector = SelectKBest(f_classif, k=15).fit(wide, y_train)\npicked = selector.transform(wide)\nwrong = cross_val_score(LogisticRegression(max_iter=1000), picked,\n                        y_train, cv=folds)\nprint(round(float(wrong.mean()), 3))\n\nhonest = Pipeline([\n    (\"select\", SelectKBest(f_classif, k=15)),\n    (\"model\", LogisticRegression(max_iter=1000)),\n])\nright = cross_val_score(honest, wide, y_train, cv=folds)\nprint(round(float(right.mean()), 3))\n\nprint(round(float(wrong.mean() - right.mean()), 3))\n\nchosen = selector.get_support(indices=True)\nprint(int((chosen >= real_count).sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "209\n0.78\n0.716\n0.064\n8"
+    }
+  ]
+}

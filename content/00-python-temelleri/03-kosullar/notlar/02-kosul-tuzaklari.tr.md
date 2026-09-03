@@ -1,5 +1,3 @@
-# Koşul Tuzakları
-
 Yeni başlayanların koşullarda en sık düştüğü yerler. Hepsi gerçek hatalardan
 derlendi; çoğu **hata vermiyor**, sessizce yanlış çalışıyor — asıl tehlikeli
 olan da bu.

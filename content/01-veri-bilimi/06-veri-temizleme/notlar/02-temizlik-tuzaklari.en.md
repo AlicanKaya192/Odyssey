@@ -1,5 +1,3 @@
-# Cleaning Traps
-
 ## 1. `dropna()` drops more rows than you think
 
 ```python

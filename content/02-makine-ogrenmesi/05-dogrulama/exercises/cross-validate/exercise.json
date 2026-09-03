@@ -1,0 +1,40 @@
+{
+  "id": "cross-validate",
+  "title": {
+    "tr": "Çapraz doğrulama",
+    "en": "Cross validation"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "`KFold(n_splits=5, shuffle=True, random_state=42)` ve `cross_val_score` `sklearn.model_selection` içinde.",
+      "en": "`KFold(n_splits=5, shuffle=True, random_state=42)` and `cross_val_score` live in `sklearn.model_selection`."
+    },
+    {
+      "tr": "`scoring=\"neg_mean_absolute_error\"` negatif değer döndürüyor; okurken işareti çeviriyorsun.",
+      "en": "`scoring=\"neg_mean_absolute_error\"` returns negative values; you flip the sign when reading them."
+    },
+    {
+      "tr": "Liste yazdırırken `round(float(-s), 2)` kullan — `float` olmadan çıktıda `np.float64(...)` görünüyor.",
+      "en": "Use `round(float(-s), 2)` when building the list — without `float` the output shows `np.float64(...)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import KFold, cross_val_score\n\ndf = pd.get_dummies(pd.read_csv(\"cars.csv\").dropna(),\n                    columns=[\"fuel\", \"gearbox\"])\nX = df.drop(columns=[\"price\"])\ny = df[\"price\"]\n\nkf = KFold(n_splits=5, shuffle=True, random_state=42)\nscores = cross_val_score(LinearRegression(), X, y, cv=kf,\n                         scoring=\"neg_mean_absolute_error\")\n\nerrors = [round(float(-s), 2) for s in scores]\nmean = sum(errors) / len(errors)\nspread = (sum((e - mean) ** 2 for e in errors) / len(errors)) ** 0.5\n\nprint(errors)\nprint(round(mean, 2), round(spread, 2))\nprint(\"inside\" if min(errors) <= 17.07 <= max(errors) else \"outside\")\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import KFold, cross_val_score\n\ndf = pd.get_dummies(pd.read_csv(\"cars.csv\").dropna(),\n                    columns=[\"fuel\", \"gearbox\"])\nX = df.drop(columns=[\"price\"])\ny = df[\"price\"]\n\nkf = KFold(n_splits=5, shuffle=True, random_state=42)\nscores = cross_val_score(LinearRegression(), X, y, cv=kf,\n                         scoring=\"neg_mean_absolute_error\")\n\nerrors = [round(float(-s), 2) for s in scores]\nmean = sum(errors) / len(errors)\nspread = (sum((e - mean) ** 2 for e in errors) / len(errors)) ** 0.5\n\nprint(errors)\nprint(round(mean, 2), round(spread, 2))\nprint(\"inside\" if min(errors) <= 17.07 <= max(errors) else \"outside\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[14.97, 15.96, 19.29, 19.63, 12.64]\n16.5 2.65\ninside"
+    }
+  ]
+}

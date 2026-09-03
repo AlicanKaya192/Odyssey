@@ -1,0 +1,44 @@
+{
+  "id": "review-classification",
+  "title": {
+    "tr": "Uçtan uca sınıflandırma",
+    "en": "Classification end to end"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 200,
+  "hints": [
+    {
+      "tr": "`X` olarak `followup_calls` ve `readmitted` **dışındaki** sütunları al. O sütuna üçüncü alıştırmada bakacaksın.",
+      "en": "Take every column **except** `followup_calls` and `readmitted` as `X`. You will look at that column in the third exercise."
+    },
+    {
+      "tr": "Dengesiz veride `stratify=y` zorunlu; taban çizgi için `[0] * len(y_test)` yeterli.",
+      "en": "`stratify=y` is mandatory on imbalanced data; `[0] * len(y_test)` is enough for the baseline."
+    },
+    {
+      "tr": "`precision_score` ve `recall_score` çağrılarına `zero_division=0` ekle.",
+      "en": "Add `zero_division=0` to the `precision_score` and `recall_score` calls."
+    },
+    {
+      "tr": "Ağırlıklı modelde tek fark `class_weight=\"balanced\"`; geri kalan her şey aynı.",
+      "en": "The only difference in the weighted model is `class_weight=\"balanced\"`; everything else is the same."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"patients.csv\")\ntext = [\"sex\", \"region\", \"smoker\"]\n\n\ndef make_preprocessor(numeric):\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]), text),\n    ])\n\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,\n                             precision_score, recall_score)\n\nprint(df.isna().sum().to_dict())\nprint(round(float(df[\"readmitted\"].mean()), 3))\n\nnumeric = [\"age\", \"bmi\", \"visits\"]\nX = df[numeric + text]\ny = df[\"readmitted\"]\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\nprint(len(y_test), int(y_test.sum()))\n\nprint(round(accuracy_score(y_test, [0] * len(y_test)), 3))\n\n\ndef report(weight):\n    pipe = Pipeline([\n        (\"prepare\", make_preprocessor(numeric)),\n        (\"model\", LogisticRegression(max_iter=1000, class_weight=weight)),\n    ])\n    pipe.fit(X_train, y_train)\n    prediction = pipe.predict(X_test)\n    print(round(accuracy_score(y_test, prediction), 3),\n          round(precision_score(y_test, prediction, zero_division=0), 3),\n          round(recall_score(y_test, prediction, zero_division=0), 3),\n          round(f1_score(y_test, prediction, zero_division=0), 3))\n    return prediction\n\n\nplain = report(None)\nprint(confusion_matrix(y_test, plain))\nreport(\"balanced\")\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"patients.csv\")\ntext = [\"sex\", \"region\", \"smoker\"]\n\n\ndef make_preprocessor(numeric):\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]), text),\n    ])\n\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,\n                             precision_score, recall_score)\n\nprint(df.isna().sum().to_dict())\nprint(round(float(df[\"readmitted\"].mean()), 3))\n\nnumeric = [\"age\", \"bmi\", \"visits\"]\nX = df[numeric + text]\ny = df[\"readmitted\"]\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\nprint(len(y_test), int(y_test.sum()))\n\nprint(round(accuracy_score(y_test, [0] * len(y_test)), 3))\n\n\ndef report(weight):\n    pipe = Pipeline([\n        (\"prepare\", make_preprocessor(numeric)),\n        (\"model\", LogisticRegression(max_iter=1000, class_weight=weight)),\n    ])\n    pipe.fit(X_train, y_train)\n    prediction = pipe.predict(X_test)\n    print(round(accuracy_score(y_test, prediction), 3),\n          round(precision_score(y_test, prediction, zero_division=0), 3),\n          round(recall_score(y_test, prediction, zero_division=0), 3),\n          round(f1_score(y_test, prediction, zero_division=0), 3))\n    return prediction\n\n\nplain = report(None)\nprint(confusion_matrix(y_test, plain))\nreport(\"balanced\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'age': 0, 'sex': 0, 'region': 40, 'bmi': 56, 'visits': 32, 'smoker': 0, 'followup_calls': 0, 'readmitted': 0}\n0.194\n200 39\n0.805\n0.815 0.571 0.205 0.302\n[[155   6]\n [ 31   8]]\n0.65 0.293 0.564 0.386"
+    }
+  ]
+}

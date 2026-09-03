@@ -1,5 +1,3 @@
-# Class Traps
-
 Most mistakes with classes come from the same few places. They are all here.
 
 ## 1. Forgetting `self.`

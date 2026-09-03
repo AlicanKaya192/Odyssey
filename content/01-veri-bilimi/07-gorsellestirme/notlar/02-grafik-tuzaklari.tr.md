@@ -1,5 +1,3 @@
-# Grafik Tuzakları
-
 Grafiklerin çoğu hatası **kod hatası değil, anlatım hatası.** Kod çalışıyor,
 grafik çıkıyor ve okuyan kişi yanlış bir sonuç çıkarıyor.
 

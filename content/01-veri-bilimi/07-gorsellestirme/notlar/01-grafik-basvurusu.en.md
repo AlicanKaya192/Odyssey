@@ -1,5 +1,3 @@
-# Chart Reference
-
 ```python
 import matplotlib
 matplotlib.use("Agg")     # needed inside Odyssey; not on your own machine

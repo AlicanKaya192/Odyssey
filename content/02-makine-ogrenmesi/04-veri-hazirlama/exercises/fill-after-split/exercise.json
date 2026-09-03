@@ -1,0 +1,40 @@
+{
+  "id": "fill-after-split",
+  "title": {
+    "tr": "Ayırdıktan sonra doldur",
+    "en": "Fill after splitting"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Ayırma işlemi eksik değerlerle de çalışıyor; doldurma ayırmadan **sonra** geliyor.",
+      "en": "The split works with missing values still in place; filling comes **after** it."
+    },
+    {
+      "tr": "Doldurma değeri `X_train[\"engine\"].mean()` — yalnızca eğitimden. Aynı sayı ikisine de uygulanıyor.",
+      "en": "The fill value is `X_train[\"engine\"].mean()` — from training only. The same number is applied to both."
+    },
+    {
+      "tr": "`X_train.fillna({\"engine\": deger})` sütuna göre dolduruyor. Kalan eksikleri `isna().sum().sum()` sayıyor.",
+      "en": "`X_train.fillna({\"engine\": value})` fills by column. `isna().sum().sum()` counts what is left."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"cars.csv\")\nX = df[[\"age\", \"km\", \"engine\"]]\ny = df[\"price\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42)\n\nfill_value = X_train[\"engine\"].mean()\nprint(round(fill_value, 3), round(df[\"engine\"].mean(), 3))\n\nX_train = X_train.fillna({\"engine\": fill_value})\nX_test = X_test.fillna({\"engine\": fill_value})\nprint(int(X_train.isna().sum().sum()), int(X_test.isna().sum().sum()))\n\nmodel = LinearRegression()\nmodel.fit(X_train, y_train)\nprint(round(mean_absolute_error(y_test, model.predict(X_test)), 2))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"cars.csv\")\nX = df[[\"age\", \"km\", \"engine\"]]\ny = df[\"price\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42)\n\nfill_value = X_train[\"engine\"].mean()\nprint(round(fill_value, 3), round(df[\"engine\"].mean(), 3))\n\nX_train = X_train.fillna({\"engine\": fill_value})\nX_test = X_test.fillna({\"engine\": fill_value})\nprint(int(X_train.isna().sum().sum()), int(X_test.isna().sum().sum()))\n\nmodel = LinearRegression()\nmodel.fit(X_train, y_train)\nprint(round(mean_absolute_error(y_test, model.predict(X_test)), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.458 1.457\n0 0\n32.58"
+    }
+  ]
+}

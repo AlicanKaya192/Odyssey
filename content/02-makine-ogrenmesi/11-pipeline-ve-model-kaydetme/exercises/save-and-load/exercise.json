@@ -1,0 +1,44 @@
+{
+  "id": "save-and-load",
+  "title": {
+    "tr": "Kaydet ve yükle",
+    "en": "Save and load"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 150,
+  "hints": [
+    {
+      "tr": "`joblib.dump(pipe, \"model.joblib\")` ve `joblib.load(\"model.joblib\")`.",
+      "en": "`joblib.dump(pipe, \"model.joblib\")` and `joblib.load(\"model.joblib\")`."
+    },
+    {
+      "tr": "Dosya boyutu `pathlib.Path(\"model.joblib\").stat().st_size` ile alınıyor.",
+      "en": "The file size comes from `pathlib.Path(\"model.joblib\").stat().st_size`."
+    },
+    {
+      "tr": "Yeni kayıtlar bir `DataFrame`; üçüncü satırda `city` ve `monthly` için `None` yazılıyor.",
+      "en": "The new records are a `DataFrame`; the third row has `None` for `city` and `monthly`."
+    },
+    {
+      "tr": "İki tahmin dizisinin aynı olup olmadığı `(a == b).all()` ile kontrol ediliyor; `bool()` ile temizle.",
+      "en": "Check whether the two prediction arrays match with `(a == b).all()`; clean it with `bool()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport joblib\nfrom pathlib import Path\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"subscribers.csv\")\nX = df.drop(columns=\"churn\")\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\ntext = [\"city\", \"plan\"]\n\n\ndef make_preprocessor():\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]), text),\n    ])\n\nfrom sklearn.linear_model import LogisticRegression\n\npipe = Pipeline([\n    (\"prepare\", make_preprocessor()),\n    (\"model\", LogisticRegression(max_iter=1000)),\n])\npipe.fit(X_train, y_train)\n\njoblib.dump(pipe, \"model.joblib\")\nprint(Path(\"model.joblib\").stat().st_size > 1000)\n\nloaded = joblib.load(\"model.joblib\")\nprint(bool((loaded.predict(X_test) == pipe.predict(X_test)).all()))\n\nnew = pd.DataFrame([\n    {\"city\": \"Bursa\", \"plan\": \"basic\", \"tenure\": 3,\n     \"monthly\": 140.0, \"support\": 4},\n    {\"city\": \"Izmir\", \"plan\": \"pro\", \"tenure\": 48,\n     \"monthly\": 45.0, \"support\": 0},\n    {\"city\": None, \"plan\": \"plus\", \"tenure\": 20,\n     \"monthly\": None, \"support\": 1},\n])\n\nprint(loaded.predict(new).tolist())\nprint([round(float(value), 3) for value in loaded.predict_proba(new)[:, 1]])\n```",
+      "en": "The solution:\n\n```python\nimport joblib\nfrom pathlib import Path\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"subscribers.csv\")\nX = df.drop(columns=\"churn\")\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\ntext = [\"city\", \"plan\"]\n\n\ndef make_preprocessor():\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]), text),\n    ])\n\nfrom sklearn.linear_model import LogisticRegression\n\npipe = Pipeline([\n    (\"prepare\", make_preprocessor()),\n    (\"model\", LogisticRegression(max_iter=1000)),\n])\npipe.fit(X_train, y_train)\n\njoblib.dump(pipe, \"model.joblib\")\nprint(Path(\"model.joblib\").stat().st_size > 1000)\n\nloaded = joblib.load(\"model.joblib\")\nprint(bool((loaded.predict(X_test) == pipe.predict(X_test)).all()))\n\nnew = pd.DataFrame([\n    {\"city\": \"Bursa\", \"plan\": \"basic\", \"tenure\": 3,\n     \"monthly\": 140.0, \"support\": 4},\n    {\"city\": \"Izmir\", \"plan\": \"pro\", \"tenure\": 48,\n     \"monthly\": 45.0, \"support\": 0},\n    {\"city\": None, \"plan\": \"plus\", \"tenure\": 20,\n     \"monthly\": None, \"support\": 1},\n])\n\nprint(loaded.predict(new).tolist())\nprint([round(float(value), 3) for value in loaded.predict_proba(new)[:, 1]])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nTrue\n[1, 0, 0]\n[0.993, 0.007, 0.466]"
+    }
+  ]
+}

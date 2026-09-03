@@ -1,5 +1,3 @@
-# Series Reference
-
 Everything assumes `import pandas as pd`.
 
 ## Creating

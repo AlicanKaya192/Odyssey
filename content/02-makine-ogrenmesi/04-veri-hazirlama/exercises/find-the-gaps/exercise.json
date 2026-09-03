@@ -1,0 +1,40 @@
+{
+  "id": "find-the-gaps",
+  "title": {
+    "tr": "Veriyi tanı",
+    "en": "Get to know the data"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`df.isna().sum()` her sütun için eksik sayısını veriyor; sıfır olmayanları süzüyorsun.",
+      "en": "`df.isna().sum()` gives the missing count per column; you filter out the zeros."
+    },
+    {
+      "tr": "Metin sütunları için `df.select_dtypes(exclude=\"number\").columns.tolist()` kullanılıyor — pandas 3'te `dtype == \"object\"` bunları bulamıyor.",
+      "en": "Use `df.select_dtypes(exclude=\"number\").columns.tolist()` for text columns — in pandas 3, `dtype == \"object\"` no longer finds them."
+    },
+    {
+      "tr": "Kategorileri sıralı ve tekrarsız almak için `sorted(df[\"fuel\"].unique().tolist())`.",
+      "en": "For the categories, sorted and without duplicates: `sorted(df[\"fuel\"].unique().tolist())`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ndf = pd.read_csv(\"cars.csv\")\nmissing = df.isna().sum()\n\nprint(len(df))\nprint([f\"{name}:{int(count)}\" for name, count in missing.items() if count > 0])\nprint(df.select_dtypes(exclude=\"number\").columns.tolist())\nprint(sorted(df[\"fuel\"].unique().tolist()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ndf = pd.read_csv(\"cars.csv\")\nmissing = df.isna().sum()\n\nprint(len(df))\nprint([f\"{name}:{int(count)}\" for name, count in missing.items() if count > 0])\nprint(df.select_dtypes(exclude=\"number\").columns.tolist())\nprint(sorted(df[\"fuel\"].unique().tolist()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "120\n['engine:14']\n['fuel', 'gearbox']\n['diesel', 'lpg', 'petrol']"
+    }
+  ]
+}

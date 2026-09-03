@@ -1,5 +1,3 @@
-# Sınıf Tuzakları
-
 Sınıflarda hataların çoğu aynı birkaç yerden çıkıyor. Hepsi burada.
 
 ## 1. `self.` unutmak

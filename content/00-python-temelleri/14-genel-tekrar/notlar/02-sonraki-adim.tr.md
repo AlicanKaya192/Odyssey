@@ -1,5 +1,3 @@
-# Buradan Sonrası
-
 Python Temelleri bitti. Bu not, "şimdi ne yapayım" sorusunun cevabı.
 
 ## Önce dürüst bir değerlendirme

@@ -1,5 +1,3 @@
-# NumPy Başvurusu
-
 Alıştırmalarda takıldığında bakabileceğin liste. Hepsi `import numpy as np`
 yapıldığını varsayıyor.
 

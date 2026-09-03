@@ -1,5 +1,3 @@
-# Buradan Sonrası
-
 Veri Bilimi modülü bitti. Bu not, "şimdi ne yapayım" sorusunun cevabı.
 
 ## Önce dürüst bir değerlendirme

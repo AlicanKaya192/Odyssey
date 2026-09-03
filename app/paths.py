@@ -145,6 +145,19 @@ def updates_dir() -> Path:
     return path
 
 
+def artifacts_dir() -> Path:
+    """Kullanıcının kodunun ürettiği görsellerin durduğu klasör.
+
+    Çalışma klasörü her çalıştırmadan sonra siliniyor; içinde üretilen
+    grafik de onunla gidiyordu. Gösterilebilmesi için buraya alınıyor.
+    Her çalıştırmada baştan yazılıyor: burada yalnızca **son** çalıştırmanın
+    çıktısı duruyor, birikmiyor.
+    """
+    path = user_data_dir() / "artifacts"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def workspace_dir() -> Path:
     """Alıştırmaların çalıştırıldığı geçici klasör."""
     path = user_data_dir() / "workspace"

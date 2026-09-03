@@ -1,5 +1,3 @@
-# Gruplama Başvurusu
-
 `data` bir DataFrame.
 
 ## Temel gruplama

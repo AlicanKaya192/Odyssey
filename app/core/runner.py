@@ -25,7 +25,7 @@ import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..paths import exercise_python, is_frozen, sandbox_dir, workspace_dir
+from ..paths import artifacts_dir, exercise_python, is_frozen, sandbox_dir, workspace_dir
 
 # Paketlenmiş uygulamanın kendini denetleyici olarak çağırdığı bayrak.
 HARNESS_FLAG = "--run-harness"
@@ -63,6 +63,8 @@ class RunResult:
     truncated: bool = False
     error: dict | None = None
     checks: list[CheckResult] = field(default_factory=list)
+    # Kullanıcının kodunun ürettiği görsellerin yolları.
+    artifacts: list[Path] = field(default_factory=list)
     timeout_sec: int = 0
 
     @property
@@ -137,6 +139,35 @@ def _kill_tree(process: subprocess.Popen) -> None:
         process.wait(timeout=KILL_GRACE_SEC)
     except subprocess.TimeoutExpired:
         pass
+
+
+def _rescue_artifacts(entries: list[dict]) -> list[Path]:
+    """Üretilen görselleri çalışma klasörü silinmeden önce kurtarır.
+
+    `run_code` sonunda çalışma klasörünü siliyor; grafik orada üretildiği
+    için onunla birlikte gidiyordu. Kullanıcı "dosya oluştu" yazısını
+    görüyor ama dosyayı hiç göremiyordu.
+    """
+    hedef = artifacts_dir()
+    # Yalnızca son çalıştırmanın çıktısı duruyor; eskiler birikmiyor.
+    for eski in hedef.glob("*"):
+        try:
+            eski.unlink()
+        except OSError:
+            pass
+
+    kurtarilan: list[Path] = []
+    for girdi in entries:
+        kaynak = Path(str(girdi.get("path", "")))
+        if not kaynak.is_file():
+            continue
+        varis = hedef / kaynak.name
+        try:
+            shutil.copy2(kaynak, varis)
+        except OSError:
+            continue
+        kurtarilan.append(varis)
+    return kurtarilan
 
 
 def _prepare_workspace(exercise_dir: Path | None) -> Path:
@@ -220,6 +251,7 @@ def run_code(
 
         raw = json.loads(result_path.read_text(encoding="utf-8"))
         return RunResult(
+            artifacts=_rescue_artifacts(raw.get("artifacts", [])),
             status=raw.get("status", "ok"),
             stdout=raw.get("stdout", ""),
             stderr=raw.get("stderr", ""),

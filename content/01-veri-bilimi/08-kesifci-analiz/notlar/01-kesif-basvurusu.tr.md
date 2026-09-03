@@ -1,5 +1,3 @@
-# Keşif Başvurusu
-
 `import pandas as pd` yapıldığı ve tablonun `data` olduğu varsayılıyor.
 
 ## Sıra

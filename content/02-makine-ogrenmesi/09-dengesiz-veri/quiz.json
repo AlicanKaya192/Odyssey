@@ -1,0 +1,940 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "Dengesiz veri ne demek?",
+        "en": "What does imbalanced data mean?"
+      },
+      "options": {
+        "tr": [
+          "Sütunların ölçekleri farklı",
+          "Eksik değer çok",
+          "Sınıflardan biri diğerinden çok daha az görülüyor",
+          "Eğitim ve test kümesi farklı boyutta"
+        ],
+        "en": [
+          "The columns have different scales",
+          "There are many missing values",
+          "One class appears far less often than the other",
+          "The training and test sets differ in size"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu bölümün verisinde 1500 işlemin yalnızca 85'i dolandırıcılık — %5,7.\n\nSütun ölçeklerinin farklı olması ayrı bir konu; onun çözümü ölçekleme.\n\nDengesizlik bir veri hatası değil, gerçek dünyanın doğal hâli: dolandırıcılık, hastalık ve arıza zaten nadir olaylar.",
+        "en": "In this section's data only 85 of 1500 transactions are fraud — 5.7%.\n\nDiffering column scales is a separate matter, solved by scaling.\n\nImbalance is not a data fault but the natural state of the world: fraud, disease and failure are rare events by nature."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 2,
+      "text": {
+        "tr": "Sınıflardan biri %5,7 iken \"her şeye negatif de\" diyen bir tahminci kaç doğruluk alıyor?",
+        "en": "When one class is 5.7%, what accuracy does a predictor that says negative to everything get?"
+      },
+      "options": {
+        "tr": [
+          "Yaklaşık 0.50",
+          "Yaklaşık 0.06",
+          "Yaklaşık 0.94",
+          "Hesaplanamaz"
+        ],
+        "en": [
+          "About 0.50",
+          "About 0.06",
+          "About 0.94",
+          "It cannot be computed"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: 0.944. Test kümesindeki 375 kaydın 354'ü negatif.\n\nBu sayı bir sunumda etkileyici görünüyor ama model tek bir dolandırıcılık bile yakalamıyor; ürün olarak değeri sıfır.\n\n0.50 dengeli veride en sık sınıfın oranı olurdu.",
+        "en": "Measured: 0.944. Of the 375 test records, 354 are negative.\n\nThat number looks impressive in a presentation, yet the model catches no fraud at all; its product value is zero.\n\n0.50 would be the most frequent class's share on balanced data."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 1,
+      "text": {
+        "tr": "Model 0.955, taban çizgi 0.944 doğruluk alıyor. Buradan ne çıkarılır?",
+        "en": "The model scores 0.955 and the baseline 0.944 in accuracy. What follows?"
+      },
+      "options": {
+        "tr": [
+          "Model çok iyi çalışıyor",
+          "Doğruluk bu veride ayırt edici değil; başka ölçülere bakmak gerekiyor",
+          "Model hiçbir şey öğrenmemiş",
+          "Test kümesi bozuk"
+        ],
+        "en": [
+          "The model works very well",
+          "Accuracy does not discriminate on this data; other metrics are needed",
+          "The model learned nothing",
+          "The test set is broken"
+        ]
+      },
+      "explanation": {
+        "tr": "1,1 puanlık fark, doğruluk sütununda neredeyse görünmüyor. Oysa recall 0'dan 0,286'ya çıkmış — modelin gerçekten bir şey öğrendiğinin kanıtı.\n\nYani model bir şey öğrendi, ama bunu doğruluk göstermiyor.\n\nSorun test kümesinde değil, seçilen ölçüde.",
+        "en": "The 1.1 point gap is barely visible in the accuracy column. Yet recall went from 0 to 0.286 — proof that the model did learn something.\n\nSo the model learned something, but accuracy does not show it.\n\nThe problem is not the test set but the chosen metric."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Karışıklık matrisi `[[352, 2], [15, 6]]` ne anlatıyor?",
+        "en": "What does the confusion matrix `[[352, 2], [15, 6]]` say?"
+      },
+      "options": {
+        "tr": [
+          "6 dolandırıcılık yakalandı, 15'i kaçtı",
+          "15 dolandırıcılık yakalandı, 6'sı kaçtı",
+          "2 dolandırıcılık yakalandı",
+          "352 dolandırıcılık var"
+        ],
+        "en": [
+          "6 frauds were caught and 15 escaped",
+          "15 frauds were caught and 6 escaped",
+          "2 frauds were caught",
+          "There are 352 frauds"
+        ]
+      },
+      "explanation": {
+        "tr": "Satırlar gerçek, sütunlar tahmin. İkinci satır gerçek pozitifler: `[FN=15, TP=6]`.\n\nToplam 21 dolandırıcılık var, 6'sı yakalanmış — recall 6/21 = 0.286.\n\nİlk satır negatifler: 352 doğru, 2 yanlış alarm.",
+        "en": "Rows are truth, columns predictions. The second row holds the real positives: `[FN=15, TP=6]`.\n\nThere are 21 frauds in total and 6 were caught — recall 6/21 = 0.286.\n\nThe first row holds the negatives: 352 right, 2 false alarms."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "Model neden pozitiflere karşı temkinli davranıyor?",
+        "en": "Why is the model cautious about positives?"
+      },
+      "options": {
+        "tr": [
+          "Kasten öyle programlanmış",
+          "Pozitif sınıfı görmüyor",
+          "Toplam hatayı azaltmaya çalışıyor ve verinin çoğu negatif",
+          "Ölçekleme yapılmamış"
+        ],
+        "en": [
+          "It is deliberately programmed that way",
+          "It does not see the positive class",
+          "It tries to reduce total error and most of the data is negative",
+          "The data was not scaled"
+        ]
+      },
+      "explanation": {
+        "tr": "Eğitim verisinin 1068 satırı negatif, 57'si pozitif. Bir negatifi yanlış bilmek büyük grubu bozuyor, bir pozitifi kaçırmak küçük grubu.\n\n\"Emin değilsen negatif de\" stratejisi matematiksel olarak kârlı.\n\nSorun modelde değil, ona sorduğumuz soruda: biz \"toplam hatayı azalt\" dedik, istediğimiz \"pozitifleri yakala\"ydı.",
+        "en": "1068 rows of the training data are negative and 57 positive. Getting a negative wrong spoils the large group; missing a positive spoils the small one.\n\nThe strategy \"say negative unless you are sure\" pays off mathematically.\n\nThe problem is not the model but the question we asked it: we said \"reduce total error\" while we wanted \"catch the positives\"."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`train_test_split` içinde `stratify=y` dengesiz veride neden zorunlu?",
+        "en": "Why is `stratify=y` mandatory for imbalanced data in `train_test_split`?"
+      },
+      "options": {
+        "tr": [
+          "Yoksa test kümesindeki pozitif sayısı şansa kalıyor",
+          "Veriyi karıştırdığı için",
+          "Ölçekleme gerektirdiği için",
+          "Modeli hızlandırdığı için"
+        ],
+        "en": [
+          "Because otherwise the number of positives in the test set is left to chance",
+          "Because it shuffles the data",
+          "Because it requires scaling",
+          "Because it speeds the model up"
+        ]
+      },
+      "explanation": {
+        "tr": "Pozitif oranı %1 olan bir veride, tesadüfen hiç pozitif içermeyen bir test kümesi bile çıkabiliyor.\n\n`stratify=y` her iki tarafta da oranı koruyor.\n\nAynı sebeple çapraz doğrulamada `StratifiedKFold` kullanılıyor.",
+        "en": "On data with a 1% positive rate you can even end up, by chance, with a test set holding no positives.\n\n`stratify=y` preserves the ratio on both sides.\n\nFor the same reason cross validation uses `StratifiedKFold`."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 3,
+      "text": {
+        "tr": "`class_weight=\"balanced\"` ne yapıyor?",
+        "en": "What does `class_weight=\"balanced\"` do?"
+      },
+      "options": {
+        "tr": [
+          "Veriyi yeniden örnekliyor",
+          "Eşiği 0.5'ten düşürüyor",
+          "Azınlık sınıfını siliyor",
+          "Her sınıfa sıklığının tersi oranında ağırlık veriyor"
+        ],
+        "en": [
+          "It resamples the data",
+          "It lowers the threshold below 0.5",
+          "It removes the minority class",
+          "It gives each class a weight in inverse proportion to its frequency"
+        ]
+      },
+      "explanation": {
+        "tr": "Pozitifler on sekiz kat daha az olduğu için bir pozitif hatası on sekiz kat ağır sayılıyor. Eğitim verisi hiç değişmiyor.\n\nYeniden örnekleme ayrı bir yöntem ve veriyi gerçekten değiştiriyor.\n\nEşiği değiştirmek de ayrı bir çare; ikisi birlikte de kullanılabiliyor.",
+        "en": "Because positives are eighteen times rarer, one positive mistake counts eighteen times as heavy. The training data itself never changes.\n\nResampling is a separate method that really does change the data.\n\nMoving the threshold is another remedy; the two can also be used together."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 3,
+      "text": {
+        "tr": "`class_weight=\"balanced\"` recall'ü 0.286'dan 0.667'ye çıkardı. Bedeli ne oldu?",
+        "en": "`class_weight=\"balanced\"` raised recall from 0.286 to 0.667. What did it cost?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbir şey",
+          "Model yavaşladı",
+          "Eğitim verisi küçüldü",
+          "Precision 0.75'ten 0.269'a düştü"
+        ],
+        "en": [
+          "Nothing",
+          "The model got slower",
+          "The training data shrank",
+          "Precision fell from 0.75 to 0.269"
+        ]
+      },
+      "explanation": {
+        "tr": "Model artık 52 işleme \"dolandırıcılık\" diyor ve 38'i yanlış alarm. Doğruluk da 0.955'ten 0.880'e indi.\n\nBu bir takas, bir iyileştirme değil.\n\nHangisinin doğru olduğu problemin maliyetine bağlı: kaçan bir dolandırıcılık mı pahalı, boşuna aranan bir müşteri mi?",
+        "en": "The model now calls 52 transactions fraud and 38 are false alarms. Accuracy dropped from 0.955 to 0.880 too.\n\nThis is a trade, not an improvement.\n\nWhich side is right depends on the problem's costs: is a missed fraud expensive, or a customer called for nothing?"
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`predict()` bir olasılığı neyle karşılaştırıyor?",
+        "en": "What does `predict()` compare a probability against?"
+      },
+      "options": {
+        "tr": [
+          "Sabit 0.5 ile",
+          "Pozitif sınıfın oranıyla",
+          "Eğitim ortalamasıyla",
+          "Her sınıfın ağırlığıyla"
+        ],
+        "en": [
+          "A fixed 0.5",
+          "The positive class's share",
+          "The training mean",
+          "Each class's weight"
+        ]
+      },
+      "explanation": {
+        "tr": "0.5 sklearn'in seçtiği bir varsayılan; veriden gelen bir şey değil.\n\nDengesiz veride neredeyse hiçbir zaman doğru yer değil, çünkü model pozitiflere zaten düşük olasılık veriyor.\n\n`predict_proba` çıktısını kendin eşiklersen bu sayıyı seçebiliyorsun.",
+        "en": "0.5 is a default sklearn chose; it did not come from the data.\n\nOn imbalanced data it is almost never the right place, because the model already gives positives low probabilities.\n\nBy thresholding the `predict_proba` output yourself you get to choose that number."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 3,
+      "text": {
+        "tr": "Eşiği 0.5'ten 0.1'e indirmek F1'i 0.414'ten 0.441'e çıkardı. Model ne kadar değişti?",
+        "en": "Lowering the threshold from 0.5 to 0.1 raised F1 from 0.414 to 0.441. How much did the model change?"
+      },
+      "options": {
+        "tr": [
+          "Yeniden eğitildi",
+          "Ağırlıkları değişti",
+          "Yeni özellikler eklendi",
+          "Hiç değişmedi; aynı katsayılar, aynı olasılıklar"
+        ],
+        "en": [
+          "It was retrained",
+          "Its weights changed",
+          "New features were added",
+          "It did not change at all; the same coefficients, the same probabilities"
+        ]
+      },
+      "explanation": {
+        "tr": "Değişen tek şey kararın verildiği yer. Yakalanan dolandırıcılık sayısı 6'dan 13'e çıktı — yeniden eğitim olmadan.\n\nAğırlık değiştirmek ayrı bir yöntem ve modeli yeniden eğitmeyi gerektiriyor.\n\nBu, dengesiz veride en ucuz kazanç yollarından biri.",
+        "en": "The only thing that changed is where the decision is made. The number of frauds caught went from 6 to 13 — without retraining.\n\nChanging the weights is a different method and does require retraining.\n\nThis is one of the cheapest ways to gain on imbalanced data."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Eşiği 0.05'e indirince recall 0.762'ye çıkıyor ama F1 düşüyor. Sebebi ne?",
+        "en": "Lowering the threshold to 0.05 raises recall to 0.762 yet F1 falls. Why?"
+      },
+      "options": {
+        "tr": [
+          "Precision 0.262'ye düşüyor ve F1 ikisini birden dikkate alıyor",
+          "Recall yanlış hesaplanıyor",
+          "Model aşırı öğreniyor",
+          "Test kümesi küçülüyor"
+        ],
+        "en": [
+          "Precision falls to 0.262 and F1 takes both into account",
+          "Recall is computed wrongly",
+          "The model overfits",
+          "The test set shrinks"
+        ]
+      },
+      "explanation": {
+        "tr": "F1 precision ile recall'ün harmonik ortalaması; biri çökerse ortalama da çöküyor.\n\n45 yanlış alarma karşılık 16 yakalama var. \"Eşiği düşür, recall artsın\" sınırsız bir strateji değil.\n\nTepe nokta bu veride 0.10'da.",
+        "en": "F1 is the harmonic mean of precision and recall; if one collapses so does the mean.\n\nThere are 45 false alarms against 16 catches. \"Lower the threshold, raise recall\" is not an unlimited strategy.\n\nThe peak on this data is at 0.10."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 2,
+      "text": {
+        "tr": "Eşik seçimi nerede yapılmalı?",
+        "en": "Where should the threshold be chosen?"
+      },
+      "options": {
+        "tr": [
+          "Test kümesinde",
+          "Eğitim verisinin tamamında, tahminlere bakarak",
+          "Doğrulama kümesinde ya da çapraz doğrulamayla",
+          "Rastgele"
+        ],
+        "en": [
+          "On the test set",
+          "On all the training data by looking at the predictions",
+          "On a validation set or with cross validation",
+          "At random"
+        ]
+      },
+      "explanation": {
+        "tr": "Test kümesine bakarak eşik seçmek bölüm 05'teki sızıntının aynısı: o skora bakarak karar verdiğin an skor iyimser oluyor.\n\nTest kümesi yalnızca son raporu veriyor.\n\nEğitim tahminlerine bakmak da yanıltıcı; model o veriyi zaten görmüş durumda.",
+        "en": "Choosing a threshold by looking at the test set is exactly section 05's leakage: the moment you decide by that score, the score becomes optimistic.\n\nThe test set only gives the final report.\n\nLooking at training predictions misleads too; the model has already seen that data."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 1,
+      "text": {
+        "tr": "Eşik seçimi kimin kararı?",
+        "en": "Whose decision is choosing a threshold?"
+      },
+      "options": {
+        "tr": [
+          "Modelin",
+          "Yanlış alarmın ve kaçırmanın maliyetini bilen kişinin",
+          "sklearn'in varsayılanının",
+          "Veri boyutunun"
+        ],
+        "en": [
+          "The model's",
+          "Whoever knows the cost of a false alarm and of a miss",
+          "sklearn's default",
+          "The data size's"
+        ]
+      },
+      "explanation": {
+        "tr": "F1 precision ile recall'ü eşit önemde sayıyor; iş dünyası genelde saymıyor.\n\nÖrnek: bir kaçırma 400 lira, bir yanlış alarm 5 lira ise beklenen maliyet 0.05'i seçiyor — F1'in dediği 0.10'u değil.\n\nModel bu soruyu cevaplayamıyor, yalnızca tabloyu üretebiliyor.",
+        "en": "F1 treats precision and recall as equally important; the business usually does not.\n\nAn example: if a miss costs 400 and a false alarm 5, the expected cost picks 0.05 — not the 0.10 that F1 named.\n\nThe model cannot answer this question; it can only produce the table."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "ROC AUC ne ölçüyor?",
+        "en": "What does ROC AUC measure?"
+      },
+      "options": {
+        "tr": [
+          "Modelin sıralama yeteneğini; bütün eşikleri birden değerlendiriyor",
+          "Belirli bir eşikteki doğruluğu",
+          "Eğitim süresini",
+          "Sınıf dengesizliğini"
+        ],
+        "en": [
+          "The model's ranking ability, evaluating every threshold at once",
+          "The accuracy at a given threshold",
+          "The training time",
+          "The class imbalance"
+        ]
+      },
+      "explanation": {
+        "tr": "Rastgele seçilmiş bir pozitife, rastgele seçilmiş bir negatiften yüksek olasılık verme ihtimalini veriyor.\n\nEşiğe bağlı olmaması avantajı: eşik seçimini beklemeden model karşılaştırılabiliyor.\n\nRastgele bir modelin ROC AUC'si 0.5.",
+        "en": "It gives the chance of assigning a randomly chosen positive a higher probability than a randomly chosen negative.\n\nBeing independent of the threshold is its advantage: models can be compared without waiting for a threshold choice.\n\nA random model's ROC AUC is 0.5."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 3,
+      "text": {
+        "tr": "Aynı model için ROC AUC 0.908, ortalama precision 0.525 çıkıyor. Neden?",
+        "en": "The same model gives a ROC AUC of 0.908 and an average precision of 0.525. Why?"
+      },
+      "options": {
+        "tr": [
+          "Biri yanlış hesaplanıyor",
+          "İkisi farklı modeller için",
+          "Ortalama precision her zaman düşük çıkar",
+          "ROC eğrisi yanlış pozitifleri çok sayıdaki negatife bölüyor ve iyimser çıkıyor"
+        ],
+        "en": [
+          "One of them is computed wrongly",
+          "They are for different models",
+          "Average precision always comes out low",
+          "The ROC curve divides false positives by the many negatives and comes out optimistic"
+        ]
+      },
+      "explanation": {
+        "tr": "38 yanlış alarm, 354 negatifin yanında yalnızca 0.107'lik bir oran yapıyor. Precision-recall eğrisi ise onları 14 doğru yakalamayla karşılaştırıyor ve orada çok görünüyorlar.\n\nİkisi de doğru hesaplanıyor; farklı şeyleri ölçüyorlar.\n\nDengeli veride ikisi birbirine çok daha yakın çıkıyor.",
+        "en": "Thirty-eight false alarms make a rate of only 0.107 next to 354 negatives. The precision-recall curve instead compares them with 14 catches, where they look large.\n\nBoth are computed correctly; they measure different things.\n\nOn balanced data the two come out much closer."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 3,
+      "text": {
+        "tr": "Ortalama precision'ın taban çizgisi (rastgele bir modelin alacağı değer) nedir?",
+        "en": "What is average precision's baseline — the value a random model would get?"
+      },
+      "options": {
+        "tr": [
+          "0.5",
+          "0",
+          "1",
+          "Pozitif oranı"
+        ],
+        "en": [
+          "0.5",
+          "0",
+          "1",
+          "The positive rate"
+        ]
+      },
+      "explanation": {
+        "tr": "Burada pozitif oranı 0.056; yani 0.525 aslında tabanın dokuz katı.\n\n0.5 taban çizgisi ROC AUC'ye ait, ortalama precision'a değil. İkisini karıştırmak 0.525'i \"kötü\" sanmaya yol açıyor.\n\nBu yüzden ortalama precision raporlanırken pozitif oranı da yazılır.",
+        "en": "Here the positive rate is 0.056, so 0.525 is actually nine times the baseline.\n\nThe 0.5 baseline belongs to ROC AUC, not to average precision. Confusing the two leads to thinking 0.525 is \"bad\".\n\nThis is why the positive rate is written alongside a reported average precision."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "Dengesiz veride hangi ölçü tek başına raporlanmamalı?",
+        "en": "Which metric should not be reported alone on imbalanced data?"
+      },
+      "options": {
+        "tr": [
+          "Recall",
+          "Karışıklık matrisi",
+          "ROC AUC",
+          "Ortalama precision"
+        ],
+        "en": [
+          "Recall",
+          "The confusion matrix",
+          "ROC AUC",
+          "Average precision"
+        ]
+      },
+      "explanation": {
+        "tr": "ROC AUC dengesiz veride iyimser çıkıyor; 0.908 gibi bir sayı azınlık sınıfındaki gerçek durumu gizleyebiliyor.\n\nYanında ortalama precision verilmeli — o azınlık sınıfına çok daha duyarlı.\n\nKarışıklık matrisi zaten ham sayıları gösterdiği için gizleyecek bir şeyi yok.",
+        "en": "ROC AUC comes out optimistic on imbalanced data; a number like 0.908 can hide the real situation in the minority class.\n\nAverage precision should be given alongside it — that is far more sensitive to the minority class.\n\nThe confusion matrix shows raw counts, so it has nothing to hide."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 1,
+      "text": {
+        "tr": "`cross_val_score` varsayılan olarak hangi ölçüyü hesaplıyor?",
+        "en": "Which metric does `cross_val_score` compute by default?"
+      },
+      "options": {
+        "tr": [
+          "F1",
+          "Doğruluk (sınıflandırmada)",
+          "ROC AUC",
+          "Recall"
+        ],
+        "en": [
+          "F1",
+          "Accuracy (for classification)",
+          "ROC AUC",
+          "Recall"
+        ]
+      },
+      "explanation": {
+        "tr": "Regresyonda R², sınıflandırmada doğruluk. Bunlar modelin kendi `score` metodundan geliyor.\n\nDengesiz veride bu varsayılan işe yaramıyor; `scoring` parametresi verilmeli.\n\n`scoring=\"average_precision\"` yaygın bir tercih.",
+        "en": "R² for regression and accuracy for classification. These come from the model's own `score` method.\n\nOn imbalanced data that default is useless; the `scoring` parameter must be given.\n\n`scoring=\"average_precision\"` is a common choice."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 3,
+      "text": {
+        "tr": "Çapraz doğrulamada doğruluğun yayılımı 0.008, recall'ünki 0.188 çıkıyor. Doğruluğun dar yayılımı iyi bir şey mi?",
+        "en": "In cross validation accuracy's spread is 0.008 and recall's 0.188. Is accuracy's narrow spread a good thing?"
+      },
+      "options": {
+        "tr": [
+          "Evet, kararlı demek",
+          "Evet, daha az veri gerektiriyor",
+          "Fark etmez",
+          "Hayır; hiçbir ayarı diğerinden ayırt edemiyor, yani kör"
+        ],
+        "en": [
+          "Yes, it means it is steady",
+          "Yes, it needs less data",
+          "It makes no difference",
+          "No; it cannot tell one setting from another, so it is blind"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir hiperparametre taramasında hangi ayarı denersen dene sonuç 0.95 civarında kalıyor; sıralama yapılamıyor.\n\nRecall'ün geniş yayılımı gürültü içeriyor ama en azından gerçek bir sinyal de taşıyor.\n\nKural: yayılımı sıfıra yakın bir ölçü kararlı değil, kör.",
+        "en": "In a hyperparameter sweep, whatever setting you try the result stays around 0.95; nothing can be ranked.\n\nRecall's wide spread contains noise but at least carries a real signal too.\n\nThe rule: a metric whose spread is near zero is not steady but blind."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 1,
+      "text": {
+        "tr": "Recall'ün çapraz doğrulamadaki yayılımı neden bu kadar geniş?",
+        "en": "Why is recall's spread so wide in cross validation?"
+      },
+      "options": {
+        "tr": [
+          "Model kararsız olduğu için",
+          "Her katta yalnızca ~17 pozitif var; birkaçının kaçması sayıyı belirgin oynatıyor",
+          "Ölçekleme yapılmadığı için",
+          "Kat sayısı az olduğu için"
+        ],
+        "en": [
+          "Because the model is unstable",
+          "Each fold holds only ~17 positives; a few escaping moves the number noticeably",
+          "Because the data was not scaled",
+          "Because there are too few folds"
+        ]
+      },
+      "explanation": {
+        "tr": "Recall paydası pozitif sayısı olan bir oran. Payda küçükse her kayıt oranı çok oynatıyor.\n\nAynı model doğrulukta kıpırdamıyor, çünkü orada payda 225 civarında.\n\nDaha çok kat kullanmak durumu iyileştirmiyor; her kattaki pozitif sayısı daha da azalıyor.",
+        "en": "Recall is a ratio whose denominator is the number of positives. With a small denominator every record moves it a lot.\n\nThe same model does not budge in accuracy, because there the denominator is around 225.\n\nUsing more folds does not help; it leaves even fewer positives per fold."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 3,
+      "text": {
+        "tr": "Dengesiz veride hiperparametre araması genelde hangi ölçüyle yapılıyor?",
+        "en": "Which metric is usually used for hyperparameter search on imbalanced data?"
+      },
+      "options": {
+        "tr": [
+          "Doğruluk",
+          "Eğitim süresi",
+          "Precision tek başına",
+          "`average_precision` ya da `roc_auc`"
+        ],
+        "en": [
+          "Accuracy",
+          "The training time",
+          "Precision alone",
+          "`average_precision` or `roc_auc`"
+        ]
+      },
+      "explanation": {
+        "tr": "İkisi de azınlık sınıfına duyarlı ama tek tek kayıtlara bağlı olmadıkları için recall'den daha kararlı: yayılımları 0.144 ve 0.028.\n\nDoğruluğun yayılımı 0.008 ve hiçbir ayarı ayırt edemiyor.\n\nPrecision tek başına yanıltıcı: eşiği yükselterek istediğin kadar yükseltebiliyorsun.",
+        "en": "Both are sensitive to the minority class yet steadier than recall, since they do not hang on individual records: their spreads are 0.144 and 0.028.\n\nAccuracy's spread is 0.008 and it can tell no setting from another.\n\nPrecision alone misleads: you can raise it as far as you like by raising the threshold."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağı örnekleme (undersampling) ne yapıyor?",
+        "en": "What does undersampling do?"
+      },
+      "options": {
+        "tr": [
+          "Çoğunluk sınıfından rastgele satır atıyor",
+          "Azınlık sınıfını çoğaltıyor",
+          "Yapay satır üretiyor",
+          "Sınıf ağırlığı veriyor"
+        ],
+        "en": [
+          "It drops random rows of the majority class",
+          "It duplicates the minority class",
+          "It generates synthetic rows",
+          "It sets class weights"
+        ]
+      },
+      "explanation": {
+        "tr": "Hızlı bir yöntem ama gerçek veriyi çöpe atıyor; büyük veride kabul edilebilir, küçük veride pahalı.\n\nÇoğaltmak yukarı örnekleme, yapay satır üretmek SMOTE.\n\nÜçünün de alternatifi `class_weight` — o veriyi hiç değiştirmiyor.",
+        "en": "A fast method, but it throws real data away; acceptable on large data, expensive on small.\n\nDuplicating is oversampling and generating synthetic rows is SMOTE.\n\nThe alternative to all three is `class_weight`, which does not touch the data at all."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 1,
+      "text": {
+        "tr": "SMOTE ne yapıyor?",
+        "en": "What does SMOTE do?"
+      },
+      "options": {
+        "tr": [
+          "Çoğunluk sınıfından satır atıyor",
+          "Azınlık sınıfının komşuları arasında yapay satır üretiyor",
+          "Aynı satırları kopyalıyor",
+          "Eşiği ayarlıyor"
+        ],
+        "en": [
+          "It drops rows of the majority class",
+          "It generates synthetic rows among the minority class's neighbours",
+          "It copies the same rows",
+          "It tunes the threshold"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı satırı kopyalamak yerine iki komşu arasında yeni bir nokta üretiyor; böylece model aynı kaydı ezberlemiyor.\n\nsklearn'de yok, `imbalanced-learn` paketinde.\n\nYine de üç kural geçerli: yalnızca eğitim kümesine, çapraz doğrulamada her katın içinde, ve önce `class_weight` denenir.",
+        "en": "Instead of copying the same row it generates a new point between two neighbours, so the model does not memorise the same record.\n\nIt is not in sklearn; it lives in `imbalanced-learn`.\n\nThe three rules still hold: training set only, inside each fold in cross validation, and try `class_weight` first."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 2,
+      "text": {
+        "tr": "Yeniden örnekleme hangi kümeye uygulanır?",
+        "en": "Which set is resampling applied to?"
+      },
+      "options": {
+        "tr": [
+          "Bütün veriye, ayırmadan önce",
+          "Yalnızca test kümesine",
+          "Yalnızca eğitim kümesine",
+          "Eğitim ve test kümesine ayrı ayrı"
+        ],
+        "en": [
+          "The whole data, before splitting",
+          "The test set only",
+          "The training set only",
+          "Training and test separately"
+        ]
+      },
+      "explanation": {
+        "tr": "Test kümesi gerçek dünyayı temsil etmeli; oradaki dolandırıcılık oranı %5,7 ve model onu görmeli.\n\nAyırmadan önce örneklemek en sinsi sızıntı: aynı satırın kopyası hem eğitimde hem testte çıkıyor.\n\nÇapraz doğrulamada da örnekleme her katın içinde yapılıyor, öncesinde değil.",
+        "en": "The test set has to represent the real world; the fraud rate there is 5.7% and the model must see it.\n\nSampling before splitting is the sneakiest leakage: copies of the same row land in both training and test.\n\nIn cross validation too the sampling happens inside each fold, not before."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 1,
+      "text": {
+        "tr": "Yukarı örneklemenin (oversampling) zayıf yanı ne?",
+        "en": "What is oversampling's weakness?"
+      },
+      "options": {
+        "tr": [
+          "Veri kaybı",
+          "Yeni bilgi eklemiyor; aynı satırları tekrarlıyor ve model onları ezberleyebiliyor",
+          "Çok yavaş",
+          "Yalnızca regresyonda çalışıyor"
+        ],
+        "en": [
+          "Data loss",
+          "It adds no new information; it repeats the same rows and the model can memorise them",
+          "It is very slow",
+          "It only works for regression"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir satırı on kez kopyalamak ona on kat ağırlık vermekle neredeyse aynı — ama modelin o tekil satıra aşırı uyum sağlaması riski var.\n\nVeri kaybı aşağı örneklemenin sorunu.\n\nSMOTE bu sorunu yapay satır üreterek hafifletiyor.",
+        "en": "Copying a row ten times is almost the same as giving it ten times the weight — but there is a risk of the model fitting that individual row too closely.\n\nData loss is undersampling's problem.\n\nSMOTE softens this by generating synthetic rows instead."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "Kanser taraması gibi bir problemde hangi ölçü öne çıkıyor?",
+        "en": "In a problem like cancer screening, which metric comes first?"
+      },
+      "options": {
+        "tr": [
+          "Recall",
+          "Precision",
+          "Doğruluk",
+          "Eğitim süresi"
+        ],
+        "en": [
+          "Recall",
+          "Precision",
+          "Accuracy",
+          "The training time"
+        ]
+      },
+      "explanation": {
+        "tr": "Kaçırırsan hasta tedavi görmüyor; yanlış alarm verirsen bir tetkik daha yapılıyor. Kaçırmanın sonucu geri alınamaz, yanlış alarmınki düzeltilebilir.\n\nBu durumda `class_weight=\"balanced\"` ve düşük eşik mantıklı.\n\nDoğruluk zaten dengesiz veride yanıltıcı.",
+        "en": "If you miss, the patient goes untreated; a false alarm means one more test. A miss is irreversible while a false alarm is fixable.\n\nHere `class_weight=\"balanced\"` and a low threshold make sense.\n\nAccuracy is misleading on imbalanced data anyway."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 3,
+      "text": {
+        "tr": "Spam filtresinde hangi ölçü öne çıkıyor?",
+        "en": "In a spam filter, which metric comes first?"
+      },
+      "options": {
+        "tr": [
+          "Recall",
+          "Doğruluk",
+          "ROC AUC",
+          "Precision"
+        ],
+        "en": [
+          "Recall",
+          "Accuracy",
+          "ROC AUC",
+          "Precision"
+        ]
+      },
+      "explanation": {
+        "tr": "Yanlış alarm verirsen önemli bir e-posta çöpe gidiyor; kaçırırsan gelen kutusunda bir spam duruyor. Yanlış alarm daha pahalı.\n\nBu durumda yüksek eşik ve `class_weight` vermemek mantıklı.\n\nAynı mantık içerik kaldırma ve kredi reddi gibi kararlarda da geçerli — yanlış alarm bir kişiye zarar veriyor ve o kişi çoğu zaman itiraz edemiyor.",
+        "en": "A false alarm bins an important email; a miss leaves one spam in the inbox. The false alarm costs more.\n\nHere a high threshold and no `class_weight` make sense.\n\nThe same logic applies to content removal and loan refusal — a false alarm harms a person, and that person usually cannot appeal."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 1,
+      "text": {
+        "tr": "Maliyetler biliniyorsa eşik neye göre seçilir?",
+        "en": "If the costs are known, how is the threshold chosen?"
+      },
+      "options": {
+        "tr": [
+          "F1'e göre",
+          "Beklenen maliyete göre: FN sayısı × FN bedeli + FP sayısı × FP bedeli",
+          "ROC AUC'ye göre",
+          "Doğruluğa göre"
+        ],
+        "en": [
+          "By F1",
+          "By expected cost: FN count × FN price + FP count × FP price",
+          "By ROC AUC",
+          "By accuracy"
+        ]
+      },
+      "explanation": {
+        "tr": "F1 precision ile recall'ü eşit önemde sayıyor; maliyetler biliniyorsa bu varsayıma gerek kalmıyor.\n\nÖrnek: FN 400, FP 5 lira ise 0.05 eşiği kazanıyor; FP 100 lira olduğunda 0.10 kazanıyor. Aynı model, farklı karar.\n\nFormül basit; zor olan maliyetleri öğrenmek.",
+        "en": "F1 treats precision and recall as equally important; when the costs are known that assumption is unnecessary.\n\nAn example: with FN 400 and FP 5 the 0.05 threshold wins; with FP 100 the 0.10 wins. The same model, a different decision.\n\nThe formula is simple; learning the costs is the hard part."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 0,
+      "text": {
+        "tr": "Maliyetler bilinmiyorsa ne yapmalı?",
+        "en": "What should you do when the costs are unknown?"
+      },
+      "options": {
+        "tr": [
+          "Eşik tablosunu iş tarafına götürmek ve kararı onlara bırakmak",
+          "Varsayılan eşikte kalmak",
+          "Rastgele bir eşik seçmek",
+          "Doğruluğu maksimize etmek"
+        ],
+        "en": [
+          "Take the threshold table to the business side and let them decide",
+          "Stay at the default threshold",
+          "Pick a threshold at random",
+          "Maximise accuracy"
+        ]
+      },
+      "explanation": {
+        "tr": "\"0.10'da 13 dolandırıcılık yakalıyoruz ve 25 müşteriyi boşuna arıyoruz\" cümlesi, \"F1 skorumuz 0.441\" cümlesinden çok daha konuşulabilir.\n\nBir kısıt varsa (\"günde en fazla 30 yanlış alarm\") eşik ondan çıkıyor.\n\nHiçbir bilgi yoksa F1 makul bir geçici çapa — ama bunun bir varsayım olduğu yazılmalı.",
+        "en": "\"At 0.10 we catch 13 frauds and call 25 customers for nothing\" is far more discussable than \"our F1 score is 0.441\".\n\nIf there is a constraint (\"at most 30 false alarms a day\") the threshold follows from it.\n\nWith no information at all, F1 is a reasonable temporary anchor — but it should be written down that this is an assumption."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 2,
+      "text": {
+        "tr": "Pozitif sınıf %0,1 gibi uç bir seviyedeyse ne düşünülür?",
+        "en": "What is considered when the positive class is as extreme as 0.1%?"
+      },
+      "options": {
+        "tr": [
+          "Daha çok ağaç kurmak",
+          "Doğruluğu raporlamak",
+          "Anomali tespiti; sınıflandırma yerine \"normalden sapma\" arayan modeller",
+          "Ölçeklemeyi kaldırmak"
+        ],
+        "en": [
+          "Building more trees",
+          "Reporting accuracy",
+          "Anomaly detection; models that look for \"deviation from normal\" instead of classification",
+          "Removing the scaling"
+        ]
+      },
+      "explanation": {
+        "tr": "`IsolationForest` gibi modeller pozitif örnek görmeye ihtiyaç duymadan sıra dışı kayıtları işaretliyor.\n\nBu seviyede sınıflandırma modelleri eğitecek yeterli pozitif örnek bulunamıyor.\n\nAğaç eklemek dengesizliğe çare değil.",
+        "en": "Models like `IsolationForest` flag unusual records without needing to see positive examples.\n\nAt that level there are not enough positive examples to train a classification model.\n\nAdding trees is no remedy for imbalance."
+      }
+    },
+    {
+      "id": "q31",
+      "answer": 3,
+      "text": {
+        "tr": "Ormanda `class_weight=\"balanced\"` etkisi lojistik regresyondakinden neden daha ölçülü?",
+        "en": "Why is `class_weight=\"balanced\"` more measured in a forest than in logistic regression?"
+      },
+      "options": {
+        "tr": [
+          "Orman ağırlıkları yok sayıyor",
+          "Ormanda daha az veri var",
+          "Ölçekleme farkı",
+          "Lojistik regresyon bütün sınırı kaydırıyor, ağaç yalnızca yaprakların oyunu değiştiriyor"
+        ],
+        "en": [
+          "A forest ignores the weights",
+          "A forest has less data",
+          "A difference in scaling",
+          "Logistic regression shifts the whole boundary while a tree only changes the vote inside its leaves"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: lojistik regresyonda recall 0.286 → 0.667, ormanda 0.286 → 0.381.\n\nOrmanda F1 yükseliyor (0.414 → 0.471) — bu veride en dengeli sonuç.\n\nOrman ağırlıkları yok saymıyor, yalnızca farklı bir yerde uyguluyor.",
+        "en": "Measured: recall goes 0.286 → 0.667 in logistic regression and 0.286 → 0.381 in the forest.\n\nF1 rises in the forest (0.414 → 0.471) — the most balanced result on this data.\n\nThe forest does not ignore the weights; it just applies them somewhere else."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 1,
+      "text": {
+        "tr": "F1 skoru ne yapıyor?",
+        "en": "What does the F1 score do?"
+      },
+      "options": {
+        "tr": [
+          "Precision ile recall'ün aritmetik ortalamasını alıyor",
+          "Precision ile recall'ün harmonik ortalamasını alıyor",
+          "Doğruluğu düzeltiyor",
+          "Eşiği seçiyor"
+        ],
+        "en": [
+          "It takes the arithmetic mean of precision and recall",
+          "It takes the harmonic mean of precision and recall",
+          "It corrects the accuracy",
+          "It chooses the threshold"
+        ]
+      },
+      "explanation": {
+        "tr": "Harmonik ortalama küçük olana daha yakın çıkıyor: biri çökerse F1 de çöküyor. Aritmetik ortalama bunu yapmıyor.\n\nÖrnek: precision 1.0, recall 0.0 iken aritmetik ortalama 0.5, F1 ise 0.\n\nBu yüzden F1 \"ikisi birden makul mü\" sorusunu cevaplıyor.",
+        "en": "The harmonic mean sits closer to the smaller value: if one collapses so does F1. The arithmetic mean does not.\n\nAn example: with precision 1.0 and recall 0.0 the arithmetic mean is 0.5 while F1 is 0.\n\nThis is why F1 answers the question \"are both reasonable\"."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 0,
+      "text": {
+        "tr": "Dengesiz veride hangisi **her zaman** yapılmalı?",
+        "en": "Which of these should **always** be done on imbalanced data?"
+      },
+      "options": {
+        "tr": [
+          "Karışıklık matrisine bakmak",
+          "Yeniden örnekleme",
+          "Ölçekleme",
+          "Eşiği 0.1 yapmak"
+        ],
+        "en": [
+          "Looking at the confusion matrix",
+          "Resampling",
+          "Scaling",
+          "Setting the threshold to 0.1"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek bir doğruluk sayısının gizlediği her şey orada duruyor: kaç kaçtı, kaç yanlış alarm.\n\nYeniden örnekleme bir seçenek, zorunluluk değil; `class_weight` çoğu zaman yeterli.\n\nÖlçekleme modele bağlı; ağaçlar gerektirmiyor. 0.1 eşiği bu veriye özgü bir sonuç, genel bir kural değil.",
+        "en": "Everything a single accuracy number hides sits there: how many escaped, how many false alarms.\n\nResampling is an option, not an obligation; `class_weight` is usually enough.\n\nScaling depends on the model; trees do not need it. The 0.1 threshold is a result specific to this data, not a general rule."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 2,
+      "text": {
+        "tr": "Çok sınıflı dengesiz problemlerde ölçüler nasıl birleştiriliyor?",
+        "en": "How are metrics combined in multiclass imbalanced problems?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca en büyük sınıfa bakılıyor",
+          "Doğruluk yeterli oluyor",
+          "Her sınıf için ayrı hesaplanıp `macro` ya da `weighted` ortalamayla birleştiriliyor",
+          "Birleştirilemiyor"
+        ],
+        "en": [
+          "Only the largest class is considered",
+          "Accuracy suffices",
+          "They are computed per class and combined with a `macro` or `weighted` average",
+          "They cannot be combined"
+        ]
+      },
+      "explanation": {
+        "tr": "`macro` her sınıfa eşit ağırlık veriyor — küçük sınıflar da sayılıyor. `weighted` sınıf büyüklüğüne göre ağırlıklandırıyor ve büyük sınıfların etkisi baskın oluyor.\n\nDengesiz veride genelde `macro` tercih ediliyor, çünkü asıl merak edilen küçük sınıf.\n\nDoğruluk burada da yanıltıyor.",
+        "en": "`macro` weights every class equally — the small ones count too. `weighted` weights by class size, so the large classes dominate.\n\nOn imbalanced data `macro` is usually preferred, because the small class is what you care about.\n\nAccuracy misleads here too."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 1,
+      "text": {
+        "tr": "Bu bölümdeki ölçümlerde model kaç kez değiştirildi?",
+        "en": "How many times was the model changed in this section's measurements?"
+      },
+      "options": {
+        "tr": [
+          "Beş kez",
+          "Kazançların çoğu aynı modelden geldi; değişen ağırlıklar, eşik ve bakılan ölçüydü",
+          "Her ölçümde",
+          "Hiç model kurulmadı"
+        ],
+        "en": [
+          "Five times",
+          "Most of the gains came from the same model; what changed were the weights, the threshold and the metric being read",
+          "At every measurement",
+          "No model was ever built"
+        ]
+      },
+      "explanation": {
+        "tr": "Recall 0.286'dan 0.762'ye çıktı, precision 0.75'ten 0.262'ye indi — hiçbiri yeni bir model değildi.\n\n`class_weight` yeniden eğitim gerektiriyor ama model türü aynı kaldı; eşik değişimi eğitim bile gerektirmedi.\n\nSonuç: dengesiz veride kazanç çoğu zaman daha iyi bir modelden değil, daha iyi bir karardan geliyor.",
+        "en": "Recall went from 0.286 to 0.762 and precision from 0.75 to 0.262 — none of it was a new model.\n\n`class_weight` does require retraining, but the model type stayed the same; the threshold change required no training at all.\n\nThe conclusion: on imbalanced data the gain usually comes not from a better model but from a better decision."
+      }
+    },
+    {
+      "id": "q36",
+      "answer": 2,
+      "text": {
+        "tr": "Bu bölümün tek cümlelik özeti ne?",
+        "en": "What is this section in one sentence?"
+      },
+      "options": {
+        "tr": [
+          "Dengesiz veride daha karmaşık model gerekiyor",
+          "Dengesiz veri her zaman yeniden örneklenmeli",
+          "Dengesiz veride ölçüyü seçmek, modeli seçmekten daha önemli",
+          "Doğruluk her problemde yeterli"
+        ],
+        "en": [
+          "Imbalanced data needs a more complex model",
+          "Imbalanced data must always be resampled",
+          "On imbalanced data, choosing the metric matters more than choosing the model",
+          "Accuracy suffices for every problem"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı lojistik regresyon, doğrulukla bakıldığında \"taban çizgiden 1 puan iyi\", recall'le bakıldığında \"hiçbir şeyden altı yakalamaya\" görünüyor.\n\nDaha karmaşık model denendi: orman ROC AUC'de 0.834 ile lojistik regresyonun 0.908'inin gerisinde kaldı.\n\nYeniden örnekleme bir seçenek, zorunluluk değil.",
+        "en": "The same logistic regression looks like \"one point better than the baseline\" through accuracy and \"from nothing to catching six\" through recall.\n\nA more complex model was tried: the forest's ROC AUC of 0.834 fell behind logistic regression's 0.908.\n\nResampling is an option, not an obligation."
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "move-the-threshold",
+  "title": {
+    "tr": "Eşiği oynat",
+    "en": "Move the threshold"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`model.predict_proba(X_test)[:, 1]` pozitif sınıfın olasılığını veriyor.",
+      "en": "`model.predict_proba(X_test)[:, 1]` gives the positive class's probability."
+    },
+    {
+      "tr": "Bir eşikle tahmin üretmek: `(probability >= t).astype(int)`.",
+      "en": "To predict with a threshold: `(probability >= t).astype(int)`."
+    },
+    {
+      "tr": "`precision_score`'a `zero_division=0` vermek, hiç pozitif tahmin olmadığı durumdaki uyarıyı susturuyor.",
+      "en": "Passing `zero_division=0` to `precision_score` silences the warning when no positive prediction is made."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"students.csv\")\nX = df[[\"hours\", \"prev_score\", \"attendance\"]]\ny = df[\"passed\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nmodel = LogisticRegression(max_iter=1000)\nmodel.fit(X_train, y_train)\nprediction = model.predict(X_test)\n\nfrom sklearn.metrics import precision_score, recall_score\n\nprobability = model.predict_proba(X_test)[:, 1]\n\nfor t in (0.3, 0.5, 0.7):\n    guess = (probability >= t).astype(int)\n    print(t,\n          round(precision_score(y_test, guess, zero_division=0), 3),\n          round(recall_score(y_test, guess), 3))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"students.csv\")\nX = df[[\"hours\", \"prev_score\", \"attendance\"]]\ny = df[\"passed\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nmodel = LogisticRegression(max_iter=1000)\nmodel.fit(X_train, y_train)\nprediction = model.predict(X_test)\n\nfrom sklearn.metrics import precision_score, recall_score\n\nprobability = model.predict_proba(X_test)[:, 1]\n\nfor t in (0.3, 0.5, 0.7):\n    guess = (probability >= t).astype(int)\n    print(t,\n          round(precision_score(y_test, guess, zero_division=0), 3),\n          round(recall_score(y_test, guess), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.3 0.818 1.0\n0.5 0.839 0.963\n0.7 0.889 0.889"
+    }
+  ]
+}

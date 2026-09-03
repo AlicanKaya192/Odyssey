@@ -1,5 +1,3 @@
-# Tablo Tarifleri (kütüphanesiz)
-
 Sözlük listesi üzerinde en sık gereken altı işlemin düz Python karşılığı.
 Alıştırmaları çözerken buraya bakabilirsin.
 

@@ -1,5 +1,3 @@
-# Özel Metotlar
-
 Adı iki alt çizgiyle başlayıp biten metotlara **özel metot** deniyor:
 `__init__`, `__str__`, `__len__`. Bunları doğrudan çağırmıyorsun; Python
 belirli durumlarda kendisi çağırıyor.

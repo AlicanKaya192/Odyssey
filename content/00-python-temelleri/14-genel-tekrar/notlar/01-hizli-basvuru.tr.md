@@ -1,5 +1,3 @@
-# Hızlı Başvuru
-
 Python Temelleri'nde öğrendiğin her şeyin tek sayfalık özeti. Ezberlemek için
 değil, "şu nasıl yazılıyordu" diye bakmak için.
 

@@ -1,0 +1,40 @@
+{
+  "id": "split-luck",
+  "title": {
+    "tr": "Tek ayrımın şansı",
+    "en": "The luck of one split"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Bu kez ayırmayı döngü içinde yapıyorsun: `random_state` her turda değişiyor.",
+      "en": "This time the split happens inside the loop: `random_state` changes each round."
+    },
+    {
+      "tr": "Her tur için MAE'yi iki ondalığa yuvarlayıp bir listede biriktir.",
+      "en": "Round each MAE to two decimals and collect them in a list."
+    },
+    {
+      "tr": "Son satırda `min`, `max` ve ikisinin farkı yazdırılıyor.",
+      "en": "The last line prints `min`, `max` and the difference between them."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.get_dummies(pd.read_csv(\"cars.csv\").dropna(),\n                    columns=[\"fuel\", \"gearbox\"])\nX = df.drop(columns=[\"price\"])\ny = df[\"price\"]\n\nresults = []\nfor seed in range(5):\n    X_train, X_test, y_train, y_test = train_test_split(\n        X, y, test_size=0.25, random_state=seed)\n    model = LinearRegression()\n    model.fit(X_train, y_train)\n    error = mean_absolute_error(y_test, model.predict(X_test))\n    results.append(round(error, 2))\n\nprint(results)\nprint(min(results), max(results), round(max(results) - min(results), 2))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.get_dummies(pd.read_csv(\"cars.csv\").dropna(),\n                    columns=[\"fuel\", \"gearbox\"])\nX = df.drop(columns=[\"price\"])\ny = df[\"price\"]\n\nresults = []\nfor seed in range(5):\n    X_train, X_test, y_train, y_test = train_test_split(\n        X, y, test_size=0.25, random_state=seed)\n    model = LinearRegression()\n    model.fit(X_train, y_train)\n    error = mean_absolute_error(y_test, model.predict(X_test))\n    results.append(round(error, 2))\n\nprint(results)\nprint(min(results), max(results), round(max(results) - min(results), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[16.16, 16.95, 17.07, 19.68, 21.56]\n16.16 21.56 5.4"
+    }
+  ]
+}

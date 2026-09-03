@@ -1,5 +1,3 @@
-# Hızlı Başvuru
-
 Bütün modülün tek sayfası. `import numpy as np`, `import pandas as pd` ve
 tablonun `data` olduğu varsayılıyor.
 

@@ -1,5 +1,3 @@
-# Seri Başvurusu
-
 `import pandas as pd` yapıldığı varsayılıyor.
 
 ## Oluşturma

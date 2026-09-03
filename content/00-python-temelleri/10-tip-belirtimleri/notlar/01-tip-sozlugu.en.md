@@ -1,5 +1,3 @@
-# Type Reference
-
 A list of the annotations you will run into. Not to memorise — to look up when
 you get stuck.
 

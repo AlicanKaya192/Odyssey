@@ -21,6 +21,97 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.7.4] — 4 September 2026
+
+### Added
+- **The Machine Learning path is complete: thirteen sections.**
+  **"What Is Machine Learning?"** covers how it differs from classical
+  programming, the kinds of learning, the training/test split and the
+  baseline; in its exercises you train a model by searching for a threshold
+  and find the nearest neighbour yourself, without calling a library.
+  **"Your First Model"** moves into scikit-learn: read, split, build a
+  baseline, train, measure. You read the coefficients the model learned and
+  plot the line it drew.
+  **"Regression Metrics"** builds MAE, RMSE and R² from their formulas,
+  shows why two models with the same MAE are not the same model, and uses a
+  residual plot to find **what the model missed**.
+  **"Classification"** moves to problems where the target is a category: the
+  confusion matrix, precision and recall, and the trade you make by moving
+  the threshold.
+  **"Preparing Data for a Model"** works with messy data: missing values,
+  text columns and differences in scale. The section's rule is one sentence
+  — **split first, then touch** — and in the last exercise you measure for
+  yourself how breaking it pulls a model that "looks like it works" out of
+  data with no pattern in it at all.
+  **"Validation and Overfitting"** asks how much the number you measured can
+  be trusted: reading the training and test scores together, how much a
+  single split depends on luck, and cross validation. In the last exercise
+  you draw a learning curve and measure "would more data help" instead of
+  guessing at it.
+  **"KNN"** covers a model that learns nothing and only remembers: the
+  neighbour vote, what `k` tunes, and why scaling is compulsory here. In the
+  last exercise you draw the decision boundary for two values of `k` and see
+  how two models with the same accuracy can be nothing alike.
+  **"Decision Trees"** covers models built on **questions** rather than
+  distance: how a split is chosen, how to read the rules, and why scaling
+  changes nothing here. In the last exercise you draw the tree itself and
+  measure how much work each column did.
+  **"Ensemble Methods"** measures a single tree's instability and shows the
+  remedy: bagging, the random forest, gradient boosting and the out-of-bag
+  score. By dropping a different 10% of the training data each time, you
+  measure for yourself that the tree's score moves by 14 points and the
+  forest's by 8.
+  **"Imbalanced Data"** covers what happens when one class is 5.7%: a
+  predictor that does nothing scores 94.4% accuracy. Class weights, moving
+  the threshold, the difference between the ROC and precision-recall
+  curves, and which metric to choose in cross validation are all here.
+  **"Unsupervised Learning"** works for the first time with data that has no
+  target column: k-means, choosing `k`, and PCA. You measure for yourself
+  that four clusters come out of randomly generated data with no structure
+  in it at all.
+  **"Pipelines and Saving a Model"** ties the preprocessing to the model:
+  `ColumnTransformer`, `GridSearchCV` and `joblib`. Section 04's rule —
+  split first, touch afterwards — stops being a matter of care here.
+  **"Overall Review"** collects the twelve sections into one flow, with
+  **85 questions** and five end-to-end projects. In the third you are
+  handed a model that works at 100% accuracy and you work out why you
+  should be suspicious.
+  The thirteen sections come with twenty-six notes, **513 quiz questions**
+  and sixty-five exercises.
+- **It shows on Discord.** While Discord is open, your profile shows that
+  you are using Odyssey, which module and section you are on and how long
+  you have been at it; the two buttons beneath it go to the project page
+  and the latest release. The
+  text is in the language you chose. It can be turned off in Settings.
+  If Discord is not installed or not running, nothing changes: the app does
+  not even notice, and it connects on its own if you open Discord later.
+- **The exercises got longer.** In Machine Learning the starter code no
+  longer hands you ready-made `import` lines; you write where each tool
+  comes from.
+- **Fourteen new badges:** *Into Machine Learning*, *First Model*, *Error
+  Reader*, *The Classifier*, *Leak Hunter*, *Honest Measurement*, *The
+  Neighbourhood*, *Rule Reader*, *Forest Keeper*, *Rare Signal*, *Group
+  Finder*, *One Piece*, *The Reviewer* and *Machine Learning Complete*.
+- **The chart you drew now appears on screen.** When an exercise saves a
+  chart, the chart itself shows up in the results panel after you run your
+  code. It used to be produced, checked and deleted — you never saw what
+  you had drawn.
+- **scikit-learn is bundled too, for Machine Learning.** Like NumPy, pandas
+  and matplotlib it ships inside the application, so there is nothing to
+  install. This is why the download is larger.
+
+### Fixed
+- **Hints now open one at a time.** Clicking the last hint in an exercise
+  also opened every hint before it, so one click undid the whole point of
+  graduated help. Now only the one you click opens.
+- **The last hint gives the solution in every exercise.** In some exercises
+  that step said "the full solution" but showed only part of it.
+- **A lecture note's title was written twice.** The note's name appeared
+  both as the page heading and again inside the text. Fixed across every
+  note in all three paths.
+
+---
+
 ## [0.7.3.1] — 3 September 2026
 
 ### Changed

@@ -1,5 +1,3 @@
-# File Traps
-
 Mistakes with files are expensive: most of them raise no error and quietly
 **lose data**. These are the ones people hit most often.
 

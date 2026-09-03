@@ -1,5 +1,3 @@
-# Database Traps
-
 Database mistakes fall into two groups: those that raise an error at once, and
 those that quietly lose data. The second group is the dangerous one.
 

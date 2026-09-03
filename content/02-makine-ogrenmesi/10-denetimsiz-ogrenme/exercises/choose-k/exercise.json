@@ -1,0 +1,45 @@
+{
+  "id": "choose-k",
+  "title": {
+    "tr": "Kaç küme",
+    "en": "How many clusters"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 200,
+  "hints": [
+    {
+      "tr": "`model.inertia_` merkezlere uzaklıkların kareler toplamı; `silhouette_score` ayrıca hesaplanıyor.",
+      "en": "`model.inertia_` is the sum of squared distances to the centres; `silhouette_score` is computed separately."
+    },
+    {
+      "tr": "İki eğrinin ölçekleri çok farklı; `plt.subplots(1, 2)` ile yan yana çiziliyor.",
+      "en": "The two curves have very different scales; draw them side by side with `plt.subplots(1, 2)`."
+    },
+    {
+      "tr": "En yüksek silüeti veren `k`'yı `max(...)` ile seçerken hem `k`'yı hem skoru sakla.",
+      "en": "When picking the highest-silhouette `k` with `max(...)`, keep both the `k` and the score."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"shoppers.csv\")\ncolumns = [\"spend\", \"visits\", \"items\", \"returns\"]\nX = df[columns]\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\n\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\n\ncounts = []\ninertias = []\nscores = []\n\nfor k in range(2, 9):\n    model = KMeans(n_clusters=k, random_state=42, n_init=10)\n    labels = model.fit_predict(X_scaled)\n    inertia = float(model.inertia_)\n    score = float(silhouette_score(X_scaled, labels))\n    counts.append(k)\n    inertias.append(inertia)\n    scores.append(score)\n    print(k, round(inertia, 1), round(score, 3))\n\nfigure, axes = plt.subplots(1, 2)\naxes[0].plot(counts, inertias, marker=\"o\")\naxes[0].set_xlabel(\"k\")\naxes[0].set_ylabel(\"inertia\")\naxes[0].set_title(\"Elbow\")\naxes[1].plot(counts, scores, marker=\"o\")\naxes[1].set_xlabel(\"k\")\naxes[1].set_ylabel(\"silhouette\")\naxes[1].set_title(\"Silhouette\")\nfigure.tight_layout()\nfigure.savefig(\"chart.png\")\n\nbest = max(zip(counts, scores), key=lambda row: row[1])\nprint(best[0], round(best[1], 3))\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"shoppers.csv\")\ncolumns = [\"spend\", \"visits\", \"items\", \"returns\"]\nX = df[columns]\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\n\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\n\ncounts = []\ninertias = []\nscores = []\n\nfor k in range(2, 9):\n    model = KMeans(n_clusters=k, random_state=42, n_init=10)\n    labels = model.fit_predict(X_scaled)\n    inertia = float(model.inertia_)\n    score = float(silhouette_score(X_scaled, labels))\n    counts.append(k)\n    inertias.append(inertia)\n    scores.append(score)\n    print(k, round(inertia, 1), round(score, 3))\n\nfigure, axes = plt.subplots(1, 2)\naxes[0].plot(counts, inertias, marker=\"o\")\naxes[0].set_xlabel(\"k\")\naxes[0].set_ylabel(\"inertia\")\naxes[0].set_title(\"Elbow\")\naxes[1].plot(counts, scores, marker=\"o\")\naxes[1].set_xlabel(\"k\")\naxes[1].set_ylabel(\"silhouette\")\naxes[1].set_title(\"Silhouette\")\nfigure.tight_layout()\nfigure.savefig(\"chart.png\")\n\nbest = max(zip(counts, scores), key=lambda row: row[1])\nprint(best[0], round(best[1], 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2 695.9 0.514\n3 388.8 0.525\n4 265.6 0.517\n5 212.7 0.489\n6 189.6 0.457\n7 167.3 0.442\n8 155.4 0.415\n3 0.525"
+    },
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    }
+  ]
+}

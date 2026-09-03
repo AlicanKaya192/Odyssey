@@ -1,0 +1,940 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 1,
+      "text": {
+        "tr": "Topluluk yöntemi ne demek?",
+        "en": "What does an ensemble method mean?"
+      },
+      "options": {
+        "tr": [
+          "Tek bir modeli daha uzun eğitmek",
+          "Çok sayıda modeli birleştirip ortak bir tahmin üretmek",
+          "Veriyi birden çok parçaya bölmek",
+          "Birden çok metrik hesaplamak"
+        ],
+        "en": [
+          "Training a single model for longer",
+          "Combining many models into one shared prediction",
+          "Splitting the data into several parts",
+          "Computing several metrics"
+        ]
+      },
+      "explanation": {
+        "tr": "Birden fazla model kuruluyor ve tahminleri birleştiriliyor: sınıflandırmada oy çokluğu, regresyonda ortalama.\n\nAmaç tek bir modelin hatasını azaltmak — özellikle o model kararsızsa.\n\nVeriyi bölmek çapraz doğrulamanın işi, metrik hesaplamak ise ölçme işi; ikisi de topluluk değil.",
+        "en": "Several models are built and their predictions combined: a majority vote for classification, an average for regression.\n\nThe aim is to reduce a single model's error — especially when that model is unstable.\n\nSplitting the data is what cross validation does, and computing metrics is measurement; neither is an ensemble."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Torbalama (bagging) nedir?",
+        "en": "What is bagging?"
+      },
+      "options": {
+        "tr": [
+          "Aynı modeli verinin farklı rastgele örneklemlerinde eğitip ortalamak",
+          "Modelleri sırayla eğitip birbirini düzelttirmek",
+          "Farklı model türlerini yan yana koymak",
+          "Veriyi ölçeklemek"
+        ],
+        "en": [
+          "Training the same model on different random samples of the data and averaging",
+          "Training models in sequence so they correct one another",
+          "Placing different model types side by side",
+          "Scaling the data"
+        ]
+      },
+      "explanation": {
+        "tr": "Eğitim verisinden yerine koyarak örneklemler çekiliyor, her örneklemde bir model eğitiliyor ve tahminler birleştiriliyor.\n\nSırayla eğitip düzelttirmek artırmanın (boosting) yöntemi, torbalamanın değil.\n\nAdı \"bootstrap aggregating\" ifadesinden geliyor.",
+        "en": "Samples are drawn with replacement from the training data, a model is trained on each, and the predictions are combined.\n\nTraining in sequence to correct one another is boosting's method, not bagging's.\n\nThe name comes from \"bootstrap aggregating\"."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 2,
+      "text": {
+        "tr": "Bootstrap örneklemi ne demek?",
+        "en": "What is a bootstrap sample?"
+      },
+      "options": {
+        "tr": [
+          "Verinin ilk yarısı",
+          "Rastgele seçilmiş sütunlar",
+          "Yerine koyarak çekilen, aynı boyutta bir örneklem",
+          "Test kümesinin bir kopyası"
+        ],
+        "en": [
+          "The first half of the data",
+          "Randomly chosen columns",
+          "A same-sized sample drawn with replacement",
+          "A copy of the test set"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı satır birden çok kez seçilebiliyor, bazı satırlar ise hiç seçilmiyor. Örneklemin boyutu orijinal veriyle aynı.\n\nHiç seçilmeyen satırlar yaklaşık üçte bir tutuyor ve torba dışı skorun kaynağı oluyor.\n\nSütun seçimi ayrı bir mekanizma (`max_features`), bootstrap satırlarla ilgili.",
+        "en": "The same row can be chosen more than once while some rows are never chosen. The sample is the same size as the original data.\n\nThe rows never chosen amount to about a third and are the source of the out-of-bag score.\n\nChoosing columns is a separate mechanism (`max_features`); bootstrap is about rows."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Rastgele ormanın torbalamaya eklediği ikinci rastgelelik ne?",
+        "en": "What is the second randomness a random forest adds to bagging?"
+      },
+      "options": {
+        "tr": [
+          "Her bölünmede özelliklerin yalnızca bir alt kümesini deniyor",
+          "Etiketleri karıştırıyor",
+          "Ağaçların derinliğini rastgele seçiyor",
+          "Test kümesini rastgele değiştiriyor"
+        ],
+        "en": [
+          "At each split it tries only a subset of the features",
+          "It shuffles the labels",
+          "It picks each tree's depth at random",
+          "It changes the test set at random"
+        ]
+      },
+      "explanation": {
+        "tr": "`max_features` her bölünmede kaç özelliğin yarışacağını belirliyor; varsayılan `sqrt`.\n\nBu, ağaçları birbirinden farklılaştırıyor — hepsi aynı güçlü sütundan başlamıyor.\n\nHepsini denemek ormanı basit torbalamaya çeviriyor ve ağaçlar birbirine benziyor.",
+        "en": "`max_features` sets how many features compete at each split; the default is `sqrt`.\n\nThis makes the trees differ from one another — they do not all start from the same strong column.\n\nTrying them all turns the forest into plain bagging and the trees start to look alike."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 1,
+      "text": {
+        "tr": "Neden ağaçları tek tek zayıflatmak topluluğu güçlendiriyor?",
+        "en": "Why does weakening the trees individually strengthen the ensemble?"
+      },
+      "options": {
+        "tr": [
+          "Zayıf ağaçlar daha hızlı",
+          "Ağaçların hataları birbirinden bağımsızlaşıyor ve ortalamada götürüyor",
+          "Zayıf ağaçlar daha az bellek kullanıyor",
+          "Zayıflatmak güçlendirmiyor"
+        ],
+        "en": [
+          "Weak trees are faster",
+          "Their errors become independent and cancel in the average",
+          "Weak trees use less memory",
+          "Weakening does not strengthen it"
+        ]
+      },
+      "explanation": {
+        "tr": "Ortalamanın işe yaraması için hataların bağımsız olması gerekiyor; hepsi aynı hatayı yapıyorsa ortalama bir şey düzeltmiyor.\n\n`max_features` her ağacı biraz kötüleştiriyor ama aralarındaki bağımlılığı daha çok düşürüyor. Net etki olumlu.\n\nHız ve bellek de kazanılıyor, ama asıl sebep bu değil.",
+        "en": "For averaging to help, the errors have to be independent; if they all make the same mistake the average corrects nothing.\n\n`max_features` makes each tree slightly worse but reduces their dependence further. The net effect is positive.\n\nSpeed and memory improve too, but that is not the reason."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 1,
+      "text": {
+        "tr": "`n_estimators` değerini artırmak bir ormanda ne yapıyor?",
+        "en": "What does raising `n_estimators` do in a forest?"
+      },
+      "options": {
+        "tr": [
+          "Aşırı öğrenmeye yol açıyor",
+          "Bir noktaya kadar iyileştiriyor, sonrası yalnızca yavaşlatıyor",
+          "Modeli basitleştiriyor",
+          "Eğitim skorunu düşürüyor"
+        ],
+        "en": [
+          "It causes overfitting",
+          "It improves up to a point, then only slows things down",
+          "It simplifies the model",
+          "It lowers the training score"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: 1 ağaçla test 0.72, 25 ağaçla 0.90, 300 ağaçla yine 0.90.\n\nAğaç eklemek modeli bozmuyor çünkü her ağaç farklı şeyler ezberliyor ve ezberler ortalamada birbirini götürüyor.\n\n`n_estimators` bir denge değil, bir maliyet parametresi.",
+        "en": "Measured: 0.72 on the test with 1 tree, 0.90 with 25, and 0.90 again with 300.\n\nAdding trees does not damage the model, because each memorises different things and the memorisations cancel in the average.\n\n`n_estimators` is not a balance parameter but a cost parameter."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 3,
+      "text": {
+        "tr": "Ormanda eğitim doğruluğu 1.000'e çıktığı hâlde test skoru düşmüyor. Sebebi ne?",
+        "en": "In a forest the training accuracy reaches 1.000 yet the test score does not fall. Why?"
+      },
+      "options": {
+        "tr": [
+          "Test kümesi çok küçük",
+          "sklearn eğitim skorunu yanlış hesaplıyor",
+          "Ormanlar hiç aşırı öğrenmez",
+          "Ağaçlar farklı şeyler ezberliyor; ezberler kesişmediği için ortalama temiz kalıyor"
+        ],
+        "en": [
+          "The test set is too small",
+          "sklearn computes the training score wrongly",
+          "Forests never overfit",
+          "The trees memorise different things; since these do not overlap the average stays clean"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek bir ağaçta eğitimin 1.000'e çıkması aşırı öğrenmenin işareti; ormanda değil.\n\nHer ağaç kendi bootstrap örneklemini ezberliyor, ama yüz ağacın ortak yanlışı olmuyor.\n\n\"Hiç aşırı öğrenmez\" fazla iddialı — çok az veride veya tek özellik baskınsa orman da yanılabiliyor.",
+        "en": "In a single tree, training reaching 1.000 signals overfitting; in a forest it does not.\n\nEach tree memorises its own bootstrap sample, but a hundred trees have no shared mistake.\n\n\"Never overfits\" is too strong — with very little data or a dominant single feature a forest can go wrong too."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 3,
+      "text": {
+        "tr": "Torbalama hangi hatayı azaltıyor?",
+        "en": "Which error does bagging reduce?"
+      },
+      "options": {
+        "tr": [
+          "Yanlılığı",
+          "İkisini de eşit ölçüde",
+          "Hiçbirini",
+          "Varyansı"
+        ],
+        "en": [
+          "Bias",
+          "Both equally",
+          "Neither",
+          "Variance"
+        ]
+      },
+      "explanation": {
+        "tr": "Rastgele hataların ortalaması alındığında birbirini götürüyor; sistematik hata ise ortalamada da duruyor.\n\nBu yüzden torbalanan ağaçlar **derin** tutuluyor: yanlılıkları zaten düşük, azaltılması gereken varyans.\n\nYanlılığı azaltmak artırmanın (boosting) işi.",
+        "en": "Averaged, random errors cancel; a systematic error survives the average.\n\nThis is why bagged trees are kept **deep**: their bias is already low and what needs reducing is variance.\n\nReducing bias is boosting's job."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 1,
+      "text": {
+        "tr": "Gradyan artırma (gradient boosting) nasıl çalışıyor?",
+        "en": "How does gradient boosting work?"
+      },
+      "options": {
+        "tr": [
+          "Ağaçları paralel kurup ortalıyor",
+          "Ağaçları sırayla kurup her birine kalan hatayı düzelttiriyor",
+          "En iyi ağacı seçiyor",
+          "Ağaçları rastgele ağırlıklandırıyor"
+        ],
+        "en": [
+          "It builds trees in parallel and averages them",
+          "It builds trees in sequence, each correcting the remaining error",
+          "It picks the best tree",
+          "It weights the trees at random"
+        ]
+      },
+      "explanation": {
+        "tr": "Her yeni ağaç, öncekilerin bıraktığı hataya bakıyor: `tahmin = agac1 + lr * agac2 + lr * agac3 + ...`\n\nHer adımda hata biraz daha azalıyor, yani topluluk karmaşıklığı adım adım kuruyor.\n\nParalel kurup ortalamak torbalamanın yöntemi.",
+        "en": "Each new tree looks at the error the previous ones left: `prediction = tree1 + lr * tree2 + lr * tree3 + ...`\n\nThe error shrinks a little at each step, so the ensemble builds complexity step by step.\n\nBuilding in parallel and averaging is bagging's method."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Artırmada ağaçlar neden sığ tutuluyor?",
+        "en": "Why are the trees kept shallow in boosting?"
+      },
+      "options": {
+        "tr": [
+          "Her ağacın küçük bir düzeltme yapması istendiği için",
+          "Bellek yetmediği için",
+          "Derin ağaç sklearn'de desteklenmediği için",
+          "Sığ ağaç daha doğru olduğu için"
+        ],
+        "en": [
+          "Because each tree is meant to make a small correction",
+          "Because there is not enough memory",
+          "Because deep trees are not supported in sklearn",
+          "Because a shallow tree is more accurate"
+        ]
+      },
+      "explanation": {
+        "tr": "Artırmada güç tek bir ağaçtan değil, yüzlerce küçük düzeltmenin toplamından geliyor. Derin bir ağaç ilk adımda her şeyi yutar ve geriye düzeltilecek bir şey kalmaz.\n\nTipik derinlik 2-5 arası.\n\nTorbalamada tersi geçerli: orada ağaçlar derin tutuluyor.",
+        "en": "In boosting the power comes not from one tree but from the sum of hundreds of small corrections. A deep tree would swallow everything on the first step, leaving nothing to correct.\n\nA typical depth is 2 to 5.\n\nThe opposite holds for bagging, where the trees are kept deep."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 2,
+      "text": {
+        "tr": "Artırmada `n_estimators` değerini sınırsız artırmak ne yapıyor?",
+        "en": "What does raising `n_estimators` without limit do in boosting?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbir şey, ormandaki gibi zararsız",
+          "Modeli basitleştiriyor",
+          "Aşırı öğrenmeye yol açabiliyor",
+          "Eğitim hatasını artırıyor"
+        ],
+        "en": [
+          "Nothing; it is harmless as in a forest",
+          "It simplifies the model",
+          "It can cause overfitting",
+          "It raises the training error"
+        ]
+      },
+      "explanation": {
+        "tr": "Yeterince adım atıldığında kalan \"hata\" gürültüden ibaret oluyor ve model onu da düzeltmeye çalışıyor.\n\nOrmanda böyle bir tehlike yok çünkü orada ağaçlar birbirini düzeltmiyor.\n\nBu, iki yöntem arasındaki en pratik farklardan biri.",
+        "en": "With enough steps the remaining \"error\" is nothing but noise, which the model then tries to correct too.\n\nA forest has no such danger, because there the trees do not correct one another.\n\nThis is one of the most practical differences between the two methods."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 3,
+      "text": {
+        "tr": "Artırmada `learning_rate` ne yapıyor?",
+        "en": "What does `learning_rate` do in boosting?"
+      },
+      "options": {
+        "tr": [
+          "Ağaç sayısını belirliyor",
+          "Ağaç derinliğini belirliyor",
+          "Eğitim süresini ölçüyor",
+          "Her ağacın katkısının ne kadar büyük olacağını belirliyor"
+        ],
+        "en": [
+          "It sets the number of trees",
+          "It sets the tree depth",
+          "It measures the training time",
+          "It sets how large each tree's contribution is"
+        ]
+      },
+      "explanation": {
+        "tr": "Küçük bir değer her adımı temkinli yapıyor: daha güvenli ama daha yavaş, çünkü aynı yere varmak için daha çok ağaç gerekiyor.\n\nBu yüzden `learning_rate` ile `n_estimators` birlikte ayarlanıyor: biri düşerse öteki yükselmeli.\n\nKaba bir başlangıç: `learning_rate=0.1`, `n_estimators=100`.",
+        "en": "A small value makes every step cautious: safer but slower, since more trees are needed to reach the same place.\n\nThis is why `learning_rate` and `n_estimators` are tuned together: lower one and the other has to rise.\n\nA rough starting point: `learning_rate=0.1`, `n_estimators=100`."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 3,
+      "text": {
+        "tr": "Ormanla artırmanın hız açısından farkı ne?",
+        "en": "What is the difference between a forest and boosting in terms of speed?"
+      },
+      "options": {
+        "tr": [
+          "İkisi de paralelleşiyor",
+          "Artırma paralelleşiyor, orman paralelleşmiyor",
+          "İkisi de paralelleşmiyor",
+          "Orman paralelleşiyor, artırma sıralı olduğu için paralelleşmiyor"
+        ],
+        "en": [
+          "Both parallelise",
+          "Boosting parallelises; a forest does not",
+          "Neither parallelises",
+          "A forest parallelises; boosting is sequential and does not"
+        ]
+      },
+      "explanation": {
+        "tr": "Ormandaki ağaçlar birbirinden bağımsız olduğu için aynı anda kurulabiliyorlar; `n_jobs=-1` bütün çekirdekleri kullanıyor.\n\nArtırmada her ağaç bir öncekinin bıraktığı hatayı bekliyor; sıra bozulamıyor.\n\nBu, büyük veride yöntem seçimini etkileyen gerçek bir fark.",
+        "en": "A forest's trees are independent, so they can be built at once; `n_jobs=-1` uses every core.\n\nIn boosting each tree waits for the error the previous one left; the order cannot be broken.\n\nOn large data this is a real difference that affects the choice of method."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Torba dışı (out-of-bag) skor neye dayanıyor?",
+        "en": "What is the out-of-bag score based on?"
+      },
+      "options": {
+        "tr": [
+          "Her ağacın bootstrap örneklemine düşmeyen satırlara",
+          "Test kümesine",
+          "Çapraz doğrulamanın katlarına",
+          "Eğitim verisinin tamamına"
+        ],
+        "en": [
+          "The rows that missed each tree's bootstrap sample",
+          "The test set",
+          "The folds of cross validation",
+          "The whole training set"
+        ]
+      },
+      "explanation": {
+        "tr": "Her ağaç eğitim verisinin yaklaşık üçte birini görmüyor; o satırlar o ağaç için hazır bir doğrulama kümesi.\n\nsklearn bunları toplayıp `model.oob_score_` değerini veriyor.\n\nTest kümesine hiç dokunulmuyor — OOB eğitim verisinin içinden geliyor.",
+        "en": "Each tree does not see roughly a third of the training data; those rows are a ready-made validation set for it.\n\nsklearn collects them into `model.oob_score_`.\n\nThe test set is never touched — OOB comes from within the training data."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 1,
+      "text": {
+        "tr": "`oob_score=True` hangi koşulda çalışıyor?",
+        "en": "Under what condition does `oob_score=True` work?"
+      },
+      "options": {
+        "tr": [
+          "`max_depth` verildiğinde",
+          "`bootstrap=True` iken",
+          "Yalnızca regresyonda",
+          "Yalnızca `n_jobs=-1` iken"
+        ],
+        "en": [
+          "When `max_depth` is given",
+          "When `bootstrap=True`",
+          "Only for regression",
+          "Only when `n_jobs=-1`"
+        ]
+      },
+      "explanation": {
+        "tr": "Örneklem yerine koyarak çekilmezse torba dışında kalan satır olmuyor ve hesaplanacak bir şey kalmıyor.\n\n`bootstrap` zaten varsayılan olarak `True`; kapatılmışsa açılması gerekiyor.\n\nDerinlik, iş parçacığı sayısı ve problem türü bu hesapla ilgisiz.",
+        "en": "Without sampling with replacement there are no left-out rows and nothing to compute.\n\n`bootstrap` is `True` by default; if it has been turned off it needs turning back on.\n\nDepth, thread count and problem type are irrelevant to this computation."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 2,
+      "text": {
+        "tr": "OOB skoru test kümesinin yerini alabilir mi?",
+        "en": "Can the OOB score replace the test set?"
+      },
+      "options": {
+        "tr": [
+          "Evet, birebir aynı şey",
+          "Evet, ağaç sayısı yüksekse",
+          "Hayır; OOB eğitim verisinden geliyor, son rapor el değmemiş test kümesinde yapılıyor",
+          "Hayır, çünkü OOB hep daha düşük çıkıyor"
+        ],
+        "en": [
+          "Yes, it is exactly the same thing",
+          "Yes, if the tree count is high",
+          "No; OOB comes from the training data, and the final report is made on the untouched test set",
+          "No, because OOB always comes out lower"
+        ]
+      },
+      "explanation": {
+        "tr": "OOB model seçimi ve ayar için kullanılabiliyor, tıpkı doğrulama kümesi gibi. Ama seçim yaparken ona baktığın anda o veri artık \"el değmemiş\" olmuyor.\n\nÖlçüldü: 200 ağaçta OOB 0.887, test 0.900 — yakın ama aynı değil.\n\nHer zaman düşük çıktığı da doğru değil; iki yönde de sapabiliyor.",
+        "en": "OOB can be used for model choice and tuning, just like a validation set. But the moment you look at it while choosing, that data is no longer \"untouched\".\n\nMeasured: with 200 trees OOB was 0.887 and the test 0.900 — close but not the same.\n\nNor is it always lower; it can deviate in either direction."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "OOB skoru az ağaçta neden güvenilmez?",
+        "en": "Why is the OOB score unreliable with few trees?"
+      },
+      "options": {
+        "tr": [
+          "Ağaçlar sığ kalıyor",
+          "sklearn az ağaçta hesaplamıyor",
+          "Her satır yalnızca birkaç ağacın torba dışında kalıyor, tahmin gürültülü oluyor",
+          "Eğitim verisi küçülüyor"
+        ],
+        "en": [
+          "The trees stay shallow",
+          "sklearn does not compute it with few trees",
+          "Each row is out-of-bag for only a few trees, making the estimate noisy",
+          "The training data shrinks"
+        ]
+      },
+      "explanation": {
+        "tr": "10 ağaçta her satır ortalama üç-dört ağacın torba dışında kalıyor; bu kadar az oyla verilen karar oynak oluyor.\n\nAğaç sayısı arttıkça her satır daha çok ağaç tarafından değerlendiriliyor ve OOB kararlı hâle geliyor.\n\nsklearn hesaplıyor ama az ağaçta uyarı verebiliyor.",
+        "en": "With 10 trees each row is out-of-bag for three or four on average; a decision made on so few votes is volatile.\n\nAs the tree count grows each row is judged by more trees and OOB steadies.\n\nsklearn does compute it, though it may warn with few trees."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Ormanın özellik önemi tek ağacınkinden neden daha kararlı?",
+        "en": "Why is a forest's feature importance steadier than a single tree's?"
+      },
+      "options": {
+        "tr": [
+          "Yüzlerce ağacın ortalaması alınıyor ve her özellik defalarca deneniyor",
+          "Orman daha doğru olduğu için",
+          "Orman sütunları ölçeklediği için",
+          "Tek ağaç önem hesaplamadığı için"
+        ],
+        "en": [
+          "Hundreds of trees are averaged and every feature gets tried many times",
+          "Because a forest is more accurate",
+          "Because a forest scales the columns",
+          "Because a single tree computes no importance"
+        ]
+      },
+      "explanation": {
+        "tr": "Derinlik 2'lik bir ağaçta yalnızca üç bölünme var; bir sütunun sırası hiç gelmeyebiliyor.\n\n`max_features` sayesinde güçlü sütun bazı bölünmelerde saklanıyor ve zayıf görünen sütun tek başına yarışabiliyor.\n\nÖlçüldü: tek ağaç `age` sütununa 0.0 verirken orman 0.232 veriyor.",
+        "en": "A tree of depth 2 has only three splits; a column's turn may never come.\n\nThanks to `max_features` the strong column is hidden at some splits and the seemingly weak one can compete alone.\n\nMeasured: a single tree gives `age` 0.0 while the forest gives it 0.232."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 3,
+      "text": {
+        "tr": "Bir ağaç bir sütuna 0.0 önem verdiyse ne sonuç çıkarılır?",
+        "en": "What follows if a tree gives a column an importance of 0.0?"
+      },
+      "options": {
+        "tr": [
+          "O sütun tahmine katkı sağlamıyor",
+          "O sütun silinmeli",
+          "O sütunda eksik değer var",
+          "O sütun bu ağaçta hiç kullanılmadı; katkısı olmadığı sonucu çıkmaz"
+        ],
+        "en": [
+          "That column contributes nothing to the prediction",
+          "That column should be dropped",
+          "That column has missing values",
+          "That column was never used in this tree; it does not follow that it contributes nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıfır önem \"katkısı yok\" değil, \"sırası gelmedi\" anlamına gelebiliyor — özellikle sığ bir ağaçta.\n\nAynı sütuna orman 0.232 veriyor; demek ki katkısı var.\n\nSütun silmeden önce ormana ya da `permutation_importance` sonucuna bakmak gerekiyor.",
+        "en": "Zero importance can mean \"its turn never came\" rather than \"it contributes nothing\" — especially in a shallow tree.\n\nA forest gives the same column 0.232, so it does contribute.\n\nBefore dropping a column, look at a forest or at `permutation_importance`."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 3,
+      "text": {
+        "tr": "Orman kullanmak özellik öneminin hangi tuzağını ortadan kaldırıyor?",
+        "en": "Which trap of feature importance does using a forest remove?"
+      },
+      "options": {
+        "tr": [
+          "Önemin sebep sanılmasını",
+          "İlişkili sütunların önemi paylaşmasını",
+          "Çok değerli sütunların şişmesini",
+          "Hiçbirini; yalnızca ölçümü kararlı hâle getiriyor"
+        ],
+        "en": [
+          "Mistaking importance for causation",
+          "Correlated columns sharing importance",
+          "High-cardinality columns inflating",
+          "None of them; it only makes the measurement steadier"
+        ]
+      },
+      "explanation": {
+        "tr": "Üç tuzak da duruyor: önem sebep değil, ilişkili sütunlar önemi paylaşıyor, çok değerli sütunlar şişiyor.\n\nOrmanın getirdiği tek şey kararlılık — aynı soruya her seferinde benzer cevap.\n\nDaha güvenilir yol yine `permutation_importance`.",
+        "en": "All three traps remain: importance is not causation, correlated columns share it, and high-cardinality columns inflate.\n\nAll a forest brings is steadiness — a similar answer to the same question every time.\n\nThe more reliable route is still `permutation_importance`."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Eğitim verisinin %10'unu değiştirdiğinde tek ağacın skoru 0.78-0.92 arasında, ormanınki 0.84-0.92 arasında geziyor. Bu ne gösteriyor?",
+        "en": "When you change 10% of the training data, a single tree's score wanders 0.78-0.92 and the forest's 0.84-0.92. What does this show?"
+      },
+      "options": {
+        "tr": [
+          "Ormanın kararsızlığı azalttığını ama tamamen yok etmediğini",
+          "Ormanın her zaman daha doğru olduğunu",
+          "Ağacın kullanılamaz olduğunu",
+          "İki modelin de kararlı olduğunu"
+        ],
+        "en": [
+          "That a forest reduces instability without eliminating it",
+          "That a forest is always more accurate",
+          "That the tree is unusable",
+          "That both models are stable"
+        ]
+      },
+      "explanation": {
+        "tr": "Aralık 14 puandan 8 puana düşüyor — yarı yarıya sönmüş ama sıfırlanmamış.\n\nHer zaman daha doğru da değil: bazı turlarda ağacın skoru ormanınkinden yüksek çıkıyor.\n\nTopluluk sihir değil, istatistik: rastgele hatayı azaltıyor, yok etmiyor.",
+        "en": "The range falls from 14 points to 8 — halved but not zeroed.\n\nNor is it always more accurate: in some rounds the tree scores higher than the forest.\n\nAn ensemble is not magic but statistics: it reduces random error, it does not remove it."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 1,
+      "text": {
+        "tr": "Aynı deneyde ağacın kök eşiği 15.5 ile 28.5 arasında değişiyor. Bunun pratikteki anlamı ne?",
+        "en": "In the same experiment the tree's root threshold moves between 15.5 and 28.5. What does that mean in practice?"
+      },
+      "options": {
+        "tr": [
+          "Ağaç hata yapıyor",
+          "Ağacın bulduğu \"kural\" verinin küçük bir değişimiyle başkalaşıyor",
+          "Veri hatalı",
+          "Eşik önemsiz"
+        ],
+        "en": [
+          "The tree is making a mistake",
+          "The \"rule\" the tree found changes with a small change in the data",
+          "The data is faulty",
+          "The threshold does not matter"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir turda \"ayda 16'dan az girenler\", başka bir turda \"28'den az girenler\" çıkıyor. İkisi çok farklı iş kuralları.\n\nBunu bir paydaşa \"keşfettiğimiz kural\" diye sunmak yanıltıcı olurdu.\n\nAğaç hata yapmıyor; her örneklemde gerçekten en iyi bölünmeyi buluyor. Sorun bölünmenin veriye aşırı duyarlı olması.",
+        "en": "One round gives \"those who visit fewer than 16 times a month\", another gives \"fewer than 28\". Those are very different business rules.\n\nPresenting that to a stakeholder as \"the rule we discovered\" would be misleading.\n\nThe tree is not making a mistake; on each sample it genuinely finds the best split. The problem is how sensitive that split is to the data."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Tek bir ayrımda ağaç 0.96, orman 0.90 alıyor; çapraz doğrulamada ağaç 0.827, artırma 0.873 alıyor. Hangisine göre karar verilir?",
+        "en": "On a single split the tree scores 0.96 and the forest 0.90; on cross validation the tree scores 0.827 and boosting 0.873. Which do you decide on?"
+      },
+      "options": {
+        "tr": [
+          "Çapraz doğrulamaya, çünkü tek bir çekilişe değil beş ölçüme dayanıyor",
+          "Test skoruna, çünkü el değmemiş veri",
+          "İkisinin ortalamasına",
+          "Hangisi yüksekse ona"
+        ],
+        "en": [
+          "Cross validation, because it rests on five measurements rather than one draw",
+          "The test score, because it is untouched data",
+          "The average of the two",
+          "Whichever is higher"
+        ]
+      },
+      "explanation": {
+        "tr": "50 kayıtlık bir test kümesinde tek bir kayıt doğruluğu 0.02 oynatıyor; 0.96 o oynamanın tepe noktası.\n\nTest skoru elbette gerekli — ama model **seçimi** eğitim tarafında yapılıyor, test yalnızca son raporu veriyor.\n\nOrtalama almak iki farklı şeyi karıştırmak olurdu.",
+        "en": "On a test set of 50 records one record moves the accuracy by 0.02; 0.96 is the peak of that movement.\n\nThe test score is of course needed — but model **selection** happens on the training side, and the test only gives the final report.\n\nAveraging the two would mix two different things."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 2,
+      "text": {
+        "tr": "Rastgele ormana ölçekleme uygulamak ne yapıyor?",
+        "en": "What does scaling do for a random forest?"
+      },
+      "options": {
+        "tr": [
+          "Doğruluğu artırıyor",
+          "Modeli bozuyor",
+          "Hiçbir şey; içindekilerin hepsi ağaç, ölçekleme sıralamayı değiştirmiyor",
+          "Eğitimi hızlandırıyor"
+        ],
+        "en": [
+          "It raises the accuracy",
+          "It breaks the model",
+          "Nothing; everything inside is a tree and scaling does not change the ordering",
+          "It speeds up training"
+        ]
+      },
+      "explanation": {
+        "tr": "Ağaç `income <= 137500` sorusunu soruyor; ölçeklendikten sonra eşik değişiyor ama hangi kayıtların üstte kaldığı değişmiyor.\n\nBu bölüm 07'de ölçülmüştü: ölçeklemesiz 0.80, ölçekli 0.80.\n\nOrman ağaçlardan oluştuğu için aynı sonuç geçerli. Boşa harcanan bir adım.",
+        "en": "A tree asks `income <= 137500`; after scaling the threshold changes but which records fall above it does not.\n\nThis was measured in section 07: unscaled 0.80, scaled 0.80.\n\nA forest is made of trees, so the same holds. It is a wasted step."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 1,
+      "text": {
+        "tr": "Ormanda `random_state` vermemenin sonucu ne?",
+        "en": "What is the consequence of not passing `random_state` to a forest?"
+      },
+      "options": {
+        "tr": [
+          "Model çalışmıyor",
+          "Sonuç her çalıştırmada değişiyor ve tekrar edilemiyor",
+          "Doğruluk düşüyor",
+          "Ağaçlar hep aynı çıkıyor"
+        ],
+        "en": [
+          "The model does not run",
+          "The result changes on every run and cannot be reproduced",
+          "The accuracy falls",
+          "The trees always come out the same"
+        ]
+      },
+      "explanation": {
+        "tr": "Orman baştan sona rastgelelik üzerine kurulu: bootstrap örneklemleri ve `max_features` seçimi.\n\nTohum verilmezse aynı kod iki kez çalıştırıldığında farklı sayılar çıkıyor; hangi değişikliğin işe yaradığı anlaşılamıyor.\n\nDoğruluk sistematik olarak düşmüyor, yalnızca oynuyor.",
+        "en": "A forest is built on randomness throughout: the bootstrap samples and the `max_features` choice.\n\nWithout a seed the same code gives different numbers on two runs, and you cannot tell which change helped.\n\nThe accuracy does not systematically fall; it just moves around."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 3,
+      "text": {
+        "tr": "Topluluk yöntemleri hangi konuda tek ağacın gerisinde kalıyor?",
+        "en": "In what respect does an ensemble fall behind a single tree?"
+      },
+      "options": {
+        "tr": [
+          "Doğrulukta",
+          "Ölçekleme ihtiyacında",
+          "Aykırı değer dayanıklılığında",
+          "Yorumlanabilirlikte"
+        ],
+        "en": [
+          "Accuracy",
+          "The need for scaling",
+          "Robustness to outliers",
+          "Interpretability"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek bir ağacın kuralları cümleye çevrilebiliyordu: \"ayda 16'dan az giren ve geliri düşük olanlar ayrılıyor\". 200 ağacın ortak kuralı böyle yazılamıyor.\n\nÖlçekleme ihtiyacı ve aykırı değer dayanıklılığı ikisinde de aynı, çünkü ikisi de ağaç tabanlı.\n\nDoğrulukta genellikle topluluk önde.",
+        "en": "A single tree's rules turned into a sentence: \"those who visit fewer than 16 times a month and have low income churn\". Two hundred trees have no such shared rule.\n\nThe need for scaling and the robustness to outliers are the same for both, since both are tree-based.\n\nOn accuracy the ensemble is usually ahead."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 2,
+      "text": {
+        "tr": "Doğrusal bir ilişkide topluluk kurmak neden yardımcı olmuyor?",
+        "en": "Why does an ensemble not help on a linear relationship?"
+      },
+      "options": {
+        "tr": [
+          "Topluluklar yavaş olduğu için",
+          "Ölçekleme gerektiği için",
+          "Sorun ağaç sayısında değil, ağacın veriye uymamasında",
+          "Yeterince veri olmadığı için"
+        ],
+        "en": [
+          "Because ensembles are slow",
+          "Because scaling is required",
+          "Because the problem is not the number of trees but that a tree does not suit the data",
+          "Because there is not enough data"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölüm 05'te ölçülmüştü: araba verisinde ağacın hatası 64, doğrusal regresyonunki 16.5.\n\nAğaçlar sürekli bir doğruyu basamaklarla taklit ediyor; yüz tanesini ortalamak basamakları biraz yumuşatıyor ama doğruyu vermiyor.\n\nTopluluk varyansı düşürüyor; buradaki sorun yanlılık.",
+        "en": "It was measured in section 05: on the car data the tree's error was 64 and linear regression's 16.5.\n\nTrees imitate a continuous line with steps; averaging a hundred smooths the steps a little but does not give the line.\n\nAn ensemble lowers variance; the problem here is bias."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 3,
+      "text": {
+        "tr": "Topluluk fikri neden özellikle ağaçlarla iyi çalışıyor?",
+        "en": "Why does the ensemble idea work especially well with trees?"
+      },
+      "options": {
+        "tr": [
+          "Ağaçlar en doğru model olduğu için",
+          "Ağaçlar az bellek kullandığı için",
+          "Ağaçlar ölçekleme gerektirmediği için",
+          "Ağaçlar kararsız olduğu için ortalanacak çeşitlilik zaten var"
+        ],
+        "en": [
+          "Because trees are the most accurate model",
+          "Because trees use little memory",
+          "Because trees need no scaling",
+          "Because trees are unstable, so the diversity to average is already there"
+        ]
+      },
+      "explanation": {
+        "tr": "Doğrusal regresyonun yüz tanesini ortalamak neredeyse aynı doğruyu veriyor — ortalanacak bir şey yok.\n\nAğaçlar farklı örneklemlerde gerçekten farklı yapılar kuruyor; işte ortalama tam da bunu kullanıyor.\n\nHızlı olmaları ve hazırlık istememeleri kolaylık, ama asıl sebep kararsızlık.",
+        "en": "Averaging a hundred linear regressions gives almost the same line — there is nothing to average.\n\nTrees genuinely build different structures on different samples; that is exactly what averaging exploits.\n\nBeing fast and needing no preparation are conveniences, but the real reason is instability."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 1,
+      "text": {
+        "tr": "`HistGradientBoostingClassifier` normal gradyan artırmadan hangi yönüyle ayrılıyor?",
+        "en": "How does `HistGradientBoostingClassifier` differ from ordinary gradient boosting?"
+      },
+      "options": {
+        "tr": [
+          "Ağaçları paralel kuruyor",
+          "Büyük veride çok daha hızlı ve eksik değerle çalışabiliyor",
+          "Ölçekleme gerektiriyor",
+          "Yalnızca regresyon yapıyor"
+        ],
+        "en": [
+          "It builds the trees in parallel",
+          "It is far faster on large data and can work with missing values",
+          "It requires scaling",
+          "It only does regression"
+        ]
+      },
+      "explanation": {
+        "tr": "Sürekli değerleri kutulara ayırarak bölünme aramasını hızlandırıyor.\n\nEksik değerle çalışabilmesi sklearn'de ender bir özellik — çoğu model önce doldurma istiyor.\n\nAğaçlar hâlâ sırayla kuruluyor; artırmanın doğası değişmiyor.",
+        "en": "It speeds up the split search by binning continuous values.\n\nWorking with missing values is a rare feature in sklearn — most models demand imputation first.\n\nThe trees are still built in sequence; boosting's nature does not change."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 2,
+      "text": {
+        "tr": "`max_features` değerini bütün sütunlara eşitlemek ne yapıyor?",
+        "en": "What does setting `max_features` to all the columns do?"
+      },
+      "options": {
+        "tr": [
+          "Modeli hızlandırıyor",
+          "Doğruluğu her zaman artırıyor",
+          "Ormanı basit torbalamaya çeviriyor; ağaçlar birbirine benziyor",
+          "Bootstrap'i kapatıyor"
+        ],
+        "en": [
+          "It speeds the model up",
+          "It always raises the accuracy",
+          "It turns the forest into plain bagging; the trees start to look alike",
+          "It turns off bootstrap"
+        ]
+      },
+      "explanation": {
+        "tr": "Her bölünmede bütün sütunlar yarışırsa çoğu ağaç aynı güçlü sütundan başlıyor ve benzer yapılar kuruyor.\n\nHataların bağımsızlığı azalıyor, dolayısıyla ortalamanın faydası da azalıyor.\n\nDaha çok sütun denemek eğitimi hızlandırmıyor, yavaşlatıyor.",
+        "en": "If every column competes at every split, most trees start from the same strong column and build similar structures.\n\nThe errors become less independent, so the benefit of averaging shrinks.\n\nTrying more columns does not speed training up; it slows it down."
+      }
+    },
+    {
+      "id": "q31",
+      "answer": 1,
+      "text": {
+        "tr": "Bir topluluk sınıflandırıcısı tahmini nasıl birleştiriyor?",
+        "en": "How does an ensemble classifier combine its predictions?"
+      },
+      "options": {
+        "tr": [
+          "En iyi ağacın tahminini alıyor",
+          "Ağaçların oylarını topluyor",
+          "İlk ağacın tahminini alıyor",
+          "Rastgele bir ağaç seçiyor"
+        ],
+        "en": [
+          "It takes the best tree's prediction",
+          "It gathers the trees' votes",
+          "It takes the first tree's prediction",
+          "It picks a tree at random"
+        ]
+      },
+      "explanation": {
+        "tr": "Sınıflandırmada oy çokluğu (sklearn'de olasılıkların ortalaması), regresyonda sayısal ortalama alınıyor.\n\nTek bir ağacı seçmek topluluğun bütün faydasını ortadan kaldırırdı.\n\n`predict_proba` da aynı ortalamadan geliyor ve eşik ayarlamak için kullanılabiliyor.",
+        "en": "Classification uses a majority vote (in sklearn, the average of the probabilities) and regression a numeric average.\n\nPicking a single tree would remove the whole benefit of the ensemble.\n\n`predict_proba` comes from the same average and can be used for threshold tuning."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 0,
+      "text": {
+        "tr": "Veri çok azsa torbalama neden az işe yarıyor?",
+        "en": "Why does bagging help little when there is very little data?"
+      },
+      "options": {
+        "tr": [
+          "Bootstrap örneklemleri neredeyse aynı çıkıyor, ağaçlar çeşitlenemiyor",
+          "Ağaçlar eğitilemiyor",
+          "sklearn izin vermiyor",
+          "Ölçekleme gerekiyor"
+        ],
+        "en": [
+          "The bootstrap samples come out nearly identical, so the trees cannot diversify",
+          "The trees cannot be trained",
+          "sklearn does not allow it",
+          "Scaling becomes necessary"
+        ]
+      },
+      "explanation": {
+        "tr": "Yirmi satırdan çekilen örneklemler birbirine çok benziyor; ağaçlar da benziyor ve ortalamada götürülecek bağımsız hata kalmıyor.\n\nAynı sebeple tek bir özelliğin her şeyi belirlediği veride de çeşitlilik doğmuyor.\n\nModel eğitilebiliyor, yalnızca topluluk fazladan bir şey katmıyor.",
+        "en": "Samples drawn from twenty rows look very much alike; so do the trees, and no independent error is left to cancel in the average.\n\nFor the same reason no diversity arises when one feature decides everything.\n\nThe model still trains; the ensemble simply adds nothing."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 3,
+      "text": {
+        "tr": "`n_jobs=-1` ne yapıyor?",
+        "en": "What does `n_jobs=-1` do?"
+      },
+      "options": {
+        "tr": [
+          "Ağaç sayısını sınırsız yapıyor",
+          "Rastgeleliği kapatıyor",
+          "Bellek kullanımını sınırlıyor",
+          "Bütün çekirdekleri kullanıyor"
+        ],
+        "en": [
+          "It makes the tree count unlimited",
+          "It turns off randomness",
+          "It limits memory usage",
+          "It uses every core"
+        ]
+      },
+      "explanation": {
+        "tr": "Ormandaki ağaçlar bağımsız olduğu için aynı anda kurulabiliyorlar; bu ayar eğitimi ciddi biçimde hızlandırıyor.\n\nSonucu değiştirmiyor — `random_state` verildiği sürece aynı model çıkıyor.\n\nArtırmada aynı kazanç yok, çünkü orada sıra bozulamıyor.",
+        "en": "A forest's trees are independent, so they can be built at once; this setting speeds training up considerably.\n\nIt does not change the result — with `random_state` given, the same model comes out.\n\nBoosting gains nothing similar, because there the order cannot be broken."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 2,
+      "text": {
+        "tr": "Aşağıdakilerden hangisi torbalamayla artırmanın farkını doğru anlatıyor?",
+        "en": "Which of these correctly describes the difference between bagging and boosting?"
+      },
+      "options": {
+        "tr": [
+          "Torbalama sıralı, artırma paralel",
+          "İkisi de yanlılık düşürüyor",
+          "Torbalama paralel ve varyans düşürüyor; artırma sıralı ve yanlılık düşürüyor",
+          "Torbalama sığ ağaç, artırma derin ağaç kullanıyor"
+        ],
+        "en": [
+          "Bagging is sequential, boosting parallel",
+          "Both reduce bias",
+          "Bagging is parallel and reduces variance; boosting is sequential and reduces bias",
+          "Bagging uses shallow trees, boosting deep ones"
+        ]
+      },
+      "explanation": {
+        "tr": "Torbalamada ağaçlar birbirinden habersiz kuruluyor ve derin tutuluyor; artırmada sırayla kuruluyor ve sığ tutuluyor.\n\nAzalttıkları hata da farklı: biri rastgele hatayı, öteki sistematik hatayı.\n\nDerinlik ilişkisi tam tersi: derin olan torbalama, sığ olan artırma.",
+        "en": "In bagging the trees are built unaware of one another and kept deep; in boosting they are built in sequence and kept shallow.\n\nThe error they reduce differs too: one the random error, the other the systematic one.\n\nThe depth relation is the reverse: bagging is deep, boosting shallow."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 0,
+      "text": {
+        "tr": "Bir modelin hem eğitim hem test skoru düşükse hangi topluluk yöntemi daha uygun?",
+        "en": "If a model scores poorly on both training and test, which ensemble method fits better?"
+      },
+      "options": {
+        "tr": [
+          "Artırma",
+          "Torbalama",
+          "İkisi de aynı",
+          "Hiçbiri"
+        ],
+        "en": [
+          "Boosting",
+          "Bagging",
+          "Both the same",
+          "Neither"
+        ]
+      },
+      "explanation": {
+        "tr": "İki skorun da düşük olması yetersiz öğrenme, yani yüksek yanlılık demek. Yanlılığı azaltan yöntem artırma.\n\nTorbalama varyans düşürüyor; burada azaltılacak varyans yok.\n\nTeşhis bölüm 05'teki iki skor tablosundan geliyor, tedavi bu bölümde ayrışıyor.",
+        "en": "Both scores being low means underfitting, that is high bias. The method that reduces bias is boosting.\n\nBagging reduces variance; here there is no variance to reduce.\n\nThe diagnosis comes from section 05's two-score table; the treatment is what differs here."
+      }
+    },
+    {
+      "id": "q36",
+      "answer": 2,
+      "text": {
+        "tr": "Ormanı `oob_score` ile ayarlayıp sonra aynı OOB değerini rapor etmek neden sorunlu?",
+        "en": "Why is it a problem to tune a forest with `oob_score` and then report that same OOB value?"
+      },
+      "options": {
+        "tr": [
+          "OOB her zaman yanlış",
+          "OOB test skorundan hep yüksek",
+          "Ayar yaparken bakılan skor artık el değmemiş bir ölçüm değil",
+          "OOB yalnızca regresyonda geçerli"
+        ],
+        "en": [
+          "OOB is always wrong",
+          "OOB is always higher than the test score",
+          "A score you looked at while tuning is no longer an untouched measurement",
+          "OOB is only valid for regression"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu, bölüm 05'teki doğrulama kümesi mantığının aynısı: bir skora bakarak seçim yaptıysan o skor artık iyimser.\n\nOOB ayar için iyi bir araç, çünkü ek eğitim maliyeti yok. Ama son rapor test kümesinde yapılıyor.\n\nOOB'nin yönü sabit değil; iki yönde de sapabiliyor.",
+        "en": "This is exactly the validation-set logic from section 05: if you made a choice by looking at a score, that score is now optimistic.\n\nOOB is a good tuning tool because it costs no extra training. But the final report is made on the test set.\n\nOOB's direction is not fixed; it can deviate either way."
+      }
+    }
+  ]
+}

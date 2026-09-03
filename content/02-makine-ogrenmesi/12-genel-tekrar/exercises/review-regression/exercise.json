@@ -1,0 +1,44 @@
+{
+  "id": "review-regression",
+  "title": {
+    "tr": "Uçtan uca regresyon",
+    "en": "Regression end to end"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 200,
+  "hints": [
+    {
+      "tr": "Regresyonda `stratify` yok ve `KFold` kullanılıyor: `KFold(n_splits=5, shuffle=True, random_state=42)`.",
+      "en": "Regression has no `stratify` and uses `KFold(n_splits=5, shuffle=True, random_state=42)`."
+    },
+    {
+      "tr": "Taban çizgi eğitim ortalaması: `[y_train.mean()] * len(y_test)`.",
+      "en": "The baseline is the training mean: `[y_train.mean()] * len(y_test)`."
+    },
+    {
+      "tr": "`scoring=\"neg_mean_absolute_error\"` negatif dönüyor; ortalamayı eksiyle çarpmayı unutma.",
+      "en": "`scoring=\"neg_mean_absolute_error\"` returns negatives; remember to negate the mean."
+    },
+    {
+      "tr": "`engine` sütununda eksik değer var, `fuel` ve `gearbox` metin. Pipeline ikisini de hallediyor.",
+      "en": "The `engine` column has missing values and `fuel`/`gearbox` are text. The pipeline handles both."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.ensemble import RandomForestRegressor\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import (mean_absolute_error, r2_score,\n                             root_mean_squared_error)\nfrom sklearn.model_selection import KFold, cross_val_score, train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\nfrom sklearn.tree import DecisionTreeRegressor\n\ndf = pd.read_csv(\"cars.csv\")\nnumeric = [\"age\", \"km\", \"engine\"]\ntext = [\"fuel\", \"gearbox\"]\nX = df[numeric + text]\ny = df[\"price\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42)\n\n\ndef make_preprocessor():\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", OneHotEncoder(handle_unknown=\"ignore\"), text),\n    ])\n\n\nbaseline = [y_train.mean()] * len(y_test)\nprint(round(mean_absolute_error(y_test, baseline), 1),\n      round(root_mean_squared_error(y_test, baseline), 1),\n      round(r2_score(y_test, baseline), 3))\n\nfolds = KFold(n_splits=5, shuffle=True, random_state=42)\nmodels = [\n    (\"linear\", LinearRegression()),\n    (\"tree\", DecisionTreeRegressor(max_depth=3, random_state=42)),\n    (\"forest\", RandomForestRegressor(n_estimators=200, random_state=42)),\n]\n\nrows = []\nfor name, model in models:\n    pipe = Pipeline([(\"prepare\", make_preprocessor()), (\"model\", model)])\n    scores = cross_val_score(pipe, X_train, y_train, cv=folds,\n                             scoring=\"neg_mean_absolute_error\")\n    pipe.fit(X_train, y_train)\n    prediction = pipe.predict(X_test)\n    cv_error = float(-scores.mean())\n    test_error = mean_absolute_error(y_test, prediction)\n    rows.append((name, cv_error, test_error))\n    print(name, round(cv_error, 1), round(float(scores.std()), 1),\n          round(test_error, 1), round(r2_score(y_test, prediction), 3))\n\nbest_cv = min(rows, key=lambda row: row[1])[0]\nbest_test = min(rows, key=lambda row: row[2])[0]\nprint(best_cv, best_test)\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.ensemble import RandomForestRegressor\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import (mean_absolute_error, r2_score,\n                             root_mean_squared_error)\nfrom sklearn.model_selection import KFold, cross_val_score, train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\nfrom sklearn.tree import DecisionTreeRegressor\n\ndf = pd.read_csv(\"cars.csv\")\nnumeric = [\"age\", \"km\", \"engine\"]\ntext = [\"fuel\", \"gearbox\"]\nX = df[numeric + text]\ny = df[\"price\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42)\n\n\ndef make_preprocessor():\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", OneHotEncoder(handle_unknown=\"ignore\"), text),\n    ])\n\n\nbaseline = [y_train.mean()] * len(y_test)\nprint(round(mean_absolute_error(y_test, baseline), 1),\n      round(root_mean_squared_error(y_test, baseline), 1),\n      round(r2_score(y_test, baseline), 3))\n\nfolds = KFold(n_splits=5, shuffle=True, random_state=42)\nmodels = [\n    (\"linear\", LinearRegression()),\n    (\"tree\", DecisionTreeRegressor(max_depth=3, random_state=42)),\n    (\"forest\", RandomForestRegressor(n_estimators=200, random_state=42)),\n]\n\nrows = []\nfor name, model in models:\n    pipe = Pipeline([(\"prepare\", make_preprocessor()), (\"model\", model)])\n    scores = cross_val_score(pipe, X_train, y_train, cv=folds,\n                             scoring=\"neg_mean_absolute_error\")\n    pipe.fit(X_train, y_train)\n    prediction = pipe.predict(X_test)\n    cv_error = float(-scores.mean())\n    test_error = mean_absolute_error(y_test, prediction)\n    rows.append((name, cv_error, test_error))\n    print(name, round(cv_error, 1), round(float(scores.std()), 1),\n          round(test_error, 1), round(r2_score(y_test, prediction), 3))\n\nbest_cv = min(rows, key=lambda row: row[1])[0]\nbest_test = min(rows, key=lambda row: row[2])[0]\nprint(best_cv, best_test)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "137.3 154.7 -0.02\nlinear 16.6 2.8 16.2 0.984\ntree 69.3 10.2 65.7 0.746\nforest 42.3 15.1 44.2 0.883\nlinear linear"
+    }
+  ]
+}

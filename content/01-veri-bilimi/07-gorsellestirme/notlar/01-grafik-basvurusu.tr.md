@@ -1,5 +1,3 @@
-# Grafik Başvurusu
-
 ```python
 import matplotlib
 matplotlib.use("Agg")     # Odyssey icinde gerekli; kendi bilgisayarinda degil

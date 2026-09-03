@@ -1,5 +1,3 @@
-# How to Read a Traceback
-
 That long block of text printed when an error appears is called a
 **traceback**. It looks frightening but it has a regular structure, and once
 you can read it you find the spot in seconds.

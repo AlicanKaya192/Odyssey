@@ -1,5 +1,3 @@
-# Cleaning Reference
-
 ## Exploring
 
 | Written as | What it shows |

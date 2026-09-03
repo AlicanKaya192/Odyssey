@@ -1,5 +1,3 @@
-# Chart Traps
-
 Most chart mistakes are **not code mistakes but communication mistakes.** The
 code runs, a chart appears, and the reader draws the wrong conclusion.
 

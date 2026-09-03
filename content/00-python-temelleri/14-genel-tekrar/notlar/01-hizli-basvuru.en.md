@@ -1,5 +1,3 @@
-# Quick Reference
-
 A one-page summary of everything you learned in Python Fundamentals. Not to
 memorise — to look up when you think "how was that written again?"
 

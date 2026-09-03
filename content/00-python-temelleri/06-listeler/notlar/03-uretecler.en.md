@@ -1,5 +1,3 @@
-# List Comprehensions
-
 Producing one list from another is one of the things you do most often. So
 far you have done it with a loop:
 

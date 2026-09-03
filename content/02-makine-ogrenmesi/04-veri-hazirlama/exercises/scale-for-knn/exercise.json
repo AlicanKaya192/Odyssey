@@ -1,0 +1,40 @@
+{
+  "id": "scale-for-knn",
+  "title": {
+    "tr": "Ölçek farkı",
+    "en": "The scale gap"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Bu alıştırmada eksik satırlar atılıyor: `df.dropna()`. Konu ölçekleme.",
+      "en": "This exercise drops the rows with gaps: `df.dropna()`. The subject is scaling."
+    },
+    {
+      "tr": "`StandardScaler` eğitimde `fit`, ikisinde `transform` ediliyor. `fit_transform`'u teste uygulamak sızıntı olur.",
+      "en": "`StandardScaler` is `fit` on training and `transform`ed on both. Calling `fit_transform` on the test set would be leakage."
+    },
+    {
+      "tr": "Dört ölçüm var: KNN ham, KNN ölçekli, doğrusal ham, doğrusal ölçekli.",
+      "en": "There are four measurements: KNN raw, KNN scaled, linear raw, linear scaled."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.neighbors import KNeighborsRegressor\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"cars.csv\").dropna()\nX = df[[\"age\", \"km\", \"engine\"]]\ny = df[\"price\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42)\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nX_train_scaled = scaler.transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nknn_raw = KNeighborsRegressor(n_neighbors=5).fit(X_train, y_train)\nknn_scaled = KNeighborsRegressor(n_neighbors=5).fit(X_train_scaled, y_train)\nraw_mae = mean_absolute_error(y_test, knn_raw.predict(X_test))\nscaled_mae = mean_absolute_error(y_test, knn_scaled.predict(X_test_scaled))\nprint(round(raw_mae, 2), round(scaled_mae, 2))\n\nlin_raw = LinearRegression().fit(X_train, y_train)\nlin_scaled = LinearRegression().fit(X_train_scaled, y_train)\nlin_raw_mae = mean_absolute_error(y_test, lin_raw.predict(X_test))\nlin_scaled_mae = mean_absolute_error(y_test, lin_scaled.predict(X_test_scaled))\nprint(round(lin_raw_mae, 2), round(lin_scaled_mae, 2))\n\nprint(\"same\" if round(lin_raw_mae, 2) == round(lin_scaled_mae, 2) else \"different\")\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.neighbors import KNeighborsRegressor\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"cars.csv\").dropna()\nX = df[[\"age\", \"km\", \"engine\"]]\ny = df[\"price\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42)\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nX_train_scaled = scaler.transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nknn_raw = KNeighborsRegressor(n_neighbors=5).fit(X_train, y_train)\nknn_scaled = KNeighborsRegressor(n_neighbors=5).fit(X_train_scaled, y_train)\nraw_mae = mean_absolute_error(y_test, knn_raw.predict(X_test))\nscaled_mae = mean_absolute_error(y_test, knn_scaled.predict(X_test_scaled))\nprint(round(raw_mae, 2), round(scaled_mae, 2))\n\nlin_raw = LinearRegression().fit(X_train, y_train)\nlin_scaled = LinearRegression().fit(X_train_scaled, y_train)\nlin_raw_mae = mean_absolute_error(y_test, lin_raw.predict(X_test))\nlin_scaled_mae = mean_absolute_error(y_test, lin_scaled.predict(X_test_scaled))\nprint(round(lin_raw_mae, 2), round(lin_scaled_mae, 2))\n\nprint(\"same\" if round(lin_raw_mae, 2) == round(lin_scaled_mae, 2) else \"different\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "171.49 51.48\n34.63 34.63\nsame"
+    }
+  ]
+}

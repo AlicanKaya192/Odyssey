@@ -1,5 +1,3 @@
-# Series Traps
-
 pandas makes things convenient by quietly making decisions for you. These are
 the places where those decisions surprise you.
 

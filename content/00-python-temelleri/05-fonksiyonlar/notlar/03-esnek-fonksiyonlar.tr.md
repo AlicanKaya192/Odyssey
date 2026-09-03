@@ -1,5 +1,3 @@
-# Esnek Fonksiyonlar
-
 Fonksiyonların üç ileri özelliği. Yazman nadiren gerekiyor ama **okuman**
 sürekli gerekecek — kütüphanelerin imzalarında hepsi var.
 

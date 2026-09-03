@@ -1,0 +1,40 @@
+{
+  "id": "clusters-in-noise",
+  "title": {
+    "tr": "Gürültüdeki kümeler",
+    "en": "Clusters in noise"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 200,
+  "hints": [
+    {
+      "tr": "Gürültü için `numpy.random.default_rng(0).normal(0, 1, X_scaled.shape)` kullanılıyor.",
+      "en": "For the noise use `numpy.random.default_rng(0).normal(0, 1, X_scaled.shape)`."
+    },
+    {
+      "tr": "Aynı `k` döngüsü iki veri üzerinde çalışıyor: gerçek ve gürültü.",
+      "en": "The same `k` loop runs over two datasets: the real one and the noise."
+    },
+    {
+      "tr": "Son satırda `k=4`'teki iki silüetin oranı var; `round(a / b, 1)`.",
+      "en": "The last line holds the ratio of the two silhouettes at `k=4`; `round(a / b, 1)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"shoppers.csv\")\ncolumns = [\"spend\", \"visits\", \"items\", \"returns\"]\nX = df[columns]\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\n\nimport numpy as np\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\n\nrng = np.random.default_rng(0)\nnoise = rng.normal(0, 1, X_scaled.shape)\n\nreal_four = 0.0\nnoise_four = 0.0\nnoise_sizes = []\n\nfor k in range(2, 6):\n    real_labels = KMeans(n_clusters=k, random_state=42,\n                         n_init=10).fit_predict(X_scaled)\n    noise_labels = KMeans(n_clusters=k, random_state=42,\n                          n_init=10).fit_predict(noise)\n    real_score = float(silhouette_score(X_scaled, real_labels))\n    noise_score = float(silhouette_score(noise, noise_labels))\n    if k == 4:\n        real_four = real_score\n        noise_four = noise_score\n        noise_sizes = sorted(np.bincount(noise_labels).tolist())\n    print(k, round(real_score, 3), round(noise_score, 3))\n\nprint(noise_sizes)\nprint(round(real_four / noise_four, 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"shoppers.csv\")\ncolumns = [\"spend\", \"visits\", \"items\", \"returns\"]\nX = df[columns]\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\n\nimport numpy as np\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\n\nrng = np.random.default_rng(0)\nnoise = rng.normal(0, 1, X_scaled.shape)\n\nreal_four = 0.0\nnoise_four = 0.0\nnoise_sizes = []\n\nfor k in range(2, 6):\n    real_labels = KMeans(n_clusters=k, random_state=42,\n                         n_init=10).fit_predict(X_scaled)\n    noise_labels = KMeans(n_clusters=k, random_state=42,\n                          n_init=10).fit_predict(noise)\n    real_score = float(silhouette_score(X_scaled, real_labels))\n    noise_score = float(silhouette_score(noise, noise_labels))\n    if k == 4:\n        real_four = real_score\n        noise_four = noise_score\n        noise_sizes = sorted(np.bincount(noise_labels).tolist())\n    print(k, round(real_score, 3), round(noise_score, 3))\n\nprint(noise_sizes)\nprint(round(real_four / noise_four, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2 0.514 0.169\n3 0.525 0.176\n4 0.517 0.181\n5 0.489 0.185\n[80, 82, 94, 94]\n2.9"
+    }
+  ]
+}

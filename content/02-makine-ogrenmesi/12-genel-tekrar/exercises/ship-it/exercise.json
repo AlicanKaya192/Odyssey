@@ -1,0 +1,44 @@
+{
+  "id": "ship-it",
+  "title": {
+    "tr": "Modeli teslim et",
+    "en": "Ship the model"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 300,
+  "hints": [
+    {
+      "tr": "Izgara anahtarları: `model__C` ve `prepare__num__impute__strategy`.",
+      "en": "The grid keys: `model__C` and `prepare__num__impute__strategy`."
+    },
+    {
+      "tr": "`joblib.dump(search.best_estimator_, ...)` en iyi ayarla yeniden eğitilmiş pipeline'ı kaydediyor.",
+      "en": "`joblib.dump(search.best_estimator_, ...)` saves the pipeline retrained with the best settings."
+    },
+    {
+      "tr": "Yeni hastalar bir `DataFrame`; ikinci satırda `bmi` ve `region` için `None` yazılıyor.",
+      "en": "The new patients are a `DataFrame`; the second row has `None` for `bmi` and `region`."
+    },
+    {
+      "tr": "Eşikli tahmin: `(probability >= 0.3).astype(int)`; `predict()` her zaman 0.5 kullanıyor.",
+      "en": "Thresholded prediction: `(probability >= 0.3).astype(int)`; `predict()` always uses 0.5."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport joblib\nfrom pathlib import Path\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"patients.csv\")\ntext = [\"sex\", \"region\", \"smoker\"]\n\n\ndef make_preprocessor(numeric):\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]), text),\n    ])\n\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import average_precision_score\nfrom sklearn.model_selection import GridSearchCV, StratifiedKFold\n\nnumeric = [\"age\", \"bmi\", \"visits\"]\nX = df[numeric + text]\ny = df[\"readmitted\"]\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\npipe = Pipeline([\n    (\"prepare\", make_preprocessor(numeric)),\n    (\"model\", LogisticRegression(max_iter=1000, class_weight=\"balanced\")),\n])\n\nfolds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\ngrid = {\n    \"model__C\": [0.01, 0.1, 1, 10],\n    \"prepare__num__impute__strategy\": [\"median\", \"mean\"],\n}\nsearch = GridSearchCV(pipe, grid, cv=folds, scoring=\"average_precision\")\nsearch.fit(X_train, y_train)\nprint(search.best_params_[\"model__C\"],\n      search.best_params_[\"prepare__num__impute__strategy\"],\n      round(float(search.best_score_), 3))\n\njoblib.dump(search.best_estimator_, \"model.joblib\")\nprint(Path(\"model.joblib\").stat().st_size > 1000)\n\nloaded = joblib.load(\"model.joblib\")\nprobability = loaded.predict_proba(X_test)[:, 1]\nprint(round(average_precision_score(y_test, probability), 3))\n\nnew = pd.DataFrame([\n    {\"age\": 72, \"sex\": \"male\", \"region\": \"south\", \"bmi\": 34.5,\n     \"visits\": 5, \"smoker\": \"yes\"},\n    {\"age\": 29, \"sex\": \"female\", \"region\": None, \"bmi\": None,\n     \"visits\": 0, \"smoker\": \"no\"},\n    {\"age\": 58, \"sex\": \"female\", \"region\": \"north\", \"bmi\": 26.0,\n     \"visits\": 2, \"smoker\": \"no\"},\n])\nrisk = loaded.predict_proba(new)[:, 1]\nprint([round(float(value), 3) for value in risk])\nprint([int(value) for value in (risk >= 0.3)])\n```",
+      "en": "The solution:\n\n```python\nimport joblib\nfrom pathlib import Path\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\ndf = pd.read_csv(\"patients.csv\")\ntext = [\"sex\", \"region\", \"smoker\"]\n\n\ndef make_preprocessor(numeric):\n    return ColumnTransformer([\n        (\"num\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"median\")),\n            (\"scale\", StandardScaler()),\n        ]), numeric),\n        (\"cat\", Pipeline([\n            (\"impute\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"encode\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]), text),\n    ])\n\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import average_precision_score\nfrom sklearn.model_selection import GridSearchCV, StratifiedKFold\n\nnumeric = [\"age\", \"bmi\", \"visits\"]\nX = df[numeric + text]\ny = df[\"readmitted\"]\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\npipe = Pipeline([\n    (\"prepare\", make_preprocessor(numeric)),\n    (\"model\", LogisticRegression(max_iter=1000, class_weight=\"balanced\")),\n])\n\nfolds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\ngrid = {\n    \"model__C\": [0.01, 0.1, 1, 10],\n    \"prepare__num__impute__strategy\": [\"median\", \"mean\"],\n}\nsearch = GridSearchCV(pipe, grid, cv=folds, scoring=\"average_precision\")\nsearch.fit(X_train, y_train)\nprint(search.best_params_[\"model__C\"],\n      search.best_params_[\"prepare__num__impute__strategy\"],\n      round(float(search.best_score_), 3))\n\njoblib.dump(search.best_estimator_, \"model.joblib\")\nprint(Path(\"model.joblib\").stat().st_size > 1000)\n\nloaded = joblib.load(\"model.joblib\")\nprobability = loaded.predict_proba(X_test)[:, 1]\nprint(round(average_precision_score(y_test, probability), 3))\n\nnew = pd.DataFrame([\n    {\"age\": 72, \"sex\": \"male\", \"region\": \"south\", \"bmi\": 34.5,\n     \"visits\": 5, \"smoker\": \"yes\"},\n    {\"age\": 29, \"sex\": \"female\", \"region\": None, \"bmi\": None,\n     \"visits\": 0, \"smoker\": \"no\"},\n    {\"age\": 58, \"sex\": \"female\", \"region\": \"north\", \"bmi\": 26.0,\n     \"visits\": 2, \"smoker\": \"no\"},\n])\nrisk = loaded.predict_proba(new)[:, 1]\nprint([round(float(value), 3) for value in risk])\nprint([int(value) for value in (risk >= 0.3)])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.01 median 0.541\nTrue\n0.444\n[0.825, 0.234, 0.426]\n[1, 0, 1]"
+    }
+  ]
+}

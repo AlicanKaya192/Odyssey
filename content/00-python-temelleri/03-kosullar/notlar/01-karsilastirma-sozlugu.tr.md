@@ -1,5 +1,3 @@
-# Karşılaştırma Sözlüğü
-
 Bir koşulun içine ne yazabileceğinin listesi. Takıldığında buraya bak.
 
 ## Karşılaştırma operatörleri

@@ -1,5 +1,3 @@
-# Veri Dosyası Biçimleri
-
 Veriyi diskte tutmanın birden fazla yolu var. Hangisini ne zaman
 kullanacağını bilmek, veri bilimine geçtiğinde işine yarayacak.
 

@@ -1,5 +1,3 @@
-# Import Forms and Common Mistakes
-
 ## Four forms, one job
 
 ```python

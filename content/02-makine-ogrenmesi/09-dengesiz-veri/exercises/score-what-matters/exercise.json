@@ -1,0 +1,40 @@
+{
+  "id": "score-what-matters",
+  "title": {
+    "tr": "Neyi ölçtüğüne bak",
+    "en": "Score what matters"
+  },
+  "difficulty": 4,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 200,
+  "hints": [
+    {
+      "tr": "`cross_val_score(..., scoring=\"recall\")` ölçüyü değiştiriyor; `StratifiedKFold` dengesiz veride şart.",
+      "en": "`cross_val_score(..., scoring=\"recall\")` changes the metric; `StratifiedKFold` is essential on imbalanced data."
+    },
+    {
+      "tr": "Beş ölçü sırayla: accuracy, recall, f1, roc_auc, average_precision.",
+      "en": "Five metrics in turn: accuracy, recall, f1, roc_auc, average_precision."
+    },
+    {
+      "tr": "Son satırda en dar ve en geniş yayılıma sahip ölçünün adları yan yana.",
+      "en": "The last line holds the names of the narrowest and widest-spread metrics side by side."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"transactions.csv\")\nX = df[[\"amount\", \"hour\", \"attempts\"]]\ny = df[\"fraud\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nscaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import StratifiedKFold, cross_val_score\n\nfolds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\nspreads = []\n\nfor scoring in (\"accuracy\", \"recall\", \"f1\", \"roc_auc\", \"average_precision\"):\n    scores = cross_val_score(LogisticRegression(max_iter=1000),\n                             X_train_scaled, y_train, cv=folds,\n                             scoring=scoring)\n    spread = float(scores.std())\n    spreads.append((scoring, spread))\n    print(scoring, round(float(scores.mean()), 3), round(spread, 3))\n\nnarrowest = min(spreads, key=lambda row: row[1])[0]\nwidest = max(spreads, key=lambda row: row[1])[0]\nprint(narrowest, widest)\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\n\ndf = pd.read_csv(\"transactions.csv\")\nX = df[[\"amount\", \"hour\", \"attempts\"]]\ny = df[\"fraud\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nscaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import StratifiedKFold, cross_val_score\n\nfolds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\nspreads = []\n\nfor scoring in (\"accuracy\", \"recall\", \"f1\", \"roc_auc\", \"average_precision\"):\n    scores = cross_val_score(LogisticRegression(max_iter=1000),\n                             X_train_scaled, y_train, cv=folds,\n                             scoring=scoring)\n    spread = float(scores.std())\n    spreads.append((scoring, spread))\n    print(scoring, round(float(scores.mean()), 3), round(spread, 3))\n\nnarrowest = min(spreads, key=lambda row: row[1])[0]\nwidest = max(spreads, key=lambda row: row[1])[0]\nprint(narrowest, widest)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "accuracy 0.952 0.008\nrecall 0.317 0.188\nf1 0.397 0.183\nroc_auc 0.93 0.028\naverage_precision 0.521 0.144\naccuracy recall"
+    }
+  ]
+}

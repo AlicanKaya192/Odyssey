@@ -1,0 +1,40 @@
+{
+  "id": "confusion-matrix",
+  "title": {
+    "tr": "Karışıklık matrisi",
+    "en": "The confusion matrix"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`confusion_matrix(y_test, prediction)` bir dizi döndürüyor; `.tolist()` ile listeye çevriliyor.",
+      "en": "`confusion_matrix(y_test, prediction)` returns an array; `.tolist()` turns it into a list."
+    },
+    {
+      "tr": "Dört sayıya dağıtmak için `.ravel()` kullanılıyor: `tn, fp, fn, tp = cm.ravel()`.",
+      "en": "Use `.ravel()` to unpack the four numbers: `tn, fp, fn, tp = cm.ravel()`."
+    },
+    {
+      "tr": "Doğruluk `(tn + tp) / toplam`. Toplam `len(y_test)`.",
+      "en": "Accuracy is `(tn + tp) / total`, where the total is `len(y_test)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"students.csv\")\nX = df[[\"hours\", \"prev_score\", \"attendance\"]]\ny = df[\"passed\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nmodel = LogisticRegression(max_iter=1000)\nmodel.fit(X_train, y_train)\nprediction = model.predict(X_test)\n\nfrom sklearn.metrics import confusion_matrix\n\ncm = confusion_matrix(y_test, prediction)\ntn, fp, fn, tp = cm.ravel()\n\nprint(cm.tolist())\nprint(int(tn), int(fp), int(fn), int(tp))\nprint(round((tn + tp) / len(y_test), 3))\nprint(\"FP\" if fp > fn else \"FN\")\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"students.csv\")\nX = df[[\"hours\", \"prev_score\", \"attendance\"]]\ny = df[\"passed\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nmodel = LogisticRegression(max_iter=1000)\nmodel.fit(X_train, y_train)\nprediction = model.predict(X_test)\n\nfrom sklearn.metrics import confusion_matrix\n\ncm = confusion_matrix(y_test, prediction)\ntn, fp, fn, tp = cm.ravel()\n\nprint(cm.tolist())\nprint(int(tn), int(fp), int(fn), int(tp))\nprint(round((tn + tp) / len(y_test), 3))\nprint(\"FP\" if fp > fn else \"FN\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[8, 5], [1, 26]]\n8 5 1 26\n0.85\nFP"
+    }
+  ]
+}

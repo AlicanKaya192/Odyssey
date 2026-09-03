@@ -1,0 +1,40 @@
+{
+  "id": "worst-errors",
+  "title": {
+    "tr": "En büyük hatayı bul",
+    "en": "Find the worst error"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Kalıntı Series'i: `y_test - prediction`. İndeksleri korunuyor, bu yüzden `df` ile eşleşiyor.",
+      "en": "The residual Series is `y_test - prediction`. It keeps its index, so it lines up with `df`."
+    },
+    {
+      "tr": "En büyük mutlak kalıntının satırını `residuals.abs().idxmax()` veriyor.",
+      "en": "`residuals.abs().idxmax()` gives the row with the largest absolute residual."
+    },
+    {
+      "tr": "O satırın sütunlarına `df.loc[satir, \"area\"]` ile ulaşıyorsun; tam sayı olarak yazdırmak için `int(...)`.",
+      "en": "Reach that row's columns with `df.loc[row, \"area\"]`; wrap in `int(...)` to print whole numbers."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"homes.csv\")\nX = df[[\"area\"]]\ny = df[\"price\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42)\n\nmodel = LinearRegression()\nmodel.fit(X_train, y_train)\nprediction = model.predict(X_test)\n\nresiduals = y_test - prediction\nworst = residuals.abs().idxmax()\n\nprint(round(residuals.mean(), 2))\nprint(round(residuals.abs().max(), 2))\nprint(int(df.loc[worst, \"area\"]), int(df.loc[worst, \"age\"]))\nprint(int((residuals > 0).sum()), int((residuals < 0).sum()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import train_test_split\n\ndf = pd.read_csv(\"homes.csv\")\nX = df[[\"area\"]]\ny = df[\"price\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42)\n\nmodel = LinearRegression()\nmodel.fit(X_train, y_train)\nprediction = model.predict(X_test)\n\nresiduals = y_test - prediction\nworst = residuals.abs().idxmax()\n\nprint(round(residuals.mean(), 2))\nprint(round(residuals.abs().max(), 2))\nprint(int(df.loc[worst, \"area\"]), int(df.loc[worst, \"age\"]))\nprint(int((residuals > 0).sum()), int((residuals < 0).sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "-3.78\n43.87\n130 26\n4 6"
+    }
+  ]
+}

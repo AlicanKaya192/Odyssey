@@ -1,0 +1,40 @@
+{
+  "id": "scaling-does-nothing",
+  "title": {
+    "tr": "Ölçekleme neyi değiştirmiyor",
+    "en": "What scaling does not change"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "İki ağaç kuruyorsun: biri `X_train` ile, öteki `scaler.transform(X_train)` ile. Ayarlar aynı.",
+      "en": "You build two trees: one on `X_train`, one on `scaler.transform(X_train)`. The settings are the same."
+    },
+    {
+      "tr": "Karşılaştırma için `round(...)` sonuçları eşit mi diye bakılıyor.",
+      "en": "For the comparison, check whether the `round(...)` results are equal."
+    },
+    {
+      "tr": "Son satırda bölüm 06'nın sayıları hatırlatılıyor: KNN ölçeklemesiz 0.64, ölçekli 0.92.",
+      "en": "The last line recalls section 06's numbers: KNN unscaled 0.64, scaled 0.92."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.preprocessing import StandardScaler\n\nraw = DecisionTreeClassifier(max_depth=3, random_state=42)\nraw.fit(X_train, y_train)\nraw_score = accuracy_score(y_test, raw.predict(X_test))\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nscaled = DecisionTreeClassifier(max_depth=3, random_state=42)\nscaled.fit(scaler.transform(X_train), y_train)\nscaled_score = accuracy_score(y_test, scaled.predict(scaler.transform(X_test)))\n\nprint(round(raw_score, 3), round(scaled_score, 3))\nprint(\"same\" if round(raw_score, 3) == round(scaled_score, 3) else \"different\")\nprint(round(0.92 - 0.64, 2))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\n\ndf = pd.read_csv(\"customers.csv\")\nX = df[[\"age\", \"income\", \"visits\"]]\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42, stratify=y)\n\nfrom sklearn.metrics import accuracy_score\nfrom sklearn.preprocessing import StandardScaler\n\nraw = DecisionTreeClassifier(max_depth=3, random_state=42)\nraw.fit(X_train, y_train)\nraw_score = accuracy_score(y_test, raw.predict(X_test))\n\nscaler = StandardScaler()\nscaler.fit(X_train)\nscaled = DecisionTreeClassifier(max_depth=3, random_state=42)\nscaled.fit(scaler.transform(X_train), y_train)\nscaled_score = accuracy_score(y_test, scaled.predict(scaler.transform(X_test)))\n\nprint(round(raw_score, 3), round(scaled_score, 3))\nprint(\"same\" if round(raw_score, 3) == round(scaled_score, 3) else \"different\")\nprint(round(0.92 - 0.64, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.8 0.8\nsame\n0.28"
+    }
+  ]
+}

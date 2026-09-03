@@ -1,5 +1,3 @@
-# Keşif Tuzakları
-
 Bu bölümdeki hataların hiçbiri kod hatası değil. Kod çalışıyor, sayı
 çıkıyor ve **sayıdan yanlış bir sonuç çıkarılıyor.**
 

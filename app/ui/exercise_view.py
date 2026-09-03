@@ -14,6 +14,7 @@ Kod arka planda ayrı bir süreçte çalıştırılır; çalışırken arayüz d
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -28,6 +29,7 @@ from PySide6.QtWidgets import (
 )
 
 import html
+from pathlib import Path
 
 from ..core.catalog import Exercise
 from ..core.grader import Feedback, describe, summarise
@@ -139,6 +141,73 @@ class CheckRow(QFrame):
         return row
 
 
+class ArtifactRow(QFrame):
+    """Kullanıcının kodunun ürettiği görsel.
+
+    Alıştırma bir grafik kaydediyorsa o grafik burada görünüyor. Önceden
+    dosya üretiliyor, doğrulanıyor ve çalışma klasörüyle birlikte
+    siliniyordu: "eksen sıfırdan başlamalı" diyen bir ders, öğrencinin
+    çizdiği grafiği gösteremiyordu.
+
+    Görsel panele sığacak şekilde küçültülüyor ama **oranı korunuyor**;
+    ezilmiş bir grafik yanlış bir şey öğretir.
+    """
+
+    MAX_HEIGHT = 320
+
+    def __init__(
+        self, path: Path, caption: str, parent: QWidget | None = None
+    ) -> None:
+        super().__init__(parent)
+        self.setProperty("role", "artifact")
+        self._path = path
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(
+            SPACING["md"], SPACING["md"], SPACING["md"], SPACING["md"]
+        )
+        layout.setSpacing(SPACING["xs"])
+
+        baslik = QLabel(caption)
+        baslik.setProperty("role", "muted")
+        layout.addWidget(baslik)
+
+        self._image = QLabel()
+        self._image.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._pixmap = QPixmap(str(path))
+        layout.addWidget(self._image)
+
+        ad = QLabel(path.name)
+        ad.setProperty("role", "muted")
+        ad.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(ad)
+
+        self._rescale()
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._rescale()
+
+    def _rescale(self) -> None:
+        """Görseli panele sığdırır.
+
+        Panelin genişliği ders okurken de alıştırma çözerken de değişiyor;
+        ölçek her seferinde yeniden hesaplanıyor.
+        """
+        if self._pixmap.isNull():
+            self._image.setText(self._path.name)
+            return
+
+        alan = max(120, self.width() - 2 * SPACING["md"])
+        olcekli = self._pixmap.scaled(
+            alan,
+            self.MAX_HEIGHT,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        self._image.setPixmap(olcekli)
+
+
 class MistakeRow(QFrame):
     """Hatanın ne anlama geldiğini anlatan kutu."""
 
@@ -182,8 +251,11 @@ class ExerciseView(QWidget):
         self._chapter_id = ""
         self._section_id = ""
         self._worker: RunWorker | None = None
-        # Kaçıncı ipucu kademesine kadar açıldığı. Sıfır: hepsi kapalı.
-        self._revealed = 0
+        # Açılmış ipucu kademeleri. Her kademe kendi başına açılıyor:
+        # "kaçıncıya kadar açık" diye tek bir sayı tutulduğunda son
+        # kademeye basmak öncekileri de açıyor ve kademeli yardım fikri
+        # ortadan kalkıyor.
+        self._revealed: set[int] = set()
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -225,8 +297,22 @@ class ExerciseView(QWidget):
                 level = int(action.split("-", 1)[1])
             except ValueError:
                 return
-            self._revealed = max(self._revealed, level)
+            self._revealed.add(level)
             self._refresh_prompt()
+
+    def _hint_label(self, level: int) -> str:
+        """Kapalı bir kademenin etiketi.
+
+        Etiket kademenin **sırasına** göre seçiliyor, numarasına göre değil:
+        dört ipuçlu bir alıştırmada üçüncü kademe "çözümün tamamı" değil,
+        yalnızca sonuncusu öyle.
+        """
+        toplam = len(self._exercise.hints) if self._exercise else 0
+        if level >= toplam:
+            return "hint.level3"
+        if level == 1:
+            return "hint.level1"
+        return "hint.level2"
 
     def _hints_html(self) -> str:
         """İpucu kutusunu maketteki yapıyla üretir.
@@ -244,12 +330,12 @@ class ExerciseView(QWidget):
             if not text:
                 continue
 
-            if level <= self._revealed:
+            if level in self._revealed:
                 body, _ = render_markdown(text)
                 inner = f'<div class="tx open">{body}</div>'
                 button = ""
             else:
-                label = html.escape(self._language.t(f"hint.level{min(level, 3)}"))
+                label = html.escape(self._language.t(self._hint_label(level)))
                 inner = f'<div class="tx">{label}</div>'
                 button = (
                     f'<a class="show" href="app:hint-{level}">'
@@ -375,7 +461,7 @@ class ExerciseView(QWidget):
         self._section_id = section_id
 
         # Yeni alıştırmada ipuçları kapalı başlar.
-        self._revealed = 0
+        self._revealed = set()
         self._refresh_prompt()
 
         # Kaydedilen kod hâlâ başlangıç kodunun kendisiyse (kullanıcı bir
@@ -431,6 +517,12 @@ class ExerciseView(QWidget):
         self._summary.setProperty("tone", "success" if result.passed else "danger")
         repolish(self._summary)
         self._summary.show()
+
+        # Ürettiği görsel varsa **kontrollerden önce** geliyor: kullanıcının
+        # ilk bakacağı şey çizdiği grafik, "üçüncü kontrol geçti" değil.
+        baslik = self._language.t("exercise.produced")
+        for yol in result.artifacts:
+            self._insert(ArtifactRow(yol, baslik))
 
         # Hata varsa önce ne anlama geldiğini anlat, sonra kontrolleri listele.
         explanation = explain(result.error)
