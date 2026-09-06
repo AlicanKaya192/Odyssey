@@ -44,7 +44,7 @@ class BadgeChip(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setFixedWidth(CELL_WIDTH)
+        self.setFixedSize(CELL_WIDTH, 120)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

@@ -224,33 +224,49 @@ class CodeEditor(QTextEdit):
         QTimer.singleShot(0, self._apply_line_spacing)
 
     def _apply_line_spacing(self) -> None:
-        """Satır aralığını açar.
+        """Satır aralığı eksik olan bloklara uygular.
 
         `QPlainTextEdit` bu ayarı yok sayıyordu; `QTextEdit` uyguluyor.
         Yeni satırlar da aralığı alsın diye satır sayısı değiştikçe tekrar
         uygulanıyor — her tuş vuruşunda değil, yalnızca satır eklenip
         silindiğinde.
+
+        Eskiden tüm belge seçilip `mergeBlockFormat` çağrılıyordu; bu,
+        Enter'a basıldığında yeni satırın bir an aralıksız görünmesine
+        yol açıyordu (satır numaraları birbirine yapışıyor, sonraki
+        olay turunda düzeliyordu). Şimdi yalnızca doğru aralığa sahip
+        olmayan bloklar düzeltiliyor.
         """
         self._spacing_queued = False
 
-        cursor = self.textCursor()
-        position = cursor.position()
+        target = QTextBlockFormat.LineHeightTypes.ProportionalHeight.value
 
-        block_format = QTextBlockFormat()
-        block_format.setLineHeight(
-            LINE_HEIGHT_PERCENT,
-            QTextBlockFormat.LineHeightTypes.ProportionalHeight.value,
-        )
+        block = self.document().begin()
+        while block.isValid():
+            fmt = block.blockFormat()
+            if (
+                int(fmt.lineHeightType()) != target
+                or int(fmt.lineHeight()) != LINE_HEIGHT_PERCENT
+            ):
+                cursor = QTextCursor(block)
+                new_fmt = QTextBlockFormat()
+                new_fmt.setLineHeight(LINE_HEIGHT_PERCENT, target)
+                cursor.mergeBlockFormat(new_fmt)
+            block = block.next()
 
-        # Biçim ayrı bir imleçle uygulanıyor; kullanıcının imleci ve seçimi
-        # yerinde kalıyor.
-        bicimleyici = QTextCursor(self.document())
-        bicimleyici.select(QTextCursor.SelectionType.Document)
-        bicimleyici.mergeBlockFormat(block_format)
-
-        if cursor.position() != position:
-            cursor.setPosition(min(position, len(self.toPlainText())))
-            self.setTextCursor(cursor)
+    @staticmethod
+    def _apply_spacing_to_block(block) -> None:
+        """Tek bir bloğa satır aralığı uygular."""
+        target = QTextBlockFormat.LineHeightTypes.ProportionalHeight.value
+        fmt = block.blockFormat()
+        if (
+            int(fmt.lineHeightType()) != target
+            or int(fmt.lineHeight()) != LINE_HEIGHT_PERCENT
+        ):
+            cursor = QTextCursor(block)
+            new_fmt = QTextBlockFormat()
+            new_fmt.setLineHeight(LINE_HEIGHT_PERCENT, target)
+            cursor.mergeBlockFormat(new_fmt)
 
     def setPlainText(self, text: str) -> None:  # noqa: N802
         """Metni yükler ve satır aralığını yeniden uygular.
@@ -371,8 +387,8 @@ class CodeEditor(QTextEdit):
             indent = line[: len(line) - len(line.lstrip())]
             if line.rstrip().endswith(":"):
                 indent += INDENT
-            super().keyPressEvent(event)
-            self.insertPlainText(indent)
+            
+            self.insertPlainText("\n" + indent)
             return
 
         super().keyPressEvent(event)

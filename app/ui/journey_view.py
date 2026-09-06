@@ -81,7 +81,7 @@ def scroll_page(widget: QWidget) -> QScrollArea:
     return area
 
 
-def centered_column(inner: QWidget) -> QWidget:
+def centered_column(inner: QWidget, max_width: int = CONTENT_WIDTH) -> QWidget:
     """İçeriği sabit genişlikte bir sütuna alıp ekranın ortasına yerleştirir.
 
     Makette yol ve modül kartları uçlara yayılmıyor, ortada toplanıyor.
@@ -93,7 +93,7 @@ def centered_column(inner: QWidget) -> QWidget:
     row.setContentsMargins(0, 0, 0, 0)
     row.setSpacing(0)
 
-    inner.setMaximumWidth(CONTENT_WIDTH)
+    inner.setMaximumWidth(max_width)
     inner.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
 
     row.addStretch(1)
@@ -444,24 +444,25 @@ class TracksView(QWidget):
         self._page_layout.setSpacing(SPACING["lg"])
 
         self._hero = HeroCard(language)
-        self._page_layout.addWidget(self._hero)
+        self._hero.setFixedWidth(CONTENT_WIDTH)
+        self._page_layout.addWidget(self._hero, alignment=Qt.AlignmentFlag.AlignHCenter)
 
         self._label = section_label("")
-        self._page_layout.addWidget(self._label)
+        self._page_layout.addWidget(self._label, alignment=Qt.AlignmentFlag.AlignHCenter)
 
         self._grid = QGridLayout()
         self._grid.setSpacing(SPACING["md"])
         self._page_layout.addLayout(self._grid)
         self._page_layout.addStretch(1)
 
-        outer.addWidget(scroll_page(centered_column(column)))
+        outer.addWidget(scroll_page(centered_column(column, max_width=1600)))
         self._build_cards()
 
     def _build_cards(self) -> None:
         for index, track in enumerate(self._catalog.tracks):
             card = TrackCard(track, self._language, self._mode)
             card.clicked.connect(lambda t=track.id: self.track_opened.emit(t))
-            self._grid.addWidget(card, index // 2, index % 2)
+            self._grid.addWidget(card, index // 4, index % 4)
             self._cards.append(card)
 
     def _chapter_progress(self, chapter) -> tuple[int, int]:
@@ -576,13 +577,14 @@ class ModulesView(QWidget):
             SPACING["xl"], SPACING["xl"], SPACING["xl"], SPACING["xxl"]
         )
         self._page_layout.setSpacing(SPACING["lg"])
-        page = centered_column(column)
+        page = centered_column(column, max_width=1600)
 
         self._hero = HeroCard(language)
-        self._page_layout.addWidget(self._hero)
+        self._hero.setFixedWidth(CONTENT_WIDTH)
+        self._page_layout.addWidget(self._hero, alignment=Qt.AlignmentFlag.AlignHCenter)
 
         self._modules_label = section_label("")
-        self._page_layout.addWidget(self._modules_label)
+        self._page_layout.addWidget(self._modules_label, alignment=Qt.AlignmentFlag.AlignHCenter)
 
         self._grid = QGridLayout()
         self._grid.setSpacing(SPACING["md"])
@@ -612,7 +614,7 @@ class ModulesView(QWidget):
         for index, chapter in enumerate(chapters):
             card = ModuleCard(chapter, self._language, self._mode)
             card.clicked.connect(lambda c=chapter.id: self.module_opened.emit(c))
-            self._grid.addWidget(card, index // 2, index % 2)
+            self._grid.addWidget(card, index // 4, index % 4)
             self._cards.append(card)
 
     def refresh(self) -> None:

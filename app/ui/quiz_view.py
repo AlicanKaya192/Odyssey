@@ -343,6 +343,7 @@ class QuizView(QWidget):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self._scroll = scroll
 
         container = QWidget()
         row = QHBoxLayout(container)
@@ -503,6 +504,7 @@ class QuizView(QWidget):
             self._cards_holder.addWidget(card)
 
         self._stack.setCurrentIndex(1)
+        self._scroll.verticalScrollBar().setValue(0)
         self.retranslate()
 
         if self._untimed:
@@ -584,6 +586,7 @@ class QuizView(QWidget):
         self._previous_score = score
         self._previous_passed = passed
         self.completed.emit(score, passed)
+        self._scroll.verticalScrollBar().setValue(0)
 
     def _reset(self) -> None:
         """Baştan dene: başlangıç ekranına dönüyor, sorular yeniden karışıyor."""

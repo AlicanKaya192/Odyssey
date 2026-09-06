@@ -21,6 +21,15 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.7.5] — 7 September 2026
+
+### Tweaks and Fixes
+- **Upcoming Paths:** Added placeholder titles for the upcoming advanced and engineering learning paths (Time Series, NLP, GenAI, Algorithms, AI Math, Essential Libraries, and System Design) to the main screen.
+- **Code Editor:** Fixed a Rich Text formatting bug where pressing "Enter" on empty lines caused the line-height styling to break entirely.
+- **Quiz View:** Fixed a scrolling bug that caused the page to start at the center instead of the very top (first question) when starting a new quiz.
+
+---
+
 ## [0.7.4] — 4 September 2026
 
 ### Added
@@ -106,9 +115,6 @@ lecture note does not mean downloading the whole application again.
   graduated help. Now only the one you click opens.
 - **The last hint gives the solution in every exercise.** In some exercises
   that step said "the full solution" but showed only part of it.
-- **A lecture note's title was written twice.** The note's name appeared
-  both as the page heading and again inside the text. Fixed across every
-  note in all three paths.
 
 ---
 
@@ -134,10 +140,7 @@ lecture note does not mean downloading the whole application again.
   data rather than the application, anyone who went back to an older
   version or reinstalled never saw the same update again. The record now
   includes the installed version as well.
-- **The badge in the release notes marked the wrong versions as beta.** The
-  application became an open beta at 0.7.1; everything before it was alpha
-  and should be listed that way. Now 0.7.1 and later carry an orange "OPEN
-  BETA" and earlier ones a red "ALPHA".
+
 - **A dark patch behind the year selector in the profile.** The year button
   next to the activity calendar looked like a hole in the card: the area
   behind it painted the page background instead of the card. The
@@ -147,13 +150,6 @@ lecture note does not mean downloading the whole application again.
 ---
 
 ## [0.7.2] — 3 September 2026
-
-### Changed
-- **The badge in the release notes reads "BETA"** rather than "ALPHA": the
-  startup notice said open beta while the list used a different word.
-- **The startup notice now says "open beta"** rather than closed beta. The
-  sentence about the application's network use was updated too: the one
-  connection is the version check, and it can be turned off in settings.
 
 ### Fixed
 - **Enter did nothing on an empty line in the exercise editor.** You could

@@ -19,6 +19,15 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.7.5] — 7 Eylül 2026
+
+### Düzenlemeler ve İyileştirmeler
+- **Gelecek Patikalar:** Yeni eklenecek patika başlıkları (Zaman Serileri, Doğal Dil İşleme, Üretken YZ, Algoritmalar, YZ Matematiği, Önemli Kütüphaneler ve Sistem Tasarımı) ana ekrana yansıtıldı.
+- **Kod Editörü:** Boş satırlarda "Enter" tuşuna basıldığında satır aralığının (line-height) bozulmasına yol açan biçimlendirme hatası (Rich Text sıfırlaması) düzeltildi.
+- **Sınav Ekranı:** Sınava başlandığında sayfanın en üst yerine tam ortadan başlamasına sebep olan yanlış kaydırma (scroll) konumu sorunu giderildi.
+
+---
+
 ## [0.7.4] — 4 Eylül 2026
 
 ### Eklendi
@@ -101,9 +110,6 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   ortadan kalkıyordu. Artık hangisine basarsan yalnızca o açılıyor.
 - **Son ipucu her alıştırmada çözümü veriyor.** Bazı alıştırmalarda son
   kademe "çözümün tamamı" diyor ama yalnızca bir parçasını gösteriyordu.
-- **Ders notlarında başlık iki kez yazıyordu.** Notun adı hem sayfanın
-  başlığı olarak hem de metnin içinde tekrar görünüyordu. Üç patikadaki
-  notların tamamında düzeltildi.
 
 ---
 
@@ -128,10 +134,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   da uygulamayı yeniden kuran biri, kayıt kullanıcı verisinde durduğu için
   aynı güncellemeyi bir daha görmüyordu. Kayıt artık kurulu sürümü de
   içeriyor.
-- **Sürüm notlarındaki rozet yanlış sürümleri beta gösteriyordu.** Uygulama
-  0.7.1'de açık betaya geçti; ondan önceki sürümler alpha'ydı ve listede
-  öyle görünmeleri gerekiyor. Artık 0.7.1 ve sonrası turuncu "AÇIK BETA",
-  öncesi kırmızı "ALPHA".
+
 - **Profildeki yıl seçicisinin arkasındaki koyu leke.** Etkinlik
   takviminin yanındaki yıl düğmesi kartın içinde bir delik gibi
   duruyordu; arkasındaki alan kart rengi yerine sayfa zeminini
@@ -141,13 +144,6 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ---
 
 ## [0.7.2] — 3 Eylül 2026
-
-### Değişti
-- **Sürüm notlarındaki rozet "BETA" yazıyor**, "ALPHA" değil: açılıştaki
-  bilgilendirme "açık beta" derken liste başka bir ad kullanıyordu.
-- **Açılıştaki bilgilendirme "açık beta" diyor**, kapalı beta değil.
-  Uygulamanın ağ kullanımını anlatan cümle de güncellendi: tek bağlantı
-  sürüm denetimi ve ayarlardan kapatılabiliyor.
 
 ### Düzeltildi
 - **Alıştırma editöründe boş satırda Enter çalışmıyordu.** Kodun arasına

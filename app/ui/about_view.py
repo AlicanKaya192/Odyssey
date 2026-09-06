@@ -144,14 +144,16 @@ class AboutView(QWidget):
             f"<span>{html.escape(tagline)}</span></div></div>"
         )
 
-    def _card(self, title: str, url: str, description: str) -> str:
+    def _card(self, title: str, url: str, description: str,
+              display: str = "") -> str:
         go = self._language.t("about.open")
+        shown = display or url
         return (
             f'<a class="linkcard" href="app:open:{html.escape(url)}">'
             f'<div class="row"><b>{html.escape(title)}</b>'
             f'<span class="go">{html.escape(go)} →</span></div>'
             f"<p>{html.escape(description)}</p>"
-            f'<div class="url">{html.escape(url)}</div></a>'
+            f'<div class="url">{html.escape(shown)}</div></a>'
         )
 
     def _grid(self, cards: list[str]) -> str:
@@ -207,6 +209,7 @@ class AboutView(QWidget):
                 item.get("label", ""),
                 item.get("url", ""),
                 self._language.pick(item.get("description")),
+                display=item.get("display", ""),
             )
             for item in self._data.get("links", [])
         ]
