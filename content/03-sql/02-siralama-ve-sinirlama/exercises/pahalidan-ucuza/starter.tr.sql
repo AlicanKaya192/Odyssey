@@ -1,0 +1,2 @@
+-- Urunleri fiyati en yuksekten en dusuge dogru sirala.
+-- Sonucta ad ve fiyat sutunlari olsun.

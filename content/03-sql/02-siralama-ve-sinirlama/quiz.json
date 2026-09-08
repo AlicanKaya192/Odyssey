@@ -1,0 +1,758 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "`ORDER BY` yazmayan bir sorguda satırlar hangi sırayla gelir?",
+        "en": "In a query with no `ORDER BY`, in what order do the rows come back?"
+      },
+      "options": {
+        "tr": [
+          "Her zaman tablodaki ekleme sırasında",
+          "Her zaman birincil anahtara göre",
+          "Belirsiz — sunucu hiçbir sıra garantisi vermiyor",
+          "Alfabetik"
+        ],
+        "en": [
+          "Always in the order they were inserted",
+          "Always by the primary key",
+          "Undefined — the server guarantees no order",
+          "Alphabetically"
+        ]
+      },
+      "explanation": {
+        "tr": "Sunucu tabloyu **en hızlı bulduğu yoldan** okuyor ve o yol değişebiliyor: tablo büyüdüğünde, bir indeks eklendiğinde ya da sunucu sürümü değiştiğinde.\n\nBugün `id` sırasında gelmesi yarın da geleceğinin garantisi değil. Geliştirmede doğru görünen bir rapor aylar sonra üretimde karışık çıkıyor.\n\n**Sıra önemliyse `ORDER BY` yazmak zorundasın.**",
+        "en": "The server reads the table by **whatever path it finds fastest**, and that path can change: as the table grows, when an index is added, or when the server version changes.\n\nComing back in `id` order today is no guarantee about tomorrow. A report that looked right in development comes out shuffled in production months later.\n\n**If the order matters, you have to write `ORDER BY`.**"
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 1,
+      "text": {
+        "tr": "`ORDER BY fiyat` ne yapıyor?",
+        "en": "What does `ORDER BY fiyat` do?"
+      },
+      "options": {
+        "tr": [
+          "Büyükten küçüğe sıralar",
+          "Küçükten büyüğe sıralar",
+          "Hata verir, yön belirtmek zorunlu",
+          "Yalnızca fiyat sütununu getirir"
+        ],
+        "en": [
+          "Sorts from largest to smallest",
+          "Sorts from smallest to largest",
+          "Raises an error; the direction is required",
+          "Returns only the fiyat column"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan **artan** (`ASC`): küçükten büyüğe, A'dan Z'ye.\n\nAçıkça `ASC` yazmak da mümkün ama gereksiz. Tersi için `DESC` yazılıyor.\n\n`ORDER BY` sütun seçmiyor; hangi sütunların geleceğini `SELECT` belirliyor. Sıralanan sütunun sonuçta görünmesi bile şart değil.",
+        "en": "The default is **ascending** (`ASC`): smallest to largest, A to Z.\n\nYou can write `ASC` explicitly, but it is redundant. For the reverse you write `DESC`.\n\n`ORDER BY` does not choose columns; `SELECT` decides which columns come back. The sorted column does not even have to appear in the result."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`ORDER BY kategori, fiyat DESC` sorgusunda `DESC` hangi sütuna uygulanıyor?",
+        "en": "In `ORDER BY kategori, fiyat DESC`, which column does `DESC` apply to?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca fiyat",
+          "Her ikisine",
+          "Yalnızca kategori",
+          "Hiçbirine"
+        ],
+        "en": [
+          "Only fiyat",
+          "Both of them",
+          "Only kategori",
+          "Neither"
+        ]
+      },
+      "explanation": {
+        "tr": "Yön **her sütunun kendine ait**. `DESC` yalnızca hemen önündeki sütuna uygulanıyor; `kategori` hâlâ artan sıralanıyor.\n\nİkisini de tersine çevirmek istiyorsan ikisine de yazman gerekiyor:\n\n```sql\nORDER BY kategori DESC, fiyat DESC\n```\n\nSonuç sırası biraz tuhaf göründüğünde ilk bakılacak yer burası.",
+        "en": "The direction belongs to **each column separately**. `DESC` applies only to the column immediately before it; `kategori` is still sorted ascending.\n\nTo reverse both you have to write it on both:\n\n```sql\nORDER BY kategori DESC, fiyat DESC\n```\n\nThis is the first place to look when the result order seems slightly off."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 3,
+      "text": {
+        "tr": "İki sütunla sıralarken hangisi belirleyici?",
+        "en": "When sorting on two columns, which one decides?"
+      },
+      "options": {
+        "tr": [
+          "Sonra yazılan",
+          "Sayısal olan",
+          "Alfabetik olarak önce gelen",
+          "Önce yazılan; ikincisi yalnızca eşitlikleri çözer"
+        ],
+        "en": [
+          "The one written second",
+          "The numeric one",
+          "The one that comes first alphabetically",
+          "The one written first; the second only breaks ties"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıralama önce ilk sütuna göre yapılıyor. O sütunda **eşit** olan satırlar kendi aralarında ikinci sütuna göre diziliyor.\n\n`ORDER BY kategori, fiyat DESC` şunu diyor: kategorileri alfabetik sırala, aynı kategorideki ürünleri de pahalıdan ucuza.\n\nİlk sütunda hiç eşitlik yoksa ikinci sütunun hiçbir etkisi olmuyor.",
+        "en": "Sorting is done by the first column. Rows that **tie** on it are then arranged among themselves by the second.\n\n`ORDER BY kategori, fiyat DESC` says: put the categories in alphabetical order, and inside a category go from expensive to cheap.\n\nIf there are no ties on the first column, the second one has no effect at all."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT fiyat AS tutar FROM urunler ORDER BY tutar DESC;` çalışır mı?",
+        "en": "Does `SELECT fiyat AS tutar FROM urunler ORDER BY tutar DESC;` work?"
+      },
+      "options": {
+        "tr": [
+          "Hayır, takma ad yalnızca SELECT içinde geçerli",
+          "Evet — ORDER BY en son çalıştığı için takma adı görüyor",
+          "Hayır, ORDER BY yalnızca sütun numarası kabul ediyor",
+          "Yalnızca ASC ile çalışır"
+        ],
+        "en": [
+          "No, an alias is only valid inside SELECT",
+          "Yes — ORDER BY runs last, so it sees the alias",
+          "No, ORDER BY only accepts a column number",
+          "It only works with ASC"
+        ]
+      },
+      "explanation": {
+        "tr": "Sunucunun işleme sırası: `FROM` → `WHERE` → `SELECT` → `ORDER BY`.\n\n`ORDER BY` en sonda çalıştığı için `SELECT`'in ürettiği takma adlar o sırada hazır.\n\nAynı takma adı `WHERE` içinde kullansaydın **hata** alırdın; `WHERE`, `SELECT`'ten önce çalışıyor. Tek bir kuralın iki farklı sonucu.",
+        "en": "The server's processing order is `FROM` → `WHERE` → `SELECT` → `ORDER BY`.\n\nSince `ORDER BY` runs last, the aliases produced by `SELECT` are ready by then.\n\nThe same alias inside `WHERE` would have raised an **error**; `WHERE` runs before `SELECT`. One rule, two different outcomes."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 2,
+      "text": {
+        "tr": "`ORDER BY 2` ne anlama geliyor ve neden önerilmiyor?",
+        "en": "What does `ORDER BY 2` mean, and why is it discouraged?"
+      },
+      "options": {
+        "tr": [
+          "Sonucun ilk iki satırı; yavaş olduğu için",
+          "İkinci satır; anlamsız olduğu için",
+          "SELECT listesinin ikinci sütunu; liste değişince sorgu sessizce başka sütuna göre sıralandığı için",
+          "Sütun adı 2 olan sütun; karışıklık yarattığı için"
+        ],
+        "en": [
+          "The first two rows of the result; because it is slow",
+          "The second row; because it is meaningless",
+          "The second column of the SELECT list; because the query quietly sorts on a different column when the list changes",
+          "The column literally named 2; because it is confusing"
+        ]
+      },
+      "explanation": {
+        "tr": "Sayı, `SELECT` listesindeki sütunun sırasını gösteriyor. Kısa yazılışı cazip ama kırılgan.\n\nBirisi `SELECT` listesinin başına bir sütun eklediğinde numaralar kayıyor ve sorgu hiçbir hata vermeden **başka bir sütuna göre** sıralanmaya başlıyor.\n\nSütunun adını yazmak bu riski tamamen ortadan kaldırıyor.",
+        "en": "The number refers to the position of a column in the `SELECT` list. The short form is tempting but fragile.\n\nThe moment someone adds a column at the front of the `SELECT` list, the numbers shift and the query starts sorting on **a different column** with no error at all.\n\nWriting the column's name removes the risk entirely."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "T-SQL'de `TOP` nereye yazılıyor?",
+        "en": "Where does `TOP` go in T-SQL?"
+      },
+      "options": {
+        "tr": [
+          "`SELECT`'ten hemen sonra",
+          "Sorgunun en sonuna",
+          "`FROM`'dan sonra",
+          "`ORDER BY`'ın içine"
+        ],
+        "en": [
+          "Right after `SELECT`",
+          "At the very end of the query",
+          "After `FROM`",
+          "Inside `ORDER BY`"
+        ]
+      },
+      "explanation": {
+        "tr": "`SELECT TOP 3 ad, fiyat FROM ...` biçiminde yazılıyor.\n\nBu T-SQL'e özgü. PostgreSQL, MySQL ve SQLite'ta aynı iş `LIMIT` ile yapılıyor ve `LIMIT` **sorgunun sonuna** yazılıyor:\n\n```sql\nSELECT ad FROM urunler ORDER BY fiyat DESC LIMIT 3;\n```\n\nLehçeler arası en görünür farklardan biri bu.",
+        "en": "It is written as `SELECT TOP 3 ad, fiyat FROM ...`.\n\nThis is specific to T-SQL. PostgreSQL, MySQL and SQLite do the same job with `LIMIT`, which goes **at the end of the query**:\n\n```sql\nSELECT ad FROM urunler ORDER BY fiyat DESC LIMIT 3;\n```\n\nIt is one of the most visible differences between the dialects."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 3,
+      "text": {
+        "tr": "`SELECT TOP 5 ad FROM urunler;` (ORDER BY yok) sorgusunun sorunu nedir?",
+        "en": "What is wrong with `SELECT TOP 5 ad FROM urunler;` (no ORDER BY)?"
+      },
+      "options": {
+        "tr": [
+          "Hata verir",
+          "Bütün satırları getirir",
+          "TOP, ORDER BY olmadan yazılamaz",
+          "Çalışır ama hangi beş satırın geleceği belirsizdir"
+        ],
+        "en": [
+          "It raises an error",
+          "It returns every row",
+          "TOP cannot be written without ORDER BY",
+          "It runs, but which five rows come back is undefined"
+        ]
+      },
+      "explanation": {
+        "tr": "Sözdizimi doğru, sorgu çalışıyor ve beş satır dönüyor. Sorun şu: **sıra belirsizse \"ilk beş\" de belirsiz.**\n\nHer çalıştırmada farklı beş satır gelebiliyor ve sunucu hiçbir uyarı vermiyor.\n\n\"En pahalı beş\" ya da \"en yeni beş\" demek istiyorsan sıralamayı yazman gerekiyor. `TOP` kaç tane olduğunu, `ORDER BY` hangileri olduğunu söylüyor.",
+        "en": "The syntax is fine, the query runs and five rows come back. The problem: **if the order is undefined, so is \"the first five\".**\n\nA different five can come back on every run, with no warning from the server.\n\nIf you meant \"the five most expensive\" or \"the five newest\", you have to write the ordering. `TOP` says how many; `ORDER BY` says which."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT TOP 3 WITH TIES ad FROM urunler ORDER BY fiyat DESC;` kaç satır döndürebilir?",
+        "en": "How many rows can `SELECT TOP 3 WITH TIES ad FROM urunler ORDER BY fiyat DESC;` return?"
+      },
+      "options": {
+        "tr": [
+          "Her zaman tam 3",
+          "3 ya da daha fazla — üçüncüyle eşit fiyatlılar da gelir",
+          "Her zaman 3'ten az",
+          "Hata verir"
+        ],
+        "en": [
+          "Always exactly 3",
+          "3 or more — rows tied with the third also come back",
+          "Always fewer than 3",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "`WITH TIES`, sıralama değerinde **üçüncü satırla eşit** olan bütün satırları da getiriyor.\n\nÜç ürünün fiyatı 1000, 900, 800 ise sonuç üç satır. Ama 1000, 900, 800, 800 ise dördüncü de geliyor: üçüncüyle aynı fiyatta.\n\n`WITH TIES` yalnızca `ORDER BY` varken çalışıyor — neyle eşitlik aranacağını o belirliyor.",
+        "en": "`WITH TIES` also brings back every row that **ties with the third** on the sorting value.\n\nIf three products cost 1000, 900 and 800, the result is three rows. But with 1000, 900, 800, 800 the fourth comes too: it has the same price as the third.\n\n`WITH TIES` only works when there is an `ORDER BY` — that is what defines what the tie is on."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 2,
+      "text": {
+        "tr": "`SELECT DISTINCT kategori, ad FROM urunler;` sekiz satırlık bir tabloda kaç satır döndürür?",
+        "en": "On an eight-row table, how many rows does `SELECT DISTINCT kategori, ad FROM urunler;` return?"
+      },
+      "options": {
+        "tr": [
+          "Kategori sayısı kadar",
+          "Her zaman 1",
+          "Sekiz — her (kategori, ad) çifti benzersiz olduğu için",
+          "Hata verir"
+        ],
+        "en": [
+          "As many as there are categories",
+          "Always 1",
+          "Eight — because every (kategori, ad) pair is unique",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "**`DISTINCT` tek bir sütuna değil, seçilen satırın tamamına bakıyor.**\n\nHer ürünün adı farklı olduğu için `(kategori, ad)` çiftlerinin hepsi benzersiz; elenecek bir tekrar yok.\n\nBu en sık yanlış anlaşılan yer: \"kategorileri tekilleştireyim\" diye yazılıyor ama hiçbir şey elenmiyor. Tek bir sütunun benzersiz değerlerini istiyorsan **yalnızca o sütunu** seç.",
+        "en": "**`DISTINCT` looks at the whole selected row, not at one column.**\n\nBecause every product name differs, every `(kategori, ad)` pair is unique; there is nothing to remove.\n\nThis is the most misunderstood part: it gets written meaning \"deduplicate the categories\" and removes nothing. If you want the distinct values of one column, select **only that column**."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "SQL Server'da artan sıralamada `NULL` değerler nereye düşer?",
+        "en": "In ascending order on SQL Server, where do `NULL` values land?"
+      },
+      "options": {
+        "tr": [
+          "Başa — NULL en küçük sayılıyor",
+          "Sona",
+          "Ortaya",
+          "Sonuçtan çıkarılır"
+        ],
+        "en": [
+          "First — NULL counts as the smallest",
+          "Last",
+          "In the middle",
+          "They are removed from the result"
+        ]
+      },
+      "explanation": {
+        "tr": "SQL Server `NULL`'u en küçük değer sayıyor: `ASC` ile başta, `DESC` ile sonda geliyor.\n\n**Bu davranış veritabanları arasında değişiyor.** PostgreSQL varsayılan olarak tersini yapıyor ve `NULLS FIRST` / `NULLS LAST` yazılmasına izin veriyor; SQL Server'da böyle bir ek yok.\n\nSıralanan sütunda `NULL` olabiliyorsa nereye düştüğünü kontrol et.",
+        "en": "SQL Server treats `NULL` as the smallest value: first with `ASC`, last with `DESC`.\n\n**This differs between databases.** PostgreSQL does the opposite by default and lets you write `NULLS FIRST` / `NULLS LAST`; SQL Server has no such clause.\n\nIf the sorted column can hold `NULL`, check where it lands."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 1,
+      "text": {
+        "tr": "Anahtar kelimelerin doğru sırası hangisi?",
+        "en": "Which is the correct order of the keywords?"
+      },
+      "options": {
+        "tr": [
+          "SELECT ... ORDER BY ... FROM ... WHERE",
+          "SELECT ... FROM ... WHERE ... ORDER BY",
+          "FROM ... SELECT ... WHERE ... ORDER BY",
+          "Sıra önemli değil"
+        ],
+        "en": [
+          "SELECT ... ORDER BY ... FROM ... WHERE",
+          "SELECT ... FROM ... WHERE ... ORDER BY",
+          "FROM ... SELECT ... WHERE ... ORDER BY",
+          "The order does not matter"
+        ]
+      },
+      "explanation": {
+        "tr": "Yazılış sırası **sabit** ve `ORDER BY` her zaman en sonda.\n\n```sql\nSELECT   [TOP n] [DISTINCT] sütunlar\nFROM     tablo\nWHERE    koşul\nORDER BY sütun;\n```\n\nDikkat: bu **yazılış** sırası. Sunucunun **işleme** sırası farklı (`FROM` → `WHERE` → `SELECT` → `ORDER BY`) ve takma adların nerede kullanılabildiğini o belirliyor.",
+        "en": "The written order is **fixed** and `ORDER BY` always comes last.\n\n```sql\nSELECT   [TOP n] [DISTINCT] columns\nFROM     table\nWHERE    condition\nORDER BY column;\n```\n\nNote: that is the **written** order. The server's **processing** order is different (`FROM` → `WHERE` → `SELECT` → `ORDER BY`), and that is what decides where aliases can be used."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 2,
+      "text": {
+        "tr": "`SELECT DISTINCT kategori FROM urunler ORDER BY kategori;` sorgusunda `ORDER BY` neden gerekiyor?",
+        "en": "Why is `ORDER BY` needed in `SELECT DISTINCT kategori FROM urunler ORDER BY kategori;`?"
+      },
+      "options": {
+        "tr": [
+          "DISTINCT olmadan çalışmaz",
+          "Tekrarları elemek için",
+          "DISTINCT sıralama yapmıyor; alfabetik sıra isteniyorsa ayrıca yazılması gerekiyor",
+          "Gerekmiyor, DISTINCT zaten sıralıyor"
+        ],
+        "en": [
+          "It does not work without DISTINCT",
+          "To remove the duplicates",
+          "DISTINCT does not sort; alphabetical order has to be asked for separately",
+          "It is not needed; DISTINCT already sorts"
+        ]
+      },
+      "explanation": {
+        "tr": "İkisi ayrı iş: `DISTINCT` **eliyor**, `ORDER BY` **sıralıyor**.\n\n`DISTINCT` sonucu sıralı verebiliyor — çünkü tekrarları elerken sunucu çoğu zaman sıralama yapıyor — ama bu bir **garanti değil**. Yan etkiye güvenilmez.\n\nAynı tuzağın başka bir yüzü: \"zaten sıralı geliyordu\".",
+        "en": "They are two different jobs: `DISTINCT` **removes**, `ORDER BY` **sorts**.\n\n`DISTINCT` can happen to return a sorted result — the server often sorts while removing duplicates — but that is **not a guarantee**. Never rely on a side effect.\n\nIt is another face of the same trap: \"it came back sorted anyway\"."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 3,
+      "text": {
+        "tr": "Sıralanan sütunun `SELECT` listesinde olması zorunlu mu?",
+        "en": "Does the sorted column have to be in the `SELECT` list?"
+      },
+      "options": {
+        "tr": [
+          "Evet, her zaman",
+          "Evet, yalnızca DESC kullanılıyorsa",
+          "Evet, yalnızca DISTINCT varsa",
+          "Hayır — görünmeyen bir sütuna göre de sıralanabiliyor"
+        ],
+        "en": [
+          "Yes, always",
+          "Yes, but only with DESC",
+          "Yes, but only with DISTINCT",
+          "No — you can sort on a column that is not shown"
+        ]
+      },
+      "explanation": {
+        "tr": "`SELECT ad FROM urunler ORDER BY fiyat DESC;` çalışıyor: fiyat sonuçta görünmüyor ama sıralamayı o belirliyor.\n\nBu sık işe yarıyor — \"en pahalıdan ucuza ürün adlarını ver, fiyatları gösterme\".\n\n**Bir istisna var:** `DISTINCT` kullanıldığında sıralanan sütunun `SELECT` listesinde olması gerekiyor. Sebebi mantıklı: tekilleştirmeden sonra o sütunun hangi değeri kullanılacağı belirsiz kalıyor.",
+        "en": "`SELECT ad FROM urunler ORDER BY fiyat DESC;` works: the price is not shown, but it decides the order.\n\nThis is often useful — \"give me the product names from most to least expensive, without the prices\".\n\n**There is one exception:** with `DISTINCT`, the sorted column must be in the `SELECT` list. The reason makes sense: after deduplicating, it is undefined which value of that column would be used."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT TOP 10 PERCENT ad FROM urunler ORDER BY fiyat DESC;` ne getirir?",
+        "en": "What does `SELECT TOP 10 PERCENT ad FROM urunler ORDER BY fiyat DESC;` return?"
+      },
+      "options": {
+        "tr": [
+          "Fiyatı en yüksek %10'luk dilimdeki ürünleri",
+          "Satır sayısının onda birini, en pahalıdan başlayarak",
+          "Fiyatı 10'dan büyük ürünleri",
+          "İlk 10 ürünü"
+        ],
+        "en": [
+          "The products in the top 10% price bracket",
+          "A tenth of the row count, starting from the most expensive",
+          "Products priced above 10",
+          "The first 10 products"
+        ]
+      },
+      "explanation": {
+        "tr": "`PERCENT` **satır sayısının** yüzdesini alıyor, değerin yüzdesini değil.\n\nSekiz satırlık bir tabloda `TOP 10 PERCENT` 0,8 satır ediyor; SQL Server yukarı yuvarlıyor ve **bir** satır dönüyor.\n\n\"Fiyatı en yüksek %10'luk dilim\" bambaşka bir hesap ve bunu `PERCENT` ile yapamıyorsun.",
+        "en": "`PERCENT` takes a percentage of the **row count**, not of the value.\n\nOn an eight-row table, `TOP 10 PERCENT` is 0.8 rows; SQL Server rounds up and **one** row comes back.\n\n\"The top 10% price bracket\" is a completely different calculation, and `PERCENT` will not do it."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Bir raporun sırası aylar sonra kendiliğinden değişti. En olası sebep nedir?",
+        "en": "A report's ordering changed on its own months later. What is the most likely cause?"
+      },
+      "options": {
+        "tr": [
+          "Sorguda ORDER BY yoktu ve sunucunun okuma yolu değişti",
+          "Veritabanı bozuldu",
+          "SQL Server sürümü sıralamayı tersine çevirdi",
+          "ORDER BY zamanla etkisini yitiriyor"
+        ],
+        "en": [
+          "The query had no ORDER BY and the server's read path changed",
+          "The database is corrupt",
+          "A SQL Server version reversed the sort",
+          "ORDER BY loses its effect over time"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu, bölümün en pahalı hatası ve tam olarak böyle ortaya çıkıyor: sorgu değişmiyor, **sunucunun tercihi** değişiyor.\n\nTablo büyüyünce, yeni bir indeks eklenince ya da sunucu güncellenince okuma yolu değişiyor ve `ORDER BY` yazılmamış bir sorgunun sırası da değişiyor.\n\nGeliştirmede doğru görünmesi hiçbir şey ifade etmiyor; o sıra hiç garanti edilmemişti.",
+        "en": "This is the expensive mistake of the section, and it surfaces exactly like this: the query does not change, **the server's choice** does.\n\nWhen the table grows, a new index appears, or the server is updated, the read path changes — and so does the order of a query with no `ORDER BY`.\n\nThat it looked right in development means nothing; that order was never guaranteed."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "En ucuz ürünü bulmak için hangisi doğru?",
+        "en": "Which of these finds the cheapest product?"
+      },
+      "options": {
+        "tr": [
+          "`SELECT TOP 1 ad FROM urunler;`",
+          "`SELECT ad FROM urunler ORDER BY fiyat DESC;`",
+          "`SELECT TOP 1 ad FROM urunler ORDER BY fiyat;`",
+          "`SELECT DISTINCT ad FROM urunler ORDER BY fiyat;`"
+        ],
+        "en": [
+          "`SELECT TOP 1 ad FROM urunler;`",
+          "`SELECT ad FROM urunler ORDER BY fiyat DESC;`",
+          "`SELECT TOP 1 ad FROM urunler ORDER BY fiyat;`",
+          "`SELECT DISTINCT ad FROM urunler ORDER BY fiyat;`"
+        ]
+      },
+      "explanation": {
+        "tr": "İki parça gerekiyor: **artan** sıralama (en ucuz başa gelsin) ve `TOP 1`.\n\n- İlk seçenekte sıralama yok: rastgele bir ürün.\n- İkincisinde `DESC` var ve `TOP` yok: bütün ürünler, en pahalıdan başlayarak.\n- Sonuncusunda `TOP` yok: bütün ürünler sıralı olarak geliyor.\n\nVarsayılan `ASC` olduğu için doğru seçenekte yön yazmaya gerek kalmıyor.",
+        "en": "Two pieces are needed: an **ascending** sort (so the cheapest is first) and `TOP 1`.\n\n- The first has no ordering: a product at random.\n- The second has `DESC` and no `TOP`: every product, most expensive first.\n- The last has no `TOP`: every product, in order.\n\nSince `ASC` is the default, the correct option does not need to state the direction."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 3,
+      "text": {
+        "tr": "`ORDER BY` ile `DISTINCT` birlikte kullanıldığında hangi kısıt geliyor?",
+        "en": "What restriction appears when `ORDER BY` is used together with `DISTINCT`?"
+      },
+      "options": {
+        "tr": [
+          "ORDER BY yalnızca ASC olabilir",
+          "DISTINCT tek sütunla sınırlanır",
+          "İkisi birlikte kullanılamaz",
+          "Sıralanan sütunun SELECT listesinde olması gerekiyor"
+        ],
+        "en": [
+          "ORDER BY can only be ASC",
+          "DISTINCT is limited to one column",
+          "The two cannot be used together",
+          "The sorted column has to be in the SELECT list"
+        ]
+      },
+      "explanation": {
+        "tr": "`DISTINCT` olmadan görünmeyen bir sütuna göre sıralayabiliyorsun. `DISTINCT` varken bu mümkün değil.\n\nSebebi mantıklı: tekilleştirme birden çok satırı tek satıra indiriyor. O satır için sıralanacak değerin hangisi olduğu belirsiz kalıyor.\n\nSQL Server bunu hata olarak söylüyor: `ORDER BY items must appear in the select list if SELECT DISTINCT is specified`.",
+        "en": "Without `DISTINCT` you can sort on a column that is not shown. With `DISTINCT` you cannot.\n\nThe reason makes sense: deduplicating collapses several rows into one, and it becomes undefined which of their values the sort should use.\n\nSQL Server says so explicitly: `ORDER BY items must appear in the select list if SELECT DISTINCT is specified`."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 1,
+      "text": {
+        "tr": "`WHERE` ve `ORDER BY` takma ad konusunda neden farklı davranıyor?",
+        "en": "Why do `WHERE` and `ORDER BY` behave differently about aliases?"
+      },
+      "options": {
+        "tr": [
+          "ORDER BY daha yeni bir özellik",
+          "WHERE, SELECT'ten önce çalışıyor; ORDER BY sonra",
+          "WHERE yalnızca sayılarla çalışıyor",
+          "Takma adlar yalnızca sıralamada geçerli sayılıyor"
+        ],
+        "en": [
+          "ORDER BY is a newer feature",
+          "WHERE runs before SELECT; ORDER BY runs after",
+          "WHERE only works with numbers",
+          "Aliases are only considered valid in sorting"
+        ]
+      },
+      "explanation": {
+        "tr": "Sunucunun işleme sırası: `FROM` → `WHERE` → `SELECT` → `ORDER BY`.\n\nTakma ad `SELECT` çalışırken oluşuyor. `WHERE` ondan **önce** çalıştığı için o ad henüz yok; `ORDER BY` **sonra** çalıştığı için hazır.\n\nBu iki bölümün en çok işe yarayan ayrıntısı: yazılış sırası ile çalışma sırası aynı şey değil.",
+        "en": "The server's processing order is `FROM` → `WHERE` → `SELECT` → `ORDER BY`.\n\nThe alias comes into existence while `SELECT` runs. `WHERE` runs **before** it, so the name does not exist yet; `ORDER BY` runs **after**, so it is ready.\n\nThis is the most useful detail across these two sections: the order you write is not the order things run."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Sıralamalı bir sorgunun doğruluğunu en hızlı nasıl kontrol edersin?",
+        "en": "What is the fastest way to check that a sorted query is right?"
+      },
+      "options": {
+        "tr": [
+          "Satır sayısına, ilk satıra ve son satıra bakarak",
+          "Sorguyu iki kez çalıştırarak",
+          "Sunucuyu yeniden başlatarak",
+          "Sütun sayısını sayarak"
+        ],
+        "en": [
+          "By looking at the row count, the first row and the last row",
+          "By running the query twice",
+          "By restarting the server",
+          "By counting the columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Üç bakış yeter:\n\n1. **Kaç satır geldi?** Beklediğin sayı mı?\n2. **İlk satır doğru mu?** En pahalıyı istediysen gerçekten en pahalı mı?\n3. **Son satır doğru mu?** Sıralamanın yönünü en hızlı bu gösteriyor.\n\nÜçü de tutuyorsa sıralama neredeyse kesin doğru. Sunucu sana bunu söylemeyeceği için alışkanlık hâline getirmek gerekiyor.",
+        "en": "Three glances are enough:\n\n1. **How many rows came back?** Is it the number you expected?\n2. **Is the first row right?** If you asked for the most expensive, is it really the most expensive?\n3. **Is the last row right?** This shows the direction of the sort fastest.\n\nIf all three hold, the ordering is almost certainly correct. The server will not tell you, so it has to become a habit."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "PostgreSQL ve MySQL'de `TOP`'un karşılığı nedir?",
+        "en": "What is the equivalent of `TOP` in PostgreSQL and MySQL?"
+      },
+      "options": {
+        "tr": [
+          "`FIRST`",
+          "`HEAD`",
+          "`LIMIT`",
+          "Karşılığı yok"
+        ],
+        "en": [
+          "`FIRST`",
+          "`HEAD`",
+          "`LIMIT`",
+          "There is no equivalent"
+        ]
+      },
+      "explanation": {
+        "tr": "`LIMIT` aynı işi yapıyor ama **sorgunun sonuna** yazılıyor:\n\n```sql\nSELECT ad FROM urunler ORDER BY fiyat DESC LIMIT 3;\n```\n\nSQL Server'ın `TOP`'u ise `SELECT`'ten hemen sonra geliyor.\n\nSQL Server 2012'den beri `OFFSET ... FETCH` de var; bu standart yazım ve sayfalama yaparken tercih ediliyor.",
+        "en": "`LIMIT` does the same job but goes **at the end of the query**:\n\n```sql\nSELECT ad FROM urunler ORDER BY fiyat DESC LIMIT 3;\n```\n\nSQL Server's `TOP` comes right after `SELECT` instead.\n\nSince SQL Server 2012 there is also `OFFSET ... FETCH`; that is the standard syntax and it is preferred when paging."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT ad FROM urunler ORDER BY fiyat DESC;` sorgusunda fiyat sütunu sonuçta görünür mü?",
+        "en": "In `SELECT ad FROM urunler ORDER BY fiyat DESC;`, does the fiyat column appear in the result?"
+      },
+      "options": {
+        "tr": [
+          "Evet, ORDER BY sütunu sonuca ekliyor",
+          "Hayır — sonuçta yalnızca SELECT'te yazılan sütunlar oluyor",
+          "Yalnızca DESC kullanıldığında",
+          "Hata verir"
+        ],
+        "en": [
+          "Yes, ORDER BY adds the column to the result",
+          "No — the result only has the columns written in SELECT",
+          "Only when DESC is used",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Sonucun sütunlarını **yalnızca `SELECT`** belirliyor. `ORDER BY` sıralamayı belirliyor, sütun eklemiyor.\n\nBu ayrım işe yarıyor: \"en pahalıdan ucuza ürün adlarını ver ama fiyatları gösterme\" böyle yazılıyor.\n\nTek istisna `DISTINCT`: onunla birlikte sıralanan sütunun `SELECT` listesinde olması gerekiyor.",
+        "en": "Only `SELECT` decides the columns of the result. `ORDER BY` decides the ordering; it does not add columns.\n\nThe distinction is useful: \"give me the product names from most to least expensive, without showing the prices\" is written exactly this way.\n\nThe one exception is `DISTINCT`: with it, the sorted column must be in the `SELECT` list."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "Aşağıdakilerden hangisi sözdizimi hatası verir?",
+        "en": "Which of these is a syntax error?"
+      },
+      "options": {
+        "tr": [
+          "`SELECT TOP 3 ad FROM urunler ORDER BY fiyat;`",
+          "`SELECT DISTINCT kategori FROM urunler;`",
+          "`SELECT ad FROM urunler WHERE fiyat > 100 ORDER BY ad;`",
+          "`SELECT ad FROM urunler ORDER BY ad WHERE fiyat > 100;`"
+        ],
+        "en": [
+          "`SELECT TOP 3 ad FROM urunler ORDER BY fiyat;`",
+          "`SELECT DISTINCT kategori FROM urunler;`",
+          "`SELECT ad FROM urunler WHERE fiyat > 100 ORDER BY ad;`",
+          "`SELECT ad FROM urunler ORDER BY ad WHERE fiyat > 100;`"
+        ]
+      },
+      "explanation": {
+        "tr": "`ORDER BY` her zaman **en sonda**; ondan sonra `WHERE` gelemiyor.\n\nYazılış sırası sabit:\n\n```sql\nSELECT ... FROM ... WHERE ... ORDER BY ...\n```\n\nDiğer üç sorgu bu sıraya uyuyor ve sorunsuz çalışıyor.",
+        "en": "`ORDER BY` always comes **last**; nothing, including `WHERE`, can follow it.\n\nThe written order is fixed:\n\n```sql\nSELECT ... FROM ... WHERE ... ORDER BY ...\n```\n\nThe other three follow that order and run fine."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "`DISTINCT` nereye yazılıyor?",
+        "en": "Where is `DISTINCT` written?"
+      },
+      "options": {
+        "tr": [
+          "`SELECT`'ten hemen sonra, sütunlardan önce",
+          "Sütunlardan sonra",
+          "`FROM`'dan sonra",
+          "`ORDER BY`'ın yanına"
+        ],
+        "en": [
+          "Right after `SELECT`, before the columns",
+          "After the columns",
+          "After `FROM`",
+          "Next to `ORDER BY`"
+        ]
+      },
+      "explanation": {
+        "tr": "`SELECT DISTINCT kategori FROM urunler;` biçiminde.\n\nİkisi birlikte kullanılırsa **`DISTINCT` önce, `TOP` sonra** yazılıyor:\n\n```sql\nSELECT DISTINCT TOP 3 kategori FROM urunler ORDER BY kategori;\n```\n\nTers yazmak (`SELECT TOP 3 DISTINCT ...`) sözdizimi hatası veriyor.",
+        "en": "As `SELECT DISTINCT kategori FROM urunler;`.\n\nWhen both are used, **`DISTINCT` comes first and `TOP` second**:\n\n```sql\nSELECT DISTINCT TOP 3 kategori FROM urunler ORDER BY kategori;\n```\n\nThe other way round (`SELECT TOP 3 DISTINCT ...`) is a syntax error."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 2,
+      "text": {
+        "tr": "Bir sorguda hem `WHERE` hem `ORDER BY` varsa hangisi önce çalışır?",
+        "en": "When a query has both `WHERE` and `ORDER BY`, which runs first?"
+      },
+      "options": {
+        "tr": [
+          "ORDER BY, çünkü sıralama önceliklidir",
+          "Aynı anda çalışırlar",
+          "WHERE — önce satırlar elenir, sonra kalanlar sıralanır",
+          "Sunucunun kararına bağlı"
+        ],
+        "en": [
+          "ORDER BY, because sorting takes priority",
+          "They run at the same time",
+          "WHERE — the rows are filtered first, then what is left gets sorted",
+          "It depends on the server"
+        ]
+      },
+      "explanation": {
+        "tr": "Önce süzülüyor, sonra sıralanıyor. Bu hem mantıklı hem hızlı: elenecek satırları sıralamak boşa iş olurdu.\n\nSonucu da etkiliyor: `TOP 3` yazdığında \"koşulu sağlayanların en iyi üçü\" geliyor, \"ilk üçün koşulu sağlayanları\" değil.\n\nİşleme sırası: `FROM` → `WHERE` → `SELECT` → `ORDER BY`.",
+        "en": "Filtering happens first, then sorting. This is both logical and fast: sorting rows that are about to be discarded would be wasted work.\n\nIt affects the result too: with `TOP 3` you get \"the best three of those that matched\", not \"the ones among the first three that matched\".\n\nProcessing order: `FROM` → `WHERE` → `SELECT` → `ORDER BY`."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 1,
+      "text": {
+        "tr": "Sekiz satırlık bir tabloda `SELECT DISTINCT kategori FROM urunler;` üç satır döndürdü. Bu ne demek?",
+        "en": "On an eight-row table, `SELECT DISTINCT kategori FROM urunler;` returned three rows. What does that mean?"
+      },
+      "options": {
+        "tr": [
+          "Beş ürün silinmiş",
+          "Tabloda üç farklı kategori değeri var",
+          "Üç ürün var",
+          "Sorgu yanlış yazılmış"
+        ],
+        "en": [
+          "Five products were deleted",
+          "There are three different category values in the table",
+          "There are three products",
+          "The query is written wrong"
+        ]
+      },
+      "explanation": {
+        "tr": "`DISTINCT` satırları silmiyor, **sonuçtaki tekrarları** eliyor. Tabloda hâlâ sekiz ürün var.\n\nÜç satır dönmesi, sekiz ürünün üç farklı kategoriye dağıldığı anlamına geliyor.\n\nHangi kategoride kaç ürün olduğunu öğrenmek ayrı bir soru; onun cevabı `GROUP BY` ve bir sonraki bölümün konusu.",
+        "en": "`DISTINCT` does not delete rows; it removes **duplicates from the result**. There are still eight products in the table.\n\nThree rows means the eight products fall into three different categories.\n\nHow many products are in each category is a separate question; the answer is `GROUP BY`, and that is the next section."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 3,
+      "text": {
+        "tr": "`ORDER BY` yazmanın bir maliyeti var mı?",
+        "en": "Does writing `ORDER BY` have a cost?"
+      },
+      "options": {
+        "tr": [
+          "Hayır, tamamen bedava",
+          "Evet, sonucun doğruluğunu azaltıyor",
+          "Evet, satır sayısını değiştiriyor",
+          "Evet — sunucunun sıralama yapması gerekiyor, büyük tablolarda bu iş yük getiriyor"
+        ],
+        "en": [
+          "No, it is completely free",
+          "Yes, it makes the result less accurate",
+          "Yes, it changes the row count",
+          "Yes — the server has to sort, and on large tables that is real work"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıralama bedava değil: sunucunun satırları diziye alıp sıralaması gerekiyor ve büyük sonuçlarda bu zaman ve bellek harcıyor.\n\nSıralanan sütunda uygun bir **indeks** varsa maliyet neredeyse sıfıra iniyor, çünkü veri zaten sıralı duruyor. İndeksler ileri seviyenin konusu.\n\nAma bu, `ORDER BY` yazmaktan kaçınmak için bir sebep değil: yanlış sıralı bir sonucun maliyeti her zaman daha yüksek.",
+        "en": "Sorting is not free: the server has to collect the rows and sort them, and on large results that costs time and memory.\n\nIf there is a suitable **index** on the sorted column the cost drops to almost nothing, because the data is already in order. Indexes are an advanced topic.\n\nBut this is no reason to avoid `ORDER BY`: a wrongly ordered result always costs more."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 0,
+      "text": {
+        "tr": "En pahalı ürünle aynı fiyatta başka ürünler de varsa hepsini getirmek istiyorsun. Hangisi doğru?",
+        "en": "You want every product tied at the highest price, not just one. Which is correct?"
+      },
+      "options": {
+        "tr": [
+          "`SELECT TOP 1 WITH TIES ad FROM urunler ORDER BY fiyat DESC;`",
+          "`SELECT TOP 1 ad FROM urunler ORDER BY fiyat DESC;`",
+          "`SELECT DISTINCT TOP 1 ad FROM urunler;`",
+          "`SELECT ad FROM urunler ORDER BY fiyat DESC;`"
+        ],
+        "en": [
+          "`SELECT TOP 1 WITH TIES ad FROM urunler ORDER BY fiyat DESC;`",
+          "`SELECT TOP 1 ad FROM urunler ORDER BY fiyat DESC;`",
+          "`SELECT DISTINCT TOP 1 ad FROM urunler;`",
+          "`SELECT ad FROM urunler ORDER BY fiyat DESC;`"
+        ]
+      },
+      "explanation": {
+        "tr": "`WITH TIES` tam bu iş için var: son satırla **sıralama değerinde eşit** olan bütün satırları da getiriyor.\n\n`TOP 1` tek başına yalnızca bir satır veriyor ve eşitlik varsa hangisinin geleceği belirsiz kalıyor.\n\nSon seçenek bütün ürünleri getiriyor, yalnızca en pahalıları değil.",
+        "en": "`WITH TIES` exists for exactly this: it also brings back every row **tied on the sorting value** with the last one.\n\n`TOP 1` on its own returns a single row, and when there is a tie it is undefined which one you get.\n\nThe last option returns every product, not only the most expensive ones."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 2,
+      "text": {
+        "tr": "Sonuç beklediğinden bir satır fazla geldi ve sıralama doğru görünüyor. İlk nereye bakarsın?",
+        "en": "The result has one row more than you expected and the ordering looks right. Where do you look first?"
+      },
+      "options": {
+        "tr": [
+          "ORDER BY yönüne",
+          "Sütun sırasına",
+          "WHERE koşuluna — sınır değeri (`>` mi `>=` mi) dahil edilmiş olabilir",
+          "TOP sayısına"
+        ],
+        "en": [
+          "The ORDER BY direction",
+          "The column order",
+          "The WHERE condition — the boundary value may be included (`>` versus `>=`)",
+          "The TOP count"
+        ]
+      },
+      "explanation": {
+        "tr": "Satır sayısı **süzmeye** bağlı, sıralamaya değil. `ORDER BY` satır eklemiyor ya da çıkarmıyor.\n\nBir satır fazlaysa en olası sebep sınır değeri: `fiyat > 1000` ile `fiyat >= 1000` arasında tam 1000 olan satır var.\n\nİkinci ihtimal `AND`/`OR` parantezi, üçüncüsü `WITH TIES`.",
+        "en": "The row count depends on **filtering**, not on sorting. `ORDER BY` neither adds nor removes rows.\n\nWith one row too many the likeliest cause is the boundary: between `fiyat > 1000` and `fiyat >= 1000` sits the row that is exactly 1000.\n\nThe second possibility is `AND`/`OR` parentheses, the third is `WITH TIES`."
+      }
+    }
+  ]
+}

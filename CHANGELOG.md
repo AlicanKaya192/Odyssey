@@ -43,13 +43,18 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   olduğunu ve ne kadar yer kapladığını gösteriyor; tek düğmeyle hepsini
   silebiliyorsunuz. İlerlemeniz etkilenmiyor, veritabanı bir sonraki
   çalıştırmada kendiliğinden yeniden kuruluyor.
+- **SQL patikası, üçüncü bölüm: "Sıralama ve Sınırlama".** `ORDER BY`,
+  `TOP` ve `DISTINCT`; sunucunun neden hiçbir sıra garantisi vermediği,
+  `TOP`'un `ORDER BY` olmadan neden anlamsız olduğu ve `DISTINCT`'in tek
+  bir sütuna değil satırın tamamına baktığı. İki not, yirmi dokuz soruluk
+  sınav, beş alıştırma ve "Sıra Sende" rozeti.
 - **"Tablolar" penceresi.** SQL alıştırmalarında, sorgu yazarken
   veritabanında ne olduğunu görmek için. Tablolar sekmeli duruyor;
   istediğin tabloyu ayrı bir pencereye taşıyıp iki tabloya aynı anda
   bakabiliyorsun. Kendi yarattığın tablo da listede çıkıyor.
-- **İki yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
-  çalıştırdığında, "İlk Süzgeç" SELECT ve WHERE bölümünü bitirdiğinde
-  geliyor.
+- **Üç yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
+  çalıştırdığında, "İlk Süzgeç" SELECT ve WHERE bölümünü, "Sıra Sende"
+  Sıralama ve Sınırlama bölümünü bitirdiğinde geliyor.
 
 ### Düzeltildi
 - **Ders notlarındaki dış bağlantılar açılmıyordu.** Python kurulum

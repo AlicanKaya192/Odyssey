@@ -1,0 +1,2 @@
+-- How many different categories are there? Show each one once,
+-- in alphabetical order.

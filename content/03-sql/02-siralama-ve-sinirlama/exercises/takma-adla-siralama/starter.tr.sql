@@ -1,0 +1,3 @@
+-- Stokta bulunan urunleri getir.
+-- ad sutunu urun, fiyat sutunu tutar basligiyla gelsin
+-- ve sonuc tutara gore buyukten kucuge siralansin.

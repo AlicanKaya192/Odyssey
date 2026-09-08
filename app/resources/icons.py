@@ -118,6 +118,11 @@ PATHS: dict[str, str] = {
         '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'
     ),
     "chevron-right": '<path d="m9 18 6-6-6-6"/>',
+    # Yukari ve asagi ok: siralama. `ORDER BY` rozetinin simgesi.
+    "sort": (
+        '<path d="m3 8 4-4 4 4"/><path d="M7 4v16"/>'
+        '<path d="m21 16-4 4-4-4"/><path d="M17 20V4"/>'
+    ),
     # Huni: SQL'de `WHERE` satirlari suzuyor, rozet de onu anlatiyor.
     "filter": '<path d="M3 4h18l-7 8.5V19l-4 2v-8.5L3 4z"/>',
     "link": (

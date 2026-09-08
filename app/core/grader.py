@@ -42,6 +42,12 @@ def _hint_or(language: LanguageManager, check: CheckResult, fallback_key: str) -
 _TABLO_SINIRI = 20
 
 
+def _same_set(expected: list, actual: list) -> bool:
+    """Aynı satırlar mı — sıra dışında."""
+    anahtar = lambda satir: [str(hucre) for hucre in satir]  # noqa: E731
+    return sorted(map(anahtar, expected)) == sorted(map(anahtar, actual))
+
+
 def _fit(columns: list, rows: list) -> list:
     """Başlıklar satırlarla aynı genişlikteyse döndürür, değilse boş liste."""
     genislik = max((len(satir) for satir in rows), default=0)
@@ -311,6 +317,11 @@ def describe_check(check: CheckResult, language: LanguageManager) -> Feedback:
             mesaj = language.t(
                 "check.rows.count", expected=len(beklenen), actual=len(olan)
             )
+        elif detail.get("ordered") and _same_set(beklenen, olan):
+            # Satırların kendisi doğru, yalnızca sırası değil. Sıralama
+            # anlatan bir alıştırmada söylenecek asıl şey bu; "satırlar
+            # aynı değil" demek kişiyi sorguyu baştan yazmaya itiyor.
+            mesaj = language.t("check.rows.order")
         else:
             mesaj = language.t("check.rows.failed")
         # Başlıklar sonuçtan geliyor; beklenen tablonun sütun sayısı

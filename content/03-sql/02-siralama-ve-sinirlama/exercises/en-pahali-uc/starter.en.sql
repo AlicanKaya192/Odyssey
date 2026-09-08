@@ -1,0 +1,1 @@
+-- Bring back the name and price of the three most expensive products.

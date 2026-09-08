@@ -1,0 +1,1 @@
+-- En pahali uc urunun adini ve fiyatini getir.

@@ -1,0 +1,3 @@
+-- Bring back the products that are in stock.
+-- Return ad as urun and fiyat as tutar, and sort the result
+-- by tutar from largest to smallest.

@@ -1,0 +1,2 @@
+-- Tabloda kac farkli kategori var? Her kategori bir kez
+-- gorunsun, alfabetik sirada.

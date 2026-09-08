@@ -62,6 +62,7 @@ PIPELINE_SECTION = (ML_CHAPTER, "11-pipeline-ve-model-kaydetme")
 ML_REVIEW_SECTION = (ML_CHAPTER, "12-genel-tekrar")
 SQL_SETUP_SECTION = (SQL_CHAPTER, "00-kurulum")
 SQL_SELECT_SECTION = (SQL_CHAPTER, "01-select-ve-where")
+SQL_ORDER_SECTION = (SQL_CHAPTER, "02-siralama-ve-sinirlama")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 DATA_SECTION_COUNT = 10
@@ -133,6 +134,7 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "model-start": modul_basina.get(ML_CHAPTER, 0) >= 1,
         "server-up": SQL_SETUP_SECTION in bitenler,
         "first-filter": SQL_SELECT_SECTION in bitenler,
+        "in-order": SQL_ORDER_SECTION in bitenler,
         "first-model": FIRST_MODEL_SECTION in bitenler,
         "error-reader": METRICS_SECTION in bitenler,
         "class-divider": CLASSIFY_SECTION in bitenler,
