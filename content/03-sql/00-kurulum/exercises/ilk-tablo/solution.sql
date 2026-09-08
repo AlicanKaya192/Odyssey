@@ -1,1 +1,1 @@
-SELECT * FROM sehirler;
+SELECT * FROM cities;

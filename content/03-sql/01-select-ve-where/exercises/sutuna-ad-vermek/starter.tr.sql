@@ -1,1 +1,1 @@
--- ad sutunu urun, fiyat sutunu tutar basligiyla gelsin.
+-- name sutunu product, price sutunu amount basligiyla gelsin.

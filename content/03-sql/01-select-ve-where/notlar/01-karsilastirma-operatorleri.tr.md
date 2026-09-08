@@ -6,12 +6,12 @@ görmek işe yarıyor.
 
 | Operatör | Anlamı | Örnek |
 |---|---|---|
-| `=` | eşit | `fiyat = 450` |
-| `<>` | eşit değil | `kategori <> 'Ekran'` |
-| `<` | küçük | `stok < 5` |
-| `>` | büyük | `fiyat > 1000` |
-| `<=` | küçük veya eşit | `stok <= 0` |
-| `>=` | büyük veya eşit | `fiyat >= 1000` |
+| `=` | eşit | `price = 450` |
+| `<>` | eşit değil | `category <> 'Display'` |
+| `<` | küçük | `stock < 5` |
+| `>` | büyük | `price > 1000` |
+| `<=` | küçük veya eşit | `stock <= 0` |
+| `>=` | büyük veya eşit | `price >= 1000` |
 
 `!=` de çalışıyor ve `<>` ile aynı şeyi yapıyor. Standart olan `<>`;
 ekipler genelde birini seçip ona bağlı kalıyor.
@@ -32,8 +32,8 @@ ekipler genelde birini seçip ona bağlı kalıyor.
 <figure class="fig">
   <div class="anat">
     <div class="anat-row"><span class="anat-label"><code>==</code> yazmak</span><span class="anat-body">SQL'de yok. Eşitlik tek <code>=</code> ile.</span></div>
-    <div class="anat-row"><span class="anat-label">Çift tırnak</span><span class="anat-body"><code>"Ekran"</code> metin değil, <b>nesne adı</b> demek. Metin tek tırnakla yazılıyor.</span></div>
-    <div class="anat-row"><span class="anat-label">Sayıya tırnak</span><span class="anat-body"><code>fiyat &gt; '1000'</code> çalışıyor ama sunucu her satırda dönüştürme yapıyor. Sayı sayı olarak yazılır.</span></div>
+    <div class="anat-row"><span class="anat-label">Çift tırnak</span><span class="anat-body"><code>"Display"</code> metin değil, <b>nesne adı</b> demek. Metin tek tırnakla yazılıyor.</span></div>
+    <div class="anat-row"><span class="anat-label">Sayıya tırnak</span><span class="anat-body"><code>price &gt; '1000'</code> çalışıyor ama sunucu her satırda dönüştürme yapıyor. Sayı sayı olarak yazılır.</span></div>
     <div class="anat-row"><span class="anat-label">Parantezsiz AND/OR</span><span class="anat-body">İkisi bir aradaysa parantez konur, doğru çalışsa bile.</span></div>
   </div>
 </figure>
@@ -44,9 +44,9 @@ Bunlar da `WHERE` içinde kullanılıyor ama ayrı bir konu:
 
 | Operatör | Ne yapıyor |
 |---|---|
-| `BETWEEN` | iki değer arası (`fiyat BETWEEN 500 AND 2000`) |
-| `IN` | listeden biri (`kategori IN ('Ekran', 'Aksesuar')`) |
-| `LIKE` | metin deseni (`ad LIKE 'K%'`) |
+| `BETWEEN` | iki değer arası (`price BETWEEN 500 AND 2000`) |
+| `IN` | listeden biri (`category IN ('Display', 'Accessory')`) |
+| `LIKE` | metin deseni (`name LIKE 'K%'`) |
 | `IS NULL` | değer yok mu |
 
 Özellikle `IN`, bu bölümdeki uzun `OR` zincirlerinin kısa yazılışı.

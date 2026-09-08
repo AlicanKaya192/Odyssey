@@ -1,11 +1,11 @@
-`urunler` tablosundaki sekiz ürünü **fiyatı en yüksekten en düşüğe**
-sırala. Sonuçta `ad` ve `fiyat` sütunları olsun.
+`products` tablosundaki sekiz ürünü **fiyatı en yüksekten en düşüğe**
+sırala. Sonuçta `name` ve `price` sütunları olsun.
 
 ```
-ad         fiyat
----------  ---------
-Laptop     24500.00
-Masaustu   18900.00
+name     price  
+-------  -------
+Laptop   24500.0
+Desktop  18900.0
 ...
 ```
 

@@ -50,13 +50,13 @@ Son satır `NOT IN` tuzağının kaynağı.
 ## `NOT IN` tuzağı
 
 ```sql
-WHERE kod NOT IN ('A', 'B', NULL)
+WHERE code NOT IN ('A', 'B', NULL)
 ```
 
 **Hiçbir satır dönmüyor.** Sebebi:
 
 ```
-kod <> 'A' AND kod <> 'B' AND kod <> NULL
+code <> 'A' AND code <> 'B' AND code <> NULL
                               ^^^^^^^^^^^^ her zaman bilinmiyor
 ```
 
@@ -74,24 +74,24 @@ kullan.
 `NOT IN` listesinde `NULL` olmasa bile, **sütunun kendisi `NULL` olan
 satırlar düşüyor.**
 
-Tabloda on iki ürün var; üçünün `tedarikci_kod` değeri `T1`, üçünün
+Tabloda on iki ürün var; üçünün `supplier_code` değeri `T1`, üçünün
 `NULL`. Buna rağmen:
 
 ```sql
-WHERE tedarikci_kod NOT IN ('T1')   -- 9 degil, 6 satir
+WHERE supplier_code NOT IN ('T1')   -- 9 degil, 6 satir
 ```
 
 Dokuz bekliyorsun (12 − 3), altı geliyor. Kayıp üç satır `NULL` olanlar:
 `NULL <> 'T1'` karşılaştırmasının sonucu "bilinmiyor" ve `WHERE` onları
 eliyor.
 
-Aynısı `<>` için de geçerli: `WHERE tedarikci_kod <> 'T1'` de altı satır
+Aynısı `<>` için de geçerli: `WHERE supplier_code <> 'T1'` de altı satır
 veriyor.
 
 Hepsini istiyorsan açıkça yazman gerekiyor:
 
 ```sql
-WHERE (tedarikci_kod <> 'T1' OR tedarikci_kod IS NULL)
+WHERE (supplier_code <> 'T1' OR supplier_code IS NULL)
 ```
 
 Bu, "olumsuz" bir koşul yazarken her seferinde sorulacak soru:
@@ -116,7 +116,7 @@ sonda. PostgreSQL tersini yapıyor.
 
 ## İleride göreceklerin
 
-- **Toplama işlevleri `NULL`'ları atlıyor.** `AVG(fiyat)` boş hücreleri
+- **Toplama işlevleri `NULL`'ları atlıyor.** `AVG(price)` boş hücreleri
   hesaba katmıyor; `COUNT(*)` bütün satırları sayarken `COUNT(sutun)`
   yalnızca dolu olanları sayıyor.
 - **`JOIN` sonucunda `NULL` üretiliyor.** `LEFT JOIN` eşleşme bulamadığı

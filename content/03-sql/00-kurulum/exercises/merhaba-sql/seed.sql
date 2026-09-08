@@ -1,6 +1,6 @@
-CREATE TABLE kurulum (
+CREATE TABLE setup (
     id INT PRIMARY KEY,
-    durum NVARCHAR(20) NOT NULL
+    status NVARCHAR(20) NOT NULL
 );
 
-INSERT INTO kurulum (id, durum) VALUES (1, 'hazir');
+INSERT INTO setup (id, status) VALUES (1, 'ready');

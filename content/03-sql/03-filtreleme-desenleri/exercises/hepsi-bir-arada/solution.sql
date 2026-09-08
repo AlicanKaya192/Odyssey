@@ -1,6 +1,6 @@
-SELECT ad, kategori, fiyat
-FROM urunler
-WHERE kategori IN ('Aksesuar', 'Ekran')
-  AND fiyat BETWEEN 200 AND 2000
-  AND tedarikci_kod IS NOT NULL
-ORDER BY fiyat DESC;
+SELECT name, category, price
+FROM products
+WHERE category IN ('Accessory', 'Display')
+  AND price BETWEEN 200 AND 2000
+  AND supplier_code IS NOT NULL
+ORDER BY price DESC;

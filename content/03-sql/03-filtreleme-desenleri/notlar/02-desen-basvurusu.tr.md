@@ -4,13 +4,13 @@
 
 | Desen | Eşleşir | Eşleşmez |
 |---|---|---|
-| `'K%'` | Klavye, Kablo, K | Fare |
-| `'%uk'` | Kucuk, uk | ukulele |
-| `'%la%'` | Klavye, lamba, la | Fare |
-| `'F_re'` | Fare, Fire | Fre, Faare |
-| `'____'` | tam dört karakterli her şey | üç ya da beş karakterli |
+| `'M%'` | Microphone, Monitor, Mouse | Keyboard |
+| `'%top'` | Desktop, Laptop | Monitor |
+| `'%ead%'` | Headset | Mouse |
+| `'M_use'` | Mouse | Moose, House |
+| `'_____'` | Cable, Mouse — tam beş karakterli her şey | Monitor (yedi) |
 
-`%` sıfır karakterle de eşleşiyor: `'K%'` deseni tek harflik `K` metnini
+`%` sıfır karakterle de eşleşiyor: `'M%'` deseni tek harflik `M` metnini
 de buluyor.
 
 ## Köşeli parantez: SQL Server'a özgü
@@ -20,9 +20,9 @@ veritabanlarına taşınmıyor.
 
 | Desen | Anlamı |
 |---|---|
-| `'[KM]%'` | K ya da M ile başlayan |
+| `'[KM]%'` | K ya da M ile başlayan (Keyboard, Microphone, Monitor, Mouse) |
 | `'[A-F]%'` | A ile F arası bir harfle başlayan |
-| `'[^K]%'` | K ile başlamayan |
+| `'[^M]%'` | M ile başlamayan |
 
 ## Jokerin kendisini aramak
 
@@ -50,17 +50,17 @@ tablolarda en sık karşılaşılan yavaşlık sebeplerinden.
 ## IN
 
 ```sql
-WHERE kategori IN ('Ekran', 'Yazilim')
+WHERE category IN ('Display', 'Software')
 ```
 
 Şununla birebir aynı:
 
 ```sql
-WHERE kategori = 'Ekran' OR kategori = 'Yazilim'
+WHERE category = 'Display' OR category = 'Software'
 ```
 
 - Liste **boş olamaz**: `IN ()` sözdizimi hatası.
-- Liste bir **alt sorgu** da olabilir: `IN (SELECT kod FROM tedarikciler)`.
+- Liste bir **alt sorgu** da olabilir: `IN (SELECT code FROM suppliers)`.
   Bu, alt sorgular bölümünün konusu.
 - `NOT IN` ile `NULL` bir arada **her zaman boş sonuç** veriyor; ayrıntısı
   NULL notunda.
@@ -68,13 +68,13 @@ WHERE kategori = 'Ekran' OR kategori = 'Yazilim'
 ## BETWEEN
 
 ```sql
-WHERE fiyat BETWEEN 500 AND 3000
+WHERE price BETWEEN 500 AND 3000
 ```
 
 Şununla birebir aynı:
 
 ```sql
-WHERE fiyat >= 500 AND fiyat <= 3000
+WHERE price >= 500 AND price <= 3000
 ```
 
 - **İki uç da dahil.** Dışarıda bırakmak istiyorsan `BETWEEN` kullanma.

@@ -1,18 +1,18 @@
-`urunler` tablosunda bir de `tedarikci_kod` sütunu var ve **bazı ürünlerde
+`products` tablosunda bir de `supplier_code` sütunu var ve **bazı ürünlerde
 boş.**
 
-Bu sütunu boş olan ürünlerin `ad` ve `kategori` bilgisini alfabetik sırada
+Bu sütunu boş olan ürünlerin `name` ve `category` bilgisini alfabetik sırada
 getir.
 
 ```
-ad           kategori
------------  --------
-Kulaklik     Aksesuar
-Ofis Paketi  Yazilim
-Projeksiyon  Ekran
+name          category 
+------------  ---------
+Headset       Accessory
+Office Suite  Software 
+Projector     Display  
 ```
 
-**Dikkat:** `WHERE tedarikci_kod = NULL` yazarsan hiçbir satır gelmez ve
+**Dikkat:** `WHERE supplier_code = NULL` yazarsan hiçbir satır gelmez ve
 hata da almazsın. `NULL` bir değer değil, değerin yokluğu; onunla
 karşılaştırma yapılamıyor.
 

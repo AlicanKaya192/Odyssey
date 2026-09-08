@@ -1,1 +1,1 @@
-SELECT ad, fiyat FROM urunler;
+SELECT name, price FROM products;

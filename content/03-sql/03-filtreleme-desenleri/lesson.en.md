@@ -8,7 +8,7 @@ value**.
 The last one — `NULL` — is not just a tool; it is a behaviour that sets SQL
 apart from other languages. Half the section is about it.
 
-The `urunler` table has grown a little here: it now has a `tedarikci_kod`
+The `products` table has grown a little here: it now has a `supplier_code`
 column ("supplier code"), and **for some products that column is empty.**
 
 ## LIKE: a text pattern
@@ -16,15 +16,15 @@ column ("supplier code"), and **for some products that column is empty.**
 Instead of exact equality you want "starts with" or "contains":
 
 ```sql
-SELECT ad FROM urunler WHERE ad LIKE 'K%';
+SELECT name FROM products WHERE name LIKE 'K%';
 ```
 
 There are two wildcards:
 
 <figure class="fig">
   <div class="anat">
-    <div class="anat-row"><span class="anat-label">%</span><span class="anat-body"><b>Zero or more</b> characters. <code>'K%'</code> is everything starting with K, <code>'%uk'</code> everything ending in uk, <code>'%la%'</code> everything containing la.</span></div>
-    <div class="anat-row"><span class="anat-label">_</span><span class="anat-body"><b>Exactly one</b> character. <code>'F_re'</code> is four letters long, starting with F and ending in re.</span></div>
+    <div class="anat-row"><span class="anat-label">%</span><span class="anat-body"><b>Zero or more</b> characters. <code>'M%'</code> is everything starting with M (Monitor, Mouse, Microphone), <code>'%top'</code> everything ending in top (Laptop, Desktop), <code>'%ead%'</code> everything containing ead (Headset).</span></div>
+    <div class="anat-row"><span class="anat-label">_</span><span class="anat-body"><b>Exactly one</b> character. <code>'M_use'</code> is five letters long, starting with M and ending in use (Mouse).</span></div>
   </div>
 </figure>
 
@@ -58,14 +58,14 @@ Instead of long `OR` chains:
   <div class="versus">
     <div class="dim">
       <h4>The long form</h4>
-      <pre><code>WHERE kategori = 'Ekran'
-   OR kategori = 'Aksesuar'
-   OR kategori = 'Yazilim'</code></pre>
+      <pre><code>WHERE category = 'Display'
+   OR category = 'Accessory'
+   OR category = 'Software'</code></pre>
     </div>
     <div class="ok">
       <h4>The short form</h4>
-      <pre><code>WHERE kategori IN
-  ('Ekran', 'Aksesuar', 'Yazilim')</code></pre>
+      <pre><code>WHERE category IN
+  ('Display', 'Accessory', 'Software')</code></pre>
     </div>
   </div>
   <figcaption>The two do exactly the same job. The one on the right is shorter and avoids the parenthesis trap: forgetting them while joining an OR chain to an AND is one of the most common mistakes.</figcaption>
@@ -77,18 +77,18 @@ dangerous** — more on that shortly.
 ## BETWEEN: a range
 
 ```sql
-SELECT ad, fiyat FROM urunler WHERE fiyat BETWEEN 500 AND 3000;
+SELECT name, price FROM products WHERE price BETWEEN 500 AND 3000;
 ```
 
 **Both ends are included.** This query means
-`fiyat >= 500 AND fiyat <= 3000`. Rows priced at exactly 500 and exactly
+`price >= 500 AND price <= 3000`. Rows priced at exactly 500 and exactly
 3000 come back.
 
 This is the detail people misremember most often. If "between 500 and
 3000" is meant to exclude 3000, `BETWEEN` is the wrong tool:
 
 ```sql
-WHERE fiyat >= 500 AND fiyat < 3000
+WHERE price >= 500 AND price < 3000
 ```
 
 The order matters too: `BETWEEN 3000 AND 500` returns **no rows at all**
@@ -108,7 +108,7 @@ been recorded".
 ### `= NULL` is never true
 
 ```sql
-WHERE tedarikci_kod = NULL      -- always an empty result
+WHERE supplier_code = NULL      -- always an empty result
 ```
 
 This query raises no error and **returns no rows.** The reason: any
@@ -130,8 +130,8 @@ keeps only the rows that are **true**; "unknown" is discarded just like
 ### The right way: IS NULL
 
 ```sql
-SELECT ad FROM urunler WHERE tedarikci_kod IS NULL;
-SELECT ad FROM urunler WHERE tedarikci_kod IS NOT NULL;
+SELECT name FROM products WHERE supplier_code IS NULL;
+SELECT name FROM products WHERE supplier_code IS NOT NULL;
 ```
 
 `IS NULL` is not a comparison but a **question about state**: "is this cell
@@ -142,7 +142,7 @@ empty?" Its answer is always true or false.
 This is one of the most painful behaviours in SQL.
 
 ```sql
-WHERE tedarikci_kod NOT IN ('T1', 'T2', NULL)
+WHERE supplier_code NOT IN ('T1', 'T2', NULL)
 ```
 
 This query returns **no rows at all.** And raises no error.
@@ -167,13 +167,13 @@ smallest value. It comes first in ascending order and last in descending.
 ## All of it together
 
 ```sql
-SELECT ad, fiyat
-FROM urunler
-WHERE kategori IN ('Aksesuar', 'Ekran')
-  AND fiyat BETWEEN 200 AND 2000
-  AND tedarikci_kod IS NOT NULL
-  AND ad LIKE '%a%'
-ORDER BY fiyat DESC;
+SELECT name, price
+FROM products
+WHERE category IN ('Accessory', 'Display')
+  AND price BETWEEN 200 AND 2000
+  AND supplier_code IS NOT NULL
+  AND name LIKE '%a%'
+ORDER BY price DESC;
 ```
 
 All four are joined with `AND` and all of them live inside the same

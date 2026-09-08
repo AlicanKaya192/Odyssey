@@ -26,14 +26,14 @@ precision.
 ## 2. NULL contamination
 
 ```sql
-SELECT fiyat + kargo AS toplam
+SELECT price + kargo AS toplam
 ```
 
 If the shipping cost is empty the total is empty. That row **disappears**
 from the report total, or shows up blank.
 
 ```sql
-SELECT fiyat + ISNULL(kargo, 0) AS toplam
+SELECT price + ISNULL(kargo, 0) AS toplam
 ```
 
 ## 3. A rounding difference
@@ -50,7 +50,7 @@ which side does the rounding.
 ## 4. Joining with `+`
 
 ```sql
-SELECT ad + ' ' + soyad AS tam_ad
+SELECT name + ' ' + soyad AS tam_ad
 ```
 
 For people with no surname recorded, `tam_ad` comes out **completely

@@ -1,13 +1,13 @@
 Stoğu tükenmiş ürünleri buluyoruz.
 
-`stok` değeri **sıfır** olan ürünlerin `id`, `ad` ve `stok` bilgisini
+`stock` değeri **sıfır** olan ürünlerin `id`, `name` ve `stock` bilgisini
 getir.
 
 ```
-id  ad           stok
---  -----------  ----
-3   Fare         0
-8   Projeksiyon  0
+id  name       stock
+--  ---------  -----
+3   Mouse      0    
+8   Projector  0    
 ```
 
 **Bu alıştırmada `*` kullanılmıyor.** Üç sütunu adlarıyla yazacaksın —

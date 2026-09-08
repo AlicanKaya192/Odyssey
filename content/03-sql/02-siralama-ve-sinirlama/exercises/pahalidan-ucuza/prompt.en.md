@@ -1,11 +1,11 @@
-Sort the eight products in `urunler` from the **highest price to the
-lowest**. The result should have the `ad` and `fiyat` columns.
+Sort the eight products in `products` from the **highest price to the
+lowest**. The result should have the `name` and `price` columns.
 
 ```
-ad         fiyat
----------  ---------
-Laptop     24500.00
-Masaustu   18900.00
+name     price  
+-------  -------
+Laptop   24500.0
+Desktop  18900.0
 ...
 ```
 

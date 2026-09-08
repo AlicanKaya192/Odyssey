@@ -1,4 +1,4 @@
--- Stok degeri (fiyat carpi stok) 50000'den buyuk olan
+-- Stok degeri (price carpi stock) 50000'den buyuk olan
 -- urunleri getir.
--- Sutunlar: ad, fiyat, stok, stok_degeri.
+-- Sutunlar: name, price, stock, stock_value.
 -- Stok degerine gore buyukten kucuge sirala.

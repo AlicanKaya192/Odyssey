@@ -1,1 +1,1 @@
-SELECT DISTINCT kategori FROM urunler ORDER BY kategori;
+SELECT DISTINCT category FROM products ORDER BY category;

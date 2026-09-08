@@ -1,2 +1,2 @@
--- tedarikci_kod sutunu bos olan urunlerin adini ve
+-- supplier_code sutunu bos olan urunlerin adini ve
 -- kategorisini alfabetik sirada getir.

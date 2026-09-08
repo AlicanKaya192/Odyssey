@@ -6,7 +6,7 @@ want. The result came back, but **its order was not yours to decide**.
 This section covers three things: ordering the result (`ORDER BY`), taking
 the first few rows (`TOP`) and removing duplicates (`DISTINCT`).
 
-We continue with the same `urunler` table.
+We continue with the same `products` table.
 
 ## The server guarantees no order
 
@@ -26,14 +26,14 @@ reports that break months later for no apparent reason.
 You name the column to sort on:
 
 ```sql
-SELECT ad, fiyat FROM urunler ORDER BY fiyat;
+SELECT name, price FROM products ORDER BY price;
 ```
 
 The default is **ascending** (smallest first). Write `ASC` to say so
 explicitly, or `DESC` for the reverse:
 
 ```sql
-SELECT ad, fiyat FROM urunler ORDER BY fiyat DESC;
+SELECT name, price FROM products ORDER BY price DESC;
 ```
 
 <figure class="fig">
@@ -50,17 +50,17 @@ first column, and rows that tie there are sorted among themselves by the
 second:
 
 ```sql
-SELECT kategori, ad, fiyat
-FROM urunler
-ORDER BY kategori, fiyat DESC;
+SELECT category, name, price
+FROM products
+ORDER BY category, price DESC;
 ```
 
 This puts the categories in alphabetical order and, inside each category,
 sorts from expensive to cheap.
 
 **Each column carries its own direction.** In
-`ORDER BY kategori, fiyat DESC` the `DESC` applies only to `fiyat`;
-`kategori` is still ascending. To reverse both you have to write it twice.
+`ORDER BY category, price DESC` the `DESC` applies only to `price`;
+`category` is still ascending. To reverse both you have to write it twice.
 
 ## ORDER BY runs last
 
@@ -81,9 +81,9 @@ In the previous section you saw that you cannot use an alias inside
 </figure>
 
 ```sql
-SELECT ad, fiyat AS tutar
-FROM urunler
-ORDER BY tutar DESC;
+SELECT name, price AS amount
+FROM products
+ORDER BY amount DESC;
 ```
 
 This works. The same alias inside `WHERE` would have raised an error. One
@@ -99,9 +99,9 @@ Write the name.
 ## TOP: the first few rows
 
 ```sql
-SELECT TOP 3 ad, fiyat
-FROM urunler
-ORDER BY fiyat DESC;
+SELECT TOP 3 name, price
+FROM products
+ORDER BY price DESC;
 ```
 
 The three most expensive products. `TOP` goes **right after `SELECT`**;
@@ -115,14 +115,14 @@ The query raises no error and can return something different on every run.
   <div class="versus">
     <div class="no">
       <h4>Meaningless</h4>
-      <pre><code>SELECT TOP 3 ad
-FROM urunler;</code></pre>
+      <pre><code>SELECT TOP 3 name
+FROM products;</code></pre>
     </div>
     <div class="ok">
       <h4>Meaningful</h4>
-      <pre><code>SELECT TOP 3 ad
-FROM urunler
-ORDER BY fiyat DESC;</code></pre>
+      <pre><code>SELECT TOP 3 name
+FROM products
+ORDER BY price DESC;</code></pre>
     </div>
   </div>
   <figcaption>The one on the left means "three products at random". The one on the right means "the three most expensive products". Both run; only one answers a question.</figcaption>
@@ -138,26 +138,26 @@ There are two extras:
 ## DISTINCT: removing duplicates
 
 ```sql
-SELECT DISTINCT kategori FROM urunler;
+SELECT DISTINCT category FROM products;
 ```
 
-Eight products yield three categories: `Aksesuar`, `Bilgisayar`, `Ekran`.
+Eight products yield three categories: `Accessory`, `Computer`, `Display`.
 
 **`DISTINCT` looks at the whole selected row, not at one column.** This is
 the most misunderstood part:
 
 ```sql
-SELECT DISTINCT kategori, ad FROM urunler;
+SELECT DISTINCT category, name FROM products;
 ```
 
-This does **not** return three rows. Because every `ad` is different,
-every `(kategori, ad)` pair is unique — all eight rows come back.
+This does **not** return three rows. Because every `name` is different,
+every `(category, name)` pair is unique — all eight rows come back.
 `DISTINCT` filters rows, not a column.
 
 It also helps when counting the distinct values of a column:
 
 ```sql
-SELECT COUNT(DISTINCT kategori) FROM urunler;
+SELECT COUNT(DISTINCT category) FROM products;
 ```
 
 Counting comes in the next section; keep this one in mind for then.

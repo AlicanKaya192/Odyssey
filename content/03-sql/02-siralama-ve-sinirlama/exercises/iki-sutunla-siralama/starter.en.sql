@@ -1,3 +1,3 @@
 -- Sort alphabetically by category first, then from expensive
 -- to cheap inside each category.
--- Columns: kategori, ad, fiyat
+-- Columns: category, name, price

@@ -1,17 +1,17 @@
-Üç üründe `tedarikci_kod` boş. Bu ürünlerde `YOK` yazsın, diğerlerinde
+Üç üründe `supplier_code` boş. Bu ürünlerde `NONE` yazsın, diğerlerinde
 kendi kodu görünsün.
 
-Sütunlar: `ad` ve `tedarikci`. Ada göre sırala. **Bütün ürünler sonuca
+Sütunlar: `name` ve `supplier`. Ada göre sırala. **Bütün ürünler sonuca
 girecek** — bu bir süzme değil.
 
 ```
-ad           tedarikci
------------  ---------
-Antivirus    T2
-Fare         T1
-Kablo        T1
-Klavye       T1
-Kulaklik     YOK
+name       supplier
+---------  --------
+Antivirus  S2      
+Cable      S1      
+Desktop    S3      
+Headset    NONE    
+Keyboard   S1      
 ...
 ```
 

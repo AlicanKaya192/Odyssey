@@ -10,11 +10,11 @@ too.
 ## Arithmetic
 
 ```sql
-SELECT ad, fiyat, stok, fiyat * stok AS stok_degeri
-FROM urunler;
+SELECT name, price, stock, price * stock AS stock_value
+FROM products;
 ```
 
-There is no `fiyat * stok` column in the table; it is computed while the
+There is no `price * stock` column in the table; it is computed while the
 result is produced. Nothing is written to the table.
 
 You get the four operations plus remainder: `+`, `-`, `*`, `/`, `%`.
@@ -40,12 +40,12 @@ This is where people new to SQL fall most often.
   <figcaption>Divide two integers and the result is an integer, with the fractional part thrown away. Not rounded, truncated: 3, not 3.5.</figcaption>
 </figure>
 
-The same applies to columns: if `stok` is an `INT`, then `stok / 2` is an
+The same applies to columns: if `stock` is an `INT`, then `stock / 2` is an
 integer. For a fractional result you have to make one side fractional:
 
 ```sql
-SELECT stok / 2.0 AS yari
-SELECT CAST(stok AS DECIMAL(10,2)) / 2 AS yari
+SELECT stock / 2.0 AS yari
+SELECT CAST(stock AS DECIMAL(10,2)) / 2 AS yari
 ```
 
 The query raises no error and quietly gives the wrong number. When a
@@ -57,10 +57,10 @@ percentage in a report does not add up, this is the first place to look.
 SELECT 5 + NULL;   -- NULL
 ```
 
-Any arithmetic containing `NULL` produces `NULL`. Write `fiyat + kargo`
+Any arithmetic containing `NULL` produces `NULL`. Write `price + kargo`
 and if the shipping cost is empty the total is empty too.
 
-The fix is to give the gap a value: `fiyat + ISNULL(kargo, 0)`.
+The fix is to give the gap a value: `price + ISNULL(kargo, 0)`.
 
 ## Text functions
 
@@ -123,7 +123,7 @@ same calculation can differ between the two languages.
 ## Converting types: CAST and TRY_CAST
 
 ```sql
-SELECT CAST(fiyat AS INT) FROM urunler;
+SELECT CAST(price AS INT) FROM products;
 ```
 
 On a value that cannot be converted, `CAST` **raises an error** and the
@@ -147,15 +147,15 @@ In the previous sections we said an alias cannot be used in `WHERE`. But
   <div class="versus">
     <div class="no">
       <h4>Does not work</h4>
-      <pre><code>SELECT fiyat * stok AS deger
-FROM urunler
+      <pre><code>SELECT price * stock AS deger
+FROM products
 WHERE deger &gt; 100000;</code></pre>
     </div>
     <div class="ok">
       <h4>Works</h4>
-      <pre><code>SELECT fiyat * stok AS deger
-FROM urunler
-WHERE fiyat * stok &gt; 100000;</code></pre>
+      <pre><code>SELECT price * stock AS deger
+FROM products
+WHERE price * stock &gt; 100000;</code></pre>
     </div>
   </div>
   <figcaption>Same reason as before: WHERE runs before SELECT. The alias does not exist yet, but the columns do — so you can write the calculation again there.</figcaption>

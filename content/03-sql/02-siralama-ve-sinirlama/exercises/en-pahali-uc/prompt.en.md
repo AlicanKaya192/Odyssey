@@ -1,11 +1,11 @@
-Bring back the `ad` and `fiyat` of the **three** most expensive products.
+Bring back the `name` and `price` of the **three** most expensive products.
 
 ```
-ad        fiyat
---------  ---------
-Laptop    24500.00
-Masaustu  18900.00
-Monitor   3200.00
+name       price  
+---------  -------
+Laptop     24500.0
+Desktop    18900.0
+Projector  7400.0 
 ```
 
 Two pieces are needed: how many rows you want (`TOP`) and the ordering

@@ -1,2 +1,2 @@
--- Stogu tukenmis urunlerin id, ad ve stok bilgisini getir.
+-- Stogu tukenmis urunlerin id, name ve stock bilgisini getir.
 -- Bu alistirmada * kullanilmiyor.

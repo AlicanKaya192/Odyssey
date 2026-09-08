@@ -1,14 +1,14 @@
 Now we filter rows.
 
-Bring back the `ad` and `fiyat` of products **priced above 1000**.
+Bring back the `name` and `price` of products **priced above 1000**.
 
 Five of the eight products satisfy this.
 
 ```
-ad           fiyat
------------  ---------
-Monitor      3200.00
-Laptop       24500.00
+name     price  
+-------  -------
+Monitor  3200.0 
+Laptop   24500.0
 ...
 ```
 

@@ -4,11 +4,11 @@ categories repeat across several products.
 Bring back each category **once**, in alphabetical order.
 
 ```
-kategori
-----------
-Aksesuar
-Bilgisayar
-Ekran
+category 
+---------
+Accessory
+Computer 
+Display  
 ```
 
 Two things are needed: removing the repeats and sorting. `DISTINCT` does

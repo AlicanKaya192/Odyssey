@@ -1,1 +1,1 @@
--- Return ad under the heading urun and fiyat under tutar.
+-- Return name under the heading product and price under amount.

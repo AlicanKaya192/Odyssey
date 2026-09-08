@@ -1,3 +1,3 @@
--- sehirler tablosundaki butun satirlari getir.
+-- cities tablosundaki butun satirlari getir.
 -- Ipucu: yildiz butun sutunlar demek.
 

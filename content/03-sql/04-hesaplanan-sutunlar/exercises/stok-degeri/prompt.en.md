@@ -1,17 +1,17 @@
 Work out each product's **stock value**: its price times the number in
 stock.
 
-Columns: `ad` and `stok_degeri`. Sort from largest to smallest.
+Columns: `name` and `stock_value`. Sort from largest to smallest.
 
 ```
-ad           stok_degeri
------------  -----------
-Ofis Paketi  237600.00
-Laptop       122500.00
+name          stock_value
+------------  -----------
+Office Suite  237600.0   
+Laptop        122500.0   
 ...
 ```
 
-There is no `stok_degeri` column in the table — you are producing it.
+There is no `stock_value` column in the table — you are producing it.
 Nothing is written to the table; the calculation happens only for the
 result.
 

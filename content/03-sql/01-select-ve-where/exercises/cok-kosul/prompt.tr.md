@@ -1,9 +1,9 @@
 Bu alıştırma dersin en çok tuzak barındıran yerini deniyor.
 
-**`Aksesuar` ya da `Ekran` kategorisinde olan** ve **stokta bulunan**
-ürünlerin yalnızca `ad` bilgisini getir.
+**`Accessory` ya da `Display` kategorisinde olan** ve **stokta bulunan**
+ürünlerin yalnızca `name` bilgisini getir.
 
-"Stokta bulunan" demek `stok` sıfırdan büyük demek.
+"Stokta bulunan" demek `stock` sıfırdan büyük demek.
 
 Sonuç dört satır olmalı.
 

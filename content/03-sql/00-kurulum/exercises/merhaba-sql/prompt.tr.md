@@ -6,9 +6,9 @@ bas.
 Sonuç panelinde tek sütunlu, tek satırlık bir tablo görmelisin:
 
 ```
-mesaj
------------
-Merhaba SQL
+message  
+---------
+Hello SQL
 ```
 
 Bunu gördüysen zincirin tamamı çalışıyor: Odyssey, ODBC sürücüsü ve SQL

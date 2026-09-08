@@ -1,1 +1,1 @@
-SELECT ad FROM urunler WHERE ad LIKE 'K%' ORDER BY ad;
+SELECT name FROM products WHERE name LIKE 'M%' ORDER BY name;

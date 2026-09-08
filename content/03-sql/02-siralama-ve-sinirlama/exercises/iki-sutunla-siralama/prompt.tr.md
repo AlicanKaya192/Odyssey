@@ -1,15 +1,15 @@
 Bu sefer iki ölçüte göre sıralıyoruz.
 
 Ürünleri **önce kategoriye göre alfabetik**, sonra **her kategorinin
-içinde pahalıdan ucuza** sırala. Sütunlar: `kategori`, `ad`, `fiyat`.
+içinde pahalıdan ucuza** sırala. Sütunlar: `category`, `name`, `price`.
 
 ```
-kategori    ad         fiyat
-----------  ---------  --------
-Aksesuar    Webcam     1150.00
-Aksesuar    Kulaklik   890.00
-...
-Bilgisayar  Laptop     24500.00
+category   name      price 
+---------  --------  ------
+Accessory  Webcam    1150.0
+Accessory  Headset   890.0 
+Accessory  Keyboard  450.0 
+Accessory  Mouse     220.0 
 ...
 ```
 

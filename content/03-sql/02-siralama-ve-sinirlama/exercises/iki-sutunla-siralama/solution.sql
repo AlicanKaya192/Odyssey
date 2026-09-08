@@ -1,3 +1,3 @@
-SELECT kategori, ad, fiyat
-FROM urunler
-ORDER BY kategori, fiyat DESC;
+SELECT category, name, price
+FROM products
+ORDER BY category, price DESC;

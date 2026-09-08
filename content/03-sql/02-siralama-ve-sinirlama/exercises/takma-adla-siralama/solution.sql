@@ -1,4 +1,4 @@
-SELECT ad AS urun, fiyat AS tutar
-FROM urunler
-WHERE stok > 0
-ORDER BY tutar DESC;
+SELECT name AS product, price AS amount
+FROM products
+WHERE stock > 0
+ORDER BY amount DESC;

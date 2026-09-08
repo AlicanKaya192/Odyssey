@@ -21,7 +21,7 @@ nothing.
 ## `TOP` with no `ORDER BY`
 
 ```sql
-SELECT TOP 5 ad FROM urunler;
+SELECT TOP 5 name FROM products;
 ```
 
 This returns "five products" but **which five** is undefined. If you meant
@@ -34,14 +34,14 @@ through.
 ## `DESC` applied to only one column
 
 ```sql
-ORDER BY kategori, fiyat DESC
+ORDER BY category, price DESC
 ```
 
-That `DESC` is for **`fiyat` only**. `kategori` is still ascending. To
+That `DESC` is for **`price` only**. `category` is still ascending. To
 reverse both:
 
 ```sql
-ORDER BY kategori DESC, fiyat DESC
+ORDER BY category DESC, price DESC
 ```
 
 This is the first place to look when the result order seems slightly off.
@@ -49,22 +49,22 @@ This is the first place to look when the result order seems slightly off.
 ## `DISTINCT` removed less than expected
 
 ```sql
-SELECT DISTINCT kategori, ad FROM urunler;
+SELECT DISTINCT category, name FROM products;
 ```
 
 This gets written meaning "let me deduplicate the categories", but all
 eight rows come back — because `DISTINCT` looks at the **whole row** and
-every `ad` is different.
+every `name` is different.
 
 If you want the distinct values of one column, select only that column.
 
 ## An alias inside `WHERE`
 
 ```sql
-SELECT fiyat AS tutar FROM urunler WHERE tutar > 1000;
+SELECT price AS amount FROM products WHERE amount > 1000;
 ```
 
-This **raises an error** — `Invalid column name 'tutar'`. The server runs
+This **raises an error** — `Invalid column name 'amount'`. The server runs
 `WHERE` before `SELECT`, and at that point the alias does not exist.
 
 The same alias works inside `ORDER BY`, because that runs last.

@@ -1,2 +1,2 @@
--- Bring back the names of products that are in the Aksesuar or
--- Ekran category and are in stock.
+-- Bring back the names of products that are in the Accessory or
+-- Display category and are in stock.

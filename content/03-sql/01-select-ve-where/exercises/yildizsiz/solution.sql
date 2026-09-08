@@ -1,1 +1,1 @@
-SELECT id, ad, stok FROM urunler WHERE stok = 0;
+SELECT id, name, stock FROM products WHERE stock = 0;

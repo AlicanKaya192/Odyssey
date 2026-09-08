@@ -1,13 +1,13 @@
 Aynı iki sütunu getir, ama sonuçtaki **başlıkları değiştir**:
 
-- `ad` sütunu `urun` başlığıyla,
-- `fiyat` sütunu `tutar` başlığıyla gelsin.
+- `name` sütunu `product` başlığıyla,
+- `price` sütunu `amount` başlığıyla gelsin.
 
 ```
-urun      tutar
---------  --------
-Klavye    450.00
-Monitor   3200.00
+product   amount
+--------  ------
+Keyboard  450.0 
+Monitor   3200.0
 ...
 ```
 

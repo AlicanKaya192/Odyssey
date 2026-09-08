@@ -1,12 +1,12 @@
-Tabloda on iki ürün var. Adı **K harfiyle başlayan** olanları alfabetik
-sırada getir; yalnızca `ad` sütunu.
+Tabloda on iki ürün var. Adı **M harfiyle başlayan** olanları alfabetik
+sırada getir; yalnızca `name` sütunu.
 
 ```
-ad
---------
-Kablo
-Klavye
-Kulaklik
+name      
+----------
+Microphone
+Monitor   
+Mouse     
 ```
 
 Tam eşitlik burada işe yaramıyor — adın tamamını bilmiyorsun, yalnızca

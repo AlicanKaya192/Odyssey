@@ -49,13 +49,13 @@ That last row is the source of the `NOT IN` trap.
 ## The `NOT IN` trap
 
 ```sql
-WHERE kod NOT IN ('A', 'B', NULL)
+WHERE code NOT IN ('A', 'B', NULL)
 ```
 
 **No rows come back.** The reason:
 
 ```
-kod <> 'A' AND kod <> 'B' AND kod <> NULL
+code <> 'A' AND code <> 'B' AND code <> NULL
                               ^^^^^^^^^^^^ always unknown
 ```
 
@@ -73,24 +73,24 @@ and one true part is enough.
 Even when there is no `NULL` in the `NOT IN` list, **rows where the column
 itself is `NULL` are dropped.**
 
-There are twelve products; three have `tedarikci_kod` `T1` and three have
+There are twelve products; three have `supplier_code` `T1` and three have
 `NULL`. Even so:
 
 ```sql
-WHERE tedarikci_kod NOT IN ('T1')   -- 6 rows, not 9
+WHERE supplier_code NOT IN ('T1')   -- 6 rows, not 9
 ```
 
 You expect nine (12 − 3) and get six. The three missing rows are the
 `NULL` ones: the comparison `NULL <> 'T1'` is "unknown", and `WHERE`
 discards them.
 
-The same applies to `<>`: `WHERE tedarikci_kod <> 'T1'` also gives six
+The same applies to `<>`: `WHERE supplier_code <> 'T1'` also gives six
 rows.
 
 If you want them all you have to say so:
 
 ```sql
-WHERE (tedarikci_kod <> 'T1' OR tedarikci_kod IS NULL)
+WHERE (supplier_code <> 'T1' OR supplier_code IS NULL)
 ```
 
 This is the question to ask every time you write a "negative" condition:
@@ -115,7 +115,7 @@ with `DESC`. PostgreSQL does the opposite.
 
 ## What is coming later
 
-- **Aggregate functions skip `NULL`s.** `AVG(fiyat)` ignores empty cells;
+- **Aggregate functions skip `NULL`s.** `AVG(price)` ignores empty cells;
   `COUNT(*)` counts every row while `COUNT(column)` counts only the
   non-empty ones.
 - **`JOIN` produces `NULL`s.** A `LEFT JOIN` fills the right table's

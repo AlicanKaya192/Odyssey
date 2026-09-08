@@ -1,3 +1,3 @@
--- tedarikci_kod bos olan urunlerde 'YOK' yazsin, dolu
+-- supplier_code bos olan urunlerde 'NONE' yazsin, dolu
 -- olanlarda kendi degeri gorunsun.
--- Sutunlar: ad, tedarikci. Ada gore sirala.
+-- Sutunlar: name, supplier. Ada gore sirala.

@@ -1,11 +1,11 @@
-Bring back the `ad` and `kategori` of products in the `Ekran` **or**
-`Yazilim` category, in alphabetical order.
+Bring back the `name` and `category` of products in the `Display` **or**
+`Software` category, in alphabetical order.
 
 ```
-ad           kategori
------------  --------
-Antivirus    Yazilim
-Monitor      Ekran
+name       category
+---------  --------
+Antivirus  Software
+Monitor    Display 
 ...
 ```
 

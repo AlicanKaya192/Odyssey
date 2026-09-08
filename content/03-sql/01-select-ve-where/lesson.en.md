@@ -1,6 +1,6 @@
 # Writing a Query: SELECT and WHERE
 
-In the previous section you wrote `SELECT * FROM sehirler` and the whole
+In the previous section you wrote `SELECT * FROM cities` and the whole
 table came back. That is not what you want in real work: out of a table
 with millions of rows you want **a few columns** and **a few rows**.
 
@@ -19,13 +19,13 @@ Every `SELECT` query is built from the same three parts:
   <figcaption>The order is fixed: SELECT, then FROM, then WHERE. They cannot be swapped.</figcaption>
 </figure>
 
-In this section you will work with a table called `urunler` ("products"):
+In this section you will work with a table called `products` ("products"):
 
-| id | ad | kategori | fiyat | stok |
+| id | name | category | price | stock |
 |---|---|---|---|---|
-| 1 | Klavye | Aksesuar | 450.00 | 32 |
-| 2 | Monitor | Ekran | 3200.00 | 8 |
-| 3 | Fare | Aksesuar | 220.00 | 0 |
+| 1 | Keyboard | Accessory | 450.00 | 32 |
+| 2 | Monitor | Display | 3200.00 | 8 |
+| 3 | Mouse | Accessory | 220.00 | 0 |
 
 The columns are name, category, price and stock.
 
@@ -34,20 +34,20 @@ The columns are name, category, price and stock.
 The star brings everything:
 
 ```sql
-SELECT * FROM urunler;
+SELECT * FROM products;
 ```
 
 Write the columns you want and only those come back:
 
 ```sql
-SELECT ad, fiyat FROM urunler;
+SELECT name, price FROM products;
 ```
 
-**The order is the order you wrote.** In the table `fiyat` comes after
-`ad`, but if you want the other way round you write the other way round:
+**The order is the order you wrote.** In the table `price` comes after
+`name`, but if you want the other way round you write the other way round:
 
 ```sql
-SELECT fiyat, ad FROM urunler;
+SELECT price, name FROM products;
 ```
 
 ### Why do we avoid the star?
@@ -68,13 +68,13 @@ The rule: **star while exploring, column names in the query you keep.**
 You can change the column heading in the result:
 
 ```sql
-SELECT ad AS urun_adi, fiyat AS tutar FROM urunler;
+SELECT name AS product_name, price AS amount FROM products;
 ```
 
 Same data, different headings. This matters in a report, or in a result
 some program is going to read.
 
-You can leave `AS` out (`ad urun_adi`) but **write it anyway**: in a query
+You can leave `AS` out (`name product_name`) but **write it anyway**: in a query
 written without `AS`, a single forgotten comma silently turns two columns
 into one.
 
@@ -83,7 +83,7 @@ into one.
 `WHERE` takes a **condition** and only the rows that satisfy it come back:
 
 ```sql
-SELECT ad, fiyat FROM urunler WHERE kategori = 'Aksesuar';
+SELECT name, price FROM products WHERE category = 'Accessory';
 ```
 
 The comparisons you can use in a condition:
@@ -105,34 +105,34 @@ In SQL, text is written inside **single quotes**:
   <div class="versus">
     <div class="ok">
       <h4>Correct</h4>
-      <pre><code>WHERE kategori = 'Ekran'</code></pre>
+      <pre><code>WHERE category = 'Display'</code></pre>
     </div>
     <div class="no">
       <h4>Raises an error</h4>
-      <pre><code>WHERE kategori = "Ekran"</code></pre>
+      <pre><code>WHERE category = "Display"</code></pre>
     </div>
   </div>
-  <figcaption>In SQL Server a double quote does not mean text, it means an <b>object name</b>. Write "Ekran" and the server goes looking for a column called Ekran and does not find one.</figcaption>
+  <figcaption>In SQL Server a double quote does not mean text, it means an <b>object name</b>. Write "Display" and the server goes looking for a column called Display and does not find one.</figcaption>
 </figure>
 
-Numbers take no quotes: `WHERE fiyat > 1000`.
+Numbers take no quotes: `WHERE price > 1000`.
 
 If the text itself contains a single quote, you write it twice:
-`WHERE ad = 'Kadin''s'`. It is rarely needed, but when it is and you do
+`WHERE name = 'Kadin''s'`. It is rarely needed, but when it is and you do
 not know it, it burns hours.
 
 ### Upper and lower case
 
 On a default installation SQL Server **does not distinguish case**:
-`'aksesuar'` and `'Aksesuar'` count as the same. This depends on the
+`'aksesuar'` and `'Accessory'` count as the same. This depends on the
 server's collation setting and can be changed — so do not assume it is
 true on every server.
 
 ## Several conditions: AND, OR, NOT
 
 ```sql
-SELECT ad FROM urunler
-WHERE kategori = 'Aksesuar' AND fiyat < 300;
+SELECT name FROM products
+WHERE category = 'Accessory' AND price < 300;
 ```
 
 `AND` wants both, `OR` wants at least one. `NOT` inverts a condition.
@@ -144,15 +144,15 @@ addition, and it is a trap in the same way:
   <div class="versus">
     <div class="no">
       <h4>Not what you meant</h4>
-      <pre><code>WHERE kategori = 'Ekran'
-   OR kategori = 'Aksesuar'
-  AND fiyat &lt; 300</code></pre>
+      <pre><code>WHERE category = 'Display'
+   OR category = 'Accessory'
+  AND price &lt; 300</code></pre>
     </div>
     <div class="ok">
       <h4>If this is your intent</h4>
-      <pre><code>WHERE (kategori = 'Ekran'
-    OR kategori = 'Aksesuar')
-  AND fiyat &lt; 300</code></pre>
+      <pre><code>WHERE (category = 'Display'
+    OR category = 'Accessory')
+  AND price &lt; 300</code></pre>
     </div>
   </div>
   <figcaption>The query on the left says "every screen, plus accessories under 300". Without parentheses AND only binds the two conditions next to it.</figcaption>
@@ -180,15 +180,15 @@ This looks like trivia but it has a concrete consequence: **you cannot use
 an alias from `SELECT` inside `WHERE`.**
 
 ```sql
-SELECT fiyat AS tutar FROM urunler WHERE tutar > 1000;
+SELECT price AS amount FROM products WHERE amount > 1000;
 ```
 
 This query says "there is no column called tutar". When `WHERE` runs,
-`SELECT` has not run yet, so nothing called `tutar` exists. The correct
+`SELECT` has not run yet, so nothing called `amount` exists. The correct
 form:
 
 ```sql
-SELECT fiyat AS tutar FROM urunler WHERE fiyat > 1000;
+SELECT price AS amount FROM products WHERE price > 1000;
 ```
 
 ## The semicolon

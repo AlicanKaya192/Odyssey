@@ -18,7 +18,7 @@ sorgu değil, sunucunun tercihi.
 ## `TOP` var, `ORDER BY` yok
 
 ```sql
-SELECT TOP 5 ad FROM urunler;
+SELECT TOP 5 name FROM products;
 ```
 
 Bu sorgu "beş ürün" getiriyor ama **hangi beşi** belirsiz. "En pahalı
@@ -29,14 +29,14 @@ Hata vermiyor, bir sonuç veriyor — bu yüzden gözden kaçıyor.
 ## `DESC` yalnızca bir sütuna uygulandı
 
 ```sql
-ORDER BY kategori, fiyat DESC
+ORDER BY category, price DESC
 ```
 
-Buradaki `DESC` **yalnızca `fiyat`** için. `kategori` hâlâ artan. İkisini
+Buradaki `DESC` **yalnızca `price`** için. `category` hâlâ artan. İkisini
 de tersine çevirmek istiyorsan:
 
 ```sql
-ORDER BY kategori DESC, fiyat DESC
+ORDER BY category DESC, price DESC
 ```
 
 Bu, sonuç sırası biraz tuhaf göründüğünde ilk bakılacak yer.
@@ -44,21 +44,21 @@ Bu, sonuç sırası biraz tuhaf göründüğünde ilk bakılacak yer.
 ## `DISTINCT` beklendiği kadar elemedi
 
 ```sql
-SELECT DISTINCT kategori, ad FROM urunler;
+SELECT DISTINCT category, name FROM products;
 ```
 
 "Kategorileri tekilleştireyim" diye yazılıyor ama sekiz satırın sekizi de
-geliyor. Çünkü `DISTINCT` **satırın tamamına** bakıyor ve her `ad` farklı.
+geliyor. Çünkü `DISTINCT` **satırın tamamına** bakıyor ve her `name` farklı.
 
 Tek bir sütunun benzersiz değerlerini istiyorsan yalnızca o sütunu seç.
 
 ## `WHERE` içinde takma ad
 
 ```sql
-SELECT fiyat AS tutar FROM urunler WHERE tutar > 1000;
+SELECT price AS amount FROM products WHERE amount > 1000;
 ```
 
-Bu **hata veriyor** — `Invalid column name 'tutar'`. Sunucu `WHERE`'i
+Bu **hata veriyor** — `Invalid column name 'amount'`. Sunucu `WHERE`'i
 `SELECT`'ten önce çalıştırıyor, o sırada takma ad yok.
 
 Aynı takma ad `ORDER BY` içinde çalışıyor, çünkü o en sonda.

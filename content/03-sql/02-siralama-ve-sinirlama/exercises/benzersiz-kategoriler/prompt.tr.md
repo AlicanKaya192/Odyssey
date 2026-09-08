@@ -4,11 +4,11 @@ birden çok üründe tekrar ediyor.
 Her kategoriyi **bir kez**, alfabetik sırada getir.
 
 ```
-kategori
-----------
-Aksesuar
-Bilgisayar
-Ekran
+category 
+---------
+Accessory
+Computer 
+Display  
 ```
 
 İki şey gerekiyor: tekrar edenleri elemek ve sıralamak. `DISTINCT`

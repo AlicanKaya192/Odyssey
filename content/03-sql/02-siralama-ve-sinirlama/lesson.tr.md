@@ -6,7 +6,7 @@ Bir önceki bölümde hangi sütunları ve hangi satırları istediğini söylem
 Bu bölümde üç şey var: sonucu sıralamak (`ORDER BY`), baştan birkaç satır
 almak (`TOP`) ve tekrar edenleri elemek (`DISTINCT`).
 
-Aynı `urunler` tablosuyla devam ediyoruz.
+Aynı `products` tablosuyla devam ediyoruz.
 
 ## Sunucu sıra garantisi vermiyor
 
@@ -26,14 +26,14 @@ raporların en yaygın sebebi.
 Sıralanacak sütunu yazıyorsun:
 
 ```sql
-SELECT ad, fiyat FROM urunler ORDER BY fiyat;
+SELECT name, price FROM products ORDER BY price;
 ```
 
 Varsayılan **artan** (küçükten büyüğe). Açıkça yazmak istersen `ASC`,
 tersi için `DESC`:
 
 ```sql
-SELECT ad, fiyat FROM urunler ORDER BY fiyat DESC;
+SELECT name, price FROM products ORDER BY price DESC;
 ```
 
 <figure class="fig">
@@ -49,16 +49,16 @@ Virgülle ekliyorsun. **Sıra önemli:** önce yazılan sütuna göre
 sıralanıyor, o sütunda eşit olanlar kendi aralarında ikinciye göre:
 
 ```sql
-SELECT kategori, ad, fiyat
-FROM urunler
-ORDER BY kategori, fiyat DESC;
+SELECT category, name, price
+FROM products
+ORDER BY category, price DESC;
 ```
 
 Bu sorgu önce kategorileri alfabetik diziyor, sonra her kategorinin içinde
 pahalıdan ucuza sıralıyor.
 
-**Her sütunun kendi yönü var.** `ORDER BY kategori, fiyat DESC` yazdığında
-`DESC` yalnızca `fiyat` için geçerli; `kategori` hâlâ artan. İkisini de
+**Her sütunun kendi yönü var.** `ORDER BY category, price DESC` yazdığında
+`DESC` yalnızca `price` için geçerli; `category` hâlâ artan. İkisini de
 tersine çevirmek istersen ikisine de yazman gerekiyor.
 
 ## ORDER BY en son çalışıyor
@@ -80,9 +80,9 @@ bunun **tersi**:
 </figure>
 
 ```sql
-SELECT ad, fiyat AS tutar
-FROM urunler
-ORDER BY tutar DESC;
+SELECT name, price AS amount
+FROM products
+ORDER BY amount DESC;
 ```
 
 Bu çalışıyor. Aynı takma adı `WHERE` içinde kullansaydın hata alacaktın.
@@ -97,9 +97,9 @@ sorgu sessizce başka bir sütuna göre sıralanmaya başlıyor. Adını yaz.
 ## TOP: baştan birkaç satır
 
 ```sql
-SELECT TOP 3 ad, fiyat
-FROM urunler
-ORDER BY fiyat DESC;
+SELECT TOP 3 name, price
+FROM products
+ORDER BY price DESC;
 ```
 
 En pahalı üç ürün. `TOP` **`SELECT`'ten hemen sonra** yazılıyor; bu
@@ -113,14 +113,14 @@ belirsizse hangi üçünün geleceği de belirsiz. Sorgu hata vermiyor, her
   <div class="versus">
     <div class="no">
       <h4>Anlamsız</h4>
-      <pre><code>SELECT TOP 3 ad
-FROM urunler;</code></pre>
+      <pre><code>SELECT TOP 3 name
+FROM products;</code></pre>
     </div>
     <div class="ok">
       <h4>Anlamlı</h4>
-      <pre><code>SELECT TOP 3 ad
-FROM urunler
-ORDER BY fiyat DESC;</code></pre>
+      <pre><code>SELECT TOP 3 name
+FROM products
+ORDER BY price DESC;</code></pre>
     </div>
   </div>
   <figcaption>Soldaki "rastgele üç ürün" demek. Sağdaki "en pahalı üç ürün" demek. İkisi de çalışıyor, yalnızca biri bir soruyu cevaplıyor.</figcaption>
@@ -135,26 +135,26 @@ ORDER BY fiyat DESC;</code></pre>
 ## DISTINCT: tekrar edenleri elemek
 
 ```sql
-SELECT DISTINCT kategori FROM urunler;
+SELECT DISTINCT category FROM products;
 ```
 
-Sekiz üründen üç kategori geliyor: `Aksesuar`, `Bilgisayar`, `Ekran`.
+Sekiz üründen üç kategori geliyor: `Accessory`, `Computer`, `Display`.
 
 **`DISTINCT` tek bir sütuna değil, seçilen satırın tamamına bakıyor.** Bu
 en sık yanlış anlaşılan yer:
 
 ```sql
-SELECT DISTINCT kategori, ad FROM urunler;
+SELECT DISTINCT category, name FROM products;
 ```
 
-Bu sorgu üç satır **döndürmüyor**. Her `ad` farklı olduğu için
-`(kategori, ad)` çiftlerinin hepsi benzersiz — sekiz satırın sekizi de
+Bu sorgu üç satır **döndürmüyor**. Her `name` farklı olduğu için
+`(category, name)` çiftlerinin hepsi benzersiz — sekiz satırın sekizi de
 geliyor. `DISTINCT` bir sütunu değil, satırı süzüyor.
 
 Bir sütunun benzersiz değerlerini sayarken de işe yarıyor:
 
 ```sql
-SELECT COUNT(DISTINCT kategori) FROM urunler;
+SELECT COUNT(DISTINCT category) FROM products;
 ```
 
 Sayma işlemlerini bir sonraki bölümde göreceksin; burada aklında dursun.

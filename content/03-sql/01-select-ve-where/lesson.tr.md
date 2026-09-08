@@ -1,6 +1,6 @@
 # Sorgu Yazmak: SELECT ve WHERE
 
-Bir önceki bölümde `SELECT * FROM sehirler` yazdın ve tablonun tamamı
+Bir önceki bölümde `SELECT * FROM cities` yazdın ve tablonun tamamı
 geldi. Gerçek işte istediğin bu değil: milyonlarca satırlık bir tablodan
 **birkaç sütunu** ve **birkaç satırı** istiyorsun.
 
@@ -19,33 +19,33 @@ Her `SELECT` sorgusu aynı üç parçadan kuruluyor:
   <figcaption>Sıra sabit: SELECT, sonra FROM, sonra WHERE. Yer değiştiremezler.</figcaption>
 </figure>
 
-Bu bölümde `urunler` diye bir tabloyla çalışacaksın:
+Bu bölümde `products` diye bir tabloyla çalışacaksın:
 
-| id | ad | kategori | fiyat | stok |
+| id | name | category | price | stock |
 |---|---|---|---|---|
-| 1 | Klavye | Aksesuar | 450.00 | 32 |
-| 2 | Monitor | Ekran | 3200.00 | 8 |
-| 3 | Fare | Aksesuar | 220.00 | 0 |
+| 1 | Keyboard | Accessory | 450.00 | 32 |
+| 2 | Monitor | Display | 3200.00 | 8 |
+| 3 | Mouse | Accessory | 220.00 | 0 |
 
 ## Sütun seçmek
 
 Yıldız her şeyi getiriyor:
 
 ```sql
-SELECT * FROM urunler;
+SELECT * FROM products;
 ```
 
 İstediğin sütunları yazarsan yalnızca onlar geliyor:
 
 ```sql
-SELECT ad, fiyat FROM urunler;
+SELECT name, price FROM products;
 ```
 
-**Sıra senin yazdığın sıra.** Tabloda `fiyat` sütunu `ad`'dan sonra
+**Sıra senin yazdığın sıra.** Tabloda `price` sütunu `name`'dan sonra
 duruyor ama sen tersini istersen tersini yazarsın:
 
 ```sql
-SELECT fiyat, ad FROM urunler;
+SELECT price, name FROM products;
 ```
 
 ### Yıldızı neden az kullanıyoruz?
@@ -66,13 +66,13 @@ Kural şu: **denerken `*`, yazdığın sorguda sütun adları.**
 Sonuçtaki sütun başlığını değiştirebiliyorsun:
 
 ```sql
-SELECT ad AS urun_adi, fiyat AS tutar FROM urunler;
+SELECT name AS product_name, price AS amount FROM products;
 ```
 
 Sonuç aynı veri, farklı başlıklar. Bu bir raporda ya da bir programın
 okuyacağı sonuçta önem kazanıyor.
 
-`AS` yazmasan da oluyor (`ad urun_adi`) ama **yazmak gerekiyor**: `AS`
+`AS` yazmasan da oluyor (`name product_name`) ama **yazmak gerekiyor**: `AS`
 olmadan yazılmış bir sorguda unutulan tek bir virgül, iki sütunu sessizce
 tek sütuna çeviriyor.
 
@@ -81,7 +81,7 @@ tek sütuna çeviriyor.
 `WHERE` bir **koşul** alıyor ve yalnızca koşulu sağlayan satırlar geliyor:
 
 ```sql
-SELECT ad, fiyat FROM urunler WHERE kategori = 'Aksesuar';
+SELECT name, price FROM products WHERE category = 'Accessory';
 ```
 
 Koşulda kullanabileceğin karşılaştırmalar:
@@ -103,34 +103,34 @@ SQL'de metin **tek tırnak** içinde yazılıyor:
   <div class="versus">
     <div class="ok">
       <h4>Doğru</h4>
-      <pre><code>WHERE kategori = 'Ekran'</code></pre>
+      <pre><code>WHERE category = 'Display'</code></pre>
     </div>
     <div class="no">
       <h4>Hata verir</h4>
-      <pre><code>WHERE kategori = "Ekran"</code></pre>
+      <pre><code>WHERE category = "Display"</code></pre>
     </div>
   </div>
-  <figcaption>Çift tırnak SQL Server'da metin değil, <b>nesne adı</b> demek. "Ekran" yazdığında sunucu Ekran adında bir sütun arıyor ve bulamıyor.</figcaption>
+  <figcaption>Çift tırnak SQL Server'da metin değil, <b>nesne adı</b> demek. "Display" yazdığında sunucu Display adında bir sütun arıyor ve bulamıyor.</figcaption>
 </figure>
 
-Sayılarda tırnak yok: `WHERE fiyat > 1000`.
+Sayılarda tırnak yok: `WHERE price > 1000`.
 
 Metnin içinde tek tırnak geçiyorsa iki kez yazılıyor:
-`WHERE ad = 'Kadin''s'`. Nadiren gerekiyor ama gerektiğinde bilinmezse
+`WHERE name = 'Kadin''s'`. Nadiren gerekiyor ama gerektiğinde bilinmezse
 saatler yakıyor.
 
 ### Büyük-küçük harf
 
 Varsayılan kurulumda SQL Server **harf büyüklüğünü ayırt etmiyor**:
-`'aksesuar'` ile `'Aksesuar'` aynı sayılıyor. Bu sunucunun harmanlama
+`'aksesuar'` ile `'Accessory'` aynı sayılıyor. Bu sunucunun harmanlama
 (collation) ayarına bağlı ve değiştirilebiliyor — yani her sunucuda böyle
 olduğunu varsayma.
 
 ## Birden çok koşul: AND, OR, NOT
 
 ```sql
-SELECT ad FROM urunler
-WHERE kategori = 'Aksesuar' AND fiyat < 300;
+SELECT name FROM products
+WHERE category = 'Accessory' AND price < 300;
 ```
 
 `AND` ikisini birden, `OR` en az birini istiyor. `NOT` koşulu tersine
@@ -143,15 +143,15 @@ gelmesine benziyor ve aynı şekilde tuzak:
   <div class="versus">
     <div class="no">
       <h4>Beklenen bu değil</h4>
-      <pre><code>WHERE kategori = 'Ekran'
-   OR kategori = 'Aksesuar'
-  AND fiyat &lt; 300</code></pre>
+      <pre><code>WHERE category = 'Display'
+   OR category = 'Accessory'
+  AND price &lt; 300</code></pre>
     </div>
     <div class="ok">
       <h4>Niyetin buysa</h4>
-      <pre><code>WHERE (kategori = 'Ekran'
-    OR kategori = 'Aksesuar')
-  AND fiyat &lt; 300</code></pre>
+      <pre><code>WHERE (category = 'Display'
+    OR category = 'Accessory')
+  AND price &lt; 300</code></pre>
     </div>
   </div>
   <figcaption>Soldaki sorgu "bütün ekranlar, artı 300'den ucuz aksesuarlar" diyor. Parantez olmadan AND yalnızca kendi yanındaki iki koşulu bağlıyor.</figcaption>
@@ -179,14 +179,14 @@ Bu ayrıntı gibi duruyor ama somut bir sonucu var: **`SELECT`'te verdiğin
 takma adı `WHERE`'de kullanamıyorsun.**
 
 ```sql
-SELECT fiyat AS tutar FROM urunler WHERE tutar > 1000;
+SELECT price AS amount FROM products WHERE amount > 1000;
 ```
 
 Bu sorgu "tutar diye bir sütun yok" diyor. `WHERE` çalıştığında `SELECT`
-henüz çalışmamış, yani `tutar` diye bir şey ortada yok. Doğrusu:
+henüz çalışmamış, yani `amount` diye bir şey ortada yok. Doğrusu:
 
 ```sql
-SELECT fiyat AS tutar FROM urunler WHERE fiyat > 1000;
+SELECT price AS amount FROM products WHERE price > 1000;
 ```
 
 ## Noktalı virgül

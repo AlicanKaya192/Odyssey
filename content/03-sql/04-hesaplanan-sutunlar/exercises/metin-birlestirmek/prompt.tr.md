@@ -1,17 +1,17 @@
 Her ürün için şu biçimde bir etiket üret:
 
 ```
-etiket
--------------------
-Antivirus (Yazilim)
-Fare (Aksesuar)
-Kablo (Aksesuar)
+label               
+--------------------
+Antivirus (Software)
+Cable (Accessory)   
+Desktop (Computer)  
 ...
 ```
 
 Yani: ürün adı, boşluk, parantez içinde kategori.
 
-Tek sütun döndür ve adına `etiket` de. Ada göre sırala.
+Tek sütun döndür ve adına `label` de. Ada göre sırala.
 
 **`CONCAT` kullan.** `+` ile de birleştirebilirsin ama parçalardan biri
 boş olduğunda `+` bütün sonucu siliyor; `CONCAT` boş parçayı atlıyor.

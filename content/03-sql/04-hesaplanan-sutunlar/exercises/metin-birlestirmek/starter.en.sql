@@ -1,2 +1,2 @@
--- Produce a label like 'Klavye (Aksesuar)' for every product.
--- One column: etiket. Sort by name.
+-- Produce a label like 'Keyboard (Accessory)' for every product.
+-- One column: label. Sort by name.

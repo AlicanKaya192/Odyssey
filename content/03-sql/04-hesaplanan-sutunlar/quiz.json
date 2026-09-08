@@ -100,8 +100,8 @@
         ]
       },
       "explanation": {
-        "tr": "`+` ile birleştirmede tek bir boş parça **bütün sonucu siliyor**.\n\nSomut sonucu şu: `ad + ' ' + soyad` yazan bir sorguda soyadı kayıtlı olmayan kişilerin adı da kayboluyor, hücre bomboş çıkıyor.\n\n`CONCAT('a', NULL)` ise `'a'` veriyor — boş parçayı atlıyor. Birleştirme için varsayılan tercih `CONCAT` olmalı.",
-        "en": "When joining with `+`, a single empty piece **wipes out the whole result**.\n\nThe concrete consequence: in a query writing `ad + ' ' + soyad`, people with no surname recorded lose their first name too and the cell comes out blank.\n\n`CONCAT('a', NULL)` gives `'a'` instead — it skips the empty piece. `CONCAT` should be your default for joining."
+        "tr": "`+` ile birleştirmede tek bir boş parça **bütün sonucu siliyor**.\n\nSomut sonucu şu: `name + ' ' + soyad` yazan bir sorguda soyadı kayıtlı olmayan kişilerin adı da kayboluyor, hücre bomboş çıkıyor.\n\n`CONCAT('a', NULL)` ise `'a'` veriyor — boş parçayı atlıyor. Birleştirme için varsayılan tercih `CONCAT` olmalı.",
+        "en": "When joining with `+`, a single empty piece **wipes out the whole result**.\n\nThe concrete consequence: in a query writing `name + ' ' + soyad`, people with no surname recorded lose their first name too and the cell comes out blank.\n\n`CONCAT('a', NULL)` gives `'a'` instead — it skips the empty piece. `CONCAT` should be your default for joining."
       }
     },
     {
@@ -186,8 +186,8 @@
       "id": "q8",
       "answer": 3,
       "text": {
-        "tr": "`SELECT fiyat * stok AS deger FROM urunler WHERE deger > 100` neden hata veriyor?",
-        "en": "Why does `SELECT fiyat * stok AS deger FROM urunler WHERE deger > 100` raise an error?"
+        "tr": "`SELECT price * stock AS deger FROM products WHERE deger > 100` neden hata veriyor?",
+        "en": "Why does `SELECT price * stock AS deger FROM products WHERE deger > 100` raise an error?"
       },
       "options": {
         "tr": [
@@ -204,8 +204,8 @@
         ]
       },
       "explanation": {
-        "tr": "İşleme sırası `FROM` → `WHERE` → `SELECT` → `ORDER BY`. `WHERE` çalıştığında `SELECT` henüz çalışmamış, yani `deger` diye bir şey yok.\n\nAma **ifadenin kendisi** kullanılabiliyor, çünkü sütunlar `FROM` ile gelmiş durumda:\n\n```sql\nWHERE fiyat * stok > 100\n```\n\nHesabı iki kez yazmak gerekiyor. `ORDER BY`'da ise takma ad yeterli — o en son çalışıyor.",
-        "en": "The processing order is `FROM` → `WHERE` → `SELECT` → `ORDER BY`. When `WHERE` runs, `SELECT` has not run yet, so nothing called `deger` exists.\n\nBut **the expression itself** can be used, because the columns arrived with `FROM`:\n\n```sql\nWHERE fiyat * stok > 100\n```\n\nYou have to write the calculation twice. In `ORDER BY` the alias is enough — that runs last."
+        "tr": "İşleme sırası `FROM` → `WHERE` → `SELECT` → `ORDER BY`. `WHERE` çalıştığında `SELECT` henüz çalışmamış, yani `deger` diye bir şey yok.\n\nAma **ifadenin kendisi** kullanılabiliyor, çünkü sütunlar `FROM` ile gelmiş durumda:\n\n```sql\nWHERE price * stock > 100\n```\n\nHesabı iki kez yazmak gerekiyor. `ORDER BY`'da ise takma ad yeterli — o en son çalışıyor.",
+        "en": "The processing order is `FROM` → `WHERE` → `SELECT` → `ORDER BY`. When `WHERE` runs, `SELECT` has not run yet, so nothing called `deger` exists.\n\nBut **the expression itself** can be used, because the columns arrived with `FROM`:\n\n```sql\nWHERE price * stock > 100\n```\n\nYou have to write the calculation twice. In `ORDER BY` the alias is enough — that runs last."
       }
     },
     {
@@ -230,16 +230,16 @@
         ]
       },
       "explanation": {
-        "tr": "Bilinmeyen bir sayıya 5 eklersen sonuç yine bilinmiyor. Aritmetikte `NULL` **bulaşıcı**: içinde `NULL` geçen her işlem `NULL` veriyor.\n\nBu, hesaplanan sütunlarda sessizce sorun çıkarıyor: `fiyat + kargo` ifadesinde kargo boşsa toplam da boş oluyor ve o satır rapor toplamında kayboluyor.\n\nÇözüm boşluğa bir değer vermek: `fiyat + ISNULL(kargo, 0)`.",
-        "en": "Add 5 to an unknown number and the result is still unknown. In arithmetic `NULL` is **contagious**: any operation containing `NULL` produces `NULL`.\n\nThis causes quiet trouble in calculated columns: in `fiyat + kargo`, if the shipping cost is empty the total is empty and that row disappears from the report total.\n\nThe fix is to give the gap a value: `fiyat + ISNULL(kargo, 0)`."
+        "tr": "Bilinmeyen bir sayıya 5 eklersen sonuç yine bilinmiyor. Aritmetikte `NULL` **bulaşıcı**: içinde `NULL` geçen her işlem `NULL` veriyor.\n\nBu, hesaplanan sütunlarda sessizce sorun çıkarıyor: `price + kargo` ifadesinde kargo boşsa toplam da boş oluyor ve o satır rapor toplamında kayboluyor.\n\nÇözüm boşluğa bir değer vermek: `price + ISNULL(kargo, 0)`.",
+        "en": "Add 5 to an unknown number and the result is still unknown. In arithmetic `NULL` is **contagious**: any operation containing `NULL` produces `NULL`.\n\nThis causes quiet trouble in calculated columns: in `price + kargo`, if the shipping cost is empty the total is empty and that row disappears from the report total.\n\nThe fix is to give the gap a value: `price + ISNULL(kargo, 0)`."
       }
     },
     {
       "id": "q10",
       "answer": 2,
       "text": {
-        "tr": "`SUBSTRING('Klavye', 2, 3)` ne döndürür?",
-        "en": "What does `SUBSTRING('Klavye', 2, 3)` return?"
+        "tr": "`SUBSTRING('Keyboard', 2, 3)` ne döndürür?",
+        "en": "What does `SUBSTRING('Keyboard', 2, 3)` return?"
       },
       "options": {
         "tr": [
@@ -256,16 +256,16 @@
         ]
       },
       "explanation": {
-        "tr": "`SUBSTRING(metin, baslangic, uzunluk)` — ikinci karakterden başlayıp üç karakter alıyor: `lav` (ölçüldü).\n\n**Sayma 1'den başlıyor**, 0'dan değil. Çoğu programlama dilinde 0'dan başladığı için bu sık karıştırılıyor: `SUBSTRING('Klavye', 1, 3)` → `Kla`.\n\nBaştan almak için `LEFT('Klavye', 3)`, sondan almak için `RIGHT('Klavye', 3)` daha okunur.",
-        "en": "`SUBSTRING(text, start, length)` — it starts at the second character and takes three: `lav` (measured).\n\n**Counting starts at 1**, not 0. Most programming languages start at 0, so this gets mixed up: `SUBSTRING('Klavye', 1, 3)` → `Kla`.\n\nFor the beginning, `LEFT('Klavye', 3)` reads better; for the end, `RIGHT('Klavye', 3)`."
+        "tr": "`SUBSTRING(metin, baslangic, uzunluk)` — ikinci karakterden başlayıp üç karakter alıyor: `lav` (ölçüldü).\n\n**Sayma 1'den başlıyor**, 0'dan değil. Çoğu programlama dilinde 0'dan başladığı için bu sık karıştırılıyor: `SUBSTRING('Keyboard', 1, 3)` → `Kla`.\n\nBaştan almak için `LEFT('Keyboard', 3)`, sondan almak için `RIGHT('Keyboard', 3)` daha okunur.",
+        "en": "`SUBSTRING(text, start, length)` — it starts at the second character and takes three: `lav` (measured).\n\n**Counting starts at 1**, not 0. Most programming languages start at 0, so this gets mixed up: `SUBSTRING('Keyboard', 1, 3)` → `Kla`.\n\nFor the beginning, `LEFT('Keyboard', 3)` reads better; for the end, `RIGHT('Keyboard', 3)`."
       }
     },
     {
       "id": "q11",
       "answer": 0,
       "text": {
-        "tr": "`ISNULL(tedarikci_kod, 'YOK')` yazan bir sorgu kaç satır döndürür?",
-        "en": "How many rows does a query using `ISNULL(tedarikci_kod, 'YOK')` return?"
+        "tr": "`ISNULL(supplier_code, 'NONE')` yazan bir sorgu kaç satır döndürür?",
+        "en": "How many rows does a query using `ISNULL(supplier_code, 'NONE')` return?"
       },
       "options": {
         "tr": [
@@ -342,8 +342,8 @@
       "id": "q14",
       "answer": 2,
       "text": {
-        "tr": "`SELECT ad, fiyat * 1.2 AS kdvli FROM urunler` çalıştırıldıktan sonra tablodaki `fiyat` sütunu ne olur?",
-        "en": "After running `SELECT ad, fiyat * 1.2 AS kdvli FROM urunler`, what happens to the `fiyat` column in the table?"
+        "tr": "`SELECT name, price * 1.2 AS kdvli FROM products` çalıştırıldıktan sonra tablodaki `price` sütunu ne olur?",
+        "en": "After running `SELECT name, price * 1.2 AS kdvli FROM products`, what happens to the `price` column in the table?"
       },
       "options": {
         "tr": [
@@ -446,8 +446,8 @@
       "id": "q18",
       "answer": 2,
       "text": {
-        "tr": "`fiyat + kargo` yazan bir sorguda bazı satırlarda toplam boş çıkıyor. Neden?",
-        "en": "In a query writing `fiyat + kargo`, the total is empty on some rows. Why?"
+        "tr": "`price + kargo` yazan bir sorguda bazı satırlarda toplam boş çıkıyor. Neden?",
+        "en": "In a query writing `price + kargo`, the total is empty on some rows. Why?"
       },
       "options": {
         "tr": [
@@ -464,8 +464,8 @@
         ]
       },
       "explanation": {
-        "tr": "İçinde `NULL` geçen her aritmetik işlem `NULL` veriyor. Kargo boşsa toplam da boş.\n\nBu satır rapor toplamında **hiç görünmüyor** ya da boş çıkıyor ve sebebi kolay fark edilmiyor: sorgu hata vermiyor.\n\nÇözüm boşluğa bir değer vermek:\n\n```sql\nSELECT fiyat + ISNULL(kargo, 0) AS toplam\n```\n\nBurada kararı sen veriyorsun: boş kargo sıfır mı sayılacak, yoksa o satır gerçekten belirsiz mi?",
-        "en": "Any arithmetic containing `NULL` produces `NULL`. If the shipping cost is empty the total is empty.\n\nThat row **disappears** from the report total or shows up blank, and the cause is hard to spot because the query raises no error.\n\nThe fix is to give the gap a value:\n\n```sql\nSELECT fiyat + ISNULL(kargo, 0) AS toplam\n```\n\nThe decision is yours here: should an empty shipping cost count as zero, or is that row genuinely unknown?"
+        "tr": "İçinde `NULL` geçen her aritmetik işlem `NULL` veriyor. Kargo boşsa toplam da boş.\n\nBu satır rapor toplamında **hiç görünmüyor** ya da boş çıkıyor ve sebebi kolay fark edilmiyor: sorgu hata vermiyor.\n\nÇözüm boşluğa bir değer vermek:\n\n```sql\nSELECT price + ISNULL(kargo, 0) AS toplam\n```\n\nBurada kararı sen veriyorsun: boş kargo sıfır mı sayılacak, yoksa o satır gerçekten belirsiz mi?",
+        "en": "Any arithmetic containing `NULL` produces `NULL`. If the shipping cost is empty the total is empty.\n\nThat row **disappears** from the report total or shows up blank, and the cause is hard to spot because the query raises no error.\n\nThe fix is to give the gap a value:\n\n```sql\nSELECT price + ISNULL(kargo, 0) AS toplam\n```\n\nThe decision is yours here: should an empty shipping cost count as zero, or is that row genuinely unknown?"
       }
     },
     {
@@ -542,8 +542,8 @@
         ]
       },
       "explanation": {
-        "tr": "`TRIM` baştaki **ve** sondaki boşlukları atıyor (ölçüldü).\n\nYalnızca bir tarafı için ayrı işlevler var: `LTRIM` baştakini, `RTRIM` sondakini atıyor.\n\nBu, dışarıdan gelmiş veride sürekli gerekiyor: bir dosyadan ya da formdan gelen metinlerde görünmeyen boşluklar oluyor ve `WHERE ad = 'Klavye'` karşılaştırması `'Klavye '` değeriyle tutmuyor.",
-        "en": "`TRIM` removes leading **and** trailing spaces (measured).\n\nThere are separate functions for one side: `LTRIM` for the front, `RTRIM` for the end.\n\nYou need this constantly on data that came from outside: text from a file or a form carries invisible spaces, and `WHERE ad = 'Klavye'` will not match a stored `'Klavye '`."
+        "tr": "`TRIM` baştaki **ve** sondaki boşlukları atıyor (ölçüldü).\n\nYalnızca bir tarafı için ayrı işlevler var: `LTRIM` baştakini, `RTRIM` sondakini atıyor.\n\nBu, dışarıdan gelmiş veride sürekli gerekiyor: bir dosyadan ya da formdan gelen metinlerde görünmeyen boşluklar oluyor ve `WHERE name = 'Keyboard'` karşılaştırması `'Keyboard '` değeriyle tutmuyor.",
+        "en": "`TRIM` removes leading **and** trailing spaces (measured).\n\nThere are separate functions for one side: `LTRIM` for the front, `RTRIM` for the end.\n\nYou need this constantly on data that came from outside: text from a file or a form carries invisible spaces, and `WHERE name = 'Keyboard'` will not match a stored `'Keyboard '`."
       }
     },
     {
@@ -576,20 +576,20 @@
       "id": "q23",
       "answer": 0,
       "text": {
-        "tr": "`SELECT ad, fiyat * stok FROM urunler` sorgusunda ikinci sütunun başlığı ne olur?",
-        "en": "In `SELECT ad, fiyat * stok FROM urunler`, what is the heading of the second column?"
+        "tr": "`SELECT name, price * stock FROM products` sorgusunda ikinci sütunun başlığı ne olur?",
+        "en": "In `SELECT name, price * stock FROM products`, what is the heading of the second column?"
       },
       "options": {
         "tr": [
           "Boş — takma ad verilmediği için sütunun adı yok",
-          "`fiyat * stok`",
-          "`fiyat`",
+          "`price * stock`",
+          "`price`",
           "Hata verir, takma ad zorunlu"
         ],
         "en": [
           "Empty — with no alias the column has no name",
-          "`fiyat * stok`",
-          "`fiyat`",
+          "`price * stock`",
+          "`price`",
           "It raises an error; an alias is required"
         ]
       },

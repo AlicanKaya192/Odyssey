@@ -1,4 +1,4 @@
-Sunucuda **`sehirler`** adında bir tablo hazır duruyor. İçinde beş şehir
+Sunucuda **`cities`** adında bir tablo hazır duruyor. İçinde beş şehir
 var; her satırda şehrin adı, ülkesi ve nüfusu yazıyor.
 
 Görevin bu tablonun **tamamını** ekrana getirmek.
@@ -12,9 +12,9 @@ Görevin bu tablonun **tamamını** ekrana getirmek.
 Sonuç beş satır, dört sütun olmalı:
 
 ```
-id  ad         ulke      nufus
---  ---------  --------  --------
-1   Istanbul   Turkiye   15840900
+id  name      country  population
+--  --------  -------  ----------
+1   Istanbul  Turkey   15840900  
 ...
 ```
 

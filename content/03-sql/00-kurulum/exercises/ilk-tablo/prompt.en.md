@@ -1,4 +1,4 @@
-A table named **`sehirler`** ("cities") is waiting on the server. It holds
+A table named **`cities`** ("cities") is waiting on the server. It holds
 five cities; each row has the city's name, its country and its
 population.
 
@@ -13,9 +13,9 @@ Two words do the job:
 The result should be five rows and four columns:
 
 ```
-id  ad         ulke      nufus
---  ---------  --------  --------
-1   Istanbul   Turkiye   15840900
+id  name      country  population
+--  --------  -------  ----------
+1   Istanbul  Turkey   15840900  
 ...
 ```
 

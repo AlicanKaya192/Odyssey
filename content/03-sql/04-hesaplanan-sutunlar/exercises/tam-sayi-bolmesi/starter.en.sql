@@ -1,3 +1,3 @@
 -- Work out half the stock of the products that are in stock.
--- Columns: ad, stok, yari_stok. Sort by name.
--- Careful: the result must be fractional. stok is an integer.
+-- Columns: name, stock, half_stock. Sort by name.
+-- Careful: the result must be fractional. stock is an integer.

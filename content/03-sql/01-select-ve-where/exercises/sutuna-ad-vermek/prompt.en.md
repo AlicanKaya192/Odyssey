@@ -1,14 +1,14 @@
 Bring back the same two columns, but **change the headings** in the
 result:
 
-- `ad` under the heading `urun`,
-- `fiyat` under the heading `tutar`.
+- `name` under the heading `product`,
+- `price` under the heading `amount`.
 
 ```
-urun      tutar
---------  --------
-Klavye    450.00
-Monitor   3200.00
+product   amount
+--------  ------
+Keyboard  450.0 
+Monitor   3200.0
 ...
 ```
 

@@ -1,17 +1,17 @@
-Stokta bulunan ürünlerin (`stok` sıfırdan büyük) stok adedinin **yarısını**
+Stokta bulunan ürünlerin (`stock` sıfırdan büyük) stok adedinin **yarısını**
 hesapla.
 
-Sütunlar: `ad`, `stok`, `yari_stok`. Ada göre sırala.
+Sütunlar: `name`, `stock`, `half_stock`. Ada göre sırala.
 
 ```
-ad         stok  yari_stok
----------  ----  ---------
-Antivirus  99    49.500000
-Kablo      60    30.000000
+name       stock  half_stock
+---------  -----  ----------
+Antivirus  99     49.5      
+Cable      60     30.0      
 ...
 ```
 
-**Dikkat:** `stok` sütunu tam sayı. `stok / 2` yazarsan sonuç da tam sayı
+**Dikkat:** `stock` sütunu tam sayı. `stock / 2` yazarsan sonuç da tam sayı
 oluyor ve 99'un yarısı **49** çıkıyor — 49,5 değil. Ondalık kısım
 yuvarlanmıyor, atılıyor.
 

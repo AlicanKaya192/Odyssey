@@ -1,3 +1,3 @@
 -- Once kategoriye gore alfabetik, sonra her kategorinin
 -- icinde pahalidan ucuza sirala.
--- Sutunlar: kategori, ad, fiyat
+-- Sutunlar: category, name, price

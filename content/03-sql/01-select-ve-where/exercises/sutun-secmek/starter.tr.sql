@@ -1,1 +1,1 @@
--- urunler tablosundan yalnizca ad ve fiyat sutunlarini getir.
+-- products tablosundan yalnizca name ve price sutunlarini getir.

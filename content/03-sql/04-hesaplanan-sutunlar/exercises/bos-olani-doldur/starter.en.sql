@@ -1,3 +1,3 @@
--- Where tedarikci_kod is empty show 'YOK', otherwise show its
+-- Where supplier_code is empty show 'NONE', otherwise show its
 -- own value.
--- Columns: ad, tedarikci. Sort by name.
+-- Columns: name, supplier. Sort by name.

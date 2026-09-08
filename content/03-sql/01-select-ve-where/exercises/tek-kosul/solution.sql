@@ -1,1 +1,1 @@
-SELECT ad, fiyat FROM urunler WHERE fiyat > 1000;
+SELECT name, price FROM products WHERE price > 1000;

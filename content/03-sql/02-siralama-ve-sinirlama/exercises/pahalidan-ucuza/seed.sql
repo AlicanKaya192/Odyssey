@@ -1,27 +1,27 @@
-CREATE TABLE kategoriler (
-    kod NVARCHAR(10) PRIMARY KEY,
-    ad NVARCHAR(30) NOT NULL
+CREATE TABLE categories (
+    code NVARCHAR(10) PRIMARY KEY,
+    name NVARCHAR(30) NOT NULL
 );
 
-INSERT INTO kategoriler (kod, ad) VALUES
-    ('AKS', 'Aksesuar'),
-    ('EKR', 'Ekran'),
-    ('BIL', 'Bilgisayar');
+INSERT INTO categories (code, name) VALUES
+    ('ACC', 'Accessory'),
+    ('DIS', 'Display'),
+    ('COM', 'Computer');
 
-CREATE TABLE urunler (
+CREATE TABLE products (
     id INT PRIMARY KEY,
-    ad NVARCHAR(40) NOT NULL,
-    kategori NVARCHAR(30) NOT NULL,
-    fiyat DECIMAL(10,2) NOT NULL,
-    stok INT NOT NULL
+    name NVARCHAR(40) NOT NULL,
+    category NVARCHAR(30) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    stock INT NOT NULL
 );
 
-INSERT INTO urunler (id, ad, kategori, fiyat, stok) VALUES
-    (1, 'Klavye', 'Aksesuar', 450.00, 32),
-    (2, 'Monitor', 'Ekran', 3200.00, 8),
-    (3, 'Fare', 'Aksesuar', 220.00, 0),
-    (4, 'Laptop', 'Bilgisayar', 24500.00, 5),
-    (5, 'Kulaklik', 'Aksesuar', 890.00, 14),
-    (6, 'Webcam', 'Aksesuar', 1150.00, 3),
-    (7, 'Masaustu', 'Bilgisayar', 18900.00, 2),
-    (8, 'Projeksiyon', 'Ekran', 7400.00, 0);
+INSERT INTO products (id, name, category, price, stock) VALUES
+    (1, 'Keyboard',  'Accessory', 450.00,   32),
+    (2, 'Monitor',   'Display',   3200.00,   8),
+    (3, 'Mouse',     'Accessory', 220.00,    0),
+    (4, 'Laptop',    'Computer',  24500.00,  5),
+    (5, 'Headset',   'Accessory', 890.00,   14),
+    (6, 'Webcam',    'Accessory', 1150.00,   3),
+    (7, 'Desktop',   'Computer',  18900.00,  2),
+    (8, 'Projector', 'Display',   7400.00,   0);

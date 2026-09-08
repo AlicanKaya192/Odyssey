@@ -2,17 +2,17 @@ Bölümün üç aracını birden kullanıyoruz.
 
 Şu **üç koşulu birden** sağlayan ürünleri getir:
 
-- kategorisi `Aksesuar` ya da `Ekran`,
+- kategorisi `Accessory` ya da `Display`,
 - fiyatı 200 ile 2000 arasında (iki uç dahil),
-- `tedarikci_kod` sütunu **boş değil**.
+- `supplier_code` sütunu **boş değil**.
 
-Sütunlar: `ad`, `kategori`, `fiyat`. Pahalıdan ucuza sırala.
+Sütunlar: `name`, `category`, `price`. Pahalıdan ucuza sırala.
 
 ```
-ad         kategori  fiyat
----------  --------  -------
-Mikrofon   Aksesuar  1320.00
-Webcam     Aksesuar  1150.00
+name        category   price 
+----------  ---------  ------
+Microphone  Accessory  1320.0
+Webcam      Accessory  1150.0
 ...
 ```
 

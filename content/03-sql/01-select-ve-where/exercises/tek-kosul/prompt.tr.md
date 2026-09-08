@@ -1,14 +1,14 @@
 Şimdi satırları süzüyoruz.
 
-**Fiyatı 1000'den büyük** ürünlerin `ad` ve `fiyat` bilgisini getir.
+**Fiyatı 1000'den büyük** ürünlerin `name` ve `price` bilgisini getir.
 
 Sekiz üründen beşi bu koşulu sağlıyor.
 
 ```
-ad           fiyat
------------  ---------
-Monitor      3200.00
-Laptop       24500.00
+name     price  
+-------  -------
+Monitor  3200.0 
+Laptop   24500.0
 ...
 ```
 

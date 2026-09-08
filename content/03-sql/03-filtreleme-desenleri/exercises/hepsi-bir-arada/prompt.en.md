@@ -2,17 +2,17 @@ We use three of the section's tools at once.
 
 Bring back the products that satisfy **all three**:
 
-- the category is `Aksesuar` or `Ekran`,
+- the category is `Accessory` or `Display`,
 - the price is between 200 and 2000 (both ends included),
-- `tedarikci_kod` is **not empty**.
+- `supplier_code` is **not empty**.
 
-Columns: `ad`, `kategori`, `fiyat`. Sort from expensive to cheap.
+Columns: `name`, `category`, `price`. Sort from expensive to cheap.
 
 ```
-ad         kategori  fiyat
----------  --------  -------
-Mikrofon   Aksesuar  1320.00
-Webcam     Aksesuar  1150.00
+name        category   price 
+----------  ---------  ------
+Microphone  Accessory  1320.0
+Webcam      Accessory  1150.0
 ...
 ```
 

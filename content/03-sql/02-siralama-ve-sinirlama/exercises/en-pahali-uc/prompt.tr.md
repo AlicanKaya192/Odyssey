@@ -1,11 +1,11 @@
-En pahalı **üç** ürünün `ad` ve `fiyat` bilgisini getir.
+En pahalı **üç** ürünün `name` ve `price` bilgisini getir.
 
 ```
-ad        fiyat
---------  ---------
-Laptop    24500.00
-Masaustu  18900.00
-Monitor   3200.00
+name       price  
+---------  -------
+Laptop     24500.0
+Desktop    18900.0
+Projector  7400.0 
 ```
 
 İki parça gerekiyor: kaç satır istediğin (`TOP`) ve **hangi** satırlar

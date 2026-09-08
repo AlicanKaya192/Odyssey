@@ -1,5 +1,5 @@
 -- Su uc kosulu birden saglayan urunleri getir:
---   kategorisi Aksesuar ya da Ekran,
+--   kategorisi Accessory ya da Display,
 --   fiyati 200 ile 2000 arasinda (iki uc dahil),
---   tedarikci_kod sutunu bos degil.
--- Sutunlar: ad, kategori, fiyat. Pahalidan ucuza sirala.
+--   supplier_code sutunu bos degil.
+-- Sutunlar: name, category, price. Pahalidan ucuza sirala.

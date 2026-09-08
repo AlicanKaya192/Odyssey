@@ -1,3 +1,3 @@
-SELECT TOP 3 ad, fiyat
-FROM urunler
-ORDER BY fiyat DESC;
+SELECT TOP 3 name, price
+FROM products
+ORDER BY price DESC;

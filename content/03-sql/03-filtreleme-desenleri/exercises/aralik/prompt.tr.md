@@ -1,11 +1,11 @@
-Fiyatı **500 ile 3200 arasında** olan ürünlerin `ad` ve `fiyat` bilgisini
+Fiyatı **500 ile 3200 arasında** olan ürünlerin `name` ve `price` bilgisini
 ucuzdan pahalıya sırala.
 
 ```
-ad           fiyat
------------  --------
-Antivirus    780.00
-Kulaklik     890.00
+name       price
+---------  -----
+Antivirus  780.0
+Headset    890.0
 ...
 ```
 

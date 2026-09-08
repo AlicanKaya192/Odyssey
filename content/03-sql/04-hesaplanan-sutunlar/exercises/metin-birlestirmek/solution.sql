@@ -1,3 +1,3 @@
-SELECT CONCAT(ad, ' (', kategori, ')') AS etiket
-FROM urunler
-ORDER BY ad;
+SELECT CONCAT(name, ' (', category, ')') AS label
+FROM products
+ORDER BY name;

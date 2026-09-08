@@ -1,44 +1,44 @@
-CREATE TABLE kategoriler (
-    kod NVARCHAR(10) PRIMARY KEY,
-    ad NVARCHAR(30) NOT NULL
+CREATE TABLE categories (
+    code NVARCHAR(10) PRIMARY KEY,
+    name NVARCHAR(30) NOT NULL
 );
 
-INSERT INTO kategoriler (kod, ad) VALUES
-    ('AKS', 'Aksesuar'),
-    ('EKR', 'Ekran'),
-    ('BIL', 'Bilgisayar'),
-    ('YAZ', 'Yazilim');
+INSERT INTO categories (code, name) VALUES
+    ('ACC', 'Accessory'),
+    ('DIS', 'Display'),
+    ('COM', 'Computer'),
+    ('SOF', 'Software');
 
-CREATE TABLE tedarikciler (
-    kod NVARCHAR(10) PRIMARY KEY,
-    ad NVARCHAR(40) NOT NULL,
-    sehir NVARCHAR(30) NOT NULL
+CREATE TABLE suppliers (
+    code NVARCHAR(10) PRIMARY KEY,
+    name NVARCHAR(40) NOT NULL,
+    city NVARCHAR(30) NOT NULL
 );
 
-INSERT INTO tedarikciler (kod, ad, sehir) VALUES
-    ('T1', 'Anadolu Teknoloji', 'Ankara'),
-    ('T2', 'Ege Bilisim', 'Izmir'),
-    ('T3', 'Marmara Dagitim', 'Istanbul');
+INSERT INTO suppliers (code, name, city) VALUES
+    ('S1', 'Anatolia Tech', 'Ankara'),
+    ('S2', 'Aegean Systems', 'Izmir'),
+    ('S3', 'Marmara Logistics', 'Istanbul');
 
-CREATE TABLE urunler (
+CREATE TABLE products (
     id INT PRIMARY KEY,
-    ad NVARCHAR(40) NOT NULL,
-    kategori NVARCHAR(30) NOT NULL,
-    fiyat DECIMAL(10,2) NOT NULL,
-    stok INT NOT NULL,
-    tedarikci_kod NVARCHAR(10) NULL
+    name NVARCHAR(40) NOT NULL,
+    category NVARCHAR(30) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    stock INT NOT NULL,
+    supplier_code NVARCHAR(10) NULL
 );
 
-INSERT INTO urunler (id, ad, kategori, fiyat, stok, tedarikci_kod) VALUES
-    (1,  'Klavye',      'Aksesuar',   450.00,   32, 'T1'),
-    (2,  'Monitor',     'Ekran',      3200.00,   8, 'T2'),
-    (3,  'Fare',        'Aksesuar',   220.00,    0, 'T1'),
-    (4,  'Laptop',      'Bilgisayar', 24500.00,  5, 'T3'),
-    (5,  'Kulaklik',    'Aksesuar',   890.00,   14, NULL),
-    (6,  'Webcam',      'Aksesuar',   1150.00,   3, 'T2'),
-    (7,  'Masaustu',    'Bilgisayar', 18900.00,  2, 'T3'),
-    (8,  'Projeksiyon', 'Ekran',      7400.00,   0, NULL),
-    (9,  'Kablo',       'Aksesuar',   95.00,    60, 'T1'),
-    (10, 'Ofis Paketi', 'Yazilim',    2400.00,  99, NULL),
-    (11, 'Antivirus',   'Yazilim',    780.00,   99, 'T2'),
-    (12, 'Mikrofon',    'Aksesuar',   1320.00,   7, 'T3');
+INSERT INTO products (id, name, category, price, stock, supplier_code) VALUES
+    (1,  'Keyboard',     'Accessory', 450.00,   32, 'S1'),
+    (2,  'Monitor',      'Display',   3200.00,   8, 'S2'),
+    (3,  'Mouse',        'Accessory', 220.00,    0, 'S1'),
+    (4,  'Laptop',       'Computer',  24500.00,  5, 'S3'),
+    (5,  'Headset',      'Accessory', 890.00,   14, NULL),
+    (6,  'Webcam',       'Accessory', 1150.00,   3, 'S2'),
+    (7,  'Desktop',      'Computer',  18900.00,  2, 'S3'),
+    (8,  'Projector',    'Display',   7400.00,   0, NULL),
+    (9,  'Cable',        'Accessory', 95.00,    60, 'S1'),
+    (10, 'Office Suite', 'Software',  2400.00,  99, NULL),
+    (11, 'Antivirus',    'Software',  780.00,   99, 'S2'),
+    (12, 'Microphone',   'Accessory', 1320.00,   7, 'S3');

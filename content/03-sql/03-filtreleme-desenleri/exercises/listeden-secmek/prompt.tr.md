@@ -1,11 +1,11 @@
-`Ekran` **ya da** `Yazilim` kategorisindeki ürünlerin `ad` ve `kategori`
+`Display` **ya da** `Software` kategorisindeki ürünlerin `name` ve `category`
 bilgisini alfabetik sırada getir.
 
 ```
-ad           kategori
------------  --------
-Antivirus    Yazilim
-Monitor      Ekran
+name       category
+---------  --------
+Antivirus  Software
+Monitor    Display 
 ...
 ```
 

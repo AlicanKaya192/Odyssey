@@ -1,13 +1,13 @@
-CREATE TABLE sehirler (
+CREATE TABLE cities (
     id INT PRIMARY KEY,
-    ad NVARCHAR(30) NOT NULL,
-    ulke NVARCHAR(30) NOT NULL,
-    nufus INT NOT NULL
+    name NVARCHAR(30) NOT NULL,
+    country NVARCHAR(30) NOT NULL,
+    population INT NOT NULL
 );
 
-INSERT INTO sehirler (id, ad, ulke, nufus) VALUES
-    (1, 'Istanbul', 'Turkiye', 15840900),
-    (2, 'Ankara', 'Turkiye', 5803482),
-    (3, 'Izmir', 'Turkiye', 4462056),
-    (4, 'Berlin', 'Almanya', 3576873),
-    (5, 'Amsterdam', 'Hollanda', 921402);
+INSERT INTO cities (id, name, country, population) VALUES
+    (1, 'Istanbul', 'Turkey', 15840900),
+    (2, 'Ankara', 'Turkey', 5803482),
+    (3, 'Izmir', 'Turkey', 4462056),
+    (4, 'Berlin', 'Germany', 3576873),
+    (5, 'Amsterdam', 'Netherlands', 921402);

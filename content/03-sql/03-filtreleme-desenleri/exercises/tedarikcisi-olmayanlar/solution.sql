@@ -1,4 +1,4 @@
-SELECT ad, kategori
-FROM urunler
-WHERE tedarikci_kod IS NULL
-ORDER BY ad;
+SELECT name, category
+FROM products
+WHERE supplier_code IS NULL
+ORDER BY name;

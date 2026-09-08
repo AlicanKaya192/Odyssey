@@ -16,10 +16,10 @@ error.
 
 | Written as | What it does |
 |---|---|
-| `ORDER BY fiyat` | ascending (the default) |
-| `ORDER BY fiyat ASC` | the same, written out |
-| `ORDER BY fiyat DESC` | descending |
-| `ORDER BY kategori, fiyat DESC` | category ascending, ties broken by price descending |
+| `ORDER BY price` | ascending (the default) |
+| `ORDER BY price ASC` | the same, written out |
+| `ORDER BY price DESC` | descending |
+| `ORDER BY category, price DESC` | category ascending, ties broken by price descending |
 | `ORDER BY 2` | the second column of the `SELECT` list — **do not use** |
 
 `DESC` applies **only to the column it is written on**. To reverse two
@@ -49,8 +49,8 @@ It looks at the **whole selected row**, not at a single column.
 
 <figure class="fig">
   <div class="anat">
-    <div class="anat-row"><span class="anat-label">Returns three rows</span><span class="anat-body"><code>SELECT DISTINCT kategori FROM urunler</code> — only the category is selected, so the repeats are removed.</span></div>
-    <div class="anat-row"><span class="anat-label">Returns eight rows</span><span class="anat-body"><code>SELECT DISTINCT kategori, ad FROM urunler</code> — every <code>ad</code> differs, so every pair is unique.</span></div>
+    <div class="anat-row"><span class="anat-label">Returns three rows</span><span class="anat-body"><code>SELECT DISTINCT category FROM products</code> — only the category is selected, so the repeats are removed.</span></div>
+    <div class="anat-row"><span class="anat-label">Returns eight rows</span><span class="anat-body"><code>SELECT DISTINCT category, name FROM products</code> — every <code>name</code> differs, so every pair is unique.</span></div>
   </div>
 </figure>
 
@@ -62,10 +62,10 @@ FROM -> WHERE -> SELECT -> ORDER BY
 
 This has two concrete consequences:
 
-- **`WHERE` cannot see an alias.** `SELECT fiyat AS tutar ... WHERE tutar > 1000`
+- **`WHERE` cannot see an alias.** `SELECT price AS amount ... WHERE amount > 1000`
   raises an error.
 - **`ORDER BY` can see an alias.** In the same query,
-  `ORDER BY tutar DESC` works.
+  `ORDER BY amount DESC` works.
 
 ## Where do NULLs land?
 

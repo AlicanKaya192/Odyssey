@@ -7,7 +7,7 @@ araç veriyor: metin içinde **desen** aramak, bir **listeden** seçmek, bir
 Sonuncusu — `NULL` — yalnızca bir araç değil, SQL'i başka dillerden ayıran
 bir davranış. Bölümün yarısı ona ayrıldı.
 
-Bu bölümde `urunler` tablosu biraz büyüdü: artık bir de `tedarikci_kod`
+Bu bölümde `products` tablosu biraz büyüdü: artık bir de `supplier_code`
 sütunu var ve **bazı ürünlerde bu sütun boş.**
 
 ## LIKE: metin deseni
@@ -15,15 +15,15 @@ sütunu var ve **bazı ürünlerde bu sütun boş.**
 Tam eşitlik yerine "şununla başlayan", "şunu içeren" demek istiyorsun:
 
 ```sql
-SELECT ad FROM urunler WHERE ad LIKE 'K%';
+SELECT name FROM products WHERE name LIKE 'K%';
 ```
 
 İki joker karakter var:
 
 <figure class="fig">
   <div class="anat">
-    <div class="anat-row"><span class="anat-label">%</span><span class="anat-body"><b>Sıfır ya da daha fazla</b> karakter. <code>'K%'</code> K ile başlayan her şey, <code>'%uk'</code> uk ile biten, <code>'%la%'</code> içinde la geçen.</span></div>
-    <div class="anat-row"><span class="anat-label">_</span><span class="anat-body"><b>Tam bir</b> karakter. <code>'F_re'</code> dört harfli, F ile başlayıp re ile biten şeyler.</span></div>
+    <div class="anat-row"><span class="anat-label">%</span><span class="anat-body"><b>Sıfır ya da daha fazla</b> karakter. <code>'M%'</code> M ile başlayan her şey (Monitor, Mouse, Microphone), <code>'%top'</code> top ile biten (Laptop, Desktop), <code>'%ead%'</code> içinde ead geçen (Headset).</span></div>
+    <div class="anat-row"><span class="anat-label">_</span><span class="anat-body"><b>Tam bir</b> karakter. <code>'M_use'</code> beş harfli, M ile başlayıp use ile biten şeyler (Mouse).</span></div>
   </div>
 </figure>
 
@@ -57,14 +57,14 @@ Uzun `OR` zincirleri yerine:
   <div class="versus">
     <div class="dim">
       <h4>Uzun hâli</h4>
-      <pre><code>WHERE kategori = 'Ekran'
-   OR kategori = 'Aksesuar'
-   OR kategori = 'Yazilim'</code></pre>
+      <pre><code>WHERE category = 'Display'
+   OR category = 'Accessory'
+   OR category = 'Software'</code></pre>
     </div>
     <div class="ok">
       <h4>Kısa hâli</h4>
-      <pre><code>WHERE kategori IN
-  ('Ekran', 'Aksesuar', 'Yazilim')</code></pre>
+      <pre><code>WHERE category IN
+  ('Display', 'Accessory', 'Software')</code></pre>
     </div>
   </div>
   <figcaption>İkisi tamamen aynı işi yapıyor. Sağdaki hem kısa hem parantez tuzağından uzak: OR zincirini AND ile birleştirirken parantez unutmak en sık yapılan hatalardan.</figcaption>
@@ -76,17 +76,17 @@ biraz sonra.
 ## BETWEEN: aralık
 
 ```sql
-SELECT ad, fiyat FROM urunler WHERE fiyat BETWEEN 500 AND 3000;
+SELECT name, price FROM products WHERE price BETWEEN 500 AND 3000;
 ```
 
-**İki uç da dahil.** Yani bu sorgu `fiyat >= 500 AND fiyat <= 3000`
+**İki uç da dahil.** Yani bu sorgu `price >= 500 AND price <= 3000`
 demek. Tam 500 ve tam 3000 olan satırlar geliyor.
 
 Bu, en sık yanlış hatırlanan ayrıntı. "500 ile 3000 arası" derken 3000'i
 dışarıda bırakmak istiyorsan `BETWEEN` doğru araç değil:
 
 ```sql
-WHERE fiyat >= 500 AND fiyat < 3000
+WHERE price >= 500 AND price < 3000
 ```
 
 Sıra da önemli: `BETWEEN 3000 AND 500` **hiçbir satır döndürmüyor**, hata
@@ -105,7 +105,7 @@ demiyoruz, "tedarikçisinin kim olduğu kayıtlı değil" diyoruz.
 ### `= NULL` hiçbir zaman doğru olmuyor
 
 ```sql
-WHERE tedarikci_kod = NULL      -- her zaman boş sonuç
+WHERE supplier_code = NULL      -- her zaman boş sonuç
 ```
 
 Bu sorgu hata vermiyor, **hiçbir satır döndürmüyor.** Sebebi şu:
@@ -127,8 +127,8 @@ eleniyor.
 ### Doğrusu: IS NULL
 
 ```sql
-SELECT ad FROM urunler WHERE tedarikci_kod IS NULL;
-SELECT ad FROM urunler WHERE tedarikci_kod IS NOT NULL;
+SELECT name FROM products WHERE supplier_code IS NULL;
+SELECT name FROM products WHERE supplier_code IS NOT NULL;
 ```
 
 `IS NULL` bir karşılaştırma değil, bir **durum sorusu**: "bu hücre boş
@@ -139,7 +139,7 @@ mu?" Cevabı her zaman doğru ya da yanlış oluyor.
 Bu, SQL'de en çok can yakan davranışlardan biri.
 
 ```sql
-WHERE tedarikci_kod NOT IN ('T1', 'T2', NULL)
+WHERE supplier_code NOT IN ('T1', 'T2', NULL)
 ```
 
 Bu sorgu **hiçbir satır döndürmüyor.** Hata da vermiyor.
@@ -165,13 +165,13 @@ sıralamada başa, azalanda sona geliyor.
 ## Hepsini bir arada
 
 ```sql
-SELECT ad, fiyat
-FROM urunler
-WHERE kategori IN ('Aksesuar', 'Ekran')
-  AND fiyat BETWEEN 200 AND 2000
-  AND tedarikci_kod IS NOT NULL
-  AND ad LIKE '%a%'
-ORDER BY fiyat DESC;
+SELECT name, price
+FROM products
+WHERE category IN ('Accessory', 'Display')
+  AND price BETWEEN 200 AND 2000
+  AND supplier_code IS NOT NULL
+  AND name LIKE '%a%'
+ORDER BY price DESC;
 ```
 
 Dördü de `AND` ile bağlanıyor ve hepsi aynı `WHERE` içinde duruyor.

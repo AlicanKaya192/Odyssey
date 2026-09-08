@@ -1,17 +1,17 @@
-Three products have an empty `tedarikci_kod`. Show `YOK` for those and the
+Three products have an empty `supplier_code`. Show `NONE` for those and the
 actual code for the rest.
 
-Columns: `ad` and `tedarikci`. Sort by name. **Every product belongs in
+Columns: `name` and `supplier`. Sort by name. **Every product belongs in
 the result** — this is not filtering.
 
 ```
-ad           tedarikci
------------  ---------
-Antivirus    T2
-Fare         T1
-Kablo        T1
-Klavye       T1
-Kulaklik     YOK
+name       supplier
+---------  --------
+Antivirus  S2      
+Cable      S1      
+Desktop    S3      
+Headset    NONE    
+Keyboard   S1      
 ...
 ```
 

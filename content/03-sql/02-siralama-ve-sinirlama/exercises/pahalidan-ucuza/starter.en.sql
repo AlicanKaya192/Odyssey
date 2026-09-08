@@ -1,2 +1,2 @@
 -- Sort the products from the highest price to the lowest.
--- The result should have the ad and fiyat columns.
+-- The result should have the name and price columns.

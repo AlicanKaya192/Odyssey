@@ -1,14 +1,14 @@
 Bring back the products whose stock value (price times stock) is **above
 50000**.
 
-Columns: `ad`, `fiyat`, `stok`, `stok_degeri`. Sort by stock value,
+Columns: `name`, `price`, `stock`, `stock_value`. Sort by stock value,
 largest first.
 
 ```
-ad           fiyat     stok  stok_degeri
------------  --------  ----  -----------
-Ofis Paketi  2400.00   99    237600.00
-Laptop       24500.00  5     122500.00
+name          price    stock  stock_value
+------------  -------  -----  -----------
+Office Suite  2400.0   99     237600.0   
+Laptop        24500.0  5      122500.0   
 ...
 ```
 

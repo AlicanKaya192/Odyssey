@@ -1,11 +1,11 @@
 Sort the products priced **between 500 and 3200** from cheap to expensive,
-showing `ad` and `fiyat`.
+showing `name` and `price`.
 
 ```
-ad           fiyat
------------  --------
-Antivirus    780.00
-Kulaklik     890.00
+name       price
+---------  -----
+Antivirus  780.0
+Headset    890.0
 ...
 ```
 

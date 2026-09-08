@@ -23,14 +23,14 @@ SELECT satilan * 100.0 / toplam AS yuzde
 ## 2. NULL bulaşması
 
 ```sql
-SELECT fiyat + kargo AS toplam
+SELECT price + kargo AS toplam
 ```
 
 Kargo boşsa toplam da boş. Rapor toplamında o satır **hiç görünmüyor** ya
 da boş çıkıyor.
 
 ```sql
-SELECT fiyat + ISNULL(kargo, 0) AS toplam
+SELECT price + ISNULL(kargo, 0) AS toplam
 ```
 
 ## 3. Yuvarlama farkı
@@ -47,7 +47,7 @@ baştan karar vermek gerekiyor.
 ## 4. `+` ile birleştirme
 
 ```sql
-SELECT ad + ' ' + soyad AS tam_ad
+SELECT name + ' ' + soyad AS tam_ad
 ```
 
 Soyadı boş olan kişilerde `tam_ad` **tamamen boş** çıkıyor — adı da

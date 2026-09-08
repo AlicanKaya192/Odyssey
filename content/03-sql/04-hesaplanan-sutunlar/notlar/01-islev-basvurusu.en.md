@@ -5,17 +5,17 @@ measured on SQL Server; the values in the result column are real output.
 
 | Function | Example | Result |
 |---|---|---|
-| `LEN` | `LEN('Klavye')` | `6` |
+| `LEN` | `LEN('Keyboard')` | `6` |
 | `LEN` (trailing space) | `LEN('abc   ')` | `3` |
 | `LEN` (leading space) | `LEN('   abc')` | `6` |
 | `DATALENGTH` | `DATALENGTH('abc   ')` | `6` |
 | `UPPER` / `LOWER` | `UPPER('abc')` | `ABC` |
 | `TRIM` | `TRIM('  abc  ')` | `abc` |
 | `LTRIM` / `RTRIM` | `RTRIM('abc  ')` | `abc` |
-| `LEFT` | `LEFT('Klavye', 3)` | `Kla` |
-| `RIGHT` | `RIGHT('Klavye', 3)` | `vye` |
-| `SUBSTRING` | `SUBSTRING('Klavye', 2, 3)` | `lav` |
-| `REPLACE` | `REPLACE('Klavye','a','A')` | `KlAvye` |
+| `LEFT` | `LEFT('Keyboard', 3)` | `Kla` |
+| `RIGHT` | `RIGHT('Keyboard', 3)` | `vye` |
+| `SUBSTRING` | `SUBSTRING('Keyboard', 2, 3)` | `lav` |
+| `REPLACE` | `REPLACE('Keyboard','a','A')` | `KlAvye` |
 | `CONCAT` | `CONCAT('a', NULL, 'b')` | `ab` |
 
 In `SUBSTRING`, counting starts at **1**. Most programming languages start

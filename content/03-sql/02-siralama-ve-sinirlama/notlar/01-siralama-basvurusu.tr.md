@@ -16,10 +16,10 @@ hatası veriyor.
 
 | Yazım | Ne yapıyor |
 |---|---|
-| `ORDER BY fiyat` | artan (varsayılan) |
-| `ORDER BY fiyat ASC` | aynısı, açıkça yazılmış |
-| `ORDER BY fiyat DESC` | azalan |
-| `ORDER BY kategori, fiyat DESC` | önce kategori artan, eşitlerde fiyat azalan |
+| `ORDER BY price` | artan (varsayılan) |
+| `ORDER BY price ASC` | aynısı, açıkça yazılmış |
+| `ORDER BY price DESC` | azalan |
+| `ORDER BY category, price DESC` | önce kategori artan, eşitlerde fiyat azalan |
 | `ORDER BY 2` | `SELECT` listesinin ikinci sütunu — **kullanma** |
 
 `DESC` **yalnızca yazıldığı sütuna** uygulanıyor. İki sütunun ikisini de
@@ -49,8 +49,8 @@ Seçilen **satırın tamamına** bakıyor, tek bir sütuna değil.
 
 <figure class="fig">
   <div class="anat">
-    <div class="anat-row"><span class="anat-label">Üç satır döner</span><span class="anat-body"><code>SELECT DISTINCT kategori FROM urunler</code> — yalnızca kategori seçildiği için tekrar edenler eleniyor.</span></div>
-    <div class="anat-row"><span class="anat-label">Sekiz satır döner</span><span class="anat-body"><code>SELECT DISTINCT kategori, ad FROM urunler</code> — her <code>ad</code> farklı, yani her çift benzersiz.</span></div>
+    <div class="anat-row"><span class="anat-label">Üç satır döner</span><span class="anat-body"><code>SELECT DISTINCT category FROM products</code> — yalnızca kategori seçildiği için tekrar edenler eleniyor.</span></div>
+    <div class="anat-row"><span class="anat-label">Sekiz satır döner</span><span class="anat-body"><code>SELECT DISTINCT category, name FROM products</code> — her <code>name</code> farklı, yani her çift benzersiz.</span></div>
   </div>
 </figure>
 
@@ -62,10 +62,10 @@ FROM -> WHERE -> SELECT -> ORDER BY
 
 Bunun iki somut sonucu var:
 
-- **`WHERE` takma adı göremiyor.** `SELECT fiyat AS tutar ... WHERE tutar > 1000`
+- **`WHERE` takma adı göremiyor.** `SELECT price AS amount ... WHERE amount > 1000`
   hata veriyor.
 - **`ORDER BY` takma adı görebiliyor.** Aynı sorguda
-  `ORDER BY tutar DESC` çalışıyor.
+  `ORDER BY amount DESC` çalışıyor.
 
 ## NULL nereye düşüyor?
 

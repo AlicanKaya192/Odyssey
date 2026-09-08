@@ -1,2 +1,2 @@
--- Aksesuar ya da Ekran kategorisinde olan ve stokta bulunan
+-- Accessory ya da Display kategorisinde olan ve stokta bulunan
 -- urunlerin adini getir.

@@ -9,11 +9,11 @@ yuvarlayacaksın.
 ## Aritmetik
 
 ```sql
-SELECT ad, fiyat, stok, fiyat * stok AS stok_degeri
-FROM urunler;
+SELECT name, price, stock, price * stock AS stock_value
+FROM products;
 ```
 
-`fiyat * stok` diye bir sütun tabloda yok; sonuç üretilirken hesaplanıyor.
+`price * stock` diye bir sütun tabloda yok; sonuç üretilirken hesaplanıyor.
 Tabloya hiçbir şey yazılmıyor.
 
 Dört işlem ve kalan var: `+`, `-`, `*`, `/`, `%`. Öncelik matematikteki
@@ -39,12 +39,12 @@ Bu, SQL'e yeni gelenlerin en sık düştüğü yer.
   <figcaption>İki tam sayıyı bölünce sonuç da tam sayı oluyor ve ondalık kısım atılıyor. Yuvarlama değil, kesme: 3,5 değil 3.</figcaption>
 </figure>
 
-Sütunlarla çalışırken de aynısı: `stok / 2` sütunu `INT` ise sonuç tam
+Sütunlarla çalışırken de aynısı: `stock / 2` sütunu `INT` ise sonuç tam
 sayı. Ondalıklı sonuç istiyorsan bir tarafı ondalıklı yapman gerekiyor:
 
 ```sql
-SELECT stok / 2.0 AS yari
-SELECT CAST(stok AS DECIMAL(10,2)) / 2 AS yari
+SELECT stock / 2.0 AS yari
+SELECT CAST(stock AS DECIMAL(10,2)) / 2 AS yari
 ```
 
 Sorgu hata vermiyor, sessizce yanlış sayı veriyor. Bir raporda yüzde
@@ -56,10 +56,10 @@ hesabı tutmuyorsa ilk bakılacak yer burası.
 SELECT 5 + NULL;   -- NULL
 ```
 
-İçinde `NULL` geçen her aritmetik işlem `NULL` veriyor. `fiyat + kargo`
+İçinde `NULL` geçen her aritmetik işlem `NULL` veriyor. `price + kargo`
 yazdığında kargo boşsa toplam da boş oluyor.
 
-Çözüm boşluğa bir değer vermek: `fiyat + ISNULL(kargo, 0)`.
+Çözüm boşluğa bir değer vermek: `price + ISNULL(kargo, 0)`.
 
 ## Metin işlemleri
 
@@ -122,7 +122,7 @@ Python'un `round` işlevi bunu yapmıyor (o çift sayıya yuvarlıyor, `round(2.
 ## Tür çevirme: CAST ve TRY_CAST
 
 ```sql
-SELECT CAST(fiyat AS INT) FROM urunler;
+SELECT CAST(price AS INT) FROM products;
 ```
 
 Çevrilemeyen bir değerde `CAST` **hata veriyor** ve sorgunun tamamı
@@ -146,15 +146,15 @@ Geçen bölümlerde "takma ad `WHERE`'de kullanılamıyor" demiştik. Ama
   <div class="versus">
     <div class="no">
       <h4>Çalışmaz</h4>
-      <pre><code>SELECT fiyat * stok AS deger
-FROM urunler
+      <pre><code>SELECT price * stock AS deger
+FROM products
 WHERE deger &gt; 100000;</code></pre>
     </div>
     <div class="ok">
       <h4>Çalışır</h4>
-      <pre><code>SELECT fiyat * stok AS deger
-FROM urunler
-WHERE fiyat * stok &gt; 100000;</code></pre>
+      <pre><code>SELECT price * stock AS deger
+FROM products
+WHERE price * stock &gt; 100000;</code></pre>
     </div>
   </div>
   <figcaption>Sebep aynı: WHERE, SELECT'ten önce çalışıyor. Takma ad henüz yok ama sütunlar var, yani hesabı orada tekrar yazabiliyorsun.</figcaption>

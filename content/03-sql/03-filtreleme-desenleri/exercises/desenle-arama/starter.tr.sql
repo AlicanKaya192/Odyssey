@@ -1,1 +1,1 @@
--- Adi K harfiyle baslayan urunleri alfabetik sirada getir.
+-- Adi M harfiyle baslayan urunleri alfabetik sirada getir.

@@ -5,17 +5,17 @@ karşılaşacağın beş tanesi ve ne demek istedikleri.
 
 **Böyle bir sütun yok.** Üç ihtimal, sırayla bak:
 
-1. **Yazım hatası.** `fiyt` yazdın, `fiyat` olacaktı.
-2. **Çift tırnak kullandın.** `WHERE kategori = "Ekran"` yazdıysan sunucu
-   `Ekran` adında bir sütun arıyor. Metin **tek tırnakla** yazılıyor.
+1. **Yazım hatası.** `fiyt` yazdın, `price` olacaktı.
+2. **Çift tırnak kullandın.** `WHERE category = "Display"` yazdıysan sunucu
+   `Display` adında bir sütun arıyor. Metin **tek tırnakla** yazılıyor.
 3. **`SELECT`'teki takma adı `WHERE`'de kullandın.** Sunucu önce `WHERE`'i
    çalıştırıyor; o sırada takma ad henüz yok.
 
 ```sql
 -- calismaz
-SELECT fiyat AS tutar FROM urunler WHERE tutar > 1000;
+SELECT price AS amount FROM products WHERE amount > 1000;
 -- calisir
-SELECT fiyat AS tutar FROM urunler WHERE fiyat > 1000;
+SELECT price AS amount FROM products WHERE price > 1000;
 ```
 
 ## Invalid object name 'X'
@@ -28,17 +28,17 @@ yanlış veritabanına bağlısın (SSMS'te üstteki açılır kutu).
 **Cümle kurulamadı.** Sunucu `X`'i gördüğü yerde ne yapacağını
 bilemiyor. En sık sebepleri:
 
-- Virgül unutulmuş: `SELECT ad fiyat FROM ...`
-- Virgül fazladan: `SELECT ad, FROM ...`
+- Virgül unutulmuş: `SELECT name price FROM ...`
+- Virgül fazladan: `SELECT name, FROM ...`
 - Anahtar kelime yanlış yazılmış: `SELCT`, `FORM`, `WEHRE`
-- Tırnak kapatılmamış: `WHERE kategori = 'Ekran`
+- Tırnak kapatılmamış: `WHERE category = 'Display`
 
 Hata **`X`'in kendisinde değil, ondan hemen öncesinde** olabiliyor —
 sunucu sorunu ancak oraya gelince fark ediyor.
 
 ## Conversion failed when converting the varchar value 'X' to data type int
 
-**Metni sayıyla karşılaştırdın.** `WHERE stok = 'bes'` gibi. Sunucu metni
+**Metni sayıyla karşılaştırdın.** `WHERE stock = 'bes'` gibi. Sunucu metni
 sayıya çevirmeye çalışıyor ve başaramıyor.
 
 ## Ambiguous column name 'X'

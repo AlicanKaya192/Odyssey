@@ -1,17 +1,17 @@
-`urunler` tablosunda beş sütun var: `id`, `ad`, `kategori`, `fiyat`,
-`stok`.
+`products` tablosunda beş sütun var: `id`, `name`, `category`, `price`,
+`stock`.
 
-Bu alıştırmada yalnızca **`ad` ve `fiyat`** sütunlarını istiyoruz — bu
+Bu alıştırmada yalnızca **`name` ve `price`** sütunlarını istiyoruz — bu
 sırayla.
 
 Sekiz ürünün hepsi gelecek; satırları süzmüyoruz, yalnızca sütun
 seçiyoruz.
 
 ```
-ad        fiyat
---------  --------
-Klavye    450.00
-Monitor   3200.00
+name      price 
+--------  ------
+Keyboard  450.0 
+Monitor   3200.0
 ...
 ```
 

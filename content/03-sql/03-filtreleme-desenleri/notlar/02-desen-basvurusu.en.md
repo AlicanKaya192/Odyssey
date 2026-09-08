@@ -4,14 +4,14 @@ A one-page reference for `LIKE`, `IN` and `BETWEEN`.
 
 | Pattern | Matches | Does not match |
 |---|---|---|
-| `'K%'` | Klavye, Kablo, K | Fare |
-| `'%uk'` | Kucuk, uk | ukulele |
-| `'%la%'` | Klavye, lamba, la | Fare |
-| `'F_re'` | Fare, Fire | Fre, Faare |
-| `'____'` | anything exactly four characters long | three or five characters |
+| `'M%'` | Microphone, Monitor, Mouse | Keyboard |
+| `'%top'` | Desktop, Laptop | Monitor |
+| `'%ead%'` | Headset | Mouse |
+| `'M_use'` | Mouse | Moose, House |
+| `'_____'` | Cable, Mouse — anything exactly five characters long | Monitor (seven) |
 
-`%` also matches zero characters: the pattern `'K%'` finds the one-letter
-text `K` as well.
+`%` also matches zero characters: the pattern `'M%'` finds the one-letter
+text `M` as well.
 
 ## Square brackets: specific to SQL Server
 
@@ -20,9 +20,9 @@ carry over to other databases.
 
 | Pattern | Meaning |
 |---|---|
-| `'[KM]%'` | starting with K or M |
+| `'[KM]%'` | starting with K or M (Keyboard, Microphone, Monitor, Mouse) |
 | `'[A-F]%'` | starting with a letter between A and F |
-| `'[^K]%'` | not starting with K |
+| `'[^M]%'` | not starting with M |
 
 ## Searching for the wildcard itself
 
@@ -52,17 +52,17 @@ the most common causes of slowness.
 ## IN
 
 ```sql
-WHERE kategori IN ('Ekran', 'Yazilim')
+WHERE category IN ('Display', 'Software')
 ```
 
 Is exactly the same as:
 
 ```sql
-WHERE kategori = 'Ekran' OR kategori = 'Yazilim'
+WHERE category = 'Display' OR category = 'Software'
 ```
 
 - The list **cannot be empty**: `IN ()` is a syntax error.
-- The list can also be a **subquery**: `IN (SELECT kod FROM tedarikciler)`.
+- The list can also be a **subquery**: `IN (SELECT code FROM suppliers)`.
   That belongs to the subqueries section.
 - `NOT IN` together with `NULL` **always** gives an empty result; the
   details are in the NULL note.
@@ -70,13 +70,13 @@ WHERE kategori = 'Ekran' OR kategori = 'Yazilim'
 ## BETWEEN
 
 ```sql
-WHERE fiyat BETWEEN 500 AND 3000
+WHERE price BETWEEN 500 AND 3000
 ```
 
 Is exactly the same as:
 
 ```sql
-WHERE fiyat >= 500 AND fiyat <= 3000
+WHERE price >= 500 AND price <= 3000
 ```
 
 - **Both ends are included.** If you need them excluded, do not use

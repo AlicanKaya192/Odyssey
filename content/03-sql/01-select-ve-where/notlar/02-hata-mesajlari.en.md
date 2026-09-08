@@ -5,18 +5,18 @@ this section and what they are trying to say.
 
 **There is no such column.** Three possibilities, in order:
 
-1. **A typo.** You wrote `fiyt` where `fiyat` was meant.
-2. **You used double quotes.** Write `WHERE kategori = "Ekran"` and the
-   server goes looking for a column named `Ekran`. Text goes in **single
+1. **A typo.** You wrote `fiyt` where `price` was meant.
+2. **You used double quotes.** Write `WHERE category = "Display"` and the
+   server goes looking for a column named `Display`. Text goes in **single
    quotes**.
 3. **You used a `SELECT` alias inside `WHERE`.** The server runs `WHERE`
    first; at that point the alias does not exist yet.
 
 ```sql
 -- does not work
-SELECT fiyat AS tutar FROM urunler WHERE tutar > 1000;
+SELECT price AS amount FROM products WHERE amount > 1000;
 -- works
-SELECT fiyat AS tutar FROM urunler WHERE fiyat > 1000;
+SELECT price AS amount FROM products WHERE price > 1000;
 ```
 
 ## Invalid object name 'X'
@@ -29,17 +29,17 @@ connected to the wrong database (the dropdown at the top in SSMS).
 **The statement could not be parsed.** The server does not know what to do
 where it found `X`. The most common causes:
 
-- A missing comma: `SELECT ad fiyat FROM ...`
-- An extra comma: `SELECT ad, FROM ...`
+- A missing comma: `SELECT name price FROM ...`
+- An extra comma: `SELECT name, FROM ...`
 - A misspelled keyword: `SELCT`, `FORM`, `WEHRE`
-- An unclosed quote: `WHERE kategori = 'Ekran`
+- An unclosed quote: `WHERE category = 'Display`
 
 The problem may be **just before `X` rather than at `X`** — the server only
 notices once it gets there.
 
 ## Conversion failed when converting the varchar value 'X' to data type int
 
-**You compared text with a number**, as in `WHERE stok = 'bes'`. The
+**You compared text with a number**, as in `WHERE stock = 'bes'`. The
 server tries to turn the text into a number and cannot.
 
 ## Ambiguous column name 'X'

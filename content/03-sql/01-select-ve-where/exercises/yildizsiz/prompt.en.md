@@ -1,12 +1,12 @@
 We are looking for products that are out of stock.
 
-Bring back the `id`, `ad` and `stok` of products whose `stok` is **zero**.
+Bring back the `id`, `name` and `stock` of products whose `stock` is **zero**.
 
 ```
-id  ad           stok
---  -----------  ----
-3   Fare         0
-8   Projeksiyon  0
+id  name       stock
+--  ---------  -----
+3   Mouse      0    
+8   Projector  0    
 ```
 
 **The star is not allowed in this exercise.** You will write the three

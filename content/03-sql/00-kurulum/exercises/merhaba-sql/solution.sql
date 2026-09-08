@@ -1,1 +1,1 @@
-SELECT 'Merhaba SQL' AS mesaj;
+SELECT 'Hello SQL' AS message;

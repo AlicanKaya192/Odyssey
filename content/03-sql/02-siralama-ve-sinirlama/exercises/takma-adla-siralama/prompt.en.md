@@ -1,14 +1,14 @@
 This exercise brings the three parts of the section together.
 
-Bring back the products that are **in stock** (`stok` above zero), return
-`ad` under the heading `urun` and `fiyat` under `tutar`, and sort the
-result **by `tutar` from largest to smallest**.
+Bring back the products that are **in stock** (`stock` above zero), return
+`name` under the heading `product` and `price` under `amount`, and sort the
+result **by `amount` from largest to smallest**.
 
 ```
-urun      tutar
---------  ---------
-Laptop    24500.00
-Masaustu  18900.00
+product  amount 
+-------  -------
+Laptop   24500.0
+Desktop  18900.0
 ...
 ```
 
