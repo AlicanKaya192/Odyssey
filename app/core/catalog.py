@@ -136,6 +136,16 @@ class Exercise:
         return int(self.raw.get("timeout_sec", 10))
 
     @property
+    def language(self) -> str:
+        """Alıştırmanın dili: `python` (varsayılan) ya da `tsql`.
+
+        Dosya adları da buna göre değişiyor (`solution.sql`), ama okuma
+        `_code_for` üzerinden yapıldığı için burada yalnızca çalıştırıcının
+        hangi yolu seçeceği belirleniyor.
+        """
+        return str(self.raw.get("language", "python"))
+
+    @property
     def checks(self) -> list[dict]:
         return list(self.raw.get("checks", []))
 
@@ -247,6 +257,16 @@ class Section:
     @property
     def estimated_minutes(self) -> int:
         return int(self.raw.get("estimated_minutes", 0))
+
+    @property
+    def level(self) -> str:
+        """Bölümün seviyesi: `basic` / `intermediate` / `advanced`.
+
+        Boş bırakılabiliyor. Uzun bir patikada (SQL sıfırdan ileri seviyeye
+        gidiyor) yol ekranı bölümleri bu alana göre başlıklar altında
+        topluyor; alan yoksa liste eskisi gibi düz akıyor.
+        """
+        return str(self.raw.get("level", ""))
 
     @property
     def requires_quiz(self) -> bool:

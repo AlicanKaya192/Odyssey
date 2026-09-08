@@ -11,8 +11,13 @@ Kullanım:
     {
       "code_path":   çalıştırılacak dosya,
       "result_path": sonucun yazılacağı dosya,
-      "checks":      uygulanacak kontroller
+      "checks":      uygulanacak kontroller,
+      "language":    "python" (varsayılan) ya da "tsql"
     }
+
+`language` "tsql" ise kod bu süreçte **çalıştırılmıyor**: `sql_runner`
+gerçek bir MSSQL sunucusuna bağlanıp sorguyu orada çalıştırıyor. Sonuç
+biçimi ikisinde de aynı, arayüz farkı görmüyor.
 
 Sonuç **stdout'a değil, dosyaya** yazılır. Sebebi basit: kullanıcının kodu
 zaten stdout'a `print` ediyor, o kanalı sonuç için kullanamayız.
@@ -31,6 +36,16 @@ import json
 import sys
 import traceback
 from pathlib import Path
+
+# Kardeş modüller (`sql_runner`) import edilebilsin.
+#
+# Bu dosya iki şekilde çalışıyor ve **ikisinde de** kendi klasörü
+# `sys.path`'te değil: normal çalıştırmada `-I` (izole kip) betiğin
+# klasörünü listeden çıkarıyor, paketlenmiş hâlde ise dosya okunup
+# `exec` ediliyor. `__file__` her iki durumda da doğru.
+_KENDI_KLASORU = str(Path(__file__).resolve().parent)
+if _KENDI_KLASORU not in sys.path:
+    sys.path.insert(0, _KENDI_KLASORU)
 
 # Çıktı bu sınırı aşarsa kesilir. Sonsuz döngü içinde print eden bir kod
 # birkaç saniyede yüzlerce megabayt üretebiliyor.
@@ -574,6 +589,16 @@ def main() -> int:
     code_path = str(Path(job["code_path"]).resolve())
     result_path = Path(job["result_path"])
     checks = job.get("checks", [])
+
+    # SQL alıştırmaları bu süreçte çalışmıyor: kod bir sunucuya gidiyor.
+    if job.get("language") == "tsql":
+        import sql_runner
+
+        sonuc = sql_runner.run(job)
+        result_path.write_text(
+            json.dumps(sonuc, ensure_ascii=False), encoding="utf-8"
+        )
+        return 0
 
     source = Path(code_path).read_text(encoding="utf-8")
 

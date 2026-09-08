@@ -55,6 +55,19 @@ from .lesson_view import LessonView, render_markdown
 DIFFICULTY_LABELS = {1: "●○○", 2: "●●○", 3: "●●●"}
 
 
+def exercise_key(exercise: Exercise) -> str:
+    """Alıştırmayı bütün içerik içinde tek olarak adlandırır.
+
+    SQL alıştırmalarının veritabanı bu adla açılıyor. Yalnızca alıştırma
+    kimliği yetmiyor: iki farklı bölümde aynı adlı alıştırma olabiliyor ve
+    ikisi aynı veritabanını paylaşırsa biri ötekinin tohumunu eziyor.
+    """
+    parcalar = exercise.directory.parts
+    if len(parcalar) >= 4:
+        return "/".join((parcalar[-4], parcalar[-3], exercise.id))
+    return exercise.id
+
+
 class RunWorker(QThread):
     """Kodu arka planda çalıştırır."""
 
@@ -72,6 +85,8 @@ class RunWorker(QThread):
                 self._exercise.checks,
                 self._exercise.timeout_sec,
                 self._exercise.directory,
+                language=self._exercise.language,
+                exercise_key=exercise_key(self._exercise),
             )
         )
 
@@ -376,6 +391,7 @@ class ExerciseView(QWidget):
         title = self._language.pick(self._exercise.title)
 
         self._prompt.set_extra(self._hints_html())
+        self._prompt.set_base_dir(self._exercise.directory)
         self._prompt.show_text(f"# {title}\n\n{self._chips_html()}\n\n{body}")
 
     # --- sağ: editör ve sonuçlar -----------------------------------------

@@ -80,6 +80,22 @@ RULES: list[Rule] = [
 
     # --- İçe aktarma -----------------------------------------------------
     Rule("ModuleNotFoundError", r"No module named '(\w+)'", "mistake.module_missing"),
+
+    # --- SQL: sunucuya ulaşılamıyor --------------------------------------
+    #
+    # Bu ikisi öğrencinin kodundan kaynaklanmıyor: makinede MSSQL ya da
+    # ODBC sürücüsü yok. Ham mesaj ("driver_missing") hiçbir şey
+    # anlatmıyor, o yüzden ne yapılacağı yazılıyor.
+    Rule("SqlUnavailable", r"driver_missing", "mistake.sql_driver_missing"),
+    Rule("SqlUnavailable", r"server_missing", "mistake.sql_server_missing"),
+
+    # --- SQL: sorgunun kendisi -------------------------------------------
+    Rule("SqlError", r"Invalid object name '([^']+)'", "mistake.sql_no_table"),
+    Rule("SqlError", r"Invalid column name '([^']+)'", "mistake.sql_no_column"),
+    Rule("SqlError", r"is invalid in the select list because it is not contained in either an aggregate function or the GROUP BY", "mistake.sql_group_by"),
+    Rule("SqlError", r"Incorrect syntax near '([^']+)'", "mistake.sql_syntax"),
+    Rule("SqlError", r"Ambiguous column name '([^']+)'", "mistake.sql_ambiguous"),
+    Rule("SqlError", r"Conversion failed when converting", "mistake.sql_conversion"),
 ]
 
 

@@ -27,6 +27,11 @@ from app.core.catalog import Catalog, ContentError  # noqa: E402
 from app.paths import content_dir  # noqa: E402
 
 LANGUAGES = ("tr", "en")
+
+# Bölümün seviyesi. Boş bırakılabiliyor; yazılıyorsa yol ekranı bu ada
+# göre başlık arıyor (`path.level_<seviye>`), uydurma bir ad ekranda ham
+# anahtar olarak görünürdü.
+SEVIYELER = ("basic", "intermediate", "advanced")
 REFERENCE = "tr"
 
 
@@ -73,11 +78,21 @@ def collect(catalog: Catalog) -> tuple[list[Coverage], list[str]]:
             Coverage(label, "modül başlığı", chapter.id, check_localized_dict(chapter.title))
         )
 
+        seviyeliler = 0
+
         for section in chapter.sections:
             where = f"{chapter.id}/{section.id}"
             coverage.append(
                 Coverage(where, "bölüm başlığı", section.id, check_localized_dict(section.title))
             )
+
+            if section.level:
+                seviyeliler += 1
+                if section.level not in SEVIYELER:
+                    problems.append(
+                        f"{where}: tanınmayan seviye '{section.level}' "
+                        f"(beklenen: {', '.join(SEVIYELER)})"
+                    )
 
             for block in section.blocks:
                 if block.type == "lesson":
@@ -127,6 +142,16 @@ def collect(catalog: Catalog) -> tuple[list[Coverage], list[str]]:
                     )
 
                 problems.extend(_check_exercise(where, exercise))
+
+        # Modülün bölümleri ya tümü seviyeli ya da hiçbiri. Yarısı seviyeli
+        # olursa seviyesiz bölümler sessizce bir önceki başlığın altına
+        # düşüyor; ekranda hata görünmüyor ama ders yanlış gruba giriyor.
+        if seviyeliler and seviyeliler != len(chapter.sections):
+            problems.append(
+                f"{chapter.id}: bölümlerin {seviyeliler}/"
+                f"{len(chapter.sections)} tanesinde seviye var, "
+                "ya hepsinde olmalı ya hiçbirinde"
+            )
 
     return coverage, problems
 
@@ -230,8 +255,31 @@ def _check_ascii(where: str, exercise) -> list[str]:
                 denetle("parametre belirtimi", tip)
         elif kind == "ast_forbid":
             denetle("yasaklı çağrı", check.get("call"))
+        elif kind in ("rows", "columns"):
+            # SQL sonuç kümesi: sütun adları ve beklenen hücreler de
+            # öğrencinin yazacağı şeyler arasında.
+            denetle("beklenen sonuç", check.get("expected"))
+        elif kind in ("sql_require", "sql_forbid"):
+            denetle("SQL kalıbı", check.get("pattern"))
 
     return problems
+
+
+# Tanınan alıştırma dilleri ve her birinin kabul ettiği kontrol tipleri.
+# Yanlış eşleşme sessizce geçmesin: bir Python alıştırmasına `rows`
+# yazıldığında kontrol hiç çalışmıyor ama alıştırma "geçti" görünüyor.
+DILLER = ("python", "tsql")
+ORTAK_KONTROLLER = {"stdout", "artifact"}
+DILE_OZEL_KONTROLLER = {
+    "python": {
+        "variable", "function", "ast_require", "ast_forbid",
+        "annotation", "method",
+    },
+    "tsql": {
+        "rows", "columns", "affected_rows", "sql_require", "sql_forbid",
+        "schema_unchanged",
+    },
+}
 
 
 def _check_exercise(where: str, exercise) -> list[str]:
@@ -239,6 +287,27 @@ def _check_exercise(where: str, exercise) -> list[str]:
 
     if not exercise.checks:
         problems.append(f"{where}/{exercise.id}: hiç kontrol tanımlanmamış")
+
+    dil = exercise.language
+    if dil not in DILLER:
+        problems.append(
+            f"{where}/{exercise.id}: bilinmeyen dil {dil!r} "
+            f"(beklenen: {', '.join(DILLER)})"
+        )
+    else:
+        izinli = ORTAK_KONTROLLER | DILE_OZEL_KONTROLLER[dil]
+        for check in exercise.checks:
+            tur = check.get("type", "")
+            if tur not in izinli:
+                problems.append(
+                    f"{where}/{exercise.id}: {dil} alıştırmasında "
+                    f"geçersiz kontrol tipi {tur!r}"
+                )
+
+    if dil == "tsql":
+        # Tohum olmadan alıştırmanın sorgulayacağı bir tablo yok.
+        if not (exercise.directory / "seed.sql").exists():
+            problems.append(f"{where}/{exercise.id}: seed.sql yok")
 
     problems.extend(_check_ascii(where, exercise))
 

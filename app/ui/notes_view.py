@@ -190,6 +190,11 @@ class NotesView(QWidget):
         else:
             body = resolved.read_text(encoding="utf-8")
 
+        # Notun görselleri notun yanında duruyor; taban orası olmazsa
+        # göreli adres içerik kökünden aranıyor ve resim çıkmıyor.
+        self._reader.set_base_dir(
+            resolved.parent if resolved is not None else None
+        )
         self._reader.show_text(f"# {title}\n\n{body}")
         self._reader.set_meta([counter])
         self._apply_footer()

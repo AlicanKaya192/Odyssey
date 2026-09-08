@@ -21,6 +21,7 @@ import json
 import shutil
 import subprocess
 import sys
+import threading
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -41,6 +42,17 @@ SKIPPED_NAMES = {"exercise.json", "__pycache__"}
 SKIPPED_SUFFIXES = {".md"}
 # starter.py, starter.tr.py, solution.en.py ... hepsi disarida kalir.
 SKIPPED_PREFIXES = ("starter", "solution", "prompt")
+
+# Alıştırmanın hangi dilde yazıldığı. `python` bu süreçte çalışıyor,
+# `tsql` bir MSSQL sunucusuna gidiyor. Uzantı yalnızca hata mesajlarında
+# görünüyor ama orada da doğru olması gerekiyor.
+LANGUAGE_SUFFIX = {"python": ".py", "tsql": ".sql"}
+
+# Bulunan MSSQL sunucusu oturum boyunca hatırlanıyor. Aday listesini her
+# çalıştırmada taramak ilk denemede ~170 ms tutuyor; ipucu verildiğinde
+# doğrudan ona bağlanılıyor. Kalıcı bir ayara yazmıyoruz: sunucu adı
+# makinede değişebiliyor ve bir oturumluk hafıza yeterli.
+_LAST_SERVER = ""
 
 
 @dataclass
@@ -66,6 +78,9 @@ class RunResult:
     # Kullanıcının kodunun ürettiği görsellerin yolları.
     artifacts: list[Path] = field(default_factory=list)
     timeout_sec: int = 0
+    # SQL alıştırmalarında bağlanılan sunucu. Bir sonraki çalıştırma
+    # bunu ipucu olarak alıyor; aday listesi baştan taranmıyor.
+    server: str = ""
 
     @property
     def passed(self) -> bool:
@@ -141,6 +156,12 @@ def _kill_tree(process: subprocess.Popen) -> None:
         pass
 
 
+# Görsel kurtarma ortak bir klasör kullanıyor: bir iş parçacığı eskileri
+# silerken öteki yenisini kopyalarsa ikisi de yarım kalıyor. Denetleyici
+# alıştırmaları paralel çalıştırdığı için kilit gerekli.
+_ARTIFACT_LOCK = threading.Lock()
+
+
 def _rescue_artifacts(entries: list[dict]) -> list[Path]:
     """Üretilen görselleri çalışma klasörü silinmeden önce kurtarır.
 
@@ -149,24 +170,25 @@ def _rescue_artifacts(entries: list[dict]) -> list[Path]:
     görüyor ama dosyayı hiç göremiyordu.
     """
     hedef = artifacts_dir()
-    # Yalnızca son çalıştırmanın çıktısı duruyor; eskiler birikmiyor.
-    for eski in hedef.glob("*"):
-        try:
-            eski.unlink()
-        except OSError:
-            pass
-
     kurtarilan: list[Path] = []
-    for girdi in entries:
-        kaynak = Path(str(girdi.get("path", "")))
-        if not kaynak.is_file():
-            continue
-        varis = hedef / kaynak.name
-        try:
-            shutil.copy2(kaynak, varis)
-        except OSError:
-            continue
-        kurtarilan.append(varis)
+    with _ARTIFACT_LOCK:
+        # Yalnızca son çalıştırmanın çıktısı duruyor; eskiler birikmiyor.
+        for eski in hedef.glob("*"):
+            try:
+                eski.unlink()
+            except OSError:
+                pass
+
+        for girdi in entries:
+            kaynak = Path(str(girdi.get("path", "")))
+            if not kaynak.is_file():
+                continue
+            varis = hedef / kaynak.name
+            try:
+                shutil.copy2(kaynak, varis)
+            except OSError:
+                continue
+            kurtarilan.append(varis)
     return kurtarilan
 
 
@@ -197,12 +219,30 @@ def run_code(
     checks: list[dict],
     timeout_sec: int = 10,
     exercise_dir: Path | None = None,
+    *,
+    language: str = "python",
+    exercise_key: str = "",
+    server_hint: str = "",
 ) -> RunResult:
-    """Kodu çalıştırır ve kontrolleri uygular."""
+    """Kodu çalıştırır ve kontrolleri uygular.
+
+    `language` "tsql" ise kod bu makinedeki bir MSSQL sunucusunda
+    çalışıyor. Akış aynı kalıyor — iş tanımı yazılıyor, ayrı süreç
+    çağrılıyor, sonuç dosyadan okunuyor — yalnızca denetleyici içeride
+    başka bir yola sapıyor. Böylece zaman aşımı, süreç ağacını öldürme ve
+    çıktı sınırı SQL tarafında da bedavaya geliyor.
+
+    `exercise_key` SQL alıştırmasının veritabanını adlandırıyor; aynı adlı
+    iki alıştırma farklı bölümlerde olabildiği için bölüm kimliğini de
+    içermeli.
+    """
+    global _LAST_SERVER
+
     workspace = _prepare_workspace(exercise_dir)
-    code_path = workspace / "cozum.py"
+    code_path = workspace / f"cozum{LANGUAGE_SUFFIX.get(language, '.py')}"
     job_path = workspace / "job.json"
     result_path = workspace / "result.json"
+    seed_path = workspace / "seed.sql"
 
     try:
         code_path.write_text(code, encoding="utf-8")
@@ -212,6 +252,10 @@ def run_code(
                     "code_path": str(code_path),
                     "result_path": str(result_path),
                     "checks": checks,
+                    "language": language,
+                    "exercise_key": exercise_key,
+                    "seed_path": str(seed_path) if seed_path.exists() else "",
+                    "server_hint": server_hint or _LAST_SERVER,
                 },
                 ensure_ascii=False,
             ),
@@ -250,6 +294,9 @@ def run_code(
             )
 
         raw = json.loads(result_path.read_text(encoding="utf-8"))
+        bulunan = raw.get("server", "")
+        if bulunan:
+            _LAST_SERVER = bulunan
         return RunResult(
             artifacts=_rescue_artifacts(raw.get("artifacts", [])),
             status=raw.get("status", "ok"),
@@ -267,6 +314,7 @@ def run_code(
                 for item in raw.get("checks", [])
             ],
             timeout_sec=timeout_sec,
+            server=raw.get("server", ""),
         )
 
     finally:

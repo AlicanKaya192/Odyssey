@@ -12,6 +12,8 @@ içinde durabiliyor ama işi uygulama yapıyor.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import json
 
 from PySide6.QtCore import QTimer, QUrl, Signal
@@ -159,10 +161,25 @@ class DocumentView(QWebEngineView):
             )
         self._restore_to = 0
 
+    # Sayfadaki göreli adreslerin (resim, dosya) çözüleceği klasör.
+    # Varsayılan içerik kökü; bir bölüm kendi klasörünü verdiğinde
+    # `assets/adim-1.png` gibi kısa yollar yazılabiliyor.
+    _base_override: Path | None = None
+
+    def set_base_dir(self, directory: "Path | None") -> None:
+        """Göreli adreslerin çözüleceği klasörü değiştirir.
+
+        Ders metni bir bölümün klasöründen geliyor; resimleri de orada
+        duruyor. Taban içerik kökünde kalırsa yazarın her resmi
+        `03-sql/00-kurulum/assets/...` diye yazması gerekiyordu.
+        """
+        self._base_override = directory
+
     def _base_path(self) -> str:
         from ..paths import content_dir
 
-        return f"{content_dir()}/"
+        taban = self._base_override or content_dir()
+        return f"{taban}/"
 
     def set_lang(self, code: str) -> None:
         """Belgenin dilini bildirir; büyük harf dönüşümü buna bakıyor."""

@@ -205,6 +205,11 @@ class LessonView(QWidget):
         else:
             self._source = path.read_text(encoding="utf-8")
 
+        # Göreli adresler dersin kendi klasörüne göre çözülüyor: yazar
+        # `assets/kurulum-1.png` yazabiliyor, içerik kökünden başlayan uzun
+        # yolu tekrarlamıyor.
+        self.set_base_dir(path.parent if path is not None else None)
+
         self._banners = []
         if completed:
             self._banners.append(("ok", self._language.t("section.completed_banner")))
@@ -232,6 +237,15 @@ class LessonView(QWidget):
         self._read_reported = True
         self._read_timer.stop()
         self.action.emit("lesson-read")
+
+    def set_base_dir(self, directory: "Path | None") -> None:
+        """Sayfadaki göreli adreslerin çözüleceği klasörü bildirir.
+
+        `show_lesson` bunu kendisi yapıyor; `show_text` ile hazır metin
+        verenlerin (not, alıştırma yönergesi) klasörü ayrıca söylemesi
+        gerekiyor.
+        """
+        self._document.set_base_dir(directory)
 
     def show_text(self, text: str) -> None:
         """Hazır markdown metnini gösterir (alıştırma yönergesi gibi).

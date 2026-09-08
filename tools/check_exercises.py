@@ -3,7 +3,7 @@
 `validate_content.py` şemaya bakıyor: dosya var mı, çeviri tam mı, kod ASCII
 mi. Bu araç ise kodu **çalıştırıyor** ve iki soruyu cevaplıyor:
 
-1. `solution.py` alıştırmanın kontrollerinden geçiyor mu?
+1. `solution` alıştırmanın kontrollerinden geçiyor mu?
 2. **Son ipucu** alıştırmayı gerçekten çözüyor mu?
 
 İkincisi gözden kaçmaya çok müsait. Arayüz son kademeyi "Çözümün tamamı"
@@ -18,6 +18,10 @@ alıştırma biçimi var: başlangıçta hazır veri duruyorsa ipucu onu
 tekrarlamıyor (birleştirme geçer), başlangıçtaki kod değiştirilecekse ipucu
 tam çözümü veriyor (tek başına geçer).
 
+Python ve T-SQL alıştırmalarının ikisi de aynı yoldan geçiyor; fark
+`exercise.json` içindeki `language` alanında ve çalıştırıcı onu kendisi
+seçiyor.
+
 Kullanım:
 
     python tools/check_exercises.py            # hepsi
@@ -30,15 +34,27 @@ from __future__ import annotations
 import re
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.core.catalog import Exercise
-from app.core.runner import run_code
-from app.paths import content_dir
+from app.core.catalog import Exercise  # noqa: E402
+from app.core.runner import run_code  # noqa: E402
+from app.paths import content_dir  # noqa: E402
 
-KOD_BLOGU = re.compile(r"```python\n(.*?)```", re.S)
+# İpucundaki kod bloğu. Dil etiketi alıştırmanın diline göre değişiyor
+# (`python` / `sql`); ikisi de kabul ediliyor.
+KOD_BLOGU = re.compile(r"```(?:python|sql|tsql)\n(.*?)```", re.S)
+
+# Kaç alıştırma aynı anda çalışsın. Her biri bir alt süreç açıp beklerken
+# GIL'i bırakıyor, yani iş parçacığı yeterli — süreç havuzuna gerek yok.
+# Altıda tutuluyor: daha fazlası hem belleği hem MSSQL bağlantılarını
+# zorluyor, kazanç ise düzleşiyor.
+ISCI_SAYISI = 6
+
+# Başlangıç kodunda yorum satırının nasıl başladığı.
+YORUM_ONEKI = {"python": "#", "tsql": "--"}
 
 
 def hint_kodu(exercise: Exercise, language: str) -> str | None:
@@ -52,54 +68,71 @@ def hint_kodu(exercise: Exercise, language: str) -> str | None:
 def starter_kodu(exercise: Exercise, language: str) -> str:
     """Başlangıç kodunun yorum olmayan satırları.
 
-    Kullanıcı bunları silmiyor; ipucu bunların üstüne yazılıyor.
+    Kullanıcı bunları silmiyor; ipucu bunların üstüne yazılıyor. Yorum
+    işareti dile göre değişiyor: Python'da `#`, T-SQL'de `--`.
     """
+    onek = YORUM_ONEKI.get(exercise.language, "#")
     lines = exercise.starter_code_for(language).splitlines()
-    return "\n".join(l for l in lines if l.strip() and not l.strip().startswith("#"))
+    return "\n".join(
+        l for l in lines if l.strip() and not l.strip().startswith(onek)
+    )
+
+
+def bir_alistirma(path: Path) -> list[str]:
+    """Tek bir alıştırmayı denetler; bulduğu sorunları döndürür."""
+    problems: list[str] = []
+    exercise = Exercise.load(path)
+    where = f"{path.parts[-4]}/{path.parts[-3]}/{exercise.id}"
+
+    def calistir(kod: str):
+        return run_code(
+            kod,
+            exercise.checks,
+            exercise.timeout_sec,
+            path,
+            language=exercise.language,
+            exercise_key=where,
+        )
+
+    result = calistir(exercise.solution_code)
+    if not result.passed:
+        problems.append(f"{where}: çözüm geçmiyor ({result.status})")
+
+    for language in ("tr", "en"):
+        code = hint_kodu(exercise, language)
+        if code is None:
+            problems.append(f"{where}: son ipucunda ({language}) kod bloğu yok")
+            continue
+        if language != "tr":
+            # Kod iki dilde aynı olmak zorunda değil ama ikisi de
+            # çalışmalı; TR'yi zaten çalıştırdık, EN farklıysa onu da.
+            if code == hint_kodu(exercise, "tr"):
+                continue
+        # İki yol da kabul: ipucu tek başına yeterli olabilir ya da
+        # başlangıçtaki hazır kodun üstüne eklenerek çalışabilir.
+        alone = calistir(code)
+        if alone.passed:
+            continue
+        merged = starter_kodu(exercise, language) + "\n" + code
+        hint_result = calistir(merged)
+        if not hint_result.passed:
+            problems.append(
+                f"{where}: son ipucu ({language}) alıştırmayı çözmüyor "
+                f"(tek başına {alone.status}, birleşik {hint_result.status})"
+            )
+
+    return problems
 
 
 def denetle(directories: list[Path]) -> list[str]:
-    problems: list[str] = []
-    count = 0
+    """Alıştırmaları paralel çalıştırır; sorunları kaynak sırasında verir."""
+    isci = min(ISCI_SAYISI, max(1, len(directories)))
+    with ThreadPoolExecutor(max_workers=isci) as havuz:
+        # `map` sırayı koruyor: rapor her çalıştırmada aynı sırada çıkıyor.
+        sonuclar = list(havuz.map(bir_alistirma, directories))
 
-    for path in directories:
-        exercise = Exercise.load(path)
-        where = f"{path.parts[-4]}/{path.parts[-3]}/{exercise.id}"
-        count += 1
-
-        result = run_code(
-            exercise.solution_code, exercise.checks, exercise.timeout_sec, path
-        )
-        if not result.passed:
-            problems.append(f"{where}: çözüm geçmiyor ({result.status})")
-
-        for language in ("tr", "en"):
-            code = hint_kodu(exercise, language)
-            if code is None:
-                problems.append(f"{where}: son ipucunda ({language}) kod bloğu yok")
-                continue
-            if language != "tr":
-                # Kod iki dilde aynı olmak zorunda değil ama ikisi de
-                # çalışmalı; TR'yi zaten çalıştırdık, EN farklıysa onu da.
-                if code == hint_kodu(exercise, "tr"):
-                    continue
-            # İki yol da kabul: ipucu tek başına yeterli olabilir ya da
-            # başlangıçtaki hazır kodun üstüne eklenerek çalışabilir.
-            alone = run_code(code, exercise.checks, exercise.timeout_sec, path)
-            if alone.passed:
-                continue
-            merged = starter_kodu(exercise, language) + "\n" + code
-            hint_result = run_code(
-                merged, exercise.checks, exercise.timeout_sec, path
-            )
-            if not hint_result.passed:
-                problems.append(
-                    f"{where}: son ipucu ({language}) alıştırmayı çözmüyor "
-                    f"(tek başına {alone.status}, birleşik {hint_result.status})"
-                )
-
-    print(f"{count} alıştırma çalıştırıldı.")
-    return problems
+    print(f"{len(directories)} alıştırma çalıştırıldı ({isci} paralel).")
+    return [sorun for grup in sonuclar for sorun in grup]
 
 
 def main() -> int:

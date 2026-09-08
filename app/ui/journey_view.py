@@ -37,7 +37,7 @@ from ..core.progress import ProgressStore
 from ..core.unlock import blocking_section
 from ..resources.icons import icon, pixmap
 from ..resources.theme.tokens import CONTENT_WIDTH, NODE_STATES, PALETTES, SPACING
-from ..widgets.common import Card, StatBlock, section_label
+from ..widgets.common import Card, StatBlock, horizontal_rule, section_label
 from ..widgets.effects import apply_shadow, refresh_shadow, repolish
 
 # Düğümlerin soldan uzaklıkları — yol bu değerlerle zigzag çiziyor.
@@ -781,6 +781,41 @@ class PathNode(QWidget):
             self.setGraphicsEffect(solukluk)
 
 
+class LevelHeader(QWidget):
+    """Yolun üstünde bir seviye grubunu açan başlık.
+
+    Uzun bir patikada (SQL sıfırdan ileri seviyeye gidiyor) bölümler tek
+    sıra hâlinde akınca "ben neredeyim" sorusunun cevabı kayboluyor.
+    Başlık iki yanına çizgi çekilmiş bir etiket: yolu kesmeden bölüyor.
+    """
+
+    def __init__(
+        self,
+        title: str,
+        count: str,
+        first: bool,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+
+        row = QHBoxLayout(self)
+        # İlk başlık sayfanın kendi üst boşluğunun altında duruyor; sonraki
+        # başlıklar bir önceki grubun son halkasından ayrılmak için nefes
+        # alanı istiyor.
+        row.setContentsMargins(
+            0, 0 if first else SPACING["xl"], 0, SPACING["md"]
+        )
+        row.setSpacing(SPACING["sm"])
+
+        orta = Qt.AlignmentFlag.AlignVCenter
+        row.addWidget(horizontal_rule(), 1, orta)
+        row.addWidget(section_label(title), 0, orta)
+        etiket = QLabel(count)
+        etiket.setProperty("role", "muted")
+        row.addWidget(etiket, 0, orta)
+        row.addWidget(horizontal_rule(), 1, orta)
+
+
 class PathView(QWidget):
     """Bir modülün bölümlerini yol hâlinde gösterir."""
 
@@ -845,6 +880,8 @@ class PathView(QWidget):
         # "Şu an buradasın" işareti: tamamlanmamış ilk bölüm.
         current_index = self._current_index(chapter)
 
+        basliklar = self._level_headers(chapter)
+
         for index, section in enumerate(chapter.sections):
             state = self._state_of(chapter.id, section)
             if index == current_index and state != "completed":
@@ -869,10 +906,17 @@ class PathView(QWidget):
             )
             node.opened.connect(self.section_opened)
 
+            baslik = basliklar.get(index)
+            if baslik is not None:
+                self._layout.addWidget(baslik)
+
             self._layout.addWidget(self._zigzag_row(node, index))
 
+            # Bir sonraki bölüm yeni bir grubu açıyorsa bağlayıcı çizgi
+            # çizilmiyor: çizgi başlığın içinden geçmiş gibi duruyordu.
             son_gercek = index == len(chapter.sections) - 1
-            if not son_gercek or chapter.planned:
+            grup_bitiyor = (index + 1) in basliklar
+            if (not son_gercek or chapter.planned) and not grup_bitiyor:
                 self._layout.addWidget(self._connector(index, state == "completed"))
 
         # Henüz yazılmamış bölümler: soluk, tıklanmayan halkalar. Modülün
@@ -897,6 +941,42 @@ class PathView(QWidget):
                 self._layout.addWidget(self._connector(index, False))
 
         self._layout.addStretch(1)
+
+    def _level_headers(self, chapter: Chapter) -> dict[int, QWidget]:
+        """Seviyenin değiştiği her bölümün önüne konacak başlıklar.
+
+        Bölümlerde `level` yazmıyorsa sözlük boş kalıyor ve yol eskisi gibi
+        kesintisiz akıyor — mevcut modüllerin hiçbiri etkilenmiyor. Sayı
+        kesir yazılıyor (`2/6`), çünkü çıplak bir sayı grubun ne kadarının
+        bittiğini söylemiyor.
+        """
+        basliklar: dict[int, QWidget] = {}
+        onceki = ""
+
+        for index, section in enumerate(chapter.sections):
+            seviye = section.level
+            if not seviye or seviye == onceki:
+                continue
+            onceki = seviye
+
+            grup = [s for s in chapter.sections if s.level == seviye]
+            biten = sum(
+                1
+                for s in grup
+                if self._state_of(chapter.id, s) == "completed"
+            )
+            # Büyük harf `t_upper` ile alınıyor: Python'un `.upper()`
+            # metodu Türkçedeki `i`yi noktasız `I` yapıyor ve "Orta Seviye"
+            # ekranda "ORTA SEVIYE" diye yazılıyordu.
+            basliklar[index] = LevelHeader(
+                self._language.t_upper(f"path.level_{seviye}"),
+                self._language.t(
+                    "path.level_count", done=biten, total=len(grup)
+                ),
+                first=not basliklar,
+            )
+
+        return basliklar
 
     def _zigzag_row(self, node: QWidget, index: int) -> QWidget:
         """Bir yol halkasını zikzak konumuna koyup satırı ortalar.
