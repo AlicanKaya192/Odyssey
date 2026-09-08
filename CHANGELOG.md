@@ -19,6 +19,14 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.8.0] — yayınlanmadı
+
+### Düzeltildi
+- **Discord'daki yazı geç çıkıyordu.** Uygulama açıldığında görünmüyor,
+  ancak bir bölüme girdiğinizde ya da bir dakika sonra beliriyordu.
+
+---
+
 ## [0.7.5] — 7 Eylül 2026
 
 ### Eklendi
@@ -32,8 +40,6 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   açmadan önce bulunduğunuz satırla bir sonraki birbirine yapışıyor, ikinci
   Enter'da yerine oturuyordu.
 - **Sınav ilk sorudan değil, sayfanın ortasından başlıyordu.**
-- **Discord'daki yazı geç çıkıyordu.** Uygulama açıldığında görünmüyor,
-  ancak bir bölüme girdiğinizde ya da bir dakika sonra beliriyordu.
 
 ---
 
