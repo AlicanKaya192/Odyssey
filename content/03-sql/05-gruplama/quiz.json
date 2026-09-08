@@ -1,0 +1,654 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "On iki satırlık `products` tablosunda `COUNT(*)` ile `COUNT(supplier_code)` neden farklı sonuç veriyor?",
+        "en": "On a twelve-row `products` table, why do `COUNT(*)` and `COUNT(supplier_code)` give different results?"
+      },
+      "options": {
+        "tr": [
+          "COUNT(*) daha hızlı çalışıyor",
+          "COUNT(sütun) yalnızca ilk 9 satıra bakıyor",
+          "COUNT(*) satırları sayıyor; COUNT(sütun) o sütunu dolu olanları",
+          "İkisi aynı sonucu verir"
+        ],
+        "en": [
+          "COUNT(*) runs faster",
+          "COUNT(column) only looks at the first 9 rows",
+          "COUNT(*) counts rows; COUNT(column) counts the rows where that column is filled",
+          "They give the same result"
+        ]
+      },
+      "explanation": {
+        "tr": "`COUNT(*)` sütunlara hiç bakmıyor, satırları sayıyor: **12**.\n\n`COUNT(supplier_code)` yalnızca o sütunu **dolu** olan satırları sayıyor: **9** (ölçüldü).\n\nAradaki fark bilgi veriyor: 12 − 9 = 3 satırda tedarikçi kayıtlı değil. Bir sütunda ne kadar eksik veri olduğunu görmenin en hızlı yolu bu.",
+        "en": "`COUNT(*)` never looks at columns; it counts rows: **12**.\n\n`COUNT(supplier_code)` counts only the rows where that column is **filled**: **9** (measured).\n\nThe difference is information: 12 − 9 = 3 rows have no supplier recorded. It is the fastest way to see how much data is missing from a column."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 1,
+      "text": {
+        "tr": "`GROUP BY` olmadan yazılan `SELECT COUNT(*) FROM products` kaç satır döndürür?",
+        "en": "How many rows does `SELECT COUNT(*) FROM products` return without a `GROUP BY`?"
+      },
+      "options": {
+        "tr": [
+          "Tablodaki satır sayısı kadar",
+          "Bir — bütün tablo tek bir grup sayılıyor",
+          "Sıfır",
+          "Hata verir"
+        ],
+        "en": [
+          "As many as there are rows in the table",
+          "One — the whole table counts as a single group",
+          "Zero",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Toplama işlevi satırları **tek bir değere** indiriyor. `GROUP BY` yoksa bütün tablo tek bir grup sayılıyor ve sonuç tek satır oluyor.\n\n`GROUP BY category` eklendiğinde ise her kategori ayrı bir grup oluyor ve dört satır dönüyor.\n\nBu yüzden \"kategori başına sayı\" istiyorsan gruplama şart: yoksa 12 sayısını alıyorsun, dağılımı değil.",
+        "en": "An aggregate function collapses rows into **a single value**. With no `GROUP BY` the whole table counts as one group and the result is one row.\n\nAdd `GROUP BY category` and each category becomes its own group, giving four rows.\n\nSo if you want a number per category the grouping is required: otherwise you get 12, not the breakdown."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`SELECT category, name, COUNT(*) FROM products GROUP BY category` neden hata veriyor?",
+        "en": "Why does `SELECT category, name, COUNT(*) FROM products GROUP BY category` raise an error?"
+      },
+      "options": {
+        "tr": [
+          "name sütunu ne GROUP BY listesinde ne de bir toplama işlevinin içinde",
+          "COUNT(*) ile birlikte başka sütun kullanılamaz",
+          "GROUP BY yalnızca sayısal sütunlarla çalışıyor",
+          "İki sütun aynı anda gruplanamaz"
+        ],
+        "en": [
+          "The name column is neither in the GROUP BY list nor inside an aggregate",
+          "No other column can be used alongside COUNT(*)",
+          "GROUP BY only works with numeric columns",
+          "Two columns cannot be grouped at once"
+        ]
+      },
+      "explanation": {
+        "tr": "Kural tek cümle: **`SELECT` içindeki her sütun ya `GROUP BY` listesinde olmalı ya da bir toplama işlevinin içinde.**\n\n`Accessory` grubunda altı ürün var; sunucu hangisinin adını yazacağını bilemiyor ve tahmin etmiyor.\n\nHata mesajı da bunu söylüyor: `Column 'products.name' is invalid in the select list because it is not contained in either an aggregate function or the GROUP BY clause`.\n\nİki çıkış yolu var: sütunu gruplamaya eklemek, ya da `MAX(name)` gibi hangisini istediğini söylemek.",
+        "en": "The rule is one sentence: **every column in `SELECT` must be in the `GROUP BY` list or inside an aggregate function.**\n\nThe `Accessory` group holds six products; the server cannot tell whose name to print and does not guess.\n\nThe error says exactly that: `Column 'products.name' is invalid in the select list because it is not contained in either an aggregate function or the GROUP BY clause`.\n\nTwo ways out: add the column to the grouping, or say which one you want with something like `MAX(name)`."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 3,
+      "text": {
+        "tr": "`WHERE COUNT(*) > 2` yazınca ne oluyor?",
+        "en": "What happens when you write `WHERE COUNT(*) > 2`?"
+      },
+      "options": {
+        "tr": [
+          "Çalışır ve grupları süzer",
+          "Çalışır ama satırları süzer",
+          "Boş sonuç döner",
+          "Hata verir — WHERE gruplar oluşmadan önce çalışıyor"
+        ],
+        "en": [
+          "It works and filters groups",
+          "It works but filters rows",
+          "It returns an empty result",
+          "It raises an error — WHERE runs before the groups exist"
+        ]
+      },
+      "explanation": {
+        "tr": "Hata mesajı: `An aggregate may not appear in the WHERE clause` (ölçüldü).\n\nİşleme sırası `FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY`. `WHERE` çalıştığında sunucu tek tek satırlara bakıyor; ortada sayılacak bir grup yok.\n\nGrupları süzen parça `HAVING` ve `GROUP BY`'dan sonra yazılıyor.",
+        "en": "The error reads `An aggregate may not appear in the WHERE clause` (measured).\n\nThe processing order is `FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY`. When `WHERE` runs the server is looking at individual rows; there is no group to count.\n\nThe piece that filters groups is `HAVING`, written after `GROUP BY`."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 1,
+      "text": {
+        "tr": "`WHERE` ile `HAVING` arasındaki fark nedir?",
+        "en": "What is the difference between `WHERE` and `HAVING`?"
+      },
+      "options": {
+        "tr": [
+          "HAVING daha hızlı çalışıyor",
+          "WHERE gruplama öncesi satırları, HAVING gruplama sonrası grupları eliyor",
+          "WHERE yalnızca sayılarla, HAVING yalnızca metinlerle çalışıyor",
+          "İkisi aynı şeyi yapıyor, HAVING daha yeni"
+        ],
+        "en": [
+          "HAVING runs faster",
+          "WHERE removes rows before grouping; HAVING removes groups after",
+          "WHERE only works with numbers and HAVING only with text",
+          "They do the same thing; HAVING is newer"
+        ]
+      },
+      "explanation": {
+        "tr": "`WHERE` gruplar oluşmadan çalışıyor ve tek tek **satırları** eliyor. `HAVING` gruplar oluştuktan sonra çalışıyor ve **grupları** eliyor.\n\nİkisi birlikte de kullanılıyor:\n\n```sql\nWHERE stock > 0          -- once ilgilenmedigin satirlari at\nGROUP BY category\nHAVING COUNT(*) >= 2     -- sonra kucuk gruplari ele\n```\n\nSıra sabit ve değiştirilemiyor.",
+        "en": "`WHERE` runs before the groups exist and removes individual **rows**. `HAVING` runs after grouping and removes **groups**.\n\nThey are used together too:\n\n```sql\nWHERE stock > 0          -- first drop the rows you do not care about\nGROUP BY category\nHAVING COUNT(*) >= 2     -- then drop the small groups\n```\n\nThe order is fixed and cannot be changed."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 2,
+      "text": {
+        "tr": "`SELECT category, COUNT(*) AS adet FROM products GROUP BY category HAVING adet > 2` neden hata veriyor?",
+        "en": "Why does `SELECT category, COUNT(*) AS c FROM products GROUP BY category HAVING c > 2` raise an error?"
+      },
+      "options": {
+        "tr": [
+          "HAVING sayılarla çalışmıyor",
+          "Takma ad sayısal olamaz",
+          "HAVING, SELECT'ten önce çalışıyor; takma ad o sırada yok",
+          "GROUP BY'dan sonra HAVING yazılamaz"
+        ],
+        "en": [
+          "HAVING does not work with numbers",
+          "An alias cannot be numeric",
+          "HAVING runs before SELECT, so the alias does not exist yet",
+          "HAVING cannot follow GROUP BY"
+        ]
+      },
+      "explanation": {
+        "tr": "İşleme sırası: `GROUP BY` → `HAVING` → `SELECT` → `ORDER BY`.\n\nTakma ad `SELECT` çalışırken oluşuyor; `HAVING` ondan önce çalıştığı için o ad henüz yok. Hata `Invalid column name` oluyor (ölçüldü).\n\nKoşulu uzun hâliyle yazmak gerekiyor: `HAVING COUNT(*) > 2`.\n\nAynı takma ad `ORDER BY` içinde çalışıyor — o en sonda. Bu, patikada üçüncü kez karşına çıkan aynı kural.",
+        "en": "The processing order is `GROUP BY` → `HAVING` → `SELECT` → `ORDER BY`.\n\nThe alias comes into existence while `SELECT` runs; `HAVING` runs before it, so the name does not exist yet. The error is `Invalid column name` (measured).\n\nThe condition has to be written in full: `HAVING COUNT(*) > 2`.\n\nThe same alias works inside `ORDER BY` — that runs last. This is the third time the same rule appears on this path."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`SELECT SUM(price) FROM products WHERE price > 999999` (hiç satır eşleşmiyor) ne döndürür?",
+        "en": "What does `SELECT SUM(price) FROM products WHERE price > 999999` return when no rows match?"
+      },
+      "options": {
+        "tr": [
+          "`NULL`",
+          "`0`",
+          "Hiç satır dönmez",
+          "Hata"
+        ],
+        "en": [
+          "`NULL`",
+          "`0`",
+          "No rows at all",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "`SUM` \"toplayacak bir şey yoktu\" diyor ve `NULL` veriyor (ölçüldü).\n\nAynı koşulda `COUNT(*)` **0** veriyor — o \"sıfır satır saydım\" diyebiliyor.\n\nBu asimetri raporlarda boş hücreye yol açıyor ve \"sıfır satış\" ile \"veri yok\" birbirine karışıyor. Sıfır görmek istiyorsan `ISNULL(SUM(price), 0)` yazıyorsun.\n\nDikkat: sorgu **tek satır** döndürüyor, içinde `NULL` olan bir satır. Hiç satır dönmemesi ayrı bir durum ve `GROUP BY` varken oluyor.",
+        "en": "`SUM` says \"there was nothing to add up\" and gives `NULL` (measured).\n\nUnder the same condition `COUNT(*)` gives **0** — it can say \"I counted zero rows\".\n\nThis asymmetry leaves blank cells in reports and confuses \"zero sales\" with \"no data\". If you want a zero, write `ISNULL(SUM(price), 0)`.\n\nNote: the query returns **one row** containing `NULL`. Returning no rows at all is a different case and happens when there is a `GROUP BY`."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 2,
+      "text": {
+        "tr": "`stock` bir `INT` sütunu. `SELECT AVG(stock) FROM products` neden 27,41 yerine 27 veriyor?",
+        "en": "`stock` is an `INT` column. Why does `SELECT AVG(stock) FROM products` give 27 rather than 27.41?"
+      },
+      "options": {
+        "tr": [
+          "AVG her zaman aşağı yuvarlıyor",
+          "27,41 zaten yanlış",
+          "Sütun tam sayı olduğu için bölme de tam sayı yapılıyor ve ondalık kısım atılıyor",
+          "AVG yalnızca ondalıklı sütunlarda çalışıyor"
+        ],
+        "en": [
+          "AVG always rounds down",
+          "27.41 is simply wrong",
+          "Because the column is an integer the division is done as integers and the fraction is dropped",
+          "AVG only works on decimal columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Dördüncü bölümdeki tam sayı bölmesi kuralı `AVG` içinde de geçerli: toplam da tam sayı, bölüm de.\n\nYuvarlama değil **kesme**: 27,41 → 27.\n\nDüzeltmesi türü açıkça çevirmek:\n\n```sql\nSELECT AVG(CAST(stock AS DECIMAL(10,2))) FROM products;  -- 27.41\n```\n\nOrtalama hesaplarken sütunun türüne bakma alışkanlığı edinmek gerekiyor; sorgu hata vermiyor.",
+        "en": "The integer-division rule from the fourth section applies inside `AVG` too: the total is an integer and so is the division.\n\nIt is truncation, not rounding: 27.41 becomes 27.\n\nThe fix is to convert the type explicitly:\n\n```sql\nSELECT AVG(CAST(stock AS DECIMAL(10,2))) FROM products;  -- 27.41\n```\n\nGet into the habit of checking the column type when averaging; the query raises no error."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 1,
+      "text": {
+        "tr": "`AVG(price)` hesaplanırken `price` sütunu boş olan satırlara ne oluyor?",
+        "en": "What happens to rows with an empty `price` when `AVG(price)` is calculated?"
+      },
+      "options": {
+        "tr": [
+          "Sıfır sayılıyorlar",
+          "Tamamen atlanıyorlar — ne paya ne paydaya giriyorlar",
+          "Ortalamayı NULL yapıyorlar",
+          "Hata veriyorlar"
+        ],
+        "en": [
+          "They count as zero",
+          "They are skipped entirely — neither numerator nor denominator",
+          "They make the average NULL",
+          "They raise an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Toplama işlevleri boş değerleri atlıyor. `AVG` için bu, o satırların **paydadan da** düşmesi demek.\n\nOn siparişin üçünde kargo boşsa ortalama yediye bölünüyor, ona değil — ve sonuç olduğundan yüksek çıkıyor.\n\nÇoğu zaman istenen bu, ama her zaman değil. Boşluğu sıfır saymak istiyorsan açıkça yazıyorsun:\n\n```sql\nAVG(ISNULL(kargo, 0))\n```\n\nKarar senin; sunucu sessizce atlıyor.",
+        "en": "Aggregate functions skip empty values. For `AVG` that means those rows drop out of the **denominator** as well.\n\nIf three of ten orders have no shipping cost, the average is divided by seven rather than ten — and comes out higher than it should.\n\nUsually that is what you want, but not always. If you want an empty cell to count as zero, you say so:\n\n```sql\nAVG(ISNULL(shipping, 0))\n```\n\nThe decision is yours; the server just skips."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 3,
+      "text": {
+        "tr": "`SELECT supplier_code, COUNT(*) FROM products GROUP BY supplier_code` — üç tedarikçi ve boş değerler var. Kaç satır döner?",
+        "en": "`SELECT supplier_code, COUNT(*) FROM products GROUP BY supplier_code` — there are three suppliers plus empty values. How many rows?"
+      },
+      "options": {
+        "tr": [
+          "3 — boş değerler atlanır",
+          "12",
+          "1",
+          "4 — boş değerlerin hepsi tek bir grup oluyor"
+        ],
+        "en": [
+          "3 — the empty values are skipped",
+          "12",
+          "1",
+          "4 — all the empty values form a single group"
+        ]
+      },
+      "explanation": {
+        "tr": "Gruplamada bütün boş değerler **tek bir gruba** giriyor: `S1`, `S2`, `S3` ve bir de boş grup — dört satır (ölçüldü).\n\nBu, karşılaştırma kuralıyla çelişiyor gibi duruyor: orada `NULL = NULL` \"bilinmiyor\" oluyor. Gruplamada ise iki boş değer aynı sayılıyor.\n\nTutarsız görünse de pratik: yoksa her boş hücre kendi başına bir grup olurdu ve gruplama işe yaramazdı.",
+        "en": "In grouping, all empty values fall into a **single group**: `S1`, `S2`, `S3` and one empty group — four rows (measured).\n\nThis looks like it contradicts the comparison rule, where `NULL = NULL` is \"unknown\". In grouping, two empty values count as the same.\n\nInconsistent as it looks, it is practical: otherwise every empty cell would be its own group and grouping would be useless."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`COUNT(DISTINCT category)` ne sayıyor?",
+        "en": "What does `COUNT(DISTINCT category)` count?"
+      },
+      "options": {
+        "tr": [
+          "Sütundaki farklı değer sayısını",
+          "Toplam satır sayısını",
+          "Boş olmayan satır sayısını",
+          "Kategorideki ürün sayısını"
+        ],
+        "en": [
+          "The number of different values in the column",
+          "The total number of rows",
+          "The number of non-empty rows",
+          "The number of products in the category"
+        ]
+      },
+      "explanation": {
+        "tr": "On iki satırlık tabloda dört farklı kategori var, yani sonuç **4** (ölçüldü).\n\nÜç `COUNT` biçimini karıştırmamak gerekiyor:\n\n- `COUNT(*)` → 12, satır sayısı\n- `COUNT(category)` → 12, sütunu dolu olan satırlar\n- `COUNT(DISTINCT category)` → 4, farklı değerler\n\n`DISTINCT` burada da boş değerleri saymıyor.",
+        "en": "The twelve-row table has four different categories, so the result is **4** (measured).\n\nDo not mix up the three forms of `COUNT`:\n\n- `COUNT(*)` → 12, the number of rows\n- `COUNT(category)` → 12, rows where the column is filled\n- `COUNT(DISTINCT category)` → 4, the different values\n\n`DISTINCT` does not count empty values here either."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 2,
+      "text": {
+        "tr": "`GROUP BY category, supplier_code` yazınca grup nasıl oluşuyor?",
+        "en": "How are groups formed by `GROUP BY category, supplier_code`?"
+      },
+      "options": {
+        "tr": [
+          "Önce kategoriye, sonra ayrı bir sorguda tedarikçiye göre",
+          "Yalnızca kategoriye göre; ikinci sütun sıralama için",
+          "İki sütunun birlikte oluşturduğu her farklı çift bir grup",
+          "Kategori sayısı kadar grup oluyor"
+        ],
+        "en": [
+          "First by category, then by supplier in a separate query",
+          "Only by category; the second column is for sorting",
+          "Every distinct pair the two columns form together is a group",
+          "There are as many groups as there are categories"
+        ]
+      },
+      "explanation": {
+        "tr": "Grup, listedeki sütunların **birlikte** oluşturduğu her farklı bileşim.\n\nBu tabloda sonuç dokuz satır çıkıyor (ölçüldü) — dört kategoriden de üç tedarikçiden de fazla, çünkü her gerçekleşen çift ayrı bir grup.\n\nGruplama listesine sütun eklemek grupları **küçültüyor** ve sayılarını artırıyor. Uçta her sütunu eklersen her satır kendi grubu olur ve gruplama anlamını yitirir.",
+        "en": "A group is every distinct combination the listed columns form **together**.\n\nOn this table the result is nine rows (measured) — more than the four categories and more than the three suppliers, because each pair that actually occurs is its own group.\n\nAdding a column to the grouping list makes the groups **smaller** and more numerous. At the extreme, adding every column makes each row its own group and grouping loses its point."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 1,
+      "text": {
+        "tr": "`GROUP BY` içeren bir sorguda hiçbir satır koşulu sağlamazsa ne dönüyor?",
+        "en": "In a query with `GROUP BY`, what comes back when no row matches the condition?"
+      },
+      "options": {
+        "tr": [
+          "Sıfır değerli tek satır",
+          "Hiç satır",
+          "NULL değerli tek satır",
+          "Hata"
+        ],
+        "en": [
+          "One row containing zero",
+          "No rows at all",
+          "One row containing NULL",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "Grup oluşturacak satır yoksa grup da yok, dolayısıyla **hiç satır dönmüyor** (ölçüldü).\n\nBu, `GROUP BY` olmayan hâlinden farklı: `SELECT COUNT(*) FROM products WHERE ...` her zaman tek satır döndürüyor, içinde 0 olsa bile.\n\nRaporlarda bu fark önemli: \"hiç satışı olmayan kategoriler\" listesi bu sorguyla **çıkmıyor**, çünkü o kategorilerin satır hiç yok. Onun için `JOIN` gerekiyor — Orta Seviye'nin konusu.",
+        "en": "With no rows to form a group there is no group, so **no rows come back** (measured).\n\nThis differs from the case without `GROUP BY`: `SELECT COUNT(*) FROM products WHERE ...` always returns one row, even if it contains 0.\n\nThe difference matters in reports: a list of \"categories with no sales\" does **not** come out of this query, because those categories have no rows at all. That needs a `JOIN` — a topic for the intermediate level."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 3,
+      "text": {
+        "tr": "Bir kategoride kaç ürün olduğunu **ve** en pahalısının adını aynı sorguda istiyorsun. Ne yaparsın?",
+        "en": "You want both the number of products in a category **and** the name of the most expensive one, in the same query. What do you do?"
+      },
+      "options": {
+        "tr": [
+          "name sütununu doğrudan SELECT'e ekle",
+          "İki ayrı sorgu yazmak zorundasın",
+          "GROUP BY listesine name ekle",
+          "Bu bölümün araçları yetmiyor; pencere fonksiyonları gerekiyor"
+        ],
+        "en": [
+          "Add the name column directly to SELECT",
+          "You have to write two separate queries",
+          "Add name to the GROUP BY list",
+          "This section's tools are not enough; it needs window functions"
+        ]
+      },
+      "explanation": {
+        "tr": "İlk seçenek hata veriyor: sütun ne gruplamada ne bir işlevin içinde.\n\nÜçüncü seçenek gruplamayı bozuyor: `GROUP BY category, name` yazınca her ürün kendi grubu oluyor ve sayılar hep 1 çıkıyor.\n\n`MAX(name)` işe yarar gibi duruyor ama **alfabetik olarak son** adı veriyor, en pahalı olanı değil — ikisi aynı ürün olmak zorunda değil.\n\n\"Grubun içindeki belirli bir satır\" sorusu bu bölümün araçlarıyla çözülmüyor. Cevabı pencere fonksiyonları (`ROW_NUMBER`, `RANK`) ve İleri Seviye'nin konusu.",
+        "en": "The first option raises an error: the column is neither in the grouping nor inside a function.\n\nThe third breaks the grouping: with `GROUP BY category, name` each product becomes its own group and every count is 1.\n\n`MAX(name)` looks like it would work but gives the **alphabetically last** name, not the most expensive one — they need not be the same product.\n\n\"A specific row inside a group\" is not solvable with this section's tools. The answer is window functions (`ROW_NUMBER`, `RANK`) and belongs to the advanced level."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "İşleme sırası hangisi?",
+        "en": "Which is the processing order?"
+      },
+      "options": {
+        "tr": [
+          "FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY",
+          "SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY",
+          "FROM → GROUP BY → WHERE → SELECT → HAVING → ORDER BY",
+          "FROM → WHERE → SELECT → GROUP BY → HAVING → ORDER BY"
+        ],
+        "en": [
+          "FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY",
+          "SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY",
+          "FROM → GROUP BY → WHERE → SELECT → HAVING → ORDER BY",
+          "FROM → WHERE → SELECT → GROUP BY → HAVING → ORDER BY"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu sıra bölümün bütün kurallarını tek başına açıklıyor:\n\n- `WHERE` gruplamadan önce → içinde toplama işlevi olamıyor\n- `HAVING` `SELECT`'ten önce → içinde takma ad olamıyor\n- `ORDER BY` en sonda → takma adı da toplama işlevini de görebiliyor\n\nDikkat: bu **işleme** sırası. **Yazılış** sırası farklı ve `SELECT` başta yazılıyor.",
+        "en": "This order explains all of the section's rules on its own:\n\n- `WHERE` comes before grouping → no aggregate inside it\n- `HAVING` comes before `SELECT` → no alias inside it\n- `ORDER BY` is last → it can see both aliases and aggregates\n\nNote: this is the **processing** order. The **written** order is different and starts with `SELECT`."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 2,
+      "text": {
+        "tr": "`MIN` ve `MAX` yalnızca sayılarda mı çalışıyor?",
+        "en": "Do `MIN` and `MAX` only work on numbers?"
+      },
+      "options": {
+        "tr": [
+          "Evet, yalnızca sayılarda",
+          "Yalnızca sayı ve tarihlerde",
+          "Hayır — metinlerde de çalışıyor, alfabetik ilk ve son değeri veriyor",
+          "Hayır ama metinlerde uzunluğa bakıyor"
+        ],
+        "en": [
+          "Yes, numbers only",
+          "Numbers and dates only",
+          "No — they work on text too, giving the alphabetically first and last value",
+          "No, but on text they compare by length"
+        ]
+      },
+      "explanation": {
+        "tr": "`MIN` ve `MAX` sıralanabilen her türde çalışıyor: sayı, tarih ve metin.\n\nMetinde sıralama alfabetik, yani `MAX(name)` alfabetik olarak **son** adı veriyor.\n\nBu bir tuzağa da yol açıyor: \"en pahalı ürünün adı\" için `MAX(name)` yazmak yanlış — o, adı alfabetik olarak son gelen ürünü veriyor, en pahalı olanı değil.",
+        "en": "`MIN` and `MAX` work on any sortable type: numbers, dates and text.\n\nFor text the ordering is alphabetical, so `MAX(name)` gives the alphabetically **last** name.\n\nThis leads to a trap: writing `MAX(name)` for \"the name of the most expensive product\" is wrong — it gives the product whose name sorts last, not the priciest one."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 1,
+      "text": {
+        "tr": "`WHERE stock > 0 GROUP BY category` ile `GROUP BY category HAVING SUM(stock) > 0` aynı şeyi mi soruyor?",
+        "en": "Do `WHERE stock > 0 GROUP BY category` and `GROUP BY category HAVING SUM(stock) > 0` ask the same thing?"
+      },
+      "options": {
+        "tr": [
+          "Evet, ikisi de aynı sonucu verir",
+          "Hayır — biri satırları, diğeri grupları eliyor",
+          "Evet ama ikincisi daha yavaş",
+          "Hayır, ikincisi hata verir"
+        ],
+        "en": [
+          "Yes, both give the same result",
+          "No — one removes rows and the other removes groups",
+          "Yes, but the second is slower",
+          "No, the second raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Tamamen farklı iki soru:\n\n- **Birincisi:** stokta olan ürünleri say. Stoğu sıfır olan ürünler hiç sayılmıyor.\n- **İkincisi:** kategorinin **toplam** stoğu sıfırdan büyük mü? Stoğu sıfır olan ürünler de sayıya dahil, yalnızca toplamı sıfır olan kategoriler eleniyor.\n\nİkisi de çalışıyor, hata vermiyor — bu yüzden karıştırıldığında fark edilmiyor.\n\nÖrnek: altı ürünlü bir kategoride biri stokta değilse birincisi 5, ikincisi 6 diyor.",
+        "en": "Two completely different questions:\n\n- **The first:** count the products that are in stock. Products with zero stock are never counted.\n- **The second:** is the category's **total** stock above zero? Products with zero stock are included in the count; only categories whose total is zero get dropped.\n\nBoth run without error — which is why mixing them up goes unnoticed.\n\nExample: in a six-product category with one out of stock, the first says 5 and the second says 6."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 3,
+      "text": {
+        "tr": "Bir tabloda tekrar eden kayıtları bulmak için hangi sorgu yazılır?",
+        "en": "Which query finds duplicate records in a table?"
+      },
+      "options": {
+        "tr": [
+          "`SELECT DISTINCT name FROM products`",
+          "`SELECT name FROM products WHERE COUNT(*) > 1`",
+          "`SELECT COUNT(name) FROM products`",
+          "`SELECT name, COUNT(*) FROM products GROUP BY name HAVING COUNT(*) > 1`"
+        ],
+        "en": [
+          "`SELECT DISTINCT name FROM products`",
+          "`SELECT name FROM products WHERE COUNT(*) > 1`",
+          "`SELECT COUNT(name) FROM products`",
+          "`SELECT name, COUNT(*) FROM products GROUP BY name HAVING COUNT(*) > 1`"
+        ]
+      },
+      "explanation": {
+        "tr": "Sahada en sık kullanılan gruplama sorgusu bu: değere göre grupla, birden fazla satırı olan grupları getir.\n\n`DISTINCT` tersini yapıyor — tekrarları **eliyor**, gösterge olarak kullanılamıyor.\n\nİkinci seçenek `WHERE` içinde toplama işlevi kullandığı için hata veriyor.\n\nBu kalıp veri temizliğinin ilk adımı: mükerrer müşteri, çift girilmiş fatura, aynı e-postayla iki hesap.",
+        "en": "This is the most used grouping query in practice: group by the value and return the groups with more than one row.\n\n`DISTINCT` does the opposite — it **removes** the duplicates and cannot be used to find them.\n\nThe second option raises an error because it uses an aggregate inside `WHERE`.\n\nThis pattern is the first step of data cleaning: duplicate customers, invoices entered twice, two accounts on one email."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "Bir sütundaki boş hücre sayısını nasıl bulursun?",
+        "en": "How do you find the number of empty cells in a column?"
+      },
+      "options": {
+        "tr": [
+          "`COUNT(*) - COUNT(sütun)`",
+          "`COUNT(NULL)`",
+          "`SUM(sütun IS NULL)`",
+          "`COUNT(DISTINCT sütun)`"
+        ],
+        "en": [
+          "`COUNT(*) - COUNT(column)`",
+          "`COUNT(NULL)`",
+          "`SUM(column IS NULL)`",
+          "`COUNT(DISTINCT column)`"
+        ]
+      },
+      "explanation": {
+        "tr": "`COUNT(*)` bütün satırları, `COUNT(sütun)` yalnızca dolu olanları sayıyor. Fark boş olanları veriyor.\n\nBu tabloda: 12 − 9 = **3**.\n\n`COUNT(NULL)` **hata veriyor** (ölçüldü): `Operand data type NULL is invalid for count operator`. `SUM(sütun IS NULL)` ise T-SQL'de hata: `IS NULL` bir koşul, sayı değil (SQL Server'da mantıksal değer bir tür değil).\n\nAlternatif: `COUNT(*) FILTER` diye bir şey T-SQL'de yok; `SUM(CASE WHEN sütun IS NULL THEN 1 ELSE 0 END)` yazılabiliyor.",
+        "en": "`COUNT(*)` counts every row and `COUNT(column)` only the filled ones. The difference gives the empty ones.\n\nOn this table: 12 − 9 = **3**.\n\n`COUNT(NULL)` **raises an error** (measured): `Operand data type NULL is invalid for count operator`. `SUM(column IS NULL)` is an error in T-SQL: `IS NULL` is a condition, not a number (SQL Server has no boolean type).\n\nAn alternative: T-SQL has no `COUNT(*) FILTER`, but you can write `SUM(CASE WHEN column IS NULL THEN 1 ELSE 0 END)`."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 2,
+      "text": {
+        "tr": "Gruplama sorgusunun doğruluğunu kontrol etmenin en pratik yolu nedir?",
+        "en": "What is the most practical way to check a grouping query?"
+      },
+      "options": {
+        "tr": [
+          "Sorguyu iki kez çalıştırmak",
+          "Sütun sayısını saymak",
+          "Grup sayılarını toplayıp gruplama öncesi satır sayısıyla karşılaştırmak",
+          "ORDER BY eklemek"
+        ],
+        "en": [
+          "Running the query twice",
+          "Counting the columns",
+          "Adding up the group counts and comparing with the row count before grouping",
+          "Adding an ORDER BY"
+        ]
+      },
+      "explanation": {
+        "tr": "`COUNT(*)` değerlerini topla: `WHERE` yoksa toplam, tablonun satır sayısına eşit olmalı.\n\nTutmuyorsa iki ihtimal var: bir `WHERE` unutulmuş ya da beklenmedik bir boş grup var.\n\nİkinci kontrol grup sayısı: kaç grup beklediğini önceden söyle. Fazla çıkıyorsa gruplama listesinde olmaması gereken bir sütun vardır.\n\nHer iki kontrol de sunucunun söylemediği şeyi yakalıyor: sorgu çalışıyor ama yanlış soruyu cevaplıyor.",
+        "en": "Add up the `COUNT(*)` values: with no `WHERE`, the total should equal the table's row count.\n\nIf it does not, there are two possibilities: a `WHERE` was forgotten, or there is an unexpected empty group.\n\nThe second check is the group count: say how many groups you expect before you run it. If there are more, a column that should not be in the grouping list is.\n\nBoth checks catch what the server will not tell you: the query runs but answers the wrong question."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT category, COUNT(*) FROM products GROUP BY category ORDER BY COUNT(*) DESC` çalışır mı?",
+        "en": "Does `SELECT category, COUNT(*) FROM products GROUP BY category ORDER BY COUNT(*) DESC` work?"
+      },
+      "options": {
+        "tr": [
+          "Hayır, ORDER BY içinde toplama işlevi olamaz",
+          "Evet — ORDER BY en son çalıştığı için toplama işlevini de takma adı da görebiliyor",
+          "Yalnızca takma ad verilirse",
+          "Hayır, GROUP BY ile ORDER BY birlikte kullanılamaz"
+        ],
+        "en": [
+          "No, an aggregate cannot appear in ORDER BY",
+          "Yes — ORDER BY runs last, so it can see both aggregates and aliases",
+          "Only if an alias is given",
+          "No, GROUP BY and ORDER BY cannot be combined"
+        ]
+      },
+      "explanation": {
+        "tr": "`ORDER BY` işleme sırasının **en sonunda**; hem gruplar hem `SELECT`'in ürettiği takma adlar o sırada hazır.\n\nÜç yazım da çalışıyor:\n\n```sql\nORDER BY COUNT(*) DESC\nORDER BY adet DESC        -- takma ad verilmisse\nORDER BY 2 DESC           -- sutun numarasi, onerilmiyor\n```\n\nBu, `HAVING`'in tam tersi: orada takma ad çalışmıyor, burada çalışıyor. Tek sebep: çalışma sırası.",
+        "en": "`ORDER BY` is at the **very end** of the processing order; both the groups and the aliases produced by `SELECT` are ready by then.\n\nAll three forms work:\n\n```sql\nORDER BY COUNT(*) DESC\nORDER BY item_count DESC  -- if an alias was given\nORDER BY 2 DESC           -- column number, not recommended\n```\n\nThis is the exact opposite of `HAVING`, where the alias does not work. The only reason is the running order."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 3,
+      "text": {
+        "tr": "Dört kategorili bir tabloda `GROUP BY category` kaç satır döndürür?",
+        "en": "On a table with four categories, how many rows does `GROUP BY category` return?"
+      },
+      "options": {
+        "tr": [
+          "Tablodaki satır sayısı kadar",
+          "1",
+          "Bilinmiyor",
+          "4 — her kategori için bir satır"
+        ],
+        "en": [
+          "As many as there are rows in the table",
+          "1",
+          "It cannot be known",
+          "4 — one row per category"
+        ]
+      },
+      "explanation": {
+        "tr": "`GROUP BY` her farklı değer için **tek bir satır** üretiyor. Dört farklı kategori varsa dört satır dönüyor (ölçüldü).\n\nBu, `GROUP BY`'ın ne yaptığını anlamanın en kısa yolu: on iki satır giriyor, dört satır çıkıyor. Aradaki fark toplama işlevlerinde özetleniyor.\n\nGruplama listesine ikinci bir sütun eklersen grup sayısı artıyor — o sütunla oluşan her farklı çift ayrı bir grup oluyor.",
+        "en": "`GROUP BY` produces **one row** per distinct value. With four different categories, four rows come back (measured).\n\nThis is the shortest way to see what `GROUP BY` does: twelve rows go in, four come out. The difference is summarised by the aggregate functions.\n\nAdd a second column to the grouping list and the number of groups goes up — each distinct pair becomes its own group."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Toplama işlevleri arasında boş değerlerden etkilenmeyen hangisi?",
+        "en": "Which aggregate function is unaffected by empty values?"
+      },
+      "options": {
+        "tr": [
+          "`COUNT(*)`",
+          "`AVG(sütun)`",
+          "`SUM(sütun)`",
+          "`MAX(sütun)`"
+        ],
+        "en": [
+          "`COUNT(*)`",
+          "`AVG(column)`",
+          "`SUM(column)`",
+          "`MAX(column)`"
+        ]
+      },
+      "explanation": {
+        "tr": "`COUNT(*)` sütunlara hiç bakmıyor; satırları sayıyor. Bir satırın bütün hücreleri boş olsa bile o satır sayılıyor.\n\nDiğerlerinin hepsi bir sütuna bakıyor ve boş hücreleri atlıyor:\n\n- `SUM` ve `AVG` hesaba katmıyor\n- `MIN` ve `MAX` boş değerleri aday olarak görmüyor\n- `COUNT(sütun)` de öyle\n\nBu ayrım `COUNT(*)` ile `COUNT(sütun)` arasındaki farkın kaynağı.",
+        "en": "`COUNT(*)` never looks at a column; it counts rows. A row is counted even if every one of its cells is empty.\n\nAll the others look at a column and skip empty cells:\n\n- `SUM` and `AVG` leave them out of the calculation\n- `MIN` and `MAX` do not consider them as candidates\n- so does `COUNT(column)`\n\nThis distinction is the source of the difference between `COUNT(*)` and `COUNT(column)`."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 2,
+      "text": {
+        "tr": "`HAVING` kullanmak için `GROUP BY` zorunlu mu?",
+        "en": "Is `GROUP BY` required in order to use `HAVING`?"
+      },
+      "options": {
+        "tr": [
+          "Evet, her zaman",
+          "Hayır ve HAVING o durumda WHERE gibi davranıyor",
+          "Hayır — GROUP BY olmadan bütün tablo tek grup sayılıyor ve HAVING o gruba bakıyor",
+          "Evet, yoksa sözdizimi hatası oluyor"
+        ],
+        "en": [
+          "Yes, always",
+          "No, and HAVING then behaves like WHERE",
+          "No — without GROUP BY the whole table is one group and HAVING looks at it",
+          "Yes, otherwise it is a syntax error"
+        ]
+      },
+      "explanation": {
+        "tr": "`GROUP BY` yoksa bütün tablo tek bir grup sayılıyor ve `HAVING` o tek gruba uygulanıyor:\n\n```sql\nSELECT COUNT(*) FROM products HAVING COUNT(*) > 10;\n```\n\nKoşul sağlanıyorsa tek satır, sağlanmıyorsa hiç satır dönüyor.\n\nNadiren işe yarıyor ama `HAVING`'in ne yaptığını gösteriyor: **gruplara** bakıyor, ve grup sayısı bir de olabiliyor.\n\n`HAVING` `WHERE` gibi davranmıyor: satırlara değil gruplara bakmaya devam ediyor.",
+        "en": "Without `GROUP BY` the whole table counts as a single group and `HAVING` applies to that one group:\n\n```sql\nSELECT COUNT(*) FROM products HAVING COUNT(*) > 10;\n```\n\nIf the condition holds you get one row; if not, no rows.\n\nIt is rarely useful, but it shows what `HAVING` does: it looks at **groups**, and there can be exactly one.\n\n`HAVING` does not behave like `WHERE`: it keeps looking at groups rather than rows."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 1,
+      "text": {
+        "tr": "Rapor hücresinde `SUM` yüzünden boşluk görünüyor. Nasıl sıfır yazdırırsın?",
+        "en": "A report cell is blank because of `SUM`. How do you make it show zero?"
+      },
+      "options": {
+        "tr": [
+          "`SUM(ISNULL(price, 0))`",
+          "`ISNULL(SUM(price), 0)`",
+          "`SUM(price) = 0`",
+          "`COUNT(price)`"
+        ],
+        "en": [
+          "`SUM(ISNULL(price, 0))`",
+          "`ISNULL(SUM(price), 0)`",
+          "`SUM(price) = 0`",
+          "`COUNT(price)`"
+        ]
+      },
+      "explanation": {
+        "tr": "İki yazım farklı sorunları çözüyor ve karıştırılıyor:\n\n- `SUM(ISNULL(price, 0))` — **satır içindeki** boş fiyatları sıfır sayıyor. Ama hiç satır yoksa yine `NULL` veriyor.\n- `ISNULL(SUM(price), 0)` — **sonucun kendisi** boşsa sıfır yazıyor. Aradığın bu.\n\nHiç satır olmadığında ilki yardımcı olmuyor: toplanacak satır yok, `ISNULL` hiç çalışmıyor.\n\nİkisi birlikte de yazılabiliyor; hangi sorunu çözdüğünü bilmek gerekiyor.",
+        "en": "The two forms solve different problems and get confused:\n\n- `SUM(ISNULL(price, 0))` — treats empty prices **within a row** as zero. But with no rows at all it still gives `NULL`.\n- `ISNULL(SUM(price), 0)` — writes zero when **the result itself** is empty. This is the one you want.\n\nWith no rows the first does not help: there is nothing to sum, so `ISNULL` never runs.\n\nYou can write both together; you just have to know which problem each one solves."
+      }
+    }
+  ]
+}

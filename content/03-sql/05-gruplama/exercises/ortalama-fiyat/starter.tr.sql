@@ -1,0 +1,4 @@
+-- Her kategori icin urun sayisini, en ucuz ve en pahali
+-- fiyati getir.
+-- Sutunlar: category, item_count, cheapest, priciest
+-- Kategoriye gore sirala.

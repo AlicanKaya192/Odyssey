@@ -93,6 +93,8 @@ RULES: list[Rule] = [
     Rule("SqlError", r"Invalid object name '([^']+)'", "mistake.sql_no_table"),
     Rule("SqlError", r"Invalid column name '([^']+)'", "mistake.sql_no_column"),
     Rule("SqlError", r"is invalid in the select list because it is not contained in either an aggregate function or the GROUP BY", "mistake.sql_group_by"),
+    Rule("SqlError", r"An aggregate may not appear in the WHERE clause",
+         "mistake.sql_aggregate_in_where"),
     Rule("SqlError", r"Incorrect syntax near '([^']+)'", "mistake.sql_syntax"),
     Rule("SqlError", r"Ambiguous column name '([^']+)'", "mistake.sql_ambiguous"),
     Rule("SqlError", r"Conversion failed when converting", "mistake.sql_conversion"),

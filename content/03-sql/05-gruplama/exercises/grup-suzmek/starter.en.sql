@@ -1,0 +1,3 @@
+-- Return the categories that have more than two products.
+-- Columns: category, item_count. Sort by category.
+-- Careful: COUNT cannot be used inside WHERE.

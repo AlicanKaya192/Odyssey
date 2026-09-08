@@ -1,0 +1,3 @@
+-- Ikiden fazla urunu olan kategorileri getir.
+-- Sutunlar: category, item_count. Kategoriye gore sirala.
+-- Dikkat: WHERE icinde COUNT kullanilamiyor.

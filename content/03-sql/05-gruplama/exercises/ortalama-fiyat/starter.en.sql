@@ -1,0 +1,4 @@
+-- For each category, return the number of products and the
+-- cheapest and priciest price.
+-- Columns: category, item_count, cheapest, priciest
+-- Sort by category.

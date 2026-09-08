@@ -1,0 +1,2 @@
+-- How many products are in each category?
+-- Columns: category, item_count. Sort by category.

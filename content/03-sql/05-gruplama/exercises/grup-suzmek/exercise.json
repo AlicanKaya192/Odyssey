@@ -1,0 +1,57 @@
+{
+  "id": "grup-suzmek",
+  "language": "tsql",
+  "title": {
+    "tr": "Grupları süzmek",
+    "en": "Filtering groups"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`HAVING`, `GROUP BY`'dan sonra yazılıyor ve gruplara bakıyor.",
+      "en": "`HAVING` goes after `GROUP BY` and looks at groups."
+    },
+    {
+      "tr": "`HAVING` içinde takma ad kullanamıyorsun — `SELECT` henüz çalışmamış. Koşulu `COUNT(*) > 2` diye yazman gerekiyor.",
+      "en": "You cannot use the alias inside `HAVING` — `SELECT` has not run yet. The condition has to be written `COUNT(*) > 2`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT category, COUNT(*) AS item_count\nFROM products\nGROUP BY category\nHAVING COUNT(*) > 2\nORDER BY category;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT category, COUNT(*) AS item_count\nFROM products\nGROUP BY category\nHAVING COUNT(*) > 2\nORDER BY category;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "category",
+        "item_count"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "Accessory",
+          6
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "HAVING",
+      "hint": {
+        "tr": "Grupları süzmek için `HAVING` gerekiyor. `WHERE` gruplar oluşmadan **önce** çalıştığı için orada `COUNT` kullanılamıyor.",
+        "en": "Filtering groups needs `HAVING`. `WHERE` runs **before** the groups exist, so `COUNT` cannot be used there."
+      }
+    }
+  ]
+}

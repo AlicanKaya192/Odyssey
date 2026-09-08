@@ -1,0 +1,4 @@
+-- Tek satirda uc sayi getir:
+--   total_rows          - tablodaki satir sayisi
+--   with_supplier       - supplier_code sutunu dolu olanlar
+--   distinct_categories - kac farkli kategori var

@@ -1,0 +1,5 @@
+-- Count only the products that are in stock (stock above zero),
+-- group by category, and return the categories that still have
+-- at least two products.
+-- Columns: category, item_count
+-- Sort by the count descending, breaking ties by category.

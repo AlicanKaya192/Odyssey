@@ -1,0 +1,5 @@
+-- Yalnizca stokta bulunan urunleri say (stock sifirdan buyuk),
+-- kategoriye gore grupla ve en az iki urunu kalan
+-- kategorileri getir.
+-- Sutunlar: category, item_count
+-- Once sayiya gore buyukten kucuge, esitlikte kategoriye gore sirala.

@@ -1,0 +1,2 @@
+-- Her kategoride kac urun var?
+-- Sutunlar: category, item_count. Kategoriye gore sirala.

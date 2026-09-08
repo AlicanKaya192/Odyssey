@@ -1,0 +1,65 @@
+{
+  "id": "once-suz-sonra-grupla",
+  "language": "tsql",
+  "title": {
+    "tr": "Önce süz, sonra grupla",
+    "en": "Filter first, then group"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra sabit: `WHERE` → `GROUP BY` → `HAVING` → `ORDER BY`.",
+      "en": "The order is fixed: `WHERE` → `GROUP BY` → `HAVING` → `ORDER BY`."
+    },
+    {
+      "tr": "`ORDER BY` en son çalıştığı için orada takma adı kullanabiliyorsun — `HAVING`'de kullanamadığın hâlde.",
+      "en": "`ORDER BY` runs last, so you can use the alias there — even though you cannot in `HAVING`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT category, COUNT(*) AS item_count\nFROM products\nWHERE stock > 0\nGROUP BY category\nHAVING COUNT(*) >= 2\nORDER BY item_count DESC, category;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT category, COUNT(*) AS item_count\nFROM products\nWHERE stock > 0\nGROUP BY category\nHAVING COUNT(*) >= 2\nORDER BY item_count DESC, category;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "category",
+        "item_count"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "Accessory",
+          5
+        ],
+        [
+          "Computer",
+          2
+        ],
+        [
+          "Software",
+          2
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "HAVING",
+      "hint": {
+        "tr": "İki ayrı süzme var: satırlar (`WHERE`) ve gruplar (`HAVING`). İkisi de gerekiyor.",
+        "en": "There are two filters here: one on rows (`WHERE`) and one on groups (`HAVING`). You need both."
+      }
+    }
+  ]
+}

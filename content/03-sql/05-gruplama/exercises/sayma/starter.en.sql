@@ -1,0 +1,4 @@
+-- Return three numbers in a single row:
+--   total_rows          - the number of rows in the table
+--   with_supplier       - rows where supplier_code is filled
+--   distinct_categories - how many different categories

@@ -59,13 +59,19 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   farkın neden önemli olduğu ve hangi hesabın sessizce yanlış sonuç
   verdiği. İki not, yirmi beş soruluk sınav, beş alıştırma ve "Kendi
   Sütunun" rozeti.
+- **SQL patikasının Başlangıç seviyesi tamamlandı: altı bölüm.** Son bölüm
+  **"Gruplama"**: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY` ve
+  `HAVING`. Satırları özetlemeyi, `WHERE` ile `HAVING` arasındaki farkı ve
+  sunucunun sorguyu hangi sırayla işlediğini anlatıyor. İki not, yirmi beş
+  soruluk sınav, beş alıştırma ve "Toparlayıcı" rozeti.
 - **"Tablolar" penceresi.** SQL alıştırmalarında, sorgu yazarken
   veritabanında ne olduğunu görmek için. Tablolar sekmeli duruyor;
   istediğin tabloyu ayrı bir pencereye taşıyıp iki tabloya aynı anda
   bakabiliyorsun. Kendi yarattığın tablo da listede çıkıyor.
-- **Beş yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
-  çalıştırdığında; "İlk Süzgeç", "Sıra Sende", "Boşluğu Gördün" ve "Kendi
-  Sütunun" ise SQL patikasının bölümlerini bitirdikçe geliyor.
+- **Altı yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
+  çalıştırdığında; "İlk Süzgeç", "Sıra Sende", "Boşluğu Gördün", "Kendi
+  Sütunun" ve "Toparlayıcı" ise SQL patikasının bölümlerini bitirdikçe
+  geliyor.
 
 ### Düzeltildi
 - **Ders notlarındaki dış bağlantılar açılmıyordu.** Python kurulum

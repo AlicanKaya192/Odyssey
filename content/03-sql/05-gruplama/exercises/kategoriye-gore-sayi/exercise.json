@@ -1,0 +1,69 @@
+{
+  "id": "kategoriye-gore-sayi",
+  "language": "tsql",
+  "title": {
+    "tr": "Kategoriye göre sayı",
+    "en": "Counting per category"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`GROUP BY` satırları kümelere ayırıyor; toplama işlevleri her küme için ayrı çalışıyor.",
+      "en": "`GROUP BY` divides rows into sets, and aggregate functions run separately for each set."
+    },
+    {
+      "tr": "`SELECT`'teki her sütun ya `GROUP BY` listesinde ya bir işlevin içinde olmalı. Burada `category` gruplama listesinde, `COUNT(*)` de bir işlev.",
+      "en": "Every column in `SELECT` must be in the `GROUP BY` list or inside a function. Here `category` is in the list and `COUNT(*)` is a function."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT category, COUNT(*) AS item_count\nFROM products\nGROUP BY category\nORDER BY category;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT category, COUNT(*) AS item_count\nFROM products\nGROUP BY category\nORDER BY category;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "category",
+        "item_count"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "Accessory",
+          6
+        ],
+        [
+          "Computer",
+          2
+        ],
+        [
+          "Display",
+          2
+        ],
+        [
+          "Software",
+          2
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "GROUP BY",
+      "hint": {
+        "tr": "Her kategori için ayrı bir sayı istiyorsun; bunun için `GROUP BY` gerekiyor. `GROUP BY` olmadan `COUNT(*)` bütün tablo için tek bir sayı veriyor.",
+        "en": "You want a separate number for each category; that needs `GROUP BY`. Without it, `COUNT(*)` gives one number for the whole table."
+      }
+    }
+  ]
+}
