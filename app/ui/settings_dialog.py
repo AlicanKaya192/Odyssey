@@ -16,7 +16,7 @@ hangisinin öğrenmeyle ilgili olduğu ayırt edilmiyordu.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QThread, Qt, Signal
 from PySide6.QtWidgets import (
     QDialog,
     QFrame,
@@ -34,6 +34,8 @@ from ..core.unlock import UNLOCK_ALL_KEY, unlock_all
 from ..core.theme import ThemeManager
 from ..core import updates
 from .update_check import UpdateWorker
+from ..core.runner import sql_admin
+from .confirm_dialog import ConfirmDialog
 from ..resources.theme.tokens import PALETTES, SPACING
 from ..widgets.segmented import SegmentedControl
 from ..widgets.toggle_switch import ToggleSwitch
@@ -54,6 +56,49 @@ LANGUAGE_OPTIONS = [("tr", "TR"), ("en", "EN")]
 # demek olduğu ancak açıklamayı okuyunca anlaşılıyordu. Dil seçicisiyle
 # aynı bileşen kullanılıyor.
 THEME_OPTIONS = [("dark", "", "moon"), ("light", "", "sun")]
+
+
+# Sunucu bu oturumda aranıp bulunamadıysa bir daha aranmıyor.
+#
+# `find_server` dört adayı sırayla deniyor ve her birinde beş saniye
+# bekliyor; SQL Server kurulu olmayan birinde ayarları her açış yirmi
+# saniyelik bir arama başlatıyordu. Kullanıcı arada sunucuyu kurarsa
+# uygulamayı yeniden açması gerekiyor — kurulum zaten yeniden başlatma
+# gerektiren bir iş.
+_SUNUCU_YOK = False
+
+
+def _size_label(megabytes: float) -> str:
+    """Boyutu okunur bir metne çevirir.
+
+    Bin megabaytın üstünde MB yazmak okunmuyor: 1280 MB yerine 1,3 GB.
+    """
+    if megabytes >= 1024:
+        return f"{megabytes / 1024:.1f} GB".replace(".", ",")
+    return f"{megabytes:.0f} MB"
+
+
+class SqlAdminWorker(QThread):
+    """Veritabanı listeleme/silme işini arka planda yürütür.
+
+    İş denetleyici sürecine gidiyor ve silme onlarca saniye sürebiliyor;
+    ayarlar penceresinin donmaması gerekiyor.
+    """
+
+    completed = Signal(dict)
+
+    def __init__(self, action: str, names: list[str] | None = None) -> None:
+        super().__init__()
+        self._action = action
+        self._names = list(names or [])
+
+    def run(self) -> None:  # noqa: D102
+        try:
+            self.completed.emit(sql_admin(self._action, self._names))
+        except Exception:
+            # Sunucu yoksa ya da beklenmedik bir şey olursa ayarlar
+            # penceresi çökmüyor; satır "bulunamadı" diyor.
+            self.completed.emit({"status": "crashed", "databases": []})
 
 
 class SettingRow(QWidget):
@@ -120,6 +165,8 @@ class SettingsDialog(QDialog):
         self._worker: UpdateWorker | None = None
         # Elle denetimde bulunan sürüm; düğme buna göre "Güncelle" oluyor.
         self._found = None
+        self._sql_worker: SqlAdminWorker | None = None
+        self._sql_databases: list[dict] = []
 
         modal.prepare(self)
         self.setMinimumWidth(460)
@@ -163,6 +210,34 @@ class SettingsDialog(QDialog):
         self._presence_row = SettingRow()
         self._presence_row.switch.toggled.connect(self._on_presence)
         layout.addWidget(self._presence_row)
+
+        layout.addWidget(self._separator())
+
+        # --- SQL alıştırma veritabanları -----------------------------------
+        #
+        # Her SQL alıştırması kendi veritabanını açıyor ve her biri diskte
+        # ~16 MB tutuyor. Patikanın tamamında bu bir gigabaytı geçiyor;
+        # kullanıcının ne kadar yer kapladığını görüp silebilmesi gerekiyor.
+        self._sql_title = QLabel()
+        self._sql_title.setProperty("role", "section")
+        layout.addWidget(self._sql_title)
+
+        self._sql_description = QLabel()
+        self._sql_description.setProperty("role", "muted")
+        self._sql_description.setWordWrap(True)
+        layout.addWidget(self._sql_description)
+
+        sql_bar = QHBoxLayout()
+        sql_bar.setSpacing(SPACING["sm"])
+        self._sql_button = QPushButton()
+        self._sql_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._sql_button.clicked.connect(self._on_sql_clear)
+        sql_bar.addWidget(self._sql_button)
+        self._sql_status = QLabel()
+        self._sql_status.setProperty("role", "muted")
+        self._sql_status.setWordWrap(True)
+        sql_bar.addWidget(self._sql_status, 1)
+        layout.addLayout(sql_bar)
 
         layout.addWidget(self._separator())
 
@@ -216,6 +291,9 @@ class SettingsDialog(QDialog):
     def showEvent(self, event) -> None:  # noqa: N802
         super().showEvent(event)
         modal.center(self)
+        # Pencere her açılışta sayıyı tazeliyor: kullanıcı arada alıştırma
+        # çözmüş olabilir ve eski sayıyı göstermek yanıltıcı olurdu.
+        self._sql_refresh()
 
     def _separator(self) -> QFrame:
         line = QFrame()
@@ -349,6 +427,98 @@ class SettingsDialog(QDialog):
 
     # --- metinler ---------------------------------------------------------
 
+    # --- SQL veritabanları ------------------------------------------------
+
+    def _sql_refresh(self) -> None:
+        """Veritabanı sayısını ve kapladığı yeri arka planda okur."""
+        if _SUNUCU_YOK:
+            self._sql_status.setText(
+                self._language.t("settings.sql_unavailable")
+            )
+            self._sql_button.setEnabled(False)
+            return
+        if self._sql_worker is not None and self._sql_worker.isRunning():
+            return
+        self._sql_button.setEnabled(False)
+        self._sql_status.setText(self._language.t("settings.sql_reading"))
+
+        self._sql_worker = SqlAdminWorker("list_databases")
+        self._sql_worker.completed.connect(self._on_sql_listed)
+        self._sql_worker.start()
+
+    def _on_sql_listed(self, result: dict) -> None:
+        t = self._language.t
+        self._sql_databases = result.get("databases", [])
+
+        if result.get("status") != "ok":
+            # Sunucu kurulu değilse bu bölüm bir sorun değil, sadece
+            # gösterecek bir şey yok.
+            global _SUNUCU_YOK
+            _SUNUCU_YOK = True
+            self._sql_status.setText(t("settings.sql_unavailable"))
+            self._sql_button.setEnabled(False)
+            return
+
+        adet = len(self._sql_databases)
+        if not adet:
+            self._sql_status.setText(t("settings.sql_none"))
+            self._sql_button.setEnabled(False)
+            return
+
+        toplam = sum(float(v.get("mb", 0)) for v in self._sql_databases)
+        self._sql_status.setText(
+            t("settings.sql_usage", count=adet, size=_size_label(toplam))
+        )
+        self._sql_button.setEnabled(True)
+
+    def _on_sql_clear(self) -> None:
+        """Onay aldıktan sonra bütün alıştırma veritabanlarını siler."""
+        if not self._sql_databases:
+            return
+
+        t = self._language.t
+        toplam = sum(float(v.get("mb", 0)) for v in self._sql_databases)
+        onay = ConfirmDialog(
+            t("settings.sql_confirm_title"),
+            t(
+                "settings.sql_confirm_body",
+                count=len(self._sql_databases),
+                size=_size_label(toplam),
+            ),
+            t("settings.sql_confirm_yes"),
+            t("common.cancel"),
+            self,
+        )
+        if not onay.exec():
+            return
+
+        self._sql_button.setEnabled(False)
+        self._sql_status.setText(t("settings.sql_clearing"))
+        self._sql_worker = SqlAdminWorker(
+            "drop_databases", [v["name"] for v in self._sql_databases]
+        )
+        self._sql_worker.completed.connect(self._on_sql_cleared)
+        self._sql_worker.start()
+
+    def _on_sql_cleared(self, result: dict) -> None:
+        silinen = len(result.get("dropped", []))
+        hatalar = result.get("errors", [])
+        if hatalar:
+            self._sql_status.setText(
+                self._language.t(
+                    "settings.sql_cleared_partly",
+                    count=silinen,
+                    failed=len(hatalar),
+                )
+            )
+            self._sql_button.setEnabled(True)
+            return
+        self._sql_status.setText(
+            self._language.t("settings.sql_cleared", count=silinen)
+        )
+        self._sql_databases = []
+        self._sql_button.setEnabled(False)
+
     def retranslate(self) -> None:
         t = self._language.t
         self.setWindowTitle(t("settings.title"))
@@ -374,6 +544,13 @@ class SettingsDialog(QDialog):
         self._untimed_row.description.setText(t("settings.untimed_quiz_help"))
         self._presence_row.title.setText(t("settings.discord"))
         self._presence_row.description.setText(t("settings.discord_help"))
+
+        self._sql_title.setText(t("settings.group_sql"))
+        self._sql_description.setText(t("settings.sql_help"))
+        self._sql_button.setText(t("settings.sql_clear"))
+        # Durum satırı sayı taşıyor; dil değişince yeniden üretilmesi
+        # gerekiyor, yoksa eski dilde kalıyor.
+        self._sql_refresh()
 
         self._update_title.setText(t("settings.group_updates"))
         self._update_row.title.setText(t("settings.update_check"))

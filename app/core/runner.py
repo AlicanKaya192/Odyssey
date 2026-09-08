@@ -54,6 +54,10 @@ LANGUAGE_SUFFIX = {"python": ".py", "tsql": ".sql"}
 # makinede değişebiliyor ve bir oturumluk hafıza yeterli.
 _LAST_SERVER = ""
 
+# Veritabanı bakım işinin zaman aşımı. Alıştırma çalıştırmasından çok daha
+# uzun: silme işi veritabanı başına birkaç yüz milisaniye.
+ADMIN_TIMEOUT_SEC = 180
+
 
 @dataclass
 class CheckResult:
@@ -322,6 +326,82 @@ def run_code(
             server=raw.get("server", ""),
             tables=raw.get("tables", []),
         )
+
+    finally:
+        shutil.rmtree(workspace, ignore_errors=True)
+
+
+# --- SQL veritabanı bakımı ------------------------------------------------
+#
+# Her alıştırma kendi veritabanını açıyor ve her biri diskte ~16 MB yer
+# tutuyor (ölçüldü). Patikanın tamamı yazıldığında bu bir gigabaytı
+# geçiyor, o yüzden kullanıcının bunları görüp silebilmesi gerekiyor.
+#
+# İş denetleyici sürecinde yapılıyor, uygulamanın kendi sürecinde değil:
+# `pyodbc` alıştırma ortamında kurulu.
+
+
+def sql_admin(action: str, names: list[str] | None = None) -> dict:
+    """Alıştırma veritabanlarını listeler ya da siler.
+
+    `action` ya `"list_databases"` ya da `"drop_databases"`. Dönen sözlük
+    denetleyicinin sonucunun aynısı; sunucuya ulaşılamazsa `status`
+    `"error"` oluyor ve `error` içinde sebebi yazıyor.
+    """
+    global _LAST_SERVER
+
+    workspace = _prepare_workspace(None)
+    job_path = workspace / "job.json"
+    result_path = workspace / "result.json"
+
+    try:
+        job_path.write_text(
+            json.dumps(
+                {
+                    "result_path": str(result_path),
+                    "language": "tsql",
+                    "action": action,
+                    "names": list(names or []),
+                    "checks": [],
+                    "server_hint": _LAST_SERVER,
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+
+        creation_flags = (
+            subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
+        )
+        process = subprocess.Popen(
+            _harness_command(job_path),
+            cwd=workspace,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL,
+            creationflags=creation_flags,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        try:
+            # Silme, veritabanı başına birkaç yüz milisaniye sürüyor;
+            # elliyi aşkın veritabanında bu dakikayı bulabiliyor.
+            process.communicate(timeout=ADMIN_TIMEOUT_SEC)
+        except subprocess.TimeoutExpired:
+            _kill_tree(process)
+            return {"status": "timeout", "databases": [], "dropped": [], "errors": []}
+
+        if not result_path.exists():
+            return {"status": "crashed", "databases": [], "dropped": [], "errors": []}
+
+        raw = json.loads(result_path.read_text(encoding="utf-8"))
+        if raw.get("server"):
+            _LAST_SERVER = raw["server"]
+        raw.setdefault("databases", [])
+        raw.setdefault("dropped", [])
+        raw.setdefault("errors", [])
+        return raw
 
     finally:
         shutil.rmtree(workspace, ignore_errors=True)

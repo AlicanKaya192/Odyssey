@@ -586,11 +586,13 @@ def main() -> int:
         return 2
 
     job = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-    code_path = str(Path(job["code_path"]).resolve())
     result_path = Path(job["result_path"])
     checks = job.get("checks", [])
 
     # SQL alıştırmaları bu süreçte çalışmıyor: kod bir sunucuya gidiyor.
+    # Bu dal `code_path` okunmadan **önce** geliyor, çünkü veritabanı
+    # bakım işlerinde (listeleme, silme) ortada çalıştırılacak bir dosya
+    # yok ve `job["code_path"]` yazılmıyor.
     if job.get("language") == "tsql":
         import sql_runner
 
@@ -599,6 +601,8 @@ def main() -> int:
             json.dumps(sonuc, ensure_ascii=False), encoding="utf-8"
         )
         return 0
+
+    code_path = str(Path(job["code_path"]).resolve())
 
     source = Path(code_path).read_text(encoding="utf-8")
 

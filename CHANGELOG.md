@@ -37,6 +37,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   süzmeyi anlatıyor; tek tırnak kuralı, `AND`/`OR` önceliği ve sunucunun
   `FROM → WHERE → SELECT` işleme sırası ayrı ayrı ele alınıyor. İki not,
   yirmi sekiz soruluk sınav, beş alıştırma ve "İlk Süzgeç" rozeti.
+- **Alıştırma veritabanlarını silme.** Her SQL alıştırması bilgisayarınızda
+  kendi veritabanını açıyor ve her biri yaklaşık 16 MB yer tutuyor.
+  Ayarlar penceresindeki yeni **SQL Alıştırmaları** bölümü kaç veritabanı
+  olduğunu ve ne kadar yer kapladığını gösteriyor; tek düğmeyle hepsini
+  silebiliyorsunuz. İlerlemeniz etkilenmiyor, veritabanı bir sonraki
+  çalıştırmada kendiliğinden yeniden kuruluyor.
 - **"Tablolar" penceresi.** SQL alıştırmalarında, sorgu yazarken
   veritabanında ne olduğunu görmek için. Tablolar sekmeli duruyor;
   istediğin tabloyu ayrı bir pencereye taşıyıp iki tabloya aynı anda

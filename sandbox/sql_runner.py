@@ -541,11 +541,83 @@ def render_table(columns: list[str], rows: list[list], limit: int = 50) -> str:
     return "\n".join(satirlar)
 
 
+def list_databases(driver: str, server: str) -> list[dict]:
+    """Alıştırmaların açtığı veritabanlarını ve kapladıkları yeri verir.
+
+    Boyut `sys.master_files` üzerinden okunuyor: `size` sütunu 8 KB'lık
+    sayfa sayısı veriyor, veri dosyası ve günlük dosyası ayrı satırlar
+    olduğu için toplanıyor.
+    """
+    baglanti = _connect(driver, server, "master", autocommit=True)
+    try:
+        imlec = baglanti.cursor()
+        imlec.execute(
+            "SELECT d.name, SUM(CAST(f.size AS BIGINT)) * 8 / 1024.0 "
+            "FROM sys.databases d "
+            "JOIN sys.master_files f ON f.database_id = d.database_id "
+            "WHERE d.name LIKE ? "
+            "GROUP BY d.name ORDER BY d.name",
+            DB_PREFIX + "%",
+        )
+        return [
+            {"name": satir[0], "mb": round(float(satir[1]), 1)}
+            for satir in imlec.fetchall()
+        ]
+    finally:
+        baglanti.close()
+
+
+def drop_databases(driver: str, server: str, names: list[str]) -> dict:
+    """Verilen veritabanlarını siler.
+
+    Yalnızca `Odyssey_` önekli adlar kabul ediliyor: bu işlev arayüzden
+    çağrılıyor ve kullanıcının kendi veritabanlarına hiçbir koşulda
+    dokunmamalı.
+
+    Silinemeyen bir veritabanı işi durdurmuyor; sebebi listeye yazılıp
+    kalanlara geçiliyor.
+    """
+    baglanti = _connect(driver, server, "master", autocommit=True)
+    silinen, hatalar = [], []
+    try:
+        imlec = baglanti.cursor()
+        for ad in names:
+            if not ad.startswith(DB_PREFIX):
+                hatalar.append({"name": ad, "message": "beklenmeyen ad"})
+                continue
+            try:
+                _drop(imlec, ad)
+                silinen.append(ad)
+            except Exception as exc:
+                hatalar.append(
+                    {"name": ad, "message": _format_sql_error(exc)["message"]}
+                )
+    finally:
+        baglanti.close()
+    return {"dropped": silinen, "errors": hatalar}
+
+
+def _admin(job: dict, sonuc: dict) -> dict:
+    """`list_databases` / `drop_databases` işlerini yürütür."""
+    surucu, sunucu = find_server(job.get("server_hint", ""))
+    sonuc["server"] = sunucu
+
+    if job["action"] == "list_databases":
+        sonuc["databases"] = list_databases(surucu, sunucu)
+        return sonuc
+
+    rapor = drop_databases(surucu, sunucu, list(job.get("names", [])))
+    sonuc["dropped"] = rapor["dropped"]
+    sonuc["errors"] = rapor["errors"]
+    return sonuc
+
+
 def run(job: dict) -> dict:
     """`harness.py` buradan çağırıyor. Sonuç sözlüğünü döndürür."""
-    sql = Path(job["code_path"]).read_text(encoding="utf-8")
+    yol = job.get("code_path", "")
+    sql = Path(yol).read_text(encoding="utf-8") if yol and Path(yol).exists() else ""
     checks = job.get("checks", [])
-    anahtar = job.get("exercise_key") or Path(job["code_path"]).stem
+    anahtar = job.get("exercise_key") or (Path(yol).stem if yol else "")
     tohum_yolu = job.get("seed_path", "")
     ipucu = job.get("server_hint", "")
 
@@ -562,6 +634,10 @@ def run(job: dict) -> dict:
     }
 
     try:
+        # Yönetim işleri (veritabanı listeleme/silme) alıştırma yolundan
+        # geçmiyor: ortada kod, tohum ya da kontrol yok.
+        if job.get("action") in ("list_databases", "drop_databases"):
+            return _admin(job, sonuc)
         surucu, sunucu = find_server(ipucu)
     except SqlUnavailable as exc:
         sonuc["status"] = "error"
