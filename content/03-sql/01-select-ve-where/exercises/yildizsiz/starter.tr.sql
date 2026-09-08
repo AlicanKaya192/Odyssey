@@ -1,0 +1,2 @@
+-- Stogu tukenmis urunlerin id, ad ve stok bilgisini getir.
+-- Bu alistirmada * kullanilmiyor.

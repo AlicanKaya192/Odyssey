@@ -1,0 +1,1 @@
+-- Bring back only the ad and fiyat columns from urunler.

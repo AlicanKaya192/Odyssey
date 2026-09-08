@@ -1,0 +1,1 @@
+-- ad sutunu urun, fiyat sutunu tutar basligiyla gelsin.

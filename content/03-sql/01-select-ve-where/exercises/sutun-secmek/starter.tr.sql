@@ -1,0 +1,1 @@
+-- urunler tablosundan yalnizca ad ve fiyat sutunlarini getir.

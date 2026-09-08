@@ -1,0 +1,1 @@
+-- Fiyati 1000'den buyuk urunlerin adini ve fiyatini getir.

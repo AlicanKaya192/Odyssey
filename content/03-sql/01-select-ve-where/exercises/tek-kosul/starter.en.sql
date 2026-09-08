@@ -1,0 +1,1 @@
+-- Bring back the name and price of products priced above 1000.

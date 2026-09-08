@@ -1,0 +1,1 @@
+-- Return ad under the heading urun and fiyat under tutar.

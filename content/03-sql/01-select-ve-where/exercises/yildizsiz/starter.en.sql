@@ -1,0 +1,2 @@
+-- Bring back the id, ad and stok of products that are out of stock.
+-- The star is not allowed in this exercise.

@@ -32,12 +32,18 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   karşına geliyor. Yazdığın her şey çalıştırma bitince geri alınıyor:
   yanlışlıkla bir tabloyu silsen bile bir sonraki denemede yerinde
   duruyor.
+- **SQL patikası, ikinci bölüm: "SELECT ve WHERE".** Sorgunun üç
+  parçasını, sütun seçmeyi, `AS` ile ad vermeyi ve `WHERE` ile satır
+  süzmeyi anlatıyor; tek tırnak kuralı, `AND`/`OR` önceliği ve sunucunun
+  `FROM → WHERE → SELECT` işleme sırası ayrı ayrı ele alınıyor. İki not,
+  yirmi sekiz soruluk sınav, beş alıştırma ve "İlk Süzgeç" rozeti.
 - **"Tablolar" penceresi.** SQL alıştırmalarında, sorgu yazarken
   veritabanında ne olduğunu görmek için. Tablolar sekmeli duruyor;
   istediğin tabloyu ayrı bir pencereye taşıyıp iki tabloya aynı anda
   bakabiliyorsun. Kendi yarattığın tablo da listede çıkıyor.
-- **"Sunucu Ayakta" rozeti.** SQL Server'ı kurup ilk sorgunu
-  çalıştırdığında geliyor.
+- **İki yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
+  çalıştırdığında, "İlk Süzgeç" SELECT ve WHERE bölümünü bitirdiğinde
+  geliyor.
 
 ### Düzeltildi
 - **Ders notlarındaki dış bağlantılar açılmıyordu.** Python kurulum
