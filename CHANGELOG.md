@@ -22,6 +22,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.8.0] — yayınlanmadı
 
 ### Düzeltildi
+- **Derslerdeki terim tabloları yapışık çıkıyordu.** "Sözlük" gibi
+  bölümlerde terim ile açıklaması arada boşluk olmadan tek satırda
+  akıyordu: "örnek (sample)tablodaki bir satır". Artık iki sütun hâlinde,
+  aralarında ayraçla duruyor.
 - **Discord'daki yazı geç çıkıyordu.** Uygulama açıldığında görünmüyor,
   ancak bir bölüme girdiğinizde ya da bir dakika sonra beliriyordu.
 

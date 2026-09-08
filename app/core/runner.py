@@ -82,6 +82,11 @@ class RunResult:
     # bunu ipucu olarak alıyor; aday listesi baştan taranmıyor.
     server: str = ""
 
+    # SQL alıştırmalarında veritabanının çalıştırma sonundaki hâli:
+    # her tablo için ad, sütunlar, ilk satırlar ve toplam satır sayısı.
+    # "Tablolar" penceresi bunu gösteriyor.
+    tables: list[dict] = field(default_factory=list)
+
     @property
     def passed(self) -> bool:
         """Alıştırma geçildi mi? Hata yoksa ve tüm kontroller tuttuysa."""
@@ -315,6 +320,7 @@ def run_code(
             ],
             timeout_sec=timeout_sec,
             server=raw.get("server", ""),
+            tables=raw.get("tables", []),
         )
 
     finally:

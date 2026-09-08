@@ -297,6 +297,37 @@ figure.fig svg .line {{ fill: none; stroke: {p['border_strong']}; stroke-width: 
     background: var(--im);
 }}
 
+/* Terim tablosu: solda ad, sağda açıklaması.
+ *
+ * `.anat .sig` / `.anat .legend` bir **kod satırının** parçalarını
+ * adlandırıyor; bu ise düz bir terim listesi ve içerikte 166 satırda
+ * kullanılıyor. Uzun süre karşılığı yoktu: iki span yan yana akıyor,
+ * ekranda "örnek (sample)tablodaki bir satır" gibi yapışık çıkıyordu.
+ *
+ * Sütunlar sınıf adına değil **sıraya** göre seçiliyor; içerikte iki ad
+ * birden kullanılmış (`anat-label` ve `anat-key`) ve ikinci sütun kimi
+ * yerde sınıfsız. */
+.anat-row {{
+    display: grid;
+    grid-template-columns: minmax(110px, 27%) 1fr;
+    gap: 2px 18px;
+    padding: 9px 0;
+    border-top: 1px solid {p['border']};
+    text-align: left;
+}}
+.anat-row:first-child {{ border-top: none; padding-top: 2px; }}
+.anat-row:last-child {{ padding-bottom: 2px; }}
+.anat-row > span {{
+    font-size: 13.8px;
+    line-height: 1.6;
+    color: {p['text_muted']};
+}}
+.anat-row > span:first-child {{
+    font-weight: 660;
+    color: {p['text']};
+}}
+.anat-row code {{ font-size: 12.8px; }}
+
 /* Akış: kutular ve aralarında oklar. */
 .fig .flow {{
     display: flex;
@@ -349,6 +380,9 @@ figure.fig svg .line {{ fill: none; stroke: {p['border_strong']}; stroke-width: 
 /* Yan yana karşılaştırma: solda "böyle değil", sağda "böyle". */
 .fig .versus {{ display: flex; gap: 14px; flex-wrap: wrap; }}
 .fig .versus > div {{ flex: 1 1 210px; min-width: 0; }}
+/* Başlık iki etiketle de yazılmış (`h4` 104, `h5` 36 yerde); ikisi de
+ * aynı görünüyor. */
+.fig .versus h4,
 .fig .versus h5 {{
     font-size: 12.5px;
     font-weight: 660;
@@ -356,10 +390,13 @@ figure.fig svg .line {{ fill: none; stroke: {p['border_strong']}; stroke-width: 
     margin-bottom: 8px;
     text-align: left;
 }}
+.fig .versus .no h4,
 .fig .versus .no h5 {{ color: {p['danger']}; }}
+.fig .versus .ok h4,
 .fig .versus .ok h5 {{ color: {p['success']}; }}
 /* Yanlis degil, yalnizca daha az bilgi veren taraf. Kirmizi kullanilirsa
  * ogrenci onu hata sanip duzeltmeye calisiyor. */
+.fig .versus .dim h4,
 .fig .versus .dim h5 {{ color: {p['text_muted']}; }}
 .fig .versus pre {{ margin: 0; }}
 

@@ -50,6 +50,12 @@ SEED_TABLE = "__odyssey_seed"
 # yeterli olmalı.
 FLOAT_TOLERANCE = 1e-6
 
+# "Tablolar" penceresinde bir tablodan gösterilecek en fazla satır ve
+# gösterilecek en fazla tablo sayısı. Amaç veriyi tanımak, tamamını
+# indirmek değil; bir alıştırmanın tohumu zaten birkaç düzine satır.
+SNAPSHOT_ROWS = 100
+SNAPSHOT_TABLES = 25
+
 # Toplu iş ayıracı. `GO` T-SQL'in değil SSMS'in komutu ama öğrenci
 # alışkanlıkla yazıyor; sunucuya gönderilirse sözdizimi hatası veriyor.
 BATCH_SEPARATOR = re.compile(r"^\s*GO\s*;?\s*$", re.IGNORECASE | re.MULTILINE)
@@ -246,6 +252,42 @@ def _fingerprint(cursor) -> list:
     return [tuple(r) for r in cursor.fetchall()]
 
 
+def _snapshot(cursor) -> list[dict]:
+    """Veritabanındaki tabloların o andaki hâli.
+
+    Öğrencinin SQL'i çalıştıktan **sonra**, geri almadan **önce**
+    alınıyor: kendi yarattığı tablo da, değiştirdiği satır da burada
+    görünüyor. Geri alma sonrası bakmak yalnızca tohumu gösterirdi ve
+    "benim tablom nerede" sorusunu doğururdu.
+
+    Tek bir tablo okunamazsa (kilit, izin, bozuk tanım) o tablo hatasıyla
+    listeye giriyor; kalanlar yine geliyor.
+    """
+    cursor.execute(
+        "SELECT name FROM sys.tables WHERE name <> ? ORDER BY name",
+        SEED_TABLE,
+    )
+    adlar = [satir[0] for satir in cursor.fetchall()][:SNAPSHOT_TABLES]
+
+    tablolar = []
+    for ad in adlar:
+        tablo = {"name": ad, "columns": [], "rows": [], "total": 0, "error": None}
+        try:
+            cursor.execute(f"SELECT COUNT(*) FROM [{ad}]")
+            tablo["total"] = int(cursor.fetchone()[0])
+            cursor.execute(f"SELECT TOP {SNAPSHOT_ROWS} * FROM [{ad}]")
+            tablo["columns"] = [d[0] for d in cursor.description or []]
+            tablo["rows"] = [
+                [_normalise(hucre) for hucre in satir]
+                for satir in cursor.fetchall()
+            ]
+        except Exception as exc:
+            tablo["error"] = _format_sql_error(exc)["message"]
+        tablolar.append(tablo)
+
+    return tablolar
+
+
 def execute(driver: str, server: str, name: str, sql: str, checks: list[dict]) -> dict:
     """SQL'i işlem içinde çalıştırır, sonucu toplar ve **geri alır**.
 
@@ -260,6 +302,7 @@ def execute(driver: str, server: str, name: str, sql: str, checks: list[dict]) -
         "error": None,
         "schema_changed": False,
         "verify": {},
+        "tables": [],
     }
     try:
         imlec = baglanti.cursor()
@@ -311,6 +354,13 @@ def execute(driver: str, server: str, name: str, sql: str, checks: list[dict]) -
                     }
                 except Exception as exc:
                     sonuc["verify"][sorgu] = {"error": _format_sql_error(exc)}
+
+        # Şemayı bozan bir hata olduysa anlık görüntü de alınamayabilir;
+        # alınamazsa liste boş kalıyor, çalıştırma yine de sonuçlanıyor.
+        try:
+            sonuc["tables"] = _snapshot(imlec)
+        except Exception:
+            pass
     finally:
         # Ne olursa olsun geri alınıyor: bir sonraki çalıştırma temiz
         # bir veritabanıyla başlıyor.
@@ -508,6 +558,7 @@ def run(job: dict) -> dict:
         "checks": [],
         "artifacts": [],
         "server": "",
+        "tables": [],
     }
 
     try:
@@ -541,4 +592,5 @@ def run(job: dict) -> dict:
         sonuc["status"] = "error"
         sonuc["error"] = cikti["error"]
     sonuc["checks"] = run_checks(checks, cikti, sql)
+    sonuc["tables"] = cikti["tables"]
     return sonuc
