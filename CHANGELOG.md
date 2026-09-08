@@ -48,13 +48,19 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   `TOP`'un `ORDER BY` olmadan neden anlamsız olduğu ve `DISTINCT`'in tek
   bir sütuna değil satırın tamamına baktığı. İki not, yirmi dokuz soruluk
   sınav, beş alıştırma ve "Sıra Sende" rozeti.
+- **SQL patikası, dördüncü bölüm: "Filtreleme Desenleri".** `LIKE`, `IN`,
+  `BETWEEN` ve `NULL`. Bölümün yarısı `NULL`'a ayrıldı: neden `= NULL`
+  hiçbir zaman çalışmadığı, `NOT IN` ile bir arada neden sessizce boş sonuç
+  verdiği ve `BETWEEN`'in iki ucu da dahil ettiği. İki not, yirmi beş
+  soruluk sınav, beş alıştırma ve "Boşluğu Gördün" rozeti.
 - **"Tablolar" penceresi.** SQL alıştırmalarında, sorgu yazarken
   veritabanında ne olduğunu görmek için. Tablolar sekmeli duruyor;
   istediğin tabloyu ayrı bir pencereye taşıyıp iki tabloya aynı anda
   bakabiliyorsun. Kendi yarattığın tablo da listede çıkıyor.
-- **Üç yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
-  çalıştırdığında, "İlk Süzgeç" SELECT ve WHERE bölümünü, "Sıra Sende"
-  Sıralama ve Sınırlama bölümünü bitirdiğinde geliyor.
+- **Dört yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
+  çalıştırdığında; "İlk Süzgeç", "Sıra Sende" ve "Boşluğu Gördün" ise
+  sırasıyla SELECT ve WHERE, Sıralama ve Sınırlama, Filtreleme Desenleri
+  bölümlerini bitirdiğinde geliyor.
 
 ### Düzeltildi
 - **Ders notlarındaki dış bağlantılar açılmıyordu.** Python kurulum

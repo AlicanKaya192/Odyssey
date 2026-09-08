@@ -1,0 +1,3 @@
+-- Ekran ya da Yazilim kategorisindeki urunlerin adini ve
+-- kategorisini alfabetik sirada getir.
+-- OR zinciri yerine IN kullan.

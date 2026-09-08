@@ -1,0 +1,2 @@
+-- Bring back the name and category of products whose
+-- tedarikci_kod is empty, in alphabetical order.

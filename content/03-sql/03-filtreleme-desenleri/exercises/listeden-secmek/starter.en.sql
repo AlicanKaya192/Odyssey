@@ -1,0 +1,3 @@
+-- Bring back the name and category of products in the Ekran or
+-- Yazilim category, in alphabetical order.
+-- Use IN rather than an OR chain.

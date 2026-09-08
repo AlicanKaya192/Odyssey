@@ -1,0 +1,2 @@
+-- Fiyati 500 ile 3200 arasindaki urunleri getir.
+-- Iki uc da dahil. Ucuzdan pahaliya sirala.

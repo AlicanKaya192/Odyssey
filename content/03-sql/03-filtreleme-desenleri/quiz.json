@@ -1,0 +1,654 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 1,
+      "text": {
+        "tr": "`LIKE 'K%'` deseni neyle eşleşir?",
+        "en": "What does the pattern `LIKE 'K%'` match?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca tam olarak K% metniyle",
+          "K ile başlayan her metinle",
+          "İçinde K geçen her metinle",
+          "K ile biten her metinle"
+        ],
+        "en": [
+          "Only the literal text K%",
+          "Any text starting with K",
+          "Any text containing K",
+          "Any text ending with K"
+        ]
+      },
+      "explanation": {
+        "tr": "`%` **sıfır ya da daha fazla** karakter demek, yani `'K%'` \"K ile başlayan her şey\".\n\nSıfır da dahil: tek harflik `K` metni de bu desenle eşleşiyor (ölçüldü).\n\nİçinde geçenler için `'%K%'`, bitenler için `'%K'` yazılıyor.",
+        "en": "`%` means **zero or more** characters, so `'K%'` is \"anything starting with K\".\n\nZero counts: the one-letter text `K` matches this pattern too (measured).\n\nFor \"contains\" you write `'%K%'`, for \"ends with\" `'%K'`."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 2,
+      "text": {
+        "tr": "`LIKE 'F_re'` deseni kaç karakterli metinlerle eşleşir?",
+        "en": "How many characters long is a text that matches `LIKE 'F_re'`?"
+      },
+      "options": {
+        "tr": [
+          "En az dört",
+          "Üç ya da daha fazla",
+          "Tam dört",
+          "Herhangi bir uzunlukta"
+        ],
+        "en": [
+          "At least four",
+          "Three or more",
+          "Exactly four",
+          "Any length"
+        ]
+      },
+      "explanation": {
+        "tr": "`_` **tam bir** karakter demek, `%`'den farkı bu.\n\n`'F_re'` deseni: F, herhangi bir karakter, r, e. Yani tam dört karakter. `Fare` ve `Fire` eşleşiyor; `Fre` (üç) ve `Faare` (beş) eşleşmiyor.\n\nDört karakterli her şey için `'____'` yazılabiliyor.",
+        "en": "`_` means **exactly one** character; that is how it differs from `%`.\n\nThe pattern `'F_re'` is: F, any character, r, e — exactly four characters. `Fare` and `Fire` match; `Fre` (three) and `Faare` (five) do not.\n\nFor anything four characters long you can write `'____'`."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`WHERE kategori IN ('Ekran', 'Yazilim')` hangi ifadeyle aynıdır?",
+        "en": "Which expression is `WHERE kategori IN ('Ekran', 'Yazilim')` equivalent to?"
+      },
+      "options": {
+        "tr": [
+          "`kategori = 'Ekran' OR kategori = 'Yazilim'`",
+          "`kategori = 'Ekran' AND kategori = 'Yazilim'`",
+          "`kategori LIKE 'Ekran%' OR kategori LIKE 'Yazilim%'`",
+          "`kategori BETWEEN 'Ekran' AND 'Yazilim'`"
+        ],
+        "en": [
+          "`kategori = 'Ekran' OR kategori = 'Yazilim'`",
+          "`kategori = 'Ekran' AND kategori = 'Yazilim'`",
+          "`kategori LIKE 'Ekran%' OR kategori LIKE 'Yazilim%'`",
+          "`kategori BETWEEN 'Ekran' AND 'Yazilim'`"
+        ]
+      },
+      "explanation": {
+        "tr": "`IN` bir `OR` zincirinin kısa yazılışı: liste değerlerinden **herhangi biri** eşleşirse satır geliyor.\n\nİkinci seçenek imkânsız: bir sütun aynı anda iki farklı değer olamaz, o koşul hiçbir satır döndürmez.\n\nİki değerde fark küçük ama on değerde `OR` zinciri hem okunmaz oluyor hem de `AND` ile birleştirilirken parantez unutma riski doğuruyor.",
+        "en": "`IN` is the short form of an `OR` chain: the row comes back if **any** of the listed values matches.\n\nThe second option is impossible: a column cannot be two different values at once, so that condition returns nothing.\n\nWith two values the difference is small, but with ten an `OR` chain becomes unreadable and invites forgotten parentheses when combined with `AND`."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 3,
+      "text": {
+        "tr": "`WHERE fiyat BETWEEN 500 AND 3000` sorgusunda tam 3000 olan satır gelir mi?",
+        "en": "Does a row priced at exactly 3000 come back from `WHERE fiyat BETWEEN 500 AND 3000`?"
+      },
+      "options": {
+        "tr": [
+          "Hayır, üst sınır dışarıda kalır",
+          "Hayır, iki sınır da dışarıda kalır",
+          "Sunucu ayarına bağlı",
+          "Evet — BETWEEN iki ucu da dahil ediyor"
+        ],
+        "en": [
+          "No, the upper bound is excluded",
+          "No, both bounds are excluded",
+          "It depends on a server setting",
+          "Yes — BETWEEN includes both ends"
+        ]
+      },
+      "explanation": {
+        "tr": "`BETWEEN a AND b`, `>= a AND <= b` demek. İki uç da dahil.\n\nBu, en sık yanlış hatırlanan ayrıntı. Üst sınırı dışarıda bırakmak istiyorsan `BETWEEN` doğru araç değil:\n\n```sql\nWHERE fiyat >= 500 AND fiyat < 3000\n```\n\nTarih sütunlarında bu ayrım özellikle önemli: `BETWEEN '2026-01-01' AND '2026-01-31'` yazdığında 31 Ocak günü saat 00:00'dan sonrası dışarıda kalıyor.",
+        "en": "`BETWEEN a AND b` means `>= a AND <= b`. Both ends are in.\n\nThis is the detail people misremember most. If you need the upper bound excluded, `BETWEEN` is the wrong tool:\n\n```sql\nWHERE fiyat >= 500 AND fiyat < 3000\n```\n\nThe distinction matters most on date columns: write `BETWEEN '2026-01-01' AND '2026-01-31'` and everything after midnight on the 31st falls outside."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 1,
+      "text": {
+        "tr": "`WHERE fiyat BETWEEN 3000 AND 500` ne yapar?",
+        "en": "What does `WHERE fiyat BETWEEN 3000 AND 500` do?"
+      },
+      "options": {
+        "tr": [
+          "Sınırları kendiliğinden düzeltir",
+          "Hata vermeden hiçbir satır döndürmez",
+          "Sözdizimi hatası verir",
+          "500'den küçük olanları getirir"
+        ],
+        "en": [
+          "It swaps the bounds automatically",
+          "It returns no rows and no error",
+          "It is a syntax error",
+          "It returns rows below 500"
+        ]
+      },
+      "explanation": {
+        "tr": "`BETWEEN 3000 AND 500`, `>= 3000 AND <= 500` demek — hem 3000'den büyük hem 500'den küçük bir sayı yok.\n\nSunucu sınırları düzeltmiyor ve uyarı da vermiyor: sorgu çalışıyor, sonuç boş. Ölçüldü.\n\n**Küçük değer önce yazılıyor.** Boş sonuç aldığında bakılacak yerlerden biri burası.",
+        "en": "`BETWEEN 3000 AND 500` means `>= 3000 AND <= 500` — no number is both above 3000 and below 500.\n\nThe server does not swap the bounds and gives no warning: the query runs and the result is empty. Measured.\n\n**The smaller value goes first.** This is one of the places to look when a result comes back empty."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 2,
+      "text": {
+        "tr": "`WHERE tedarikci_kod = NULL` ne döndürür?",
+        "en": "What does `WHERE tedarikci_kod = NULL` return?"
+      },
+      "options": {
+        "tr": [
+          "Sütunu boş olan satırları",
+          "Sütunu dolu olan satırları",
+          "Hiçbir satır — ve hata da vermez",
+          "Sözdizimi hatası"
+        ],
+        "en": [
+          "The rows where the column is empty",
+          "The rows where the column is filled",
+          "No rows at all — and no error either",
+          "A syntax error"
+        ]
+      },
+      "explanation": {
+        "tr": "SQL'de mantık **üç değerli**: doğru, yanlış, **bilinmiyor**.\n\n`NULL` \"bilinmiyor\" demek, ve bilinmeyen bir değerle yapılan karşılaştırmanın sonucu da bilinmiyor. `WHERE` yalnızca **doğru** olan satırları alıyor; \"bilinmiyor\" da \"yanlış\" gibi eleniyor.\n\nSorgu hata vermiyor, sessizce boş dönüyor (ölçüldü). Doğrusu `IS NULL`.",
+        "en": "Logic in SQL is **three-valued**: true, false and **unknown**.\n\n`NULL` means \"unknown\", and a comparison with an unknown value is itself unknown. `WHERE` keeps only the rows that are **true**; \"unknown\" is discarded just like \"false\".\n\nThe query raises no error and quietly returns nothing (measured). The correct form is `IS NULL`."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`NULL` ile `0` ve `''` (boş dize) arasındaki fark nedir?",
+        "en": "What is the difference between `NULL`, `0` and `''` (empty string)?"
+      },
+      "options": {
+        "tr": [
+          "NULL değerin bilinmediğini söyler; 0 ve '' bilinen değerlerdir",
+          "Üçü de aynı şeydir",
+          "NULL sıfırın başka yazılışıdır",
+          "'' yalnızca metin sütunlarında NULL demektir"
+        ],
+        "en": [
+          "NULL says the value is unknown; 0 and '' are known values",
+          "All three are the same",
+          "NULL is another way of writing zero",
+          "'' means NULL in text columns only"
+        ]
+      },
+      "explanation": {
+        "tr": "Üçü üç ayrı şey:\n\n- `0` bir sayı — bilinen bir değer, sadece sıfır.\n- `''` boş bir dize — bilinen bir değer, sadece uzunluğu sıfır.\n- `NULL` **hiçbir değer yok**, daha doğrusu değer bilinmiyor.\n\nSomut fark: bir ürünün stoğu `0` ise \"stokta yok\" demek; `NULL` ise \"stok bilgisi girilmemiş\" demek. İkincisinde ürün stokta olabilir de olmayabilir de.",
+        "en": "Three different things:\n\n- `0` is a number — a known value that happens to be zero.\n- `''` is an empty string — a known value whose length happens to be zero.\n- `NULL` is **no value at all**, or rather: the value is unknown.\n\nA concrete difference: stock `0` means \"out of stock\"; `NULL` means \"the stock has not been recorded\". In the second case the product may or may not be in stock."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 3,
+      "text": {
+        "tr": "`WHERE kod NOT IN ('A', 'B', NULL)` ne döndürür?",
+        "en": "What does `WHERE kod NOT IN ('A', 'B', NULL)` return?"
+      },
+      "options": {
+        "tr": [
+          "A ve B dışındaki bütün satırları",
+          "Yalnızca kod'u NULL olan satırları",
+          "Sözdizimi hatası",
+          "Hiçbir satır — listede NULL olduğu için"
+        ],
+        "en": [
+          "Every row except A and B",
+          "Only the rows whose kod is NULL",
+          "A syntax error",
+          "No rows at all — because the list contains NULL"
+        ]
+      },
+      "explanation": {
+        "tr": "`x NOT IN (a, b, c)` aslında `x <> a AND x <> b AND x <> c` demek.\n\nListede `NULL` varsa o karşılaştırma her zaman \"bilinmiyor\" oluyor ve bir `AND` zinciri içinde bilinmeyen bir parça varken sonuç asla \"doğru\" olamıyor.\n\nSorgu hata vermiyor, sessizce boş dönüyor (ölçüldü). Olumlu hâli `IN` bu sorunu yaşamıyor: orada `OR` zinciri var ve bir parçanın doğru olması yetiyor.",
+        "en": "`x NOT IN (a, b, c)` really means `x <> a AND x <> b AND x <> c`.\n\nWhen the list contains `NULL` that comparison is always \"unknown\", and with an unknown part in an `AND` chain the result can never be \"true\".\n\nThe query raises no error and quietly returns nothing (measured). The positive form `IN` does not have this problem: it is an `OR` chain and one true part is enough."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 1,
+      "text": {
+        "tr": "On iki satırlık bir tabloda üç satırın `kod` değeri `T1`, üç satırınki `NULL`. `WHERE kod NOT IN ('T1')` kaç satır döndürür?",
+        "en": "In a twelve-row table, three rows have `kod` `T1` and three have `NULL`. How many rows does `WHERE kod NOT IN ('T1')` return?"
+      },
+      "options": {
+        "tr": [
+          "9",
+          "6 — NULL olan satırlar da düşer",
+          "12",
+          "3"
+        ],
+        "en": [
+          "9",
+          "6 — the NULL rows are dropped too",
+          "12",
+          "3"
+        ]
+      },
+      "explanation": {
+        "tr": "Dokuz beklenir (12 − 3) ama **altı** gelir. Ölçüldü.\n\nKayıp üç satır `NULL` olanlar: `NULL <> 'T1'` karşılaştırmasının sonucu \"bilinmiyor\" ve `WHERE` onları eliyor. Listede `NULL` olmasa bile **sütunun kendisi** `NULL` ise satır düşüyor.\n\nAynısı `<>` için de geçerli. Hepsini istiyorsan açıkça yazman gerekiyor:\n\n```sql\nWHERE (kod <> 'T1' OR kod IS NULL)\n```",
+        "en": "You would expect nine (12 − 3) but **six** come back. Measured.\n\nThe three missing rows are the `NULL` ones: `NULL <> 'T1'` is \"unknown\" and `WHERE` discards them. Even with no `NULL` in the list, a row is dropped when **the column itself** is `NULL`.\n\nThe same applies to `<>`. If you want them all you have to say so:\n\n```sql\nWHERE (kod <> 'T1' OR kod IS NULL)\n```"
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 2,
+      "text": {
+        "tr": "Bir sütunun boş olduğu satırları bulmanın doğru yolu nedir?",
+        "en": "What is the correct way to find rows where a column is empty?"
+      },
+      "options": {
+        "tr": [
+          "`WHERE sutun = NULL`",
+          "`WHERE sutun = ''`",
+          "`WHERE sutun IS NULL`",
+          "`WHERE NOT sutun`"
+        ],
+        "en": [
+          "`WHERE sutun = NULL`",
+          "`WHERE sutun = ''`",
+          "`WHERE sutun IS NULL`",
+          "`WHERE NOT sutun`"
+        ]
+      },
+      "explanation": {
+        "tr": "`IS NULL` bir karşılaştırma değil, bir **durum sorusu**: \"bu hücre boş mu?\" Cevabı her zaman doğru ya da yanlış oluyor, hiçbir zaman \"bilinmiyor\" olmuyor.\n\n`= NULL` hiçbir zaman doğru olmuyor. `= ''` bambaşka bir şey soruyor: boş **dize** olanları buluyor, ki o bilinen bir değer.\n\nTersi için `IS NOT NULL`.",
+        "en": "`IS NULL` is not a comparison but a **question about state**: \"is this cell empty?\" Its answer is always true or false, never \"unknown\".\n\n`= NULL` is never true. `= ''` asks something else entirely: it finds empty **strings**, which are a known value.\n\nThe opposite is `IS NOT NULL`."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki `LIKE` desenlerinden hangisi indeksten yararlanabilir?",
+        "en": "Which of these `LIKE` patterns can use an index?"
+      },
+      "options": {
+        "tr": [
+          "`'Kla%'`",
+          "`'%lav%'`",
+          "`'%bye'`",
+          "Hiçbiri"
+        ],
+        "en": [
+          "`'Kla%'`",
+          "`'%lav%'`",
+          "`'%bye'`",
+          "None of them"
+        ]
+      },
+      "explanation": {
+        "tr": "**Başı belli** olan bir desen indeksten yararlanabiliyor: sunucu nereden başlayacağını biliyor ve doğrudan o bölgeye gidiyor.\n\nBaşta `%` varsa sunucunun nereden başlayacağı belli değil; her satıra tek tek bakması gerekiyor.\n\nKüçük tablolarda fark edilmiyor. Milyonluk tablolarda bu, en sık karşılaşılan yavaşlık sebeplerinden biri.",
+        "en": "A pattern with a **known beginning** can use an index: the server knows where to start and jumps straight there.\n\nWith a leading `%` there is no starting point; the server has to look at every row.\n\nYou cannot tell on small tables. On tables with millions of rows this is one of the most common causes of slowness."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 3,
+      "text": {
+        "tr": "Metnin içinde gerçek bir `%` işareti aramak istiyorsun. Ne yaparsın?",
+        "en": "You want to search for a literal `%` sign inside text. What do you do?"
+      },
+      "options": {
+        "tr": [
+          "`%` yerine `\\%` yazarsın",
+          "LIKE yerine = kullanırsın",
+          "Mümkün değil",
+          "`ESCAPE` ile bir kaçış karakteri tanımlarsın"
+        ],
+        "en": [
+          "Write `\\%` instead of `%`",
+          "Use = instead of LIKE",
+          "It is not possible",
+          "Define an escape character with `ESCAPE`"
+        ]
+      },
+      "explanation": {
+        "tr": "```sql\nWHERE aciklama LIKE '%50!%%' ESCAPE '!'\n```\n\n`ESCAPE` ile seçtiğin karakter, kendisinden sonra geleni **düz metin** yapıyor. Burada `!%` gerçek yüzde işareti; sondaki `%` hâlâ joker.\n\nKaçış karakterini sen seçiyorsun; metinde geçmeyen herhangi bir şey olabilir. Ters bölü SQL'de kaçış karakteri **değil**.",
+        "en": "```sql\nWHERE aciklama LIKE '%50!%%' ESCAPE '!'\n```\n\nThe character you pick with `ESCAPE` turns whatever follows it into **literal text**. Here `!%` is a real percent sign; the last `%` is still a wildcard.\n\nYou choose the escape character; anything not occurring in the text will do. A backslash is **not** an escape character in SQL."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT COUNT(*), COUNT(tedarikci_kod) FROM urunler` on iki satırlık bir tabloda `(12, 9)` döndürdü. Bu ne demek?",
+        "en": "On a twelve-row table, `SELECT COUNT(*), COUNT(tedarikci_kod) FROM urunler` returned `(12, 9)`. What does that mean?"
+      },
+      "options": {
+        "tr": [
+          "Üç satır silinmiş",
+          "Üç satırda tedarikci_kod boş",
+          "Dokuz farklı tedarikçi var",
+          "Sorgu yanlış yazılmış"
+        ],
+        "en": [
+          "Three rows were deleted",
+          "In three rows tedarikci_kod is empty",
+          "There are nine different suppliers",
+          "The query is written wrong"
+        ]
+      },
+      "explanation": {
+        "tr": "`COUNT(*)` **satırları** sayıyor; `COUNT(sutun)` yalnızca o sütunu **dolu** olan satırları.\n\nAradaki fark, `NULL` olan satır sayısını veriyor: 12 − 9 = 3.\n\nBu, bir sütunda ne kadar eksik veri olduğunu görmenin en hızlı yolu. \"Dokuz farklı tedarikçi\" ayrı bir soru; onun cevabı `COUNT(DISTINCT tedarikci_kod)`.",
+        "en": "`COUNT(*)` counts **rows**; `COUNT(column)` counts only the rows where that column is **filled**.\n\nThe difference gives the number of `NULL`s: 12 − 9 = 3.\n\nThis is the fastest way to see how much data is missing from a column. \"Nine different suppliers\" is a separate question, answered by `COUNT(DISTINCT tedarikci_kod)`."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 2,
+      "text": {
+        "tr": "`WHERE kod IN ('T1', NULL)` ne döndürür?",
+        "en": "What does `WHERE kod IN ('T1', NULL)` return?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbir satır",
+          "Yalnızca kod'u NULL olanları",
+          "kod'u T1 olan satırları",
+          "Bütün satırları"
+        ],
+        "en": [
+          "No rows",
+          "Only the rows whose kod is NULL",
+          "The rows whose kod is T1",
+          "Every row"
+        ]
+      },
+      "explanation": {
+        "tr": "Olumlu `IN` bir `OR` zinciri: `kod = 'T1' OR kod = NULL`.\n\nİkinci parça her zaman \"bilinmiyor\" ama `OR` zincirinde **bir parçanın doğru olması yetiyor**. T1 olan satırlar geliyor (ölçüldü, 3 satır).\n\n`NOT IN`'in aynı durumda boş dönmesinin sebebi tam olarak bu fark: orada `AND` zinciri var ve bilinmeyen bir parça zincirin tamamını \"bilinmiyor\" yapıyor.",
+        "en": "The positive `IN` is an `OR` chain: `kod = 'T1' OR kod = NULL`.\n\nThe second part is always \"unknown\", but in an `OR` chain **one true part is enough**. The T1 rows come back (measured: 3 rows).\n\nThis difference is exactly why `NOT IN` returns nothing in the same situation: there it is an `AND` chain, and one unknown part makes the whole chain \"unknown\"."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`ISNULL(tedarikci_kod, 'yok')` ne yapıyor?",
+        "en": "What does `ISNULL(tedarikci_kod, 'yok')` do?"
+      },
+      "options": {
+        "tr": [
+          "Sütun NULL ise 'yok' verir, değilse sütunun kendisini",
+          "Sütunun NULL olup olmadığını doğru/yanlış olarak söyler",
+          "Sütunu NULL yapar",
+          "NULL olan satırları eler"
+        ],
+        "en": [
+          "Gives 'yok' when the column is NULL, otherwise the column itself",
+          "Tells you true/false whether the column is NULL",
+          "Sets the column to NULL",
+          "Removes the rows that are NULL"
+        ]
+      },
+      "explanation": {
+        "tr": "`ISNULL` bir **değer değiştirici**: boş hücrenin yerine ne yazılacağını söylüyor. Satır elemiyor, koşul da değil.\n\nAdı yanıltıcı — \"NULL mu?\" diye soruyor gibi duruyor ama sormuyor. Soran şey `IS NULL`.\n\n`ISNULL` SQL Server'a özgü; standart karşılığı `COALESCE` ve o ikiden fazla seçenek alabiliyor: `COALESCE(a, b, c)` ilk `NULL` olmayanı veriyor.",
+        "en": "`ISNULL` is a **value replacer**: it says what to show in place of an empty cell. It removes no rows and it is not a condition.\n\nThe name is misleading — it looks like it asks \"is this NULL?\" but it does not. The thing that asks is `IS NULL`.\n\n`ISNULL` is specific to SQL Server; the standard equivalent is `COALESCE`, which takes more than two options: `COALESCE(a, b, c)` gives the first one that is not `NULL`."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 3,
+      "text": {
+        "tr": "`WHERE kategori IN ()` (boş liste) ne olur?",
+        "en": "What happens with `WHERE kategori IN ()` (an empty list)?"
+      },
+      "options": {
+        "tr": [
+          "Bütün satırları getirir",
+          "Hiçbir satır getirmez",
+          "NULL olanları getirir",
+          "Sözdizimi hatası verir"
+        ],
+        "en": [
+          "It returns every row",
+          "It returns no rows",
+          "It returns the NULL ones",
+          "It is a syntax error"
+        ]
+      },
+      "explanation": {
+        "tr": "`IN` en az bir değer istiyor; boş parantez sözdizimi hatası veriyor (ölçüldü).\n\nBu, listeyi programla üretirken karşına çıkıyor: liste boş kaldığında sorgu çalışmıyor. Bunu kodun tarafında ele almak gerekiyor — genelde \"liste boşsa sorguyu hiç çalıştırma\" ya da koşulu tamamen kaldırma biçiminde.\n\nListe bir **alt sorgudan** geliyorsa sorun yok: alt sorgu sıfır satır döndürebiliyor ve `IN` bunu sorunsuz karşılıyor.",
+        "en": "`IN` wants at least one value; empty parentheses are a syntax error (measured).\n\nThis comes up when a list is built by program code: the query breaks when the list ends up empty. It has to be handled on the code side — usually by not running the query at all, or by dropping the condition.\n\nIf the list comes from a **subquery** there is no problem: a subquery can return zero rows and `IN` copes with that fine."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 1,
+      "text": {
+        "tr": "SQL Server'da `LIKE '[KM]%'` ne yapıyor?",
+        "en": "What does `LIKE '[KM]%'` do on SQL Server?"
+      },
+      "options": {
+        "tr": [
+          "Köşeli parantezle başlayanları bulur",
+          "K ya da M ile başlayanları bulur",
+          "Tam olarak KM ile başlayanları bulur",
+          "Hata verir"
+        ],
+        "en": [
+          "Finds text starting with a square bracket",
+          "Finds text starting with K or M",
+          "Finds text starting with exactly KM",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Köşeli parantez bir **karakter kümesi**: içindeki karakterlerden herhangi biri eşleşiyor.\n\n- `'[KM]%'` — K ya da M ile başlayan\n- `'[A-F]%'` — A ile F arası bir harfle başlayan\n- `'[^K]%'` — K ile başlamayan\n\n**Bu T-SQL'e özgü.** Standart SQL'de yok; PostgreSQL ya da MySQL'e taşınan bir sorguda çalışmıyor. Orada `SIMILAR TO` ya da düzenli ifadeler kullanılıyor.",
+        "en": "Square brackets are a **character set**: any one of the characters inside matches.\n\n- `'[KM]%'` — starting with K or M\n- `'[A-F]%'` — starting with a letter between A and F\n- `'[^K]%'` — not starting with K\n\n**This is specific to T-SQL.** It is not in standard SQL and will not work in a query moved to PostgreSQL or MySQL, where `SIMILAR TO` or regular expressions are used instead."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 2,
+      "text": {
+        "tr": "Bir sorgu beklenmedik şekilde boş sonuç döndürdü ve hata vermedi. `NULL` ile ilgili en olası iki sebep nedir?",
+        "en": "A query unexpectedly returned nothing and raised no error. What are the two most likely NULL-related causes?"
+      },
+      "options": {
+        "tr": [
+          "Tablo boş ve indeks bozuk",
+          "Sunucu kapalı ve bağlantı koptu",
+          "`= NULL` yazılmış olabilir, ya da `NOT IN` listesinde NULL vardır",
+          "ORDER BY unutulmuş"
+        ],
+        "en": [
+          "The table is empty and the index is broken",
+          "The server is down and the connection dropped",
+          "`= NULL` may have been written, or the `NOT IN` list contains NULL",
+          "ORDER BY was forgotten"
+        ]
+      },
+      "explanation": {
+        "tr": "İkisi de **sessiz**: sorgu çalışıyor, hata yok, sonuç boş.\n\n- `= NULL` hiçbir zaman doğru olmuyor — `IS NULL` yazılmalı.\n- `NOT IN` listesinde `NULL` varsa `AND` zinciri asla doğru olamıyor.\n\nSunucu kapalı olsaydı bağlantı hatası alırdın; boş sonuç değil. `ORDER BY` satır sayısını etkilemiyor.\n\nÜçüncü bir ihtimal daha var: `BETWEEN` sınırlarının ters yazılması.",
+        "en": "Both are **silent**: the query runs, there is no error, and the result is empty.\n\n- `= NULL` is never true — it should be `IS NULL`.\n- With `NULL` in a `NOT IN` list, the `AND` chain can never be true.\n\nIf the server were down you would get a connection error, not an empty result. `ORDER BY` does not affect the row count.\n\nThere is a third possibility: the `BETWEEN` bounds written the wrong way round."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`NULL + 5` neyi verir?",
+        "en": "What does `NULL + 5` give?"
+      },
+      "options": {
+        "tr": [
+          "`NULL`",
+          "`5`",
+          "`0`",
+          "Hata"
+        ],
+        "en": [
+          "`NULL`",
+          "`5`",
+          "`0`",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "Bilinmeyen bir sayıya 5 eklersen sonuç yine bilinmiyor. Aritmetikte `NULL` **bulaşıcı**: içinde `NULL` geçen her işlem `NULL` veriyor.\n\nBu, hesaplanan sütunlarda sessizce sorun çıkarıyor: `fiyat + kargo` ifadesinde kargo boşsa toplam da boş oluyor.\n\nÇözüm `ISNULL(kargo, 0)` ya da `COALESCE(kargo, 0)` ile boşluğa bir değer vermek.",
+        "en": "Add 5 to an unknown number and the result is still unknown. In arithmetic `NULL` is **contagious**: any operation containing `NULL` produces `NULL`.\n\nThis causes quiet trouble in calculated columns: in `fiyat + kargo`, if the shipping cost is empty the total is empty too.\n\nThe fix is to give the gap a value with `ISNULL(kargo, 0)` or `COALESCE(kargo, 0)`."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 3,
+      "text": {
+        "tr": "\"Fiyatı 500 ile 3000 arasında, 3000 hariç\" nasıl yazılır?",
+        "en": "How do you write \"priced between 500 and 3000, excluding 3000\"?"
+      },
+      "options": {
+        "tr": [
+          "`BETWEEN 500 AND 3000`",
+          "`BETWEEN 500 AND 2999`",
+          "`BETWEEN 500 AND 3000 EXCLUSIVE`",
+          "`fiyat >= 500 AND fiyat < 3000`"
+        ],
+        "en": [
+          "`BETWEEN 500 AND 3000`",
+          "`BETWEEN 500 AND 2999`",
+          "`BETWEEN 500 AND 3000 EXCLUSIVE`",
+          "`fiyat >= 500 AND fiyat < 3000`"
+        ]
+      },
+      "explanation": {
+        "tr": "`BETWEEN`'in sınırı dışarıda bırakan bir hâli **yok**; `EXCLUSIVE` diye bir ek de yok.\n\n`2999` yazmak yanlış: fiyat ondalıklı olabiliyor ve 2999,50 dışarıda kalıyor. Bu, tam sayı sanılan sütunlarda sık yapılan bir hata.\n\nSınır dışarıda kalacaksa `>=` ve `<` ile açıkça yazmak tek doğru yol.",
+        "en": "`BETWEEN` has **no** form that excludes a bound, and there is no `EXCLUSIVE` clause.\n\nWriting `2999` is wrong: the price can have decimals and 2999.50 would fall outside. This is a common mistake on columns assumed to be integers.\n\nWhen a bound must be excluded, writing `>=` and `<` explicitly is the only correct way."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 1,
+      "text": {
+        "tr": "`WHERE ad LIKE '%a%' AND kategori IN ('Ekran') AND stok IS NOT NULL` sorgusunda kaç koşul var?",
+        "en": "How many conditions are in `WHERE ad LIKE '%a%' AND kategori IN ('Ekran') AND stok IS NOT NULL`?"
+      },
+      "options": {
+        "tr": [
+          "Bir",
+          "Üç, hepsi AND ile bağlı",
+          "İki",
+          "Dört"
+        ],
+        "en": [
+          "One",
+          "Three, all joined with AND",
+          "Two",
+          "Four"
+        ]
+      },
+      "explanation": {
+        "tr": "Üç ayrı koşul `AND` ile bağlanmış: desen araması, listeden seçme ve boşluk kontrolü.\n\nHepsi `AND` olduğu için **parantez gerekmiyor**. Aralarında bir `OR` olsaydı gerekirdi — `AND`, `OR`'dan önce çalıştığı için.\n\nSatırın sonuca girmesi için üçünün de doğru olması gerekiyor.",
+        "en": "Three separate conditions joined with `AND`: a pattern search, a choice from a list, and an emptiness check.\n\nSince they are all `AND`, **no parentheses are needed**. They would be if there were an `OR` among them, because `AND` runs before `OR`.\n\nFor a row to reach the result all three have to be true."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 2,
+      "text": {
+        "tr": "`IS NULL` neden bir karşılaştırma sayılmıyor?",
+        "en": "Why is `IS NULL` not considered a comparison?"
+      },
+      "options": {
+        "tr": [
+          "Çünkü yalnızca metin sütunlarında çalışıyor",
+          "Çünkü indeks kullanamıyor",
+          "Çünkü hücrenin durumunu soruyor ve cevabı her zaman doğru ya da yanlış",
+          "Çünkü WHERE dışında kullanılamıyor"
+        ],
+        "en": [
+          "Because it only works on text columns",
+          "Because it cannot use an index",
+          "Because it asks about the state of the cell and always answers true or false",
+          "Because it cannot be used outside WHERE"
+        ]
+      },
+      "explanation": {
+        "tr": "Karşılaştırma operatörleri (`=`, `<>`, `<`, `>`) iki **değeri** karşılaştırıyor ve biri bilinmiyorsa sonuç da bilinmiyor.\n\n`IS NULL` değer karşılaştırmıyor; \"bu hücrede bir değer var mı?\" diye soruyor. Bu sorunun cevabı her zaman kesin: ya var ya yok.\n\nBu yüzden üç değerli mantığın \"bilinmiyor\" durumu `IS NULL` için hiç oluşmuyor.",
+        "en": "Comparison operators (`=`, `<>`, `<`, `>`) compare two **values**, and if one of them is unknown the result is unknown too.\n\n`IS NULL` compares no values; it asks \"is there a value in this cell?\" That question always has a definite answer: there is or there is not.\n\nSo the \"unknown\" state of three-valued logic never arises for `IS NULL`."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Tarih sütununda `BETWEEN '2026-01-01' AND '2026-01-31'` yazmanın riski nedir?",
+        "en": "What is the risk of writing `BETWEEN '2026-01-01' AND '2026-01-31'` on a date column?"
+      },
+      "options": {
+        "tr": [
+          "Sütun saat de tutuyorsa 31 Ocak günü saat 00:00'dan sonrası dışarıda kalır",
+          "Tarihlerde BETWEEN çalışmaz",
+          "Ocak ayı 31 çekmeyebilir",
+          "Sınırlar dışarıda kalır"
+        ],
+        "en": [
+          "If the column also stores a time, everything after midnight on the 31st is excluded",
+          "BETWEEN does not work on dates",
+          "January may not have 31 days",
+          "The bounds are excluded"
+        ]
+      },
+      "explanation": {
+        "tr": "`'2026-01-31'` yazdığında sunucu bunu `2026-01-31 00:00:00` olarak okuyor. Sütun `datetime` ise o gün saat 09:30'da kaydedilen bir satır sınırın **dışında** kalıyor.\n\nBir ayın tamamını istiyorsan güvenli yazım şu:\n\n```sql\nWHERE tarih >= '2026-01-01' AND tarih < '2026-02-01'\n```\n\nÜst sınır bir sonraki ayın başı ve `<` ile dışarıda bırakılıyor. Bu kalıp tarih aralıklarında standart hâline gelmiş.",
+        "en": "When you write `'2026-01-31'` the server reads it as `2026-01-31 00:00:00`. If the column is a `datetime`, a row recorded at 09:30 that day falls **outside** the bound.\n\nIf you want a whole month, the safe form is:\n\n```sql\nWHERE tarih >= '2026-01-01' AND tarih < '2026-02-01'\n```\n\nThe upper bound is the start of the next month, excluded with `<`. This pattern has become the standard for date ranges."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 3,
+      "text": {
+        "tr": "`COALESCE(a, b, c)` ne yapıyor?",
+        "en": "What does `COALESCE(a, b, c)` do?"
+      },
+      "options": {
+        "tr": [
+          "Üçünü toplar",
+          "Üçü de NULL değilse doğru döner",
+          "Üçünü birleştirip metin yapar",
+          "İlk NULL olmayanı verir"
+        ],
+        "en": [
+          "Adds the three together",
+          "Returns true when none of the three is NULL",
+          "Concatenates the three into text",
+          "Gives the first one that is not NULL"
+        ]
+      },
+      "explanation": {
+        "tr": "Soldan sağa bakıyor ve ilk dolu değeri veriyor. Hepsi `NULL` ise sonuç `NULL`.\n\n`ISNULL` yalnızca iki değer alıyor; `COALESCE` istediğin kadar alabiliyor. Ayrıca `COALESCE` **standart SQL**, `ISNULL` SQL Server'a özgü.\n\nSık kullanımı: \"cep telefonu varsa onu, yoksa ev telefonunu, o da yoksa e-postayı ver\".",
+        "en": "It looks from left to right and gives the first value that is not empty. If all of them are `NULL` the result is `NULL`.\n\n`ISNULL` takes only two values; `COALESCE` takes as many as you like. `COALESCE` is also **standard SQL**, while `ISNULL` is specific to SQL Server.\n\nA common use: \"give me the mobile number, or the landline if there is none, or the email if there is neither\"."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 1,
+      "text": {
+        "tr": "`LIKE` varsayılan kurulumda harf büyüklüğünü ayırt ediyor mu?",
+        "en": "Does `LIKE` distinguish case on a default installation?"
+      },
+      "options": {
+        "tr": [
+          "Evet, her zaman",
+          "Hayır — sunucunun harmanlama ayarına bağlı ve varsayılan ayırt etmiyor",
+          "Yalnızca `_` kullanıldığında",
+          "Yalnızca sayılarda"
+        ],
+        "en": [
+          "Yes, always",
+          "No — it depends on the server's collation, and the default does not distinguish",
+          "Only when `_` is used",
+          "Only on numbers"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan harmanlamada `'k%'` ile `'K%'` aynı sonucu veriyor.\n\nAma bu bir **sunucu ayarı**. Harmanlama duyarlı seçilirse (`_CS_` içeren adlar) ikisi farklı sonuç veriyor.\n\n\"Her yerde böyle\" diye varsayma: başka bir sunucuya taşınan bir sorgu bu yüzden farklı davranabiliyor. PostgreSQL varsayılan olarak duyarlı ve orada `ILIKE` ayrı bir operatör.",
+        "en": "With the default collation, `'k%'` and `'K%'` give the same result.\n\nBut this is a **server setting**. If a case-sensitive collation is chosen (names containing `_CS_`), the two give different results.\n\nDo not assume it is the same everywhere: a query moved to another server can behave differently because of this. PostgreSQL is case sensitive by default, and there `ILIKE` is a separate operator."
+      }
+    }
+  ]
+}

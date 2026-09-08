@@ -1,0 +1,2 @@
+-- Bring back the products priced between 500 and 3200.
+-- Both ends included. Sort from cheap to expensive.

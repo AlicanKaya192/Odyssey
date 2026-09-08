@@ -419,10 +419,21 @@ def _contains(sql: str, pattern: str) -> bool:
 
     `pattern` birden çok kelime içerebiliyor (`GROUP BY`); aradaki boşluk
     sayısı serbest bırakılıyor, çünkü öğrenci satır sonu da koyabiliyor.
+
+    Kalıp **düz metin** olarak aranıyor, düzenli ifade olarak değil:
+    `re.escape` içeriği olduğu gibi bırakıyor. Yani `exercise.json` içine
+    `\bIN\b` yazmak işe yaramıyor, `IN` yazmak gerekiyor.
     """
     parcalar = [re.escape(p) for p in pattern.split()]
-    kalip = r"\b" + r"\s+".join(parcalar) + r"\b"
-    return re.search(kalip, sql, re.IGNORECASE) is not None
+    govde = r"\s+".join(parcalar)
+
+    # Kelime sınırı yalnızca uçları harf/rakam olan kalıplara konuyor.
+    # `*` gibi bir kalıpta `\b` hiçbir zaman eşleşmiyor — yıldız kelime
+    # karakteri değil, yanındaki boşlukla arasında sınır oluşmuyor. Bu
+    # yüzden "yıldız kullanma" yasağı sessizce hiç ateşlenmiyordu.
+    on = r"\b" if pattern[:1].isalnum() or pattern[:1] == "_" else ""
+    arka = r"\b" if pattern[-1:].isalnum() or pattern[-1:] == "_" else ""
+    return re.search(on + govde + arka, sql, re.IGNORECASE) is not None
 
 
 def _same_cell(actual, expected) -> bool:

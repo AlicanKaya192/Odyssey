@@ -1,0 +1,1 @@
+-- Adi K harfiyle baslayan urunleri alfabetik sirada getir.

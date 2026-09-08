@@ -1,0 +1,5 @@
+-- Bring back the products that satisfy all three:
+--   category is Aksesuar or Ekran,
+--   price is between 200 and 2000 (both ends included),
+--   tedarikci_kod is not empty.
+-- Columns: ad, kategori, fiyat. Sort expensive to cheap.
