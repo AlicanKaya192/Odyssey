@@ -194,6 +194,37 @@ PATHS: dict[str, str] = {
     "globe": '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
     "anchor": '<circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/>',
     "briefcase": '<rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+    # Patika simgeleri. Dördü eksikti ve yedek simgeye (chevron-right)
+    # düşüyordu: ana ekranda dört patika "›" ile çiziliyordu.
+    "sparkles": (
+        '<path d="m12 3 1.9 5.8L20 10.7l-6.1 1.9L12 18.5l-1.9-5.9L4 10.7l6.1-1.9z"/>'
+        '<path d="M19 3v4"/><path d="M17 5h4"/>'
+    ),
+    "calculator": (
+        '<rect x="4" y="2" width="16" height="20" rx="2"/>'
+        '<line x1="8" y1="6" x2="16" y2="6"/>'
+        '<line x1="8" y1="11" x2="8.01" y2="11"/>'
+        '<line x1="12" y1="11" x2="12.01" y2="11"/>'
+        '<line x1="16" y1="11" x2="16.01" y2="11"/>'
+        '<line x1="8" y1="15" x2="8.01" y2="15"/>'
+        '<line x1="12" y1="15" x2="12.01" y2="15"/>'
+        '<line x1="16" y1="15" x2="16.01" y2="18"/>'
+    ),
+    "library": (
+        '<path d="M4 4v16"/><path d="M8 3v18"/>'
+        '<rect x="11" y="4" width="4" height="16" rx="1"/>'
+        '<path d="m18 5 3 14"/>'
+    ),
+    "server": (
+        '<rect x="2" y="3" width="20" height="7" rx="2"/>'
+        '<rect x="2" y="14" width="20" height="7" rx="2"/>'
+        '<line x1="6" y1="6.5" x2="6.01" y2="6.5"/>'
+        '<line x1="6" y1="17.5" x2="6.01" y2="17.5"/>'
+    ),
+    "clock": '<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>',
+    "message": (
+        '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'
+    ),
 }
 
 

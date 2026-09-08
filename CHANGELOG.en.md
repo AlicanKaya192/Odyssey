@@ -23,10 +23,20 @@ lecture note does not mean downloading the whole application again.
 
 ## [0.7.5] — 7 September 2026
 
-### Tweaks and Fixes
-- **Upcoming Paths:** Added placeholder titles for the upcoming advanced and engineering learning paths (Time Series, NLP, GenAI, Algorithms, AI Math, Essential Libraries, and System Design) to the main screen.
-- **Code Editor:** Fixed a Rich Text formatting bug where pressing "Enter" on empty lines caused the line-height styling to break entirely.
-- **Quiz View:** Fixed a scrolling bug that caused the page to start at the center instead of the very top (first question) when starting a new quiz.
+### Added
+- **What is coming next now shows on the path screen.** The paths in
+  preparation were added to the main screen: Time Series, Natural Language
+  Processing, Generative AI, Algorithms, AI Mathematics, Essential
+  Libraries and System Design.
+
+### Fixed
+- **Enter took two presses in the exercise editor.** Before opening a new
+  line, the line you were on and the next one squeezed together, and the
+  second press put them back.
+- **A quiz started from the middle of the page rather than the first
+  question.**
+- **The text on Discord appeared late.** It did not show when the
+  application opened, only once you entered a section or a minute later.
 
 ---
 

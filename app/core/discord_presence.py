@@ -81,6 +81,13 @@ OP_CLOSE = 2
 MIN_SEND_INTERVAL = 15.0
 # Discord kapalıyken boşuna denememek için bekleme.
 RECONNECT_INTERVAL = 20.0
+# İlk denemeler bu aralıkla yapılıyor. Discord uygulamadan **sonra** açılmış
+# olabiliyor; ilk denemede bulunamayınca 20 saniye beklemek kullanıcıya
+# "çalışmıyor" izlenimi veriyordu.
+FAST_RETRY_INTERVAL = 2.0
+FAST_RETRIES = 5
+# El sıkışmanın cevabı bu süre içinde gelmezse bağlantı yenileniyor.
+READY_TIMEOUT = 5.0
 # Durum değişmese bile bu aralıkla yeniden gönderiliyor.
 #
 # Discord, uzun süre haber alamadığı bir etkinliği bayatlamış sayabiliyor:
@@ -117,6 +124,7 @@ class _Pipe:
 
     def __init__(self, handle) -> None:
         self._file = handle
+        self._buffer = b""
         self._peek = None
         if sys.platform == "win32":
             try:
@@ -166,18 +174,25 @@ class _Pipe:
         self._file.write(struct.pack("<II", opcode, len(body)) + body)
         self._file.flush()
 
-    def drain(self) -> None:
-        """Borudaki cevapları atıyor.
+    @property
+    def can_read(self) -> bool:
+        """Cevaplar okunabiliyor mu? Yoklama kurulamadıysa hayır."""
+        return self._peek is not None
+
+    def read_frames(self) -> list[tuple[int, dict]]:
+        """Borudaki hazır çerçeveleri ayrıştırıp döndürür.
 
         Okumadan bırakmak boruyu dolduruyor ve Discord tarafındaki yazma
-        tıkanıyor. Cevapların içeriği bize lazım değil, yalnızca yer
-        açılması gerekiyor.
+        tıkanıyor — yani okumak zaten gerekiyordu. **Cevabın içeriği de
+        gerekli:** el sıkışmanın karşılığı olan `READY` buradan geliyor ve
+        o gelmeden gönderilen etkinlik çerçevesini Discord sessizce
+        düşürüyor.
 
         **Bloklamıyor:** önce kaç bayt hazır olduğu soruluyor, yalnızca o
-        kadar okunuyor.
+        kadar okunuyor. Yarım kalan çerçeve tamponda bekliyor.
         """
         if self._peek is None:
-            return
+            return []
         available = self._wintypes.DWORD(0)
         ok = self._peek(
             self._osf, None, 0, None, self._ctypes.byref(available), None
@@ -185,7 +200,21 @@ class _Pipe:
         if not ok:
             raise OSError("boru yoklanamadı")
         if available.value:
-            self._file.read(available.value)
+            self._buffer += self._file.read(available.value)
+
+        frames: list[tuple[int, dict]] = []
+        while len(self._buffer) >= 8:
+            opcode, length = struct.unpack("<II", self._buffer[:8])
+            if len(self._buffer) < 8 + length:
+                break
+            body = self._buffer[8 : 8 + length]
+            self._buffer = self._buffer[8 + length :]
+            try:
+                frames.append((opcode, json.loads(body.decode("utf-8"))))
+            except (ValueError, UnicodeDecodeError):
+                # Bozuk çerçeve bizi ilgilendirmiyor; sıradakine geçiliyor.
+                continue
+        return frames
 
     def close(self) -> None:
         try:
@@ -223,6 +252,10 @@ class DiscordPresence:
         self._pipe: _Pipe | None = None
         self._last_send = 0.0
         self._next_connect = 0.0
+        # El sıkışmanın cevabı geldi mi? Gelmeden etkinlik gönderilmiyor.
+        self._ready = False
+        self._handshake_at = 0.0
+        self._attempts = 0
 
     # --- dışarıya açık -----------------------------------------------
 
@@ -301,7 +334,8 @@ class DiscordPresence:
         if self._pipe is None:
             if now < self._next_connect:
                 return
-            self._next_connect = now + RECONNECT_INTERVAL
+            self._attempts += 1
+            self._next_connect = now + self._retry_delay()
             pipe = _Pipe.connect()
             if pipe is None:
                 return
@@ -311,11 +345,30 @@ class DiscordPresence:
                 pipe.close()
                 return
             self._pipe = pipe
+            # Cevap okunamıyorsa beklenecek bir şey yok; eskisi gibi
+            # doğrudan gönderiliyor.
+            self._ready = not pipe.can_read
+            self._handshake_at = now
             self._last_send = 0.0
+            self._attempts = 0
             with self._lock:
                 self._dirty = True
 
-        self._pipe.drain()
+        for _opcode, payload in self._pipe.read_frames():
+            if payload.get("evt") == "READY":
+                self._ready = True
+
+        # **El sıkışma cevabı beklenmek zorunda.** Discord, `READY`
+        # göndermeden önce gelen `SET_ACTIVITY` çerçevesini sessizce
+        # düşürüyor: hata yok, uyarı yok, yalnızca durum görünmüyor.
+        # Eskiden çerçeve el sıkışmayla aynı turda gidiyordu; gönderim
+        # düşünce `_dirty` de temizlendiği için bir sonraki gönderim ya
+        # 60 saniyelik kalp atışını ya da metnin değişmesini (bir bölüme
+        # girmeyi) bekliyordu. Paketlenmiş sürümde tam olarak bu görüldü.
+        if not self._ready:
+            if now - self._handshake_at >= READY_TIMEOUT:
+                self._drop()
+            return
 
         with self._lock:
             dirty = self._dirty
@@ -352,11 +405,24 @@ class DiscordPresence:
             "nonce": f"odyssey-{time.time_ns()}",
         }
 
+    def _retry_delay(self) -> float:
+        """İlk denemeler sık, sonrakiler seyrek.
+
+        Discord uygulamadan sonra açılmış olabiliyor. Tek bir aralık
+        kullanmak iki kötü seçenek arasında sıkışıyordu: kısa tutmak
+        Discord kapalıyken boşuna deneme, uzun tutmak da açılışta
+        yirmi saniyelik gecikme demekti.
+        """
+        if self._attempts <= FAST_RETRIES:
+            return FAST_RETRY_INTERVAL
+        return RECONNECT_INTERVAL
+
     def _drop(self) -> None:
         if self._pipe is not None:
             self._pipe.close()
             self._pipe = None
-        self._next_connect = time.monotonic() + RECONNECT_INTERVAL
+        self._ready = False
+        self._next_connect = time.monotonic() + self._retry_delay()
 
     def _clear_and_close(self) -> None:
         """Uygulama kapanırken Discord'daki yazıyı siliyor.

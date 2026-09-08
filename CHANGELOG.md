@@ -21,10 +21,19 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ## [0.7.5] — 7 Eylül 2026
 
-### Düzenlemeler ve İyileştirmeler
-- **Gelecek Patikalar:** Yeni eklenecek patika başlıkları (Zaman Serileri, Doğal Dil İşleme, Üretken YZ, Algoritmalar, YZ Matematiği, Önemli Kütüphaneler ve Sistem Tasarımı) ana ekrana yansıtıldı.
-- **Kod Editörü:** Boş satırlarda "Enter" tuşuna basıldığında satır aralığının (line-height) bozulmasına yol açan biçimlendirme hatası (Rich Text sıfırlaması) düzeltildi.
-- **Sınav Ekranı:** Sınava başlandığında sayfanın en üst yerine tam ortadan başlamasına sebep olan yanlış kaydırma (scroll) konumu sorunu giderildi.
+### Eklendi
+- **Sırada ne var, yol ekranında görünüyor.** Hazırlanmakta olan patikalar
+  ana ekrana eklendi: Zaman Serileri, Doğal Dil İşleme, Üretken Yapay Zekâ,
+  Algoritmalar, Yapay Zekâ Matematiği, Temel Kütüphaneler ve Sistem
+  Tasarımı.
+
+### Düzeltildi
+- **Alıştırma editöründe Enter iki adımda çalışıyordu.** Yeni satır
+  açmadan önce bulunduğunuz satırla bir sonraki birbirine yapışıyor, ikinci
+  Enter'da yerine oturuyordu.
+- **Sınav ilk sorudan değil, sayfanın ortasından başlıyordu.**
+- **Discord'daki yazı geç çıkıyordu.** Uygulama açıldığında görünmüyor,
+  ancak bir bölüme girdiğinizde ya da bir dakika sonra beliriyordu.
 
 ---
 
@@ -134,7 +143,6 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   da uygulamayı yeniden kuran biri, kayıt kullanıcı verisinde durduğu için
   aynı güncellemeyi bir daha görmüyordu. Kayıt artık kurulu sürümü de
   içeriyor.
-
 - **Profildeki yıl seçicisinin arkasındaki koyu leke.** Etkinlik
   takviminin yanındaki yıl düğmesi kartın içinde bir delik gibi
   duruyordu; arkasındaki alan kart rengi yerine sayfa zeminini

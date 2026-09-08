@@ -29,6 +29,14 @@ ICON = 26
 # "Alışkanlık" tek satırda 120 piksel istiyor ve 96 piksellik hücrede
 # kırpılıyordu. Genişlik en uzun tek kelimeye göre seçildi.
 CELL_WIDTH = 128
+# Çipin yüksekliği **sabit**: `QGridLayout` sıra yüksekliğini bir çipin
+# `sizeHint`'inden alıyor ve içerik uzunluğuna göre değişen bir yükseklik
+# duvarı zıplatıyordu.
+#
+# Ölçüldü: en uzun rozet adı ("Makine Öğrenmesi Ustası") iki satıra sarıp
+# 32 piksel istiyor; daire 56 ve aradaki boşluk 4 ile toplam 92. 120 bunun
+# üstünde, yani yeni bir rozet adı biraz daha uzun olsa da kırpılmıyor.
+CELL_HEIGHT = 120
 MIN_COLUMNS = 3
 
 # Bir sayfada kaç sıra rozet duruyor.
@@ -44,7 +52,7 @@ class BadgeChip(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setFixedSize(CELL_WIDTH, 120)
+        self.setFixedSize(CELL_WIDTH, CELL_HEIGHT)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

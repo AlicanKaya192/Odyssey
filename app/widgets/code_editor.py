@@ -254,20 +254,6 @@ class CodeEditor(QTextEdit):
                 cursor.mergeBlockFormat(new_fmt)
             block = block.next()
 
-    @staticmethod
-    def _apply_spacing_to_block(block) -> None:
-        """Tek bir bloğa satır aralığı uygular."""
-        target = QTextBlockFormat.LineHeightTypes.ProportionalHeight.value
-        fmt = block.blockFormat()
-        if (
-            int(fmt.lineHeightType()) != target
-            or int(fmt.lineHeight()) != LINE_HEIGHT_PERCENT
-        ):
-            cursor = QTextCursor(block)
-            new_fmt = QTextBlockFormat()
-            new_fmt.setLineHeight(LINE_HEIGHT_PERCENT, target)
-            cursor.mergeBlockFormat(new_fmt)
-
     def setPlainText(self, text: str) -> None:  # noqa: N802
         """Metni yükler ve satır aralığını yeniden uygular.
 
@@ -387,7 +373,7 @@ class CodeEditor(QTextEdit):
             indent = line[: len(line) - len(line.lstrip())]
             if line.rstrip().endswith(":"):
                 indent += INDENT
-            
+
             self.insertPlainText("\n" + indent)
             return
 
