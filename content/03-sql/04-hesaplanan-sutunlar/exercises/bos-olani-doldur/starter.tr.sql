@@ -1,0 +1,3 @@
+-- tedarikci_kod bos olan urunlerde 'YOK' yazsin, dolu
+-- olanlarda kendi degeri gorunsun.
+-- Sutunlar: ad, tedarikci. Ada gore sirala.

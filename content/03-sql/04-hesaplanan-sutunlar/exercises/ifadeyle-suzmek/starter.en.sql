@@ -1,0 +1,4 @@
+-- Bring back the products whose stock value (price times stock)
+-- is above 50000.
+-- Columns: ad, fiyat, stok, stok_degeri.
+-- Sort by stock value, largest first.

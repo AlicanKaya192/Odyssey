@@ -1,0 +1,2 @@
+-- Her urunun stok degerini hesapla: fiyat carpi stok.
+-- Sutunlar: ad, stok_degeri. Buyukten kucuge sirala.

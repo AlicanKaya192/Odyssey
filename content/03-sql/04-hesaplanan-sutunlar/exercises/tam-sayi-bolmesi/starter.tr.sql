@@ -1,0 +1,3 @@
+-- Stokta bulunan urunlerin stogunun yarisini hesapla.
+-- Sutunlar: ad, stok, yari_stok. Ada gore sirala.
+-- Dikkat: sonuc ondalikli olmali. stok sutunu tam sayi.

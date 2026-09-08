@@ -53,14 +53,19 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   hiçbir zaman çalışmadığı, `NOT IN` ile bir arada neden sessizce boş sonuç
   verdiği ve `BETWEEN`'in iki ucu da dahil ettiği. İki not, yirmi beş
   soruluk sınav, beş alıştırma ve "Boşluğu Gördün" rozeti.
+- **SQL patikası, beşinci bölüm: "Hesaplanan Sütunlar".** Tabloda olmayan
+  sütunlar üretmek: aritmetik, metin ve sayı işlevleri, tür çevirme. İki
+  tam sayının bölümünün neden tam sayı olduğu, `CONCAT` ile `+` arasındaki
+  farkın neden önemli olduğu ve hangi hesabın sessizce yanlış sonuç
+  verdiği. İki not, yirmi beş soruluk sınav, beş alıştırma ve "Kendi
+  Sütunun" rozeti.
 - **"Tablolar" penceresi.** SQL alıştırmalarında, sorgu yazarken
   veritabanında ne olduğunu görmek için. Tablolar sekmeli duruyor;
   istediğin tabloyu ayrı bir pencereye taşıyıp iki tabloya aynı anda
   bakabiliyorsun. Kendi yarattığın tablo da listede çıkıyor.
-- **Dört yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
-  çalıştırdığında; "İlk Süzgeç", "Sıra Sende" ve "Boşluğu Gördün" ise
-  sırasıyla SELECT ve WHERE, Sıralama ve Sınırlama, Filtreleme Desenleri
-  bölümlerini bitirdiğinde geliyor.
+- **Beş yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
+  çalıştırdığında; "İlk Süzgeç", "Sıra Sende", "Boşluğu Gördün" ve "Kendi
+  Sütunun" ise SQL patikasının bölümlerini bitirdikçe geliyor.
 
 ### Düzeltildi
 - **Ders notlarındaki dış bağlantılar açılmıyordu.** Python kurulum

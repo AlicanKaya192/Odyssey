@@ -1,0 +1,4 @@
+-- Stok degeri (fiyat carpi stok) 50000'den buyuk olan
+-- urunleri getir.
+-- Sutunlar: ad, fiyat, stok, stok_degeri.
+-- Stok degerine gore buyukten kucuge sirala.

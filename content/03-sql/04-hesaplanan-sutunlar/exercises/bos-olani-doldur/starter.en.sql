@@ -1,0 +1,3 @@
+-- Where tedarikci_kod is empty show 'YOK', otherwise show its
+-- own value.
+-- Columns: ad, tedarikci. Sort by name.

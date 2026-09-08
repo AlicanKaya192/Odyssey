@@ -1,0 +1,2 @@
+-- Her urun icin 'Klavye (Aksesuar)' bicminde bir etiket uret.
+-- Tek sutun: etiket. Ada gore sirala.

@@ -1,0 +1,2 @@
+-- Work out each product's stock value: price times stock.
+-- Columns: ad, stok_degeri. Sort from largest to smallest.

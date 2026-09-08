@@ -1,0 +1,654 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "SQL Server'da `SELECT 7 / 2` ne döndürür?",
+        "en": "What does `SELECT 7 / 2` return on SQL Server?"
+      },
+      "options": {
+        "tr": [
+          "`3.5`",
+          "`4`",
+          "`3`",
+          "Hata"
+        ],
+        "en": [
+          "`3.5`",
+          "`4`",
+          "`3`",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "İki **tam sayıyı** bölünce sonuç da tam sayı oluyor ve ondalık kısım **atılıyor** — yuvarlanmıyor, kesiliyor.\n\nBu yüzden 3,5 değil 3 çıkıyor. Sorgu hata vermiyor, sessizce yanlış sayı veriyor.\n\nOndalıklı sonuç için bir tarafı ondalıklı yapman gerekiyor: `7.0 / 2` → 3.5.",
+        "en": "Dividing two **integers** gives an integer, and the fractional part is **thrown away** — truncated, not rounded.\n\nSo you get 3 rather than 3.5. The query raises no error and quietly gives the wrong number.\n\nFor a fractional result you have to make one side fractional: `7.0 / 2` → 3.5."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`satilan` ve `toplam` tam sayı sütunları. `SELECT satilan / toplam * 100` neden yanlış sonuç veriyor?",
+        "en": "`satilan` and `toplam` are integer columns. Why does `SELECT satilan / toplam * 100` give a wrong result?"
+      },
+      "options": {
+        "tr": [
+          "Bölme önce yapılıyor ve tam sayı bölmesi sonucu 0 ya da 1'e indiriyor",
+          "Çarpma önce yapılıyor",
+          "100 çok büyük bir sayı",
+          "Yüzde hesabı için ayrı bir işlev gerekiyor"
+        ],
+        "en": [
+          "The division happens first, and integer division collapses it to 0 or 1",
+          "The multiplication happens first",
+          "100 is too large a number",
+          "Percentages need a separate function"
+        ]
+      },
+      "explanation": {
+        "tr": "İşlem sırası soldan sağa: önce bölme, sonra çarpma.\n\n`3 / 4` tam sayı bölmesinde **0** veriyor; `0 * 100` da 0. Ölçüldü: `SELECT 3/4*100` → **0**.\n\nDüzeltme çarpmayı öne almak:\n\n```sql\nSELECT satilan * 100.0 / toplam\n```\n\nHem ondalıklıya çeviriyor hem hassasiyeti koruyor. `SELECT 3*100.0/4` → 75.",
+        "en": "Operations go left to right: the division first, then the multiplication.\n\n`3 / 4` in integer division is **0**, and `0 * 100` is 0. Measured: `SELECT 3/4*100` → **0**.\n\nThe fix is to put the multiplication first:\n\n```sql\nSELECT satilan * 100.0 / toplam\n```\n\nThat both makes it fractional and preserves precision. `SELECT 3*100.0/4` → 75."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT LEN('abc   ')` (sonda üç boşluk) ne döndürür?",
+        "en": "What does `SELECT LEN('abc   ')` (three trailing spaces) return?"
+      },
+      "options": {
+        "tr": [
+          "`6`",
+          "`3` — LEN sondaki boşlukları saymıyor",
+          "`0`",
+          "Hata"
+        ],
+        "en": [
+          "`6`",
+          "`3` — LEN does not count trailing spaces",
+          "`0`",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "`LEN` **sondaki** boşlukları görmezden geliyor ama **baştakileri** sayıyor: `LEN('   abc')` → 6. Bu asimetri şaşırtıyor ve bir tasarım kararı değil, eski sürümlerden kalma bir davranış.\n\nGerçek uzunluk için `DATALENGTH` var: `DATALENGTH('abc   ')` → 6. Ama o bayt sayıyor, karakter değil — `NVARCHAR` sütunlarda karakter başına iki bayt.\n\nHepsi ölçüldü.",
+        "en": "`LEN` ignores **trailing** spaces but counts **leading** ones: `LEN('   abc')` → 6. The asymmetry is surprising, and it is a quirk inherited from older versions rather than a design decision.\n\nFor the real length there is `DATALENGTH`: `DATALENGTH('abc   ')` → 6. But that counts bytes, not characters — two bytes per character on `NVARCHAR`.\n\nAll measured."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 3,
+      "text": {
+        "tr": "`SELECT 'a' + NULL` ne döndürür?",
+        "en": "What does `SELECT 'a' + NULL` return?"
+      },
+      "options": {
+        "tr": [
+          "`'a'`",
+          "Boş dize",
+          "Hata",
+          "`NULL`"
+        ],
+        "en": [
+          "`'a'`",
+          "An empty string",
+          "An error",
+          "`NULL`"
+        ]
+      },
+      "explanation": {
+        "tr": "`+` ile birleştirmede tek bir boş parça **bütün sonucu siliyor**.\n\nSomut sonucu şu: `ad + ' ' + soyad` yazan bir sorguda soyadı kayıtlı olmayan kişilerin adı da kayboluyor, hücre bomboş çıkıyor.\n\n`CONCAT('a', NULL)` ise `'a'` veriyor — boş parçayı atlıyor. Birleştirme için varsayılan tercih `CONCAT` olmalı.",
+        "en": "When joining with `+`, a single empty piece **wipes out the whole result**.\n\nThe concrete consequence: in a query writing `ad + ' ' + soyad`, people with no surname recorded lose their first name too and the cell comes out blank.\n\n`CONCAT('a', NULL)` gives `'a'` instead — it skips the empty piece. `CONCAT` should be your default for joining."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 1,
+      "text": {
+        "tr": "`CONCAT('a', 1)` ile `'a' + 1` arasındaki fark nedir?",
+        "en": "What is the difference between `CONCAT('a', 1)` and `'a' + 1`?"
+      },
+      "options": {
+        "tr": [
+          "İkisi de `'a1'` verir",
+          "CONCAT `'a1'` verir; `+` sayıya çevirmeye çalışıp hata verir",
+          "İkisi de hata verir",
+          "CONCAT hata verir, `+` çalışır"
+        ],
+        "en": [
+          "Both give `'a1'`",
+          "CONCAT gives `'a1'`; `+` tries to convert to a number and fails",
+          "Both raise an error",
+          "CONCAT fails and `+` works"
+        ]
+      },
+      "explanation": {
+        "tr": "`+` operatörü SQL Server'da hem toplama hem birleştirme demek. Bir tarafı sayı görünce **toplama** yapmaya karar veriyor ve `'a'` metnini sayıya çevirmeye çalışıp `Conversion failed` diyor (ölçüldü).\n\n`CONCAT` her parçayı kendisi metne çeviriyor, o yüzden `'a1'` veriyor.\n\nİki sebep birden: `CONCAT` hem `NULL`'ı atlıyor hem türü çeviriyor.",
+        "en": "In SQL Server the `+` operator means both addition and concatenation. Seeing a number on one side it decides on **addition**, tries to convert the text `'a'` into a number, and says `Conversion failed` (measured).\n\n`CONCAT` converts every piece to text itself, so it gives `'a1'`.\n\nTwo reasons in one: `CONCAT` skips `NULL` and converts types."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 2,
+      "text": {
+        "tr": "SQL Server'da `ROUND(2.5, 0)` kaç eder?",
+        "en": "What is `ROUND(2.5, 0)` on SQL Server?"
+      },
+      "options": {
+        "tr": [
+          "`2`",
+          "`2.5`",
+          "`3`",
+          "Hata"
+        ],
+        "en": [
+          "`2`",
+          "`2.5`",
+          "`3`",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "SQL Server yarımları **sıfırdan uzağa** yuvarlıyor: 2,5 → 3 ve 3,5 → 4 (ikisi de ölçüldü).\n\nPython'un `round` işlevi bunu yapmıyor; o **çift sayıya** yuvarlıyor, yani `round(2.5)` = 2 ve `round(3.5)` = 4.\n\nAynı hesabı iki yerde yapıp karşılaştıran biri kuruş farkları görüyor ve sebebini bulamıyor. Muhasebe hesaplarında hangi tarafın yuvarladığına baştan karar vermek gerekiyor.",
+        "en": "SQL Server rounds halves **away from zero**: 2.5 → 3 and 3.5 → 4 (both measured).\n\nPython's `round` does not; it rounds **to even**, so `round(2.5)` is 2 and `round(3.5)` is 4.\n\nSomeone doing the same calculation in both places sees differences of a penny and cannot find the cause. In accounting you have to decide up front which side rounds."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`CAST('abc' AS INT)` ile `TRY_CAST('abc' AS INT)` arasındaki fark nedir?",
+        "en": "What is the difference between `CAST('abc' AS INT)` and `TRY_CAST('abc' AS INT)`?"
+      },
+      "options": {
+        "tr": [
+          "CAST hata verip sorguyu düşürür; TRY_CAST NULL verip devam eder",
+          "İkisi de NULL verir",
+          "TRY_CAST daha yavaştır ama aynı şeyi yapar",
+          "CAST yalnızca sayılarda çalışır"
+        ],
+        "en": [
+          "CAST raises an error and kills the query; TRY_CAST gives NULL and carries on",
+          "Both give NULL",
+          "TRY_CAST is slower but does the same thing",
+          "CAST only works on numbers"
+        ]
+      },
+      "explanation": {
+        "tr": "`CAST` çeviremediğinde `Conversion failed` diyor ve **sorgunun tamamı düşüyor**: tek bir bozuk satır bütün raporu durduruyor.\n\n`TRY_CAST` o satırda `NULL` verip devam ediyor (ölçüldü).\n\nVerinin temizliğinden emin değilsen — özellikle kullanıcıdan gelmiş metin sütunlarında — `TRY_CAST` daha güvenli. Sonra `WHERE ... IS NULL` ile bozuk satırları ayrıca bulabiliyorsun.",
+        "en": "When `CAST` cannot convert it says `Conversion failed` and **the whole query fails**: a single bad row stops the entire report.\n\n`TRY_CAST` gives `NULL` on that row and carries on (measured).\n\nWhen you are not sure the data is clean — especially on text columns that came from users — `TRY_CAST` is safer. You can then find the bad rows separately with `WHERE ... IS NULL`."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 3,
+      "text": {
+        "tr": "`SELECT fiyat * stok AS deger FROM urunler WHERE deger > 100` neden hata veriyor?",
+        "en": "Why does `SELECT fiyat * stok AS deger FROM urunler WHERE deger > 100` raise an error?"
+      },
+      "options": {
+        "tr": [
+          "Çarpma WHERE içinde kullanılamaz",
+          "deger ayrılmış bir kelime",
+          "AS yerine = kullanılmalı",
+          "WHERE, SELECT'ten önce çalışıyor; takma ad o sırada yok"
+        ],
+        "en": [
+          "Multiplication cannot be used inside WHERE",
+          "deger is a reserved word",
+          "`=` should be used instead of `AS`",
+          "WHERE runs before SELECT, so the alias does not exist yet"
+        ]
+      },
+      "explanation": {
+        "tr": "İşleme sırası `FROM` → `WHERE` → `SELECT` → `ORDER BY`. `WHERE` çalıştığında `SELECT` henüz çalışmamış, yani `deger` diye bir şey yok.\n\nAma **ifadenin kendisi** kullanılabiliyor, çünkü sütunlar `FROM` ile gelmiş durumda:\n\n```sql\nWHERE fiyat * stok > 100\n```\n\nHesabı iki kez yazmak gerekiyor. `ORDER BY`'da ise takma ad yeterli — o en son çalışıyor.",
+        "en": "The processing order is `FROM` → `WHERE` → `SELECT` → `ORDER BY`. When `WHERE` runs, `SELECT` has not run yet, so nothing called `deger` exists.\n\nBut **the expression itself** can be used, because the columns arrived with `FROM`:\n\n```sql\nWHERE fiyat * stok > 100\n```\n\nYou have to write the calculation twice. In `ORDER BY` the alias is enough — that runs last."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT 5 + NULL` ne döndürür?",
+        "en": "What does `SELECT 5 + NULL` return?"
+      },
+      "options": {
+        "tr": [
+          "`5`",
+          "`NULL`",
+          "`0`",
+          "Hata"
+        ],
+        "en": [
+          "`5`",
+          "`NULL`",
+          "`0`",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "Bilinmeyen bir sayıya 5 eklersen sonuç yine bilinmiyor. Aritmetikte `NULL` **bulaşıcı**: içinde `NULL` geçen her işlem `NULL` veriyor.\n\nBu, hesaplanan sütunlarda sessizce sorun çıkarıyor: `fiyat + kargo` ifadesinde kargo boşsa toplam da boş oluyor ve o satır rapor toplamında kayboluyor.\n\nÇözüm boşluğa bir değer vermek: `fiyat + ISNULL(kargo, 0)`.",
+        "en": "Add 5 to an unknown number and the result is still unknown. In arithmetic `NULL` is **contagious**: any operation containing `NULL` produces `NULL`.\n\nThis causes quiet trouble in calculated columns: in `fiyat + kargo`, if the shipping cost is empty the total is empty and that row disappears from the report total.\n\nThe fix is to give the gap a value: `fiyat + ISNULL(kargo, 0)`."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 2,
+      "text": {
+        "tr": "`SUBSTRING('Klavye', 2, 3)` ne döndürür?",
+        "en": "What does `SUBSTRING('Klavye', 2, 3)` return?"
+      },
+      "options": {
+        "tr": [
+          "`Kla`",
+          "`avy`",
+          "`lav`",
+          "`vye`"
+        ],
+        "en": [
+          "`Kla`",
+          "`avy`",
+          "`lav`",
+          "`vye`"
+        ]
+      },
+      "explanation": {
+        "tr": "`SUBSTRING(metin, baslangic, uzunluk)` — ikinci karakterden başlayıp üç karakter alıyor: `lav` (ölçüldü).\n\n**Sayma 1'den başlıyor**, 0'dan değil. Çoğu programlama dilinde 0'dan başladığı için bu sık karıştırılıyor: `SUBSTRING('Klavye', 1, 3)` → `Kla`.\n\nBaştan almak için `LEFT('Klavye', 3)`, sondan almak için `RIGHT('Klavye', 3)` daha okunur.",
+        "en": "`SUBSTRING(text, start, length)` — it starts at the second character and takes three: `lav` (measured).\n\n**Counting starts at 1**, not 0. Most programming languages start at 0, so this gets mixed up: `SUBSTRING('Klavye', 1, 3)` → `Kla`.\n\nFor the beginning, `LEFT('Klavye', 3)` reads better; for the end, `RIGHT('Klavye', 3)`."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`ISNULL(tedarikci_kod, 'YOK')` yazan bir sorgu kaç satır döndürür?",
+        "en": "How many rows does a query using `ISNULL(tedarikci_kod, 'YOK')` return?"
+      },
+      "options": {
+        "tr": [
+          "Bütün satırları — ISNULL süzme yapmıyor, değer değiştiriyor",
+          "Yalnızca tedarikci_kod boş olanları",
+          "Yalnızca tedarikci_kod dolu olanları",
+          "Hiçbirini"
+        ],
+        "en": [
+          "Every row — ISNULL does not filter, it replaces a value",
+          "Only the rows where tedarikci_kod is empty",
+          "Only the rows where tedarikci_kod is filled",
+          "None"
+        ]
+      },
+      "explanation": {
+        "tr": "`ISNULL` bir **koşul değil**, bir değer değiştirici: boş hücrenin yerine ne yazılacağını söylüyor. Satır sayısına dokunmuyor.\n\nAdı yanıltıcı — \"NULL mu?\" diye soruyor gibi duruyor ama sormuyor. Soran şey `IS NULL` ve o `WHERE` içinde kullanılıyor.\n\nStandart karşılığı `COALESCE` ve o ikiden fazla seçenek alabiliyor: `COALESCE(a, b, c)` ilk `NULL` olmayanı veriyor.",
+        "en": "`ISNULL` is **not a condition** but a value replacer: it says what to show in place of an empty cell. It does not affect the row count.\n\nThe name misleads — it looks like it asks \"is this NULL?\" but it does not. The thing that asks is `IS NULL`, and that goes inside `WHERE`.\n\nThe standard equivalent is `COALESCE`, which takes more than two options: `COALESCE(a, b, c)` gives the first one that is not `NULL`."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 3,
+      "text": {
+        "tr": "`ORDER BY` içinde takma ad kullanılabiliyor ama `WHERE` içinde kullanılamıyor. Neden?",
+        "en": "An alias can be used inside `ORDER BY` but not inside `WHERE`. Why?"
+      },
+      "options": {
+        "tr": [
+          "ORDER BY daha yeni bir özellik",
+          "WHERE yalnızca sütunlarla çalışıyor",
+          "Takma adlar yalnızca sıralamada geçerli",
+          "ORDER BY en son, WHERE ise SELECT'ten önce çalışıyor"
+        ],
+        "en": [
+          "ORDER BY is a newer feature",
+          "WHERE only works with columns",
+          "Aliases are only valid in sorting",
+          "ORDER BY runs last and WHERE runs before SELECT"
+        ]
+      },
+      "explanation": {
+        "tr": "Takma ad `SELECT` çalışırken oluşuyor.\n\n`FROM` → `WHERE` → `SELECT` → `ORDER BY`\n\n`WHERE` ondan önce olduğu için ad henüz yok; `ORDER BY` sonra olduğu için hazır.\n\nBu, patikanın en çok işe yarayan tek ayrıntısı: **yazılış sırası ile çalışma sırası aynı şey değil.** Aynı kural bir sonraki bölümde `GROUP BY` ve `HAVING` için de geçerli olacak.",
+        "en": "The alias comes into existence while `SELECT` runs.\n\n`FROM` → `WHERE` → `SELECT` → `ORDER BY`\n\n`WHERE` comes before it so the name does not exist yet; `ORDER BY` comes after so it is ready.\n\nThis is the single most useful detail on the path: **the order you write is not the order things run.** The same rule will apply to `GROUP BY` and `HAVING` in the next section."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 1,
+      "text": {
+        "tr": "`WHERE YEAR(tarih) = 2026` yazmanın sakıncası nedir?",
+        "en": "What is the drawback of writing `WHERE YEAR(tarih) = 2026`?"
+      },
+      "options": {
+        "tr": [
+          "Yanlış sonuç verir",
+          "Sütunu işlevin içine soktuğu için indeks kullanılamaz",
+          "YEAR işlevi SQL Server'da yok",
+          "Yalnızca tarih sütunlarında çalışır"
+        ],
+        "en": [
+          "It gives the wrong result",
+          "Wrapping the column in a function stops an index being used",
+          "There is no YEAR function in SQL Server",
+          "It only works on date columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Sonuç **doğru** — sorun hızda.\n\nSunucu indeksi ancak sütunun kendisine bakabildiğinde kullanabiliyor. Sütun bir işlevin içine girdiğinde her satır için o işlevi çalıştırıp sonuca bakması gerekiyor.\n\nAynı işi indeks kullanarak yapan yazım:\n\n```sql\nWHERE tarih >= '2026-01-01'\n  AND tarih <  '2027-01-01'\n```\n\n`LIKE '%x'` deseninin sorunuyla aynı sebep: sunucu nereden başlayacağını bilemiyor.",
+        "en": "The result is **correct** — the problem is speed.\n\nThe server can only use an index when it can look at the column itself. Once the column is inside a function it has to run that function for every row and look at the outcome.\n\nThe form that does the same job with an index:\n\n```sql\nWHERE tarih >= '2026-01-01'\n  AND tarih <  '2027-01-01'\n```\n\nSame reason as the `LIKE '%x'` problem: the server cannot tell where to start."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 2,
+      "text": {
+        "tr": "`SELECT ad, fiyat * 1.2 AS kdvli FROM urunler` çalıştırıldıktan sonra tablodaki `fiyat` sütunu ne olur?",
+        "en": "After running `SELECT ad, fiyat * 1.2 AS kdvli FROM urunler`, what happens to the `fiyat` column in the table?"
+      },
+      "options": {
+        "tr": [
+          "1.2 ile çarpılır",
+          "kdvli adını alır",
+          "Hiçbir şey olmaz — hesap yalnızca sonuç için yapılıyor",
+          "Yeni bir sütun eklenir"
+        ],
+        "en": [
+          "It is multiplied by 1.2",
+          "It is renamed to kdvli",
+          "Nothing — the calculation happens only for the result",
+          "A new column is added to the table"
+        ]
+      },
+      "explanation": {
+        "tr": "`SELECT` tabloyu **okuyor**, değiştirmiyor. Hesaplanan sütun yalnızca o sorgunun sonucunda var oluyor; sorgu bitince ortada kalmıyor.\n\nTabloyu değiştiren komutlar ayrı: `UPDATE`, `INSERT`, `DELETE`, `ALTER TABLE`. Onlar ileride.\n\nAynı şey `AS` için de geçerli: takma ad sonuçtaki başlığı değiştiriyor, tablodaki sütun adını değil.",
+        "en": "`SELECT` **reads** the table; it does not change it. A calculated column exists only in that query's result and is gone when the query ends.\n\nThe statements that change a table are separate: `UPDATE`, `INSERT`, `DELETE`, `ALTER TABLE`. Those come later.\n\nThe same goes for `AS`: an alias changes the heading in the result, not the column's name in the table."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`a / NULLIF(b, 0)` kalıbı ne işe yarıyor?",
+        "en": "What is the `a / NULLIF(b, 0)` pattern for?"
+      },
+      "options": {
+        "tr": [
+          "b sıfırsa hata yerine NULL verir",
+          "b'yi sıfıra çevirir",
+          "Bölmeyi hızlandırır",
+          "a'yı sıfıra böler"
+        ],
+        "en": [
+          "It gives NULL instead of an error when b is zero",
+          "It turns b into zero",
+          "It makes the division faster",
+          "It divides a by zero"
+        ]
+      },
+      "explanation": {
+        "tr": "`NULLIF(b, 0)`, `b` sıfıra eşitse `NULL` veriyor. Bir sayıyı `NULL`'a bölmek de `NULL` veriyor.\n\nSonuç: sıfıra bölme hatası yerine boş bir hücre. Ölçüldü — `SELECT 10/0` hata veriyor, `SELECT 10 / NULLIF(0, 0)` `NULL` veriyor.\n\nBu, yüzde ve oran hesaplarında standart kalıp: payda sıfır olduğunda rapor çökmüyor, o satır boş kalıyor.",
+        "en": "`NULLIF(b, 0)` gives `NULL` when `b` equals zero. Dividing a number by `NULL` also gives `NULL`.\n\nThe result: an empty cell instead of a division-by-zero error. Measured — `SELECT 10/0` raises an error while `SELECT 10 / NULLIF(0, 0)` gives `NULL`.\n\nThis is the standard pattern in percentage and ratio calculations: when the denominator is zero the report does not crash, that row is simply blank."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 3,
+      "text": {
+        "tr": "Para tutan bir sütun için hangi tür kullanılmalı?",
+        "en": "Which type should be used for a column holding money?"
+      },
+      "options": {
+        "tr": [
+          "`FLOAT`",
+          "`REAL`",
+          "`INT`",
+          "`DECIMAL`"
+        ],
+        "en": [
+          "`FLOAT`",
+          "`REAL`",
+          "`INT`",
+          "`DECIMAL`"
+        ]
+      },
+      "explanation": {
+        "tr": "`FLOAT` ve `REAL` sayıyı **ikilik tabanda** tutuyor ve ondalık kesirlerin çoğu ikilik tabanda tam karşılık bulmuyor: `0.1 + 0.2` tam olarak `0.3` etmiyor.\n\nKuruş farkları burada doğuyor ve toplandıkça büyüyor.\n\n`DECIMAL(10,2)` ondalık basamakları **tam olarak** tutuyor. Para, oran ve ölçüm değerlerinde kullanılan tür bu.\n\n`INT` ondalık tutmuyor; kuruşu tam sayı olarak saklamak bir yöntem ama sütunun ne anlama geldiğini gizliyor.",
+        "en": "`FLOAT` and `REAL` store numbers in **binary**, and most decimal fractions have no exact binary representation: `0.1 + 0.2` is not exactly `0.3`.\n\nThis is where penny differences come from, and they grow as they accumulate.\n\n`DECIMAL(10,2)` holds the decimal places **exactly**. It is the type used for money, ratios and measurements.\n\n`INT` holds no decimals; storing pennies as an integer is one approach, but it hides what the column means."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 1,
+      "text": {
+        "tr": "`CAST(1.0/3 AS DECIMAL(10,2))` ne döndürür?",
+        "en": "What does `CAST(1.0/3 AS DECIMAL(10,2))` return?"
+      },
+      "options": {
+        "tr": [
+          "`0.333333`",
+          "`0.33`",
+          "`0`",
+          "Hata"
+        ],
+        "en": [
+          "`0.333333`",
+          "`0.33`",
+          "`0`",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "`DECIMAL(10,2)` iki ondalık basamak tutuyor; üçüncü ve sonrası kayboluyor (ölçüldü).\n\nBu, ara hesaplarda hassasiyet kaybına yol açıyor. Doğru yaklaşım ara adımlarda daha geniş bir tür kullanıp **yalnızca sonuçta** yuvarlamak.\n\nDikkat: `1.0/3` yazıldığı için bölme ondalıklı yapılıyor. `1/3` yazılsaydı tam sayı bölmesi devreye girer ve sonuç `0` olurdu.",
+        "en": "`DECIMAL(10,2)` keeps two decimal places; the third and beyond are gone (measured).\n\nThis loses precision in intermediate steps. The right approach is to use a wider type for the intermediate work and round **only at the end**.\n\nNote: it is written `1.0/3` so the division is fractional. Written as `1/3`, integer division would kick in and the result would be `0`."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 2,
+      "text": {
+        "tr": "`fiyat + kargo` yazan bir sorguda bazı satırlarda toplam boş çıkıyor. Neden?",
+        "en": "In a query writing `fiyat + kargo`, the total is empty on some rows. Why?"
+      },
+      "options": {
+        "tr": [
+          "Fiyat sıfır olduğu için",
+          "Sütun tipi yanlış",
+          "O satırlarda kargo NULL ve aritmetikte NULL bulaşıcı",
+          "Toplama işlemi büyük sayılarda çalışmıyor"
+        ],
+        "en": [
+          "Because the price is zero",
+          "The column type is wrong",
+          "On those rows kargo is NULL, and NULL is contagious in arithmetic",
+          "Addition does not work on large numbers"
+        ]
+      },
+      "explanation": {
+        "tr": "İçinde `NULL` geçen her aritmetik işlem `NULL` veriyor. Kargo boşsa toplam da boş.\n\nBu satır rapor toplamında **hiç görünmüyor** ya da boş çıkıyor ve sebebi kolay fark edilmiyor: sorgu hata vermiyor.\n\nÇözüm boşluğa bir değer vermek:\n\n```sql\nSELECT fiyat + ISNULL(kargo, 0) AS toplam\n```\n\nBurada kararı sen veriyorsun: boş kargo sıfır mı sayılacak, yoksa o satır gerçekten belirsiz mi?",
+        "en": "Any arithmetic containing `NULL` produces `NULL`. If the shipping cost is empty the total is empty.\n\nThat row **disappears** from the report total or shows up blank, and the cause is hard to spot because the query raises no error.\n\nThe fix is to give the gap a value:\n\n```sql\nSELECT fiyat + ISNULL(kargo, 0) AS toplam\n```\n\nThe decision is yours here: should an empty shipping cost count as zero, or is that row genuinely unknown?"
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`COALESCE` ile `ISNULL` arasındaki fark nedir?",
+        "en": "What is the difference between `COALESCE` and `ISNULL`?"
+      },
+      "options": {
+        "tr": [
+          "COALESCE ikiden fazla değer alabiliyor ve standart SQL; ISNULL iki değer alıyor ve SQL Server'a özgü",
+          "İkisi tamamen aynı",
+          "ISNULL daha hızlı ama yalnızca sayılarda çalışıyor",
+          "COALESCE satır eliyor, ISNULL elemiyor"
+        ],
+        "en": [
+          "COALESCE takes more than two values and is standard SQL; ISNULL takes two and is specific to SQL Server",
+          "They are exactly the same",
+          "ISNULL is faster but only works on numbers",
+          "COALESCE removes rows and ISNULL does not"
+        ]
+      },
+      "explanation": {
+        "tr": "`ISNULL(a, b)` yalnızca iki değer alıyor. `COALESCE(a, b, c, ...)` istediğin kadar alıyor ve **ilk `NULL` olmayanı** veriyor (ölçüldü: `COALESCE(NULL, NULL, 'c')` → `c`).\n\nSık kullanımı: \"cep telefonu varsa onu, yoksa ev telefonunu, o da yoksa e-postayı ver\".\n\n`COALESCE` standart SQL olduğu için başka veritabanlarına taşınıyor; `ISNULL` taşınmıyor.",
+        "en": "`ISNULL(a, b)` takes only two values. `COALESCE(a, b, c, ...)` takes as many as you like and gives **the first one that is not `NULL`** (measured: `COALESCE(NULL, NULL, 'c')` → `c`).\n\nA common use: \"give me the mobile number, or the landline if there is none, or the email if there is neither\".\n\nBeing standard SQL, `COALESCE` carries over to other databases; `ISNULL` does not."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 3,
+      "text": {
+        "tr": "`SELECT 2 + 3 * 4` ne döndürür?",
+        "en": "What does `SELECT 2 + 3 * 4` return?"
+      },
+      "options": {
+        "tr": [
+          "`20`",
+          "`9`",
+          "`24`",
+          "`14`"
+        ],
+        "en": [
+          "`20`",
+          "`9`",
+          "`24`",
+          "`14`"
+        ]
+      },
+      "explanation": {
+        "tr": "İşlem önceliği matematikteki gibi: çarpma toplamadan önce. `3 * 4` = 12, `2 + 12` = **14** (ölçüldü).\n\nSoldan sağa hesaplansaydı `2 + 3` = 5, `5 * 4` = 20 olurdu.\n\nBu, `AND`/`OR` önceliğiyle aynı fikir: emin değilsen **parantez koy**. Doğru çalışsa bile okuyan kişi ne demek istediğini görüyor.",
+        "en": "Precedence works as in mathematics: multiplication before addition. `3 * 4` is 12 and `2 + 12` is **14** (measured).\n\nEvaluated left to right it would be `2 + 3` = 5 and `5 * 4` = 20.\n\nThis is the same idea as `AND`/`OR` precedence: when in doubt, **add parentheses**. Even when it works, the reader can see what you meant."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 1,
+      "text": {
+        "tr": "`TRIM('  abc  ')` ne döndürür?",
+        "en": "What does `TRIM('  abc  ')` return?"
+      },
+      "options": {
+        "tr": [
+          "`'abc  '`",
+          "`'abc'`",
+          "`'  abc'`",
+          "`'  abc  '`"
+        ],
+        "en": [
+          "`'abc  '`",
+          "`'abc'`",
+          "`'  abc'`",
+          "`'  abc  '`"
+        ]
+      },
+      "explanation": {
+        "tr": "`TRIM` baştaki **ve** sondaki boşlukları atıyor (ölçüldü).\n\nYalnızca bir tarafı için ayrı işlevler var: `LTRIM` baştakini, `RTRIM` sondakini atıyor.\n\nBu, dışarıdan gelmiş veride sürekli gerekiyor: bir dosyadan ya da formdan gelen metinlerde görünmeyen boşluklar oluyor ve `WHERE ad = 'Klavye'` karşılaştırması `'Klavye '` değeriyle tutmuyor.",
+        "en": "`TRIM` removes leading **and** trailing spaces (measured).\n\nThere are separate functions for one side: `LTRIM` for the front, `RTRIM` for the end.\n\nYou need this constantly on data that came from outside: text from a file or a form carries invisible spaces, and `WHERE ad = 'Klavye'` will not match a stored `'Klavye '`."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 2,
+      "text": {
+        "tr": "Bir hesaplanan sütunun doğruluğunu en hızlı nasıl kontrol edersin?",
+        "en": "What is the fastest way to check that a calculated column is right?"
+      },
+      "options": {
+        "tr": [
+          "Sorguyu iki kez çalıştırarak",
+          "Satır sayısına bakarak",
+          "Tek bir satırı elle hesaplayıp karşılaştırarak",
+          "Sütun sayısını sayarak"
+        ],
+        "en": [
+          "By running the query twice",
+          "By looking at the row count",
+          "By working out one row by hand and comparing",
+          "By counting the columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek bir satırı hesap makinesiyle doğrulamak, on beş dakikalık aramayı önlüyor.\n\nÖzellikle bölme varsa: tam sayı bölmesi tuzağı ancak somut bir sayıya bakınca fark ediliyor. Sorgu hata vermediği için başka türlü görünmüyor.\n\nSorulacak üç soru: bölme var mı ve iki taraf da tam sayı mı? Sütunlardan biri `NULL` olabilir mi? Bir satır elle hesaplandığında aynı çıkıyor mu?",
+        "en": "Verifying a single row with a calculator saves fifteen minutes of searching.\n\nEspecially when there is a division: the integer-division trap only becomes visible when you look at a concrete number. The query raises no error, so there is no other sign.\n\nThree questions to ask: is there a division, and are both sides integers? Can any of the columns be `NULL`? Does one row match when worked out by hand?"
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "`SELECT ad, fiyat * stok FROM urunler` sorgusunda ikinci sütunun başlığı ne olur?",
+        "en": "In `SELECT ad, fiyat * stok FROM urunler`, what is the heading of the second column?"
+      },
+      "options": {
+        "tr": [
+          "Boş — takma ad verilmediği için sütunun adı yok",
+          "`fiyat * stok`",
+          "`fiyat`",
+          "Hata verir, takma ad zorunlu"
+        ],
+        "en": [
+          "Empty — with no alias the column has no name",
+          "`fiyat * stok`",
+          "`fiyat`",
+          "It raises an error; an alias is required"
+        ]
+      },
+      "explanation": {
+        "tr": "Takma ad verilmeyen bir ifade sütunu **adsız** geliyor. Arayüzler bunu boş bir başlık ya da `(No column name)` diye gösteriyor.\n\nHata değil ama işe yaramaz: sonucu okuyan bir program o sütuna adıyla erişemiyor.\n\nBu yüzden hesaplanan her sütuna `AS` ile ad vermek alışkanlık hâline getirilmeli.",
+        "en": "An expression column with no alias comes back **unnamed**. Clients show it as a blank heading or `(No column name)`.\n\nIt is not an error but it is useless: a program reading the result cannot reach that column by name.\n\nSo giving every calculated column a name with `AS` should become a habit."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 3,
+      "text": {
+        "tr": "`SELECT 7 % 2` ne döndürür?",
+        "en": "What does `SELECT 7 % 2` return?"
+      },
+      "options": {
+        "tr": [
+          "`3.5`",
+          "`0.5`",
+          "`3`",
+          "`1`"
+        ],
+        "en": [
+          "`3.5`",
+          "`0.5`",
+          "`3`",
+          "`1`"
+        ]
+      },
+      "explanation": {
+        "tr": "`%` SQL Server'da **kalan** operatörü: 7'yi 2'ye bölünce kalan 1 (ölçüldü).\n\nYüzde işaretiyle karıştırılıyor ama yüzde hesabıyla ilgisi yok. `LIKE` içinde joker, aritmetikte kalan.\n\nEn sık kullanımı çift/tek ayırmak: `WHERE id % 2 = 0` çift id'leri veriyor.",
+        "en": "In SQL Server `%` is the **modulo** operator: 7 divided by 2 leaves 1 (measured).\n\nIt gets confused with the percent sign but has nothing to do with percentages. Inside `LIKE` it is a wildcard; in arithmetic it is the remainder.\n\nIts most common use is separating odd from even: `WHERE id % 2 = 0` gives the even ids."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 1,
+      "text": {
+        "tr": "Hangi durumda `+` yerine `CONCAT` kullanmak **şart**?",
+        "en": "In which case is `CONCAT` **required** rather than `+`?"
+      },
+      "options": {
+        "tr": [
+          "İki metin de kesinlikle doluysa",
+          "Parçalardan biri NULL olabiliyorsa ya da sayı ise",
+          "Metinler çok uzunsa",
+          "Üçten fazla parça varsa"
+        ],
+        "en": [
+          "When both texts are certainly filled",
+          "When one of the pieces can be NULL or is a number",
+          "When the texts are very long",
+          "When there are more than three pieces"
+        ]
+      },
+      "explanation": {
+        "tr": "İki fark `CONCAT`'i zorunlu kılıyor:\n\n- **`NULL`:** `'a' + NULL` → `NULL`, ama `CONCAT('a', NULL)` → `'a'`.\n- **Tür:** `'a' + 1` hata veriyor, `CONCAT('a', 1)` → `'a1'`.\n\nParça sayısının bir önemi yok; `+` ile de istediğin kadar birleştirebiliyorsun.\n\nİki tarafın da dolu metin olduğundan eminken `+` güvenli, ama emin olmak çoğu zaman mümkün değil. Varsayılan tercih `CONCAT` olmalı.",
+        "en": "Two differences make `CONCAT` necessary:\n\n- **`NULL`:** `'a' + NULL` is `NULL`, but `CONCAT('a', NULL)` is `'a'`.\n- **Type:** `'a' + 1` raises an error while `CONCAT('a', 1)` gives `'a1'`.\n\nThe number of pieces does not matter; `+` joins as many as you like.\n\nWhen you are certain both sides are filled text, `+` is safe — but you usually cannot be certain. `CONCAT` should be the default."
+      }
+    }
+  ]
+}
