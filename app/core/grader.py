@@ -36,6 +36,60 @@ def _hint_or(language: LanguageManager, check: CheckResult, fallback_key: str) -
     return hint or language.t(fallback_key)
 
 
+# Karşılaştırma kutusunda gösterilecek en fazla satır. Beklenen ile geleni
+# yan yana koyuyoruz; yirmi satırdan sonrası okunmuyor, yalnızca paneli
+# uzatıyor.
+_TABLO_SINIRI = 20
+
+
+def _fit(columns: list, rows: list) -> list:
+    """Başlıklar satırlarla aynı genişlikteyse döndürür, değilse boş liste."""
+    genislik = max((len(satir) for satir in rows), default=0)
+    return columns if len(columns) == genislik else []
+
+
+def _table(columns: list, rows: list) -> str:
+    """Satırları hizalanmış küçük bir tabloya çevirir.
+
+    Sonuç panelindeki "beklenen / gelen" kutusu düz metin gösteriyor;
+    satırları Python listesi olarak basmak (`[[1, 'Istanbul', ...]]`)
+    okunmuyordu.
+    """
+    if not rows:
+        return ""
+
+    basliklar = [str(c) for c in columns]
+    kesik = rows[:_TABLO_SINIRI]
+    hucreler = [["" if h is None else str(h) for h in satir] for satir in kesik]
+
+    sutun_sayisi = max(len(satir) for satir in hucreler)
+    if len(basliklar) != sutun_sayisi:
+        basliklar = basliklar[:sutun_sayisi]
+        basliklar += [""] * (sutun_sayisi - len(basliklar))
+
+    genislik = [
+        max(
+            len(basliklar[i]),
+            max((len(satir[i]) for satir in hucreler if i < len(satir)), default=0),
+        )
+        for i in range(sutun_sayisi)
+    ]
+
+    parcalar = []
+    if any(basliklar):
+        parcalar.append("  ".join(b.ljust(genislik[i]) for i, b in enumerate(basliklar)))
+    for satir in hucreler:
+        parcalar.append(
+            "  ".join(
+                (satir[i] if i < len(satir) else "").ljust(genislik[i])
+                for i in range(sutun_sayisi)
+            )
+        )
+    if len(rows) > _TABLO_SINIRI:
+        parcalar.append(f"... ({len(rows)})")
+    return "\n".join(p.rstrip() for p in parcalar)
+
+
 def describe_check(check: CheckResult, language: LanguageManager) -> Feedback:
     """Tek bir kontrolü cümleye çevirir."""
     detail = check.detail
@@ -236,6 +290,89 @@ def describe_check(check: CheckResult, language: LanguageManager) -> Feedback:
         return Feedback(
             passed=False,
             message=_hint_or(language, check, "check.ast_forbid.failed"),
+        )
+
+    # --- SQL kontrolleri ---------------------------------------------
+
+    if check.type == "rows":
+        if detail.get("query_error"):
+            return Feedback(
+                passed=False,
+                message=language.t(
+                    "check.rows.query_error",
+                    message=detail["query_error"].get("message", ""),
+                ),
+            )
+        beklenen = detail.get("expected", [])
+        olan = detail.get("actual", [])
+        # Satır sayısı tutmuyorsa asıl söylenecek şey bu. İki tabloyu yan
+        # yana koymak, "üç satır eksik" demekten daha az bilgi veriyor.
+        if len(beklenen) != len(olan):
+            mesaj = language.t(
+                "check.rows.count", expected=len(beklenen), actual=len(olan)
+            )
+        else:
+            mesaj = language.t("check.rows.failed")
+        # Başlıklar sonuçtan geliyor; beklenen tablonun sütun sayısı
+        # tutmuyorsa oraya yazılmıyor. Yoksa dört sütunluk beklenen tablo,
+        # gelen sonucun iki başlığıyla çiziliyordu.
+        sutunlar = detail.get("columns", [])
+        return Feedback(
+            passed=False,
+            message=mesaj,
+            expected=_table(_fit(sutunlar, beklenen), beklenen),
+            actual=_table(_fit(sutunlar, olan), olan),
+        )
+
+    if check.type == "columns":
+        return Feedback(
+            passed=False,
+            message=language.t("check.columns.failed"),
+            expected=", ".join(str(c) for c in detail.get("expected", [])),
+            actual=", ".join(str(c) for c in detail.get("actual", [])),
+        )
+
+    if check.type == "affected_rows":
+        olan = detail.get("actual", -1)
+        if olan is None or olan < 0:
+            # Sorgu hiç satır değiştirmemiş: `SELECT` yazılmış olabilir.
+            return Feedback(
+                passed=False,
+                message=language.t(
+                    "check.affected_rows.none", expected=detail.get("expected", 0)
+                ),
+            )
+        return Feedback(
+            passed=False,
+            message=language.t(
+                "check.affected_rows.failed",
+                expected=detail.get("expected", 0),
+                actual=olan,
+            ),
+        )
+
+    if check.type == "sql_require":
+        hint = language.pick(check.hint)
+        return Feedback(
+            passed=False,
+            message=hint or language.t(
+                "check.sql_require.failed", pattern=detail.get("pattern", "")
+            ),
+        )
+
+    if check.type == "sql_forbid":
+        hint = language.pick(check.hint)
+        return Feedback(
+            passed=False,
+            message=hint or language.t(
+                "check.sql_forbid.failed", pattern=detail.get("pattern", "")
+            ),
+        )
+
+    if check.type == "schema_unchanged":
+        return Feedback(
+            passed=False,
+            message=_hint_or(language, check, "check.schema_unchanged.failed"),
         )
 
     return Feedback(passed=False, message=language.t("check.failed"))

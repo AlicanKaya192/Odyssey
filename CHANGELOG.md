@@ -21,7 +21,24 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ## [0.8.0] — yayınlanmadı
 
+### Eklendi
+- **SQL patikası başladı: "Kurulum" bölümü.** Microsoft SQL Server'ı
+  bilgisayarına kurmayı, SSMS'i ve ODBC sürücüsünü, sunucu ile veritabanı
+  arasındaki farkı anlatıyor; indirme bağlantıları her zaman güncel sürümü
+  veriyor. Yanında iki not (kurulum sorunları ve bir SSMS turu), yirmi
+  soruluk bir sınav ve iki alıştırma var.
+- **Alıştırmalar artık SQL de kabul ediyor.** Sorguyu Odyssey'in içinde
+  yazıyorsun, kendi bilgisayarındaki SQL Server çalıştırıyor, sonuç tablosu
+  karşına geliyor. Yazdığın her şey çalıştırma bitince geri alınıyor:
+  yanlışlıkla bir tabloyu silsen bile bir sonraki denemede yerinde
+  duruyor.
+- **"Sunucu Ayakta" rozeti.** SQL Server'ı kurup ilk sorgunu
+  çalıştırdığında geliyor.
+
 ### Düzeltildi
+- **Ders notlarındaki dış bağlantılar açılmıyordu.** Python kurulum
+  notundaki indirme adresine tıklandığında hiçbir şey olmuyordu; artık
+  tarayıcıda açılıyor.
 - **Derslerdeki terim tabloları yapışık çıkıyordu.** "Sözlük" gibi
   bölümlerde terim ile açıklaması arada boşluk olmadan tek satırda
   akıyordu: "örnek (sample)tablodaki bir satır". Artık iki sütun hâlinde,

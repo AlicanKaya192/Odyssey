@@ -8,6 +8,10 @@ böylece maketteki stil dosyası birebir çalışıyor.
 Sayfa içindeki bağlantılar `app:` ile başlıyor ve dışarı çıkmıyor; tıklanınca
 `action` sinyali yayılıyor. Böylece "sonraki bölüm" gibi düğmeler HTML'in
 içinde durabiliyor ama işi uygulama yapıyor.
+
+`http`/`https` bağlantıları uygulamanın içinde açılmıyor; sistem
+tarayıcısına devrediliyor. Ders metinlerinde indirme ve belge adresleri
+geçiyor, bunların çalışması gerekiyor.
 """
 
 from __future__ import annotations
@@ -17,7 +21,7 @@ from pathlib import Path
 import json
 
 from PySide6.QtCore import QTimer, QUrl, Signal
-from PySide6.QtGui import QColor
+from PySide6.QtGui import QColor, QDesktopServices
 from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QWidget
@@ -46,11 +50,19 @@ class DocumentPage(QWebEnginePage):
             self.action.emit(url.path() or url.toString()[len(ACTION_SCHEME) + 1:])
             return False
 
-        # Sayfa içi çapa (başlık listesi) serbest; dış bağlantılar engelli.
-        if url.scheme() in ("", "data", "file", "qrc") or url.hasFragment():
-            return True
+        # Dış bağlantı: uygulamanın içinde açılmıyor, **sistem tarayıcısına**
+        # veriliyor. Eskiden sessizce yok sayılıyordu; kurulum dersindeki
+        # indirme bağlantılarına tıklayan kişi hiçbir şey olmadığını
+        # görüyordu. Uygulama isteği kendisi yapmıyor, yalnızca adresi
+        # tarayıcıya devrediyor.
+        if url.scheme() in ("http", "https"):
+            QDesktopServices.openUrl(url)
+            return False
 
-        return False
+        # Sayfa içi çapa (başlık listesi) ve yerel kaynaklar serbest.
+        # Şema kontrolü önce geliyor: `hasFragment()` başa konduğunda
+        # `https://.../a#b` gibi bir adres uygulamanın içinde açılıyordu.
+        return url.scheme() in ("", "data", "file", "qrc")
 
     def javaScriptConsoleMessage(self, *args) -> None:  # noqa: N802
         # Sayfanın konsol çıktısı terminale karışmasın.

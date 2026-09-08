@@ -41,6 +41,7 @@ def load_definitions(path) -> list[dict]:
 # Modül kimlikleri (`content/` altındaki klasör adları).
 DATA_CHAPTER = "01-veri-bilimi"
 ML_CHAPTER = "02-makine-ogrenmesi"
+SQL_CHAPTER = "03-sql"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 NUMPY_SECTION = (DATA_CHAPTER, "01-numpy")
@@ -59,6 +60,7 @@ IMBALANCE_SECTION = (ML_CHAPTER, "09-dengesiz-veri")
 UNSUPERVISED_SECTION = (ML_CHAPTER, "10-denetimsiz-ogrenme")
 PIPELINE_SECTION = (ML_CHAPTER, "11-pipeline-ve-model-kaydetme")
 ML_REVIEW_SECTION = (ML_CHAPTER, "12-genel-tekrar")
+SQL_SETUP_SECTION = (SQL_CHAPTER, "00-kurulum")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 DATA_SECTION_COUNT = 10
@@ -128,6 +130,7 @@ def evaluate(catalog, store) -> dict[str, bool]:
         # burası da değişmeli.
         "data-start": modul_basina.get(DATA_CHAPTER, 0) >= 1,
         "model-start": modul_basina.get(ML_CHAPTER, 0) >= 1,
+        "server-up": SQL_SETUP_SECTION in bitenler,
         "first-model": FIRST_MODEL_SECTION in bitenler,
         "error-reader": METRICS_SECTION in bitenler,
         "class-divider": CLASSIFY_SECTION in bitenler,
