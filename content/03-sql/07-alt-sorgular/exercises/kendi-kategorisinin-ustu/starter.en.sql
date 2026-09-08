@@ -1,0 +1,6 @@
+-- Bring back the products priced above the average of THEIR OWN
+-- category.
+-- Columns: name, category_code, price. Sort by name.
+--
+-- Not the overall average from the first exercise; each product
+-- is compared with its own category.

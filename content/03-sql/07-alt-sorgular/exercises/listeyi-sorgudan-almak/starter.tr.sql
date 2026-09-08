@@ -1,0 +1,4 @@
+-- Istanbul'daki tedarikcilerin urunlerini getir.
+-- Tedarikci kodlarini elle yazma; suppliers tablosundan
+-- bir alt sorguyla al.
+-- Tek sutun: name. Alfabetik sirala.

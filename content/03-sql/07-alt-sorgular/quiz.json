@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 1,
+      "text": {
+        "tr": "Alt sorgu nedir?",
+        "en": "What is a subquery?"
+      },
+      "options": {
+        "tr": [
+          "Ayrı bir dosyada saklanan sorgu",
+          "Başka bir sorgunun içine, parantez arasına yazılmış bir `SELECT`",
+          "İki tabloyu birleştiren özel bir `JOIN` türü",
+          "Sonucu diske yazan sorgu"
+        ],
+        "en": [
+          "A query stored in a separate file",
+          "A `SELECT` written inside another query, between parentheses",
+          "A special kind of `JOIN` that combines two tables",
+          "A query that writes its result to disk"
+        ]
+      },
+      "explanation": {
+        "tr": "Alt sorgu, bir sorunun cevabını **başka bir sorunun içinde** kullanmanın yolu.\n\n```sql\nSELECT name FROM products\nWHERE price > (SELECT AVG(price) FROM products);\n```\n\nİçerideki `SELECT` önce çalışıp bir sayı üretiyor, dıştaki sorgu o sayıyı sabit bir değermiş gibi kullanıyor.\n\nAyrı bir nesne değil: kaydedilmiyor, adı yok, yalnızca o sorgunun içinde yaşıyor.",
+        "en": "A subquery is how you use the answer to one question **inside another question**.\n\n```sql\nSELECT name FROM products\nWHERE price > (SELECT AVG(price) FROM products);\n```\n\nThe inner `SELECT` runs first and produces a number; the outer query uses that number as though it were a constant.\n\nIt is not a separate object: it is not saved, it has no name, it lives only inside that query."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 2,
+      "text": {
+        "tr": "Ortalamayı bugün hesaplayıp sorguya `WHERE price > 6203` diye yazmanın sakıncası nedir?",
+        "en": "What is wrong with working out the average today and writing `WHERE price > 6203` into the query?"
+      },
+      "options": {
+        "tr": [
+          "Sorgu daha yavaş çalışır",
+          "SQL Server sabit sayılarla karşılaştırmaya izin vermiyor",
+          "Veri değiştiğinde sorgu sessizce yanlış cevap vermeye başlıyor",
+          "Ondalıklı sayılar `WHERE` içinde kullanılamıyor"
+        ],
+        "en": [
+          "The query runs more slowly",
+          "SQL Server does not allow comparison against constants",
+          "When the data changes the query quietly starts giving the wrong answer",
+          "Decimal numbers cannot be used in `WHERE`"
+        ]
+      },
+      "explanation": {
+        "tr": "Sabit yazılan sayı, yazıldığı **anın** verisini anlatıyor. Yarın bir ürün eklenince ortalama değişiyor ama sorgudaki sayı değişmiyor.\n\nEn kötü yanı: sorgu hâlâ çalışıyor, hâlâ satır döndürüyor, hâlâ makul görünüyor. Yanlış olduğunu söyleyen hiçbir şey yok.\n\nAlt sorgu bunu çözüyor — ortalama her çalıştırmada yeniden hesaplanıyor.",
+        "en": "A hard-coded number describes the data at the **moment** it was written. Add a product tomorrow and the average changes, but the number in the query does not.\n\nThe worst part is that the query still runs, still returns rows and still looks reasonable. Nothing tells you it is wrong.\n\nA subquery solves this — the average is worked out again on every run."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`SELECT` listesindeki bir alt sorgu birden fazla satır döndürürse ne oluyor?",
+        "en": "What happens when a subquery in the `SELECT` list returns more than one row?"
+      },
+      "options": {
+        "tr": [
+          "Hata: `Subquery returned more than 1 value`",
+          "İlk satır kullanılıyor",
+          "Sonuç `NULL` oluyor",
+          "Bütün satırlar virgülle birleştiriliyor"
+        ],
+        "en": [
+          "An error: `Subquery returned more than 1 value`",
+          "The first row is used",
+          "The result becomes `NULL`",
+          "All the rows are joined together with commas"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü:\n\n```\nSubquery returned more than 1 value. This is not permitted\nwhen the subquery follows =, !=, <, <= , >, >= or when the\nsubquery is used as an expression.\n```\n\nBu iyi bir hata: sunucu tahmin etmiyor, duruyor. Aynı hata `= (SELECT ...)` yazımında da çıkıyor.\n\nBir değer beklenen yerde birden fazla satır varsa iki seçenek var: alt sorguyu tek satıra indirmek, ya da `=` yerine `IN` kullanmak.",
+        "en": "Measured:\n\n```\nSubquery returned more than 1 value. This is not permitted\nwhen the subquery follows =, !=, <, <= , >, >= or when the\nsubquery is used as an expression.\n```\n\nThis is a good error: the server does not guess, it stops. The same error appears with `= (SELECT ...)`.\n\nWhen more than one row turns up where a single value is expected there are two options: narrow the subquery to one row, or use `IN` instead of `=`."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 3,
+      "text": {
+        "tr": "`WHERE supplier_code IN (SELECT code, name FROM suppliers)` neden hata veriyor?",
+        "en": "Why does `WHERE supplier_code IN (SELECT code, name FROM suppliers)` raise an error?"
+      },
+      "options": {
+        "tr": [
+          "`IN` yalnızca elle yazılmış listelerle çalışıyor",
+          "Alt sorguda `suppliers` tablosu kullanılamaz",
+          "Alt sorgunun `WHERE`'i yok",
+          "`IN` tek sütun bekliyor; alt sorgu iki sütun döndürüyor"
+        ],
+        "en": [
+          "`IN` only works with hand-written lists",
+          "The `suppliers` table cannot be used in a subquery",
+          "The subquery has no `WHERE`",
+          "`IN` expects one column and the subquery returns two"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçülen hata:\n\n```\nOnly one expression can be specified in the select list\nwhen the subquery is not introduced with EXISTS.\n```\n\n`IN` soldaki tek değeri sağdaki listeyle karşılaştırıyor; liste iki sütunluysa neyle karşılaştıracağı belirsiz.\n\nHata metnindeki \"unless introduced with EXISTS\" kısmı önemli: `EXISTS` içinde kaç sütun seçtiğin gerçekten fark etmiyor, çünkü orada değerler değil **satır var mı** sorusu var.",
+        "en": "The measured error:\n\n```\nOnly one expression can be specified in the select list\nwhen the subquery is not introduced with EXISTS.\n```\n\n`IN` compares the single value on the left with the list on the right; with two columns in the list it is unclear what to compare against.\n\nThe \"unless introduced with EXISTS\" part of the message matters: inside `EXISTS` the number of columns genuinely does not matter, because the question there is not about values but about **whether a row exists**."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "Üç üründe `supplier_code` boş. `WHERE code NOT IN (SELECT supplier_code FROM products)` kaç satır döndürüyor?",
+        "en": "Three products have an empty `supplier_code`. How many rows does `WHERE code NOT IN (SELECT supplier_code FROM products)` return?"
+      },
+      "options": {
+        "tr": [
+          "1 — doğru cevap",
+          "3",
+          "0 — hiçbir satır",
+          "Hata veriyor"
+        ],
+        "en": [
+          "1 — the correct answer",
+          "3",
+          "0 — no rows at all",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **sıfır satır**, hata da yok. Doğru cevap 1 (`Rhine Components`).\n\nSebep listedeki `NULL`. `NOT IN` şu zincire dönüşüyor:\n\n```\ncode <> 'S1' AND code <> 'S2' AND ... AND code <> NULL\n```\n\nSon parça hiçbir zaman doğru olamıyor — `NULL` ile karşılaştırma \"bilinmiyor\" veriyor. Bir `AND` zincirinde bilinmeyen bir parça varken sonuç asla doğru çıkmıyor, yani hiçbir satır geçmiyor.\n\nBu, alt sorgu konusunun en sinsi tuzağı: hata yok, uyarı yok, sonuç boş.",
+        "en": "Measured: **zero rows**, and no error. The correct answer is 1 (`Rhine Components`).\n\nThe cause is the `NULL` in the list. `NOT IN` turns into this chain:\n\n```\ncode <> 'S1' AND code <> 'S2' AND ... AND code <> NULL\n```\n\nThe last part can never be true — a comparison with `NULL` is \"unknown\". While one part of an `AND` chain is unknown the result can never be true, so no row passes.\n\nThis is the sneakiest trap in the subquery topic: no error, no warning, an empty result."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 1,
+      "text": {
+        "tr": "Olumlu `IN` neden aynı `NULL` sorununu yaşamıyor?",
+        "en": "Why does the positive `IN` not suffer from the same `NULL` problem?"
+      },
+      "options": {
+        "tr": [
+          "`IN` boş değerleri kendiliğinden atıyor",
+          "`IN` bir `OR` zinciri; bir parçanın doğru olması yetiyor",
+          "`IN` yalnızca metin sütunlarında çalışıyor",
+          "SQL Server `IN` için boş değerleri sıfır sayıyor"
+        ],
+        "en": [
+          "`IN` drops empty values by itself",
+          "`IN` is an `OR` chain; one true part is enough",
+          "`IN` only works on text columns",
+          "SQL Server treats empty values as zero for `IN`"
+        ]
+      },
+      "explanation": {
+        "tr": "`IN` şuna dönüşüyor:\n\n```\ncode = 'S1' OR code = 'S2' OR ... OR code = NULL\n```\n\nSon parça yine \"bilinmiyor\", ama `OR` zincirinde **bir tane doğru** parça bulunması yetiyor. Eşleşen satır geçiyor.\n\nFark yalnızca eşleşmeyen satırlarda: `IN`'de \"bilinmiyor\" çıkıyor ve satır zaten geçmemesi gerektiği için sonuç doğru oluyor. `NOT IN`'de ise geçmesi **gereken** satırlar takılıyor.",
+        "en": "`IN` turns into this:\n\n```\ncode = 'S1' OR code = 'S2' OR ... OR code = NULL\n```\n\nThe last part is still \"unknown\", but in an `OR` chain **one true part** is enough. A matching row passes.\n\nThe difference only shows on non-matching rows: with `IN` the result is \"unknown\" and the row should not pass anyway, so the answer is right. With `NOT IN` it is the rows that **should** pass that get stuck."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Eşleşmeyeni bulmak için hangi yazım güvenli?",
+        "en": "Which form is safe for finding non-matches?"
+      },
+      "options": {
+        "tr": [
+          "`NOT EXISTS`",
+          "`NOT IN`",
+          "`<> ANY`",
+          "`NOT LIKE`"
+        ],
+        "en": [
+          "`NOT EXISTS`",
+          "`NOT IN`",
+          "`<> ANY`",
+          "`NOT LIKE`"
+        ]
+      },
+      "explanation": {
+        "tr": "`NOT EXISTS` boş değerlerden etkilenmiyor, çünkü değer karşılaştırmıyor — yalnızca \"eşleşen satır var mı\" diye soruyor.\n\nAynı veride ölçüldü:\n\n| Yazım | Sonuç | Doğrusu |\n|---|---|---|\n| `NOT IN (...)` | 0 satır | 1 |\n| `NOT EXISTS (...)` | 1 satır | 1 |\n\n`NOT IN`'i güvenli hâle getirmenin yolu var (`WHERE supplier_code IS NOT NULL` eklemek), ama bunu hatırlamak zorunda kalmamak daha iyi.\n\n**Kural: olumsuz soru soruyorsan `NOT EXISTS` yaz.**",
+        "en": "`NOT EXISTS` is unaffected by empty values, because it does not compare values — it only asks whether a matching row exists.\n\nMeasured on the same data:\n\n| Form | Result | Correct |\n|---|---|---|\n| `NOT IN (...)` | 0 rows | 1 |\n| `NOT EXISTS (...)` | 1 row | 1 |\n\nThere is a way to make `NOT IN` safe (adding `WHERE supplier_code IS NOT NULL`), but not having to remember it is better.\n\n**The rule: if you are asking a negative question, write `NOT EXISTS`.**"
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 3,
+      "text": {
+        "tr": "`EXISTS (SELECT 1 ...)` yerine `EXISTS (SELECT * ...)` yazılırsa ne değişiyor?",
+        "en": "What changes if you write `EXISTS (SELECT * ...)` instead of `EXISTS (SELECT 1 ...)`?"
+      },
+      "options": {
+        "tr": [
+          "Sonuç değişiyor, daha çok satır geliyor",
+          "Hata veriyor",
+          "Sorgu belirgin biçimde yavaşlıyor",
+          "Hiçbir şey"
+        ],
+        "en": [
+          "The result changes; more rows come back",
+          "It raises an error",
+          "The query becomes noticeably slower",
+          "Nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `SELECT 1`, `SELECT *` ve `SELECT 'x'` — üçü de **5** satır döndürdü.\n\n`EXISTS` içerideki sorgunun **sonucuna** bakmıyor, yalnızca **satır çıkıp çıkmadığına** bakıyor. Ne seçtiğin okunmuyor bile.\n\nGelenek `1` yazmak: en kısası ve \"burada seçilen değerin bir anlamı yok\" mesajını veriyor.",
+        "en": "Measured: `SELECT 1`, `SELECT *` and `SELECT 'x'` all returned **5** rows.\n\n`EXISTS` does not look at the inner query's **result**, only at **whether a row came out**. What you select is not even read.\n\nThe convention is to write `1`: it is the shortest and it says \"the value selected here means nothing\"."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 2,
+      "text": {
+        "tr": "`WHERE EXISTS (SELECT 1 FROM orders)` — koşulsuz — altı müşteriden kaçını getiriyor?",
+        "en": "`WHERE EXISTS (SELECT 1 FROM orders)` — with no condition — how many of the six customers does it return?"
+      },
+      "options": {
+        "tr": [
+          "1",
+          "5 — siparişi olanlar",
+          "6 — hepsi",
+          "0"
+        ],
+        "en": [
+          "1",
+          "5 — the ones with orders",
+          "6 — all of them",
+          "0"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **6**, yani herkes.\n\nAlt sorgunun içinde dış sorgudan hiçbir şey geçmiyor. \"`orders` tablosunda hiç satır var mı?\" diye soruyor ve cevabı her müşteri için aynı: evet. Yani koşul aslında hiçbir şeyi süzmüyor.\n\nİstenen şey **her müşteri için ayrı** sorulmasıydı; bunun için bağlantı yazılmalı:\n\n```sql\nEXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)\n```\n\nBu satır eklendiğinde sonuç 5'e iniyor. `EXISTS` neredeyse her zaman **ilişkili** yazılıyor; ilişkisiz bir `EXISTS` genelde unutulmuş bir `WHERE` demek.",
+        "en": "Measured: **6**, that is everyone.\n\nNothing from the outer query appears inside the subquery. It asks \"are there any rows in `orders` at all?\" and the answer is the same for every customer: yes. So the condition filters nothing.\n\nWhat was wanted was to ask it **separately for each customer**, which needs the link:\n\n```sql\nEXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)\n```\n\nWith that line the result drops to 5. `EXISTS` is almost always written **correlated**; an uncorrelated `EXISTS` usually means a forgotten `WHERE`."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 1,
+      "text": {
+        "tr": "Bir alt sorgunun ilişkili olup olmadığını en pratik nasıl anlarsın?",
+        "en": "What is the most practical way to tell whether a subquery is correlated?"
+      },
+      "options": {
+        "tr": [
+          "Satır sayısına bakarak",
+          "Kopyalayıp tek başına çalıştırarak: çalışıyorsa ilişkisiz",
+          "`EXISTS` içinde olup olmadığına bakarak",
+          "Çalışma süresini ölçerek"
+        ],
+        "en": [
+          "By looking at the row count",
+          "By copying it and running it alone: if it runs, it is not correlated",
+          "By checking whether it is inside `EXISTS`",
+          "By measuring how long it takes"
+        ]
+      },
+      "explanation": {
+        "tr": "İlişkili alt sorgu dış sorgunun takma adını kullanıyor. O ad tek başına çalıştırıldığında tanımsız oluyor ve sunucu `Invalid column name` diyor.\n\nİlişkisiz alt sorgu ise tek başına da çalışıyor — zaten dış sorgudan bağımsız.\n\nBu ayrım pratikte işe yarıyor: ilişkisiz alt sorgu **bir kez** çalışıyor, ilişkili olan **her dış satır için** yeniden. Yavaş bir sorguda ilk bakılacak yer bu.",
+        "en": "A correlated subquery uses an alias from the outer query. Run alone, that alias is undefined and the server says `Invalid column name`.\n\nAn uncorrelated subquery runs on its own — it is independent of the outer query anyway.\n\nThe distinction matters in practice: an uncorrelated subquery runs **once**, a correlated one runs again **for every outer row**. In a slow query this is the first place to look."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki sorgu hata vermiyor ama yanlış cevap veriyor. Sorun ne?\n\n```sql\nSELECT name FROM products\nWHERE price > (SELECT AVG(price) FROM products\n               WHERE category_code = category_code);\n```",
+        "en": "The query below raises no error but gives the wrong answer. What is wrong?\n\n```sql\nSELECT name FROM products\nWHERE price > (SELECT AVG(price) FROM products\n               WHERE category_code = category_code);\n```"
+      },
+      "options": {
+        "tr": [
+          "Takma ad yok; iki `category_code` de içteki tabloya bağlanıyor, koşul her satırda doğru oluyor",
+          "`AVG` alt sorgu içinde kullanılamaz",
+          "`WHERE` içinde `AVG` karşılaştırması yapılamaz",
+          "Aynı tablo iki kez yazılamaz"
+        ],
+        "en": [
+          "There is no alias; both `category_code` bind to the inner table, so the condition is true on every row",
+          "`AVG` cannot be used inside a subquery",
+          "An `AVG` comparison cannot be made in `WHERE`",
+          "The same table cannot be written twice"
+        ]
+      },
+      "explanation": {
+        "tr": "Amaç \"kendi kategorisinin ortalaması\" idi; ölçülen sonuç **genel** ortalamanınkiyle birebir aynı çıktı (3 satır).\n\nSebep: alt sorgunun içinde `category_code` iki kez geçiyor ve **ikisi de içteki `products`'a** bağlanıyor. Koşul `x = x` hâline geliyor, yani her satırda doğru; alt sorgu bütün ürünlerin ortalamasını hesaplıyor.\n\nDoğrusu iki tarafa ayrı takma ad vermek:\n\n```sql\nWHERE p.price > (SELECT AVG(p2.price) FROM products p2\n                 WHERE p2.category_code = p.category_code)\n```\n\nBu hâliyle 6 satır geliyor. **İlişkili alt sorgu yazarken takma ad tercih değil, zorunluluk.**",
+        "en": "The intent was \"the average of its own category\"; the measured result came out identical to the **global** average version (3 rows).\n\nThe cause: `category_code` appears twice inside the subquery and **both bind to the inner `products`**. The condition becomes `x = x`, true on every row, and the subquery works out the average of all products.\n\nThe correct form gives each side its own alias:\n\n```sql\nWHERE p.price > (SELECT AVG(p2.price) FROM products p2\n                 WHERE p2.category_code = p.category_code)\n```\n\nThat version returns 6 rows. **When writing a correlated subquery an alias is not a preference, it is a requirement.**"
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 2,
+      "text": {
+        "tr": "`FROM (SELECT ...)` yazıp parantezden sonra ad vermezsen ne oluyor?",
+        "en": "What happens if you write `FROM (SELECT ...)` and give no name after the parenthesis?"
+      },
+      "options": {
+        "tr": [
+          "Sunucu kendiliğinden bir ad veriyor",
+          "Sorgu çalışıyor ama sütun adları kayboluyor",
+          "Sözdizimi hatası veriyor",
+          "Alt sorgu yok sayılıyor"
+        ],
+        "en": [
+          "The server picks a name by itself",
+          "The query runs but the column names are lost",
+          "It is a syntax error",
+          "The subquery is ignored"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Incorrect syntax near ';'`.\n\nHata metni yanıltıcı — noktalı virgülü gösteriyor, oysa sorun eksik takma ad. Bu tür \"beklenmedik yerde biten\" hatalarında bir önceki parçaya bakmak gerekiyor.\n\n`FROM` içindeki her tablonun bir adı olmak zorunda; türetilmiş tablonun kendi adı olmadığı için sen veriyorsun:\n\n```sql\nFROM (SELECT customer_id, COUNT(*) AS n\n      FROM orders GROUP BY customer_id) t\n```",
+        "en": "Measured: `Incorrect syntax near ';'`.\n\nThe message is misleading — it points at the semicolon, while the problem is the missing alias. With errors of this \"ended somewhere unexpected\" kind you have to look at the piece before.\n\nEvery table in `FROM` has to have a name, and since a derived table has none of its own, you give it one:\n\n```sql\nFROM (SELECT customer_id, COUNT(*) AS n\n      FROM orders GROUP BY customer_id) t\n```"
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 1,
+      "text": {
+        "tr": "`FROM (SELECT customer_id, COUNT(*) FROM orders GROUP BY customer_id) t` neden hata veriyor?",
+        "en": "Why does `FROM (SELECT customer_id, COUNT(*) FROM orders GROUP BY customer_id) t` raise an error?"
+      },
+      "options": {
+        "tr": [
+          "`COUNT(*)` türetilmiş tabloda kullanılamıyor",
+          "İkinci sütunun adı yok; `AS` ile adlandırılması gerekiyor",
+          "`GROUP BY` alt sorgu içinde çalışmıyor",
+          "Takma ad tek harf olamaz"
+        ],
+        "en": [
+          "`COUNT(*)` cannot be used in a derived table",
+          "The second column has no name; it has to be named with `AS`",
+          "`GROUP BY` does not work inside a subquery",
+          "An alias cannot be a single letter"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçülen hata net: `No column name was specified for column 2 of 't'.`\n\nTüretilmiş tablo gerçek bir tablo gibi davranıyor ve gerçek tabloların adsız sütunu olmuyor. Hesaplanan her sütuna `AS` ile ad verilmesi gerekiyor:\n\n```sql\nSELECT customer_id, COUNT(*) AS order_count\n```\n\nSıradan bir `SELECT` içinde adsız sütun sorun olmuyor — ekranda başlıksız görünüyor, o kadar. Fark, sonucun **başka bir sorgu tarafından kullanılıyor** olması.",
+        "en": "The measured error is explicit: `No column name was specified for column 2 of 't'.`\n\nA derived table behaves like a real table, and real tables do not have unnamed columns. Every calculated column needs a name from `AS`:\n\n```sql\nSELECT customer_id, COUNT(*) AS order_count\n```\n\nIn an ordinary `SELECT` an unnamed column is no problem — it simply appears without a heading. The difference is that here the result is **used by another query**."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Alt sorgunun içine `ORDER BY` yazılabiliyor mu?",
+        "en": "Can you write `ORDER BY` inside a subquery?"
+      },
+      "options": {
+        "tr": [
+          "Hayır — `TOP` ya da `OFFSET` de yoksa hata veriyor",
+          "Evet, her zaman",
+          "Yalnızca `FROM` içindeki alt sorgularda",
+          "Evet ama yok sayılıyor"
+        ],
+        "en": [
+          "No — without `TOP` or `OFFSET` it is an error",
+          "Yes, always",
+          "Only in subqueries inside `FROM`",
+          "Yes, but it is ignored"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçülen hata:\n\n```\nThe ORDER BY clause is invalid in views, inline functions,\nderived tables, subqueries, and common table expressions,\nunless TOP, OFFSET or FOR XML is also specified.\n```\n\nMantığı şu: alt sorgunun sonucu bir **küme**, sıra bilgisi taşımıyor. Dıştaki sorgu onu istediği sırayla kullanabiliyor, o yüzden içeride sıralamanın anlamı yok.\n\n`TOP` ile birlikte anlamlı oluyor — orada sıralama \"hangi ilk üç\" sorusunun parçası:\n\n```sql\nWHERE supplier_code IN (SELECT TOP 2 code FROM suppliers ORDER BY name)\n```\n\nBu ölçüldü ve çalışıyor.",
+        "en": "The measured error:\n\n```\nThe ORDER BY clause is invalid in views, inline functions,\nderived tables, subqueries, and common table expressions,\nunless TOP, OFFSET or FOR XML is also specified.\n```\n\nThe reasoning: a subquery's result is a **set** and carries no order. The outer query can use it in whatever order it likes, so sorting inside means nothing.\n\nWith `TOP` it becomes meaningful — there the sort is part of the question \"which first two\":\n\n```sql\nWHERE supplier_code IN (SELECT TOP 2 code FROM suppliers ORDER BY name)\n```\n\nThat was measured and it works."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 3,
+      "text": {
+        "tr": "Alt sorgu **hiç satır** döndürmediğinde `NOT IN` ne yapıyor?",
+        "en": "What does `NOT IN` do when the subquery returns **no rows at all**?"
+      },
+      "options": {
+        "tr": [
+          "Hata veriyor",
+          "Hiçbir satır döndürüyor",
+          "`NULL` döndürüyor",
+          "Bütün satırları döndürüyor"
+        ],
+        "en": [
+          "It raises an error",
+          "It returns no rows",
+          "It returns `NULL`",
+          "It returns every row"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: on iki ürünün **on ikisi** de geliyor.\n\nMantıklı: \"bu boş listede olmayanlar\" sorusunun cevabı herkes. `AND` zinciri boş olduğu için ortada karşılaştırılacak bir şey de yok.\n\nBu davranış rapor yazarken tehlikeli olabiliyor — süzülmesi beklenen bir liste boş kaldığında sonuç süzülmemiş gibi çıkıyor. Ama en azından **sessiz bir yanlış** değil, fazla satır hemen göze çarpıyor.\n\nBoş alt sorguyla `IN` ise sıfır satır veriyor (ölçüldü).",
+        "en": "Measured: all **twelve** of the twelve products come back.\n\nThat is logical: the answer to \"which ones are not in this empty list\" is everyone. With an empty `AND` chain there is nothing to compare against either.\n\nThe behaviour can be dangerous when writing reports — if a list that was meant to filter comes back empty, the result looks unfiltered. At least it is not a **silent** wrong answer: the extra rows are immediately visible.\n\n`IN` with an empty subquery gives zero rows (measured)."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 2,
+      "text": {
+        "tr": "`(SELECT AVG(price) FROM products WHERE 1=0)` — yani hiçbir satırla eşleşmeyen bir alt sorgu — ne döndürüyor?",
+        "en": "What does `(SELECT AVG(price) FROM products WHERE 1=0)` — a subquery matching no rows — return?"
+      },
+      "options": {
+        "tr": [
+          "0",
+          "Hata",
+          "`NULL`",
+          "Hiçbir şey; sorgu satır döndürmüyor"
+        ],
+        "en": [
+          "0",
+          "An error",
+          "`NULL`",
+          "Nothing; the query returns no rows"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `NULL`.\n\nBunun sonucu şu: `WHERE price > (bu alt sorgu)` yazıldığında karşılaştırma `price > NULL` oluyor, yani \"bilinmiyor\", ve **hiçbir satır geçmiyor** (ölçüldü: 0 satır).\n\nYine sessiz bir sonuç: hata yok, boş sonuç var. Boş sonuç gördüğünde bakılacak yerlerden biri, alt sorgunun gerçekten satır döndürüp döndürmediği.\n\n`COUNT` bu kuralın dışında: hiç satır olmadığında `NULL` değil **0** veriyor.",
+        "en": "Measured: `NULL`.\n\nThe consequence: writing `WHERE price > (that subquery)` makes the comparison `price > NULL`, which is \"unknown\", and **no row passes** (measured: 0 rows).\n\nAnother silent result: no error, an empty answer. When you see an empty result, one of the places to look is whether the subquery returned any rows at all.\n\n`COUNT` is the exception to this rule: with no rows it gives **0**, not `NULL`."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 1,
+      "text": {
+        "tr": "`HAVING` içine alt sorgu yazılabiliyor mu?",
+        "en": "Can a subquery be written inside `HAVING`?"
+      },
+      "options": {
+        "tr": [
+          "Hayır, yalnızca `WHERE` içine",
+          "Evet — tek değer döndürdüğü sürece",
+          "Yalnızca `EXISTS` biçiminde",
+          "Hayır, `HAVING` yalnızca sabit sayılarla çalışıyor"
+        ],
+        "en": [
+          "No, only inside `WHERE`",
+          "Yes — as long as it returns a single value",
+          "Only in the `EXISTS` form",
+          "No, `HAVING` only works with constants"
+        ]
+      },
+      "explanation": {
+        "tr": "`HAVING` de bir süzgeç; farkı gruplardan sonra çalışması. Karşılaştırdığı şey bir sayı olduğu sürece o sayı nereden gelirse gelsin çalışıyor:\n\n```sql\nSELECT customer_id, COUNT(*) AS n\nFROM orders GROUP BY customer_id\nHAVING COUNT(*) > (SELECT ... );\n```\n\nBu ölçüldü ve çalışıyor.\n\nAynı şekilde `SELECT` listesinde, `FROM` içinde, `ON` koşulunda da alt sorgu yazılabiliyor. Alt sorgu ayrı bir yapı değil, **tek bir değer ya da tablo beklenen her yere** konabilen bir ifade.",
+        "en": "`HAVING` is a filter too; the difference is that it runs after the groups are formed. As long as what it compares is a number, it does not matter where the number comes from:\n\n```sql\nSELECT customer_id, COUNT(*) AS n\nFROM orders GROUP BY customer_id\nHAVING COUNT(*) > (SELECT ... );\n```\n\nThat was measured and it works.\n\nA subquery can just as well go in the `SELECT` list, inside `FROM` or in an `ON` condition. A subquery is not a separate construct but an expression that fits **anywhere a single value or a table is expected**."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Başka bir tablodan **sütun getirmen** gerekiyorsa hangisini seçersin?",
+        "en": "If you need to **bring back a column** from another table, which do you choose?"
+      },
+      "options": {
+        "tr": [
+          "`JOIN`",
+          "`EXISTS`",
+          "`NOT IN`",
+          "Türetilmiş tablo"
+        ],
+        "en": [
+          "`JOIN`",
+          "`EXISTS`",
+          "`NOT IN`",
+          "A derived table"
+        ]
+      },
+      "explanation": {
+        "tr": "`EXISTS` ve `IN` yalnızca **süzüyor**: satırın geçip geçmeyeceğine karar veriyorlar, sonuca sütun eklemiyorlar.\n\nTedarikçinin adını da göstermek istiyorsan `JOIN` gerekiyor:\n\n```sql\nSELECT p.name, s.name AS supplier\nFROM products p JOIN suppliers s ON p.supplier_code = s.code;\n```\n\nSeçim kuralı basit: **sütun mu lazım, yoksa yalnızca süzmek mi?**",
+        "en": "`EXISTS` and `IN` only **filter**: they decide whether a row passes; they add no columns to the result.\n\nIf you also want the supplier's name you need a `JOIN`:\n\n```sql\nSELECT p.name, s.name AS supplier\nFROM products p JOIN suppliers s ON p.supplier_code = s.code;\n```\n\nThe rule is simple: **do you need a column, or only to filter?**"
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 2,
+      "text": {
+        "tr": "Bir müşterinin üç siparişi var. `EXISTS` ile süzdüğünde müşteri kaç satır olarak çıkıyor?",
+        "en": "A customer has three orders. When you filter with `EXISTS`, how many rows does that customer produce?"
+      },
+      "options": {
+        "tr": [
+          "3",
+          "0",
+          "1",
+          "Siparişlerin sayısına göre değişiyor"
+        ],
+        "en": [
+          "3",
+          "0",
+          "1",
+          "It depends on the number of orders"
+        ]
+      },
+      "explanation": {
+        "tr": "`EXISTS` satır çoğaltmıyor. Dıştaki her satır için tek bir evet/hayır cevabı üretiyor; müşteri ya geçiyor ya geçmiyor.\n\n`JOIN` ile aynı süzmeyi yaptığında müşteri **üç kez** çıkıyor, çünkü üç siparişle eşleşiyor. `DISTINCT` eklemek gerekiyor.\n\nBu, `JOIN` ile `EXISTS` arasındaki tek gerçek davranış farkı — ve `SUM`/`COUNT` hesaplarken sessizce yanlış sonuç veren tuzağın da kaynağı.",
+        "en": "`EXISTS` does not multiply rows. It produces a single yes/no answer for each outer row; the customer either passes or does not.\n\nDoing the same filtering with a `JOIN` makes the customer appear **three times**, because it matches three orders. You have to add `DISTINCT`.\n\nThis is the one real behavioural difference between `JOIN` and `EXISTS` — and the source of the trap that quietly ruins `SUM` and `COUNT` totals."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 3,
+      "text": {
+        "tr": "Aşağıdakilerden hangisi ilişkili alt sorgu **gerektiriyor**?",
+        "en": "Which of the following **requires** a correlated subquery?"
+      },
+      "options": {
+        "tr": [
+          "Genel ortalamanın üstündeki ürünler",
+          "Istanbul'daki tedarikçilerin ürünleri",
+          "En pahalı ürün",
+          "Fiyatı kendi kategorisinin ortalamasının üstündeki ürünler"
+        ],
+        "en": [
+          "Products above the overall average",
+          "Products of suppliers in Istanbul",
+          "The most expensive product",
+          "Products priced above the average of their own category"
+        ]
+      },
+      "explanation": {
+        "tr": "İlk üçü tek bir sabit değerle ya da sabit bir listeyle çözülüyor; alt sorgu bir kez çalışıp bitiyor.\n\nDördüncüsünde karşılaştırılacak değer **her satır için farklı**: bir aksesuar kendi kategorisinin ortalamasıyla, bir bilgisayar kendininkiyle karşılaştırılıyor. Alt sorgunun dıştaki satırın kategorisini görmesi gerekiyor — bu tanımı gereği ilişkili alt sorgu.\n\nAynı iş türetilmiş tabloyla da yapılabiliyor (önce kategori ortalamalarını üret, sonra birleştir) ve büyük tablolarda genelde daha hızlı oluyor. İleri seviyede üçüncü yol var: pencere fonksiyonları.",
+        "en": "The first three are solved by a single constant or a fixed list; the subquery runs once and is done.\n\nIn the fourth, the value to compare against is **different for every row**: an accessory is compared with its category's average, a computer with its own. The subquery has to see the outer row's category — which is a correlated subquery by definition.\n\nThe same work can be done with a derived table (produce the category averages first, then join), which is usually faster on large tables. At the advanced level there is a third way: window functions."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 1,
+      "text": {
+        "tr": "İlişkili alt sorgu neden yavaş olabiliyor?",
+        "en": "Why can a correlated subquery be slow?"
+      },
+      "options": {
+        "tr": [
+          "Her zaman bütün tabloyu diskten okuyor",
+          "Dış sorgunun her satırı için yeniden çalışıyor",
+          "Sonucu geçici bir tabloya yazıyor",
+          "Dizinleri kullanamıyor"
+        ],
+        "en": [
+          "It always reads the whole table from disk",
+          "It runs again for every row of the outer query",
+          "It writes its result to a temporary table",
+          "It cannot use indexes"
+        ]
+      },
+      "explanation": {
+        "tr": "Kavramsal olarak dış sorgunun her satırı için bir kez çalışıyor: bin satırlık bir tabloda bin kez.\n\nUygulamada sunucu bunu çoğu zaman daha akıllı bir plana çeviriyor — ilişkili alt sorguyu birleştirmeye dönüştürebiliyor. Yine de dönüştüremediği durumlar var ve orada fark büyük oluyor.\n\nİlişkisiz alt sorgu bu sorunu hiç yaşamıyor: bir kez çalışıyor, sonucu her satır için aynı.\n\nYavaş bir sorguyu incelerken ilk sorulacak soru: **bu alt sorgunun içinde dıştaki takma ad geçiyor mu?**",
+        "en": "Conceptually it runs once for every row of the outer query: a thousand times on a thousand-row table.\n\nIn practice the server often turns this into a smarter plan — it can rewrite a correlated subquery as a join. There are still cases it cannot, and there the difference is large.\n\nAn uncorrelated subquery never has this problem: it runs once and its result is the same for every row.\n\nWhen looking at a slow query the first question is: **does an outer alias appear inside this subquery?**"
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 2,
+      "text": {
+        "tr": "\"En az iki siparişi olan müşteriler\" sorusunu türetilmiş tablo yerine neyle daha kısa yazabilirsin?",
+        "en": "What shorter form answers \"customers with at least two orders\" instead of a derived table?"
+      },
+      "options": {
+        "tr": [
+          "`WHERE COUNT(*) >= 2`",
+          "`DISTINCT`",
+          "`HAVING COUNT(*) >= 2`",
+          "`TOP 2`"
+        ],
+        "en": [
+          "`WHERE COUNT(*) >= 2`",
+          "`DISTINCT`",
+          "`HAVING COUNT(*) >= 2`",
+          "`TOP 2`"
+        ]
+      },
+      "explanation": {
+        "tr": "`HAVING` bu iş için var ve iki satır daha kısa yazılıyor. (`WHERE` içinde `COUNT` kullanılamıyor — gruplar henüz oluşmamış oluyor.)\n\nTüretilmiş tablo asıl değerini gruplama sonucunu **başka bir tabloyla birleştirmek** gerektiğinde gösteriyor:\n\n```sql\nSELECT c.name, t.order_count\nFROM customers c\nJOIN (SELECT customer_id, COUNT(*) AS order_count\n      FROM orders GROUP BY customer_id) t\n  ON t.customer_id = c.id;\n```\n\nBurada `HAVING` yetmiyor, çünkü gruplanmış sonucun kendisi birleştirmenin bir tarafı.",
+        "en": "`HAVING` exists for exactly this and is two lines shorter. (`COUNT` cannot be used in `WHERE` — the groups have not been formed yet.)\n\nA derived table shows its real value when the grouped result has to be **joined to another table**:\n\n```sql\nSELECT c.name, t.order_count\nFROM customers c\nJOIN (SELECT customer_id, COUNT(*) AS order_count\n      FROM orders GROUP BY customer_id) t\n  ON t.customer_id = c.id;\n```\n\n`HAVING` is not enough here, because the grouped result is itself one side of the join."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Bir müşterinin sipariş sayısını sonuca eklemenin iki yolu var: `LEFT JOIN` + `GROUP BY` ve `SELECT` içinde skaler alt sorgu. Hangisi doğru?",
+        "en": "There are two ways to add a customer's order count to the result: `LEFT JOIN` + `GROUP BY`, and a scalar subquery in `SELECT`. Which is right?"
+      },
+      "options": {
+        "tr": [
+          "İkisi de aynı sonucu veriyor; tek sayı için alt sorgu daha okunur",
+          "Yalnızca `JOIN` doğru sonuç veriyor",
+          "Yalnızca alt sorgu doğru sonuç veriyor",
+          "Alt sorgu siparişi olmayan müşteriyi atlıyor"
+        ],
+        "en": [
+          "Both give the same answer; for a single number the subquery reads better",
+          "Only the `JOIN` gives the right answer",
+          "Only the subquery gives the right answer",
+          "The subquery skips customers with no orders"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: ikisi de altı satır, siparişi olmayan müşteri için 0.\n\nSkaler alt sorgu siparişi olmayanı atlamıyor, çünkü `COUNT` hiç satır bulamadığında `NULL` değil **0** veriyor.\n\nSeçim okunabilirlik meselesi:\n\n- **Tek bir sayı** ekleyeceksen alt sorgu — `GROUP BY` yazmıyorsun, diğer sütunlara etkisini düşünmüyorsun.\n- **Birkaç sayı birden** ekleyeceksen `JOIN` + `GROUP BY` — her biri için ayrı alt sorgu yazmak tekrara düşüyor.",
+        "en": "Measured: both give six rows, with 0 for the customer who has no orders.\n\nThe scalar subquery does not skip that customer, because `COUNT` gives **0**, not `NULL`, when it finds no rows.\n\nThe choice is about readability:\n\n- Adding **a single number**: the subquery — no `GROUP BY` to write, no thinking about what grouping does to the other columns.\n- Adding **several numbers at once**: `JOIN` + `GROUP BY` — a separate subquery for each becomes repetitive."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 3,
+      "text": {
+        "tr": "Alt sorgular üç dört seviye iç içe girdiğinde ne yapmalı?",
+        "en": "What should you do when subqueries end up nested three or four levels deep?"
+      },
+      "options": {
+        "tr": [
+          "Girintiyi arttırmak yeterli",
+          "Hepsini tek satıra toplamak",
+          "`JOIN`'e çevirmek her zaman mümkün",
+          "Sorguyu adlandırılmış adımlara bölmek — ileri seviyedeki `WITH` bunun için var"
+        ],
+        "en": [
+          "Increasing the indentation is enough",
+          "Collapsing it all onto one line",
+          "Converting it to a `JOIN`, which is always possible",
+          "Breaking the query into named steps — `WITH` at the advanced level exists for this"
+        ]
+      },
+      "explanation": {
+        "tr": "İç içe alt sorgu teknik olarak sınırsız yazılabiliyor ama okunmaz hâle geliyor: hangi parantezin nerede kapandığını takip etmek imkânsızlaşıyor ve altı ay sonra kendi sorgunu anlamıyorsun.\n\nİleri seviyede `WITH` (ortak tablo ifadesi) var. Aynı işi yapıyor ama yukarıdan aşağı, adlandırılmış adımlar hâlinde:\n\n```sql\nWITH sayimlar AS (\n    SELECT customer_id, COUNT(*) AS n\n    FROM orders GROUP BY customer_id\n)\nSELECT * FROM sayimlar WHERE n >= 2;\n```\n\nHer adımın bir adı oluyor ve o ad sonraki adımlarda kullanılabiliyor.\n\nHer alt sorgu `JOIN`'e çevrilemiyor, o yüzden üçüncü seçenek doğru değil.",
+        "en": "Nesting is technically unlimited but becomes unreadable: keeping track of which parenthesis closes where turns impossible, and six months later you cannot follow your own query.\n\nThe advanced level has `WITH` (the common table expression). It does the same work, written top to bottom as named steps:\n\n```sql\nWITH counts AS (\n    SELECT customer_id, COUNT(*) AS n\n    FROM orders GROUP BY customer_id\n)\nSELECT * FROM counts WHERE n >= 2;\n```\n\nEvery step gets a name, and that name can be used by the steps after it.\n\nNot every subquery can be turned into a `JOIN`, so the third option is not right."
+      }
+    }
+  ]
+}

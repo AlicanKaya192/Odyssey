@@ -1,0 +1,76 @@
+{
+  "id": "kendi-kategorisinin-ustu",
+  "language": "tsql",
+  "title": {
+    "tr": "Kendi kategorisinin üstü",
+    "en": "Above its own category"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Alt sorgu dıştaki satırın kategorisine bağlanacak. Bunun için iki tabloya da farklı takma ad vermen gerekiyor (`p` ve `p2`).",
+      "en": "The subquery has to link to the outer row's category. That needs a different alias on each side (`p` and `p2`)."
+    },
+    {
+      "tr": "Buna ilişkili alt sorgu deniyor: dış sorgunun her satırı için yeniden çalışıyor ve her seferinde başka bir ortalama hesaplıyor.",
+      "en": "This is called a correlated subquery: it runs again for each row of the outer query, working out a different average each time."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT p.name, p.category_code, p.price\nFROM products p\nWHERE p.price > (\n    SELECT AVG(p2.price) FROM products p2\n    WHERE p2.category_code = p.category_code\n)\nORDER BY p.name;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT p.name, p.category_code, p.price\nFROM products p\nWHERE p.price > (\n    SELECT AVG(p2.price) FROM products p2\n    WHERE p2.category_code = p.category_code\n)\nORDER BY p.name;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "name",
+        "category_code",
+        "price"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "Headset",
+          "ACC",
+          890.0
+        ],
+        [
+          "Laptop",
+          "COM",
+          24500.0
+        ],
+        [
+          "Microphone",
+          "ACC",
+          1320.0
+        ],
+        [
+          "Office Suite",
+          "SOF",
+          2400.0
+        ],
+        [
+          "Projector",
+          "DIS",
+          7400.0
+        ],
+        [
+          "Webcam",
+          "ACC",
+          1150.0
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+-- Fiyati KENDI KATEGORISININ ortalamasindan yuksek olan
+-- urunleri getir.
+-- Sutunlar: name, category_code, price. Ada gore sirala.
+--
+-- Ilk alistirmadaki genel ortalama degil; her urun kendi
+-- kategorisiyle karsilastirilacak.

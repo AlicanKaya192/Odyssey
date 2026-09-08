@@ -71,16 +71,22 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   bulma, `LEFT JOIN`'i sessizce bozan `WHERE` ve birleştirmenin satırları
   nasıl çoğalttığı. İki not (biri şemanın haritası), yirmi dört soruluk
   sınav, beş alıştırma ve "Bağlantı Kuran" rozeti.
+- **SQL patikası, Orta Seviyenin ikinci bölümü: "Alt Sorgular".** Bir
+  sorgunun cevabını başka bir sorgunun içinde kullanmak: `WHERE` ve
+  `SELECT` içinde alt sorgular, `IN`, `EXISTS`, ilişkili alt sorgular ve
+  `FROM` içindeki türetilmiş tablolar. Boş değerlerin `NOT IN`'i sessizce
+  bozması ayrı ayrı ele alınıyor. İki not, yirmi dört soruluk sınav, beş
+  alıştırma ve "Sorgu İçinde Sorgu" rozeti.
 - **Yol ekranında seviye başlıkları.** SQL patikasının bölümleri artık
   "Başlangıç" ve "Orta Seviye" başlıkları altında gruplanıyor.
 - **"Tablolar" penceresi.** SQL alıştırmalarında, sorgu yazarken
   veritabanında ne olduğunu görmek için. Tablolar sekmeli duruyor;
   istediğin tabloyu ayrı bir pencereye taşıyıp iki tabloya aynı anda
   bakabiliyorsun. Kendi yarattığın tablo da listede çıkıyor.
-- **Yedi yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
+- **Sekiz yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
   çalıştırdığında; "İlk Süzgeç", "Sıra Sende", "Boşluğu Gördün", "Kendi
-  Sütunun", "Toparlayıcı" ve "Bağlantı Kuran" ise SQL patikasının
-  bölümlerini bitirdikçe geliyor.
+  Sütunun", "Toparlayıcı", "Bağlantı Kuran" ve "Sorgu İçinde Sorgu" ise
+  SQL patikasının bölümlerini bitirdikçe geliyor.
 
 ### Düzeltildi
 - **Ders notlarındaki dış bağlantılar açılmıyordu.** Python kurulum

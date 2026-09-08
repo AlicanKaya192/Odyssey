@@ -1,0 +1,6 @@
+-- Hic urunu olmayan tedarikcileri bul.
+-- Tek sutun: name.
+--
+-- DIKKAT: NOT IN ile yazarsan bos sonuc alirsin. Uc urunde
+-- supplier_code bos oldugu icin alt sorgunun listesinde NULL
+-- var ve NOT IN o durumda hicbir zaman dogru olamiyor.

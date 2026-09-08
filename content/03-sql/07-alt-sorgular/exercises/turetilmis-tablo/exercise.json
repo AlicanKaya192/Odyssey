@@ -1,0 +1,61 @@
+{
+  "id": "turetilmis-tablo",
+  "language": "tsql",
+  "title": {
+    "tr": "Türetilmiş tablo",
+    "en": "A derived table"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`FROM` içine parantezle bir `SELECT` yazabiliyorsun; sonuç geçici bir tablo gibi davranıyor.",
+      "en": "You can write a `SELECT` in parentheses inside `FROM`; the result behaves like a temporary table."
+    },
+    {
+      "tr": "**Takma ad zorunlu:** `) t` yazmazsan sözdizimi hatası alıyorsun. Aynı işi `HAVING` ile de yapabilirdin; burada türetilmiş tabloyu öğreniyoruz.",
+      "en": "**The alias is required:** without `) t` you get a syntax error. You could do the same job with `HAVING`; here we are learning the derived table."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT t.customer_id, t.order_count\nFROM (\n    SELECT customer_id, COUNT(*) AS order_count\n    FROM orders\n    GROUP BY customer_id\n) t\nWHERE t.order_count >= 2\nORDER BY t.order_count DESC, t.customer_id;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT t.customer_id, t.order_count\nFROM (\n    SELECT customer_id, COUNT(*) AS order_count\n    FROM orders\n    GROUP BY customer_id\n) t\nWHERE t.order_count >= 2\nORDER BY t.order_count DESC, t.customer_id;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "customer_id",
+        "order_count"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          2
+        ]
+      ]
+    }
+  ]
+}

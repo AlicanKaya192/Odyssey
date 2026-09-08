@@ -1,0 +1,6 @@
+-- Return the id and order count of customers with at least two
+-- orders.
+-- Do the grouping inside a SUBQUERY and filter its result from
+-- outside.
+-- Columns: customer_id, order_count
+-- Sort by the count descending, breaking ties by id.

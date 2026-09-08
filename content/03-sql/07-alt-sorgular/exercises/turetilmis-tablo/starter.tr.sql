@@ -1,0 +1,5 @@
+-- En az iki siparisi olan musterilerin id'sini ve siparis
+-- sayisini getir.
+-- Gruplamayi bir ALT SORGU icinde yap ve sonucunu disaridan suz.
+-- Sutunlar: customer_id, order_count
+-- Once sayiya gore buyukten kucuge, esitlikte id'ye gore sirala.

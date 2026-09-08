@@ -1,0 +1,4 @@
+-- Fiyati, butun urunlerin ortalamasindan yuksek olan
+-- urunleri getir.
+-- Ortalamayi elle yazma; sorgunun icinde hesapla.
+-- Sutunlar: name, price. Pahalidan ucuza sirala.

@@ -1,0 +1,4 @@
+-- Bring back the products of suppliers based in Istanbul.
+-- Do not type the supplier codes by hand; take them from the
+-- suppliers table with a subquery.
+-- One column: name. Sort alphabetically.

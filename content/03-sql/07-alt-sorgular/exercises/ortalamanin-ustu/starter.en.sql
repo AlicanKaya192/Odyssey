@@ -1,0 +1,4 @@
+-- Bring back the products priced above the average of all
+-- products.
+-- Do not type the average in by hand; work it out inside the query.
+-- Columns: name, price. Sort from expensive to cheap.

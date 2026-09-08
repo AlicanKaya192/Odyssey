@@ -1,0 +1,6 @@
+-- Find the suppliers that have no products at all.
+-- One column: name.
+--
+-- CAREFUL: written with NOT IN you get an empty result. Three
+-- products have an empty supplier_code, so the subquery's list
+-- contains NULL and NOT IN can never be true in that case.

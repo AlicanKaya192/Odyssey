@@ -1,0 +1,55 @@
+{
+  "id": "hic-urunu-olmayan",
+  "language": "tsql",
+  "title": {
+    "tr": "Hiç ürünü olmayan",
+    "en": "The one with no products"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`NOT EXISTS (SELECT 1 FROM ... WHERE ...)` — içeride ne seçtiğinin önemi yok, satırın var olup olmadığına bakılıyor.",
+      "en": "`NOT EXISTS (SELECT 1 FROM ... WHERE ...)` — what you select inside does not matter; it looks at whether a row exists."
+    },
+    {
+      "tr": "İçerideki sorgu dıştaki satıra bağlanıyor: `WHERE p.supplier_code = s.code`. Bu bağ olmadan alt sorgu her tedarikçi için aynı sonucu verir.",
+      "en": "The inner query links to the outer row: `WHERE p.supplier_code = s.code`. Without that link the subquery gives the same answer for every supplier."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT s.name\nFROM suppliers s\nWHERE NOT EXISTS (\n    SELECT 1 FROM products p WHERE p.supplier_code = s.code\n)\nORDER BY s.name;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT s.name\nFROM suppliers s\nWHERE NOT EXISTS (\n    SELECT 1 FROM products p WHERE p.supplier_code = s.code\n)\nORDER BY s.name;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "name"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "Rhine Components"
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "NOT EXISTS",
+      "hint": {
+        "tr": "`NOT IN` bu veride boş sonuç veriyor. `NOT EXISTS` boş değerlerden etkilenmiyor ve doğru cevabı veriyor.",
+        "en": "`NOT IN` returns nothing on this data. `NOT EXISTS` is unaffected by empty values and gives the right answer."
+      }
+    }
+  ]
+}
