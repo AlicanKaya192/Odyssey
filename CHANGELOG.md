@@ -32,6 +32,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   karşına geliyor. Yazdığın her şey çalıştırma bitince geri alınıyor:
   yanlışlıkla bir tabloyu silsen bile bir sonraki denemede yerinde
   duruyor.
+- **"Tablolar" penceresi.** SQL alıştırmalarında, sorgu yazarken
+  veritabanında ne olduğunu görmek için. Tablolar sekmeli duruyor;
+  istediğin tabloyu ayrı bir pencereye taşıyıp iki tabloya aynı anda
+  bakabiliyorsun. Kendi yarattığın tablo da listede çıkıyor.
 - **"Sunucu Ayakta" rozeti.** SQL Server'ı kurup ilk sorgunu
   çalıştırdığında geliyor.
 

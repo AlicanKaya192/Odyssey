@@ -50,6 +50,7 @@ from ..widgets.code_editor import CodeEditor
 OUTPUT_MAX_HEIGHT = 200
 from ..widgets.effects import repolish
 from .lesson_view import LessonView, render_markdown
+from .tables_window import TablesWindow
 
 # Zorluk göstergesi: dolu/boş daire. Renk körlüğü için renge ek olarak biçim.
 DIFFICULTY_LABELS = {1: "●○○", 2: "●●○", 3: "●●●"}
@@ -91,6 +92,34 @@ class RunWorker(QThread):
         )
 
 
+
+
+class SnapshotWorker(QThread):
+    """Kod çalıştırmadan yalnızca tabloların hâlini alır.
+
+    Boş SQL gönderiliyor: hiçbir toplu iş çalışmıyor ama veritabanı
+    kuruluyor ve anlık görüntü alınıyor. Normal çalıştırma yolundan
+    geçirilmiyor, çünkü orası ilerlemeyi kaydediyor ve deneme sayıyor —
+    "Tablolar"a basmak bir deneme değil.
+    """
+
+    completed = Signal(object)
+
+    def __init__(self, exercise: Exercise) -> None:
+        super().__init__()
+        self._exercise = exercise
+
+    def run(self) -> None:  # noqa: D102
+        self.completed.emit(
+            run_code(
+                "",
+                [],
+                self._exercise.timeout_sec,
+                self._exercise.directory,
+                language=self._exercise.language,
+                exercise_key=exercise_key(self._exercise),
+            )
+        )
 
 
 class CheckRow(QFrame):
@@ -266,6 +295,10 @@ class ExerciseView(QWidget):
         self._chapter_id = ""
         self._section_id = ""
         self._worker: RunWorker | None = None
+        self._snapshot: SnapshotWorker | None = None
+        # Son çalıştırmanın sonundaki tablo hâli ve onu gösteren pencere.
+        self._tables: list[dict] = []
+        self._tables_window: TablesWindow | None = None
         # Açılmış ipucu kademeleri. Her kademe kendi başına açılıyor:
         # "kaçıncıya kadar açık" diye tek bir sayı tutulduğunda son
         # kademeye basmak öncekileri de açıyor ve kademeli yardım fikri
@@ -455,6 +488,14 @@ class ExerciseView(QWidget):
         layout.addWidget(self._shortcut_hint)
         layout.addStretch(1)
 
+        # Yalnızca SQL alıştırmalarında görünüyor: Python alıştırmasında
+        # gösterilecek bir tablo yok.
+        self._tables_button = QPushButton()
+        self._tables_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._tables_button.clicked.connect(self._show_tables)
+        self._tables_button.hide()
+        layout.addWidget(self._tables_button)
+
         self._reset_button = QPushButton()
         self._reset_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._reset_button.clicked.connect(self._reset)
@@ -490,8 +531,51 @@ class ExerciseView(QWidget):
             saved or exercise.starter_code_for(self._language.language)
         )
 
+        # Tablolar önceki alıştırmanın verisini göstermesin.
+        self._tables = []
+        self._tables_button.setVisible(exercise.language == "tsql")
+        if self._tables_window is not None:
+            self._tables_window.set_tables(
+                [], self._language.t("tables.not_run")
+            )
+
         self._clear_results()
         self.retranslate()
+
+    def _show_tables(self) -> None:
+        """Tablolar penceresini açar; veri yoksa önce anlık görüntü alır."""
+        if self._exercise is None:
+            return
+
+        if self._tables_window is None:
+            self._tables_window = TablesWindow(
+                self._language, self, self._mode
+            )
+        pencere = self._tables_window
+        pencere.set_tables(self._tables, "" if self._tables else
+                           self._language.t("tables.loading"))
+        pencere.show()
+        pencere.raise_()
+        pencere.activateWindow()
+
+        # Henüz çalıştırılmamışsa hazır verinin hâlini getiriyoruz:
+        # sorguyu yazmadan önce "elimde ne var" sorusunun cevabı gerekiyor.
+        if not self._tables and (
+            self._snapshot is None or not self._snapshot.isRunning()
+        ):
+            self._snapshot = SnapshotWorker(self._exercise)
+            self._snapshot.completed.connect(self._on_snapshot)
+            self._snapshot.start()
+
+    def _on_snapshot(self, result) -> None:
+        self._tables = result.tables
+        if self._tables_window is None:
+            return
+        if result.tables:
+            self._tables_window.set_tables(result.tables)
+        else:
+            hata = (result.error or {}).get("message", "")
+            self._tables_window.set_tables([], hata or self._language.t("tables.empty"))
 
     def _clear_results(self) -> None:
         while self._results_layout.count() > 2:
@@ -562,6 +646,12 @@ class ExerciseView(QWidget):
             self._output.setPlainText(combined)
             self._output.show()
 
+        # Tablolar penceresi açıksa çalıştırmanın bıraktığı hâli gösteriyor.
+        if result.tables:
+            self._tables = result.tables
+            if self._tables_window is not None:
+                self._tables_window.set_tables(result.tables)
+
         if result.passed and self._exercise is not None:
             self.solved.emit(self._exercise.id)
 
@@ -582,11 +672,16 @@ class ExerciseView(QWidget):
         self._mode = mode
         self._editor.set_mode(mode)
         self._prompt.set_mode(mode)
+        if self._tables_window is not None:
+            self._tables_window.set_mode(mode)
 
     def retranslate(self) -> None:
         self._run_button.setText(self._language.t("exercise.run"))
         self._reset_button.setText(self._language.t("exercise.reset"))
+        self._tables_button.setText(self._language.t("tables.button"))
         self._shortcut_hint.setText("Ctrl + Enter")
+        if self._tables_window is not None:
+            self._tables_window.retranslate()
 
         # Başlık, etiketler ve ipuçları belgenin içinde olduğu için dil
         # değişince yönergeyi baştan çizmek yeterli.
