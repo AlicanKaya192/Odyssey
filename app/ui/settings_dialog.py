@@ -57,6 +57,14 @@ LANGUAGE_OPTIONS = [("tr", "TR"), ("en", "EN")]
 # aynı bileşen kullanılıyor.
 THEME_OPTIONS = [("dark", "", "moon"), ("light", "", "sun")]
 
+# Sol taraftaki kategoriler. Sıra ekranda görünen sıra.
+PAGES = ["appearance", "learning", "sql", "updates"]
+
+# Pencerenin genişliği. Sabit: yükseklik sayfaya göre değişiyor, genişlik
+# de değişseydi kategori değiştirmek pencereyi iki yönde birden
+# zıplatırdı.
+DIALOG_WIDTH = 620
+
 
 # Sunucu bu oturumda aranıp bulunamadıysa bir daha aranmıyor.
 #
@@ -167,102 +175,64 @@ class SettingsDialog(QDialog):
         self._found = None
         self._sql_worker: SqlAdminWorker | None = None
         self._sql_databases: list[dict] = []
+        self._measured = False
 
         modal.prepare(self)
-        self.setMinimumWidth(460)
+        self.setFixedWidth(DIALOG_WIDTH)
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(
             SPACING["lg"], SPACING["lg"], SPACING["lg"], SPACING["lg"]
         )
-        layout.setSpacing(SPACING["md"])
+        outer.setSpacing(SPACING["lg"])
 
-        # --- görünüm ------------------------------------------------------
-        self._appearance_title = QLabel()
-        self._appearance_title.setProperty("role", "section")
-        layout.addWidget(self._appearance_title)
-
-        self._theme_picker = SegmentedControl(THEME_OPTIONS)
-        self._theme_picker.selected.connect(self._on_theme)
-        self._theme_row = SettingRow(self._theme_picker)
-        layout.addWidget(self._theme_row)
-
-        self._language_picker = SegmentedControl(LANGUAGE_OPTIONS)
-        self._language_picker.selected.connect(self._on_language)
-        self._language_row = SettingRow(self._language_picker)
-        layout.addWidget(self._language_row)
-
-        layout.addWidget(self._separator())
-
-        # --- öğrenme ------------------------------------------------------
-        self._learning_title = QLabel()
-        self._learning_title.setProperty("role", "section")
-        layout.addWidget(self._learning_title)
-
-        self._unlock_row = SettingRow()
-        self._unlock_row.switch.toggled.connect(self._on_unlock)
-        layout.addWidget(self._unlock_row)
-
-        self._untimed_row = SettingRow()
-        self._untimed_row.switch.toggled.connect(self._on_untimed)
-        layout.addWidget(self._untimed_row)
-
-        self._presence_row = SettingRow()
-        self._presence_row.switch.toggled.connect(self._on_presence)
-        layout.addWidget(self._presence_row)
-
-        layout.addWidget(self._separator())
-
-        # --- SQL alıştırma veritabanları -----------------------------------
+        # Kategoriler üstte bir şerit, ayarlar altında.
         #
-        # Her SQL alıştırması kendi veritabanını açıyor ve her biri diskte
-        # ~16 MB tutuyor. Patikanın tamamında bu bir gigabaytı geçiyor;
-        # kullanıcının ne kadar yer kapladığını görüp silebilmesi gerekiyor.
-        self._sql_title = QLabel()
-        self._sql_title.setProperty("role", "section")
-        layout.addWidget(self._sql_title)
+        # Önce hepsi tek sütunda alt alta duruyordu; SQL bölümü eklenince
+        # pencere 964 piksele çıkıp ekranı boydan boya kapladı. Sonra
+        # kategoriler sola alındı ama bu sefer şeridin altında kocaman bir
+        # boşluk kaldı — dört düğme, dört yüz piksellik sütun.
+        #
+        # Üstteki şerit iki sorunu da çözüyor: kendi satırından fazlasını
+        # istemiyor ve pencerenin boyu yalnızca o anki sayfaya bağlı
+        # kalıyor.
+        self._nav = SegmentedControl([(ad, "") for ad in PAGES])
+        nav_row = QHBoxLayout()
+        nav_row.addWidget(self._nav)
+        nav_row.addStretch(1)
+        self._nav.selected.connect(self._show_page)
+        # Genişlik **sabitlenmiyor**. Denendi ve etiketler kırpıldı:
+        # `SegmentedControl` boş etiketlerle kuruluyor, adlar `retranslate`
+        # ile sonradan yazılıyor; kurulumdaki ölçü boş düğmelerin ölçüsü
+        # oluyor ve "Görünüm" ekranda "örünüı" diye çıkıyordu.
+        outer.addLayout(nav_row)
 
-        self._sql_description = QLabel()
-        self._sql_description.setProperty("role", "muted")
-        self._sql_description.setWordWrap(True)
-        layout.addWidget(self._sql_description)
+        # `QStackedWidget` **kullanılmıyor**: yığın düzeni bütün
+        # sayfaların en uzununun yüksekliğini istiyor ve görünmeyenlere
+        # `Ignored` vermek bunu değiştirmiyor (denendi, dört sayfa da 459
+        # piksel çıktı). Düz bir dikey düzende gizli widget hiç yer
+        # kaplamıyor, yani pencere o anki sayfanın boyunu alıyor.
+        self._page_widgets = [
+            self._build_appearance(),
+            self._build_learning(),
+            self._build_sql(),
+            self._build_updates(),
+        ]
 
-        sql_bar = QHBoxLayout()
-        sql_bar.setSpacing(SPACING["sm"])
-        self._sql_button = QPushButton()
-        self._sql_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._sql_button.clicked.connect(self._on_sql_clear)
-        sql_bar.addWidget(self._sql_button)
-        self._sql_status = QLabel()
-        self._sql_status.setProperty("role", "muted")
-        self._sql_status.setWordWrap(True)
-        sql_bar.addWidget(self._sql_status, 1)
-        layout.addLayout(sql_bar)
-
-        layout.addWidget(self._separator())
-
-        # --- güncelleme ---------------------------------------------------
-        self._update_title = QLabel()
-        self._update_title.setProperty("role", "section")
-        layout.addWidget(self._update_title)
-
-        self._update_row = SettingRow()
-        self._update_row.switch.toggled.connect(self._on_update_check)
-        layout.addWidget(self._update_row)
-
-        update_bar = QHBoxLayout()
-        update_bar.setSpacing(SPACING["sm"])
-        self._check_button = QPushButton()
-        self._check_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._check_button.clicked.connect(self._on_update_button)
-        update_bar.addWidget(self._check_button)
-        self._update_status = QLabel()
-        self._update_status.setProperty("role", "muted")
-        self._update_status.setWordWrap(True)
-        update_bar.addWidget(self._update_status, 1)
-        layout.addLayout(update_bar)
-
-        layout.addSpacing(SPACING["sm"])
+        # Sayfalar **sabit yüksekli** bir kutunun içinde duruyor.
+        #
+        # Önce her sayfa kendi boyunu alıyordu; boşluk kalmıyordu ama
+        # sekme değiştirmek pencereyi anlık büyütüp küçültüyor ve görüntüyü
+        # bozuyordu. Kutu bir kez en uzun sayfaya göre ölçülüyor: pencere
+        # hiç oynamıyor, hiçbir sayfada yazı ya da düğme kırpılmıyor.
+        self._page_box = QWidget()
+        self._page_box.setProperty("role", "bare")
+        box = QVBoxLayout(self._page_box)
+        box.setContentsMargins(0, 0, 0, 0)
+        box.setSpacing(0)
+        for sayfa in self._page_widgets:
+            box.addWidget(sayfa)
+        outer.addWidget(self._page_box)
 
         buttons = QHBoxLayout()
         buttons.addStretch(1)
@@ -271,8 +241,9 @@ class SettingsDialog(QDialog):
         self._close_button.setProperty("variant", "primary")
         self._close_button.clicked.connect(self.accept)
         buttons.addWidget(self._close_button)
-        layout.addLayout(buttons)
+        outer.addLayout(buttons)
 
+        self._show_page(PAGES[0])
         self._load_state()
         self._paint_switches(self._theme.effective_mode)
         self.retranslate()
@@ -288,8 +259,155 @@ class SettingsDialog(QDialog):
 
         modal.freeze(self)
 
+    # --- sayfalar ---------------------------------------------------------
+    #
+    # Her sayfa kendi ayarlarını taşıyor ve sonunda esneme payı var: kısa
+    # bir sayfa, uzun sayfanın yüksekliğine kadar gerildiğinde içerik
+    # ortada değil **üstte** duruyor.
+
+    def _page(self) -> tuple[QWidget, QVBoxLayout]:
+        widget = QWidget()
+        # Yalnızca yerleşim için: genel `QWidget` zemin kuralı burada
+        # pencerede leke bırakıyordu.
+        widget.setProperty("role", "bare")
+        layout = QVBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["md"])
+        return widget, layout
+
+    def _build_appearance(self) -> QWidget:
+        sayfa, layout = self._page()
+
+        self._theme_picker = SegmentedControl(THEME_OPTIONS)
+        self._theme_picker.selected.connect(self._on_theme)
+        self._theme_row = SettingRow(self._theme_picker)
+        layout.addWidget(self._theme_row)
+
+        self._language_picker = SegmentedControl(LANGUAGE_OPTIONS)
+        self._language_picker.selected.connect(self._on_language)
+        self._language_row = SettingRow(self._language_picker)
+        layout.addWidget(self._language_row)
+
+        layout.addStretch(1)
+        return sayfa
+
+    def _build_learning(self) -> QWidget:
+        sayfa, layout = self._page()
+
+        self._unlock_row = SettingRow()
+        self._unlock_row.switch.toggled.connect(self._on_unlock)
+        layout.addWidget(self._unlock_row)
+
+        self._untimed_row = SettingRow()
+        self._untimed_row.switch.toggled.connect(self._on_untimed)
+        layout.addWidget(self._untimed_row)
+
+        self._presence_row = SettingRow()
+        self._presence_row.switch.toggled.connect(self._on_presence)
+        layout.addWidget(self._presence_row)
+
+        layout.addStretch(1)
+        return sayfa
+
+    def _build_sql(self) -> QWidget:
+        """SQL alıştırma veritabanları.
+
+        Her SQL alıştırması kendi veritabanını açıyor ve her biri diskte
+        ~16 MB tutuyor (ölçüldü). Patikanın tamamında bu bir gigabaytı
+        geçiyor; kullanıcının ne kadar yer kapladığını görüp silebilmesi
+        gerekiyor.
+        """
+        sayfa, layout = self._page()
+
+        self._sql_description = QLabel()
+        self._sql_description.setProperty("role", "muted")
+        self._sql_description.setWordWrap(True)
+        layout.addWidget(self._sql_description)
+
+        self._sql_status = QLabel()
+        self._sql_status.setProperty("role", "title")
+        self._sql_status.setWordWrap(True)
+        layout.addWidget(self._sql_status)
+
+        sql_bar = QHBoxLayout()
+        self._sql_button = QPushButton()
+        self._sql_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._sql_button.clicked.connect(self._on_sql_clear)
+        sql_bar.addWidget(self._sql_button)
+        sql_bar.addStretch(1)
+        layout.addLayout(sql_bar)
+
+        layout.addStretch(1)
+        return sayfa
+
+    def _build_updates(self) -> QWidget:
+        sayfa, layout = self._page()
+
+        self._update_row = SettingRow()
+        self._update_row.switch.toggled.connect(self._on_update_check)
+        layout.addWidget(self._update_row)
+
+        self._update_status = QLabel()
+        self._update_status.setProperty("role", "muted")
+        self._update_status.setWordWrap(True)
+        layout.addWidget(self._update_status)
+
+        update_bar = QHBoxLayout()
+        self._check_button = QPushButton()
+        self._check_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._check_button.clicked.connect(self._on_update_button)
+        update_bar.addWidget(self._check_button)
+        update_bar.addStretch(1)
+        layout.addLayout(update_bar)
+
+        layout.addStretch(1)
+        return sayfa
+
+    def _show_page(self, name: str) -> None:
+        """Görünen sayfayı değiştirir. Pencerenin boyu değişmiyor."""
+        if name not in PAGES:
+            return
+        index = PAGES.index(name)
+        for i, sayfa in enumerate(self._page_widgets):
+            sayfa.setVisible(i == index)
+
+    def _lock_page_height(self) -> None:
+        """Sayfa kutusunu en uzun sayfanın boyuna kilitler.
+
+        **Pencere görünür olduktan sonra** çağrılıyor. Sarma açık
+        etiketlerin yüksekliği genişliğe bağlı; pencere çizilmeden ölçüm
+        yapıldığında bunlar tek satır sayılıyor ve kutu olması gerekenden
+        kısa çıkıyor (ölçüldü: 197 piksel, doğrusu 248). O hâlde Discord
+        açıklaması ikinci satırını kaybediyordu.
+
+        Ölçüm için sayfalar tek tek görünür yapılıyor; gizli bir widget'ın
+        boyutu düzen tarafından hesaplanmıyor.
+        """
+        onceki = [sayfa.isVisible() for sayfa in self._page_widgets]
+
+        self._page_box.setMinimumHeight(0)
+        # Qt'nin üst sınırı; `QWIDGETSIZE_MAX` PySide'da dışa açılmıyor.
+        self._page_box.setMaximumHeight(16777215)
+
+        en_uzun = 0
+        for sayfa in self._page_widgets:
+            for digeri in self._page_widgets:
+                digeri.setVisible(digeri is sayfa)
+            self._page_box.layout().activate()
+            en_uzun = max(en_uzun, sayfa.sizeHint().height())
+
+        self._page_box.setFixedHeight(en_uzun)
+        for sayfa, gorunur in zip(self._page_widgets, onceki):
+            sayfa.setVisible(gorunur)
+
     def showEvent(self, event) -> None:  # noqa: N802
         super().showEvent(event)
+        # Sayfa kutusu bir kez ölçülüyor; ölçüm gerçek genişlik oluştuktan
+        # sonra yapılmak zorunda.
+        if not self._measured:
+            self._measured = True
+            self._lock_page_height()
+            modal.refit(self)
         modal.center(self)
         # Pencere her açılışta sayıyı tazeliyor: kullanıcı arada alıştırma
         # çözmüş olabilir ve eski sayıyı göstermek yanıltıcı olurdu.
@@ -524,8 +642,6 @@ class SettingsDialog(QDialog):
         self.setWindowTitle(t("settings.title"))
         self._close_button.setText(t("common.close"))
 
-        self._appearance_title.setText(t("settings.group_appearance"))
-        self._learning_title.setText(t("settings.group_learning"))
 
         self._theme_row.title.setText(t("settings.theme"))
         self._theme_row.description.setText(t("settings.theme_help"))
@@ -545,14 +661,19 @@ class SettingsDialog(QDialog):
         self._presence_row.title.setText(t("settings.discord"))
         self._presence_row.description.setText(t("settings.discord_help"))
 
-        self._sql_title.setText(t("settings.group_sql"))
+        # Sol şeritteki kategori adları da çevriliyor; `SegmentedControl`
+        # etiketleri kurulurken aldığı için düğmelere doğrudan yazılıyor.
+        for ad in PAGES:
+            dugme = self._nav._buttons.get(ad)
+            if dugme is not None:
+                dugme.setText(t(f"settings.nav_{ad}"))
+
         self._sql_description.setText(t("settings.sql_help"))
         self._sql_button.setText(t("settings.sql_clear"))
         # Durum satırı sayı taşıyor; dil değişince yeniden üretilmesi
         # gerekiyor, yoksa eski dilde kalıyor.
         self._sql_refresh()
 
-        self._update_title.setText(t("settings.group_updates"))
         self._update_row.title.setText(t("settings.update_check"))
         self._update_row.description.setText(t("settings.update_check_help"))
         self._check_button.setText(
