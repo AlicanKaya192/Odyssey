@@ -1,0 +1,4 @@
+-- 1005 numarali siparisin kalemlerini goster:
+-- siparis numarasi, musteri adi, urun adi ve adet.
+-- Sutunlar: order_id, customer, product, quantity
+-- Urun adina gore sirala.

@@ -66,6 +66,7 @@ SQL_ORDER_SECTION = (SQL_CHAPTER, "02-siralama-ve-sinirlama")
 SQL_FILTER_SECTION = (SQL_CHAPTER, "03-filtreleme-desenleri")
 SQL_CALC_SECTION = (SQL_CHAPTER, "04-hesaplanan-sutunlar")
 SQL_GROUP_SECTION = (SQL_CHAPTER, "05-gruplama")
+SQL_JOIN_SECTION = (SQL_CHAPTER, "06-tablolari-birlestirmek")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 DATA_SECTION_COUNT = 10
@@ -141,6 +142,7 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "null-aware": SQL_FILTER_SECTION in bitenler,
         "column-maker": SQL_CALC_SECTION in bitenler,
         "grouper": SQL_GROUP_SECTION in bitenler,
+        "joiner": SQL_JOIN_SECTION in bitenler,
         "first-model": FIRST_MODEL_SECTION in bitenler,
         "error-reader": METRICS_SECTION in bitenler,
         "class-divider": CLASSIFY_SECTION in bitenler,

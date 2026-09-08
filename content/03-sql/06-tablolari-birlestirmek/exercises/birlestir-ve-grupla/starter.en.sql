@@ -1,0 +1,5 @@
+-- How many orders does each customer have?
+-- Customers who have never ordered must also be in the list,
+-- showing 0 next to them.
+-- Columns: customer, order_count
+-- Sort by the count descending, breaking ties by customer name.

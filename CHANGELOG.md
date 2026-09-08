@@ -64,14 +64,23 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   `HAVING`. Satırları özetlemeyi, `WHERE` ile `HAVING` arasındaki farkı ve
   sunucunun sorguyu hangi sırayla işlediğini anlatıyor. İki not, yirmi beş
   soruluk sınav, beş alıştırma ve "Toparlayıcı" rozeti.
+- **SQL patikasında Orta Seviye başladı: "Tabloları Birleştirmek".**
+  Bu bölümle birlikte **sekiz tablolu** bir sipariş veritabanına geçiliyor:
+  ürünler, kategoriler, tedarikçiler, müşteriler, çalışanlar, siparişler,
+  sipariş kalemleri ve kargolar. `JOIN` ve `LEFT JOIN`, eşleşmeyen kayıtları
+  bulma, `LEFT JOIN`'i sessizce bozan `WHERE` ve birleştirmenin satırları
+  nasıl çoğalttığı. İki not (biri şemanın haritası), yirmi dört soruluk
+  sınav, beş alıştırma ve "Bağlantı Kuran" rozeti.
+- **Yol ekranında seviye başlıkları.** SQL patikasının bölümleri artık
+  "Başlangıç" ve "Orta Seviye" başlıkları altında gruplanıyor.
 - **"Tablolar" penceresi.** SQL alıştırmalarında, sorgu yazarken
   veritabanında ne olduğunu görmek için. Tablolar sekmeli duruyor;
   istediğin tabloyu ayrı bir pencereye taşıyıp iki tabloya aynı anda
   bakabiliyorsun. Kendi yarattığın tablo da listede çıkıyor.
-- **Altı yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
+- **Yedi yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
   çalıştırdığında; "İlk Süzgeç", "Sıra Sende", "Boşluğu Gördün", "Kendi
-  Sütunun" ve "Toparlayıcı" ise SQL patikasının bölümlerini bitirdikçe
-  geliyor.
+  Sütunun", "Toparlayıcı" ve "Bağlantı Kuran" ise SQL patikasının
+  bölümlerini bitirdikçe geliyor.
 
 ### Düzeltildi
 - **Ders notlarındaki dış bağlantılar açılmıyordu.** Python kurulum

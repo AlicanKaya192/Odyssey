@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "Tedarikçinin adını ürün tablosunda tutmak yerine ayrı bir tabloya koymanın sebebi nedir?",
+        "en": "Why is the supplier's name kept in its own table rather than in the product table?"
+      },
+      "options": {
+        "tr": [
+          "Sorgular daha hızlı çalışsın diye",
+          "SQL Server bunu zorunlu tutuyor",
+          "Tekrar, tutarsızlık ve kayıp sorunlarını önlemek için",
+          "Tablo başına sütun sınırı olduğu için"
+        ],
+        "en": [
+          "So queries run faster",
+          "SQL Server requires it",
+          "To avoid repetition, inconsistency and loss",
+          "Because there is a column limit per table"
+        ]
+      },
+      "explanation": {
+        "tr": "Üç sorun birden çözülüyor:\n\n- **Tekrar:** aynı tedarikçi üç üründe geçiyorsa adı üç kez yazılıyor.\n- **Tutarsızlık:** tedarikçi taşınınca üç satırı da güncellemek gerekiyor; biri unutulursa veri kendi içinde çelişiyor.\n- **Kayıp:** henüz ürünü olmayan bir tedarikçiyi hiçbir yere yazamıyorsun.\n\nBedeli şu: bir soruyu cevaplamak artık iki tabloya bakmayı gerektiriyor. `JOIN` bunu yapıyor.\n\nHız açısından ayırmak genelde biraz **yavaşlatıyor**; yine de yapılıyor, çünkü tutarlılık daha değerli.",
+        "en": "It solves three problems at once:\n\n- **Repetition:** if the same supplier appears on three products, its name is written three times.\n- **Inconsistency:** when the supplier moves you have to update all three rows; forget one and the data contradicts itself.\n- **Loss:** a supplier with no products yet cannot be recorded anywhere.\n\nThe price is that answering a question now takes two tables. `JOIN` is what does that.\n\nSplitting usually makes things slightly **slower**, and it is still done, because consistency is worth more."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 1,
+      "text": {
+        "tr": "`ON` ifadesi ne işe yarıyor?",
+        "en": "What is the `ON` clause for?"
+      },
+      "options": {
+        "tr": [
+          "Hangi sütunların görüneceğini belirliyor",
+          "İki tablonun satırlarının hangi koşulda eşleştiğini söylüyor",
+          "Sonucu sıralıyor",
+          "Satırları süzüyor"
+        ],
+        "en": [
+          "It decides which columns are shown",
+          "It states under what condition rows from the two tables match",
+          "It sorts the result",
+          "It filters rows"
+        ]
+      },
+      "explanation": {
+        "tr": "`ON` birleştirmenin **kuralı**: hangi satır hangi satırla eşleşecek.\n\n```sql\nJOIN suppliers s ON p.supplier_code = s.code\n```\n\n\"Ürünün tedarikçi kodu, tedarikçinin koduna eşitse o iki satırı yan yana koy\" demek.\n\n`ON` yazılmadan `JOIN` yazılamıyor — sunucu hata veriyor (ölçüldü). Eski virgüllü yazımda (`FROM a, b`) bu denetim yok ve koşul unutulursa sessizce kartezyen çarpım çıkıyor.",
+        "en": "`ON` is the **rule** of the join: which row matches which.\n\n```sql\nJOIN suppliers s ON p.supplier_code = s.code\n```\n\nIt says \"where the product's supplier code equals the supplier's code, put those two rows side by side\".\n\nYou cannot write `JOIN` without `ON` — the server raises an error (measured). The old comma syntax (`FROM a, b`) has no such check, and forgetting the condition silently produces a Cartesian product."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "On iki üründen üçünün tedarikçisi kayıtlı değil. `products JOIN suppliers` kaç satır döndürür?",
+        "en": "Three of twelve products have no supplier recorded. How many rows does `products JOIN suppliers` return?"
+      },
+      "options": {
+        "tr": [
+          "9 — eşleşmeyen üç ürün düşer",
+          "12",
+          "3",
+          "48"
+        ],
+        "en": [
+          "9 — the three non-matching products are dropped",
+          "12",
+          "3",
+          "48"
+        ]
+      },
+      "explanation": {
+        "tr": "`INNER JOIN` yalnızca **eşleşen** satırları getiriyor. Tedarikçisi olmayan üç ürün eşleşme bulamıyor ve sonuca giremiyor: 12 − 3 = **9** (ölçüldü).\n\nEn tehlikeli yanı: hata yok, uyarı yok. Rapor \"on iki ürün\" beklerken dokuz satırla dönüyor ve sebebi kolay fark edilmiyor.\n\nOn ikisini de istiyorsan `LEFT JOIN` gerekiyor.",
+        "en": "`INNER JOIN` returns only the **matching** rows. The three products with no supplier find no match and never reach the result: 12 − 3 = **9** (measured).\n\nThe dangerous part is that there is no error and no warning. A report expecting twelve products comes back with nine and the cause is hard to spot.\n\nIf you want all twelve you need `LEFT JOIN`."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 3,
+      "text": {
+        "tr": "`LEFT JOIN` ile `INNER JOIN` arasındaki fark nedir?",
+        "en": "What is the difference between `LEFT JOIN` and `INNER JOIN`?"
+      },
+      "options": {
+        "tr": [
+          "LEFT JOIN daha hızlı",
+          "LEFT JOIN sütunları soldan sıralıyor",
+          "LEFT JOIN yalnızca iki tabloyla çalışıyor",
+          "LEFT JOIN soldaki her satırı tutuyor; eşleşme yoksa sağ taraf boş geliyor"
+        ],
+        "en": [
+          "LEFT JOIN is faster",
+          "LEFT JOIN orders the columns from the left",
+          "LEFT JOIN only works with two tables",
+          "LEFT JOIN keeps every row on the left; with no match the right side comes back empty"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek fark bu. `INNER JOIN` eşleşmeyeni atıyor, `LEFT JOIN` tutuyor ve sağ tablonun sütunlarını `NULL` yapıyor.\n\n\"Sol\" ve \"sağ\", `FROM` ile `JOIN`'in iki yanı demek.\n\n`RIGHT JOIN` de var ve aynı işi ters yönde yapıyor, ama nadiren kullanılıyor: tabloların sırasını değiştirip `LEFT` yazmak daha okunur oluyor.",
+        "en": "That is the only difference. `INNER JOIN` throws away what does not match; `LEFT JOIN` keeps it and fills the right table's columns with `NULL`.\n\n\"Left\" and \"right\" mean the two sides of `FROM` and `JOIN`.\n\nThere is a `RIGHT JOIN` that does the same job in the other direction, but it is rarely used: swapping the tables and writing `LEFT` reads better."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 1,
+      "text": {
+        "tr": "`LEFT JOIN suppliers s ON ... WHERE s.country = 'Turkey'` yazınca ne oluyor?",
+        "en": "What happens with `LEFT JOIN suppliers s ON ... WHERE s.country = 'Turkey'`?"
+      },
+      "options": {
+        "tr": [
+          "Sol tablodaki bütün satırlar korunur",
+          "LEFT JOIN sessizce INNER JOIN'e dönüşür ve eşleşmeyen satırlar düşer",
+          "Sözdizimi hatası verir",
+          "Sağ tablodaki bütün satırlar korunur"
+        ],
+        "en": [
+          "Every row from the left table is preserved",
+          "The LEFT JOIN quietly becomes an INNER JOIN and the non-matching rows drop out",
+          "It is a syntax error",
+          "Every row from the right table is preserved"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu, konunun en sık yapılan hatası.\n\n`LEFT JOIN` eşleşmeyen satırlarda sağ tablonun sütunlarını `NULL` yapıyor. Sonra `WHERE` çalışıyor ve `NULL = 'Turkey'` \"bilinmiyor\" olduğu için o satırlar eleniyor.\n\nÖlçüldü: `WHERE` ile **9**, koşul `ON` içine yazılınca **12** satır.\n\nKural: **sağ tabloya koşul koyacaksan `ON` içine yaz.** Tek istisna `IS NULL` — eşleşmeyenleri bulmak için bilerek `WHERE` içine yazılıyor.",
+        "en": "This is the most common mistake in the topic.\n\n`LEFT JOIN` fills the right table's columns with `NULL` on non-matching rows. Then `WHERE` runs, and because `NULL = 'Turkey'` is \"unknown\" those rows are removed.\n\nMeasured: **9** rows with `WHERE`, **12** when the condition is moved into `ON`.\n\nThe rule: **if you are putting a condition on the right table, write it inside `ON`.** The one exception is `IS NULL`, written in `WHERE` on purpose to find non-matching rows."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 2,
+      "text": {
+        "tr": "`SELECT name FROM products p JOIN categories c ON p.category_code = c.code` neden hata veriyor?",
+        "en": "Why does `SELECT name FROM products p JOIN categories c ON p.category_code = c.code` raise an error?"
+      },
+      "options": {
+        "tr": [
+          "JOIN ile SELECT birlikte kullanılamaz",
+          "Takma adlar zorunlu değil",
+          "İki tabloda da name sütunu var; hangisi olduğu belli değil",
+          "ON koşulu yanlış"
+        ],
+        "en": [
+          "JOIN and SELECT cannot be used together",
+          "Aliases are not required",
+          "Both tables have a name column, so it is unclear which one is meant",
+          "The ON condition is wrong"
+        ]
+      },
+      "explanation": {
+        "tr": "Hata: `Ambiguous column name 'name'`.\n\nBu şemada `name` sütunu **beş** tabloda birden var: `categories`, `suppliers`, `products`, `customers`, `employees`.\n\nÇözüm takma ad: `p.name` ya da `c.name`.\n\nBirden çok tabloyla çalışırken **her sütunun önüne takma ad yazmak** iyi bir alışkanlık: sonradan bir `JOIN` eklendiğinde sorgu bozulmuyor.",
+        "en": "The error is `Ambiguous column name 'name'`.\n\nIn this schema the `name` column exists in **five** tables: `categories`, `suppliers`, `products`, `customers` and `employees`.\n\nThe fix is an alias: `p.name` or `c.name`.\n\nWhen working with several tables, **putting an alias in front of every column** is a good habit: the query does not break when a `JOIN` is added later."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Hiç sipariş vermemiş müşterileri bulmak için hangi kalıp kullanılır?",
+        "en": "Which pattern finds the customers who have never placed an order?"
+      },
+      "options": {
+        "tr": [
+          "`LEFT JOIN orders o ON ... WHERE o.id IS NULL`",
+          "`JOIN orders o ON ... WHERE o.id IS NULL`",
+          "`WHERE customers.id NOT IN orders`",
+          "`LEFT JOIN orders o ON ... WHERE o.id = 0`"
+        ],
+        "en": [
+          "`LEFT JOIN orders o ON ... WHERE o.id IS NULL`",
+          "`JOIN orders o ON ... WHERE o.id IS NULL`",
+          "`WHERE customers.id NOT IN orders`",
+          "`LEFT JOIN orders o ON ... WHERE o.id = 0`"
+        ]
+      },
+      "explanation": {
+        "tr": "İki adımlı bir kalıp: `LEFT JOIN` bütün müşterileri getiriyor, `IS NULL` de eşleşme bulunamayanları süzüyor.\n\nDüz `JOIN` ile olmuyor: o zaten eşleşmeyenleri atıyor, geriye süzülecek bir şey kalmıyor.\n\n`= 0` de olmuyor: eşleşme yokken değer sıfır değil **boş** oluyor ve `= NULL` hiçbir zaman doğru olmuyor.\n\nAynı kalıp \"hiç satılmamış ürünler\", \"kargolanmamış siparişler\" için de kullanılıyor.",
+        "en": "A two-step pattern: `LEFT JOIN` brings back every customer and `IS NULL` filters the ones with no match.\n\nA plain `JOIN` does not work: it has already thrown away the non-matches, leaving nothing to filter.\n\n`= 0` does not work either: with no match the value is not zero but **empty**, and `= NULL` is never true.\n\nThe same pattern gives you \"products never sold\" and \"orders never shipped\"."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 3,
+      "text": {
+        "tr": "`orders` (10 satır) ile `order_items` (20 satır) birleştirilince sonuç kaç satır olur?",
+        "en": "Joining `orders` (10 rows) with `order_items` (20 rows) gives how many rows?"
+      },
+      "options": {
+        "tr": [
+          "10",
+          "30",
+          "200",
+          "20 — her siparişin bilgisi kalem sayısı kadar tekrar eder"
+        ],
+        "en": [
+          "10",
+          "30",
+          "200",
+          "20 — each order's details repeat once per line"
+        ]
+      },
+      "explanation": {
+        "tr": "Birleştirme yeni bir tablo üretiyor ve satır sayısı ikisinden de farklı olabiliyor. Burada her sipariş kalemleri kadar tekrar ediyor: **20** satır (ölçüldü).\n\nSomut sonucu: birleştirmeden sonra `COUNT(*)` artık sipariş sayısını **vermiyor**. Sipariş saymak için `COUNT(DISTINCT o.id)` gerekiyor — o 10 veriyor.\n\nDaha tehlikelisi toplamlarda: `SUM(o.id)` birleştirmeden önce 10055, sonra **20109** (ölçüldü). Sipariş başına bir kez sayılması gereken bir şey kalem sayısı kadar sayılıyor.",
+        "en": "A join produces a new table whose row count can differ from both originals. Here each order repeats once per line: **20** rows (measured).\n\nThe concrete consequence: after the join, `COUNT(*)` no longer gives the number of orders. Counting orders needs `COUNT(DISTINCT o.id)`, which gives 10.\n\nMore dangerous are totals: `SUM(o.id)` is 10055 before the join and **20109** after (measured). Something that should be counted once per order gets counted once per line."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 1,
+      "text": {
+        "tr": "`LEFT JOIN`'den sonra `COUNT(*)` ile `COUNT(sag_tablo.sutun)` neden farklı sonuç veriyor?",
+        "en": "After a `LEFT JOIN`, why do `COUNT(*)` and `COUNT(right_table.column)` differ?"
+      },
+      "options": {
+        "tr": [
+          "COUNT(*) daha hızlı ama daha az doğru",
+          "Eşleşme bulunamayan satırda sağ sütun boş; COUNT(*) satırı sayıyor, COUNT(sütun) saymıyor",
+          "İkisi aynı sonucu verir",
+          "COUNT(sütun) yalnızca sayısal sütunlarda çalışıyor"
+        ],
+        "en": [
+          "COUNT(*) is faster but less accurate",
+          "On a non-matching row the right column is empty; COUNT(*) counts the row, COUNT(column) does not",
+          "They give the same result",
+          "COUNT(column) only works on numeric columns"
+        ]
+      },
+      "explanation": {
+        "tr": "`LEFT JOIN` eşleşme bulamadığı satır için de bir satır üretiyor; sağ tablonun sütunları boş oluyor.\n\n`COUNT(*)` satırları saydığı için o satırı da sayıyor → **1**.\n`COUNT(o.id)` dolu olanları saydığı için saymıyor → **0**.\n\nÖlçüldü: hiç siparişi olmayan Quiet Partners için `COUNT(*)` 1, `COUNT(o.id)` 0.\n\nKural: **`LEFT JOIN`'den sonra sağ tablonun bir sütununu say.**",
+        "en": "`LEFT JOIN` produces a row even where it found no match; the right table's columns are empty there.\n\n`COUNT(*)` counts rows, so it counts that one → **1**.\n`COUNT(o.id)` counts filled values, so it does not → **0**.\n\nMeasured: for Quiet Partners, who has no orders, `COUNT(*)` gives 1 and `COUNT(o.id)` gives 0.\n\nThe rule: **after a `LEFT JOIN`, count a column from the right table.**"
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 2,
+      "text": {
+        "tr": "Bir tablo kendisiyle birleştirilebilir mi?",
+        "en": "Can a table be joined to itself?"
+      },
+      "options": {
+        "tr": [
+          "Hayır, sunucu buna izin vermiyor",
+          "Yalnızca CROSS JOIN ile",
+          "Evet — iki farklı takma ad verilerek; çalışan ve yöneticisi böyle bulunuyor",
+          "Yalnızca tablo kopyalanırsa"
+        ],
+        "en": [
+          "No, the server does not allow it",
+          "Only with CROSS JOIN",
+          "Yes — by giving it two different aliases; this is how an employee and their manager are found",
+          "Only if the table is copied"
+        ]
+      },
+      "explanation": {
+        "tr": "```sql\nSELECT e.name, m.name AS manager\nFROM employees e\nLEFT JOIN employees m ON e.manager_id = m.id;\n```\n\nAynı tabloya iki takma ad veriliyor ve sunucu onları iki ayrı tablo gibi görüyor.\n\n`LEFT JOIN` kullanıldı çünkü en üstteki kişinin yöneticisi yok; düz `JOIN` yazılsaydı o satır kaybolurdu.\n\nBu kalıp hiyerarşi tutan her tabloda karşına çıkıyor: çalışan-yönetici, kategori-üst kategori, yorum-üst yorum.",
+        "en": "```sql\nSELECT e.name, m.name AS manager\nFROM employees e\nLEFT JOIN employees m ON e.manager_id = m.id;\n```\n\nThe same table gets two aliases and the server treats them as two separate tables.\n\n`LEFT JOIN` is used because the person at the top has no manager; with a plain `JOIN` that row would disappear.\n\nThis pattern shows up in every table that holds a hierarchy: employee-manager, category-parent category, comment-parent comment."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 3,
+      "text": {
+        "tr": "`FROM products p, categories c` (ON yok) ne döndürür?",
+        "en": "What does `FROM products p, categories c` (no ON) return?"
+      },
+      "options": {
+        "tr": [
+          "Hata",
+          "12 satır",
+          "4 satır",
+          "48 satır — her ürün her kategoriyle eşleşiyor"
+        ],
+        "en": [
+          "An error",
+          "12 rows",
+          "4 rows",
+          "48 rows — every product paired with every category"
+        ]
+      },
+      "explanation": {
+        "tr": "Buna **kartezyen çarpım** deniyor: 12 × 4 = 48 (ölçüldü).\n\nEski virgüllü yazımda `ON` denetimi yok; koşul unutulunca sunucu sessizce bütün eşleşmeleri üretiyor. Büyük tablolarda bu milyonlarca satır demek.\n\nModern `JOIN ... ON` yazımında `ON` unutulursa **hata** alıyorsun (ölçüldü) — bu yüzden virgüllü yazım artık kullanılmıyor.\n\nKartezyeni bilerek istiyorsan adı var: `CROSS JOIN`.",
+        "en": "This is a **Cartesian product**: 12 × 4 = 48 (measured).\n\nThe old comma syntax has no `ON` check, so forgetting the condition makes the server quietly produce every combination. On large tables that means millions of rows.\n\nWith the modern `JOIN ... ON` syntax, leaving out the `ON` is an **error** (measured) — which is why the comma form is no longer used.\n\nIf you want a Cartesian product deliberately, it has a name: `CROSS JOIN`."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Üç tabloyu birleştirmek için ne yapılır?",
+        "en": "How do you join three tables?"
+      },
+      "options": {
+        "tr": [
+          "JOIN'ler peş peşe yazılır; her biri bir öncekinin sonucuna eklenir",
+          "Üç ayrı sorgu yazılıp sonuçları birleştirilir",
+          "JOIN yalnızca iki tabloyla çalışır",
+          "Virgülle ayrılır"
+        ],
+        "en": [
+          "The JOINs are written one after another; each is added to the previous result",
+          "You write three queries and combine the results",
+          "JOIN only works with two tables",
+          "They are separated by commas"
+        ]
+      },
+      "explanation": {
+        "tr": "```sql\nFROM orders o\nJOIN customers c   ON o.customer_id = c.id\nJOIN order_items i ON o.id = i.order_id\nJOIN products p    ON i.product_id = p.id\n```\n\nHer `JOIN` bir öncekinin sonucuna ekleniyor ve istediğin kadar yazabiliyorsun.\n\nYazılış sırası okunabilirliği etkiliyor ama sonucu değiştirmiyor: sunucu en verimli sırayı kendisi seçiyor.\n\nDikkat: her eklenen tablo satırları çoğaltabiliyor. Dört tabloyu birleştiren bu sorgu 20 satır veriyor, 10 değil.",
+        "en": "```sql\nFROM orders o\nJOIN customers c   ON o.customer_id = c.id\nJOIN order_items i ON o.id = i.order_id\nJOIN products p    ON i.product_id = p.id\n```\n\nEach `JOIN` is added to the result of the previous one, and you can write as many as you need.\n\nThe written order affects readability but not the result: the server picks the most efficient order itself.\n\nWatch out: every table added can multiply rows. This four-table query returns 20 rows, not 10."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 1,
+      "text": {
+        "tr": "`products.supplier_code` sütununa ne deniyor?",
+        "en": "What is the `products.supplier_code` column called?"
+      },
+      "options": {
+        "tr": [
+          "Birincil anahtar",
+          "Yabancı anahtar",
+          "İndeks",
+          "Takma ad"
+        ],
+        "en": [
+          "A primary key",
+          "A foreign key",
+          "An index",
+          "An alias"
+        ]
+      },
+      "explanation": {
+        "tr": "**Yabancı anahtar**: başka bir tablodaki satırı işaret eden sütun. Burada `suppliers.code` değerini taşıyor.\n\n**Birincil anahtar** ise bir satırı kendi tablosunda tekil olarak tanımlayan sütun — `suppliers.code` o tablonun birincil anahtarı.\n\nAd benzerliği ipucu veriyor: `_id` ve `_code` ekli sütunlar genelde yabancı anahtar oluyor. Yabancı bir veritabanına bakarken ilk aranan şey bu.\n\nBu bağın veritabanı tarafından **zorlanması** ayrı bir konu (`FOREIGN KEY` kısıtı) ve tablo tasarımı bölümünde geliyor.",
+        "en": "A **foreign key**: a column that points at a row in another table. Here it carries a `suppliers.code` value.\n\nA **primary key** is the column that identifies a row uniquely within its own table — `suppliers.code` is that table's primary key.\n\nThe naming is a hint: columns ending in `_id` and `_code` are usually foreign keys. It is the first thing to look for in an unfamiliar database.\n\nWhether the database **enforces** that link is a separate matter (a `FOREIGN KEY` constraint) and comes in the table design section."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 2,
+      "text": {
+        "tr": "Birleştirmeden sonra sipariş sayısını doğru saymak için ne yazılır?",
+        "en": "After a join, how do you correctly count the number of orders?"
+      },
+      "options": {
+        "tr": [
+          "`COUNT(*)`",
+          "`COUNT(o.customer_id)`",
+          "`COUNT(DISTINCT o.id)`",
+          "`SUM(o.id)`"
+        ],
+        "en": [
+          "`COUNT(*)`",
+          "`COUNT(o.customer_id)`",
+          "`COUNT(DISTINCT o.id)`",
+          "`SUM(o.id)`"
+        ]
+      },
+      "explanation": {
+        "tr": "Birleştirme her siparişi kalem sayısı kadar tekrarlıyor. `COUNT(*)` o tekrarları sayıyor: **20**.\n\n`COUNT(DISTINCT o.id)` her sipariş numarasını bir kez sayıyor: **10** (ölçüldü).\n\n`COUNT(o.customer_id)` de 20 veriyor — tekrar eden satırların hepsinde dolu.\n\n`SUM(o.id)` zaten sayma yapmıyor, id'leri topluyor; birleştirmeden sonra o da şişiyor (10055 → 20109).",
+        "en": "The join repeats each order once per line. `COUNT(*)` counts those repeats: **20**.\n\n`COUNT(DISTINCT o.id)` counts each order number once: **10** (measured).\n\n`COUNT(o.customer_id)` also gives 20 — it is filled on every repeated row.\n\n`SUM(o.id)` does not count at all, it adds ids up; after the join it inflates too (10055 → 20109)."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 3,
+      "text": {
+        "tr": "On siparişin altısı kargolanmış. `orders LEFT JOIN shipments` sonucunda `COUNT(*)` ve `COUNT(s.order_id)` kaç verir?",
+        "en": "Six of ten orders have shipped. In `orders LEFT JOIN shipments`, what do `COUNT(*)` and `COUNT(s.order_id)` give?"
+      },
+      "options": {
+        "tr": [
+          "6 ve 6",
+          "10 ve 10",
+          "16 ve 6",
+          "10 ve 6"
+        ],
+        "en": [
+          "6 and 6",
+          "10 and 10",
+          "16 and 6",
+          "10 and 6"
+        ]
+      },
+      "explanation": {
+        "tr": "`LEFT JOIN` on siparişin hepsini tutuyor, dördünde sağ taraf boş kalıyor.\n\n- `COUNT(*)` = **10** (satırları sayıyor)\n- `COUNT(s.order_id)` = **6** (yalnızca dolu olanları)\n\nÖlçüldü. Aradaki fark kargolanmamış sipariş sayısını veriyor: 10 − 6 = 4.\n\nAynı sayıyı doğrudan bulmak için: `WHERE s.order_id IS NULL` → 4 satır.",
+        "en": "`LEFT JOIN` keeps all ten orders, with the right side empty on four of them.\n\n- `COUNT(*)` = **10** (it counts rows)\n- `COUNT(s.order_id)` = **6** (only the filled ones)\n\nMeasured. The difference gives the number of unshipped orders: 10 − 6 = 4.\n\nTo find that number directly: `WHERE s.order_id IS NULL` → 4 rows."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 1,
+      "text": {
+        "tr": "`RIGHT JOIN` neden nadiren kullanılıyor?",
+        "en": "Why is `RIGHT JOIN` rarely used?"
+      },
+      "options": {
+        "tr": [
+          "Çünkü SQL Server desteklemiyor",
+          "Çünkü tabloların sırasını değiştirip LEFT JOIN yazmak aynı sonucu veriyor ve daha okunur",
+          "Çünkü daha yavaş",
+          "Çünkü yalnızca iki tabloyla çalışıyor"
+        ],
+        "en": [
+          "Because SQL Server does not support it",
+          "Because swapping the tables and writing LEFT JOIN gives the same result and reads better",
+          "Because it is slower",
+          "Because it only works with two tables"
+        ]
+      },
+      "explanation": {
+        "tr": "`RIGHT JOIN` çalışıyor (ölçüldü) ve `LEFT JOIN`'in aynısını ters yönde yapıyor.\n\nOkunabilirlik sebebiyle tercih edilmiyor: birden çok `JOIN` olan bir sorguda \"hangi taraf korunuyor\" sorusunu takip etmek zorlaşıyor. Herkes soldan sağa okuduğu için `LEFT` daha doğal.\n\nBir de `FULL JOIN` var: iki tarafın da eşleşmeyen satırlarını tutuyor. Bu şemada `suppliers FULL JOIN products` **13** satır veriyor — on iki ürün, artı hiç ürünü olmayan bir tedarikçi.",
+        "en": "`RIGHT JOIN` works (measured) and does exactly what `LEFT JOIN` does, in the other direction.\n\nIt is avoided for readability: in a query with several joins it becomes hard to track which side is being preserved. Since everyone reads left to right, `LEFT` is more natural.\n\nThere is also `FULL JOIN`, which keeps the non-matching rows from both sides. On this schema `suppliers FULL JOIN products` gives **13** rows — twelve products plus one supplier with no products."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Takma ad (`FROM products p`) ne zaman **zorunlu** oluyor?",
+        "en": "When is an alias (`FROM products p`) **required**?"
+      },
+      "options": {
+        "tr": [
+          "İki tabloda aynı adlı sütun olduğunda ve bir tablo kendisiyle birleştirildiğinde",
+          "Her zaman zorunlu",
+          "Hiçbir zaman zorunlu değil",
+          "Yalnızca üçten fazla tablo varsa"
+        ],
+        "en": [
+          "When two tables have a column of the same name, and when a table is joined to itself",
+          "Always",
+          "Never",
+          "Only with more than three tables"
+        ]
+      },
+      "explanation": {
+        "tr": "İki durumda zorunlu:\n\n- **Aynı adlı sütun:** `name` beş tabloda birden var; takma ad olmadan `Ambiguous column name` alıyorsun.\n- **Kendine JOIN:** aynı tabloya iki kez başvuruyorsun; ayırt etmenin başka yolu yok.\n\nDiğer durumlarda zorunlu değil ama neredeyse her zaman yazılıyor: sorgu kısalıyor ve hangi sütunun nereden geldiği görünüyor.\n\nİyi bir alışkanlık: birden çok tablo varsa **her** sütunun önüne takma ad yaz. Sonradan bir `JOIN` eklendiğinde sorgu bozulmuyor.",
+        "en": "It is required in two cases:\n\n- **A column with the same name:** `name` exists in five tables; without an alias you get `Ambiguous column name`.\n- **A self join:** you refer to the same table twice and there is no other way to tell them apart.\n\nOtherwise it is optional but written almost always: the query gets shorter and you can see where each column comes from.\n\nA good habit: with more than one table, put an alias in front of **every** column. The query then does not break when a `JOIN` is added later."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 2,
+      "text": {
+        "tr": "`order_items` tablosunda `unit_price` sütunu varken `products.price` de var. Neden ikisi birden tutuluyor?",
+        "en": "`order_items` has a `unit_price` column while `products.price` also exists. Why keep both?"
+      },
+      "options": {
+        "tr": [
+          "Yanlışlıkla iki kez yazılmış",
+          "Biri KDV'li biri KDV'siz",
+          "unit_price siparişin verildiği günkü fiyat; products.price bugünkü fiyat",
+          "unit_price her zaman products.price'a eşit"
+        ],
+        "en": [
+          "It is an accidental duplication",
+          "One includes tax and the other does not",
+          "unit_price is the price on the day of the order; products.price is today's price",
+          "unit_price is always equal to products.price"
+        ]
+      },
+      "explanation": {
+        "tr": "Fiyat zamanla değişiyor. Sipariş kaleminde o günkü fiyatı saklamazsan, ürünün fiyatı arttığında **eski siparişlerin tutarı da artıyor** — geçmiş kendiliğinden değişmiş oluyor.\n\nBu, veri tasarımında bilinçli bir tekrar: normalleştirme kuralına aykırı görünüyor ama tarihsel doğruluk için gerekiyor.\n\nAynı mantık müşteri adresinde de var: fatura adresi siparişin içinde saklanıyor, müşteri taşınınca eski faturalar değişmesin diye.\n\nKalem tutarı da saklanmıyor, hesaplanıyor: `quantity * unit_price`.",
+        "en": "Prices change over time. If you do not store the price of the day on the order line, then when a product's price goes up **the totals of old orders go up with it** — the past changes by itself.\n\nThis is deliberate duplication in data design: it looks like it breaks the normalisation rule, but it is needed for historical accuracy.\n\nThe same logic applies to a customer's address: the billing address is stored inside the order so that old invoices do not change when the customer moves.\n\nThe line total is not stored either; it is calculated: `quantity * unit_price`."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 3,
+      "text": {
+        "tr": "Birleştirme yazdıktan sonra satır sayısı beklediğinden az geldi. En olası sebep nedir?",
+        "en": "After writing a join the row count is lower than you expected. What is the most likely cause?"
+      },
+      "options": {
+        "tr": [
+          "Sunucu satır sınırı uyguladı",
+          "ORDER BY unutuldu",
+          "Tablo bozuk",
+          "INNER JOIN eşleşmeyen satırları düşürdü, ya da LEFT JOIN'de WHERE koşulu var"
+        ],
+        "en": [
+          "The server applied a row limit",
+          "ORDER BY was forgotten",
+          "The table is corrupt",
+          "An INNER JOIN dropped the non-matching rows, or there is a WHERE on a LEFT JOIN"
+        ]
+      },
+      "explanation": {
+        "tr": "İki sebep de sessiz ve ikisi de aynı sonucu doğuruyor:\n\n- **`INNER JOIN`** eşleşme bulamadığı satırları atıyor. On iki ürün dokuza düşüyor.\n- **`LEFT JOIN` + sağ tabloya `WHERE`** birleştirmeyi `INNER JOIN`'e çeviriyor. Aynı sonuç.\n\nİlk kontrol: sol tablonun kendi satır sayısıyla karşılaştır. Az geldiyse ikisinden biri olmuştur.\n\nSatır sayısı **fazla** geldiyse sebep başka: çoğalma. Bir satır birden çok satırla eşleşmiştir.",
+        "en": "Both causes are silent and both produce the same outcome:\n\n- **`INNER JOIN`** throws away the rows it could not match. Twelve products become nine.\n- **`LEFT JOIN` + a `WHERE` on the right table** turns the join into an `INNER JOIN`. Same result.\n\nFirst check: compare with the left table's own row count. If it is lower, one of the two happened.\n\nIf the count is **higher**, the cause is different: multiplication. One row matched several rows."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 1,
+      "text": {
+        "tr": "`JOIN` ile `GROUP BY` bir arada kullanıldığında işleme sırası nasıl?",
+        "en": "When `JOIN` and `GROUP BY` are used together, what is the processing order?"
+      },
+      "options": {
+        "tr": [
+          "Önce gruplama, sonra birleştirme",
+          "Önce birleştirme (FROM/JOIN), sonra WHERE, sonra gruplama",
+          "İkisi aynı anda çalışıyor",
+          "Sunucunun kararına bağlı"
+        ],
+        "en": [
+          "Grouping first, then joining",
+          "The join first (FROM/JOIN), then WHERE, then grouping",
+          "They run at the same time",
+          "It depends on the server"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıra şöyle uzuyor:\n\n```\nFROM/JOIN -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY\n```\n\nBirleştirme en başta: `GROUP BY` artık **birleştirilmiş** tabloya bakıyor.\n\nBunun somut sonucu satır çoğalması: birleştirme sonrası satır sayısı arttığı için gruplama içindeki `COUNT` ve `SUM` beklenenden büyük çıkabiliyor.\n\nÖnce birleştirip sonra gruplamanın alternatifi, önce gruplayıp sonra birleştirmek — o da alt sorgularla yapılıyor ve bir sonraki bölümün konusu.",
+        "en": "The order gets longer:\n\n```\nFROM/JOIN -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY\n```\n\nThe join comes first: `GROUP BY` now looks at the **joined** table.\n\nThe concrete consequence is row multiplication: because the join increases the row count, `COUNT` and `SUM` inside the grouping can come out larger than expected.\n\nThe alternative to joining first and grouping second is grouping first and joining second — that is done with subqueries and belongs to the next section."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`LEFT JOIN` yazdın ama sağ tablodan bir koşul da uygulamak istiyorsun. Nereye yazarsın?",
+        "en": "You wrote a `LEFT JOIN` but also want a condition on the right table. Where do you put it?"
+      },
+      "options": {
+        "tr": [
+          "`ON` içine, `AND` ile ekleyerek",
+          "`WHERE` içine",
+          "`HAVING` içine",
+          "Ayrı bir sorguya"
+        ],
+        "en": [
+          "Inside `ON`, added with `AND`",
+          "Inside `WHERE`",
+          "Inside `HAVING`",
+          "In a separate query"
+        ]
+      },
+      "explanation": {
+        "tr": "```sql\nLEFT JOIN suppliers s\n  ON p.supplier_code = s.code\n AND s.country = 'Turkey'\n```\n\n`ON` içindeki koşul **eşleştirmenin bir parçası**: koşulu sağlamayan sağ satır eşleşmemiş sayılıyor ve sol satır yine korunuyor (12 satır).\n\n`WHERE` içine yazılsaydı birleştirmeden **sonra** çalışır ve boş kalan satırları elerdi (9 satır).\n\nBu ayrım yalnızca dış birleştirmelerde (`LEFT`/`RIGHT`/`FULL`) önemli. `INNER JOIN`'de `ON` ile `WHERE` aynı sonucu veriyor.",
+        "en": "```sql\nLEFT JOIN suppliers s\n  ON p.supplier_code = s.code\n AND s.country = 'Turkey'\n```\n\nA condition inside `ON` is **part of the matching**: a right-hand row that fails it simply counts as no match, and the left row is still kept (12 rows).\n\nWritten in `WHERE` it would run **after** the join and remove the empty rows (9 rows).\n\nThis distinction only matters for outer joins (`LEFT`/`RIGHT`/`FULL`). With `INNER JOIN`, `ON` and `WHERE` give the same result."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 2,
+      "text": {
+        "tr": "Bir sorguda `JOIN` yazdıktan sonra sonucu doğrulamanın en pratik yolu nedir?",
+        "en": "What is the most practical way to verify a query after writing a `JOIN`?"
+      },
+      "options": {
+        "tr": [
+          "Sorguyu iki kez çalıştırmak",
+          "Sütun sayısını saymak",
+          "Bir satırı elle takip edip satır sayısını sol tabloyla karşılaştırmak",
+          "ORDER BY eklemek"
+        ],
+        "en": [
+          "Running the query twice",
+          "Counting the columns",
+          "Following one row by hand and comparing the row count with the left table",
+          "Adding an ORDER BY"
+        ]
+      },
+      "explanation": {
+        "tr": "İki kontrol birden iş görüyor:\n\n1. **Satır sayısı:** sol tablonun satır sayısıyla karşılaştır. Az geldiyse `INNER JOIN` düşürmüştür ya da `LEFT JOIN`'e `WHERE` konmuştur; çok geldiyse çoğalma vardır.\n2. **Tek satır takibi:** bir sipariş numarası seçip sonucu gözle doğrula. Kalemleri doğru mu, müşteri adı doğru mu?\n\nİkisi de sunucunun söylemediği şeyi yakalıyor: sorgu çalışıyor ama yanlış soruyu cevaplıyor.",
+        "en": "Two checks do the job together:\n\n1. **The row count:** compare it with the left table's. Lower means an `INNER JOIN` dropped rows or a `WHERE` was put on a `LEFT JOIN`; higher means multiplication.\n2. **Following one row:** pick an order number and check the result by eye. Are its lines right? Is the customer name right?\n\nBoth catch what the server will not tell you: the query runs but answers the wrong question."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "`suppliers FULL JOIN products` bu şemada kaç satır döndürür?",
+        "en": "How many rows does `suppliers FULL JOIN products` return on this schema?"
+      },
+      "options": {
+        "tr": [
+          "12 — ürün sayısı kadar",
+          "9 — yalnızca eşleşenler",
+          "16",
+          "13"
+        ],
+        "en": [
+          "12 — one per product",
+          "9 — only the matches",
+          "16",
+          "13"
+        ]
+      },
+      "explanation": {
+        "tr": "`FULL JOIN` **iki tarafın da** eşleşmeyen satırlarını tutuyor:\n\n- 9 eşleşen satır\n- 3 tedarikçisi olmayan ürün\n- 1 hiç ürünü olmayan tedarikçi (`Rhine Components`)\n\nToplam **13** (ölçüldü).\n\n`LEFT JOIN` 12 verirdi (tedarikçisi olmayan ürünler dahil ama ürünsüz tedarikçi hariç), `INNER JOIN` 9.\n\n`FULL JOIN` pratikte az kullanılıyor; genelde iki listenin farklarını karşılaştırırken işe yarıyor.",
+        "en": "`FULL JOIN` keeps the non-matching rows from **both** sides:\n\n- 9 matching rows\n- 3 products with no supplier\n- 1 supplier with no products (`Rhine Components`)\n\nA total of **13** (measured).\n\n`LEFT JOIN` would give 12 (including products with no supplier but excluding the supplier with no products) and `INNER JOIN` 9.\n\n`FULL JOIN` is not used often in practice; it mostly helps when comparing the differences between two lists."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 1,
+      "text": {
+        "tr": "Yabancı bir veritabanında hangi sütunun hangi tabloya bağlandığını nasıl anlarsın?",
+        "en": "In an unfamiliar database, how do you tell which column links to which table?"
+      },
+      "options": {
+        "tr": [
+          "Sütun tiplerine bakarak",
+          "Sütun adlarına bakarak: `_id` ve `_code` ekleri genelde başka bir tablonun anahtarını gösteriyor",
+          "Satır sayılarını karşılaştırarak",
+          "Anlaşılmaz, sormak gerekir"
+        ],
+        "en": [
+          "By looking at the column types",
+          "By looking at the column names: `_id` and `_code` suffixes usually point at another table's key",
+          "By comparing row counts",
+          "It cannot be worked out; you have to ask"
+        ]
+      },
+      "explanation": {
+        "tr": "Adlandırma bir gelenek ve neredeyse her yerde tutuyor: `customer_id` `customers` tablosuna, `supplier_code` `suppliers` tablosuna işaret ediyor.\n\nİkinci kaynak veritabanının kendi kayıtları: tanımlı `FOREIGN KEY` kısıtları `sys.foreign_keys` görünümünden okunabiliyor ve SSMS bunları ağaçta gösteriyor.\n\nAma her bağ tanımlı olmuyor — eski veritabanlarında bağlar çoğu zaman yalnızca adlandırmada var. Bu yüzden ad okumak ilk ve en hızlı yöntem.",
+        "en": "Naming is a convention and it holds almost everywhere: `customer_id` points at `customers`, `supplier_code` at `suppliers`.\n\nThe second source is the database's own records: declared `FOREIGN KEY` constraints can be read from the `sys.foreign_keys` view, and SSMS shows them in its tree.\n\nBut not every link is declared — in older databases the links often exist only in the naming. That is why reading names is the first and fastest method."
+      }
+    }
+  ]
+}

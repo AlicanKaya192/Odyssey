@@ -1,0 +1,77 @@
+{
+  "id": "birlestir-ve-grupla",
+  "language": "tsql",
+  "title": {
+    "tr": "Birleştir ve grupla",
+    "en": "Join and group"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`LEFT JOIN` ile bütün müşteriler geliyor, sonra `GROUP BY` ile müşteri başına sayıyorsun.",
+      "en": "`LEFT JOIN` brings every customer, then `GROUP BY` counts per customer."
+    },
+    {
+      "tr": "**`COUNT(*)` yazma.** `LEFT JOIN` siparişi olmayan müşteri için de bir satır üretiyor ve `COUNT(*)` onu 1 sayıyor. Sağ tablonun bir sütununu say: `COUNT(o.id)` o satırda 0 veriyor.",
+      "en": "**Do not write `COUNT(*)`.** `LEFT JOIN` produces a row even for a customer with no orders, and `COUNT(*)` counts it as 1. Count a column from the right table instead: `COUNT(o.id)` gives 0 there."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT c.name AS customer, COUNT(o.id) AS order_count\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customer_id\nGROUP BY c.name\nORDER BY order_count DESC, customer;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT c.name AS customer, COUNT(o.id) AS order_count\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customer_id\nGROUP BY c.name\nORDER BY order_count DESC, customer;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "customer",
+        "order_count"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "Nova Retail",
+          3
+        ],
+        [
+          "Bright Office",
+          2
+        ],
+        [
+          "Delta Systems",
+          2
+        ],
+        [
+          "Helix Studio",
+          2
+        ],
+        [
+          "Orion Labs",
+          1
+        ],
+        [
+          "Quiet Partners",
+          0
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "LEFT JOIN",
+      "hint": {
+        "tr": "Hiç siparişi olmayan müşteri de listede olacaksa `LEFT JOIN` gerekiyor; düz `JOIN` onu tamamen düşürüyor.",
+        "en": "If a customer with no orders must appear, you need `LEFT JOIN`; a plain `JOIN` drops them entirely."
+      }
+    }
+  ]
+}

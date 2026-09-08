@@ -1,0 +1,101 @@
+{
+  "id": "kaybolan-satirlar",
+  "language": "tsql",
+  "title": {
+    "tr": "Kaybolan satırlar",
+    "en": "The rows that vanish"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`JOIN` ile `LEFT JOIN` arasındaki tek fark bu: `LEFT JOIN` soldaki satırları eşleşme olmasa da tutuyor.",
+      "en": "That is the only difference between `JOIN` and `LEFT JOIN`: `LEFT JOIN` keeps the left rows even with no match."
+    },
+    {
+      "tr": "Eşleşme bulunamayan satırlarda sağ tablonun sütunları boş geliyor; bu bir hata değil, `LEFT JOIN`'in çalışma biçimi.",
+      "en": "In rows with no match the right table's columns come back empty; that is not an error, it is how `LEFT JOIN` works."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT p.name AS product, s.name AS supplier\nFROM products p\nLEFT JOIN suppliers s ON p.supplier_code = s.code\nORDER BY p.name;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT p.name AS product, s.name AS supplier\nFROM products p\nLEFT JOIN suppliers s ON p.supplier_code = s.code\nORDER BY p.name;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "product",
+        "supplier"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "Antivirus",
+          "Aegean Systems"
+        ],
+        [
+          "Cable",
+          "Anatolia Tech"
+        ],
+        [
+          "Desktop",
+          "Marmara Logistics"
+        ],
+        [
+          "Headset",
+          null
+        ],
+        [
+          "Keyboard",
+          "Anatolia Tech"
+        ],
+        [
+          "Laptop",
+          "Marmara Logistics"
+        ],
+        [
+          "Microphone",
+          "Marmara Logistics"
+        ],
+        [
+          "Monitor",
+          "Aegean Systems"
+        ],
+        [
+          "Mouse",
+          "Anatolia Tech"
+        ],
+        [
+          "Office Suite",
+          null
+        ],
+        [
+          "Projector",
+          null
+        ],
+        [
+          "Webcam",
+          "Aegean Systems"
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "LEFT JOIN",
+      "hint": {
+        "tr": "Düz `JOIN` yalnızca eşleşenleri getiriyor ve üç ürün kayboluyor. Soldaki her satırı korumak için `LEFT JOIN` gerekiyor.",
+        "en": "A plain `JOIN` returns only the matches and three products disappear. Keeping every row on the left needs `LEFT JOIN`."
+      }
+    }
+  ]
+}

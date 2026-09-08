@@ -1,0 +1,65 @@
+{
+  "id": "uc-tablo",
+  "language": "tsql",
+  "title": {
+    "tr": "Üç tabloyu birden",
+    "en": "Three tables at once"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dört tablo gerekiyor: `orders`, `customers`, `order_items` ve `products`. Her `JOIN` bir öncekinin sonucuna ekleniyor.",
+      "en": "You need four tables: `orders`, `customers`, `order_items` and `products`. Each `JOIN` is added to the result of the previous one."
+    },
+    {
+      "tr": "Bağlantılar şöyle: `orders.customer_id = customers.id`, `orders.id = order_items.order_id`, `order_items.product_id = products.id`.",
+      "en": "The links are: `orders.customer_id = customers.id`, `orders.id = order_items.order_id`, `order_items.product_id = products.id`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT o.id AS order_id, c.name AS customer, p.name AS product,\n       i.quantity\nFROM orders o\nJOIN customers c ON o.customer_id = c.id\nJOIN order_items i ON o.id = i.order_id\nJOIN products p ON i.product_id = p.id\nWHERE o.id = 1005\nORDER BY p.name;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT o.id AS order_id, c.name AS customer, p.name AS product,\n       i.quantity\nFROM orders o\nJOIN customers c ON o.customer_id = c.id\nJOIN order_items i ON o.id = i.order_id\nJOIN products p ON i.product_id = p.id\nWHERE o.id = 1005\nORDER BY p.name;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "order_id",
+        "customer",
+        "product",
+        "quantity"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          1005,
+          "Helix Studio",
+          "Desktop",
+          1
+        ],
+        [
+          1005,
+          "Helix Studio",
+          "Microphone",
+          2
+        ],
+        [
+          1005,
+          "Helix Studio",
+          "Monitor",
+          1
+        ]
+      ]
+    }
+  ]
+}

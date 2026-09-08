@@ -1,0 +1,2 @@
+-- Find the customers who have never placed an order.
+-- One column: customer.

@@ -1,0 +1,4 @@
+-- Her urunun adini ve tedarikcisinin adini getir.
+-- ON IKI urunun hepsi sonucta olmali: tedarikcisi kayitli
+-- olmayan uc urunde supplier bos gorunsun.
+-- Sutunlar: product, supplier. Urun adina gore sirala.

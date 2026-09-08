@@ -1,0 +1,55 @@
+{
+  "id": "eslesmeyeni-bulmak",
+  "language": "tsql",
+  "title": {
+    "tr": "Eşleşmeyeni bulmak",
+    "en": "Finding what has no match"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki adım: önce `LEFT JOIN` ile bütün müşterileri getir, sonra eşleşme bulunamayanları süz.",
+      "en": "Two steps: first bring back every customer with `LEFT JOIN`, then filter the ones with no match."
+    },
+    {
+      "tr": "Burada `WHERE` içinde `IS NULL` yazmak `LEFT JOIN`'i bozmuyor — tam tersine, kalıbın kendisi bu. Diğer koşullar `ON` içine yazılıyor.",
+      "en": "Here writing `IS NULL` in `WHERE` does not break the `LEFT JOIN` — it is the whole point of the pattern. Other conditions go inside `ON`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT c.name AS customer\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customer_id\nWHERE o.id IS NULL\nORDER BY c.name;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT c.name AS customer\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customer_id\nWHERE o.id IS NULL\nORDER BY c.name;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "customer"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "Quiet Partners"
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "IS NULL",
+      "hint": {
+        "tr": "`LEFT JOIN` bütün müşterileri getiriyor; siparişi olmayanlarda sağ tablonun sütunları boş kalıyor. Onları süzmek için `IS NULL` gerekiyor.",
+        "en": "`LEFT JOIN` brings back every customer; for those with no order the right table's columns stay empty. Filtering them needs `IS NULL`."
+      }
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+-- Her musterinin kac siparisi var?
+-- Hic siparis vermemis musteriler de listede olmali ve
+-- yanlarinda 0 yazmali.
+-- Sutunlar: customer, order_count
+-- Once sayiya gore buyukten kucuge, esitlikte musteri adina gore sirala.

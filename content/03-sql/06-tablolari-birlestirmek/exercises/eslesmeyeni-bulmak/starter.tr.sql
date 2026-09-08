@@ -1,0 +1,2 @@
+-- Hic siparis vermemis musterileri bul.
+-- Tek sutun: customer.

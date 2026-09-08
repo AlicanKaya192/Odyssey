@@ -1,0 +1,4 @@
+-- Return each product's name and the NAME of its category.
+-- The products table only has the category CODE; the name
+-- is in the categories table.
+-- Columns: product, category. Sort by product name.

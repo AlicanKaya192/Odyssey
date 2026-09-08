@@ -1,0 +1,4 @@
+-- Her urunun adini ve kategorisinin ADINI getir.
+-- products tablosunda yalnizca kategori KODU var; adi
+-- categories tablosunda.
+-- Sutunlar: product, category. Urun adina gore sirala.

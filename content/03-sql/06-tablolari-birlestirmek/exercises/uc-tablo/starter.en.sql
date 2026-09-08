@@ -1,0 +1,4 @@
+-- Show the lines of order 1005: the order number, the
+-- customer name, the product name and the quantity.
+-- Columns: order_id, customer, product, quantity
+-- Sort by product name.

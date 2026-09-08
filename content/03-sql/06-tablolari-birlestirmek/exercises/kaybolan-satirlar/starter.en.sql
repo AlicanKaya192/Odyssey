@@ -1,0 +1,4 @@
+-- Return each product's name and its supplier's name.
+-- All TWELVE products must be in the result: for the three
+-- with no supplier recorded, supplier should be empty.
+-- Columns: product, supplier. Sort by product name.
