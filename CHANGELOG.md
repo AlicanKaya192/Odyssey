@@ -32,6 +32,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   silebiliyorsunuz.
 
 ### Düzeltildi
+- **Sınavdan ve alıştırmadan sonra ilerlemenin yolu yoktu.** Ders ve not
+  sayfalarının altında "ileri" düğmesi varken sınav sonucunda ve
+  alıştırmada yoktu; devam etmek için sağ üstteki sekmeleri ya da
+  alıştırma numaralarını aramak gerekiyordu. Artık sınav bitince
+  "Alıştırma →", her alıştırmanın altında "Sonraki alıştırma →", sonuncuda
+  da bölüm bittiyse "Sonraki →" duruyor.
 - **Ders notlarındaki dış bağlantılar açılmıyordu.** Python kurulum
   notundaki indirme adresine tıklandığında hiçbir şey olmuyordu; artık
   tarayıcıda açılıyor.

@@ -248,12 +248,15 @@ class QuizView(QWidget):
     """Bir alt bölümün sınavı: başlangıç ekranı ve sorular."""
 
     completed = Signal(int, bool)  # puan, geçti mi
+    # Sonuç ekranındaki "devam" düğmesi: bölümün bir sonraki adımına geç.
+    advance = Signal()
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._language = language
         self._cards: list[QuestionCard] = []
         self._questions: list[dict] = []
+        self._advance_label: str | None = None
         self._pass_score = 70
         self._mode = "light"
 
@@ -382,6 +385,17 @@ class QuizView(QWidget):
         self._submit_button.setProperty("variant", "primary")
         self._submit_button.clicked.connect(self._submit)
         buttons.addWidget(self._submit_button)
+
+        # Sınav bitince bölümün sonraki adımına geçiren düğme. Ders ve not
+        # sayfalarının altında "ileri" düğmesi vardı, sınavda yoktu: sınavı
+        # bitiren kişi alıştırmaya geçmek için sağ üstteki sekmeleri aramak
+        # zorunda kalıyordu.
+        self._advance_button = QPushButton()
+        self._advance_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._advance_button.setProperty("variant", "primary")
+        self._advance_button.clicked.connect(lambda: self.advance.emit())
+        self._advance_button.hide()
+        buttons.addWidget(self._advance_button)
         self._column.addLayout(buttons)
 
         row.addWidget(column, 8)
@@ -490,6 +504,7 @@ class QuizView(QWidget):
         self._cards = []
         self._result.hide()
         self._retry_button.hide()
+        self._advance_button.hide()
         self._submit_button.show()
 
     # --- akış --------------------------------------------------------------
@@ -581,6 +596,7 @@ class QuizView(QWidget):
 
         self._submit_button.hide()
         self._retry_button.show()
+        self._advance_button.setVisible(bool(self._advance_label))
 
         # Bir sonraki denemede "önceki notun" olarak bu görünecek.
         self._previous_score = score
@@ -613,6 +629,20 @@ class QuizView(QWidget):
 
         for card in self._cards:
             card.set_mode(mode)
+
+    def set_advance_label(self, label: str | None) -> None:
+        """Sonuç ekranındaki "devam" düğmesinin adı; `None` ise düğme yok.
+
+        Bölümde sınavdan sonra bir adım yoksa ve sonraki bölüm de kilitliyse
+        kişiyi gidemeyeceği bir yere çağıran düğme çizilmiyor. Etiket bölüm
+        ekranından geliyor, çünkü "sonra ne var" sorusunu o biliyor.
+        """
+        self._advance_label = label
+        if label:
+            self._advance_button.setText(f"{label}  →")
+        self._advance_button.setVisible(
+            bool(label) and getattr(self, "_finished", False)
+        )
 
     def retranslate(self) -> None:
         self._submit_button.setText(self._language.t("quiz.submit"))

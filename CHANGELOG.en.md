@@ -33,6 +33,12 @@ lecture note does not mean downloading the whole application again.
   the databases they create from Settings.
 
 ### Fixed
+- **There was no way forward after a quiz or an exercise.** The lesson and
+  note pages had a "next" button at the bottom, but the quiz result and the
+  exercises did not; you had to look for the tabs or the exercise numbers
+  in the top right. Finishing a quiz now shows "Exercise →", each exercise
+  ends with "Next exercise →", and the last one shows "Next →" once the
+  section is complete.
 - **External links in the lecture notes did not open.** Clicking the
   download address in the Python setup note did nothing; it now opens in
   your browser.

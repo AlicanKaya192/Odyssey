@@ -87,6 +87,8 @@ class TopicView(QWidget):
         self._quiz.completed.connect(self._on_quiz_completed)
         self._exercise.solved.connect(self._on_exercise_solved)
         self._notes.advance.connect(self._on_notes_advance)
+        self._quiz.advance.connect(self._on_quiz_advance)
+        self._exercise.advance.connect(self._on_exercise_advance)
 
         # Geçiş şeridi içeriğin üstünde: altta, sonuç panelinin de altında
         # dururken görülmüyordu ve ikinci alıştırmanın varlığı fark
@@ -346,6 +348,7 @@ class TopicView(QWidget):
         if self._section is None:
             return
         self._lesson.set_footer(self._footer_items())
+        self._refresh_advance_labels()
 
     def _unlocked(self, section) -> bool:
         """Bu bölüme girilebilir mi? Kural `app/core/unlock.py` içinde."""
@@ -394,6 +397,62 @@ class TopicView(QWidget):
         if hedef and hedef in self._panes:
             self._segments.set_current(self._panes.index(hedef))
 
+    def _next_section_if_open(self):
+        """Sonraki bölüm, girilebiliyorsa; yoksa `None`."""
+        if self._section is None:
+            return None
+        _, following = self._catalog.neighbours(
+            self._section.chapter_id, self._section.id
+        )
+        return following if following and self._unlocked(following) else None
+
+    def _refresh_advance_labels(self) -> None:
+        """Sınav sonucunun ve alıştırmanın altındaki "devam" düğmeleri.
+
+        Ders ve not sayfalarının altında ileri düğmesi vardı; sınavda ve
+        alıştırmada yoktu. Sınavı bitiren ya da alıştırmayı çözen kişi
+        bir sonraki adıma geçmek için sağ üstteki sekmeleri ve numaraları
+        aramak zorunda kalıyordu.
+
+        Sıra ders sayfasınınkiyle aynı: önce bölümün sonraki sekmesi, sonra
+        sonraki alıştırma, en sonda sonraki bölüm. Sonraki bölüm kilitliyse
+        düğme çizilmiyor; bölüm bitince (son alıştırma çözülünce, sınav
+        geçilince) bu metot yeniden çağrılıyor ve düğme o an beliriyor.
+        """
+        labels = self._pane_labels()
+        genel = self._language.t("nav.next") if self._next_section_if_open() else None
+
+        sonraki = self._pane_after("quiz")
+        self._quiz.set_advance_label(labels[sonraki] if sonraki else genel)
+
+        if self._exercises:
+            if self._exercise_index < len(self._exercises) - 1:
+                self._exercise.set_advance_label(self._language.t("exercise.next"))
+            else:
+                self._exercise.set_advance_label(genel)
+
+    def _on_quiz_advance(self) -> None:
+        """Sınav sonucundaki düğme: sonraki sekme, yoksa sonraki bölüm."""
+        hedef = self._pane_after("quiz")
+        if hedef and hedef in self._panes:
+            self._segments.set_current(self._panes.index(hedef))
+            return
+        self._go_next_section()
+
+    def _on_exercise_advance(self) -> None:
+        """Alıştırmanın altındaki düğme: sonraki alıştırma, yoksa bölüm."""
+        if self._exercise_index < len(self._exercises) - 1:
+            self._go_exercise(self._exercise_index + 1)
+            return
+        self._go_next_section()
+
+    def _go_next_section(self) -> None:
+        # Kilit kuralı burada da uygulanıyor: düğme kilitliyken zaten
+        # çizilmiyor, ama başka bir yol buraya düşerse de geçerli olmalı.
+        target = self._next_section_if_open()
+        if target is not None:
+            self.show_section(target.chapter_id, target.id)
+
     def _load_exercise(self) -> None:
         if not self._exercises or self._section is None:
             return
@@ -403,6 +462,7 @@ class TopicView(QWidget):
             self._section.id,
         )
         self._update_switcher()
+        self._refresh_advance_labels()
 
     def _update_switcher(self) -> None:
         many = len(self._exercises) > 1
@@ -527,6 +587,9 @@ class TopicView(QWidget):
             self._section.chapter_id, self._section.id, score, passed
         )
         self._refresh_progress()
+        # Sınav bölümü bitirmiş olabilir: sonraki bölüm açıldıysa "devam"
+        # düğmeleri o an güncelleniyor.
+        self._refresh_advance_labels()
         self.progress_changed.emit()
 
     def _on_exercise_solved(self, _exercise_id: str) -> None:
@@ -535,6 +598,9 @@ class TopicView(QWidget):
         # çözüldüğü anda yenilenmezse tik ancak başka bir alıştırmaya
         # geçince ya da bölüm yeniden açılınca beliriyordu.
         self._update_switcher()
+        # Son alıştırma bölümü bitirmiş olabilir; sonraki bölüm açıldıysa
+        # alttaki düğme o an beliriyor.
+        self._refresh_advance_labels()
         self.progress_changed.emit()
 
     # --- tema ve dil ------------------------------------------------------
@@ -554,6 +620,7 @@ class TopicView(QWidget):
         # onun adını taşıyor. Dil değişince etiketi de değişiyor.
         sonraki = self._pane_after("notes")
         self._notes.set_advance_label(labels[sonraki] if sonraki else None)
+        self._refresh_advance_labels()
 
         self.header.set_back(True, self._language.t("path.back_to_path"))
 

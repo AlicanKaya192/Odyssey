@@ -280,6 +280,8 @@ class ExerciseView(QWidget):
     """Bir alıştırmanın tamamı."""
 
     solved = Signal(str)
+    # Yönergenin altındaki "devam" düğmesi: sonraki alıştırma ya da bölüm.
+    advance = Signal()
 
     def __init__(
         self,
@@ -304,6 +306,7 @@ class ExerciseView(QWidget):
         # kademeye basmak öncekileri de açıyor ve kademeli yardım fikri
         # ortadan kalkıyor.
         self._revealed: set[int] = set()
+        self._advance_label: str | None = None
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -339,7 +342,11 @@ class ExerciseView(QWidget):
         return panel
 
     def _on_prompt_action(self, action: str) -> None:
-        """Yönerge içindeki bağlantılar: ipucu kademelerini açar."""
+        """Yönerge içindeki bağlantılar: ipucu kademeleri ve alttaki
+        "devam" düğmesi."""
+        if action == "advance":
+            self.advance.emit()
+            return
         if action.startswith("hint-"):
             try:
                 level = int(action.split("-", 1)[1])
@@ -347,6 +354,19 @@ class ExerciseView(QWidget):
                 return
             self._revealed.add(level)
             self._refresh_prompt()
+
+    def set_advance_label(self, label: str | None) -> None:
+        """Yönergenin en altındaki "devam" düğmesi.
+
+        Ders ve not sayfalarının altında ileri düğmesi vardı, alıştırmada
+        yoktu; bir alıştırmayı bitiren kişi sonrakine geçmek için sağ
+        üstteki numaraları aramak zorunda kalıyordu. `None` verilirse
+        düğme çizilmiyor (son alıştırmadayken sonraki bölüm kilitli).
+        """
+        self._advance_label = label
+        self._prompt.set_footer(
+            [("advance" if label else "", f"{label or ''}  →", True)]
+        )
 
     def _hint_label(self, level: int) -> str:
         """Kapalı bir kademenin etiketi.
