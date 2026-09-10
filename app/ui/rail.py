@@ -37,17 +37,17 @@ from ..widgets.effects import repolish
 # (ekran anahtarı, ikon adı, çeviri anahtarı)
 # Şerit iki öbeğe ayrılıyor.
 #
-# Üstte, logonun altında, her gün girilen ekranlar duruyor: öğrenme yolu ve
-# profil. Altta, ayar simgesinin hemen üstünde, ara sıra açılan ekranlar var:
-# sürüm notları ve Hakkında. İkisinin arasındaki boşluk, "burası günlük
-# kullanım, şurası referans" ayrımını gözle görünür hâle getiriyor.
+# Üstte her gün girilen ekranlar duruyor: en tepede profil (kişinin kendi
+# fotoğrafı, şeridin en görünür yeri), altında öğrenme yolu. Altta, ayar
+# simgesinin hemen üstünde, ara sıra açılan ekranlar var: sürüm notları ve
+# Hakkında. Genel ilerleme halkası ikisinin arasında, şeridin ortasında.
 #
 # Bağlantılarım, Ekstra İçerikler ve Lisans bir zamanlar burada ayrı
 # simgelerdi; Bilgi ve SSS de eklenince şerit dokuz simgeye çıkacaktı.
 # Beşi Hakkında ekranının sekmelerine taşındı.
 TOP_DESTINATIONS = [
-    ("journey", "home", "nav.path"),
     ("profile", "user", "nav.profile"),
+    ("journey", "home", "nav.path"),
 ]
 
 BOTTOM_DESTINATIONS = [
@@ -216,23 +216,21 @@ class Rail(QFrame):
         layout.setSpacing(SPACING["xs"])
         layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
-        # Şeridin tepesinde önce "A" harfi, sonra uygulamanın simgesi
-        # duruyordu. İkisi de yer kaplayıp bir şey söylemiyordu: harf ne
-        # olduğu belirsizdi, simge ise görev çubuğunda ve pencere başlığında
-        # zaten var. Şimdi orada genel ilerleme halkası duruyor — şeritte
-        # başka hiçbir yerde olmayan tek bilgi, her ekrandan görünüyor.
-        self._progress = ProgressRing()
-        self._progress.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._progress.clicked.connect(lambda: self.navigate.emit("journey"))
-        layout.addWidget(self._progress, 0, Qt.AlignmentFlag.AlignHCenter)
-        layout.addSpacing(SPACING["md"])
-
         for key, icon_name, _ in TOP_DESTINATIONS:
             layout.addWidget(
                 self._make_button(key, icon_name), 0, Qt.AlignmentFlag.AlignHCenter
             )
 
-        # Boşluk iki öbeğin arasında: alt öbek ayar simgesine yapışık kalıyor.
+        # Genel ilerleme halkası iki öbeğin arasında, şeridin ortasında —
+        # şeritte başka hiçbir yerde olmayan tek bilgi, her ekrandan
+        # görünüyor. Önce tepedeydi ve ortada büyük bir boşluk kalıyordu;
+        # iki eşit esneme payı halkayı o boşluğun ortasına koyuyor, alt öbek
+        # de ayar simgesine yapışık kalıyor.
+        layout.addStretch(1)
+        self._progress = ProgressRing()
+        self._progress.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._progress.clicked.connect(lambda: self.navigate.emit("journey"))
+        layout.addWidget(self._progress, 0, Qt.AlignmentFlag.AlignHCenter)
         layout.addStretch(1)
 
         for key, icon_name, _ in BOTTOM_DESTINATIONS:
@@ -269,7 +267,7 @@ class Rail(QFrame):
         self._refresh_icons()
 
     def set_progress(self, percent: int) -> None:
-        """Tepedeki halkanın gösterdiği genel ilerleme."""
+        """Şeridin ortasındaki halkanın gösterdiği genel ilerleme."""
         self._progress.set_percent(percent)
         self._progress.setToolTip(
             self._language.t("rail.progress", percent=percent)
