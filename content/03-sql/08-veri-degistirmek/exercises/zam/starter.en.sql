@@ -1,0 +1,6 @@
+-- Raise the price of the products in the ACC category
+-- by 10%.
+--
+-- The other categories must not change.
+-- Do not work the prices out by hand: use the column
+-- itself.

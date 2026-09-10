@@ -1,0 +1,98 @@
+{
+  "id": "zam",
+  "language": "tsql",
+  "title": {
+    "tr": "Aksesuarlara zam",
+    "en": "A rise on accessories"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`UPDATE tablo SET sütun = ... WHERE koşul;` — `WHERE` olmadan bütün tablo değişiyor.",
+      "en": "`UPDATE table SET column = ... WHERE condition;` — without a `WHERE` the whole table changes."
+    },
+    {
+      "tr": "`SET` içinde sütunun kendisini kullanabiliyorsun: `price = price * 1.10` her satırın kendi eski fiyatını okuyor.",
+      "en": "Inside `SET` you can use the column itself: `price = price * 1.10` reads each row's own old price."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nUPDATE products\nSET price = price * 1.10\nWHERE category_code = 'ACC';\n```",
+      "en": "The whole query:\n\n```sql\nUPDATE products\nSET price = price * 1.10\nWHERE category_code = 'ACC';\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "affected_rows",
+      "expected": 6
+    },
+    {
+      "type": "rows",
+      "query": "SELECT id, price FROM products WHERE category_code = 'ACC' ORDER BY id;",
+      "ordered": true,
+      "expected": [
+        [
+          1,
+          495.0
+        ],
+        [
+          3,
+          242.0
+        ],
+        [
+          5,
+          979.0
+        ],
+        [
+          6,
+          1265.0
+        ],
+        [
+          9,
+          104.5
+        ],
+        [
+          12,
+          1452.0
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SELECT id, price FROM products WHERE category_code <> 'ACC' ORDER BY id;",
+      "ordered": true,
+      "expected": [
+        [
+          2,
+          3200.0
+        ],
+        [
+          4,
+          24500.0
+        ],
+        [
+          7,
+          18900.0
+        ],
+        [
+          8,
+          7400.0
+        ],
+        [
+          10,
+          2400.0
+        ],
+        [
+          11,
+          780.0
+        ]
+      ]
+    }
+  ]
+}

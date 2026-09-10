@@ -1,0 +1,5 @@
+-- 1006 numarali siparisi tamamen sil: hem siparisin
+-- kendisini hem de kalemlerini.
+--
+-- Iki komut yazacaksin. Sirasi onemli: once cocuk
+-- satirlar (order_items), sonra siparis.

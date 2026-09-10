@@ -1,0 +1,66 @@
+{
+  "id": "siparisi-silmek",
+  "language": "tsql",
+  "title": {
+    "tr": "Bir siparişi tamamen silmek",
+    "en": "Removing an order completely"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki ayrı `DELETE` gerekiyor: biri `order_items`, biri `orders` için. İkisinde de `WHERE` var.",
+      "en": "You need two separate `DELETE`s: one for `order_items` and one for `orders`. Both have a `WHERE`."
+    },
+    {
+      "tr": "Önce kalemleri sil. Bu veritabanında bağ tanımlı olmadığı için sunucu ters sıraya izin veriyor, ama sipariş silinip kalemleri kalırsa hiçbir yere bağlanmayan satırlar ortada kalıyor. Bir sonraki bölümde bu sıra zorunlu olacak.",
+      "en": "Delete the items first. There are no declared links in this database, so the server allows the reverse order — but if the order goes and its items stay, you are left with rows attached to nothing. In the next section that order becomes compulsory."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nDELETE FROM order_items WHERE order_id = 1006;\nDELETE FROM orders WHERE id = 1006;\n```",
+      "en": "The whole query:\n\n```sql\nDELETE FROM order_items WHERE order_id = 1006;\nDELETE FROM orders WHERE id = 1006;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "affected_rows",
+      "expected": 1
+    },
+    {
+      "type": "rows",
+      "query": "SELECT COUNT(*) AS n FROM orders;",
+      "ordered": true,
+      "expected": [
+        [
+          9
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SELECT COUNT(*) AS n FROM order_items;",
+      "ordered": true,
+      "expected": [
+        [
+          19
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SELECT COUNT(*) AS n FROM order_items WHERE order_id = 1006;",
+      "ordered": true,
+      "expected": [
+        [
+          0
+        ]
+      ]
+    }
+  ]
+}

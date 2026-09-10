@@ -1,0 +1,5 @@
+-- Remove order 1006 completely: the order itself and
+-- its items.
+--
+-- You will write two commands. The order matters:
+-- the child rows (order_items) first, then the order.

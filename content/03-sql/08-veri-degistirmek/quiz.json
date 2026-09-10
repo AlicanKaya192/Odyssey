@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "`INSERT` yazarken sütun listesini yazmak neden önerilir?",
+        "en": "Why is it recommended to write the column list in an `INSERT`?"
+      },
+      "options": {
+        "tr": [
+          "Sorgu daha hızlı çalışıyor",
+          "SQL Server bunu zorunlu tutuyor",
+          "Tabloya sonradan sütun eklendiğinde sorgu bozulmasın diye",
+          "Sütun listesi olmadan `INSERT` çalışmıyor"
+        ],
+        "en": [
+          "The query runs faster",
+          "SQL Server requires it",
+          "So the statement does not break when a column is added to the table later",
+          "`INSERT` does not work without a column list"
+        ]
+      },
+      "explanation": {
+        "tr": "Sütun listesi olmadan da çalışıyor (ölçüldü) — değerler tablodaki sütun sırasına göre dağıtılıyor.\n\nSorun şu: o sıra tablonun bugünkü hâli. Yarın araya bir sütun eklenirse aynı `INSERT` değerleri **kaydırarak** yazmaya başlıyor ve hata vermiyor.\n\nSütun listesi yazan `INSERT` bundan etkilenmiyor: hangi değerin nereye gittiğini sen söylüyorsun.",
+        "en": "It works without one (measured) — the values are handed out by the table's column order.\n\nThe problem is that this order is the table as it is today. Add a column in the middle tomorrow and the same `INSERT` starts writing the values **shifted along**, with no error.\n\nAn `INSERT` with a column list is unaffected: you say which value goes where."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 1,
+      "text": {
+        "tr": "Tek bir `INSERT` ile iki satır eklediğinde sunucu kaç satır etkilendiğini söylüyor?",
+        "en": "When you add two rows with a single `INSERT`, how many rows does the server report as affected?"
+      },
+      "options": {
+        "tr": [
+          "1",
+          "2",
+          "0 — `INSERT` satır saymıyor",
+          "Değişiyor"
+        ],
+        "en": [
+          "1",
+          "2",
+          "0 — `INSERT` does not count rows",
+          "It varies"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **2**.\n\nİki ayrı `INSERT` yazsaydın sonuncusu için **1** görecektin. Sayı, komutun kaç satıra dokunduğunu söylüyor.\n\nTek komut yazmanın bir avantajı daha var: ya iki satır birden giriyor ya hiçbiri. İkinci satırda bir sorun çıkarsa birincisi de girmemiş oluyor.",
+        "en": "Measured: **2**.\n\nWith two separate `INSERT`s you would have seen **1** for the last one. The number says how many rows the command touched.\n\nOne command has another advantage: either both rows go in or neither does. If something goes wrong on the second row, the first one never happened either."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`INSERT INTO categories (code) VALUES ('NET');` — `name` sütunu `NOT NULL`. Ne oluyor?",
+        "en": "`INSERT INTO categories (code) VALUES ('NET');` — the `name` column is `NOT NULL`. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Hata: `Cannot insert the value NULL into column 'name'`",
+          "Satır ekleniyor, `name` boş kalıyor",
+          "Satır ekleniyor, `name` boş metin oluyor",
+          "Sunucu uyarı verip devam ediyor"
+        ],
+        "en": [
+          "An error: `Cannot insert the value NULL into column 'name'`",
+          "The row goes in with an empty `name`",
+          "The row goes in with `name` as an empty string",
+          "The server warns and carries on"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü:\n\n```\nCannot insert the value NULL into column 'name',\ntable '...dbo.categories'; column does not allow nulls.\nINSERT fails.\n```\n\nDeğer vermediğin sütun `NULL` sayılıyor ve sütun `NOT NULL` olduğu için satır reddediliyor.\n\nBu **iyi bir hata**: tabloyu tasarlayan kişi \"burası boş kalamaz\" demiş ve sunucu o sözü tutuyor. Kısıtları bir sonraki bölümde kuracaksın.",
+        "en": "Measured:\n\n```\nCannot insert the value NULL into column 'name',\ntable '...dbo.categories'; column does not allow nulls.\nINSERT fails.\n```\n\nA column you give no value for counts as `NULL`, and because the column is `NOT NULL` the row is refused.\n\nThis is a **good error**: whoever designed the table said \"this cannot be empty\" and the server is keeping that promise. You will build constraints in the next section."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 3,
+      "text": {
+        "tr": "Zaten var olan bir birincil anahtarla `INSERT` yaparsan ne oluyor?",
+        "en": "What happens if you `INSERT` with a primary key that already exists?"
+      },
+      "options": {
+        "tr": [
+          "Var olan satır güncelleniyor",
+          "İkinci bir satır ekleniyor",
+          "Sessizce yok sayılıyor",
+          "Hata: `Violation of PRIMARY KEY constraint`"
+        ],
+        "en": [
+          "The existing row is updated",
+          "A second row is added",
+          "It is silently ignored",
+          "An error: `Violation of PRIMARY KEY constraint`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü:\n\n```\nViolation of PRIMARY KEY constraint 'PK__categori__...'.\nCannot insert duplicate key in object 'dbo.categories'.\nThe duplicate key value is (ACC).\n```\n\nBirincil anahtarın tanımı bu: bir tabloda aynı anahtardan iki tane olamıyor.\n\nHata metninin son satırı işe yarıyor — hangi değerin çakıştığını söylüyor.\n\n\"Varsa güncelle, yoksa ekle\" davranışı isteniyorsa ayrı bir komut var (`MERGE`), ama `INSERT` bunu kendiliğinden yapmıyor.",
+        "en": "Measured:\n\n```\nViolation of PRIMARY KEY constraint 'PK__categori__...'.\nCannot insert duplicate key in object 'dbo.categories'.\nThe duplicate key value is (ACC).\n```\n\nThat is what a primary key means: a table cannot hold the same key twice.\n\nThe last line of the message is useful — it tells you which value clashed.\n\nIf you want \"update if it exists, insert if it does not\", there is a separate command for that (`MERGE`); `INSERT` does not do it by itself."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "`UPDATE products SET price = price * 1.10;` kaç satırı değiştiriyor? (Tabloda 12 ürün var.)",
+        "en": "How many rows does `UPDATE products SET price = price * 1.10;` change? (There are 12 products.)"
+      },
+      "options": {
+        "tr": [
+          "0 — `WHERE` yok, hata veriyor",
+          "1",
+          "12 — hepsi",
+          "Hata veriyor"
+        ],
+        "en": [
+          "0 — no `WHERE`, so it errors",
+          "1",
+          "12 — all of them",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **12**. Hata yok, uyarı yok, onay sorusu yok.\n\n`WHERE` yazmayan bir `UPDATE`'in anlamı gerçekten \"hepsi\" ve sunucu tam olarak dediğini yapıyor.\n\nBu, veritabanı işinin klasik kazası. `WHERE`'siz `DELETE` ve `DROP TABLE` ile birlikte üçlüyü tamamlıyor.\n\nKorunma yolu bir kural değil bir alışkanlık: aynı `WHERE` ile önce bir `SELECT` çalıştırmak.",
+        "en": "Measured: **12**. No error, no warning, no confirmation.\n\nAn `UPDATE` with no `WHERE` really does mean \"all of them\", and the server does exactly what you said.\n\nThis is the classic database accident. Together with a `DELETE` with no `WHERE` and `DROP TABLE` it makes the set of three.\n\nThe protection is not a rule but a habit: run a `SELECT` with the same `WHERE` first."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 1,
+      "text": {
+        "tr": "`SET price = price * 1.10` yazımında sağdaki `price` ne anlama geliyor?",
+        "en": "In `SET price = price * 1.10`, what does the `price` on the right mean?"
+      },
+      "options": {
+        "tr": [
+          "Tablodaki en yüksek fiyat",
+          "O satırın kendi eski fiyatı",
+          "Bütün satırların ortalaması",
+          "Sıfır"
+        ],
+        "en": [
+          "The highest price in the table",
+          "That row's own old price",
+          "The average of all rows",
+          "Zero"
+        ]
+      },
+      "explanation": {
+        "tr": "Sunucu her satırı ayrı ayrı işliyor: o satırın eski `price` değerini okuyup 1.10 ile çarpıyor ve sonucu aynı satıra yazıyor.\n\nÖlçüldü — `ACC` kategorisinde: 450 → 495, 220 → 242, 890 → 979. Her biri kendi değerinden hesaplanmış.\n\nBu yüzden \"%10 zam\" için fiyatları elle hesaplamana gerek yok; ayrıca elle yazılan çözüm yeni bir ürün eklendiğinde işe yaramıyor.",
+        "en": "The server handles each row separately: it reads that row's old `price`, multiplies it by 1.10 and writes the result back to the same row.\n\nMeasured on the `ACC` category: 450 → 495, 220 → 242, 890 → 979. Each one worked out from its own value.\n\nSo you do not have to calculate a \"10% rise\" by hand — and a hand-written solution stops working as soon as a new product is added."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Bir `UPDATE`'in hangi satırlara dokunacağını yazmadan önce nasıl görürsün?",
+        "en": "How do you see which rows an `UPDATE` will touch before you run it?"
+      },
+      "options": {
+        "tr": [
+          "Aynı `WHERE` ile bir `SELECT` çalıştırarak",
+          "`UPDATE` komutuna `PREVIEW` ekleyerek",
+          "Görülemez, çalıştırmak gerekir",
+          "`EXPLAIN` yazarak"
+        ],
+        "en": [
+          "By running a `SELECT` with the same `WHERE`",
+          "By adding `PREVIEW` to the `UPDATE`",
+          "It cannot be seen; you have to run it",
+          "By writing `EXPLAIN`"
+        ]
+      },
+      "explanation": {
+        "tr": "```sql\n-- once\nSELECT * FROM products WHERE category_code = 'ACC';\n\n-- dogru satirlari gorunce\nUPDATE products SET price = price * 1.10 WHERE category_code = 'ACC';\n```\n\n`WHERE`'e dokunmuyorsun, yalnızca başını değiştiriyorsun.\n\nBu bölümün en önemli alışkanlığı bu. Hataların çoğu komutta değil koşulda oluyor ve koşulu `SELECT` ile görmek iki saniye sürüyor.\n\n(`PREVIEW` diye bir şey yok. `EXPLAIN` başka veritabanlarında var ve planı gösteriyor, satırları değil.)",
+        "en": "```sql\n-- first\nSELECT * FROM products WHERE category_code = 'ACC';\n\n-- once you see the right rows\nUPDATE products SET price = price * 1.10 WHERE category_code = 'ACC';\n```\n\nYou do not touch the `WHERE`, you only change the beginning.\n\nThis is the most important habit in the section. Most mistakes are in the condition, not the command, and seeing the condition with a `SELECT` takes two seconds.\n\n(There is no `PREVIEW`. `EXPLAIN` exists on other databases and shows the plan, not the rows.)"
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 3,
+      "text": {
+        "tr": "`DELETE FROM shipments;` ne yapıyor?",
+        "en": "What does `DELETE FROM shipments;` do?"
+      },
+      "options": {
+        "tr": [
+          "Hata veriyor, `WHERE` zorunlu",
+          "Tabloyu siliyor",
+          "Hiçbir şey yapmıyor",
+          "Tablodaki bütün satırları siliyor"
+        ],
+        "en": [
+          "It errors; `WHERE` is required",
+          "It removes the table",
+          "It does nothing",
+          "It deletes every row in the table"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: altı satırın altısı da gitti.\n\n`UPDATE`'teki tuzağın aynısı. `WHERE` yazmayan `DELETE` \"hepsini sil\" demek.\n\nTablonun kendisi duruyor — sütunlarıyla birlikte yerinde, sadece boş. Tabloyu yok eden komut `DROP TABLE`.",
+        "en": "Measured: all six rows went.\n\nThe same trap as with `UPDATE`. A `DELETE` with no `WHERE` means \"delete all of them\".\n\nThe table itself is still there — in place with its columns, just empty. The command that destroys a table is `DROP TABLE`."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 2,
+      "text": {
+        "tr": "`DELETE`, `TRUNCATE` ve `DROP` arasındaki fark nedir?",
+        "en": "What is the difference between `DELETE`, `TRUNCATE` and `DROP`?"
+      },
+      "options": {
+        "tr": [
+          "Üçü de aynı işi yapıyor, yalnızca hızları farklı",
+          "`DELETE` tabloyu, `TRUNCATE` satırları siliyor",
+          "`DELETE` satırları (koşullu), `TRUNCATE` tablonun tamamını, `DROP` tablonun kendisini siliyor",
+          "`TRUNCATE` yalnızca boş tablolarda çalışıyor"
+        ],
+        "en": [
+          "All three do the same job at different speeds",
+          "`DELETE` removes the table and `TRUNCATE` the rows",
+          "`DELETE` removes rows (with a condition), `TRUNCATE` the whole table's contents, `DROP` the table itself",
+          "`TRUNCATE` only works on empty tables"
+        ]
+      },
+      "explanation": {
+        "tr": "| Komut | Ne siliyor | `WHERE` | Etkilenen sayısı |\n|---|---|---|---|\n| `DELETE` | satırları | alır | söyler |\n| `TRUNCATE` | bütün satırları | **almaz** | söylemez |\n| `DROP` | tablonun kendisini | almaz | — |\n\n`TRUNCATE TABLE shipments WHERE ...` yazmak sözdizimi hatası veriyor (ölçüldü): `Incorrect syntax near the keyword 'WHERE'`.\n\n`TRUNCATE` hızlı çünkü satırları tek tek silmiyor, tabloyu sıfırlıyor.",
+        "en": "| Command | What it removes | `WHERE` | Row count |\n|---|---|---|---|\n| `DELETE` | rows | allowed | reported |\n| `TRUNCATE` | every row | **not allowed** | not reported |\n| `DROP` | the table itself | not allowed | — |\n\nWriting `TRUNCATE TABLE shipments WHERE ...` is a syntax error (measured): `Incorrect syntax near the keyword 'WHERE'`.\n\n`TRUNCATE` is fast because it does not delete rows one by one; it resets the table."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 1,
+      "text": {
+        "tr": "`UPDATE ... WHERE` hiçbir satır tutmazsa ne oluyor?",
+        "en": "What happens when an `UPDATE ... WHERE` catches no rows?"
+      },
+      "options": {
+        "tr": [
+          "Hata veriyor",
+          "Hiçbir şey değişmiyor, \"0 satır etkilendi\" diyor",
+          "Bütün satırlar değişiyor",
+          "Sunucu uyarı veriyor"
+        ],
+        "en": [
+          "It raises an error",
+          "Nothing changes and it says \"0 rows affected\"",
+          "Every row changes",
+          "The server issues a warning"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `etkilenen = 0`, hata yok.\n\nSunucu için bu normal bir sonuç — koşulu sağlayan satır yok, yapacak iş de yok.\n\nAma senin için genellikle bir uyarı işareti: bir satırı güncellediğini sanıyorsan ve 0 görüyorsan, `WHERE`'de yazım hatası ya da yanlış bir değer var.\n\n**Satır sayısını okuma alışkanlığı** tam da bunun için.",
+        "en": "Measured: `affected = 0`, no error.\n\nFor the server this is a normal outcome — no row satisfies the condition, so there is no work to do.\n\nFor you it is usually a warning sign: if you think you are updating a row and see 0, there is a typo or a wrong value in the `WHERE`.\n\nThat is exactly what the **habit of reading the row count** is for."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 3,
+      "text": {
+        "tr": "`@@ROWCOUNT` neyi veriyor?",
+        "en": "What does `@@ROWCOUNT` give you?"
+      },
+      "options": {
+        "tr": [
+          "Tablodaki toplam satır sayısını",
+          "Veritabanındaki tablo sayısını",
+          "Oturumda çalıştırılan komut sayısını",
+          "Bir önceki komutun etkilediği satır sayısını"
+        ],
+        "en": [
+          "The total number of rows in the table",
+          "The number of tables in the database",
+          "The number of commands run in the session",
+          "The number of rows the previous command affected"
+        ]
+      },
+      "explanation": {
+        "tr": "```sql\nUPDATE products SET stock = stock + 1 WHERE category_code = 'ACC';\nSELECT @@ROWCOUNT AS affected;   -- 6\n```\n\n**Bir önceki** komut — yani araya giren her şey onu eziyor. Ölçüldü: `UPDATE` ile `SELECT @@ROWCOUNT` arasına tek satır döndüren bir sorgu koyunca sonuç 6 değil **1** çıkıyor.\n\nO yüzden hemen sonrasında okunuyor; saklaman gerekiyorsa bir değişkene alıyorsun.",
+        "en": "```sql\nUPDATE products SET stock = stock + 1 WHERE category_code = 'ACC';\nSELECT @@ROWCOUNT AS affected;   -- 6\n```\n\nThe **previous** command — so anything in between overwrites it. Measured: put a query returning one row between the `UPDATE` and `SELECT @@ROWCOUNT` and the answer is **1**, not 6.\n\nThat is why it is read immediately after; if you need to keep it, you put it in a variable."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "`BEGIN TRANSACTION` ile `COMMIT` arasındaki değişiklikler için hangisi doğru?",
+        "en": "Which is true of the changes between `BEGIN TRANSACTION` and `COMMIT`?"
+      },
+      "options": {
+        "tr": [
+          "`COMMIT` diyene kadar kalıcı değiller; `ROLLBACK` hepsini geri alıyor",
+          "Anında kalıcı oluyorlar",
+          "Yalnızca `SELECT` çalıştırılabiliyor",
+          "En fazla bir komut yazılabiliyor"
+        ],
+        "en": [
+          "They are not permanent until you say `COMMIT`; `ROLLBACK` undoes all of them",
+          "They become permanent immediately",
+          "Only `SELECT` can be run",
+          "At most one command can be written"
+        ]
+      },
+      "explanation": {
+        "tr": "İşlem, birden fazla değişikliği **tek bir paket** hâline getiriyor.\n\n```sql\nBEGIN TRANSACTION;\nDELETE FROM orders WHERE order_date < '2020-01-01';\nSELECT COUNT(*) FROM orders;   -- makul mu?\nROLLBACK;\n```\n\nSayı beklediğin gibiyse `ROLLBACK`'i `COMMIT` yapıp yeniden çalıştırıyorsun.\n\nAsıl gücü bu değil ama: para bir hesaptan çıkıp diğerine giriyorsa ikisi birden olmalı ya da hiçbiri. İşlem bunu garanti ediyor.",
+        "en": "A transaction turns several changes into **one package**.\n\n```sql\nBEGIN TRANSACTION;\nDELETE FROM orders WHERE order_date < '2020-01-01';\nSELECT COUNT(*) FROM orders;   -- does that look right?\nROLLBACK;\n```\n\nIf the number is what you expected, you change the `ROLLBACK` to `COMMIT` and run it again.\n\nThat is not its main strength though: if money leaves one account and enters another, either both happen or neither does. A transaction is what guarantees that."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 2,
+      "text": {
+        "tr": "Odyssey'de bir alıştırmada bütün tabloları silsen ne oluyor?",
+        "en": "What happens if you delete every table in an Odyssey exercise?"
+      },
+      "options": {
+        "tr": [
+          "Uygulama bir daha açılmıyor",
+          "İlerlemen sıfırlanıyor",
+          "Bir sonraki çalıştırmada veritabanı yerli yerinde oluyor",
+          "Kalıcı olarak siliniyorlar"
+        ],
+        "en": [
+          "The application never opens again",
+          "Your progress is reset",
+          "The database is back in place on the next run",
+          "They are deleted permanently"
+        ]
+      },
+      "explanation": {
+        "tr": "Senin SQL'in bir işlemin içinde çalışıyor ve sonunda geri alınıyor. `DROP TABLE` bile geri alınıyor — MSSQL'de tablo tanımları da işleme dahil.\n\nBu bölümün alıştırmaları tam da bu yüzden rahat yazılabiliyor: `DELETE` ve `UPDATE` denemek için gerçek bir veritabanına ihtiyacın var ama gerçek bir kazaya değil.\n\nGerçek bir sunucuda böyle bir ağ yok. Notlardaki alışkanlıklar bunun için.",
+        "en": "Your SQL runs inside a transaction and is rolled back at the end. Even `DROP TABLE` is rolled back — in MSSQL table definitions are part of the transaction too.\n\nThat is exactly why the exercises in this section can be written freely: to try `DELETE` and `UPDATE` you need a real database, but not a real accident.\n\nA real server has no such net. That is what the habits in the notes are for."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 1,
+      "text": {
+        "tr": "`INSERT INTO t (a, b) SELECT x, y FROM u;` yazımı ne yapıyor?",
+        "en": "What does `INSERT INTO t (a, b) SELECT x, y FROM u;` do?"
+      },
+      "options": {
+        "tr": [
+          "`u` tablosunu `t` olarak yeniden adlandırıyor",
+          "`u`'dan gelen her satır için `t`'ye bir satır ekliyor",
+          "İki tabloyu birleştiriyor",
+          "Sözdizimi hatası veriyor"
+        ],
+        "en": [
+          "It renames the table `u` to `t`",
+          "It adds one row to `t` for every row coming from `u`",
+          "It joins the two tables",
+          "It is a syntax error"
+        ]
+      },
+      "explanation": {
+        "tr": "`VALUES` yerine bir sorgu yazıyorsun. Sorgunun döndürdüğü her satır bir `INSERT` oluyor.\n\nSütun sayısı ve sırası tutmak zorunda: `SELECT`'in birinci sütunu `a`'ya, ikincisi `b`'ye gidiyor. Adlarının aynı olması gerekmiyor, **sıraları** önemli.\n\nBir tablodan diğerine veri taşımanın en kısa yolu bu; arşivleme ve yedekleme işlerinde çok kullanılıyor.",
+        "en": "You write a query in place of `VALUES`. Every row the query returns becomes an inserted row.\n\nThe number and order of the columns have to line up: the query's first column goes to `a`, the second to `b`. The names do not have to match — the **order** is what counts.\n\nThis is the shortest way to move data from one table to another, and it is used a lot for archiving and copying."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 3,
+      "text": {
+        "tr": "Bir siparişi silip kalemlerini bıraktığında ne oluyor?",
+        "en": "What happens when you delete an order and leave its items behind?"
+      },
+      "options": {
+        "tr": [
+          "Sunucu silmeye izin vermiyor",
+          "Kalemler de kendiliğinden siliniyor",
+          "Kalemler `NULL` oluyor",
+          "Kalemler var olmayan bir siparişi işaret eden öksüz satırlar olarak kalıyor"
+        ],
+        "en": [
+          "The server refuses the delete",
+          "The items are removed automatically",
+          "The items become `NULL`",
+          "The items stay as orphan rows pointing at an order that does not exist"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu bölümün şemasında bağlar **tanımlı değil**, o yüzden sunucu hiçbir şey demiyor (ölçüldü: ürün silindi, ona ait sipariş kalemi yerinde kaldı).\n\nSonuç: `order_items` içindeki `order_id` artık var olmayan bir şeyi gösteriyor. Bu satırlar kolay kolay fark edilmiyor, çünkü onları bulmanın yolu olmayan bir siparişi aramaktan geçiyor.\n\nİki çözümü var: elle doğru sırayla silmek (önce çocuklar), ya da bağı tanımlayıp işi sunucuya bırakmak. İkincisi bir sonraki bölümün konusu.",
+        "en": "The links in this section's schema are **not declared**, so the server says nothing (measured: the product was deleted and the order item belonging to it stayed in place).\n\nThe result: the `order_id` in `order_items` now points at something that does not exist. These rows are hard to spot, because the only way to find them is to go looking for an order that is not there.\n\nThere are two answers: delete in the right order by hand (children first), or declare the link and leave the job to the server. The second is the subject of the next section."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`WHERE` yazarken ad yerine birincil anahtar kullanmak neden daha güvenli?",
+        "en": "Why is using the primary key rather than a name in a `WHERE` safer?"
+      },
+      "options": {
+        "tr": [
+          "Anahtar tam olarak bir satırı gösteriyor; aynı ad birden fazla satırda olabiliyor",
+          "Anahtarla arama daha hızlı olduğu için",
+          "Metin karşılaştırması SQL'de çalışmadığı için",
+          "`WHERE` yalnızca sayılarla çalıştığı için"
+        ],
+        "en": [
+          "The key points at exactly one row, while the same name can appear on several",
+          "Because searching by key is faster",
+          "Because text comparison does not work in SQL",
+          "Because `WHERE` only works with numbers"
+        ]
+      },
+      "explanation": {
+        "tr": "```sql\n-- kirilgan\nUPDATE customers SET city = 'Ankara' WHERE name = 'Nova Retail';\n\n-- saglam\nUPDATE customers SET city = 'Ankara' WHERE id = 1;\n```\n\nBugün tek bir `Nova Retail` var. Yarın aynı adı taşıyan ikinci bir müşteri kaydedildiğinde birinci sorgu **iki satırı** birden değiştiriyor ve hata vermiyor.\n\nHız da gerçekten farklı (anahtar dizinli) ama asıl mesele doğruluk.\n\nAdı kullanman gerekiyorsa önce `SELECT` ile kaç satır tuttuğuna bak.",
+        "en": "```sql\n-- fragile\nUPDATE customers SET city = 'Ankara' WHERE name = 'Nova Retail';\n\n-- solid\nUPDATE customers SET city = 'Ankara' WHERE id = 1;\n```\n\nToday there is one `Nova Retail`. Tomorrow, when a second customer with the same name is recorded, the first query changes **two rows** and raises no error.\n\nThe speed really is different too (the key is indexed), but correctness is the point.\n\nIf you have to use the name, check how many rows it catches with a `SELECT` first."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "*Yumuşak silme* (soft delete) ne demek?",
+        "en": "What is a *soft delete*?"
+      },
+      "options": {
+        "tr": [
+          "Satırı önce yedekleyip sonra silmek",
+          "`TRUNCATE` yerine `DELETE` kullanmak",
+          "Satırı silmeyip \"iptal\" gibi bir durumla işaretlemek",
+          "Satırı gece yarısı silmek"
+        ],
+        "en": [
+          "Backing the row up before deleting it",
+          "Using `DELETE` instead of `TRUNCATE`",
+          "Not deleting the row but marking it with a status like \"cancelled\"",
+          "Deleting the row at midnight"
+        ]
+      },
+      "explanation": {
+        "tr": "```sql\n-- silmek yerine\nUPDATE orders SET status = 'cancelled' WHERE id = 1006;\n```\n\nSatır tabloda kalıyor, yalnızca artık geçerli sayılmıyor.\n\n**Kazancı:** geri alınabiliyor, geçmiş kaybolmuyor, \"bu sipariş neden iptal edildi\" sorusu cevaplanabiliyor.\n\n**Bedeli:** bundan sonra her sorguya bir koşul eklemen gerekiyor. Unuttuğun sorgu iptal edilmiş kayıtları da sayıyor.\n\nDoğru cevap duruma göre değişiyor; önemli olan bunun bir **karar** olduğunu bilmek.",
+        "en": "```sql\n-- instead of deleting\nUPDATE orders SET status = 'cancelled' WHERE id = 1006;\n```\n\nThe row stays in the table, it simply no longer counts as current.\n\n**What you gain:** it can be undone, the history is not lost, and \"why was this order cancelled\" can be answered.\n\n**What it costs:** from then on every query needs an extra condition. A query where you forget it counts the cancelled records too.\n\nThe right answer depends on the case; what matters is knowing it is a **decision**."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 1,
+      "text": {
+        "tr": "Açık bir işlemi uzun süre kapatmadan bırakmanın sakıncası nedir?",
+        "en": "What is the problem with leaving a transaction open for a long time?"
+      },
+      "options": {
+        "tr": [
+          "Sunucu belleği doluyor",
+          "Dokunduğu satırlar kilitli kalıyor ve başkalarının sorguları bekliyor",
+          "Sorgu kendiliğinden `COMMIT` oluyor",
+          "Hiçbir sakıncası yok"
+        ],
+        "en": [
+          "The server runs out of memory",
+          "The rows it touched stay locked and other people's queries wait",
+          "The query commits itself",
+          "There is no problem with it"
+        ]
+      },
+      "explanation": {
+        "tr": "İşlem devam ederken değiştirdiğin satırlar kilitli tutuluyor: başkasının sorgusu o satırları okumaya ya da değiştirmeye çalıştığında bekliyor.\n\nİşlemi açık bırakıp kalkmak gerçek bir sorun — bütün sistem yavaşlıyor ve sebebini bulmak zor oluyor.\n\nKural basit: **açtığın işlemi kapat.** `BEGIN TRANSACTION` yazdıysan aynı oturumda `COMMIT` ya da `ROLLBACK` yaz.",
+        "en": "While the transaction is running, the rows you changed are locked: another person's query waits when it tries to read or change them.\n\nLeaving a transaction open and walking away is a real problem — the whole system slows down and the cause is hard to find.\n\nThe rule is simple: **close the transaction you opened.** If you wrote `BEGIN TRANSACTION`, write `COMMIT` or `ROLLBACK` in the same session."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 3,
+      "text": {
+        "tr": "Koşulu başka bir tabloya bakan bir `DELETE` nasıl yazılır?",
+        "en": "How do you write a `DELETE` whose condition looks at another table?"
+      },
+      "options": {
+        "tr": [
+          "Yazılamaz; önce ara sonucu bir yere kaydetmek gerekir",
+          "`DELETE ... JOIN` her veritabanında çalışıyor",
+          "`DELETE` alt sorgu kabul etmiyor",
+          "Alt sorguyla ya da (T-SQL'de) birleştirmeyle"
+        ],
+        "en": [
+          "It cannot be done; you have to save the intermediate result somewhere first",
+          "`DELETE ... JOIN` works on every database",
+          "`DELETE` does not accept a subquery",
+          "With a subquery, or (in T-SQL) with a join"
+        ]
+      },
+      "explanation": {
+        "tr": "İki yazım da ölçüldü, ikisi de aynı sonucu veriyor:\n\n```sql\n-- alt sorguyla (her yerde calisiyor)\nDELETE FROM order_items\nWHERE order_id IN (SELECT id FROM orders WHERE status = 'cancelled');\n\n-- birlestirmeyle (T-SQL'e ozgu)\nDELETE oi FROM order_items oi\nJOIN orders o ON o.id = oi.order_id\nWHERE o.status = 'cancelled';\n```\n\nAlt sorgulu yazım taşınabilir; `DELETE ... FROM ... JOIN` T-SQL'e özgü ve birden fazla tabloya bakan karmaşık koşullarda daha okunur oluyor.",
+        "en": "Both forms were measured and both give the same result:\n\n```sql\n-- with a subquery (works everywhere)\nDELETE FROM order_items\nWHERE order_id IN (SELECT id FROM orders WHERE status = 'cancelled');\n\n-- with a join (specific to T-SQL)\nDELETE oi FROM order_items oi\nJOIN orders o ON o.id = oi.order_id\nWHERE o.status = 'cancelled';\n```\n\nThe subquery form is portable; `DELETE ... FROM ... JOIN` is specific to T-SQL and reads better when the condition looks at several tables."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "```sql\nUPDATE p SET p.stock = 0\nFROM products\nJOIN categories c ON c.code = products.category_code;\n```\nBu sorgu neden hata veriyor?",
+        "en": "```sql\nUPDATE p SET p.stock = 0\nFROM products\nJOIN categories c ON c.code = products.category_code;\n```\nWhy does this query fail?"
+      },
+      "options": {
+        "tr": [
+          "`p` diye bir ad `FROM` içinde geçmiyor",
+          "`UPDATE` ile `JOIN` birlikte kullanılamaz",
+          "`SET` içinde takma ad yazılamaz",
+          "`FROM` içinde iki tablo olamaz"
+        ],
+        "en": [
+          "No name `p` appears in the `FROM`",
+          "`UPDATE` cannot be used with `JOIN`",
+          "An alias cannot be written inside `SET`",
+          "There cannot be two tables in a `FROM`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçülen hata: `Invalid object name 'p'`.\n\n`UPDATE`'ten sonra yazdığın ad, `FROM` içinde **geçen** bir ad olmalı. Burada `FROM products` yazılmış ve takma ad verilmemiş, yani `p` diye bir şey yok.\n\nDoğrusu iki yoldan biri (ikisi de ölçüldü, ikisi de çalışıyor):\n\n```sql\nUPDATE p SET p.stock = 0 FROM products p JOIN ...\nUPDATE products SET stock = 0 FROM products p JOIN ...\n```\n\nYani takma ad verdiysen ya takma adı ya tablo adını yazabiliyorsun.",
+        "en": "The measured error: `Invalid object name 'p'`.\n\nThe name you write after `UPDATE` has to be one that **appears** in the `FROM`. Here it says `FROM products` with no alias, so there is no such thing as `p`.\n\nEither of these is correct (both measured, both work):\n\n```sql\nUPDATE p SET p.stock = 0 FROM products p JOIN ...\nUPDATE products SET stock = 0 FROM products p JOIN ...\n```\n\nSo if you gave an alias, you can write either the alias or the table name."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "Bir milyon satırlık bir tabloyu tamamen boşaltmanın en hızlı yolu nedir?",
+        "en": "What is the fastest way to completely empty a table with a million rows?"
+      },
+      "options": {
+        "tr": [
+          "`DELETE FROM t;`",
+          "Tek tek `DELETE ... WHERE id = ...`",
+          "`TRUNCATE TABLE t;`",
+          "`DROP TABLE t;` sonra yeniden oluşturmak"
+        ],
+        "en": [
+          "`DELETE FROM t;`",
+          "One `DELETE ... WHERE id = ...` at a time",
+          "`TRUNCATE TABLE t;`",
+          "`DROP TABLE t;` and creating it again"
+        ]
+      },
+      "explanation": {
+        "tr": "`DELETE` her satırı tek tek işliyor ve her birini günlüğe yazıyor; bir milyon satırda bu uzun sürüyor.\n\n`TRUNCATE` satırlara hiç bakmıyor, tablonun veri sayfalarını serbest bırakıyor. Bu yüzden çok daha hızlı.\n\nBedeli: `WHERE` alamıyor ve kaç satır gittiğini söylemiyor.\n\n`DROP` + yeniden oluşturma da işe yarardı ama tablonun bütün tanımını (sütunlar, dizinler, izinler) yeniden kurman gerekirdi.",
+        "en": "`DELETE` handles each row individually and writes each one to the log; on a million rows that takes a long time.\n\n`TRUNCATE` does not look at the rows at all — it releases the table's data pages. That is why it is much faster.\n\nWhat it costs: it takes no `WHERE` and does not tell you how many rows went.\n\n`DROP` and recreating would work too, but you would have to rebuild the table's whole definition (columns, indexes, permissions)."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 1,
+      "text": {
+        "tr": "Üretim verisinde toplu bir değişiklik yapmadan önce yapılacak en önemli şey nedir?",
+        "en": "What is the most important thing to do before a bulk change on production data?"
+      },
+      "options": {
+        "tr": [
+          "Sorguyu güzel biçimlendirmek",
+          "Yedek almak",
+          "Sorguya yorum satırı eklemek",
+          "Sunucuyu yeniden başlatmak"
+        ],
+        "en": [
+          "Formatting the query nicely",
+          "Taking a backup",
+          "Adding a comment to the query",
+          "Restarting the server"
+        ]
+      },
+      "explanation": {
+        "tr": "`SELECT` ile prova yapmak, işlem kullanmak, satır sayısına bakmak — hepsi işe yarıyor ve hepsi başarısız olabiliyor.\n\nYedek, hepsi başarısız olduğunda kalan tek şey. Bu listenin en sıkıcı ve en önemli maddesi.\n\nDiğer üç seçenek zararsız ama hiçbiri veriyi geri getirmiyor.",
+        "en": "Rehearsing with a `SELECT`, using a transaction, checking the row count — all of them help, and all of them can fail.\n\nA backup is what is left when they all do. It is the dullest and most important item on the list.\n\nThe other three options are harmless, but none of them brings the data back."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "`INSERT`, `UPDATE` ve `DELETE` bir arada ne olarak adlandırılıyor?",
+        "en": "What are `INSERT`, `UPDATE` and `DELETE` collectively called?"
+      },
+      "options": {
+        "tr": [
+          "Sorgu dili",
+          "Şema komutları",
+          "Yönetim komutları",
+          "Veri değiştirme komutları"
+        ],
+        "en": [
+          "The query language",
+          "Schema commands",
+          "Administration commands",
+          "Data modification commands"
+        ]
+      },
+      "explanation": {
+        "tr": "Üçü birden verinin **içeriğini** değiştiriyor. İngilizcede *data manipulation* deniyor ve kısaltması DML.\n\nBir sonraki bölümde göreceğin `CREATE TABLE`, `ALTER TABLE`, `DROP TABLE` ise verinin **yapısını** değiştiriyor; onların kısaltması DDL.\n\nAyrımı hatırlamanın kolay yolu: DML satırlarla, DDL tablolarla ilgileniyor.\n\n`SELECT` hiçbir şey değiştirmiyor, o yüzden ikisine de girmiyor.",
+        "en": "All three change the **contents** of the data. The usual term is *data manipulation*, abbreviated DML.\n\nThe `CREATE TABLE`, `ALTER TABLE` and `DROP TABLE` you will meet in the next section change the **structure** of the data; those are abbreviated DDL.\n\nAn easy way to remember the split: DML is about rows, DDL is about tables.\n\n`SELECT` changes nothing, so it belongs to neither."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki alışkanlıklardan hangisi `UPDATE` hatalarının çoğunu engelliyor?",
+        "en": "Which of these habits prevents most `UPDATE` mistakes?"
+      },
+      "options": {
+        "tr": [
+          "Aynı `WHERE` ile önce bir `SELECT` çalıştırmak",
+          "Sorguyu tek satırda yazmak",
+          "Sütun adlarını büyük harfle yazmak",
+          "`SET` yerine `SELECT` kullanmak"
+        ],
+        "en": [
+          "Running a `SELECT` with the same `WHERE` first",
+          "Writing the query on one line",
+          "Writing column names in capitals",
+          "Using `SELECT` instead of `SET`"
+        ]
+      },
+      "explanation": {
+        "tr": "Hataların çoğu `SET` kısmında değil, **`WHERE`** kısmında oluyor: koşul fazla geniş, yanlış sütuna bakıyor ya da yazım hatası taşıyor.\n\n`SELECT` bunu tamamen zararsız biçimde gösteriyor: hangi satırların değişeceğini ekranda görüyorsun ve tabloya hiçbir şey olmuyor.\n\nİki saniye sürüyor. Bu bölümden tek bir şey hatırlayacaksan bu olsun.\n\n(Diğer seçenekler biçim tercihi; hiçbiri doğruluğu etkilemiyor.)",
+        "en": "Most mistakes are not in the `SET` part but in the **`WHERE`**: the condition is too broad, looks at the wrong column, or carries a typo.\n\nA `SELECT` shows you that completely harmlessly: you see which rows would change and nothing happens to the table.\n\nIt takes two seconds. If you remember one thing from this section, make it this one.\n\n(The other options are formatting preferences; none of them affects correctness.)"
+      }
+    }
+  ]
+}

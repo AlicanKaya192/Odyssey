@@ -1,0 +1,5 @@
+-- Set the stock to 20 for every product whose stock
+-- is below 5.
+--
+-- Try running a SELECT with the same WHERE first, to
+-- see which rows are about to change.

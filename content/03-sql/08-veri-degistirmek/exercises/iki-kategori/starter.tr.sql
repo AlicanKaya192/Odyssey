@@ -1,0 +1,6 @@
+-- categories tablosuna iki kategori ekle:
+--   NET  Networking
+--   PRN  Printing
+--
+-- TEK bir INSERT ile. Iki ayri komut yazarsan
+-- kontrol gecmez.

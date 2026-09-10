@@ -77,16 +77,23 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   `FROM` içindeki türetilmiş tablolar. Boş değerlerin `NOT IN`'i sessizce
   bozması ayrı ayrı ele alınıyor. İki not, yirmi dört soruluk sınav, beş
   alıştırma ve "Sorgu İçinde Sorgu" rozeti.
+- **SQL patikası, Orta Seviyenin üçüncü bölümü: "Veri Değiştirmek".**
+  Yedi bölümdür yalnızca okunan veriye bu bölümde yazılıyor: `INSERT`,
+  `UPDATE`, `DELETE`, `TRUNCATE` ve işlemler (`BEGIN TRANSACTION`,
+  `COMMIT`, `ROLLBACK`). `WHERE`'siz bir komutun bütün tabloyu nasıl
+  değiştirdiği ve yazmadan önce `SELECT` ile prova yapma alışkanlığı ayrı
+  ayrı ele alınıyor. İki not, yirmi dört soruluk sınav, beş alıştırma ve
+  "Yazma Yetkisi" rozeti.
 - **Yol ekranında seviye başlıkları.** SQL patikasının bölümleri artık
   "Başlangıç" ve "Orta Seviye" başlıkları altında gruplanıyor.
 - **"Tablolar" penceresi.** SQL alıştırmalarında, sorgu yazarken
   veritabanında ne olduğunu görmek için. Tablolar sekmeli duruyor;
   istediğin tabloyu ayrı bir pencereye taşıyıp iki tabloya aynı anda
   bakabiliyorsun. Kendi yarattığın tablo da listede çıkıyor.
-- **Sekiz yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
+- **Dokuz yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
   çalıştırdığında; "İlk Süzgeç", "Sıra Sende", "Boşluğu Gördün", "Kendi
-  Sütunun", "Toparlayıcı", "Bağlantı Kuran" ve "Sorgu İçinde Sorgu" ise
-  SQL patikasının bölümlerini bitirdikçe geliyor.
+  Sütunun", "Toparlayıcı", "Bağlantı Kuran", "Sorgu İçinde Sorgu" ve
+  "Yazma Yetkisi" ise SQL patikasının bölümlerini bitirdikçe geliyor.
 
 ### Düzeltildi
 - **Ders notlarındaki dış bağlantılar açılmıyordu.** Python kurulum

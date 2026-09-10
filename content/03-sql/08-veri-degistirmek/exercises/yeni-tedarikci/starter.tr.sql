@@ -1,0 +1,7 @@
+-- suppliers tablosuna yeni bir tedarikci ekle:
+--   code    S5
+--   name    Baltic Parts
+--   city    Gdansk
+--   country Poland
+--
+-- Sutun listesini yazmayi unutma.

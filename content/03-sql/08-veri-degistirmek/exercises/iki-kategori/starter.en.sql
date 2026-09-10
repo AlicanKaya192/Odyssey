@@ -1,0 +1,6 @@
+-- Add two categories to the categories table:
+--   NET  Networking
+--   PRN  Printing
+--
+-- With a SINGLE INSERT. Two separate commands will
+-- not pass the check.

@@ -1,0 +1,7 @@
+-- Add a new supplier to the suppliers table:
+--   code    S5
+--   name    Baltic Parts
+--   city    Gdansk
+--   country Poland
+--
+-- Remember to write the column list.

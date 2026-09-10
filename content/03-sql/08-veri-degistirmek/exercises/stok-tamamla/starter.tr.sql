@@ -1,0 +1,4 @@
+-- Stogu 5'in altinda olan urunlerin stogunu 20 yap.
+--
+-- Once ayni WHERE ile bir SELECT calistirip hangi
+-- satirlarin degisecegini gormeyi dene.

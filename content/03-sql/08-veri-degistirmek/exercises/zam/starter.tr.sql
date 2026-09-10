@@ -1,0 +1,4 @@
+-- ACC kategorisindeki urunlerin fiyatini %10 arttir.
+--
+-- Diger kategorilerin fiyati degismemeli.
+-- Fiyati elle hesaplama: sutunun kendisini kullan.

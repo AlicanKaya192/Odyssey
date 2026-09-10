@@ -82,16 +82,24 @@ lecture note does not mean downloading the whole application again.
   How empty values quietly break `NOT IN` gets its own treatment. Two
   notes, a twenty-four-question quiz, five exercises and the "Query Within
   a Query" badge.
+- **The SQL path, third Intermediate section: "Changing Data".** After
+  seven sections of only reading data, this one writes to it: `INSERT`,
+  `UPDATE`, `DELETE`, `TRUNCATE` and transactions (`BEGIN TRANSACTION`,
+  `COMMIT`, `ROLLBACK`). How a command with no `WHERE` changes the whole
+  table, and the habit of rehearsing with a `SELECT` before writing, each
+  get their own treatment. Two notes, a twenty-four-question quiz, five
+  exercises and the "Write Access" badge.
 - **Level headings on the path screen.** The sections of the SQL path are
   now grouped under "Beginner" and "Intermediate" headings.
 - **The "Tables" window.** For seeing what is in the database while you
   write a query in a SQL exercise. The tables sit in tabs, and you can move
   any of them into its own window to look at two tables at once. A table
   you created yourself shows up in the list too.
-- **Eight new badges.** "Server Up" arrives when you install SQL Server and
+- **Nine new badges.** "Server Up" arrives when you install SQL Server and
   run your first query; "First Filter", "In Order", "Seeing the Gaps",
-  "Your Own Column", "The Summariser", "The Connector" and "Query Within a
-  Query" arrive as you finish the sections of the SQL path.
+  "Your Own Column", "The Summariser", "The Connector", "Query Within a
+  Query" and "Write Access" arrive as you finish the sections of the SQL
+  path.
 
 ### Fixed
 - **External links in the lecture notes did not open.** Clicking the
