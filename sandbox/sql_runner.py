@@ -45,6 +45,10 @@ DB_PREFIX = "Odyssey_"
 # veritabanı bu yüzden yeniden kuruluyor.
 SEED_TABLE = "__odyssey_seed"
 
+# Geri almanın tuttuğunu doğrulayan işaret. Tohum özetiyle aynı sütuna
+# yazılıyor ve 64 karakter olmak zorunda (`CHAR(64)`).
+SENTINEL = "!" * 64
+
 # Kayan noktalı karşılaştırmada kabul edilen fark. `AVG` gibi işlemler
 # `85000.000000` üretiyor; yazarın beklenen değeri `85000.0` yazması
 # yeterli olmalı.
@@ -176,8 +180,11 @@ def ensure_database(driver: str, server: str, name: str, seed_sql: str) -> None:
                 vt = _connect(driver, server, name, autocommit=True)
                 try:
                     c = vt.cursor()
+                    # İşaret satırı sayılmıyor: kalıcı olmuş bir tanesi
+                    # duruyorsa bile tohumun özeti okunabilmeli.
                     c.execute(
-                        f"SELECT ozet FROM dbo.{SEED_TABLE}"
+                        f"SELECT ozet FROM dbo.{SEED_TABLE} WHERE ozet <> ?",
+                        SENTINEL,
                     )
                     satir = c.fetchone()
                     if satir and satir[0] == ozet:
@@ -202,6 +209,23 @@ def ensure_database(driver: str, server: str, name: str, seed_sql: str) -> None:
         imlec.execute(f"INSERT INTO dbo.{SEED_TABLE} (ozet) VALUES (?)", ozet)
     finally:
         vt.close()
+
+
+def _force_reseed(driver: str, server: str, name: str, seed_sql: str) -> None:
+    """Veritabanını düşürüp tohumdan yeniden kurar.
+
+    `ensure_database` özet aynıysa hiçbir şey yapmıyor; burada özet
+    aynı ama **içerik** bozuk, o yüzden düşürme zorlanıyor.
+    """
+    ana = _connect(driver, server, "master", autocommit=True)
+    try:
+        imlec = ana.cursor()
+        imlec.execute("SELECT DB_ID(?)", name)
+        if imlec.fetchone()[0] is not None:
+            _drop(imlec, name)
+    finally:
+        ana.close()
+    ensure_database(driver, server, name, seed_sql)
 
 
 def _drop(cursor, name: str) -> None:
@@ -250,6 +274,34 @@ def _fingerprint(cursor) -> list:
         "ORDER BY t.name, c.column_id"
     )
     return [tuple(r) for r in cursor.fetchall()]
+
+
+def _place_sentinel(cursor) -> None:
+    """İşlemin hâlâ bizim elimizde olup olmadığını anlatacak satır.
+
+    Öğrencinin SQL'inden **önce** yazılıyor. Geri alma çalışırsa bu
+    satır da gidiyor; duruyorsa arada bir `COMMIT` geçmiş demektir.
+    `@@TRANCOUNT` bakmak işe yaramıyor: pyodbc bir sonraki ifadede
+    kendiliğinden yeni bir işlem açıyor ve sayaç yine 1 görünüyor
+    (ölçüldü).
+    """
+    cursor.execute(
+        f"INSERT INTO dbo.{SEED_TABLE} (ozet) VALUES (?)", SENTINEL
+    )
+
+
+def _sentinel_survived(connection) -> bool:
+    """Geri almadan sonra işaret satırı duruyor mu?"""
+    try:
+        imlec = connection.cursor()
+        imlec.execute(
+            f"SELECT COUNT(*) FROM dbo.{SEED_TABLE} WHERE ozet = ?", SENTINEL
+        )
+        return int(imlec.fetchone()[0]) > 0
+    except Exception:
+        # Tablo okunamıyorsa (öğrenci düşürmüş olabilir) veritabanı
+        # zaten kirli sayılır.
+        return True
 
 
 def _snapshot(cursor) -> list[dict]:
@@ -303,10 +355,12 @@ def execute(driver: str, server: str, name: str, sql: str, checks: list[dict]) -
         "schema_changed": False,
         "verify": {},
         "tables": [],
+        "dirty": False,
     }
     try:
         imlec = baglanti.cursor()
         once = _fingerprint(imlec)
+        _place_sentinel(imlec)
 
         try:
             son_sutunlar: list[str] = []
@@ -361,6 +415,7 @@ def execute(driver: str, server: str, name: str, sql: str, checks: list[dict]) -
             sonuc["tables"] = _snapshot(imlec)
         except Exception:
             pass
+
     finally:
         # Ne olursa olsun geri alınıyor: bir sonraki çalıştırma temiz
         # bir veritabanıyla başlıyor.
@@ -368,8 +423,36 @@ def execute(driver: str, server: str, name: str, sql: str, checks: list[dict]) -
             baglanti.rollback()
         except Exception:
             pass
+        # Geri alma tuttuysa işaret satırı da gitmiş olmalı. Duruyorsa
+        # öğrencinin SQL'i işlemi kapatmış (`COMMIT`) ve yazdıkları
+        # kalıcı olmuş demektir.
+        sonuc["dirty"] = _sentinel_survived(baglanti)
         baglanti.close()
     return sonuc
+
+
+# Sunucunun bilgi taşımayan ikinci mesajları. Yalnızca bunlardan
+# ibaret kalan bir hata varsa yine gösteriliyor, yoksa atılıyor.
+NOISE_MESSAGES = (
+    "the statement has been terminated.",
+)
+
+
+def _clean_message(part: str) -> str:
+    """Bir hata parçasından sürücü ekini ve hata kodunu atar.
+
+    Kesme noktası `(2627) (SQLExecDirectW);` gibi kod eki: ondan
+    sonrası bir sonraki mesajın başlığı, öğrenciyi ilgilendirmiyor.
+    Kalıp rakam istiyor, o yüzden metnin içindeki `(ACC)` gibi
+    parantezler kesmiyor.
+    """
+    metin = re.split(r"\s*\(\d+\)\s*(?:\(\w+\))?\s*(?:;|$)", part)[0]
+    metin = re.sub(r"^(?:\[[^\]]*\]\s*)+", "", metin)
+    return metin.strip().strip(";").strip()
+
+
+def _is_noise(message: str) -> bool:
+    return message.strip().lower() in NOISE_MESSAGES
 
 
 def _format_sql_error(exc: Exception) -> dict:
@@ -377,18 +460,26 @@ def _format_sql_error(exc: Exception) -> dict:
 
     Ham mesaj sürücü ve sunucu adlarıyla dolu:
     `[42S02] [Microsoft][ODBC Driver 18...][SQL Server]Invalid object
-    name 'x'. (208)`. Öğrenciyi ilgilendiren yalnızca son cümle.
+    name 'x'. (208)`. Öğrenciyi ilgilendiren yalnızca cümlenin kendisi.
+
+    Sunucu bir hata için **birden fazla** mesaj gönderebiliyor ve
+    sonuncusu genelde bilgi taşımıyor: kısıt ihlallerinde ikinci mesaj
+    hep `The statement has been terminated.` Sonuncuyu almak öğrenciye
+    "ifade sonlandırıldı" demekten ibaret bir hata gösteriyordu; hangi
+    kısıtın ihlal edildiği kayboluyordu. O yüzden parçalar tek tek
+    temizlenip anlamsız olanlar atılıyor.
     """
     ham = ""
     if getattr(exc, "args", None):
         ham = str(exc.args[-1] if len(exc.args) > 1 else exc.args[0])
     ham = ham or str(exc)
 
-    mesaj = ham
     if "[SQL Server]" in ham:
-        mesaj = ham.split("[SQL Server]")[-1]
-    # Sondaki `(208) (SQLExecDirectW)` gibi kodları at.
-    mesaj = re.sub(r"\s*\(\d+\)\s*(\(\w+\))?\s*$", "", mesaj).strip()
+        parcalar = [_clean_message(p) for p in ham.split("[SQL Server]")[1:]]
+        anlamli = [p for p in parcalar if p and not _is_noise(p)]
+        mesaj = " ".join(anlamli) if anlamli else (parcalar[-1] if parcalar else ham)
+    else:
+        mesaj = _clean_message(ham)
 
     kod = ""
     eslesme = re.match(r"\[(\w+)\]", ham)
@@ -674,6 +765,15 @@ def run(job: dict) -> dict:
         return sonuc
 
     cikti = execute(surucu, sunucu, ad, sql, checks)
+    if cikti.get("dirty"):
+        # Geri alma tutmadı (öğrenci `COMMIT` yazmış olabilir):
+        # veritabanı düşürülüp tohumdan yeniden kuruluyor. Sonuç ve
+        # kontroller zaten toplandı, etkilenen tek şey bir sonraki
+        # çalıştırmanın temiz başlaması.
+        try:
+            _force_reseed(surucu, sunucu, ad, tohum)
+        except Exception:
+            pass
     sonuc["stdout"] = render_table(cikti["columns"], cikti["rows"])
     if cikti["error"] is not None:
         sonuc["status"] = "error"
