@@ -88,6 +88,10 @@ class SegmentedControl(QFrame):
     def value(self) -> str:
         return self._value
 
+    def button(self, value: str) -> QPushButton | None:
+        """Bir seçeneğin düğmesi; kaydırma alanında görünür yapmak için."""
+        return self._buttons.get(value)
+
     def set_value(self, value: str) -> None:
         """Seçimi değiştirir; `selected` sinyali yayılmaz.
 

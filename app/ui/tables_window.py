@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import html
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEvent, Qt, QTimer
 from PySide6.QtWidgets import (
     QDialog,
     QFrame,
@@ -184,6 +184,45 @@ class TableWindow(_DocumentWindow):
         self._render()
 
 
+class _WheelStrip(QScrollArea):
+    """Yalnızca yatay kayan sekme şeridi; fare tekerleği de yatay kaydırıyor.
+
+    Qt'de tekerlek dikey kaydırma demek. Şeridin dikey çubuğu kapalı olduğu
+    için tekerlek hiçbir şey yapmıyordu ve sekmeler arasında gezmek için
+    ince yatay çubuğu tutturmak gerekiyordu. Tekerleğin dikey hareketi
+    burada yataya çevriliyor; dokunmatik yüzeyin yatay hareketi olduğu gibi
+    kalıyor.
+
+    İmleç çoğu zaman bir sekmenin **üstünde** duruyor. Olayın düğmeden
+    şeride geçmesi Qt'nin yayılımına kalmıştı ve o her durumda işlemiyor:
+    Qt tekerlek olayını üst widget'a yalnızca gerçek fareden geldiyse
+    aktarıyor, yapay bir olay düğmede kalıyor (ölçüldü). Şerit içindeki
+    sekmelerin tekerlek olaylarını süzgeçle doğrudan yakalıyor; böylece
+    davranış yayılıma bağlı kalmıyor.
+    """
+
+    def eventFilter(self, watched, event) -> bool:  # noqa: N802
+        if event.type() == QEvent.Type.Wheel and watched is not self.viewport():
+            self.wheelEvent(event)
+            return True
+        return super().eventFilter(watched, event)
+
+    def wheelEvent(self, event) -> None:  # noqa: N802
+        piksel = event.pixelDelta()
+        if not piksel.isNull():
+            x, y = piksel.x(), piksel.y()
+        else:
+            aci = event.angleDelta()
+            x, y = aci.x(), aci.y()
+        # Hangi eksen daha çok hareket ettiyse o: yatay kaydıran bir
+        # dokunmatik yüzey küçük bir dikey titreme de gönderiyor.
+        fark = x if abs(x) > abs(y) else y
+        if fark:
+            cubuk = self.horizontalScrollBar()
+            cubuk.setValue(cubuk.value() - fark)
+        event.accept()
+
+
 class TablesWindow(_DocumentWindow):
     """Veritabanındaki tabloları sekmeli gösteren pencere."""
 
@@ -213,7 +252,7 @@ class TablesWindow(_DocumentWindow):
         # Sekmeler kaydırılabilir bir şeritte: sekiz tablolu bir
         # alıştırmada adlar pencereye sığmıyor ve son sekmeler
         # erişilemez oluyordu.
-        self._strip = QScrollArea()
+        self._strip = _WheelStrip()
         self._strip.setWidgetResizable(True)
         self._strip.setFrameShape(QFrame.Shape.NoFrame)
         self._strip.setVerticalScrollBarPolicy(
@@ -223,11 +262,13 @@ class TablesWindow(_DocumentWindow):
             Qt.ScrollBarPolicy.ScrollBarAsNeeded
         )
         # Genel kaydırma çubuğu 12 piksel; sekmelerin hemen altında bu
-        # kadar kalın bir şerit ikinci bir sıra gibi duruyor. Yalnızca
-        # burada inceltiliyor — şerit zaten dar bir bant.
+        # kadar kalın bir şerit ikinci bir sıra gibi duruyor. Burada
+        # inceltiliyor ama 6 piksel tutturulamayacak kadar inceydi; tutamak
+        # da en az 40 piksel, yoksa çok tablolu alıştırmada nokta kadar
+        # kalıyordu. Asıl gezinme yolu artık tekerlek.
         self._strip.horizontalScrollBar().setStyleSheet(
-            "QScrollBar:horizontal { height: 6px; }"
-            "QScrollBar::handle:horizontal { min-width: 24px; margin: 1px; }"
+            "QScrollBar:horizontal { height: 9px; }"
+            "QScrollBar::handle:horizontal { min-width: 40px; margin: 1px; }"
         )
         bar_layout.addWidget(self._strip, 1)
 
@@ -259,6 +300,9 @@ class TablesWindow(_DocumentWindow):
         self._build_strip(adlar)
         self._render()
         self._refresh_detached()
+        # Yeni şeritte düğmelerin yeri ancak yerleşimden sonra belli oluyor;
+        # bakılan sekme şeridin dışında kalmasın diye bir tur sonra.
+        QTimer.singleShot(0, lambda: self._reveal(self._current))
 
     def _build_strip(self, adlar: list[str]) -> None:
         """Sekme şeridini yeniden kurar.
@@ -276,6 +320,9 @@ class TablesWindow(_DocumentWindow):
         self._segments = SegmentedControl([(ad, ad) for ad in adlar])
         self._segments.set_value(self._current)
         self._segments.selected.connect(self._choose)
+        # İmleç bir sekmenin üstündeyken de tekerlek şeridi kaydırsın.
+        for parca in [self._segments, *self._segments.findChildren(QWidget)]:
+            parca.installEventFilter(self._strip)
 
         # Şerit sola yaslanıyor; kalan boşluğu esneme dolduruyor, yoksa
         # tek tablolu bir alıştırmada sekme pencere boyunca uzuyordu.
@@ -295,6 +342,19 @@ class TablesWindow(_DocumentWindow):
     def _choose(self, name: str) -> None:
         self._current = name
         self._render()
+        self._reveal(name)
+
+    def _reveal(self, name: str) -> None:
+        """Seçili sekmeyi şeritte tamamen görünür yapar.
+
+        Kenarda yarım duran bir sekmeye basınca yarım kalıyordu:
+        "categories" şeridin sol kenarında "ries" diye görünüyordu.
+        """
+        if self._segments is None:
+            return
+        dugme = self._segments.button(name)
+        if dugme is not None:
+            self._strip.ensureWidgetVisible(dugme, SPACING["md"], 0)
 
     def _table(self, name: str) -> dict | None:
         for tablo in self._tables:
