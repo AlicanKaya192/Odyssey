@@ -38,15 +38,15 @@ You can turn the check off under **Settings › Updates**. With it off, the appl
 
 ## Status
 
-Early development (`0.7.4`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
+Early development (`0.8.0`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
 
-**Content today:** two modules are **complete**. Python Fundamentals has fifteen sections, from your first program to databases; Data Science has ten, from NumPy to exploratory analysis. 560 quiz questions, 115 coding exercises and 54 sets of lecture notes, all of it in both Turkish and English.
+**Content today:** three modules are **complete** — Python Fundamentals (fifteen sections), Data Science (ten) and Machine Learning (thirteen) — and the first part of the SQL path is out: nine sections, from installing SQL Server to changing data. 1297 quiz questions, 222 coding exercises and 98 sets of lecture notes, all of it in both Turkish and English.
 
-**Six learning paths** are defined: Python and Data Science are open, while Machine Learning, SQL, API and Docker are visible but locked until their content is written.
+**Thirteen learning paths** are defined: Python, Data Science, Machine Learning and SQL are open, while API, Docker, Time Series, Natural Language Processing and the others are visible but locked until their content is written.
 
-**Working:** learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises with automatic checking, graded hints, error explanations, sections that unlock in order, persistent progress, 19 badges and an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
+**Working:** learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations, sections that unlock in order, persistent progress, 42 badges and an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
 
-**Not there yet:** the content for the other four paths, a place for your own notes, and a larger exercise engine for projects that run a dataset end to end.
+**Not there yet:** the rest of the SQL path, the content for the other paths, a place for your own notes, and a larger exercise engine for projects that run a dataset end to end.
 
 The roadmap moves along in [CHANGELOG.en.md](CHANGELOG.en.md).
 

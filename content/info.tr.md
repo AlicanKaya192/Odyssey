@@ -44,9 +44,10 @@ anlatımı, ders notları, sınavlar, kod alıştırmaları, kademeli ipuçları
 ilerleme kaydı, profil ve rozetler, Türkçe/İngilizce arayüz, açık/koyu tema
 ve uygulama içi güncelleme hazırdır.
 
-Üç patika yayındadır: **Python Temelleri**, **Veri Bilimi** ve **Makine
-Öğrenmesi**. Toplamda 38 bölüm, 1073 sınav sorusu ve 180 kod alıştırması
-bulunur. SQL, API ve Docker patikaları hazırlanmaktadır.
+Dört patika yayındadır: **Python Temelleri**, **Veri Bilimi**, **Makine
+Öğrenmesi** ve **SQL**'in ilk kısmı. Toplamda 47 bölüm, 1297 sınav sorusu
+ve 222 kod alıştırması bulunur. SQL patikasının geri kalanı ile API,
+Docker ve diğer ileri patikalar hazırlanmaktadır.
 
 Bölüm içinde kendi notunuzu tutabileceğiniz alan yol haritasındadır.
 

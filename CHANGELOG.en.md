@@ -21,7 +21,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [0.8.0] — unreleased
+## [0.8.0] — 10 September 2026
 
 ### Added
 - **Part 1 of the SQL path.** You write queries inside Odyssey and the SQL

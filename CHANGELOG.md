@@ -19,7 +19,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [0.8.0] — yayınlanmadı
+## [0.8.0] — 10 Eylül 2026
 
 ### Eklendi
 - **SQL patikasının 1. kısmı eklendi.** Sorguları Odyssey'in içinde

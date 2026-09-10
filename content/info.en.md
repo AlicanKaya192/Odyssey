@@ -44,9 +44,10 @@ lessons, lecture notes, quizzes, coding exercises, staged hints, progress
 tracking, a profile with badges, a Turkish/English interface, light and dark
 themes and in-app updates are all in place.
 
-Three paths are published: **Python Fundamentals**, **Data Science** and
-**Machine Learning**. Together they hold 38 sections, 1073 quiz questions and
-180 coding exercises. The SQL, API and Docker paths are in preparation.
+Four paths are published: **Python Fundamentals**, **Data Science**,
+**Machine Learning** and the first part of **SQL**. Together they hold 47
+sections, 1297 quiz questions and 222 coding exercises. The rest of the SQL
+path and the API, Docker and other advanced paths are in preparation.
 
 A personal notes area inside each section is on the roadmap.
 

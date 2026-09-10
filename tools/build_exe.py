@@ -75,6 +75,11 @@ COLLECT = [
     "pandas",
     "matplotlib",
     "sklearn",
+    # SQL alıştırmalarının sunucuya bağlanan katmanı. `sandbox/sql_runner.py`
+    # pakete düz veri olarak giriyor ve PyInstaller içindeki `import
+    # pyodbc`'yi görmüyor; toplanmazsa paketlenmiş sürüm SQL Server kurulu
+    # olsa bile "sürücü yok" diyordu.
+    "pyodbc",
 ]
 
 # Gereksiz yere paketi büyüten, kullanılmayan Qt modülleri.
