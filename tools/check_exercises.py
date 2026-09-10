@@ -27,6 +27,12 @@ Kullanım:
     python tools/check_exercises.py            # hepsi
     python tools/check_exercises.py 02-makine-ogrenmesi
     python tools/check_exercises.py 02-makine-ogrenmesi 05-dogrulama
+
+SQL alıştırmaları çalışırken her biri sunucuda kendi veritabanını açıyor
+(yaklaşık 16 MB). Denetim bitince **kendi açtıklarını siliyor**: başlamadan
+önce listeyi alıyor, sonunda farkı düşürüyor. Uygulamayı kullanırken
+açılmış veritabanlarına dokunmuyor — aynı adla zaten varsa denetim onu
+kullanıyor ama silmiyor.
 """
 
 from __future__ import annotations
@@ -40,7 +46,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.core.catalog import Exercise  # noqa: E402
-from app.core.runner import run_code  # noqa: E402
+from app.core.runner import run_code, sql_admin  # noqa: E402
 from app.paths import content_dir  # noqa: E402
 
 # İpucundaki kod bloğu. Dil etiketi alıştırmanın diline göre değişiyor
@@ -135,6 +141,32 @@ def denetle(directories: list[Path]) -> list[str]:
     return [sorun for grup in sonuclar for sorun in grup]
 
 
+def _veritabanlari() -> set[str] | None:
+    """Sunucudaki alıştırma veritabanlarının adları; sunucu yoksa `None`."""
+    sonuc = sql_admin("list_databases")
+    if sonuc.get("status") != "ok":
+        return None
+    return {v["name"] for v in sonuc.get("databases", [])}
+
+
+def _test_veritabanlarini_sil(onceki: set[str]) -> None:
+    """Bu çalıştırmanın açtığı veritabanlarını siler.
+
+    Ayarlar penceresinin kullandığı yoldan geçiyor (`sql_admin`), yani
+    yalnızca `Odyssey_` önekli adlar silinebiliyor.
+    """
+    simdiki = _veritabanlari()
+    if simdiki is None:
+        return
+    yeni = sorted(simdiki - onceki)
+    if not yeni:
+        return
+    sonuc = sql_admin("drop_databases", yeni)
+    print(f"Denetimin açtığı {len(sonuc.get('dropped', []))} veritabanı silindi.")
+    for hata in sonuc.get("errors", []):
+        print(f"  silinemedi: {hata.get('name')}: {hata.get('message')}")
+
+
 def main() -> int:
     root = content_dir()
     if len(sys.argv) > 2:
@@ -149,8 +181,17 @@ def main() -> int:
         print(f"Eşleşen alıştırma yok: {pattern}")
         return 1
 
+    # Denetimden önceki liste: sonunda yalnızca bu çalıştırmanın açtıkları
+    # siliniyor. SQL alıştırması yoksa sunucuya hiç gidilmiyor.
+    sql_var = any(Exercise.load(d).language == "tsql" for d in directories)
+    onceki = _veritabanlari() if sql_var else None
+
     started = time.time()
-    problems = denetle(directories)
+    try:
+        problems = denetle(directories)
+    finally:
+        if onceki is not None:
+            _test_veritabanlarini_sil(onceki)
     elapsed = time.time() - started
 
     print("-" * 66)
