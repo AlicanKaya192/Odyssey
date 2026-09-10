@@ -22,78 +22,14 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.8.0] — yayınlanmadı
 
 ### Eklendi
-- **SQL patikası başladı: "Kurulum" bölümü.** Microsoft SQL Server'ı
-  bilgisayarına kurmayı, SSMS'i ve ODBC sürücüsünü, sunucu ile veritabanı
-  arasındaki farkı anlatıyor; indirme bağlantıları her zaman güncel sürümü
-  veriyor. Yanında iki not (kurulum sorunları ve bir SSMS turu), yirmi
-  soruluk bir sınav ve iki alıştırma var.
-- **Alıştırmalar artık SQL de kabul ediyor.** Sorguyu Odyssey'in içinde
-  yazıyorsun, kendi bilgisayarındaki SQL Server çalıştırıyor, sonuç tablosu
-  karşına geliyor. Yazdığın her şey çalıştırma bitince geri alınıyor:
-  yanlışlıkla bir tabloyu silsen bile bir sonraki denemede yerinde
-  duruyor.
-- **SQL patikası, ikinci bölüm: "SELECT ve WHERE".** Sorgunun üç
-  parçasını, sütun seçmeyi, `AS` ile ad vermeyi ve `WHERE` ile satır
-  süzmeyi anlatıyor; tek tırnak kuralı, `AND`/`OR` önceliği ve sunucunun
-  `FROM → WHERE → SELECT` işleme sırası ayrı ayrı ele alınıyor. İki not,
-  yirmi sekiz soruluk sınav, beş alıştırma ve "İlk Süzgeç" rozeti.
-- **Alıştırma veritabanlarını silme.** Her SQL alıştırması bilgisayarınızda
-  kendi veritabanını açıyor ve her biri yaklaşık 16 MB yer tutuyor.
-  Ayarlar penceresindeki yeni **SQL Alıştırmaları** bölümü kaç veritabanı
-  olduğunu ve ne kadar yer kapladığını gösteriyor; tek düğmeyle hepsini
-  silebiliyorsunuz. İlerlemeniz etkilenmiyor, veritabanı bir sonraki
-  çalıştırmada kendiliğinden yeniden kuruluyor.
-- **SQL patikası, üçüncü bölüm: "Sıralama ve Sınırlama".** `ORDER BY`,
-  `TOP` ve `DISTINCT`; sunucunun neden hiçbir sıra garantisi vermediği,
-  `TOP`'un `ORDER BY` olmadan neden anlamsız olduğu ve `DISTINCT`'in tek
-  bir sütuna değil satırın tamamına baktığı. İki not, yirmi dokuz soruluk
-  sınav, beş alıştırma ve "Sıra Sende" rozeti.
-- **SQL patikası, dördüncü bölüm: "Filtreleme Desenleri".** `LIKE`, `IN`,
-  `BETWEEN` ve `NULL`. Bölümün yarısı `NULL`'a ayrıldı: neden `= NULL`
-  hiçbir zaman çalışmadığı, `NOT IN` ile bir arada neden sessizce boş sonuç
-  verdiği ve `BETWEEN`'in iki ucu da dahil ettiği. İki not, yirmi beş
-  soruluk sınav, beş alıştırma ve "Boşluğu Gördün" rozeti.
-- **SQL patikası, beşinci bölüm: "Hesaplanan Sütunlar".** Tabloda olmayan
-  sütunlar üretmek: aritmetik, metin ve sayı işlevleri, tür çevirme. İki
-  tam sayının bölümünün neden tam sayı olduğu, `CONCAT` ile `+` arasındaki
-  farkın neden önemli olduğu ve hangi hesabın sessizce yanlış sonuç
-  verdiği. İki not, yirmi beş soruluk sınav, beş alıştırma ve "Kendi
-  Sütunun" rozeti.
-- **SQL patikasının Başlangıç seviyesi tamamlandı: altı bölüm.** Son bölüm
-  **"Gruplama"**: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY` ve
-  `HAVING`. Satırları özetlemeyi, `WHERE` ile `HAVING` arasındaki farkı ve
-  sunucunun sorguyu hangi sırayla işlediğini anlatıyor. İki not, yirmi beş
-  soruluk sınav, beş alıştırma ve "Toparlayıcı" rozeti.
-- **SQL patikasında Orta Seviye başladı: "Tabloları Birleştirmek".**
-  Bu bölümle birlikte **sekiz tablolu** bir sipariş veritabanına geçiliyor:
-  ürünler, kategoriler, tedarikçiler, müşteriler, çalışanlar, siparişler,
-  sipariş kalemleri ve kargolar. `JOIN` ve `LEFT JOIN`, eşleşmeyen kayıtları
-  bulma, `LEFT JOIN`'i sessizce bozan `WHERE` ve birleştirmenin satırları
-  nasıl çoğalttığı. İki not (biri şemanın haritası), yirmi dört soruluk
-  sınav, beş alıştırma ve "Bağlantı Kuran" rozeti.
-- **SQL patikası, Orta Seviyenin ikinci bölümü: "Alt Sorgular".** Bir
-  sorgunun cevabını başka bir sorgunun içinde kullanmak: `WHERE` ve
-  `SELECT` içinde alt sorgular, `IN`, `EXISTS`, ilişkili alt sorgular ve
-  `FROM` içindeki türetilmiş tablolar. Boş değerlerin `NOT IN`'i sessizce
-  bozması ayrı ayrı ele alınıyor. İki not, yirmi dört soruluk sınav, beş
-  alıştırma ve "Sorgu İçinde Sorgu" rozeti.
-- **SQL patikası, Orta Seviyenin üçüncü bölümü: "Veri Değiştirmek".**
-  Yedi bölümdür yalnızca okunan veriye bu bölümde yazılıyor: `INSERT`,
-  `UPDATE`, `DELETE`, `TRUNCATE` ve işlemler (`BEGIN TRANSACTION`,
-  `COMMIT`, `ROLLBACK`). `WHERE`'siz bir komutun bütün tabloyu nasıl
-  değiştirdiği ve yazmadan önce `SELECT` ile prova yapma alışkanlığı ayrı
-  ayrı ele alınıyor. İki not, yirmi dört soruluk sınav, beş alıştırma ve
-  "Yazma Yetkisi" rozeti.
-- **Yol ekranında seviye başlıkları.** SQL patikasının bölümleri artık
-  "Başlangıç" ve "Orta Seviye" başlıkları altında gruplanıyor.
-- **"Tablolar" penceresi.** SQL alıştırmalarında, sorgu yazarken
-  veritabanında ne olduğunu görmek için. Tablolar sekmeli duruyor;
-  istediğin tabloyu ayrı bir pencereye taşıyıp iki tabloya aynı anda
-  bakabiliyorsun. Kendi yarattığın tablo da listede çıkıyor.
-- **Dokuz yeni rozet.** "Sunucu Ayakta" SQL Server'ı kurup ilk sorgunu
-  çalıştırdığında; "İlk Süzgeç", "Sıra Sende", "Boşluğu Gördün", "Kendi
-  Sütunun", "Toparlayıcı", "Bağlantı Kuran", "Sorgu İçinde Sorgu" ve
-  "Yazma Yetkisi" ise SQL patikasının bölümlerini bitirdikçe geliyor.
+- **SQL patikasının 1. kısmı eklendi.** Sorguları Odyssey'in içinde
+  yazıyorsunuz, kendi bilgisayarınızdaki SQL Server çalıştırıyor. İçindeki
+  bölümler — **Başlangıç:** Kurulum, SELECT ve WHERE, Sıralama ve Sınırlama,
+  Filtreleme Desenleri, Hesaplanan Sütunlar, Gruplama. **Orta Seviye:**
+  Tabloları Birleştirmek, Alt Sorgular, Veri Değiştirmek. Her bölümün kendi
+  notları, sınavı, alıştırmaları ve rozeti var. Alıştırmalarda tabloları
+  ayrı bir pencerede görebiliyor, açılan veritabanlarını Ayarlar'dan
+  silebiliyorsunuz.
 
 ### Düzeltildi
 - **Ders notlarındaki dış bağlantılar açılmıyordu.** Python kurulum

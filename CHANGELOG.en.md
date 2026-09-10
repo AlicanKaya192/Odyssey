@@ -24,82 +24,13 @@ lecture note does not mean downloading the whole application again.
 ## [0.8.0] — unreleased
 
 ### Added
-- **The SQL path has started: the "Setup" section.** It covers installing
-  Microsoft SQL Server on your own machine, SSMS and the ODBC driver, and
-  the difference between a server and a database; the download links always
-  point at the current version. It comes with two notes (installation
-  problems and a tour of SSMS), a twenty-question quiz and two exercises.
-- **Exercises now accept SQL as well.** You write the query inside Odyssey,
-  the SQL Server on your own machine runs it, and the result table comes
-  back to you. Everything you write is rolled back when the run finishes:
-  even if you drop a table by accident, it is there again on your next
-  attempt.
-- **The SQL path, second section: "SELECT and WHERE".** The three parts of
-  a query, choosing columns, naming them with `AS` and filtering rows with
-  `WHERE`; the single-quote rule, `AND`/`OR` precedence and the server's
-  `FROM → WHERE → SELECT` processing order each get their own treatment.
-  Two notes, a twenty-eight-question quiz, five exercises and the "First
-  Filter" badge.
-- **Deleting exercise databases.** Every SQL exercise opens its own
-  database on your machine and each one takes up about 16 MB. The new **SQL
-  Exercises** section in the Settings window shows how many databases there
-  are and how much room they take, and one button deletes them all. Your
-  progress is not affected, and the database rebuilds itself on the next
-  run.
-- **The SQL path, third section: "Ordering and Limiting".** `ORDER BY`,
-  `TOP` and `DISTINCT`; why the server guarantees no order at all, why
-  `TOP` means nothing without `ORDER BY`, and how `DISTINCT` looks at the
-  whole row rather than a single column. Two notes, a twenty-nine-question
-  quiz, five exercises and the "In Order" badge.
-- **The SQL path, fourth section: "Filtering Patterns".** `LIKE`, `IN`,
-  `BETWEEN` and `NULL`. Half the section goes to `NULL`: why `= NULL` never
-  worked, why it quietly returns nothing together with `NOT IN`, and how
-  `BETWEEN` includes both ends. Two notes, a twenty-five-question quiz,
-  five exercises and the "Seeing the Gaps" badge.
-- **The SQL path, fifth section: "Calculated Columns".** Producing columns
-  that are not in the table: arithmetic, text and number functions, type
-  conversion. Why dividing two integers gives an integer, why the
-  difference between `CONCAT` and `+` matters, and which calculation
-  quietly gives the wrong answer. Two notes, a twenty-five-question quiz,
-  five exercises and the "Your Own Column" badge.
-- **The Beginner level of the SQL path is complete: six sections.** The
-  last one is **"Grouping"**: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP
-  BY` and `HAVING`. It covers summarising rows, the difference between
-  `WHERE` and `HAVING`, and the order in which the server processes a
-  query. Two notes, a twenty-five-question quiz, five exercises and the
-  "The Summariser" badge.
-- **The Intermediate level of the SQL path has started: "Joining
-  Tables".** From this section on, the work happens in an **eight-table**
-  order database: products, categories, suppliers, customers, employees,
-  orders, order items and shipments. `JOIN` and `LEFT JOIN`, finding
-  non-matching records, the `WHERE` that quietly breaks a `LEFT JOIN`, and
-  how a join multiplies rows. Two notes (one of them a map of the schema),
-  a twenty-four-question quiz, five exercises and the "The Connector"
-  badge.
-- **The SQL path, second Intermediate section: "Subqueries".** Using the
-  answer to one query inside another: subqueries in `WHERE` and `SELECT`,
-  `IN`, `EXISTS`, correlated subqueries and derived tables inside `FROM`.
-  How empty values quietly break `NOT IN` gets its own treatment. Two
-  notes, a twenty-four-question quiz, five exercises and the "Query Within
-  a Query" badge.
-- **The SQL path, third Intermediate section: "Changing Data".** After
-  seven sections of only reading data, this one writes to it: `INSERT`,
-  `UPDATE`, `DELETE`, `TRUNCATE` and transactions (`BEGIN TRANSACTION`,
-  `COMMIT`, `ROLLBACK`). How a command with no `WHERE` changes the whole
-  table, and the habit of rehearsing with a `SELECT` before writing, each
-  get their own treatment. Two notes, a twenty-four-question quiz, five
-  exercises and the "Write Access" badge.
-- **Level headings on the path screen.** The sections of the SQL path are
-  now grouped under "Beginner" and "Intermediate" headings.
-- **The "Tables" window.** For seeing what is in the database while you
-  write a query in a SQL exercise. The tables sit in tabs, and you can move
-  any of them into its own window to look at two tables at once. A table
-  you created yourself shows up in the list too.
-- **Nine new badges.** "Server Up" arrives when you install SQL Server and
-  run your first query; "First Filter", "In Order", "Seeing the Gaps",
-  "Your Own Column", "The Summariser", "The Connector", "Query Within a
-  Query" and "Write Access" arrive as you finish the sections of the SQL
-  path.
+- **Part 1 of the SQL path.** You write queries inside Odyssey and the SQL
+  Server on your own machine runs them. The sections — **Beginner:** Setup,
+  SELECT and WHERE, Ordering and Limiting, Filtering Patterns, Calculated
+  Columns, Grouping. **Intermediate:** Joining Tables, Subqueries, Changing
+  Data. Every section comes with its own notes, quiz, exercises and badge.
+  In the exercises you can see the tables in a separate window, and delete
+  the databases they create from Settings.
 
 ### Fixed
 - **External links in the lecture notes did not open.** Clicking the
