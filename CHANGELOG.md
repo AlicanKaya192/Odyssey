@@ -19,6 +19,15 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.8.1] — yayınlanmadı
+
+### Eklendi
+- **Bildirimler.** Alt şeridin sağındaki zil kazandığınız rozetleri
+  listeliyor; okunmamışların sayısı zilin üstünde duruyor. Her birini okundu
+  sayabilir ya da hepsini temizleyebilirsiniz.
+
+---
+
 ## [0.8.0] — 10 Eylül 2026
 
 ### Eklendi
@@ -69,57 +78,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.7.4] — 4 Eylül 2026
 
 ### Eklendi
-- **Makine Öğrenmesi patikası tamamlandı: on üç bölüm.**
-  **"Makine Öğrenmesi Nedir?"** klasik programlamayla farkı, öğrenme
-  türlerini, eğitim/test ayrımını ve taban çizgiyi anlatıyor;
-  alıştırmalarında kütüphane çağırmadan bir eşiği arayarak model eğitiyor
-  ve en yakın komşuyu kendin buluyorsun.
-  **"İlk Model"** scikit-learn'e giriyor: oku, ayır, taban çizgi kur, eğit,
-  ölç. Modelin öğrendiği katsayıları okuyor ve çizdiği doğruyu grafiğe
-  döküyorsun.
-  **"Regresyon Metrikleri"** MAE, RMSE ve R²'yi formülünden kuruyor; aynı
-  MAE'ye sahip iki modelin neden aynı olmadığını gösteriyor ve kalıntı
-  grafiğiyle modelin **neyi kaçırdığını** buluyorsun.
-  **"Sınıflandırma"** hedefin kategori olduğu problemlere geçiyor:
-  karışıklık matrisi, precision ve recall, ve eşiği oynatarak yapılan takas.
-  **"Modele Veri Hazırlamak"** kirli veriyle çalışıyor: eksik değerler,
-  metin sütunları ve ölçek farkı. Bölümün kuralı tek cümle — **önce ayır,
-  sonra dokun** — ve son alıştırmada bu kuralı çiğnemenin, içinde hiçbir
-  örüntü olmayan bir veriden nasıl "çalışıyor gibi görünen" bir model
-  çıkardığını kendin ölçüyorsun.
-  **"Doğrulama ve Aşırı Öğrenme"** ölçtüğün sayının ne kadar güvenilir
-  olduğunu soruyor: eğitim ve test skorunu birlikte okumayı, tek bir
-  ayrımın ne kadar şansa bağlı olduğunu ve çapraz doğrulamayı anlatıyor.
-  Son alıştırmada öğrenme eğrisi çizip "daha çok veri işe yarar mı"
-  sorusunu tahmin etmek yerine ölçüyorsun.
-  **"KNN"** hiçbir şey öğrenmeyen, yalnızca hatırlayan bir modeli anlatıyor:
-  komşu oylaması, `k`'nın ne ayarladığı ve ölçeklemenin neden burada zorunlu
-  olduğu. Son alıştırmada iki farklı `k` için karar sınırını çizip aynı
-  doğruluğu veren iki modelin nasıl bambaşka olabildiğini görüyorsun.
-  **"Karar Ağaçları"** uzaklığa değil **sorulara** dayanan modelleri
-  anlatıyor: bölünmenin nasıl seçildiği, kuralların nasıl okunacağı ve
-  ölçeklemenin neden burada hiçbir şey değiştirmediği. Son alıştırmada
-  ağacın kendisini çizip hangi sütunun ne kadar iş gördüğünü ölçüyorsun.
-  **"Topluluk Yöntemleri"** tek bir ağacın kararsızlığını ölçüp çaresini
-  gösteriyor: torbalama, rastgele orman, gradyan artırma ve torba dışı
-  skor. Eğitim verisinin her seferinde farklı bir %10'unu çıkarıp ağacın
-  skorunun 14 puan, ormanınkinin 8 puan oynadığını kendin ölçüyorsun.
-  **"Dengesiz Veri"** sınıflardan biri %5,7 olduğunda ne olduğunu
-  anlatıyor: hiçbir şey yapmayan bir tahminci %94,4 doğruluk alıyor.
-  Sınıf ağırlıkları, eşiği oynatmak, ROC ile precision-recall eğrileri
-  arasındaki fark ve çapraz doğrulamada hangi ölçünün seçileceği burada.
-  **"Denetimsiz Öğrenme"** ilk kez hedef sütunu olmayan bir veriyle
-  çalışıyor: k-ortalamalar, `k`'yı seçmek ve PCA. Rastgele üretilmiş,
-  hiçbir yapısı olmayan bir veride de dört küme çıktığını kendin
-  ölçüyorsun.
-  **"Pipeline ve Modeli Kaydetmek"** ön işlemeyi modele bağlıyor:
-  `ColumnTransformer`, `GridSearchCV` ve `joblib`. Bölüm 04'ün "önce ayır,
-  sonra dokun" kuralı burada bir dikkat meselesi olmaktan çıkıyor.
-  **"Genel Tekrar"** on iki bölümü tek akışta topluyor; **85 soru** ve beş
-  uçtan uca proje var. Üçüncü projede sana %100 doğrulukta çalışan bir
-  model veriliyor ve neden şüphelenmen gerektiğini buluyorsun.
-  On üç bölümde yirmi altı not, **513 sınav sorusu** ve altmış beş
-  alıştırma var.
+- **Makine Öğrenmesi patikası tamamlandı.** İçindeki bölümler: Makine
+  Öğrenmesi Nedir?, İlk Model, Regresyon Metrikleri, Sınıflandırma, Modele
+  Veri Hazırlamak, Doğrulama ve Aşırı Öğrenme, KNN, Karar Ağaçları, Topluluk
+  Yöntemleri, Dengesiz Veri, Denetimsiz Öğrenme, Pipeline ve Modeli
+  Kaydetmek, Genel Tekrar. On üç bölümde yirmi altı not, 513 sınav sorusu,
+  altmış beş alıştırma ve beş uçtan uca proje var; alıştırmalarda
+  scikit-learn ile kendi modellerinizi eğitip ölçüyorsunuz.
 - **Discord'da görünüyor.** Discord açıkken profilinizde Odyssey'i
   kullandığınız, hangi modül ve bölümde olduğunuz ve ne kadar süredir
   çalıştığınız görünüyor; altındaki iki düğme projenin sayfasına ve son

@@ -12,7 +12,7 @@ gerekmez; yalnızca değişen içerik paketi iner.
 # Ayrıntısı CHANGELOG.md'nin başında yazılı.
 
 # Uygulama kodunun sürümü.
-APP_VERSION = "0.8.0"
+APP_VERSION = "0.8.1"
 
 # Müfredat içeriğinin sürümü. Uygulama kodundan ayrı ilerliyor.
 CONTENT_VERSION = "0.7.0"
@@ -21,7 +21,7 @@ CONTENT_VERSION = "0.7.0"
 # sırayla uygulanır ve kullanıcının mevcut verisi korunur. Gerçek göç
 # `app/core/progress.py` içindeki `MIGRATIONS` listesinden geliyor; burası
 # onunla aynı sayıda tutulur.
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 # Uygulama verilerinin tutulduğu klasörün adı (%APPDATA% altında).
 APP_DIR_NAME = "Odyssey"

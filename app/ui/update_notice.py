@@ -121,9 +121,15 @@ class UpdateNoticeDialog(QDialog):
             self._howto.setText(self._language.t("update.download_failed"))
             return
 
-        # Yardımcı bu sürecin kapanmasını bekliyor.
+        # Yardımcı bu sürecin kapanmasını bekliyor. Ana pencere onay
+        # sormadan kapanıyor: çıkış onayı "güncelleniyor" penceresinin
+        # arkasında kalıp güncellemeyi bekletiyordu.
         self.accept()
-        QApplication.quit()
+        pencere = self.parent()
+        if hasattr(pencere, "close_for_update"):
+            pencere.close_for_update()
+        else:
+            QApplication.quit()
 
     def _open_page(self) -> None:
         """Adresi sistemin tarayıcısına veriyor; uygulama sayfayı açmıyor."""

@@ -50,6 +50,9 @@ from .update_check import UpdateWorker
 from .update_notice import UpdateNoticeDialog
 from ..core import updates
 from .topic_view import TopicView
+from ..widgets.notification_panel import NotificationPanel
+from PySide6.QtWidgets import QApplication
+from ..core import badges as badge_core
 
 
 class Screen(QWidget):
@@ -91,6 +94,14 @@ class MainWindow(QMainWindow):
         self.resize(1400, 900)
         self.setMinimumSize(1080, 700)
 
+        # Güncelleme için kapanırken çıkış onayı sorulmuyor (`close_for_update`).
+        self._closing_for_update = False
+
+        # Bildirim paneli: alt şeritteki zile basınca yukarı doğru açılıyor.
+        self._notif_panel = NotificationPanel(self)
+        self._notif_panel.cleared.connect(self._on_notifications_cleared)
+        self._notif_panel.notification_read.connect(self._on_notification_read)
+
         central = QWidget()
         self.setCentralWidget(central)
 
@@ -127,6 +138,8 @@ class MainWindow(QMainWindow):
 
         self._build_screens()
         self._install_shortcuts()
+
+        self._footer.bell_button.clicked.connect(self._toggle_notification_panel)
 
         language.language_changed.connect(self._on_language_changed)
         theme.theme_changed.connect(self._on_theme_changed)
@@ -331,15 +344,74 @@ class MainWindow(QMainWindow):
 
         self._rail.set_progress(round(biten * 100 / toplam) if toplam else 0)
 
+        # Yeni kazanılan rozetler burada kaydedilip bildirime düşüyor.
+        # Önce yalnızca profil ekranı kaydediyordu; bildirim ancak profile
+        # bakınca geliyordu. Metin değil kimlik saklanıyor: bildirim
+        # gösterildiği anda seçili dilde yazılıyor.
+        yeniler = badge_core.award_new(
+            self._catalog, self._store, content_dir() / "badges.json"
+        )
+        for tanim in yeniler:
+            self._store.add_notification(
+                kind="badge",
+                title_key=tanim.get("id", ""),
+                icon=tanim.get("icon", ""),
+            )
+        if yeniler:
+            self._refresh_notifications()
+
     def _refresh_notifications(self) -> None:
-        """Okunmamış sürüm notu varsa şeritte nokta gösterir.
+        """Zilin üstündeki sayı ve şeritteki sürüm notu noktası.
 
         Nokta süs değil: `CHANGELOG.md`'deki en yeni sürüm, kullanıcının en
         son baktığı sürümden farklıysa çıkıyor.
         """
+        self._footer.set_unread_count(self._store.unread_notification_count())
+
         latest = self._releases.latest_version()
         seen = self._store.setting("seen_version", "")
         self._rail.set_notification("releases", bool(latest) and latest != seen)
+
+    def _toggle_notification_panel(self) -> None:
+        if self._notif_panel.isVisible():
+            self._notif_panel.close()
+        else:
+            self._show_notification_panel()
+
+    def _show_notification_panel(self) -> None:
+        tanimlar = {
+            t.get("id", ""): t
+            for t in badge_core.load_definitions(content_dir() / "badges.json")
+        }
+        notifs = []
+        for n in self._store.all_notifications():
+            n = dict(n)
+            tanim = tanimlar.get(n["title_key"]) if n["kind"] == "badge" else None
+            if tanim is not None:
+                ad = self._language.pick(tanim.get("title"), n["title_key"])
+                n["text"] = self._language.t("notification.badge", name=ad)
+            else:
+                # Tanımı olmayan (silinmiş ya da eski) bir kayıt: olduğu gibi.
+                n["text"] = n["title_key"]
+            notifs.append(n)
+        self._notif_panel.populate(
+            notifs,
+            self._language.t("notification.title"),
+            self._language.t("notification.clear"),
+            self._language.t("notification.empty"),
+            self._language.t("notification.mark_read"),
+        )
+        self._notif_panel.show_above(self._footer.bell_button)
+
+    def _on_notification_read(self, notif_id: int) -> None:
+        self._store.mark_notification_read(notif_id)
+        self._refresh_notifications()
+        if self._notif_panel.isVisible():
+            self._show_notification_panel()
+
+    def _on_notifications_cleared(self) -> None:
+        self._store.clear_notifications()
+        self._refresh_notifications()
 
     def _install_shortcuts(self) -> None:
         QShortcut(QKeySequence("Ctrl+,"), self, self._open_settings)
@@ -578,6 +650,7 @@ class MainWindow(QMainWindow):
         self._releases.set_mode(mode)
         self._releases_header.set_mode(mode)
         self._footer.set_mode(mode)
+        self._notif_panel.set_mode(mode)
         self._apply_header_accents(mode)
 
     def retranslate(self) -> None:
@@ -595,6 +668,19 @@ class MainWindow(QMainWindow):
         # yeniden üretmezse orada eski dil kalıyor.
         self._refresh_presence()
 
+    def close_for_update(self) -> None:
+        """Güncelleme yardımcısına yer açmak için onay sormadan kapanır.
+
+        `QApplication.quit()` Qt 6'da önce pencereleri kapatmaya çalışıyor,
+        bu da çıkış onayını açıyordu. Kutu "güncelleniyor" penceresinin
+        arkasında kalıyor ve fark edilmiyordu; yardımcı ise uygulamanın
+        kapanmasını en fazla 60 saniye bekleyip vazgeçiyor. Kullanıcı
+        "Güncelle"ye basarak kapanmayı zaten kabul etti, ikinci kez
+        sorulmuyor.
+        """
+        self._closing_for_update = True
+        QApplication.quit()
+
     def closeEvent(self, event) -> None:  # noqa: N802
         """Kapatmadan önce onay sorar, sonra veritabanını kapatır.
 
@@ -602,19 +688,20 @@ class MainWindow(QMainWindow):
         basmak, okunan yerin kaybolması demek. Kutu, verinin kaydedildiğini
         de söylüyor — asıl merak edilen o.
         """
-        dialog = ConfirmDialog(
-            self._language.t("quit.title"),
-            self._language.t("quit.message"),
-            self._language.t("quit.confirm"),
-            self._language.t("quit.cancel"),
-            self,
-        )
-        # Ayrı pencerelerin başlık çubuğu da temaya uysun.
-        titlebar.apply(dialog, self._theme.effective_mode)
+        if not self._closing_for_update:
+            dialog = ConfirmDialog(
+                self._language.t("quit.title"),
+                self._language.t("quit.message"),
+                self._language.t("quit.confirm"),
+                self._language.t("quit.cancel"),
+                self,
+            )
+            # Ayrı pencerelerin başlık çubuğu da temaya uysun.
+            titlebar.apply(dialog, self._theme.effective_mode)
 
-        if dialog.exec() != ConfirmDialog.DialogCode.Accepted:
-            event.ignore()
-            return
+            if dialog.exec() != ConfirmDialog.DialogCode.Accepted:
+                event.ignore()
+                return
 
         # Discord'daki yazı silinsin; yoksa kapatılan uygulama hâlâ
         # kullanılıyor gibi görünüyor.

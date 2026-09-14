@@ -143,6 +143,12 @@ PATHS: dict[str, str] = {
         '<path d="m3 8 4-4 4 4"/><path d="M7 4v16"/>'
         '<path d="m21 16-4 4-4-4"/><path d="M17 20V4"/>'
     ),
+    "bell": (
+        '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>'
+    ),
+    "check-circle": (
+        '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>'
+    ),
     # Huni: SQL'de `WHERE` satirlari suzuyor, rozet de onu anlatiyor.
     "filter": '<path d="M3 4h18l-7 8.5V19l-4 2v-8.5L3 4z"/>',
     "link": (

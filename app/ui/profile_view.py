@@ -548,6 +548,9 @@ class ProfileView(QWidget):
             self._catalog, self._store, content_dir() / "badges.json"
         )
 
+        # Profil ekranına her dönüşte rozet duvarı 1. sayfadan başlasın.
+        self._badge_wall.set_page(0)
+
         self.retranslate()
 
     # --- düzenleme --------------------------------------------------------

@@ -118,6 +118,19 @@ MIGRATIONS: list[str] = [
            updated_at
     FROM section_progress WHERE quiz_score IS NOT NULL;
     """,
+    # 3 — bildirimler. `title_key` metnin kendisi değil **kimliği** tutuyor
+    # (rozet bildiriminde rozetin id'si): metin gösterildiği anda seçili
+    # dilde üretiliyor, yoksa dil değişince bildirim eski dilde kalıyordu.
+    """
+    CREATE TABLE IF NOT EXISTS notifications (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        kind        TEXT NOT NULL,
+        title_key   TEXT NOT NULL,
+        icon        TEXT NOT NULL DEFAULT '',
+        is_read     INTEGER NOT NULL DEFAULT 0,
+        created_at  TEXT NOT NULL
+    );
+    """
 ]
 
 
@@ -360,6 +373,58 @@ class ProgressStore:
             "SELECT COUNT(*) AS n FROM study_days"
         ).fetchone()
         return row["n"] if row else 0
+
+    def add_notification(self, kind: str, title_key: str, icon: str = "") -> None:
+        """Yeni bir bildirim ekler."""
+        with self._write() as connection:
+            connection.execute(
+                """
+                INSERT INTO notifications (kind, title_key, icon, is_read, created_at)
+                VALUES (?, ?, ?, 0, ?)
+                """,
+                (kind, title_key, icon, _now()),
+            )
+
+    def unread_notification_count(self) -> int:
+        """Okunmamış bildirim sayısını döndürür."""
+        row = self._connection.execute(
+            "SELECT COUNT(*) AS n FROM notifications WHERE is_read = 0"
+        ).fetchone()
+        return row["n"] if row else 0
+
+    def all_notifications(self) -> list[dict]:
+        """Tüm bildirimleri en yeniden eskiye doğru döndürür."""
+        rows = self._connection.execute(
+            """
+            SELECT id, kind, title_key, icon, is_read, created_at
+            FROM notifications
+            ORDER BY created_at DESC, id DESC
+            """
+        ).fetchall()
+        return [
+            {
+                "id": row["id"],
+                "kind": row["kind"],
+                "title_key": row["title_key"],
+                "icon": row["icon"],
+                "is_read": bool(row["is_read"]),
+                "created_at": row["created_at"],
+            }
+            for row in rows
+        ]
+
+    def mark_notification_read(self, notif_id: int) -> None:
+        """Bildirimi okundu olarak işaretler."""
+        with self._write() as connection:
+            connection.execute(
+                "UPDATE notifications SET is_read = 1 WHERE id = ?",
+                (notif_id,),
+            )
+
+    def clear_notifications(self) -> None:
+        """Tüm bildirimleri siler."""
+        with self._write() as connection:
+            connection.execute("DELETE FROM notifications")
 
     def streak(self) -> int:
         """Bugünden geriye doğru kesintisiz çalışılan gün sayısı."""

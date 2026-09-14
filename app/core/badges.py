@@ -169,6 +169,25 @@ def evaluate(catalog, store) -> dict[str, bool]:
     }
 
 
+def award_new(catalog, store, path) -> list[dict]:
+    """Koşulu sağlanmış ama henüz kaydedilmemiş rozetleri kaydeder.
+
+    Döndürdüğü liste yeni kazanılan rozetlerin tanımları. Kazanım önce
+    yalnızca profil ekranı açılınca (`collect`) kaydediliyordu; bildirim de
+    bu yüzden ancak profile bakınca düşüyordu — o sırada rozet zaten
+    ekrandaydı. Ana pencere bunu ilerleme her değiştiğinde çağırıyor.
+    """
+    durumlar = evaluate(catalog, store)
+    kayitlar = store.earned_badges()
+    yeni = []
+    for tanim in load_definitions(path):
+        rozet_id = tanim.get("id", "")
+        if durumlar.get(rozet_id, False) and rozet_id not in kayitlar:
+            store.award_badge(rozet_id)
+            yeni.append(tanim)
+    return yeni
+
+
 def collect(catalog, store, path) -> list[Badge]:
     """Tanımları durumla birleştirip listeler.
 

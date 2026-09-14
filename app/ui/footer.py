@@ -22,6 +22,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QWidget
 
 from ..core.language import LanguageManager
+from ..widgets.notification_panel import NotificationButton
 from ..paths import content_dir
 from ..version import APP_VERSION
 from ..resources.theme.tokens import PALETTES, SPACING
@@ -68,9 +69,19 @@ class Footer(QFrame):
             Qt.TextInteractionFlag.LinksAccessibleByMouse
         )
         self._label.linkActivated.connect(lambda _: self.update_clicked.emit())
+
+        # Bildirim zili sağda. Soluna aynı genişlikte boşluk konuyor ki
+        # ortadaki telif yazısı zil yüzünden sola kaymasın.
+        self.bell_button = NotificationButton()
+        layout.addSpacing(self.bell_button.width())
         layout.addWidget(self._label, 1)
+        layout.addWidget(self.bell_button)
 
         self.retranslate()
+
+    def set_unread_count(self, count: int) -> None:
+        """Zil butonu üzerindeki rozetteki sayıyı günceller."""
+        self.bell_button.set_count(count)
 
     def set_update(self, version: str, url: str) -> None:
         """Yeni sürüm duyurusunu şeride koyar; boş sürüm kaldırıyor."""
@@ -82,6 +93,7 @@ class Footer(QFrame):
 
     def set_mode(self, mode: str) -> None:
         self._link_color = PALETTES.get(mode, PALETTES["dark"])["accent"]
+        self.bell_button.set_mode(mode)
         self.retranslate()
 
     def retranslate(self) -> None:
@@ -105,3 +117,4 @@ class Footer(QFrame):
             )
 
         self._label.setText(" · ".join(parts))
+        self.bell_button.setToolTip(self._language.t("notification.title"))
