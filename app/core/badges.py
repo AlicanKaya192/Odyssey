@@ -141,6 +141,8 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "streak-7": seri >= 7,
         "busy-day": en_yogun >= 5,
         "reader": turler.get("lesson", 0) >= 10,
+        # Notlarım: içinde bir şey yazılı ilk not (boş not sayılmıyor).
+        "first-note": store.written_note_count() >= 1,
         # Patikaya bağlı rozetler modül kimliğine bakıyor. Kimlik
         # `content/` altındaki klasör adı; modül yeniden adlandırılırsa
         # burası da değişmeli.

@@ -196,6 +196,9 @@ class MainWindow(QMainWindow):
         self._topic.progress_changed.connect(self._journey.refresh)
         self._topic.progress_changed.connect(self._refresh_progress)
         self._topic.open_notebook.connect(self._open_note)
+        # İlk yazılı not bir rozet koşulu; ilerleme hesabı rozetleri de
+        # kaydedip bildirime düşürüyor.
+        self._topic.notes_changed.connect(self._refresh_progress)
 
         # Profil
         self._profile = ProfileView(self._catalog, self._language, self._store)
@@ -207,6 +210,7 @@ class MainWindow(QMainWindow):
         # Notlarım
         self._notebook = NotebookView(self._catalog, self._language, self._store)
         self._notebook.open_section.connect(self._open_section)
+        self._notebook.changed.connect(self._refresh_progress)
         self._notebook_header = ScreenHeader(self._language)
         self._notebook_screen = Screen(self._notebook_header, self._notebook)
 

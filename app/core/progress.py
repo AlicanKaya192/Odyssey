@@ -671,6 +671,16 @@ class ProgressStore:
             "SELECT COUNT(*) AS c FROM notebook_entries"
         ).fetchone()["c"]
 
+    def written_note_count(self) -> int:
+        """İçinde bir şey yazılı notların sayısı (rozet için).
+
+        Notlarım'da açılan not önce boş oluşuyor; adı konmuş ama boş bir not
+        "not aldım" sayılmıyor.
+        """
+        return self._connection.execute(
+            "SELECT COUNT(*) AS c FROM notebook_entries WHERE trim(body) <> ''"
+        ).fetchone()["c"]
+
     def add_notebook_entry(
         self,
         chapter_id: str,

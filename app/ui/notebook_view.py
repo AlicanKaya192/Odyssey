@@ -920,6 +920,12 @@ class NotebookView(QWidget):
         self._saved.setText(self._language.t("notebook.saved"))
         self._saved.show()
 
+        # Boş not ilk kez yazıya döndü: rozet koşulu bunu bekliyor. Her
+        # kayıtta değil yalnızca bu geçişte haber veriliyor; ilerleme ve
+        # rozet hesabı her 700 ms'de bir koşacak iş değil.
+        if not entry["body"].strip() and self._editor.toPlainText().strip():
+            self.changed.emit()
+
     def _go_to_lesson(self) -> None:
         entry = self._entry()
         if entry is None or not entry["section_id"]:

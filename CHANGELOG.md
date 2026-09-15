@@ -35,7 +35,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   koyabiliyorsunuz. Yazdıklarınız kendiliğinden kaydediliyor. Notlarınızı
   tek tek (`.md`) ya da klasör klasör (`.zip`) indirebilir, başkasından
   aldığınız notları yükleyebilirsiniz; yüklenen not hiçbir notunuzun
-  üstüne yazılmıyor.
+  üstüne yazılmıyor. İlk notunuzu yazana bir rozet var.
 - **Alıştırmalarda bellek sınırı.** Durmadan büyüyen bir liste ya da çok
   büyük bir dizi artık bilgisayarınızın belleğini tüketmiyor: kod 3 GB'ı
   geçince durduruluyor ve sonuç alanında sebebi yazıyor. Eskiden böyle bir

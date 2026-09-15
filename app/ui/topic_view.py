@@ -51,6 +51,8 @@ class TopicView(QWidget):
     progress_changed = Signal()
     # Paneldeki "Notlarım'da aç": notun id'si.
     open_notebook = Signal(int)
+    # Panelde ilk kez yazılı bir not kaydedildi (rozet koşulu).
+    notes_changed = Signal()
 
     def __init__(
         self,
@@ -129,6 +131,7 @@ class TopicView(QWidget):
         self._note_panel.hide()
         self._note_panel.close_requested.connect(lambda: self.toggle_note(False))
         self._note_panel.open_in_notebook.connect(self.open_notebook)
+        self._note_panel.changed.connect(self.notes_changed)
         row.addWidget(self._note_panel)
         layout.addWidget(body, 1)
 

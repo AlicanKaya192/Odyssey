@@ -242,7 +242,12 @@ class NotePanel(QFrame):
 
         son_ad = None
         if self._current is not None:
+            onceki = self._store.notebook_entry(self._current)
             son_ad = self._store.update_notebook_entry(self._current, title=title, body=body)
+            # Boş not ilk kez yazıya döndü (Notlarım'da açılıp burada
+            # yazılan not): rozet koşulu bunu bekliyor.
+            if onceki is not None and not onceki["body"].strip() and body.strip():
+                self.changed.emit()
             if son_ad is None:
                 # Not bu arada Notlarım'da silinmiş: yazılan kaybolmasın,
                 # yeni not olarak kaydediliyor.
