@@ -36,6 +36,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   tek tek (`.md`) ya da klasör klasör (`.zip`) indirebilir, başkasından
   aldığınız notları yükleyebilirsiniz; yüklenen not hiçbir notunuzun
   üstüne yazılmıyor. İlk notunuzu yazana bir rozet var.
+- **Genel arama.** `Ctrl+K` ya da sol şeritteki büyüteç ekranın ortasında
+  bir arama kutusu açıyor; yazdıkça altında öneriler çıkıyor. Bölümler,
+  konu anlatımlarının başlıkları ve metni, ders notları, alıştırmalar,
+  kendi notlarınız ve ekranlar aranıyor. Bir sonuca basınca doğrudan
+  oraya gidiliyor: konu anlatımında ilgili başlığa kaydırılıyor, ders
+  notunda o not, alıştırmada o alıştırma açılıyor. Türkçe harfler olmadan
+  yazılan arama da buluyor ("dongu" → "Döngüler").
 - **Alıştırmalarda bellek sınırı.** Durmadan büyüyen bir liste ya da çok
   büyük bir dizi artık bilgisayarınızın belleğini tüketmiyor: kod 3 GB'ı
   geçince durduruluyor ve sonuç alanında sebebi yazıyor. Eskiden böyle bir

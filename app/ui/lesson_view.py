@@ -259,6 +259,10 @@ class LessonView(QWidget):
         self._banners = []
         self._render(keep_scroll=ayni)
 
+    def scroll_to(self, anchor: str) -> None:
+        """Başlığın çapasına kaydırır (arama sonucundan gelince)."""
+        self._document.scroll_to(anchor)
+
     def set_meta(self, items: list[str]) -> None:
         """Başlığın altındaki bilgi satırı: süre, alıştırma ve sınav sayısı."""
         yeni = [item for item in items if item]

@@ -49,6 +49,8 @@ TOP_DESTINATIONS = [
     ("profile", "user", "nav.profile"),
     ("journey", "home", "nav.path"),
     ("notes", "notebook", "nav.notes"),
+    # Ekran değil, üstte açılan arama kutusu (`Ctrl+K`).
+    ("search", "search", "nav.search"),
 ]
 
 BOTTOM_DESTINATIONS = [
@@ -261,9 +263,10 @@ class Rail(QFrame):
     def set_current(self, key: str) -> None:
         """Hangi bölümde olduğumuzu işaretler.
 
-        Ayarlar bir pencere olarak açıldığı için kalıcı olarak işaretlenmez.
+        Ayarlar bir pencere, arama bir kutu olarak açıldığı için kalıcı
+        olarak işaretlenmez.
         """
-        if key != "settings":
+        if key not in ("settings", "search"):
             self._current = key
         self._refresh_icons()
 
@@ -340,3 +343,4 @@ class Rail(QFrame):
         for key, _, translation_key in DESTINATIONS:
             self._buttons[key].setToolTip(self._language.t(translation_key))
         self._buttons["settings"].setToolTip(self._language.t("settings.title"))
+        self._buttons["search"].setToolTip(f"{self._language.t('nav.search')}  (Ctrl+K)")

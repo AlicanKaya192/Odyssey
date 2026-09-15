@@ -660,6 +660,14 @@ class ProgressStore:
         ).fetchall()
         return [dict(row) for row in rows]
 
+    def notebook_entries_with_body(self) -> list[dict]:
+        """Bütün notlar gövdeleriyle (genel arama için)."""
+        rows = self._connection.execute(
+            "SELECT id, chapter_id, section_id, folder_id, title, body "
+            "FROM notebook_entries ORDER BY created_at, id"
+        ).fetchall()
+        return [dict(row) for row in rows]
+
     def notebook_entry(self, entry_id: int) -> dict | None:
         row = self._connection.execute(
             "SELECT * FROM notebook_entries WHERE id = ?", (entry_id,)

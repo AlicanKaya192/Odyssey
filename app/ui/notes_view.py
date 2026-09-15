@@ -157,6 +157,10 @@ class NotesView(QWidget):
         self._tabs.set_current(self._current, notify=False)
         self._selector.setVisible(len(self._documents) > 1)
 
+    def select(self, index: int) -> None:
+        """Verilen sıradaki notu açar (arama sonucundan gelince)."""
+        self._select(index)
+
     def _select(self, index: int) -> None:
         self._current = max(0, min(index, len(self._documents) - 1))
         self._tabs.set_current(self._current, notify=False)

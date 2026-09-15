@@ -81,6 +81,9 @@ class DocumentView(QWebEngineView):
         self._mode = mode
         self._rendered_mode = mode
         self._body = ""
+        # Sayfa yüklendi mi; yüklenirken istenen kaydırma burada bekliyor.
+        self._loaded = False
+        self._pending_anchor = ""
         # (Nota ekle, Kopyala) etiketleri. Verilmemişse Chromium'un kendi
         # sağ tık menüsü çıkıyor.
         self._quote_labels: tuple[str, str] | None = None
@@ -132,6 +135,7 @@ class DocumentView(QWebEngineView):
         # Sayfanın hangi temanın stiliyle çizildiği; yükleme bitince
         # bakılıyor (`_on_load_finished`).
         self._rendered_mode = self._mode
+        self._loaded = False
         painted = highlight_code_blocks(self._body, self._mode)
         document = (
             f"<!doctype html><html lang='{self._lang}'>"
@@ -189,6 +193,13 @@ class DocumentView(QWebEngineView):
                 f".scrollTop = {self._restore_to};"
             )
         self._restore_to = 0
+        # Yarıda kesilen yükleme (hemen arkasından yeni bir çizim) de bu
+        # sinyali `ok=False` ile veriyor; bekleyen kaydırma son yüklemeye.
+        if ok:
+            self._loaded = True
+            if self._pending_anchor:
+                anchor, self._pending_anchor = self._pending_anchor, ""
+                self._scroll_now(anchor)
 
     # Sayfadaki göreli adreslerin (resim, dosya) çözüleceği klasör.
     # Varsayılan içerik kökü; bir bölüm kendi klasörünü verdiğinde
@@ -280,7 +291,18 @@ class DocumentView(QWebEngineView):
         menu.exec(event.globalPos())
 
     def scroll_to(self, anchor: str) -> None:
-        """Sayfayı belirtilen çapaya kaydırır."""
+        """Sayfayı belirtilen çapaya kaydırır.
+
+        Sayfa henüz yükleniyorsa (arama sonucundan bölüm yeni açıldıysa)
+        kaydırma yükleme bitince yapılıyor; hemen çalıştırılan betik
+        yüklenmekte olan sayfaya değil eskisine gidiyordu.
+        """
+        if not self._loaded:
+            self._pending_anchor = anchor
+            return
+        self._scroll_now(anchor)
+
+    def _scroll_now(self, anchor: str) -> None:
         self.page().runJavaScript(
-            f"document.getElementById({anchor!r})?.scrollIntoView({{behavior:'smooth'}});"
+            f"document.getElementById({json.dumps(anchor)})?.scrollIntoView({{block:'start'}});"
         )

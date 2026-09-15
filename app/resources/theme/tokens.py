@@ -235,6 +235,7 @@ RAIL_COLORS = {
     "light": {
         "journey": "#4F46E5",
         "notes": "#047857",
+        "search": "#7C3AED",
         "profile": "#0E7490",
         "about": "#B45309",
         "releases": "#BE185D",
@@ -243,6 +244,7 @@ RAIL_COLORS = {
     "dark": {
         "journey": "#8B84FF",
         "notes": "#34D399",
+        "search": "#C4B5FD",
         "profile": "#22D3EE",
         "about": "#FBBF24",
         "releases": "#F472B6",

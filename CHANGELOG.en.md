@@ -38,6 +38,13 @@ lecture note does not mean downloading the whole application again.
   download your notes one by one (`.md`) or a folder at a time (`.zip`),
   and upload notes you got from someone else; an uploaded note never
   overwrites one of yours. Writing your first note earns a badge.
+- **Search everywhere.** `Ctrl+K` or the magnifier on the left strip opens a
+  search box in the middle of the screen, with suggestions appearing
+  below as you type. It searches sections, lesson headings and text,
+  lecture notes, exercises, your own notes and screens. Choosing a result
+  takes you straight there: a lesson scrolls to that heading, a lecture
+  note or exercise opens on the right one. Searches typed without Turkish
+  letters still match ("dongu" → "Döngüler").
 - **A memory limit for exercises.** A list that keeps growing or a very
   large array no longer eats up your computer's memory: the code is stopped
   once it goes over 3 GB and the result area says why. Such code used to be

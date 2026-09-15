@@ -584,6 +584,23 @@ class TopicView(QWidget):
             self._exercise.code_for_note if name == "exercise" else None
         )
 
+    def focus(self, pane: str, index: int = 0, anchor: str = "") -> None:
+        """Arama sonucunun gösterdiği yere götürür.
+
+        `pane` sekme ("lesson", "notes", "exercise"); ders notunda `index`
+        kaçıncı not, alıştırmada kaçıncı alıştırma; konu anlatımında
+        `anchor` başlığın çapası.
+        """
+        if pane not in self._panes:
+            return
+        self._segments.set_current(self._panes.index(pane))
+        if pane == "notes":
+            self._notes.select(index)
+        elif pane == "exercise":
+            self._go_exercise(index)
+        elif pane == "lesson" and anchor:
+            self._lesson.scroll_to(anchor)
+
     # --- not paneli -------------------------------------------------------
 
     def toggle_note(self, visible: bool | None = None) -> None:

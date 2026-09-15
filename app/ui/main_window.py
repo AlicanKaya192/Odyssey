@@ -44,6 +44,8 @@ from ..resources.theme.tokens import RAIL_COLORS
 from .footer import Footer
 from .journey_view import JourneyView
 from .notebook_view import NotebookView
+from .search_palette import SearchPalette
+from ..core.search import SearchItem, build_index, plain
 from .profile_view import ProfileView
 from .rail import Rail
 from .release_view import ReleaseView
@@ -139,6 +141,15 @@ class MainWindow(QMainWindow):
         root.addWidget(body)
 
         self._build_screens()
+
+        # Genel arama kutusu: pencerenin üstünde, kapalı başlıyor. Katalogun
+        # dizini dil başına bir kez kuruluyor (dosya okuma), notlar ve
+        # ekranlar her açılışta tazeleniyor.
+        self._search_index: tuple[str, list] = ("", [])
+        self._search = SearchPalette(language, self)
+        self._search.set_provider(self._search_items, self._search_locked)
+        self._search.activated.connect(self._on_search)
+
         self._install_shortcuts()
 
         self._footer.bell_button.clicked.connect(self._toggle_notification_panel)
@@ -270,6 +281,9 @@ class MainWindow(QMainWindow):
         # ilk not seçilince siyah kare görünmesin.
         self._stack.setCurrentWidget(self._notebook_screen)
         self._notebook.warm_up()
+
+        # Genel aramanın dizini de burada, pencere görünmezken kuruluyor.
+        self._catalog_index()
 
         if onceki is not None:
             self._stack.setCurrentWidget(onceki)
@@ -434,13 +448,110 @@ class MainWindow(QMainWindow):
 
     def _install_shortcuts(self) -> None:
         QShortcut(QKeySequence("Ctrl+,"), self, self._open_settings)
+        QShortcut(QKeySequence("Ctrl+K"), self, self._search.toggle)
         QShortcut(QKeySequence(Qt.Key.Key_Escape), self, self._escape)
+
+    # --- genel arama ------------------------------------------------------
+
+    def _catalog_index(self) -> list[SearchItem]:
+        """Katalogun arama dizini; seçili dilde, dil başına bir kez kuruluyor.
+
+        Kurmak ~0,4 sn (bin dosya okunuyor). Açılışta pencere görünmeden
+        (`warm_up`) kuruluyor; yoksa ilk `Ctrl+K`'da kutu o kadar
+        gecikiyordu. Dil değişince bir sonraki açılışta yeniden.
+        """
+        dil = self._language.language
+        if self._search_index[0] != dil:
+            self._search_index = (dil, build_index(self._catalog, dil, self._language.pick))
+        return self._search_index[1]
+
+    def _search_items(self) -> list[SearchItem]:
+        """Aranabilecek her şey: ekranlar, kullanıcının notları, katalog."""
+        t = self._language.t
+        katalog = self._catalog_index()
+
+        ekranlar: list[SearchItem] = []
+        son = self._store.last_visited()
+        if son is not None:
+            bolum = self._catalog.section(*son)
+            ekranlar.append(
+                SearchItem(
+                    "screen",
+                    t("nav.continue"),
+                    self._language.pick(bolum.title) if bolum else "",
+                    {"type": "screen", "key": "continue", "icon": "play"},
+                )
+            )
+        for key, simge, anahtar in (
+            ("journey", "home", "nav.path"),
+            ("notes", "notebook", "nav.notes"),
+            ("profile", "user", "nav.profile"),
+            ("releases", "megaphone", "nav.releases"),
+            ("about", "info", "nav.about"),
+            ("settings", "settings", "settings.title"),
+        ):
+            ekranlar.append(
+                SearchItem("screen", t(anahtar), "", {"type": "screen", "key": key, "icon": simge})
+            )
+
+        klasorler = {f["id"]: f["name"] for f in self._store.notebook_folders()}
+        notlar = []
+        for entry in self._store.notebook_entries_with_body():
+            chapter = self._catalog.chapter(entry["chapter_id"])
+            yer = klasorler.get(entry["folder_id"]) or (
+                self._language.pick(chapter.title) if chapter else t("notebook.other")
+            )
+            notlar.append(
+                SearchItem(
+                    "note",
+                    entry["title"],
+                    f"{t('nav.notes')}  ›  {yer}",
+                    {"type": "note", "id": entry["id"]},
+                    body=plain(entry["body"]),
+                )
+            )
+        return ekranlar + notlar + katalog
+
+    def _search_locked(self, target: dict) -> bool:
+        """Sonuç kilitli bir bölüme mi götürüyor?"""
+        if "chapter" not in target:
+            return False
+        return not is_unlocked(self._catalog, self._store, target["chapter"], target["section"])
+
+    def _on_search(self, target: dict) -> None:
+        """Arama kutusunda seçilen sonuca gider."""
+        kind = target.get("type")
+        if kind == "screen":
+            key = target["key"]
+            if key == "continue":
+                son = self._store.last_visited()
+                if son is not None:
+                    self._open_section(*son)
+            else:
+                self._navigate(key)
+            return
+        if kind == "note":
+            self._open_note(target["id"])
+            return
+
+        self._open_section(target["chapter"], target["section"])
+        if self._stack.currentWidget() is not self._topic:
+            return
+        if kind == "lesson":
+            self._topic.focus("lesson", anchor=target.get("anchor", ""))
+        elif kind == "course_note":
+            self._topic.focus("notes", target.get("document", 0))
+        elif kind == "exercise":
+            self._topic.focus("exercise", target.get("exercise", 0))
 
     # --- gezinme ----------------------------------------------------------
 
     def _navigate(self, key: str) -> None:
         if key == "settings":
             self._open_settings()
+            return
+        if key == "search":
+            self._search.toggle()
             return
 
         if key == "journey":
@@ -551,7 +662,15 @@ class MainWindow(QMainWindow):
         self._set_presence_location()
 
     def _escape(self) -> None:
-        """Kaçış tuşu bir seviye geri gider."""
+        """Kaçış tuşu bir seviye geri gider.
+
+        Arama kutusu açıksa yalnızca onu kapatıyor. Bu kısayol pencere
+        genelinde ve kutunun kendi Esc'inden önce yakalıyor; burada
+        bakılmasaydı Esc kutuyu kapatmak yerine bölümden çıkarıyordu.
+        """
+        if self._search.isVisible():
+            self._search.close_palette()
+            return
         current = self._stack.currentWidget()
         if current is self._topic:
             self._topic_back()
@@ -684,6 +803,7 @@ class MainWindow(QMainWindow):
         self._releases_header.set_mode(mode)
         self._footer.set_mode(mode)
         self._notif_panel.set_mode(mode)
+        self._search.set_mode(mode)
         self._apply_header_accents(mode)
 
     def retranslate(self) -> None:
@@ -697,10 +817,17 @@ class MainWindow(QMainWindow):
         self._profile.retranslate()
         self._about.retranslate()
         self._releases.retranslate()
+        self._search.retranslate()
         self._update_headers()
         # Discord'daki yazı da kullanıcının dilinde; `retranslate` onu
         # yeniden üretmezse orada eski dil kalıyor.
         self._refresh_presence()
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        # Arama kutusu pencerenin tamamını karartıyor; pencereyle büyüyor.
+        if self._search.isVisible():
+            self._search.setGeometry(self.rect())
 
     def close_for_update(self) -> None:
         """Güncelleme yardımcısına yer açmak için onay sormadan kapanır.
