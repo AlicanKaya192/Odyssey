@@ -1,0 +1,67 @@
+{
+  "id": "ilk-tablo",
+  "language": "tsql",
+  "title": {
+    "tr": "İlk tablo",
+    "en": "Your first table"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`CREATE TABLE ad (sütun TİP kurallar, ...);` — her sütun bir satır, aralarında virgül.",
+      "en": "`CREATE TABLE name (column TYPE rules, ...);` — one column per line, commas in between."
+    },
+    {
+      "tr": "Birincil anahtar olan sütun zaten boş kalamıyor; ona ayrıca `NOT NULL` yazman gerekmiyor. Diğer ikisine gerekiyor.",
+      "en": "A primary key column can never be empty anyway, so it needs no separate `NOT NULL`. The other two do."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE TABLE warehouses (\n    code NVARCHAR(10) PRIMARY KEY,\n    city NVARCHAR(30) NOT NULL,\n    capacity INT NOT NULL\n);\n```",
+      "en": "The whole query:\n\n```sql\nCREATE TABLE warehouses (\n    code NVARCHAR(10) PRIMARY KEY,\n    city NVARCHAR(30) NOT NULL,\n    capacity INT NOT NULL\n);\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'warehouses' ORDER BY ORDINAL_POSITION;",
+      "ordered": true,
+      "expected": [
+        [
+          "code",
+          "nvarchar",
+          10,
+          "NO"
+        ],
+        [
+          "city",
+          "nvarchar",
+          30,
+          "NO"
+        ],
+        [
+          "capacity",
+          "int",
+          null,
+          "NO"
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SELECT k.COLUMN_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS c JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE k ON k.CONSTRAINT_NAME = c.CONSTRAINT_NAME WHERE c.TABLE_NAME = 'warehouses' AND c.CONSTRAINT_TYPE = 'PRIMARY KEY';",
+      "ordered": true,
+      "expected": [
+        [
+          "code"
+        ]
+      ]
+    }
+  ]
+}

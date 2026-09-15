@@ -1,0 +1,6 @@
+-- warehouses adinda bir tablo kur:
+--   code      NVARCHAR(10)  birincil anahtar
+--   city      NVARCHAR(30)  bos kalamaz
+--   capacity  INT           bos kalamaz
+--
+-- Yalnizca tabloyu kur; satir ekleme.

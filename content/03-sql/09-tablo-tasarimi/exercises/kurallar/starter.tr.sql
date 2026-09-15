@@ -1,0 +1,7 @@
+-- parts adinda bir tablo kur:
+--   id     INT            birincil anahtar
+--   sku    NVARCHAR(20)   bos kalamaz, iki parcada ayni olamaz
+--   price  DECIMAL(10,2)  bos kalamaz, sifirdan buyuk olmali
+--
+-- Yalnizca tabloyu kur; satir ekleme. Kontrol kurallari
+-- kendisi deneyecek.

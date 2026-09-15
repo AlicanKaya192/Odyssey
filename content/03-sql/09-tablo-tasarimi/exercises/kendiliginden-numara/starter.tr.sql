@@ -1,0 +1,8 @@
+-- 1) tickets adinda bir tablo kur:
+--      id      INT, 1'den baslayip kendiliginden artsin, birincil anahtar
+--      title   NVARCHAR(60), bos kalamaz
+--      status  NVARCHAR(20), bos kalamaz, verilmezse 'open'
+--
+-- 2) Iki kayit ekle; YALNIZCA title ver:
+--      Printer is offline
+--      VPN is slow

@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 1,
+      "text": {
+        "tr": "Zaten var olan bir adla `CREATE TABLE products (...)` yazınca ne oluyor?",
+        "en": "What happens when you run `CREATE TABLE products (...)` with a name that already exists?"
+      },
+      "options": {
+        "tr": [
+          "Eski tablo siliniyor, yenisi kuruluyor",
+          "Hata: `There is already an object named 'products'`",
+          "Yeni sütunlar eski tabloya ekleniyor",
+          "İkinci bir `products` tablosu oluşuyor"
+        ],
+        "en": [
+          "The old table is dropped and the new one created",
+          "An error: `There is already an object named 'products'`",
+          "The new columns are added to the old table",
+          "A second `products` table is created"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `There is already an object named 'products' in the database.`\n\nSunucu var olan bir tabloyu hiçbir koşulda kendiliğinden ezmiyor. Yeniden kurmak istiyorsan önce `DROP TABLE`, ya da var olanı `ALTER TABLE` ile değiştirmek.",
+        "en": "Measured: `There is already an object named 'products' in the database.`\n\nThe server never overwrites an existing table on its own. To rebuild it you `DROP TABLE` first, or change the existing one with `ALTER TABLE`."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 2,
+      "text": {
+        "tr": "`DECIMAL(10,2)` sütuna `12.345` yazılınca tabloya ne giriyor?",
+        "en": "What goes into a `DECIMAL(10,2)` column when you write `12.345`?"
+      },
+      "options": {
+        "tr": [
+          "Hata veriyor",
+          "`12.34`",
+          "`12.35`",
+          "`12.345`"
+        ],
+        "en": [
+          "It raises an error",
+          "`12.34`",
+          "`12.35`",
+          "`12.345`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`12.35`** — virgülden sonra iki basamağa **yuvarlandı**, hata verilmedi.\n\nYuvarlama sessiz olduğu için kuruşların önemli olduğu yerde basamak sayısını baştan doğru seçmek gerekiyor. (`12.344` ise `12.34` oldu.)",
+        "en": "Measured: **`12.35`** — **rounded** to two places after the point, with no error.\n\nBecause the rounding is silent, where cents matter you have to choose the number of digits correctly from the start. (`12.344` became `12.34`.)"
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`DECIMAL(5,2)` sütuna `1234.5` yazılınca ne oluyor?",
+        "en": "What happens when you write `1234.5` into a `DECIMAL(5,2)` column?"
+      },
+      "options": {
+        "tr": [
+          "Hata: `Arithmetic overflow error`",
+          "`999.99` yazılıyor",
+          "`1234.50` yazılıyor",
+          "`34.50` yazılıyor"
+        ],
+        "en": [
+          "An error: `Arithmetic overflow error`",
+          "`999.99` is stored",
+          "`1234.50` is stored",
+          "`34.50` is stored"
+        ]
+      },
+      "explanation": {
+        "tr": "`DECIMAL(5,2)` toplam **beş** basamak tutuyor, ikisi virgülden sonra — yani en fazla `999.99`. `1234.5` sığmıyor.\n\nÖlçüldü: `Arithmetic overflow error converting numeric to data type numeric.`\n\nVirgülden sonraki fazlalık yuvarlanıyor, ama **önündeki** fazlalık reddediliyor: sayının büyüklüğünü değiştirmek yuvarlamak değil, veriyi bozmak olurdu.",
+        "en": "`DECIMAL(5,2)` holds **five** digits in total, two after the point — at most `999.99`. `1234.5` does not fit.\n\nMeasured: `Arithmetic overflow error converting numeric to data type numeric.`\n\nExtra digits after the point are rounded, but extra digits **before** it are refused: changing a number's size would not be rounding, it would be corrupting the data."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 3,
+      "text": {
+        "tr": "`NVARCHAR(5)` sütuna `'ABCDEFG'` yazılınca ne oluyor?",
+        "en": "What happens when you write `'ABCDEFG'` into an `NVARCHAR(5)` column?"
+      },
+      "options": {
+        "tr": [
+          "`ABCDE` olarak kesilip yazılıyor",
+          "Tamamı yazılıyor",
+          "Boş bırakılıyor",
+          "Hata veriyor; mesaj kesilecek değeri de gösteriyor"
+        ],
+        "en": [
+          "It is cut to `ABCDE` and stored",
+          "All of it is stored",
+          "It is left empty",
+          "It raises an error; the message even shows the value that would be kept"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `String or binary data would be truncated in table ..., column 'code'. Truncated value: 'ABCDE'.`\n\nSunucu metni sessizce kesmiyor, reddediyor. Mesajın sonu da neyin kaybolacağını gösteriyor — sütunun uzunluğunu mu artırmak gerekiyor, veri mi yanlış, karar vermeyi kolaylaştırıyor.",
+        "en": "Measured: `String or binary data would be truncated in table ..., column 'code'. Truncated value: 'ABCDE'.`\n\nThe server does not cut text silently; it refuses it. The end of the message shows what would be lost, which makes it easier to decide whether the column needs to be longer or the data is wrong."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 1,
+      "text": {
+        "tr": "Latin dil ayarlı bir `VARCHAR` sütuna `Şişli ğ ı` yazılınca ne oldu?",
+        "en": "What happened when `Şişli ğ ı` was written into a `VARCHAR` column with a Latin language setting?"
+      },
+      "options": {
+        "tr": [
+          "Hata verdi",
+          "`Sisli g i` olarak girdi, hata vermedi",
+          "Olduğu gibi girdi",
+          "`?????` olarak girdi"
+        ],
+        "en": [
+          "It raised an error",
+          "It went in as `Sisli g i`, with no error",
+          "It went in unchanged",
+          "It went in as `?????`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`Sisli g i`**. Harfler sessizce en yakın Latin harfine çevrildi — hata yok, uyarı yok.\n\n`VARCHAR` karakterleri sunucunun (ya da sütunun) dil ayarına göre saklıyor. Bu makinedeki sunucu Türkçe ayarlı olduğu için orada sorun çıkmıyor, ama tablo başka bir sunucuya taşındığı gün bozuluyor.\n\n`NVARCHAR` her dilin her harfini tutuyor; aynı değer orada olduğu gibi kaldı.",
+        "en": "Measured: **`Sisli g i`**. The letters were silently turned into the nearest Latin ones — no error, no warning.\n\n`VARCHAR` stores characters according to the server's (or the column's) language setting. The server on this machine is set to Turkish, so there is no problem there, but the day the table moves to another server it breaks.\n\n`NVARCHAR` holds every letter of every language; the same value stayed as it was there."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 2,
+      "text": {
+        "tr": "Metni `INSERT` içinde yazarken başına neden `N` konuyor (`N'Şişli'`)?",
+        "en": "Why do you put `N` in front of text in an `INSERT` (`N'Şişli'`)?"
+      },
+      "options": {
+        "tr": [
+          "Sorgu daha hızlı çalışsın diye",
+          "Metin büyük harfe çevrilsin diye",
+          "Metin sütuna ulaşmadan sunucunun diline çevrilmesin diye",
+          "`N` olmadan metin yazılamıyor"
+        ],
+        "en": [
+          "So the query runs faster",
+          "So the text is turned into capitals",
+          "So the text is not converted to the server's language before it reaches the column",
+          "Text cannot be written without `N`"
+        ]
+      },
+      "explanation": {
+        "tr": "`N` olmadan yazılan metin önce sunucunun dil ayarına çevriliyor, sonra sütuna gidiyor. Sütun `NVARCHAR` olsa bile o sırada kaybolan harf geri gelmiyor.\n\nÖlçüldü: `N` olmadan yazılan `'日本'` bir `NVARCHAR` sütuna **`??`** olarak girdi.\n\nTürkçe harfler bu sunucuda `N`'siz de korunuyor, çünkü sunucu Türkçe ayarlı. `N` yazmak bunun her sunucuda doğru olmasını sağlıyor.",
+        "en": "Text written without `N` is first converted to the server's language setting and only then goes to the column. Even if the column is `NVARCHAR`, a letter lost on the way does not come back.\n\nMeasured: `'日本'` written without `N` went into an `NVARCHAR` column as **`??`**.\n\nTurkish letters survive without `N` on this server because it is set to Turkish. Writing `N` makes it correct on every server."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`price DECIMAL(10,2) NULL CHECK (price > 0)` olan bir sütuna `NULL` yazılınca ne oluyor?",
+        "en": "What happens when you write `NULL` into a column defined as `price DECIMAL(10,2) NULL CHECK (price > 0)`?"
+      },
+      "options": {
+        "tr": [
+          "Kabul ediliyor",
+          "`CHECK` reddediyor",
+          "`0` yazılıyor",
+          "Sözdizimi hatası"
+        ],
+        "en": [
+          "It is accepted",
+          "The `CHECK` refuses it",
+          "`0` is stored",
+          "A syntax error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **kabul edildi**.\n\n`NULL > 0` ne doğru ne yanlış, \"bilinmiyor\". `CHECK` yalnızca kesin \"yanlış\" sonucu reddediyor; bilinmeyeni geçiriyor.\n\nFiyatın boş kalmasını istemiyorsan ayrıca `NOT NULL` yazman gerekiyor. `CHECK` ile `NOT NULL` ayrı işler görüyor.",
+        "en": "Measured: **accepted**.\n\n`NULL > 0` is neither true nor false, it is \"unknown\". `CHECK` only refuses a definite \"false\"; it lets the unknown through.\n\nIf the price must not be empty you need `NOT NULL` as well. `CHECK` and `NOT NULL` do different jobs."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 3,
+      "text": {
+        "tr": "SQL Server'da `UNIQUE` bir sütuna iki satır `NULL` yazılabiliyor mu?",
+        "en": "In SQL Server, can two rows put `NULL` into a `UNIQUE` column?"
+      },
+      "options": {
+        "tr": [
+          "Evet, `NULL`'lar birbirine eşit sayılmıyor",
+          "Evet, ama yalnızca sütun `NULL` olarak tanımlandıysa",
+          "`UNIQUE` sütun `NULL` hiç almıyor",
+          "Hayır: ikinci `NULL` reddediliyor"
+        ],
+        "en": [
+          "Yes, `NULL`s do not count as equal",
+          "Yes, but only if the column is declared `NULL`",
+          "A `UNIQUE` column never takes `NULL`",
+          "No: the second `NULL` is refused"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: ikinci boş telefon numarası `Violation of UNIQUE KEY constraint ... The duplicate key value is (<NULL>).` hatası verdi.\n\nBu SQL Server'a özgü. Standart SQL'de ve başka veritabanlarında `NULL`'lar birbirine eşit sayılmadığı için istediğin kadar yazılabiliyor.\n\nBirden fazla boş değer gerekiyorsa SQL Server'da ayrı bir yol gerekiyor (koşullu dizin) — ileri seviyede.",
+        "en": "Measured: the second empty phone number raised `Violation of UNIQUE KEY constraint ... The duplicate key value is (<NULL>).`\n\nThis is specific to SQL Server. In standard SQL and other databases `NULL`s do not count as equal, so you can have as many as you like.\n\nIf you need more than one empty value, SQL Server needs a different approach (a filtered index) — at the advanced level."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 2,
+      "text": {
+        "tr": "`status NVARCHAR(20) NULL DEFAULT 'open'` olan bir sütuna `INSERT` içinde açıkça `NULL` yazılırsa ne giriyor?",
+        "en": "What goes into `status NVARCHAR(20) NULL DEFAULT 'open'` when the `INSERT` explicitly writes `NULL`?"
+      },
+      "options": {
+        "tr": [
+          "`'open'`",
+          "Hata",
+          "`NULL`",
+          "Boş metin `''`"
+        ],
+        "en": [
+          "`'open'`",
+          "An error",
+          "`NULL`",
+          "An empty string `''`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`NULL`**.\n\n`DEFAULT` yalnızca sütun `INSERT` içinde **hiç yazılmadığında** devreye giriyor. Açıkça `NULL` yazmak \"değer: boş\" demek ve sunucu onu uyguluyor.\n\nVarsayılanın her zaman gelmesini istiyorsan sütunu `INSERT` içinde hiç anma — ya da sütunu `NOT NULL` yap ki açık `NULL` reddedilsin.",
+        "en": "Measured: **`NULL`**.\n\n`DEFAULT` only applies when the column is **not written at all** in the `INSERT`. Writing `NULL` explicitly means \"the value is: empty\", and the server applies that.\n\nIf you always want the default, leave the column out of the `INSERT` — or make it `NOT NULL` so an explicit `NULL` is refused."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 1,
+      "text": {
+        "tr": "`PRIMARY KEY` hangi iki kuralı birlikte getiriyor?",
+        "en": "Which two rules does `PRIMARY KEY` bring together?"
+      },
+      "options": {
+        "tr": [
+          "`CHECK` ve `DEFAULT`",
+          "Boş olamaz ve tekrarlanamaz",
+          "Tekrarlanamaz ve kendiliğinden artar",
+          "Boş olamaz ve başka tabloyu gösterir"
+        ],
+        "en": [
+          "`CHECK` and `DEFAULT`",
+          "Cannot be empty and cannot repeat",
+          "Cannot repeat and counts up by itself",
+          "Cannot be empty and points at another table"
+        ]
+      },
+      "explanation": {
+        "tr": "Birincil anahtar satırı tek başına tanımlıyor; bunun için hem **dolu** hem **eşsiz** olması gerekiyor. Tabloda bir tane oluyor (birden fazla sütundan oluşabilir).\n\n\"Kendiliğinden artmak\" `IDENTITY`'nin işi, anahtarın değil — ikisi sık birlikte kullanılıyor ama ayrı şeyler.",
+        "en": "A primary key identifies the row on its own, which requires it to be both **filled** and **unique**. A table has one (it can be made of several columns).\n\n\"Counting up by itself\" is the job of `IDENTITY`, not of the key — the two are often used together but they are different things."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 3,
+      "text": {
+        "tr": "`IDENTITY` sütunlu bir tabloya `INSERT INTO tickets (id, title) VALUES (5, 'a')` yazınca ne oluyor?",
+        "en": "What happens with `INSERT INTO tickets (id, title) VALUES (5, 'a')` on a table whose `id` is `IDENTITY`?"
+      },
+      "options": {
+        "tr": [
+          "Satır 5 numarasıyla ekleniyor",
+          "5 yok sayılıp sıradaki numara veriliyor",
+          "Numara 6 oluyor",
+          "Hata: `Cannot insert explicit value for identity column`"
+        ],
+        "en": [
+          "The row is added with number 5",
+          "5 is ignored and the next number is used",
+          "The number becomes 6",
+          "An error: `Cannot insert explicit value for identity column`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Cannot insert explicit value for identity column in table 'tickets' when IDENTITY_INSERT is set to OFF.`\n\n`IDENTITY` numarayı sunucuya bırakmak demek. `INSERT` içinde `id` hiç yazılmıyor; numarayı sunucu veriyor.\n\n(Veri taşırken numaraları elle vermek gerekirse `SET IDENTITY_INSERT ... ON` diye bir yol var, ama günlük iş için değil.)",
+        "en": "Measured: `Cannot insert explicit value for identity column in table 'tickets' when IDENTITY_INSERT is set to OFF.`\n\n`IDENTITY` means leaving the number to the server. `id` is not written in the `INSERT` at all; the server hands out the number.\n\n(When moving data you sometimes need to give the numbers yourself; there is `SET IDENTITY_INSERT ... ON` for that, but it is not for everyday work.)"
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "`IDENTITY(1,1)` bir tabloya iki satır eklenip 2 numara silindikten sonra yeni bir satır eklenirse kaç numara alıyor?",
+        "en": "An `IDENTITY(1,1)` table gets two rows, row 2 is deleted, then a new row is added. What number does it get?"
+      },
+      "options": {
+        "tr": [
+          "3",
+          "2",
+          "1",
+          "Hata"
+        ],
+        "en": [
+          "3",
+          "2",
+          "1",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: yeni satır **3** oldu; tabloda 1 ve 3 kaldı.\n\n`IDENTITY` silinen numarayı yeniden kullanmıyor. Numaranın görevi satırı tanımlamak, sıra saymak değil — bir sipariş numarasının silindikten sonra başka bir siparişe verilmesi karışıklık yaratırdı.\n\nNumaralarda boşluk görmek normal.",
+        "en": "Measured: the new row became **3**; 1 and 3 were left in the table.\n\n`IDENTITY` does not reuse a deleted number. The number's job is to identify the row, not to count — giving a deleted order's number to another order would cause confusion.\n\nGaps in the numbers are normal."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 2,
+      "text": {
+        "tr": "`members.team_id REFERENCES teams(id)` tanımlıyken olmayan bir takıma üye eklemeye çalışınca ne oluyor?",
+        "en": "With `members.team_id REFERENCES teams(id)` in place, what happens when you add a member to a team that does not exist?"
+      },
+      "options": {
+        "tr": [
+          "Üye ekleniyor, takım sonradan eklenebilir",
+          "Takım kendiliğinden oluşuyor",
+          "Hata: `conflicted with the FOREIGN KEY constraint`",
+          "`team_id` `NULL` yapılıyor"
+        ],
+        "en": [
+          "The member is added; the team can be added later",
+          "The team is created automatically",
+          "An error: `conflicted with the FOREIGN KEY constraint`",
+          "`team_id` is set to `NULL`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `The INSERT statement conflicted with the FOREIGN KEY constraint ... table \"dbo.teams\", column 'id'.`\n\nYabancı anahtarın işi bu: çocuk satır **var olan** bir ebeveyni göstermek zorunda. Öksüz satır içeri hiç giremiyor.\n\nİstisna boş değer: sütun boş kalabiliyorsa `NULL` kabul ediliyor, çünkü hiçbir ebeveyni göstermiyor (ölçüldü).",
+        "en": "Measured: `The INSERT statement conflicted with the FOREIGN KEY constraint ... table \"dbo.teams\", column 'id'.`\n\nThat is the foreign key's job: a child row has to point at a parent that **exists**. An orphan row cannot get in at all.\n\nThe exception is an empty value: if the column may be empty, `NULL` is accepted, because it points at no parent (measured)."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 1,
+      "text": {
+        "tr": "Bağ tanımlıyken (varsayılan ayarla) üyesi olan bir takımı silmeye çalışınca ne oluyor?",
+        "en": "With the link in place (default settings), what happens when you try to delete a team that has members?"
+      },
+      "options": {
+        "tr": [
+          "Takım ve üyeleri siliniyor",
+          "Hata: `conflicted with the REFERENCE constraint`",
+          "Takım siliniyor, üyeler öksüz kalıyor",
+          "Üyelerin `team_id`'si boşaltılıyor"
+        ],
+        "en": [
+          "The team and its members are deleted",
+          "An error: `conflicted with the REFERENCE constraint`",
+          "The team is deleted and the members are left orphaned",
+          "The members' `team_id` is emptied"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `The DELETE statement conflicted with the REFERENCE constraint ...`\n\nVarsayılan davranış **reddetmek**: çocuğu olan ebeveyn silinemiyor. Önce çocukları sen siliyorsun, sonra ebeveyni. Yanlışlıkla bir müşteriyi siparişleriyle birlikte kaybetmek böylece imkânsız.\n\nÇocukların da gitmesi isteniyorsa bunu açıkça söylemek gerekiyor: `ON DELETE CASCADE`.",
+        "en": "Measured: `The DELETE statement conflicted with the REFERENCE constraint ...`\n\nThe default behaviour is to **refuse**: a parent with children cannot be deleted. You delete the children first, then the parent. Losing a customer along with their orders by accident becomes impossible.\n\nIf the children should go too, you have to say so explicitly: `ON DELETE CASCADE`."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`ON DELETE CASCADE` ne yapıyor?",
+        "en": "What does `ON DELETE CASCADE` do?"
+      },
+      "options": {
+        "tr": [
+          "Ebeveyn silinince onu gösteren çocuk satırları da siliyor",
+          "Silmeyi geri alınabilir yapıyor",
+          "Ebeveyni silmeyi yasaklıyor",
+          "Çocuk satırları başka bir ebeveyne bağlıyor"
+        ],
+        "en": [
+          "When the parent is deleted, it deletes the child rows pointing at it too",
+          "It makes the delete reversible",
+          "It forbids deleting the parent",
+          "It attaches the child rows to another parent"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: iki takımlı, üç üyeli bir tabloda 1 numaralı takım silinince o takımın **iki üyesi** de gitti; diğer takımın üyesi kaldı.\n\nRahat ama dikkat isteyen bir araç: tek bir `DELETE` beklediğinden çok satır götürebiliyor ve bir işlem içinde değilsen geri dönüşü yok.",
+        "en": "Measured: in a table with two teams and three members, deleting team 1 removed **both** of its members; the other team's member stayed.\n\nConvenient, but it needs care: a single `DELETE` can take more rows than you expect, and outside a transaction there is no way back."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 3,
+      "text": {
+        "tr": "Aşağıdakilerden hangisi için `ON DELETE CASCADE` en uygun?",
+        "en": "For which of these is `ON DELETE CASCADE` the best fit?"
+      },
+      "options": {
+        "tr": [
+          "Müşteri → siparişleri",
+          "Tedarikçi → ürünleri",
+          "Çalışan → yönettiği siparişler",
+          "Sipariş → siparişe yazılmış notlar"
+        ],
+        "en": [
+          "Customer → their orders",
+          "Supplier → their products",
+          "Employee → the orders they handled",
+          "Order → notes written on the order"
+        ]
+      },
+      "explanation": {
+        "tr": "`CASCADE`, **ebeveyni olmadan anlamı olmayan** satırlar için doğru: bir siparişin notu sipariş olmadan hiçbir şey söylemiyor.\n\nDiğer üçünde çocuk kayıtlar kendi başına değerli. Bir müşteri silinince siparişlerinin de sessizce gitmesi muhasebe kayıtlarını yok etmek demek; oralarda varsayılan \"reddet\" daha güvenli.\n\nKural: emin değilsen varsayılanda kal. `CASCADE`'i sonradan eklemek kolay, götürdüğünü geri getirmek değil.",
+        "en": "`CASCADE` is right for rows that **mean nothing without their parent**: a note on an order says nothing without the order.\n\nIn the other three the child records are valuable on their own. Deleting a customer and quietly losing their orders would wipe accounting records; there the default \"refuse\" is safer.\n\nThe rule: if in doubt, keep the default. Adding `CASCADE` later is easy; getting back what it took is not."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "Tabloda zaten öksüz satırlar varken yabancı anahtar eklemeye çalışınca ne oluyor?",
+        "en": "What happens when you try to add a foreign key while the table already has orphan rows?"
+      },
+      "options": {
+        "tr": [
+          "Anahtar ekleniyor, öksüzler kendiliğinden siliniyor",
+          "Anahtar ekleniyor, öksüzler olduğu gibi kalıyor",
+          "Hata: `The ALTER TABLE statement conflicted with the FOREIGN KEY constraint`",
+          "Öksüz satırlar `NULL` yapılıyor"
+        ],
+        "en": [
+          "The key is added and the orphans are deleted automatically",
+          "The key is added and the orphans stay as they are",
+          "An error: `The ALTER TABLE statement conflicted with the FOREIGN KEY constraint`",
+          "The orphan rows are set to `NULL`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: 1006 numaralı sipariş silinip kalemleri bırakıldıktan sonra `order_items`'a bağ eklemek `The ALTER TABLE statement conflicted with the FOREIGN KEY constraint ...` hatası verdi.\n\nSunucu, eklediğin kuralın **bugünkü veriye** de uymasını istiyor. Önce öksüz satırları bulup temizlemek (ya da doğru ebeveyne bağlamak), sonra bağı eklemek gerekiyor.",
+        "en": "Measured: after order 1006 was deleted and its items left behind, adding the link to `order_items` raised `The ALTER TABLE statement conflicted with the FOREIGN KEY constraint ...`.\n\nThe server wants the rule you add to hold for **today's data** too. You first have to find and clean up the orphan rows (or attach them to the right parent), then add the link."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 1,
+      "text": {
+        "tr": "Dolu bir tabloya `ALTER TABLE customers ADD tier NVARCHAR(10) NOT NULL;` — `DEFAULT` olmadan — ne oluyor?",
+        "en": "On a table with data, what happens with `ALTER TABLE customers ADD tier NVARCHAR(10) NOT NULL;` — with no `DEFAULT`?"
+      },
+      "options": {
+        "tr": [
+          "Sütun ekleniyor, eski satırlar boş kalıyor",
+          "Hata veriyor: eski satırlara ne yazılacağı belli değil",
+          "Sütun ekleniyor, eski satırlara boş metin yazılıyor",
+          "Tablo boşaltılıyor"
+        ],
+        "en": [
+          "The column is added and the old rows are left empty",
+          "It raises an error: it is not clear what to write into the old rows",
+          "The column is added and the old rows get an empty string",
+          "The table is emptied"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `ALTER TABLE only allows columns to be added that can contain nulls, or have a DEFAULT definition specified ...`\n\nSütun boş kalamaz ama eski altı müşteriye ne yazılacağını söylemedin. Sunucu tahmin etmiyor.\n\n`DEFAULT 'standard'` eklenince sorun kalmadı: eski altı müşterinin hepsine `standard` yazıldı (ölçüldü).",
+        "en": "Measured: `ALTER TABLE only allows columns to be added that can contain nulls, or have a DEFAULT definition specified ...`\n\nThe column may not be empty, but you did not say what to write into the six existing customers. The server does not guess.\n\nWith `DEFAULT 'standard'` the problem went away: all six existing customers got `standard` (measured)."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`ALTER TABLE products ADD CONSTRAINT ck_stock CHECK (stock > 0);` neden reddedildi?",
+        "en": "Why was `ALTER TABLE products ADD CONSTRAINT ck_stock CHECK (stock > 0);` refused?"
+      },
+      "options": {
+        "tr": [
+          "Tabloda stoğu sıfır olan ürünler var ve kural bugünkü veriye uymuyor",
+          "`CHECK` sonradan eklenemez",
+          "`stock` sütunu `INT` olduğu için",
+          "Kuralın adı zaten var"
+        ],
+        "en": [
+          "There are products with zero stock, so the rule does not hold for today's data",
+          "A `CHECK` cannot be added later",
+          "Because the `stock` column is `INT`",
+          "The rule's name already exists"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `The ALTER TABLE statement conflicted with the CHECK constraint \"ck_stock\" ... column 'stock'.` Tabloda stoğu **0** olan iki ürün var (Mouse ve Projector).\n\nSunucu yeni kuralı mevcut satırlara da uyguluyor. Aynı tablo `CHECK (price > 0)` kuralını kabul etti, çünkü bütün fiyatlar sıfırdan büyük.",
+        "en": "Measured: `The ALTER TABLE statement conflicted with the CHECK constraint \"ck_stock\" ... column 'stock'.` The table has two products with a stock of **0** (Mouse and Projector).\n\nThe server applies a new rule to the existing rows as well. The same table accepted `CHECK (price > 0)`, because every price is above zero."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 3,
+      "text": {
+        "tr": "```sql\nALTER TABLE customers ADD phone NVARCHAR(20) NULL;\nUPDATE customers SET phone = '555' WHERE id = 1;\n```\nNeden `Invalid column name 'phone'` hatası veriyor?",
+        "en": "```sql\nALTER TABLE customers ADD phone NVARCHAR(20) NULL;\nUPDATE customers SET phone = '555' WHERE id = 1;\n```\nWhy does this raise `Invalid column name 'phone'`?"
+      },
+      "options": {
+        "tr": [
+          "`phone` ayrılmış bir kelime",
+          "`NVARCHAR(20)` telefon için kısa",
+          "`UPDATE` yeni sütunlara yazamaz",
+          "Sunucu komutları çalıştırmadan önce birlikte okuyor; o anda `phone` yok — araya `GO` gerekiyor"
+        ],
+        "en": [
+          "`phone` is a reserved word",
+          "`NVARCHAR(20)` is too short for a phone number",
+          "`UPDATE` cannot write to new columns",
+          "The server reads the commands together before running them, and at that moment there is no `phone` — you need `GO` in between"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: hata aynen bu. Sunucu bir **toplu işi** çalıştırmadan önce baştan sona okuyup derliyor; `UPDATE` derlenirken sütun henüz eklenmemiş.\n\nAraya `GO` konunca komutlar iki ayrı toplu iş oluyor ve ikisi de çalıştı (ölçüldü). Odyssey de SSMS gibi `GO`'yu tanıyor.",
+        "en": "Measured: that is exactly the error. The server reads and compiles a whole **batch** before running it; when the `UPDATE` is compiled the column has not been added yet.\n\nWith `GO` in between the commands become two separate batches, and both ran (measured). Odyssey recognises `GO` just as SSMS does."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "Başka bir tablonun yabancı anahtarıyla gösterilen `orders` tablosunu `DROP TABLE orders;` ile silmeye çalışınca ne oluyor?",
+        "en": "What happens when you try `DROP TABLE orders;` while another table's foreign key points at `orders`?"
+      },
+      "options": {
+        "tr": [
+          "Tablo ve ona bağlı tablolar siliniyor",
+          "Tablo siliniyor, bağlar kendiliğinden kalkıyor",
+          "Hata: `referenced by a FOREIGN KEY constraint`",
+          "Tablo boşaltılıyor ama silinmiyor"
+        ],
+        "en": [
+          "The table and the tables linked to it are dropped",
+          "The table is dropped and the links disappear",
+          "An error: `referenced by a FOREIGN KEY constraint`",
+          "The table is emptied but not dropped"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Could not drop object 'orders' because it is referenced by a FOREIGN KEY constraint.`\n\nBağlar burada da koruyor: bir tabloyu silmek, onu gösteren satırları öksüz bırakırdı. Önce bağı (ya da bağlı tabloyu) kaldırmak gerekiyor.\n\nBu, `DROP TABLE`'ın geri dönüşü olmadığı düşünülünce iyi bir şey.",
+        "en": "Measured: `Could not drop object 'orders' because it is referenced by a FOREIGN KEY constraint.`\n\nLinks protect you here too: dropping the table would leave the rows pointing at it orphaned. You have to remove the link (or the linked table) first.\n\nGiven that `DROP TABLE` cannot be undone, that is a good thing."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 1,
+      "text": {
+        "tr": "Para tutarları için `FLOAT` yerine neden `DECIMAL` seçiliyor?",
+        "en": "Why is `DECIMAL` chosen over `FLOAT` for amounts of money?"
+      },
+      "options": {
+        "tr": [
+          "`FLOAT` daha fazla yer kaplıyor",
+          "`FLOAT` sayıyı yaklaşık tutuyor: `0.1 + 0.2` tam `0.3` çıkmıyor",
+          "`FLOAT` eksi sayı tutamıyor",
+          "`DECIMAL` daha hızlı"
+        ],
+        "en": [
+          "`FLOAT` takes more space",
+          "`FLOAT` holds numbers approximately: `0.1 + 0.2` is not exactly `0.3`",
+          "`FLOAT` cannot hold negative numbers",
+          "`DECIMAL` is faster"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü:\n\n| Hesap | Sonuç | `= 0.3` mü? |\n|---|---|---|\n| `FLOAT`: `0.1 + 0.2` | `0.30000000000000004` | hayır |\n| `DECIMAL(10,2)`: `0.1 + 0.2` | `0.3` | evet |\n\n`FLOAT` sayıyı ikili sistemde yaklaşık tutuyor. Fark küçük ama binlerce satır toplanınca büyüyor ve eşitlik karşılaştırmaları sessizce yanlış çıkıyor.\n\n`FLOAT` bilimsel ölçümler gibi yaklaşık değerin yeterli olduğu yerler için.",
+        "en": "Measured:\n\n| Calculation | Result | `= 0.3`? |\n|---|---|---|\n| `FLOAT`: `0.1 + 0.2` | `0.30000000000000004` | no |\n| `DECIMAL(10,2)`: `0.1 + 0.2` | `0.3` | yes |\n\n`FLOAT` holds numbers approximately, in binary. The difference is small, but summed over thousands of rows it grows and equality comparisons go quietly wrong.\n\n`FLOAT` is for places where an approximate value is enough, like scientific measurements."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Tarihler `NVARCHAR` sütunda `'2026-9-15'`, `'2026-10-01'`, `'2026-9-2'` diye tutulup `ORDER BY` ile sıralanınca ilk hangisi geliyor?",
+        "en": "Dates are kept in an `NVARCHAR` column as `'2026-9-15'`, `'2026-10-01'` and `'2026-9-2'`. Sorted with `ORDER BY`, which comes first?"
+      },
+      "options": {
+        "tr": [
+          "`2026-10-01`",
+          "`2026-9-2`",
+          "`2026-9-15`",
+          "Hata veriyor"
+        ],
+        "en": [
+          "`2026-10-01`",
+          "`2026-9-2`",
+          "`2026-9-15`",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: sıra `2026-10-01`, `2026-9-15`, `2026-9-2` — **Ekim, Eylül'den önce** geldi.\n\nMetin karakter karakter karşılaştırılıyor: altıncı karakterde `1` ile `9` karşılaşıyor ve `1` küçük. Tarih diye bir şey bilmiyor.\n\nAynı değerler `DATE` sütununda doğru sıraya girdi (`2026-09-02`, `2026-09-15`, `2026-10-01`). Üstelik `DATE`, `2026-02-30` gibi olmayan bir günü reddetti.",
+        "en": "Measured: the order is `2026-10-01`, `2026-9-15`, `2026-9-2` — **October came before September**.\n\nText is compared character by character: at the sixth character `1` meets `9` and `1` is smaller. It knows nothing about dates.\n\nThe same values went into the right order in a `DATE` column (`2026-09-02`, `2026-09-15`, `2026-10-01`). On top of that, `DATE` refused a day that does not exist, like `2026-02-30`."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 3,
+      "text": {
+        "tr": "Bir kurala `CONSTRAINT ck_items_price CHECK (price > 0)` diye ad vermenin faydası ne?",
+        "en": "What is the benefit of naming a rule, as in `CONSTRAINT ck_items_price CHECK (price > 0)`?"
+      },
+      "options": {
+        "tr": [
+          "Kural daha hızlı çalışıyor",
+          "Ad verilmeyen kural sonradan kaldırılamıyor",
+          "Adsız kurallar yalnızca bir tabloda çalışıyor",
+          "Hata metni kuralın senin verdiğin adını gösteriyor"
+        ],
+        "en": [
+          "The rule runs faster",
+          "A rule without a name cannot be removed later",
+          "Unnamed rules only work on one table",
+          "The error message shows the name you gave the rule"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: ad verilmeyince hata metni `CK__items__price__6B24EA82` gibi sunucunun uydurduğu bir adı gösteriyor; ad verilince `... the CHECK constraint \"ck_items_price\"` diyor.\n\nKısa önekler (`pk_`, `fk_`, `uq_`, `ck_`) hangi tür kural olduğunu da söylüyor. Ad ayrıca kuralı sonradan kaldırmayı ya da değiştirmeyi kolaylaştırıyor — uydurulmuş adı önce bulmak gerekmiyor.",
+        "en": "Measured: without a name the error shows a name the server made up, like `CK__items__price__6B24EA82`; with one it says `... the CHECK constraint \"ck_items_price\"`.\n\nShort prefixes (`pk_`, `fk_`, `uq_`, `ck_`) also tell you what kind of rule it is. A name also makes it easier to remove or change the rule later — you do not have to look up the made-up name first."
+      }
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+-- Create a table called parts:
+--   id     INT            primary key
+--   sku    NVARCHAR(20)   cannot be empty, no two parts alike
+--   price  DECIMAL(10,2)  cannot be empty, must be above zero
+--
+-- Only create the table; do not add rows. The check will
+-- try the rules itself.

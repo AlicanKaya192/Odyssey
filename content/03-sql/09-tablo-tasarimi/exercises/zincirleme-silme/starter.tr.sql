@@ -1,0 +1,7 @@
+-- order_notes adinda bir tablo kur:
+--   id        INT, kendiliginden artsin, birincil anahtar
+--   order_id  INT, bos kalamaz, orders.id'ye bagli
+--   note      NVARCHAR(200), bos kalamaz
+--
+-- Bir siparis silinince ona ait notlar da kendiliginden
+-- silinsin.

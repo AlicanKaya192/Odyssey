@@ -1,0 +1,72 @@
+{
+  "id": "kurallar",
+  "language": "tsql",
+  "title": {
+    "tr": "Kuralı tabloya yazmak",
+    "en": "Writing the rule into the table"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "\"İki parçada aynı olamaz\" `UNIQUE`, \"sıfırdan büyük olmalı\" `CHECK (...)`. İkisi de sütun tanımının sonuna yazılabiliyor.",
+      "en": "\"No two alike\" is `UNIQUE`, \"above zero\" is `CHECK (...)`. Both can go at the end of the column definition."
+    },
+    {
+      "tr": "Sıfırdan **büyük**: `price > 0`. `>= 0` yazarsan sıfır fiyatlı bir parça kabul ediliyor ve kontrol onu deniyor.",
+      "en": "**Above** zero: `price > 0`. With `>= 0` a part priced at zero is accepted, and the check tries exactly that."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE TABLE parts (\n    id INT PRIMARY KEY,\n    sku NVARCHAR(20) NOT NULL UNIQUE,\n    price DECIMAL(10,2) NOT NULL CHECK (price > 0)\n);\n```",
+      "en": "The whole query:\n\n```sql\nCREATE TABLE parts (\n    id INT PRIMARY KEY,\n    sku NVARCHAR(20) NOT NULL UNIQUE,\n    price DECIMAL(10,2) NOT NULL CHECK (price > 0)\n);\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; BEGIN TRY INSERT INTO parts (id, sku, price) VALUES (1, 'A-100', 25.00); SELECT 'accepted' AS result; END TRY BEGIN CATCH SELECT 'rejected' AS result; END CATCH",
+      "ordered": true,
+      "expected": [
+        [
+          "accepted"
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; BEGIN TRY INSERT INTO parts (id, sku, price) VALUES (2, 'A-100', 30.00); SELECT 'accepted' AS result; END TRY BEGIN CATCH SELECT 'rejected' AS result; END CATCH",
+      "ordered": true,
+      "expected": [
+        [
+          "rejected"
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; BEGIN TRY INSERT INTO parts (id, sku, price) VALUES (3, 'B-200', -4.00); SELECT 'accepted' AS result; END TRY BEGIN CATCH SELECT 'rejected' AS result; END CATCH",
+      "ordered": true,
+      "expected": [
+        [
+          "rejected"
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; BEGIN TRY INSERT INTO parts (id, sku, price) VALUES (4, 'C-300', 0); SELECT 'accepted' AS result; END TRY BEGIN CATCH SELECT 'rejected' AS result; END CATCH",
+      "ordered": true,
+      "expected": [
+        [
+          "rejected"
+        ]
+      ]
+    }
+  ]
+}

@@ -22,6 +22,8 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.8.1] — yayınlanmadı
 
 ### Eklendi
+- **SQL patikasının 2. kısmı.** İçindeki bölümler — **Orta Seviye:** Tablo
+  Tasarımı. Her bölümün kendi notları, sınavı, alıştırmaları ve rozeti var.
 - **Bildirimler.** Alt şeridin sağındaki zil kazandığınız rozetleri
   listeliyor; okunmamışların sayısı zilin üstünde duruyor. Her birini okundu
   sayabilir ya da hepsini temizleyebilirsiniz.

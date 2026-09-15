@@ -1,0 +1,53 @@
+{
+  "id": "bag-kurmak",
+  "language": "tsql",
+  "title": {
+    "tr": "Bağı tanımlamak",
+    "en": "Declaring the link"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Var olan bir tabloya kural eklemek: `ALTER TABLE tablo ADD CONSTRAINT ad ...`.",
+      "en": "Adding a rule to an existing table: `ALTER TABLE table ADD CONSTRAINT name ...`."
+    },
+    {
+      "tr": "Bağın kalıbı: `FOREIGN KEY (çocuk_sütun) REFERENCES ebeveyn_tablo(anahtar)`. Kontrol, bağ kurulduktan sonra 1006 siparişini silmeyi deniyor — sunucunun bunu reddetmesi gerekiyor.",
+      "en": "The shape of a link: `FOREIGN KEY (child_column) REFERENCES parent_table(key)`. After the link is in place the check tries to delete order 1006 — the server has to refuse."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nALTER TABLE order_items\nADD CONSTRAINT fk_items_order\n    FOREIGN KEY (order_id) REFERENCES orders(id);\n```",
+      "en": "The whole query:\n\n```sql\nALTER TABLE order_items\nADD CONSTRAINT fk_items_order\n    FOREIGN KEY (order_id) REFERENCES orders(id);\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SELECT k.COLUMN_NAME, p.TABLE_NAME AS parent_table FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS r JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE k ON k.CONSTRAINT_NAME = r.CONSTRAINT_NAME JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS p ON p.CONSTRAINT_NAME = r.UNIQUE_CONSTRAINT_NAME WHERE k.TABLE_NAME = 'order_items' ORDER BY k.COLUMN_NAME;",
+      "ordered": true,
+      "expected": [
+        [
+          "order_id",
+          "orders"
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; BEGIN TRY DELETE FROM orders WHERE id = 1006; SELECT 'accepted' AS result; END TRY BEGIN CATCH SELECT 'rejected' AS result; END CATCH",
+      "ordered": true,
+      "expected": [
+        [
+          "rejected"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+-- Create a table called warehouses:
+--   code      NVARCHAR(10)  primary key
+--   city      NVARCHAR(30)  cannot be empty
+--   capacity  INT           cannot be empty
+--
+-- Only create the table; do not add rows.

@@ -1,0 +1,5 @@
+CREATE TABLE parts (
+    id INT PRIMARY KEY,
+    sku NVARCHAR(20) NOT NULL UNIQUE,
+    price DECIMAL(10,2) NOT NULL CHECK (price > 0)
+);

@@ -1,0 +1,4 @@
+-- order_items.order_id sutununu orders.id'ye bagla.
+--
+-- Tablo zaten var ve icinde veri duruyor; yeniden kurma,
+-- ALTER TABLE ile bagi ekle.

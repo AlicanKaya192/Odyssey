@@ -1,0 +1,4 @@
+-- Link order_items.order_id to orders.id.
+--
+-- The table already exists and holds data; do not rebuild
+-- it, add the link with ALTER TABLE.

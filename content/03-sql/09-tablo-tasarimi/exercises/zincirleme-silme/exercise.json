@@ -1,0 +1,53 @@
+{
+  "id": "zincirleme-silme",
+  "language": "tsql",
+  "title": {
+    "tr": "Zincirleme silme",
+    "en": "Cascading deletes"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bağ sütunun tanımına da yazılabiliyor: `order_id INT NOT NULL REFERENCES orders(id)`.",
+      "en": "The link can go in the column definition too: `order_id INT NOT NULL REFERENCES orders(id)`."
+    },
+    {
+      "tr": "Ebeveyn silinince çocukların da gitmesi için bağın sonuna `ON DELETE CASCADE`. Onsuz sunucu siparişi silmeyi reddediyor ve notlar yerinde kalıyor; kontrol ikisini de deniyor.",
+      "en": "For the children to go when the parent is deleted, end the link with `ON DELETE CASCADE`. Without it the server refuses to delete the order and the notes stay; the check tries both."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE TABLE order_notes (\n    id INT IDENTITY(1,1) PRIMARY KEY,\n    order_id INT NOT NULL\n        REFERENCES orders(id) ON DELETE CASCADE,\n    note NVARCHAR(200) NOT NULL\n);\n```",
+      "en": "The whole query:\n\n```sql\nCREATE TABLE order_notes (\n    id INT IDENTITY(1,1) PRIMARY KEY,\n    order_id INT NOT NULL\n        REFERENCES orders(id) ON DELETE CASCADE,\n    note NVARCHAR(200) NOT NULL\n);\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; INSERT INTO order_notes (order_id, note) VALUES (1001, 'call first'), (1001, 'fragile'), (1002, 'gift wrap'); BEGIN TRY DELETE FROM orders WHERE id = 1001; END TRY BEGIN CATCH END CATCH; SELECT order_id, note FROM order_notes ORDER BY id;",
+      "ordered": true,
+      "expected": [
+        [
+          1002,
+          "gift wrap"
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; BEGIN TRY INSERT INTO order_notes (order_id, note) VALUES (9999, 'no such order'); SELECT 'accepted' AS result; END TRY BEGIN CATCH SELECT 'rejected' AS result; END CATCH",
+      "ordered": true,
+      "expected": [
+        [
+          "rejected"
+        ]
+      ]
+    }
+  ]
+}

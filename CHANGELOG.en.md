@@ -24,6 +24,8 @@ lecture note does not mean downloading the whole application again.
 ## [0.8.1] — unreleased
 
 ### Added
+- **Part 2 of the SQL path.** Its sections — **Intermediate:** Table Design.
+  Every section comes with its own notes, quiz, exercises and badge.
 - **Notifications.** The bell on the right of the bottom strip lists the
   badges you earn, with the number of unread ones on top of it. You can mark
   each one as read or clear them all.

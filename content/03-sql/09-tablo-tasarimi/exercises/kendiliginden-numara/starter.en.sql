@@ -1,0 +1,8 @@
+-- 1) Create a table called tickets:
+--      id      INT, starts at 1 and counts up by itself, primary key
+--      title   NVARCHAR(60), cannot be empty
+--      status  NVARCHAR(20), cannot be empty, 'open' when not given
+--
+-- 2) Add two rows, giving ONLY the title:
+--      Printer is offline
+--      VPN is slow

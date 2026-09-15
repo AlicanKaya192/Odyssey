@@ -1,0 +1,69 @@
+{
+  "id": "kendiliginden-numara",
+  "language": "tsql",
+  "title": {
+    "tr": "Kendiliğinden numara",
+    "en": "Numbers that assign themselves"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kendiliğinden artan sayı `IDENTITY(1,1)`: birinci sayı başlangıç, ikincisi artış. Verilmeyen değer için `DEFAULT 'open'`.",
+      "en": "A self-incrementing number is `IDENTITY(1,1)`: the first number is the start, the second the step. For a value that is not given, `DEFAULT 'open'`."
+    },
+    {
+      "tr": "`INSERT` içinde yalnızca `title` sütununu yaz. `id` ve `status` yazılırsa kontrol, tablonun onları kendisi doldurmadığını görüyor.",
+      "en": "Name only the `title` column in the `INSERT`. If you write `id` and `status`, the check sees that the table is not filling them itself."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE TABLE tickets (\n    id INT IDENTITY(1,1) PRIMARY KEY,\n    title NVARCHAR(60) NOT NULL,\n    status NVARCHAR(20) NOT NULL DEFAULT 'open'\n);\n\nINSERT INTO tickets (title) VALUES\n    ('Printer is offline'),\n    ('VPN is slow');\n```",
+      "en": "The whole query:\n\n```sql\nCREATE TABLE tickets (\n    id INT IDENTITY(1,1) PRIMARY KEY,\n    title NVARCHAR(60) NOT NULL,\n    status NVARCHAR(20) NOT NULL DEFAULT 'open'\n);\n\nINSERT INTO tickets (title) VALUES\n    ('Printer is offline'),\n    ('VPN is slow');\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SELECT id, title, status FROM tickets ORDER BY id;",
+      "ordered": true,
+      "expected": [
+        [
+          1,
+          "Printer is offline",
+          "open"
+        ],
+        [
+          2,
+          "VPN is slow",
+          "open"
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SELECT COLUMNPROPERTY(OBJECT_ID('tickets'), 'id', 'IsIdentity') AS is_identity;",
+      "ordered": true,
+      "expected": [
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SELECT COUNT(*) AS n FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID('tickets');",
+      "ordered": true,
+      "expected": [
+        [
+          1
+        ]
+      ]
+    }
+  ]
+}

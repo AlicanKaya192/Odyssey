@@ -1,0 +1,7 @@
+-- Create a table called order_notes:
+--   id        INT, counts up by itself, primary key
+--   order_id  INT, cannot be empty, linked to orders.id
+--   note      NVARCHAR(200), cannot be empty
+--
+-- When an order is deleted, its notes should be deleted
+-- along with it.
