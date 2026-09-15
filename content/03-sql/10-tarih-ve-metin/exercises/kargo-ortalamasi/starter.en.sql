@@ -1,0 +1,4 @@
+-- For each carrier, work out the average number of
+-- days between the order and the shipment.
+-- Columns: carrier, avg_days (rounded to two places).
+-- Sort by carrier.

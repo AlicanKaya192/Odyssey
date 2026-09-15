@@ -1,0 +1,4 @@
+-- Her kargo firmasi icin, siparisten kargoya ortalama
+-- kac gun gectigini hesapla.
+-- Sutunlar: carrier, avg_days (virgulden sonra iki
+-- basamaga yuvarla). Firma adina gore sirala.

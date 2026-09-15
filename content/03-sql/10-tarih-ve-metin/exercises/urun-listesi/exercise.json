@@ -1,0 +1,69 @@
+{
+  "id": "urun-listesi",
+  "language": "tsql",
+  "title": {
+    "tr": "Kategori başına ürün listesi",
+    "en": "A product list per category"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satırları tek bir metinde toplamak: `STRING_AGG(sütun, ayırıcı)`. Diğer toplama işlevleri gibi `GROUP BY` ile çalışıyor.",
+      "en": "Gathering rows into one piece of text: `STRING_AGG(column, separator)`. Like the other aggregate functions it works with `GROUP BY`."
+    },
+    {
+      "tr": "Ayırıcı tam olarak `', '` (virgül ve boşluk). Listenin içindeki sıra için `WITHIN GROUP (ORDER BY name)`; en sondaki `ORDER BY` yalnızca satırları sıralıyor.",
+      "en": "The separator is exactly `', '` (a comma and a space). For the order inside the list, `WITHIN GROUP (ORDER BY name)`; the `ORDER BY` at the very end only sorts the rows."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT category_code,\n       STRING_AGG(name, ', ') WITHIN GROUP (ORDER BY name) AS products\nFROM products\nGROUP BY category_code\nORDER BY category_code;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT category_code,\n       STRING_AGG(name, ', ') WITHIN GROUP (ORDER BY name) AS products\nFROM products\nGROUP BY category_code\nORDER BY category_code;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "category_code",
+        "products"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "ACC",
+          "Cable, Headset, Keyboard, Microphone, Mouse, Webcam"
+        ],
+        [
+          "COM",
+          "Desktop, Laptop"
+        ],
+        [
+          "DIS",
+          "Monitor, Projector"
+        ],
+        [
+          "SOF",
+          "Antivirus, Office Suite"
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "WITHIN GROUP",
+      "hint": {
+        "tr": "`STRING_AGG` sırayı kendiliğinden garanti etmiyor; alfabetik liste için `WITHIN GROUP (ORDER BY name)` gerekiyor.",
+        "en": "`STRING_AGG` does not guarantee an order by itself; an alphabetical list needs `WITHIN GROUP (ORDER BY name)`."
+      }
+    }
+  ]
+}

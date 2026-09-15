@@ -1,0 +1,4 @@
+-- Mart 2026'da verilen siparisleri getir.
+-- Sutunlar: id, order_date. id'ye gore sirala.
+--
+-- MONTH() kullanma: bir tarih araligiyla suz.

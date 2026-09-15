@@ -1,0 +1,4 @@
+-- Her kategori icin urunlerin adlarini tek bir hucrede,
+-- virgul ve bosluk (', ') ile ayrilmis, alfabetik sirayla
+-- goster.
+-- Sutunlar: category_code, products. Koda gore sirala.

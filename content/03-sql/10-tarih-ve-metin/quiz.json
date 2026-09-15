@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "`GETDATE()` ve `SYSDATETIME()` hangi tipte değer döndürüyor?",
+        "en": "What type of value do `GETDATE()` and `SYSDATETIME()` return?"
+      },
+      "options": {
+        "tr": [
+          "İkisi de `DATE`",
+          "İkisi de metin",
+          "`DATETIME` ve `DATETIME2`",
+          "`DATETIME2` ve `DATE`"
+        ],
+        "en": [
+          "Both `DATE`",
+          "Both text",
+          "`DATETIME` and `DATETIME2`",
+          "`DATETIME2` and `DATE`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `GETDATE()` → `datetime`, `SYSDATETIME()` → `datetime2`. İkisi de gün **ve** saat taşıyor.\n\nYalnızca bugünün tarihi gerekiyorsa `CAST(GETDATE() AS DATE)`. Saati atmak, karşılaştırmalarda sürpriz yaşamamak demek.",
+        "en": "Measured: `GETDATE()` → `datetime`, `SYSDATETIME()` → `datetime2`. Both carry the day **and** the time.\n\nIf you only need today's date, `CAST(GETDATE() AS DATE)`. Dropping the time avoids surprises in comparisons."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`SET DATEFORMAT dmy` ayarı altında `CAST('2026-03-04' AS DATETIME)` hangi günü veriyor?",
+        "en": "Under `SET DATEFORMAT dmy`, which day does `CAST('2026-03-04' AS DATETIME)` give?"
+      },
+      "options": {
+        "tr": [
+          "3 Nisan 2026",
+          "4 Mart 2026",
+          "Hata",
+          "Ayardan bağımsız olarak 4 Mart"
+        ],
+        "en": [
+          "April 3, 2026",
+          "March 4, 2026",
+          "An error",
+          "March 4 regardless of the setting"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **3 Nisan** (`2026-04-03`). Eski `DATETIME` tipi, tireyle yazılmış tarihi bile tarih biçimi ayarına göre okuyor — ve hata vermiyor.\n\nAynı metin `DATE`'e çevrilince 4 Mart kaldı. `DATETIME` ile çalışıyorsan bitişik yazım (`'20260304'`) her ayarda doğru.",
+        "en": "Measured: **April 3** (`2026-04-03`). The old `DATETIME` type reads even a date written with dashes according to the date format setting — and raises no error.\n\nCast to `DATE`, the same text stayed March 4. If you work with `DATETIME`, the form without separators (`'20260304'`) is right under every setting."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 3,
+      "text": {
+        "tr": "`DATETIME` bir sütuna tarih yazarken hangi biçim her ayarda aynı günü veriyor?",
+        "en": "Which format gives the same day under every setting when writing a date into a `DATETIME` column?"
+      },
+      "options": {
+        "tr": [
+          "`'03/04/2026'`",
+          "`'2026-03-04'`",
+          "`'04.03.2026'`",
+          "`'20260304'`"
+        ],
+        "en": [
+          "`'03/04/2026'`",
+          "`'2026-03-04'`",
+          "`'04.03.2026'`",
+          "`'20260304'`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `'20260304'` hem varsayılan ayarda hem `dmy`'de 4 Mart verdi. `'2026-03-04'` ise `dmy` altında `DATETIME` olarak 3 Nisan oldu.\n\n`DATE` sütunlarda `'YYYY-MM-DD'` güvenli; sorun eski `DATETIME` tipinde.",
+        "en": "Measured: `'20260304'` gave March 4 both under the default setting and under `dmy`. `'2026-03-04'`, on the other hand, became April 3 as `DATETIME` under `dmy`.\n\nFor `DATE` columns `'YYYY-MM-DD'` is safe; the problem is the old `DATETIME` type."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 1,
+      "text": {
+        "tr": "`SET DATEFORMAT dmy` altında `CAST('03/04/2026' AS DATE)` hangi günü veriyor?",
+        "en": "Under `SET DATEFORMAT dmy`, which day does `CAST('03/04/2026' AS DATE)` give?"
+      },
+      "options": {
+        "tr": [
+          "4 Mart 2026",
+          "3 Nisan 2026",
+          "Hata",
+          "4 Mart 2026, her ayarda"
+        ],
+        "en": [
+          "March 4, 2026",
+          "April 3, 2026",
+          "An error",
+          "March 4, 2026, under every setting"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `dmy` → **3 Nisan**, `mdy` → 4 Mart. Aynı metin iki farklı gün.\n\nEğik çizgili yazım okuyanın alışkanlığına göre değişiyor; sunucu da kendi ayarına göre okuyor. Hiç kullanılmaması en güvenlisi.",
+        "en": "Measured: `dmy` → **April 3**, `mdy` → March 4. The same text, two different days.\n\nThe slashed form changes with the reader's habits, and the server reads it by its own setting. Never using it is the safest choice."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "`DATEADD(month, 1, '2026-01-31')` ne döndürüyor?",
+        "en": "What does `DATEADD(month, 1, '2026-01-31')` return?"
+      },
+      "options": {
+        "tr": [
+          "`2026-03-03`",
+          "Hata: 31 Şubat yok",
+          "`2026-02-28`",
+          "`2026-03-01`"
+        ],
+        "en": [
+          "`2026-03-03`",
+          "An error: there is no February 31",
+          "`2026-02-28`",
+          "`2026-03-01`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`2026-02-28`**. Hedef ayda o gün yoksa sunucu **ayın son gününe** kırpıyor. 31 Mart + 1 ay da 30 Nisan oldu.\n\nKırpma sessiz: \"her ayın 31'i\" diye bir tekrar kurmak isteyen biri Şubat'ta 28'e düşer ve bir sonraki ayda 31'e geri dönmez.",
+        "en": "Measured: **`2026-02-28`**. If the day does not exist in the target month, the server clips it to **the last day of the month**. March 31 + 1 month became April 30 as well.\n\nThe clipping is silent: someone building a \"31st of every month\" repeat falls to the 28th in February and does not come back to the 31st the next month."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "31 Ocak'a `DATEADD(day, 30, ...)` ile 30 gün eklenince hangi gün çıkıyor?",
+        "en": "Adding 30 days to January 31 with `DATEADD(day, 30, ...)` gives which day?"
+      },
+      "options": {
+        "tr": [
+          "2 Mart",
+          "28 Şubat",
+          "1 Mart",
+          "30 Şubat"
+        ],
+        "en": [
+          "March 2",
+          "February 28",
+          "March 1",
+          "February 30"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **2 Mart**. 1 ay eklemek 28 Şubat vermişti — yani \"1 ay sonra\" ile \"30 gün sonra\" aynı şey değil.\n\nSözleşme, abonelik, deneme süresi gibi işlerde hangisinin kastedildiğine dikkat etmek gerekiyor.",
+        "en": "Measured: **March 2**. Adding 1 month had given February 28 — so \"one month later\" and \"30 days later\" are not the same thing.\n\nFor contracts, subscriptions and trial periods you have to be careful about which one is meant."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 3,
+      "text": {
+        "tr": "`DATEADD(year, 1, '2024-02-29')` ne döndürüyor?",
+        "en": "What does `DATEADD(year, 1, '2024-02-29')` return?"
+      },
+      "options": {
+        "tr": [
+          "`2025-03-01`",
+          "Hata",
+          "`2025-02-29`",
+          "`2025-02-28`"
+        ],
+        "en": [
+          "`2025-03-01`",
+          "An error",
+          "`2025-02-29`",
+          "`2025-02-28`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`2025-02-28`**. 2025 artık yıl değil, 29 Şubat yok; sunucu ayın son gününe kırpıyor.\n\nArtık yılda doğanların yaş günü gibi hesaplarda bu kural devreye giriyor.",
+        "en": "Measured: **`2025-02-28`**. 2025 is not a leap year, there is no February 29; the server clips to the last day of the month.\n\nThis rule comes into play in calculations like the birthday of someone born on a leap day."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 1,
+      "text": {
+        "tr": "`DATEDIFF(year, '2025-12-31', '2026-01-01')` ne döndürüyor?",
+        "en": "What does `DATEDIFF(year, '2025-12-31', '2026-01-01')` return?"
+      },
+      "options": {
+        "tr": [
+          "0 — arada bir gün var",
+          "1",
+          "Hata",
+          "0,003"
+        ],
+        "en": [
+          "0 — there is one day in between",
+          "1",
+          "An error",
+          "0.003"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **1**. `DATEDIFF` süre değil **sınır** sayıyor: \"arada kaç tane yıl başı var?\" Bir gün içinde bir yıl başı geçti, cevap 1.\n\nTersi de doğru: 1 Ocak'tan 31 Aralık'a (364 gün) `DATEDIFF(year, ...)` **0** verdi. Sıra ters verilince sonuç eksi çıkıyor (`-2`, ölçüldü).",
+        "en": "Measured: **1**. `DATEDIFF` counts **boundaries**, not durations: \"how many new years lie in between?\" One new year passed within a day, so the answer is 1.\n\nThe reverse holds too: from January 1 to December 31 (364 days) `DATEDIFF(year, ...)` gave **0**. Given the other way round, the result is negative (`-2`, measured)."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 2,
+      "text": {
+        "tr": "5 Şubat 2024'te işe giren biri için 10 Ocak 2026'da `DATEDIFF(year, hired, '2026-01-10')` ne veriyor?",
+        "en": "For someone hired on February 5, 2024, what does `DATEDIFF(year, hired, '2026-01-10')` give on January 10, 2026?"
+      },
+      "options": {
+        "tr": [
+          "1 — gerçekte 1 yıl 11 ay",
+          "Hata",
+          "2 — ama gerçekte henüz 2 yıl dolmadı",
+          "1,93"
+        ],
+        "en": [
+          "1 — really 1 year 11 months",
+          "An error",
+          "2 — though 2 years are not yet up",
+          "1.93"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **2** (Deniz Kaya). Arada iki yıl başı var (2025 ve 2026), `DATEDIFF` onları sayıyor. Oysa kişi 1 yıl 11 aydır çalışıyor.\n\n`DATEDIFF(day, hired, '2026-01-10') / 365` aynı kişi için **1** verdi — tam yıl için çok daha yakın.",
+        "en": "Measured: **2** (Deniz Kaya). There are two new years in between (2025 and 2026) and `DATEDIFF` counts them. Yet the person has worked there for 1 year and 11 months.\n\n`DATEDIFF(day, hired, '2026-01-10') / 365` gave **1** for the same person — much closer for whole years."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Kargo firması başına `AVG(DATEDIFF(day, o.order_date, s.shipped_date))` FastLine için neden 2,67 değil 2 veriyor?",
+        "en": "Why does `AVG(DATEDIFF(day, o.order_date, s.shipped_date))` per carrier give 2 for FastLine instead of 2.67?"
+      },
+      "options": {
+        "tr": [
+          "`DATEDIFF` tam sayı döndürüyor, tam sayıların ortalaması da tam sayı",
+          "`AVG` hep aşağı yuvarlıyor",
+          "Tarihlerden biri yanlış",
+          "`JOIN` bir satırı düşürüyor"
+        ],
+        "en": [
+          "`DATEDIFF` returns a whole number, and the average of whole numbers is a whole number",
+          "`AVG` always rounds down",
+          "One of the dates is wrong",
+          "The `JOIN` drops a row"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: FastLine'ın üç gönderisi 2, 3 ve 3 günde gitmiş; tam sayı ortalaması **2**, `DECIMAL`'e çevrilince **2,67**.\n\nBeşinci bölümdeki tam sayı bölmesinin aynısı: sunucu sonucu girdinin tipinde tutuyor. Çare ortalamadan **önce** çevirmek: `AVG(CAST(DATEDIFF(...) AS DECIMAL(10,2)))`.",
+        "en": "Measured: FastLine's three shipments took 2, 3 and 3 days; the whole-number average is **2**, and converted to `DECIMAL` it is **2.67**.\n\nThe same as the integer division in the fifth section: the server keeps the result in the input's type. The fix is to convert **before** averaging: `AVG(CAST(DATEDIFF(...) AS DECIMAL(10,2)))`."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 3,
+      "text": {
+        "tr": "`EOMONTH('2024-02-11')` ne döndürüyor?",
+        "en": "What does `EOMONTH('2024-02-11')` return?"
+      },
+      "options": {
+        "tr": [
+          "`2024-02-28`",
+          "`2024-03-01`",
+          "`2024-02-01`",
+          "`2024-02-29`"
+        ],
+        "en": [
+          "`2024-02-28`",
+          "`2024-03-01`",
+          "`2024-02-01`",
+          "`2024-02-29`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`2024-02-29`** — 2024 artık yıl. Aynı işlev Şubat 2026 için `2026-02-28` verdi.\n\nAy sonunu elle hesaplamak (her ay 30 gün, Şubat 28 gün gibi) artık yılda yanılıyor; `EOMONTH` takvimi biliyor.",
+        "en": "Measured: **`2024-02-29`** — 2024 is a leap year. The same function gave `2026-02-28` for February 2026.\n\nWorking out the month's end by hand (every month 30 days, February 28) goes wrong in a leap year; `EOMONTH` knows the calendar."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 1,
+      "text": {
+        "tr": "Bir tarihin bulunduğu ayın **ilk gününü** hangi ifade veriyor?",
+        "en": "Which expression gives the **first day** of the month a date falls in?"
+      },
+      "options": {
+        "tr": [
+          "`EOMONTH(d)`",
+          "`DATEADD(day, 1, EOMONTH(d, -1))`",
+          "`DATEADD(month, -1, d)`",
+          "`DAY(d)`"
+        ],
+        "en": [
+          "`EOMONTH(d)`",
+          "`DATEADD(day, 1, EOMONTH(d, -1))`",
+          "`DATEADD(month, -1, d)`",
+          "`DAY(d)`"
+        ]
+      },
+      "explanation": {
+        "tr": "`EOMONTH(d, -1)` önceki ayın son günü; bir gün eklenince bu ayın ilk günü. Ölçüldü: 14 Mart 2026 için `2026-03-01`.\n\n`DATEFROMPARTS(YEAR(d), MONTH(d), 1)` de aynı sonucu veriyor.",
+        "en": "`EOMONTH(d, -1)` is the last day of the previous month; add one day and you get the first of this month. Measured: `2026-03-01` for March 14, 2026.\n\n`DATEFROMPARTS(YEAR(d), MONTH(d), 1)` gives the same result."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 2,
+      "text": {
+        "tr": "`DATEFROMPARTS(2026, 2, 30)` ne döndürüyor?",
+        "en": "What does `DATEFROMPARTS(2026, 2, 30)` return?"
+      },
+      "options": {
+        "tr": [
+          "`2026-02-28`",
+          "`2026-03-02`",
+          "Hata",
+          "`NULL`"
+        ],
+        "en": [
+          "`2026-02-28`",
+          "`2026-03-02`",
+          "An error",
+          "`NULL`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Cannot construct data type date, some of the arguments have values which are not valid.`\n\n`DATEADD` gibi kırpmıyor; olmayan bir günü kurmayı reddediyor. İyi bir şey: hatalı veri sessizce başka bir güne dönüşmüyor.",
+        "en": "Measured: `Cannot construct data type date, some of the arguments have values which are not valid.`\n\nIt does not clip like `DATEADD`; it refuses to build a day that does not exist. That is a good thing: bad data does not quietly turn into another day."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Mart ayını süzmek için neden `>= '2026-03-01' AND < '2026-04-01'` öneriliyor?",
+        "en": "Why is `>= '2026-03-01' AND < '2026-04-01'` recommended for filtering March?"
+      },
+      "options": {
+        "tr": [
+          "Saatli değerlerde de doğru, her dönem ve her tipte aynı kalıp",
+          "Daha kısa yazılıyor",
+          "`BETWEEN` T-SQL'de yok",
+          "`MONTH()` hata veriyor"
+        ],
+        "en": [
+          "It is right for values with times too, the same pattern for every period and type",
+          "It is shorter to write",
+          "`BETWEEN` does not exist in T-SQL",
+          "`MONTH()` raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Yarı açık aralık: başlangıç dahil, bitiş hariç. Ay kaç gün çekerse çeksin, sütunda saat olsun olmasın doğru.\n\n`BETWEEN '2026-03-01' AND '2026-03-31'` saatli değerlerde 31 Mart'ın saatlerini kaçırıyor; `MONTH(order_date) = 3` her yılın Mart'ını getiriyor ve sütuna işlev uyguladığı için dizinden yararlanamıyor.",
+        "en": "A half-open range: the start included, the end excluded. However many days the month has, and whether or not the column holds times, it is right.\n\n`BETWEEN '2026-03-01' AND '2026-03-31'` misses the hours of March 31 on values with times; `MONTH(order_date) = 3` brings back March of every year and, because it applies a function to the column, cannot use an index."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 3,
+      "text": {
+        "tr": "Saatli değerlerin durduğu bir sütunda (1 Mart 09:00, 31 Mart 00:00, 31 Mart 14:30, 1 Nisan 00:00) `BETWEEN '2026-03-01' AND '2026-03-31'` kaç satır buluyor?",
+        "en": "On a column holding times (March 1 09:00, March 31 00:00, March 31 14:30, April 1 00:00), how many rows does `BETWEEN '2026-03-01' AND '2026-03-31'` find?"
+      },
+      "options": {
+        "tr": [
+          "4",
+          "3",
+          "1",
+          "2"
+        ],
+        "en": [
+          "4",
+          "3",
+          "1",
+          "2"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **2**. Yarı açık aralık aynı sütunda **3** buldu.\n\nSaatsiz yazılan `'2026-03-31'` \"31 Mart gece yarısı\" demek; 14:30'daki olay ondan sonra, yani dışarıda kalıyor. Hata yok, satır sessizce eksik.",
+        "en": "Measured: **2**. The half-open range found **3** on the same column.\n\nWritten without a time, `'2026-03-31'` means \"midnight on March 31\"; the event at 14:30 comes after that and is left out. No error; the row is quietly missing."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 1,
+      "text": {
+        "tr": "`WHERE MONTH(order_date) = 3` yazımının sorunu nedir?",
+        "en": "What is the problem with writing `WHERE MONTH(order_date) = 3`?"
+      },
+      "options": {
+        "tr": [
+          "Hata veriyor",
+          "Her yılın Mart'ını getiriyor ve sütuna işlev uyguladığı için dizinden yararlanamıyor",
+          "Yalnızca `DATETIME` sütunlarda çalışıyor",
+          "Sonuç ters sırada geliyor"
+        ],
+        "en": [
+          "It raises an error",
+          "It brings back March of every year and, applying a function to the column, cannot use an index",
+          "It only works on `DATETIME` columns",
+          "The result comes back in reverse order"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu veride çalışıyor (üç satır, ölçüldü) çünkü bütün siparişler 2026'da. Veri birden fazla yıla yayılınca bütün Mart'lar geliyor; `YEAR(...)` da eklemek gerekiyor.\n\nİkinci sorun hız: sütun bir işlevin içine girince sunucu o sütundaki dizini kullanamıyor. Bunu ileri seviyedeki dizinler bölümünde ölçeceksin.",
+        "en": "It works on this data (three rows, measured) because every order is in 2026. Once the data spans several years every March comes back; you would need `YEAR(...)` as well.\n\nThe second problem is speed: once the column is inside a function, the server cannot use an index on it. You will measure that in the indexes section at the advanced level."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "`DATENAME(month, '2026-03-14')` bu sunucuda `March` verdi. Neden?",
+        "en": "`DATENAME(month, '2026-03-14')` gave `March` on this server. Why?"
+      },
+      "options": {
+        "tr": [
+          "`DATENAME` hep İngilizce yazıyor",
+          "Tarih yanlış yazılmış",
+          "Ay adı oturumun diline göre yazılıyor; bu sunucuda oturum dili İngilizce",
+          "`DATENAME` ay numarasını veriyor"
+        ],
+        "en": [
+          "`DATENAME` always writes in English",
+          "The date is written wrongly",
+          "The month name is written in the session's language; here the session language is English",
+          "`DATENAME` gives the month number"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: oturum dili `us_english`, sonuç `March`; gün adı da `Saturday`. Türkçe bir oturumda aynı sorgu `Mart` verir.\n\nAdın belli bir dilde olması gerekiyorsa `FORMAT(d, 'MMMM yyyy', 'tr-TR')` gibi kültürü açıkça vermek sonucu sabitliyor (`Mart 2026`, ölçüldü).",
+        "en": "Measured: the session language is `us_english` and the result `March`; the day name `Saturday`. In a Turkish session the same query gives `Mart`.\n\nIf the name has to be in a particular language, giving the culture explicitly, as in `FORMAT(d, 'MMMM yyyy', 'tr-TR')`, pins the result (`Mart 2026`, measured)."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "`FORMAT(order_date, 'dd.MM.yyyy')` ile üretilen sütuna göre sıralamanın sorunu ne?",
+        "en": "What is the problem with sorting by a column produced with `FORMAT(order_date, 'dd.MM.yyyy')`?"
+      },
+      "options": {
+        "tr": [
+          "Sonuç metin; metin olarak sıralanınca günler aylardan önce karşılaştırılıyor",
+          "`FORMAT` sıralamayı engelliyor",
+          "Hiçbir sorunu yok",
+          "Yalnızca Türkçe tarihlerde sorun çıkıyor"
+        ],
+        "en": [
+          "The result is text; sorted as text the days are compared before the months",
+          "`FORMAT` prevents sorting",
+          "There is no problem",
+          "It only goes wrong with Turkish dates"
+        ]
+      },
+      "explanation": {
+        "tr": "`FORMAT` metin döndürüyor. `'14.03.2026'` ile `'02.04.2026'` metin olarak karşılaştırılınca `02` önce geliyor — 2 Nisan, 14 Mart'tan önce sıralanıyor.\n\nKural: sıralamayı ve hesabı tarihin kendisiyle yap, biçimlendirmeyi en sona bırak. Metin sıralamasının tarihi nasıl bozduğunu önceki bölümde ölçmüştün (Ekim, Eylül'den önce gelmişti).",
+        "en": "`FORMAT` returns text. Compare `'14.03.2026'` and `'02.04.2026'` as text and `02` comes first — April 2 sorts before March 14.\n\nThe rule: sort and calculate with the date itself, and leave formatting to the very end. In the previous section you measured how text sorting breaks dates (October came before September)."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 3,
+      "text": {
+        "tr": "`CHARINDEX(' ', 'Madonna')` ne döndürüyor, ve `LEFT('Madonna', CHARINDEX(' ', 'Madonna') - 1)` ne yapıyor?",
+        "en": "What does `CHARINDEX(' ', 'Madonna')` return, and what does `LEFT('Madonna', CHARINDEX(' ', 'Madonna') - 1)` do?"
+      },
+      "options": {
+        "tr": [
+          "`-1`; boş metin",
+          "`NULL`; `NULL`",
+          "`7`; `Madonna`",
+          "`0`; hata veriyor"
+        ],
+        "en": [
+          "`-1`; an empty string",
+          "`NULL`; `NULL`",
+          "`7`; `Madonna`",
+          "`0`; it raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: aranan parça yoksa `CHARINDEX` **0** döndürüyor. `LEFT(..., 0 - 1)` de hata: `Invalid length parameter passed to the left function.`\n\n'Ada Kilic' için `CHARINDEX` 4 verdi ve ayırma doğru çalıştı. Gerçek veride tek kelimelik ad varsa sorgunun o durumu ayrıca ele alması gerekiyor.",
+        "en": "Measured: if the searched part is not there, `CHARINDEX` returns **0**. `LEFT(..., 0 - 1)` is then an error: `Invalid length parameter passed to the left function.`\n\nFor 'Ada Kilic' `CHARINDEX` gave 4 and the split worked. If the real data has one-word names, the query has to handle that case separately."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 1,
+      "text": {
+        "tr": "`STRING_AGG(name, ', ')` yazıp `WITHIN GROUP (ORDER BY name)` eklemezsen listedeki sıra ne oluyor?",
+        "en": "If you write `STRING_AGG(name, ', ')` without `WITHIN GROUP (ORDER BY name)`, what order does the list come in?"
+      },
+      "options": {
+        "tr": [
+          "Her zaman alfabetik",
+          "Garanti yok; bu sunucuda satırların tabloya eklendiği sıra geldi",
+          "Tersten alfabetik",
+          "Hata veriyor"
+        ],
+        "en": [
+          "Always alphabetical",
+          "There is no guarantee; on this server the order the rows were added came back",
+          "Reverse alphabetical",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `ACC` için `Keyboard, Mouse, Headset, Webcam, Cable, Microphone` — alfabetik değil. `WITHIN GROUP (ORDER BY name)` ile `Cable, Headset, Keyboard, Microphone, Mouse, Webcam`.\n\nSorgunun sonundaki `ORDER BY` yalnızca **satırları** sıralıyor, hücrenin içindeki listeyi değil.",
+        "en": "Measured: for `ACC`, `Keyboard, Mouse, Headset, Webcam, Cable, Microphone` — not alphabetical. With `WITHIN GROUP (ORDER BY name)`: `Cable, Headset, Keyboard, Microphone, Mouse, Webcam`.\n\nThe `ORDER BY` at the end of the query only sorts the **rows**, not the list inside the cell."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "`CONCAT_WS(' - ', 'A', NULL, 'C')` ne döndürüyor?",
+        "en": "What does `CONCAT_WS(' - ', 'A', NULL, 'C')` return?"
+      },
+      "options": {
+        "tr": [
+          "`NULL`",
+          "`A -  - C`",
+          "`A - C`",
+          "`AC`"
+        ],
+        "en": [
+          "`NULL`",
+          "`A -  - C`",
+          "`A - C`",
+          "`AC`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`A - C`**. İlk argüman ayırıcı; `CONCAT_WS` onu parçaların arasına kendisi koyuyor ve boş parçayı **atlıyor** — iki ayırıcı yan yana gelmiyor.\n\nKarşılaştırma için: `CONCAT('A', NULL, 'C')` → `AC`, `'A' + NULL + 'C'` → `NULL` (ölçüldü).",
+        "en": "Measured: **`A - C`**. The first argument is the separator; `CONCAT_WS` puts it between the parts itself and **skips** the empty part — two separators never end up side by side.\n\nFor comparison: `CONCAT('A', NULL, 'C')` → `AC`, `'A' + NULL + 'C'` → `NULL` (measured)."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Türkçe ayarlı sunucuda `WHERE city = 'istanbul'` şehri `Istanbul` olan iki müşteriden kaçını buluyor?",
+        "en": "On a Turkish-set server, how many of the two customers whose city is `Istanbul` does `WHERE city = 'istanbul'` find?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbirini",
+          "İkisini de",
+          "Birini",
+          "Hata veriyor"
+        ],
+        "en": [
+          "Neither",
+          "Both",
+          "One",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **0**. Türkçede `I`'nın küçüğü `ı`, `i` değil; Türkçe ayarlı sunucu `Istanbul` ile `istanbul`'u farklı sayıyor. `LIKE 'ist%'` de 0 buldu. Latin ayarlı karşılaştırma ise ikisini de buldu.\n\nÇaresi dil ayarını karşılaştırmada açıkça vermek: `WHERE city COLLATE Latin1_General_CI_AS = 'istanbul'` → 2 satır.",
+        "en": "Measured: **0**. In Turkish the small form of `I` is `ı`, not `i`; a Turkish-set server treats `Istanbul` and `istanbul` as different. `LIKE 'ist%'` found 0 as well. A Latin-set comparison found both.\n\nThe fix is to give the language setting explicitly in the comparison: `WHERE city COLLATE Latin1_General_CI_AS = 'istanbul'` → 2 rows."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "Türkçe ayarlı sunucuda `UPPER('istanbul')` ne döndürüyor?",
+        "en": "On a Turkish-set server, what does `UPPER('istanbul')` return?"
+      },
+      "options": {
+        "tr": [
+          "`ISTANBUL`",
+          "`Istanbul`",
+          "`istanbul`",
+          "`İSTANBUL`"
+        ],
+        "en": [
+          "`ISTANBUL`",
+          "`Istanbul`",
+          "`istanbul`",
+          "`İSTANBUL`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`İSTANBUL`** — noktalı büyük İ. Latin ayarıyla aynı ifade `ISTANBUL` verdi. `LOWER('ISTANBUL')` da Türkçe ayarda `ıstanbul` oldu.\n\nPython'da `str.upper()` ile yaşanan tuzağın tersi: burada sunucu Türkçe kuralı uyguluyor ve Türkçe olmayan metinde sürpriz yaratabiliyor.",
+        "en": "Measured: **`İSTANBUL`** — the dotted capital İ. With the Latin setting the same expression gave `ISTANBUL`. `LOWER('ISTANBUL')` became `ıstanbul` under the Turkish setting too.\n\nIt is the reverse of the trap people hit with Python's `str.upper()`: here the server applies the Turkish rule and can surprise you on text that is not Turkish."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 1,
+      "text": {
+        "tr": "`FORMAT(CAST('2026-03-14' AS DATE), 'MMMM yyyy', 'tr-TR')` ne döndürüyor?",
+        "en": "What does `FORMAT(CAST('2026-03-14' AS DATE), 'MMMM yyyy', 'tr-TR')` return?"
+      },
+      "options": {
+        "tr": [
+          "`March 2026`",
+          "`Mart 2026`",
+          "`03 2026`",
+          "Oturum diline göre değişiyor"
+        ],
+        "en": [
+          "`March 2026`",
+          "`Mart 2026`",
+          "`03 2026`",
+          "It depends on the session language"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`Mart 2026`**; `'en-US'` ile `March 2026`.\n\nKültür açıkça verildiği için sonuç oturumun diline bağlı değil — `DATENAME`'in aksine. Ay adının belli bir dilde çıkması gereken raporlarda doğru araç bu.",
+        "en": "Measured: **`Mart 2026`**; with `'en-US'`, `March 2026`.\n\nBecause the culture is given explicitly, the result does not depend on the session language — unlike `DATENAME`. This is the right tool for reports where the month name must come out in a particular language."
+      }
+    }
+  ]
+}

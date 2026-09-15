@@ -1,0 +1,3 @@
+-- Show each order's due date: 7 days after the order
+-- date.
+-- Columns: id, order_date, due_date. Sort by id.

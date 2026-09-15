@@ -1,0 +1,4 @@
+-- For each category, show the product names in a single
+-- cell, separated by a comma and a space (', '), in
+-- alphabetical order.
+-- Columns: category_code, products. Sort by code.

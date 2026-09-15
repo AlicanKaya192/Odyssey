@@ -1,0 +1,3 @@
+-- Her siparisin son teslim tarihini goster: siparis
+-- tarihinden 7 gun sonrasi.
+-- Sutunlar: id, order_date, due_date. id'ye gore sirala.

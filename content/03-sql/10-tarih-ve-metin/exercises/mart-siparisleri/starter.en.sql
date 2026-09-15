@@ -1,0 +1,4 @@
+-- Bring back the orders placed in March 2026.
+-- Columns: id, order_date. Sort by id.
+--
+-- Do not use MONTH(): filter with a date range.

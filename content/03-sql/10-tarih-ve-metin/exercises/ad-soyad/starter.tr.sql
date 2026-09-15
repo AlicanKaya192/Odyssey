@@ -1,0 +1,3 @@
+-- employees tablosundaki name sutunu 'Ada Kilic' gibi
+-- ad ve soyadi birlikte tutuyor. Ikisini ayir.
+-- Sutunlar: id, first_name, last_name. id'ye gore sirala.

@@ -118,6 +118,12 @@ PATHS: dict[str, str] = {
         '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'
     ),
     "chevron-right": '<path d="m9 18 6-6-6-6"/>',
+    # Kum saati: zamanla hesap yapmak. Tarih ve metin rozetinin simgesi.
+    "hourglass": (
+        '<path d="M5 22h14"/><path d="M5 2h14"/>'
+        '<path d="M17 22v-4.17a2 2 0 0 0-.59-1.42L12 12l-4.41 4.41A2 2 0 0 0 7 17.83V22"/>'
+        '<path d="M7 2v4.17a2 2 0 0 0 .59 1.42L12 12l4.41-4.41A2 2 0 0 0 17 6.17V2"/>'
+    ),
     # Basligi ve bir sutunu olan tablo: tabloyu kendin kurmak. Tablo tasarimi
     # rozetinin simgesi.
     "table-grid": (

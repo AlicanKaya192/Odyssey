@@ -1,0 +1,76 @@
+{
+  "id": "ad-soyad",
+  "language": "tsql",
+  "title": {
+    "tr": "Adı ve soyadı ayırmak",
+    "en": "Splitting first and last names"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Boşluğun yeri: `CHARINDEX(' ', name)`. 'Ada Kilic' için 4.",
+      "en": "Where the space is: `CHARINDEX(' ', name)`. For 'Ada Kilic' it is 4."
+    },
+    {
+      "tr": "Ad boşluğa **kadar**: `LEFT(name, konum - 1)`. Soyad boşluktan **sonra**: `SUBSTRING(name, konum + 1, LEN(name))`. Sabit bir uzunluk yazma — adların uzunluğu farklı.",
+      "en": "The first name runs **up to** the space: `LEFT(name, position - 1)`. The last name starts **after** it: `SUBSTRING(name, position + 1, LEN(name))`. Do not write a fixed length — the names are of different lengths."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT id,\n       LEFT(name, CHARINDEX(' ', name) - 1) AS first_name,\n       SUBSTRING(name, CHARINDEX(' ', name) + 1, LEN(name)) AS last_name\nFROM employees\nORDER BY id;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT id,\n       LEFT(name, CHARINDEX(' ', name) - 1) AS first_name,\n       SUBSTRING(name, CHARINDEX(' ', name) + 1, LEN(name)) AS last_name\nFROM employees\nORDER BY id;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "id",
+        "first_name",
+        "last_name"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          1,
+          "Ada",
+          "Kilic"
+        ],
+        [
+          2,
+          "Bora",
+          "Yilmaz"
+        ],
+        [
+          3,
+          "Ceren",
+          "Aksoy"
+        ],
+        [
+          4,
+          "Deniz",
+          "Kaya"
+        ],
+        [
+          5,
+          "Emre",
+          "Sahin"
+        ],
+        [
+          6,
+          "Fulya",
+          "Demir"
+        ]
+      ]
+    }
+  ]
+}

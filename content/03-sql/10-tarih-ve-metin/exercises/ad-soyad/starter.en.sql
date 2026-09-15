@@ -1,0 +1,3 @@
+-- The name column in employees holds first and last
+-- name together, like 'Ada Kilic'. Split them.
+-- Columns: id, first_name, last_name. Sort by id.

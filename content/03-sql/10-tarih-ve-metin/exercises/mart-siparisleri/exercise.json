@@ -1,0 +1,65 @@
+{
+  "id": "mart-siparisleri",
+  "language": "tsql",
+  "title": {
+    "tr": "Mart siparişleri",
+    "en": "The March orders"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ay başından **dahil**, sonraki ayın başına **kadar** (dahil değil): `>= '2026-03-01' AND < '2026-04-01'`. Buna yarı açık aralık deniyor.",
+      "en": "From the start of the month **inclusive** up to the start of the next month (**exclusive**): `>= '2026-03-01' AND < '2026-04-01'`. This is called a half-open range."
+    },
+    {
+      "tr": "Neden `BETWEEN ... '2026-03-31'` değil: sütunda saat olsaydı 31 Mart öğleden sonrası dışarıda kalırdı. Yarı açık aralık her tipte doğru.",
+      "en": "Why not `BETWEEN ... '2026-03-31'`: if the column held times, the afternoon of March 31 would be left out. The half-open range is right for every type."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT id, order_date\nFROM orders\nWHERE order_date >= '2026-03-01'\n  AND order_date <  '2026-04-01'\nORDER BY id;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT id, order_date\nFROM orders\nWHERE order_date >= '2026-03-01'\n  AND order_date <  '2026-04-01'\nORDER BY id;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "id",
+        "order_date"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          1006,
+          "2026-03-03"
+        ],
+        [
+          1007,
+          "2026-03-14"
+        ],
+        [
+          1008,
+          "2026-03-22"
+        ]
+      ]
+    },
+    {
+      "type": "sql_forbid",
+      "pattern": "MONTH(",
+      "hint": {
+        "tr": "Bu alıştırma sütuna işlev uygulamadan süzmeyi istiyor: `MONTH(order_date) = 3` yerine bir tarih aralığı yaz (`>= '2026-03-01' AND < '2026-04-01'`).",
+        "en": "This exercise asks you to filter without applying a function to the column: instead of `MONTH(order_date) = 3`, write a date range (`>= '2026-03-01' AND < '2026-04-01'`)."
+      }
+    }
+  ]
+}

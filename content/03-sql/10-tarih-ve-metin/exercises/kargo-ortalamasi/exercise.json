@@ -1,0 +1,57 @@
+{
+  "id": "kargo-ortalamasi",
+  "language": "tsql",
+  "title": {
+    "tr": "Kargo firmasına göre ortalama",
+    "en": "The average per carrier"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki tabloyu `order_id` üzerinden birleştir; gün farkı `DATEDIFF(day, o.order_date, s.shipped_date)`. Sıra önemli: önce erken tarih.",
+      "en": "Join the two tables on `order_id`; the gap in days is `DATEDIFF(day, o.order_date, s.shipped_date)`. The order matters: the earlier date first."
+    },
+    {
+      "tr": "`DATEDIFF` tam sayı döndürüyor ve tam sayıların ortalaması da tam sayı: FastLine için 2,67 yerine **2** çıkıyor. Ortalamadan önce `CAST(... AS DECIMAL(10,2))`, sonra `ROUND(..., 2)`.",
+      "en": "`DATEDIFF` returns a whole number, and the average of whole numbers is a whole number too: FastLine comes out as **2** instead of 2.67. `CAST(... AS DECIMAL(10,2))` before averaging, then `ROUND(..., 2)`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT s.carrier,\n       ROUND(AVG(CAST(DATEDIFF(day, o.order_date, s.shipped_date)\n                      AS DECIMAL(10,2))), 2) AS avg_days\nFROM shipments s\nJOIN orders o ON o.id = s.order_id\nGROUP BY s.carrier\nORDER BY s.carrier;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT s.carrier,\n       ROUND(AVG(CAST(DATEDIFF(day, o.order_date, s.shipped_date)\n                      AS DECIMAL(10,2))), 2) AS avg_days\nFROM shipments s\nJOIN orders o ON o.id = s.order_id\nGROUP BY s.carrier\nORDER BY s.carrier;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "carrier",
+        "avg_days"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "CityMove",
+          3.0
+        ],
+        [
+          "FastLine",
+          2.67
+        ],
+        [
+          "NorthWay",
+          3.0
+        ]
+      ]
+    }
+  ]
+}
