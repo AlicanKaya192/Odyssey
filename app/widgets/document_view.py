@@ -79,6 +79,7 @@ class DocumentView(QWebEngineView):
     def __init__(self, parent: QWidget | None = None, mode: str = "light") -> None:
         super().__init__(parent)
         self._mode = mode
+        self._rendered_mode = mode
         self._body = ""
         # (Nota ekle, Kopyala) etiketleri. Verilmemişse Chromium'un kendi
         # sağ tık menüsü çıkıyor.
@@ -128,6 +129,9 @@ class DocumentView(QWebEngineView):
         self._render(keep_scroll=keep_scroll)
 
     def _render(self, keep_scroll: bool = False) -> None:
+        # Sayfanın hangi temanın stiliyle çizildiği; yükleme bitince
+        # bakılıyor (`_on_load_finished`).
+        self._rendered_mode = self._mode
         painted = highlight_code_blocks(self._body, self._mode)
         document = (
             f"<!doctype html><html lang='{self._lang}'>"
@@ -171,6 +175,14 @@ class DocumentView(QWebEngineView):
             pass
 
     def _on_load_finished(self, ok: bool) -> None:
+        # Tema, sayfa yüklenirken değiştiyse stil değişimi yüklenmekte olan
+        # sayfaya değil eskisine uygulanmış oluyor; yeni sayfa çizildiği
+        # anın temasıyla açılıp orada kalıyordu (Notlarım'da, not yüklenir
+        # yüklenmez tema bildirildiğinde görüldü). Yükleme bitince fark
+        # varsa stil yeniden veriliyor.
+        if ok and self._rendered_mode != self._mode:
+            self._rendered_mode = self._mode
+            self._swap_css()
         if ok and self._restore_to:
             self.page().runJavaScript(
                 "(document.scrollingElement||document.documentElement)"
@@ -223,12 +235,15 @@ class DocumentView(QWebEngineView):
         self._apply_background()
         if not self._body:
             return
+        self._swap_css()
 
+    def _swap_css(self) -> None:
+        """Sayfanın stil bloğunu seçili temanınkiyle değiştirir."""
         self.page().runJavaScript(
             "(function () {"
             "  var s = document.getElementById('tema');"
             "  if (!s) return false;"
-            f"  s.textContent = {json.dumps(build_css(mode))};"
+            f"  s.textContent = {json.dumps(build_css(self._mode))};"
             "  return true;"
             "})()"
         )
