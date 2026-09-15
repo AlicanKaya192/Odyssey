@@ -21,7 +21,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [0.8.1] — unreleased
+## [0.8.1] — 15 September 2026
 
 ### Added
 - **Part 2 of the SQL path.** Its sections — **Intermediate:** Table Design,

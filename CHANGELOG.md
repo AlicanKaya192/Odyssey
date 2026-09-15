@@ -19,7 +19,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [0.8.1] — yayınlanmadı
+## [0.8.1] — 15 Eylül 2026
 
 ### Eklendi
 - **SQL patikasının 2. kısmı.** İçindeki bölümler — **Orta Seviye:** Tablo
