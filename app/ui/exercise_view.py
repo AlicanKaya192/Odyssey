@@ -531,6 +531,22 @@ class ExerciseView(QWidget):
 
     # --- içerik -----------------------------------------------------------
 
+    def code_for_note(self) -> tuple[str, str] | None:
+        """Nota eklenecek kod ve dili: seçim varsa seçim, yoksa editörün tamamı.
+
+        Dil etiketi markdown'ın tanıdığı ad: T-SQL alıştırması `sql`.
+        """
+        if self._exercise is None:
+            return None
+        cursor = self._editor.textCursor()
+        if cursor.hasSelection():
+            code = cursor.selectedText().replace(" ", "\n")
+        else:
+            code = self._editor.toPlainText()
+        if not code.strip():
+            return None
+        return code, "sql" if self._exercise.language == "tsql" else "python"
+
     def show_exercise(self, exercise: Exercise, chapter_id: str, section_id: str) -> None:
         """Alıştırmayı yükler ve varsa daha önce yazılan kodu geri getirir."""
         self._exercise = exercise

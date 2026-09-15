@@ -195,6 +195,7 @@ class MainWindow(QMainWindow):
         self._topic.back_requested.connect(self._topic_back)
         self._topic.progress_changed.connect(self._journey.refresh)
         self._topic.progress_changed.connect(self._refresh_progress)
+        self._topic.open_notebook.connect(self._open_note)
 
         # Profil
         self._profile = ProfileView(self._catalog, self._language, self._store)
@@ -475,6 +476,11 @@ class MainWindow(QMainWindow):
         self._rail.set_current("journey")
         self._set_presence_location(chapter_id, section_id)
 
+    def _open_note(self, entry_id: int) -> None:
+        """Bölümdeki not panelinden "Notlarım'da aç"."""
+        self._navigate("notes")
+        self._notebook.open_note(entry_id)
+
     def _on_presence_changed(self) -> None:
         self._presence.refresh_setting()
         self._refresh_presence()
@@ -727,8 +733,10 @@ class MainWindow(QMainWindow):
                 event.ignore()
                 return
 
-        # Notta yazılıp henüz kaydedilmemiş son harfler.
+        # Notta yazılıp henüz kaydedilmemiş son harfler (Notlarım ve
+        # bölümdeki not paneli).
         self._notebook.flush()
+        self._topic.flush_note()
 
         # Discord'daki yazı silinsin; yoksa kapatılan uygulama hâlâ
         # kullanılıyor gibi görünüyor.

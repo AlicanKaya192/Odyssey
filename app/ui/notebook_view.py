@@ -45,6 +45,7 @@ from ..resources.icons import icon
 from ..resources.theme.tokens import PALETTES, READING_WIDTH, SPACING
 from ..widgets.document_view import DocumentView
 from ..widgets.note_editor import NoteEditor
+from ..widgets.note_toolbar import NoteToolbar
 from . import titlebar
 from .confirm_dialog import ConfirmDialog
 from .modal import Backdrop
@@ -63,8 +64,6 @@ ROLE_ID = Qt.ItemDataRole.UserRole + 1
 OTHER_FOLDER = ""
 
 PAGE_EMPTY, PAGE_READ, PAGE_EDIT = 0, 1, 2
-
-TOOLS = ("heading", "bold", "list")
 
 
 class _NoteIndent(QStyledItemDelegate):
@@ -248,44 +247,11 @@ class NotebookView(QWidget):
         self._title_edit.editingFinished.connect(self.flush)
         inner.addWidget(self._title_edit)
 
-        tools = QWidget()
-        tools.setProperty("role", "bare")
-        tools_row = QHBoxLayout(tools)
-        tools_row.setContentsMargins(0, SPACING["xs"], 0, SPACING["xs"])
-        tools_row.setSpacing(SPACING["xs"])
-
-        self._tool_buttons: dict[str, QPushButton] = {}
-        for key in TOOLS:
-            button = QPushButton()
-            button.setProperty("variant", "tool")
-            button.setCursor(Qt.CursorShape.PointingHandCursor)
-            button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-            tools_row.addWidget(button)
-            self._tool_buttons[key] = button
-
-        # Kod düğmesi dil soruyor: Python bloğu renkleniyor, SQL düz duruyor
-        # (ders metinlerindeki gibi).
-        self._code_button = QPushButton()
-        self._code_button.setProperty("variant", "tool")
-        self._code_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._code_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self._code_menu = QMenu(self._code_button)
-        self._code_python = self._code_menu.addAction("")
-        self._code_sql = self._code_menu.addAction("")
-        self._code_button.setMenu(self._code_menu)
-        tools_row.addWidget(self._code_button)
-        tools_row.addStretch(1)
-        inner.addWidget(tools)
-
         self._editor = NoteEditor(mode=self._mode)
         self._editor.textChanged.connect(self._on_edited)
+        self._toolbar = NoteToolbar(self._editor)
+        inner.addWidget(self._toolbar)
         inner.addWidget(self._editor, 1)
-
-        self._tool_buttons["heading"].clicked.connect(self._editor.toggle_heading)
-        self._tool_buttons["bold"].clicked.connect(self._editor.toggle_bold)
-        self._tool_buttons["list"].clicked.connect(self._editor.toggle_list)
-        self._code_python.triggered.connect(lambda: self._editor.insert_code("python"))
-        self._code_sql.triggered.connect(lambda: self._editor.insert_code("sql"))
 
         outer.addStretch(1)
         outer.addWidget(column, 10)
@@ -609,12 +575,7 @@ class NotebookView(QWidget):
         self._new_button.setToolTip("Ctrl+N")
         self._title_edit.setPlaceholderText(t("notebook.title_placeholder"))
         self._editor.setPlaceholderText(t("notebook.body_placeholder"))
-        for key, button in self._tool_buttons.items():
-            button.setText(t(f"notebook.{key}"))
-        self._tool_buttons["bold"].setToolTip("Ctrl+B")
-        self._code_button.setText(f"{t('notebook.code')}  ▾")
-        self._code_python.setText(t("notebook.code_python"))
-        self._code_sql.setText(t("notebook.code_sql"))
+        self._toolbar.retranslate(t)
 
         # Klasör adları ve "Diğer" dile bağlı. Yazma hâlinde editör yeniden
         # yüklenmiyor: yüklenseydi kaydedilmemiş son harfler giderdi.

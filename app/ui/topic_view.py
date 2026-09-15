@@ -5,11 +5,17 @@ gerçekten var olan parçalar gösteriliyor: ders notu olmayan bir bölümde
 "Ders Notları" seçeneği hiç çıkmıyor.
 
 Bölümde birden fazla alıştırma varsa aralarında geçiş düğmeleri beliriyor.
+
+Sağda açılıp kapanan bir not paneli var (`note_panel.py`): başlıktaki
+"Not al" düğmesi ya da `Ctrl+N`. Panel hangi sekmede olunursa olsun açık
+kalıyor ve bölümden bölüme geçerken de açık kalıyor. Ders, ders notu ve
+alıştırma yönergesinde seçilen metin sağ tıkla nota eklenebiliyor.
 """
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -25,11 +31,14 @@ from ..core.language import LanguageManager
 from ..core.quiz_timing import untimed_quiz
 from ..core.progress import ProgressStore
 from ..core.unlock import is_unlocked
-from ..resources.theme.tokens import SPACING
+from ..resources.icons import icon
+from ..resources.theme.tokens import RAIL_COLORS, SPACING
 from ..widgets.common import SegmentedControl
+from ..widgets.document_view import DocumentView
 from .exercise_view import ExerciseView
 from .header import ScreenHeader
 from .lesson_view import LessonView
+from .note_panel import NotePanel
 from .notes_view import NotesView
 from .pdf_view import PdfView
 from .quiz_view import QuizView
@@ -40,6 +49,8 @@ class TopicView(QWidget):
 
     back_requested = Signal()
     progress_changed = Signal()
+    # Paneldeki "Notlarım'da aç": notun id'si.
+    open_notebook = Signal(int)
 
     def __init__(
         self,
@@ -71,6 +82,13 @@ class TopicView(QWidget):
         self._segments.changed.connect(self._show_pane)
         self.header.add_widget(self._segments)
 
+        self._note_button = QPushButton()
+        self._note_button.setProperty("variant", "ghost")
+        self._note_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._note_button.setIconSize(QSize(18, 18))
+        self._note_button.clicked.connect(lambda: self.toggle_note())
+        self.header.add_widget(self._note_button)
+
         layout.addWidget(self.header)
 
         self._stack = QStackedWidget()
@@ -90,11 +108,39 @@ class TopicView(QWidget):
         self._quiz.advance.connect(self._on_quiz_advance)
         self._exercise.advance.connect(self._on_exercise_advance)
 
+        # İçerik solda, not paneli sağda.
+        body = QWidget()
+        row = QHBoxLayout(body)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(0)
+
+        column = QWidget()
+        column_layout = QVBoxLayout(column)
+        column_layout.setContentsMargins(0, 0, 0, 0)
+        column_layout.setSpacing(0)
         # Geçiş şeridi içeriğin üstünde: altta, sonuç panelinin de altında
         # dururken görülmüyordu ve ikinci alıştırmanın varlığı fark
         # edilmiyordu.
-        layout.addWidget(self._build_exercise_switcher())
-        layout.addWidget(self._stack, 1)
+        column_layout.addWidget(self._build_exercise_switcher())
+        column_layout.addWidget(self._stack, 1)
+        row.addWidget(column, 1)
+
+        self._note_panel = NotePanel(language, store)
+        self._note_panel.hide()
+        self._note_panel.close_requested.connect(lambda: self.toggle_note(False))
+        self._note_panel.open_in_notebook.connect(self.open_notebook)
+        row.addWidget(self._note_panel)
+        layout.addWidget(body, 1)
+
+        # Seçimi nota ekleme: bölümdeki bütün belge alanları (ders, ders
+        # notu, alıştırma yönergesi).
+        self._documents = self.findChildren(DocumentView)
+        for document in self._documents:
+            document.quote_requested.connect(self._on_quote)
+
+        kisayol = QShortcut(QKeySequence("Ctrl+N"), self, lambda: self.toggle_note())
+        kisayol.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self._mode = "light"
 
     def _build_exercise_switcher(self) -> QWidget:
         """Birden fazla alıştırma varsa aralarında geçiş şeridi.
@@ -183,6 +229,8 @@ class TopicView(QWidget):
         if self._exercises:
             self._panes.append("exercise")
             self._load_exercise()
+
+        self._note_panel.set_section(chapter_id, section_id, self._language.pick(section.title))
 
         self._lesson.set_meta(self._meta_items(section))
         self._lesson.set_footer(self._footer_items())
@@ -528,6 +576,30 @@ class TopicView(QWidget):
         }[name]
         self._stack.setCurrentWidget(widget)
         self._update_switcher()
+        # "Kodumu ekle" yalnızca alıştırmadayken anlamlı.
+        self._note_panel.set_code_source(
+            self._exercise.code_for_note if name == "exercise" else None
+        )
+
+    # --- not paneli -------------------------------------------------------
+
+    def toggle_note(self, visible: bool | None = None) -> None:
+        """Not panelini açar ya da kapatır; açılınca imleç notta."""
+        if visible is None:
+            visible = self._note_panel.isHidden()
+        self._note_panel.setVisible(visible)
+        self._note_button.setProperty("active", "true" if visible else "false")
+        if visible:
+            self._note_panel.focus_editor()
+
+    def _on_quote(self, text: str) -> None:
+        """Belgede seçilip "Nota ekle" denen metin."""
+        self.toggle_note(True)
+        self._note_panel.add_quote(text)
+
+    def flush_note(self) -> None:
+        """Panelde yazılıp henüz kaydedilmemiş son harfler."""
+        self._note_panel.flush()
 
     def _refresh_progress(self) -> None:
         """İlerlemeyi veritabanından tazeleyip kutuya yazar."""
@@ -606,7 +678,11 @@ class TopicView(QWidget):
     # --- tema ve dil ------------------------------------------------------
 
     def set_mode(self, mode: str) -> None:
+        self._mode = mode
         self.header.set_mode(mode)
+        renk = RAIL_COLORS.get(mode, RAIL_COLORS["light"])["notes"]
+        self._note_button.setIcon(icon("notebook", renk, 18))
+        self._note_panel.set_mode(mode)
         self._lesson.set_mode(mode)
         self._notes.set_mode(mode)
         self._quiz.set_mode(mode)
@@ -623,6 +699,15 @@ class TopicView(QWidget):
         self._refresh_advance_labels()
 
         self.header.set_back(True, self._language.t("path.back_to_path"))
+
+        t = self._language.t
+        self._note_button.setText(f" {t('notebook.take_note')}")
+        self._note_button.setToolTip("Ctrl+N")
+        for document in self._documents:
+            document.enable_quote(t("notebook.add_selection"), t("notebook.copy"))
+        self._note_panel.retranslate()
+        if self._section is not None:
+            self._note_panel.set_section_title(self._language.pick(self._section.title))
 
         if self._section is not None:
             chapter = self._catalog.chapter(self._section.chapter_id)

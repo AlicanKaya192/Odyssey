@@ -73,11 +73,16 @@ class DocumentView(QWebEngineView):
     """Markdown'dan üretilmiş HTML'i gösterir."""
 
     action = Signal(str)
+    # Sağ tıkta "Nota ekle": seçili metin.
+    quote_requested = Signal(str)
 
     def __init__(self, parent: QWidget | None = None, mode: str = "light") -> None:
         super().__init__(parent)
         self._mode = mode
         self._body = ""
+        # (Nota ekle, Kopyala) etiketleri. Verilmemişse Chromium'un kendi
+        # sağ tık menüsü çıkıyor.
+        self._quote_labels: tuple[str, str] | None = None
 
         self._page = DocumentPage(self)
         self._page.action.connect(self.action)
@@ -227,6 +232,37 @@ class DocumentView(QWebEngineView):
             "  return true;"
             "})()"
         )
+
+    def enable_quote(self, add_label: str, copy_label: str) -> None:
+        """Sağ tıkta seçimi nota ekleyen menüyü açar; etiketler dilde.
+
+        Chromium'un kendi menüsü (Geri, Yeniden yükle, Kaynağı gör...) bu
+        belgelerde bir işe yaramıyor. Menü yalnızca bir şey seçiliyken
+        çıkıyor: seçimsiz sağ tıkta sunulacak bir iş yok.
+        """
+        self._quote_labels = (add_label, copy_label)
+
+    def contextMenuEvent(self, event) -> None:  # noqa: N802
+        if self._quote_labels is None:
+            super().contextMenuEvent(event)
+            return
+
+        event.accept()
+        secim = self.selectedText().strip()
+        if not secim:
+            return
+
+        from PySide6.QtWidgets import QMenu
+
+        # Eylemler kendi sinyalleriyle bağlanıyor; `exec`'in döndürdüğü
+        # eylemi kimliğiyle karşılaştırmaya güvenilmiyor.
+        add_label, copy_label = self._quote_labels
+        menu = QMenu(self)
+        menu.addAction(copy_label).triggered.connect(
+            lambda: self.page().triggerAction(QWebEnginePage.WebAction.Copy)
+        )
+        menu.addAction(add_label).triggered.connect(lambda: self.quote_requested.emit(secim))
+        menu.exec(event.globalPos())
 
     def scroll_to(self, anchor: str) -> None:
         """Sayfayı belirtilen çapaya kaydırır."""
