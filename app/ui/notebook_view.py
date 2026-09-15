@@ -28,7 +28,9 @@ from PySide6.QtWidgets import (
     QMenu,
     QPushButton,
     QStackedWidget,
+    QStyledItemDelegate,
     QStyleFactory,
+    QStyleOptionViewItem,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -63,6 +65,20 @@ OTHER_FOLDER = ""
 PAGE_EMPTY, PAGE_READ, PAGE_EDIT = 0, 1, 2
 
 TOOLS = ("heading", "bold", "list")
+
+
+class _NoteIndent(QStyledItemDelegate):
+    """Klasörün altındaki notu içeri alarak çizer.
+
+    Seçim ve üzerine gelme zemini notun kendi kutusuyla başlıyor; girinti
+    boşluğu boş kalıyor.
+    """
+
+    def paint(self, painter, option, index) -> None:
+        if index.parent().isValid():
+            option = QStyleOptionViewItem(option)
+            option.rect = option.rect.adjusted(SPACING["lg"], 0, 0, 0)
+        super().paint(painter, option, index)
 
 
 def _format_time(value: str, language: str) -> str:
@@ -148,7 +164,11 @@ class NotebookView(QWidget):
         # Açma oku yok: klasöre tıklamak açıp kapatıyor. Qt'nin oku bizim
         # temamızda çizilmiyor, yerine bir şey koymak da kalabalık ediyordu.
         self._tree.setRootIsDecorated(False)
-        self._tree.setIndentation(SPACING["lg"])
+        # Ağacın kendi girintisi yok; notları `_NoteIndent` içeri alıyor.
+        # Girinti ağaçta olunca seçim o boşluğu da ayrı bir parça olarak
+        # boyuyordu ve notun solunda kopuk bir vurgu kalıyordu.
+        self._tree.setIndentation(0)
+        self._tree.setItemDelegate(_NoteIndent(self._tree))
         self._tree.setIconSize(QSize(18, 18))
         self._tree.itemClicked.connect(self._on_item_clicked)
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
