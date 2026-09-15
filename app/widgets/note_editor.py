@@ -24,6 +24,7 @@ from PySide6.QtGui import (
     QFont,
     QFontMetrics,
     QKeyEvent,
+    QPainter,
     QSyntaxHighlighter,
     QTextBlockFormat,
     QTextCharFormat,
@@ -143,6 +144,9 @@ class NoteEditor(QTextEdit):
     def __init__(self, parent: QWidget | None = None, mode: str = "light") -> None:
         super().__init__(parent)
         self._spacing_queued = False
+        self._mode = mode
+        self._placeholder = ""
+        self._was_empty = True
 
         self.setAcceptRichText(False)
         self.setProperty("role", "note-editor")
@@ -150,10 +154,57 @@ class NoteEditor(QTextEdit):
         self.setTabStopDistance(QFontMetrics(self.font()).horizontalAdvance(" ") * 4)
 
         self.document().blockCountChanged.connect(self._schedule_line_spacing)
+        self.textChanged.connect(self._on_emptiness_changed)
         self._apply_line_spacing()
 
     def set_mode(self, mode: str) -> None:
+        self._mode = mode
         self._highlighter.set_mode(mode)
+        self.viewport().update()
+
+    # --- yer tutucu -------------------------------------------------------
+
+    def setPlaceholderText(self, text: str) -> None:  # noqa: N802
+        """Yer tutucuyu Qt'ye değil kendimize çizdiriyoruz.
+
+        Qt, `QTextEdit`'in yer tutucusunu ilk (boş) satırın yüksekliğine
+        kırpıyor. Satır aralığı %150 olunca sarılan ikinci satır yarıya
+        kadar görünüp kesiliyordu — bölümdeki not panelinde, dar sütunda
+        görüldü (Alican bildirdi). Burada editörün tamamına sarılarak
+        çiziliyor.
+        """
+        self._placeholder = text
+        self.viewport().update()
+
+    def placeholderText(self) -> str:  # noqa: N802
+        return self._placeholder
+
+    def _on_emptiness_changed(self) -> None:
+        # Boş ↔ dolu geçişinde alanın tamamı yeniden çiziliyor. Qt yalnızca
+        # değişen satırı çizdiği için ilk harfte yer tutucunun alt satırları
+        # ekranda kalıyordu.
+        bos = self.document().isEmpty()
+        if bos != self._was_empty:
+            self._was_empty = bos
+            self.viewport().update()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        super().paintEvent(event)
+        if not self._placeholder or not self.document().isEmpty():
+            return
+        painter = QPainter(self.viewport())
+        painter.setPen(QColor(PALETTES.get(self._mode, PALETTES["light"])["text_muted"]))
+        # Belgenin yazı tipi: stil dosyasının verdiği boyut orada. Widget'ın
+        # kendi yazı tipiyle çizilince yazılan metinden küçük duruyordu.
+        painter.setFont(self.document().defaultFont())
+        margin = int(self.document().documentMargin())
+        alan = self.viewport().rect().adjusted(margin, margin, -margin, -margin)
+        painter.drawText(
+            alan,
+            int(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextWordWrap),
+            self._placeholder,
+        )
+        painter.end()
 
     # --- satır aralığı ----------------------------------------------------
 
