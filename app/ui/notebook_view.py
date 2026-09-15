@@ -1,8 +1,15 @@
 """Notlarım: kullanıcının kendi notları.
 
-Solda patikalara göre klasörlenmiş not ağacı, sağda seçili not. Not önce
-okuma hâlinde açılıyor (dersler gibi çizilmiş); "Düzenle" ile yazma
-hâline geçiliyor.
+Solda klasör ağacı, sağda seçili not. Klasörler önce patikalar (katalog
+sırasıyla), sonra kullanıcının kendi açtığı klasörler, en sonda gerekirse
+"Diğer" (patikası bu sürümde olmayan notlar). Her klasörün not sayısı
+satırın sağında, soluk; boş klasörde "0" — sayı yalnızca dolu klasörde
+yazılınca boş olanlar "sayı gelmedi" gibi okunuyordu.
+
+Not önce okuma hâlinde açılıyor (dersler gibi çizilmiş); "Düzenle" ile
+yazma hâline geçiliyor. "Taşı" notu başka bir klasöre koyuyor: kendi
+klasörüne giden not dersine bağlı kalıyor, başka bir patikaya giden not
+bağlantısını kaybediyor (`ProgressStore.move_notebook_entry`).
 
 **Kaydet düğmesi yok.** Yazmayı bırakınca kısa bir süre sonra, başka bir
 nota geçince, "Bitti"ye basınca, ekrandan çıkınca ve uygulama kapanırken
@@ -21,8 +28,9 @@ from datetime import datetime
 from pathlib import Path
 
 from PySide6.QtCore import QPoint, QSize, QStandardPaths, Qt, QTimer, Signal
-from PySide6.QtGui import QFont, QKeySequence, QShortcut, QTextCursor
+from PySide6.QtGui import QColor, QFont, QKeySequence, QShortcut, QTextCursor
 from PySide6.QtWidgets import (
+    QApplication,
     QFileDialog,
     QFrame,
     QHBoxLayout,
@@ -31,6 +39,7 @@ from PySide6.QtWidgets import (
     QMenu,
     QPushButton,
     QStackedWidget,
+    QStyle,
     QStyledItemDelegate,
     QStyleFactory,
     QStyleOptionViewItem,
@@ -44,6 +53,7 @@ from ..core.catalog import Catalog
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.user_notes import (
+    FOLDER_MAX_LENGTH,
     TITLE_MAX_LENGTH,
     build_zip,
     note_to_markdown,
@@ -59,7 +69,8 @@ from ..widgets.note_toolbar import NoteToolbar
 from . import titlebar
 from .confirm_dialog import ConfirmDialog
 from .modal import Backdrop
-from .new_note_dialog import NewNoteDialog
+from .name_dialog import NameDialog
+from .new_note_dialog import FOLDER_PREFIX, NewNoteDialog
 
 SIDE_WIDTH = 300
 
@@ -69,6 +80,11 @@ SAVE_DELAY_MS = 700
 
 ROLE_KIND = Qt.ItemDataRole.UserRole
 ROLE_ID = Qt.ItemDataRole.UserRole + 1
+# Klasördeki not sayısı; satırın sağına ayrı çiziliyor.
+ROLE_COUNT = Qt.ItemDataRole.UserRole + 2
+
+# Klasör adı uzunsa sayıyla çakışmasın diye sağda bırakılan pay.
+COUNT_SPACE = 56
 
 # Katalogda karşılığı olmayan klasör (başka bir sürümden gelen not gibi).
 OTHER_FOLDER = ""
@@ -76,18 +92,49 @@ OTHER_FOLDER = ""
 PAGE_EMPTY, PAGE_READ, PAGE_EDIT = 0, 1, 2
 
 
-class _NoteIndent(QStyledItemDelegate):
-    """Klasörün altındaki notu içeri alarak çizer.
+class _TreeDelegate(QStyledItemDelegate):
+    """Ağacın çizimi.
 
-    Seçim ve üzerine gelme zemini notun kendi kutusuyla başlıyor; girinti
-    boşluğu boş kalıyor.
+    Klasörün altındaki not içeri alınarak çiziliyor: seçim ve üzerine
+    gelme zemini notun kendi kutusuyla başlıyor, girinti boşluğu boş
+    kalıyor. Klasörün not sayısı satırın sağında soluk renkte; adı uzunsa
+    sayının altına girmeden kısaltılıyor.
     """
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.count_color = QColor("#98A1AF")
 
     def paint(self, painter, option, index) -> None:
         if index.parent().isValid():
             option = QStyleOptionViewItem(option)
             option.rect = option.rect.adjusted(SPACING["lg"], 0, 0, 0)
-        super().paint(painter, option, index)
+            super().paint(painter, option, index)
+            return
+
+        count = index.data(ROLE_COUNT)
+        opt = QStyleOptionViewItem(option)
+        self.initStyleOption(opt, index)
+        if count is not None:
+            yer = opt.rect.width() - opt.decorationSize.width() - COUNT_SPACE
+            opt.text = opt.fontMetrics.elidedText(opt.text, Qt.TextElideMode.ElideRight, max(yer, 0))
+        widget = opt.widget
+        style = widget.style() if widget is not None else QApplication.style()
+        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, opt, painter, widget)
+
+        if count is None:
+            return
+        painter.save()
+        painter.setPen(self.count_color)
+        font = QFont(opt.font)
+        font.setWeight(QFont.Weight.Normal)
+        painter.setFont(font)
+        painter.drawText(
+            opt.rect.adjusted(0, 0, -SPACING["sm"], 0),
+            int(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter),
+            str(count),
+        )
+        painter.restore()
 
 
 def _format_time(value: str, language: str) -> str:
@@ -122,6 +169,9 @@ class NotebookView(QWidget):
         self._mode = "light"
 
         self._entries: list[dict] = []
+        # Kullanıcının kendi klasörleri.
+        self._custom: list[dict] = []
+        self._custom_ids: set[int] = set()
         self._current: int | None = None
         self._editing = False
         # Editördeki metin kaydedilenden farklı mı.
@@ -137,7 +187,8 @@ class NotebookView(QWidget):
         self._save_timer.setInterval(SAVE_DELAY_MS)
         self._save_timer.timeout.connect(self.flush)
 
-        # İndirme/yükleme sonucunu söyleyen satır bir süre sonra kayboluyor.
+        # İndirme/yükleme/taşıma sonucunu söyleyen satır bir süre sonra
+        # kayboluyor.
         self._status_timer = QTimer(self)
         self._status_timer.setSingleShot(True)
         self._status_timer.setInterval(8000)
@@ -169,11 +220,20 @@ class NotebookView(QWidget):
         column.setContentsMargins(SPACING["md"], SPACING["md"], SPACING["md"], SPACING["md"])
         column.setSpacing(SPACING["md"])
 
+        top = QHBoxLayout()
+        top.setSpacing(SPACING["sm"])
         self._new_button = QPushButton()
         self._new_button.setProperty("variant", "primary")
         self._new_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._new_button.clicked.connect(self.new_note)
-        column.addWidget(self._new_button)
+        top.addWidget(self._new_button, 1)
+        self._folder_button = QPushButton()
+        self._folder_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._folder_button.setIconSize(QSize(18, 18))
+        self._folder_button.setFixedWidth(46)
+        self._folder_button.clicked.connect(self.new_folder)
+        top.addWidget(self._folder_button)
+        column.addLayout(top)
 
         # İndir / Yükle. İndirmenin menüsü düğmeye bağlanmıyor, basınca
         # açılıyor: bağlanınca Qt düğmenin kenarına kendi okunu çiziyor.
@@ -197,11 +257,12 @@ class NotebookView(QWidget):
         # Açma oku yok: klasöre tıklamak açıp kapatıyor. Qt'nin oku bizim
         # temamızda çizilmiyor, yerine bir şey koymak da kalabalık ediyordu.
         self._tree.setRootIsDecorated(False)
-        # Ağacın kendi girintisi yok; notları `_NoteIndent` içeri alıyor.
+        # Ağacın kendi girintisi yok; notları `_TreeDelegate` içeri alıyor.
         # Girinti ağaçta olunca seçim o boşluğu da ayrı bir parça olarak
         # boyuyordu ve notun solunda kopuk bir vurgu kalıyordu.
         self._tree.setIndentation(0)
-        self._tree.setItemDelegate(_NoteIndent(self._tree))
+        self._delegate = _TreeDelegate(self._tree)
+        self._tree.setItemDelegate(self._delegate)
         self._tree.setIconSize(QSize(18, 18))
         self._tree.itemClicked.connect(self._on_item_clicked)
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -240,9 +301,10 @@ class NotebookView(QWidget):
         bar_row.addWidget(self._saved)
 
         self._lesson_button = self._bar_button("ghost", self._go_to_lesson)
+        self._move_button = self._bar_button("ghost", self._show_move_menu)
         self._delete_button = self._bar_button("ghost", self._delete)
         self._edit_button = self._bar_button("primary", self._toggle_edit)
-        for button in (self._lesson_button, self._delete_button, self._edit_button):
+        for button in (self._lesson_button, self._move_button, self._delete_button, self._edit_button):
             bar_row.addWidget(button)
         column.addWidget(bar)
 
@@ -299,11 +361,13 @@ class NotebookView(QWidget):
         outer.addStretch(1)
         return page
 
-    # --- ağaç -------------------------------------------------------------
+    # --- klasörler --------------------------------------------------------
 
     def refresh(self) -> None:
-        """Notları veritabanından yeniden okur."""
+        """Notları ve klasörleri veritabanından yeniden okur."""
         self._entries = self._store.notebook_entries()
+        self._custom = self._store.notebook_folders()
+        self._custom_ids = {folder["id"] for folder in self._custom}
         if self._current is not None and all(e["id"] != self._current for e in self._entries):
             self._current = None
             self._editing = False
@@ -311,22 +375,47 @@ class NotebookView(QWidget):
         self._show_current()
 
     def _folders(self) -> list[tuple[str, str, str, str]]:
-        """(anahtar, ad, simge, renk) — katalog sırasıyla, sonda "Diğer"."""
+        """(anahtar, ad, simge, renk): patikalar, kendi klasörleri, gerekirse "Diğer"."""
         palette = PALETTES.get(self._mode, PALETTES["light"])
         folders = [
             (chapter.id, self._language.pick(chapter.title), chapter.icon, chapter.color)
             for chapter in self._catalog.chapters
             if chapter.sections
         ]
-        known = {key for key, *_ in folders}
-        if any(e["chapter_id"] not in known for e in self._entries):
+        folders += [
+            (f"{FOLDER_PREFIX}{folder['id']}", folder["name"], "folder", palette["accent"])
+            for folder in self._custom
+        ]
+        if any(self._entry_key(e) == OTHER_FOLDER for e in self._entries):
             folders.append(
                 (OTHER_FOLDER, self._language.t("notebook.other"), "folder", palette["text_muted"])
             )
         return folders
 
-    def _folder_key(self, chapter_id: str) -> str:
-        return chapter_id if self._catalog.chapter(chapter_id) is not None else OTHER_FOLDER
+    def _entry_key(self, entry: dict) -> str:
+        """Notun ağaçta durduğu klasörün anahtarı."""
+        folder_id = entry.get("folder_id")
+        if folder_id is not None and folder_id in self._custom_ids:
+            return f"{FOLDER_PREFIX}{folder_id}"
+        if self._catalog.chapter(entry["chapter_id"]) is not None:
+            return entry["chapter_id"]
+        return OTHER_FOLDER
+
+    @staticmethod
+    def _custom_id(key: str) -> int | None:
+        return int(key[len(FOLDER_PREFIX):]) if key.startswith(FOLDER_PREFIX) else None
+
+    def _folder_title(self, key: str) -> str:
+        custom_id = self._custom_id(key)
+        if custom_id is not None:
+            for folder in self._custom:
+                if folder["id"] == custom_id:
+                    return folder["name"]
+        chapter = self._catalog.chapter(key) if key and custom_id is None else None
+        return self._language.pick(chapter.title) if chapter else self._language.t("notebook.other")
+
+    def _folder_entries(self, key: str) -> list[dict]:
+        return [e for e in self._entries if self._entry_key(e) == key]
 
     def _rebuild_tree(self) -> None:
         palette = PALETTES.get(self._mode, PALETTES["light"])
@@ -334,13 +423,14 @@ class NotebookView(QWidget):
 
         grouped: dict[str, list[dict]] = {}
         for entry in self._entries:
-            grouped.setdefault(self._folder_key(entry["chapter_id"]), []).append(entry)
+            grouped.setdefault(self._entry_key(entry), []).append(entry)
 
         for key, title, icon_name, color in self._folders():
             notes = grouped.get(key, [])
-            folder = QTreeWidgetItem([f"{title}   {len(notes)}" if notes else title])
+            folder = QTreeWidgetItem([title])
             folder.setData(0, ROLE_KIND, "folder")
             folder.setData(0, ROLE_ID, key)
+            folder.setData(0, ROLE_COUNT, len(notes))
             folder.setIcon(0, icon(icon_name or "folder", color or palette["text_muted"], 18))
             font = folder.font(0)
             font.setWeight(QFont.Weight.DemiBold)
@@ -371,22 +461,29 @@ class NotebookView(QWidget):
         self.open_note(int(item.data(0, ROLE_ID)))
 
     def _tree_menu(self, position) -> None:
-        """Sağ tık: notta Düzenle / İndir / Sil, klasörde klasörü indir.
+        """Sağ tık menüsü.
 
-        Eylemler kendi `triggered` sinyaline bağlı; `exec`'in döndürdüğü
-        eylemin kimliğine güvenilmiyor.
+        Notta: Düzenle, Taşı, İndir, Sil. Patika klasöründe: klasörü indir.
+        Kendi klasöründe: yeniden adlandır, indir, sil. Her klasörde ve
+        boş yerde: Yeni klasör. Eylemler kendi `triggered` sinyaline bağlı;
+        `exec`'in döndürdüğü eylemin kimliğine güvenilmiyor.
         """
         item = self._tree.itemAt(position)
-        if item is None:
-            return
         t = self._language.t
         menu = QMenu(self)
 
-        if item.data(0, ROLE_KIND) == "note":
+        if item is not None and item.data(0, ROLE_KIND) == "note":
             entry_id = int(item.data(0, ROLE_ID))
+            entry = self._store.notebook_entry(entry_id)
             menu.addAction(t("notebook.edit")).triggered.connect(
                 lambda: self.open_note(entry_id, edit=True)
             )
+            if entry is not None:
+                tasi = menu.addMenu(t("notebook.move"))
+                for key, title in self._move_targets(entry):
+                    tasi.addAction(title).triggered.connect(
+                        lambda _=False, k=key: self.move_note(entry_id, k)
+                    )
             menu.addAction(t("notebook.download_note")).triggered.connect(
                 lambda: self.download_note(entry_id)
             )
@@ -398,25 +495,140 @@ class NotebookView(QWidget):
 
             menu.addAction(t("notebook.delete")).triggered.connect(sil)
         else:
-            key = item.data(0, ROLE_ID)
-            eylem = menu.addAction(t("notebook.download_folder", folder=self._folder_title(key)))
-            eylem.setEnabled(bool(self._folder_entries(key)))
-            eylem.triggered.connect(lambda: self.download_folder(key))
+            if item is not None:
+                key = item.data(0, ROLE_ID)
+                custom_id = self._custom_id(key)
+                if custom_id is not None:
+                    menu.addAction(t("notebook.rename_folder")).triggered.connect(
+                        lambda: self.rename_folder(custom_id)
+                    )
+                indir = menu.addAction(t("notebook.download_folder", folder=self._folder_title(key)))
+                indir.setEnabled(bool(self._folder_entries(key)))
+                indir.triggered.connect(lambda: self.download_folder(key))
+                if custom_id is not None:
+                    menu.addSeparator()
+                    menu.addAction(t("notebook.delete_folder")).triggered.connect(
+                        lambda: self.delete_folder(custom_id)
+                    )
+                menu.addSeparator()
+            menu.addAction(t("notebook.new_folder")).triggered.connect(self.new_folder)
 
         menu.exec(self._tree.viewport().mapToGlobal(position))
 
+    def _ask_name(self, title: str, initial: str, confirm: str) -> str | None:
+        kok = self.window()
+        perde = Backdrop(kok)
+        perde.show()
+        t = self._language.t
+        dialog = NameDialog(
+            title,
+            t("notebook.folder_name"),
+            t("notebook.folder_placeholder"),
+            initial,
+            confirm,
+            t("common.cancel"),
+            FOLDER_MAX_LENGTH,
+            kok,
+        )
+        kabul = dialog.exec()
+        perde.deleteLater()
+        return dialog.value() if kabul else None
+
+    def new_folder(self) -> None:
+        """Kullanıcının kendi klasörünü açar."""
+        self.flush()
+        ad = self._ask_name(
+            self._language.t("notebook.new_folder"), "", self._language.t("notebook.create")
+        )
+        if not ad:
+            return
+        folder_id = self._store.add_notebook_folder(ad)
+        self._folder_hint = f"{FOLDER_PREFIX}{folder_id}"
+        self.refresh()
+
+    def rename_folder(self, folder_id: int) -> None:
+        eski = self._folder_title(f"{FOLDER_PREFIX}{folder_id}")
+        ad = self._ask_name(
+            self._language.t("notebook.rename_folder_title"), eski, self._language.t("common.save")
+        )
+        if ad:
+            self._store.rename_notebook_folder(folder_id, ad)
+            self.refresh()
+
+    def delete_folder(self, folder_id: int, confirm: bool = True) -> None:
+        """Klasörü siler; içindeki notlar patikalarının klasörüne döner."""
+        self.flush()
+        key = f"{FOLDER_PREFIX}{folder_id}"
+        if confirm:
+            t = self._language.t
+            dialog = ConfirmDialog(
+                t("notebook.delete_folder_title"),
+                t("notebook.delete_folder_message", name=self._folder_title(key)),
+                t("notebook.delete_folder"),
+                t("common.cancel"),
+                self.window(),
+            )
+            titlebar.apply(dialog, self._mode)
+            if dialog.exec() != ConfirmDialog.DialogCode.Accepted:
+                return
+        self._store.delete_notebook_folder(folder_id)
+        if self._folder_hint == key:
+            self._folder_hint = ""
+        self.refresh()
+
+    def _move_targets(self, entry: dict) -> list[tuple[str, str]]:
+        """Notun taşınabileceği klasörler: bulunduğu klasör ve "Diğer" hariç."""
+        current = self._entry_key(entry)
+        return [
+            (key, title)
+            for key, title, *_ in self._folders()
+            if key != OTHER_FOLDER and key != current
+        ]
+
+    def _show_move_menu(self) -> None:
+        entry = self._entry()
+        if entry is None:
+            return
+        menu = QMenu(self)
+        for key, title in self._move_targets(entry):
+            menu.addAction(title).triggered.connect(
+                lambda _=False, k=key: self.move_note(entry["id"], k)
+            )
+        menu.exec(self._move_button.mapToGlobal(QPoint(0, self._move_button.height() + 4)))
+
+    def move_note(self, entry_id: int, key: str) -> None:
+        """Notu `key` klasörüne taşır."""
+        self.flush()
+        custom_id = self._custom_id(key)
+        if custom_id is not None:
+            son = self._store.move_notebook_entry(entry_id, folder_id=custom_id)
+        else:
+            son = self._store.move_notebook_entry(entry_id, chapter_id=key)
+        if son is None:
+            return
+        self._collapsed.discard(key)
+        self._folder_hint = key
+        self._show_status(self._language.t("notebook.moved", folder=self._folder_title(key)))
+        self.refresh()
+
     # --- indirme ve yükleme -----------------------------------------------
 
-    def _folder_title(self, key: str) -> str:
-        chapter = self._catalog.chapter(key) if key else None
-        return self._language.pick(chapter.title) if chapter else self._language.t("notebook.other")
-
-    def _folder_entries(self, key: str) -> list[dict]:
-        return [e for e in self._entries if self._folder_key(e["chapter_id"]) == key]
-
     def _full(self, entries: list[dict]) -> list[dict]:
-        """Ağaçtaki satırlar gövdesiz; indirilecek notların tamamı."""
-        return [full for e in entries if (full := self._store.notebook_entry(e["id"]))]
+        """Ağaçtaki satırlar gövdesiz; indirilecek notların tamamı.
+
+        Kendi klasöründeki notun klasör adı da ekleniyor; bilgi bloğuna
+        yazılıyor, yükleyende aynı adla klasör açılıyor.
+        """
+        adlar = {folder["id"]: folder["name"] for folder in self._custom}
+        tam: list[dict] = []
+        for e in entries:
+            full = self._store.notebook_entry(e["id"])
+            if full is None:
+                continue
+            if full.get("folder_id") in adlar:
+                full["folder"] = adlar[full["folder_id"]]
+            tam.append(full)
+        return tam
 
     def _show_status(self, text: str) -> None:
         self._status.setText(text)
@@ -427,7 +639,7 @@ class NotebookView(QWidget):
         self.flush()
         t = self._language.t
         entry = self._entry()
-        klasor = self._folder_key(entry["chapter_id"]) if entry else self._folder_hint
+        klasor = self._entry_key(entry) if entry else self._folder_hint
 
         menu = QMenu(self)
         bu_not = menu.addAction(t("notebook.download_note"))
@@ -463,9 +675,10 @@ class NotebookView(QWidget):
     def download_note(self, entry_id: int, path: Path | None = None) -> bool:
         """Tek notu `.md` olarak kaydeder. `path` verilmezse sorar."""
         self.flush()
-        entry = self._store.notebook_entry(entry_id)
-        if entry is None:
+        entries = self._full([{"id": entry_id}])
+        if not entries:
             return False
+        entry = entries[0]
         path = path or self._ask_save_path(
             f"{safe_filename(entry['title'])}.md", self._language.t("notebook.md_filter")
         )
@@ -512,7 +725,9 @@ class NotebookView(QWidget):
         """`.md` ya da `.zip` dosyasındaki notları ekler; eklenen sayısını döndürür.
 
         Hiçbir notun üstüne yazılmıyor: aynı klasörde aynı ad varsa yeni
-        not "(2)" alıyor (`ProgressStore.add_notebook_entry`).
+        not "(2)" alıyor (`ProgressStore.add_notebook_entry`). Notun
+        bilgi bloğunda bir klasör adı varsa aynı adlı klasöre giriyor, yoksa
+        o klasör açılıyor.
         """
         self.flush()
         t = self._language.t
@@ -522,21 +737,29 @@ class NotebookView(QWidget):
             self._show_status(t("notebook.import_failed"))
             return 0
 
-        ids = [
-            self._store.add_notebook_entry(n["chapter_id"], n["section_id"], n["title"], n["body"])
-            for n in notes
-        ]
+        ids = []
+        for note in notes:
+            folder_id = (
+                self._store.find_or_add_notebook_folder(note["folder"]) if note.get("folder") else None
+            )
+            ids.append(
+                self._store.add_notebook_entry(
+                    note["chapter_id"], note["section_id"], note["title"], note["body"], folder_id
+                )
+            )
         parca = [t("notebook.imported", count=len(ids)) if ids else t("notebook.import_none")]
         if problems:
             parca.append(t("notebook.import_problems", count=problems))
         self._show_status(" ".join(parca))
 
         if ids:
-            ilk = self._store.notebook_entry(ids[0])
             self._current = ids[0]
             self._editing = False
-            self._collapsed.discard(self._folder_key(ilk["chapter_id"]))
             self.refresh()
+            ilk = self._store.notebook_entry(ids[0])
+            if ilk is not None:
+                self._collapsed.discard(self._entry_key(ilk))
+                self._rebuild_tree()
             self.changed.emit()
         return len(ids)
 
@@ -551,7 +774,7 @@ class NotebookView(QWidget):
         self._editing = edit
         entry = self._store.notebook_entry(entry_id)
         if entry is not None:
-            self._folder_hint = self._folder_key(entry["chapter_id"])
+            self._folder_hint = self._entry_key(entry)
         self._rebuild_tree()
         self._show_current()
 
@@ -559,25 +782,29 @@ class NotebookView(QWidget):
         """"Yeni not": en son bakılan klasör önerilir."""
         self.create_note(self._folder_hint)
 
-    def create_note(self, chapter_id: str = "", section_id: str = "", title: str = "") -> None:
+    def create_note(self, folder_key: str = "", section_id: str = "", title: str = "") -> None:
         """Ad soran pencereyi açar; onaylanırsa notu yazma hâlinde açar."""
         self.flush()
         kok = self.window()
         perde = Backdrop(kok)
         perde.show()
         dialog = NewNoteDialog(
-            self._catalog, self._language, chapter_id, section_id, title, self._mode, kok
+            self._catalog, self._language, self._custom, folder_key, section_id, title,
+            self._mode, kok,
         )
         kabul = dialog.exec()
         perde.deleteLater()
         if not kabul:
             return
 
-        chapter_id, section_id, title = dialog.values()
-        self._current = self._store.add_notebook_entry(chapter_id, section_id, title)
+        chapter_id, section_id, title, folder_id = dialog.values()
+        self._current = self._store.add_notebook_entry(
+            chapter_id, section_id, title, folder_id=folder_id
+        )
         self._editing = True
-        self._folder_hint = chapter_id
-        self._collapsed.discard(chapter_id)
+        key = f"{FOLDER_PREFIX}{folder_id}" if folder_id is not None else chapter_id
+        self._folder_hint = key
+        self._collapsed.discard(key)
         self.refresh()
         self.changed.emit()
 
@@ -590,7 +817,7 @@ class NotebookView(QWidget):
         entry = self._entry()
         t = self._language.t
 
-        for button in (self._edit_button, self._delete_button):
+        for button in (self._edit_button, self._move_button, self._delete_button):
             button.setVisible(entry is not None)
         self._saved.hide()
 
@@ -616,21 +843,26 @@ class NotebookView(QWidget):
             self._pages.setCurrentIndex(PAGE_READ)
 
     def _update_bar(self, entry: dict) -> None:
-        """Eylem şeridinin metinleri. Editördeki metne dokunmuyor."""
+        """Eylem şeridinin metinleri. Editördeki metne dokunmuyor.
+
+        Yer satırı notun ağaçta durduğu klasörü ve (varsa) bağlı olduğu
+        dersi gösteriyor: kendi klasörüne taşınmış bir not "Sınav öncesi ›
+        Koşul Durumları" gibi.
+        """
         t = self._language.t
-        chapter = self._catalog.chapter(entry["chapter_id"])
         section = (
             self._catalog.section(entry["chapter_id"], entry["section_id"])
             if entry["section_id"]
             else None
         )
-        yer = [self._language.pick(chapter.title) if chapter else t("notebook.other")]
+        yer = [self._folder_title(self._entry_key(entry))]
         if section is not None:
             yer.append(self._language.pick(section.title))
         self._crumb.setText("  ›  ".join(yer))
 
         self._lesson_button.setVisible(section is not None)
         self._lesson_button.setText(t("notebook.go_to_lesson"))
+        self._move_button.setText(f"{t('notebook.move')}  ▾")
         self._delete_button.setText(t("notebook.delete"))
         self._edit_button.setText(t("notebook.done") if self._editing else t("notebook.edit"))
 
@@ -726,8 +958,6 @@ class NotebookView(QWidget):
 
     def warm_up(self) -> None:
         """Belge alanını bir kez çizdirir (bkz. `MainWindow.warm_up`)."""
-        from PySide6.QtWidgets import QApplication
-
         onceki = self._pages.currentIndex()
         self._reader.set_body('<div class="page narrow notebook"></div>')
         self._pages.setCurrentIndex(PAGE_READ)
@@ -760,7 +990,10 @@ class NotebookView(QWidget):
 
     def set_mode(self, mode: str) -> None:
         self._mode = mode
+        palette = PALETTES.get(mode, PALETTES["light"])
         self._apply_tree_style()
+        self._delegate.count_color = QColor(palette["text_muted"])
+        self._folder_button.setIcon(icon("folder-plus", palette["text"], 18))
         self._reader.set_mode(mode)
         self._editor.set_mode(mode)
         self._rebuild_tree()
@@ -769,6 +1002,7 @@ class NotebookView(QWidget):
         t = self._language.t
         self._new_button.setText(f"+  {t('notebook.new')}")
         self._new_button.setToolTip("Ctrl+N")
+        self._folder_button.setToolTip(t("notebook.new_folder"))
         self._download_button.setText(f"{t('notebook.download')}  ▾")
         self._upload_button.setText(t("notebook.upload"))
         self._upload_button.setToolTip(t("notebook.upload_hint"))

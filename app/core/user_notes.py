@@ -32,27 +32,40 @@ from markdown.treeprocessors import Treeprocessor
 
 # Notun adının en fazla uzunluğu. Ağaçta ve dosya adında taşmasın diye.
 TITLE_MAX_LENGTH = 80
+# Kullanıcının klasör adı: ağaçta sağdaki sayıyla birlikte tek satıra sığsın.
+FOLDER_MAX_LENGTH = 40
 
 SAFE_LINK_SCHEMES = ("http", "https")
 
 NOTE_EXTENSIONS = ["fenced_code", "tables", "sane_lists"]
 
 
-def unique_title(title: str, taken: set[str]) -> str:
+def name_key(name: str) -> str:
+    """İki adın "aynı" sayılıp sayılmadığına bakılan anahtar.
+
+    Büyük/küçük harf farkı gözetilmiyor. Python'un `casefold`'u Türkçeyi
+    bilmiyor: "SINAV" → "sinav", "Sınav" → "sınav", "İ" ise noktalı
+    birleşik bir harfe dönüşüyor — büyük harfle yazılan Türkçe bir ad
+    çakışmayı atlatıyordu (ölçüldü). ı, i, İ, I burada aynı harf.
+    """
+    return name.replace("İ", "i").replace("ı", "i").casefold()
+
+
+def unique_title(title: str, taken: set[str], max_length: int = TITLE_MAX_LENGTH) -> str:
     """`taken` içinde olmayan bir ad: "Ad", sonra "Ad (2)", "Ad (3)"...
 
-    `taken` küçük harfe indirilmiş (`casefold`) adlar; "Döngüler" ile
-    "döngüler" aynı sayılıyor, ağaçta ikisi yan yana karışıyor.
+    `taken`, `name_key` ile üretilmiş anahtarlar; "Döngüler" ile
+    "DÖNGÜLER" aynı sayılıyor, ağaçta ikisi yan yana karışıyor.
     """
-    base = " ".join(title.split())[:TITLE_MAX_LENGTH]
-    if base.casefold() not in taken:
+    base = " ".join(title.split())[:max_length]
+    if name_key(base) not in taken:
         return base
 
     number = 2
     while True:
         suffix = f" ({number})"
-        candidate = base[: TITLE_MAX_LENGTH - len(suffix)] + suffix
-        if candidate.casefold() not in taken:
+        candidate = base[: max_length - len(suffix)] + suffix
+        if name_key(candidate) not in taken:
             return candidate
         number += 1
 
@@ -160,6 +173,10 @@ def note_to_markdown(entry: dict) -> str:
     ]
     if entry.get("section_id"):
         head.append(f"section: {entry['section_id']}")
+    # Kullanıcının kendi klasöründeyse adı; yükleyende aynı adda klasör
+    # yoksa açılıyor.
+    if entry.get("folder"):
+        head.append(f"folder: {entry['folder']}")
     head.append(FRONT_MATTER)
     return "\n".join(head) + "\n\n" + entry.get("body", "").rstrip() + "\n"
 
@@ -201,12 +218,20 @@ def parse_note(text: str, fallback_title: str, default_title: str) -> dict:
     if not chapter or not ID_PATTERN.match(section):
         section = ""
 
+    folder = " ".join(meta.get("folder", "").split())[:FOLDER_MAX_LENGTH] if bizim else ""
+
     title = ""
     for aday in (meta.get("title", ""), fallback_title, default_title):
         title = " ".join(aday.split())[:TITLE_MAX_LENGTH]
         if title:
             break
-    return {"chapter_id": chapter, "section_id": section, "title": title, "body": body.strip("\n")}
+    return {
+        "chapter_id": chapter,
+        "section_id": section,
+        "folder": folder,
+        "title": title,
+        "body": body.strip("\n"),
+    }
 
 
 def safe_filename(name: str, fallback: str = "not") -> str:
@@ -229,10 +254,10 @@ def build_zip(groups: list[tuple[str, list[dict]]]) -> bytes:
                 base = safe_filename(entry["title"])
                 name = base
                 number = 2
-                while name.casefold() in used:
+                while name_key(name) in used:
                     name = f"{base} ({number})"
                     number += 1
-                used.add(name.casefold())
+                used.add(name_key(name))
                 # Zip içinde yol ayracı her zaman düz eğik çizgi.
                 archive.writestr(f"{folder}/{name}.md", note_to_markdown(entry))
     return buffer.getvalue()

@@ -305,6 +305,12 @@ PATHS: dict[str, str] = {
         '<line x1="6" y1="17.5" x2="6.01" y2="17.5"/>'
     ),
     "clock": '<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>',
+    # Notlarım'da "Yeni klasör".
+    "folder-plus": (
+        '<path d="M12 10v6"/><path d="M9 13h6"/>'
+        '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9'
+        'A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>'
+    ),
     # Şeritte Notlarım: sırtı çizgili bir defter.
     "notebook": (
         '<path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/>'

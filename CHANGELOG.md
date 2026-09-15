@@ -25,6 +25,8 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Notlarım.** Sol şeritteki defter simgesi kendi notlarınızı açıyor. Notlar
   patikalara göre klasörleniyor; her nota bir ad veriyorsunuz ve isterseniz
   bir derse bağlıyorsunuz, o zaman notun üstünden o derse dönebiliyorsunuz.
+  Kendi klasörlerinizi de açabilir, notları klasörler arasında
+  taşıyabilirsiniz; bir klasörü silmek içindeki notları silmiyor.
   Notlar markdown ile yazılıyor: araç çubuğundaki Kod düğmesi Python ya da
   SQL kod bloğu ekliyor ve kod, konu anlatımındaki gibi renkli görünüyor.
   Bir dersin içindeyken başlıktaki "Not al" düğmesi (`Ctrl+N`) notu dersin

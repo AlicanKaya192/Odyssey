@@ -1,9 +1,11 @@
 """Yeni not penceresi: ad, klasör ve (isteğe bağlı) ders.
 
-Klasör patikanın kendisi. Ders seçimi isteğe bağlı: "Derse bağlı değil"
-seçilirse not yalnızca klasörde duruyor ("Python'da en çok
-karıştırdıklarım" gibi genel notlar). Bir derse bağlı notun üstünde
-"Derse git" düğmesi çıkıyor.
+Klasör ya bir patika ya da kullanıcının kendi açtığı bir klasör. Patika
+seçiliyse ders de seçilebiliyor; "Derse bağlı değil" seçilirse not
+yalnızca klasörde duruyor ("Python'da en çok karıştırdıklarım" gibi).
+Kendi klasörüne açılan not bir derse bağlanmıyor; bir dersin notunu kendi
+klasörüne koymak için not dersten alınıp taşınıyor ("Taşı" bağlantıyı
+koruyor).
 
 Ad boşken "Oluştur" basılmıyor: ağaçta adsız notlar ayırt edilemiyor.
 Pencerenin görünümü ve davranışı profil düzenleme penceresiyle ortak
@@ -32,6 +34,10 @@ from . import modal
 
 DIALOG_WIDTH = 480
 
+# Klasör kutusundaki anahtarlar `NotebookView` ile aynı: patikanın id'si ya
+# da "folder:<id>".
+FOLDER_PREFIX = "folder:"
+
 
 class NewNoteDialog(QDialog):
     """Yeni bir notun adını ve yerini sorar."""
@@ -40,7 +46,8 @@ class NewNoteDialog(QDialog):
         self,
         catalog: Catalog,
         language: LanguageManager,
-        chapter_id: str = "",
+        folders: list[dict] | None = None,
+        folder_key: str = "",
         section_id: str = "",
         title: str = "",
         mode: str = "light",
@@ -78,6 +85,8 @@ class NewNoteDialog(QDialog):
         for chapter in catalog.chapters:
             if chapter.sections:
                 self._folder.addItem(language.pick(chapter.title), chapter.id)
+        for folder in folders or []:
+            self._folder.addItem(folder["name"], f"{FOLDER_PREFIX}{folder['id']}")
         self._folder.currentIndexChanged.connect(self._fill_lessons)
         layout.addWidget(self._folder)
 
@@ -104,7 +113,7 @@ class NewNoteDialog(QDialog):
         layout.addLayout(buttons)
 
         # Açılışta verilen klasör ve ders seçili gelsin.
-        index = self._folder.findData(chapter_id)
+        index = self._folder.findData(folder_key)
         self._folder.setCurrentIndex(index if index >= 0 else 0)
         self._fill_lessons()
         index = self._lesson.findData(section_id)
@@ -121,10 +130,12 @@ class NewNoteDialog(QDialog):
         return label
 
     def _fill_lessons(self) -> None:
-        """Seçili klasörün dersleri; en başta "Derse bağlı değil"."""
+        """Seçili patikanın dersleri; kendi klasöründe yalnızca "Derse bağlı değil"."""
         self._lesson.clear()
         self._lesson.addItem(self._language.t("notebook.general"), "")
-        chapter = self._catalog.chapter(self._folder.currentData() or "")
+        key = self._folder.currentData() or ""
+        chapter = None if key.startswith(FOLDER_PREFIX) else self._catalog.chapter(key)
+        self._lesson.setEnabled(chapter is not None)
         if chapter is None:
             return
         for section in chapter.sections:
@@ -137,10 +148,9 @@ class NewNoteDialog(QDialog):
         if self._name.text().strip():
             self.accept()
 
-    def values(self) -> tuple[str, str, str]:
-        """(klasör, ders, ad). Ders boşsa not bir derse bağlı değil."""
-        return (
-            self._folder.currentData() or "",
-            self._lesson.currentData() or "",
-            self._name.text().strip(),
-        )
+    def values(self) -> tuple[str, str, str, int | None]:
+        """(patika, ders, ad, kullanıcının klasörü). Kendi klasöründe patika boş."""
+        key = self._folder.currentData() or ""
+        if key.startswith(FOLDER_PREFIX):
+            return "", "", self._name.text().strip(), int(key[len(FOLDER_PREFIX):])
+        return key, self._lesson.currentData() or "", self._name.text().strip(), None

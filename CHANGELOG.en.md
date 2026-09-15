@@ -26,7 +26,9 @@ lecture note does not mean downloading the whole application again.
 ### Added
 - **My Notes.** The notebook icon on the left strip opens your own notes.
   Notes are filed by path; you give each note a name and can tie it to a
-  lesson, and then go back to that lesson from the note. Notes are written
+  lesson, and then go back to that lesson from the note. You can also make
+  your own folders and move notes between folders; deleting a folder does
+  not delete the notes in it. Notes are written
   in markdown: the Code button in the toolbar adds a Python or SQL code
   block, and code is coloured the way it is in the lessons. Inside a lesson,
   the "Take a note" button in the header (`Ctrl+N`) opens the note next to

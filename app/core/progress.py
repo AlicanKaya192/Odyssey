@@ -157,6 +157,24 @@ MIGRATIONS: list[str] = [
     SELECT chapter_id, section_id, section_id, body, updated_at, updated_at
     FROM notes WHERE trim(body) <> '';
     """,
+    # 5 — Notlarım'da kullanıcının kendi klasörleri. Not patikasını
+    # (`chapter_id`) ve dersini taşımaya devam ediyor; `folder_id` doluysa
+    # ağaçta o klasörde duruyor ve ders bağlantısı ("Derse git", dersteki
+    # panel) korunuyor. Klasör silinince not silinmiyor: sütun boşalıyor,
+    # not patikasının klasörüne dönüyor.
+    #
+    # Ayrı bir göç, 4'e eklenmedi: 4 Alican'ın veritabanında zaten
+    # uygulandı, değiştirilse onda hiç çalışmazdı.
+    """
+    CREATE TABLE IF NOT EXISTS notebook_folders (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        name        TEXT NOT NULL,
+        created_at  TEXT NOT NULL
+    );
+
+    ALTER TABLE notebook_entries ADD COLUMN folder_id INTEGER
+        REFERENCES notebook_folders (id) ON DELETE SET NULL;
+    """,
 ]
 
 
@@ -637,7 +655,7 @@ class ProgressStore:
         not ağaçta yerini kaybettiriyordu.
         """
         rows = self._connection.execute(
-            "SELECT id, chapter_id, section_id, title, created_at, updated_at "
+            "SELECT id, chapter_id, section_id, folder_id, title, created_at, updated_at "
             "FROM notebook_entries ORDER BY created_at, id"
         ).fetchall()
         return [dict(row) for row in rows]
@@ -654,19 +672,51 @@ class ProgressStore:
         ).fetchone()["c"]
 
     def add_notebook_entry(
-        self, chapter_id: str, section_id: str, title: str, body: str = ""
+        self,
+        chapter_id: str,
+        section_id: str,
+        title: str,
+        body: str = "",
+        folder_id: int | None = None,
     ) -> int:
         """Yeni not ekler, id'sini döndürür."""
-        title = self._free_title(chapter_id, title)
+        title = self._free_title(chapter_id, title, folder_id=folder_id)
         now = _now()
         with self._write() as connection:
             cursor = connection.execute(
                 "INSERT INTO notebook_entries "
-                "(chapter_id, section_id, title, body, created_at, updated_at) "
-                "VALUES (?, ?, ?, ?, ?, ?)",
-                (chapter_id, section_id, title, body, now, now),
+                "(chapter_id, section_id, folder_id, title, body, created_at, updated_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (chapter_id, section_id, folder_id, title, body, now, now),
             )
         return int(cursor.lastrowid)
+
+    def move_notebook_entry(
+        self, entry_id: int, *, chapter_id: str | None = None, folder_id: int | None = None
+    ) -> str | None:
+        """Notu taşır; dönen değer notun son adı (hedefte çakışırsa sayılı).
+
+        `folder_id` verilirse not kullanıcının klasörüne gidiyor, patikası
+        ve dersi yerinde kalıyor. Verilmezse `chapter_id` patikasının
+        klasörüne dönüyor; başka bir patikaya gidiyorsa ders bağlantısı
+        kalkıyor, çünkü o ders o patikada yok.
+        """
+        entry = self.notebook_entry(entry_id)
+        if entry is None:
+            return None
+        if folder_id is not None:
+            yeni_patika, yeni_ders = entry["chapter_id"], entry["section_id"]
+        else:
+            yeni_patika = entry["chapter_id"] if chapter_id is None else chapter_id
+            yeni_ders = entry["section_id"] if yeni_patika == entry["chapter_id"] else ""
+        ad = self._free_title(yeni_patika, entry["title"], exclude_id=entry_id, folder_id=folder_id)
+        with self._write() as connection:
+            connection.execute(
+                "UPDATE notebook_entries SET chapter_id = ?, section_id = ?, folder_id = ?, "
+                "title = ? WHERE id = ?",
+                (yeni_patika, yeni_ders, folder_id, ad, entry_id),
+            )
+        return ad
 
     def update_notebook_entry(
         self, entry_id: int, *, title: str | None = None, body: str | None = None
@@ -682,7 +732,9 @@ class ProgressStore:
 
         yeni_ad = entry["title"]
         if title is not None and title.strip() and title.strip() != entry["title"]:
-            yeni_ad = self._free_title(entry["chapter_id"], title, exclude_id=entry_id)
+            yeni_ad = self._free_title(
+                entry["chapter_id"], title, exclude_id=entry_id, folder_id=entry["folder_id"]
+            )
         yeni_govde = entry["body"] if body is None else body
 
         if yeni_ad == entry["title"] and yeni_govde == entry["body"]:
@@ -700,15 +752,103 @@ class ProgressStore:
         with self._write() as connection:
             connection.execute("DELETE FROM notebook_entries WHERE id = ?", (entry_id,))
 
-    def _free_title(self, chapter_id: str, title: str, exclude_id: int | None = None) -> str:
-        """Klasörde boşta olan ad: çakışırsa "Ad (2)", "Ad (3)"..."""
-        from .user_notes import unique_title
+    def _free_title(
+        self,
+        chapter_id: str,
+        title: str,
+        exclude_id: int | None = None,
+        folder_id: int | None = None,
+    ) -> str:
+        """Notun duracağı klasörde boşta olan ad: "Ad", "Ad (2)", "Ad (3)"...
+
+        Klasör, kullanıcının klasörü (`folder_id`) ya da yoksa patikanın
+        klasörü.
+        """
+        from .user_notes import name_key, unique_title
+
+        if folder_id is not None:
+            rows = self._connection.execute(
+                "SELECT title FROM notebook_entries WHERE folder_id = ? AND id IS NOT ?",
+                (folder_id, exclude_id),
+            ).fetchall()
+        else:
+            rows = self._connection.execute(
+                "SELECT title FROM notebook_entries "
+                "WHERE folder_id IS NULL AND chapter_id = ? AND id IS NOT ?",
+                (chapter_id, exclude_id),
+            ).fetchall()
+        return unique_title(title, {name_key(row["title"]) for row in rows})
+
+    # --- Notlarım: kullanıcının klasörleri ---------------------------------
+
+    def notebook_folders(self) -> list[dict]:
+        rows = self._connection.execute(
+            "SELECT id, name, created_at FROM notebook_folders ORDER BY created_at, id"
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+    def add_notebook_folder(self, name: str) -> int:
+        name = self._free_folder_name(name)
+        with self._write() as connection:
+            cursor = connection.execute(
+                "INSERT INTO notebook_folders (name, created_at) VALUES (?, ?)", (name, _now())
+            )
+        return int(cursor.lastrowid)
+
+    def rename_notebook_folder(self, folder_id: int, name: str) -> str | None:
+        """Klasörün son adını döndürür; ad çakışırsa sayılı hâli."""
+        row = self._connection.execute(
+            "SELECT name FROM notebook_folders WHERE id = ?", (folder_id,)
+        ).fetchone()
+        if row is None:
+            return None
+        if not name.strip() or name.strip() == row["name"]:
+            return row["name"]
+        yeni = self._free_folder_name(name, exclude_id=folder_id)
+        with self._write() as connection:
+            connection.execute("UPDATE notebook_folders SET name = ? WHERE id = ?", (yeni, folder_id))
+        return yeni
+
+    def find_or_add_notebook_folder(self, name: str) -> int:
+        """Aynı adda (büyük/küçük harf farkı gözetmeden) klasör varsa o, yoksa yenisi.
+
+        Yüklenen notun klasörü için: arkadaşının "Sınav öncesi" klasörü,
+        sende aynı adda klasör varsa oraya giriyor.
+        """
+        from .user_notes import name_key
+
+        for folder in self.notebook_folders():
+            if name_key(folder["name"]) == name_key(name.strip()):
+                return folder["id"]
+        return self.add_notebook_folder(name)
+
+    def delete_notebook_folder(self, folder_id: int) -> None:
+        """Klasörü siler; içindeki notlar patikalarının klasörüne döner.
+
+        Dönen notun adı orada başka bir notta varsa sayılı hâlini alıyor:
+        bir klasörde aynı adda iki not durmuyor.
+        """
+        with self._write() as connection:
+            rows = connection.execute(
+                "SELECT id, chapter_id, title FROM notebook_entries WHERE folder_id = ? "
+                "ORDER BY created_at, id",
+                (folder_id,),
+            ).fetchall()
+            for row in rows:
+                ad = self._free_title(row["chapter_id"], row["title"], exclude_id=row["id"])
+                connection.execute(
+                    "UPDATE notebook_entries SET folder_id = NULL, title = ? WHERE id = ?",
+                    (ad, row["id"]),
+                )
+            connection.execute("DELETE FROM notebook_folders WHERE id = ?", (folder_id,))
+
+    def _free_folder_name(self, name: str, exclude_id: int | None = None) -> str:
+        from .user_notes import FOLDER_MAX_LENGTH, name_key, unique_title
 
         rows = self._connection.execute(
-            "SELECT title FROM notebook_entries WHERE chapter_id = ? AND id IS NOT ?",
-            (chapter_id, exclude_id),
+            "SELECT name FROM notebook_folders WHERE id IS NOT ?", (exclude_id,)
         ).fetchall()
-        return unique_title(title, {row["title"].casefold() for row in rows})
+        return unique_title(name, {name_key(row["name"]) for row in rows}, FOLDER_MAX_LENGTH)
 
     # --- toplu sayılar ----------------------------------------------------
 
