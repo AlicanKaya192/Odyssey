@@ -24,6 +24,12 @@ lecture note does not mean downloading the whole application again.
 ## [0.8.2] — unreleased
 
 ### Added
+- **My Notes.** The notebook icon on the left strip opens your own notes.
+  Notes are filed by path; you give each note a name and can tie it to a
+  lesson, and then go back to that lesson from the note. Notes are written
+  in markdown: the Code button in the toolbar adds a Python or SQL code
+  block, and code is coloured the way it is in the lessons. What you write
+  is saved automatically.
 - **A memory limit for exercises.** A list that keeps growing or a very
   large array no longer eats up your computer's memory: the code is stopped
   once it goes over 3 GB and the result area says why. Such code used to be

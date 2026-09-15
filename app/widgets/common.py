@@ -6,8 +6,10 @@ stil dosyasındaki özelliklerden (`variant`, `role`, `tone`) geliyor.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QPointF, Qt, Signal
+from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import (
+    QComboBox,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -125,6 +127,37 @@ class SegmentedControl(QFrame):
         for index, button in enumerate(self._buttons):
             button.setProperty("active", "true" if index == self._current else "false")
             repolish(button)
+
+
+class DropdownBox(QComboBox):
+    """Sağında ok çizilen açılır kutu.
+
+    Stil dosyası `drop-down` alanını boş bırakıyor ve kutu oksuz kalıyordu:
+    açılabildiği anlaşılmıyor, düz bir metin kutusu gibi duruyordu. QSS oku
+    yalnızca diskteki bir resim dosyasından çizebiliyor, simgelerimiz ise
+    gömülü SVG; ok burada, tema rengiyle elle çiziliyor.
+    """
+
+    def __init__(self, parent: QWidget | None = None, color: str = "#98A1AF") -> None:
+        super().__init__(parent)
+        self._arrow = QColor(color)
+
+    def set_arrow_color(self, color: str) -> None:
+        self._arrow = QColor(color)
+        self.update()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        super().paintEvent(event)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        pen = QPen(self._arrow, 1.8)
+        pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+        pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+        painter.setPen(pen)
+        x = self.width() - 20
+        y = self.height() / 2
+        painter.drawPolyline([QPointF(x - 4.5, y - 2), QPointF(x, y + 2.5), QPointF(x + 4.5, y - 2)])
+        painter.end()
 
 
 class StatBlock(QWidget):

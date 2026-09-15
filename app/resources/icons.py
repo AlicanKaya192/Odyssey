@@ -305,6 +305,11 @@ PATHS: dict[str, str] = {
         '<line x1="6" y1="17.5" x2="6.01" y2="17.5"/>'
     ),
     "clock": '<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>',
+    # Şeritte Notlarım: sırtı çizgili bir defter.
+    "notebook": (
+        '<path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/>'
+        '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M16 2v20"/>'
+    ),
     "message": (
         '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'
     ),
@@ -323,6 +328,7 @@ PATHS: dict[str, str] = {
 DUOTONE: dict[str, str] = {
     "home": '<path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
     "user": '<circle cx="12" cy="8" r="4"/>',
+    "notebook": '<rect x="4" y="2" width="16" height="20" rx="2"/>',
     "megaphone": '<path d="m3 11 15-7v16L3 13z"/>',
     "info": '<circle cx="12" cy="12" r="9"/>',
     "settings": '<circle cx="12" cy="12" r="3"/>',

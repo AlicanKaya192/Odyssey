@@ -22,6 +22,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.8.2] — yayınlanmadı
 
 ### Eklendi
+- **Notlarım.** Sol şeritteki defter simgesi kendi notlarınızı açıyor. Notlar
+  patikalara göre klasörleniyor; her nota bir ad veriyorsunuz ve isterseniz
+  bir derse bağlıyorsunuz, o zaman notun üstünden o derse dönebiliyorsunuz.
+  Notlar markdown ile yazılıyor: araç çubuğundaki Kod düğmesi Python ya da
+  SQL kod bloğu ekliyor ve kod, konu anlatımındaki gibi renkli görünüyor.
+  Yazdıklarınız kendiliğinden kaydediliyor.
 - **Alıştırmalarda bellek sınırı.** Durmadan büyüyen bir liste ya da çok
   büyük bir dizi artık bilgisayarınızın belleğini tüketmiyor: kod 3 GB'ı
   geçince durduruluyor ve sonuç alanında sebebi yazıyor. Eskiden böyle bir

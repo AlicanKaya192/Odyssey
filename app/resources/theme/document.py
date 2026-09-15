@@ -183,6 +183,10 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
 .content blockquote p {{ margin: 0 0 8px; }}
 .content blockquote pre {{ margin: 10px 0; }}
 
+/* Notlarım: kullanıcının alıntısı bir ipucu değil, ampul çizilmiyor. */
+.notebook .content blockquote {{ padding-left: 20px; }}
+.notebook .content blockquote::before {{ content: none; }}
+
 .banner {{
     border-radius: 12px; padding: 13px 18px; margin-bottom: 26px;
     font-size: 14px; display: flex; gap: 11px; align-items: flex-start;

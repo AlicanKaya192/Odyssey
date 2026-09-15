@@ -52,6 +52,65 @@ BUILTINS = [
 ]
 
 
+def _char_format(color: str, bold: bool = False, italic: bool = False) -> QTextCharFormat:
+    fmt = QTextCharFormat()
+    fmt.setForeground(QColor(color))
+    if bold:
+        fmt.setFontWeight(QFont.Weight.DemiBold)
+    if italic:
+        fmt.setFontItalic(True)
+    return fmt
+
+
+def python_rules(mode: str) -> tuple[list[tuple[object, QTextCharFormat, int]], QTextCharFormat]:
+    """Python renklendirme kuralları ve metin (string) biçimi.
+
+    Alıştırma editörü ve not editöründeki kod blokları aynı kuralları
+    kullanıyor; iki yerde aynı kod turuncu/mor görünsün diye tek yerde.
+    """
+    colors = SYNTAX.get(mode, SYNTAX["light"])
+    rules: list[tuple[object, QTextCharFormat, int]] = []
+
+    keyword_format = _char_format(colors["keyword"], bold=True)
+    for word in KEYWORDS:
+        rules.append((re.compile(rf"\b{word}\b"), keyword_format, 0))
+
+    constant_format = _char_format(colors["constant"], bold=True)
+    for word in CONSTANTS:
+        rules.append((re.compile(rf"\b{word}\b"), constant_format, 0))
+
+    builtin_format = _char_format(colors["builtin"])
+    for word in BUILTINS:
+        rules.append((re.compile(rf"\b{word}\b(?=\s*\()"), builtin_format, 0))
+
+    # Değer atanan değişken adı: `isim = ...` ve `toplam += ...`
+    rules.append(
+        (
+            re.compile(r"\b([A-Za-z_]\w*)\s*(?:[+\-*/%]?=)(?!=)"),
+            _char_format(colors["variable"]),
+            1,
+        )
+    )
+
+    rules.append(
+        (re.compile(r"\b(?:def|class)\s+(\w+)"), _char_format(colors["definition"], bold=True), 1)
+    )
+    rules.append((re.compile(r"@\w+"), _char_format(colors["decorator"]), 0))
+    rules.append(
+        (re.compile(r"\b\d+\.?\d*(?:[eE][+-]?\d+)?\b"), _char_format(colors["number"]), 0)
+    )
+
+    string_format = _char_format(colors["string"])
+    rules.append((re.compile(r"'[^'\\\n]*(?:\\.[^'\\\n]*)*'"), string_format, 0))
+    rules.append((re.compile(r'"[^"\\\n]*(?:\\.[^"\\\n]*)*"'), string_format, 0))
+
+    # Yorum en sona: metinler önce boyanıyor, yorum kuralı üzerine yazmıyor.
+    rules.append(
+        (re.compile(r"#[^\n]*"), _char_format(colors["comment"], italic=True), 0)
+    )
+    return rules, string_format
+
+
 class PythonHighlighter(QSyntaxHighlighter):
     """Python sözdizimi renklendirmesi.
 
@@ -66,59 +125,9 @@ class PythonHighlighter(QSyntaxHighlighter):
         self._string_format = QTextCharFormat()
         self.set_mode(mode)
 
-    def _format(self, color: str, bold: bool = False, italic: bool = False) -> QTextCharFormat:
-        fmt = QTextCharFormat()
-        fmt.setForeground(QColor(color))
-        if bold:
-            fmt.setFontWeight(QFont.Weight.DemiBold)
-        if italic:
-            fmt.setFontItalic(True)
-        return fmt
-
     def set_mode(self, mode: str) -> None:
         """Tema değişince renkleri yenile."""
-        colors = SYNTAX.get(mode, SYNTAX["light"])
-        self._rules = []
-
-        keyword_format = self._format(colors["keyword"], bold=True)
-        for word in KEYWORDS:
-            self._rules.append((re.compile(rf"\b{word}\b"), keyword_format, 0))
-
-        constant_format = self._format(colors["constant"], bold=True)
-        for word in CONSTANTS:
-            self._rules.append((re.compile(rf"\b{word}\b"), constant_format, 0))
-
-        builtin_format = self._format(colors["builtin"])
-        for word in BUILTINS:
-            self._rules.append((re.compile(rf"\b{word}\b(?=\s*\()"), builtin_format, 0))
-
-        # Değer atanan değişken adı: `isim = ...` ve `toplam += ...`
-        self._rules.append(
-            (
-                re.compile(r"\b([A-Za-z_]\w*)\s*(?:[+\-*/%]?=)(?!=)"),
-                self._format(colors["variable"]),
-                1,
-            )
-        )
-
-        self._rules.append(
-            (re.compile(r"\b(?:def|class)\s+(\w+)"), self._format(colors["definition"], bold=True), 1)
-        )
-        self._rules.append((re.compile(r"@\w+"), self._format(colors["decorator"]), 0))
-        self._rules.append(
-            (re.compile(r"\b\d+\.?\d*(?:[eE][+-]?\d+)?\b"), self._format(colors["number"]), 0)
-        )
-
-        string_format = self._format(colors["string"])
-        self._rules.append((re.compile(r"'[^'\\\n]*(?:\\.[^'\\\n]*)*'"), string_format, 0))
-        self._rules.append((re.compile(r'"[^"\\\n]*(?:\\.[^"\\\n]*)*"'), string_format, 0))
-        self._string_format = string_format
-
-        # Yorum en sona: metinler önce boyanıyor, yorum kuralı üzerine yazmıyor.
-        self._rules.append(
-            (re.compile(r"#[^\n]*"), self._format(colors["comment"], italic=True), 0)
-        )
-
+        self._rules, self._string_format = python_rules(mode)
         self.rehighlight()
 
     def highlightBlock(self, text: str) -> None:  # noqa: N802 (Qt adlandırması)

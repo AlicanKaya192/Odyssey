@@ -130,7 +130,33 @@ MIGRATIONS: list[str] = [
         is_read     INTEGER NOT NULL DEFAULT 0,
         created_at  TEXT NOT NULL
     );
+    """,
+    # 4 — Notlarım. İlk şemadaki `notes` tablosu bölüm başına tek, adsız bir
+    # not tutuyordu ve arayüzü hiç yazılmadı. Notlar artık adlı ve bir
+    # bölümde birden fazla olabiliyor. Klasör patikanın kendisi
+    # (`chapter_id`); `section_id` boşsa not bir derse bağlı değil.
+    #
+    # `notes` tablosu silinmiyor: içinde bir şey varsa buraya kopyalanıyor,
+    # kullanıcının verisi hiçbir göçte yok edilmiyor.
     """
+    CREATE TABLE IF NOT EXISTS notebook_entries (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        chapter_id  TEXT NOT NULL,
+        section_id  TEXT NOT NULL DEFAULT '',
+        title       TEXT NOT NULL,
+        body        TEXT NOT NULL DEFAULT '',
+        created_at  TEXT NOT NULL,
+        updated_at  TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS notebook_entries_chapter
+        ON notebook_entries (chapter_id);
+
+    INSERT INTO notebook_entries
+        (chapter_id, section_id, title, body, created_at, updated_at)
+    SELECT chapter_id, section_id, section_id, body, updated_at, updated_at
+    FROM notes WHERE trim(body) <> '';
+    """,
 ]
 
 
@@ -598,24 +624,91 @@ class ProgressStore:
         ).fetchone()
         return row["attempts"] if row else 0
 
-    # --- notlar -----------------------------------------------------------
+    # --- Notlarım ---------------------------------------------------------
+    #
+    # Aynı klasörde iki not aynı adı taşımıyor: ağaçta ikisi ayırt
+    # edilemiyor, dışa aktarınca da dosya adları çakışıyor. Çakışan ada
+    # sonuna " (2)" ekleniyor; hiçbir notun üstüne yazılmıyor.
 
-    def note(self, chapter_id: str, section_id: str) -> str:
+    def notebook_entries(self) -> list[dict]:
+        """Bütün notlar, gövdeleri olmadan, eklenme sırasıyla.
+
+        Sıra değişiklik tarihine göre değil: yazdıkça en üste zıplayan bir
+        not ağaçta yerini kaybettiriyordu.
+        """
+        rows = self._connection.execute(
+            "SELECT id, chapter_id, section_id, title, created_at, updated_at "
+            "FROM notebook_entries ORDER BY created_at, id"
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+    def notebook_entry(self, entry_id: int) -> dict | None:
         row = self._connection.execute(
-            "SELECT body FROM notes WHERE chapter_id = ? AND section_id = ?",
-            (chapter_id, section_id),
+            "SELECT * FROM notebook_entries WHERE id = ?", (entry_id,)
         ).fetchone()
-        return row["body"] if row else ""
+        return dict(row) if row else None
 
-    def save_note(self, chapter_id: str, section_id: str, body: str) -> None:
+    def notebook_entry_count(self) -> int:
+        return self._connection.execute(
+            "SELECT COUNT(*) AS c FROM notebook_entries"
+        ).fetchone()["c"]
+
+    def add_notebook_entry(
+        self, chapter_id: str, section_id: str, title: str, body: str = ""
+    ) -> int:
+        """Yeni not ekler, id'sini döndürür."""
+        title = self._free_title(chapter_id, title)
+        now = _now()
+        with self._write() as connection:
+            cursor = connection.execute(
+                "INSERT INTO notebook_entries "
+                "(chapter_id, section_id, title, body, created_at, updated_at) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (chapter_id, section_id, title, body, now, now),
+            )
+        return int(cursor.lastrowid)
+
+    def update_notebook_entry(
+        self, entry_id: int, *, title: str | None = None, body: str | None = None
+    ) -> str | None:
+        """Notun adını ve/veya gövdesini değiştirir.
+
+        Dönen değer notun **son** adı: istenen ad klasörde başka bir notta
+        varsa sonuna sayı eklenmiş hâli. Not yoksa `None`.
+        """
+        entry = self.notebook_entry(entry_id)
+        if entry is None:
+            return None
+
+        yeni_ad = entry["title"]
+        if title is not None and title.strip() and title.strip() != entry["title"]:
+            yeni_ad = self._free_title(entry["chapter_id"], title, exclude_id=entry_id)
+        yeni_govde = entry["body"] if body is None else body
+
+        if yeni_ad == entry["title"] and yeni_govde == entry["body"]:
+            return yeni_ad
+
         with self._write() as connection:
             connection.execute(
-                "INSERT INTO notes (chapter_id, section_id, body, updated_at) "
-                "VALUES (?, ?, ?, ?) "
-                "ON CONFLICT(chapter_id, section_id) DO UPDATE SET "
-                "body = excluded.body, updated_at = excluded.updated_at",
-                (chapter_id, section_id, body, _now()),
+                "UPDATE notebook_entries SET title = ?, body = ?, updated_at = ? "
+                "WHERE id = ?",
+                (yeni_ad, yeni_govde, _now(), entry_id),
             )
+        return yeni_ad
+
+    def delete_notebook_entry(self, entry_id: int) -> None:
+        with self._write() as connection:
+            connection.execute("DELETE FROM notebook_entries WHERE id = ?", (entry_id,))
+
+    def _free_title(self, chapter_id: str, title: str, exclude_id: int | None = None) -> str:
+        """Klasörde boşta olan ad: çakışırsa "Ad (2)", "Ad (3)"..."""
+        from .user_notes import unique_title
+
+        rows = self._connection.execute(
+            "SELECT title FROM notebook_entries WHERE chapter_id = ? AND id IS NOT ?",
+            (chapter_id, exclude_id),
+        ).fetchall()
+        return unique_title(title, {row["title"].casefold() for row in rows})
 
     # --- toplu sayılar ----------------------------------------------------
 

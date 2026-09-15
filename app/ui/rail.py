@@ -48,6 +48,7 @@ from ..widgets.effects import repolish
 TOP_DESTINATIONS = [
     ("profile", "user", "nav.profile"),
     ("journey", "home", "nav.path"),
+    ("notes", "notebook", "nav.notes"),
 ]
 
 BOTTOM_DESTINATIONS = [

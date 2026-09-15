@@ -6,6 +6,7 @@ geçiş `QStackedWidget` ile yapılıyor.
 Ekranlar:
   journey   — modül kartları ve öğrenme yolu
   topic     — bir bölümün içeriği
+  notes     — kullanıcının kendi notları (Notlarım)
   profile   — kullanıcı bilgileri ve istatistikler
   releases  — sürüm notları
 """
@@ -42,6 +43,7 @@ from . import titlebar
 from ..resources.theme.tokens import RAIL_COLORS
 from .footer import Footer
 from .journey_view import JourneyView
+from .notebook_view import NotebookView
 from .profile_view import ProfileView
 from .rail import Rail
 from .release_view import ReleaseView
@@ -201,6 +203,12 @@ class MainWindow(QMainWindow):
         self._profile_header = ScreenHeader(self._language)
         self._profile_screen = Screen(self._profile_header, self._profile)
 
+        # Notlarım
+        self._notebook = NotebookView(self._catalog, self._language, self._store)
+        self._notebook.open_section.connect(self._open_section)
+        self._notebook_header = ScreenHeader(self._language)
+        self._notebook_screen = Screen(self._notebook_header, self._notebook)
+
         # Hakkında: Bilgi, SSS, Bağlantılarım, Ekstra İçerikler ve Lisans
         # tek ekranda, başlıktaki sekmelerle.
         self._about = AboutView(self._language)
@@ -219,6 +227,7 @@ class MainWindow(QMainWindow):
         for widget in (
             self._journey_screen,
             self._topic,
+            self._notebook_screen,
             self._profile_screen,
             self._about_screen,
             self._releases_screen,
@@ -251,6 +260,11 @@ class MainWindow(QMainWindow):
         # Konu ekranı kendi içinde birden fazla belge alanı taşıyor.
         self._stack.setCurrentWidget(self._topic)
         self._topic.warm_up()
+
+        # Notlarım'ın okuma alanı açılışta boş ekranın arkasında duruyor;
+        # ilk not seçilince siyah kare görünmesin.
+        self._stack.setCurrentWidget(self._notebook_screen)
+        self._notebook.warm_up()
 
         if onceki is not None:
             self._stack.setCurrentWidget(onceki)
@@ -427,6 +441,9 @@ class MainWindow(QMainWindow):
         if key == "journey":
             self._journey.show_modules()
             self._stack.setCurrentWidget(self._journey_screen)
+        elif key == "notes":
+            self._notebook.refresh()
+            self._stack.setCurrentWidget(self._notebook_screen)
         elif key == "profile":
             self._profile.refresh()
             self._stack.setCurrentWidget(self._profile_screen)
@@ -560,6 +577,9 @@ class MainWindow(QMainWindow):
         self._profile_header.set_titles(
             self._language.t("profile.title"), self._language.t("app.title")
         )
+        self._notebook_header.set_titles(
+            self._language.t("nav.notes"), self._language.t("app.title")
+        )
         # Başlıkta ekranın adı sabit; hangi sekmede olduğumuzu sağdaki
         # seçici zaten gösteriyor.
         self._about_header.set_titles(
@@ -626,6 +646,7 @@ class MainWindow(QMainWindow):
         colors = RAIL_COLORS.get(mode, RAIL_COLORS["light"])
         for key, header in (
             ("journey", self._journey_header),
+            ("notes", self._notebook_header),
             ("profile", self._profile_header),
             ("releases", self._releases_header),
         ):
@@ -643,6 +664,8 @@ class MainWindow(QMainWindow):
         self._journey.set_mode(mode)
         self._journey_header.set_mode(mode)
         self._topic.set_mode(mode)
+        self._notebook.set_mode(mode)
+        self._notebook_header.set_mode(mode)
         self._profile.set_mode(mode)
         self._profile_header.set_mode(mode)
         self._about.set_mode(mode)
@@ -660,6 +683,7 @@ class MainWindow(QMainWindow):
         self._footer.retranslate()
         self._journey.retranslate()
         self._topic.retranslate()
+        self._notebook.retranslate()
         self._profile.retranslate()
         self._about.retranslate()
         self._releases.retranslate()
@@ -702,6 +726,9 @@ class MainWindow(QMainWindow):
             if dialog.exec() != ConfirmDialog.DialogCode.Accepted:
                 event.ignore()
                 return
+
+        # Notta yazılıp henüz kaydedilmemiş son harfler.
+        self._notebook.flush()
 
         # Discord'daki yazı silinsin; yoksa kapatılan uygulama hâlâ
         # kullanılıyor gibi görünüyor.
