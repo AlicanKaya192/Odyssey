@@ -1,0 +1,3 @@
+-- Create a procedure that brings back one customer's orders:
+-- dbo.customer_orders. Its only parameter is @customer_id (INT).
+-- Columns: id, order_date, status. Sort by order_date.

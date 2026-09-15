@@ -26,8 +26,8 @@ lecture note does not mean downloading the whole application again.
 ### Added
 - **Part 2 of the SQL path.** Its sections — **Intermediate:** Table Design,
   Dates and Text. **Advanced:** Window Functions, WITH and Recursion,
-  Indexes. Every section comes with its own notes, quiz, exercises and
-  badge.
+  Indexes, Views and Stored Procedures. Every section comes with its own
+  notes, quiz, exercises and badge.
 - **Notifications.** The bell on the right of the bottom strip lists the
   badges you earn, with the number of unread ones on top of it. You can mark
   each one as read or clear them all.

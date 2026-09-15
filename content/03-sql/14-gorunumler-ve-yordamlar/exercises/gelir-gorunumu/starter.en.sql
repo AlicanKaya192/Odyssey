@@ -1,0 +1,4 @@
+-- Create a view that gives each customer's revenue over the
+-- orders that were not cancelled: dbo.customer_revenue.
+-- Columns: id, name, revenue.
+-- Do not write ORDER BY inside the view.

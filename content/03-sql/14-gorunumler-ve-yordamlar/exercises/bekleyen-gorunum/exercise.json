@@ -1,0 +1,67 @@
+{
+  "id": "bekleyen-gorunum",
+  "language": "tsql",
+  "title": {
+    "tr": "Kurallı görünüm",
+    "en": "A view with a rule"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tek tablolu bir görünümün üstünden `UPDATE` yazılabiliyor ve değişiklik tabloya gidiyor. Kural olmadan, durumu değişen sipariş görünümden sessizce kayboluyor.",
+      "en": "An `UPDATE` can be written through a single-table view, and the change goes to the table. Without a rule, an order whose status changes silently disappears from the view."
+    },
+    {
+      "tr": "Görünümün sonuna `WITH CHECK OPTION` eklenince, görünümün `WHERE`'ine uymayacak bir değişiklik reddediliyor.",
+      "en": "Adding `WITH CHECK OPTION` at the end of the view makes the server refuse any change that would not satisfy the view's `WHERE`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE VIEW dbo.pending_orders AS\nSELECT id, customer_id, order_date, status\nFROM orders\nWHERE status = 'pending'\nWITH CHECK OPTION;\n```",
+      "en": "The whole query:\n\n```sql\nCREATE VIEW dbo.pending_orders AS\nSELECT id, customer_id, order_date, status\nFROM orders\nWHERE status = 'pending'\nWITH CHECK OPTION;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SELECT id, customer_id, order_date, status FROM dbo.pending_orders ORDER BY id;",
+      "ordered": true,
+      "expected": [
+        [
+          1004,
+          3,
+          "2026-02-11",
+          "pending"
+        ],
+        [
+          1008,
+          2,
+          "2026-03-22",
+          "pending"
+        ],
+        [
+          1010,
+          3,
+          "2026-04-17",
+          "pending"
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; BEGIN TRY UPDATE dbo.pending_orders SET status = 'shipped' WHERE id = 1004; SELECT 'accepted' AS result; END TRY BEGIN CATCH SELECT 'rejected' AS result; END CATCH;",
+      "ordered": true,
+      "expected": [
+        [
+          "rejected"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "gelir-gorunumu",
+  "language": "tsql",
+  "title": {
+    "tr": "Gelir görünümü",
+    "en": "A revenue view"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yazım: `CREATE VIEW dbo.ad AS SELECT ...;`. Görünüm bir sorguya verilen kalıcı bir ad; içindeki sorgu önceki bölümlerde yazdığın gruplama.",
+      "en": "The syntax: `CREATE VIEW dbo.name AS SELECT ...;`. A view is a lasting name given to a query; the query inside is the kind of grouping you wrote in earlier sections."
+    },
+    {
+      "tr": "Üç tablo: `customers`, `orders` (iptal bilgisi), `order_items` (tutar). `GROUP BY c.id, c.name`. Hesaplanan sütuna ad vermek şart (`AS revenue`); yoksa görünüm kurulmuyor.",
+      "en": "Three tables: `customers`, `orders` (the cancelled flag), `order_items` (the amounts). `GROUP BY c.id, c.name`. Naming the calculated column is required (`AS revenue`); otherwise the view is not created."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE VIEW dbo.customer_revenue AS\nSELECT c.id, c.name,\n       SUM(i.quantity * i.unit_price) AS revenue\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nJOIN order_items i ON i.order_id = o.id\nWHERE o.status <> 'cancelled'\nGROUP BY c.id, c.name;\n```",
+      "en": "The whole query:\n\n```sql\nCREATE VIEW dbo.customer_revenue AS\nSELECT c.id, c.name,\n       SUM(i.quantity * i.unit_price) AS revenue\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nJOIN order_items i ON i.order_id = o.id\nWHERE o.status <> 'cancelled'\nGROUP BY c.id, c.name;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SELECT id, name, revenue FROM dbo.customer_revenue ORDER BY id;",
+      "ordered": true,
+      "expected": [
+        [
+          1,
+          "Nova Retail",
+          4155.0
+        ],
+        [
+          2,
+          "Bright Office",
+          34100.0
+        ],
+        [
+          3,
+          "Delta Systems",
+          6710.0
+        ],
+        [
+          4,
+          "Helix Studio",
+          49690.0
+        ],
+        [
+          5,
+          "Orion Labs",
+          4510.0
+        ]
+      ]
+    }
+  ]
+}

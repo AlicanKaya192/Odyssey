@@ -1,0 +1,8 @@
+-- Bir musterinin siparis sayisini bir cikis parametresiyle
+-- donduren bir yordam kur: dbo.customer_order_count.
+-- Parametreler, bu sirayla:
+--   @customer_id INT
+--   @order_count INT       (cikis: sayi buraya yazilacak)
+--   @status NVARCHAR(20)   (istege bagli; verilmezse
+--                           butun durumlar sayilir)
+-- Yordam sonuc tablosu dondurmesin; yalnizca @order_count.

@@ -1,0 +1,3 @@
+-- Bir musterinin siparislerini getiren bir yordam kur:
+-- dbo.customer_orders. Tek parametresi @customer_id (INT).
+-- Sutunlar: id, order_date, status. order_date'e gore sirala.

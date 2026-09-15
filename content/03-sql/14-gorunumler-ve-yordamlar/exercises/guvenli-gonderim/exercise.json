@@ -1,0 +1,43 @@
+{
+  "id": "guvenli-gonderim",
+  "language": "tsql",
+  "title": {
+    "tr": "Kurallı güncelleme",
+    "en": "A guarded update"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Birden fazla cümleli bir yordam `BEGIN ... END` içine alınıyor. Önce kontrol: `IF NOT EXISTS (SELECT 1 FROM orders WHERE id = @order_id AND status = 'pending') THROW ...;`, sonra `UPDATE`.",
+      "en": "A procedure with more than one statement goes inside `BEGIN ... END`. The check first: `IF NOT EXISTS (SELECT 1 FROM orders WHERE id = @order_id AND status = 'pending') THROW ...;`, then the `UPDATE`."
+    },
+    {
+      "tr": "`THROW`'dan önceki cümle noktalı virgülle bitmeli; yoksa `Incorrect syntax near 'THROW'`. `THROW` çalışınca yordam orada duruyor, `UPDATE`'e hiç gelinmiyor.",
+      "en": "The statement before `THROW` has to end with a semicolon; otherwise `Incorrect syntax near 'THROW'`. When `THROW` runs, the procedure stops there and never reaches the `UPDATE`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE PROCEDURE dbo.ship_order\n    @order_id INT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    IF NOT EXISTS (SELECT 1 FROM orders\n                   WHERE id = @order_id AND status = 'pending')\n        THROW 50001, N'Order is not pending.', 1;\n    UPDATE orders SET status = 'shipped' WHERE id = @order_id;\nEND;\n```",
+      "en": "The whole query:\n\n```sql\nCREATE PROCEDURE dbo.ship_order\n    @order_id INT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    IF NOT EXISTS (SELECT 1 FROM orders\n                   WHERE id = @order_id AND status = 'pending')\n        THROW 50001, N'Order is not pending.', 1;\n    UPDATE orders SET status = 'shipped' WHERE id = @order_id;\nEND;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; DECLARE @err INT = 0; BEGIN TRY EXEC dbo.ship_order 1001; END TRY BEGIN CATCH SET @err = ERROR_NUMBER(); END CATCH; EXEC dbo.ship_order 1004; SELECT @err AS error_on_shipped, (SELECT status FROM orders WHERE id = 1004) AS status_after;",
+      "ordered": true,
+      "expected": [
+        [
+          50001,
+          "shipped"
+        ]
+      ]
+    }
+  ]
+}

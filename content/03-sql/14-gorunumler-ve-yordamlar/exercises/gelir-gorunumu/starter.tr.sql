@@ -1,0 +1,4 @@
+-- Iptal edilmeyen siparislerde her musterinin cirosunu veren
+-- bir gorunum kur: dbo.customer_revenue.
+-- Sutunlar: id, name, revenue.
+-- Gorunumun icinde ORDER BY yazma.

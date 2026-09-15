@@ -1,0 +1,6 @@
+-- Create a procedure that sets an order to 'shipped':
+-- dbo.ship_order. Its only parameter is @order_id (INT).
+--
+-- If the order is not 'pending' (or does not exist), raise
+-- this error without updating anything:
+--   THROW 50001, N'Order is not pending.', 1;

@@ -1,0 +1,6 @@
+-- Bir siparisi 'shipped' yapan bir yordam kur: dbo.ship_order.
+-- Tek parametresi @order_id (INT).
+--
+-- Siparis 'pending' degilse (ya da hic yoksa) guncelleme
+-- yapmadan su hatayi versin:
+--   THROW 50001, N'Order is not pending.', 1;

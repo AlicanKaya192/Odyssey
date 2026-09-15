@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "Bir görünüm veritabanında ne saklıyor?",
+        "en": "What does a view store in the database?"
+      },
+      "options": {
+        "tr": [
+          "Sorgunun sonucunu, bir kopya olarak",
+          "Tablonun yedeğini",
+          "Yalnızca sorgunun tanımını; veri her kullanımda tablolardan okunuyor",
+          "Bir dizin"
+        ],
+        "en": [
+          "The query's result, as a copy",
+          "A backup of the table",
+          "Only the query's definition; the data is read from the tables every time it is used",
+          "An index"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: 1007 siparişinde bir kalemin adedi 4'ten 3'e indirilince `customer_revenue` görünümü Orion Labs için `4510.00` yerine hemen `3620.00` gösterdi. Görünüm bir kopya olsaydı eski değerde kalırdı.\n\n`OBJECT_DEFINITION` görünümün tanımını olduğu gibi veriyor; saklanan o.",
+        "en": "Measured: when the quantity of a line in order 1007 was lowered from 4 to 3, the `customer_revenue` view immediately showed `3620.00` for Orion Labs instead of `4510.00`. Had the view been a copy, it would have stayed at the old value.\n\n`OBJECT_DEFINITION` gives the view's definition as it was written; that is what is stored."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Aynı toplu işte `SELECT 1 AS a; CREATE VIEW dbo.v2 AS SELECT 1 AS a` yazıldı. Ne oluyor?",
+        "en": "`SELECT 1 AS a; CREATE VIEW dbo.v2 AS SELECT 1 AS a` was written in the same batch. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Hata: `'CREATE VIEW' must be the first statement in a query batch.`",
+          "İki cümle de çalışıyor",
+          "Görünüm kuruluyor, `SELECT` yok sayılıyor",
+          "`SELECT` çalışıyor, görünüm sessizce kurulmuyor"
+        ],
+        "en": [
+          "An error: `'CREATE VIEW' must be the first statement in a query batch.`",
+          "Both statements run",
+          "The view is created and the `SELECT` ignored",
+          "The `SELECT` runs and the view is silently not created"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: hata 111. `CREATE VIEW` ve `CREATE PROCEDURE` kendi toplu işlerinde olmak zorunda. Bu uygulamada toplu işler `GO` satırıyla ayrılıyor.\n\nBaşındaki yorum satırları sorun değil — onlar cümle değil (ölçüldü).",
+        "en": "Measured: error 111. `CREATE VIEW` and `CREATE PROCEDURE` have to be in batches of their own. In this application batches are separated by a `GO` line.\n\nComment lines at the top are no problem — they are not statements (measured)."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 3,
+      "text": {
+        "tr": "`CREATE VIEW dbo.v3 AS SELECT customer_id, COUNT(*) FROM orders GROUP BY customer_id` ne oluyor?",
+        "en": "What happens with `CREATE VIEW dbo.v3 AS SELECT customer_id, COUNT(*) FROM orders GROUP BY customer_id`?"
+      },
+      "options": {
+        "tr": [
+          "Kuruluyor; ikinci sütunun adı `COUNT(*)` oluyor",
+          "Kuruluyor; sütun adı boş kalıyor",
+          "Kuruluyor ama sorgulanamıyor",
+          "Hata: `no column name was specified for column 2`"
+        ],
+        "en": [
+          "It is created; the second column is named `COUNT(*)`",
+          "It is created; the column name stays empty",
+          "It is created but cannot be queried",
+          "An error: `no column name was specified for column 2`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Create View or Function failed because no column name was specified for column 2.`\n\nDüz bir sorguda adsız sütun sorun değil; görünüm ise bir tablo gibi kullanılacağı için her sütununun adı olmalı: `COUNT(*) AS order_count`.",
+        "en": "Measured: `Create View or Function failed because no column name was specified for column 2.`\n\nIn a plain query an unnamed column is no problem; a view, however, will be used like a table, so every column needs a name: `COUNT(*) AS order_count`."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 1,
+      "text": {
+        "tr": "Görünümün içine `ORDER BY name` yazıldı (`TOP` yok). Ne oluyor?",
+        "en": "`ORDER BY name` was written inside a view (no `TOP`). What happens?"
+      },
+      "options": {
+        "tr": [
+          "Görünüm her zaman ada göre sıralı dönüyor",
+          "Hata 1033: `ORDER BY` görünümde ancak `TOP`, `OFFSET` ya da `FOR XML` ile",
+          "`ORDER BY` sessizce yok sayılıyor",
+          "Yalnızca ilk satır dönüyor"
+        ],
+        "en": [
+          "The view always comes back sorted by name",
+          "Error 1033: `ORDER BY` in a view only with `TOP`, `OFFSET` or `FOR XML`",
+          "`ORDER BY` is silently ignored",
+          "Only the first row comes back"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `The ORDER BY clause is invalid in views, ... unless TOP, OFFSET or FOR XML is also specified.` — CTE'deki kuralın aynısı. `TOP 3 ... ORDER BY price DESC` ile kuruldu, çünkü orada sıra \"hangi üçü\" sorusunun cevabı.\n\nSıra, görünümü kullanan sorgunun işi.",
+        "en": "Measured: `The ORDER BY clause is invalid in views, ... unless TOP, OFFSET or FOR XML is also specified.` — the same rule as for a CTE. With `TOP 3 ... ORDER BY price DESC` it was created, because there the order answers \"which three\".\n\nThe order is the job of the query that uses the view."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "`CREATE VIEW dbo.v_suppliers AS SELECT * FROM suppliers` kurulduktan sonra tabloya `phone` sütunu eklendi. `SELECT * FROM dbo.v_suppliers` kaç sütun gösteriyor?",
+        "en": "After `CREATE VIEW dbo.v_suppliers AS SELECT * FROM suppliers`, a `phone` column was added to the table. How many columns does `SELECT * FROM dbo.v_suppliers` show?"
+      },
+      "options": {
+        "tr": [
+          "5 — görünüm tabloyu izliyor",
+          "Hata veriyor",
+          "Eski 4 sütun — `sp_refreshview`'e kadar",
+          "Görünüm kendiliğinden siliniyor"
+        ],
+        "en": [
+          "5 — the view follows the table",
+          "It raises an error",
+          "The old 4 columns — until `sp_refreshview`",
+          "The view is dropped by itself"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: tablo 5, görünüm **4**. `*` görünüm kurulurken sütun listesine çevrilip öyle saklanıyor. `EXEC sp_refreshview 'dbo.v_suppliers'` sonrasında 5.\n\nHata yok, uyarı yok — görünümde sütunları adıyla yazmanın sebebi bu.",
+        "en": "Measured: the table 5, the view **4**. `*` is turned into a column list when the view is created and stored that way. After `EXEC sp_refreshview 'dbo.v_suppliers'`, 5.\n\nNo error, no warning — that is why you name the columns in a view."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`pending_orders` görünümü (`WHERE status = 'pending'`, `CHECK OPTION` yok) üzerinden `UPDATE ... SET status = 'shipped' WHERE id = 1004` yazıldı. Ne oluyor?",
+        "en": "Through the `pending_orders` view (`WHERE status = 'pending'`, no `CHECK OPTION`), `UPDATE ... SET status = 'shipped' WHERE id = 1004` was written. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Tabloda güncelleniyor ve satır görünümden kayboluyor",
+          "Hata: görünüm güncellenemez",
+          "Yalnızca görünümdeki kopya değişiyor",
+          "Hiçbir şey olmuyor"
+        ],
+        "en": [
+          "It is updated in the table and the row disappears from the view",
+          "An error: a view cannot be updated",
+          "Only the copy in the view changes",
+          "Nothing happens"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: 1 satır etkilendi; `orders`'ta 1004 `shipped` oldu ve görünümde artık 1008 ile 1010 kaldı. Satır görünümün `WHERE`'ine uymadığı için düştü — hata vermeden.",
+        "en": "Measured: 1 row affected; in `orders` 1004 became `shipped` and only 1008 and 1010 were left in the view. The row dropped out because it no longer meets the view's `WHERE` — without an error."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 3,
+      "text": {
+        "tr": "Aynı görünüm `WITH CHECK OPTION` ile kurulunca aynı `UPDATE` ne oluyor?",
+        "en": "With the same view created `WITH CHECK OPTION`, what happens to the same `UPDATE`?"
+      },
+      "options": {
+        "tr": [
+          "Güncelleniyor",
+          "Satır görünümde kalıyor, durumu değişiyor",
+          "Yalnızca görünümde değişiyor",
+          "Hata 550: değişiklik görünümün koşuluna uymuyor"
+        ],
+        "en": [
+          "It is updated",
+          "The row stays in the view with its status changed",
+          "It changes only in the view",
+          "Error 550: the change does not meet the view's condition"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `The attempted insert or update failed because the target view either specifies WITH CHECK OPTION ...` (550). `status = 'shipped'` ile `INSERT` da reddedildi, `'pending'` ile ekleme kabul edildi.\n\nKural: görünüm üzerinden yazılan her şey görünümde görünmeye devam etmeli.",
+        "en": "Measured: `The attempted insert or update failed because the target view either specifies WITH CHECK OPTION ...` (550). An `INSERT` with `status = 'shipped'` was refused too, while one with `'pending'` was accepted.\n\nThe rule: whatever is written through the view has to stay visible in it."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 1,
+      "text": {
+        "tr": "Toplamalı `customer_revenue` görünümünden `UPDATE dbo.customer_revenue SET revenue = 0 WHERE id = 1` yazıldı. Sonuç?",
+        "en": "`UPDATE dbo.customer_revenue SET revenue = 0 WHERE id = 1` was written through the aggregating `customer_revenue` view. The result?"
+      },
+      "options": {
+        "tr": [
+          "Müşterinin cirosu 0 oluyor",
+          "Hata 4406: görünümde türetilmiş bir alan var",
+          "Kalemlerin fiyatları orantılı düşüyor",
+          "Görünüm yeniden kuruluyor"
+        ],
+        "en": [
+          "The customer's revenue becomes 0",
+          "Error 4406: the view contains a derived field",
+          "The line prices drop proportionally",
+          "The view is rebuilt"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Update or insert of view or function 'dbo.customer_revenue' failed because it contains a derived or constant field.`\n\n`revenue` bir `SUM` sonucu; sunucu onu hangi satırları değiştirerek sıfırlayacağını bilemez. Görünüm üzerinden yazmak yalnızca satırları birebir tabloya karşılık gelen görünümlerde olur.",
+        "en": "Measured: `Update or insert of view or function 'dbo.customer_revenue' failed because it contains a derived or constant field.`\n\n`revenue` is the result of a `SUM`; the server cannot know which rows to change to make it zero. Writing through a view only works for views whose rows map one-to-one to the table."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 2,
+      "text": {
+        "tr": "`SCHEMABINDING` olmayan bir görünümün tablosu `DROP TABLE` ile silindi. Ne oluyor?",
+        "en": "The table of a view without `SCHEMABINDING` was dropped with `DROP TABLE`. What happens?"
+      },
+      "options": {
+        "tr": [
+          "`DROP TABLE` reddediliyor",
+          "Görünüm de siliniyor",
+          "Tablo siliniyor; görünüm kalıyor ama kullanılınca hata veriyor",
+          "Görünüm boş sonuç döndürüyor"
+        ],
+        "en": [
+          "The `DROP TABLE` is refused",
+          "The view is dropped too",
+          "The table is dropped; the view stays but raises an error when used",
+          "The view returns an empty result"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: tablo silindi, görünüm kaldı; kullanılınca `Invalid object name 'dbo.t_tmp'.` ve `Could not use view or function 'dbo.v_tmp' because of binding errors.`\n\nGörünüm tablosuna yalnızca adıyla bağlı; tablo gidince görünüm hatasını ancak kullanıldığında veriyor.",
+        "en": "Measured: the table was dropped and the view stayed; when used, `Invalid object name 'dbo.t_tmp'.` and `Could not use view or function 'dbo.v_tmp' because of binding errors.`\n\nA view is bound to its table only by name; once the table is gone, the view only reports the problem when it is used."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`WITH SCHEMABINDING` ile kurulmuş bir görünümün tablosu silinmeye çalışıldı. Ne oluyor?",
+        "en": "Someone tried to drop the table of a view created `WITH SCHEMABINDING`. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Reddediliyor: `Cannot DROP TABLE ... because it is being referenced by object ...`",
+          "Tablo siliniyor",
+          "Tablo ve görünüm birlikte siliniyor",
+          "Tablo siliniyor, görünüm kullanılınca hata veriyor"
+        ],
+        "en": [
+          "It is refused: `Cannot DROP TABLE ... because it is being referenced by object ...`",
+          "The table is dropped",
+          "The table and the view are dropped together",
+          "The table is dropped and the view raises an error when used"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Cannot DROP TABLE 'dbo.t_sb' because it is being referenced by object 'v_sb'.` Görünümün kullandığı bir sütunun tipini değiştirmek de reddedildi (`The object 'v_sb' is dependent on column 'a'.`); tabloya yeni sütun eklemeye izin verildi.",
+        "en": "Measured: `Cannot DROP TABLE 'dbo.t_sb' because it is being referenced by object 'v_sb'.` Changing the type of a column the view uses was refused too (`The object 'v_sb' is dependent on column 'a'.`); adding a new column to the table was allowed."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 3,
+      "text": {
+        "tr": "`WITH SCHEMABINDING` hangi yazımı zorunlu kılıyor?",
+        "en": "Which way of writing does `WITH SCHEMABINDING` require?"
+      },
+      "options": {
+        "tr": [
+          "`SELECT *`",
+          "Tek parçalı tablo adı (`FROM t_sb`)",
+          "Görünümde `ORDER BY`",
+          "İki parçalı adlar (`dbo.t_sb`); `*` yasak"
+        ],
+        "en": [
+          "`SELECT *`",
+          "A one-part table name (`FROM t_sb`)",
+          "An `ORDER BY` in the view",
+          "Two-part names (`dbo.t_sb`); `*` is forbidden"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `SELECT *` → `Syntax '*' is not allowed in schema-bound objects.`; `FROM t_sb` → `... Names must be in two-part format ...`. `SELECT a FROM dbo.t_sb` ile kuruldu.\n\nİkisinin de sebebi aynı: sunucu görünümün tam olarak hangi nesneye ve hangi sütunlara bağlı olduğunu bilmek istiyor.",
+        "en": "Measured: `SELECT *` → `Syntax '*' is not allowed in schema-bound objects.`; `FROM t_sb` → `... Names must be in two-part format ...`. With `SELECT a FROM dbo.t_sb` it was created.\n\nBoth have the same reason: the server wants to know exactly which object and which columns the view is bound to."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 1,
+      "text": {
+        "tr": "Var olan `customer_revenue` adıyla `CREATE VIEW` ve `CREATE OR ALTER VIEW` yazıldı. Sonuçlar?",
+        "en": "`CREATE VIEW` and `CREATE OR ALTER VIEW` were written with the existing name `customer_revenue`. The results?"
+      },
+      "options": {
+        "tr": [
+          "İkisi de hata veriyor",
+          "`CREATE OR ALTER` değiştiriyor; `CREATE VIEW` `There is already an object named ...` hatası veriyor",
+          "İkisi de değiştiriyor",
+          "`CREATE VIEW` aynı adla ikinci bir görünüm kuruyor"
+        ],
+        "en": [
+          "Both raise an error",
+          "`CREATE OR ALTER` changes it; `CREATE VIEW` raises `There is already an object named ...`",
+          "Both change it",
+          "`CREATE VIEW` creates a second view with the same name"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `CREATE OR ALTER VIEW` görünümü `HAVING ... > 5000` ekli hâliyle değiştirdi (üç müşteri kaldı); `CREATE VIEW` ise `There is already an object named 'customer_revenue' in the database.` verdi. Yordamlarda da aynısı.",
+        "en": "Measured: `CREATE OR ALTER VIEW` changed the view to the version with `HAVING ... > 5000` added (three customers were left); `CREATE VIEW` gave `There is already an object named 'customer_revenue' in the database.` The same goes for procedures."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 2,
+      "text": {
+        "tr": "`dbo.customer_orders @customer_id INT` yordamı parametresiz çağrıldı: `EXEC dbo.customer_orders`. Ne oluyor?",
+        "en": "The `dbo.customer_orders @customer_id INT` procedure was called with no parameter: `EXEC dbo.customer_orders`. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Bütün siparişler geliyor",
+          "Boş sonuç",
+          "Hata 201: `expects parameter '@customer_id', which was not supplied`",
+          "`NULL` ile çalışıyor"
+        ],
+        "en": [
+          "Every order comes back",
+          "An empty result",
+          "Error 201: `expects parameter '@customer_id', which was not supplied`",
+          "It runs with `NULL`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Procedure or function 'customer_orders' expects parameter '@customer_id', which was not supplied.`\n\nVarsayılan değeri olmayan parametre zorunlu. İsteğe bağlı olsun isteniyorsa tanımda bir varsayılan yazılıyor: `@status NVARCHAR(20) = N'pending'`.",
+        "en": "Measured: `Procedure or function 'customer_orders' expects parameter '@customer_id', which was not supplied.`\n\nA parameter without a default is required. If it should be optional, a default goes into the definition: `@status NVARCHAR(20) = N'pending'`."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`SELECT * FROM dbo.customer_orders` (bir yordam) ne oluyor?",
+        "en": "What happens with `SELECT * FROM dbo.customer_orders` (a procedure)?"
+      },
+      "options": {
+        "tr": [
+          "Hata: `Invalid object name` — yordam `FROM` içinde kullanılamıyor",
+          "Yordamın sonucu geliyor",
+          "Yordam parametresiz çağrılıyor",
+          "Boş sonuç"
+        ],
+        "en": [
+          "An error: `Invalid object name` — a procedure cannot be used inside `FROM`",
+          "The procedure's result comes back",
+          "The procedure is called with no parameters",
+          "An empty result"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Invalid object name 'dbo.customer_orders'.` Yordam `EXEC` ile çağrılıyor; sonucunu bir sorgunun içinde tablo gibi kullanmak gerekiyorsa aradığın şey bir görünüm.\n\nGörünümle yordamın en pratik farkı bu: biri `FROM`'da, öteki `EXEC`'te.",
+        "en": "Measured: `Invalid object name 'dbo.customer_orders'.` A procedure is called with `EXEC`; if you need to use its result like a table inside a query, what you are looking for is a view.\n\nThat is the most practical difference between the two: one goes in `FROM`, the other in `EXEC`."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 3,
+      "text": {
+        "tr": "`INT` parametreli yordam `@customer_id = '4'` ve `@customer_id = 'abc'` ile çağrıldı. Sonuçlar?",
+        "en": "The procedure with an `INT` parameter was called with `@customer_id = '4'` and `@customer_id = 'abc'`. The results?"
+      },
+      "options": {
+        "tr": [
+          "İkisi de hata",
+          "İkisi de çalışıyor",
+          "`'abc'` çalışıyor, `'4'` hata veriyor",
+          "`'4'` çalışıyor (sayıya çevriliyor); `'abc'` hata: `Error converting data type varchar to int.`"
+        ],
+        "en": [
+          "Both fail",
+          "Both work",
+          "`'abc'` works, `'4'` fails",
+          "`'4'` works (converted to a number); `'abc'` fails: `Error converting data type varchar to int.`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `'4'` 4 numaralı müşterinin iki siparişini getirdi; `'abc'` hata 8114 verdi. Parametre tipine çevrilebilen metin sessizce çevriliyor.",
+        "en": "Measured: `'4'` brought back customer 4's two orders; `'abc'` gave error 8114. Text that can be converted to the parameter's type is converted silently."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 1,
+      "text": {
+        "tr": "`dbo.orders_by_status @status NVARCHAR(20) = N'pending'` parametresiz çağrıldı. Sonuç?",
+        "en": "`dbo.orders_by_status @status NVARCHAR(20) = N'pending'` was called with no parameter. The result?"
+      },
+      "options": {
+        "tr": [
+          "Hata: parametre eksik",
+          "3 bekleyen sipariş — varsayılan kullanıldı",
+          "Bütün siparişler",
+          "Boş sonuç"
+        ],
+        "en": [
+          "An error: a missing parameter",
+          "The 3 pending orders — the default was used",
+          "Every order",
+          "An empty result"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: 1004, 1008, 1010. `EXEC dbo.orders_by_status DEFAULT` da aynı sonucu verdi; `@status = N'shipped'` altı satır.\n\nVarsayılanlı parametreler sıralı çağrıda en sona konursa en rahat kullanılıyor.",
+        "en": "Measured: 1004, 1008, 1010. `EXEC dbo.orders_by_status DEFAULT` gave the same result; `@status = N'shipped'` six rows.\n\nParameters with defaults are easiest to use when they come last in a positional call."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "`EXEC dbo.customer_order_count 1, @n;` — çağrıda `OUTPUT` yazılmadı. Sonra `SELECT @n` ne veriyor?",
+        "en": "`EXEC dbo.customer_order_count 1, @n;` — `OUTPUT` was not written in the call. What does `SELECT @n` give afterwards?"
+      },
+      "options": {
+        "tr": [
+          "3",
+          "Hata: `OUTPUT` eksik",
+          "`NULL` — değer geri gelmiyor, hata da yok",
+          "0"
+        ],
+        "en": [
+          "3",
+          "An error: `OUTPUT` is missing",
+          "`NULL` — the value does not come back, and there is no error",
+          "0"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`NULL`**. `OUTPUT` ile aynı çağrı 3 verdi. Yordam sayıyı hesapladı ama çağıran taraf \"geri yaz\" demediği için değişkene yazmadı — ve bunu söylemedi.\n\n`OUTPUT` iki yerde yazılıyor: tanımda ve çağrıda.",
+        "en": "Measured: **`NULL`**. The same call with `OUTPUT` gave 3. The procedure worked out the number, but because the caller did not say \"write it back\", it did not write it into the variable — and did not say so.\n\n`OUTPUT` is written in two places: the definition and the call."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Tanımda `OUTPUT` olmayan bir parametre çağrıda `OUTPUT` ile verildi. Sonuç?",
+        "en": "A parameter not declared `OUTPUT` in the definition was passed with `OUTPUT` in the call. The result?"
+      },
+      "options": {
+        "tr": [
+          "Hata 8162: `The formal parameter \"@x\" was not declared as an OUTPUT parameter`",
+          "Çalışıyor, değer geri geliyor",
+          "Değişken `NULL` kalıyor",
+          "Parametre kendiliğinden çıkış parametresi oluyor"
+        ],
+        "en": [
+          "Error 8162: `The formal parameter \"@x\" was not declared as an OUTPUT parameter`",
+          "It works, the value comes back",
+          "The variable stays `NULL`",
+          "The parameter becomes an output parameter by itself"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `The formal parameter \"@x\" was not declared as an OUTPUT parameter, but the actual parameter passed in requested output.`\n\nİlginç olan asimetri: tanımda eksik `OUTPUT` hata veriyor, çağrıda eksik `OUTPUT` sessizce `NULL` bırakıyor.",
+        "en": "Measured: `The formal parameter \"@x\" was not declared as an OUTPUT parameter, but the actual parameter passed in requested output.`\n\nThe interesting part is the asymmetry: a missing `OUTPUT` in the definition is an error, a missing `OUTPUT` in the call silently leaves `NULL`."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 3,
+      "text": {
+        "tr": "Siparişi olmayan 6 numaralı müşteri için `customer_order_count` (`SELECT @order_count = COUNT(*)`) ne döndürüyor?",
+        "en": "What does `customer_order_count` (`SELECT @order_count = COUNT(*)`) return for customer 6, who has no orders?"
+      },
+      "options": {
+        "tr": [
+          "`NULL`",
+          "Hata",
+          "1",
+          "0"
+        ],
+        "en": [
+          "`NULL`",
+          "An error",
+          "1",
+          "0"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **0**. `COUNT(*)` eşleşen satır olmayınca 0 veriyor, `NULL` değil. Bu yüzden `NULL` görmek \"sayı 0\" değil, \"değer hiç yazılmadı\" demek (örneğin çağrıda unutulan `OUTPUT`).",
+        "en": "Measured: **0**. `COUNT(*)` gives 0 when no rows match, not `NULL`. That is why seeing `NULL` does not mean \"the number is 0\" but \"the value was never written\" (for example, an `OUTPUT` forgotten in the call)."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 1,
+      "text": {
+        "tr": "İçinde `RETURN 'abc'` yazılı bir yordam için ne oluyor?",
+        "en": "What happens with a procedure that contains `RETURN 'abc'`?"
+      },
+      "options": {
+        "tr": [
+          "`CREATE` hata veriyor",
+          "`CREATE` geçiyor; çalışınca `Conversion failed when converting the varchar value 'abc' to data type int.`",
+          "`'abc'` döndürüyor",
+          "Sessizce 0 döndürüyor"
+        ],
+        "en": [
+          "`CREATE` raises an error",
+          "`CREATE` passes; when run, `Conversion failed when converting the varchar value 'abc' to data type int.`",
+          "It returns `'abc'`",
+          "It silently returns 0"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: yordam kuruldu, çalışınca hata 245. `RETURN` yalnızca tam sayı döndürüyor, genellikle durum kodu olarak (`RETURN 0` başarı). Metin ya da başka bir değer döndürmek için `OUTPUT` parametresi ya da bir sonuç tablosu kullanılıyor.",
+        "en": "Measured: the procedure was created, and gave error 245 when run. `RETURN` only returns a whole number, usually as a status code (`RETURN 0` for success). To return text or another value, an `OUTPUT` parameter or a result table is used."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "`ship_order` içinde `THROW 50001, N'Order is not pending.', 1;` çalıştı ve `TRY ... CATCH` içinde yakalandı. `ERROR_PROCEDURE()` ne veriyor?",
+        "en": "Inside `ship_order`, `THROW 50001, N'Order is not pending.', 1;` ran and was caught inside `TRY ... CATCH`. What does `ERROR_PROCEDURE()` give?"
+      },
+      "options": {
+        "tr": [
+          "`NULL`",
+          "`50001`",
+          "`dbo.ship_order`",
+          "`Order is not pending.`"
+        ],
+        "en": [
+          "`NULL`",
+          "`50001`",
+          "`dbo.ship_order`",
+          "`Order is not pending.`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `ERROR_NUMBER()` 50001, `ERROR_MESSAGE()` `Order is not pending.`, `ERROR_PROCEDURE()` `dbo.ship_order`. Hatanın hangi yordamdan geldiği de biliniyor.\n\n`THROW` çalışınca yordam orada durdu; `UPDATE`'e gelinmedi, 1001 olduğu gibi kaldı.",
+        "en": "Measured: `ERROR_NUMBER()` 50001, `ERROR_MESSAGE()` `Order is not pending.`, `ERROR_PROCEDURE()` `dbo.ship_order`. Which procedure the error came from is known too.\n\nWhen `THROW` ran, the procedure stopped there; it never reached the `UPDATE`, and 1001 stayed as it was."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Yordamda `SELECT 1 AS a` (sonunda noktalı virgül yok) ardından `THROW 50002, N'x', 1;` yazıldı. Ne oluyor?",
+        "en": "In a procedure, `SELECT 1 AS a` (no semicolon at the end) was followed by `THROW 50002, N'x', 1;`. What happens?"
+      },
+      "options": {
+        "tr": [
+          "`CREATE` hata veriyor: `Incorrect syntax near 'THROW'.`",
+          "Kuruluyor ve çalışıyor",
+          "`THROW` yok sayılıyor",
+          "Kuruluyor, çalışınca hata veriyor"
+        ],
+        "en": [
+          "`CREATE` raises an error: `Incorrect syntax near 'THROW'.`",
+          "It is created and works",
+          "`THROW` is ignored",
+          "It is created, and fails when run"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: yordam kurulmadı, `Incorrect syntax near 'THROW'.` `THROW`'dan önceki cümle noktalı virgülle bitmek zorunda — `WITH`'teki kuralın bir benzeri.",
+        "en": "Measured: the procedure was not created, `Incorrect syntax near 'THROW'.` The statement before `THROW` has to end with a semicolon — much like the rule for `WITH`."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "Bir yordamın içinde olmayan bir tablo (`dbo.no_such_table`) anıldı. Ne oluyor?",
+        "en": "A procedure refers to a table that does not exist (`dbo.no_such_table`). What happens?"
+      },
+      "options": {
+        "tr": [
+          "`CREATE` hata veriyor",
+          "Tablo kendiliğinden kuruluyor",
+          "`EXEC` boş sonuç döndürüyor",
+          "Yordam kuruluyor; hata `EXEC`'te — olmayan bir sütun ise `CREATE` anında yakalanıyor"
+        ],
+        "en": [
+          "`CREATE` raises an error",
+          "The table is created by itself",
+          "`EXEC` returns an empty result",
+          "The procedure is created; the error comes at `EXEC` — a missing column, however, is caught at `CREATE`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: kuruldu; `EXEC`'te `Invalid object name 'dbo.no_such_table'.` Var olan `orders` tablosunda olmayan bir sütun ise kurulurken `Invalid column name 'no_such_column'.` verdi.\n\nSunucu tablonun sonradan kurulabileceğini varsayıyor. Kurulmuş olması doğru olduğu anlamına gelmiyor: bir kez çalıştır.",
+        "en": "Measured: it was created; at `EXEC`, `Invalid object name 'dbo.no_such_table'.` A missing column in the existing `orders` table, however, gave `Invalid column name 'no_such_column'.` at creation.\n\nThe server assumes the table might be created later. Being created does not mean being right: run it once."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 1,
+      "text": {
+        "tr": "Bu uygulamada bir alıştırmada `CREATE VIEW dbo.customer_revenue ...` çalıştırdın, sonra aynı kodu tekrar çalıştırdın. Ne oluyor?",
+        "en": "In this application you ran `CREATE VIEW dbo.customer_revenue ...` in an exercise, then ran the same code again. What happens?"
+      },
+      "options": {
+        "tr": [
+          "İkinci çalıştırmada `There is already an object named ...` hatası",
+          "Her çalıştırma sonunda geri alınıyor; görünüm yok, yeniden kuruluyor",
+          "Görünüm iki kez kuruluyor",
+          "Görünüm kalıcı, ikinci kod yok sayılıyor"
+        ],
+        "en": [
+          "The second run fails with `There is already an object named ...`",
+          "Every run is rolled back at the end; the view is gone and gets created again",
+          "The view is created twice",
+          "The view is permanent and the second run is ignored"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: geri almadan sonra `OBJECT_ID('dbo.revenue_view')` `NULL` döndü. Uygulama her çalıştırmayı geri aldığı için alıştırmayı istediğin kadar deneyebiliyorsun.\n\nGerçek bir veritabanında ise görünüm silinene kadar kalıyor; ikinci `CREATE VIEW` hata verir, `CREATE OR ALTER VIEW` vermez.",
+        "en": "Measured: after the rollback `OBJECT_ID('dbo.revenue_view')` returned `NULL`. Because the application rolls back every run, you can try an exercise as often as you like.\n\nIn a real database, though, the view stays until it is dropped; a second `CREATE VIEW` fails, while `CREATE OR ALTER VIEW` does not."
+      }
+    }
+  ]
+}

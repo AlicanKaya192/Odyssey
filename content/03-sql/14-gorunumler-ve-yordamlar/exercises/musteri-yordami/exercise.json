@@ -1,0 +1,71 @@
+{
+  "id": "musteri-yordami",
+  "language": "tsql",
+  "title": {
+    "tr": "İlk yordam",
+    "en": "Your first procedure"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yazım: `CREATE PROCEDURE dbo.ad @parametre TİP AS SELECT ...;`. Parametre sorgunun içinde bir değişken gibi kullanılıyor: `WHERE customer_id = @customer_id`.",
+      "en": "The syntax: `CREATE PROCEDURE dbo.name @parameter TYPE AS SELECT ...;`. The parameter is used inside the query like a variable: `WHERE customer_id = @customer_id`."
+    },
+    {
+      "tr": "Denetim yordamı `EXEC dbo.customer_orders @customer_id = 1;` diye adıyla çağırıyor; parametrenin adı tam olarak `@customer_id` olmalı. Görünümden farklı olarak yordamın içinde `ORDER BY` yazılabiliyor.",
+      "en": "The check calls the procedure by name as `EXEC dbo.customer_orders @customer_id = 1;`; the parameter has to be called exactly `@customer_id`. Unlike a view, a procedure can contain an `ORDER BY`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE PROCEDURE dbo.customer_orders\n    @customer_id INT\nAS\nSELECT id, order_date, status\nFROM orders\nWHERE customer_id = @customer_id\nORDER BY order_date;\n```",
+      "en": "The whole query:\n\n```sql\nCREATE PROCEDURE dbo.customer_orders\n    @customer_id INT\nAS\nSELECT id, order_date, status\nFROM orders\nWHERE customer_id = @customer_id\nORDER BY order_date;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; EXEC dbo.customer_orders @customer_id = 1;",
+      "ordered": true,
+      "expected": [
+        [
+          1001,
+          "2026-01-08",
+          "shipped"
+        ],
+        [
+          1003,
+          "2026-02-02",
+          "shipped"
+        ],
+        [
+          1006,
+          "2026-03-03",
+          "cancelled"
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; EXEC dbo.customer_orders @customer_id = 4;",
+      "ordered": true,
+      "expected": [
+        [
+          1005,
+          "2026-02-19",
+          "shipped"
+        ],
+        [
+          1009,
+          "2026-04-01",
+          "shipped"
+        ]
+      ]
+    }
+  ]
+}

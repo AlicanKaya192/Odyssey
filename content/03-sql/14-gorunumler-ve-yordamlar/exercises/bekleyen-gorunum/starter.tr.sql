@@ -1,0 +1,6 @@
+-- Bekleyen (status = 'pending') siparisleri gosteren bir
+-- gorunum kur: dbo.pending_orders.
+-- Sutunlar: id, customer_id, order_date, status.
+--
+-- Gorunum uzerinden bir siparisin durumu 'pending' disinda
+-- bir seye cevrilmeye calisilirsa sunucu bunu reddetsin.

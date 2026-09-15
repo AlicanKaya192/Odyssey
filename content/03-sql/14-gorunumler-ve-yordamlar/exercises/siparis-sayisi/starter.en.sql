@@ -1,0 +1,8 @@
+-- Create a procedure that returns a customer's number of
+-- orders through an output parameter: dbo.customer_order_count.
+-- Parameters, in this order:
+--   @customer_id INT
+--   @order_count INT       (output: the number goes here)
+--   @status NVARCHAR(20)   (optional; if not given, every
+--                           status is counted)
+-- The procedure returns no result table; only @order_count.

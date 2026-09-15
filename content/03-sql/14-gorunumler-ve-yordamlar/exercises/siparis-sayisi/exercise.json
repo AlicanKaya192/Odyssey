@@ -1,0 +1,44 @@
+{
+  "id": "siparis-sayisi",
+  "language": "tsql",
+  "title": {
+    "tr": "Çıkış parametresi",
+    "en": "An output parameter"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Çıkış parametresi tanımda `OUTPUT` ile işaretleniyor: `@order_count INT OUTPUT`. Değeri atamak için `SELECT @order_count = COUNT(*) FROM ...` — bu bir sonuç tablosu döndürmüyor.",
+      "en": "An output parameter is marked with `OUTPUT` in the definition: `@order_count INT OUTPUT`. To set its value, `SELECT @order_count = COUNT(*) FROM ...` — this returns no result table."
+    },
+    {
+      "tr": "İsteğe bağlı parametre bir varsayılan değerle yazılıyor: `@status NVARCHAR(20) = NULL`. \"Verilmediyse hepsi\" koşulu: `(@status IS NULL OR status = @status)`.",
+      "en": "An optional parameter is written with a default value: `@status NVARCHAR(20) = NULL`. The \"if not given, all of them\" condition: `(@status IS NULL OR status = @status)`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE PROCEDURE dbo.customer_order_count\n    @customer_id INT,\n    @order_count INT OUTPUT,\n    @status NVARCHAR(20) = NULL\nAS\nSELECT @order_count = COUNT(*)\nFROM orders\nWHERE customer_id = @customer_id\n  AND (@status IS NULL OR status = @status);\n```",
+      "en": "The whole query:\n\n```sql\nCREATE PROCEDURE dbo.customer_order_count\n    @customer_id INT,\n    @order_count INT OUTPUT,\n    @status NVARCHAR(20) = NULL\nAS\nSELECT @order_count = COUNT(*)\nFROM orders\nWHERE customer_id = @customer_id\n  AND (@status IS NULL OR status = @status);\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; DECLARE @all INT, @shipped INT, @none INT; EXEC dbo.customer_order_count 1, @all OUTPUT; EXEC dbo.customer_order_count @customer_id = 1, @order_count = @shipped OUTPUT, @status = N'shipped'; EXEC dbo.customer_order_count 6, @none OUTPUT; SELECT @all AS all_orders, @shipped AS shipped_orders, @none AS no_orders;",
+      "ordered": true,
+      "expected": [
+        [
+          3,
+          2,
+          0
+        ]
+      ]
+    }
+  ]
+}

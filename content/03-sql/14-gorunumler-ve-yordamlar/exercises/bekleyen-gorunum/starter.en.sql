@@ -1,0 +1,6 @@
+-- Create a view that shows the pending (status = 'pending')
+-- orders: dbo.pending_orders.
+-- Columns: id, customer_id, order_date, status.
+--
+-- If someone tries to change an order's status to anything
+-- other than 'pending' through the view, the server refuses.
