@@ -19,6 +19,17 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.8.2] — yayınlanmadı
+
+### Eklendi
+- **Alıştırmalarda bellek sınırı.** Durmadan büyüyen bir liste ya da çok
+  büyük bir dizi artık bilgisayarınızın belleğini tüketmiyor: kod 3 GB'ı
+  geçince durduruluyor ve sonuç alanında sebebi yazıyor. Eskiden böyle bir
+  kod, süre sınırı dolana kadar belleğin tamamını bitirip bilgisayarı
+  yavaşlatabiliyordu.
+
+---
+
 ## [0.8.1] — 15 Eylül 2026
 
 ### Eklendi

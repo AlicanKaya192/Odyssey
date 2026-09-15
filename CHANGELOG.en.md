@@ -21,6 +21,17 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.8.2] — unreleased
+
+### Added
+- **A memory limit for exercises.** A list that keeps growing or a very
+  large array no longer eats up your computer's memory: the code is stopped
+  once it goes over 3 GB and the result area says why. Such code used to be
+  able to use up all the memory before the time limit ran out and slow the
+  computer down.
+
+---
+
 ## [0.8.1] — 15 September 2026
 
 ### Added

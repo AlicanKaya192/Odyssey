@@ -38,7 +38,7 @@ You can turn the check off under **Settings › Updates**. With it off, the appl
 
 ## Status
 
-Early development (`0.8.1`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
+Early development (`0.8.2`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
 
 **Content today:** four modules are **complete** — Python Fundamentals (fifteen sections), Data Science (ten), Machine Learning (thirteen) and SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures). 1491 quiz questions, 257 coding exercises and 112 sets of lecture notes, all of it in both Turkish and English.
 

@@ -38,7 +38,7 @@ Denetimi **Ayarlar › Güncelleme** bölümünden kapatabilirsiniz. Kapalıyken
 
 ## Durum
 
-Erken geliştirme aşaması (`0.8.1`), açık beta olarak yayınlandı. Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı, güncelleme — yerinde; müfredat büyümeye devam ediyor.
+Erken geliştirme aşaması (`0.8.2`), açık beta olarak yayınlandı. Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı, güncelleme — yerinde; müfredat büyümeye devam ediyor.
 
 **Bugünkü içerik:** dört modül **tamamlandı** — Python Temelleri (on beş bölüm), Veri Bilimi (on), Makine Öğrenmesi (on üç) ve SQL (on altı; SQL Server'ı kurmaktan pencere fonksiyonlarına, dizinlere, görünümlere ve saklı yordamlara). 1491 sınav sorusu, 257 kod alıştırması ve 112 ders notu; tamamı Türkçe ve İngilizce.
 

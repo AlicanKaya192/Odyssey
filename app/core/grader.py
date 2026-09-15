@@ -394,6 +394,9 @@ def summarise(result: RunResult, language: LanguageManager) -> str:
     if result.status == "timeout":
         return language.t("exercise.timeout", seconds=result.timeout_sec)
 
+    if result.status == "memory":
+        return language.t("exercise.memory", mb=result.memory_limit_mb)
+
     if result.status == "crashed":
         return language.t("exercise.error")
 

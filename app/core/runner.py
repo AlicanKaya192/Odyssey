@@ -10,6 +10,8 @@ diye ayrı bir süreç açılır ve şunlar uygulanır:
   site-packages kirinden etkilenmez.
 - **Zaman aşımı**: süre dolarsa süreç ağacı öldürülür.
 - **Çıktı sınırı**: `harness.py` çıktıyı 100KB'de kırpar.
+- **Bellek sınırı**: kodun açtığı bütün süreçlerin toplamı
+  `MEMORY_LIMIT_MB`'yi geçemez (`memory_limit.py`).
 
 Yine de bu bir güvenlik sandbox'ı değildir; kullanıcı kendi kodunu kendi
 bilgisayarında çalıştırıyor.
@@ -18,6 +20,7 @@ bilgisayarında çalıştırıyor.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -27,6 +30,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from ..paths import artifacts_dir, exercise_python, is_frozen, sandbox_dir, workspace_dir
+from .memory_limit import CREATE_SUSPENDED, MemoryJob
 
 # Paketlenmiş uygulamanın kendini denetleyici olarak çağırdığı bayrak.
 HARNESS_FLAG = "--run-harness"
@@ -47,6 +51,21 @@ SKIPPED_PREFIXES = ("starter", "solution", "prompt")
 # `tsql` bir MSSQL sunucusuna gidiyor. Uzantı yalnızca hata mesajlarında
 # görünüyor ama orada da doğru olması gerekiyor.
 LANGUAGE_SUFFIX = {"python": ".py", "tsql": ".sql"}
+
+# Sayısal kütüphanelerin iş parçacığı sayısı. Varsayılanı çekirdek sayısı
+# kadar ve her iş parçacığı ~67 MB ayırıyor (ölçüldü, M12): 16 çekirdekte
+# en ağır ML alıştırması 1223 MB, tek iş parçacığında 226 MB. Sabitlenmezse
+# aynı doğru çözüm çok çekirdekli bir makinede bellek sınırına
+# çarpabilirdi. Alıştırmaların verisi küçük, tek iş parçacığı yavaşlatmıyor
+# (on ağır alıştırmada toplam 48,9 sn; varsayılanla 58,4 sn).
+COMPUTE_THREADS = "1"
+THREAD_VARIABLES = ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS")
+
+# joblib'in `n_jobs=-1` ile açtığı işçi süreç sayısı; notlar bunu
+# öğretiyor. Her işçi kütüphaneleri yeniden yüklüyor (~180 MB, ölçüldü):
+# 16 çekirdekte GridSearchCV 3069 MB'a çıkıp sınıra dayanıyordu, dört
+# işçiyle 928 MB ve daha hızlı (10,7 sn; 16 işçiyle 16,9 sn).
+PROCESS_WORKERS = "4"
 
 # Bulunan MSSQL sunucusu oturum boyunca hatırlanıyor. Aday listesini her
 # çalıştırmada taramak ilk denemede ~170 ms tutuyor; ipucu verildiğinde
@@ -73,7 +92,7 @@ class CheckResult:
 class RunResult:
     """Bir çalıştırmanın bütün sonucu."""
 
-    status: str  # "ok" | "error" | "timeout" | "crashed"
+    status: str  # "ok" | "error" | "timeout" | "memory" | "crashed"
     stdout: str = ""
     stderr: str = ""
     truncated: bool = False
@@ -82,6 +101,11 @@ class RunResult:
     # Kullanıcının kodunun ürettiği görsellerin yolları.
     artifacts: list[Path] = field(default_factory=list)
     timeout_sec: int = 0
+    # Çalıştırmanın süreçlerinin toplamda ulaştığı en yüksek bellek ve
+    # uygulanan sınır (MB). Sınır yalnızca Windows'ta var; başka yerde
+    # ikisi de 0.
+    peak_memory_mb: int = 0
+    memory_limit_mb: int = 0
     # SQL alıştırmalarında bağlanılan sunucu. Bir sonraki çalıştırma
     # bunu ipucu olarak alıyor; aday listesi baştan taranmıyor.
     server: str = ""
@@ -141,6 +165,22 @@ def _harness_command(job_path: Path) -> list[str]:
 def exercise_env_ready() -> bool:
     """Alıştırmalara ayrılmış ortam kurulu mu?"""
     return exercise_python().exists()
+
+
+def _memory_of(job: MemoryJob | None) -> dict:
+    """Sonuca yazılacak bellek alanları; iş yoksa ikisi de 0."""
+    if job is None:
+        return {"peak_memory_mb": 0, "memory_limit_mb": 0}
+    return {"peak_memory_mb": job.peak_mb(), "memory_limit_mb": job.limit_mb}
+
+
+def _child_env() -> dict[str, str]:
+    """Denetleyici sürecin ortamı: iş parçacığı ve işçi sayısı her makinede aynı."""
+    env = os.environ.copy()
+    for name in THREAD_VARIABLES:
+        env[name] = COMPUTE_THREADS
+    env["LOKY_MAX_CPU_COUNT"] = PROCESS_WORKERS
+    return env
 
 
 def _kill_tree(process: subprocess.Popen) -> None:
@@ -247,6 +287,7 @@ def run_code(
     """
     global _LAST_SERVER
 
+    job: MemoryJob | None = None
     workspace = _prepare_workspace(exercise_dir)
     code_path = workspace / f"cozum{LANGUAGE_SUFFIX.get(language, '.py')}"
     job_path = workspace / "job.json"
@@ -276,6 +317,12 @@ def run_code(
         # Windows'ta arkada siyah konsol penceresi açılmasın.
         creation_flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
 
+        # Bellek sınırı: süreç askıda başlatılıp bir işe atanıyor, sonra
+        # uyandırılıyor (memory_limit.py). Windows dışında `job` None.
+        job = MemoryJob.create()
+        if job is not None:
+            creation_flags |= CREATE_SUSPENDED
+
         process = subprocess.Popen(
             command,
             cwd=workspace,
@@ -283,32 +330,48 @@ def run_code(
             stderr=subprocess.PIPE,
             stdin=subprocess.DEVNULL,
             creationflags=creation_flags,
+            env=_child_env(),
             text=True,
             encoding="utf-8",
             errors="replace",
         )
+        if job is not None:
+            job.attach(process)
 
         try:
             _, process_stderr = process.communicate(timeout=timeout_sec)
         except subprocess.TimeoutExpired:
             _kill_tree(process)
-            return RunResult(status="timeout", timeout_sec=timeout_sec)
+            return RunResult(status="timeout", timeout_sec=timeout_sec, **_memory_of(job))
+
+        bellek = _memory_of(job)
+        sinira_carpti = job is not None and job.limit_hit()
 
         if not result_path.exists():
-            # harness sonucu yazamadan öldü: beklenmedik bir durum.
+            # harness sonucu yazamadan öldü. Bellek sınırına çarptıysa
+            # sebep o: son küçük ayırmalar da başarısız olunca sonucu
+            # yazacak yer kalmıyor.
             return RunResult(
-                status="crashed",
+                status="memory" if sinira_carpti else "crashed",
                 stderr=(process_stderr or "").strip(),
                 timeout_sec=timeout_sec,
+                **bellek,
             )
 
         raw = json.loads(result_path.read_text(encoding="utf-8"))
         bulunan = raw.get("server", "")
         if bulunan:
             _LAST_SERVER = bulunan
+        durum = raw.get("status", "ok")
+        # Sınıra çarpan kod `MemoryError` ile düşüyor (ölçüldü). Onu
+        # sıradan bir hata gibi değil, bellek sınırı olarak anlatıyoruz.
+        if sinira_carpti and durum == "error":
+            durum = "memory"
         return RunResult(
             artifacts=_rescue_artifacts(raw.get("artifacts", [])),
-            status=raw.get("status", "ok"),
+            status=durum,
+            peak_memory_mb=bellek["peak_memory_mb"],
+            memory_limit_mb=bellek["memory_limit_mb"],
             stdout=raw.get("stdout", ""),
             stderr=raw.get("stderr", ""),
             truncated=raw.get("truncated", False),
@@ -328,6 +391,10 @@ def run_code(
         )
 
     finally:
+        # İşi kapatmak içinde kalan her süreci öldürüyor: kullanıcının
+        # kodunun açtığı alt süreçler de arkada kalmıyor.
+        if job is not None:
+            job.close()
         shutil.rmtree(workspace, ignore_errors=True)
 
 
