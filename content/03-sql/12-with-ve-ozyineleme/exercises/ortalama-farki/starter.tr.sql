@@ -1,0 +1,4 @@
+-- Iptal edilmeyen siparislerde her musterinin toplam
+-- harcamasini ve bunun musteri ortalamasindan farkini goster.
+-- Sutunlar: name, total, vs_avg.
+-- total'a gore buyukten kucuge sirala.

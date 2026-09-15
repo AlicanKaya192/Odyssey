@@ -1,0 +1,4 @@
+-- For orders that were not cancelled, show each customer's
+-- total spending and its difference from the customer average.
+-- Columns: name, total, vs_avg.
+-- Sort by total, largest first.

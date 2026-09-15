@@ -118,6 +118,12 @@ PATHS: dict[str, str] = {
         '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'
     ),
     "chevron-right": '<path d="m9 18 6-6-6-6"/>',
+    # Girintili liste agaci: kademe kademe inen bir yonetim zinciri.
+    # WITH ve ozyineleme rozetinin simgesi.
+    "list-tree": (
+        '<path d="M21 12h-8"/><path d="M21 6H8"/><path d="M21 18h-8"/>'
+        '<path d="M3 6v4c0 1.1.9 2 2 2h3"/><path d="M3 10v6c0 1.1.9 2 2 2h3"/>'
+    ),
     # Pencere cercevesi: satirlara bir pencereden bakmak. Pencere
     # fonksiyonlari rozetinin simgesi.
     "frame": (

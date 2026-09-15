@@ -72,6 +72,7 @@ SQL_WRITE_SECTION = (SQL_CHAPTER, "08-veri-degistirmek")
 SQL_DESIGN_SECTION = (SQL_CHAPTER, "09-tablo-tasarimi")
 SQL_DATETEXT_SECTION = (SQL_CHAPTER, "10-tarih-ve-metin")
 SQL_WINDOW_SECTION = (SQL_CHAPTER, "11-pencere-fonksiyonlari")
+SQL_WITH_SECTION = (SQL_CHAPTER, "12-with-ve-ozyineleme")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 DATA_SECTION_COUNT = 10
@@ -153,6 +154,7 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "architect": SQL_DESIGN_SECTION in bitenler,
         "timekeeper": SQL_DATETEXT_SECTION in bitenler,
         "window-frame": SQL_WINDOW_SECTION in bitenler,
+        "chain-of-command": SQL_WITH_SECTION in bitenler,
         "first-model": FIRST_MODEL_SECTION in bitenler,
         "error-reader": METRICS_SECTION in bitenler,
         "class-divider": CLASSIFY_SECTION in bitenler,

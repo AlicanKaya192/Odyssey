@@ -1,0 +1,79 @@
+{
+  "id": "ortalama-farki",
+  "language": "tsql",
+  "title": {
+    "tr": "Ortalamadan farkı",
+    "en": "The gap from the average"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce müşteri toplamlarını bir ada bağla: `WITH customer_totals AS (SELECT o.customer_id, SUM(...) AS total ... GROUP BY o.customer_id)`.",
+      "en": "First bind the customer totals to a name: `WITH customer_totals AS (SELECT o.customer_id, SUM(...) AS total ... GROUP BY o.customer_id)`."
+    },
+    {
+      "tr": "Aynı ad hem `FROM`'da hem ortalamada kullanılabiliyor: `ct.total - (SELECT AVG(total) FROM customer_totals)`. Adı almak için `customers` ile birleştir.",
+      "en": "The same name can be used both in `FROM` and for the average: `ct.total - (SELECT AVG(total) FROM customer_totals)`. Join `customers` to get the name."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nWITH customer_totals AS (\n    SELECT o.customer_id,\n           SUM(i.quantity * i.unit_price) AS total\n    FROM orders o\n    JOIN order_items i ON i.order_id = o.id\n    WHERE o.status <> 'cancelled'\n    GROUP BY o.customer_id\n)\nSELECT c.name, ct.total,\n       ct.total - (SELECT AVG(total) FROM customer_totals) AS vs_avg\nFROM customer_totals ct\nJOIN customers c ON c.id = ct.customer_id\nORDER BY ct.total DESC;\n```",
+      "en": "The whole query:\n\n```sql\nWITH customer_totals AS (\n    SELECT o.customer_id,\n           SUM(i.quantity * i.unit_price) AS total\n    FROM orders o\n    JOIN order_items i ON i.order_id = o.id\n    WHERE o.status <> 'cancelled'\n    GROUP BY o.customer_id\n)\nSELECT c.name, ct.total,\n       ct.total - (SELECT AVG(total) FROM customer_totals) AS vs_avg\nFROM customer_totals ct\nJOIN customers c ON c.id = ct.customer_id\nORDER BY ct.total DESC;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "name",
+        "total",
+        "vs_avg"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "Helix Studio",
+          49690.0,
+          29857.0
+        ],
+        [
+          "Bright Office",
+          34100.0,
+          14267.0
+        ],
+        [
+          "Delta Systems",
+          6710.0,
+          -13123.0
+        ],
+        [
+          "Orion Labs",
+          4510.0,
+          -15323.0
+        ],
+        [
+          "Nova Retail",
+          4155.0,
+          -15678.0
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "WITH",
+      "hint": {
+        "tr": "Bu bölüm `WITH` çalıştırıyor: ara sonucu `WITH ad AS (...)` ile adlandır.",
+        "en": "This section practises `WITH`: name the intermediate result with `WITH name AS (...)`."
+      }
+    }
+  ]
+}

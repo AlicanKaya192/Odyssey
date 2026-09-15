@@ -1,0 +1,77 @@
+{
+  "id": "bos-aylar",
+  "language": "tsql",
+  "title": {
+    "tr": "Siparişsiz aylar da",
+    "en": "Months without orders too"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Siparişi olmayan bir ay hiçbir tabloda yok — önce ayları üret: `WITH months AS (SELECT CAST('2026-01-01' AS DATE) AS month UNION ALL SELECT DATEADD(month, 1, month) FROM months WHERE month < '2026-06-01')`.",
+      "en": "A month with no orders is in no table — generate the months first: `WITH months AS (SELECT CAST('2026-01-01' AS DATE) AS month UNION ALL SELECT DATEADD(month, 1, month) FROM months WHERE month < '2026-06-01')`."
+    },
+    {
+      "tr": "İkinci CTE aylık ciro. Ayları ona `LEFT JOIN` ile bağla — `JOIN` siparişsiz ayları düşürür — ve boşları `COALESCE(r.revenue, 0)` ile 0 yap.",
+      "en": "The second CTE is the monthly revenue. Attach the months to it with `LEFT JOIN` — `JOIN` drops the months without orders — and turn the gaps into 0 with `COALESCE(r.revenue, 0)`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nWITH months AS (\n    SELECT CAST('2026-01-01' AS DATE) AS month\n    UNION ALL\n    SELECT DATEADD(month, 1, month)\n    FROM months\n    WHERE month < '2026-06-01'\n),\nrevenue AS (\n    SELECT DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1) AS month,\n           SUM(i.quantity * i.unit_price) AS revenue\n    FROM orders o\n    JOIN order_items i ON i.order_id = o.id\n    WHERE o.status <> 'cancelled'\n    GROUP BY DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1)\n)\nSELECT m.month, COALESCE(r.revenue, 0) AS revenue\nFROM months m\nLEFT JOIN revenue r ON r.month = m.month\nORDER BY m.month;\n```",
+      "en": "The whole query:\n\n```sql\nWITH months AS (\n    SELECT CAST('2026-01-01' AS DATE) AS month\n    UNION ALL\n    SELECT DATEADD(month, 1, month)\n    FROM months\n    WHERE month < '2026-06-01'\n),\nrevenue AS (\n    SELECT DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1) AS month,\n           SUM(i.quantity * i.unit_price) AS revenue\n    FROM orders o\n    JOIN order_items i ON i.order_id = o.id\n    WHERE o.status <> 'cancelled'\n    GROUP BY DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1)\n)\nSELECT m.month, COALESCE(r.revenue, 0) AS revenue\nFROM months m\nLEFT JOIN revenue r ON r.month = m.month\nORDER BY m.month;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "month",
+        "revenue"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "2026-01-01",
+          32715.0
+        ],
+        [
+          "2026-02-01",
+          28680.0
+        ],
+        [
+          "2026-03-01",
+          7710.0
+        ],
+        [
+          "2026-04-01",
+          30060.0
+        ],
+        [
+          "2026-05-01",
+          0.0
+        ],
+        [
+          "2026-06-01",
+          0.0
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "WITH",
+      "hint": {
+        "tr": "Bu bölüm `WITH` çalıştırıyor: ara sonucu `WITH ad AS (...)` ile adlandır.",
+        "en": "This section practises `WITH`: name the intermediate result with `WITH name AS (...)`."
+      }
+    }
+  ]
+}

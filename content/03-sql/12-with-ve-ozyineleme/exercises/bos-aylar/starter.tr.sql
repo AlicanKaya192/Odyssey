@@ -1,0 +1,5 @@
+-- Ocak 2026'dan Haziran 2026'ya kadar her ayin cirosunu
+-- goster (iptal edilenler haric). Siparis olmayan aylar da
+-- listede olsun, cirolari 0.
+-- Sutunlar: month (ayin ilk gunu), revenue.
+-- month'a gore sirala.

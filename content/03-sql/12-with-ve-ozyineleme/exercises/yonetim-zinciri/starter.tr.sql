@@ -1,0 +1,5 @@
+-- Her calisan icin en ustten kendisine kadar uzanan
+-- yonetim zincirini tek bir metin olarak yaz:
+--   Ada Kilic > Bora Yilmaz > Ceren Aksoy
+-- Adlar ' > ' ile ayrilsin.
+-- Sutunlar: id, path. path'e gore sirala.

@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "`WITH x AS (SELECT 1 AS a) SELECT * FROM x; SELECT * FROM x;` ne yapıyor?",
+        "en": "What does `WITH x AS (SELECT 1 AS a) SELECT * FROM x; SELECT * FROM x;` do?"
+      },
+      "options": {
+        "tr": [
+          "İki sorgu da `1` döndürüyor",
+          "Hata: bir CTE yalnızca bir kez tanımlanabilir",
+          "Birincisi `1` döndürüyor, ikincisi hata veriyor: `Invalid object name 'x'`",
+          "İkisi de hata veriyor"
+        ],
+        "en": [
+          "Both queries return `1`",
+          "An error: a CTE can only be defined once",
+          "The first returns `1`, the second raises `Invalid object name 'x'`",
+          "Both raise an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: birinci sonuç `1`, ikincisi `Invalid object name 'x'.`\n\nCTE bir tablo değil; yalnızca **hemen ardından gelen cümle** boyunca yaşayan, adlandırılmış bir sorgu. Aynı ara sonuç iki cümlede gerekiyorsa ya iki kez yazılıyor ya da geçici bir tabloya konuyor.",
+        "en": "Measured: the first result is `1`, the second `Invalid object name 'x'.`\n\nA CTE is not a table; it is a named query that lives only for **the statement right after it**. If the same intermediate result is needed in two statements, it is either written twice or put into a temporary table."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`SET NOCOUNT ON` satırının ardından noktalı virgül koymadan `WITH x AS (...) SELECT ...` yazıldı. Ne oluyor?",
+        "en": "`WITH x AS (...) SELECT ...` was written after a `SET NOCOUNT ON` line with no semicolon. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Hata: önceki cümle noktalı virgülle bitmeli",
+          "Çalışıyor",
+          "`SET NOCOUNT ON` yok sayılıyor",
+          "`WITH` yok sayılıyor"
+        ],
+        "en": [
+          "An error: the previous statement must end with a semicolon",
+          "It works",
+          "`SET NOCOUNT ON` is ignored",
+          "`WITH` is ignored"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.`\n\nMesajın kendisi `WITH`'in başka işlerde de kullanıldığını söylüyor; sunucu önceki cümlenin bittiğini bilmek istiyor. `SET NOCOUNT ON;` ya da `;WITH` yazınca çalıştı.",
+        "en": "Measured: `Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.`\n\nThe message itself says that `WITH` has other uses too; the server wants to know that the previous statement has ended. With `SET NOCOUNT ON;` or `;WITH` it worked."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 3,
+      "text": {
+        "tr": "`SELECT TOP 1 name FROM products` satırından sonra noktalı virgülsüz `WITH x AS (SELECT 1 AS a) SELECT * FROM x` yazıldı. Hangi hata geliyor?",
+        "en": "`WITH x AS (SELECT 1 AS a) SELECT * FROM x` was written after `SELECT TOP 1 name FROM products` with no semicolon. Which error comes back?"
+      },
+      "options": {
+        "tr": [
+          "Bir önceki sorudaki mesajın aynısı",
+          "`Invalid object name 'x'`",
+          "Hata yok, iki sonuç geliyor",
+          "`Incorrect syntax near 'x'. If this is intended to be a common table expression, you need to explicitly terminate the previous statement with a semi-colon.`"
+        ],
+        "en": [
+          "The same message as in the previous question",
+          "`Invalid object name 'x'`",
+          "No error, two results come back",
+          "`Incorrect syntax near 'x'. If this is intended to be a common table expression, you need to explicitly terminate the previous statement with a semi-colon.`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: mesaj farklı — sunucu hatayı bu kez `WITH`'te değil `x`'te fark ediyor. Ama iki mesaj da sonunda aynı şeyi söylüyor: önceki cümleyi noktalı virgülle bitir.\n\nİki farklı metin olduğunu bilmek işe yarıyor: ikincisinde `WITH` kelimesi mesajda hiç geçmiyor.",
+        "en": "Measured: the message is different — this time the server notices the problem at `x`, not at `WITH`. But both messages end up saying the same thing: end the previous statement with a semicolon.\n\nIt helps to know there are two different texts: the word `WITH` does not even appear in the second one."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 1,
+      "text": {
+        "tr": "CTE'nin içine `ORDER BY name` yazıldı; `TOP` yok. Ne oluyor?",
+        "en": "`ORDER BY name` was written inside a CTE, with no `TOP`. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Sonuç ada göre sıralı geliyor",
+          "Hata: `ORDER BY` CTE içinde ancak `TOP`, `OFFSET` ya da `FOR XML` ile yazılabiliyor",
+          "`ORDER BY` sessizce yok sayılıyor",
+          "Yalnızca ilk satır geliyor"
+        ],
+        "en": [
+          "The result comes back sorted by name",
+          "An error: `ORDER BY` inside a CTE only with `TOP`, `OFFSET` or `FOR XML`",
+          "`ORDER BY` is silently ignored",
+          "Only the first row comes back"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `The ORDER BY clause is invalid in views, inline functions, derived tables, subqueries, and common table expressions, unless TOP, OFFSET or FOR XML is also specified.`\n\nCTE bir küme tarif ediyor; kümenin sırası yok. `TOP 3 ... ORDER BY price DESC` ise çalıştı, çünkü orada sıra \"hangi üçü\" sorusunun cevabı. Sonucun sırası her zaman dıştaki `ORDER BY`'ın işi.",
+        "en": "Measured: `The ORDER BY clause is invalid in views, inline functions, derived tables, subqueries, and common table expressions, unless TOP, OFFSET or FOR XML is also specified.`\n\nA CTE describes a set; a set has no order. `TOP 3 ... ORDER BY price DESC`, on the other hand, worked, because there the order answers \"which three\". The order of the result is always the job of the outer `ORDER BY`."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "Müşteri toplamları 4155, 34100, 6710, 49690 ve 4510. `customer_totals` CTE'si hem `FROM`'da hem `(SELECT AVG(total) FROM customer_totals)` içinde kullanıldı. Ortalamanın üstünde kaç müşteri kalıyor?",
+        "en": "The customer totals are 4155, 34100, 6710, 49690 and 4510. The `customer_totals` CTE was used both in `FROM` and inside `(SELECT AVG(total) FROM customer_totals)`. How many customers stay above the average?"
+      },
+      "options": {
+        "tr": [
+          "Beşi de",
+          "Hiçbiri",
+          "İkisi: Helix Studio ve Bright Office",
+          "Üçü"
+        ],
+        "en": [
+          "All five",
+          "None",
+          "Two: Helix Studio and Bright Office",
+          "Three"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: ortalama `19833.00`; üstünde Helix Studio (`49690.00`) ve Bright Office (`34100.00`).\n\nAsıl nokta aynı adın iki yerde kullanılabilmesi. `FROM (...)` ile yazılan bir iç sorgu yalnızca bir kez kullanılabiliyor; aynı gruplamayı ortalama için ikinci kez yazmak gerekirdi.",
+        "en": "Measured: the average is `19833.00`; above it are Helix Studio (`49690.00`) and Bright Office (`34100.00`).\n\nThe real point is that the same name can be used in two places. An inner query written with `FROM (...)` can only be used once; the same grouping would have to be written a second time for the average."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`WITH a AS (SELECT * FROM b), b AS (SELECT 1 AS k) SELECT * FROM a` ne oluyor?",
+        "en": "What happens with `WITH a AS (SELECT * FROM b), b AS (SELECT 1 AS k) SELECT * FROM a`?"
+      },
+      "options": {
+        "tr": [
+          "Hata: `Invalid object name 'b'` — bir CTE yalnızca kendinden öncekileri görüyor",
+          "Çalışıyor: CTE'lerin sırası önemsiz",
+          "Sonsuz döngüye giriyor",
+          "`b` boş bir tablo sayılıyor"
+        ],
+        "en": [
+          "An error: `Invalid object name 'b'` — a CTE only sees the ones before it",
+          "It works: the order of CTEs does not matter",
+          "It goes into an endless loop",
+          "`b` counts as an empty table"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Invalid object name 'b'.`\n\nCTE'ler yazıldıkları sırayla tanımlanıyor; `a` yazılırken `b` henüz yok. Zinciri temelden başlayıp üstüne kurarak yaz: önce sipariş tutarları, sonra onları kullanan çalışan toplamları.",
+        "en": "Measured: `Invalid object name 'b'.`\n\nCTEs are defined in the order they are written; while `a` is being written, `b` does not exist yet. Write the chain starting from the base and build on it: first the order amounts, then the employee totals that use them."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 3,
+      "text": {
+        "tr": "Aynı `WITH` içinde iki CTE'ye de `a` adı verildi. Sonuç?",
+        "en": "Within the same `WITH`, two CTEs were both named `a`. The result?"
+      },
+      "options": {
+        "tr": [
+          "İkincisi birincinin yerine geçiyor",
+          "Birincisi kullanılıyor",
+          "İkisi birleştiriliyor",
+          "Hata: `Duplicate common table expression name 'a' was specified.`"
+        ],
+        "en": [
+          "The second replaces the first",
+          "The first is used",
+          "The two are combined",
+          "An error: `Duplicate common table expression name 'a' was specified.`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Duplicate common table expression name 'a' was specified.`\n\nBir `WITH` içindeki her ad bir kez. İki adımın aynı işi yaptığı düşünülüyorsa birine yeni bir ad vermek sorguyu da okunur yapıyor.",
+        "en": "Measured: `Duplicate common table expression name 'a' was specified.`\n\nEach name only once within a `WITH`. If two steps seem to do the same job, giving one of them a new name also makes the query easier to read."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 1,
+      "text": {
+        "tr": "`WITH x (product, cost) AS (SELECT name, price FROM products)` — ad ile `AS` arasındaki parantez ne yapıyor?",
+        "en": "`WITH x (product, cost) AS (SELECT name, price FROM products)` — what does the parenthesis between the name and `AS` do?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca bu iki sütunu süzüyor",
+          "CTE'nin sütunlarına ad veriyor: dışarıda `product` ve `cost` diye kullanılıyor",
+          "Hata veriyor",
+          "Sonucun sırasını belirliyor"
+        ],
+        "en": [
+          "It filters to just these two columns",
+          "It names the CTE's columns: outside they are used as `product` and `cost`",
+          "It raises an error",
+          "It decides the order of the result"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `SELECT TOP 2 product, cost FROM x ORDER BY cost DESC` → Laptop `24500.00`, Desktop `18900.00`.\n\nİçerideki sorgu `name` ve `price` diyor, dışarıda `product` ve `cost`. İç sorguda `AS` ile ad vermekle aynı iş; özyinelemeli CTE'lerde sütun adlarını tek yerde toplamak için sık kullanılıyor.",
+        "en": "Measured: `SELECT TOP 2 product, cost FROM x ORDER BY cost DESC` → Laptop `24500.00`, Desktop `18900.00`.\n\nThe inner query says `name` and `price`, outside they are `product` and `cost`. It does the same job as naming with `AS` in the inner query; it is often used in recursive CTEs to keep the column names in one place."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 2,
+      "text": {
+        "tr": "Özyinelemeli bir CTE'de `UNION ALL`'dan önceki sorgu ne işe yarıyor?",
+        "en": "In a recursive CTE, what is the query before `UNION ALL` for?"
+      },
+      "options": {
+        "tr": [
+          "Durma koşulunu veriyor",
+          "Her adımda yeniden çalışıyor",
+          "Başlangıç satırlarını veriyor; bir kez çalışıyor",
+          "Sonucu sıralıyor"
+        ],
+        "en": [
+          "It gives the stopping condition",
+          "It runs again at every step",
+          "It gives the starting rows; it runs once",
+          "It sorts the result"
+        ]
+      },
+      "explanation": {
+        "tr": "Başlangıç (anchor) bir kez çalışıyor: kademe sorgusunda yöneticisi olmayan Ada. Kendini çağıran parça sonra her adımda **bir önceki adımda yeni gelen** satırlarla çalışıyor: önce Bora ve Emre, sonra Ceren, Deniz ve Fulya. Yeni satır gelmeyince duruyor.\n\nBaşlangıcı tek başına çalıştırmak, özyinelemeli bir sorguyu denetlemenin ilk adımı.",
+        "en": "The start (the anchor) runs once: in the level query, Ada, who has no manager. The self-referring part then works at every step with the rows that were **new in the previous step**: first Bora and Emre, then Ceren, Deniz and Fulya. When no new rows come, it stops.\n\nRunning the start on its own is the first step in checking a recursive query."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Özyinelemeli CTE'de `UNION ALL` yerine `UNION` yazılınca ne oluyor?",
+        "en": "What happens when `UNION` is written instead of `UNION ALL` in a recursive CTE?"
+      },
+      "options": {
+        "tr": [
+          "Hata: özyinelemeli CTE'nin en üst düzeyinde `UNION ALL` olmalı",
+          "Tekrarlar ayıklanıyor, sonuç aynı",
+          "Sonsuz döngüye giriyor",
+          "Yalnızca başlangıç satırı geliyor"
+        ],
+        "en": [
+          "An error: a recursive CTE needs `UNION ALL` at the top level",
+          "Duplicates are removed, same result",
+          "It goes into an endless loop",
+          "Only the starting row comes back"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Recursive common table expression 'chain' does not contain a top-level UNION ALL operator.`\n\nTekrarları ayıklamak gerekiyorsa bu özyinelemenin dışında, sonuca `DISTINCT` ile yapılıyor.",
+        "en": "Measured: `Recursive common table expression 'chain' does not contain a top-level UNION ALL operator.`\n\nIf duplicates have to be removed, that is done outside the recursion, on the result, with `DISTINCT`."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 3,
+      "text": {
+        "tr": "Kademe sorgusunda Ada Kilic 0. Fulya Demir'in yöneticisi Emre Sahin, Emre'nin yöneticisi Ada. Fulya'nın kademesi kaç?",
+        "en": "In the level query Ada Kilic is 0. Fulya Demir's manager is Emre Sahin, and Emre's manager is Ada. What is Fulya's level?"
+      },
+      "options": {
+        "tr": [
+          "0",
+          "1",
+          "3",
+          "2"
+        ],
+        "en": [
+          "0",
+          "1",
+          "3",
+          "2"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **2**. Birinci adımda Ada'nın doğrudan altındakiler (Bora, Emre) 1 aldı; ikinci adımda onların altındakiler (Ceren, Deniz, Fulya) 2. Üçüncü adımda kimse gelmedi ve özyineleme bitti.\n\nBaşlangıç `1 AS level` yazılsaydı her şey bir kayardı — alıştırmadaki yanlış yazımlardan biri bu.",
+        "en": "Measured: **2**. At the first step those directly below Ada (Bora, Emre) got 1; at the second those below them (Ceren, Deniz, Fulya) got 2. At the third step nobody came and the recursion ended.\n\nHad the start been `1 AS level`, everything would shift by one — that is one of the wrong versions in the exercise."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 1,
+      "text": {
+        "tr": "Yol sütunu başlangıçta `name AS path`, kendini çağıran parçada `c.path + N' > ' + e.name`. Ne oluyor?",
+        "en": "The path column is `name AS path` at the start and `c.path + N' > ' + e.name` in the self-referring part. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Çalışıyor",
+          "Hata: `Types don't match between the anchor and the recursive part`",
+          "Yol 40 karakterde kesiliyor",
+          "Yalnızca Ada geliyor"
+        ],
+        "en": [
+          "It works",
+          "An error: `Types don't match between the anchor and the recursive part`",
+          "The path is cut at 40 characters",
+          "Only Ada comes back"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Types don't match between the anchor and the recursive part in column \"path\" of recursive query \"chain\".`\n\n`name` `NVARCHAR(40)`; birleştirilmiş metin daha uzun bir tip. Çare iki parçada da aynı `CAST`: `CAST(name AS NVARCHAR(200))` ve `CAST(c.path + N' > ' + e.name AS NVARCHAR(200))` — ölçüldü, altı yolun altısı geldi.",
+        "en": "Measured: `Types don't match between the anchor and the recursive part in column \"path\" of recursive query \"chain\".`\n\n`name` is `NVARCHAR(40)`; the joined text is a longer type. The fix is the same `CAST` in both parts: `CAST(name AS NVARCHAR(200))` and `CAST(c.path + N' > ' + e.name AS NVARCHAR(200))` — measured, all six paths came back."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 2,
+      "text": {
+        "tr": "Varsayılan ayarla, 1'den başlayıp birer artan bir sayaç (`WHERE k < n`): `n = 101` ve `n = 102` için ne oluyor?",
+        "en": "With the default setting, a counter that starts at 1 and goes up by one (`WHERE k < n`): what happens for `n = 101` and `n = 102`?"
+      },
+      "options": {
+        "tr": [
+          "İkisi de çalışıyor",
+          "İkisi de hata veriyor",
+          "101 satır geliyor; 102 hata: `The maximum recursion 100 has been exhausted`",
+          "100'de kesilip ikisinde de 100 satır geliyor"
+        ],
+        "en": [
+          "Both work",
+          "Both raise an error",
+          "101 rows come back; 102 fails: `The maximum recursion 100 has been exhausted`",
+          "Both are cut at 100 and return 100 rows"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `k < 101` → 101 satır; `k < 102` → `The statement terminated. The maximum recursion 100 has been exhausted before statement completion.`\n\nSınır **adım** sayıyor, satır değil: başlangıç satırı bir adım değil, 100 adımla 101 satır üretilebiliyor. Sınırı aşınca kesilen sonuç verilmiyor, cümle hatayla bitiyor.",
+        "en": "Measured: `k < 101` → 101 rows; `k < 102` → `The statement terminated. The maximum recursion 100 has been exhausted before statement completion.`\n\nThe limit counts **steps**, not rows: the starting row is not a step, so 100 steps can produce 101 rows. When the limit is hit, no cut-off result is returned; the statement ends with an error."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`OPTION (MAXRECURSION 200)` nereye yazılıyor?",
+        "en": "Where does `OPTION (MAXRECURSION 200)` go?"
+      },
+      "options": {
+        "tr": [
+          "CTE'yi kullanan cümlenin en sonuna",
+          "CTE'nin içine, `UNION ALL`'dan sonra",
+          "`WITH`'ten önce",
+          "İki parçaya da ayrı ayrı"
+        ],
+        "en": [
+          "At the very end of the statement that uses the CTE",
+          "Inside the CTE, after `UNION ALL`",
+          "Before `WITH`",
+          "Separately into both parts"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: CTE'nin içine yazılınca `Incorrect syntax near the keyword 'OPTION'`. Cümlenin sonuna yazılınca 200'e kadar sayan CTE 200 satır verdi:\n\n```sql\nWITH n AS (...)\nSELECT COUNT(*) FROM n\nOPTION (MAXRECURSION 200);\n```",
+        "en": "Measured: written inside the CTE, `Incorrect syntax near the keyword 'OPTION'`. At the end of the statement, the CTE counting to 200 gave 200 rows:\n\n```sql\nWITH n AS (...)\nSELECT COUNT(*) FROM n\nOPTION (MAXRECURSION 200);\n```"
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 3,
+      "text": {
+        "tr": "`OPTION (MAXRECURSION 0)` ne yapıyor?",
+        "en": "What does `OPTION (MAXRECURSION 0)` do?"
+      },
+      "options": {
+        "tr": [
+          "Özyinelemeyi kapatıyor",
+          "Hata veriyor",
+          "Varsayılan 100'e dönüyor",
+          "Sınırı kaldırıyor"
+        ],
+        "en": [
+          "It turns recursion off",
+          "It raises an error",
+          "It goes back to the default of 100",
+          "It removes the limit"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `0` ile 1000'e kadar sayan CTE 1000 satır verdi. Üst sınır da var: `MAXRECURSION 40000` → `The value 40000 specified for the MAXRECURSION option exceeds the allowed maximum of 32767.`\n\nSınırı kaldırmak, durma koşulunun doğru olduğundan emin olmayı gerektiriyor; yoksa sorgu durmaz.",
+        "en": "Measured: with `0`, the CTE counting to 1000 gave 1000 rows. There is a ceiling too: `MAXRECURSION 40000` → `The value 40000 specified for the MAXRECURSION option exceeds the allowed maximum of 32767.`\n\nRemoving the limit requires being sure that the stopping condition is right; otherwise the query does not stop."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 1,
+      "text": {
+        "tr": "Sayaç CTE'sinde durma koşulu unutuldu: `SELECT k + 1 FROM n` (`WHERE` yok), `OPTION (MAXRECURSION 50)`. Ne oluyor?",
+        "en": "The stopping condition was forgotten in a counter CTE: `SELECT k + 1 FROM n` (no `WHERE`), `OPTION (MAXRECURSION 50)`. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Sunucu donuyor",
+          "Sınıra gelince duruyor ve hata veriyor: `The maximum recursion 50 has been exhausted`",
+          "50 satır döndürüp başarıyla bitiyor",
+          "Yalnızca başlangıç satırı geliyor"
+        ],
+        "en": [
+          "The server hangs",
+          "It stops at the limit with an error: `The maximum recursion 50 has been exhausted`",
+          "It returns 50 rows and finishes successfully",
+          "Only the starting row comes back"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `The statement terminated. The maximum recursion 50 has been exhausted before statement completion.`\n\nSınır burada güvenlik ağı: durma koşulu olmayan sorgu sonsuza kadar sürmüyor, hatayla bitiyor. Kesilmiş bir sonuç da verilmiyor.",
+        "en": "Measured: `The statement terminated. The maximum recursion 50 has been exhausted before statement completion.`\n\nHere the limit is a safety net: a query with no stopping condition does not go on forever; it ends with an error. No cut-off result is returned either."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "Kendini çağıran parçada `SELECT MAX(k) + 1 FROM r` yazıldı. Sonuç?",
+        "en": "`SELECT MAX(k) + 1 FROM r` was written in the self-referring part. The result?"
+      },
+      "options": {
+        "tr": [
+          "Çalışıyor",
+          "Her adımda en büyük değeri alıyor",
+          "Hata: özyinelemeli parçada `GROUP BY`, `HAVING` ve toplama işlevleri yasak",
+          "Sonsuz döngüye giriyor"
+        ],
+        "en": [
+          "It works",
+          "It takes the largest value at every step",
+          "An error: `GROUP BY`, `HAVING` and aggregate functions are not allowed in the recursive part",
+          "It goes into an endless loop"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `GROUP BY, HAVING, or aggregate functions are not allowed in the recursive part of a recursive common table expression 'r'.`\n\nToplama gerekiyorsa dışarıda yapılıyor. Alt çalışan sayısı böyle ölçüldü: özyineleme satırları üretti, dıştaki `GROUP BY root` saydı.",
+        "en": "Measured: `GROUP BY, HAVING, or aggregate functions are not allowed in the recursive part of a recursive common table expression 'r'.`\n\nIf an aggregation is needed, it is done outside. That is how the number of people below each employee was measured: the recursion produced the rows and the outer `GROUP BY root` counted them."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Kendini çağıran parçada `LEFT JOIN` kullanıldı. Sonuç?",
+        "en": "A `LEFT JOIN` was used in the self-referring part. The result?"
+      },
+      "options": {
+        "tr": [
+          "Hata: özyinelemeli parçada dış birleştirme yasak",
+          "Çalışıyor, eşleşmeyenler `NULL` geliyor",
+          "Sonsuz döngüye giriyor",
+          "`JOIN` gibi davranıyor"
+        ],
+        "en": [
+          "An error: an outer join is not allowed in the recursive part",
+          "It works, the unmatched ones come back as `NULL`",
+          "It goes into an endless loop",
+          "It behaves like `JOIN`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Outer join is not allowed in the recursive part of a recursive common table expression 'r'.`\n\nMantığı var: `LEFT JOIN` eşleşmeyen satırı da `NULL`'larla getirirdi, yani her adımda yeni bir satır doğardı ve özyineleme hiç bitmezdi. Özyineleme `JOIN`'in boş dönmesiyle duruyor.",
+        "en": "Measured: `Outer join is not allowed in the recursive part of a recursive common table expression 'r'.`\n\nThere is a reason: a `LEFT JOIN` would bring back the unmatched row with `NULL`s too, so a new row would be born at every step and the recursion would never end. Recursion stops when the `JOIN` comes back empty."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 3,
+      "text": {
+        "tr": "Ocak–Haziran ayları özyinelemeli bir CTE ile üretilip aylık ciroya `JOIN` (iç birleştirme) ile bağlandı. Kaç satır geliyor?",
+        "en": "The months January to June were generated with a recursive CTE and attached to the monthly revenue with `JOIN` (an inner join). How many rows come back?"
+      },
+      "options": {
+        "tr": [
+          "6",
+          "0",
+          "2",
+          "4 — Mayıs ve Haziran'da sipariş yok, eşleşmedikleri için düşüyorlar"
+        ],
+        "en": [
+          "6",
+          "0",
+          "2",
+          "4 — May and June have no orders, and drop out because they do not match"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **4**. Ayları üretmenin bütün amacı siparişi olmayan ayları da göstermekti; `JOIN` onları tam da eşleşmedikleri için eliyor.\n\n`LEFT JOIN` ile altı ayın altısı kaldı (ölçüldü).",
+        "en": "Measured: **4**. The whole point of generating the months was to show the months with no orders as well; `JOIN` removes them precisely because they do not match.\n\nWith `LEFT JOIN` all six months stayed (measured)."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 1,
+      "text": {
+        "tr": "Aynı sorgu `LEFT JOIN` ile yazıldı ama `COALESCE` unutuldu. Mayıs satırındaki ciro ne?",
+        "en": "The same query was written with `LEFT JOIN` but `COALESCE` was forgotten. What is the revenue on the May row?"
+      },
+      "options": {
+        "tr": [
+          "`0.00`",
+          "`NULL`",
+          "Mayıs satırı yok",
+          "Hata"
+        ],
+        "en": [
+          "`0.00`",
+          "`NULL`",
+          "There is no May row",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: Mayıs ve Haziran `NULL` geldi; `COALESCE(r.revenue, 0)` ile `0.00`.\n\n`NULL` \"bilinmiyor\" demek; siparişsiz bir ayın cirosu bilinmiyor değil, sıfır. Toplamlarda da fark ediyor: `NULL` toplamı bozmuyor ama grafik ya da ortalama gibi sonraki hesaplarda sürpriz yaratabiliyor.",
+        "en": "Measured: May and June came back as `NULL`; with `COALESCE(r.revenue, 0)`, `0.00`.\n\n`NULL` means \"unknown\"; the revenue of a month with no orders is not unknown, it is zero. It also matters later: `NULL` does not break a total, but it can cause surprises in later calculations like a chart or an average."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "Altı satırlık bir tabloda `a@x.com` iki, `b@x.com` bir, `c@x.com` üç kez var. `WITH d AS (SELECT email, ROW_NUMBER() OVER (PARTITION BY email ORDER BY email) AS rn FROM #dup) DELETE FROM d WHERE rn > 1` kaç satır siliyor?",
+        "en": "In a six-row table `a@x.com` appears twice, `b@x.com` once and `c@x.com` three times. How many rows does `WITH d AS (SELECT email, ROW_NUMBER() OVER (PARTITION BY email ORDER BY email) AS rn FROM #dup) DELETE FROM d WHERE rn > 1` delete?"
+      },
+      "options": {
+        "tr": [
+          "6",
+          "Hiç — CTE'den silinemez",
+          "3, asıl tablodan",
+          "2"
+        ],
+        "en": [
+          "6",
+          "None — you cannot delete from a CTE",
+          "3, from the underlying table",
+          "2"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **3** satır silindi ve tabloda her adresten bir tane kaldı.\n\nCTE bir kopya değil, tablonun bir görünümü gibi davranıyor: ondan silmek asıl tablodan silmek. Her adresin 1 numarası kalıyor, 2 ve 3 numaralar gidiyor. `ORDER BY` hangisinin kalacağını seçiyor; gerçek bir tabloda orada genellikle `id` ya da tarih olur.",
+        "en": "Measured: **3** rows were deleted and one of each address was left in the table.\n\nThe CTE is not a copy; it behaves like a view of the table: deleting from it deletes from the underlying table. Each address keeps its number 1, numbers 2 and 3 go. The `ORDER BY` chooses which one stays; in a real table it is usually an `id` or a date there."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`WITH cheap AS (SELECT TOP 2 id, stock FROM products ORDER BY price) UPDATE cheap SET stock = stock + 100` ne yapıyor?",
+        "en": "What does `WITH cheap AS (SELECT TOP 2 id, stock FROM products ORDER BY price) UPDATE cheap SET stock = stock + 100` do?"
+      },
+      "options": {
+        "tr": [
+          "En ucuz iki ürünün (Cable, Mouse) stoğunu `products` tablosunda 100 artırıyor",
+          "Yalnızca CTE'deki kopyayı değiştiriyor",
+          "Hata: CTE güncellenemez",
+          "Bütün ürünlerin stoğunu artırıyor"
+        ],
+        "en": [
+          "It raises the stock of the two cheapest products (Cable, Mouse) in the `products` table by 100",
+          "It only changes the copy in the CTE",
+          "An error: a CTE cannot be updated",
+          "It raises the stock of every product"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü (geri alınan bir işlemin içinde): Cable `60` → `160`, Mouse `0` → `100`; 2 satır etkilendi.\n\n`DELETE`'te olduğu gibi değişiklik asıl tabloya gidiyor. \"En ucuz iki ürün\" gibi, düz bir `UPDATE ... WHERE` ile yazması zor bir seçim bu yolla okunur hâle geliyor.",
+        "en": "Measured (inside a transaction that was rolled back): Cable `60` → `160`, Mouse `0` → `100`; 2 rows affected.\n\nAs with `DELETE`, the change goes to the underlying table. A selection like \"the two cheapest products\", hard to write with a plain `UPDATE ... WHERE`, becomes readable this way."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "Her çalışanın altında — doğrudan ya da dolaylı — kaç kişi olduğu sayıldı. Bora Yilmaz için sonuç?",
+        "en": "The number of people below each employee — directly or indirectly — was counted. The result for Bora Yilmaz?"
+      },
+      "options": {
+        "tr": [
+          "0",
+          "1",
+          "5",
+          "2 — Ceren ve Deniz"
+        ],
+        "en": [
+          "0",
+          "1",
+          "5",
+          "2 — Ceren and Deniz"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: Ada 5, Bora 2, Emre 1, geri kalanlar 0.\n\nÖzyineleme her kök için altındakileri listeledi (`SELECT id AS root, id ... UNION ALL SELECT r.root, e.id ...`), sayma dıştaki `GROUP BY root` ile yapıldı — özyinelemenin içinde toplama yasak. `COUNT(*) - 1` kişinin kendisini çıkarıyor.",
+        "en": "Measured: Ada 5, Bora 2, Emre 1, everyone else 0.\n\nThe recursion listed who is below each root (`SELECT id AS root, id ... UNION ALL SELECT r.root, e.id ...`), and the counting was done by the outer `GROUP BY root` — aggregation is not allowed inside the recursion. `COUNT(*) - 1` takes out the person themselves."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 1,
+      "text": {
+        "tr": "Fulya'dan başlayıp en tepeye kadar çıkan zincir için kendini çağıran parçadaki birleştirme hangisi?",
+        "en": "For a chain that starts at Fulya and goes up to the top, which join belongs in the self-referring part?"
+      },
+      "options": {
+        "tr": [
+          "`e.manager_id = u.id`",
+          "`e.id = u.manager_id`",
+          "`e.id = u.id`",
+          "`e.manager_id = u.manager_id`"
+        ],
+        "en": [
+          "`e.manager_id = u.id`",
+          "`e.id = u.manager_id`",
+          "`e.id = u.id`",
+          "`e.manager_id = u.manager_id`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `e.id = u.manager_id` ile Fulya Demir → Emre Sahin → Ada Kilic.\n\nOkuyuşu: \"zincirdekinin **yöneticisi** olan çalışan\". Aşağı inerken tersi, `e.manager_id = c.id`: \"yöneticisi **zincirde** olan çalışan\". Yön karışınca hata gelmiyor; aşağı inen sorgu ters yazılınca yalnızca Ada'yı getirdi.",
+        "en": "Measured: with `e.id = u.manager_id`, Fulya Demir → Emre Sahin → Ada Kilic.\n\nRead it as: \"the employee who is the **manager** of the one in the chain\". Going down it is the other way round, `e.manager_id = c.id`: \"the employee whose manager is **in the chain**\". Mixing up the direction raises no error; the downward query written the wrong way round brought back only Ada."
+      }
+    }
+  ]
+}

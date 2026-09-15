@@ -1,0 +1,74 @@
+{
+  "id": "en-cok-satan",
+  "language": "tsql",
+  "title": {
+    "tr": "Her kategorinin en çok satanı",
+    "en": "The best seller in each category"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki adım, iki ad. Birincisi ürün başına satılan adet: `WITH units AS (SELECT i.product_id, SUM(i.quantity) AS units ... GROUP BY i.product_id)`.",
+      "en": "Two steps, two names. The first is the units sold per product: `WITH units AS (SELECT i.product_id, SUM(i.quantity) AS units ... GROUP BY i.product_id)`."
+    },
+    {
+      "tr": "İkincisi birinciyi kullanıyor: `ranked AS (SELECT ..., ROW_NUMBER() OVER (PARTITION BY p.category_code ORDER BY u.units DESC) AS rn FROM units u JOIN products p ...)`. İki CTE virgülle ayrılıyor; en sonda `WHERE rn = 1`.",
+      "en": "The second uses the first: `ranked AS (SELECT ..., ROW_NUMBER() OVER (PARTITION BY p.category_code ORDER BY u.units DESC) AS rn FROM units u JOIN products p ...)`. The two CTEs are separated by a comma; at the very end, `WHERE rn = 1`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nWITH units AS (\n    SELECT i.product_id, SUM(i.quantity) AS units\n    FROM order_items i\n    JOIN orders o ON o.id = i.order_id\n    WHERE o.status <> 'cancelled'\n    GROUP BY i.product_id\n),\nranked AS (\n    SELECT p.category_code, p.name, u.units,\n           ROW_NUMBER() OVER (PARTITION BY p.category_code\n                              ORDER BY u.units DESC) AS rn\n    FROM units u\n    JOIN products p ON p.id = u.product_id\n)\nSELECT category_code, name, units\nFROM ranked\nWHERE rn = 1\nORDER BY category_code;\n```",
+      "en": "The whole query:\n\n```sql\nWITH units AS (\n    SELECT i.product_id, SUM(i.quantity) AS units\n    FROM order_items i\n    JOIN orders o ON o.id = i.order_id\n    WHERE o.status <> 'cancelled'\n    GROUP BY i.product_id\n),\nranked AS (\n    SELECT p.category_code, p.name, u.units,\n           ROW_NUMBER() OVER (PARTITION BY p.category_code\n                              ORDER BY u.units DESC) AS rn\n    FROM units u\n    JOIN products p ON p.id = u.product_id\n)\nSELECT category_code, name, units\nFROM ranked\nWHERE rn = 1\nORDER BY category_code;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "category_code",
+        "name",
+        "units"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "ACC",
+          "Cable",
+          15
+        ],
+        [
+          "COM",
+          "Laptop",
+          2
+        ],
+        [
+          "DIS",
+          "Monitor",
+          4
+        ],
+        [
+          "SOF",
+          "Antivirus",
+          5
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "WITH",
+      "hint": {
+        "tr": "Bu bölüm `WITH` çalıştırıyor: ara sonucu `WITH ad AS (...)` ile adlandır.",
+        "en": "This section practises `WITH`: name the intermediate result with `WITH name AS (...)`."
+      }
+    }
+  ]
+}

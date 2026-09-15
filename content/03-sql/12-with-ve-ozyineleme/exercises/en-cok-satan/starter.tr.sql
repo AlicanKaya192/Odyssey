@@ -1,0 +1,4 @@
+-- Iptal edilmeyen siparislerde her kategorinin en cok
+-- satilan (adet olarak) urununu getir.
+-- Sutunlar: category_code, name, units.
+-- category_code'a gore sirala.

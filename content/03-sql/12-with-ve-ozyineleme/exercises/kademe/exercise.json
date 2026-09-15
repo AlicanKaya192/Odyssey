@@ -1,0 +1,84 @@
+{
+  "id": "kademe",
+  "language": "tsql",
+  "title": {
+    "tr": "Kaçıncı kademe",
+    "en": "Which level"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç satırı yöneticisi olmayan çalışan: `SELECT id, name, 0 AS level FROM employees WHERE manager_id IS NULL`.",
+      "en": "The starting row is the employee with no manager: `SELECT id, name, 0 AS level FROM employees WHERE manager_id IS NULL`."
+    },
+    {
+      "tr": "`UNION ALL`'dan sonra CTE kendi adını kullanıyor: yöneticisi zincirde olanları getir, kademeyi bir artır — `JOIN chain c ON e.manager_id = c.id`, `c.level + 1`.",
+      "en": "After `UNION ALL` the CTE uses its own name: bring back the employees whose manager is already in the chain and add one to the level — `JOIN chain c ON e.manager_id = c.id`, `c.level + 1`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nWITH chain AS (\n    SELECT id, name, 0 AS level\n    FROM employees\n    WHERE manager_id IS NULL\n    UNION ALL\n    SELECT e.id, e.name, c.level + 1\n    FROM employees e\n    JOIN chain c ON e.manager_id = c.id\n)\nSELECT id, name, level\nFROM chain\nORDER BY level, id;\n```",
+      "en": "The whole query:\n\n```sql\nWITH chain AS (\n    SELECT id, name, 0 AS level\n    FROM employees\n    WHERE manager_id IS NULL\n    UNION ALL\n    SELECT e.id, e.name, c.level + 1\n    FROM employees e\n    JOIN chain c ON e.manager_id = c.id\n)\nSELECT id, name, level\nFROM chain\nORDER BY level, id;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "id",
+        "name",
+        "level"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          1,
+          "Ada Kilic",
+          0
+        ],
+        [
+          2,
+          "Bora Yilmaz",
+          1
+        ],
+        [
+          5,
+          "Emre Sahin",
+          1
+        ],
+        [
+          3,
+          "Ceren Aksoy",
+          2
+        ],
+        [
+          4,
+          "Deniz Kaya",
+          2
+        ],
+        [
+          6,
+          "Fulya Demir",
+          2
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "UNION ALL",
+      "hint": {
+        "tr": "Özyinelemeli `WITH` iki parçalı: başlangıç satırları, `UNION ALL`, sonra kendini çağıran parça.",
+        "en": "A recursive `WITH` has two parts: the starting rows, `UNION ALL`, then the part that refers to itself."
+      }
+    }
+  ]
+}

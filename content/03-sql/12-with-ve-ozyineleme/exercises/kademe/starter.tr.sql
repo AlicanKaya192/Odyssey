@@ -1,0 +1,4 @@
+-- Her calisanin sirketteki kademesini bul: yoneticisi
+-- olmayan (en ustteki) 0, onun altindakiler 1, onlarin
+-- altindakiler 2...
+-- Sutunlar: id, name, level. level, sonra id ile sirala.

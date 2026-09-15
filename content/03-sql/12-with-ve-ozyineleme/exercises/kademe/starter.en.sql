@@ -1,0 +1,4 @@
+-- Find each employee's level in the company: the one with
+-- no manager (the top) is 0, those directly below are 1,
+-- those below them 2...
+-- Columns: id, name, level. Sort by level, then id.

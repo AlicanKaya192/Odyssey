@@ -1,0 +1,5 @@
+-- For each employee, write the chain of command from the
+-- top down to them as a single piece of text:
+--   Ada Kilic > Bora Yilmaz > Ceren Aksoy
+-- Separate the names with ' > '.
+-- Columns: id, path. Sort by path.

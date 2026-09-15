@@ -1,0 +1,77 @@
+{
+  "id": "yonetim-zinciri",
+  "language": "tsql",
+  "title": {
+    "tr": "Yönetim zinciri",
+    "en": "The chain of command"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kademe alıştırmasının aynısı, sayı yerine metin: başlangıçta yalnızca ad, özyinelemeli parçada `c.path + N' > ' + e.name`.",
+      "en": "The same as the level exercise, with text instead of a number: just the name at the start, `c.path + N' > ' + e.name` in the recursive part."
+    },
+    {
+      "tr": "`Types don't match between the anchor and the recursive part` hatası alırsan: iki parçada da sütunu aynı tipe çevir — `CAST(... AS NVARCHAR(200))`. Başlangıçtaki ad 40 karakterlik, birleştirilmiş yol daha uzun bir tip.",
+      "en": "If you get `Types don't match between the anchor and the recursive part`: convert the column to the same type in both parts — `CAST(... AS NVARCHAR(200))`. The name at the start is 40 characters wide; the joined path is a longer type."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nWITH chain AS (\n    SELECT id, CAST(name AS NVARCHAR(200)) AS path\n    FROM employees\n    WHERE manager_id IS NULL\n    UNION ALL\n    SELECT e.id, CAST(c.path + N' > ' + e.name AS NVARCHAR(200))\n    FROM employees e\n    JOIN chain c ON e.manager_id = c.id\n)\nSELECT id, path\nFROM chain\nORDER BY path;\n```",
+      "en": "The whole query:\n\n```sql\nWITH chain AS (\n    SELECT id, CAST(name AS NVARCHAR(200)) AS path\n    FROM employees\n    WHERE manager_id IS NULL\n    UNION ALL\n    SELECT e.id, CAST(c.path + N' > ' + e.name AS NVARCHAR(200))\n    FROM employees e\n    JOIN chain c ON e.manager_id = c.id\n)\nSELECT id, path\nFROM chain\nORDER BY path;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "id",
+        "path"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          1,
+          "Ada Kilic"
+        ],
+        [
+          2,
+          "Ada Kilic > Bora Yilmaz"
+        ],
+        [
+          3,
+          "Ada Kilic > Bora Yilmaz > Ceren Aksoy"
+        ],
+        [
+          4,
+          "Ada Kilic > Bora Yilmaz > Deniz Kaya"
+        ],
+        [
+          5,
+          "Ada Kilic > Emre Sahin"
+        ],
+        [
+          6,
+          "Ada Kilic > Emre Sahin > Fulya Demir"
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "UNION ALL",
+      "hint": {
+        "tr": "Özyinelemeli `WITH` iki parçalı: başlangıç satırları, `UNION ALL`, sonra kendini çağıran parça.",
+        "en": "A recursive `WITH` has two parts: the starting rows, `UNION ALL`, then the part that refers to itself."
+      }
+    }
+  ]
+}

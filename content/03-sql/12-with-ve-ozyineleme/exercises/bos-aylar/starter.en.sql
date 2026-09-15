@@ -1,0 +1,5 @@
+-- Show the revenue of every month from January 2026 to
+-- June 2026 (without the cancelled ones). Months with no
+-- orders are listed too, with a revenue of 0.
+-- Columns: month (the first day of the month), revenue.
+-- Sort by month.

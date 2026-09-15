@@ -1,0 +1,4 @@
+-- For orders that were not cancelled, bring back each
+-- category's best-selling product (by units).
+-- Columns: category_code, name, units.
+-- Sort by category_code.
