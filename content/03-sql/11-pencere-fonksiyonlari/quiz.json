@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "`ORDER BY stock DESC` ile sıralanan ürünlerde Cable üçüncü; önünde stoğu 99 olan iki ürün var. Cable için `ROW_NUMBER`, `RANK` ve `DENSE_RANK` sırasıyla ne veriyor?",
+        "en": "Sorted with `ORDER BY stock DESC`, Cable comes third, behind two products with a stock of 99. What do `ROW_NUMBER`, `RANK` and `DENSE_RANK` give for Cable, in that order?"
+      },
+      "options": {
+        "tr": [
+          "`3, 2, 2`",
+          "`2, 2, 2`",
+          "`3, 3, 2`",
+          "`3, 3, 3`"
+        ],
+        "en": [
+          "`3, 2, 2`",
+          "`2, 2, 2`",
+          "`3, 3, 2`",
+          "`3, 3, 3`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **3, 3, 2**.\n\n- `ROW_NUMBER` eşitleri de ayırıyor: 1, 2, 3.\n- `RANK` iki ürüne 1 veriyor ve sonra **atlıyor**: Cable 3.\n- `DENSE_RANK` atlamıyor: Cable 2.\n\n`RANK` \"benden önde kaç satır var, artı bir\" demek; `DENSE_RANK` \"kaçıncı farklı değer\".",
+        "en": "Measured: **3, 3, 2**.\n\n- `ROW_NUMBER` splits ties too: 1, 2, 3.\n- `RANK` gives both products 1 and then **skips**: Cable is 3.\n- `DENSE_RANK` does not skip: Cable is 2.\n\n`RANK` means \"how many rows are ahead of me, plus one\"; `DENSE_RANK` means \"which distinct value this is\"."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Stoğu 0 olan Mouse ve Projector, 12 ürünlük listenin son ikisi. Projector'ın `RANK` ve `DENSE_RANK` değeri ne?",
+        "en": "Mouse and Projector, both with a stock of 0, are the last two of the 12 products. What are Projector's `RANK` and `DENSE_RANK`?"
+      },
+      "options": {
+        "tr": [
+          "`11` ve `10`",
+          "`12` ve `10`",
+          "`11` ve `11`",
+          "`12` ve `12`"
+        ],
+        "en": [
+          "`11` and `10`",
+          "`12` and `10`",
+          "`11` and `11`",
+          "`12` and `12`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **11 ve 10**. `RANK` iki eşite de 11 veriyor: önlerinde 10 ürün var. `DENSE_RANK` 10 veriyor: 12 ürünün yalnızca 10 farklı stok değeri var, çünkü baştaki 99'lar da eşit.\n\n`ROW_NUMBER` ise birine 11, ötekine 12 verdi.",
+        "en": "Measured: **11 and 10**. `RANK` gives both tied rows 11: there are 10 products ahead of them. `DENSE_RANK` gives 10: the 12 products have only 10 distinct stock values, because the two 99s at the top are tied too.\n\n`ROW_NUMBER` gave one of them 11 and the other 12."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 3,
+      "text": {
+        "tr": "Aynı `ROW_NUMBER() OVER (ORDER BY stock DESC)` iki ayrı sorguda çalıştırıldı (birinin sonunda `ORDER BY stock DESC, name` vardı, ötekinde yoktu). Birinde 1 numarayı Antivirus, ötekinde Office Suite aldı; ikisinin de stoğu 99. Neden?",
+        "en": "The same `ROW_NUMBER() OVER (ORDER BY stock DESC)` was run in two different queries (one ended in `ORDER BY stock DESC, name`, the other did not). In one Antivirus got number 1, in the other Office Suite; both have a stock of 99. Why?"
+      },
+      "options": {
+        "tr": [
+          "İki sorgu arasında veri değişti",
+          "`ROW_NUMBER` eşitlikte ada göre sıralıyor",
+          "İkinci sorgu hatalı",
+          "Eşitler arasındaki sıra garanti değil; ayırt edici bir sütun eklemek gerekiyor"
+        ],
+        "en": [
+          "The data changed between the two queries",
+          "`ROW_NUMBER` sorts ties by name",
+          "The second query is wrong",
+          "The order among ties is not guaranteed; a column that tells them apart is needed"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: veri aynı, pencere aynı, 1 numara farklı. Sunucu eşitler arasında bir sıra seçmek zorunda ve bu seçim sorgunun geri kalanına bağlı.\n\nÇaresi sırayı eşitsiz yapmak: `ROW_NUMBER() OVER (ORDER BY stock DESC, name)`. \"Her kategoriden bir ürün\" gibi işlerde bu eksik kalırsa sorgu her çalıştığında başka bir ürün getirebilir.",
+        "en": "Measured: same data, same window, a different number 1. The server has to pick an order among ties, and that pick depends on the rest of the query.\n\nThe fix is to make the order tie-free: `ROW_NUMBER() OVER (ORDER BY stock DESC, name)`. Without it, jobs like \"one product from each category\" can bring back a different product every time the query runs."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT name, ROW_NUMBER() OVER () FROM products` ne yapıyor?",
+        "en": "What does `SELECT name, ROW_NUMBER() OVER () FROM products` do?"
+      },
+      "options": {
+        "tr": [
+          "Satırları tablodaki sırasıyla numaralandırıyor",
+          "Hata: `ROW_NUMBER` `ORDER BY`'lı bir `OVER` istiyor",
+          "Her satıra 1 veriyor",
+          "Her satıra `NULL` veriyor"
+        ],
+        "en": [
+          "It numbers the rows in the table's order",
+          "An error: `ROW_NUMBER` needs an `OVER` with `ORDER BY`",
+          "It gives every row 1",
+          "It gives every row `NULL`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `The function 'ROW_NUMBER' must have an OVER clause with ORDER BY.`\n\nTablonun \"kendi sırası\" diye bir şey yok; sıra numarası neye göre verildiği söylenmeden verilemiyor. `SUM(stock) OVER ()` ise geçerli — toplama sıra gerekmiyor.",
+        "en": "Measured: `The function 'ROW_NUMBER' must have an OVER clause with ORDER BY.`\n\nA table has no \"own order\"; a row number cannot be given without saying what it goes by. `SUM(stock) OVER ()`, on the other hand, is valid — a total needs no order."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "En ucuz üç ürün için `WHERE ROW_NUMBER() OVER (ORDER BY price) <= 3` yazıldı. Ne oluyor?",
+        "en": "For the three cheapest products, `WHERE ROW_NUMBER() OVER (ORDER BY price) <= 3` was written. What happens?"
+      },
+      "options": {
+        "tr": [
+          "En ucuz üç ürün geliyor",
+          "Boş sonuç",
+          "Hata: pencere işlevleri yalnızca `SELECT` ve `ORDER BY` içinde",
+          "Bütün ürünler geliyor"
+        ],
+        "en": [
+          "The three cheapest products come back",
+          "An empty result",
+          "An error: window functions only in `SELECT` and `ORDER BY`",
+          "Every product comes back"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Windowed functions can only appear in the SELECT or ORDER BY clauses.`\n\n`WHERE` satırları süzüyor, pencere ise süzülmüş satırların üstünde hesaplanıyor — sıra numarası `WHERE` çalışırken henüz yok. Aynı hata `UPDATE ... SET` içinde de alındı.",
+        "en": "Measured: `Windowed functions can only appear in the SELECT or ORDER BY clauses.`\n\n`WHERE` filters the rows, and the window is worked out on top of the filtered rows — the row number does not exist yet while `WHERE` runs. The same error came up inside `UPDATE ... SET` too."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`SELECT name, ROW_NUMBER() OVER (ORDER BY price) AS rn FROM products WHERE rn <= 3` hata veriyor: `Invalid column name 'rn'`. Doğru yol hangisi?",
+        "en": "`SELECT name, ROW_NUMBER() OVER (ORDER BY price) AS rn FROM products WHERE rn <= 3` raises `Invalid column name 'rn'`. Which is the right way?"
+      },
+      "options": {
+        "tr": [
+          "Numaralı sorguyu `FROM (...) AS t` içine alıp dışarıda `WHERE rn <= 3` yazmak",
+          "`WHERE` yerine `HAVING rn <= 3` yazmak",
+          "Takma adı tırnağa almak: `WHERE 'rn' <= 3`",
+          "`GROUP BY rn` eklemek"
+        ],
+        "en": [
+          "Put the numbered query inside `FROM (...) AS t` and write `WHERE rn <= 3` outside",
+          "Write `HAVING rn <= 3` instead of `WHERE`",
+          "Quote the alias: `WHERE 'rn' <= 3`",
+          "Add `GROUP BY rn`"
+        ]
+      },
+      "explanation": {
+        "tr": "`WHERE`, `SELECT`'ten önce çalışıyor; `rn` adı orada henüz yok. `HAVING` de aynı hatayı veriyor (ölçüldü). Sorguyu bir kat içeri alınca dıştaki sorgu `rn`'yi hazır bir sütun olarak görüyor:\n\n```sql\nSELECT name FROM (\n    SELECT name, ROW_NUMBER() OVER (ORDER BY price) AS rn\n    FROM products\n) AS t\nWHERE rn <= 3;\n```\n\nBir sonraki bölümdeki `WITH` aynı şeyi adlandırarak yazıyor.",
+        "en": "`WHERE` runs before `SELECT`; the name `rn` does not exist there yet. `HAVING` raises the same error (measured). Put the query one level in, and the outer query sees `rn` as a ready-made column:\n\n```sql\nSELECT name FROM (\n    SELECT name, ROW_NUMBER() OVER (ORDER BY price) AS rn\n    FROM products\n) AS t\nWHERE rn <= 3;\n```\n\nThe `WITH` of the next section writes the same thing with a name."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 3,
+      "text": {
+        "tr": "12 ürünlük tabloda `SELECT category_code, MAX(price) ... GROUP BY category_code` kaç satır, `SELECT name, MAX(price) OVER (PARTITION BY category_code) ...` kaç satır döndürüyor?",
+        "en": "On the 12-product table, how many rows does `SELECT category_code, MAX(price) ... GROUP BY category_code` return, and how many does `SELECT name, MAX(price) OVER (PARTITION BY category_code) ...`?"
+      },
+      "options": {
+        "tr": [
+          "4 ve 4",
+          "12 ve 4",
+          "4 ve 1",
+          "4 ve 12"
+        ],
+        "en": [
+          "4 and 4",
+          "12 and 4",
+          "4 and 1",
+          "4 and 12"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **4 ve 12**. `GROUP BY` her kategoriyi tek satıra indiriyor; `PARTITION BY` grupları yalnızca **hesap için** ayırıyor, satırlara dokunmuyor.\n\nİkinci sorguda her ürün yerinde duruyor ve yanında kendi kategorisinin en yüksek fiyatı yazıyor.",
+        "en": "Measured: **4 and 12**. `GROUP BY` brings every category down to one row; `PARTITION BY` splits the groups only **for the calculation** and leaves the rows alone.\n\nIn the second query every product stays where it is, with its own category's highest price next to it."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 1,
+      "text": {
+        "tr": "Sipariş 1001'in üç kalemi var: 900, 440 ve 475. `SUM(quantity * unit_price) OVER (ORDER BY order_id)` bu üç satırın ilkinde ne gösteriyor?",
+        "en": "Order 1001 has three lines: 900, 440 and 475. What does `SUM(quantity * unit_price) OVER (ORDER BY order_id)` show on the first of the three rows?"
+      },
+      "options": {
+        "tr": [
+          "`900.00`",
+          "`1815.00`",
+          "`0.00`",
+          "`440.00`"
+        ],
+        "en": [
+          "`900.00`",
+          "`1815.00`",
+          "`0.00`",
+          "`440.00`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: üç satırın **üçünde de** `1815.00`.\n\nÇerçeve yazılmayınca varsayılan \"baştan **bu değere** kadar\" — satır değil, değer. Üç kalemin `order_id`'si aynı, yani üçü aynı değer ve birlikte giriyor. Birikimli toplam, sıra sütununda eşitlik olan her yerde böyle sessizce bozuluyor.",
+        "en": "Measured: `1815.00` on **all three** rows.\n\nWithout a frame the default is \"from the start up to **this value**\" — value, not row. The three lines share the same `order_id`, so they are the same value and go in together. A running total goes quietly wrong like this wherever the order column has ties."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 2,
+      "text": {
+        "tr": "Sipariş kalemlerinde birikimli toplamın 900, 1340, 1815 diye satır satır artması için hangi pencere gerekiyor?",
+        "en": "Which window makes the running total over the order lines grow row by row: 900, 1340, 1815?"
+      },
+      "options": {
+        "tr": [
+          "`OVER (ORDER BY order_id)`",
+          "`OVER (PARTITION BY order_id)`",
+          "`OVER (ORDER BY order_id, product_id ROWS UNBOUNDED PRECEDING)`",
+          "`OVER ()`"
+        ],
+        "en": [
+          "`OVER (ORDER BY order_id)`",
+          "`OVER (PARTITION BY order_id)`",
+          "`OVER (ORDER BY order_id, product_id ROWS UNBOUNDED PRECEDING)`",
+          "`OVER ()`"
+        ]
+      },
+      "explanation": {
+        "tr": "`ROWS` çerçevesi satır satır sayıyor; ölçüldü: 900, 1340, 1815. `product_id` eşitler arasındaki sırayı sabitliyor — yoksa hangi kalemin önce sayıldığı belli olmaz.\n\n`PARTITION BY order_id` ve `OVER ()` birikim değil, grubun ya da bütün sonucun **tamamını** veriyor.",
+        "en": "The `ROWS` frame counts row by row; measured: 900, 1340, 1815. `product_id` pins down the order among ties — without it, which line is counted first is not fixed.\n\n`PARTITION BY order_id` and `OVER ()` give no running total, but the **whole** group or the whole result."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "ACC ürünleri fiyata göre sıralı. `LAST_VALUE(name) OVER (ORDER BY price)` her satırda ne veriyor?",
+        "en": "The ACC products are in price order. What does `LAST_VALUE(name) OVER (ORDER BY price)` give on each row?"
+      },
+      "options": {
+        "tr": [
+          "Her satırın kendi adını",
+          "Her satırda en pahalıyı: Microphone",
+          "Her satırda en ucuzu: Cable",
+          "Hata"
+        ],
+        "en": [
+          "Each row's own name",
+          "The most expensive on every row: Microphone",
+          "The cheapest on every row: Cable",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: Cable satırında Cable, Mouse satırında Mouse... Varsayılan çerçeve **bu satırda bitiyor**; çerçevenin sonu satırın kendisi.\n\nGerçekten sondakini almak için çerçeve açılıyor: `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING` → her satırda Microphone. `FIRST_VALUE` bu tuzağa düşmüyor, çünkü çerçeve zaten baştan başlıyor (her satırda Cable).",
+        "en": "Measured: Cable on the Cable row, Mouse on the Mouse row... The default frame **ends at this row**; the end of the frame is the row itself.\n\nTo really get the last one, the frame is opened up: `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING` → Microphone on every row. `FIRST_VALUE` does not fall into this trap, because the frame starts at the beginning anyway (Cable on every row)."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 3,
+      "text": {
+        "tr": "Aylık ciro sorgusunda Ocak ilk ay. Ocak satırında `LAG(revenue)` ve `LAG(revenue, 1, 0)` ne veriyor?",
+        "en": "In the monthly revenue query January is the first month. What do `LAG(revenue)` and `LAG(revenue, 1, 0)` give on the January row?"
+      },
+      "options": {
+        "tr": [
+          "`0` ve `0`",
+          "Hata ve `0`",
+          "`32715.00` ve `32715.00`",
+          "`NULL` ve `0.00`"
+        ],
+        "en": [
+          "`0` and `0`",
+          "An error and `0`",
+          "`32715.00` and `32715.00`",
+          "`NULL` and `0.00`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`NULL` ve `0.00`**. İlk satırın öncesi yok; `LAG` bunu `NULL` ile söylüyor. Üçüncü argüman bu durumda kullanılacak değer, ikincisi kaç satır geri bakılacağı.\n\nDikkat: `0` ile doldurmak \"önceki ay ciro sıfırdı\" demek. Değişim hesabında bu, ilk ayı sıfırdan büyümüş gibi gösterir; çoğu zaman `NULL` daha dürüst.",
+        "en": "Measured: **`NULL` and `0.00`**. The first row has nothing before it; `LAG` says so with `NULL`. The third argument is the value to use in that case, the second is how many rows back to look.\n\nCareful: filling in `0` means \"last month's revenue was zero\". In a change calculation that makes the first month look as if it grew from zero; most of the time `NULL` is more honest."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 1,
+      "text": {
+        "tr": "Şubat cirosu `28680.00`, Mart cirosu `7710.00`. Mart satırında `revenue - LAG(revenue) OVER (ORDER BY month)` ne veriyor?",
+        "en": "February's revenue is `28680.00`, March's `7710.00`. What does `revenue - LAG(revenue) OVER (ORDER BY month)` give on the March row?"
+      },
+      "options": {
+        "tr": [
+          "`20970.00`",
+          "`-20970.00`",
+          "`7710.00`",
+          "`NULL`"
+        ],
+        "en": [
+          "`20970.00`",
+          "`-20970.00`",
+          "`7710.00`",
+          "`NULL`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`-20970.00`**. `LAG` önceki ayın değerini bu satıra getiriyor; fark bu satır eksi önceki. Ocak satırında sonuç `NULL` (öncesi yok), Nisan'da `22350.00`.\n\n`LEAD` tersini yapıyor: sonraki satırın değeri. Mart'ta `30060.00`, Nisan'da `NULL`.",
+        "en": "Measured: **`-20970.00`**. `LAG` brings the previous month's value onto this row; the change is this row minus the previous one. On the January row the result is `NULL` (nothing before it), in April `22350.00`.\n\n`LEAD` does the opposite: the next row's value. `30060.00` in March, `NULL` in April."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 2,
+      "text": {
+        "tr": "Önceki sipariş tarihi `LAG(order_date) OVER (ORDER BY order_date)` ile — `PARTITION BY` olmadan — alındı. 1. müşterinin 1003 numaralı siparişi (2 Şubat) için \"önceki sipariş\" hangisi oluyor?",
+        "en": "The previous order date was taken with `LAG(order_date) OVER (ORDER BY order_date)` — without `PARTITION BY`. For customer 1's order 1003 (February 2), which order becomes the \"previous\" one?"
+      },
+      "options": {
+        "tr": [
+          "1001 — aynı müşterinin 8 Ocak'taki siparişi",
+          "`NULL`",
+          "1002 — başka bir müşterinin 15 Ocak'taki siparişi",
+          "1006"
+        ],
+        "en": [
+          "1001 — the same customer's order of January 8",
+          "`NULL`",
+          "1002 — another customer's order of January 15",
+          "1006"
+        ]
+      },
+      "explanation": {
+        "tr": "`PARTITION BY` olmayınca bütün siparişler tek bir sıra: 1001 (8 Ocak), 1002 (15 Ocak), 1003 (2 Şubat). 1003'ün öncesi 1002 — 2. müşterinin siparişi.\n\n`PARTITION BY customer_id` her müşteriyi kendi sırasına ayırıyor; ölçüldü: 1003'ün öncesi 1001, arada **25** gün.",
+        "en": "Without `PARTITION BY` all the orders are one line: 1001 (January 8), 1002 (January 15), 1003 (February 2). The one before 1003 is 1002 — customer 2's order.\n\n`PARTITION BY customer_id` gives every customer a line of their own; measured: before 1003 comes 1001, **25** days earlier."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`GROUP BY p.category_code` olan bir sorguda `SUM(SUM(i.quantity * i.unit_price)) OVER ()` her satırda ne veriyor?",
+        "en": "In a query with `GROUP BY p.category_code`, what does `SUM(SUM(i.quantity * i.unit_price)) OVER ()` give on each row?"
+      },
+      "options": {
+        "tr": [
+          "Bütün kategorilerin toplamı: `99165.00`",
+          "Satırın kendi kategorisinin cirosu",
+          "Hata: toplama işlevleri iç içe yazılamaz",
+          "Kategori sayısı: 4"
+        ],
+        "en": [
+          "The total of all categories: `99165.00`",
+          "The row's own category's revenue",
+          "An error: aggregate functions cannot be nested",
+          "The number of categories: 4"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: dört satırın dördünde `99165.00` (iptal edilenler hariç). İçteki `SUM` `GROUP BY`'ın işi, kategorinin cirosu; dıştaki pencere o dört sonucu topluyor. Pencere gruplamadan **sonra** çalıştığı için bu yazım geçerli.\n\nPay bununla tek sorguda: `100.0 * SUM(...) / SUM(SUM(...)) OVER ()` → COM `68.47`.",
+        "en": "Measured: `99165.00` on all four rows (cancelled orders left out). The inner `SUM` is the work of `GROUP BY`, the category's revenue; the outer window adds up those four results. Because the window runs **after** the grouping, this is valid.\n\nWith it the share is one query: `100.0 * SUM(...) / SUM(SUM(...)) OVER ()` → COM `68.47`."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 3,
+      "text": {
+        "tr": "Kategori payı sorgusunda `WHERE o.status <> 'cancelled'` unutuldu. SOF'un cirosu ne oluyor, neden?",
+        "en": "In the category share query, `WHERE o.status <> 'cancelled'` was forgotten. What does SOF's revenue become, and why?"
+      },
+      "options": {
+        "tr": [
+          "Değişmiyor: `6300.00`",
+          "Azalıyor: iptal edilenler çıkarılıyor",
+          "Hata veriyor",
+          "`8700.00`: iptal edilen 1006 siparişindeki Office Suite (2400) içeri giriyor"
+        ],
+        "en": [
+          "It stays `6300.00`",
+          "It goes down: the cancelled ones are taken out",
+          "It raises an error",
+          "`8700.00`: the Office Suite (2400) of the cancelled order 1006 gets in"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: iptal edilenler hariç SOF `6300.00`, dahil `8700.00`. Fark, 1006'nın tek kalemi olan Office Suite.\n\nPay hesabında bu iki kez etkiliyor: SOF'un cirosu da paydadaki toplam da büyüyor, yani **bütün** kategorilerin payı kayıyor.",
+        "en": "Measured: without the cancelled ones SOF is `6300.00`, with them `8700.00`. The difference is the Office Suite, the only line of 1006.\n\nIn a share it hits twice: both SOF's revenue and the total below the line grow, so **every** category's share shifts."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 1,
+      "text": {
+        "tr": "12 ürün `NTILE(5) OVER (ORDER BY price)` ile beş gruba bölündü. Grupların büyüklüğü ne?",
+        "en": "The 12 products were split into five groups with `NTILE(5) OVER (ORDER BY price)`. How big are the groups?"
+      },
+      "options": {
+        "tr": [
+          "Beşi de 2; iki ürün dışarıda kalıyor",
+          "`3, 3, 2, 2, 2`",
+          "`2, 2, 2, 3, 3`",
+          "Hata: 12, 5'e bölünmüyor"
+        ],
+        "en": [
+          "All five are 2; two products are left out",
+          "`3, 3, 2, 2, 2`",
+          "`2, 2, 2, 3, 3`",
+          "An error: 12 does not divide by 5"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **3, 3, 2, 2, 2**. Eşit bölünmeyince artan satırlar **baştaki** gruplara veriliyor. `NTILE(4)` ise 12 ürünü tam 3'er böldü.\n\nDilim ve çeyrek sorularında kullanılıyor: \"en ucuz dörtte bir\" gibi.",
+        "en": "Measured: **3, 3, 2, 2, 2**. When they do not split evenly, the extra rows go to the **first** groups. `NTILE(4)` split the 12 products into exactly 3 each.\n\nIt is used for slices and quarters: \"the cheapest quarter\" and the like."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "ACC'deki altı ürünün stokları 32, 0, 14, 3, 60, 7. `AVG(stock) OVER ()` ne veriyor?",
+        "en": "The stocks of the six ACC products are 32, 0, 14, 3, 60 and 7. What does `AVG(stock) OVER ()` give?"
+      },
+      "options": {
+        "tr": [
+          "`19.33`",
+          "`19.333333`",
+          "`19`",
+          "Hata"
+        ],
+        "en": [
+          "`19.33`",
+          "`19.333333`",
+          "`19`",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`19`**. Toplam 116, altıya bölünce 19,33 — ama `stock` tam sayı sütunu ve tam sayıların ortalaması tam sayı. Pencere bunu değiştirmiyor.\n\n`AVG(CAST(stock AS DECIMAL(10,2))) OVER ()` → `19.333333` (ölçüldü). Onuncu bölümdeki kargo ortalamasının aynısı.",
+        "en": "Measured: **`19`**. The total is 116, divided by six 19.33 — but `stock` is a whole-number column and the average of whole numbers is a whole number. A window does not change that.\n\n`AVG(CAST(stock AS DECIMAL(10,2))) OVER ()` → `19.333333` (measured). The same as the shipping average of the tenth section."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "1. müşterinin üç siparişi var (1001, 1003, 1006). `COUNT(*) OVER (PARTITION BY customer_id)` 1001 satırında ne veriyor?",
+        "en": "Customer 1 has three orders (1001, 1003, 1006). What does `COUNT(*) OVER (PARTITION BY customer_id)` give on the 1001 row?"
+      },
+      "options": {
+        "tr": [
+          "`3`",
+          "`1`",
+          "`10`",
+          "`2`"
+        ],
+        "en": [
+          "`3`",
+          "`1`",
+          "`10`",
+          "`2`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **3** — 1003 ve 1006 satırlarında da 3. Pencereyle `COUNT` grubun büyüklüğünü her satıra yazıyor, satırları azaltmadan.\n\n`ORDER BY` eklenince (`OVER (PARTITION BY customer_id ORDER BY order_date)`) varsayılan çerçeve devreye giriyor ve \"o güne kadar kaçıncı sipariş\" sayılıyor: 1, 2, 3 (ölçüldü).",
+        "en": "Measured: **3** — and 3 on the 1003 and 1006 rows as well. With a window, `COUNT` writes the group's size on every row without reducing the rows.\n\nAdd `ORDER BY` (`OVER (PARTITION BY customer_id ORDER BY order_date)`) and the default frame kicks in, counting \"which order this is so far\": 1, 2, 3 (measured)."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 3,
+      "text": {
+        "tr": "Çalışan başına sipariş sayısı: 3 numara 4, 4 numara 4 sipariş; iki siparişin çalışanı yok (`NULL`). `GROUP BY employee_id` ile `RANK() OVER (ORDER BY COUNT(*) DESC)` birlikte yazılınca `NULL` grubu ne alıyor?",
+        "en": "Orders per employee: number 3 has 4, number 4 has 4; two orders have no employee (`NULL`). With `GROUP BY employee_id` and `RANK() OVER (ORDER BY COUNT(*) DESC)` together, what does the `NULL` group get?"
+      },
+      "options": {
+        "tr": [
+          "Sıralamaya girmiyor",
+          "`2`",
+          "`1`",
+          "`3`"
+        ],
+        "en": [
+          "It is left out of the ranking",
+          "`2`",
+          "`1`",
+          "`3`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **3**. `GROUP BY` `NULL`'ları kendi grubunda topluyor ve o grup da sıralanıyor. Önündeki iki çalışan eşit (4'er sipariş), ikisi de 1 aldı; `RANK` atladığı için `NULL` grubu 3.\n\nYalnızca gerçek çalışanlar sıralanacaksa `WHERE employee_id IS NOT NULL`.",
+        "en": "Measured: **3**. `GROUP BY` gathers the `NULL`s into a group of their own, and that group gets ranked too. The two employees ahead of it are tied (4 orders each) and both got 1; since `RANK` skips, the `NULL` group is 3.\n\nIf only real employees should be ranked, `WHERE employee_id IS NOT NULL`."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT TOP 3 name FROM products ORDER BY ROW_NUMBER() OVER (ORDER BY price DESC)` ne yapıyor?",
+        "en": "What does `SELECT TOP 3 name FROM products ORDER BY ROW_NUMBER() OVER (ORDER BY price DESC)` do?"
+      },
+      "options": {
+        "tr": [
+          "Hata: pencere işlevi `ORDER BY` içinde yazılamaz",
+          "En pahalı üç ürünü getiriyor: Laptop, Desktop, Projector",
+          "En ucuz üç ürünü getiriyor",
+          "Rastgele üç ürün getiriyor"
+        ],
+        "en": [
+          "An error: a window function cannot go in `ORDER BY`",
+          "It brings the three most expensive products: Laptop, Desktop, Projector",
+          "It brings the three cheapest products",
+          "It brings three random products"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: Laptop, Desktop, Projector. Hata metninin kendisi söylüyor: pencere işlevleri `SELECT` **ve** `ORDER BY` içinde yazılabiliyor.\n\nBu örnekte düz `ORDER BY price DESC` ile aynı sonuç; asıl akılda kalması gereken kural: `WHERE`'de değil, `ORDER BY`'da yazılabiliyor.",
+        "en": "Measured: Laptop, Desktop, Projector. The error message itself says so: window functions can be written in `SELECT` **and** `ORDER BY`.\n\nIn this example it gives the same result as a plain `ORDER BY price DESC`; the rule worth remembering is: not in `WHERE`, but in `ORDER BY` it works."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "`SUM(id) OVER (ORDER BY id RANGE BETWEEN 1 PRECEDING AND CURRENT ROW)` ne yapıyor?",
+        "en": "What does `SUM(id) OVER (ORDER BY id RANGE BETWEEN 1 PRECEDING AND CURRENT ROW)` do?"
+      },
+      "options": {
+        "tr": [
+          "`id`'si bir eksik olan satırla bu satırı topluyor",
+          "Bir önceki satırla bu satırı topluyor",
+          "Hata: `RANGE` yalnızca `UNBOUNDED` ve `CURRENT ROW` ile yazılabiliyor",
+          "`ROWS` ile aynı sonucu veriyor"
+        ],
+        "en": [
+          "It adds up this row and the row whose `id` is one less",
+          "It adds up this row and the previous one",
+          "An error: `RANGE` can only be written with `UNBOUNDED` and `CURRENT ROW`",
+          "It gives the same result as `ROWS`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `RANGE is only supported with UNBOUNDED and CURRENT ROW window frame delimiters.`\n\nSQL Server'da `RANGE` sayı almıyor. \"Önceki satır ve bu satır\" için `ROWS BETWEEN 1 PRECEDING AND CURRENT ROW` yazılıyor.",
+        "en": "Measured: `RANGE is only supported with UNBOUNDED and CURRENT ROW window frame delimiters.`\n\nIn SQL Server `RANGE` takes no number. For \"the previous row and this one\", write `ROWS BETWEEN 1 PRECEDING AND CURRENT ROW`."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`SELECT name, price, ROW_NUMBER() OVER (ORDER BY price DESC) AS rn FROM products` — sorgunun sonunda `ORDER BY` yok. Satırlar hangi sırada gelir?",
+        "en": "`SELECT name, price, ROW_NUMBER() OVER (ORDER BY price DESC) AS rn FROM products` — there is no `ORDER BY` at the end of the query. In what order do the rows come back?"
+      },
+      "options": {
+        "tr": [
+          "Garanti yok; satır sırası için sorgunun sonuna `ORDER BY` yazmak gerekiyor",
+          "Her zaman `price DESC` sırasında: `OVER`'daki sıra sonucu da sıralıyor",
+          "Her zaman tablonun sırasında",
+          "Hata: `OVER` varken sonda `ORDER BY` zorunlu"
+        ],
+        "en": [
+          "There is no guarantee; the row order needs an `ORDER BY` at the end of the query",
+          "Always in `price DESC` order: the order in `OVER` sorts the result too",
+          "Always in the table's order",
+          "An error: with `OVER`, an `ORDER BY` at the end is required"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu ölçümde satırlar `price DESC` sırasında geldi — ama bu sunucunun o anki planı, bir söz değil. `OVER` içindeki `ORDER BY` yalnızca **numaranın** neye göre verildiğini söylüyor.\n\nKural değişmiyor: sonucun sırası önemliyse sorgunun sonunda `ORDER BY` yazılır. Alıştırmaların hepsi bu yüzden `ORDER BY` ile bitiyor.",
+        "en": "In this measurement the rows came back in `price DESC` order — but that was the server's plan at the time, not a promise. The `ORDER BY` inside `OVER` only says what **the number** goes by.\n\nThe rule stays the same: if the result's order matters, an `ORDER BY` goes at the end of the query. That is why all the exercises end with `ORDER BY`."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "Aylık ciro: Ocak `32715`, Şubat `28680`, Mart `7710`. `AVG(revenue) OVER (ORDER BY month ROWS BETWEEN 1 PRECEDING AND CURRENT ROW)` Mart satırında ne veriyor?",
+        "en": "Monthly revenue: January `32715`, February `28680`, March `7710`. What does `AVG(revenue) OVER (ORDER BY month ROWS BETWEEN 1 PRECEDING AND CURRENT ROW)` give on the March row?"
+      },
+      "options": {
+        "tr": [
+          "`7710`",
+          "`23035`",
+          "`28680`",
+          "`18195`"
+        ],
+        "en": [
+          "`7710`",
+          "`23035`",
+          "`28680`",
+          "`18195`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **18195** — Şubat ile Mart'ın ortalaması: (28680 + 7710) / 2. Çerçeve \"bir önceki satır ve bu satır\"; ilk satırda öncesi olmadığı için yalnızca kendisi (Ocak → 32715).\n\nBuna **hareketli ortalama** deniyor; tek bir kötü ayın etkisini yumuşatıyor. `23035` üç ayın ortalaması olurdu (`2 PRECEDING`).",
+        "en": "Measured: **18195** — the average of February and March: (28680 + 7710) / 2. The frame is \"the previous row and this one\"; the first row has nothing before it, so it is only itself (January → 32715).\n\nThis is called a **moving average**; it softens the effect of a single bad month. `23035` would be the average of three months (`2 PRECEDING`)."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 1,
+      "text": {
+        "tr": "Müşteri başına en büyük siparişi getiren sorgu (`RANK() OVER (PARTITION BY customer_id ORDER BY total DESC)`, dışarıda `WHERE rk = 1`) 1. müşteri için 1006'yı (`2400.00`) getirdi. Sorun ne?",
+        "en": "A query for each customer's largest order (`RANK() OVER (PARTITION BY customer_id ORDER BY total DESC)`, with `WHERE rk = 1` outside) brought back 1006 (`2400.00`) for customer 1. What is wrong?"
+      },
+      "options": {
+        "tr": [
+          "`RANK` yerine `ROW_NUMBER` gerekiyor",
+          "1006 iptal edilmiş; iptalleri numaralandırmadan **önce**, iç sorguda süzmek gerekiyor",
+          "`PARTITION BY` yanlış sütunda",
+          "Sorun yok, sonuç doğru"
+        ],
+        "en": [
+          "`ROW_NUMBER` is needed instead of `RANK`",
+          "1006 was cancelled; the cancelled ones have to be filtered **before** numbering, in the inner query",
+          "`PARTITION BY` is on the wrong column",
+          "Nothing, the result is right"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: 1. müşterinin siparişleri 1001 (`1815.00`), 1003 (`2340.00`) ve iptal edilen 1006 (`2400.00`). Numara iptal edilen de dahil verilince 1 numarayı 1006 alıyor.\n\nSüzme dışarıda yapılırsa (`WHERE rk = 1 AND status <> 'cancelled'`) daha kötüsü oluyor: 1. müşteri sonuçtan **tamamen** düşüyor (ölçüldü), çünkü 1 numaralı satırı elendi. Doğrusu iptalleri içeride, numaralandırmadan önce çıkarmak → 1003.",
+        "en": "Measured: customer 1's orders are 1001 (`1815.00`), 1003 (`2340.00`) and the cancelled 1006 (`2400.00`). Numbered with the cancelled one included, 1006 takes number 1.\n\nFilter outside (`WHERE rk = 1 AND status <> 'cancelled'`) and it gets worse: customer 1 drops out of the result **entirely** (measured), because their number 1 row was removed. The right way is to take the cancelled ones out inside, before numbering → 1003."
+      }
+    }
+  ]
+}

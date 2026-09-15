@@ -1,0 +1,74 @@
+{
+  "id": "kategori-zirvesi",
+  "language": "tsql",
+  "title": {
+    "tr": "Her kategorinin en pahalısı",
+    "en": "The most expensive in each category"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce her kategoride ürünleri pahalıdan ucuza numaralandır: `ROW_NUMBER() OVER (PARTITION BY category_code ORDER BY price DESC)`. En pahalısı 1 alıyor.",
+      "en": "First number the products in each category from most to least expensive: `ROW_NUMBER() OVER (PARTITION BY category_code ORDER BY price DESC)`. The most expensive gets 1."
+    },
+    {
+      "tr": "Pencere işlevi `WHERE` içinde yazılamıyor, takma adı da aynı sorgunun `WHERE`'inde görünmüyor. Numaralı sorguyu `FROM (...) AS ranked` içine al, dışarıda `WHERE rn = 1` yaz.",
+      "en": "A window function cannot be written inside `WHERE`, and its alias is not visible in the same query's `WHERE`. Put the numbered query inside `FROM (...) AS ranked` and write `WHERE rn = 1` outside."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT category_code, name, price\nFROM (\n    SELECT category_code, name, price,\n           ROW_NUMBER() OVER (PARTITION BY category_code\n                              ORDER BY price DESC) AS rn\n    FROM products\n) AS ranked\nWHERE rn = 1\nORDER BY category_code;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT category_code, name, price\nFROM (\n    SELECT category_code, name, price,\n           ROW_NUMBER() OVER (PARTITION BY category_code\n                              ORDER BY price DESC) AS rn\n    FROM products\n) AS ranked\nWHERE rn = 1\nORDER BY category_code;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "category_code",
+        "name",
+        "price"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "ACC",
+          "Microphone",
+          1320.0
+        ],
+        [
+          "COM",
+          "Laptop",
+          24500.0
+        ],
+        [
+          "DIS",
+          "Projector",
+          7400.0
+        ],
+        [
+          "SOF",
+          "Office Suite",
+          2400.0
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "PARTITION BY",
+      "hint": {
+        "tr": "Numaralandırma her kategoride baştan başlamalı: `OVER (PARTITION BY category_code ORDER BY price DESC)`.",
+        "en": "The numbering has to start again in every category: `OVER (PARTITION BY category_code ORDER BY price DESC)`."
+      }
+    }
+  ]
+}

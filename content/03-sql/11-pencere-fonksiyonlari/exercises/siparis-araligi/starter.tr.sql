@@ -1,0 +1,5 @@
+-- Her siparis icin, ayni musterinin bir onceki siparisinden
+-- bu yana kac gun gectigini goster. Musterinin ilk
+-- siparisinde bu deger bos (NULL) kalsin.
+-- Sutunlar: customer_id, id, order_date, gap_days.
+-- customer_id, sonra order_date ile sirala.

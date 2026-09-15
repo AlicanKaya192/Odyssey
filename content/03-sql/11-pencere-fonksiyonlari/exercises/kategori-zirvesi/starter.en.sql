@@ -1,0 +1,3 @@
+-- Bring back the most expensive product in each category.
+-- Columns: category_code, name, price.
+-- Sort by category_code.

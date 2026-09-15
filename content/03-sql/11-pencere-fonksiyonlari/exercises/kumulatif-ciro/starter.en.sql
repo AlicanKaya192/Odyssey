@@ -1,0 +1,4 @@
+-- For every order that was not cancelled, show its total
+-- and the revenue built up to that day.
+-- Columns: id, order_date, total, running_total.
+-- Sort by order_date.

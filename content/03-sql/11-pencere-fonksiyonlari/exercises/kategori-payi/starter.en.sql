@@ -1,0 +1,5 @@
+-- For orders that were not cancelled, show each category's
+-- revenue and its percentage share of the total.
+-- Columns: category_code, revenue, share.
+-- share as a percentage with two places
+-- (DECIMAL(5,2)). Sort by revenue, largest first.

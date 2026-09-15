@@ -1,0 +1,3 @@
+-- Her kategorinin en pahali urununu getir.
+-- Sutunlar: category_code, name, price.
+-- category_code'a gore sirala.

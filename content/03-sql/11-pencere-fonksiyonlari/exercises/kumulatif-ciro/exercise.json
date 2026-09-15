@@ -1,0 +1,109 @@
+{
+  "id": "kumulatif-ciro",
+  "language": "tsql",
+  "title": {
+    "tr": "Birikimli ciro",
+    "en": "The running revenue"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Siparişin tutarı kalemlerde: `orders` ile `order_items`'ı birleştir, `GROUP BY o.id, o.order_date` ile `SUM(i.quantity * i.unit_price)`. İptal edilenleri `WHERE` ile çıkar.",
+      "en": "The order's amount is in its lines: join `orders` with `order_items` and take `SUM(i.quantity * i.unit_price)` with `GROUP BY o.id, o.order_date`. Leave the cancelled ones out with `WHERE`."
+    },
+    {
+      "tr": "Birikimli toplam, grup toplamının üstüne pencere: `SUM(SUM(...)) OVER (ORDER BY o.order_date)`. İçteki `SUM` siparişin tutarı, dıştaki o tarihe kadar gelenlerin toplamı.",
+      "en": "The running total is a window on top of the group total: `SUM(SUM(...)) OVER (ORDER BY o.order_date)`. The inner `SUM` is the order's amount, the outer one adds up everything up to that date."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT o.id, o.order_date,\n       SUM(i.quantity * i.unit_price) AS total,\n       SUM(SUM(i.quantity * i.unit_price))\n           OVER (ORDER BY o.order_date) AS running_total\nFROM orders o\nJOIN order_items i ON i.order_id = o.id\nWHERE o.status <> 'cancelled'\nGROUP BY o.id, o.order_date\nORDER BY o.order_date;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT o.id, o.order_date,\n       SUM(i.quantity * i.unit_price) AS total,\n       SUM(SUM(i.quantity * i.unit_price))\n           OVER (ORDER BY o.order_date) AS running_total\nFROM orders o\nJOIN order_items i ON i.order_id = o.id\nWHERE o.status <> 'cancelled'\nGROUP BY o.id, o.order_date\nORDER BY o.order_date;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "id",
+        "order_date",
+        "total",
+        "running_total"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          1001,
+          "2026-01-08",
+          1815.0,
+          1815.0
+        ],
+        [
+          1002,
+          "2026-01-15",
+          30900.0,
+          32715.0
+        ],
+        [
+          1003,
+          "2026-02-02",
+          2340.0,
+          35055.0
+        ],
+        [
+          1004,
+          "2026-02-11",
+          1600.0,
+          36655.0
+        ],
+        [
+          1005,
+          "2026-02-19",
+          24740.0,
+          61395.0
+        ],
+        [
+          1007,
+          "2026-03-14",
+          4510.0,
+          65905.0
+        ],
+        [
+          1008,
+          "2026-03-22",
+          3200.0,
+          69105.0
+        ],
+        [
+          1009,
+          "2026-04-01",
+          24950.0,
+          94055.0
+        ],
+        [
+          1010,
+          "2026-04-17",
+          5110.0,
+          99165.0
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "OVER",
+      "hint": {
+        "tr": "Bu bölüm pencere işlevlerini çalıştırıyor: sonucu bir `OVER (...)` ile hesapla.",
+        "en": "This section practises window functions: work the result out with an `OVER (...)`."
+      }
+    }
+  ]
+}

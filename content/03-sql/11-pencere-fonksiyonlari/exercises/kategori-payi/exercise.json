@@ -1,0 +1,74 @@
+{
+  "id": "kategori-payi",
+  "language": "tsql",
+  "title": {
+    "tr": "Kategorinin cirodaki payı",
+    "en": "Each category's share of revenue"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Üç tablo gerekiyor: tutar `order_items`'ta, kategori `products`'ta, iptal bilgisi `orders`'ta. `GROUP BY p.category_code` ile kategorinin cirosu `SUM(i.quantity * i.unit_price)`.",
+      "en": "You need three tables: the amount is in `order_items`, the category in `products`, the cancelled flag in `orders`. With `GROUP BY p.category_code` the category's revenue is `SUM(i.quantity * i.unit_price)`."
+    },
+    {
+      "tr": "Toplam ciro, grupların toplamının üstüne boş bir pencere: `SUM(SUM(...)) OVER ()`. Pay `100.0 * kategori / toplam`; sonra `CAST(... AS DECIMAL(5,2))`.",
+      "en": "The total revenue is an empty window over the group totals: `SUM(SUM(...)) OVER ()`. The share is `100.0 * category / total`; then `CAST(... AS DECIMAL(5,2))`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT p.category_code,\n       SUM(i.quantity * i.unit_price) AS revenue,\n       CAST(100.0 * SUM(i.quantity * i.unit_price)\n            / SUM(SUM(i.quantity * i.unit_price)) OVER ()\n            AS DECIMAL(5,2)) AS share\nFROM order_items i\nJOIN products p ON p.id = i.product_id\nJOIN orders o ON o.id = i.order_id\nWHERE o.status <> 'cancelled'\nGROUP BY p.category_code\nORDER BY revenue DESC;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT p.category_code,\n       SUM(i.quantity * i.unit_price) AS revenue,\n       CAST(100.0 * SUM(i.quantity * i.unit_price)\n            / SUM(SUM(i.quantity * i.unit_price)) OVER ()\n            AS DECIMAL(5,2)) AS share\nFROM order_items i\nJOIN products p ON p.id = i.product_id\nJOIN orders o ON o.id = i.order_id\nWHERE o.status <> 'cancelled'\nGROUP BY p.category_code\nORDER BY revenue DESC;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "category_code",
+        "revenue",
+        "share"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "COM",
+          67900.0,
+          68.47
+        ],
+        [
+          "DIS",
+          12800.0,
+          12.91
+        ],
+        [
+          "ACC",
+          12165.0,
+          12.27
+        ],
+        [
+          "SOF",
+          6300.0,
+          6.35
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "OVER",
+      "hint": {
+        "tr": "Bu bölüm pencere işlevlerini çalıştırıyor: sonucu bir `OVER (...)` ile hesapla.",
+        "en": "This section practises window functions: work the result out with an `OVER (...)`."
+      }
+    }
+  ]
+}

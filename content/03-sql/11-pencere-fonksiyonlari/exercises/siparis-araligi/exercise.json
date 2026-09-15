@@ -1,0 +1,115 @@
+{
+  "id": "siparis-araligi",
+  "language": "tsql",
+  "title": {
+    "tr": "İki sipariş arası",
+    "en": "The gap between orders"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date)` aynı müşterinin bir önceki sipariş tarihini getiriyor; ilk siparişte `NULL`.",
+      "en": "`LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date)` brings the same customer's previous order date; on the first order it is `NULL`."
+    },
+    {
+      "tr": "Gün farkı onuncu bölümdeki gibi: `DATEDIFF(day, önceki, order_date)`. Önceki `NULL` ise sonuç da `NULL` — istenen de bu.",
+      "en": "The gap in days works as in the tenth section: `DATEDIFF(day, previous, order_date)`. If the previous one is `NULL`, so is the result — which is what we want."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT customer_id, id, order_date,\n       DATEDIFF(day,\n                LAG(order_date) OVER (PARTITION BY customer_id\n                                      ORDER BY order_date),\n                order_date) AS gap_days\nFROM orders\nORDER BY customer_id, order_date;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT customer_id, id, order_date,\n       DATEDIFF(day,\n                LAG(order_date) OVER (PARTITION BY customer_id\n                                      ORDER BY order_date),\n                order_date) AS gap_days\nFROM orders\nORDER BY customer_id, order_date;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "customer_id",
+        "id",
+        "order_date",
+        "gap_days"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          1,
+          1001,
+          "2026-01-08",
+          null
+        ],
+        [
+          1,
+          1003,
+          "2026-02-02",
+          25
+        ],
+        [
+          1,
+          1006,
+          "2026-03-03",
+          29
+        ],
+        [
+          2,
+          1002,
+          "2026-01-15",
+          null
+        ],
+        [
+          2,
+          1008,
+          "2026-03-22",
+          66
+        ],
+        [
+          3,
+          1004,
+          "2026-02-11",
+          null
+        ],
+        [
+          3,
+          1010,
+          "2026-04-17",
+          65
+        ],
+        [
+          4,
+          1005,
+          "2026-02-19",
+          null
+        ],
+        [
+          4,
+          1009,
+          "2026-04-01",
+          41
+        ],
+        [
+          5,
+          1007,
+          "2026-03-14",
+          null
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "LAG",
+      "hint": {
+        "tr": "Önceki satırın değerini `LAG(order_date) OVER (...)` getiriyor.",
+        "en": "`LAG(order_date) OVER (...)` brings the previous row's value."
+      }
+    }
+  ]
+}

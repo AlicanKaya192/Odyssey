@@ -1,0 +1,5 @@
+-- Urunleri stoga gore, en coktan aza sirala ve her birine
+-- bir sira numarasi ver. Ayni stoktakiler ayni sirayi
+-- alsin; sonraki sira atlamasin (1, 1, 2, ...).
+-- Sutunlar: name, stock, stock_rank.
+-- Satirlari stock (azalan), sonra name ile sirala.

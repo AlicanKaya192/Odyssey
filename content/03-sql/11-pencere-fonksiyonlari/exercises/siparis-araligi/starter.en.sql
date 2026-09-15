@@ -1,0 +1,5 @@
+-- For each order, show how many days have passed since the
+-- same customer's previous order. On a customer's first
+-- order the value stays empty (NULL).
+-- Columns: customer_id, id, order_date, gap_days.
+-- Sort by customer_id, then order_date.

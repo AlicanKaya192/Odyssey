@@ -1,0 +1,5 @@
+-- Iptal edilmeyen siparislerde her kategorinin cirosunu
+-- ve toplam cirodaki yuzde payini goster.
+-- Sutunlar: category_code, revenue, share.
+-- share yuzde olarak, virgulden sonra iki basamak
+-- (DECIMAL(5,2)). revenue'ya gore buyukten kucuge sirala.

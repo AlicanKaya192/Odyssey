@@ -1,0 +1,5 @@
+-- Rank the products by stock, from most to least. Products
+-- with the same stock share a rank, and the next rank does
+-- not skip (1, 1, 2, ...).
+-- Columns: name, stock, stock_rank.
+-- Sort the rows by stock (descending), then name.

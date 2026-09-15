@@ -1,0 +1,114 @@
+{
+  "id": "stok-sirasi",
+  "language": "tsql",
+  "title": {
+    "tr": "Stok sırası",
+    "en": "The stock ranking"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Üç sıralama işlevi eşitlikte ayrışıyor: `ROW_NUMBER` herkese farklı numara veriyor, `RANK` eşitlerden sonra atlıyor (1, 1, 3), `DENSE_RANK` atlamıyor (1, 1, 2).",
+      "en": "The three ranking functions differ on ties: `ROW_NUMBER` gives everyone a different number, `RANK` skips after a tie (1, 1, 3), `DENSE_RANK` does not (1, 1, 2)."
+    },
+    {
+      "tr": "`DENSE_RANK() OVER (ORDER BY stock DESC) AS stock_rank`. Sonundaki `ORDER BY stock DESC, name` yalnızca satırların sırası; numarayı `OVER` içindeki belirliyor.",
+      "en": "`DENSE_RANK() OVER (ORDER BY stock DESC) AS stock_rank`. The `ORDER BY stock DESC, name` at the end is only the order of the rows; the number is decided by the one inside `OVER`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT name, stock,\n       DENSE_RANK() OVER (ORDER BY stock DESC) AS stock_rank\nFROM products\nORDER BY stock DESC, name;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT name, stock,\n       DENSE_RANK() OVER (ORDER BY stock DESC) AS stock_rank\nFROM products\nORDER BY stock DESC, name;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "name",
+        "stock",
+        "stock_rank"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "Antivirus",
+          99,
+          1
+        ],
+        [
+          "Office Suite",
+          99,
+          1
+        ],
+        [
+          "Cable",
+          60,
+          2
+        ],
+        [
+          "Keyboard",
+          32,
+          3
+        ],
+        [
+          "Headset",
+          14,
+          4
+        ],
+        [
+          "Monitor",
+          8,
+          5
+        ],
+        [
+          "Microphone",
+          7,
+          6
+        ],
+        [
+          "Laptop",
+          5,
+          7
+        ],
+        [
+          "Webcam",
+          3,
+          8
+        ],
+        [
+          "Desktop",
+          2,
+          9
+        ],
+        [
+          "Mouse",
+          0,
+          10
+        ],
+        [
+          "Projector",
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "OVER",
+      "hint": {
+        "tr": "Bu bölüm pencere işlevlerini çalıştırıyor: sonucu bir `OVER (...)` ile hesapla.",
+        "en": "This section practises window functions: work the result out with an `OVER (...)`."
+      }
+    }
+  ]
+}

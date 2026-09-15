@@ -1,0 +1,4 @@
+-- Iptal edilmeyen her siparisin toplam tutarini ve o gune
+-- kadar biriken ciroyu goster.
+-- Sutunlar: id, order_date, total, running_total.
+-- order_date'e gore sirala.
