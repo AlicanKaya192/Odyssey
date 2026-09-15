@@ -16,11 +16,14 @@ Okuma hâlindeki çizim ders okuyucusununkinden **daha dar**: içindeki HTML
 
 from __future__ import annotations
 
+import zipfile
 from datetime import datetime
+from pathlib import Path
 
-from PySide6.QtCore import QSize, Qt, QTimer, Signal
+from PySide6.QtCore import QPoint, QSize, QStandardPaths, Qt, QTimer, Signal
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QTextCursor
 from PySide6.QtWidgets import (
+    QFileDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -40,7 +43,14 @@ from PySide6.QtWidgets import (
 from ..core.catalog import Catalog
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
-from ..core.user_notes import TITLE_MAX_LENGTH, render_note
+from ..core.user_notes import (
+    TITLE_MAX_LENGTH,
+    build_zip,
+    note_to_markdown,
+    read_notes_file,
+    render_note,
+    safe_filename,
+)
 from ..resources.icons import icon
 from ..resources.theme.tokens import PALETTES, READING_WIDTH, SPACING
 from ..widgets.document_view import DocumentView
@@ -127,6 +137,16 @@ class NotebookView(QWidget):
         self._save_timer.setInterval(SAVE_DELAY_MS)
         self._save_timer.timeout.connect(self.flush)
 
+        # İndirme/yükleme sonucunu söyleyen satır bir süre sonra kayboluyor.
+        self._status_timer = QTimer(self)
+        self._status_timer.setSingleShot(True)
+        self._status_timer.setInterval(8000)
+        # Dosya penceresi en son kullanılan klasörde açılsın.
+        self._last_dir = Path(
+            QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DownloadLocation)
+            or Path.home()
+        )
+
         row = QHBoxLayout(self)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(0)
@@ -155,6 +175,20 @@ class NotebookView(QWidget):
         self._new_button.clicked.connect(self.new_note)
         column.addWidget(self._new_button)
 
+        # İndir / Yükle. İndirmenin menüsü düğmeye bağlanmıyor, basınca
+        # açılıyor: bağlanınca Qt düğmenin kenarına kendi okunu çiziyor.
+        transfer = QHBoxLayout()
+        transfer.setSpacing(SPACING["sm"])
+        self._download_button = QPushButton()
+        self._download_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._download_button.clicked.connect(self._show_download_menu)
+        self._upload_button = QPushButton()
+        self._upload_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._upload_button.clicked.connect(self.upload)
+        transfer.addWidget(self._download_button, 1)
+        transfer.addWidget(self._upload_button, 1)
+        column.addLayout(transfer)
+
         self._tree = QTreeWidget()
         self._tree.setProperty("role", "notebook-tree")
         self._tree_style = None
@@ -173,6 +207,13 @@ class NotebookView(QWidget):
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._tree.customContextMenuRequested.connect(self._tree_menu)
         column.addWidget(self._tree, 1)
+
+        self._status = QLabel()
+        self._status.setProperty("role", "muted")
+        self._status.setWordWrap(True)
+        self._status.hide()
+        self._status_timer.timeout.connect(self._status.hide)
+        column.addWidget(self._status)
 
         return side
 
@@ -330,19 +371,174 @@ class NotebookView(QWidget):
         self.open_note(int(item.data(0, ROLE_ID)))
 
     def _tree_menu(self, position) -> None:
+        """Sağ tık: notta Düzenle / İndir / Sil, klasörde klasörü indir.
+
+        Eylemler kendi `triggered` sinyaline bağlı; `exec`'in döndürdüğü
+        eylemin kimliğine güvenilmiyor.
+        """
         item = self._tree.itemAt(position)
-        if item is None or item.data(0, ROLE_KIND) != "note":
+        if item is None:
             return
-        entry_id = int(item.data(0, ROLE_ID))
+        t = self._language.t
         menu = QMenu(self)
-        edit = menu.addAction(self._language.t("notebook.edit"))
-        delete = menu.addAction(self._language.t("notebook.delete"))
-        chosen = menu.exec(self._tree.viewport().mapToGlobal(position))
-        if chosen is edit:
-            self.open_note(entry_id, edit=True)
-        elif chosen is delete:
-            self.open_note(entry_id)
-            self._delete()
+
+        if item.data(0, ROLE_KIND) == "note":
+            entry_id = int(item.data(0, ROLE_ID))
+            menu.addAction(t("notebook.edit")).triggered.connect(
+                lambda: self.open_note(entry_id, edit=True)
+            )
+            menu.addAction(t("notebook.download_note")).triggered.connect(
+                lambda: self.download_note(entry_id)
+            )
+            menu.addSeparator()
+
+            def sil() -> None:
+                self.open_note(entry_id)
+                self._delete()
+
+            menu.addAction(t("notebook.delete")).triggered.connect(sil)
+        else:
+            key = item.data(0, ROLE_ID)
+            eylem = menu.addAction(t("notebook.download_folder", folder=self._folder_title(key)))
+            eylem.setEnabled(bool(self._folder_entries(key)))
+            eylem.triggered.connect(lambda: self.download_folder(key))
+
+        menu.exec(self._tree.viewport().mapToGlobal(position))
+
+    # --- indirme ve yükleme -----------------------------------------------
+
+    def _folder_title(self, key: str) -> str:
+        chapter = self._catalog.chapter(key) if key else None
+        return self._language.pick(chapter.title) if chapter else self._language.t("notebook.other")
+
+    def _folder_entries(self, key: str) -> list[dict]:
+        return [e for e in self._entries if self._folder_key(e["chapter_id"]) == key]
+
+    def _full(self, entries: list[dict]) -> list[dict]:
+        """Ağaçtaki satırlar gövdesiz; indirilecek notların tamamı."""
+        return [full for e in entries if (full := self._store.notebook_entry(e["id"]))]
+
+    def _show_status(self, text: str) -> None:
+        self._status.setText(text)
+        self._status.show()
+        self._status_timer.start()
+
+    def _show_download_menu(self) -> None:
+        self.flush()
+        t = self._language.t
+        entry = self._entry()
+        klasor = self._folder_key(entry["chapter_id"]) if entry else self._folder_hint
+
+        menu = QMenu(self)
+        bu_not = menu.addAction(t("notebook.download_note"))
+        bu_not.setEnabled(entry is not None)
+        if entry is not None:
+            bu_not.triggered.connect(lambda: self.download_note(entry["id"]))
+        bu_klasor = menu.addAction(t("notebook.download_folder", folder=self._folder_title(klasor)))
+        bu_klasor.setEnabled(bool(self._folder_entries(klasor)))
+        bu_klasor.triggered.connect(lambda: self.download_folder(klasor))
+        hepsi = menu.addAction(t("notebook.download_all"))
+        hepsi.setEnabled(bool(self._entries))
+        hepsi.triggered.connect(lambda: self.download_all())
+        menu.exec(self._download_button.mapToGlobal(QPoint(0, self._download_button.height() + 4)))
+
+    def _ask_save_path(self, name: str, file_filter: str) -> Path | None:
+        path, _ = QFileDialog.getSaveFileName(
+            self, self._language.t("notebook.download"), str(self._last_dir / name), file_filter
+        )
+        if not path:
+            return None
+        self._last_dir = Path(path).parent
+        return Path(path)
+
+    def _write(self, path: Path, data: bytes) -> bool:
+        try:
+            path.write_bytes(data)
+        except OSError:
+            self._show_status(self._language.t("notebook.export_failed"))
+            return False
+        self._show_status(self._language.t("notebook.exported", name=path.name))
+        return True
+
+    def download_note(self, entry_id: int, path: Path | None = None) -> bool:
+        """Tek notu `.md` olarak kaydeder. `path` verilmezse sorar."""
+        self.flush()
+        entry = self._store.notebook_entry(entry_id)
+        if entry is None:
+            return False
+        path = path or self._ask_save_path(
+            f"{safe_filename(entry['title'])}.md", self._language.t("notebook.md_filter")
+        )
+        return path is not None and self._write(path, note_to_markdown(entry).encode("utf-8"))
+
+    def download_folder(self, key: str, path: Path | None = None) -> bool:
+        """Bir klasörün notlarını `.zip` olarak kaydeder."""
+        self.flush()
+        entries = self._full(self._folder_entries(key))
+        if not entries:
+            return False
+        baslik = self._folder_title(key)
+        path = path or self._ask_save_path(
+            f"Odyssey - {safe_filename(baslik)}.zip", self._language.t("notebook.zip_filter")
+        )
+        return path is not None and self._write(path, build_zip([(baslik, entries)]))
+
+    def download_all(self, path: Path | None = None) -> bool:
+        """Bütün notları, klasör başına bir dizinle `.zip` olarak kaydeder."""
+        self.flush()
+        groups = [
+            (title, self._full(self._folder_entries(key)))
+            for key, title, *_ in self._folders()
+            if self._folder_entries(key)
+        ]
+        if not groups:
+            return False
+        path = path or self._ask_save_path(
+            f"{self._language.t('notebook.all_notes_file')}.zip",
+            self._language.t("notebook.zip_filter"),
+        )
+        return path is not None and self._write(path, build_zip(groups))
+
+    def upload(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self, self._language.t("notebook.upload"), str(self._last_dir),
+            self._language.t("notebook.file_filter"),
+        )
+        if path:
+            self._last_dir = Path(path).parent
+            self.import_file(Path(path))
+
+    def import_file(self, path: Path) -> int:
+        """`.md` ya da `.zip` dosyasındaki notları ekler; eklenen sayısını döndürür.
+
+        Hiçbir notun üstüne yazılmıyor: aynı klasörde aynı ad varsa yeni
+        not "(2)" alıyor (`ProgressStore.add_notebook_entry`).
+        """
+        self.flush()
+        t = self._language.t
+        try:
+            notes, problems = read_notes_file(path, t("notebook.untitled"))
+        except (OSError, zipfile.BadZipFile, ValueError):
+            self._show_status(t("notebook.import_failed"))
+            return 0
+
+        ids = [
+            self._store.add_notebook_entry(n["chapter_id"], n["section_id"], n["title"], n["body"])
+            for n in notes
+        ]
+        parca = [t("notebook.imported", count=len(ids)) if ids else t("notebook.import_none")]
+        if problems:
+            parca.append(t("notebook.import_problems", count=problems))
+        self._show_status(" ".join(parca))
+
+        if ids:
+            ilk = self._store.notebook_entry(ids[0])
+            self._current = ids[0]
+            self._editing = False
+            self._collapsed.discard(self._folder_key(ilk["chapter_id"]))
+            self.refresh()
+            self.changed.emit()
+        return len(ids)
 
     # --- not --------------------------------------------------------------
 
@@ -573,6 +769,9 @@ class NotebookView(QWidget):
         t = self._language.t
         self._new_button.setText(f"+  {t('notebook.new')}")
         self._new_button.setToolTip("Ctrl+N")
+        self._download_button.setText(f"{t('notebook.download')}  ▾")
+        self._upload_button.setText(t("notebook.upload"))
+        self._upload_button.setToolTip(t("notebook.upload_hint"))
         self._title_edit.setPlaceholderText(t("notebook.title_placeholder"))
         self._editor.setPlaceholderText(t("notebook.body_placeholder"))
         self._toolbar.retranslate(t)

@@ -32,7 +32,10 @@ lecture note does not mean downloading the whole application again.
   the "Take a note" button in the header (`Ctrl+N`) opens the note next to
   the lesson: you can right-click something you selected in the lesson to
   add it to the note, and put the code you wrote in an exercise into the
-  note with one button. What you write is saved automatically.
+  note with one button. What you write is saved automatically. You can
+  download your notes one by one (`.md`) or a folder at a time (`.zip`),
+  and upload notes you got from someone else; an uploaded note never
+  overwrites one of yours.
 - **A memory limit for exercises.** A list that keeps growing or a very
   large array no longer eats up your computer's memory: the code is stopped
   once it goes over 3 GB and the result area says why. Such code used to be

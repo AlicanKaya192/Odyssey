@@ -19,6 +19,11 @@ daha dar bir markdown ile çiziliyor:
 from __future__ import annotations
 
 import html
+import io
+import re
+import zipfile
+import zlib
+from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 
 import markdown
@@ -98,3 +103,186 @@ def render_note(title: str, body: str, meta: list[str]) -> str:
         )
     parts.append(render_body(body))
     return "".join(parts)
+
+
+# --- indirme ve yükleme ------------------------------------------------------
+#
+# Bir not tek başına `.md` dosyası olarak iniyor; başında küçük bir bilgi
+# bloğu var:
+#
+#     ---
+#     odyssey-note: 1
+#     title: Döngüler özetim
+#     chapter: 00-python-temelleri
+#     section: 03-kosul-durumlari
+#     ---
+#
+# Dosya her markdown okuyucusunda düzgün görünüyor (blok başlık bilgisi
+# sayılıyor) ve Odyssey'e yüklenince kendi klasörüne, dersine yerleşiyor.
+# Klasör ya da bütün notlar `.zip` içinde, klasör başına bir dizin.
+#
+# **Yüklenen dosya başkasından geliyor.** Zip diske açılmıyor, bellekte
+# okunuyor (yol hilesi olmuyor); not başına ve toplamda boyut, dosya
+# sayısı sınırı var (zip bombası). Kimlikler bir kalıba uymazsa atılıyor,
+# not "Diğer" klasörüne düşüyor. Bilgi bloğu olmayan düz bir markdown da
+# kabul: adı dosyanın adı.
+
+FRONT_MATTER = "---"
+FORMAT_KEY = "odyssey-note"
+FORMAT_VERSION = "1"
+
+# Bir notun en fazla boyutu; ders notlarının en uzunu 30 KB civarında.
+MAX_NOTE_BYTES = 1_000_000
+# Tek yüklemede en fazla not ve toplam boyut.
+MAX_IMPORT_NOTES = 500
+MAX_IMPORT_BYTES = 20_000_000
+
+ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,99}$")
+_UNSAFE_NAME = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
+_RESERVED_NAMES = {
+    "con", "prn", "aux", "nul",
+    *(f"com{i}" for i in range(1, 10)),
+    *(f"lpt{i}" for i in range(1, 10)),
+}
+
+# Zip içindeki tek bir dosyanın okunamamasına yol açabilecek hatalar:
+# şifreli dosya, desteklenmeyen sıkıştırma, bozuk veri.
+_ENTRY_ERRORS = (RuntimeError, NotImplementedError, zipfile.BadZipFile, OSError, EOFError, zlib.error)
+
+
+def note_to_markdown(entry: dict) -> str:
+    """Notu bilgi bloğuyla birlikte `.md` metnine çevirir."""
+    head = [
+        FRONT_MATTER,
+        f"{FORMAT_KEY}: {FORMAT_VERSION}",
+        f"title: {entry['title']}",
+        f"chapter: {entry['chapter_id']}",
+    ]
+    if entry.get("section_id"):
+        head.append(f"section: {entry['section_id']}")
+    head.append(FRONT_MATTER)
+    return "\n".join(head) + "\n\n" + entry.get("body", "").rstrip() + "\n"
+
+
+def parse_note(text: str, fallback_title: str, default_title: str) -> dict:
+    """`.md` metninden not: (chapter_id, section_id, title, body).
+
+    Bilgi bloğu yoksa ya da bizim değilse (başka bir aracın başlık
+    bilgisi) klasör ve ders boş kalıyor; ad blokta varsa oradan, yoksa
+    dosya adından, o da yoksa `default_title`.
+    """
+    text = text.replace("\r\n", "\n").replace("\r", "\n").lstrip("﻿")
+    meta: dict[str, str] = {}
+    body = text
+
+    acilis = FRONT_MATTER + "\n"
+    kapanis = "\n" + FRONT_MATTER
+    if text.startswith(acilis):
+        son = text.find(kapanis + "\n", len(FRONT_MATTER))
+        if son != -1:
+            govde_basi = son + len(kapanis) + 1
+        elif text.endswith(kapanis):
+            son = len(text) - len(kapanis)
+            govde_basi = len(text)
+        else:
+            son = -1
+        if son != -1:
+            for line in text[len(acilis):son].split("\n"):
+                key, sep, value = line.partition(":")
+                if sep:
+                    meta[key.strip().lower()] = value.strip()
+            body = text[govde_basi:]
+
+    bizim = FORMAT_KEY in meta
+    chapter = meta.get("chapter", "") if bizim else ""
+    section = meta.get("section", "") if bizim else ""
+    if not ID_PATTERN.match(chapter):
+        chapter = ""
+    if not chapter or not ID_PATTERN.match(section):
+        section = ""
+
+    title = ""
+    for aday in (meta.get("title", ""), fallback_title, default_title):
+        title = " ".join(aday.split())[:TITLE_MAX_LENGTH]
+        if title:
+            break
+    return {"chapter_id": chapter, "section_id": section, "title": title, "body": body.strip("\n")}
+
+
+def safe_filename(name: str, fallback: str = "not") -> str:
+    """Windows'ta da geçerli bir dosya adı: yasak işaretler `_`, sonda nokta yok."""
+    cleaned = _UNSAFE_NAME.sub("_", name).strip().rstrip(". ")[:TITLE_MAX_LENGTH]
+    cleaned = cleaned or fallback
+    if cleaned.split(".")[0].lower() in _RESERVED_NAMES:
+        cleaned = "_" + cleaned
+    return cleaned
+
+
+def build_zip(groups: list[tuple[str, list[dict]]]) -> bytes:
+    """(klasör adı, notlar) gruplarından zip. Adlar zip içinde tekil."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        for folder_name, entries in groups:
+            folder = safe_filename(folder_name, "notlar")
+            used: set[str] = set()
+            for entry in entries:
+                base = safe_filename(entry["title"])
+                name = base
+                number = 2
+                while name.casefold() in used:
+                    name = f"{base} ({number})"
+                    number += 1
+                used.add(name.casefold())
+                # Zip içinde yol ayracı her zaman düz eğik çizgi.
+                archive.writestr(f"{folder}/{name}.md", note_to_markdown(entry))
+    return buffer.getvalue()
+
+
+def read_notes_file(path: Path, default_title: str) -> tuple[list[dict], int]:
+    """Yüklenen `.md` ya da `.zip` dosyasındaki notlar ve okunamayan dosya sayısı.
+
+    Dosyanın kendisi açılamıyorsa (bozuk zip, desteklenmeyen uzantı)
+    istisna yükseliyor: `OSError`, `zipfile.BadZipFile` ya da `ValueError`.
+    """
+    suffix = path.suffix.lower()
+    if suffix == ".md":
+        if path.stat().st_size > MAX_NOTE_BYTES:
+            return [], 1
+        try:
+            text = path.read_bytes().decode("utf-8-sig")
+        except UnicodeDecodeError:
+            return [], 1
+        return [parse_note(text, path.stem, default_title)], 0
+
+    if suffix != ".zip":
+        raise ValueError(f"desteklenmeyen dosya: {path.suffix}")
+
+    notes: list[dict] = []
+    problems = 0
+    total = 0
+    with zipfile.ZipFile(path) as archive:
+        for info in archive.infolist():
+            if info.is_dir() or not info.filename.lower().endswith(".md"):
+                continue
+            if len(notes) >= MAX_IMPORT_NOTES or total > MAX_IMPORT_BYTES:
+                problems += 1
+                continue
+            try:
+                # Başlıktaki boyut yalan söyleyebilir: en fazla sınırın bir
+                # bayt fazlası okunuyor.
+                with archive.open(info) as handle:
+                    data = handle.read(MAX_NOTE_BYTES + 1)
+            except _ENTRY_ERRORS:
+                problems += 1
+                continue
+            if len(data) > MAX_NOTE_BYTES:
+                problems += 1
+                continue
+            total += len(data)
+            try:
+                text = data.decode("utf-8-sig")
+            except UnicodeDecodeError:
+                problems += 1
+                continue
+            notes.append(parse_note(text, PurePosixPath(info.filename).stem, default_title))
+    return notes, problems

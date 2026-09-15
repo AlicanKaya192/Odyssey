@@ -30,7 +30,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   Bir dersin içindeyken başlıktaki "Not al" düğmesi (`Ctrl+N`) notu dersin
   yanında açıyor: dersten seçtiğiniz bir yeri sağ tıklayıp nota
   ekleyebiliyor, alıştırmada yazdığınız kodu tek düğmeyle nota
-  koyabiliyorsunuz. Yazdıklarınız kendiliğinden kaydediliyor.
+  koyabiliyorsunuz. Yazdıklarınız kendiliğinden kaydediliyor. Notlarınızı
+  tek tek (`.md`) ya da klasör klasör (`.zip`) indirebilir, başkasından
+  aldığınız notları yükleyebilirsiniz; yüklenen not hiçbir notunuzun
+  üstüne yazılmıyor.
 - **Alıştırmalarda bellek sınırı.** Durmadan büyüyen bir liste ya da çok
   büyük bir dizi artık bilgisayarınızın belleğini tüketmiyor: kod 3 GB'ı
   geçince durduruluyor ve sonuç alanında sebebi yazıyor. Eskiden böyle bir
