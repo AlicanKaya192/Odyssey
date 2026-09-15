@@ -1,0 +1,127 @@
+{
+  "id": "aylik-kategori-payi",
+  "language": "tsql",
+  "title": {
+    "tr": "Ay içinde kategori payı",
+    "en": "Category share within a month"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce ay ve kategoriye göre ciro: üç tablo (`orders`, `order_items`, `products`), `DATEFROMPARTS(YEAR(...), MONTH(...), 1)` ile ay başı, `GROUP BY` ay ve kategori. Bunu bir `WITH` ile adlandır.",
+      "en": "First the revenue by month and category: three tables (`orders`, `order_items`, `products`), the month start with `DATEFROMPARTS(YEAR(...), MONTH(...), 1)`, `GROUP BY` month and category. Name it with a `WITH`."
+    },
+    {
+      "tr": "Pay, ayın toplamına göre: `100.0 * revenue / SUM(revenue) OVER (PARTITION BY month)`. `PARTITION BY` olmazsa dört ayın toplamına bölersin.",
+      "en": "The share is against the month's total: `100.0 * revenue / SUM(revenue) OVER (PARTITION BY month)`. Without `PARTITION BY` you would divide by the total of all four months."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nWITH monthly AS (\n    SELECT DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1) AS month,\n           p.category_code,\n           SUM(i.quantity * i.unit_price) AS revenue\n    FROM orders o\n    JOIN order_items i ON i.order_id = o.id\n    JOIN products p ON p.id = i.product_id\n    WHERE o.status <> 'cancelled'\n    GROUP BY DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1),\n             p.category_code\n)\nSELECT month, category_code, revenue,\n       CAST(100.0 * revenue / SUM(revenue) OVER (PARTITION BY month)\n            AS DECIMAL(5,2)) AS share\nFROM monthly\nORDER BY month, revenue DESC;\n```",
+      "en": "The whole query:\n\n```sql\nWITH monthly AS (\n    SELECT DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1) AS month,\n           p.category_code,\n           SUM(i.quantity * i.unit_price) AS revenue\n    FROM orders o\n    JOIN order_items i ON i.order_id = o.id\n    JOIN products p ON p.id = i.product_id\n    WHERE o.status <> 'cancelled'\n    GROUP BY DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1),\n             p.category_code\n)\nSELECT month, category_code, revenue,\n       CAST(100.0 * revenue / SUM(revenue) OVER (PARTITION BY month)\n            AS DECIMAL(5,2)) AS share\nFROM monthly\nORDER BY month, revenue DESC;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "month",
+        "category_code",
+        "revenue",
+        "share"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "2026-01-01",
+          "COM",
+          24500.0,
+          74.89
+        ],
+        [
+          "2026-01-01",
+          "DIS",
+          6400.0,
+          19.56
+        ],
+        [
+          "2026-01-01",
+          "ACC",
+          1815.0,
+          5.55
+        ],
+        [
+          "2026-02-01",
+          "COM",
+          18900.0,
+          65.9
+        ],
+        [
+          "2026-02-01",
+          "ACC",
+          4240.0,
+          14.78
+        ],
+        [
+          "2026-02-01",
+          "DIS",
+          3200.0,
+          11.16
+        ],
+        [
+          "2026-02-01",
+          "SOF",
+          2340.0,
+          8.16
+        ],
+        [
+          "2026-03-01",
+          "ACC",
+          4510.0,
+          58.5
+        ],
+        [
+          "2026-03-01",
+          "DIS",
+          3200.0,
+          41.5
+        ],
+        [
+          "2026-04-01",
+          "COM",
+          24500.0,
+          81.5
+        ],
+        [
+          "2026-04-01",
+          "SOF",
+          3960.0,
+          13.17
+        ],
+        [
+          "2026-04-01",
+          "ACC",
+          1600.0,
+          5.32
+        ]
+      ]
+    },
+    {
+      "type": "sql_require",
+      "pattern": "OVER",
+      "hint": {
+        "tr": "Ayın toplamını her satıra bir pencere yazıyor: `SUM(revenue) OVER (PARTITION BY month)`.",
+        "en": "A window writes the month's total on every row: `SUM(revenue) OVER (PARTITION BY month)`."
+      }
+    }
+  ]
+}

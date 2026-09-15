@@ -1,0 +1,6 @@
+-- Her siparisi tek satirda ozetleyen bir gorunum kur:
+-- dbo.order_summary.
+-- Sutunlar: id, order_date, customer (musterinin adi),
+-- employee (calisanin adi; calisani yoksa 'Unassigned'),
+-- item_count (kalem sayisi), total (tutar).
+-- Iptal edilenler dahil butun siparisler.

@@ -24,8 +24,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ### Eklendi
 - **SQL patikasının 2. kısmı.** İçindeki bölümler — **Orta Seviye:** Tablo
   Tasarımı, Tarih ve Metin. **İleri Seviye:** Pencere Fonksiyonları, WITH ve
-  Özyineleme, Dizinler, Görünümler ve Saklı Yordamlar. Her bölümün kendi
-  notları, sınavı, alıştırmaları ve rozeti var.
+  Özyineleme, Dizinler, Görünümler ve Saklı Yordamlar, Genel Tekrar. Her
+  bölümün kendi notları, sınavı, alıştırmaları ve rozeti var; patikanın
+  tamamını bitirene de ayrı bir rozet.
 - **Bildirimler.** Alt şeridin sağındaki zil kazandığınız rozetleri
   listeliyor; okunmamışların sayısı zilin üstünde duruyor. Her birini okundu
   sayabilir ya da hepsini temizleyebilirsiniz.

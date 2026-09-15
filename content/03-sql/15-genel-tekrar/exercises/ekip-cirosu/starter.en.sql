@@ -1,0 +1,6 @@
+-- For every manager with at least one employee below them, show
+-- the size of their team (direct and indirect, not counting
+-- themselves) and the revenue the team brought in from orders
+-- that were not cancelled. A team with no sales has 0.
+-- Columns: name, team_size, team_revenue.
+-- Sort by team_revenue (largest first), then name.

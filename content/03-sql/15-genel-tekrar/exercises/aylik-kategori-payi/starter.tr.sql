@@ -1,0 +1,5 @@
+-- Iptal edilmeyen siparislerde her ay, her kategorinin cirosunu
+-- ve o ayin toplam cirosundaki yuzde payini goster.
+-- Sutunlar: month (ayin ilk gunu), category_code, revenue,
+-- share (DECIMAL(5,2)).
+-- month, sonra revenue (buyukten kucuge) ile sirala.

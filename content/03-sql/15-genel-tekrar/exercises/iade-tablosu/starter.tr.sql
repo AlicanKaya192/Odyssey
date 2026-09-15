@@ -1,0 +1,9 @@
+-- Iadeleri tutan bir tablo kur: returns.
+--   id        INT, kendiliginden artan, birincil anahtar
+--   order_id  INT, bos kalamaz, orders tablosuna bagli
+--   reason    NVARCHAR(100), bos kalamaz
+--   quantity  INT, bos kalamaz, 0'dan buyuk olmali
+--
+-- Sonra iki iade ekle:
+--   1005 numarali siparis, 'Damaged screen', 1 adet
+--   1009 numarali siparis, 'Wrong item', 1 adet

@@ -1,0 +1,6 @@
+-- Altinda en az bir calisan olan her yonetici icin ekibinin
+-- buyuklugunu (dogrudan ve dolayli, kendisi haric) ve ekibinin
+-- iptal edilmeyen siparislerden getirdigi ciroyu goster.
+-- Satisi olmayan ekibin cirosu 0.
+-- Sutunlar: name, team_size, team_revenue.
+-- team_revenue (buyukten kucuge), sonra name ile sirala.

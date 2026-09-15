@@ -118,6 +118,19 @@ PATHS: dict[str, str] = {
         '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'
     ),
     "chevron-right": '<path d="m9 18 6-6-6-6"/>',
+    # Isaretli liste: butun bolumlerin ustunden bir kez daha gecmek.
+    # SQL genel tekrar rozetinin simgesi.
+    "list-checks": (
+        '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/>'
+        '<path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>'
+    ),
+    # Tac: SQL patikasinin on alti bolumunun tamami.
+    "crown": (
+        '<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294'
+        'L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81'
+        'a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664'
+        'a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/>'
+    ),
     # Yazili tomar: veritabaninda saklanan tarif. Gorunumler ve sakli
     # yordamlar rozetinin simgesi.
     "scroll-text": (

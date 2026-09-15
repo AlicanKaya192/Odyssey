@@ -1,0 +1,5 @@
+-- Bring back the customers with at least two orders that were
+-- not cancelled: their name, number of orders, first and last
+-- order date and the days between them.
+-- Columns: name, orders, first_order, last_order, span_days.
+-- Sort by span_days (largest first), then name.

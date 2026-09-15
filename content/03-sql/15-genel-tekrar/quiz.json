@@ -1,0 +1,1304 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "`orders` tablosunda iki siparişin `employee_id`'si `NULL`. `WHERE employee_id = NULL` kaç satır getiriyor?",
+        "en": "Two orders in `orders` have a `NULL` `employee_id`. How many rows does `WHERE employee_id = NULL` return?"
+      },
+      "options": {
+        "tr": [
+          "2",
+          "10",
+          "0 — `NULL` hiçbir şeye eşit değil, kendisine bile",
+          "Hata veriyor"
+        ],
+        "en": [
+          "2",
+          "10",
+          "0 — `NULL` equals nothing, not even itself",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **0**; `IS NULL` 2. `NULL` \"bilinmiyor\" demek; bilinmeyenle karşılaştırmanın sonucu da bilinmiyor, doğru değil.",
+        "en": "Measured: **0**; `IS NULL` gives 2. `NULL` means \"unknown\"; comparing with the unknown gives unknown, not true."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "10 siparişin 4'ünde `employee_id` 3, 4'ünde 4, 2'sinde `NULL`. `WHERE employee_id <> 3` kaç satır?",
+        "en": "Of 10 orders, 4 have `employee_id` 3, 4 have 4 and 2 are `NULL`. How many rows does `WHERE employee_id <> 3` return?"
+      },
+      "options": {
+        "tr": [
+          "4",
+          "6",
+          "8",
+          "10"
+        ],
+        "en": [
+          "4",
+          "6",
+          "8",
+          "10"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **4**. `NULL` olan iki sipariş ne \"3\" ne \"3 değil\" sayılıyor; ikisi de düşüyor. Onları da istiyorsan: `OR employee_id IS NULL`.",
+        "en": "Measured: **4**. The two `NULL` orders count as neither \"3\" nor \"not 3\"; both drop out. If you want them too: `OR employee_id IS NULL`."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 3,
+      "text": {
+        "tr": "Aynı tabloda `COUNT(*)` ve `COUNT(employee_id)` ne veriyor?",
+        "en": "On the same table, what do `COUNT(*)` and `COUNT(employee_id)` give?"
+      },
+      "options": {
+        "tr": [
+          "10 ve 10",
+          "8 ve 10",
+          "10 ve 2",
+          "10 ve 8"
+        ],
+        "en": [
+          "10 and 10",
+          "8 and 10",
+          "10 and 2",
+          "10 and 8"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **10 ve 8**. `COUNT(*)` satırları sayıyor, `COUNT(sütun)` o sütunun `NULL` olmayan değerlerini. `COUNT(DISTINCT employee_id)` ise 2.",
+        "en": "Measured: **10 and 8**. `COUNT(*)` counts rows, `COUNT(column)` the non-`NULL` values of that column. `COUNT(DISTINCT employee_id)` gives 2."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT COUNT(*) FROM employees WHERE id NOT IN (SELECT employee_id FROM orders)` kaç çalışan getiriyor? (Alt sorguda iki `NULL` var.)",
+        "en": "How many employees does `SELECT COUNT(*) FROM employees WHERE id NOT IN (SELECT employee_id FROM orders)` return? (The subquery has two `NULL`s.)"
+      },
+      "options": {
+        "tr": [
+          "4",
+          "0 — listede `NULL` olunca `NOT IN` hiçbir satırda doğru olmuyor",
+          "6",
+          "Hata veriyor"
+        ],
+        "en": [
+          "4",
+          "0 — with a `NULL` in the list, `NOT IN` is true on no row",
+          "6",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **0**. `x NOT IN (3, 4, NULL)` = `x <> 3 AND x <> 4 AND x <> NULL`; sonuncusu hiçbir zaman doğru değil. `NOT EXISTS` ya da alt sorguda `IS NOT NULL` ile 4.",
+        "en": "Measured: **0**. `x NOT IN (3, 4, NULL)` = `x <> 3 AND x <> 4 AND x <> NULL`; the last one is never true. With `NOT EXISTS`, or `IS NOT NULL` in the subquery, 4."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "Olmayan bir sipariş için `SUM(quantity)` ve siparişi olmayan müşteri için `COUNT(*)` ne veriyor?",
+        "en": "What do `SUM(quantity)` for an order that does not exist and `COUNT(*)` for a customer with no orders give?"
+      },
+      "options": {
+        "tr": [
+          "0 ve 0",
+          "`NULL` ve `NULL`",
+          "`NULL` ve 0",
+          "0 ve `NULL`"
+        ],
+        "en": [
+          "0 and 0",
+          "`NULL` and `NULL`",
+          "`NULL` and 0",
+          "0 and `NULL`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`NULL` ve 0**. Toplanacak değer yoksa toplam bilinmiyor; sayılacak satır yoksa sayı 0. Toplamda 0 isteniyorsa `COALESCE(SUM(...), 0)`.",
+        "en": "Measured: **`NULL` and 0**. With nothing to add, the total is unknown; with no rows to count, the count is 0. If you want 0 for the total, `COALESCE(SUM(...), 0)`."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`SELECT name AS n FROM products WHERE n = 'Mouse'` ne oluyor?",
+        "en": "What happens with `SELECT name AS n FROM products WHERE n = 'Mouse'`?"
+      },
+      "options": {
+        "tr": [
+          "Hata: `Invalid column name 'n'` — `WHERE`, `SELECT`'ten önce çalışıyor",
+          "Mouse geliyor",
+          "Boş sonuç",
+          "Takma ad yok sayılıyor, bütün ürünler geliyor"
+        ],
+        "en": [
+          "An error: `Invalid column name 'n'` — `WHERE` runs before `SELECT`",
+          "Mouse comes back",
+          "An empty result",
+          "The alias is ignored and every product comes back"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Invalid column name 'n'.` Mantıksal sıra: `FROM` → `WHERE` → `GROUP BY` → `HAVING` → `SELECT` → `ORDER BY`. Takma ad `SELECT`'te doğuyor.",
+        "en": "Measured: `Invalid column name 'n'.` The logical order: `FROM` → `WHERE` → `GROUP BY` → `HAVING` → `SELECT` → `ORDER BY`. The alias is born in `SELECT`."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 3,
+      "text": {
+        "tr": "`SELECT TOP 2 name AS n, price AS p FROM products ORDER BY p DESC` ne oluyor?",
+        "en": "What happens with `SELECT TOP 2 name AS n, price AS p FROM products ORDER BY p DESC`?"
+      },
+      "options": {
+        "tr": [
+          "Hata: takma ad kullanılamaz",
+          "Takma ad yok sayılıyor",
+          "Tablonun sırasıyla geliyor",
+          "Çalışıyor: Laptop, Desktop — `ORDER BY`, `SELECT`'ten sonra"
+        ],
+        "en": [
+          "An error: aliases cannot be used",
+          "The alias is ignored",
+          "It comes back in the table's order",
+          "It works: Laptop, Desktop — `ORDER BY` comes after `SELECT`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: Laptop (`24500.00`), Desktop (`18900.00`). Takma adı gören tek yer `ORDER BY`. `ORDER BY 2` de aynı sonucu verdi.",
+        "en": "Measured: Laptop (`24500.00`), Desktop (`18900.00`). `ORDER BY` is the only place that sees the alias. `ORDER BY 2` gave the same result."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT category_code AS cc, COUNT(*) FROM products GROUP BY cc` ne oluyor?",
+        "en": "What happens with `SELECT category_code AS cc, COUNT(*) FROM products GROUP BY cc`?"
+      },
+      "options": {
+        "tr": [
+          "Çalışıyor",
+          "Hata: `Invalid column name 'cc'`",
+          "Tek bir grup çıkıyor",
+          "Takma ad gruplamada yok sayılıyor"
+        ],
+        "en": [
+          "It works",
+          "An error: `Invalid column name 'cc'`",
+          "A single group comes out",
+          "The alias is ignored in the grouping"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Invalid column name 'cc'.` `GROUP BY` da `SELECT`'ten önce çalışıyor; sütunun kendi adı (`GROUP BY category_code`) yazılıyor.",
+        "en": "Measured: `Invalid column name 'cc'.` `GROUP BY` also runs before `SELECT`; you write the column's own name (`GROUP BY category_code`)."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 2,
+      "text": {
+        "tr": "`SELECT customer_id FROM orders WHERE COUNT(*) > 1 GROUP BY customer_id` ne oluyor?",
+        "en": "What happens with `SELECT customer_id FROM orders WHERE COUNT(*) > 1 GROUP BY customer_id`?"
+      },
+      "options": {
+        "tr": [
+          "Birden fazla siparişi olan müşteriler geliyor",
+          "Boş sonuç",
+          "Hata: toplama `WHERE`'de olamaz — koşul `HAVING`'e",
+          "Bütün müşteriler geliyor"
+        ],
+        "en": [
+          "The customers with more than one order come back",
+          "An empty result",
+          "An error: an aggregate cannot be in `WHERE` — the condition goes into `HAVING`",
+          "Every customer comes back"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `An aggregate may not appear in the WHERE clause ...` `WHERE` satırları süzüyor, gruplar henüz yok. Grubun koşulu `HAVING COUNT(*) > 1`.",
+        "en": "Measured: `An aggregate may not appear in the WHERE clause ...` `WHERE` filters rows; the groups do not exist yet. The group's condition is `HAVING COUNT(*) > 1`."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`SELECT category_code, name, COUNT(*) FROM products GROUP BY category_code` ne oluyor?",
+        "en": "What happens with `SELECT category_code, name, COUNT(*) FROM products GROUP BY category_code`?"
+      },
+      "options": {
+        "tr": [
+          "Hata: `name` ne gruplamada ne bir toplamada",
+          "Her kategorinin ilk ürün adı geliyor",
+          "Adlar virgülle birleşiyor",
+          "`name` `NULL` geliyor"
+        ],
+        "en": [
+          "An error: `name` is neither in the grouping nor in an aggregate",
+          "Each category's first product name comes back",
+          "The names are joined with commas",
+          "`name` comes back as `NULL`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Column 'products.name' is invalid in the select list because it is not contained in either an aggregate function or the GROUP BY clause.` Grupta altı ürün varken tek bir ad seçilemez.",
+        "en": "Measured: `Column 'products.name' is invalid in the select list because it is not contained in either an aggregate function or the GROUP BY clause.` With six products in a group, a single name cannot be picked."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 3,
+      "text": {
+        "tr": "Sunucu bir sorgunun parçalarından hangisini **ilk** çalıştırıyor?",
+        "en": "Which part of a query does the server run **first**?"
+      },
+      "options": {
+        "tr": [
+          "`SELECT`",
+          "`ORDER BY`",
+          "`HAVING`",
+          "`FROM` / `JOIN`"
+        ],
+        "en": [
+          "`SELECT`",
+          "`ORDER BY`",
+          "`HAVING`",
+          "`FROM` / `JOIN`"
+        ]
+      },
+      "explanation": {
+        "tr": "Önce hangi satırlarla çalışılacağı belli olmalı: `FROM` ve `JOIN`. Sonra `WHERE`, `GROUP BY`, `HAVING`, `SELECT`, `ORDER BY`, `TOP`. Takma adın `WHERE`'de görünmemesi (ölçüldü) bu sıranın sonucu.",
+        "en": "First it has to be clear which rows to work with: `FROM` and `JOIN`. Then `WHERE`, `GROUP BY`, `HAVING`, `SELECT`, `ORDER BY`, `TOP`. The alias not being visible in `WHERE` (measured) follows from this order."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 1,
+      "text": {
+        "tr": "\"Her müşteri ve gönderilmiş siparişleri\": `LEFT JOIN orders o ON o.customer_id = c.id WHERE o.status = 'shipped'`. Kaç müşteri kalıyor? (6 müşteri var.)",
+        "en": "\"Every customer and their shipped orders\": `LEFT JOIN orders o ON o.customer_id = c.id WHERE o.status = 'shipped'`. How many customers are left? (There are 6.)"
+      },
+      "options": {
+        "tr": [
+          "6",
+          "4 — `WHERE` eşleşmeyenlerin `NULL`'lu satırlarını eliyor",
+          "0",
+          "8"
+        ],
+        "en": [
+          "6",
+          "4 — `WHERE` removes the unmatched customers' `NULL` rows",
+          "0",
+          "8"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **4 müşteri, 6 satır**. Koşul `ON`'a yazılınca 6 müşteri, 8 satır. `WHERE` birleştirmeden sonra çalıştığı için `LEFT JOIN` sessizce iç birleştirmeye dönüşüyor.",
+        "en": "Measured: **4 customers, 6 rows**. With the condition in `ON`, 6 customers and 8 rows. Because `WHERE` runs after the join, the `LEFT JOIN` quietly becomes an inner join."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 2,
+      "text": {
+        "tr": "10 siparişin 20 kalemi var. `orders` ile `order_items` birleşince kaç satır çıkıyor?",
+        "en": "The 10 orders have 20 lines. How many rows come out when `orders` is joined with `order_items`?"
+      },
+      "options": {
+        "tr": [
+          "10",
+          "5",
+          "20 — her kalem bir satır",
+          "30"
+        ],
+        "en": [
+          "10",
+          "5",
+          "20 — every line is a row",
+          "30"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **20**. Birleştirmeden sonra satır artık bir kalem; siparişe ait bir şeyi toplamak onu kalem sayısı kadar tekrarlıyor.",
+        "en": "Measured: **20**. After the join a row is a line; adding up something that belongs to the order repeats it once per line."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Aynı birleştirmede `COUNT(o.customer_id)` 20 veriyor. `COUNT(DISTINCT o.customer_id)` ne veriyor?",
+        "en": "In the same join `COUNT(o.customer_id)` gives 20. What does `COUNT(DISTINCT o.customer_id)` give?"
+      },
+      "options": {
+        "tr": [
+          "5",
+          "20",
+          "10",
+          "6"
+        ],
+        "en": [
+          "5",
+          "20",
+          "10",
+          "6"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **5**. Siparişi olan beş müşteri; altıncısı (Quiet Partners) hiç sipariş vermemiş. Birleştirmeden sonra \"kaç tane\" sorusu çoğu zaman `DISTINCT` istiyor.",
+        "en": "Measured: **5**. The five customers with orders; the sixth (Quiet Partners) never ordered. After a join, \"how many\" often needs `DISTINCT`."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 3,
+      "text": {
+        "tr": "Müşteri şehirleri ile tedarikçi şehirleri `UNION` ve `UNION ALL` ile birleştirildi. Kaçar satır?",
+        "en": "Customer cities and supplier cities were combined with `UNION` and with `UNION ALL`. How many rows each?"
+      },
+      "options": {
+        "tr": [
+          "10 ve 10",
+          "5 ve 5",
+          "10 ve 5",
+          "5 ve 10"
+        ],
+        "en": [
+          "10 and 10",
+          "5 and 5",
+          "10 and 5",
+          "5 and 10"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`UNION` 5, `UNION ALL` 10**. `UNION` tekrarları ayıklıyor, `UNION ALL` hepsini bırakıyor. `Istanbul`, `Ankara`, `Izmir` ve `Berlin` iki listede de var.",
+        "en": "Measured: **`UNION` 5, `UNION ALL` 10**. `UNION` removes duplicates, `UNION ALL` keeps them all. `Istanbul`, `Ankara`, `Izmir` and `Berlin` are in both lists."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT TOP 1 WITH TIES name, stock FROM products ORDER BY stock DESC` kaç satır?",
+        "en": "How many rows does `SELECT TOP 1 WITH TIES name, stock FROM products ORDER BY stock DESC` return?"
+      },
+      "options": {
+        "tr": [
+          "1",
+          "2 — Antivirus ve Office Suite, ikisi de 99",
+          "12",
+          "Hata veriyor"
+        ],
+        "en": [
+          "1",
+          "2 — Antivirus and Office Suite, both 99",
+          "12",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **2**. `WITH TIES` son satırla eşit olanları da getiriyor. Düz `TOP 1` birini seçiyor — hangisinin geleceği için ayırt edici bir sıra gerekiyor.",
+        "en": "Measured: **2**. `WITH TIES` also brings the rows equal to the last one. A plain `TOP 1` picks one — which one needs a tie-breaking order."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "`WHERE price BETWEEN 220 AND 890` (fiyatlarda 220 ve 890 var) neyi getiriyor?",
+        "en": "What does `WHERE price BETWEEN 220 AND 890` bring back (the prices include 220 and 890)?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca aradakiler: 2 ürün",
+          "220 dahil, 890 hariç",
+          "İki uç da dahil: 4 ürün",
+          "Hata veriyor"
+        ],
+        "en": [
+          "Only those in between: 2 products",
+          "220 included, 890 excluded",
+          "Both ends included: 4 products",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: Mouse (220), Keyboard, Antivirus, Headset (890) — **4 ürün**. `BETWEEN` iki ucu da içeriyor; tarihlerde saat varken bu yüzden son günün saatlerini kaçırıyor.",
+        "en": "Measured: Mouse (220), Keyboard, Antivirus, Headset (890) — **4 products**. `BETWEEN` includes both ends; with times in dates, that is why it misses the hours of the last day."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "`ORDER BY supplier_code` (artan) — `supplier_code`'u `NULL` olan ürünler nerede?",
+        "en": "`ORDER BY supplier_code` (ascending) — where are the products with a `NULL` `supplier_code`?"
+      },
+      "options": {
+        "tr": [
+          "En başta",
+          "En sonda",
+          "Hiç gelmiyor",
+          "Hata veriyor"
+        ],
+        "en": [
+          "At the very top",
+          "At the very bottom",
+          "They do not come back",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: Headset, Office Suite, Projector (`NULL`) önce, sonra `S1`. SQL Server'da `NULL` artan sırada en küçük sayılıyor.",
+        "en": "Measured: Headset, Office Suite, Projector (`NULL`) first, then `S1`. In SQL Server, `NULL` counts as the smallest in ascending order."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 3,
+      "text": {
+        "tr": "`SELECT 7 / 2, 7 / 2.0` ne veriyor?",
+        "en": "What does `SELECT 7 / 2, 7 / 2.0` give?"
+      },
+      "options": {
+        "tr": [
+          "3.5 ve 3.5",
+          "3 ve 3",
+          "4 ve 3.5",
+          "3 ve 3.500000"
+        ],
+        "en": [
+          "3.5 and 3.5",
+          "3 and 3",
+          "4 and 3.5",
+          "3 and 3.500000"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **3 ve 3.500000**. İki tam sayının bölümü tam sayı; biri ondalıklı olunca sonuç da ondalıklı. `AVG` tam sayı sütunda da aynı kurala uyuyor.",
+        "en": "Measured: **3 and 3.500000**. Dividing two whole numbers gives a whole number; when one is a decimal, so is the result. `AVG` on a whole-number column follows the same rule."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 1,
+      "text": {
+        "tr": "`SELECT 10 / 0` ne oluyor?",
+        "en": "What happens with `SELECT 10 / 0`?"
+      },
+      "options": {
+        "tr": [
+          "`NULL`",
+          "Hata: `Divide by zero error encountered.`",
+          "0",
+          "Sonsuz"
+        ],
+        "en": [
+          "`NULL`",
+          "An error: `Divide by zero error encountered.`",
+          "0",
+          "Infinity"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: hata 8134. Paydada sıfır olabiliyorsa `10 / NULLIF(0, 0)` → `NULL` (ölçüldü): sıfırı `NULL`'a çevirip hatayı bilinmeyene dönüştürüyor.",
+        "en": "Measured: error 8134. If the denominator can be zero, `10 / NULLIF(0, 0)` → `NULL` (measured): it turns the zero into `NULL` and the error into an unknown."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "`TRY_CAST('abc' AS INT)` ne veriyor?",
+        "en": "What does `TRY_CAST('abc' AS INT)` give?"
+      },
+      "options": {
+        "tr": [
+          "Hata",
+          "0",
+          "`NULL`",
+          "`'abc'`"
+        ],
+        "en": [
+          "An error",
+          "0",
+          "`NULL`",
+          "`'abc'`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`NULL`**; `TRY_CAST('42' AS INT)` 42. `CAST('abc' AS INT)` ise `Conversion failed ...` hatası veriyor. Kirli veride hangi satırların çevrilemediğini bulmak için `TRY_CAST ... IS NULL`.",
+        "en": "Measured: **`NULL`**; `TRY_CAST('42' AS INT)` gives 42. `CAST('abc' AS INT)`, on the other hand, raises `Conversion failed ...`. To find which rows of dirty data cannot be converted, `TRY_CAST ... IS NULL`."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`LEN('abc  ')` ve `DATALENGTH('abc  ')` (sonunda iki boşluk) ne veriyor?",
+        "en": "What do `LEN('abc  ')` and `DATALENGTH('abc  ')` (two trailing spaces) give?"
+      },
+      "options": {
+        "tr": [
+          "3 ve 5 — `LEN` sondaki boşlukları saymıyor",
+          "5 ve 5",
+          "3 ve 3",
+          "5 ve 3"
+        ],
+        "en": [
+          "3 and 5 — `LEN` does not count trailing spaces",
+          "5 and 5",
+          "3 and 3",
+          "5 and 3"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **3 ve 5**. `DATALENGTH` bayt sayıyor: `N'abc'` için 6 (her karakter 2 bayt). Sondaki boşluklar karşılaştırmada da sorun çıkarabildiği için veride `TRIM` iyi bir alışkanlık.",
+        "en": "Measured: **3 and 5**. `DATALENGTH` counts bytes: 6 for `N'abc'` (2 bytes per character). Since trailing spaces can cause trouble in comparisons too, `TRIM` on data is a good habit."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "`UPDATE products SET stock = stock` (`WHERE` yok) kaç satırı etkiliyor?",
+        "en": "How many rows does `UPDATE products SET stock = stock` (no `WHERE`) affect?"
+      },
+      "options": {
+        "tr": [
+          "0 — değer değişmedi",
+          "1",
+          "Hata veriyor",
+          "12 — `WHERE`'siz her satır"
+        ],
+        "en": [
+          "0 — the value did not change",
+          "1",
+          "It raises an error",
+          "12 — without `WHERE`, every row"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **12** (geri alınan bir işlemde). Değer aynı kalsa da satırlar \"etkilenmiş\" sayılıyor. `WHERE`'siz bir `UPDATE`/`DELETE` bütün tabloya dokunuyor; önce `SELECT` ile ya da `BEGIN TRAN` içinde denemek bu yüzden.",
+        "en": "Measured: **12** (in a transaction that was rolled back). Even though the value stays the same, the rows count as \"affected\". An `UPDATE`/`DELETE` without `WHERE` touches the whole table; that is why you try it first with a `SELECT` or inside `BEGIN TRAN`."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 1,
+      "text": {
+        "tr": "Bu şemada yabancı anahtar yok. 1 numaralı müşteri silindi. Ne oluyor?",
+        "en": "This schema has no foreign keys. Customer 1 was deleted. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Hata: müşterinin siparişleri var",
+          "Siliniyor; 3 siparişi öksüz kalıyor",
+          "Siparişleri de siliniyor",
+          "Silinmiyor, sessizce yok sayılıyor"
+        ],
+        "en": [
+          "An error: the customer has orders",
+          "It is deleted; 3 of their orders are left orphaned",
+          "Their orders are deleted too",
+          "It is not deleted, silently ignored"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: silindi, müşterisi olmayan **3** sipariş kaldı (geri alınan işlemde). `FOREIGN KEY` olsaydı silme reddedilirdi; `ON DELETE CASCADE` ile siparişler de silinirdi (dokuzuncu bölüm).",
+        "en": "Measured: it was deleted and **3** orders were left with no customer (in a rolled-back transaction). With a `FOREIGN KEY` the delete would be refused; with `ON DELETE CASCADE` the orders would be deleted too (the ninth section)."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 2,
+      "text": {
+        "tr": "İki sütunlu `categories` tablosuna `INSERT INTO categories VALUES ('XYZ')` yazıldı. Sonuç?",
+        "en": "`INSERT INTO categories VALUES ('XYZ')` was written for the two-column `categories` table. The result?"
+      },
+      "options": {
+        "tr": [
+          "Ekleniyor, `name` `NULL` kalıyor",
+          "Ekleniyor, `code` `NULL` kalıyor",
+          "Hata: `Column name or number of supplied values does not match table definition.`",
+          "`code` ve `name` ikisi de `'XYZ'`"
+        ],
+        "en": [
+          "It is added and `name` stays `NULL`",
+          "It is added and `code` stays `NULL`",
+          "An error: `Column name or number of supplied values does not match table definition.`",
+          "`code` and `name` are both `'XYZ'`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: hata 213. Sütun listesi yazmak (`INSERT INTO categories (code, name) VALUES ...`) hem bu hatayı önlüyor hem tabloya sonradan sütun eklendiğinde sorgunun bozulmamasını sağlıyor.",
+        "en": "Measured: error 213. Writing the column list (`INSERT INTO categories (code, name) VALUES ...`) both prevents this error and keeps the query working when a column is added to the table later."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "`WHERE id = (SELECT customer_id FROM orders WHERE status = 'pending')` — alt sorgu 3 satır döndürüyor. Ne oluyor?",
+        "en": "`WHERE id = (SELECT customer_id FROM orders WHERE status = 'pending')` — the subquery returns 3 rows. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Hata: `Subquery returned more than 1 value ...`",
+          "İlk satır kullanılıyor",
+          "Üç satır da eşleşiyor",
+          "Boş sonuç"
+        ],
+        "en": [
+          "An error: `Subquery returned more than 1 value ...`",
+          "The first row is used",
+          "All three rows match",
+          "An empty result"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: hata 512. `=` tek bir değer bekliyor. Birden fazla değerle karşılaştırmak için `IN (SELECT ...)` ya da `EXISTS`.",
+        "en": "Measured: error 512. `=` expects a single value. To compare with several values, `IN (SELECT ...)` or `EXISTS`."
+      }
+    },
+    {
+      "id": "q27",
+      "answer": 3,
+      "text": {
+        "tr": "`SET DATEFORMAT dmy` altında `CAST('2026-03-04' AS DATETIME)` hangi gün?",
+        "en": "Under `SET DATEFORMAT dmy`, which day is `CAST('2026-03-04' AS DATETIME)`?"
+      },
+      "options": {
+        "tr": [
+          "4 Mart",
+          "Hata",
+          "Ayardan bağımsız 4 Mart",
+          "3 Nisan"
+        ],
+        "en": [
+          "March 4",
+          "An error",
+          "March 4 regardless of the setting",
+          "April 3"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü (onuncu bölüm): **3 Nisan**, hata yok. `DATE` olarak 4 Mart kaldı. `DATETIME`'a bitişik yazım (`'20260304'`) her ayarda doğru.",
+        "en": "Measured (the tenth section): **April 3**, no error. As `DATE` it stayed March 4. For `DATETIME` the form without separators (`'20260304'`) is right under every setting."
+      }
+    },
+    {
+      "id": "q28",
+      "answer": 1,
+      "text": {
+        "tr": "`DATEADD(month, 1, '2026-01-31')` ne döndürüyor?",
+        "en": "What does `DATEADD(month, 1, '2026-01-31')` return?"
+      },
+      "options": {
+        "tr": [
+          "`2026-03-03`",
+          "`2026-02-28`",
+          "Hata",
+          "`2026-03-01`"
+        ],
+        "en": [
+          "`2026-03-03`",
+          "`2026-02-28`",
+          "An error",
+          "`2026-03-01`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`2026-02-28`** — hedef ayda o gün yoksa ayın son gününe kırpıyor. 31 Ocak + 30 gün ise 2 Mart.",
+        "en": "Measured: **`2026-02-28`** — if the day does not exist in the target month, it clips to the month's last day. January 31 + 30 days, on the other hand, is March 2."
+      }
+    },
+    {
+      "id": "q29",
+      "answer": 2,
+      "text": {
+        "tr": "`DATEDIFF(year, '2025-12-31', '2026-01-01')` ne döndürüyor?",
+        "en": "What does `DATEDIFF(year, '2025-12-31', '2026-01-01')` return?"
+      },
+      "options": {
+        "tr": [
+          "0",
+          "0,003",
+          "1 — sınır sayıyor",
+          "Hata"
+        ],
+        "en": [
+          "0",
+          "0.003",
+          "1 — it counts boundaries",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **1**. Arada bir yıl başı var. Tam yıl gerekiyorsa `DATEDIFF(day, ...) / 365`.",
+        "en": "Measured: **1**. There is one new year in between. For whole years, `DATEDIFF(day, ...) / 365`."
+      }
+    },
+    {
+      "id": "q30",
+      "answer": 0,
+      "text": {
+        "tr": "Saatli dört olay (1 Mart 09:00, 31 Mart 00:00, 31 Mart 14:30, 1 Nisan 00:00): `BETWEEN '2026-03-01' AND '2026-03-31'` kaçını buluyor?",
+        "en": "Four events with times (March 1 09:00, March 31 00:00, March 31 14:30, April 1 00:00): how many does `BETWEEN '2026-03-01' AND '2026-03-31'` find?"
+      },
+      "options": {
+        "tr": [
+          "2 — 31 Mart 14:30 dışarıda kalıyor",
+          "3",
+          "4",
+          "1"
+        ],
+        "en": [
+          "2 — March 31 14:30 is left out",
+          "3",
+          "4",
+          "1"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **2**; yarı açık aralık (`>= '2026-03-01' AND < '2026-04-01'`) 3. Saatsiz `'2026-03-31'` gece yarısı demek.",
+        "en": "Measured: **2**; the half-open range (`>= '2026-03-01' AND < '2026-04-01'`) finds 3. `'2026-03-31'` without a time means midnight."
+      }
+    },
+    {
+      "id": "q31",
+      "answer": 3,
+      "text": {
+        "tr": "Türkçe ayarlı sunucuda `WHERE city = 'istanbul'`, şehri `Istanbul` olan iki müşteriden kaçını buluyor?",
+        "en": "On a Turkish-set server, how many of the two customers whose city is `Istanbul` does `WHERE city = 'istanbul'` find?"
+      },
+      "options": {
+        "tr": [
+          "2",
+          "1",
+          "Hata",
+          "0"
+        ],
+        "en": [
+          "2",
+          "1",
+          "An error",
+          "0"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **0**. Türkçede `I`'nın küçüğü `ı`. `COLLATE Latin1_General_CI_AS` ile 2. Sonuç sunucunun dil ayarına bağlı.",
+        "en": "Measured: **0**. In Turkish the small form of `I` is `ı`. With `COLLATE Latin1_General_CI_AS`, 2. The result depends on the server's language setting."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 1,
+      "text": {
+        "tr": "`STRING_AGG(name, ', ')` `WITHIN GROUP` olmadan yazıldı. Listedeki sıra?",
+        "en": "`STRING_AGG(name, ', ')` was written without `WITHIN GROUP`. The order in the list?"
+      },
+      "options": {
+        "tr": [
+          "Her zaman alfabetik",
+          "Garanti yok; bu sunucuda eklenme sırası geldi",
+          "Tersten alfabetik",
+          "Hata veriyor"
+        ],
+        "en": [
+          "Always alphabetical",
+          "No guarantee; on this server the insertion order came back",
+          "Reverse alphabetical",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: ACC için `Keyboard, Mouse, Headset, ...`. `WITHIN GROUP (ORDER BY name)` ile alfabetik. Sorgunun sonundaki `ORDER BY` hücrenin içini sıralamıyor.",
+        "en": "Measured: `Keyboard, Mouse, Headset, ...` for ACC. Alphabetical with `WITHIN GROUP (ORDER BY name)`. The `ORDER BY` at the end of the query does not sort inside the cell."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 2,
+      "text": {
+        "tr": "İki ürünün stoğu 99, sonra Cable 60. Cable için `ROW_NUMBER`, `RANK`, `DENSE_RANK`?",
+        "en": "Two products have a stock of 99, then Cable with 60. `ROW_NUMBER`, `RANK`, `DENSE_RANK` for Cable?"
+      },
+      "options": {
+        "tr": [
+          "`3, 2, 2`",
+          "`2, 2, 2`",
+          "`3, 3, 2`",
+          "`3, 3, 3`"
+        ],
+        "en": [
+          "`3, 2, 2`",
+          "`2, 2, 2`",
+          "`3, 3, 2`",
+          "`3, 3, 3`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü (on birinci bölüm): **3, 3, 2**. `RANK` eşitlerden sonra atlıyor, `DENSE_RANK` atlamıyor.",
+        "en": "Measured (the eleventh section): **3, 3, 2**. `RANK` skips after ties, `DENSE_RANK` does not."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 0,
+      "text": {
+        "tr": "`SUM(line) OVER (ORDER BY order_id)` — 1001'in üç kalemi (900, 440, 475). İlk kalemde ne yazıyor?",
+        "en": "`SUM(line) OVER (ORDER BY order_id)` — the three lines of 1001 (900, 440, 475). What does the first line show?"
+      },
+      "options": {
+        "tr": [
+          "1815 — üçü de aynı değer sayılıp birlikte giriyor",
+          "900",
+          "440",
+          "Hata"
+        ],
+        "en": [
+          "1815 — all three count as the same value and go in together",
+          "900",
+          "440",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: üç satırda da **1815**. Varsayılan çerçeve \"bu değere kadar\"; `ROWS UNBOUNDED PRECEDING` ile 900, 1340, 1815.",
+        "en": "Measured: **1815** on all three rows. The default frame is \"up to this value\"; with `ROWS UNBOUNDED PRECEDING`, 900, 1340, 1815."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 3,
+      "text": {
+        "tr": "`WHERE ROW_NUMBER() OVER (ORDER BY price) <= 3` ne oluyor?",
+        "en": "What happens with `WHERE ROW_NUMBER() OVER (ORDER BY price) <= 3`?"
+      },
+      "options": {
+        "tr": [
+          "En ucuz üç ürün geliyor",
+          "Boş sonuç",
+          "Bütün ürünler geliyor",
+          "Hata: pencere yalnızca `SELECT` ve `ORDER BY`'da; `FROM (...)` ya da `WITH` ile dışarıda süz"
+        ],
+        "en": [
+          "The three cheapest products come back",
+          "An empty result",
+          "Every product comes back",
+          "An error: windows only in `SELECT` and `ORDER BY`; filter outside with `FROM (...)` or `WITH`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Windowed functions can only appear in the SELECT or ORDER BY clauses.` Pencere `SELECT`'te (5. adım) hesaplanıyor; `WHERE` (2. adım) onu göremiyor.",
+        "en": "Measured: `Windowed functions can only appear in the SELECT or ORDER BY clauses.` The window is worked out in `SELECT` (step 5); `WHERE` (step 2) cannot see it."
+      }
+    },
+    {
+      "id": "q36",
+      "answer": 1,
+      "text": {
+        "tr": "`GROUP BY p.category_code` olan bir sorguda `SUM(SUM(i.quantity * i.unit_price)) OVER ()` her satırda ne veriyor?",
+        "en": "In a query with `GROUP BY p.category_code`, what does `SUM(SUM(i.quantity * i.unit_price)) OVER ()` give on every row?"
+      },
+      "options": {
+        "tr": [
+          "Grubun kendi toplamı",
+          "Bütün grupların toplamı: `99165.00`",
+          "Hata: iç içe toplama",
+          "Grup sayısı"
+        ],
+        "en": [
+          "The group's own total",
+          "The total of all groups: `99165.00`",
+          "An error: nested aggregation",
+          "The number of groups"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: dört satırda da `99165.00` (iptal edilenler hariç). İçteki `SUM` gruplamanın, dıştaki pencerenin; pay tek sorguda: `100.0 * SUM(...) / SUM(SUM(...)) OVER ()`.",
+        "en": "Measured: `99165.00` on all four rows (cancelled orders left out). The inner `SUM` belongs to the grouping, the outer to the window; the share is one query: `100.0 * SUM(...) / SUM(SUM(...)) OVER ()`."
+      }
+    },
+    {
+      "id": "q37",
+      "answer": 2,
+      "text": {
+        "tr": "`WITH x AS (SELECT 1 AS a) SELECT * FROM x; SELECT * FROM x;` ne yapıyor?",
+        "en": "What does `WITH x AS (SELECT 1 AS a) SELECT * FROM x; SELECT * FROM x;` do?"
+      },
+      "options": {
+        "tr": [
+          "İki sonuç da 1",
+          "İkisi de hata",
+          "Birincisi 1, ikincisi `Invalid object name 'x'`",
+          "CTE ikinci kez kuruluyor"
+        ],
+        "en": [
+          "Both results are 1",
+          "Both fail",
+          "The first gives 1, the second `Invalid object name 'x'`",
+          "The CTE is created a second time"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: CTE yalnızca hemen ardından gelen cümle boyunca yaşıyor. Kalıcı bir ad gerekiyorsa görünüm.",
+        "en": "Measured: a CTE lives only for the statement right after it. If a lasting name is needed, a view."
+      }
+    },
+    {
+      "id": "q38",
+      "answer": 0,
+      "text": {
+        "tr": "`SET NOCOUNT ON` satırının ardından noktalı virgülsüz `WITH x AS (...) SELECT ...` yazıldı. Ne oluyor?",
+        "en": "`WITH x AS (...) SELECT ...` was written after `SET NOCOUNT ON` without a semicolon. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Hata: önceki cümle noktalı virgülle bitmeli",
+          "Çalışıyor",
+          "`WITH` yok sayılıyor",
+          "`SET NOCOUNT ON` yok sayılıyor"
+        ],
+        "en": [
+          "An error: the previous statement must end with a semicolon",
+          "It works",
+          "`WITH` is ignored",
+          "`SET NOCOUNT ON` is ignored"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Incorrect syntax near the keyword 'with'. ... must be terminated with a semicolon.` `;WITH` ya da önceki cümleyi `;` ile bitirmek çalıştı.",
+        "en": "Measured: `Incorrect syntax near the keyword 'with'. ... must be terminated with a semicolon.` `;WITH`, or ending the previous statement with `;`, worked."
+      }
+    },
+    {
+      "id": "q39",
+      "answer": 3,
+      "text": {
+        "tr": "Özyinelemeli CTE'de `UNION ALL` yerine `UNION` yazıldı. Sonuç?",
+        "en": "`UNION` was written instead of `UNION ALL` in a recursive CTE. The result?"
+      },
+      "options": {
+        "tr": [
+          "Tekrarlar ayıklanıyor",
+          "Sonsuz döngü",
+          "Yalnızca başlangıç satırı geliyor",
+          "Hata: özyinelemede en üst düzeyde `UNION ALL` olmalı"
+        ],
+        "en": [
+          "Duplicates are removed",
+          "An endless loop",
+          "Only the starting row comes back",
+          "An error: recursion needs `UNION ALL` at the top level"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Recursive common table expression 'chain' does not contain a top-level UNION ALL operator.`",
+        "en": "Measured: `Recursive common table expression 'chain' does not contain a top-level UNION ALL operator.`"
+      }
+    },
+    {
+      "id": "q40",
+      "answer": 1,
+      "text": {
+        "tr": "Varsayılan ayarla 1'den birer artan sayaç CTE'si: `WHERE k < 101` ve `WHERE k < 102`?",
+        "en": "With the default setting, a counter CTE going up by one from 1: `WHERE k < 101` and `WHERE k < 102`?"
+      },
+      "options": {
+        "tr": [
+          "İkisi de çalışıyor",
+          "101 satır geliyor; 102 hata veriyor",
+          "İkisi de hata",
+          "100'de kesilip 100 satır"
+        ],
+        "en": [
+          "Both work",
+          "101 rows come back; 102 fails",
+          "Both fail",
+          "Cut at 100, 100 rows"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: sınır 100 **adım**; başlangıç satırı adım değil. 102'de `The maximum recursion 100 has been exhausted ...`. `OPTION (MAXRECURSION n)` cümlenin sonunda.",
+        "en": "Measured: the limit is 100 **steps**; the starting row is not a step. At 102, `The maximum recursion 100 has been exhausted ...`. `OPTION (MAXRECURSION n)` goes at the end of the statement."
+      }
+    },
+    {
+      "id": "q41",
+      "answer": 2,
+      "text": {
+        "tr": "Özyinelemeli yol: başlangıçta `name AS path`, sonra `c.path + N' > ' + e.name`. Ne oluyor?",
+        "en": "A recursive path: `name AS path` at the start, then `c.path + N' > ' + e.name`. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Çalışıyor",
+          "Yol 40 karakterde kesiliyor",
+          "Hata: `Types don't match between the anchor and the recursive part`",
+          "Yalnızca Ada geliyor"
+        ],
+        "en": [
+          "It works",
+          "The path is cut at 40 characters",
+          "An error: `Types don't match between the anchor and the recursive part`",
+          "Only Ada comes back"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: iki parçada tip farklı. Çare ikisinde de `CAST(... AS NVARCHAR(200))` — altı yolun altısı geldi.",
+        "en": "Measured: the type differs between the two parts. The fix is `CAST(... AS NVARCHAR(200))` in both — all six paths came back."
+      }
+    },
+    {
+      "id": "q42",
+      "answer": 0,
+      "text": {
+        "tr": "20 000 satırlık `events`'te bir günün olayları: dizinsiz ve `created_at` dizinli kaç okuma?",
+        "en": "One day's events in the 20,000-row `events`: how many reads with no index and with a `created_at` index?"
+      },
+      "options": {
+        "tr": [
+          "150 ve 2",
+          "150 ve 150",
+          "2 ve 2",
+          "42 ve 2"
+        ],
+        "en": [
+          "150 and 2",
+          "150 and 150",
+          "2 and 2",
+          "42 and 2"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü (on üçüncü bölüm): **150** (tablonun tamamı) ve **2** (Index Seek).",
+        "en": "Measured (the thirteenth section): **150** (the whole table) and **2** (an Index Seek)."
+      }
+    },
+    {
+      "id": "q43",
+      "answer": 3,
+      "text": {
+        "tr": "Aynı dizin varken `WHERE YEAR(created_at) = 2025 AND MONTH(created_at) = 6 AND DAY(created_at) = 1` kaç okuma?",
+        "en": "With the same index, how many reads does `WHERE YEAR(created_at) = 2025 AND MONTH(created_at) = 6 AND DAY(created_at) = 1` take?"
+      },
+      "options": {
+        "tr": [
+          "2 — Index Seek",
+          "150",
+          "Hata",
+          "42 — dizinin tamamı taranıyor"
+        ],
+        "en": [
+          "2 — an Index Seek",
+          "150",
+          "An error",
+          "42 — the whole index is scanned"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **42**, Index Scan. Sütun işlevin içinde olunca sıralı listede aranamıyor. Kural: sütunu çıplak bırak.",
+        "en": "Measured: **42**, an Index Scan. With the column inside a function, it cannot be sought in the sorted list. The rule: leave the column bare."
+      }
+    },
+    {
+      "id": "q44",
+      "answer": 1,
+      "text": {
+        "tr": "Yalnızca `customer_id = 3` arayan sorgu: `(customer_id, created_at)` dizini ve `(created_at, customer_id)` dizini ile?",
+        "en": "A query searching only for `customer_id = 3`: with a `(customer_id, created_at)` index and with a `(created_at, customer_id)` index?"
+      },
+      "options": {
+        "tr": [
+          "52 ve 11",
+          "11 ve 52",
+          "2 ve 2",
+          "150 ve 150"
+        ],
+        "en": [
+          "52 and 11",
+          "11 and 52",
+          "2 and 2",
+          "150 and 150"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **11 (seek) ve 52 (tarama)**. Dizin ilk sütunuyla aranabiliyor; ikinci sütunla yalnız arama taramaya düşüyor.",
+        "en": "Measured: **11 (a seek) and 52 (a scan)**. An index can be sought by its first column; searching only by the second falls back to a scan."
+      }
+    },
+    {
+      "id": "q45",
+      "answer": 2,
+      "text": {
+        "tr": "Bir gün için `SELECT created_at, amount`: `created_at` dizini `INCLUDE (amount)` ile kurulunca kaç okuma?",
+        "en": "`SELECT created_at, amount` for one day: how many reads with a `created_at` index built `INCLUDE (amount)`?"
+      },
+      "options": {
+        "tr": [
+          "150",
+          "130",
+          "3",
+          "42"
+        ],
+        "en": [
+          "150",
+          "130",
+          "3",
+          "42"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **3**. `INCLUDE`'suz dizinle sunucu dizini hiç kullanmadı ve tabloyu taradı (150). Sorgunun istediği her şey dizinde olunca tabloya dönmek gerekmiyor.",
+        "en": "Measured: **3**. With the index without `INCLUDE`, the server did not use it at all and scanned the table (150). When everything the query asks for is in the index, there is no need to go back to the table."
+      }
+    },
+    {
+      "id": "q46",
+      "answer": 0,
+      "text": {
+        "tr": "`events`'e tek bir satır eklemek: yalnızca birincil anahtar varken 2 okuma. Beş dizin daha varken?",
+        "en": "Adding a single row to `events`: 2 reads with only the primary key. With five more indexes?"
+      },
+      "options": {
+        "tr": [
+          "22 — her dizin de güncelleniyor",
+          "2 — dizinler yazmayı etkilemiyor",
+          "1",
+          "Hata"
+        ],
+        "en": [
+          "22 — every index is updated too",
+          "2 — indexes do not affect writes",
+          "1",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **22**. Dizin okumayı hızlandırıyor, yazmayı yavaşlatıyor ve yer kaplıyor; bu yüzden gerçekten sık çalışan sorgulara kuruluyor.",
+        "en": "Measured: **22**. An index speeds up reading, slows down writing and takes space; that is why it is built for queries that really run often."
+      }
+    },
+    {
+      "id": "q47",
+      "answer": 3,
+      "text": {
+        "tr": "`CREATE VIEW dbo.v_suppliers AS SELECT * FROM suppliers` sonrasında tabloya `phone` sütunu eklendi. Görünüm?",
+        "en": "After `CREATE VIEW dbo.v_suppliers AS SELECT * FROM suppliers`, a `phone` column was added to the table. The view?"
+      },
+      "options": {
+        "tr": [
+          "Yeni sütunu da gösteriyor",
+          "Hata veriyor",
+          "Kendiliğinden siliniyor",
+          "Eski 4 sütunu gösteriyor; `sp_refreshview`'e kadar"
+        ],
+        "en": [
+          "Shows the new column too",
+          "Raises an error",
+          "Is dropped by itself",
+          "Shows the old 4 columns, until `sp_refreshview`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü (on dördüncü bölüm): tablo 5, görünüm 4 sütun. `*` kurulurken sütun listesine çevrilip saklanıyor. Görünümde sütunları adıyla yaz.",
+        "en": "Measured (the fourteenth section): the table 5 columns, the view 4. `*` is turned into a column list and stored at creation. Name the columns in a view."
+      }
+    },
+    {
+      "id": "q48",
+      "answer": 1,
+      "text": {
+        "tr": "`WHERE status = 'pending' WITH CHECK OPTION` ile kurulmuş görünüm üzerinden `UPDATE ... SET status = 'shipped'` yazıldı. Sonuç?",
+        "en": "`UPDATE ... SET status = 'shipped'` was written through a view created with `WHERE status = 'pending' WITH CHECK OPTION`. The result?"
+      },
+      "options": {
+        "tr": [
+          "Satır güncelleniyor ve görünümden kayboluyor",
+          "Hata 550: değişiklik görünümün koşuluna uymuyor",
+          "Satır görünümde kalıyor",
+          "Yalnızca görünümde değişiyor"
+        ],
+        "en": [
+          "The row is updated and disappears from the view",
+          "Error 550: the change does not meet the view's condition",
+          "The row stays in the view",
+          "It changes only in the view"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: reddedildi. `CHECK OPTION` olmadan aynı güncelleme geçti ve satır görünümden sessizce kayboldu.",
+        "en": "Measured: refused. Without `CHECK OPTION` the same update went through and the row silently disappeared from the view."
+      }
+    },
+    {
+      "id": "q49",
+      "answer": 2,
+      "text": {
+        "tr": "`EXEC dbo.customer_order_count 1, @n;` — çağrıda `OUTPUT` yok. `SELECT @n`?",
+        "en": "`EXEC dbo.customer_order_count 1, @n;` — no `OUTPUT` in the call. `SELECT @n`?"
+      },
+      "options": {
+        "tr": [
+          "3",
+          "Hata",
+          "`NULL` — değer gelmiyor, hata da yok",
+          "0"
+        ],
+        "en": [
+          "3",
+          "An error",
+          "`NULL` — the value does not come back, and there is no error",
+          "0"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **`NULL`**; `OUTPUT` ile 3. `OUTPUT` tanımda ve çağrıda yazılıyor; çağrıda unutulması sessiz.",
+        "en": "Measured: **`NULL`**; with `OUTPUT`, 3. `OUTPUT` is written in the definition and the call; forgetting it in the call is silent."
+      }
+    },
+    {
+      "id": "q50",
+      "answer": 0,
+      "text": {
+        "tr": "`ship_order` yordamı zaten gönderilmiş 1001 için çağrıldı; içinde `IF NOT EXISTS (... 'pending') THROW 50001, ...;` ve ardından `UPDATE` var. Ne oluyor?",
+        "en": "The `ship_order` procedure was called for 1001, which is already shipped; inside it is `IF NOT EXISTS (... 'pending') THROW 50001, ...;` followed by an `UPDATE`. What happens?"
+      },
+      "options": {
+        "tr": [
+          "Yordam `THROW`'da duruyor, `UPDATE` yapılmıyor; hata 50001",
+          "`UPDATE` yapılıyor, sonra hata veriliyor",
+          "Hata yok sayılıyor",
+          "Sipariş `cancelled` oluyor"
+        ],
+        "en": [
+          "The procedure stops at `THROW` and the `UPDATE` never runs; error 50001",
+          "The `UPDATE` runs, then the error is raised",
+          "The error is ignored",
+          "The order becomes `cancelled`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Order is not pending.` (50001), 1001 olduğu gibi kaldı; bekleyen 1004 için ise `shipped` oldu. Kural tablonun yanında olunca hiçbir çağıran onu atlayamıyor.",
+        "en": "Measured: `Order is not pending.` (50001), and 1001 stayed as it was; for the pending 1004 it became `shipped`. With the rule next to the table, no caller can skip it."
+      }
+    }
+  ]
+}

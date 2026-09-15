@@ -1,0 +1,99 @@
+{
+  "id": "iade-tablosu",
+  "language": "tsql",
+  "title": {
+    "tr": "İade tablosu",
+    "en": "A returns table"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dokuzuncu bölümün araçları: `IDENTITY(1,1) PRIMARY KEY`, `NOT NULL`, `REFERENCES orders (id)`, `CHECK (quantity > 0)`.",
+      "en": "The tools of the ninth section: `IDENTITY(1,1) PRIMARY KEY`, `NOT NULL`, `REFERENCES orders (id)`, `CHECK (quantity > 0)`."
+    },
+    {
+      "tr": "Ekleme sekizinci bölümden: `INSERT INTO returns (order_id, reason, quantity) VALUES (...), (...);` — `id`'yi yazma, sunucu veriyor. Denetim ayrıca olmayan bir siparişe ve 0 adete iade eklemeyi deniyor; ikisinin de reddedilmesi bekleniyor.",
+      "en": "Adding rows comes from the eighth section: `INSERT INTO returns (order_id, reason, quantity) VALUES (...), (...);` — do not write the `id`, the server provides it. The check also tries adding a return for an order that does not exist and one with 0 items; both are expected to be refused."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE TABLE returns (\n    id INT IDENTITY(1,1) PRIMARY KEY,\n    order_id INT NOT NULL REFERENCES orders (id),\n    reason NVARCHAR(100) NOT NULL,\n    quantity INT NOT NULL CHECK (quantity > 0)\n);\n\nINSERT INTO returns (order_id, reason, quantity) VALUES\n    (1005, 'Damaged screen', 1),\n    (1009, 'Wrong item', 1);\n```",
+      "en": "The whole query:\n\n```sql\nCREATE TABLE returns (\n    id INT IDENTITY(1,1) PRIMARY KEY,\n    order_id INT NOT NULL REFERENCES orders (id),\n    reason NVARCHAR(100) NOT NULL,\n    quantity INT NOT NULL CHECK (quantity > 0)\n);\n\nINSERT INTO returns (order_id, reason, quantity) VALUES\n    (1005, 'Damaged screen', 1),\n    (1009, 'Wrong item', 1);\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'returns' ORDER BY ORDINAL_POSITION;",
+      "ordered": true,
+      "expected": [
+        [
+          "id",
+          "int",
+          "NO"
+        ],
+        [
+          "order_id",
+          "int",
+          "NO"
+        ],
+        [
+          "reason",
+          "nvarchar",
+          "NO"
+        ],
+        [
+          "quantity",
+          "int",
+          "NO"
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SELECT kcu.COLUMN_NAME, ccu.TABLE_NAME, ccu.COLUMN_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu ON kcu.CONSTRAINT_NAME = rc.CONSTRAINT_NAME JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu ON ccu.CONSTRAINT_NAME = rc.UNIQUE_CONSTRAINT_NAME WHERE kcu.TABLE_NAME = 'returns';",
+      "ordered": true,
+      "expected": [
+        [
+          "order_id",
+          "orders",
+          "id"
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SELECT order_id, reason, quantity FROM returns ORDER BY order_id;",
+      "ordered": true,
+      "expected": [
+        [
+          1005,
+          "Damaged screen",
+          1
+        ],
+        [
+          1009,
+          "Wrong item",
+          1
+        ]
+      ]
+    },
+    {
+      "type": "rows",
+      "query": "SET NOCOUNT ON; DECLARE @fk NVARCHAR(10) = 'accepted', @ck NVARCHAR(10) = 'accepted'; BEGIN TRY INSERT INTO returns (order_id, reason, quantity) VALUES (9999, 'x', 1); END TRY BEGIN CATCH SET @fk = 'rejected'; END CATCH; BEGIN TRY INSERT INTO returns (order_id, reason, quantity) VALUES (1005, 'x', 0); END TRY BEGIN CATCH SET @ck = 'rejected'; END CATCH; SELECT @fk AS unknown_order, @ck AS zero_quantity;",
+      "ordered": true,
+      "expected": [
+        [
+          "rejected",
+          "rejected"
+        ]
+      ]
+    }
+  ]
+}

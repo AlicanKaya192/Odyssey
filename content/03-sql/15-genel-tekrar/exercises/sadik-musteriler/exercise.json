@@ -1,0 +1,76 @@
+{
+  "id": "sadik-musteriler",
+  "language": "tsql",
+  "title": {
+    "tr": "Tekrar gelen müşteriler",
+    "en": "Returning customers"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`customers` ile `orders`'ı birleştir, iptalleri `WHERE` ile çıkar, müşteriye göre grupla. İlk ve son tarih `MIN` ve `MAX`, aradaki gün `DATEDIFF(day, MIN(...), MAX(...))`.",
+      "en": "Join `customers` with `orders`, leave out the cancelled ones with `WHERE`, group by customer. The first and last dates are `MIN` and `MAX`, the days between them `DATEDIFF(day, MIN(...), MAX(...))`."
+    },
+    {
+      "tr": "\"En az iki sipariş\" bir grubun koşulu, satırın değil: `WHERE` değil `HAVING COUNT(*) >= 2`.",
+      "en": "\"At least two orders\" is a condition on a group, not a row: not `WHERE` but `HAVING COUNT(*) >= 2`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT c.name,\n       COUNT(*) AS orders,\n       MIN(o.order_date) AS first_order,\n       MAX(o.order_date) AS last_order,\n       DATEDIFF(day, MIN(o.order_date), MAX(o.order_date)) AS span_days\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nWHERE o.status <> 'cancelled'\nGROUP BY c.id, c.name\nHAVING COUNT(*) >= 2\nORDER BY span_days DESC, c.name;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT c.name,\n       COUNT(*) AS orders,\n       MIN(o.order_date) AS first_order,\n       MAX(o.order_date) AS last_order,\n       DATEDIFF(day, MIN(o.order_date), MAX(o.order_date)) AS span_days\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nWHERE o.status <> 'cancelled'\nGROUP BY c.id, c.name\nHAVING COUNT(*) >= 2\nORDER BY span_days DESC, c.name;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "name",
+        "orders",
+        "first_order",
+        "last_order",
+        "span_days"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          "Bright Office",
+          2,
+          "2026-01-15",
+          "2026-03-22",
+          66
+        ],
+        [
+          "Delta Systems",
+          2,
+          "2026-02-11",
+          "2026-04-17",
+          65
+        ],
+        [
+          "Helix Studio",
+          2,
+          "2026-02-19",
+          "2026-04-01",
+          41
+        ],
+        [
+          "Nova Retail",
+          2,
+          "2026-01-08",
+          "2026-02-02",
+          25
+        ]
+      ]
+    }
+  ]
+}

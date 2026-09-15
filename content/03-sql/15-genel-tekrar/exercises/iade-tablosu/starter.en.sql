@@ -1,0 +1,9 @@
+-- Create a table that holds returns: returns.
+--   id        INT, increasing by itself, primary key
+--   order_id  INT, cannot be empty, linked to the orders table
+--   reason    NVARCHAR(100), cannot be empty
+--   quantity  INT, cannot be empty, must be greater than 0
+--
+-- Then add two returns:
+--   order 1005, 'Damaged screen', 1 item
+--   order 1009, 'Wrong item', 1 item

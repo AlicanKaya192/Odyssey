@@ -1,0 +1,5 @@
+-- Iptal edilmeyen en az iki siparisi olan musterileri getir:
+-- adi, siparis sayisi, ilk ve son siparis tarihi ve ikisi
+-- arasindaki gun.
+-- Sutunlar: name, orders, first_order, last_order, span_days.
+-- span_days (buyukten kucuge), sonra name ile sirala.

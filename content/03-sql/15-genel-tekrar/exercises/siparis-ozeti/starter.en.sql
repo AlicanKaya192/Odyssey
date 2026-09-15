@@ -1,0 +1,6 @@
+-- Create a view that sums up each order on a single row:
+-- dbo.order_summary.
+-- Columns: id, order_date, customer (the customer's name),
+-- employee (the employee's name; 'Unassigned' if none),
+-- item_count (the number of lines), total (the amount).
+-- All orders, the cancelled ones included.

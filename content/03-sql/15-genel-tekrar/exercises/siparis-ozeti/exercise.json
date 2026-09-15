@@ -1,0 +1,119 @@
+{
+  "id": "siparis-ozeti",
+  "language": "tsql",
+  "title": {
+    "tr": "Sipariş özeti görünümü",
+    "en": "An order summary view"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dört tablo. İki siparişin çalışanı yok (`employee_id` `NULL`): `employees`'a `JOIN` ile bağlanırsa o siparişler düşüyor, `LEFT JOIN` gerekiyor. Boş adı `COALESCE(e.name, 'Unassigned')`.",
+      "en": "Four tables. Two orders have no employee (`employee_id` is `NULL`): joining `employees` with `JOIN` drops those orders, you need `LEFT JOIN`. The empty name becomes `COALESCE(e.name, 'Unassigned')`."
+    },
+    {
+      "tr": "Kalem sayısı ve tutar için siparişe göre grupla: `GROUP BY o.id, o.order_date, c.name, e.name`. Görünüm `CREATE VIEW dbo.order_summary AS ...` ile, içinde `ORDER BY` yok.",
+      "en": "Group by order for the line count and amount: `GROUP BY o.id, o.order_date, c.name, e.name`. The view is `CREATE VIEW dbo.order_summary AS ...`, with no `ORDER BY` inside."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE VIEW dbo.order_summary AS\nSELECT o.id, o.order_date,\n       c.name AS customer,\n       COALESCE(e.name, 'Unassigned') AS employee,\n       COUNT(*) AS item_count,\n       SUM(i.quantity * i.unit_price) AS total\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\nLEFT JOIN employees e ON e.id = o.employee_id\nJOIN order_items i ON i.order_id = o.id\nGROUP BY o.id, o.order_date, c.name, e.name;\n```",
+      "en": "The whole query:\n\n```sql\nCREATE VIEW dbo.order_summary AS\nSELECT o.id, o.order_date,\n       c.name AS customer,\n       COALESCE(e.name, 'Unassigned') AS employee,\n       COUNT(*) AS item_count,\n       SUM(i.quantity * i.unit_price) AS total\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\nLEFT JOIN employees e ON e.id = o.employee_id\nJOIN order_items i ON i.order_id = o.id\nGROUP BY o.id, o.order_date, c.name, e.name;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SELECT id, order_date, customer, employee, item_count, total FROM dbo.order_summary ORDER BY id;",
+      "ordered": true,
+      "expected": [
+        [
+          1001,
+          "2026-01-08",
+          "Nova Retail",
+          "Ceren Aksoy",
+          3,
+          1815.0
+        ],
+        [
+          1002,
+          "2026-01-15",
+          "Bright Office",
+          "Ceren Aksoy",
+          2,
+          30900.0
+        ],
+        [
+          1003,
+          "2026-02-02",
+          "Nova Retail",
+          "Deniz Kaya",
+          1,
+          2340.0
+        ],
+        [
+          1004,
+          "2026-02-11",
+          "Delta Systems",
+          "Unassigned",
+          2,
+          1600.0
+        ],
+        [
+          1005,
+          "2026-02-19",
+          "Helix Studio",
+          "Deniz Kaya",
+          3,
+          24740.0
+        ],
+        [
+          1006,
+          "2026-03-03",
+          "Nova Retail",
+          "Ceren Aksoy",
+          1,
+          2400.0
+        ],
+        [
+          1007,
+          "2026-03-14",
+          "Orion Labs",
+          "Deniz Kaya",
+          2,
+          4510.0
+        ],
+        [
+          1008,
+          "2026-03-22",
+          "Bright Office",
+          "Ceren Aksoy",
+          1,
+          3200.0
+        ],
+        [
+          1009,
+          "2026-04-01",
+          "Helix Studio",
+          "Unassigned",
+          2,
+          24950.0
+        ],
+        [
+          1010,
+          "2026-04-17",
+          "Delta Systems",
+          "Deniz Kaya",
+          3,
+          5110.0
+        ]
+      ]
+    }
+  ]
+}

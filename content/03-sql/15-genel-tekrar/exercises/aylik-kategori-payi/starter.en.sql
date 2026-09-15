@@ -1,0 +1,6 @@
+-- For orders that were not cancelled, show each category's
+-- revenue in each month and its percentage share of that
+-- month's total.
+-- Columns: month (the first day of the month), category_code,
+-- revenue, share (DECIMAL(5,2)).
+-- Sort by month, then revenue (largest first).
