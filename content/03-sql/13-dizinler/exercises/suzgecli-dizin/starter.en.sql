@@ -1,0 +1,4 @@
+-- In the events table, amount is only filled in for purchases;
+-- it is empty (NULL) on three rows out of four. Create an
+-- index on amount for queries that search by amount, but let
+-- the index hold only the rows where amount is filled in.

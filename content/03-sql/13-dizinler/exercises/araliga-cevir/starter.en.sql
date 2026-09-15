@@ -1,0 +1,11 @@
+-- This query, which brings back the purchases (event_type
+-- 'purchase') of June 1, 2025, gives the right result but
+-- cannot use the index:
+--
+--   SELECT id, created_at, amount FROM events
+--   WHERE event_type = N'purchase'
+--     AND YEAR(created_at) = 2025 AND MONTH(created_at) = 6
+--     AND DAY(created_at) = 1
+--   ORDER BY created_at;
+--
+-- Write the same result without applying a function to the column.

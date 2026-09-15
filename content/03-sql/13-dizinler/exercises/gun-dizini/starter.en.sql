@@ -1,0 +1,6 @@
+-- The query below reads the whole events table:
+--
+--   SELECT id, created_at FROM events
+--   WHERE created_at >= '2025-06-01' AND created_at < '2025-06-02';
+--
+-- Create an index on created_at.

@@ -1,0 +1,145 @@
+{
+  "id": "araliga-cevir",
+  "language": "tsql",
+  "title": {
+    "tr": "İşlevsiz süz",
+    "en": "Filter without functions"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir günü süzmek: o gün **dahil**, ertesi gün **hariç** — `created_at >= '2025-06-01' AND created_at < '2025-06-02'`. Onuncu bölümdeki yarı açık aralık.",
+      "en": "Filtering one day: that day **included**, the next day **excluded** — `created_at >= '2025-06-01' AND created_at < '2025-06-02'`. The half-open range of the tenth section."
+    },
+    {
+      "tr": "Tür süzgecini de unutma: `event_type = N'purchase'`. Sonuç sırası `ORDER BY created_at`.",
+      "en": "Do not forget the type filter: `event_type = N'purchase'`. The order of the result is `ORDER BY created_at`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nSELECT id, created_at, amount\nFROM events\nWHERE event_type = N'purchase'\n  AND created_at >= '2025-06-01'\n  AND created_at <  '2025-06-02'\nORDER BY created_at;\n```",
+      "en": "The whole query:\n\n```sql\nSELECT id, created_at, amount\nFROM events\nWHERE event_type = N'purchase'\n  AND created_at >= '2025-06-01'\n  AND created_at <  '2025-06-02'\nORDER BY created_at;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "columns",
+      "expected": [
+        "id",
+        "created_at",
+        "amount"
+      ]
+    },
+    {
+      "type": "rows",
+      "ordered": true,
+      "expected": [
+        [
+          8699,
+          "2025-06-01T00:35:00",
+          199.99
+        ],
+        [
+          8703,
+          "2025-06-01T02:15:00",
+          203.99
+        ],
+        [
+          8707,
+          "2025-06-01T03:55:00",
+          207.99
+        ],
+        [
+          8711,
+          "2025-06-01T05:35:00",
+          211.99
+        ],
+        [
+          8715,
+          "2025-06-01T07:15:00",
+          215.99
+        ],
+        [
+          8719,
+          "2025-06-01T08:55:00",
+          219.99
+        ],
+        [
+          8723,
+          "2025-06-01T10:35:00",
+          223.99
+        ],
+        [
+          8727,
+          "2025-06-01T12:15:00",
+          227.99
+        ],
+        [
+          8731,
+          "2025-06-01T13:55:00",
+          231.99
+        ],
+        [
+          8735,
+          "2025-06-01T15:35:00",
+          235.99
+        ],
+        [
+          8739,
+          "2025-06-01T17:15:00",
+          239.99
+        ],
+        [
+          8743,
+          "2025-06-01T18:55:00",
+          243.99
+        ],
+        [
+          8747,
+          "2025-06-01T20:35:00",
+          247.99
+        ],
+        [
+          8751,
+          "2025-06-01T22:15:00",
+          251.99
+        ],
+        [
+          8755,
+          "2025-06-01T23:55:00",
+          255.99
+        ]
+      ]
+    },
+    {
+      "type": "sql_forbid",
+      "pattern": "YEAR(",
+      "hint": {
+        "tr": "Sütunu `YEAR(...)` içine alınca dizin taranmak zorunda kalıyor. Tarih aralığı yaz: `>= '2025-06-01' AND < '2025-06-02'`.",
+        "en": "Wrapping the column in `YEAR(...)` forces the index to be scanned. Write a date range: `>= '2025-06-01' AND < '2025-06-02'`."
+      }
+    },
+    {
+      "type": "sql_forbid",
+      "pattern": "MONTH(",
+      "hint": {
+        "tr": "`MONTH(...)` da sütuna işlev uyguluyor; aralıkla süz.",
+        "en": "`MONTH(...)` applies a function to the column too; filter with a range."
+      }
+    },
+    {
+      "type": "sql_forbid",
+      "pattern": "DAY(",
+      "hint": {
+        "tr": "`DAY(...)` da sütuna işlev uyguluyor; aralıkla süz.",
+        "en": "`DAY(...)` applies a function to the column too; filter with a range."
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+-- Bu sorgu hizlanmali:
+--
+--   SELECT id FROM events
+--   WHERE customer_id = 3
+--     AND created_at >= '2025-06-01' AND created_at < '2025-06-02';
+--
+-- Iki sutunu birlikte tutan tek bir dizin kur. Sutunlarin
+-- sirasi onemli: esitlikle aranan sutun once.

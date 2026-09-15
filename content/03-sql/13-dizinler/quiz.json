@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 2,
+      "text": {
+        "tr": "`events` 20 000 satır, verisi 150 sayfa. Hiç dizin yokken `SELECT id, created_at FROM events WHERE created_at >= '2025-06-01' AND created_at < '2025-06-02'` kaç okuma yapıyor?",
+        "en": "`events` has 20,000 rows and its data is 150 pages. With no index at all, how many reads does `SELECT id, created_at FROM events WHERE created_at >= '2025-06-01' AND created_at < '2025-06-02'` take?"
+      },
+      "options": {
+        "tr": [
+          "2",
+          "58",
+          "150 — tablonun bütün sayfaları",
+          "20 000"
+        ],
+        "en": [
+          "2",
+          "58",
+          "150 — every page of the table",
+          "20,000"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: 58 satır için **150** okuma, *Clustered Index Scan*. Tablo `id` sırasında duruyor; `created_at`'e göre bir düzen olmadığı için sunucu her sayfaya bakmak zorunda.\n\nOkuma, sunucunun baktığı 8 KB'lık sayfa sayısı (`SET STATISTICS IO ON`).",
+        "en": "Measured: **150** reads for 58 rows, a *Clustered Index Scan*. The table is kept in `id` order; with no order by `created_at`, the server has to look at every page.\n\nA read is an 8 KB page the server looks at (`SET STATISTICS IO ON`)."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`CREATE INDEX ix_events_created ON events (created_at);` sonrasında aynı sorgu kaç okuma?",
+        "en": "After `CREATE INDEX ix_events_created ON events (created_at);`, how many reads does the same query take?"
+      },
+      "options": {
+        "tr": [
+          "2",
+          "42",
+          "150",
+          "58"
+        ],
+        "en": [
+          "2",
+          "42",
+          "150",
+          "58"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **2** okuma, *Index Seek*. Dizin `created_at` değerlerinin sıralı bir listesi; sunucu 1 Haziran'ın başladığı yere doğrudan gidiyor.\n\nBedeli: dizinlerin kapladığı yer 16 KB'tan 352 KB'a çıktı.",
+        "en": "Measured: **2** reads, an *Index Seek*. The index is a sorted list of `created_at` values; the server goes straight to where June 1 begins.\n\nThe price: the space taken by indexes went from 16 KB to 352 KB."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 3,
+      "text": {
+        "tr": "`created_at` dizini varken `WHERE YEAR(created_at) = 2025 AND MONTH(created_at) = 6 AND DAY(created_at) = 1` ne yapıyor?",
+        "en": "With the `created_at` index in place, what does `WHERE YEAR(created_at) = 2025 AND MONTH(created_at) = 6 AND DAY(created_at) = 1` do?"
+      },
+      "options": {
+        "tr": [
+          "2 okuma, Index Seek",
+          "150 okuma, tablo taraması",
+          "Hata veriyor",
+          "42 okuma — dizinin tamamı taranıyor (Index Scan)"
+        ],
+        "en": [
+          "2 reads, an Index Seek",
+          "150 reads, a table scan",
+          "It raises an error",
+          "42 reads — the whole index is scanned (an Index Scan)"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **42** okuma, *Index Scan*. Dizin `created_at`'e göre sıralı, `YEAR(created_at)`'e göre değil; sunucu her değer için işlevi hesaplayıp bakıyor. Dizin tablodan küçük olduğu için 150'den az, ama aramanın yirmi katı.\n\nKural: sütunu çıplak bırak — `>= '2025-06-01' AND < '2025-06-02'`.",
+        "en": "Measured: **42** reads, an *Index Scan*. The index is sorted by `created_at`, not by `YEAR(created_at)`; the server works out the function for every value and looks. Less than 150 because the index is smaller than the table, but twenty times a seek.\n\nThe rule: leave the column bare — `>= '2025-06-01' AND < '2025-06-02'`."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 1,
+      "text": {
+        "tr": "`created_at` dizini varken `WHERE CAST(created_at AS DATE) = '2025-06-01'` ne yapıyor?",
+        "en": "With the `created_at` index in place, what does `WHERE CAST(created_at AS DATE) = '2025-06-01'` do?"
+      },
+      "options": {
+        "tr": [
+          "42 okuma — sütun işlevin içinde olduğu için tarama",
+          "2 okuma, Index Seek — sunucu bu dönüşümü tanıyor",
+          "150 okuma",
+          "Hata veriyor"
+        ],
+        "en": [
+          "42 reads — a scan, because the column is inside a function",
+          "2 reads, an Index Seek — the server recognises this conversion",
+          "150 reads",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **2** okuma, *Index Seek* — kuralın bir istisnası. Sunucu `DATE`'e çevirmeyi tanıyor ve aralığa dönüştürebiliyor. Aynı dizinle `DATEADD(day, 1, created_at)` ise 42 okuma taradı.\n\nİstisnayı genelleme: kurala uymak (sütunu çıplak bırakmak) sürprizsiz.",
+        "en": "Measured: **2** reads, an *Index Seek* — an exception to the rule. The server recognises the conversion to `DATE` and can turn it into a range. With the same index, `DATEADD(day, 1, created_at)` scanned in 42 reads.\n\nDo not generalise from the exception: following the rule (leaving the column bare) brings no surprises."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 2,
+      "text": {
+        "tr": "`session_code` üzerinde bir dizin var. `LIKE 'S0050%'` 3 okuma. `LIKE '%0050'` kaç okuma?",
+        "en": "There is an index on `session_code`. `LIKE 'S0050%'` takes 3 reads. How many does `LIKE '%0050'` take?"
+      },
+      "options": {
+        "tr": [
+          "3 — Index Seek",
+          "Hata veriyor",
+          "54 — dizin baştan sona taranıyor",
+          "2"
+        ],
+        "en": [
+          "3 — an Index Seek",
+          "It raises an error",
+          "54 — the index is scanned from start to end",
+          "2"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **54** okuma, *Index Scan* — 2 satır bulmak için. Başı belli bir metin sıralı listede aranabiliyor; başı `%` olan aranamıyor. Kitabın fihristinde \"sonu -ler ile biten kelimeler\" diye bakılamaz.",
+        "en": "Measured: **54** reads, an *Index Scan* — to find 2 rows. A text with a known beginning can be sought in a sorted list; one starting with `%` cannot. You cannot look up \"words ending in -ing\" in a book's index."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`session_code` dizini varken `WHERE UPPER(session_code) = 'S010000'` ne yapıyor?",
+        "en": "With the `session_code` index in place, what does `WHERE UPPER(session_code) = 'S010000'` do?"
+      },
+      "options": {
+        "tr": [
+          "54 okuma, Index Scan",
+          "2 okuma, Index Seek",
+          "Hata veriyor",
+          "150 okuma, Clustered Index Scan"
+        ],
+        "en": [
+          "54 reads, an Index Scan",
+          "2 reads, an Index Seek",
+          "It raises an error",
+          "150 reads, a Clustered Index Scan"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **54** okuma; `session_code = 'S010000'` ise 2. Tarihte olduğu gibi, sütun işlevin içine girince aranamıyor.\n\nBu sunucuda harf büyüklüğü için `UPPER`'a gerek de yok: karşılaştırmalar büyük/küçük harfe duyarsız (onuncu bölüm).",
+        "en": "Measured: **54** reads, while `session_code = 'S010000'` takes 2. As with dates, once the column is inside a function it cannot be sought.\n\nOn this server there is no need for `UPPER` for letter case either: comparisons ignore case (the tenth section)."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 3,
+      "text": {
+        "tr": "`created_at` dizini varken bir günün 58 satırı için `SELECT *` kaç okuma yapıyor?",
+        "en": "With the `created_at` index in place, how many reads does `SELECT *` take for one day's 58 rows?"
+      },
+      "options": {
+        "tr": [
+          "2 — Index Seek",
+          "58 — satır başına bir okuma",
+          "Hata veriyor",
+          "150 — sunucu dizini kullanmadı, tabloyu taradı"
+        ],
+        "en": [
+          "2 — an Index Seek",
+          "58 — one read per row",
+          "It raises an error",
+          "150 — the server did not use the index and scanned the table"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **150**, *Clustered Index Scan*. Dizin yalnızca `created_at`'i tutuyor; öteki sütunlar için her satırda tabloya dönmek gerekecekti. 58 geri dönüşü sunucu tarama kadar pahalı buldu ve dizini hiç kullanmadı.\n\nDizinin var olması kullanılacağı anlamına gelmiyor; kararı sunucu veriyor.",
+        "en": "Measured: **150**, a *Clustered Index Scan*. The index only holds `created_at`; for the other columns it would have had to go back to the table for every row. The server judged 58 trips back as expensive as a scan and did not use the index at all.\n\nAn index existing does not mean it will be used; the server makes the call."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 1,
+      "text": {
+        "tr": "Plandaki *Key Lookup* ne demek?",
+        "en": "What does *Key Lookup* in a plan mean?"
+      },
+      "options": {
+        "tr": [
+          "Dizinin baştan sona okunması",
+          "Dizinde olmayan bir sütun için tabloya satır başına geri dönmek",
+          "Birincil anahtarın kontrol edilmesi",
+          "Sorgunun hata vermesi"
+        ],
+        "en": [
+          "Reading the index from start to end",
+          "Going back to the table, once per row, for a column the index does not have",
+          "Checking the primary key",
+          "The query raising an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: 1 Haziran'ın 15 satın alması için sorgu *Index Seek + Key Lookup* ile 130 okuma yaptı — dizinde yalnızca `created_at` vardı, `event_type` ve `amount` için her satırda tabloya dönüldü.\n\nÇaresi istenen sütunları dizine eklemek (`INCLUDE`) ya da daha az sütun istemek.",
+        "en": "Measured: for the 15 purchases of June 1, the query took 130 reads with *Index Seek + Key Lookup* — the index only had `created_at`, so it went back to the table for `event_type` and `amount` on every row.\n\nThe fix is to add the requested columns to the index (`INCLUDE`) or to ask for fewer columns."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 2,
+      "text": {
+        "tr": "`CREATE INDEX ... ON events (created_at) INCLUDE (amount)` sonrasında bir gün için `SELECT created_at, amount` kaç okuma?",
+        "en": "After `CREATE INDEX ... ON events (created_at) INCLUDE (amount)`, how many reads does `SELECT created_at, amount` take for one day?"
+      },
+      "options": {
+        "tr": [
+          "150",
+          "42",
+          "3 — Index Seek",
+          "130"
+        ],
+        "en": [
+          "150",
+          "42",
+          "3 — an Index Seek",
+          "130"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **3**. Yalnızca `created_at` dizini varken aynı sorgu tabloyu taramıştı (150). Sorgunun istediği her şey dizinde olunca tabloya dönmek gerekmiyor — buna kapsayan dizin deniyor.",
+        "en": "Measured: **3**. With only a `created_at` index, the same query had scanned the table (150). When everything the query asks for is in the index, there is no need to go back to the table — this is called a covering index."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`INCLUDE (amount)` ile `(created_at, amount)` anahtarı arasındaki fark ne?",
+        "en": "What is the difference between `INCLUDE (amount)` and a `(created_at, amount)` key?"
+      },
+      "options": {
+        "tr": [
+          "`INCLUDE`'daki sütun sıralamaya girmiyor, yalnızca dizinde duruyor",
+          "`INCLUDE` sütunu tablodan siliyor",
+          "`INCLUDE` sütunu benzersiz yapıyor",
+          "Fark yok, ikisi aynı dizini kuruyor"
+        ],
+        "en": [
+          "The column in `INCLUDE` does not take part in the sort order; it only sits in the index",
+          "`INCLUDE` removes the column from the table",
+          "`INCLUDE` makes the column unique",
+          "There is no difference; both build the same index"
+        ]
+      },
+      "explanation": {
+        "tr": "İkisi de bu sorguyu kapsıyor — ölçüldü, ikisi de 3 okuma. Fark sıralamada: `(created_at, amount)`'ta `amount` anahtarın ikinci sütunu ve dizin ona göre de sıralı; `INCLUDE`'da yalnızca taşınıyor. Aranmayan, yalnızca okunan bir sütun için `INCLUDE` yetiyor.\n\n`sys.indexes` ikisini ayırıyor: alıştırmadaki denetim anahtarı ve eklenen sütunu ayrı ayrı okuyor.",
+        "en": "Both cover this query — measured, 3 reads each. The difference is the sort order: in `(created_at, amount)`, `amount` is the key's second column and the index is sorted by it too; with `INCLUDE` it is only carried along. For a column that is only read, never searched, `INCLUDE` is enough.\n\n`sys.indexes` tells them apart: the exercise's check reads the key and the included column separately."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 3,
+      "text": {
+        "tr": "`(customer_id, created_at)` dizini varken yalnızca bir günü arayan sorgu (`customer_id` yok) kaç okuma?",
+        "en": "With a `(customer_id, created_at)` index, how many reads does a query that searches only for a day (no `customer_id`) take?"
+      },
+      "options": {
+        "tr": [
+          "2 — Index Seek",
+          "11",
+          "Hata veriyor",
+          "52 — ikinci sütunla arama yapılamıyor, dizin taranıyor"
+        ],
+        "en": [
+          "2 — an Index Seek",
+          "11",
+          "It raises an error",
+          "52 — the second column cannot be searched, the index is scanned"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **52**, *Index Scan*. Dizin önce `customer_id`'ye göre sıralı; tarihler her müşterinin içinde ayrı ayrı sıralı. Yalnızca tarih bilinince doğrudan yere gidilemiyor.\n\nTelefon rehberi gibi: soyadı bilinmeden yalnızca adla aramak rehberin tamamını okumak demek.",
+        "en": "Measured: **52**, an *Index Scan*. The index is sorted by `customer_id` first; dates are sorted separately within each customer. Knowing only the date, it cannot go straight to the right place.\n\nLike a phone book: searching by first name without the surname means reading the whole book."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 1,
+      "text": {
+        "tr": "Aynı `(customer_id, created_at)` dizini varken yalnızca 3 numaralı müşteriyi (3 334 satır) arayan sorgu kaç okuma?",
+        "en": "With the same `(customer_id, created_at)` index, how many reads does a query searching only for customer 3 (3,334 rows) take?"
+      },
+      "options": {
+        "tr": [
+          "52 — tarama",
+          "11 — Index Seek",
+          "150",
+          "2"
+        ],
+        "en": [
+          "52 — a scan",
+          "11 — an Index Seek",
+          "150",
+          "2"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **11**, *Index Seek*. İlk sütun bilindiği için dizin o müşterinin başladığı yere gidiyor ve 3 334 satırı arka arkaya okuyor.\n\nTers sıradaki `(created_at, customer_id)` dizinle aynı sorgu 52 okuma taradı.",
+        "en": "Measured: **11**, an *Index Seek*. Because the first column is known, the index goes to where that customer begins and reads the 3,334 rows one after another.\n\nWith the reversed `(created_at, customer_id)` index, the same query scanned in 52 reads."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 2,
+      "text": {
+        "tr": "\"Müşteri 3, bir gün\" sorgusu için `(customer_id, created_at)` ile `(created_at, customer_id)` dizinleri kaçar okuma yaptı?",
+        "en": "For the \"customer 3, one day\" query, how many reads did the `(customer_id, created_at)` and `(created_at, customer_id)` indexes take?"
+      },
+      "options": {
+        "tr": [
+          "52 ve 2",
+          "150 ve 150",
+          "2 ve 2 — iki sıra da yetti",
+          "2 ve hata"
+        ],
+        "en": [
+          "52 and 2",
+          "150 and 150",
+          "2 and 2 — either order was enough",
+          "2 and an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: ikisi de **2**. İki sütun birlikte arandığında sıra bu sorguyu değiştirmedi. Fark tek sütunla aramada çıkıyor: yalnızca müşteri 11'e karşı 52, yalnızca gün 52'ye karşı 2.\n\nYani sıra seçimi \"bu dizin başka hangi sorgulara yarasın?\" sorusunun cevabı.",
+        "en": "Measured: **2** each. When both columns were searched together, the order made no difference for this query. The difference shows when searching with one column: customer only 11 against 52, day only 52 against 2.\n\nSo choosing the order answers the question \"which other queries should this index serve?\""
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`event_type` dört değer alıyor; `'purchase'` 5 000 satır. O sütuna dizin kurulunca `SELECT * FROM events WHERE event_type = N'purchase'` ne yapıyor?",
+        "en": "`event_type` takes four values; `'purchase'` is 5,000 rows. With an index on that column, what does `SELECT * FROM events WHERE event_type = N'purchase'` do?"
+      },
+      "options": {
+        "tr": [
+          "Tabloyu tarıyor (150 okuma): satırların dörtte biri için geri dönüş taramadan pahalı",
+          "22 okuma, Index Seek",
+          "Hata veriyor",
+          "5 000 okuma, satır başına bir tane"
+        ],
+        "en": [
+          "It scans the table (150 reads): going back for a quarter of the rows costs more than a scan",
+          "22 reads, an Index Seek",
+          "It raises an error",
+          "5,000 reads, one per row"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `SELECT *` **150** okuma, tarama; yalnızca `SELECT id` ise 22 okumayla dizinden geldi. Aranan değer tablonun büyük bir parçasıysa (düşük seçicilik) dizin tek başına pek işe yaramıyor.\n\nAz değer alan bir sütun, bileşik bir dizinin ikinci sütunu olarak daha çok işe yarıyor.",
+        "en": "Measured: `SELECT *` **150** reads, a scan; `SELECT id` alone came from the index in 22 reads. When the value searched for is a large part of the table (low selectivity), an index on its own does not help much.\n\nA column with few values is more useful as the second column of a composite index."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 3,
+      "text": {
+        "tr": "`amount` üzerinde `WHERE amount IS NOT NULL` süzgeçli bir dizin var. `WHERE amount IS NULL` kaç okuma?",
+        "en": "There is an index on `amount` filtered with `WHERE amount IS NOT NULL`. How many reads does `WHERE amount IS NULL` take?"
+      },
+      "options": {
+        "tr": [
+          "2",
+          "Hata veriyor",
+          "42",
+          "150 — o satırlar dizinde yok, tablo taranıyor"
+        ],
+        "en": [
+          "2",
+          "It raises an error",
+          "42",
+          "150 — those rows are not in the index, the table is scanned"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **150**. Süzgeçli dizin yalnızca `amount`'u dolu olan 5 000 satırı tutuyor; boş 15 000 satır orada yok. Aynı dizinle `amount > 490` 2 okuma.\n\nSüzgeçli dizin, sorguların hep aradığı parça için kuruluyor.",
+        "en": "Measured: **150**. The filtered index only holds the 5,000 rows where `amount` is filled in; the 15,000 empty rows are not there. With the same index `amount > 490` takes 2 reads.\n\nA filtered index is built for the part that queries always look for."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 1,
+      "text": {
+        "tr": "`sp_spaceused` dizinlerin kapladığı yeri ölçtü. `amount` dizini süzgeçli ve süzgeçsiz kurulunca?",
+        "en": "`sp_spaceused` measured the space taken by indexes. With the `amount` index filtered and unfiltered?"
+      },
+      "options": {
+        "tr": [
+          "İkisi de aynı",
+          "Süzgeçli 128 KB, süzgeçsiz 408 KB",
+          "Süzgeçli 408 KB, süzgeçsiz 128 KB",
+          "İkisi de 16 KB"
+        ],
+        "en": [
+          "Both the same",
+          "Filtered 128 KB, unfiltered 408 KB",
+          "Filtered 408 KB, unfiltered 128 KB",
+          "Both 16 KB"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **128 KB'a karşı 408 KB** (ikisinde de birincil anahtarın 16 KB'ı dahil). Süzgeçli dizin satırların dörtte birini tuttuğu için küçük; hem yer hem güncelleme maliyeti azalıyor.",
+        "en": "Measured: **128 KB against 408 KB** (both include the primary key's 16 KB). The filtered index is small because it holds a quarter of the rows; both the space and the cost of updating go down."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 2,
+      "text": {
+        "tr": "Tek satırlık bir `INSERT` yalnızca birincil anahtar varken 2 okuma. Tabloda beş dizin daha varken?",
+        "en": "A single-row `INSERT` takes 2 reads with only the primary key. With five more indexes on the table?"
+      },
+      "options": {
+        "tr": [
+          "Değişmiyor: 2",
+          "1 — dizin eklemeyi hızlandırıyor",
+          "22 — her dizin de güncelleniyor",
+          "Hata veriyor"
+        ],
+        "en": [
+          "No change: 2",
+          "1 — the index speeds up adding",
+          "22 — every index is updated too",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: **22**. Satır eklenince her dizine de o satırın yeri yazılıyor. Silmek ve değiştirmek için de aynısı.\n\nBu yüzden dizin \"her sütuna\" değil, gerçekten sık çalışan sorgulara kuruluyor; kullanılmayan bir dizin yalnızca bedel.",
+        "en": "Measured: **22**. When a row is added, its place is written into every index too. The same goes for deleting and changing.\n\nThat is why indexes are built not \"on every column\" but for queries that really run often; an unused index is only a cost."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "`CREATE UNIQUE INDEX ux_customers_city ON customers (city)` ne oluyor?",
+        "en": "What happens with `CREATE UNIQUE INDEX ux_customers_city ON customers (city)`?"
+      },
+      "options": {
+        "tr": [
+          "Hata: tabloda iki `Istanbul` var, dizin kurulmuyor",
+          "Dizin kuruluyor, tekrarlar siliniyor",
+          "Dizin kuruluyor, tekrarlar kalıyor",
+          "Tekrarlanan şehirler birleştiriliyor"
+        ],
+        "en": [
+          "An error: the table has two `Istanbul`s, so the index is not created",
+          "The index is created and the duplicates deleted",
+          "The index is created and the duplicates kept",
+          "The duplicate cities are merged"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `The CREATE UNIQUE INDEX statement terminated because a duplicate key was found for the object name 'dbo.customers' and the index name 'ux_customers_city'. The duplicate key value is (Istanbul).`\n\nMesaj hangi değerin tekrarlandığını da söylüyor. `name` sütununda tekrar olmadığı için aynı dizin orada kuruldu.",
+        "en": "Measured: `The CREATE UNIQUE INDEX statement terminated because a duplicate key was found for the object name 'dbo.customers' and the index name 'ux_customers_city'. The duplicate key value is (Istanbul).`\n\nThe message even says which value repeats. Because there are no duplicates in the `name` column, the same index was created there."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 3,
+      "text": {
+        "tr": "`customers (name)` üzerine benzersiz dizin kurulduktan sonra `Nova Retail` adıyla ikinci bir müşteri eklendi. Sonuç?",
+        "en": "After a unique index on `customers (name)`, a second customer named `Nova Retail` was added. The result?"
+      },
+      "options": {
+        "tr": [
+          "Ekleniyor",
+          "Eski satırın yerine geçiyor",
+          "Sessizce yok sayılıyor",
+          "Hata: `Cannot insert duplicate key row ... with unique index 'ux_customers_name'`"
+        ],
+        "en": [
+          "It is added",
+          "It replaces the old row",
+          "It is silently ignored",
+          "An error: `Cannot insert duplicate key row ... with unique index 'ux_customers_name'`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Cannot insert duplicate key row in object 'dbo.customers' with unique index 'ux_customers_name'. The duplicate key value is (Nova Retail).`\n\nBenzersiz dizin hem kurulurken hem sonra koruyor — dokuzuncu bölümdeki `UNIQUE` kuralı gibi.",
+        "en": "Measured: `Cannot insert duplicate key row in object 'dbo.customers' with unique index 'ux_customers_name'. The duplicate key value is (Nova Retail).`\n\nA unique index protects both when it is created and afterwards — like the `UNIQUE` rule of the ninth section."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 1,
+      "text": {
+        "tr": "`DROP INDEX ux_customers_name` (tablo adı yok) ne oluyor?",
+        "en": "What happens with `DROP INDEX ux_customers_name` (no table name)?"
+      },
+      "options": {
+        "tr": [
+          "Dizin siliniyor",
+          "Hata: `DROP INDEX ad ON tablo` — tablo adı da gerekiyor",
+          "Bütün dizinler siliniyor",
+          "Tablo siliniyor"
+        ],
+        "en": [
+          "The index is dropped",
+          "An error: `DROP INDEX name ON table` — the table name is needed too",
+          "Every index is dropped",
+          "The table is dropped"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `Must specify the table name and index name for the DROP INDEX statement.`\n\nDizin adları yalnızca kendi tablosu içinde benzersiz; iki tabloda aynı adlı dizin olabildiği için hangisinin kastedildiği söylenmeli: `DROP INDEX ux_customers_name ON customers;`.",
+        "en": "Measured: `Must specify the table name and index name for the DROP INDEX statement.`\n\nIndex names are only unique within their own table; since two tables can have an index with the same name, you have to say which one: `DROP INDEX ux_customers_name ON customers;`."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 2,
+      "text": {
+        "tr": "`ALTER TABLE customers ADD CONSTRAINT uq_customers_name UNIQUE (name)` sonrasında `sys.indexes`'te ne görünüyor?",
+        "en": "After `ALTER TABLE customers ADD CONSTRAINT uq_customers_name UNIQUE (name)`, what shows up in `sys.indexes`?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbir şey — kural bir dizin değil",
+          "Tablo o sütuna göre yeniden kümeleniyor",
+          "Benzersiz, kümelenmemiş bir dizin (`is_unique_constraint = 1`)",
+          "Tablonun bir kopyası"
+        ],
+        "en": [
+          "Nothing — a rule is not an index",
+          "The table is re-clustered on that column",
+          "A unique, nonclustered index (`is_unique_constraint = 1`)",
+          "A copy of the table"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: `uq_customers_name`, `NONCLUSTERED`, benzersiz, kural için kurulmuş. Kural tekrarları bu dizinle yakalıyor.\n\nO dizin `DROP INDEX` ile silinemiyor: `An explicit DROP INDEX is not allowed on index 'customers.uq_customers_name'. It is being used for UNIQUE KEY constraint enforcement.` Kuralın kendisi kaldırılıyor.",
+        "en": "Measured: `uq_customers_name`, `NONCLUSTERED`, unique, built for the rule. The rule catches duplicates with this index.\n\nThat index cannot be removed with `DROP INDEX`: `An explicit DROP INDEX is not allowed on index 'customers.uq_customers_name'. It is being used for UNIQUE KEY constraint enforcement.` You remove the rule itself."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Bir tabloya `PRIMARY KEY` tanımlamak hangi dizini kuruyor?",
+        "en": "Which index does defining a `PRIMARY KEY` on a table build?"
+      },
+      "options": {
+        "tr": [
+          "Kümelenmiş dizin: tablonun kendisi o sütuna göre sıralı",
+          "Hiç dizin kurmuyor",
+          "Tablodan ayrı, kümelenmemiş bir dizin",
+          "Bir görünüm"
+        ],
+        "en": [
+          "A clustered index: the table itself, sorted by that column",
+          "It builds no index",
+          "A nonclustered index separate from the table",
+          "A view"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: şemanın dokuz tablosunun dokuzunda birincil anahtar `CLUSTERED` dizin olarak görünüyor. Bu yüzden `id = 10000` gibi bir arama dizin kurmadan da 2 okuma (*Clustered Index Seek*).\n\nKümelenmiş dizin tablonun kendisi olduğu için bir tabloda yalnızca bir tane olabiliyor.",
+        "en": "Measured: on all nine tables of the schema, the primary key shows up as a `CLUSTERED` index. That is why a search like `id = 10000` takes 2 reads (a *Clustered Index Seek*) without creating any index.\n\nBecause a clustered index is the table itself, a table can have only one."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 3,
+      "text": {
+        "tr": "Bu uygulamada bir alıştırmada `CREATE INDEX ix_events_created ...` yazıp çalıştırdın, sonra aynı kodu tekrar çalıştırdın. Ne oluyor?",
+        "en": "In this application you ran `CREATE INDEX ix_events_created ...` in an exercise, then ran the same code again. What happens?"
+      },
+      "options": {
+        "tr": [
+          "İkinci çalıştırmada `already exists` hatası: dizin kalıcı",
+          "Dizin başka bir veritabanına taşınıyor",
+          "Dizin yarım kalıyor",
+          "Her çalıştırma sonunda geri alınıyor; dizin yok, yeniden kuruluyor"
+        ],
+        "en": [
+          "The second run fails with `already exists`: the index is permanent",
+          "The index moves to another database",
+          "The index is left half-built",
+          "Every run is rolled back at the end; the index is gone and gets created again"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: bir işlemin içinde kurulan dizin geri almadan sonra `sys.indexes`'te yoktu. Uygulama her çalıştırmayı geri aldığı için alıştırmayı istediğin kadar deneyebiliyorsun.\n\nAynı çalıştırmanın içinde aynı adla iki dizin kurmak ise hata: `... an index or statistics with name ... already exists on table ...`.",
+        "en": "Measured: an index created inside a transaction was gone from `sys.indexes` after the rollback. Because the application rolls back every run, you can try an exercise as often as you like.\n\nCreating two indexes with the same name within the same run, however, is an error: `... an index or statistics with name ... already exists on table ...`."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 1,
+      "text": {
+        "tr": "`created_at` dizini varken hangi `WHERE` dizinde doğrudan arayabildi (Index Seek)?",
+        "en": "With the `created_at` index in place, which `WHERE` could seek straight into the index (an Index Seek)?"
+      },
+      "options": {
+        "tr": [
+          "`YEAR(created_at) = 2025 AND MONTH(created_at) = 6 AND DAY(created_at) = 1`",
+          "`created_at >= '2025-06-01' AND created_at < '2025-06-02'`",
+          "`DATEADD(day, 1, created_at) >= '2025-06-02' AND DATEADD(day, 1, created_at) < '2025-06-03'`",
+          "Hiçbiri: dizin tarih sütunlarında çalışmıyor"
+        ],
+        "en": [
+          "`YEAR(created_at) = 2025 AND MONTH(created_at) = 6 AND DAY(created_at) = 1`",
+          "`created_at >= '2025-06-01' AND created_at < '2025-06-02'`",
+          "`DATEADD(day, 1, created_at) >= '2025-06-02' AND DATEADD(day, 1, created_at) < '2025-06-03'`",
+          "None: indexes do not work on date columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçüldü: yarı açık aralık **2** okuma, *Index Seek*; `YEAR`/`MONTH`/`DAY` ve `DATEADD` 42 okuma, *Index Scan*.\n\nÜçü de aynı 58 satırı getiriyor. Fark, sütunun çıplak kalıp kalmadığı: `DATEADD` işlevi sütuna değil karşı tarafa yazılsaydı (`created_at >= DATEADD(day, -1, '2025-06-02')`) sütun yine çıplak kalırdı.",
+        "en": "Measured: the half-open range **2** reads, an *Index Seek*; `YEAR`/`MONTH`/`DAY` and `DATEADD` 42 reads, an *Index Scan*.\n\nAll three bring back the same 58 rows. The difference is whether the column stays bare: had the `DATEADD` function been written on the other side rather than on the column (`created_at >= DATEADD(day, -1, '2025-06-02')`), the column would still be bare."
+      }
+    }
+  ]
+}

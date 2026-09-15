@@ -1,0 +1,4 @@
+-- events tablosunda amount yalnizca satin almalarda dolu;
+-- satirlarin dortte ucunde bos (NULL). Tutara gore arama
+-- yapan sorgular icin amount uzerine bir dizin kur, ama
+-- dizin yalnizca amount'u dolu olan satirlari tutsun.

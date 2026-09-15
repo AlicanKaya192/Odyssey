@@ -1,0 +1,8 @@
+-- created_at uzerinde bir dizin varken bile bu sorgu tablonun
+-- tamamini okudu, cunku dizinde amount yok:
+--
+--   SELECT created_at, amount FROM events
+--   WHERE created_at >= '2025-06-01' AND created_at < '2025-06-02';
+--
+-- created_at uzerine, amount'u da yaninda tasiyan tek bir dizin
+-- kur. amount anahtarin parcasi olmasin, yalnizca dizinde dursun.

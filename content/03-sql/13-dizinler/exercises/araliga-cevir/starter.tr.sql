@@ -1,0 +1,11 @@
+-- 1 Haziran 2025'teki satin almalari (event_type 'purchase')
+-- getiren bu sorgu dogru sonuc veriyor ama dizini
+-- kullanamiyor:
+--
+--   SELECT id, created_at, amount FROM events
+--   WHERE event_type = N'purchase'
+--     AND YEAR(created_at) = 2025 AND MONTH(created_at) = 6
+--     AND DAY(created_at) = 1
+--   ORDER BY created_at;
+--
+-- Ayni sonucu sutuna islev uygulamadan yaz.

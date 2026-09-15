@@ -1,0 +1,6 @@
+-- Asagidaki sorgu events tablosunun tamamini okuyor:
+--
+--   SELECT id, created_at FROM events
+--   WHERE created_at >= '2025-06-01' AND created_at < '2025-06-02';
+--
+-- created_at uzerine bir dizin kur.

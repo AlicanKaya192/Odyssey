@@ -1,0 +1,45 @@
+{
+  "id": "gun-dizini",
+  "language": "tsql",
+  "title": {
+    "tr": "Tarihe dizin",
+    "en": "An index on the date"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yazım: `CREATE INDEX ad ON tablo (sütun);`. Adı sen seçiyorsun; alışkanlık `ix_tablo_sütun`.",
+      "en": "The syntax: `CREATE INDEX name ON table (column);`. You pick the name; the habit is `ix_table_column`."
+    },
+    {
+      "tr": "Dizini adıyla değil yapısıyla denetliyorum: `events` üzerindeki (birincil anahtar dışındaki) dizinlerin anahtar sütunlarına, eklenen sütunlarına ve süzgecine bakılıyor. Tek bir dizin kur.",
+      "en": "The index is checked by its structure, not its name: the key columns, included columns and filter of the indexes on `events` (other than the primary key). Create a single index."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE INDEX ix_events_created ON events (created_at);\n```",
+      "en": "The whole query:\n\n```sql\nCREATE INDEX ix_events_created ON events (created_at);\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SELECT STRING_AGG(CASE WHEN ic.is_included_column = 0 THEN c.name END, ',') WITHIN GROUP (ORDER BY ic.key_ordinal, c.name) AS key_columns, STRING_AGG(CASE WHEN ic.is_included_column = 1 THEN c.name END, ',') WITHIN GROUP (ORDER BY ic.key_ordinal, c.name) AS included_columns, i.is_unique, i.filter_definition FROM sys.indexes i JOIN sys.index_columns ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id WHERE i.object_id = OBJECT_ID('events') AND i.is_primary_key = 0 GROUP BY i.index_id, i.is_unique, i.filter_definition ORDER BY key_columns;",
+      "ordered": true,
+      "expected": [
+        [
+          "created_at",
+          null,
+          false,
+          null
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+-- Even with an index on created_at, this query read the whole
+-- table, because the index does not hold amount:
+--
+--   SELECT created_at, amount FROM events
+--   WHERE created_at >= '2025-06-01' AND created_at < '2025-06-02';
+--
+-- Create a single index on created_at that carries amount as well.
+-- amount must not be part of the key; it only sits in the index.

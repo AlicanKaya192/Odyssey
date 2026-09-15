@@ -1,0 +1,8 @@
+-- This query has to get faster:
+--
+--   SELECT id FROM events
+--   WHERE customer_id = 3
+--     AND created_at >= '2025-06-01' AND created_at < '2025-06-02';
+--
+-- Create a single index that holds both columns. The order of
+-- the columns matters: the one searched with equality first.

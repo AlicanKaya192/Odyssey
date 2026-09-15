@@ -1,0 +1,45 @@
+{
+  "id": "bilesik-dizin",
+  "language": "tsql",
+  "title": {
+    "tr": "İki sütunlu dizin",
+    "en": "A two-column index"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Birden fazla sütun parantezin içine virgülle yazılıyor: `CREATE INDEX ad ON events (a, b);`. Dizin önce `a`'ya, `a` eşitse `b`'ye göre sıralı.",
+      "en": "More than one column goes inside the parentheses, separated by commas: `CREATE INDEX name ON events (a, b);`. The index is sorted by `a` first, then by `b` where `a` is equal."
+    },
+    {
+      "tr": "Eşitlikle aranan sütun (`customer_id = 3`) önde, aralıkla aranan (`created_at >= ... AND < ...`) arkada. Böylece 3 numaralı müşterinin satırları bir arada ve tarih sırasında duruyor.",
+      "en": "The column searched with equality (`customer_id = 3`) goes first, the one searched with a range (`created_at >= ... AND < ...`) second. That way customer 3's rows sit together, in date order."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE INDEX ix_events_customer_created ON events (customer_id, created_at);\n```",
+      "en": "The whole query:\n\n```sql\nCREATE INDEX ix_events_customer_created ON events (customer_id, created_at);\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SELECT STRING_AGG(CASE WHEN ic.is_included_column = 0 THEN c.name END, ',') WITHIN GROUP (ORDER BY ic.key_ordinal, c.name) AS key_columns, STRING_AGG(CASE WHEN ic.is_included_column = 1 THEN c.name END, ',') WITHIN GROUP (ORDER BY ic.key_ordinal, c.name) AS included_columns, i.is_unique, i.filter_definition FROM sys.indexes i JOIN sys.index_columns ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id WHERE i.object_id = OBJECT_ID('events') AND i.is_primary_key = 0 GROUP BY i.index_id, i.is_unique, i.filter_definition ORDER BY key_columns;",
+      "ordered": true,
+      "expected": [
+        [
+          "customer_id,created_at",
+          null,
+          false,
+          null
+        ]
+      ]
+    }
+  ]
+}

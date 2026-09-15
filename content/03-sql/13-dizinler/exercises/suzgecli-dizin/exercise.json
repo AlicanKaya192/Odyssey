@@ -1,0 +1,45 @@
+{
+  "id": "suzgecli-dizin",
+  "language": "tsql",
+  "title": {
+    "tr": "Süzgeçli dizin",
+    "en": "A filtered index"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dizinin sonuna bir `WHERE` yazılabiliyor; dizin yalnızca o koşula uyan satırları tutuyor: `CREATE INDEX ad ON tablo (sütun) WHERE koşul;`.",
+      "en": "A `WHERE` can be written at the end of an index; the index then holds only the rows that meet it: `CREATE INDEX name ON table (column) WHERE condition;`."
+    },
+    {
+      "tr": "Koşul `amount` üzerinde olmalı: `WHERE amount IS NOT NULL`. (`event_type = N'purchase'` bu veride aynı satırları seçse de denetim `amount` süzgecine bakıyor.)",
+      "en": "The condition has to be on `amount`: `WHERE amount IS NOT NULL`. (`event_type = N'purchase'` picks the same rows in this data, but the check looks for the `amount` filter.)"
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE INDEX ix_events_amount ON events (amount) WHERE amount IS NOT NULL;\n```",
+      "en": "The whole query:\n\n```sql\nCREATE INDEX ix_events_amount ON events (amount) WHERE amount IS NOT NULL;\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SELECT STRING_AGG(CASE WHEN ic.is_included_column = 0 THEN c.name END, ',') WITHIN GROUP (ORDER BY ic.key_ordinal, c.name) AS key_columns, STRING_AGG(CASE WHEN ic.is_included_column = 1 THEN c.name END, ',') WITHIN GROUP (ORDER BY ic.key_ordinal, c.name) AS included_columns, i.is_unique, i.filter_definition FROM sys.indexes i JOIN sys.index_columns ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id WHERE i.object_id = OBJECT_ID('events') AND i.is_primary_key = 0 GROUP BY i.index_id, i.is_unique, i.filter_definition ORDER BY key_columns;",
+      "ordered": true,
+      "expected": [
+        [
+          "amount",
+          null,
+          false,
+          "([amount] IS NOT NULL)"
+        ]
+      ]
+    }
+  ]
+}

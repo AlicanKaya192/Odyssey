@@ -1,0 +1,45 @@
+{
+  "id": "kapsayan-dizin",
+  "language": "tsql",
+  "title": {
+    "tr": "Kapsayan dizin",
+    "en": "A covering index"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.sql",
+  "solution": "solution.sql",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Anahtar dışında dizinde durması istenen sütunlar `INCLUDE (...)` ile ekleniyor: `CREATE INDEX ad ON tablo (anahtar) INCLUDE (sütun);`.",
+      "en": "Columns that should sit in the index outside the key are added with `INCLUDE (...)`: `CREATE INDEX name ON table (key) INCLUDE (column);`."
+    },
+    {
+      "tr": "`(created_at, amount)` da sorguyu kapsıyor ama `amount`'u sıralamaya katıyor; burada istenen `INCLUDE`. Dizin yapısıyla denetleniyor: anahtar yalnızca `created_at`, eklenen `amount`.",
+      "en": "`(created_at, amount)` also covers the query, but it puts `amount` into the sort order; what is asked for here is `INCLUDE`. The index is checked by its structure: the key is `created_at` only, the included column `amount`."
+    },
+    {
+      "tr": "Sorgunun tamamı:\n\n```sql\nCREATE INDEX ix_events_created ON events (created_at) INCLUDE (amount);\n```",
+      "en": "The whole query:\n\n```sql\nCREATE INDEX ix_events_created ON events (created_at) INCLUDE (amount);\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rows",
+      "query": "SELECT STRING_AGG(CASE WHEN ic.is_included_column = 0 THEN c.name END, ',') WITHIN GROUP (ORDER BY ic.key_ordinal, c.name) AS key_columns, STRING_AGG(CASE WHEN ic.is_included_column = 1 THEN c.name END, ',') WITHIN GROUP (ORDER BY ic.key_ordinal, c.name) AS included_columns, i.is_unique, i.filter_definition FROM sys.indexes i JOIN sys.index_columns ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id WHERE i.object_id = OBJECT_ID('events') AND i.is_primary_key = 0 GROUP BY i.index_id, i.is_unique, i.filter_definition ORDER BY key_columns;",
+      "ordered": true,
+      "expected": [
+        [
+          "created_at",
+          "amount",
+          false,
+          null
+        ]
+      ]
+    }
+  ]
+}
