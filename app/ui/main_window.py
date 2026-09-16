@@ -55,6 +55,7 @@ from .update_notice import UpdateNoticeDialog
 from ..core import updates
 from .topic_view import TopicView
 from ..widgets.notification_panel import NotificationPanel
+from ..widgets.shortcut_panel import ShortcutPanel
 from PySide6.QtWidgets import QApplication
 from ..core import badges as badge_core
 
@@ -106,6 +107,9 @@ class MainWindow(QMainWindow):
         self._notif_panel.cleared.connect(self._on_notifications_cleared)
         self._notif_panel.notification_read.connect(self._on_notification_read)
 
+        # Klavye kısayollarının listesi; alt şeritteki klavye düğmesi ve F1.
+        self._shortcut_panel = ShortcutPanel(language, self)
+
         central = QWidget()
         self.setCentralWidget(central)
 
@@ -153,6 +157,7 @@ class MainWindow(QMainWindow):
         self._install_shortcuts()
 
         self._footer.bell_button.clicked.connect(self._toggle_notification_panel)
+        self._footer.shortcuts_clicked.connect(self._toggle_shortcuts)
 
         language.language_changed.connect(self._on_language_changed)
         theme.theme_changed.connect(self._on_theme_changed)
@@ -449,7 +454,15 @@ class MainWindow(QMainWindow):
     def _install_shortcuts(self) -> None:
         QShortcut(QKeySequence("Ctrl+,"), self, self._open_settings)
         QShortcut(QKeySequence("Ctrl+K"), self, self._search.toggle)
+        QShortcut(QKeySequence(Qt.Key.Key_F1), self, self._toggle_shortcuts)
         QShortcut(QKeySequence(Qt.Key.Key_Escape), self, self._escape)
+
+    def _toggle_shortcuts(self) -> None:
+        """Kısayol listesini açar ya da kapatır (klavye düğmesi, F1)."""
+        if self._shortcut_panel.isVisible():
+            self._shortcut_panel.close()
+            return
+        self._shortcut_panel.show_above(self._footer.shortcut_button)
 
     # --- genel arama ------------------------------------------------------
 
@@ -803,6 +816,7 @@ class MainWindow(QMainWindow):
         self._releases_header.set_mode(mode)
         self._footer.set_mode(mode)
         self._notif_panel.set_mode(mode)
+        self._shortcut_panel.set_mode(mode)
         self._search.set_mode(mode)
         self._apply_header_accents(mode)
 
@@ -818,6 +832,7 @@ class MainWindow(QMainWindow):
         self._about.retranslate()
         self._releases.retranslate()
         self._search.retranslate()
+        self._shortcut_panel.retranslate()
         self._update_headers()
         # Discord'daki yazı da kullanıcının dilinde; `retranslate` onu
         # yeniden üretmezse orada eski dil kalıyor.

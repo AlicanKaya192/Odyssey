@@ -23,6 +23,7 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QWidget
 
 from ..core.language import LanguageManager
 from ..widgets.notification_panel import NotificationButton
+from ..widgets.shortcut_panel import ShortcutButton
 from ..paths import content_dir
 from ..version import APP_VERSION
 from ..resources.theme.tokens import PALETTES, SPACING
@@ -44,6 +45,8 @@ class Footer(QFrame):
     # tarayıcıya atmak kullanıcıyı sürüm sayfasında bırakıyordu, oysa
     # uygulama güncellemeyi kendisi kurabiliyor. Karar pencerede veriliyor.
     update_clicked = Signal()
+    # Klavye düğmesi: kısayol listesi açılsın.
+    shortcuts_clicked = Signal()
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -70,11 +73,18 @@ class Footer(QFrame):
         )
         self._label.linkActivated.connect(lambda _: self.update_clicked.emit())
 
-        # Bildirim zili sağda. Soluna aynı genişlikte boşluk konuyor ki
-        # ortadaki telif yazısı zil yüzünden sola kaymasın.
+        # Sağda iki küçük düğme: klavye kısayolları ve bildirimler. Soluna
+        # aynı genişlikte boşluk konuyor ki ortadaki telif yazısı sola
+        # kaymasın.
+        self.shortcut_button = ShortcutButton()
+        self.shortcut_button.clicked.connect(self.shortcuts_clicked)
         self.bell_button = NotificationButton()
-        layout.addSpacing(self.bell_button.width())
+        layout.addSpacing(
+            self.shortcut_button.width() + SPACING["sm"] + self.bell_button.width()
+        )
         layout.addWidget(self._label, 1)
+        layout.addWidget(self.shortcut_button)
+        layout.addSpacing(SPACING["sm"])
         layout.addWidget(self.bell_button)
 
         self.retranslate()
@@ -94,6 +104,7 @@ class Footer(QFrame):
     def set_mode(self, mode: str) -> None:
         self._link_color = PALETTES.get(mode, PALETTES["dark"])["accent"]
         self.bell_button.set_mode(mode)
+        self.shortcut_button.set_mode(mode)
         self.retranslate()
 
     def retranslate(self) -> None:
@@ -118,3 +129,4 @@ class Footer(QFrame):
 
         self._label.setText(" · ".join(parts))
         self.bell_button.setToolTip(self._language.t("notification.title"))
+        self.shortcut_button.setToolTip(self._language.t("shortcut.tooltip"))

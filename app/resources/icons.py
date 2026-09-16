@@ -305,6 +305,11 @@ PATHS: dict[str, str] = {
         '<line x1="6" y1="17.5" x2="6.01" y2="17.5"/>'
     ),
     "clock": '<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>',
+    # Alt şeritte kısayol listesini açan düğme.
+    "keyboard": (
+        '<rect x="2" y="6" width="20" height="12" rx="2"/>'
+        '<path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'
+    ),
     # Rozet: ilk not ("Not Defteri") — üzerinde kalem olan defter.
     "notebook-pen": (
         '<path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/>'

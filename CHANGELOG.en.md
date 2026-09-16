@@ -45,6 +45,9 @@ lecture note does not mean downloading the whole application again.
   takes you straight there: a lesson scrolls to that heading, a lecture
   note or exercise opens on the right one. Searches typed without Turkish
   letters still match ("dongu" → "Döngüler").
+- **A list of keyboard shortcuts.** The keyboard icon in the bottom strip,
+  or `F1`, opens the list of shortcuts: search, taking a note, running code
+  and the rest. They were not written down anywhere.
 - **A memory limit for exercises.** A list that keeps growing or a very
   large array no longer eats up your computer's memory: the code is stopped
   once it goes over 3 GB and the result area says why. Such code used to be

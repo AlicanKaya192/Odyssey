@@ -12,11 +12,10 @@ Panel dışına tıklanınca kendiliğinden kapanıyor.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QPoint, QRect, QRectF, QSize, Qt, Signal
-from PySide6.QtGui import QPainter, QColor, QPainterPath, QPen
+from PySide6.QtCore import QRect, QSize, Qt, Signal
+from PySide6.QtGui import QPainter, QColor
 from PySide6.QtWidgets import (
     QFrame,
-    QGraphicsDropShadowEffect,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -26,7 +25,8 @@ from PySide6.QtWidgets import (
 )
 
 from ..resources.icons import icon, pixmap
-from ..resources.theme.tokens import PALETTES, RADIUS, SPACING
+from ..resources.theme.tokens import PALETTES, SPACING
+from .popover import ARROW_HEIGHT, Popover
 
 
 # Panel ölçüleri.
@@ -38,13 +38,6 @@ PANEL_MAX_HEIGHT = 400
 BELL_SIZE = 18
 BELL_ICON = 14
 BADGE_SIZE = 11
-
-# Pencerenin gölge için bıraktığı saydam pay ve okun içeriğin sağ
-# kenarından uzaklığı. `show_above` ikisini kullanarak okun ucunu zilin
-# tam ortasına getiriyor.
-SHADOW_MARGIN = 24
-ARROW_RIGHT = 16
-ARROW_HEIGHT = 10
 
 # Başlık çubuğu ve ayırıcı: listeye kalan en fazla yükseklik bundan.
 HEADER_ALLOWANCE = 56
@@ -169,103 +162,19 @@ class _NotificationItem(QFrame):
             layout.addWidget(check_btn)
 
 
-class _NotificationContainer(QWidget):
-    """Bildirim içeriğini çizen ve gölgeyi barındıran alt katman."""
-
-    def __init__(self, mode: str, parent: QWidget | None = None) -> None:
-        super().__init__(parent)
-        self._mode = mode
-        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-
-    def set_mode(self, mode: str) -> None:
-        self._mode = mode
-        self._apply_shadow()
-        self.update()
-
-    def _apply_shadow(self) -> None:
-        from ..resources.theme.tokens import shadow_color
-        r, g, b, a = shadow_color(self._mode, strong=True)
-        effect = QGraphicsDropShadowEffect(self)
-        effect.setBlurRadius(24)
-        effect.setOffset(0, 4)
-        effect.setColor(QColor(r, g, b, a))
-        self.setGraphicsEffect(effect)
-
-    def paintEvent(self, event) -> None:  # noqa: N802
-        super().paintEvent(event)
-
-        p = PALETTES.get(self._mode, PALETTES["dark"])
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        arrow_w = 16
-        arrow_h = ARROW_HEIGHT
-        radius = RADIUS.get("md", 8)
-
-        # Arka plan alanının ana dikdörtgeni (ok hariç)
-        rect = QRectF(self.rect())
-        rect.setHeight(rect.height() - arrow_h)
-        # Sınır çizgisi çizilirken köşeler kesilmesin diye 0.5 pay bırakılıyor
-        rect.adjust(0.5, 0.5, -0.5, -0.5)
-
-        path = QPainterPath()
-        path.addRoundedRect(rect, radius, radius)
-
-        # Aşağıya doğru üçgen (ok). Ucunun zilin ortasına gelmesini
-        # `NotificationPanel.show_above` sağlıyor; burada yalnızca yeri sabit.
-        center_x = rect.width() - ARROW_RIGHT
-        arrow_path = QPainterPath()
-        # Üçgenin üst kenarını dikdörtgenin içine 1px sokuyoruz ki
-        # birleştirildiğinde arada çizgi (border) kalmasın, tek parça olsun.
-        arrow_path.moveTo(center_x - arrow_w / 2, rect.bottom() - 1)
-        arrow_path.lineTo(center_x, rect.bottom() + arrow_h)
-        arrow_path.lineTo(center_x + arrow_w / 2, rect.bottom() - 1)
-        arrow_path.closeSubpath()
-
-        # Yolları birleştir
-        path = path.united(arrow_path)
-
-        painter.setBrush(QColor(p["surface"]))
-        painter.setPen(QPen(QColor(p["border"]), 1.0))
-        painter.drawPath(path)
-        painter.end()
-
-
-class NotificationPanel(QFrame):
+class NotificationPanel(Popover):
     """Yukarı doğru açılan bildirim paneli."""
 
     cleared = Signal()
     notification_read = Signal(int)
 
     def __init__(self, parent: QWidget | None = None) -> None:
-        super().__init__(
-            parent,
-            Qt.WindowType.Popup
-            | Qt.WindowType.FramelessWindowHint
-            | Qt.WindowType.NoDropShadowWindowHint,
-        )
-        self._mode = "dark"
+        # Çerçeve, aşağı bakan ok, gölge ve dışarı tıklayınca kapanma
+        # `Popover`'da; burası yalnızca içeriği kuruyor.
+        super().__init__(PANEL_WIDTH, parent)
         self.setProperty("role", "notification-panel")
-        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setFrameShape(QFrame.Shape.NoFrame)
 
-        # Pencere boyutları: İçerik boyutu + Gölge payları (24 sağ/sol/üst)
-        self.setFixedWidth(PANEL_WIDTH + 2 * SHADOW_MARGIN)
-
-        main_layout = QVBoxLayout(self)
-        # Gölge için ana pencere kenarlarına pay bırakıyoruz
-        main_layout.setContentsMargins(
-            SHADOW_MARGIN, SHADOW_MARGIN, SHADOW_MARGIN, SHADOW_MARGIN
-        )
-        main_layout.setSpacing(0)
-
-        self._container = _NotificationContainer(self._mode)
-        main_layout.addWidget(self._container)
-
-        root = QVBoxLayout(self._container)
-        # İçeriğin alt kısmına üçgen (ok) kadar boşluk
-        root.setContentsMargins(0, 0, 0, 10)
-        root.setSpacing(0)
+        root = self.content
 
         # --- başlık çubuğu ------------------------------------------------
         header = QFrame()
@@ -322,12 +231,6 @@ class NotificationPanel(QFrame):
         self._empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._empty.setProperty("role", "notification-empty")
         root.addWidget(self._empty)
-
-        self._container._apply_shadow()
-
-    def set_mode(self, mode: str) -> None:
-        self._mode = mode
-        self._container.set_mode(mode)
 
     def populate(
         self,
@@ -400,8 +303,7 @@ class NotificationPanel(QFrame):
             govde = self._scroll.height()
         else:
             govde = self._empty.sizeHint().height()
-        icerik = self._header.sizeHint().height() + 1 + govde + ARROW_HEIGHT
-        self.setFixedHeight(icerik + 2 * SHADOW_MARGIN)
+        self.fit_height(self._header.sizeHint().height() + 1 + govde)
 
     def _on_mark_read(self, notification_id: int) -> None:
         self.notification_read.emit(notification_id)
@@ -409,24 +311,3 @@ class NotificationPanel(QFrame):
     def _on_clear(self) -> None:
         self.cleared.emit()
         self.close()
-
-    def show_above(self, anchor: QWidget) -> None:
-        """Paneli verilen widget'ın hemen üstünde gösterir."""
-        # Boy `populate` içinde sabitlendi (`_fit_height`).
-        global_pos = anchor.mapToGlobal(QPoint(0, 0))
-        # Okun ucu zilin ortasına gelsin: ok içeriğin sağ kenarından
-        # ARROW_RIGHT içeride, içerik de pencerenin kenarından SHADOW_MARGIN
-        # içeride. Ok ucu zilin üst kenarının biraz üstünde duruyor.
-        x = (global_pos.x() + anchor.width() // 2
-             + SHADOW_MARGIN + ARROW_RIGHT - self.width())
-        y = global_pos.y() - self.height() + SHADOW_MARGIN - 4
-        self.move(x, y)
-        self.show()
-
-    def mousePressEvent(self, event) -> None:  # noqa: N802
-        """Pencere içindeki saydam gölge paylarına tıklanırsa paneli kapatır."""
-        # Tıklama, asıl içeriği taşıyan _container'ın dışında mı?
-        if not self._container.geometry().contains(event.pos()):
-            self.close()
-        else:
-            super().mousePressEvent(event)

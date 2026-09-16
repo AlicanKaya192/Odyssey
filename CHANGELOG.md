@@ -43,6 +43,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   oraya gidiliyor: konu anlatımında ilgili başlığa kaydırılıyor, ders
   notunda o not, alıştırmada o alıştırma açılıyor. Türkçe harfler olmadan
   yazılan arama da buluyor ("dongu" → "Döngüler").
+- **Klavye kısayolları listesi.** Alt şeritteki klavye simgesi ya da `F1`
+  kısayolların listesini açıyor: arama, not alma, kodu çalıştırma ve
+  diğerleri. Kısayollar hiçbir yerde yazmıyordu.
 - **Alıştırmalarda bellek sınırı.** Durmadan büyüyen bir liste ya da çok
   büyük bir dizi artık bilgisayarınızın belleğini tüketmiyor: kod 3 GB'ı
   geçince durduruluyor ve sonuç alanında sebebi yazıyor. Eskiden böyle bir
