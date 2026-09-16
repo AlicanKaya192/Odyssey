@@ -470,7 +470,7 @@ class TracksView(QWidget):
         biten = 0
         for section in chapter.sections:
             state = self._store.section_state(
-                chapter.id, section.id, len(section.exercises)
+                chapter.id, section.id, section.exercises
             )
             if state.status(
                 section.requires_quiz, section.requires_exercises
@@ -630,7 +630,7 @@ class ModulesView(QWidget):
             done = 0
             for section in chapter.sections:
                 state = self._store.section_state(
-                    chapter.id, section.id, len(section.exercises)
+                    chapter.id, section.id, section.exercises
                 )
                 if state.status(section.requires_quiz, section.requires_exercises) == "completed":
                     done += 1
@@ -1026,7 +1026,7 @@ class PathView(QWidget):
         return holder
 
     def _state_of(self, chapter_id: str, section) -> str:
-        state = self._store.section_state(chapter_id, section.id, len(section.exercises))
+        state = self._store.section_state(chapter_id, section.id, section.exercises)
         return state.status(section.requires_quiz, section.requires_exercises)
 
     def _current_index(self, chapter: Chapter) -> int:
@@ -1037,7 +1037,7 @@ class PathView(QWidget):
 
     def _caption_for(self, section, state: str, blocker=None) -> str:
         progress = self._store.section_state(
-            self._chapter_id, section.id, len(section.exercises)
+            self._chapter_id, section.id, section.exercises
         )
         minutes = section.estimated_minutes
 

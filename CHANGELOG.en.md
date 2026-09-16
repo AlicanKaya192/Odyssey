@@ -21,6 +21,18 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.8.3] — unreleased
+
+### Added
+
+### Fixed
+- **Replaced exercises no longer count towards a finished section.** When an
+  exercise was replaced by a new one, having solved the old one marked the
+  section as complete even though the new one was unsolved. Only the
+  section's current exercises are counted now.
+
+---
+
 ## [0.8.2] — 16 September 2026
 
 ### Added

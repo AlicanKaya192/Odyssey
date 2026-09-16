@@ -86,7 +86,7 @@ def _completed_sections(
         hepsi = True
         for section in chapter.sections:
             state = store.section_state(
-                chapter.id, section.id, len(section.exercises)
+                chapter.id, section.id, section.exercises
             )
             if state.status(section.requires_quiz, section.requires_exercises) == "completed":
                 bolum += 1

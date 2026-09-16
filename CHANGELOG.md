@@ -19,6 +19,18 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.8.3] — yayınlanmadı
+
+### Eklendi
+
+### Düzeltildi
+- **Değişen alıştırmalar bölümü tamamlanmış göstermiyor.** Bir alıştırma
+  yenisiyle değiştirildiğinde eskisini çözmüş olmak, yenisi çözülmemişken
+  bölümü "tamamlandı" gösteriyordu. Artık yalnızca bölümdeki güncel
+  alıştırmalar sayılıyor.
+
+---
+
 ## [0.8.2] — 16 Eylül 2026
 
 ### Eklendi

@@ -530,7 +530,7 @@ class ProfileView(QWidget):
             for section in chapter.sections:
                 total += 1
                 state = self._store.section_state(
-                    chapter.id, section.id, len(section.exercises)
+                    chapter.id, section.id, section.exercises
                 )
                 if state.status(section.requires_quiz, section.requires_exercises) == "completed":
                     completed += 1

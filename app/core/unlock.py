@@ -32,7 +32,7 @@ def unlock_all(store) -> bool:
 
 
 def _completed(store, chapter_id: str, section) -> bool:
-    state = store.section_state(chapter_id, section.id, len(section.exercises))
+    state = store.section_state(chapter_id, section.id, section.exercises)
     return (
         state.status(section.requires_quiz, section.requires_exercises) == "completed"
     )

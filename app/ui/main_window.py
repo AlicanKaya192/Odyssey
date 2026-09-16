@@ -374,7 +374,7 @@ class MainWindow(QMainWindow):
             for section in chapter.sections:
                 toplam += 1
                 state = self._store.section_state(
-                    chapter.id, section.id, len(section.exercises)
+                    chapter.id, section.id, section.exercises
                 )
                 durum = state.status(section.requires_quiz, section.requires_exercises)
                 if durum == "completed":

@@ -500,17 +500,30 @@ class ProgressStore:
 
     # --- alt bölüm --------------------------------------------------------
 
-    def section_state(self, chapter_id: str, section_id: str, exercises_total: int = 0) -> SectionState:
+    def section_state(self, chapter_id: str, section_id: str, exercises=()) -> SectionState:
+        """Bölümün ilerlemesi.
+
+        `exercises` bölümdeki **güncel** alıştırmalar (nesne ya da id).
+        Çözülen sayısı yalnızca onların arasından sayılıyor. Önce bölümdeki
+        bütün `solved = 1` satırları sayılıyordu; id'si değişen bir
+        alıştırmanın eski kaydı da sayıma giriyor ve yenisi çözülmemişken
+        bölüm "tamamlandı" görünüyordu.
+        """
         row = self._connection.execute(
             "SELECT * FROM section_progress WHERE chapter_id = ? AND section_id = ?",
             (chapter_id, section_id),
         ).fetchone()
 
-        solved = self._connection.execute(
-            "SELECT COUNT(*) AS c FROM exercise_progress "
-            "WHERE chapter_id = ? AND section_id = ? AND solved = 1",
-            (chapter_id, section_id),
-        ).fetchone()["c"]
+        ids = {getattr(item, "id", item) for item in exercises}
+        exercises_total = len(ids)
+        solved = 0
+        if ids:
+            cozulenler = self._connection.execute(
+                "SELECT exercise_id FROM exercise_progress "
+                "WHERE chapter_id = ? AND section_id = ? AND solved = 1",
+                (chapter_id, section_id),
+            ).fetchall()
+            solved = sum(1 for satir in cozulenler if satir["exercise_id"] in ids)
 
         if row is None:
             return SectionState(exercises_total=exercises_total, exercises_solved=solved)

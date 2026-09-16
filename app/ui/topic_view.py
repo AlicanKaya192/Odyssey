@@ -192,7 +192,7 @@ class TopicView(QWidget):
         self._panes = []
 
         language_code = self._language.language
-        state = self._store.section_state(chapter_id, section_id, len(self._exercises))
+        state = self._store.section_state(chapter_id, section_id, self._exercises)
         completed = state.status(section.requires_quiz, section.requires_exercises) == "completed"
 
         for block in section.blocks:
@@ -271,7 +271,7 @@ class TopicView(QWidget):
             return
 
         state = self._store.section_state(
-            self._section.chapter_id, self._section.id, len(self._exercises)
+            self._section.chapter_id, self._section.id, self._exercises
         )
         completed = state.status(
             self._section.requires_quiz, self._section.requires_exercises
@@ -626,7 +626,7 @@ class TopicView(QWidget):
         if self._section is None:
             return
         state = self._store.section_state(
-            self._section.chapter_id, self._section.id, len(self._exercises)
+            self._section.chapter_id, self._section.id, self._exercises
         )
         self._update_progress_box(state)
 
