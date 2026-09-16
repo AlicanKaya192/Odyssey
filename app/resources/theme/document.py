@@ -550,6 +550,66 @@ figure.fig svg .line {{ fill: none; stroke: {p['border_strong']}; stroke-width: 
 }}
 .pager .pg.off {{ opacity: .38; }}
 
+/* --- rotalar --------------------------------------------------------- */
+
+/* Adımlar solda numaralı bir zaman çizgisine diziliyor; numaraları
+ * birleştiren çizgi `li::before`. Son adımda çizgi yok. */
+/* `.content ol` ve `.content li` kendi boşluklarını veriyor; seçici onları
+ * geçecek kadar özgül olmalı, yoksa liste sola kayıyor. */
+.content .route {{ list-style: none; margin: 30px 0 0; padding: 0; }}
+.content .rstep {{ position: relative; display: flex; gap: 18px; margin: 0; padding-bottom: 16px; }}
+.rstep::before {{
+    content: ""; position: absolute; left: 17px; top: 38px; bottom: 0;
+    width: 2px; background: {p['border']};
+}}
+.rstep:last-child::before {{ display: none; }}
+.rstep.done::before {{ background: {p['success']}; opacity: .45; }}
+
+.rnum {{
+    flex: 0 0 36px; height: 36px; border-radius: 50%;
+    display: grid; place-items: center; position: relative; z-index: 1;
+    background: {p['surface_alt']}; border: 2px solid {p['border_strong']};
+    color: {p['text_muted']}; font-size: 14px; font-weight: 700;
+}}
+.rstep.next .rnum {{ background: {p['accent']}; border-color: {p['accent']}; color: #fff; }}
+.rstep.done .rnum {{ background: {p['success_soft']}; border-color: {p['success']}; color: {p['success']}; }}
+
+.rcard {{
+    flex: 1; min-width: 0;
+    background: {p['surface']}; border: 1px solid {p['border']};
+    border-radius: 16px; padding: 16px 20px 18px;
+}}
+.rstep.next .rcard {{ border-color: {p['accent']}; box-shadow: 0 0 0 3px {p['accent_soft']}; }}
+.rstep.soon .rcard {{ background: transparent; border-style: dashed; }}
+.rstep.soon .rhead b, .rstep.soon .ricon {{ opacity: .7; }}
+
+.rhead {{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }}
+.ricon {{ display: inline-flex; width: 22px; height: 22px; }}
+.ricon svg {{ width: 22px; height: 22px; }}
+.rhead b {{ font-size: 16.5px; font-weight: 680; color: {p['text']}; margin-right: 2px; }}
+.rtag {{
+    font-size: 11.5px; font-weight: 680; padding: 3px 9px; border-radius: 999px;
+    background: {p['surface_alt']}; color: {p['text_muted']}; white-space: nowrap;
+}}
+.rtag.next {{ background: {p['accent_soft']}; color: {p['accent']}; }}
+.rtag.ok {{ background: {p['success_soft']}; color: {p['success']}; }}
+.rtag.soon {{ background: {p['warning_soft']}; color: {p['warning']}; }}
+
+.rcard p {{ margin: 8px 0 0; font-size: 14.5px; color: {p['text_muted']}; }}
+
+.rfocus {{ display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }}
+.rfocus > span:first-child {{ font-size: 12.5px; font-weight: 650; color: {p['text_muted']}; margin-right: 2px; }}
+.rfocus .chip {{ padding: 3px 10px; color: {p['text']}; }}
+
+.rfoot {{ display: flex; align-items: center; gap: 14px; margin-top: 14px; }}
+.rfoot .bar {{ flex: 1; margin: 0; }}
+.rcount {{ font-size: 12.5px; color: {p['text_muted']}; white-space: nowrap; }}
+.rgo {{
+    font-size: 13.5px; font-weight: 650; color: {p['accent']};
+    text-decoration: none; white-space: nowrap;
+}}
+.rgo:hover {{ text-decoration: underline; }}
+
 /* --- sık sorulanlar -------------------------------------------------- */
 
 /* Akordeon `<details>`/`<summary>` ile: açılıp kapanmayı tarayıcı kendi

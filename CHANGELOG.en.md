@@ -31,6 +31,13 @@ lecture note does not mean downloading the whole application again.
   installed and the program files in the old folder are removed; your
   progress, notes and settings are kept. It can be removed from Settings ›
   Apps.
+- **Roadmaps.** A new screen in the left rail, above My Notes, that explains
+  which track to study in which order. There are three routes — for someone
+  who has never written code, for someone who knows Python and wants to move
+  into data science, and for someone who wants to become an ML engineer.
+  Each step says why it sits where it does, which chapters to focus on and
+  how much of it you have finished; tracks that are not written yet stay in
+  place, marked "Coming soon".
 - **Typing help in the editor.** Brackets and quotes close on their own;
   typing the closing character steps over it, `Backspace` removes an empty
   pair together, and selected text is wrapped in brackets or quotes. `Tab`

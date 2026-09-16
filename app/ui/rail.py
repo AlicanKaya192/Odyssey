@@ -36,7 +36,8 @@ from ..widgets.effects import repolish
 # Şerit iki öbeğe ayrılıyor.
 #
 # Üstte her gün girilen ekranlar duruyor: en tepede profil (kişinin kendi
-# fotoğrafı, şeridin en görünür yeri), altında öğrenme yolu. Altta, ayar
+# fotoğrafı, şeridin en görünür yeri), altında öğrenme yolu ve hangi
+# sırayla çalışılacağını anlatan rotalar. Altta, ayar
 # simgesinin hemen üstünde, ara sıra açılan ekranlar var: sürüm notları ve
 # Hakkında. Arama düğmesi ikisinin arasında, şeridin ortasında.
 #
@@ -50,6 +51,7 @@ from ..widgets.effects import repolish
 TOP_DESTINATIONS = [
     ("profile", "user", "nav.profile"),
     ("journey", "home", "nav.path"),
+    ("roadmap", "route", "nav.roadmap"),
     ("notes", "notebook", "nav.notes"),
 ]
 

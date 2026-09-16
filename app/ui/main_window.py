@@ -6,6 +6,7 @@ geçiş `QStackedWidget` ile yapılıyor.
 Ekranlar:
   journey   — modül kartları ve öğrenme yolu
   topic     — bir bölümün içeriği
+  roadmap   — hangi patikanın hangi sırayla çalışılacağı (Rotalar)
   notes     — kullanıcının kendi notları (Notlarım)
   profile   — kullanıcı bilgileri ve istatistikler
   releases  — sürüm notları
@@ -49,6 +50,7 @@ from ..core.search import SearchItem, build_index, plain
 from .profile_view import ProfileView
 from .rail import Rail
 from .release_view import ReleaseView
+from .roadmap_view import RoadmapView
 from .settings_dialog import SettingsDialog
 from .update_check import UpdateWorker
 from .update_notice import UpdateNoticeDialog
@@ -223,6 +225,18 @@ class MainWindow(QMainWindow):
         self._profile_header = ScreenHeader(self._language)
         self._profile_screen = Screen(self._profile_header, self._profile)
 
+        # Rotalar: hangi patikanın hangi sırayla çalışılacağı. Rota
+        # başlıktaki seçiciyle değişiyor, Hakkında'daki sekmeler gibi.
+        self._roadmap = RoadmapView(self._catalog, self._language, self._store)
+        self._roadmap.track_opened.connect(self._open_track)
+        self._roadmap_header = ScreenHeader(self._language)
+        self._roadmap_segments = SegmentedControl()
+        self._roadmap_segments.set_items(self._roadmap.route_labels())
+        self._roadmap_segments.set_current(self._roadmap.route_index, notify=False)
+        self._roadmap_segments.changed.connect(self._roadmap.show_index)
+        self._roadmap_header.add_widget(self._roadmap_segments)
+        self._roadmap_screen = Screen(self._roadmap_header, self._roadmap)
+
         # Notlarım
         self._notebook = NotebookView(self._catalog, self._language, self._store)
         self._notebook.open_section.connect(self._open_section)
@@ -248,6 +262,7 @@ class MainWindow(QMainWindow):
         for widget in (
             self._journey_screen,
             self._topic,
+            self._roadmap_screen,
             self._notebook_screen,
             self._profile_screen,
             self._about_screen,
@@ -481,6 +496,7 @@ class MainWindow(QMainWindow):
             )
         for key, simge, anahtar in (
             ("journey", "home", "nav.path"),
+            ("roadmap", "route", "nav.roadmap"),
             ("notes", "notebook", "nav.notes"),
             ("profile", "user", "nav.profile"),
             ("releases", "megaphone", "nav.releases"),
@@ -554,6 +570,10 @@ class MainWindow(QMainWindow):
         if key == "journey":
             self._journey.show_modules()
             self._stack.setCurrentWidget(self._journey_screen)
+        elif key == "roadmap":
+            # İlerleme bölümlerde değişiyor; rota her gelişte yeniden çiziliyor.
+            self._roadmap.refresh(keep_scroll=True)
+            self._stack.setCurrentWidget(self._roadmap_screen)
         elif key == "notes":
             self._notebook.refresh()
             self._stack.setCurrentWidget(self._notebook_screen)
@@ -587,6 +607,11 @@ class MainWindow(QMainWindow):
         self._stack.setCurrentWidget(self._topic)
         self._rail.set_current("journey")
         self._set_presence_location(chapter_id, section_id)
+
+    def _open_track(self, track_id: str) -> None:
+        """Rotadaki "Patikaya git": Öğrenme Yolu'nda o patikayı açar."""
+        self._navigate("journey")
+        self._journey.open_track(track_id)
 
     def _open_note(self, entry_id: int) -> None:
         """Bölümdeki not panelinden "Notlarım'da aç"."""
@@ -710,6 +735,10 @@ class MainWindow(QMainWindow):
         self._notebook_header.set_titles(
             self._language.t("nav.notes"), self._language.t("app.title")
         )
+        self._roadmap_header.set_titles(
+            self._language.t("nav.roadmap"), self._language.t("app.title")
+        )
+        self._roadmap_segments.set_labels(self._roadmap.route_labels())
         # Başlıkta ekranın adı sabit; hangi sekmede olduğumuzu sağdaki
         # seçici zaten gösteriyor.
         self._about_header.set_titles(
@@ -776,6 +805,7 @@ class MainWindow(QMainWindow):
         colors = RAIL_COLORS.get(mode, RAIL_COLORS["light"])
         for key, header in (
             ("journey", self._journey_header),
+            ("roadmap", self._roadmap_header),
             ("notes", self._notebook_header),
             ("profile", self._profile_header),
             ("releases", self._releases_header),
@@ -794,6 +824,8 @@ class MainWindow(QMainWindow):
         self._journey.set_mode(mode)
         self._journey_header.set_mode(mode)
         self._topic.set_mode(mode)
+        self._roadmap.set_mode(mode)
+        self._roadmap_header.set_mode(mode)
         self._notebook.set_mode(mode)
         self._notebook_header.set_mode(mode)
         self._profile.set_mode(mode)
@@ -815,6 +847,7 @@ class MainWindow(QMainWindow):
         self._footer.retranslate()
         self._journey.retranslate()
         self._topic.retranslate()
+        self._roadmap.retranslate()
         self._notebook.retranslate()
         self._profile.retranslate()
         self._about.retranslate()

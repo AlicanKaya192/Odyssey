@@ -234,6 +234,7 @@ SYNTAX = {
 RAIL_COLORS = {
     "light": {
         "journey": "#4F46E5",
+        "roadmap": "#2563EB",
         "notes": "#047857",
         "search": "#7C3AED",
         "profile": "#0E7490",
@@ -243,6 +244,7 @@ RAIL_COLORS = {
     },
     "dark": {
         "journey": "#8B84FF",
+        "roadmap": "#60A5FA",
         "notes": "#34D399",
         "search": "#C4B5FD",
         "profile": "#22D3EE",

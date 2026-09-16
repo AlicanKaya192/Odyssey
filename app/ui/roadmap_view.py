@@ -1,0 +1,245 @@
+"""Rotalar ekranı: hangi patikanın hangi sırayla çalışılacağı.
+
+Öğrenme Yolu "ne var" sorusuna cevap veriyor; bu ekran "nereden
+başlamalıyım" sorusuna. Kişinin durumuna göre üç rota var — hiç kod
+yazmamış biri, Python bilip veri bilimine geçmek isteyen biri ve ML
+mühendisi olmak isteyen biri — ve rota başlıktaki seçiciyle değişiyor.
+
+Rotalar `content/roadmaps.json` içinde; sıra ve gerekçeler içerik işi, kod
+değil. **Henüz yazılmamış patikalar da rotada duruyor** ve "Yakında"
+diye işaretleniyor: rota bugün uygulamada olanı değil, önerilen sırayı
+anlatıyor.
+
+Adımların ilerlemesi hesaplanıyor, saklanmıyor. Adımda `sections`
+listesi varsa (örneğin Python'u bilen biri için yalnızca dört bölüm)
+ilerleme o bölümler üzerinden, yoksa patikanın tamamı üzerinden.
+"""
+
+from __future__ import annotations
+
+import html
+import json
+
+from PySide6.QtCore import Signal
+from PySide6.QtWidgets import QVBoxLayout, QWidget
+
+from ..core.catalog import Catalog
+from ..core.language import LanguageManager
+from ..core.progress import ProgressStore
+from ..paths import content_dir
+from ..resources.icons import svg_markup
+from ..widgets.document_view import DocumentView
+
+# Seçilen rota hatırlanıyor; ekrana her dönüşte baştan seçtirmek gereksiz.
+ROUTE_SETTING = "roadmap_route"
+
+TRACK_ACTION = "track:"
+
+
+def load_routes() -> list[dict]:
+    """`content/roadmaps.json` dosyasındaki rotalar."""
+    path = content_dir() / "roadmaps.json"
+    if not path.exists():
+        return []
+    with path.open(encoding="utf-8") as handle:
+        return json.load(handle).get("routes", [])
+
+
+class RoadmapView(QWidget):
+    """Seçili rotanın adımlarını gösterir."""
+
+    # Adımdaki "Patikaya git" bağlantısı.
+    track_opened = Signal(str)
+
+    def __init__(
+        self,
+        catalog: Catalog,
+        language: LanguageManager,
+        store: ProgressStore,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self._catalog = catalog
+        self._language = language
+        self._store = store
+        self._routes = load_routes()
+
+        ids = [route.get("id") for route in self._routes]
+        saved = store.setting(ROUTE_SETTING, "")
+        self._index = ids.index(saved) if saved in ids else 0
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self._document = DocumentView(self)
+        self._document.action.connect(self._on_action)
+        layout.addWidget(self._document)
+
+        self.refresh()
+
+    # --- seçim ------------------------------------------------------------
+
+    @property
+    def route_index(self) -> int:
+        return self._index
+
+    def route_labels(self) -> list[str]:
+        return [self._language.pick(route.get("label")) for route in self._routes]
+
+    def show_index(self, index: int) -> None:
+        """Başlıktaki seçiciden gelen sıra numarası."""
+        if not 0 <= index < len(self._routes) or index == self._index:
+            return
+        self._index = index
+        self._store.set_setting(ROUTE_SETTING, self._routes[index].get("id", ""))
+        self.refresh()
+
+    def _on_action(self, action: str) -> None:
+        if action.startswith(TRACK_ACTION):
+            self.track_opened.emit(action[len(TRACK_ACTION):])
+
+    # --- çizim ------------------------------------------------------------
+
+    def refresh(self, keep_scroll: bool = False) -> None:
+        """Rotayı yeniden çizer.
+
+        İlerleme bölümlerde değiştiği için ekrana her gelişte çağrılıyor;
+        o durumda kaydırma korunuyor, rota değişince sayfa başa dönüyor.
+        """
+        self._document.set_lang(self._language.language)
+        if not self._routes:
+            self._document.set_body("")
+            return
+
+        route = self._routes[self._index]
+        pick = self._language.pick
+        states = [self._step_state(step) for step in route.get("steps", [])]
+
+        # "Sıradaki" işareti bitmemiş ilk adıma gidiyor. İsteğe bağlı ve
+        # henüz yazılmamış adımlar atlanıyor: kimse onlarda bekletilmemeli.
+        next_index = next(
+            (
+                i for i, (step, state) in enumerate(zip(route["steps"], states))
+                if not state["soon"] and not state["done"] and not step.get("optional")
+            ),
+            -1,
+        )
+
+        steps = "".join(
+            self._step_html(number, step, state, number - 1 == next_index)
+            for number, (step, state) in enumerate(zip(route["steps"], states), start=1)
+        )
+
+        body = (
+            f'<p class="meta">{html.escape(self._language.t("roadmap.intro"))}</p>'
+            f"<h1>{html.escape(pick(route.get('title')))}</h1>"
+            f"<p>{html.escape(pick(route.get('intro')))}</p>"
+            f'<ol class="route">{steps}</ol>'
+        )
+        self._document.set_body(
+            f'<div class="page narrow"><div class="content">{body}</div></div>',
+            keep_scroll=keep_scroll,
+        )
+
+    def _step_state(self, step: dict) -> dict:
+        """Adımın durumu: yazılmış mı, kaç bölümün kaçı bitti."""
+        track = self._catalog.track(step.get("track", ""))
+        if track is None or track.locked:
+            return {"soon": True, "done": False, "completed": 0, "total": 0}
+
+        if step.get("sections"):
+            sections = [
+                self._catalog.section(*ref.split("/", 1))
+                for ref in step["sections"]
+            ]
+            sections = [section for section in sections if section is not None]
+        else:
+            sections = [s for chapter in track.chapters for s in chapter.sections]
+
+        completed = sum(1 for section in sections if self._completed(section))
+        total = len(sections)
+        return {
+            "soon": False,
+            "done": total > 0 and completed == total,
+            "completed": completed,
+            "total": total,
+        }
+
+    def _completed(self, section) -> bool:
+        state = self._store.section_state(
+            section.chapter_id, section.id, section.exercises
+        )
+        return state.status(
+            section.requires_quiz, section.requires_exercises
+        ) == "completed"
+
+    def _step_html(self, number: int, step: dict, state: dict, is_next: bool) -> str:
+        t = self._language.t
+        pick = self._language.pick
+        track = self._catalog.track(step.get("track", ""))
+        title = pick(track.title) if track else step.get("track", "")
+        color = track.color if track else "#6B7280"
+        icon_svg = svg_markup(track.icon if track else "book", color, stroke=2.0)
+
+        classes = ["rstep"]
+        tags = []
+        if state["done"]:
+            classes.append("done")
+            tags.append(("ok", t("roadmap.done")))
+        elif is_next:
+            classes.append("next")
+            tags.append(("next", t("roadmap.next")))
+        if state["soon"]:
+            classes.append("soon")
+            tags.append(("soon", t("roadmap.soon")))
+        if step.get("optional"):
+            tags.append(("opt", t("roadmap.optional")))
+
+        tag_html = "".join(
+            f'<span class="rtag {kind}">{html.escape(text)}</span>'
+            for kind, text in tags
+        )
+        marker = "✓" if state["done"] else str(number)
+
+        focus = ""
+        if step.get("sections"):
+            names = []
+            for ref in step["sections"]:
+                section = self._catalog.section(*ref.split("/", 1))
+                if section is not None:
+                    names.append(f'<span class="chip">{html.escape(pick(section.title))}</span>')
+            focus = (
+                f'<div class="rfocus"><span>{html.escape(t("roadmap.focus"))}</span>'
+                f"{''.join(names)}</div>"
+            )
+
+        foot = ""
+        if not state["soon"]:
+            percent = round(state["completed"] * 100 / state["total"]) if state["total"] else 0
+            foot = (
+                '<div class="rfoot">'
+                f'<div class="bar"><i style="width:{percent}%;background:{color}"></i></div>'
+                f'<span class="rcount">{html.escape(t("roadmap.sections", done=state["completed"], total=state["total"]))}</span>'
+                f'<a class="rgo" href="app:{TRACK_ACTION}{html.escape(track.id)}">'
+                f'{html.escape(t("roadmap.open"))} →</a>'
+                "</div>"
+            )
+
+        return (
+            f'<li class="{" ".join(classes)}">'
+            f'<div class="rnum">{marker}</div>'
+            '<div class="rcard">'
+            f'<div class="rhead"><span class="ricon">{icon_svg}</span>'
+            f"<b>{html.escape(title)}</b>{tag_html}</div>"
+            f"<p>{html.escape(pick(step.get('text')))}</p>"
+            f"{focus}{foot}"
+            "</div></li>"
+        )
+
+    # --- tema ve dil ------------------------------------------------------
+
+    def set_mode(self, mode: str) -> None:
+        self._document.set_mode(mode)
+
+    def retranslate(self) -> None:
+        self.refresh(keep_scroll=True)

@@ -28,6 +28,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   uygulamanın içinden güncellediğinizde yeni sürüm kurulur ve eski klasördeki
   program dosyaları kaldırılır; ilerlemeniz, notlarınız ve ayarlarınız
   korunur. Uygulama Ayarlar › Uygulamalar'dan kaldırılabiliyor.
+- **Rotalar.** Sol şeritte, Notlarım'ın üstünde yeni bir ekran: hangi
+  patikanın hangi sırayla çalışılacağını anlatıyor. Üç rota var — hiç kod
+  yazmamış biri için, Python bilip veri bilimine geçmek isteyen biri için ve
+  ML mühendisi olmak isteyen biri için. Her adımda neden o sırada olduğu,
+  hangi bölümlere odaklanılacağı ve ne kadarını bitirdiğiniz yazıyor; henüz
+  yazılmamış patikalar da "Yakında" diye yerinde duruyor.
 - **Editörde yazma kolaylıkları.** Parantez ve tırnak kendiliğinden
   kapanıyor; kapatan karaktere basınca imleç üstünden geçiyor, boş bir çifti
   `Backspace` birlikte siliyor, seçili metin parantez ya da tırnak içine
