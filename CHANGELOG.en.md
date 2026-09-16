@@ -23,7 +23,19 @@ lecture note does not mean downloading the whole application again.
 
 ## [0.8.3] — unreleased
 
-### Added
+### Changed
+- **The Data Science path has been renewed.** Thirteen exercises were
+  rewritten: you now write the imports yourself, read the data from a CSV
+  file that sits next to the exercise, and the chart you draw appears in the
+  results panel. All five exercises of the Visualisation section are new,
+  including one where you see a misleading and an honest axis side by side.
+  The DataFrame Basics, Selecting and Filtering, Grouping and Aggregation,
+  Cleaning Data, Exploratory Data Analysis and Overall Review sections gain
+  exercises that start from a file too. The DataFrame lesson has a new part
+  on reading a CSV file, and the quizzes have 55 new questions; every
+  section except the Overall Review now has 35. If you had already finished
+  these sections, they show as in progress until you solve the new
+  exercises.
 
 ### Fixed
 - **Replaced exercises no longer count towards a finished section.** When an

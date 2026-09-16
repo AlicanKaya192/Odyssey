@@ -779,6 +779,136 @@
         "tr": "Tek çağrıda üç hesap:\n\n```python\ndata.groupby(\"city\").agg(\n    kisi=(\"name\", \"count\"),\n    ortalama=(\"score\", \"mean\"),\n    en_yuksek=(\"score\", \"max\"),\n).round(1).sort_values(\"ortalama\", ascending=False)\n```\n\nÜç ayrı `groupby` de doğru sonuç veriyor ama veriyi üç kez dolaşıyor ve birleştirmek fazladan iş.\n\n`pivot_table` iki anahtarlı durumlar için; burada tek anahtar var.",
         "en": "Three calculations in one call:\n\n```python\ndata.groupby(\"city\").agg(\n    people=(\"name\", \"count\"),\n    average=(\"score\", \"mean\"),\n    highest=(\"score\", \"max\"),\n).round(1).sort_values(\"average\", ascending=False)\n```\n\nThree separate `groupby` calls also give the right answer but walk the data three times, and merging them is extra work.\n\n`pivot_table` is for two-key situations; here there is only one key."
       }
+    },
+    {
+      "id": "q31",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ndata = pd.DataFrame({\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Bursa\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68, 80],\n})\nprint(data.groupby(\"city\")[\"score\"].agg([\"min\", \"max\"]).loc[\"Ankara\"].tolist())\n```",
+        "en": "What does this code print?\n\n```python\ndata = pd.DataFrame({\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Bursa\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68, 80],\n})\nprint(data.groupby(\"city\")[\"score\"].agg([\"min\", \"max\"]).loc[\"Ankara\"].tolist())\n```"
+      },
+      "options": {
+        "tr": [
+          "`[82, 91]`",
+          "`[68, 91]`",
+          "`[74, 80]`",
+          "`[86.5]`"
+        ],
+        "en": [
+          "`[82, 91]`",
+          "`[68, 91]`",
+          "`[74, 80]`",
+          "`[86.5]`"
+        ]
+      },
+      "explanation": {
+        "tr": "`agg([\"min\", \"max\"])` her şehir için iki sütunlu bir satır üretiyor; `loc[\"Ankara\"]` o satırı alıyor. Ankara'nın notları 82 ve 91.\n\nGrup anahtarı sonucun **index'i** olduğu için şehir adıyla doğrudan seçebiliyorsun.",
+        "en": "`agg([\"min\", \"max\"])` produces a two-column row for each city; `loc[\"Ankara\"]` takes that row. Ankara's scores are 82 and 91.\n\nThe group key becomes the result's **index**, so you can select by city name directly."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ndata = pd.DataFrame({\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Bursa\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68, 80],\n})\nprint(data.groupby(\"city\")[\"score\"].mean().sort_values().index.tolist())\n```",
+        "en": "What does this code print?\n\n```python\ndata = pd.DataFrame({\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Bursa\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68, 80],\n})\nprint(data.groupby(\"city\")[\"score\"].mean().sort_values().index.tolist())\n```"
+      },
+      "options": {
+        "tr": [
+          "`['Bursa', 'Izmir', 'Ankara']`",
+          "`['Ankara', 'Bursa', 'Izmir']`",
+          "`['Ankara', 'Izmir', 'Bursa']`",
+          "`[68.0, 77.0, 86.5]`"
+        ],
+        "en": [
+          "`['Bursa', 'Izmir', 'Ankara']`",
+          "`['Ankara', 'Bursa', 'Izmir']`",
+          "`['Ankara', 'Izmir', 'Bursa']`",
+          "`[68.0, 77.0, 86.5]`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ortalamalar: Ankara 86.5, Izmir 77.0, Bursa 68.0. `sort_values()` küçükten büyüğe sıralıyor, `index` de şehir adlarını veriyor.\n\nSıralamasaydın gruplar alfabetik gelirdi: Ankara, Bursa, Izmir.",
+        "en": "The averages are Ankara 86.5, Izmir 77.0, Bursa 68.0. `sort_values()` orders them from low to high and `index` gives the city names.\n\nWithout sorting the groups would come alphabetically: Ankara, Bursa, Izmir."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki iki satır aynı sırayı mı yazdırır?\n\n```python\ndata = pd.DataFrame({\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Bursa\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68, 80],\n})\nprint(data[\"city\"].value_counts().index.tolist())\nprint(data.groupby(\"city\").size().index.tolist())\n```",
+        "en": "Do these two lines print the same order?\n\n```python\ndata = pd.DataFrame({\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Bursa\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68, 80],\n})\nprint(data[\"city\"].value_counts().index.tolist())\nprint(data.groupby(\"city\").size().index.tolist())\n```"
+      },
+      "options": {
+        "tr": [
+          "Hayır: `value_counts` büyükten küçüğe, `groupby` alfabetik sıralıyor",
+          "Evet, ikisi de alfabetik",
+          "Evet, ikisi de büyükten küçüğe",
+          "Hayır: `groupby` rastgele sıralıyor"
+        ],
+        "en": [
+          "No: `value_counts` sorts from most to fewest, `groupby` alphabetically",
+          "Yes, both alphabetical",
+          "Yes, both from most to fewest",
+          "No: `groupby` orders at random"
+        ]
+      },
+      "explanation": {
+        "tr": "İkisi de aynı sayıları veriyor ama sıraları farklı: `value_counts` en çok olanı başa koyuyor (Ankara ve Izmir ikişer, sonra Bursa), `groupby` anahtarları alfabetik diziyor (Ankara, Bursa, Izmir).\n\nBir raporda sıra önemliyse bunu varsayma, açıkça sırala.",
+        "en": "Both give the same counts in different orders: `value_counts` puts the most frequent first (Ankara and Izmir with two each, then Bursa), `groupby` orders the keys alphabetically (Ankara, Bursa, Izmir).\n\nIf the order matters in a report, do not assume it — sort explicitly."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 0,
+      "text": {
+        "tr": "Bir şehrin ortalaması tek bir kayda dayanıyor. Raporda ne yapılmalı?",
+        "en": "One city's average rests on a single record. What should the report do?"
+      },
+      "options": {
+        "tr": [
+          "Ortalamanın yanına kayıt sayısını yazmak",
+          "O şehri sessizce rapordan çıkarmak",
+          "Ortalamayı genel ortalamayla değiştirmek",
+          "Hiçbir şey; ortalama ortalamadır"
+        ],
+        "en": [
+          "State the number of records next to the average",
+          "Quietly drop that city from the report",
+          "Replace its average with the overall average",
+          "Nothing; an average is an average"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek kayıtlı bir grubun \"ortalaması\" o kişinin notu. Sıralamada ikinci çıkması tesadüf olabilir.\n\nSaklamak da uydurmak da doğru değil. `agg([\"count\", \"mean\"])` ile sayıyı yanına koyan rapor, okuyana neye ne kadar güveneceğini söylüyor.",
+        "en": "The \"average\" of a one-record group is that person's score. Coming second in a ranking may be pure chance.\n\nHiding it is wrong, and so is inventing a value. A report that shows the count next to the mean with `agg([\"count\", \"mean\"])` tells the reader how far to trust each number."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ndata = pd.DataFrame({\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Bursa\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68, 80],\n})\nprint(len(data.groupby(\"city\")[\"score\"].transform(\"mean\")))\n```",
+        "en": "What does this code print?\n\n```python\ndata = pd.DataFrame({\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Bursa\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68, 80],\n})\nprint(len(data.groupby(\"city\")[\"score\"].transform(\"mean\")))\n```"
+      },
+      "options": {
+        "tr": [
+          "`5`",
+          "`3`",
+          "`1`",
+          "`2`"
+        ],
+        "en": [
+          "`5`",
+          "`3`",
+          "`1`",
+          "`2`"
+        ]
+      },
+      "explanation": {
+        "tr": "`transform` sonucu **tablonun satır sayısı** kadar: her satırın yanına kendi grubunun ortalaması yazılıyor. Tabloda beş satır var.\n\n`mean()` olsaydı şehir sayısı kadar, yani 3 satır gelirdi.",
+        "en": "The result of `transform` has **as many rows as the table**: each row gets its own group's average. The table has five rows.\n\nWith `mean()` you would get one row per city, that is 3."
+      }
     }
   ]
 }

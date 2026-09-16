@@ -779,6 +779,136 @@
         "tr": "Filtre `0` etiketli satırı atmış olabilir; o zaman `loc[0]` `KeyError` veriyor. `iloc[0]` her zaman kalan satırların ilkini veriyor.\n\nBu, bu bölümün en pratik kuralı: **sıradan bahsediyorsan `iloc`, kimlikten bahsediyorsan `loc`.**\n\n`head(1)` de çalışıyor ama seri değil tek satırlık **tablo** döndürüyor — sonra bir sütun çekeceksen fark ediyor.",
         "en": "The filter may have removed the row labelled `0`, in which case `loc[0]` raises a `KeyError`. `iloc[0]` always gives the first of the remaining rows.\n\nThis is the most practical rule in this section: **if you are talking about position use `iloc`, if you are talking about identity use `loc`.**\n\n`head(1)` also works but returns a one-row **table** rather than a Series — which matters if you then pull out a column."
       }
+    },
+    {
+      "id": "q31",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ndata = pd.DataFrame({\n    \"name\": [\"Ada\", \"Kerem\", \"Mina\", \"Deniz\"],\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68],\n})\nprint(data.loc[data[\"score\"] > 80, \"name\"].tolist())\n```",
+        "en": "What does this code print?\n\n```python\ndata = pd.DataFrame({\n    \"name\": [\"Ada\", \"Kerem\", \"Mina\", \"Deniz\"],\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68],\n})\nprint(data.loc[data[\"score\"] > 80, \"name\"].tolist())\n```"
+      },
+      "options": {
+        "tr": [
+          "`['Ada', 'Mina']`",
+          "`[82, 91]`",
+          "`['Mina']`",
+          "`[True, False, True, False]`"
+        ],
+        "en": [
+          "`['Ada', 'Mina']`",
+          "`[82, 91]`",
+          "`['Mina']`",
+          "`[True, False, True, False]`"
+        ]
+      },
+      "explanation": {
+        "tr": "`loc`'un ilk parçası **hangi satırlar** (koşul), ikincisi **hangi sütun**. Notu 80'in üstündeki satırların `name` değerleri geliyor.\n\nFiltre ile sütun seçimi tek çağrıda — ayrı ayrı köşeli parantez gerekmiyor.",
+        "en": "The first part of `loc` is **which rows** (the condition), the second **which column**. You get the `name` of the rows scoring above 80.\n\nFilter and column in one call — no separate square brackets needed."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ndata = pd.DataFrame({\n    \"name\": [\"Ada\", \"Kerem\", \"Mina\", \"Deniz\"],\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68],\n})\nprint(data.loc[data[\"city\"] == \"Izmir\", \"score\"].mean())\n```",
+        "en": "What does this code print?\n\n```python\ndata = pd.DataFrame({\n    \"name\": [\"Ada\", \"Kerem\", \"Mina\", \"Deniz\"],\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68],\n})\nprint(data.loc[data[\"city\"] == \"Izmir\", \"score\"].mean())\n```"
+      },
+      "options": {
+        "tr": [
+          "`71.0`",
+          "`78.75`",
+          "`86.5`",
+          "`142`"
+        ],
+        "en": [
+          "`71.0`",
+          "`78.75`",
+          "`86.5`",
+          "`142`"
+        ]
+      },
+      "explanation": {
+        "tr": "Önce Izmir satırları seçiliyor (Kerem 74, Deniz 68), sonra yalnızca onların notu alınıp ortalaması hesaplanıyor: 71.0.\n\n78.75 bütün tablonun ortalaması olurdu.",
+        "en": "The Izmir rows are selected first (Kerem 74, Deniz 68), then only their scores are averaged: 71.0.\n\n78.75 would be the average of the whole table."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ndata = pd.DataFrame({\n    \"name\": [\"Ada\", \"Kerem\", \"Mina\", \"Deniz\"],\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68],\n})\nordered = data.sort_values(\"score\")\nprint(ordered.loc[0, \"name\"], ordered.iloc[0][\"name\"])\n```",
+        "en": "What does this code print?\n\n```python\ndata = pd.DataFrame({\n    \"name\": [\"Ada\", \"Kerem\", \"Mina\", \"Deniz\"],\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68],\n})\nordered = data.sort_values(\"score\")\nprint(ordered.loc[0, \"name\"], ordered.iloc[0][\"name\"])\n```"
+      },
+      "options": {
+        "tr": [
+          "`Ada Deniz`",
+          "`Deniz Deniz`",
+          "`Ada Ada`",
+          "`Deniz Ada`"
+        ],
+        "en": [
+          "`Ada Deniz`",
+          "`Deniz Deniz`",
+          "`Ada Ada`",
+          "`Deniz Ada`"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıralamadan sonra etiketler değerlerle birlikte yer değiştiriyor. `loc[0]` **etiketi 0 olan** satırı veriyor: Ada. `iloc[0]` **ilk sıradaki** satırı veriyor: en düşük notlu Deniz.\n\nSıralanmış ya da filtrelenmiş bir tabloda \"ilk satır\" için `iloc` kullanılır.",
+        "en": "After sorting, the labels move along with the values. `loc[0]` gives the row **labelled 0**: Ada. `iloc[0]` gives the row **in first position**: Deniz, with the lowest score.\n\nFor \"the first row\" of a sorted or filtered table, use `iloc`."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ndata = pd.DataFrame({\n    \"name\": [\"Ada\", \"Kerem\", \"Mina\", \"Deniz\"],\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68],\n})\nprint(len(data[(data[\"city\"] == \"Ankara\") | (data[\"score\"] < 70)]))\n```",
+        "en": "What does this code print?\n\n```python\ndata = pd.DataFrame({\n    \"name\": [\"Ada\", \"Kerem\", \"Mina\", \"Deniz\"],\n    \"city\": [\"Ankara\", \"Izmir\", \"Ankara\", \"Izmir\"],\n    \"score\": [82, 74, 91, 68],\n})\nprint(len(data[(data[\"city\"] == \"Ankara\") | (data[\"score\"] < 70)]))\n```"
+      },
+      "options": {
+        "tr": [
+          "`3`",
+          "`2`",
+          "`1`",
+          "`4`"
+        ],
+        "en": [
+          "`3`",
+          "`2`",
+          "`1`",
+          "`4`"
+        ]
+      },
+      "explanation": {
+        "tr": "`|` \"ya da\" demek: iki koşuldan **birini** geçen satır yeterli. Ankara'dan Ada ve Mina, notu 70'in altında Deniz — üç satır.\n\n`&` yazsaydın ikisini birden geçen satır olmadığı için sonuç 0 olurdu.",
+        "en": "`|` means \"or\": passing **either** condition is enough. Ada and Mina from Ankara, Deniz below 70 — three rows.\n\nWith `&` no row passes both, so the result would be 0."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 0,
+      "text": {
+        "tr": "`data[data[\"score\"] < 75][\"score\"] = 75` satırından sonra tablo neden değişmiyor?",
+        "en": "After `data[data[\"score\"] < 75][\"score\"] = 75`, why is the table unchanged?"
+      },
+      "options": {
+        "tr": [
+          "İlk köşeli parantez ara bir tablo üretiyor; atama ona gidiyor ve o tablo atılıyor",
+          "Koşul yanlış yazıldığı için hiçbir satır seçilmiyor",
+          "pandas tablodaki değerlerin değiştirilmesine izin vermiyor",
+          "Atama yalnızca bir sonraki çalıştırmada görünüyor"
+        ],
+        "en": [
+          "The first brackets produce an intermediate table; the assignment goes to it and that table is thrown away",
+          "The condition is written wrong, so no rows are selected",
+          "pandas does not allow values in a table to be changed",
+          "The assignment only shows on the next run"
+        ]
+      },
+      "explanation": {
+        "tr": "Köşeli parantezler üst üste gelince ilki yeni bir tablo üretiyor. Değişiklik o geçici tabloya yapılıyor, asıl tabloya ulaşmıyor — ve hata da vermiyor.\n\nDoğrusu seçimi ve atamayı tek çağrıda yapmak: `data.loc[data[\"score\"] < 75, \"score\"] = 75`.",
+        "en": "When square brackets are stacked, the first one produces a new table. The change is made to that temporary table and never reaches the real one — without an error.\n\nThe right way is to select and assign in one call: `data.loc[data[\"score\"] < 75, \"score\"] = 75`."
+      }
     }
   ]
 }

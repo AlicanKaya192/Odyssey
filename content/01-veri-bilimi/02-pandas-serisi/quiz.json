@@ -779,6 +779,136 @@
         "tr": "`drop=True` \"eski index'i sakla**ma**\" demek. Öğrenci adları gidiyor, geriye 0, 1, 2 kalıyor.\n\n`drop=False` (varsayılan) olsaydı eski index bir **sütuna** dönüşüyor ve sonuç DataFrame oluyordu — bir sonraki bölümün konusu.\n\n**Ne zaman gerekir:** filtrelemeden sonra başka bir seriyle işlem yapacaksan. Filtreleme delikli bir index bırakıyor ve hizalama beklemediğin `NaN`'lar üretiyor. Ama adlar gerçekten gerekliyse index'i atmak veri kaybı demek — önce bunu düşünmen gerekiyor.",
         "en": "`drop=True` means \"do **not** keep the old index\". The student names go and 0, 1, 2 are left.\n\nWith `drop=False` (the default) the old index would turn into a **column** and the result would be a DataFrame — the subject of the next section.\n\n**When you need it:** after filtering, if you are going to combine with another Series. Filtering leaves a gapped index and alignment produces `NaN`s you did not expect. But if the names actually matter, throwing the index away is losing data — that is the thing to think about first."
       }
+    },
+    {
+      "id": "q31",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ns = pd.Series([3, 1, 2])\nprint(s.sort_values().index.tolist())\n```",
+        "en": "What does this code print?\n\n```python\ns = pd.Series([3, 1, 2])\nprint(s.sort_values().index.tolist())\n```"
+      },
+      "options": {
+        "tr": [
+          "`[1, 2, 0]`",
+          "`[0, 1, 2]`",
+          "`[1, 2, 3]`",
+          "`[2, 0, 1]`"
+        ],
+        "en": [
+          "`[1, 2, 0]`",
+          "`[0, 1, 2]`",
+          "`[1, 2, 3]`",
+          "`[2, 0, 1]`"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıralama değerleri yeniden diziyor ama **etiketleri değiştirmiyor**: her değer kendi index'iyle birlikte yer değiştiriyor. 1'in etiketi 1, 2'ninki 2, 3'ünkü 0.\n\nSıralamadan sonra `s[0]` hâlâ 3'ü verir, ilk sıradaki 1'i değil.",
+        "en": "Sorting rearranges the values but **keeps their labels**: each value moves together with its index. The label of 1 is 1, of 2 is 2, of 3 is 0.\n\nAfter sorting, `s[0]` still gives 3, not the 1 in first place."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nprint(pd.Series([1, 2, None]).fillna(0).sum())\n```",
+        "en": "What does this code print?\n\n```python\nprint(pd.Series([1, 2, None]).fillna(0).sum())\n```"
+      },
+      "options": {
+        "tr": [
+          "`3.0`",
+          "`3`",
+          "`nan`",
+          "Hata verir"
+        ],
+        "en": [
+          "`3.0`",
+          "`3`",
+          "`nan`",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "`None` seriyi ondalık tipe çevirmişti (`float64`), `fillna(0)` boşluğu 0.0 ile doldurdu ve toplam 3.0.\n\nDoldurmadan da `sum()` 3.0 verirdi — pandas eksiği atlıyor. Fark `mean()`'de ortaya çıkar: doldurunca 1.0, doldurmadan 1.5.",
+        "en": "`None` had turned the Series into decimals (`float64`); `fillna(0)` filled the gap with 0.0 and the sum is 3.0.\n\n`sum()` would give 3.0 without filling too — pandas skips the gap. The difference shows in `mean()`: 1.0 with the fill, 1.5 without."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nprint(pd.Series([1, None, 3]).dropna().size)\n```",
+        "en": "What does this code print?\n\n```python\nprint(pd.Series([1, None, 3]).dropna().size)\n```"
+      },
+      "options": {
+        "tr": [
+          "`2`",
+          "`3`",
+          "`1`",
+          "`None`"
+        ],
+        "en": [
+          "`2`",
+          "`3`",
+          "`1`",
+          "`None`"
+        ]
+      },
+      "explanation": {
+        "tr": "`dropna()` eksik değeri **atıyor**; geriye iki eleman kalıyor.\n\nAtmak ile doldurmak farklı sonuç verir: atınca seri kısalır, doldurunca uzunluk aynı kalır ama uydurma bir değer eklenmiş olur.",
+        "en": "`dropna()` **removes** the missing value; two elements remain.\n\nDropping and filling give different results: dropping shortens the Series, filling keeps its length but adds a made-up value."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nprint(pd.Series([\"Ankara\", \"Izmir\", \"Ankara\"]).nunique())\n```",
+        "en": "What does this code print?\n\n```python\nprint(pd.Series([\"Ankara\", \"Izmir\", \"Ankara\"]).nunique())\n```"
+      },
+      "options": {
+        "tr": [
+          "`2`",
+          "`3`",
+          "`['Ankara', 'Izmir']`",
+          "`1`"
+        ],
+        "en": [
+          "`2`",
+          "`3`",
+          "`['Ankara', 'Izmir']`",
+          "`1`"
+        ]
+      },
+      "explanation": {
+        "tr": "`nunique()` **kaç farklı değer** olduğunu sayıyor: Ankara ve Izmir.\n\nDeğerlerin kendisini isteseydin `unique()` yazardın. Bu sayı beklediğinden büyükse genelde yazım farkı vardır (`\"ankara\"`, `\"Ankara \"`).",
+        "en": "`nunique()` counts **how many different values** there are: Ankara and Izmir.\n\nFor the values themselves you would write `unique()`. If this number is larger than you expect, there are usually spelling differences (`\"ankara\"`, `\"Ankara \"`)."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ns = pd.Series([82, 74, 91], index=[\"Ada\", \"Kerem\", \"Mina\"])\nprint(s.idxmin())\n```",
+        "en": "What does this code print?\n\n```python\ns = pd.Series([82, 74, 91], index=[\"Ada\", \"Kerem\", \"Mina\"])\nprint(s.idxmin())\n```"
+      },
+      "options": {
+        "tr": [
+          "`Kerem`",
+          "`74`",
+          "`1`",
+          "`Ada`"
+        ],
+        "en": [
+          "`Kerem`",
+          "`74`",
+          "`1`",
+          "`Ada`"
+        ]
+      },
+      "explanation": {
+        "tr": "`idxmin()` en küçük değerin **etiketini** veriyor, değerin kendisini değil. Etiketler ad olduğu için doğrudan kimin en düşük aldığını söylüyor.\n\nDeğeri isteseydin `s.min()`, sıradaki yerini isteseydin `s.argmin()` yazardın.",
+        "en": "`idxmin()` gives the **label** of the smallest value, not the value itself. Because the labels are names, it tells you straight away who scored lowest.\n\nFor the value you would write `s.min()`, for its position `s.argmin()`."
+      }
     }
   ]
 }

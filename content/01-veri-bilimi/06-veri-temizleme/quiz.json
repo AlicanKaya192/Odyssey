@@ -779,6 +779,136 @@
         "tr": "`isna()` yalnızca gerçek `NaN`'ları görüyor. Bir veri toplama formunda \"bilinmiyor\" yerine `-1` yazılmışsa pandas onu geçerli bir sayı sanıyor.\n\nAyrıca temizlik yalnızca eksikten ibaret değil: tutarsız yazımlar, yanlış tipler, tekrarlar ve aykırı değerler de var. Hiçbirini `isna()` göstermiyor.\n\n**Yapılacak:** her sütunda `value_counts()` ya da `describe()` çalıştırıp gerçekten hangi değerlerin bulunduğuna bakmak.",
         "en": "`isna()` only sees real `NaN`s. If a data-entry form wrote `-1` instead of \"unknown\", pandas takes it as a valid number.\n\nCleaning is also not only about gaps: there are inconsistent spellings, wrong types, duplicates and outliers. `isna()` shows none of them.\n\n**What to do:** run `value_counts()` or `describe()` on each column and look at what values are actually there."
       }
+    },
+    {
+      "id": "q31",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ns = pd.Series([\"82\", \"abc\", \"91\"])\nprint(pd.to_numeric(s, errors=\"coerce\").mean())\n```",
+        "en": "What does this code print?\n\n```python\ns = pd.Series([\"82\", \"abc\", \"91\"])\nprint(pd.to_numeric(s, errors=\"coerce\").mean())\n```"
+      },
+      "options": {
+        "tr": [
+          "`86.5`",
+          "`57.67`",
+          "`nan`",
+          "`ValueError` verir"
+        ],
+        "en": [
+          "`86.5`",
+          "`57.67`",
+          "`nan`",
+          "It raises a `ValueError`"
+        ]
+      },
+      "explanation": {
+        "tr": "`errors=\"coerce\"` çevrilemeyen `abc`'yi `NaN` yapıyor; ortalama kalan iki değerden hesaplanıyor: (82 + 91) / 2.\n\n`coerce` olmasaydı `ValueError` alırdın.",
+        "en": "`errors=\"coerce\"` turns the unconvertible `abc` into `NaN`; the mean is taken over the remaining two values: (82 + 91) / 2.\n\nWithout `coerce` you would get a `ValueError`."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\nprint(pd.Series([\" Ankara\", \"ANKARA\", \"ankara \"]).str.strip().str.title().nunique())\n```",
+        "en": "What does this code print?\n\n```python\nprint(pd.Series([\" Ankara\", \"ANKARA\", \"ankara \"]).str.strip().str.title().nunique())\n```"
+      },
+      "options": {
+        "tr": [
+          "`1`",
+          "`3`",
+          "`2`",
+          "`0`"
+        ],
+        "en": [
+          "`1`",
+          "`3`",
+          "`2`",
+          "`0`"
+        ]
+      },
+      "explanation": {
+        "tr": "`strip()` kenar boşluklarını atıyor, `title()` baş harfi büyük yapıyor. Üç yazım da `Ankara` oluyor.\n\nTemizlikten önce `nunique()` 3 verirdi — gruplasaydın aynı şehir üç ayrı grup olurdu.",
+        "en": "`strip()` removes the surrounding spaces and `title()` capitalises. All three spellings become `Ankara`.\n\nBefore cleaning `nunique()` would give 3 — grouped, one city would become three groups."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 0,
+      "text": {
+        "tr": "Tam sayılardan oluşan bir sütunda tek bir hücre boşsa `read_csv` o sütunu hangi tipte okur?",
+        "en": "If one cell is empty in a column of whole numbers, what type does `read_csv` give the column?"
+      },
+      "options": {
+        "tr": [
+          "`float64`",
+          "`int64`",
+          "Metin",
+          "`bool`"
+        ],
+        "en": [
+          "`float64`",
+          "`int64`",
+          "Text",
+          "`bool`"
+        ]
+      },
+      "explanation": {
+        "tr": "Boş hücre `NaN` oluyor ve `NaN` bir **ondalık** değer. Tam sayı sütunu onu taşıyamadığı için pandas bütün sütunu `float64` yapıyor.\n\nBu yüzden `82` değeri `82.0` görünüyor. Sütun gerçekten tam sayı olmalıysa eksikleri çözdükten sonra `astype(int)` ile geri çevrilir.",
+        "en": "The empty cell becomes `NaN`, and `NaN` is a **decimal** value. A whole-number column cannot hold it, so pandas makes the whole column `float64`.\n\nThat is why `82` shows as `82.0`. If the column really should be whole numbers, convert it back with `astype(int)` once the gaps are dealt with."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdaki kod ne yazdırır?\n\n```python\ndata = pd.DataFrame({\"id\": [1, 1, 2], \"score\": [80, 85, 90]})\nprint(data.drop_duplicates(subset=[\"id\"])[\"score\"].tolist())\n```",
+        "en": "What does this code print?\n\n```python\ndata = pd.DataFrame({\"id\": [1, 1, 2], \"score\": [80, 85, 90]})\nprint(data.drop_duplicates(subset=[\"id\"])[\"score\"].tolist())\n```"
+      },
+      "options": {
+        "tr": [
+          "`[80, 90]`",
+          "`[85, 90]`",
+          "`[80, 85, 90]`",
+          "`[90]`"
+        ],
+        "en": [
+          "`[80, 90]`",
+          "`[85, 90]`",
+          "`[80, 85, 90]`",
+          "`[90]`"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı `id`'ye sahip satırlardan **ilki kalıyor** (varsayılan `keep=\"first\"`). 1 numaralı kaydın 85'li hâli atılıyor.\n\nİki kayıt farklı değer taşıyorsa hangisinin doğru olduğu bir karar: en son girileni istiyorsan `keep=\"last\"` yazarsın. Bu kararı raporda belirtmek gerekir.",
+        "en": "Of the rows sharing an `id`, **the first one stays** (the default `keep=\"first\"`). The 85 version of record 1 is dropped.\n\nWhen two records hold different values, which one is right is a decision: for the latest entry you write `keep=\"last\"`. That decision belongs in the report."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 0,
+      "text": {
+        "tr": "`-1` bu veride \"not girilmedi\" anlamına geliyor. Aşağıdaki kod ne yazdırır?\n\n```python\ns = pd.Series([82, -1, 91])\nprint(round(s.mean(), 2), s[s >= 0].mean())\n```",
+        "en": "In this data `-1` means \"no score entered\". What does this code print?\n\n```python\ns = pd.Series([82, -1, 91])\nprint(round(s.mean(), 2), s[s >= 0].mean())\n```"
+      },
+      "options": {
+        "tr": [
+          "`57.33 86.5`",
+          "`86.5 86.5`",
+          "`57.33 57.33`",
+          "`nan 86.5`"
+        ],
+        "en": [
+          "`57.33 86.5`",
+          "`86.5 86.5`",
+          "`57.33 57.33`",
+          "`nan 86.5`"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas `-1`'in \"eksik\" demek olduğunu bilmiyor; onu bir not gibi ortalamaya katıyor ve ortalama 86.5'ten 57.33'e düşüyor.\n\nBöyle işaret değerleri (`-1`, `999`, `\"N/A\"`) temizlikte gerçek eksik değere çevrilmeli. `isna()` onları **görmez**.",
+        "en": "pandas does not know that `-1` means \"missing\"; it averages it like a score and the mean falls from 86.5 to 57.33.\n\nMarker values like these (`-1`, `999`, `\"N/A\"`) must become real missing values during cleaning. `isna()` does **not** see them."
+      }
     }
   ]
 }

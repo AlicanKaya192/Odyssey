@@ -779,6 +779,136 @@
         "tr": "Sütunlar birer seri; çarpım vektörel olarak, altta C'de yapılıyor. Tek satır ve en hızlısı.\n\nDiğer üçü de doğru sonuç veriyor ama her satır için Python tarafına geçiyor. `iterrows` en yavaşı, `apply(axis=1)` ondan biraz iyi, ikisi de vektörel işlemin yanında çok geride.\n\n**Kural:** \"her satır için\" diye düşünüyorsan önce dur ve sütun sütun düşünmeyi dene. Veri biliminde işlerin çoğu sütun işlemidir.",
         "en": "Columns are Series; the multiplication happens vectorised, in C underneath. One line and the fastest.\n\nThe other three also give the right answer but cross into Python for every row. `iterrows` is the slowest and `apply(axis=1)` slightly better, and both are far behind the vectorised form.\n\n**The rule:** when you catch yourself thinking \"for each row\", stop and try thinking column by column instead. Most data work is column work."
       }
+    },
+    {
+      "id": "q31",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.read_csv(\"students.csv\")` dosyanın ilk satırıyla ne yapar?",
+        "en": "What does `pd.read_csv(\"students.csv\")` do with the file's first line?"
+      },
+      "options": {
+        "tr": [
+          "Sütun adları olarak kullanır",
+          "İlk kayıt olarak okur",
+          "Atlar",
+          "Index yapar"
+        ],
+        "en": [
+          "Uses it as the column names",
+          "Reads it as the first record",
+          "Skips it",
+          "Makes it the index"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan olarak ilk satır **başlık**. Tablonun index'i ayrıca `0, 1, 2...` diye ekleniyor.\n\nBaşlıksız bir dosyada `header=None` yazmazsan ilk kayıt sütun adı olur ve bir satır kaybedersin.",
+        "en": "By default the first line is the **header**. An index of `0, 1, 2...` is added separately.\n\nWith a file that has no header, unless you write `header=None` the first record becomes the column names and you lose a row."
+      }
+    },
+    {
+      "id": "q32",
+      "answer": 0,
+      "text": {
+        "tr": "CSV dosyasında **boş bırakılmış** bir hücre `read_csv` ile okununca ne olur?",
+        "en": "What happens to a cell left **empty** in a CSV file when `read_csv` reads it?"
+      },
+      "options": {
+        "tr": [
+          "`NaN` (eksik değer) olur",
+          "Boş metin (`\"\"`) olur",
+          "`0` olur",
+          "O satır okunmaz"
+        ],
+        "en": [
+          "It becomes `NaN` (a missing value)",
+          "It becomes empty text (`\"\"`)",
+          "It becomes `0`",
+          "That row is not read"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas boş hücreyi **eksik değer** sayıyor. Bu yüzden dosyayı okuduktan sonra ilk bakılacak şeylerden biri `isna().sum()`.\n\nSıfır yapsaydı ortalamalar sessizce düşerdi; `NaN` bırakınca en azından fark edilebiliyor.",
+        "en": "pandas treats an empty cell as a **missing value**. That is why `isna().sum()` is one of the first things to check after reading a file.\n\nIf it became zero, averages would drop silently; left as `NaN` it can at least be noticed."
+      }
+    },
+    {
+      "id": "q33",
+      "answer": 0,
+      "text": {
+        "tr": "`scores.csv` dosyasının içeriği şu:\n\n```text\nname,score\nAda,82\nKerem,74\n```\n\n`pd.read_csv(\"scores.csv\").shape` ne döndürür?",
+        "en": "The file `scores.csv` contains:\n\n```text\nname,score\nAda,82\nKerem,74\n```\n\nWhat does `pd.read_csv(\"scores.csv\").shape` return?"
+      },
+      "options": {
+        "tr": [
+          "`(2, 2)`",
+          "`(3, 2)`",
+          "`(2, 3)`",
+          "`(3, 3)`"
+        ],
+        "en": [
+          "`(2, 2)`",
+          "`(3, 2)`",
+          "`(2, 3)`",
+          "`(3, 3)`"
+        ]
+      },
+      "explanation": {
+        "tr": "Üç satırın biri başlık; geriye iki kayıt kalıyor. İki sütun var: `name` ve `score`. Index sütun sayılmıyor.\n\nBoyutta satır önce, sütun sonra gelir.",
+        "en": "One of the three lines is the header, leaving two records. There are two columns: `name` and `score`. The index is not counted as a column.\n\nIn a shape, rows come first and columns second."
+      }
+    },
+    {
+      "id": "q34",
+      "answer": 0,
+      "text": {
+        "tr": "Sayı sütununda tek bir hücrede `abc` yazıyorsa `read_csv` o sütunu hangi tipte okur?",
+        "en": "If a single cell in a number column says `abc`, what type does `read_csv` give that column?"
+      },
+      "options": {
+        "tr": [
+          "Metin — bütün sütun",
+          "Sayı; `abc` hücresi `NaN` olur",
+          "Sayı; `abc` satırı atlanır",
+          "Hata verip dosyayı okumaz"
+        ],
+        "en": [
+          "Text — the whole column",
+          "Numbers; the `abc` cell becomes `NaN`",
+          "Numbers; the `abc` row is skipped",
+          "It raises an error and does not read the file"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir sütunun tek tipi var. Sayıya çevrilemeyen tek bir değer, pandas'ı **bütün sütunu metin** okumaya zorluyor ve bunu sessizce yapıyor.\n\nSonrasında `data[\"score\"].mean()` hata verir. Çözüm temizlik bölümünde: `pd.to_numeric(..., errors=\"coerce\")`.",
+        "en": "A column has a single type. One value that cannot become a number forces pandas to read **the whole column as text**, and it does so silently.\n\nAfterwards `data[\"score\"].mean()` fails. The fix is in the cleaning section: `pd.to_numeric(..., errors=\"coerce\")`."
+      }
+    },
+    {
+      "id": "q35",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.read_csv(\"students.csv\")` `FileNotFoundError` veriyor ama dosya bilgisayarda var. En olası sebep nedir?",
+        "en": "`pd.read_csv(\"students.csv\")` raises `FileNotFoundError` but the file is on the computer. What is the most likely reason?"
+      },
+      "options": {
+        "tr": [
+          "Dosya, kodun çalıştığı klasörde değil",
+          "Dosya çok büyük",
+          "CSV dosyası virgül yerine noktalı virgül kullanıyor",
+          "pandas kurulu değil"
+        ],
+        "en": [
+          "The file is not in the folder the code runs in",
+          "The file is too large",
+          "The CSV uses semicolons instead of commas",
+          "pandas is not installed"
+        ]
+      },
+      "explanation": {
+        "tr": "Yalnızca dosya adı yazınca pandas onu **kodun çalıştığı klasörde** arıyor. Dosya başka yerdeyse tam yolunu vermek gerekiyor.\n\nAyırıcı farklı olsa dosya okunurdu ama tek sütun çıkardı; pandas kurulu olmasa `import` satırı hata verirdi.",
+        "en": "With just a file name, pandas looks for it **in the folder the code runs in**. If the file is elsewhere you have to give its full path.\n\nWith a different separator the file would be read into a single column; without pandas the `import` line would fail."
+      }
     }
   ]
 }

@@ -21,7 +21,18 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ## [0.8.3] — yayınlanmadı
 
-### Eklendi
+### Değişti
+- **Veri Bilimi patikası yenilendi.** On üç alıştırma baştan yazıldı:
+  artık içe aktarmaları siz yazıyor, veriyi alıştırmanın yanındaki bir CSV
+  dosyasından okuyorsunuz ve çizdiğiniz grafik sonuç panelinde görünüyor.
+  Görselleştirme bölümünün beş alıştırmasının beşi de yenilendi; yanıltıcı
+  ve dürüst eksenli grafiği yan yana gördüğünüz bir alıştırma da var.
+  DataFrame Temelleri, Seçim ve Filtreleme, Gruplama ve Toplulaştırma, Veri
+  Temizleme, Keşifçi Veri Analizi ve Genel Tekrar bölümlerine de dosyadan
+  başlayan alıştırmalar geldi. DataFrame konu anlatımına CSV dosyası okumayı
+  anlatan bir kısım, sınavlara 55 yeni soru eklendi; Genel Tekrar dışındaki
+  her bölümde artık 35 soru var. Bu bölümleri daha önce bitirdiyseniz yeni
+  alıştırmaları çözene kadar bölüm "yarım kaldı" görünür.
 
 ### Düzeltildi
 - **Değişen alıştırmalar bölümü tamamlanmış göstermiyor.** Bir alıştırma
