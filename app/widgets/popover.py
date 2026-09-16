@@ -1,36 +1,53 @@
-"""Bir düğmenin üstünde açılan küçük pencere (bildirimler, kısayollar).
+"""Bir düğmenin üstünde açılan küçük panel (bildirimler, kısayollar).
 
-Çerçevesi, aşağı bakan oku, gölgesi ve dışarı tıklanınca kapanması burada;
-içini dolduran panel kendi işine bakıyor. İki panel bunu paylaşıyor: aynı
-çizim iki yere kopyalansaydı biri düzeltilip öbürü unutulurdu.
+Çerçevesi, aşağı bakan oku, gölgesi ve dışına tıklanınca kapanması burada;
+içini dolduran panel kendi işine bakıyor. İki panel bunu paylaşıyor.
 
-Pencere `Qt.Popup`: açıkken fare ve klavye onda, dışarı tıklamak ve Esc
-kendiliğinden kapatıyor.
+**Ayrı bir pencere değil, pencerenin içinde bir katman.** Önce `Qt.Popup`
+idi ve açıkken fareyi de klavyeyi de kendine kilitliyordu:
+
+- `F1` ana pencereye ulaşmadığı için ikinci kez basmak paneli kapatmıyordu;
+- başlık çubuğundaki küçült/büyüt/kapat düğmelerine yapılan ilk tıklama
+  paneli kapatmaya gidiyor, düğmeye ulaşmıyordu — Alican iki kez tıklamak
+  zorunda kalıyordu.
+
+Katman yalnızca pencerenin kendi alanını kaplıyor; başlık çubuğu Windows'un
+elinde kalıyor ve kısayollar ana pencerede çalışmaya devam ediyor.
 """
 
 from __future__ import annotations
 
 from PySide6.QtCore import QPoint, QRectF, Qt
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen
-from PySide6.QtWidgets import QFrame, QGraphicsDropShadowEffect, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QAbstractButton,
+    QApplication,
+    QGraphicsDropShadowEffect,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ..resources.theme.tokens import PALETTES, RADIUS
 
-# Gölgenin pencere kenarlarında kapladığı saydam pay.
-SHADOW_MARGIN = 24
 # Okun içeriğin sağ kenarına uzaklığı ve ölçüleri.
 ARROW_RIGHT = 16
 ARROW_HEIGHT = 10
 ARROW_WIDTH = 16
 
+# Panelin düğmeyle arasındaki ve pencere kenarlarıyla arasındaki en az pay.
+ANCHOR_GAP = 4
+EDGE_GAP = 8
+
 
 class PopoverBody(QWidget):
-    """İçeriği taşıyan katman: yuvarlak kutu, aşağı bakan ok, gölge."""
+    """İçeriği taşıyan kutu: yuvarlak çerçeve, aşağı bakan ok, gölge."""
 
     def __init__(self, mode: str = "dark", parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._mode = mode
-        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        # Zemini kendisi çiziyor; genel `QWidget` kuralı sayfa zeminini
+        # boyamasın.
+        self.setProperty("role", "bare")
         self.apply_shadow()
 
     def set_mode(self, mode: str) -> None:
@@ -64,7 +81,7 @@ class PopoverBody(QWidget):
         path = QPainterPath()
         path.addRoundedRect(rect, radius, radius)
 
-        # Okun ucu düğmenin ortasına geliyor; hizalamayı `Popover.show_above`
+        # Okun ucu düğmenin ortasına geliyor; hizalamayı `Popover._place`
         # yapıyor, burada yeri sabit.
         merkez = rect.width() - ARROW_RIGHT
         ok = QPainterPath()
@@ -81,32 +98,24 @@ class PopoverBody(QWidget):
         painter.end()
 
 
-class Popover(QFrame):
-    """Düğmenin üstünde açılan pencerenin ortak iskeleti.
+class Popover(QWidget):
+    """Pencereyi kaplayan saydam katman; içinde panelin kutusu.
 
     İçerik `self.content` düzenine ekleniyor; yüksekliği panel kendisi
     biliyor ve `fit_height` ile bildiriyor.
     """
 
     def __init__(self, width: int, parent: QWidget | None = None) -> None:
-        super().__init__(
-            parent,
-            Qt.WindowType.Popup
-            | Qt.WindowType.FramelessWindowHint
-            | Qt.WindowType.NoDropShadowWindowHint,
-        )
+        super().__init__(parent)
+        # Katman görünmez: yalnızca dışarı tıklamayı yakalıyor.
+        self.setProperty("role", "bare")
         self._mode = "dark"
         self._width = width
-        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setFrameShape(QFrame.Shape.NoFrame)
-        self.setFixedWidth(width + 2 * SHADOW_MARGIN)
+        self._anchor: QWidget | None = None
+        self.hide()
 
-        outer = QVBoxLayout(self)
-        outer.setContentsMargins(SHADOW_MARGIN, SHADOW_MARGIN, SHADOW_MARGIN, SHADOW_MARGIN)
-        outer.setSpacing(0)
-
-        self.body = PopoverBody(self._mode)
-        outer.addWidget(self.body)
+        self.body = PopoverBody(self._mode, self)
+        self.body.setFixedWidth(width)
 
         self.content = QVBoxLayout(self.body)
         # Altta oka yer.
@@ -118,26 +127,57 @@ class Popover(QFrame):
         self.body.set_mode(mode)
 
     def fit_height(self, content_height: int) -> None:
-        """Pencereyi içeriğin boyuna kilitler (ok ve gölge payları dahil).
+        """Kutuyu içeriğin boyuna kilitler (ok payı dahil).
 
         Esnek bırakılınca önceki açılıştan kalan yükseklik içeriği ortaya
         itiyordu.
         """
-        self.setFixedHeight(content_height + ARROW_HEIGHT + 2 * SHADOW_MARGIN)
+        self.body.setFixedSize(self._width, content_height + ARROW_HEIGHT)
+        if self.isVisible():
+            self._place()
 
     def show_above(self, anchor: QWidget) -> None:
-        """Pencereyi verilen düğmenin hemen üstünde açar."""
-        nokta = anchor.mapToGlobal(QPoint(0, 0))
-        # Okun ucu düğmenin ortasına gelsin: ok içeriğin sağından
-        # ARROW_RIGHT, içerik de pencerenin kenarından SHADOW_MARGIN içeride.
-        x = nokta.x() + anchor.width() // 2 + SHADOW_MARGIN + ARROW_RIGHT - self.width()
-        y = nokta.y() - self.height() + SHADOW_MARGIN - 4
-        self.move(x, y)
+        """Paneli verilen düğmenin hemen üstünde açar."""
+        self._anchor = anchor
+        self._place()
         self.show()
+        self.raise_()
+
+    def reposition(self) -> None:
+        """Pencere boyu değişince katmanı ve kutuyu yeniden yerleştirir."""
+        if self.isVisible():
+            self._place()
+
+    def _place(self) -> None:
+        parent = self.parentWidget()
+        if parent is None or self._anchor is None:
+            return
+        self.setGeometry(parent.rect())
+
+        nokta = self.mapFromGlobal(self._anchor.mapToGlobal(QPoint(0, 0)))
+        # Okun ucu düğmenin ortasına gelsin.
+        x = nokta.x() + self._anchor.width() // 2 + ARROW_RIGHT - self._width
+        y = nokta.y() - self.body.height() - ANCHOR_GAP
+        self.body.move(
+            max(EDGE_GAP, min(x, self.width() - self._width - EDGE_GAP)),
+            max(EDGE_GAP, y),
+        )
 
     def mousePressEvent(self, event) -> None:  # noqa: N802
-        """Gölge payına (içeriğin dışına) tıklamak da kapatıyor."""
-        if not self.body.geometry().contains(event.pos()):
-            self.close()
-        else:
+        """Kutunun dışına tıklamak kapatıyor; tıklama altındaki düğmeye gidiyor.
+
+        Katman pencereyi kapladığı için tıklama normalde yalnızca paneli
+        kapatırdı ve kullanıcı ikinci kez tıklamak zorunda kalırdı. Kapanışta
+        tıklamanın altındaki düğme çalıştırılıyor: panel açıkken şeride ya da
+        zile basmak tek tıklamada iş görüyor. Paneli açan düğme dışarıda
+        bırakılıyor; yoksa panel kapanıp hemen yeniden açılırdı.
+        """
+        if self.body.geometry().contains(event.position().toPoint()):
             super().mousePressEvent(event)
+            return
+
+        self.close()
+        kure = event.globalPosition().toPoint()
+        hedef = QApplication.widgetAt(kure)
+        if hedef is not None and hedef is not self._anchor and isinstance(hedef, QAbstractButton):
+            hedef.click()

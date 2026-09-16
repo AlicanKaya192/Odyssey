@@ -684,6 +684,10 @@ class MainWindow(QMainWindow):
         if self._search.isVisible():
             self._search.close_palette()
             return
+        for panel in (self._shortcut_panel, self._notif_panel):
+            if panel.isVisible():
+                panel.close()
+                return
         current = self._stack.currentWidget()
         if current is self._topic:
             self._topic_back()
@@ -840,9 +844,12 @@ class MainWindow(QMainWindow):
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
-        # Arama kutusu pencerenin tamamını karartıyor; pencereyle büyüyor.
+        # Üstte duran katmanlar pencerenin tamamını kaplıyor; pencereyle
+        # birlikte büyüyorlar.
         if self._search.isVisible():
             self._search.setGeometry(self.rect())
+        self._shortcut_panel.reposition()
+        self._notif_panel.reposition()
 
     def close_for_update(self) -> None:
         """Güncelleme yardımcısına yer açmak için onay sormadan kapanır.

@@ -172,7 +172,6 @@ class NotificationPanel(Popover):
         # Çerçeve, aşağı bakan ok, gölge ve dışarı tıklayınca kapanma
         # `Popover`'da; burası yalnızca içeriği kuruyor.
         super().__init__(PANEL_WIDTH, parent)
-        self.setProperty("role", "notification-panel")
 
         root = self.content
 
