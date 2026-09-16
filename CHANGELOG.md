@@ -30,7 +30,8 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   arasında içeriği kendi satırına alıyor, `return` ya da `pass` sonrası
   girintiyi azaltıyor. `Ctrl+/` seçili satırları yoruma alıyor ya da
   yorumdan çıkarıyor. Girintiyi gösteren soluk dikey çizgiler blokların
-  nerede başlayıp bittiğini gösteriyor.
+  nerede başlayıp bittiğini gösteriyor. Aynı kolaylıklar Notlarım'daki kod
+  bloklarının içinde de çalışıyor.
 
 ### Değişti
 - **Veri Bilimi patikası yenilendi.** On üç alıştırma baştan yazıldı:
@@ -52,9 +53,11 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **İpucu açınca ekran zıplamıyor.** Bir ipucunu açmak yönergenin tamamını
   yeniden yüklüyordu; sayfa bir an en başa gidip eski yerine dönüyordu.
   Artık yalnızca ipucu kutusu değişiyor, okuduğunuz yer kıpırdamıyor.
-- **SQL alıştırmalarında editör renkleri.** SQL kodu Python kurallarıyla
-  renkleniyordu: `SELECT` renksiz kalıyor, `--` yorumu yorum gibi
-  görünmüyordu. Artık SQL kendi kurallarıyla renkleniyor.
+- **SQL kodu her yerde renkli.** SQL patikasının konu anlatımlarında, ders
+  notlarında ve Notlarım'daki SQL kod blokları renksizdi; sınav sorularındaki
+  ve alıştırma editöründeki SQL ise Python kurallarıyla renkleniyordu
+  (`SELECT` renksiz, `--` yorumu yorum gibi görünmüyordu). Artık SQL her
+  yerde kendi kurallarıyla renkleniyor.
 - **Değişen alıştırmalar bölümü tamamlanmış göstermiyor.** Bir alıştırma
   yenisiyle değiştirildiğinde eskisini çözmüş olmak, yenisi çözülmemişken
   bölümü "tamamlandı" gösteriyordu. Artık yalnızca bölümdeki güncel

@@ -22,10 +22,10 @@ from __future__ import annotations
 import html
 import re
 
-from ..core.highlight import highlight_python
+from ..core.highlight import highlight_code, language_for_tag
 from ..resources.theme.tokens import FONTS, PALETTES
 
-FENCE_PATTERN = re.compile(r"```[A-Za-z]*\n(.*?)```", re.DOTALL)
+FENCE_PATTERN = re.compile(r"```([A-Za-z-]*)\n(.*?)```", re.DOTALL)
 INLINE_PATTERN = re.compile(r"`([^`\n]+)`")
 
 # `**kalın**`. Ters tırnak dışarıda bırakılıyor: satır içi kodun içindeki
@@ -50,10 +50,10 @@ def render(text: str, mode: str = "light") -> str:
     """Markdown kod işaretlerini Qt zengin metnine çevirir."""
     palette = PALETTES.get(mode, PALETTES["light"])
 
-    blocks: list[str] = []
+    blocks: list[tuple[str, str]] = []
 
     def stash(match: re.Match) -> str:
-        blocks.append(match.group(1).rstrip("\n"))
+        blocks.append((match.group(2).rstrip("\n"), match.group(1)))
         return PLACEHOLDER.format(len(blocks) - 1)
 
     staged = FENCE_PATTERN.sub(stash, text)
@@ -70,9 +70,9 @@ def render(text: str, mode: str = "light") -> str:
     )
     escaped = escaped.replace("\n", "<br>")
 
-    for index, block in enumerate(blocks):
+    for index, (block, tag) in enumerate(blocks):
         escaped = escaped.replace(
-            PLACEHOLDER.format(index), _block_html(block, palette, mode)
+            PLACEHOLDER.format(index), _block_html(block, tag, palette, mode)
         )
 
     return escaped
@@ -92,11 +92,12 @@ def _inline_html(code: str, palette: dict) -> str:
     )
 
 
-def _block_html(code: str, palette: dict, mode: str) -> str:
+def _block_html(code: str, tag: str, palette: dict, mode: str) -> str:
     """Kod bloğu.
 
     Kod, ders anlatımındaki bloklarla **aynı renklendiriciden** geçiyor
-    (`highlight_python`). Önceden tek renk düz metin olarak basılıyordu;
+    (`highlight_code`); bloğun etiketi dili seçiyor. SQL sınavlarındaki kod
+    önce Python kurallarıyla boyanıyordu. Önceden tek renk düz metin olarak basılıyordu;
     yeni başlayan biri için `if`, sayı, metin ve fonksiyon adı aynı renkte
     olunca kod bir harf yığınına dönüşüyordu. Sınavda gösterilen kod, aynı
     kodu bir editörde açtığında ne görecekse ona benzemeli.
@@ -108,6 +109,6 @@ def _block_html(code: str, palette: dict, mode: str) -> str:
         '<table cellpadding="8" cellspacing="0" width="100%" '
         f'style="background-color:{palette["code_bg"]};"><tr><td>'
         f'<pre style="font-family:{MONO}; color:{palette["text"]}; margin:0;">'
-        f"{highlight_python(code, mode)}"
+        f"{highlight_code(code, language_for_tag(tag), mode)}"
         "</pre></td></tr></table>"
     )

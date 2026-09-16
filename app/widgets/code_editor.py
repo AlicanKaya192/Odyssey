@@ -32,6 +32,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import QTextEdit, QWidget
 
+from ..core.highlight import SQL_FUNCTIONS, SQL_KEYWORDS, SQL_TYPES
 from ..resources.theme.tokens import FONTS, PALETTES, SYNTAX
 
 INDENT = "    "  # Python'da girinti 4 boşluk
@@ -82,39 +83,6 @@ BUILTINS = [
     "sum", "tuple", "type", "zip",
 ]
 
-SQL_KEYWORDS = [
-    "add", "all", "alter", "and", "as", "asc", "begin", "between", "by",
-    "case", "catch", "check", "commit", "constraint", "create", "cross",
-    "current", "database", "declare", "default", "delete", "desc", "distinct",
-    "drop", "else", "end", "exec", "execute", "exists", "fetch", "following",
-    "for", "foreign", "from", "full", "go", "group", "having", "identity",
-    "if", "in", "index", "inner", "insert", "into", "is", "join", "key",
-    "left", "like", "merge", "next", "nocount", "not", "of", "offset", "on",
-    "only", "or", "order", "outer", "output", "over", "partition",
-    "preceding", "primary", "print", "proc", "procedure", "range",
-    "references", "return", "right", "rollback", "row", "rows", "select",
-    "set", "table", "then", "throw", "top", "tran", "transaction", "try",
-    "unbounded", "union", "unique", "update", "use", "values", "view",
-    "when", "where", "while", "with",
-]
-
-SQL_TYPES = [
-    "bigint", "bit", "char", "date", "datetime", "datetime2", "decimal",
-    "float", "int", "money", "nchar", "numeric", "nvarchar", "real",
-    "smallint", "text", "time", "tinyint", "varchar",
-]
-
-SQL_FUNCTIONS = [
-    "abs", "avg", "cast", "ceiling", "charindex", "coalesce", "concat",
-    "convert", "count", "dateadd", "datediff", "datepart", "day",
-    "dense_rank", "first_value", "floor", "format", "getdate", "iif",
-    "isnull", "lag", "last_value", "lead", "left", "len", "lower", "ltrim",
-    "max", "min", "month", "ntile", "nullif", "power", "rank", "replace",
-    "right", "round", "row_number", "rtrim", "sqrt", "string_agg",
-    "substring", "sum", "trim", "upper", "year",
-]
-
-
 def _char_format(color: str, bold: bool = False, italic: bool = False) -> QTextCharFormat:
     fmt = QTextCharFormat()
     fmt.setForeground(QColor(color))
@@ -125,9 +93,9 @@ def _char_format(color: str, bold: bool = False, italic: bool = False) -> QTextC
     return fmt
 
 
-def _words(words: list[str], flags: int = 0, before_paren: bool = False) -> re.Pattern:
+def _words(words, flags: int = 0, before_paren: bool = False) -> re.Pattern:
     tail = r"(?=\s*\()" if before_paren else ""
-    return re.compile(rf"\b(?:{'|'.join(words)})\b{tail}", flags)
+    return re.compile(rf"\b(?:{'|'.join(sorted(words))})\b{tail}", flags)
 
 
 def python_rules(mode: str) -> tuple[list[tuple[object, QTextCharFormat, int]], QTextCharFormat]:
@@ -310,6 +278,316 @@ class SqlHighlighter(_RuleHighlighter):
 HIGHLIGHTERS = {LANGUAGE_PYTHON: PythonHighlighter, LANGUAGE_SQL: SqlHighlighter}
 
 
+class CodeEditing:
+    """Kod yazma kolaylıkları; `QTextEdit` tabanlı editörlere karışır.
+
+    Alıştırma editörü (`CodeEditor`) her yerde, not editörü (`NoteEditor`)
+    yalnızca kod bloklarının içinde kullanıyor. Önce yalnızca alıştırma
+    editöründe vardı; notlardaki kod bloğunda parantez kapanmıyordu (Alican
+    bildirdi).
+
+    Alt sınıf `_code_language` ile o anki dili veriyor: `python`, `tsql` ya
+    da tanınmayan bir blok için boş metin (yorum işareti yok, tırnak öneki
+    yok; parantez ve girinti yine çalışıyor).
+    """
+
+    def _code_language(self) -> str:
+        return LANGUAGE_PYTHON
+
+    def handle_code_key(self, event: QKeyEvent) -> bool:
+        """Kod yazma kolaylıkları. Tuşu işlediyse `True` döndürür.
+
+        `Ctrl+Enter` burada işlenmiyor; onun ne yapacağı (çalıştırmak ya da
+        hiçbir şey) editöre bağlı.
+        """
+        key = event.key()
+        modifiers = event.modifiers()
+        # Windows AltGr'yi Ctrl+Alt olarak bildiriyor; Türkçe klavyede
+        # `{ [ ] }` AltGr ile yazılıyor. Onlar kısayol değil, karakter.
+        ctrl = bool(modifiers & Qt.KeyboardModifier.ControlModifier) and not (
+            modifiers & Qt.KeyboardModifier.AltModifier
+        )
+        text = event.text()
+
+        if key in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            if ctrl:
+                return False
+            self._newline()
+            return True
+
+        # Türkçe klavyede `/` Shift+7 ile yazılıyor; Ctrl+Shift+7 de kabul.
+        if ctrl and (key == Qt.Key.Key_Slash or (key == Qt.Key.Key_7 and modifiers & Qt.KeyboardModifier.ShiftModifier)):
+            self._toggle_comment()
+            return True
+
+        if key == Qt.Key.Key_Tab and not modifiers:
+            self._indent()
+            return True
+
+        if key == Qt.Key.Key_Backtab:
+            self._dedent()
+            return True
+
+        if key == Qt.Key.Key_Backspace and not modifiers and self._smart_backspace():
+            return True
+
+        if not ctrl and text:
+            if text in BRACKET_PAIRS and self._open_bracket(text):
+                return True
+            if text in QUOTES and self._quote(text):
+                return True
+            if text in CLOSING_BRACKETS and self._skip_closing(text):
+                return True
+
+        return False
+
+    # İmlecin solundaki ve sağındaki satır parçası.
+    def _around_cursor(self) -> tuple[str, str]:
+        cursor = self.textCursor()
+        line = cursor.block().text()
+        column = cursor.positionInBlock()
+        return line[:column], line[column:]
+
+    def _move(self, steps: int) -> None:
+        cursor = self.textCursor()
+        operation = (
+            QTextCursor.MoveOperation.Right if steps > 0 else QTextCursor.MoveOperation.Left
+        )
+        cursor.movePosition(operation, QTextCursor.MoveMode.MoveAnchor, abs(steps))
+        self.setTextCursor(cursor)
+
+    def _wrap_selection(self, opening: str, closing: str) -> None:
+        """Seçili metni iki işaretin arasına alır, seçim içeride kalır."""
+        cursor = self.textCursor()
+        selected = cursor.selectedText()
+        start = cursor.selectionStart()
+        cursor.insertText(f"{opening}{selected}{closing}")
+        cursor.setPosition(start + len(opening))
+        cursor.setPosition(start + len(opening) + len(selected), QTextCursor.MoveMode.KeepAnchor)
+        self.setTextCursor(cursor)
+
+    def _open_bracket(self, opening: str) -> bool:
+        cursor = self.textCursor()
+        closing = BRACKET_PAIRS[opening]
+        if cursor.hasSelection():
+            if " " in cursor.selectedText():
+                return False
+            self._wrap_selection(opening, closing)
+            return True
+        _before, after = self._around_cursor()
+        if after and after[0] not in CLOSE_BEFORE:
+            return False
+        cursor.insertText(opening + closing)
+        self._move(-1)
+        return True
+
+    def _quote(self, quote: str) -> bool:
+        cursor = self.textCursor()
+        if cursor.hasSelection():
+            if " " in cursor.selectedText():
+                return False
+            self._wrap_selection(quote, quote)
+            return True
+
+        before, after = self._around_cursor()
+        if after.startswith(quote):
+            self._move(1)
+            return True
+        if after and after[0] not in CLOSE_BEFORE:
+            return False
+        if before.endswith(quote):
+            # Üçlü tırnak yazılıyor ya da boş bir metin kapatılıyor.
+            return False
+        word = re.search(r"(\w+)$", before)
+        if word:
+            prefix = word.group(1).lower()
+            if prefix not in STRING_PREFIXES.get(self._code_language(), set()):
+                return False
+        cursor.insertText(quote + quote)
+        self._move(-1)
+        return True
+
+    def _skip_closing(self, closing: str) -> bool:
+        if self.textCursor().hasSelection():
+            return False
+        _before, after = self._around_cursor()
+        if not after.startswith(closing):
+            return False
+        self._move(1)
+        return True
+
+    def _smart_backspace(self) -> bool:
+        """Boş çifti birlikte, girintiyi kademe kademe siler."""
+        cursor = self.textCursor()
+        if cursor.hasSelection():
+            return False
+        before, after = self._around_cursor()
+        if not before:
+            return False
+
+        pairs = {**BRACKET_PAIRS, '"': '"', "'": "'"}
+        if before[-1] in pairs and after.startswith(pairs[before[-1]]):
+            cursor.movePosition(QTextCursor.MoveOperation.Left)
+            cursor.movePosition(
+                QTextCursor.MoveOperation.Right, QTextCursor.MoveMode.KeepAnchor, 2
+            )
+            cursor.removeSelectedText()
+            return True
+
+        if before.strip(" ") == "":
+            remove = len(before) % INDENT_WIDTH or INDENT_WIDTH
+            cursor.movePosition(
+                QTextCursor.MoveOperation.Left, QTextCursor.MoveMode.KeepAnchor, remove
+            )
+            cursor.removeSelectedText()
+            return True
+        return False
+
+    def _newline(self) -> None:
+        """Enter: girintiyi korur, bloğa göre artırır ya da azaltır.
+
+        **Satır sonu Qt'ye bırakılmıyor.** Satır aralığı verilmiş boş bir
+        satırda Qt'nin kendi Enter'ı yutuluyordu; `insertPlainText("\\n")`
+        her durumda çalışıyor (not editöründe de aynısı yapılıyor).
+        """
+        cursor = self.textCursor()
+        before, after = self._around_cursor()
+        line = cursor.block().text()
+        indent = line[: len(line) - len(line.lstrip(" "))]
+        stripped = before.rstrip()
+
+        if self._code_language() == LANGUAGE_PYTHON and stripped.endswith(":"):
+            indent += INDENT
+        elif (
+            self._code_language() == LANGUAGE_PYTHON
+            and not after.strip()
+            and stripped.lstrip().split(" ")[0] in DEDENT_AFTER
+        ):
+            indent = indent[:-INDENT_WIDTH]
+
+        cursor.beginEditBlock()
+        # İmlecin sağındaki boşluklar yeni satırın başına taşınmasın.
+        spaces_after = len(after) - len(after.lstrip(" "))
+        if spaces_after:
+            eraser = self.textCursor()
+            eraser.movePosition(
+                QTextCursor.MoveOperation.Right, QTextCursor.MoveMode.KeepAnchor, spaces_after
+            )
+            eraser.removeSelectedText()
+            after = after[spaces_after:]
+
+        opener = stripped[-1:] if stripped else ""
+        if opener in BRACKET_PAIRS and after.startswith(BRACKET_PAIRS[opener]):
+            # `(|)` → açan satırda kalır, içerik bir kademe içeride, kapatan
+            # kendi satırında.
+            self.insertPlainText("\n" + indent + INDENT + "\n" + indent)
+            self._move(-(len(indent) + 1))
+        else:
+            if opener in BRACKET_PAIRS:
+                indent += INDENT
+            self.insertPlainText("\n" + indent)
+        cursor.endEditBlock()
+
+    # --- satır işlemleri --------------------------------------------------
+
+    def _selected_blocks(self) -> tuple[int, int]:
+        """Seçimin kapsadığı ilk ve son satır numarası.
+
+        Seçim bir satırın en başında bitiyorsa o satır dahil edilmiyor:
+        satırları fareyle aşağı doğru seçen kişi imleci bir sonraki satırın
+        başına bırakıyor.
+        """
+        cursor = self.textCursor()
+        document = self.document()
+        first = document.findBlock(cursor.selectionStart()).blockNumber()
+        end_block = document.findBlock(cursor.selectionEnd())
+        last = end_block.blockNumber()
+        if cursor.hasSelection() and last > first and cursor.selectionEnd() == end_block.position():
+            last -= 1
+        return first, last
+
+    def _edit_lines(self, change) -> None:
+        """Seçili satırların her birine `change(metin) -> metin` uygular.
+
+        Seçim işlemden sonra aynı satırları kapsayacak şekilde yeniden
+        kuruluyor; art arda Tab ya da yorum işlemi yapılabiliyor.
+        """
+        first, last = self._selected_blocks()
+        had_selection = self.textCursor().hasSelection()
+        column = self.textCursor().positionInBlock()
+        document = self.document()
+        cursor = QTextCursor(document)
+        cursor.beginEditBlock()
+        shift = 0
+        for number in range(first, last + 1):
+            block = document.findBlockByNumber(number)
+            original = block.text()
+            updated = change(original)
+            if updated == original:
+                continue
+            shift = len(updated) - len(original)
+            line = QTextCursor(block)
+            line.movePosition(QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.KeepAnchor)
+            line.insertText(updated)
+        cursor.endEditBlock()
+
+        result = self.textCursor()
+        if not had_selection:
+            # Seçim yoksa imleç satırda kalıyor, eklenen/silinen kadar kayıyor.
+            block = document.findBlockByNumber(first)
+            result.setPosition(block.position() + max(0, min(column + shift, block.length() - 1)))
+        else:
+            last_block = document.findBlockByNumber(last)
+            result.setPosition(document.findBlockByNumber(first).position())
+            result.setPosition(
+                last_block.position() + last_block.length() - 1, QTextCursor.MoveMode.KeepAnchor
+            )
+        self.setTextCursor(result)
+
+    def _indent(self) -> None:
+        if self.textCursor().hasSelection():
+            self._edit_lines(lambda text: INDENT + text if text.strip() else text)
+            return
+        # Tek satır: bir sonraki girinti durağına kadar boşluk.
+        before, _after = self._around_cursor()
+        self.insertPlainText(" " * (INDENT_WIDTH - len(before) % INDENT_WIDTH))
+
+    def _dedent(self) -> None:
+        def remove(text: str) -> str:
+            leading = len(text) - len(text.lstrip(" "))
+            return text[min(leading, INDENT_WIDTH):]
+
+        self._edit_lines(remove)
+
+    def _toggle_comment(self) -> None:
+        """Seçili satırları yoruma alır; hepsi yorumsa yorumdan çıkarır."""
+        prefix = COMMENT_PREFIX.get(self._code_language(), "")
+        if not prefix:
+            return
+        first, last = self._selected_blocks()
+        document = self.document()
+        lines = [document.findBlockByNumber(n).text() for n in range(first, last + 1)]
+        filled = [line for line in lines if line.strip()]
+        if not filled:
+            return
+
+        commented = all(line.lstrip(" ").startswith(prefix) for line in filled)
+        column = min(len(line) - len(line.lstrip(" ")) for line in filled)
+
+        def change(text: str) -> str:
+            if not text.strip():
+                return text
+            if commented:
+                leading = len(text) - len(text.lstrip(" "))
+                rest = text[leading + len(prefix):]
+                if rest.startswith(" "):
+                    rest = rest[1:]
+                return text[:leading] + rest
+            return text[:column] + prefix + " " + text[column:]
+
+        self._edit_lines(change)
+
+
 class LineNumberArea(QWidget):
     """Editörün solundaki satır numarası şeridi."""
 
@@ -324,7 +602,7 @@ class LineNumberArea(QWidget):
         self._editor.paint_line_numbers(event)
 
 
-class CodeEditor(QTextEdit):
+class CodeEditor(CodeEditing, QTextEdit):
     """Alıştırmaların yazıldığı editör."""
 
     run_requested = Signal()
@@ -573,289 +851,17 @@ class CodeEditor(QTextEdit):
         self._line_area.update()
         self.viewport().update()
 
+    def _code_language(self) -> str:
+        return self._language
+
     def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
-        key = event.key()
         modifiers = event.modifiers()
-        # Windows AltGr'yi Ctrl+Alt olarak bildiriyor; Türkçe klavyede
-        # `{ [ ] }` AltGr ile yazılıyor. Onlar kısayol değil, karakter.
         ctrl = bool(modifiers & Qt.KeyboardModifier.ControlModifier) and not (
             modifiers & Qt.KeyboardModifier.AltModifier
         )
-        text = event.text()
-
-        if key in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            if ctrl:
-                self.run_requested.emit()
-            else:
-                self._newline()
+        if ctrl and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            self.run_requested.emit()
             return
-
-        # Türkçe klavyede `/` Shift+7 ile yazılıyor; Ctrl+Shift+7 de kabul.
-        if ctrl and (key == Qt.Key.Key_Slash or (key == Qt.Key.Key_7 and modifiers & Qt.KeyboardModifier.ShiftModifier)):
-            self._toggle_comment()
+        if self.handle_code_key(event):
             return
-
-        if key == Qt.Key.Key_Tab and not modifiers:
-            self._indent()
-            return
-
-        if key == Qt.Key.Key_Backtab:
-            self._dedent()
-            return
-
-        if key == Qt.Key.Key_Backspace and not modifiers and self._smart_backspace():
-            return
-
-        if not ctrl and text:
-            if text in BRACKET_PAIRS and self._open_bracket(text):
-                return
-            if text in QUOTES and self._quote(text):
-                return
-            if text in CLOSING_BRACKETS and self._skip_closing(text):
-                return
-
         super().keyPressEvent(event)
-
-    # İmlecin solundaki ve sağındaki satır parçası.
-    def _around_cursor(self) -> tuple[str, str]:
-        cursor = self.textCursor()
-        line = cursor.block().text()
-        column = cursor.positionInBlock()
-        return line[:column], line[column:]
-
-    def _move(self, steps: int) -> None:
-        cursor = self.textCursor()
-        operation = (
-            QTextCursor.MoveOperation.Right if steps > 0 else QTextCursor.MoveOperation.Left
-        )
-        cursor.movePosition(operation, QTextCursor.MoveMode.MoveAnchor, abs(steps))
-        self.setTextCursor(cursor)
-
-    def _wrap_selection(self, opening: str, closing: str) -> None:
-        """Seçili metni iki işaretin arasına alır, seçim içeride kalır."""
-        cursor = self.textCursor()
-        selected = cursor.selectedText()
-        start = cursor.selectionStart()
-        cursor.insertText(f"{opening}{selected}{closing}")
-        cursor.setPosition(start + len(opening))
-        cursor.setPosition(start + len(opening) + len(selected), QTextCursor.MoveMode.KeepAnchor)
-        self.setTextCursor(cursor)
-
-    def _open_bracket(self, opening: str) -> bool:
-        cursor = self.textCursor()
-        closing = BRACKET_PAIRS[opening]
-        if cursor.hasSelection():
-            if " " in cursor.selectedText():
-                return False
-            self._wrap_selection(opening, closing)
-            return True
-        _before, after = self._around_cursor()
-        if after and after[0] not in CLOSE_BEFORE:
-            return False
-        cursor.insertText(opening + closing)
-        self._move(-1)
-        return True
-
-    def _quote(self, quote: str) -> bool:
-        cursor = self.textCursor()
-        if cursor.hasSelection():
-            if " " in cursor.selectedText():
-                return False
-            self._wrap_selection(quote, quote)
-            return True
-
-        before, after = self._around_cursor()
-        if after.startswith(quote):
-            self._move(1)
-            return True
-        if after and after[0] not in CLOSE_BEFORE:
-            return False
-        if before.endswith(quote):
-            # Üçlü tırnak yazılıyor ya da boş bir metin kapatılıyor.
-            return False
-        word = re.search(r"(\w+)$", before)
-        if word:
-            prefix = word.group(1).lower()
-            if prefix not in STRING_PREFIXES[self._language]:
-                return False
-        cursor.insertText(quote + quote)
-        self._move(-1)
-        return True
-
-    def _skip_closing(self, closing: str) -> bool:
-        if self.textCursor().hasSelection():
-            return False
-        _before, after = self._around_cursor()
-        if not after.startswith(closing):
-            return False
-        self._move(1)
-        return True
-
-    def _smart_backspace(self) -> bool:
-        """Boş çifti birlikte, girintiyi kademe kademe siler."""
-        cursor = self.textCursor()
-        if cursor.hasSelection():
-            return False
-        before, after = self._around_cursor()
-        if not before:
-            return False
-
-        pairs = {**BRACKET_PAIRS, '"': '"', "'": "'"}
-        if before[-1] in pairs and after.startswith(pairs[before[-1]]):
-            cursor.movePosition(QTextCursor.MoveOperation.Left)
-            cursor.movePosition(
-                QTextCursor.MoveOperation.Right, QTextCursor.MoveMode.KeepAnchor, 2
-            )
-            cursor.removeSelectedText()
-            return True
-
-        if before.strip(" ") == "":
-            remove = len(before) % INDENT_WIDTH or INDENT_WIDTH
-            cursor.movePosition(
-                QTextCursor.MoveOperation.Left, QTextCursor.MoveMode.KeepAnchor, remove
-            )
-            cursor.removeSelectedText()
-            return True
-        return False
-
-    def _newline(self) -> None:
-        """Enter: girintiyi korur, bloğa göre artırır ya da azaltır.
-
-        **Satır sonu Qt'ye bırakılmıyor.** Satır aralığı verilmiş boş bir
-        satırda Qt'nin kendi Enter'ı yutuluyordu; `insertPlainText("\\n")`
-        her durumda çalışıyor (not editöründe de aynısı yapılıyor).
-        """
-        cursor = self.textCursor()
-        before, after = self._around_cursor()
-        line = cursor.block().text()
-        indent = line[: len(line) - len(line.lstrip(" "))]
-        stripped = before.rstrip()
-
-        if self._language == LANGUAGE_PYTHON and stripped.endswith(":"):
-            indent += INDENT
-        elif (
-            self._language == LANGUAGE_PYTHON
-            and not after.strip()
-            and stripped.lstrip().split(" ")[0] in DEDENT_AFTER
-        ):
-            indent = indent[:-INDENT_WIDTH]
-
-        cursor.beginEditBlock()
-        # İmlecin sağındaki boşluklar yeni satırın başına taşınmasın.
-        spaces_after = len(after) - len(after.lstrip(" "))
-        if spaces_after:
-            eraser = self.textCursor()
-            eraser.movePosition(
-                QTextCursor.MoveOperation.Right, QTextCursor.MoveMode.KeepAnchor, spaces_after
-            )
-            eraser.removeSelectedText()
-            after = after[spaces_after:]
-
-        opener = stripped[-1:] if stripped else ""
-        if opener in BRACKET_PAIRS and after.startswith(BRACKET_PAIRS[opener]):
-            # `(|)` → açan satırda kalır, içerik bir kademe içeride, kapatan
-            # kendi satırında.
-            self.insertPlainText("\n" + indent + INDENT + "\n" + indent)
-            self._move(-(len(indent) + 1))
-        else:
-            if opener in BRACKET_PAIRS:
-                indent += INDENT
-            self.insertPlainText("\n" + indent)
-        cursor.endEditBlock()
-
-    # --- satır işlemleri --------------------------------------------------
-
-    def _selected_blocks(self) -> tuple[int, int]:
-        """Seçimin kapsadığı ilk ve son satır numarası.
-
-        Seçim bir satırın en başında bitiyorsa o satır dahil edilmiyor:
-        satırları fareyle aşağı doğru seçen kişi imleci bir sonraki satırın
-        başına bırakıyor.
-        """
-        cursor = self.textCursor()
-        document = self.document()
-        first = document.findBlock(cursor.selectionStart()).blockNumber()
-        end_block = document.findBlock(cursor.selectionEnd())
-        last = end_block.blockNumber()
-        if cursor.hasSelection() and last > first and cursor.selectionEnd() == end_block.position():
-            last -= 1
-        return first, last
-
-    def _edit_lines(self, change) -> None:
-        """Seçili satırların her birine `change(metin) -> metin` uygular.
-
-        Seçim işlemden sonra aynı satırları kapsayacak şekilde yeniden
-        kuruluyor; art arda Tab ya da yorum işlemi yapılabiliyor.
-        """
-        first, last = self._selected_blocks()
-        had_selection = self.textCursor().hasSelection()
-        column = self.textCursor().positionInBlock()
-        document = self.document()
-        cursor = QTextCursor(document)
-        cursor.beginEditBlock()
-        shift = 0
-        for number in range(first, last + 1):
-            block = document.findBlockByNumber(number)
-            original = block.text()
-            updated = change(original)
-            if updated == original:
-                continue
-            shift = len(updated) - len(original)
-            line = QTextCursor(block)
-            line.movePosition(QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.KeepAnchor)
-            line.insertText(updated)
-        cursor.endEditBlock()
-
-        result = self.textCursor()
-        if not had_selection:
-            # Seçim yoksa imleç satırda kalıyor, eklenen/silinen kadar kayıyor.
-            block = document.findBlockByNumber(first)
-            result.setPosition(block.position() + max(0, min(column + shift, block.length() - 1)))
-        else:
-            last_block = document.findBlockByNumber(last)
-            result.setPosition(document.findBlockByNumber(first).position())
-            result.setPosition(
-                last_block.position() + last_block.length() - 1, QTextCursor.MoveMode.KeepAnchor
-            )
-        self.setTextCursor(result)
-
-    def _indent(self) -> None:
-        if self.textCursor().hasSelection():
-            self._edit_lines(lambda text: INDENT + text if text.strip() else text)
-            return
-        # Tek satır: bir sonraki girinti durağına kadar boşluk.
-        before, _after = self._around_cursor()
-        self.insertPlainText(" " * (INDENT_WIDTH - len(before) % INDENT_WIDTH))
-
-    def _dedent(self) -> None:
-        def remove(text: str) -> str:
-            leading = len(text) - len(text.lstrip(" "))
-            return text[min(leading, INDENT_WIDTH):]
-
-        self._edit_lines(remove)
-
-    def _toggle_comment(self) -> None:
-        """Seçili satırları yoruma alır; hepsi yorumsa yorumdan çıkarır."""
-        prefix = COMMENT_PREFIX[self._language]
-        first, last = self._selected_blocks()
-        document = self.document()
-        lines = [document.findBlockByNumber(n).text() for n in range(first, last + 1)]
-        filled = [line for line in lines if line.strip()]
-        if not filled:
-            return
-
-        commented = all(line.lstrip(" ").startswith(prefix) for line in filled)
-        column = min(len(line) - len(line.lstrip(" ")) for line in filled)
-
-        def change(text: str) -> str:
-            if not text.strip():
-                return text
-            if commented:
-                leading = len(text) - len(text.lstrip(" "))
-                rest = text[leading + len(prefix):]
-                if rest.startswith(" "):
-                    rest = rest[1:]
-                return text[:leading] + rest
-            return text[:column] + prefix + " " + text[column:]
-
-        self._edit_lines(change)

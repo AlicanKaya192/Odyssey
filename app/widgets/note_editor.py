@@ -10,8 +10,15 @@ bir editörde de aynı okunuyor.
 
 Renklendirme: başlık satırı kalın, liste işareti vurgu renginde,
 `**kalın**` kalın, satır içi kod ve kod blokları eş aralıklı yazı tipinde.
-Python bloklarının içi alıştırma editörüyle aynı kurallarla boyanıyor
-(`code_editor.python_rules`).
+Python ve SQL bloklarının içi alıştırma editörüyle aynı kurallarla
+boyanıyor (`code_editor.python_rules` / `sql_rules`). SQL bloğunda satırlar
+boyunca süren `/* */` yorumu izlenmiyor: blok durumu zaten hangi dilde
+olunduğunu tutuyor.
+
+Kod bloğunun içinde alıştırma editörünün yazma kolaylıkları
+(`code_editor.CodeEditing`) çalışıyor: parantez ve tırnak kapatma, girinti,
+`Ctrl+/`. Düz yazıda çalışmıyor; "Ankara'da" yazan kişiye ikinci bir kesme
+işareti eklemek yanlış olur.
 """
 
 from __future__ import annotations
@@ -33,7 +40,7 @@ from PySide6.QtGui import (
 from PySide6.QtWidgets import QTextEdit, QWidget
 
 from ..resources.theme.tokens import FONTS, PALETTES
-from .code_editor import python_rules
+from .code_editor import LANGUAGE_PYTHON, LANGUAGE_SQL, CodeEditing, python_rules, sql_rules
 
 # Satır aralığı. Kod editöründen biraz dar: burada çoğunlukla düz yazı var.
 LINE_HEIGHT_PERCENT = 150
@@ -45,8 +52,14 @@ MONO_FAMILY = FONTS["mono"].split(",")[0].strip().strip('"')
 # Satırın hangi bölgede olduğu; QSyntaxHighlighter'ın blok durumu.
 STATE_TEXT = 0
 STATE_PYTHON = 1
-STATE_CODE = 2  # Python dışında bir dil ya da dil yazılmamış
+STATE_CODE = 2  # tanınmayan bir dil ya da dil yazılmamış
+STATE_SQL = 3
 PYTHON_TAGS = ("python", "py")
+SQL_TAGS = ("sql", "tsql", "t-sql")
+CODE_STATES = (STATE_PYTHON, STATE_CODE, STATE_SQL)
+
+# Kod bloğu durumundan kod editörünün dil adına.
+STATE_LANGUAGE = {STATE_PYTHON: LANGUAGE_PYTHON, STATE_SQL: LANGUAGE_SQL, STATE_CODE: ""}
 
 HEADING = re.compile(r"^#{1,6}\s")
 HEADING_MARKS = re.compile(r"^#{1,6}\s*")
@@ -66,7 +79,10 @@ class NoteHighlighter(QSyntaxHighlighter):
 
     def set_mode(self, mode: str) -> None:
         palette = PALETTES.get(mode, PALETTES["light"])
-        self._rules, _ = python_rules(mode)
+        self._rules = {
+            STATE_PYTHON: python_rules(mode)[0],
+            STATE_SQL: sql_rules(mode)[0],
+        }
 
         self._code = QTextCharFormat()
         self._code.setFontFamilies([MONO_FAMILY])
@@ -95,7 +111,7 @@ class NoteHighlighter(QSyntaxHighlighter):
 
     def highlightBlock(self, text: str) -> None:  # noqa: N802 (Qt adlandırması)
         previous = self.previousBlockState()
-        in_code = previous in (STATE_PYTHON, STATE_CODE)
+        in_code = previous in CODE_STATES
         stripped = text.strip()
 
         # Kod bloğunun açılış ya da kapanış çizgisi.
@@ -105,14 +121,19 @@ class NoteHighlighter(QSyntaxHighlighter):
                 self.setCurrentBlockState(STATE_TEXT)
             else:
                 tag = stripped[len(FENCE):].strip().lower()
-                self.setCurrentBlockState(STATE_PYTHON if tag in PYTHON_TAGS else STATE_CODE)
+                if tag in PYTHON_TAGS:
+                    self.setCurrentBlockState(STATE_PYTHON)
+                elif tag in SQL_TAGS:
+                    self.setCurrentBlockState(STATE_SQL)
+                else:
+                    self.setCurrentBlockState(STATE_CODE)
             return
 
         if in_code:
             self.setCurrentBlockState(previous)
             self.setFormat(0, len(text), self._code)
-            if previous == STATE_PYTHON:
-                for pattern, fmt, group in self._rules:
+            if previous in self._rules:
+                for pattern, fmt, group in self._rules[previous]:
                     for match in pattern.finditer(text):
                         start, end = match.span(group) if group else match.span()
                         if start >= 0:
@@ -138,7 +159,7 @@ class NoteHighlighter(QSyntaxHighlighter):
             self.setFormat(match.start(), match.end() - match.start(), self._inline)
 
 
-class NoteEditor(QTextEdit):
+class NoteEditor(CodeEditing, QTextEdit):
     """Notun yazıldığı alan."""
 
     def __init__(self, parent: QWidget | None = None, mode: str = "light") -> None:
@@ -250,11 +271,13 @@ class NoteEditor(QTextEdit):
         mods = event.modifiers()
         ctrl = bool(mods & Qt.KeyboardModifier.ControlModifier)
 
+        if ctrl and not mods & Qt.KeyboardModifier.AltModifier and key == Qt.Key.Key_B:
+            self.toggle_bold()
+            return
+        if self._selection_in_code() and self.handle_code_key(event):
+            return
         if key == Qt.Key.Key_Tab and not ctrl and not mods & Qt.KeyboardModifier.AltModifier:
             self.textCursor().insertText(INDENT)
-            return
-        if ctrl and key == Qt.Key.Key_B:
-            self.toggle_bold()
             return
         # Enter Qt'ye hiç bırakılmıyor, satır sonu elle ekleniyor. Qt'nin
         # kendi Enter'ı, satır aralığı verilmiş boş bir satırda yutuluyordu
@@ -270,13 +293,32 @@ class NoteEditor(QTextEdit):
     def _in_code_block(self, block) -> bool:
         if block.text().strip().startswith(FENCE):
             return False
-        return block.previous().userState() in (STATE_PYTHON, STATE_CODE)
+        return block.previous().userState() in CODE_STATES
+
+    def _selection_in_code(self) -> bool:
+        """İmleç (ya da seçimin kapsadığı bütün satırlar) bir kod bloğunda mı?"""
+        cursor = self.textCursor()
+        document = self.document()
+        block = document.findBlock(cursor.selectionStart())
+        last = document.findBlock(cursor.selectionEnd())
+        while block.isValid():
+            if not self._in_code_block(block):
+                return False
+            if block == last:
+                return True
+            block = block.next()
+        return False
+
+    def _code_language(self) -> str:
+        state = self.textCursor().block().previous().userState()
+        return STATE_LANGUAGE.get(state, "")
 
     def _continue_line(self) -> bool:
-        """Enter: kodda girintiyi, listede işareti sürdürür.
+        """Enter: listede işareti sürdürür.
 
-        Kendi başına bir şey yapmadıysa `False` döndürüyor ve tuş Qt'nin
-        olağan yoluna gidiyor.
+        Kod bloğundaki Enter buraya gelmiyor, `CodeEditing` işliyor.
+        Kendi başına bir şey yapmadıysa `False` döndürüyor ve düz satır sonu
+        ekleniyor.
         """
         cursor = self.textCursor()
         if cursor.hasSelection():
@@ -285,15 +327,6 @@ class NoteEditor(QTextEdit):
         block = cursor.block()
         line = block.text()
         column = cursor.positionInBlock()
-        before = line[:column]
-
-        if self._in_code_block(block):
-            indent = re.match(r"\s*", before).group()
-            if before.rstrip().endswith(":"):
-                indent += INDENT
-            cursor.insertText("\n" + indent)
-            self.setTextCursor(cursor)
-            return True
 
         mark = LIST_MARK.match(line)
         if mark is None or column < mark.end():

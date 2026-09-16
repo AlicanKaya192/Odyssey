@@ -30,6 +30,7 @@ def build_css(mode: str) -> str:
 .hl-number   {{ color: {s['number']}; }}
 .hl-comment  {{ color: {s['comment']}; font-style: italic; }}
 .hl-variable {{ color: {s['variable']}; }}
+.hl-definition {{ color: {s['definition']}; }}
 
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
 

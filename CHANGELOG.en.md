@@ -31,7 +31,7 @@ lecture note does not mean downloading the whole application again.
   the indentation removes one level. `Enter` between `(|)` puts the content
   on its own line and unindents after `return` or `pass`. `Ctrl+/` comments
   or uncomments the selected lines. Faint vertical indent guides show where
-  blocks begin and end.
+  blocks begin and end. The same help works inside code blocks in My Notes.
 
 ### Changed
 - **The Data Science path has been renewed.** Thirteen exercises were
@@ -54,9 +54,11 @@ lecture note does not mean downloading the whole application again.
 - **Opening a hint no longer makes the screen jump.** Opening a hint reloaded
   the whole instructions page; it flashed back to the top and then returned
   to where you were. Now only the hint box changes and your place stays put.
-- **Editor colours in SQL exercises.** SQL code was coloured with Python's
-  rules: `SELECT` stayed plain and a `--` comment did not look like a
-  comment. SQL is now coloured by its own rules.
+- **SQL code is coloured everywhere.** SQL code blocks in the SQL path's
+  lessons, lecture notes and My Notes were plain; SQL in quiz questions and
+  in the exercise editor was coloured with Python's rules (`SELECT` stayed
+  plain and a `--` comment did not look like one). SQL now uses its own
+  rules everywhere.
 - **Replaced exercises no longer count towards a finished section.** When an
   exercise was replaced by a new one, having solved the old one marked the
   section as complete even though the new one was unsolved. Only the
