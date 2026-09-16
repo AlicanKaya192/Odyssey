@@ -21,7 +21,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [0.8.2.1] — unreleased
+## [0.8.2.1] — 16 September 2026
 
 ### Changed
 - **The update system is ready for an installer.** The next version will

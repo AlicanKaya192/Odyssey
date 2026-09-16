@@ -19,7 +19,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [0.8.2.1] — yayınlanmadı
+## [0.8.2.1] — 16 Eylül 2026
 
 ### Değişti
 - **Güncelleme sistemi kurulum programına hazırlandı.** Bir sonraki sürüm
