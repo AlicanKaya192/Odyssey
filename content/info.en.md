@@ -41,15 +41,17 @@ the source can be read, modified and redistributed.
 
 The application is in open beta and works end to end: the learning path,
 lessons, lecture notes, quizzes, coding exercises, staged hints, progress
-tracking, a profile with badges, a Turkish/English interface, light and dark
-themes and in-app updates are all in place.
+tracking, a profile with badges, your own notes, a global search, a
+Turkish/English interface, light and dark themes and in-app updates are all
+in place.
 
 Four paths are complete: **Python Fundamentals**, **Data Science**,
-**Machine Learning** and **SQL**. Together they hold 54 sections, 1491
-quiz questions and 257 coding exercises. The API, Docker and other
+**Machine Learning** and **SQL**. Together they hold 56 sections, 1521
+quiz questions and 267 coding exercises. The API, Docker and other
 advanced paths are in preparation.
 
-A personal notes area inside each section is on the roadmap.
+A free coding area outside the exercises and a macOS build are on the
+roadmap.
 
 You can follow which change arrived in which version from the **Release
 Notes** screen.

@@ -21,7 +21,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [0.8.2] — unreleased
+## [0.8.2] — 16 September 2026
 
 ### Added
 - **Two new sections in Python Fundamentals.** **Formatting Text:** f-string

@@ -40,11 +40,11 @@ You can turn the check off under **Settings › Updates**. With it off, the appl
 
 Early development (`0.8.2`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
 
-**Content today:** four modules are **complete** — Python Fundamentals (fifteen sections), Data Science (ten), Machine Learning (thirteen) and SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures). 1491 quiz questions, 257 coding exercises and 112 sets of lecture notes, all of it in both Turkish and English.
+**Content today:** four modules are **complete** — Python Fundamentals (seventeen sections), Data Science (ten), Machine Learning (thirteen) and SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures). 1521 quiz questions, 267 coding exercises and 116 sets of lecture notes, all of it in both Turkish and English.
 
 **Thirteen learning paths** are defined: Python, Data Science, Machine Learning and SQL are open, while API, Docker, Time Series, Natural Language Processing and the others are visible but locked until their content is written.
 
-**Working:** learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations, sections that unlock in order, persistent progress, 29 badges with notifications and an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
+**Working:** learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 29 badges with notifications and an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
 
 **Not there yet:** the content for the other paths, a place for your own notes, and a larger exercise engine for projects that run a dataset end to end.
 

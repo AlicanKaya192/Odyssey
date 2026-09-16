@@ -41,15 +41,17 @@ incelenebilir, değiştirilebilir ve yeniden dağıtılabilir.
 
 Uygulama açık beta sürümündedir ve uçtan uca çalışır: öğrenme yolu, konu
 anlatımı, ders notları, sınavlar, kod alıştırmaları, kademeli ipuçları,
-ilerleme kaydı, profil ve rozetler, Türkçe/İngilizce arayüz, açık/koyu tema
-ve uygulama içi güncelleme hazırdır.
+ilerleme kaydı, profil ve rozetler, kendi notlarınız, genel arama,
+Türkçe/İngilizce arayüz, açık/koyu tema ve uygulama içi güncelleme
+hazırdır.
 
 Dört patika tamamlanmıştır: **Python Temelleri**, **Veri Bilimi**, **Makine
-Öğrenmesi** ve **SQL**. Toplamda 54 bölüm, 1491 sınav sorusu ve 257 kod
+Öğrenmesi** ve **SQL**. Toplamda 56 bölüm, 1521 sınav sorusu ve 267 kod
 alıştırması bulunur. API, Docker ve diğer ileri patikalar
 hazırlanmaktadır.
 
-Bölüm içinde kendi notunuzu tutabileceğiniz alan yol haritasındadır.
+Alıştırmaya bağlı olmayan serbest bir çalışma alanı ve macOS sürümü yol
+haritasındadır.
 
 Hangi değişikliğin hangi sürümde geldiğini **Sürüm Notları** ekranından
 izleyebilirsiniz.

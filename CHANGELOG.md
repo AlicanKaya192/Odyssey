@@ -19,7 +19,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [0.8.2] — yayınlanmadı
+## [0.8.2] — 16 Eylül 2026
 
 ### Eklendi
 - **Python Temelleri'ne iki yeni bölüm.** **Metinleri Biçimlendirme:**
