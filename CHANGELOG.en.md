@@ -37,7 +37,7 @@ lecture note does not mean downloading the whole application again.
   note with one button. What you write is saved automatically. You can
   download your notes one by one (`.md`) or a folder at a time (`.zip`),
   and upload notes you got from someone else; an uploaded note never
-  overwrites one of yours. Writing your first note earns a badge.
+  overwrites one of yours.
 - **Search everywhere.** `Ctrl+K` or the magnifier on the left strip opens a
   search box in the middle of the screen, with suggestions appearing
   below as you type. It searches sections, lesson headings and text,

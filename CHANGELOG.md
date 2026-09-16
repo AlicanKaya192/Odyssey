@@ -35,7 +35,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   koyabiliyorsunuz. Yazdıklarınız kendiliğinden kaydediliyor. Notlarınızı
   tek tek (`.md`) ya da klasör klasör (`.zip`) indirebilir, başkasından
   aldığınız notları yükleyebilirsiniz; yüklenen not hiçbir notunuzun
-  üstüne yazılmıyor. İlk notunuzu yazana bir rozet var.
+  üstüne yazılmıyor.
 - **Genel arama.** `Ctrl+K` ya da sol şeritteki büyüteç ekranın ortasında
   bir arama kutusu açıyor; yazdıkça altında öneriler çıkıyor. Bölümler,
   konu anlatımlarının başlıkları ve metni, ders notları, alıştırmalar,
