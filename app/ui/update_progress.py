@@ -46,9 +46,12 @@ class DownloadWorker(QThread):
     # başarılıysa açılan klasör, değilse boş metin ve hata anahtarı
     finished_with = Signal(object, str)
 
-    def __init__(self, asset: Asset, parent=None) -> None:
+    def __init__(self, asset: Asset, installer: bool = False, parent=None) -> None:
         super().__init__(parent)
         self._asset = asset
+        # Kurulum programı indiriliyorsa açılacak bir arşiv yok: denetlenen
+        # dosyanın kendisi sonuç.
+        self._installer = installer
         self._cancelled = False
 
     def cancel(self) -> None:
@@ -72,10 +75,17 @@ class DownloadWorker(QThread):
             return
 
         self.progress.emit("verify", 0, "")
-        hata = updater.verify(hedef, self._asset.size)
+        if self._installer:
+            hata = updater.verify_installer(hedef, self._asset.size)
+        else:
+            hata = updater.verify(hedef, self._asset.size)
         if hata:
             hedef.unlink(missing_ok=True)
             self.finished_with.emit(None, hata)
+            return
+
+        if self._installer:
+            self.finished_with.emit(hedef, "")
             return
 
         def acilirken(sira: int, toplam: int) -> None:
@@ -103,6 +113,7 @@ class UpdateProgressDialog(QDialog):
         info: UpdateInfo,
         asset: Asset,
         parent: QWidget | None = None,
+        installer: bool = False,
     ) -> None:
         super().__init__(parent)
         self._language = language
@@ -148,7 +159,7 @@ class UpdateProgressDialog(QDialog):
         buttons.addWidget(self._cancel_button)
         layout.addLayout(buttons)
 
-        self._worker = DownloadWorker(asset, self)
+        self._worker = DownloadWorker(asset, installer, self)
         self._worker.progress.connect(self._on_progress)
         self._worker.finished_with.connect(self._on_finished)
 

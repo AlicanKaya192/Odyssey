@@ -3,6 +3,14 @@
 `updates.py` yalnızca "yeni sürüm var mı" diye soruyor; kurulumu bu modül
 yapıyor.
 
+## İki yol
+
+- **Kurulum programı** (0.8.2.1'den itibaren): sürümde
+  `Odyssey-<sürüm>-setup.exe` varsa o indiriliyor, sessiz kipte
+  başlatılıyor ve uygulama kapanıyor. Dosyaları, masaüstü kısayolunu ve
+  eski zip klasörünün temizliğini kurulum programı yapıyor.
+- **Zip** (aşağıdaki akış): kurulum dosyası olmayan sürümler için.
+
 ## Akış
 
 1. **İndir** — sürümün zip dosyası `%APPDATA%\\Odyssey\\updates` altına
@@ -51,6 +59,28 @@ APPLY_FLAG = "--apply-update"
 
 # İndirilecek dosyanın adı bununla bitiyor: `Odyssey-0.7.1-windows-x64.zip`.
 ASSET_SUFFIX = "-windows-x64.zip"
+
+# Kurulum dosyası: `Odyssey-0.8.3-setup.exe`. Bu ada 0.8.2 ve öncesi hiç
+# bakmıyor (yalnızca zip arıyor); köprü sürümünden (0.8.2.1) itibaren
+# sürümde kurulum dosyası varsa zip yerine o kullanılıyor.
+INSTALLER_PREFIX = "Odyssey-"
+INSTALLER_SUFFIX = "-setup.exe"
+
+# Kurulum programına verilen parametreler. Adlar kurulum betiğiyle (Inno
+# Setup, `{param:OLDDIR}` / `{param:OLDPID}`) aynı olmalı.
+#
+# - `/SILENT`: soru sormadan kurar, yalnızca ilerleme penceresi görünür.
+# - `/SUPPRESSMSGBOXES /NORESTART /SP-`: hiçbir kutu, yeniden başlatma ya da
+#   "kurmak istiyor musunuz" sorusu yok.
+# - `/OLDDIR`: zip'le dağıtılan eski klasör. Kurulum bittikten sonra oradaki
+#   `Odyssey.exe` ve `_internal` siliniyor. Kullanıcı verisi orada değil
+#   (`%APPDATA%\\Odyssey`), dokunulmuyor.
+# - `/OLDPID`: kapanması beklenen bu süreç; dosyaları kilitli tutuyor.
+INSTALLER_ARGS = ("/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-")
+
+# Kurulum için gereken en az boş alan: kurulum dosyası (~350 MB) + kurulu
+# hâli (~800 MB), pay bırakılarak.
+INSTALLER_SPACE = int(1.5 * 1024 * 1024 * 1024)
 
 # Zip'in içindeki kök klasör ve içinde bulunması beklenen dosya.
 TOP_LEVEL = "Odyssey"
@@ -103,6 +133,19 @@ def pick_asset(assets) -> Asset | None:
     return None
 
 
+def pick_installer(assets) -> Asset | None:
+    """Sürümün dosyaları arasından kurulum programını seçer (varsa)."""
+    for ham in assets or ():
+        ad = str(ham.get("name") or "")
+        adres = str(ham.get("browser_download_url") or "")
+        if not (ad.startswith(INSTALLER_PREFIX) and ad.endswith(INSTALLER_SUFFIX)):
+            continue
+        if not adres.startswith(DOWNLOAD_PREFIX):
+            continue
+        return Asset(name=ad, url=adres, size=int(ham.get("size") or 0))
+    return None
+
+
 # --- ortam denetimleri -------------------------------------------------
 
 
@@ -146,6 +189,19 @@ def can_self_update() -> tuple[bool, str]:
     if not is_writable(install_dir()):
         return False, "writable"
     if free_space(updates_dir()) < REQUIRED_SPACE:
+        return False, "space"
+    return True, ""
+
+
+def can_run_installer() -> tuple[bool, str]:
+    """Kurulum programıyla güncellenebilir mi?
+
+    Uygulamanın kendi klasörüne yazılabilmesi gerekmiyor: dosyaları kurulum
+    programı kendi kurulum yerine yazıyor.
+    """
+    if not getattr(sys, "frozen", False):
+        return False, "frozen"
+    if free_space(updates_dir()) < INSTALLER_SPACE:
         return False, "space"
     return True, ""
 
@@ -216,6 +272,46 @@ def verify(path: Path, expected_size: int) -> str:
     if EXPECTED_ENTRY not in adlar:
         return "content"
     return ""
+
+
+def verify_installer(path: Path, expected_size: int) -> str:
+    """İnen kurulum programını denetler. Boş metin döndürürse sağlam.
+
+    Boyut sunucunun söylediğiyle aynı olmalı (yarım inmiş dosya) ve dosya
+    bir Windows programı olmalı (`MZ` imzası) — başka bir şey çalıştırılmıyor.
+    """
+    if not path.exists():
+        return "missing"
+    if expected_size and path.stat().st_size != expected_size:
+        return "size"
+    try:
+        with path.open("rb") as dosya:
+            if dosya.read(2) != b"MZ":
+                return "content"
+    except OSError:
+        return "corrupt"
+    return ""
+
+
+def start_installer(path: Path) -> bool:
+    """Kurulum programını sessiz kipte başlatır.
+
+    Bu çağrıdan sonra uygulamanın kapanması gerekiyor: kurulum, eski
+    dosyaların kilidi kalksın diye bu sürecin bitmesini bekliyor.
+    """
+    if not path.exists():
+        return False
+    komut = [
+        str(path),
+        *INSTALLER_ARGS,
+        f"/OLDDIR={install_dir()}",
+        f"/OLDPID={os.getpid()}",
+    ]
+    try:
+        subprocess.Popen(komut, cwd=str(path.parent), close_fds=True)
+    except OSError:
+        return False
+    return True
 
 
 def extract(path: Path, dest: Path, on_progress=None, is_cancelled=None) -> Path | None:
