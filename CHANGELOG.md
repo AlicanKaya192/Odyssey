@@ -21,6 +21,17 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ## [0.8.3] — yayınlanmadı
 
+### Eklendi
+- **Editörde yazma kolaylıkları.** Parantez ve tırnak kendiliğinden
+  kapanıyor; kapatan karaktere basınca imleç üstünden geçiyor, boş bir çifti
+  `Backspace` birlikte siliyor, seçili metin parantez ya da tırnak içine
+  alınıyor. `Tab` ve `Shift+Tab` seçili satırların hepsine girinti ekleyip
+  çıkarıyor; girintideki `Backspace` bir kademe siliyor. `Enter`, `(|)`
+  arasında içeriği kendi satırına alıyor, `return` ya da `pass` sonrası
+  girintiyi azaltıyor. `Ctrl+/` seçili satırları yoruma alıyor ya da
+  yorumdan çıkarıyor. Girintiyi gösteren soluk dikey çizgiler blokların
+  nerede başlayıp bittiğini gösteriyor.
+
 ### Değişti
 - **Veri Bilimi patikası yenilendi.** On üç alıştırma baştan yazıldı:
   artık içe aktarmaları siz yazıyor, veriyi alıştırmanın yanındaki bir CSV
@@ -35,6 +46,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   alıştırmaları çözene kadar bölüm "yarım kaldı" görünür.
 
 ### Düzeltildi
+- **SQL alıştırmalarında editör renkleri.** SQL kodu Python kurallarıyla
+  renkleniyordu: `SELECT` renksiz kalıyor, `--` yorumu yorum gibi
+  görünmüyordu. Artık SQL kendi kurallarıyla renkleniyor.
 - **Değişen alıştırmalar bölümü tamamlanmış göstermiyor.** Bir alıştırma
   yenisiyle değiştirildiğinde eskisini çözmüş olmak, yenisi çözülmemişken
   bölümü "tamamlandı" gösteriyordu. Artık yalnızca bölümdeki güncel

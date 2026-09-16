@@ -42,6 +42,8 @@ SHORTCUTS = [
     ("exercise", [
         (["Ctrl", "Enter"], "shortcut.run"),
         (["Tab"], "shortcut.indent"),
+        (["Shift", "Tab"], "shortcut.dedent"),
+        (["Ctrl", "/"], "shortcut.comment"),
     ]),
     ("notes", [
         (["Ctrl", "B"], "shortcut.bold"),

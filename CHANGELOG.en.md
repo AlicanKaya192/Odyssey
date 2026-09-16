@@ -23,6 +23,16 @@ lecture note does not mean downloading the whole application again.
 
 ## [0.8.3] — unreleased
 
+### Added
+- **Typing help in the editor.** Brackets and quotes close on their own;
+  typing the closing character steps over it, `Backspace` removes an empty
+  pair together, and selected text is wrapped in brackets or quotes. `Tab`
+  and `Shift+Tab` indent and unindent every selected line; `Backspace` in
+  the indentation removes one level. `Enter` between `(|)` puts the content
+  on its own line and unindents after `return` or `pass`. `Ctrl+/` comments
+  or uncomments the selected lines. Faint vertical indent guides show where
+  blocks begin and end.
+
 ### Changed
 - **The Data Science path has been renewed.** Thirteen exercises were
   rewritten: you now write the imports yourself, read the data from a CSV
@@ -38,6 +48,9 @@ lecture note does not mean downloading the whole application again.
   exercises.
 
 ### Fixed
+- **Editor colours in SQL exercises.** SQL code was coloured with Python's
+  rules: `SELECT` stayed plain and a `--` comment did not look like a
+  comment. SQL is now coloured by its own rules.
 - **Replaced exercises no longer count towards a finished section.** When an
   exercise was replaced by a new one, having solved the old one marked the
   section as complete even though the new one was unsolved. Only the

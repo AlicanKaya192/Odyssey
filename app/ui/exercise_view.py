@@ -563,6 +563,7 @@ class ExerciseView(QWidget):
         saved = self._store.exercise_code(chapter_id, section_id, exercise.id)
         if saved and exercise.is_untouched(saved):
             saved = ""
+        self._editor.set_language(exercise.language)
         self._editor.setPlainText(
             saved or exercise.starter_code_for(self._language.language)
         )
