@@ -19,11 +19,9 @@ from __future__ import annotations
 from PySide6.QtCore import QRectF, QSize, Qt, Signal
 from PySide6.QtGui import (
     QColor,
-    QFont,
     QIcon,
     QPainter,
     QPainterPath,
-    QPen,
     QPixmap,
 )
 from PySide6.QtWidgets import QFrame, QPushButton, QVBoxLayout, QWidget
@@ -40,7 +38,11 @@ from ..widgets.effects import repolish
 # Üstte her gün girilen ekranlar duruyor: en tepede profil (kişinin kendi
 # fotoğrafı, şeridin en görünür yeri), altında öğrenme yolu. Altta, ayar
 # simgesinin hemen üstünde, ara sıra açılan ekranlar var: sürüm notları ve
-# Hakkında. Genel ilerleme halkası ikisinin arasında, şeridin ortasında.
+# Hakkında. Arama düğmesi ikisinin arasında, şeridin ortasında.
+#
+# Ortada önce genel ilerleme halkası duruyordu. Aynı yüzde öğrenme yolu
+# ekranında zaten yazıyor; Alican 16 Eylül'de halkayı kaldırıp yerine
+# aramayı koymak istedi.
 #
 # Bağlantılarım, Ekstra İçerikler ve Lisans bir zamanlar burada ayrı
 # simgelerdi; Bilgi ve SSS de eklenince şerit dokuz simgeye çıkacaktı.
@@ -49,7 +51,10 @@ TOP_DESTINATIONS = [
     ("profile", "user", "nav.profile"),
     ("journey", "home", "nav.path"),
     ("notes", "notebook", "nav.notes"),
-    # Ekran değil, üstte açılan arama kutusu (`Ctrl+K`).
+]
+
+# Şeridin ortasındaki düğme. Ekran değil, üstte açılan arama kutusu (`Ctrl+K`).
+MIDDLE_DESTINATIONS = [
     ("search", "search", "nav.search"),
 ]
 
@@ -59,13 +64,11 @@ BOTTOM_DESTINATIONS = [
 ]
 
 # Çevirilerin ve renklerin dolaştığı tam liste.
-DESTINATIONS = TOP_DESTINATIONS + BOTTOM_DESTINATIONS
+DESTINATIONS = TOP_DESTINATIONS + MIDDLE_DESTINATIONS + BOTTOM_DESTINATIONS
 
 ICON_SIZE = 24
 
-# İlerleme halkasının ölçüleri.
-RING_SIZE = 40
-RING_THICKNESS = 3
+# Simge çizgi kalınlıkları.
 STROKE_ACTIVE = 2.4
 STROKE_IDLE = 2.1
 
@@ -105,73 +108,6 @@ def circular_icon(pixmap: QPixmap, size: int) -> QIcon:
 
     hedef.setDevicePixelRatio(2.0)
     return QIcon(hedef)
-
-
-class ProgressRing(QPushButton):
-    """Genel ilerlemeyi gösteren küçük halka.
-
-    Ortasında yüzde yazıyor. Sayı zaten karşılama kartında da var ama orası
-    yalnızca ana ekranda görünüyor; ders okurken ya da alıştırma çözerken
-    "ne kadarını bitirdim" sorusunun cevabı ekranda kalmıyordu.
-
-    Halka saat on ikiden başlayıp saat yönünde ilerliyor — dolan bir çubuğun
-    dairesel hâli. Qt açıları on altıda bir derece cinsinden istiyor.
-    """
-
-    def __init__(self, parent: QWidget | None = None) -> None:
-        super().__init__(parent)
-        self._percent = 0
-        self._track = QColor("#E3E6EC")
-        self._fill = QColor("#4F46E5")
-        self._text = QColor("#12151A")
-        self.setFixedSize(RING_SIZE, RING_SIZE)
-        self.setFlat(True)
-
-    def set_percent(self, percent: int) -> None:
-        percent = max(0, min(100, int(percent)))
-        if percent != self._percent:
-            self._percent = percent
-            self.update()
-
-    def set_colors(self, track: str, fill: str, text: str) -> None:
-        self._track = QColor(track)
-        self._fill = QColor(fill)
-        self._text = QColor(text)
-        self.update()
-
-    def paintEvent(self, event) -> None:  # noqa: N802
-        # Düğmenin kendi çizimi çağrılmıyor: stil dosyasındaki genel
-        # QPushButton kuralı halkanın arkasına kutu koyuyordu.
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        yari = RING_THICKNESS / 2
-        kutu = QRectF(
-            yari, yari,
-            self.width() - RING_THICKNESS,
-            self.height() - RING_THICKNESS,
-        )
-
-        kalem = QPen(self._track, RING_THICKNESS)
-        kalem.setCapStyle(Qt.PenCapStyle.RoundCap)
-        painter.setPen(kalem)
-        painter.drawEllipse(kutu)
-
-        if self._percent:
-            kalem.setColor(self._fill)
-            painter.setPen(kalem)
-            # 90 * 16 = saat on iki. Eksi işareti saat yönünü veriyor.
-            painter.drawArc(kutu, 90 * 16, -int(360 * 16 * self._percent / 100))
-
-        font = QFont(self.font())
-        font.setPixelSize(12)
-        font.setWeight(QFont.Weight.DemiBold)
-        painter.setFont(font)
-        painter.setPen(self._text)
-        painter.drawText(
-            self.rect(), Qt.AlignmentFlag.AlignCenter, f"%{self._percent}"
-        )
-        painter.end()
 
 
 class RailButton(QPushButton):
@@ -224,16 +160,14 @@ class Rail(QFrame):
                 self._make_button(key, icon_name), 0, Qt.AlignmentFlag.AlignHCenter
             )
 
-        # Genel ilerleme halkası iki öbeğin arasında, şeridin ortasında —
-        # şeritte başka hiçbir yerde olmayan tek bilgi, her ekrandan
-        # görünüyor. Önce tepedeydi ve ortada büyük bir boşluk kalıyordu;
-        # iki eşit esneme payı halkayı o boşluğun ortasına koyuyor, alt öbek
-        # de ayar simgesine yapışık kalıyor.
+        # Arama iki öbeğin arasında, şeridin ortasında. İki eşit esneme payı
+        # onu boşluğun ortasına koyuyor, alt öbek ayar simgesine yapışık
+        # kalıyor.
         layout.addStretch(1)
-        self._progress = ProgressRing()
-        self._progress.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._progress.clicked.connect(lambda: self.navigate.emit("journey"))
-        layout.addWidget(self._progress, 0, Qt.AlignmentFlag.AlignHCenter)
+        for key, icon_name, _ in MIDDLE_DESTINATIONS:
+            layout.addWidget(
+                self._make_button(key, icon_name), 0, Qt.AlignmentFlag.AlignHCenter
+            )
         layout.addStretch(1)
 
         for key, icon_name, _ in BOTTOM_DESTINATIONS:
@@ -270,13 +204,6 @@ class Rail(QFrame):
             self._current = key
         self._refresh_icons()
 
-    def set_progress(self, percent: int) -> None:
-        """Şeridin ortasındaki halkanın gösterdiği genel ilerleme."""
-        self._progress.set_percent(percent)
-        self._progress.setToolTip(
-            self._language.t("rail.progress", percent=percent)
-        )
-
     def set_notification(self, key: str, visible: bool) -> None:
         """Bir bölümün üstündeki bildirim noktasını açar veya kapatır."""
         button = self._buttons.get(key)
@@ -295,10 +222,6 @@ class Rail(QFrame):
         """Simgeleri seçili duruma ve temaya göre yeniden çizer."""
         palette = PALETTES.get(self._mode, PALETTES["light"])
         colors = RAIL_COLORS.get(self._mode, RAIL_COLORS["light"])
-
-        self._progress.set_colors(
-            palette["border"], colors["journey"], palette["text"]
-        )
 
         # Kullanıcı profil fotoğrafı koyduysa profil düğmesi onu gösteriyor.
         foto = load_avatar()

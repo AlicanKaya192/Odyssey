@@ -44,6 +44,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   anlatan bir kısım, sınavlara 55 yeni soru eklendi; Genel Tekrar dışındaki
   her bölümde artık 35 soru var. Bu bölümleri daha önce bitirdiyseniz yeni
   alıştırmaları çözene kadar bölüm "yarım kaldı" görünür.
+- **Arama sol şeridin ortasında.** Şeridin ortasındaki genel ilerleme
+  halkası kaldırıldı; aynı yüzde öğrenme yolu ekranında zaten yazıyor.
+  Yerine arama düğmesi geldi.
 
 ### Düzeltildi
 - **İpucu açınca ekran zıplamıyor.** Bir ipucunu açmak yönergenin tamamını

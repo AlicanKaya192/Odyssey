@@ -361,27 +361,11 @@ class MainWindow(QMainWindow):
         notice.exec()
 
     def _refresh_progress(self) -> None:
-        """Şeridin tepesindeki halkayı günceller.
+        """İlerleme değişince yeni kazanılan rozetleri kaydeder.
 
-        Tamamlanmış bölüm sayısının toplam bölüme oranı. Profil ekranındaki
-        "Genel ilerleme" ile aynı hesap; ikisi ayrışmasın diye aynı ölçüt
-        kullanılıyor: bölüm, sınavı ve alıştırmaları bitince tamamlanmış
-        sayılıyor.
+        Önce şeridin ortasındaki genel ilerleme halkasını da güncelliyordu;
+        halka kalktı (aynı yüzde öğrenme yolu ekranında var).
         """
-        toplam = 0
-        biten = 0
-        for chapter in self._catalog.chapters:
-            for section in chapter.sections:
-                toplam += 1
-                state = self._store.section_state(
-                    chapter.id, section.id, section.exercises
-                )
-                durum = state.status(section.requires_quiz, section.requires_exercises)
-                if durum == "completed":
-                    biten += 1
-
-        self._rail.set_progress(round(biten * 100 / toplam) if toplam else 0)
-
         # Yeni kazanılan rozetler burada kaydedilip bildirime düşüyor.
         # Önce yalnızca profil ekranı kaydediyordu; bildirim ancak profile
         # bakınca geliyordu. Metin değil kimlik saklanıyor: bildirim

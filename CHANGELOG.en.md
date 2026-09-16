@@ -46,6 +46,9 @@ lecture note does not mean downloading the whole application again.
   section except the Overall Review now has 35. If you had already finished
   these sections, they show as in progress until you solve the new
   exercises.
+- **Search sits in the middle of the left strip.** The overall progress
+  ring in the middle of the strip is gone; the same percentage is already
+  shown on the learning path screen. The search button took its place.
 
 ### Fixed
 - **Opening a hint no longer makes the screen jump.** Opening a hint reloaded
