@@ -87,7 +87,7 @@ class ShortcutPanel(Popover):
     def _build(self) -> None:
         for index, (grup, satirlar) in enumerate(SHORTCUTS):
             baslik = QLabel()
-            baslik.setProperty("role", "eyebrow")
+            baslik.setProperty("role", "shortcut-group")
             if index:
                 baslik.setContentsMargins(0, SPACING["sm"], 0, 0)
             self._rows.addWidget(baslik)
