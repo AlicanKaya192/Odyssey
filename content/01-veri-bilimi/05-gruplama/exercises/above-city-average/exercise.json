@@ -1,0 +1,40 @@
+{
+  "id": "above-city-average",
+  "title": {
+    "tr": "Kendi şehrinin üstünde mi?",
+    "en": "Above their own city?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sözlük: `data.groupby(\"city\")[\"score\"].mean().round(1).to_dict()`.",
+      "en": "The dictionary: `data.groupby(\"city\")[\"score\"].mean().round(1).to_dict()`."
+    },
+    {
+      "tr": "Satır başına ortalama: `data.groupby(\"city\")[\"score\"].transform(\"mean\").round(1)`. `above` için `data[\"score\"] > data[\"city_mean\"]`.",
+      "en": "The per-row average: `data.groupby(\"city\")[\"score\"].transform(\"mean\").round(1)`. For `above`: `data[\"score\"] > data[\"city_mean\"]`."
+    },
+    {
+      "tr": "Adlar `data.loc[data[\"above\"], \"name\"].tolist()`; sayı `int(data[\"above\"].sum())` — `True` bir sayılıyor.",
+      "en": "The names are `data.loc[data[\"above\"], \"name\"].tolist()`; the count is `int(data[\"above\"].sum())` — `True` counts as one."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ndata = pd.read_csv(\"students.csv\")\n\nprint(data.groupby(\"city\")[\"score\"].mean().round(1).to_dict())\n\ndata[\"city_mean\"] = data.groupby(\"city\")[\"score\"].transform(\"mean\").round(1)\ndata[\"above\"] = data[\"score\"] > data[\"city_mean\"]\n\nprint(data.loc[data[\"above\"], \"name\"].tolist())\nprint(int(data[\"above\"].sum()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ndata = pd.read_csv(\"students.csv\")\n\nprint(data.groupby(\"city\")[\"score\"].mean().round(1).to_dict())\n\ndata[\"city_mean\"] = data.groupby(\"city\")[\"score\"].transform(\"mean\").round(1)\ndata[\"above\"] = data[\"score\"] > data[\"city_mean\"]\n\nprint(data.loc[data[\"above\"], \"name\"].tolist())\nprint(int(data[\"above\"].sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'Adana': 82.0, 'Ankara': 85.2, 'Bursa': 70.0, 'Izmir': 71.3}\n['Kerem', 'Mina', 'Efe', 'Sila', 'Zeynep', 'Can']\n6"
+    }
+  ]
+}

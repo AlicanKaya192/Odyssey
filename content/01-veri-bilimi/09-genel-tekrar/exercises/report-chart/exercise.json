@@ -1,0 +1,45 @@
+{
+  "id": "report-chart",
+  "title": {
+    "tr": "Hesapla, çiz, kaydet",
+    "en": "Compute, draw, save"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıralama `.sort_values(ascending=False)`; ortalamanın sonuna eklenebiliyor: `...mean().round(1).sort_values(ascending=False)`.",
+      "en": "Sorting is `.sort_values(ascending=False)`; it can go at the end of the average: `...mean().round(1).sort_values(ascending=False)`."
+    },
+    {
+      "tr": "Çizim `ax.bar(averages.index, averages.values)`, eksen `ax.set_ylim(0, 100)`.",
+      "en": "The drawing is `ax.bar(averages.index, averages.values)` and the axis `ax.set_ylim(0, 100)`."
+    },
+    {
+      "tr": "Kaydet ve kapat: `fig.savefig(\"report.png\", dpi=150, bbox_inches=\"tight\")`, `plt.close(fig)`. Son satır `print(len(ax.patches), int(ax.get_ylim()[1]), ax.get_title())`.",
+      "en": "Save and close: `fig.savefig(\"report.png\", dpi=150, bbox_inches=\"tight\")`, `plt.close(fig)`. The last line is `print(len(ax.patches), int(ax.get_ylim()[1]), ax.get_title())`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ndata = pd.read_csv(\"students.csv\")\naverages = data.groupby(\"city\")[\"score\"].mean().round(1).sort_values(ascending=False)\nprint(averages.to_dict())\n\nfig, ax = plt.subplots()\nax.bar(averages.index, averages.values)\nax.set_ylim(0, 100)\nax.set_title(\"Average score by city\")\nax.set_ylabel(\"Score\")\nfig.savefig(\"report.png\", dpi=150, bbox_inches=\"tight\")\nplt.close(fig)\n\nprint(len(ax.patches), int(ax.get_ylim()[1]), ax.get_title())\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ndata = pd.read_csv(\"students.csv\")\naverages = data.groupby(\"city\")[\"score\"].mean().round(1).sort_values(ascending=False)\nprint(averages.to_dict())\n\nfig, ax = plt.subplots()\nax.bar(averages.index, averages.values)\nax.set_ylim(0, 100)\nax.set_title(\"Average score by city\")\nax.set_ylabel(\"Score\")\nfig.savefig(\"report.png\", dpi=150, bbox_inches=\"tight\")\nplt.close(fig)\n\nprint(len(ax.patches), int(ax.get_ylim()[1]), ax.get_title())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "report.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'Ankara': 85.2, 'Adana': 82.0, 'Izmir': 71.3, 'Bursa': 70.0}\n4 100 Average score by city"
+    }
+  ]
+}

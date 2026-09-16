@@ -59,6 +59,43 @@ print(pd.DataFrame(rows))
 1  3  4
 ```
 
+## Dosyadan okumak
+
+Gerçek veri koda yazılmıyor, bir dosyada geliyor. En yaygın biçim **CSV**:
+ilk satırda sütun adları, sonraki her satırda bir kayıt, değerler virgülle
+ayrılmış.
+
+```text
+name,city,score
+Ada,Ankara,82
+Kerem,Izmir,74
+Mina,Ankara,91
+```
+
+Tek satırla tabloya dönüşüyor:
+
+```python
+import pandas as pd
+
+data = pd.read_csv("students.csv")
+print(data)
+```
+
+```text
+    name    city  score
+0    Ada  Ankara     82
+1  Kerem   Izmir     74
+2   Mina  Ankara     91
+```
+
+Üç şey kendiliğinden oluyor: ilk satır **sütun adı** oluyor, `0, 1, 2`
+diye bir **index** ekleniyor ve sayı gibi görünen sütunlar **sayıya**
+çevriliyor. Dosya adı, kodun çalıştığı klasöre göre aranıyor; alıştırmalarda
+dosya kodunla aynı klasörde duruyor, yani yalnızca adını yazman yeterli.
+
+Boş bırakılmış bir hücre `NaN` olarak geliyor. İlk bakışta kontrol edilen
+şeylerden biri bu — bir sonraki başlığın konusu.
+
 ## Tabloya ilk bakış
 
 Bir veriyi ilk açtığında sorulan dört soru var ve dördünün de tek satırlık

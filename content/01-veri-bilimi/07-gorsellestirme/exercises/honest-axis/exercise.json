@@ -1,0 +1,50 @@
+{
+  "id": "honest-axis",
+  "title": {
+    "tr": "Dürüst eksen",
+    "en": "An honest axis"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Eksen sınırı `ax.set_ylim(alt, ust)` ile değişiyor; okumak için `ax.get_ylim()` iki sayı veriyor.",
+      "en": "`ax.set_ylim(low, high)` changes the axis limits; `ax.get_ylim()` gives the two numbers back."
+    },
+    {
+      "tr": "Aynı `fig` iki kez kaydedilebiliyor: önce sınırı değiştir, `fig.savefig(\"misleading.png\")`; sonra yeniden değiştir, `fig.savefig(\"honest.png\")`.",
+      "en": "The same `fig` can be saved twice: change the limits, `fig.savefig(\"misleading.png\")`; change them again, `fig.savefig(\"honest.png\")`."
+    },
+    {
+      "tr": "Tam sayı için `int(...)`, oran için `round(averages.max() / averages.min(), 2)`.",
+      "en": "Use `int(...)` for whole numbers and `round(averages.max() / averages.min(), 2)` for the ratio."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ndata = pd.read_csv(\"students.csv\")\naverages = data.groupby(\"city\")[\"score\"].mean()\n\nfig, ax = plt.subplots()\nax.bar(averages.index, averages.values)\nax.set_title(\"Average score by city\")\nax.set_ylim(68, 90)\nfig.savefig(\"misleading.png\")\nprint(int(ax.get_ylim()[0]), int(ax.get_ylim()[1]))\n\nax.set_ylim(0, 100)\nfig.savefig(\"honest.png\")\nprint(int(ax.get_ylim()[0]), int(ax.get_ylim()[1]))\n\nprint(round(averages.max() / averages.min(), 2))\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ndata = pd.read_csv(\"students.csv\")\naverages = data.groupby(\"city\")[\"score\"].mean()\n\nfig, ax = plt.subplots()\nax.bar(averages.index, averages.values)\nax.set_title(\"Average score by city\")\nax.set_ylim(68, 90)\nfig.savefig(\"misleading.png\")\nprint(int(ax.get_ylim()[0]), int(ax.get_ylim()[1]))\n\nax.set_ylim(0, 100)\nfig.savefig(\"honest.png\")\nprint(int(ax.get_ylim()[0]), int(ax.get_ylim()[1]))\n\nprint(round(averages.max() / averages.min(), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "misleading.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "artifact",
+      "name": "honest.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "68 90\n0 100\n1.22"
+    }
+  ]
+}

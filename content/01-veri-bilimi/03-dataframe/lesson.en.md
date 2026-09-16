@@ -60,6 +60,44 @@ print(pd.DataFrame(rows))
 1  3  4
 ```
 
+## Reading from a file
+
+Real data is not typed into the code; it arrives in a file. The most common
+format is **CSV**: column names on the first line, one record on every line
+after that, values separated by commas.
+
+```text
+name,city,score
+Ada,Ankara,82
+Kerem,Izmir,74
+Mina,Ankara,91
+```
+
+One line turns it into a table:
+
+```python
+import pandas as pd
+
+data = pd.read_csv("students.csv")
+print(data)
+```
+
+```text
+    name    city  score
+0    Ada  Ankara     82
+1  Kerem   Izmir     74
+2   Mina  Ankara     91
+```
+
+Three things happen on their own: the first line becomes the **column
+names**, an **index** of `0, 1, 2` is added, and columns that look like
+numbers are turned into **numbers**. The file name is looked up relative to
+the folder the code runs in; in the exercises the file sits next to your
+code, so its name is all you need.
+
+A cell left empty arrives as `NaN`. That is one of the first things to check
+— the subject of the next heading.
+
 ## A first look at a table
 
 There are four questions you ask when you first open a dataset, and each has

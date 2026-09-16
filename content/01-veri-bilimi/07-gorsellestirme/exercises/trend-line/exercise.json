@@ -1,0 +1,45 @@
+{
+  "id": "trend-line",
+  "title": {
+    "tr": "Zaman içinde değişim",
+    "en": "Change over time"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Çizgi grafik `ax.plot(x, y, marker=\"o\")`. Çizgi sayısı `len(ax.lines)`.",
+      "en": "A line chart is `ax.plot(x, y, marker=\"o\")`. The number of lines is `len(ax.lines)`."
+    },
+    {
+      "tr": "En yüksek satırın index'i `data[\"sales\"].idxmax()`; ayın adı `data.loc[o_index, \"month\"]`.",
+      "en": "The index of the highest row is `data[\"sales\"].idxmax()`; the month's name is `data.loc[that_index, \"month\"]`."
+    },
+    {
+      "tr": "Yıl başı `data[\"sales\"].iloc[0]`, yıl sonu `data[\"sales\"].iloc[-1]`. Farkı `int(...)` ile tam sayı yazdır.",
+      "en": "The start of the year is `data[\"sales\"].iloc[0]` and the end `data[\"sales\"].iloc[-1]`. Print the difference as a whole number with `int(...)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ndata = pd.read_csv(\"sales.csv\")\n\nfig, ax = plt.subplots()\nax.plot(data[\"month\"], data[\"sales\"], marker=\"o\")\nax.set_title(\"Monthly sales\")\nax.set_ylabel(\"Sales (thousands)\")\nfig.savefig(\"chart.png\")\n\nprint(len(ax.lines))\nprint(data.loc[data[\"sales\"].idxmax(), \"month\"])\nprint(int(data[\"sales\"].iloc[-1] - data[\"sales\"].iloc[0]))\nprint(ax.get_ylabel())\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ndata = pd.read_csv(\"sales.csv\")\n\nfig, ax = plt.subplots()\nax.plot(data[\"month\"], data[\"sales\"], marker=\"o\")\nax.set_title(\"Monthly sales\")\nax.set_ylabel(\"Sales (thousands)\")\nfig.savefig(\"chart.png\")\n\nprint(len(ax.lines))\nprint(data.loc[data[\"sales\"].idxmax(), \"month\"])\nprint(int(data[\"sales\"].iloc[-1] - data[\"sales\"].iloc[0]))\nprint(ax.get_ylabel())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\nDec\n110\nSales (thousands)"
+    }
+  ]
+}

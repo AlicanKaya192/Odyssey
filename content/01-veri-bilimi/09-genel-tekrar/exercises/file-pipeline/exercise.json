@@ -1,0 +1,40 @@
+{
+  "id": "file-pipeline",
+  "title": {
+    "tr": "Dosyadan temiz rapora",
+    "en": "From a file to a clean report"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Şehir: `data[\"city\"].str.strip().str.title()`. Not: `pd.to_numeric(data[\"score\"], errors=\"coerce\")`.",
+      "en": "The city: `data[\"city\"].str.strip().str.title()`. The score: `pd.to_numeric(data[\"score\"], errors=\"coerce\")`."
+    },
+    {
+      "tr": "Tekrarlar `data.drop_duplicates(subset=[\"id\"])`, boş notlar `data[\"score\"].isna().sum()` ve `data.dropna(subset=[\"score\"])`. Her adımdan sonra `len(data)`.",
+      "en": "Duplicates: `data.drop_duplicates(subset=[\"id\"])`; empty scores: `data[\"score\"].isna().sum()` and `data.dropna(subset=[\"score\"])`. Take `len(data)` after each step."
+    },
+    {
+      "tr": "Özet `summary = data.groupby(\"city\")[\"score\"].agg([\"count\", \"mean\"])`; sözlükler `summary[\"count\"].to_dict()` ve `summary[\"mean\"].round(1).to_dict()`.",
+      "en": "The summary is `summary = data.groupby(\"city\")[\"score\"].agg([\"count\", \"mean\"])`; the dictionaries are `summary[\"count\"].to_dict()` and `summary[\"mean\"].round(1).to_dict()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nraw = pd.read_csv(\"results_raw.csv\")\n\ndata = raw.copy()\ndata[\"city\"] = data[\"city\"].str.strip().str.title()\ndata[\"score\"] = pd.to_numeric(data[\"score\"], errors=\"coerce\")\n\nstart = len(data)\ndata = data.drop_duplicates(subset=[\"id\"])\nunique_rows = len(data)\nmissing = int(data[\"score\"].isna().sum())\ndata = data.dropna(subset=[\"score\"])\n\nprint(start, unique_rows, missing, len(data))\nsummary = data.groupby(\"city\")[\"score\"].agg([\"count\", \"mean\"])\nprint(summary[\"count\"].to_dict())\nprint(summary[\"mean\"].round(1).to_dict())\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nraw = pd.read_csv(\"results_raw.csv\")\n\ndata = raw.copy()\ndata[\"city\"] = data[\"city\"].str.strip().str.title()\ndata[\"score\"] = pd.to_numeric(data[\"score\"], errors=\"coerce\")\n\nstart = len(data)\ndata = data.drop_duplicates(subset=[\"id\"])\nunique_rows = len(data)\nmissing = int(data[\"score\"].isna().sum())\ndata = data.dropna(subset=[\"score\"])\n\nprint(start, unique_rows, missing, len(data))\nsummary = data.groupby(\"city\")[\"score\"].agg([\"count\", \"mean\"])\nprint(summary[\"count\"].to_dict())\nprint(summary[\"mean\"].round(1).to_dict())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "9 8 2 6\n{'Adana': 1, 'Ankara': 2, 'Bursa': 1, 'Izmir': 2}\n{'Adana': 85.0, 'Ankara': 86.5, 'Bursa': 77.0, 'Izmir': 71.0}"
+    }
+  ]
+}
