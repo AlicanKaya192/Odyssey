@@ -43,7 +43,28 @@ from ..version import APP_VERSION
 # yayınları saymıyor, bizim yedi sürümümüzün de hepsi ön sürüm (uygulama
 # 0.x, yani hepsi öyle). Liste hepsini veriyor; en yüksek numaralı olan
 # seçiliyor.
-RELEASES_API = "https://api.github.com/repos/AlicanKaya192/Odyssey/releases?per_page=5"
+#
+# **30 sürüm**: 0.8.2'ye kadar 5'ti. Kurulum sürümleri (aşağıda) başlayınca
+# eski sürümdeki biri için tek geçerli yol köprü sürümü; liste kısa kalırsa
+# köprü birkaç yeni sürümden sonra listeden düşer ve o kişi hiç güncelleme
+# görmez.
+RELEASES_API = "https://api.github.com/repos/AlicanKaya192/Odyssey/releases?per_page=30"
+
+# Kurulum dosyasıyla (setup) dağıtılan sürümlerin etiket öneki: `setup-0.8.3`.
+#
+# **Bilerek sayıyla başlamıyor.** 0.8.2 ve öncesi etiketi sayıya çevirip en
+# büyüğünü seçiyor ve çevrilemeyen etiketi yok sayıyor. Böylece kurulum
+# sürümleri eski uygulamalara hiç görünmüyor; onlar için en yeni sürüm
+# zip'le gelen **köprü** (0.8.2.1) kalıyor. Kurulum dosyasını yalnızca
+# köprüyü almış bir uygulama görüyor ve çalıştırabiliyor — köprüsüz bir
+# sürüme kurulum dosyası gitmiyor.
+SETUP_TAG_PREFIX = "setup-"
+
+# Cevaptan okunacak en çok bayt. 64 KB'tı; sürüm notları uzun olduğu için
+# 16 Eylül 2026'da 15 sürümlük liste **103 KB** ölçüldü — 30 sürümlük istek
+# yarıda kesilip bozuk JSON olurdu ve hiç güncelleme görünmezdi. Sürüm
+# başına ~7 KB ile 30 sürüm ~210 KB; bol pay bırakıldı.
+MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 
 # Sürüm sayfası: denetim başarısız olsa bile kullanıcıya verilecek adres.
 RELEASES_PAGE = "https://github.com/AlicanKaya192/Odyssey/releases"
@@ -134,6 +155,14 @@ def parse_version(text: str) -> tuple[int, ...]:
     return tuple(parcalar)
 
 
+def tag_version(tag: str) -> str:
+    """Etiketten sürüm numarası: `v0.8.2` → `0.8.2`, `setup-0.8.3` → `0.8.3`."""
+    temiz = tag.strip()
+    if temiz.lower().startswith(SETUP_TAG_PREFIX):
+        temiz = temiz[len(SETUP_TAG_PREFIX):]
+    return temiz.lstrip("vV")
+
+
 def is_newer(remote: str, local: str = APP_VERSION) -> bool:
     """Uzaktaki sürüm buradakinden yeni mi?
 
@@ -208,7 +237,7 @@ def fetch_latest(url: str = "", timeout: int = TIMEOUT_SEC) -> UpdateInfo:
 
     try:
         with urllib.request.urlopen(istek, timeout=timeout) as cevap:
-            ham = cevap.read(64 * 1024)
+            ham = cevap.read(MAX_RESPONSE_BYTES)
     except urllib.error.HTTPError as hata:
         # 404: depo private ya da hiç sürüm yok. 403: istek sınırı.
         return UpdateInfo(status="error", detail=f"HTTP {hata.code}")
@@ -232,7 +261,7 @@ def fetch_latest(url: str = "", timeout: int = TIMEOUT_SEC) -> UpdateInfo:
     for kayit in veri:
         if not isinstance(kayit, dict) or kayit.get("draft"):
             continue
-        numara = parse_version(str(kayit.get("tag_name") or ""))
+        numara = parse_version(tag_version(str(kayit.get("tag_name") or "")))
         if numara and numara > en_iyi_numara:
             en_iyi, en_iyi_numara = kayit, numara
 
@@ -248,8 +277,8 @@ def fetch_latest(url: str = "", timeout: int = TIMEOUT_SEC) -> UpdateInfo:
     dosyalar = en_iyi.get("assets")
     dosyalar = tuple(dosyalar) if isinstance(dosyalar, list) else ()
 
-    surum = etiket.lstrip("vV")
-    durum = "newer" if is_newer(etiket) else "current"
+    surum = tag_version(etiket)
+    durum = "newer" if is_newer(surum) else "current"
     return UpdateInfo(status=durum, version=surum, url=sayfa, assets=dosyalar)
 
 

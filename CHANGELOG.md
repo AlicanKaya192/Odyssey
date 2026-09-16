@@ -19,6 +19,17 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.8.2.1] — yayınlanmadı
+
+### Değişti
+- **Güncelleme sistemi kurulum programına hazırlandı.** Bir sonraki sürüm
+  bir kurulum dosyası olarak gelecek: güncellemeye bastığınızda Odyssey
+  kendini kurar, masaüstüne kısayol bırakır ve eski klasördeki program
+  dosyalarını kaldırır. İlerlemeniz, notlarınız ve ayarlarınız korunur. Bu
+  sürüm yalnızca o geçişi mümkün kılıyor; başka bir değişiklik yok.
+
+---
+
 ## [0.8.2] — 16 Eylül 2026
 
 ### Eklendi

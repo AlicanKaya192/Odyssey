@@ -21,6 +21,17 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.8.2.1] — unreleased
+
+### Changed
+- **The update system is ready for an installer.** The next version will
+  come as an installer: when you press Update, Odyssey installs itself,
+  leaves a shortcut on your desktop and removes the program files from the
+  old folder. Your progress, notes and settings are kept. This version only
+  makes that move possible; nothing else changes.
+
+---
+
 ## [0.8.2] — 16 September 2026
 
 ### Added
