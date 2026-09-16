@@ -24,6 +24,13 @@ lecture note does not mean downloading the whole application again.
 ## [0.8.3] — unreleased
 
 ### Added
+- **Odyssey now comes with an installer.** The application installs for
+  your own user account, with a shortcut in the Start menu and on your
+  desktop, and no `_internal` folder to keep track of. When you update from
+  inside the application from an unpacked folder, the new version is
+  installed and the program files in the old folder are removed; your
+  progress, notes and settings are kept. It can be removed from Settings ›
+  Apps.
 - **Typing help in the editor.** Brackets and quotes close on their own;
   typing the closing character steps over it, `Backspace` removes an empty
   pair together, and selected text is wrapped in brackets or quotes. `Tab`

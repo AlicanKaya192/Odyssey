@@ -22,6 +22,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.8.3] — yayınlanmadı
 
 ### Eklendi
+- **Odyssey artık kurulum programıyla geliyor.** Uygulama kendi kullanıcı
+  hesabınıza kuruluyor; Başlat menüsünde ve masaüstünde kısayolu oluyor,
+  `_internal` klasörüyle uğraşmanız gerekmiyor. Çıkardığınız bir klasörden
+  uygulamanın içinden güncellediğinizde yeni sürüm kurulur ve eski klasördeki
+  program dosyaları kaldırılır; ilerlemeniz, notlarınız ve ayarlarınız
+  korunur. Uygulama Ayarlar › Uygulamalar'dan kaldırılabiliyor.
 - **Editörde yazma kolaylıkları.** Parantez ve tırnak kendiliğinden
   kapanıyor; kapatan karaktere basınca imleç üstünden geçiyor, boş bir çifti
   `Backspace` birlikte siliyor, seçili metin parantez ya da tırnak içine

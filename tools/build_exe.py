@@ -211,8 +211,7 @@ def main() -> int:
         print(f"Hazır: {exe}")
         print(f"Klasör boyutu: {folder_size(output)}")
         print()
-        print("Dağıtmak için `dist/Odyssey` klasörünün tamamını zip'leyin;")
-        print("yalnızca .exe dosyası tek başına çalışmaz.")
+        print("Dağıtım kurulum programıyla: python tools/build_installer.py")
     else:
         print("Beklenen çıktı oluşmadı:", exe)
         return 1

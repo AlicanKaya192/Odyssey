@@ -1,16 +1,14 @@
-"""Güncellemeyi indiren ve kuran pencere.
+"""Güncellemeyi indiren pencere.
 
-Üç aşama tek pencerede: **indiriliyor**, **denetleniyor**, **hazırlanıyor**.
-Her aşamada çubuk ve altındaki satır ne olduğunu söylüyor; 280 MB'lık bir
-indirmede "lütfen bekleyin" yazan bir pencere, donmuş bir pencereden ayırt
-edilemiyor.
+İki aşama tek pencerede: **indiriliyor** ve **denetleniyor**. Her aşamada
+çubuk ve altındaki satır ne olduğunu söylüyor; 350 MB'lık bir indirmede
+"lütfen bekleyin" yazan bir pencere, donmuş bir pencereden ayırt edilemiyor.
 
 İndirme iptal edilebiliyor. İptal, yarım dosyayı da siliyor: bir sonraki
-denemede yarım kalmış bir arşivin üstüne yazılmıyor.
+denemede yarım kalmış bir dosyanın üstüne yazılmıyor.
 
-Kurulum bu pencerede **yapılmıyor**. Pencere yalnızca indirip açıyor;
-dosyaların değişmesi uygulama kapandıktan sonra, `updater.apply_update`
-tarafından yapılıyor.
+Kurulum bu pencerede **yapılmıyor**. Pencere yalnızca indirip denetliyor;
+kurulumu, uygulama kapandıktan sonra kurulum programı yapıyor.
 """
 
 from __future__ import annotations
@@ -39,19 +37,16 @@ MB = 1024 * 1024
 
 
 class DownloadWorker(QThread):
-    """İndirme ve açma işini arka planda yapıyor."""
+    """İndirme ve denetleme işini arka planda yapıyor."""
 
     # aşama anahtarı, ilerleme (0-100), ek bilgi
     progress = Signal(str, int, str)
-    # başarılıysa açılan klasör, değilse boş metin ve hata anahtarı
+    # başarılıysa indirilen kurulum dosyası, değilse None ve hata anahtarı
     finished_with = Signal(object, str)
 
-    def __init__(self, asset: Asset, installer: bool = False, parent=None) -> None:
+    def __init__(self, asset: Asset, parent=None) -> None:
         super().__init__(parent)
         self._asset = asset
-        # Kurulum programı indiriliyorsa açılacak bir arşiv yok: denetlenen
-        # dosyanın kendisi sonuç.
-        self._installer = installer
         self._cancelled = False
 
     def cancel(self) -> None:
@@ -75,37 +70,17 @@ class DownloadWorker(QThread):
             return
 
         self.progress.emit("verify", 0, "")
-        if self._installer:
-            hata = updater.verify_installer(hedef, self._asset.size)
-        else:
-            hata = updater.verify(hedef, self._asset.size)
+        hata = updater.verify_installer(hedef, self._asset.size)
         if hata:
             hedef.unlink(missing_ok=True)
             self.finished_with.emit(None, hata)
             return
 
-        if self._installer:
-            self.finished_with.emit(hedef, "")
-            return
-
-        def acilirken(sira: int, toplam: int) -> None:
-            self.progress.emit("extract", int(sira * 100 / toplam) if toplam else 0, "")
-
-        acilan = updater.extract(
-            hedef, updates_dir() / "staged", acilirken, self._iptal
-        )
-        # Arşiv açıldıktan sonra gereksiz: 280 MB yer kaplıyor.
-        hedef.unlink(missing_ok=True)
-
-        if acilan is None:
-            self.finished_with.emit(None, "cancelled" if self._cancelled else "extract")
-            return
-
-        self.finished_with.emit(acilan, "")
+        self.finished_with.emit(hedef, "")
 
 
 class UpdateProgressDialog(QDialog):
-    """İndirme penceresi. Kapanırken sonucu `staged` alanında bırakıyor."""
+    """İndirme penceresi. Kapanırken indirilen dosyayı `staged` alanında bırakıyor."""
 
     def __init__(
         self,
@@ -113,7 +88,6 @@ class UpdateProgressDialog(QDialog):
         info: UpdateInfo,
         asset: Asset,
         parent: QWidget | None = None,
-        installer: bool = False,
     ) -> None:
         super().__init__(parent)
         self._language = language
@@ -159,7 +133,7 @@ class UpdateProgressDialog(QDialog):
         buttons.addWidget(self._cancel_button)
         layout.addLayout(buttons)
 
-        self._worker = DownloadWorker(asset, installer, self)
+        self._worker = DownloadWorker(asset, self)
         self._worker.progress.connect(self._on_progress)
         self._worker.finished_with.connect(self._on_finished)
 

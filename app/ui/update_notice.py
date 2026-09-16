@@ -84,22 +84,14 @@ class UpdateNoticeDialog(QDialog):
         self._open_button.clicked.connect(self._open_page)
         buttons.addWidget(self._open_button)
 
-        # Kendi kendine güncelleme yalnızca paketlenmiş, yazılabilir ve
-        # yeri yeten bir kurulumda öneriliyor. Olmuyorsa düğme hiç
+        # Güncelleme yalnızca paketlenmiş, yeri yeten bir kurulumda ve
+        # sürümde kurulum programı varken öneriliyor. Olmuyorsa düğme hiç
         # görünmüyor ve sebebi ekranda yazıyor — basılıp hiçbir şey
         # olmayan bir düğme, olmayan düğmeden kötü.
-        #
-        # Sürümde kurulum programı varsa o kullanılıyor (köprü sürümünden
-        # itibaren); yoksa eskisi gibi zip.
-        self._installer = updater.pick_installer(info.assets)
-        if self._installer is not None:
-            self._asset = self._installer
-            self._can_update, self._blocker = updater.can_run_installer()
-        else:
-            self._asset = updater.pick_asset(info.assets)
-            self._can_update, self._blocker = updater.can_self_update()
-            if self._asset is None and self._can_update:
-                self._can_update, self._blocker = False, "asset"
+        self._asset = updater.pick_installer(info.assets)
+        self._can_update, self._blocker = updater.can_update()
+        if self._asset is None and self._can_update:
+            self._can_update, self._blocker = False, "asset"
 
         self._update_button = QPushButton()
         self._update_button.setProperty("variant", "primary")
@@ -119,27 +111,17 @@ class UpdateNoticeDialog(QDialog):
         """İndirmeyi başlatır; başarılıysa uygulamayı kapatıp devrediyor."""
         from .update_progress import UpdateProgressDialog
 
-        kurulum = self._installer is not None
-        pencere = UpdateProgressDialog(
-            self._language, self._info, self._asset, self, installer=kurulum
-        )
+        pencere = UpdateProgressDialog(self._language, self._info, self._asset, self)
         if pencere.exec() != QDialog.DialogCode.Accepted or pencere.staged is None:
             if pencere.error and pencere.error != "cancelled":
                 self._howto.setText(self._language.t("update.download_failed"))
             return
 
-        # Kurulum programı eski sürecin kapanmasını bekliyor; zip yolunda
-        # aynı işi yeni açılan exe (yardımcı) yapıyor.
-        basladi = (
-            updater.start_installer(pencere.staged)
-            if kurulum
-            else updater.start_helper(pencere.staged)
-        )
-        if not basladi:
+        if not updater.start_installer(pencere.staged):
             self._howto.setText(self._language.t("update.download_failed"))
             return
 
-        # Yardımcı bu sürecin kapanmasını bekliyor. Ana pencere onay
+        # Kurulum programı bu sürecin kapanmasını bekliyor. Ana pencere onay
         # sormadan kapanıyor: çıkış onayı "güncelleniyor" penceresinin
         # arkasında kalıp güncellemeyi bekletiyordu.
         self.accept()
@@ -163,13 +145,10 @@ class UpdateNoticeDialog(QDialog):
         self._body.setText(
             t("update.notice_body", version=self._info.version, current=APP_VERSION)
         )
-        if not self._can_update:
-            howto = t(f"update.blocked_{self._blocker}")
-        elif self._installer is not None:
-            howto = t("update.notice_howto_installer")
-        else:
-            howto = t("update.notice_howto")
-        self._howto.setText(howto)
+        self._howto.setText(
+            t("update.notice_howto") if self._can_update
+            else t(f"update.blocked_{self._blocker}")
+        )
         self._later_button.setText(t("update.notice_later"))
         self._open_button.setText(t("update.notice_open"))
         self._update_button.setText(t("update.notice_update"))

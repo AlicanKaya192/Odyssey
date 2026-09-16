@@ -10,31 +10,33 @@ Every section has a lesson, lecture notes, a quiz and coding exercises. To compl
 
 ## Getting started
 
-**1. Download the package.** Take the `Odyssey-<version>-windows-x64.zip` file from the [Releases](https://github.com/AlicanKaya192/Odyssey/releases) page. Windows 10 or 11, 64-bit. There is no installer and no admin rights are needed.
+**1. Download the installer.** Take the `Odyssey-<version>-setup.exe` file from the [Releases](https://github.com/AlicanKaya192/Odyssey/releases) page. Windows 10 or 11, 64-bit. No administrator rights are needed.
 
-**2. Unpack the whole folder — do not run the application from inside the zip.** Windows lets you open a zip as though it were an ordinary folder, and `Odyssey.exe` looks runnable in there. It is not: the application needs the `_internal` folder sitting next to it, and Windows only unpacks the one file you double-click. Right-click the zip, choose **Extract All**, and keep the `Odyssey` folder together.
+**2. Run it.** Odyssey installs for your own user account, under `%LOCALAPPDATA%\Programs\Odyssey`, and puts a shortcut in the Start menu and — unless you untick the box — on your desktop. From then on you open it from the shortcut.
 
-Put it somewhere you can write to — your desktop, your documents, a folder of your own. Avoid `C:\Program Files`: the application updates itself by replacing its own files, and that folder needs administrator rights.
+**3. Windows may warn you the first time.** A blue box appears saying "Windows protected your PC". This is SmartScreen, and it appears because the installer is not code-signed — Windows cannot tell who published it, so it warns about everything it has not seen before. Click **More info**, then **Run anyway**.
 
-**3. Run `Odyssey.exe`.** The first start takes a few seconds longer than the rest.
-
-**4. Windows will warn you the first time.** A blue box appears saying "Windows protected your PC". This is SmartScreen, and it appears because the application is not code-signed — Windows cannot tell who published it, so it warns about everything it has not seen before. Click **More info**, then **Run anyway**. Windows remembers the choice; it will not ask again.
+**Coming from an unpacked folder?** Versions up to 0.8.2.1 were a zip you extracted yourself. Do not install over them by hand — update from inside the application instead: it installs the new version, removes the program files from the old folder and keeps your progress. A version older than 0.8.2.1 first offers 0.8.2.1, then the installer.
 
 ### Your progress is kept outside the application
 
-Everything you do — your progress, quiz scores, the code you write, your profile and the photo you choose — is stored in `%APPDATA%\Odyssey\`, not in the folder you unpacked.
+Everything you do — your progress, quiz scores, the code you write, your notes, your profile and the photo you choose — is stored in `%APPDATA%\Odyssey\`, not in the application folder.
 
-That separation is the point: you can replace the application folder, delete it, or move it to another drive, and none of it touches your progress. When you update, you carry on where you left off.
+That separation is the point: installing a new version, uninstalling or reinstalling never touches your progress. When you update, you carry on where you left off.
 
 ### Updating
 
 Odyssey checks for a new version when it starts, and every three hours if you leave it open. When there is one, it tells you and offers to install it.
 
-Press **Update** and the application downloads the new version, checks that the file arrived intact, closes itself, replaces its own files and opens again — about a minute in total, with the progress visible throughout. Your progress is untouched.
+Press **Update** and the application downloads the new installer, checks that it arrived intact and closes; the installation then finishes on its own and Odyssey opens again. Your progress is untouched.
 
-If the update cannot be applied — the folder is not writable, or the disk is full — the application says so and gives you the release page so you can do it by hand. Doing it by hand is always the same thing: unpack the new folder in place of the old one.
+If the update cannot be started — the disk is full, for example — the application says so and gives you the release page. Doing it by hand is always the same thing: download the new installer and run it.
 
 You can turn the check off under **Settings › Updates**. With it off, the application never touches the network at all.
+
+### Uninstalling
+
+**Settings › Apps › Installed apps › Odyssey › Uninstall** removes the application. Your progress in `%APPDATA%\Odyssey\` stays, so a later installation picks up where you left off; delete that folder as well if you want to remove everything.
 
 ## Status
 

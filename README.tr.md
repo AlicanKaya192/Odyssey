@@ -10,31 +10,33 @@ Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları va
 
 ## Başlarken
 
-**1. Paketi indirin.** [Releases](https://github.com/AlicanKaya192/Odyssey/releases) sayfasından `Odyssey-<sürüm>-windows-x64.zip` dosyasını alın. Windows 10 veya 11, 64-bit. Kurulum sihirbazı yok, yönetici yetkisi gerekmiyor.
+**1. Kurulum dosyasını indirin.** [Releases](https://github.com/AlicanKaya192/Odyssey/releases) sayfasından `Odyssey-<sürüm>-setup.exe` dosyasını alın. Windows 10 veya 11, 64-bit. Yönetici yetkisi gerekmiyor.
 
-**2. Klasörün tamamını çıkarın — uygulamayı zip'in içinden çalıştırmayın.** Windows zip dosyasını sıradan bir klasör gibi açıyor ve `Odyssey.exe` orada çalıştırılabilir görünüyor. Değil: uygulamanın yanındaki `_internal` klasörüne ihtiyacı var, Windows ise yalnızca çift tıkladığınız tek dosyayı çıkarıyor. Zip'e sağ tıklayıp **Tümünü Ayıkla** deyin ve `Odyssey` klasörünü bütün hâlde tutun.
+**2. Çalıştırın.** Odyssey kendi kullanıcı hesabınıza, `%LOCALAPPDATA%\Programs\Odyssey` altına kuruluyor; Başlat menüsüne ve — kutuyu kaldırmazsanız — masaüstüne kısayol koyuyor. Bundan sonra kısayoldan açıyorsunuz.
 
-Yazma izniniz olan bir yere koyun: masaüstü, belgeler ya da kendi açtığınız bir klasör. `C:\Program Files` içine koymayın — uygulama güncellenirken kendi dosyalarını değiştiriyor ve orası yönetici yetkisi istiyor.
+**3. Windows ilk seferde uyarı verebilir.** "Windows kişisel bilgisayarınızı korudu" yazan mavi bir kutu çıkıyor. Bu SmartScreen ve sebebi kurulum dosyasının **imzalı olmaması**: Windows yayıncının kim olduğunu göremiyor, o yüzden daha önce görmediği her programa aynı uyarıyı veriyor. **Ek bilgi**'ye, ardından **Yine de çalıştır**'a tıklayın.
 
-**3. `Odyssey.exe` dosyasını çalıştırın.** İlk açılış sonrakilerden birkaç saniye uzun sürüyor.
-
-**4. Windows ilk seferde uyarı verecek.** "Windows kişisel bilgisayarınızı korudu" yazan mavi bir kutu çıkıyor. Bu SmartScreen ve sebebi uygulamanın **imzalı olmaması**: Windows yayıncının kim olduğunu göremiyor, o yüzden daha önce görmediği her programa aynı uyarıyı veriyor. **Ek bilgi**'ye, ardından **Yine de çalıştır**'a tıklayın. Windows seçiminizi hatırlıyor, bir daha sormuyor.
+**Çıkardığınız bir klasörden mi geliyorsunuz?** 0.8.2.1'e kadarki sürümler sizin çıkardığınız bir zip'ti. Üstüne elle kurmayın, uygulamanın içinden güncelleyin: yeni sürümü kuruyor, eski klasördeki program dosyalarını kaldırıyor ve ilerlemenizi koruyor. 0.8.2.1'den eski bir sürüm önce 0.8.2.1'i, ardından kurulumu öneriyor.
 
 ### İlerlemeniz uygulamanın dışında duruyor
 
-Yaptığınız her şey — ilerlemeniz, sınav notlarınız, yazdığınız kodlar, profiliniz ve seçtiğiniz fotoğraf — çıkardığınız klasörde değil, `%APPDATA%\Odyssey\` içinde saklanıyor.
+Yaptığınız her şey — ilerlemeniz, sınav notlarınız, yazdığınız kodlar, notlarınız, profiliniz ve seçtiğiniz fotoğraf — uygulama klasöründe değil, `%APPDATA%\Odyssey\` içinde saklanıyor.
 
-Bu ayrım bilinçli: uygulama klasörünü değiştirebilir, silebilir ya da başka bir sürücüye taşıyabilirsiniz, hiçbiri ilerlemenize dokunmuyor. Güncellediğinizde kaldığınız yerden devam ediyorsunuz.
+Bu ayrım bilinçli: yeni sürüm kurmak, kaldırmak ya da yeniden kurmak ilerlemenize dokunmuyor. Güncellediğinizde kaldığınız yerden devam ediyorsunuz.
 
 ### Güncelleme
 
 Odyssey her açılışta yeni bir sürüm çıkıp çıkmadığına bakıyor; açık bırakırsanız üç saatte bir yeniden bakıyor. Yeni sürüm varsa haber veriyor ve kurmayı öneriyor.
 
-**Güncelle**'ye bastığınızda uygulama yeni sürümü indiriyor, dosyanın sağlam geldiğini denetliyor, kendini kapatıyor, dosyalarını değiştiriyor ve tekrar açılıyor — toplam bir dakika kadar, ilerleme baştan sona ekranda. İlerlemenize dokunulmuyor.
+**Güncelle**'ye bastığınızda uygulama yeni kurulum dosyasını indiriyor, sağlam geldiğini denetliyor ve kapanıyor; kurulum kendiliğinden tamamlanıyor ve Odyssey yeniden açılıyor. İlerlemenize dokunulmuyor.
 
-Güncelleme yapılamıyorsa — klasöre yazılamıyor ya da diskte yer yok — uygulama sebebini söylüyor ve sürüm sayfasını veriyor, elle yapabilirsiniz. Elle yapmak her zaman aynı şey: yeni klasörü eskisinin yerine çıkarmak.
+Güncelleme başlatılamıyorsa — örneğin diskte yer yoksa — uygulama sebebini söylüyor ve sürüm sayfasını veriyor. Elle yapmak her zaman aynı şey: yeni kurulum dosyasını indirip çalıştırmak.
 
 Denetimi **Ayarlar › Güncelleme** bölümünden kapatabilirsiniz. Kapalıyken uygulama ağa hiç çıkmıyor.
+
+### Kaldırma
+
+**Ayarlar › Uygulamalar › Yüklü uygulamalar › Odyssey › Kaldır** uygulamayı kaldırıyor. `%APPDATA%\Odyssey\` içindeki ilerlemeniz yerinde kalıyor, sonradan kurarsanız kaldığınız yerden devam ediyorsunuz; her şeyi silmek istiyorsanız o klasörü de silin.
 
 ## Durum
 
