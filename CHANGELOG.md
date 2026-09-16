@@ -46,6 +46,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   alıştırmaları çözene kadar bölüm "yarım kaldı" görünür.
 
 ### Düzeltildi
+- **İpucu açınca ekran zıplamıyor.** Bir ipucunu açmak yönergenin tamamını
+  yeniden yüklüyordu; sayfa bir an en başa gidip eski yerine dönüyordu.
+  Artık yalnızca ipucu kutusu değişiyor, okuduğunuz yer kıpırdamıyor.
 - **SQL alıştırmalarında editör renkleri.** SQL kodu Python kurallarıyla
   renkleniyordu: `SELECT` renksiz kalıyor, `--` yorumu yorum gibi
   görünmüyordu. Artık SQL kendi kurallarıyla renkleniyor.

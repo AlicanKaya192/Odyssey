@@ -25,6 +25,10 @@ from ..widgets.document_view import DocumentView
 
 MARKDOWN_EXTENSIONS = ["fenced_code", "tables", "sane_lists", "toc"]
 
+# Metnin altındaki hazır HTML'in (ipucu kutusu) kapsayıcısı; yerinde
+# değiştirilirken bu kimlikle bulunuyor.
+EXTRA_ID = "extra"
+
 # Sayfa kayarken hangi başlıkta olduğumuzu işaretleyen küçük script.
 #
 # Önce `IntersectionObserver` kullanılıyordu ve iki hatası vardı:
@@ -225,15 +229,19 @@ class LessonView(QWidget):
         """
         self._document.set_base_dir(directory)
 
-    def show_text(self, text: str) -> None:
+    def show_text(self, text: str, extra: str | None = None) -> None:
         """Hazır markdown metnini gösterir (alıştırma yönergesi gibi).
 
-        Metin öncekiyle aynıysa kaydırma korunuyor. Alıştırma yönergesi her
-        ipucu açılışında baştan çiziliyor — metin değişmediği hâlde sayfa
-        başa fırlıyordu.
+        `extra` metnin altındaki hazır HTML (ipucu kutusu); metinle birlikte
+        verilince sayfa **bir kez** çiziliyor. Önce ikisi ayrı çağrılarla
+        veriliyordu ve her alıştırma açılışında belge iki kez yükleniyordu.
+
+        Metin öncekiyle aynıysa kaydırma korunuyor.
         """
         ayni = text == self._source
         self._source = text
+        if extra is not None:
+            self._extra = extra
         self._banners = []
         self._render(keep_scroll=ayni)
 
@@ -281,13 +289,27 @@ class LessonView(QWidget):
         if self._source:
             self._render(keep_scroll=True)
 
-    def set_extra(self, html_after: str) -> None:
-        """Metnin altına eklenecek hazır HTML (alıştırma ipucu kutusu gibi)."""
+    def update_extra(self, html_after: str) -> None:
+        """Metnin altındaki hazır HTML'i **sayfayı yeniden yüklemeden** değiştirir.
+
+        İpucu açılınca önce belgenin tamamı baştan yükleniyordu (üstelik iki
+        kez): sayfa bir an en tepede çiziliyor, yükleme bitince eski yerine
+        kaydırılıyordu — ekran yukarı gidip geri geliyordu (Alican gördü,
+        dört ipuçlu bir alıştırmada). Artık yalnızca kutunun içi değişiyor,
+        kaydırmaya dokunulmuyor. Sayfa henüz yüklenmemişse ya da kutu
+        bulunamazsa normal çizime düşülüyor.
+        """
         if html_after == self._extra:
             return
         self._extra = html_after
-        if self._source:
-            self._render(keep_scroll=True)
+        if not self._source:
+            return
+        self._document.replace_inner(
+            EXTRA_ID,
+            html_after,
+            body=self._compose(),
+            fallback=lambda: self._render(keep_scroll=True),
+        )
 
     # --- çizim ------------------------------------------------------------
 
@@ -300,11 +322,15 @@ class LessonView(QWidget):
         bayrak verilmiyor, sayfa başa dönüyor.
         """
         self._document.set_lang(self._language.language)
+        self._document.set_body(self._compose(), keep_scroll=keep_scroll)
+
+    def _compose(self) -> str:
+        """Belgenin gövde HTML'i; çizim ve yerinde değişiklik aynı kaynağı kullanır."""
         body, headings = render_markdown(self._source)
 
         parts = ["".join(self._banner_html(tone, text) for tone, text in self._banners)]
         parts.append(self._meta_html(body))
-        parts.append(self._extra)
+        parts.append(f'<div id="{EXTRA_ID}">{self._extra}</div>')
         parts.append(self._footer_html())
         content = f'<div class="content">{"".join(parts)}</div>'
 
@@ -320,10 +346,7 @@ class LessonView(QWidget):
 
         self._has_progress_box = bool(aside)
         scripts = SCROLL_SPY if aside else ""
-        self._document.set_body(
-            f'<div class="{page_class}">{content}{aside}</div>{scripts}',
-            keep_scroll=keep_scroll,
-        )
+        return f'<div class="{page_class}">{content}{aside}</div>{scripts}'
 
     def _banner_html(self, tone: str, text: str) -> str:
         icon = "✓" if tone == "ok" else "!"

@@ -48,6 +48,9 @@ lecture note does not mean downloading the whole application again.
   exercises.
 
 ### Fixed
+- **Opening a hint no longer makes the screen jump.** Opening a hint reloaded
+  the whole instructions page; it flashed back to the top and then returned
+  to where you were. Now only the hint box changes and your place stays put.
 - **Editor colours in SQL exercises.** SQL code was coloured with Python's
   rules: `SELECT` stayed plain and a `--` comment did not look like a
   comment. SQL is now coloured by its own rules.

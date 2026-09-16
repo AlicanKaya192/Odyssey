@@ -390,6 +390,36 @@ class DocumentView(QWebEngineView):
         menu.addAction(add_label).triggered.connect(lambda: self.quote_requested.emit(secim))
         menu.exec(event.globalPos())
 
+    def replace_inner(self, element_id: str, fragment: str, *, body: str, fallback) -> None:
+        """Bir öğenin içini sayfayı yeniden yüklemeden değiştirir.
+
+        `body` değişiklikten sonraki gövdenin tamamı: sonraki bir yeniden
+        çizim (dil değişimi gibi) eski hâli geri getirmesin diye saklanıyor.
+        Sayfa henüz yüklenmemişse ya da öğe bulunamazsa `fallback` çağrılıyor
+        (normal çizim).
+        """
+        if not self._loaded:
+            fallback()
+            return
+
+        painted = highlight_code_blocks(fragment, self._mode)
+        script = (
+            "(function () {"
+            f"  var el = document.getElementById({json.dumps(element_id)});"
+            "  if (!el) return false;"
+            f"  el.innerHTML = {json.dumps(painted)};"
+            "  return true;"
+            "})()"
+        )
+
+        def done(ok) -> None:
+            if ok:
+                self._body = body
+            else:
+                fallback()
+
+        self.page().runJavaScript(script, 0, done)
+
     def scroll_to(self, anchor: str) -> None:
         """Sayfayı belirtilen çapaya kaydırır.
 

@@ -353,7 +353,7 @@ class ExerciseView(QWidget):
             except ValueError:
                 return
             self._revealed.add(level)
-            self._refresh_prompt()
+            self._prompt.update_extra(self._hints_html())
 
     def set_advance_label(self, label: str | None) -> None:
         """Yönergenin en altındaki "devam" düğmesi.
@@ -443,9 +443,10 @@ class ExerciseView(QWidget):
         body = prompt.path.read_text(encoding="utf-8") if prompt and prompt.exists else ""
         title = self._language.pick(self._exercise.title)
 
-        self._prompt.set_extra(self._hints_html())
         self._prompt.set_base_dir(self._exercise.directory)
-        self._prompt.show_text(f"# {title}\n\n{self._chips_html()}\n\n{body}")
+        self._prompt.show_text(
+            f"# {title}\n\n{self._chips_html()}\n\n{body}", extra=self._hints_html()
+        )
 
     # --- sağ: editör ve sonuçlar -----------------------------------------
 
