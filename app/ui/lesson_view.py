@@ -20,6 +20,7 @@ import markdown
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
+from ..core import math_text
 from ..core.language import LanguageManager
 from ..widgets.document_view import DocumentView
 
@@ -111,11 +112,14 @@ def render_markdown(text: str) -> tuple[str, list[tuple[str, str]]]:
     Başlıklar sağdaki listede kullanılıyor; `toc` uzantısı başlıklara
     kendiliğinden `id` verdiği için çapalar çalışıyor.
     """
+    # Formüller markdown'dan önce ayrılıyor, yoksa içleri bozuluyor
+    # (`app/core/math_text.py`).
+    text, formulas = math_text.protect(text)
     converter = markdown.Markdown(extensions=MARKDOWN_EXTENSIONS)
-    body = converter.convert(text)
+    body = math_text.restore(converter.convert(text), formulas)
 
     headings = [
-        (token["id"], token["name"])
+        (token["id"], math_text.plain(token["name"], formulas))
         for token in getattr(converter, "toc_tokens", [])
         for token in [token, *token.get("children", [])]
         if token["level"] == 2

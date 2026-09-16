@@ -160,6 +160,18 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
 }}
 .content td {{ padding: 12px 16px; border-top: 1px solid {p['border']}; }}
 
+/* --- formüller (KaTeX) ---------------------------------------------- */
+
+/* Renk metinden geliyor (KaTeX `currentColor` kullanıyor), tema kendiliğinden
+ * işliyor. Uzun bir formül dar pencerede sayfayı yana taşırmasın diye kendi
+ * içinde kayıyor. */
+.katex {{ font-size: 1.1em; }}
+.math.display {{
+    margin: 20px 0; padding: 4px 0; overflow-x: auto; overflow-y: hidden;
+    text-align: center;
+}}
+.fig .math.display {{ margin: 8px 0; }}
+
 /* --- ipucu kutusu ve şeritler --------------------------------------- */
 
 .content blockquote {{

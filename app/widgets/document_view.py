@@ -37,6 +37,7 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QWidget
 
 from ..core.highlight import highlight_code_blocks
+from ..core.math_text import has_math
 from ..resources.theme.document import build_css
 from ..resources.theme.tokens import PALETTES
 
@@ -101,6 +102,30 @@ def _bridge_source() -> str:
         .replace("%THROTTLE%", str(REPORT_THROTTLE_MS))
     )
     return kanal + "\n" + kopru
+
+
+# Formülleri çizen betik. KaTeX yalnızca formül olan sayfaya yükleniyor;
+# gövdenin sonunda eşzamanlı çalıştığı için sayfa ilk kez görünürken
+# formüller çizilmiş oluyor ve kaydırma konumu geri yüklenirken yükseklik
+# artık değişmiyor. Hatalı bir formül sayfayı durdurmuyor, kırmızı çiziliyor.
+KATEX_RENDER = """<script>
+document.querySelectorAll('.math').forEach(function (el) {
+  katex.render(el.textContent, el, {
+    displayMode: el.classList.contains('display'), throwOnError: false
+  });
+});
+</script>"""
+
+
+@lru_cache(maxsize=1)
+def _katex_head() -> str:
+    from ..paths import install_root
+
+    base = QUrl.fromLocalFile(str(install_root() / "app" / "resources" / "katex")).toString()
+    return (
+        f"<link rel='stylesheet' href='{base}/katex.min.css'>"
+        f"<script src='{base}/katex.min.js'></script>"
+    )
 
 
 class PageBridge(QObject):
@@ -236,8 +261,9 @@ class DocumentView(QWebEngineView):
         document = (
             f"<!doctype html><html lang='{self._lang}'>"
             "<head><meta charset='utf-8'>"
-            f"<style id='tema'>{build_css(self._mode)}</style></head>"
-            f"<body>{painted}</body></html>"
+            f"<style id='tema'>{build_css(self._mode)}</style>"
+            f"{_katex_head() if has_math(painted) else ''}</head>"
+            f"<body>{painted}{KATEX_RENDER if has_math(painted) else ''}</body></html>"
         )
         if keep_scroll:
             self._restore_to = self._scroll
