@@ -12,17 +12,27 @@ içinde durabiliyor ama işi uygulama yapıyor.
 `http`/`https` bağlantıları uygulamanın içinde açılmıyor; sistem
 tarayıcısına devrediliyor. Ders metinlerinde indirme ve belge adresleri
 geçiyor, bunların çalışması gerekiyor.
+
+İki yön iki ayrı yoldan gidiyor:
+
+- **Uygulamadan sayfaya** tek seferlik komutlar `runJavaScript` ile
+  (tema değişimi, başlığa kaydırma).
+- **Sayfadan uygulamaya** kendiliğinden gelen bilgiler (kaydırma konumu,
+  metnin sonuna inildi mi) `QWebChannel` ile. Önce bunlar zamanlayıcıyla
+  aralıklarla soruluyordu: kaydırma her 250 ms'de, okuma her saniye.
 """
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 
 import json
 
-from PySide6.QtCore import QTimer, QUrl, Signal
+from PySide6.QtCore import QFile, QIODevice, QObject, QUrl, Signal, Slot
 from PySide6.QtGui import QColor, QDesktopServices
-from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
+from PySide6.QtWebChannel import QWebChannel
+from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineScript, QWebEngineSettings
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QWidget
 
@@ -32,10 +42,75 @@ from ..resources.theme.tokens import PALETTES
 
 ACTION_SCHEME = "app"
 
+# Köprünün çalıştığı betik dünyası.
+#
+# Sayfanın kendi betikleri (başlık listesi işaretleyicisi) ana dünyada
+# çalışıyor; köprü ise ayrı bir dünyada. DOM ortak, JavaScript değişkenleri
+# değil: sayfa içeriğindeki bir betik `qt` nesnesini hiç görmüyor (ölçüldü:
+# ana dünyada `typeof qt` → `undefined`). Başkasından yüklenen notlar da bu
+# görünümde çiziliyor; uygulamaya giden kapı onlara açılmıyor.
+BRIDGE_WORLD = QWebEngineScript.ScriptWorldId.ApplicationWorld
 
-# Kaydırma konumunun ne sıklıkla sorulacağı. Yeniden çizim anında en fazla
-# bu kadarlık bir kayma olabiliyor; gözle fark edilmiyor.
-SCROLL_POLL_MS = 250
+# Metnin sonuna bu kadar pikselden yakın durulunca "sona inildi" sayılıyor.
+END_MARGIN_PX = 80
+
+# Kaydırma sürerken bildirim en fazla bu sıklıkta gidiyor; kaydırma
+# durduğunda son konum en geç bu kadar sonra geliyor.
+REPORT_THROTTLE_MS = 100
+
+# Sayfaya yüklenen köprü. `clientHeight > 0` şartı henüz çizilmemiş (gizli)
+# bir sayfanın "sona inildi" sayılmasını engelliyor; ekrana sığan sayfa
+# ise ilk bildirimde okunmuş sayılıyor.
+BRIDGE_SCRIPT = """
+new QWebChannel(qt.webChannelTransport, function (channel) {
+  var bridge = channel.objects.bridge;
+  var timer = null;
+
+  function report() {
+    timer = null;
+    var el = document.scrollingElement || document.documentElement;
+    if (!el) return;
+    var atEnd = el.clientHeight > 0 &&
+        (el.scrollHeight - el.scrollTop - el.clientHeight) <= %END%;
+    bridge.report(el.scrollTop, atEnd);
+  }
+
+  function schedule() {
+    if (timer === null) timer = setTimeout(report, %THROTTLE%);
+  }
+
+  window.__odysseyReport = report;
+  document.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  report();
+});
+"""
+
+
+@lru_cache(maxsize=1)
+def _bridge_source() -> str:
+    """Qt'nin `qwebchannel.js` dosyası ve köprü, tek bir betik olarak."""
+    dosya = QFile(":/qtwebchannel/qwebchannel.js")
+    if not dosya.open(QIODevice.OpenModeFlag.ReadOnly):
+        raise RuntimeError("qwebchannel.js bulunamadı")
+    kanal = bytes(dosya.readAll()).decode("utf-8")
+    dosya.close()
+    kopru = (
+        BRIDGE_SCRIPT
+        .replace("%END%", str(END_MARGIN_PX))
+        .replace("%THROTTLE%", str(REPORT_THROTTLE_MS))
+    )
+    return kanal + "\n" + kopru
+
+
+class PageBridge(QObject):
+    """Sayfanın uygulamaya kendiliğinden haber verebildiği tek kapı."""
+
+    reported = Signal(float, bool)
+
+    @Slot(float, bool)
+    def report(self, scroll_top: float, at_end: bool) -> None:
+        self.reported.emit(scroll_top, at_end)
 
 
 class DocumentPage(QWebEnginePage):
@@ -75,6 +150,8 @@ class DocumentView(QWebEngineView):
     action = Signal(str)
     # Sağ tıkta "Nota ekle": seçili metin.
     quote_requested = Signal(str)
+    # Okuyan kişi metnin sonuna indi ya da oradan ayrıldı.
+    at_end_changed = Signal(bool)
 
     def __init__(self, parent: QWidget | None = None, mode: str = "light") -> None:
         super().__init__(parent)
@@ -100,12 +177,15 @@ class DocumentView(QWebEngineView):
         # Kaydırma konumu: yeniden çizimde okuyanın yerini korumak için.
         self._scroll = 0.0
         self._restore_to = 0.0
+        self._at_end = False
         self.loadFinished.connect(self._on_load_finished)
 
-        self._scroll_timer = QTimer(self)
-        self._scroll_timer.setInterval(SCROLL_POLL_MS)
-        self._scroll_timer.timeout.connect(self._remember_scroll)
-        self._scroll_timer.start()
+        self._bridge = PageBridge(self)
+        self._bridge.reported.connect(self._on_page_report)
+        self._channel = QWebChannel(self)
+        self._channel.registerObject("bridge", self._bridge)
+        self._page.setWebChannel(self._channel, BRIDGE_WORLD)
+        self._page.scripts().insert(self._bridge_script())
 
         settings = self.settings()
         settings.setAttribute(QWebEngineSettings.WebAttribute.JavascriptEnabled, True)
@@ -115,6 +195,21 @@ class DocumentView(QWebEngineView):
         settings.setAttribute(QWebEngineSettings.WebAttribute.FocusOnNavigationEnabled, False)
 
         self._apply_background()
+
+    @staticmethod
+    def _bridge_script() -> QWebEngineScript:
+        script = QWebEngineScript()
+        script.setName("odyssey-bridge")
+        script.setSourceCode(_bridge_source())
+        script.setWorldId(BRIDGE_WORLD)
+        script.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentReady)
+        script.setRunsOnSubFrames(False)
+        return script
+
+    @property
+    def at_end(self) -> bool:
+        """Okuyan kişi şu anda metnin sonunda mı (son bildirime göre)."""
+        return self._at_end
 
     def _apply_background(self) -> None:
         palette = PALETTES.get(self._mode, PALETTES["light"])
@@ -136,6 +231,7 @@ class DocumentView(QWebEngineView):
         # bakılıyor (`_on_load_finished`).
         self._rendered_mode = self._mode
         self._loaded = False
+        self._at_end = False
         painted = highlight_code_blocks(self._body, self._mode)
         document = (
             f"<!doctype html><html lang='{self._lang}'>"
@@ -158,25 +254,23 @@ class DocumentView(QWebEngineView):
         # taban adres veriliyor.
         self.setHtml(document, QUrl.fromLocalFile(str(self._base_path())))
 
-    # --- kaydırma konumu --------------------------------------------------
+    # --- sayfadan gelen bildirimler -----------------------------------------
 
-    def _remember_scroll(self) -> None:
-        """Sayfanın kaydırma konumunu Python tarafında saklar.
+    def _on_page_report(self, scroll_top: float, at_end: bool) -> None:
+        """Köprüden gelen kaydırma konumu ve "sona inildi mi" bilgisi.
 
-        Sayfa kendiliğinden uygulamaya haber veremediği için (Chromium
-        kullanıcı tıklaması olmadan `app:` adresine gitmiyor) konum
-        aralıklarla sorulup saklanıyor.
+        Yükleme bitmeden gelen bildirimler atılıyor. Yeni belge çizilirken
+        sayfa önce en tepede (`0`) duruyor; o değer saklansaydı, yükleme
+        bitmeden gelen ikinci bir `keep_scroll` çizimi okuyanı başa
+        fırlatırdı. Yükleme bitince konum geri yükleniyor ve sayfadan bir
+        bildirim isteniyor (`_on_load_finished`).
         """
-        self.page().runJavaScript(
-            "(document.scrollingElement||document.documentElement).scrollTop",
-            self._store_scroll,
-        )
-
-    def _store_scroll(self, value) -> None:
-        try:
-            self._scroll = float(value or 0)
-        except (TypeError, ValueError):
-            pass
+        if not self._loaded:
+            return
+        self._scroll = scroll_top
+        if at_end != self._at_end:
+            self._at_end = at_end
+            self.at_end_changed.emit(at_end)
 
     def _on_load_finished(self, ok: bool) -> None:
         # Tema, sayfa yüklenirken değiştiyse stil değişimi yüklenmekte olan
@@ -200,6 +294,12 @@ class DocumentView(QWebEngineView):
             if self._pending_anchor:
                 anchor, self._pending_anchor = self._pending_anchor, ""
                 self._scroll_now(anchor)
+            # Yükleme sırasında gelen bildirimler atıldı; köprü hazırsa son
+            # hâli bir kez istenir. Hazır değilse köprü kurulur kurulmaz
+            # kendisi bildiriyor.
+            self.page().runJavaScript(
+                "window.__odysseyReport && window.__odysseyReport();", BRIDGE_WORLD
+            )
 
     # Sayfadaki göreli adreslerin (resim, dosya) çözüleceği klasör.
     # Varsayılan içerik kökü; bir bölüm kendi klasörünü verdiğinde

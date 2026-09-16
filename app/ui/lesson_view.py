@@ -17,7 +17,7 @@ from pathlib import Path
 
 import markdown
 
-from PySide6.QtCore import QTimer, Signal
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ..core.language import LanguageManager
@@ -78,35 +78,13 @@ SCROLL_SPY = """
 </script>
 """
 
-# Dersin sonuna gelindiğinde bir kez haber verir. Bölümü açmak okumak
-# sayılmıyor; kullanıcı metnin sonuna inince "okundu" işaretleniyor.
-# Sayfanın sonuna inilip inilmediğini soran ölçüm. Python tarafından
-# aralıklarla çalıştırılıyor; sayfanın kendisi haber veremiyor, çünkü
-# Chromium kullanıcı tıklaması olmadan `app:` adresine gitmeyi engelliyor —
-# sayfa içine konan bir betiğin `location.href` ataması sessizce düşüyor.
-#
-# `document.scrollingElement` kaydırmayı hangi öğe yapıyorsa onu veriyor;
-# `body` üzerinden hesaplamak her düzende doğru sonuç vermiyor.
-# `clientHeight > 0` şartı, daha çizilmemiş sayfanın "okundu" sayılmasını
-# engelliyor. Sayfa ekrana sığıyorsa (kaydırma yoksa) okunmuş sayılıyor.
-READ_PROBE = """
-(function () {
-  var el = document.scrollingElement || document.documentElement;
-  if (!el || el.clientHeight <= 0) return false;
-  return (el.scrollHeight - el.scrollTop - el.clientHeight) <= 80;
-})()
-"""
-
-# Ölçümün sıklığı. Okundu işareti konunca zamanlayıcı duruyor.
-READ_POLL_MS = 1000
-
 # İlerleme kutusunu **belgeyi yeniden yüklemeden** güncelleyen betik.
 #
 # Önce kutu değiştiğinde sayfanın tamamı baştan çiziliyordu. Uzun bir dersi
 # okurken kişi metnin sonuna indiği an "okundu" işareti konuyor, o da kutuyu
 # güncelliyor ve belge yeniden yükleniyordu. Kaydırma konumu geri
 # yükleniyordu ama o konum en fazla dörtte bir saniye eskiydi (Python
-# tarafında aralıklarla ölçülüyor); kullanıcı hâlâ kaydırıyorsa sayfa geri
+# tarafında aralıklarla ölçülüyordu); kullanıcı hâlâ kaydırıyorsa sayfa geri
 # sıçrayıp tuhaf bir yerde duruyordu.
 #
 # Kutunun içindeki iki şeyi doğrudan değiştirmek yeterli: çubuğun genişliği
@@ -185,11 +163,11 @@ class LessonView(QWidget):
         self._document.action.connect(self.action)
         layout.addWidget(self._document)
 
-        # Okuma takibi: sayfaya sorup sonuna inilmiş mi diye bakıyoruz.
+        # Okuma takibi: dersin sonuna inilince bir kez `lesson-read`
+        # bildiriliyor. Bölümü açmak okumak sayılmıyor.
         self._read_reported = False
-        self._read_timer = QTimer(self)
-        self._read_timer.setInterval(READ_POLL_MS)
-        self._read_timer.timeout.connect(self._probe_reading)
+        if track_reading:
+            self._document.at_end_changed.connect(self._check_read)
 
     # --- içerik -----------------------------------------------------------
 
@@ -220,23 +198,23 @@ class LessonView(QWidget):
         self._read_reported = False
         self._render()
 
-    def _probe_reading(self) -> None:
-        """Sayfaya "metnin sonuna inildi mi" diye sorar."""
-        if self._read_reported:
-            self._read_timer.stop()
-            return
-        # Ders sekmesi görünmüyorken ölçüm anlamsız; kullanıcı sınavdayken
-        # dersi okunmuş saymak yanlış olurdu.
-        if not self.isVisible():
-            return
-        self._document.page().runJavaScript(READ_PROBE, self._on_read_probe)
+    def _check_read(self, *_: object) -> None:
+        """Metnin sonundaysa ve ders görünüyorsa bir kez "okundu" bildirir.
 
-    def _on_read_probe(self, reached: object) -> None:
-        if self._read_reported or not reached:
+        Ders sekmesi görünmüyorken bildirim yapılmıyor; kullanıcı
+        sınavdayken dersi okunmuş saymak yanlış olurdu. Sekmeye dönüldüğünde
+        `showEvent` son durumu yeniden değerlendiriyor.
+        """
+        if not self._track_reading or self._read_reported:
+            return
+        if not self.isVisible() or not self._document.at_end:
             return
         self._read_reported = True
-        self._read_timer.stop()
         self.action.emit("lesson-read")
+
+    def showEvent(self, event) -> None:  # noqa: N802
+        super().showEvent(event)
+        self._check_read()
 
     def set_base_dir(self, directory: "Path | None") -> None:
         """Sayfadaki göreli adreslerin çözüleceği klasörü bildirir.
@@ -346,8 +324,6 @@ class LessonView(QWidget):
             f'<div class="{page_class}">{content}{aside}</div>{scripts}',
             keep_scroll=keep_scroll,
         )
-        if self._track_reading and not self._read_reported:
-            self._read_timer.start()
 
     def _banner_html(self, tone: str, text: str) -> str:
         icon = "✓" if tone == "ok" else "!"

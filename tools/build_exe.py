@@ -71,6 +71,9 @@ DATA = [
 COLLECT = [
     "PySide6.QtWebEngineCore",
     "PySide6.QtWebEngineWidgets",
+    # Belge sayfalarının uygulamaya haber verdiği kanal; `qwebchannel.js`
+    # bu modülün kaynaklarında duruyor (`document_view.py`).
+    "PySide6.QtWebChannel",
     "numpy",
     "pandas",
     "matplotlib",
