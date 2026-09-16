@@ -328,6 +328,30 @@ PATHS: dict[str, str] = {
         '<path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/>'
         '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M16 2v20"/>'
     ),
+    # --- Python Temelleri rozetleri --------------------------------------
+    # Döngüler: başa dönen ok.
+    "repeat": (
+        '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/>'
+        '<path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>'
+    ),
+    # Fonksiyonlar: kendi yazdığın alet.
+    "wrench": (
+        '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77'
+        'a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91'
+        'a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'
+    ),
+    # Nesne tabanlı programlama: aynı kalıptan çıkan şekiller.
+    "shapes": (
+        '<path d="M8.3 10a.7.7 0 0 1-.63-1.08L11.4 3a.7.7 0 0 1 1.2-.04L16.3 8.9'
+        'A.7.7 0 0 1 15.73 10Z"/>'
+        '<rect x="3" y="14" width="7" height="7" rx="1"/>'
+        '<circle cx="17.5" cy="17.5" r="3.5"/>'
+    ),
+    # Patikanın tamamı: mezuniyet.
+    "graduation-cap": (
+        '<path d="m2 10 10-5 10 5-10 5z"/><path d="M22 10v6"/>'
+        '<path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>'
+    ),
     "message": (
         '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'
     ),

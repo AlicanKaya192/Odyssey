@@ -39,45 +39,31 @@ def load_definitions(path) -> list[dict]:
 
 
 # Modül kimlikleri (`content/` altındaki klasör adları).
+PY_CHAPTER = "00-python-temelleri"
 DATA_CHAPTER = "01-veri-bilimi"
 ML_CHAPTER = "02-makine-ogrenmesi"
 SQL_CHAPTER = "03-sql"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
-NUMPY_SECTION = (DATA_CHAPTER, "01-numpy")
+#
+# Her bölümün rozeti yok. Rozet, o bölümü bitirince **yapabildiğin şeyin
+# değiştiği** yerlere konuyor: döngü, fonksiyon, nesne, ilk model, JOIN...
+# Bölüm başına rozet verildiğinde duvar elli rozeti geçiyor ve hiçbiri bir
+# şey ifade etmiyordu; Alican 16 Eylül'de seyrekleştirmeyi istedi.
+PY_LOOP_SECTION = (PY_CHAPTER, "04-donguler")
+PY_FUNCTION_SECTION = (PY_CHAPTER, "05-fonksiyonlar")
+PY_OOP_SECTION = (PY_CHAPTER, "12-oop")
 DATAFRAME_SECTION = (DATA_CHAPTER, "03-dataframe")
-CLEANING_SECTION = (DATA_CHAPTER, "06-veri-temizleme")
 CHART_SECTION = (DATA_CHAPTER, "07-gorsellestirme")
 FIRST_MODEL_SECTION = (ML_CHAPTER, "01-ilk-model")
-METRICS_SECTION = (ML_CHAPTER, "02-regresyon-metrikleri")
-CLASSIFY_SECTION = (ML_CHAPTER, "03-siniflandirma")
-PREP_SECTION = (ML_CHAPTER, "04-veri-hazirlama")
 VALIDATION_SECTION = (ML_CHAPTER, "05-dogrulama")
-KNN_SECTION = (ML_CHAPTER, "06-knn")
-TREE_SECTION = (ML_CHAPTER, "07-karar-agaclari")
-ENSEMBLE_SECTION = (ML_CHAPTER, "08-topluluk-yontemleri")
-IMBALANCE_SECTION = (ML_CHAPTER, "09-dengesiz-veri")
-UNSUPERVISED_SECTION = (ML_CHAPTER, "10-denetimsiz-ogrenme")
 PIPELINE_SECTION = (ML_CHAPTER, "11-pipeline-ve-model-kaydetme")
-ML_REVIEW_SECTION = (ML_CHAPTER, "12-genel-tekrar")
-SQL_SETUP_SECTION = (SQL_CHAPTER, "00-kurulum")
 SQL_SELECT_SECTION = (SQL_CHAPTER, "01-select-ve-where")
-SQL_ORDER_SECTION = (SQL_CHAPTER, "02-siralama-ve-sinirlama")
-SQL_FILTER_SECTION = (SQL_CHAPTER, "03-filtreleme-desenleri")
-SQL_CALC_SECTION = (SQL_CHAPTER, "04-hesaplanan-sutunlar")
-SQL_GROUP_SECTION = (SQL_CHAPTER, "05-gruplama")
 SQL_JOIN_SECTION = (SQL_CHAPTER, "06-tablolari-birlestirmek")
-SQL_SUBQUERY_SECTION = (SQL_CHAPTER, "07-alt-sorgular")
-SQL_WRITE_SECTION = (SQL_CHAPTER, "08-veri-degistirmek")
-SQL_DESIGN_SECTION = (SQL_CHAPTER, "09-tablo-tasarimi")
-SQL_DATETEXT_SECTION = (SQL_CHAPTER, "10-tarih-ve-metin")
 SQL_WINDOW_SECTION = (SQL_CHAPTER, "11-pencere-fonksiyonlari")
-SQL_WITH_SECTION = (SQL_CHAPTER, "12-with-ve-ozyineleme")
-SQL_INDEX_SECTION = (SQL_CHAPTER, "13-dizinler")
-SQL_VIEWPROC_SECTION = (SQL_CHAPTER, "14-gorunumler-ve-yordamlar")
-SQL_REVIEW_SECTION = (SQL_CHAPTER, "15-genel-tekrar")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
+PY_SECTION_COUNT = 17
 DATA_SECTION_COUNT = 10
 ML_SECTION_COUNT = 13
 SQL_SECTION_COUNT = 16
@@ -146,43 +132,21 @@ def evaluate(catalog, store) -> dict[str, bool]:
         # Patikaya bağlı rozetler modül kimliğine bakıyor. Kimlik
         # `content/` altındaki klasör adı; modül yeniden adlandırılırsa
         # burası da değişmeli.
-        "data-start": modul_basina.get(DATA_CHAPTER, 0) >= 1,
-        "model-start": modul_basina.get(ML_CHAPTER, 0) >= 1,
-        "server-up": SQL_SETUP_SECTION in bitenler,
-        "first-filter": SQL_SELECT_SECTION in bitenler,
-        "in-order": SQL_ORDER_SECTION in bitenler,
-        "null-aware": SQL_FILTER_SECTION in bitenler,
-        "column-maker": SQL_CALC_SECTION in bitenler,
-        "grouper": SQL_GROUP_SECTION in bitenler,
-        "joiner": SQL_JOIN_SECTION in bitenler,
-        "sub-thinker": SQL_SUBQUERY_SECTION in bitenler,
-        "write-access": SQL_WRITE_SECTION in bitenler,
-        "architect": SQL_DESIGN_SECTION in bitenler,
-        "timekeeper": SQL_DATETEXT_SECTION in bitenler,
-        "window-frame": SQL_WINDOW_SECTION in bitenler,
-        "chain-of-command": SQL_WITH_SECTION in bitenler,
-        "indexer": SQL_INDEX_SECTION in bitenler,
-        "recipe-book": SQL_VIEWPROC_SECTION in bitenler,
-        "sql-review": SQL_REVIEW_SECTION in bitenler,
-        "first-model": FIRST_MODEL_SECTION in bitenler,
-        "error-reader": METRICS_SECTION in bitenler,
-        "class-divider": CLASSIFY_SECTION in bitenler,
-        "leak-hunter": PREP_SECTION in bitenler,
-        "honest-measure": VALIDATION_SECTION in bitenler,
-        "neighbourhood": KNN_SECTION in bitenler,
-        "rule-reader": TREE_SECTION in bitenler,
-        "many-trees": ENSEMBLE_SECTION in bitenler,
-        "rare-signal": IMBALANCE_SECTION in bitenler,
-        "group-finder": UNSUPERVISED_SECTION in bitenler,
-        "one-object": PIPELINE_SECTION in bitenler,
-        "ml-review": ML_REVIEW_SECTION in bitenler,
+        "python-loops": PY_LOOP_SECTION in bitenler,
+        "python-functions": PY_FUNCTION_SECTION in bitenler,
+        "python-oop": PY_OOP_SECTION in bitenler,
+        "python-complete": modul_basina.get(PY_CHAPTER, 0) >= PY_SECTION_COUNT,
         "two-chapters": len(modul_basina) >= 2,
-        "first-library": NUMPY_SECTION in bitenler,
         "first-table": DATAFRAME_SECTION in bitenler,
-        "data-clean": CLEANING_SECTION in bitenler,
         "first-chart": CHART_SECTION in bitenler,
         "data-explorer": modul_basina.get(DATA_CHAPTER, 0) >= DATA_SECTION_COUNT,
+        "first-model": FIRST_MODEL_SECTION in bitenler,
+        "honest-measure": VALIDATION_SECTION in bitenler,
+        "one-object": PIPELINE_SECTION in bitenler,
         "ml-complete": modul_basina.get(ML_CHAPTER, 0) >= ML_SECTION_COUNT,
+        "first-filter": SQL_SELECT_SECTION in bitenler,
+        "joiner": SQL_JOIN_SECTION in bitenler,
+        "window-frame": SQL_WINDOW_SECTION in bitenler,
         "sql-complete": modul_basina.get(SQL_CHAPTER, 0) >= SQL_SECTION_COUNT,
     }
 
