@@ -16,7 +16,7 @@ print(doubled)
 ```
 
 Python has a one-line form for this, and it is **very common in real code** —
-you need to be able to read it.
+you need to be able to read it. It is called a **list comprehension**.
 
 ## Your first comprehension
 
@@ -79,40 +79,6 @@ print(short)
 ['ADA', 'ALAN']
 ```
 
-## Dictionary and set comprehensions
-
-The same form with curly brackets produces a dictionary:
-
-```python
-names = ["Ada", "Alan"]
-lengths = {name: len(name) for name in names}
-
-print(lengths)
-```
-
-```
-{'Ada': 3, 'Alan': 4}
-```
-
-Without the colon it produces a set:
-
-```python
-unique = {len(name) for name in names}
-```
-
-You can loop over a dictionary too:
-
-```python
-scores = {"Ada": 90, "Alan": 40}
-passed = {name: value for name, value in scores.items() if value >= 50}
-
-print(passed)
-```
-
-```
-{'Ada': 90}
-```
-
 ## When to use one, and when not to
 
 A comprehension does not replace every loop. The test: **use one when you are
@@ -149,7 +115,6 @@ The length rule is simple: **if it does not fit on one line, write a loop.**
 |---|---|
 | `result = []`<br>`for x in items:`<br>`    result.append(x * 2)` | `result = [x * 2 for x in items]` |
 | `for x in items:`<br>`    if x > 0:`<br>`        result.append(x)` | `result = [x for x in items if x > 0]` |
-| `for k, v in d.items():`<br>`    out[k] = v * 2` | `out = {k: v * 2 for k, v in d.items()}` |
 
 ## Where will you meet them?
 
@@ -162,3 +127,8 @@ columns = [name.strip().lower() for name in header]
 
 That line cleans up a CSV header. What you are learning is exactly how to read
 that line.
+
+The same form also produces dictionaries and sets, two loops can be nested
+inside it, and swapping the square brackets for round ones gives you a
+**generator** that does not fill memory. All of that is waiting in the
+**Comprehensions** section.

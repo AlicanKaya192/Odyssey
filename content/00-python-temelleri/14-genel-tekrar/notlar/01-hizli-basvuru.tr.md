@@ -130,7 +130,7 @@ def describe(**details):    # adiyla gelenler sozlukte toplanir
 sorted(people, key=lambda p: p["grade"], reverse=True)
 ```
 
-## Liste üreteçleri
+## Liste kavramaları
 
 ```python
 [x * 2 for x in items]                  # her elemani donustur
@@ -139,7 +139,7 @@ sorted(people, key=lambda p: p["grade"], reverse=True)
 {k: v for k, v in scores.items()}       # sozluk uretir
 ```
 
-Tek satıra sığmıyorsa üreteç değil, döngü yaz.
+Tek satıra sığmıyorsa kavrama değil, döngü yaz.
 
 ## Doğrulama
 

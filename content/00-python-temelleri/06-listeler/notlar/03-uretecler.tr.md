@@ -16,9 +16,10 @@ print(doubled)
 ```
 
 Python'da bunun tek satırlık bir yazımı var ve **gerçek kodda çok
-yaygın** — okuyabilmen gerekiyor.
+yaygın** — okuyabilmen gerekiyor. Adı **liste kavraması** (İngilizcesi
+*list comprehension*).
 
-## İlk üretecin
+## İlk kavraman
 
 ```python
 doubled = [number * 2 for number in numbers]
@@ -78,43 +79,9 @@ print(short)
 ['ADA', 'ALAN']
 ```
 
-## Sözlük ve küme üreteci
-
-Aynı yazım süslü parantezle sözlük üretiyor:
-
-```python
-names = ["Ada", "Alan"]
-lengths = {name: len(name) for name in names}
-
-print(lengths)
-```
-
-```
-{'Ada': 3, 'Alan': 4}
-```
-
-İki nokta olmadan küme üretiyor:
-
-```python
-unique = {len(name) for name in names}
-```
-
-Sözlüğün üzerinde de dönebiliyorsun:
-
-```python
-scores = {"Ada": 90, "Alan": 40}
-passed = {name: value for name, value in scores.items() if value >= 50}
-
-print(passed)
-```
-
-```
-{'Ada': 90}
-```
-
 ## Ne zaman kullanılır, ne zaman kullanılmaz?
 
-Üreteç her döngünün yerini almıyor. Ölçüt: **tek bir liste üretiyorsan
+Kavrama her döngünün yerini almıyor. Ölçüt: **tek bir liste üretiyorsan
 kullan.**
 
 <figure class="fig">
@@ -133,20 +100,19 @@ kullan.**
 
 **Kullanma:**
 
-- İçinde birden fazla iş varsa. Üreteç tek ifade taşıyabiliyor.
+- İçinde birden fazla iş varsa. Kavrama tek ifade taşıyabiliyor.
 - İç içe iki döngü ve koşul varsa. Okunmuyor; normal döngü daha açık.
-- Yan etki için (`print`, dosyaya yazma, listeye ekleme). Üretecin işi
+- Yan etki için (`print`, dosyaya yazma, listeye ekleme). Kavramanın işi
   değer üretmek.
 
 Uzunluk sınırı basit: **bir satıra sığmıyorsa döngü yaz.**
 
 ## Karşılaştırma tablosu
 
-| Döngü | Üreteç |
+| Döngü | Kavrama |
 |---|---|
 | `result = []`<br>`for x in items:`<br>`    result.append(x * 2)` | `result = [x * 2 for x in items]` |
 | `for x in items:`<br>`    if x > 0:`<br>`        result.append(x)` | `result = [x for x in items if x > 0]` |
-| `for k, v in d.items():`<br>`    out[k] = v * 2` | `out = {k: v * 2 for k, v in d.items()}` |
 
 ## Nerede karşına çıkacak?
 
@@ -159,3 +125,8 @@ columns = [name.strip().lower() for name in header]
 
 Bu satır bir CSV başlığını temizliyor. Öğrendiğin şey tam olarak bu satırı
 okuyabilmek.
+
+Aynı yazımla sözlük ve küme de üretilebiliyor, iki döngü iç içe
+yazılabiliyor ve köşeli parantez yerine normal parantez konduğunda belleği
+doldurmayan bir **üreteç** çıkıyor. Bunların hepsi ileride **Kavrama
+İfadeleri** bölümünde.

@@ -8,7 +8,7 @@ scores = [90, 40, 75, 30, 65]
 names = ["ada", "alan", "grace"]
 ```
 
-**Yapman gerekenler — hepsini liste üreteci ile yaz, döngü kurma:**
+**Yapman gerekenler — hepsini liste kavraması ile yaz, döngü kurma:**
 
 1. `doubled` — her notun iki katı.
 2. `passed` — yalnızca **50 ve üstü** notlar.

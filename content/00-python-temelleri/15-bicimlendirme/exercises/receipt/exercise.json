@@ -1,0 +1,48 @@
+{
+  "id": "receipt",
+  "title": {
+    "tr": "Fiş yazdırmak",
+    "en": "Printing a receipt"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Sipariş numarası sıfırla dolduruluyor: `f\"Order {order_no:03d}\"` → `Order 007`.",
+      "en": "The order number is padded with zeros: `f\"Order {order_no:03d}\"` gives `Order 007`."
+    },
+    {
+      "tr": "Satır tutarı `count * price`. Toplamı döngü içinde biriktir: `subtotal += line`.",
+      "en": "A line total is `count * price`. Build the sum inside the loop: `subtotal += line`."
+    },
+    {
+      "tr": "İndirim satırında hem yüzde hem eksi işaretli tutar var: `f\"Discount ({discount:.0%})\"` ve `-amount` değerini `{:>10.2f}` ile yaz.",
+      "en": "The discount line has both the percentage and a negative amount: `f\"Discount ({discount:.0%})\"` and print `-amount` with `{:>10.2f}`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\norder_no = 7\nitems = [(\"Keyboard\", 1, 450.0), (\"Mouse\", 2, 175.5), (\"Cable\", 3, 39.9)]\ndiscount = 0.1\n\nprint(f\"Order {order_no:03d}\")\n\nsubtotal = 0.0\nfor name, count, price in items:\n    line = count * price\n    subtotal += line\n    print(f\"{name:<12}{count:>4}{line:>10.2f}\")\n\nsaving = subtotal * discount\ntotal = subtotal - saving\n\nprint(f\"{'Subtotal':<16}{subtotal:>10.2f}\")\nlabel = f\"Discount ({discount:.0%})\"\nprint(f\"{label:<16}{-saving:>10.2f}\")\nprint(f\"{'Total':<16}{total:>10.2f}\")\n```",
+      "en": "The solution:\n\n```python\norder_no = 7\nitems = [(\"Keyboard\", 1, 450.0), (\"Mouse\", 2, 175.5), (\"Cable\", 3, 39.9)]\ndiscount = 0.1\n\nprint(f\"Order {order_no:03d}\")\n\nsubtotal = 0.0\nfor name, count, price in items:\n    line = count * price\n    subtotal += line\n    print(f\"{name:<12}{count:>4}{line:>10.2f}\")\n\nsaving = subtotal * discount\ntotal = subtotal - saving\n\nprint(f\"{'Subtotal':<16}{subtotal:>10.2f}\")\nlabel = f\"Discount ({discount:.0%})\"\nprint(f\"{label:<16}{-saving:>10.2f}\")\nprint(f\"{'Total':<16}{total:>10.2f}\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "For",
+      "hint": {
+        "tr": "Kalemleri döngüyle yaz ve ara toplamı döngü içinde biriktir; elle üç satır yazmak istenmiyor.",
+        "en": "Print the items with a loop and build the subtotal inside it; writing the three lines by hand is not what is asked."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Order 007\nKeyboard       1    450.00\nMouse          2    351.00\nCable          3    119.70\nSubtotal            920.70\nDiscount (10%)      -92.07\nTotal               828.63"
+    }
+  ]
+}

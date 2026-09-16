@@ -24,6 +24,13 @@ lecture note does not mean downloading the whole application again.
 ## [0.8.2] — unreleased
 
 ### Added
+- **Two new sections in Python Fundamentals.** **Formatting Text:** f-string
+  format specifiers — decimal places, thousands separators, percentages,
+  alignment and column width, and printing numbers as an aligned table.
+  **Comprehensions:** list, dictionary and set comprehensions, the
+  difference between a filter and a conditional value, nested comprehensions
+  and generator expressions. Each section has a lesson, two lecture notes, a
+  fifteen-question quiz and five exercises.
 - **My Notes.** The notebook icon on the left strip opens your own notes.
   Notes are filed by path; you give each note a name and can tie it to a
   lesson, and then go back to that lesson from the note. You can also make

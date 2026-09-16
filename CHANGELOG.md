@@ -22,6 +22,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.8.2] — yayınlanmadı
 
 ### Eklendi
+- **Python Temelleri'ne iki yeni bölüm.** **Metinleri Biçimlendirme:**
+  f-string biçim belirteçleri — ondalık basamak sayısı, binlik ayırıcı,
+  yüzde, hizalama ve sütun genişliği, sayıların hizalı tablo hâlinde
+  yazdırılması. **Kavrama İfadeleri:** liste, sözlük ve küme kavramaları,
+  süzgeç ile koşullu değer ayrımı, iç içe kavrama ve üreteç ifadeleri.
+  Her bölümde konu anlatımı, iki ders notu, on beş soruluk sınav ve beş
+  alıştırma var.
 - **Notlarım.** Sol şeritteki defter simgesi kendi notlarınızı açıyor. Notlar
   patikalara göre klasörleniyor; her nota bir ad veriyorsunuz ve isterseniz
   bir derse bağlıyorsunuz, o zaman notun üstünden o derse dönebiliyorsunuz.

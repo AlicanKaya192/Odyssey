@@ -1,0 +1,56 @@
+{
+  "id": "grade-report",
+  "title": {
+    "tr": "Kavrama ile rapor",
+    "en": "A report with comprehensions"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Geçenler için süzgeç: `[name for name, score in scores.items() if score >= 50]`.",
+      "en": "For those who passed, use a filter: `[name for name, score in scores.items() if score >= 50]`."
+    },
+    {
+      "tr": "Ortalama için üreteç ifadesi ve `len()`: `sum(s for s in scores.values()) / len(scores)`.",
+      "en": "For the average use a generator expression and `len()`: `sum(s for s in scores.values()) / len(scores)`."
+    },
+    {
+      "tr": "Rapor satırlarını kavramayla üretirken biçim belirtecini de içinde kullanabilirsin: `[f\"{name:<8}{score:>4}\" for name, score in scores.items()]`. Yazdırmayı döngüyle yap.",
+      "en": "You can use a format specifier inside the comprehension that builds the report lines: `[f\"{name:<8}{score:>4}\" for name, score in scores.items()]`. Print them with a loop."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nscores = {\"ada\": 90, \"alan\": 45, \"grace\": 72, \"gauss\": 38}\n\npassed = [name for name, score in scores.items() if score >= 50]\naverage = sum(score for score in scores.values()) / len(scores)\nlines = [\n    f\"{name:<8}{score:>3} \" + (\"ok\" if score >= 50 else \"no\")\n    for name, score in scores.items()\n]\n\nfor line in lines:\n    print(line)\n\nprint(f\"Average: {average:.1f}\")\nprint(f\"Passed: {passed}\")\n```",
+      "en": "The solution:\n\n```python\nscores = {\"ada\": 90, \"alan\": 45, \"grace\": 72, \"gauss\": 38}\n\npassed = [name for name, score in scores.items() if score >= 50]\naverage = sum(score for score in scores.values()) / len(scores)\nlines = [\n    f\"{name:<8}{score:>3} \" + (\"ok\" if score >= 50 else \"no\")\n    for name, score in scores.items()\n]\n\nfor line in lines:\n    print(line)\n\nprint(f\"Average: {average:.1f}\")\nprint(f\"Passed: {passed}\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "ListComp",
+      "hint": {
+        "tr": "Listeleri kavramayla kur; `append` ile döngü yazma.",
+        "en": "Build the lists with comprehensions; do not use a loop with `append`."
+      }
+    },
+    {
+      "type": "ast_require",
+      "node": "GeneratorExp",
+      "hint": {
+        "tr": "Ortalamayı `sum(... for ...)` ile al; liste kurmaya gerek yok.",
+        "en": "Take the average with `sum(... for ...)`; there is no need to build a list."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada      90 ok\nalan     45 no\ngrace    72 ok\ngauss    38 no\nAverage: 61.2\nPassed: ['ada', 'grace']"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "flatten-rows",
+  "title": {
+    "tr": "İç içe kavrama",
+    "en": "A nested comprehension"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "İki `for` satırı yan yana yazılıyor: `[v for row in rows for v in row]`. Sıra, iç içe döngüyle aynı.",
+      "en": "Two `for` clauses sit side by side: `[v for row in rows for v in row]`. The order is the same as nested loops."
+    },
+    {
+      "tr": "Süzgeç yine sonda: `[v for row in rows for v in row if v > 0]`.",
+      "en": "The filter still goes last: `[v for row in rows for v in row if v > 0]`."
+    },
+    {
+      "tr": "Toplam için liste kurmaya gerek yok: `sum(v for row in rows for v in row)` üreteç ifadesiyle çalışır.",
+      "en": "You do not need a list for the sum: `sum(v for row in rows for v in row)` works with a generator expression."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nrows = [[3, -1, 4], [0, 5], [-2, 8, 1]]\n\nflat = [value for row in rows for value in row]\npositives = [value for row in rows for value in row if value > 0]\ntotal = sum(value for row in rows for value in row)\n\nprint(flat)\nprint(positives)\nprint(total)\n```",
+      "en": "The solution:\n\n```python\nrows = [[3, -1, 4], [0, 5], [-2, 8, 1]]\n\nflat = [value for row in rows for value in row]\npositives = [value for row in rows for value in row if value > 0]\ntotal = sum(value for row in rows for value in row)\n\nprint(flat)\nprint(positives)\nprint(total)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "ListComp",
+      "hint": {
+        "tr": "Düzleştirmeyi iç içe kavramayla yaz: `[v for row in rows for v in row]`.",
+        "en": "Flatten it with a nested comprehension: `[v for row in rows for v in row]`."
+      }
+    },
+    {
+      "type": "ast_require",
+      "node": "GeneratorExp",
+      "hint": {
+        "tr": "Toplamı üreteç ifadesiyle al: `sum(... for ... in ...)` — köşeli parantez olmadan.",
+        "en": "Take the sum with a generator expression: `sum(... for ... in ...)` — without square brackets."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, -1, 4, 0, 5, -2, 8, 1]\n[3, 4, 5, 8, 1]\n18"
+    }
+  ]
+}
