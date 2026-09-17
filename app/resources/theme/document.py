@@ -142,6 +142,12 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
     padding: 18px 20px; border-radius: 12px; margin: 18px 0;
     overflow-x: auto; line-height: 1.65;
 }}
+/* Problem ekranında kişinin kendi çalışması: düz metin, satırlar korunuyor
+ * ama uzun satır sarılıyor ve kod gibi değil yazı gibi görünüyor. */
+.content pre.work {{
+    white-space: pre-wrap; font-family: {FONTS['ui']}; font-size: 14.5px;
+    line-height: 1.7; color: {p['text']};
+}}
 .content pre code {{
     background: none; padding: 0; color: {p['text']};
     border-radius: 0; font-size: 13.5px;
@@ -258,6 +264,14 @@ figure.fig svg .ink {{ fill: {p['text']}; }}
 figure.fig svg .dim {{ fill: {p['text_muted']}; }}
 figure.fig svg .box {{ fill: {p['surface_alt']}; stroke: {p['border_strong']}; }}
 figure.fig svg .line {{ fill: none; stroke: {p['border_strong']}; stroke-width: 1.5; }}
+/* Matematik grafikleri: ızgara, eğriler ve üstlerindeki noktalar. Eğri
+ * renkleri aşağıdaki işaret renkleriyle aynı sırada. */
+figure.fig svg .grid {{ stroke: {p['border']}; stroke-width: 1; }}
+figure.fig svg .curve {{ fill: none; stroke: {p['accent']}; stroke-width: 2.6; stroke-linecap: round; }}
+figure.fig svg .curve2 {{ fill: none; stroke: {p['warning']}; stroke-width: 2.6; stroke-linecap: round; }}
+figure.fig svg .curve3 {{ fill: none; stroke: {p['text_muted']}; stroke-width: 1.5; }}
+figure.fig svg .dot {{ fill: {p['accent']}; }}
+figure.fig svg .dot2 {{ fill: {p['warning']}; }}
 
 /* Dört işaret rengi. Şemada altı çizili parça ile alttaki açıklama aynı
  * rengi taşıyor; okuyan kişi hangi açıklamanın hangi parçaya ait olduğunu

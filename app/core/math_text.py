@@ -28,7 +28,9 @@ _CODE = re.compile(r"(^```.*?^```[ \t]*$|`[^`\n]+`)", re.MULTILINE | re.DOTALL)
 _DISPLAY = re.compile(r"\$\$(.+?)\$\$", re.DOTALL)
 # Satır içi: açılışın ardından ve kapanışın önünden boşluk gelmiyor, kapanışın
 # ardından rakam gelmiyor. Böylece "5$ ile 10$" gibi bir metin formül sayılmıyor.
-_INLINE = re.compile(r"(?<![\\$])\$(?=\S)([^$\n]+?)(?<=\S)\$(?!\d)")
+# Formül tek bir satır sonunu aşabiliyor (paragraf seksen sütunda bölünüyor),
+# boş satırı aşamıyor: orası yeni paragraf.
+_INLINE = re.compile(r"(?<![\\$])\$(?=\S)((?:[^$\n]|\n(?![ \t]*\n))+?)(?<=\S)\$(?!\d)")
 
 _ESCAPED_DOLLAR = "\\$"
 

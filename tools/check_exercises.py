@@ -177,6 +177,9 @@ def main() -> int:
         pattern = "*/*/exercises/*/exercise.json"
 
     directories = sorted(p.parent for p in root.glob(pattern))
+    # Matematik problemlerinde çalıştırılacak kod yok; cevapları
+    # `validate_content.py` denetliyor.
+    directories = [d for d in directories if not Exercise.load(d).is_problem]
     if not directories:
         print(f"Eşleşen alıştırma yok: {pattern}")
         return 1

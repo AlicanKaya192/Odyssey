@@ -317,7 +317,7 @@ class TopicView(QWidget):
 
         if self._exercises:
             items.append(
-                f"✏️  {len(self._exercises)} {self._language.t('tabs.exercise').lower()}"
+                f"✏️  {len(self._exercises)} {self._exercise_word().lower()}"
             )
         if "quiz" in self._panes:
             items.append(
@@ -339,6 +339,14 @@ class TopicView(QWidget):
                     return len(json.load(handle).get("questions", []))
         return 0
 
+    def _all_problems(self) -> bool:
+        """Bölümün alıştırmalarının hepsi matematik problemi mi?"""
+        return bool(self._exercises) and all(e.is_problem for e in self._exercises)
+
+    def _exercise_word(self) -> str:
+        """Sekmenin adı: kod alıştırmasında "Alıştırma", matematikte "Problem"."""
+        return self._language.t("tabs.problem" if self._all_problems() else "tabs.exercise")
+
     def _pane_labels(self) -> dict[str, str]:
         """Bölüm sekmelerinin seçili dildeki adları."""
         return {
@@ -346,7 +354,7 @@ class TopicView(QWidget):
             "notes": self._language.t("tabs.pdf"),
             "pdf": self._language.t("tabs.pdf_file"),
             "quiz": self._language.t("tabs.quiz"),
-            "exercise": self._language.t("tabs.exercise"),
+            "exercise": self._exercise_word(),
         }
 
     def _pane_after(self, name: str) -> str | None:
@@ -478,7 +486,9 @@ class TopicView(QWidget):
 
         if self._exercises:
             if self._exercise_index < len(self._exercises) - 1:
-                self._exercise.set_advance_label(self._language.t("exercise.next"))
+                self._exercise.set_advance_label(
+                    self._language.t("problem.next" if self._all_problems() else "exercise.next")
+                )
             else:
                 self._exercise.set_advance_label(genel)
 
@@ -522,7 +532,7 @@ class TopicView(QWidget):
             return
 
         self._switcher_label.setText(
-            f"{self._language.t('tabs.exercise')} "
+            f"{self._exercise_word()} "
             f"{self._exercise_index + 1} / {len(self._exercises)}"
         )
         self._rebuild_numbers()

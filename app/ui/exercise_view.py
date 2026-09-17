@@ -24,11 +24,13 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QSplitter,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
 
 import html
+import json
 from pathlib import Path
 
 from ..core.catalog import Exercise
@@ -39,6 +41,7 @@ from ..core.progress import ProgressStore
 from ..core.runner import RunResult, run_code
 from ..resources.theme.tokens import FONTS, SPACING
 from ..widgets.code_editor import CodeEditor
+from ..widgets.problem_panel import ProblemPanel
 
 # Çıktı kutusunun en fazla kaplayacağı yükseklik.
 #
@@ -67,6 +70,10 @@ def exercise_key(exercise: Exercise) -> str:
     if len(parcalar) >= 4:
         return "/".join((parcalar[-4], parcalar[-3], exercise.id))
     return exercise.id
+
+
+# Kaç yanlış denemeden sonra çözüm yolları kendiliğinden açılıyor.
+REVEAL_AFTER_ATTEMPTS = 2
 
 
 class RunWorker(QThread):
@@ -313,7 +320,13 @@ class ExerciseView(QWidget):
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(self._build_brief())
-        splitter.addWidget(self._build_work())
+        # Sağ taraf alıştırmanın türüne göre: kod alıştırmasında editör,
+        # matematik probleminde cevap alanları.
+        self._work_stack = QStackedWidget()
+        self._code_work = self._build_work()
+        self._work_stack.addWidget(self._code_work)
+        self._work_stack.addWidget(self._build_problem_work())
+        splitter.addWidget(self._work_stack)
         # Maketteki oran: yönerge 340-430 arası, kalanı çalışma alanı.
         splitter.setSizes([430, 770])
         splitter.setStretchFactor(1, 1)
@@ -376,6 +389,10 @@ class ExerciseView(QWidget):
         yalnızca sonuncusu öyle.
         """
         toplam = len(self._exercise.hints) if self._exercise else 0
+        # Problemde çözüm ipuçlarda değil, çözüm yollarında; son ipucu da
+        # yalnızca bir yönlendirme.
+        if self._exercise is not None and self._exercise.is_problem:
+            return "hint.level1" if level == 1 else "hint.level2"
         if level >= toplam:
             return "hint.level3"
         if level == 1:
@@ -494,6 +511,29 @@ class ExerciseView(QWidget):
 
         return holder
 
+    def _build_problem_work(self) -> QWidget:
+        """Problemin sağ tarafı: üstte çalışma ve cevap, altta çözüm yolları.
+
+        Çözüm yolları formül içerdiği için belge alanında (KaTeX) çiziliyor;
+        cevap alanları Qt widget'ı. İkisi bir bölücüyle alt alta.
+        """
+        self._problem_split = QSplitter(Qt.Orientation.Vertical)
+
+        self._problem = ProblemPanel(self._language)
+        self._problem.checked.connect(self._on_problem_checked)
+        self._problem.work_changed.connect(lambda _: self._save_problem_state())
+        self._problem.reveal_requested.connect(lambda: self._reveal_solutions(True))
+        self._problem_split.addWidget(self._problem)
+
+        self._solutions = LessonView(self._language, compact=True)
+        self._solutions.hide()
+        self._problem_split.addWidget(self._solutions)
+        self._problem_split.setStretchFactor(1, 1)
+
+        # Çözüm açık mı; kayıtta da tutuluyor, bölüme dönünce açık kalsın.
+        self._revealed_solution = False
+        return self._problem_split
+
     def _build_runbar(self) -> QWidget:
         bar = QFrame()
         bar.setProperty("role", "topbar")
@@ -537,7 +577,7 @@ class ExerciseView(QWidget):
 
         Dil etiketi markdown'ın tanıdığı ad: T-SQL alıştırması `sql`.
         """
-        if self._exercise is None:
+        if self._exercise is None or self._exercise.is_problem:
             return None
         cursor = self._editor.textCursor()
         if cursor.hasSelection():
@@ -557,6 +597,15 @@ class ExerciseView(QWidget):
         # Yeni alıştırmada ipuçları kapalı başlar.
         self._revealed = set()
         self._refresh_prompt()
+
+        if exercise.is_problem:
+            state = problem_state(self._store.exercise_code(chapter_id, section_id, exercise.id))
+            self._problem.show_problem(exercise.answers, state["answers"], state["work"])
+            self._reveal_solutions(state["revealed"], save=False)
+            self._work_stack.setCurrentIndex(1)
+            self.retranslate()
+            return
+        self._work_stack.setCurrentIndex(0)
 
         # Kaydedilen kod hâlâ başlangıç kodunun kendisiyse (kullanıcı bir
         # şey yazmadan çalıştırmış) o kayda tutunmuyoruz: dili şimdiki dile
@@ -626,6 +675,10 @@ class ExerciseView(QWidget):
     # --- çalıştırma -------------------------------------------------------
 
     def run(self) -> None:
+        if self._exercise is not None and self._exercise.is_problem:
+            # Ctrl+Enter problemde cevabı denetliyor.
+            self._problem.check()
+            return
         if self._exercise is None or (self._worker and self._worker.isRunning()):
             return
 
@@ -693,6 +746,89 @@ class ExerciseView(QWidget):
         if result.passed and self._exercise is not None:
             self.solved.emit(self._exercise.id)
 
+    def _on_problem_checked(self, answers: list, passed: bool) -> None:
+        """Cevap denetlendi: kaydet, gerekiyorsa çözümü aç, çözüldüyse haber ver.
+
+        Çözüm yolları kendiliğinden iki durumda açılıyor: problem çözüldüğünde
+        (kişi kendi yolunu başka yollarla karşılaştırsın) ve iki yanlış
+        denemeden sonra (takılan kişi nerede ayrıldığını görsün).
+        """
+        if self._exercise is None:
+            return
+        self._save_problem_state(solved=passed, count_attempt=True)
+        attempts = self._store.attempts(self._chapter_id, self._section_id, self._exercise.id)
+        if passed or attempts >= REVEAL_AFTER_ATTEMPTS:
+            self._reveal_solutions(True)
+        if passed:
+            self.solved.emit(self._exercise.id)
+
+    def _save_problem_state(self, solved: bool | None = None, count_attempt: bool = False) -> None:
+        """Cevaplar, çalışma alanı ve çözümün açık olup olmadığı tek kayıtta.
+
+        Kod alıştırmasının `code` sütununa JSON olarak yazılıyor; ilerleme ve
+        rozet hesabı iki türü ayırt etmiyor.
+        """
+        if self._exercise is None or not self._exercise.is_problem:
+            return
+        state = {
+            "answers": self._problem.answers(),
+            "work": self._problem.work(),
+            "revealed": self._revealed_solution,
+        }
+        self._store.save_exercise(
+            self._chapter_id,
+            self._section_id,
+            self._exercise.id,
+            json.dumps(state, ensure_ascii=False),
+            solved=solved,
+            count_attempt=count_attempt,
+        )
+
+    def _reveal_solutions(self, revealed: bool, save: bool = True) -> None:
+        self._revealed_solution = revealed
+        self._problem.set_revealed(revealed)
+        self._solutions.setVisible(revealed)
+        if revealed:
+            self._render_solutions()
+            self._problem_split.setSizes([1, 1])
+        if save:
+            self._save_problem_state()
+
+    def _render_solutions(self) -> None:
+        """Kişinin çalışması ve çözüm yolları, karşılaştırılabilsin diye alt alta."""
+        if self._exercise is None:
+            return
+        t = self._language.t
+        language = self._language.language
+
+        work = self._problem.work().strip()
+        if work:
+            # Kullanıcının metni HTML olarak kaçırılıyor; `$` da kaçırılıyor,
+            # yoksa formül ayıklayıcı onun yazdığını formül sanıyor.
+            escaped = html.escape(work).replace("$", "&#36;")
+            work_html = f'<pre class="work">{escaped}</pre>'
+        else:
+            work_html = f'<p class="meta">{html.escape(t("problem.no_work"))}</p>'
+
+        parts = [
+            f"# {t('problem.solutions_title')}",
+            t("problem.compare_intro"),
+            f"## {t('problem.your_work')}",
+            work_html,
+        ]
+        solutions = self._exercise.solutions
+        for index, solution in enumerate(solutions, start=1):
+            title = self._language.pick(solution.get("title"))
+            if len(solutions) > 1:
+                heading = t("problem.path", number=index, title=title)
+            else:
+                heading = title or t("problem.solution")
+            parts.append(f"## {heading}")
+            parts.append(self._exercise.solution_text(index - 1, language))
+
+        self._solutions.set_base_dir(self._exercise.directory)
+        self._solutions.show_text("\n\n".join(parts))
+
     def _insert(self, widget: QWidget) -> None:
         self._results_layout.insertWidget(self._results_layout.count() - 1, widget)
 
@@ -710,6 +846,7 @@ class ExerciseView(QWidget):
         self._mode = mode
         self._editor.set_mode(mode)
         self._prompt.set_mode(mode)
+        self._solutions.set_mode(mode)
         if self._tables_window is not None:
             self._tables_window.set_mode(mode)
 
@@ -723,9 +860,13 @@ class ExerciseView(QWidget):
 
         # Başlık, etiketler ve ipuçları belgenin içinde olduğu için dil
         # değişince yönergeyi baştan çizmek yeterli.
+        self._problem.retranslate()
+        if self._exercise is not None and self._exercise.is_problem and self._revealed_solution:
+            self._render_solutions()
         if self._exercise is not None:
             self._refresh_prompt()
-            self._sync_starter_language()
+            if not self._exercise.is_problem:
+                self._sync_starter_language()
 
     def _sync_starter_language(self) -> None:
         """Başlangıç kodunun yorum satırlarını şimdiki dile çevirir.
@@ -744,3 +885,20 @@ class ExerciseView(QWidget):
         wanted = self._exercise.starter_code_for(self._language.language)
         if wanted.strip() != current.strip():
             self._editor.setPlainText(wanted)
+
+
+def problem_state(saved: str) -> dict:
+    """Kaydedilmiş problem durumu; kayıt yoksa ya da bozuksa boş durum."""
+    state = {"answers": [], "work": "", "revealed": False}
+    if not saved:
+        return state
+    try:
+        value = json.loads(saved)
+    except ValueError:
+        return state
+    if not isinstance(value, dict):
+        return state
+    state["answers"] = [str(item) for item in value.get("answers", [])]
+    state["work"] = str(value.get("work", ""))
+    state["revealed"] = bool(value.get("revealed", False))
+    return state

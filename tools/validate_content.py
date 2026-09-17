@@ -24,6 +24,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.catalog import Catalog, ContentError  # noqa: E402
+from app.core.problem_check import parse_number  # noqa: E402
 from app.paths import content_dir  # noqa: E402
 
 LANGUAGES = ("tr", "en")
@@ -282,7 +283,43 @@ DILE_OZEL_KONTROLLER = {
 }
 
 
+def _check_problem(where: str, exercise) -> list[str]:
+    """Matematik problemi: kod yok, cevap alanları ve adım adım çözüm var."""
+    problems: list[str] = []
+    yer = f"{where}/{exercise.id}"
+
+    if not exercise.answers:
+        problems.append(f"{yer}: problemde cevap alanı yok")
+    for index, spec in enumerate(exercise.answers, start=1):
+        if "value" not in spec and not spec.get("accept"):
+            problems.append(f"{yer}: {index}. cevabın ne değeri ne kabul listesi var")
+        if "value" in spec and parse_number(str(spec["value"])) is None:
+            problems.append(f"{yer}: {index}. cevabın değeri sayı değil ({spec['value']!r})")
+        if len(exercise.answers) > 1 and not all(spec.get("label", {}).get(l) for l in LANGUAGES):
+            problems.append(f"{yer}: birden fazla cevap var ama {index}. alanın iki dilde etiketi yok")
+
+    # Problemde çözüm ipucunda değil, çözüm yollarında; ipuçları yalnızca
+    # yönlendirme.
+    if not exercise.hints:
+        problems.append(f"{yer}: problemde ipucu yok")
+    if not exercise.solutions:
+        problems.append(f"{yer}: problemde çözüm yolu yok")
+    for index, solution in enumerate(exercise.solutions, start=1):
+        template = solution.get("file", "")
+        for lang in LANGUAGES:
+            if not (exercise.directory / template.replace("{lang}", lang)).exists():
+                problems.append(f"{yer}: {index}. çözüm yolunun {lang} dosyası yok ({template})")
+        if len(exercise.solutions) > 1 and not all(solution.get("title", {}).get(l) for l in LANGUAGES):
+            problems.append(f"{yer}: {index}. çözüm yolunun iki dilde başlığı yok")
+    if exercise.raw.get("checks") or exercise.raw.get("starter") or exercise.raw.get("solution"):
+        problems.append(f"{yer}: problemde kod alanları (checks/starter/solution) olmaz")
+    return problems
+
+
 def _check_exercise(where: str, exercise) -> list[str]:
+    if exercise.is_problem:
+        return _check_problem(where, exercise)
+
     problems: list[str] = []
 
     if not exercise.checks:

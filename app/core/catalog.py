@@ -117,11 +117,53 @@ class Block:
 
 @dataclass
 class Exercise:
-    """Tek bir kod alıştırması."""
+    """Tek bir alıştırma: kod yazılan ya da cevabı hesaplanan (problem).
+
+    YZ Matematiği patikasında alıştırmalar kod değil **matematik
+    problemi** (`"kind": "problem"`): kullanıcı cevabı yazıyor, cevap
+    `core/problem_check.py` ile karşılaştırılıyor. Yönerge ve kademeli
+    ipuçları iki türde de aynı; son ipucu problemde çözümün adım adım
+    hâli.
+    """
 
     id: str
     directory: Path
     raw: dict
+
+    @property
+    def kind(self) -> str:
+        """`code` (varsayılan) ya da `problem`."""
+        return str(self.raw.get("kind", "code"))
+
+    @property
+    def is_problem(self) -> bool:
+        return self.kind == "problem"
+
+    @property
+    def answers(self) -> list[dict]:
+        """Problemin cevap alanları; kod alıştırmasında boş."""
+        return list(self.raw.get("answers", []))
+
+    @property
+    def solutions(self) -> list[dict]:
+        """Problemin çözüm yolları: ``{"title": {...}, "file": "cozum-1.{lang}.md"}``.
+
+        Birden fazla yol olabiliyor (önce bölmek ya da doğrudan logaritma
+        almak gibi); kişi kendi yolunu hepsiyle karşılaştırabiliyor.
+        """
+        return list(self.raw.get("solutions", []))
+
+    def solution_text(self, index: int, language: str) -> str:
+        """Bir çözüm yolunun metni; istenen dil yoksa Türkçesi."""
+        solutions = self.solutions
+        if not 0 <= index < len(solutions):
+            return ""
+        template = solutions[index].get("file", "")
+        for code in (language, FALLBACK_LANGUAGE):
+            path = self.directory / template.replace("{lang}", code)
+            if path.exists():
+                return path.read_text(encoding="utf-8")
+        return ""
 
     @property
     def title(self) -> dict[str, str]:
