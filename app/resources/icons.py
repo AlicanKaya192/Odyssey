@@ -173,6 +173,17 @@ PATHS: dict[str, str] = {
         '<path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>'
         '<path d="m15 5 4 4"/>'
     ),
+    # Calisma kagidinin araclari (problem ekrani).
+    "eraser": (
+        '<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/>'
+        '<path d="M22 21H7"/><path d="m5 11 9 9"/>'
+    ),
+    "undo": '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+    "redo": '<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
+    "trash": (
+        '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>'
+        '<path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'
+    ),
     # Kutu icinde kutu: sorgunun icindeki sorgu. Alt sorgu rozetinin simgesi.
     "nested-box": (
         '<rect x="3" y="3" width="18" height="18" rx="2"/>'

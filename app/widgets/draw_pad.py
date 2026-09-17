@@ -52,8 +52,17 @@ MIN_STROKE = 2.0
 # yazılan satırların hizalanmasına yardım ediyor.
 GRID_STEP = 28
 
-# Silgi yarıçapı (piksel): imleç bir çizgiye bu kadar yaklaşınca çizgi siliniyor.
-ERASER_RADIUS = 12
+# Silgi yarıçapı (piksel). Silgi dokunduğu çizginin **yalnızca bu dairenin
+# içindeki kısmını** siliyor; çizgi oradan ikiye bölünüyor. Önce dokunduğu
+# çizginin tamamını siliyordu — tek harfi düzeltmek isteyen bütün kelimeyi
+# kaybediyordu (Alican: "çok op").
+ERASER_RADIUS = 11
+
+# Çizgi noktaları en fazla bu kadar aralıklı tutuluyor (piksel). Fare olayları
+# seyrek gelebiliyor; iki uzak nokta arasındaki kısım silgiye hiç "nokta"
+# vermezse silinemezdi. Araya nokta eklemek silginin çizginin her yerini
+# yakalamasını sağlıyor.
+POINT_SPACING = 3.0
 
 # Geri alma geçmişi.
 HISTORY_LIMIT = 60
@@ -141,6 +150,27 @@ def _smooth_path(stroke: list, width: float) -> QPainterPath:
     return path
 
 
+def _densify(stroke: list, width: float) -> list:
+    """Noktaları en fazla `POINT_SPACING` piksel aralıklı yapar (eski kayıtlar için)."""
+    if len(stroke) < 2:
+        return [tuple(p) for p in stroke]
+    result = [tuple(stroke[0])]
+    for (x0, y0), (x1, y1) in zip(stroke, stroke[1:]):
+        distance = math.hypot((x1 - x0) * width, (y1 - y0) * width)
+        steps = max(1, math.ceil(distance / POINT_SPACING))
+        for step in range(1, steps + 1):
+            result.append((
+                round(x0 + (x1 - x0) * step / steps, POINT_DIGITS),
+                round(y0 + (y1 - y0) * step / steps, POINT_DIGITS),
+            ))
+    return result
+
+
+def _is_dot(piece: list, original: list) -> bool:
+    """Tek noktalık parça kişinin kendi koyduğu nokta mı (ondalık virgülü gibi)?"""
+    return any(len(stroke) == 1 and tuple(stroke[0]) == tuple(piece[0]) for stroke in original)
+
+
 def drawing_bounds(drawing: dict, width: float) -> QRectF:
     """Çizimin kapladığı alan (piksel); boşsa boş dikdörtgen."""
     rect = QRectF()
@@ -193,11 +223,13 @@ class DrawPad(QWidget):
 
         self._drawing = empty_drawing()
         self._history: list[dict] = []
+        self._future: list[dict] = []
         self._current: list[tuple[float, float]] | None = None
         self._tool = PEN
         self._stamp = ""
         self._hover: QPointF | None = None
         self._erased = False
+        self._last_erase: QPointF | None = None
         self._placeholder = ""
         self.set_mode("dark")
 
@@ -213,6 +245,7 @@ class DrawPad(QWidget):
         """Kayıttan yükler; geçmiş sıfırlanıyor (başka problemin geri alması olmaz)."""
         self._drawing = clean_drawing(drawing)
         self._history = []
+        self._future = []
         self._current = None
         self.update()
 
@@ -235,11 +268,18 @@ class DrawPad(QWidget):
 
     # --- araçlar ----------------------------------------------------------
 
+    @property
+    def tool(self) -> str:
+        return self._tool
+
     def set_tool(self, tool: str) -> None:
         self._tool = tool
         self._stamp = ""
+        # Silgide sistem imleci gizleniyor; imlecin yerine silginin kendisi
+        # (dolu daire) çiziliyor. Ok ya da el imleci silginin nereyi sileceğini
+        # göstermiyordu ve silginin açık olduğu fark edilmiyordu.
         self.setCursor(
-            Qt.CursorShape.PointingHandCursor if tool == ERASER else Qt.CursorShape.CrossCursor
+            Qt.CursorShape.BlankCursor if tool == ERASER else Qt.CursorShape.CrossCursor
         )
         self.update()
 
@@ -255,10 +295,25 @@ class DrawPad(QWidget):
             self.update()
             self.stamp_finished.emit()
 
+    def can_undo(self) -> bool:
+        return bool(self._history)
+
+    def can_redo(self) -> bool:
+        return bool(self._future)
+
     def undo(self) -> None:
         if not self._history:
             return
+        self._future.append(self.drawing())
         self._drawing = self._history.pop()
+        self.update()
+        self.changed.emit()
+
+    def redo(self) -> None:
+        if not self._future:
+            return
+        self._history.append(self.drawing())
+        self._drawing = self._future.pop()
         self.update()
         self.changed.emit()
 
@@ -271,7 +326,9 @@ class DrawPad(QWidget):
         self.changed.emit()
 
     def _remember(self) -> None:
+        """Değişiklikten önceki hâli geçmişe atar; yeni bir değişiklik ileri almayı siler."""
         self._history.append(self.drawing())
+        self._future = []
         if len(self._history) > HISTORY_LIMIT:
             self._history.pop(0)
 
@@ -302,6 +359,7 @@ class DrawPad(QWidget):
         if self._tool == ERASER:
             self._remember()
             self._erased = False
+            self._last_erase = point
             self._erase_at(point)
             return
 
@@ -315,10 +373,34 @@ class DrawPad(QWidget):
         self._hover = point
         if event.buttons() & Qt.MouseButton.LeftButton:
             if self._tool == ERASER and not self._stamp:
-                self._erase_at(point)
+                self._erase_along(point)
             elif self._current is not None:
-                self._current.append(self._normal(point))
+                self._extend_current(point)
         self.update()
+
+    def _erase_along(self, point: QPointF) -> None:
+        """Silgiyi son konumdan bu konuma kadar aralıksız sürükler.
+
+        Hızlı bir sürüklemede fare olayları birbirinden uzak geliyor; yalnızca
+        o noktalarda silmek arada silinmemiş çizgi adacıkları bırakıyordu.
+        """
+        start = self._last_erase or point
+        distance = math.hypot(point.x() - start.x(), point.y() - start.y())
+        steps = max(1, math.ceil(distance / (ERASER_RADIUS / 2)))
+        for step in range(1, steps + 1):
+            self._erase_at(start + (point - start) * (step / steps))
+        self._last_erase = point
+
+    def _extend_current(self, point: QPointF) -> None:
+        """Çizgiye nokta ekler; uzak kalan aralığı ara noktalarla doldurur."""
+        width = max(1, self.width())
+        last_x, last_y = self._current[-1]
+        dx, dy = point.x() - last_x * width, point.y() - last_y * width
+        steps = max(1, math.ceil(math.hypot(dx, dy) / POINT_SPACING))
+        for step in range(1, steps + 1):
+            self._current.append(
+                self._normal(QPointF(last_x * width + dx * step / steps, last_y * width + dy * step / steps))
+            )
 
     def mouseReleaseEvent(self, event) -> None:  # noqa: N802
         if event.button() != Qt.MouseButton.LeftButton:
@@ -356,9 +438,16 @@ class DrawPad(QWidget):
         if event.matches(QKeySequence.StandardKey.Undo):
             self.undo()
             return
+        if event.matches(QKeySequence.StandardKey.Redo):
+            self.redo()
+            return
         super().keyPressEvent(event)
 
     def _erase_at(self, point: QPointF) -> None:
+        """Silgi dairesinin içindeki çizgi parçalarını siler, çizgiyi böler.
+
+        Damga (sembol) bölünemez: silgi değerse tamamı siliniyor.
+        """
         width = max(1, self.width())
         radius = ERASER_RADIUS / width
         px, py = point.x() / width, point.y() / width
@@ -366,7 +455,24 @@ class DrawPad(QWidget):
         def near(x: float, y: float) -> bool:
             return (x - px) ** 2 + (y - py) ** 2 <= radius ** 2
 
-        strokes = [s for s in self._drawing["strokes"] if not any(near(x, y) for x, y in s)]
+        strokes = []
+        for stroke in self._drawing["strokes"]:
+            dense = _densify(stroke, width)
+            if not any(near(x, y) for x, y in dense):
+                strokes.append(stroke)
+                continue
+            piece: list = []
+            for x, y in dense:
+                if near(x, y):
+                    if piece:
+                        strokes.append(piece)
+                    piece = []
+                else:
+                    piece.append((x, y))
+            if piece:
+                strokes.append(piece)
+        # Silginin kenarında kalan tek noktalar kâğıtta toz gibi duruyor.
+        strokes = [s for s in strokes if len(s) > 1 or len(s) == 1 and _is_dot(s, self._drawing["strokes"])]
 
         metrics = QFontMetricsF(math_font(width * STAMP_RATIO))
         stamps = []
@@ -375,7 +481,7 @@ class DrawPad(QWidget):
             if not box.adjusted(-ERASER_RADIUS, -ERASER_RADIUS, ERASER_RADIUS, ERASER_RADIUS).contains(point):
                 stamps.append(stamp)
 
-        if len(strokes) != len(self._drawing["strokes"]) or len(stamps) != len(self._drawing["stamps"]):
+        if strokes != self._drawing["strokes"] or len(stamps) != len(self._drawing["stamps"]):
             self._drawing["strokes"] = strokes
             self._drawing["stamps"] = stamps
             self._erased = True
@@ -418,10 +524,21 @@ class DrawPad(QWidget):
             painter.setFont(math_font(self.width() * STAMP_RATIO))
             painter.drawText(self._hover, self._stamp)
         elif self._tool == ERASER and self._hover is not None:
-            painter.setPen(QPen(self._hint, 1, Qt.PenStyle.DashLine))
+            # Silginin kendisi: vurgu renginde kenarlı, yarı saydam dolu daire.
+            fill = QColor(self._accent)
+            fill.setAlpha(55)
+            painter.setBrush(fill)
+            painter.setPen(QPen(self._accent, 2))
             painter.drawEllipse(self._hover, ERASER_RADIUS, ERASER_RADIUS)
+            painter.setBrush(Qt.BrushStyle.NoBrush)
 
         painter.setClipping(False)
-        painter.setPen(QPen(self._grid, 1))
-        painter.drawRoundedRect(rect, 12, 12)
+        if self._tool == ERASER:
+            # Silgi açıkken kâğıdın çerçevesi vurgu renginde: fare kâğıdın
+            # üstünde olmasa da hangi aracın seçili olduğu görünüyor.
+            painter.setPen(QPen(self._accent, 2))
+            painter.drawRoundedRect(rect.adjusted(0.5, 0.5, -0.5, -0.5), 12, 12)
+        else:
+            painter.setPen(QPen(self._grid, 1))
+            painter.drawRoundedRect(rect, 12, 12)
         painter.end()

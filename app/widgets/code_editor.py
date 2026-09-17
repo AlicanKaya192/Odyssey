@@ -681,6 +681,11 @@ class CodeEditor(CodeEditing, QTextEdit):
 
         target = QTextBlockFormat.LineHeightTypes.ProportionalHeight.value
 
+        # Biçim değişikliği ayrı bir geri alma adımı olmamalı: kendi adımı
+        # olunca Ctrl+Z önce görünmeyen bir biçimi geri alıyor ve "hiçbir şey
+        # olmadı" gibi duruyordu (yüklemeden sonra 7 boş adım ölçüldü). Bir
+        # önceki düzenlemeye (Enter'a) katılıyor.
+        cursor = None
         block = self.document().begin()
         while block.isValid():
             fmt = block.blockFormat()
@@ -688,20 +693,28 @@ class CodeEditor(CodeEditing, QTextEdit):
                 int(fmt.lineHeightType()) != target
                 or int(fmt.lineHeight()) != LINE_HEIGHT_PERCENT
             ):
-                cursor = QTextCursor(block)
+                if cursor is None:
+                    cursor = QTextCursor(self.document())
+                    cursor.joinPreviousEditBlock()
+                cursor.setPosition(block.position())
                 new_fmt = QTextBlockFormat()
                 new_fmt.setLineHeight(LINE_HEIGHT_PERCENT, target)
                 cursor.mergeBlockFormat(new_fmt)
             block = block.next()
+        if cursor is not None:
+            cursor.endEditBlock()
 
     def setPlainText(self, text: str) -> None:  # noqa: N802
         """Metni yükler ve satır aralığını yeniden uygular.
 
         Satır sayısı değişmeyen bir yükleme `blockCountChanged` yaymıyor;
-        aralık o durumda uygulanmadan kalıyordu.
+        aralık o durumda uygulanmadan kalıyordu. Aralık hemen uygulanıp geri
+        alma geçmişi temizleniyor: yüklenen metin ve biçimi geri alınacak bir
+        şey değil (Ctrl+Z alıştırmanın metnini silmemeli).
         """
         super().setPlainText(text)
-        self._schedule_line_spacing()
+        self._apply_line_spacing()
+        self.document().clearUndoRedoStacks()
 
     def _on_text_changed(self) -> None:
         self._line_area.update()

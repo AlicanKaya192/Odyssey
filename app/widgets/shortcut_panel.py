@@ -38,6 +38,8 @@ SHORTCUTS = [
         (["Ctrl", ","], "shortcut.settings"),
         (["F1"], "shortcut.list"),
         (["Esc"], "shortcut.back"),
+        (["Ctrl", "Z"], "shortcut.undo"),
+        (["Ctrl", "Y"], "shortcut.redo"),
     ]),
     ("exercise", [
         (["Ctrl", "Enter"], "shortcut.run"),

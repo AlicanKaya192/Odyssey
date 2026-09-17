@@ -245,6 +245,11 @@ class NoteEditor(CodeEditing, QTextEdit):
         self._spacing_queued = False
         target = QTextBlockFormat.LineHeightTypes.ProportionalHeight.value
 
+        # Biçim değişikliği ayrı bir geri alma adımı olmamalı: kendi adımı
+        # olunca Ctrl+Z önce görünmeyen bir biçimi geri alıyor ve "hiçbir şey
+        # olmadı" gibi duruyordu (yüklemeden sonra 7 boş adım ölçüldü). Bir
+        # önceki düzenlemeye (Enter'a) katılıyor.
+        cursor = None
         block = self.document().begin()
         while block.isValid():
             fmt = block.blockFormat()
@@ -252,11 +257,16 @@ class NoteEditor(CodeEditing, QTextEdit):
                 int(fmt.lineHeightType()) != target
                 or int(fmt.lineHeight()) != LINE_HEIGHT_PERCENT
             ):
-                cursor = QTextCursor(block)
+                if cursor is None:
+                    cursor = QTextCursor(self.document())
+                    cursor.joinPreviousEditBlock()
+                cursor.setPosition(block.position())
                 new_fmt = QTextBlockFormat()
                 new_fmt.setLineHeight(LINE_HEIGHT_PERCENT, target)
                 cursor.mergeBlockFormat(new_fmt)
             block = block.next()
+        if cursor is not None:
+            cursor.endEditBlock()
 
     def setPlainText(self, text: str) -> None:  # noqa: N802
         """Metni yükler; önceki notun geri alma geçmişi taşınmıyor."""

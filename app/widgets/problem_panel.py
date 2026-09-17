@@ -19,7 +19,8 @@ Akış üç adım:
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtCore import QSize, Qt, QTimer, Signal
+from PySide6.QtGui import QKeySequence
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
@@ -34,7 +35,8 @@ from PySide6.QtWidgets import (
 
 from ..core import problem_check
 from ..core.language import LanguageManager
-from ..resources.theme.tokens import SPACING
+from ..resources.icons import icon
+from ..resources.theme.tokens import PALETTES, SPACING
 from .draw_pad import ERASER, PEN, DrawPad
 from .effects import repolish
 from .symbol_palette import SymbolPalette
@@ -81,11 +83,16 @@ class ProblemPanel(QWidget):
         self._work_title.setProperty("role", "subtitle")
         header.addWidget(self._work_title)
         header.addStretch(1)
-        self._pen_button = self._tool_button(lambda: self._set_tool(PEN))
-        self._eraser_button = self._tool_button(lambda: self._set_tool(ERASER))
-        self._undo_button = self._tool_button(lambda: self._pad.undo())
-        self._clear_button = self._tool_button(lambda: self._pad.clear())
-        for button in (self._pen_button, self._eraser_button, self._undo_button, self._clear_button):
+        self._mode = "dark"
+        self._pen_button = self._tool_button("pencil", lambda: self._set_tool(PEN))
+        self._eraser_button = self._tool_button("eraser", lambda: self._set_tool(ERASER))
+        self._undo_button = self._tool_button("undo", lambda: self._pad.undo())
+        self._redo_button = self._tool_button("redo", lambda: self._pad.redo())
+        self._clear_button = self._tool_button("trash", lambda: self._pad.clear())
+        for button in (
+            self._pen_button, self._eraser_button, self._undo_button,
+            self._redo_button, self._clear_button,
+        ):
             header.addWidget(button)
         outer.addLayout(header)
 
@@ -107,6 +114,7 @@ class ProblemPanel(QWidget):
         # kadar küçülmemeli.
         self._pad.setMinimumHeight(PAD_MIN_HEIGHT)
         self._pad.changed.connect(self._schedule_work_save)
+        self._pad.changed.connect(self._refresh_tools)
         self._pad.stamp_finished.connect(self._palette.clear_selection)
         work_row.addWidget(self._pad, 1)
         outer.addLayout(work_row, 1)
@@ -116,6 +124,7 @@ class ProblemPanel(QWidget):
         self._work_timer.setInterval(WORK_SAVE_DELAY_MS)
         self._work_timer.timeout.connect(self.work_changed)
         self._set_tool(PEN)
+
 
         outer.addSpacing(SPACING["sm"])
         self._answer_title = QLabel()
@@ -156,12 +165,44 @@ class ProblemPanel(QWidget):
 
     # --- içerik -----------------------------------------------------------
 
-    def _tool_button(self, action) -> QPushButton:
+    def keyPressEvent(self, event) -> None:  # noqa: N802
+        """Ctrl+Z / Ctrl+Y kâğıt odakta olmasa da çalışsın.
+
+        Sembole ya da araç düğmesine basınca odak kâğıttan gidiyor; düğmenin
+        işlemediği tuş buraya kadar çıkıyor. Cevap kutusu odaktaysa Ctrl+Z
+        kutunun kendi metnini geri alıyor ve buraya hiç gelmiyor — kâğıda
+        dokunmuyor. `QShortcut` kullanılmadı: kutunun geri almasıyla
+        çakışacak bir ikinci yol açıyordu.
+        """
+        if event.matches(QKeySequence.StandardKey.Undo):
+            self._pad.undo()
+            return
+        if event.matches(QKeySequence.StandardKey.Redo):
+            self._pad.redo()
+            return
+        super().keyPressEvent(event)
+
+    def _tool_button(self, icon_name: str, action) -> QPushButton:
         button = QPushButton()
         button.setProperty("variant", "tool")
+        button.setProperty("icon_name", icon_name)
+        button.setIconSize(QSize(16, 16))
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.clicked.connect(action)
         return button
+
+    def _refresh_tools(self) -> None:
+        """Araç simgeleri: seçili araç vurgu renginde; geri al / yinele boşken soluk."""
+        palette = PALETTES.get(self._mode, PALETTES["light"])
+        for button in (
+            self._pen_button, self._eraser_button, self._undo_button,
+            self._redo_button, self._clear_button,
+        ):
+            active = button.property("active") == "true"
+            color = palette["accent"] if active else palette["text"]
+            button.setIcon(icon(button.property("icon_name"), color, 16))
+        self._undo_button.setEnabled(self._pad.can_undo())
+        self._redo_button.setEnabled(self._pad.can_redo())
 
     def _set_tool(self, tool: str, keep_symbol: bool = False) -> None:
         self._pad.set_tool(tool)
@@ -170,6 +211,7 @@ class ProblemPanel(QWidget):
         for button, name in ((self._pen_button, PEN), (self._eraser_button, ERASER)):
             button.setProperty("active", "true" if tool == name else "false")
             repolish(button)
+        self._refresh_tools()
 
     def _on_symbol(self, symbol: str) -> None:
         # Sembol konunca kalemle devam edilir; silgi açıkken sembol seçmek
@@ -206,6 +248,7 @@ class ProblemPanel(QWidget):
         self._pad.set_drawing(drawing)
         self._palette.set_special(symbols)
         self._set_tool(PEN)
+        self._refresh_tools()
         self._work_timer.stop()
 
         self._result.hide()
@@ -222,7 +265,9 @@ class ProblemPanel(QWidget):
         return self._pad.ink()
 
     def set_mode(self, mode: str) -> None:
+        self._mode = mode
         self._pad.set_mode(mode)
+        self._refresh_tools()
 
     # --- denetim ----------------------------------------------------------
 
@@ -295,6 +340,9 @@ class ProblemPanel(QWidget):
         self._pen_button.setText(t("problem.pen"))
         self._eraser_button.setText(t("problem.eraser"))
         self._undo_button.setText(t("problem.undo"))
+        self._redo_button.setText(t("problem.redo"))
+        self._undo_button.setToolTip(f"{t('problem.undo')}  (Ctrl+Z)")
+        self._redo_button.setToolTip(f"{t('problem.redo')}  (Ctrl+Y)")
         self._clear_button.setText(t("problem.clear"))
         self._palette.set_labels(t("problem.symbols_special"), t("problem.symbols"))
         self._answer_title.setText(self._language.t("problem.title"))
