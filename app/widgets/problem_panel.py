@@ -5,10 +5,11 @@ panel. Sol taraf (yönerge ve kademeli ipuçları) iki türde de aynı.
 
 Akış üç adım:
 
-1. **Çalışma alanı.** Kişi adımlarını buraya yazıyor. Puanlanmıyor —
-   serbest yazılmış bir matematik çözümünü yapay zeka olmadan güvenilir
-   biçimde değerlendirmek mümkün değil — ama saklanıyor ve çözüm açılınca
-   yanında gösteriliyor.
+1. **Çalışma kâğıdı.** Kişi adımlarını fareyle **çiziyor** (`DrawPad`);
+   klavyede kök, kesir ya da üs yazmak zor ve kısayolları bilinmiyor.
+   Soldaki paletten sembol konabiliyor. Çizim puanlanmıyor — serbest bir
+   matematik çözümünü yapay zeka olmadan güvenilir biçimde değerlendirmek
+   mümkün değil — ama saklanıyor ve çözüm açılınca yanında gösteriliyor.
 2. **Cevap.** Yalnızca sonuç denetleniyor (`core/problem_check.py`), alan
    alan: iki bilinmeyenli bir problemde hangisinin yanlış olduğunu söylemek
    "yanlış" deyip bırakmaktan daha öğretici.
@@ -25,8 +26,8 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QPlainTextEdit,
     QPushButton,
+    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
@@ -34,15 +35,23 @@ from PySide6.QtWidgets import (
 from ..core import problem_check
 from ..core.language import LanguageManager
 from ..resources.theme.tokens import SPACING
+from .draw_pad import ERASER, PEN, DrawPad
 from .effects import repolish
+from .symbol_palette import SymbolPalette
 
 # Bir alanın yanındaki durum işareti.
 MARK_OK = "✓"
 MARK_WRONG = "✕"
 
-# Çalışma alanı yazılırken kayıt, yazma durduktan bu kadar sonra yapılıyor;
-# her tuşta veritabanına gitmek gereksiz.
+# Çizim kaydı, kalem durduktan bu kadar sonra yapılıyor; her çizgide
+# veritabanına gitmek gereksiz.
 WORK_SAVE_DELAY_MS = 700
+
+# Sembol paletinin genişliği: dört sütun düğme ve kaydırma çubuğu.
+PALETTE_WIDTH = 190
+
+# Kâğıdın en küçük yüksekliği; sembol paletinin sekiz satırı da bu boya sığıyor.
+PAD_MIN_HEIGHT = 340
 
 
 class ProblemPanel(QWidget):
@@ -50,8 +59,8 @@ class ProblemPanel(QWidget):
 
     # (girilen cevaplar, hepsi doğru mu)
     checked = Signal(list, bool)
-    # Çalışma alanının metni değişti (gecikmeli).
-    work_changed = Signal(str)
+    # Çalışma kâğıdı değişti (gecikmeli).
+    work_changed = Signal()
     reveal_requested = Signal()
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
@@ -66,21 +75,47 @@ class ProblemPanel(QWidget):
         outer.setContentsMargins(SPACING["xl"], SPACING["lg"], SPACING["xl"], SPACING["lg"])
         outer.setSpacing(SPACING["sm"])
 
+        header = QHBoxLayout()
+        header.setSpacing(SPACING["xs"])
         self._work_title = QLabel()
         self._work_title.setProperty("role", "subtitle")
-        outer.addWidget(self._work_title)
+        header.addWidget(self._work_title)
+        header.addStretch(1)
+        self._pen_button = self._tool_button(lambda: self._set_tool(PEN))
+        self._eraser_button = self._tool_button(lambda: self._set_tool(ERASER))
+        self._undo_button = self._tool_button(lambda: self._pad.undo())
+        self._clear_button = self._tool_button(lambda: self._pad.clear())
+        for button in (self._pen_button, self._eraser_button, self._undo_button, self._clear_button):
+            header.addWidget(button)
+        outer.addLayout(header)
 
-        self._work = QPlainTextEdit()
-        self._work.setMinimumHeight(110)
-        self._work.textChanged.connect(self._schedule_work_save)
-        outer.addWidget(self._work, 1)
+        work_row = QHBoxLayout()
+        work_row.setSpacing(SPACING["md"])
+
+        self._palette = SymbolPalette()
+        self._palette.picked.connect(self._on_symbol)
+        palette_scroll = QScrollArea()
+        palette_scroll.setWidget(self._palette)
+        palette_scroll.setWidgetResizable(True)
+        palette_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        palette_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        palette_scroll.setFixedWidth(PALETTE_WIDTH)
+        work_row.addWidget(palette_scroll)
+
+        self._pad = DrawPad()
+        # Çözüm açılınca alt tarafa yer veriliyor ama kâğıt yazılamayacak
+        # kadar küçülmemeli.
+        self._pad.setMinimumHeight(PAD_MIN_HEIGHT)
+        self._pad.changed.connect(self._schedule_work_save)
+        self._pad.stamp_finished.connect(self._palette.clear_selection)
+        work_row.addWidget(self._pad, 1)
+        outer.addLayout(work_row, 1)
 
         self._work_timer = QTimer(self)
         self._work_timer.setSingleShot(True)
         self._work_timer.setInterval(WORK_SAVE_DELAY_MS)
-        self._work_timer.timeout.connect(
-            lambda: self.work_changed.emit(self._work.toPlainText())
-        )
+        self._work_timer.timeout.connect(self.work_changed)
+        self._set_tool(PEN)
 
         outer.addSpacing(SPACING["sm"])
         self._answer_title = QLabel()
@@ -121,7 +156,30 @@ class ProblemPanel(QWidget):
 
     # --- içerik -----------------------------------------------------------
 
-    def show_problem(self, specs: list[dict], answers: list[str], work: str) -> None:
+    def _tool_button(self, action) -> QPushButton:
+        button = QPushButton()
+        button.setProperty("variant", "tool")
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
+        button.clicked.connect(action)
+        return button
+
+    def _set_tool(self, tool: str, keep_symbol: bool = False) -> None:
+        self._pad.set_tool(tool)
+        if not keep_symbol:
+            self._palette.clear_selection()
+        for button, name in ((self._pen_button, PEN), (self._eraser_button, ERASER)):
+            button.setProperty("active", "true" if tool == name else "false")
+            repolish(button)
+
+    def _on_symbol(self, symbol: str) -> None:
+        # Sembol konunca kalemle devam edilir; silgi açıkken sembol seçmek
+        # silgiyi bırakıyor.
+        self._set_tool(PEN, keep_symbol=True)
+        self._pad.arm_stamp(symbol)
+
+    def show_problem(
+        self, specs: list[dict], answers: list[str], drawing: dict, symbols: list[str]
+    ) -> None:
         """Alanları kurar ve daha önce yazılanları geri koyar."""
         while self._grid.count():
             item = self._grid.takeAt(0)
@@ -145,10 +203,9 @@ class ProblemPanel(QWidget):
             self._fields.append(field)
             self._marks.append(mark)
 
-        # Geri yüklenen metin bir "değişiklik" sayılıp kayda gitmesin.
-        self._work.blockSignals(True)
-        self._work.setPlainText(work)
-        self._work.blockSignals(False)
+        self._pad.set_drawing(drawing)
+        self._palette.set_special(symbols)
+        self._set_tool(PEN)
         self._work_timer.stop()
 
         self._result.hide()
@@ -157,8 +214,15 @@ class ProblemPanel(QWidget):
     def answers(self) -> list[str]:
         return [field.text() for field in self._fields]
 
-    def work(self) -> str:
-        return self._work.toPlainText()
+    def drawing(self) -> dict:
+        return self._pad.drawing()
+
+    def ink(self):
+        """Çizimin mürekkep rengi; çözüm sayfasına konan görsel aynı renkte."""
+        return self._pad.ink()
+
+    def set_mode(self, mode: str) -> None:
+        self._pad.set_mode(mode)
 
     # --- denetim ----------------------------------------------------------
 
@@ -225,8 +289,14 @@ class ProblemPanel(QWidget):
     # --- dil --------------------------------------------------------------
 
     def retranslate(self) -> None:
-        self._work_title.setText(self._language.t("problem.work_title"))
-        self._work.setPlaceholderText(self._language.t("problem.work_placeholder"))
+        t = self._language.t
+        self._work_title.setText(t("problem.work_title"))
+        self._pad.set_placeholder(t("problem.work_placeholder"))
+        self._pen_button.setText(t("problem.pen"))
+        self._eraser_button.setText(t("problem.eraser"))
+        self._undo_button.setText(t("problem.undo"))
+        self._clear_button.setText(t("problem.clear"))
+        self._palette.set_labels(t("problem.symbols_special"), t("problem.symbols"))
         self._answer_title.setText(self._language.t("problem.title"))
         self._check_button.setText(self._language.t("problem.check"))
         self._reveal_button.setText(self._language.t("problem.show_solution"))

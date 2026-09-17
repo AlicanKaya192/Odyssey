@@ -142,11 +142,12 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
     padding: 18px 20px; border-radius: 12px; margin: 18px 0;
     overflow-x: auto; line-height: 1.65;
 }}
-/* Problem ekranında kişinin kendi çalışması: düz metin, satırlar korunuyor
- * ama uzun satır sarılıyor ve kod gibi değil yazı gibi görünüyor. */
-.content pre.work {{
-    white-space: pre-wrap; font-family: {FONTS['ui']}; font-size: 14.5px;
-    line-height: 1.7; color: {p['text']};
+/* Problem ekranında kişinin kendi çalışması: çizimin görseli, kareli kâğıt
+ * gibi bir kutunun içinde. */
+.content img.work {{
+    display: block; max-width: 100%; height: auto;
+    background: {p['field']}; border: 1px solid {p['border']};
+    border-radius: 12px; padding: 8px;
 }}
 .content pre code {{
     background: none; padding: 0; color: {p['text']};

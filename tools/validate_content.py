@@ -298,6 +298,10 @@ def _check_problem(where: str, exercise) -> list[str]:
         if len(exercise.answers) > 1 and not all(spec.get("label", {}).get(l) for l in LANGUAGES):
             problems.append(f"{yer}: birden fazla cevap var ama {index}. alanın iki dilde etiketi yok")
 
+    symbols = exercise.raw.get("symbols", [])
+    if not isinstance(symbols, list) or not all(isinstance(s, str) and s for s in symbols):
+        problems.append(f"{yer}: symbols boş olmayan metinlerden oluşan bir liste olmalı")
+
     # Problemde çözüm ipucunda değil, çözüm yollarında; ipuçları yalnızca
     # yönlendirme.
     if not exercise.hints:

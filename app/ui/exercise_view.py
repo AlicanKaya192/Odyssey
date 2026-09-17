@@ -13,7 +13,7 @@ Kod arka planda ayrı bir süreçte çalıştırılır; çalışırken arayüz d
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtCore import QBuffer, QIODevice, Qt, QThread, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QFrame,
@@ -41,6 +41,7 @@ from ..core.progress import ProgressStore
 from ..core.runner import RunResult, run_code
 from ..resources.theme.tokens import FONTS, SPACING
 from ..widgets.code_editor import CodeEditor
+from ..widgets.draw_pad import clean_drawing, empty_drawing, render_image
 from ..widgets.problem_panel import ProblemPanel
 
 # Çıktı kutusunun en fazla kaplayacağı yükseklik.
@@ -74,6 +75,11 @@ def exercise_key(exercise: Exercise) -> str:
 
 # Kaç yanlış denemeden sonra çözüm yolları kendiliğinden açılıyor.
 REVEAL_AFTER_ATTEMPTS = 2
+
+# Çözüm sayfasına konan çizim görselinin genişliği (piksel). Kâğıttaki
+# koordinatlar genişliğe oranlı olduğu için çizim bu genişlikte yeniden
+# çiziliyor, kâğıdın o anki boyutuna bağlı değil.
+WORK_IMAGE_WIDTH = 760
 
 
 class RunWorker(QThread):
@@ -521,7 +527,7 @@ class ExerciseView(QWidget):
 
         self._problem = ProblemPanel(self._language)
         self._problem.checked.connect(self._on_problem_checked)
-        self._problem.work_changed.connect(lambda _: self._save_problem_state())
+        self._problem.work_changed.connect(self._save_problem_state)
         self._problem.reveal_requested.connect(lambda: self._reveal_solutions(True))
         self._problem_split.addWidget(self._problem)
 
@@ -600,7 +606,9 @@ class ExerciseView(QWidget):
 
         if exercise.is_problem:
             state = problem_state(self._store.exercise_code(chapter_id, section_id, exercise.id))
-            self._problem.show_problem(exercise.answers, state["answers"], state["work"])
+            self._problem.show_problem(
+                exercise.answers, state["answers"], state["drawing"], exercise.symbols
+            )
             self._reveal_solutions(state["revealed"], save=False)
             self._work_stack.setCurrentIndex(1)
             self.retranslate()
@@ -772,7 +780,7 @@ class ExerciseView(QWidget):
             return
         state = {
             "answers": self._problem.answers(),
-            "work": self._problem.work(),
+            "drawing": self._problem.drawing(),
             "revealed": self._revealed_solution,
         }
         self._store.save_exercise(
@@ -790,7 +798,10 @@ class ExerciseView(QWidget):
         self._solutions.setVisible(revealed)
         if revealed:
             self._render_solutions()
-            self._problem_split.setSizes([1, 1])
+            # Kâğıt üstte çoğunlukta kalıyor; çözüm aşağıda kayarak okunuyor.
+            # Bölücüyle kişi oranı kendisi değiştirebiliyor.
+            total = max(1, self._problem_split.height())
+            self._problem_split.setSizes([int(total * 0.62), int(total * 0.38)])
         if save:
             self._save_problem_state()
 
@@ -801,12 +812,15 @@ class ExerciseView(QWidget):
         t = self._language.t
         language = self._language.language
 
-        work = self._problem.work().strip()
-        if work:
-            # Kullanıcının metni HTML olarak kaçırılıyor; `$` da kaçırılıyor,
-            # yoksa formül ayıklayıcı onun yazdığını formül sanıyor.
-            escaped = html.escape(work).replace("$", "&#36;")
-            work_html = f'<pre class="work">{escaped}</pre>'
+        # Çizim, sayfanın o anki metin renginde saydam bir görsel olarak
+        # konuyor; çözüm yollarıyla aynı sütunda, karşılaştırılabilir.
+        image = render_image(self._problem.drawing(), WORK_IMAGE_WIDTH, self._problem.ink())
+        if image is not None:
+            buffer = QBuffer()
+            buffer.open(QIODevice.OpenModeFlag.WriteOnly)
+            image.save(buffer, "PNG")
+            encoded = bytes(buffer.data().toBase64()).decode("ascii")
+            work_html = f'<img class="work" alt="" src="data:image/png;base64,{encoded}">'
         else:
             work_html = f'<p class="meta">{html.escape(t("problem.no_work"))}</p>'
 
@@ -847,6 +861,10 @@ class ExerciseView(QWidget):
         self._editor.set_mode(mode)
         self._prompt.set_mode(mode)
         self._solutions.set_mode(mode)
+        self._problem.set_mode(mode)
+        if self._exercise is not None and self._exercise.is_problem and self._revealed_solution:
+            # Çizimin görseli mürekkep rengini taşıyor; temayla yenilensin.
+            self._render_solutions()
         if self._tables_window is not None:
             self._tables_window.set_mode(mode)
 
@@ -889,7 +907,7 @@ class ExerciseView(QWidget):
 
 def problem_state(saved: str) -> dict:
     """Kaydedilmiş problem durumu; kayıt yoksa ya da bozuksa boş durum."""
-    state = {"answers": [], "work": "", "revealed": False}
+    state = {"answers": [], "drawing": empty_drawing(), "revealed": False}
     if not saved:
         return state
     try:
@@ -899,6 +917,6 @@ def problem_state(saved: str) -> dict:
     if not isinstance(value, dict):
         return state
     state["answers"] = [str(item) for item in value.get("answers", [])]
-    state["work"] = str(value.get("work", ""))
+    state["drawing"] = clean_drawing(value.get("drawing"))
     state["revealed"] = bool(value.get("revealed", False))
     return state

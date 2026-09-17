@@ -145,6 +145,11 @@ class Exercise:
         return list(self.raw.get("answers", []))
 
     @property
+    def symbols(self) -> list[str]:
+        """Problemin çalışma kâğıdında öne çıkan özel semboller (`log₂` gibi)."""
+        return [str(item) for item in self.raw.get("symbols", [])]
+
+    @property
     def solutions(self) -> list[dict]:
         """Problemin çözüm yolları: ``{"title": {...}, "file": "cozum-1.{lang}.md"}``.
 
