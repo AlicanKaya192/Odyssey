@@ -807,6 +807,16 @@ class MainWindow(QMainWindow):
         self._store.set_setting("language", self._language.language)
         self._store.set_setting("theme", self._theme.mode)
 
+        # Pencere kapandı: dil bağı koparılıyor ve pencere siliniyor. Yoksa
+        # her açılışta bir pencere daha birikiyor ve hepsi her dil
+        # değişiminde boş yere yeniden çevriliyordu (ölçüldü: iki açılışta
+        # iki pencere yaşıyordu). Süren işçileri pencere kendisi devrediyor.
+        try:
+            self._language.language_changed.disconnect(dialog.retranslate)
+        except (RuntimeError, TypeError):
+            pass
+        dialog.deleteLater()
+
     def _on_lock_changed(self) -> None:
         """Kilit ayarı değişti; kilide bakan her ekran yenileniyor."""
         self._journey.refresh()
