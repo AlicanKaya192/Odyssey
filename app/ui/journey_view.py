@@ -14,8 +14,8 @@ açılmıyor. Tamamlanmış bölümlere istendiği zaman geri dönülebiliyor.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QSize, Qt, Signal
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import QPointF, QSize, Qt, Signal
+from PySide6.QtGui import QColor, QIcon, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import (
     QGraphicsOpacityEffect,
     QFrame,
@@ -40,14 +40,15 @@ from ..resources.theme.tokens import CONTENT_WIDTH, NODE_STATES, PALETTES, SPACI
 from ..widgets.common import Card, StatBlock, horizontal_rule, section_label
 from ..widgets.effects import apply_shadow, refresh_shadow, repolish
 
-# Düğümlerin soldan uzaklıkları — yol bu değerlerle zigzag çiziyor.
-ZIGZAG = [30, 120, 170, 120, 30]
+# Düğümlerin soldan uzaklıkları — yol bu değerlerle zigzag çiziyor. Dizi
+# başa dönünce de kaydırma değişiyor (…120 → 30 → 120…); sonunda bir 30
+# daha olsaydı iki halka üst üste gelip aradaki eğri düz bir çizgiye
+# dönüyordu.
+ZIGZAG = [30, 120, 170, 120]
 
-# Halkaları birleştiren dikey çizgi: yüksekliği ve halkanın soluna göre
-# içeriden kaç piksel başladığı. Daire 74 piksel, çizgi 4; ortadan geçmesi
-# için 37 - 2 = 35.
-CONNECTOR_HEIGHT = 30
-CONNECTOR_INDENT = 35
+# Halkaları birleştiren eğri: yüksekliği ve kalınlığı. Eğri bir dairenin
+# ortasından çıkıp zikzakta bir sonrakinin ortasına kıvrılarak iniyor.
+CONNECTOR_HEIGHT = 44
 CONNECTOR_WIDTH = 4
 
 # Her halkanın sabit genişliği. Metne göre değişince satırlar farklı
@@ -781,6 +782,56 @@ class PathNode(QWidget):
             self.setGraphicsEffect(solukluk)
 
 
+class PathConnector(QWidget):
+    """İki halkayı birleştiren S biçimli eğri.
+
+    Önceden halkanın altından dümdüz inen bir çizgiydi; halkalar zikzak
+    dizildiği için bir sonraki halkaya ulaşmıyor, yarıda kopuk kalıyordu
+    (Alican bildirdi). Eğri üstteki dairenin ortasından dikey çıkıp alttaki
+    dairenin ortasına dikey giriyor; iki ucu da daireye teğet görünüyor.
+
+    Uçlar düğmelerin **gerçek** ortasından hesaplanıyor, sabit sayıdan
+    değil: halkanın genişliği kenarlıkla birlikte duruma göre 78 ya da 80
+    piksel (QSS `max-width` kenarlığı saymıyor). Eski düz çizgi 74'e göre
+    konduğu için dairelerin ortasından 1-3 piksel kaymıştı (ölçüldü).
+    """
+
+    def __init__(self, start: QWidget, color: str, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._start = start
+        self._end: QWidget | None = None
+        self._color = color
+        self.setFixedSize(BAND_WIDTH, CONNECTOR_HEIGHT)
+
+    def set_end(self, end: QWidget) -> None:
+        """Alttaki halkanın düğmesi; o halka kurulunca veriliyor."""
+        self._end = end
+        self.update()
+
+    def _center_x(self, button: QWidget) -> float:
+        left = self.mapFromGlobal(button.mapToGlobal(button.rect().topLeft())).x()
+        return left + button.width() / 2
+
+    def endpoints(self) -> tuple[float, float]:
+        start = self._center_x(self._start)
+        end = self._center_x(self._end) if self._end is not None else start
+        return start, end
+
+    def paintEvent(self, event) -> None:  # noqa: N802 (Qt adlandırması)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        pen = QPen(QColor(self._color))
+        pen.setWidthF(CONNECTOR_WIDTH)
+        pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+        painter.setPen(pen)
+
+        start, end = self.endpoints()
+        h = self.height()
+        path = QPainterPath(QPointF(start, 0))
+        path.cubicTo(QPointF(start, h * 0.55), QPointF(end, h * 0.45), QPointF(end, h))
+        painter.drawPath(path)
+
+
 class LevelHeader(QWidget):
     """Yolun üstünde bir seviye grubunu açan başlık.
 
@@ -877,6 +928,8 @@ class PathView(QWidget):
         # önceki ekrandaki modül kartında duruyor. Sayfanın tepesinde
         # üçüncü kez tekrar etmek yolu aşağı itiyordu.
 
+        self._pending_curve: PathConnector | None = None
+
         # "Şu an buradasın" işareti: tamamlanmamış ilk yazılmış bölüm.
         outline = chapter.outline
         current_index = self._current_index(outline, chapter.id)
@@ -902,9 +955,10 @@ class PathView(QWidget):
                     "planned",
                     order=index + 1,
                 )
+                self._attach(node)
                 self._layout.addWidget(self._zigzag_row(node, index))
                 if not son and not grup_bitiyor:
-                    self._layout.addWidget(self._connector(index, False))
+                    self._layout.addWidget(self._connector(node, False))
                 continue
 
             state = self._state_of(chapter.id, section)
@@ -930,14 +984,21 @@ class PathView(QWidget):
             )
             node.opened.connect(self.section_opened)
 
+            self._attach(node)
             self._layout.addWidget(self._zigzag_row(node, index))
 
             # Bir sonraki bölüm yeni bir grubu açıyorsa bağlayıcı çizgi
             # çizilmiyor: çizgi başlığın içinden geçmiş gibi duruyordu.
             if not son and not grup_bitiyor:
-                self._layout.addWidget(self._connector(index, state == "completed"))
+                self._layout.addWidget(self._connector(node, state == "completed"))
 
         self._layout.addStretch(1)
+
+    def _attach(self, node: PathNode) -> None:
+        """Bekleyen eğrinin alt ucunu bu halkaya bağlar."""
+        if self._pending_curve is not None:
+            self._pending_curve.set_end(node.button)
+            self._pending_curve = None
 
     def _level_headers(self, chapter: Chapter, outline: list) -> dict[int, QWidget]:
         """Seviyenin değiştiği her bölümün önüne konacak başlıklar.
@@ -1004,25 +1065,21 @@ class PathView(QWidget):
         container.setLayout(row)
         return container
 
-    def _connector(self, index: int, done: bool) -> QWidget:
-        line = QFrame()
-        line.setProperty("role", "connector")
-        line.setProperty("done", "true" if done else "false")
-        line.setFixedHeight(CONNECTOR_HEIGHT)
-
-        # Çizgi, halkanın dairesinin tam altında. Bandın toplam genişliği
-        # halka satırlarıyla birebir aynı (`BAND_WIDTH`); yoksa iki satır
-        # farklı genişlikte ortalanıyor ve çizgi daireden kayıyor.
-        sol = ZIGZAG[index % len(ZIGZAG)] + CONNECTOR_INDENT
+    def _connector(self, node: PathNode, done: bool) -> QWidget:
+        # Eğri, bu halkanın dairesinin ortasından bir sonrakininkine gidiyor;
+        # sonraki halka kurulunca `_rebuild` ucunu ona bağlıyor.
+        palette = PALETTES.get(self._mode, PALETTES["light"])
+        curve = PathConnector(
+            node.button, palette["success"] if done else palette["border"]
+        )
+        self._pending_curve = curve
 
         holder = QWidget()
         layout = QHBoxLayout(holder)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addStretch(1)
-        layout.addSpacing(sol)
-        layout.addWidget(line)
-        layout.addSpacing(BAND_WIDTH - sol - CONNECTOR_WIDTH)
+        layout.addWidget(curve)
         layout.addStretch(1)
         return holder
 
