@@ -145,25 +145,33 @@ def main() -> int:
     theme = ThemeManager(store.setting("theme", "dark"))
     theme.apply(application)
 
-    # Açılış ekranı, ağır kurulum başlamadan önce açılıyor: o kurulum bitene
-    # kadar ekranda hiçbir belirti olmuyordu ve uygulama açılmamış gibi
-    # duruyordu.
-    splash_started = time.monotonic()
-    splash = show_splash(icon_path, theme.effective_mode)
-    application.processEvents()
-
     # İlk açılışta dil, bilgisayarın diline göre seçiliyor ve kaydediliyor.
     # Kayıtlı bir seçim varsa ona dokunulmuyor: kullanıcı ayarlardan İngilizce
-    # dediyse, Türkçe bir Windows'ta bile İngilizce açılmalı.
+    # dediyse, Türkçe bir Windows'ta bile İngilizce açılmalı. Açılış
+    # ekranından önce okunuyor ki ekrandaki yazılar doğru dilde çıksın.
     saved_language = store.setting("language", "")
     if saved_language not in AVAILABLE_LANGUAGES:
         saved_language = system_language()
         store.set_setting("language", saved_language)
     language = LanguageManager(saved_language)
 
+    # Açılış ekranı, ağır kurulum başlamadan önce açılıyor: o kurulum bitene
+    # kadar ekranda hiçbir belirti olmuyordu ve uygulama açılmamış gibi
+    # duruyordu. Sürüm satırı `APP_VERSION`'dan geliyor.
+    splash_started = time.monotonic()
+    splash = show_splash(
+        icon_path,
+        theme.effective_mode,
+        language.t("app.subtitle"),
+        f"v{APP_VERSION} · {language.t('splash.beta')}",
+    )
+    application.processEvents()
+
     # Ağır kısım burada: bu satır QtWebEngine'i yüklüyor.
+    splash.set_stage(language.t("splash.stage_engine"), 0.25)
     from app.ui.main_window import MainWindow
 
+    splash.set_stage(language.t("splash.stage_content"), 0.55)
     window = MainWindow(language, theme, store)
     # Simge pencereye de ayrıca veriliyor. Windows görev çubuğu ve Alt+Tab
     # listesi uygulamanınkini değil, pencerenin kendi simgesini okuyor.
@@ -183,11 +191,18 @@ def main() -> int:
     # Opaklığı sıfır bir pencere işletim sistemi tarafından yine de
     # bileşikleniyor, yani Chromium çiziyor ama kimse görmüyor. Açılış
     # ekranı kaybolurken opaklık bire çekiliyor.
+    splash.set_stage(language.t("splash.stage_pages"), 0.8)
     window.setWindowOpacity(0.0)
     window.show()
     window.warm_up()
 
-    close_splash(splash, window, splash_started)
+    first_name = store.profile().get("first_name", "").strip()
+    greeting = (
+        language.t("home.welcome_named", name=first_name)
+        if first_name
+        else language.t("home.welcome")
+    )
+    close_splash(splash, window, splash_started, greeting)
 
     # Beta uyarısı pencere göründükten sonra çıkıyor; boş ekranın önünde
     # açılan bir kutu, uygulamanın açılmadığı izlenimi veriyor.
