@@ -296,6 +296,8 @@ class Section:
     directory: Path
     raw: dict
     blocks: list[Block] = field(default_factory=list)
+    # `exercises` ilk erişimde bir kez okunuyor; bkz. oradaki not.
+    _exercises: list | None = field(default=None, init=False, repr=False, compare=False)
 
     @property
     def title(self) -> dict[str, str]:
@@ -328,12 +330,23 @@ class Section:
 
     @property
     def exercises(self) -> list[Exercise]:
-        found = []
-        for block in self.blocks_of("exercise"):
-            directory = block.exercise_dir
-            if directory and directory.exists():
-                found.append(Exercise.load(directory))
-        return found
+        """Bölümün alıştırmaları; dosyalardan **bir kez** okunuyor.
+
+        Önceden her erişimde bütün `exercise.json` dosyaları baştan
+        okunuyordu. Yol, rozet, rota ve ilerleme hesapları bunu bölüm
+        başına tekrar tekrar çağırdığı için tek bir dil değişimi 1.103 dosya
+        açıyordu; değişimin 352 ms'sinin 209 ms'si buydu (ölçüldü). İçerik
+        uygulama çalışırken değişmiyor. Çağırana kopya veriliyor ki listeyi
+        değiştiren biri önbelleği bozmasın.
+        """
+        if self._exercises is None:
+            found = []
+            for block in self.blocks_of("exercise"):
+                directory = block.exercise_dir
+                if directory and directory.exists():
+                    found.append(Exercise.load(directory))
+            self._exercises = found
+        return list(self._exercises)
 
     @classmethod
     def load(cls, directory: Path, chapter_id: str) -> "Section":
