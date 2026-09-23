@@ -1,9 +1,10 @@
 Bölmeyi atlayıp doğrudan iki tarafın logaritmasını alabilirsin. Soldaki çarpımı **çarpım kuralı** ayırıyor:
 
 $$
-\ln (1000 \cdot 1.08^t) = \ln 2500
-\quad\Rightarrow\quad
-\ln 1000 + t \ln 1.08 = \ln 2500
+\begin{aligned}
+\ln (1000 \cdot 1.08^t) &= \ln 2500 \\
+\ln 1000 + t \ln 1.08 &= \ln 2500
+\end{aligned}
 $$
 
 $$

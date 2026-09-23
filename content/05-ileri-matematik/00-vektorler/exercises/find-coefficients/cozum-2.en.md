@@ -7,7 +7,11 @@ $$
 Multiply the first by $2$: $2a + 6b = 14$. Subtract the second from it; $a$ disappears:
 
 $$
-(2a + 6b) - (2a + b) = 14 - 9 \;\Rightarrow\; 5b = 5 \;\Rightarrow\; b = 1
+\begin{aligned}
+(2a + 6b) - (2a + b) &= 14 - 9 \\
+5b &= 5 \\
+b &= 1
+\end{aligned}
 $$
 
 From the first equation $a = 7 - 3 \cdot 1 = 4$.

@@ -9,7 +9,12 @@ $$
 **3. Birinciye koy:**
 
 $$
-a + 3(9 - 2a) = 7 \;\Rightarrow\; a + 27 - 6a = 7 \;\Rightarrow\; -5a = -20 \;\Rightarrow\; a = 4
+\begin{aligned}
+a + 3(9 - 2a) &= 7 \\
+a + 27 - 6a &= 7 \\
+-5a &= -20 \\
+a &= 4
+\end{aligned}
 $$
 
 **4.** $b = 9 - 2 \cdot 4 = 1$.

@@ -5,7 +5,10 @@ $$
 $$
 
 $$
-\|\mathbf{a} - \mathbf{b}\| = \sqrt{20^2 + (-1)^2 + (-2)^2} = \sqrt{400 + 1 + 4} = \sqrt{405} \approx 20.12
+\begin{aligned}
+\|\mathbf{a} - \mathbf{b}\| &= \sqrt{20^2 + (-1)^2 + (-2)^2} \\
+&= \sqrt{400 + 1 + 4} = \sqrt{405} \approx 20.12
+\end{aligned}
 $$
 
 **2. Yüz metrekare biriminde:**

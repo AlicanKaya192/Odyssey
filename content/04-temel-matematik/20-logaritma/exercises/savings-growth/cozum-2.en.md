@@ -1,9 +1,10 @@
 You can skip the division and take the logarithm of both sides straight away. The **product rule** splits the product on the left:
 
 $$
-\ln (1000 \cdot 1.08^t) = \ln 2500
-\quad\Rightarrow\quad
-\ln 1000 + t \ln 1.08 = \ln 2500
+\begin{aligned}
+\ln (1000 \cdot 1.08^t) &= \ln 2500 \\
+\ln 1000 + t \ln 1.08 &= \ln 2500
+\end{aligned}
 $$
 
 $$

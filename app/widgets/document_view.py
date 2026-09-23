@@ -114,6 +114,20 @@ document.querySelectorAll('.math').forEach(function (el) {
     displayMode: el.classList.contains('display'), throwOnError: false
   });
 });
+// Dar panelde (problem yönergesi, çözüm yolları) biraz taşan formül
+// kaydırma çubuğu yerine küçültülerek sığdırılıyor. Çok taşan formül
+// okunamayacak kadar küçülmesin diye %75'te durup kaydırmaya bırakılıyor.
+function fitMath() {
+  document.querySelectorAll('.math.display').forEach(function (el) {
+    el.style.fontSize = '';
+    if (el.scrollWidth > el.clientWidth + 1) {
+      var ratio = el.clientWidth / el.scrollWidth;
+      el.style.fontSize = Math.max(0.75, ratio * 0.98) + 'em';
+    }
+  });
+}
+fitMath();
+window.addEventListener('resize', fitMath);
 </script>"""
 
 
