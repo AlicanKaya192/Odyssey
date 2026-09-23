@@ -32,7 +32,9 @@ LANGUAGES = ("tr", "en")
 # Bölümün seviyesi. Boş bırakılabiliyor; yazılıyorsa yol ekranı bu ada
 # göre başlık arıyor (`path.level_<seviye>`), uydurma bir ad ekranda ham
 # anahtar olarak görünürdü.
-SEVIYELER = ("basic", "intermediate", "advanced")
+# Matematik MAT 2'de seviye zorluk değil konu grubu: doğrusal cebir,
+# kalkülüs, olasılık.
+SEVIYELER = ("basic", "intermediate", "advanced", "linear_algebra", "calculus", "probability")
 REFERENCE = "tr"
 
 

@@ -266,6 +266,10 @@ figure.fig svg .curve2 {{ fill: none; stroke: {p['warning']}; stroke-width: 2.6;
 figure.fig svg .curve3 {{ fill: none; stroke: {p['text_muted']}; stroke-width: 1.5; }}
 figure.fig svg .dot {{ fill: {p['accent']}; }}
 figure.fig svg .dot2 {{ fill: {p['warning']}; }}
+/* Üçüncü eğri / vektör (toplam vektörü gibi). Yeşil: mor ve turuncudan
+ * uzak, iki temada da okunuyor. */
+figure.fig svg .curve4 {{ fill: none; stroke: {p['success']}; stroke-width: 2.6; stroke-linecap: round; }}
+figure.fig svg .dot3 {{ fill: {p['success']}; }}
 
 /* Dört işaret rengi. Şemada altı çizili parça ile alttaki açıklama aynı
  * rengi taşıyor; okuyan kişi hangi açıklamanın hangi parçaya ait olduğunu
