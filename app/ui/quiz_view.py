@@ -43,6 +43,7 @@ from ..core.quiz_shuffle import prepare
 from ..resources.theme.tokens import PALETTES, READING_WIDTH, SPACING
 from ..widgets import richtext
 from ..widgets.common import Card
+from ..widgets.effects import apply_shadow, refresh_shadow
 from ..widgets.timer_ring import TimerRing, format_clock
 
 
@@ -56,9 +57,14 @@ class OptionRow(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
+        # Sonuçta doğru/yanlış zemini satırın tamamına veriliyor; yalnızca
+        # yuvarlak düğmeye verildiğinde düğmenin etrafında küçük bir kare
+        # kalıyor, şıkkın metni zeminin dışında duruyordu.
+        self.setProperty("role", "option-row")
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 2, 0, 2)
+        layout.setContentsMargins(0, 2, SPACING["md"], 2)
         layout.setSpacing(SPACING["sm"])
 
         self.button = QRadioButton()
@@ -93,7 +99,7 @@ class OptionRow(QWidget):
         )
 
     def set_tone(self, tone: str) -> None:
-        for widget in (self.button, self.label):
+        for widget in (self, self.button, self.label):
             widget.setProperty("tone", tone)
             widget.style().unpolish(widget)
             widget.style().polish(widget)
@@ -115,10 +121,15 @@ class QuestionCard(QFrame):
         self._answered = False
         self._mode = mode
         self._total = 0
-        self.setProperty("surface", "true")
+        # Her soru kendi kartında: yüzey rengi, ince kenarlık, yuvarlak köşe
+        # ve gölge. Önce `surface="true"` yazıyordu ve QSS'te o değerin bir
+        # karşılığı yoktu; sorular sayfaya düz yazılmış gibi duruyor,
+        # birinin nerede bitip ötekinin nerede başladığı seçilmiyordu.
+        self.setProperty("surface", "card")
+        apply_shadow(self, mode)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(SPACING["lg"], SPACING["lg"], SPACING["lg"], SPACING["lg"])
+        layout.setContentsMargins(28, SPACING["lg"], 28, SPACING["lg"])
         layout.setSpacing(SPACING["sm"])
 
         self._number = QLabel()
@@ -146,16 +157,16 @@ class QuestionCard(QFrame):
             self._rows.append(row)
             layout.addWidget(row)
 
-        # Açıklama, konu anlatımındaki ipucu kutusuyla aynı görünümde:
-        # ampul simgesi, vurgu renginde sol kenar ve dolgulu zemin. Düz metin
-        # olarak bırakıldığında şıkların arasında kaybolup gidiyordu.
+        # Açıklama ampullü, dolgulu bir kutuda: dört köşesi yuvarlak, kenar
+        # çizgisi yok (Alican'ın verdiği görüntüye göre). Düz metin olarak
+        # bırakıldığında şıkların arasında kaybolup gidiyordu.
         self._feedback = QFrame()
-        self._feedback.setProperty("banner", "accent")
+        self._feedback.setProperty("banner", "tip")
         self._feedback.hide()
 
         feedback_layout = QHBoxLayout(self._feedback)
         feedback_layout.setContentsMargins(
-            SPACING["md"], SPACING["sm"], SPACING["md"], SPACING["sm"]
+            SPACING["md"], 14, SPACING["md"], 14
         )
         feedback_layout.setSpacing(SPACING["sm"])
 
@@ -218,8 +229,10 @@ class QuestionCard(QFrame):
 
     def retranslate(self, total: int = 0) -> None:
         self._total = total or self._total
+        # Büyük harf `t_upper` ile: Python'un `.upper()`'ı Türkçe `i`yi
+        # noktasız `I` yapıyor.
         self._number.setText(
-            self._language.t("quiz.question", current=self._index + 1, total=total)
+            self._language.t_upper("quiz.question", current=self._index + 1, total=total)
             if total
             else f"{self._index + 1}."
         )
@@ -241,6 +254,7 @@ class QuestionCard(QFrame):
     def set_mode(self, mode: str) -> None:
         """Tema değişince kod parçalarının renkleri yeniden üretiliyor."""
         self._mode = mode
+        refresh_shadow(self, mode)
         self.retranslate(self._total)
 
 
