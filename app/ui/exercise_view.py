@@ -87,8 +87,10 @@ class RunWorker(QThread):
 
     completed = Signal(object)
 
-    def __init__(self, code: str, exercise: Exercise) -> None:
-        super().__init__()
+    def __init__(self, code: str, exercise: Exercise, parent=None) -> None:
+        # Ebeveyn veriliyor: pencere kapanırken çalışan iş parçacıkları
+        # `findChildren` ile bulunup bekleniyor (`MainWindow.closeEvent`).
+        super().__init__(parent)
         self._code = code
         self._exercise = exercise
 
@@ -118,8 +120,8 @@ class SnapshotWorker(QThread):
 
     completed = Signal(object)
 
-    def __init__(self, exercise: Exercise) -> None:
-        super().__init__()
+    def __init__(self, exercise: Exercise, parent=None) -> None:
+        super().__init__(parent)
         self._exercise = exercise
 
     def run(self) -> None:  # noqa: D102
@@ -677,7 +679,7 @@ class ExerciseView(QWidget):
         if not self._tables and (
             self._snapshot is None or not self._snapshot.isRunning()
         ):
-            self._snapshot = SnapshotWorker(self._exercise)
+            self._snapshot = SnapshotWorker(self._exercise, self)
             self._snapshot.completed.connect(self._on_snapshot)
             self._snapshot.start()
 
@@ -713,7 +715,7 @@ class ExerciseView(QWidget):
         self._run_button.setText(self._language.t("exercise.running"))
         self._clear_results()
 
-        self._worker = RunWorker(self._editor.toPlainText(), self._exercise)
+        self._worker = RunWorker(self._editor.toPlainText(), self._exercise, self)
         self._worker.completed.connect(self._on_completed)
         self._worker.start()
 

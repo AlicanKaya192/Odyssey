@@ -14,7 +14,7 @@ Ekranlar:
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import QThread, Qt, QTimer
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QMainWindow,
@@ -911,5 +911,24 @@ class MainWindow(QMainWindow):
         # Discord'daki yazı silinsin; yoksa kapatılan uygulama hâlâ
         # kullanılıyor gibi görünüyor.
         self._presence.stop()
+        self._wait_for_workers()
         self._store.close()
         super().closeEvent(event)
+
+    def _wait_for_workers(self) -> None:
+        """Kapanmadan önce arka plan işlerinin bitmesini kısa süre bekler.
+
+        Güncelleme denetimi (en fazla `updates.TIMEOUT_SEC`) ya da çalışan
+        bir alıştırma bitmeden pencere yok edilince Qt "QThread: Destroyed
+        while thread is still running" uyarısı veriyor ve süreç çökebiliyor
+        (Alican bildirdi). Pencere önce gizleniyor: kişi beklemeyi görmüyor.
+        """
+        running = [t for t in self.findChildren(QThread) if t.isRunning()]
+        if not running:
+            return
+        self.hide()
+        QApplication.processEvents()
+        limit_ms = (updates.TIMEOUT_SEC + 1) * 1000
+        for thread in running:
+            thread.requestInterruption()
+            thread.wait(limit_ms)
