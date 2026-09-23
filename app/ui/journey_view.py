@@ -14,8 +14,15 @@ açılmıyor. Tamamlanmış bölümlere istendiği zaman geri dönülebiliyor.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QPointF, QSize, Qt, Signal
-from PySide6.QtGui import QColor, QIcon, QPainter, QPainterPath, QPen
+from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
+from PySide6.QtGui import (
+    QColor,
+    QIcon,
+    QLinearGradient,
+    QPainter,
+    QPainterPath,
+    QPen,
+)
 from PySide6.QtWidgets import (
     QGraphicsOpacityEffect,
     QFrame,
@@ -36,8 +43,9 @@ from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.unlock import blocking_section
 from ..resources.icons import icon, pixmap
-from ..resources.theme.tokens import CONTENT_WIDTH, NODE_STATES, PALETTES, SPACING
-from ..widgets.common import Card, StatBlock, horizontal_rule, section_label
+from ..resources.theme.tokens import CONTENT_WIDTH, NODE_STATES, PALETTES, RADIUS, SPACING
+from ..widgets.common import Card, ElidedText, StatBlock, horizontal_rule, section_label
+from ..widgets.streak_flame import flame_pixmap, next_tier, tier_for
 from ..widgets.effects import apply_shadow, refresh_shadow, repolish
 
 # Düğümlerin soldan uzaklıkları — yol bu değerlerle zigzag çiziyor. Dizi
@@ -104,49 +112,86 @@ def centered_column(inner: QWidget, max_width: int = CONTENT_WIDTH) -> QWidget:
 
 
 class HeroCard(QFrame):
-    """Üstteki karşılama kartı: kaldığın yer ve özet sayılar."""
+    """Üstteki karşılama kartı: kaldığın yer ve özet sayılar.
+
+    Zemini kendisi çiziyor: çivit→mor geçiş ve üstünde yarı saydam
+    daireler (Alican'ın verdiği örneğe göre). Renkler temadan değil
+    logodan geliyor; koyu temanın açık vurgu rengiyle zemin pastel
+    kalıyor, beyaz yazı zor okunuyordu.
+    """
 
     resume = Signal()
+
+    GRADIENT = ("#4F46E5", "#7C3AED")
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._language = language
         self._name = ""
         self._resume = ""
+        self._streak = 0
         self.setProperty("role", "hero")
         apply_shadow(self, "light", strong=True)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(SPACING["xl"], SPACING["lg"], SPACING["xl"], SPACING["lg"])
-        layout.setSpacing(SPACING["xs"])
+        layout.setContentsMargins(SPACING["xl"], 28, SPACING["xl"], 26)
+        layout.setSpacing(SPACING["sm"])
 
         self._title = QLabel()
-        self._title.setStyleSheet("color:#FFFFFF; font-size:23px; font-weight:700;")
+        self._title.setStyleSheet(
+            "color:#FFFFFF; font-size:22px; font-weight:700; background:transparent;"
+        )
         layout.addWidget(self._title)
 
         self._subtitle = QLabel()
         self._subtitle.setStyleSheet(
-            "color:rgba(255,255,255,0.92); font-size:14px; font-weight:600;"
+            "color:rgba(255,255,255,0.86); font-size:14px; font-weight:500;"
+            " background:transparent;"
         )
         self._subtitle.setWordWrap(True)
         layout.addWidget(self._subtitle)
         layout.addSpacing(SPACING["md"])
 
         stats = QHBoxLayout()
-        stats.setSpacing(SPACING["xl"])
+        stats.setSpacing(56)
         self._stats = {
             key: StatBlock("0", "", inverse=True)
             for key in ("sections", "exercises", "streak", "progress")
         }
         for block in self._stats.values():
-            # Sayı etiketinin ortasına hizalanıyor: ikisi de sola yaslıyken
-            # sayı etiketten çok kısa olduğu için sola kaçmış duruyordu.
-            # Bloklar sondaki esneme payı sayesinde etiketleri kadar
-            # genişliyor, bu yüzden ortalama doğru yere düşüyor.
-            block.set_centered(True)
+            # Sayılar etiketleriyle birlikte sola yaslı (örnekteki gibi).
+            block.set_centered(False)
+            block.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+            block.setStyleSheet("background: transparent;")
             stats.addWidget(block)
         stats.addStretch(1)
         layout.addLayout(stats)
+
+    def paintEvent(self, event) -> None:  # noqa: N802 (Qt adlandırması)
+        """Geçişli zemin ve dekoratif daireler, kartın köşelerine kırpılmış."""
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        rect = QRectF(self.rect())
+        shape = QPainterPath()
+        shape.addRoundedRect(rect, RADIUS["xl"], RADIUS["xl"])
+        painter.setClipPath(shape)
+
+        gradient = QLinearGradient(rect.topLeft(), rect.bottomRight())
+        gradient.setColorAt(0.0, QColor(self.GRADIENT[0]))
+        gradient.setColorAt(1.0, QColor(self.GRADIENT[1]))
+        painter.fillPath(shape, gradient)
+
+        painter.setPen(Qt.PenStyle.NoPen)
+        w, h = rect.width(), rect.height()
+        # Sağda kartın dışına taşan büyük daire, solda altta küçüğü.
+        for cx, cy, r, alpha in (
+            (w - 40, h * 0.42, h * 0.95, 20),
+            (w - 150, h + 30, h * 0.55, 12),
+            (30, h + 10, h * 0.42, 14),
+        ):
+            color = QColor(255, 255, 255, alpha)
+            painter.setBrush(color)
+            painter.drawEllipse(QPointF(cx, cy), r, r)
 
     def update_stats(
         self,
@@ -177,6 +222,7 @@ class HeroCard(QFrame):
         self._stats["exercises"].set_value(f"{exercises}/{total_exercises}")
         self._stats["streak"].set_value(str(streak))
         self._stats["progress"].set_value(f"%{progress}")
+        self._streak = streak
         self.retranslate()
 
     def set_mode(self, mode: str) -> None:
@@ -188,17 +234,40 @@ class HeroCard(QFrame):
         self._subtitle.setText(text)
 
     def _render_greeting(self) -> None:
-        self._title.setText(
+        selam = (
             self._language.t("home.welcome_named", name=self._name)
             if self._name
             else self._language.t("home.welcome")
         )
+        self._title.setText(f"{selam} 👋")
         self._subtitle.setText(self._resume)
+
+    def _render_flame(self) -> None:
+        """Serinin alevi ve ipucu: şu anki aşama, sonrakine kaç gün kaldı."""
+        t = self._language.t
+        tier = tier_for(self._streak)
+        sonraki = next_tier(self._streak)
+        parcalar = [
+            t(f"streak.tier_{tier.key}") if tier else t("streak.none"),
+        ]
+        if sonraki is not None:
+            parcalar.append(
+                t(
+                    "streak.next",
+                    days=sonraki.min_days - self._streak,
+                    name=t(f"streak.tier_{sonraki.key}"),
+                )
+            )
+        self._stats["streak"].set_icon(
+            flame_pixmap(self._streak, self.devicePixelRatioF() or 1.0),
+            " · ".join(parcalar),
+        )
 
     def retranslate(self) -> None:
         self._render_greeting()
         for key in self._stats:
             self._stats[key].set_label(self._language.t(f"home.stat_{key}"))
+        self._render_flame()
 
 
 class ModuleCard(QFrame):
@@ -306,8 +375,11 @@ class TrackCard(QFrame):
         self._total = 0
         self.setProperty("variant", "module")
         self.setProperty("locked", "true" if track.locked else "false")
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self.setMinimumHeight(164)
+        # Bütün kartlar aynı boyda: genişliği ızgaranın eşit sütunları,
+        # yüksekliği `_fix_height` veriyor. Önceden içerik boyu belirliyordu
+        # ve on üç kartta on bir farklı boy vardı (ölçüldü); uzun başlıklar
+        # taşıp kesiliyordu.
+        self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
 
         if not track.locked:
             self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -325,11 +397,14 @@ class TrackCard(QFrame):
         self._icon = QLabel()
         self._icon.setPixmap(pixmap(track.icon, track.color, 26))
         self._icon.setFixedWidth(28)
-        header.addWidget(self._icon, 0, Qt.AlignmentFlag.AlignTop)
+        header.addWidget(self._icon, 0, Qt.AlignmentFlag.AlignVCenter)
 
-        self._title = QLabel()
+        # Başlığa her kartta iki satırlık yer ayrılıyor ve dikeyde
+        # ortalanıyor: "Doğal Dil İşleme" iki satır, "SQL" tek satır olsa da
+        # açıklamalar aynı hizadan başlıyor.
+        self._title = ElidedText(lines=2)
         self._title.setProperty("role", "subtitle")
-        self._title.setWordWrap(True)
+        self._title.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         header.addWidget(self._title, 1)
 
         if track.locked:
@@ -337,13 +412,11 @@ class TrackCard(QFrame):
             kilit.setPixmap(pixmap("lock", PALETTES[mode]["text_muted"], 18))
             kilit.setFixedWidth(20)
             header.addWidget(kilit, 0, Qt.AlignmentFlag.AlignTop)
-        header.addLayout(QVBoxLayout())
 
         layout.addLayout(header)
 
-        self._description = QLabel()
+        self._description = ElidedText(lines=2)
         self._description.setProperty("role", "muted")
-        self._description.setWordWrap(True)
         layout.addWidget(self._description)
         layout.addStretch(1)
 
@@ -355,15 +428,48 @@ class TrackCard(QFrame):
         layout.addWidget(self._bar)
 
         # Alt satır: kilitlide durum, açıkta ilerleme.
-        self._caption = QLabel()
+        self._caption = ElidedText(lines=2)
         self._caption.setProperty("role", "muted")
-        self._caption.setWordWrap(True)
         layout.addWidget(self._caption)
 
         if track.locked:
             solukluk = QGraphicsOpacityEffect(self)
             solukluk.setOpacity(LOCKED_OPACITY)
             self.setGraphicsEffect(solukluk)
+
+    def showEvent(self, event) -> None:  # noqa: N802 (Qt adlandırması)
+        # Ölçü ekrana gelince alınıyor: kurulurken bazı kartlarda yazı tipi
+        # henüz stil dosyasından gelmemişti ve kartlar 186 ile 201 piksel
+        # arasında iki farklı boyda çıkıyordu (ölçüldü).
+        super().showEvent(event)
+        self._fix_height()
+
+    def changeEvent(self, event) -> None:  # noqa: N802
+        super().changeEvent(event)
+        if event.type() == event.Type.StyleChange and self.isVisible():
+            self._fix_height()
+
+    def _fix_height(self) -> None:
+        """Kart yüksekliği: en kalabalık hâlin sığacağı sabit boy.
+
+        Başlık 2, açıklama 2, alt satır 2 satır; aradaki boşluklar ve çubuk.
+        Her kart aynı hesabı yaptığı için hepsi aynı boyda.
+        """
+        for label in (self._title, self._description, self._caption):
+            label.ensurePolished()
+            label._reflow()
+        margins = self.layout().contentsMargins()
+        spacing = self.layout().spacing()
+        bar = self._bar.sizeHint().height()
+        height = (
+            margins.top() + margins.bottom()
+            + self._title.height()
+            + self._description.height()
+            + bar
+            + self._caption.height()
+            + spacing * 4
+        )
+        self.setFixedHeight(height)
 
     @property
     def track_id(self) -> str:
@@ -389,13 +495,13 @@ class TrackCard(QFrame):
             refresh_shadow(self, mode)
 
     def retranslate(self) -> None:
-        self._title.setText(self._language.pick(self._track.title))
-        self._description.setText(self._language.pick(self._track.description))
+        self._title.set_full_text(self._language.pick(self._track.title))
+        self._description.set_full_text(self._language.pick(self._track.description))
 
         if self._track.locked:
             # Kilitli patikada ön koşul ipucu daha yararlı: "içerik yok"
             # bilgisini kilit simgesi zaten veriyor.
-            self._caption.setText(
+            self._caption.set_full_text(
                 self._language.t("track.prerequisite")
                 if self._track.prerequisite
                 else self._language.t("track.locked")
@@ -404,7 +510,7 @@ class TrackCard(QFrame):
             percent = (
                 round(self._completed * 100 / self._total) if self._total else 0
             )
-            self._caption.setText(
+            self._caption.set_full_text(
                 self._language.t(
                     "module.progress",
                     done=self._completed,
@@ -465,6 +571,10 @@ class TracksView(QWidget):
             card.clicked.connect(lambda t=track.id: self.track_opened.emit(t))
             self._grid.addWidget(card, index // 4, index % 4)
             self._cards.append(card)
+        # Sütunlar eşit paylaşılıyor; yoksa her sütun içindeki en geniş
+        # kartın isteğine göre büyüyordu (233 ile 247 piksel arası).
+        for column in range(4):
+            self._grid.setColumnStretch(column, 1)
 
     def _chapter_progress(self, chapter) -> tuple[int, int]:
         """Bir modülde kaç bölüm tamamlandı, kaç bölüm var."""

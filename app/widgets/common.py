@@ -7,7 +7,7 @@ stil dosyasındaki özelliklerden (`variant`, `role`, `tone`) geliyor.
 from __future__ import annotations
 
 from PySide6.QtCore import QPointF, Qt, Signal
-from PySide6.QtGui import QColor, QPainter, QPen
+from PySide6.QtGui import QColor, QFontMetrics, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
     QComboBox,
     QFrame,
@@ -188,7 +188,29 @@ class StatBlock(QWidget):
             self._label.setStyleSheet("color: rgba(255,255,255,0.85); font-size: 12px;")
 
         layout.addWidget(self._value)
-        layout.addWidget(self._label)
+
+        # Etiketin yanında isteğe bağlı küçük bir simge (günlük serinin
+        # alevi). Boşken gizli; yer kaplamıyor.
+        label_row = QHBoxLayout()
+        label_row.setContentsMargins(0, 0, 0, 0)
+        label_row.setSpacing(4)
+        label_row.addWidget(self._label)
+        self._icon = QLabel()
+        self._icon.hide()
+        label_row.addWidget(self._icon, 0, Qt.AlignmentFlag.AlignVCenter)
+        label_row.addStretch(1)
+        layout.addLayout(label_row)
+
+    def set_icon(self, image: QPixmap | None, tooltip: str = "") -> None:
+        """Etiketin yanındaki simgeyi koyar ya da (`None`) kaldırır."""
+        if image is None:
+            self._icon.hide()
+        else:
+            self._icon.setPixmap(image)
+            self._icon.show()
+        # İpucu bütün bloğa veriliyor: yalnızca küçük simgenin üstünde
+        # çıksaydı fark edilmiyordu.
+        self.setToolTip(tooltip)
 
     def set_centered(self, value: bool) -> None:
         """Sayıyı altındaki etiketin ortasına hizalar.
@@ -210,6 +232,85 @@ class StatBlock(QWidget):
 
     def set_label(self, label: str) -> None:
         self._label.setText(label)
+
+
+class ElidedText(QLabel):
+    """En fazla `lines` satırlık metin; sığmazsa son satır "…" ile bitiyor.
+
+    Kartlarda sarma açık bir etiket, metin uzadıkça kartı büyütüyor ya da
+    sabit yükseklikte satırın ortasından kırpılıyordu (patika kartlarında
+    açıklamalar yarım satırla bitiyordu). Burada satırlar genişliğe göre
+    elle diziliyor; yükseklik her zaman `lines` satır, kesilen metnin
+    tamamı ipucunda.
+    """
+
+    def __init__(self, lines: int = 2, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._full = ""
+        self._lines = max(1, lines)
+        self.setWordWrap(False)
+        self.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+
+    def set_full_text(self, text: str) -> None:
+        self._full = text or ""
+        self._reflow()
+
+    def full_text(self) -> str:
+        return self._full
+
+    # Genişliği metin değil yerleşim belirliyor; tek satırlık uzun bir
+    # metin kartı genişletmesin.
+    def sizeHint(self):  # noqa: N802 (Qt adlandırması)
+        hint = super().sizeHint()
+        hint.setWidth(0)
+        return hint
+
+    def minimumSizeHint(self):  # noqa: N802
+        hint = super().minimumSizeHint()
+        hint.setWidth(0)
+        return hint
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._reflow()
+
+    def changeEvent(self, event) -> None:  # noqa: N802
+        super().changeEvent(event)
+        # QSS'ten gelen yazı tipi ancak cilalamada uygulanıyor; satır
+        # yüksekliği ve dizilim ona göre yeniden hesaplanıyor.
+        if event.type() in (event.Type.FontChange, event.Type.StyleChange):
+            self._reflow()
+
+    def _reflow(self) -> None:
+        metrics = QFontMetrics(self.font())
+        self.setFixedHeight(metrics.lineSpacing() * self._lines + 2)
+        width = self.contentsRect().width()
+        if width <= 0:
+            super().setText(self._full)
+            return
+
+        satirlar: list[str] = []
+        kalan = self._full.split()
+        kesildi = False
+        while kalan and len(satirlar) < self._lines:
+            if len(satirlar) == self._lines - 1:
+                # Son satır: geri kalan her şey, sığmazsa "…" ile.
+                son = " ".join(kalan)
+                elided = metrics.elidedText(son, Qt.TextElideMode.ElideRight, width)
+                kesildi = elided != son
+                satirlar.append(elided)
+                kalan = []
+                break
+            satir = kalan.pop(0)
+            while kalan and metrics.horizontalAdvance(f"{satir} {kalan[0]}") <= width:
+                satir = f"{satir} {kalan.pop(0)}"
+            if metrics.horizontalAdvance(satir) > width:
+                satir = metrics.elidedText(satir, Qt.TextElideMode.ElideRight, width)
+                kesildi = True
+            satirlar.append(satir)
+
+        super().setText("\n".join(satirlar))
+        self.setToolTip(self._full if kesildi else "")
 
 
 class Banner(QFrame):
