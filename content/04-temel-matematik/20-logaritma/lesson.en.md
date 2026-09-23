@@ -12,7 +12,7 @@ question, every rule follows from that question on its own.
 
 The only thing you need before starting is the **exponent**:
 $2^3 = 2 \cdot 2 \cdot 2 = 8$. The exponent rules were covered in the
-previous chapter (Exponents and Roots); I will remind you of them as we go.
+Exponents chapter; I will remind you of them as we go.
 
 ## A single question
 

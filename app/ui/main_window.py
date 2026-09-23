@@ -206,6 +206,11 @@ class MainWindow(QMainWindow):
         self._journey.view_changed.connect(self._update_headers)
         self._journey_header = ScreenHeader(self._language)
         self._journey_header.back_clicked.connect(self._journey_back)
+        # Sekmeli patikanın modül seçicisi (MAT 1 / MAT 2); başka yerde gizli.
+        self._journey_tabs = SegmentedControl()
+        self._journey_tabs.changed.connect(self._on_journey_tab)
+        self._journey_tabs.hide()
+        self._journey_header.add_widget(self._journey_tabs)
         self._journey_screen = Screen(self._journey_header, self._journey)
 
         # Bölüm içeriği (kendi başlığını taşıyor)
@@ -677,6 +682,11 @@ class MainWindow(QMainWindow):
         self._update_headers()
         self._set_presence_location()
 
+    def _on_journey_tab(self, index: int) -> None:
+        chapters = self._journey.chapter_tabs
+        if 0 <= index < len(chapters):
+            self._journey.open_module(chapters[index].id)
+
     def _journey_back(self) -> None:
         """Bir seviye yukarı: yoldan modüllere, modüllerden patikalara."""
         self._journey.back()
@@ -707,9 +717,24 @@ class MainWindow(QMainWindow):
         # Üç katman var: patikalar -> modüller -> yol. Geri düğmesi en üst
         # katman dışında hep görünüyor ve bir seviye yukarı çıkarıyor.
         en_ustte = self._journey.showing_tracks
+        # Modül listesi atlanmışsa geri düğmesi doğrudan patikalara dönüyor;
+        # "Modüllere dön" yazması, görülmemiş bir ekrana gidecekmiş gibi
+        # duruyordu.
         self._journey_header.set_back(
-            not en_ustte, self._language.t("path.back")
+            not en_ustte,
+            self._language.t(
+                "path.back_tracks" if self._journey.back_goes_to_tracks else "path.back"
+            ),
         )
+
+        tabs = self._journey.chapter_tabs
+        self._journey_tabs.setVisible(bool(tabs))
+        if tabs:
+            self._journey_tabs.set_labels([self._language.pick(c.short) for c in tabs])
+            ids = [c.id for c in tabs]
+            current = self._journey.path.chapter_id
+            if current in ids:
+                self._journey_tabs.set_current(ids.index(current), notify=False)
 
         if self._journey.showing_path:
             # Yoldayken başlık modülün adını göstersin; "Öğrenme Yolu" yazmak

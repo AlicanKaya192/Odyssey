@@ -382,6 +382,11 @@ class Chapter:
         return self.raw.get("icon", "book")
 
     @property
+    def short(self) -> dict[str, str]:
+        """Sekmedeki kısa adı ("MAT 1"); yoksa tam başlık."""
+        return self.raw.get("short") or self.title
+
+    @property
     def planned(self) -> list[dict]:
         """Henüz yazılmamış ama yol üzerinde gösterilecek bölümler.
 
@@ -391,13 +396,35 @@ class Chapter:
         """
         return list(self.raw.get("planned", []))
 
+    @property
+    def outline(self) -> list:
+        """Yol sırası: yazılmış bölümler (`Section`) ve planlananlar (sözlük).
+
+        `chapter.json` içinde `outline` varsa ikisi o sırayla karışık
+        diziliyor. Böylece bir modülün ortasındaki bir bölüm önceden
+        yazılabiliyor (MAT 1'in logaritması gibi) ve yol yine doğru sırada
+        görünüyor. `outline` yoksa eski davranış: önce yazılmışlar, sonra
+        planlananlar.
+        """
+        order = self.raw.get("outline")
+        if not order:
+            return [*self.sections, *self.planned]
+        written = {section.id: section for section in self.sections}
+        planned = {entry.get("id"): entry for entry in self.planned}
+        return [written.get(i) or planned[i] for i in order if i in written or i in planned]
+
     @classmethod
     def load(cls, directory: Path) -> "Chapter":
         raw = _read_json(directory / "chapter.json")
         chapter_id = raw.get("id") or directory.name
 
         # Sıra chapter.json'da açıkça yazılıdır; klasör sıralamasına güvenmiyoruz.
+        # `outline` varsa yazılmış bölümler oradan, klasörü olanlar alınarak.
         section_ids = raw.get("sections")
+        if section_ids is None and raw.get("outline"):
+            section_ids = [
+                i for i in raw["outline"] if (directory / i / "section.json").exists()
+            ]
         if section_ids is None:
             section_ids = sorted(
                 p.name for p in directory.iterdir()
@@ -454,6 +481,16 @@ class Track:
     def locked(self) -> bool:
         """İçeriği henüz yazılmamış patika kilitli sayılıyor."""
         return not self.chapters
+
+    @property
+    def chapter_tabs(self) -> bool:
+        """Modüller liste yerine sağ üstte sekme olarak mı gösteriliyor?
+
+        Matematik patikasında MAT 1 ve MAT 2 birbirinin devamı; araya bir
+        modül listesi koymak yerine patikaya girince MAT 1'in yolu açılıyor,
+        MAT 2'ye başlıktaki seçiciden geçiliyor (Alican istedi).
+        """
+        return bool(self.raw.get("chapter_tabs"))
 
 
 @dataclass

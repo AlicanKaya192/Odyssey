@@ -877,12 +877,36 @@ class PathView(QWidget):
         # önceki ekrandaki modül kartında duruyor. Sayfanın tepesinde
         # üçüncü kez tekrar etmek yolu aşağı itiyordu.
 
-        # "Şu an buradasın" işareti: tamamlanmamış ilk bölüm.
-        current_index = self._current_index(chapter)
+        # "Şu an buradasın" işareti: tamamlanmamış ilk yazılmış bölüm.
+        outline = chapter.outline
+        current_index = self._current_index(outline, chapter.id)
 
-        basliklar = self._level_headers(chapter)
+        basliklar = self._level_headers(chapter, outline)
 
-        for index, section in enumerate(chapter.sections):
+        for index, section in enumerate(outline):
+            son = index == len(outline) - 1
+            grup_bitiyor = (index + 1) in basliklar
+            baslik = basliklar.get(index)
+            if baslik is not None:
+                self._layout.addWidget(baslik)
+
+            if isinstance(section, dict):
+                # Henüz yazılmamış bölüm: soluk, tıklanmayan halka. Modülün
+                # nereye gittiğini baştan göstermek, "burası bu kadarmış"
+                # izlenimini önlüyor.
+                node = PathNode(
+                    chapter.id,
+                    section.get("id", ""),
+                    self._language.pick(section.get("title")),
+                    self._language.t("path.planned"),
+                    "planned",
+                    order=index + 1,
+                )
+                self._layout.addWidget(self._zigzag_row(node, index))
+                if not son and not grup_bitiyor:
+                    self._layout.addWidget(self._connector(index, False))
+                continue
+
             state = self._state_of(chapter.id, section)
             if index == current_index and state != "completed":
                 state = "current"
@@ -906,43 +930,16 @@ class PathView(QWidget):
             )
             node.opened.connect(self.section_opened)
 
-            baslik = basliklar.get(index)
-            if baslik is not None:
-                self._layout.addWidget(baslik)
-
             self._layout.addWidget(self._zigzag_row(node, index))
 
             # Bir sonraki bölüm yeni bir grubu açıyorsa bağlayıcı çizgi
             # çizilmiyor: çizgi başlığın içinden geçmiş gibi duruyordu.
-            son_gercek = index == len(chapter.sections) - 1
-            grup_bitiyor = (index + 1) in basliklar
-            if (not son_gercek or chapter.planned) and not grup_bitiyor:
+            if not son and not grup_bitiyor:
                 self._layout.addWidget(self._connector(index, state == "completed"))
-
-        # Henüz yazılmamış bölümler: soluk, tıklanmayan halkalar. Modülün
-        # nereye gittiğini baştan göstermek, "burası bu kadarmış" izlenimini
-        # önlüyor.
-        taban = len(chapter.sections)
-        for offset, planlanan in enumerate(chapter.planned):
-            index = taban + offset
-
-            node = PathNode(
-                chapter.id,
-                planlanan.get("id", ""),
-                self._language.pick(planlanan.get("title")),
-                self._language.t("path.planned"),
-                "planned",
-                order=index + 1,
-            )
-
-            self._layout.addWidget(self._zigzag_row(node, index))
-
-            if offset < len(chapter.planned) - 1:
-                self._layout.addWidget(self._connector(index, False))
 
         self._layout.addStretch(1)
 
-    def _level_headers(self, chapter: Chapter) -> dict[int, QWidget]:
+    def _level_headers(self, chapter: Chapter, outline: list) -> dict[int, QWidget]:
         """Seviyenin değiştiği her bölümün önüne konacak başlıklar.
 
         Bölümlerde `level` yazmıyorsa sözlük boş kalıyor ve yol eskisi gibi
@@ -953,17 +950,21 @@ class PathView(QWidget):
         basliklar: dict[int, QWidget] = {}
         onceki = ""
 
-        for index, section in enumerate(chapter.sections):
-            seviye = section.level
+        def seviyesi(entry) -> str:
+            # Planlanan bölüm sözlük; seviyesi `level` anahtarında.
+            return entry.get("level", "") if isinstance(entry, dict) else entry.level
+
+        for index, section in enumerate(outline):
+            seviye = seviyesi(section)
             if not seviye or seviye == onceki:
                 continue
             onceki = seviye
 
-            grup = [s for s in chapter.sections if s.level == seviye]
+            grup = [s for s in outline if seviyesi(s) == seviye]
             biten = sum(
                 1
                 for s in grup
-                if self._state_of(chapter.id, s) == "completed"
+                if not isinstance(s, dict) and self._state_of(chapter.id, s) == "completed"
             )
             # Büyük harf `t_upper` ile alınıyor: Python'un `.upper()`
             # metodu Türkçedeki `i`yi noktasız `I` yapıyor ve "Orta Seviye"
@@ -1029,9 +1030,11 @@ class PathView(QWidget):
         state = self._store.section_state(chapter_id, section.id, section.exercises)
         return state.status(section.requires_quiz, section.requires_exercises)
 
-    def _current_index(self, chapter: Chapter) -> int:
-        for index, section in enumerate(chapter.sections):
-            if self._state_of(chapter.id, section) != "completed":
+    def _current_index(self, outline: list, chapter_id: str) -> int:
+        for index, section in enumerate(outline):
+            if isinstance(section, dict):
+                continue
+            if self._state_of(chapter_id, section) != "completed":
                 return index
         return -1
 
@@ -1112,7 +1115,7 @@ class JourneyView(QStackedWidget):
         track = self._catalog.track(track_id)
         chapters = track.chapters if track else []
 
-        if len(chapters) == 1:
+        if len(chapters) == 1 or (track is not None and track.chapter_tabs and chapters):
             self._skipped_modules = True
             self.open_module(chapters[0].id)
             return
@@ -1152,8 +1155,21 @@ class JourneyView(QStackedWidget):
         return self.currentWidget() is self.path
 
     @property
+    def back_goes_to_tracks(self) -> bool:
+        """Geri düğmesi patikalara mı dönüyor (modül listesi atlandıysa)?"""
+        return self.currentWidget() is self.modules or self._skipped_modules
+
+    @property
     def showing_tracks(self) -> bool:
         return self.currentWidget() is self.tracks
+
+    @property
+    def chapter_tabs(self) -> list:
+        """Yoldayken başlıkta gösterilecek modül sekmeleri; yoksa boş liste."""
+        track = self._catalog.track(self._track_id)
+        if track is None or not track.chapter_tabs or not self.showing_path:
+            return []
+        return list(track.chapters)
 
     @property
     def track_title(self) -> dict:

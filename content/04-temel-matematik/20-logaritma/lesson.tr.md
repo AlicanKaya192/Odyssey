@@ -10,7 +10,7 @@ Logaritmanın tek bir soruya verilen cevap olduğunu anladığında kuralların
 hepsi o sorudan kendiliğinden çıkıyor.
 
 Başlamadan önce bilmen gereken tek şey **üs**: $2^3 = 2 \cdot 2 \cdot 2 = 8$.
-Üs kuralları bir önceki bölümde (Üsler ve Kökler) anlatıldı; burada
+Üs kuralları Üslü Sayılar bölümünde anlatıldı; burada
 gerektikçe hatırlatacağım.
 
 ## Tek bir soru
