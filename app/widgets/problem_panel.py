@@ -7,9 +7,10 @@ Akış üç adım:
 
 1. **Çalışma kâğıdı.** Kişi adımlarını fareyle **çiziyor** (`DrawPad`);
    klavyede kök, kesir ya da üs yazmak zor ve kısayolları bilinmiyor.
-   Soldaki paletten sembol konabiliyor. Çizim puanlanmıyor — serbest bir
-   matematik çözümünü yapay zeka olmadan güvenilir biçimde değerlendirmek
-   mümkün değil — ama saklanıyor ve çözüm açılınca yanında gösteriliyor.
+   Kâğıdın üstündeki şeritten birkaç sembol konabiliyor. Çizim
+   puanlanmıyor — serbest bir matematik çözümünü yapay zeka olmadan
+   güvenilir biçimde değerlendirmek mümkün değil — ama saklanıyor; çözüm
+   açılınca kişi sol panelde çözümü okurken kendi kâğıdı sağda duruyor.
 2. **Cevap.** Yalnızca sonuç denetleniyor (`core/problem_check.py`), alan
    alan: iki bilinmeyenli bir problemde hangisinin yanlış olduğunu söylemek
    "yanlış" deyip bırakmaktan daha öğretici.
@@ -28,7 +29,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
-    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
@@ -49,11 +49,8 @@ MARK_WRONG = "✕"
 # veritabanına gitmek gereksiz.
 WORK_SAVE_DELAY_MS = 700
 
-# Sembol paletinin genişliği: dört sütun düğme ve kaydırma çubuğu.
-PALETTE_WIDTH = 190
-
-# Kâğıdın en küçük yüksekliği; sembol paletinin sekiz satırı da bu boya sığıyor.
-PAD_MIN_HEIGHT = 340
+# Kâğıdın en küçük yüksekliği; pencere küçülse de yazılabilir kalsın.
+PAD_MIN_HEIGHT = 300
 
 
 class ProblemPanel(QWidget):
@@ -96,35 +93,23 @@ class ProblemPanel(QWidget):
             header.addWidget(button)
         outer.addLayout(header)
 
-        work_row = QHBoxLayout()
-        work_row.setSpacing(SPACING["md"])
-
+        # Semboller kâğıdın üstünde tek satır: kâğıt genişliğini kaybetmiyor.
         self._palette = SymbolPalette()
         self._palette.picked.connect(self._on_symbol)
-        palette_scroll = QScrollArea()
-        palette_scroll.setWidget(self._palette)
-        palette_scroll.setWidgetResizable(True)
-        palette_scroll.setFrameShape(QFrame.Shape.NoFrame)
-        palette_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        palette_scroll.setFixedWidth(PALETTE_WIDTH)
-        work_row.addWidget(palette_scroll)
+        outer.addWidget(self._palette)
 
         self._pad = DrawPad()
-        # Çözüm açılınca alt tarafa yer veriliyor ama kâğıt yazılamayacak
-        # kadar küçülmemeli.
         self._pad.setMinimumHeight(PAD_MIN_HEIGHT)
         self._pad.changed.connect(self._schedule_work_save)
         self._pad.changed.connect(self._refresh_tools)
         self._pad.stamp_finished.connect(self._palette.clear_selection)
-        work_row.addWidget(self._pad, 1)
-        outer.addLayout(work_row, 1)
+        outer.addWidget(self._pad, 1)
 
         self._work_timer = QTimer(self)
         self._work_timer.setSingleShot(True)
         self._work_timer.setInterval(WORK_SAVE_DELAY_MS)
         self._work_timer.timeout.connect(self.work_changed)
         self._set_tool(PEN)
-
 
         outer.addSpacing(SPACING["sm"])
         self._answer_title = QLabel()
@@ -344,7 +329,6 @@ class ProblemPanel(QWidget):
         self._undo_button.setToolTip(f"{t('problem.undo')}  (Ctrl+Z)")
         self._redo_button.setToolTip(f"{t('problem.redo')}  (Ctrl+Y)")
         self._clear_button.setText(t("problem.clear"))
-        self._palette.set_labels(t("problem.symbols_special"), t("problem.symbols"))
         self._answer_title.setText(self._language.t("problem.title"))
         self._check_button.setText(self._language.t("problem.check"))
         self._reveal_button.setText(self._language.t("problem.show_solution"))

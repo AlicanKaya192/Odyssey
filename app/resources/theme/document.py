@@ -142,13 +142,6 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
     padding: 18px 20px; border-radius: 12px; margin: 18px 0;
     overflow-x: auto; line-height: 1.65;
 }}
-/* Problem ekranında kişinin kendi çalışması: çizimin görseli, kareli kâğıt
- * gibi bir kutunun içinde. */
-.content img.work {{
-    display: block; max-width: 100%; height: auto;
-    background: {p['field']}; border: 1px solid {p['border']};
-    border-radius: 12px; padding: 8px;
-}}
 .content pre code {{
     background: none; padding: 0; color: {p['text']};
     border-radius: 0; font-size: 13.5px;

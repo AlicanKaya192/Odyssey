@@ -32,7 +32,6 @@ from PySide6.QtGui import (
     QColor,
     QFont,
     QFontMetricsF,
-    QImage,
     QKeySequence,
     QPainter,
     QPainterPath,
@@ -169,41 +168,6 @@ def _densify(stroke: list, width: float) -> list:
 def _is_dot(piece: list, original: list) -> bool:
     """Tek noktalık parça kişinin kendi koyduğu nokta mı (ondalık virgülü gibi)?"""
     return any(len(stroke) == 1 and tuple(stroke[0]) == tuple(piece[0]) for stroke in original)
-
-
-def drawing_bounds(drawing: dict, width: float) -> QRectF:
-    """Çizimin kapladığı alan (piksel); boşsa boş dikdörtgen."""
-    rect = QRectF()
-    for stroke in drawing["strokes"]:
-        for x, y in stroke:
-            rect = rect.united(QRectF(x * width, y * width, 1, 1))
-    font_metrics = QFontMetricsF(math_font(width * STAMP_RATIO))
-    for stamp in drawing["stamps"]:
-        box = font_metrics.boundingRect(stamp["t"])
-        rect = rect.united(box.translated(stamp["x"] * width, stamp["y"] * width))
-    return rect
-
-
-def render_image(drawing: dict, width: int, ink: QColor) -> QImage | None:
-    """Çizimi saydam zeminli bir görsele çevirir; yalnızca dolu kısmı.
-
-    Çözüm yollarının yanında "Senin çalışman" olarak gösteriliyor.
-    """
-    if is_empty(drawing):
-        return None
-    bounds = drawing_bounds(drawing, width)
-    margin = 16
-    top = max(0.0, bounds.top() - margin)
-    height = max(40, math.ceil(bounds.bottom() - top + margin))
-    image = QImage(width, height, QImage.Format.Format_ARGB32_Premultiplied)
-    image.fill(Qt.GlobalColor.transparent)
-    painter = QPainter(image)
-    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.setRenderHint(QPainter.RenderHint.TextAntialiasing)
-    painter.translate(0, -top)
-    paint_drawing(painter, drawing, width, ink)
-    painter.end()
-    return image
 
 
 class DrawPad(QWidget):

@@ -1,49 +1,38 @@
-"""Çalışma kâğıdının solundaki matematik sembolleri.
+"""Çalışma kâğıdının üstündeki matematik sembolleri.
 
-Klavyede yazılması zor ya da kısayolu bilinmeyen işaretler. Bir sembole
-basınca kâğıt onu "damga" olarak hazırlıyor; kâğıda tıklanan yere konuyor.
+Elle çizmesi zor ya da düzgün çizilmesi zaman alan birkaç işaret. Bir
+sembole basınca kâğıt onu "damga" olarak hazırlıyor; kâğıda tıklanan yere
+konuyor.
+
+**Liste kısa tutuluyor.** Önce otuz sembol vardı; kâğıdın yanında bir
+klavye gibi duruyor ve yer kaplıyordu (Alican: "bu kadar fazla sembole
+gerek yok"). Kişi `+ - = ( ) x` gibi işaretleri zaten çiziyor; palet
+yalnızca elle çizilince kötü görünenleri veriyor.
 
 İki grup var:
 
-- **Genel semboller** her problemde aynı; hepsi uygulamanın içinde tanımlı.
-- **Probleme özel semboller** `exercise.json` → `symbols` listesinden geliyor
-  (`log₂`, `log₃` gibi o soruda sık yazılacak ifadeler) ve genel listenin
-  **önünde** duruyor: o soruda en çok gerekecek olan en kolay bulunan yerde.
+- **Genel semboller** her problemde aynı (`GENERAL_SYMBOLS`).
+- **Probleme özel semboller** `exercise.json` → `symbols` listesinden
+  geliyor (`log₂`, `3⁴⁰` gibi o soruda sık yazılacak ifadeler) ve genel
+  listenin **önünde** duruyor.
 """
 
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QGridLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QPushButton, QWidget
 
 from ..resources.theme.tokens import SPACING
 from .effects import repolish
 
-# Genel semboller. Sıra: işlemler, karşılaştırma, kuvvet ve kök, sabitler ve
-# fonksiyonlar, mantık ve kümeler, Grek harfleri. Klavyede doğrudan yazılan
-# `+ - = ( )` yok; kişi onları zaten çiziyor.
-GENERAL_SYMBOLS = [
-    "×", "÷", "±", "·",
-    "≠", "≈", "≤", "≥",
-    "²", "³", "ⁿ", "⁻¹",
-    "√", "∛", "|x|", "%",
-    "π", "e", "∞", "°",
-    "log", "ln", "Σ", "∫",
-    "⇒", "⇔", "∈", "∅",
-    "α", "β", "θ", "Δ",
-]
+# Elle çizmesi zor olanlar: kök işareti, pi, eşitsizlikler, sonsuz.
+GENERAL_SYMBOLS = ["√", "π", "≠", "≤", "≥", "∞"]
 
-# Tek başına küçük ve düğmenin tepesine yapışık görünen işaretler düğmede
-# kutuyla gösteriliyor ("□²" gibi, hesap makinesi klavyelerindeki alışkanlık);
-# kâğıda yine yalnızca işaretin kendisi konuyor.
-BUTTON_LABELS = {"²": "□²", "³": "□³", "ⁿ": "□ⁿ", "⁻¹": "□⁻¹"}
-
-COLUMNS = 4
-BUTTON_SIZE = 38
+BUTTON_SIZE = 36
 
 
 class SymbolPalette(QWidget):
-    """Sembol düğmeleri. Seçilen sembol `picked` ile bildiriliyor."""
+    """Tek satırlık sembol şeridi. Seçilen sembol `picked` ile bildiriliyor."""
 
     picked = Signal(str)
 
@@ -52,59 +41,55 @@ class SymbolPalette(QWidget):
         self._buttons: list[QPushButton] = []
         self._special: list[str] = []
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(SPACING["xs"])
+        self._layout = QHBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(4)
 
-        self._special_label = QLabel()
-        self._special_label.setProperty("role", "muted")
-        layout.addWidget(self._special_label)
-        self._special_grid = QGridLayout()
-        self._special_grid.setSpacing(4)
-        layout.addLayout(self._special_grid)
+        # Özel semboller solda; araya ince bir ayırıcı giriyor.
+        self._special_slot = QHBoxLayout()
+        self._special_slot.setSpacing(4)
+        self._layout.addLayout(self._special_slot)
 
-        self._general_label = QLabel()
-        self._general_label.setProperty("role", "muted")
-        layout.addWidget(self._general_label)
-        general = QGridLayout()
-        general.setSpacing(4)
-        for index, symbol in enumerate(GENERAL_SYMBOLS):
-            general.addWidget(self._make_button(symbol), index // COLUMNS, index % COLUMNS)
-        layout.addLayout(general)
-        layout.addStretch(1)
+        self._divider = QFrame()
+        self._divider.setFrameShape(QFrame.Shape.VLine)
+        self._divider.setProperty("role", "divider")
+        self._divider.setFixedWidth(1)
+        self._layout.addWidget(self._divider)
+        self._layout.addSpacing(SPACING["xs"])
 
-        self._show_special([])
+        for symbol in GENERAL_SYMBOLS:
+            self._layout.addWidget(self._make_button(symbol))
+        self._layout.addStretch(1)
+
+        self._divider.hide()
 
     def _make_button(self, symbol: str) -> QPushButton:
-        button = QPushButton(BUTTON_LABELS.get(symbol, symbol))
+        button = QPushButton(symbol)
         button.setProperty("variant", "symbol")
         button.setCursor(Qt.CursorShape.PointingHandCursor)
-        # Yazı tipi QSS'te (`variant="symbol"`): genel düğme stili `font-size`
-        # verdiği için `setFont` ile verilen boyut ezilip küçük çıkıyordu.
-        button.setProperty("long", "true" if len(button.text()) > 2 else "false")
+        # Yazı tipi ve yükseklik QSS'te (`variant="symbol"`): genel düğme
+        # kuralı `font-size` ve `min-height` verdiği için koddan verilen
+        # değerler eziliyordu.
+        button.setProperty("long", "true" if len(symbol) > 2 else "false")
         button.setMinimumWidth(BUTTON_SIZE)
         button.clicked.connect(lambda _=False, s=symbol, b=button: self._pick(s, b))
         self._buttons.append(button)
         return button
 
     def set_special(self, symbols: list[str]) -> None:
-        """Probleme özel sembolleri kurar; yoksa o bölüm gizleniyor."""
+        """Probleme özel sembolleri kurar; yoksa ayırıcı da gizleniyor."""
         if symbols == self._special:
             return
-        self._show_special(symbols)
-
-    def _show_special(self, symbols: list[str]) -> None:
-        while self._special_grid.count():
-            item = self._special_grid.takeAt(0)
+        while self._special_slot.count():
+            item = self._special_slot.takeAt(0)
             widget = item.widget()
             if widget is not None:
                 self._buttons.remove(widget)
                 widget.deleteLater()
         self._special = list(symbols)
-        # Özel ifadeler çoğunlukla uzun (`log₂`); iki sütun yetiyor.
-        for index, symbol in enumerate(symbols):
-            self._special_grid.addWidget(self._make_button(symbol), index // 2, index % 2)
-        self._special_label.setVisible(bool(symbols))
+        for symbol in symbols:
+            self._special_slot.addWidget(self._make_button(symbol))
+        self._divider.setVisible(bool(symbols))
 
     def _pick(self, symbol: str, button: QPushButton) -> None:
         self.clear_selection()
@@ -117,7 +102,3 @@ class SymbolPalette(QWidget):
             if button.property("active") == "true":
                 button.setProperty("active", "false")
                 repolish(button)
-
-    def set_labels(self, special: str, general: str) -> None:
-        self._special_label.setText(special)
-        self._general_label.setText(general)

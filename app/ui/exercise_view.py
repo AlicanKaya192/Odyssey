@@ -13,7 +13,7 @@ Kod arka planda ayrı bir süreçte çalıştırılır; çalışırken arayüz d
 
 from __future__ import annotations
 
-from PySide6.QtCore import QBuffer, QIODevice, Qt, QThread, Signal
+from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QFrame,
@@ -41,7 +41,8 @@ from ..core.progress import ProgressStore
 from ..core.runner import RunResult, run_code
 from ..resources.theme.tokens import FONTS, SPACING
 from ..widgets.code_editor import CodeEditor
-from ..widgets.draw_pad import clean_drawing, empty_drawing, render_image
+from ..widgets.common import SegmentedControl
+from ..widgets.draw_pad import clean_drawing, empty_drawing
 from ..widgets.problem_panel import ProblemPanel
 
 # Çıktı kutusunun en fazla kaplayacağı yükseklik.
@@ -76,10 +77,9 @@ def exercise_key(exercise: Exercise) -> str:
 # Kaç yanlış denemeden sonra çözüm yolları kendiliğinden açılıyor.
 REVEAL_AFTER_ATTEMPTS = 2
 
-# Çözüm sayfasına konan çizim görselinin genişliği (piksel). Kâğıttaki
-# koordinatlar genişliğe oranlı olduğu için çizim bu genişlikte yeniden
-# çiziliyor, kâğıdın o anki boyutuna bağlı değil.
-WORK_IMAGE_WIDTH = 760
+# Problemde sol paneldeki iki sekme.
+BRIEF_PROMPT = 0
+BRIEF_SOLUTIONS = 1
 
 
 class RunWorker(QThread):
@@ -354,11 +354,34 @@ class ExerciseView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
+        # Problemde çözüm açılınca "Yönerge / Çözüm yolları" sekmeleri
+        # beliriyor. Çözüm sağdaki kâğıdın altına açıldığında kâğıdı
+        # eziyordu (Alican bildirdi); solda açılınca kişi kendi kâğıdı sağda
+        # dururken çözümü okuyup satır satır karşılaştırabiliyor.
+        self._brief_tabs = SegmentedControl()
+        self._brief_tabs.changed.connect(self._on_brief_tab)
+        tabs_row = QHBoxLayout()
+        tabs_row.setContentsMargins(SPACING["lg"], SPACING["sm"], SPACING["lg"], 0)
+        tabs_row.addWidget(self._brief_tabs)
+        tabs_row.addStretch(1)
+        self._brief_tabs_holder = QWidget()
+        self._brief_tabs_holder.setProperty("role", "bare")
+        self._brief_tabs_holder.setLayout(tabs_row)
+        self._brief_tabs_holder.hide()
+        layout.addWidget(self._brief_tabs_holder)
+
+        self._brief_stack = QStackedWidget()
         self._prompt = LessonView(self._language, compact=True)
         self._prompt.action.connect(self._on_prompt_action)
-        layout.addWidget(self._prompt)
+        self._brief_stack.addWidget(self._prompt)
+        self._solutions = LessonView(self._language, compact=True)
+        self._brief_stack.addWidget(self._solutions)
+        layout.addWidget(self._brief_stack)
 
         return panel
+
+    def _on_brief_tab(self, index: int) -> None:
+        self._brief_stack.setCurrentIndex(index)
 
     def _on_prompt_action(self, action: str) -> None:
         """Yönerge içindeki bağlantılar: ipucu kademeleri ve alttaki
@@ -518,27 +541,16 @@ class ExerciseView(QWidget):
         return holder
 
     def _build_problem_work(self) -> QWidget:
-        """Problemin sağ tarafı: üstte çalışma ve cevap, altta çözüm yolları.
-
-        Çözüm yolları formül içerdiği için belge alanında (KaTeX) çiziliyor;
-        cevap alanları Qt widget'ı. İkisi bir bölücüyle alt alta.
-        """
-        self._problem_split = QSplitter(Qt.Orientation.Vertical)
-
+        """Problemin sağ tarafı: çalışma kâğıdı ve cevap. Tamamı kâğıda ait;
+        çözüm yolları sol panelde açılıyor."""
         self._problem = ProblemPanel(self._language)
         self._problem.checked.connect(self._on_problem_checked)
         self._problem.work_changed.connect(self._save_problem_state)
         self._problem.reveal_requested.connect(lambda: self._reveal_solutions(True))
-        self._problem_split.addWidget(self._problem)
-
-        self._solutions = LessonView(self._language, compact=True)
-        self._solutions.hide()
-        self._problem_split.addWidget(self._solutions)
-        self._problem_split.setStretchFactor(1, 1)
 
         # Çözüm açık mı; kayıtta da tutuluyor, bölüme dönünce açık kalsın.
         self._revealed_solution = False
-        return self._problem_split
+        return self._problem
 
     def _build_runbar(self) -> QWidget:
         bar = QFrame()
@@ -609,11 +621,18 @@ class ExerciseView(QWidget):
             self._problem.show_problem(
                 exercise.answers, state["answers"], state["drawing"], exercise.symbols
             )
-            self._reveal_solutions(state["revealed"], save=False)
+            # Yeni problem her zaman yönergeyle açılıyor; önceki problemin
+            # çözüm sekmesi açık kalırsa kişi yanlış problemin çözümünü görür.
+            # Bu problemin çözümü daha önce açıldıysa sekmesi hazır bekliyor.
+            self._revealed_solution = False
+            self._show_brief_tabs(False)
+            self._reveal_solutions(state["revealed"], save=False, focus=False)
             self._work_stack.setCurrentIndex(1)
             self.retranslate()
             return
         self._work_stack.setCurrentIndex(0)
+        self._revealed_solution = False
+        self._show_brief_tabs(False)
 
         # Kaydedilen kod hâlâ başlangıç kodunun kendisiyse (kullanıcı bir
         # şey yazmadan çalıştırmış) o kayda tutunmuyoruz: dili şimdiki dile
@@ -792,43 +811,40 @@ class ExerciseView(QWidget):
             count_attempt=count_attempt,
         )
 
-    def _reveal_solutions(self, revealed: bool, save: bool = True) -> None:
+    def _show_brief_tabs(self, visible: bool) -> None:
+        self._brief_tabs_holder.setVisible(visible)
+        if not visible:
+            self._brief_tabs.set_current(BRIEF_PROMPT, notify=False)
+            self._brief_stack.setCurrentIndex(BRIEF_PROMPT)
+
+    def _reveal_solutions(self, revealed: bool, save: bool = True, focus: bool = True) -> None:
+        """Çözüm yollarını sol panelde açar (ya da kapatır).
+
+        Yeni açıldığında doğrudan çözüm sekmesine geçiliyor; bölüme geri
+        dönüşte (`focus=False`) yönerge önde kalıyor.
+        """
+        was_open = self._revealed_solution
         self._revealed_solution = revealed
         self._problem.set_revealed(revealed)
-        self._solutions.setVisible(revealed)
+        self._show_brief_tabs(revealed)
         if revealed:
             self._render_solutions()
-            # Kâğıt üstte çoğunlukta kalıyor; çözüm aşağıda kayarak okunuyor.
-            # Bölücüyle kişi oranı kendisi değiştirebiliyor.
-            total = max(1, self._problem_split.height())
-            self._problem_split.setSizes([int(total * 0.62), int(total * 0.38)])
+            if focus and not was_open:
+                self._brief_tabs.set_current(BRIEF_SOLUTIONS, notify=False)
+                self._brief_stack.setCurrentIndex(BRIEF_SOLUTIONS)
         if save:
             self._save_problem_state()
 
     def _render_solutions(self) -> None:
-        """Kişinin çalışması ve çözüm yolları, karşılaştırılabilsin diye alt alta."""
+        """Çözüm yolları; birden fazlaysa hepsi, sırayla."""
         if self._exercise is None:
             return
         t = self._language.t
         language = self._language.language
 
-        # Çizim, sayfanın o anki metin renginde saydam bir görsel olarak
-        # konuyor; çözüm yollarıyla aynı sütunda, karşılaştırılabilir.
-        image = render_image(self._problem.drawing(), WORK_IMAGE_WIDTH, self._problem.ink())
-        if image is not None:
-            buffer = QBuffer()
-            buffer.open(QIODevice.OpenModeFlag.WriteOnly)
-            image.save(buffer, "PNG")
-            encoded = bytes(buffer.data().toBase64()).decode("ascii")
-            work_html = f'<img class="work" alt="" src="data:image/png;base64,{encoded}">'
-        else:
-            work_html = f'<p class="meta">{html.escape(t("problem.no_work"))}</p>'
-
         parts = [
             f"# {t('problem.solutions_title')}",
             t("problem.compare_intro"),
-            f"## {t('problem.your_work')}",
-            work_html,
         ]
         solutions = self._exercise.solutions
         for index, solution in enumerate(solutions, start=1):
@@ -862,9 +878,6 @@ class ExerciseView(QWidget):
         self._prompt.set_mode(mode)
         self._solutions.set_mode(mode)
         self._problem.set_mode(mode)
-        if self._exercise is not None and self._exercise.is_problem and self._revealed_solution:
-            # Çizimin görseli mürekkep rengini taşıyor; temayla yenilensin.
-            self._render_solutions()
         if self._tables_window is not None:
             self._tables_window.set_mode(mode)
 
@@ -879,6 +892,9 @@ class ExerciseView(QWidget):
         # Başlık, etiketler ve ipuçları belgenin içinde olduğu için dil
         # değişince yönergeyi baştan çizmek yeterli.
         self._problem.retranslate()
+        self._brief_tabs.set_labels(
+            [self._language.t("problem.tab_prompt"), self._language.t("problem.tab_solutions")]
+        )
         if self._exercise is not None and self._exercise.is_problem and self._revealed_solution:
             self._render_solutions()
         if self._exercise is not None:
