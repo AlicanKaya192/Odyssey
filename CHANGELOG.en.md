@@ -24,6 +24,25 @@ lecture note does not mean downloading the whole application again.
 ## [0.8.3] — unreleased
 
 ### Added
+- **The Mathematics path has been added.** It teaches actual mathematics,
+  not code; a selector at the top right switches between two modules:
+  **MATH 1 — Foundational Mathematics** (for someone starting from zero) and
+  **MATH 2 — The Mathematics of AI**. Sections written so far — **MATH 1:**
+  Logarithms. **MATH 2:** Vectors; Dot Product, Length and Similarity;
+  Matrices. Each section has a lesson, two course notes, a quiz and five
+  problems. Problems are worked on a drawing sheet: you write with the
+  mouse, hard-to-draw symbols sit in the strip above, and your drawings are
+  saved. Only the result is checked; once you solve it, or after two wrong
+  attempts, every solution path opens on the left. Sections not yet written
+  are shown on the path as "Coming soon".
+- **Streak reminders.** If you haven't studied that day, a playful Windows
+  notification arrives at the time you choose; if your streak is at risk
+  there's one last warning at 21:30, and if you stay away for long the
+  reminders get less frequent and stop after two months. It works while the
+  program is closed: a small task that runs for a few seconds a day is added
+  to Windows Task Scheduler, and nothing is sent over the internet. You're
+  asked on first launch whether you want it; the time and the on/off switch
+  are in Settings › Learning.
 - **Odyssey now comes with an installer.** The application installs for
   your own user account, with a shortcut in the Start menu and on your
   desktop, and no `_internal` folder to keep track of. When you update from

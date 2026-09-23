@@ -33,6 +33,9 @@ from ..core.quiz_timing import UNTIMED_QUIZ_KEY, untimed_quiz
 from ..core.unlock import UNLOCK_ALL_KEY, unlock_all
 from ..core.theme import ThemeManager
 from ..core import updates
+from ..core import reminder_service, reminders
+from .reminder_prompt import TIMES as REMINDER_TIMES
+from ..widgets.common import DropdownBox
 from .update_check import UpdateWorker
 from ..core.runner import sql_admin
 from .confirm_dialog import ConfirmDialog
@@ -306,6 +309,30 @@ class SettingsDialog(QDialog):
         self._presence_row.switch.toggled.connect(self._on_presence)
         layout.addWidget(self._presence_row)
 
+        # Seri hatırlatmaları: anahtar, saat ve deneme bildirimi. Yalnızca
+        # Windows'ta (bildirim ve Görev Zamanlayıcı Windows'a özgü).
+        self._reminder_row = SettingRow()
+        self._reminder_row.switch.toggled.connect(self._on_reminders)
+        layout.addWidget(self._reminder_row)
+
+        self._reminder_time = DropdownBox(
+            color=PALETTES.get(self._theme.effective_mode, PALETTES["dark"])["text_muted"]
+        )
+        self._reminder_time.addItems(REMINDER_TIMES)
+        self._reminder_time.setFixedWidth(110)
+        self._reminder_time.currentTextChanged.connect(self._on_reminder_time)
+        self._reminder_time_row = SettingRow(self._reminder_time)
+        layout.addWidget(self._reminder_time_row)
+
+        self._reminder_test = QPushButton()
+        self._reminder_test.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._reminder_test.clicked.connect(self._on_reminder_test)
+        self._reminder_test_row = SettingRow(self._reminder_test)
+        layout.addWidget(self._reminder_test_row)
+
+        for row in (self._reminder_row, self._reminder_time_row, self._reminder_test_row):
+            row.setVisible(reminder_service.supported())
+
         layout.addStretch(1)
         return sayfa
 
@@ -443,6 +470,15 @@ class SettingsDialog(QDialog):
         self._presence_row.switch.set_checked(
             discord_presence.enabled(self._store), animate=False
         )
+        self._reminder_row.switch.set_checked(
+            reminders.enabled(self._store), animate=False
+        )
+        self._reminder_time.blockSignals(True)
+        self._reminder_time.setCurrentText(
+            reminders.reminder_time(self._store).strftime("%H:%M")
+        )
+        self._reminder_time.blockSignals(False)
+        self._sync_reminder_rows()
 
     def _paint_switches(self, mode: str) -> None:
         p = PALETTES.get(mode, PALETTES["light"])
@@ -481,6 +517,42 @@ class SettingsDialog(QDialog):
     def _on_presence(self, checked: bool) -> None:
         discord_presence.set_enabled(self._store, checked)
         self.presence_changed.emit()
+
+    def _sync_reminder_rows(self) -> None:
+        acik = reminders.enabled(self._store)
+        self._reminder_time.setEnabled(acik)
+        self._reminder_test.setEnabled(acik)
+
+    def _on_reminders(self, checked: bool) -> None:
+        """Açınca görev kuruluyor, kapatınca görev ve kayıtlar siliniyor."""
+        if checked:
+            ok, error = reminder_service.enable(
+                self._store, self._reminder_time.currentText()
+            )
+            if not ok:
+                # Kurulamadıysa anahtar açık görünmesin.
+                self._reminder_row.switch.set_checked(False, animate=False)
+                self._reminder_test_row.description.setText(
+                    self._language.t("reminder.enable_failed", error=error[:160])
+                )
+        else:
+            reminder_service.disable(self._store)
+        self._sync_reminder_rows()
+
+    def _on_reminder_time(self, text: str) -> None:
+        """Saat değişince görev yeni saatle yeniden kuruluyor."""
+        if reminders.enabled(self._store):
+            reminder_service.enable(self._store, text)
+        else:
+            self._store.set_setting(reminders.TIME_KEY, text)
+
+    def _on_reminder_test(self) -> None:
+        ok = reminder_service.send_test(self._store)
+        self._reminder_test_row.description.setText(
+            self._language.t(
+                "settings.reminder_test_sent" if ok else "settings.reminder_test_failed"
+            )
+        )
 
     def _on_update_check(self, checked: bool) -> None:
         updates.set_enabled(self._store, checked)
@@ -660,6 +732,13 @@ class SettingsDialog(QDialog):
         self._untimed_row.description.setText(t("settings.untimed_quiz_help"))
         self._presence_row.title.setText(t("settings.discord"))
         self._presence_row.description.setText(t("settings.discord_help"))
+        self._reminder_row.title.setText(t("settings.reminders"))
+        self._reminder_row.description.setText(t("settings.reminders_help"))
+        self._reminder_time_row.title.setText(t("settings.reminder_time"))
+        self._reminder_time_row.description.setText(t("settings.reminder_time_help"))
+        self._reminder_test_row.title.setText(t("settings.reminder_test_title"))
+        self._reminder_test_row.description.setText(t("settings.reminder_test_help"))
+        self._reminder_test.setText(t("settings.reminder_test"))
 
         # Sol şeritteki kategori adları da çevriliyor; `SegmentedControl`
         # etiketleri kurulurken aldığı için düğmelere doğrudan yazılıyor.

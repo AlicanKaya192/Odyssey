@@ -22,6 +22,23 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.8.3] — yayınlanmadı
 
 ### Eklendi
+- **Matematik patikası eklendi.** Kod değil gerçekten matematik öğretiyor;
+  sağ üstteki seçiciyle iki modül arasında geçiliyor: **MAT 1 — Temel
+  Matematik** (sıfırdan başlayan biri için) ve **MAT 2 — Yapay Zekanın
+  Matematiği**. Yazılan bölümler — **MAT 1:** Logaritma. **MAT 2:**
+  Vektörler; Nokta Çarpımı, Uzunluk ve Benzerlik; Matrisler. Her bölümde
+  konu anlatımı, iki ders notu, sınav ve beş problem var. Problemler çizim
+  kâğıdında çözülüyor: fareyle yazıyorsunuz, zor yazılan işaretler üstteki
+  şeritte duruyor, çizimleriniz kaydediliyor. Yalnızca sonuç denetleniyor;
+  çözdüğünüzde ya da iki yanlıştan sonra bütün çözüm yolları solda açılıyor.
+  Henüz yazılmamış bölümler de yolda "Yakında" diye yerinde duruyor.
+- **Seri hatırlatmaları.** O gün çalışmadıysanız seçtiğiniz saatte esprili
+  bir Windows bildirimi geliyor; seri tehlikedeyse 21:30'da son bir uyarı,
+  uzun süre uğramazsanız giderek seyrekleşen ve iki ay sonra duran
+  hatırlatmalar. Program kapalıyken de çalışıyor: bunun için Windows Görev
+  Zamanlayıcı'ya günde birkaç saniye çalışan küçük bir görev ekleniyor,
+  internete hiçbir şey gitmiyor. İlk açılışta isteyip istemediğiniz
+  soruluyor; saat ve açma kapama Ayarlar › Öğrenme'de.
 - **Odyssey artık kurulum programıyla geliyor.** Uygulama kendi kullanıcı
   hesabınıza kuruluyor; Başlat menüsünde ve masaüstünde kısayolu oluyor,
   `_internal` klasörüyle uğraşmanız gerekmiyor. Çıkardığınız bir klasörden

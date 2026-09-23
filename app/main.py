@@ -106,6 +106,26 @@ def main() -> int:
     if _run_harness_if_asked():
         return 0
 
+    # Görev Zamanlayıcı'nın hatırlatma çağrısı: arayüz kurulmadan, birkaç
+    # saniyede bakıp gerekirse bildirim gösterip çıkıyor.
+    if "--reminder-check" in sys.argv[1:]:
+        from app.core import reminder_service
+
+        try:
+            reminder_service.run_check()
+        except Exception:  # noqa: BLE001 - arka planda sessizce bitmeli
+            pass
+        return 0
+
+    # Bildirime tıklanınca Windows `odyssey://open` ile çağırıyor. Program
+    # zaten açıksa ikinci bir pencere açılmıyor.
+    if any(arg.startswith("odyssey:") for arg in sys.argv[1:]):
+        from app.core import win_notify
+
+        if win_notify.app_running():
+            return 0
+        sys.argv = [sys.argv[0]]
+
     check_python()
 
     try:
@@ -131,6 +151,12 @@ def main() -> int:
     application = QApplication(sys.argv)
     application.setApplicationName("Odyssey")
     application.setApplicationVersion(APP_VERSION)
+
+    # "Program açık" kilidi: hatırlatma denetleyicisi buna bakıp açıkken
+    # bildirim göndermiyor. Süreç kapanınca kilit kendiliğinden kalkıyor.
+    from app.core import win_notify
+
+    win_notify.claim_running()
 
     _claim_taskbar_identity()
     icon_path = _icon_file()
@@ -215,6 +241,21 @@ def main() -> int:
         titlebar.apply(notice, theme.effective_mode)
         notice.exec()
         mark_seen(store)
+
+    # Seri hatırlatmaları kendiliğinden açılmıyor: ilk açılışta bir kez,
+    # nasıl çalıştığı anlatılarak soruluyor. Açıksa görev arka planda
+    # tazeleniyor (programın yolu güncellemeyle değişmiş olabilir).
+    from app.core import reminder_service
+    from app.ui.reminder_prompt import ReminderPromptDialog, should_ask
+
+    if should_ask(store):
+        from app.ui import titlebar
+
+        prompt = ReminderPromptDialog(language, store, theme.effective_mode, window)
+        titlebar.apply(prompt, theme.effective_mode)
+        prompt.exec()
+    else:
+        reminder_service.ensure_async(store)
 
     # Sürüm denetimi en sona bırakıldı: açılışın hiçbir adımı ağı
     # beklemiyor. Denetim ayrı bir iş parçacığında yapılıyor ve

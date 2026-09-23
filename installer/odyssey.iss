@@ -89,6 +89,18 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopico
 ; kendiliğinden açılıyor.
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall
 
+[UninstallRun]
+; Seri hatırlatmalarının zamanlanmış görevi program kaldırılınca kalmasın;
+; kalsaydı her gün olmayan bir programı çağırırdı. Görev yoksa komut sessizce
+; başarısız oluyor.
+Filename: "{sys}\schtasks.exe"; Parameters: "/Delete /TN ""Odyssey Reminder"" /F"; Flags: runhidden; RunOnceId: "RemoveReminderTask"
+
+[Registry]
+; Hatırlatmaların bildirim kimliği ve `odyssey://` bağlantısı (uygulama
+; kendisi yazıyor); kaldırılınca siliniyor.
+Root: HKCU; Subkey: "Software\Classes\AppUserModelId\AlicanKaya.Odyssey"; Flags: uninsdeletekey dontcreatekey
+Root: HKCU; Subkey: "Software\Classes\odyssey"; Flags: uninsdeletekey dontcreatekey
+
 [Code]
 const
   SYNCHRONIZE = $00100000;

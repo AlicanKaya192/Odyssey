@@ -470,6 +470,11 @@ class ProgressStore:
         with self._write() as connection:
             connection.execute("DELETE FROM notifications")
 
+    def last_study_day(self) -> date | None:
+        """En son çalışılan gün; hiç çalışılmadıysa None (hatırlatmalar için)."""
+        row = self._connection.execute("SELECT MAX(day) AS day FROM study_days").fetchone()
+        return date.fromisoformat(row["day"]) if row and row["day"] else None
+
     def streak(self) -> int:
         """Bugünden geriye doğru kesintisiz çalışılan gün sayısı."""
         rows = self._connection.execute(
