@@ -485,6 +485,10 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
     color: {p['text']}; border-radius: 8px; padding: 6px 13px; white-space: nowrap;
 }}
 .hint a.show:hover {{ background: {p['surface_hover']}; }}
+.hint a.show.hide {{
+    border-color: transparent; background: transparent; color: {p['text_muted']};
+}}
+.hint a.show.hide:hover {{ background: {p['surface_hover']}; color: {p['text']}; }}
 
 /* --- sürüm notları -------------------------------------------------- */
 

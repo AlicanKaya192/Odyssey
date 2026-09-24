@@ -252,12 +252,18 @@ class ExerciseView(QWidget):
         if action == "advance":
             self.advance.emit()
             return
+        # Açılan ipucu "Gizle" ile yeniden kapatılabiliyor; kutu uzayınca
+        # kişi istediği kademeye dönebilsin.
         if action.startswith("hint-"):
+            gizle = action.startswith("hint-hide-")
             try:
-                level = int(action.split("-", 1)[1])
+                level = int(action.rsplit("-", 1)[1])
             except ValueError:
                 return
-            self._revealed.add(level)
+            if gizle:
+                self._revealed.discard(level)
+            else:
+                self._revealed.add(level)
             self._prompt.update_extra(self._hints_html())
 
     def set_advance_label(self, label: str | None) -> None:
@@ -310,7 +316,10 @@ class ExerciseView(QWidget):
             if level in self._revealed:
                 body, _ = render_markdown(text)
                 inner = f'<div class="tx open">{body}</div>'
-                button = ""
+                button = (
+                    f'<a class="show hide" href="app:hint-hide-{level}">'
+                    f'{html.escape(self._language.t("hint.hide"))}</a>'
+                )
             else:
                 label = html.escape(self._language.t(self._hint_label(level)))
                 inner = f'<div class="tx">{label}</div>'

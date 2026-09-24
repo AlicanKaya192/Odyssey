@@ -442,12 +442,26 @@ class DocumentView(QWebEngineView):
             fallback()
             return
 
+        # Yeni parçadaki formüller de çiziliyor; yoksa ipucundaki
+        # `$3\mathbf{u}$` ham TeX olarak görünüyordu (Alican gördü). Sayfaya
+        # KaTeX hiç yüklenmemişse (yönergede formül yok) normal çizime
+        # düşülüyor, o çizim KaTeX'i de yüklüyor.
         painted = highlight_code_blocks(fragment, self._mode)
         script = (
             "(function () {"
             f"  var el = document.getElementById({json.dumps(element_id)});"
             "  if (!el) return false;"
+            f"  var math = {json.dumps(has_math(painted))};"
+            "  if (math && typeof katex === 'undefined') return false;"
             f"  el.innerHTML = {json.dumps(painted)};"
+            "  if (math) {"
+            "    el.querySelectorAll('.math').forEach(function (m) {"
+            "      katex.render(m.textContent, m, {"
+            "        displayMode: m.classList.contains('display'), throwOnError: false"
+            "      });"
+            "    });"
+            "    if (typeof fitMath === 'function') fitMath();"
+            "  }"
             "  return true;"
             "})()"
         )
