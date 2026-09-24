@@ -94,8 +94,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Arama sol şeridin ortasında.** Şeridin ortasındaki genel ilerleme
   halkası kaldırıldı; aynı yüzde öğrenme yolu ekranında zaten yazıyor.
   Yerine arama düğmesi geldi.
+- **"Discord'da göster" Görünüm ayarlarında.** Öğrenmeyle değil başkalarının
+  ne gördüğüyle ilgili olduğu için Öğrenme sayfasından taşındı.
 
 ### Düzeltildi
+- **Ayarları açıp kapatınca program çökmüyor.** Ayarlar kapanırken arka
+  planda yeni bir SQL veritabanı sayımı başlıyordu; pencere hemen silindiği
+  için bu iş yarıda yok ediliyor ve program kapanıyordu.
 - **İpucu açınca ekran zıplamıyor.** Bir ipucunu açmak yönergenin tamamını
   yeniden yüklüyordu; sayfa bir an en başa gidip eski yerine dönüyordu.
   Artık yalnızca ipucu kutusu değişiyor, okuduğunuz yer kıpırdamıyor.

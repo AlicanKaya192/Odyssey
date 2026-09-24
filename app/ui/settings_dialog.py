@@ -116,8 +116,16 @@ class SqlAdminWorker(QThread):
 
     completed = Signal(dict)
 
-    def __init__(self, action: str, names: list[str] | None = None) -> None:
-        super().__init__()
+    def __init__(
+        self,
+        action: str,
+        names: list[str] | None = None,
+        parent: QWidget | None = None,
+    ) -> None:
+        # Sahibi ayarlar penceresi: sahipsiz bir QThread yalnızca Python
+        # tarafında tutuluyordu ve pencere silinince çalışırken yok
+        # edilebiliyordu.
+        super().__init__(parent)
         self._action = action
         self._names = list(names or [])
 
@@ -344,7 +352,14 @@ class SettingsDialog(QDialog):
         self._language_picker.selected.connect(self._on_language)
         self._language_row = SettingRow(self._language_picker)
 
-        layout.addWidget(self._group([self._theme_row, self._language_row]))
+        # Discord'da görünme bir görünüm ayarı: öğrenmeyi değil, başkalarının
+        # ne gördüğünü değiştiriyor. Önce Öğrenme sayfasındaydı (Alican taşıttı).
+        self._presence_row = SettingRow()
+        self._presence_row.switch.toggled.connect(self._on_presence)
+
+        layout.addWidget(self._group(
+            [self._theme_row, self._language_row, self._presence_row]
+        ))
         layout.addStretch(1)
         return sayfa
 
@@ -357,10 +372,7 @@ class SettingsDialog(QDialog):
         self._untimed_row = SettingRow()
         self._untimed_row.switch.toggled.connect(self._on_untimed)
 
-        self._presence_row = SettingRow()
-        self._presence_row.switch.toggled.connect(self._on_presence)
-
-        layout.addWidget(self._group([self._unlock_row, self._untimed_row, self._presence_row]))
+        layout.addWidget(self._group([self._unlock_row, self._untimed_row]))
         layout.addStretch(1)
         return sayfa
 
@@ -477,9 +489,11 @@ class SettingsDialog(QDialog):
                 worker.setParent(sahip)
                 worker.finished.connect(worker.deleteLater)
         super().done(result)
-        # Pencere her açılışta sayıyı tazeliyor: kullanıcı arada alıştırma
-        # çözmüş olabilir ve eski sayıyı göstermek yanıltıcı olurdu.
-        self._sql_refresh()
+        # Burada sayı tazelenmiyor. Önceden kapanışta yeni bir SQL sayımı
+        # başlatılıyordu; pencere hemen ardından silindiği için iş parçacığı
+        # çalışırken yok ediliyor ve program "QThread: Destroyed while
+        # thread is still running" ile çöküyordu (Alican bildirdi). Pencere
+        # her açılışta yeniden kuruluyor ve sayım açılışta zaten yapılıyor.
 
     def _separator(self) -> QFrame:
         line = QFrame()
@@ -676,7 +690,7 @@ class SettingsDialog(QDialog):
         self._sql_button.setEnabled(False)
         self._sql_status.setText(self._language.t("settings.sql_reading"))
 
-        self._sql_worker = SqlAdminWorker("list_databases")
+        self._sql_worker = SqlAdminWorker("list_databases", parent=self)
         self._sql_worker.completed.connect(self._on_sql_listed)
         self._sql_worker.start()
 
@@ -729,7 +743,7 @@ class SettingsDialog(QDialog):
         self._sql_button.setEnabled(False)
         self._sql_status.setText(t("settings.sql_clearing"))
         self._sql_worker = SqlAdminWorker(
-            "drop_databases", [v["name"] for v in self._sql_databases]
+            "drop_databases", [v["name"] for v in self._sql_databases], parent=self
         )
         self._sql_worker.completed.connect(self._on_sql_cleared)
         self._sql_worker.start()

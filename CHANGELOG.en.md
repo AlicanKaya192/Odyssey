@@ -100,8 +100,14 @@ lecture note does not mean downloading the whole application again.
 - **Search sits in the middle of the left strip.** The overall progress
   ring in the middle of the strip is gone; the same percentage is already
   shown on the learning path screen. The search button took its place.
+- **"Show on Discord" is in the Appearance settings.** It moved from the
+  Learning page, since it is about what others see, not about learning.
 
 ### Fixed
+- **Opening and closing Settings no longer crashes the app.** Closing the
+  window started a new count of the SQL databases in the background; the
+  window was deleted straight away, the job was destroyed halfway and the
+  app shut down.
 - **Opening a hint no longer makes the screen jump.** Opening a hint reloaded
   the whole instructions page; it flashed back to the top and then returned
   to where you were. Now only the hint box changes and your place stays put.
