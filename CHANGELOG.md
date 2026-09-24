@@ -25,11 +25,15 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Matematik patikası eklendi.** Kod değil gerçekten matematik öğretiyor;
   sağ üstteki seçiciyle iki modül arasında geçiliyor: **MAT 1 — Temel
   Matematik** (sıfırdan başlayan biri için) ve **MAT 2 — Yapay Zekanın
-  Matematiği**. Yazılan bölümler — **MAT 1** (başlangıç kısmının tamamı):
+  Matematiği**. Yazılan bölümler — **MAT 1** (başlangıç ve orta kısmın tamamı):
   Matematiği Okumak: Semboller ve Terimler; Doğal Sayılar ve İşlem
   Önceliği; Tam Sayılar ve Negatif Sayılar; Bölünebilme, Asal Sayılar, EBOB
   ve EKOK; Kesirler; Ondalık Sayılar ve Yuvarlama; Oran, Orantı ve Yüzde;
-  Üslü Sayılar; Köklü Sayılar; ayrıca Logaritma. **MAT 2** (doğrusal
+  Üslü Sayılar; Köklü Sayılar; orta kısmın tamamı: Cebirsel İfadeler ve
+  Özdeşlikler; Çarpanlara Ayırma; Birinci Dereceden Denklemler;
+  Eşitsizlikler ve Mutlak Değer; Denklem Sistemleri; İkinci Dereceden
+  Denklemler; Kümeler ve Mantık; Fonksiyonlar; Koordinat Düzlemi ve Doğru;
+  ayrıca Logaritma. **MAT 2** (doğrusal
   cebirin tamamı): Vektörler; Nokta Çarpımı, Uzunluk ve
   Benzerlik; Matrisler; Matris Çarpımı ve Dönüşümler; Determinant ve Ters
   Matris; Doğrusal Sistemler ve Gauss Eleme; Doğrusal Bağımsızlık, Taban ve

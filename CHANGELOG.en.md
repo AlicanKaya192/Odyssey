@@ -28,10 +28,13 @@ lecture note does not mean downloading the whole application again.
   code; a selector at the top right switches between two modules: **MATH 1 —
   Foundational Mathematics** (for someone starting from zero) and **MATH 2 —
   The Mathematics of AI**. Sections written so far — **MATH 1** (the whole
-  basic level): Reading Mathematics: Symbols and Terms; Natural Numbers and
+  basic and intermediate levels): Reading Mathematics: Symbols and Terms; Natural Numbers and
   Order of Operations; Integers and Negative Numbers; Divisibility, Primes,
   GCD and LCM; Fractions; Decimals and Rounding; Ratio, Proportion and
-  Percentages; Exponents; Roots; and also Logarithms. **MATH 2** (all of
+  Percentages; Exponents; Roots; the whole intermediate level: Algebraic
+  Expressions and Identities; Factoring; Linear Equations; Inequalities and
+  Absolute Value; Systems of Equations; Quadratic Equations; Sets and Logic;
+  Functions; The Coordinate Plane and Lines; and also Logarithms. **MATH 2** (all of
   linear algebra): Vectors; Dot Product, Length and
   Similarity; Matrices; Matrix Multiplication and Transformations;
   Determinants and Inverse Matrices; Linear Systems and Gaussian Elimination;
