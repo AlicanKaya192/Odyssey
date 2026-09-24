@@ -1,31 +1,42 @@
-**1. Set up the equation:**
+**What is asked?** The money grows by 8% each year; how many years until 1000 becomes 2500? The unknown number of years sits **in the exponent**, so we will need a logarithm.
+
+**Idea:** Growing by 8% a year means being multiplied by $1.08$ every year. After $t$ years the money is $1000 \cdot 1.08^t$. The way to bring $t$ down from the exponent is to take the logarithm of both sides; the power rule ($\ln x^n = n \ln x$) moves the exponent to the front.
+
+**Step 1 — Set up the equation.**
 
 $$
 1000 \cdot 1.08^t = 2500
 $$
 
-**2. Isolate the power term** (divide both sides by 1000):
+**Step 2 — Isolate the power.** Divide both sides by 1000:
 
 $$
 1.08^t = 2.5
 $$
 
-**3. Take the natural logarithm of both sides and bring the exponent down:**
+Meaning: the money has to grow $2.5$ times.
+
+**Step 3 — Take the natural logarithm of both sides.** Equal numbers have equal logarithms. The power rule brings the exponent down in front:
 
 $$
-\ln (1.08^t) = \ln 2.5
-\quad\Rightarrow\quad
-t \cdot \ln 1.08 = \ln 2.5
+\begin{aligned}
+\ln (1.08^t) &= \ln 2.5 \\
+t \cdot \ln 1.08 &= \ln 2.5
+\end{aligned}
 $$
 
-**4. Isolate $t$:**
+**Step 4 — Isolate $t$.** Divide both sides by $\ln 1.08$ and put in the given values:
 
 $$
-t = \frac{\ln 2.5}{\ln 1.08} \approx \frac{0.9163}{0.0770} \approx 11.90
+\begin{aligned}
+t &= \frac{\ln 2.5}{\ln 1.08} \\
+&\approx \frac{0.9163}{0.0770} \\
+&\approx 11.90
+\end{aligned}
 $$
 
-With the rounded values given you get $11.90$, with more precise values $11.91$; both are accepted.
+The rounded values given give $11.90$, more precise values give $11.91$; both are accepted.
 
-**Sanity check:** after 11 years the money is $1.08^{11} \approx 2.33$ times larger, after 12 years $2.52$ times. 2.5 lies between them, very close to 12. The result is reasonable.
+**Check (does it make sense?):** In 11 years the money grows $1.08^{11} \approx 2.33$ times, in 12 years $1.08^{12} \approx 2.52$ times. $2.5$ times is between them and very close to 12. The result is sensible. ✓
 
-**Answer: about 11.91 years**
+**Answer:** about 11.91 years.
