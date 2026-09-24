@@ -14,16 +14,11 @@ Kod arka planda ayrı bir süreçte çalıştırılır; çalışırken arayüz d
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, QThread, Signal
-from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
-    QPlainTextEdit,
     QPushButton,
-    QScrollArea,
-    QSizePolicy,
-    QSplitter,
     QStackedWidget,
     QVBoxLayout,
     QWidget,
@@ -31,29 +26,23 @@ from PySide6.QtWidgets import (
 
 import html
 import json
-from pathlib import Path
+import textwrap
+import time
 
 from ..core.catalog import Exercise
-from ..core.grader import Feedback, describe, summarise
+from ..core.grader import describe, summarise
 from ..core.language import LanguageManager
 from ..core.mistakes import explain
 from ..core.progress import ProgressStore
 from ..core.runner import RunResult, run_code
-from ..resources.theme.tokens import FONTS, SPACING
+from ..resources.theme.tokens import SPACING
+from ..version import APP_VERSION
 from ..widgets.code_editor import CodeEditor
 from ..widgets.common import SegmentedControl
 from ..widgets.draw_pad import clean_drawing, empty_drawing
+from ..widgets.grip_splitter import GripSplitter
 from ..widgets.problem_panel import ProblemPanel
-
-# Çıktı kutusunun en fazla kaplayacağı yükseklik.
-#
-# Ölçüldü: bu yazı tipinde satır 14 piksel, dolgu ve kenarlıkla birlikte
-# 200 piksel ~13 satır alıyor. İçeriğin beklenen çıktısı en fazla 6 satır;
-# kalan yer öğrencinin kendi eklediği `print` satırları ve hata metni için.
-# Önce 120 pikseldi (~7 satır) ve panelde alt alta duran "Geçti" satırları
-# yüzünden daha da fazlası görünmüyordu.
-OUTPUT_MAX_HEIGHT = 200
-from ..widgets.effects import repolish
+from ..widgets.terminal_view import TerminalView, block, line
 from .lesson_view import LessonView, render_markdown
 from .tables_window import TablesWindow
 
@@ -77,9 +66,20 @@ def exercise_key(exercise: Exercise) -> str:
 # Kaç yanlış denemeden sonra çözüm yolları kendiliğinden açılıyor.
 REVEAL_AFTER_ATTEMPTS = 2
 
-# Problemde sol paneldeki iki sekme.
+# Sol paneldeki sekmeler: yönerge ve ikinci sekme. İkinci sekme problemde
+# "Çözüm yolları", kod alıştırmasında "Çıktı" (grafikler ve tutmayan çok
+# satırlı çıktılar). Yığındaki sayfa sırası: yönerge, çözümler, çıktı.
 BRIEF_PROMPT = 0
 BRIEF_SOLUTIONS = 1
+PAGE_OUTPUT = 2
+
+# Terminal ile editör arasındaki ilk bölüşüm (piksel).
+EDITOR_SHARE = 560
+TERMINAL_SHARE = 240
+
+# Terminaldeki düz yazı satırları bu genişlikte sarılıyor; satırlar
+# kaydırılmadığı için uzun bir açıklama yoksa ekrandan taşardı.
+PROSE_WIDTH = 92
 
 
 class RunWorker(QThread):
@@ -137,160 +137,6 @@ class SnapshotWorker(QThread):
         )
 
 
-class CheckRow(QFrame):
-    """Sonuç panelindeki tek bir kontrol satırı."""
-
-    def __init__(
-        self,
-        feedback: Feedback,
-        language: LanguageManager,
-        parent: QWidget | None = None,
-    ) -> None:
-        super().__init__(parent)
-        self.setProperty("check", "passed" if feedback.passed else "failed")
-
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(
-            SPACING["md"], SPACING["sm"], SPACING["md"], SPACING["sm"]
-        )
-        layout.setSpacing(SPACING["xs"])
-
-        header = QHBoxLayout()
-        header.setSpacing(SPACING["sm"])
-
-        # Renk körlüğü için renge ek olarak simge de var.
-        icon = QLabel("✓" if feedback.passed else "✕")
-        icon.setProperty("tone", "success" if feedback.passed else "danger")
-        icon.setFixedWidth(16)
-        header.addWidget(icon, 0, Qt.AlignmentFlag.AlignTop)
-
-        message = QLabel(feedback.message)
-        message.setWordWrap(True)
-        header.addWidget(message, 1)
-        layout.addLayout(header)
-
-        if feedback.has_comparison:
-            layout.addWidget(
-                self._comparison(language.t("check.stdout.expected"), feedback.expected)
-            )
-            layout.addWidget(
-                self._comparison(language.t("check.stdout.actual"), feedback.actual)
-            )
-
-    def _comparison(self, label: str, value: str) -> QWidget:
-        row = QWidget()
-        layout = QHBoxLayout(row)
-        layout.setContentsMargins(SPACING["lg"], 0, 0, 0)
-        layout.setSpacing(SPACING["sm"])
-
-        caption = QLabel(f"{label}:")
-        caption.setProperty("role", "muted")
-        caption.setFixedWidth(86)
-        caption.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop)
-        layout.addWidget(caption)
-
-        # Değeri tırnak içinde gösteriyoruz: "neden geçmedi" sorusunun cevabı
-        # çoğu zaman görünmeyen bir boşluk oluyor.
-        content = QLabel(repr(value) if value else "—")
-        content.setWordWrap(True)
-        content.setStyleSheet(f"font-family: {FONTS['mono']};")
-        content.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        layout.addWidget(content, 1)
-
-        return row
-
-
-class ArtifactRow(QFrame):
-    """Kullanıcının kodunun ürettiği görsel.
-
-    Alıştırma bir grafik kaydediyorsa o grafik burada görünüyor. Önceden
-    dosya üretiliyor, doğrulanıyor ve çalışma klasörüyle birlikte
-    siliniyordu: "eksen sıfırdan başlamalı" diyen bir ders, öğrencinin
-    çizdiği grafiği gösteremiyordu.
-
-    Görsel panele sığacak şekilde küçültülüyor ama **oranı korunuyor**;
-    ezilmiş bir grafik yanlış bir şey öğretir.
-    """
-
-    MAX_HEIGHT = 320
-
-    def __init__(
-        self, path: Path, caption: str, parent: QWidget | None = None
-    ) -> None:
-        super().__init__(parent)
-        self.setProperty("role", "artifact")
-        self._path = path
-
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(
-            SPACING["md"], SPACING["md"], SPACING["md"], SPACING["md"]
-        )
-        layout.setSpacing(SPACING["xs"])
-
-        baslik = QLabel(caption)
-        baslik.setProperty("role", "muted")
-        layout.addWidget(baslik)
-
-        self._image = QLabel()
-        self._image.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._pixmap = QPixmap(str(path))
-        layout.addWidget(self._image)
-
-        ad = QLabel(path.name)
-        ad.setProperty("role", "muted")
-        ad.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(ad)
-
-        self._rescale()
-
-    def resizeEvent(self, event) -> None:  # noqa: N802
-        super().resizeEvent(event)
-        self._rescale()
-
-    def _rescale(self) -> None:
-        """Görseli panele sığdırır.
-
-        Panelin genişliği ders okurken de alıştırma çözerken de değişiyor;
-        ölçek her seferinde yeniden hesaplanıyor.
-        """
-        if self._pixmap.isNull():
-            self._image.setText(self._path.name)
-            return
-
-        alan = max(120, self.width() - 2 * SPACING["md"])
-        olcekli = self._pixmap.scaled(
-            alan,
-            self.MAX_HEIGHT,
-            Qt.AspectRatioMode.KeepAspectRatio,
-            Qt.TransformationMode.SmoothTransformation,
-        )
-        self._image.setPixmap(olcekli)
-
-
-class MistakeRow(QFrame):
-    """Hatanın ne anlama geldiğini anlatan kutu."""
-
-    def __init__(self, text: str, title: str, parent: QWidget | None = None) -> None:
-        super().__init__(parent)
-        self.setProperty("banner", "accent")
-
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(
-            SPACING["md"], SPACING["sm"], SPACING["md"], SPACING["sm"]
-        )
-        layout.setSpacing(SPACING["xs"])
-
-        heading = QLabel(title)
-        heading.setProperty("tone", "accent")
-        heading.setProperty("role", "heading")
-        layout.addWidget(heading)
-
-        body = QLabel(text)
-        body.setWordWrap(True)
-        body.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        layout.addWidget(body)
-
-
 class ExerciseView(QWidget):
     """Bir alıştırmanın tamamı."""
 
@@ -322,11 +168,16 @@ class ExerciseView(QWidget):
         # ortadan kalkıyor.
         self._revealed: set[int] = set()
         self._advance_label: str | None = None
+        # Sol paneldeki "Çıktı" sekmesinin içeriği var mı (kod alıştırması).
+        self._has_output = False
+        self._run_started = 0.0
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        splitter = QSplitter(Qt.Orientation.Horizontal)
+        # Tutamağı görünen ayırıcı: sürüklenebildiği fark edilsin.
+        splitter = GripSplitter(Qt.Orientation.Horizontal)
+        self._splitter = splitter
         splitter.addWidget(self._build_brief())
         # Sağ taraf alıştırmanın türüne göre: kod alıştırmasında editör,
         # matematik probleminde cevap alanları.
@@ -378,12 +229,22 @@ class ExerciseView(QWidget):
         self._brief_stack.addWidget(self._prompt)
         self._solutions = LessonView(self._language, compact=True)
         self._brief_stack.addWidget(self._solutions)
+        # Kod alıştırmasında çalıştırmanın ürettiği grafikler ve tutmayan
+        # çok satırlı çıktılar. Terminalin dar alanında tablolar ve
+        # grafikler okunmuyordu; burada tam genişlikte.
+        self._output_view = LessonView(self._language, compact=True)
+        self._brief_stack.addWidget(self._output_view)
         layout.addWidget(self._brief_stack)
 
         return panel
 
     def _on_brief_tab(self, index: int) -> None:
-        self._brief_stack.setCurrentIndex(index)
+        if index == BRIEF_PROMPT:
+            self._brief_stack.setCurrentIndex(BRIEF_PROMPT)
+        elif self._exercise is not None and self._exercise.is_problem:
+            self._brief_stack.setCurrentIndex(BRIEF_SOLUTIONS)
+        else:
+            self._brief_stack.setCurrentIndex(PAGE_OUTPUT)
 
     def _on_prompt_action(self, action: str) -> None:
         """Yönerge içindeki bağlantılar: ipucu kademeleri ve alttaki
@@ -499,48 +360,29 @@ class ExerciseView(QWidget):
     # --- sağ: editör ve sonuçlar -----------------------------------------
 
     def _build_work(self) -> QWidget:
-        holder = QWidget()
-        layout = QVBoxLayout(holder)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        """Sağ taraf: editör ve çalıştırma şeridi, altında terminal.
+
+        İkisinin arasındaki ayırıcı sürüklenebiliyor (tutamağı görünür).
+        Terminal her zaman duruyor; sonuç için ayrıca bir panel açılmıyor.
+        """
+        top = QWidget()
+        top_layout = QVBoxLayout(top)
+        top_layout.setContentsMargins(0, 0, 0, 0)
+        top_layout.setSpacing(0)
 
         self._editor = CodeEditor(mode=self._mode)
         self._editor.run_requested.connect(self.run)
-        layout.addWidget(self._editor, 3)
+        top_layout.addWidget(self._editor, 1)
+        top_layout.addWidget(self._build_runbar())
 
-        layout.addWidget(self._build_runbar())
+        self._terminal = TerminalView()
 
-        self._results_area = QScrollArea()
-        self._results_area.setWidgetResizable(True)
-        self._results_area.setFrameShape(QFrame.Shape.NoFrame)
-
-        results_holder = QWidget()
-        self._results_layout = QVBoxLayout(results_holder)
-        self._results_layout.setContentsMargins(
-            SPACING["lg"], SPACING["md"], SPACING["lg"], SPACING["lg"]
-        )
-        self._results_layout.setSpacing(SPACING["sm"])
-
-        self._summary = QLabel()
-        self._summary.setWordWrap(True)
-        self._summary.setProperty("role", "subtitle")
-        self._summary.hide()
-        self._results_layout.addWidget(self._summary)
-
-        self._results_layout.addStretch(1)
-        self._results_area.setWidget(results_holder)
-        layout.addWidget(self._results_area, 2)
-
-        self._output = QPlainTextEdit()
-        self._output.setReadOnly(True)
-        self._output.setProperty("role", "output")
-        # Sonuç panelinde artık tek bir "Geçti" satırı var (önce her kontrol
-        # için bir tane çiziliyordu); açılan yer çıktıya verildi.
-        self._output.setMaximumHeight(OUTPUT_MAX_HEIGHT)
-        self._output.hide()
-        layout.addWidget(self._output)
-
-        return holder
+        self._work_splitter = GripSplitter(Qt.Orientation.Vertical)
+        self._work_splitter.addWidget(top)
+        self._work_splitter.addWidget(self._terminal)
+        self._work_splitter.setSizes([EDITOR_SHARE, TERMINAL_SHARE])
+        self._work_splitter.setStretchFactor(0, 1)
+        return self._work_splitter
 
     def _build_problem_work(self) -> QWidget:
         """Problemin sağ tarafı: çalışma kâğıdı ve cevap. Tamamı kâğıda ait;
@@ -694,12 +536,139 @@ class ExerciseView(QWidget):
             self._tables_window.set_tables([], hata or self._language.t("tables.empty"))
 
     def _clear_results(self) -> None:
-        while self._results_layout.count() > 2:
-            item = self._results_layout.takeAt(1)
-            if item.widget():
-                item.widget().deleteLater()
-        self._summary.hide()
-        self._output.hide()
+        """Yeni alıştırma: terminal karşılamaya döner, Çıktı sekmesi kapanır."""
+        self._terminal.set_welcome(self._welcome_html())
+        self._terminal.clear()
+        self._set_output(False)
+
+    # --- terminal ----------------------------------------------------------
+
+    def _runtime_name(self) -> str:
+        return "SQL Server" if self._exercise is not None and self._exercise.language == "tsql" else "Python"
+
+    def _command_name(self) -> str:
+        if self._exercise is not None and self._exercise.language == "tsql":
+            return "sqlcmd -i sorgu.sql"
+        return "python cozum.py"
+
+    def _welcome_html(self) -> str:
+        t = self._language.t
+        satirlar = [line(f"Odyssey v{APP_VERSION} · {self._runtime_name()}", "accent", bold=True)]
+        if self._exercise is not None:
+            satirlar.append(
+                line(t("terminal.ready", title=self._language.pick(self._exercise.title)), "dim")
+            )
+        return "".join(satirlar)
+
+    def _prose(self, text: str, color: str, prefix: str = "", indent: int = 0) -> str:
+        """Düz yazıyı terminal genişliğinde satırlara böler (satırlar kaymıyor)."""
+        sarilmis = textwrap.wrap(text, PROSE_WIDTH - indent - len(prefix)) or [""]
+        parcalar = []
+        for index, satir in enumerate(sarilmis):
+            on = prefix if index == 0 else " " * len(prefix)
+            parcalar.append(line(on + satir, color, indent=indent))
+        return "".join(parcalar)
+
+    def _terminal_body(self, result: RunResult, seconds: float, has_output: bool) -> str:
+        """Bir çalıştırmanın terminaldeki gövdesi: çıktı, ayraç, sonuç."""
+        t = self._language.t
+        parcalar = []
+        if result.stdout.strip():
+            parcalar.append(block(result.stdout.rstrip("\n")))
+        if result.stderr.strip():
+            parcalar.append(block(result.stderr.rstrip("\n"), "fail"))
+        if result.truncated:
+            parcalar.append(line(f"[{t('exercise.output_truncated')}]", "dim"))
+        if not (result.stdout.strip() or result.stderr.strip()):
+            parcalar.append(line(t("terminal.no_output"), "dim"))
+
+        parcalar.append(line("─" * 44, "dim"))
+        gecti = result.passed
+        parcalar.append(self._prose(
+            summarise(result, self._language), "ok" if gecti else "fail",
+            prefix="✓ " if gecti else "✕ ",
+        ))
+
+        explanation = explain(result.error)
+        if explanation is not None:
+            parcalar.append(self._prose(
+                t(explanation.key, **explanation.values), "warn", prefix="💡 "
+            ))
+
+        for feedback in describe(result, self._language):
+            if feedback.passed:
+                continue
+            parcalar.append(self._prose(feedback.message, "fail", prefix="✕ "))
+            if feedback.has_comparison:
+                parcalar.append(line(f"{t('check.stdout.expected')}:", "dim", indent=2))
+                parcalar.append(block(feedback.expected or "—", "warn", indent=4))
+                parcalar.append(line(f"{t('check.stdout.actual')}:", "dim", indent=2))
+                parcalar.append(block(feedback.actual or "—", "text", indent=4))
+
+        if result.artifacts:
+            parcalar.append(line(
+                "📊 " + t("terminal.artifacts", count=len(result.artifacts)), "accent"
+            ))
+        if has_output:
+            parcalar.append(line("→ " + t("terminal.see_output"), "accent"))
+        sure = f"{seconds:.1f}"
+        if self._language.language == "tr":
+            sure = sure.replace(".", ",")
+        parcalar.append(line(t("terminal.took", seconds=sure), "dim"))
+        return "".join(parcalar)
+
+    # --- sol: Çıktı sekmesi ------------------------------------------------
+
+    def _output_markdown(self, result: RunResult) -> str:
+        """Grafikler ve tutmayan çok satırlı çıktılar; yoksa boş metin."""
+        t = self._language.t
+        parcalar = []
+        damga = int(time.time() * 1000)
+        if result.artifacts:
+            parcalar.append(f"## {t('output.produced')}")
+            for yol in result.artifacts:
+                # Aynı adlı dosya her çalıştırmada yeniden yazılıyor; sorgu
+                # eki olmadan tarayıcı eski grafiği önbellekten gösteriyordu.
+                kaynak = f"{yol.as_uri()}?v={damga}"
+                parcalar.append(
+                    f'<figure class="fig"><img class="out" src="{html.escape(kaynak)}" alt="">'
+                    f"<figcaption>{html.escape(yol.name)}</figcaption></figure>"
+                )
+
+        karsilastirmalar = [
+            f for f in describe(result, self._language)
+            if not f.passed and f.has_comparison
+            and ("\n" in (f.expected or "") or "\n" in (f.actual or ""))
+        ]
+        if karsilastirmalar:
+            parcalar.append(f"## {t('output.compare')}")
+            parcalar.append(t("output.compare_intro"))
+            for feedback in karsilastirmalar:
+                beklenen = (feedback.expected or "").splitlines()
+                gelen = (feedback.actual or "").splitlines()
+                parcalar.append(f"**{html.escape(feedback.message)}**")
+                parcalar.append(
+                    f'<div class="out-label">{html.escape(t("check.stdout.expected"))}</div>'
+                    + _cmp_html(beklenen, beklenen)
+                )
+                parcalar.append(
+                    f'<div class="out-label">{html.escape(t("check.stdout.actual"))}</div>'
+                    + _cmp_html(gelen, beklenen, mark=True)
+                )
+        if not parcalar:
+            return ""
+        return f"# {t('output.title')}\n\n" + "\n\n".join(parcalar)
+
+    def _set_output(self, visible: bool, focus: bool = False) -> None:
+        """Kod alıştırmasında "Yönerge | Çıktı" sekmelerini açar ya da kapatır."""
+        self._has_output = visible
+        if visible:
+            self._show_brief_tabs(True)
+            if focus:
+                self._brief_tabs.set_current(1, notify=False)
+                self._brief_stack.setCurrentIndex(PAGE_OUTPUT)
+        else:
+            self._show_brief_tabs(False)
 
     # --- çalıştırma -------------------------------------------------------
 
@@ -713,7 +682,12 @@ class ExerciseView(QWidget):
 
         self._run_button.setEnabled(False)
         self._run_button.setText(self._language.t("exercise.running"))
-        self._clear_results()
+        # Terminalde önceki çalıştırmalar yukarıda kalıyor; yenisi altına.
+        self._terminal.begin(
+            line(f"❯ {self._command_name()}", "prompt", bold=True),
+            line(self._language.t("terminal.running"), "dim"),
+        )
+        self._run_started = time.monotonic()
 
         self._worker = RunWorker(self._editor.toPlainText(), self._exercise, self)
         self._worker.completed.connect(self._on_completed)
@@ -733,38 +707,16 @@ class ExerciseView(QWidget):
                 count_attempt=True,
             )
 
-        self._summary.setText(summarise(result, self._language))
-        self._summary.setProperty("tone", "success" if result.passed else "danger")
-        repolish(self._summary)
-        self._summary.show()
+        # Grafikler ve tutmayan çok satırlı çıktılar sol paneldeki "Çıktı"
+        # sekmesinde, tam genişlikte; terminal kısa bir işaret bırakıyor.
+        cikti = self._output_markdown(result)
+        if cikti:
+            self._output_view.set_base_dir(self._exercise.directory if self._exercise else None)
+            self._output_view.show_text(cikti)
+        self._set_output(bool(cikti), focus=bool(cikti))
 
-        # Ürettiği görsel varsa **kontrollerden önce** geliyor: kullanıcının
-        # ilk bakacağı şey çizdiği grafik, "üçüncü kontrol geçti" değil.
-        baslik = self._language.t("exercise.produced")
-        for yol in result.artifacts:
-            self._insert(ArtifactRow(yol, baslik))
-
-        # Hata varsa önce ne anlama geldiğini anlat, sonra kontrolleri listele.
-        explanation = explain(result.error)
-        if explanation is not None:
-            self._insert(
-                MistakeRow(
-                    self._language.t(explanation.key, **explanation.values),
-                    self._language.t("mistake.title"),
-                )
-            )
-
-        for feedback in describe(result, self._language):
-            self._insert(CheckRow(feedback, self._language))
-
-        combined = result.stdout
-        if result.stderr:
-            combined = f"{combined}\n{result.stderr}" if combined else result.stderr
-        if result.truncated:
-            combined += f"\n\n[{self._language.t('exercise.output_truncated')}]"
-        if combined.strip():
-            self._output.setPlainText(combined)
-            self._output.show()
+        sure = time.monotonic() - self._run_started if self._run_started else 0.0
+        self._terminal.finish(self._terminal_body(result, sure, bool(cikti)))
 
         # Tablolar penceresi açıksa çalıştırmanın bıraktığı hâli gösteriyor.
         if result.tables:
@@ -861,16 +813,13 @@ class ExerciseView(QWidget):
         self._solutions.set_base_dir(self._exercise.directory)
         self._solutions.show_text("\n\n".join(parts))
 
-    def _insert(self, widget: QWidget) -> None:
-        self._results_layout.insertWidget(self._results_layout.count() - 1, widget)
-
     def _reset(self) -> None:
         if self._exercise is None:
             return
+        # Terminal silinmiyor: önceki çalıştırmaların çıktısı yol gösterebilir.
         self._editor.setPlainText(
             self._exercise.starter_code_for(self._language.language)
         )
-        self._clear_results()
 
     # --- tema ve dil ------------------------------------------------------
 
@@ -879,7 +828,10 @@ class ExerciseView(QWidget):
         self._editor.set_mode(mode)
         self._prompt.set_mode(mode)
         self._solutions.set_mode(mode)
+        self._output_view.set_mode(mode)
         self._problem.set_mode(mode)
+        self._splitter.set_mode(mode)
+        self._work_splitter.set_mode(mode)
         if self._tables_window is not None:
             self._tables_window.set_mode(mode)
 
@@ -894,9 +846,14 @@ class ExerciseView(QWidget):
         # Başlık, etiketler ve ipuçları belgenin içinde olduğu için dil
         # değişince yönergeyi baştan çizmek yeterli.
         self._problem.retranslate()
-        self._brief_tabs.set_labels(
-            [self._language.t("problem.tab_prompt"), self._language.t("problem.tab_solutions")]
-        )
+        problem = self._exercise is not None and self._exercise.is_problem
+        self._brief_tabs.set_labels([
+            self._language.t("problem.tab_prompt"),
+            self._language.t("problem.tab_solutions" if problem else "exercise.tab_output"),
+        ])
+        self._terminal.set_title(self._language.t("terminal.title"))
+        self._terminal.clear_button.setText(self._language.t("terminal.clear"))
+        self._terminal.set_welcome(self._welcome_html())
         if self._exercise is not None and self._exercise.is_problem and self._revealed_solution:
             self._render_solutions()
         if self._exercise is not None:
@@ -921,6 +878,25 @@ class ExerciseView(QWidget):
         wanted = self._exercise.starter_code_for(self._language.language)
         if wanted.strip() != current.strip():
             self._editor.setPlainText(wanted)
+
+
+def _cmp_html(lines: list[str], reference: list[str], mark: bool = False) -> str:
+    """Çıktı satırları; `mark` ise beklenenle tutmayan satırlar işaretli.
+
+    Satır satır karşılaştırılıyor: tablolarda hangi satırın farklı olduğu
+    bir bakışta görünsün. Gelen çıktı kısaysa eksik satırlar da gösteriliyor.
+    """
+    parcalar = []
+    for index, satir in enumerate(lines):
+        farkli = mark and (index >= len(reference) or satir.rstrip() != reference[index].rstrip())
+        sinif = "ln diff" if farkli else "ln"
+        parcalar.append(f'<span class="{sinif}">{html.escape(satir) or " "}</span>')
+    if mark and len(lines) < len(reference):
+        for _ in range(len(reference) - len(lines)):
+            parcalar.append('<span class="ln miss">…</span>')
+    if not parcalar:
+        parcalar.append('<span class="ln">—</span>')
+    return '<div class="cmp">' + "".join(parcalar) + "</div>"
 
 
 def problem_state(saved: str) -> dict:

@@ -16,12 +16,13 @@ bozulmuyor.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QRectF, QSize, Qt, Signal
+from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import (
     QColor,
     QIcon,
     QPainter,
     QPainterPath,
+    QPen,
     QPixmap,
 )
 from PySide6.QtWidgets import QFrame, QPushButton, QVBoxLayout, QWidget
@@ -134,6 +135,74 @@ class RailButton(QPushButton):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QColor(self.property("dot_color") or "#EF4444"))
         painter.drawEllipse(self.width() - 20, 10, 9, 9)
+        painter.end()
+
+
+class RailToggle(QPushButton):
+    """Şeridi açıp kapatan küçük tutamak.
+
+    Şeridin sağ kenarına, çizginin üstüne oturan dar bir hap: yarısı
+    şeritte, yarısı içerikte. Fark edilecek kadar belirgin (kenarlık ve ok)
+    ama bir düğme sırası kadar yer kaplamıyor. Şerit kapalıyken pencerenin
+    sol kenarında duruyor; ok yönü ne olacağını gösteriyor.
+    """
+
+    WIDTH = 14
+    HEIGHT = 38
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setFixedSize(self.WIDTH, self.HEIGHT)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self._collapsed = False
+        self._hover = False
+        self._colors = PALETTES["light"]
+
+    def set_collapsed(self, value: bool) -> None:
+        self._collapsed = value
+        self.update()
+
+    def set_mode(self, mode: str) -> None:
+        self._colors = PALETTES.get(mode, PALETTES["light"])
+        self.update()
+
+    def enterEvent(self, event) -> None:  # noqa: N802
+        self._hover = True
+        self.update()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event) -> None:  # noqa: N802
+        self._hover = False
+        self.update()
+        super().leaveEvent(event)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        p = self._colors
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+        path = QPainterPath()
+        path.addRoundedRect(rect, self.WIDTH / 2, self.WIDTH / 2)
+        painter.fillPath(path, QColor(p["accent_soft"] if self._hover else p["surface"]))
+        pen = QPen(QColor(p["accent"] if self._hover else p["border_strong"]))
+        pen.setWidthF(1.0)
+        painter.setPen(pen)
+        painter.drawPath(path)
+
+        ok = QPen(QColor(p["accent"] if self._hover else p["text_muted"]))
+        ok.setWidthF(1.7)
+        ok.setCapStyle(Qt.PenCapStyle.RoundCap)
+        ok.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+        painter.setPen(ok)
+        cx, cy = self.width() / 2, self.height() / 2
+        # Kapalıyken sağa (aç), açıkken sola (kapat) bakan ok.
+        yon = 1 if self._collapsed else -1
+        painter.drawPolyline([
+            QPointF(cx - 1.6 * yon, cy - 4),
+            QPointF(cx + 1.6 * yon, cy),
+            QPointF(cx - 1.6 * yon, cy + 4),
+        ])
         painter.end()
 
 

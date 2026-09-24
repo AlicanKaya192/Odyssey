@@ -36,6 +36,7 @@ SHORTCUTS = [
         (["Ctrl", "K"], "shortcut.search"),
         (["Ctrl", "N"], "shortcut.note"),
         (["Ctrl", ","], "shortcut.settings"),
+        (["Ctrl", "M"], "shortcut.menu"),
         (["F1"], "shortcut.list"),
         (["Esc"], "shortcut.back"),
         (["Ctrl", "Z"], "shortcut.undo"),

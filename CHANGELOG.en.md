@@ -42,7 +42,10 @@ lecture note does not mean downloading the whole application again.
   program is closed: a small task that runs for a few seconds a day is added
   to Windows Task Scheduler, and nothing is sent over the internet. You're
   asked on first launch whether you want it; the time and the on/off switch
-  are in Settings › Learning.
+  are in Settings › Notifications.
+- **The left menu can be hidden.** With the small button on the edge of
+  the strip or `Ctrl+M`; the content gets more room and your choice is
+  remembered.
 - **Odyssey now comes with an installer.** The application installs for
   your own user account, with a shortcut in the Start menu and on your
   desktop, and no `_internal` folder to keep track of. When you update from
@@ -67,10 +70,18 @@ lecture note does not mean downloading the whole application again.
   blocks begin and end. The same help works inside code blocks in My Notes.
 
 ### Changed
+- **Exercise results in a terminal.** Instead of the results panel that
+  opened when you ran your code, a terminal now sits under the editor at all
+  times: your program's output, errors and what they mean, passed or not,
+  and for a mismatched output the expected and yours one under the other,
+  aligned. If your code produced a chart or a multi-line table didn't match,
+  the **Output** tab opens on the left: the chart at full width, expected
+  and your output line by line, with mismatched lines marked. The divider
+  between the terminal and the editor can be dragged to resize them.
 - **The Data Science path has been renewed.** Thirteen exercises were
   rewritten: you now write the imports yourself, read the data from a CSV
-  file that sits next to the exercise, and the chart you draw appears in the
-  results panel. All five exercises of the Visualisation section are new,
+  file that sits next to the exercise, and the chart you draw appears on
+  screen. All five exercises of the Visualisation section are new,
   including one where you see a misleading and an honest axis side by side.
   The DataFrame Basics, Selecting and Filtering, Grouping and Aggregation,
   Cleaning Data, Exploratory Data Analysis and Overall Review sections gain

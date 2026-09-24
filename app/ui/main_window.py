@@ -41,14 +41,14 @@ from ..widgets.common import SegmentedControl
 from .about_view import SECTIONS as ABOUT_SECTIONS, AboutView
 from .confirm_dialog import ConfirmDialog
 from . import titlebar
-from ..resources.theme.tokens import RAIL_COLORS
+from ..resources.theme.tokens import RAIL_COLORS, RAIL_WIDTH
 from .footer import Footer
 from .journey_view import JourneyView
 from .notebook_view import NotebookView
 from .search_palette import SearchPalette
 from ..core.search import SearchItem, build_index, plain
 from .profile_view import ProfileView
-from .rail import Rail
+from .rail import Rail, RailToggle
 from .release_view import ReleaseView
 from .roadmap_view import RoadmapView
 from .settings_dialog import SettingsDialog
@@ -129,6 +129,17 @@ class MainWindow(QMainWindow):
         self._rail = Rail(language)
         self._rail.navigate.connect(self._navigate)
         row.addWidget(self._rail)
+
+        # Şeridi açıp kapatan tutamak (Ctrl+M). Düzene girmiyor, şeridin
+        # kenarının üstünde duruyor; konumu `_place_rail_toggle` veriyor.
+        self._central = central
+        self._rail_toggle = RailToggle(central)
+        self._rail_toggle.clicked.connect(self._toggle_rail)
+        self._rail_animation = None
+        if store.setting("rail_collapsed", "") == "1":
+            self._rail.setFixedWidth(0)
+            self._rail.hide()
+            self._rail_toggle.set_collapsed(True)
 
         # İçerik ile telif şeridi alt alta; şerit soldaki ikon şeridinin
         # sağında kalıyor, böylece ikon şeridi tepeden tabana kesintisiz.
@@ -458,6 +469,7 @@ class MainWindow(QMainWindow):
     def _install_shortcuts(self) -> None:
         QShortcut(QKeySequence("Ctrl+,"), self, self._open_settings)
         QShortcut(QKeySequence("Ctrl+K"), self, self._search.toggle)
+        QShortcut(QKeySequence("Ctrl+M"), self, self._toggle_rail)
         QShortcut(QKeySequence(Qt.Key.Key_F1), self, self._toggle_shortcuts)
         QShortcut(QKeySequence(Qt.Key.Key_Escape), self, self._escape)
 
@@ -856,6 +868,7 @@ class MainWindow(QMainWindow):
         titlebar.apply(self, mode)
 
         self._rail.set_mode(mode)
+        self._rail_toggle.set_mode(mode)
         self._journey.set_mode(mode)
         self._journey_header.set_mode(mode)
         self._topic.set_mode(mode)
@@ -878,6 +891,7 @@ class MainWindow(QMainWindow):
     def retranslate(self) -> None:
         self.setWindowTitle(self._language.t("app.title"))
         self._rail.retranslate()
+        self._rail_toggle.setToolTip(f"{self._language.t('nav.toggle_menu')}  (Ctrl+M)")
         self._refresh_progress()
         self._footer.retranslate()
         self._journey.retranslate()
@@ -894,8 +908,60 @@ class MainWindow(QMainWindow):
         # yeniden üretmezse orada eski dil kalıyor.
         self._refresh_presence()
 
+    # --- sol şerit: aç / kapat -------------------------------------------
+
+    def _toggle_rail(self) -> None:
+        """Sol şeridi kısa bir kaymayla gizler ya da gösterir; durum saklanıyor."""
+        from PySide6.QtCore import QEasingCurve, QVariantAnimation
+
+        kapanacak = self._rail.isVisible() and self._rail.width() > 0
+        self._store.set_setting("rail_collapsed", "1" if kapanacak else "")
+        self._rail_toggle.set_collapsed(kapanacak)
+        if not kapanacak:
+            self._rail.show()
+
+        if self._rail_animation is not None:
+            self._rail_animation.stop()
+        anim = QVariantAnimation(self)
+        anim.setDuration(180)
+        anim.setStartValue(self._rail.width() if self._rail.isVisible() else 0)
+        anim.setEndValue(0 if kapanacak else RAIL_WIDTH)
+        anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+
+        def adim(value) -> None:
+            self._rail.setFixedWidth(int(value))
+            self._place_rail_toggle()
+
+        def bitti() -> None:
+            if kapanacak:
+                # Gizli şeridin düğmeleri Tab ile odak almasın.
+                self._rail.hide()
+            self._place_rail_toggle()
+
+        anim.valueChanged.connect(adim)
+        anim.finished.connect(bitti)
+        anim.start()
+        self._rail_animation = anim
+
+    def _place_rail_toggle(self) -> None:
+        """Tutamağı şeridin sağ kenarının ortasına (kapalıyken pencere
+        kenarına) yerleştirir."""
+        toggle = self._rail_toggle
+        genislik = self._rail.width() if self._rail.isVisible() else 0
+        x = max(0, genislik - toggle.width() // 2)
+        ust = self._rail.mapTo(self._central, self._rail.rect().topLeft()).y()
+        yukseklik = self._rail.height() or self._central.height()
+        y = ust + (yukseklik - toggle.height()) // 2
+        toggle.move(x, y)
+        toggle.raise_()
+
+    def showEvent(self, event) -> None:  # noqa: N802
+        super().showEvent(event)
+        self._place_rail_toggle()
+
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
+        self._place_rail_toggle()
         # Üstte duran katmanlar pencerenin tamamını kaplıyor; pencereyle
         # birlikte büyüyorlar.
         if self._search.isVisible():

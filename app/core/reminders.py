@@ -15,7 +15,7 @@ Kurallar:
   21:30'da hâlâ çalışılmadıysa "son çağrı".
 - **Seri bittiyse** ne kadar uzun süredir yoksa o kadar seyrek: 2–7 gün her
   gün, 8–30 gün üç günde bir, 31–59 gün haftada bir. 60. günde bir kez
-  "artık rahatsız etmeyeceğim" deyip susuyor (Duolingo'nun yaptığı gibi);
+  "artık rahatsız etmeyeceğim" deyip susuyor;
   kişi dönüp yeniden kaybolursa döngü baştan başlıyor.
 - **Hiç çalışmamış** biri için iki günde bir, en fazla üç kez.
 - Günde en fazla bir bildirim (son çağrı hariç).

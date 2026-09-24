@@ -38,7 +38,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   hatırlatmalar. Program kapalıyken de çalışıyor: bunun için Windows Görev
   Zamanlayıcı'ya günde birkaç saniye çalışan küçük bir görev ekleniyor,
   internete hiçbir şey gitmiyor. İlk açılışta isteyip istemediğiniz
-  soruluyor; saat ve açma kapama Ayarlar › Öğrenme'de.
+  soruluyor; saat ve açma kapama Ayarlar › Bildirimler'de.
+- **Sol menü gizlenebiliyor.** Şeridin kenarındaki küçük düğmeyle ya da
+  `Ctrl+M` ile; içeriğe daha fazla yer kalıyor ve tercih hatırlanıyor.
 - **Odyssey artık kurulum programıyla geliyor.** Uygulama kendi kullanıcı
   hesabınıza kuruluyor; Başlat menüsünde ve masaüstünde kısayolu oluyor,
   `_internal` klasörüyle uğraşmanız gerekmiyor. Çıkardığınız bir klasörden
@@ -63,9 +65,17 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   bloklarının içinde de çalışıyor.
 
 ### Değişti
+- **Alıştırma sonuçları terminalde.** Kodu çalıştırınca açılan sonuç paneli
+  yerine editörün altında her zaman duran bir terminal var: programınızın
+  çıktısı, hatalar ve ne anlama geldikleri, geçti/geçmedi ve tutmayan
+  çıktıda beklenenle sizinki alt alta, hizalı. Kodunuz grafik ürettiyse ya
+  da çok satırlı bir tablo tutmadıysa soldaki **Çıktı** sekmesi açılıyor:
+  grafik tam genişlikte, beklenen ve sizin çıktınız satır satır, tutmayan
+  satırlar işaretli. Terminal ile editör arasındaki ayırıcı sürüklenerek
+  büyütülüp küçültülebiliyor.
 - **Veri Bilimi patikası yenilendi.** On üç alıştırma baştan yazıldı:
   artık içe aktarmaları siz yazıyor, veriyi alıştırmanın yanındaki bir CSV
-  dosyasından okuyorsunuz ve çizdiğiniz grafik sonuç panelinde görünüyor.
+  dosyasından okuyorsunuz ve çizdiğiniz grafik ekranda görünüyor.
   Görselleştirme bölümünün beş alıştırmasının beşi de yenilendi; yanıltıcı
   ve dürüst eksenli grafiği yan yana gördüğünüz bir alıştırma da var.
   DataFrame Temelleri, Seçim ve Filtreleme, Gruplama ve Toplulaştırma, Veri

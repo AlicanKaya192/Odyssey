@@ -147,6 +147,24 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
     border-radius: 0; font-size: 13.5px;
 }}
 
+/* Alıştırmanın "Çıktı" sekmesi: beklenen ile gelen çıktı alt alta, eş
+ * aralıklı; tutmayan satır kırmızı zeminle. Tablolar hizalı kalsın diye
+ * satırlar kaydırılmıyor, kutu yatay kayıyor. */
+.cmp {{
+    font-family: {FONTS['mono']}; font-size: 13px; line-height: 1.55;
+    background: {p['code_bg']}; border: 1px solid {p['border']};
+    border-radius: 12px; padding: 12px 14px; margin: 8px 0 18px;
+    overflow-x: auto; white-space: pre;
+}}
+.cmp .ln {{ display: block; min-height: 1.55em; padding: 0 4px; border-radius: 4px; }}
+.cmp .ln.diff {{ background: {p['danger_soft']}; }}
+.cmp .ln.miss {{ background: {p['danger_soft']}; color: {p['text_muted']}; font-style: italic; }}
+.out-label {{
+    font-size: 12.5px; font-weight: 700; letter-spacing: .4px;
+    color: {p['text_muted']}; margin-top: 6px;
+}}
+figure.fig img.out {{ display: block; max-width: 100%; height: auto; margin: 0 auto; border-radius: 8px; }}
+
 /* --- tablo ---------------------------------------------------------- */
 
 .content table {{
