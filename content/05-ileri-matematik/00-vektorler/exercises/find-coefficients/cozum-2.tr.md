@@ -1,10 +1,21 @@
-Aynı iki denklem:
+**Fikir:** Birinci yoldaki iki denklem yerine koymadan da çözülebilir. Denklemlerden birini uygun bir sayıyla çarpıp ötekinden çıkarırsak bilinmeyenlerden biri yok olur (yok etme yöntemi).
+
+**Adım 1 — Denklemleri kur.** Sol tarafı açıp bileşenleri eşitleyince (birinci yoldaki gibi):
 
 $$
-a + 3b = 7 \qquad 2a + b = 9
+\begin{aligned}
+a + 3b &= 7 \\
+2a + b &= 9
+\end{aligned}
 $$
 
-Birinciyi $2$ ile çarp: $2a + 6b = 14$. İkinciyi bundan çıkar; $a$ yok olur:
+**Adım 2 — $a$'ların katsayısını eşitle.** İkinci denklemde $2a$ var. Birinci denklemi 2 ile çarparsak orada da $2a$ olur. Bir denklemin iki tarafını aynı sayıyla çarpmak eşitliği bozmaz:
+
+$$
+2a + 6b = 14
+$$
+
+**Adım 3 — Çıkar.** Bundan ikinci denklemi çıkar. $2a - 2a = 0$ olduğu için $a$ kayboluyor:
 
 $$
 \begin{aligned}
@@ -14,8 +25,17 @@ b &= 1
 \end{aligned}
 $$
 
-Birinci denklemden $a = 7 - 3 \cdot 1 = 4$.
+**Adım 4 — $a$'yı bul.** $b = 1$'i birinci denkleme koy:
 
-Yok etme, bilinmeyen sayısı arttıkça daha düzenli çalışır; MAT 2'nin Gauss eleme bölümü bu yöntemin büyütülmüş hâli.
+$$
+\begin{aligned}
+a + 3 \cdot 1 &= 7 \\
+a &= 4
+\end{aligned}
+$$
 
-**Cevap: $a = 4$, $b = 1$**
+**Sağlama:** İkinci denklem de tutmalı: $2 \cdot 4 + 1 = 9$. ✓
+
+**Neden bu yol?** Bilinmeyen sayısı arttıkça yerine koyma karışıyor; yok etme ise hep aynı hareketi tekrarlıyor. MAT 2'nin Gauss eleme bölümü bu yöntemin büyük sistemler için düzenlenmiş hâli.
+
+**Cevap:** $a = 4$, $b = 1$.
