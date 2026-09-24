@@ -272,6 +272,10 @@ figure.fig figcaption {{
 /* Elle çizilmiş şemalar için. Renkleri sayfadan alsın diye sınıfla
  * boyanıyor; `fill="#..."` yazılmıyor. */
 figure.fig svg {{ display: block; max-width: 100%; height: auto; margin: 0 auto; }}
+/* Yukarıdaki kural şeklin içindeki formüllere de uyuyordu: KaTeX kök
+ * işaretini kendi küçük SVG'siyle çiziyor, `height: auto` onu sıfır
+ * yüksekliğe indirip √ işaretini siliyordu (şekil açıklamasında görüldü). */
+figure.fig .katex svg {{ max-width: none; height: inherit; margin: 0; }}
 figure.fig svg .ink {{ fill: {p['text']}; }}
 figure.fig svg .dim {{ fill: {p['text_muted']}; }}
 figure.fig svg .box {{ fill: {p['surface_alt']}; stroke: {p['border_strong']}; }}
