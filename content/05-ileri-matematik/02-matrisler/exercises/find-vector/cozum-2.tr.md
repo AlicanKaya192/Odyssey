@@ -1,21 +1,43 @@
-Sütun bakışıyla soru şu: $(7, 2)$'yi $(2, 1)$ ve $(1, -1)$ sütunlarından hangi katsayılarla kurarım?
+**Fikir:** Aynı çarpıma sütun gözüyle bak. $A\mathbf{x}$, $A$'nın sütunlarının $\mathbf{x}$'in bileşenleriyle ağırlıklı toplamı. O zaman soru şuna dönüşüyor: $(7, 2)$ vektörünü $(2, 1)$ ve $(1, -1)$ sütunlarından hangi katsayılarla kurarım?
+
+**Adım 1 — Sütunlarla yaz.**
 
 $$
 x_1 \begin{bmatrix} 2 \\ 1 \end{bmatrix} + x_2 \begin{bmatrix} 1 \\ -1 \end{bmatrix} = \begin{bmatrix} 7 \\ 2 \end{bmatrix}
 $$
 
-İkinci bileşenden $x_1 = 2 + x_2$. Bunu birinci bileşene koy:
+**Adım 2 — Bileşenleri eşitle.** Üst bileşenler: $2x_1 + x_2 = 7$. Alt bileşenler: $x_1 - x_2 = 2$.
+
+**Adım 3 — Alt denklemden $x_1$'i çek.**
+
+$$
+x_1 = 2 + x_2
+$$
+
+**Adım 4 — Üst denkleme koy.**
 
 $$
 \begin{aligned}
 2(2 + x_2) + x_2 &= 7 \\
-4 + 3x_2 &= 7 \\
+4 + 2x_2 + x_2 &= 7 \\
+3x_2 &= 3 \\
 x_2 &= 1
 \end{aligned}
 $$
 
-ve $x_1 = 2 + 1 = 3$. Sağlama: $3\,(2, 1) + 1\,(1, -1) = (6, 3) + (1, -1) = (7, 2)$. ✓
+Buradan $x_1 = 2 + 1 = 3$.
 
-"$A\mathbf{x} = \mathbf{b}$'yi çöz" ile "$\mathbf{b}$'yi sütunlardan kur" aynı soru. Gauss eleme bölümünde bunu büyük sistemler için düzenli yapacağız.
+**Sağlama:** Sütunları bu katsayılarla topla:
 
-**Cevap: $x_1 = 3$, $x_2 = 1$**
+$$
+\begin{aligned}
+3 \begin{bmatrix} 2 \\ 1 \end{bmatrix} + 1 \begin{bmatrix} 1 \\ -1 \end{bmatrix} &= \begin{bmatrix} 6 \\ 3 \end{bmatrix} + \begin{bmatrix} 1 \\ -1 \end{bmatrix} \\
+&= \begin{bmatrix} 7 \\ 2 \end{bmatrix}
+\end{aligned}
+$$
+
+Tutuyor. ✓
+
+**Ne gördük?** "$A\mathbf{x} = \mathbf{b}$'yi çöz" ile "$\mathbf{b}$'yi $A$'nın sütunlarından kur" aynı soru. Gauss eleme bölümünde bunu büyük sistemler için düzenli bir yöntemle yapacağız.
+
+**Cevap:** $x_1 = 3$, $x_2 = 1$.

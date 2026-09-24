@@ -1,25 +1,35 @@
-**1. Transpose:** row 1 $(x, 2)$ becomes column 1 and row 2 $(y, 5)$ column 2.
+**What is asked?** The first matrix on the left has two unknowns ($x$, $y$), the second has one ($z$). We want the three numbers that make the equation hold.
+
+**Idea:** Two operations happen in order: first the transpose ($^\mathsf{T}$), then the addition. The transpose turns rows into columns. Addition is entry by entry. In the end, two matrices are equal when **every entry** is equal, which gives us simple equations.
+
+**Step 1 — Take the transpose.** Row 1 $(x,\ 2)$ becomes column 1, row 2 $(y,\ 5)$ becomes column 2:
 
 $$
 \begin{bmatrix} x & 2 \\ y & 5 \end{bmatrix}^\mathsf{T} = \begin{bmatrix} x & y \\ 2 & 5 \end{bmatrix}
 $$
 
-**2. Add:**
+Note: $2$ and $y$ swapped places; $x$ and $5$ on the diagonal stayed put.
 
-$$
-\begin{bmatrix} x + 1 & y + 3 \\ 2 & 5 + z \end{bmatrix} = \begin{bmatrix} 4 & 7 \\ 2 & 9 \end{bmatrix}
-$$
-
-**3. Equate corresponding entries:**
+**Step 2 — Add the second matrix.** Add entries in the same position:
 
 $$
 \begin{aligned}
-x + 1 &= 4 \;\Rightarrow\; x = 3 \\
-y + 3 &= 7 \;\Rightarrow\; y = 4 \\
-5 + z &= 9 \;\Rightarrow\; z = 4
+\begin{bmatrix} x & y \\ 2 & 5 \end{bmatrix} + \begin{bmatrix} 1 & 3 \\ 0 & z \end{bmatrix} &= \begin{bmatrix} x + 1 & y + 3 \\ 2 + 0 & 5 + z \end{bmatrix}
 \end{aligned}
 $$
 
-The bottom-left corner $2 = 2$ already holds; the question is consistent.
+**Step 3 — Match the right side entry by entry.** The right side is $\begin{bmatrix} 4 & 7 \\ 2 & 9 \end{bmatrix}$:
 
-**Answer: $x = 3$, $y = 4$, $z = 4$**
+$$
+\begin{aligned}
+x + 1 &= 4 \quad \Rightarrow \quad x = 3 \\
+y + 3 &= 7 \quad \Rightarrow \quad y = 4 \\
+5 + z &= 9 \quad \Rightarrow \quad z = 4
+\end{aligned}
+$$
+
+**Check:** The bottom-left corner has no unknown: $2 + 0 = 2$, and the right side also has $2$. The question is consistent. ✓
+
+**Watch out:** Forget the transpose and $y$ stays where $2$ is, giving a wrong equation like $y + 0 = 2$.
+
+**Answer:** $x = 3$, $y = 4$, $z = 4$.
