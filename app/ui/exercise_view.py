@@ -333,7 +333,9 @@ class ExerciseView(QWidget):
         if self._exercise is None:
             return ""
 
-        difficulty = self._exercise.difficulty
+        # Ölçek üç kademe; beklenmedik bir değer boş bir "Zorluk:" etiketi
+        # bırakmasın, en yakın kademeye çekiliyor (içerik denetimi de bakıyor).
+        difficulty = min(max(self._exercise.difficulty, 1), 3)
         tone = {1: "easy", 2: "mid", 3: "hard"}.get(difficulty, "")
         label = html.escape(
             f"{self._language.t('exercise.difficulty')}: "

@@ -322,11 +322,24 @@ def _check_problem(where: str, exercise) -> list[str]:
     return problems
 
 
+# Zorluk ölçeği arayüzdeki gibi üç kademe (●○○ / ●●○ / ●●●). Makine
+# Öğrenmesi patikası dört kademeyle yazılmıştı ve 4'ler arayüzde boş bir
+# "Zorluk:" etiketi olarak görünüyordu; bu denetim yokken fark edilmedi.
+ZORLUKLAR = (1, 2, 3)
+
+
+def _check_difficulty(where: str, exercise) -> list[str]:
+    deger = exercise.raw.get("difficulty")
+    if deger not in ZORLUKLAR:
+        return [f"{where}/{exercise.id}: zorluk {deger!r}; 1, 2 ya da 3 olmalı"]
+    return []
+
+
 def _check_exercise(where: str, exercise) -> list[str]:
     if exercise.is_problem:
-        return _check_problem(where, exercise)
+        return _check_difficulty(where, exercise) + _check_problem(where, exercise)
 
-    problems: list[str] = []
+    problems: list[str] = _check_difficulty(where, exercise)
 
     if not exercise.checks:
         problems.append(f"{where}/{exercise.id}: hiç kontrol tanımlanmamış")
