@@ -949,10 +949,18 @@ class MainWindow(QMainWindow):
         toggle = self._rail_toggle
         genislik = self._rail.width() if self._rail.isVisible() else 0
         x = max(0, genislik - toggle.width() // 2)
-        ust = self._rail.mapTo(self._central, self._rail.rect().topLeft()).y()
-        yukseklik = self._rail.height() or self._central.height()
-        y = ust + (yukseklik - toggle.height()) // 2
-        toggle.move(x, y)
+        # Dikeyde arama simgesinin tam ortasına hizalı: şeridin ortasına
+        # göre konunca simgeden birkaç piksel kayık ve orantısız duruyordu.
+        # Şerit gizliyken son bilinen hiza kullanılıyor.
+        if self._rail.isVisible() and self._rail.height() > 0:
+            dugme = self._rail.anchor_button()
+            merkez = dugme.mapTo(self._central, dugme.rect().center()).y()
+            self._rail_toggle_center = merkez
+        merkez = getattr(self, "_rail_toggle_center", None)
+        if merkez is None:
+            ust = self._rail.mapTo(self._central, self._rail.rect().topLeft()).y()
+            merkez = ust + (self._rail.height() or self._central.height()) // 2
+        toggle.move(x, round(merkez - toggle.height() / 2))
         toggle.raise_()
 
     def showEvent(self, event) -> None:  # noqa: N802

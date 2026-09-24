@@ -147,8 +147,10 @@ class RailToggle(QPushButton):
     sol kenarında duruyor; ok yönü ne olacağını gösteriyor.
     """
 
+    # Arama simgesiyle aynı hizada duruyor; boyu simgeyle orantılı. 38
+    # piksellikken simgenin yanında iri ve kaymış duruyordu (Alican).
     WIDTH = 14
-    HEIGHT = 38
+    HEIGHT = 28
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -253,6 +255,10 @@ class Rail(QFrame):
 
         self.set_mode(self._mode)
         self.retranslate()
+
+    def anchor_button(self) -> QWidget:
+        """Açma/kapama tutamağının hizalandığı düğme (arama)."""
+        return self._buttons["search"]
 
     def _make_button(self, key: str, icon_name: str) -> RailButton:
         button = RailButton()
