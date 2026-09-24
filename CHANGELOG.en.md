@@ -24,17 +24,20 @@ lecture note does not mean downloading the whole application again.
 ## [0.8.3] — unreleased
 
 ### Added
-- **The Mathematics path has been added.** It teaches actual mathematics,
-  not code; a selector at the top right switches between two modules:
-  **MATH 1 — Foundational Mathematics** (for someone starting from zero) and
-  **MATH 2 — The Mathematics of AI**. Sections written so far — **MATH 1:**
-  Logarithms. **MATH 2:** Vectors; Dot Product, Length and Similarity;
-  Matrices. Each section has a lesson, two course notes, a quiz and five
-  problems. Problems are worked on a drawing sheet: you write with the
-  mouse, hard-to-draw symbols sit in the strip above, and your drawings are
-  saved. Only the result is checked; once you solve it, or after two wrong
-  attempts, every solution path opens on the left. Sections not yet written
-  are shown on the path as "Coming soon".
+- **The Mathematics path has been added.** It teaches actual mathematics, not
+  code; a selector at the top right switches between two modules: **MATH 1 —
+  Foundational Mathematics** (for someone starting from zero) and **MATH 2 —
+  The Mathematics of AI**. Sections written so far — **MATH 1:** Logarithms.
+  **MATH 2** (all of linear algebra): Vectors; Dot Product, Length and
+  Similarity; Matrices; Matrix Multiplication and Transformations;
+  Determinants and Inverse Matrices; Linear Systems and Gaussian Elimination;
+  Linear Independence, Basis and Rank; Eigenvalues and Eigenvectors; Singular
+  Value Decomposition (SVD). Each section has a lesson, two course notes, a
+  quiz and five problems. Problems are worked on a drawing sheet: you write
+  with the mouse, hard-to-draw symbols sit in the strip above, and your
+  drawings are saved. Only the result is checked; once you solve it, or after
+  two wrong attempts, every solution path opens on the left. Sections not yet
+  written are shown on the path as "Coming soon".
 - **Streak reminders.** If you haven't studied that day, a playful Windows
   notification arrives at the time you choose; if your streak is at risk
   there's one last warning at 21:30, and if you stay away for long the
