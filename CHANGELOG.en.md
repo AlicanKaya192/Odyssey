@@ -107,6 +107,13 @@ lecture note does not mean downloading the whole application again.
   exercise was replaced by a new one, having solved the old one marked the
   section as complete even though the new one was unsolved. Only the
   section's current exercises are counted now.
+- **Correct solutions written differently are accepted.** In exercises
+  that ask for a loop or a condition, a list comprehension
+  (`[x for x in items if ...]`) or a one-line conditional
+  (`a if condition else b`) failed even when the result was right. These
+  now count as a loop and a condition. When an exercise really does ask for
+  another method, the result says "Your result is correct, but this
+  exercise practises a particular method" instead of just "wrong".
 
 ---
 

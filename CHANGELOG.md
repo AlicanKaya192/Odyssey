@@ -101,6 +101,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   yenisiyle değiştirildiğinde eskisini çözmüş olmak, yenisi çözülmemişken
   bölümü "tamamlandı" gösteriyordu. Artık yalnızca bölümdeki güncel
   alıştırmalar sayılıyor.
+- **Doğru ama farklı yazılmış çözümler kabul ediliyor.** "Döngü ile yaz"
+  ya da "koşul kullan" diyen alıştırmalarda liste kavraması
+  (`[x for x in liste if ...]`) veya tek satırlık koşul
+  (`a if koşul else b`) yazınca, sonuç doğru olsa bile alıştırma geçmiyordu.
+  Artık bunlar da döngü ve koşul sayılıyor. Alıştırma gerçekten başka bir
+  yöntem istiyorsa sonuç da "yanlış" yerine "Sonucun doğru, ama bu
+  alıştırma şu yöntemin pratiği için" diye açıklanıyor.
 
 ---
 

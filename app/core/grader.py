@@ -411,7 +411,22 @@ def summarise(result: RunResult, language: LanguageManager) -> str:
     if result.passed:
         return language.t("exercise.passed")
 
+    # Sonuç doğru, yalnızca istenen yöntem kullanılmamış: "henüz olmadı"
+    # demek, farklı ama doğru bir yol bilen birini şaşırtıyordu.
+    if result.status == "ok" and _only_method_failed(result):
+        return language.t("exercise.right_result_method")
+
     return language.t("exercise.failed")
+
+
+# Sonucu değil yöntemi denetleyen kontroller.
+METHOD_CHECKS = {"ast_require", "ast_forbid", "sql_require", "sql_forbid", "annotation"}
+
+
+def _only_method_failed(result: RunResult) -> bool:
+    """Sonucu denetleyen her kontrol geçti, düşenler yalnızca yöntem mi?"""
+    sonuc = [c for c in result.checks if c.type not in METHOD_CHECKS]
+    return bool(sonuc) and all(c.passed for c in sonuc) and bool(result.failed_checks)
 
 
 def describe(result: RunResult, language: LanguageManager) -> list[Feedback]:

@@ -95,12 +95,39 @@ def called_names(tree: ast.AST) -> set[str]:
     return names
 
 
-def has_node_type(tree: ast.AST, node_name: str) -> bool:
-    """Kodda belirtilen türde bir düğüm var mı? (örn. "For", "While")"""
+def _equivalent(node: ast.AST, node_name: str) -> bool:
+    """`For` ve `If` şartını karşılayan eşdeğer yazımlar.
+
+    Liste kavraması (`[x for x in scores if x >= 60]`) hem bir döngü hem
+    bir koşul; koşullu ifade (`"çift" if n % 2 == 0 else "tek"`) bir karar.
+    Bunları bilen biri "for kullanmalısın" hatası alıyordu (Alican
+    bildirdi): çözüm doğru, yalnızca yazım farklı.
+    """
+    if node_name == "For":
+        return isinstance(node, (ast.For, ast.AsyncFor, ast.comprehension))
+    if node_name == "If":
+        return isinstance(node, (ast.If, ast.IfExp)) or (
+            isinstance(node, ast.comprehension) and bool(node.ifs)
+        )
+    return False
+
+
+def has_node_type(tree: ast.AST, node_name: str, strict: bool = False) -> bool:
+    """Kodda belirtilen türde bir düğüm var mı? (örn. "For", "While")
+
+    `strict` değilse `For` / `If` için eşdeğer yazımlar da sayılıyor
+    (bkz. `_equivalent`). Tam o yapının öğretildiği yerde (örneğin
+    `if __name__ == "__main__":`) kontrol `"strict": true` ile yazılıyor.
+    """
     node_type = getattr(ast, node_name, None)
     if node_type is None or not isinstance(node_type, type):
         return False
-    return any(isinstance(node, node_type) for node in ast.walk(tree))
+    for node in ast.walk(tree):
+        if isinstance(node, node_type):
+            return True
+        if not strict and _equivalent(node, node_name):
+            return True
+    return False
 
 
 def annotation_source(node: ast.AST | None) -> str | None:
@@ -482,7 +509,9 @@ def run_checks(
         elif kind == "function":
             outcome = compare_function(check, namespace)
         elif kind == "ast_require":
-            found = tree is not None and has_node_type(tree, check.get("node", ""))
+            found = tree is not None and has_node_type(
+                tree, check.get("node", ""), strict=bool(check.get("strict"))
+            )
             outcome = {"passed": found, "detail": {"node": check.get("node", "")}}
         elif kind == "method":
             outcome = compare_method(check, namespace)
