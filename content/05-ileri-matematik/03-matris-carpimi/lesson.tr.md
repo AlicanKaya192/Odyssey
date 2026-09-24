@@ -91,7 +91,7 @@ $$
 $i$. satırında soldan sağa, sağ elininkini $B$'nin $j$. sütununda yukarıdan
 aşağıya gezdir; parmakların durduğu sayıları çarp ve topla.
 
-## Sütun bakışı: $B$'nin her sütunu ayrı bir matris–vektör çarpımı
+## Sütun bakışı: B'nin her sütunu ayrı bir matris–vektör çarpımı
 
 $B$'yi sütunlarına ayırırsak, $AB$'nin her sütunu $A$ ile $B$'nin o
 sütununun çarpımı:

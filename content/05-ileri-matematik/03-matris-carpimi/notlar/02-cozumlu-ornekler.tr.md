@@ -36,7 +36,7 @@ $$
 AB = \begin{bmatrix} -1 & 9 \\ 2 & 4 \end{bmatrix}
 $$
 
-## 3. $AB$ ile $BA$'yı karşılaştırmak
+## 3. AB ile BA'yı karşılaştırmak
 
 **Soru:** $A = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}$ ve
 $B = \begin{bmatrix} 1 & 0 \\ 1 & 1 \end{bmatrix}$ için $AB$ ve $BA$ nedir?

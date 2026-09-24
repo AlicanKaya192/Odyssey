@@ -93,7 +93,7 @@ hand along row $i$ of $A$ from left to right and a finger of your right
 hand down column $j$ of $B$; multiply the numbers the fingers stop on and
 add.
 
-## The column view: each column of $B$ is a separate matrix–vector product
+## The column view: each column of B is a separate matrix–vector product
 
 If we split $B$ into its columns, each column of $AB$ is $A$ times that
 column of $B$:
