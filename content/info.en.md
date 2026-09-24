@@ -47,9 +47,10 @@ in place.
 
 Four paths are complete: **Python Fundamentals**, **Data Science**,
 **Machine Learning** and **SQL**. The **Mathematics** path is being
-written; in the module on the mathematics of AI, the linear algebra part is
-ready. Together they hold 66 sections, 1890 quiz questions, 267 coding
-exercises and 50 mathematics problems. The API, Docker and other advanced
+written; the basic level of the foundational module and the linear algebra
+part of the module on the mathematics of AI are ready. Together they hold
+75 sections, 2160 quiz questions, 267 coding exercises and 95 mathematics
+problems. The API, Docker and other advanced
 paths are in preparation.
 
 A free coding area outside the exercises and a macOS build are on the
