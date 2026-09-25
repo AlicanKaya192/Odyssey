@@ -14,7 +14,8 @@ Ekranlar:
 
 from __future__ import annotations
 
-from PySide6.QtCore import QThread, Qt, QTimer
+from PySide6.QtCore import QEvent, QPoint, QThread, Qt, QTimer
+from PySide6.QtGui import QColor
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QMainWindow,
@@ -52,14 +53,16 @@ from .rail import Rail, RailToggle
 from .release_view import ReleaseView
 from .roadmap_view import RoadmapView
 from .settings_dialog import SettingsDialog
-from .update_check import UpdateWorker
+from .update_check import StarWorker, UpdateWorker
 from .update_notice import UpdateNoticeDialog
 from ..core import updates
 from .topic_view import TopicView
-from ..widgets.notification_panel import NotificationPanel
+from ..widgets.toast import ToastData, ToastManager
+from ..resources.theme.tokens import PALETTES
 from ..widgets.shortcut_panel import ShortcutPanel
 from PySide6.QtWidgets import QApplication
 from ..core import badges as badge_core
+from ..core import github_stars
 
 
 class Screen(QWidget):
@@ -103,11 +106,6 @@ class MainWindow(QMainWindow):
 
         # Güncelleme için kapanırken çıkış onayı sorulmuyor (`close_for_update`).
         self._closing_for_update = False
-
-        # Bildirim paneli: alt şeritteki zile basınca yukarı doğru açılıyor.
-        self._notif_panel = NotificationPanel(self)
-        self._notif_panel.cleared.connect(self._on_notifications_cleared)
-        self._notif_panel.notification_read.connect(self._on_notification_read)
 
         # Klavye kısayollarının listesi; alt şeritteki klavye düğmesi ve F1.
         self._shortcut_panel = ShortcutPanel(language, self)
@@ -159,6 +157,25 @@ class MainWindow(QMainWindow):
 
         self._build_screens()
 
+        # Bölüm bitince ve rozet kazanılınca sağ altta beliren kartlar. Alt
+        # şeridin hemen üstüne diziliyorlar. Pencere ilk kez görünene kadar
+        # gelen kartlar bekletiliyor (`_flush_toasts`): açılışta pencere
+        # görünmezken ısınma turu dönüyor, kart orada harcanırdı.
+        self._toasts = ToastManager(central, self._toast_anchor, lambda: language.t("toast.close"))
+        self._toasts.on_activated = self._on_toast
+        self._toast_ready = False
+        self._pending_toasts: list[ToastData] = []
+        # Açılıştaki biten bölümler; yalnızca bundan sonra bitenler kutlanıyor.
+        self._done_sections = badge_core.completed_sections(self._catalog, self._store)
+
+        # Sol alttaki GitHub yıldızı: önce son bilinen sayı, sonra arka planda
+        # güncel olanı (`start_update_check` sırasında).
+        self._star_worker: StarWorker | None = None
+        self._star_checked_at = 0.0
+        self._star_timer = QTimer(self)
+        self._star_timer.setInterval(github_stars.REFRESH_SEC * 1000)
+        self._star_timer.timeout.connect(self._check_stars)
+
         # Genel arama kutusu: pencerenin üstünde, kapalı başlıyor. Katalogun
         # dizini dil başına bir kez kuruluyor (dosya okuma), notlar ve
         # ekranlar her açılışta tazeleniyor.
@@ -169,8 +186,8 @@ class MainWindow(QMainWindow):
 
         self._install_shortcuts()
 
-        self._footer.bell_button.clicked.connect(self._toggle_notification_panel)
         self._footer.shortcuts_clicked.connect(self._toggle_shortcuts)
+        self._footer.set_stars(github_stars.cached(self._store))
 
         language.language_changed.connect(self._on_language_changed)
         theme.theme_changed.connect(self._on_theme_changed)
@@ -179,7 +196,7 @@ class MainWindow(QMainWindow):
         self._on_theme_changed(theme.effective_mode)
 
         self._navigate("journey")
-        self._refresh_notifications()
+        self._refresh_release_dot()
         self._refresh_progress()
         self.retranslate()
 
@@ -337,6 +354,8 @@ class MainWindow(QMainWindow):
         """
         self._update_timer.start()
         self._run_update_check(startup=True)
+        self._star_timer.start()
+        self._check_stars()
 
     def _periodic_update_check(self) -> None:
         """Açık kalan oturumda üç saatte bir."""
@@ -392,79 +411,124 @@ class MainWindow(QMainWindow):
         notice.exec()
 
     def _refresh_progress(self) -> None:
-        """İlerleme değişince yeni kazanılan rozetleri kaydeder.
+        """İlerleme değişince yeni biten bölümleri ve rozetleri kutlar.
 
         Önce şeridin ortasındaki genel ilerleme halkasını da güncelliyordu;
-        halka kalktı (aynı yüzde öğrenme yolu ekranında var).
+        halka kalktı (aynı yüzde öğrenme yolu ekranında var). Sonra yeni
+        rozetler alt şeritteki zile bildirim olarak düşüyordu; zil kalktı,
+        şimdi sağ altta o an bir kart çıkıyor.
         """
-        # Yeni kazanılan rozetler burada kaydedilip bildirime düşüyor.
-        # Önce yalnızca profil ekranı kaydediyordu; bildirim ancak profile
-        # bakınca geliyordu. Metin değil kimlik saklanıyor: bildirim
-        # gösterildiği anda seçili dilde yazılıyor.
+        simdi = badge_core.completed_sections(self._catalog, self._store)
+        yeni_bolumler = simdi - self._done_sections
+        self._done_sections = simdi
+        for chapter_id, section_id in sorted(yeni_bolumler):
+            veri = self._section_toast(chapter_id, section_id)
+            if veri is not None:
+                self._toast(veri)
+
         yeniler = badge_core.award_new(
             self._catalog, self._store, content_dir() / "badges.json"
         )
         for tanim in yeniler:
-            self._store.add_notification(
-                kind="badge",
-                title_key=tanim.get("id", ""),
-                icon=tanim.get("icon", ""),
-            )
-        if yeniler:
-            self._refresh_notifications()
+            self._toast(self._badge_toast(tanim))
 
-    def _refresh_notifications(self) -> None:
-        """Zilin üstündeki sayı ve şeritteki sürüm notu noktası.
+    # --- kutlama kartları -------------------------------------------------
+
+    def _toast_anchor(self) -> tuple[int, int]:
+        """Kartların dizildiği köşe: alt şeridin sağ üst ucunun biraz içi."""
+        nokta = self._footer.mapTo(self._central, QPoint(self._footer.width(), 0))
+        return nokta.x() - 12, nokta.y() - 8
+
+    def _toast(self, veri: ToastData) -> None:
+        if not self._toast_ready:
+            self._pending_toasts.append(veri)
+            return
+        self._toasts.show(veri)
+
+    def _flush_toasts(self) -> None:
+        self._toast_ready = True
+        bekleyen, self._pending_toasts = self._pending_toasts, []
+        for veri in bekleyen:
+            self._toasts.show(veri)
+
+    def _badge_toast(self, tanim: dict) -> ToastData:
+        p = PALETTES.get(self._theme.effective_mode, PALETTES["dark"])
+        return ToastData(
+            kind="badge",
+            eyebrow=self._language.t_upper("toast.badge_eyebrow"),
+            title=self._language.pick(tanim.get("title"), tanim.get("id", "")),
+            subtitle=self._language.pick(tanim.get("description"), ""),
+            icon=tanim.get("icon", "award"),
+            color=p["accent"],
+            color2=p["accent_second"],
+            payload=("badge", tanim.get("id", "")),
+        )
+
+    def _section_toast(self, chapter_id: str, section_id: str) -> ToastData | None:
+        chapter = self._catalog.chapter(chapter_id)
+        section = self._catalog.section(chapter_id, section_id)
+        if chapter is None or section is None:
+            return None
+        kisa = self._language.pick(chapter.raw.get("short"), "")
+        modul = self._language.pick(chapter.title, "")
+        return ToastData(
+            kind="section",
+            eyebrow=self._language.t_upper("toast.section_eyebrow"),
+            title=self._language.pick(section.title, section_id),
+            subtitle=f"{kisa} · {modul}" if kisa else modul,
+            icon=chapter.icon,
+            color=chapter.color,
+            color2=QColor(chapter.color).lighter(140).name(),
+            payload=("section", chapter_id, section_id),
+        )
+
+    def _on_toast(self, veri: ToastData) -> None:
+        """Karta tıklandı: rozette profil açılıyor, bölümde yalnızca kapanıyor."""
+        if veri.payload and veri.payload[0] == "badge":
+            self._navigate("profile")
+
+    # --- GitHub yıldızı ---------------------------------------------------
+
+    def _check_stars(self) -> None:
+        """Yıldız sayısını arka planda sorar.
+
+        Güncelleme denetimi ayarlardan kapatıldıysa hiç sorulmuyor: o ayar
+        "program ağa çıkmasın" demek. Son bilinen sayı görünmeye devam ediyor.
+        """
+        import time
+
+        if not updates.enabled(self._store):
+            return
+        if self._star_worker is not None and self._star_worker.isRunning():
+            return
+        if time.monotonic() - self._star_checked_at < github_stars.MIN_INTERVAL_SEC and self._star_checked_at:
+            return
+        self._star_checked_at = time.monotonic()
+        self._star_worker = StarWorker(parent=self)
+        self._star_worker.finished_with.connect(self._on_stars)
+        self._star_worker.start()
+
+    def _on_stars(self, count: int) -> None:
+        if count < 0:
+            return
+        github_stars.remember(self._store, count)
+        self._footer.set_stars(count)
+
+    def changeEvent(self, event) -> None:  # noqa: N802
+        # Tarayıcıda yıldız verip geri dönen kişi sayıyı hemen güncel görsün.
+        if event.type() == QEvent.Type.ActivationChange and self.isActiveWindow() and self._star_timer.isActive():
+            self._check_stars()
+        super().changeEvent(event)
+
+    def _refresh_release_dot(self) -> None:
+        """Şeritteki sürüm notu noktası.
 
         Nokta süs değil: `CHANGELOG.md`'deki en yeni sürüm, kullanıcının en
         son baktığı sürümden farklıysa çıkıyor.
         """
-        self._footer.set_unread_count(self._store.unread_notification_count())
-
         latest = self._releases.latest_version()
         seen = self._store.setting("seen_version", "")
         self._rail.set_notification("releases", bool(latest) and latest != seen)
-
-    def _toggle_notification_panel(self) -> None:
-        if self._notif_panel.isVisible():
-            self._notif_panel.close()
-        else:
-            self._show_notification_panel()
-
-    def _show_notification_panel(self) -> None:
-        tanimlar = {
-            t.get("id", ""): t
-            for t in badge_core.load_definitions(content_dir() / "badges.json")
-        }
-        notifs = []
-        for n in self._store.all_notifications():
-            n = dict(n)
-            tanim = tanimlar.get(n["title_key"]) if n["kind"] == "badge" else None
-            if tanim is not None:
-                ad = self._language.pick(tanim.get("title"), n["title_key"])
-                n["text"] = self._language.t("notification.badge", name=ad)
-            else:
-                # Tanımı olmayan (silinmiş ya da eski) bir kayıt: olduğu gibi.
-                n["text"] = n["title_key"]
-            notifs.append(n)
-        self._notif_panel.populate(
-            notifs,
-            self._language.t("notification.title"),
-            self._language.t("notification.clear"),
-            self._language.t("notification.empty"),
-            self._language.t("notification.mark_read"),
-        )
-        self._notif_panel.show_above(self._footer.bell_button)
-
-    def _on_notification_read(self, notif_id: int) -> None:
-        self._store.mark_notification_read(notif_id)
-        self._refresh_notifications()
-        if self._notif_panel.isVisible():
-            self._show_notification_panel()
-
-    def _on_notifications_cleared(self) -> None:
-        self._store.clear_notifications()
-        self._refresh_notifications()
 
     def _install_shortcuts(self) -> None:
         QShortcut(QKeySequence("Ctrl+,"), self, self._open_settings)
@@ -715,7 +779,7 @@ class MainWindow(QMainWindow):
         if self._search.isVisible():
             self._search.close_palette()
             return
-        for panel in (self._shortcut_panel, self._notif_panel):
+        for panel in (self._shortcut_panel,):
             if panel.isVisible():
                 panel.close()
                 return
@@ -883,7 +947,7 @@ class MainWindow(QMainWindow):
         self._releases.set_mode(mode)
         self._releases_header.set_mode(mode)
         self._footer.set_mode(mode)
-        self._notif_panel.set_mode(mode)
+        self._toasts.set_mode(mode)
         self._shortcut_panel.set_mode(mode)
         self._search.set_mode(mode)
         self._apply_header_accents(mode)
@@ -966,6 +1030,9 @@ class MainWindow(QMainWindow):
     def showEvent(self, event) -> None:  # noqa: N802
         super().showEvent(event)
         self._place_rail_toggle()
+        if not self._toast_ready:
+            # Açılış animasyonu bitsin, sonra bekleyen kartlar gelsin.
+            QTimer.singleShot(1200, self._flush_toasts)
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
@@ -975,7 +1042,7 @@ class MainWindow(QMainWindow):
         if self._search.isVisible():
             self._search.setGeometry(self.rect())
         self._shortcut_panel.reposition()
-        self._notif_panel.reposition()
+        self._toasts.reposition()
 
     def close_for_update(self) -> None:
         """Güncelleme yardımcısına yer açmak için onay sormadan kapanır.

@@ -83,6 +83,11 @@ lecture note does not mean downloading the whole application again.
   on its own line and unindents after `return` or `pass`. `Ctrl+/` comments
   or uncomments the selected lines. Faint vertical indent guides show where
   blocks begin and end. The same help works inside code blocks in My Notes.
+- **GitHub star in the bottom strip.** The bottom left corner shows how many
+  stars Odyssey has on GitHub; clicking it opens the repository, where you
+  can add yours if you like it. The count is refreshed together with the
+  update check, and if the check is turned off in Settings › Updates the
+  application never touches the network.
 
 ### Changed
 - **Exercise results in a terminal.** Instead of the results panel that
@@ -108,6 +113,12 @@ lecture note does not mean downloading the whole application again.
 - **Search sits in the middle of the left strip.** The overall progress
   ring in the middle of the strip is gone; the same percentage is already
   shown on the learning path screen. The search button took its place.
+- **Badge and section celebrations in the bottom right.** The notification
+  bell in the bottom strip is gone. When you finish a section or earn a
+  badge, a card with its icon appears in the bottom right and closes by
+  itself after a few seconds; it waits while the pointer is over it, the
+  cross closes it at once, and clicking a badge card opens your profile.
+  The shortcuts button moved to the bell's place in the bottom right.
 - **"Show on Discord" is in the Appearance settings.** It moved from the
   Learning page, since it is about what others see, not about learning.
 

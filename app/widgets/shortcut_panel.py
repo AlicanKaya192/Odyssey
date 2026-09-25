@@ -1,7 +1,6 @@
 """Klavye kısayolları paneli.
 
-Alt şeritteki klavye düğmesine (ya da `F1`) basınca zilin paneliyle aynı
-biçimde yukarı açılıyor. Kısayollar bir yerde yazılı olmasa kimse
+Alt şeritteki klavye düğmesine (ya da `F1`) basınca yukarı açılıyor. Kısayollar bir yerde yazılı olmasa kimse
 bilmiyordu: `Ctrl+K` arama, `Ctrl+N` not, `Ctrl+Enter` kodu çalıştırma
 hiçbir ekranda görünmüyordu.
 
@@ -63,7 +62,7 @@ class ShortcutPanel(Popover):
         self._language = language
 
         self._title = QLabel()
-        self._title.setProperty("role", "notification-title")
+        self._title.setProperty("role", "popover-title")
         self._title.setContentsMargins(
             SPACING["md"], SPACING["sm"], SPACING["md"], SPACING["sm"]
         )
@@ -107,7 +106,7 @@ class ShortcutPanel(Popover):
         duzen.setSpacing(SPACING["xs"])
 
         aciklama = QLabel()
-        aciklama.setProperty("role", "notification-text")
+        aciklama.setProperty("role", "popover-text")
         aciklama.setWordWrap(True)
         duzen.addWidget(aciklama, 1)
         self._labels.append((aciklama, anahtar))
@@ -130,7 +129,7 @@ class ShortcutPanel(Popover):
 
 
 class ShortcutButton(QPushButton):
-    """Alt şeritteki klavye düğmesi; zil düğmesiyle aynı ölçüde."""
+    """Alt şeridin sağ ucundaki klavye düğmesi."""
 
     SIZE = 18
     ICON = 14
@@ -138,7 +137,7 @@ class ShortcutButton(QPushButton):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._mode = "dark"
-        self.setProperty("variant", "notification-bell")
+        self.setProperty("variant", "footer-icon")
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setFixedSize(self.SIZE, self.SIZE)
         self.set_mode(self._mode)

@@ -99,6 +99,15 @@ def _completed_sections(
     return bolum, modul, modul_basina, bitenler
 
 
+def completed_sections(catalog, store) -> set[tuple[str, str]]:
+    """Biten bölümlerin `(modül, bölüm)` kimlikleri.
+
+    Ana pencere ilerleme her değiştiğinde bunu bir önceki kümeyle
+    karşılaştırıp yeni bitenleri sağ alttaki kartla kutluyor.
+    """
+    return _completed_sections(catalog, store)[3]
+
+
 def evaluate(catalog, store) -> dict[str, bool]:
     """Her rozet için koşulun sağlanıp sağlanmadığını döndürür.
 

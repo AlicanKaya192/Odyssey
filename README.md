@@ -46,7 +46,7 @@ Early development (`0.8.3`), released as an open beta. The application works end
 
 **Thirteen learning paths** are defined: Python, Data Science, Machine Learning and SQL are open, while API, Docker, Time Series, Natural Language Processing and the others are visible but locked until their content is written.
 
-**Working:** learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 29 badges with notifications and an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
+**Working:** learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 29 badges celebrated as you earn them, an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
 
 **Not there yet:** the content for the other paths, a place for your own notes, and a larger exercise engine for projects that run a dataset end to end.
 

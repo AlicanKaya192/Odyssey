@@ -78,6 +78,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   yorumdan çıkarıyor. Girintiyi gösteren soluk dikey çizgiler blokların
   nerede başlayıp bittiğini gösteriyor. Aynı kolaylıklar Notlarım'daki kod
   bloklarının içinde de çalışıyor.
+- **Alt şeritte GitHub yıldızı.** Sol altta Odyssey'in GitHub'daki yıldız
+  sayısı duruyor; tıklayınca depo açılıyor, beğendiyseniz oradan yıldız
+  verebilirsiniz. Sayı yeni sürüm denetimiyle birlikte güncelleniyor ve
+  Ayarlar › Güncelleme'den denetim kapatılırsa ağa hiç çıkılmıyor.
 
 ### Değişti
 - **Alıştırma sonuçları terminalde.** Kodu çalıştırınca açılan sonuç paneli
@@ -102,6 +106,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Arama sol şeridin ortasında.** Şeridin ortasındaki genel ilerleme
   halkası kaldırıldı; aynı yüzde öğrenme yolu ekranında zaten yazıyor.
   Yerine arama düğmesi geldi.
+- **Rozet ve bölüm kutlamaları sağ altta.** Alt şeritteki bildirim zili
+  kaldırıldı. Bir bölümü bitirdiğinizde ya da rozet kazandığınızda sağ altta
+  simgesiyle birlikte bir kart beliriyor ve birkaç saniye sonra kendiliğinden
+  kapanıyor; üstüne gelince bekliyor, çarpıyla hemen kapatılabiliyor, rozet
+  kartına tıklayınca profil açılıyor. Kısayollar düğmesi zilin yerine, sağ
+  alta geçti.
 - **"Discord'da göster" Görünüm ayarlarında.** Öğrenmeyle değil başkalarının
   ne gördüğüyle ilgili olduğu için Öğrenme sayfasından taşındı.
 

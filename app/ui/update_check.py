@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import QThread, Signal
 
-from ..core import updates
+from ..core import github_stars, updates
 from ..core.updates import UpdateInfo
 
 
@@ -38,3 +38,23 @@ class UpdateWorker(QThread):
             # kullanıcının istemediği, arka planda yapılan bir iş.
             sonuc = UpdateInfo(status="error", detail=repr(hata))
         self.finished_with.emit(sonuc)
+
+
+class StarWorker(QThread):
+    """Deponun yıldız sayısını bir kez sorar; olmazsa `-1` bildirir.
+
+    Güncelleme denetimiyle aynı kural: veritabanına buradan dokunulmuyor,
+    sayıyı saklamak çağıranın işi (`github_stars.remember`).
+    """
+
+    finished_with = Signal(int)
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+
+    def run(self) -> None:  # noqa: D102
+        try:
+            sayi = github_stars.fetch_stars()
+        except Exception:  # noqa: BLE001
+            sayi = None
+        self.finished_with.emit(-1 if sayi is None else sayi)

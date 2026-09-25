@@ -175,6 +175,13 @@ MIGRATIONS: list[str] = [
     ALTER TABLE notebook_entries ADD COLUMN folder_id INTEGER
         REFERENCES notebook_folders (id) ON DELETE SET NULL;
     """,
+    # 6 — bildirim zili kalktı (Alican, 25 Eylül). Bölüm bitirme ve rozet
+    # artık sağ altta o an beliren bir kartla duyuruluyor; saklanacak,
+    # okundu sayılacak bir liste kalmadı. Rozetlerin kendisi `badges`
+    # tablosunda duruyor, burada yalnızca duyuruların kopyası vardı.
+    """
+    DROP TABLE IF EXISTS notifications;
+    """,
 ]
 
 
@@ -417,58 +424,6 @@ class ProgressStore:
             "SELECT COUNT(*) AS n FROM study_days"
         ).fetchone()
         return row["n"] if row else 0
-
-    def add_notification(self, kind: str, title_key: str, icon: str = "") -> None:
-        """Yeni bir bildirim ekler."""
-        with self._write() as connection:
-            connection.execute(
-                """
-                INSERT INTO notifications (kind, title_key, icon, is_read, created_at)
-                VALUES (?, ?, ?, 0, ?)
-                """,
-                (kind, title_key, icon, _now()),
-            )
-
-    def unread_notification_count(self) -> int:
-        """Okunmamış bildirim sayısını döndürür."""
-        row = self._connection.execute(
-            "SELECT COUNT(*) AS n FROM notifications WHERE is_read = 0"
-        ).fetchone()
-        return row["n"] if row else 0
-
-    def all_notifications(self) -> list[dict]:
-        """Tüm bildirimleri en yeniden eskiye doğru döndürür."""
-        rows = self._connection.execute(
-            """
-            SELECT id, kind, title_key, icon, is_read, created_at
-            FROM notifications
-            ORDER BY created_at DESC, id DESC
-            """
-        ).fetchall()
-        return [
-            {
-                "id": row["id"],
-                "kind": row["kind"],
-                "title_key": row["title_key"],
-                "icon": row["icon"],
-                "is_read": bool(row["is_read"]),
-                "created_at": row["created_at"],
-            }
-            for row in rows
-        ]
-
-    def mark_notification_read(self, notif_id: int) -> None:
-        """Bildirimi okundu olarak işaretler."""
-        with self._write() as connection:
-            connection.execute(
-                "UPDATE notifications SET is_read = 1 WHERE id = ?",
-                (notif_id,),
-            )
-
-    def clear_notifications(self) -> None:
-        """Tüm bildirimleri siler."""
-        with self._write() as connection:
-            connection.execute("DELETE FROM notifications")
 
     def last_study_day(self) -> date | None:
         """En son çalışılan gün; hiç çalışılmadıysa None (hatırlatmalar için)."""

@@ -1,7 +1,8 @@
-"""Bir düğmenin üstünde açılan küçük panel (bildirimler, kısayollar).
+"""Bir düğmenin üstünde açılan küçük panel (kısayollar).
 
 Çerçevesi, aşağı bakan oku, gölgesi ve dışına tıklanınca kapanması burada;
-içini dolduran panel kendi işine bakıyor. İki panel bunu paylaşıyor.
+içini dolduran panel kendi işine bakıyor. Bildirim paneli de bunu
+paylaşıyordu; zil kalkınca tek kullanan kısayol paneli kaldı.
 
 **Ayrı bir pencere değil, pencerenin içinde bir katman.** Önce `Qt.Popup`
 idi ve açıkken fareyi de klavyeyi de kendine kilitliyordu:
@@ -169,7 +170,7 @@ class Popover(QWidget):
         Katman pencereyi kapladığı için tıklama normalde yalnızca paneli
         kapatırdı ve kullanıcı ikinci kez tıklamak zorunda kalırdı. Kapanışta
         tıklamanın altındaki düğme çalıştırılıyor: panel açıkken şeride ya da
-        zile basmak tek tıklamada iş görüyor. Paneli açan düğme dışarıda
+        yıldıza basmak tek tıklamada iş görüyor. Paneli açan düğme dışarıda
         bırakılıyor; yoksa panel kapanıp hemen yeniden açılırdı.
         """
         if self.body.geometry().contains(event.position().toPoint()):

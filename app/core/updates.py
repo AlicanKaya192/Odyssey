@@ -9,8 +9,9 @@ açmayı ve eskisini silmeyi kullanıcı yapıyor.
 sürüm, yarıda kesilen bir indirmede uygulamayı çalışmaz hâle getirebilir.
 Bağlantıyı gösterip kenara çekilmek dürüst ve kırılmaz olanı.
 
-**Ağa çıkan tek yer burası.** Dersler, alıştırmalar, sınavlar ve ilerleme
-tamamen çevrimdışı. Bu sorgu:
+**Ağa çıkan yer burası ve alt şeritteki GitHub yıldızı**
+(`github_stars`); yıldız sorgusu da bu ayara bağlı. Dersler, alıştırmalar,
+sınavlar ve ilerleme tamamen çevrimdışı. Bu sorgu:
 
 - yalnızca **GET** yapıyor, hiçbir şey göndermiyor (kimlik, ilerleme,
   kullanım verisi — hiçbiri);
