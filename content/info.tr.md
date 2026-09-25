@@ -48,8 +48,8 @@ hazırdır.
 Dört patika tamamlanmıştır: **Python Temelleri**, **Veri Bilimi**, **Makine
 Öğrenmesi** ve **SQL**. **Matematik** patikası yazılmaktadır; temel
 matematik modülünde başlangıç ve orta kısım, yapay zekanın matematiğini anlatan
-modülde doğrusal cebir kısmı hazırdır. Toplamda 84 bölüm, 2411 sınav
-sorusu, 267 kod alıştırması ve 140 matematik problemi bulunur. API, Docker ve diğer ileri patikalar hazırlanmaktadır.
+modülde doğrusal cebir ve kalkülüs kısımları hazırdır. Toplamda 95 bölüm, 2735 sınav
+sorusu, 267 kod alıştırması ve 195 matematik problemi bulunur. API, Docker ve diğer ileri patikalar hazırlanmaktadır.
 
 Alıştırmaya bağlı olmayan serbest bir çalışma alanı ve macOS sürümü yol
 haritasındadır.

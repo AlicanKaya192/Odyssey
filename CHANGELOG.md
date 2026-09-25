@@ -34,10 +34,14 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   Eşitsizlikler ve Mutlak Değer; Denklem Sistemleri; İkinci Dereceden
   Denklemler; Kümeler ve Mantık; Fonksiyonlar; Koordinat Düzlemi ve Doğru;
   ayrıca Logaritma. **MAT 2** (doğrusal
-  cebirin tamamı): Vektörler; Nokta Çarpımı, Uzunluk ve
+  cebir ve kalkülüsün tamamı): Vektörler; Nokta Çarpımı, Uzunluk ve
   Benzerlik; Matrisler; Matris Çarpımı ve Dönüşümler; Determinant ve Ters
   Matris; Doğrusal Sistemler ve Gauss Eleme; Doğrusal Bağımsızlık, Taban ve
-  Rank; Özdeğerler ve Özvektörler; Tekil Değer Ayrışımı (SVD). Her bölümde
+  Rank; Özdeğerler ve Özvektörler; Tekil Değer Ayrışımı (SVD); Limit ve Süreklilik; Türev: Değişim Hızı; Türev
+  Kuralları ve Zincir Kuralı; Türevin Uygulamaları: En Büyük ve En Küçük;
+  Taylor Yaklaşımı; İntegral ve Alan; Kısmi Türev ve Gradyan; Jacobian,
+  Hessian ve Çok Değişkenli Zincir Kuralı; Dışbükeylik ve Optimizasyon;
+  Gradyan İnişi; Geri Yayılım: Sinir Ağında Türev. Her bölümde
   konu anlatımı, iki ders notu, sınav ve beş problem var. Problemler çizim
   kâğıdında çözülüyor: fareyle yazıyorsunuz, zor yazılan işaretler üstteki
   şeritte duruyor, çizimleriniz kaydediliyor. Yalnızca sonuç denetleniyor;

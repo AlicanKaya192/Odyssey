@@ -35,11 +35,16 @@ lecture note does not mean downloading the whole application again.
   Expressions and Identities; Factoring; Linear Equations; Inequalities and
   Absolute Value; Systems of Equations; Quadratic Equations; Sets and Logic;
   Functions; The Coordinate Plane and Lines; and also Logarithms. **MATH 2** (all of
-  linear algebra): Vectors; Dot Product, Length and
+  linear algebra and calculus): Vectors; Dot Product, Length and
   Similarity; Matrices; Matrix Multiplication and Transformations;
   Determinants and Inverse Matrices; Linear Systems and Gaussian Elimination;
   Linear Independence, Basis and Rank; Eigenvalues and Eigenvectors; Singular
-  Value Decomposition (SVD). Each section has a lesson, two course notes, a
+  Value Decomposition (SVD); Limits and Continuity; Derivatives: Rate of
+  Change; Derivative Rules and the Chain Rule; Applications of Derivatives:
+  Maxima and Minima; Taylor Approximation; Integrals and Area; Partial
+  Derivatives and the Gradient; Jacobian, Hessian and the Multivariable
+  Chain Rule; Convexity and Optimization; Gradient Descent;
+  Backpropagation: Derivatives in a Neural Network. Each section has a lesson, two course notes, a
   quiz and five problems. Problems are worked on a drawing sheet: you write
   with the mouse, hard-to-draw symbols sit in the strip above, and your
   drawings are saved. Only the result is checked; once you solve it, or after
