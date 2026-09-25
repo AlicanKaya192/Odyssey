@@ -172,6 +172,8 @@ class MainWindow(QMainWindow):
         # güncel olanı (`start_update_check` sırasında).
         self._star_worker: StarWorker | None = None
         self._star_checked_at = 0.0
+        # Kapanış başladı: yıldız artık sorulmuyor (`closeEvent`).
+        self._shutting_down = False
         self._star_timer = QTimer(self)
         self._star_timer.setInterval(github_stars.REFRESH_SEC * 1000)
         self._star_timer.timeout.connect(self._check_stars)
@@ -497,7 +499,7 @@ class MainWindow(QMainWindow):
         """
         import time
 
-        if not updates.enabled(self._store):
+        if self._shutting_down or not updates.enabled(self._store):
             return
         if self._star_worker is not None and self._star_worker.isRunning():
             return
@@ -509,7 +511,7 @@ class MainWindow(QMainWindow):
         self._star_worker.start()
 
     def _on_stars(self, count: int) -> None:
-        if count < 0:
+        if count < 0 or self._shutting_down:
             return
         github_stars.remember(self._store, count)
         self._footer.set_stars(count)
@@ -1078,6 +1080,14 @@ class MainWindow(QMainWindow):
             if dialog.exec() != ConfirmDialog.DialogCode.Accepted:
                 event.ignore()
                 return
+
+        # Yıldız denetimi burada kesiliyor. Çıkış onayı kapanınca pencere
+        # yeniden etkin oluyor ve `changeEvent` yıldızı soruyordu; kapanışın
+        # sonunda veritabanı kapatıldıktan sonra da bir etkinleşme geliyor ve
+        # ayar okuması "Cannot operate on a closed database" veriyordu
+        # (Alican, 25 Eylül). Yolda olan bir cevap da artık yazılmıyor.
+        self._shutting_down = True
+        self._star_timer.stop()
 
         # Notta yazılıp henüz kaydedilmemiş son harfler (Notlarım ve
         # bölümdeki not paneli).
