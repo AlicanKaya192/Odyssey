@@ -45,11 +45,12 @@ ilerleme kaydı, profil ve rozetler, kendi notlarınız, genel arama,
 Türkçe/İngilizce arayüz, açık/koyu tema ve uygulama içi güncelleme
 hazırdır.
 
-Dört patika tamamlanmıştır: **Python Temelleri**, **Veri Bilimi**, **Makine
-Öğrenmesi** ve **SQL**. **Matematik** patikası yazılmaktadır; temel
-matematik modülünde başlangıç ve orta kısım, yapay zekanın matematiğini anlatan
-modülde doğrusal cebir ve kalkülüs kısımları hazırdır. Toplamda 95 bölüm, 2735 sınav
-sorusu, 267 kod alıştırması ve 195 matematik problemi bulunur. API, Docker ve diğer ileri patikalar hazırlanmaktadır.
+Beş patika tamamlanmıştır: **Python Temelleri**, **Veri Bilimi**, **Makine
+Öğrenmesi**, **SQL** ve **Matematik**. Matematik patikası iki modülden
+oluşur: sıfırdan başlayan biri için temel matematik ve makine öğrenmesinin
+dayandığı doğrusal cebir, kalkülüs, olasılık ve istatistik. Toplamda 116
+bölüm, 3374 sınav sorusu, 267 kod alıştırması ve 300 matematik problemi
+bulunur. API, Docker ve diğer ileri patikalar hazırlanmaktadır.
 
 Alıştırmaya bağlı olmayan serbest bir çalışma alanı ve macOS sürümü yol
 haritasındadır.

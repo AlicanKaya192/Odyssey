@@ -45,13 +45,13 @@ tracking, a profile with badges, your own notes, a global search, a
 Turkish/English interface, light and dark themes and in-app updates are all
 in place.
 
-Four paths are complete: **Python Fundamentals**, **Data Science**,
-**Machine Learning** and **SQL**. The **Mathematics** path is being
-written; the basic and intermediate levels of the foundational module and the linear algebra
-and calculus parts of the module on the mathematics of AI are ready. Together they hold
-95 sections, 2735 quiz questions, 267 coding exercises and 195 mathematics
-problems. The API, Docker and other advanced
-paths are in preparation.
+Five paths are complete: **Python Fundamentals**, **Data Science**,
+**Machine Learning**, **SQL** and **Mathematics**. The Mathematics path has
+two modules: foundational mathematics for someone starting from zero, and
+the linear algebra, calculus, probability and statistics that machine
+learning rests on. Together they hold 116 sections, 3374 quiz questions, 267
+coding exercises and 300 mathematics problems. The API, Docker and other
+advanced paths are in preparation.
 
 A free coding area outside the exercises and a macOS build are on the
 roadmap.

@@ -25,11 +25,12 @@ lecture note does not mean downloading the whole application again.
 
 ### Added
 - **The Mathematics path has been added.** Two modules: **MATH 1 —
-  Foundational Mathematics**, from numbers to functions and logarithms for
-  someone starting from zero; **MATH 2 — The Mathematics of AI**, the linear
-  algebra and calculus machine learning rests on, up to gradient descent and
-  backpropagation. Problems are worked on a drawing sheet; only the result is
-  checked, and the solution paths open on the left.
+  Foundational Mathematics**, from numbers to functions, geometry and
+  trigonometry, probability and statistics for someone starting from zero;
+  **MATH 2 — The Mathematics of AI**, the linear algebra, calculus,
+  probability and statistics machine learning rests on. Problems are worked
+  on a drawing sheet; only the result is checked, and the solution paths
+  open on the left.
 - **Streak reminders.** If you haven't studied that day, a playful Windows
   notification arrives at the time you choose; if your streak is at risk
   there's one last warning at 21:30, and if you stay away for long the

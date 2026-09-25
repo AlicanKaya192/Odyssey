@@ -23,11 +23,11 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ### Eklendi
 - **Matematik patikası eklendi.** İki modül var: **MAT 1 — Temel
-  Matematik**, sıfırdan başlayan biri için sayılardan fonksiyonlara ve
-  logaritmaya kadar; **MAT 2 — Yapay Zekanın Matematiği**, makine
-  öğrenmesinin dayandığı doğrusal cebir ve kalkülüs, gradyan inişi ve geri
-  yayılıma kadar. Problemler çizim kâğıdında çözülüyor; yalnızca sonuç
-  denetleniyor, çözüm yolları solda açılıyor.
+  Matematik**, sıfırdan başlayan biri için sayılardan fonksiyonlara,
+  geometri ve trigonometriye, olasılık ve istatistiğe kadar; **MAT 2 —
+  Yapay Zekanın Matematiği**, makine öğrenmesinin dayandığı doğrusal cebir,
+  kalkülüs, olasılık ve istatistik. Problemler çizim kâğıdında çözülüyor;
+  yalnızca sonuç denetleniyor, çözüm yolları solda açılıyor.
 - **Seri hatırlatmaları.** O gün çalışmadıysanız seçtiğiniz saatte esprili
   bir Windows bildirimi geliyor; seri tehlikedeyse 21:30'da son bir uyarı,
   uzun süre uğramazsanız giderek seyrekleşen ve iki ay sonra duran
