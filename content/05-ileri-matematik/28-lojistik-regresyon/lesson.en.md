@@ -1,0 +1,190 @@
+# Logistic Regression and Log-Loss
+
+Linear regression predicted a number. Very often, though, what is asked
+is a **probability**: is this email spam, will this customer leave, will
+this student pass? A linear model gives values that spill below $0$ or
+above $1$; they cannot be probabilities. **Logistic regression** passes a
+linear model through a **sigmoid** function to squeeze the output into
+$(0, 1)$, and is trained with **log-loss**. A neural network with a single
+neuron is exactly this.
+
+Prerequisites: Derivative Rules and the Chain Rule (the derivative of
+the sigmoid); Gradient Descent; Maximum Likelihood Estimation; The
+Mathematics of Linear Regression.
+
+## The model
+
+First a linear score, then the sigmoid:
+
+$$
+z = w^\mathsf{T}x + b \qquad p = \sigma(z) = \frac{1}{1 + e^{-z}}
+$$
+
+- If $z$ is large and positive, $p \to 1$; large and negative, $p \to 0$;
+  at $z = 0$, $p = 0.5$.
+- $p$ is read as "the probability that $y = 1$".
+
+<figure class="fig">
+<svg viewBox="0 0 420 254" width="420"><line class="grid" x1="50.0" y1="210.0" x2="50.0" y2="20.0"/><line class="grid" x1="106.7" y1="210.0" x2="106.7" y2="20.0"/><line class="grid" x1="163.3" y1="210.0" x2="163.3" y2="20.0"/><line class="grid" x1="220.0" y1="210.0" x2="220.0" y2="20.0"/><line class="grid" x1="276.7" y1="210.0" x2="276.7" y2="20.0"/><line class="grid" x1="333.3" y1="210.0" x2="333.3" y2="20.0"/><line class="grid" x1="390.0" y1="210.0" x2="390.0" y2="20.0"/><line class="grid" x1="50.0" y1="196.9" x2="390.0" y2="196.9"/><line class="grid" x1="50.0" y1="155.9" x2="390.0" y2="155.9"/><line class="grid" x1="50.0" y1="115.0" x2="390.0" y2="115.0"/><line class="grid" x1="50.0" y1="74.1" x2="390.0" y2="74.1"/><line class="grid" x1="50.0" y1="33.1" x2="390.0" y2="33.1"/><line class="line" x1="50.0" y1="196.9" x2="390.0" y2="196.9"/><line class="line" x1="50.0" y1="210.0" x2="50.0" y2="20.0"/><line class="curve3" stroke-dasharray="5 4" x1="50.0" y1="115.0" x2="390.0" y2="115.0"/><line class="curve3" stroke-dasharray="5 4" x1="201.1" y1="210.0" x2="201.1" y2="20.0"/><polyline class="curve" fill="none" points="50.0,194.0 51.4,193.8 52.8,193.7 54.2,193.6 55.7,193.5 57.1,193.4 58.5,193.2 59.9,193.1 61.3,192.9 62.8,192.8 64.2,192.6 65.6,192.5 67.0,192.3 68.4,192.2 69.8,192.0 71.2,191.8 72.7,191.6 74.1,191.4 75.5,191.2 76.9,191.0 78.3,190.8 79.8,190.6 81.2,190.3 82.6,190.1 84.0,189.8 85.4,189.6 86.8,189.3 88.2,189.0 89.7,188.8 91.1,188.5 92.5,188.1 93.9,187.8 95.3,187.5 96.8,187.2 98.2,186.8 99.6,186.5 101.0,186.1 102.4,185.7 103.8,185.3 105.2,184.9 106.7,184.5 108.1,184.0 109.5,183.6 110.9,183.1 112.3,182.6 113.8,182.1 115.2,181.6 116.6,181.1 118.0,180.6 119.4,180.0 120.8,179.4 122.2,178.8 123.7,178.2 125.1,177.6 126.5,176.9 127.9,176.3 129.3,175.6 130.8,174.9 132.2,174.2 133.6,173.4 135.0,172.6 136.4,171.9 137.8,171.1 139.2,170.2 140.7,169.4 142.1,168.5 143.5,167.6 144.9,166.7 146.3,165.8 147.8,164.8 149.2,163.8 150.6,162.8 152.0,161.8 153.4,160.8 154.8,159.7 156.2,158.6 157.7,157.5 159.1,156.4 160.5,155.2 161.9,154.0 163.3,152.8 164.8,151.6 166.2,150.4 167.6,149.1 169.0,147.9 170.4,146.6 171.8,145.2 173.2,143.9 174.7,142.5 176.1,141.2 177.5,139.8 178.9,138.4 180.3,137.0 181.8,135.5 183.2,134.1 184.6,132.6 186.0,131.2 187.4,129.7 188.8,128.2 190.2,126.7 191.7,125.2 193.1,123.7 194.5,122.1 195.9,120.6 197.3,119.1 198.8,117.6 200.2,116.0 201.6,114.5 203.0,113.0 204.4,111.4 205.8,109.9 207.2,108.4 208.7,106.8 210.1,105.3 211.5,103.8 212.9,102.3 214.3,100.8 215.8,99.3 217.2,97.9 218.6,96.4 220.0,94.9 221.4,93.5 222.8,92.1 224.3,90.7 225.7,89.3 227.1,87.9 228.5,86.5 229.9,85.2 231.3,83.9 232.8,82.6 234.2,81.3 235.6,80.0 237.0,78.8 238.4,77.6 239.8,76.4 241.2,75.2 242.7,74.0 244.1,72.9 245.5,71.8 246.9,70.7 248.3,69.6 249.8,68.5 251.2,67.5 252.6,66.5 254.0,65.5 255.4,64.5 256.8,63.6 258.2,62.7 259.7,61.8 261.1,60.9 262.5,60.1 263.9,59.2 265.3,58.4 266.8,57.6 268.2,56.8 269.6,56.1 271.0,55.4 272.4,54.6 273.8,54.0 275.2,53.3 276.7,52.6 278.1,52.0 279.5,51.4 280.9,50.8 282.3,50.2 283.8,49.6 285.2,49.1 286.6,48.5 288.0,48.0 289.4,47.5 290.8,47.0 292.2,46.6 293.7,46.1 295.1,45.7 296.5,45.2 297.9,44.8 299.3,44.4 300.8,44.0 302.2,43.7 303.6,43.3 305.0,42.9 306.4,42.6 307.8,42.3 309.2,42.0 310.7,41.6 312.1,41.3 313.5,41.1 314.9,40.8 316.3,40.5 317.8,40.2 319.2,40.0 320.6,39.8 322.0,39.5 323.4,39.3 324.8,39.1 326.2,38.9 327.7,38.7 329.1,38.5 330.5,38.3 331.9,38.1 333.3,37.9 334.8,37.7 336.2,37.6 337.6,37.4 339.0,37.3 340.4,37.1 341.8,37.0 343.2,36.8 344.7,36.7 346.1,36.6 347.5,36.4 348.9,36.3 350.3,36.2 351.8,36.1 353.2,36.0 354.6,35.9 356.0,35.8 357.4,35.7 358.8,35.6 360.2,35.5 361.7,35.4 363.1,35.3 364.5,35.2 365.9,35.2 367.3,35.1 368.8,35.0 370.2,34.9 371.6,34.9 373.0,34.8 374.4,34.8 375.8,34.7 377.2,34.6 378.7,34.6 380.1,34.5 381.5,34.5 382.9,34.4 384.3,34.4 385.8,34.3 387.2,34.3 388.6,34.2 390.0,34.2"/><circle class="dot2" cx="78.3" cy="196.9" r="5"/><circle class="dot2" cx="106.7" cy="196.9" r="5"/><circle class="dot2" cx="135.0" cy="196.9" r="5"/><circle class="dot2" cx="163.3" cy="196.9" r="5"/><circle class="dot2" cx="191.7" cy="196.9" r="5"/><circle class="dot2" cx="231.3" cy="196.9" r="5"/><circle class="dot3" cx="174.7" cy="33.1" r="5"/><circle class="dot3" cx="220.0" cy="33.1" r="5"/><circle class="dot3" cx="254.0" cy="33.1" r="5"/><circle class="dot3" cx="276.7" cy="33.1" r="5"/><circle class="dot3" cx="305.0" cy="33.1" r="5"/><circle class="dot3" cx="344.7" cy="33.1" r="5"/><text class="dim" x="44.0" y="199.9" font-size="9" text-anchor="end">0.0</text><text class="dim" x="44.0" y="118.0" font-size="9" text-anchor="end">0.5</text><text class="dim" x="44.0" y="36.1" font-size="9" text-anchor="end">1.0</text><text class="dim" x="106.7" y="224.0" font-size="9" text-anchor="middle">1</text><text class="dim" x="163.3" y="224.0" font-size="9" text-anchor="middle">2</text><text class="dim" x="220.0" y="224.0" font-size="9" text-anchor="middle">3</text><text class="dim" x="276.7" y="224.0" font-size="9" text-anchor="middle">4</text><text class="dim" x="333.3" y="224.0" font-size="9" text-anchor="middle">5</text><text class="dim" x="390.0" y="224.0" font-size="9" text-anchor="middle">6</text><text class="dim" x="390.0" y="238.0" font-size="10" text-anchor="end">study time (hours)</text><text class="ink" x="384.3" y="56.4" font-size="11" text-anchor="end">p = σ(1.5x − 4)</text><text class="ink" x="67.0" y="23.1" font-size="10" text-anchor="start">passed (y = 1)</text><text class="ink" x="242.7" y="186.9" font-size="10" text-anchor="start">failed (y = 0)</text><text class="dim" x="207.1" y="160.9" font-size="10" text-anchor="start">decision boundary x ≈ 2.67</text></svg>
+  <figcaption>The study time and exam result of twelve students (green passed, orange failed). The curve is p = σ(1.5x − 4): the probability of passing rises smoothly with time. The line p = 0.5 corresponds to z = 0, that is x ≈ 2.67 hours.</figcaption>
+</figure>
+
+## Odds and log-odds
+
+Solve $p = \sigma(z)$ for $z$:
+
+$$
+\frac{p}{1 - p} = e^{z} \qquad \ln\frac{p}{1 - p} = z = w^\mathsf{T}x + b
+$$
+
+$\frac{p}{1 - p}$ is called the **odds**: if $p = 0.8$ the odds are $4$,
+"four to one". Logistic regression models the **log-odds** linearly.
+
+**Interpreting a coefficient.** When $x_j$ rises by one unit, $z$ rises by
+$w_j$; the odds are **multiplied** by $e^{w_j}$. In the example $w = 1.5$:
+each extra hour multiplies the odds of passing by $e^{1.5} \approx 4.5$.
+The probability, however, does not rise by a fixed amount; it rises
+fastest around $p = 0.5$.
+
+## The decision boundary
+
+If we say "$1$" when $p \geq 0.5$, that means $z \geq 0$. The boundary is
+$w^\mathsf{T}x + b = 0$: a line with two features, a hyperplane with more.
+Logistic regression is a **linear classifier**.
+
+<figure class="fig">
+<svg viewBox="0 0 470 300" width="470"><line class="grid" x1="40.0" y1="270.0" x2="40.0" y2="20.0"/><line class="grid" x1="90.0" y1="270.0" x2="90.0" y2="20.0"/><line class="grid" x1="140.0" y1="270.0" x2="140.0" y2="20.0"/><line class="grid" x1="190.0" y1="270.0" x2="190.0" y2="20.0"/><line class="grid" x1="240.0" y1="270.0" x2="240.0" y2="20.0"/><line class="grid" x1="290.0" y1="270.0" x2="290.0" y2="20.0"/><line class="grid" x1="340.0" y1="270.0" x2="340.0" y2="20.0"/><line class="grid" x1="40.0" y1="270.0" x2="340.0" y2="270.0"/><line class="grid" x1="40.0" y1="220.0" x2="340.0" y2="220.0"/><line class="grid" x1="40.0" y1="170.0" x2="340.0" y2="170.0"/><line class="grid" x1="40.0" y1="120.0" x2="340.0" y2="120.0"/><line class="grid" x1="40.0" y1="70.0" x2="340.0" y2="70.0"/><line class="grid" x1="40.0" y1="20.0" x2="340.0" y2="20.0"/><line class="line" x1="40.0" y1="270.0" x2="340.0" y2="270.0"/><line class="line" x1="40.0" y1="270.0" x2="40.0" y2="20.0"/><text class="dim" x="90.0" y="283.0" font-size="9" text-anchor="middle">1</text><text class="dim" x="140.0" y="283.0" font-size="9" text-anchor="middle">2</text><text class="dim" x="190.0" y="283.0" font-size="9" text-anchor="middle">3</text><text class="dim" x="240.0" y="283.0" font-size="9" text-anchor="middle">4</text><text class="dim" x="290.0" y="283.0" font-size="9" text-anchor="middle">5</text><text class="dim" x="35.0" y="223.0" font-size="9" text-anchor="end">1</text><text class="dim" x="35.0" y="173.0" font-size="9" text-anchor="end">2</text><text class="dim" x="35.0" y="123.0" font-size="9" text-anchor="end">3</text><text class="dim" x="35.0" y="73.0" font-size="9" text-anchor="end">4</text><polyline class="curve" fill="none" points="40.0,20.0 41.2,21.3 42.5,22.5 43.8,23.8 45.0,25.0 46.2,26.2 47.5,27.5 48.8,28.7 50.0,30.0 51.2,31.2 52.5,32.5 53.8,33.8 55.0,35.0 56.2,36.3 57.5,37.5 58.8,38.8 60.0,40.0 61.2,41.2 62.5,42.5 63.8,43.7 65.0,45.0 66.2,46.3 67.5,47.5 68.8,48.8 70.0,50.0 71.2,51.2 72.5,52.5 73.8,53.7 75.0,55.0 76.2,56.2 77.5,57.5 78.8,58.8 80.0,60.0 81.2,61.3 82.5,62.5 83.8,63.8 85.0,65.0 86.2,66.2 87.5,67.5 88.8,68.7 90.0,70.0 91.2,71.2 92.5,72.5 93.8,73.8 95.0,75.0 96.2,76.2 97.5,77.5 98.8,78.8 100.0,80.0 101.2,81.2 102.5,82.5 103.8,83.8 105.0,85.0 106.2,86.2 107.5,87.5 108.8,88.8 110.0,90.0 111.2,91.2 112.5,92.5 113.8,93.8 115.0,95.0 116.2,96.2 117.5,97.5 118.8,98.8 120.0,100.0 121.2,101.2 122.5,102.5 123.8,103.7 125.0,105.0 126.3,106.3 127.5,107.5 128.8,108.8 130.0,110.0 131.2,111.3 132.5,112.5 133.8,113.8 135.0,115.0 136.2,116.2 137.5,117.5 138.8,118.8 140.0,120.0 141.2,121.2 142.5,122.5 143.8,123.8 145.0,125.0 146.2,126.2 147.5,127.5 148.8,128.8 150.0,130.0 151.2,131.2 152.5,132.5 153.8,133.8 155.0,135.0 156.2,136.2 157.5,137.5 158.8,138.8 160.0,140.0 161.2,141.2 162.5,142.5 163.8,143.8 165.0,145.0 166.2,146.2 167.5,147.5 168.8,148.8 170.0,150.0 171.2,151.2 172.5,152.5 173.8,153.7 175.0,155.0 176.2,156.2 177.5,157.5 178.8,158.7 180.0,160.0 181.3,161.3 182.5,162.5 183.8,163.8 185.0,165.0 186.2,166.2 187.5,167.5 188.8,168.8 190.0,170.0 191.2,171.2 192.5,172.5 193.8,173.8 195.0,175.0 196.2,176.2 197.5,177.5 198.8,178.8 200.0,180.0 201.2,181.2 202.5,182.5 203.7,183.8 205.0,185.0 206.2,186.2 207.5,187.5 208.8,188.8 210.0,190.0 211.2,191.2 212.5,192.5 213.8,193.8 215.0,195.0 216.2,196.2 217.5,197.5 218.8,198.8 220.0,200.0 221.2,201.2 222.5,202.5 223.7,203.8 225.0,205.0 226.2,206.2 227.5,207.5 228.8,208.8 230.0,210.0 231.3,211.2 232.5,212.5 233.8,213.8 235.0,215.0 236.2,216.2 237.5,217.5 238.8,218.8 240.0,220.0 241.3,221.2 242.5,222.5 243.8,223.8 245.0,225.0 246.2,226.2 247.5,227.5 248.8,228.8 250.0,230.0 251.2,231.2 252.5,232.5 253.8,233.8 255.0,235.0 256.2,236.2 257.5,237.5 258.8,238.8 260.0,240.0 261.2,241.2 262.5,242.5 263.8,243.7 265.0,245.0 266.2,246.2 267.5,247.5 268.8,248.8 270.0,250.0 271.2,251.2 272.5,252.5 273.8,253.7 275.0,255.0 276.2,256.2 277.5,257.5 278.8,258.8 280.0,260.0 281.2,261.2 282.5,262.5 283.8,263.8 285.0,265.0 286.2,266.2 287.5,267.5 288.8,268.8 290.0,270.0 291.2,271.2 292.5,272.5 293.8,273.8 295.0,275.0"/><polyline class="curve3" stroke-dasharray="5 4" fill="none" points="145.0,15.1 146.2,16.4 147.5,17.6 148.8,18.9 150.0,20.1 151.2,21.4 152.5,22.6 153.8,23.9 155.0,25.1 156.2,26.4 157.5,27.6 158.8,28.9 160.0,30.1 161.2,31.4 162.5,32.6 163.8,33.9 165.0,35.1 166.2,36.4 167.5,37.6 168.8,38.9 170.0,40.1 171.2,41.4 172.5,42.6 173.8,43.9 175.0,45.1 176.2,46.4 177.5,47.6 178.8,48.9 180.0,50.1 181.3,51.4 182.5,52.6 183.8,53.9 185.0,55.1 186.2,56.4 187.5,57.6 188.8,58.9 190.0,60.1 191.2,61.4 192.5,62.6 193.8,63.9 195.0,65.1 196.2,66.4 197.5,67.6 198.8,68.9 200.0,70.1 201.2,71.4 202.5,72.6 203.7,73.9 205.0,75.1 206.2,76.4 207.5,77.6 208.8,78.9 210.0,80.1 211.2,81.4 212.5,82.6 213.8,83.9 215.0,85.1 216.2,86.4 217.5,87.6 218.8,88.9 220.0,90.1 221.2,91.4 222.5,92.6 223.7,93.9 225.0,95.1 226.2,96.4 227.5,97.6 228.8,98.9 230.0,100.1 231.3,101.4 232.5,102.6 233.8,103.9 235.0,105.1 236.2,106.4 237.5,107.6 238.8,108.9 240.0,110.1 241.3,111.4 242.5,112.6 243.8,113.9 245.0,115.1 246.2,116.4 247.5,117.6 248.8,118.9 250.0,120.1 251.2,121.4 252.5,122.6 253.8,123.9 255.0,125.1 256.2,126.4 257.5,127.6 258.8,128.9 260.0,130.1 261.2,131.4 262.5,132.6 263.8,133.9 265.0,135.1 266.2,136.4 267.5,137.6 268.8,138.9 270.0,140.1 271.2,141.4 272.5,142.6 273.8,143.9 275.0,145.1 276.2,146.4 277.5,147.6 278.8,148.9 280.0,150.1 281.2,151.4 282.5,152.6 283.8,153.9 285.0,155.1 286.2,156.4 287.5,157.6 288.8,158.9 290.0,160.1 291.2,161.4 292.5,162.6 293.8,163.9 295.0,165.1 296.2,166.4 297.5,167.6 298.8,168.9 300.0,170.1 301.2,171.4 302.5,172.6 303.8,173.9 305.0,175.1 306.2,176.4 307.5,177.6 308.8,178.9 310.0,180.1 311.2,181.4 312.5,182.6 313.8,183.9 315.0,185.1 316.2,186.4 317.5,187.6 318.8,188.9 320.0,190.1 321.2,191.4 322.5,192.6 323.8,193.9 325.0,195.1 326.2,196.4 327.5,197.6 328.8,198.9 330.0,200.1 331.2,201.4 332.5,202.6 333.8,203.9 335.0,205.1 336.2,206.4 337.5,207.6 338.7,208.9 340.0,210.1"/><polyline class="curve3" stroke-dasharray="5 4" fill="none" points="40.0,129.9 41.2,131.1 42.5,132.4 43.8,133.6 45.0,134.9 46.2,136.1 47.5,137.4 48.8,138.6 50.0,139.9 51.2,141.1 52.5,142.4 53.8,143.6 55.0,144.9 56.2,146.1 57.5,147.4 58.8,148.6 60.0,149.9 61.2,151.1 62.5,152.4 63.8,153.6 65.0,154.9 66.2,156.1 67.5,157.4 68.8,158.6 70.0,159.9 71.2,161.1 72.5,162.4 73.8,163.6 75.0,164.9 76.2,166.1 77.5,167.4 78.8,168.6 80.0,169.9 81.2,171.1 82.5,172.4 83.8,173.6 85.0,174.9 86.2,176.1 87.5,177.4 88.8,178.6 90.0,179.9 91.2,181.1 92.5,182.4 93.8,183.6 95.0,184.9 96.2,186.1 97.5,187.4 98.8,188.6 100.0,189.9 101.2,191.1 102.5,192.4 103.8,193.6 105.0,194.9 106.2,196.1 107.5,197.4 108.8,198.6 110.0,199.9 111.2,201.1 112.5,202.4 113.8,203.6 115.0,204.9 116.2,206.1 117.5,207.4 118.8,208.6 120.0,209.9 121.2,211.1 122.5,212.4 123.8,213.6 125.0,214.9 126.3,216.1 127.5,217.4 128.8,218.6 130.0,219.9 131.2,221.1 132.5,222.4 133.8,223.6 135.0,224.9 136.2,226.1 137.5,227.4 138.8,228.6 140.0,229.9 141.2,231.1 142.5,232.4 143.8,233.6 145.0,234.9 146.2,236.1 147.5,237.4 148.8,238.6 150.0,239.9 151.2,241.1 152.5,242.4 153.8,243.6 155.0,244.9 156.2,246.1 157.5,247.4 158.8,248.6 160.0,249.9 161.2,251.1 162.5,252.4 163.8,253.6 165.0,254.9 166.2,256.1 167.5,257.4 168.8,258.6 170.0,259.9 171.2,261.1 172.5,262.4 173.8,263.6 175.0,264.9 176.2,266.1 177.5,267.4 178.8,268.6 180.0,269.9 181.3,271.1 182.5,272.4 183.8,273.6 185.0,274.9"/><circle class="dot3" cx="215.0" cy="110.0" r="5"/><circle class="dot3" cx="250.0" cy="170.0" r="5"/><circle class="dot3" cx="170.0" cy="65.0" r="5"/><circle class="dot3" cx="290.0" cy="90.0" r="5"/><circle class="dot3" cx="230.0" cy="50.0" r="5"/><circle class="dot3" cx="270.0" cy="210.0" r="5"/><circle class="dot3" cx="135.0" cy="25.0" r="5"/><circle class="dot3" cx="310.0" cy="150.0" r="5"/><circle class="dot3" cx="190.0" cy="130.0" r="5"/><circle class="dot2" cx="90.0" cy="200.0" r="5"/><circle class="dot2" cx="140.0" cy="230.0" r="5"/><circle class="dot2" cx="80.0" cy="140.0" r="5"/><circle class="dot2" cx="120.0" cy="160.0" r="5"/><circle class="dot2" cx="170.0" cy="195.0" r="5"/><circle class="dot2" cx="65.0" cy="235.0" r="5"/><circle class="dot2" cx="200.0" cy="240.0" r="5"/><circle class="dot2" cx="100.0" cy="105.0" r="5"/><circle class="dot2" cx="150.0" cy="150.0" r="5"/><text class="dim" x="340.0" y="298.0" font-size="10" text-anchor="end">x₁</text><text class="dim" x="32.0" y="24.0" font-size="10" text-anchor="end">x₂</text><text class="ink" x="350" y="60" font-size="11" text-anchor="start">class 1</text><text class="ink" x="350" y="80" font-size="11" text-anchor="start">class 0</text><circle class="dot3" cx="342" cy="56" r="5"/><circle class="dot2" cx="342" cy="76" r="5"/><text class="ink" x="346" y="130" font-size="10" text-anchor="start">p = 0.5: x₁ + x₂ = 5</text><text class="dim" x="346" y="170" font-size="10" text-anchor="start">p = 0.9 / p = 0.1</text><line class="curve3" stroke-dasharray="5 4" x1="346" y1="152" x2="372" y2="152"/><line class="curve" x1="346" y1="112" x2="372" y2="112"/></svg>
+  <figcaption>A two-feature model: z = x₁ + x₂ − 5. The solid line is the p = 0.5 decision boundary; the dashed lines are the p = 0.9 and p = 0.1 lines of equal probability. The further from the boundary, the more certain the model.</figcaption>
+</figure>
+
+The threshold need not be $0.5$. In disease screening, if missing a
+patient is costly, the threshold is lowered; the model stays the same, only
+the decision changes.
+
+## Where log-loss comes from
+
+Each example is a Bernoulli: $P(y \mid x) = p^{y}(1 - p)^{1 - y}$. As in
+Maximum Likelihood, the negative log-likelihood:
+
+$$
+\text{NLL} = -\sum_{i=1}^{n}\Big[y_i \ln p_i + (1 - y_i)\ln(1 - p_i)\Big]
+$$
+
+This is called **log-loss** or **binary cross-entropy** (often divided by
+$n$ to take the average). For a single example:
+
+- if $y = 1$ the loss is $-\ln p$,
+- if $y = 0$ the loss is $-\ln(1 - p)$.
+
+<figure class="fig">
+<svg viewBox="0 0 420 256" width="420"><line class="grid" x1="50.0" y1="220.0" x2="50.0" y2="20.0"/><line class="grid" x1="84.0" y1="220.0" x2="84.0" y2="20.0"/><line class="grid" x1="118.0" y1="220.0" x2="118.0" y2="20.0"/><line class="grid" x1="152.0" y1="220.0" x2="152.0" y2="20.0"/><line class="grid" x1="186.0" y1="220.0" x2="186.0" y2="20.0"/><line class="grid" x1="220.0" y1="220.0" x2="220.0" y2="20.0"/><line class="grid" x1="254.0" y1="220.0" x2="254.0" y2="20.0"/><line class="grid" x1="288.0" y1="220.0" x2="288.0" y2="20.0"/><line class="grid" x1="322.0" y1="220.0" x2="322.0" y2="20.0"/><line class="grid" x1="356.0" y1="220.0" x2="356.0" y2="20.0"/><line class="grid" x1="390.0" y1="220.0" x2="390.0" y2="20.0"/><line class="grid" x1="50.0" y1="220.0" x2="390.0" y2="220.0"/><line class="grid" x1="50.0" y1="180.0" x2="390.0" y2="180.0"/><line class="grid" x1="50.0" y1="140.0" x2="390.0" y2="140.0"/><line class="grid" x1="50.0" y1="100.0" x2="390.0" y2="100.0"/><line class="grid" x1="50.0" y1="60.0" x2="390.0" y2="60.0"/><line class="grid" x1="50.0" y1="20.0" x2="390.0" y2="20.0"/><line class="line" x1="50.0" y1="220.0" x2="390.0" y2="220.0"/><line class="line" x1="50.0" y1="220.0" x2="50.0" y2="20.0"/><text class="dim" x="45.0" y="183.0" font-size="9" text-anchor="end">1</text><text class="dim" x="45.0" y="143.0" font-size="9" text-anchor="end">2</text><text class="dim" x="45.0" y="103.0" font-size="9" text-anchor="end">3</text><text class="dim" x="45.0" y="63.0" font-size="9" text-anchor="end">4</text><text class="dim" x="45.0" y="23.0" font-size="9" text-anchor="end">5</text><polyline class="curve" fill="none" points="53.1,32.2 54.5,47.2 55.9,58.0 57.3,66.6 58.7,73.6 60.2,79.6 61.6,84.8 63.0,89.4 64.4,93.5 65.8,97.2 67.2,100.7 68.6,103.8 70.0,106.7 71.4,109.4 72.8,112.0 74.3,114.4 75.7,116.6 77.1,118.8 78.5,120.8 79.9,122.7 81.3,124.6 82.7,126.4 84.1,128.0 85.5,129.7 86.9,131.2 88.3,132.7 89.8,134.2 91.2,135.5 92.6,136.9 94.0,138.2 95.4,139.5 96.8,140.7 98.2,141.9 99.6,143.0 101.0,144.1 102.4,145.2 103.9,146.3 105.3,147.3 106.7,148.3 108.1,149.3 109.5,150.3 110.9,151.2 112.3,152.1 113.7,153.0 115.1,153.9 116.5,154.8 118.0,155.6 119.4,156.4 120.8,157.2 122.2,158.0 123.6,158.8 125.0,159.5 126.4,160.3 127.8,161.0 129.2,161.7 130.6,162.4 132.0,163.1 133.5,163.8 134.9,164.5 136.3,165.1 137.7,165.8 139.1,166.4 140.5,167.1 141.9,167.7 143.3,168.3 144.7,168.9 146.1,169.5 147.6,170.1 149.0,170.6 150.4,171.2 151.8,171.8 153.2,172.3 154.6,172.8 156.0,173.4 157.4,173.9 158.8,174.4 160.2,174.9 161.6,175.5 163.1,176.0 164.5,176.5 165.9,176.9 167.3,177.4 168.7,177.9 170.1,178.4 171.5,178.8 172.9,179.3 174.3,179.8 175.7,180.2 177.2,180.7 178.6,181.1 180.0,181.5 181.4,182.0 182.8,182.4 184.2,182.8 185.6,183.2 187.0,183.6 188.4,184.1 189.8,184.5 191.2,184.9 192.7,185.3 194.1,185.7 195.5,186.0 196.9,186.4 198.3,186.8 199.7,187.2 201.1,187.6 202.5,187.9 203.9,188.3 205.3,188.7 206.8,189.0 208.2,189.4 209.6,189.7 211.0,190.1 212.4,190.4 213.8,190.8 215.2,191.1 216.6,191.5 218.0,191.8 219.4,192.1 220.8,192.5 222.3,192.8 223.7,193.1 225.1,193.5 226.5,193.8 227.9,194.1 229.3,194.4 230.7,194.7 232.1,195.0 233.5,195.3 234.9,195.6 236.4,195.9 237.8,196.2 239.2,196.5 240.6,196.8 242.0,197.1 243.4,197.4 244.8,197.7 246.2,198.0 247.6,198.3 249.0,198.6 250.5,198.9 251.9,199.1 253.3,199.4 254.7,199.7 256.1,200.0 257.5,200.2 258.9,200.5 260.3,200.8 261.7,201.1 263.1,201.3 264.5,201.6 266.0,201.8 267.4,202.1 268.8,202.4 270.2,202.6 271.6,202.9 273.0,203.1 274.4,203.4 275.8,203.6 277.2,203.9 278.6,204.1 280.1,204.4 281.5,204.6 282.9,204.9 284.3,205.1 285.7,205.3 287.1,205.6 288.5,205.8 289.9,206.1 291.3,206.3 292.7,206.5 294.1,206.8 295.6,207.0 297.0,207.2 298.4,207.4 299.8,207.7 301.2,207.9 302.6,208.1 304.0,208.3 305.4,208.6 306.8,208.8 308.2,209.0 309.7,209.2 311.1,209.4 312.5,209.6 313.9,209.9 315.3,210.1 316.7,210.3 318.1,210.5 319.5,210.7 320.9,210.9 322.3,211.1 323.7,211.3 325.2,211.5 326.6,211.7 328.0,211.9 329.4,212.1 330.8,212.3 332.2,212.5 333.6,212.7 335.0,212.9 336.4,213.1 337.8,213.3 339.3,213.5 340.7,213.7 342.1,213.9 343.5,214.1 344.9,214.3 346.3,214.5 347.7,214.7 349.1,214.9 350.5,215.1 351.9,215.3 353.4,215.4 354.8,215.6 356.2,215.8 357.6,216.0 359.0,216.2 360.4,216.4 361.8,216.5 363.2,216.7 364.6,216.9 366.0,217.1 367.4,217.3 368.9,217.4 370.3,217.6 371.7,217.8 373.1,218.0 374.5,218.1 375.9,218.3 377.3,218.5 378.7,218.7 380.1,218.8 381.5,219.0 383.0,219.2 384.4,219.3 385.8,219.5 387.2,219.7 388.6,219.8 390.0,220.0"/><polyline class="curve2" fill="none" points="50.0,220.0 51.4,219.8 52.8,219.7 54.2,219.5 55.6,219.3 57.0,219.2 58.5,219.0 59.9,218.8 61.3,218.7 62.7,218.5 64.1,218.3 65.5,218.1 66.9,218.0 68.3,217.8 69.7,217.6 71.1,217.4 72.6,217.3 74.0,217.1 75.4,216.9 76.8,216.7 78.2,216.5 79.6,216.4 81.0,216.2 82.4,216.0 83.8,215.8 85.2,215.6 86.6,215.4 88.1,215.3 89.5,215.1 90.9,214.9 92.3,214.7 93.7,214.5 95.1,214.3 96.5,214.1 97.9,213.9 99.3,213.7 100.7,213.5 102.2,213.3 103.6,213.1 105.0,212.9 106.4,212.7 107.8,212.5 109.2,212.3 110.6,212.1 112.0,211.9 113.4,211.7 114.8,211.5 116.3,211.3 117.7,211.1 119.1,210.9 120.5,210.7 121.9,210.5 123.3,210.3 124.7,210.1 126.1,209.9 127.5,209.6 128.9,209.4 130.3,209.2 131.8,209.0 133.2,208.8 134.6,208.6 136.0,208.3 137.4,208.1 138.8,207.9 140.2,207.7 141.6,207.4 143.0,207.2 144.4,207.0 145.9,206.8 147.3,206.5 148.7,206.3 150.1,206.1 151.5,205.8 152.9,205.6 154.3,205.3 155.7,205.1 157.1,204.9 158.5,204.6 159.9,204.4 161.4,204.1 162.8,203.9 164.2,203.6 165.6,203.4 167.0,203.1 168.4,202.9 169.8,202.6 171.2,202.4 172.6,202.1 174.0,201.8 175.5,201.6 176.9,201.3 178.3,201.1 179.7,200.8 181.1,200.5 182.5,200.2 183.9,200.0 185.3,199.7 186.7,199.4 188.1,199.1 189.5,198.9 191.0,198.6 192.4,198.3 193.8,198.0 195.2,197.7 196.6,197.4 198.0,197.1 199.4,196.8 200.8,196.5 202.2,196.2 203.6,195.9 205.1,195.6 206.5,195.3 207.9,195.0 209.3,194.7 210.7,194.4 212.1,194.1 213.5,193.8 214.9,193.5 216.3,193.1 217.7,192.8 219.2,192.5 220.6,192.1 222.0,191.8 223.4,191.5 224.8,191.1 226.2,190.8 227.6,190.4 229.0,190.1 230.4,189.7 231.8,189.4 233.2,189.0 234.7,188.7 236.1,188.3 237.5,187.9 238.9,187.6 240.3,187.2 241.7,186.8 243.1,186.4 244.5,186.0 245.9,185.7 247.3,185.3 248.8,184.9 250.2,184.5 251.6,184.1 253.0,183.6 254.4,183.2 255.8,182.8 257.2,182.4 258.6,182.0 260.0,181.5 261.4,181.1 262.8,180.7 264.3,180.2 265.7,179.8 267.1,179.3 268.5,178.8 269.9,178.4 271.3,177.9 272.7,177.4 274.1,176.9 275.5,176.5 276.9,176.0 278.4,175.5 279.8,174.9 281.2,174.4 282.6,173.9 284.0,173.4 285.4,172.8 286.8,172.3 288.2,171.8 289.6,171.2 291.0,170.6 292.4,170.1 293.9,169.5 295.3,168.9 296.7,168.3 298.1,167.7 299.5,167.1 300.9,166.4 302.3,165.8 303.7,165.1 305.1,164.5 306.5,163.8 308.0,163.1 309.4,162.4 310.8,161.7 312.2,161.0 313.6,160.3 315.0,159.5 316.4,158.8 317.8,158.0 319.2,157.2 320.6,156.4 322.0,155.6 323.5,154.8 324.9,153.9 326.3,153.0 327.7,152.1 329.1,151.2 330.5,150.3 331.9,149.3 333.3,148.3 334.7,147.3 336.1,146.3 337.6,145.2 339.0,144.1 340.4,143.0 341.8,141.9 343.2,140.7 344.6,139.5 346.0,138.2 347.4,136.9 348.8,135.5 350.2,134.2 351.7,132.7 353.1,131.2 354.5,129.7 355.9,128.0 357.3,126.4 358.7,124.6 360.1,122.7 361.5,120.8 362.9,118.8 364.3,116.6 365.7,114.4 367.2,112.0 368.6,109.4 370.0,106.7 371.4,103.8 372.8,100.7 374.2,97.2 375.6,93.5 377.0,89.4 378.4,84.8 379.8,79.6 381.3,73.6 382.7,66.6 384.1,58.0 385.5,47.2 386.9,32.2"/><text class="ink" x="77.2" y="84.0" font-size="11" text-anchor="start">y = 1: −ln p</text><text class="ink" x="362.8" y="84.0" font-size="11" text-anchor="end">y = 0: −ln(1 − p)</text><text class="dim" x="50.0" y="234.0" font-size="9" text-anchor="middle">0.0</text><text class="dim" x="118.0" y="234.0" font-size="9" text-anchor="middle">0.2</text><text class="dim" x="186.0" y="234.0" font-size="9" text-anchor="middle">0.4</text><text class="dim" x="254.0" y="234.0" font-size="9" text-anchor="middle">0.6</text><text class="dim" x="322.0" y="234.0" font-size="9" text-anchor="middle">0.8</text><text class="dim" x="390.0" y="234.0" font-size="9" text-anchor="middle">1.0</text><text class="dim" x="390.0" y="248.0" font-size="10" text-anchor="end">probability p given by the model</text><text class="dim" x="84.0" y="32.0" font-size="10" text-anchor="start">loss</text><text class="dim" x="220.0" y="36.0" font-size="10" text-anchor="middle">confident and wrong: huge loss</text></svg>
+  <figcaption>As the probability given to the correct class approaches 1, the loss falls to 0. When the model is sure of the wrong class, giving the correct class a probability near 0, the loss goes to infinity.</figcaption>
+</figure>
+
+With $y = 1$, $p = 0.9$ gives a loss of $0.105$; $p = 0.1$ gives $2.303$;
+$p = 0.001$ gives $6.9$. Log-loss punishes not being wrong but **being
+sure and wrong**.
+
+**Why not squared error?** Squared error on a sigmoid output gives a loss
+that is not convex, and for very wrong predictions the gradient is nearly
+zero (the sigmoid flattens). Log-loss is convex in the weights (see
+Convexity); it has a single minimum.
+
+## The gradient
+
+By the chain rule for a single example, using
+$\sigma'(z) = \sigma(z)(1 - \sigma(z))$:
+
+$$
+\frac{\partial\,\text{loss}}{\partial z} = p - y
+$$
+
+The derivative of the sigmoid and the derivative of the logarithm cancel
+each other; what is left is surprisingly simple: **prediction minus
+truth.** From this:
+
+$$
+\frac{\partial\,\text{loss}}{\partial w} = (p - y)\,x \qquad \frac{\partial\,\text{loss}}{\partial b} = p - y
+$$
+
+This has the same form (up to a constant factor) as the squared-error
+gradient of linear regression. There is no closed-form solution; the
+weights are found by gradient descent:
+$w \leftarrow w - \eta \sum_i (p_i - y_i)x_i$.
+
+**Example.** A single example $x = 2$, $y = 1$; start with $w = 0.5$,
+$b = -0.5$. $z = 0.5$, $p = \sigma(0.5) \approx 0.622$; loss
+$-\ln 0.622 \approx 0.474$. Gradients: for $w$,
+$(0.622 - 1) \cdot 2 \approx -0.755$; for $b$, $-0.378$. With $\eta = 0.1$,
+$w \approx 0.576$, $b \approx -0.462$: the model moved towards giving this
+example a slightly higher probability.
+
+## Separable data and regularisation
+
+If the classes can be separated perfectly by a line, growing the weights
+always lowers the loss a little more: the $p$s approach $0$ and $1$ and the
+weights run off to infinity. An L2 penalty ($\lambda\lVert w \rVert^2$)
+stops this; logistic regression in libraries is penalised by default.
+
+## Many classes: softmax
+
+For $K$ classes, a score $z_k$ for each class and the **softmax**:
+
+$$
+p_k = \frac{e^{z_k}}{\sum_{j=1}^{K} e^{z_j}}
+$$
+
+The probabilities are positive and sum to $1$. The loss is minus the log of
+the correct class's probability (**cross-entropy**); the gradient is again
+$\frac{\partial\,\text{loss}}{\partial z_k} = p_k - y_k$ ($y$ a one-hot
+vector). With two classes softmax reduces to the sigmoid. In the next
+section we will see what cross-entropy means in information theory.
+
+## In machine learning
+
+- Logistic regression is a single neuron with a sigmoid; the last layer of
+  a neural network that classifies is also a logistic (or softmax)
+  regression.
+- Log-loss is a **probability** metric: even if two models have the same
+  accuracy, the one with better-calibrated probabilities has lower
+  log-loss.
+- Since the outputs are probabilities, the threshold can be chosen
+  afterwards according to business costs.
+
+## Common mistakes
+
+<figure class="fig">
+  <div class="versus">
+    <div class="no">
+      <h4>Wrong</h4>
+      <p>logistic regression draws a non-linear boundary</p>
+      <p>w is the increase in probability</p>
+      <p>squared error on the sigmoid output</p>
+      <p>the threshold is always 0.5</p>
+    </div>
+    <div class="ok">
+      <h4>Right</h4>
+      <p>the boundary wᵀx + b = 0 is linear</p>
+      <p>eʷ is the factor on the odds</p>
+      <p>log-loss: convex, gradient p − y</p>
+      <p>the threshold is chosen by costs</p>
+    </div>
+  </div>
+  <figcaption>The model is linear in the log-odds; the probability comes from passing through the sigmoid.</figcaption>
+</figure>
+
+- **Taking $\ln 0$.** If the model outputs exactly $0$ or $1$, log-loss is
+  undefined; in practice probabilities are clipped to
+  $[\epsilon, 1 - \epsilon]$.
+
+## Summary
+
+- $p = \sigma(w^\mathsf{T}x + b)$; the log-odds $\ln\frac{p}{1 - p}$ are
+  linear.
+- A one-unit increase in $x_j$ multiplies the odds by $e^{w_j}$.
+- The decision boundary $w^\mathsf{T}x + b = 0$ is linear.
+- Log-loss $= -\sum[y\ln p + (1 - y)\ln(1 - p)]$: the Bernoulli NLL;
+  convex.
+- The gradient is $(p - y)x$; the weights are found by gradient descent.
+- With many classes, softmax and cross-entropy; the gradient is again
+  $p - y$.
