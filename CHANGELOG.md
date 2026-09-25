@@ -109,6 +109,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Ayarları açıp kapatınca program çökmüyor.** Ayarlar kapanırken arka
   planda yeni bir SQL veritabanı sayımı başlıyordu; pencere hemen silindiği
   için bu iş yarıda yok ediliyor ve program kapanıyordu.
+- **Uzun ders adları üst şeritte kırpılmıyor.** "Türevin Uygulamaları: En
+  Büyük ve En Küçük" gibi adlar ortaya sığmayınca iki ucundan kesiliyordu.
+  Şimdi başlık önce küçülüyor, gerekirse iki satıra iniyor; dar pencerede
+  ortaya yer kalmazsa yan düğmelerin arasındaki bütün boşluğu kullanıyor.
 - **İpucu açınca ekran zıplamıyor.** Bir ipucunu açmak yönergenin tamamını
   yeniden yüklüyordu; sayfa bir an en başa gidip eski yerine dönüyordu.
   Artık yalnızca ipucu kutusu değişiyor, okuduğunuz yer kıpırdamıyor.

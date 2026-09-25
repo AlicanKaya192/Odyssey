@@ -116,6 +116,11 @@ lecture note does not mean downloading the whole application again.
   window started a new count of the SQL databases in the background; the
   window was deleted straight away, the job was destroyed halfway and the
   app shut down.
+- **Long section names are no longer cut off in the top bar.** Names such
+  as "Applications of Derivatives: Maxima and Minima" were clipped at both
+  ends when they did not fit in the middle. Now the title first gets
+  smaller, then wraps onto two lines if needed; in a narrow window with no
+  room left in the middle, it uses all the space between the side buttons.
 - **Opening a hint no longer makes the screen jump.** Opening a hint reloaded
   the whole instructions page; it flashed back to the top and then returned
   to where you were. Now only the hint box changes and your place stays put.

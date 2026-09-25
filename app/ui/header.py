@@ -29,6 +29,7 @@ ekranda ortada.
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFont, QFontMetrics
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -49,6 +50,16 @@ HEADER_HEIGHT = 108
 ACCENT_LINE_WIDTH = 44
 ACCENT_LINE_HEIGHT = 3
 
+# Uzun başlıklar ("Türevin Uygulamaları: En Büyük ve En Küçük") iki yan
+# bölgenin arasına sığmayınca etiket metni iki ucundan kırpıyordu. Önce yazı
+# bu boyutlar sırasıyla denenerek küçülüyor; en küçüğünde de sığmazsa sonu
+# "…" ile kısaltılıyor ve tam ad ipucunda duruyor. İlk değer QSS'teki boyut.
+TITLE_SIZES = (26, 24, 22, 20, 18)
+
+# Başlıkla yan bölgeler arasında bırakılan toplam pay; yoksa başlık yan
+# bölgelere yapışık duruyor.
+TITLE_PADDING = 16
+
 
 class ScreenHeader(QFrame):
     """Başlık şeridi."""
@@ -60,10 +71,13 @@ class ScreenHeader(QFrame):
         self._language = language
         self._mode = "light"
         self._accent = ""
+        self._full_title = ""
+        self._full_eyebrow = ""
+        self._title_size = TITLE_SIZES[0]
 
         # `_balance()` en son hangi genişliği verdi. Aynı değeri tekrar
         # vermek yeni bir yerleşim turu başlatıyor; gereksiz.
-        self._balanced = -1
+        self._balanced: tuple[int, int] = (-1, -1)
 
         self.setProperty("role", "topbar")
         self.setFixedHeight(HEADER_HEIGHT)
@@ -84,14 +98,10 @@ class ScreenHeader(QFrame):
 
         self.set_mode(self._mode)
 
-    def _balance(self) -> None:
-        """İki yan bölgeyi eşit genişliğe getirir.
+    def _side_widths(self) -> tuple[int, int]:
+        """Sol ve sağ bölgenin **içeriğinin** doğal genişliği.
 
-        Böylece aradaki iki esneme de eşit oluyor ve başlık şeridin tam
-        ortasına düşüyor. Dar olan tarafa yalnızca boşluk ekleniyor; içindeki
-        düğme ya da denetim kendi doğal genişliğinde kalıyor.
-
-        Ölçü, bölgelerin kendi `sizeHint`'inden değil **içeriğinden** alınıyor.
+        Ölçü, bölgelerin kendi `sizeHint`'inden değil içeriğinden alınıyor.
         Bölgeye en küçük genişlik verdiğimiz an `sizeHint` de büyüyor; ondan
         ölçseydik her çağrıda bir öncekinin üstüne biner, şerit şişerdi.
         """
@@ -110,18 +120,120 @@ class ScreenHeader(QFrame):
                 görünen += 1
         if görünen > 1:
             sag += self._slot.spacing() * (görünen - 1)
+        return sol, sag
 
-        genislik = max(sol, sag)
-        if genislik == self._balanced:
+    def _balance(self) -> None:
+        """Yan bölgeleri ayarlar ve başlığı ortaya sığdırır (bkz. `_fit_title`)."""
+        self._fit_title()
+
+    def _set_sides(self, left: int, right: int) -> None:
+        # Aynı değeri tekrar vermek yeni bir yerleşim turu başlatıyor; gereksiz.
+        if (left, right) == self._balanced:
             return
-
-        self._balanced = genislik
-        self._left.setMinimumWidth(genislik)
-        self._right.setMinimumWidth(genislik)
+        self._balanced = (left, right)
+        self._left.setMinimumWidth(left)
+        self._right.setMinimumWidth(right)
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
-        self._balance()
+        self._fit_title()
+
+    def _two_lines(self, metrics: QFontMetrics, room: int) -> str | None:
+        """Başlığı kelime sınırından iki dengeli satıra böler.
+
+        Uzun satırı en kısa yapan bölme noktası seçiliyor; iki satır da
+        sığmıyorsa `None`.
+        """
+        kelimeler = self._full_title.split()
+        en_iyi = None
+        for i in range(1, len(kelimeler)):
+            ust, alt = " ".join(kelimeler[:i]), " ".join(kelimeler[i:])
+            genis = max(metrics.horizontalAdvance(ust), metrics.horizontalAdvance(alt))
+            if genis <= room and (en_iyi is None or genis < en_iyi[0]):
+                en_iyi = (genis, f"{ust}\n{alt}")
+        return en_iyi[1] if en_iyi else None
+
+    def _choose(self, font: QFont, room: int) -> tuple[int, str, bool]:
+        """`room` genişliğine göre (boyut, metin, tam mı) seçer.
+
+        Sıra: tek satır ve yazı küçülerek; sonra iki satır (şerit iki satırı
+        alacak kadar yüksek); en son sonu "…" ile kısaltılmış tek satır.
+        """
+        for aday in TITLE_SIZES:
+            font.setPixelSize(aday)
+            if QFontMetrics(font).horizontalAdvance(self._full_title) + TITLE_PADDING <= room:
+                return aday, self._full_title, True
+        for aday in TITLE_SIZES[-2:]:
+            font.setPixelSize(aday)
+            iki = self._two_lines(QFontMetrics(font), room - TITLE_PADDING)
+            if iki is not None:
+                return aday, iki, True
+        boyut = TITLE_SIZES[-1]
+        font.setPixelSize(boyut)
+        kisa = QFontMetrics(font).elidedText(
+            self._full_title, Qt.TextElideMode.ElideRight, max(room - TITLE_PADDING, 0)
+        )
+        return boyut, kisa, False
+
+    def _fit_title(self) -> None:
+        """Yan bölgeleri dengeler, başlığı ve bağlam satırını ortaya sığdırır.
+
+        Normalde iki yan bölge, ikisinden geniş olanın genişliğine getiriliyor;
+        aradaki iki esneme eşit kalıyor ve başlık şeridin tam ortasına düşüyor.
+        Dar olan tarafa yalnızca boşluk ekleniyor.
+
+        Uzun ders adları ("Türevin Uygulamaları: En Büyük ve En Küçük") bu
+        ortada sığmayınca etiket metni iki ucundan kırpıyordu. Şimdi başlık
+        önce küçülüyor, sonra iki satıra bölünüyor. Dar bir pencerede o da
+        yetmezse ortalamadan vazgeçiliyor: yan bölgeler doğal genişliğine
+        dönüyor ve başlık aradaki bütün boşluğu kullanıyor. En son çare sonu
+        "…" ile kısaltmak; tam ad ipucunda duruyor.
+        """
+        sol, sag = self._side_widths()
+        if self.width() <= 0:
+            # Pencere henüz açılmadı; ilk `resizeEvent` sığdırmayı yapacak.
+            genis = max(sol, sag)
+            self._set_sides(genis, genis)
+            self._title.setText(self._full_title)
+            self._eyebrow.setText(self._full_eyebrow)
+            return
+
+        margins = self.layout().contentsMargins()
+        toplam = self.width() - margins.left() - margins.right() - 4 * SPACING["md"]
+
+        font = QFont(self._title.font())
+        font.setWeight(QFont.Weight.Bold)
+        font.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, -0.3)
+
+        ortali = True
+        oda = toplam - 2 * max(sol, sag)
+        boyut, metin, tam = self._choose(font, oda)
+        if not tam:
+            ortali = False
+            oda = toplam - sol - sag
+            boyut, metin, tam = self._choose(font, oda)
+
+        if ortali:
+            self._set_sides(max(sol, sag), max(sol, sag))
+        else:
+            self._set_sides(sol, sag)
+
+        if boyut != self._title_size:
+            self._title_size = boyut
+            # QSS'teki boyutu yalnızca küçülttüğümüzde eziyoruz; ağırlık ve
+            # renk ortak kuraldan gelmeye devam ediyor.
+            self._title.setStyleSheet(
+                "" if boyut == TITLE_SIZES[0] else f"font-size: {boyut}px;"
+            )
+        self._title.setText(metin)
+        self._title.setToolTip("" if tam else self._full_title)
+
+        kas = QFontMetrics(self._eyebrow.font())
+        ust = kas.elidedText(
+            self._full_eyebrow, Qt.TextElideMode.ElideRight, max(oda - TITLE_PADDING, 0)
+        )
+        self._eyebrow.setText(ust)
+        self._eyebrow.setToolTip("" if ust == self._full_eyebrow else self._full_eyebrow)
 
     # --- parçalar ---------------------------------------------------------
 
@@ -190,11 +302,10 @@ class ScreenHeader(QFrame):
         Python'un upper() metodu Türkçede i harfini I yapıyor ve
         "PYTHON TEMELLERI" gibi yanlış sonuç çıkıyor.
         """
-        self._title.setText(title)
-        self._eyebrow.setText(
-            upper(eyebrow, self._language.language) if eyebrow else ""
-        )
+        self._full_title = title
+        self._full_eyebrow = upper(eyebrow, self._language.language) if eyebrow else ""
         self._eyebrow.setVisible(bool(eyebrow))
+        self._fit_title()
 
         # Yerleşimi elle tazeliyoruz. `set_back()` bu metottan önce çağrılıyor
         # ve `_balance()` orada yan bölgelere en küçük genişlik veriyor; bu
