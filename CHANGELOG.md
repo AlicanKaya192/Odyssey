@@ -22,31 +22,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.8.3] — yayınlanmadı
 
 ### Eklendi
-- **Matematik patikası eklendi.** Kod değil gerçekten matematik öğretiyor;
-  sağ üstteki seçiciyle iki modül arasında geçiliyor: **MAT 1 — Temel
-  Matematik** (sıfırdan başlayan biri için) ve **MAT 2 — Yapay Zekanın
-  Matematiği**. Yazılan bölümler — **MAT 1** (başlangıç ve orta kısmın tamamı):
-  Matematiği Okumak: Semboller ve Terimler; Doğal Sayılar ve İşlem
-  Önceliği; Tam Sayılar ve Negatif Sayılar; Bölünebilme, Asal Sayılar, EBOB
-  ve EKOK; Kesirler; Ondalık Sayılar ve Yuvarlama; Oran, Orantı ve Yüzde;
-  Üslü Sayılar; Köklü Sayılar; orta kısmın tamamı: Cebirsel İfadeler ve
-  Özdeşlikler; Çarpanlara Ayırma; Birinci Dereceden Denklemler;
-  Eşitsizlikler ve Mutlak Değer; Denklem Sistemleri; İkinci Dereceden
-  Denklemler; Kümeler ve Mantık; Fonksiyonlar; Koordinat Düzlemi ve Doğru;
-  ayrıca Logaritma. **MAT 2** (doğrusal
-  cebir ve kalkülüsün tamamı): Vektörler; Nokta Çarpımı, Uzunluk ve
-  Benzerlik; Matrisler; Matris Çarpımı ve Dönüşümler; Determinant ve Ters
-  Matris; Doğrusal Sistemler ve Gauss Eleme; Doğrusal Bağımsızlık, Taban ve
-  Rank; Özdeğerler ve Özvektörler; Tekil Değer Ayrışımı (SVD); Limit ve Süreklilik; Türev: Değişim Hızı; Türev
-  Kuralları ve Zincir Kuralı; Türevin Uygulamaları: En Büyük ve En Küçük;
-  Taylor Yaklaşımı; İntegral ve Alan; Kısmi Türev ve Gradyan; Jacobian,
-  Hessian ve Çok Değişkenli Zincir Kuralı; Dışbükeylik ve Optimizasyon;
-  Gradyan İnişi; Geri Yayılım: Sinir Ağında Türev. Her bölümde
-  konu anlatımı, iki ders notu, sınav ve beş problem var. Problemler çizim
-  kâğıdında çözülüyor: fareyle yazıyorsunuz, zor yazılan işaretler üstteki
-  şeritte duruyor, çizimleriniz kaydediliyor. Yalnızca sonuç denetleniyor;
-  çözdüğünüzde ya da iki yanlıştan sonra bütün çözüm yolları solda açılıyor.
-  Henüz yazılmamış bölümler de yolda "Yakında" diye yerinde duruyor.
+- **Matematik patikası eklendi.** İki modül var: **MAT 1 — Temel
+  Matematik**, sıfırdan başlayan biri için sayılardan fonksiyonlara ve
+  logaritmaya kadar; **MAT 2 — Yapay Zekanın Matematiği**, makine
+  öğrenmesinin dayandığı doğrusal cebir ve kalkülüs, gradyan inişi ve geri
+  yayılıma kadar. Problemler çizim kâğıdında çözülüyor; yalnızca sonuç
+  denetleniyor, çözüm yolları solda açılıyor.
 - **Seri hatırlatmaları.** O gün çalışmadıysanız seçtiğiniz saatte esprili
   bir Windows bildirimi geliyor; seri tehlikedeyse 21:30'da son bir uyarı,
   uzun süre uğramazsanız giderek seyrekleşen ve iki ay sonra duran
@@ -112,17 +93,8 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   kapanıyor; üstüne gelince bekliyor, çarpıyla hemen kapatılabiliyor, rozet
   kartına tıklayınca profil açılıyor. Kısayollar düğmesi zilin yerine, sağ
   alta geçti.
-- **"Discord'da göster" Görünüm ayarlarında.** Öğrenmeyle değil başkalarının
-  ne gördüğüyle ilgili olduğu için Öğrenme sayfasından taşındı.
 
 ### Düzeltildi
-- **Ayarları açıp kapatınca program çökmüyor.** Ayarlar kapanırken arka
-  planda yeni bir SQL veritabanı sayımı başlıyordu; pencere hemen silindiği
-  için bu iş yarıda yok ediliyor ve program kapanıyordu.
-- **Uzun ders adları üst şeritte kırpılmıyor.** "Türevin Uygulamaları: En
-  Büyük ve En Küçük" gibi adlar ortaya sığmayınca iki ucundan kesiliyordu.
-  Şimdi başlık önce küçülüyor, gerekirse iki satıra iniyor; dar pencerede
-  ortaya yer kalmazsa yan düğmelerin arasındaki bütün boşluğu kullanıyor.
 - **İpucu açınca ekran zıplamıyor.** Bir ipucunu açmak yönergenin tamamını
   yeniden yüklüyordu; sayfa bir an en başa gidip eski yerine dönüyordu.
   Artık yalnızca ipucu kutusu değişiyor, okuduğunuz yer kıpırdamıyor.

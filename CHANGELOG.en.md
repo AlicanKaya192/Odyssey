@@ -24,32 +24,12 @@ lecture note does not mean downloading the whole application again.
 ## [0.8.3] — unreleased
 
 ### Added
-- **The Mathematics path has been added.** It teaches actual mathematics, not
-  code; a selector at the top right switches between two modules: **MATH 1 —
-  Foundational Mathematics** (for someone starting from zero) and **MATH 2 —
-  The Mathematics of AI**. Sections written so far — **MATH 1** (the whole
-  basic and intermediate levels): Reading Mathematics: Symbols and Terms; Natural Numbers and
-  Order of Operations; Integers and Negative Numbers; Divisibility, Primes,
-  GCD and LCM; Fractions; Decimals and Rounding; Ratio, Proportion and
-  Percentages; Exponents; Roots; the whole intermediate level: Algebraic
-  Expressions and Identities; Factoring; Linear Equations; Inequalities and
-  Absolute Value; Systems of Equations; Quadratic Equations; Sets and Logic;
-  Functions; The Coordinate Plane and Lines; and also Logarithms. **MATH 2** (all of
-  linear algebra and calculus): Vectors; Dot Product, Length and
-  Similarity; Matrices; Matrix Multiplication and Transformations;
-  Determinants and Inverse Matrices; Linear Systems and Gaussian Elimination;
-  Linear Independence, Basis and Rank; Eigenvalues and Eigenvectors; Singular
-  Value Decomposition (SVD); Limits and Continuity; Derivatives: Rate of
-  Change; Derivative Rules and the Chain Rule; Applications of Derivatives:
-  Maxima and Minima; Taylor Approximation; Integrals and Area; Partial
-  Derivatives and the Gradient; Jacobian, Hessian and the Multivariable
-  Chain Rule; Convexity and Optimization; Gradient Descent;
-  Backpropagation: Derivatives in a Neural Network. Each section has a lesson, two course notes, a
-  quiz and five problems. Problems are worked on a drawing sheet: you write
-  with the mouse, hard-to-draw symbols sit in the strip above, and your
-  drawings are saved. Only the result is checked; once you solve it, or after
-  two wrong attempts, every solution path opens on the left. Sections not yet
-  written are shown on the path as "Coming soon".
+- **The Mathematics path has been added.** Two modules: **MATH 1 —
+  Foundational Mathematics**, from numbers to functions and logarithms for
+  someone starting from zero; **MATH 2 — The Mathematics of AI**, the linear
+  algebra and calculus machine learning rests on, up to gradient descent and
+  backpropagation. Problems are worked on a drawing sheet; only the result is
+  checked, and the solution paths open on the left.
 - **Streak reminders.** If you haven't studied that day, a playful Windows
   notification arrives at the time you choose; if your streak is at risk
   there's one last warning at 21:30, and if you stay away for long the
@@ -119,19 +99,8 @@ lecture note does not mean downloading the whole application again.
   itself after a few seconds; it waits while the pointer is over it, the
   cross closes it at once, and clicking a badge card opens your profile.
   The shortcuts button moved to the bell's place in the bottom right.
-- **"Show on Discord" is in the Appearance settings.** It moved from the
-  Learning page, since it is about what others see, not about learning.
 
 ### Fixed
-- **Opening and closing Settings no longer crashes the app.** Closing the
-  window started a new count of the SQL databases in the background; the
-  window was deleted straight away, the job was destroyed halfway and the
-  app shut down.
-- **Long section names are no longer cut off in the top bar.** Names such
-  as "Applications of Derivatives: Maxima and Minima" were clipped at both
-  ends when they did not fit in the middle. Now the title first gets
-  smaller, then wraps onto two lines if needed; in a narrow window with no
-  room left in the middle, it uses all the space between the side buttons.
 - **Opening a hint no longer makes the screen jump.** Opening a hint reloaded
   the whole instructions page; it flashed back to the top and then returned
   to where you were. Now only the hint box changes and your place stays put.
