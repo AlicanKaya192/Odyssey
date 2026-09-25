@@ -1,0 +1,255 @@
+# Trigonometry
+
+Trigonometry connects angles and lengths. In a right triangle, knowing an
+angle means knowing the ratios of the sides to each other; these ratios are
+called sine, cosine and tangent. The same functions describe a point moving
+around a circle, waves, and anything that repeats. In machine learning the
+similarity of two vectors is measured with a cosine (cosine similarity),
+language models encode word order with sine and cosine waves, and cyclic
+features such as the hour or the month are placed on a circle. In this
+section we will see the ratios in a right triangle, the special angles,
+radians, the unit circle and the graphs.
+
+Prerequisites: Geometry Basics, Roots, Functions.
+
+## Three ratios in a right triangle
+
+Pick an acute angle $A$ in a right triangle. The sides are named relative
+to this angle:
+
+- **hypotenuse:** opposite the right angle, the longest side;
+- **opposite side:** the side facing $A$;
+- **adjacent side:** the side next to $A$ that is not the hypotenuse.
+
+$$
+\sin A = \frac{\text{opposite}}{\text{hypotenuse}} \qquad
+\cos A = \frac{\text{adjacent}}{\text{hypotenuse}} \qquad
+\tan A = \frac{\text{opposite}}{\text{adjacent}}
+$$
+
+<figure class="fig">
+<svg viewBox="0 0 440 254" width="440"><polygon class="curve" fill="none" points="80,190 272,190 272,46"/><polyline class="curve3" fill="none" points="258,190 258,176 272,176"/><path class="curve2" fill="none" d="M 114 190 A 34 34 0 0 0 107.2 169.6"/><text class="ink" x="126" y="182" font-size="13" text-anchor="middle">A</text><text class="ink" x="280" y="122.0" font-size="12" text-anchor="start">opposite 3</text><text class="ink" x="176.0" y="210" font-size="12" text-anchor="middle">adjacent 4</text><text class="ink" x="164.0" y="108.0" font-size="12" text-anchor="end">hypotenuse 5</text><text class="ink" x="220" y="240" font-size="13" text-anchor="middle">sin A = 3/5, cos A = 4/5, tan A = 3/4</text></svg>
+  <figcaption>In the right triangle with sides 3, 4 and 5, the side facing angle A is 3 and the side next to it is 4; the hypotenuse is 5. The ratios depend only on the angle: in a larger triangle with the same angle the sides grow but the ratios stay the same.</figcaption>
+</figure>
+
+**Why do the ratios depend only on the angle?** Two right triangles with the
+same angle are similar (Geometry Basics); their sides are proportional, so
+their ratios are equal. That is why $\sin 30°$ is a single number,
+independent of the triangle's size.
+
+**Opposite and adjacent depend on the angle.** In the same triangle, for the
+other acute angle $B$ the opposite side is $4$ and the adjacent $3$:
+$\sin B = \frac{4}{5} = \cos A$. In general $\sin(90° - A) = \cos A$,
+because the two acute angles are complementary. That is where the name
+"cosine" comes from: **the sine of the complement**.
+
+## Special angles
+
+From the two special right triangles of Geometry Basics:
+
+| Angle | $\sin$ | $\cos$ | $\tan$ |
+|---|---|---|---|
+| $0°$ | $0$ | $1$ | $0$ |
+| $30°$ | $\frac{1}{2}$ | $\frac{\sqrt{3}}{2}$ | $\frac{1}{\sqrt{3}}$ |
+| $45°$ | $\frac{\sqrt{2}}{2}$ | $\frac{\sqrt{2}}{2}$ | $1$ |
+| $60°$ | $\frac{\sqrt{3}}{2}$ | $\frac{1}{2}$ | $\sqrt{3}$ |
+| $90°$ | $1$ | $0$ | undefined |
+
+The sides of the $30$-$60$-$90$ triangle are $1$, $\sqrt{3}$, $2$: facing
+$30°$ is $1$, so $\sin 30° = \frac{1}{2}$. In the $45$-$45$-$90$ triangle
+$\sin 45° = \frac{1}{\sqrt{2}} = \frac{\sqrt{2}}{2}$.
+
+**A memory aid.** The sine column is $\frac{\sqrt{0}}{2}, \frac{\sqrt{1}}{2},
+\frac{\sqrt{2}}{2}, \frac{\sqrt{3}}{2}, \frac{\sqrt{4}}{2}$; the cosine
+column is the same list read backwards.
+
+**Example.** Looking at a building from $20$ metres away, its top is seen at
+an angle of $60°$. If its height is $h$, then $\tan 60° = \frac{h}{20}$, so
+$h = 20\sqrt{3} \approx 34.64$ metres.
+
+## The basic identity
+
+Let the opposite side be $a$, the adjacent $b$ and the hypotenuse $c$.
+Dividing Pythagoras by $c^2$:
+
+$$
+\frac{a^2}{c^2} + \frac{b^2}{c^2} = 1 \quad \Rightarrow \quad \sin^2 A + \cos^2 A = 1
+$$
+
+($\sin^2 A$ means $(\sin A)^2$.) Knowing one gives the other: if
+$\sin A = \frac{3}{5}$, then $\cos A = \sqrt{1 - \frac{9}{25}} = \frac{4}{5}$.
+Also $\tan A = \frac{\sin A}{\cos A}$; the hypotenuse cancels on top and
+bottom.
+
+## Radians
+
+The degree is an arbitrary unit (why is a full turn $360$?). In mathematics
+angles are mostly measured in **radians**: the **length of the arc** the
+angle cuts out on a circle of radius $1$. A full turn is the whole
+circumference, $2\pi$:
+
+$$
+360° = 2\pi \text{ radians} \qquad 180° = \pi \text{ radians}
+$$
+
+| Degrees | $30°$ | $45°$ | $60°$ | $90°$ | $180°$ | $360°$ |
+|---|---|---|---|---|---|---|
+| radians | $\frac{\pi}{6}$ | $\frac{\pi}{4}$ | $\frac{\pi}{3}$ | $\frac{\pi}{2}$ | $\pi$ | $2\pi$ |
+
+To convert, multiply degrees by $\frac{\pi}{180}$, radians by
+$\frac{180}{\pi}$. One radian is about $57.3°$. In calculus the derivative
+formulas (the derivative of $\sin x$ is $\cos x$) are this clean only in
+radians; the $\sin$ function of computer libraries also expects radians.
+
+## The unit circle
+
+A right triangle only covers $0°$ to $90°$. We want sine and cosine for
+every angle. Take the circle with centre at the origin and radius $1$;
+start on the $x$-axis and turn anticlockwise by $\theta$. The point you
+reach is:
+
+$$
+(x, y) = (\cos\theta, \sin\theta)
+$$
+
+<figure class="fig">
+<svg viewBox="0 0 400 314" width="400"><line class="grid" x1="88.0" y1="300.0" x2="88.0" y2="20.0"/><line class="grid" x1="144.0" y1="300.0" x2="144.0" y2="20.0"/><line class="grid" x1="200.0" y1="300.0" x2="200.0" y2="20.0"/><line class="grid" x1="256.0" y1="300.0" x2="256.0" y2="20.0"/><line class="grid" x1="312.0" y1="300.0" x2="312.0" y2="20.0"/><line class="grid" x1="60.0" y1="272.0" x2="340.0" y2="272.0"/><line class="grid" x1="60.0" y1="216.0" x2="340.0" y2="216.0"/><line class="grid" x1="60.0" y1="160.0" x2="340.0" y2="160.0"/><line class="grid" x1="60.0" y1="104.0" x2="340.0" y2="104.0"/><line class="grid" x1="60.0" y1="48.0" x2="340.0" y2="48.0"/><line class="line" x1="60.0" y1="160.0" x2="340.0" y2="160.0"/><line class="line" x1="200.0" y1="300.0" x2="200.0" y2="20.0"/><text class="dim" x="88.0" y="173.0" font-size="9" text-anchor="middle">−1</text><text class="dim" x="312.0" y="173.0" font-size="9" text-anchor="middle">1</text><text class="dim" x="195.0" y="275.0" font-size="9" text-anchor="end">−1</text><text class="dim" x="195.0" y="51.0" font-size="9" text-anchor="end">1</text><polyline class="curve3" fill="none" points="88.0,160.0 89.1,144.2 90.2,137.7 91.4,132.8 92.5,128.6 93.6,125.0 94.7,121.8 95.8,118.8 97.0,116.1 98.1,113.6 99.2,111.2 100.3,108.9 101.4,106.8 102.6,104.8 103.7,102.8 104.8,101.0 105.9,99.2 107.0,97.5 108.2,95.9 109.3,94.3 110.4,92.8 111.5,91.3 112.6,89.9 113.8,88.5 114.9,87.2 116.0,85.9 117.1,84.7 118.2,83.5 119.4,82.3 120.5,81.1 121.6,80.0 122.7,78.9 123.8,77.9 125.0,76.9 126.1,75.9 127.2,74.9 128.3,73.9 129.4,73.0 130.6,72.1 131.7,71.3 132.8,70.4 133.9,69.6 135.0,68.8 136.2,68.0 137.3,67.2 138.4,66.5 139.5,65.7 140.6,65.0 141.8,64.3 142.9,63.7 144.0,63.0 145.1,62.4 146.2,61.7 147.4,61.1 148.5,60.6 149.6,60.0 150.7,59.4 151.8,58.9 153.0,58.4 154.1,57.8 155.2,57.4 156.3,56.9 157.4,56.4 158.6,55.9 159.7,55.5 160.8,55.1 161.9,54.7 163.0,54.3 164.2,53.9 165.3,53.5 166.4,53.2 167.5,52.8 168.6,52.5 169.8,52.2 170.9,51.9 172.0,51.6 173.1,51.3 174.2,51.0 175.4,50.7 176.5,50.5 177.6,50.3 178.7,50.0 179.8,49.8 181.0,49.6 182.1,49.4 183.2,49.3 184.3,49.1 185.4,49.0 186.6,48.8 187.7,48.7 188.8,48.6 189.9,48.5 191.0,48.4 192.2,48.3 193.3,48.2 194.4,48.1 195.5,48.1 196.6,48.1 197.8,48.0 198.9,48.0 200.0,48.0 201.1,48.0 202.2,48.0 203.4,48.1 204.5,48.1 205.6,48.1 206.7,48.2 207.8,48.3 209.0,48.4 210.1,48.5 211.2,48.6 212.3,48.7 213.4,48.8 214.6,49.0 215.7,49.1 216.8,49.3 217.9,49.4 219.0,49.6 220.2,49.8 221.3,50.0 222.4,50.3 223.5,50.5 224.6,50.7 225.8,51.0 226.9,51.3 228.0,51.6 229.1,51.9 230.2,52.2 231.4,52.5 232.5,52.8 233.6,53.2 234.7,53.5 235.8,53.9 237.0,54.3 238.1,54.7 239.2,55.1 240.3,55.5 241.4,55.9 242.6,56.4 243.7,56.9 244.8,57.4 245.9,57.8 247.0,58.4 248.2,58.9 249.3,59.4 250.4,60.0 251.5,60.6 252.6,61.1 253.8,61.7 254.9,62.4 256.0,63.0 257.1,63.7 258.2,64.3 259.4,65.0 260.5,65.7 261.6,66.5 262.7,67.2 263.8,68.0 265.0,68.8 266.1,69.6 267.2,70.4 268.3,71.3 269.4,72.1 270.6,73.0 271.7,73.9 272.8,74.9 273.9,75.9 275.0,76.9 276.2,77.9 277.3,78.9 278.4,80.0 279.5,81.1 280.6,82.3 281.8,83.5 282.9,84.7 284.0,85.9 285.1,87.2 286.2,88.5 287.4,89.9 288.5,91.3 289.6,92.8 290.7,94.3 291.8,95.9 293.0,97.5 294.1,99.2 295.2,101.0 296.3,102.8 297.4,104.8 298.6,106.8 299.7,108.9 300.8,111.2 301.9,113.6 303.0,116.1 304.2,118.8 305.3,121.8 306.4,125.0 307.5,128.6 308.6,132.8 309.8,137.7 310.9,144.2 312.0,160.0"/><polyline class="curve3" fill="none" points="88.0,160.0 89.1,175.8 90.2,182.3 91.4,187.2 92.5,191.4 93.6,195.0 94.7,198.2 95.8,201.2 97.0,203.9 98.1,206.4 99.2,208.8 100.3,211.1 101.4,213.2 102.6,215.2 103.7,217.2 104.8,219.0 105.9,220.8 107.0,222.5 108.2,224.1 109.3,225.7 110.4,227.2 111.5,228.7 112.6,230.1 113.8,231.5 114.9,232.8 116.0,234.1 117.1,235.3 118.2,236.5 119.4,237.7 120.5,238.9 121.6,240.0 122.7,241.1 123.8,242.1 125.0,243.1 126.1,244.1 127.2,245.1 128.3,246.1 129.4,247.0 130.6,247.9 131.7,248.7 132.8,249.6 133.9,250.4 135.0,251.2 136.2,252.0 137.3,252.8 138.4,253.5 139.5,254.3 140.6,255.0 141.8,255.7 142.9,256.3 144.0,257.0 145.1,257.6 146.2,258.3 147.4,258.9 148.5,259.4 149.6,260.0 150.7,260.6 151.8,261.1 153.0,261.6 154.1,262.2 155.2,262.6 156.3,263.1 157.4,263.6 158.6,264.1 159.7,264.5 160.8,264.9 161.9,265.3 163.0,265.7 164.2,266.1 165.3,266.5 166.4,266.8 167.5,267.2 168.6,267.5 169.8,267.8 170.9,268.1 172.0,268.4 173.1,268.7 174.2,269.0 175.4,269.3 176.5,269.5 177.6,269.7 178.7,270.0 179.8,270.2 181.0,270.4 182.1,270.6 183.2,270.7 184.3,270.9 185.4,271.0 186.6,271.2 187.7,271.3 188.8,271.4 189.9,271.5 191.0,271.6 192.2,271.7 193.3,271.8 194.4,271.9 195.5,271.9 196.6,271.9 197.8,272.0 198.9,272.0 200.0,272.0 201.1,272.0 202.2,272.0 203.4,271.9 204.5,271.9 205.6,271.9 206.7,271.8 207.8,271.7 209.0,271.6 210.1,271.5 211.2,271.4 212.3,271.3 213.4,271.2 214.6,271.0 215.7,270.9 216.8,270.7 217.9,270.6 219.0,270.4 220.2,270.2 221.3,270.0 222.4,269.7 223.5,269.5 224.6,269.3 225.8,269.0 226.9,268.7 228.0,268.4 229.1,268.1 230.2,267.8 231.4,267.5 232.5,267.2 233.6,266.8 234.7,266.5 235.8,266.1 237.0,265.7 238.1,265.3 239.2,264.9 240.3,264.5 241.4,264.1 242.6,263.6 243.7,263.1 244.8,262.6 245.9,262.2 247.0,261.6 248.2,261.1 249.3,260.6 250.4,260.0 251.5,259.4 252.6,258.9 253.8,258.3 254.9,257.6 256.0,257.0 257.1,256.3 258.2,255.7 259.4,255.0 260.5,254.3 261.6,253.5 262.7,252.8 263.8,252.0 265.0,251.2 266.1,250.4 267.2,249.6 268.3,248.7 269.4,247.9 270.6,247.0 271.7,246.1 272.8,245.1 273.9,244.1 275.0,243.1 276.2,242.1 277.3,241.1 278.4,240.0 279.5,238.9 280.6,237.7 281.8,236.5 282.9,235.3 284.0,234.1 285.1,232.8 286.2,231.5 287.4,230.1 288.5,228.7 289.6,227.2 290.7,225.7 291.8,224.1 293.0,222.5 294.1,220.8 295.2,219.0 296.3,217.2 297.4,215.2 298.6,213.2 299.7,211.1 300.8,208.8 301.9,206.4 303.0,203.9 304.2,201.2 305.3,198.2 306.4,195.0 307.5,191.4 308.6,187.2 309.8,182.3 310.9,175.8 312.0,160.0"/><line class="curve" x1="200.0" y1="160.0" x2="272.0" y2="74.2"/><line class="curve2" stroke-width="3" x1="200.0" y1="160.0" x2="272.0" y2="160.0"/><line class="curve4" stroke-width="3" x1="272.0" y1="160.0" x2="272.0" y2="74.2"/><circle class="dot2" cx="272.0" cy="74.2" r="5"/><text class="ink" x="280.0" y="68.2" font-size="12" text-anchor="start">(cos θ, sin θ)</text><text class="ink" x="236.0" y="176.0" font-size="12" text-anchor="middle">cos θ</text><text class="ink" x="278.0" y="117.1" font-size="12" text-anchor="start">sin θ</text><text class="ink" x="220.2" y="151.0" font-size="13" text-anchor="start">θ</text><text class="dim" x="230.4" y="111.5" font-size="11" text-anchor="end">radius 1</text></svg>
+  <figcaption>The radius is 1, so the hypotenuse is 1: the horizontal projection is cos θ and the vertical projection sin θ. As the point moves around the circle, these two numbers are defined for every angle.</figcaption>
+</figure>
+
+For acute angles this is the same as the right triangle definition
+(hypotenuse $1$). But now it makes sense for every angle:
+
+| Quadrant | Angles | $\sin$ | $\cos$ |
+|---|---|---|---|
+| I | $0°$–$90°$ | $+$ | $+$ |
+| II | $90°$–$180°$ | $+$ | $-$ |
+| III | $180°$–$270°$ | $-$ | $-$ |
+| IV | $270°$–$360°$ | $-$ | $+$ |
+
+- $\cos 180° = -1$, $\sin 180° = 0$: the leftmost point of the circle.
+- $\sin 150° = \sin 30° = \frac{1}{2}$: in quadrant II the sine is
+  positive.
+- A **negative angle** turns clockwise: $\sin(-\theta) = -\sin\theta$,
+  $\cos(-\theta) = \cos\theta$.
+- After turning $360°$ you are back at the same point:
+  $\sin(\theta + 2\pi) = \sin\theta$.
+- Since the point is on the circle, $\cos^2\theta + \sin^2\theta = 1$ for
+  every angle.
+
+## Graphs and waves
+
+As the point keeps turning around the circle, $\sin$ and $\cos$ repeat the
+same values. Such functions are called **periodic**; the **period** of
+$\sin$ and $\cos$ is $2\pi$.
+
+<figure class="fig">
+<svg viewBox="0 0 440 224" width="440"><line class="grid" x1="40.0" y1="200.0" x2="40.0" y2="20.0"/><line class="grid" x1="135.0" y1="200.0" x2="135.0" y2="20.0"/><line class="grid" x1="230.0" y1="200.0" x2="230.0" y2="20.0"/><line class="grid" x1="325.0" y1="200.0" x2="325.0" y2="20.0"/><line class="grid" x1="420.0" y1="200.0" x2="420.0" y2="20.0"/><line class="grid" x1="40.0" y1="179.2" x2="420.0" y2="179.2"/><line class="grid" x1="40.0" y1="144.6" x2="420.0" y2="144.6"/><line class="grid" x1="40.0" y1="110.0" x2="420.0" y2="110.0"/><line class="grid" x1="40.0" y1="75.4" x2="420.0" y2="75.4"/><line class="grid" x1="40.0" y1="40.8" x2="420.0" y2="40.8"/><line class="line" x1="40.0" y1="110.0" x2="420.0" y2="110.0"/><line class="line" x1="40.0" y1="200.0" x2="40.0" y2="20.0"/><text class="dim" x="35.0" y="182.2" font-size="9" text-anchor="end">−1</text><text class="dim" x="35.0" y="43.8" font-size="9" text-anchor="end">1</text><text class="dim" x="135.0" y="214" font-size="10" text-anchor="middle">π/2</text><text class="dim" x="230.0" y="214" font-size="10" text-anchor="middle">π</text><text class="dim" x="325.0" y="214" font-size="10" text-anchor="middle">3π/2</text><text class="dim" x="420.0" y="214" font-size="10" text-anchor="middle">2π</text><polyline class="curve" fill="none" points="40.0,110.0 41.6,108.2 43.2,106.4 44.8,104.6 46.3,102.8 47.9,101.0 49.5,99.2 51.1,97.4 52.7,95.6 54.2,93.8 55.8,92.1 57.4,90.3 59.0,88.6 60.6,86.9 62.2,85.2 63.8,83.5 65.3,81.8 66.9,80.2 68.5,78.6 70.1,77.0 71.7,75.4 73.2,73.8 74.8,72.3 76.4,70.8 78.0,69.3 79.6,67.9 81.2,66.4 82.8,65.0 84.3,63.7 85.9,62.3 87.5,61.0 89.1,59.8 90.7,58.6 92.2,57.4 93.8,56.2 95.4,55.1 97.0,54.0 98.6,52.9 100.2,51.9 101.8,51.0 103.3,50.0 104.9,49.2 106.5,48.3 108.1,47.5 109.7,46.8 111.2,46.0 112.8,45.4 114.4,44.7 116.0,44.2 117.6,43.6 119.2,43.1 120.8,42.7 122.3,42.3 123.9,41.9 125.5,41.6 127.1,41.4 128.7,41.1 130.2,41.0 131.8,40.9 133.4,40.8 135.0,40.8 136.6,40.8 138.2,40.9 139.8,41.0 141.3,41.1 142.9,41.4 144.5,41.6 146.1,41.9 147.7,42.3 149.2,42.7 150.8,43.1 152.4,43.6 154.0,44.2 155.6,44.7 157.2,45.4 158.8,46.0 160.3,46.8 161.9,47.5 163.5,48.3 165.1,49.2 166.7,50.0 168.2,51.0 169.8,51.9 171.4,52.9 173.0,54.0 174.6,55.1 176.2,56.2 177.8,57.4 179.3,58.6 180.9,59.8 182.5,61.0 184.1,62.3 185.7,63.7 187.2,65.0 188.8,66.4 190.4,67.9 192.0,69.3 193.6,70.8 195.2,72.3 196.8,73.8 198.3,75.4 199.9,77.0 201.5,78.6 203.1,80.2 204.7,81.8 206.2,83.5 207.8,85.2 209.4,86.9 211.0,88.6 212.6,90.3 214.2,92.1 215.8,93.8 217.3,95.6 218.9,97.4 220.5,99.2 222.1,101.0 223.7,102.8 225.2,104.6 226.8,106.4 228.4,108.2 230.0,110.0 231.6,111.8 233.2,113.6 234.7,115.4 236.3,117.2 237.9,119.0 239.5,120.8 241.1,122.6 242.7,124.4 244.2,126.2 245.8,127.9 247.4,129.7 249.0,131.4 250.6,133.1 252.2,134.8 253.8,136.5 255.3,138.2 256.9,139.8 258.5,141.4 260.1,143.0 261.7,144.6 263.2,146.2 264.8,147.7 266.4,149.2 268.0,150.7 269.6,152.1 271.2,153.6 272.8,155.0 274.3,156.3 275.9,157.7 277.5,159.0 279.1,160.2 280.7,161.4 282.2,162.6 283.8,163.8 285.4,164.9 287.0,166.0 288.6,167.1 290.2,168.1 291.8,169.0 293.3,170.0 294.9,170.8 296.5,171.7 298.1,172.5 299.7,173.2 301.2,174.0 302.8,174.6 304.4,175.3 306.0,175.8 307.6,176.4 309.2,176.9 310.7,177.3 312.3,177.7 313.9,178.1 315.5,178.4 317.1,178.6 318.7,178.9 320.2,179.0 321.8,179.1 323.4,179.2 325.0,179.2 326.6,179.2 328.2,179.1 329.8,179.0 331.3,178.9 332.9,178.6 334.5,178.4 336.1,178.1 337.7,177.7 339.3,177.3 340.8,176.9 342.4,176.4 344.0,175.8 345.6,175.3 347.2,174.6 348.7,174.0 350.3,173.2 351.9,172.5 353.5,171.7 355.1,170.8 356.7,170.0 358.2,169.0 359.8,168.1 361.4,167.1 363.0,166.0 364.6,164.9 366.2,163.8 367.8,162.6 369.3,161.4 370.9,160.2 372.5,159.0 374.1,157.7 375.7,156.3 377.2,155.0 378.8,153.6 380.4,152.1 382.0,150.7 383.6,149.2 385.2,147.7 386.8,146.2 388.3,144.6 389.9,143.0 391.5,141.4 393.1,139.8 394.7,138.2 396.2,136.5 397.8,134.8 399.4,133.1 401.0,131.4 402.6,129.7 404.2,127.9 405.8,126.2 407.3,124.4 408.9,122.6 410.5,120.8 412.1,119.0 413.7,117.2 415.2,115.4 416.8,113.6 418.4,111.8 420.0,110.0"/><polyline class="curve2" stroke-dasharray="5 4" fill="none" points="40.0,40.8 41.6,40.8 43.2,40.9 44.8,41.0 46.3,41.1 47.9,41.4 49.5,41.6 51.1,41.9 52.7,42.3 54.2,42.7 55.8,43.1 57.4,43.6 59.0,44.2 60.6,44.7 62.2,45.4 63.8,46.0 65.3,46.8 66.9,47.5 68.5,48.3 70.1,49.2 71.7,50.0 73.2,51.0 74.8,51.9 76.4,52.9 78.0,54.0 79.6,55.1 81.2,56.2 82.8,57.4 84.3,58.6 85.9,59.8 87.5,61.0 89.1,62.3 90.7,63.7 92.2,65.0 93.8,66.4 95.4,67.9 97.0,69.3 98.6,70.8 100.2,72.3 101.8,73.8 103.3,75.4 104.9,77.0 106.5,78.6 108.1,80.2 109.7,81.8 111.2,83.5 112.8,85.2 114.4,86.9 116.0,88.6 117.6,90.3 119.2,92.1 120.8,93.8 122.3,95.6 123.9,97.4 125.5,99.2 127.1,101.0 128.7,102.8 130.2,104.6 131.8,106.4 133.4,108.2 135.0,110.0 136.6,111.8 138.2,113.6 139.8,115.4 141.3,117.2 142.9,119.0 144.5,120.8 146.1,122.6 147.7,124.4 149.2,126.2 150.8,127.9 152.4,129.7 154.0,131.4 155.6,133.1 157.2,134.8 158.8,136.5 160.3,138.2 161.9,139.8 163.5,141.4 165.1,143.0 166.7,144.6 168.2,146.2 169.8,147.7 171.4,149.2 173.0,150.7 174.6,152.1 176.2,153.6 177.8,155.0 179.3,156.3 180.9,157.7 182.5,159.0 184.1,160.2 185.7,161.4 187.2,162.6 188.8,163.8 190.4,164.9 192.0,166.0 193.6,167.1 195.2,168.1 196.8,169.0 198.3,170.0 199.9,170.8 201.5,171.7 203.1,172.5 204.7,173.2 206.2,174.0 207.8,174.6 209.4,175.3 211.0,175.8 212.6,176.4 214.2,176.9 215.8,177.3 217.3,177.7 218.9,178.1 220.5,178.4 222.1,178.6 223.7,178.9 225.2,179.0 226.8,179.1 228.4,179.2 230.0,179.2 231.6,179.2 233.2,179.1 234.7,179.0 236.3,178.9 237.9,178.6 239.5,178.4 241.1,178.1 242.7,177.7 244.2,177.3 245.8,176.9 247.4,176.4 249.0,175.8 250.6,175.3 252.2,174.6 253.8,174.0 255.3,173.2 256.9,172.5 258.5,171.7 260.1,170.8 261.7,170.0 263.2,169.0 264.8,168.1 266.4,167.1 268.0,166.0 269.6,164.9 271.2,163.8 272.8,162.6 274.3,161.4 275.9,160.2 277.5,159.0 279.1,157.7 280.7,156.3 282.2,155.0 283.8,153.6 285.4,152.1 287.0,150.7 288.6,149.2 290.2,147.7 291.8,146.2 293.3,144.6 294.9,143.0 296.5,141.4 298.1,139.8 299.7,138.2 301.2,136.5 302.8,134.8 304.4,133.1 306.0,131.4 307.6,129.7 309.2,127.9 310.7,126.2 312.3,124.4 313.9,122.6 315.5,120.8 317.1,119.0 318.7,117.2 320.2,115.4 321.8,113.6 323.4,111.8 325.0,110.0 326.6,108.2 328.2,106.4 329.8,104.6 331.3,102.8 332.9,101.0 334.5,99.2 336.1,97.4 337.7,95.6 339.3,93.8 340.8,92.1 342.4,90.3 344.0,88.6 345.6,86.9 347.2,85.2 348.7,83.5 350.3,81.8 351.9,80.2 353.5,78.6 355.1,77.0 356.7,75.4 358.2,73.8 359.8,72.3 361.4,70.8 363.0,69.3 364.6,67.9 366.2,66.4 367.8,65.0 369.3,63.7 370.9,62.3 372.5,61.0 374.1,59.8 375.7,58.6 377.2,57.4 378.8,56.2 380.4,55.1 382.0,54.0 383.6,52.9 385.2,51.9 386.8,51.0 388.3,50.0 389.9,49.2 391.5,48.3 393.1,47.5 394.7,46.8 396.2,46.0 397.8,45.4 399.4,44.7 401.0,44.2 402.6,43.6 404.2,43.1 405.8,42.7 407.3,42.3 408.9,41.9 410.5,41.6 412.1,41.4 413.7,41.1 415.2,41.0 416.8,40.9 418.4,40.8 420.0,40.8"/><text class="ink" x="135.0" y="32.8" font-size="12" text-anchor="middle">sin x</text><text class="ink" x="46.0" y="32.8" font-size="12" text-anchor="start">cos x</text><text class="dim" x="420.0" y="196.0" font-size="11" text-anchor="end">period 2π</text></svg>
+  <figcaption>sin x starts at zero, peaks at π/2 (1) and bottoms out at 3π/2 (−1). cos x is the same wave starting π/2 ahead. Both stay between −1 and 1 and start over at 2π.</figcaption>
+</figure>
+
+**Amplitude and period.** The wave $y = A \sin(Bx)$ swings between $-A$ and
+$A$ (**amplitude** $A$) and has period $\frac{2\pi}{B}$. $3\sin(2x)$:
+amplitude $3$, period $\pi$. Sound, light and alternating current are
+described with these waves.
+
+**Inverse functions.** If $\sin x = \frac{1}{2}$, what is $x$? Between $0°$
+and $90°$ the only answer is $30°$; this is written
+$\arcsin\frac{1}{2} = 30°$. The $\sin^{-1}$ key on a calculator is this;
+not $\frac{1}{\sin}$.
+
+## The law of cosines
+
+In a triangle that is not right-angled, Pythagoras gets a correction term.
+If the sides are $a$, $b$, $c$ and the angle opposite $c$ is $C$:
+
+$$
+c^2 = a^2 + b^2 - 2ab \cos C
+$$
+
+If $C = 90°$ then $\cos C = 0$ and it turns back into Pythagoras. For
+$a = 5$, $b = 8$, $C = 60°$: $c^2 = 25 + 64 - 40 = 49$, $c = 7$. This
+formula is the path to computing the angle between two vectors (the dot
+product).
+
+## Trigonometry in machine learning
+
+**Cosine similarity.** If the angle between two vectors is $\theta$,
+$\cos\theta$ says how much they point the same way: $1$ same direction, $0$
+perpendicular (unrelated), $-1$ opposite. In MATH 2 it will be computed
+with the dot product: $\cos\theta = \frac{\mathbf{u} \cdot \mathbf{v}}
+{\lVert \mathbf{u} \rVert \lVert \mathbf{v} \rVert}$. For $(3, 4)$ and
+$(4, 3)$: $\frac{12 + 12}{5 \cdot 5} = 0.96$, very similar. Search engines
+and recommender systems compare documents this way; direction matters, not
+length.
+
+**Cyclic features.** If the hour is given as a number from $0$ to $23$, a
+model thinks $23$ and $1$ are far apart. Placing the hour on a circle fixes
+this:
+
+$$
+h \mapsto \left( \cos \frac{2\pi h}{24}, \ \sin \frac{2\pi h}{24} \right)
+$$
+
+<figure class="fig">
+<svg viewBox="0 0 560 294" width="560"><line class="grid" x1="90.0" y1="280.0" x2="90.0" y2="20.0"/><line class="grid" x1="140.0" y1="280.0" x2="140.0" y2="20.0"/><line class="grid" x1="190.0" y1="280.0" x2="190.0" y2="20.0"/><line class="grid" x1="240.0" y1="280.0" x2="240.0" y2="20.0"/><line class="grid" x1="290.0" y1="280.0" x2="290.0" y2="20.0"/><line class="grid" x1="60.0" y1="250.0" x2="320.0" y2="250.0"/><line class="grid" x1="60.0" y1="200.0" x2="320.0" y2="200.0"/><line class="grid" x1="60.0" y1="150.0" x2="320.0" y2="150.0"/><line class="grid" x1="60.0" y1="100.0" x2="320.0" y2="100.0"/><line class="grid" x1="60.0" y1="50.0" x2="320.0" y2="50.0"/><line class="line" x1="60.0" y1="150.0" x2="320.0" y2="150.0"/><line class="line" x1="190.0" y1="280.0" x2="190.0" y2="20.0"/><polyline class="curve3" fill="none" points="90.0,150.0 91.0,135.9 92.0,130.1 93.0,125.7 94.0,122.0 95.0,118.8 96.0,115.9 97.0,113.2 98.0,110.8 99.0,108.5 100.0,106.4 101.0,104.4 102.0,102.5 103.0,100.7 104.0,99.0 105.0,97.3 106.0,95.7 107.0,94.2 108.0,92.8 109.0,91.4 110.0,90.0 111.0,88.7 112.0,87.4 113.0,86.2 114.0,85.0 115.0,83.9 116.0,82.7 117.0,81.7 118.0,80.6 119.0,79.6 120.0,78.6 121.0,77.6 122.0,76.7 123.0,75.8 124.0,74.9 125.0,74.0 126.0,73.2 127.0,72.3 128.0,71.5 129.0,70.8 130.0,70.0 131.0,69.3 132.0,68.5 133.0,67.8 134.0,67.2 135.0,66.5 136.0,65.8 137.0,65.2 138.0,64.6 139.0,64.0 140.0,63.4 141.0,62.8 142.0,62.3 143.0,61.7 144.0,61.2 145.0,60.7 146.0,60.2 147.0,59.7 148.0,59.2 149.0,58.8 150.0,58.3 151.0,57.9 152.0,57.5 153.0,57.1 154.0,56.7 155.0,56.3 156.0,56.0 157.0,55.6 158.0,55.3 159.0,54.9 160.0,54.6 161.0,54.3 162.0,54.0 163.0,53.7 164.0,53.4 165.0,53.2 166.0,52.9 167.0,52.7 168.0,52.5 169.0,52.2 170.0,52.0 171.0,51.8 172.0,51.6 173.0,51.5 174.0,51.3 175.0,51.1 176.0,51.0 177.0,50.8 178.0,50.7 179.0,50.6 180.0,50.5 181.0,50.4 182.0,50.3 183.0,50.2 184.0,50.2 185.0,50.1 186.0,50.1 187.0,50.0 188.0,50.0 189.0,50.0 190.0,50.0 191.0,50.0 192.0,50.0 193.0,50.0 194.0,50.1 195.0,50.1 196.0,50.2 197.0,50.2 198.0,50.3 199.0,50.4 200.0,50.5 201.0,50.6 202.0,50.7 203.0,50.8 204.0,51.0 205.0,51.1 206.0,51.3 207.0,51.5 208.0,51.6 209.0,51.8 210.0,52.0 211.0,52.2 212.0,52.5 213.0,52.7 214.0,52.9 215.0,53.2 216.0,53.4 217.0,53.7 218.0,54.0 219.0,54.3 220.0,54.6 221.0,54.9 222.0,55.3 223.0,55.6 224.0,56.0 225.0,56.3 226.0,56.7 227.0,57.1 228.0,57.5 229.0,57.9 230.0,58.3 231.0,58.8 232.0,59.2 233.0,59.7 234.0,60.2 235.0,60.7 236.0,61.2 237.0,61.7 238.0,62.3 239.0,62.8 240.0,63.4 241.0,64.0 242.0,64.6 243.0,65.2 244.0,65.8 245.0,66.5 246.0,67.2 247.0,67.8 248.0,68.5 249.0,69.3 250.0,70.0 251.0,70.8 252.0,71.5 253.0,72.3 254.0,73.2 255.0,74.0 256.0,74.9 257.0,75.8 258.0,76.7 259.0,77.6 260.0,78.6 261.0,79.6 262.0,80.6 263.0,81.7 264.0,82.7 265.0,83.9 266.0,85.0 267.0,86.2 268.0,87.4 269.0,88.7 270.0,90.0 271.0,91.4 272.0,92.8 273.0,94.2 274.0,95.7 275.0,97.3 276.0,99.0 277.0,100.7 278.0,102.5 279.0,104.4 280.0,106.4 281.0,108.5 282.0,110.8 283.0,113.2 284.0,115.9 285.0,118.8 286.0,122.0 287.0,125.7 288.0,130.1 289.0,135.9 290.0,150.0"/><polyline class="curve3" fill="none" points="90.0,150.0 91.0,164.1 92.0,169.9 93.0,174.3 94.0,178.0 95.0,181.2 96.0,184.1 97.0,186.8 98.0,189.2 99.0,191.5 100.0,193.6 101.0,195.6 102.0,197.5 103.0,199.3 104.0,201.0 105.0,202.7 106.0,204.3 107.0,205.8 108.0,207.2 109.0,208.6 110.0,210.0 111.0,211.3 112.0,212.6 113.0,213.8 114.0,215.0 115.0,216.1 116.0,217.3 117.0,218.3 118.0,219.4 119.0,220.4 120.0,221.4 121.0,222.4 122.0,223.3 123.0,224.2 124.0,225.1 125.0,226.0 126.0,226.8 127.0,227.7 128.0,228.5 129.0,229.2 130.0,230.0 131.0,230.7 132.0,231.5 133.0,232.2 134.0,232.8 135.0,233.5 136.0,234.2 137.0,234.8 138.0,235.4 139.0,236.0 140.0,236.6 141.0,237.2 142.0,237.7 143.0,238.3 144.0,238.8 145.0,239.3 146.0,239.8 147.0,240.3 148.0,240.8 149.0,241.2 150.0,241.7 151.0,242.1 152.0,242.5 153.0,242.9 154.0,243.3 155.0,243.7 156.0,244.0 157.0,244.4 158.0,244.7 159.0,245.1 160.0,245.4 161.0,245.7 162.0,246.0 163.0,246.3 164.0,246.6 165.0,246.8 166.0,247.1 167.0,247.3 168.0,247.5 169.0,247.8 170.0,248.0 171.0,248.2 172.0,248.4 173.0,248.5 174.0,248.7 175.0,248.9 176.0,249.0 177.0,249.2 178.0,249.3 179.0,249.4 180.0,249.5 181.0,249.6 182.0,249.7 183.0,249.8 184.0,249.8 185.0,249.9 186.0,249.9 187.0,250.0 188.0,250.0 189.0,250.0 190.0,250.0 191.0,250.0 192.0,250.0 193.0,250.0 194.0,249.9 195.0,249.9 196.0,249.8 197.0,249.8 198.0,249.7 199.0,249.6 200.0,249.5 201.0,249.4 202.0,249.3 203.0,249.2 204.0,249.0 205.0,248.9 206.0,248.7 207.0,248.5 208.0,248.4 209.0,248.2 210.0,248.0 211.0,247.8 212.0,247.5 213.0,247.3 214.0,247.1 215.0,246.8 216.0,246.6 217.0,246.3 218.0,246.0 219.0,245.7 220.0,245.4 221.0,245.1 222.0,244.7 223.0,244.4 224.0,244.0 225.0,243.7 226.0,243.3 227.0,242.9 228.0,242.5 229.0,242.1 230.0,241.7 231.0,241.2 232.0,240.8 233.0,240.3 234.0,239.8 235.0,239.3 236.0,238.8 237.0,238.3 238.0,237.7 239.0,237.2 240.0,236.6 241.0,236.0 242.0,235.4 243.0,234.8 244.0,234.2 245.0,233.5 246.0,232.8 247.0,232.2 248.0,231.5 249.0,230.7 250.0,230.0 251.0,229.2 252.0,228.5 253.0,227.7 254.0,226.8 255.0,226.0 256.0,225.1 257.0,224.2 258.0,223.3 259.0,222.4 260.0,221.4 261.0,220.4 262.0,219.4 263.0,218.3 264.0,217.3 265.0,216.1 266.0,215.0 267.0,213.8 268.0,212.6 269.0,211.3 270.0,210.0 271.0,208.6 272.0,207.2 273.0,205.8 274.0,204.3 275.0,202.7 276.0,201.0 277.0,199.3 278.0,197.5 279.0,195.6 280.0,193.6 281.0,191.5 282.0,189.2 283.0,186.8 284.0,184.1 285.0,181.2 286.0,178.0 287.0,174.3 288.0,169.9 289.0,164.1 290.0,150.0"/><circle class="dot2" cx="290.0" cy="150.0" r="4"/><text class="ink" x="307.0" y="154.0" font-size="11" text-anchor="middle">0</text><circle class="dot2" cx="286.6" cy="124.1" r="4"/><text class="ink" x="303.0" y="123.7" font-size="11" text-anchor="middle">1</text><circle class="dot" cx="276.6" cy="100.0" r="3"/><circle class="dot" cx="260.7" cy="79.3" r="3"/><circle class="dot" cx="240.0" cy="63.4" r="3"/><circle class="dot" cx="215.9" cy="53.4" r="3"/><circle class="dot" cx="190.0" cy="50.0" r="3"/><text class="ink" x="190.0" y="37.0" font-size="11" text-anchor="middle">6</text><circle class="dot" cx="164.1" cy="53.4" r="3"/><circle class="dot" cx="140.0" cy="63.4" r="3"/><circle class="dot" cx="119.3" cy="79.3" r="3"/><circle class="dot" cx="103.4" cy="100.0" r="3"/><circle class="dot" cx="93.4" cy="124.1" r="3"/><circle class="dot" cx="90.0" cy="150.0" r="3"/><text class="ink" x="73.0" y="154.0" font-size="11" text-anchor="middle">12</text><circle class="dot" cx="93.4" cy="175.9" r="3"/><circle class="dot" cx="103.4" cy="200.0" r="3"/><circle class="dot" cx="119.3" cy="220.7" r="3"/><circle class="dot" cx="140.0" cy="236.6" r="3"/><circle class="dot" cx="164.1" cy="246.6" r="3"/><circle class="dot" cx="190.0" cy="250.0" r="3"/><text class="ink" x="190.0" y="271.0" font-size="11" text-anchor="middle">18</text><circle class="dot" cx="215.9" cy="246.6" r="3"/><circle class="dot" cx="240.0" cy="236.6" r="3"/><circle class="dot" cx="260.7" cy="220.7" r="3"/><circle class="dot" cx="276.6" cy="200.0" r="3"/><circle class="dot2" cx="286.6" cy="175.9" r="4"/><text class="ink" x="303.0" y="184.3" font-size="11" text-anchor="middle">23</text><text class="dim" x="330" y="130" font-size="11" text-anchor="start">as numbers 23 and 1 are 22 apart</text><text class="ink" x="330" y="150" font-size="11" text-anchor="start">on the circle they are neighbours</text></svg>
+  <figcaption>The 24 hours sit at equal steps around the circle. As numbers 23 and 1 differ by 22, but on the circle they are side by side; the distance between them is about 0.52. 12 is directly opposite 0.</figcaption>
+</figure>
+
+The same approach is used for the month, the day of the week and wind
+direction.
+
+**Positional encoding.** Transformer models encode a word's position in a
+sentence with a vector built from sine and cosine waves of different
+periods. Each position lands on a different point of the waves; nearby
+positions get similar codes.
+
+**Rotation.** Rotating a point about the origin by $\theta$ uses a matrix
+with $\cos\theta$ and $\sin\theta$ (MATH 2, Matrix Multiplication and
+Transformations). Rotating images for data augmentation is this
+calculation.
+
+## Common mistakes
+
+<figure class="fig">
+  <div class="versus">
+    <div class="no">
+      <h4>Wrong</h4>
+      <p>$\sin A = \dfrac{\text{adjacent}}{\text{hypotenuse}}$</p>
+      <p>$\sin 30 = 0.5$ (calculator in radians)</p>
+      <p>$\sin^{-1} x = \dfrac{1}{\sin x}$</p>
+      <p>$\sin(a + b) = \sin a + \sin b$</p>
+    </div>
+    <div class="ok">
+      <h4>Right</h4>
+      <p>$\sin A = \dfrac{\text{opposite}}{\text{hypotenuse}}$</p>
+      <p>$\sin 30° = 0.5$; $\sin(30 \text{ rad}) \approx -0.99$</p>
+      <p>$\sin^{-1}$ is the inverse function: $\arcsin$</p>
+      <p>$\sin 30° + \sin 60° \neq \sin 90°$</p>
+    </div>
+  </div>
+  <figcaption>Opposite and adjacent are fixed by the chosen angle; always check the unit of the angle.</figcaption>
+</figure>
+
+- **Not choosing sides relative to the angle.** The same side can be
+  opposite one angle and adjacent to the other.
+- **Trying to compute $\tan 90°$.** $\cos 90° = 0$ and we cannot divide by
+  zero: it is undefined.
+
+## Summary
+
+- In a right triangle $\sin = \frac{\text{opposite}}{\text{hypotenuse}}$,
+  $\cos = \frac{\text{adjacent}}{\text{hypotenuse}}$,
+  $\tan = \frac{\text{opposite}}{\text{adjacent}}$; the ratios depend only
+  on the angle.
+- The special angles $30°$, $45°$, $60°$ come from two special triangles;
+  $\sin(90° - A) = \cos A$.
+- $\sin^2 + \cos^2 = 1$, $\tan = \frac{\sin}{\cos}$.
+- $180° = \pi$ radians; a radian is arc length on the unit circle.
+- On the unit circle the point is $(\cos\theta, \sin\theta)$; the signs
+  depend on the quadrant.
+- $\sin$ and $\cos$ are periodic (period $2\pi$); in $A\sin(Bx)$ the
+  amplitude is $A$ and the period $\frac{2\pi}{B}$.
+- The law of cosines $c^2 = a^2 + b^2 - 2ab\cos C$.
+- Cosine similarity, cyclic features, positional encoding and rotation all
+  use trigonometry.
