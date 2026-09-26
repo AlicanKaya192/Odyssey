@@ -19,7 +19,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [0.8.3] — yayınlanmadı
+## [0.8.3] — 26 Eylül 2026
 
 ### Eklendi
 - **Matematik patikası eklendi.** İki modül var: **MAT 1 — Temel

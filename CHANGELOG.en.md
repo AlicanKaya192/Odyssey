@@ -21,7 +21,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [0.8.3] — unreleased
+## [0.8.3] — 26 September 2026
 
 ### Added
 - **The Mathematics path has been added.** Two modules: **MATH 1 —
