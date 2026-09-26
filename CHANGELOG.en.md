@@ -108,7 +108,9 @@ lecture note does not mean downloading the whole application again.
   badge, a card with its icon appears in the bottom right and closes by
   itself after a few seconds; it waits while the pointer is over it, the
   cross closes it at once, and clicking a badge card opens your profile.
-  The shortcuts button moved to the bell's place in the bottom right.
+  A short celebration sound plays with the card; it can be turned off in
+  Settings › Notifications. The shortcuts button moved to the bell's place
+  in the bottom right.
 
 ### Fixed
 - **Difficulty labels in Machine Learning exercises are no longer

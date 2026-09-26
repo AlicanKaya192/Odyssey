@@ -63,6 +63,7 @@ from ..widgets.shortcut_panel import ShortcutPanel
 from PySide6.QtWidgets import QApplication
 from ..core import badges as badge_core
 from ..core import github_stars
+from ..core.celebration_sound import CelebrationSound
 
 
 class Screen(QWidget):
@@ -165,6 +166,11 @@ class MainWindow(QMainWindow):
         self._toasts.on_activated = self._on_toast
         self._toast_ready = False
         self._pending_toasts: list[ToastData] = []
+        # Kartla birlikte kısa bir ses. Aynı anda gelen kartlar (bölüm ve
+        # onunla kazanılan rozetler) tek ses çalıyor: türler bu olay turu
+        # boyunca toplanıyor, bir sonrakinde çalınıyor (`_play_sound`).
+        self._sound = CelebrationSound(store)
+        self._sound_kinds: set[str] = set()
         # Açılıştaki biten bölümler; yalnızca bundan sonra bitenler kutlanıyor.
         self._done_sections = badge_core.completed_sections(self._catalog, self._store)
 
@@ -446,12 +452,23 @@ class MainWindow(QMainWindow):
             self._pending_toasts.append(veri)
             return
         self._toasts.show(veri)
+        self._queue_sound(veri.kind)
 
     def _flush_toasts(self) -> None:
         self._toast_ready = True
         bekleyen, self._pending_toasts = self._pending_toasts, []
         for veri in bekleyen:
             self._toasts.show(veri)
+            self._queue_sound(veri.kind)
+
+    def _queue_sound(self, kind: str) -> None:
+        if not self._sound_kinds:
+            QTimer.singleShot(0, self._play_sound)
+        self._sound_kinds.add(kind)
+
+    def _play_sound(self) -> None:
+        turler, self._sound_kinds = self._sound_kinds, set()
+        self._sound.play("badge" if "badge" in turler else "section")
 
     def _badge_toast(self, tanim: dict) -> ToastData:
         p = PALETTES.get(self._theme.effective_mode, PALETTES["dark"])

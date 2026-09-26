@@ -35,7 +35,7 @@ from ..core.quiz_timing import UNTIMED_QUIZ_KEY, untimed_quiz
 from ..core.unlock import UNLOCK_ALL_KEY, unlock_all
 from ..core.theme import ThemeManager
 from ..core import updates
-from ..core import reminder_service, reminders
+from ..core import celebration_sound, reminder_service, reminders
 from .reminder_prompt import TIMES as REMINDER_TIMES
 from ..widgets.common import DropdownBox
 from .update_check import UpdateWorker
@@ -404,6 +404,12 @@ class SettingsDialog(QDialog):
         layout.addWidget(self._group(
             [self._reminder_row, self._reminder_time_row, self._reminder_test_row]
         ))
+
+        # Kutlama kartlarının sesi program açıkken çalıyor; hatırlatmalarla
+        # ilgisi yok, o yüzden ayrı bir kartta.
+        self._sound_row = SettingRow()
+        self._sound_row.switch.toggled.connect(self._on_sound)
+        layout.addWidget(self._group([self._sound_row]))
         layout.addStretch(1)
         return sayfa
 
@@ -528,6 +534,9 @@ class SettingsDialog(QDialog):
         self._reminder_row.switch.set_checked(
             reminders.enabled(self._store), animate=False
         )
+        self._sound_row.switch.set_checked(
+            celebration_sound.enabled(self._store), animate=False
+        )
         self._reminder_time.blockSignals(True)
         self._reminder_time.setCurrentText(
             reminders.reminder_time(self._store).strftime("%H:%M")
@@ -543,7 +552,8 @@ class SettingsDialog(QDialog):
         self._paint_nav_icons()
         self._reminder_time.set_arrow_color(p["text_muted"])
         for row in (self._unlock_row, self._untimed_row,
-                    self._presence_row, self._update_row, self._reminder_row):
+                    self._presence_row, self._update_row, self._reminder_row,
+                    self._sound_row):
             row.switch.set_colors(
                 # Kart zemininde (`surface`) kapalı anahtarın izi seçilsin;
                 # `surface_alt` koyu temada kartla neredeyse aynıydı.
@@ -572,6 +582,10 @@ class SettingsDialog(QDialog):
     def _on_untimed(self, checked: bool) -> None:
         self._store.set_setting(UNTIMED_QUIZ_KEY, "1" if checked else "")
         self.timing_changed.emit()
+
+    def _on_sound(self, checked: bool) -> None:
+        # Kart gösterilirken okunuyor; açık ekrana sinyal gerekmiyor.
+        celebration_sound.set_enabled(self._store, checked)
 
     def _on_presence(self, checked: bool) -> None:
         discord_presence.set_enabled(self._store, checked)
@@ -793,6 +807,8 @@ class SettingsDialog(QDialog):
         self._untimed_row.description.setText(t("settings.untimed_quiz_help"))
         self._presence_row.title.setText(t("settings.discord"))
         self._presence_row.description.setText(t("settings.discord_help"))
+        self._sound_row.title.setText(t("settings.celebration_sound"))
+        self._sound_row.description.setText(t("settings.celebration_sound_help"))
         self._reminder_row.title.setText(t("settings.reminders"))
         self._reminder_row.description.setText(t("settings.reminders_help"))
         self._reminder_time_row.title.setText(t("settings.reminder_time"))

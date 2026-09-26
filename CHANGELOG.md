@@ -99,8 +99,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   kaldırıldı. Bir bölümü bitirdiğinizde ya da rozet kazandığınızda sağ altta
   simgesiyle birlikte bir kart beliriyor ve birkaç saniye sonra kendiliğinden
   kapanıyor; üstüne gelince bekliyor, çarpıyla hemen kapatılabiliyor, rozet
-  kartına tıklayınca profil açılıyor. Kısayollar düğmesi zilin yerine, sağ
-  alta geçti.
+  kartına tıklayınca profil açılıyor. Kartla birlikte kısa bir kutlama sesi
+  çalıyor; Ayarlar › Bildirimler'den kapatılabiliyor. Kısayollar düğmesi
+  zilin yerine, sağ alta geçti.
 
 ### Düzeltildi
 - **Makine Öğrenmesi alıştırmalarında zorluk yazısı boş kalmıyor.** Yirmi
