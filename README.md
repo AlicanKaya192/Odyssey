@@ -4,9 +4,33 @@
 
 # Odyssey
 
-An offline desktop application that teaches Data Science and Machine Learning, one section at a time.
+An offline desktop application that teaches Python, data science, machine learning, SQL and the mathematics behind them, one section at a time.
 
-Every section has a lesson, lecture notes, a quiz and coding exercises. To complete a section you need to pass the quiz and solve the exercises. You write the code inside the application; it runs your code, then checks the output, the variables it created and the functions it defined. No artificial intelligence is involved — every check is defined in advance and evaluated deterministically, so the same code always produces the same result.
+<p align="center">
+  <img src="docs/media/exercise_en.gif" alt="Writing code in an exercise and running it: the terminal shows the result and the chart the code drew opens on the left" width="880">
+</p>
+
+Every section has a lesson, lecture notes, a quiz and coding exercises; mathematics sections have problems instead, worked on a drawing sheet. To complete a section you need to pass the quiz and solve the exercises. You write the code inside the application; it runs your code, then checks the output, the variables it created and the functions it defined. No artificial intelligence is involved — every check is defined in advance and evaluated deterministically, so the same code always produces the same result.
+
+## A look inside
+
+**Lessons** come with formulas, figures and an outline of the page, and remember how far you have read.
+
+<p align="center">
+  <img src="docs/media/lesson_en.gif" alt="Scrolling through the Logistic Regression lesson with its formulas and figures" width="880">
+</p>
+
+**Mathematics problems** are worked out by hand on a drawing sheet. Only the answer is checked; once you solve it, or after two wrong tries, the solution paths open on the left so you can compare them with your own steps.
+
+<p align="center">
+  <img src="docs/media/problem_en.gif" alt="Solving a logarithm equation on the drawing sheet, checking the answer and opening the solution paths" width="880">
+</p>
+
+**Finishing a section or earning a badge** is celebrated with a card in the bottom right corner.
+
+<p align="center">
+  <img src="docs/media/celebration_en.gif" alt="A section card and two badge cards appearing one after another in the bottom right corner" width="410">
+</p>
 
 ## Getting started
 
@@ -42,13 +66,13 @@ You can turn the check off under **Settings › Updates**. With it off, the appl
 
 Early development (`0.8.3`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
 
-**Content today:** four modules are **complete** — Python Fundamentals (seventeen sections), Data Science (ten), Machine Learning (thirteen) and SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures). 1521 quiz questions, 267 coding exercises and 116 sets of lecture notes, all of it in both Turkish and English.
+**Content today:** five paths are **complete** — Python Fundamentals (seventeen sections), Data Science (ten), Machine Learning (thirteen), SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures) and Mathematics, in two modules: Foundational Mathematics (twenty-eight sections, from numbers to probability and statistics) and The Mathematics of AI (thirty-two, linear algebra, calculus, probability and statistics). 3374 quiz questions, 267 coding exercises, 300 mathematics problems and 236 lecture notes, all of it in both Turkish and English.
 
-**Thirteen learning paths** are defined: Python, Data Science, Machine Learning and SQL are open, while API, Docker, Time Series, Natural Language Processing and the others are visible but locked until their content is written.
+**Thirteen learning paths** are defined: Python, Data Science, Machine Learning, SQL and Mathematics are open, while API, Docker, Time Series, Natural Language Processing and the others are visible but locked until their content is written.
 
-**Working:** learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 29 badges celebrated as you earn them, an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
+**Working:** learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations, mathematics problems on a drawing sheet with step-by-step solution paths, suggested study routes, streak reminders as Windows notifications, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 29 badges celebrated with a card as you earn them, an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
 
-**Not there yet:** the content for the other paths, a place for your own notes, and a larger exercise engine for projects that run a dataset end to end.
+**Not there yet:** the content for the other paths, and a larger exercise engine for projects that run a dataset end to end.
 
 The roadmap moves along in [CHANGELOG.en.md](CHANGELOG.en.md).
 
@@ -83,7 +107,7 @@ Your code runs in a separate process, inside an isolated working folder. Its out
 
 Everything about learning works offline: the lessons, the lecture notes, the quizzes, the exercises and your progress. None of it involves a server, and your progress never leaves your computer.
 
-The application makes exactly one network request, and only if you leave it on: the version check described above. It sends nothing — no identity, no progress, no usage data — and downloads a file only when you press Update.
+The application goes online only if you leave the update check on: for the version check described above and, alongside it, to read the number of stars Odyssey has on GitHub, shown in the bottom strip. Neither request sends anything — no identity, no progress, no usage data — and a file is downloaded only when you press Update. With the check turned off, the application never touches the network.
 
 Addresses in the "My Links" and "Extra Content" tabs do not open inside the application; clicking one hands it to your system browser.
 
