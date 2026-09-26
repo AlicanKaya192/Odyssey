@@ -59,6 +59,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   yorumdan çıkarıyor. Girintiyi gösteren soluk dikey çizgiler blokların
   nerede başlayıp bittiğini gösteriyor. Aynı kolaylıklar Notlarım'daki kod
   bloklarının içinde de çalışıyor.
+- **Seri alevi büyüyor.** Karşılama kartındaki seri sayısının yanında bir
+  alev var; seriniz uzadıkça rengi ve boyu değişiyor, küçük sarı bir
+  kıvılcımdan yüz günün sonunda altın bir aleve dönüşüyor. Üstüne
+  gelince bir sonraki aşamaya kaç gün kaldığı yazıyor.
 - **Alt şeritte GitHub yıldızı.** Sol altta Odyssey'in GitHub'daki yıldız
   sayısı duruyor; tıklayınca depo açılıyor, beğendiyseniz oradan yıldız
   verebilirsiniz. Sayı yeni sürüm denetimiyle birlikte güncelleniyor ve
@@ -84,6 +88,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   anlatan bir kısım, sınavlara 55 yeni soru eklendi; Genel Tekrar dışındaki
   her bölümde artık 35 soru var. Bu bölümleri daha önce bitirdiyseniz yeni
   alıştırmaları çözene kadar bölüm "yarım kaldı" görünür.
+- **Ayarlar penceresi yenilendi.** Ayarlar artık soldaki kategorilerde
+  duruyor: Görünüm, Öğrenme, Bildirimler, SQL ve Güncelleme. Her sayfada
+  ne işe yaradığını anlatan kısa bir açıklama var; pencere her sayfada aynı
+  boyutta kalıyor. "Discord'da göster" Görünüm sayfasına taşındı.
 - **Arama sol şeridin ortasında.** Şeridin ortasındaki genel ilerleme
   halkası kaldırıldı; aynı yüzde öğrenme yolu ekranında zaten yazıyor.
   Yerine arama düğmesi geldi.
@@ -95,9 +103,21 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   alta geçti.
 
 ### Düzeltildi
+- **Makine Öğrenmesi alıştırmalarında zorluk yazısı boş kalmıyor.** Yirmi
+  alıştırmada "Zorluk:" yazısının yanı boştu; artık zorluk noktaları
+  görünüyor.
+- **Ayarları açıp kapatınca program çökmüyor.** Ayarlar kapanırken arka
+  planda SQL veritabanlarını sayan iş yarıda kesiliyor ve program
+  beklenmedik şekilde kapanıyordu.
+- **Program kapanırken çökmüyor.** Açılıştaki güncelleme denetimi sürerken
+  ya da bir alıştırma çalışırken programı kapatmak onu çökertebiliyordu.
+- **Geri alma ilk basışta çalışıyor.** Bir alıştırma ya da not açıldıktan
+  sonra `Ctrl+Z`'nin ilk birkaç basışı görünür hiçbir şey yapmıyordu.
+  Artık doğrudan son yaptığınız değişikliği geri alıyor.
 - **İpucu açınca ekran zıplamıyor.** Bir ipucunu açmak yönergenin tamamını
   yeniden yüklüyordu; sayfa bir an en başa gidip eski yerine dönüyordu.
   Artık yalnızca ipucu kutusu değişiyor, okuduğunuz yer kıpırdamıyor.
+  Açtığınız ipucu "Gizle" ile yeniden kapatılabiliyor.
 - **SQL kodu her yerde renkli.** SQL patikasının konu anlatımlarında, ders
   notlarında ve Notlarım'daki SQL kod blokları renksizdi; sınav sorularındaki
   ve alıştırma editöründeki SQL ise Python kurallarıyla renkleniyordu

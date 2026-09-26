@@ -64,6 +64,10 @@ lecture note does not mean downloading the whole application again.
   on its own line and unindents after `return` or `pass`. `Ctrl+/` comments
   or uncomments the selected lines. Faint vertical indent guides show where
   blocks begin and end. The same help works inside code blocks in My Notes.
+- **The streak flame grows.** A flame sits next to the streak count on the
+  welcome card; as your streak gets longer it changes colour and size, from
+  a small yellow spark to a golden flame after a hundred days. Hovering
+  over it shows how many days are left until the next stage.
 - **GitHub star in the bottom strip.** The bottom left corner shows how many
   stars Odyssey has on GitHub; clicking it opens the repository, where you
   can add yours if you like it. The count is refreshed together with the
@@ -91,6 +95,11 @@ lecture note does not mean downloading the whole application again.
   section except the Overall Review now has 35. If you had already finished
   these sections, they show as in progress until you solve the new
   exercises.
+- **The settings window has been redesigned.** Settings now sit in
+  categories on the left: Appearance, Learning, Notifications, SQL and
+  Updates. Each page has a short description of what it is for, and the
+  window keeps the same size on every page. "Show on Discord" moved to the
+  Appearance page.
 - **Search sits in the middle of the left strip.** The overall progress
   ring in the middle of the strip is gone; the same percentage is already
   shown on the learning path screen. The search button took its place.
@@ -102,9 +111,22 @@ lecture note does not mean downloading the whole application again.
   The shortcuts button moved to the bell's place in the bottom right.
 
 ### Fixed
+- **Difficulty labels in Machine Learning exercises are no longer
+  empty.** Twenty exercises showed nothing after "Difficulty:"; they now
+  show the difficulty dots.
+- **Opening and closing Settings no longer crashes the program.** When
+  Settings closed, the background job counting the SQL databases was cut
+  off mid-run and the program closed unexpectedly.
+- **Closing the program no longer crashes it.** Closing the program while
+  the update check at startup was running, or while an exercise was
+  running, could make it crash.
+- **Undo works on the first press.** After opening an exercise or a note,
+  the first few presses of `Ctrl+Z` seemed to do nothing. It now undoes
+  your last change straight away.
 - **Opening a hint no longer makes the screen jump.** Opening a hint reloaded
   the whole instructions page; it flashed back to the top and then returned
   to where you were. Now only the hint box changes and your place stays put.
+  An opened hint can be closed again with "Hide".
 - **SQL code is coloured everywhere.** SQL code blocks in the SQL path's
   lessons, lecture notes and My Notes were plain; SQL in quiz questions and
   in the exercise editor was coloured with Python's rules (`SELECT` stayed
