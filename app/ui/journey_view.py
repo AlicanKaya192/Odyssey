@@ -130,6 +130,7 @@ class HeroCard(QFrame):
         self._name = ""
         self._resume = ""
         self._streak = 0
+        self._progress = 0
         self.setProperty("role", "hero")
         apply_shadow(self, "light", strong=True)
 
@@ -221,7 +222,7 @@ class HeroCard(QFrame):
         self._stats["sections"].set_value(f"{sections}/{total_sections}")
         self._stats["exercises"].set_value(f"{exercises}/{total_exercises}")
         self._stats["streak"].set_value(str(streak))
-        self._stats["progress"].set_value(f"%{progress}")
+        self._progress = progress
         self._streak = streak
         self.retranslate()
 
@@ -267,6 +268,8 @@ class HeroCard(QFrame):
         self._render_greeting()
         for key in self._stats:
             self._stats[key].set_label(self._language.t(f"home.stat_{key}"))
+        # Yüzde işareti dile göre: Türkçede önde (%40), İngilizcede sonda (40%).
+        self._stats["progress"].set_value(self._language.t("home.percent", value=self._progress))
         self._render_flame()
 
 
