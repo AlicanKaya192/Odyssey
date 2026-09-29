@@ -33,6 +33,17 @@ lecture note does not mean downloading the whole application again.
   press `Esc` to skip it; the sound can be turned off in Settings ›
   Notifications › Sounds. The centaur also stands on the welcome card of the
   Learning Path, aiming at the target that shows your overall progress.
+- **A refreshed update window.** The downloaded and total size, speed and
+  time left are shown as the download runs; the window can be minimised and
+  left in the background, and Odyssey stays usable meanwhile. When the
+  download finishes, installation runs without a window and Odyssey opens
+  with the new version.
+
+### Fixed
+- **Updating no longer locks the desktop.** The window that opened after
+  clicking "Update" kept you from switching to other windows (Alt+Tab and
+  the taskbar did not respond). The fix applies to updates after 0.9.0: the
+  update from 0.8.3 to 0.9.0 is still done by the old version's window.
 
 ## [0.8.3] — 26 September 2026
 

@@ -31,6 +31,16 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   `Esc` ile geçilebiliyor; ses Ayarlar › Bildirimler › Sesler'den
   kapatılabiliyor. Sentor Öğrenme Yolu'ndaki karşılama kartında da duruyor
   ve genel ilerlemenizi gösteren hedefe nişan alıyor.
+- **Güncelleme penceresi yenilendi.** İndirilen ve toplam boyut, hız ve
+  kalan süre anlık görünüyor; pencere küçültülüp arka planda bırakılabiliyor,
+  indirme sürerken Odyssey kullanılmaya devam edilebiliyor. İndirme bitince
+  kurulum pencere açmadan yapılıyor ve Odyssey yeni sürümüyle açılıyor.
+
+### Düzeltildi
+- **Güncelleme sırasında masaüstü kilitlenmiyor.** "Güncelle"ye basınca açılan
+  pencere başka pencerelere geçmeyi engelliyordu (Alt+Tab ve görev çubuğu
+  cevap vermiyordu). Düzeltme 0.9.0'dan sonraki güncellemelerde geçerli:
+  0.8.3'ten 0.9.0'a geçerken güncellemeyi hâlâ eski sürümün penceresi yapıyor.
 
 ## [0.8.3] — 26 Eylül 2026
 
