@@ -1,8 +1,9 @@
 `math` and `datetime` ship with Python. But `pandas`, `numpy` and `requests`
 do not — you have to install those.
 
-This note covers that job. It will be the first thing you do when you move on
-to the Data Science path.
+This note is a short reminder of that job; the details and conda are in the
+path's first chapter, **Packages and Environments**. It will be the first thing
+you do when you move on to the Data Science path.
 
 ## What is `pip`?
 
