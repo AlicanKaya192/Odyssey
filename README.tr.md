@@ -2,22 +2,44 @@
   <b>Türkçe</b> · <a href="./README.md">English</a>
 </div>
 
-# Odyssey
-
-Python, veri bilimi, makine öğrenmesi, SQL ve bunların arkasındaki matematiği bölüm bölüm öğreten, çevrimdışı çalışan bir masaüstü uygulaması.
+<p align="center">
+  <img src="docs/media/banner_tr.png" alt="Odyssey: uygulamanın morunda, menderes bordürlü zeminde yayını germiş siyah figürlü bir sentor ve Odyssey yazısı" width="100%">
+</p>
 
 <p align="center">
-  <img src="docs/media/exercise_tr.gif" alt="Bir alıştırmada kodu yazıp çalıştırmak: terminalde sonuç, solda kodun çizdiği grafik" width="880">
+  <a href="https://github.com/AlicanKaya192/Odyssey/releases"><img alt="Sürüm 0.9.0" src="https://img.shields.io/badge/S%C3%9CR%C3%9CM-0.9.0-7466EE?style=for-the-badge&labelColor=1E1A3C"></a>
+  <img alt="Windows 10 ve 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-7466EE?style=for-the-badge&labelColor=1E1A3C">
+  <img alt="Python 3.10 ile 3.14 arası" src="https://img.shields.io/badge/Python-3.10%E2%80%933.14-7466EE?style=for-the-badge&logo=python&logoColor=white&labelColor=1E1A3C">
+  <img alt="Qt 6 ve PySide6 ile yapıldı" src="https://img.shields.io/badge/Qt%206-PySide6-7466EE?style=for-the-badge&logo=qt&logoColor=white&labelColor=1E1A3C">
+  <br>
+  <a href="LICENSE"><img alt="MIT lisansı" src="https://img.shields.io/github/license/AlicanKaya192/Odyssey?style=for-the-badge&label=L%C4%B0SANS&color=7466EE&labelColor=1E1A3C"></a>
+  <img alt="Türkçe ve İngilizce" src="https://img.shields.io/badge/D%C4%B0L-TR%20%7C%20EN-7466EE?style=for-the-badge&labelColor=1E1A3C">
+  <img alt="Çevrimdışı çalışır" src="https://img.shields.io/badge/%C3%87ALI%C5%9EIR-%C3%87EVR%C4%B0MDI%C5%9EI-7466EE?style=for-the-badge&labelColor=1E1A3C">
+  <a href="https://github.com/AlicanKaya192/Odyssey/stargazers"><img alt="GitHub yıldızları" src="https://img.shields.io/github/stars/AlicanKaya192/Odyssey?style=for-the-badge&logo=github&color=7466EE&labelColor=1E1A3C"></a>
 </p>
+
+Python, veri bilimi, makine öğrenmesi, SQL ve bunların arkasındaki matematiği bölüm bölüm öğreten, çevrimdışı çalışan bir masaüstü uygulaması.
 
 Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları var; matematik bölümlerinde alıştırma yerine çizim kâğıdında çözülen problemler var. Bir bölümü tamamlamak için sınavı geçmek ve alıştırmaları çözmek gerekiyor. Kod uygulamanın içinde yazılıyor; program onu çalıştırıyor, ardından çıktısını, oluşturduğu değişkenleri ve tanımladığı fonksiyonları kontrol ediyor. Yapay zeka kullanılmıyor — her kontrol önceden tanımlıdır ve deterministik olarak değerlendirilir, yani aynı kod her zaman aynı sonucu verir.
 
 ## İçeriden bir bakış
 
+**Açılış.** Uygulama yüklenirken Odyssey'in maskotu — antik Yunan vazolarındaki siyah figür üslubunda bir sentor — dörtnala gelip okunu atıyor ve ok hedefi tam ortadan vuruyor. Yaklaşık üç saniye sürüyor; `Esc`'ye basarak ya da tıklayarak geçebilirsiniz.
+
+<p align="center">
+  <img src="docs/media/startup_tr.gif" alt="Açılış animasyonu: sentor dörtnala gelip atıyor, ok hedefi vuruyor, ODYSSEY yazısı çıkıyor ve Öğrenme Yolu açılıyor" width="880">
+</p>
+
 **Konu anlatımları** formüller, şekiller ve sayfanın başlık listesiyle geliyor; nereye kadar okuduğunuzu hatırlıyor.
 
 <p align="center">
   <img src="docs/media/lesson_tr.gif" alt="Lojistik Regresyon dersini formülleri ve şekilleriyle aşağı kaydırmak" width="880">
+</p>
+
+**Alıştırmalar** kodunuzu uygulamanın içinde çalıştırıyor. Sonuç editörün altındaki terminalde görünüyor; kod bir grafik çizdiyse solda açılıyor.
+
+<p align="center">
+  <img src="docs/media/exercise_tr.gif" alt="Bir alıştırmada kodu yazıp çalıştırmak: terminalde sonuç, solda kodun çizdiği grafik" width="880">
 </p>
 
 **Matematik problemleri** çizim kâğıdında elle çözülüyor. Yalnızca cevap denetleniyor; çözünce ya da iki yanlıştan sonra çözüm yolları solda açılıyor, kendi adımlarınızla karşılaştırabiliyorsunuz.
@@ -26,10 +48,34 @@ Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları va
   <img src="docs/media/problem_tr.gif" alt="Bir logaritma denklemini çizim kâğıdında çözmek, cevabı denetlemek ve çözüm yollarını açmak" width="880">
 </p>
 
+**Notlar** dersin yanında alınıyor: sayfadan bir cümle alıntılayın, kendi sözlerinizi ekleyin; yazdıkça kaydediliyor. **Notlarım** hepsini patikalara göre ve kendi klasörlerinizde topluyor; genel arama (`Ctrl+K`) onları da buluyor, notlarınızı indirip yükleyebiliyorsunuz.
+
+<p align="center">
+  <img src="docs/media/notes_tr.gif" alt="Paketler ve Ortamlar dersinde not panelini açmak, bir cümle alıntılamak, not yazmak ve notu Notlarım'da açmak" width="880">
+</p>
+
+**Rotalar** hedefinize göre bir sıra öneriyor — sıfırdan başlamak, veri bilimine geçmek ya da ML mühendisi olmak. Her adım neleri kapsadığını, sonunda neler yapabileceğinizi ve yaklaşık süresini söylüyor; odaklanılacak bölümler tek tıkla açılıyor.
+
+<p align="center">
+  <img src="docs/media/roadmap_tr.gif" alt="Sıfırdan başlıyorum rotasını kaydırmak, ardından Veri Bilimci rotasına ve odaklanılacak bölümlerine geçmek" width="880">
+</p>
+
 **Bir bölümü bitirmek ya da rozet kazanmak** sağ alt köşede bir kartla kutlanıyor.
 
 <p align="center">
   <img src="docs/media/celebration_tr.gif" alt="Sağ alt köşede art arda beliren bir bölüm kartı ve iki rozet kartı" width="410">
+</p>
+
+**Güncellemeler** siz çalışmaya devam ederken kendi penceresinde iniyor: sentor koşarken boyut, hız ve kalan süre görünüyor; bitince okunu atıyor ve yeni sürüm kuruluyor.
+
+<p align="center">
+  <img src="docs/media/update_tr.gif" alt="Yeni sürüm bildirimi, ardından koşan sentor ve yüzde, megabayt ve hızla ilerleyen indirme penceresi" width="880">
+</p>
+
+**Kapatırken** onay istiyor; ilerlemenizin kaydedildiğini ve serinizin bugün güvende olup olmadığını söylüyor.
+
+<p align="center">
+  <img src="docs/media/exit_tr.gif" alt="Hilalin altında el sallayan sentorlu çıkış penceresi, Vazgeç ve Çık düğmeleri" width="880">
 </p>
 
 ## Başlarken
@@ -66,11 +112,11 @@ Denetimi **Ayarlar › Güncelleme** bölümünden kapatabilirsiniz. Kapalıyken
 
 Erken geliştirme aşaması (`0.9.0`), açık beta olarak yayınlandı. Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı, güncelleme — yerinde; müfredat büyümeye devam ediyor.
 
-**Bugünkü içerik:** beş patika **tamamlandı** — Python Temelleri (on yedi bölüm), Veri Bilimi (on), Makine Öğrenmesi (on üç), SQL (on altı; SQL Server'ı kurmaktan pencere fonksiyonlarına, dizinlere, görünümlere ve saklı yordamlara) ve iki modüllü Matematik: Temel Matematik (yirmi sekiz bölüm, sayılardan olasılık ve istatistiğe) ve Yapay Zekanın Matematiği (otuz iki; doğrusal cebir, kalkülüs, olasılık ve istatistik). 3374 sınav sorusu, 267 kod alıştırması, 300 matematik problemi ve 236 ders notu; tamamı Türkçe ve İngilizce.
+**Bugünkü içerik:** beş patika **tamamlandı** — Python Temelleri (on sekiz bölüm, paketler ve ortamlarla başlıyor), Veri Bilimi (on), Makine Öğrenmesi (on üç), SQL (on altı; SQL Server'ı kurmaktan pencere fonksiyonlarına, dizinlere, görünümlere ve saklı yordamlara) ve iki modüllü Matematik: Temel Matematik (yirmi sekiz bölüm, sayılardan olasılık ve istatistiğe) ve Yapay Zekanın Matematiği (otuz iki; doğrusal cebir, kalkülüs, olasılık ve istatistik). 3398 sınav sorusu, 267 kod alıştırması, 300 matematik problemi ve 239 ders notu; tamamı Türkçe ve İngilizce.
 
 **On üç öğrenme patikası** tanımlı: Python, Veri Bilimi, Makine Öğrenmesi, SQL ve Matematik açık; API, Docker, Zaman Serileri, Doğal Dil İşleme ve diğerleri içerikleri hazırlanana kadar kilitli görünüyor.
 
-**Çalışanlar:** öğrenme patikaları, bölüm içi başlık listesi ve okuma takibiyle konu anlatımı, ders notları, süreli sınavlar, Python ve SQL için otomatik kontrollü kod alıştırmaları (SQL kendi SQL Server'ınızda çalışıyor, her deneme geri alınıyor), kademeli ipuçları, hata açıklamaları, çizim kâğıdında çözülen ve adım adım çözüm yolları olan matematik problemleri, önerilen çalışma rotaları, Windows bildirimi olarak gelen seri hatırlatmaları, sırayla açılan bölümler, kalıcı ilerleme kaydı, kendi notlarınız ve genel arama (`Ctrl+K`), kazanınca bir kartla kutlanan 29 rozet, etkinlik takvimi, kendi fotoğrafınızı seçebildiğiniz profil, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema, uygulama içinden güncelleme, kilidi ve sınav süresini kaldırma seçenekleri.
+**Çalışanlar:** sentor maskotlu açılış animasyonu, öğrenme patikaları, bölüm içi başlık listesi ve okuma takibiyle konu anlatımı, ders notları, süreli sınavlar, Python ve SQL için otomatik kontrollü kod alıştırmaları (SQL kendi SQL Server'ınızda çalışıyor, her deneme geri alınıyor), kademeli ipuçları, hata açıklamaları, çizim kâğıdında çözülen ve adım adım çözüm yolları olan matematik problemleri, önerilen çalışma rotaları, Windows bildirimi olarak gelen seri hatırlatmaları, sırayla açılan bölümler, kalıcı ilerleme kaydı, kendi notlarınız ve genel arama (`Ctrl+K`), kazanınca bir kartla kutlanan 29 rozet, etkinlik takvimi, kendi fotoğrafınızı seçebildiğiniz profil, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema, uygulama içinden güncelleme, kilidi ve sınav süresini kaldırma seçenekleri.
 
 **Henüz yok:** diğer patikaların içeriği ve bir veri setini baştan sona işleyen proje tipi alıştırmalar için daha geniş bir alıştırma motoru.
 

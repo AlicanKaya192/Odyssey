@@ -2,22 +2,44 @@
   <a href="./README.tr.md">Türkçe</a> · <b>English</b>
 </div>
 
-# Odyssey
-
-An offline desktop application that teaches Python, data science, machine learning, SQL and the mathematics behind them, one section at a time.
+<p align="center">
+  <img src="docs/media/banner_en.png" alt="Odyssey: a black-figure centaur drawing a bow beside the Odyssey wordmark, on the purple of the application, with a Greek key border" width="100%">
+</p>
 
 <p align="center">
-  <img src="docs/media/exercise_en.gif" alt="Writing code in an exercise and running it: the terminal shows the result and the chart the code drew opens on the left" width="880">
+  <a href="https://github.com/AlicanKaya192/Odyssey/releases"><img alt="Version 0.9.0" src="https://img.shields.io/badge/version-0.9.0-7466EE?style=for-the-badge&labelColor=1E1A3C"></a>
+  <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-7466EE?style=for-the-badge&labelColor=1E1A3C">
+  <img alt="Python 3.10 to 3.14" src="https://img.shields.io/badge/Python-3.10%E2%80%933.14-7466EE?style=for-the-badge&logo=python&logoColor=white&labelColor=1E1A3C">
+  <img alt="Built with Qt 6 and PySide6" src="https://img.shields.io/badge/Qt%206-PySide6-7466EE?style=for-the-badge&logo=qt&logoColor=white&labelColor=1E1A3C">
+  <br>
+  <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/github/license/AlicanKaya192/Odyssey?style=for-the-badge&color=7466EE&labelColor=1E1A3C"></a>
+  <img alt="Turkish and English" src="https://img.shields.io/badge/Languages-TR%20%7C%20EN-7466EE?style=for-the-badge&labelColor=1E1A3C">
+  <img alt="Works offline" src="https://img.shields.io/badge/Works-offline-7466EE?style=for-the-badge&labelColor=1E1A3C">
+  <a href="https://github.com/AlicanKaya192/Odyssey/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/AlicanKaya192/Odyssey?style=for-the-badge&logo=github&color=7466EE&labelColor=1E1A3C"></a>
 </p>
+
+An offline desktop application that teaches Python, data science, machine learning, SQL and the mathematics behind them, one section at a time.
 
 Every section has a lesson, lecture notes, a quiz and coding exercises; mathematics sections have problems instead, worked on a drawing sheet. To complete a section you need to pass the quiz and solve the exercises. You write the code inside the application; it runs your code, then checks the output, the variables it created and the functions it defined. No artificial intelligence is involved — every check is defined in advance and evaluated deterministically, so the same code always produces the same result.
 
 ## A look inside
 
+**Opening.** While the application loads, Odyssey's mascot — a centaur in the style of Greek black-figure vases — gallops in, looses an arrow and hits the target dead centre. It takes about three seconds; press `Esc` or click to skip it.
+
+<p align="center">
+  <img src="docs/media/startup_en.gif" alt="The start-up animation: the centaur gallops in and shoots, the arrow hits the target, the ODYSSEY title appears and the Learning Path opens" width="880">
+</p>
+
 **Lessons** come with formulas, figures and an outline of the page, and remember how far you have read.
 
 <p align="center">
   <img src="docs/media/lesson_en.gif" alt="Scrolling through the Logistic Regression lesson with its formulas and figures" width="880">
+</p>
+
+**Exercises** run your code inside the application. The terminal below the editor shows the result; if the code draws a chart, it opens on the left.
+
+<p align="center">
+  <img src="docs/media/exercise_en.gif" alt="Writing code in an exercise and running it: the terminal shows the result and the chart the code drew opens on the left" width="880">
 </p>
 
 **Mathematics problems** are worked out by hand on a drawing sheet. Only the answer is checked; once you solve it, or after two wrong tries, the solution paths open on the left so you can compare them with your own steps.
@@ -26,10 +48,34 @@ Every section has a lesson, lecture notes, a quiz and coding exercises; mathemat
   <img src="docs/media/problem_en.gif" alt="Solving a logarithm equation on the drawing sheet, checking the answer and opening the solution paths" width="880">
 </p>
 
+**Notes** are taken beside the lesson: quote a sentence from the page, add your own words, and everything is saved as you type. **My Notes** gathers them by path and in your own folders; the global search (`Ctrl+K`) finds them too, and you can download and upload them.
+
+<p align="center">
+  <img src="docs/media/notes_en.gif" alt="Opening the note panel in the Packages and Environments lesson, quoting a sentence, writing a note and opening it in My Notes" width="880">
+</p>
+
+**Roadmaps** suggest an order for your goal — starting from zero, moving into data science, or becoming an ML engineer. Each step says what it covers, what you will be able to do by the end and roughly how long it takes; the chapters to focus on open with a click.
+
+<p align="center">
+  <img src="docs/media/roadmap_en.gif" alt="Scrolling through the Starting from zero route, then switching to Data Scientist and its chapters to focus on" width="880">
+</p>
+
 **Finishing a section or earning a badge** is celebrated with a card in the bottom right corner.
 
 <p align="center">
   <img src="docs/media/celebration_en.gif" alt="A section card and two badge cards appearing one after another in the bottom right corner" width="410">
+</p>
+
+**Updates** download in their own window while you keep studying: size, speed and time left are shown as the centaur runs, and when it is done it shoots its arrow and the new version installs.
+
+<p align="center">
+  <img src="docs/media/update_en.gif" alt="The new version notice, then the download window with the running centaur and the progress in percent, megabytes and speed" width="880">
+</p>
+
+**Closing** asks before it quits, says your progress is saved and whether your streak is safe today.
+
+<p align="center">
+  <img src="docs/media/exit_en.gif" alt="The exit window with a centaur waving under a crescent moon, and the Stay and Quit buttons" width="880">
 </p>
 
 ## Getting started
@@ -66,11 +112,11 @@ You can turn the check off under **Settings › Updates**. With it off, the appl
 
 Early development (`0.9.0`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
 
-**Content today:** five paths are **complete** — Python Fundamentals (seventeen sections), Data Science (ten), Machine Learning (thirteen), SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures) and Mathematics, in two modules: Foundational Mathematics (twenty-eight sections, from numbers to probability and statistics) and The Mathematics of AI (thirty-two, linear algebra, calculus, probability and statistics). 3374 quiz questions, 267 coding exercises, 300 mathematics problems and 236 lecture notes, all of it in both Turkish and English.
+**Content today:** five paths are **complete** — Python Fundamentals (eighteen sections, starting with packages and environments), Data Science (ten), Machine Learning (thirteen), SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures) and Mathematics, in two modules: Foundational Mathematics (twenty-eight sections, from numbers to probability and statistics) and The Mathematics of AI (thirty-two, linear algebra, calculus, probability and statistics). 3398 quiz questions, 267 coding exercises, 300 mathematics problems and 239 lecture notes, all of it in both Turkish and English.
 
 **Thirteen learning paths** are defined: Python, Data Science, Machine Learning, SQL and Mathematics are open, while API, Docker, Time Series, Natural Language Processing and the others are visible but locked until their content is written.
 
-**Working:** learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations, mathematics problems on a drawing sheet with step-by-step solution paths, suggested study routes, streak reminders as Windows notifications, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 29 badges celebrated with a card as you earn them, an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
+**Working:** an animated start-up with the centaur mascot, learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations, mathematics problems on a drawing sheet with step-by-step solution paths, suggested study routes, streak reminders as Windows notifications, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 29 badges celebrated with a card as you earn them, an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
 
 **Not there yet:** the content for the other paths, and a larger exercise engine for projects that run a dataset end to end.
 
