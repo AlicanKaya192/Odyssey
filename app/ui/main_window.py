@@ -1197,6 +1197,16 @@ class MainWindow(QMainWindow):
         self._shutting_down = True
         self._star_timer.stop()
 
+        # Güncelleme penceresi ayrı bir pencere; program kapatılırsa o da
+        # kapanıyor (indirme iptal, yarım dosya siliniyor), yoksa uygulama
+        # görünmez bir indirmeyle açık kalırdı.
+        pencere = getattr(self, "_update_window", None)
+        if pencere is not None and not self._closing_for_update:
+            try:
+                pencere.close()
+            except RuntimeError:
+                pass
+
         # Notta yazılıp henüz kaydedilmemiş son harfler (Notlarım ve
         # bölümdeki not paneli).
         self._notebook.flush()

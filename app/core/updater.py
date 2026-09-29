@@ -44,7 +44,11 @@ INSTALLER_SUFFIX = "-setup.exe"
 # Kurulum programına verilen parametreler. Adlar kurulum betiğiyle
 # (`installer/odyssey.iss`, `{param:OLDDIR}` / `{param:OLDPID}`) aynı.
 #
-# - `/SILENT`: soru sormadan kurar, yalnızca ilerleme penceresi görünür.
+# - `/VERYSILENT`: soru sormadan ve **hiç pencere açmadan** kurar. 0.8.3'e
+#   kadar `/SILENT` vardı: kurulumun kendi ilerleme penceresi açılıyor ve
+#   eski sürecin kapanmasını beklerken donuk duruyordu (GitHub #15). Artık
+#   hikâyeyi uygulama anlatıyor: güncelleme penceresinde ok hedefe saplanıyor,
+#   yeni sürüm açılış animasyonuyla açılıyor.
 # - `/SUPPRESSMSGBOXES /NORESTART /SP-`: hiçbir kutu, yeniden başlatma ya da
 #   "kurmak istiyor musunuz" sorusu yok.
 # - `/OLDPID`: kapanması beklenen bu süreç; dosyaları kilitli tutuyor.
@@ -53,7 +57,7 @@ INSTALLER_SUFFIX = "-setup.exe"
 #   `_internal` siliniyor. Kurulu bir uygulama bunu göndermiyor: kendi
 #   klasörünü göndermesi kurulumun yeni yazdığı dosyaları silmeye kalkması
 #   olurdu (betik ayrıca yolları karşılaştırıyor).
-INSTALLER_ARGS = ("/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-")
+INSTALLER_ARGS = ("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-")
 
 # İndirme adresi yalnızca burada başlayabilir. Sunucudan gelen bir adresi
 # doğrulamadan indirmek, güncelleme akışını bir dosya indirme aracına
