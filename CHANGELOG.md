@@ -19,7 +19,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [0.9.0] — yayınlanmadı
+## [0.9.0] — 29 Eylül 2026
 
 ### Eklendi
 - **Python patikasına yeni ilk bölüm: Paketler ve Ortamlar.** pip ve
@@ -44,7 +44,6 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   kalan süre anlık görünüyor; pencere küçültülüp arka planda bırakılabiliyor,
   indirme sürerken Odyssey kullanılmaya devam edilebiliyor. İndirme bitince
   kurulum pencere açmadan yapılıyor ve Odyssey yeni sürümüyle açılıyor.
-
 - **Rotalar daha açıklayıcı.** Her adımda o patikada neler olduğu, adımın
   sonunda neler yapabileceğiniz ve yaklaşık süresi yazıyor. Odaklanılacak
   bölümlerin her birinin neden önemli olduğu da yazıyor; açık bir bölüme
@@ -55,10 +54,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   içeriği gönderilmiyor.
 - **Seri daha anlaşılır.** Programı kapatırken çıkış penceresi serinizin
   bugün güvende olup olmadığını söylüyor. Alevin üzerine gelince serinin ne
-  zaman biteceği
-  geri sayımla yazıyor ve bir günün neyle sayıldığı görünüyor. Bir bölümde
-  2 dakika çalışmak da o günü sayıyor; önce yalnızca bir dersi sonuna kadar
-  okumak, alıştırma çalıştırmak ya da sınava girmek sayılıyordu.
+  zaman biteceği geri sayımla yazıyor ve bir günün neyle sayıldığı
+  görünüyor. Bir bölümde 2 dakika çalışmak da o günü sayıyor; önce yalnızca
+  bir dersi sonuna kadar okumak, alıştırma çalıştırmak ya da sınava girmek
+  sayılıyordu.
 
 ### Düzeltildi
 - **Hatırlatmalar programı kullandığınız gün gelmiyor.** Programı sabah
