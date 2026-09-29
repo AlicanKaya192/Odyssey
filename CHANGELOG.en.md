@@ -21,7 +21,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [0.9.0] — unreleased
+## [0.9.0] — 29 September 2026
 
 ### Added
 - **A new first chapter in the Python track: Packages and Environments.**
@@ -48,7 +48,6 @@ lecture note does not mean downloading the whole application again.
   left in the background, and Odyssey stays usable meanwhile. When the
   download finishes, installation runs without a window and Odyssey opens
   with the new version.
-
 - **Clearer roadmaps.** Each step says what the track covers, what you will be
   able to do by the end and roughly how long it takes. Every chapter to focus
   on says why it matters, and clicking an open chapter takes you straight to
@@ -59,10 +58,9 @@ lecture note does not mean downloading the whole application again.
   contents of your notes are not sent.
 - **Clearer streaks.** When you close the program, the exit window tells you
   whether your streak is safe today. Hovering over the flame shows a
-  countdown to when the
-  streak ends and what makes a day count. Spending 2 minutes in a section now
-  counts as well; before, only finishing a lesson, running an exercise or
-  taking a quiz did.
+  countdown to when the streak ends and what makes a day count. Spending
+  2 minutes in a section now counts as well; before, only finishing a
+  lesson, running an exercise or taking a quiz did.
 
 ### Fixed
 - **No reminders on days you use the program.** Someone who opened the
