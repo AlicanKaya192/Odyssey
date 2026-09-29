@@ -37,7 +37,7 @@ Veri bilimi kaynaklarında sık sık **Anaconda** kurulumu önerilir. Anaconda, 
 
 Ancak bilmen gereken bir şey var: Anaconda kendi sistem kütüphanelerini taşır ve bunlar bazı programlarla çakışabilir. Bu uygulamanın kendisi de Anaconda'nın Python'uyla kurulduğunda açılmıyor — arayüz kütüphanesi Anaconda'nın eski dosyalarını yükleyip hata veriyor.
 
-Yeni başlıyorsan **temiz bir Python kurulumuyla** başlamanı öneririm. Kütüphaneleri ihtiyaç duydukça `pip install` ile eklersin.
+Yeni başlıyorsan **temiz bir Python kurulumuyla** başlamanı öneririm. Kütüphaneleri ihtiyaç duydukça `pip install` ile eklersin. pip, conda ve sanal ortamların ayrıntısı patikanın ilk bölümünde, **Paketler ve Ortamlar**'da.
 
 ## Bir düzenleyici seç
 

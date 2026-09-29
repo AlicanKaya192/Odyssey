@@ -65,7 +65,7 @@ SQL_JOIN_SECTION = (SQL_CHAPTER, "06-tablolari-birlestirmek")
 SQL_WINDOW_SECTION = (SQL_CHAPTER, "11-pencere-fonksiyonlari")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
-PY_SECTION_COUNT = 17
+PY_SECTION_COUNT = 18
 DATA_SECTION_COUNT = 10
 ML_SECTION_COUNT = 13
 SQL_SECTION_COUNT = 16
@@ -203,7 +203,9 @@ def collect(catalog, store, path) -> list[Badge]:
                 icon=tanim.get("icon", "●"),
                 title=tanim.get("title", {}),
                 description=tanim.get("description", {}),
-                earned=kazanildi,
+                # Kazanılmış rozet geri alınmaz: patikaya bölüm eklenince
+                # koşul yeniden sağlanana kadar kaybolurdu.
+                earned=kazanildi or rozet_id in kayitlar,
                 earned_at=kayitlar.get(rozet_id, ""),
                 medal=tuple((tanim.get("medal") or ["circle", "bronze"])[:2]),
             )
