@@ -19,6 +19,20 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.9.1] — yayınlanmadı
+
+### Değişti
+- **Güncellemeler artık yalnızca değişen dosyaları indiriyor.** Bir önceki
+  sürümü kurulu olan, 229 MB'lık tam kurulum yerine yalnızca o sürümden bu
+  yana değişen dosyaları içeren küçük bir güncelleme paketi alıyor (bu
+  sürümden sonrakiler için). Paket kurulu sürümü denetliyor; uymazsa hiçbir
+  dosyaya dokunmuyor ve program bir sonraki denemede tam kurulumu indiriyor.
+  0.9.1'e geçiş son kez tam kurulumla oluyor.
+
+### Düzeltildi
+- Güncellemeden sonra masaüstü kısayolu eski simgeyi göstermeye devam
+  ediyordu. Kurulum artık Windows'a simgeleri yeniletiyor.
+
 ## [0.9.0] — 29 Eylül 2026
 
 ### Eklendi
