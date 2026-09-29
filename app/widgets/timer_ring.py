@@ -10,9 +10,11 @@ yanıp sönmüyor, büyümüyor.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QRectF, Qt
-from PySide6.QtGui import QColor, QFont, QPainter, QPen
+from PySide6.QtCore import Property, QRectF, Qt
+from PySide6.QtGui import QBrush, QColor, QFont, QFontMetrics, QLinearGradient, QPainter, QPen
 from PySide6.QtWidgets import QWidget
+
+from . import motion
 
 # Kalan sürenin hangi oranından sonra renk değişeceği.
 WARN_RATIO = 0.25
@@ -34,14 +36,32 @@ class TimerRing(QWidget):
         self._left = 0
         self._untimed = False
         self._thickness = thickness
+        # Görünürken halka boştan doluyor (ui-taslak C7); 1 = tam çizim.
+        self._reveal = 1.0
 
         self._track = QColor("#E3E6EC")
         self._normal = QColor("#4F46E5")
         self._warn = QColor("#B45309")
         self._danger = QColor("#B91C1C")
         self._text = QColor("#12151A")
+        self._second: QColor | None = None
+        self._caption = ""
+        self._caption_color = QColor("#6B7280")
 
         self.setFixedSize(size, size)
+
+    def _get_reveal(self) -> float:
+        return self._reveal
+
+    def _set_reveal(self, v: float) -> None:
+        self._reveal = v
+        self.update()
+
+    reveal = Property(float, _get_reveal, _set_reveal)
+
+    def play_fill(self) -> None:
+        """Halka boştan dolarak belirir (başlangıç kartı açılınca)."""
+        motion.animate_property(self, "reveal", 1.0, 1100, "out", start=0.0)
 
     # --- veri -------------------------------------------------------------
 
@@ -68,7 +88,19 @@ class TimerRing(QWidget):
         self._untimed = value
         self.update()
 
-    def set_colors(self, track: str, normal: str, warn: str, danger: str, text: str) -> None:
+    def set_caption(self, text: str) -> None:
+        """Rakamın altındaki küçük yazı ("süre")."""
+        self._caption = text
+        self.update()
+
+    def set_caption_color(self, color: str) -> None:
+        self._caption_color = QColor(color)
+        self.update()
+
+    def set_colors(self, track: str, normal: str, warn: str, danger: str, text: str,
+                   second: str | None = None) -> None:
+        """`second` verilirse normal kipte yay iki renk arasında geçişli çiziliyor."""
+        self._second = QColor(second) if second else None
         self._track = QColor(track)
         self._normal = QColor(normal)
         self._warn = QColor(warn)
@@ -104,27 +136,46 @@ class TimerRing(QWidget):
         painter.setPen(kalem)
         painter.drawEllipse(kutu)
 
+        def boya(renk: QColor) -> None:
+            if self._second is not None and renk == self._normal:
+                gecis = QLinearGradient(0, 0, self.width(), 0)
+                gecis.setColorAt(0, self._normal)
+                gecis.setColorAt(1, self._second)
+                kalem.setBrush(QBrush(gecis))
+            else:
+                kalem.setColor(renk)
+            painter.setPen(kalem)
+
         if self._untimed:
-            kalem.setColor(self._normal)
-            painter.setPen(kalem)
-            painter.drawEllipse(kutu)
+            boya(self._normal)
+            painter.drawArc(kutu, 90 * 16, -int(360 * 16 * self._reveal))
         elif self._total and self._left:
-            kalem.setColor(self._ring_color())
-            painter.setPen(kalem)
+            boya(self._ring_color())
             # Saat on ikiden başlayıp saat yönünde eksiliyor; Qt açıları
             # on altıda bir derece cinsinden istiyor.
-            painter.drawArc(kutu, 90 * 16, -int(360 * 16 * self._left / self._total))
+            painter.drawArc(kutu, 90 * 16, -int(360 * 16 * self._left / self._total * self._reveal))
 
         font = QFont(self.font())
         # Sonsuz işareti rakamlardan daha ince duruyor; biraz büyütülmeden
         # halkanın ortasında kayıp gibi görünüyordu.
-        font.setPixelSize(max(11, int(self.height() * (0.40 if self._untimed else 0.24))))
-        font.setWeight(QFont.Weight.DemiBold)
+        font.setPixelSize(max(11, int(self.height() * (0.40 if self._untimed else 0.215))))
+        font.setWeight(QFont.Weight.Bold)
         painter.setFont(font)
         painter.setPen(self._text)
-        painter.drawText(
-            self.rect(),
-            Qt.AlignmentFlag.AlignCenter,
-            "∞" if self._untimed else format_clock(self._left),
-        )
+        metin = "∞" if self._untimed else format_clock(self._left)
+        if not self._caption:
+            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, metin)
+            painter.end()
+            return
+        # Rakam ve altındaki "süre" birlikte ortalanıyor (prototip `.tring .lbl`).
+        ust = QFontMetrics(font).height()
+        kucuk = QFont(self.font())
+        kucuk.setPixelSize(12)
+        kucuk.setWeight(QFont.Weight.DemiBold)
+        alt = QFontMetrics(kucuk).height()
+        y = (self.height() - ust - alt) / 2
+        painter.drawText(QRectF(0, y, self.width(), ust), Qt.AlignmentFlag.AlignCenter, metin)
+        painter.setFont(kucuk)
+        painter.setPen(self._caption_color)
+        painter.drawText(QRectF(0, y + ust - 2, self.width(), alt), Qt.AlignmentFlag.AlignCenter, self._caption)
         painter.end()

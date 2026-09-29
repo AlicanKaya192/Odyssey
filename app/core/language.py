@@ -226,5 +226,5 @@ def manager() -> LanguageManager:
 
 
 def t(key: str, **kwargs: object) -> str:
-    """Kısayol: ``language.t("sidebar.chapters")``."""
+    """Kısayol: ``language.t("quit.title")``."""
     return manager().t(key, **kwargs)

@@ -22,6 +22,9 @@ from pathlib import Path
 
 from ..paths import database_path
 
+# Programın en son açıldığı gün (ayar tablosunda). Çalışma günü değil.
+SEEN_KEY = "last_seen_day"
+
 # Şema göçleri. Sıra önemlidir, listeye yalnızca sona ekleme yapılır.
 MIGRATIONS: list[str] = [
     # 1 — ilk şema
@@ -182,6 +185,19 @@ MIGRATIONS: list[str] = [
     """
     DROP TABLE IF EXISTS notifications;
     """,
+    # 7 — ders notlarının okunması (Alican, 29 Eylül: notları bitirince
+    # sekmede tik çıkmıyordu). Bir not sonuna kadar kaydırılınca okunmuş
+    # sayılıyor; bölümdeki notların hepsi okununca "Ders Notu" sekmesine tik.
+    # Bölümün tamamlanma şartı değil, yalnızca gösterge.
+    """
+    CREATE TABLE IF NOT EXISTS notes_read (
+        chapter_id  TEXT NOT NULL,
+        section_id  TEXT NOT NULL,
+        document_id TEXT NOT NULL,
+        read_at     TEXT NOT NULL,
+        PRIMARY KEY (chapter_id, section_id, document_id)
+    );
+    """,
 ]
 
 
@@ -308,6 +324,27 @@ class ProgressStore:
                 )
 
     # --- çalışma günleri --------------------------------------------------
+
+    def mark_seen(self) -> None:
+        """Program bugün açıldı (hatırlatmaların "N gündür yoksun" hesabı).
+
+        Çalışma günü değil: seri yalnızca çalışılan günlerle sürüyor. Ama
+        programı sabah açıp konulara bakan birine akşam "3 gündür yoksun"
+        demek yanlıştı (Alican'a gelen bildirim, 29 Eylül).
+        """
+        bugun = date.today().isoformat()
+        if self.setting(SEEN_KEY, "") != bugun:
+            self.set_setting(SEEN_KEY, bugun)
+
+    def last_seen_day(self) -> date | None:
+        """Programın en son açıldığı ya da çalışıldığı gün (hangisi sonraysa)."""
+        gunler = [self.last_study_day()]
+        try:
+            gunler.append(date.fromisoformat(self.setting(SEEN_KEY, "")))
+        except ValueError:
+            pass
+        gunler = [g for g in gunler if g is not None]
+        return max(gunler) if gunler else None
 
     def mark_study_day(self) -> None:
         """Bugün çalışıldı olarak işaretlenir (gün serisi için)."""
@@ -526,6 +563,27 @@ class ProgressStore:
         if ilk_kez:
             self.record_activity("lesson", chapter_id, section_id)
         self.mark_study_day()
+
+    def mark_note_read(self, chapter_id: str, section_id: str, document_id: str) -> bool:
+        """Ders notu sonuna kadar okundu. İlk kez okunduysa `True`."""
+        with self._write() as connection:
+            imlec = connection.execute(
+                "INSERT OR IGNORE INTO notes_read (chapter_id, section_id, document_id, read_at) "
+                "VALUES (?, ?, ?, ?)",
+                (chapter_id, section_id, document_id, _now()),
+            )
+            ilk_kez = imlec.rowcount > 0
+        # Notu sonuna kadar okumak da çalışmak: ders gibi günü sayıyor.
+        self.mark_study_day()
+        return ilk_kez
+
+    def notes_read(self, chapter_id: str, section_id: str) -> set[str]:
+        """Bölümde sonuna kadar okunmuş notların id'leri."""
+        rows = self._connection.execute(
+            "SELECT document_id FROM notes_read WHERE chapter_id = ? AND section_id = ?",
+            (chapter_id, section_id),
+        ).fetchall()
+        return {row["document_id"] for row in rows}
 
     def record_quiz(self, chapter_id: str, section_id: str, score: int, passed: bool) -> None:
         """Sınav sonucunu kaydeder.

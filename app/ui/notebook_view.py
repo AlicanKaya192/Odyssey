@@ -27,8 +27,8 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import QPoint, QSize, QStandardPaths, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QFont, QKeySequence, QShortcut, QTextCursor
+from PySide6.QtCore import QElapsedTimer, QPoint, QPointF, QRectF, QSize, QStandardPaths, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QFont, QIcon, QKeySequence, QPainter, QPen, QShortcut, QTextCursor
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -49,6 +49,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..widgets import motion
 from ..core.catalog import Catalog
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
@@ -62,7 +63,7 @@ from ..core.user_notes import (
     safe_filename,
 )
 from ..resources.icons import icon
-from ..resources.theme.tokens import PALETTES, READING_WIDTH, SPACING
+from ..resources.theme.tokens import RAIL_COLORS, PALETTES, READING_WIDTH, SPACING
 from ..widgets.document_view import DocumentView
 from ..widgets.note_editor import NoteEditor
 from ..widgets.note_toolbar import NoteToolbar
@@ -70,6 +71,8 @@ from . import titlebar
 from .confirm_dialog import ConfirmDialog
 from .modal import Backdrop
 from .name_dialog import NameDialog
+from ..widgets.empty_state import EmptyState
+from ..resources.logos import logo_key, logo_pixmap
 from .new_note_dialog import FOLDER_PREFIX, NewNoteDialog
 
 SIDE_WIDTH = 300
@@ -101,40 +104,105 @@ class _TreeDelegate(QStyledItemDelegate):
     sayının altına girmeden kısaltılıyor.
     """
 
+    FOLDER_HEIGHT = 40
+    NOTE_HEIGHT = 34
+    LOGO = 24
+
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.count_color = QColor("#98A1AF")
+        self.text_color = QColor("#E6E9EF")
+        self.hover_color = QColor("#1E222B")
+        self.select_color = QColor("#221F3D")
+        # Sıralı giriş saati (klasör satırları 40 ms arayla 8 px aşağıdan).
+        self.enter_clock = None
+        # Klasör okunun açısı (0 sağa, 1 aşağı); açılıp kapanırken yayla döner.
+        self.turn: dict = {}
+
+    def sizeHint(self, option, index) -> QSize:  # noqa: N802
+        boy = self.NOTE_HEIGHT if index.parent().isValid() else self.FOLDER_HEIGHT
+        return QSize(option.rect.width(), boy)
 
     def paint(self, painter, option, index) -> None:
         if index.parent().isValid():
             option = QStyleOptionViewItem(option)
-            option.rect = option.rect.adjusted(SPACING["lg"], 0, 0, 0)
+            option.rect = option.rect.adjusted(SPACING["lg"] + 8, 0, 0, 0)
             super().paint(painter, option, index)
             return
 
+        # Klasör satırı (prototip `.ntree .fold`): 24 px logo, kalın ad,
+        # sağda not sayısı ve açılınca aşağı dönen ok.
         count = index.data(ROLE_COUNT)
         opt = QStyleOptionViewItem(option)
         self.initStyleOption(opt, index)
-        if count is not None:
-            yer = opt.rect.width() - opt.decorationSize.width() - COUNT_SPACE
-            opt.text = opt.fontMetrics.elidedText(opt.text, Qt.TextElideMode.ElideRight, max(yer, 0))
-        widget = opt.widget
-        style = widget.style() if widget is not None else QApplication.style()
-        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, opt, painter, widget)
-
-        if count is None:
-            return
+        r = QRectF(opt.rect).adjusted(2, 2, -2, -2)
         painter.save()
-        painter.setPen(self.count_color)
-        font = QFont(opt.font)
-        font.setWeight(QFont.Weight.Normal)
-        painter.setFont(font)
-        painter.drawText(
-            opt.rect.adjusted(0, 0, -SPACING["sm"], 0),
-            int(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter),
-            str(count),
-        )
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        if self.enter_clock is not None:
+            from ..resources.theme.motion import spring
+            gecen = self.enter_clock.elapsed() - min(index.row(), 7) * 40
+            k = spring(max(0.0, min(1.0, gecen / 420)))
+            painter.setOpacity(max(0.0, min(1.0, k)))
+            painter.translate(0, 8 * (1 - k))
+        if opt.state & QStyle.StateFlag.State_Selected:
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(self.select_color)
+            painter.drawRoundedRect(r, 10, 10)
+        elif opt.state & QStyle.StateFlag.State_MouseOver:
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(self.hover_color)
+            painter.drawRoundedRect(r, 10, 10)
+
+        x = r.left() + 8
+        simge = index.data(Qt.ItemDataRole.DecorationRole)
+        if isinstance(simge, QIcon):
+            pix = simge.pixmap(self.LOGO, self.LOGO)
+            painter.drawPixmap(QRectF(x, r.center().y() - self.LOGO / 2, self.LOGO, self.LOGO), pix, QRectF(pix.rect()))
+        x += self.LOGO + 10
+
+        sag = r.right() - 10
+        # Ok: sağa bakan ince çizgi; klasör açıkken aşağı döner.
+        # Boş klasörde açılacak bir şey yok; ok hep sağa bakıyor.
+        acik = bool(opt.state & QStyle.StateFlag.State_Open) and index.model().rowCount(index) > 0
+        aci = self.turn.get(index.data(ROLE_ID), 1.0 if acik else 0.0)
+        painter.save()
+        painter.translate(sag - 5, r.center().y())
+        painter.rotate(90 * aci)
+        kalem = QPen(self.count_color, 1.6)
+        kalem.setCapStyle(Qt.PenCapStyle.RoundCap)
+        kalem.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+        painter.setPen(kalem)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawPolyline([QPointF(-2, -4), QPointF(2, 0), QPointF(-2, 4)])
         painter.restore()
+        sag -= 20
+
+        font = QFont(opt.font)
+        if count is not None:
+            font.setWeight(QFont.Weight.Normal)
+            painter.setFont(font)
+            painter.setPen(self.count_color)
+            yazi = str(count)
+            genis = painter.fontMetrics().horizontalAdvance(yazi)
+            painter.drawText(QRectF(sag - genis, r.top(), genis, r.height()),
+                             int(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter), yazi)
+            sag -= genis + 10
+
+        font.setWeight(QFont.Weight.DemiBold)
+        font.setPixelSize(14)
+        painter.setFont(font)
+        painter.setPen(self.text_color)
+        ad = painter.fontMetrics().elidedText(opt.text, Qt.TextElideMode.ElideRight, int(max(0, sag - x)))
+        painter.drawText(QRectF(x, r.top(), max(0, sag - x), r.height()),
+                         int(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter), ad)
+        painter.restore()
+
+
+class _Frozen:
+    """Sıralı giriş başlamadan: süre hep 0 (satırlar görünmez bekler)."""
+
+    def elapsed(self) -> int:
+        return -1000
 
 
 def _format_time(value: str, language: str) -> str:
@@ -264,7 +332,16 @@ class NotebookView(QWidget):
         self._delegate = _TreeDelegate(self._tree)
         self._tree.setItemDelegate(self._delegate)
         self._tree.setIconSize(QSize(18, 18))
+        self._tree.setMouseTracking(True)
         self._tree.itemClicked.connect(self._on_item_clicked)
+        # Klasör açılırken notlar kayarak açılıyor (prototip `.kids`), ok dönüyor.
+        self._tree.setAnimated(True)
+        self._tree.itemExpanded.connect(lambda item: self._turn_arrow(item, 1.0))
+        self._tree.itemCollapsed.connect(lambda item: self._turn_arrow(item, 0.0))
+        self._tree_entered = False
+        self._enter_timer = QTimer(self)
+        self._enter_timer.setInterval(16)
+        self._enter_timer.timeout.connect(self._tick_tree_enter)
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._tree.customContextMenuRequested.connect(self._tree_menu)
         column.addWidget(self._tree, 1)
@@ -310,10 +387,9 @@ class NotebookView(QWidget):
 
         self._pages = QStackedWidget()
 
-        self._empty = QLabel()
-        self._empty.setProperty("role", "muted")
-        self._empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._empty.setWordWrap(True)
+        # Boş durum kartı (ui-taslak.md B10): simge, başlık, cümle, düğme.
+        self._empty = EmptyState()
+        self._empty.action.connect(self.new_note)
         self._pages.addWidget(self._empty)
 
         self._reader = DocumentView()
@@ -431,7 +507,11 @@ class NotebookView(QWidget):
             folder.setData(0, ROLE_KIND, "folder")
             folder.setData(0, ROLE_ID, key)
             folder.setData(0, ROLE_COUNT, len(notes))
-            folder.setIcon(0, icon(icon_name or "folder", color or palette["text_muted"], 18))
+            # Patika klasörlerinde patikanın logosu (E2); kendi klasörlerinde simge.
+            if self._catalog.chapter(key) is not None:
+                folder.setIcon(0, QIcon(logo_pixmap(logo_key(icon_name, key), color, 24)))
+            else:
+                folder.setIcon(0, icon(icon_name or "folder", color or palette["text_muted"], 22))
             font = folder.font(0)
             font.setWeight(QFont.Weight.DemiBold)
             folder.setFont(0, font)
@@ -447,6 +527,43 @@ class NotebookView(QWidget):
                     self._tree.setCurrentItem(child)
 
             folder.setExpanded(key not in self._collapsed)
+
+    def _turn_arrow(self, item: QTreeWidgetItem, hedef: float) -> None:
+        anahtar = item.data(0, ROLE_ID)
+        if item.childCount() == 0:
+            hedef = 0.0
+        simdi = self._delegate.turn.get(anahtar, 1.0 - hedef)
+
+        def ayarla(v: float, a=anahtar) -> None:
+            self._delegate.turn[a] = v
+            self._tree.viewport().update()
+
+        motion.animate(self._tree, f"turn:{anahtar}", simdi, hedef, ayarla, "spring", "spring")
+
+    def _tick_tree_enter(self) -> None:
+        self._tree.viewport().update()
+        saat = self._delegate.enter_clock
+        if saat is None or saat.elapsed() > 420 + 7 * 40:
+            self._delegate.enter_clock = None
+            self._enter_timer.stop()
+            self._tree.viewport().update()
+
+    def showEvent(self, event) -> None:  # noqa: N802
+        super().showEvent(event)
+        # Oturumdaki ilk gösterimde klasörler sırayla gelir (prototip `.stg`).
+        if not self._tree_entered and motion.enabled():
+            self._tree_entered = True
+            from ..widgets.fade_stack import after_reveal
+            # Geçiş başlayana kadar satırlar görünmez bekliyor.
+            self._delegate.enter_clock = _Frozen()
+
+            def basla() -> None:
+                saat = QElapsedTimer()
+                saat.start()
+                self._delegate.enter_clock = saat
+                self._enter_timer.start()
+
+            after_reveal(self, basla)
 
     def _on_item_clicked(self, item: QTreeWidgetItem, _column: int) -> None:
         if item.data(0, ROLE_KIND) == "folder":
@@ -824,7 +941,12 @@ class NotebookView(QWidget):
         if entry is None:
             self._crumb.setText("")
             self._lesson_button.hide()
-            self._empty.setText(t("notebook.empty") if self._entries else t("notebook.first"))
+            renk = RAIL_COLORS.get(self._mode, RAIL_COLORS["light"])["notes"]
+            if self._entries:
+                self._empty.set_content("file-text", renk, t("notebook.pick_title"), t("notebook.empty"))
+            else:
+                self._empty.set_content("notebook", renk, t("notebook.first_title"), t("notebook.first"),
+                                        t("notebook.first_button"))
             self._pages.setCurrentIndex(PAGE_EMPTY)
             return
 
@@ -836,6 +958,8 @@ class NotebookView(QWidget):
             self._loading = False
             self._dirty = False
             self._pages.setCurrentIndex(PAGE_EDIT)
+            from ..widgets.pop_effect import enter
+            enter(self._pages.currentWidget(), 16, "short")
             self._editor.setFocus()
             self._editor.moveCursor(QTextCursor.MoveOperation.End)
         else:
@@ -872,8 +996,9 @@ class NotebookView(QWidget):
         meta = [t("notebook.updated", date=_format_time(entry["updated_at"], self._language.language))]
         content = render_note(entry["title"], body, meta)
         self._reader.set_lang(self._language.language)
+        # Not açılınca 16 px aşağıdan belirir (prototip `.neditor`, `pgIn`).
         self._reader.set_body(
-            f'<div class="page narrow notebook"><div class="content">{content}</div></div>'
+            f'<div class="page narrow notebook"><div class="content pgin">{content}</div></div>'
         )
 
     # --- yazma ------------------------------------------------------------
@@ -999,6 +1124,12 @@ class NotebookView(QWidget):
         palette = PALETTES.get(mode, PALETTES["light"])
         self._apply_tree_style()
         self._delegate.count_color = QColor(palette["text_muted"])
+        self._delegate.text_color = QColor(palette["text"])
+        self._delegate.hover_color = QColor(palette["surface_hover"])
+        self._delegate.select_color = QColor(palette["accent_soft"])
+        self._new_button.setIcon(icon("plus", "#FFFFFF", 16))
+        self._download_button.setIcon(icon("download", palette["text"], 16))
+        self._upload_button.setIcon(icon("upload", palette["text"], 16))
         self._folder_button.setIcon(icon("folder-plus", palette["text"], 18))
         self._reader.set_mode(mode)
         self._editor.set_mode(mode)
@@ -1006,11 +1137,11 @@ class NotebookView(QWidget):
 
     def retranslate(self) -> None:
         t = self._language.t
-        self._new_button.setText(f"+  {t('notebook.new')}")
+        self._new_button.setText(f"  {t('notebook.new')}")
         self._new_button.setToolTip("Ctrl+N")
         self._folder_button.setToolTip(t("notebook.new_folder"))
-        self._download_button.setText(f"{t('notebook.download')}  ▾")
-        self._upload_button.setText(t("notebook.upload"))
+        self._download_button.setText(f"  {t('notebook.download')}  ▾")
+        self._upload_button.setText(f"  {t('notebook.upload')}")
         self._upload_button.setToolTip(t("notebook.upload_hint"))
         self._title_edit.setPlaceholderText(t("notebook.title_placeholder"))
         self._editor.setPlaceholderText(t("notebook.body_placeholder"))

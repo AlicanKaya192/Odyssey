@@ -64,6 +64,11 @@ FONTS = {
         '"Inter", "Ubuntu", "Noto Sans", '              # Linux
         "sans-serif"
     ),
+    # Başlıklar (prototipte `--disp`): Windows 11'in başlık kesimi.
+    "display": (
+        '"Segoe UI Variable Display", "Segoe UI", '
+        '"SF Pro Display", "Helvetica Neue", "Inter", "Ubuntu", sans-serif'
+    ),
     # Ligatürsüz yazı tipleri önde.
     #
     # "Cascadia Code" programcı ligatürleri taşıyor: `>=` ekranda tek bir `≥`
@@ -92,17 +97,17 @@ FONT_SIZES = {
 
 # Ders metninin en fazla kaç piksel genişleyebileceği. Yaklaşık 70 karaktere
 # denk gelir; tipografi araştırmalarında rahat okuma aralığı 45-75 karakter.
-READING_WIDTH = 680
+READING_WIDTH = 760
 
 # Sağdaki sayfa içi başlık listesinin genişliği.
-TOC_WIDTH = 250
+TOC_WIDTH = 308
 
 # Öğrenme yolu ve modül kartlarının kapladığı sütun genişliği. Maketteki
 # ölçü; içerik ekranın ortasında toplanıyor, uçlara yayılmıyor.
 CONTENT_WIDTH = 820
 
 # Sol ikon şeridinin genişliği.
-RAIL_WIDTH = 76
+RAIL_WIDTH = 84
 
 # --- Renk paletleri --------------------------------------------------------
 
@@ -290,6 +295,14 @@ def build_variables(mode: str) -> dict[str, str]:
     variables.update({f"font_{k}": str(v) for k, v in FONT_SIZES.items()})
     variables["font_ui"] = FONTS["ui"]
     variables["font_mono"] = FONTS["mono"]
+    variables["font_display"] = FONTS["display"]
+    # Prototipte kullanılan ara tonlar.
+    variables["surface_dim"] = mix(palette["surface"], palette["bg"], 0.4)
+    variables["text_faint"] = mix(palette["text_muted"], palette["bg"], 0.3)
+    # Etkisiz birincil düğme: prototipte `.btn:disabled { opacity: .5 }`.
+    variables["primary_dim"] = mix(palette["accent"], palette["surface"], 0.5)
+    variables["primary_dim_2"] = mix(palette["accent_second"], palette["surface"], 0.5)
+    variables["primary_dim_text"] = mix("#FFFFFF", palette["surface"], 0.5)
     return variables
 
 

@@ -401,14 +401,135 @@ DUOTONE: dict[str, str] = {
 DUOTONE_OPACITY = 0.24
 
 
+# --- 0.9.0 simge dili --------------------------------------------------
+#
+# İki tonlu yeni çizimler: her simge `(dolgu, çizgi)` çifti. Dolgu kendi
+# renginde ve düşük saydamlıkta (`MODERN_FILL`), çizgi 1.8 px. Buradaki bir
+# ad istendiğinde yeni çizim kullanılır; olmayanlar yukarıdaki eski yoldan
+# çiziliyor. Yalnızca QSvgRenderer'ın çizebildiği öğeler var (path, circle,
+# rect, ellipse); filtre ve maske yok.
+MODERN: dict[str, tuple[str, str]] = {
+    "user": ('<circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.9 3.6-6 8-6s8 2.1 8 6z"/>',
+             '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.9 3.6-6 8-6s8 2.1 8 6"/>'),
+    "compass": ('<circle cx="12" cy="12" r="9"/>',
+                '<circle cx="12" cy="12" r="9"/><path d="m15.8 8.2-2.3 5.3-5.3 2.3 2.3-5.3z"/>'),
+    "signpost": ('<path d="M12 5h6l2 2.5L18 10h-6zM12 12H6l-2 2.5L6 17h6z"/>',
+                 '<path d="M12 3v18M12 5h6l2 2.5L18 10h-6M12 12H6l-2 2.5L6 17h6"/>'),
+    "notebook": ('<rect x="5" y="3" width="14" height="18" rx="2.5"/>',
+                 '<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M9 3v18M12.5 8H16M12.5 12H16"/>'),
+    "search": ('<circle cx="11" cy="11" r="7"/>',
+               '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/>'),
+    # Rotalar: başlangıçtan hedefe kıvrılan yol (tabela anlaşılmıyordu).
+    "route": ('<circle cx="6" cy="18.5" r="2.8"/><circle cx="18" cy="5.5" r="2.8"/>',
+              '<circle cx="6" cy="18.5" r="2.8"/><circle cx="18" cy="5.5" r="2.8"/>'
+              '<path d="M8.8 18.5h7.7a3.25 3.25 0 0 0 0-6.5h-9a3.25 3.25 0 0 1 0-6.5h7.7"/>'),
+    # Sürüm notları: parşömen tomarı (megafon bildirim gibi okunuyordu).
+    "scroll-text": ('<path d="M7 5.5A2.5 2.5 0 0 0 4.5 3H16a2.5 2.5 0 0 1 2.5 2.5V16H9.5v2.5a2.5 2.5 0 0 1-2.5 2.5z"/>',
+                    '<path d="M18.5 16V5.5A2.5 2.5 0 0 0 16 3H4.5A2.5 2.5 0 0 1 7 5.5v13A2.5 2.5 0 0 0 9.5 21H19a1.5 1.5 0 0 0 1.5-1.5V17a1 1 0 0 0-1-1h-9a1 1 0 0 0-1 1v1.5"/>'
+                    '<path d="M4.5 3A2.5 2.5 0 0 0 2 5.5V7h5M11 8h4.5M11 11.5h4.5"/>'),
+    "megaphone": ('<path d="M4 10v4a1 1 0 0 0 1 1h2l8 4V5L7 9H5a1 1 0 0 0-1 1z"/>',
+                  '<path d="M4 10v4a1 1 0 0 0 1 1h2l8 4V5L7 9H5a1 1 0 0 0-1 1zM18.5 9.5a3.5 3.5 0 0 1 0 5M8 15l1.2 4.2"/>'),
+    "info": ('<circle cx="12" cy="12" r="9"/>',
+             '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.7v.01"/>'),
+    "sliders": ('<circle cx="9" cy="7" r="2.4"/><circle cx="15" cy="12" r="2.4"/><circle cx="8" cy="17" r="2.4"/>',
+                '<path d="M4 7h2.6M11.4 7H20M4 12h8.6M17.4 12H20M4 17h1.6M10.4 17H20"/>'
+                '<circle cx="9" cy="7" r="2.4"/><circle cx="15" cy="12" r="2.4"/><circle cx="8" cy="17" r="2.4"/>'),
+    "arrow-left": ("", '<path d="M19 12H5M11 6l-6 6 6 6"/>'),
+    "arrow-right": ("", '<path d="M5 12h14M13 6l6 6-6 6"/>'),
+    "chevron-right": ("", '<path d="m9 6 6 6-6 6"/>'),
+    "chevron-left": ("", '<path d="m15 6-6 6 6 6"/>'),
+    "chevron-down": ("", '<path d="m6 9 6 6 6-6"/>'),
+    "lock": ('<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/>',
+             '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2"/>'),
+    "play": ('<path d="M8 5.6v12.8a1 1 0 0 0 1.5.9l10-6.4a1 1 0 0 0 0-1.8l-10-6.4A1 1 0 0 0 8 5.6z"/>',
+             '<path d="M8 5.6v12.8a1 1 0 0 0 1.5.9l10-6.4a1 1 0 0 0 0-1.8l-10-6.4A1 1 0 0 0 8 5.6z"/>'),
+    "check": ("", '<path d="m5 12.5 4.5 4.5L19 7.5"/>'),
+    "x": ("", '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>'),
+    "plus": ("", '<path d="M12 5v14M5 12h14"/>'),
+    "pencil": ('<path d="M15 5l4 4L9 19l-5 1 1-5z"/>', '<path d="M15 5l4 4L9 19l-5 1 1-5zM13 7l4 4"/>'),
+    "eraser": ('<path d="M4.5 15.5 13 7l5 5-7.5 7.5H7z"/>',
+               '<path d="M7 19.5h13M4.5 15.5 14 6a1.5 1.5 0 0 1 2 0l3 3a1.5 1.5 0 0 1 0 2l-8.5 8.5H7zM9.5 10.5l5 5"/>'),
+    "undo": ("", '<path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'),
+    "redo": ("", '<path d="m15 14 5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>'),
+    "trash": ('<path d="M6 7h12l-1 12.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 7 19.5z"/>',
+              '<path d="M4 7h16M9.5 7V4.5h5V7M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7M10 11v6M14 11v6"/>'),
+    "lightbulb": ('<path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>',
+                  '<path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3zM9.5 19h5M10.5 21.5h3"/>'),
+    "keyboard": ('<rect x="2.5" y="6" width="19" height="12" rx="3"/>',
+                 '<rect x="2.5" y="6" width="19" height="12" rx="3"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M8 14h8"/>'),
+    "star": ('<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+             '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'),
+    "folder": ('<path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4.3l2 2h8.7A1.5 1.5 0 0 1 21 9.5v8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>',
+               '<path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4.3l2 2h8.7A1.5 1.5 0 0 1 21 9.5v8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>'),
+    "folder-plus": ('<path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4.3l2 2h8.7A1.5 1.5 0 0 1 21 9.5v8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>',
+                    '<path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4.3l2 2h8.7A1.5 1.5 0 0 1 21 9.5v8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5zM12 11v5M9.5 13.5h5"/>'),
+    "download": ("", '<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>'),
+    "upload": ("", '<path d="M12 16V5M7 9.5l5-5 5 5M5 20h14"/>'),
+    "sun": ('<circle cx="12" cy="12" r="4.5"/>',
+            '<circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>'),
+    "moon": ('<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+             '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'),
+    "clock": ('<circle cx="12" cy="12" r="9"/>', '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>'),
+    "book": ('<path d="M3 5.5c3-1 6-1 9 1 3-2 6-2 9-1V19c-3-1-6-1-9 1-3-2-6-2-9-1z"/>',
+             '<path d="M3 5.5c3-1 6-1 9 1 3-2 6-2 9-1V19c-3-1-6-1-9 1-3-2-6-2-9-1zM12 6.5V20"/>'),
+    "file-text": ('<path d="M6 3h8l5 5v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>',
+                  '<path d="M6 3h8l5 5v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5M8.5 13h7M8.5 17h5"/>'),
+    "clipboard": ('<rect x="5" y="4" width="14" height="17" rx="2.5"/>',
+                  '<rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V3h6v1M8.5 13l2.5 2.5 4.5-5"/>'),
+    "terminal": ('<rect x="3" y="4.5" width="18" height="15" rx="3"/>',
+                 '<rect x="3" y="4.5" width="18" height="15" rx="3"/><path d="m7 10 3 2.5L7 15M12.5 15H17"/>'),
+    "sigma": ('<rect x="3" y="3" width="18" height="18" rx="4"/>', '<path d="M16.5 7h-9l4.5 5-4.5 5h9"/>'),
+    "globe": ('<circle cx="12" cy="12" r="9"/>',
+              '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9S14.5 18.4 12 21c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z"/>'),
+    "bell": ('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/>', '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 21h4"/>'),
+    "palette": ('<path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-1 1.6-2.1-.5-1.3.4-2.4 1.8-2.4H18a3 3 0 0 0 3-3c0-5.6-4-10.5-9-10.5z"/>',
+                '<path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-1 1.6-2.1-.5-1.3.4-2.4 1.8-2.4H18a3 3 0 0 0 3-3c0-5.6-4-10.5-9-10.5zM7.5 11.5h.01M10 7.5h.01M14.5 7.5h.01"/>'),
+    "graduation-cap": ('<path d="m12 4 10 5-10 5L2 9z"/>',
+                       '<path d="m12 4 10 5-10 5L2 9zM6 11v5c3.5 2.7 8.5 2.7 12 0v-5M22 9v5"/>'),
+    "refresh": ("", '<path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4"/>'),
+    "database": ('<ellipse cx="12" cy="6" rx="7.5" ry="3"/>',
+                 '<ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/>'),
+    "sparkles": ('<path d="M12 3c.7 4.2 2.8 6.3 7 7-4.2.7-6.3 2.8-7 7-.7-4.2-2.8-6.3-7-7 4.2-.7 6.3-2.8 7-7z"/>',
+                 '<path d="M12 3c.7 4.2 2.8 6.3 7 7-4.2.7-6.3 2.8-7 7-.7-4.2-2.8-6.3-7-7 4.2-.7 6.3-2.8 7-7z"/>'),
+    "flame": ('<path d="M12 21.5c-4 0-7-2.8-7-6.7 0-3.5 2.5-5.6 3.9-7.5.3 2 1.3 3.4 2.6 3.9C11.1 7.8 12.2 4.6 15 2.5c.2 3.4 4 6.3 4 11.3 0 4.3-3 7.7-7 7.7z"/>',
+              '<path d="M12 21.5c-4 0-7-2.8-7-6.7 0-3.5 2.5-5.6 3.9-7.5.3 2 1.3 3.4 2.6 3.9C11.1 7.8 12.2 4.6 15 2.5c.2 3.4 4 6.3 4 11.3 0 4.3-3 7.7-7 7.7z"/>'),
+    "target": ('<circle cx="12" cy="12" r="9"/>',
+               '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>'),
+    "copy": ('<rect x="8" y="8" width="12" height="12" rx="2.5"/>',
+             '<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>'),
+}
+
+# Yeni simgelerin dolgu saydamlığı ve çizgi kalınlığı (prototipte seçildi).
+# Üzerine gelinen simgede `MODERN_FILL_HOVER`, seçilide `MODERN_FILL_ACTIVE`.
+MODERN_FILL = 0.16
+MODERN_FILL_HOVER = 0.30
+MODERN_FILL_ACTIVE = 0.38
+MODERN_STROKE = 1.8
+
+
 def svg_markup(
     name: str,
     color: str,
     stroke: float = 2.0,
     filled: bool = False,
     duotone: bool = False,
+    fill_opacity: float | None = None,
 ) -> str:
     """İkonu tam bir SVG belgesine sarar."""
+    if name in MODERN:
+        dolgu, cizgi = MODERN[name]
+        kalinlik = MODERN_STROKE if stroke == 2.0 else stroke
+        saydam = MODERN_FILL if fill_opacity is None else fill_opacity
+        taban = (
+            f'<g fill="{color}" fill-opacity="{saydam}" stroke="none">{dolgu}</g>'
+            if dolgu and not filled else ""
+        )
+        return (
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">{taban}'
+            f'<g fill="{color if filled else "none"}" stroke="{color}" '
+            f'stroke-width="{kalinlik}" stroke-linecap="round" '
+            f'stroke-linejoin="round">{cizgi}</g></svg>'
+        )
     path = PATHS.get(name, PATHS["chevron-right"])
     fill = color if filled else "none"
 
@@ -437,12 +558,14 @@ def icon(
     filled: bool = False,
     stroke: float = 2.0,
     duotone: bool = False,
+    fill_opacity: float | None = None,
 ) -> QIcon:
     """İkonu istenen renk, boyut ve çizgi kalınlığında bir QIcon olarak üretir."""
     renderer = QSvgRenderer(
         QByteArray(
             svg_markup(
-                name, color, stroke=stroke, filled=filled, duotone=duotone
+                name, color, stroke=stroke, filled=filled, duotone=duotone,
+                fill_opacity=fill_opacity,
             ).encode("utf-8")
         )
     )

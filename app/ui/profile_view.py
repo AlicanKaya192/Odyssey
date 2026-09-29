@@ -24,8 +24,8 @@ from __future__ import annotations
 from datetime import date
 from html import escape
 
-from PySide6.QtCore import QSize, Qt, Signal
-from PySide6.QtGui import QFont, QFontMetrics
+from PySide6.QtCore import QRectF, QSize, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QFont, QFontMetrics, QPainter
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -48,8 +48,10 @@ from ..resources.theme.tokens import PALETTES, SPACING, mix
 from ..widgets.activity_graph import ActivityGraph
 from ..widgets.avatar import AvatarView
 from ..widgets.badge_wall import BadgeWall
+from ..widgets import motion
 from ..widgets.segmented import SegmentedControl
-from ..widgets.common import Card, section_label
+from ..widgets.effects import apply_shadow, refresh_shadow
+from ..widgets.common import Card
 
 # Rozet ipucunun genişliği. Zengin metinde Qt kendiliğinden sarmıyor.
 TOOLTIP_WIDTH = 280
@@ -60,17 +62,17 @@ PAGE_ICON = 16
 PAGE_LABEL_PX = 13
 
 # Üst karttaki fotoğrafın çapı.
-AVATAR_SIZE = 108
+AVATAR_SIZE = 140  # 124 px daire + 8 px halka payı
 
 # Sol sütunun genişliği. Artık yalnızca gösteriyor — düzenleme ayrı bir
 # pencerede olduğu için buraya form sığdırmak gerekmiyor.
-IDENTITY_WIDTH = 344
+IDENTITY_WIDTH = 380
 
 # Profil sayfasının genişliği. `CONTENT_WIDTH` (820) okuma metni için
 # ayarlanmış bir ölçü; burası bir gösterge paneli ve o genişlikte
 # istatistik etiketleri kırpılıyordu ("Üst üste çalışılan gün" tek
 # satırda 234 piksel istiyor).
-PROFILE_WIDTH = 1240
+PROFILE_WIDTH = 1116
 
 
 class ProgressBar(QFrame):
@@ -103,6 +105,50 @@ class ProgressBar(QFrame):
         self._fill.setVisible(ratio > 0)
 
 
+# Profilde en son görülen kazanılmış rozetler (virgüllü); fark "yeni" sayılır.
+SEEN_BADGES_KEY = "profile_seen_badges"
+
+
+class PagerDots(QWidget):
+    """Sayfa noktaları: açık sayfa uzun ve vurgu renginde (C9)."""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._count = 1
+        self._pos = 0.0
+        self.setFixedHeight(8)
+
+    def set_pages(self, count: int, current: int) -> None:
+        ilk = self._count != count
+        self._count = count
+        self.setFixedWidth(max(1, count) * 12 + 14)
+        if ilk:
+            self._pos = float(current)
+            self.update()
+            return
+        motion.animate(self, "pos", self._pos, float(current), self._set_pos, "spring", "spring")
+
+    def _set_pos(self, v: float) -> None:
+        self._pos = v
+        self.update()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        from ..widgets.effects import theme_palette
+
+        p = theme_palette()
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        x = 0.0
+        for i in range(self._count):
+            yakinlik = max(0.0, 1 - abs(self._pos - i))
+            w = 6 + 14 * yakinlik
+            renk = QColor(mix(p["border_strong"], p["accent"], yakinlik))
+            g.setPen(Qt.PenStyle.NoPen)
+            g.setBrush(renk)
+            g.drawRoundedRect(QRectF(x, 1, w, 6), 3, 3)
+            x += w + 6
+
+
 class ProfileView(QWidget):
     """Kullanıcının profili, ilerleme özeti ve etkinlik geçmişi."""
 
@@ -132,9 +178,7 @@ class ProfileView(QWidget):
 
         container = QWidget()
         row = QHBoxLayout(container)
-        row.setContentsMargins(
-            SPACING["xl"], SPACING["lg"], SPACING["xl"], SPACING["xxl"]
-        )
+        row.setContentsMargins(32, 32, 32, 32)
         row.addStretch(1)
 
         column = QWidget()
@@ -142,7 +186,7 @@ class ProfileView(QWidget):
         column.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self._column = QVBoxLayout(column)
         self._column.setContentsMargins(0, 0, 0, 0)
-        self._column.setSpacing(SPACING["lg"])
+        self._column.setSpacing(26)
 
         # Üst alan iki sütun: solda kimlik, sağda rozetler.
         #
@@ -153,7 +197,7 @@ class ProfileView(QWidget):
         # duvarı onun yerine geçti ve sığmayanlar için sayfa geçişi
         # kazandı.
         ust = QHBoxLayout()
-        ust.setSpacing(SPACING["lg"])
+        ust.setSpacing(26)
 
         kimlik = self._build_identity()
         kimlik.setFixedWidth(IDENTITY_WIDTH)
@@ -164,7 +208,7 @@ class ProfileView(QWidget):
         self._column.addWidget(self._build_activity())
         self._column.addStretch(1)
 
-        row.addWidget(column, 10)
+        row.addWidget(column, 100)
         row.addStretch(1)
         scroll.setWidget(container)
         layout.addWidget(scroll)
@@ -174,139 +218,135 @@ class ProfileView(QWidget):
     # --- kimlik kartı -----------------------------------------------------
 
     def _build_identity(self) -> QWidget:
-        holder = QWidget()
-        layout = QVBoxLayout(holder)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(SPACING["sm"])
-
-        # Yanındaki rozet kartının üstünde bir başlık var; kimlik kartında
-        # olmayınca iki kart farklı yükseklikten başlıyordu.
-        self._identity_title = section_label("")
-        layout.addWidget(self._identity_title)
-
-        card = Card(mode=self._mode, padding=SPACING["lg"])
+        """Kimlik kartı (prototip `.pcard`): avatar, ad, başlangıç, genel
+        ilerleme, üç küçük sayı ve "Profili düzenle"."""
+        card = Card(mode=self._mode, padding=28)
         self._identity_card = card
-
         sag = card.body
-        sag.setSpacing(SPACING["xs"])
-
-        # Kart, sağdaki sütun kadar uzuyor (rozet duvarı onu aşağı çekiyor).
-        # Artan boşluk tek parça hâlinde "Düzenle" düğmesinin üstünde
-        # kalıyordu; içerik iki uçtan eşit payla ortalanınca kart dolu
-        # görünüyor ve düğme metnin hemen altında duruyor.
+        sag.setSpacing(6)
+        # İçerik kartın yüksekliğinde dikey ortalı (kart rozet kartı kadar uzuyor).
         sag.addStretch(1)
 
         self._avatar = AvatarView(AVATAR_SIZE)
         self._avatar.clicked.connect(self._open_editor)
         sag.addWidget(self._avatar, 0, Qt.AlignmentFlag.AlignHCenter)
-        sag.addSpacing(SPACING["xs"])
+        sag.addSpacing(4)
 
         self._name_label = QLabel()
-        self._name_label.setProperty("role", "subtitle")
-        self._name_label.setStyleSheet("font-size: 18px; font-weight: 750;")
+        self._name_label.setProperty("role", "pcard-name")
         self._name_label.setWordWrap(True)
         self._name_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         sag.addWidget(self._name_label)
 
         self._started = QLabel()
-        self._started.setProperty("role", "muted")
-        # Tarih uzun bir dizgi ve dil değişince uzunluğu da değişiyor;
-        # sarma açık olmasa kart genişlediği ölçüde kırpılıyordu.
+        self._started.setProperty("role", "pcard-since")
         self._started.setWordWrap(True)
         self._started.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         sag.addWidget(self._started)
 
-        sag.addSpacing(SPACING["sm"])
-
-        # Genel ilerleme: profilin en önemli sayısı.
+        sag.addSpacing(10)
+        satir = QHBoxLayout()
         self._progress_caption = QLabel()
-        self._progress_caption.setProperty("role", "muted")
-        self._progress_caption.setWordWrap(True)
-        sag.addWidget(self._progress_caption)
-        sag.addSpacing(2)
-
+        self._progress_caption.setProperty("role", "pcard-since")
+        self._progress_percent = QLabel()
+        self._progress_percent.setProperty("role", "pcard-percent")
+        satir.addWidget(self._progress_caption)
+        satir.addStretch(1)
+        satir.addWidget(self._progress_percent)
+        sag.addLayout(satir)
         self._progress = ProgressBar()
         sag.addWidget(self._progress)
 
-        sag.addSpacing(SPACING["md"])
 
+        sag.addSpacing(12)
         self._edit_button = QPushButton()
-        self._edit_button.setProperty("variant", "ghost")
         self._edit_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._edit_button.clicked.connect(self._open_editor)
         sag.addWidget(self._edit_button)
-
         sag.addStretch(1)
-        layout.addWidget(card, 1)
-        return holder
+        return card
 
     # --- rozetler ---------------------------------------------------------
 
     def _build_badges(self) -> QWidget:
-        holder = QWidget()
-        layout = QVBoxLayout(holder)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(SPACING["sm"])
-
-        self._badges_title = section_label("")
-        layout.addWidget(self._badges_title)
-
-        card = Card(mode=self._mode, padding=SPACING["lg"])
+        card = QFrame()
+        card.setProperty("surface", "card")
+        apply_shadow(card, self._mode)
         self._badges_card = card
+        govde = QVBoxLayout(card)
+        govde.setContentsMargins(24, 22, 24, 22)
+        govde.setSpacing(0)
+        card.body = govde
 
+        # Başlık satırı (prototip `.bwall .hd`): ad, sayı çipi, sağda oklar.
+        ust = QHBoxLayout()
+        ust.setSpacing(12)
+        self._badges_title = QLabel()
+        self._badges_title.setProperty("role", "card-head")
+        ust.addWidget(self._badges_title)
         self._badges_count = QLabel()
-        self._badges_count.setProperty("role", "muted")
-        # Aralıklar elle veriliyor: kartın kendi `spacing` değeri esneme
-        # paylarının da arasına giriyor ve üst boşluk alttan 8 piksel
-        # fazla çıkıyordu.
-        card.body.setSpacing(0)
+        self._badges_count.setProperty("role", "count-chip")
+        ust.addWidget(self._badges_count)
+        ust.addStretch(1)
+        self._badge_prev = self._page_button("chevron-left", -1)
+        self._badge_next = self._page_button("chevron-right", 1)
+        ust.addWidget(self._badge_prev)
+        ust.addWidget(self._badge_next)
+        govde.addLayout(ust)
+        govde.addSpacing(14)
 
-        card.body.addWidget(self._badges_count)
-        # Rozetler sayaç satırı ile kartın altı arasında dikey ortalanıyor;
-        # tek bir esneme payı sonda kalınca hepsi yukarı yapışıyordu.
-        card.body.addStretch(1)
-
-        # Oklar kartın iki ucunda, rozetler ortada.
-        #
-        # İkisi de sağ üstteyken duvar sola yaslı kalıyor ve sağda tek
-        # parça bir boşluk oluyordu. Uçlara alınınca o boşluk okların
-        # yerine dönüşüyor ve rozetler ortalanıyor.
-        orta = QHBoxLayout()
-        orta.setSpacing(SPACING["sm"])
-
-        self._badge_prev = self._page_button("arrow-left", -1)
-        self._badge_next = self._page_button("arrow-right", 1)
         self._badge_wall = BadgeWall()
         self._badge_wall.paging_changed.connect(self._refresh_paging)
+        govde.addWidget(self._badge_wall)
 
-        orta.addWidget(self._badge_prev, 0, Qt.AlignmentFlag.AlignVCenter)
-        orta.addWidget(self._badge_wall, 1)
-        orta.addWidget(self._badge_next, 0, Qt.AlignmentFlag.AlignVCenter)
-        card.body.addLayout(orta)
+        # Sayfa noktaları rozetlerin altında, ortada; açık sayfanın noktası
+        # uzun ve vurgu renginde, sayfa değişince yayla uzayıp kısalıyor.
+        self._badge_page_label = PagerDots()
+        govde.addSpacing(12)
+        govde.addWidget(self._badge_page_label, 0, Qt.AlignmentFlag.AlignHCenter)
 
-        # "1 / 2" rozetlerin altında, ortada. Oklar aynı genişlikte olduğu
-        # için kartın ortası duvarın da ortası oluyor.
-        self._badge_page_label = QLabel()
-        # Soluk ve ince hâlinde okunmuyordu; kalın ve normal metin rengi.
-        self._badge_page_label.setStyleSheet(
-            f"font-size: {PAGE_LABEL_PX}px; font-weight: 700;"
-        )
-        self._badge_page_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        card.body.addSpacing(SPACING["md"])
-        card.body.addWidget(self._badge_page_label)
-        card.body.addStretch(1)
-
-        layout.addWidget(card, 1)
-        return holder
+        # Rozet / gün seri / bölüm: rozetlerin altında ince çizgiyle ayrılmış
+        # ayrı bir bölüm (Alican: kimlik kartında boşluk bırakıyordu, rozet
+        # kartında da altta boşluk kalıyordu).
+        govde.addSpacing(18)
+        cizgi = QFrame()
+        cizgi.setProperty("role", "divider")
+        cizgi.setFixedHeight(1)
+        govde.addWidget(cizgi)
+        govde.addSpacing(18)
+        sag = govde
+        # Üç küçük sayı (prototip `.minis`).
+        minis = QHBoxLayout()
+        minis.setSpacing(8)
+        self._minis: dict[str, tuple[QLabel, QLabel]] = {}
+        for anahtar in ("badges", "streak", "sections"):
+            kutu = QFrame()
+            kutu.setProperty("role", "mini")
+            ic = QVBoxLayout(kutu)
+            ic.setContentsMargins(6, 10, 6, 10)
+            ic.setSpacing(0)
+            deger = QLabel()
+            deger.setProperty("role", "mini-value")
+            deger.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+            ad = QLabel()
+            ad.setProperty("role", "mini-label")
+            ad.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+            ic.addWidget(deger)
+            ic.addWidget(ad)
+            minis.addWidget(kutu, 1)
+            self._minis[anahtar] = (deger, ad)
+        sag.addLayout(minis)
+        govde.addStretch(1)
+        return card
 
     def _page_button(self, icon_name: str, step: int) -> QPushButton:
         """Rozet duvarının sayfa oku."""
         button = QPushButton()
-        button.setProperty("variant", "page-nav")
+        button.setProperty("variant", "round-nav")
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.clicked.connect(
             lambda _=False, s=step: self._badge_wall.set_page(
-                self._badge_wall.page + s
+                (self._badge_wall.page + s) % self._badge_wall.page_count, animate=True
             )
         )
         button.setProperty("icon_name", icon_name)
@@ -320,9 +360,7 @@ class ProfileView(QWidget):
             parca.setVisible(not tek_sayfa)
         if tek_sayfa:
             return
-        self._badge_page_label.setText(f"{duvar.page + 1} / {duvar.page_count}")
-        self._badge_prev.setEnabled(duvar.page > 0)
-        self._badge_next.setEnabled(duvar.page < duvar.page_count - 1)
+        self._badge_page_label.set_pages(duvar.page_count, duvar.page)
         self._paint_page_buttons()
 
     def _paint_page_buttons(self) -> None:
@@ -333,9 +371,10 @@ class ProfileView(QWidget):
         """
         p = PALETTES.get(self._mode, PALETTES["light"])
         for button in (self._badge_prev, self._badge_next):
-            renk = p["text"] if button.isEnabled() else p["text_muted"]
+            renk = p["text"]
             button.setIcon(icon(button.property("icon_name"), renk, PAGE_ICON))
-            button.setIconSize(QSize(PAGE_ICON, PAGE_ICON))
+            button.setIconSize(QSize(17, 17))
+        self._edit_button.setIcon(icon("pencil", p["text"], 16))
 
     def _wrap(self, text: str, pixel_size: int) -> str:
         """Metni ipucu genişliğine göre satırlara böler ve kaçışlar.
@@ -405,20 +444,19 @@ class ProfileView(QWidget):
     # --- etkinlik ---------------------------------------------------------
 
     def _build_activity(self) -> QWidget:
-        holder = QWidget()
-        layout = QVBoxLayout(holder)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(SPACING["sm"])
-
-        self._activity_title = section_label("")
-        layout.addWidget(self._activity_title)
-
-        card = Card(mode=self._mode, padding=SPACING["lg"])
+        card = Card(mode=self._mode, padding=24)
         self._activity_card = card
 
+        bas = QHBoxLayout()
+        bas.setSpacing(10)
+        self._activity_title = QLabel()
+        self._activity_title.setProperty("role", "card-head")
+        bas.addWidget(self._activity_title)
         self._activity_summary = QLabel()
-        self._activity_summary.setProperty("role", "muted")
-        card.body.addWidget(self._activity_summary)
+        self._activity_summary.setProperty("role", "pcard-since")
+        bas.addWidget(self._activity_summary)
+        bas.addStretch(1)
+        card.body.addLayout(bas)
         card.body.addSpacing(SPACING["sm"])
 
         # Izgara solda, yıllar sağında dikey. Yıl seçici üstte yatay
@@ -461,9 +499,7 @@ class ProfileView(QWidget):
         legend.addWidget(self._legend_more)
         card.body.addSpacing(SPACING["xs"])
         card.body.addLayout(legend)
-
-        layout.addWidget(card)
-        return holder
+        return card
 
     def _rebuild_years(self) -> None:
         """Yıl düğmelerini kurar.
@@ -501,9 +537,9 @@ class ProfileView(QWidget):
 
     def _refresh_activity_summary(self) -> None:
         yil = self._graph.year
-        toplam = sum(self._store.activity_for_year(yil).values())
+        gun = sum(1 for v in self._store.activity_for_year(yil).values() if v)
         self._activity_summary.setText(
-            self._language.t("profile.activity_summary", count=toplam, year=yil)
+            self._language.t("profile.activity_days", count=gun, year=yil)
         )
 
     def _activity_tooltip(self, day: date, count: int) -> str:
@@ -519,10 +555,8 @@ class ProfileView(QWidget):
         self._refresh_avatar()
         self._refresh_name()
 
-        started = profile.get("started_at", "")
-        self._started.setText(
-            self._language.t("profile.member_since", date=started[:10]) if started else ""
-        )
+        self._started_raw = profile.get("started_at", "")
+        self._render_started()
 
         total = 0
         completed = 0
@@ -548,10 +582,36 @@ class ProfileView(QWidget):
             self._catalog, self._store, content_dir() / "badges.json"
         )
 
-        # Profil ekranına her dönüşte rozet duvarı 1. sayfadan başlasın.
+        # Profil ekranına her dönüşte rozet duvarı 1. sayfadan başlasın; son
+        # ziyaretten beri kazanılan rozet varsa onun sayfasından.
+        kazanilan = {b.id for b in self._badge_list if b.earned}
+        kayit = self._store.setting(SEEN_BADGES_KEY, None)
+        gorulen = set(filter(None, kayit.split(","))) if kayit is not None else kazanilan
+        self._fresh_badges = kazanilan - gorulen
+        self._store.set_setting(SEEN_BADGES_KEY, ",".join(sorted(kazanilan)))
         self._badge_wall.set_page(0)
 
         self.retranslate()
+        if self._fresh_badges:
+            ilk = sorted(self._fresh_badges, key=lambda i: self._badge_wall.page_of(i))[0]
+            self._badge_wall.set_page(self._badge_wall.page_of(ilk))
+            QTimer.singleShot(250, lambda: self._badge_wall.celebrate(
+                self._fresh_badges, self._language.t_upper("profile.badge_new")))
+
+    def _render_started(self) -> None:
+        """"Başlangıç: 2 Eylül 2026" — ay adı dilde yazılı (prototip)."""
+        ham = getattr(self, "_started_raw", "")
+        try:
+            gun = date.fromisoformat(ham[:10])
+        except ValueError:
+            self._started.setText("")
+            return
+        t = self._language.t
+        if self._language.language == "tr":
+            metin = f"{gun.day} {t(f'month_long.{gun.month}')} {gun.year}"
+        else:
+            metin = f"{t(f'month_long.{gun.month}')} {gun.day}, {gun.year}"
+        self._started.setText(t("profile.member_since", date=metin))
 
     # --- düzenleme --------------------------------------------------------
 
@@ -603,13 +663,14 @@ class ProfileView(QWidget):
         self._avatar.set_photo(load_avatar())
         palette = PALETTES.get(self._mode, PALETTES["light"])
         self._avatar.set_colors(palette["accent"], "#FFFFFF")
+        self._avatar.set_ring(palette["surface"], palette["accent"], palette["accent_second"])
 
     # --- tema ve dil ------------------------------------------------------
 
     def set_mode(self, mode: str) -> None:
         self._mode = mode
         self._identity_card.set_mode(mode)
-        self._badges_card.set_mode(mode)
+        refresh_shadow(self._badges_card, mode)
         self._activity_card.set_mode(mode)
         self._refresh_avatar()
         self._paint_graph()
@@ -639,22 +700,25 @@ class ProfileView(QWidget):
 
     def retranslate(self) -> None:
         t = self._language.t
-        self._edit_button.setText(t("profile.edit"))
+        self._edit_button.setText("  " + t("profile.edit_title"))
+        self._render_started()
         self._refresh_avatar()
         self._refresh_name()
 
         yuzde = round(self._completed * 100 / self._total) if self._total else 0
-        self._progress_caption.setText(
-            t("profile.progress_caption", percent=yuzde,
-              done=self._completed, total=self._total)
-        )
+        self._progress_caption.setText(t("profile.overall"))
+        self._progress_percent.setText(t("home.percent", value=yuzde))
 
-        self._identity_title.setText(self._language.t_upper("profile.title"))
-        self._badges_title.setText(self._language.t_upper("profile.badges"))
+        self._badges_title.setText(t("profile.badges"))
         kazanilan = sum(1 for b in self._badge_list if b.earned)
-        self._badges_count.setText(
-            t("profile.badge_progress", earned=kazanilan, total=len(self._badge_list))
-        )
+        self._badges_count.setText(f"{kazanilan} / {len(self._badge_list)}")
+        for anahtar, deger, ad in (
+            ("badges", f"{kazanilan}/{len(self._badge_list)}", t("profile.mini_badges")),
+            ("streak", str(self._store.streak()), t("profile.mini_streak")),
+            ("sections", str(self._completed), t("profile.mini_sections")),
+        ):
+            self._minis[anahtar][0].setText(deger)
+            self._minis[anahtar][1].setText(ad)
         p = PALETTES.get(self._mode, PALETTES["light"])
         self._badge_wall.set_badges(
             self._badge_list,
@@ -664,7 +728,7 @@ class ProfileView(QWidget):
         )
         self._refresh_paging()
 
-        self._activity_title.setText(self._language.t_upper("profile.activity"))
+        self._activity_title.setText(t("profile.activity"))
         self._refresh_activity_summary()
         self._legend_less.setText(t("profile.activity_less"))
         self._legend_more.setText(t("profile.activity_more"))

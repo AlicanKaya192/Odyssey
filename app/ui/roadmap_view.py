@@ -13,6 +13,11 @@ anlatıyor.
 Adımların ilerlemesi hesaplanıyor, saklanmıyor. Adımda `sections`
 listesi varsa (örneğin Python'u bilen biri için yalnızca dört bölüm)
 ilerleme o bölümler üzerinden, yoksa patikanın tamamı üzerinden.
+
+Her adım kendini anlatıyor (Alican 29 Eylül: "daha açıklayıcı"): neden bu
+sırada (`text`), bu adımda neler var (`learn`), sonunda ne yapabileceksin
+(`gain`), toplam süre ve odak bölümlerinin her biri için neden o bölüm
+(`sections[].why`). Odak bölümü açıksa tıklanınca doğrudan açılıyor.
 """
 
 from __future__ import annotations
@@ -26,14 +31,21 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 from ..core.catalog import Catalog
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
+from ..core.unlock import is_unlocked
 from ..paths import content_dir
-from ..resources.icons import svg_markup
+from ..resources.logos import logo_key, logo_svg
 from ..widgets.document_view import DocumentView
 
 # Seçilen rota hatırlanıyor; ekrana her dönüşte baştan seçtirmek gereksiz.
 ROUTE_SETTING = "roadmap_route"
 
 TRACK_ACTION = "track:"
+SECTION_ACTION = "section:"
+
+
+def section_ref(entry) -> str:
+    """Odak bölümü girdisinin "modül/bölüm" adresi (düz metin ya da `ref`'li sözlük)."""
+    return entry.get("ref", "") if isinstance(entry, dict) else str(entry)
 
 
 def load_routes() -> list[dict]:
@@ -50,6 +62,8 @@ class RoadmapView(QWidget):
 
     # Adımdaki "Patikaya git" bağlantısı.
     track_opened = Signal(str)
+    # Odak bölümüne tıklanınca: (modül, bölüm).
+    section_opened = Signal(str, str)
 
     def __init__(
         self,
@@ -63,6 +77,9 @@ class RoadmapView(QWidget):
         self._language = language
         self._store = store
         self._routes = load_routes()
+        # Sıralı giriş her rotanın oturumdaki ilk gösteriminde (B8); ekrana
+        # her dönüşte baştan oynamasın.
+        self._shown_routes: set[int] = set()
 
         ids = [route.get("id") for route in self._routes]
         saved = store.setting(ROUTE_SETTING, "")
@@ -92,15 +109,19 @@ class RoadmapView(QWidget):
             return
         self._index = index
         self._store.set_setting(ROUTE_SETTING, self._routes[index].get("id", ""))
-        self.refresh()
+        self.refresh(animate=True)
 
     def _on_action(self, action: str) -> None:
         if action.startswith(TRACK_ACTION):
             self.track_opened.emit(action[len(TRACK_ACTION):])
+        elif action.startswith(SECTION_ACTION):
+            chapter_id, _, section_id = action[len(SECTION_ACTION):].partition("/")
+            if section_id:
+                self.section_opened.emit(chapter_id, section_id)
 
     # --- çizim ------------------------------------------------------------
 
-    def refresh(self, keep_scroll: bool = False) -> None:
+    def refresh(self, keep_scroll: bool = False, animate: bool = False) -> None:
         """Rotayı yeniden çizer.
 
         İlerleme bölümlerde değiştiği için ekrana her gelişte çağrılıyor;
@@ -131,13 +152,16 @@ class RoadmapView(QWidget):
         )
 
         body = (
-            f'<p class="meta">{html.escape(self._language.t("roadmap.intro"))}</p>'
-            f"<h1>{html.escape(pick(route.get('title')))}</h1>"
-            f"<p>{html.escape(pick(route.get('intro')))}</p>"
+            f'<p class="route-intro">{html.escape(self._language.t("roadmap.intro"))}</p>'
+            f"<h1 class=\"route-title\">{html.escape(pick(route.get('title')))}</h1>"
+            f'<p class="route-intro">{html.escape(pick(route.get("intro")))}</p>'
             f'<ol class="route">{steps}</ol>'
         )
+        giris = " pre-enter" if animate and self._index not in self._shown_routes else ""
+        if giris:
+            self._shown_routes.add(self._index)
         self._document.set_body(
-            f'<div class="page narrow"><div class="content">{body}</div></div>',
+            f'<div class="page narrow{giris}"><div class="content">{body}</div></div>',
             keep_scroll=keep_scroll,
         )
 
@@ -149,8 +173,8 @@ class RoadmapView(QWidget):
 
         if step.get("sections"):
             sections = [
-                self._catalog.section(*ref.split("/", 1))
-                for ref in step["sections"]
+                self._catalog.section(*section_ref(entry).split("/", 1))
+                for entry in step["sections"]
             ]
             sections = [section for section in sections if section is not None]
         else:
@@ -163,6 +187,7 @@ class RoadmapView(QWidget):
             "done": total > 0 and completed == total,
             "completed": completed,
             "total": total,
+            "minutes": sum(section.estimated_minutes for section in sections),
         }
 
     def _completed(self, section) -> bool:
@@ -179,7 +204,9 @@ class RoadmapView(QWidget):
         track = self._catalog.track(step.get("track", ""))
         title = pick(track.title) if track else step.get("track", "")
         color = track.color if track else "#6B7280"
-        icon_svg = svg_markup(track.icon if track else "book", color, stroke=2.0)
+        # Patikanın logosu (ui-taslak.md E2); yazılmamış patikada gri.
+        icon_svg = logo_svg(logo_key(track.icon if track else "", track.id if track else ""), color,
+                            locked=bool(state["soon"]))
 
         classes = ["rstep"]
         tags = []
@@ -201,39 +228,76 @@ class RoadmapView(QWidget):
         )
         marker = "✓" if state["done"] else str(number)
 
+        learn = ""
+        maddeler = (step.get("learn") or {}).get(self._language.language) or []
+        if maddeler:
+            learn = (
+                f'<div class="rlearn"><span class="rlabel">{html.escape(t("roadmap.learn"))}</span>'
+                "<ul>" + "".join(f"<li>{html.escape(m)}</li>" for m in maddeler) + "</ul></div>"
+            )
+        gain = ""
+        if step.get("gain"):
+            gain = (
+                f'<div class="rgain"><b>{html.escape(t("roadmap.gain"))}</b> '
+                f"{html.escape(pick(step['gain']))}</div>"
+            )
+
         focus = ""
         if step.get("sections"):
-            names = []
-            for ref in step["sections"]:
+            rows = []
+            for entry in step["sections"]:
+                ref = section_ref(entry)
                 section = self._catalog.section(*ref.split("/", 1))
-                if section is not None:
-                    names.append(f'<span class="chip">{html.escape(pick(section.title))}</span>')
+                if section is None:
+                    continue
+                why = pick(entry.get("why")) if isinstance(entry, dict) else ""
+                bitti = self._completed(section)
+                acik = is_unlocked(self._catalog, self._store, section.chapter_id, section.id)
+                icerik = (
+                    f'<i>{"✓" if bitti else ""}</i>'
+                    f'<span><b>{html.escape(pick(section.title))}</b>'
+                    + (f"<small>{html.escape(why)}</small>" if why else "")
+                    + "</span>"
+                )
+                sinif = "rsec" + (" done" if bitti else "") + ("" if acik else " locked")
+                if acik:
+                    rows.append(
+                        f'<a class="{sinif}" href="app:{SECTION_ACTION}{html.escape(ref)}">{icerik}</a>'
+                    )
+                else:
+                    rows.append(
+                        f'<div class="{sinif}" title="{html.escape(t("roadmap.section_locked"))}">{icerik}</div>'
+                    )
             focus = (
-                f'<div class="rfocus"><span>{html.escape(t("roadmap.focus"))}</span>'
-                f"{''.join(names)}</div>"
+                f'<div class="rfocus"><span class="rlabel">{html.escape(t("roadmap.focus"))}</span>'
+                f"{''.join(rows)}</div>"
             )
 
         foot = ""
         if not state["soon"]:
             percent = round(state["completed"] * 100 / state["total"]) if state["total"] else 0
+            sayac = t("roadmap.sections", done=state["completed"], total=state["total"])
+            if state.get("minutes"):
+                sayac += " · " + t("roadmap.hours", hours=max(1, round(state["minutes"] / 60)))
             foot = (
                 '<div class="rfoot">'
                 f'<div class="bar"><i style="width:{percent}%;background:{color}"></i></div>'
-                f'<span class="rcount">{html.escape(t("roadmap.sections", done=state["completed"], total=state["total"]))}</span>'
+                f'<span class="rcount">{html.escape(sayac)}</span>'
                 f'<a class="rgo" href="app:{TRACK_ACTION}{html.escape(track.id)}">'
                 f'{html.escape(t("roadmap.open"))} →</a>'
                 "</div>"
             )
 
+        classes.append("stg")
         return (
-            f'<li class="{" ".join(classes)}">'
+            f'<li class="{" ".join(classes)}" style="--n:{number - 1}">'
             f'<div class="rnum">{marker}</div>'
             '<div class="rcard">'
-            f'<div class="rhead"><span class="ricon">{icon_svg}</span>'
-            f"<b>{html.escape(title)}</b>{tag_html}</div>"
+            f'<span class="rlogo">{icon_svg}</span><div class="rbody">'
+            f'<div class="rhead"><b>{html.escape(title)}</b>{tag_html}</div>'
             f"<p>{html.escape(pick(step.get('text')))}</p>"
-            f"{focus}{foot}"
-            "</div></li>"
+            f"{learn}{gain}{focus}{foot}"
+            "</div></div></li>"
         )
 
     # --- tema ve dil ------------------------------------------------------

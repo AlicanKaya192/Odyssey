@@ -173,6 +173,9 @@ class ThemeManager(QObject):
         app.setFont(font)
 
         app.setPalette(build_palette(self.effective_mode))
+        # Kendisi çizen widget'lar (sekme hapı, göstergeler) renkleri buradan
+        # okuyor: `widgets.effects.theme_palette()`.
+        app.setProperty("theme_mode", self.effective_mode)
 
         # İpucu zamanlaması bir kez kuruluyor; stil değiştirmek bütün
         # ağacı yeniden cilalıyor, her tema değişiminde yapılacak iş değil.

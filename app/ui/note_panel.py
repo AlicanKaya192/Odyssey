@@ -21,17 +21,20 @@ from typing import Callable
 
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QTextCursor
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy, QVBoxLayout, QWidget,
+)
 
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.user_notes import TITLE_MAX_LENGTH
-from ..resources.theme.tokens import PALETTES, SPACING
+from ..resources.icons import icon, pixmap
+from ..resources.theme.tokens import PALETTES, RAIL_COLORS, SPACING
 from ..widgets.common import DropdownBox
 from ..widgets.note_editor import NoteEditor
 from ..widgets.note_toolbar import NoteToolbar, make_tool_button
 
-PANEL_WIDTH = 420
+PANEL_WIDTH = 360
 SAVE_DELAY_MS = 700
 
 # Kutudaki "henüz kaydedilmemiş yeni not" satırının verisi.
@@ -77,21 +80,39 @@ class NotePanel(QFrame):
         self._save_timer.setInterval(SAVE_DELAY_MS)
         self._save_timer.timeout.connect(self.flush)
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(SPACING["md"], SPACING["md"], SPACING["md"], SPACING["md"])
-        layout.setSpacing(SPACING["sm"])
+        dis = QVBoxLayout(self)
+        dis.setContentsMargins(0, 0, 0, 0)
+        dis.setSpacing(0)
 
-        top = QHBoxLayout()
-        top.setSpacing(SPACING["xs"])
+        # Başlık (prototip `.drawer header`): not simgesi, "Not al", bölümün
+        # adı, yeni not ve kapat; altında ince çizgi.
+        ust = QFrame()
+        ust.setProperty("role", "drawer-head")
+        top = QHBoxLayout(ust)
+        top.setContentsMargins(16, 12, 10, 12)
+        top.setSpacing(8)
+        self._head_icon = QLabel()
+        self._head_icon.setFixedSize(18, 18)
+        top.addWidget(self._head_icon)
         self._heading = QLabel()
-        self._heading.setProperty("role", "heading")
+        self._heading.setProperty("role", "drawer-title")
         top.addWidget(self._heading)
-        top.addStretch(1)
-        self._new_button = self._small_button("+", self._new_note)
-        self._close_button = self._small_button("✕", self.close_requested.emit)
+        self._section_label = QLabel()
+        self._section_label.setProperty("role", "drawer-sub")
+        self._section_label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        top.addWidget(self._section_label, 1)
+        self._new_button = self._small_button("", self._new_note)
+        self._close_button = self._small_button("", self.close_requested.emit)
         top.addWidget(self._new_button)
         top.addWidget(self._close_button)
-        layout.addLayout(top)
+        dis.addWidget(ust)
+
+        govde = QWidget()
+        govde.setProperty("role", "bare")
+        layout = QVBoxLayout(govde)
+        layout.setContentsMargins(14, 12, 14, 8)
+        layout.setSpacing(SPACING["sm"])
+        dis.addWidget(govde, 1)
 
         self._picker = DropdownBox()
         self._picker.currentIndexChanged.connect(self._on_pick)
@@ -107,6 +128,7 @@ class NotePanel(QFrame):
         layout.addWidget(self._title_edit)
 
         self._editor = NoteEditor(mode=self._mode)
+        self._editor.setProperty("drawer", "true")
         self._editor.textChanged.connect(self._on_edited)
 
         self._toolbar = NoteToolbar(self._editor)
@@ -117,24 +139,35 @@ class NotePanel(QFrame):
         layout.addWidget(self._toolbar)
         layout.addWidget(self._editor, 1)
 
-        bottom = QHBoxLayout()
+        # Alt şerit (prototip `.drawer footer`): "Kaydedildi" ve Notlarım düğmesi.
+        alt = QFrame()
+        alt.setProperty("role", "drawer-foot")
+        bottom = QHBoxLayout(alt)
+        bottom.setContentsMargins(14, 10, 12, 10)
+        bottom.setSpacing(6)
+        self._saved_icon = QLabel()
+        self._saved_icon.setFixedSize(14, 14)
+        self._saved_icon.hide()
+        bottom.addWidget(self._saved_icon)
         self._saved = QLabel()
-        self._saved.setProperty("role", "muted")
+        self._saved.setProperty("role", "drawer-saved")
         self._saved.hide()
         bottom.addWidget(self._saved)
         bottom.addStretch(1)
         self._open_button = QPushButton()
-        self._open_button.setProperty("variant", "ghost")
+        self._open_button.setProperty("variant", "primary")
+        self._open_button.setProperty("size", "sm")
         self._open_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._open_button.clicked.connect(self._open_in_notebook)
         bottom.addWidget(self._open_button)
-        layout.addLayout(bottom)
+        dis.addWidget(alt)
 
         self.retranslate()
 
     def _small_button(self, text: str, handler) -> QPushButton:
         button = QPushButton(text)
-        button.setProperty("variant", "ghost")
+        button.setProperty("variant", "round")
+        button.setFixedSize(28, 28)
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.clicked.connect(handler)
         return button
@@ -147,12 +180,14 @@ class NotePanel(QFrame):
         self._chapter_id = chapter_id
         self._section_id = section_id
         self._section_title = section_title
+        self._section_label.setText(section_title)
         self._load()
 
     def set_section_title(self, section_title: str) -> None:
         """Dil değişince bölümün adı değişiyor; kaydedilmemiş boş notun adı da."""
         eski = self._section_title
         self._section_title = section_title
+        self._section_label.setText(section_title)
         if self._current is None and self._title_edit.text() in ("", eski):
             self._loading = True
             self._title_edit.setText(section_title)
@@ -191,7 +226,7 @@ class NotePanel(QFrame):
         self._loading = False
         self._dirty = False
         self._saved.hide()
-        self._open_button.setVisible(self._current is not None)
+        self._open_button.setEnabled(self._current is not None)
         self._rebuild_picker()
 
     def _rebuild_picker(self) -> None:
@@ -228,6 +263,7 @@ class NotePanel(QFrame):
             return
         self._dirty = True
         self._saved.hide()
+        self._saved_icon.hide()
         self._save_timer.start()
 
     def flush(self) -> None:
@@ -273,9 +309,10 @@ class NotePanel(QFrame):
             if entry["chapter_id"] == self._chapter_id and entry["section_id"] == self._section_id
         ]
         self._rebuild_picker()
-        self._open_button.show()
+        self._open_button.setEnabled(True)
         self._saved.setText(self._language.t("notebook.saved"))
         self._saved.show()
+        self._saved_icon.show()
 
     def _append(self, block: str) -> None:
         """Notun sonuna bir blok ekler, arasında boş satır bırakarak."""
@@ -335,12 +372,18 @@ class NotePanel(QFrame):
 
     def set_mode(self, mode: str) -> None:
         self._mode = mode
+        p = PALETTES.get(mode, PALETTES["light"])
+        yesil = RAIL_COLORS.get(mode, RAIL_COLORS["light"])["notes"]
+        self._head_icon.setPixmap(pixmap("notebook", yesil, 18))
+        self._new_button.setIcon(icon("plus", p["text_muted"], 15))
+        self._close_button.setIcon(icon("x", p["text_muted"], 15))
+        self._saved_icon.setPixmap(pixmap("check", p["success"], 14))
         self._editor.set_mode(mode)
         self._picker.set_arrow_color(PALETTES.get(mode, PALETTES["light"])["text_muted"])
 
     def retranslate(self) -> None:
         t = self._language.t
-        self._heading.setText(t("notebook.panel_title"))
+        self._heading.setText(t("notebook.take_note"))
         self._new_button.setToolTip(t("notebook.new_for_lesson"))
         self._close_button.setToolTip(t("common.close"))
         self._title_edit.setPlaceholderText(t("notebook.title_placeholder"))

@@ -10,7 +10,7 @@ seçimin etrafına konabilsin.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, Qt
 from PySide6.QtWidgets import QHBoxLayout, QMenu, QPushButton, QWidget
 
 from ..resources.theme.tokens import SPACING
@@ -56,7 +56,13 @@ class NoteToolbar(QWidget):
         self._code_sql = self._code_menu.addAction("")
         self._code_python.triggered.connect(lambda: editor.insert_code("python"))
         self._code_sql.triggered.connect(lambda: editor.insert_code("sql"))
-        self._code.setMenu(self._code_menu)
+        # Menü düğmeye bağlanmıyor, basınca açılıyor: `setMenu` ile bağlı
+        # düğme ilk çizildiğinde Qt "QFont::setPointSize: Point size <= 0"
+        # uyarısı basıyordu (düz bir düğmede de; ölçüldü). Notlarım'daki
+        # "İndir" düğmesi de böyle.
+        self._code.clicked.connect(
+            lambda: self._code_menu.exec(self._code.mapToGlobal(QPoint(0, self._code.height() + 4)))
+        )
         self._row.addWidget(self._code)
 
         self._row.addStretch(1)

@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from . import motion
 from ..resources.theme.tokens import PALETTES, RADIUS
 
 # Okun içeriğin sağ kenarına uzaklığı ve ölçüleri.
@@ -113,6 +114,8 @@ class Popover(QWidget):
         self._mode = "dark"
         self._width = width
         self._anchor: QWidget | None = None
+        # Açılışta kutu 8 px aşağıdan yayla yerine oturuyor (ui-taslak B9).
+        self._rise = 0.0
         self.hide()
 
         self.body = PopoverBody(self._mode, self)
@@ -140,9 +143,15 @@ class Popover(QWidget):
     def show_above(self, anchor: QWidget) -> None:
         """Paneli verilen düğmenin hemen üstünde açar."""
         self._anchor = anchor
+        self._rise = 8.0
         self._place()
         self.show()
         self.raise_()
+        motion.animate(self, "rise", 8.0, 0.0, self._set_rise, "spring", "spring")
+
+    def _set_rise(self, v: float) -> None:
+        self._rise = v
+        self._place()
 
     def reposition(self) -> None:
         """Pencere boyu değişince katmanı ve kutuyu yeniden yerleştirir."""
@@ -161,7 +170,7 @@ class Popover(QWidget):
         y = nokta.y() - self.body.height() - ANCHOR_GAP
         self.body.move(
             max(EDGE_GAP, min(x, self.width() - self._width - EDGE_GAP)),
-            max(EDGE_GAP, y),
+            max(EDGE_GAP, y) + round(self._rise),
         )
 
     def mousePressEvent(self, event) -> None:  # noqa: N802

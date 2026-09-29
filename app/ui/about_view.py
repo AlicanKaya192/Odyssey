@@ -100,7 +100,19 @@ class AboutView(QWidget):
         değişti = name != self._section
         self._section = name
         if değişti:
-            self.refresh()
+            # Sayfa yeniden yüklenmiyor: bütün bölümler sayfada, yalnızca
+            # görünen değişiyor ve yeni bölüm 16 px aşağıdan beliriyor
+            # (prototip `pgIn`). Önce her sekmede sayfa baştan yükleniyor,
+            # bir an boşalıyordu.
+            if self._document._loaded:  # noqa: SLF001
+                self._document.page().runJavaScript(
+                    "document.querySelectorAll('.absec').forEach(function(e){"
+                    f"var on=e.dataset.s=={name!r};e.classList.toggle('on',on);"
+                    "e.classList.remove('anim');if(on){void e.offsetWidth;e.classList.add('anim');}});"
+                    "(document.scrollingElement||document.documentElement).scrollTop=0;"
+                )
+            else:
+                self.refresh(force=True)
             self.section_changed.emit(name)
 
     def show_index(self, index: int) -> None:
@@ -115,7 +127,11 @@ class AboutView(QWidget):
 
     # --- çizim ------------------------------------------------------------
 
-    def refresh(self) -> None:
+    def refresh(self, force: bool = False) -> None:
+        # Dil değişmediyse yeniden yüklenmiyor (her girişte boşalıp doluyordu).
+        if not force and getattr(self, "_rendered_lang", None) == self._language.language:
+            return
+        self._rendered_lang = self._language.language
         self._document.set_lang(self._language.language)
         builders = {
             "info": self._info_html,
@@ -124,10 +140,16 @@ class AboutView(QWidget):
             "extras": self._extras_html,
             "license": self._license_html,
         }
-        body = builders[self._section]()
+        body = "".join(
+            f'<section class="absec{" on" if ad == self._section else ""}" data-s="{ad}">{builders[ad]()}</section>'
+            for ad in SECTIONS
+        )
 
+        giris = " pre-enter" if not getattr(self, "_entered", False) and self.window().isVisible() else ""
+        if giris:
+            self._entered = True
         self._document.set_body(
-            f'<div class="page narrow"><div class="content">{body}</div></div>'
+            f'<div class="page narrow{giris}"><div class="content">{body}</div></div>'
         )
 
     def _author_html(self) -> str:
@@ -180,10 +202,7 @@ class AboutView(QWidget):
     def _faq_html(self) -> str:
         """Sık sorulanlar, açılıp kapanan başlıklar hâlinde.
 
-        Açılma kapanma için betik yok: `<details>`/`<summary>` tarayıcının
-        kendi öğesi. Sayfa uygulamaya haber veremediği için (Chromium,
-        kullanıcı tıklaması olmadan `app:` adresine gitmiyor) betikle
-        çözülen bir akordeon burada çalışmazdı.
+        Başlığa basınca cevap yayla açılıyor (sayfa içi, uygulamaya haber yok).
         """
         intro = f'<p class="meta">{html.escape(self._language.t("about.faq_intro"))}</p>'
 
@@ -194,11 +213,14 @@ class AboutView(QWidget):
                 self._language.pick(item.get("answer")),
                 extensions=MARKDOWN_EXTENSIONS,
             )
+            # Prototip `.faq`: cevap yüksekliği yayla açılıp kapanıyor
+            # (yerleşik `<details>` anında açılıyordu).
             parts.append(
-                "<details class='faq'>"
-                f"<summary>{html.escape(soru)}<span class='mark'></span></summary>"
-                f"<div class='answer'>{cevap}</div>"
-                "</details>"
+                "<div class='faq'>"
+                "<div class='q' onclick='this.parentElement.classList.toggle(&quot;open&quot;)'>"
+                f"{html.escape(soru)}<span class='mark'></span></div>"
+                f"<div class='kids'><div><div class='answer'>{cevap}</div></div></div>"
+                "</div>"
             )
 
         return f"{intro}<div class='faqlist'>{''.join(parts)}</div>"

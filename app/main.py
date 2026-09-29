@@ -106,6 +106,13 @@ def main() -> int:
     if _run_harness_if_asked():
         return 0
 
+    # Açılış animasyonu: programın kendisi `--intro` ile ikinci kez
+    # başlatıyor (bkz. `app/core/intro_link.py`).
+    if len(sys.argv) >= 3 and sys.argv[1] == "--intro":
+        from app.ui.intro import run as run_intro
+
+        return run_intro(sys.argv[2])
+
     # Görev Zamanlayıcı'nın hatırlatma çağrısı: arayüz kurulmadan, birkaç
     # saniyede bakıp gerekirse bildirim gösterip çıkıyor.
     if "--reminder-check" in sys.argv[1:]:
@@ -141,8 +148,18 @@ def main() -> int:
 
     from PySide6.QtGui import QIcon
 
+    from app.core.intro_link import IntroLink, show_window
     from app.core.progress import ProgressStore
     from app.ui.splash import close_splash, show_splash
+
+    # Ayarlar Qt'den önce okunuyor: açılış animasyonu ayrı bir süreç ve en
+    # başta başlatılırsa bu sürecin Qt'yi ve pencereyi kurmasıyla aynı anda
+    # açılıyor. Veritabanı sqlite, Qt gerektirmiyor.
+    store = ProgressStore()
+    from app.core import celebration_sound
+
+    intro = IntroLink.launch(store.setting("theme", "dark"), store.setting("language", ""),
+                             sound=celebration_sound.supported() and celebration_sound.enabled(store))
 
     # `main_window` burada içe aktarılmıyor: QtWebEngine'i o zincir yüklüyor
     # ve birkaç saniye sürüyor. Açılış ekranı tam o beklemeyi göstermek için
@@ -167,7 +184,6 @@ def main() -> int:
     # Ayarlar kullanıcının kendi bilgisayarındaki veritabanından okunuyor.
     # Bu ucuz bir iş; açılış ekranından önce yapılıyor ki ekran doğru temada
     # açılsın. Ağır olan kısım ana pencerenin kurulması (Chromium).
-    store = ProgressStore()
     theme = ThemeManager(store.setting("theme", "dark"))
     theme.apply(application)
 
@@ -184,20 +200,27 @@ def main() -> int:
     # Açılış ekranı, ağır kurulum başlamadan önce açılıyor: o kurulum bitene
     # kadar ekranda hiçbir belirti olmuyordu ve uygulama açılmamış gibi
     # duruyordu. Sürüm satırı `APP_VERSION`'dan geliyor.
+    # Animasyon başlatılamadıysa eski açılış kartı gösteriliyor.
     splash_started = time.monotonic()
-    splash = show_splash(
-        icon_path,
-        theme.effective_mode,
-        language.t("app.subtitle"),
-        f"v{APP_VERSION} · {language.t('splash.beta')}",
-    )
-    application.processEvents()
+    splash = None
+    if intro is None:
+        splash = show_splash(
+            icon_path,
+            theme.effective_mode,
+            language.t("app.subtitle"),
+            f"v{APP_VERSION} · {language.t('splash.beta')}",
+        )
+        application.processEvents()
+
+    def stage(key: str, value: float) -> None:
+        if splash is not None:
+            splash.set_stage(language.t(key), value)
 
     # Ağır kısım burada: bu satır QtWebEngine'i yüklüyor.
-    splash.set_stage(language.t("splash.stage_engine"), 0.25)
+    stage("splash.stage_engine", 0.25)
     from app.ui.main_window import MainWindow
 
-    splash.set_stage(language.t("splash.stage_content"), 0.55)
+    stage("splash.stage_content", 0.55)
     window = MainWindow(language, theme, store)
     # Simge pencereye de ayrıca veriliyor. Windows görev çubuğu ve Alt+Tab
     # listesi uygulamanınkini değil, pencerenin kendi simgesini okuyor.
@@ -217,7 +240,7 @@ def main() -> int:
     # Opaklığı sıfır bir pencere işletim sistemi tarafından yine de
     # bileşikleniyor, yani Chromium çiziyor ama kimse görmüyor. Açılış
     # ekranı kaybolurken opaklık bire çekiliyor.
-    splash.set_stage(language.t("splash.stage_pages"), 0.8)
+    stage("splash.stage_pages", 0.8)
     window.setWindowOpacity(0.0)
     window.show()
     window.warm_up()
@@ -228,7 +251,13 @@ def main() -> int:
         if first_name
         else language.t("home.welcome")
     )
-    close_splash(splash, window, splash_started, greeting)
+    if intro is not None:
+        # Animasyonun sonunu bekleyip pencereyi gösteriyor.
+        intro.reveal(window)
+    elif splash is not None:
+        close_splash(splash, window, splash_started, greeting)
+    else:
+        show_window(window)
 
     # Beta uyarısı pencere göründükten sonra çıkıyor; boş ekranın önünde
     # açılan bir kutu, uygulamanın açılmadığı izlenimi veriyor.

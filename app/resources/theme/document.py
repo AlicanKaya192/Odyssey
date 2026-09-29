@@ -77,7 +77,7 @@ body {{
 .page.narrow .content {{ grid-column: 2; }}
 .page.compact .content {{ grid-column: auto; }}
 
-aside.toc {{ grid-column: 3; padding-left: 36px; }}
+aside.toc {{ grid-column: 3; padding-left: 48px; }}
 
 /* Sayfa kayarken başlık listesi yerinde kalsın; asıl derdi bu çözüyor. */
 .toc-inner {{ position: sticky; top: 24px; }}
@@ -91,27 +91,57 @@ aside.toc {{ grid-column: 3; padding-left: 36px; }}
     text-decoration: none; padding: 7px 0 7px 14px;
     border-left: 2px solid {p['border']}; line-height: 1.45;
 }}
-.toc-inner a.on {{
-    color: {p['accent']}; border-left-color: {p['accent']}; font-weight: 600;
+.toc-inner a.on {{ color: {p['accent']}; font-weight: 600; }}
+.toc-links {{ position: relative; }}
+.toc-links a {{ transition: color 120ms var(--out); }}
+/* Seçili başlığın işareti: kenar çizgisinin üstünde yayla kayar (C5). */
+.toc-mark {{
+    position: absolute; left: 0; top: 0; width: 2px; height: 0; border-radius: 2px;
+    background: {p['accent']};
+    transition: transform 360ms var(--spring), height 360ms var(--spring);
 }}
+.content pre {{ position: relative; }}
+.content pre .cp {{
+    position: absolute; right: 10px; top: 10px; width: 30px; height: 30px; border: 0;
+    border-radius: 8px; background: transparent; color: {p['text_muted']}; cursor: pointer;
+    display: grid; place-items: center; opacity: 0; transition: opacity 180ms var(--out), background 120ms;
+}}
+.content pre:hover .cp {{ opacity: 1; }}
+.content pre .cp:hover {{ background: {p['surface_hover']}; color: {p['text']}; }}
+.content pre .cp.done {{ opacity: 1; color: {p['success']}; }}
 .toc-inner a:hover {{ color: {p['text']}; }}
 
+/* Bölüm ilerlemesi (prototip `.progcard`): üç adım, bitenin dairesi yeşil. */
 .prog {{
-    margin-top: 24px; padding: 16px;
-    background: {p['surface_alt']}; border-radius: 12px;
+    margin-top: 22px; padding: 16px;
+    background: {p['surface']}; border: 1px solid {p['border']}; border-radius: 18px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, {'.35' if mode == 'dark' else '.07'});
 }}
-.prog .h2 {{ font-size: 12.5px; color: {p['text_muted']}; margin-bottom: 9px; }}
+.prog .h2 {{ font-size: 13px; font-weight: 600; color: {p['text_muted']}; margin-bottom: 12px; }}
+.steps3 {{ display: flex; flex-direction: column; gap: 10px; }}
+.step3 {{ display: flex; align-items: center; gap: 10px; font-size: 13px; color: {p['text']}; }}
+.step3 .o {{
+    width: 22px; height: 22px; border-radius: 50%; box-sizing: border-box;
+    border: 2px solid {p['border_strong']}; display: grid; place-items: center; flex: none;
+    transition: background 180ms var(--out), border-color 180ms var(--out);
+}}
+.step3.done .o {{ background: {p['success']}; border-color: {p['success']}; color: #fff; }}
+.step3 .o svg {{ width: 13px; height: 13px; display: none; }}
+.step3.done .o svg {{ display: block; animation: pop 560ms var(--bounce); }}
+.step3 small {{ margin-left: auto; font-size: 12px; color: {p['text_muted']}; }}
 .bar {{ height: 7px; background: {p['border']}; border-radius: 4px; overflow: hidden; }}
 .bar i {{ display: block; height: 100%; background: {p['accent']}; border-radius: 4px; }}
 
 /* --- metin ---------------------------------------------------------- */
 
 .content h1 {{
-    font-size: 31px; font-weight: 720; letter-spacing: -.6px;
+    font-family: {FONTS['display']};
+    font-size: 34px; font-weight: 700; letter-spacing: -.3px;
     margin-bottom: 10px; color: {p['text']};
 }}
 .content h2 {{
-    font-size: 20px; font-weight: 670; margin: 36px 0 12px;
+    font-family: {FONTS['display']};
+    font-size: 21px; font-weight: 700; margin: 36px 0 12px;
     letter-spacing: -.2px; color: {p['text']};
 }}
 .content h3 {{
@@ -497,14 +527,26 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
 /* --- sürüm notları -------------------------------------------------- */
 
 .relcard {{
+    display: block;
     background: {p['surface']}; border: 1px solid {p['border']};
-    border-radius: 18px; padding: 26px 30px; margin-bottom: 20px;
-    box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+    border-radius: 18px; padding: 0; margin-bottom: 16px; overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, {'.35' if mode == 'dark' else '.07'});
 }}
-.relcard .v {{ display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }}
-.relcard .v b {{ font-size: 19px; font-weight: 700; color: {p['text']}; }}
+.relcard > .v {{ cursor: pointer; padding: 20px 24px; user-select: none; }}
+.relcard > .v:hover {{ background: {p['surface_hover']}; }}
+.relcard .kids {{ display: grid; grid-template-rows: 0fr; transition: grid-template-rows 420ms var(--spring); }}
+.relcard.open .kids {{ grid-template-rows: 1fr; }}
+.relcard .kids > div {{ overflow: hidden; }}
+.relcard .inner {{ padding: 0 24px 22px; }}
+.relcard .v {{ display: flex; align-items: center; gap: 12px; }}
+.relcard .v b {{ font-family: {FONTS['display']}; font-size: 20px; font-weight: 700; color: {p['text']}; }}
+.relcard .v .chev {{
+    width: 18px; height: 18px; flex: none; color: {p['text_muted']};
+    transition: transform 420ms var(--spring);
+}}
+.relcard.open .v .chev {{ transform: rotate(180deg); }}
 .relcard .v .new {{
-    background: {p['accent']}; color: #fff; font-size: 11px; font-weight: 750;
+    background: {p['accent_soft']}; color: {p['accent']}; font-size: 11px; font-weight: 750;
     padding: 3px 9px; border-radius: 999px; letter-spacing: .4px;
 }}
 /* Yapım aşaması rozeti. "YENİ" gibi dolu değil, çerçeveli ve sakin —
@@ -512,18 +554,17 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
 .relcard .v .stage {{
     /* Yazı rengi zeminden geliyor: açık temada rozet koyu, koyu temada
        açık ton. Sabit beyaz yazsaydık koyu temada okunmazdı. */
-    color: {p['bg']};
     font-size: 11px; font-weight: 750; letter-spacing: .6px;
-    padding: 3px 10px; border-radius: 8px;
+    padding: 3px 10px; border-radius: 999px;
 }}
 /* Alpha kırmızı, açık beta turuncu: ikisi aynı renkte olsaydı sürüm
    listesinde hangisinin ne olduğu ayırt edilmezdi. */
-.relcard .v .stage.alpha {{ background: {p['danger']}; }}
-.relcard .v .stage.beta {{ background: {p['warning']}; }}
+.relcard .v .stage.alpha {{ background: {p['danger_soft']}; color: {p['danger']}; }}
+.relcard .v .stage.beta {{ background: {p['warning_soft']}; color: {p['warning']}; }}
 .relcard .v .dt {{ color: {p['text_muted']}; font-size: 13px; margin-left: auto; }}
 .relcard h4 {{
-    font-size: 13px; font-weight: 700; color: {p['text_muted']};
-    text-transform: uppercase; letter-spacing: .6px; margin: 18px 0 8px;
+    font-size: 12px; font-weight: 800; color: {p['text_muted']};
+    text-transform: uppercase; letter-spacing: 1.4px; margin: 10px 0 8px;
 }}
 .relcard ul {{ margin: 0; padding-left: 20px; }}
 .relcard li {{ margin: 6px 0; font-size: 14.5px; color: {p['text']}; }}
@@ -600,6 +641,42 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
 }}
 .pager .pg.off {{ opacity: .38; }}
 
+/* --- hareket (ui-taslak.md §2; theme/motion.py ile aynı değerler) ------ */
+:root {{
+    --spring: linear(0, 0.021, 0.075, 0.152, 0.242, 0.338, 0.435, 0.529, 0.616, 0.695, 0.766, 0.827, 0.878, 0.921, 0.955, 0.982, 1.003, 1.017, 1.028, 1.034, 1.037, 1.038, 1.038, 1.035, 1.033, 1.029, 1.025, 1.022, 1.018, 1.015, 1.012, 1.009, 1.007, 1.005, 1.003, 1.002, 1.001, 1, 0.999, 0.999, 1);
+    --bounce: linear(0, 0.043, 0.154, 0.304, 0.472, 0.638, 0.79, 0.919, 1.019, 1.092, 1.137, 1.159, 1.162, 1.151, 1.13, 1.105, 1.077, 1.051, 1.027, 1.007, 0.992, 0.982, 0.976, 0.974, 0.974, 0.976, 0.98, 0.984, 0.989, 0.993, 0.997, 1, 1.002, 1.003, 1.004, 1.004, 1.004, 1.004, 1.003, 1.002, 1);
+    --out: cubic-bezier(.33,1,.68,1);
+}}
+@keyframes sIn {{ from {{ opacity: 0; transform: translateY(8px); }} }}
+@keyframes pgIn {{ from {{ opacity: 0; transform: translateY(16px); }} }}
+.pgin {{ animation: pgIn 180ms var(--out); }}
+/* Hakkında: bütün bölümler sayfada, görünen `.on`; sekme değişince `.anim`. */
+.absec {{ display: none; }}
+.absec.on {{ display: block; }}
+.absec.anim {{ animation: pgIn 180ms var(--out); }}
+@keyframes pop {{ from {{ transform: scale(0); opacity: 0; }} }}
+@keyframes grow {{ from {{ width: 0; }} }}
+@keyframes glowOnce {{ 40% {{ box-shadow: 0 0 0 6px {p['accent_soft']}; }} }}
+/* Sıralı giriş: `.enter` kabının içindeki `.stg` öğeleri 40 ms arayla,
+ * en fazla 8 öğe gecikir (B8). */
+/* Bölüm ilerlemesi çubuğu değişince dolarak ilerliyor (C4). */
+.prog .bar i {{ transition: width 700ms var(--out); }}
+.enter .stg {{ animation: sIn 420ms var(--spring) both; animation-delay: calc(min(var(--n, 0), 7) * 40ms); }}
+
+/* --- sürüm notları, Hakkında (C15) ---------------------------------------- */
+.enter .relcard, .enter .linkcard, .enter .faq {{ animation: sIn 420ms var(--spring) both; }}
+.enter .relcard:nth-child(2), .enter .linkcard:nth-child(2), .enter .faq:nth-of-type(2) {{ animation-delay: 40ms; }}
+.enter .relcard:nth-child(3), .enter .linkcard:nth-child(3), .enter .faq:nth-of-type(3) {{ animation-delay: 80ms; }}
+.enter .relcard:nth-child(4), .enter .linkcard:nth-child(4), .enter .faq:nth-of-type(4) {{ animation-delay: 120ms; }}
+.enter .relcard:nth-child(n+5), .enter .linkcard:nth-child(n+5), .enter .faq:nth-of-type(n+5) {{ animation-delay: 160ms; }}
+.linkcard {{ transition: transform 240ms var(--out), box-shadow 240ms var(--out), border-color 120ms var(--out); }}
+.linkcard:hover {{ transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0,0,0,.28);
+    transition: transform 420ms var(--spring), box-shadow 240ms var(--out); }}
+.linkcard .go {{ transition: transform 420ms var(--spring); display: inline-block; }}
+.linkcard:hover .go {{ transform: translateX(3px); }}
+.faq > .q .mark::after {{ transition: transform 420ms var(--spring), opacity 180ms; }}
+.faq.open > .q .mark::after {{ transform: rotate(90deg); }}
+
 /* --- rotalar --------------------------------------------------------- */
 
 /* Adımlar solda numaralı bir zaman çizgisine diziliyor; numaraları
@@ -609,34 +686,42 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
 .content .route {{ list-style: none; margin: 30px 0 0; padding: 0; }}
 .content .rstep {{ position: relative; display: flex; gap: 18px; margin: 0; padding-bottom: 16px; }}
 .rstep::before {{
-    content: ""; position: absolute; left: 17px; top: 38px; bottom: 0;
+    content: ""; position: absolute; left: 22px; top: 46px; bottom: 0;
     width: 2px; background: {p['border']};
 }}
 .rstep:last-child::before {{ display: none; }}
 .rstep.done::before {{ background: {p['success']}; opacity: .45; }}
 
 .rnum {{
-    flex: 0 0 36px; height: 36px; border-radius: 50%;
+    flex: 0 0 46px; height: 46px; border-radius: 50%; box-sizing: border-box;
     display: grid; place-items: center; position: relative; z-index: 1;
-    background: {p['surface_alt']}; border: 2px solid {p['border_strong']};
-    color: {p['text_muted']}; font-size: 14px; font-weight: 700;
+    background: {p['surface']}; border: 2px solid {p['border_strong']};
+    color: {p['text_muted']}; font-family: {FONTS['display']}; font-size: 16px; font-weight: 700;
 }}
-.rstep.next .rnum {{ background: {p['accent']}; border-color: {p['accent']}; color: #fff; }}
+.rstep.next .rnum {{ background: {p['accent']}; border-color: {p['accent']}; color: #fff;
+    box-shadow: 0 0 0 5px {p['accent_soft']}; }}
 .rstep.done .rnum {{ background: {p['success_soft']}; border-color: {p['success']}; color: {p['success']}; }}
 
 .rcard {{
-    flex: 1; min-width: 0;
+    flex: 1; min-width: 0; display: flex; gap: 16px; align-items: flex-start;
     background: {p['surface']}; border: 1px solid {p['border']};
-    border-radius: 16px; padding: 16px 20px 18px;
+    border-radius: 16px; padding: 18px 20px 18px;
+    transition: transform 240ms var(--out), box-shadow 240ms var(--out), border-color 120ms var(--out);
 }}
+.rcard:hover {{ transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0,0,0,.28);
+    transition: transform 420ms var(--spring), box-shadow 240ms var(--out); }}
+.rbody {{ flex: 1; min-width: 0; }}
+.rlogo {{ flex: none; width: 44px; height: 44px; transition: transform 420ms var(--spring); }}
+.rlogo svg {{ width: 44px; height: 44px; display: block; }}
+.rcard:hover .rlogo {{ transform: rotate(-6deg) scale(1.08); }}
 .rstep.next .rcard {{ border-color: {p['accent']}; box-shadow: 0 0 0 3px {p['accent_soft']}; }}
+.enter .rstep.next .rcard {{ animation: glowOnce 1400ms var(--out) 400ms; }}
+.enter .rfoot .bar i {{ animation: grow 700ms var(--out) both; animation-delay: 250ms; }}
 .rstep.soon .rcard {{ background: transparent; border-style: dashed; }}
 .rstep.soon .rhead b, .rstep.soon .ricon {{ opacity: .7; }}
 
 .rhead {{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }}
-.ricon {{ display: inline-flex; width: 22px; height: 22px; }}
-.ricon svg {{ width: 22px; height: 22px; }}
-.rhead b {{ font-size: 16.5px; font-weight: 680; color: {p['text']}; margin-right: 2px; }}
+.rhead b {{ font-family: {FONTS['display']}; font-size: 17px; font-weight: 700; color: {p['text']}; margin-right: 2px; }}
 .rtag {{
     font-size: 11.5px; font-weight: 680; padding: 3px 9px; border-radius: 999px;
     background: {p['surface_alt']}; color: {p['text_muted']}; white-space: nowrap;
@@ -645,11 +730,55 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
 .rtag.ok {{ background: {p['success_soft']}; color: {p['success']}; }}
 .rtag.soon {{ background: {p['warning_soft']}; color: {p['warning']}; }}
 
-.rcard p {{ margin: 8px 0 0; font-size: 14.5px; color: {p['text_muted']}; }}
+.rcard p {{ margin: 4px 0 0; font-size: 14px; line-height: 1.65; color: {p['text_muted']}; }}
+/* Rota girişi (prototip `.route .intro`). */
+.content p.route-intro {{ color: {p['text_muted']}; font-size: 15.5px; line-height: 1.7; }}
+.content h1.route-title {{ font-size: 32px; margin: 6px 0 10px; }}
 
-.rfocus {{ display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }}
-.rfocus > span:first-child {{ font-size: 12.5px; font-weight: 650; color: {p['text_muted']}; margin-right: 2px; }}
-.rfocus .chip {{ padding: 3px 10px; color: {p['text']}; }}
+/* Adımın açıklaması: "Bu adımda" maddeleri, "Sonunda" kutusu, odak
+ * bölümlerinin listesi (Alican 29 Eylül: rotalar daha açıklayıcı olsun). */
+.rlabel {{
+    display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; color: {p['text_muted']}; margin-bottom: 6px; opacity: .8;
+}}
+.rlearn {{ margin-top: 14px; }}
+.content .rlearn ul {{
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 18px;
+}}
+.content .rlearn li {{
+    position: relative; margin: 0; padding-left: 16px;
+    font-size: 13.5px; line-height: 1.5; color: {p['text']};
+}}
+.rlearn li::before {{
+    content: ""; position: absolute; left: 2px; top: .6em; width: 6px; height: 6px;
+    border-radius: 50%; background: {p['accent']}; opacity: .8;
+}}
+.rgain {{
+    margin-top: 12px; padding: 9px 12px; border-radius: 10px;
+    background: {p['accent_soft']}; font-size: 13.5px; line-height: 1.55; color: {p['text']};
+}}
+.rgain b {{ color: {p['accent']}; font-weight: 700; }}
+.rstep.soon .rgain {{ background: {p['surface_alt']}; }}
+.rstep.soon .rgain b {{ color: {p['text_muted']}; }}
+
+.rfocus {{ margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }}
+.rsec {{
+    display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px;
+    border: 1px solid {p['border']}; border-radius: 10px; text-decoration: none;
+    transition: border-color 120ms var(--out), background 120ms var(--out);
+}}
+a.rsec:hover {{ border-color: {p['accent']}; background: {p['accent_soft']}; }}
+.rsec > i {{
+    flex: none; width: 18px; height: 18px; margin-top: 1px; border-radius: 50%;
+    border: 2px solid {p['border_strong']}; box-sizing: border-box;
+    display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 800;
+}}
+.rsec.done > i {{ border-color: {p['success']}; background: {p['success']}; color: #fff; }}
+.rsec > span {{ display: flex; flex-direction: column; gap: 1px; min-width: 0; }}
+.rsec b {{ font-size: 13.5px; font-weight: 650; color: {p['text']}; }}
+.rsec small {{ font-size: 12.5px; line-height: 1.45; color: {p['text_muted']}; }}
+.rsec.locked {{ opacity: .6; }}
 
 .rfoot {{ display: flex; align-items: center; gap: 14px; margin-top: 14px; }}
 .rfoot .bar {{ flex: 1; margin: 0; }}
@@ -662,9 +791,9 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
 
 /* --- sık sorulanlar -------------------------------------------------- */
 
-/* Akordeon `<details>`/`<summary>` ile: açılıp kapanmayı tarayıcı kendi
- * yapıyor, betiğe gerek kalmıyor. Sayfa uygulamaya kendiliğinden haber
- * veremediği için betikle çözülen bir akordeon burada zaten çalışmazdı. */
+/* Akordeon: başlığa basınca sayfa içinde `.open` değişiyor, cevap
+ * yüksekliği yayla açılıyor (prototip `.faq .kids`). Uygulamaya haber
+ * gerekmiyor; iş sayfanın içinde bitiyor. */
 .faqlist {{ display: flex; flex-direction: column; gap: 10px; margin-top: 26px; }}
 
 .faq {{
@@ -673,13 +802,12 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
     background: {p['surface_alt']};
     overflow: hidden;
 }}
-.faq[open] {{ border-color: {p['border_strong']}; }}
+.faq.open {{ border-color: {p['border_strong']}; }}
 
 /* Soru: koyu zeminli başlık. Cevabın zeminiyle arasındaki fark, hangisinin
  * soru hangisinin cevap olduğunu okumadan belli ediyor. */
-.faq > summary {{
-    list-style: none;
-    cursor: pointer;
+.faq > .q {{
+    cursor: pointer; user-select: none;
     padding: 16px 52px 16px 20px;
     position: relative;
     background: {p['surface_alt']};
@@ -687,25 +815,27 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
     font-size: 15px;
     color: {p['text']};
 }}
-.faq > summary::-webkit-details-marker {{ display: none; }}
-.faq > summary:hover {{ color: {p['accent']}; }}
+.faq > .q:hover {{ color: {p['accent']}; }}
 
 /* Sağdaki artı işareti açıkken eksiye dönüyor. İki ayrı çizgi olarak
  * çiziliyor; dikey olan açılınca kayboluyor. */
-.faq > summary .mark {{
+.faq > .q .mark {{
     position: absolute; right: 20px; top: 50%;
     width: 13px; height: 13px; margin-top: -7px;
 }}
-.faq > summary .mark::before,
-.faq > summary .mark::after {{
+.faq > .q .mark::before,
+.faq > .q .mark::after {{
     content: ""; position: absolute; background: {p['text_muted']};
     border-radius: 1px;
 }}
-.faq > summary .mark::before {{ left: 0; top: 6px; width: 13px; height: 2px; }}
-.faq > summary .mark::after {{ left: 6px; top: 0; width: 2px; height: 13px; }}
-.faq[open] > summary .mark::after {{ opacity: 0; }}
-.faq[open] > summary {{ color: {p['accent']}; }}
+.faq > .q .mark::before {{ left: 0; top: 6px; width: 13px; height: 2px; }}
+.faq > .q .mark::after {{ left: 6px; top: 0; width: 2px; height: 13px; }}
+.faq.open > .q .mark::after {{ opacity: 0; }}
+.faq.open > .q {{ color: {p['accent']}; }}
 
+.faq .kids {{ display: grid; grid-template-rows: 0fr; transition: grid-template-rows 420ms var(--spring); }}
+.faq.open .kids {{ grid-template-rows: 1fr; }}
+.faq .kids > div {{ overflow: hidden; }}
 .faq .answer {{
     padding: 4px 20px 6px;
     background: {p['bg']};

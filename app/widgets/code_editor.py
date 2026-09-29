@@ -748,7 +748,8 @@ class CodeEditor(CodeEditing, QTextEdit):
         """
         palette = PALETTES.get(self._mode, PALETTES["light"])
         painter = QPainter(self._line_area)
-        painter.fillRect(event.rect(), QColor(palette["code_bg"]))
+        if self.property("card") != "true":
+            painter.fillRect(event.rect(), QColor(palette["code_bg"]))
 
         document = self.document()
         layout = document.documentLayout()

@@ -19,6 +19,56 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.9.0] — 29 Eylül 2026
+
+### Eklendi
+- **Python patikasına yeni ilk bölüm: Paketler ve Ortamlar.** pip ve
+  `python -m pip`, sanal ortamlar (`venv`), `requirements.txt`, Anaconda ve
+  conda, ikisinin farkı; VS Code ve Jupyter'i ortama bağlamak ve sık
+  karşılaşılan kurulum hataları. Ezberlenecek komutlar bir komut kartında
+  toplu, bölüm 24 soruluk bir sınavla bitiyor. Python'a daha önce başlamış
+  olanların bölümleri açık kalıyor, kazanılmış rozetleri de korunuyor.
+
+### Değişti
+- **Arayüz yenilendi.** Ekranlar arasında yumuşak geçişler, yeni simgeler
+  ve patika logoları, madalya biçiminde rozetler. Ayarlar › Görünüm ›
+  Animasyonlar ile hareket azaltılabiliyor.
+- **Yeni açılış.** Program açılırken yükleme kartı yerine kısa, sesli bir
+  animasyon oynuyor: Odyssey'in maskotu, yay tutan bir sentor, dörtnala
+  gelip okunu atıyor ve ok hedefi tam ortadan vuruyor. Tıklayınca ya da
+  `Esc` ile geçilebiliyor; ses Ayarlar › Bildirimler › Sesler'den
+  kapatılabiliyor. Sentor Öğrenme Yolu'ndaki karşılama kartında da duruyor
+  ve genel ilerlemenizi gösteren hedefe nişan alıyor. Uygulama simgesi de
+  artık o.
+- **Güncelleme penceresi yenilendi.** İndirilen ve toplam boyut, hız ve
+  kalan süre anlık görünüyor; pencere küçültülüp arka planda bırakılabiliyor,
+  indirme sürerken Odyssey kullanılmaya devam edilebiliyor. İndirme bitince
+  kurulum pencere açmadan yapılıyor ve Odyssey yeni sürümüyle açılıyor.
+- **Rotalar daha açıklayıcı.** Her adımda o patikada neler olduğu, adımın
+  sonunda neler yapabileceğiniz ve yaklaşık süresi yazıyor. Odaklanılacak
+  bölümlerin her birinin neden önemli olduğu da yazıyor; açık bir bölüme
+  tıklayınca doğrudan açılıyor.
+- **Discord'da bulunduğunuz ekran görünüyor.** Rotalar'da seçili rota,
+  Notlarım, Profilim, Hakkında ve Sürüm Notları da yazıyor; önce bölüm
+  dışındaki her ekran "Öğrenme yolunda" görünüyordu. Notlarınızın adı ya da
+  içeriği gönderilmiyor.
+- **Seri daha anlaşılır.** Programı kapatırken çıkış penceresi serinizin
+  bugün güvende olup olmadığını söylüyor. Alevin üzerine gelince serinin ne
+  zaman biteceği geri sayımla yazıyor ve bir günün neyle sayıldığı
+  görünüyor. Bir bölümde 2 dakika çalışmak da o günü sayıyor; önce yalnızca
+  bir dersi sonuna kadar okumak, alıştırma çalıştırmak ya da sınava girmek
+  sayılıyordu.
+
+### Düzeltildi
+- **Hatırlatmalar programı kullandığınız gün gelmiyor.** Programı sabah
+  açıp konulara bakan birine akşam "seriniz tehlikede" ya da "3 gündür
+  yoksunuz" bildirimi gidebiliyordu. "Yoksunuz" artık programın en son
+  açıldığı günden sayılıyor.
+- **Güncelleme sırasında masaüstü kilitlenmiyor.** "Güncelle"ye basınca açılan
+  pencere başka pencerelere geçmeyi engelliyordu (Alt+Tab ve görev çubuğu
+  cevap vermiyordu). Düzeltme 0.9.0'dan sonraki güncellemelerde geçerli:
+  0.8.3'ten 0.9.0'a geçerken güncellemeyi hâlâ eski sürümün penceresi yapıyor.
+
 ## [0.8.3] — 26 Eylül 2026
 
 ### Eklendi
