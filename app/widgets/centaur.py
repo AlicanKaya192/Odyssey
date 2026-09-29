@@ -131,6 +131,8 @@ SHOULDER_DRAW = (336.0, 220.0)
 SHOULDER_BOW = (410.0, 220.0)   # yay indirilirken kol buradan dönüyor
 NECK_PIVOT = (374.0, 192.0)     # baş buradan dönüyor
 REST_HAND = (352.0, 300.0)      # yay indirilince çeken el kalçanın yanında
+WAVE_HAND = (350.0, 132.0)      # el sallarken elin yeri (başın üstü, kol boyu yetiyor)
+WAVE_SWING = 14.0               # sallarken elin yana gidişi
 GRIP_DRAW = 0.62                # el kirişi bu gerilmeden önce tutamıyor (kol boyu)
 ARROW_LENGTH = 142.0
 
@@ -194,6 +196,10 @@ class Pose:
     hand_rest: float = 0.0
     head_turn: float = 0.0
     head_tilt: float = 0.0
+    # Veda (çıkış penceresi): çeken el başın üstüne kalkıyor (0–1) ve
+    # iki yana sallanıyor (-1–1).
+    wave: float = 0.0
+    wave_swing: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -340,10 +346,6 @@ def aim_pose() -> Pose:
         "hf": plant("hf", (30, -72, 44, 30, 0), body),
     }
     return Pose(legs=legs, body=body)
-
-
-def with_bow(pose: Pose, **kw) -> Pose:
-    return replace(pose, **kw)
 
 
 # --- yol üretimi -------------------------------------------------------------------------
@@ -498,7 +500,7 @@ def _stroke(painter: QPainter, d: str, color: QColor, width: float, opacity: flo
     painter.strokePath(svg_path(d), _pen(c, width))
 
 
-def draw_arrow(painter: QPainter, nock, u, length: float, style: Style) -> None:
+def draw_arrow(painter: QPainter, nock, u, length: float, style: Style, width: float = 3.0) -> None:
     """Ok: gövde çizgisi, yaprak biçimli uç, iki tüy. `u` birim yön."""
     n = (-u[1], u[0])
     tip = (nock[0] + u[0] * length, nock[1] + u[1] * length)
@@ -506,7 +508,7 @@ def draw_arrow(painter: QPainter, nock, u, length: float, style: Style) -> None:
     def pt(p, a, b):
         return QPointF(p[0] + u[0] * a + n[0] * b, p[1] + u[1] * a + n[1] * b)
 
-    painter.setPen(_pen(style.arrow, 3.0))
+    painter.setPen(_pen(style.arrow, width))
     painter.drawLine(QPointF(*nock), pt(tip, -2, 0))
     painter.setPen(Qt.PenStyle.NoPen)
     head = QPainterPath(pt(tip, 16, 0))
@@ -565,8 +567,13 @@ def _leg(painter: QPainter, key: str, ang, fill: QColor, incise: QColor | None) 
         painter.strokePath(_smooth(pts, False), pen)
 
 
-def draw_centaur(painter: QPainter, pose: Pose, style: Style) -> None:
-    """Figürü kendi koordinatında çizer (ölçek ve konum çizenin işi)."""
+def draw_centaur(painter: QPainter, pose: Pose, style: Style, line: float = 1.0) -> None:
+    """Figürü kendi koordinatında çizer (ölçek ve konum çizenin işi).
+
+    `line` yayın, kirişin ve okun kalınlık çarpanı: uygulama simgesinin
+    küçük boyutlarında (16–32 px) bu çizgiler piksel altına iniyor ve
+    sentor okçu gibi okunmuyordu.
+    """
     fig, far, inc = style.fig, style.far, style.incise
     painter.save()
     painter.setPen(Qt.PenStyle.NoPen)
@@ -630,7 +637,7 @@ def draw_centaur(painter: QPainter, pose: Pose, style: Style) -> None:
     painter.fillPath(circle(*BOW_HAND, 7.6), fig)
     if inc is not None:
         _stroke(painter, BOW_ARM_LINE, inc, 1.5)
-    painter.strokePath(svg_path(BOW), _pen(fig, 6.4))
+    painter.strokePath(svg_path(BOW), _pen(fig, 6.4 * line))
     painter.restore()
 
     # kiriş, ok ve çeken kol
@@ -644,7 +651,7 @@ def draw_centaur(painter: QPainter, pose: Pose, style: Style) -> None:
     string_path = QPainterPath(QPointF(*top))
     string_path.lineTo(*string)
     string_path.lineTo(*bottom)
-    painter.strokePath(string_path, _pen(style.string, 1.4))
+    painter.strokePath(string_path, _pen(style.string, 1.4 * line))
 
     # El kirişi bırakınca ok da kalkıyor (sadağa); el geri gelince yeniden takılıyor.
     arrow_alpha = clamp01(1 - pose.hand_rest * 2.2)
@@ -655,7 +662,7 @@ def draw_centaur(painter: QPainter, pose: Pose, style: Style) -> None:
         u = (dx / length, dy / length)
         painter.save()
         painter.setOpacity(painter.opacity() * arrow_alpha)
-        draw_arrow(painter, (sp[0] - u[0] * 4, sp[1] - u[1] * 4), u, ARROW_LENGTH, style)
+        draw_arrow(painter, (sp[0] - u[0] * 4, sp[1] - u[1] * 4), u, ARROW_LENGTH, style, 3.0 * line)
         painter.restore()
         painter.setPen(Qt.PenStyle.NoPen)
 
@@ -670,7 +677,12 @@ def draw_centaur(painter: QPainter, pose: Pose, style: Style) -> None:
         if pose.hand_rest > 0:
             k = smoothstep(pose.hand_rest)
             hand = (lerp(hand[0], REST_HAND[0], k), lerp(hand[1], REST_HAND[1], k))
-    elbow, wrist = _ik(SHOULDER_DRAW, (hand[0] - 8, hand[1]), 30, 57)
+    # El sallarken el bileğin sağında değil üstünde (avuç yukarıda).
+    kw = smoothstep(pose.wave) if not pose.released else 0.0
+    if kw > 0:
+        up = (WAVE_HAND[0] + WAVE_SWING * pose.wave_swing, WAVE_HAND[1])
+        hand = (lerp(hand[0], up[0], kw), lerp(hand[1], up[1], kw))
+    elbow, wrist = _ik(SHOULDER_DRAW, (hand[0] - 8 * (1 - kw), hand[1] + 8 * kw), 30, 57)
     for shape in _tapered(((*SHOULDER_DRAW, 16), (*elbow, 13), (*wrist, 10))):
         painter.fillPath(shape, fig)
     painter.fillPath(circle(*hand, 7), fig)

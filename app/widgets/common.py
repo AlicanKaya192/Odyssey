@@ -47,21 +47,6 @@ class Card(QFrame):
         refresh_shadow(self, mode, self._strong)
 
 
-class Chip(QLabel):
-    """Küçük etiket: zorluk, süre, durum."""
-
-    def __init__(self, text: str = "", tone: str = "", parent: QWidget | None = None) -> None:
-        super().__init__(text, parent)
-        self.setProperty("role", "chip")
-        if tone:
-            self.setProperty("tone", tone)
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-    def set_tone(self, tone: str) -> None:
-        self.setProperty("tone", tone)
-        repolish(self)
-
-
 class SegmentedControl(QFrame):
     """Sekme yerine kullanılan yatay seçici (ui-taslak.md B5).
 
@@ -450,48 +435,6 @@ class ElidedText(QLabel):
 
         super().setText("\n".join(satirlar))
         self.setToolTip(self._full if kesildi else "")
-
-
-class Banner(QFrame):
-    """Renkli bilgi şeridi: uyarı, başarı, hata."""
-
-    def __init__(
-        self,
-        text: str = "",
-        tone: str = "warning",
-        icon: str = "",
-        parent: QWidget | None = None,
-    ) -> None:
-        super().__init__(parent)
-        self.setProperty("banner", tone)
-
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(SPACING["md"], SPACING["sm"], SPACING["md"], SPACING["sm"])
-        layout.setSpacing(SPACING["sm"])
-
-        self._icon = QLabel(icon)
-        self._icon.setProperty("tone", tone)
-        self._icon.setFixedWidth(16)
-        self._icon.setAlignment(Qt.AlignmentFlag.AlignTop)
-        layout.addWidget(self._icon)
-
-        self._label = QLabel(text)
-        self._label.setWordWrap(True)
-        self._label.setProperty("tone", tone)
-        layout.addWidget(self._label, 1)
-
-    def set_text(self, text: str) -> None:
-        self._label.setText(text)
-
-    def set_tone(self, tone: str, icon: str = "") -> None:
-        self.setProperty("banner", tone)
-        self._label.setProperty("tone", tone)
-        self._icon.setProperty("tone", tone)
-        if icon:
-            self._icon.setText(icon)
-        repolish(self)
-        repolish(self._label)
-        repolish(self._icon)
 
 
 def paint_hairline(widget: QWidget, edge: str = "bottom") -> None:

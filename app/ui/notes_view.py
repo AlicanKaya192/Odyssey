@@ -32,6 +32,9 @@ class NotesView(QWidget):
     # Son notun sonundaki düğmeye basıldığında yayılır; bölümdeki bir sonraki
     # adıma (sınav ya da alıştırma) geçilmesi isteniyor demektir.
     advance = Signal()
+    # Bir not sonuna kadar okundu (notun id'si). Sonuna kaydırmak ya da en
+    # alttaki ileri düğmesine basmak okumak sayılıyor; notu açmak değil.
+    note_read = Signal(str)
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -42,6 +45,8 @@ class NotesView(QWidget):
         # Son notun altında görünecek "devam et" düğmesinin etiketi. Bölümde
         # notlardan sonra ne geliyorsa (sınav, alıştırma) onun adı yazılıyor.
         self._advance_label: str | None = None
+        # Sonuna kadar okunmuş notların id'leri (sekmelerdeki tikler).
+        self._read_ids: set[str] = set()
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -49,7 +54,7 @@ class NotesView(QWidget):
 
         layout.addWidget(self._build_selector())
 
-        self._reader = LessonView(self._language, show_toc=False)
+        self._reader = LessonView(self._language, show_toc=False, track_reading=True)
         self._reader.action.connect(self._on_action)
         layout.addWidget(self._reader, 1)
 
@@ -92,12 +97,28 @@ class NotesView(QWidget):
         return holder
 
     def _on_action(self, action: str) -> None:
-        if action == "next":
+        if action == "lesson-read":
+            self._report_read()
+        elif action == "next":
+            # Düğme notun en altında: oraya ulaşıp basmak notu okumak.
+            self._report_read()
             self._step(1)
         elif action == "previous":
             self._step(-1)
         elif action == "advance":
+            self._report_read()
             self.advance.emit()
+
+    def _report_read(self) -> None:
+        if self._documents:
+            kimlik = self._documents[self._current].get("id", "")
+            if kimlik:
+                self.note_read.emit(kimlik)
+
+    def set_read(self, ids: set[str]) -> None:
+        """Okunmuş notların sekmelerine tik (birden çok not varken)."""
+        self._read_ids = set(ids)
+        self._tabs.set_done([document.get("id", "") in ids for document in self._documents])
 
     def set_advance_label(self, label: str | None) -> None:
         """Son notun sonunda görünecek "devam et" düğmesinin adını belirler.
@@ -145,6 +166,7 @@ class NotesView(QWidget):
         self._documents = block.documents
         self._directory = block.directory
         self._current = 0
+        self._read_ids = set()
         self._rebuild_tabs()
         self._show_current()
 
@@ -155,6 +177,8 @@ class NotesView(QWidget):
         ]
         self._tabs.set_items(basliklar)
         self._tabs.set_current(self._current, notify=False)
+        # Sekmeler yeniden kurulunca (dil değişimi) tikler kaybolmasın.
+        self._tabs.set_done([d.get("id", "") in self._read_ids for d in self._documents])
         self._selector.setVisible(len(self._documents) > 1)
 
     def select(self, index: int) -> None:
@@ -199,6 +223,8 @@ class NotesView(QWidget):
         self._reader.set_base_dir(
             resolved.parent if resolved is not None else None
         )
+        # Her not ayrı okunuyor: takip yeni notta baştan başlıyor.
+        self._reader.reset_reading()
         self._reader.show_text(f"# {title}\n\n{body}")
         self._reader.set_meta([counter])
         self._apply_footer()

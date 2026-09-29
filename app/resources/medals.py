@@ -211,11 +211,5 @@ def medal_pixmap(shape: str, tier: str, glyph: str, size: int, earned: bool = Tr
     return pix
 
 
-def medal_for(badge: dict, size: int, earned: bool = True, ratio: float = 2.0) -> QPixmap:
-    """`badges.json` kaydından madalya (şekil ve kademe `medal` alanında)."""
-    shape, tier = (badge.get("medal") or ["circle", "bronze"])[:2]
-    return medal_pixmap(shape, tier, badge.get("icon", "star"), size, earned, ratio)
-
-
 def tier_of(badge: dict) -> str:
     return (badge.get("medal") or ["circle", "bronze"])[1]

@@ -62,12 +62,15 @@ from ..widgets import centaur as C
 # Alican: çift tıklamadan uygulamaya en fazla 4,5–5 sn. İlk sürümde geçiş
 # 4,35'te başlıyordu ve uygulama ~5,9 sn'de görünüyordu; sahneler aynı,
 # zaman çizelgesi sıkıştırıldı (uygulama ~4,3 sn'de görünüyor).
-T_DRAW0, T_DRAW1 = 0.6, 1.1
-T_RELEASE = 1.25
-T_HIT = 2.2
-T_TITLE = 2.38
-T_MIN_END = 3.2       # hazır olsa bile geçiş bundan önce başlamıyor
-TRANSITION = 0.55
+# 29 Eylül (ikinci kısaltma, Alican): çift tıklamadan program tam görünene
+# kadar 3,5 sn. Intro ekrana ~0,5 sn'de geliyor; sahne 3 sn'de bitiyor.
+T_SETTLE = 0.8        # figürün soldan girip yerine oturma süresi
+T_DRAW0, T_DRAW1 = 0.45, 0.85
+T_RELEASE = 0.95
+T_HIT = 1.72
+T_TITLE = 1.88
+T_MIN_END = 2.5       # hazır olsa bile geçiş bundan önce başlamıyor
+TRANSITION = 0.5
 T_REVEAL_AT = 0.8     # geçişin bu oranında ana pencere belirmeye başlıyor
 T_SKIP_TO = T_TITLE - 0.02
 
@@ -129,10 +132,12 @@ def _alpha(color: QColor, a: float) -> QColor:
 class IntroScene:
     """Bütün sahne; `paint` verilen anı çiziyor."""
 
-    def __init__(self, subtitle: str, version_line: str, preparing: str, final_bg: str) -> None:
+    def __init__(self, subtitle: str, version_line: str, preparing: str, final_bg: str,
+                 skip_hint: str = "") -> None:
         self.subtitle = subtitle
         self.version_line = version_line
         self.preparing = preparing
+        self.skip_hint = skip_hint
         self.final_bg = QColor(final_bg)
         self.transition_start: float | None = None
 
@@ -186,6 +191,9 @@ class IntroScene:
         self._text_font.setPixelSize(23)
         self._small_font = QFont(self._text_font)
         self._small_font.setPixelSize(15)
+        self._hint_font = QFont(self._text_font)
+        self._hint_font.setPixelSize(18)
+        self._hint_font.setWeight(QFont.Weight.DemiBold)
         # Değişmeyen katmanlar bir kez resme çiziliyor: zemin geçişi ve
         # menderes şeridi her karede baştan çizilince kare başına 8 ms
         # tutuyordu (ölçüldü; bütün kare 14 ms).
@@ -201,7 +209,7 @@ class IntroScene:
     def _screen_x(t: float) -> float:
         # Figür soldan hızla girip yerine oturuyor; oturdukça kamera onu
         # izlemeye başlıyor (zemin çizgileri ve süsler akmaya başlıyor).
-        return ENTER_FROM + (SETTLE_X - ENTER_FROM) * _ease_out_cubic(t / 1.0)
+        return ENTER_FROM + (SETTLE_X - ENTER_FROM) * _ease_out_cubic(t / T_SETTLE)
 
     def _figure_origin(self, t: float):
         return self._figure_x(t), GROUND_Y - C.GROUND * FIG_SCALE
@@ -668,6 +676,20 @@ class IntroScene:
         p.setPen(_alpha(INK, .62 * out * C.clamp01(t / .5)))
         p.drawText(QRectF(0, VIEW_H - 22, VIEW_W - 40, 18),
                    Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, self.version_line)
+
+        # Alt ortada "Esc ile geçilebilir" ipucu (Alican: bilmeyen olur).
+        # Esc yazıya atlatıyor; yazı gelince söyleyecek bir şeyi kalmıyor.
+        if self.skip_hint:
+            a = C.clamp01((t - .15) / .35) * (1 - C.clamp01((t - (T_TITLE - .2)) / .25))
+            if a > 0:
+                # Beyaz ve sürüm satırından büyük: koyu yazı mor zeminde
+                # okunmuyordu (Alican).
+                p.setFont(self._hint_font)
+                p.setPen(_alpha(QColor("#FFFFFF"), .92 * a * out))
+                # Sürüm satırıyla aynı hizada; daha yukarısı alt menderese biniyordu.
+                p.drawText(QRectF(0, VIEW_H - 24, VIEW_W, 22),
+                           Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter,
+                           self.skip_hint)
         if t < T_TITLE or out <= 0:
             return
 
@@ -677,7 +699,7 @@ class IntroScene:
         p.setFont(self._title_font)
         x = x0
         for i, ch in enumerate("ODYSSEY"):
-            k = (t - T_TITLE - .05 * i) / .42
+            k = (t - T_TITLE - .04 * i) / .36
             if k > 0:
                 a = C.clamp01(k * 1.6) * out
                 dy = 30 * (1 - _ease_out_back(k, 1.2))
@@ -687,7 +709,7 @@ class IntroScene:
         width = x - tracking - x0
 
         # yazının altında menderes, soldan sağa açılıyor
-        reveal = _ease_out_cubic((t - T_TITLE - .3) / .5)
+        reveal = _ease_out_cubic((t - T_TITLE - .22) / .4)
         if reveal > 0:
             p.save()
             p.setClipRect(QRectF(x0 - 2, 0, width * reveal + 4, VIEW_H))
@@ -708,7 +730,7 @@ class IntroScene:
             p.drawPath(path)
             p.restore()
 
-        k = C.clamp01((t - T_TITLE - .42) / .4)
+        k = C.clamp01((t - T_TITLE - .32) / .34)
         if k > 0:
             p.setFont(self._text_font)
             p.setPen(_alpha(INK, .8 * _ease_out_cubic(k) * out))
@@ -951,6 +973,7 @@ def build_scene(settings: dict) -> IntroScene:
         version_line=f"v{APP_VERSION} · {language.t('splash.beta')}",
         preparing=language.t("intro.preparing"),
         final_bg=palette["bg"],
+        skip_hint=language.t("intro.skip_hint"),
     )
 
 

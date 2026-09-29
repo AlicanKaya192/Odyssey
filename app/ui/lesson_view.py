@@ -253,6 +253,10 @@ class LessonView(QWidget):
         self._read_reported = False
         self._render()
 
+    def reset_reading(self) -> None:
+        """`show_text` ile yeni bir belge verilecekse okuma takibi baştan (ders notları)."""
+        self._read_reported = False
+
     def _check_read(self, *_: object) -> None:
         """Metnin sonundaysa ve ders görünüyorsa bir kez "okundu" bildirir.
 

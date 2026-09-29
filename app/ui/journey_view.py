@@ -15,11 +15,13 @@ açılmıyor. Tamamlanmış bölümlere istendiği zaman geri dönülebiliyor.
 from __future__ import annotations
 
 from dataclasses import replace
+from datetime import date
 
 from PySide6.QtCore import Property, QEvent, QPointF, QRect, QRectF, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QColor,
     QFont,
+    QFontMetrics,
     QIcon,
     QLinearGradient,
     QPainter,
@@ -54,10 +56,10 @@ from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.unlock import blocking_section
 from ..resources.icons import icon, pixmap
-from ..resources.theme.tokens import CONTENT_WIDTH, FONTS, NODE_STATES, PALETTES, RADIUS, SPACING
-from ..widgets.common import Card, ElidedText, StatBlock, horizontal_rule, section_label
-from ..widgets.streak_flame import FlickerFlame, flame_pixmap, hero_flame_pixmap, next_tier, tier_for
-from ..widgets.effects import apply_shadow, refresh_shadow, repolish
+from ..resources.theme.tokens import CONTENT_WIDTH, FONTS, PALETTES, RADIUS, SPACING
+from ..widgets.common import ElidedText, StatBlock, horizontal_rule, section_label
+from ..widgets.streak_flame import FlickerFlame, hero_flame_pixmap, next_tier, tier_for
+from ..widgets.effects import apply_shadow, refresh_shadow
 
 # Düğümlerin soldan uzaklıkları — yol bu değerlerle zigzag çiziyor. Dizi
 # başa dönünce de kaydırma değişiyor (…120 → 30 → 120…); sonunda bir 30
@@ -353,6 +355,7 @@ class HeroCard(QFrame):
         self._name = ""
         self._resume = ""
         self._streak = 0
+        self._studied_today = False
         self._progress = 0
         self.setProperty("role", "hero")
         # Prototip: mor, aşağı düşen yumuşak ışıma (0 20px 50px rgba(99,70,229,.65)).
@@ -535,6 +538,8 @@ class HeroCard(QFrame):
     def eventFilter(self, obj, event) -> bool:  # noqa: N802
         if obj is self._ring_space and event.type() in (QEvent.Type.Move, QEvent.Type.Resize):
             self._place_ring()
+        elif obj is self._stats.get("streak") and event.type() == QEvent.Type.Enter:
+            obj.setToolTip(self._streak_tooltip())
         return False
 
     def _place_ring(self) -> None:
@@ -625,6 +630,7 @@ class HeroCard(QFrame):
         total_exercises: int,
         streak: int,
         progress: int,
+        studied_today: bool = False,
     ) -> None:
         """Şeritteki dört sayıyı yeniler.
 
@@ -653,6 +659,7 @@ class HeroCard(QFrame):
         self._ring.set_percent(progress)
         self._progress = progress
         self._streak = streak
+        self._studied_today = studied_today
         self.retranslate()
 
     def set_mode(self, mode: str) -> None:
@@ -672,25 +679,55 @@ class HeroCard(QFrame):
         self._title.setText(selam)
         self._subtitle.setText(self._resume)
 
-    def _render_flame(self) -> None:
-        """Serinin alevi ve ipucu: şu anki aşama, sonrakine kaç gün kaldı."""
+    def _streak_tooltip(self) -> str:
+        """Alevin ipucu: serinin ne zaman biteceği (geri sayım), şu anki ve
+        sonraki aşama, bir günün neyle sayıldığı.
+
+        Fare üstüne geldiği anda yeniden hesaplanıyor; saat hep güncel.
+        Geri sayım önce yoktu (Alican'a gelen geri bildirim, 29 Eylül).
+        """
+        from datetime import datetime, timedelta
+
         t = self._language.t
+        simdi = datetime.now()
+        gece = datetime.combine(simdi.date() + timedelta(days=1), datetime.min.time())
+
+        def sure(bitis: datetime) -> str:
+            dakika = max(1, int((bitis - simdi).total_seconds() // 60))
+            saat, dakika = divmod(dakika, 60)
+            if saat >= 24:
+                return t("streak.dh", d=saat // 24, h=saat % 24)
+            return t("streak.hm", h=saat, m=dakika) if saat else t("streak.m", m=dakika)
+
+        satirlar = []
+        if self._streak <= 0:
+            satirlar.append(t("streak.start"))
+        elif self._studied_today:
+            satirlar.append(t("streak.safe", time=sure(gece + timedelta(days=1))))
+        else:
+            satirlar.append(t("streak.ends_in", time=sure(gece)))
         tier = tier_for(self._streak)
         sonraki = next_tier(self._streak)
-        parcalar = [
-            t(f"streak.tier_{tier.key}") if tier else t("streak.none"),
-        ]
+        asama = t(f"streak.tier_{tier.key}") if tier else t("streak.none")
         if sonraki is not None:
-            parcalar.append(
-                t(
-                    "streak.next",
-                    days=sonraki.min_days - self._streak,
-                    name=t(f"streak.tier_{sonraki.key}"),
-                )
-            )
+            asama += " · " + t("streak.next", days=sonraki.min_days - self._streak,
+                               name=t(f"streak.tier_{sonraki.key}"))
+        satirlar.append(asama)
+        satirlar.append(t("streak.counts"))
+        # Düz ipucu kendiliğinden sarılmıyor; uzun satır ekran boyu uzuyordu.
+        import textwrap
+
+        return "\n".join(textwrap.fill(s, 62) for s in satirlar)
+
+    def _render_flame(self) -> None:
+        """Serinin alevi ve ipucu (bkz. `_streak_tooltip`)."""
         # Alev titreyen bir widget (C12); StatBlock'un düz simge yeri gizli.
         blok = self._stats["streak"]
-        blok.set_icon(None, " · ".join(parcalar))
+        blok.set_icon(None, self._streak_tooltip())
+        if not getattr(self, "_streak_filter", False):
+            # İpucu fare üstüne gelince tazeleniyor (geri sayım).
+            self._streak_filter = True
+            blok.installEventFilter(self)
         if not hasattr(self, "_flame"):
             self._flame = FlickerFlame()
             blok._icon.parentWidget().layout()  # noqa: B018 — düzen var mı
@@ -799,6 +836,14 @@ class ModuleCard(GlowCard):
         self._description.setText(self._language.pick(self._chapter.description))
 
 
+# Patika kartı başlığının denenen yazı boyutları; ilki QSS'teki boyut.
+TITLE_SIZES = (17, 16, 15, 14, 13)
+TITLE_LINES = 2
+
+# Kilitli patikada logonun köşesindeki kilit rozetinin çapı.
+LOCK_BADGE = 22
+
+
 class TrackCard(GlowCard):
     """Bir öğrenme patikasını temsil eden kart (prototipteki `.tcard`).
 
@@ -856,11 +901,14 @@ class TrackCard(GlowCard):
         self._lock: QLabel | None = None
         if track.locked:
             # Tıklanınca sallanıyor: neden açılmadığını anlatıyor (C2).
-            self._lock = QLabel()
+            # Logonun sağ alt köşesinde küçük rozet (kilitli madalyalar gibi),
+            # yerleşimin dışında. Önce başlık satırının sağında 44 piksel
+            # tutuyordu ve dar kartta başlık sığmıyordu ("Algoritmal").
+            self._lock = QLabel(self)
             self._lock.setProperty("role", "lock-chip")
-            self._lock.setFixedSize(30, 30)
+            self._lock.setFixedSize(LOCK_BADGE, LOCK_BADGE)
             self._lock.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            header.addWidget(self._lock, 0, Qt.AlignmentFlag.AlignTop)
+            self._lock.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         layout.addLayout(header)
 
         self._description = ElidedText(lines=2)
@@ -911,7 +959,7 @@ class TrackCard(GlowCard):
     def _paint_icons(self) -> None:
         p = PALETTES.get(self._mode, PALETTES["dark"])
         if self._lock is not None:
-            self._lock.setPixmap(pixmap("lock", p["text_muted"], 16))
+            self._lock.setPixmap(pixmap("lock", p["text_muted"], 12))
         self._why_icon.setPixmap(pixmap("info", p["text_muted"], 14))
 
     def showEvent(self, event) -> None:  # noqa: N802 (Qt adlandırması)
@@ -919,6 +967,7 @@ class TrackCard(GlowCard):
         # dosyasından gelmemiş olabiliyor.
         super().showEvent(event)
         self._fix_height()
+        QTimer.singleShot(0, self._place_lock)
 
     def changeEvent(self, event) -> None:  # noqa: N802
         super().changeEvent(event)
@@ -997,8 +1046,70 @@ class TrackCard(GlowCard):
         if not self._track.locked:
             refresh_shadow(self, mode)
 
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._fit_title()
+        self._place_lock()
+
+    def _place_lock(self) -> None:
+        """Kilit rozetini logonun sağ alt köşesine, biraz dışarı taşırarak koyar."""
+        if self._lock is None:
+            return
+        logo = self._icon.geometry()
+        if logo.isEmpty():
+            # Yerleşim henüz kurulmadı; logo kenar boşluğunda, dikeyde ortada.
+            logo = self._icon.rect().translated(self.PAD, self.PAD)
+        self._lock.move(logo.right() - LOCK_BADGE + 6, logo.bottom() - LOCK_BADGE + 6)
+        self._lock.raise_()
+
+    def _fit_title(self) -> None:
+        """Başlık yazısını kartın genişliğine sığdırır; kartın boyu değişmez.
+
+        Kartlar pencereyle ölçeklenince dar kalan başlık kırpılıyordu:
+        "Algoritmalar" "Algoritmal", "Kütüphaneler" "Kütüphane" oluyordu,
+        "GenAI ve Prompt Eng." üç satıra taşıyordu (Alican bildirdi). Yazı
+        her kelime tek parça ve en fazla iki satır olacak kadar küçülüyor.
+        """
+        metin = self._title.text()
+        if not metin:
+            return
+        # Logonun gerçek sağ kenarından: logo bileşeni çizdiği 50 pikselden
+        # geniş, sabitten hesaplanınca oda 14 piksel fazla çıkıyordu.
+        logo = self._icon.geometry()
+        sol = logo.right() + 1 if not logo.isEmpty() else self.PAD + self._icon.sizeHint().width()
+        # Son 8 piksel pay: etiketin kendi satır kırması ölçümden birkaç
+        # piksel dar davranıyor ("System Design" sığar görünüp bölünüyordu).
+        oda = self.width() - self.PAD - sol - 14 - 8
+        if oda <= 0:
+            return
+        self._title.ensurePolished()
+        font = QFont(self._title.font())
+        secilen = TITLE_SIZES[-1]
+        for boyut in TITLE_SIZES:
+            font.setPixelSize(boyut)
+            olcu = QFontMetrics(font)
+            satir, satirlar = "", 1
+            sigdi = True
+            for kelime in metin.split():
+                if olcu.horizontalAdvance(kelime) > oda:
+                    sigdi = False
+                    break
+                aday = f"{satir} {kelime}".strip()
+                if olcu.horizontalAdvance(aday) > oda:
+                    satirlar += 1
+                    satir = kelime
+                else:
+                    satir = aday
+            if sigdi and satirlar <= TITLE_LINES:
+                secilen = boyut
+                break
+        stil = "" if secilen == TITLE_SIZES[0] else f"font-size: {secilen}px;"
+        if self._title.styleSheet() != stil:
+            self._title.setStyleSheet(stil)
+
     def retranslate(self) -> None:
         self._title.setText(self._language.pick(self._track.title))
+        self._fit_title()
         self._description.set_full_text(self._language.pick(self._track.description))
         if self._track.locked:
             self._sub.setText("")
@@ -1137,6 +1248,7 @@ class TracksView(QWidget):
             ),
             streak=self._store.streak(),
             progress=round(biten * 100 / toplam) if toplam else 0,
+            studied_today=self._store.last_study_day() == date.today(),
         )
         self.retranslate()
 

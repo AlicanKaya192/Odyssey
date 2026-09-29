@@ -35,7 +35,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ..paths import app_dir, updates_dir
-from .updates import RELEASES_PAGE, USER_AGENT
+from .updates import USER_AGENT
 
 # Kurulum dosyası: `Odyssey-0.8.3-setup.exe`.
 INSTALLER_PREFIX = "Odyssey-"
@@ -248,8 +248,3 @@ def cleanup() -> None:
                 girdi.unlink(missing_ok=True)
         except OSError:
             continue
-
-
-def release_page() -> str:
-    """Elle indirme adresi — güncelleme buradan yapılamadığında."""
-    return RELEASES_PAGE

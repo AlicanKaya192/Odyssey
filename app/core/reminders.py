@@ -18,6 +18,9 @@ Kurallar:
   "artık rahatsız etmeyeceğim" deyip susuyor;
   kişi dönüp yeniden kaybolursa döngü baştan başlıyor.
 - **Hiç çalışmamış** biri için iki günde bir, en fazla üç kez.
+- Program o gün **açıldıysa** "yoksun" türü bildirim gitmiyor; yokluk son
+  açılıştan sayılıyor (`last_seen_day`). Seri tehlikedeyse "seri tehlikede"
+  yine gidiyor: seri, çalışılan günle sürüyor.
 - Günde en fazla bir bildirim (son çağrı hariç).
 
 Metinler `app/resources/reminders.json` içinde, her türün birkaç çeşidi var;
@@ -101,6 +104,13 @@ def decide(store, now: datetime) -> str | None:
     if bugun_gitti:
         return None
 
+    # Program bugün açıldıysa "yoksun" demenin anlamı yok: kişi buradaydı.
+    # Önce son çalışma gününe bakılıyordu; sabah programı açıp konulara
+    # bakan birine akşam "3 gündür yoksun" gidiyordu.
+    son_gorulme = store.last_seen_day()
+    if son_gorulme == today:
+        return None
+
     gecen = _days_since(son_gonderim, today)
 
     if son_calisma is None:
@@ -108,7 +118,7 @@ def decide(store, now: datetime) -> str | None:
             return None
         return "never" if gecen >= 2 else None
 
-    yok = (today - son_calisma).days
+    yok = (today - son_gorulme).days
     if yok >= GOODBYE_AFTER:
         # Veda bu yokluk için bir kez; kişi dönüp yeniden kaybolursa
         # (son çalışma günü değişir) hatırlatmalar yeniden başlıyor.
@@ -159,7 +169,8 @@ def compose(
     secim = rng.choice(adaylar)
 
     ad = (store.profile().get("first_name") or "").strip()
-    son = store.last_study_day()
+    # "{days} gündür yoksun": programın en son açıldığı günden.
+    son = store.last_seen_day()
     degerler = {
         "name": ad or ("dostum" if dil == "tr" else "friend"),
         "streak": store.streak(),
