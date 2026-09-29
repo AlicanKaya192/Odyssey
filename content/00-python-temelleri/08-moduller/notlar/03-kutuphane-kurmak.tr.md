@@ -1,8 +1,9 @@
 `math` ve `datetime` Python'la birlikte geliyor. Ama `pandas`, `numpy`,
 `requests` gelmiyor — onları kurman gerekiyor.
 
-Bu not o işi anlatıyor. Veri Bilimi patikasına geçtiğinde ilk yapacağın şey
-bu olacak.
+Bu not o işin kısa bir hatırlatması; ayrıntısı ve conda patikanın ilk
+bölümünde, **Paketler ve Ortamlar**'da. Veri Bilimi patikasına geçtiğinde ilk
+yapacağın şey bu olacak.
 
 ## `pip` nedir?
 

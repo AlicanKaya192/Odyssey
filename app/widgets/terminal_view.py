@@ -22,6 +22,7 @@ from __future__ import annotations
 import html
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -35,12 +36,15 @@ from PySide6.QtWidgets import (
 from ..resources.theme.tokens import FONTS
 
 COLORS = {
-    "bg": "#0E1117",
-    "bar": "#161A22",
-    "border": "#262B36",
-    "text": "#D5DBE5",
-    "dim": "#7C8594",
-    "prompt": "#67E8F9",
+    "bg": "#0B0D12",
+    "bar": "#0B0D12",
+    "border": "#1C2029",
+    "button_border": "#2A2F3A",
+    "button_hover": "#1A1E27",
+    "title": "#AEB6C2",
+    "text": "#C9D1D9",
+    "dim": "#6B7380",
+    "prompt": "#8B84FF",
     "ok": "#4ADE80",
     "fail": "#F87171",
     "warn": "#FBBF24",
@@ -78,15 +82,35 @@ def block(text: str, color: str = "text", indent: int = 0) -> str:
     return "".join(parcalar)
 
 
+class _Lights(QWidget):
+    """Başlıktaki üç renkli nokta (8 px): terminal penceresi hissi."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.setFixedSize(8 * 3 + 6 * 2, 8)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        g.setPen(Qt.PenStyle.NoPen)
+        for i, renk in enumerate((COLORS["fail"], COLORS["warn"], COLORS["ok"])):
+            g.setBrush(QColor(renk))
+            g.drawEllipse(i * 14, 0, 8, 8)
+
+
 class TerminalView(QFrame):
-    """Başlık şeridi ve salt okunur terminal alanı."""
+    """Başlık şeridi ve salt okunur terminal alanı (prototip `.term`).
+
+    Kendi yuvarlak köşeli kartı: zemini çerçeve boyuyor, başlık ve metin alanı
+    saydam — yoksa köşeli iç alanlar yuvarlak kenardan taşıyordu.
+    """
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setObjectName("terminal")
         self.setStyleSheet(
-            f"QFrame#terminal {{ background:{COLORS['bg']}; border:none;"
-            f" border-top:1px solid {COLORS['border']}; }}"
+            f"QFrame#terminal {{ background:{COLORS['bg']};"
+            f" border:1px solid {COLORS['border']}; border-radius:16px; }}"
         )
         self._blocks: list[str] = []
         self._pending = ""
@@ -95,36 +119,29 @@ class TerminalView(QFrame):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        bar = QWidget()
+        bar = QFrame()
         bar.setObjectName("terminalBar")
         bar.setStyleSheet(
-            f"QWidget#terminalBar {{ background:{COLORS['bar']};"
-            f" border-bottom:1px solid {COLORS['border']}; }}"
+            f"QFrame#terminalBar {{ background:transparent; border:none;"
+            f" border-bottom:1px solid {COLORS['border']}; border-radius:0; }}"
         )
         bar_layout = QHBoxLayout(bar)
-        bar_layout.setContentsMargins(14, 6, 10, 6)
+        bar_layout.setContentsMargins(14, 8, 10, 8)
         bar_layout.setSpacing(8)
-        # Üç nokta ve başlık: terminal penceresi hissi.
-        noktalar = QLabel(
-            f'<span style="color:#F87171">●</span> '
-            f'<span style="color:#FBBF24">●</span> '
-            f'<span style="color:#4ADE80">●</span>'
-        )
-        noktalar.setStyleSheet("background:transparent; font-size:9px;")
-        bar_layout.addWidget(noktalar)
+        bar_layout.addWidget(_Lights(), 0, Qt.AlignmentFlag.AlignVCenter)
         self._title = QLabel()
         self._title.setStyleSheet(
-            f"background:transparent; color:{COLORS['dim']}; font-size:12px; font-weight:600;"
+            f"background:transparent; color:{COLORS['title']}; font-size:12.5px; font-weight:600;"
         )
         bar_layout.addWidget(self._title)
         bar_layout.addStretch(1)
         self.clear_button = QPushButton()
         self.clear_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.clear_button.setStyleSheet(
-            f"QPushButton {{ background:transparent; color:{COLORS['dim']}; border:1px solid"
-            f" {COLORS['border']}; border-radius:6px; padding:2px 10px; font-size:12px;"
+            f"QPushButton {{ background:transparent; color:{COLORS['title']}; border:1px solid"
+            f" {COLORS['button_border']}; border-radius:6px; padding:2px 8px; font-size:11.5px;"
             f" min-height:0px; }}"
-            f"QPushButton:hover {{ color:{COLORS['text']}; border-color:{COLORS['dim']}; }}"
+            f"QPushButton:hover {{ background:{COLORS['button_hover']}; }}"
         )
         self.clear_button.clicked.connect(self.clear)
         bar_layout.addWidget(self.clear_button)
@@ -139,8 +156,8 @@ class TerminalView(QFrame):
         )
         mono = FONTS["mono"]
         self._text.setStyleSheet(
-            f"QTextEdit {{ background:{COLORS['bg']}; color:{COLORS['text']}; border:none;"
-            f" padding:8px 14px; font-family:{mono}; font-size:13px;"
+            f"QTextEdit {{ background:transparent; color:{COLORS['text']}; border:none;"
+            f" border-radius:0; padding:6px 10px; font-family:{mono}; font-size:13px;"
             f" selection-background-color:#34405A; }}"
         )
         layout.addWidget(self._text, 1)

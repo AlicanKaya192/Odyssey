@@ -8,7 +8,7 @@ ilk açılıştaki soru ve `main.py --reminder-check` buradan geçiyor.
 from __future__ import annotations
 
 import threading
-from datetime import datetime, time
+from datetime import datetime
 from pathlib import Path
 
 from ..paths import install_root
@@ -22,11 +22,6 @@ def supported() -> bool:
 def icon_path() -> Path | None:
     path = install_root() / "app" / "resources" / "icon.png"
     return path if path.exists() else None
-
-
-def _parse(text: str) -> time:
-    saat, dakika = text.split(":")
-    return time(int(saat), int(dakika))
 
 
 def enable(store, at: str | None = None) -> tuple[bool, str]:

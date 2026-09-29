@@ -223,11 +223,6 @@ def highlight_code(source: str, language: str | None, mode: str = "light") -> st
     return "".join(parts)
 
 
-def highlight_python(source: str, mode: str = "light") -> str:
-    """Python kodunu satır içi renklerle boyanmış HTML'e çevirir."""
-    return highlight_code(source, LANGUAGE_PYTHON, mode)
-
-
 # Belge alanlarında kullanılan sınıf adları. Renk değil **sınıf** yazmanın
 # sebebi: tema değişince belgeyi baştan yüklemek gerekmiyor, yalnızca stil
 # bloğu değiştiriliyor. Satır içi renk yazılsaydı her tema değişiminde bütün
@@ -252,11 +247,6 @@ def highlight_code_classes(source: str, language: str | None) -> str:
         else:
             parts.append(f'<span class="{CLASS_PREFIX}{kind}">{html.escape(text)}</span>')
     return "".join(parts)
-
-
-def highlight_python_classes(source: str) -> str:
-    """Python kodunu CSS sınıflarıyla işaretlenmiş HTML'e çevirir."""
-    return highlight_code_classes(source, LANGUAGE_PYTHON)
 
 
 FENCE_PATTERN = re.compile(r"<pre><code(?: class=\"([^\"]*)\")?>(.*?)</code></pre>", re.DOTALL)

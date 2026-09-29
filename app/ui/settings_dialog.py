@@ -16,7 +16,8 @@ hangisinin öğrenmeyle ilgili olduğu ayırt edilmiyordu.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QSize, QThread, Qt, Signal
+from PySide6.QtCore import Property, QPointF, QRectF, QSize, QThread, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import (
     QDialog,
     QFrame,
@@ -29,8 +30,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..widgets import motion
+from ..widgets.fade_stack import FadeStack
 from ..core.language import LanguageManager
-from ..core import discord_presence
+from ..core import animations, discord_presence
 from ..core.quiz_timing import UNTIMED_QUIZ_KEY, untimed_quiz
 from ..core.unlock import UNLOCK_ALL_KEY, unlock_all
 from ..core.theme import ThemeManager
@@ -54,7 +57,8 @@ from . import modal
 # Dil bir aç/kapa ayarı değil, iki seçenek arasında seçim. Anahtar
 # kullanıldığında hangi tarafın hangi dil olduğu ancak açıklamayı okuyunca
 # anlaşılıyordu; artık iki seçenek de ekranda yazılı.
-LANGUAGE_OPTIONS = [("tr", "TR"), ("en", "EN")]
+# Dil adları kendi dillerinde yazılıyor; çevrilmiyor.
+LANGUAGE_OPTIONS = [("tr", "Türkçe"), ("en", "English")]
 
 # Tema seçicisi: yazı yerine simge. Ay koyu, güneş açık tema.
 #
@@ -62,16 +66,17 @@ LANGUAGE_OPTIONS = [("tr", "TR"), ("en", "EN")]
 # bileşen, iki seçenek arasında **seçim** için değil: "kapalı"nın koyu tema
 # demek olduğu ancak açıklamayı okuyunca anlaşılıyordu. Dil seçicisiyle
 # aynı bileşen kullanılıyor.
-THEME_OPTIONS = [("dark", "", "moon"), ("light", "", "sun")]
+# Prototipte simge ve yazı birlikte ("☀ Açık", "☾ Koyu"); yazı `retranslate`te.
+THEME_OPTIONS = [("light", "", "sun"), ("dark", "", "moon")]
 
 # Soldaki kategoriler ve simgeleri. Sıra ekranda görünen sıra.
 PAGES = ["appearance", "learning", "notifications", "sql", "updates"]
 PAGE_ICONS = {
-    "appearance": "eye",
+    "appearance": "palette",
     "learning": "graduation-cap",
     "notifications": "bell",
     "sql": "database",
-    "updates": "rotate",
+    "updates": "refresh",
 }
 
 # Pencere **sabit boyutlu**: hangi sayfa açılırsa açılsın aynı boy.
@@ -81,9 +86,9 @@ PAGE_ICONS = {
 # sayfasının altında pencerenin yarısı boş kaldı (Alican bildirdi). Şimdi
 # kategoriler solda, ayarlar sağda gruplanmış bir kartın içinde; kısa
 # sayfada boşluk kartın altında kalıyor, uzun sayfa kendi içinde kayıyor.
-DIALOG_WIDTH = 800
-DIALOG_HEIGHT = 540
-SIDEBAR_WIDTH = 210
+DIALOG_WIDTH = 820
+DIALOG_HEIGHT = 560
+SIDEBAR_WIDTH = 230
 NAV_ICON_SIZE = 18
 
 
@@ -151,15 +156,15 @@ class SettingRow(QWidget):
         super().__init__(parent)
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, SPACING["sm"], 0, SPACING["sm"])
-        layout.setSpacing(SPACING["md"])
+        layout.setContentsMargins(18, 14, 18, 14)
+        layout.setSpacing(16)
 
         metinler = QVBoxLayout()
         metinler.setSpacing(2)
         self.title = QLabel()
-        self.title.setProperty("role", "heading")
+        self.title.setProperty("role", "srow-title")
         self.description = QLabel()
-        self.description.setProperty("role", "muted")
+        self.description.setProperty("role", "srow-desc")
         self.description.setWordWrap(True)
         metinler.addWidget(self.title)
         metinler.addWidget(self.description)
@@ -169,7 +174,92 @@ class SettingRow(QWidget):
         self.switch = control if control is not None else ToggleSwitch()
         # Denetim metnin ilk satırıyla hizalanıyor; açıklama uzayınca
         # ortalanmış bir denetim aşağı kayıp başlıktan kopuyordu.
-        layout.addWidget(self.switch, 0, Qt.AlignmentFlag.AlignTop)
+        layout.addWidget(self.switch, 0, Qt.AlignmentFlag.AlignVCenter)
+
+
+class CloseX(QPushButton):
+    """Sağ üstteki kapatma çarpısı: üzerine gelince zemin belirir, çarpı döner."""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setFixedSize(32, 32)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setProperty("role", "bare")
+        self._turn = 0.0
+        self._hover = 0.0
+
+    def _get_turn(self) -> float:
+        return self._turn
+
+    def _set_turn(self, v: float) -> None:
+        self._turn = v
+        self.update()
+
+    turn = Property(float, _get_turn, _set_turn)
+
+    def enterEvent(self, event) -> None:  # noqa: N802
+        self._hover = 1.0
+        motion.animate_property(self, "turn", 1.0, "spring", "spring")
+        super().enterEvent(event)
+
+    def leaveEvent(self, event) -> None:  # noqa: N802
+        self._hover = 0.0
+        motion.animate_property(self, "turn", 0.0, "spring", "spring")
+        super().leaveEvent(event)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        from ..widgets.effects import theme_palette
+
+        p = theme_palette()
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        if self._hover:
+            g.setPen(Qt.PenStyle.NoPen)
+            g.setBrush(QColor(p["surface_hover"]))
+            g.drawEllipse(QRectF(self.rect()))
+        g.translate(self.width() / 2, self.height() / 2)
+        g.rotate(90 * self._turn)
+        kalem = QPen(QColor(p["text"] if self._hover else p["text_muted"]), 1.8)
+        kalem.setCapStyle(Qt.PenCapStyle.RoundCap)
+        g.setPen(kalem)
+        g.drawLine(QPointF(-5, -5), QPointF(5, 5))
+        g.drawLine(QPointF(5, -5), QPointF(-5, 5))
+
+
+class NavIndicator(QWidget):
+    """Ayarlar kenar çubuğunda seçili kategorinin kayan zemini."""
+
+    def __init__(self, parent: QWidget) -> None:
+        super().__init__(parent)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self._rect = QRectF()
+
+    def reset(self) -> None:
+        self._rect = QRectF()
+
+    def _set(self, r: QRectF) -> None:
+        self._rect = r
+        self.update()
+
+    def move_to(self, button: QWidget) -> None:
+        self.setGeometry(self.parentWidget().rect())
+        hedef = QRectF(button.geometry())
+        if self._rect.isEmpty():
+            self._set(hedef)
+            return
+        motion.animate(self, "r", QRectF(self._rect), hedef, self._set, "spring", "spring")
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        if self._rect.isEmpty():
+            return
+        from ..widgets.effects import theme_palette
+
+        p = theme_palette()
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        g.setPen(Qt.PenStyle.NoPen)
+        g.setBrush(QColor(p["surface_alt"]))
+        g.drawRoundedRect(self._rect, 10, 10)
 
 
 class SettingsDialog(QDialog):
@@ -183,6 +273,8 @@ class SettingsDialog(QDialog):
     timing_changed = Signal()
 
     presence_changed = Signal()
+    # Animasyonlar ayarı: açık ekranlardaki döngüsel hareketler hemen duruyor.
+    animations_changed = Signal(bool)
     # Elle yapılan denetimin sonucu: şeritteki duyuruyu da güncelliyor.
     update_found = Signal(object)
     # Kullanıcı ayarlardan güncellemeyi başlatmak istedi.
@@ -218,15 +310,18 @@ class SettingsDialog(QDialog):
         side.setProperty("role", "settings-sidebar")
         side.setFixedWidth(SIDEBAR_WIDTH)
         side_layout = QVBoxLayout(side)
-        side_layout.setContentsMargins(SPACING["md"], SPACING["lg"], SPACING["md"], SPACING["md"])
+        side_layout.setContentsMargins(12, 20, 12, 18)
         side_layout.setSpacing(4)
 
         self._title = QLabel()
-        self._title.setProperty("role", "subtitle")
-        self._title.setContentsMargins(SPACING["sm"], 0, 0, 0)
+        self._title.setProperty("role", "modal-title")
+        self._title.setContentsMargins(12, 4, 0, 0)
         side_layout.addWidget(self._title)
-        side_layout.addSpacing(SPACING["md"])
+        side_layout.addSpacing(10)
 
+        # Seçili kategorinin zemini: düğmelerin arkasında kayan tek katman (C14).
+        self._nav_indicator = NavIndicator(side)
+        self._nav_indicator.lower()
         self._nav_buttons: dict[str, QPushButton] = {}
         for name in PAGES:
             button = QPushButton()
@@ -242,8 +337,8 @@ class SettingsDialog(QDialog):
 
         side_layout.addStretch(1)
         self._version = QLabel(f"Odyssey {APP_VERSION}")
-        self._version.setProperty("role", "footnote")
-        self._version.setContentsMargins(SPACING["sm"], 0, 0, 0)
+        self._version.setProperty("role", "modal-version")
+        self._version.setContentsMargins(12, 0, 0, 0)
         side_layout.addWidget(self._version)
         outer.addWidget(side)
 
@@ -251,21 +346,21 @@ class SettingsDialog(QDialog):
         content = QWidget()
         content.setProperty("role", "bare")
         content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(SPACING["xl"], SPACING["lg"], SPACING["xl"], SPACING["lg"])
-        content_layout.setSpacing(SPACING["xs"])
+        content_layout.setContentsMargins(30, 26, 30, 26)
+        content_layout.setSpacing(4)
 
         self._page_title = QLabel()
-        self._page_title.setProperty("role", "title")
+        self._page_title.setProperty("role", "modal-page-title")
         content_layout.addWidget(self._page_title)
         self._page_description = QLabel()
-        self._page_description.setProperty("role", "muted")
+        self._page_description.setProperty("role", "modal-page-desc")
         self._page_description.setWordWrap(True)
         content_layout.addWidget(self._page_description)
-        content_layout.addSpacing(SPACING["md"])
+        content_layout.addSpacing(14)
 
         # Pencere sabit boyutlu olduğu için yığın kullanılabiliyor; her
         # sayfa kendi kaydırma alanında (sığmayan sayfa kendi içinde kayar).
-        self._stack = QStackedWidget()
+        self._stack = FadeStack(subtle=True)
         self._stack.setProperty("role", "bare")
         self._page_widgets = {
             "appearance": self._build_appearance(),
@@ -278,15 +373,11 @@ class SettingsDialog(QDialog):
             self._stack.addWidget(self._scrollable(self._page_widgets[name]))
         content_layout.addWidget(self._stack, 1)
 
-        buttons = QHBoxLayout()
-        buttons.addStretch(1)
-        self._close_button = QPushButton()
-        self._close_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._close_button.setProperty("variant", "primary")
+        # Kapatma sağ üstte bir çarpı (prototip `.mpage .x`); Esc de kapatıyor.
+        self._close_button = CloseX(content)
         self._close_button.clicked.connect(self.accept)
-        buttons.addWidget(self._close_button)
-        content_layout.addSpacing(SPACING["sm"])
-        content_layout.addLayout(buttons)
+        self._close_button.move(DIALOG_WIDTH - SIDEBAR_WIDTH - 32 - 14 - 2, 14)
+        self._close_button.raise_()
         outer.addWidget(content, 1)
 
         self._load_state()
@@ -324,7 +415,7 @@ class SettingsDialog(QDialog):
         card = QFrame()
         card.setProperty("role", "settings-group")
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(SPACING["md"], SPACING["xs"], SPACING["md"], SPACING["xs"])
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         for index, row in enumerate(rows):
             if index:
@@ -357,8 +448,12 @@ class SettingsDialog(QDialog):
         self._presence_row = SettingRow()
         self._presence_row.switch.toggled.connect(self._on_presence)
 
+        self._animations_row = SettingRow()
+        self._animations_row.switch.toggled.connect(self._on_animations)
+
         layout.addWidget(self._group(
-            [self._theme_row, self._language_row, self._presence_row]
+            [self._theme_row, self._language_row, self._presence_row,
+             self._animations_row]
         ))
         layout.addStretch(1)
         return sayfa
@@ -457,12 +552,13 @@ class SettingsDialog(QDialog):
         if name not in PAGES:
             return
         self._current_page = name
-        self._stack.setCurrentIndex(PAGES.index(name))
+        self._stack.slide_to(self._stack.widget(PAGES.index(name)))
         for ad, button in self._nav_buttons.items():
             button.setProperty("active", "true" if ad == name else "false")
             repolish(button)
         self._paint_nav_icons()
         self._render_page_header()
+        QTimer.singleShot(0, self, lambda: self._nav_indicator.move_to(self._nav_buttons[name]))
 
     def _render_page_header(self) -> None:
         t = self._language.t
@@ -477,12 +573,16 @@ class SettingsDialog(QDialog):
     def _paint_nav_icons(self) -> None:
         p = PALETTES.get(self._theme.effective_mode, PALETTES["light"])
         for ad, button in self._nav_buttons.items():
-            renk = p["accent"] if ad == self._current_page else p["text_muted"]
+            renk = p["text"] if ad == self._current_page else p["text_muted"]
             button.setIcon(make_icon(PAGE_ICONS[ad], renk, NAV_ICON_SIZE))
 
     def showEvent(self, event) -> None:  # noqa: N802
         super().showEvent(event)
         modal.center(self)
+        # Pencere belirerek açılır (B9); gösterge seçili kategoriye oturur.
+        motion.animate_property(self, "windowOpacity", 1.0, "short", "out", start=0.0)
+        self._nav_indicator.reset()
+        QTimer.singleShot(0, self, lambda: self._nav_indicator.move_to(self._nav_buttons[self._current_page]))
 
     def done(self, result: int) -> None:  # noqa: D102
         # Pencere kapanınca siliniyor. Arka planda süren bir iş (güncelleme
@@ -531,6 +631,9 @@ class SettingsDialog(QDialog):
         self._presence_row.switch.set_checked(
             discord_presence.enabled(self._store), animate=False
         )
+        self._animations_row.switch.set_checked(
+            animations.enabled(self._store), animate=False
+        )
         self._reminder_row.switch.set_checked(
             reminders.enabled(self._store), animate=False
         )
@@ -548,12 +651,12 @@ class SettingsDialog(QDialog):
         p = PALETTES.get(mode, PALETTES["light"])
         # Segment düğmelerinin **zeminini** QSS veriyor ama içlerindeki
         # güneş/ay birer `QIcon`; onlara QSS ulaşmıyor.
-        self._theme_picker.set_icon_colors(p["text_muted"], p["text_inverse"])
+        self._theme_picker.set_icon_colors(p["text_muted"], p["text"])
         self._paint_nav_icons()
         self._reminder_time.set_arrow_color(p["text_muted"])
         for row in (self._unlock_row, self._untimed_row,
                     self._presence_row, self._update_row, self._reminder_row,
-                    self._sound_row):
+                    self._sound_row, self._animations_row):
             row.switch.set_colors(
                 # Kart zemininde (`surface`) kapalı anahtarın izi seçilsin;
                 # `surface_alt` koyu temada kartla neredeyse aynıydı.
@@ -590,6 +693,10 @@ class SettingsDialog(QDialog):
     def _on_presence(self, checked: bool) -> None:
         discord_presence.set_enabled(self._store, checked)
         self.presence_changed.emit()
+
+    def _on_animations(self, checked: bool) -> None:
+        animations.set_enabled(self._store, checked)
+        self.animations_changed.emit(checked)
 
     def _sync_reminder_rows(self) -> None:
         acik = reminders.enabled(self._store)
@@ -785,7 +892,9 @@ class SettingsDialog(QDialog):
         t = self._language.t
         self.setWindowTitle(t("settings.title"))
         self._title.setText(t("settings.title"))
-        self._close_button.setText(t("common.close"))
+        self._close_button.setToolTip(t("common.close"))
+        self._theme_picker.button("light").setText(" " + t("settings.theme_light_short"))
+        self._theme_picker.button("dark").setText(" " + t("settings.theme_dark_short"))
         for ad, button in self._nav_buttons.items():
             button.setText(t(f"settings.nav_{ad}"))
         self._render_page_header()
@@ -807,6 +916,8 @@ class SettingsDialog(QDialog):
         self._untimed_row.description.setText(t("settings.untimed_quiz_help"))
         self._presence_row.title.setText(t("settings.discord"))
         self._presence_row.description.setText(t("settings.discord_help"))
+        self._animations_row.title.setText(t("settings.animations"))
+        self._animations_row.description.setText(t("settings.animations_help"))
         self._sound_row.title.setText(t("settings.celebration_sound"))
         self._sound_row.description.setText(t("settings.celebration_sound_help"))
         self._reminder_row.title.setText(t("settings.reminders"))

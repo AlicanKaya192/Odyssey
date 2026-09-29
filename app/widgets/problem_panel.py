@@ -33,6 +33,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .feedback import EdgeFlash
 from ..core import problem_check
 from ..core.language import LanguageManager
 from ..resources.icons import icon
@@ -221,6 +222,8 @@ class ProblemPanel(QWidget):
             field.setText(answers[row] if row < len(answers) else "")
             field.returnPressed.connect(self.check)
             field.textEdited.connect(lambda _=None, r=row: self._clear_mark(r))
+            # Denetimde kutunun çerçevesi yeşil ya da kırmızı yanıp söner (C8).
+            field._flash = EdgeFlash(field, radius=10)  # noqa: SLF001
             mark = QLabel()
             mark.setFixedWidth(22)
             self._grid.addWidget(label, row, 0)
@@ -297,6 +300,10 @@ class ProblemPanel(QWidget):
 
     def _set_mark(self, index: int, ok: bool) -> None:
         mark = self._marks[index]
+        p = PALETTES.get(self._mode, PALETTES["light"])
+        flash = getattr(self._fields[index], "_flash", None)
+        if flash is not None:
+            flash.flash(p["success"] if ok else p["danger"])
         mark.setText(MARK_OK if ok else MARK_WRONG)
         mark.setProperty("tone", "success" if ok else "danger")
         repolish(mark)

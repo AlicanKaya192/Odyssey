@@ -13,22 +13,25 @@ kontrol edilemiyor.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Property, QPointF, QRectF, Qt, Signal
+from PySide6.QtGui import QColor, QLinearGradient, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import QFrame, QGridLayout, QLabel, QVBoxLayout, QWidget
 
-from ..resources.icons import pixmap
+from ..resources.medals import TIER_ACCENTS, medal_pixmap
+from ..resources.theme.motion import bounce
 from ..resources.theme.tokens import SPACING
+from . import motion
+from .fade_stack import BACK, FORWARD, grab_clear, play_swap
 
-# Simge dairesinin çapı ve içindeki simgenin boyutu.
-CIRCLE = 56
-ICON = 26
+# Madalyanın boyu (ui-taslak.md E3: profil duvarında 72 px).
+MEDAL = 72
 
 # Bir rozetin adıyla birlikte kapladığı genişlik.
 #
 # Ad iki satıra sarabiliyor ama **tek kelimelik adlar saramıyor**:
 # "Alışkanlık" tek satırda 120 piksel istiyor ve 96 piksellik hücrede
 # kırpılıyordu. Genişlik en uzun tek kelimeye göre seçildi.
-CELL_WIDTH = 128
+CELL_WIDTH = 124
 # Çipin yüksekliği **sabit**: `QGridLayout` sıra yüksekliğini bir çipin
 # `sizeHint`'inden alıyor ve içerik uzunluğuna göre değişen bir yükseklik
 # duvarı zıplatıyordu.
@@ -36,7 +39,7 @@ CELL_WIDTH = 128
 # Ölçüldü: en uzun rozet adı ("Makine Öğrenmesi Ustası") iki satıra sarıp
 # 32 piksel istiyor; daire 56 ve aradaki boşluk 4 ile toplam 92. 120 bunun
 # üstünde, yani yeni bir rozet adı biraz daha uzun olsa da kırpılmıyor.
-CELL_HEIGHT = 120
+CELL_HEIGHT = 128
 MIN_COLUMNS = 3
 
 # Bir sayfada kaç sıra rozet duruyor.
@@ -47,74 +50,172 @@ MIN_COLUMNS = 3
 ROWS = 2
 
 
+class MedalMark(QWidget):
+    """Madalya ve hareketleri (ui-taslak.md C9).
+
+    - üzerine gelince yayla 3 px kalkar, −4° döner, %6 büyür;
+    - kazanılmışsa yüzeyinden çapraz bir parlama geçer;
+    - son ziyaretten beri kazanıldıysa esneyerek belirir, çevresinden bir
+      halka dalgası açılır (kutlama kartıyla aynı dil).
+    """
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setFixedSize(MEDAL + 16, MEDAL + 12)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
+        self._pix = None
+        self._earned = False
+        self._ring_color = QColor("#8B84FF")
+        self._hover = 0.0
+        self._sheen = 0.0
+        self._pop = 1.0
+        self._ring = 0.0
+
+    def _prop(name):  # noqa: N805
+        def get(self):
+            return getattr(self, "_" + name)
+
+        def set_(self, v):
+            setattr(self, "_" + name, v)
+            self.update()
+        return Property(float, get, set_)
+
+    hover = _prop("hover")
+    sheen = _prop("sheen")
+    pop = _prop("pop")
+    ring = _prop("ring")
+    del _prop
+
+    def set_medal(self, badge, earned: bool) -> None:
+        shape, tier = (list(badge.medal) + ["bronze"])[:2]
+        self._pix = medal_pixmap(shape, tier, badge.icon, MEDAL, earned)
+        self._earned = earned
+        self._ring_color = QColor(TIER_ACCENTS.get(tier, ("#8B84FF",))[0])
+        self.update()
+
+    def set_hovered(self, on: bool) -> None:
+        if on:
+            motion.animate_property(self, "hover", 1.0, "spring", "spring")
+            if self._earned:
+                motion.animate_property(self, "sheen", 1.0, 700, "out", start=0.0,
+                                        on_done=lambda: self._set_sheen0())
+        else:
+            motion.animate_property(self, "hover", 0.0, "base", "out")
+
+    def _set_sheen0(self) -> None:
+        self._sheen = 0.0
+        self.update()
+
+    def celebrate(self, delay: int = 200) -> None:
+        """Yeni kazanılan rozet: esneyerek belirir, halka dalgası açılır."""
+        self._pop = 0.0
+        motion.animate_property(self, "pop", 1.0, "bounce", "linear", start=0.0, delay=delay)
+        motion.animate_property(self, "ring", 1.0, "celebrate", "out", start=0.0, delay=delay + 50,
+                                on_done=lambda: setattr(self, "_ring", 0.0))
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        if self._pix is None:
+            return
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        g.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        merkez = QPointF(self.width() / 2, self.height() / 2 + 2 - 3 * self._hover)
+        if 0 < self._ring < 1:
+            renk = QColor(self._ring_color)
+            renk.setAlphaF(0.7 * (1 - self._ring))
+            g.setPen(QPen(renk, 2))
+            g.setBrush(Qt.BrushStyle.NoBrush)
+            rr = MEDAL * 0.42 * (0.9 + 0.8 * self._ring)
+            g.drawEllipse(merkez, rr, rr)
+        olcek = bounce(self._pop) * (1 + 0.06 * self._hover)
+        if olcek <= 0.01:
+            return
+        g.translate(merkez)
+        g.rotate(-4 * self._hover)
+        g.scale(olcek, olcek)
+        g.drawPixmap(QPointF(-MEDAL / 2, -MEDAL / 2), self._pix)
+        if 0 < self._sheen < 1:
+            # Çapraz parlama: madalyanın üstünden soldan sağa geçen ışık bandı.
+            yol = QPainterPath()
+            yol.addEllipse(QPointF(0, -2), MEDAL * 0.36, MEDAL * 0.36)
+            g.setClipPath(yol)
+            x = -MEDAL * 0.7 + MEDAL * 1.4 * self._sheen
+            isik = QLinearGradient(QPointF(x - 14, 0), QPointF(x + 14, 0))
+            isik.setColorAt(0.0, QColor(255, 255, 255, 0))
+            isik.setColorAt(0.5, QColor(255, 255, 255, 150))
+            isik.setColorAt(1.0, QColor(255, 255, 255, 0))
+            g.rotate(20)
+            g.fillRect(QRectF(x - 14, -MEDAL, 28, MEDAL * 2), isik)
+
+
 class BadgeChip(QWidget):
-    """Simge dairesi ve altında rozetin adı."""
+    """Madalya ve altında rozetin adı."""
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setFixedSize(CELL_WIDTH, CELL_HEIGHT)
-
+        self.setAttribute(Qt.WidgetAttribute.WA_Hover, True)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(SPACING["xs"])
-
-        # Fare olayları çipe gelsin: daire ve etiket ayrı ayrı yakalarsa
-        # ipucu aradaki geçişlerde sönüp yeniden açılıyor.
-        self.setAttribute(Qt.WidgetAttribute.WA_Hover, True)
-
-        self.circle = QFrame()
-        self.circle.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
-        self.circle.setProperty("role", "badge")
-        self.circle.setFixedSize(CIRCLE, CIRCLE)
-        ic_duzen = QVBoxLayout(self.circle)
-        ic_duzen.setContentsMargins(0, 0, 0, 0)
-        self.icon = QLabel()
-        self.icon.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
-        self.icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        ic_duzen.addWidget(self.icon)
+        layout.setSpacing(2)
+        self.circle = MedalMark()
         layout.addWidget(self.circle, 0, Qt.AlignmentFlag.AlignHCenter)
-
         self.name = QLabel()
         self.name.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
         self.name.setProperty("role", "badge-name")
         self.name.setWordWrap(True)
         self.name.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         layout.addWidget(self.name)
-
+        # "YENİ" etiketi: son ziyaretten beri kazanılan rozette.
+        self.new_tag = QLabel(self)
+        self.new_tag.setProperty("role", "new-tag")
+        self.new_tag.hide()
         self._tooltip = ""
+        self._badge_id = ""
+
+    def enterEvent(self, event) -> None:  # noqa: N802
+        super().enterEvent(event)
+        if self.circle.isVisible():
+            self.circle.set_hovered(True)
+
+    def leaveEvent(self, event) -> None:  # noqa: N802
+        super().leaveEvent(event)
+        self.circle.set_hovered(False)
+
+    @property
+    def badge_id(self) -> str:
+        return self._badge_id
 
     def set_empty(self) -> None:
-        """Çipi boşaltır ama yerinde bırakır.
-
-        Yarım kalan sayfada çipi tamamen gizlemek ızgarayı bozuyordu:
-        `QGridLayout` gizli widget'ın sütununu çöktürüyor, kalan rozetler
-        de yanlış sütunlara kayıyordu. Çip yerinde kalıp yalnızca içeriği
-        gizlenince ızgara her sayfada aynı duruyor.
-        """
+        """Çipi boşaltır ama yerinde bırakır (ızgara sütunları kaymasın)."""
         self._tooltip = ""
+        self._badge_id = ""
         self.setToolTip("")
         self.circle.hide()
         self.name.hide()
+        self.new_tag.hide()
 
     def apply(self, badge, title: str, tooltip: str, color: str) -> None:
+        self._badge_id = badge.id
         self.circle.show()
         self.name.show()
-        self.circle.setProperty("earned", badge.earned)
-        self.icon.setPixmap(pixmap(badge.icon, color, ICON))
+        self.circle.set_medal(badge, badge.earned)
         self.name.setText(title)
         self.name.setProperty("earned", badge.earned)
-        # Aynı çip yeniden kullanıldığında Qt stili kendiliğinden
-        # yenilemiyor; kazanılan bir rozet kilitli görünmeye devam ediyordu.
-        for parca in (self.circle, self.name):
-            parca.style().unpolish(parca)
-            parca.style().polish(parca)
+        self.name.style().unpolish(self.name)
+        self.name.style().polish(self.name)
         self._tooltip = tooltip
-        # İpucu Qt'nin kendi yoluyla gösteriliyor. Elle `QToolTip.showText`
-        # çağırmak her seferinde yeni bir ipucu penceresi kurduruyor ve
-        # Windows'un açılış animasyonu baştan oynuyordu — rozetten rozete
-        # geçerken takılıyor gibi görünüyordu. Bekleme süresi
-        # `TooltipStyle` ile kısaltıldı.
+        # İpucu Qt'nin kendi yoluyla (TooltipStyle ile kısaltılmış bekleme).
         self.setToolTip(tooltip)
+        self.new_tag.hide()
+
+    def show_new(self, text: str) -> None:
+        self.new_tag.setText(text)
+        self.new_tag.adjustSize()
+        self.new_tag.move(self.width() - self.new_tag.width() - 14, 2)
+        self.new_tag.show()
+        self.new_tag.raise_()
+        self.circle.celebrate()
 
 
 class BadgeWall(QWidget):
@@ -127,7 +228,7 @@ class BadgeWall(QWidget):
         super().__init__(parent)
         self._layout = QGridLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
-        self._layout.setHorizontalSpacing(SPACING["md"])
+        self._layout.setHorizontalSpacing(8)
         self._layout.setVerticalSpacing(SPACING["lg"])
         self._badges: list = []
         self._chips: list[BadgeChip] = []
@@ -163,8 +264,9 @@ class BadgeWall(QWidget):
             self._apply_all()
 
     def _fit_columns(self) -> int:
-        adim = CELL_WIDTH + SPACING["md"]
-        return max(MIN_COLUMNS, (self.width() + SPACING["md"]) // adim)
+        # Prototipte 5 sütun × 2 satır (`.bpage`), dar aralıkla.
+        adim = CELL_WIDTH + 8
+        return max(MIN_COLUMNS, min(5, (self.width() + 8) // adim))
 
     # --- sayfalar ---------------------------------------------------------
 
@@ -182,13 +284,36 @@ class BadgeWall(QWidget):
     def page(self) -> int:
         return self._page
 
-    def set_page(self, index: int) -> None:
+    def set_page(self, index: int, animate: bool = False) -> None:
         index = max(0, min(self.page_count - 1, index))
         if index == self._page:
             return
+        # Yarım kalan geçiş önce kapanıyor: katmanı açıkken görüntü alınınca
+        # önceki sayfanın rozetleri görüntüye girip takılı kalıyordu (hızlı
+        # art arda basınca).
+        katman = getattr(self, "_swap_overlay", None)
+        if katman is not None and katman.isVisible():
+            motion.stop(katman, "t")
+            katman.hide()
+        eski = grab_clear(self) if animate and self.isVisible() else None
+        yon = FORWARD if index > self._page else BACK
         self._page = index
         self._apply_all()
+        if eski is not None:
+            play_swap(self, eski, yon)
         self.paging_changed.emit()
+
+    def celebrate(self, ids: set, text: str) -> None:
+        """Bu sayfadaki yeni rozetleri kutlar (profil açılınca)."""
+        for chip in self._chips:
+            if chip.badge_id in ids:
+                chip.show_new(text)
+
+    def page_of(self, badge_id: str) -> int:
+        for i, b in enumerate(self._badges):
+            if b.id == badge_id:
+                return i // self.page_size
+        return 0
 
     def _page_badges(self) -> list:
         bas = self._page * self.page_size

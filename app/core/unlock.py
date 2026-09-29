@@ -9,6 +9,10 @@ karşılamak demek — sınavı geçmek ve alıştırmaları çözmek (hangisi
 bölümü doğrudan açan çağrı üçü de buraya soruyor; yoksa biri kilidi
 uygularken diğeri arka kapı bırakıyor.
 
+Kendisine başlanmış bir bölüm hep açık. Modüle sonradan bölüm eklenince
+(Python'un başına "Paketler ve Ortamlar" gibi) eski kullanıcı bitirdiği
+bölümün kilitlendiğini görmesin.
+
 Zincir kırılırsa: yalnızca **bir önceki** bölüme bakılıyor, hepsine değil.
 Bu güncellemeden önce ilerlemiş bir kullanıcının kayıtları sırasız olabilir
 (2'yi atlayıp 3'ü bitirmiş olabilir); ona "geri dön ve 2'yi de yap" demek
@@ -55,6 +59,10 @@ def blocking_section(catalog, store, chapter_id: str, section_id: str):
         if section.id != section_id:
             continue
         if index == 0:
+            return None
+        # Başlanmış bölüm kilitlenmez. Modülün başına sonradan bölüm
+        # eklenince, eski ilk bölümü bitirmiş biri onu kilitli görüyordu.
+        if store.section_state(chapter_id, section.id, section.exercises).has_activity:
             return None
         onceki = sections[index - 1]
         return None if _completed(store, chapter_id, onceki) else onceki

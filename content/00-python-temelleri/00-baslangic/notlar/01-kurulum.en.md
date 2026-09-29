@@ -37,7 +37,7 @@ Data science resources often recommend installing **Anaconda**. It is convenient
 
 There is something you should know, though: Anaconda carries its own system libraries, and those can clash with other programs. This very application will not start when it is installed with Anaconda's Python — the interface library loads Anaconda's older files and fails.
 
-If you are starting out, I would suggest beginning with a **clean Python installation**. You add libraries with `pip install` as you need them.
+If you are starting out, I would suggest beginning with a **clean Python installation**. You add libraries with `pip install` as you need them. pip, conda and virtual environments are covered in detail in the path's first chapter, **Packages and Environments**.
 
 ## Pick an editor
 

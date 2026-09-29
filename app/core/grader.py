@@ -486,21 +486,3 @@ def _unique(feedbacks) -> list[Feedback]:
         seen.add(key)
         result.append(feedback)
     return result
-
-
-def diff_lines(expected: str, actual: str) -> list[tuple[str, str, str]]:
-    """Beklenen ve bulunan çıktıyı satır satır eşler.
-
-    Her satır için (işaret, beklenen, bulunan) döndürür. İşaret "=" ise satır
-    aynı, "!" ise farklı. Arayüz bunu iki sütun hâlinde gösterir.
-    """
-    expected_lines = expected.splitlines()
-    actual_lines = actual.splitlines()
-    total = max(len(expected_lines), len(actual_lines))
-
-    rows = []
-    for index in range(total):
-        left = expected_lines[index] if index < len(expected_lines) else ""
-        right = actual_lines[index] if index < len(actual_lines) else ""
-        rows.append(("=" if left.strip() == right.strip() else "!", left, right))
-    return rows

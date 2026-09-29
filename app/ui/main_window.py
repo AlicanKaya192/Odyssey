@@ -18,13 +18,18 @@ from PySide6.QtCore import QEvent, QPoint, QThread, Qt, QTimer
 from PySide6.QtGui import QColor
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
     QMainWindow,
     QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
 
+from ..core import animations
 from ..core.catalog import Catalog
+from ..widgets import motion
+from ..widgets.fade_stack import BACK, FORWARD, FadeStack
 from ..core.discord_presence import (
     BUTTON_LABEL,
     PROJECT_URL,
@@ -38,9 +43,10 @@ from ..core.theme import ThemeManager
 from ..paths import content_dir
 from ..version import APP_VERSION
 from .header import ScreenHeader
-from ..widgets.common import SegmentedControl
+from ..widgets.common import HairlineFrame, SegmentedControl
 from .about_view import SECTIONS as ABOUT_SECTIONS, AboutView
-from .confirm_dialog import ConfirmDialog
+from .exit_dialog import ExitDialog
+from .modal import Backdrop
 from . import titlebar
 from ..resources.theme.tokens import RAIL_COLORS, RAIL_WIDTH
 from .footer import Footer
@@ -58,7 +64,10 @@ from .update_notice import UpdateNoticeDialog
 from ..core import updates
 from .topic_view import TopicView
 from ..widgets.toast import ToastData, ToastManager
-from ..resources.theme.tokens import PALETTES
+from ..widgets.confetti import Confetti
+from ..resources.logos import logo_key
+from ..resources.medals import TIER_ACCENTS, tier_of
+from ..resources.theme.tokens import PALETTES, SPACING
 from ..widgets.shortcut_panel import ShortcutPanel
 from PySide6.QtWidgets import QApplication
 from ..core import badges as badge_core
@@ -69,7 +78,7 @@ from ..core.celebration_sound import CelebrationSound
 class Screen(QWidget):
     """Başlık şeridi ve içerikten oluşan basit bir ekran kabı."""
 
-    def __init__(self, header: ScreenHeader, body: QWidget) -> None:
+    def __init__(self, header: ScreenHeader, body: QWidget, subbar: QWidget | None = None) -> None:
         super().__init__()
         self.header = header
         self.body = body
@@ -78,7 +87,32 @@ class Screen(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addWidget(header)
+        if subbar is not None:
+            layout.addWidget(subbar)
         layout.addWidget(body, 1)
+
+
+# Discord'da bölüm dışındaki ekranların alt satırı (üst satır ekranın adı,
+# `nav.<anahtar>`). Rotalar'ın alt satırı seçili rotadan üretiliyor.
+SCREEN_PRESENCE = {
+    "roadmap": "presence.route",
+    "notes": "presence.notes",
+    "profile": "presence.profile",
+    "about": "presence.about",
+    "releases": "presence.releases",
+}
+
+
+def _subbar(control: QWidget) -> HairlineFrame:
+    """Başlığın altındaki ortalanmış şerit; ekranın sekme seçicisi burada durur."""
+    bar = HairlineFrame()
+    bar.setProperty("role", "subbar")
+    alt = QHBoxLayout(bar)
+    alt.setContentsMargins(SPACING["lg"], SPACING["sm"] + 2, SPACING["lg"], SPACING["sm"] + 2)
+    alt.addStretch(1)
+    alt.addWidget(control)
+    alt.addStretch(1)
+    return bar
 
 
 class MainWindow(QMainWindow):
@@ -94,13 +128,20 @@ class MainWindow(QMainWindow):
         self._language = language
         self._theme = theme
         self._store = store
+        self._store.mark_seen()
         self._catalog = Catalog.load(content_dir())
+        # Animasyonlar ayarı ekranlar kurulmadan önce: ilk girişler de ona uyuyor.
+        motion.set_enabled(animations.enabled(store))
 
         # Discord'da "Odyssey kullanıyor" yazısı. Discord kapalıysa ya da
         # kurulu değilse hiçbir şey olmuyor; ayrı bir iş parçacığında
         # dönüyor ve arayüzü hiçbir koşulda bekletmiyor.
         self._presence = DiscordPresence(self._store)
         self._presence_where = ("", "")
+        # Bölüm dışındayken hangi ekranda olunduğu (şeritteki anahtar).
+        # Önce her ekran "Öğrenme yolunda" yazıyordu; Rotalar'da ya da
+        # Notlarım'da olan kişi Discord'da görünmüyordu (Alican).
+        self._presence_screen = "journey"
 
         self.resize(1400, 900)
         self.setMinimumSize(1080, 700)
@@ -147,7 +188,7 @@ class MainWindow(QMainWindow):
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(0)
 
-        self._stack = QStackedWidget()
+        self._stack = FadeStack()
         column.addWidget(self._stack, 1)
 
         self._footer = Footer(language)
@@ -190,6 +231,8 @@ class MainWindow(QMainWindow):
         self._search_index: tuple[str, list] = ("", [])
         self._search = SearchPalette(language, self)
         self._search.set_provider(self._search_items, self._search_locked)
+        # Bölüm sonuçlarında patika logosu için katalog.
+        self._search._delegate.catalog = self._catalog  # noqa: SLF001
         self._search.activated.connect(self._on_search)
 
         self._install_shortcuts()
@@ -242,12 +285,16 @@ class MainWindow(QMainWindow):
         self._journey.view_changed.connect(self._update_headers)
         self._journey_header = ScreenHeader(self._language)
         self._journey_header.back_clicked.connect(self._journey_back)
+        # Öğrenme Yolu içinde ekran değişince başlık yeniden belirir (prototip `hIn`).
+        self._journey.view_changed.connect(self._journey_header.play_enter)
         # Sekmeli patikanın modül seçicisi (MAT 1 / MAT 2); başka yerde gizli.
+        # Bölüm sekmeleri gibi başlığın altında, ortalanmış şeritte (Alican:
+        # sağ üstte durmasın).
         self._journey_tabs = SegmentedControl()
         self._journey_tabs.changed.connect(self._on_journey_tab)
-        self._journey_tabs.hide()
-        self._journey_header.add_widget(self._journey_tabs)
-        self._journey_screen = Screen(self._journey_header, self._journey)
+        self._journey_subbar = _subbar(self._journey_tabs)
+        self._journey_subbar.hide()
+        self._journey_screen = Screen(self._journey_header, self._journey, self._journey_subbar)
 
         # Bölüm içeriği (kendi başlığını taşıyor)
         self._topic = TopicView(self._catalog, self._language, self._store)
@@ -267,16 +314,22 @@ class MainWindow(QMainWindow):
         self._profile_screen = Screen(self._profile_header, self._profile)
 
         # Rotalar: hangi patikanın hangi sırayla çalışılacağı. Rota
-        # başlıktaki seçiciyle değişiyor, Hakkında'daki sekmeler gibi.
+        # başlığın altındaki seçiciyle değişiyor, Hakkında'daki sekmeler gibi.
+        # Seçiciler sağ üstteydi; Alican bölüm sekmeleri gibi başlığın
+        # altında istedi (29 Eylül). Sağ üstte yalnızca bölümün "Not al"ı kaldı.
         self._roadmap = RoadmapView(self._catalog, self._language, self._store)
         self._roadmap.track_opened.connect(self._open_track)
+        self._roadmap.section_opened.connect(self._open_section)
         self._roadmap_header = ScreenHeader(self._language)
         self._roadmap_segments = SegmentedControl()
         self._roadmap_segments.set_items(self._roadmap.route_labels())
         self._roadmap_segments.set_current(self._roadmap.route_index, notify=False)
         self._roadmap_segments.changed.connect(self._roadmap.show_index)
-        self._roadmap_header.add_widget(self._roadmap_segments)
-        self._roadmap_screen = Screen(self._roadmap_header, self._roadmap)
+        # Rota değişince Discord'daki "Rota: ..." satırı da.
+        self._roadmap_segments.changed.connect(lambda _: self._refresh_presence())
+        self._roadmap_screen = Screen(
+            self._roadmap_header, self._roadmap, _subbar(self._roadmap_segments)
+        )
 
         # Notlarım
         self._notebook = NotebookView(self._catalog, self._language, self._store)
@@ -292,8 +345,9 @@ class MainWindow(QMainWindow):
         self._about_segments = SegmentedControl()
         self._about_segments.changed.connect(self._about.show_index)
         self._about.section_changed.connect(lambda _: self._update_headers())
-        self._about_header.add_widget(self._about_segments)
-        self._about_screen = Screen(self._about_header, self._about)
+        self._about_screen = Screen(
+            self._about_header, self._about, _subbar(self._about_segments)
+        )
 
         # Sürüm notları
         self._releases = ReleaseView(self._language)
@@ -440,6 +494,21 @@ class MainWindow(QMainWindow):
         for tanim in yeniler:
             self._toast(self._badge_toast(tanim))
 
+        # Patikanın tamamı bitti (efsanevi rozet): bir kez konfeti (D2).
+        if any(tier_of(t) == "legendary" for t in yeniler):
+            self._confetti([t for t in yeniler if tier_of(t) == "legendary"][0])
+
+    def _confetti(self, tanim: dict) -> None:
+        p = PALETTES.get(self._theme.effective_mode, PALETTES["dark"])
+        renkler = [p["accent"], p["accent_second"], "#FBBF24", "#4ADE80", "#F472B6", "#38BDF8"]
+        track_id = {"python-complete": "python", "ml-complete": "machine-learning",
+                    "sql-complete": "sql"}.get(tanim.get("id", ""))
+        track = self._catalog.track(track_id) if track_id else None
+        if track is not None:
+            renkler += [track.color, track.color]
+        katman = Confetti(self._central, renkler)
+        QTimer.singleShot(250, katman.burst)
+
     # --- kutlama kartları -------------------------------------------------
 
     def _toast_anchor(self) -> tuple[int, int]:
@@ -478,9 +547,10 @@ class MainWindow(QMainWindow):
             title=self._language.pick(tanim.get("title"), tanim.get("id", "")),
             subtitle=self._language.pick(tanim.get("description"), ""),
             icon=tanim.get("icon", "award"),
-            color=p["accent"],
-            color2=p["accent_second"],
+            color=TIER_ACCENTS.get(tier_of(tanim), (p["accent"],))[0],
+            color2=TIER_ACCENTS.get(tier_of(tanim), (p["accent"], p["accent_second"]))[1],
             payload=("badge", tanim.get("id", "")),
+            medal=(*(tanim.get("medal") or ["circle", "bronze"])[:2], tanim.get("icon", "star")),
         )
 
     def _section_toast(self, chapter_id: str, section_id: str) -> ToastData | None:
@@ -499,6 +569,7 @@ class MainWindow(QMainWindow):
             color=chapter.color,
             color2=QColor(chapter.color).lighter(140).name(),
             payload=("section", chapter_id, section_id),
+            logo=logo_key(chapter.icon, chapter.id),
         )
 
     def _on_toast(self, veri: ToastData) -> None:
@@ -537,6 +608,10 @@ class MainWindow(QMainWindow):
         # Tarayıcıda yıldız verip geri dönen kişi sayıyı hemen güncel görsün.
         if event.type() == QEvent.Type.ActivationChange and self.isActiveWindow() and self._star_timer.isActive():
             self._check_stars()
+        # "Bugün açıldı" (hatırlatmalar için); gece yarısını geçen oturumda da.
+        if (event.type() == QEvent.Type.ActivationChange and self.isActiveWindow()
+                and not getattr(self, "_shutting_down", False)):
+            self._store.mark_seen()
         super().changeEvent(event)
 
     def _refresh_release_dot(self) -> None:
@@ -595,16 +670,16 @@ class MainWindow(QMainWindow):
                 )
             )
         for key, simge, anahtar in (
-            ("journey", "home", "nav.path"),
+            ("journey", "compass", "nav.path"),
             ("roadmap", "route", "nav.roadmap"),
             ("notes", "notebook", "nav.notes"),
             ("profile", "user", "nav.profile"),
-            ("releases", "megaphone", "nav.releases"),
+            ("releases", "scroll-text", "nav.releases"),
             ("about", "info", "nav.about"),
-            ("settings", "settings", "settings.title"),
+            ("settings", "sliders", "settings.title"),
         ):
             ekranlar.append(
-                SearchItem("screen", t(anahtar), "", {"type": "screen", "key": key, "icon": simge})
+                SearchItem("screen", t(anahtar), t("search.go"), {"type": "screen", "key": key, "icon": simge})
             )
 
         klasorler = {f["id"]: f["name"] for f in self._store.notebook_folders()}
@@ -623,7 +698,14 @@ class MainWindow(QMainWindow):
                     body=plain(entry["body"]),
                 )
             )
-        return ekranlar + notlar + katalog
+        # Patikalar (prototip: arama boşken en üstte, "Patika" etiketiyle).
+        patikalar = [
+            SearchItem("track", self._language.pick(track.title), self._language.pick(track.description),
+                       {"type": "track", "track": track.id, "logo": logo_key(track.icon, track.id),
+                        "color": track.color})
+            for track in self._catalog.tracks if not track.locked
+        ]
+        return patikalar + ekranlar + notlar + katalog
 
     def _search_locked(self, target: dict) -> bool:
         """Sonuç kilitli bir bölüme mi götürüyor?"""
@@ -645,6 +727,9 @@ class MainWindow(QMainWindow):
             return
         if kind == "note":
             self._open_note(target["id"])
+            return
+        if kind == "track":
+            self._open_track(target["track"])
             return
 
         self._open_section(target["chapter"], target["section"])
@@ -669,23 +754,23 @@ class MainWindow(QMainWindow):
 
         if key == "journey":
             self._journey.show_modules()
-            self._stack.setCurrentWidget(self._journey_screen)
+            self._stack.slide_to(self._journey_screen)
         elif key == "roadmap":
             # İlerleme bölümlerde değişiyor; rota her gelişte yeniden çiziliyor.
-            self._roadmap.refresh(keep_scroll=True)
-            self._stack.setCurrentWidget(self._roadmap_screen)
+            self._roadmap.refresh(keep_scroll=True, animate=True)
+            self._slide_screen(self._roadmap_screen)
         elif key == "notes":
             self._notebook.refresh()
-            self._stack.setCurrentWidget(self._notebook_screen)
+            self._slide_screen(self._notebook_screen)
         elif key == "profile":
             self._profile.refresh()
-            self._stack.setCurrentWidget(self._profile_screen)
+            self._stack.slide_to(self._profile_screen)
         elif key == "about":
             self._about.refresh()
-            self._stack.setCurrentWidget(self._about_screen)
+            self._slide_screen(self._about_screen)
         elif key == "releases":
             self._releases.refresh()
-            self._stack.setCurrentWidget(self._releases_screen)
+            self._slide_screen(self._releases_screen)
             # Bakıldı: bildirim noktası sönsün ve bir daha çıkmasın.
             self._store.set_setting("seen_version", self._releases.latest_version())
             self._rail.set_notification("releases", False)
@@ -693,8 +778,14 @@ class MainWindow(QMainWindow):
         self._rail.set_current(key)
         # Bu geçişlerin hepsi bölümden çıkmak demek; Discord'da bölüm adı
         # kalırsa kullanıcı çoktan başka ekrandayken orada donmuş görünüyor.
+        self._presence_screen = key
         self._set_presence_location()
         self._update_headers()
+
+    def _slide_screen(self, screen) -> None:
+        """Belge içeren ekrana geçiş: belge çizilmeye hazır olunca başlıyor."""
+        from ..widgets.document_view import when_documents_ready
+        self._stack.slide_to(screen, wait=lambda basla: when_documents_ready(screen, basla, 400))
 
     def _open_section(self, chapter_id: str, section_id: str) -> None:
         # Kilitli bölüm açılmıyor. Yol ekranındaki halka zaten tıklanmıyor;
@@ -704,9 +795,13 @@ class MainWindow(QMainWindow):
             return
 
         self._topic.show_section(chapter_id, section_id)
-        self._stack.setCurrentWidget(self._topic)
-        self._rail.set_current("journey")
         self._set_presence_location(chapter_id, section_id)
+        # Geçiş ders sayfası yüklenince oynuyor: bölüm içeriğiyle birlikte
+        # kayarak giriyor (prototip `pgFwd`); o ana kadar eski ekranın
+        # görüntüsü üstte duruyor.
+        self._stack.slide_to(self._topic, FORWARD,
+                             wait=lambda basla: self._topic.when_ready(basla, 400))
+        self._rail.set_current("journey")
 
     def _open_track(self, track_id: str) -> None:
         """Rotadaki "Patikaya git": Öğrenme Yolu'nda o patikayı açar."""
@@ -748,6 +843,16 @@ class MainWindow(QMainWindow):
         state = t("presence.browsing")
 
         chapter = self._catalog.chapter(chapter_id) if chapter_id else None
+        if chapter is None and self._presence_screen in SCREEN_PRESENCE:
+            # Bölümde değil, şeritteki bir ekranda: ekranın adı ve ne yaptığı.
+            # Notlarım'da notun adı ya da içeriği gönderilmiyor, kişisel.
+            details = t(f"nav.{self._presence_screen}")
+            if self._presence_screen == "roadmap":
+                rotalar = self._roadmap.route_labels()
+                if rotalar:
+                    state = t("presence.route", name=rotalar[self._roadmap.route_index])
+            else:
+                state = t(SCREEN_PRESENCE[self._presence_screen])
         if chapter is not None:
             details = self._language.pick(chapter.title) or "Odyssey"
             section = (
@@ -773,8 +878,9 @@ class MainWindow(QMainWindow):
     def _topic_back(self) -> None:
         """Bölümden yola dön; ilerleme değişmiş olabilir, yenile."""
         self._journey.refresh()
-        self._stack.setCurrentWidget(self._journey_screen)
+        self._stack.slide_to(self._journey_screen, BACK)
         self._update_headers()
+        self._presence_screen = "journey"
         self._set_presence_location()
 
     def _on_journey_tab(self, index: int) -> None:
@@ -823,8 +929,10 @@ class MainWindow(QMainWindow):
         )
 
         tabs = self._journey.chapter_tabs
-        self._journey_tabs.setVisible(bool(tabs))
+        self._journey_subbar.setVisible(bool(tabs))
         if tabs:
+            acik = self._catalog.chapter(self._journey.path.chapter_id)
+            self._journey_tabs.set_accent(acik.color if acik else None)
             self._journey_tabs.set_labels([self._language.pick(c.short) for c in tabs])
             ids = [c.id for c in tabs]
             current = self._journey.path.chapter_id
@@ -891,6 +999,8 @@ class MainWindow(QMainWindow):
         # siliniyor, açıldığında hemen görünüyor. Ayarın etkisini görmek
         # için uygulamayı kapatıp açmak gerekmiyor.
         dialog.presence_changed.connect(self._on_presence_changed)
+        # Animasyonlar ayarı da anında: döngüsel hareketler hemen duruyor.
+        dialog.animations_changed.connect(motion.set_enabled)
         # Elle denetim yapıldıysa sonucu şeride de yansıt.
         dialog.update_found.connect(self._on_update_checked)
         # Ayarlardan "Güncelle" denince kutu açılıyor: kullanıcı orada
@@ -952,6 +1062,7 @@ class MainWindow(QMainWindow):
 
         self._rail.set_mode(mode)
         self._rail_toggle.set_mode(mode)
+        self._stack.set_background(PALETTES[mode]["bg"])
         self._journey.set_mode(mode)
         self._journey_header.set_mode(mode)
         self._topic.set_mode(mode)
@@ -1030,7 +1141,8 @@ class MainWindow(QMainWindow):
         """Tutamağı şeridin sağ kenarının ortasına (kapalıyken pencere
         kenarına) yerleştirir."""
         toggle = self._rail_toggle
-        genislik = self._rail.width() if self._rail.isVisible() else 0
+        # Menü panelinin sağ kenarına oturuyor (panel şeridin içinde, kenardan içeride).
+        genislik = self._rail.dock_right() if self._rail.isVisible() and self._rail.width() > 0 else 0
         x = max(0, genislik - toggle.width() // 2)
         # Dikeyde arama simgesinin tam ortasına hizalı: şeridin ortasına
         # göre konunca simgeden birkaç piksel kayık ve orantısız duruyordu.
@@ -1052,6 +1164,31 @@ class MainWindow(QMainWindow):
         if not self._toast_ready:
             # Açılış animasyonu bitsin, sonra bekleyen kartlar gelsin.
             QTimer.singleShot(1200, self._flush_toasts)
+        if not getattr(self, "_warmed", False):
+            self._warmed = True
+            QTimer.singleShot(1500, self._warm_documents)
+
+    def _warm_documents(self) -> None:
+        """Henüz hiç sayfa yüklememiş belge alanlarına boş sayfa yükler.
+
+        Bir belge alanının **ilk** yüklemesi 620 ms sürüyordu (tarayıcı
+        tarafı ilk kez kuruluyor), sonrakiler ~90 ms (ölçüldü). Bölüme ilk
+        girişte ders sayfası geç geliyor, ekran boş kayıyordu. Açılıştan
+        sonra boşta, birer birer ısıtılıyor.
+        """
+        from ..widgets.document_view import DocumentView
+
+        belgeler = [d for d in self.findChildren(DocumentView) if not getattr(d, "_body", "")]
+
+        def sirayla(kalan=belgeler) -> None:
+            if not kalan:
+                return
+            belge = kalan.pop(0)
+            if not getattr(belge, "_body", ""):
+                belge.setHtml("<!doctype html><html><body></body></html>")
+            QTimer.singleShot(120, self, lambda: sirayla(kalan))
+
+        sirayla()
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
@@ -1084,17 +1221,13 @@ class MainWindow(QMainWindow):
         de söylüyor — asıl merak edilen o.
         """
         if not self._closing_for_update:
-            dialog = ConfirmDialog(
-                self._language.t("quit.title"),
-                self._language.t("quit.message"),
-                self._language.t("quit.confirm"),
-                self._language.t("quit.cancel"),
-                self,
-            )
-            # Ayrı pencerelerin başlık çubuğu da temaya uysun.
-            titlebar.apply(dialog, self._theme.effective_mode)
-
-            if dialog.exec() != ConfirmDialog.DialogCode.Accepted:
+            # Çerçevesiz, sahneli kutu (`exit_dialog.py`); arka kararıyor.
+            perde = Backdrop(self)
+            perde.show()
+            dialog = ExitDialog(self._language, self._store, self)
+            kabul = dialog.exec() == ExitDialog.DialogCode.Accepted
+            perde.deleteLater()
+            if not kabul:
                 event.ignore()
                 return
 
@@ -1105,6 +1238,16 @@ class MainWindow(QMainWindow):
         # (Alican, 25 Eylül). Yolda olan bir cevap da artık yazılmıyor.
         self._shutting_down = True
         self._star_timer.stop()
+
+        # Güncelleme penceresi ayrı bir pencere; program kapatılırsa o da
+        # kapanıyor (indirme iptal, yarım dosya siliniyor), yoksa uygulama
+        # görünmez bir indirmeyle açık kalırdı.
+        pencere = getattr(self, "_update_window", None)
+        if pencere is not None and not self._closing_for_update:
+            try:
+                pencere.close()
+            except RuntimeError:
+                pass
 
         # Notta yazılıp henüz kaydedilmemiş son harfler (Notlarım ve
         # bölümdeki not paneli).

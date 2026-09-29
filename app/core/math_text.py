@@ -1,4 +1,4 @@
-"""Ders metnindeki formüller.
+r"""Ders metnindeki formüller.
 
 Formüller markdown içinde LaTeX olarak yazılıyor: satır içinde `$x^2$`,
 kendi satırında `$$ ... $$`. Sayfada KaTeX çiziyor
@@ -10,7 +10,7 @@ Formüller önce yer tutucuya çevriliyor, markdown çalışıyor, sonra
 `<span class="math">` olarak geri konuyor.
 
 Kod bloklarının ve satır içi kodun içine dokunulmuyor: `$` orada kod.
-Metinde düz dolar işareti gerekiyorsa `\\$` yazılır.
+Metinde düz dolar işareti gerekiyorsa `\$` yazılır.
 
 **Sınav soruları bu yoldan geçmiyor.** Sorular Qt etiketiyle (`QLabel`)
 çiziliyor, orada KaTeX yok; sorudaki formül Unicode ile yazılır (`x²`,

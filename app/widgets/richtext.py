@@ -41,11 +41,6 @@ MONO = FONTS["mono"].replace('"', "'")
 PLACEHOLDER = "\x00BLOK{}\x00"
 
 
-def has_code(text: str) -> bool:
-    """Metinde işlenecek bir kod parçası var mı?"""
-    return "`" in text
-
-
 def render(text: str, mode: str = "light") -> str:
     """Markdown kod işaretlerini Qt zengin metnine çevirir."""
     palette = PALETTES.get(mode, PALETTES["light"])

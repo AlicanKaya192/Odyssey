@@ -1,6 +1,7 @@
 """Onay kutusu.
 
-Şu an tek yerde kullanılıyor: pencereyi kapatmadan önce soran kutu. Qt'nin
+Not silme ve SQL veritabanlarını silme gibi geri alınamayan işlerde
+soruyor (çıkış onayı artık `exit_dialog.py`, sahneli). Qt'nin
 `QMessageBox`'ı yerine kendi kutumuz var, çünkü `QMessageBox` düğmelerini
 işletim sisteminin sırasına göre diziyor ve stil dosyasındaki düğme
 görünümünü tam almıyordu.

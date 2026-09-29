@@ -15,9 +15,11 @@ sistem menüsü gerçekten gerekiyor (`app/ui/titlebar.py`).
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtGui import QColor, QPainter
-from PySide6.QtWidgets import QDialog, QWidget
+from PySide6.QtWidgets import QDialog, QStyle, QStyleOption, QWidget
+
+from ..widgets import motion
 
 # Arka planın karartma oranı. Daha koyusu uygulamayı kapatılmış gibi
 # gösteriyor, daha açığı pencerenin öne çıktığını anlatmıyor.
@@ -32,11 +34,35 @@ class Backdrop(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
         self.setGeometry(parent.rect())
         self.raise_()
+        # Karartma yumuşakça geliyor (ui-taslak B9).
+        self._dim = 0.0
+        motion.animate(self, "dim", 0.0, 1.0, self._set_dim, "short", "out")
+
+    def _set_dim(self, v: float) -> None:
+        self._dim = v
+        self.update()
 
     def paintEvent(self, event) -> None:  # noqa: N802
         painter = QPainter(self)
-        painter.fillRect(self.rect(), QColor(0, 0, 0, DIM_ALPHA))
+        painter.fillRect(self.rect(), QColor(0, 0, 0, int(DIM_ALPHA * self._dim)))
         painter.end()
+
+
+class _FadeIn(QObject):
+    """Çerçevesiz pencere göründüğünde saydamdan belirir (B9)."""
+
+    def eventFilter(self, obj, event) -> bool:  # noqa: N802
+        if event.type() == QEvent.Type.Show:
+            motion.animate_property(obj, "windowOpacity", 1.0, "short", "out", start=0.0)
+        elif event.type() == QEvent.Type.Paint:
+            # Saydam pencerede Qt zemini kendisi çizmiyor; QSS'teki yuvarlak
+            # zemin ve kenarlık buradan çiziliyor.
+            opt = QStyleOption()
+            opt.initFrom(obj)
+            g = QPainter(obj)
+            obj.style().drawPrimitive(QStyle.PrimitiveElement.PE_Widget, opt, g, obj)
+            g.end()
+        return False
 
 
 def prepare(dialog: QDialog) -> None:
@@ -48,6 +74,11 @@ def prepare(dialog: QDialog) -> None:
     dialog.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.FramelessWindowHint)
     # Çerçeve gitti; pencerenin nerede bittiğini kenarlık söylüyor.
     dialog.setProperty("role", "modal")
+    # Köşeler yuvarlak (22 px): pencere saydam, zemini ve kenarlığı QSS
+    # çiziyor; köşelerin dışı arkadaki sayfayı gösteriyor.
+    dialog.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+    suzgec = _FadeIn(dialog)
+    dialog.installEventFilter(suzgec)
 
 
 def freeze(dialog: QDialog) -> None:
@@ -59,22 +90,6 @@ def freeze(dialog: QDialog) -> None:
     """
     dialog.adjustSize()
     dialog.setFixedSize(dialog.size())
-
-
-def refit(dialog: QDialog) -> None:
-    """Kilidi açıp içeriğe göre yeniden ölçer, sonra tekrar kilitler.
-
-    İçeriği sonradan değişen bir pencere için: `freeze` boyutu sabitlediği
-    için yeni bir satır eklendiğinde kırpılıyor. Genişlik korunuyor —
-    yalnızca yükseklik değişsin, pencere yazı uzunluğuna göre enine
-    oynamasın.
-    """
-    genislik = dialog.width()
-    dialog.setMinimumSize(0, 0)
-    dialog.setMaximumSize(16777215, 16777215)
-    dialog.adjustSize()
-    dialog.setFixedSize(genislik, dialog.sizeHint().height())
-    center(dialog)
 
 
 def center(dialog: QDialog) -> None:

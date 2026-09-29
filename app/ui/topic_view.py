@@ -14,7 +14,9 @@ alıştırma yönergesinde seçilen metin sağ tıkla nota eklenebiliyor.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QSize, Qt, Signal
+from datetime import date
+
+from PySide6.QtCore import QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QFrame,
@@ -26,13 +28,18 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..widgets import motion
+from .note_panel import PANEL_WIDTH as NOTE_PANEL_WIDTH
 from ..core.catalog import Catalog, Section
 from ..core.language import LanguageManager
 from ..core.quiz_timing import untimed_quiz
 from ..core.progress import ProgressStore
 from ..core.unlock import is_unlocked
 from ..resources.icons import icon
-from ..resources.theme.tokens import RAIL_COLORS, SPACING
+from ..resources.theme.tokens import PALETTES, RAIL_COLORS, SPACING, mix
+from ..widgets.effects import apply_shadow, refresh_shadow
+from ..widgets.fade_stack import FadeStack
+from ..widgets.stepper import Stepper
 from ..widgets.common import SegmentedControl
 from ..widgets.document_view import DocumentView
 from .exercise_view import ExerciseView
@@ -42,6 +49,11 @@ from .note_panel import NotePanel
 from .notes_view import NotesView
 from .pdf_view import PdfView
 from .quiz_view import QuizView
+
+# Bir bölümde bu kadar süre (pencere öndeyken) geçirmek o günü "çalışıldı"
+# yapıyor; seri ve hatırlatmalar buna bakıyor.
+STUDY_SECONDS = 120
+STUDY_TICK_MS = 5000
 
 
 class TopicView(QWidget):
@@ -67,11 +79,24 @@ class TopicView(QWidget):
         self._store = store
         self._section: Section | None = None
         self._panes: list[str] = []
+        self._note_ids = []
         self._exercises: list = []
         self._exercise_index = 0
         # Ders metninin hangi dilde okunduğu; dil değişince yeniden okumak
         # için gerekiyor.
         self._lesson_language = ""
+
+        # Bölümde geçen zaman da çalışma sayılıyor: pencere öndeyken toplam
+        # `STUDY_SECONDS`. Önce yalnızca dersi sonuna kadar okumak, alıştırma
+        # çalıştırmak ya da sınava girmek sayılıyordu; konulara bakıp
+        # dersin ortasında kalan biri o gün "çalışmamış" oluyor, akşam
+        # hatırlatma alıyordu (Alican'a gelen bildirim, 29 Eylül). Program
+        # açık bırakılıp başka pencereye geçilirse sayılmıyor.
+        self._study_seconds = 0
+        self._study_timer = QTimer(self)
+        self._study_timer.setInterval(STUDY_TICK_MS)
+        self._study_timer.timeout.connect(self._tick_study)
+        self._study_timer.start()
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -80,9 +105,17 @@ class TopicView(QWidget):
         self.header = ScreenHeader(language)
         self.header.back_clicked.connect(self.back_requested)
 
+        # Sekmeler başlığın altında, ortalanmış bir şeritte (ui-taslak.md F1).
+        # Sağdaydılar ve uzun bölüm adlarında başlıkla çakışıyorlardı.
         self._segments = SegmentedControl()
         self._segments.changed.connect(self._show_pane)
-        self.header.add_widget(self._segments)
+        self._subbar = QFrame()
+        self._subbar.setProperty("role", "subbar")
+        alt = QHBoxLayout(self._subbar)
+        alt.setContentsMargins(SPACING["lg"], SPACING["sm"] + 2, SPACING["lg"], SPACING["sm"] + 2)
+        alt.addStretch(1)
+        alt.addWidget(self._segments)
+        alt.addStretch(1)
 
         self._note_button = QPushButton()
         self._note_button.setProperty("variant", "ghost")
@@ -92,8 +125,10 @@ class TopicView(QWidget):
         self.header.add_widget(self._note_button)
 
         layout.addWidget(self.header)
+        layout.addWidget(self._subbar)
 
-        self._stack = QStackedWidget()
+        # Sekmeler arası kısa çapraz sönme (ui-taslak.md C4).
+        self._stack = FadeStack(subtle=True)
         self._lesson = LessonView(language, track_reading=True)
         self._notes = NotesView(language)
         self._pdf = PdfView(language)
@@ -107,6 +142,7 @@ class TopicView(QWidget):
         self._quiz.completed.connect(self._on_quiz_completed)
         self._exercise.solved.connect(self._on_exercise_solved)
         self._notes.advance.connect(self._on_notes_advance)
+        self._notes.note_read.connect(self._on_note_read)
         self._quiz.advance.connect(self._on_quiz_advance)
         self._exercise.advance.connect(self._on_exercise_advance)
 
@@ -127,12 +163,17 @@ class TopicView(QWidget):
         column_layout.addWidget(self._stack, 1)
         row.addWidget(column, 1)
 
-        self._note_panel = NotePanel(language, store)
+        # Not paneli içeriği itmiyor: sağda, içeriğin üstünde yüzen bir
+        # çekmece (prototip `.drawer`). Konumu gövdenin boyutundan.
+        self._body = body
+        self._note_panel = NotePanel(language, store, body)
         self._note_panel.hide()
         self._note_panel.close_requested.connect(lambda: self.toggle_note(False))
         self._note_panel.open_in_notebook.connect(self.open_notebook)
         self._note_panel.changed.connect(self.notes_changed)
-        row.addWidget(self._note_panel)
+        self._note_slide = 0.0
+        apply_shadow(self._note_panel, "dark", strong=True, blur=44, offset_y=18, radius=20)
+        body.installEventFilter(self)
         layout.addWidget(body, 1)
 
         # Seçimi nota ekleme: bölümdeki bütün belge alanları (ders, ders
@@ -168,20 +209,21 @@ class TopicView(QWidget):
 
         layout.addStretch(1)
 
-        # Numara düğmeleri sağda, eskiden Önceki/Sonraki'nin durduğu yerde.
-        # O iki düğme kaldırıldı: numaralar onların yaptığı her şeyi yapıyor
-        # ve üstüne kaç alıştırma olduğunu, hangisinin çözüldüğünü gösteriyor.
-        self._number_row = QHBoxLayout()
-        self._number_row.setSpacing(SPACING["xs"])
-        self._number_buttons: list[QPushButton] = []
-        layout.addLayout(self._number_row)
+        # İlerleme şeridi sağda: çözülenler patika renginde dolu ve onaylı,
+        # açık olan halkalı, aralarında çizgi (ui-taslak.md C6).
+        self._stepper = Stepper()
+        self._stepper.clicked.connect(self._go_exercise)
+        layout.addWidget(self._stepper, 0, Qt.AlignmentFlag.AlignVCenter)
 
         return self._switcher
 
     # --- içerik -----------------------------------------------------------
 
     def show_section(self, chapter_id: str, section_id: str) -> None:
-        """Bölümü yükler ve mevcut parçalara göre seçenekleri kurar."""
+        """Bölümü yükler; açılacak sekmenin belgesi `when_ready`'de çiziliyor."""
+        self._show_section(chapter_id, section_id)
+
+    def _show_section(self, chapter_id: str, section_id: str) -> None:
         section = self._catalog.section(chapter_id, section_id)
         if section is None:
             return
@@ -189,7 +231,13 @@ class TopicView(QWidget):
         self._section = section
         self._exercises = section.exercises
         self._exercise_index = 0
+        # Sekme çizgisi patika renginde; yeni bölümde adım şeridi baştan
+        # (önceki bölümün çözümleri "yeni çözüldü" diye oynamasın).
+        chapter = self._catalog.chapter(chapter_id)
+        self._segments.set_accent(chapter.color if chapter else None)
+        self._stepper.reset()
         self._panes = []
+        self._note_ids = []
 
         language_code = self._language.language
         state = self._store.section_state(chapter_id, section_id, self._exercises)
@@ -203,6 +251,7 @@ class TopicView(QWidget):
             elif block.type == "notes":
                 if block.documents:
                     self._notes.show_notes(block)
+                    self._note_ids = [d.get("id", "") for d in block.documents if d.get("id")]
                     self._panes.append("notes")
 
             elif block.type == "pdf":
@@ -239,8 +288,9 @@ class TopicView(QWidget):
         self._lesson.set_footer(self._footer_items())
         # Bölümü açmak okumak değil: "okundu" işareti, kullanıcı metnin
         # sonuna indiğinde `lesson-read` bildirimiyle konuyor.
-        self._update_progress_box(state)
         self.retranslate()
+        # Sekme adları kurulduktan sonra: onaylar yeni sekmelere yazılsın.
+        self._update_progress_box(state)
         self._segments.set_current(0, notify=False)
         self._show_pane(0)
 
@@ -413,6 +463,21 @@ class TopicView(QWidget):
         """Bu bölüme girilebilir mi? Kural `app/core/unlock.py` içinde."""
         return is_unlocked(self._catalog, self._store, section.chapter_id, section.id)
 
+    def _tick_study(self) -> None:
+        """Bölüm ekranı görünür ve pencere öndeyse süre birikiyor; dolunca
+        gün "çalışıldı" oluyor (günde bir kez)."""
+        pencere = self.window()
+        if self._section is None or not self.isVisible() or pencere is None or not pencere.isActiveWindow():
+            return
+        if self._store.last_study_day() == date.today():
+            return
+        self._study_seconds += STUDY_TICK_MS // 1000
+        if self._study_seconds >= STUDY_SECONDS:
+            self._study_seconds = 0
+            self._store.mark_study_day()
+            # Seri alevi ve karşılama kartı yeni seriyi göstersin.
+            self.progress_changed.emit()
+
     def _mark_lesson_read(self) -> None:
         """Ders metnini okunmuş işaretler.
 
@@ -449,6 +514,15 @@ class TopicView(QWidget):
             # klavye kısayolu ya da başka bir yol buraya düşerse de geçerli.
             if target and (action == "previous-section" or self._unlocked(target)):
                 self.show_section(target.chapter_id, target.id)
+
+    def _on_note_read(self, document_id: str) -> None:
+        """Bir ders notu sonuna kadar okundu: kaydedilir, tikler güncellenir."""
+        if self._section is None or document_id not in self._note_ids:
+            return
+        self._store.mark_note_read(self._section.chapter_id, self._section.id, document_id)
+        self._refresh_progress()
+        # Not okumak da çalışma günü: seri alevi güncellensin.
+        self.progress_changed.emit()
 
     def _on_notes_advance(self) -> None:
         """Son ders notunun altındaki düğme: bölümün sonraki adımına geç."""
@@ -543,28 +617,17 @@ class TopicView(QWidget):
         Çözülmüş alıştırmanın numarasının yanında onay işareti duruyor;
         böylece kaç tanesini bitirdiğin de aynı yerden görünüyor.
         """
-        while self._number_row.count():
-            item = self._number_row.takeAt(0)
-            if item.widget():
-                item.widget().setParent(None)
-                item.widget().deleteLater()
-        self._number_buttons = []
-
         if self._section is None:
             return
-
-        for index, exercise in enumerate(self._exercises):
-            solved = self._store.exercise_solved(
-                self._section.chapter_id, self._section.id, exercise.id
-            )
-            button = QPushButton(f"{index + 1} ✓" if solved else str(index + 1))
-            button.setProperty("variant", "number")
-            button.setProperty("active", "true" if index == self._exercise_index else "false")
-            button.setCursor(Qt.CursorShape.PointingHandCursor)
-            button.setToolTip(self._language.pick(exercise.title))
-            button.clicked.connect(lambda _=False, i=index: self._go_exercise(i))
-            self._number_row.addWidget(button)
-            self._number_buttons.append(button)
+        cozuldu = [
+            self._store.exercise_solved(self._section.chapter_id, self._section.id, e.id)
+            for e in self._exercises
+        ]
+        chapter = self._catalog.chapter(self._section.chapter_id)
+        if chapter is not None:
+            self._stepper.set_color(chapter.color)
+        self._stepper.set_steps(cozuldu, self._exercise_index,
+                                [self._language.pick(e.title) for e in self._exercises])
 
     def _go_exercise(self, index: int) -> None:
         if 0 <= index < len(self._exercises) and index != self._exercise_index:
@@ -587,7 +650,8 @@ class TopicView(QWidget):
             "quiz": self._quiz,
             "exercise": self._exercise,
         }[name]
-        self._stack.setCurrentWidget(widget)
+        # Sekmedeki belge hazır olunca girsin (içerik sonradan belirmesin).
+        self._stack.slide_to(widget, wait=lambda basla: self.when_ready(basla, 250))
         self._update_switcher()
         # "Kodumu ekle" yalnızca alıştırmadayken anlamlı.
         self._note_panel.set_code_source(
@@ -611,16 +675,50 @@ class TopicView(QWidget):
         elif pane == "lesson" and anchor:
             self._lesson.scroll_to(anchor)
 
+    def when_ready(self, callback, timeout: int = 600) -> None:
+        """Açık sekmedeki belge hazır olunca `callback` (bkz. `when_documents_ready`)."""
+        from ..widgets.document_view import when_documents_ready
+        when_documents_ready(self._stack.currentWidget(), callback, timeout)
+
     # --- not paneli -------------------------------------------------------
 
     def toggle_note(self, visible: bool | None = None) -> None:
         """Not panelini açar ya da kapatır; açılınca imleç notta."""
         if visible is None:
             visible = self._note_panel.isHidden()
-        self._note_panel.setVisible(visible)
         self._note_button.setProperty("active", "true" if visible else "false")
+        # Panel sağdan açılıp kapanıyor (ui-taslak F3): genişlik yayla büyüyor.
+        # Çekmece sağdan yayla kayarak giriyor, kısa ve hızlanarak çıkıyor.
+        panel = self._note_panel
         if visible:
-            self._note_panel.focus_editor()
+            if panel.isHidden():
+                self._note_slide = 0.0
+                self._place_note_panel()
+                panel.show()
+                panel.raise_()
+            motion.animate(panel, "slide", self._note_slide, 1.0, self._set_note_slide, "spring", "spring")
+            panel.focus_editor()
+        elif not panel.isHidden():
+            motion.animate(panel, "slide", self._note_slide, 0.0, self._set_note_slide, "short", "in",
+                           on_done=panel.hide)
+
+    def _set_note_slide(self, value: float) -> None:
+        self._note_slide = value
+        self._place_note_panel()
+
+    def _place_note_panel(self) -> None:
+        """Çekmecenin yeri: sağdan 18, üstten 14, alttan 18 piksel boşluk."""
+        body = self._body
+        genislik = NOTE_PANEL_WIDTH
+        hedef = body.width() - genislik - 18
+        disari = body.width() + 30
+        x = round(disari + (hedef - disari) * self._note_slide)
+        self._note_panel.setGeometry(x, 14, genislik, max(0, body.height() - 32))
+
+    def eventFilter(self, obj, event) -> bool:  # noqa: N802
+        if obj is getattr(self, "_body", None) and event.type() == event.Type.Resize:
+            self._place_note_panel()
+        return super().eventFilter(obj, event)
 
     def _on_quote(self, text: str) -> None:
         """Belgede seçilip "Nota ekle" denen metin."""
@@ -650,35 +748,38 @@ class TopicView(QWidget):
         if self._section is None:
             return
 
-        parts: list[float] = []
-        labels: list[str] = []
+        steps: list[tuple[str, bool, str]] = []
 
         if "lesson" in self._panes:
-            done = bool(state.lesson_read)
-            parts.append(1.0 if done else 0.0)
-            labels.append(
-                f"{'✓' if done else '○'} {self._language.t('progress.lesson')}"
-            )
+            steps.append((self._language.t("progress.lesson"), bool(state.lesson_read), ""))
+
+        okunan = self._store.notes_read(self._section.chapter_id, self._section.id)
+        notlar_bitti = bool(self._note_ids) and all(i in okunan for i in self._note_ids)
+        if "notes" in self._panes:
+            sayi = sum(1 for i in self._note_ids if i in okunan)
+            steps.append((self._language.t("progress.notes"), notlar_bitti,
+                          f"{sayi}/{len(self._note_ids)}" if len(self._note_ids) > 1 else ""))
+            self._notes.set_read(okunan)
 
         if "quiz" in self._panes:
-            done = bool(state.quiz_passed)
-            parts.append(1.0 if done else 0.0)
-            score = f" ({state.quiz_score})" if state.quiz_score is not None else ""
-            labels.append(
-                f"{'✓' if done else '○'} {self._language.t('progress.quiz')}{score}"
-            )
+            score = f"{state.quiz_score}" if state.quiz_score is not None else ""
+            steps.append((self._language.t("progress.quiz"), bool(state.quiz_passed), score))
 
         if self._exercises:
             total = len(self._exercises)
             solved = state.exercises_solved
-            parts.append(solved / total)
-            labels.append(
-                f"{'✓' if solved >= total else '○'} "
-                f"{self._language.t('progress.exercises')} {solved}/{total}"
-            )
+            steps.append((self._language.t("progress.exercises"), solved >= total, f"{solved}/{total}"))
 
-        percent = round(sum(parts) * 100 / len(parts)) if parts else 0
-        self._lesson.set_progress(percent, "  ·  ".join(labels))
+        self._lesson.set_progress(steps)
+        # Sekmelerde tamamlanma onayı (ui-taslak.md F1).
+        bitti = {
+            "lesson": bool(state.lesson_read),
+            # Notlar hep işaretsiz kalıyordu: okunduklarına dair kayıt yoktu (29 Eylül).
+            "notes": notlar_bitti,
+            "quiz": bool(state.quiz_passed),
+            "exercise": bool(self._exercises) and state.exercises_solved >= len(self._exercises),
+        }
+        self._segments.set_done([bitti.get(name, False) for name in self._panes])
 
     # --- olaylar ----------------------------------------------------------
 
@@ -708,11 +809,21 @@ class TopicView(QWidget):
     # --- tema ve dil ------------------------------------------------------
 
     def set_mode(self, mode: str) -> None:
+        self._stack.set_background(PALETTES[mode]["bg"])
         self._mode = mode
         self.header.set_mode(mode)
         renk = RAIL_COLORS.get(mode, RAIL_COLORS["light"])["notes"]
         self._note_button.setIcon(icon("notebook", renk, 18))
+        # Prototip `.notebtn`: notların yeşili, ince çerçeveli düğme.
+        palette = PALETTES[mode]
+        self._note_button.setStyleSheet(
+            f"QPushButton {{ color: {renk}; background: transparent; font-weight: 600;"
+            f" font-size: 13px; padding: 8px 12px; border-radius: 10px;"
+            f" border: 1px solid {mix(renk, palette['border'], 0.7)}; }}"
+            f"QPushButton:hover, QPushButton[active=\"true\"] {{"
+            f" background: {mix(renk, palette['bg'], 0.88)}; }}")
         self._note_panel.set_mode(mode)
+        refresh_shadow(self._note_panel, "dark", True)
         self._lesson.set_mode(mode)
         self._notes.set_mode(mode)
         self._quiz.set_mode(mode)
@@ -721,6 +832,9 @@ class TopicView(QWidget):
     def retranslate(self) -> None:
         labels = self._pane_labels()
         self._segments.set_labels([labels[name] for name in self._panes])
+        simgeler = {"lesson": "book", "notes": "file-text", "pdf": "file-text", "quiz": "clipboard",
+                    "exercise": "sigma" if self._all_problems() else "terminal"}
+        self._segments.set_icons([simgeler.get(name, "") for name in self._panes])
 
         # Son ders notunun altındaki düğme, notlardan sonra ne geliyorsa
         # onun adını taşıyor. Dil değişince etiketi de değişiyor.

@@ -29,13 +29,15 @@ import json
 import textwrap
 import time
 
+from ..widgets.feedback import ButtonSpinner, EdgeFlash
 from ..core.catalog import Exercise
 from ..core.grader import describe, summarise
 from ..core.language import LanguageManager
 from ..core.mistakes import explain
 from ..core.progress import ProgressStore
 from ..core.runner import RunResult, run_code
-from ..resources.theme.tokens import SPACING
+from ..resources.icons import icon
+from ..resources.theme.tokens import PALETTES, SPACING
 from ..version import APP_VERSION
 from ..widgets.code_editor import CodeEditor
 from ..widgets.common import SegmentedControl
@@ -378,19 +380,35 @@ class ExerciseView(QWidget):
         """
         top = QWidget()
         top_layout = QVBoxLayout(top)
-        top_layout.setContentsMargins(0, 0, 0, 0)
+        # Prototip `.work`: editör ve terminal kenarlardan boşluklu kartlar.
+        top_layout.setContentsMargins(8, 14, 18, 0)
         top_layout.setSpacing(0)
 
+        # Editör kartı (prototip `.editor`): yuvarlak köşeli zemini kart
+        # boyuyor; editör saydam ve köşelere taşmasın diye içeriden boşluklu.
+        self._editor_card = QFrame()
+        self._editor_card.setProperty("role", "editor-card")
+        kart = QVBoxLayout(self._editor_card)
+        kart.setContentsMargins(4, 6, 4, 6)
+        kart.setSpacing(0)
         self._editor = CodeEditor(mode=self._mode)
+        self._editor.setProperty("card", "true")
         self._editor.run_requested.connect(self.run)
-        top_layout.addWidget(self._editor, 1)
+        kart.addWidget(self._editor)
+        self._editor_flash = EdgeFlash(self._editor_card, radius=16)
+        top_layout.addWidget(self._editor_card, 1)
         top_layout.addWidget(self._build_runbar())
 
         self._terminal = TerminalView()
+        alt = QWidget()
+        alt.setProperty("role", "bare")
+        alt_layout = QVBoxLayout(alt)
+        alt_layout.setContentsMargins(8, 0, 18, 14)
+        alt_layout.addWidget(self._terminal)
 
         self._work_splitter = GripSplitter(Qt.Orientation.Vertical)
         self._work_splitter.addWidget(top)
-        self._work_splitter.addWidget(self._terminal)
+        self._work_splitter.addWidget(alt)
         self._work_splitter.setSizes([EDITOR_SHARE, TERMINAL_SHARE])
         self._work_splitter.setStretchFactor(0, 1)
         return self._work_splitter
@@ -409,16 +427,22 @@ class ExerciseView(QWidget):
 
     def _build_runbar(self) -> QWidget:
         bar = QFrame()
-        bar.setProperty("role", "topbar")
+        bar.setProperty("role", "bare")
 
+        # Prototip `.runrow`: solda tuş kutucukları (Ctrl + Enter), sağda düğmeler.
         layout = QHBoxLayout(bar)
-        layout.setContentsMargins(
-            SPACING["lg"], SPACING["sm"], SPACING["lg"], SPACING["sm"]
-        )
-        layout.setSpacing(SPACING["sm"])
+        layout.setContentsMargins(0, 10, 0, 10)
+        layout.setSpacing(10)
 
-        self._shortcut_hint = QLabel()
-        self._shortcut_hint.setProperty("role", "muted")
+        self._shortcut_hint = QWidget()
+        self._shortcut_hint.setProperty("role", "bare")
+        kisayol = QHBoxLayout(self._shortcut_hint)
+        kisayol.setContentsMargins(0, 0, 0, 0)
+        kisayol.setSpacing(4)
+        for parca in ("Ctrl", "+", "Enter"):
+            etiket = QLabel(parca)
+            etiket.setProperty("role", "kbd" if parca != "+" else "muted")
+            kisayol.addWidget(etiket, 0, Qt.AlignmentFlag.AlignVCenter)
         layout.addWidget(self._shortcut_hint)
         layout.addStretch(1)
 
@@ -439,6 +463,8 @@ class ExerciseView(QWidget):
         self._run_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._run_button.setProperty("variant", "primary")
         self._run_button.clicked.connect(self.run)
+        # Çalışırken düğmede dönen yay; sonuçta editörün çerçevesi yanıp söner (C6).
+        self._run_spinner = ButtonSpinner(self._run_button)
         layout.addWidget(self._run_button)
 
         return bar
@@ -683,6 +709,17 @@ class ExerciseView(QWidget):
 
     # --- çalıştırma -------------------------------------------------------
 
+    def _fix_run_width(self) -> None:
+        """Çalıştır düğmesi iki metnin (çalıştır / çalışıyor) genişini alır."""
+        b = self._run_button
+        eski = b.text()
+        genis = 0
+        for metin in ("exercise.run", "exercise.running"):
+            b.setText("  " + self._language.t(metin))
+            genis = max(genis, b.sizeHint().width())
+        b.setText(eski)
+        b.setMinimumWidth(genis)
+
     def run(self) -> None:
         if self._exercise is not None and self._exercise.is_problem:
             # Ctrl+Enter problemde cevabı denetliyor.
@@ -691,8 +728,10 @@ class ExerciseView(QWidget):
         if self._exercise is None or (self._worker and self._worker.isRunning()):
             return
 
-        self._run_button.setEnabled(False)
-        self._run_button.setText(self._language.t("exercise.running"))
+        # Düğme devre dışı bırakılmıyor (gri zeminde dönen yay görünmüyordu);
+        # ikinci çalıştırmayı yukarıdaki işçi denetimi engelliyor.
+        self._run_button.setText("  " + self._language.t("exercise.running"))
+        self._run_spinner.start()
         # Terminalde önceki çalıştırmalar yukarıda kalıyor; yenisi altına.
         self._terminal.begin(
             line(f"❯ {self._command_name()}", "prompt", bold=True),
@@ -705,8 +744,11 @@ class ExerciseView(QWidget):
         self._worker.start()
 
     def _on_completed(self, result: RunResult) -> None:
+        self._run_spinner.stop()
         self._run_button.setEnabled(True)
-        self._run_button.setText(self._language.t("exercise.run"))
+        self._run_button.setText("  " + self._language.t("exercise.run"))
+        p = PALETTES.get(self._mode, PALETTES["light"])
+        self._editor_flash.flash(p["success"] if result.passed else p["danger"])
 
         if self._exercise is not None:
             self._store.save_exercise(
@@ -836,6 +878,11 @@ class ExerciseView(QWidget):
 
     def set_mode(self, mode: str) -> None:
         self._mode = mode
+        # Simge baştan var: dönen yay onun yerine geçiyor, düğme genişlemiyor.
+        p = PALETTES.get(mode, PALETTES["light"])
+        if self._run_spinner._saved_icon is None:  # noqa: SLF001
+            self._run_button.setIcon(icon("play", "#FFFFFF", 16))
+        self._reset_button.setIcon(icon("refresh", p["text"], 16))
         self._editor.set_mode(mode)
         self._prompt.set_mode(mode)
         self._solutions.set_mode(mode)
@@ -847,10 +894,10 @@ class ExerciseView(QWidget):
             self._tables_window.set_mode(mode)
 
     def retranslate(self) -> None:
-        self._run_button.setText(self._language.t("exercise.run"))
-        self._reset_button.setText(self._language.t("exercise.reset"))
+        self._run_button.setText("  " + self._language.t("exercise.run"))
+        self._reset_button.setText("  " + self._language.t("exercise.reset"))
+        self._fix_run_width()
         self._tables_button.setText(self._language.t("tables.button"))
-        self._shortcut_hint.setText("Ctrl + Enter")
         if self._tables_window is not None:
             self._tables_window.retranslate()
 
