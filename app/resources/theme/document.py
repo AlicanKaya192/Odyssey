@@ -735,9 +735,50 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
 .content p.route-intro {{ color: {p['text_muted']}; font-size: 15.5px; line-height: 1.7; }}
 .content h1.route-title {{ font-size: 32px; margin: 6px 0 10px; }}
 
-.rfocus {{ display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }}
-.rfocus > span:first-child {{ font-size: 12.5px; font-weight: 650; color: {p['text_muted']}; margin-right: 2px; }}
-.rfocus .chip {{ padding: 3px 10px; color: {p['text']}; }}
+/* Adımın açıklaması: "Bu adımda" maddeleri, "Sonunda" kutusu, odak
+ * bölümlerinin listesi (Alican 29 Eylül: rotalar daha açıklayıcı olsun). */
+.rlabel {{
+    display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; color: {p['text_muted']}; margin-bottom: 6px; opacity: .8;
+}}
+.rlearn {{ margin-top: 14px; }}
+.content .rlearn ul {{
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 18px;
+}}
+.content .rlearn li {{
+    position: relative; margin: 0; padding-left: 16px;
+    font-size: 13.5px; line-height: 1.5; color: {p['text']};
+}}
+.rlearn li::before {{
+    content: ""; position: absolute; left: 2px; top: .6em; width: 6px; height: 6px;
+    border-radius: 50%; background: {p['accent']}; opacity: .8;
+}}
+.rgain {{
+    margin-top: 12px; padding: 9px 12px; border-radius: 10px;
+    background: {p['accent_soft']}; font-size: 13.5px; line-height: 1.55; color: {p['text']};
+}}
+.rgain b {{ color: {p['accent']}; font-weight: 700; }}
+.rstep.soon .rgain {{ background: {p['surface_alt']}; }}
+.rstep.soon .rgain b {{ color: {p['text_muted']}; }}
+
+.rfocus {{ margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }}
+.rsec {{
+    display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px;
+    border: 1px solid {p['border']}; border-radius: 10px; text-decoration: none;
+    transition: border-color 120ms var(--out), background 120ms var(--out);
+}}
+a.rsec:hover {{ border-color: {p['accent']}; background: {p['accent_soft']}; }}
+.rsec > i {{
+    flex: none; width: 18px; height: 18px; margin-top: 1px; border-radius: 50%;
+    border: 2px solid {p['border_strong']}; box-sizing: border-box;
+    display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 800;
+}}
+.rsec.done > i {{ border-color: {p['success']}; background: {p['success']}; color: #fff; }}
+.rsec > span {{ display: flex; flex-direction: column; gap: 1px; min-width: 0; }}
+.rsec b {{ font-size: 13.5px; font-weight: 650; color: {p['text']}; }}
+.rsec small {{ font-size: 12.5px; line-height: 1.45; color: {p['text_muted']}; }}
+.rsec.locked {{ opacity: .6; }}
 
 .rfoot {{ display: flex; align-items: center; gap: 14px; margin-top: 14px; }}
 .rfoot .bar {{ flex: 1; margin: 0; }}

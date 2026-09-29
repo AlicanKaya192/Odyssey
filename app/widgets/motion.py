@@ -31,7 +31,7 @@ from PySide6.QtCore import (
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QLabel
 
-from ..resources.theme.motion import DURATION, EASING, STAGGER_CAP, STAGGER_MS
+from ..resources.theme.motion import DURATION, EASING
 
 _enabled = True
 _listeners: list[Callable[[bool], None]] = []
@@ -203,12 +203,6 @@ def animate_property(
     baslangic = obj.property(prop) if start is None else start
     return animate(obj, "prop:" + prop, baslangic, end, lambda v: obj.setProperty(prop, v),
                    duration_name, easing, delay, on_done)
-
-
-def stagger(items: list, start: Callable[[Any, int], None], step: int = STAGGER_MS, cap: int = STAGGER_CAP) -> None:
-    """Öğeleri sırayla başlatır: `start(öğe, gecikme_ms)`. `cap`'ten sonrakiler beklemez."""
-    for i, item in enumerate(items):
-        start(item, min(i, cap - 1) * step if _enabled else 0)
 
 
 def count_up(label: QLabel, old: float, new: float, fmt: Callable[[float], str] = lambda v: str(round(v))) -> None:

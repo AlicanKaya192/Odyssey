@@ -45,7 +45,8 @@ from ..version import APP_VERSION
 from .header import ScreenHeader
 from ..widgets.common import HairlineFrame, SegmentedControl
 from .about_view import SECTIONS as ABOUT_SECTIONS, AboutView
-from .confirm_dialog import ConfirmDialog
+from .exit_dialog import ExitDialog
+from .modal import Backdrop
 from . import titlebar
 from ..resources.theme.tokens import RAIL_COLORS, RAIL_WIDTH
 from .footer import Footer
@@ -91,6 +92,29 @@ class Screen(QWidget):
         layout.addWidget(body, 1)
 
 
+# Discord'da bölüm dışındaki ekranların alt satırı (üst satır ekranın adı,
+# `nav.<anahtar>`). Rotalar'ın alt satırı seçili rotadan üretiliyor.
+SCREEN_PRESENCE = {
+    "roadmap": "presence.route",
+    "notes": "presence.notes",
+    "profile": "presence.profile",
+    "about": "presence.about",
+    "releases": "presence.releases",
+}
+
+
+def _subbar(control: QWidget) -> HairlineFrame:
+    """Başlığın altındaki ortalanmış şerit; ekranın sekme seçicisi burada durur."""
+    bar = HairlineFrame()
+    bar.setProperty("role", "subbar")
+    alt = QHBoxLayout(bar)
+    alt.setContentsMargins(SPACING["lg"], SPACING["sm"] + 2, SPACING["lg"], SPACING["sm"] + 2)
+    alt.addStretch(1)
+    alt.addWidget(control)
+    alt.addStretch(1)
+    return bar
+
+
 class MainWindow(QMainWindow):
     """Uygulamanın ana penceresi."""
 
@@ -104,6 +128,7 @@ class MainWindow(QMainWindow):
         self._language = language
         self._theme = theme
         self._store = store
+        self._store.mark_seen()
         self._catalog = Catalog.load(content_dir())
         # Animasyonlar ayarı ekranlar kurulmadan önce: ilk girişler de ona uyuyor.
         motion.set_enabled(animations.enabled(store))
@@ -113,6 +138,10 @@ class MainWindow(QMainWindow):
         # dönüyor ve arayüzü hiçbir koşulda bekletmiyor.
         self._presence = DiscordPresence(self._store)
         self._presence_where = ("", "")
+        # Bölüm dışındayken hangi ekranda olunduğu (şeritteki anahtar).
+        # Önce her ekran "Öğrenme yolunda" yazıyordu; Rotalar'da ya da
+        # Notlarım'da olan kişi Discord'da görünmüyordu (Alican).
+        self._presence_screen = "journey"
 
         self.resize(1400, 900)
         self.setMinimumSize(1080, 700)
@@ -263,13 +292,7 @@ class MainWindow(QMainWindow):
         # sağ üstte durmasın).
         self._journey_tabs = SegmentedControl()
         self._journey_tabs.changed.connect(self._on_journey_tab)
-        self._journey_subbar = HairlineFrame()
-        self._journey_subbar.setProperty("role", "subbar")
-        alt = QHBoxLayout(self._journey_subbar)
-        alt.setContentsMargins(SPACING["lg"], SPACING["sm"] + 2, SPACING["lg"], SPACING["sm"] + 2)
-        alt.addStretch(1)
-        alt.addWidget(self._journey_tabs)
-        alt.addStretch(1)
+        self._journey_subbar = _subbar(self._journey_tabs)
         self._journey_subbar.hide()
         self._journey_screen = Screen(self._journey_header, self._journey, self._journey_subbar)
 
@@ -291,16 +314,22 @@ class MainWindow(QMainWindow):
         self._profile_screen = Screen(self._profile_header, self._profile)
 
         # Rotalar: hangi patikanın hangi sırayla çalışılacağı. Rota
-        # başlıktaki seçiciyle değişiyor, Hakkında'daki sekmeler gibi.
+        # başlığın altındaki seçiciyle değişiyor, Hakkında'daki sekmeler gibi.
+        # Seçiciler sağ üstteydi; Alican bölüm sekmeleri gibi başlığın
+        # altında istedi (29 Eylül). Sağ üstte yalnızca bölümün "Not al"ı kaldı.
         self._roadmap = RoadmapView(self._catalog, self._language, self._store)
         self._roadmap.track_opened.connect(self._open_track)
+        self._roadmap.section_opened.connect(self._open_section)
         self._roadmap_header = ScreenHeader(self._language)
         self._roadmap_segments = SegmentedControl()
         self._roadmap_segments.set_items(self._roadmap.route_labels())
         self._roadmap_segments.set_current(self._roadmap.route_index, notify=False)
         self._roadmap_segments.changed.connect(self._roadmap.show_index)
-        self._roadmap_header.add_widget(self._roadmap_segments)
-        self._roadmap_screen = Screen(self._roadmap_header, self._roadmap)
+        # Rota değişince Discord'daki "Rota: ..." satırı da.
+        self._roadmap_segments.changed.connect(lambda _: self._refresh_presence())
+        self._roadmap_screen = Screen(
+            self._roadmap_header, self._roadmap, _subbar(self._roadmap_segments)
+        )
 
         # Notlarım
         self._notebook = NotebookView(self._catalog, self._language, self._store)
@@ -316,8 +345,9 @@ class MainWindow(QMainWindow):
         self._about_segments = SegmentedControl()
         self._about_segments.changed.connect(self._about.show_index)
         self._about.section_changed.connect(lambda _: self._update_headers())
-        self._about_header.add_widget(self._about_segments)
-        self._about_screen = Screen(self._about_header, self._about)
+        self._about_screen = Screen(
+            self._about_header, self._about, _subbar(self._about_segments)
+        )
 
         # Sürüm notları
         self._releases = ReleaseView(self._language)
@@ -578,6 +608,10 @@ class MainWindow(QMainWindow):
         # Tarayıcıda yıldız verip geri dönen kişi sayıyı hemen güncel görsün.
         if event.type() == QEvent.Type.ActivationChange and self.isActiveWindow() and self._star_timer.isActive():
             self._check_stars()
+        # "Bugün açıldı" (hatırlatmalar için); gece yarısını geçen oturumda da.
+        if (event.type() == QEvent.Type.ActivationChange and self.isActiveWindow()
+                and not getattr(self, "_shutting_down", False)):
+            self._store.mark_seen()
         super().changeEvent(event)
 
     def _refresh_release_dot(self) -> None:
@@ -744,6 +778,7 @@ class MainWindow(QMainWindow):
         self._rail.set_current(key)
         # Bu geçişlerin hepsi bölümden çıkmak demek; Discord'da bölüm adı
         # kalırsa kullanıcı çoktan başka ekrandayken orada donmuş görünüyor.
+        self._presence_screen = key
         self._set_presence_location()
         self._update_headers()
 
@@ -808,6 +843,16 @@ class MainWindow(QMainWindow):
         state = t("presence.browsing")
 
         chapter = self._catalog.chapter(chapter_id) if chapter_id else None
+        if chapter is None and self._presence_screen in SCREEN_PRESENCE:
+            # Bölümde değil, şeritteki bir ekranda: ekranın adı ve ne yaptığı.
+            # Notlarım'da notun adı ya da içeriği gönderilmiyor, kişisel.
+            details = t(f"nav.{self._presence_screen}")
+            if self._presence_screen == "roadmap":
+                rotalar = self._roadmap.route_labels()
+                if rotalar:
+                    state = t("presence.route", name=rotalar[self._roadmap.route_index])
+            else:
+                state = t(SCREEN_PRESENCE[self._presence_screen])
         if chapter is not None:
             details = self._language.pick(chapter.title) or "Odyssey"
             section = (
@@ -835,6 +880,7 @@ class MainWindow(QMainWindow):
         self._journey.refresh()
         self._stack.slide_to(self._journey_screen, BACK)
         self._update_headers()
+        self._presence_screen = "journey"
         self._set_presence_location()
 
     def _on_journey_tab(self, index: int) -> None:
@@ -1175,17 +1221,13 @@ class MainWindow(QMainWindow):
         de söylüyor — asıl merak edilen o.
         """
         if not self._closing_for_update:
-            dialog = ConfirmDialog(
-                self._language.t("quit.title"),
-                self._language.t("quit.message"),
-                self._language.t("quit.confirm"),
-                self._language.t("quit.cancel"),
-                self,
-            )
-            # Ayrı pencerelerin başlık çubuğu da temaya uysun.
-            titlebar.apply(dialog, self._theme.effective_mode)
-
-            if dialog.exec() != ConfirmDialog.DialogCode.Accepted:
+            # Çerçevesiz, sahneli kutu (`exit_dialog.py`); arka kararıyor.
+            perde = Backdrop(self)
+            perde.show()
+            dialog = ExitDialog(self._language, self._store, self)
+            kabul = dialog.exec() == ExitDialog.DialogCode.Accepted
+            perde.deleteLater()
+            if not kabul:
                 event.ignore()
                 return
 

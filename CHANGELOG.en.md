@@ -23,6 +23,15 @@ lecture note does not mean downloading the whole application again.
 
 ## [0.9.0] — unreleased
 
+### Added
+- **A new first chapter in the Python track: Packages and Environments.**
+  pip and `python -m pip`, virtual environments (`venv`), `requirements.txt`,
+  Anaconda and conda and how they differ; connecting VS Code and Jupyter to
+  an environment, and common setup errors. The commands to know by heart are
+  gathered on a command sheet, and the chapter ends with a 24-question quiz.
+  Anyone who had already started Python keeps their chapters open and their
+  earned badges.
+
 ### Changed
 - **A refreshed interface.** Smooth transitions between screens, new icons
   and track logos, badges as medals. Motion can be reduced in Settings ›
@@ -32,14 +41,34 @@ lecture note does not mean downloading the whole application again.
   bow, gallops in, looses an arrow and hits the target dead centre. Click or
   press `Esc` to skip it; the sound can be turned off in Settings ›
   Notifications › Sounds. The centaur also stands on the welcome card of the
-  Learning Path, aiming at the target that shows your overall progress.
+  Learning Path, aiming at the target that shows your overall progress. It
+  is also the new application icon.
 - **A refreshed update window.** The downloaded and total size, speed and
   time left are shown as the download runs; the window can be minimised and
   left in the background, and Odyssey stays usable meanwhile. When the
   download finishes, installation runs without a window and Odyssey opens
   with the new version.
 
+- **Clearer roadmaps.** Each step says what the track covers, what you will be
+  able to do by the end and roughly how long it takes. Every chapter to focus
+  on says why it matters, and clicking an open chapter takes you straight to
+  it.
+- **Discord shows the screen you are on.** The selected route in Roadmaps,
+  and My Notes, My Profile, About and Release Notes are shown too; before,
+  every screen outside a chapter read "Browsing the path". The titles and
+  contents of your notes are not sent.
+- **Clearer streaks.** When you close the program, the exit window tells you
+  whether your streak is safe today. Hovering over the flame shows a
+  countdown to when the
+  streak ends and what makes a day count. Spending 2 minutes in a section now
+  counts as well; before, only finishing a lesson, running an exercise or
+  taking a quiz did.
+
 ### Fixed
+- **No reminders on days you use the program.** Someone who opened the
+  program in the morning and looked through the topics could get a "your
+  streak is in danger" or "you've been away for 3 days" notification in the
+  evening. "Away" is now counted from the last day the program was opened.
 - **Updating no longer locks the desktop.** The window that opened after
   clicking "Update" kept you from switching to other windows (Alt+Tab and
   the taskbar did not respond). The fix applies to updates after 0.9.0: the

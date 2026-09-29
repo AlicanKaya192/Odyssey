@@ -114,13 +114,6 @@ def database_path() -> Path:
     return user_data_dir() / "progress.db"
 
 
-def backups_dir() -> Path:
-    """Güncelleme öncesi alınan veritabanı yedeklerinin klasörü."""
-    path = user_data_dir() / "backups"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-
 def exercise_env_dir() -> Path:
     """Kullanıcı kodunun çalıştığı sanal ortamın klasörü."""
     return user_data_dir() / "exercise-env"

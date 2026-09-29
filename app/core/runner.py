@@ -129,17 +129,6 @@ class RunResult:
         return [check for check in self.checks if not check.passed]
 
 
-def interpreter() -> Path:
-    """Kullanıcı kodunu çalıştıracak Python.
-
-    Alıştırma ortamı kuruluysa o kullanılır (numpy, pandas oradadır).
-    Kurulu değilse uygulamanın kendi yorumlayıcısına düşülür; böylece ortam
-    kurulmadan da standart kütüphaneyle çözülen alıştırmalar çalışır.
-    """
-    dedicated = exercise_python()
-    return dedicated if dedicated.exists() else Path(sys.executable)
-
-
 def _harness_command(job_path: Path) -> list[str]:
     """Denetleyiciyi çalıştıracak komutu kurar.
 
@@ -160,11 +149,6 @@ def _harness_command(job_path: Path) -> list[str]:
         return [sys.executable, HARNESS_FLAG, str(job_path)]
 
     return [sys.executable, "-I", str(sandbox_dir() / "harness.py"), str(job_path)]
-
-
-def exercise_env_ready() -> bool:
-    """Alıştırmalara ayrılmış ortam kurulu mu?"""
-    return exercise_python().exists()
 
 
 def _memory_of(job: MemoryJob | None) -> dict:
