@@ -16,7 +16,7 @@ bozulmuyor.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
+from PySide6.QtCore import QPointF, QRectF, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QColor,
     QIcon,
@@ -29,7 +29,9 @@ from PySide6.QtWidgets import QFrame, QPushButton, QVBoxLayout, QWidget
 
 from ..core.avatar import load_avatar
 from ..core.language import LanguageManager
-from ..resources.icons import icon
+from ..resources.icons import MODERN_FILL_ACTIVE, MODERN_FILL_HOVER, icon
+from ..resources.theme.tokens import mix
+from ..widgets import motion
 from ..resources.theme.tokens import PALETTES, RAIL_COLORS, RAIL_WIDTH, SPACING
 from ..widgets.effects import repolish
 
@@ -51,8 +53,8 @@ from ..widgets.effects import repolish
 # Beşi Hakkında ekranının sekmelerine taşındı.
 TOP_DESTINATIONS = [
     ("profile", "user", "nav.profile"),
-    ("journey", "home", "nav.path"),
-    ("roadmap", "route", "nav.roadmap"),
+    ("journey", "compass", "nav.path"),
+    ("roadmap", "signpost", "nav.roadmap"),
     ("notes", "notebook", "nav.notes"),
 ]
 
@@ -72,8 +74,8 @@ DESTINATIONS = TOP_DESTINATIONS + MIDDLE_DESTINATIONS + BOTTOM_DESTINATIONS
 ICON_SIZE = 24
 
 # Simge çizgi kalınlıkları.
-STROKE_ACTIVE = 2.4
-STROKE_IDLE = 2.1
+STROKE_ACTIVE = 2.1
+STROKE_IDLE = 1.8
 
 # Seçili olmayan simge biraz soluk; ama okunamayacak kadar değil.
 IDLE_OPACITY = 0.72
@@ -113,12 +115,79 @@ def circular_icon(pixmap: QPixmap, size: int) -> QIcon:
     return QIcon(hedef)
 
 
+class RailIndicator(QWidget):
+    """Seçili düğmenin arkasındaki zemin ve solundaki renkli çizgi (B3).
+
+    Önce zemin her düğmenin kendi QSS'indeydi ve seçim değişince bir
+    düğmeden sönüp ötekinde anında beliriyordu. Şimdi tek bir katman var:
+    yeni düğmeye yayla kayıyor, rengi o bölümün rengine geçiyor.
+    """
+
+    def __init__(self, parent: QWidget) -> None:
+        super().__init__(parent)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self._y = 0.0
+        self._color = QColor("#8B84FF")
+        self._bg = QColor("#0A0C11")
+        self._button = QRectF(0, 0, 52, 50)
+        self._placed = False
+
+    def set_background(self, color: str) -> None:
+        self._bg = QColor(color)
+        self.update()
+
+    def move_to(self, button: QWidget, color: str) -> None:
+        hedef_y = float(button.y())
+        self._button = QRectF(button.x(), 0, button.width(), button.height())
+        self.setGeometry(0, 0, self.parentWidget().width(), self.parentWidget().height())
+        renk = QColor(color)
+        if not self._placed:
+            self._placed = True
+            self._y, self._color = hedef_y, renk
+            self.update()
+            return
+        motion.animate(self, "y", self._y, hedef_y, self._set_y, "spring", "spring")
+        motion.animate(self, "c", QColor(self._color), renk, self._set_color, "base", "out")
+
+    def _set_y(self, v: float) -> None:
+        self._y = v
+        self.update()
+
+    def _set_color(self, c: QColor) -> None:
+        self._color = c
+        self.update()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        r = QRectF(self._button.x(), self._y, self._button.width(), self._button.height())
+        zemin = QColor(mix(self._bg.name(), self._color.name(), 0.16))
+        cerceve = QColor(self._color)
+        cerceve.setAlphaF(0.28)
+        p.setBrush(zemin)
+        p.setPen(QPen(cerceve, 1))
+        p.drawRoundedRect(r.adjusted(0.5, 0.5, -0.5, -0.5), 16, 16)
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(self._color)
+        p.drawRoundedRect(QRectF(-2, r.center().y() - 10, 6, 20), 3, 3)
+
+
 class RailButton(QPushButton):
     """Şerit düğmesi. Gerekirse üstünde bildirim noktası taşır."""
+
+    hover_changed = Signal(bool)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._dot = False
+
+    def enterEvent(self, event) -> None:  # noqa: N802
+        super().enterEvent(event)
+        self.hover_changed.emit(True)
+
+    def leaveEvent(self, event) -> None:  # noqa: N802
+        super().leaveEvent(event)
+        self.hover_changed.emit(False)
 
     def set_dot(self, visible: bool) -> None:
         if self._dot != visible:
@@ -218,7 +287,11 @@ class Rail(QFrame):
         self._language = language
         self._mode = "light"
         self._current = "journey"
+        self._hovered = ""
         self._buttons: dict[str, RailButton] = {}
+        # Seçili düğmenin kayan zemini; düğmelerin arkasında.
+        self._indicator = RailIndicator(self)
+        self._indicator.lower()
 
         self.setProperty("role", "rail")
         self.setFixedWidth(RAIL_WIDTH)
@@ -250,7 +323,7 @@ class Rail(QFrame):
 
         layout.addSpacing(SPACING["sm"])
         layout.addWidget(
-            self._make_button("settings", "settings"), 0, Qt.AlignmentFlag.AlignHCenter
+            self._make_button("settings", "sliders"), 0, Qt.AlignmentFlag.AlignHCenter
         )
 
         self.set_mode(self._mode)
@@ -266,8 +339,29 @@ class Rail(QFrame):
         button.setProperty("icon_name", icon_name)
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.clicked.connect(lambda _=False, k=key: self.navigate.emit(k))
+        button.hover_changed.connect(lambda on, k=key: self._on_hover(k, on))
         self._buttons[key] = button
         return button
+
+    def _on_hover(self, key: str, on: bool) -> None:
+        self._hovered = key if on else ("" if self._hovered == key else self._hovered)
+        self._refresh_icons()
+
+    def _place_indicator(self) -> None:
+        button = self._buttons.get(self._current)
+        if button is None or not self.isVisible():
+            return
+        renk = RAIL_COLORS.get(self._mode, RAIL_COLORS["light"]).get(self._current, "#8B84FF")
+        self._indicator.move_to(button, renk)
+
+    def showEvent(self, event) -> None:  # noqa: N802
+        super().showEvent(event)
+        QTimer.singleShot(0, self._place_indicator)
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._indicator._placed = False  # noqa: SLF001 — boyut değişti, animasyonsuz yerleş
+        QTimer.singleShot(0, self._place_indicator)
 
     # --- durum ------------------------------------------------------------
 
@@ -280,6 +374,7 @@ class Rail(QFrame):
         if key not in ("settings", "search"):
             self._current = key
         self._refresh_icons()
+        self._place_indicator()
 
     def set_notification(self, key: str, visible: bool) -> None:
         """Bir bölümün üstündeki bildirim noktasını açar veya kapatır."""
@@ -293,7 +388,10 @@ class Rail(QFrame):
 
     def set_mode(self, mode: str) -> None:
         self._mode = mode
+        self._indicator.set_background(PALETTES.get(mode, PALETTES["light"])["rail_bg"])
         self._refresh_icons()
+        self._indicator._placed = False  # noqa: SLF001 — renk yeni temada, kaymadan
+        self._place_indicator()
 
     def _refresh_icons(self) -> None:
         """Simgeleri seçili duruma ve temaya göre yeniden çizer."""
@@ -331,7 +429,8 @@ class Rail(QFrame):
                     color.name(),
                     ICON_SIZE,
                     stroke=STROKE_ACTIVE if active else STROKE_IDLE,
-                    duotone=True,
+                    fill_opacity=(MODERN_FILL_ACTIVE if active
+                                  else MODERN_FILL_HOVER if key == self._hovered else None),
                 )
             )
             button.setIconSize(QSize(ICON_SIZE, ICON_SIZE))

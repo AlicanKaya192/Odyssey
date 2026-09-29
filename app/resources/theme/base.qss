@@ -25,7 +25,9 @@ QMainWindow, QDialog { background-color: @bg@; }
  * nerede bittiğini bir şeyin söylemesi gerekiyor; koyu temada pencere
  * ile arkasındaki sayfa neredeyse aynı tondaydı. */
 QDialog[role="modal"] {
+    background-color: @surface@;
     border: 1px solid @border_strong@;
+    border-radius: 22px;
 }
 QWidget:disabled { color: @text_muted@; }
 
@@ -63,13 +65,14 @@ QFrame[role="badge"][earned="true"] {
     border: 1px solid @accent@;
 }
 
+/* Prototip `.bdg`: kazanılan ad kalın ve beyaz, kilitli olan soluk. */
 QLabel[role="badge-name"] {
-    color: @text_muted@;
-    font-size: @font_xs@px;
+    color: @text_faint@;
+    font-size: 12.5px;
     font-weight: 600;
 }
 
-QLabel[role="badge-name"][earned="true"] { color: @text@; }
+QLabel[role="badge-name"][earned="true"] { color: @text@; font-weight: 700; }
 
 QFrame[role="progress-track"] {
     background-color: @border@;
@@ -151,8 +154,9 @@ QPushButton[variant="rail"] {
 
 QPushButton[variant="rail"]:hover { background-color: @surface_hover@; }
 
+/* Seçili düğmenin zemini `RailIndicator`'da çiziliyor (kayan gösterge). */
 QPushButton[variant="rail"][active="true"] {
-    background-color: @accent_soft@;
+    background-color: transparent;
     color: @accent@;
 }
 
@@ -162,6 +166,13 @@ QPushButton[variant="rail"][active="true"] {
 /* Şerit sayfayla aynı zeminde duruyor. Ayrı bir yüzey rengi verildiğinde
    üstte kopuk bir blok gibi görünüyordu; alttaki ince çizgi ayrımı zaten
    yeterince yapıyor. */
+/* Bölüm sekmelerinin şeridi: başlığın altında, sekmeler ortada (F1). */
+QFrame[role="subbar"] {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid @border@;
+}
+
 QFrame[role="topbar"] {
     background-color: transparent;
     border: none;
@@ -177,12 +188,13 @@ QFrame[role="segment-group"] {
     border: none;
 }
 
+/* Sekme: kutu, kayan hap ve vurgu çizgisi SegmentedControl.paintEvent'te. */
 QPushButton[variant="segment"] {
     background-color: transparent;
     border: none;
-    border-bottom: 2px solid transparent;
-    border-radius: 0;
-    padding: 9px 4px;
+    border-radius: 9px;
+    padding: 7px 13px;
+    min-height: 0px;
     font-size: @font_sm@px;
     font-weight: 600;
     color: @text_muted@;
@@ -190,10 +202,11 @@ QPushButton[variant="segment"] {
 
 QPushButton[variant="segment"]:hover { color: @text@; }
 
+/* Prototip `.seg`: sayfa zemininde kutu, seçili seçenek nötr bir hap. */
 QFrame[role="segmented"] {
-    background-color: @surface_alt@;
+    background-color: @bg@;
     border: 1px solid @border@;
-    border-radius: @radius_sm@px;
+    border-radius: 11px;
 }
 
 /* Tek seçenekli seçicide zemin bir şey anlatmıyor: seçilmemiş alan yok. */
@@ -205,18 +218,19 @@ QFrame[role="segmented"][single="true"] {
 QPushButton[variant="pill"] {
     background-color: transparent;
     border: none;
-    border-radius: @radius_xs@px;
-    padding: 5px 14px;
-    font-size: @font_sm@px;
-    font-weight: 650;
+    border-radius: 8px;
+    padding: 6px 14px;
+    min-height: 0px;
+    font-size: 12.5px;
+    font-weight: 600;
     color: @text_muted@;
 }
 
 QPushButton[variant="pill"]:hover { color: @text@; }
 
 QPushButton[variant="pill"][active="true"] {
-    background-color: @accent@;
-    color: @text_inverse@;
+    background-color: @surface_alt@;
+    color: @text@;
 }
 
 /* Sayfa okları: yuvarlak, hafif zeminli.
@@ -249,7 +263,7 @@ QPushButton[variant="page-nav"]:disabled {
 
 QPushButton[variant="segment"][active="true"] {
     color: @text@;
-    border-bottom: 2px solid @accent@;
+    background-color: transparent;
 }
 
 /* --- Başlıklar ve metin --------------------------------------------------- */
@@ -261,12 +275,14 @@ QLabel[role="display"] {
 }
 
 QLabel[role="title"] {
+    font-family: @font_display@;
     font-size: @font_xxl@px;
     font-weight: 700;
     color: @text@;
 }
 
 QLabel[role="subtitle"] {
+    font-family: @font_display@;
     font-size: @font_lg@px;
     font-weight: 650;
     color: @text@;
@@ -294,7 +310,8 @@ QLabel[role="eyebrow"] {
 /* Ekran adı. Boyutu ve ağırlığı Python'dan veriliyor; burada yalnızca
    renk ve harf aralığı ayarlanıyor. */
 QLabel[role="screen"] {
-    font-size: 26px;
+    font-family: @font_display@;
+    font-size: 28px;
     font-weight: 700;
     color: @text@;
     letter-spacing: -.3px;
@@ -361,21 +378,27 @@ QPushButton:disabled {
     background-color: @surface_alt@;
 }
 
+/* Birincil düğme: vurgudan ikinci vurguya degrade (ui-taslak.md B1). */
 QPushButton[variant="primary"] {
-    background-color: @accent@;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 @accent@, stop:1 @accent_second@);
     color: #FFFFFF;
-    border: 1px solid @accent@;
+    border: 1px solid @accent_second@;
 }
 
 QPushButton[variant="primary"]:hover {
-    background-color: @accent_hover@;
-    border-color: @accent_hover@;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 @accent_hover@, stop:1 @accent@);
+    border-color: @accent@;
+}
+
+QPushButton[variant="primary"]:pressed {
+    background-color: @accent_second@;
+    border-color: @accent_second@;
 }
 
 QPushButton[variant="primary"]:disabled {
-    background-color: @surface_alt@;
-    border-color: @border@;
-    color: @text_muted@;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 @primary_dim@, stop:1 @primary_dim_2@);
+    border-color: @primary_dim_2@;
+    color: @primary_dim_text@;
 }
 
 /* Geri dönüşü olmayan eylemin düğmesi. Vurgu renginden ayrı bir renk
@@ -491,6 +514,44 @@ QPushButton[variant="listitem"][active="true"] {
 /* Boy kenarlığı saymıyor: 74 + 2 x 3 = 80 piksellik bir halka. Tam daire
  * için yarıçap bütün boyun yarısı (40); 37 verildiğinde halka köşeli bir
  * kare gibi duruyordu. 2 piksel kenarlıklı hâllerde boy 78, yarıçap 39. */
+/* Profilde yeni kazanılan rozetin etiketi. */
+QLabel[role="new-tag"] {
+    background-color: @accent@;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 1px 6px;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+/* Küçük bilgi çipi (sınav başlangıç kartı). */
+QPushButton[variant="chip"], QPushButton[variant="chip-accent"] {
+    background-color: @surface_alt@;
+    color: @text_muted@;
+    border: none;
+    border-radius: 11px;
+    padding: 4px 11px;
+    min-height: 0px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+QPushButton[variant="chip-accent"] {
+    background-color: @accent_soft@;
+    color: @accent@;
+}
+
+/* Yol düğmesi kendisi çiziyor (widgets/path_node.py). */
+QPushButton[variant="node-painted"],
+QPushButton[variant="node-painted"]:hover,
+QPushButton[variant="node-painted"]:pressed,
+QPushButton[variant="node-painted"]:disabled {
+    background: transparent;
+    border: none;
+    padding: 0;
+    min-height: 0px;
+}
+
 QPushButton[variant="node"] {
     min-width: 74px; max-width: 74px;
     min-height: 74px; max-height: 74px;
@@ -545,6 +606,9 @@ QPushButton[variant="node"][state="planned"]:disabled {
 QLabel[role="heading"][muted="true"] {
     color: @text_muted@;
 }
+/* Kilitli bölüm: ad ve alt yazı soluk (prototip `.pnode.locked`, %55). */
+QLabel[role="heading"][locked="true"] { color: @text_faint@; }
+QLabel[role="muted"][locked="true"] { color: @text_faint@; }
 
 QPushButton[variant="node"][state="not_started"] {
     background-color: @surface_alt@;
@@ -568,14 +632,16 @@ QFrame[variant="module"] {
     min-height: 150px;
 }
 
-QFrame[variant="module"]:hover { border-color: @accent@; }
+/* Üzerine gelme çerçevesi GlowCard'da çiziliyor (geçişli, patika renginde). */
 
 /* Karşılama kartı: vurgu renginden ikinci renge geçiş */
 /* Ayarlar penceresi: solda kategoriler, sağda gruplanmış ayarlar. */
 QFrame[role="settings-sidebar"] {
-    background-color: @surface_alt@;
+    background-color: @bg@;
     border: none;
     border-right: 1px solid @border@;
+    border-top-left-radius: 21px;
+    border-bottom-left-radius: 21px;
 }
 
 QPushButton[variant="settings-nav"] {
@@ -592,15 +658,18 @@ QPushButton[variant="settings-nav"] {
 
 QPushButton[variant="settings-nav"]:hover { background-color: @surface_hover@; color: @text@; }
 
+/* Seçili kategorinin zemini NavIndicator'da (kayan). */
 QPushButton[variant="settings-nav"][active="true"] {
-    background-color: @accent_soft@;
-    color: @accent@;
+    background-color: transparent;
+    color: @text@;
 }
+
+QPushButton[variant="settings-nav"][active="true"]:hover { background-color: transparent; }
 
 QFrame[role="settings-group"] {
     background-color: @surface@;
     border: 1px solid @border@;
-    border-radius: @radius_md@px;
+    border-radius: 14px;
 }
 
 /* Karşılama kartının zemini ve daireleri `HeroCard.paintEvent` içinde
@@ -842,14 +911,51 @@ QLineEdit[role="note-title"][compact="true"] { font-size: @font_lg@px; }
 /* Bölüm ekranının sağındaki not paneli: sayfanın zemininde, içerikten ince
  * bir çizgiyle ayrılıyor (Notlarım'ın sol sütunu gibi). */
 QFrame[role="note-panel"] {
-    background-color: @bg@;
+    background-color: @surface@;
+    border: 1px solid @border_strong@;
+    border-radius: 20px;
+}
+QFrame[role="drawer-head"] {
+    background: transparent;
     border: none;
-    border-left: 1px solid @border@;
+    border-bottom: 1px solid @border@;
+    border-radius: 0;
+}
+QFrame[role="drawer-foot"] {
+    background: transparent;
+    border: none;
+    border-top: 1px solid @border@;
+    border-radius: 0;
+}
+QLabel[role="drawer-title"] { font-weight: 700; color: @text@; }
+QLabel[role="drawer-sub"] { font-size: 12.5px; color: @text_muted@; }
+QLabel[role="drawer-saved"] { font-size: 12px; color: @success@; }
+QPushButton[variant="round"] {
+    background: transparent;
+    border: none;
+    border-radius: 14px;
+    padding: 0;
+    min-height: 0px;
+}
+QPushButton[variant="round"]:hover { background-color: @surface_hover@; }
+QPushButton[size="sm"] {
+    min-height: 0px;
+    padding: 6px 12px;
+    font-size: 12.5px;
+    border-radius: 9px;
 }
 
 QTextEdit[role="note-editor"] {
     padding: @space_md@px;
     font-size: @font_md@px;
+}
+/* Not çekmecesinde yazı alanı çerçevesiz (prototip `.drawer textarea`). */
+QTextEdit[role="note-editor"][drawer="true"],
+QTextEdit[role="note-editor"][drawer="true"]:focus {
+    background: transparent;
+    border: none;
+    padding: 6px 2px;
+    font-size: 15px;
 }
 
 /* Araç çubuğu düğmeleri: küçük, metinli. Kod düğmesinin menü oku metnin
@@ -931,15 +1037,15 @@ QLabel[role="shortcut-group"] {
 QFrame[role="search-card"] {
     background-color: @surface@;
     border: 1px solid @border_strong@;
-    border-radius: @radius_lg@px;
+    border-radius: 20px;
 }
 
 /* Kutu değil, kartın içine yazılan büyük bir satır. */
 QLineEdit[role="search-field"] {
     background-color: transparent;
     border: none;
-    padding: 6px 2px;
-    font-size: @font_xl@px;
+    padding: 4px 0;
+    font-size: 17px;
 }
 
 QLineEdit[role="search-field"]:focus { border: none; }
@@ -951,11 +1057,12 @@ QListWidget[role="search-results"] {
     padding: 4px 0;
 }
 
-QLabel[role="search-hint"] {
-    color: @text_muted@;
-    font-size: @font_xs@px;
+QFrame[role="search-hint"] {
+    background: transparent;
+    border: none;
     border-top: 1px solid @border@;
 }
+QLabel[role="search-hint-text"] { color: @text_muted@; font-size: 12px; }
 
 /* --- Kaydırma çubukları --------------------------------------------------- */
 
@@ -1066,3 +1173,109 @@ QLabel[role="popover-title"] {
 QLabel[role="popover-text"] {
     font-size: @font_sm@px;
 }
+
+/* Patika kartı (prototip `.tcard`). Üzerine gelme çerçevesi ve ışıma GlowCard'da. */
+QFrame[variant="track"] {
+    background-color: @surface@;
+    border: 1px solid @border@;
+    border-radius: 20px;
+}
+QFrame[variant="track"][locked="true"] {
+    background-color: @surface_dim@;
+    border: 1px dashed @border_strong@;
+}
+QLabel[role="track-title"] {
+    font-family: @font_display@;
+    font-size: 17px;
+    font-weight: 700;
+    color: @text@;
+}
+QFrame[locked="true"] QLabel[role="track-title"] { color: @text_muted@; }
+QLabel[role="track-sub"] { font-size: 11.5px; font-weight: 600; color: @text_muted@; }
+QLabel[role="track-desc"] { font-size: 13px; color: @text_muted@; }
+QFrame[locked="true"] QLabel[role="track-desc"] { color: @text_faint@; }
+QLabel[role="track-meta"] { font-size: 12px; color: @text_muted@; }
+QLabel[role="track-why"] { font-size: 12px; color: @text_faint@; }
+QLabel[role="lock-chip"] {
+    background-color: @surface_alt@;
+    border-radius: 10px;
+}
+
+/* Sınav kartları (prototip `.qcard`). */
+QFrame[surface="card"][variant="qcard"] { border-radius: 24px; }
+QLabel[role="qcard-title"] {
+    font-family: @font_display@;
+    font-size: 20px;
+    font-weight: 700;
+    color: @text@;
+}
+QLabel[role="question"] {
+    font-family: @font_display@;
+    font-size: 18px;
+    font-weight: 600;
+    color: @text@;
+}
+QLabel[role="qtime"] {
+    font-family: @font_mono@;
+    font-size: 13px;
+    font-weight: 700;
+}
+QFrame[role="qwhy"] {
+    background-color: @surface_alt@;
+    border-radius: 12px;
+}
+QLabel[role="qwhy-text"] { font-size: 13.5px; color: @text_muted@; }
+
+/* Alıştırma editörü kartı (prototip `.editor`). */
+QFrame[role="editor-card"] {
+    background-color: @code_bg@;
+    border: 1px solid @border@;
+    border-radius: 16px;
+}
+QTextEdit[role="code"][card="true"] {
+    background-color: transparent;
+    padding: 8px 8px 8px 0;
+}
+/* Tuş kutucuğu (prototip `kbd`). */
+QLabel[role="kbd"] {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid @border_strong@;
+    border-bottom-width: 2px;
+    background-color: @surface@;
+    color: @text@;
+    min-height: 0px;
+    max-height: 22px;
+}
+
+/* Boş durum (prototip `.empty`). */
+QLabel[role="empty-title"] { font-family: @font_display@; font-size: 18px; font-weight: 700; color: @text@; }
+QLabel[role="empty-text"] { font-size: 14px; color: @text_muted@; }
+
+/* Ayarlar kip penceresi yazıları (prototip `.mside`, `.mpage`, `.srow`). */
+QLabel[role="modal-title"] { font-family: @font_display@; font-size: 18px; font-weight: 700; color: @text@; }
+QLabel[role="modal-version"] { font-size: 12px; color: @text_faint@; }
+QLabel[role="modal-page-title"] { font-family: @font_display@; font-size: 22px; font-weight: 700; color: @text@; }
+QLabel[role="modal-page-desc"] { font-size: 13.5px; color: @text_muted@; }
+QLabel[role="srow-title"] { font-size: 14px; font-weight: 700; color: @text@; }
+QLabel[role="srow-desc"] { font-size: 12.5px; color: @text_muted@; }
+
+/* Profil (prototip `.pcard`, `.bwall`). */
+QLabel[role="pcard-name"] { font-family: @font_display@; font-size: 22px; font-weight: 700; color: @text@; }
+QLabel[role="pcard-since"] { font-size: 13px; color: @text_muted@; }
+QLabel[role="pcard-percent"] { font-size: 13px; font-weight: 700; color: @text@; }
+QFrame[role="mini"] { background-color: @surface_alt@; border: none; border-radius: 12px; }
+QLabel[role="mini-value"] { font-family: @font_display@; font-size: 18px; font-weight: 700; color: @text@; }
+QLabel[role="mini-label"] { font-size: 11.5px; color: @text_muted@; }
+QLabel[role="card-head"] { font-family: @font_display@; font-size: 15px; font-weight: 700; color: @text@; }
+QLabel[role="count-chip"] {
+    background-color: @accent_soft@; color: @accent@;
+    font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 10px;
+}
+QPushButton[variant="round-nav"] {
+    background: transparent; border: 1px solid @border@; border-radius: 17px;
+    min-width: 34px; max-width: 34px; min-height: 34px; max-height: 34px; padding: 0;
+}
+QPushButton[variant="round-nav"]:hover { background-color: @surface_hover@; }

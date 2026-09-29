@@ -64,7 +64,7 @@ You can turn the check off under **Settings › Updates**. With it off, the appl
 
 ## Status
 
-Early development (`0.8.3`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
+Early development (`0.9.0`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
 
 **Content today:** five paths are **complete** — Python Fundamentals (seventeen sections), Data Science (ten), Machine Learning (thirteen), SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures) and Mathematics, in two modules: Foundational Mathematics (twenty-eight sections, from numbers to probability and statistics) and The Mathematics of AI (thirty-two, linear algebra, calculus, probability and statistics). 3374 quiz questions, 267 coding exercises, 300 mathematics problems and 236 lecture notes, all of it in both Turkish and English.
 

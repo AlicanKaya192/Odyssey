@@ -21,6 +21,17 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.9.0] — unreleased
+
+### Changed
+- **A refreshed interface.** Smooth transitions between screens, new icons
+  and track logos, badges as medals. Motion can be reduced in Settings ›
+  Appearance › Animations.
+- **A new start-up.** Instead of the loading card, a short animation plays
+  while the program opens: Odyssey's mascot, a centaur with a bow, gallops
+  in, looses an arrow and hits the target dead centre. Click or press `Esc`
+  to skip it.
+
 ## [0.8.3] — 26 September 2026
 
 ### Added

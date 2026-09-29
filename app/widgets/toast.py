@@ -18,8 +18,11 @@ Kart **tamamen elle çiziliyor**, alt widget yok. İki sebebi var:
 Hareketler:
 
 * giriş: sağdan kayarak ve belirerek (`OutCubic`);
-* simge: küçükten büyüyüp hafifçe taşarak yerine oturuyor (`OutBack`),
-  arkasından bir halka dalgası ve rozetlerde dağılan küçük parıltılar;
+* simge: küçükten büyüyüp esneyerek yerine oturuyor (yay, `bounce`),
+  arkasından bir halka dalgası ve rozetlerde dağılan küçük parıltılar.
+  Rozet kartında rozetin madalyası, bölüm kartında patikanın logosu var
+  (0.9.0); ikisi de profildeki ve yoldaki çizimle aynı;
+* Ayarlar › Animasyonlar kapalıysa kart hareketsiz belirir, süre yine işler;
 * alt kenardaki ince çizgi kalan süreyi gösteriyor; fare kartın üstündeyken
   süre duruyor, çıkınca kaldığı yerden devam ediyor;
 * çıkış: sağa kayıp sönerek. Yukarıdaki kartlar boşalan yere iniyor.
@@ -46,6 +49,10 @@ from PySide6.QtGui import QColor, QFont, QFontMetrics, QLinearGradient, QPainter
 from PySide6.QtWidgets import QWidget
 
 from ..resources.icons import pixmap
+from ..resources.logos import logo_pixmap
+from ..resources.medals import medal_pixmap
+from ..resources.theme.motion import bounce
+from . import motion
 from ..resources.theme.tokens import PALETTES
 
 CARD_WIDTH = 360
@@ -55,6 +62,9 @@ SHADOW = 14
 # Girişte kartın ne kadar sağdan geldiği.
 SLIDE = 48
 CIRCLE = 50
+# Madalya ve logo kartta biraz daha büyük çiziliyor (dairenin yerine).
+MEDAL = 66
+LOGO = 54
 ICON = 24
 RADIUS = 14
 # Kart ekranda ne kadar kalıyor (fare üstündeyken süre işlemiyor).
@@ -77,6 +87,8 @@ class ToastData:
     color: str           # dairenin rengi
     color2: str = ""     # degradenin ikinci rengi (boşsa tek renk)
     payload: tuple = ()  # tıklanınca ne açılacağı
+    medal: tuple = ()    # rozet kartı: (şekil, kademe, işaret)
+    logo: str = ""       # bölüm kartı: patika logosunun anahtarı
 
 
 class Toast(QWidget):
@@ -105,6 +117,11 @@ class Toast(QWidget):
         self._close_tip = close_tip
 
         self._icon_pix = pixmap(data.icon, "#FFFFFF", ICON)
+        self._art = None
+        if data.medal:
+            self._art = medal_pixmap(*data.medal, MEDAL)
+        elif data.logo:
+            self._art = logo_pixmap(data.logo, data.color, LOGO)
 
         # Kalan süre çizgisi; biterse kart kapanıyor.
         self._timer_anim = QPropertyAnimation(self, b"remaining", self)
@@ -158,6 +175,14 @@ class Toast(QWidget):
 
     def enter(self, target: QPoint) -> None:
         """Hedefin sağından kayarak ve belirerek gelir."""
+        if not motion.enabled():
+            # Hareketsiz: kart yerinde belirir, halka ve parıltı yok; süre işler.
+            self.move(target)
+            self.show()
+            self.raise_()
+            self._fade, self._pop, self._pulse = 1.0, 1.0, 1.0
+            self._timer_anim.start()
+            return
         self.move(target + QPoint(SLIDE, 0))
         self.show()
         self.raise_()
@@ -188,7 +213,8 @@ class Toast(QWidget):
         pop.setStartValue(0.0)
         pop.setEndValue(1.0)
         pop.setDuration(560)
-        pop.setEasingCurve(QEasingCurve(QEasingCurve.Type.OutBack))
+        # Doğrusal koşuyor; çizimde `bounce` yayından geçiriliyor (theme.motion).
+        pop.setEasingCurve(QEasingCurve.Type.Linear)
         dalga = QPropertyAnimation(self, b"pulse", self)
         dalga.setStartValue(0.0)
         dalga.setEndValue(1.0)
@@ -348,7 +374,10 @@ class Toast(QWidget):
         ust.setWeight(QFont.Weight.Bold)
         ust.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, 1.1)
         painter.setFont(ust)
-        painter.setPen(QColor(self.data.color2 or self.data.color))
+        # Açık temada kademe renginin açık tonu (bronz, altın) zeminde
+        # okunmuyordu; orada koyulaştırılmış ana renk.
+        ust_renk = QColor(self.data.color2 or self.data.color) if koyu else QColor(self.data.color).darker(135)
+        painter.setPen(ust_renk)
         painter.drawText(QRectF(sol, kart.top() + 16, genislik, 16),
                          Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
                          QFontMetrics(ust).elidedText(self.data.eyebrow, Qt.TextElideMode.ElideRight, int(genislik)))
@@ -422,7 +451,17 @@ class Toast(QWidget):
                 boy = 2.6 * (1 - 0.5 * self._pulse)
                 painter.drawEllipse(nokta, boy, boy)
 
-        olcek = max(0.0, self._pop)
+        olcek = max(0.0, bounce(self._pop))
+        if self._art is not None:
+            painter.save()
+            painter.translate(merkez)
+            painter.scale(olcek, olcek)
+            kenar = MEDAL if self.data.medal else LOGO
+            painter.drawPixmap(QPointF(-kenar / 2, -kenar / 2 - (2 if self.data.medal else 0)), self._art)
+            if self.data.kind == "section":
+                self._paint_check(painter, QPointF(kenar / 2 - 4, kenar / 2 - 4))
+            painter.restore()
+            return
         painter.save()
         painter.translate(merkez)
         painter.scale(olcek, olcek)
@@ -449,17 +488,20 @@ class Toast(QWidget):
 
         # Bölüm kartında sağ altta küçük bir onay işareti.
         if self.data.kind == "section":
-            k = 9.0
-            konum = QPointF(r * 0.72, r * 0.72)
-            painter.setBrush(QColor("#22C55E"))
-            painter.setPen(QPen(QColor(PALETTES.get(self._mode, PALETTES["dark"])["surface"]), 2))
-            painter.drawEllipse(konum, k, k)
-            painter.setPen(QPen(QColor("#FFFFFF"), 2, Qt.PenStyle.SolidLine,
-                                Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
-            painter.drawPolyline([
-                konum + QPointF(-4, 0), konum + QPointF(-1, 3), konum + QPointF(4.5, -3),
-            ])
+            self._paint_check(painter, QPointF(r * 0.72, r * 0.72))
         painter.restore()
+
+    def _paint_check(self, painter: QPainter, konum: QPointF) -> None:
+        """Yeşil daire içinde onay: bölüm tamamlandı."""
+        k = 10.0
+        painter.setBrush(QColor("#22C55E"))
+        painter.setPen(QPen(QColor(PALETTES.get(self._mode, PALETTES["dark"])["surface"]), 2.5))
+        painter.drawEllipse(konum, k, k)
+        painter.setPen(QPen(QColor("#FFFFFF"), 2.2, Qt.PenStyle.SolidLine,
+                            Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
+        painter.drawPolyline([
+            konum + QPointF(-4.5, 0), konum + QPointF(-1.2, 3.3), konum + QPointF(4.8, -3.2),
+        ])
 
 
 class ToastManager:

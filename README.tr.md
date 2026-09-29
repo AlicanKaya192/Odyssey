@@ -64,7 +64,7 @@ Denetimi **Ayarlar › Güncelleme** bölümünden kapatabilirsiniz. Kapalıyken
 
 ## Durum
 
-Erken geliştirme aşaması (`0.8.3`), açık beta olarak yayınlandı. Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı, güncelleme — yerinde; müfredat büyümeye devam ediyor.
+Erken geliştirme aşaması (`0.9.0`), açık beta olarak yayınlandı. Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı, güncelleme — yerinde; müfredat büyümeye devam ediyor.
 
 **Bugünkü içerik:** beş patika **tamamlandı** — Python Temelleri (on yedi bölüm), Veri Bilimi (on), Makine Öğrenmesi (on üç), SQL (on altı; SQL Server'ı kurmaktan pencere fonksiyonlarına, dizinlere, görünümlere ve saklı yordamlara) ve iki modüllü Matematik: Temel Matematik (yirmi sekiz bölüm, sayılardan olasılık ve istatistiğe) ve Yapay Zekanın Matematiği (otuz iki; doğrusal cebir, kalkülüs, olasılık ve istatistik). 3374 sınav sorusu, 267 kod alıştırması, 300 matematik problemi ve 236 ders notu; tamamı Türkçe ve İngilizce.
 

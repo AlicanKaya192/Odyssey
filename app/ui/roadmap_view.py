@@ -27,7 +27,7 @@ from ..core.catalog import Catalog
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..paths import content_dir
-from ..resources.icons import svg_markup
+from ..resources.logos import logo_key, logo_svg
 from ..widgets.document_view import DocumentView
 
 # Seçilen rota hatırlanıyor; ekrana her dönüşte baştan seçtirmek gereksiz.
@@ -63,6 +63,9 @@ class RoadmapView(QWidget):
         self._language = language
         self._store = store
         self._routes = load_routes()
+        # Sıralı giriş her rotanın oturumdaki ilk gösteriminde (B8); ekrana
+        # her dönüşte baştan oynamasın.
+        self._shown_routes: set[int] = set()
 
         ids = [route.get("id") for route in self._routes]
         saved = store.setting(ROUTE_SETTING, "")
@@ -92,7 +95,7 @@ class RoadmapView(QWidget):
             return
         self._index = index
         self._store.set_setting(ROUTE_SETTING, self._routes[index].get("id", ""))
-        self.refresh()
+        self.refresh(animate=True)
 
     def _on_action(self, action: str) -> None:
         if action.startswith(TRACK_ACTION):
@@ -100,7 +103,7 @@ class RoadmapView(QWidget):
 
     # --- çizim ------------------------------------------------------------
 
-    def refresh(self, keep_scroll: bool = False) -> None:
+    def refresh(self, keep_scroll: bool = False, animate: bool = False) -> None:
         """Rotayı yeniden çizer.
 
         İlerleme bölümlerde değiştiği için ekrana her gelişte çağrılıyor;
@@ -131,13 +134,16 @@ class RoadmapView(QWidget):
         )
 
         body = (
-            f'<p class="meta">{html.escape(self._language.t("roadmap.intro"))}</p>'
-            f"<h1>{html.escape(pick(route.get('title')))}</h1>"
-            f"<p>{html.escape(pick(route.get('intro')))}</p>"
+            f'<p class="route-intro">{html.escape(self._language.t("roadmap.intro"))}</p>'
+            f"<h1 class=\"route-title\">{html.escape(pick(route.get('title')))}</h1>"
+            f'<p class="route-intro">{html.escape(pick(route.get("intro")))}</p>'
             f'<ol class="route">{steps}</ol>'
         )
+        giris = " pre-enter" if animate and self._index not in self._shown_routes else ""
+        if giris:
+            self._shown_routes.add(self._index)
         self._document.set_body(
-            f'<div class="page narrow"><div class="content">{body}</div></div>',
+            f'<div class="page narrow{giris}"><div class="content">{body}</div></div>',
             keep_scroll=keep_scroll,
         )
 
@@ -179,7 +185,9 @@ class RoadmapView(QWidget):
         track = self._catalog.track(step.get("track", ""))
         title = pick(track.title) if track else step.get("track", "")
         color = track.color if track else "#6B7280"
-        icon_svg = svg_markup(track.icon if track else "book", color, stroke=2.0)
+        # Patikanın logosu (ui-taslak.md E2); yazılmamış patikada gri.
+        icon_svg = logo_svg(logo_key(track.icon if track else "", track.id if track else ""), color,
+                            locked=bool(state["soon"]))
 
         classes = ["rstep"]
         tags = []
@@ -225,15 +233,16 @@ class RoadmapView(QWidget):
                 "</div>"
             )
 
+        classes.append("stg")
         return (
-            f'<li class="{" ".join(classes)}">'
+            f'<li class="{" ".join(classes)}" style="--n:{number - 1}">'
             f'<div class="rnum">{marker}</div>'
             '<div class="rcard">'
-            f'<div class="rhead"><span class="ricon">{icon_svg}</span>'
-            f"<b>{html.escape(title)}</b>{tag_html}</div>"
+            f'<span class="rlogo">{icon_svg}</span><div class="rbody">'
+            f'<div class="rhead"><b>{html.escape(title)}</b>{tag_html}</div>'
             f"<p>{html.escape(pick(step.get('text')))}</p>"
             f"{focus}{foot}"
-            "</div></li>"
+            "</div></div></li>"
         )
 
     # --- tema ve dil ------------------------------------------------------

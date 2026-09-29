@@ -187,6 +187,13 @@ class ReleaseView(QWidget):
         yüzden sayfa başına `PAGE_SIZE` sürüm gösteriliyor, altta sayfa
         düğmeleri duruyor.
         """
+        # İçerik değişmediyse sayfa yeniden yüklenmiyor: her girişte baştan
+        # yüklenince ekran bir an boşalıp doluyordu ("flash").
+        anahtar = (self._language.language, self._page, self._changelog_path().stat().st_mtime
+                   if self._changelog_path().exists() else 0)
+        if anahtar == getattr(self, "_rendered_key", None):
+            return
+        self._rendered_key = anahtar
         self._document.set_lang(self._language.language)
         releases = parse_changelog(self._changelog_path())
 
@@ -209,8 +216,12 @@ class ReleaseView(QWidget):
             )
             body += self._pager_html(total_pages)
 
+        # Kartlar ekranın oturumdaki ilk gösteriminde sırayla gelir (C15).
+        giris = " pre-enter" if not getattr(self, "_entered", False) and self.window().isVisible() else ""
+        if giris:
+            self._entered = True
         self._document.set_body(
-            f'<div class="page narrow"><div class="content">{body}</div></div>'
+            f'<div class="page narrow{giris}"><div class="content">{body}</div></div>'
         )
 
     def _pager_html(self, total_pages: int) -> str:
@@ -255,11 +266,14 @@ class ReleaseView(QWidget):
         )
         date = f'<span class="dt">{html.escape(release.date)}</span>' if release.date else ""
 
-        parts = [
-            f'<div class="v"><b>{html.escape(release.version)}</b>'
-            f"{stage}{badge}{date}</div>"
-        ]
-
+        # Açılır-kapanır kart: yalnızca en yeni sürüm açık gelir; başlıkta
+        # sağda dönen ok (prototip `.relc`).
+        ok = (
+            '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
+            ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+            '<path d="m6 9 6 6 6-6"/></svg>'
+        )
+        parts = []
         for title, items in release.groups:
             if title:
                 parts.append(f"<h4>{html.escape(title)}</h4>")
@@ -267,7 +281,14 @@ class ReleaseView(QWidget):
                 bullets = "".join(f"<li>{_inline(item)}</li>" for item in items)
                 parts.append(f"<ul>{bullets}</ul>")
 
-        return f'<div class="relcard">{"".join(parts)}</div>'
+        # Prototip `.relc`: başlığa basınca içerik yüksekliği yayla açılıp
+        # kapanıyor, ok dönüyor (yerleşik `<details>` anında açılıyordu).
+        acik = " open" if newest else ""
+        return (
+            f'<div class="relcard{acik}"><div class="v" onclick="this.parentElement.classList.toggle(&quot;open&quot;)">'
+            f"<b>{html.escape(release.version)}</b>{stage}{badge}{date}{ok}</div>"
+            f'<div class="kids"><div><div class="inner">{"".join(parts)}</div></div></div></div>'
+        )
 
     def set_mode(self, mode: str) -> None:
         self._document.set_mode(mode)

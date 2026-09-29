@@ -19,9 +19,11 @@ yalnızca elle çizilince kötü görünenleri veriyor.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QRectF, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QPushButton, QWidget
 
+from . import motion
 from ..resources.theme.tokens import SPACING
 from .effects import repolish
 
@@ -29,6 +31,50 @@ from .effects import repolish
 GENERAL_SYMBOLS = ["√", "π", "≠", "≤", "≥", "∞"]
 
 BUTTON_SIZE = 36
+
+
+class _Pulse(QWidget):
+    """Seçili sembolün çevresinde, kâğıda konana kadar atan nabız (C8)."""
+
+    def __init__(self, parent: QWidget) -> None:
+        super().__init__(parent)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self._clock = 0
+        self._timer = QTimer(self)
+        self._timer.setInterval(33)
+        self._timer.timeout.connect(self._tick)
+        self.hide()
+
+    def follow(self, button: QWidget) -> None:
+        if not motion.enabled():
+            return
+        self.setGeometry(button.geometry().adjusted(-5, -5, 5, 5))
+        self._clock = 0
+        self.show()
+        self.raise_()
+        self._timer.start()
+
+    def stop(self) -> None:
+        self._timer.stop()
+        self.hide()
+
+    def _tick(self) -> None:
+        self._clock = (self._clock + 33) % 1200
+        self.update()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        import math
+
+        from .effects import theme_palette
+
+        k = (1 - math.cos(self._clock / 1200 * 2 * math.pi)) / 2
+        renk = QColor(theme_palette()["accent"])
+        renk.setAlphaF(0.35 * k)
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        g.setPen(QPen(renk, 4))
+        g.setBrush(Qt.BrushStyle.NoBrush)
+        g.drawRoundedRect(QRectF(self.rect()).adjusted(2, 2, -2, -2), 12, 12)
 
 
 class SymbolPalette(QWidget):
@@ -62,6 +108,7 @@ class SymbolPalette(QWidget):
         self._layout.addStretch(1)
 
         self._divider.hide()
+        self._pulse = _Pulse(self)
 
     def _make_button(self, symbol: str) -> QPushButton:
         button = QPushButton(symbol)
@@ -95,9 +142,12 @@ class SymbolPalette(QWidget):
         self.clear_selection()
         button.setProperty("active", "true")
         repolish(button)
+        self._pulse.follow(button)
         self.picked.emit(symbol)
 
     def clear_selection(self) -> None:
+        if hasattr(self, "_pulse"):
+            self._pulse.stop()
         for button in self._buttons:
             if button.property("active") == "true":
                 button.setProperty("active", "false")

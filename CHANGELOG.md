@@ -19,6 +19,17 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.9.0] — yayınlanmadı
+
+### Değişti
+- **Arayüz yenilendi.** Ekranlar arasında yumuşak geçişler, yeni simgeler
+  ve patika logoları, madalya biçiminde rozetler. Ayarlar › Görünüm ›
+  Animasyonlar ile hareket azaltılabiliyor.
+- **Yeni açılış.** Program açılırken yükleme kartı yerine kısa bir
+  animasyon oynuyor: Odyssey'in maskotu, yay tutan bir sentor, dörtnala
+  gelip okunu atıyor ve ok hedefi tam ortadan vuruyor. Tıklayınca ya da
+  `Esc` ile geçilebiliyor.
+
 ## [0.8.3] — 26 Eylül 2026
 
 ### Eklendi

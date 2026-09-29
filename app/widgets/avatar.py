@@ -10,7 +10,7 @@ Kendi çizimini kendisi yapıyor: yuvarlak kırpma QSS ile yapılamıyor,
 from __future__ import annotations
 
 from PySide6.QtCore import QRectF, Qt, Signal
-from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPainterPath, QPen, QPixmap
+from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPainterPath, QPen, QPixmap, QLinearGradient
 from PySide6.QtWidgets import QWidget
 
 # Fotoğrafın üstüne gelince beliren ince halka: tıklanabilir olduğunu
@@ -31,6 +31,8 @@ class AvatarView(QWidget):
         self._text = QColor("#FFFFFF")
         self._hover = False
         self._interactive = True
+        # Halka: 5 px kart renginde boşluk, 3 px vurgu halkası (profil kartı).
+        self._ring: tuple[QColor, QColor, QColor] | None = None
 
         self.setFixedSize(size, size)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -48,6 +50,13 @@ class AvatarView(QWidget):
     def set_colors(self, accent: str, text: str) -> None:
         self._accent = QColor(accent)
         self._text = QColor(text)
+        self.update()
+
+    def set_ring(self, gap: str, ring: str, second: str) -> None:
+        """Dışta halka ve içte vurgu → ikinci vurgu geçişi (prototip `.pav`)."""
+        halka = QColor(ring)
+        halka.setAlphaF(0.45)
+        self._ring = (QColor(gap), halka, QColor(second))
         self.update()
 
     def set_interactive(self, value: bool) -> None:
@@ -84,6 +93,12 @@ class AvatarView(QWidget):
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
 
         alan = QRectF(self.rect()).adjusted(1, 1, -1, -1)
+        if self._ring is not None:
+            _bosluk, halka, _ikinci = self._ring
+            painter.setPen(QPen(halka, 3))
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            painter.drawEllipse(alan.adjusted(1.5, 1.5, -1.5, -1.5))
+            alan = alan.adjusted(8, 8, -8, -8)
         daire = QPainterPath()
         daire.addEllipse(alan)
 
@@ -105,16 +120,22 @@ class AvatarView(QWidget):
             painter.setClipping(False)
         else:
             painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(QBrush(self._accent))
+            if self._ring is not None:
+                gecis = QLinearGradient(alan.topLeft(), alan.bottomRight())
+                gecis.setColorAt(0, self._accent)
+                gecis.setColorAt(1, self._ring[2])
+                painter.setBrush(QBrush(gecis))
+            else:
+                painter.setBrush(QBrush(self._accent))
             painter.drawPath(daire)
 
             painter.setPen(self._text)
             font = QFont(self.font())
-            font.setPixelSize(max(12, int(self.height() * 0.38)))
+            font.setPixelSize(max(12, int(alan.height() * 0.36)))
             font.setWeight(QFont.Weight.Bold)
             painter.setFont(font)
             painter.drawText(
-                self.rect(),
+                alan,
                 Qt.AlignmentFlag.AlignCenter,
                 self._initials or "+",
             )

@@ -28,6 +28,8 @@ class Badge:
     description: dict
     earned: bool = False
     earned_at: str = ""
+    # Madalyanın şekli ve kademesi (badges.json → medal), ör. ("hex", "gold").
+    medal: tuple = ("circle", "bronze")
 
 
 def load_definitions(path) -> list[dict]:
@@ -203,6 +205,7 @@ def collect(catalog, store, path) -> list[Badge]:
                 description=tanim.get("description", {}),
                 earned=kazanildi,
                 earned_at=kayitlar.get(rozet_id, ""),
+                medal=tuple((tanim.get("medal") or ["circle", "bronze"])[:2]),
             )
         )
     return sonuc

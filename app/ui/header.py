@@ -28,8 +28,8 @@ ekranda ortada.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont, QFontMetrics
+from PySide6.QtCore import QPointF, QRectF, Qt, Signal
+from PySide6.QtGui import QColor, QFont, QFontMetrics, QPainter, QRadialGradient
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -39,6 +39,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..widgets import motion
+from ..widgets.fade_stack import FadeStack
 from ..core.language import LanguageManager, upper
 from ..resources.icons import icon
 from ..resources.theme.tokens import PALETTES, SPACING
@@ -59,6 +61,41 @@ TITLE_SIZES = (26, 24, 22, 20, 18)
 # Başlıkla yan bölgeler arasında bırakılan toplam pay; yoksa başlık yan
 # bölgelere yapışık duruyor.
 TITLE_PADDING = 16
+
+
+class AccentLine(QWidget):
+    """Başlığın altındaki renkli kısa çizgi; ekran açılınca ortadan uzar (B4)."""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._color = QColor("#8B84FF")
+        self._grow = 1.0
+
+    def set_color(self, color: str) -> None:
+        self._color = QColor(color)
+        self.update()
+
+    def play(self) -> None:
+        motion.animate(self, "grow", 0.0, 1.0, self._set_grow, "long", "out")
+
+    def hide_for_play(self) -> None:
+        if motion.enabled():
+            self._set_grow(0.0)
+
+    def _set_grow(self, v: float) -> None:
+        self._grow = v
+        self.update()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        w = self.width() * max(0.0, min(1.0, self._grow))
+        if w <= 0.5:
+            return
+        g.setPen(Qt.PenStyle.NoPen)
+        g.setBrush(self._color)
+        h = self.height()
+        g.drawRoundedRect(QRectF((self.width() - w) / 2, 0, w, h), h / 2, h / 2)
 
 
 class ScreenHeader(QFrame):
@@ -133,6 +170,63 @@ class ScreenHeader(QFrame):
         self._balanced = (left, right)
         self._left.setMinimumWidth(left)
         self._right.setMinimumWidth(right)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        # Prototipteki sayfa üstü ışıma (`.screen::before`): başlığın üstünden
+        # ekranın renginde, aşağı doğru sönen yumuşak bir ışık.
+        super().paintEvent(event)
+        palette = PALETTES.get(self._mode, PALETTES["light"])
+        renk = QColor(self._accent or palette["accent"])
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        merkez = QPointF(self.width() / 2, -60)
+        isik = QRadialGradient(merkez, 600)
+        alfa = 0.126 if self._mode == "dark" else 0.084
+        renk.setAlphaF(alfa)
+        isik.setColorAt(0.0, renk)
+        renk.setAlphaF(0.0)
+        isik.setColorAt(1.0, renk)
+        g.save()
+        # Elips (600×220): dikeyde sıkıştırılmış daire.
+        g.translate(merkez)
+        g.scale(1.0, 220 / 600)
+        g.translate(-merkez)
+        g.fillRect(QRectF(0, -60, self.width(), 600 * 600 / 220), isik)
+        g.restore()
+
+    def showEvent(self, event) -> None:  # noqa: N802
+        super().showEvent(event)
+        # Ekran geçişle geliyorsa başlık ekranla birlikte taşınıyor; ayrıca
+        # oynatılan hareket katman kalkınca sıçrama olarak görünüyordu.
+        if FadeStack.transitioning:
+            return
+        # Prototip: bağlam satırı ve başlık 4 px aşağıdan belirir (`hIn`,
+        # başlık 60 ms sonra), çizgi ortadan uzar (`hLine`). Geçiş bekliyorsa
+        # geçiş başlarken.
+        from ..widgets.fade_stack import after_reveal
+        from ..widgets.pop_effect import enter
+        gizle = [enter(self._eyebrow, 4, "short", hold=True),
+                 enter(self._title, 4, "short", delay=60, hold=True)]
+        self._line.hide_for_play()
+
+        def oynat() -> None:
+            for b in gizle:
+                if b:
+                    b()
+            self._line.play()
+
+        after_reveal(self, oynat)
+
+    def play_enter(self) -> None:
+        """Başlık yeniden belirir (prototip: her ekranın kendi `hIn`'i).
+
+        Öğrenme Yolu'nda başlık ekranlar arasında ortak; patikaya girince
+        yalnızca yazısı değişiyordu.
+        """
+        from ..widgets.pop_effect import enter
+        enter(self._eyebrow, 4, "short")
+        enter(self._title, 4, "short", delay=60)
+        self._line.play()
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
@@ -240,6 +334,7 @@ class ScreenHeader(QFrame):
     def _build_left(self) -> QWidget:
         """Geri düğmesi şeridin en solunda; içeri girilen yön orası."""
         holder = QWidget()
+        holder.setProperty("role", "bare")
         row = QHBoxLayout(holder)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(0)
@@ -256,6 +351,7 @@ class ScreenHeader(QFrame):
 
     def _build_centre(self) -> QWidget:
         holder = QWidget()
+        holder.setProperty("role", "bare")
         column = QVBoxLayout(holder)
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(3)
@@ -274,7 +370,7 @@ class ScreenHeader(QFrame):
         self._title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         column.addWidget(self._title, 0, Qt.AlignmentFlag.AlignHCenter)
 
-        self._line = QFrame()
+        self._line = AccentLine()
         self._line.setFixedSize(ACCENT_LINE_WIDTH, ACCENT_LINE_HEIGHT)
         column.addSpacing(SPACING["xs"])
         column.addWidget(self._line, 0, Qt.AlignmentFlag.AlignHCenter)
@@ -283,6 +379,7 @@ class ScreenHeader(QFrame):
 
     def _build_right(self) -> QWidget:
         holder = QWidget()
+        holder.setProperty("role", "bare")
         row = QHBoxLayout(holder)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
@@ -332,9 +429,7 @@ class ScreenHeader(QFrame):
     def _apply_accent(self) -> None:
         palette = PALETTES.get(self._mode, PALETTES["light"])
         renk = self._accent or palette["accent"]
-        self._line.setStyleSheet(
-            f"background-color: {renk}; border-radius: {ACCENT_LINE_HEIGHT // 2}px;"
-        )
+        self._line.set_color(renk)
         self._eyebrow.setStyleSheet(f"color: {renk};")
 
     def set_back(self, visible: bool, text: str = "") -> None:

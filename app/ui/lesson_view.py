@@ -17,7 +17,7 @@ from pathlib import Path
 
 import markdown
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import QTimer, Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ..core import math_text
@@ -74,11 +74,50 @@ SCROLL_SPY = """
     }
 
     links.forEach((a, i) => a.classList.toggle('on', i === current));
+    // Kenardaki işaret seçili başlığa yayla kayıyor (ui-taslak C5).
+    const mark = document.querySelector('.toc-mark');
+    const on = links[current];
+    if (mark && on) {
+      mark.style.transform = 'translateY(' + on.offsetTop + 'px)';
+      mark.style.height = on.offsetHeight + 'px';
+    }
   }
 
   document.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
   update();
+})();
+</script>
+"""
+
+# Kod bloklarına "kopyala" düğmesi (ui-taslak C5). Pano erişimi için izin
+# istemeyen yol: bloğun metni seçilip `execCommand('copy')`; düğme bir an
+# onaya dönüyor. Betik belge içinde çalışıyor, köprüye dokunmuyor.
+COPY_BUTTONS = """
+<script>
+(function () {
+  const COPY = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></svg>';
+  const OK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+  document.querySelectorAll('.content pre').forEach(function (pre) {
+    const b = document.createElement('button');
+    b.className = 'cp';
+    b.innerHTML = COPY;
+    b.addEventListener('click', function (e) {
+      e.preventDefault();
+      const code = pre.querySelector('code') || pre;
+      const r = document.createRange();
+      r.selectNodeContents(code);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+      try { document.execCommand('copy'); } catch (err) {}
+      sel.removeAllRanges();
+      b.innerHTML = OK;
+      b.classList.add('done');
+      setTimeout(function () { b.innerHTML = COPY; b.classList.remove('done'); }, 1400);
+    });
+    pre.appendChild(b);
+  });
 })();
 </script>
 """
@@ -96,14 +135,22 @@ SCROLL_SPY = """
 # ve altındaki yazı. Belge yerinde kalıyor, kaydırmaya hiç dokunulmuyor.
 PROGRESS_PATCH = """
 (function () {
-  var bar = document.querySelector('.prog .bar i');
-  var cap = document.querySelector('.prog .cap');
-  if (!bar || !cap) return false;
-  bar.style.width = %WIDTH%;
-  cap.textContent = %CAPTION%;
+  var rows = document.querySelectorAll('.prog .step3');
+  var steps = %STEPS%;
+  if (rows.length !== steps.length) return false;
+  steps.forEach(function (s, i) {
+    rows[i].classList.toggle('done', s[1]);
+    rows[i].querySelector('small').textContent = s[2];
+  });
   return true;
 })()
 """
+
+# Adımın dairesindeki onay işareti (Lucide `check`).
+STEP_CHECK = (
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"'
+    ' stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+)
 
 
 def render_markdown(text: str) -> tuple[str, list[tuple[str, str]]]:
@@ -157,7 +204,7 @@ class LessonView(QWidget):
         self._banners: list[tuple[str, str]] = []
         self._footer: list[tuple[str, str, bool]] = []
         self._extra = ""
-        self._progress = (0, "")
+        self._progress: list[tuple[str, bool, str]] = []
 
         # İlerleme kutusu şu an çizili mi? Çiziliyse güncelleme belgeyi
         # yeniden yüklemeden yapılıyor.
@@ -262,24 +309,24 @@ class LessonView(QWidget):
         if self._source:
             self._render(keep_scroll=True)
 
-    def set_progress(self, percent: int, caption: str) -> None:
-        """İlerleme kutusunu günceller.
+    def set_progress(self, steps: list[tuple[str, bool, str]]) -> None:
+        """İlerleme kutusunu günceller: (adım adı, bitti mi, sağdaki sayı).
 
         Kutu ekrandaysa belge yeniden yüklenmiyor, kutunun içi yerinde
         değiştiriliyor — okurken sayfanın sıçramaması için.
         """
-        if (percent, caption) == self._progress:
+        steps = list(steps)
+        if steps == self._progress:
             return
 
-        self._progress = (percent, caption)
+        eski = [ad for ad, _, _ in self._progress]
+        self._progress = steps
         if not self._source:
             return
 
-        if self._has_progress_box:
+        if self._has_progress_box and eski == [ad for ad, _, _ in steps]:
             self._document.page().runJavaScript(
-                PROGRESS_PATCH
-                .replace("%WIDTH%", json.dumps(f"{percent}%"))
-                .replace("%CAPTION%", json.dumps(caption))
+                PROGRESS_PATCH.replace("%STEPS%", json.dumps(steps))
             )
             return
 
@@ -325,12 +372,39 @@ class LessonView(QWidget):
         yükleniyor ve okuyan kişi en başa fırlıyordu. Yeni ders yüklenirken
         bayrak verilmiyor, sayfa başa dönüyor.
         """
+        # Aynı olay turundaki çizim istekleri tek çizimde birleşiyor. Bir bölüm
+        # açılırken içerik, bilgi satırı, alt düğmeler ve dil ayrı ayrı çizim
+        # istiyordu: 14 kez markdown çevirisi ve sayfa yüklemesi, 224 ms
+        # (ölçüldü, bölüme girerken takılma buydu). Yeni içerik isteyen biri
+        # varsa sayfa başa dönüyor.
+        bekleyen = getattr(self, "_pending_render", None)
+        if bekleyen is not None:
+            self._pending_render = bekleyen and keep_scroll
+            return
+        self._pending_render = keep_scroll
+        # Görünen sayfa önce: bölüm açılınca ders notu ve alıştırma
+        # sayfaları da çiziliyor ve görünen dersin yüklenmesini
+        # geciktiriyordu (ölçüldü: 150–270 ms yerine ~50 ms).
+        QTimer.singleShot(0 if self.isVisible() else 250, self, self._flush_render)
+
+    def _flush_render(self) -> None:
+        # Elle önceden çizildiyse zamanlayıcı boşa düşer (ikinci yükleme olmasın).
+        if getattr(self, "_pending_render", None) is None:
+            return
+        keep_scroll = bool(self._pending_render)
+        self._pending_render = None
         self._document.set_lang(self._language.language)
         self._document.set_body(self._compose(), keep_scroll=keep_scroll)
 
     def _compose(self) -> str:
         """Belgenin gövde HTML'i; çizim ve yerinde değişiklik aynı kaynağı kullanır."""
-        body, headings = render_markdown(self._source)
+        # Kaynak değişmediyse çeviri yeniden yapılmıyor.
+        onbellek = getattr(self, "_md_cache", None)
+        if onbellek is not None and onbellek[0] == self._source:
+            body, headings = onbellek[1]
+        else:
+            body, headings = render_markdown(self._source)
+            self._md_cache = (self._source, (body, headings))
 
         parts = ["".join(self._banner_html(tone, text) for tone, text in self._banners)]
         parts.append(self._meta_html(body))
@@ -349,7 +423,7 @@ class LessonView(QWidget):
             aside = ""
 
         self._has_progress_box = bool(aside)
-        scripts = SCROLL_SPY if aside else ""
+        scripts = (SCROLL_SPY if aside else "") + COPY_BUTTONS
         return f'<div class="{page_class}">{content}{aside}</div>{scripts}'
 
     def _banner_html(self, tone: str, text: str) -> str:
@@ -384,19 +458,21 @@ class LessonView(QWidget):
             for index, (anchor, title) in enumerate(headings)
         )
 
-        percent, caption = self._progress
+        adimlar = "".join(
+            f'<div class="step3{" done" if bitti else ""}"><span class="o">{STEP_CHECK}</span>'
+            f"{html.escape(ad)}<small>{html.escape(ek)}</small></div>"
+            for ad, bitti, ek in self._progress
+        )
         progress = (
             '<div class="prog">'
             f'<div class="h2">{html.escape(self._language.t("section.section_progress"))}</div>'
-            f'<div class="bar"><i style="width:{percent}%"></i></div>'
-            f'<div class="h2 cap" style="margin:9px 0 0">{html.escape(caption)}</div>'
-            "</div>"
-        )
+            f'<div class="steps3">{adimlar}</div></div>'
+        ) if self._progress else ""
 
         return (
             '<aside class="toc"><div class="toc-inner">'
             f'<div class="h">{html.escape(self._language.t("section.on_this_page"))}</div>'
-            f"{links}{progress}</div></aside>"
+            f'<div class="toc-links"><span class="toc-mark"></span>{links}</div>{progress}</div></aside>'
         )
 
     def _footer_html(self) -> str:

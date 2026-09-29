@@ -36,6 +36,7 @@ from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineScript, QWebEngine
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QWidget
 
+from . import motion
 from ..core.highlight import highlight_code_blocks
 from ..core.math_text import has_math
 from ..resources.theme.document import build_css
@@ -142,6 +143,13 @@ def _katex_head() -> str:
     )
 
 
+
+# Animasyonlar kapalıyken belgeye eklenen kural: her şey son hâlinde.
+REDUCE_CSS = (
+    "<style>*,*::before,*::after{animation:none!important;"
+    "transition:none!important}</style>"
+)
+
 class PageBridge(QObject):
     """Sayfanın uygulamaya kendiliğinden haber verebildiği tek kapı."""
 
@@ -218,6 +226,11 @@ class DocumentView(QWebEngineView):
         self._restore_to = 0.0
         self._at_end = False
         self.loadFinished.connect(self._on_load_finished)
+        # Giriş animasyonu (`.pre-enter` → `.enter`): geçiş bekliyorsa
+        # geçiş başlayınca, yoksa yükleme bitince oynuyor. Önce sayfa
+        # yüklenir yüklenmez oynuyordu; geçiş o sırada eski ekranın
+        # görüntüsünü gösterdiği için animasyon görünmeden bitiyordu.
+        self._hold_enter = False
 
         self._bridge = PageBridge(self)
         self._bridge.reported.connect(self._on_page_report)
@@ -276,6 +289,8 @@ class DocumentView(QWebEngineView):
             f"<!doctype html><html lang='{self._lang}'>"
             "<head><meta charset='utf-8'>"
             f"<style id='tema'>{build_css(self._mode)}</style>"
+            # Ayarlar › Animasyonlar kapalıysa belgede de hareket yok (A2).
+            f"{'' if motion.enabled() else REDUCE_CSS}"
             f"{_katex_head() if has_math(painted) else ''}</head>"
             f"<body>{painted}{KATEX_RENDER if has_math(painted) else ''}</body></html>"
         )
@@ -312,6 +327,13 @@ class DocumentView(QWebEngineView):
             self._at_end = at_end
             self.at_end_changed.emit(at_end)
 
+    def play_enter(self) -> None:
+        """Sayfadaki `.pre-enter` kaplarının giriş animasyonunu başlatır."""
+        self.page().runJavaScript(
+            "document.querySelectorAll('.pre-enter').forEach(function(e){"
+            "e.classList.remove('pre-enter');e.classList.add('enter');});"
+        )
+
     def _on_load_finished(self, ok: bool) -> None:
         # Tema, sayfa yüklenirken değiştiyse stil değişimi yüklenmekte olan
         # sayfaya değil eskisine uygulanmış oluyor; yeni sayfa çizildiği
@@ -331,6 +353,8 @@ class DocumentView(QWebEngineView):
         # sinyali `ok=False` ile veriyor; bekleyen kaydırma son yüklemeye.
         if ok:
             self._loaded = True
+            if not self._hold_enter:
+                self.play_enter()
             if self._pending_anchor:
                 anchor, self._pending_anchor = self._pending_anchor, ""
                 self._scroll_now(anchor)
@@ -490,3 +514,67 @@ class DocumentView(QWebEngineView):
         self.page().runJavaScript(
             f"document.getElementById({json.dumps(anchor)})?.scrollIntoView({{block:'start'}});"
         )
+
+
+def when_documents_ready(root, callback, timeout: int = 400) -> None:
+    """`root` içindeki görünür belgeler çizilmeye hazır olunca `callback`.
+
+    Tarayıcı bileşeni gizliyken yavaş yükleniyor (476 ms, görünürken 48 ms)
+    ve ilk kez gösterildiğinde ilk karesini ~130 ms sonra, önce yanlış
+    genişlikte çiziyor (Rotalar'da dar sütun). Geçiş bu ana kadar
+    bekliyor; ekran içeriğiyle birlikte giriyor (prototipte olduğu gibi).
+    En çok `timeout` ms beklenir.
+    """
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QWidget
+
+    if root is None:
+        callback()
+        return
+    # Ertelenmiş çizimler (ders görünümü) şimdi yapılsın.
+    for w in [root] + root.findChildren(QWidget):
+        if getattr(w, "_pending_render", None) is not None and w.isVisibleTo(root) and hasattr(w, "_flush_render"):
+            w._flush_render()  # noqa: SLF001
+    belgeler = [root] if isinstance(root, DocumentView) else []
+    belgeler += [d for d in root.findChildren(DocumentView) if d.isVisibleTo(root)]
+    yukleniyor = [d for d in belgeler if not d._loaded]  # noqa: SLF001
+    ilk_kez = [d for d in belgeler if not getattr(d, "_ever_shown", False)]
+    for d in ilk_kez:
+        d._ever_shown = True  # noqa: SLF001
+    for d in belgeler:
+        d._hold_enter = True  # noqa: SLF001
+    asil = callback
+
+    def callback() -> None:  # noqa: F811 — geçiş başlarken giriş animasyonu da
+        for d in belgeler:
+            d._hold_enter = False  # noqa: SLF001
+            if d._loaded:  # noqa: SLF001
+                d.play_enter()
+        asil()
+    ek = 140 if ilk_kez else 0
+    if not yukleniyor:
+        if ek:
+            QTimer.singleShot(ek, root, callback)
+        else:
+            callback()
+        return
+    durum = {"bitti": False}
+
+    def bir_kez(*_args) -> None:
+        if durum["bitti"]:
+            return
+        durum["bitti"] = True
+        for d in yukleniyor:
+            try:
+                d.loadFinished.disconnect(kontrol)
+            except (RuntimeError, TypeError):
+                pass
+        callback()
+
+    def kontrol(ok: bool) -> None:
+        if ok and all(d._loaded for d in yukleniyor):  # noqa: SLF001
+            QTimer.singleShot(max(16, ek), root, bir_kez)
+
+    for d in yukleniyor:
+        d.loadFinished.connect(kontrol)
+    QTimer.singleShot(timeout, root, bir_kez)
