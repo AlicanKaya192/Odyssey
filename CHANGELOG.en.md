@@ -21,6 +21,20 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.9.1] — unreleased
+
+### Changed
+- **Updates now download only the files that changed.** If you have the
+  previous version installed, you get a small update package with just the
+  files changed since then instead of the 229 MB full installer (from the
+  next update on). The package checks the installed version; if it does not
+  match, it touches nothing and Odyssey downloads the full installer on the
+  next try. Moving to 0.9.1 is the last update that uses the full installer.
+
+### Fixed
+- After an update, the desktop shortcut kept showing the old icon. The
+  installer now makes Windows refresh its icons.
+
 ## [0.9.0] — 29 September 2026
 
 ### Added
