@@ -49,9 +49,9 @@ class IntroLink:
         threading.Thread(target=self._read, daemon=True).start()
 
     @classmethod
-    def launch(cls, theme: str, language: str) -> IntroLink | None:
+    def launch(cls, theme: str, language: str, sound: bool = False) -> IntroLink | None:
         """Animasyonu başlatır; başlatılamazsa None (eski açılış ekranı kullanılır)."""
-        payload = json.dumps({"theme": theme, "lang": language, "pid": os.getpid()})
+        payload = json.dumps({"theme": theme, "lang": language, "pid": os.getpid(), "sound": sound})
         if getattr(sys, "frozen", False):
             command = [sys.executable, INTRO_FLAG, payload]
         else:

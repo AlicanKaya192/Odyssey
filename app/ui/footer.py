@@ -29,6 +29,7 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QWidget
 from ..core import github_stars
 from ..core.language import LanguageManager
 from ..resources.icons import icon
+from ..widgets.common import paint_hairline
 from ..widgets.shortcut_panel import ShortcutButton
 from ..paths import content_dir
 from ..version import APP_VERSION
@@ -122,6 +123,10 @@ class Footer(QFrame):
         self._update_version = version
         self._update_url = url
         self.retranslate()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        super().paintEvent(event)
+        paint_hairline(self, "top")
 
     def set_mode(self, mode: str) -> None:
         self._link_color = PALETTES.get(mode, PALETTES["dark"])["accent"]

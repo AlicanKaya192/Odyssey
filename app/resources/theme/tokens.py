@@ -107,7 +107,7 @@ TOC_WIDTH = 308
 CONTENT_WIDTH = 820
 
 # Sol ikon şeridinin genişliği.
-RAIL_WIDTH = 76
+RAIL_WIDTH = 84
 
 # --- Renk paletleri --------------------------------------------------------
 

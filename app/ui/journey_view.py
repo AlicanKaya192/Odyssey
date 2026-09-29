@@ -14,6 +14,8 @@ açılmıyor. Tamamlanmış bölümlere istendiği zaman geri dönülebiliyor.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from PySide6.QtCore import Property, QEvent, QPointF, QRect, QRectF, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QColor,
@@ -165,17 +167,44 @@ class WaveEmoji(QWidget):
 
 
 class HeroRing(QWidget):
-    """Karşılama kartının sağındaki genel ilerleme halkası (F2)."""
+    """Karşılama kartının sağındaki genel ilerleme ve sentorun hedefi (F2).
 
-    SIZE = 128
+    Hedef açılış animasyonundakinin aynısı: iç içe siyah ve açık mor
+    halkalar, dışta kazınmış noktalar, küçük merkez, üç ayaklı sehpa. Sehpa
+    sentorun bastığı zemine iniyor. Yüzde hedefin üstünde, skor tabelası
+    gibi. (İlk sürüm düz bir ilerleme halkasıydı, ikincisi halkanın içine
+    konmuş bir hedefti; ikisi de hedef tahtasına benzemiyordu.)
+
+    Kartın tam boyunda duruyor; hedefin merkezi ve zemin kart tarafından
+    veriliyor (`set_scene`), sentorun oku bu merkeze bakıyor.
+    """
+
+    WIDTH = 150
+    RADIUS = 44.0
+    TEXT_TOP = 16.0
+    TARGET_TOP = 82.0  # hedefin üst kenarı (yazıların altı)
+    INK = "#0E0B1A"
+    INK_FAR = "#2A2150"
+    LIGHT = "#B5AFFF"
+    INCISE = "#A9A2FF"
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._value = 0.0
         self._text = ""
         self._caption = ""
-        self.setFixedSize(self.SIZE, self.SIZE)
+        self._ground = 0.0
+        self.setFixedWidth(self.WIDTH)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+
+    @classmethod
+    def center_y(cls) -> float:
+        return cls.TARGET_TOP + cls.RADIUS
+
+    def set_ground(self, ground: float) -> None:
+        self._ground = ground
+        self.update()
 
     def _get_value(self) -> float:
         return self._value
@@ -196,27 +225,57 @@ class HeroRing(QWidget):
         self.update()
 
     def paintEvent(self, event) -> None:  # noqa: N802
+        import math as _m
+
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
-        kalem = 10
-        r = QRectF(kalem / 2 + 2, kalem / 2 + 2, self.width() - kalem - 4, self.height() - kalem - 4)
-        p.setPen(QPen(QColor(255, 255, 255, 46), kalem))
-        p.drawEllipse(r)
-        # Sıfırda bile küçük bir yay: halkanın nereden dolacağı görünsün.
-        oran = max(self._value, 1.5) / 100.0
-        p.setPen(QPen(QColor("#FFFFFF"), kalem, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
-        p.drawArc(r, 90 * 16, -int(360 * 16 * oran))
+        cx, cy, r = self.width() / 2, self.center_y(), self.RADIUS
+
+        # Yüzde (sayarak artıyor) ve açıklaması, hedefin üstünde.
         p.setPen(QColor("#FFFFFF"))
         f = QFont(self.font())
-        f.setPixelSize(26)
+        f.setPixelSize(28)
         f.setWeight(QFont.Weight.Bold)
         p.setFont(f)
-        p.drawText(QRectF(0, self.height() / 2 - 24, self.width(), 30), Qt.AlignmentFlag.AlignCenter, self._text)
-        f.setPixelSize(11)
+        metin = self._text
+        if self._text:
+            # Sayma animasyonu: gösterilen sayı değerin kendisi.
+            metin = self._text.replace(str(round(_HERO_SHOWN.get("ring", 0))), str(round(self._value)), 1)
+        p.drawText(QRectF(0, self.TEXT_TOP, self.width(), 34), Qt.AlignmentFlag.AlignCenter, metin)
+        f.setPixelSize(12)
         f.setWeight(QFont.Weight.DemiBold)
         p.setFont(f)
-        p.setPen(QColor(255, 255, 255, 205))
-        p.drawText(QRectF(0, self.height() / 2 + 8, self.width(), 18), Qt.AlignmentFlag.AlignCenter, self._caption)
+        p.setPen(QColor(255, 255, 255, 215))
+        p.drawText(QRectF(0, self.TEXT_TOP + 34, self.width(), 18), Qt.AlignmentFlag.AlignCenter, self._caption)
+
+        # Üç ayaklı sehpa: arkadaki ayak bir ton açık.
+        zemin = self._ground or (cy + r + 40)
+        kalem = QPen(QColor(self.INK_FAR), 5.5)
+        kalem.setCapStyle(Qt.PenCapStyle.RoundCap)
+        p.setPen(kalem)
+        p.drawLine(QPointF(cx + 3, cy), QPointF(cx + 8, zemin))
+        kalem.setColor(QColor(self.INK))
+        p.setPen(kalem)
+        p.drawLine(QPointF(cx, cy), QPointF(cx - 40, zemin))
+        p.drawLine(QPointF(cx, cy), QPointF(cx + 36, zemin))
+
+        # Halkalar: dıştan içe siyah / açık mor, merkezde siyah nokta.
+        p.setPen(Qt.PenStyle.NoPen)
+        merkez = QPointF(cx, cy)
+        for oran, renk in ((1.0, self.INK), (.82, self.LIGHT), (.66, self.INK), (.48, self.LIGHT),
+                           (.3, self.INK), (.14, self.LIGHT)):
+            p.setBrush(QColor(renk))
+            p.drawEllipse(merkez, r * oran, r * oran)
+        p.setBrush(QColor(self.INK))
+        p.drawEllipse(merkez, 2.8, 2.8)
+        p.setBrush(QColor(self.INCISE))
+        for k in range(30):
+            a = k * 2 * _m.pi / 30
+            p.drawEllipse(QPointF(cx + _m.cos(a) * r * .91, cy + _m.sin(a) * r * .91), 1.2, 1.2)
+        p.setBrush(Qt.BrushStyle.NoBrush)
+        p.setPen(QPen(QColor(self.INCISE), 1.0))
+        for oran in (.58, .38):
+            p.drawEllipse(merkez, r * oran, r * oran)
 
 
 def stagger_cards(cards: list) -> None:
@@ -276,6 +335,18 @@ class HeroCard(QFrame):
 
     GRADIENT = ("#4F46E5", "#7C3AED")
 
+    # Sentor: açılış animasyonundaki siyah figür. Ölçek kartın genişliğine
+    # göre; yazılara yer kalmıyorsa figür çizilmiyor.
+    FIGURE_INK = "#0E0B1A"
+    FIGURE_SCALE_MAX = 0.6
+    FIGURE_SCALE_MIN = 0.42
+    TEXT_MIN_WIDTH = 480
+    # Figürün kendi birimindeki genişliği (kuyruk ucu → ok ucu), ok ucunun
+    # x'i ve okun yüksekliği: halkaya nişan alsın diye figür bunlarla konuyor.
+    FIG_WIDTH, FIG_RIGHT, FIG_ARROW_Y = 373.0, 528.0, 211.8
+    FIG_GAP = 14  # ok ucu ile hedef arası
+    GROUND_MARGIN = 20  # toynakların ve sehpanın bastığı zemin, kartın altından
+
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._language = language
@@ -304,8 +375,31 @@ class HeroCard(QFrame):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(SPACING["sm"])
         yatay.addWidget(sol, 1)
-        self._ring = HeroRing()
-        yatay.addWidget(self._ring, 0, Qt.AlignmentFlag.AlignVCenter)
+        # Maskot: açılıştaki sentor halkaya (hedefe) nişan alıyor. Yeri boş
+        # bir kutu, figürü kart kendisi çiziyor; genişliği kart genişliğine göre.
+        from ..widgets import centaur as C
+        self._C = C
+        self._pose = C.aim_pose()
+        self._figure_style = C.Style(
+            fig=QColor(self.FIGURE_INK), far=QColor("#2A2150"), incise=QColor("#B3ACFF"),
+            string=QColor(self.FIGURE_INK), arrow=QColor(self.FIGURE_INK), tip=QColor(self.FIGURE_INK))
+        self._figure_scale = 0.0
+        self._figure_draw = 1.0
+        self._idle = 0.0
+        self._scene_space = QWidget()
+        self._scene_space.setProperty("role", "bare")
+        self._scene_space.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self._scene_space.setFixedWidth(0)
+        yatay.addWidget(self._scene_space, 0)
+        # Hedef yerleşimin dışında, kartın tam boyunda (sehpası zemine
+        # iniyor); yerleşimde yalnızca yeri tutuluyor.
+        self._ring_space = QWidget()
+        self._ring_space.setProperty("role", "bare")
+        self._ring_space.setFixedWidth(HeroRing.WIDTH)
+        yatay.addWidget(self._ring_space, 0)
+        self._ring = HeroRing(self)
+        # Yer tutucu yerleşimle kayınca hedef de onunla gidiyor.
+        self._ring_space.installEventFilter(self)
 
         self._title = QLabel()
         self._title.setStyleSheet(
@@ -368,6 +462,85 @@ class HeroCard(QFrame):
         super().showEvent(event)
         self._wave.play()
         self._sync_drift()
+        self._fit_figure()
+        # Oturumdaki ilk gösterimde sentor yayını geriyor.
+        if not _HERO_SHOWN.get("drawn") and motion.enabled():
+            _HERO_SHOWN["drawn"] = 1.0
+            self._figure_draw = 0.62
+            motion.animate(self, "draw", 0.62, 1.0, self._set_figure_draw, 900, "out", delay=380)
+
+    # Boşta döngü (sn): nişan alıp bekliyor, yayı gevşetip indiriyor,
+    # başını çevirip arkasına bakıyor, dönüp yayı yeniden kaldırıp geriyor.
+    IDLE_CYCLE = 14.0
+
+    def _idle_pose(self, t: float):
+        """Karttaki sentorun `t` anındaki duruşu (boşta döngü)."""
+        import math as _m
+
+        def ara(a: float, b: float) -> float:
+            return self._C.smoothstep((k - a) / (b - a))
+
+        k = t % self.IDLE_CYCLE
+        grip = self._C.GRIP_DRAW
+        # Gerginlik: kirişi yavaşça bırakıyor, el tutamayınca kiriş yerine
+        # dönüyor; kaldırınca el kirişi yakalayıp yeniden geriyor.
+        if k < 6.5:
+            draw = 1.0
+        elif k < 7.0:
+            draw = 1 - (1 - grip) * ara(6.5, 6.9) - grip * ara(6.9, 7.0)
+        elif k < 10.8:
+            draw = 0.0
+        else:
+            draw = grip * ara(10.8, 10.88) + (1 - grip) * ara(10.9, 11.7)
+        hand_rest = ara(6.9, 7.5) - ara(10.2, 10.8)
+        bow_lower = 30 * (ara(7.0, 7.7) - ara(10.0, 10.7))
+        head_turn = ara(7.9, 8.15) - ara(9.5, 9.75)
+        return replace(
+            self._pose,
+            draw=min(draw, self._figure_draw),
+            hand_rest=hand_rest,
+            bow_lower=bow_lower,
+            head_turn=head_turn,
+            head_tilt=-4 * head_turn,
+            lean=0.7 * _m.sin(t * 2 * _m.pi / 4.2),
+            tail=4 * _m.sin(t * 2 * _m.pi / 3.1) + 2 + 6 * _m.sin(_m.pi * ara(8.6, 9.4)),
+        )
+
+    def _set_figure_draw(self, v: float) -> None:
+        self._figure_draw = v
+        self.update()
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._fit_figure()
+
+    def _fit_figure(self) -> None:
+        """Sentorun ölçeği ve yeri: yazılara `TEXT_MIN_WIDTH` kalacak kadar."""
+        margins = self.layout().contentsMargins()
+        bosluk = self.layout().spacing()
+        kalan = (self.width() - margins.left() - margins.right() - HeroRing.WIDTH
+                 - 2 * bosluk - self.TEXT_MIN_WIDTH - self.FIG_GAP)
+        # Ok hedefin ortasına bakıyor, toynaklar ve sehpa aynı zeminde.
+        zemin = self.height() - self.GROUND_MARGIN
+        ayak = (zemin - HeroRing.center_y()) / (self._C.GROUND - self.FIG_ARROW_Y)
+        olcek = min(self.FIGURE_SCALE_MAX, kalan / self.FIG_WIDTH, ayak)
+        if olcek < self.FIGURE_SCALE_MIN:
+            olcek = 0.0
+        self._figure_scale = olcek
+        genislik = round(self.FIG_WIDTH * olcek + self.FIG_GAP) if olcek else 0
+        if self._scene_space.width() != genislik:
+            self._scene_space.setFixedWidth(genislik)
+        self._place_ring()
+
+    def eventFilter(self, obj, event) -> bool:  # noqa: N802
+        if obj is self._ring_space and event.type() in (QEvent.Type.Move, QEvent.Type.Resize):
+            self._place_ring()
+        return False
+
+    def _place_ring(self) -> None:
+        yer = self._ring_space.geometry()
+        self._ring.setGeometry(yer.x(), 0, HeroRing.WIDTH, self.height())
+        self._ring.set_ground(self.height() - self.GROUND_MARGIN)
 
     def hideEvent(self, event) -> None:  # noqa: N802
         super().hideEvent(event)
@@ -392,6 +565,7 @@ class HeroCard(QFrame):
         # Bir gidiş 5 s; ikinci daire kendi fazında (7 s) — hep birlikte değil.
         self._drift = (self._drift + 33 / 5000) % 2.0
         self._drift2 = (getattr(self, '_drift2', 0.0) + 33 / 7000) % 2.0
+        self._idle += 0.033
         self.update()
 
     def paintEvent(self, event) -> None:  # noqa: N802 (Qt adlandırması)
@@ -425,6 +599,21 @@ class HeroCard(QFrame):
             color = QColor(255, 255, 255, alpha)
             painter.setBrush(color)
             painter.drawEllipse(QPointF(cx, cy), r, r)
+
+        # Sentor, okun ucu halkanın ortasına bakacak şekilde. Boşta nefes
+        # alıyor (üst gövde çok hafif), kuyruğu kendi ritminde sallanıyor.
+        olcek = self._figure_scale
+        if olcek > 0:
+            halka = self._ring.geometry()
+            hedef_sol = halka.x() + HeroRing.WIDTH / 2 - HeroRing.RADIUS
+            x = hedef_sol - self.FIG_GAP - self.FIG_RIGHT * olcek
+            y = HeroRing.center_y() - self.FIG_ARROW_Y * olcek
+            poz = self._idle_pose(self._idle)
+            painter.save()
+            painter.translate(x, y)
+            painter.scale(olcek, olcek)
+            self._C.draw_centaur(painter, poz, self._figure_style)
+            painter.restore()
 
     def update_stats(
         self,

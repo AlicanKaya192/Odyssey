@@ -4,9 +4,15 @@ Uygulamanın ana bölümleri arasında geçiş sağlar. Dar tutulması bilinçli
 asıl yer içeriğe kalsın.
 
 Simgeler emoji değil, gömülü SVG. Emoji her Windows sürümünde farklı
-çiziliyor ve boyutu kontrol edilemiyor. Buna karşılık maketteki renkli
-görünümü korumak için her bölüm kendi renginde çiziliyor; seçili olan tam
-doygunlukta, diğerleri hafif soluk.
+çiziliyor ve boyutu kontrol edilemiyor. Her bölümün kendi rengi var ama
+**yalnızca seçiliyken ve üzerine gelinince** görünüyor; boştaki simgeler
+gri (Alican: hepsi renkliyken şerit kalabalık duruyordu). Üzerine gelince
+renk yumuşakça geliyor.
+
+Şerit kenara yapışık düz bir bant değil, sayfadan ayrık duran yuvarlak,
+gölgeli bir panel ("çok düz" geri bildirimi). Sağdaki uzun çizgi kalktı;
+panelin kendi kenarı ayrımı yapıyor. Profil ile gezinme simgeleri ve alt
+öbek kısa ince ayraçlarla ayrılıyor.
 
 Simgeler **iki tonlu**: gövde kendi renginde düşük saydamlıkta doldurulup
 üstüne çizgi çiziliyor. Yalnız çizgiden oluşan hâlleri şeritte cansız
@@ -20,6 +26,7 @@ from PySide6.QtCore import QPointF, QRectF, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QColor,
     QIcon,
+    QLinearGradient,
     QPainter,
     QPainterPath,
     QPen,
@@ -54,7 +61,7 @@ from ..widgets.effects import repolish
 TOP_DESTINATIONS = [
     ("profile", "user", "nav.profile"),
     ("journey", "compass", "nav.path"),
-    ("roadmap", "signpost", "nav.roadmap"),
+    ("roadmap", "route", "nav.roadmap"),
     ("notes", "notebook", "nav.notes"),
 ]
 
@@ -64,7 +71,7 @@ MIDDLE_DESTINATIONS = [
 ]
 
 BOTTOM_DESTINATIONS = [
-    ("releases", "megaphone", "nav.releases"),
+    ("releases", "scroll-text", "nav.releases"),
     ("about", "info", "nav.about"),
 ]
 
@@ -77,8 +84,9 @@ ICON_SIZE = 24
 STROKE_ACTIVE = 2.1
 STROKE_IDLE = 1.8
 
-# Seçili olmayan simge biraz soluk; ama okunamayacak kadar değil.
-IDLE_OPACITY = 0.72
+# Menü paneli: şeridin içinde kenarlardan bu kadar içeride, köşeleri yuvarlak.
+DOCK_LEFT, DOCK_TOP, DOCK_RIGHT, DOCK_BOTTOM = 10, 10, 6, 10
+DOCK_RADIUS = 20
 
 
 def circular_icon(pixmap: QPixmap, size: int) -> QIcon:
@@ -169,7 +177,7 @@ class RailIndicator(QWidget):
         p.drawRoundedRect(r.adjusted(0.5, 0.5, -0.5, -0.5), 16, 16)
         p.setPen(Qt.PenStyle.NoPen)
         p.setBrush(self._color)
-        p.drawRoundedRect(QRectF(-2, r.center().y() - 10, 6, 20), 3, 3)
+        p.drawRoundedRect(QRectF(DOCK_LEFT + 2, r.center().y() - 9, 3.5, 18), 1.75, 1.75)
 
 
 class RailButton(QPushButton):
@@ -202,8 +210,8 @@ class RailButton(QPushButton):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(QColor(self.property("dot_color") or "#EF4444"))
-        painter.drawEllipse(self.width() - 20, 10, 9, 9)
+        painter.setBrush(QColor(self.property("dot_color") or "#8B84FF"))
+        painter.drawEllipse(QRectF(self.width() - 17, 10, 7.5, 7.5))
         painter.end()
 
 
@@ -293,18 +301,21 @@ class Rail(QFrame):
         self._indicator = RailIndicator(self)
         self._indicator.lower()
 
+        self._tint: dict[str, float] = {}
         self.setProperty("role", "rail")
         self.setFixedWidth(RAIL_WIDTH)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, SPACING["lg"], 0, SPACING["lg"])
+        layout.setContentsMargins(DOCK_LEFT, DOCK_TOP + 14, DOCK_RIGHT, DOCK_BOTTOM + 14)
         layout.setSpacing(SPACING["xs"])
         layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
-        for key, icon_name, _ in TOP_DESTINATIONS:
+        for index, (key, icon_name, _) in enumerate(TOP_DESTINATIONS):
             layout.addWidget(
                 self._make_button(key, icon_name), 0, Qt.AlignmentFlag.AlignHCenter
             )
+            if index == 0:
+                layout.addSpacing(10)  # profil ile gezinme arasında ayraç
 
         # Arama iki öbeğin arasında, şeridin ortasında. İki eşit esneme payı
         # onu boşluğun ortasına koyuyor, alt öbek ayar simgesine yapışık
@@ -345,7 +356,65 @@ class Rail(QFrame):
 
     def _on_hover(self, key: str, on: bool) -> None:
         self._hovered = key if on else ("" if self._hovered == key else self._hovered)
-        self._refresh_icons()
+        # Renk yumuşakça gelip gidiyor (gri ↔ bölümün rengi).
+        simdi = self._tint.get(key, 0.0)
+        motion.animate(self._buttons[key], "tint", simdi, 1.0 if on else 0.0,
+                       lambda v, k=key: self._set_tint(k, v), "short", "out")
+
+    def _set_tint(self, key: str, value: float) -> None:
+        self._tint[key] = value
+        self._render_icon(key)
+
+    # --- menü paneli ---------------------------------------------------------
+
+    def _dock_rect(self) -> QRectF:
+        return QRectF(DOCK_LEFT, DOCK_TOP, max(0.0, self.width() - DOCK_LEFT - DOCK_RIGHT),
+                      max(0.0, self.height() - DOCK_TOP - DOCK_BOTTOM))
+
+    def dock_right(self) -> int:
+        """Panelin sağ kenarı (açma/kapama tutamağı buraya oturuyor)."""
+        return max(0, self.width() - DOCK_RIGHT)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        super().paintEvent(event)
+        dock = self._dock_rect()
+        if dock.width() < 8:
+            return
+        palette = PALETTES.get(self._mode, PALETTES["light"])
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        # Yumuşak gölge: gitgide büyüyüp saydamlaşan yuvarlak dikdörtgenler.
+        koyu = self._mode == "dark"
+        p.setPen(Qt.PenStyle.NoPen)
+        for adim in range(6, 0, -1):
+            p.setBrush(QColor(0, 0, 0, int((34 if koyu else 22) * (1 - adim / 7))))
+            pay = adim * 1.6
+            p.drawRoundedRect(dock.adjusted(-pay, -pay + 2, pay, pay + 2),
+                              DOCK_RADIUS + pay, DOCK_RADIUS + pay)
+        if koyu:
+            p.setBrush(QColor(self._dock_color()))
+        else:
+            # Açık temada düz beyaz panel boş duruyordu: aşağı doğru çok
+            # hafif lavantaya kayıyor.
+            gecis = QLinearGradient(dock.topLeft(), dock.bottomLeft())
+            gecis.setColorAt(0.0, QColor("#FFFFFF"))
+            gecis.setColorAt(1.0, QColor(mix("#FFFFFF", palette["accent_soft"], 0.75)))
+            p.setBrush(gecis)
+        kenar = QColor(palette["border"])
+        kenar.setAlphaF(0.75)
+        p.setPen(QPen(kenar, 1))
+        p.drawRoundedRect(dock.adjusted(0.5, 0.5, -0.5, -0.5), DOCK_RADIUS, DOCK_RADIUS)
+        # Öbek ayraçları: profilin altında ve alt öbeğin üstünde kısa çizgiler.
+        p.setPen(QPen(QColor(palette["border"]), 1))
+        cx = dock.center().x()
+        profil, yol = self._buttons["profile"], self._buttons["journey"]
+        alt = self._buttons["releases"]
+        for y in ((profil.geometry().bottom() + yol.geometry().top()) / 2 + 0.5,
+                  alt.geometry().top() - 7.5):
+            p.drawLine(QPointF(cx - 13, y), QPointF(cx + 13, y))
+
+    def _dock_color(self) -> str:
+        return PALETTES.get(self._mode, PALETTES["light"])["surface"]
 
     def _place_indicator(self) -> None:
         button = self._buttons.get(self._current)
@@ -388,54 +457,60 @@ class Rail(QFrame):
 
     def set_mode(self, mode: str) -> None:
         self._mode = mode
-        self._indicator.set_background(PALETTES.get(mode, PALETTES["light"])["rail_bg"])
+        self._indicator.set_background(self._dock_color())
         self._refresh_icons()
         self._indicator._placed = False  # noqa: SLF001 — renk yeni temada, kaymadan
         self._place_indicator()
 
     def _refresh_icons(self) -> None:
         """Simgeleri seçili duruma ve temaya göre yeniden çizer."""
+        for key in self._buttons:
+            self._render_icon(key)
+        self.update()
+
+    def _render_icon(self, key: str) -> None:
+        """Tek düğmenin simgesi: seçiliyse kendi renginde, boştaysa gri;
+        üzerine gelinince `_tint` oranında griden kendi rengine."""
         palette = PALETTES.get(self._mode, PALETTES["light"])
         colors = RAIL_COLORS.get(self._mode, RAIL_COLORS["light"])
+        button = self._buttons[key]
+        active = key == self._current
+        durum = "true" if active else "false"
+        button.setProperty("dot_color", palette["accent"])
 
-        # Kullanıcı profil fotoğrafı koyduysa profil düğmesi onu gösteriyor.
-        foto = load_avatar()
-
-        for key, button in self._buttons.items():
-            active = key == self._current
-
-            if key == "profile" and foto is not None:
+        if key == "profile":
+            # Kullanıcı profil fotoğrafı koyduysa profil düğmesi onu gösteriyor.
+            foto = load_avatar()
+            if foto is not None:
                 button.setIcon(circular_icon(foto, ICON_SIZE))
                 button.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
-                button.setProperty("active", "true" if active else "false")
-                button.setProperty("dot_color", palette["danger"])
-                repolish(button)
-                continue
+                if button.property("active") != durum:
+                    button.setProperty("active", durum)
+                    repolish(button)
+                return
 
-            color = QColor(colors.get(key, palette["text_muted"]))
-            if not active:
-                # Seçili olmayanı zeminle karıştırarak soluklaştırıyoruz.
-                # setWindowOpacity gibi bir yol yok; renk seviyesinde yapılıyor.
-                zemin = QColor(palette["surface_alt"])
-                color = QColor(
-                    round(color.red() * IDLE_OPACITY + zemin.red() * (1 - IDLE_OPACITY)),
-                    round(color.green() * IDLE_OPACITY + zemin.green() * (1 - IDLE_OPACITY)),
-                    round(color.blue() * IDLE_OPACITY + zemin.blue() * (1 - IDLE_OPACITY)),
-                )
-
-            button.setIcon(
-                icon(
-                    button.property("icon_name"),
-                    color.name(),
-                    ICON_SIZE,
-                    stroke=STROKE_ACTIVE if active else STROKE_IDLE,
-                    fill_opacity=(MODERN_FILL_ACTIVE if active
-                                  else MODERN_FILL_HOVER if key == self._hovered else None),
-                )
-            )
-            button.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
-            button.setProperty("active", "true" if active else "false")
-            button.setProperty("dot_color", palette["danger"])
+        renk = colors.get(key, palette["text_muted"])
+        tint = 1.0 if active else self._tint.get(key, 0.0)
+        if self._mode == "dark":
+            gri = mix(palette["text_muted"], self._dock_color(), 0.18)
+            bos_dolgu = 0.0
+        else:
+            # Açık temada düz gri beyazın üstünde silik ve cansızdı (Alican):
+            # boştaki simge koyu arduvaz, kendi renginden hafif bir ton ve
+            # gövdesinde çok hafif dolgu taşıyor.
+            gri = mix(mix(palette["text_muted"], "#1E2430", 0.25), renk, 0.3)
+            bos_dolgu = 0.12
+        color = mix(gri, renk, tint)
+        if active:
+            dolgu = MODERN_FILL_ACTIVE
+        else:
+            dolgu = bos_dolgu + (MODERN_FILL_HOVER - bos_dolgu) * tint
+            dolgu = dolgu if dolgu > 0.01 else None
+        button.setIcon(icon(button.property("icon_name"), color, ICON_SIZE,
+                            stroke=STROKE_ACTIVE if active else STROKE_IDLE, fill_opacity=dolgu))
+        button.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+        if button.property("active") != durum:
+            button.setProperty("active", durum)
             repolish(button)
 
     def retranslate(self) -> None:

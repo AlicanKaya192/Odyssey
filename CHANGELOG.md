@@ -25,10 +25,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Arayüz yenilendi.** Ekranlar arasında yumuşak geçişler, yeni simgeler
   ve patika logoları, madalya biçiminde rozetler. Ayarlar › Görünüm ›
   Animasyonlar ile hareket azaltılabiliyor.
-- **Yeni açılış.** Program açılırken yükleme kartı yerine kısa bir
+- **Yeni açılış.** Program açılırken yükleme kartı yerine kısa, sesli bir
   animasyon oynuyor: Odyssey'in maskotu, yay tutan bir sentor, dörtnala
   gelip okunu atıyor ve ok hedefi tam ortadan vuruyor. Tıklayınca ya da
-  `Esc` ile geçilebiliyor.
+  `Esc` ile geçilebiliyor; ses Ayarlar › Bildirimler › Sesler'den
+  kapatılabiliyor. Sentor Öğrenme Yolu'ndaki karşılama kartında da duruyor
+  ve genel ilerlemenizi gösteren hedefe nişan alıyor.
 
 ## [0.8.3] — 26 Eylül 2026
 

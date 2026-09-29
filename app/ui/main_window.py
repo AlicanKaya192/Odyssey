@@ -43,7 +43,7 @@ from ..core.theme import ThemeManager
 from ..paths import content_dir
 from ..version import APP_VERSION
 from .header import ScreenHeader
-from ..widgets.common import SegmentedControl
+from ..widgets.common import HairlineFrame, SegmentedControl
 from .about_view import SECTIONS as ABOUT_SECTIONS, AboutView
 from .confirm_dialog import ConfirmDialog
 from . import titlebar
@@ -263,7 +263,7 @@ class MainWindow(QMainWindow):
         # sağ üstte durmasın).
         self._journey_tabs = SegmentedControl()
         self._journey_tabs.changed.connect(self._on_journey_tab)
-        self._journey_subbar = QFrame()
+        self._journey_subbar = HairlineFrame()
         self._journey_subbar.setProperty("role", "subbar")
         alt = QHBoxLayout(self._journey_subbar)
         alt.setContentsMargins(SPACING["lg"], SPACING["sm"] + 2, SPACING["lg"], SPACING["sm"] + 2)
@@ -637,10 +637,10 @@ class MainWindow(QMainWindow):
             )
         for key, simge, anahtar in (
             ("journey", "compass", "nav.path"),
-            ("roadmap", "signpost", "nav.roadmap"),
+            ("roadmap", "route", "nav.roadmap"),
             ("notes", "notebook", "nav.notes"),
             ("profile", "user", "nav.profile"),
-            ("releases", "megaphone", "nav.releases"),
+            ("releases", "scroll-text", "nav.releases"),
             ("about", "info", "nav.about"),
             ("settings", "sliders", "settings.title"),
         ):
@@ -1095,7 +1095,8 @@ class MainWindow(QMainWindow):
         """Tutamağı şeridin sağ kenarının ortasına (kapalıyken pencere
         kenarına) yerleştirir."""
         toggle = self._rail_toggle
-        genislik = self._rail.width() if self._rail.isVisible() else 0
+        # Menü panelinin sağ kenarına oturuyor (panel şeridin içinde, kenardan içeride).
+        genislik = self._rail.dock_right() if self._rail.isVisible() and self._rail.width() > 0 else 0
         x = max(0, genislik - toggle.width() // 2)
         # Dikeyde arama simgesinin tam ortasına hizalı: şeridin ortasına
         # göre konunca simgeden birkaç piksel kayık ve orantısız duruyordu.

@@ -40,6 +40,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..widgets import motion
+from ..widgets.common import paint_hairline
 from ..widgets.fade_stack import FadeStack
 from ..core.language import LanguageManager, upper
 from ..resources.icons import icon
@@ -193,6 +194,8 @@ class ScreenHeader(QFrame):
         g.translate(-merkez)
         g.fillRect(QRectF(0, -60, self.width(), 600 * 600 / 220), isik)
         g.restore()
+        g.end()
+        paint_hairline(self, "bottom")
 
     def showEvent(self, event) -> None:  # noqa: N802
         super().showEvent(event)

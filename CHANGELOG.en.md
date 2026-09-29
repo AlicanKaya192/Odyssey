@@ -27,10 +27,12 @@ lecture note does not mean downloading the whole application again.
 - **A refreshed interface.** Smooth transitions between screens, new icons
   and track logos, badges as medals. Motion can be reduced in Settings ›
   Appearance › Animations.
-- **A new start-up.** Instead of the loading card, a short animation plays
-  while the program opens: Odyssey's mascot, a centaur with a bow, gallops
-  in, looses an arrow and hits the target dead centre. Click or press `Esc`
-  to skip it.
+- **A new start-up.** Instead of the loading card, a short animation with
+  sound plays while the program opens: Odyssey's mascot, a centaur with a
+  bow, gallops in, looses an arrow and hits the target dead centre. Click or
+  press `Esc` to skip it; the sound can be turned off in Settings ›
+  Notifications › Sounds. The centaur also stands on the welcome card of the
+  Learning Path, aiming at the target that shows your overall progress.
 
 ## [0.8.3] — 26 September 2026
 

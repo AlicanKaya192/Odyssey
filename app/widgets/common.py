@@ -494,6 +494,36 @@ class Banner(QFrame):
         repolish(self._icon)
 
 
+def paint_hairline(widget: QWidget, edge: str = "bottom") -> None:
+    """Ekranı bölen uzun çizgi: tam **bir ekran pikseli** kalınlığında.
+
+    QSS kenarlığı %125 ölçekte 1,25 piksel çiziliyor ve iki piksele yayılıp
+    kalın, bulanık görünüyordu (Alican: "çizgiler gözüme batıyor"). Burada
+    kozmetik kalem tek bir cihaz pikseli çiziyor; çizgi o pikselin satırına
+    oturtuluyor, rengi de kenarlıktan bir ton zemine yakın.
+    """
+    from ..resources.theme.tokens import mix
+
+    palette = theme_palette()
+    painter = QPainter(widget)
+    pen = QPen(QColor(mix(palette["border"], palette["bg"], 0.2)))
+    pen.setCosmetic(True)
+    pen.setWidth(1)
+    painter.setPen(pen)
+    dpr = widget.devicePixelRatioF() or 1.0
+    y = widget.height() - 0.5 / dpr if edge == "bottom" else 0.5 / dpr
+    painter.drawLine(QPointF(0, y), QPointF(widget.width(), y))
+    painter.end()
+
+
+class HairlineFrame(QFrame):
+    """Altında tek piksellik çizgi olan şerit (bkz. `paint_hairline`)."""
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        super().paintEvent(event)
+        paint_hairline(self, "bottom")
+
+
 def section_label(text: str) -> QLabel:
     """Küçük, seyrek harfli bölüm başlığı."""
     label = QLabel(text.upper())

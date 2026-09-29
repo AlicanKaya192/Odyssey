@@ -156,7 +156,10 @@ def main() -> int:
     # başta başlatılırsa bu sürecin Qt'yi ve pencereyi kurmasıyla aynı anda
     # açılıyor. Veritabanı sqlite, Qt gerektirmiyor.
     store = ProgressStore()
-    intro = IntroLink.launch(store.setting("theme", "dark"), store.setting("language", ""))
+    from app.core import celebration_sound
+
+    intro = IntroLink.launch(store.setting("theme", "dark"), store.setting("language", ""),
+                             sound=celebration_sound.supported() and celebration_sound.enabled(store))
 
     # `main_window` burada içe aktarılmıyor: QtWebEngine'i o zincir yüklüyor
     # ve birkaç saniye sürüyor. Açılış ekranı tam o beklemeyi göstermek için

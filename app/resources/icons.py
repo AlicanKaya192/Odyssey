@@ -419,6 +419,14 @@ MODERN: dict[str, tuple[str, str]] = {
                  '<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M9 3v18M12.5 8H16M12.5 12H16"/>'),
     "search": ('<circle cx="11" cy="11" r="7"/>',
                '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/>'),
+    # Rotalar: başlangıçtan hedefe kıvrılan yol (tabela anlaşılmıyordu).
+    "route": ('<circle cx="6" cy="18.5" r="2.8"/><circle cx="18" cy="5.5" r="2.8"/>',
+              '<circle cx="6" cy="18.5" r="2.8"/><circle cx="18" cy="5.5" r="2.8"/>'
+              '<path d="M8.8 18.5h7.7a3.25 3.25 0 0 0 0-6.5h-9a3.25 3.25 0 0 1 0-6.5h7.7"/>'),
+    # Sürüm notları: parşömen tomarı (megafon bildirim gibi okunuyordu).
+    "scroll-text": ('<path d="M7 5.5A2.5 2.5 0 0 0 4.5 3H16a2.5 2.5 0 0 1 2.5 2.5V16H9.5v2.5a2.5 2.5 0 0 1-2.5 2.5z"/>',
+                    '<path d="M18.5 16V5.5A2.5 2.5 0 0 0 16 3H4.5A2.5 2.5 0 0 1 7 5.5v13A2.5 2.5 0 0 0 9.5 21H19a1.5 1.5 0 0 0 1.5-1.5V17a1 1 0 0 0-1-1h-9a1 1 0 0 0-1 1v1.5"/>'
+                    '<path d="M4.5 3A2.5 2.5 0 0 0 2 5.5V7h5M11 8h4.5M11 11.5h4.5"/>'),
     "megaphone": ('<path d="M4 10v4a1 1 0 0 0 1 1h2l8 4V5L7 9H5a1 1 0 0 0-1 1z"/>',
                   '<path d="M4 10v4a1 1 0 0 0 1 1h2l8 4V5L7 9H5a1 1 0 0 0-1 1zM18.5 9.5a3.5 3.5 0 0 1 0 5M8 15l1.2 4.2"/>'),
     "info": ('<circle cx="12" cy="12" r="9"/>',

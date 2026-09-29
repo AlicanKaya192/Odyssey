@@ -110,9 +110,9 @@ TORSO_LINES = (
     ("M370,275 C371,277 373,277 374,275", 1.0),
     ("M353,261 C357,271 361,279 365,285 M391,261 C387,271 383,279 379,285", 1.0),
     ("M341,214 C334,222 335,233 341,241 M403,214 C410,222 409,233 403,241", 1.0),
-    ("M422,213 C434,209 444,209 452,211 M462,207.5 L486,203", 1.0),
     ("M350,286 C360,290 386,290 396,286", 1.0),
 )
+BOW_ARM_LINE = "M422,213 C434,209 444,209 452,211 M462,207.5 L486,203"
 HEAD_LINES = (
     ("M383.5,173.6 C386.5,172.4 389.6,172.4 392.4,173.2", 1.0),
     ("M392.6,167.6 C384,163 366,165 356.4,176.4 M391.6,171.2 C382.6,167 367,169 357.6,180", 1.0),
@@ -128,6 +128,10 @@ ANCHOR = (386.0, 198.0)       # tam gerilmişken kirişin yüzdeki yeri (çene a
 REST = (500.0, 196.5)         # ok yumruğun üstünden geçiyor
 STRING_REST = (492.0, 200.0)  # gevşek kirişin ortası
 SHOULDER_DRAW = (336.0, 220.0)
+SHOULDER_BOW = (410.0, 220.0)   # yay indirilirken kol buradan dönüyor
+NECK_PIVOT = (374.0, 192.0)     # baş buradan dönüyor
+REST_HAND = (352.0, 300.0)      # yay indirilince çeken el kalçanın yanında
+GRIP_DRAW = 0.62                # el kirişi bu gerilmeden önce tutamıyor (kol boyu)
 ARROW_LENGTH = 142.0
 
 
@@ -183,6 +187,13 @@ class Pose:
     released: bool = False   # ok bırakıldı mı
     vib: float = 0.0         # bırakınca kirişin titreşimi (birim)
     follow: float = 0.0      # bırakınca elin geriye savrulması (0–1)
+    # Boşta hareketler (karşılama kartı): yayı indirme (derece, aşağı +),
+    # çeken elin kirişi bırakıp yana inmesi (0–1), başı arkaya çevirme
+    # (0 ileri, 1 geri) ve eğme (derece).
+    bow_lower: float = 0.0
+    hand_rest: float = 0.0
+    head_turn: float = 0.0
+    head_tilt: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -432,8 +443,21 @@ def _ik(shoulder, wrist, lu, lf):
     return elbow, (shoulder[0] + dx, shoulder[1] + dy)
 
 
+def _bow_rot(pose: Pose):
+    """Yay koluyla birlikte dönen bir noktanın yeri (yay indirilince)."""
+    c, s = math.cos(pose.bow_lower * R), math.sin(pose.bow_lower * R)
+    ox, oy = SHOULDER_BOW
+
+    def f(p):
+        dx, dy = p[0] - ox, p[1] - oy
+        return (ox + dx * c - dy * s, oy + dx * s + dy * c)
+
+    return f
+
+
 def string_point(pose: Pose):
-    return (lerp(STRING_REST[0], ANCHOR[0], pose.draw), lerp(STRING_REST[1], ANCHOR[1], pose.draw))
+    rest = _bow_rot(pose)(STRING_REST)
+    return (lerp(rest[0], ANCHOR[0], pose.draw), lerp(rest[1], ANCHOR[1], pose.draw))
 
 
 def upper_xf(pose: Pose):
@@ -453,7 +477,7 @@ def arrow_line(pose: Pose):
     """Okun kertiği ve yönü, figür koordinatında (bırakılınca sahne kullanıyor)."""
     xf = upper_xf(pose)
     sp = string_point(pose)
-    nock, rest = xf(sp), xf(REST)
+    nock, rest = xf(sp), xf(_bow_rot(pose)(REST))
     dx, dy = rest[0] - nock[0], rest[1] - nock[1]
     length = math.hypot(dx, dy) or 1.0
     return nock, (dx / length, dy / length)
@@ -574,39 +598,78 @@ def draw_centaur(painter: QPainter, pose: Pose, style: Style) -> None:
     painter.rotate(pose.lean)
     painter.scale(UPPER, UPPER)
     painter.translate(-372, -284)
-    for d in (TORSO, NECK, HEAD):
+    for d in (TORSO, NECK):
         painter.fillPath(svg_path(d), fig)
+    if inc is not None:
+        for d, op in TORSO_LINES:
+            _stroke(painter, d, inc, 1.5, op)
+
+    # Baş: boyundan döner; arkaya bakarken yatayda ters çevriliyor (düz
+    # figürde başın dönüşü böyle okunuyor, vazo resimlerinde de öyle).
+    painter.save()
+    painter.translate(*NECK_PIVOT)
+    painter.rotate(pose.head_tilt)
+    painter.scale(math.cos(math.pi * clamp01(pose.head_turn)), 1.0)
+    painter.translate(-NECK_PIVOT[0], -NECK_PIVOT[1])
+    painter.fillPath(svg_path(HEAD), fig)
+    if inc is not None:
+        for d, op in HEAD_LINES:
+            _stroke(painter, d, inc, 1.5, op)
+        painter.fillPath(svg_path(EYE), inc)
+    painter.restore()
+
+    # Yay kolu ve yay: omuzdan birlikte dönüyor.
+    bx, by = BOW_HAND
+    rot = _bow_rot(pose)
+    painter.save()
+    painter.translate(*SHOULDER_BOW)
+    painter.rotate(pose.bow_lower)
+    painter.translate(-SHOULDER_BOW[0], -SHOULDER_BOW[1])
     for shape in _tapered(((410, 220, 17), (455, 212, 12.5), (491, 204.5, 10))):
         painter.fillPath(shape, fig)
     painter.fillPath(circle(*BOW_HAND, 7.6), fig)
     if inc is not None:
-        for d, op in TORSO_LINES + HEAD_LINES:
-            _stroke(painter, d, inc, 1.5, op)
-        painter.fillPath(svg_path(EYE), inc)
-
-    bx, by = BOW_HAND
+        _stroke(painter, BOW_ARM_LINE, inc, 1.5)
     painter.strokePath(svg_path(BOW), _pen(fig, 6.4))
+    painter.restore()
 
     # kiriş, ok ve çeken kol
     sp = string_point(pose)
-    string = (STRING_REST[0] + pose.vib, STRING_REST[1]) if pose.released else sp
-    string_path = QPainterPath(QPointF(bx - 8, by - 84))
+    top, bottom = rot((bx - 8, by - 84)), rot((bx - 8, by + 84))
+    if pose.released:
+        rest = rot(STRING_REST)
+        string = (rest[0] + pose.vib, rest[1])
+    else:
+        string = sp
+    string_path = QPainterPath(QPointF(*top))
     string_path.lineTo(*string)
-    string_path.lineTo(bx - 8, by + 84)
+    string_path.lineTo(*bottom)
     painter.strokePath(string_path, _pen(style.string, 1.4))
 
-    if not pose.released:
-        dx, dy = REST[0] - sp[0], REST[1] - sp[1]
+    # El kirişi bırakınca ok da kalkıyor (sadağa); el geri gelince yeniden takılıyor.
+    arrow_alpha = clamp01(1 - pose.hand_rest * 2.2)
+    if not pose.released and arrow_alpha > 0:
+        aim = rot(REST)
+        dx, dy = aim[0] - sp[0], aim[1] - sp[1]
         length = math.hypot(dx, dy) or 1.0
         u = (dx / length, dy / length)
+        painter.save()
+        painter.setOpacity(painter.opacity() * arrow_alpha)
         draw_arrow(painter, (sp[0] - u[0] * 4, sp[1] - u[1] * 4), u, ARROW_LENGTH, style)
+        painter.restore()
         painter.setPen(Qt.PenStyle.NoPen)
 
-    # Bırakınca el geriye, kulağa doğru savruluyor.
+    # Bırakınca el geriye, kulağa doğru savruluyor. El kirişi ancak
+    # `GRIP_DRAW` gerilmeden sonra tutabiliyor (kolun boyu yetmiyor): daha
+    # gevşekken el orada bekliyor.
     if pose.released:
         hand = (ANCHOR[0] - 16 * pose.follow, ANCHOR[1] - 5 * pose.follow)
     else:
-        hand = (sp[0] - 5, sp[1] + .5)
+        grip = string_point(replace(pose, draw=max(pose.draw, GRIP_DRAW)))
+        hand = (grip[0] - 5, grip[1] + .5)
+        if pose.hand_rest > 0:
+            k = smoothstep(pose.hand_rest)
+            hand = (lerp(hand[0], REST_HAND[0], k), lerp(hand[1], REST_HAND[1], k))
     elbow, wrist = _ik(SHOULDER_DRAW, (hand[0] - 8, hand[1]), 30, 57)
     for shape in _tapered(((*SHOULDER_DRAW, 16), (*elbow, 13), (*wrist, 10))):
         painter.fillPath(shape, fig)

@@ -20,13 +20,14 @@ Her kare zamanın saf bir fonksiyonu (`IntroScene.paint(t)`): kare atlansa da
 akış bozulmuyor, bir anı tek başına çizip denetlemek mümkün.
 
 Akış (saniye):
-  0,00–1,62  sentor dörtnala giriyor, kamera onu izliyor; rüzgâr ve toz.
-             0,85'ten itibaren yayı geriyor.
-  1,62       ok bırakılıyor, kiriş titriyor, el geriye savruluyor.
-  1,62–2,85  kamera oku izliyor; sütunlar ve ağaçlar hızla geçiyor.
-  2,85       ok hedefi tam ortadan vuruyor: sarsıntı, halka dalgası, kıymık.
-  3,05–3,60  kamera hedefi sola alıyor, ODYSSEY harf harf beliriyor.
-  4,35–      pencere hazırsa kamera hedefin merkezine dalıyor, program açılıyor.
+  0,00–1,25  sentor dörtnala giriyor, kamera onu izliyor; rüzgâr ve toz.
+             0,6'dan itibaren yayı geriyor.
+  1,25       ok bırakılıyor, kiriş titriyor, el geriye savruluyor.
+  1,25–2,20  kamera oku izliyor; sütunlar ve ağaçlar hızla geçiyor.
+  2,20       ok hedefi tam ortadan vuruyor: sarsıntı, halka dalgası, kıymık.
+  2,38–2,90  kamera hedefi sola alıyor, ODYSSEY harf harf beliriyor.
+  3,20–      pencere hazırsa kamera hedefin merkezine dalıyor, program açılıyor
+             (uygulama ~3,6'da beliriyor).
 Tıklamak ya da bir tuşa basmak animasyonu yazının geldiği ana atlatıyor.
 """
 
@@ -58,12 +59,15 @@ from ..resources.theme.tokens import FONTS, PALETTES
 from ..widgets import centaur as C
 
 # --- zaman çizelgesi (saniye) ------------------------------------------------------------
-T_DRAW0, T_DRAW1 = 0.85, 1.45
-T_RELEASE = 1.62
-T_HIT = 2.85
-T_TITLE = 3.05
-T_MIN_END = 4.35      # hazır olsa bile geçiş bundan önce başlamıyor
-TRANSITION = 0.62
+# Alican: çift tıklamadan uygulamaya en fazla 4,5–5 sn. İlk sürümde geçiş
+# 4,35'te başlıyordu ve uygulama ~5,9 sn'de görünüyordu; sahneler aynı,
+# zaman çizelgesi sıkıştırıldı (uygulama ~4,3 sn'de görünüyor).
+T_DRAW0, T_DRAW1 = 0.6, 1.1
+T_RELEASE = 1.25
+T_HIT = 2.2
+T_TITLE = 2.38
+T_MIN_END = 3.2       # hazır olsa bile geçiş bundan önce başlamıyor
+TRANSITION = 0.55
 T_REVEAL_AT = 0.8     # geçişin bu oranında ana pencere belirmeye başlıyor
 T_SKIP_TO = T_TITLE - 0.02
 
@@ -74,7 +78,7 @@ SPEED = 560.0         # sentorun dünyadaki hızı (px/sn)
 GALLOP_PERIOD = 0.42  # bir dörtnal döngüsü (sn)
 ENTER_FROM = -720.0   # figürün başlangıçtaki yeri (ekranın solunda)
 SETTLE_X = 40.0       # kamera izlemeye başladığında figürün ekrandaki yeri
-FLIGHT = 2300.0       # okun uçacağı yol
+FLIGHT = 1850.0       # okun uçacağı yol (hızı ilk sürümle aynı kalsın diye kısa)
 TARGET_R = 66.0       # hedefin yarıçapı (figür biriminde)
 
 # --- renkler ----------------------------------------------------------------------------
@@ -197,7 +201,7 @@ class IntroScene:
     def _screen_x(t: float) -> float:
         # Figür soldan hızla girip yerine oturuyor; oturdukça kamera onu
         # izlemeye başlıyor (zemin çizgileri ve süsler akmaya başlıyor).
-        return ENTER_FROM + (SETTLE_X - ENTER_FROM) * _ease_out_cubic(t / 1.25)
+        return ENTER_FROM + (SETTLE_X - ENTER_FROM) * _ease_out_cubic(t / 1.0)
 
     def _figure_origin(self, t: float):
         return self._figure_x(t), GROUND_Y - C.GROUND * FIG_SCALE
@@ -239,7 +243,7 @@ class IntroScene:
             cx = C.lerp(track, ax + 180, w)
         if t > T_HIT:
             hit_cx = self.target[0] + 180
-            k = _ease_in_out_cubic((t - T_TITLE) / .6)
+            k = _ease_in_out_cubic((t - T_TITLE) / .5)
             # Hedef sola, bullseye yazının hizasına.
             cx = C.lerp(hit_cx, self.target[0] + 240, k)
             cy = C.lerp(360.0, self.target[1] + 30, k)
@@ -673,7 +677,7 @@ class IntroScene:
         p.setFont(self._title_font)
         x = x0
         for i, ch in enumerate("ODYSSEY"):
-            k = (t - T_TITLE - .06 * i) / .5
+            k = (t - T_TITLE - .05 * i) / .42
             if k > 0:
                 a = C.clamp01(k * 1.6) * out
                 dy = 30 * (1 - _ease_out_back(k, 1.2))
@@ -683,7 +687,7 @@ class IntroScene:
         width = x - tracking - x0
 
         # yazının altında menderes, soldan sağa açılıyor
-        reveal = _ease_out_cubic((t - T_TITLE - .38) / .6)
+        reveal = _ease_out_cubic((t - T_TITLE - .3) / .5)
         if reveal > 0:
             p.save()
             p.setClipRect(QRectF(x0 - 2, 0, width * reveal + 4, VIEW_H))
@@ -704,7 +708,7 @@ class IntroScene:
             p.drawPath(path)
             p.restore()
 
-        k = C.clamp01((t - T_TITLE - .55) / .45)
+        k = C.clamp01((t - T_TITLE - .42) / .4)
         if k > 0:
             p.setFont(self._text_font)
             p.setPen(_alpha(INK, .8 * _ease_out_cubic(k) * out))
@@ -754,10 +758,11 @@ def _send(message: str) -> None:
 class IntroWindow(QWidget):
     """Animasyonun oynadığı çerçevesiz pencere."""
 
-    def __init__(self, scene: IntroScene, parent_pid: int) -> None:
+    def __init__(self, scene: IntroScene, parent_pid: int, sound: bool = False) -> None:
         super().__init__(None)
         self._scene = scene
         self._parent_pid = parent_pid
+        self._sound = sound
         self._ready = False
         self._offset = 0.0
         self._revealed = False
@@ -797,6 +802,7 @@ class IntroWindow(QWidget):
         self._round_corners()
         self._allow_parent_foreground()
         self._began = time.monotonic()
+        self._play("intro")
         self._timer.start()
         self._reader.start()
         _send("shown")
@@ -811,7 +817,7 @@ class IntroWindow(QWidget):
             self.setWindowOpacity(_ease_out_cubic(t / .25))
         scene = self._scene
         if self._ready and scene.transition_start is None and t >= T_MIN_END:
-            scene.transition_start = t
+            self._begin_transition(t)
         if scene.transition_start is not None:
             k = (t - scene.transition_start) / TRANSITION
             if k >= T_REVEAL_AT and not self._revealed:
@@ -850,8 +856,36 @@ class IntroWindow(QWidget):
         t = self.now()
         if t < T_SKIP_TO:
             self._offset += T_SKIP_TO - t
+            # Sahne yazıya sıçradı; koşunun ve okun sesi susmalı.
+            self._play(None)
         elif self._ready and self._scene.transition_start is None:
-            self._scene.transition_start = t
+            self._begin_transition(t)
+
+    def _begin_transition(self, t: float) -> None:
+        self._scene.transition_start = t
+
+    def _play(self, name: str | None) -> None:
+        """Sahnenin sesi (`tools/make_intro_sounds.py`); `None` susturur.
+
+        Tek kayıt: nallar, okun rüzgârı ve hedefe saplanma. `winsound` aynı
+        anda tek ses çalıyor. Ayar kutlama sesiyle ortak (Ayarlar ›
+        Bildirimler › Sesler).
+        """
+        if not self._sound or sys.platform != "win32":
+            return
+        try:
+            import winsound
+
+            if name is None:
+                winsound.PlaySound(None, winsound.SND_PURGE)
+                return
+            from ..paths import install_root
+
+            path = install_root() / "app" / "resources" / "sounds" / f"{name}.wav"
+            if path.exists():
+                winsound.PlaySound(str(path), winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NODEFAULT)
+        except (RuntimeError, OSError):
+            pass
 
     def mousePressEvent(self, event) -> None:  # noqa: N802 (Qt adlandırması)
         if event.button() == Qt.MouseButton.LeftButton:
@@ -927,6 +961,6 @@ def run(payload: str) -> int:
     except ValueError:
         settings = {}
     app = QApplication.instance() or QApplication(sys.argv[:1])
-    window = IntroWindow(build_scene(settings), int(settings.get("pid") or 0))
+    window = IntroWindow(build_scene(settings), int(settings.get("pid") or 0), bool(settings.get("sound")))
     window.start()
     return app.exec()
