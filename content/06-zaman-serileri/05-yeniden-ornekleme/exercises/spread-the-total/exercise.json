@@ -1,0 +1,36 @@
+{
+  "id": "spread-the-total",
+  "title": {
+    "tr": "Toplam paylaştırılır",
+    "en": "A total is spread"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ayın gün sayısı indeksten: `monthly.index.days_in_month`.",
+      "en": "The number of days in each month comes from the index: `monthly.index.days_in_month`."
+    },
+    {
+      "tr": "`per_day.reindex(idx, method=\"ffill\")` her ayın günlük payını o ayın bütün günlerine taşıyor.",
+      "en": "`per_day.reindex(idx, method=\"ffill\")` carries each month's daily share onto every day of that month."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nmonthly = s.loc[\"2024\"].resample(\"MS\").sum()\n\nwrong = monthly.resample(\"D\").ffill()\nprint(len(wrong), wrong.index[-1].strftime(\"%Y-%m-%d\"))\nprint(wrong.loc[\"2024-03\"].sum())\n\nper_day = monthly / monthly.index.days_in_month\nidx = pd.date_range(\"2024-01-01\", \"2024-12-31\", freq=\"D\")\nspread = per_day.reindex(idx, method=\"ffill\")\n\nprint(round(float(spread.loc[\"2024-03\"].sum()), 1))\nprint(round(float(spread.loc[\"2024-03-09\"]), 1), s.loc[\"2024-03-09\"])\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nmonthly = s.loc[\"2024\"].resample(\"MS\").sum()\n\nwrong = monthly.resample(\"D\").ffill()\nprint(len(wrong), wrong.index[-1].strftime(\"%Y-%m-%d\"))\nprint(wrong.loc[\"2024-03\"].sum())\n\nper_day = monthly / monthly.index.days_in_month\nidx = pd.date_range(\"2024-01-01\", \"2024-12-31\", freq=\"D\")\nspread = per_day.reindex(idx, method=\"ffill\")\n\nprint(round(float(spread.loc[\"2024-03\"].sum()), 1))\nprint(round(float(spread.loc[\"2024-03-09\"]), 1), s.loc[\"2024-03-09\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "336 2024-12-01\n276489\n8919.0\n287.7 384"
+    }
+  ]
+}

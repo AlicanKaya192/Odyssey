@@ -1,0 +1,36 @@
+{
+  "id": "mind-the-gap",
+  "title": {
+    "tr": "Satır mı, gün mü?",
+    "en": "Rows or days?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir tarihin indeksteki konumu: `fixed.index.get_loc(pd.Timestamp(\"2024-07-18\"))`. Bir önceki satır `fixed.index[konum - 1]`.",
+      "en": "The position of a date in the index: `fixed.index.get_loc(pd.Timestamp(\"2024-07-18\"))`. The previous row is `fixed.index[position - 1]`."
+    },
+    {
+      "tr": "Takvime oturtup fark almak: `fixed.asfreq(\"D\").diff()`.",
+      "en": "Onto the calendar, then the difference: `fixed.asfreq(\"D\").diff()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nmessy = pd.read_csv(\"sales_messy.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nfixed = messy.sort_index().groupby(level=0).sum()\n\nrows = fixed.diff()\nprint(rows.loc[\"2024-07-18\"])\n\nposition = fixed.index.get_loc(pd.Timestamp(\"2024-07-18\"))\nprint(fixed.index[position - 1].strftime(\"%Y-%m-%d\"))\n\ndays = fixed.asfreq(\"D\").diff()\nprint(days.loc[\"2024-07-18\"])\n\nprint(int(rows.isna().sum()), int(days.isna().sum()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nmessy = pd.read_csv(\"sales_messy.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nfixed = messy.sort_index().groupby(level=0).sum()\n\nrows = fixed.diff()\nprint(rows.loc[\"2024-07-18\"])\n\nposition = fixed.index.get_loc(pd.Timestamp(\"2024-07-18\"))\nprint(fixed.index[position - 1].strftime(\"%Y-%m-%d\"))\n\ndays = fixed.asfreq(\"D\").diff()\nprint(days.loc[\"2024-07-18\"])\n\nprint(int(rows.isna().sum()), int(days.isna().sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "-59.0\n2024-07-14\nnan\n1 14"
+    }
+  ]
+}

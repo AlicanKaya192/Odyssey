@@ -1,0 +1,36 @@
+{
+  "id": "bias",
+  "title": {
+    "tr": "Hata hep aynı yöne mi?",
+    "en": "Is the error always on the same side?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Test: `s.loc[pd.Timestamp(cut) + pd.Timedelta(days=1):].iloc[:28]` (kesimden sonraki ilk 28 gün).",
+      "en": "The test: `s.loc[pd.Timestamp(cut) + pd.Timedelta(days=1):].iloc[:28]` (the first 28 days after the cut)."
+    },
+    {
+      "tr": "Hata = gerçek − tahmin; artıysa tahmin düşük kalmış: `(error > 0).sum()`.",
+      "en": "Error = actual − forecast; if positive the forecast was too low: `(error > 0).sum()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\n\ndef snaive(train, h):\n    last_week = train.iloc[-7:].to_numpy()\n    return [last_week[i % 7] for i in range(h)]\n\n\ndef errors(cut):\n    train = s.loc[:cut]\n    test = s.loc[pd.Timestamp(cut) + pd.Timedelta(days=1):].iloc[:28]\n    forecast = pd.Series(snaive(train, len(test)), index=test.index)\n    return test - forecast\n\n\ndef evaluate(cut):\n    error = errors(cut)\n    return (round(float(error.abs().mean()), 2), round(float(error.mean()), 2),\n            int((error > 0).sum()))\n\n\nprint(evaluate(\"2024-11-05\"))\nprint(evaluate(\"2024-12-03\"))\n\nerror = errors(\"2024-12-03\")\nprint([round(float(error.iloc[i:i + 7].mean()), 1) for i in range(0, 28, 7)])\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\n\ndef snaive(train, h):\n    last_week = train.iloc[-7:].to_numpy()\n    return [last_week[i % 7] for i in range(h)]\n\n\ndef errors(cut):\n    train = s.loc[:cut]\n    test = s.loc[pd.Timestamp(cut) + pd.Timedelta(days=1):].iloc[:28]\n    forecast = pd.Series(snaive(train, len(test)), index=test.index)\n    return test - forecast\n\n\ndef evaluate(cut):\n    error = errors(cut)\n    return (round(float(error.abs().mean()), 2), round(float(error.mean()), 2),\n            int((error > 0).sum()))\n\n\nprint(evaluate(\"2024-11-05\"))\nprint(evaluate(\"2024-12-03\"))\n\nerror = errors(\"2024-12-03\")\nprint([round(float(error.iloc[i:i + 7].mean()), 1) for i in range(0, 28, 7)])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(11.64, 6.79, 20)\n(40.25, 40.25, 28)\n[19.4, 35.0, 43.9, 62.7]"
+    }
+  ]
+}

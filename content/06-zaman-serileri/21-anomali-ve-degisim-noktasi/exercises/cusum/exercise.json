@@ -1,0 +1,36 @@
+{
+  "id": "cusum",
+  "title": {
+    "tr": "CUSUM",
+    "en": "CUSUM"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Seriyi günüyle birlikte dolaş: `for day, value in z.items():`.",
+      "en": "Walk the series together with its days: `for day, value in z.items():`."
+    },
+    {
+      "tr": "Alarmdan sonra `total = 0.0`; yoksa sonraki her gün de alarm olur.",
+      "en": "After an alarm `total = 0.0`; otherwise every following day is an alarm too."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nv = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\nref = v.loc[\"2024-01\":\"2024-02\"]\nprofile = ref.groupby(ref.index.dayofweek).median()\nrel = v / profile.reindex(v.index.dayofweek).to_numpy() - 1\nsd = (ref / profile.reindex(ref.index.dayofweek).to_numpy() - 1).std()\nz = rel / sd\n\n\ndef cusum(z, k, h):\n    total = 0.0\n    alarms = []\n    for day, value in z.items():\n        total = max(0.0, total + value - k)\n        if total > h:\n            alarms.append(day)\n            total = 0.0\n    return alarms\n\n\nchange = pd.Timestamp(\"2024-09-02\")\nclipped = z.clip(-3, 3)\n\nfound = cusum(clipped, 1.0, 8.0)\nprint(found[0].strftime(\"%Y-%m-%d\"), (found[0] - change).days, len(found))\n\nprint(cusum(z, 1.0, 8.0)[0].strftime(\"%Y-%m-%d\"))\n\nearly = [day for day in cusum(clipped, 0.5, 5.0) if day < change]\nprint([day.strftime(\"%m-%d\") for day in early])\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nv = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\nref = v.loc[\"2024-01\":\"2024-02\"]\nprofile = ref.groupby(ref.index.dayofweek).median()\nrel = v / profile.reindex(v.index.dayofweek).to_numpy() - 1\nsd = (ref / profile.reindex(ref.index.dayofweek).to_numpy() - 1).std()\nz = rel / sd\n\n\ndef cusum(z, k, h):\n    total = 0.0\n    alarms = []\n    for day, value in z.items():\n        total = max(0.0, total + value - k)\n        if total > h:\n            alarms.append(day)\n            total = 0.0\n    return alarms\n\n\nchange = pd.Timestamp(\"2024-09-02\")\nclipped = z.clip(-3, 3)\n\nfound = cusum(clipped, 1.0, 8.0)\nprint(found[0].strftime(\"%Y-%m-%d\"), (found[0] - change).days, len(found))\n\nprint(cusum(z, 1.0, 8.0)[0].strftime(\"%Y-%m-%d\"))\n\nearly = [day for day in cusum(clipped, 0.5, 5.0) if day < change]\nprint([day.strftime(\"%m-%d\") for day in early])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2024-09-05 3 23\n2024-03-14\n['03-11', '05-10', '06-13']"
+    }
+  ]
+}

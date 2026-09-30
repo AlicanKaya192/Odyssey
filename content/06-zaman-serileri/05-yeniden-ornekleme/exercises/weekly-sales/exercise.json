@@ -1,0 +1,36 @@
+{
+  "id": "weekly-sales",
+  "title": {
+    "tr": "Haftalık satış",
+    "en": "Weekly sales"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki seri aynı indekste: `weekly[counts == 7]` yalnızca tam haftaları seçiyor.",
+      "en": "The two series share an index: `weekly[counts == 7]` selects the full weeks only."
+    },
+    {
+      "tr": "`full.idxmax()` en yüksek haftanın **etiketini** (tarihini) veriyor, `full.max()` değerini.",
+      "en": "`full.idxmax()` gives the **label** (date) of the highest week, `full.max()` its value."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nweekly = s.resample(\"W\").sum()\ncounts = s.resample(\"W\").count()\n\nprint(weekly.iloc[0], counts.iloc[0])\n\nfull = weekly[counts == 7]\nprint(len(weekly), len(full))\n\nprint(full.idxmax().strftime(\"%Y-%m-%d\"), full.max())\nprint(full.idxmin().strftime(\"%Y-%m-%d\"), full.min())\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nweekly = s.resample(\"W\").sum()\ncounts = s.resample(\"W\").count()\n\nprint(weekly.iloc[0], counts.iloc[0])\n\nfull = weekly[counts == 7]\nprint(len(weekly), len(full))\n\nprint(full.idxmax().strftime(\"%Y-%m-%d\"), full.max())\nprint(full.idxmin().strftime(\"%Y-%m-%d\"), full.min())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "582 2\n158 156\n2024-12-29 2717\n2022-07-03 1357"
+    }
+  ]
+}

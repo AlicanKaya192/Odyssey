@@ -1,4 +1,4 @@
-"""Kutlama kartlarının sesi: bölüm bitince ve rozet kazanılınca.
+"""Kutlama kartlarının sesi: bölüm bitince, rozet kazanılınca ve seviye atlayınca.
 
 Sesler `app/resources/sounds/` altında (`tools/make_sounds.py` üretiyor).
 Çalma Windows'un kendi `winsound` modülüyle, arka planda (`SND_ASYNC`):
@@ -8,7 +8,8 @@ ayar da orada gösterilmiyor (Bildirimler sayfası zaten Windows'a özgü).
 Aynı anda birden fazla kart geliyor (bölüm kartı ve onunla kazanılan
 rozetler): `winsound` yeni sesi başlatınca öncekini kesiyor, üst üste
 çalan sesler de gürültü oluyor. Bu yüzden bir kart grubu için **tek ses**
-çalınıyor; grupta rozet varsa rozet sesi. Grubu toplamak çağıranın işi
+çalınıyor; grupta seviye atlama varsa onun sesi, yoksa rozet varsa rozet
+sesi. Grubu toplamak çağıranın işi
 (`MainWindow`), burada yalnızca kısa aralıkla gelen ikinci çağrı yutuluyor.
 """
 
@@ -20,8 +21,8 @@ import time
 from ..paths import install_root
 
 SETTING_KEY = "celebration_sound"
-KINDS = ("section", "badge")
-# Bu süreden kısa aralıkla gelen ikinci ses çalınmıyor (en uzun ses ~1,1 sn).
+KINDS = ("section", "badge", "level", "timer")
+# Bu süreden kısa aralıkla gelen ikinci ses çalınmıyor (en uzun ses ~1,5 sn).
 MIN_GAP = 1.0
 
 

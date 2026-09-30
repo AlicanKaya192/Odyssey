@@ -1,0 +1,36 @@
+{
+  "id": "find-the-period",
+  "title": {
+    "tr": "Periyodu bul",
+    "en": "Find the period"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir aralığın en yükseği: `values[2:31].argmax()` dilimdeki konumu veriyor; gecikme için dilimin başlangıcını ekle.",
+      "en": "The highest in a range: `values[2:31].argmax()` gives the position within the slice; add the start of the slice for the lag."
+    },
+    {
+      "tr": "24'ün katları: `range(24, 169, 24)`.",
+      "en": "The multiples of 24: `range(24, 169, 24)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.stattools import acf\n\nload = pd.read_csv(\"energy_hourly.csv\", index_col=\"timestamp\", parse_dates=True)\nload = load[\"load_mw\"]\n\nvalues = acf(load, nlags=200)\n\nnear = values[2:31]\nlag = int(near.argmax()) + 2\nprint(lag, round(float(values[lag]), 2))\n\nlag = int(near.argmin()) + 2\nprint(lag, round(float(values[lag]), 2))\n\nfar = values[100:201]\nlag = int(far.argmax()) + 100\nprint(lag, round(float(values[lag]), 2))\n\nprint([round(float(values[lag]), 2) for lag in range(24, 169, 24)])\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.stattools import acf\n\nload = pd.read_csv(\"energy_hourly.csv\", index_col=\"timestamp\", parse_dates=True)\nload = load[\"load_mw\"]\n\nvalues = acf(load, nlags=200)\n\nnear = values[2:31]\nlag = int(near.argmax()) + 2\nprint(lag, round(float(values[lag]), 2))\n\nlag = int(near.argmin()) + 2\nprint(lag, round(float(values[lag]), 2))\n\nfar = values[100:201]\nlag = int(far.argmax()) + 100\nprint(lag, round(float(values[lag]), 2))\n\nprint([round(float(values[lag]), 2) for lag in range(24, 169, 24)])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "24 0.88\n13 -0.47\n168 0.87\n[0.88, 0.77, 0.77, 0.76, 0.74, 0.81, 0.87]"
+    }
+  ]
+}

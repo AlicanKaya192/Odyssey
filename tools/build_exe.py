@@ -79,6 +79,11 @@ COLLECT = [
     "pandas",
     "matplotlib",
     "sklearn",
+    # Zaman Serileri: durağanlık testi, ayrıştırma, ARIMA, üstel düzleştirme.
+    # Yalnızca kullanıcı kodu import ediyor, o yüzden elle toplanıyor.
+    "statsmodels",
+    "patsy",
+    "formulaic",   # statsmodels 0.15 formül arayüzü bununla çalışıyor
     # SQL alıştırmalarının sunucuya bağlanan katmanı. `sandbox/sql_runner.py`
     # pakete düz veri olarak giriyor ve PyInstaller içindeki `import
     # pyodbc`'yi görmüyor; toplanmazsa paketlenmiş sürüm SQL Server kurulu

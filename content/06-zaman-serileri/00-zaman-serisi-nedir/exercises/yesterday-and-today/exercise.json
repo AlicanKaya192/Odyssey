@@ -1,0 +1,40 @@
+{
+  "id": "yesterday-and-today",
+  "title": {
+    "tr": "Bugün dünü hatırlıyor mu?",
+    "en": "Does today remember yesterday?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`np.corrcoef(a, b)` 2×2 bir matris döndürüyor; iki dizinin korelasyonu `[0, 1]` hücresinde.",
+      "en": "`np.corrcoef(a, b)` returns a 2×2 matrix; the correlation between the two arrays is in cell `[0, 1]`."
+    },
+    {
+      "tr": "Karıştırma tabloya uygulanıyor: `table.sample(frac=1, random_state=42)`. Sonra onun `sales` sütununu `.to_numpy()` ile al ve aynı dilimlemeyi yap.",
+      "en": "The shuffle is applied to the table: `table.sample(frac=1, random_state=42)`. Then take its `sales` column with `.to_numpy()` and slice the same way."
+    },
+    {
+      "tr": "Yuvarlarken `round(float(x), 3)`: `float` olmadan bazı sürümler `np.float64(...)` yazdırabiliyor.",
+      "en": "Round with `round(float(x), 3)`: without `float` some versions print `np.float64(...)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ntable = pd.read_csv(\"store_sales.csv\")\nvalues = table[\"sales\"].to_numpy()\n\nlag1 = np.corrcoef(values[:-1], values[1:])[0, 1]\nlag7 = np.corrcoef(values[:-7], values[7:])[0, 1]\n\nmixed = table.sample(frac=1, random_state=42)[\"sales\"].to_numpy()\nshuffled = np.corrcoef(mixed[:-1], mixed[1:])[0, 1]\n\nprint(round(float(lag1), 3))\nprint(round(float(lag7), 3))\nprint(round(float(shuffled), 3))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ntable = pd.read_csv(\"store_sales.csv\")\nvalues = table[\"sales\"].to_numpy()\n\nlag1 = np.corrcoef(values[:-1], values[1:])[0, 1]\nlag7 = np.corrcoef(values[:-7], values[7:])[0, 1]\n\nmixed = table.sample(frac=1, random_state=42)[\"sales\"].to_numpy()\nshuffled = np.corrcoef(mixed[:-1], mixed[1:])[0, 1]\n\nprint(round(float(lag1), 3))\nprint(round(float(lag7), 3))\nprint(round(float(shuffled), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.695\n0.958\n0.018"
+    }
+  ]
+}

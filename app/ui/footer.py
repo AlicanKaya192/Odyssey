@@ -12,7 +12,7 @@ Yeri burası çünkü şerit her ekranda duruyor; kullanıcı sürümü nerede
 görüyorsa yenisini de orada görüyor.
 
 Solda deponun GitHub yıldız sayısı (tıklayınca depo açılıyor), sağda
-klavye kısayolları. Sağda eskiden bir de bildirim zili vardı; kalktı,
+çalışma zamanlayıcısı ve klavye kısayolları. Sağda eskiden bir de bildirim zili vardı; kalktı,
 kutlamalar artık sağ altta beliren kartlarla (`app/widgets/toast.py`).
 """
 
@@ -106,8 +106,20 @@ class Footer(QFrame):
 
         self.retranslate()
 
+    def add_timer(self, chip: QWidget) -> None:
+        """Çalışma zamanlayıcısının sayacını klavye düğmesinin soluna koyar."""
+        self.timer_chip = chip
+        sag = self._right.layout()
+        sag.insertWidget(sag.indexOf(self.shortcut_button), chip)
+        sag.insertSpacing(sag.indexOf(self.shortcut_button), 6)
+        self._balance()
+
     def _balance(self) -> None:
-        genis = max(self.star_button.sizeHint().width(), self.shortcut_button.width())
+        sag = self.shortcut_button.width()
+        chip = getattr(self, "timer_chip", None)
+        if chip is not None:
+            sag += chip.width() + 6
+        genis = max(self.star_button.sizeHint().width(), sag)
         self._left.setFixedWidth(genis)
         self._right.setFixedWidth(genis)
 

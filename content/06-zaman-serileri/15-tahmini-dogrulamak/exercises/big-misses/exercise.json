@@ -1,0 +1,36 @@
+{
+  "id": "big-misses",
+  "title": {
+    "tr": "Büyük ıskalar",
+    "en": "Big misses"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "En büyük 6: `error.abs().sort_values(ascending=False).head(6).index`; tarih sırasına sokmak için `.sort_values()`.",
+      "en": "The top 6: `error.abs().sort_values(ascending=False).head(6).index`; `.sort_values()` puts them in date order."
+    },
+    {
+      "tr": "Günleri çıkarmak: `error.drop(worst)`.",
+      "en": "Removing the days: `error.drop(worst)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)\nvisits = visits[\"visits\"]\n\nerror = (visits - visits.shift(7)).dropna()\n\n\ndef scores(e):\n    mae = float(e.abs().mean())\n    rmse = float(np.sqrt((e ** 2).mean()))\n    return mae, rmse\n\n\nmae_all, rmse_all = scores(error)\nprint(round(mae_all, 1), round(rmse_all, 1), round(rmse_all / mae_all, 2))\n\nworst = error.abs().sort_values(ascending=False).head(6).index.sort_values()\nprint(worst.strftime(\"%m-%d\").tolist())\n\nmae_rest, rmse_rest = scores(error.drop(worst))\nprint(round(mae_rest, 1), round(rmse_rest, 1), round(rmse_rest / mae_rest, 2))\n\nprint(round((1 - mae_rest / mae_all) * 100), round((1 - rmse_rest / rmse_all) * 100))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)\nvisits = visits[\"visits\"]\n\nerror = (visits - visits.shift(7)).dropna()\n\n\ndef scores(e):\n    mae = float(e.abs().mean())\n    rmse = float(np.sqrt((e ** 2).mean()))\n    return mae, rmse\n\n\nmae_all, rmse_all = scores(error)\nprint(round(mae_all, 1), round(rmse_all, 1), round(rmse_all / mae_all, 2))\n\nworst = error.abs().sort_values(ascending=False).head(6).index.sort_values()\nprint(worst.strftime(\"%m-%d\").tolist())\n\nmae_rest, rmse_rest = scores(error.drop(worst))\nprint(round(mae_rest, 1), round(rmse_rest, 1), round(rmse_rest / mae_rest, 2))\n\nprint(round((1 - mae_rest / mae_all) * 100), round((1 - rmse_rest / rmse_all) * 100))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "307.2 728.6 2.37\n['03-14', '03-21', '06-20', '06-27', '10-08', '10-15']\n225.3 303.3 1.35\n27 58"
+    }
+  ]
+}

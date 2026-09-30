@@ -1,0 +1,680 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Tarih sütununu indekse almanın asıl faydası ne?",
+        "en": "What is the main benefit of moving the date column into the index?"
+      },
+      "options": {
+        "tr": [
+          "Tarihle seçme, dilimleme ve zaman serisi araçları indekse bakıyor",
+          "Dosya daha küçük oluyor",
+          "Tarihler otomatik temizleniyor",
+          "Sütun sayısı bir azalıyor, başka faydası yok"
+        ],
+        "en": [
+          "Date selection, slicing and the time series tools all rely on the index",
+          "The file gets smaller",
+          "Dates are cleaned automatically",
+          "There is one column fewer, nothing else"
+        ]
+      },
+      "explanation": {
+        "tr": "`loc[\"2024-03\"]`, `asfreq`, ve ilerideki `resample`, `shift`, `rolling` tarih indeksiyle çalışıyor. Tarih sütunda kalırsa her biri için ayrıca uğraşman gerekiyor.",
+        "en": "`loc[\"2024-03\"]`, `asfreq`, and later `resample`, `shift` and `rolling` work with a date index. If the date stays in a column you have to work around each of them."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük seride `s.loc[\"2024-03\"]` neyi verir?",
+        "en": "In a daily series, what does `s.loc[\"2024-03\"]` give?"
+      },
+      "options": {
+        "tr": [
+          "Mart 2024'ün 31 gününü",
+          "Yalnızca 1 Mart'ı",
+          "Bütün yılların Mart aylarını",
+          "`KeyError`"
+        ],
+        "en": [
+          "The 31 days of March 2024",
+          "Only 1 March",
+          "March of every year",
+          "`KeyError`"
+        ]
+      },
+      "explanation": {
+        "tr": "Kısmi tarih yazınca pandas o dönemin tamamını seçiyor: `\"2024-03\"` bütün ay, `\"2024\"` bütün yıl. Bütün yılların Mart'ı için `s[s.index.month == 3]`.",
+        "en": "With a partial date pandas selects the whole period: `\"2024-03\"` is the whole month, `\"2024\"` the whole year. For March of every year use `s[s.index.month == 3]`."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`s.loc[\"2024-03-04\":\"2024-03-10\"]` günlük seride kaç satır verir?",
+        "en": "How many rows does `s.loc[\"2024-03-04\":\"2024-03-10\"]` give in a daily series?"
+      },
+      "options": {
+        "tr": [
+          "7: iki uç da dahil",
+          "6: son gün hariç",
+          "5",
+          "8"
+        ],
+        "en": [
+          "7: both ends are included",
+          "6: the last day is excluded",
+          "5",
+          "8"
+        ]
+      },
+      "explanation": {
+        "tr": "Etiketle dilimleme iki ucu da alıyor. `iloc[0:7]` gibi konumla dilimleme ise sonu dışarıda bırakıyor. İkisi de 7 satır veriyor ama farklı sebeple.",
+        "en": "Slicing by label takes both ends. Slicing by position, as in `iloc[0:7]`, leaves the end out. Both give 7 rows, but for different reasons."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "`s.loc[\"2025-01-01\"]` (seride olmayan bir gün) ile `s.loc[\"2025-01-01\":\"2025-02-01\"]` (olmayan bir aralık) ne verir?",
+        "en": "What do `s.loc[\"2025-01-01\"]` (a day not in the series) and `s.loc[\"2025-01-01\":\"2025-02-01\"]` (a range not in it) give?"
+      },
+      "options": {
+        "tr": [
+          "İlki `KeyError`, ikincisi boş seri",
+          "İkisi de `KeyError`",
+          "İkisi de boş seri",
+          "İlki `NaN`, ikincisi `KeyError`"
+        ],
+        "en": [
+          "The first a `KeyError`, the second an empty series",
+          "Both a `KeyError`",
+          "Both an empty series",
+          "The first `NaN`, the second a `KeyError`"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek bir etiket bulunamazsa hata; bir aralıkta hiç satır yoksa boş sonuç. Boş sonuç hata vermediği için fark edilmeden ilerleyebiliyor: `len` ile kontrol et.",
+        "en": "A single label that is not found raises; a range with no rows gives an empty result. An empty result raises nothing, so it can slip through unnoticed: check with `len`."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "İndeksteki tarihlerin ayını almak için doğru yazım hangisi?",
+        "en": "Which is the right way to get the month of the dates in the index?"
+      },
+      "options": {
+        "tr": [
+          "`s.index.month`",
+          "`s.index.dt.month`",
+          "`s.dt.month`",
+          "`s.month`"
+        ],
+        "en": [
+          "`s.index.month`",
+          "`s.index.dt.month`",
+          "`s.dt.month`",
+          "`s.month`"
+        ]
+      },
+      "explanation": {
+        "tr": "`.dt` sütunlar (Series) için. `DatetimeIndex`'te parçalar doğrudan: `s.index.month`, `s.index.dayofweek`, `s.index.day_name()`.",
+        "en": "`.dt` is for columns (Series). On a `DatetimeIndex` the parts are direct: `s.index.month`, `s.index.dayofweek`, `s.index.day_name()`."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`s[s.index.dayofweek >= 5]` neyi seçer?",
+        "en": "What does `s[s.index.dayofweek >= 5]` select?"
+      },
+      "options": {
+        "tr": [
+          "Cumartesi ve pazar günlerini",
+          "Cuma ve cumartesi günlerini",
+          "Ayın 5'inden sonraki günleri",
+          "Beşinci haftadan sonrasını"
+        ],
+        "en": [
+          "Saturdays and Sundays",
+          "Fridays and Saturdays",
+          "Days after the 5th of the month",
+          "Everything after week five"
+        ]
+      },
+      "explanation": {
+        "tr": "`dayofweek` pazartesi için 0, cumartesi 5, pazar 6. Mağazada bu günlerin ortalaması 316.5; genel ortalama 260.0.",
+        "en": "`dayofweek` is 0 for Monday, 5 for Saturday, 6 for Sunday. In the shop these days average 316.5; the overall mean is 260.0."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Sıralanmamış bir tarih indeksinde `loc[\"2024-03-04\":\"2024-03-10\"]` yazınca ne olur?",
+        "en": "What happens when you write `loc[\"2024-03-04\":\"2024-03-10\"]` on an unsorted date index?"
+      },
+      "options": {
+        "tr": [
+          "`KeyError`: sırasız indekste tarih aralığı seçilemiyor",
+          "Doğru 7 satırı verir",
+          "Rastgele 7 satır verir",
+          "Seriyi kendiliğinden sıralar"
+        ],
+        "en": [
+          "`KeyError`: a date range cannot be selected from an unsorted index",
+          "It gives the right 7 rows",
+          "It gives 7 random rows",
+          "It sorts the series by itself"
+        ]
+      },
+      "explanation": {
+        "tr": "Aralık seçmek \"bu tarihten şu tarihe kadar olan satırlar\" demek; satırlar sırada değilse bunun anlamı yok. `sort_index()` sorunu çözüyor.",
+        "en": "Selecting a range means \"the rows from this date to that date\"; if the rows are not in order that has no meaning. `sort_index()` fixes it."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "İndeksin sıralı olup olmadığını hangisi söyler?",
+        "en": "Which of these tells you whether the index is in order?"
+      },
+      "options": {
+        "tr": [
+          "`s.index.is_monotonic_increasing`",
+          "`s.index.is_unique`",
+          "`s.index.freq`",
+          "`len(s)`"
+        ],
+        "en": [
+          "`s.index.is_monotonic_increasing`",
+          "`s.index.is_unique`",
+          "`s.index.freq`",
+          "`len(s)`"
+        ]
+      },
+      "explanation": {
+        "tr": "`is_monotonic_increasing` her tarihin bir öncekinden küçük olmadığını söylüyor. `is_unique` tekrarları, `freq` frekansı anlatıyor; ayrı sorular.",
+        "en": "`is_monotonic_increasing` says that no date is smaller than the one before. `is_unique` is about repeats and `freq` about the frequency; separate questions."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`messy.loc[\"2024-03-05\"]` iki değer döndürüyor: `[157, 105]`. Bu ne anlama geliyor?",
+        "en": "`messy.loc[\"2024-03-05\"]` returns two values: `[157, 105]`. What does that mean?"
+      },
+      "options": {
+        "tr": [
+          "O tarih indekste iki kez var",
+          "O gün iki mağaza açıktı",
+          "pandas değeri ikiye böldü",
+          "Sonuç her zaman liste döner"
+        ],
+        "en": [
+          "That date is in the index twice",
+          "Two shops were open that day",
+          "pandas split the value in two",
+          "The result is always a list"
+        ]
+      },
+      "explanation": {
+        "tr": "Tekrarlanan etikette `loc` o etiketin bütün satırlarını veriyor. Tek değer beklediğin yerde seri gelmesi, tekrarın en görünür belirtisi.",
+        "en": "On a repeated label `loc` returns every row with that label. Getting a series where you expected a single value is the most visible symptom of a repeat."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Bir günün satışı iki parça hâlinde iki satıra yazılmış (157 ve 105). Doğru çözüm hangisi?",
+        "en": "A day's sales were written in two parts on two rows (157 and 105). What is the right fix?"
+      },
+      "options": {
+        "tr": [
+          "`groupby(level=0).sum()`: parçaları topla",
+          "Birini at: `~index.duplicated()`",
+          "Ortalamasını al",
+          "İkisini de sil"
+        ],
+        "en": [
+          "`groupby(level=0).sum()`: add the parts",
+          "Drop one: `~index.duplicated()`",
+          "Take their mean",
+          "Delete both"
+        ]
+      },
+      "explanation": {
+        "tr": "Parçalar bir toplamın parçaları: 157 + 105 = 262 günün gerçek satışı. Birini atmak ya da ortalamak o günü yaklaşık yarıya indirirdi.",
+        "en": "The parts make up a total: 157 + 105 = 262 is the day's real sales. Dropping one or averaging would roughly halve that day."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Aynı anın sıcaklığı iki sensörden iki satır olarak gelmiş. Tekrarı çözmek için hangisi mantıklı?",
+        "en": "The temperature of the same moment arrived as two rows from two sensors. Which makes sense for resolving the repeat?"
+      },
+      "options": {
+        "tr": [
+          "Ortalama almak: `groupby(level=0).mean()`",
+          "Toplamak: `groupby(level=0).sum()`",
+          "İkisini de silmek",
+          "Hiçbir şey yapmamak"
+        ],
+        "en": [
+          "Averaging: `groupby(level=0).mean()`",
+          "Adding: `groupby(level=0).sum()`",
+          "Deleting both",
+          "Doing nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıcaklık bir anlık değer; iki ölçümü toplamak 20 derecelik havayı 40 derece gösterir. Hangi yöntemin doğru olduğu değerin neyi ölçtüğüne bağlı.",
+        "en": "Temperature is a point-in-time value; adding two readings would show 20 degrees as 40. Which method is right depends on what the value measures."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "`groupby(level=0)` içindeki `level=0` ne demek?",
+        "en": "What does `level=0` mean in `groupby(level=0)`?"
+      },
+      "options": {
+        "tr": [
+          "İndekse göre grupla",
+          "İlk sütuna göre grupla",
+          "İlk satırı atla",
+          "Yalnızca sıfır olan değerleri grupla"
+        ],
+        "en": [
+          "Group by the index",
+          "Group by the first column",
+          "Skip the first row",
+          "Group only the zero values"
+        ]
+      },
+      "explanation": {
+        "tr": "Tarih artık bir sütun değil, indeks. `level=0` indeksin (ilk ve tek) düzeyine göre gruplamak demek: aynı tarihli satırlar bir araya geliyor.",
+        "en": "The date is no longer a column but the index. `level=0` means grouping by the (first and only) level of the index: rows with the same date come together."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Eksik günleri bulmak için hangi yol doğru?",
+        "en": "Which is the right way to find missing days?"
+      },
+      "options": {
+        "tr": [
+          "`pd.date_range(ilk, son, freq=\"D\").difference(s.index)`",
+          "`s.isna().sum()`",
+          "`s.dropna()`",
+          "`len(s) == 366`"
+        ],
+        "en": [
+          "`pd.date_range(first, last, freq=\"D\").difference(s.index)`",
+          "`s.isna().sum()`",
+          "`s.dropna()`",
+          "`len(s) == 366`"
+        ]
+      },
+      "explanation": {
+        "tr": "Eksik günün **satırı yok**; bu yüzden `isna()` onu göremiyor. Olması gereken tam takvimi üretip elindekiyle farkını alman gerekiyor.",
+        "en": "A missing day **has no row**, so `isna()` cannot see it. You have to produce the full calendar that should be there and take the difference."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Eksik günler neden sessizce tehlikeli?",
+        "en": "Why are missing days quietly dangerous?"
+      },
+      "options": {
+        "tr": [
+          "Araçlar \"önceki satır dün\" varsayıyor; eksik varken fark ve gecikme hesapları yanlış çıkıyor ama hata vermiyor",
+          "pandas eksik günde çöküyor",
+          "Eksik günler dosyayı büyütüyor",
+          "Hiçbir tehlikesi yok"
+        ],
+        "en": [
+          "Tools assume \"the previous row is yesterday\"; with gaps, differences and lags come out wrong without any error",
+          "pandas crashes on a missing day",
+          "Missing days make the file bigger",
+          "There is no danger"
+        ]
+      },
+      "explanation": {
+        "tr": "14 Temmuz'dan sonraki satır 18 Temmuz ise \"dünden bugüne değişim\" aslında dört günün değişimi. Sonuç sayı olarak makul göründüğü için fark edilmiyor.",
+        "en": "If the row after 14 July is 18 July, \"the change since yesterday\" is really the change over four days. The result looks like a reasonable number, so nobody notices."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`fixed.asfreq(\"D\")` ne yapıyor?",
+        "en": "What does `fixed.asfreq(\"D\")` do?"
+      },
+      "options": {
+        "tr": [
+          "Seriyi tam günlük takvime oturtuyor; eksik günler için `NaN` değerli satır açıyor",
+          "Eksik günleri ortalamayla dolduruyor",
+          "Eksik günleri siliyor",
+          "Seriyi haftalığa çeviriyor"
+        ],
+        "en": [
+          "It puts the series on the full daily calendar, opening `NaN` rows for missing days",
+          "It fills missing days with the mean",
+          "It deletes the missing days",
+          "It turns the series weekly"
+        ]
+      },
+      "explanation": {
+        "tr": "`asfreq` değerleri değiştirmiyor ve hiçbir şey tahmin etmiyor; yalnızca takvimde olması gereken her gün için bir satır olmasını sağlıyor. 358 satır 366 oluyor, 8'i `NaN`.",
+        "en": "`asfreq` changes no values and guesses nothing; it only makes sure there is a row for every day that should be on the calendar. 358 rows become 366, 8 of them `NaN`."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`asfreq(\"D\")` sonrası tam sayı olan satış sütunu neden `312.0` gibi ondalıklı oldu?",
+        "en": "After `asfreq(\"D\")`, why did the integer sales column turn into floats such as `312.0`?"
+      },
+      "options": {
+        "tr": [
+          "`NaN` tam sayı sütununda duramıyor; sütun ondalıklı türe geçti",
+          "`asfreq` değerleri yuvarladı",
+          "Veride hata var",
+          "Günlük veri her zaman ondalıklıdır"
+        ],
+        "en": [
+          "`NaN` cannot live in an integer column; the column switched to a float type",
+          "`asfreq` rounded the values",
+          "There is an error in the data",
+          "Daily data is always float"
+        ]
+      },
+      "explanation": {
+        "tr": "`NaN` bir ondalıklı sayı değeri. Sütuna bir tane bile girince pandas bütün sütunu `float64` yapıyor. Değerler aynı; yalnızca gösterim değişti.",
+        "en": "`NaN` is a float value. Once even one enters the column, pandas makes the whole column `float64`. The values are the same; only the display changed."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "`asfreq` tekrarlanan tarihler varken çağrılırsa ne olur?",
+        "en": "What happens if `asfreq` is called while dates are repeated?"
+      },
+      "options": {
+        "tr": [
+          "`ValueError`: tekrarlı etiketlerle yeniden indekslenemiyor",
+          "Tekrarları kendisi topluyor",
+          "İlk değeri alıyor",
+          "Hiçbir şey değişmiyor"
+        ],
+        "en": [
+          "`ValueError`: it cannot reindex with duplicate labels",
+          "It adds the repeats itself",
+          "It takes the first value",
+          "Nothing changes"
+        ]
+      },
+      "explanation": {
+        "tr": "Hata mesajı: `cannot reindex on an axis with duplicate labels`. Bu yüzden sıra: önce sırala, sonra tekrarları çöz, en son takvime oturt.",
+        "en": "The error message: `cannot reindex on an axis with duplicate labels`. Hence the order: sort first, resolve the repeats, and only then put it on the calendar."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "`asfreq(\"D\", fill_value=0)` ne zaman doğru bir seçim?",
+        "en": "When is `asfreq(\"D\", fill_value=0)` the right choice?"
+      },
+      "options": {
+        "tr": [
+          "\"Kayıt yoksa gerçekten sıfırdır\" diyebildiğinde (o gün hiç satış olmadıysa)",
+          "Her zaman",
+          "Hiçbir zaman",
+          "Veri saatlik olduğunda"
+        ],
+        "en": [
+          "When you can say \"no record really means zero\" (no sale happened that day)",
+          "Always",
+          "Never",
+          "When the data is hourly"
+        ]
+      },
+      "explanation": {
+        "tr": "Eksik satır iki şey olabilir: gerçekten sıfır (mağaza kapalıydı) ya da bilinmiyor (sistem kaydetmedi). İlkinde 0 doğru; ikincisinde 0 yazmak olmayan bir düşüş uydurmak olur.",
+        "en": "A missing row can be two things: a real zero (the shop was closed) or an unknown (the system did not record). In the first case 0 is right; in the second, writing 0 invents a drop that never happened."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.date_range(\"2024-01-01\", \"2024-06-30\", freq=\"ME\")` kaç tarih üretir ve ilki hangisi?",
+        "en": "How many dates does `pd.date_range(\"2024-01-01\", \"2024-06-30\", freq=\"ME\")` produce, and which is the first?"
+      },
+      "options": {
+        "tr": [
+          "6 tarih; ilki 31 Ocak",
+          "6 tarih; ilki 1 Ocak",
+          "7 tarih; ilki 1 Ocak",
+          "181 tarih"
+        ],
+        "en": [
+          "6 dates; the first is 31 January",
+          "6 dates; the first is 1 January",
+          "7 dates; the first is 1 January",
+          "181 dates"
+        ]
+      },
+      "explanation": {
+        "tr": "`ME` ay **sonu**: 31 Ocak, 29 Şubat, 31 Mart, 30 Nisan, 31 Mayıs, 30 Haziran. Ay başı için `MS`.",
+        "en": "`ME` is month **end**: 31 January, 29 February, 31 March, 30 April, 31 May, 30 June. For month starts use `MS`."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Yeni pandas'ta `freq=\"M\"` yazınca ne olur?",
+        "en": "What happens when you write `freq=\"M\"` in current pandas?"
+      },
+      "options": {
+        "tr": [
+          "`Invalid frequency` hatası; ay sonu artık `\"ME\"`",
+          "Ay sonlarını verir",
+          "Dakikaları verir",
+          "Ay başlarını verir"
+        ],
+        "en": [
+          "An `Invalid frequency` error; month end is now `\"ME\"`",
+          "It gives month ends",
+          "It gives minutes",
+          "It gives month starts"
+        ]
+      },
+      "explanation": {
+        "tr": "`M`, `H`, `T`, `Q`, `Y` gibi eski kısaltmalar kaldırıldı: yenileri `ME`, `h`, `min`, `QE`, `YE`. Eski ders ve cevaplardaki kodu kopyalarken ilk takılacağın yer burası.",
+        "en": "Old aliases such as `M`, `H`, `T`, `Q` and `Y` were removed: the new ones are `ME`, `h`, `min`, `QE`, `YE`. It is the first place you will stumble when copying code from older tutorials."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`freq=\"B\"` ne üretir?",
+        "en": "What does `freq=\"B\"` produce?"
+      },
+      "options": {
+        "tr": [
+          "İş günlerini: pazartesiden cumaya",
+          "Her iki günde bir",
+          "Ay başlarını",
+          "Yalnızca pazartesileri"
+        ],
+        "en": [
+          "Business days: Monday to Friday",
+          "Every second day",
+          "Month starts",
+          "Only Mondays"
+        ]
+      },
+      "explanation": {
+        "tr": "`B` business day. Hafta sonlarını atlıyor ama resmi tatilleri bilmiyor; onlar için özel takvim gerekiyor (Bölüm 04).",
+        "en": "`B` is business day. It skips weekends but knows nothing of public holidays; those need a custom calendar (Section 04)."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Saatlik seride `load.loc[\"2024-03-15\"]` kaç satır verir?",
+        "en": "In an hourly series, how many rows does `load.loc[\"2024-03-15\"]` give?"
+      },
+      "options": {
+        "tr": [
+          "24: o günün bütün saatleri",
+          "1: gece yarısındaki değer",
+          "0",
+          "12"
+        ],
+        "en": [
+          "24: every hour of that day",
+          "1: the value at midnight",
+          "0",
+          "12"
+        ]
+      },
+      "explanation": {
+        "tr": "Kısmi tarih kuralı burada da geçerli: gün yazınca o günün içindeki her şey seçiliyor. Günlük seride aynı yazım tek bir değer verirdi.",
+        "en": "The partial-date rule applies here too: write a day and everything inside that day is selected. In a daily series the same expression would give a single value."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "`load.between_time(\"22:00\", \"06:00\")` neyi seçer?",
+        "en": "What does `load.between_time(\"22:00\", \"06:00\")` select?"
+      },
+      "options": {
+        "tr": [
+          "Her günün gece 22:00'den sabah 06:00'ya kadarki saatlerini",
+          "Hiçbir şeyi; başlangıç bitişten büyük",
+          "Yalnızca ilk günün gecesini",
+          "06:00 ile 22:00 arasını"
+        ],
+        "en": [
+          "The hours from 22:00 at night to 06:00 in the morning, for every day",
+          "Nothing; the start is after the end",
+          "Only the first day's night",
+          "The hours between 06:00 and 22:00"
+        ]
+      },
+      "explanation": {
+        "tr": "`between_time` tarihten bağımsız, günün saatine bakıyor ve gece yarısını geçen aralığı anlıyor. Gündüz ortalaması 1038.1, gece 768.4.",
+        "en": "`between_time` ignores the date, looks at the time of day and understands a range that crosses midnight. The daytime mean is 1038.1, the night's 768.4."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "`a = s.loc[\"2024-01\"]` (31 gün) ile `b = s.loc[\"2024-01-15\":\"2024-02-15\"]` (32 gün) toplanıyor. Sonuçta kaç satırda gerçek bir toplam var?",
+        "en": "`a = s.loc[\"2024-01\"]` (31 days) and `b = s.loc[\"2024-01-15\":\"2024-02-15\"]` (32 days) are added. How many rows of the result hold a real sum?"
+      },
+      "options": {
+        "tr": [
+          "17: ikisinde de olan günler",
+          "31",
+          "46",
+          "63"
+        ],
+        "en": [
+          "17: the days present in both",
+          "31",
+          "46",
+          "63"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas tarihe göre hizalıyor. 15–31 Ocak iki seride de var: 17 gün. Sonuç 46 satır uzunluğunda; yalnızca birinde olan 29 gün `NaN`.",
+        "en": "pandas aligns by date. 15–31 January is in both series: 17 days. The result is 46 rows long; the 29 days present in only one are `NaN`."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "İki serinin tarihe göre hizalanması neden güvenli bir davranış?",
+        "en": "Why is aligning two series by date a safe behaviour?"
+      },
+      "options": {
+        "tr": [
+          "Farklı günlerin değerleri sessizce toplanmıyor; eşi olmayan gün `NaN` kalıyor",
+          "Daha hızlı olduğu için",
+          "`NaN` üretmediği için",
+          "Satır sayısını koruduğu için"
+        ],
+        "en": [
+          "Values from different days are not added together in silence; a day without a partner stays `NaN`",
+          "Because it is faster",
+          "Because it produces no `NaN`",
+          "Because it keeps the row count"
+        ]
+      },
+      "explanation": {
+        "tr": "Konuma göre toplansaydı 1 Ocak ile 15 Ocak toplanır ve hiçbir uyarı çıkmazdı. `NaN` görmek, iki serinin aynı günleri kapsamadığını fark etmeni sağlıyor.",
+        "en": "Added by position, 1 January and 15 January would be summed with no warning. Seeing `NaN` makes you notice that the two series do not cover the same days."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "Tarihi indekse aldıktan sonraki doğru temizlik sırası hangisi?",
+        "en": "What is the right cleaning order after moving the date into the index?"
+      },
+      "options": {
+        "tr": [
+          "Sırala → tekrarları çöz → eksikleri bul → `asfreq`",
+          "`asfreq` → sırala → tekrarları çöz",
+          "Eksikleri doldur → sırala",
+          "Sıra fark etmez"
+        ],
+        "en": [
+          "Sort → resolve repeats → find the gaps → `asfreq`",
+          "`asfreq` → sort → resolve repeats",
+          "Fill the gaps → sort",
+          "The order does not matter"
+        ]
+      },
+      "explanation": {
+        "tr": "Sırasız indekste dilimleme çalışmıyor, tekrar varken `asfreq` hata veriyor. Her adım bir sonrakinin ön koşulu.",
+        "en": "Slicing does not work on an unsorted index, and `asfreq` raises while there are repeats. Each step is a precondition of the next."
+      }
+    }
+  ]
+}

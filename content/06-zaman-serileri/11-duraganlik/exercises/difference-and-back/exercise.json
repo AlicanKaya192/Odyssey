@@ -1,0 +1,36 @@
+{
+  "id": "difference-and-back",
+  "title": {
+    "tr": "Fark al, geri dön",
+    "en": "Difference and back"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Haftanın gününe göre ortalama: `x.groupby(x.index.dayofweek).mean()`; farkı `max() - min()`.",
+      "en": "The mean by day of the week: `x.groupby(x.index.dayofweek).mean()`; the gap is `max() - min()`."
+    },
+    {
+      "tr": "Son günden 7 gün önceki satır `s.iloc[-8]` (son satır `-1`, bir hafta öncesi `-8`).",
+      "en": "The row 7 days before the last day is `s.iloc[-8]` (the last row is `-1`, a week earlier `-8`)."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nd1 = s.diff()\nd7 = s.diff(7)\n\nprint(round(float(s.std()), 1), round(float(d1.std()), 1), round(float(d7.std()), 1))\nprint(int(s.isna().sum()), int(d1.isna().sum()), int(d7.isna().sum()))\n\n\ndef weekday_gap(x):\n    by_day = x.groupby(x.index.dayofweek).mean()\n    return round(float(by_day.max() - by_day.min()), 1)\n\n\nprint(weekday_gap(d1), weekday_gap(d7))\n\nback = d1.cumsum() + s.iloc[0]\nprint(bool((back.iloc[1:] - s.iloc[1:]).abs().max() < 1e-9))\n\nrebuilt = d7.iloc[-1] + s.iloc[-8]\nprint(int(rebuilt), int(s.iloc[-1]))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nd1 = s.diff()\nd7 = s.diff(7)\n\nprint(round(float(s.std()), 1), round(float(d1.std()), 1), round(float(d7.std()), 1))\nprint(int(s.isna().sum()), int(d1.isna().sum()), int(d7.isna().sum()))\n\n\ndef weekday_gap(x):\n    by_day = x.groupby(x.index.dayofweek).mean()\n    return round(float(by_day.max() - by_day.min()), 1)\n\n\nprint(weekday_gap(d1), weekday_gap(d7))\n\nback = d1.cumsum() + s.iloc[0]\nprint(bool((back.iloc[1:] - s.iloc[1:]).abs().max() < 1e-9))\n\nrebuilt = d7.iloc[-1] + s.iloc[-8]\nprint(int(rebuilt), int(s.iloc[-1]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "58.9 46.1 17.1\n0 1 7\n136.7 0.4\nTrue\n347 347"
+    }
+  ]
+}

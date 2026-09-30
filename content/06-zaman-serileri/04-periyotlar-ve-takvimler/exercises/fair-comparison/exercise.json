@@ -1,0 +1,36 @@
+{
+  "id": "fair-comparison",
+  "title": {
+    "tr": "Adil karşılaştırma",
+    "en": "A fair comparison"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tek bir ayın toplamı: `monthly.loc[\"2024-02\"]`.",
+      "en": "A single month's total: `monthly.loc[\"2024-02\"]`."
+    },
+    {
+      "tr": "Koşullu yazdırma: `print(\"February\" if feb_mean > mar_mean else \"March\")`.",
+      "en": "A conditional print: `print(\"February\" if feb_mean > mar_mean else \"March\")`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nmonthly = s.groupby(s.index.to_period(\"M\")).sum()\n\nfeb = monthly.loc[\"2024-02\"]\nmar = monthly.loc[\"2024-03\"]\nprint(feb, mar)\n\nfeb_days = pd.Period(\"2024-02\", \"M\").days_in_month\nmar_days = pd.Period(\"2024-03\", \"M\").days_in_month\nprint(feb_days, mar_days)\n\nfeb_mean = round(float(feb / feb_days), 1)\nmar_mean = round(float(mar / mar_days), 1)\nprint(feb_mean, mar_mean)\n\nprint(\"February\" if feb_mean > mar_mean else \"March\")\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nmonthly = s.groupby(s.index.to_period(\"M\")).sum()\n\nfeb = monthly.loc[\"2024-02\"]\nmar = monthly.loc[\"2024-03\"]\nprint(feb, mar)\n\nfeb_days = pd.Period(\"2024-02\", \"M\").days_in_month\nmar_days = pd.Period(\"2024-03\", \"M\").days_in_month\nprint(feb_days, mar_days)\n\nfeb_mean = round(float(feb / feb_days), 1)\nmar_mean = round(float(mar / mar_days), 1)\nprint(feb_mean, mar_mean)\n\nprint(\"February\" if feb_mean > mar_mean else \"March\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "8491 8919\n29 31\n292.8 287.7\nFebruary"
+    }
+  ]
+}

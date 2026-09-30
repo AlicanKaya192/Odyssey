@@ -125,6 +125,13 @@ GLYPHS: dict[str, str] = {
     "network": ('<g stroke-width="1.4" stroke-opacity=".7"><path d="M5 7l7 5M5 17l7-5M12 12l7-5M12 12l7 5"/></g>'
                 '<g fill="#fff" stroke="none"><circle cx="5" cy="7" r="2.3"/><circle cx="5" cy="17" r="2.3"/>'
                 '<circle cx="12" cy="12" r="2.8"/><circle cx="19" cy="7" r="2.3"/><circle cx="19" cy="17" r="2.3"/></g>'),
+    "wave": ('<path d="M3 19.5h18" stroke-width="1.4" stroke-opacity=".6"/>'
+             '<path d="M3 12c1.5-6 3-6 4.5 0s3 6 4.5 0 3-6 4.5 0 3 6 4.5 0"/>'),
+    "forecast": ('<path d="M3 17.5l4-4.5 3.5 2.5 3.5-6"/><path d="m14 9.5 6.5-5" stroke-dasharray="2 2.8"/>'
+                 '<circle cx="14" cy="9.5" r="2.3" fill="#fff" stroke="none"/><path d="M3 21h18" stroke-width="1.4" stroke-opacity=".6"/>'),
+    "hourglass": ('<path d="M6 3h12M6 21h12"/><path fill="#fff" fill-opacity=".3" d="M7.5 3v3.5L12 12l4.5-5.5V3z"/>'
+                  '<path d="M7.5 3v3.5L12 12l-4.5 5.5V21M16.5 3v3.5L12 12l4.5 5.5V21"/>'
+                  '<path fill="#fff" stroke="none" d="m9.2 20.2 2.8-3.6 2.8 3.6z"/>'),
 }
 
 

@@ -1,0 +1,36 @@
+{
+  "id": "same-day-last-year",
+  "title": {
+    "tr": "Geçen yılın aynı günü",
+    "en": "The same day last year"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Gün adı: `(day - pd.Timedelta(days=365)).day_name()`.",
+      "en": "A day name: `(day - pd.Timedelta(days=365)).day_name()`."
+    },
+    {
+      "tr": "Büyüme serisi: `(s / s.shift(365) - 1) * 100`. Tek gün `.loc[day]`, bütün yıl `.loc[\"2024\"]`.",
+      "en": "The growth series: `(s / s.shift(365) - 1) * 100`. One day is `.loc[day]`, the whole year `.loc[\"2024\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nday = pd.Timestamp(\"2024-03-09\")\n\nprint(day.day_name(),\n      (day - pd.Timedelta(days=365)).day_name(),\n      (day - pd.Timedelta(days=364)).day_name())\n\ngrowth_365 = (s / s.shift(365) - 1) * 100\ngrowth_364 = (s / s.shift(364) - 1) * 100\n\nprint(round(float(growth_365.loc[day]), 1), round(float(growth_364.loc[day]), 1))\nprint(round(float(growth_365.loc[\"2024\"].std()), 1),\n      round(float(growth_364.loc[\"2024\"].std()), 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nday = pd.Timestamp(\"2024-03-09\")\n\nprint(day.day_name(),\n      (day - pd.Timedelta(days=365)).day_name(),\n      (day - pd.Timedelta(days=364)).day_name())\n\ngrowth_365 = (s / s.shift(365) - 1) * 100\ngrowth_364 = (s / s.shift(364) - 1) * 100\n\nprint(round(float(growth_365.loc[day]), 1), round(float(growth_364.loc[day]), 1))\nprint(round(float(growth_365.loc[\"2024\"].std()), 1),\n      round(float(growth_364.loc[\"2024\"].std()), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Saturday Friday Saturday\n44.9 18.9\n18.7 7.2"
+    }
+  ]
+}

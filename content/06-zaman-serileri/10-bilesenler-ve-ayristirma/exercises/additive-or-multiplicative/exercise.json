@@ -1,0 +1,36 @@
+{
+  "id": "additive-or-multiplicative",
+  "title": {
+    "tr": "Toplamsal mı, çarpımsal mı?",
+    "en": "Additive or multiplicative?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yıla göre gruplamak: `x.groupby(x.index.year).mean()`; tek yıl `.loc[2013]`.",
+      "en": "Grouping by year: `x.groupby(x.index.year).mean()`; one year is `.loc[2013]`."
+    },
+    {
+      "tr": "`factors.idxmin()` bir tarih döndürüyor; ay numarası `.month`.",
+      "en": "`factors.idxmin()` returns a date; its month number is `.month`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import seasonal_decompose\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"].asfreq(\"MS\")\n\nadd = seasonal_decompose(p, model=\"additive\", period=12)\nmul = seasonal_decompose(p, model=\"multiplicative\", period=12)\n\nsize = add.resid.abs().groupby(add.resid.index.year).mean()\nprint(round(float(size.loc[2013]), 1), round(float(size.loc[2019]), 1),\n      round(float(size.loc[2023]), 1))\n\nprint(round(float(add.resid.loc[\"2013-07-01\"]), 1),\n      round(float(add.resid.loc[\"2023-07-01\"]), 1))\n\npct = (mul.resid - 1).abs() * 100\nby_year = pct.groupby(pct.index.year).mean()\nprint(round(float(by_year.loc[2013]), 1), round(float(by_year.loc[2019]), 1),\n      round(float(by_year.loc[2023]), 1))\nprint(round(float(pct.max()), 1))\n\nfactors = mul.seasonal.iloc[:12]\nprint(factors.idxmin().month, round(float(factors.min()), 3),\n      factors.idxmax().month, round(float(factors.max()), 3))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import seasonal_decompose\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"].asfreq(\"MS\")\n\nadd = seasonal_decompose(p, model=\"additive\", period=12)\nmul = seasonal_decompose(p, model=\"multiplicative\", period=12)\n\nsize = add.resid.abs().groupby(add.resid.index.year).mean()\nprint(round(float(size.loc[2013]), 1), round(float(size.loc[2019]), 1),\n      round(float(size.loc[2023]), 1))\n\nprint(round(float(add.resid.loc[\"2013-07-01\"]), 1),\n      round(float(add.resid.loc[\"2023-07-01\"]), 1))\n\npct = (mul.resid - 1).abs() * 100\nby_year = pct.groupby(pct.index.year).mean()\nprint(round(float(by_year.loc[2013]), 1), round(float(by_year.loc[2019]), 1),\n      round(float(by_year.loc[2023]), 1))\nprint(round(float(pct.max()), 1))\n\nfactors = mul.seasonal.iloc[:12]\nprint(factors.idxmin().month, round(float(factors.min()), 3),\n      factors.idxmax().month, round(float(factors.max()), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "12.7 2.8 13.1\n-22.0 20.5\n0.6 0.7 1.4\n3.6\n2 0.83 8 1.255"
+    }
+  ]
+}

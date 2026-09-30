@@ -1,0 +1,41 @@
+{
+  "id": "hour-by-day",
+  "title": {
+    "tr": "Gün ve saat",
+    "en": "Day and hour"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`grid.stack()` tabloyu (gün, saat) indeksli tek bir seriye çeviriyor; `idxmax()` en yüksek hücrenin çiftini veriyor.",
+      "en": "`grid.stack()` turns the table into a single series indexed by (day, hour); `idxmax()` gives the pair of the highest cell."
+    },
+    {
+      "tr": "Tek bir hücre: `grid.loc[gün, saat]`, örneğin `grid.loc[0, 13]`.",
+      "en": "A single cell: `grid.loc[day, hour]`, for example `grid.loc[0, 13]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\nload = pd.read_csv(\"energy_hourly.csv\", index_col=\"timestamp\", parse_dates=True)[\"load_mw\"]\n\ngrid = load.groupby([load.index.dayofweek, load.index.hour]).mean().unstack()\nprint(grid.shape)\n\nfig, ax = plt.subplots(figsize=(10, 3.5))\nimage = ax.imshow(grid.values, aspect=\"auto\")\nfig.colorbar(image)\nfig.savefig(\"chart.png\")\n\ncells = grid.stack()\nday, hour = cells.idxmax()\nprint(int(day), int(hour), round(float(cells.max())))\nday, hour = cells.idxmin()\nprint(int(day), int(hour), round(float(cells.min())))\n\nprint(round(float(grid.loc[0, 13])), round(float(grid.loc[6, 13])))\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\nload = pd.read_csv(\"energy_hourly.csv\", index_col=\"timestamp\", parse_dates=True)[\"load_mw\"]\n\ngrid = load.groupby([load.index.dayofweek, load.index.hour]).mean().unstack()\nprint(grid.shape)\n\nfig, ax = plt.subplots(figsize=(10, 3.5))\nimage = ax.imshow(grid.values, aspect=\"auto\")\nfig.colorbar(image)\nfig.savefig(\"chart.png\")\n\ncells = grid.stack()\nday, hour = cells.idxmax()\nprint(int(day), int(hour), round(float(cells.max())))\nday, hour = cells.idxmin()\nprint(int(day), int(hour), round(float(cells.min())))\n\nprint(round(float(grid.loc[0, 13])), round(float(grid.loc[6, 13])))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(7, 24)\n3 13 1238\n6 5 667\n1222 1068"
+    }
+  ]
+}

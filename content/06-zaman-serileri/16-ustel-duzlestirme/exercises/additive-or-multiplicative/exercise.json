@@ -1,0 +1,36 @@
+{
+  "id": "additive-or-multiplicative",
+  "title": {
+    "tr": "Hangi biçim?",
+    "en": "Which form?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ayarları bir sözlükte tut: `{\"add-add\": (\"add\", \"add\"), ...}` ve döngüde `trend`, `seasonal` olarak aç.",
+      "en": "Keep the settings in a dictionary: `{\"add-add\": (\"add\", \"add\"), ...}` and unpack them as `trend`, `seasonal` in the loop."
+    },
+    {
+      "tr": "En küçük hatalı modelin adı: `min(scores, key=scores.get)`.",
+      "en": "The name of the model with the smallest error: `min(scores, key=scores.get)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.holtwinters import ExponentialSmoothing\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"].asfreq(\"MS\")\n\ntrain, test = p.loc[:\"2023\"], p.loc[\"2024\"]\n\ngrowth = train.loc[\"2023\"].sum() / train.loc[\"2022\"].sum()\nbar = pd.Series(train.loc[\"2023\"].to_numpy() * growth, index=test.index)\nbar_mae = float((test - bar).abs().mean())\nprint(round(bar_mae, 2))\n\nsettings = {\n    \"add-add\": (\"add\", \"add\"),\n    \"add-mul\": (\"add\", \"mul\"),\n    \"mul-mul\": (\"mul\", \"mul\"),\n}\n\nfits = {}\nscores = {}\nfor name, (trend, seasonal) in settings.items():\n    fit = ExponentialSmoothing(train, trend=trend, seasonal=seasonal, seasonal_periods=12).fit()\n    error = (test - fit.forecast(12)).abs()\n    fits[name] = fit\n    scores[name] = float(error.mean())\n    print(name, round(scores[name], 2), round(float((error / test).mean() * 100), 1))\n\nbest = min(scores, key=scores.get)\nprint(round(1 - scores[best] / bar_mae, 2))\n\nkeys = (\"smoothing_level\", \"smoothing_trend\", \"smoothing_seasonal\")\nprint([abs(round(float(fits[best].params[key]), 2)) for key in keys])\n\nmonth = \"2024-08-01\"\nprint(round(float(fits[best].forecast(12).loc[month])), int(test.loc[month]))\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.holtwinters import ExponentialSmoothing\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"].asfreq(\"MS\")\n\ntrain, test = p.loc[:\"2023\"], p.loc[\"2024\"]\n\ngrowth = train.loc[\"2023\"].sum() / train.loc[\"2022\"].sum()\nbar = pd.Series(train.loc[\"2023\"].to_numpy() * growth, index=test.index)\nbar_mae = float((test - bar).abs().mean())\nprint(round(bar_mae, 2))\n\nsettings = {\n    \"add-add\": (\"add\", \"add\"),\n    \"add-mul\": (\"add\", \"mul\"),\n    \"mul-mul\": (\"mul\", \"mul\"),\n}\n\nfits = {}\nscores = {}\nfor name, (trend, seasonal) in settings.items():\n    fit = ExponentialSmoothing(train, trend=trend, seasonal=seasonal, seasonal_periods=12).fit()\n    error = (test - fit.forecast(12)).abs()\n    fits[name] = fit\n    scores[name] = float(error.mean())\n    print(name, round(scores[name], 2), round(float((error / test).mean() * 100), 1))\n\nbest = min(scores, key=scores.get)\nprint(round(1 - scores[best] / bar_mae, 2))\n\nkeys = (\"smoothing_level\", \"smoothing_trend\", \"smoothing_seasonal\")\nprint([abs(round(float(fits[best].params[key]), 2)) for key in keys])\n\nmonth = \"2024-08-01\"\nprint(round(float(fits[best].forecast(12).loc[month])), int(test.loc[month]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "11.11\nadd-add 9.9 2.4\nadd-mul 8.61 2.2\nmul-mul 6.53 1.7\n0.41\n[0.0, 0.0, 0.0]\n494 480"
+    }
+  ]
+}

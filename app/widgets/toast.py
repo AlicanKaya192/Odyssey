@@ -79,7 +79,7 @@ ENTRY_GAP_MS = 380
 
 @dataclass(frozen=True)
 class ToastData:
-    kind: str            # "badge" | "section"
+    kind: str            # "badge" | "section" | "level" | "tag"
     eyebrow: str         # "YENİ ROZET"
     title: str           # rozetin ya da bölümün adı
     subtitle: str        # açıklama
@@ -89,6 +89,7 @@ class ToastData:
     payload: tuple = ()  # tıklanınca ne açılacağı
     medal: tuple = ()    # rozet kartı: (şekil, kademe, işaret)
     logo: str = ""       # bölüm kartı: patika logosunun anahtarı
+    text: str = ""       # seviye kartı: dairenin içine simge yerine yazılan sayı
 
 
 class Toast(QWidget):
@@ -439,7 +440,7 @@ class Toast(QWidget):
             painter.drawEllipse(merkez, yaricap, yaricap)
 
         # Rozetlerde dağılan küçük parıltılar.
-        if self.data.kind == "badge" and 0.0 < self._pulse < 1.0:
+        if self.data.kind in ("badge", "level", "tag") and 0.0 < self._pulse < 1.0:
             painter.setPen(Qt.PenStyle.NoPen)
             for i in range(8):
                 aci = i * math.pi / 4 + math.pi / 8
@@ -484,7 +485,16 @@ class Toast(QWidget):
         painter.setBrush(parlak)
         painter.drawEllipse(QPointF(0, -r * 0.35), r * 0.72, r * 0.5)
 
-        painter.drawPixmap(QPointF(-ICON / 2, -ICON / 2), self._icon_pix)
+        if self.data.text:
+            yazi = QFont(self.font())
+            yazi.setPixelSize(21 if len(self.data.text) < 3 else 17)
+            yazi.setWeight(QFont.Weight.Black)
+            painter.setFont(yazi)
+            painter.setPen(QColor("#FFFFFF"))
+            painter.drawText(QRectF(-r, -r, 2 * r, 2 * r), Qt.AlignmentFlag.AlignCenter, self.data.text)
+            painter.setPen(Qt.PenStyle.NoPen)
+        else:
+            painter.drawPixmap(QPointF(-ICON / 2, -ICON / 2), self._icon_pix)
 
         # Bölüm kartında sağ altta küçük bir onay işareti.
         if self.data.kind == "section":

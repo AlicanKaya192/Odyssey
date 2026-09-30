@@ -1,0 +1,36 @@
+{
+  "id": "precision-recall",
+  "title": {
+    "tr": "Eşiği seç",
+    "en": "Choose the threshold"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Eşiği geçen saatler: `kept[kept.abs() > threshold].index`; kaçının olay olduğu: `.isin(events).sum()`.",
+      "en": "The hours past the threshold: `kept[kept.abs() > threshold].index`; how many are events: `.isin(events).sum()`."
+    },
+    {
+      "tr": "Kaçan olaylar: `events[~events.isin(caught)]`; `events` bir seri olduğu için biçimlendirme `.dt.strftime(...)`.",
+      "en": "The missed events: `events[~events.isin(caught)]`; `events` is a series, so formatting is `.dt.strftime(...)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\np = pd.read_csv(\"pump_pressure.csv\", index_col=\"timestamp\", parse_dates=True)\np = p[\"pressure\"]\nevents = pd.read_csv(\"pump_events.csv\", parse_dates=[\"timestamp\"])[\"timestamp\"]\ncalm = p.loc[:\"2024-10-06\"]\n\nprofile = calm.groupby(calm.index.hour).median()\nresid = calm - profile.reindex(calm.index.hour).to_numpy()\nmad = (resid - resid.median()).abs().median()\nscore = 0.6745 * (resid - resid.median()) / mad\n\n\ndef evaluate(threshold, skip):\n    kept = score.drop(skip)\n    flagged = kept[kept.abs() > threshold].index\n    correct = int(flagged.isin(events).sum())\n    return len(flagged), correct, round(correct / len(flagged), 2), round(correct / len(events), 2)\n\n\nprint(evaluate(3, []))\n\nstuck = pd.date_range(\"2024-09-30 08:00\", \"2024-09-30 16:00\", freq=\"h\")\nfor threshold in (2, 2.5, 3, 4, 6):\n    print(threshold, evaluate(threshold, stuck))\n\ncaught = score[score.abs() > 4].index\nmissed = events[~events.isin(caught)]\nprint(missed.dt.strftime(\"%m-%d %H\").tolist())\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\np = pd.read_csv(\"pump_pressure.csv\", index_col=\"timestamp\", parse_dates=True)\np = p[\"pressure\"]\nevents = pd.read_csv(\"pump_events.csv\", parse_dates=[\"timestamp\"])[\"timestamp\"]\ncalm = p.loc[:\"2024-10-06\"]\n\nprofile = calm.groupby(calm.index.hour).median()\nresid = calm - profile.reindex(calm.index.hour).to_numpy()\nmad = (resid - resid.median()).abs().median()\nscore = 0.6745 * (resid - resid.median()) / mad\n\n\ndef evaluate(threshold, skip):\n    kept = score.drop(skip)\n    flagged = kept[kept.abs() > threshold].index\n    correct = int(flagged.isin(events).sum())\n    return len(flagged), correct, round(correct / len(flagged), 2), round(correct / len(events), 2)\n\n\nprint(evaluate(3, []))\n\nstuck = pd.date_range(\"2024-09-30 08:00\", \"2024-09-30 16:00\", freq=\"h\")\nfor threshold in (2, 2.5, 3, 4, 6):\n    print(threshold, evaluate(threshold, stuck))\n\ncaught = score[score.abs() > 4].index\nmissed = events[~events.isin(caught)]\nprint(missed.dt.strftime(\"%m-%d %H\").tolist())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(20, 12, 0.6, 1.0)\n2 (38, 12, 0.32, 1.0)\n2.5 (16, 12, 0.75, 1.0)\n3 (12, 12, 1.0, 1.0)\n4 (10, 10, 1.0, 0.83)\n6 (8, 8, 1.0, 0.67)\n['09-28 19', '10-04 12']"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "hidden-gaps",
+  "title": {
+    "tr": "Eksik günlü haftalar",
+    "en": "Weeks with missing days"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`weekly` iki sütunlu bir tablo: `weekly[\"sum\"]` ve `weekly[\"count\"]`. Tek haftanın satırı `weekly.loc[\"2024-07-21\"]`.",
+      "en": "`weekly` is a table with two columns: `weekly[\"sum\"]` and `weekly[\"count\"]`. A single week's row is `weekly.loc[\"2024-07-21\"]`."
+    },
+    {
+      "tr": "`min_count` yalnızca eksik günler `NaN` olarak **göründüğünde** işe yarıyor; önce `asfreq(\"D\")`.",
+      "en": "`min_count` only helps once the missing days **show up** as `NaN`; call `asfreq(\"D\")` first."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nmessy = pd.read_csv(\"sales_messy.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nfixed = messy.sort_index().groupby(level=0).sum()\n\nweekly = fixed.resample(\"W\").agg([\"sum\", \"count\"])\nprint(int((weekly[\"count\"] < 7).sum()))\n\nweek = weekly.loc[\"2024-07-21\"]\nprint(int(week[\"sum\"]), int(week[\"count\"]))\n\nmean = fixed.resample(\"W\").mean().loc[\"2024-07-21\"]\nprint(round(float(mean * 7)))\n\nstrict = fixed.asfreq(\"D\").resample(\"W\").sum(min_count=7)\nprint(int(strict.isna().sum()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nmessy = pd.read_csv(\"sales_messy.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nfixed = messy.sort_index().groupby(level=0).sum()\n\nweekly = fixed.resample(\"W\").agg([\"sum\", \"count\"])\nprint(int((weekly[\"count\"] < 7).sum()))\n\nweek = weekly.loc[\"2024-07-21\"]\nprint(int(week[\"sum\"]), int(week[\"count\"]))\n\nmean = fixed.resample(\"W\").mean().loc[\"2024-07-21\"]\nprint(round(float(mean * 7)))\n\nstrict = fixed.asfreq(\"D\").resample(\"W\").sum(min_count=7)\nprint(int(strict.isna().sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6\n1192 4\n2086\n6"
+    }
+  ]
+}

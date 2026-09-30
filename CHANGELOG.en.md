@@ -21,12 +21,57 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [0.9.1] — unreleased
+## [0.9.1] — 30 September 2026
+
+### Added
+- **The Time Series track.** 23 chapters at three levels: **Basic** covers
+  working with dates and the time index, resampling and windows;
+  **Intermediate** decomposition, stationarity, autocorrelation, missing
+  values and outliers, baselines and validating a forecast; **Advanced**
+  exponential smoothing, ARIMA, external variables, forecasting with machine
+  learning, prediction intervals, anomalies and change points. The last
+  chapter brings it all together in one job: from a messy dump to a 28-day
+  forecast with an interval. 153 exercises, 628 quiz questions and three new
+  badges.
+- **Levels and titles.** Every section you finish and every badge you earn
+  gives XP; badges give more than sections, and hard badges more still. As
+  XP builds up you level up (50 levels, each asking for more XP than the
+  last) and a card appears in the bottom right with its own sound. Your
+  profile shows your level and an XP bar under your name. At certain
+  levels, on finishing a whole track and for a few hard feats you earn a
+  **title**; click the title under your name to pick one of those you have
+  earned, and hover over a locked one to see how to earn it. Sections you
+  finished and badges you earned earlier count too.
+- **Study timer.** From the clock icon on the right of the bottom bar you
+  can pick a routine and start: Pomodoro (25 / 5, with a long break every
+  four rounds), 52 / 17, deep work (90 / 20), small steps (15 / 3) or your
+  own lengths. The time left runs as a small counter in the bottom bar and
+  only grows slightly in the last seconds; you can pause, skip the break or
+  finish. When a round or a break ends a card appears with a short sound,
+  and a Windows notification if Odyssey is in the background. Finished
+  focus rounds count as that day's study, for your streak and activity
+  calendar.
+- **Past attempts.** A new **My attempts** tab in exercises: your last
+  correct solution and your wrong attempts, each with why it did not pass;
+  in a wrong attempt the lines that are not in your correct solution are
+  marked in red. In mathematics problems the answers you tried are listed.
+  In quizzes, **See my mistakes** and **Past attempts**: for every attempt,
+  what you answered to each question, the correct answer and the
+  explanation. Attempts are recorded from this version on.
+- **Guided tour.** On first start (and once after this update) you are
+  asked whether you would like a short tour of the app. Odyssey's centaur
+  guides you through every part in turn: tracks, a section's tabs, the
+  lesson, notes, the quiz, the exercise screen, profile, badges, routes,
+  notes, search, the study timer and settings. You can leave the tour at
+  any moment and restart it from Settings › Learning.
 
 ### Changed
+- **No more leaving a quiz by accident.** While a quiz is in progress,
+  moving to another tab, section or screen asks first; if you choose
+  "Leave the quiz", that attempt is cancelled and does not count.
 - **Updates now download only the files that changed.** If you have the
   previous version installed, you get a small update package with just the
-  files changed since then instead of the 229 MB full installer (from the
+  files changed since then instead of the 233 MB full installer (from the
   next update on). The package checks the installed version; if it does not
   match, it touches nothing and Odyssey downloads the full installer on the
   next try. Moving to 0.9.1 is the last update that uses the full installer.

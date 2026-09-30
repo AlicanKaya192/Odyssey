@@ -1,0 +1,36 @@
+{
+  "id": "rows-or-time",
+  "title": {
+    "tr": "Yedi satır mı, yedi gün mü?",
+    "en": "Seven rows or seven days?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Günün indeksteki konumu `fixed.index.get_loc(day)`; yedi satırlık pencerenin ilk satırı `fixed.index[konum - 6]`.",
+      "en": "The day's position in the index is `fixed.index.get_loc(day)`; the first row of a seven-row window is `fixed.index[position - 6]`."
+    },
+    {
+      "tr": "Süre penceresi: `fixed.rolling(\"7D\")`; üstünde `.sum()` ve `.count()`.",
+      "en": "A time window: `fixed.rolling(\"7D\")`, with `.sum()` and `.count()` on it."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nmessy = pd.read_csv(\"sales_messy.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nfixed = messy.sort_index().groupby(level=0).sum()\n\nday = pd.Timestamp(\"2024-07-20\")\nprint(fixed.rolling(7).sum().loc[day])\n\nposition = fixed.index.get_loc(day)\nfirst = fixed.index[position - 6]\nprint((day - first).days + 1)\n\nby_time = fixed.rolling(\"7D\")\nprint(by_time.sum().loc[day], by_time.count().loc[day])\n\nprint(int((by_time.count() < 7).sum()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nmessy = pd.read_csv(\"sales_messy.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nfixed = messy.sort_index().groupby(level=0).sum()\n\nday = pd.Timestamp(\"2024-07-20\")\nprint(fixed.rolling(7).sum().loc[day])\n\nposition = fixed.index.get_loc(day)\nfirst = fixed.index[position - 6]\nprint((day - first).days + 1)\n\nby_time = fixed.rolling(\"7D\")\nprint(by_time.sum().loc[day], by_time.count().loc[day])\n\nprint(int((by_time.count() < 7).sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2092.0\n10\n1200.0 4.0\n36"
+    }
+  ]
+}

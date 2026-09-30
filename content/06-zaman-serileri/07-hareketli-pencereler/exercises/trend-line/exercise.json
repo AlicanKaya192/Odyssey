@@ -1,0 +1,36 @@
+{
+  "id": "trend-line",
+  "title": {
+    "tr": "Trend çizgisi",
+    "en": "The trend line"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`s.rolling(365).mean()`; tek günün değeri `trend.loc[\"2023-12-31\"]`.",
+      "en": "`s.rolling(365).mean()`; one day's value is `trend.loc[\"2023-12-31\"]`."
+    },
+    {
+      "tr": "Yıllık ortalamalar: `s.resample(\"YE\").mean().round(1).tolist()`.",
+      "en": "The yearly means: `s.resample(\"YE\").mean().round(1).tolist()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ntrend = s.rolling(365).mean()\nprint(int(trend.isna().sum()))\n\nends = [trend.loc[day] for day in (\"2022-12-31\", \"2023-12-31\", \"2024-12-31\")]\nprint(round(float(ends[0]), 1), round(float(ends[1]), 1), round(float(ends[2]), 1))\n\nprint(s.resample(\"YE\").mean().round(1).tolist())\nprint(round(float(ends[2] - ends[1]), 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ntrend = s.rolling(365).mean()\nprint(int(trend.isna().sum()))\n\nends = [trend.loc[day] for day in (\"2022-12-31\", \"2023-12-31\", \"2024-12-31\")]\nprint(round(float(ends[0]), 1), round(float(ends[1]), 1), round(float(ends[2]), 1))\n\nprint(s.resample(\"YE\").mean().round(1).tolist())\nprint(round(float(ends[2] - ends[1]), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "364\n225.5 260.4 294.1\n[225.5, 260.4, 294.0]\n33.7"
+    }
+  ]
+}

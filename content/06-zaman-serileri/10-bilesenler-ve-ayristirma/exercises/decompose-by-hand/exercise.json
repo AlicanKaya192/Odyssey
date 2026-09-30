@@ -1,0 +1,36 @@
+{
+  "id": "decompose-by-hand",
+  "title": {
+    "tr": "Elle ayrıştırma",
+    "en": "Decomposing by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`pattern` yedi satırlı bir seri; indeksi 0–6. `pattern - pattern.mean()` toplamı sıfıra çekiyor.",
+      "en": "`pattern` is a series of seven rows indexed 0–6. `pattern - pattern.mean()` pulls the sum to zero."
+    },
+    {
+      "tr": "`pattern.loc[s.index.dayofweek]` her tarih için o günün payını seçiyor; `.values` ile indeksini atıp serinin tarihlerine bağlıyorsun.",
+      "en": "`pattern.loc[s.index.dayofweek]` picks that day's share for every date; with `.values` you drop its index and attach the dates of the series."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrend = s.rolling(7, center=True).mean()\n\ndetrended = s - trend\npattern = detrended.groupby(detrended.index.dayofweek).mean()\npattern = pattern - pattern.mean()\nprint(pattern.round(1).tolist())\n\nseasonal = pd.Series(pattern.loc[s.index.dayofweek].values, index=s.index)\n\nresid = s - trend - seasonal\nprint(round(float(resid.std()), 2), round(float(s.std()), 2))\n\nday = \"2024-03-12\"\nprint(int(s.loc[day]), round(float(trend.loc[day]), 1),\n      round(float(seasonal.loc[day]), 1), round(float(resid.loc[day]), 1))\n\nprint(bool((trend + seasonal + resid - s).abs().max() < 1e-9))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrend = s.rolling(7, center=True).mean()\n\ndetrended = s - trend\npattern = detrended.groupby(detrended.index.dayofweek).mean()\npattern = pattern - pattern.mean()\nprint(pattern.round(1).tolist())\n\nseasonal = pd.Series(pattern.loc[s.index.dayofweek].values, index=s.index)\n\nresid = s - trend - seasonal\nprint(round(float(resid.std()), 2), round(float(s.std()), 2))\n\nday = \"2024-03-12\"\nprint(int(s.loc[day]), round(float(trend.loc[day]), 1),\n      round(float(seasonal.loc[day]), 1), round(float(resid.loc[day]), 1))\n\nprint(bool((trend + seasonal + resid - s).abs().max() < 1e-9))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-42.6, -39.6, -31.1, -18.7, 19.0, 76.2, 36.7]\n12.32 58.94\n256 287.9 -39.6 7.8\nTrue"
+    }
+  ]
+}

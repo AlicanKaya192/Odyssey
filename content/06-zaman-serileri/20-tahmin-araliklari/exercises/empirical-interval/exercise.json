@@ -1,0 +1,36 @@
+{
+  "id": "empirical-interval",
+  "title": {
+    "tr": "Geçmiş hatalardan aralık",
+    "en": "An interval from past errors"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yüzdelik: `past.quantile(0.10)`. Aralığın uçları tahmine bu sınırlar eklenerek bulunur.",
+      "en": "A quantile: `past.quantile(0.10)`. The ends of the interval come from adding these bounds to the forecast."
+    },
+    {
+      "tr": "Aralıkta kalma: `(future >= lower) & (future <= upper)`; oranı `.mean()`.",
+      "en": "Being inside: `(future >= lower) & (future <= upper)`; the share is `.mean()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\nerror = s - s.shift(7)\npast = error.loc[\"2023\"]\nfuture = error.loc[\"2024\"]\n\nlow = float(past.quantile(0.10))\nhigh = float(past.quantile(0.90))\nprint(round(low, 1), round(high, 1))\n\nday = \"2024-03-15\"\nforecast = float(s.shift(7).loc[day])\nprint(round(forecast), round(forecast + low), round(forecast + high), int(s.loc[day]))\n\n\ndef coverage(level):\n    lower = past.quantile((1 - level) / 2)\n    upper = past.quantile(1 - (1 - level) / 2)\n    inside = (future >= lower) & (future <= upper)\n    return round(float(inside.mean()), 3)\n\n\nprint(coverage(0.5), coverage(0.8), coverage(0.95))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\nerror = s - s.shift(7)\npast = error.loc[\"2023\"]\nfuture = error.loc[\"2024\"]\n\nlow = float(past.quantile(0.10))\nhigh = float(past.quantile(0.90))\nprint(round(low, 1), round(high, 1))\n\nday = \"2024-03-15\"\nforecast = float(s.shift(7).loc[day])\nprint(round(forecast), round(forecast + low), round(forecast + high), int(s.loc[day]))\n\n\ndef coverage(level):\n    lower = past.quantile((1 - level) / 2)\n    upper = past.quantile(1 - (1 - level) / 2)\n    inside = (future >= lower) & (future <= upper)\n    return round(float(inside.mean()), 3)\n\n\nprint(coverage(0.5), coverage(0.8), coverage(0.95))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "-21.0 23.0\n288 267 311 301\n0.533 0.825 0.945"
+    }
+  ]
+}

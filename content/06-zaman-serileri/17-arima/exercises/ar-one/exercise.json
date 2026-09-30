@@ -1,0 +1,36 @@
+{
+  "id": "ar-one",
+  "title": {
+    "tr": "İlk AR modeli",
+    "en": "A first AR model"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Katsayılar `fit.params` içinde; AR katsayısının adı `\"ar.L1\"`.",
+      "en": "The coefficients are in `fit.params`; the AR coefficient is called `\"ar.L1\"`."
+    },
+    {
+      "tr": "Bir gün önceki sapma: `anomaly.shift(1).loc[\"2024\"]`. Önce kaydır, sonra 2024'ü seç.",
+      "en": "The deviation one day earlier: `anomaly.shift(1).loc[\"2024\"]`. Shift first, then select 2024."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\nt = pd.read_csv(\"temperature_daily.csv\", index_col=\"date\", parse_dates=True)\nt = t[\"temp_c\"].asfreq(\"D\")\nanomaly = t - t.groupby(t.index.dayofyear).transform(\"mean\")\n\ntrain = anomaly.loc[:\"2023\"]\nfit = ARIMA(train, order=(1, 0, 0)).fit()\n\nphi = float(fit.params[\"ar.L1\"])\nprint(round(phi, 2))\n\nlast = float(train.iloc[-1])\nprint(round(last, 2), [round(float(v), 2) for v in fit.forecast(5)])\nprint([round(last * phi ** step, 2) for step in range(1, 6)])\n\nactual = anomaly.loc[\"2024\"]\nprevious = anomaly.shift(1).loc[\"2024\"]\nmean_error = float(actual.abs().mean())\nnaive_error = float((actual - previous).abs().mean())\nar_error = float((actual - phi * previous).abs().mean())\nprint(round(mean_error, 2), round(naive_error, 2), round(ar_error, 2))\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\nt = pd.read_csv(\"temperature_daily.csv\", index_col=\"date\", parse_dates=True)\nt = t[\"temp_c\"].asfreq(\"D\")\nanomaly = t - t.groupby(t.index.dayofyear).transform(\"mean\")\n\ntrain = anomaly.loc[:\"2023\"]\nfit = ARIMA(train, order=(1, 0, 0)).fit()\n\nphi = float(fit.params[\"ar.L1\"])\nprint(round(phi, 2))\n\nlast = float(train.iloc[-1])\nprint(round(last, 2), [round(float(v), 2) for v in fit.forecast(5)])\nprint([round(last * phi ** step, 2) for step in range(1, 6)])\n\nactual = anomaly.loc[\"2024\"]\nprevious = anomaly.shift(1).loc[\"2024\"]\nmean_error = float(actual.abs().mean())\nnaive_error = float((actual - previous).abs().mean())\nar_error = float((actual - phi * previous).abs().mean())\nprint(round(mean_error, 2), round(naive_error, 2), round(ar_error, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.73\n3.28 [2.37, 1.7, 1.22, 0.87, 0.62]\n[2.38, 1.73, 1.25, 0.91, 0.66]\n1.63 1.26 1.14"
+    }
+  ]
+}

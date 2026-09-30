@@ -1,0 +1,680 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Bir günlük seride `isna().sum()` sıfır çıkıyor. \"Eksik veri yok\" denebilir mi?",
+        "en": "In a daily series `isna().sum()` is zero. Can you say \"no data is missing\"?"
+      },
+      "options": {
+        "tr": [
+          "Hayır; satırı hiç olmayan günler `NaN` olarak görünmez",
+          "Evet, kesinlikle",
+          "Yalnızca sıralıysa",
+          "Yalnızca 365 satır varsa"
+        ],
+        "en": [
+          "No; days with no row at all do not show as `NaN`",
+          "Yes, definitely",
+          "Only if it is sorted",
+          "Only if it has 365 rows"
+        ]
+      },
+      "explanation": {
+        "tr": "`isna` yalnızca var olan satırlara bakar. Eksik günleri görmek için önce `asfreq(\"D\")` ile her güne bir satır aç, sonra say.",
+        "en": "`isna` only looks at rows that exist. To see missing days, first open a row for every day with `asfreq(\"D\")`, then count."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Eksik verinin \"kılık değiştirmiş\" hâli nedir?",
+        "en": "What is missing data \"in disguise\"?"
+      },
+      "options": {
+        "tr": [
+          "Eksik yerine 0, −1 ya da 999 gibi bir sayı yazılması",
+          "Satırın hiç olmaması",
+          "Değerin `NaN` olması",
+          "Tarihin yanlış biçimde olması"
+        ],
+        "en": [
+          "A number such as 0, −1 or 999 written in place of the missing value",
+          "The row not existing",
+          "The value being `NaN`",
+          "The date being in the wrong format"
+        ]
+      },
+      "explanation": {
+        "tr": "Sayı gibi göründüğü için ortalamaya ve toplama giriyor. Verinin kaynağını ve olası yer tutucu değerleri bilmeden fark edilmez.",
+        "en": "Because it looks like a number it enters means and totals. It goes unnoticed unless you know the source of the data and its possible placeholder values."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`sales_messy.csv`'de 4 tarih iki kez geçiyor. İlk yapılacak şey nedir?",
+        "en": "In `sales_messy.csv` 4 dates appear twice. What is the first thing to do?"
+      },
+      "options": {
+        "tr": [
+          "O günlere bakıp yinelenen mi bölünmüş mü olduğunu anlamak",
+          "`drop_duplicates()` çağırmak",
+          "İkisinin ortalamasını almak",
+          "O günleri silmek"
+        ],
+        "en": [
+          "Look at those days to see whether they are duplicates or split records",
+          "Call `drop_duplicates()`",
+          "Average the two",
+          "Delete those days"
+        ]
+      },
+      "explanation": {
+        "tr": "Burada kayıtlar bölünmüştü (sabah ve akşam kasası); doğru işlem toplamak. `drop_duplicates` satışın yarısını silerdi. Veriyi tanımadan temizleme.",
+        "en": "Here the records were split (the morning and the evening till); the right action is to add them up. `drop_duplicates` would have deleted half the sales. Do not clean data you do not know."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "`(missing != missing.shift()).cumsum()` kalıbı ne işe yarar?",
+        "en": "What is the pattern `(missing != missing.shift()).cumsum()` for?"
+      },
+      "options": {
+        "tr": [
+          "Art arda gelen aynı değerleri gruplamak: her boşluğa bir numara vermek",
+          "Eksikleri doldurmak",
+          "Tarihleri sıralamak",
+          "Ortalamayı hesaplamak"
+        ],
+        "en": [
+          "Grouping consecutive equal values: giving each gap a number",
+          "Filling the gaps",
+          "Sorting the dates",
+          "Computing the mean"
+        ]
+      },
+      "explanation": {
+        "tr": "Değer her değiştiğinde sayaç bir artıyor; ardışık eksik günler aynı numarayı alıyor. `groupby` ile boşlukların uzunluğu bulunuyor.",
+        "en": "The counter goes up by one whenever the value changes; consecutive missing days get the same number. With `groupby` you get the length of each gap."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Mağaza pazarları kapalı ve pazar günlerinin satırı yok. Doğru doldurma hangisi?",
+        "en": "A shop is closed on Sundays and the Sunday rows are absent. Which filling is right?"
+      },
+      "options": {
+        "tr": [
+          "`fillna(0)`: o gün satış gerçekten sıfır",
+          "`ffill()`",
+          "`interpolate()`",
+          "Geçen haftanın aynı günü"
+        ],
+        "en": [
+          "`fillna(0)`: sales that day really are zero",
+          "`ffill()`",
+          "`interpolate()`",
+          "The same day last week"
+        ]
+      },
+      "explanation": {
+        "tr": "Yöntem nedene bağlı. Kapalı gün gerçek bir sıfır; kayıp kayıt ise bilinmeyen bir sayı ve tahmin edilmesi gerekir.",
+        "en": "The method depends on the cause. A closed day is a real zero; a lost record is an unknown number that has to be estimated."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Kayıt hatasıyla kaybolan günleri sıfırla doldurmak neye yol açar?",
+        "en": "What does filling days lost to a recording error with zero lead to?"
+      },
+      "options": {
+        "tr": [
+          "Toplam, ortalama ve desen çöker: hata 281 birim",
+          "Hiçbir şeye",
+          "Seri daha düzgün olur",
+          "Yalnızca grafik değişir"
+        ],
+        "en": [
+          "Totals, means and the pattern collapse: an error of 281 units",
+          "Nothing",
+          "The series becomes smoother",
+          "Only the chart changes"
+        ]
+      },
+      "explanation": {
+        "tr": "O günlerde satış vardı; sıfır yazmak yanlış bir ölçüm uydurmak. Ölçülen hata bütün yöntemlerin en kötüsü.",
+        "en": "There were sales on those days; writing zero invents a wrong measurement. The measured error is the worst of all the methods."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük satışta `ffill()` neden kötü sonuç veriyor (hata 45.0)?",
+        "en": "Why does `ffill()` do badly on the daily sales (an error of 45.0)?"
+      },
+      "options": {
+        "tr": [
+          "Haftalık deseni bilmiyor: cumartesiye cuma değerini yazıyor",
+          "Çok yavaş",
+          "Geleceği kullanıyor",
+          "Yalnızca sayıları yuvarlıyor"
+        ],
+        "en": [
+          "It does not know the weekly pattern: it writes Friday's value on Saturday",
+          "It is too slow",
+          "It uses the future",
+          "It only rounds the numbers"
+        ]
+      },
+      "explanation": {
+        "tr": "10 Şubat Cumartesi 388 iken `ffill` cumanın 302'sini yazıyor. Mevsimi olan seride bir önceki gün, eksik günün iyi bir tahmini değil.",
+        "en": "Saturday 10 February is 388 while `ffill` writes Friday's 302. In a seasonal series the previous day is not a good estimate of the missing one."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "Haftalık deseni olan günlük seride en isabetli basit doldurma hangisi?",
+        "en": "Which simple filling is the most accurate on a daily series with a weekly pattern?"
+      },
+      "options": {
+        "tr": [
+          "Bir hafta öncesi ile bir hafta sonrasının ortalaması",
+          "Genel ortalama",
+          "`ffill()`",
+          "Doğrusal doldurma"
+        ],
+        "en": [
+          "The average of a week before and a week after",
+          "The overall mean",
+          "`ffill()`",
+          "Linear filling"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölçülen hata 7.0; geçen haftanın aynı günü 9.8, `ffill` 45.0, doğrusal 46.1. Mevsimsel seride mevsimsel doldur.",
+        "en": "The measured error is 7.0; the same day last week gives 9.8, `ffill` 45.0, linear 46.1. Fill a seasonal series seasonally."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`ffill()` ve `interpolate()` hangi tür seride doğru seçim?",
+        "en": "For what kind of series are `ffill()` and `interpolate()` the right choice?"
+      },
+      "options": {
+        "tr": [
+          "Mevsimi olmayan, yavaş değişen seride: fiyat, stok, sıcaklık sensörü",
+          "Güçlü haftalık desenli satışta",
+          "Hiçbirinde",
+          "Yalnızca aylık veride"
+        ],
+        "en": [
+          "A slowly changing series without a season: a price, a stock level, a temperature sensor",
+          "Sales with a strong weekly pattern",
+          "None",
+          "Only monthly data"
+        ]
+      },
+      "explanation": {
+        "tr": "Fiyat değişene kadar aynı kalır: `ffill`. Sıcaklık iki ölçüm arasında düzgün değişir: `interpolate`. Yöntem kötü değil, yanlış yerde kötü.",
+        "en": "A price stays the same until it changes: `ffill`. Temperature changes smoothly between two readings: `interpolate`. The method is not bad; it is bad in the wrong place."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`s.ffill(limit=2)` on günlük bir boşlukta ne yapar?",
+        "en": "What does `s.ffill(limit=2)` do on a ten-day gap?"
+      },
+      "options": {
+        "tr": [
+          "İlk iki günü doldurur, kalan sekizi boş bırakır",
+          "Boşluğa hiç dokunmaz",
+          "Hepsini doldurur",
+          "Hata verir"
+        ],
+        "en": [
+          "Fills the first two days and leaves the other eight empty",
+          "Does not touch the gap at all",
+          "Fills all of it",
+          "Raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "`limit` \"boşluk başına en çok N hücre\" demek, \"yalnızca N'den kısa boşluklar\" değil. İkincisi için boşluk uzunluklarını sayaçla bulup maskelemek gerekiyor.",
+        "en": "`limit` means \"at most N cells per gap\", not \"only gaps shorter than N\". For the latter you find the gap lengths with the counter and mask."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Beş buçuk saatlik bir sensör arızasını doğrusal doldurmak neden yanlış?",
+        "en": "Why is it wrong to fill a sensor fault of five and a half hours linearly?"
+      },
+      "options": {
+        "tr": [
+          "O sürede ne olduğu bilinmiyor; düz çizgi uydurma veri",
+          "Çok yavaş hesaplandığı için",
+          "pandas desteklemediği için",
+          "Yanlış değil"
+        ],
+        "en": [
+          "What happened in that time is unknown; a straight line is invented data",
+          "Because it is slow to compute",
+          "Because pandas does not support it",
+          "It is not wrong"
+        ]
+      },
+      "explanation": {
+        "tr": "Kısa boşlukta komşular iyi bir tahmin verir. Uzun boşlukta doldurulan değerler ölçüm gibi görünür ama hiçbir bilgi taşımaz; boş bırakmak daha dürüst.",
+        "en": "In a short gap the neighbours give a good estimate. In a long one the filled values look like measurements but carry no information; leaving it empty is more honest."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Doldurulan satırları bir `was_missing` sütunuyla işaretlemenin yararı nedir?",
+        "en": "What is the benefit of flagging filled rows with a `was_missing` column?"
+      },
+      "options": {
+        "tr": [
+          "Gerçek ölçüm ile tahmini sonradan ayırt edebilmek",
+          "Dosyayı küçültmek",
+          "Doldurmayı hızlandırmak",
+          "Yararı yok"
+        ],
+        "en": [
+          "Being able to tell real measurements from estimates later",
+          "Making the file smaller",
+          "Speeding up the filling",
+          "None"
+        ]
+      },
+      "explanation": {
+        "tr": "\"Bu toplamın ne kadarı gerçek\" sorusunu cevaplayabilir, model doğrularken doldurulmuş günleri dışarıda tutabilir, eksikliği bir özellik olarak kullanabilirsin.",
+        "en": "You can answer \"how much of this total is real\", leave the filled days out when validating a model, and use the missingness as a feature."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Bir tahmin modelini sınarken `interpolate()` ile doldurmanın sorunu nedir?",
+        "en": "What is the problem with filling by `interpolate()` when testing a forecasting model?"
+      },
+      "options": {
+        "tr": [
+          "Boşluğun sonrasındaki değeri kullanır: gelecekten bilgi sızar",
+          "Çok yavaştır",
+          "`NaN` üretir",
+          "Sorunu yoktur"
+        ],
+        "en": [
+          "It uses the value after the gap: information leaks from the future",
+          "It is too slow",
+          "It produces `NaN`",
+          "There is none"
+        ]
+      },
+      "explanation": {
+        "tr": "Geçmişi temizlerken iki yöne bakmak serbest. Sınamada model, o an bilinmeyen bir değerden yararlanmış olur. Orada `ffill` ya da geçen haftanın aynı günü.",
+        "en": "Looking both ways is fine when cleaning the past. In a test the model would benefit from a value not known at that moment. There, use `ffill` or the same day last week."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Çok sayıda doldurulmuş değer serinin oynaklığını nasıl etkiler?",
+        "en": "How do many filled values affect the volatility of a series?"
+      },
+      "options": {
+        "tr": [
+          "Azaltır: doldurulan değerler \"ortalama\" tahminlerdir",
+          "Artırır",
+          "Etkilemez",
+          "Rastgele"
+        ],
+        "en": [
+          "It lowers it: filled values are \"average\" estimates",
+          "It raises it",
+          "It has no effect",
+          "At random"
+        ]
+      },
+      "explanation": {
+        "tr": "Doldurulan günler gerçek günlerin sürprizini taşımaz. Seri olduğundan daha düzenli görünür ve model belirsizliği küçümser.",
+        "en": "Filled days do not carry the surprise of real days. The series looks more orderly than it is and a model underestimates the uncertainty."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`sum()` eksik günleri olan bir ayda nasıl davranır?",
+        "en": "How does `sum()` behave for a month with missing days?"
+      },
+      "options": {
+        "tr": [
+          "`NaN`'ları atlar; toplam eksik günler sıfırmış gibi düşük çıkar",
+          "`NaN` döndürür",
+          "Eksikleri tahmin eder",
+          "Hata verir"
+        ],
+        "en": [
+          "It skips `NaN`; the total comes out low, as if the missing days were zero",
+          "It returns `NaN`",
+          "It estimates the gaps",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Sessizce eksik bir toplam verir. Eksik günü olan dönemi boş bırakmak için `sum(min_count=...)`.",
+        "en": "It silently gives a short total. To leave a period with missing days empty, use `sum(min_count=...)`."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Web trafiğinde iki kampanya günü de perşembeye denk geldi. Haftalık profile etkisi ne?",
+        "en": "In the web traffic both campaign days fell on a Thursday. What is the effect on the weekly profile?"
+      },
+      "options": {
+        "tr": [
+          "Perşembe ortalaması 4424 yerine 4621 çıkıyor: desen yanlış öğreniliyor",
+          "Etkisi yok",
+          "Yalnızca standart sapma değişiyor",
+          "Pazartesi ortalaması düşüyor"
+        ],
+        "en": [
+          "The Thursday mean comes out as 4621 instead of 4424: the pattern is learnt wrongly",
+          "None",
+          "Only the standard deviation changes",
+          "The Monday mean falls"
+        ]
+      },
+      "explanation": {
+        "tr": "Aykırı değer yalnızca ortalamayı değil, mevsim tahminini de bozar. 52 perşembenin ortalamasını iki gün 200 birim kaydırıyor.",
+        "en": "An outlier distorts not only the mean but the seasonal estimate too. Two days move the mean of 52 Thursdays by 200 units."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "z-skoruyla aykırı değer aramanın zayıflığı nedir?",
+        "en": "What is the weakness of looking for outliers with a z-score?"
+      },
+      "options": {
+        "tr": [
+          "Ortalama ve standart sapmanın kendisi aykırı değerlerden etkilenir (maskeleme)",
+          "Hesaplaması zordur",
+          "Yalnızca artı yönde çalışır",
+          "Tarih gerektirir"
+        ],
+        "en": [
+          "The mean and the standard deviation are themselves affected by the outliers (masking)",
+          "It is hard to compute",
+          "It only works upwards",
+          "It needs dates"
+        ]
+      },
+      "explanation": {
+        "tr": "Aykırı günler standart sapmayı şişirir; şişen standart sapma aynı günlerin z-skorunu küçültür. Çok sayıda aykırı değer birbirini gizler.",
+        "en": "Outlier days inflate the standard deviation; the inflated standard deviation shrinks the z-score of those same days. Many outliers hide each other."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "MAD nedir?",
+        "en": "What is the MAD?"
+      },
+      "options": {
+        "tr": [
+          "Ortancadan mutlak sapmaların ortancası",
+          "Ortalamadan sapmaların ortalaması",
+          "En büyük değer eksi en küçük değer",
+          "Standart sapmanın karesi"
+        ],
+        "en": [
+          "The median of the absolute deviations from the median",
+          "The mean of the deviations from the mean",
+          "The largest value minus the smallest",
+          "The square of the standard deviation"
+        ]
+      },
+      "explanation": {
+        "tr": "Standart sapmanın dayanıklı karşılığı. Birkaç uç değer onu oynatmaz; bu yüzden aykırı değer ararken ölçü olarak kullanılır.",
+        "en": "The robust counterpart of the standard deviation. A few extremes do not move it; hence it is used as the yardstick when looking for outliers."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "Dayanıklı z-skorundaki 0.6745 katsayısı ne işe yarar?",
+        "en": "What is the factor 0.6745 in the robust z-score for?"
+      },
+      "options": {
+        "tr": [
+          "Sonucu normal dağılımda z-skoruyla aynı ölçeğe getirir",
+          "Aykırı değerleri siler",
+          "Yüzdeye çevirir",
+          "Hiçbir şeye"
+        ],
+        "en": [
+          "It puts the result on the same scale as a z-score under a normal distribution",
+          "It deletes the outliers",
+          "It converts to a percentage",
+          "Nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Normal dağılan veride MAD ≈ 0.6745 × standart sapma. Çarpınca bildiğin eşikler (3, 3.5) anlamlı kalıyor.",
+        "en": "For normally distributed data MAD ≈ 0.6745 × the standard deviation. Multiplying keeps the thresholds you know (3, 3.5) meaningful."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Mevsimli ve trendli bir seride aykırı değer nerede aranmalı?",
+        "en": "Where should outliers be looked for in a series with a season and a trend?"
+      },
+      "options": {
+        "tr": [
+          "Dayanıklı STL'in kalıntısında",
+          "Ham seride",
+          "Trend bileşeninde",
+          "Yalnızca son haftada"
+        ],
+        "en": [
+          "In the residual of robust STL",
+          "In the raw series",
+          "In the trend component",
+          "Only in the last week"
+        ]
+      },
+      "explanation": {
+        "tr": "Ham seride cumartesi ve Aralık \"yüksek\" diye işaretlenir. Trend ve mevsim çıkınca geriye beklenmeyen kısım kalır; aykırı gün orada tek başına durur.",
+        "en": "On the raw series Saturdays and December get flagged for being \"high\". With the trend and season removed, the unexpected part remains; an outlier day stands alone there."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "STL kalıntısında puanlar 50.0, 46.3, 45.4, 12.9, 5.8 diye sıralanıyor. Doğru okuma hangisi?",
+        "en": "The scores on the STL residual rank 50.0, 46.3, 45.4, 12.9, 5.8. Which reading is right?"
+      },
+      "options": {
+        "tr": [
+          "İlk üçü öbürlerinden kopuk: üç belirgin aykırı gün var",
+          "Hepsi aykırı",
+          "Hiçbiri aykırı değil",
+          "Yalnızca 5.8 olan aykırı"
+        ],
+        "en": [
+          "The first three break away from the rest: there are three clear outlier days",
+          "All are outliers",
+          "None is an outlier",
+          "Only the 5.8 one is"
+        ]
+      },
+      "explanation": {
+        "tr": "Sabit bir eşik (3.5) burada 30 günü işaretlerdi. Puanları sıralayıp kopmanın yerine bakmak, eşiğe körü körüne güvenmekten daha sağlam.",
+        "en": "A fixed threshold (3.5) would flag 30 days here. Sorting the scores and looking at where the break is beats trusting a threshold blindly."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Tek seferlik bir kampanya günü için doğru işlem nedir?",
+        "en": "What is the right action for a one-off campaign day?"
+      },
+      "options": {
+        "tr": [
+          "İşaretle; desen öğrenirken düzeltilmiş değeri kullan, özgün değeri sakla",
+          "Satırı sil",
+          "Dokunma",
+          "Sıfır yaz"
+        ],
+        "en": [
+          "Flag it; use the repaired value when learning the pattern, and keep the original",
+          "Delete the row",
+          "Leave it",
+          "Write zero"
+        ]
+      },
+      "explanation": {
+        "tr": "Olay gerçek ama tekrar etmeyecek; deseni bozmasına izin verme. Özgün değeri saklarsan kampanyanın etkisini soran kişiye cevap verebilirsin.",
+        "en": "The event is real but will not recur; do not let it distort the pattern. Keeping the original lets you answer whoever asks about the effect of the campaign."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Her yıl tekrar eden bayram sıçraması için doğru işlem nedir?",
+        "en": "What is the right action for a holiday spike that recurs every year?"
+      },
+      "options": {
+        "tr": [
+          "Dokunma; olayı modele bir takvim değişkeniyle anlat",
+          "Her yıl düzelt",
+          "Satırı sil",
+          "Ortalamayla değiştir"
+        ],
+        "en": [
+          "Leave it; tell the model about the event with a calendar variable",
+          "Repair it every year",
+          "Delete the row",
+          "Replace it with the mean"
+        ]
+      },
+      "explanation": {
+        "tr": "Tekrar eden olay gürültü değil, desenin parçası. Düzeltirsen model gelecek bayramı tahmin edemez. Bölüm 18 bunu ele alıyor.",
+        "en": "A recurring event is not noise, it is part of the pattern. If you repair it the model cannot forecast the next holiday. Section 18 covers this."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "2 Eylül'den sonra düzeyin kalıcı olarak yükselmesi bir aykırı değer midir?",
+        "en": "Is the level rising for good after 2 September an outlier?"
+      },
+      "options": {
+        "tr": [
+          "Hayır; seviye kayması, yani bir değişim noktası",
+          "Evet, en büyük aykırı değer",
+          "Evet, düzeltilmeli",
+          "Eksik veridir"
+        ],
+        "en": [
+          "No; it is a level shift, that is, a change point",
+          "Yes, the biggest outlier",
+          "Yes, it should be repaired",
+          "It is missing data"
+        ]
+      },
+      "explanation": {
+        "tr": "Aykırı değer geri döner; seviye kayması dönmez. \"Düzeltmek\" gerçek bir değişimi silmek olur. Bölüm 21 değişim noktalarını işliyor.",
+        "en": "An outlier goes back; a level shift does not. \"Repairing\" it would erase a real change. Section 21 deals with change points."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "Aykırı günün satırını silmek neden yanlış?",
+        "en": "Why is deleting the row of an outlier day wrong?"
+      },
+      "options": {
+        "tr": [
+          "Düzenli aralığı bozar; `shift` ve `rolling` hesapları kayar",
+          "pandas izin vermez",
+          "Dosya bozulur",
+          "Yanlış değil"
+        ],
+        "en": [
+          "It breaks the regular spacing; `shift` and `rolling` calculations slip",
+          "pandas does not allow it",
+          "The file gets corrupted",
+          "It is not wrong"
+        ]
+      },
+      "explanation": {
+        "tr": "Silinen satır bir eksik güne dönüşür. Değeri değiştir (ya da `NaN` yapıp doldur), satırı yerinde bırak.",
+        "en": "A deleted row becomes a missing day. Change the value (or make it `NaN` and fill it) and keep the row in place."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "Hampel süzgeci (hareketli ortanca ve MAD) haftalık desenli ham seride ne yapar?",
+        "en": "What does a Hampel filter (rolling median and MAD) do on a raw series with a weekly pattern?"
+      },
+      "options": {
+        "tr": [
+          "Hafta sonlarını aykırı diye işaretler",
+          "Kusursuz çalışır",
+          "Hiçbir günü işaretlemez",
+          "Trendi siler"
+        ],
+        "en": [
+          "Flags the weekends as outliers",
+          "Works perfectly",
+          "Flags no day",
+          "Removes the trend"
+        ]
+      },
+      "explanation": {
+        "tr": "Pencere içindeki ortancaya göre hafta sonu her hafta \"uzak\". Mevsimsiz sensör verisinde çok iyi; mevsimli seride önce deseni çıkar.",
+        "en": "Relative to the median within the window the weekend is \"far\" every week. Very good on sensor data without a season; on a seasonal series remove the pattern first."
+      }
+    }
+  ]
+}

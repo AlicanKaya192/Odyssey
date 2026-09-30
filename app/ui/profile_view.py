@@ -39,6 +39,7 @@ from PySide6.QtWidgets import (
 
 from ..core.avatar import load_avatar
 from ..core import badges as badge_core
+from ..core import levels as level_core
 from ..core.catalog import Catalog
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
@@ -167,6 +168,8 @@ class ProfileView(QWidget):
         self._store = store
         self._mode = "light"
         self._badge_list: list = []
+        self._levels = level_core.Update(level_core.level_state(0))
+        self._tag_list = level_core.load_tags(content_dir() / "tags.json")
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -218,8 +221,8 @@ class ProfileView(QWidget):
     # --- kimlik kartı -----------------------------------------------------
 
     def _build_identity(self) -> QWidget:
-        """Kimlik kartı (prototip `.pcard`): avatar, ad, başlangıç, genel
-        ilerleme, üç küçük sayı ve "Profili düzenle"."""
+        """Kimlik kartı (prototip `.pcard`): avatar, ad, unvan, başlangıç,
+        seviye ve XP çubuğu, "Profili düzenle"."""
         card = Card(mode=self._mode, padding=28)
         self._identity_card = card
         sag = card.body
@@ -238,6 +241,16 @@ class ProfileView(QWidget):
         self._name_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         sag.addWidget(self._name_label)
 
+        # Unvan: tıklanınca unvan penceresi açılıyor. Seçili unvan yoksa
+        # kesik çerçeveli "Unvan seç".
+        self._tag_button = QPushButton()
+        self._tag_button.setProperty("variant", "tag-chip")
+        self._tag_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._tag_button.clicked.connect(self._open_tags)
+        sag.addSpacing(2)
+        sag.addWidget(self._tag_button, 0, Qt.AlignmentFlag.AlignHCenter)
+        sag.addSpacing(2)
+
         self._started = QLabel()
         self._started.setProperty("role", "pcard-since")
         self._started.setWordWrap(True)
@@ -246,8 +259,10 @@ class ProfileView(QWidget):
 
         sag.addSpacing(10)
         satir = QHBoxLayout()
+        # Seviye ve o seviyenin içindeki XP. Burada önce genel ilerleme
+        # yüzdesi vardı; aynı yüzde Öğrenme Yolu'nda duruyor.
         self._progress_caption = QLabel()
-        self._progress_caption.setProperty("role", "pcard-since")
+        self._progress_caption.setProperty("role", "pcard-level")
         self._progress_percent = QLabel()
         self._progress_percent.setProperty("role", "pcard-percent")
         satir.addWidget(self._progress_caption)
@@ -278,15 +293,12 @@ class ProfileView(QWidget):
         govde.setSpacing(0)
         card.body = govde
 
-        # Başlık satırı (prototip `.bwall .hd`): ad, sayı çipi, sağda oklar.
+        # Başlık satırı (prototip `.bwall .hd`): ad, sağda oklar.
         ust = QHBoxLayout()
         ust.setSpacing(12)
         self._badges_title = QLabel()
         self._badges_title.setProperty("role", "card-head")
         ust.addWidget(self._badges_title)
-        self._badges_count = QLabel()
-        self._badges_count.setProperty("role", "count-chip")
-        ust.addWidget(self._badges_count)
         ust.addStretch(1)
         self._badge_prev = self._page_button("chevron-left", -1)
         self._badge_next = self._page_button("chevron-right", 1)
@@ -571,7 +583,6 @@ class ProfileView(QWidget):
 
         self._completed = completed
         self._total = total
-        self._progress.set_ratio(completed / total if total else 0.0)
 
         self._rebuild_years()
         self._graph.set_counts(self._store.activity_for_year(self._graph.year))
@@ -590,6 +601,14 @@ class ProfileView(QWidget):
         self._fresh_badges = kazanilan - gorulen
         self._store.set_setting(SEEN_BADGES_KEY, ",".join(sorted(kazanilan)))
         self._badge_wall.set_page(0)
+
+        # Rozetler kaydedildikten sonra: XP onlardan toplanıyor. Burada
+        # kaydedilmiyor (`record=False`); seviye atlama kartını ana pencere
+        # çıkarıyor, burada tüketilirse kart hiç çıkmazdı.
+        self._levels = level_core.refresh(
+            self._catalog, self._store, content_dir(), record=False
+        )
+        self._progress.set_ratio(self._levels.state.ratio)
 
         self.retranslate()
         if self._fresh_badges:
@@ -637,6 +656,50 @@ class ProfileView(QWidget):
             # onu göstermesi gerekiyor.
             self.refresh()
             self.saved.emit()
+
+    def _render_level(self) -> None:
+        """Seviye satırı, XP çubuğunun ipucu ve unvan düğmesi."""
+        t = self._language.t
+        durum = self._levels.state
+        self._progress_caption.setText(t("level.label", level=durum.level))
+        if durum.need:
+            self._progress_percent.setText(t("level.xp", into=durum.into, need=durum.need))
+            ipucu = t("level.tooltip", xp=durum.xp, left=durum.need - durum.into)
+        else:
+            self._progress_percent.setText(t("level.max"))
+            ipucu = t("level.tooltip_max", xp=durum.xp)
+        for parca in (self._progress, self._progress_caption, self._progress_percent):
+            parca.setToolTip(ipucu)
+
+        secili = level_core.selected_tag(self._store, self._levels.tags)
+        tanim = next((u for u in self._tag_list if u.get("id") == secili), None)
+        self._tag_button.setText(
+            self._language.pick(tanim.get("title"), secili) if tanim else t("tags.choose")
+        )
+        self._tag_button.setToolTip(t("tags.button_tip"))
+        bos = "false" if tanim else "true"
+        if self._tag_button.property("empty") != bos:
+            self._tag_button.setProperty("empty", bos)
+            self._tag_button.style().unpolish(self._tag_button)
+            self._tag_button.style().polish(self._tag_button)
+
+    def _open_tags(self) -> None:
+        """Unvan penceresini açar; seçilen unvan hemen kullanılıyor."""
+        from .modal import Backdrop
+        from .tag_dialog import TagDialog
+
+        kok = self.window()
+        perde = Backdrop(kok)
+        perde.show()
+        onceki = level_core.selected_tag(self._store, self._levels.tags)
+        dialog = TagDialog(
+            self._language, self._tag_list, self._levels.tags, onceki, self._mode, kok
+        )
+        kabul = dialog.exec()
+        perde.deleteLater()
+        if kabul and dialog.selected != onceki:
+            level_core.select_tag(self._store, dialog.selected)
+            self._render_level()
 
     def _refresh_name(self) -> None:
         profile = self._store.profile()
@@ -705,13 +768,10 @@ class ProfileView(QWidget):
         self._refresh_avatar()
         self._refresh_name()
 
-        yuzde = round(self._completed * 100 / self._total) if self._total else 0
-        self._progress_caption.setText(t("profile.overall"))
-        self._progress_percent.setText(t("home.percent", value=yuzde))
+        self._render_level()
 
         self._badges_title.setText(t("profile.badges"))
         kazanilan = sum(1 for b in self._badge_list if b.earned)
-        self._badges_count.setText(f"{kazanilan} / {len(self._badge_list)}")
         for anahtar, deger, ad in (
             ("badges", f"{kazanilan}/{len(self._badge_list)}", t("profile.mini_badges")),
             ("streak", str(self._store.streak()), t("profile.mini_streak")),

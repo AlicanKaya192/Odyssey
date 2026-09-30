@@ -1,0 +1,36 @@
+{
+  "id": "honest-backtest",
+  "title": {
+    "tr": "Dürüst sınama",
+    "en": "An honest backtest"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Mevsim normalini fonksiyonun **içinde**, `train`'den hesapla; böylece her deneyde yalnızca o ana kadarki veri kullanılır.",
+      "en": "Compute the seasonal normal **inside** the function, from `train`; that way each experiment uses only the data up to that moment."
+    },
+    {
+      "tr": "Gelecek tablosu: `future = test[columns].copy()` ve `future[\"temp_c\"] = [normal.get(day, normal.mean()) for day in test.index.dayofyear]`.",
+      "en": "The future table: `future = test[columns].copy()` and `future[\"temp_c\"] = [normal.get(day, normal.mean()) for day in test.index.dayofyear]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\nc = pd.read_csv(\"cafe_daily.csv\", index_col=\"date\", parse_dates=True).asfreq(\"D\")\ncuts = [pd.Timestamp(\"2024-01-30\") + pd.Timedelta(days=56 * i) for i in range(6)]\n\n\ndef plain(train, test):\n    fit = ARIMA(train[\"sales\"], order=(1, 0, 0), seasonal_order=(0, 1, 1, 7)).fit()\n    return fit.forecast(28).to_numpy()\n\n\ndef with_exog(train, test):\n    columns = [\"promo\", \"holiday\", \"temp_c\"]\n    fit = ARIMA(train[\"sales\"], exog=train[columns], order=(1, 0, 0), seasonal_order=(0, 1, 1, 7)).fit()\n    normal = train[\"temp_c\"].groupby(train.index.dayofyear).mean()\n    future = test[columns].copy()\n    future[\"temp_c\"] = [normal.get(day, normal.mean()) for day in test.index.dayofyear]\n    return fit.forecast(28, exog=future).to_numpy()\n\n\nresults = {\"plain\": [], \"exog\": []}\nfor cut in cuts:\n    train = c.loc[:cut]\n    test = c.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n    actual = test[\"sales\"].to_numpy()\n    results[\"plain\"].append(float(np.abs(actual - plain(train, test)).mean()))\n    results[\"exog\"].append(float(np.abs(actual - with_exog(train, test)).mean()))\n\nfor name, scores in results.items():\n    print(name, round(float(np.mean(scores)), 2), round(float(np.max(scores)), 2))\n\nwins = sum(e < p for e, p in zip(results[\"exog\"], results[\"plain\"]))\nprint(wins, round(1 - float(np.mean(results[\"exog\"]) / np.mean(results[\"plain\"])), 2))\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\nc = pd.read_csv(\"cafe_daily.csv\", index_col=\"date\", parse_dates=True).asfreq(\"D\")\ncuts = [pd.Timestamp(\"2024-01-30\") + pd.Timedelta(days=56 * i) for i in range(6)]\n\n\ndef plain(train, test):\n    fit = ARIMA(train[\"sales\"], order=(1, 0, 0), seasonal_order=(0, 1, 1, 7)).fit()\n    return fit.forecast(28).to_numpy()\n\n\ndef with_exog(train, test):\n    columns = [\"promo\", \"holiday\", \"temp_c\"]\n    fit = ARIMA(train[\"sales\"], exog=train[columns], order=(1, 0, 0), seasonal_order=(0, 1, 1, 7)).fit()\n    normal = train[\"temp_c\"].groupby(train.index.dayofyear).mean()\n    future = test[columns].copy()\n    future[\"temp_c\"] = [normal.get(day, normal.mean()) for day in test.index.dayofyear]\n    return fit.forecast(28, exog=future).to_numpy()\n\n\nresults = {\"plain\": [], \"exog\": []}\nfor cut in cuts:\n    train = c.loc[:cut]\n    test = c.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n    actual = test[\"sales\"].to_numpy()\n    results[\"plain\"].append(float(np.abs(actual - plain(train, test)).mean()))\n    results[\"exog\"].append(float(np.abs(actual - with_exog(train, test)).mean()))\n\nfor name, scores in results.items():\n    print(name, round(float(np.mean(scores)), 2), round(float(np.max(scores)), 2))\n\nwins = sum(e < p for e, p in zip(results[\"exog\"], results[\"plain\"]))\nprint(wins, round(1 - float(np.mean(results[\"exog\"]) / np.mean(results[\"plain\"])), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "plain 28.23 44.88\nexog 14.81 16.97\n6 0.48"
+    }
+  ]
+}

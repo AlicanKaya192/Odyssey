@@ -1,0 +1,36 @@
+{
+  "id": "business-series",
+  "title": {
+    "tr": "İş günü serisi",
+    "en": "A business-day series"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`close.asfreq(\"D\").isna().sum()` günlük takvimde kaç boş satır açıldığını veriyor.",
+      "en": "`close.asfreq(\"D\").isna().sum()` gives how many empty rows were opened on the daily calendar."
+    },
+    {
+      "tr": "Ayın son değeri: `close.groupby(close.index.to_period(\"M\")).last()`.",
+      "en": "The month's last value: `close.groupby(close.index.to_period(\"M\")).last()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nclose = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\n\nprint(pd.infer_freq(close.index))\nprint(int(close.asfreq(\"D\").isna().sum()), int(close.asfreq(\"B\").isna().sum()))\nprint(len(close.loc[\"2024-03\"]))\n\nmonth_end = close.groupby(close.index.to_period(\"M\")).last()\nfor month, value in month_end.loc[\"2024-01\":\"2024-03\"].items():\n    print(month, value)\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nclose = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\n\nprint(pd.infer_freq(close.index))\nprint(int(close.asfreq(\"D\").isna().sum()), int(close.asfreq(\"B\").isna().sum()))\nprint(len(close.loc[\"2024-03\"]))\n\nmonth_end = close.groupby(close.index.to_period(\"M\")).last()\nfor month, value in month_end.loc[\"2024-01\":\"2024-03\"].items():\n    print(month, value)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "B\n312 0\n21\n2024-01 157.19\n2024-02 139.47\n2024-03 166.33"
+    }
+  ]
+}

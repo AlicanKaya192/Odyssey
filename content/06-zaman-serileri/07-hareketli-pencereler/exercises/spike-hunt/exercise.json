@@ -1,0 +1,36 @@
+{
+  "id": "spike-hunt",
+  "title": {
+    "tr": "Olağandışı günler",
+    "en": "Unusual days"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Aynı pencereden iki özet: `window = visits.rolling(7)`, sonra `window.mean()` ve `window.median()`.",
+      "en": "Two summaries from the same window: `window = visits.rolling(7)`, then `window.mean()` and `window.median()`."
+    },
+    {
+      "tr": "Mutlak değerle süzmek: `z[z.abs() > 3]`. Tarihleri `unusual.index`'te.",
+      "en": "Filtering by absolute value: `z[z.abs() > 3]`. The dates are in `unusual.index`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\n\nwindow = visits.rolling(7)\nprint(round(float(window.mean().loc[\"2024-03-14\"])), window.median().loc[\"2024-03-14\"])\n\nbase = visits.shift(1).rolling(28)\nz = (visits - base.mean()) / base.std()\nprint(round(float(z.loc[\"2024-03-14\"]), 1))\n\nunusual = z[z.abs() > 3]\nprint(unusual.index.strftime(\"%m-%d\").tolist())\nprint(unusual.round(1).tolist())\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\n\nwindow = visits.rolling(7)\nprint(round(float(window.mean().loc[\"2024-03-14\"])), window.median().loc[\"2024-03-14\"])\n\nbase = visits.shift(1).rolling(28)\nz = (visits - base.mean()) / base.std()\nprint(round(float(z.loc[\"2024-03-14\"]), 1))\n\nunusual = z[z.abs() > 3]\nprint(unusual.index.strftime(\"%m-%d\").tolist())\nprint(unusual.round(1).tolist())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4587 4090.0\n11.2\n['03-14', '06-20', '10-08']\n[11.2, 8.9, -6.5]"
+    }
+  ]
+}

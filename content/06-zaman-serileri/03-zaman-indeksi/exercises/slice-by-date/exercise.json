@@ -1,0 +1,36 @@
+{
+  "id": "slice-by-date",
+  "title": {
+    "tr": "Tarihle dilimle",
+    "en": "Slice by date"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dilim: `s.loc[\"2024-03-04\":\"2024-03-10\"]`. Ay aralığı da aynı yazılıyor: `s.loc[\"2024-01\":\"2024-03\"]`.",
+      "en": "A slice: `s.loc[\"2024-03-04\":\"2024-03-10\"]`. A range of months is written the same way: `s.loc[\"2024-01\":\"2024-03\"]`."
+    },
+    {
+      "tr": "`s.loc[\"2024\"].idxmax()` en büyük değerin **tarihini** veriyor; o tarihle `s.loc[best]` değeri.",
+      "en": "`s.loc[\"2024\"].idxmax()` gives the **date** of the largest value; `s.loc[best]` with that date gives the value."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nweek = s.loc[\"2024-03-04\":\"2024-03-10\"]\nprint(len(week), week.sum())\n\nquarter = s.loc[\"2024-01\":\"2024-03\"]\nprint(len(quarter), quarter.sum())\n\nprint(round(float(s.loc[\"2024-12\"].mean()), 1))\n\nbest = s.loc[\"2024\"].idxmax()\nprint(best.strftime(\"%Y-%m-%d\"), s.loc[best])\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nweek = s.loc[\"2024-03-04\":\"2024-03-10\"]\nprint(len(week), week.sum())\n\nquarter = s.loc[\"2024-01\":\"2024-03\"]\nprint(len(quarter), quarter.sum())\n\nprint(round(float(s.loc[\"2024-12\"].mean()), 1))\n\nbest = s.loc[\"2024\"].idxmax()\nprint(best.strftime(\"%Y-%m-%d\"), s.loc[best])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "7 1978\n91 26513\n365.6\n2024-12-28 503"
+    }
+  ]
+}
