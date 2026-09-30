@@ -1,0 +1,41 @@
+{
+  "id": "rolling-origin",
+  "title": {
+    "tr": "Kayan başlangıç",
+    "en": "A rolling origin"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sonuçları bir sözlük listesinde biriktirip `pd.DataFrame(rows).set_index(\"cut\")` ile tabloya çevir.",
+      "en": "Collect the results in a list of dictionaries and turn it into a table with `pd.DataFrame(rows).set_index(\"cut\")`."
+    },
+    {
+      "tr": "Hata: `test.to_numpy() - snaive(train, 28)` (ikisi de numpy dizisi; indeks hizalaması sorunu yok).",
+      "en": "The error: `test.to_numpy() - snaive(train, 28)` (both numpy arrays; no index alignment issue)."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\n\ndef snaive(train, h):\n    last = train.iloc[-7:].to_numpy()\n    return np.array([last[i % 7] for i in range(h)], dtype=float)\n\n\nrows = []\nfor i in range(13):\n    cut = pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i)\n    train = s.loc[:cut]\n    test = s.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n    error = test.to_numpy() - snaive(train, 28)\n    rows.append({\"cut\": cut, \"mae\": float(np.abs(error).mean()), \"bias\": float(error.mean())})\n\ntable = pd.DataFrame(rows).set_index(\"cut\")\nm = table[\"mae\"]\nprint(len(m), round(float(m.mean()), 2), round(float(m.std(ddof=1)), 2),\n      round(float(m.min()), 2), round(float(m.max()), 2))\n\nworst = m.sort_values(ascending=False).head(2).index.sort_values()\nprint(worst.strftime(\"%Y-%m-%d\").tolist())\n\nprint(round(float(m.loc[\"2024-11-05\"]), 2), round(float(table[\"bias\"].mean()), 2))\n\nfig, ax = plt.subplots(figsize=(9, 4))\nax.bar(m.index.strftime(\"%m-%d\"), m.values)\nax.axhline(m.mean(), linestyle=\"--\", color=\"gray\")\nax.tick_params(axis=\"x\", rotation=45)\nfig.tight_layout()\nfig.savefig(\"chart.png\")\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\n\ndef snaive(train, h):\n    last = train.iloc[-7:].to_numpy()\n    return np.array([last[i % 7] for i in range(h)], dtype=float)\n\n\nrows = []\nfor i in range(13):\n    cut = pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i)\n    train = s.loc[:cut]\n    test = s.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n    error = test.to_numpy() - snaive(train, 28)\n    rows.append({\"cut\": cut, \"mae\": float(np.abs(error).mean()), \"bias\": float(error.mean())})\n\ntable = pd.DataFrame(rows).set_index(\"cut\")\nm = table[\"mae\"]\nprint(len(m), round(float(m.mean()), 2), round(float(m.std(ddof=1)), 2),\n      round(float(m.min()), 2), round(float(m.max()), 2))\n\nworst = m.sort_values(ascending=False).head(2).index.sort_values()\nprint(worst.strftime(\"%Y-%m-%d\").tolist())\n\nprint(round(float(m.loc[\"2024-11-05\"]), 2), round(float(table[\"bias\"].mean()), 2))\n\nfig, ax = plt.subplots(figsize=(9, 4))\nax.bar(m.index.strftime(\"%m-%d\"), m.values)\nax.axhline(m.mean(), linestyle=\"--\", color=\"gray\")\nax.tick_params(axis=\"x\", rotation=45)\nfig.tight_layout()\nfig.savefig(\"chart.png\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "13 17.95 10.94 9.39 41.29\n['2024-01-02', '2024-12-03']\n11.64 1.68"
+    }
+  ]
+}

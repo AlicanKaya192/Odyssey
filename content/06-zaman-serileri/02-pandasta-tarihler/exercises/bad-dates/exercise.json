@@ -1,0 +1,36 @@
+{
+  "id": "bad-dates",
+  "title": {
+    "tr": "Bozuk satırları yakala",
+    "en": "Catch the broken rows"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`NaT` satırlarının maskesi: `orders[\"ordered\"].isna()`. Sayısı `.sum()`.",
+      "en": "The mask of the `NaT` rows: `orders[\"ordered\"].isna()`. Their count is `.sum()`."
+    },
+    {
+      "tr": "Ham değerler eski sütunda duruyor: `orders.loc[mask, \"ordered_at\"].tolist()`.",
+      "en": "The raw values are still in the old column: `orders.loc[mask, \"ordered_at\"].tolist()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\norders = pd.read_csv(\"orders_raw.csv\")\norders[\"ordered\"] = pd.to_datetime(orders[\"ordered_at\"],\n                                   format=\"%d.%m.%Y %H:%M\", errors=\"coerce\")\n\nbroken = orders[\"ordered\"].isna()\nprint(int(broken.sum()))\nprint(orders.loc[broken, \"ordered_at\"].tolist())\n\norders = orders.dropna(subset=[\"ordered\"])\nprint(len(orders))\nprint(orders[\"ordered\"].min())\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\norders = pd.read_csv(\"orders_raw.csv\")\norders[\"ordered\"] = pd.to_datetime(orders[\"ordered_at\"],\n                                   format=\"%d.%m.%Y %H:%M\", errors=\"coerce\")\n\nbroken = orders[\"ordered\"].isna()\nprint(int(broken.sum()))\nprint(orders.loc[broken, \"ordered_at\"].tolist())\n\norders = orders.dropna(subset=[\"ordered\"])\nprint(len(orders))\nprint(orders[\"ordered\"].min())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n['31.02.2024 10:15', 'unknown', '00.00.0000 00:00']\n237\n2024-01-03 05:12:00"
+    }
+  ]
+}

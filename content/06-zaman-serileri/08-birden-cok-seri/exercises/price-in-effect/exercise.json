@@ -1,0 +1,36 @@
+{
+  "id": "price-in-effect",
+  "title": {
+    "tr": "Geçerli fiyat",
+    "en": "The price in effect"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`pd.merge_asof(a, prices, left_on=\"date\", right_on=\"valid_from\")`: iki tablo da tarihe göre sıralı olmalı.",
+      "en": "`pd.merge_asof(a, prices, left_on=\"date\", right_on=\"valid_from\")`: both tables must be sorted by date."
+    },
+    {
+      "tr": "Tarih aralığındaki satırlar: `joined[joined[\"date\"].between(\"2024-03-14\", \"2024-03-16\")]`.",
+      "en": "The rows in a date range: `joined[joined[\"date\"].between(\"2024-03-14\", \"2024-03-16\")]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nlong = pd.read_csv(\"stores.csv\", parse_dates=[\"date\"])\n\na = long[long[\"store\"] == \"A\"][[\"date\", \"sales\"]].sort_values(\"date\")\nprices = pd.read_csv(\"prices.csv\", parse_dates=[\"valid_from\"])\n\nexact = a.merge(prices, left_on=\"date\", right_on=\"valid_from\", how=\"left\")\nprint(int(exact[\"price\"].notna().sum()))\n\njoined = pd.merge_asof(a, prices, left_on=\"date\", right_on=\"valid_from\")\nmarch = joined[joined[\"date\"].between(\"2024-03-14\", \"2024-03-16\")]\nprint(march[\"price\"].tolist())\n\njoined[\"revenue\"] = joined[\"sales\"] * joined[\"price\"]\nprint(round(float(joined[\"revenue\"].sum()), 1))\nprint(joined[\"price\"].value_counts().sort_index().to_dict())\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nlong = pd.read_csv(\"stores.csv\", parse_dates=[\"date\"])\n\na = long[long[\"store\"] == \"A\"][[\"date\", \"sales\"]].sort_values(\"date\")\nprices = pd.read_csv(\"prices.csv\", parse_dates=[\"valid_from\"])\n\nexact = a.merge(prices, left_on=\"date\", right_on=\"valid_from\", how=\"left\")\nprint(int(exact[\"price\"].notna().sum()))\n\njoined = pd.merge_asof(a, prices, left_on=\"date\", right_on=\"valid_from\")\nmarch = joined[joined[\"date\"].between(\"2024-03-14\", \"2024-03-16\")]\nprint(march[\"price\"].tolist())\n\njoined[\"revenue\"] = joined[\"sales\"] * joined[\"price\"]\nprint(round(float(joined[\"revenue\"].sum()), 1))\nprint(joined[\"price\"].value_counts().sort_index().to_dict())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "5\n[19.9, 21.5, 21.5]\n2562737.2\n{19.9: 74, 21.5: 78, 21.9: 71, 22.9: 101, 24.5: 42}"
+    }
+  ]
+}

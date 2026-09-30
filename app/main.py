@@ -286,6 +286,25 @@ def main() -> int:
     else:
         reminder_service.ensure_async(store)
 
+    # Tanıtım turu: ilk açılışta, bu güncellemeden sonra da herkese bir kez
+    # soruluyor. Evet denirse tur başlıyor (her an geçilebiliyor).
+    from app.ui import tour as tour_ui
+
+    if tour_ui.should_ask(store):
+        from app.ui import titlebar
+        from app.ui.modal import Backdrop
+
+        perde = Backdrop(window)
+        perde.show()
+        soru = tour_ui.TourPromptDialog(language, tour_ui.is_new_user(store), window)
+        titlebar.apply(soru, theme.effective_mode)
+        kabul = soru.exec()
+        perde.deleteLater()
+        if kabul:
+            window.start_tour()
+        else:
+            tour_ui.mark(store, "declined")
+
     # Sürüm denetimi en sona bırakıldı: açılışın hiçbir adımı ağı
     # beklemiyor. Denetim ayrı bir iş parçacığında yapılıyor ve
     # başarısız olduğunda hiçbir şey göstermiyor.

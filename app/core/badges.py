@@ -45,6 +45,7 @@ PY_CHAPTER = "00-python-temelleri"
 DATA_CHAPTER = "01-veri-bilimi"
 ML_CHAPTER = "02-makine-ogrenmesi"
 SQL_CHAPTER = "03-sql"
+TS_CHAPTER = "06-zaman-serileri"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -63,12 +64,15 @@ PIPELINE_SECTION = (ML_CHAPTER, "11-pipeline-ve-model-kaydetme")
 SQL_SELECT_SECTION = (SQL_CHAPTER, "01-select-ve-where")
 SQL_JOIN_SECTION = (SQL_CHAPTER, "06-tablolari-birlestirmek")
 SQL_WINDOW_SECTION = (SQL_CHAPTER, "11-pencere-fonksiyonlari")
+TS_DECOMPOSE_SECTION = (TS_CHAPTER, "10-bilesenler-ve-ayristirma")
+TS_FORECAST_SECTION = (TS_CHAPTER, "14-temel-tahminler")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 18
 DATA_SECTION_COUNT = 10
 ML_SECTION_COUNT = 13
 SQL_SECTION_COUNT = 16
+TS_SECTION_COUNT = 23
 
 
 def _completed_sections(
@@ -159,6 +163,9 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "joiner": SQL_JOIN_SECTION in bitenler,
         "window-frame": SQL_WINDOW_SECTION in bitenler,
         "sql-complete": modul_basina.get(SQL_CHAPTER, 0) >= SQL_SECTION_COUNT,
+        "season-reader": TS_DECOMPOSE_SECTION in bitenler,
+        "first-forecast": TS_FORECAST_SECTION in bitenler,
+        "ts-complete": modul_basina.get(TS_CHAPTER, 0) >= TS_SECTION_COUNT,
     }
 
 

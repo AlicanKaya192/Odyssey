@@ -1,0 +1,41 @@
+{
+  "id": "model-interval",
+  "title": {
+    "tr": "Modelin aralığı",
+    "en": "The model's interval"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`conf_int` iki sütunlu bir tablo döndürüyor: `.iloc[:, 0]` alt, `.iloc[:, 1]` üst uç.",
+      "en": "`conf_int` returns a table with two columns: `.iloc[:, 0]` is the lower and `.iloc[:, 1]` the upper end."
+    },
+    {
+      "tr": "Dışarıda kalan günler: `test.index[~inside_95]`.",
+      "en": "The days outside: `test.index[~inside_95]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport matplotlib.pyplot as plt\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrain = s.loc[:\"2024-11-05\"]\ntest = s.loc[\"2024-11-06\":\"2024-12-03\"]\nfit = ARIMA(train, order=(0, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\n\nresult = fit.get_forecast(28)\nmean = result.predicted_mean\nwide = result.conf_int(alpha=0.05)\nlow, high = wide.iloc[:, 0], wide.iloc[:, 1]\n\nprint(round(float(mean.iloc[0]), 1), round(float(low.iloc[0]), 1),\n      round(float(high.iloc[0]), 1), int(test.iloc[0]))\n\nwidth = high - low\nprint([round(float(width.iloc[i]), 1) for i in (0, 6, 13, 27)])\n\nnarrow = result.conf_int(alpha=0.2)\ninside_95 = (test >= low) & (test <= high)\ninside_80 = (test >= narrow.iloc[:, 0]) & (test <= narrow.iloc[:, 1])\nprint(round(float(inside_95.mean()), 3), round(float(inside_80.mean()), 3))\n\nprint(test.index[~inside_95].strftime(\"%m-%d\").tolist())\n\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(test.index, test.values, color=\"gray\", label=\"actual\")\nax.plot(mean.index, mean.values, label=\"forecast\")\nax.fill_between(mean.index, low.values, high.values, alpha=0.2, label=\"95%\")\nax.legend()\nfig.savefig(\"chart.png\")\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport matplotlib.pyplot as plt\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrain = s.loc[:\"2024-11-05\"]\ntest = s.loc[\"2024-11-06\":\"2024-12-03\"]\nfit = ARIMA(train, order=(0, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\n\nresult = fit.get_forecast(28)\nmean = result.predicted_mean\nwide = result.conf_int(alpha=0.05)\nlow, high = wide.iloc[:, 0], wide.iloc[:, 1]\n\nprint(round(float(mean.iloc[0]), 1), round(float(low.iloc[0]), 1),\n      round(float(high.iloc[0]), 1), int(test.iloc[0]))\n\nwidth = high - low\nprint([round(float(width.iloc[i]), 1) for i in (0, 6, 13, 27)])\n\nnarrow = result.conf_int(alpha=0.2)\ninside_95 = (test >= low) & (test <= high)\ninside_80 = (test >= narrow.iloc[:, 0]) & (test <= narrow.iloc[:, 1])\nprint(round(float(inside_95.mean()), 3), round(float(inside_80.mean()), 3))\n\nprint(test.index[~inside_95].strftime(\"%m-%d\").tolist())\n\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(test.index, test.values, color=\"gray\", label=\"actual\")\nax.plot(mean.index, mean.values, label=\"forecast\")\nax.fill_between(mean.index, low.values, high.values, alpha=0.2, label=\"95%\")\nax.legend()\nfig.savefig(\"chart.png\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "292.9 267.1 318.7 283\n[51.6, 56.7, 65.0, 83.8]\n0.964 0.893\n['11-09']"
+    }
+  ]
+}

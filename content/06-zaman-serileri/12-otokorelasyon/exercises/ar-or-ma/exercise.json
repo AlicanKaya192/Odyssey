@@ -1,0 +1,36 @@
+{
+  "id": "ar-or-ma",
+  "title": {
+    "tr": "AR mı, MA mı?",
+    "en": "AR or MA?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki fonksiyon da gecikme 0 ile başlayan bir dizi döndürüyor: `acf(w[\"x\"], nlags=4)[1:]`.",
+      "en": "Both functions return an array starting at lag 0: `acf(w[\"x\"], nlags=4)[1:]`."
+    },
+    {
+      "tr": "2. gecikmenin ACF'si `acf(series, nlags=2)[2]`; bandın içinde olması `abs(...) < band`.",
+      "en": "The ACF at lag 2 is `acf(series, nlags=2)[2]`; being inside the band is `abs(...) < band`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.stattools import acf, pacf\n\nw = pd.read_csv(\"two_processes.csv\", index_col=\"date\", parse_dates=True)\n\n\ndef first_lags(values):\n    return [round(float(v), 2) for v in values[1:]]\n\n\nfor name in (\"x\", \"y\"):\n    print(first_lags(acf(w[name], nlags=4)))\n    print(first_lags(pacf(w[name], nlags=4)))\n\n\ndef kind(series):\n    band = 1.96 / np.sqrt(len(series))\n    second = acf(series, nlags=2)[2]\n    if abs(second) < band:\n        return \"MA\"\n    return \"AR\"\n\n\nprint(kind(w[\"x\"]), kind(w[\"y\"]))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.stattools import acf, pacf\n\nw = pd.read_csv(\"two_processes.csv\", index_col=\"date\", parse_dates=True)\n\n\ndef first_lags(values):\n    return [round(float(v), 2) for v in values[1:]]\n\n\nfor name in (\"x\", \"y\"):\n    print(first_lags(acf(w[name], nlags=4)))\n    print(first_lags(pacf(w[name], nlags=4)))\n\n\ndef kind(series):\n    band = 1.96 / np.sqrt(len(series))\n    second = acf(series, nlags=2)[2]\n    if abs(second) < band:\n        return \"MA\"\n    return \"AR\"\n\n\nprint(kind(w[\"x\"]), kind(w[\"y\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.69, 0.46, 0.32, 0.23]\n[0.69, -0.02, 0.01, 0.03]\n[0.46, -0.04, -0.04, -0.03]\n[0.46, -0.31, 0.17, -0.14]\nAR MA"
+    }
+  ]
+}

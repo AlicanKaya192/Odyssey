@@ -1,0 +1,36 @@
+{
+  "id": "read-the-summary",
+  "title": {
+    "tr": "Özeti oku",
+    "en": "Read the summary"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Katsayı adları `fit.params.index` içinde; aynı adlarla `fit.pvalues[name]`.",
+      "en": "The coefficient names are in `fit.params.index`; with the same names, `fit.pvalues[name]`."
+    },
+    {
+      "tr": "`sigma2`'yi atlamak için döngüde `if name == \"sigma2\": continue`.",
+      "en": "To skip `sigma2`, use `if name == \"sigma2\": continue` in the loop."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrain = s.loc[:\"2024-11-05\"]\n\nbig = ARIMA(train, order=(1, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\n\nweak = []\nfor name in big.params.index:\n    if name == \"sigma2\":\n        continue\n    pvalue = float(big.pvalues[name])\n    print(name, round(float(big.params[name]), 2), round(pvalue, 3))\n    if pvalue > 0.05:\n        weak.append(name)\n\nprint(weak)\n\nsmall = ARIMA(train, order=(0, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\nprint(round(float(big.aic), 1), round(float(small.aic), 1))\nprint(round(float(big.resid.iloc[8:].std()), 2), round(float(small.resid.iloc[8:].std()), 2))\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrain = s.loc[:\"2024-11-05\"]\n\nbig = ARIMA(train, order=(1, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\n\nweak = []\nfor name in big.params.index:\n    if name == \"sigma2\":\n        continue\n    pvalue = float(big.pvalues[name])\n    print(name, round(float(big.params[name]), 2), round(pvalue, 3))\n    if pvalue > 0.05:\n        weak.append(name)\n\nprint(weak)\n\nsmall = ARIMA(train, order=(0, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\nprint(round(float(big.aic), 1), round(float(small.aic), 1))\nprint(round(float(big.resid.iloc[8:].std()), 2), round(float(small.resid.iloc[8:].std()), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ar.L1 0.11 0.001\nma.L1 -0.85 0.0\nma.S.L7 -0.86 0.0\n[]\n8258.7 8265.8\n13.16 13.22"
+    }
+  ]
+}

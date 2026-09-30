@@ -1,0 +1,36 @@
+{
+  "id": "tidy-the-dump",
+  "title": {
+    "tr": "Dökümü düzenle",
+    "en": "Tidy the dump"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Çift satır sayısı: `raw.duplicated().sum()`. En uzun boşluk için eksikleri bloklara ayır: `(~gap).cumsum()`.",
+      "en": "Number of duplicate rows: `raw.duplicated().sum()`. For the longest gap split the missing values into blocks: `(~gap).cumsum()`."
+    },
+    {
+      "tr": "Doldurma değeri: `pd.concat([s.shift(7), s.shift(-7)], axis=1).mean(axis=1)`; sonra `s.fillna(fill)`.",
+      "en": "The fill value: `pd.concat([s.shift(7), s.shift(-7)], axis=1).mean(axis=1)`; then `s.fillna(fill)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nraw = pd.read_csv(\"bike_raw.csv\")\nraw[\"date\"] = pd.to_datetime(raw[\"date\"], format=\"%d.%m.%Y\")\nprint(len(raw), int(raw.duplicated().sum()))\n\ns = raw.drop_duplicates().set_index(\"date\").sort_index()[\"rentals\"]\ns = s.asfreq(\"D\").astype(float)\n\ngap = s.isna()\nblock = (~gap).cumsum()\nprint(int(gap.sum()), int(gap.groupby(block).sum().max()))\n\nlow = s.idxmin()\nweek = pd.Timedelta(days=7)\nprint(low.strftime(\"%Y-%m-%d\"), int(s.loc[low]), int(s.loc[low - week]), int(s.loc[low + week]))\n\ns.loc[low] = np.nan\nfill = pd.concat([s.shift(7), s.shift(-7)], axis=1).mean(axis=1)\ns = s.fillna(fill).round()\n\nprint(s.loc[\"2023-06-05\":\"2023-06-08\"].astype(int).tolist())\nprint(len(s), int(s.isna().sum()), int(s.sum()))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nraw = pd.read_csv(\"bike_raw.csv\")\nraw[\"date\"] = pd.to_datetime(raw[\"date\"], format=\"%d.%m.%Y\")\nprint(len(raw), int(raw.duplicated().sum()))\n\ns = raw.drop_duplicates().set_index(\"date\").sort_index()[\"rentals\"]\ns = s.asfreq(\"D\").astype(float)\n\ngap = s.isna()\nblock = (~gap).cumsum()\nprint(int(gap.sum()), int(gap.groupby(block).sum().max()))\n\nlow = s.idxmin()\nweek = pd.Timedelta(days=7)\nprint(low.strftime(\"%Y-%m-%d\"), int(s.loc[low]), int(s.loc[low - week]), int(s.loc[low + week]))\n\ns.loc[low] = np.nan\nfill = pd.concat([s.shift(7), s.shift(-7)], axis=1).mean(axis=1)\ns = s.fillna(fill).round()\n\nprint(s.loc[\"2023-06-05\":\"2023-06-08\"].astype(int).tolist())\nprint(len(s), int(s.isna().sum()), int(s.sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1093 6\n9 4\n2024-07-16 9 600 311\n[348, 491, 476, 485]\n1096 0 400910"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "validate-by-time",
+  "title": {
+    "tr": "Zamana göre doğrula",
+    "en": "Validate by time"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`cross_val_score(..., scoring=\"neg_mean_absolute_error\")` eksi değerler döndürür; başına `-` koy.",
+      "en": "`cross_val_score(..., scoring=\"neg_mean_absolute_error\")` returns negative values; put a `-` in front."
+    },
+    {
+      "tr": "Parçaların satır konumları: `list(TimeSeriesSplit(5).split(table))`; her eleman `(eğitim, test)` çifti.",
+      "en": "The row positions of the splits: `list(TimeSeriesSplit(5).split(table))`; each element is a `(training, test)` pair."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.ensemble import HistGradientBoostingRegressor\nfrom sklearn.model_selection import KFold, TimeSeriesSplit, cross_val_score\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\n\ndef features(y):\n    X = pd.DataFrame(index=y.index)\n    for k in (1, 2, 7, 14):\n        X[f\"lag{k}\"] = y.shift(k)\n    X[\"mean7\"] = y.shift(1).rolling(7).mean()\n    X[\"mean28\"] = y.shift(1).rolling(28).mean()\n    X[\"dow\"] = y.index.dayofweek\n    X[\"month\"] = y.index.month\n    return X\n\n\ntable = features(s).join(s.rename(\"y\")).dropna()\ncolumns = [c for c in table.columns if c != \"y\"]\ntrain, test = table.loc[:\"2023\"], table.loc[\"2024\"]\n\nmodel = HistGradientBoostingRegressor(random_state=0)\n\nfor cv in (KFold(5, shuffle=True, random_state=0), TimeSeriesSplit(5)):\n    scores = -cross_val_score(model, table[columns], table[\"y\"], cv=cv,\n                              scoring=\"neg_mean_absolute_error\")\n    print([round(float(v), 1) for v in scores], round(float(scores.mean()), 2))\n\nsplits = list(TimeSeriesSplit(5).split(table))\nfor train_idx, test_idx in (splits[0], splits[-1]):\n    print(len(train_idx), len(test_idx))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.ensemble import HistGradientBoostingRegressor\nfrom sklearn.model_selection import KFold, TimeSeriesSplit, cross_val_score\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\n\ndef features(y):\n    X = pd.DataFrame(index=y.index)\n    for k in (1, 2, 7, 14):\n        X[f\"lag{k}\"] = y.shift(k)\n    X[\"mean7\"] = y.shift(1).rolling(7).mean()\n    X[\"mean28\"] = y.shift(1).rolling(28).mean()\n    X[\"dow\"] = y.index.dayofweek\n    X[\"month\"] = y.index.month\n    return X\n\n\ntable = features(s).join(s.rename(\"y\")).dropna()\ncolumns = [c for c in table.columns if c != \"y\"]\ntrain, test = table.loc[:\"2023\"], table.loc[\"2024\"]\n\nmodel = HistGradientBoostingRegressor(random_state=0)\n\nfor cv in (KFold(5, shuffle=True, random_state=0), TimeSeriesSplit(5)):\n    scores = -cross_val_score(model, table[columns], table[\"y\"], cv=cv,\n                              scoring=\"neg_mean_absolute_error\")\n    print([round(float(v), 1) for v in scores], round(float(scores.mean()), 2))\n\nsplits = list(TimeSeriesSplit(5).split(table))\nfor train_idx, test_idx in (splits[0], splits[-1]):\n    print(len(train_idx), len(test_idx))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[11.8, 12.0, 12.0, 12.4, 11.3] 11.88\n[24.9, 11.8, 15.0, 14.5, 12.7] 15.78\n178 178\n890 178"
+    }
+  ]
+}

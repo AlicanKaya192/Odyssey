@@ -1,0 +1,41 @@
+{
+  "id": "weekday-bars",
+  "title": {
+    "tr": "Haftanın profili",
+    "en": "The profile of the week"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`profile` indeksi 0–6 arası gün numaraları; adını `labels[numara]` ile bulursun.",
+      "en": "The index of `profile` is the day numbers 0–6; the name is `labels[number]`."
+    },
+    {
+      "tr": "Birkaç günü seçmek: `profile.loc[[5, 6]]`.",
+      "en": "Selecting several days: `profile.loc[[5, 6]]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nlabels = [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"]\n\nprofile = s.groupby(s.index.dayofweek).mean()\n\nfig, ax = plt.subplots(figsize=(6, 4))\nax.bar(labels, profile.values)\nfig.savefig(\"chart.png\")\n\nprint(len(ax.patches))\nprint(float(ax.get_ylim()[0]))\n\nprint(labels[profile.idxmax()], round(float(profile.max()), 1))\nprint(labels[profile.idxmin()], round(float(profile.min()), 1))\n\nweekend = profile.loc[[5, 6]].mean()\nweekday = profile.loc[[0, 1, 2, 3, 4]].mean()\nprint(round(float(weekend / weekday), 2))\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\nlabels = [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"]\n\nprofile = s.groupby(s.index.dayofweek).mean()\n\nfig, ax = plt.subplots(figsize=(6, 4))\nax.bar(labels, profile.values)\nfig.savefig(\"chart.png\")\n\nprint(len(ax.patches))\nprint(float(ax.get_ylim()[0]))\n\nprint(labels[profile.idxmax()], round(float(profile.max()), 1))\nprint(labels[profile.idxmin()], round(float(profile.min()), 1))\n\nweekend = profile.loc[[5, 6]].mean()\nweekday = profile.loc[[0, 1, 2, 3, 4]].mean()\nprint(round(float(weekend / weekday), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "7\n0.0\nSat 336.1\nMon 217.6\n1.33"
+    }
+  ]
+}

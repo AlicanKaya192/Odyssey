@@ -1,0 +1,36 @@
+{
+  "id": "trees-hit-a-ceiling",
+  "title": {
+    "tr": "Ağacın tavanı",
+    "en": "The ceiling of a tree"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tahminleri indeksli seriye çevir: `pd.Series(model.predict(test[columns]), index=test.index)`; Aralık için `.loc[\"2024-12\"]`.",
+      "en": "Turn the forecasts into an indexed series: `pd.Series(model.predict(test[columns]), index=test.index)`; for December use `.loc[\"2024-12\"]`."
+    },
+    {
+      "tr": "Fark modelinin çıktısı bir **değişim**; düzeye dönmek için `test[\"lag7\"]` ekle.",
+      "en": "The output of the difference model is a **change**; add `test[\"lag7\"]` to get back to a level."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.ensemble import HistGradientBoostingRegressor\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\n\ndef features(y):\n    X = pd.DataFrame(index=y.index)\n    for k in (1, 2, 7, 14):\n        X[f\"lag{k}\"] = y.shift(k)\n    X[\"mean7\"] = y.shift(1).rolling(7).mean()\n    X[\"mean28\"] = y.shift(1).rolling(28).mean()\n    X[\"dow\"] = y.index.dayofweek\n    X[\"month\"] = y.index.month\n    return X\n\n\ntable = features(s).join(s.rename(\"y\")).dropna()\ncolumns = [c for c in table.columns if c != \"y\"]\ntrain, test = table.loc[:\"2023\"], table.loc[\"2024\"]\n\nprint(int(train[\"y\"].max()), int(test[\"y\"].max()))\n\nmodel = HistGradientBoostingRegressor(random_state=0).fit(train[columns], train[\"y\"])\nlevel = pd.Series(model.predict(test[columns]), index=test.index)\nprint(round(float(level.max()), 1))\n\n\ndef errors(forecast):\n    error = (test[\"y\"] - forecast).abs()\n    return round(float(error.mean()), 2), round(float(error.loc[\"2024-12\"].mean()), 2)\n\n\nprint(*errors(level))\n\nrelative = table[columns].drop(columns=[\"lag7\"]).copy()\nfor name in (\"lag1\", \"lag2\", \"lag14\", \"mean7\", \"mean28\"):\n    relative[name] = relative[name] - table[\"lag7\"]\ntarget = table[\"y\"] - table[\"lag7\"]\n\nmodel = HistGradientBoostingRegressor(random_state=0)\nmodel.fit(relative.loc[:\"2023\"], target.loc[:\"2023\"])\nchange = pd.Series(model.predict(relative.loc[\"2024\"]), index=test.index)\ndifference = change + test[\"lag7\"]\n\nprint(*errors(difference))\nprint(round(float(difference.max()), 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.ensemble import HistGradientBoostingRegressor\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\n\ndef features(y):\n    X = pd.DataFrame(index=y.index)\n    for k in (1, 2, 7, 14):\n        X[f\"lag{k}\"] = y.shift(k)\n    X[\"mean7\"] = y.shift(1).rolling(7).mean()\n    X[\"mean28\"] = y.shift(1).rolling(28).mean()\n    X[\"dow\"] = y.index.dayofweek\n    X[\"month\"] = y.index.month\n    return X\n\n\ntable = features(s).join(s.rename(\"y\")).dropna()\ncolumns = [c for c in table.columns if c != \"y\"]\ntrain, test = table.loc[:\"2023\"], table.loc[\"2024\"]\n\nprint(int(train[\"y\"].max()), int(test[\"y\"].max()))\n\nmodel = HistGradientBoostingRegressor(random_state=0).fit(train[columns], train[\"y\"])\nlevel = pd.Series(model.predict(test[columns]), index=test.index)\nprint(round(float(level.max()), 1))\n\n\ndef errors(forecast):\n    error = (test[\"y\"] - forecast).abs()\n    return round(float(error.mean()), 2), round(float(error.loc[\"2024-12\"].mean()), 2)\n\n\nprint(*errors(level))\n\nrelative = table[columns].drop(columns=[\"lag7\"]).copy()\nfor name in (\"lag1\", \"lag2\", \"lag14\", \"mean7\", \"mean28\"):\n    relative[name] = relative[name] - table[\"lag7\"]\ntarget = table[\"y\"] - table[\"lag7\"]\n\nmodel = HistGradientBoostingRegressor(random_state=0)\nmodel.fit(relative.loc[:\"2023\"], target.loc[:\"2023\"])\nchange = pd.Series(model.predict(relative.loc[\"2024\"]), index=test.index)\ndifference = change + test[\"lag7\"]\n\nprint(*errors(difference))\nprint(round(float(difference.max()), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "462 503\n415.7\n14.63 22.47\n11.74 10.87\n494.5"
+    }
+  ]
+}

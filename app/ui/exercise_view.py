@@ -45,6 +45,7 @@ from ..widgets.draw_pad import clean_drawing, empty_drawing
 from ..widgets.grip_splitter import GripSplitter
 from ..widgets.problem_panel import ProblemPanel
 from ..widgets.terminal_view import TerminalView, block, line
+from .attempt_history import exercise_markdown, run_detail
 from .lesson_view import LessonView, render_markdown
 from .tables_window import TablesWindow
 
@@ -74,6 +75,12 @@ REVEAL_AFTER_ATTEMPTS = 2
 BRIEF_PROMPT = 0
 BRIEF_SOLUTIONS = 1
 PAGE_OUTPUT = 2
+PAGE_HISTORY = 3
+# Sol paneldeki sekmelerin anahtarı → yığındaki sayfa.
+PAGES = {"prompt": BRIEF_PROMPT, "solutions": BRIEF_SOLUTIONS, "output": PAGE_OUTPUT,
+         "history": PAGE_HISTORY}
+TAB_LABELS = {"prompt": "problem.tab_prompt", "solutions": "problem.tab_solutions",
+              "output": "exercise.tab_output", "history": "history.tab"}
 
 # Terminal ile editör arasındaki ilk bölüşüm (piksel).
 EDITOR_SHARE = 560
@@ -173,6 +180,12 @@ class ExerciseView(QWidget):
         # Sol paneldeki "Çıktı" sekmesinin içeriği var mı (kod alıştırması).
         self._has_output = False
         self._run_started = 0.0
+        self._revealed_solution = False
+        # Sol paneldeki sekmeler duruma göre değişiyor (Yönerge her zaman;
+        # Çıktı, Çözüm yolları ve Denemelerim gerektiğinde).
+        self._tab_keys = ["prompt"]
+        self._tab_current = "prompt"
+        self._attempt_count = 0
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -236,17 +249,63 @@ class ExerciseView(QWidget):
         # grafikler okunmuyordu; burada tam genişlikte.
         self._output_view = LessonView(self._language, compact=True)
         self._brief_stack.addWidget(self._output_view)
+        # Geçmiş denemeler: yanlış kodlar ve son doğru kod (Alican istedi).
+        self._history_view = LessonView(self._language, compact=True)
+        self._brief_stack.addWidget(self._history_view)
         layout.addWidget(self._brief_stack)
 
         return panel
 
     def _on_brief_tab(self, index: int) -> None:
-        if index == BRIEF_PROMPT:
-            self._brief_stack.setCurrentIndex(BRIEF_PROMPT)
-        elif self._exercise is not None and self._exercise.is_problem:
-            self._brief_stack.setCurrentIndex(BRIEF_SOLUTIONS)
+        anahtar = self._tab_keys[index] if 0 <= index < len(self._tab_keys) else "prompt"
+        self._tab_current = anahtar
+        self._brief_stack.setCurrentIndex(PAGES[anahtar])
+
+    def _update_tabs(self, focus: str | None = None) -> None:
+        """Sol paneldeki sekmeleri durumdan kurar; `focus` verilirse ona geçer.
+
+        Yönerge her zaman var. Problemde çözüm açılınca "Çözüm yolları", kod
+        alıştırmasında grafik ya da tutmayan çok satırlı çıktı varsa "Çıktı",
+        en az bir deneme kaydedildiyse "Denemelerim". Tek sekme kalırsa
+        sekme şeridi gizleniyor.
+        """
+        ex = self._exercise
+        anahtarlar = ["prompt"]
+        if ex is not None:
+            if ex.is_problem:
+                if self._revealed_solution:
+                    anahtarlar.append("solutions")
+            elif self._has_output:
+                anahtarlar.append("output")
+            if self._attempt_count:
+                anahtarlar.append("history")
+        if focus in anahtarlar:
+            self._tab_current = focus
+        if self._tab_current not in anahtarlar:
+            self._tab_current = "prompt"
+        etiketler = [self._language.t(TAB_LABELS[k]) for k in anahtarlar]
+        if anahtarlar != self._tab_keys:
+            self._tab_keys = anahtarlar
+            self._brief_tabs.set_items(etiketler)
         else:
-            self._brief_stack.setCurrentIndex(PAGE_OUTPUT)
+            self._brief_tabs.set_labels(etiketler)
+        self._brief_tabs_holder.setVisible(len(anahtarlar) > 1)
+        self._brief_tabs.set_current(anahtarlar.index(self._tab_current), notify=False)
+        self._brief_stack.setCurrentIndex(PAGES[self._tab_current])
+
+    def _load_history(self) -> None:
+        """Bu alıştırmanın denemelerini okuyup "Denemelerim" sayfasını çizer."""
+        ex = self._exercise
+        if ex is None:
+            self._attempt_count = 0
+            return
+        denemeler = self._store.exercise_attempts(self._chapter_id, self._section_id, ex.id)
+        self._attempt_count = len(denemeler)
+        if denemeler:
+            self._history_view.set_base_dir(ex.directory)
+            self._history_view.show_text(
+                exercise_markdown(self._language, denemeler, ex.language, ex.is_problem)
+            )
 
     def _on_prompt_action(self, action: str) -> None:
         """Yönerge içindeki bağlantılar: ipucu kademeleri ve alttaki
@@ -506,14 +565,16 @@ class ExerciseView(QWidget):
             # çözüm sekmesi açık kalırsa kişi yanlış problemin çözümünü görür.
             # Bu problemin çözümü daha önce açıldıysa sekmesi hazır bekliyor.
             self._revealed_solution = False
-            self._show_brief_tabs(False)
+            self._tab_current = "prompt"
+            self._load_history()
             self._reveal_solutions(state["revealed"], save=False, focus=False)
             self._work_stack.setCurrentIndex(1)
             self.retranslate()
             return
         self._work_stack.setCurrentIndex(0)
         self._revealed_solution = False
-        self._show_brief_tabs(False)
+        self._tab_current = "prompt"
+        self._load_history()
 
         # Kaydedilen kod hâlâ başlangıç kodunun kendisiyse (kullanıcı bir
         # şey yazmadan çalıştırmış) o kayda tutunmuyoruz: dili şimdiki dile
@@ -699,13 +760,7 @@ class ExerciseView(QWidget):
     def _set_output(self, visible: bool, focus: bool = False) -> None:
         """Kod alıştırmasında "Yönerge | Çıktı" sekmelerini açar ya da kapatır."""
         self._has_output = visible
-        if visible:
-            self._show_brief_tabs(True)
-            if focus:
-                self._brief_tabs.set_current(1, notify=False)
-                self._brief_stack.setCurrentIndex(PAGE_OUTPUT)
-        else:
-            self._show_brief_tabs(False)
+        self._update_tabs("output" if visible and focus else None)
 
     # --- çalıştırma -------------------------------------------------------
 
@@ -759,6 +814,15 @@ class ExerciseView(QWidget):
                 solved=result.passed,
                 count_attempt=True,
             )
+            self._store.add_exercise_attempt(
+                self._chapter_id,
+                self._section_id,
+                self._exercise.id,
+                self._editor.toPlainText(),
+                result.passed,
+                run_detail(result),
+            )
+            self._load_history()
 
         # Grafikler ve tutmayan çok satırlı çıktılar sol paneldeki "Çıktı"
         # sekmesinde, tam genişlikte; terminal kısa bir işaret bırakıyor.
@@ -790,6 +854,12 @@ class ExerciseView(QWidget):
         if self._exercise is None:
             return
         self._save_problem_state(solved=passed, count_attempt=True)
+        self._store.add_exercise_attempt(
+            self._chapter_id, self._section_id, self._exercise.id,
+            json.dumps([str(a) for a in answers], ensure_ascii=False), passed,
+        )
+        self._load_history()
+        self._update_tabs()
         attempts = self._store.attempts(self._chapter_id, self._section_id, self._exercise.id)
         if passed or attempts >= REVEAL_AFTER_ATTEMPTS:
             self._reveal_solutions(True)
@@ -818,12 +888,6 @@ class ExerciseView(QWidget):
             count_attempt=count_attempt,
         )
 
-    def _show_brief_tabs(self, visible: bool) -> None:
-        self._brief_tabs_holder.setVisible(visible)
-        if not visible:
-            self._brief_tabs.set_current(BRIEF_PROMPT, notify=False)
-            self._brief_stack.setCurrentIndex(BRIEF_PROMPT)
-
     def _reveal_solutions(self, revealed: bool, save: bool = True, focus: bool = True) -> None:
         """Çözüm yollarını sol panelde açar (ya da kapatır).
 
@@ -833,12 +897,9 @@ class ExerciseView(QWidget):
         was_open = self._revealed_solution
         self._revealed_solution = revealed
         self._problem.set_revealed(revealed)
-        self._show_brief_tabs(revealed)
         if revealed:
             self._render_solutions()
-            if focus and not was_open:
-                self._brief_tabs.set_current(BRIEF_SOLUTIONS, notify=False)
-                self._brief_stack.setCurrentIndex(BRIEF_SOLUTIONS)
+        self._update_tabs("solutions" if revealed and focus and not was_open else None)
         if save:
             self._save_problem_state()
 
@@ -887,6 +948,7 @@ class ExerciseView(QWidget):
         self._prompt.set_mode(mode)
         self._solutions.set_mode(mode)
         self._output_view.set_mode(mode)
+        self._history_view.set_mode(mode)
         self._problem.set_mode(mode)
         self._splitter.set_mode(mode)
         self._work_splitter.set_mode(mode)
@@ -904,11 +966,9 @@ class ExerciseView(QWidget):
         # Başlık, etiketler ve ipuçları belgenin içinde olduğu için dil
         # değişince yönergeyi baştan çizmek yeterli.
         self._problem.retranslate()
-        problem = self._exercise is not None and self._exercise.is_problem
-        self._brief_tabs.set_labels([
-            self._language.t("problem.tab_prompt"),
-            self._language.t("problem.tab_solutions" if problem else "exercise.tab_output"),
-        ])
+        self._update_tabs()
+        if self._attempt_count:
+            self._load_history()
         self._terminal.set_title(self._language.t("terminal.title"))
         self._terminal.clear_button.setText(self._language.t("terminal.clear"))
         self._terminal.set_welcome(self._welcome_html())

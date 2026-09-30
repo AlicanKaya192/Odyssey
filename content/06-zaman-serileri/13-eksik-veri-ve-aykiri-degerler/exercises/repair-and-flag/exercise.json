@@ -1,0 +1,36 @@
+{
+  "id": "repair-and-flag",
+  "title": {
+    "tr": "Düzelt ve işaretle",
+    "en": "Repair and flag"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Birden çok günü birden `NaN` yapmak: `clean.loc[days] = float(\"nan\")`.",
+      "en": "Setting several days to `NaN` at once: `clean.loc[days] = float(\"nan\")`."
+    },
+    {
+      "tr": "İşaret sütunu: `visits.index.isin(days)` dokunulan günlerde doğru veriyor.",
+      "en": "The flag column: `visits.index.isin(days)` is true on the days touched."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)\nvisits = visits[\"visits\"]\ndays = pd.to_datetime([\"2024-03-14\", \"2024-06-20\", \"2024-10-08\"])\n\nclean = visits.astype(float).copy()\nclean.loc[days] = float(\"nan\")\n\nboth = pd.concat([clean.shift(7), clean.shift(-7)], axis=1).mean(axis=1)\nclean = clean.fillna(both)\nprint(clean.loc[days].tolist())\n\ntable = pd.DataFrame({\n    \"visits\": visits,\n    \"clean\": clean,\n    \"repaired\": visits.index.isin(days),\n})\nprint(len(table), int(table[\"repaired\"].sum()))\n\nprint(round(float(table[\"visits\"].std()), 1), round(float(table[\"clean\"].std()), 1))\n\nthursday = table[table.index.dayofweek == 3]\nprint(round(float(thursday[\"visits\"].mean()), 1), round(float(thursday[\"clean\"].mean()), 1))\n\ncampaigns = days[:2]\neffect = (table.loc[campaigns, \"visits\"] - table.loc[campaigns, \"clean\"]).sum()\nprint(int(effect))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)\nvisits = visits[\"visits\"]\ndays = pd.to_datetime([\"2024-03-14\", \"2024-06-20\", \"2024-10-08\"])\n\nclean = visits.astype(float).copy()\nclean.loc[days] = float(\"nan\")\n\nboth = pd.concat([clean.shift(7), clean.shift(-7)], axis=1).mean(axis=1)\nclean = clean.fillna(both)\nprint(clean.loc[days].tolist())\n\ntable = pd.DataFrame({\n    \"visits\": visits,\n    \"clean\": clean,\n    \"repaired\": visits.index.isin(days),\n})\nprint(len(table), int(table[\"repaired\"].sum()))\n\nprint(round(float(table[\"visits\"].std()), 1), round(float(table[\"clean\"].std()), 1))\n\nthursday = table[table.index.dayofweek == 3]\nprint(round(float(thursday[\"visits\"].mean()), 1), round(float(thursday[\"clean\"].mean()), 1))\n\ncampaigns = days[:2]\neffect = (table.loc[campaigns, \"visits\"] - table.loc[campaigns, \"clean\"]).sum()\nprint(int(effect))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[4116.0, 4120.5, 5226.5]\n366 3\n914.2 805.6\n4621.3 4423.5\n10285"
+    }
+  ]
+}

@@ -268,6 +268,9 @@ class TopicView(QWidget):
                     # Önceki deneme başlangıç ekranında gösteriliyor:
                     # "geçen sefer 60 almıştın" bilgisi, sınava girmeden
                     # önce insanın neye hazırlandığını bilmesini sağlıyor.
+                    self._quiz.set_history_provider(
+                        lambda ch=section.chapter_id, sec=section.id: self._store.quiz_attempts(ch, sec)
+                    )
                     self._quiz.show_quiz(
                         resolved.path,
                         block.pass_score,
@@ -469,6 +472,9 @@ class TopicView(QWidget):
         pencere = self.window()
         if self._section is None or not self.isVisible() or pencere is None or not pencere.isActiveWindow():
             return
+        # Tanıtım turu bölümü yalnızca gösteriyor; o süre çalışma sayılmaz.
+        if getattr(pencere, "tour_active", False):
+            return
         if self._store.last_study_day() == date.today():
             return
         self._study_seconds += STUDY_TICK_MS // 1000
@@ -478,6 +484,11 @@ class TopicView(QWidget):
             # Seri alevi ve karşılama kartı yeni seriyi göstersin.
             self.progress_changed.emit()
 
+    def _touring(self) -> bool:
+        """Tanıtım turu bölümü yalnızca gösteriyor: okundu, çalışıldı sayılmaz."""
+        pencere = self.window()
+        return bool(pencere is not None and getattr(pencere, "tour_active", False))
+
     def _mark_lesson_read(self) -> None:
         """Ders metnini okunmuş işaretler.
 
@@ -486,7 +497,7 @@ class TopicView(QWidget):
         kullanıcının sayfanın sonuna ulaştığı anlamına geliyor; bölümü açmak
         tek başına yetmiyor.
         """
-        if self._section is None:
+        if self._section is None or self._touring():
             return
         self._store.mark_lesson_read(self._section.chapter_id, self._section.id)
         self._refresh_progress()
@@ -517,7 +528,7 @@ class TopicView(QWidget):
 
     def _on_note_read(self, document_id: str) -> None:
         """Bir ders notu sonuna kadar okundu: kaydedilir, tikler güncellenir."""
-        if self._section is None or document_id not in self._note_ids:
+        if self._section is None or document_id not in self._note_ids or self._touring():
             return
         self._store.mark_note_read(self._section.chapter_id, self._section.id, document_id)
         self._refresh_progress()
@@ -639,10 +650,43 @@ class TopicView(QWidget):
             return ""
         return self._panes[min(self._segments.current, len(self._panes) - 1)]
 
+    def confirm_leave_quiz(self) -> bool:
+        """Sınav sürüyorsa sorar; çıkılacaksa denemeyi iptal edip True döner.
+
+        Alican istedi: sınav başladıktan sonra bir sekmeye ya da başka bir
+        ekrana yanlışlıkla tıklayan kişi uyarılsın.
+        """
+        if not self._quiz.in_progress:
+            return True
+        from .confirm_dialog import ConfirmDialog
+        from .modal import Backdrop
+        from . import titlebar
+
+        t = self._language.t
+        pencere = self.window()
+        perde = Backdrop(pencere)
+        perde.show()
+        dialog = ConfirmDialog(t("quiz.leave_title"), t("quiz.leave_message"),
+                               t("quiz.leave_confirm"), t("quiz.leave_cancel"), pencere)
+        titlebar.apply(dialog, getattr(pencere, "_theme", None).effective_mode
+                       if getattr(pencere, "_theme", None) else "dark")
+        kabul = dialog.exec() == ConfirmDialog.DialogCode.Accepted
+        perde.deleteLater()
+        if kabul:
+            self._quiz.abandon()
+        return kabul
+
     def _show_pane(self, index: int) -> None:
         if not self._panes:
             return
         name = self._panes[min(index, len(self._panes) - 1)]
+        # Sınavın içindeyken başka sekmeye geçiliyor mu? (Sınav sürüyorsa
+        # sorular sınav sekmesinde açık; `in_progress` bunu söylüyor.)
+        if name != "quiz" and self._quiz.in_progress:
+            if not self.confirm_leave_quiz():
+                # Sekme seçici eski yerine dönüyor; sınav sürüyor.
+                self._segments.set_current(self._panes.index("quiz"), notify=False)
+                return
         widget = {
             "lesson": self._lesson,
             "notes": self._notes,
@@ -786,6 +830,9 @@ class TopicView(QWidget):
     def _on_quiz_completed(self, score: int, passed: bool) -> None:
         if self._section is None:
             return
+        self._store.add_quiz_attempt(
+            self._section.chapter_id, self._section.id, score, passed, self._quiz.last_answers()
+        )
         self._store.record_quiz(
             self._section.chapter_id, self._section.id, score, passed
         )

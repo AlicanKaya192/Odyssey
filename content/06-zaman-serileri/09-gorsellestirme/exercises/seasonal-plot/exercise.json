@@ -1,0 +1,41 @@
+{
+  "id": "seasonal-plot",
+  "title": {
+    "tr": "Yıllar üst üste",
+    "en": "Years on top of each other"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`unstack()` yılı sütunlara açıyor; tek yılın sütunu `table[2024]`.",
+      "en": "`unstack()` moves the year into columns; one year's column is `table[2024]`."
+    },
+    {
+      "tr": "Sütunlar üzerinde döngü: `for year in table.columns:` ve `ax.plot(table.index, table[year], ...)`.",
+      "en": "A loop over the columns: `for year in table.columns:` with `ax.plot(table.index, table[year], ...)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ntable = s.groupby([s.index.month, s.index.year]).mean().unstack()\nprint(table.shape)\nprint(table.columns.tolist())\n\nfig, ax = plt.subplots(figsize=(8, 4))\nfor year in table.columns:\n    ax.plot(table.index, table[year], marker=\"o\", label=str(year))\nax.set_xticks(range(1, 13))\nax.legend()\nfig.savefig(\"chart.png\")\n\nfor year in table.columns:\n    print(year, table[year].idxmin(), table[year].idxmax())\n\nprint(round(float((table[2024] - table[2022]).mean()), 1))\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ntable = s.groupby([s.index.month, s.index.year]).mean().unstack()\nprint(table.shape)\nprint(table.columns.tolist())\n\nfig, ax = plt.subplots(figsize=(8, 4))\nfor year in table.columns:\n    ax.plot(table.index, table[year], marker=\"o\", label=str(year))\nax.set_xticks(range(1, 13))\nax.legend()\nfig.savefig(\"chart.png\")\n\nfor year in table.columns:\n    print(year, table[year].idxmin(), table[year].idxmax())\n\nprint(round(float((table[2024] - table[2022]).mean()), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(12, 3)\n[2022, 2023, 2024]\n2022 5 12\n2023 6 12\n2024 5 12\n68.5"
+    }
+  ]
+}

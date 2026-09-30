@@ -1121,7 +1121,8 @@ class TrackCard(GlowCard):
                 kisa = [self._language.pick(c.raw.get("short"), "") for c in self._track.chapters]
                 self._sub.setText(" · ".join(k for k in kisa if k))
             else:
-                self._sub.setText(self._language.t("track.sections_count", count=self._total))
+                # Bölüm sayısı kartın altında ("1 / 17 bölüm") zaten yazıyor.
+                self._sub.setText("")
         self._sub.setVisible(bool(self._sub.text()))
         self._render_meta()
 

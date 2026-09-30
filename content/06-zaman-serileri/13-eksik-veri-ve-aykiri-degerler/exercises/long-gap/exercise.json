@@ -1,0 +1,36 @@
+{
+  "id": "long-gap",
+  "title": {
+    "tr": "Uzun boşluk",
+    "en": "A long gap"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`days` zaten tarih sırasında; `for day in days:` ile dolaşırsan ikinci hafta, birinci haftanın doldurulmuş değerlerini kullanır.",
+      "en": "`days` is already in date order; looping with `for day in days:` makes the second week use the filled values of the first."
+    },
+    {
+      "tr": "Bir hafta öncesi: `day - pd.Timedelta(days=7)`.",
+      "en": "A week earlier: `day - pd.Timedelta(days=7)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ntruth = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ntruth = truth.loc[\"2024\"]\n\ngap = truth.astype(float).copy()\ngap.loc[\"2024-07-08\":\"2024-07-21\"] = np.nan\ndays = gap[gap.isna()].index\n\nlinear = gap.interpolate()\n\nchain = gap.copy()\nfor day in days:\n    chain.loc[day] = chain.loc[day - pd.Timedelta(days=7)]\n\n\ndef error(filled):\n    return round(float((filled.loc[days] - truth.loc[days]).abs().mean()), 1)\n\n\nprint(error(linear), error(chain))\n\nfor day in (\"2024-07-13\", \"2024-07-20\"):\n    print(int(truth.loc[day]), round(float(linear.loc[day])), round(float(chain.loc[day])))\n\nprint(round(float(truth.loc[days].std()), 1), round(float(linear.loc[days].std()), 1),\n      round(float(chain.loc[days].std()), 1))\n\nprint(int(gap.ffill(limit=3).isna().sum()))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ntruth = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ntruth = truth.loc[\"2024\"]\n\ngap = truth.astype(float).copy()\ngap.loc[\"2024-07-08\":\"2024-07-21\"] = np.nan\ndays = gap[gap.isna()].index\n\nlinear = gap.interpolate()\n\nchain = gap.copy()\nfor day in days:\n    chain.loc[day] = chain.loc[day - pd.Timedelta(days=7)]\n\n\ndef error(filled):\n    return round(float((filled.loc[days] - truth.loc[days]).abs().mean()), 1)\n\n\nprint(error(linear), error(chain))\n\nfor day in (\"2024-07-13\", \"2024-07-20\"):\n    print(int(truth.loc[day]), round(float(linear.loc[day])), round(float(chain.loc[day])))\n\nprint(round(float(truth.loc[days].std()), 1), round(float(linear.loc[days].std()), 1),\n      round(float(chain.loc[days].std()), 1))\n\nprint(int(gap.ffill(limit=3).isna().sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "47.5 9.6\n344 278 346\n343 242 346\n45.2 21.2 52.9\n11"
+    }
+  ]
+}

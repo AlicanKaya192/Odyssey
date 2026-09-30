@@ -1,0 +1,36 @@
+{
+  "id": "robust-trend",
+  "title": {
+    "tr": "Sıçramaya dayanıklı trend",
+    "en": "A trend that resists spikes"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`STL(...)` yalnızca modeli kuruyor; sonuç için `.fit()` çağırman gerekiyor.",
+      "en": "`STL(...)` only sets up the model; you need to call `.fit()` for the result."
+    },
+    {
+      "tr": "İki sonuç da `.trend` ve `.resid` taşıyor; tek gün `.loc[\"2024-03-14\"]`.",
+      "en": "Both results carry `.trend` and `.resid`; one day is `.loc[\"2024-03-14\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import STL, seasonal_decompose\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\nvisits = visits.asfreq(\"D\")\n\nclassic = seasonal_decompose(visits, model=\"additive\", period=7)\nrobust = STL(visits, period=7, robust=True).fit()\n\nprint(int(classic.trend.isna().sum()), int(robust.trend.isna().sum()))\n\nspike = \"2024-03-14\"\nbefore = \"2024-03-13\"\nprint(round(float(classic.trend.loc[spike])), round(float(robust.trend.loc[spike])))\nprint(round(float(classic.resid.loc[before])), round(float(robust.resid.loc[before])))\nprint(round(float(classic.resid.loc[spike])), round(float(robust.resid.loc[spike])))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import STL, seasonal_decompose\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\nvisits = visits.asfreq(\"D\")\n\nclassic = seasonal_decompose(visits, model=\"additive\", period=7)\nrobust = STL(visits, period=7, robust=True).fit()\n\nprint(int(classic.trend.isna().sum()), int(robust.trend.isna().sum()))\n\nspike = \"2024-03-14\"\nbefore = \"2024-03-13\"\nprint(round(float(classic.trend.loc[spike])), round(float(robust.trend.loc[spike])))\nprint(round(float(classic.resid.loc[before])), round(float(robust.resid.loc[before])))\nprint(round(float(classic.resid.loc[spike])), round(float(robust.resid.loc[spike])))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6 0\n4560 3737\n-1206 -136\n4487 5474"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "candidates",
+  "title": {
+    "tr": "Adayları karşılaştır",
+    "en": "Compare the candidates"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her adayın sonuçlarını bir demet olarak listeye ekle: `rows.append((order, aic, pvalue, mae))`.",
+      "en": "Append the results of each candidate to a list as a tuple: `rows.append((order, aic, pvalue, mae))`."
+    },
+    {
+      "tr": "En küçük AIC'li satır: `min(rows, key=lambda row: row[1])`.",
+      "en": "The row with the smallest AIC: `min(rows, key=lambda row: row[1])`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.stats.diagnostic import acorr_ljungbox\nfrom statsmodels.tsa.arima.model import ARIMA\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrain = s.loc[:\"2024-11-05\"]\ntest = s.loc[\"2024-11-06\":\"2024-12-03\"]\n\ncandidates = [\n    ((0, 0, 0), (0, 1, 0, 7)),\n    ((1, 0, 0), (0, 1, 1, 7)),\n    ((0, 1, 1), (0, 1, 1, 7)),\n    ((1, 1, 1), (0, 1, 1, 7)),\n]\n\nrows = []\nfor order, seasonal in candidates:\n    fit = ARIMA(train, order=order, seasonal_order=seasonal).fit()\n    check = acorr_ljungbox(fit.resid.iloc[8:], lags=[14])\n    pvalue = float(check[\"lb_pvalue\"].iloc[0])\n    mae = float((test - fit.forecast(28)).abs().mean())\n    rows.append((order, float(fit.aic), pvalue, mae))\n    print(order, seasonal, round(float(fit.aic), 1), round(pvalue, 3), round(mae, 2))\n\nbest = min(rows, key=lambda row: row[1])\nprint(best[0])\n\nprint([row[0] for row in rows if row[2] > 0.05])\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.stats.diagnostic import acorr_ljungbox\nfrom statsmodels.tsa.arima.model import ARIMA\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrain = s.loc[:\"2024-11-05\"]\ntest = s.loc[\"2024-11-06\":\"2024-12-03\"]\n\ncandidates = [\n    ((0, 0, 0), (0, 1, 0, 7)),\n    ((1, 0, 0), (0, 1, 1, 7)),\n    ((0, 1, 1), (0, 1, 1, 7)),\n    ((1, 1, 1), (0, 1, 1, 7)),\n]\n\nrows = []\nfor order, seasonal in candidates:\n    fit = ARIMA(train, order=order, seasonal_order=seasonal).fit()\n    check = acorr_ljungbox(fit.resid.iloc[8:], lags=[14])\n    pvalue = float(check[\"lb_pvalue\"].iloc[0])\n    mae = float((test - fit.forecast(28)).abs().mean())\n    rows.append((order, float(fit.aic), pvalue, mae))\n    print(order, seasonal, round(float(fit.aic), 1), round(pvalue, 3), round(mae, 2))\n\nbest = min(rows, key=lambda row: row[1])\nprint(best[0])\n\nprint([row[0] for row in rows if row[2] > 0.05])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(0, 0, 0) (0, 1, 0, 7) 8782.5 0.0 11.64\n(1, 0, 0) (0, 1, 1, 7) 8423.1 0.0 14.9\n(0, 1, 1) (0, 1, 1, 7) 8265.8 0.035 10.48\n(1, 1, 1) (0, 1, 1, 7) 8258.7 0.311 10.44\n(1, 1, 1)\n[(1, 1, 1)]"
+    }
+  ]
+}

@@ -124,6 +124,10 @@ class SegmentedControl(QFrame):
         while self._layout.count():
             item = self._layout.takeAt(0)
             if item.widget():
+                # Silinmesi olay döngüsüne kalıyor; o zamana kadar eski yerinde
+                # çizilmesin (aynı turda iki kez kurulunca etiketler üst üste
+                # biniyordu: alıştırmada Denemelerim ve Çözüm yolları birlikte).
+                item.widget().hide()
                 item.widget().deleteLater()
         self._buttons = []
 

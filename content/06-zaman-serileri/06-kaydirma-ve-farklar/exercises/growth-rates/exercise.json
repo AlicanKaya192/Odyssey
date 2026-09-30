@@ -1,0 +1,36 @@
+{
+  "id": "growth-rates",
+  "title": {
+    "tr": "Büyüyor muyuz?",
+    "en": "Are we growing?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`pct_change()` oran veriyor (0.05); yüzde için 100 ile çarp.",
+      "en": "`pct_change()` gives a ratio (0.05); multiply by 100 for a percentage."
+    },
+    {
+      "tr": "On iki ay geriye: `daily_mean.pct_change(12)`.",
+      "en": "Going back twelve months: `daily_mean.pct_change(12)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ndaily_mean = s.resample(\"ME\").mean()\n\nmom = daily_mean.pct_change() * 100\nyoy = daily_mean.pct_change(12) * 100\n\nprint(mom.round(1).loc[\"2024-01\":\"2024-04\"].tolist())\nprint(yoy.round(1).loc[\"2024-01\":\"2024-04\"].tolist())\nprint(round(float(yoy.loc[\"2024\"].mean()), 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ndaily_mean = s.resample(\"ME\").mean()\n\nmom = daily_mean.pct_change() * 100\nyoy = daily_mean.pct_change(12) * 100\n\nprint(mom.round(1).loc[\"2024-01\":\"2024-04\"].tolist())\nprint(yoy.round(1).loc[\"2024-01\":\"2024-04\"].tolist())\nprint(round(float(yoy.loc[\"2024\"].mean()), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-11.5, -0.3, -1.7, -7.3]\n[11.9, 12.8, 16.4, 10.5]\n13.0"
+    }
+  ]
+}

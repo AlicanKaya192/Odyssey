@@ -1,0 +1,36 @@
+{
+  "id": "stock-decision",
+  "title": {
+    "tr": "Stok kararı",
+    "en": "A stock decision"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`.clip(lower=0)` eksi değerleri sıfıra çekiyor: eksik yalnızca talep üretimi aştığında artı.",
+      "en": "`.clip(lower=0)` pulls negative values up to zero: the shortfall is positive only when demand exceeds production."
+    },
+    {
+      "tr": "En düşük maliyetli `q`: `min(totals, key=totals.get)`.",
+      "en": "The `q` with the lowest cost: `min(totals, key=totals.get)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\nerror = s - s.shift(7)\npast = error.loc[\"2023\"]\nbase = s.shift(7).loc[\"2024\"]\nactual = s.loc[\"2024\"]\n\n\ndef cost(order):\n    short = (actual - order).clip(lower=0)\n    over = (order - actual).clip(lower=0)\n    total = 4 * short.sum() + over.sum()\n    return int((short > 0).sum()), int(short.sum()), int(over.sum()), int(total)\n\n\ntotals = {}\nfor q in (0.5, 0.8, 0.9, 0.95):\n    result = cost(base + past.quantile(q))\n    totals[q] = result[3]\n    print(q, result)\n\nprint(4 / (4 + 1))\n\nbest = min(totals, key=totals.get)\nprint(best, round((1 - totals[best] / totals[0.5]) * 100))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\nerror = s - s.shift(7)\npast = error.loc[\"2023\"]\nbase = s.shift(7).loc[\"2024\"]\nactual = s.loc[\"2024\"]\n\n\ndef cost(order):\n    short = (actual - order).clip(lower=0)\n    over = (order - actual).clip(lower=0)\n    total = 4 * short.sum() + over.sum()\n    return int((short > 0).sum()), int(short.sum()), int(over.sum()), int(total)\n\n\ntotals = {}\nfor q in (0.5, 0.8, 0.9, 0.95):\n    result = cost(base + past.quantile(q))\n    totals[q] = result[3]\n    print(q, result)\n\nprint(4 / (4 + 1))\n\nbest = min(totals, key=totals.get)\nprint(best, round((1 - totals[best] / totals[0.5]) * 100))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.5 (178, 2333, 2730, 12062)\n0.8 (73, 609, 6130, 8566)\n0.9 (32, 230, 8313, 9233)\n0.95 (14, 119, 10032, 10508)\n0.8\n0.8 29"
+    }
+  ]
+}

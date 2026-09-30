@@ -1,0 +1,41 @@
+{
+  "id": "decompose-and-read",
+  "title": {
+    "tr": "Kalıntıyı oku",
+    "en": "Read the residual"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bileşenler `result.trend`, `result.seasonal`, `result.resid`; her biri tarih indeksli bir seri.",
+      "en": "The components are `result.trend`, `result.seasonal`, `result.resid`; each is a series with a date index."
+    },
+    {
+      "tr": "En büyük üç: `resid.abs().sort_values(ascending=False).head(3)`; tarihleri `.index`.",
+      "en": "The top three: `resid.abs().sort_values(ascending=False).head(3)`; the dates are its `.index`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import seasonal_decompose\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\nresult = seasonal_decompose(s, model=\"additive\", period=7)\nfig = result.plot()\nfig.savefig(\"chart.png\")\n\nresid = result.resid\nprint(int(resid.isna().sum()), round(float(resid.std()), 2))\n\ntop = resid.abs().sort_values(ascending=False).head(3)\nprint(top.index.strftime(\"%Y-%m-%d\").tolist())\n\nday = top.index[0]\nprint(int(s.loc[day]), round(float(result.trend.loc[day]), 1),\n      round(float(result.seasonal.loc[day]), 1), round(float(resid.loc[day]), 1))\n\nby_day = resid.groupby(resid.index.dayofweek).mean()\nprint(round(float(by_day.abs().max()), 1))\n\nby_month = result.trend.groupby(result.trend.index.month).mean()\nprint(int(by_month.idxmin()), round(float(by_month.min())),\n      int(by_month.idxmax()), round(float(by_month.max())))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import seasonal_decompose\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\nresult = seasonal_decompose(s, model=\"additive\", period=7)\nfig = result.plot()\nfig.savefig(\"chart.png\")\n\nresid = result.resid\nprint(int(resid.isna().sum()), round(float(resid.std()), 2))\n\ntop = resid.abs().sort_values(ascending=False).head(3)\nprint(top.index.strftime(\"%Y-%m-%d\").tolist())\n\nday = top.index[0]\nprint(int(s.loc[day]), round(float(result.trend.loc[day]), 1),\n      round(float(result.seasonal.loc[day]), 1), round(float(resid.loc[day]), 1))\n\nby_day = resid.groupby(resid.index.dayofweek).mean()\nprint(round(float(by_day.abs().max()), 1))\n\nby_month = result.trend.groupby(result.trend.index.month).mean()\nprint(int(by_month.idxmin()), round(float(by_month.min())),\n      int(by_month.idxmax()), round(float(by_month.max())))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6 12.32\n['2023-12-30', '2024-11-09', '2022-05-14']\n462 338.3 76.2 47.5\n0.0\n6 231 12 322"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "make-it-stationary",
+  "title": {
+    "tr": "Durağanlaştır",
+    "en": "Make it stationary"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sözlük üzerinde dolaşmak: `for name, x in versions.items():`. Testten önce `x = x.dropna()`.",
+      "en": "Looping over a dictionary: `for name, x in versions.items():`. Before the test, `x = x.dropna()`."
+    },
+    {
+      "tr": "p-değeri her iki testte de dönen demetin ikinci elemanı: `[1]`.",
+      "en": "In both tests the p-value is the second element of the returned tuple: `[1]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.stattools import adfuller, kpss\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"]\n\nversions = {\n    \"level\": p,\n    \"diff\": p.diff(),\n    \"diff12\": p.diff(12),\n    \"log diff12\": np.log(p).diff(12),\n}\n\nfor name, x in versions.items():\n    x = x.dropna()\n    adf_p = float(adfuller(x)[1])\n    kpss_p = float(kpss(x, regression=\"c\", nlags=\"auto\")[1])\n    print(name, round(adf_p, 3), round(kpss_p, 3))\n\nfinal = versions[\"log diff12\"]\nprint(int(final.isna().sum()), round(float(final.std()), 3))\n\nextra = final.diff()\nprint(round(float(extra.std()), 3))\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.stattools import adfuller, kpss\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"]\n\nversions = {\n    \"level\": p,\n    \"diff\": p.diff(),\n    \"diff12\": p.diff(12),\n    \"log diff12\": np.log(p).diff(12),\n}\n\nfor name, x in versions.items():\n    x = x.dropna()\n    adf_p = float(adfuller(x)[1])\n    kpss_p = float(kpss(x, regression=\"c\", nlags=\"auto\")[1])\n    print(name, round(adf_p, 3), round(kpss_p, 3))\n\nfinal = versions[\"log diff12\"]\nprint(int(final.isna().sum()), round(float(final.std()), 3))\n\nextra = final.diff()\nprint(round(float(extra.std()), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "level 1.0 0.01\ndiff 0.537 0.1\ndiff12 0.982 0.01\nlog diff12 0.0 0.1\n12 0.023\n0.033"
+    }
+  ]
+}

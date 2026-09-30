@@ -1,0 +1,680 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.read_csv` ile okunan bir dosyada `date` sütununun türü varsayılan olarak nedir?",
+        "en": "In a file read with `pd.read_csv`, what is the type of the `date` column by default?"
+      },
+      "options": {
+        "tr": [
+          "Metin (`str` / `object`)",
+          "`datetime64`",
+          "`Timestamp`",
+          "`int64`"
+        ],
+        "en": [
+          "Text (`str` / `object`)",
+          "`datetime64`",
+          "`Timestamp`",
+          "`int64`"
+        ]
+      },
+      "explanation": {
+        "tr": "`read_csv` tarihleri kendiliğinden çevirmiyor; sütun metin olarak kalıyor. `parse_dates=[\"date\"]` ya da sonradan `pd.to_datetime` gerekiyor.",
+        "en": "`read_csv` does not convert dates on its own; the column stays text. You need `parse_dates=[\"date\"]` or `pd.to_datetime` afterwards."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Bir sütunun gerçekten tarih türünde olup olmadığını nasıl anlarsın?",
+        "en": "How do you tell whether a column is really a date type?"
+      },
+      "options": {
+        "tr": [
+          "`df.dtypes` ile; `datetime64[...]` yazmalı",
+          "`print(df.head())` ile; tarih gibi görünüyorsa tarihtir",
+          "`len(df)` ile",
+          "Sütun adına bakarak"
+        ],
+        "en": [
+          "With `df.dtypes`; it should say `datetime64[...]`",
+          "With `print(df.head())`; if it looks like a date, it is one",
+          "With `len(df)`",
+          "By the column name"
+        ]
+      },
+      "explanation": {
+        "tr": "Metin ve tarih sütunu ekranda birebir aynı görünüyor: `2022-01-01`. Farkı yalnızca `dtypes` gösteriyor.",
+        "en": "A text column and a date column look exactly the same on screen: `2022-01-01`. Only `dtypes` shows the difference."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Metin türündeki bir sütunda `df[\"date\"].dt.year` yazınca ne olur?",
+        "en": "What happens when you write `df[\"date\"].dt.year` on a text column?"
+      },
+      "options": {
+        "tr": [
+          "`AttributeError`: `.dt` yalnızca tarih türünde çalışır",
+          "İlk dört karakteri verir",
+          "Hepsi `NaN` olur",
+          "Sütunu kendiliğinden tarihe çevirir"
+        ],
+        "en": [
+          "`AttributeError`: `.dt` only works on date types",
+          "It returns the first four characters",
+          "Everything becomes `NaN`",
+          "It converts the column to dates by itself"
+        ]
+      },
+      "explanation": {
+        "tr": "Hata mesajı: `Can only use .dt accessor with datetimelike values`. Önce `pd.to_datetime` ile çevirmek gerekiyor.",
+        "en": "The error message: `Can only use .dt accessor with datetimelike values`. Convert with `pd.to_datetime` first."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.to_datetime(pd.Series([\"09.03.2024\", \"10.03.2024\", \"11.03.2024\"]))` ne veriyor?",
+        "en": "What does `pd.to_datetime(pd.Series([\"09.03.2024\", \"10.03.2024\", \"11.03.2024\"]))` give?"
+      },
+      "options": {
+        "tr": [
+          "3 Eylül, 3 Ekim, 3 Kasım: hata vermeden yanlış",
+          "9, 10, 11 Mart",
+          "`ValueError`",
+          "Üç `NaT`"
+        ],
+        "en": [
+          "3 September, 3 October, 3 November: wrong, with no error",
+          "9, 10, 11 March",
+          "`ValueError`",
+          "Three `NaT` values"
+        ]
+      },
+      "explanation": {
+        "tr": "Biçim verilmeyince pandas ilk sayıyı ay sanıyor. Günler 12'yi geçmediği için tahminin yanlış olduğunu fark edemiyor ve uyarı bile vermiyor.",
+        "en": "With no format pandas takes the first number for the month. Because the days do not go above 12, it cannot tell the guess is wrong and gives not even a warning."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Aynı listeye `\"13.03.2024\"` eklenince neden hata çıkıyor?",
+        "en": "Why does an error appear once `\"13.03.2024\"` is added to the same list?"
+      },
+      "options": {
+        "tr": [
+          "13. ay olmadığı için ay-gün-yıl tahmini tutmuyor",
+          "13 uğursuz sayı olduğu için",
+          "Liste dört elemanı geçemez",
+          "Nokta yerine tire gerekiyor"
+        ],
+        "en": [
+          "There is no month 13, so the month-day-year guess fails",
+          "Because 13 is unlucky",
+          "The list cannot hold four elements",
+          "Dashes are needed instead of dots"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas biçimi ilk satırdan `%m.%d.%Y` diye tahmin ediyor; `13.03.2024` buna uymuyor. Hata aslında bir şans: sessiz yanlış okumayı ortaya çıkarıyor.",
+        "en": "pandas guesses the format from the first row as `%m.%d.%Y`; `13.03.2024` does not fit. The error is really a stroke of luck: it exposes the silent misreading."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Gün önde yazılmış tarihleri doğru okumanın önerilen yolu hangisi?",
+        "en": "What is the recommended way to read day-first dates correctly?"
+      },
+      "options": {
+        "tr": [
+          "`pd.to_datetime(col, format=\"%d.%m.%Y\")`",
+          "`pd.to_datetime(col)`",
+          "`col.astype(int)`",
+          "`pd.to_datetime(col, errors=\"ignore\")`"
+        ],
+        "en": [
+          "`pd.to_datetime(col, format=\"%d.%m.%Y\")`",
+          "`pd.to_datetime(col)`",
+          "`col.astype(int)`",
+          "`pd.to_datetime(col, errors=\"ignore\")`"
+        ]
+      },
+      "explanation": {
+        "tr": "Biçimi açıkça yazmak hem doğru okutuyor hem de biçime uymayan satırda hata verdiriyor. `dayfirst=True` de çalışıyor ama uymayan satırı yakalamıyor.",
+        "en": "Stating the format both reads correctly and raises on a row that does not fit. `dayfirst=True` works too but does not catch the rows that do not fit."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`format` yazmanın `dayfirst=True`'ya göre üstünlüğü ne?",
+        "en": "What is the advantage of writing `format` over `dayfirst=True`?"
+      },
+      "options": {
+        "tr": [
+          "Biçime uymayan satırda hata veriyor ve büyük dosyada daha hızlı",
+          "Hiçbir farkı yok",
+          "Yalnızca `format` saat dilimini okuyor",
+          "`dayfirst` Türkçe tarihlerde çalışmıyor"
+        ],
+        "en": [
+          "It raises on rows that do not fit, and is faster on large files",
+          "There is no difference",
+          "Only `format` reads time zones",
+          "`dayfirst` does not work on Turkish dates"
+        ]
+      },
+      "explanation": {
+        "tr": "`format` tek bir kalıp dayatıyor: uymayan veri erken yakalanıyor ve pandas her satırda tahmin yürütmek zorunda kalmıyor.",
+        "en": "`format` enforces a single pattern: data that does not fit is caught early, and pandas does not have to guess on every row."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`errors=\"coerce\"` ne yapıyor?",
+        "en": "What does `errors=\"coerce\"` do?"
+      },
+      "options": {
+        "tr": [
+          "Okunamayan değerleri `NaT` yapıp devam ediyor",
+          "Okunamayan satırları siliyor",
+          "Hatayı ekrana yazıp duruyor",
+          "Bozuk tarihleri bugünün tarihiyle dolduruyor"
+        ],
+        "en": [
+          "It turns unreadable values into `NaT` and carries on",
+          "It deletes the unreadable rows",
+          "It prints the error and stops",
+          "It fills broken dates with today's date"
+        ]
+      },
+      "explanation": {
+        "tr": "Satır silinmiyor; yerinde `NaT` kalıyor. Satır sayısı değişmiyor. Silmek istersen ayrıca `dropna(subset=[...])`.",
+        "en": "The row is not deleted; `NaT` sits in its place. The number of rows does not change. To drop them, call `dropna(subset=[...])` separately."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`errors=\"coerce\"` kullandıktan hemen sonra ne yapılmalı?",
+        "en": "What should you do right after using `errors=\"coerce\"`?"
+      },
+      "options": {
+        "tr": [
+          "Kaç değerin `NaT` olduğuna ve hangi ham değerlerden geldiğine bakmak",
+          "Hiçbir şey; veri artık temiz",
+          "Bütün `NaT`'leri sıfırla doldurmak",
+          "Sütunu metne geri çevirmek"
+        ],
+        "en": [
+          "Look at how many values became `NaT` and which raw values they came from",
+          "Nothing; the data is clean now",
+          "Fill every `NaT` with zero",
+          "Turn the column back into text"
+        ]
+      },
+      "explanation": {
+        "tr": "`coerce` hatayı gizliyor. 240 satırın 3'ü `NaT` ise gerçekten bozuk satırlar var; 120'si `NaT` ise yanlış olan senin yazdığın biçim.",
+        "en": "`coerce` hides the error. If 3 of 240 rows are `NaT`, there really are broken rows; if 120 are `NaT`, what is wrong is the format you wrote."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`NaT` için hangisi doğru?",
+        "en": "Which statement about `NaT` is true?"
+      },
+      "options": {
+        "tr": [
+          "Tarihlerin eksik değeri; `isna()` ile bulunuyor, `min` / `max` onu atlıyor",
+          "Sıfır tarihi, yani 1970-01-01",
+          "Bir hata türü; kodu durduruyor",
+          "`pd.NaT == pd.NaT` `True` veriyor"
+        ],
+        "en": [
+          "The missing value of dates; found with `isna()`, skipped by `min` / `max`",
+          "The zero date, that is 1970-01-01",
+          "An error type; it stops the code",
+          "`pd.NaT == pd.NaT` gives `True`"
+        ]
+      },
+      "explanation": {
+        "tr": "`NaT` tarihlerin `NaN`'ı. Hiçbir şeye eşit değil (kendine bile), karşılaştırmaları `False`. Bulmak için `isna()`, atmak için `dropna()`.",
+        "en": "`NaT` is the `NaN` of dates. It equals nothing (not even itself) and its comparisons are `False`. Find it with `isna()`, drop it with `dropna()`."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`sales[\"date\"].dt.dayofweek` cumartesi için kaç verir?",
+        "en": "What does `sales[\"date\"].dt.dayofweek` give for a Saturday?"
+      },
+      "options": {
+        "tr": [
+          "5",
+          "6",
+          "7",
+          "0"
+        ],
+        "en": [
+          "5",
+          "6",
+          "7",
+          "0"
+        ]
+      },
+      "explanation": {
+        "tr": "Python'daki `weekday()` ile aynı kural: pazartesi 0, cumartesi 5, pazar 6. Hafta sonu için `dt.dayofweek >= 5`.",
+        "en": "The same rule as Python's `weekday()`: Monday 0, Saturday 5, Sunday 6. Weekends are `dt.dayofweek >= 5`."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Mağaza verisinde hafta sonunun toplam satıştaki payı %34.9. Hafta sonu günlerinin takvimdeki payı 2/7 ≈ %28.6. Bu ne gösteriyor?",
+        "en": "In the shop data the weekend's share of total sales is 34.9%. Weekend days are 2/7 ≈ 28.6% of the calendar. What does this show?"
+      },
+      "options": {
+        "tr": [
+          "Hafta sonu günleri ortalamanın üstünde satıyor",
+          "Veride hata var",
+          "Hafta içi daha çok satılıyor",
+          "Hiçbir şey; iki oran karşılaştırılamaz"
+        ],
+        "en": [
+          "Weekend days sell above average",
+          "There is an error in the data",
+          "Weekdays sell more",
+          "Nothing; the two ratios cannot be compared"
+        ]
+      },
+      "explanation": {
+        "tr": "Günler eşit satsaydı hafta sonunun payı %28.6 olurdu. %34.9 olması haftalık mevsimselliğin sayıya dökülmüş hâli.",
+        "en": "If every day sold the same, the weekend's share would be 28.6%. It being 34.9% is the weekly seasonality expressed as a number."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "`sales[sales[\"date\"] >= \"2024-12-01\"]` tarih sütununda neden çalışıyor?",
+        "en": "Why does `sales[sales[\"date\"] >= \"2024-12-01\"]` work on a date column?"
+      },
+      "options": {
+        "tr": [
+          "pandas karşılaştırmada metni tarihe kendisi çeviriyor",
+          "Çünkü sütun aslında metin",
+          "Çalışmıyor; hata veriyor",
+          "Yalnızca Aralık ayında çalışıyor"
+        ],
+        "en": [
+          "pandas converts the text to a date itself for the comparison",
+          "Because the column is really text",
+          "It does not work; it raises an error",
+          "It only works in December"
+        ]
+      },
+      "explanation": {
+        "tr": "Sütun `datetime64` iken sağdaki metin tarihe çevrilip zamana göre karşılaştırılıyor. Sütun metin olsaydı aynı satır alfabetik karşılaştırma yapardı.",
+        "en": "While the column is `datetime64`, the text on the right is converted to a date and compared by time. If the column were text, the same line would compare alphabetically."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`sales[\"date\"].between(\"2024-03-04\", \"2024-03-10\")` günlük veride kaç satır seçer?",
+        "en": "How many rows does `sales[\"date\"].between(\"2024-03-04\", \"2024-03-10\")` select in daily data?"
+      },
+      "options": {
+        "tr": [
+          "7: iki uç da dahil",
+          "6: son gün hariç",
+          "5: iki uç da hariç",
+          "8"
+        ],
+        "en": [
+          "7: both ends are included",
+          "6: the last day is excluded",
+          "5: both ends are excluded",
+          "8"
+        ]
+      },
+      "explanation": {
+        "tr": "`between` varsayılan olarak iki ucu da içeriyor: 4, 5, 6, 7, 8, 9, 10 Mart.",
+        "en": "`between` includes both ends by default: 4, 5, 6, 7, 8, 9, 10 March."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "İki tarih sütununun farkı hangi türde bir sütun verir?",
+        "en": "What type of column is the difference of two date columns?"
+      },
+      "options": {
+        "tr": [
+          "`timedelta64`: süre",
+          "`datetime64`: tarih",
+          "`float64`",
+          "`str`"
+        ],
+        "en": [
+          "`timedelta64`: a duration",
+          "`datetime64`: a date",
+          "`float64`",
+          "`str`"
+        ]
+      },
+      "explanation": {
+        "tr": "Tarih - tarih = süre. Süre sütununda gün sayısı `.dt.days`, toplam saniye `.dt.total_seconds()`.",
+        "en": "Date - date = duration. On a duration column the number of days is `.dt.days` and the total seconds `.dt.total_seconds()`."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Teslim süresini gün olarak hesaplarken `ordered.dt.normalize()` neden kullanıldı?",
+        "en": "Why was `ordered.dt.normalize()` used when computing delivery time in days?"
+      },
+      "options": {
+        "tr": [
+          "Sipariş saatini gece yarısına çekip farkı tam gün yapmak için",
+          "Tarihi UTC'ye çevirmek için",
+          "Eksik değerleri doldurmak için",
+          "Sütunu sıralamak için"
+        ],
+        "en": [
+          "To pull the order time back to midnight so the difference comes out in whole days",
+          "To convert the date to UTC",
+          "To fill missing values",
+          "To sort the column"
+        ]
+      },
+      "explanation": {
+        "tr": "Teslim tarihi yalnızca gün, sipariş zamanı saat de içeriyor. Saat sıfırlanmazsa 22:00'de verilip ertesi gün teslim edilen sipariş \"0 gün\" çıkıyor.",
+        "en": "The delivery date is only a day, while the order time includes a clock time. Without zeroing the time, an order placed at 22:00 and delivered the next day comes out as \"0 days\"."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "240 siparişte sipariş zamanının 3'ü, teslim tarihinin 7'si `NaT`. Teslim süresi kaç satırda hesaplanabilir (çakışma yoksa)?",
+        "en": "Out of 240 orders, 3 order times and 7 delivery dates are `NaT`. For how many rows can the delivery time be computed (with no overlap)?"
+      },
+      "options": {
+        "tr": [
+          "230",
+          "240",
+          "237",
+          "233"
+        ],
+        "en": [
+          "230",
+          "240",
+          "237",
+          "233"
+        ]
+      },
+      "explanation": {
+        "tr": "Taraflardan biri `NaT` ise fark da `NaT`. 240 - 3 - 7 = 230. Ortalama ve en büyük değer yalnızca bu 230 satırdan hesaplanıyor.",
+        "en": "If either side is `NaT`, the difference is `NaT`. 240 - 3 - 7 = 230. The mean and the maximum are computed from those 230 rows alone."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "`\"2024-03-29T23:00:00Z\"` metnindeki `Z` ne anlama geliyor?",
+        "en": "What does the `Z` in the text `\"2024-03-29T23:00:00Z\"` mean?"
+      },
+      "options": {
+        "tr": [
+          "Zaman UTC'de",
+          "Zaman bilinmiyor",
+          "Saniye sıfır",
+          "Yaz saati uygulanıyor"
+        ],
+        "en": [
+          "The time is in UTC",
+          "The time is unknown",
+          "The seconds are zero",
+          "Daylight saving is in effect"
+        ]
+      },
+      "explanation": {
+        "tr": "`Z` (Zulu) UTC'nin kısa yazımı, `+00:00` ile aynı. pandas bunu okuyunca sütunun türü `datetime64[us, UTC]` oluyor.",
+        "en": "`Z` (Zulu) is shorthand for UTC, the same as `+00:00`. When pandas reads it, the column's type becomes `datetime64[us, UTC]`."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`tz_localize` ile `tz_convert` farkı nedir?",
+        "en": "What is the difference between `tz_localize` and `tz_convert`?"
+      },
+      "options": {
+        "tr": [
+          "`tz_localize` dilimsiz sütuna dilimini tanıtır (saat değişmez); `tz_convert` dilimli sütunu başka dilime çevirir (saat değişir)",
+          "İkisi aynı",
+          "`tz_localize` dönüştürür, `tz_convert` etiket ekler",
+          "`tz_convert` yalnızca UTC'ye çevirir"
+        ],
+        "en": [
+          "`tz_localize` declares the zone of a naive column (the clock stays); `tz_convert` converts an aware column to another zone (the clock changes)",
+          "They are the same",
+          "`tz_localize` converts, `tz_convert` adds a label",
+          "`tz_convert` only converts to UTC"
+        ]
+      },
+      "explanation": {
+        "tr": "Python'daki `replace(tzinfo=...)` ve `astimezone(...)` ayrımının aynısı. Dilimsiz sütunda `tz_convert` hata veriyor: önce tanıt, sonra dönüştür.",
+        "en": "The same distinction as `replace(tzinfo=...)` and `astimezone(...)` in Python. On a naive column `tz_convert` raises: declare first, then convert."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "UTC saatlik sensör verisi Berlin saatine çevrilip güne göre sayılınca 31 Mart 2024 için 23 satır çıkıyor. Neden?",
+        "en": "UTC hourly sensor data, converted to Berlin time and counted per day, gives 23 rows for 31 March 2024. Why?"
+      },
+      "options": {
+        "tr": [
+          "O gece yaz saatine geçildi; yerel günün bir saati yok",
+          "Sensör bir saat bozuldu",
+          "Veri eksik",
+          "pandas bir satırı sildi"
+        ],
+        "en": [
+          "Daylight saving started that night; the local day is missing one hour",
+          "The sensor failed for an hour",
+          "Data is missing",
+          "pandas deleted a row"
+        ]
+      },
+      "explanation": {
+        "tr": "UTC'de hiçbir satır eksik değil. Berlin'in duvar saati 02:00'den 03:00'e atladığı için yerel 31 Mart yalnızca 23 saat sürdü. Sonbaharda bir gün 25 satır olur.",
+        "en": "No row is missing in UTC. Because Berlin's wall clock jumped from 02:00 to 03:00, local 31 March lasted only 23 hours. In autumn one day has 25 rows."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Yaz saatine geçiş günü günlük **toplam** tüketim hesaplanıyor. Ne olur?",
+        "en": "A daily **total** of consumption is computed on the day daylight saving starts. What happens?"
+      },
+      "options": {
+        "tr": [
+          "O gün bir saat eksik toplanır; toplam diğer günlerden düşük çıkar",
+          "Hiçbir şey değişmez",
+          "Toplam iki katına çıkar",
+          "pandas hata verir"
+        ],
+        "en": [
+          "One hour fewer is added up that day; the total comes out lower than other days",
+          "Nothing changes",
+          "The total doubles",
+          "pandas raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "23 saat toplanıyor, 24 değil. Ortalama bundan etkilenmiyor ama toplam etkileniyor. Günleri karşılaştırırken bu düşüş gerçek bir değişim sanılabiliyor.",
+        "en": "23 hours are added up, not 24. A mean is not affected, but a total is. When comparing days, this drop can be mistaken for a real change."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Dilimsiz `2024-03-31 02:30` değerine `tz_localize(\"Europe/Berlin\")` uygulanınca ne olur?",
+        "en": "What happens when `tz_localize(\"Europe/Berlin\")` is applied to the naive value `2024-03-31 02:30`?"
+      },
+      "options": {
+        "tr": [
+          "`ValueError`: o saat yaz saati geçişi yüzünden yok",
+          "`02:30+01:00` olur",
+          "`02:30+02:00` olur",
+          "`NaT` olur"
+        ],
+        "en": [
+          "`ValueError`: that time does not exist because of the daylight saving change",
+          "It becomes `02:30+01:00`",
+          "It becomes `02:30+02:00`",
+          "It becomes `NaT`"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan davranış durmak. Ne yapılacağını `nonexistent=` ile sen söylüyorsun: `\"shift_forward\"` 03:00'e kaydırıyor, `\"NaT\"` eksik değer yapıyor.",
+        "en": "The default is to stop. You say what should happen with `nonexistent=`: `\"shift_forward\"` moves it to 03:00, `\"NaT\"` makes it a missing value."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Unix saniyesi içeren bir sütun `pd.to_datetime(col)` ile `unit` yazılmadan çevrildi ve bütün tarihler 1970 çıktı. Neden?",
+        "en": "A column of Unix seconds was converted with `pd.to_datetime(col)` without `unit`, and every date came out in 1970. Why?"
+      },
+      "options": {
+        "tr": [
+          "pandas sayıyı nanosaniye saydı",
+          "Veri gerçekten 1970'ten",
+          "Sütun metin olduğu için",
+          "`utc=True` yazılmadığı için"
+        ],
+        "en": [
+          "pandas treated the number as nanoseconds",
+          "The data really is from 1970",
+          "Because the column is text",
+          "Because `utc=True` was not written"
+        ]
+      },
+      "explanation": {
+        "tr": "Birim verilmezse sayı nanosaniye kabul ediliyor; 1.7 milyar nanosaniye 1970'in ilk iki saniyesi. `unit=\"s\"` (ya da milisaniye için `\"ms\"`) yazınca düzeliyor.",
+        "en": "With no unit the number is taken as nanoseconds; 1.7 billion nanoseconds is the first two seconds of 1970. Writing `unit=\"s\"` (or `\"ms\"` for milliseconds) fixes it."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.Timestamp(\"2024-03-09 14:37\").floor(\"h\")` ne verir?",
+        "en": "What does `pd.Timestamp(\"2024-03-09 14:37\").floor(\"h\")` give?"
+      },
+      "options": {
+        "tr": [
+          "`2024-03-09 14:00:00`",
+          "`2024-03-09 15:00:00`",
+          "`2024-03-09 00:00:00`",
+          "`2024-03-09 14:30:00`"
+        ],
+        "en": [
+          "`2024-03-09 14:00:00`",
+          "`2024-03-09 15:00:00`",
+          "`2024-03-09 00:00:00`",
+          "`2024-03-09 14:30:00`"
+        ]
+      },
+      "explanation": {
+        "tr": "`floor` aşağı yuvarlıyor: saatin başına. `ceil(\"h\")` 15:00, `normalize()` gece yarısı, `round(\"15min\")` 14:30 verirdi.",
+        "en": "`floor` rounds down: to the start of the hour. `ceil(\"h\")` would give 15:00, `normalize()` midnight, `round(\"15min\")` 14:30."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "Çevirdikten sonra `df[\"date\"].dt.month.value_counts()` bakmak hangi hatayı ele verir?",
+        "en": "Which mistake does looking at `df[\"date\"].dt.month.value_counts()` after converting give away?"
+      },
+      "options": {
+        "tr": [
+          "Gün ile ayın yer değiştirmesini: veri dört ayken sonuç on iki aya yayılıyor",
+          "Saat dilimi hatasını",
+          "Tekrarlanan satırları",
+          "Eksik sütunları"
+        ],
+        "en": [
+          "Day and month being swapped: the data covers four months but the result spreads over twelve",
+          "A time zone mistake",
+          "Repeated rows",
+          "Missing columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Gün ay sanılınca ayın 1–12. günleri on iki farklı aya dağılıyor. Gerçek aralığı biliyorsan (Ocak–Nisan gibi) bu dağılım hemen göze batıyor.",
+        "en": "When the day is taken for the month, days 1–12 of a month scatter across twelve different months. If you know the real range (January–April, say) this spread stands out at once."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "`df[\"date\"].dt.strftime(\"%d.%m.%Y\")` sonucunun türü nedir ve bunun sonucu ne?",
+        "en": "What is the type of `df[\"date\"].dt.strftime(\"%d.%m.%Y\")`, and what follows from it?"
+      },
+      "options": {
+        "tr": [
+          "Metin; artık tarih işlemi yapılamıyor, bu yüzden en son adımda kullanılır",
+          "Tarih; her şey çalışmaya devam eder",
+          "Sayı",
+          "Süre"
+        ],
+        "en": [
+          "Text; date operations no longer work, so it is used as the last step",
+          "A date; everything keeps working",
+          "A number",
+          "A duration"
+        ]
+      },
+      "explanation": {
+        "tr": "`strftime` insanlar için metin üretiyor. Sıralama, fark, `.dt` artık çalışmıyor. Hesapları tarih türünde bitir, metne yalnızca rapora yazarken çevir.",
+        "en": "`strftime` produces text for people. Sorting, differences and `.dt` no longer work. Finish the calculations on the date type and turn it into text only when writing the report."
+      }
+    }
+  ]
+}

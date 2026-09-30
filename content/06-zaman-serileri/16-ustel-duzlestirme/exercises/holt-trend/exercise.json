@@ -1,0 +1,36 @@
+{
+  "id": "holt-trend",
+  "title": {
+    "tr": "Trend: üç model",
+    "en": "Trend: three models"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Modelleri bir sözlükte topla ve `for name, fit in models.items():` ile dolaş.",
+      "en": "Collect the models in a dictionary and loop with `for name, fit in models.items():`."
+    },
+    {
+      "tr": "`fit.forecast(2)` tarih indeksli bir seri döndürüyor; `test - forecast` indekse göre hizalanıyor.",
+      "en": "`fit.forecast(2)` returns a series with a date index; `test - forecast` is aligned by index."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.holtwinters import ExponentialSmoothing\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"].asfreq(\"MS\")\n\nannual = p.resample(\"YS\").sum()\ntrain, test = annual.iloc[:-2], annual.iloc[-2:]\n\nmodels = {\n    \"flat\": ExponentialSmoothing(train).fit(),\n    \"additive\": ExponentialSmoothing(train, trend=\"add\").fit(),\n    \"multiplicative\": ExponentialSmoothing(train, trend=\"mul\").fit(),\n}\n\nfor name, fit in models.items():\n    forecast = fit.forecast(2)\n    error = float((test - forecast).abs().mean())\n    print(name, [round(float(v)) for v in forecast], round(error, 1))\n\nprint([int(v) for v in test])\nprint(round(float(train.pct_change().mean() * 100), 1))\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.holtwinters import ExponentialSmoothing\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"].asfreq(\"MS\")\n\nannual = p.resample(\"YS\").sum()\ntrain, test = annual.iloc[:-2], annual.iloc[-2:]\n\nmodels = {\n    \"flat\": ExponentialSmoothing(train).fit(),\n    \"additive\": ExponentialSmoothing(train, trend=\"add\").fit(),\n    \"multiplicative\": ExponentialSmoothing(train, trend=\"mul\").fit(),\n}\n\nfor name, fit in models.items():\n    forecast = fit.forecast(2)\n    error = float((test - forecast).abs().mean())\n    print(name, [round(float(v)) for v in forecast], round(error, 1))\n\nprint([int(v) for v in test])\nprint(round(float(train.pct_change().mean() * 100), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "flat [3816, 3816] 621.5\nadditive [4071, 4326] 239.3\nmultiplicative [4233, 4690] 23.5\n[4195, 4680]\n10.7"
+    }
+  ]
+}

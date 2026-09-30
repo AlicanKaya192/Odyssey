@@ -41,6 +41,7 @@ from PySide6.QtWidgets import (
 
 from ..core.language import LanguageManager
 from ..core.quiz_shuffle import prepare
+from .attempt_history import quiz_answers, quiz_markdown, when
 from ..resources.icons import icon, pixmap
 from ..resources.theme.motion import DISTANCE, bounce, out_cubic
 from ..resources.theme.tokens import PALETTES, SPACING, mix
@@ -244,6 +245,10 @@ class QuestionCard(QFrame):
         self.retranslate()
 
     @property
+    def question(self) -> dict:
+        return self._question
+
+    @property
     def selected(self) -> int | None:
         return self._selected
 
@@ -408,6 +413,11 @@ class QuizView(QWidget):
         self._previous_passed = False
         self._last_score = 0
         self._last_correct = 0
+        # Geçmiş denemeler: bölüm ekranı sağlıyor (`set_history_provider`).
+        self._history_provider = None
+        self._review_view = None
+        self._review_back = 0
+        self._review_attempts: list[dict] = []
 
         self._timer = QTimer(self)
         self._timer.setInterval(1000)
@@ -419,6 +429,7 @@ class QuizView(QWidget):
         self._stack.addWidget(self._build_start_page())
         self._stack.addWidget(self._build_quiz_page())
         self._stack.addWidget(self._build_result_page())
+        self._stack.addWidget(self._build_review_page())
         layout.addWidget(self._stack)
 
     # --- sayfalar -------------------------------------------------------------
@@ -480,6 +491,13 @@ class QuizView(QWidget):
         self._start_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._start_button.clicked.connect(self._start)
         card.body.addWidget(self._start_button)
+        # Geçmiş denemeler: hangi soruya ne cevap verildi, doğrusu ne.
+        self._history_button = QPushButton()
+        self._history_button.setProperty("variant", "ghost")
+        self._history_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._history_button.clicked.connect(lambda: self._open_review(0))
+        self._history_button.hide()
+        card.body.addWidget(self._history_button)
         return self._centered(card, 420)
 
     def _build_quiz_page(self) -> QWidget:
@@ -548,21 +566,132 @@ class QuizView(QWidget):
         self._result_detail.setWordWrap(True)
         card.body.addWidget(self._result_detail)
         card.body.addSpacing(18 - SPACING["sm"])
+        # Üç düğme tek satırda dar kartta sığmıyor, yazılar kırpılıyordu
+        # ("Yanlışlarımı gör" → "nlışlarımı g"). Üstte ikincil ikisi eşit
+        # genişlikte yan yana, altta "devam" tam genişlikte.
         dugmeler = QHBoxLayout()
-        dugmeler.addStretch(1)
+        dugmeler.setSpacing(SPACING["sm"])
         self._retry_button = QPushButton()
         self._retry_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._retry_button.clicked.connect(self._reset)
-        dugmeler.addWidget(self._retry_button)
+        dugmeler.addWidget(self._retry_button, 1)
+        self._review_button = QPushButton()
+        self._review_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._review_button.clicked.connect(lambda: self._open_review(2))
+        self._review_button.hide()
+        dugmeler.addWidget(self._review_button, 1)
+        card.body.addLayout(dugmeler)
         self._advance_button = QPushButton()
         self._advance_button.setProperty("variant", "primary")
         self._advance_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._advance_button.clicked.connect(lambda: self.advance.emit())
         self._advance_button.hide()
-        dugmeler.addWidget(self._advance_button)
-        dugmeler.addStretch(1)
-        card.body.addLayout(dugmeler)
-        return self._centered(card, 420)
+        card.body.addSpacing(SPACING["sm"])
+        card.body.addWidget(self._advance_button)
+        return self._centered(card, 460)
+
+    def _build_review_page(self) -> QWidget:
+        """Geçmiş denemelerin dökümü: üstte geri, deneme seçimi ve "yalnızca
+        yanlışlar"; altında soru soru belge."""
+        page = QWidget()
+        page.setProperty("role", "bare")
+        duzen = QVBoxLayout(page)
+        duzen.setContentsMargins(SPACING["lg"], SPACING["md"], SPACING["lg"], 0)
+        duzen.setSpacing(SPACING["sm"])
+        ust = QHBoxLayout()
+        ust.setSpacing(SPACING["sm"])
+        self._review_back_button = QPushButton()
+        self._review_back_button.setProperty("variant", "ghost")
+        self._review_back_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._review_back_button.clicked.connect(lambda: self._stack.setCurrentIndex(self._review_back))
+        ust.addWidget(self._review_back_button)
+        self._review_title = QLabel()
+        self._review_title.setProperty("role", "qcard-title")
+        ust.addWidget(self._review_title)
+        ust.addStretch(1)
+        from ..widgets.common import DropdownBox
+
+        self._review_pick = DropdownBox()
+        self._review_pick.setMinimumWidth(240)
+        self._review_pick.currentIndexChanged.connect(lambda _: self._render_review())
+        ust.addWidget(self._review_pick)
+        self._review_only_wrong = QPushButton()
+        self._review_only_wrong.setCheckable(True)
+        self._review_only_wrong.setProperty("variant", "toggle-chip")
+        self._review_only_wrong.setChecked(True)
+        self._review_only_wrong.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._review_only_wrong.toggled.connect(lambda _: self._render_review())
+        ust.addWidget(self._review_only_wrong)
+        duzen.addLayout(ust)
+        self._review_holder = QVBoxLayout()
+        duzen.addLayout(self._review_holder, 1)
+        return page
+
+    @property
+    def in_progress(self) -> bool:
+        """Sorular açık ve sınav bitmedi mi."""
+        return bool(self._cards) and not self._finished and self._stack.currentIndex() == 1
+
+    def abandon(self) -> None:
+        """Süren denemeyi iptal eder (kaydedilmiyor); başlangıç kartına döner."""
+        self._timer.stop()
+        self._clear()
+        self._show_start()
+
+    def set_history_provider(self, provider) -> None:
+        """Geçmiş denemeleri veren çağrı (en yenisi başta)."""
+        self._history_provider = provider
+        self._sync_history_button()
+
+    def last_answers(self) -> str:
+        """Son bitirilen denemenin cevapları (JSON), kaydetmek için."""
+        return quiz_answers(self._cards)
+
+    def _attempts(self) -> list[dict]:
+        return self._history_provider() if self._history_provider else []
+
+    def _sync_history_button(self) -> None:
+        sayi = len(self._attempts())
+        self._history_button.setVisible(sayi > 0)
+        if sayi:
+            self._history_button.setText(self._language.t("quiz_history.open", count=sayi))
+
+    def _open_review(self, back: int) -> None:
+        self._review_attempts = self._attempts()
+        if not self._review_attempts:
+            return
+        self._review_back = back
+        if self._review_view is None:
+            from .lesson_view import LessonView
+
+            self._review_view = LessonView(self._language, compact=False)
+            self._review_view.set_mode(self._mode)
+            self._review_holder.addWidget(self._review_view)
+        self._fill_review_pick()
+        self._stack.setCurrentIndex(3)
+
+    def _fill_review_pick(self) -> None:
+        t = self._language.t
+        self._review_pick.blockSignals(True)
+        secili = max(0, self._review_pick.currentIndex())
+        self._review_pick.clear()
+        for deneme in self._review_attempts:
+            isaret = "✓" if deneme["passed"] else "✕"
+            self._review_pick.addItem(
+                t("quiz_history.item", when=when(self._language, deneme["created_at"]),
+                  score=deneme["score"], mark=isaret))
+        self._review_pick.setCurrentIndex(min(secili, len(self._review_attempts) - 1)
+                                          if self._stack.currentIndex() == 3 else 0)
+        self._review_pick.blockSignals(False)
+        self._render_review()
+
+    def _render_review(self) -> None:
+        if self._review_view is None or not self._review_attempts:
+            return
+        i = max(0, self._review_pick.currentIndex())
+        deneme = self._review_attempts[min(i, len(self._review_attempts) - 1)]
+        self._review_view.show_text(quiz_markdown(
+            self._language, self._questions, deneme, self._review_only_wrong.isChecked()))
 
     # --- yükleme --------------------------------------------------------------
 
@@ -602,6 +731,7 @@ class QuizView(QWidget):
     def _show_start(self) -> None:
         self._timer.stop()
         self._stack.setCurrentIndex(0)
+        self._sync_history_button()
         self._preview_ring.set_untimed(self._untimed)
         self._preview_ring.set_total(self._time_limit)
         self.retranslate()
@@ -627,7 +757,10 @@ class QuizView(QWidget):
 
     def _start(self) -> None:
         self._clear()
-        for index, question in enumerate(prepare(self._questions)):
+        # Sorunun dosyadaki sırası saklanıyor: geçmiş denemede hangi soru
+        # olduğu karıştırmadan sonra da bilinsin.
+        sirali = [dict(q, _index=i) for i, q in enumerate(self._questions)]
+        for index, question in enumerate(prepare(sirali)):
             card = QuestionCard(index, question, self._language, self._mode)
             card.answered.connect(self._on_answered)
             card.picked.connect(self._sync_question_ui)
@@ -736,6 +869,9 @@ class QuizView(QWidget):
         self._previous_score = score
         self._previous_passed = passed
         self.completed.emit(score, passed)
+        # Kayıt `completed`'a bağlı olanlarda yapılıyor; ondan sonra.
+        self._review_button.setVisible(correct < len(self._cards) and bool(self._attempts()))
+        self._sync_history_button()
 
     def _render_result(self, timed_out: bool = False) -> None:
         passed = self._last_score >= self._pass_score
@@ -763,6 +899,9 @@ class QuizView(QWidget):
         self._preview_ring.set_caption_color(palette["text_muted"])
         for card in self._cards:
             card.set_mode(mode)
+        if self._review_view is not None:
+            self._review_view.set_mode(mode)
+        self._review_pick.set_arrow_color(palette["text_muted"])
         self._paint_chips()
 
     def _paint_chips(self) -> None:
@@ -787,6 +926,13 @@ class QuizView(QWidget):
     def retranslate(self) -> None:
         t = self._language.t
         self._retry_button.setText("  " + t("quiz.retry"))
+        self._review_button.setText(t("quiz_history.review_wrong"))
+        self._review_back_button.setText("←  " + t("common.back"))
+        self._review_title.setText(t("quiz_history.title"))
+        self._review_only_wrong.setText(t("quiz_history.only_wrong"))
+        self._sync_history_button()
+        if self._stack.currentIndex() == 3:
+            self._fill_review_pick()
         self._start_button.setText("  " + t("quiz.start"))
         self._start_title.setText(t("quiz.ready_title"))
         self._preview_ring.set_caption(t("quiz.ring_time"))

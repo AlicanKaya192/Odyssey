@@ -1,0 +1,36 @@
+{
+  "id": "moving-average",
+  "title": {
+    "tr": "Hareketli ortalama",
+    "en": "The moving average"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`s.rolling(7).mean()` bir seri veriyor; tek gün `ma7.loc[\"2024-03-10\"]`.",
+      "en": "`s.rolling(7).mean()` gives a series; one day is `ma7.loc[\"2024-03-10\"]`."
+    },
+    {
+      "tr": "Üstel ağırlıklı ortalama aynı kalıpta: `s.ewm(span=7).mean()`.",
+      "en": "The exponentially weighted mean follows the same pattern: `s.ewm(span=7).mean()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nma7 = s.rolling(7).mean()\nprint(int(ma7.isna().sum()))\n\nweek = s.loc[\"2024-03-04\":\"2024-03-10\"].mean()\nprint(round(float(ma7.loc[\"2024-03-10\"]), 1), round(float(week), 1))\n\nprint(round(float(s.std()), 1), round(float(ma7.std()), 1))\n\newm7 = s.ewm(span=7).mean()\nprint(round(float(ewm7.loc[\"2024-03-09\"]), 1), round(float(ma7.loc[\"2024-03-09\"]), 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nma7 = s.rolling(7).mean()\nprint(int(ma7.isna().sum()))\n\nweek = s.loc[\"2024-03-04\":\"2024-03-10\"].mean()\nprint(round(float(ma7.loc[\"2024-03-10\"]), 1), round(float(week), 1))\n\nprint(round(float(s.std()), 1), round(float(ma7.std()), 1))\n\newm7 = s.ewm(span=7).mean()\nprint(round(float(ewm7.loc[\"2024-03-09\"]), 1), round(float(ma7.loc[\"2024-03-09\"]), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6\n282.6 282.6\n58.9 39.1\n299.2 283.7"
+    }
+  ]
+}

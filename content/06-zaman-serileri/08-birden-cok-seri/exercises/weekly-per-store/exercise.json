@@ -1,0 +1,36 @@
+{
+  "id": "weekly-per-store",
+  "title": {
+    "tr": "Mağaza bazında haftalık",
+    "en": "Weekly per shop"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sonuç iki seviyeli indeksli bir seri; tek mağazayı `weekly.loc[\"A\"]` ile alırsın.",
+      "en": "The result is a series with a two-level index; take one shop with `weekly.loc[\"A\"]`."
+    },
+    {
+      "tr": "En yüksek haftanın etiketi `series.idxmax()`, değeri `series.max()`.",
+      "en": "The label of the highest week is `series.idxmax()`, its value `series.max()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nlong = pd.read_csv(\"stores.csv\", parse_dates=[\"date\"])\n\nweekly = long.groupby([\"store\", pd.Grouper(key=\"date\", freq=\"W\")])[\"sales\"].sum()\nprint(len(weekly))\nprint(weekly.loc[\"A\"].head(2).tolist())\n\nfor store in [\"A\", \"B\", \"C\", \"D\"]:\n    series = weekly.loc[store]\n    print(store, series.idxmax().strftime(\"%Y-%m-%d\"), series.max())\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nlong = pd.read_csv(\"stores.csv\", parse_dates=[\"date\"])\n\nweekly = long.groupby([\"store\", pd.Grouper(key=\"date\", freq=\"W\")])[\"sales\"].sum()\nprint(len(weekly))\nprint(weekly.loc[\"A\"].head(2).tolist())\n\nfor store in [\"A\", \"B\", \"C\", \"D\"]:\n    series = weekly.loc[store]\n    print(store, series.idxmax().strftime(\"%Y-%m-%d\"), series.max())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "195\n[2296, 2297]\nA 2024-12-29 2590\nB 2024-01-14 1393\nC 2024-01-07 1666\nD 2024-12-22 1618"
+    }
+  ]
+}

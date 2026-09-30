@@ -1,0 +1,36 @@
+{
+  "id": "validate-then-test",
+  "title": {
+    "tr": "Önce doğrula, sonra sına",
+    "en": "Validate, then test"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sonuçları `k`'ye göre bir sözlükte tut: `{k: score(k, validation) for k in range(1, 9)}`.",
+      "en": "Keep the results in a dictionary by `k`: `{k: score(k, validation) for k in range(1, 9)}`."
+    },
+    {
+      "tr": "En küçük değerin anahtarı: `min(val_scores, key=val_scores.get)`.",
+      "en": "The key of the smallest value: `min(val_scores, key=val_scores.get)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\n\n\ndef weeks_mean(train, h, k):\n    pattern = train.iloc[-7 * k:].to_numpy().reshape(k, 7).mean(axis=0)\n    return np.array([pattern[i % 7] for i in range(h)])\n\n\ndef score(k, some_cuts):\n    values = []\n    for cut in some_cuts:\n        train = s.loc[:cut]\n        test = s.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n        values.append(np.abs(test.to_numpy() - weeks_mean(train, 28, k)).mean())\n    return float(np.mean(values))\n\n\nvalidation = cuts[:10]\ntest = cuts[10:]\n\nval_scores = {k: score(k, validation) for k in range(1, 9)}\nprint([round(v, 2) for v in val_scores.values()])\n\nbest = min(val_scores, key=val_scores.get)\nhonest = score(best, test)\nprint(best, round(val_scores[best], 2), round(honest, 2))\n\ntest_scores = {k: score(k, test) for k in range(1, 9)}\ncheat = min(test_scores, key=test_scores.get)\nprint(cheat, round(test_scores[cheat], 2))\n\nprint(round(honest - test_scores[cheat], 2))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\n\n\ndef weeks_mean(train, h, k):\n    pattern = train.iloc[-7 * k:].to_numpy().reshape(k, 7).mean(axis=0)\n    return np.array([pattern[i % 7] for i in range(h)])\n\n\ndef score(k, some_cuts):\n    values = []\n    for cut in some_cuts:\n        train = s.loc[:cut]\n        test = s.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n        values.append(np.abs(test.to_numpy() - weeks_mean(train, 28, k)).mean())\n    return float(np.mean(values))\n\n\nvalidation = cuts[:10]\ntest = cuts[10:]\n\nval_scores = {k: score(k, validation) for k in range(1, 9)}\nprint([round(v, 2) for v in val_scores.values()])\n\nbest = min(val_scores, key=val_scores.get)\nhonest = score(best, test)\nprint(best, round(val_scores[best], 2), round(honest, 2))\n\ntest_scores = {k: score(k, test) for k in range(1, 9)}\ncheat = min(test_scores, key=test_scores.get)\nprint(cheat, round(test_scores[cheat], 2))\n\nprint(round(honest - test_scores[cheat], 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[16.61, 15.84, 15.16, 15.2, 15.4, 15.82, 15.86, 16.17]\n3 15.16 22.97\n1 22.42\n0.56"
+    }
+  ]
+}

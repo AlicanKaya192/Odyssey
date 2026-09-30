@@ -1,0 +1,36 @@
+{
+  "id": "direct-28",
+  "title": {
+    "tr": "28 gün ilerisi",
+    "en": "28 days ahead"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Geleceği eklemek: `train.reindex(train.index.union(future_index))`; yeni tarihlerin değeri `NaN`, ama `shift(28)` onlara 28 gün önceki gerçek değeri taşıyor.",
+      "en": "Adding the future: `train.reindex(train.index.union(future_index))`; the new dates are `NaN`, yet `shift(28)` carries the real value from 28 days earlier to them."
+    },
+    {
+      "tr": "Eğitim satırları `X.loc[train.index].dropna()`; hedefi aynı tarihlerle al: `train.loc[rows.index]`.",
+      "en": "The training rows are `X.loc[train.index].dropna()`; take the target on the same dates: `train.loc[rows.index]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\n\n\ndef safe_features(full, calendar=True):\n    X = pd.DataFrame(index=full.index)\n    for k in (28, 35, 42, 56):\n        X[f\"lag{k}\"] = full.shift(k)\n    X[\"mean_4w\"] = (full.shift(28) + full.shift(35) + full.shift(42) + full.shift(49)) / 4\n    X[\"level28\"] = full.shift(28).rolling(28).mean()\n    for day in range(1, 7):\n        X[f\"d{day}\"] = (X.index.dayofweek == day).astype(float)\n    if calendar:\n        doy = X.index.dayofyear.to_numpy()\n        X[\"t\"] = np.arange(len(X))\n        X[\"dec\"] = np.where(X.index.month == 12, X.index.day / 31, 0.0)\n        for k in (1, 2):\n            X[f\"sin{k}\"] = np.sin(2 * np.pi * k * doy / 365.25)\n            X[f\"cos{k}\"] = np.cos(2 * np.pi * k * doy / 365.25)\n    return X\n\n\ndef forecast(train, future_index, calendar):\n    full = train.reindex(train.index.union(future_index))\n    X = safe_features(full, calendar)\n    rows = X.loc[train.index].dropna()\n    model = LinearRegression().fit(rows, train.loc[rows.index])\n    return model.predict(X.loc[future_index])\n\n\nresults = {\"with calendar\": [], \"without\": []}\nfor cut in cuts:\n    train = s.loc[:cut]\n    test = s.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n    for name, calendar in ((\"with calendar\", True), (\"without\", False)):\n        predicted = forecast(train, test.index, calendar)\n        results[name].append(float(np.abs(test.to_numpy() - predicted).mean()))\n\nfor name, scores in results.items():\n    print(name, round(float(np.mean(scores)), 2), round(float(np.max(scores)), 2))\n\nprint(round(1 - float(np.mean(results[\"with calendar\"])) / 17.95, 2))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\n\n\ndef safe_features(full, calendar=True):\n    X = pd.DataFrame(index=full.index)\n    for k in (28, 35, 42, 56):\n        X[f\"lag{k}\"] = full.shift(k)\n    X[\"mean_4w\"] = (full.shift(28) + full.shift(35) + full.shift(42) + full.shift(49)) / 4\n    X[\"level28\"] = full.shift(28).rolling(28).mean()\n    for day in range(1, 7):\n        X[f\"d{day}\"] = (X.index.dayofweek == day).astype(float)\n    if calendar:\n        doy = X.index.dayofyear.to_numpy()\n        X[\"t\"] = np.arange(len(X))\n        X[\"dec\"] = np.where(X.index.month == 12, X.index.day / 31, 0.0)\n        for k in (1, 2):\n            X[f\"sin{k}\"] = np.sin(2 * np.pi * k * doy / 365.25)\n            X[f\"cos{k}\"] = np.cos(2 * np.pi * k * doy / 365.25)\n    return X\n\n\ndef forecast(train, future_index, calendar):\n    full = train.reindex(train.index.union(future_index))\n    X = safe_features(full, calendar)\n    rows = X.loc[train.index].dropna()\n    model = LinearRegression().fit(rows, train.loc[rows.index])\n    return model.predict(X.loc[future_index])\n\n\nresults = {\"with calendar\": [], \"without\": []}\nfor cut in cuts:\n    train = s.loc[:cut]\n    test = s.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n    for name, calendar in ((\"with calendar\", True), (\"without\", False)):\n        predicted = forecast(train, test.index, calendar)\n        results[name].append(float(np.abs(test.to_numpy() - predicted).mean()))\n\nfor name, scores in results.items():\n    print(name, round(float(np.mean(scores)), 2), round(float(np.max(scores)), 2))\n\nprint(round(1 - float(np.mean(results[\"with calendar\"])) / 17.95, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "with calendar 10.64 16.93\nwithout 18.98 41.35\n0.41"
+    }
+  ]
+}
