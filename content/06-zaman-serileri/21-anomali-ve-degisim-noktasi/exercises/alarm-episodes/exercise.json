@@ -1,0 +1,36 @@
+{
+  "id": "alarm-episodes",
+  "title": {
+    "tr": "Alarmlardan olaylara",
+    "en": "From alarms to events"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki gün arasındaki fark: `(day - current[-1]).days`.",
+      "en": "The gap between two days: `(day - current[-1]).days`."
+    },
+    {
+      "tr": "Döngü bitince son olayı da listeye eklemeyi unutma: `episodes.append(current)`.",
+      "en": "Do not forget to add the last event to the list when the loop ends: `episodes.append(current)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nv = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\npast = pd.concat([v.shift(7 * k) for k in (1, 2, 3, 4)], axis=1)\ndeviation = v / past.median(axis=1) - 1\nalarm = deviation.abs() > 0.25\n\ndays = alarm[alarm].index\n\nepisodes = []\ncurrent = [days[0]]\nfor day in days[1:]:\n    if (day - current[-1]).days <= 3:\n        current.append(day)\n    else:\n        episodes.append(current)\n        current = [day]\nepisodes.append(current)\n\nfor episode in episodes:\n    values = deviation.loc[episode]\n    if (values > 0).all():\n        direction = \"up\"\n    elif (values < 0).all():\n        direction = \"down\"\n    else:\n        direction = \"mixed\"\n    kind = \"shift\" if len(episode) >= 3 else \"spike\"\n    print(episode[0].strftime(\"%m-%d\"), episode[-1].strftime(\"%m-%d\"), len(episode),\n          direction, kind)\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nv = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\npast = pd.concat([v.shift(7 * k) for k in (1, 2, 3, 4)], axis=1)\ndeviation = v / past.median(axis=1) - 1\nalarm = deviation.abs() > 0.25\n\ndays = alarm[alarm].index\n\nepisodes = []\ncurrent = [days[0]]\nfor day in days[1:]:\n    if (day - current[-1]).days <= 3:\n        current.append(day)\n    else:\n        episodes.append(current)\n        current = [day]\nepisodes.append(current)\n\nfor episode in episodes:\n    values = deviation.loc[episode]\n    if (values > 0).all():\n        direction = \"up\"\n    elif (values < 0).all():\n        direction = \"down\"\n    else:\n        direction = \"mixed\"\n    kind = \"shift\" if len(episode) >= 3 else \"spike\"\n    print(episode[0].strftime(\"%m-%d\"), episode[-1].strftime(\"%m-%d\"), len(episode),\n          direction, kind)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "03-14 03-14 1 up spike\n06-20 06-20 1 up spike\n09-02 09-14 9 up shift\n10-08 10-08 1 down spike"
+    }
+  ]
+}

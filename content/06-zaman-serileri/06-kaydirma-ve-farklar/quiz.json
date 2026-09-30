@@ -1,0 +1,680 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük seride `s.shift(1)` ne yapıyor?",
+        "en": "In a daily series, what does `s.shift(1)` do?"
+      },
+      "options": {
+        "tr": [
+          "Her değeri bir satır aşağı itiyor: bugünün satırında dünün değeri duruyor",
+          "Tarihleri bir gün ileri alıyor",
+          "İlk satırı siliyor",
+          "Her değere 1 ekliyor"
+        ],
+        "en": [
+          "It pushes every value one row down: today's row holds yesterday's value",
+          "It moves the dates one day forward",
+          "It deletes the first row",
+          "It adds 1 to every value"
+        ]
+      },
+      "explanation": {
+        "tr": "İndeks yerinde kalıyor, değerler kayıyor. Böylece her satırda \"bugün\" ile \"dün\" yan yana geliyor. İlk satırın dünü olmadığı için `NaN`.",
+        "en": "The index stays put and the values move. So on every row \"today\" and \"yesterday\" sit side by side. The first row has no yesterday, so it is `NaN`."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`s.shift(7)` sonrası seride kaç `NaN` oluşur?",
+        "en": "How many `NaN` values appear after `s.shift(7)`?"
+      },
+      "options": {
+        "tr": [
+          "7: ilk yedi satırın bir hafta öncesi yok",
+          "1",
+          "0",
+          "Seri uzunluğunun yarısı"
+        ],
+        "en": [
+          "7: the first seven rows have no week before",
+          "1",
+          "0",
+          "Half the length of the series"
+        ]
+      },
+      "explanation": {
+        "tr": "Kaydırma kadar satır boş kalıyor. Gecikme tablosu kurup `dropna()` çağırınca en büyük gecikme kadar satır gidiyor.",
+        "en": "As many rows are left empty as the size of the shift. When you build a table of lags and call `dropna()`, as many rows go as the largest lag."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Geçmişten bugünün satırına getirilen değere ne denir?",
+        "en": "What is a value brought from the past onto today's row called?"
+      },
+      "options": {
+        "tr": [
+          "Gecikme (lag)",
+          "Ufuk (horizon)",
+          "Trend",
+          "Artık"
+        ],
+        "en": [
+          "A lag",
+          "A horizon",
+          "A trend",
+          "A residual"
+        ]
+      },
+      "explanation": {
+        "tr": "k adım önceki değer k. gecikme. Günlük veride 1. gecikme dün, 7. gecikme geçen haftanın aynı günü.",
+        "en": "The value k steps earlier is lag k. In daily data lag 1 is yesterday and lag 7 the same day last week."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Mağazada bugünün satışı 3 gün öncesiyle 0.106, 7 gün öncesiyle 0.958 korelasyonlu. Neden?",
+        "en": "In the shop, today's sales correlate 0.106 with 3 days ago and 0.958 with 7 days ago. Why?"
+      },
+      "options": {
+        "tr": [
+          "Seride güçlü bir haftalık desen var; 7 gün önce haftanın aynı günü",
+          "3 gün önceki veri bozuk",
+          "Korelasyon uzak gecikmelerde hep artar",
+          "Tesadüf"
+        ],
+        "en": [
+          "The series has a strong weekly pattern; 7 days ago is the same day of the week",
+          "The data from 3 days ago is corrupt",
+          "Correlation always rises at longer lags",
+          "Chance"
+        ]
+      },
+      "explanation": {
+        "tr": "Cumartesinin 3 gün öncesi çarşamba: haftanın bambaşka bir günü. 7 gün öncesi yine cumartesi. Gecikme korelasyonları 7'nin katlarında tepe yapıyor.",
+        "en": "Three days before a Saturday is a Wednesday: a very different day of the week. Seven days before is a Saturday again. Lag correlations peak at multiples of 7."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "`s.shift(-1)` ne getiriyor ve neden tehlikeli?",
+        "en": "What does `s.shift(-1)` bring, and why is it dangerous?"
+      },
+      "options": {
+        "tr": [
+          "Yarının değerini bugünün satırına; özellik olarak kullanılırsa model geleceği görür",
+          "Dünün değerini; tehlikesi yok",
+          "Hiçbir şey; hata verir",
+          "Serinin tersini"
+        ],
+        "en": [
+          "Tomorrow's value onto today's row; used as a feature, the model sees the future",
+          "Yesterday's value; there is no danger",
+          "Nothing; it raises an error",
+          "The series in reverse"
+        ]
+      },
+      "explanation": {
+        "tr": "Eksi kaydırma geleceği getiriyor. Tahmin yapılan gün o değer bilinmiyor. Yalnızca hedef sütununu kurarken kullanılır.",
+        "en": "A negative shift brings the future. On the day the forecast is made, that value is not known. It is used only to build the target column."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Bir özelliğin sızıntı olup olmadığını anlamak için hangi soru sorulur?",
+        "en": "Which question tells you whether a feature is leakage?"
+      },
+      "options": {
+        "tr": [
+          "Tahmini yaptığım gün bu değeri bilebilir miydim?",
+          "Bu değer sayısal mı?",
+          "Bu değer hedefle ilişkili mi?",
+          "Bu değer eksik mi?"
+        ],
+        "en": [
+          "On the day I forecast, could I have known this value?",
+          "Is this value numeric?",
+          "Is this value related to the target?",
+          "Is this value missing?"
+        ]
+      },
+      "explanation": {
+        "tr": "Hedefle ilişkili olması iyi bir şey; sorun değerin **ne zaman** bilindiği. O an bilinemeyecek her şey sızıntı.",
+        "en": "Being related to the target is a good thing; the issue is **when** the value is known. Anything that could not be known at that moment is leakage."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`s.diff()` neye eşit?",
+        "en": "What is `s.diff()` equal to?"
+      },
+      "options": {
+        "tr": [
+          "`s - s.shift(1)`",
+          "`s / s.shift(1)`",
+          "`s.shift(1) - s`",
+          "`s - s.mean()`"
+        ],
+        "en": [
+          "`s - s.shift(1)`",
+          "`s / s.shift(1)`",
+          "`s.shift(1) - s`",
+          "`s - s.mean()`"
+        ]
+      },
+      "explanation": {
+        "tr": "Her değerden bir önceki satırın değeri çıkarılıyor: bugün eksi dün. Artış pozitif, düşüş negatif.",
+        "en": "The previous row's value is subtracted from each value: today minus yesterday. A rise is positive, a fall negative."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`s.diff(7)` günlük seride neyi ölçer?",
+        "en": "What does `s.diff(7)` measure in a daily series?"
+      },
+      "options": {
+        "tr": [
+          "Bugün ile geçen haftanın aynı günü arasındaki farkı",
+          "Yedi günün toplamını",
+          "Yedi gün sonraki değeri",
+          "Yedi günlük ortalamayı"
+        ],
+        "en": [
+          "The difference between today and the same day last week",
+          "The sum of seven days",
+          "The value seven days later",
+          "A seven-day mean"
+        ]
+      },
+      "explanation": {
+        "tr": "`s - s.shift(7)`. Cumartesiyi cumartesiyle karşılaştırdığı için haftalık deseni dışarıda bırakıyor.",
+        "en": "`s - s.shift(7)`. It compares a Saturday with a Saturday, so it leaves the weekly pattern out."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "Mağazada `s.diff()` yayılımı 46.1, `s.diff(7)` yayılımı 17.1. Bu ne gösteriyor?",
+        "en": "In the shop the spread of `s.diff()` is 46.1 and that of `s.diff(7)` is 17.1. What does this show?"
+      },
+      "options": {
+        "tr": [
+          "Günden güne değişimin çoğu haftalık desenden geliyor; mevsimsel fark onu çıkarıyor",
+          "Haftalık veri daha az",
+          "`diff(7)` hatalı hesaplıyor",
+          "Satışlar azalıyor"
+        ],
+        "en": [
+          "Most of the day-to-day change comes from the weekly pattern; the seasonal difference removes it",
+          "There is less weekly data",
+          "`diff(7)` computes wrongly",
+          "Sales are falling"
+        ]
+      },
+      "explanation": {
+        "tr": "Cumayı cumartesiyle karşılaştırmak haftanın desenini ölçüyor. Aynı günü karşılaştırınca desen sadeleşiyor ve geriye gerçek değişim kalıyor.",
+        "en": "Comparing Friday with Saturday measures the week's pattern. Comparing the same day cancels the pattern and leaves the real change."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Mevsim uzunluğu kadar geriye giderek alınan farka ne denir?",
+        "en": "What is a difference taken by going back one full season called?"
+      },
+      "options": {
+        "tr": [
+          "Mevsimsel fark",
+          "Birinci fark",
+          "Yüzde değişim",
+          "Birikim"
+        ],
+        "en": [
+          "A seasonal difference",
+          "A first difference",
+          "A percentage change",
+          "An accumulation"
+        ]
+      },
+      "explanation": {
+        "tr": "Günlük veride haftalık desen için `diff(7)`, aylık veride yıllık desen için `diff(12)`. Mevsimselliği seriden çıkarıyor.",
+        "en": "`diff(7)` for a weekly pattern in daily data, `diff(12)` for a yearly pattern in monthly data. It removes the seasonality from the series."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`diff` işlemini geri alan işlem hangisi?",
+        "en": "Which operation undoes `diff`?"
+      },
+      "options": {
+        "tr": [
+          "`cumsum` (ve ilk değeri eklemek)",
+          "`shift`",
+          "`pct_change`",
+          "`sort_index`"
+        ],
+        "en": [
+          "`cumsum` (plus adding back the first value)",
+          "`shift`",
+          "`pct_change`",
+          "`sort_index`"
+        ]
+      },
+      "explanation": {
+        "tr": "Farkları baştan toplayıp ilk değeri eklersen seri geri geliyor: `s.diff().cumsum() + s.iloc[0]`. Fark alınmış bir seride yapılan tahmini düzeye çevirmek için bu gerekiyor.",
+        "en": "Add the differences up from the start and add the first value, and the series comes back: `s.diff().cumsum() + s.iloc[0]`. You need this to turn a forecast made on a differenced series back into levels."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "9 Mart cumartesi satış düne göre %33.3, geçen cumartesiye göre %3.2 arttı. Hangisi daha bilgilendirici?",
+        "en": "On Saturday 9 March sales rose 33.3% on the day before and 3.2% on the previous Saturday. Which is more informative?"
+      },
+      "options": {
+        "tr": [
+          "Geçen cumartesiye göre %3.2; ilki her cumartesi görülen haftalık desen",
+          "Düne göre %33.3",
+          "İkisi aynı bilgiyi veriyor",
+          "Hiçbiri"
+        ],
+        "en": [
+          "3.2% against the previous Saturday; the first is the weekly pattern seen every Saturday",
+          "33.3% against the day before",
+          "Both carry the same information",
+          "Neither"
+        ]
+      },
+      "explanation": {
+        "tr": "Cumartesinin cumadan yüksek olması haber değil. Aynı günle karşılaştırmak deseni dışarıda bırakıp gerçek değişimi gösteriyor.",
+        "en": "Saturday being higher than Friday is not news. Comparing with the same day leaves the pattern out and shows the real change."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "2024'ün ilk dört ayında satış bir önceki aya göre hep düşüyor, geçen yılın aynı ayına göre hep %10'dan fazla artıyor. Doğru yorum hangisi?",
+        "en": "In the first four months of 2024 sales always fall against the previous month and always rise by more than 10% against the same month last year. Which reading is right?"
+      },
+      "options": {
+        "tr": [
+          "İş büyüyor; aydan aya düşüş mevsimsellik (Aralık tepesinden sonraki aylar)",
+          "İş küçülüyor",
+          "Veriler çelişiyor, biri yanlış",
+          "Hiçbir şey söylenemez"
+        ],
+        "en": [
+          "The business is growing; the month-on-month fall is seasonality (the months after the December peak)",
+          "The business is shrinking",
+          "The figures contradict each other, one is wrong",
+          "Nothing can be said"
+        ]
+      },
+      "explanation": {
+        "tr": "Aydan aya değişim mevsimselliği içeriyor. Yıldan yıla değişim aynı mevsimi karşılaştırdığı için trendi gösteriyor. İkisi de doğru; farklı sorulara cevap veriyorlar.",
+        "en": "A month-on-month change contains seasonality. A year-on-year change compares the same season, so it shows the trend. Both are right; they answer different questions."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Aylık seride yıldan yıla yüzde değişim nasıl hesaplanır?",
+        "en": "How is a year-on-year percentage change computed on a monthly series?"
+      },
+      "options": {
+        "tr": [
+          "`monthly.pct_change(12)`",
+          "`monthly.pct_change()`",
+          "`monthly.diff(12)`",
+          "`monthly.shift(12)`"
+        ],
+        "en": [
+          "`monthly.pct_change(12)`",
+          "`monthly.pct_change()`",
+          "`monthly.diff(12)`",
+          "`monthly.shift(12)`"
+        ]
+      },
+      "explanation": {
+        "tr": "12 ay geriye giden yüzde değişim. `pct_change()` tek başına bir önceki aya göre, `diff(12)` ise mutlak farkı verir.",
+        "en": "A percentage change going back 12 months. `pct_change()` alone is against the previous month, and `diff(12)` gives the absolute difference."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük seride yıllık karşılaştırma için neden 365 değil 364 gün geriye gidilir?",
+        "en": "In a daily series, why go back 364 days rather than 365 for a yearly comparison?"
+      },
+      "options": {
+        "tr": [
+          "364 tam 52 hafta; haftanın aynı gününe düşüyor",
+          "364 daha kısa, daha hızlı",
+          "Artık yıllar yüzünden",
+          "365 pandas'ta çalışmıyor"
+        ],
+        "en": [
+          "364 is exactly 52 weeks; it lands on the same day of the week",
+          "364 is shorter, so faster",
+          "Because of leap years",
+          "365 does not work in pandas"
+        ]
+      },
+      "explanation": {
+        "tr": "365 = 52 × 7 + 1. Bir günlük kayma cumartesiyi cumayla karşılaştırıyor. Haftalık deseni güçlü bir seride bu, büyümeyi %19 yerine %45 gösterebiliyor.",
+        "en": "365 = 52 × 7 + 1. A slip of one day compares a Saturday with a Friday. In a series with a strong weekly pattern that can show growth as 45% instead of 19%."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`shift(1)` tam olarak neyi kaydırıyor?",
+        "en": "What exactly does `shift(1)` move by?"
+      },
+      "options": {
+        "tr": [
+          "Bir satır; takvim günü değil",
+          "Bir takvim günü",
+          "Bir iş günü",
+          "Bir hafta"
+        ],
+        "en": [
+          "One row; not one calendar day",
+          "One calendar day",
+          "One business day",
+          "One week"
+        ]
+      },
+      "explanation": {
+        "tr": "Satırlar tam ve sıralıysa \"bir satır\" ile \"bir gün\" aynı şey. Arada eksik gün varsa bir önceki satır günler öncesi olabiliyor ve hata çıkmıyor.",
+        "en": "When the rows are complete and in order, \"one row\" and \"one day\" are the same. With missing days in between, the previous row can be days ago, and no error appears."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Eksik günleri olan seride `fixed.diff().loc[\"2024-07-18\"]` -59 veriyor. Sorun ne?",
+        "en": "In a series with missing days, `fixed.diff().loc[\"2024-07-18\"]` gives -59. What is the problem?"
+      },
+      "options": {
+        "tr": [
+          "Bir önceki satır 14 Temmuz; fark düne göre değil, dört gün öncesine göre",
+          "Hiçbir sorun yok",
+          "Değer pozitif olmalıydı",
+          "`diff` eksik günde çalışmaz"
+        ],
+        "en": [
+          "The previous row is 14 July; the difference is against four days ago, not yesterday",
+          "There is none",
+          "The value should be positive",
+          "`diff` does not work on a missing day"
+        ]
+      },
+      "explanation": {
+        "tr": "Sayı makul göründüğü için fark edilmiyor. `asfreq(\"D\")` ile takvime oturtunca o fark dürüstçe `NaN` çıkıyor.",
+        "en": "The number looks reasonable, so nobody notices. Put the series on the calendar with `asfreq(\"D\")` and that difference honestly comes out as `NaN`."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "`s.shift(freq=\"D\")` ile `s.shift(1)` farkı nedir?",
+        "en": "What is the difference between `s.shift(freq=\"D\")` and `s.shift(1)`?"
+      },
+      "options": {
+        "tr": [
+          "`freq` verilince indeks bir gün kayıyor, değerler yerinde; `shift(1)` değerleri bir satır kaydırıyor",
+          "İkisi aynı",
+          "`freq` verilince hata çıkıyor",
+          "`shift(1)` indeksi kaydırıyor"
+        ],
+        "en": [
+          "With `freq` the index moves one day and the values stay; `shift(1)` moves the values one row",
+          "They are the same",
+          "With `freq` it raises an error",
+          "`shift(1)` moves the index"
+        ]
+      },
+      "explanation": {
+        "tr": "Zamanla kaydırma satır saymıyor. `s - s.shift(freq=\"D\")` tarihe göre hizalanıyor; dünü olmayan günler `NaN` kalıyor.",
+        "en": "Shifting by time does not count rows. `s - s.shift(freq=\"D\")` aligns by date; days with no yesterday stay `NaN`."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`s.loc[\"2024\"].cumsum()` her satıra ne yazıyor?",
+        "en": "What does `s.loc[\"2024\"].cumsum()` write on each row?"
+      },
+      "options": {
+        "tr": [
+          "Yıl başından o güne kadarki toplamı",
+          "O günün satışını",
+          "Yedi günlük toplamı",
+          "Yılın toplamını"
+        ],
+        "en": [
+          "The total from the start of the year up to that day",
+          "That day's sales",
+          "A seven-day total",
+          "The year's total"
+        ]
+      },
+      "explanation": {
+        "tr": "Birikimli toplam: yıl başından bugüne. Son satır yılın toplamına eşit. İki yılı birikimli çizmek hangisinin önde gittiğini gösteriyor.",
+        "en": "A running total: year to date. The last row equals the year's total. Plotting two years cumulatively shows which one is ahead."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Bir fiyat %10 artıp ertesi gün %10 düşüyor. 100'den başladıysa kaç oluyor?",
+        "en": "A price rises 10% and falls 10% the next day. Starting from 100, where does it end?"
+      },
+      "options": {
+        "tr": [
+          "99",
+          "100",
+          "101",
+          "90"
+        ],
+        "en": [
+          "99",
+          "100",
+          "101",
+          "90"
+        ]
+      },
+      "explanation": {
+        "tr": "100 × 1.10 × 0.90 = 99. İkinci %10 daha büyük bir tabandan (110) alınıyor. Yüzdeler bu yüzden toplanmıyor.",
+        "en": "100 × 1.10 × 0.90 = 99. The second 10% is taken from a larger base (110). That is why percentages do not add up."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük basit getirilerden toplam getiri nasıl bulunur?",
+        "en": "How is the total return found from daily simple returns?"
+      },
+      "options": {
+        "tr": [
+          "`(1 + r).cumprod()` ile çarparak",
+          "`r.sum()` ile toplayarak",
+          "`r.mean()` ile ortalama alarak",
+          "`r.max()` ile"
+        ],
+        "en": [
+          "By multiplying with `(1 + r).cumprod()`",
+          "By adding with `r.sum()`",
+          "By averaging with `r.mean()`",
+          "With `r.max()`"
+        ]
+      },
+      "explanation": {
+        "tr": "Getiriler çarpılarak birikiyor. Toplamak örnekte %62.3 veriyor; doğrusu %66.1.",
+        "en": "Returns build up by multiplying. Adding gives 62.3% in the example; the truth is 66.1%."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Logaritmik getirinin basit getiriye göre avantajı ne?",
+        "en": "What is the advantage of a logarithmic return over a simple one?"
+      },
+      "options": {
+        "tr": [
+          "Zaman içinde toplanabiliyor",
+          "Her zaman daha büyük",
+          "Hesabı daha kısa",
+          "Eksi olamıyor"
+        ],
+        "en": [
+          "It can be added up over time",
+          "It is always larger",
+          "It is shorter to compute",
+          "It cannot be negative"
+        ]
+      },
+      "explanation": {
+        "tr": "`np.log(close).diff()` toplanınca `ln(son / ilk)` veriyor; `np.exp(toplam) - 1` ile toplam getiriye dönülüyor. Modellemede bu yüzden tercih ediliyor.",
+        "en": "Adding up `np.log(close).diff()` gives `ln(last / first)`; `np.exp(total) - 1` turns it back into the total return. That is why it is preferred in modelling."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Hisse fiyatında `close.corr(close.shift(1))` 0.9927, getiride `r.corr(r.shift(1))` 0.045. Bu ne anlatıyor?",
+        "en": "For the stock price `close.corr(close.shift(1))` is 0.9927, and for returns `r.corr(r.shift(1))` is 0.045. What does that say?"
+      },
+      "options": {
+        "tr": [
+          "Fiyatın düzeyi kalıcı, ama günlük değişimi dünkü değişimden bağımsız",
+          "Fiyat kolayca tahmin edilebilir",
+          "Veri hatalı",
+          "Getiriler her gün aynı"
+        ],
+        "en": [
+          "The price level is persistent, but the daily change is independent of yesterday's",
+          "The price is easy to predict",
+          "The data is wrong",
+          "Returns are the same every day"
+        ]
+      },
+      "explanation": {
+        "tr": "Bugünün fiyatı dünün fiyatına çok yakın, bu yüzden düzey korelasyonu yüksek. Ama **yön** bilgisi taşımıyor: değişimi tahmin edemiyorsun. Bu yapı rastgele yürüyüş.",
+        "en": "Today's price is very close to yesterday's, so the correlation of levels is high. But it carries no information about **direction**: you cannot predict the change. This structure is a random walk."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Bir oran %10'dan %12'ye çıktı. Doğru ifade hangisi?",
+        "en": "A rate went from 10% to 12%. Which statement is right?"
+      },
+      "options": {
+        "tr": [
+          "2 yüzde puan, yani yüzde 20 arttı",
+          "Yüzde 2 arttı",
+          "Yüzde 12 arttı",
+          "2 puan, yani yüzde 2 arttı"
+        ],
+        "en": [
+          "It rose by 2 percentage points, that is by 20 percent",
+          "It rose by 2 percent",
+          "It rose by 12 percent",
+          "By 2 points, that is 2 percent"
+        ]
+      },
+      "explanation": {
+        "tr": "Fark 2 **puan** (12 - 10). Oransal değişim 12 / 10 - 1 = %20. Oran serilerinde `diff` puanı, `pct_change` yüzdeyi veriyor.",
+        "en": "The difference is 2 **points** (12 - 10). The relative change is 12 / 10 - 1 = 20%. On rate series `diff` gives points and `pct_change` percent."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "Geçen yılın aynı dönemi olağandışı düşükse bu yılın yıldan yıla büyümesi nasıl görünür?",
+        "en": "If the same period last year was unusually low, how does this year's year-on-year growth look?"
+      },
+      "options": {
+        "tr": [
+          "Olduğundan yüksek: baz etkisi",
+          "Olduğundan düşük",
+          "Etkilenmez",
+          "Her zaman sıfır"
+        ],
+        "en": [
+          "Higher than it really is: the base effect",
+          "Lower than it really is",
+          "Unaffected",
+          "Always zero"
+        ]
+      },
+      "explanation": {
+        "tr": "Yıldan yıla değişim iki yıla birden bağlı. Düşük bir baz büyümeyi şişiriyor, yüksek bir baz \"düşüş\" gösteriyor. Büyüme oranını yorumlarken bazın normal olup olmadığına bak.",
+        "en": "A year-on-year change depends on both years. A low base inflates growth, a high base shows a \"fall\". When reading a growth rate, check whether the base was normal."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "Gecikme tablosunda en büyük gecikme 364 ise `dropna()` sonrası kaç satır kaybedilir?",
+        "en": "In a table of lags where the largest lag is 364, how many rows are lost after `dropna()`?"
+      },
+      "options": {
+        "tr": [
+          "İlk 364 satır",
+          "Yalnızca 1 satır",
+          "Hiç",
+          "Son 364 satır"
+        ],
+        "en": [
+          "The first 364 rows",
+          "Only 1 row",
+          "None",
+          "The last 364 rows"
+        ]
+      },
+      "explanation": {
+        "tr": "Her gecikme kendi boyu kadar baştan `NaN` üretiyor; en büyüğü belirleyici. Üç yıllık veride bu bir yıl demek. Uzun gecikmelerin bedeli eğitim verisi.",
+        "en": "Each lag produces `NaN` values at the start as long as itself; the largest one decides. With three years of data that is one year. The price of long lags is training data."
+      }
+    }
+  ]
+}

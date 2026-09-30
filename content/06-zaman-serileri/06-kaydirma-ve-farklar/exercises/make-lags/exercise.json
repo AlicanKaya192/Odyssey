@@ -1,0 +1,36 @@
+{
+  "id": "make-lags",
+  "title": {
+    "tr": "Gecikmeleri kur",
+    "en": "Build the lags"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sözlükten tablo: `pd.DataFrame({\"sales\": s, \"lag1\": s.shift(1), \"lag7\": s.shift(7)})`.",
+      "en": "A table from a dict: `pd.DataFrame({\"sales\": s, \"lag1\": s.shift(1), \"lag7\": s.shift(7)})`."
+    },
+    {
+      "tr": "İki sütunun korelasyonu: `table[\"sales\"].corr(table[\"lag1\"])`. `NaN` olan satırlar kendiliğinden atlanıyor.",
+      "en": "The correlation of two columns: `table[\"sales\"].corr(table[\"lag1\"])`. Rows with `NaN` are skipped automatically."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ntable = pd.DataFrame({\n    \"sales\": s,\n    \"lag1\": s.shift(1),\n    \"lag7\": s.shift(7),\n})\n\nprint(int(table[\"lag1\"].isna().sum()), int(table[\"lag7\"].isna().sum()))\nprint(table.loc[\"2024-03-09\"].tolist())\nprint(round(float(table[\"sales\"].corr(table[\"lag1\"])), 3),\n      round(float(table[\"sales\"].corr(table[\"lag7\"])), 3))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ntable = pd.DataFrame({\n    \"sales\": s,\n    \"lag1\": s.shift(1),\n    \"lag7\": s.shift(7),\n})\n\nprint(int(table[\"lag1\"].isna().sum()), int(table[\"lag7\"].isna().sum()))\nprint(table.loc[\"2024-03-09\"].tolist())\nprint(round(float(table[\"sales\"].corr(table[\"lag1\"])), 3),\n      round(float(table[\"sales\"].corr(table[\"lag7\"])), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 7\n[384.0, 288.0, 372.0]\n0.695 0.958"
+    }
+  ]
+}

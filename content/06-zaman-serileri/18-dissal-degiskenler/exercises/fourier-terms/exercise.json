@@ -1,0 +1,36 @@
+{
+  "id": "fourier-terms",
+  "title": {
+    "tr": "Fourier terimleri",
+    "en": "Fourier terms"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sütunları bir sözlükte biriktir ve `pd.DataFrame(columns, index=index)` ile tabloya çevir.",
+      "en": "Collect the columns in a dictionary and turn it into a table with `pd.DataFrame(columns, index=index)`."
+    },
+    {
+      "tr": "Aralık sütunu: `np.where(index.month == 12, index.day / 31, 0.0)`.",
+      "en": "The December column: `np.where(index.month == 12, index.day / 31, 0.0)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrain = s.loc[:\"2024-12-03\"]\ntest = s.loc[\"2024-12-04\":\"2024-12-31\"]\n\n\ndef fourier(index, K):\n    day = index.dayofyear.to_numpy()\n    columns = {}\n    for k in range(1, K + 1):\n        columns[f\"sin{k}\"] = np.sin(2 * np.pi * k * day / 365.25)\n        columns[f\"cos{k}\"] = np.cos(2 * np.pi * k * day / 365.25)\n    return pd.DataFrame(columns, index=index)\n\n\ndef calendar(index):\n    table = fourier(index, 2)\n    table[\"dec\"] = np.where(index.month == 12, index.day / 31, 0.0)\n    return table\n\n\nX = calendar(train.index)\nprint(X.shape, X.columns.tolist())\n\nplain = ARIMA(train, order=(0, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\nrich = ARIMA(train, exog=X, order=(0, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\n\nforecasts = {\n    \"plain\": plain.forecast(28),\n    \"calendar\": rich.forecast(28, exog=calendar(test.index)),\n}\n\nfor name, forecast in forecasts.items():\n    error = test - forecast\n    print(name, round(float(error.abs().mean()), 2), round(float(error.mean()), 2))\n\nprint(round(float(rich.params[\"dec\"]), 1))\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrain = s.loc[:\"2024-12-03\"]\ntest = s.loc[\"2024-12-04\":\"2024-12-31\"]\n\n\ndef fourier(index, K):\n    day = index.dayofyear.to_numpy()\n    columns = {}\n    for k in range(1, K + 1):\n        columns[f\"sin{k}\"] = np.sin(2 * np.pi * k * day / 365.25)\n        columns[f\"cos{k}\"] = np.cos(2 * np.pi * k * day / 365.25)\n    return pd.DataFrame(columns, index=index)\n\n\ndef calendar(index):\n    table = fourier(index, 2)\n    table[\"dec\"] = np.where(index.month == 12, index.day / 31, 0.0)\n    return table\n\n\nX = calendar(train.index)\nprint(X.shape, X.columns.tolist())\n\nplain = ARIMA(train, order=(0, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\nrich = ARIMA(train, exog=X, order=(0, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\n\nforecasts = {\n    \"plain\": plain.forecast(28),\n    \"calendar\": rich.forecast(28, exog=calendar(test.index)),\n}\n\nfor name, forecast in forecasts.items():\n    error = test - forecast\n    print(name, round(float(error.abs().mean()), 2), round(float(error.mean()), 2))\n\nprint(round(float(rich.params[\"dec\"]), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(1068, 5) ['sin1', 'cos1', 'sin2', 'cos2', 'dec']\nplain 31.34 31.07\ncalendar 14.35 9.5\n49.4"
+    }
+  ]
+}

@@ -82,6 +82,72 @@ class Asset:
     size: int
 
 
+# Fark kurulumu (0.9.1'den itibaren): `Odyssey-<yeni>-patch-<eski>.exe`,
+# yalnızca <eski> sürümün değişen dosyaları (`tools/build_installer.py`).
+# Eski sürümler bu adı tanımıyor (`-setup.exe` ile bitmiyor), tam kurulumu
+# almaya devam ediyorlar.
+PATCH_NAME = "Odyssey-{new}-patch-{base}.exe"
+
+# Denenmiş fark kurulumunun kaydı (veri klasöründe, güncellemeler klasörü
+# her açılışta temizlendiği için orada değil). Yama başarısız olursa
+# (kurulu sürüm beklenen değilse kurulum hiçbir şeye dokunmadan çıkıyor)
+# program eski sürümüyle yeniden açılıyor; bir sonraki denemede aynı yama
+# yerine tam kurulum iniyor, döngüye girilmiyor.
+PATCH_ATTEMPT_FILE = "patch-attempt.txt"
+
+
+def _patch_attempt_path() -> Path:
+    return updates_dir().parent / PATCH_ATTEMPT_FILE
+
+
+def mark_patch_attempt(version: str) -> None:
+    """Bu sürümün yaması başlatılıyor."""
+    try:
+        _patch_attempt_path().write_text(version, encoding="utf-8")
+    except OSError:
+        pass
+
+
+def patch_failed_before(version: str) -> bool:
+    """Bu sürümün yaması daha önce denendi ve program hâlâ eski sürümde mi?"""
+    from ..version import APP_VERSION
+
+    try:
+        denenen = _patch_attempt_path().read_text(encoding="utf-8").strip()
+    except OSError:
+        return False
+    return denenen == version and APP_VERSION != version
+
+
+def pick_patch(assets, version: str, base: str | None = None) -> Asset | None:
+    """Bu sürümden (`base`, varsayılan çalışan sürüm) `version`'a fark kurulumu."""
+    from ..version import APP_VERSION
+
+    ad_beklenen = PATCH_NAME.format(new=version, base=base or APP_VERSION)
+    for ham in assets or ():
+        ad = str(ham.get("name") or "")
+        adres = str(ham.get("browser_download_url") or "")
+        if ad == ad_beklenen and adres.startswith(DOWNLOAD_PREFIX):
+            return Asset(name=ad, url=adres, size=int(ham.get("size") or 0))
+    return None
+
+
+def pick_update(assets, version: str) -> Asset | None:
+    """İndirilecek dosya: bu sürümün yaması varsa o, yoksa tam kurulum.
+
+    Yama bir kez denenip tutmadıysa (`patch_failed_before`) tam kurulum.
+    """
+    if not patch_failed_before(version):
+        yama = pick_patch(assets, version)
+        if yama is not None:
+            return yama
+    return pick_installer(assets)
+
+
+def is_patch(asset: Asset | None) -> bool:
+    return asset is not None and "-patch-" in asset.name
+
+
 def pick_installer(assets) -> Asset | None:
     """Sürümün dosyaları arasından kurulum programını seçer.
 
@@ -219,6 +285,9 @@ def start_installer(path: Path) -> bool:
     """
     if not path.exists():
         return False
+    if "-patch-" in path.name:
+        # `Odyssey-<yeni>-patch-<eski>.exe`: tutmazsa bir dahaki sefere tam kurulum.
+        mark_patch_attempt(path.name.split("-")[1])
     try:
         subprocess.Popen(installer_command(path), cwd=str(path.parent), close_fds=True)
     except OSError:

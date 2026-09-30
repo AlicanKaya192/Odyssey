@@ -1,0 +1,680 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "`s.rolling(7).mean()` her satır için neyi hesaplıyor?",
+        "en": "What does `s.rolling(7).mean()` compute for each row?"
+      },
+      "options": {
+        "tr": [
+          "O satır ve önceki 6 satırın ortalamasını",
+          "Sonraki 7 satırın ortalamasını",
+          "Bütün serinin ortalamasını",
+          "Her 7 satırda bir tek değer"
+        ],
+        "en": [
+          "The mean of that row and the 6 rows before it",
+          "The mean of the next 7 rows",
+          "The mean of the whole series",
+          "One value for every 7 rows"
+        ]
+      },
+      "explanation": {
+        "tr": "Pencere her satırda bir adım kayıyor ve varsayılan olarak geriye bakıyor. Sonuç serinin uzunluğu değişmiyor: her gün için bir değer.",
+        "en": "The window slides one step per row and looks back by default. The length of the result does not change: one value per day."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`s.rolling(7).mean()` sonucunda baştan kaç satır `NaN`?",
+        "en": "In the result of `s.rolling(7).mean()`, how many rows at the start are `NaN`?"
+      },
+      "options": {
+        "tr": [
+          "6",
+          "7",
+          "1",
+          "0"
+        ],
+        "en": [
+          "6",
+          "7",
+          "1",
+          "0"
+        ]
+      },
+      "explanation": {
+        "tr": "Pencere yedi değer biriktirene kadar dolmuyor; yedinci satırda ilk sonuç çıkıyor. `min_periods=1` verilirse baştaki satırlar da eldeki kadarıyla hesaplanıyor.",
+        "en": "The window is not full until it has seven values; the first result appears on the seventh row. With `min_periods=1` the rows at the start are computed from whatever is there."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Hareketli ortalamanın haftalığa `resample` etmeye göre farkı ne?",
+        "en": "How does a moving average differ from resampling to weekly?"
+      },
+      "options": {
+        "tr": [
+          "Satır kaybetmiyor: her gün için bir düzleştirilmiş değer veriyor",
+          "Daha az bellek kullanıyor",
+          "Mevsimselliği bastırmıyor",
+          "Yalnızca pazar günleri değer veriyor"
+        ],
+        "en": [
+          "It loses no rows: it gives a smoothed value for every day",
+          "It uses less memory",
+          "It does not suppress seasonality",
+          "It gives values only on Sundays"
+        ]
+      },
+      "explanation": {
+        "tr": "`resample(\"W\")` 1096 günü 156 haftaya indiriyor. Hareketli ortalama aynı düzleştirmeyi günlük sıklığı koruyarak yapıyor.",
+        "en": "`resample(\"W\")` reduces 1096 days to 156 weeks. A moving average does the same smoothing while keeping the daily frequency."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük veride haftalık deseni bastırmak için pencere boyu ne olmalı?",
+        "en": "In daily data, what window length suppresses the weekly pattern?"
+      },
+      "options": {
+        "tr": [
+          "7: mevsim uzunluğu kadar",
+          "5",
+          "10",
+          "30"
+        ],
+        "en": [
+          "7: as long as the season",
+          "5",
+          "10",
+          "30"
+        ]
+      },
+      "explanation": {
+        "tr": "7 günlük pencerede haftanın her gününden tam bir tane var; desen pencerenin içinde birbirini götürüyor. 5 ya da 10 günlük pencerede hafta sonu sayısı değiştiği için ortalama dalgalanmaya devam ediyor.",
+        "en": "A 7-day window holds exactly one of each day of the week; the pattern cancels out inside the window. In a 5- or 10-day window the number of weekend days varies, so the mean keeps wobbling."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "`s.rolling(365).mean()` günlük satış serisinde neyi gösteriyor?",
+        "en": "What does `s.rolling(365).mean()` show on a daily sales series?"
+      },
+      "options": {
+        "tr": [
+          "Trendi: hem haftalık hem yıllık desen bastırılıyor",
+          "Haftalık deseni",
+          "Yalnızca Aralık aylarını",
+          "Gürültüyü"
+        ],
+        "en": [
+          "The trend: both the weekly and the yearly pattern are suppressed",
+          "The weekly pattern",
+          "Only the Decembers",
+          "The noise"
+        ]
+      },
+      "explanation": {
+        "tr": "Pencere tam bir yılı kapsadığı için yıllık mevsimsellik de sadeleşiyor. Yıl sonlarındaki değerler yıllık ortalamalara eşit: 225.5, 260.4, 294.1.",
+        "en": "The window covers a whole year, so the yearly seasonality cancels too. The values at the ends of the years equal the yearly means: 225.5, 260.4, 294.1."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Pencere büyüdükçe düzleştirilmiş seriye ne oluyor?",
+        "en": "What happens to the smoothed series as the window grows?"
+      },
+      "options": {
+        "tr": [
+          "Daha sakin oluyor ama dönüm noktalarını daha geç gösteriyor",
+          "Daha oynak oluyor",
+          "Hiç değişmiyor",
+          "Daha hızlı tepki veriyor"
+        ],
+        "en": [
+          "It gets calmer but shows turning points later",
+          "It gets more volatile",
+          "Nothing changes",
+          "It reacts faster"
+        ]
+      },
+      "explanation": {
+        "tr": "Büyük pencere daha çok gürültüyü bastırıyor; bedeli gecikme. İkisini birden iyileştiren bir pencere yok.",
+        "en": "A large window suppresses more noise; the price is delay. No window improves both."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`s.rolling(28, center=True).mean()` ile `s.rolling(28).mean()` farkı nedir?",
+        "en": "What is the difference between `s.rolling(28, center=True).mean()` and `s.rolling(28).mean()`?"
+      },
+      "options": {
+        "tr": [
+          "Ortalanmış pencere satırın iki yanına bakıyor; geriye dönük olan yalnızca geçmişe",
+          "İkisi aynı",
+          "Ortalanmış olan daha küçük pencere kullanıyor",
+          "Geriye dönük olan geleceği kullanıyor"
+        ],
+        "en": [
+          "The centred window looks on both sides of the row; the trailing one only at the past",
+          "They are the same",
+          "The centred one uses a smaller window",
+          "The trailing one uses the future"
+        ]
+      },
+      "explanation": {
+        "tr": "Ortalanmış pencere bugünün 14 gün öncesinden 13 gün sonrasına kadar olan değerleri alıyor. Geçmişi anlamak için doğru; canlı kullanımda gelecek bilinmediği için hesaplanamıyor.",
+        "en": "A centred window takes values from 14 days before today to 13 days after. It is right for understanding the past; in live use it cannot be computed, because the future is not known."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "Geriye dönük 28 günlük ortalama yıl sonu tepesini 1 Ocak'ta, ortalanmış olan 19 Aralık'ta gösteriyor. Neden?",
+        "en": "The trailing 28-day mean shows the year-end peak on 1 January, the centred one on 19 December. Why?"
+      },
+      "options": {
+        "tr": [
+          "Geriye dönük ortalama yaklaşık pencerenin yarısı kadar (13 gün) gecikiyor",
+          "Geriye dönük ortalama yanlış hesaplanıyor",
+          "Veride hata var",
+          "Ortalanmış ortalama erken tahmin ediyor"
+        ],
+        "en": [
+          "The trailing mean lags by about half the window (13 days)",
+          "The trailing mean is computed wrongly",
+          "There is an error in the data",
+          "The centred mean predicts early"
+        ]
+      },
+      "explanation": {
+        "tr": "Son 28 günün ortalaması, o pencerenin ortasındaki günün, yani 13–14 gün öncesinin durumunu anlatıyor. İki eğri aynı; biri sağa kaymış.",
+        "en": "The mean of the last 28 days describes the middle of that window, that is 13–14 days ago. The two curves are the same; one is shifted to the right."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "Ortalanmış pencere neden bir tahmin modelinin girdisi olamaz?",
+        "en": "Why can a centred window not be an input to a forecasting model?"
+      },
+      "options": {
+        "tr": [
+          "Bugünden sonraki değerleri kullanıyor: sızıntı",
+          "Çok yavaş hesaplanıyor",
+          "`NaN` üretmediği için",
+          "pandas buna izin vermiyor"
+        ],
+        "en": [
+          "It uses values after today: leakage",
+          "It is too slow to compute",
+          "Because it produces no `NaN`",
+          "pandas does not allow it"
+        ]
+      },
+      "explanation": {
+        "tr": "Tahmin anında gelecek bilinmiyor. `shift(-1)` ile aynı hata, daha gizli hâliyle. Serinin son günlerinin `NaN` olması da bunun işareti.",
+        "en": "At forecast time the future is not known. It is the same mistake as `shift(-1)`, only better hidden. The last days of the series being `NaN` is the sign of it."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Bugünün satışını tahmin etmek için hareketli ortalama özelliği nasıl kurulmalı?",
+        "en": "How should a moving-average feature be built for forecasting today's sales?"
+      },
+      "options": {
+        "tr": [
+          "`s.shift(1).rolling(7).mean()`",
+          "`s.rolling(7).mean()`",
+          "`s.rolling(7, center=True).mean()`",
+          "`s.rolling(7).mean().shift(-1)`"
+        ],
+        "en": [
+          "`s.shift(1).rolling(7).mean()`",
+          "`s.rolling(7).mean()`",
+          "`s.rolling(7, center=True).mean()`",
+          "`s.rolling(7).mean().shift(-1)`"
+        ]
+      },
+      "explanation": {
+        "tr": "`s.rolling(7)` penceresinde bugünün değeri de var; tahmin edilecek şeyi girdi yapmış olursun. Önce `shift(1)` pencereyi dünde bitiriyor.",
+        "en": "The window of `s.rolling(7)` contains today's value; you would be feeding in the thing to be forecast. `shift(1)` first makes the window end yesterday."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Hareketli standart sapma neyi ölçer?",
+        "en": "What does a rolling standard deviation measure?"
+      },
+      "options": {
+        "tr": [
+          "Serinin o dönemde ne kadar oynak olduğunu",
+          "Serinin trendini",
+          "Serinin ortalamasını",
+          "Eksik değer sayısını"
+        ],
+        "en": [
+          "How much the series was moving around in that stretch",
+          "The trend of the series",
+          "The mean of the series",
+          "The number of missing values"
+        ]
+      },
+      "explanation": {
+        "tr": "Fiyat serilerinde getirinin hareketli standart sapmasına oynaklık deniyor. Sabit değil: sakin ve çalkantılı dönemler arasında belirgin biçimde değişiyor.",
+        "en": "In price series the rolling standard deviation of returns is called volatility. It is not constant: it changes markedly between calm and turbulent stretches."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük oynaklığı yıllığa çevirmek için neden `252 ** 0.5` ile çarpılıyor?",
+        "en": "Why is daily volatility multiplied by `252 ** 0.5` to make it yearly?"
+      },
+      "options": {
+        "tr": [
+          "Yılda yaklaşık 252 işlem günü var ve oynaklık sürenin kareköküyle büyüyor",
+          "252 sihirli bir sayı",
+          "Yılda 252 hafta olduğu için",
+          "Yüzdeye çevirmek için"
+        ],
+        "en": [
+          "There are about 252 trading days in a year, and volatility grows with the square root of time",
+          "252 is a magic number",
+          "Because a year has 252 weeks",
+          "To turn it into a percentage"
+        ]
+      },
+      "explanation": {
+        "tr": "Bağımsız günlük getirilerin varyansları toplanıyor; standart sapma bu yüzden gün sayısının kareköküyle ölçekleniyor. Takvim günü değil işlem günü sayılıyor.",
+        "en": "The variances of independent daily returns add up, so the standard deviation scales with the square root of the number of days. Trading days are counted, not calendar days."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Tek bir olağandışı gün 7 günlük hareketli ortalamayı nasıl etkiliyor?",
+        "en": "How does a single unusual day affect a 7-day moving average?"
+      },
+      "options": {
+        "tr": [
+          "Ortalamayı bir hafta boyunca yukarı çekiyor; pencereden çıkınca birden düşüyor",
+          "Hiç etkilemiyor",
+          "Yalnızca o günü etkiliyor",
+          "Ortalamayı kalıcı olarak değiştiriyor"
+        ],
+        "en": [
+          "It pulls the mean up for a week; when it leaves the window the mean drops at once",
+          "Not at all",
+          "It affects only that day",
+          "It changes the mean for good"
+        ]
+      },
+      "explanation": {
+        "tr": "O gün pencerede kaldığı yedi gün boyunca ortalamaya giriyor. Örnekte ortalama 3810'dan 4587'ye çıktı. Sekizinci gün pencereden çıkınca etki bir anda kayboluyor.",
+        "en": "That day enters the mean for the seven days it stays in the window. In the example the mean went from 3810 to 4587. On the eighth day it leaves the window and the effect vanishes at once."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Aykırı değeri olan bir seride düzleştirmek için ortalama yerine ne kullanılır?",
+        "en": "What is used instead of the mean to smooth a series with outliers?"
+      },
+      "options": {
+        "tr": [
+          "Hareketli ortanca: `rolling(7).median()`",
+          "Hareketli toplam",
+          "Hareketli en büyük değer",
+          "Daha küçük pencere"
+        ],
+        "en": [
+          "A rolling median: `rolling(7).median()`",
+          "A rolling sum",
+          "A rolling maximum",
+          "A smaller window"
+        ]
+      },
+      "explanation": {
+        "tr": "Ortanca sıralanmış değerlerin ortasındaki; tek bir uç değer onu kaydırmıyor. Örnekte sıçrama günü ortalama 4587, ortanca 4090.",
+        "en": "The median is the middle of the sorted values; a single extreme does not move it. In the example the mean on the spike day is 4587 and the median 4090."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Hareketli z-skorunda taban neden `visits.shift(1).rolling(28)` ile kuruluyor?",
+        "en": "In a rolling z-score, why is the baseline built with `visits.shift(1).rolling(28)`?"
+      },
+      "options": {
+        "tr": [
+          "Günü kendi ortalamasına ve yayılımına katmamak için",
+          "Daha hızlı olduğu için",
+          "`NaN` sayısını azaltmak için",
+          "Haftalık deseni bastırmak için"
+        ],
+        "en": [
+          "So that the day is not included in its own mean and spread",
+          "Because it is faster",
+          "To reduce the number of `NaN` values",
+          "To suppress the weekly pattern"
+        ]
+      },
+      "explanation": {
+        "tr": "Olağandışı günü tabana katarsan ortalamayı ve standart sapmayı kendisi büyütüyor ve sapması küçük görünüyor. Geçmişle karşılaştırmak için pencere dünde bitmeli.",
+        "en": "Include the unusual day in the baseline and it inflates the mean and the standard deviation itself, making its deviation look small. To compare with the past, the window must end yesterday."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Eksik günleri olan seride `rolling(7).sum()` neden yanıltıyor?",
+        "en": "Why does `rolling(7).sum()` mislead on a series with missing days?"
+      },
+      "options": {
+        "tr": [
+          "7 satır sayıyor; arada eksik gün varsa pencere 7 günden uzun bir aralığı kapsıyor",
+          "Eksik günleri sıfır sayıyor",
+          "Hata veriyor",
+          "Yalnızca tam haftaları topluyor"
+        ],
+        "en": [
+          "It counts 7 rows; with missing days in between, the window covers more than 7 days",
+          "It counts missing days as zero",
+          "It raises an error",
+          "It adds up full weeks only"
+        ]
+      },
+      "explanation": {
+        "tr": "\"Son 7 günün toplamı\" diye okunan sayı aslında 10 günlük bir aralığın 7 kaydı olabiliyor. Hata çıkmıyor.",
+        "en": "The number that reads as \"the total of the last 7 days\" can really be 7 records from a 10-day stretch. No error appears."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "`fixed.rolling(\"7D\").sum()` ile `fixed.rolling(7).sum()` farkı nedir?",
+        "en": "What is the difference between `fixed.rolling(\"7D\").sum()` and `fixed.rolling(7).sum()`?"
+      },
+      "options": {
+        "tr": [
+          "`\"7D\"` son 7 günlük **süreye** bakıyor, `7` son 7 **satıra**",
+          "İkisi aynı",
+          "`\"7D\"` yalnızca hafta içi günleri alıyor",
+          "`7` süreye bakıyor"
+        ],
+        "en": [
+          "`\"7D\"` looks at the last 7 days of **time**, `7` at the last 7 **rows**",
+          "They are the same",
+          "`\"7D\"` takes weekdays only",
+          "`7` looks at time"
+        ]
+      },
+      "explanation": {
+        "tr": "Süre penceresi tarih indeksine göre çalışıyor: aralıkta kaç kayıt varsa onu topluyor. `count()` ile pencerede kaç gözlem olduğuna bakmak gerekiyor.",
+        "en": "A time window works from the date index: it adds up however many records are in the stretch. You need `count()` to see how many observations the window holds."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "`s.expanding().mean()` her satırda neyi veriyor?",
+        "en": "What does `s.expanding().mean()` give on each row?"
+      },
+      "options": {
+        "tr": [
+          "Serinin başından o güne kadarki ortalamayı",
+          "Son 7 günün ortalamasını",
+          "Bütün serinin ortalamasını",
+          "Gelecek günlerin ortalamasını"
+        ],
+        "en": [
+          "The mean from the start of the series up to that day",
+          "The mean of the last 7 days",
+          "The mean of the whole series",
+          "The mean of the days to come"
+        ]
+      },
+      "explanation": {
+        "tr": "Pencerenin başı sabit, sonu uzuyor. Son satırdaki değer bütün serinin ortalamasına (260.0) eşit; ama her satır yalnızca o güne kadar bilineni kullanıyor.",
+        "en": "The start of the window is fixed and its end stretches. The value on the last row equals the mean of the whole series (260.0); but each row uses only what was known up to that day."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`(s - s.mean()) / s.std()` ile ölçeklemek zaman serisinde neden sızıntı sayılır?",
+        "en": "Why does scaling with `(s - s.mean()) / s.std()` count as leakage in a time series?"
+      },
+      "options": {
+        "tr": [
+          "Bütün serinin ortalaması ve sapması gelecekteki değerleri de içeriyor",
+          "Ölçekleme her zaman yanlıştır",
+          "`std` eksik değer üretiyor",
+          "Sızıntı sayılmaz"
+        ],
+        "en": [
+          "The mean and deviation of the whole series include future values too",
+          "Scaling is always wrong",
+          "`std` produces missing values",
+          "It does not"
+        ]
+      },
+      "explanation": {
+        "tr": "2022'deki bir satırı 2024'ü de içeren bir ortalamayla ölçeklemek, o güne henüz bilinmeyen bilgiyi taşıyor. Yerine `expanding` ya da `rolling` ile hesaplanan ortalama.",
+        "en": "Scaling a row from 2022 with a mean that also contains 2024 carries information not yet known on that day. Use a mean computed with `expanding` or `rolling` instead."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Üstel ağırlıklı ortalama (`ewm`) hareketli ortalamadan nasıl ayrılıyor?",
+        "en": "How does an exponentially weighted mean (`ewm`) differ from a moving average?"
+      },
+      "options": {
+        "tr": [
+          "En yeni değere en büyük ağırlığı veriyor; ağırlık geriye doğru yumuşakça azalıyor",
+          "Bütün değerlere eşit ağırlık veriyor",
+          "Yalnızca son değeri kullanıyor",
+          "Geleceği kullanıyor"
+        ],
+        "en": [
+          "It gives the newest value the largest weight; the weight fades smoothly going back",
+          "It gives all values equal weight",
+          "It uses only the last value",
+          "It uses the future"
+        ]
+      },
+      "explanation": {
+        "tr": "Hareketli ortalamada pencerede eşit ağırlık, dışında sıfır. `ewm`'de hiçbir gün tam unutulmuyor ama her eski gün bir öncekinden daha az sayılıyor.",
+        "en": "A moving average has equal weights inside the window and zero outside. With `ewm` no day is fully forgotten, but each older day counts less than the one after it."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`s.ewm(span=7)` en yeni güne hangi ağırlığı veriyor?",
+        "en": "What weight does `s.ewm(span=7)` give the newest day?"
+      },
+      "options": {
+        "tr": [
+          "0.25: `2 / (7 + 1)`",
+          "1/7",
+          "0.5",
+          "0.07"
+        ],
+        "en": [
+          "0.25: `2 / (7 + 1)`",
+          "1/7",
+          "0.5",
+          "0.07"
+        ]
+      },
+      "explanation": {
+        "tr": "`alpha = 2 / (span + 1)`. Her eski gün bir sonrakinin `1 - alpha = 0.75` katı kadar ağırlık alıyor: 0.25, 0.188, 0.141...",
+        "en": "`alpha = 2 / (span + 1)`. Each older day gets `1 - alpha = 0.75` times the weight of the one after it: 0.25, 0.188, 0.141..."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Seri 100'den 200'e sıçradığında `rolling(5)` ve `ewm(span=5)` nasıl tepki veriyor?",
+        "en": "When a series jumps from 100 to 200, how do `rolling(5)` and `ewm(span=5)` react?"
+      },
+      "options": {
+        "tr": [
+          "`ewm` ilk adımda daha çok tepki veriyor; `rolling` beş adımda düz bir rampayla tam yetişiyor",
+          "İkisi aynı anda yetişiyor",
+          "`rolling` ilk adımda tam yetişiyor",
+          "İkisi de tepki vermiyor"
+        ],
+        "en": [
+          "`ewm` reacts more at the first step; `rolling` catches up fully in five steps along a straight ramp",
+          "Both catch up at the same moment",
+          "`rolling` catches up fully at the first step",
+          "Neither reacts"
+        ]
+      },
+      "explanation": {
+        "tr": "İlk adımda `rolling` 120, `ewm` 133.3. Beş adım sonra `rolling` 200'e varıyor; `ewm` 186.8'de ve tam varması uzun sürüyor, çünkü eski değerler hiç tam çıkmıyor.",
+        "en": "At the first step `rolling` is at 120 and `ewm` at 133.3. Five steps later `rolling` reaches 200; `ewm` is at 186.8 and takes long to arrive, because old values never fully leave."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Büyük `alpha` (küçük `span`) seçmenin sonucu ne?",
+        "en": "What is the consequence of a large `alpha` (a small `span`)?"
+      },
+      "options": {
+        "tr": [
+          "Yeni veriye hızlı uyum ama gürültüye de tepki",
+          "Çok düz bir seri",
+          "Hiç tepki yok",
+          "Daha çok `NaN`"
+        ],
+        "en": [
+          "Quick adaptation to new data, but reacting to noise too",
+          "A very smooth series",
+          "No reaction at all",
+          "More `NaN` values"
+        ]
+      },
+      "explanation": {
+        "tr": "Büyük `alpha` en yeni değere çok ağırlık veriyor: hem gerçek değişimi hem rastgele oynamayı hızla yansıtıyor. Küçük `alpha` sakin ama geç.",
+        "en": "A large `alpha` puts a lot of weight on the newest value: it quickly reflects both a real change and random wobble. A small `alpha` is calm but late."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Haftalık mevsimselliği tamamen temizlemek için hangisi daha uygun?",
+        "en": "Which is better suited to removing weekly seasonality completely?"
+      },
+      "options": {
+        "tr": [
+          "`rolling(7).mean()`",
+          "`ewm(span=7).mean()`",
+          "`expanding().mean()`",
+          "`rolling(5).mean()`"
+        ],
+        "en": [
+          "`rolling(7).mean()`",
+          "`ewm(span=7).mean()`",
+          "`expanding().mean()`",
+          "`rolling(5).mean()`"
+        ]
+      },
+      "explanation": {
+        "tr": "7 günlük eşit ağırlıklı pencerede her günden tam bir tane var; desen tam sadeleşiyor. `ewm` en yeni güne daha çok ağırlık verdiği için cumartesi yukarı, pazartesi aşağı kayıyor.",
+        "en": "A 7-day equally weighted window holds exactly one of each day; the pattern cancels fully. `ewm` weights the newest day more, so it drifts up on Saturdays and down on Mondays."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "`ewm` hesabı için geçmişten ne saklamak yetiyor?",
+        "en": "What from the past is enough to keep for computing `ewm`?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca bir önceki ortalama",
+          "Son 7 değer",
+          "Bütün seri",
+          "Hiçbir şey"
+        ],
+        "en": [
+          "Only the previous mean",
+          "The last 7 values",
+          "The whole series",
+          "Nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Kural tekrarlı: yeni ortalama = alpha × bugün + (1 - alpha) × dünkü ortalama. Bütün geçmiş dünkü ortalamanın içinde özetlenmiş durumda.",
+        "en": "The rule is recursive: new mean = alpha × today + (1 - alpha) × yesterday's mean. The whole past is summarised inside yesterday's mean."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "`s.rolling(7, min_periods=1).mean()` baştaki satırlarda ne yapıyor?",
+        "en": "What does `s.rolling(7, min_periods=1).mean()` do on the rows at the start?"
+      },
+      "options": {
+        "tr": [
+          "Elindeki kadar değerle ortalama alıyor; `NaN` bırakmıyor",
+          "Hata veriyor",
+          "Sıfır yazıyor",
+          "Pencereyi 1'e indiriyor"
+        ],
+        "en": [
+          "It averages whatever values it has; it leaves no `NaN`",
+          "It raises an error",
+          "It writes zero",
+          "It reduces the window to 1"
+        ]
+      },
+      "explanation": {
+        "tr": "İlk satırda 1, ikincide 2 değerin ortalaması: 305.0, 291.0, 261.0. Satır kaybetmiyorsun ama baştaki değerler az gözleme dayanıyor ve daha oynak.",
+        "en": "The mean of 1 value on the first row, 2 on the second: 305.0, 291.0, 261.0. You lose no rows, but the early values rest on few observations and are more volatile."
+      }
+    }
+  ]
+}

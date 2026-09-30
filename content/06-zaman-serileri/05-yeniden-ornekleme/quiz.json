@@ -1,0 +1,680 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük veriyi haftalığa çevirmek hangi yönde bir yeniden örneklemedir?",
+        "en": "Turning daily data into weekly data is resampling in which direction?"
+      },
+      "options": {
+        "tr": [
+          "Seyreltmek (downsampling): birçok değer tek sayıya iniyor",
+          "Sıklaştırmak (upsampling)",
+          "İkisi de değil",
+          "Hizalama"
+        ],
+        "en": [
+          "Downsampling: many values reduce to one number",
+          "Upsampling",
+          "Neither",
+          "Alignment"
+        ]
+      },
+      "explanation": {
+        "tr": "Sık veriden seyrek veriye gidiliyor: yedi gün tek bir haftalık değere iniyor. Tersi (haftalık → günlük) sıklaştırma ve olmayan değerleri doldurmayı gerektiriyor.",
+        "en": "You go from frequent data to sparse data: seven days reduce to one weekly value. The reverse (weekly → daily) is upsampling and requires filling values that do not exist."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`s.resample(\"W\").sum()` ne yapıyor?",
+        "en": "What does `s.resample(\"W\").sum()` do?"
+      },
+      "options": {
+        "tr": [
+          "Günleri haftalık kovalara ayırıp her kovayı topluyor",
+          "Her güne haftalık ortalamayı yazıyor",
+          "Yalnızca pazar günlerini seçiyor",
+          "Seriyi yedi ile çarpıyor"
+        ],
+        "en": [
+          "It sorts the days into weekly bins and adds up each bin",
+          "It writes the weekly mean onto every day",
+          "It selects only Sundays",
+          "It multiplies the series by seven"
+        ]
+      },
+      "explanation": {
+        "tr": "`resample` `groupby` gibi iki adımlı: önce kovaları kuruyorsun (`\"W\"`), sonra kovanın içindekileri bir işlemle özetliyorsun (`sum`).",
+        "en": "`resample` has two steps, like `groupby`: first you build the bins (`\"W\"`), then you summarise what is in each with an operation (`sum`)."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`resample(\"W\")` sonucunda `2022-01-09` etiketi neyi temsil ediyor?",
+        "en": "In the result of `resample(\"W\")`, what does the label `2022-01-09` stand for?"
+      },
+      "options": {
+        "tr": [
+          "O tarihte (pazar) biten haftayı: 3–9 Ocak",
+          "O tarihte başlayan haftayı",
+          "Yalnızca o günü",
+          "Ayın ikinci haftasını"
+        ],
+        "en": [
+          "The week ending on that date (a Sunday): 3–9 January",
+          "The week starting on that date",
+          "Only that day",
+          "The second week of the month"
+        ]
+      },
+      "explanation": {
+        "tr": "Haftalık kovalar varsayılan olarak pazartesiden pazara ve etiket kovanın **son** günü. Günlük ve saatlik kovalarda ise etiket kovanın başı.",
+        "en": "Weekly bins run Monday to Sunday by default, and the label is the bin's **last** day. For daily and hourly bins the label is the start of the bin."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Mağaza serisinde ilk haftalık toplam 582, sonrakiler 1600 civarı. Neden?",
+        "en": "In the shop series the first weekly total is 582 and the next ones are around 1600. Why?"
+      },
+      "options": {
+        "tr": [
+          "İlk kova yarım: 2022 cumartesi başlıyor, o haftada yalnızca iki gün var",
+          "İlk hafta satışlar kötüydü",
+          "Veride hata var",
+          "`resample` ilk haftayı üçe bölüyor"
+        ],
+        "en": [
+          "The first bin is partial: 2022 starts on a Saturday, so that week holds only two days",
+          "Sales were poor in the first week",
+          "There is an error in the data",
+          "`resample` divides the first week by three"
+        ]
+      },
+      "explanation": {
+        "tr": "Seri bir haftanın ortasında başlayıp bitiyorsa uçlardaki kovalar eksik kalıyor. `resample(\"W\").count()` ilk kovada 2, sonrakilerde 7 veriyor.",
+        "en": "If a series starts and ends in the middle of a week, the bins at the edges are incomplete. `resample(\"W\").count()` gives 2 for the first bin and 7 for the following ones."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Yalnızca tam haftaları seçmenin yolu hangisi?",
+        "en": "Which of these selects full weeks only?"
+      },
+      "options": {
+        "tr": [
+          "`weekly[s.resample(\"W\").count() == 7]`",
+          "`weekly.dropna()`",
+          "`weekly[weekly > 0]`",
+          "`weekly.iloc[1:]`"
+        ],
+        "en": [
+          "`weekly[s.resample(\"W\").count() == 7]`",
+          "`weekly.dropna()`",
+          "`weekly[weekly > 0]`",
+          "`weekly.iloc[1:]`"
+        ]
+      },
+      "explanation": {
+        "tr": "Kovadaki gözlem sayısına bakmak hem uçlardaki yarım haftaları hem de ortadaki eksik günlü haftaları yakalıyor. `iloc[1:]` yalnızca ilk kovayı atar.",
+        "en": "Looking at the number of observations in a bin catches both the partial weeks at the edges and the weeks with missing days in the middle. `iloc[1:]` only drops the first bin."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Haftalığa seyreltilen seri neden daha düzgün görünüyor?",
+        "en": "Why does a series downsampled to weekly look smoother?"
+      },
+      "options": {
+        "tr": [
+          "Haftanın günleri arasındaki inip çıkma kovanın içinde eriyor",
+          "pandas eğriyi yumuşatıyor",
+          "Veri kayboluyor",
+          "Trend siliniyor"
+        ],
+        "en": [
+          "The swings between days of the week melt away inside the bin",
+          "pandas smooths the curve",
+          "Data is lost",
+          "The trend is erased"
+        ]
+      },
+      "explanation": {
+        "tr": "Her kova tam bir hafta içerdiği için haftalık mevsimsellik kovanın içinde kalıyor. Geriye trend ve daha uzun dönemli desenler kalıyor.",
+        "en": "Each bin holds exactly one week, so the weekly seasonality stays inside the bin. What is left is the trend and the longer patterns."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`resample(\"ME\")` ile `resample(\"MS\")` arasındaki fark ne?",
+        "en": "What is the difference between `resample(\"ME\")` and `resample(\"MS\")`?"
+      },
+      "options": {
+        "tr": [
+          "Kovalar aynı; yalnızca etiket farklı: ay sonu ya da ay başı",
+          "`ME` ortalama, `MS` toplam alıyor",
+          "`MS` yalnızca ayın ilk gününü kullanıyor",
+          "`ME` hata veriyor"
+        ],
+        "en": [
+          "The bins are the same; only the label differs: month end or month start",
+          "`ME` takes the mean, `MS` the sum",
+          "`MS` uses only the first day of the month",
+          "`ME` raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "İkisi de takvim ayını kova yapıyor ve aynı toplamı veriyor. Fark satırın hangi tarihle etiketlendiği; iki seriyi birleştirirken aynı etiketi kullanmak gerekiyor.",
+        "en": "Both use the calendar month as the bin and give the same total. The difference is which date labels the row; when joining two series you need the same label."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük kapanış fiyatı aylığa çevrilecek. Hangi işlem doğru?",
+        "en": "A daily closing price is to be made monthly. Which operation is right?"
+      },
+      "options": {
+        "tr": [
+          "`last()` (ay sonu kapanışı) ya da `mean()`",
+          "`sum()`",
+          "`count()`",
+          "Hiçbiri; fiyat aylığa çevrilemez"
+        ],
+        "en": [
+          "`last()` (the month-end close) or `mean()`",
+          "`sum()`",
+          "`count()`",
+          "None; a price cannot be made monthly"
+        ]
+      },
+      "explanation": {
+        "tr": "Fiyat birikmiyor, bir anı gösteriyor. Toplamak anlamsız bir sayı veriyor (hiç var olmamış bir fiyat). Ayın durumu için `last`, tipik düzeyi için `mean`.",
+        "en": "A price does not accumulate; it shows a moment. Adding it up gives a meaningless number (a price that never existed). Use `last` for the state of the month, `mean` for its typical level."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "Fiyat serisine `resample(\"ME\").sum()` uygulanınca ne olur?",
+        "en": "What happens when `resample(\"ME\").sum()` is applied to a price series?"
+      },
+      "options": {
+        "tr": [
+          "Hata vermeden anlamsız bir sayı üretir",
+          "`TypeError` verir",
+          "Ay sonu fiyatını verir",
+          "Uyarı verip ortalamaya çevirir"
+        ],
+        "en": [
+          "It produces a meaningless number without any error",
+          "It raises a `TypeError`",
+          "It gives the month-end price",
+          "It warns and switches to the mean"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas değerin neyi ölçtüğünü bilmiyor; ne istersen hesaplıyor. Doğru işlemi seçmek senin sorumluluğun.",
+        "en": "pandas does not know what the value measures; it computes whatever you ask. Choosing the right operation is your responsibility."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`ohlc()` bir kovadan hangi dört değeri çıkarır?",
+        "en": "Which four values does `ohlc()` take from a bin?"
+      },
+      "options": {
+        "tr": [
+          "İlk, en yüksek, en düşük, son",
+          "Toplam, ortalama, en yüksek, en düşük",
+          "Ortalama, ortanca, mod, sapma",
+          "İlk dört değer"
+        ],
+        "en": [
+          "First, highest, lowest, last",
+          "Total, mean, highest, lowest",
+          "Mean, median, mode, deviation",
+          "The first four values"
+        ]
+      },
+      "explanation": {
+        "tr": "Open, high, low, close: açılış, en yüksek, en düşük, kapanış. Fiyat serilerini seyreltirken standart özet.",
+        "en": "Open, high, low, close. The standard summary when downsampling price series."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Saatlik yük (MW) günlüğe çevriliyor. Şebekenin dayanması gereken değeri hangisi verir?",
+        "en": "Hourly load (MW) is turned into daily figures. Which gives the value the grid has to withstand?"
+      },
+      "options": {
+        "tr": [
+          "`max()`: günün tepe yükü",
+          "`sum()`: günlük toplam enerji",
+          "`mean()`: ortalama yük",
+          "`first()`"
+        ],
+        "en": [
+          "`max()`: the day's peak load",
+          "`sum()`: the day's total energy",
+          "`mean()`: the average load",
+          "`first()`"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı seriden üç ayrı soru: toplam enerji (`sum`, faturalanan), tepe yük (`max`, altyapıyı belirleyen), ortalama yük (`mean`). Doğru işlem soruya bağlı.",
+        "en": "Three separate questions from the same series: total energy (`sum`, what is billed), peak load (`max`, what sizes the infrastructure), average load (`mean`). The right operation depends on the question."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Bir haftada üç günün kaydı yok. `resample(\"W\").sum()` o hafta için ne verir?",
+        "en": "Three days of a week have no record. What does `resample(\"W\").sum()` give for that week?"
+      },
+      "options": {
+        "tr": [
+          "Elindeki dört günün toplamını; uyarı vermeden",
+          "`NaN`",
+          "Hata",
+          "Eksik günleri ortalamayla doldurup toplamı"
+        ],
+        "en": [
+          "The total of the four days it has, with no warning",
+          "`NaN`",
+          "An error",
+          "The total after filling the missing days with the mean"
+        ]
+      },
+      "explanation": {
+        "tr": "Örnekte o hafta 1192 çıktı; gerçek değer 1892. `sum` olanı topluyor ve eksik olduğunu söylemiyor. Grafikte o hafta satış çökmüş gibi görünüyor.",
+        "en": "In the example that week came out as 1192; the real value is 1892. `sum` adds up what is there and does not say anything is missing. On a chart sales seem to collapse that week."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "`reg.resample(\"W\").sum(min_count=7)` ne sağlıyor?",
+        "en": "What does `reg.resample(\"W\").sum(min_count=7)` achieve?"
+      },
+      "options": {
+        "tr": [
+          "7'den az geçerli değeri olan haftaların toplamı `NaN` oluyor",
+          "Her haftayı 7'ye bölüyor",
+          "En az 7 hafta istiyor",
+          "İlk 7 haftayı atıyor"
+        ],
+        "en": [
+          "Weeks with fewer than 7 valid values get `NaN` as their total",
+          "It divides each week by 7",
+          "It requires at least 7 weeks",
+          "It drops the first 7 weeks"
+        ]
+      },
+      "explanation": {
+        "tr": "`min_count` \"kova en az bu kadar geçerli değer içermiyorsa sonuç verme\" demek. Eksik bir toplam yerine açıkça `NaN` görmek hatayı görünür kılıyor.",
+        "en": "`min_count` means \"give no result unless the bin holds at least this many valid values\". Seeing a plain `NaN` instead of an incomplete total makes the problem visible."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Eksik günlü bir haftada ortalama, toplamdan neden daha dayanıklı?",
+        "en": "Why is a mean sturdier than a sum for a week with missing days?"
+      },
+      "options": {
+        "tr": [
+          "Eksik günleri atlayıp kalanların ortalamasını alıyor; toplam gibi düşmüyor",
+          "Ortalama eksik günleri sıfır sayıyor",
+          "Ortalama her zaman doğrudur",
+          "Dayanıklı değil; ikisi aynı"
+        ],
+        "en": [
+          "It skips the missing days and averages the rest; it does not drop as a sum does",
+          "A mean counts missing days as zero",
+          "A mean is always right",
+          "It is not; the two are the same"
+        ]
+      },
+      "explanation": {
+        "tr": "Toplam eksik her gün kadar azalıyor. Ortalama azalmıyor, ama kusursuz da değil: kalan günler haftanın yüksek günleriyse ortalama yukarı kayıyor.",
+        "en": "A sum shrinks by every missing day. A mean does not, but it is not perfect either: if the remaining days are the week's high days, the mean drifts upwards."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Düzensiz aralıklı sensör kayıtlarını `resample(\"h\").mean()` ile saatliğe çevirmenin faydası ne?",
+        "en": "What is the benefit of turning irregular sensor records into hourly ones with `resample(\"h\").mean()`?"
+      },
+      "options": {
+        "tr": [
+          "Seri düzenli bir ızgaraya oturuyor; başka serilerle birleşebiliyor ve kesintiler boş kova olarak görünüyor",
+          "Veri daha doğru oluyor",
+          "Eksik saatler kendiliğinden doluyor",
+          "Dosya büyüyor"
+        ],
+        "en": [
+          "The series sits on a regular grid; it can be joined with others, and outages show up as empty bins",
+          "The data becomes more accurate",
+          "Missing hours fill themselves",
+          "The file gets bigger"
+        ]
+      },
+      "explanation": {
+        "tr": "Düzensiz seride \"bir önceki saat\" diye bir şey yok. Izgaraya oturtunca her saat için bir satır oluyor; kayıt gelmeyen saatler `NaN` kalıp kesintiyi gösteriyor.",
+        "en": "An irregular series has no such thing as \"the previous hour\". On a grid there is one row per hour; hours without records stay `NaN` and show the outage."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Hiç kayıt olmayan bir saat için `resample(\"h\").sum()` ve `resample(\"h\").mean()` ne verir?",
+        "en": "For an hour with no records, what do `resample(\"h\").sum()` and `resample(\"h\").mean()` give?"
+      },
+      "options": {
+        "tr": [
+          "`sum` 0, `mean` `NaN`",
+          "İkisi de `NaN`",
+          "İkisi de 0",
+          "`sum` `NaN`, `mean` 0"
+        ],
+        "en": [
+          "`sum` gives 0, `mean` gives `NaN`",
+          "Both `NaN`",
+          "Both 0",
+          "`sum` gives `NaN`, `mean` gives 0"
+        ]
+      },
+      "explanation": {
+        "tr": "Boş bir kovanın toplamı 0 kabul ediliyor. Ölçüm toplarken bu yanıltıcı: \"ölçüm yok\" yerine \"sıfır\" yazıyor. `sum(min_count=1)` boş kovayı `NaN` yapıyor.",
+        "en": "The sum of an empty bin is taken to be 0. When adding up measurements this misleads: it writes \"zero\" in place of \"no measurement\". `sum(min_count=1)` makes an empty bin `NaN`."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Boş kovanın toplamının 0 olması ne zaman doğru?",
+        "en": "When is it right for an empty bin's sum to be 0?"
+      },
+      "options": {
+        "tr": [
+          "Olay sayarken: o saatte gerçekten hiç olay olmadıysa",
+          "Sıcaklık ölçerken",
+          "Fiyat serisinde",
+          "Hiçbir zaman"
+        ],
+        "en": [
+          "When counting events: if really no event happened in that hour",
+          "When measuring temperature",
+          "In a price series",
+          "Never"
+        ]
+      },
+      "explanation": {
+        "tr": "\"O saatte kaç sipariş geldi?\" sorusunun cevabı boş kovada gerçekten 0. \"O saatte sıcaklık kaçtı?\" sorusunun cevabı ise bilinmiyor, 0 değil.",
+        "en": "The answer to \"how many orders came in that hour?\" really is 0 for an empty bin. The answer to \"what was the temperature in that hour?\" is unknown, not 0."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "`hourly.interpolate()` boş saatleri nasıl dolduruyor?",
+        "en": "How does `hourly.interpolate()` fill the empty hours?"
+      },
+      "options": {
+        "tr": [
+          "İki uçtaki bilinen değer arasında düz bir çizgiyle",
+          "Son bilinen değeri kopyalayarak",
+          "Sıfırla",
+          "Genel ortalamayla"
+        ],
+        "en": [
+          "With a straight line between the known values at the two ends",
+          "By copying the last known value",
+          "With zero",
+          "With the overall mean"
+        ]
+      },
+      "explanation": {
+        "tr": "Doğrusal ara değer: 55.0 ile 59.4 arası eşit adımlara bölünüyor. `ffill` ise son bilinen değeri (55.0) ileri taşırdı. İkisi de tahmin, ölçüm değil.",
+        "en": "Linear interpolation: the stretch from 55.0 to 59.4 is divided into equal steps. `ffill` would carry the last known value (55.0) forward. Both are guesses, not measurements."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`interpolate(limit=2)` ne işe yarıyor?",
+        "en": "What is `interpolate(limit=2)` for?"
+      },
+      "options": {
+        "tr": [
+          "Art arda en fazla 2 boş kovayı dolduruyor; uzun kesintiler boş kalıyor",
+          "Yalnızca ilk 2 satırı dolduruyor",
+          "Değerleri 2'ye yuvarlıyor",
+          "2 katına çıkarıyor"
+        ],
+        "en": [
+          "It fills at most 2 empty bins in a row; long outages stay empty",
+          "It fills only the first 2 rows",
+          "It rounds values to 2",
+          "It doubles them"
+        ]
+      },
+      "explanation": {
+        "tr": "Kısa boşlukları doldurmak makul, beş saatlik bir kesintiyi düz çizgiyle doldurmak ise o sürede ne olduğunu bildiğini iddia etmek. Sınır bunu engelliyor.",
+        "en": "Filling short gaps is reasonable; filling a five-hour outage with a straight line is claiming to know what happened in that time. A limit prevents that."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Aylık toplam `monthly.resample(\"D\").ffill()` ile günlüğe açıldı ve Mart'ın toplamı 8919'dan 276489'a çıktı. Neden?",
+        "en": "A monthly total was expanded to daily with `monthly.resample(\"D\").ffill()`, and March's total went from 8919 to 276489. Why?"
+      },
+      "options": {
+        "tr": [
+          "`ffill` aylık toplamı ayın her gününe kopyaladı: 31 × 8919",
+          "pandas hata yaptı",
+          "Mart'ta satışlar gerçekten arttı",
+          "`ffill` değerleri topladı"
+        ],
+        "en": [
+          "`ffill` copied the monthly total onto every day of the month: 31 × 8919",
+          "pandas made a mistake",
+          "Sales really did rise in March",
+          "`ffill` added the values up"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir toplam günlere kopyalanmaz. Her gün ayın tamamının satışını taşıyınca, tekrar toplandığında gün sayısı kadar şişiyor.",
+        "en": "A total is not copied onto days. When every day carries the whole month's sales, adding them up again swells the figure by the number of days."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Aylık bir toplamı günlüğe açmanın doğru yolu ne?",
+        "en": "What is the right way to expand a monthly total to daily?"
+      },
+      "options": {
+        "tr": [
+          "Toplamı ayın gün sayısına bölüp günlere paylaştırmak",
+          "`ffill` ile kopyalamak",
+          "`interpolate` ile ara değer bulmak",
+          "Her güne sıfır yazmak"
+        ],
+        "en": [
+          "Divide the total by the number of days in the month and spread it over the days",
+          "Copy it with `ffill`",
+          "Interpolate between values",
+          "Write zero on every day"
+        ]
+      },
+      "explanation": {
+        "tr": "Akış türü bir değer (satış, tüketim) paylaştırılır: günlerin toplamı yine aylık toplamı vermeli. Seviye türü bir değer (fiyat) ise `ffill` ile taşınır.",
+        "en": "A flow value (sales, consumption) is spread: the days must again add up to the monthly total. A level value (a price) is carried with `ffill`."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Aylık toplamdan paylaştırılan günlük seride 9 Mart için 287.7 yazıyor; gerçek satış 384'tü. Bu ne gösteriyor?",
+        "en": "The daily series spread from monthly totals says 287.7 for 9 March; the real sales were 384. What does this show?"
+      },
+      "options": {
+        "tr": [
+          "Sıklaştırma bilgi üretmiyor; haftanın günleri arasındaki fark aylık veride yok",
+          "Hesap yanlış yapılmış",
+          "9 Mart'ta veri bozuk",
+          "Paylaştırma yerine `ffill` kullanılmalıydı"
+        ],
+        "en": [
+          "Upsampling does not produce information; the difference between weekdays is not in monthly data",
+          "The calculation was done wrongly",
+          "The data for 9 March is corrupt",
+          "`ffill` should have been used instead of spreading"
+        ]
+      },
+      "explanation": {
+        "tr": "Her güne ayın ortalaması düşüyor. Cumartesinin yüksek olduğunu aylık veriden öğrenmenin yolu yok. Daha çok satır, daha çok bilgi demek değil.",
+        "en": "Every day gets the month's average. Monthly data cannot tell you that Saturdays are high. More rows does not mean more information."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "`monthly.resample(\"D\").ffill()` sonucu 2024-12-01'de bitiyor. Neden?",
+        "en": "The result of `monthly.resample(\"D\").ffill()` ends on 2024-12-01. Why?"
+      },
+      "options": {
+        "tr": [
+          "Sıklaştırma son etikette duruyor; ay başıyla etiketlenen Aralık'ın kalan günleri üretilmiyor",
+          "Aralık'ta veri yok",
+          "pandas 336 satırdan fazlasını üretemiyor",
+          "`ffill` son ayı atlıyor"
+        ],
+        "en": [
+          "Upsampling stops at the last label; with month-start labels the rest of December is not produced",
+          "There is no data in December",
+          "pandas cannot produce more than 336 rows",
+          "`ffill` skips the last month"
+        ]
+      },
+      "explanation": {
+        "tr": "`resample` ilk etiketten son etikete kadar bir ızgara kuruyor. Son etiket 1 Aralık olduğu için ay orada bitiyor. Bütün ayı kapsamak için indeksi `date_range` ile kendin kurarsın.",
+        "en": "`resample` builds a grid from the first label to the last. The last label is 1 December, so the grid ends there. To cover the whole month you build the index yourself with `date_range`."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Sıklaştırılmış bir seriyle model eğitmenin sakıncası ne?",
+        "en": "What is the problem with training a model on an upsampled series?"
+      },
+      "options": {
+        "tr": [
+          "Model gerçek deseni değil, doldurma yöntemini (düz çizgi, basamak) öğrenir",
+          "Model daha yavaş çalışır",
+          "Hiçbir sakıncası yok",
+          "pandas buna izin vermez"
+        ],
+        "en": [
+          "The model learns the filling method (straight lines, steps), not the real pattern",
+          "The model runs more slowly",
+          "There is none",
+          "pandas does not allow it"
+        ]
+      },
+      "explanation": {
+        "tr": "Doldurulan değerler ölçüm değil; satır sayısı arttı ama bilgi artmadı. Model o yapay düzgünlüğü gerçek sanıyor.",
+        "en": "The filled values are not measurements; the number of rows went up but the information did not. The model takes that artificial smoothness for real."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "`s.resample(\"ME\").mean()` ile `s.groupby(s.index.month).mean()` arasındaki fark ne?",
+        "en": "What is the difference between `s.resample(\"ME\").mean()` and `s.groupby(s.index.month).mean()`?"
+      },
+      "options": {
+        "tr": [
+          "İlki her yılın her ayını ayrı verir (36 satır); ikincisi bütün yılların aynı ayını birleştirir (12 satır)",
+          "İkisi aynı",
+          "İkincisi hata verir",
+          "İlki yalnızca son yılı verir"
+        ],
+        "en": [
+          "The first gives each month of each year separately (36 rows); the second pools the same month of every year (12 rows)",
+          "They are the same",
+          "The second raises an error",
+          "The first gives only the last year"
+        ]
+      },
+      "explanation": {
+        "tr": "`resample` zaman çizgisini sırayla kovalara bölüyor. `groupby(index.month)` takvim ayına göre gruplayıp bütün Ocakları bir araya getiriyor: mevsim profili.",
+        "en": "`resample` cuts the timeline into bins in order. `groupby(index.month)` groups by calendar month and brings all the Januaries together: a seasonal profile."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük dönüşüm oranları (sipariş / ziyaret) haftalığa nasıl çevrilmeli?",
+        "en": "How should daily conversion rates (orders / visits) be turned into weekly ones?"
+      },
+      "options": {
+        "tr": [
+          "Siparişleri ve ziyaretleri ayrı ayrı toplayıp sonra bölerek",
+          "Günlük oranların düz ortalamasını alarak",
+          "Oranları toplayarak",
+          "Haftanın son oranını alarak"
+        ],
+        "en": [
+          "By adding up orders and visits separately, then dividing",
+          "By taking the plain mean of the daily rates",
+          "By adding up the rates",
+          "By taking the week's last rate"
+        ]
+      },
+      "explanation": {
+        "tr": "Oranların düz ortalaması, az ziyaretli günle çok ziyaretli güne aynı ağırlığı veriyor. Pay ile paydayı ayrı ayrı toplamak her ziyareti eşit sayıyor.",
+        "en": "A plain mean of rates gives a quiet day the same weight as a busy one. Adding up numerator and denominator separately counts every visit equally."
+      }
+    }
+  ]
+}

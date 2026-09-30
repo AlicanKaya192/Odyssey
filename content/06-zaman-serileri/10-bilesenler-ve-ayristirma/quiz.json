@@ -1,0 +1,680 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Ayrıştırma bir zaman serisini hangi üç bileşene böler?",
+        "en": "Into which three components does a decomposition split a time series?"
+      },
+      "options": {
+        "tr": [
+          "Trend, mevsim, kalıntı",
+          "Ortalama, ortanca, mod",
+          "Geçmiş, bugün, gelecek",
+          "Eğitim, doğrulama, test"
+        ],
+        "en": [
+          "Trend, seasonal, residual",
+          "Mean, median, mode",
+          "Past, present, future",
+          "Training, validation, test"
+        ]
+      },
+      "explanation": {
+        "tr": "Trend yavaş değişen düzey, mevsim sabit uzunlukta tekrar eden desen, kalıntı ikisi çıkınca geriye kalan. Üçü de seriyle aynı uzunlukta birer seri.",
+        "en": "The trend is the slowly changing level, the seasonal part a pattern repeating at a fixed length, the residual what is left once both are removed. Each is a series as long as the original."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Toplamsal modelde üç bileşen toplanınca ne elde edilir?",
+        "en": "In the additive model, what do you get when the three components are added?"
+      },
+      "options": {
+        "tr": [
+          "Gözlenen serinin kendisi, eksiksiz",
+          "Serinin ortalaması",
+          "Yalnızca trend",
+          "Gelecek tahmini"
+        ],
+        "en": [
+          "The observed series itself, complete",
+          "The mean of the series",
+          "Only the trend",
+          "A forecast of the future"
+        ]
+      },
+      "explanation": {
+        "tr": "Ayrıştırma veriyi değiştirmiyor, yalnızca üçe bölüyor: gözlem = trend + mevsim + kalıntı. Kalıntı tam da bu eşitliği sağlayacak biçimde tanımlı.",
+        "en": "A decomposition does not change the data, it only splits it in three: observed = trend + seasonal + residual. The residual is defined precisely so that this holds."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Klasik ayrıştırmada trend nasıl bulunur?",
+        "en": "How is the trend found in the classical decomposition?"
+      },
+      "options": {
+        "tr": [
+          "Mevsimin boyu kadar ortalanmış hareketli ortalamayla",
+          "Serinin genel ortalamasıyla",
+          "İlk ve son değeri birleştiren doğruyla",
+          "Her ayın en yüksek değeriyle"
+        ],
+        "en": [
+          "With a centred moving average as long as the season",
+          "With the overall mean of the series",
+          "With a straight line joining the first and the last value",
+          "With the highest value of each month"
+        ]
+      },
+      "explanation": {
+        "tr": "Pencere tam bir mevsim turunu kapladığında her konumdan bir tane içeriyor ve mevsim deseni kendini götürüyor; geriye düzey kalıyor.",
+        "en": "When the window covers exactly one full seasonal cycle it holds one of each position and the seasonal pattern cancels out; the level remains."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Trend için pencere neden ortalanmış (`center=True`) olmalı?",
+        "en": "Why should the window for the trend be centred (`center=True`)?"
+      },
+      "options": {
+        "tr": [
+          "Geriye dönük ortalama trendi yarım pencere geç gösterir",
+          "Ortalanmış pencere daha hızlı hesaplanır",
+          "`NaN` oluşmasını önler",
+          "Mevsimi büyütür"
+        ],
+        "en": [
+          "A trailing mean shows the trend half a window late",
+          "A centred window computes faster",
+          "It prevents `NaN` values",
+          "It enlarges the season"
+        ]
+      },
+      "explanation": {
+        "tr": "Ayrıştırma geçmişi açıkladığı için geleceğe bakmak serbest; ortalanmış pencere trendi doğru tarihe yerleştiriyor. Bedeli: iki uçta yarım pencere kadar `NaN`.",
+        "en": "Since a decomposition explains the past, looking ahead is allowed; a centred window places the trend on the right date. The price: half a window of `NaN` at each end."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "`seasonal_decompose(s, period=7)` günlük 1096 satırlık seride trendde kaç `NaN` bırakır?",
+        "en": "How many `NaN` values does `seasonal_decompose(s, period=7)` leave in the trend of a daily series of 1096 rows?"
+      },
+      "options": {
+        "tr": [
+          "6: başta 3, sonda 3",
+          "7",
+          "0",
+          "14"
+        ],
+        "en": [
+          "6: 3 at the start, 3 at the end",
+          "7",
+          "0",
+          "14"
+        ]
+      },
+      "explanation": {
+        "tr": "7'lik ortalanmış pencere her yöne 3 gün uzanıyor; ilk 3 ve son 3 günün penceresi dolmuyor. Kalıntı da aynı günlerde `NaN`.",
+        "en": "A centred window of 7 reaches 3 days each way; the window of the first 3 and the last 3 days is not full. The residual is `NaN` on the same days."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Klasik yöntemde mevsim bileşeni nasıl hesaplanır?",
+        "en": "How is the seasonal component computed in the classical method?"
+      },
+      "options": {
+        "tr": [
+          "Trendsiz serinin mevsimdeki konuma (haftanın günü gibi) göre ortalaması alınır",
+          "Serinin en yüksek değeri alınır",
+          "Trendin türevi alınır",
+          "Rastgele seçilir"
+        ],
+        "en": [
+          "The detrended series is averaged by position in the season (day of the week, say)",
+          "The highest value of the series is taken",
+          "The derivative of the trend is taken",
+          "It is picked at random"
+        ]
+      },
+      "explanation": {
+        "tr": "Bütün pazartesilerin trendden sapmasının ortalaması pazartesinin payı. Yedi sayı bulunur, toplamları sıfır olacak biçimde ortalanır ve bütün tarihlere yayılır.",
+        "en": "The mean deviation from the trend of all Mondays is Monday's share. Seven numbers are found, centred so that they sum to zero, and stretched over all the dates."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Toplamsal mevsim bileşeninin bir tur boyunca toplamı neden sıfır yapılır?",
+        "en": "Why is the additive seasonal component made to sum to zero over one cycle?"
+      },
+      "options": {
+        "tr": [
+          "Mevsim düzeyi değiştirmesin, yalnızca tur içinde dağıtsın diye",
+          "Hesap kolay olsun diye",
+          "Kalıntı sıfır çıksın diye",
+          "statsmodels hatası"
+        ],
+        "en": [
+          "So that the season does not change the level, only spreads it within the cycle",
+          "To make the arithmetic easy",
+          "So that the residual comes out zero",
+          "A statsmodels bug"
+        ]
+      },
+      "explanation": {
+        "tr": "Düzey trendin işi. Mevsimin ortalaması sıfır olmasaydı aynı düzey iki bileşene bölünürdü ve ayrıştırma tek olmazdı.",
+        "en": "The level is the trend's job. If the season did not average zero, the same level would be split across two components and the decomposition would not be unique."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`period` argümanı neyi söyler?",
+        "en": "What does the `period` argument say?"
+      },
+      "options": {
+        "tr": [
+          "Bir mevsim turunun kaç gözlem sürdüğünü",
+          "Serinin kaç yıl sürdüğünü",
+          "Kaç bileşen istendiğini",
+          "Tahmin ufkunu"
+        ],
+        "en": [
+          "How many observations one seasonal cycle lasts",
+          "How many years the series lasts",
+          "How many components are wanted",
+          "The forecast horizon"
+        ]
+      },
+      "explanation": {
+        "tr": "Günlük veride haftalık desen 7, aylık veride yıllık desen 12, saatlik veride günlük desen 24. Satır sayısıyla ölçülüyor, takvimle değil.",
+        "en": "A weekly pattern in daily data is 7, a yearly pattern in monthly data 12, a daily pattern in hourly data 24. It is measured in rows, not by the calendar."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "İndekste eksik günler varken `period=7` ile ayrıştırırsan ne olur?",
+        "en": "What happens if you decompose with `period=7` while days are missing from the index?"
+      },
+      "options": {
+        "tr": [
+          "\"7 satır\" artık 7 gün olmuyor; desen kayıyor",
+          "Hiçbir şey, statsmodels takvime bakıyor",
+          "Eksik günler kendiliğinden dolduruluyor",
+          "Periyot 6'ya düşüyor"
+        ],
+        "en": [
+          "\"7 rows\" is no longer 7 days; the pattern slips",
+          "Nothing, statsmodels looks at the calendar",
+          "The missing days are filled automatically",
+          "The period drops to 6"
+        ]
+      },
+      "explanation": {
+        "tr": "Periyot satır sayar. Bir gün eksikse ondan sonraki her pazartesi bir önceki konuma düşer. Önce `asfreq(\"D\")` ile düzenli indeks kur, boşlukları doldur.",
+        "en": "The period counts rows. With one day missing, every Monday after it falls into the previous slot. First build a regular index with `asfreq(\"D\")` and fill the gaps."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük satışta trend + haftalık mevsim çıkarılınca standart sapma 58.9'dan 12.3'e iniyor. Bu ne anlatır?",
+        "en": "In the daily sales the standard deviation falls from 58.9 to 12.3 once the trend and weekly season are removed. What does this say?"
+      },
+      "options": {
+        "tr": [
+          "Oynaklığın büyük kısmı açıklanabilir yapıdan geliyor",
+          "Veri hatalı",
+          "Seride mevsimsellik yok",
+          "Kalıntı trendden büyük"
+        ],
+        "en": [
+          "Most of the variability comes from explainable structure",
+          "The data is wrong",
+          "The series has no seasonality",
+          "The residual is larger than the trend"
+        ]
+      },
+      "explanation": {
+        "tr": "Seri gürültülü görünüyor ama zikzağın çoğu düzenli haftalık desen ve yavaş trend. Gerçekten öngörülemeyen kısım çok daha küçük.",
+        "en": "The series looks noisy, but most of the zigzag is a regular weekly pattern and a slow trend. The truly unpredictable part is far smaller."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`period=7` ile ayrıştırılan günlük satışta trend bileşeni Haziran'da 231, Aralık'ta 322 çıkıyor. Neden?",
+        "en": "In daily sales decomposed with `period=7` the trend component is 231 in June and 322 in December. Why?"
+      },
+      "options": {
+        "tr": [
+          "Yıllık mevsim ayrılmadı; haftadan yavaş her şey trendin içinde",
+          "Mağaza Aralık'ta kalıcı olarak büyüyor",
+          "Hesap hatası",
+          "Haftalık desen Aralık'ta değişiyor"
+        ],
+        "en": [
+          "The yearly season was not separated; everything slower than a week is inside the trend",
+          "The shop grows permanently in December",
+          "A calculation error",
+          "The weekly pattern changes in December"
+        ]
+      },
+      "explanation": {
+        "tr": "Klasik yöntemde \"trend\", seçilen periyottan yavaş olan her şey. Yıllık dalgayı ayrı görmek için ikinci bir periyot gerekiyor (MSTL).",
+        "en": "In the classical method the \"trend\" is everything slower than the chosen period. Seeing the yearly wave separately takes a second period (MSTL)."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Hangi seride çarpımsal model doğru seçim?",
+        "en": "For which series is the multiplicative model the right choice?"
+      },
+      "options": {
+        "tr": [
+          "Mevsim dalgaları düzey yükseldikçe büyüyen seride",
+          "Dalgaların boyu hep aynı olan seride",
+          "Eksi değerler içeren seride",
+          "Hiç mevsimi olmayan seride"
+        ],
+        "en": [
+          "One whose seasonal waves grow as the level rises",
+          "One whose waves always have the same height",
+          "One containing negative values",
+          "One with no season at all"
+        ]
+      },
+      "explanation": {
+        "tr": "Yolcu serisinde yaz–kış farkı 61'den 183'e çıkıyor ama oran hep 1.6: mevsim düzeyle orantılı. Toplamsal model tek bir sabit fark varsayıyor.",
+        "en": "In the passenger series the summer–winter difference goes from 61 to 183 but the ratio is always 1.6: the season is proportional to the level. The additive model assumes one constant difference."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Çarpımsal modelde Ağustos'un mevsim değeri 1.255. Anlamı ne?",
+        "en": "In the multiplicative model August's seasonal value is 1.255. What does it mean?"
+      },
+      "options": {
+        "tr": [
+          "Ağustos trendin %25.5 üstünde",
+          "Ağustos'ta 1.255 bin yolcu fazla",
+          "Ağustos 1.255 ay sürüyor",
+          "Kalıntı 1.255"
+        ],
+        "en": [
+          "August is 25.5% above the trend",
+          "August has 1.255 thousand more passengers",
+          "August lasts 1.255 months",
+          "The residual is 1.255"
+        ]
+      },
+      "explanation": {
+        "tr": "Çarpımsal mevsim bir çarpan: gözlem ≈ trend × 1.255. Çarpanların bir yıl içindeki ortalaması 1.",
+        "en": "A multiplicative season is a factor: observed ≈ trend × 1.255. The factors average 1 over a year."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Yolcu serisine toplamsal model uygulanınca Temmuz kalıntısı 2013'te −22, 2023'te +20. Bu neyi gösterir?",
+        "en": "With the additive model on the passenger series the July residual is −22 in 2013 and +20 in 2023. What does this show?"
+      },
+      "options": {
+        "tr": [
+          "Kalıntıda desen var: model yanlış, seri çarpımsal",
+          "Temmuz ayları rastgele",
+          "Trend yanlış yönde",
+          "Veri eksik"
+        ],
+        "en": [
+          "There is a pattern in the residual: the model is wrong, the series is multiplicative",
+          "Julys are random",
+          "The trend points the wrong way",
+          "Data is missing"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek bir sabit Temmuz payı ilk yıllar için fazla, son yıllar için az. İyi bir modelde kalıntının işareti yıla göre düzenli değişmez.",
+        "en": "A single fixed July share is too much for the early years and too little for the late ones. In a good model the sign of the residual does not change regularly with the year."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Çarpımsal bir seriyi yalnızca toplamsal çalışan bir yöntemle (STL) ayrıştırmak için ne yapılır?",
+        "en": "What do you do to decompose a multiplicative series with a method that only works additively (STL)?"
+      },
+      "options": {
+        "tr": [
+          "Önce logaritmasını alırsın; sonucu `exp` ile geri çevirirsin",
+          "Seriyi 100'e bölersin",
+          "Yapılamaz",
+          "Trendi elle çıkarırsın"
+        ],
+        "en": [
+          "Take its logarithm first; turn the result back with `exp`",
+          "Divide the series by 100",
+          "It cannot be done",
+          "Remove the trend by hand"
+        ]
+      },
+      "explanation": {
+        "tr": "log(a × b) = log a + log b: logaritma çarpımı toplama çeviriyor. Logaritmik eksenin dalgaları eşitlemesinin nedeni de bu.",
+        "en": "log(a × b) = log a + log b: the logarithm turns a product into a sum. This is also why a logarithmic axis evens out the waves."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Çarpımsal model hangi seride kullanılamaz?",
+        "en": "On which series can the multiplicative model not be used?"
+      },
+      "options": {
+        "tr": [
+          "Sıfır ya da eksi değer içeren seride",
+          "Aylık seride",
+          "Trendi olan seride",
+          "100'den büyük değerler içeren seride"
+        ],
+        "en": [
+          "One containing zero or negative values",
+          "A monthly series",
+          "A series with a trend",
+          "One with values above 100"
+        ]
+      },
+      "explanation": {
+        "tr": "Bileşenler çarpıldığı ve bölündüğü için sıfır ve eksi değerlerle çalışmıyor (logaritma da alınamıyor). Sıcaklık, kâr/zarar gibi serilerde toplamsal model.",
+        "en": "Because the components are multiplied and divided, it does not work with zero or negative values (nor can the logarithm be taken). For series such as temperature or profit and loss, use the additive model."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Mevsimsellikten arındırılmış seri nasıl elde edilir?",
+        "en": "How is the seasonally adjusted series obtained?"
+      },
+      "options": {
+        "tr": [
+          "Toplamsalda `s - seasonal`, çarpımsalda `s / seasonal`",
+          "`s - trend`",
+          "`s.rolling(7).mean()`",
+          "`s - resid`"
+        ],
+        "en": [
+          "`s - seasonal` when additive, `s / seasonal` when multiplicative",
+          "`s - trend`",
+          "`s.rolling(7).mean()`",
+          "`s - resid`"
+        ]
+      },
+      "explanation": {
+        "tr": "Yalnızca mevsim bileşeni çıkarılıyor; trend ve kalıntı yerinde kalıyor. Böylece olaylar ve gerçek değişimler hâlâ görünüyor.",
+        "en": "Only the seasonal component is removed; the trend and the residual stay. So events and real changes still show."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Yolcu sayısı Eylül 2024'te ham seride %10.4 düşüyor, arındırılmış seride %6.7 artıyor. Doğru yorum hangisi?",
+        "en": "Passenger numbers fall 10.4% in September 2024 in the raw series and rise 6.7% in the adjusted one. Which reading is right?"
+      },
+      "options": {
+        "tr": [
+          "Eylül'de her yıl düşüş olur; bu yıl beklenenden az düşmüş",
+          "Yolcu sayısı çöküyor",
+          "Arındırma hatalı",
+          "İki sayı da anlamsız"
+        ],
+        "en": [
+          "There is a drop every September; this year it dropped less than expected",
+          "Passenger numbers are collapsing",
+          "The adjustment is wrong",
+          "Both numbers are meaningless"
+        ]
+      },
+      "explanation": {
+        "tr": "Ham değişim mevsimi ve gerçek değişimi karıştırıyor. Arındırılmış seri \"mevsim dışında ne oldu\" sorusunu cevaplıyor.",
+        "en": "The raw change mixes the season with the real change. The adjusted series answers \"what happened apart from the season\"."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "Aşağıdakilerden hangisi klasik `seasonal_decompose`'un zayıflığı **değildir**?",
+        "en": "Which of the following is **not** a weakness of the classical `seasonal_decompose`?"
+      },
+      "options": {
+        "tr": [
+          "Çarpımsal modeli desteklememesi",
+          "Uçlarda trendin `NaN` olması",
+          "Mevsimin hiç değişmemesi",
+          "Aykırı değere dayanıksız olması"
+        ],
+        "en": [
+          "Not supporting the multiplicative model",
+          "The trend being `NaN` at the ends",
+          "The season never changing",
+          "Not being robust to outliers"
+        ]
+      },
+      "explanation": {
+        "tr": "Klasik yöntem `model=\"multiplicative\"` destekliyor; bunu desteklemeyen STL. Öteki üçü klasik yöntemin gerçek sınırları.",
+        "en": "The classical method supports `model=\"multiplicative\"`; it is STL that does not. The other three are the real limits of the classical method."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "STL klasik yönteme göre ne kazandırır?",
+        "en": "What does STL gain over the classical method?"
+      },
+      "options": {
+        "tr": [
+          "Uçlarda trend, zamanla değişebilen mevsim ve aykırı değere dayanıklılık",
+          "Çarpımsal model",
+          "Daha az veriyle çalışma",
+          "Gelecek tahmini"
+        ],
+        "en": [
+          "A trend at the ends, a season that may change over time, and robustness to outliers",
+          "A multiplicative model",
+          "Working with less data",
+          "A forecast of the future"
+        ]
+      },
+      "explanation": {
+        "tr": "STL hareketli ortalama yerine yerel düzleştirme (LOESS) kullanıyor. Yalnızca toplamsal çalışıyor ve o da geçmişi açıklıyor, tahmin üretmiyor.",
+        "en": "STL uses local smoothing (LOESS) instead of a moving average. It only works additively, and it too explains the past rather than producing a forecast."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Web trafiğinde klasik yöntem, 14 Mart sıçramasından bir gün önceye −1206 kalıntı veriyor. Neden?",
+        "en": "In the web traffic the classical method gives the day before the 14 March spike a residual of −1206. Why?"
+      },
+      "options": {
+        "tr": [
+          "Sıçrama yedi günün hareketli ortalamasına girip trendi yukarı çekiyor",
+          "O gün gerçekten ziyaret düşmüş",
+          "Haftalık desen değişmiş",
+          "Veri eksik"
+        ],
+        "en": [
+          "The spike enters the moving average of seven days and pulls the trend up",
+          "Visits really dropped that day",
+          "The weekly pattern changed",
+          "Data is missing"
+        ]
+      },
+      "explanation": {
+        "tr": "Trend kabarınca normal bir gün \"trendin altında\" görünüyor. `STL(..., robust=True)` aykırı güne düşük ağırlık veriyor; trend düz kalıyor.",
+        "en": "With the trend bulging, a normal day looks \"below trend\". `STL(..., robust=True)` gives the outlier day a low weight; the trend stays flat."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`STL(s, period=7, robust=True)` içinde `robust=True` ne yapar?",
+        "en": "What does `robust=True` do in `STL(s, period=7, robust=True)`?"
+      },
+      "options": {
+        "tr": [
+          "Büyük kalıntılı günlere düşük ağırlık vererek yeniden uydurur",
+          "Aykırı günleri siler",
+          "Eksik günleri doldurur",
+          "Hesabı hızlandırır"
+        ],
+        "en": [
+          "Refits giving days with large residuals a low weight",
+          "Deletes the outlier days",
+          "Fills the missing days",
+          "Speeds up the computation"
+        ]
+      },
+      "explanation": {
+        "tr": "Veri silinmiyor; aykırı gün trend ve mevsimi belirlerken az söz hakkı alıyor ve sıçramanın tamamı kalıntıya gidiyor. `fit.weights` ağırlıkları gösteriyor.",
+        "en": "No data is deleted; the outlier day gets little say in determining the trend and the season, and the whole spike goes to the residual. `fit.weights` shows the weights."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük satışta hem haftalık hem yıllık deseni ayırmak için ne kullanılır?",
+        "en": "What do you use to separate both the weekly and the yearly pattern in daily sales?"
+      },
+      "options": {
+        "tr": [
+          "`MSTL(s, periods=(7, 365))`",
+          "`seasonal_decompose(s, period=372)`",
+          "`STL(s, period=7)` iki kez",
+          "`s.rolling(365).mean()`"
+        ],
+        "en": [
+          "`MSTL(s, periods=(7, 365))`",
+          "`seasonal_decompose(s, period=372)`",
+          "`STL(s, period=7)` twice",
+          "`s.rolling(365).mean()`"
+        ]
+      },
+      "explanation": {
+        "tr": "MSTL her periyot için ayrı bir mevsim sütunu veriyor. Günlük satışta kalıntının standart sapması 12.32'den 5.89'a iniyor ve trend gerçek bir yön oluyor.",
+        "en": "MSTL gives a separate seasonal column for each period. In the daily sales the standard deviation of the residual falls from 12.32 to 5.89 and the trend becomes a real direction."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Bir periyodu güvenle ayırmak için veride o periyottan en az ne kadar olmalı?",
+        "en": "To separate a period safely, how much of that period must the data hold at least?"
+      },
+      "options": {
+        "tr": [
+          "İki tam tur; tercihen üç ve üstü",
+          "Yarım tur",
+          "Tam bir tur",
+          "On tur"
+        ],
+        "en": [
+          "Two full cycles; preferably three or more",
+          "Half a cycle",
+          "Exactly one cycle",
+          "Ten cycles"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek turda desen ile o yıla özgü olayları ayırmak mümkün değil: \"her yıl olan\" ile \"bu yıl olan\" aynı görünüyor.",
+        "en": "With a single cycle the pattern cannot be told from the events of that year: \"what happens every year\" and \"what happened this year\" look the same."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "İyi bir ayrıştırmanın kalıntısı nasıl görünmeli?",
+        "en": "What should the residual of a good decomposition look like?"
+      },
+      "options": {
+        "tr": [
+          "Sıfırın etrafında, desensiz, her dönemde benzer genişlikte",
+          "Yavaşça yükselen",
+          "Her cumartesi artı",
+          "Yıllar geçtikçe genişleyen"
+        ],
+        "en": [
+          "Around zero, patternless, of similar width in every period",
+          "Slowly rising",
+          "Positive every Saturday",
+          "Widening over the years"
+        ]
+      },
+      "explanation": {
+        "tr": "Kalıntıda kalan her desen modelin kaçırdığı bir yapı: yavaş dalga (trend/ikinci mevsim), belirli günlerde hep aynı işaret (yanlış periyot), genişleme (çarpımsal yapı).",
+        "en": "Any pattern left in the residual is structure the model missed: a slow wave (trend or a second season), always the same sign on particular days (wrong period), widening (multiplicative structure)."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "Ayrıştırma bir tahmin yöntemi midir?",
+        "en": "Is a decomposition a forecasting method?"
+      },
+      "options": {
+        "tr": [
+          "Hayır; geçmişi açıklar. Tahmin için bileşenleri ileri taşıyacak bir model gerekir",
+          "Evet, trend kendiliğinden uzar",
+          "Evet, kalıntı geleceği verir",
+          "Yalnızca STL tahmin üretir"
+        ],
+        "en": [
+          "No; it explains the past. Forecasting needs a model that carries the components forward",
+          "Yes, the trend extends by itself",
+          "Yes, the residual gives the future",
+          "Only STL produces forecasts"
+        ]
+      },
+      "explanation": {
+        "tr": "Mevsim kopyalanabilir, ama trendin nasıl uzatılacağı bir model seçimi ve kalıntı tanım gereği öngörülemeyen kısım. Bölüm 14 ve 16 bu işi yapıyor.",
+        "en": "The season can be copied, but how to extend the trend is a modelling choice, and the residual is by definition the unpredictable part. Sections 14 and 16 do this job."
+      }
+    }
+  ]
+}

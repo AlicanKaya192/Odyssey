@@ -1,0 +1,36 @@
+{
+  "id": "mase",
+  "title": {
+    "tr": "Ölçekten bağımsız",
+    "en": "Scale-free"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`train[m:] - train[:-m]` her değerden `m` adım öncekini çıkarıyor (numpy dizisi olmalı, pandas serisi değil).",
+      "en": "`train[m:] - train[:-m]` subtracts from each value the one `m` steps earlier (it must be a numpy array, not a pandas series)."
+    },
+    {
+      "tr": "Son haftanın tekrarı: `np.array([train[-7:][i % 7] for i in range(28)])`.",
+      "en": "The last week repeated: `np.array([train[-7:][i % 7] for i in range(28)])`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"]\n\n\ndef mase(actual, forecast, train, m):\n    scale = np.mean(np.abs(train[m:] - train[:-m]))\n    return float(np.mean(np.abs(actual - forecast)) / scale)\n\n\ntrain = s.loc[:\"2024-11-05\"].to_numpy().astype(float)\nactual = s.loc[\"2024-11-06\":\"2024-12-03\"].to_numpy().astype(float)\nsnaive = np.array([train[-7:][i % 7] for i in range(28)])\nmean_fc = np.full(28, train.mean())\nprint(round(mase(actual, snaive, train, 7), 2), round(mase(actual, mean_fc, train, 7), 2))\n\np_train = p.loc[:\"2023\"].to_numpy().astype(float)\np_actual = p.loc[\"2024\"].to_numpy().astype(float)\ncopy = p.loc[\"2023\"].to_numpy().astype(float)\ngrowth = p.loc[\"2023\"].sum() / p.loc[\"2022\"].sum()\nprint(round(mase(p_actual, copy, p_train, 12), 2), round(mase(p_actual, copy * growth, p_train, 12), 2))\n\nprint(round(float(np.mean(np.abs(train[7:] - train[:-7]))), 2),\n      round(float(np.mean(np.abs(p_train[12:] - p_train[:-12]))), 2))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"]\n\n\ndef mase(actual, forecast, train, m):\n    scale = np.mean(np.abs(train[m:] - train[:-m]))\n    return float(np.mean(np.abs(actual - forecast)) / scale)\n\n\ntrain = s.loc[:\"2024-11-05\"].to_numpy().astype(float)\nactual = s.loc[\"2024-11-06\":\"2024-12-03\"].to_numpy().astype(float)\nsnaive = np.array([train[-7:][i % 7] for i in range(28)])\nmean_fc = np.full(28, train.mean())\nprint(round(mase(actual, snaive, train, 7), 2), round(mase(actual, mean_fc, train, 7), 2))\n\np_train = p.loc[:\"2023\"].to_numpy().astype(float)\np_actual = p.loc[\"2024\"].to_numpy().astype(float)\ncopy = p.loc[\"2023\"].to_numpy().astype(float)\ngrowth = p.loc[\"2023\"].sum() / p.loc[\"2022\"].sum()\nprint(round(mase(p_actual, copy, p_train, 12), 2), round(mase(p_actual, copy * growth, p_train, 12), 2))\n\nprint(round(float(np.mean(np.abs(train[7:] - train[:-7]))), 2),\n      round(float(np.mean(np.abs(p_train[12:] - p_train[:-12]))), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.88 5.72\n1.82 0.5\n13.29 22.27"
+    }
+  ]
+}

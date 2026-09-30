@@ -1,0 +1,36 @@
+{
+  "id": "calendar-model",
+  "title": {
+    "tr": "Takvim modeli",
+    "en": "The calendar model"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Logaritmada eğit, düzeyde döndür: `np.exp(model.predict(features(index)))`.",
+      "en": "Train on the logarithm, return in levels: `np.exp(model.predict(features(index)))`."
+    },
+    {
+      "tr": "Katsayıları adlarıyla eşle: `dict(zip(table.columns, np.exp(model.coef_)))`.",
+      "en": "Match the coefficients with their names: `dict(zip(table.columns, np.exp(model.coef_)))`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\n\ny = pd.read_csv(\"bike_clean.csv\", index_col=\"date\", parse_dates=True)[\"rentals\"]\ny = y.asfreq(\"D\").astype(float)\nweather = pd.read_csv(\"weather.csv\", index_col=\"date\", parse_dates=True)\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\nholidays = pd.to_datetime(pd.read_csv(\"holidays.csv\")[\"date\"])\nstart = y.index[0]\n\n\ndef features(index):\n    x = pd.DataFrame(index=index)\n    x[\"t\"] = (index - start).days.to_numpy()\n    for day in range(1, 7):\n        x[f\"d{day}\"] = (index.dayofweek == day).astype(float)\n    angle = 2 * np.pi * index.dayofyear.to_numpy() / 365.25\n    x[\"s1\"], x[\"c1\"] = np.sin(angle), np.cos(angle)\n    x[\"s2\"], x[\"c2\"] = np.sin(2 * angle), np.cos(2 * angle)\n    x[\"holiday\"] = index.isin(holidays).astype(float)\n    return x\n\n\ndef backtest(forecast):\n    scores = []\n    for cut in cuts:\n        train = y.loc[:cut]\n        test = y.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n        error = test.to_numpy() - forecast(train, test.index)\n        scores.append(float(np.abs(error).mean()))\n    return round(float(np.mean(scores)), 1), round(max(scores), 1)\n\n\ndef log_model(train, index):\n    model = LinearRegression().fit(features(train.index), np.log(train))\n    return np.exp(model.predict(features(index)))\n\n\ndef level_model(train, index):\n    model = LinearRegression().fit(features(train.index), train)\n    return model.predict(features(index))\n\n\ndef weather_model(train, index):\n    model = LinearRegression().fit(features(train.index).join(weather), np.log(train))\n    return np.exp(model.predict(features(index).join(weather)))\n\n\nprint(backtest(log_model))\nprint(backtest(level_model))\nprint(backtest(weather_model))\n\ntable = features(y.index).join(weather)\nmodel = LinearRegression().fit(table, np.log(y))\neffect = dict(zip(table.columns, np.exp(model.coef_)))\nprint(round(float(effect[\"rain\"]), 2), round(float(effect[\"holiday\"]), 2))\n\nprint(round((1 - backtest(log_model)[0] / 86.9) * 100))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\n\ny = pd.read_csv(\"bike_clean.csv\", index_col=\"date\", parse_dates=True)[\"rentals\"]\ny = y.asfreq(\"D\").astype(float)\nweather = pd.read_csv(\"weather.csv\", index_col=\"date\", parse_dates=True)\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\nholidays = pd.to_datetime(pd.read_csv(\"holidays.csv\")[\"date\"])\nstart = y.index[0]\n\n\ndef features(index):\n    x = pd.DataFrame(index=index)\n    x[\"t\"] = (index - start).days.to_numpy()\n    for day in range(1, 7):\n        x[f\"d{day}\"] = (index.dayofweek == day).astype(float)\n    angle = 2 * np.pi * index.dayofyear.to_numpy() / 365.25\n    x[\"s1\"], x[\"c1\"] = np.sin(angle), np.cos(angle)\n    x[\"s2\"], x[\"c2\"] = np.sin(2 * angle), np.cos(2 * angle)\n    x[\"holiday\"] = index.isin(holidays).astype(float)\n    return x\n\n\ndef backtest(forecast):\n    scores = []\n    for cut in cuts:\n        train = y.loc[:cut]\n        test = y.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n        error = test.to_numpy() - forecast(train, test.index)\n        scores.append(float(np.abs(error).mean()))\n    return round(float(np.mean(scores)), 1), round(max(scores), 1)\n\n\ndef log_model(train, index):\n    model = LinearRegression().fit(features(train.index), np.log(train))\n    return np.exp(model.predict(features(index)))\n\n\ndef level_model(train, index):\n    model = LinearRegression().fit(features(train.index), train)\n    return model.predict(features(index))\n\n\ndef weather_model(train, index):\n    model = LinearRegression().fit(features(train.index).join(weather), np.log(train))\n    return np.exp(model.predict(features(index).join(weather)))\n\n\nprint(backtest(log_model))\nprint(backtest(level_model))\nprint(backtest(weather_model))\n\ntable = features(y.index).join(weather)\nmodel = LinearRegression().fit(table, np.log(y))\neffect = dict(zip(table.columns, np.exp(model.coef_)))\nprint(round(float(effect[\"rain\"]), 2), round(float(effect[\"holiday\"]), 2))\n\nprint(round((1 - backtest(log_model)[0] / 86.9) * 100))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(65.1, 95.9)\n(67.6, 104.7)\n(20.9, 31.3)\n0.62 1.14\n25"
+    }
+  ]
+}

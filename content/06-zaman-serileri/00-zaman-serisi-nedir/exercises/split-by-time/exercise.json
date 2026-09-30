@@ -1,0 +1,40 @@
+{
+  "id": "split-by-time",
+  "title": {
+    "tr": "Zamana göre ayır",
+    "en": "Split by time"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`table.iloc[:n_train]` ilk `n_train` satırı, `table.iloc[n_train:]` gerisini veriyor.",
+      "en": "`table.iloc[:n_train]` gives the first `n_train` rows, `table.iloc[n_train:]` the rest."
+    },
+    {
+      "tr": "ISO tarihleri metin olarak da karşılaştırılabiliyor: `train[\"date\"].max() < test[\"date\"].min()`.",
+      "en": "ISO dates can be compared as text too: `train[\"date\"].max() < test[\"date\"].min()`."
+    },
+    {
+      "tr": "Koşulu sağlayan satırları saymak: `(random_test[\"date\"] < random_train[\"date\"].max()).sum()`. `True` 1, `False` 0 sayılıyor.",
+      "en": "Counting the rows that meet a condition: `(random_test[\"date\"] < random_train[\"date\"].max()).sum()`. `True` counts as 1, `False` as 0."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\ntable = pd.read_csv(\"store_sales.csv\")\n\nn_train = int(len(table) * 0.8)\ntrain = table.iloc[:n_train]\ntest = table.iloc[n_train:]\n\nprint(train[\"date\"].iloc[-1], test[\"date\"].iloc[0], len(test))\nprint(train[\"date\"].max() < test[\"date\"].min())\n\nrandom_train, random_test = train_test_split(table, test_size=0.2, random_state=0)\nleaked = (random_test[\"date\"] < random_train[\"date\"].max()).sum()\nprint(int(leaked), len(random_test))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\ntable = pd.read_csv(\"store_sales.csv\")\n\nn_train = int(len(table) * 0.8)\ntrain = table.iloc[:n_train]\ntest = table.iloc[n_train:]\n\nprint(train[\"date\"].iloc[-1], test[\"date\"].iloc[0], len(test))\nprint(train[\"date\"].max() < test[\"date\"].min())\n\nrandom_train, random_test = train_test_split(table, test_size=0.2, random_state=0)\nleaked = (random_test[\"date\"] < random_train[\"date\"].max()).sum()\nprint(int(leaked), len(random_test))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2024-05-25 2024-05-26 220\nTrue\n219 220"
+    }
+  ]
+}

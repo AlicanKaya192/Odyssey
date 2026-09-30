@@ -1,0 +1,36 @@
+{
+  "id": "who-grows",
+  "title": {
+    "tr": "Kim büyüyor?",
+    "en": "Who is growing?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir tabloyu tek bir satırına bölmek: `monthly / monthly.loc[\"2024-05-31\"]`. pandas sütun adlarına göre hizalıyor.",
+      "en": "Dividing a table by one of its rows: `monthly / monthly.loc[\"2024-05-31\"]`. pandas aligns on the column names."
+    },
+    {
+      "tr": "Her satırı kendi toplamına bölmek: `quarterly.div(quarterly.sum(axis=1), axis=0)`.",
+      "en": "Dividing each row by its own total: `quarterly.div(quarterly.sum(axis=1), axis=0)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nlong = pd.read_csv(\"stores.csv\", parse_dates=[\"date\"])\nwide = long.pivot(index=\"date\", columns=\"store\", values=\"sales\")\n\nmonthly = wide.resample(\"ME\").mean()\nindex = monthly / monthly.loc[\"2024-05-31\"] * 100\nprint(index.loc[\"2024-12-31\"].round(1).to_dict())\n\nquarterly = wide.resample(\"QE\").sum()\nshare = quarterly.div(quarterly.sum(axis=1), axis=0) * 100\nprint(share.iloc[-1].round(1).to_dict())\nprint(round(float(share[\"A\"].iloc[-1] - share[\"A\"].iloc[0]), 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nlong = pd.read_csv(\"stores.csv\", parse_dates=[\"date\"])\nwide = long.pivot(index=\"date\", columns=\"store\", values=\"sales\")\n\nmonthly = wide.resample(\"ME\").mean()\nindex = monthly / monthly.loc[\"2024-05-31\"] * 100\nprint(index.loc[\"2024-12-31\"].round(1).to_dict())\n\nquarterly = wide.resample(\"QE\").sum()\nshare = quarterly.div(quarterly.sum(axis=1), axis=0) * 100\nprint(share.iloc[-1].round(1).to_dict())\nprint(round(float(share[\"A\"].iloc[-1] - share[\"A\"].iloc[0]), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'A': 120.3, 'B': 116.8, 'C': 114.1, 'D': 182.2}\n{'A': 35.7, 'B': 19.7, 'C': 22.9, 'D': 21.7}\n-8.1"
+    }
+  ]
+}

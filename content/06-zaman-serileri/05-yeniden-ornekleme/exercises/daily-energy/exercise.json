@@ -1,0 +1,36 @@
+{
+  "id": "daily-energy",
+  "title": {
+    "tr": "Günlük enerji",
+    "en": "Daily energy"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki ayrı seri: `load.resample(\"D\").sum()` ve `load.resample(\"D\").max()`.",
+      "en": "Two separate series: `load.resample(\"D\").sum()` and `load.resample(\"D\").max()`."
+    },
+    {
+      "tr": "Günlük serinin indeksi de tarih: `total.index.dayofweek >= 5` hafta sonlarını seçiyor, `~` tersini alıyor.",
+      "en": "The daily series has a date index too: `total.index.dayofweek >= 5` selects weekends, `~` negates it."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nload = pd.read_csv(\"energy_hourly.csv\", index_col=\"timestamp\", parse_dates=True)[\"load_mw\"]\n\ntotal = load.resample(\"D\").sum()\npeak = load.resample(\"D\").max()\n\nprint(len(total))\nprint(total.idxmax().strftime(\"%Y-%m-%d\"), round(float(total.max()), 1))\nprint(peak.idxmax().strftime(\"%Y-%m-%d\"), peak.max())\n\nweekend = total.index.dayofweek >= 5\nprint(round(float(total[~weekend].mean())), round(float(total[weekend].mean())))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nload = pd.read_csv(\"energy_hourly.csv\", index_col=\"timestamp\", parse_dates=True)[\"load_mw\"]\n\ntotal = load.resample(\"D\").sum()\npeak = load.resample(\"D\").max()\n\nprint(len(total))\nprint(total.idxmax().strftime(\"%Y-%m-%d\"), round(float(total.max()), 1))\nprint(peak.idxmax().strftime(\"%Y-%m-%d\"), peak.max())\n\nweekend = total.index.dayofweek >= 5\nprint(round(float(total[~weekend].mean())), round(float(total[weekend].mean())))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "61\n2024-03-04 22841.7\n2024-03-07 1282.0\n22383 19256"
+    }
+  ]
+}

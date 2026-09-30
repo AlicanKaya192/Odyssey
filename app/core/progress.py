@@ -198,7 +198,54 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (chapter_id, section_id, document_id)
     );
     """,
+    # 8 — çalışma zamanlayıcısı (Alican, 30 Eylül). Tamamlanan (ya da en az
+    # iki dakika süren) her odak evresi bir satır: günün toplam odak süresi
+    # buradan. Etkinlik takvimine ayrıca `activity` tablosunda "focus" olayı
+    # düşüyor.
+    """
+    CREATE TABLE IF NOT EXISTS focus_sessions (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        day         TEXT NOT NULL,
+        minutes     INTEGER NOT NULL,
+        created_at  TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_focus_day ON focus_sessions (day);
+    """,
+    # 9 — geçmiş denemeler (Alican, 30 Eylül: "geçmişte yaptıkları yanlışları
+    # görebilmeleri lazım"). Alıştırmada her çalıştırma (problemde her cevap
+    # denetimi) ve sınavda her deneme ayrı satır. `exercise_progress.code`
+    # yalnızca son hâli tutuyordu; yanlış denemeler üzerine yazılıp
+    # kayboluyordu.
+    """
+    CREATE TABLE IF NOT EXISTS exercise_attempts (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        chapter_id  TEXT NOT NULL,
+        section_id  TEXT NOT NULL,
+        exercise_id TEXT NOT NULL,
+        code        TEXT NOT NULL,
+        passed      INTEGER NOT NULL,
+        detail      TEXT NOT NULL DEFAULT '',
+        created_at  TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_exercise_attempts
+        ON exercise_attempts (chapter_id, section_id, exercise_id);
+    CREATE TABLE IF NOT EXISTS quiz_attempts (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        chapter_id  TEXT NOT NULL,
+        section_id  TEXT NOT NULL,
+        score       INTEGER NOT NULL,
+        passed      INTEGER NOT NULL,
+        answers     TEXT NOT NULL,
+        created_at  TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_quiz_attempts ON quiz_attempts (chapter_id, section_id);
+    """,
 ]
+
+# Bir alıştırma için saklanan en fazla deneme; eskiler siliniyor.
+MAX_EXERCISE_ATTEMPTS = 40
+# Bir sınav için saklanan en fazla deneme.
+MAX_QUIZ_ATTEMPTS = 20
 
 
 def _now() -> str:
@@ -353,6 +400,22 @@ class ProgressStore:
                 "INSERT OR IGNORE INTO study_days (day) VALUES (?)",
                 (date.today().isoformat(),),
             )
+
+    def add_focus_session(self, minutes: int) -> None:
+        """Bir odak evresini kaydeder (çalışma zamanlayıcısı)."""
+        with self._write() as connection:
+            connection.execute(
+                "INSERT INTO focus_sessions (day, minutes, created_at) VALUES (?, ?, ?)",
+                (date.today().isoformat(), int(minutes), _now()),
+            )
+
+    def focus_today(self) -> tuple[int, int]:
+        """Bugünkü odak: (toplam dakika, evre sayısı)."""
+        row = self._connection.execute(
+            "SELECT COALESCE(SUM(minutes), 0) AS m, COUNT(*) AS n FROM focus_sessions WHERE day = ?",
+            (date.today().isoformat(),),
+        ).fetchone()
+        return int(row["m"]), int(row["n"])
 
     def record_activity(
         self,
@@ -664,6 +727,81 @@ class ProgressStore:
             self.record_activity("exercise", chapter_id, section_id, exercise_id)
         if count_attempt:
             self.mark_study_day()
+
+    # --- geçmiş denemeler ------------------------------------------------------
+
+    def add_exercise_attempt(
+        self,
+        chapter_id: str,
+        section_id: str,
+        exercise_id: str,
+        code: str,
+        passed: bool,
+        detail: str = "",
+    ) -> bool:
+        """Bir denemeyi kaydeder; kaydettiyse True.
+
+        Bir öncekiyle aynı kod ve aynı sonuçsa yazılmıyor: aynı kodu üst
+        üste çalıştırmak listeyi aynı satırla doldurmasın. En eski kayıtlar
+        `MAX_EXERCISE_ATTEMPTS`'i geçince siliniyor.
+        """
+        anahtar = (chapter_id, section_id, exercise_id)
+        son = self._connection.execute(
+            "SELECT code, passed FROM exercise_attempts WHERE chapter_id = ? AND section_id = ? "
+            "AND exercise_id = ? ORDER BY id DESC LIMIT 1",
+            anahtar,
+        ).fetchone()
+        if son is not None and son["code"] == code and bool(son["passed"]) == bool(passed):
+            return False
+        with self._write() as connection:
+            connection.execute(
+                "INSERT INTO exercise_attempts (chapter_id, section_id, exercise_id, code, passed, "
+                "detail, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (*anahtar, code, int(bool(passed)), detail, _now()),
+            )
+            connection.execute(
+                "DELETE FROM exercise_attempts WHERE chapter_id = ? AND section_id = ? "
+                "AND exercise_id = ? AND id NOT IN (SELECT id FROM exercise_attempts "
+                "WHERE chapter_id = ? AND section_id = ? AND exercise_id = ? "
+                "ORDER BY id DESC LIMIT ?)",
+                (*anahtar, *anahtar, MAX_EXERCISE_ATTEMPTS),
+            )
+        return True
+
+    def exercise_attempts(self, chapter_id: str, section_id: str, exercise_id: str) -> list[dict]:
+        """Denemeler, en yenisi başta."""
+        rows = self._connection.execute(
+            "SELECT id, code, passed, detail, created_at FROM exercise_attempts "
+            "WHERE chapter_id = ? AND section_id = ? AND exercise_id = ? ORDER BY id DESC",
+            (chapter_id, section_id, exercise_id),
+        ).fetchall()
+        return [dict(row) | {"passed": bool(row["passed"])} for row in rows]
+
+    def add_quiz_attempt(
+        self, chapter_id: str, section_id: str, score: int, passed: bool, answers: str
+    ) -> None:
+        """Bir sınav denemesini cevaplarıyla kaydeder (`answers` JSON)."""
+        with self._write() as connection:
+            connection.execute(
+                "INSERT INTO quiz_attempts (chapter_id, section_id, score, passed, answers, "
+                "created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                (chapter_id, section_id, int(score), int(bool(passed)), answers, _now()),
+            )
+            connection.execute(
+                "DELETE FROM quiz_attempts WHERE chapter_id = ? AND section_id = ? AND id NOT IN "
+                "(SELECT id FROM quiz_attempts WHERE chapter_id = ? AND section_id = ? "
+                "ORDER BY id DESC LIMIT ?)",
+                (chapter_id, section_id, chapter_id, section_id, MAX_QUIZ_ATTEMPTS),
+            )
+
+    def quiz_attempts(self, chapter_id: str, section_id: str) -> list[dict]:
+        """Sınav denemeleri, en yenisi başta."""
+        rows = self._connection.execute(
+            "SELECT id, score, passed, answers, created_at FROM quiz_attempts "
+            "WHERE chapter_id = ? AND section_id = ? ORDER BY id DESC",
+            (chapter_id, section_id),
+        ).fetchall()
+        return [dict(row) | {"passed": bool(row["passed"])} for row in rows]
 
     def attempts(self, chapter_id: str, section_id: str, exercise_id: str) -> int:
         row = self._connection.execute(

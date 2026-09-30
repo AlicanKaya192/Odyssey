@@ -1,0 +1,36 @@
+{
+  "id": "smooth-by-hand",
+  "title": {
+    "tr": "Elle düzleştirme",
+    "en": "Smoothing by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İlk değerde `level` zaten o değere eşit olduğu için güncelleme onu değiştirmiyor; ilk düzey ilk gözlemin kendisi.",
+      "en": "At the first value `level` already equals it, so the update leaves it unchanged; the first level is the first observation itself."
+    },
+    {
+      "tr": "Son düzey: `smooth(y.to_numpy(), alpha)[-1]`.",
+      "en": "The last level: `smooth(y.to_numpy(), alpha)[-1]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ny = s.loc[\"2024-09-01\":\"2024-09-14\"]\n\n\ndef smooth(values, alpha):\n    level = values[0]\n    levels = []\n    for value in values:\n        level = alpha * value + (1 - alpha) * level\n        levels.append(float(level))\n    return levels\n\n\nby_hand = smooth(y.to_numpy(), 0.5)\nprint([round(v, 1) for v in by_hand[:5]])\n\nwith_pandas = y.ewm(alpha=0.5, adjust=False).mean()\nprint([round(float(v), 1) for v in with_pandas.iloc[:5]])\n\nprint(bool(max(abs(a - b) for a, b in zip(by_hand, with_pandas)) < 1e-9))\n\nprint([round(smooth(y.to_numpy(), alpha)[-1], 1) for alpha in (0.1, 0.5, 0.9)])\nprint(int(s.loc[\"2024-09-15\"]))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ny = s.loc[\"2024-09-01\":\"2024-09-14\"]\n\n\ndef smooth(values, alpha):\n    level = values[0]\n    levels = []\n    for value in values:\n        level = alpha * value + (1 - alpha) * level\n        levels.append(float(level))\n    return levels\n\n\nby_hand = smooth(y.to_numpy(), 0.5)\nprint([round(v, 1) for v in by_hand[:5]])\n\nwith_pandas = y.ewm(alpha=0.5, adjust=False).mean()\nprint([round(float(v), 1) for v in with_pandas.iloc[:5]])\n\nprint(bool(max(abs(a - b) for a, b in zip(by_hand, with_pandas)) < 1e-9))\n\nprint([round(smooth(y.to_numpy(), alpha)[-1], 1) for alpha in (0.1, 0.5, 0.9)])\nprint(int(s.loc[\"2024-09-15\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[351.0, 287.0, 255.0, 259.5, 261.8]\n[351.0, 287.0, 255.0, 259.5, 261.8]\nTrue\n[312.4, 337.4, 373.9]\n353"
+    }
+  ]
+}

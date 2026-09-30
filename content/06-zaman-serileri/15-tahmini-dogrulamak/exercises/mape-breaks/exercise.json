@@ -1,0 +1,36 @@
+{
+  "id": "mape-breaks",
+  "title": {
+    "tr": "MAPE'nin bozulduğu yer",
+    "en": "Where MAPE breaks"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıfıra bölme uyarısını susturmak için hesabı `with np.errstate(divide=\"ignore\", invalid=\"ignore\"):` bloğuna alabilirsin; sonuç yine `inf` olur.",
+      "en": "To silence the division warning you can put the calculation in a `with np.errstate(divide=\"ignore\", invalid=\"ignore\"):` block; the result is still `inf`."
+    },
+    {
+      "tr": "İlk günün tahmini yok (`shift(1)`); `iloc[1:]` ile ikisini de ikinci günden başlat.",
+      "en": "The first day has no forecast (`shift(1)`); start both from the second day with `iloc[1:]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nlong = pd.read_csv(\"stores_long.csv\", parse_dates=[\"date\"])\nwide = long.pivot(index=\"date\", columns=\"store\", values=\"sales\").asfreq(\"D\")\n\na = wide[\"A\"]\nc = wide[\"C\"].fillna(0)\nprint(int((c == 0).sum()))\n\n\ndef measures(y):\n    actual = y.iloc[1:].to_numpy().astype(float)\n    forecast = y.shift(1).iloc[1:].to_numpy().astype(float)\n    error = np.abs(actual - forecast)\n    mae = float(error.mean())\n    with np.errstate(divide=\"ignore\", invalid=\"ignore\"):\n        mape = float(np.mean(error / np.abs(actual)) * 100)\n    scale = float((y - y.shift(7)).abs().mean())\n    return round(mae, 2), round(mape, 2), round(mae / scale, 2)\n\n\nprint(measures(a))\nprint(measures(c))\n\nprint(round(abs(100 - 150) / 100 * 100, 1), round(abs(150 - 100) / 150 * 100, 1))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nlong = pd.read_csv(\"stores_long.csv\", parse_dates=[\"date\"])\nwide = long.pivot(index=\"date\", columns=\"store\", values=\"sales\").asfreq(\"D\")\n\na = wide[\"A\"]\nc = wide[\"C\"].fillna(0)\nprint(int((c == 0).sum()))\n\n\ndef measures(y):\n    actual = y.iloc[1:].to_numpy().astype(float)\n    forecast = y.shift(1).iloc[1:].to_numpy().astype(float)\n    error = np.abs(actual - forecast)\n    mae = float(error.mean())\n    with np.errstate(divide=\"ignore\", invalid=\"ignore\"):\n        mape = float(np.mean(error / np.abs(actual)) * 100)\n    scale = float((y - y.shift(7)).abs().mean())\n    return round(mae, 2), round(mape, 2), round(mae / scale, 2)\n\n\nprint(measures(a))\nprint(measures(c))\n\nprint(round(abs(100 - 150) / 100 * 100, 1), round(abs(150 - 100) / 150 * 100, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "52\n(44.19, 13.97, 3.32)\n(87.28, inf, 8.65)\n50.0 33.3"
+    }
+  ]
+}

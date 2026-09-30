@@ -1,0 +1,36 @@
+{
+  "id": "grow-the-baseline",
+  "title": {
+    "tr": "Temel yöntemi büyüt",
+    "en": "Grow the baseline"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`base` bir numpy dizisi; `base + slope * 12` ve `base * growth` her aya birden uygulanıyor.",
+      "en": "`base` is a numpy array; `base + slope * 12` and `base * growth` apply to every month at once."
+    },
+    {
+      "tr": "Yüzde hata: `((test - fc).abs() / test).mean() * 100`.",
+      "en": "The percentage error: `((test - fc).abs() / test).mean() * 100`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"].asfreq(\"MS\")\n\ntrain, test = p.loc[:\"2023\"], p.loc[\"2024\"]\n\nbase = train.loc[\"2023\"].to_numpy()\n\nslope = (train.iloc[-1] - train.iloc[0]) / (len(train) - 1)\ngrowth = train.loc[\"2023\"].sum() / train.loc[\"2022\"].sum()\nprint(round(float(growth), 4))\n\nforecasts = {\n    \"snaive\": pd.Series(base, index=test.index),\n    \"drift\": pd.Series(base + slope * 12, index=test.index),\n    \"growth\": pd.Series(base * growth, index=test.index),\n}\n\nscores = {}\nfor name, fc in forecasts.items():\n    error = (test - fc).abs()\n    scores[name] = float(error.mean())\n    print(name, round(scores[name], 2), round(float((error / test).mean() * 100), 1))\n\nprint(round(1 - scores[\"growth\"] / scores[\"snaive\"], 2))\n\nmonth = \"2024-08-01\"\nprint(int(test.loc[month]), *[round(float(fc.loc[month])) for fc in forecasts.values()])\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"].asfreq(\"MS\")\n\ntrain, test = p.loc[:\"2023\"], p.loc[\"2024\"]\n\nbase = train.loc[\"2023\"].to_numpy()\n\nslope = (train.iloc[-1] - train.iloc[0]) / (len(train) - 1)\ngrowth = train.loc[\"2023\"].sum() / train.loc[\"2022\"].sum()\nprint(round(float(growth), 4))\n\nforecasts = {\n    \"snaive\": pd.Series(base, index=test.index),\n    \"drift\": pd.Series(base + slope * 12, index=test.index),\n    \"growth\": pd.Series(base * growth, index=test.index),\n}\n\nscores = {}\nfor name, fc in forecasts.items():\n    error = (test - fc).abs()\n    scores[name] = float(error.mean())\n    print(name, round(scores[name], 2), round(float((error / test).mean() * 100), 1))\n\nprint(round(1 - scores[\"growth\"] / scores[\"snaive\"], 2))\n\nmonth = \"2024-08-01\"\nprint(int(test.loc[month]), *[round(float(fc.loc[month])) for fc in forecasts.values()])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.0993\nsnaive 40.42 10.3\ndrift 18.52 4.6\ngrowth 11.11 2.8\n0.73\n480 448 470 492"
+    }
+  ]
+}

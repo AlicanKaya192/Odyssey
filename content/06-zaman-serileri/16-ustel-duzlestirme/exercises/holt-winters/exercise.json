@@ -1,0 +1,41 @@
+{
+  "id": "holt-winters",
+  "title": {
+    "tr": "Holt–Winters",
+    "en": "Holt–Winters"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bileşenler `fit.level` ve `fit.season`; katsayılar `fit.params[\"smoothing_level\"]` ve `fit.params[\"smoothing_seasonal\"]`.",
+      "en": "The components are `fit.level` and `fit.season`; the coefficients `fit.params[\"smoothing_level\"]` and `fit.params[\"smoothing_seasonal\"]`."
+    },
+    {
+      "tr": "`fit.forecast(28)` testin tarihleriyle indeksli bir seri; hata `test - forecast`.",
+      "en": "`fit.forecast(28)` is a series indexed by the dates of the test; the error is `test - forecast`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport matplotlib.pyplot as plt\nimport pandas as pd\nfrom statsmodels.tsa.holtwinters import ExponentialSmoothing\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrain = s.loc[:\"2024-11-05\"]\ntest = s.loc[\"2024-11-06\":\"2024-12-03\"]\n\nfit = ExponentialSmoothing(train, seasonal=\"add\", seasonal_periods=7).fit()\n\nprint(round(float(fit.params[\"smoothing_level\"]), 2),\n      round(float(fit.params[\"smoothing_seasonal\"]), 2))\nprint(round(float(fit.level.iloc[-1]), 1))\nprint([round(float(v), 1) for v in fit.season.iloc[-7:]])\n\nforecast = fit.forecast(28)\nprint([round(float(v), 1) for v in forecast.iloc[:7]])\n\nerror = test - forecast\nprint(round(float(error.abs().mean()), 2), round(float(error.mean()), 2))\n\nrecent = s.loc[\"2024-10-09\":\"2024-12-03\"]\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(recent.index, recent.values, color=\"gray\", label=\"actual\")\nax.plot(forecast.index, forecast.values, linewidth=2, label=\"forecast\")\nax.legend()\nfig.savefig(\"chart.png\")\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport matplotlib.pyplot as plt\nimport pandas as pd\nfrom statsmodels.tsa.holtwinters import ExponentialSmoothing\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrain = s.loc[:\"2024-11-05\"]\ntest = s.loc[\"2024-11-06\":\"2024-12-03\"]\n\nfit = ExponentialSmoothing(train, seasonal=\"add\", seasonal_periods=7).fit()\n\nprint(round(float(fit.params[\"smoothing_level\"]), 2),\n      round(float(fit.params[\"smoothing_seasonal\"]), 2))\nprint(round(float(fit.level.iloc[-1]), 1))\nprint([round(float(v), 1) for v in fit.season.iloc[-7:]])\n\nforecast = fit.forecast(28)\nprint([round(float(v), 1) for v in forecast.iloc[:7]])\n\nerror = test - forecast\nprint(round(float(error.abs().mean()), 2), round(float(error.mean()), 2))\n\nrecent = s.loc[\"2024-10-09\":\"2024-12-03\"]\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(recent.index, recent.values, color=\"gray\", label=\"actual\")\nax.plot(forecast.index, forecast.values, linewidth=2, label=\"forecast\")\nax.legend()\nfig.savefig(\"chart.png\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.18 0.13\n314.0\n[-23.2, -11.1, 35.3, 96.0, 48.3, -39.3, -41.3]\n[290.8, 302.9, 349.3, 410.0, 362.3, 274.7, 273.8]\n11.73 7.68"
+    }
+  ]
+}

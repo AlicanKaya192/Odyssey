@@ -1,0 +1,36 @@
+{
+  "id": "one-step-scoreboard",
+  "title": {
+    "tr": "Tek adımlı puan tablosu",
+    "en": "A one-step scoreboard"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her tahmin serinin tamamında kuruluyor; 2024'ü sonradan seçiyorsun: `fc.loc[\"2024\"]`. Böylece Ocak'ın ilk günleri 2023'ün son günlerinden besleniyor.",
+      "en": "Each forecast is built on the whole series; you select 2024 afterwards: `fc.loc[\"2024\"]`. That way the first days of January are fed by the last days of 2023."
+    },
+    {
+      "tr": "En küçük MAE: `min(scores.values())`.",
+      "en": "The smallest MAE: `min(scores.values())`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\nforecasts = {\n    \"mean so far\": s.shift(1).expanding().mean(),\n    \"mean of 7\": s.shift(1).rolling(7).mean(),\n    \"naive\": s.shift(1),\n    \"seasonal naive\": s.shift(7),\n    \"mean of 4 weeks\": (s.shift(7) + s.shift(14) + s.shift(21) + s.shift(28)) / 4,\n}\n\nactual = s.loc[\"2024\"]\nscores = {}\nfor name, fc in forecasts.items():\n    error = actual - fc.loc[\"2024\"]\n    scores[name] = float(error.abs().mean())\n    print(name, round(scores[name], 2), round(float(error.mean()), 2))\n\nbest = min(scores.values())\nprint(round(1 - best / scores[\"naive\"], 2))\n\nleaky = (s + s.shift(7) + s.shift(14) + s.shift(21)) / 4\nprint(round(float((actual - leaky.loc[\"2024\"]).abs().mean()), 2))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\nforecasts = {\n    \"mean so far\": s.shift(1).expanding().mean(),\n    \"mean of 7\": s.shift(1).rolling(7).mean(),\n    \"naive\": s.shift(1),\n    \"seasonal naive\": s.shift(7),\n    \"mean of 4 weeks\": (s.shift(7) + s.shift(14) + s.shift(21) + s.shift(28)) / 4,\n}\n\nactual = s.loc[\"2024\"]\nscores = {}\nfor name, fc in forecasts.items():\n    error = actual - fc.loc[\"2024\"]\n    scores[name] = float(error.abs().mean())\n    print(name, round(scores[name], 2), round(float(error.mean()), 2))\n\nbest = min(scores.values())\nprint(round(1 - best / scores[\"naive\"], 2))\n\nleaky = (s + s.shift(7) + s.shift(14) + s.shift(21)) / 4\nprint(round(float((actual - leaky.loc[\"2024\"]).abs().mean()), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "mean so far 52.48 43.49\nmean of 7 42.74 0.22\nnaive 41.1 -0.16\nseasonal naive 13.87 0.92\nmean of 4 weeks 13.89 2.03\n0.66\n9.86"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "mark-the-break",
+  "title": {
+    "tr": "Olayları işaretle",
+    "en": "Mark the events"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Olağandışı günlerin tarihleri `unusual.index`; üzerinde `for day in unusual.index:` ile dolaşıp `ax.axvline(day, ...)`.",
+      "en": "The dates of the unusual days are `unusual.index`; loop with `for day in unusual.index:` and call `ax.axvline(day, ...)`."
+    },
+    {
+      "tr": "Gölgeli alan iki tarih alıyor: `ax.axvspan(pd.Timestamp(\"2024-09-02\"), visits.index[-1], alpha=0.15)`.",
+      "en": "A shaded area takes two dates: `ax.axvspan(pd.Timestamp(\"2024-09-02\"), visits.index[-1], alpha=0.15)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\n\nbase = visits.shift(1).rolling(28)\nz = (visits - base.mean()) / base.std()\nunusual = z[z.abs() > 3]\n\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(visits.index, visits.values, linewidth=0.9)\nfor day in unusual.index:\n    ax.axvline(day, linestyle=\"--\", color=\"gray\")\n\nchange = pd.Timestamp(\"2024-09-02\")\nax.axvspan(change, visits.index[-1], alpha=0.15)\nfig.savefig(\"chart.png\")\n\nprint(unusual.index.strftime(\"%m-%d\").tolist())\nprint(len(ax.lines))\n\nbefore = visits.loc[:\"2024-09-01\"].median()\nafter = visits.loc[\"2024-09-02\":].median()\nprint(round(float(before)), round(float(after)))\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\n\nbase = visits.shift(1).rolling(28)\nz = (visits - base.mean()) / base.std()\nunusual = z[z.abs() > 3]\n\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(visits.index, visits.values, linewidth=0.9)\nfor day in unusual.index:\n    ax.axvline(day, linestyle=\"--\", color=\"gray\")\n\nchange = pd.Timestamp(\"2024-09-02\")\nax.axvspan(change, visits.index[-1], alpha=0.15)\nfig.savefig(\"chart.png\")\n\nprint(unusual.index.strftime(\"%m-%d\").tolist())\nprint(len(ax.lines))\n\nbefore = visits.loc[:\"2024-09-01\"].median()\nafter = visits.loc[\"2024-09-02\":].median()\nprint(round(float(before)), round(float(after)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['03-14', '06-20', '10-08']\n4\n3917 5129"
+    }
+  ]
+}

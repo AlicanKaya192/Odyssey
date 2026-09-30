@@ -1,0 +1,41 @@
+{
+  "id": "raw-and-smooth",
+  "title": {
+    "tr": "Ham ve düzleştirilmiş",
+    "en": "Raw and smoothed"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce hesapla, sonra dilimle: `s.rolling(7).mean().loc[\"2024\"]`.",
+      "en": "Compute first, then slice: `s.rolling(7).mean().loc[\"2024\"]`."
+    },
+    {
+      "tr": "Her `ax.plot(...)` çağrısına `label=\"...\"` ver; `ax.legend()` onları topluyor.",
+      "en": "Give each `ax.plot(...)` call a `label=\"...\"`; `ax.legend()` collects them."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nyear = s.loc[\"2024\"]\nma7 = s.rolling(7).mean().loc[\"2024\"]\nma28 = s.rolling(28).mean().loc[\"2024\"]\n\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(year.index, year.values, color=\"lightgray\", linewidth=0.8, label=\"daily\")\nax.plot(ma7.index, ma7.values, linewidth=2, label=\"7-day mean\")\nax.plot(ma28.index, ma28.values, linewidth=2, label=\"28-day mean\")\nax.legend()\nfig.savefig(\"chart.png\")\n\nprint(len(ax.lines))\nprint([t.get_text() for t in ax.get_legend().get_texts()])\nprint(int(ma7.isna().sum()), int(ma28.isna().sum()))\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nyear = s.loc[\"2024\"]\nma7 = s.rolling(7).mean().loc[\"2024\"]\nma28 = s.rolling(28).mean().loc[\"2024\"]\n\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(year.index, year.values, color=\"lightgray\", linewidth=0.8, label=\"daily\")\nax.plot(ma7.index, ma7.values, linewidth=2, label=\"7-day mean\")\nax.plot(ma28.index, ma28.values, linewidth=2, label=\"28-day mean\")\nax.legend()\nfig.savefig(\"chart.png\")\n\nprint(len(ax.lines))\nprint([t.get_text() for t in ax.get_legend().get_texts()])\nprint(int(ma7.isna().sum()), int(ma28.isna().sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n['daily', '7-day mean', '28-day mean']\n0 0"
+    }
+  ]
+}

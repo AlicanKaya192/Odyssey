@@ -1,0 +1,36 @@
+{
+  "id": "pick-alpha",
+  "title": {
+    "tr": "Alfa seç",
+    "en": "Pick alpha"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yarının tahmini bugünün düzeyi: `x.ewm(alpha=alpha, adjust=False).mean().shift(1)`.",
+      "en": "Tomorrow's forecast is today's level: `x.ewm(alpha=alpha, adjust=False).mean().shift(1)`."
+    },
+    {
+      "tr": "Katsayı sonuç nesnesinin `params` sözlüğünde: `fit.params[\"smoothing_level\"]`.",
+      "en": "The coefficient is in the `params` dictionary of the result: `fit.params[\"smoothing_level\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.holtwinters import ExponentialSmoothing\nfrom statsmodels.tsa.seasonal import seasonal_decompose\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\nadj = s - seasonal_decompose(s, period=7).seasonal\n\nk = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\n\n\ndef one_step_mae(x, alpha):\n    forecast = x.ewm(alpha=alpha, adjust=False).mean().shift(1)\n    return float((x - forecast).abs().iloc[1:].mean())\n\n\nalphas = (0.05, 0.1, 0.2, 0.5, 1.0)\nerrors = [one_step_mae(adj, alpha) for alpha in alphas]\nprint([round(e, 2) for e in errors])\n\nprint(round(1 - min(errors) / errors[-1], 2))\n\nfit = ExponentialSmoothing(adj).fit()\nprint(round(float(fit.params[\"smoothing_level\"]), 2))\n\nfit = ExponentialSmoothing(k.to_numpy()).fit()\nprint(round(float(fit.params[\"smoothing_level\"]), 2))\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.holtwinters import ExponentialSmoothing\nfrom statsmodels.tsa.seasonal import seasonal_decompose\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\nadj = s - seasonal_decompose(s, period=7).seasonal\n\nk = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\n\n\ndef one_step_mae(x, alpha):\n    forecast = x.ewm(alpha=alpha, adjust=False).mean().shift(1)\n    return float((x - forecast).abs().iloc[1:].mean())\n\n\nalphas = (0.05, 0.1, 0.2, 0.5, 1.0)\nerrors = [one_step_mae(adj, alpha) for alpha in alphas]\nprint([round(e, 2) for e in errors])\n\nprint(round(1 - min(errors) / errors[-1], 2))\n\nfit = ExponentialSmoothing(adj).fit()\nprint(round(float(fit.params[\"smoothing_level\"]), 2))\n\nfit = ExponentialSmoothing(k.to_numpy()).fit()\nprint(round(float(fit.params[\"smoothing_level\"]), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[12.55, 11.46, 11.21, 11.83, 13.53]\n0.17\n0.2\n1.0"
+    }
+  ]
+}

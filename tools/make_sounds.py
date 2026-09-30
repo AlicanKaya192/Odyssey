@@ -5,6 +5,8 @@ yok, istenirse tonu değiştirip yeniden üretmek tek komut.
 
 - `section.wav` — bölüm tamamlandı: yükselen iki notalı yumuşak çan.
 - `badge.wav` — yeni rozet: dört notalı parlak bir arpej.
+- `level.wav` — seviye atlandı: üç notalık kısa bir çıkış ve uzun tınlayan bir akor.
+- `timer.wav` — zamanlayıcıda evre bitti: yumuşak, inen iki nota (irkiltmesin).
 
 Kullanım: `.venv\\Scripts\\python tools\\make_sounds.py`
 """
@@ -80,6 +82,19 @@ def main() -> None:
     total = 1.1
     notes = ((1046.50, 0.00, 0.14), (1318.51, 0.07, 0.14), (1567.98, 0.14, 0.16), (2093.00, 0.21, 0.32))
     write("badge.wav", finish(mix(*(bell(f, s, total - s, d, total) for f, s, d in notes))))
+    # Seviye: Sol5 Do6 Mi6 hızlı çıkış, ardından Do6 + Sol6 + Do7 akoru tınlıyor.
+    # Rozet arpejinden ayrılsın diye daha pes başlıyor ve akorla bitiyor.
+    total = 1.5
+    rise = ((783.99, 0.00, 0.12), (1046.50, 0.09, 0.12), (1318.51, 0.18, 0.14))
+    chord = ((1046.50, 0.30, 0.50), (1567.98, 0.30, 0.46), (2093.00, 0.32, 0.40))
+    write("level.wav", finish(mix(*(bell(f, s, total - s, d, total) for f, s, d in rise + chord))))
+    # Zamanlayıcı: Mi6 → Si5, yavaş sönen iki yumuşak nota. Kutlama değil,
+    # bir haber; o yüzden inen ve daha alçak.
+    total = 1.4
+    write("timer.wav", finish(mix(
+        bell(1318.51, 0.00, 1.0, 0.30, total),
+        bell(987.77, 0.28, 1.1, 0.40, total),
+    )))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,36 @@
+{
+  "id": "outliers-in-the-residual",
+  "title": {
+    "tr": "Kalıntıda ara",
+    "en": "Look in the residual"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Çeyrekler: `visits.quantile(0.25)` ve `visits.quantile(0.75)`. İki koşulu `|` ile birleştir ve her birini parantez içine al.",
+      "en": "The quartiles: `visits.quantile(0.25)` and `visits.quantile(0.75)`. Join the two conditions with `|` and put each in parentheses."
+    },
+    {
+      "tr": "Kalıntı: `STL(visits, period=7, robust=True).fit().resid`; puanı `robust(resid)`.",
+      "en": "The residual: `STL(visits, period=7, robust=True).fit().resid`; its score is `robust(resid)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import STL\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)\nvisits = visits[\"visits\"]\n\n\ndef robust(x):\n    median = x.median()\n    mad = (x - median).abs().median()\n    return 0.6745 * (x - median) / mad\n\n\nq1 = visits.quantile(0.25)\nq3 = visits.quantile(0.75)\niqr = q3 - q1\nflagged = visits[(visits < q1 - 1.5 * iqr) | (visits > q3 + 1.5 * iqr)]\nprint(len(flagged))\nprint(int((flagged.index > \"2024-09-02\").sum()))\n\nresid = STL(visits, period=7, robust=True).fit().resid\nscore = robust(resid)\n\ntop = score.abs().sort_values(ascending=False).head(5)\nprint(top.index.strftime(\"%m-%d\").tolist())\nprint([round(float(v), 1) for v in top])\n\nprint(int((score.abs() > 3.5).sum()), int((score.abs() > 20).sum()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import STL\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)\nvisits = visits[\"visits\"]\n\n\ndef robust(x):\n    median = x.median()\n    mad = (x - median).abs().median()\n    return 0.6745 * (x - median) / mad\n\n\nq1 = visits.quantile(0.25)\nq3 = visits.quantile(0.75)\niqr = q3 - q1\nflagged = visits[(visits < q1 - 1.5 * iqr) | (visits > q3 + 1.5 * iqr)]\nprint(len(flagged))\nprint(int((flagged.index > \"2024-09-02\").sum()))\n\nresid = STL(visits, period=7, robust=True).fit().resid\nscore = robust(resid)\n\ntop = score.abs().sort_values(ascending=False).head(5)\nprint(top.index.strftime(\"%m-%d\").tolist())\nprint([round(float(v), 1) for v in top])\n\nprint(int((score.abs() > 3.5).sum()), int((score.abs() > 20).sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "20\n16\n['03-14', '10-08', '06-20', '09-24', '12-16']\n[50.0, 46.3, 45.4, 12.9, 5.8]\n30 3"
+    }
+  ]
+}

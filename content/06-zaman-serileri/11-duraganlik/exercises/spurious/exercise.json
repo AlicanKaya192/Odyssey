@@ -1,0 +1,36 @@
+{
+  "id": "spurious",
+  "title": {
+    "tr": "Sahte ilişki",
+    "en": "A spurious relationship"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki sütunun korelasyonu: `w[\"a\"].corr(w[\"b\"])`. Değişimler için önce `change = w.diff()`.",
+      "en": "The correlation of two columns: `w[\"a\"].corr(w[\"b\"])`. For the changes, first `change = w.diff()`."
+    },
+    {
+      "tr": "Parçalar: `for start in range(0, 500, 100):` ve `w.iloc[start:start + 100]`.",
+      "en": "The pieces: `for start in range(0, 500, 100):` and `w.iloc[start:start + 100]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nw = pd.read_csv(\"two_walks.csv\", index_col=\"date\", parse_dates=True)\n\nprint(round(float(w[\"a\"].corr(w[\"b\"])), 3))\n\nchange = w.diff()\nprint(round(float(change[\"a\"].corr(change[\"b\"])), 3))\n\npieces = [(start, start + 100) for start in range(0, 500, 100)]\n\nlevels = []\nfor start, end in pieces:\n    part = w.iloc[start:end]\n    levels.append(round(float(part[\"a\"].corr(part[\"b\"])), 2))\nprint(levels)\n\nchanges = []\nfor start, end in pieces:\n    part = change.iloc[start:end]\n    changes.append(round(float(part[\"a\"].corr(part[\"b\"])), 2))\nprint(changes)\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nw = pd.read_csv(\"two_walks.csv\", index_col=\"date\", parse_dates=True)\n\nprint(round(float(w[\"a\"].corr(w[\"b\"])), 3))\n\nchange = w.diff()\nprint(round(float(change[\"a\"].corr(change[\"b\"])), 3))\n\npieces = [(start, start + 100) for start in range(0, 500, 100)]\n\nlevels = []\nfor start, end in pieces:\n    part = w.iloc[start:end]\n    levels.append(round(float(part[\"a\"].corr(part[\"b\"])), 2))\nprint(levels)\n\nchanges = []\nfor start, end in pieces:\n    part = change.iloc[start:end]\n    changes.append(round(float(part[\"a\"].corr(part[\"b\"])), 2))\nprint(changes)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.907\n0.001\n[-0.3, 0.54, 0.79, 0.34, -0.45]\n[-0.15, -0.01, 0.01, 0.1, 0.05]"
+    }
+  ]
+}

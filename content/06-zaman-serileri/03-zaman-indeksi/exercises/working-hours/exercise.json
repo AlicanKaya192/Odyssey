@@ -1,0 +1,36 @@
+{
+  "id": "working-hours",
+  "title": {
+    "tr": "Gündüz ve gece",
+    "en": "Day and night"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Saatlik seride bir günü seçmek: `load.loc[\"2024-03-15\"]` o günün bütün saatlerini veriyor.",
+      "en": "Selecting one day in an hourly series: `load.loc[\"2024-03-15\"]` gives every hour of that day."
+    },
+    {
+      "tr": "`load.between_time(\"22:00\", \"06:00\")` gece yarısını geçen aralığı da anlıyor.",
+      "en": "`load.between_time(\"22:00\", \"06:00\")` understands a range that crosses midnight."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nload = pd.read_csv(\"energy_hourly.csv\", index_col=\"timestamp\", parse_dates=True)[\"load_mw\"]\n\nprint(len(load.loc[\"2024-03-15\"]))\n\nday = load.between_time(\"08:00\", \"18:00\").mean()\nnight = load.between_time(\"22:00\", \"06:00\").mean()\nprint(round(float(day), 1), round(float(night), 1))\nprint(round(float(day / night), 2))\n\nprint(round(float(load.at_time(\"18:00\").mean()), 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nload = pd.read_csv(\"energy_hourly.csv\", index_col=\"timestamp\", parse_dates=True)[\"load_mw\"]\n\nprint(len(load.loc[\"2024-03-15\"]))\n\nday = load.between_time(\"08:00\", \"18:00\").mean()\nnight = load.between_time(\"22:00\", \"06:00\").mean()\nprint(round(float(day), 1), round(float(night), 1))\nprint(round(float(day / night), 2))\n\nprint(round(float(load.at_time(\"18:00\").mean()), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "24\n1038.1 768.4\n1.35\n871.2"
+    }
+  ]
+}

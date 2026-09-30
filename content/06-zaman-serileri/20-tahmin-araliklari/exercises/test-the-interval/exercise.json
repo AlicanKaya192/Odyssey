@@ -1,0 +1,36 @@
+{
+  "id": "test-the-interval",
+  "title": {
+    "tr": "Aralığı sına",
+    "en": "Test the interval"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her deneyin 28 doğru/yanlış değerini bir listeye ekle; sonunda `np.array(inside)` 13 × 28'lik bir dizi olur.",
+      "en": "Append the 28 true/false values of each experiment to a list; at the end `np.array(inside)` is a 13 × 28 array."
+    },
+    {
+      "tr": "Deney başına kapsama: `inside.mean(axis=1)`; kötü deneyleri dışarıda bırakmak için `inside[~bad]`.",
+      "en": "Coverage per experiment: `inside.mean(axis=1)`; to leave the bad experiments out, `inside[~bad]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\n\ninside = []\nwidths = []\nfor cut in cuts:\n    train = s.loc[:cut]\n    test = s.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n    fit = ARIMA(train, order=(0, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\n    interval = fit.get_forecast(28).conf_int(alpha=0.05)\n    low = interval.iloc[:, 0].to_numpy()\n    high = interval.iloc[:, 1].to_numpy()\n    actual = test.to_numpy()\n    inside.append((actual >= low) & (actual <= high))\n    widths.append(float((high - low).mean()))\n\ninside = np.array(inside)\nprint(round(float(inside.mean()), 3))\n\nby_fold = inside.mean(axis=1)\nprint([round(float(v), 2) for v in by_fold])\n\nbad = by_fold < 0.8\nprint([cut.strftime(\"%Y-%m-%d\") for cut, flag in zip(cuts, bad) if flag])\n\nprint(round(float(inside[~bad].mean()), 3), round(float(np.mean(widths)), 1))\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\n\ninside = []\nwidths = []\nfor cut in cuts:\n    train = s.loc[:cut]\n    test = s.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n    fit = ARIMA(train, order=(0, 1, 1), seasonal_order=(0, 1, 1, 7)).fit()\n    interval = fit.get_forecast(28).conf_int(alpha=0.05)\n    low = interval.iloc[:, 0].to_numpy()\n    high = interval.iloc[:, 1].to_numpy()\n    actual = test.to_numpy()\n    inside.append((actual >= low) & (actual <= high))\n    widths.append(float((high - low).mean()))\n\ninside = np.array(inside)\nprint(round(float(inside.mean()), 3))\n\nby_fold = inside.mean(axis=1)\nprint([round(float(v), 2) for v in by_fold])\n\nbad = by_fold < 0.8\nprint([cut.strftime(\"%Y-%m-%d\") for cut, flag in zip(cuts, bad) if flag])\n\nprint(round(float(inside[~bad].mean()), 3), round(float(np.mean(widths)), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.874\n[0.0, 0.96, 1.0, 1.0, 0.96, 1.0, 1.0, 1.0, 0.93, 1.0, 1.0, 0.96, 0.54]\n['2024-01-02', '2024-12-03']\n0.984 68.5"
+    }
+  ]
+}

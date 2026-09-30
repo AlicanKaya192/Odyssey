@@ -1,0 +1,41 @@
+{
+  "id": "four-baselines",
+  "title": {
+    "tr": "Dört temel tahmin",
+    "en": "Four baselines"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sabit bir değerle seri kurmak: `pd.Series(train.mean(), index=future)`.",
+      "en": "Building a series with a constant value: `pd.Series(train.mean(), index=future)`."
+    },
+    {
+      "tr": "Mevsimsel naif: `last_week = train.iloc[-7:].to_numpy()` ve `[last_week[i % 7] for i in range(h)]`.",
+      "en": "Seasonal naive: `last_week = train.iloc[-7:].to_numpy()` and `[last_week[i % 7] for i in range(h)]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ns = s.loc[:\"2024-12-03\"]\n\ntrain, test = s.iloc[:-28], s.iloc[-28:]\nh = len(test)\nfuture = test.index\n\nmean_fc = pd.Series(train.mean(), index=future)\nnaive_fc = pd.Series(train.iloc[-1], index=future)\n\nlast_week = train.iloc[-7:].to_numpy()\nsnaive_fc = pd.Series([last_week[i % 7] for i in range(h)], index=future)\n\nslope = (train.iloc[-1] - train.iloc[0]) / (len(train) - 1)\ndrift_fc = pd.Series(train.iloc[-1] + slope * np.arange(1, h + 1), index=future)\n\nforecasts = {\"mean\": mean_fc, \"naive\": naive_fc, \"snaive\": snaive_fc, \"drift\": drift_fc}\n\nfor name, fc in forecasts.items():\n    print(name, round(float((test - fc).abs().mean()), 2))\n\nday = future[0]\nprint(int(test.loc[day]), *[round(float(fc.loc[day])) for fc in forecasts.values()])\n\nrecent = s.iloc[-56:]\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(recent.index, recent.values, color=\"gray\", label=\"actual\")\nfor name, fc in forecasts.items():\n    ax.plot(fc.index, fc.values, label=name)\nax.legend()\nfig.savefig(\"chart.png\")\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ns = s.loc[:\"2024-12-03\"]\n\ntrain, test = s.iloc[:-28], s.iloc[-28:]\nh = len(test)\nfuture = test.index\n\nmean_fc = pd.Series(train.mean(), index=future)\nnaive_fc = pd.Series(train.iloc[-1], index=future)\n\nlast_week = train.iloc[-7:].to_numpy()\nsnaive_fc = pd.Series([last_week[i % 7] for i in range(h)], index=future)\n\nslope = (train.iloc[-1] - train.iloc[0]) / (len(train) - 1)\ndrift_fc = pd.Series(train.iloc[-1] + slope * np.arange(1, h + 1), index=future)\n\nforecasts = {\"mean\": mean_fc, \"naive\": naive_fc, \"snaive\": snaive_fc, \"drift\": drift_fc}\n\nfor name, fc in forecasts.items():\n    print(name, round(float((test - fc).abs().mean()), 2))\n\nday = future[0]\nprint(int(test.loc[day]), *[round(float(fc.loc[day])) for fc in forecasts.values()])\n\nrecent = s.iloc[-56:]\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(recent.index, recent.values, color=\"gray\", label=\"actual\")\nfor name, fc in forecasts.items():\n    ax.plot(fc.index, fc.values, label=name)\nax.legend()\nfig.savefig(\"chart.png\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "mean 75.98\nnaive 64.07\nsnaive 11.64\ndrift 64.6\n283 255 267 286 267"
+    }
+  ]
+}
