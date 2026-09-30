@@ -1,0 +1,36 @@
+{
+  "id": "seasonal-naive-function",
+  "title": {
+    "tr": "Genel mevsimsel naif",
+    "en": "A general seasonal naive"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`pd.date_range(son_tarih, periods=h + 1, freq=...)` son tarihi de içeriyor; `[1:]` ile onu atıp sonraki `h` tarihi alıyorsun.",
+      "en": "`pd.date_range(last_date, periods=h + 1, freq=...)` includes the last date; with `[1:]` you drop it and keep the next `h` dates."
+    },
+    {
+      "tr": "Yanlılık mutlak değer almadan ortalama: `error.mean()`.",
+      "en": "The bias is the mean without absolute values: `error.mean()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ns = s.loc[:\"2024-12-03\"]\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"].asfreq(\"MS\")\n\n\ndef seasonal_naive(train, h, m):\n    last = train.iloc[-m:].to_numpy()\n    values = [last[i % m] for i in range(h)]\n    future = pd.date_range(train.index[-1], periods=h + 1, freq=train.index.freq)[1:]\n    return pd.Series(values, index=future)\n\n\ndaily = seasonal_naive(s, 10, 7)\nprint([int(v) for v in daily])\nprint(daily.index[0].date(), daily.index[-1].date())\n\ntrain = p.loc[:\"2023\"]\nmonthly = seasonal_naive(train, 12, 12)\nprint([int(v) for v in monthly])\n\nerror = p.loc[\"2024\"] - monthly\nprint(round(float(error.abs().mean()), 2), round(float(error.mean()), 2))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ns = s.loc[:\"2024-12-03\"]\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)\np = p[\"passengers\"].asfreq(\"MS\")\n\n\ndef seasonal_naive(train, h, m):\n    last = train.iloc[-m:].to_numpy()\n    values = [last[i % m] for i in range(h)]\n    future = pd.date_range(train.index[-1], periods=h + 1, freq=train.index.freq)[1:]\n    return pd.Series(values, index=future)\n\n\ndaily = seasonal_naive(s, 10, 7)\nprint([int(v) for v in daily])\nprint(daily.index[0].date(), daily.index[-1].date())\n\ntrain = p.loc[:\"2023\"]\nmonthly = seasonal_naive(train, 12, 12)\nprint([int(v) for v in monthly])\n\nerror = p.loc[\"2024\"] - monthly\nprint(round(float(error.abs().mean()), 2), round(float(error.mean()), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[297, 297, 336, 432, 393, 269, 290, 297, 297, 336]\n2024-12-04 2024-12-13\n[293, 279, 321, 323, 344, 395, 425, 448, 369, 350, 303, 345]\n40.42 40.42"
+    }
+  ]
+}

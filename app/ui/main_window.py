@@ -71,8 +71,12 @@ from ..resources.theme.tokens import PALETTES, SPACING
 from ..widgets.shortcut_panel import ShortcutPanel
 from PySide6.QtWidgets import QApplication
 from ..core import badges as badge_core
+from ..core import levels as level_core
 from ..core import github_stars
 from ..core.celebration_sound import CelebrationSound
+from ..core import study_timer as timer_core
+from ..widgets.study_timer_ui import TimerChip, TimerPanel
+from ..widgets.fade_stack import FORWARD as _FORWARD
 
 
 class Screen(QWidget):
@@ -239,6 +243,15 @@ class MainWindow(QMainWindow):
 
         self._footer.shortcuts_clicked.connect(self._toggle_shortcuts)
         self._footer.set_stars(github_stars.cached(self._store))
+
+        # Çalışma zamanlayıcısı: alt şeritte küçük sayaç, tıklayınca panel.
+        self._timer = timer_core.StudyTimer(store, parent=self)
+        self._timer_chip = TimerChip(self._timer, language)
+        self._timer_chip.clicked.connect(self._toggle_timer)
+        self._footer.add_timer(self._timer_chip)
+        self._timer.changed.connect(self._footer._balance)  # noqa: SLF001
+        self._timer.phase_finished.connect(self._on_timer_phase)
+        self._timer_panel = TimerPanel(self._timer, store, language, self)
 
         language.language_changed.connect(self._on_language_changed)
         theme.theme_changed.connect(self._on_theme_changed)
@@ -494,6 +507,13 @@ class MainWindow(QMainWindow):
         for tanim in yeniler:
             self._toast(self._badge_toast(tanim))
 
+        # Seviye ve unvanlar rozetlerden sonra: XP kayıtlı rozetlerden toplanıyor.
+        guncel = level_core.refresh(self._catalog, self._store, content_dir(), simdi)
+        if guncel.leveled_up:
+            self._toast(self._level_toast(guncel.state.level))
+        for unvan in guncel.new_tags:
+            self._toast(self._tag_toast(unvan))
+
         # Patikanın tamamı bitti (efsanevi rozet): bir kez konfeti (D2).
         if any(tier_of(t) == "legendary" for t in yeniler):
             self._confetti([t for t in yeniler if tier_of(t) == "legendary"][0])
@@ -537,7 +557,13 @@ class MainWindow(QMainWindow):
 
     def _play_sound(self) -> None:
         turler, self._sound_kinds = self._sound_kinds, set()
-        self._sound.play("badge" if "badge" in turler else "section")
+        # Seviye atlamanın kendi sesi var ve öbürlerinin önüne geçiyor.
+        if "level" in turler:
+            self._sound.play("level")
+        elif turler == {"timer"}:
+            self._sound.play("timer")
+        else:
+            self._sound.play("badge" if turler & {"badge", "tag"} else "section")
 
     def _badge_toast(self, tanim: dict) -> ToastData:
         p = PALETTES.get(self._theme.effective_mode, PALETTES["dark"])
@@ -551,6 +577,33 @@ class MainWindow(QMainWindow):
             color2=TIER_ACCENTS.get(tier_of(tanim), (p["accent"], p["accent_second"]))[1],
             payload=("badge", tanim.get("id", "")),
             medal=(*(tanim.get("medal") or ["circle", "bronze"])[:2], tanim.get("icon", "star")),
+        )
+
+    def _level_toast(self, level: int) -> ToastData:
+        p = PALETTES.get(self._theme.effective_mode, PALETTES["dark"])
+        return ToastData(
+            kind="level",
+            eyebrow=self._language.t_upper("toast.level_eyebrow"),
+            title=self._language.t("toast.level_title", level=level),
+            subtitle=self._language.t("toast.level_text", level=level),
+            icon="award",
+            color=p["accent"],
+            color2=p["accent_second"],
+            payload=("level", level),
+            text=str(level),
+        )
+
+    def _tag_toast(self, unvan: dict) -> ToastData:
+        altin = TIER_ACCENTS.get("gold", ("#F59E0B", "#FBBF24"))
+        return ToastData(
+            kind="tag",
+            eyebrow=self._language.t_upper("toast.tag_eyebrow"),
+            title=self._language.pick(unvan.get("title"), unvan.get("id", "")),
+            subtitle=self._language.t("toast.tag_text"),
+            icon="award",
+            color=altin[0],
+            color2=altin[1],
+            payload=("tag", unvan.get("id", "")),
         )
 
     def _section_toast(self, chapter_id: str, section_id: str) -> ToastData | None:
@@ -573,8 +626,13 @@ class MainWindow(QMainWindow):
         )
 
     def _on_toast(self, veri: ToastData) -> None:
-        """Karta tıklandı: rozette profil açılıyor, bölümde yalnızca kapanıyor."""
-        if veri.payload and veri.payload[0] == "badge":
+        """Karta tıklandı: rozet, seviye ve unvanda profil açılıyor; bölümde
+        yalnızca kapanıyor."""
+        if veri.payload and veri.payload[0] == "timer":
+            if not self._timer_panel.isVisible():
+                self._toggle_timer()
+            return
+        if veri.payload and veri.payload[0] in ("badge", "level", "tag"):
             self._navigate("profile")
 
     # --- GitHub yıldızı ---------------------------------------------------
@@ -637,6 +695,93 @@ class MainWindow(QMainWindow):
             self._shortcut_panel.close()
             return
         self._shortcut_panel.show_above(self._footer.shortcut_button)
+
+    # --- tanıtım turu ------------------------------------------------------
+
+    tour_active = False
+
+    def start_tour(self) -> None:
+        """Tanıtım turunu başlatır (ilk açılışta evet denince ya da Ayarlar'dan)."""
+        from .tour import TourOverlay, mark, steps_for
+
+        if self.tour_active:
+            return
+        for panel in (self._shortcut_panel, self._timer_panel):
+            if panel.isVisible():
+                panel.close()
+        self.tour_active = True
+        katman = TourOverlay(self._language, steps_for(self), self._theme.effective_mode, self._central)
+        self._tour = katman
+
+        def bitti(tamam: bool) -> None:
+            self.tour_active = False
+            self._tour = None
+            mark(self._store, "done" if tamam else "skipped")
+            self._navigate("journey")
+
+        katman.finished.connect(bitti)
+        katman.start()
+
+    def _tour_navigate(self, key: str) -> None:
+        if self._stack.currentWidget() is self._topic or key != getattr(self, "_tour_screen", ""):
+            self._navigate(key)
+        self._tour_screen = key
+
+    def _tour_open_section(self, chapter_id: str, section_id: str, pane: str) -> None:
+        """Turun bir bölümü (kilitliyse de) yalnızca göstermesi; hiçbir şey
+        kaydedilmiyor. Bölüm zaten açıksa yalnızca sekme değişiyor."""
+        topic = self._topic
+        acik = (topic._section is not None and topic._section.id == section_id  # noqa: SLF001
+                and self._stack.currentWidget() is topic)
+        if not acik:
+            topic.show_section(chapter_id, section_id)
+            self._stack.slide_to(topic, _FORWARD)
+            self._rail.set_current("journey")
+        self._tour_screen = ""
+        if pane in topic._panes:  # noqa: SLF001
+            topic._segments.set_current(topic._panes.index(pane))  # noqa: SLF001
+
+    # --- çalışma zamanlayıcısı ------------------------------------------
+
+    def _toggle_timer(self) -> None:
+        if self._timer_panel.isVisible():
+            self._timer_panel.close()
+            return
+        self._timer_panel.show_above(self._timer_chip)
+
+    def _on_timer_phase(self, phase: str) -> None:
+        """Odak ya da mola bitti: kart, ses ve (pencere öndeyse değilse)
+        Windows bildirimi. Odak bitince gün çalışma günü sayılıyor."""
+        t = self._language.t
+        if phase == "focus":
+            baslik = t("timer.done_focus_title")
+            metin = (t("timer.done_focus_break", minutes=round(self._timer.length / 60))
+                     if self._timer.phase == "break" else t("timer.done_focus_text"))
+        else:
+            baslik = t("timer.done_break_title")
+            metin = t("timer.done_break_text")
+        p = PALETTES.get(self._theme.effective_mode, PALETTES["dark"])
+        renk = p["success"] if phase == "focus" else p["accent"]
+        self._toast(ToastData(
+            kind="timer",
+            eyebrow=self._language.t_upper("timer.toast_eyebrow"),
+            title=baslik,
+            subtitle=metin,
+            icon="clock",
+            color=renk,
+            color2=renk,
+            payload=("timer",),
+        ))
+        if not self.isActiveWindow() or self.isMinimized():
+            from ..core import reminder_service, win_notify
+
+            try:
+                win_notify.show_toast(baslik, metin, reminder_service.icon_path())
+            except Exception:  # noqa: BLE001 — bildirim gösterilemezse kart yeter
+                pass
+        if phase == "focus":
+            self._journey.refresh()
+            self._refresh_progress()
 
     # --- genel arama ------------------------------------------------------
 
@@ -744,12 +889,20 @@ class MainWindow(QMainWindow):
 
     # --- gezinme ----------------------------------------------------------
 
+    def _leaving_topic_ok(self) -> bool:
+        """Bölümden çıkılacak: sınav sürüyorsa kişiye soruluyor."""
+        if self._stack.currentWidget() is not self._topic:
+            return True
+        return self._topic.confirm_leave_quiz()
+
     def _navigate(self, key: str) -> None:
         if key == "settings":
             self._open_settings()
             return
         if key == "search":
             self._search.toggle()
+            return
+        if not self._leaving_topic_ok():
             return
 
         if key == "journey":
@@ -792,6 +945,8 @@ class MainWindow(QMainWindow):
         # bu kontrol, bölümü başka bir yerden açan bir çağrı eklenirse
         # kilidin arkadan dolanılmamasını sağlıyor.
         if not is_unlocked(self._catalog, self._store, chapter_id, section_id):
+            return
+        if not self._leaving_topic_ok():
             return
 
         self._topic.show_section(chapter_id, section_id)
@@ -877,6 +1032,8 @@ class MainWindow(QMainWindow):
 
     def _topic_back(self) -> None:
         """Bölümden yola dön; ilerleme değişmiş olabilir, yenile."""
+        if not self._leaving_topic_ok():
+            return
         self._journey.refresh()
         self._stack.slide_to(self._journey_screen, BACK)
         self._update_headers()
@@ -904,7 +1061,11 @@ class MainWindow(QMainWindow):
         if self._search.isVisible():
             self._search.close_palette()
             return
-        for panel in (self._shortcut_panel,):
+        tur = getattr(self, "_tour", None)
+        if tur is not None:
+            tur.finish(False)
+            return
+        for panel in (self._shortcut_panel, self._timer_panel):
             if panel.isVisible():
                 panel.close()
                 return
@@ -992,6 +1153,9 @@ class MainWindow(QMainWindow):
         # Kilit ayarı değişir değişmez ekranlar yenileniyor: yol ekranındaki
         # halkalar ve açık bölümün alt gezinme düğmeleri o an güncelleniyor.
         dialog.lock_changed.connect(self._on_lock_changed)
+        # Ayarlar pencere kapandıktan sonra açılıyor (kip pencere açıkken
+        # tur arkada kalırdı).
+        dialog.tour_requested.connect(lambda: QTimer.singleShot(250, self.start_tour))
         # Süre ayarı da aynı şekilde: açık bir sınav varsa sayaç o an
         # duruyor ya da geri geliyor.
         dialog.timing_changed.connect(self._on_timing_changed)
@@ -1079,6 +1243,8 @@ class MainWindow(QMainWindow):
         self._footer.set_mode(mode)
         self._toasts.set_mode(mode)
         self._shortcut_panel.set_mode(mode)
+        self._timer_panel.set_mode(mode)
+        self._timer_chip.set_mode(mode)
         self._search.set_mode(mode)
         self._apply_header_accents(mode)
 
@@ -1097,6 +1263,7 @@ class MainWindow(QMainWindow):
         self._releases.retranslate()
         self._search.retranslate()
         self._shortcut_panel.retranslate()
+        self._timer_panel.retranslate()
         self._update_headers()
         # Discord'daki yazı da kullanıcının dilinde; `retranslate` onu
         # yeniden üretmezse orada eski dil kalıyor.
@@ -1198,6 +1365,10 @@ class MainWindow(QMainWindow):
         if self._search.isVisible():
             self._search.setGeometry(self.rect())
         self._shortcut_panel.reposition()
+        self._timer_panel.reposition()
+        tur = getattr(self, "_tour", None)
+        if tur is not None:
+            tur.reposition()
         self._toasts.reposition()
 
     def close_for_update(self) -> None:
@@ -1238,6 +1409,8 @@ class MainWindow(QMainWindow):
         # (Alican, 25 Eylül). Yolda olan bir cevap da artık yazılmıyor.
         self._shutting_down = True
         self._star_timer.stop()
+        # Süren odak yarıda kalıyor; en az iki dakika sürdüyse kaydediliyor.
+        self._timer.stop()
 
         # Güncelleme penceresi ayrı bir pencere; program kapatılırsa o da
         # kapanıyor (indirme iptal, yarım dosya siliniyor), yoksa uygulama

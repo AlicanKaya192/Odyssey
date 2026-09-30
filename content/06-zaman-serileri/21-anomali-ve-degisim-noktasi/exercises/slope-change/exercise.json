@@ -1,0 +1,41 @@
+{
+  "id": "slope-change",
+  "title": {
+    "tr": "Eğim ne zaman değişti?",
+    "en": "When did the slope change?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`np.polyfit(t, y, 1)` `[eğim, kesişim]` döndürür; doğrunun değerleri `np.polyval(katsayılar, t)`.",
+      "en": "`np.polyfit(t, y, 1)` returns `[slope, intercept]`; the values of the line are `np.polyval(coefficients, t)`."
+    },
+    {
+      "tr": "İki parçanın kare toplamını veren küçük bir yardımcı fonksiyon yaz ve her `k` için iki kez çağır.",
+      "en": "Write a small helper that gives the sum of squares of one piece and call it twice for every `k`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"subscribers.csv\", index_col=\"date\", parse_dates=True)[\"subscribers\"]\nt = np.arange(len(s))\ny = s.to_numpy(dtype=float)\n\nsingle = np.polyfit(t, y, 1)\nprint(round(float(single[0]), 2))\n\nresid = y - np.polyval(single, t)\ntop = int(resid.argmax())\nprint(round(float(resid[0])), round(float(resid[top])), s.index[top].strftime(\"%m-%d\"),\n      round(float(resid[-1])))\n\n\ndef line_sse(x, values):\n    line = np.polyfit(x, values, 1)\n    return float(((values - np.polyval(line, x)) ** 2).sum())\n\n\nbest_k, best_sse = None, None\nfor k in range(30, len(y) - 30):\n    sse = line_sse(t[:k], y[:k]) + line_sse(t[k:], y[k:])\n    if best_sse is None or sse < best_sse:\n        best_k, best_sse = k, sse\n\nleft = np.polyfit(t[:best_k], y[:best_k], 1)\nright = np.polyfit(t[best_k:], y[best_k:], 1)\nprint(s.index[best_k].strftime(\"%Y-%m-%d\"), round(float(left[0]), 2), round(float(right[0]), 2))\n\nahead = len(y) - 1 + 30\nrecent = np.polyfit(t[-60:], y[-60:], 1)\nprint(round(float(np.polyval(single, ahead))), round(float(np.polyval(recent, ahead))))\n\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(s.index, y, color=\"gray\", label=\"subscribers\")\nax.plot(s.index, np.polyval(single, t), linestyle=\"--\", label=\"single line\")\nax.plot(s.index[:best_k], np.polyval(left, t[:best_k]), color=\"purple\", label=\"two pieces\")\nax.plot(s.index[best_k:], np.polyval(right, t[best_k:]), color=\"purple\")\nax.legend()\nfig.savefig(\"chart.png\")\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"subscribers.csv\", index_col=\"date\", parse_dates=True)[\"subscribers\"]\nt = np.arange(len(s))\ny = s.to_numpy(dtype=float)\n\nsingle = np.polyfit(t, y, 1)\nprint(round(float(single[0]), 2))\n\nresid = y - np.polyval(single, t)\ntop = int(resid.argmax())\nprint(round(float(resid[0])), round(float(resid[top])), s.index[top].strftime(\"%m-%d\"),\n      round(float(resid[-1])))\n\n\ndef line_sse(x, values):\n    line = np.polyfit(x, values, 1)\n    return float(((values - np.polyval(line, x)) ** 2).sum())\n\n\nbest_k, best_sse = None, None\nfor k in range(30, len(y) - 30):\n    sse = line_sse(t[:k], y[:k]) + line_sse(t[k:], y[k:])\n    if best_sse is None or sse < best_sse:\n        best_k, best_sse = k, sse\n\nleft = np.polyfit(t[:best_k], y[:best_k], 1)\nright = np.polyfit(t[best_k:], y[best_k:], 1)\nprint(s.index[best_k].strftime(\"%Y-%m-%d\"), round(float(left[0]), 2), round(float(right[0]), 2))\n\nahead = len(y) - 1 + 30\nrecent = np.polyfit(t[-60:], y[-60:], 1)\nprint(round(float(np.polyval(single, ahead))), round(float(np.polyval(recent, ahead))))\n\nfig, ax = plt.subplots(figsize=(10, 4))\nax.plot(s.index, y, color=\"gray\", label=\"subscribers\")\nax.plot(s.index, np.polyval(single, t), linestyle=\"--\", label=\"single line\")\nax.plot(s.index[:best_k], np.polyval(left, t[:best_k]), color=\"purple\", label=\"two pieces\")\nax.plot(s.index[best_k:], np.polyval(right, t[best_k:]), color=\"purple\")\nax.legend()\nfig.savefig(\"chart.png\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "8.98\n-284 332 07-17 -356\n2024-07-17 11.99 5.04\n4832 4373"
+    }
+  ]
+}

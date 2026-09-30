@@ -26,8 +26,8 @@ koşulun sağlandığını ve hangisinin sağlanmadığını tek tek gösterir.
 **Değerlendirme deterministiktir.** Alıştırmalar önceden tanımlanmış
 kurallarla denetlenir: çıktı karşılaştırması, değişken ve fonksiyon
 denetimleri, kodun yapısına bakan kontroller. Aynı kod her çalıştırmada aynı
-sonucu verir. Uygulamada dil modeli, API çağrısı veya ağ bağlantısı
-bulunmaz.
+sonucu verir. Uygulamada dil modeli ya da API çağrısı bulunmaz; öğrenmeyle
+ilgili hiçbir işlem ağa çıkmaz.
 
 **Verileriniz cihazınızda kalır.** İlerleme, yazdığınız kod ve ayarlar
 `%APPDATA%\Odyssey` klasöründeki yerel bir veritabanında tutulur. Hiçbir veri
@@ -41,16 +41,21 @@ incelenebilir, değiştirilebilir ve yeniden dağıtılabilir.
 
 Uygulama açık beta sürümündedir ve uçtan uca çalışır: öğrenme yolu, konu
 anlatımı, ders notları, sınavlar, kod alıştırmaları, kademeli ipuçları,
-ilerleme kaydı, profil ve rozetler, kendi notlarınız, genel arama,
-Türkçe/İngilizce arayüz, açık/koyu tema ve uygulama içi güncelleme
-hazırdır.
+alıştırma ve sınavlarda geçmiş denemeler, ilerleme kaydı, profil, rozetler,
+XP, seviyeler ve unvanlar, çalışma zamanlayıcısı, önerilen rotalar, kendi
+notlarınız, genel arama, tanıtım turu, Türkçe/İngilizce arayüz, açık/koyu
+tema ve uygulama içi güncelleme hazırdır.
 
-Beş patika tamamlanmıştır: **Python Temelleri**, **Veri Bilimi**, **Makine
-Öğrenmesi**, **SQL** ve **Matematik**. Matematik patikası iki modülden
-oluşur: sıfırdan başlayan biri için temel matematik ve makine öğrenmesinin
-dayandığı doğrusal cebir, kalkülüs, olasılık ve istatistik. Toplamda 116
-bölüm, 3374 sınav sorusu, 267 kod alıştırması ve 300 matematik problemi
-bulunur. API, Docker ve diğer ileri patikalar hazırlanmaktadır.
+Altı patika tamamlanmıştır: **Python Temelleri**, **Veri Bilimi**, **Makine
+Öğrenmesi**, **SQL**, **Zaman Serileri** ve **Matematik**. Matematik
+patikası iki modülden oluşur: sıfırdan başlayan biri için temel matematik ve
+makine öğrenmesinin dayandığı doğrusal cebir, kalkülüs, olasılık ve
+istatistik. Toplamda 140 bölüm, 4026 sınav sorusu, 420 kod alıştırması ve
+300 matematik problemi bulunur. API, Docker ve diğer ileri patikalar
+hazırlanmaktadır.
+
+Programı ilk kez kullanıyorsanız **Ayarlar › Öğrenme › Tanıtım turu**
+bütün ekranları sırayla gösterir.
 
 Alıştırmaya bağlı olmayan serbest bir çalışma alanı ve macOS sürümü yol
 haritasındadır.

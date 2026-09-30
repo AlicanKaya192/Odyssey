@@ -101,7 +101,8 @@ class UpdateNoticeDialog(QDialog):
         # sürümde kurulum programı varken öneriliyor. Olmuyorsa düğme hiç
         # görünmüyor ve sebebi ekranda yazıyor — basılıp hiçbir şey
         # olmayan bir düğme, olmayan düğmeden kötü.
-        self._asset = updater.pick_installer(info.assets)
+        # Bu sürümün yaması varsa yalnızca değişen dosyalar iniyor (0.9.1+).
+        self._asset = updater.pick_update(info.assets, info.version)
         self._can_update, self._blocker = updater.can_update()
         if self._asset is None and self._can_update:
             self._can_update, self._blocker = False, "asset"

@@ -1,0 +1,36 @@
+{
+  "id": "fill-and-score",
+  "title": {
+    "tr": "Doldur ve ölç",
+    "en": "Fill and score"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Eksik günlerdeki değerler `filled.loc[days]`; gerçekleri `truth.loc[days]`.",
+      "en": "The values on the missing days are `filled.loc[days]`; the true ones `truth.loc[days]`."
+    },
+    {
+      "tr": "Yöntemleri bir sözlükte toplarsan adıyla birlikte dolaşabilirsin: `for name, filled in methods.items():`.",
+      "en": "Collect the methods in a dictionary and you can loop with their names: `for name, filled in methods.items():`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nraw = pd.read_csv(\"sales_messy.csv\", parse_dates=[\"date\"])\nfull = raw.groupby(\"date\")[\"sales\"].sum().sort_index().asfreq(\"D\")\ntruth = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ndays = full[full.isna()].index\n\n\ndef score(filled):\n    return round(float((filled.loc[days] - truth.loc[days]).abs().mean()), 1)\n\n\nboth = pd.concat([full.shift(7), full.shift(-7)], axis=1).mean(axis=1)\nmethods = {\n    \"ffill\": full.ffill(),\n    \"linear\": full.interpolate(),\n    \"week ago\": full.fillna(full.shift(7)),\n    \"both sides\": full.fillna(both),\n}\n\nfor name, filled in methods.items():\n    print(name, score(filled))\n\nday = \"2024-02-10\"\nprint(int(truth.loc[day]), *[round(float(filled.loc[day])) for filled in methods.values()])\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nraw = pd.read_csv(\"sales_messy.csv\", parse_dates=[\"date\"])\nfull = raw.groupby(\"date\")[\"sales\"].sum().sort_index().asfreq(\"D\")\ntruth = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ndays = full[full.isna()].index\n\n\ndef score(filled):\n    return round(float((filled.loc[days] - truth.loc[days]).abs().mean()), 1)\n\n\nboth = pd.concat([full.shift(7), full.shift(-7)], axis=1).mean(axis=1)\nmethods = {\n    \"ffill\": full.ffill(),\n    \"linear\": full.interpolate(),\n    \"week ago\": full.fillna(full.shift(7)),\n    \"both sides\": full.fillna(both),\n}\n\nfor name, filled in methods.items():\n    print(name, score(filled))\n\nday = \"2024-02-10\"\nprint(int(truth.loc[day]), *[round(float(filled.loc[day])) for filled in methods.values()])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ffill 45.0\nlinear 46.1\nweek ago 9.8\nboth sides 7.0\n388 302 276 389 382"
+    }
+  ]
+}

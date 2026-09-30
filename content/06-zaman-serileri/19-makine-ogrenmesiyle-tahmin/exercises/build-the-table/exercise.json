@@ -1,0 +1,36 @@
+{
+  "id": "build-the-table",
+  "title": {
+    "tr": "Tabloyu kur",
+    "en": "Build the table"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Boş bir tabloyla başla: `X = pd.DataFrame(index=y.index)`; sütunları tek tek ekle.",
+      "en": "Start with an empty table: `X = pd.DataFrame(index=y.index)`; add the columns one by one."
+    },
+    {
+      "tr": "Tek bir günün satırı: `table.loc[\"2024-03-10\"]`.",
+      "en": "The row of one day: `table.loc[\"2024-03-10\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\n\ndef features(y):\n    X = pd.DataFrame(index=y.index)\n    for k in (1, 2, 7, 14):\n        X[f\"lag{k}\"] = y.shift(k)\n    X[\"mean7\"] = y.shift(1).rolling(7).mean()\n    X[\"mean28\"] = y.shift(1).rolling(28).mean()\n    X[\"dow\"] = y.index.dayofweek\n    X[\"month\"] = y.index.month\n    return X\n\n\ntable = features(s).join(s.rename(\"y\")).dropna()\nprint(table.shape, table.index[0].date())\nprint(table.columns.tolist())\n\nrow = table.loc[\"2024-03-10\"]\nprint(int(row[\"y\"]), int(row[\"lag1\"]), int(row[\"lag7\"]), round(float(row[\"mean7\"]), 1))\n\nprint(round(float(s.loc[\"2024-03-03\":\"2024-03-09\"].mean()), 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\n\ndef features(y):\n    X = pd.DataFrame(index=y.index)\n    for k in (1, 2, 7, 14):\n        X[f\"lag{k}\"] = y.shift(k)\n    X[\"mean7\"] = y.shift(1).rolling(7).mean()\n    X[\"mean28\"] = y.shift(1).rolling(28).mean()\n    X[\"dow\"] = y.index.dayofweek\n    X[\"month\"] = y.index.month\n    return X\n\n\ntable = features(s).join(s.rename(\"y\")).dropna()\nprint(table.shape, table.index[0].date())\nprint(table.columns.tolist())\n\nrow = table.loc[\"2024-03-10\"]\nprint(int(row[\"y\"]), int(row[\"lag1\"]), int(row[\"lag7\"]), round(float(row[\"mean7\"]), 1))\n\nprint(round(float(s.loc[\"2024-03-03\":\"2024-03-09\"].mean()), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(1068, 9) 2022-01-29\n['lag1', 'lag2', 'lag7', 'lag14', 'mean7', 'mean28', 'dow', 'month', 'y']\n311 384 319 283.7\n283.7"
+    }
+  ]
+}

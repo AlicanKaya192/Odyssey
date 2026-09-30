@@ -156,7 +156,16 @@ PATHS: dict[str, str] = {
         '<path d="M22 6H2"/><path d="M22 18H2"/>'
         '<path d="M6 2v20"/><path d="M18 2v20"/>'
     ),
-    # Kum saati: zamanla hesap yapmak. Tarih ve metin rozetinin simgesi.
+    # Dalga: tekrar eden mevsim deseni. Ayristirma rozetinin simgesi.
+    "wave": (
+        '<path d="M2 12c1.7-6.5 3.3-6.5 5 0s3.3 6.5 5 0 3.3-6.5 5 0 3.3 6.5 5 0"/>'
+    ),
+    # Gecmis duz, gelecek kesik cizgi: ilk tahmin rozetinin simgesi.
+    "forecast": (
+        '<path d="M3 17l4-4.5 3.5 2.5 3.5-6"/><circle cx="14" cy="9" r="1.5"/>'
+        '<path d="m15.5 8 5.5-4" stroke-dasharray="2 3"/>'
+    ),
+    # Kum saati: zamanla hesap yapmak. Zaman Serileri patikasinin tamami.
     "hourglass": (
         '<path d="M5 22h14"/><path d="M5 2h14"/>'
         '<path d="M17 22v-4.17a2 2 0 0 0-.59-1.42L12 12l-4.41 4.41A2 2 0 0 0 7 17.83V22"/>'

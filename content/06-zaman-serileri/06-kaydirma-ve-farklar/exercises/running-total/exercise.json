@@ -1,0 +1,36 @@
+{
+  "id": "running-total",
+  "title": {
+    "tr": "Yıl başından bugüne",
+    "en": "Year to date"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`(ytd_2023 >= 50000)` doğru/yanlış serisi; `.idxmax()` ilk `True`'nun tarihini veriyor.",
+      "en": "`(ytd_2023 >= 50000)` is a true/false series; `.idxmax()` gives the date of the first `True`."
+    },
+    {
+      "tr": "Belirli bir günün birikimli toplamı: `ytd_2024.loc[\"2024-06-30\"]`.",
+      "en": "The running total on a given day: `ytd_2024.loc[\"2024-06-30\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nytd_2023 = s.loc[\"2023\"].cumsum()\nytd_2024 = s.loc[\"2024\"].cumsum()\n\nprint((ytd_2023 >= 50000).idxmax().strftime(\"%Y-%m-%d\"))\nprint((ytd_2024 >= 50000).idxmax().strftime(\"%Y-%m-%d\"))\n\nhalf_2023 = ytd_2023.loc[\"2023-06-30\"]\nhalf_2024 = ytd_2024.loc[\"2024-06-30\"]\nprint(half_2023, half_2024)\nprint(round(float((half_2024 / half_2023 - 1) * 100), 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nytd_2023 = s.loc[\"2023\"].cumsum()\nytd_2024 = s.loc[\"2024\"].cumsum()\n\nprint((ytd_2023 >= 50000).idxmax().strftime(\"%Y-%m-%d\"))\nprint((ytd_2024 >= 50000).idxmax().strftime(\"%Y-%m-%d\"))\n\nhalf_2023 = ytd_2023.loc[\"2023-06-30\"]\nhalf_2024 = ytd_2024.loc[\"2024-06-30\"]\nprint(half_2023, half_2024)\nprint(round(float((half_2024 / half_2023 - 1) * 100), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2023-07-24\n2024-06-28\n44299 50659\n14.4"
+    }
+  ]
+}

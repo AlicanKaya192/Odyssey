@@ -1,0 +1,36 @@
+{
+  "id": "robust-score",
+  "title": {
+    "tr": "Dayanıklı puan",
+    "en": "A robust score"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "MAD: `(x - x.median()).abs().median()`.",
+      "en": "The MAD: `(x - x.median()).abs().median()`."
+    },
+    {
+      "tr": "En büyük 5: `score.abs().sort_values(ascending=False).head(5)`.",
+      "en": "The top 5: `score.abs().sort_values(ascending=False).head(5)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)\nvisits = visits[\"visits\"]\n\nprint(round(float(visits.mean()), 1), float(visits.median()), round(float(visits.std()), 1))\n\nz = (visits - visits.mean()) / visits.std()\nprint(z[z.abs() > 3].index.strftime(\"%m-%d\").tolist())\n\n\ndef robust(x):\n    median = x.median()\n    mad = (x - median).abs().median()\n    return 0.6745 * (x - median) / mad\n\n\nprint(round(float((visits - visits.median()).abs().median()), 1))\n\nscore = robust(visits)\ntop = score.abs().sort_values(ascending=False).head(5)\nprint(top.index.strftime(\"%m-%d\").tolist())\nprint([round(float(v), 1) for v in top])\n\nday = \"2024-10-08\"\nprint(round(float(z.loc[day]), 2), round(float(score.loc[day]), 2))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nvisits = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)\nvisits = visits[\"visits\"]\n\nprint(round(float(visits.mean()), 1), float(visits.median()), round(float(visits.std()), 1))\n\nz = (visits - visits.mean()) / visits.std()\nprint(z[z.abs() > 3].index.strftime(\"%m-%d\").tolist())\n\n\ndef robust(x):\n    median = x.median()\n    mad = (x - median).abs().median()\n    return 0.6745 * (x - median) / mad\n\n\nprint(round(float((visits - visits.median()).abs().median()), 1))\n\nscore = robust(visits)\ntop = score.abs().sort_values(ascending=False).head(5)\nprint(top.index.strftime(\"%m-%d\").tolist())\nprint([round(float(v), 1) for v in top])\n\nday = \"2024-10-08\"\nprint(round(float(z.loc[day]), 2), round(float(score.loc[day]), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4081.1 4002.0 914.2\n['03-14', '06-20', '10-08']\n337.5\n['03-14', '06-20', '10-08', '11-12', '11-14']\n[11.2, 9.8, 7.7, 3.7, 3.5]\n-4.31 -7.72"
+    }
+  ]
+}

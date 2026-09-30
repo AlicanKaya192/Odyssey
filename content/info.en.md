@@ -26,8 +26,8 @@ what was not.
 **Assessment is deterministic.** Exercises are checked against rules defined
 in advance: output comparison, variable and function checks, and checks that
 look at the structure of the code. The same code gives the same result on
-every run. The application contains no language model, no API calls and no
-network connection.
+every run. The application contains no language model and makes no API
+calls; nothing to do with learning goes over the network.
 
 **Your data stays on your machine.** Progress, the code you write and your
 settings are kept in a local database inside the `%APPDATA%\Odyssey` folder.
@@ -40,18 +40,22 @@ the source can be read, modified and redistributed.
 ## Where things stand
 
 The application is in open beta and works end to end: the learning path,
-lessons, lecture notes, quizzes, coding exercises, staged hints, progress
-tracking, a profile with badges, your own notes, a global search, a
-Turkish/English interface, light and dark themes and in-app updates are all
-in place.
+lessons, lecture notes, quizzes, coding exercises, staged hints, a history
+of past attempts in exercises and quizzes, progress tracking, a profile,
+badges, XP, levels and titles, a study timer, suggested routes, your own
+notes, a global search, a guided tour, a Turkish/English interface, light
+and dark themes and in-app updates are all in place.
 
-Five paths are complete: **Python Fundamentals**, **Data Science**,
-**Machine Learning**, **SQL** and **Mathematics**. The Mathematics path has
-two modules: foundational mathematics for someone starting from zero, and
-the linear algebra, calculus, probability and statistics that machine
-learning rests on. Together they hold 116 sections, 3374 quiz questions, 267
-coding exercises and 300 mathematics problems. The API, Docker and other
-advanced paths are in preparation.
+Six paths are complete: **Python Fundamentals**, **Data Science**,
+**Machine Learning**, **SQL**, **Time Series** and **Mathematics**. The
+Mathematics path has two modules: foundational mathematics for someone
+starting from zero, and the linear algebra, calculus, probability and
+statistics that machine learning rests on. Together they hold 140 sections,
+4026 quiz questions, 420 coding exercises and 300 mathematics problems. The
+API, Docker and other advanced paths are in preparation.
+
+If you are new to the application, **Settings › Learning › Guided tour**
+walks you through every screen in turn.
 
 A free coding area outside the exercises and a macOS build are on the
 roadmap.

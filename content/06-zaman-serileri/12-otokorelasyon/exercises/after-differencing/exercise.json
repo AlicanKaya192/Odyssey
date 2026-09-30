@@ -1,0 +1,41 @@
+{
+  "id": "after-differencing",
+  "title": {
+    "tr": "Farktan sonra ne kaldı?",
+    "en": "What is left after differencing?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`np.abs(values) > band` bir doğru/yanlış dizisi; `.sum()` kaç tanesinin doğru olduğunu veriyor.",
+      "en": "`np.abs(values) > band` is a true/false array; `.sum()` gives how many are true."
+    },
+    {
+      "tr": "`plot_acf` bir şekil döndürüyor; onu `fig.savefig(\"chart.png\")` ile kaydedersin.",
+      "en": "`plot_acf` returns a figure; you save it with `fig.savefig(\"chart.png\")`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.graphics.tsaplots import plot_acf\nfrom statsmodels.tsa.stattools import acf\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nd7 = s.diff(7).dropna()\n\n\ndef count_outside(x):\n    values = acf(x, nlags=21)[1:]\n    band = 1.96 / np.sqrt(len(x))\n    return int((np.abs(values) > band).sum())\n\n\nprint(count_outside(s), count_outside(d7))\n\nvalues = acf(d7, nlags=21)\nprint([round(float(values[lag]), 2) for lag in (1, 7, 14)])\n\nbiggest = int(np.abs(values[1:]).argmax()) + 1\nprint(biggest, round(float(values[biggest]), 2))\n\nfig = plot_acf(d7, lags=21)\nfig.savefig(\"chart.png\")\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom statsmodels.graphics.tsaplots import plot_acf\nfrom statsmodels.tsa.stattools import acf\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nd7 = s.diff(7).dropna()\n\n\ndef count_outside(x):\n    values = acf(x, nlags=21)[1:]\n    band = 1.96 / np.sqrt(len(x))\n    return int((np.abs(values) > band).sum())\n\n\nprint(count_outside(s), count_outside(d7))\n\nvalues = acf(d7, nlags=21)\nprint([round(float(values[lag]), 2) for lag in (1, 7, 14)])\n\nbiggest = int(np.abs(values[1:]).argmax()) + 1\nprint(biggest, round(float(values[biggest]), 2))\n\nfig = plot_acf(d7, lags=21)\nfig.savefig(\"chart.png\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "21 6\n[0.16, -0.41, 0.02]\n7 -0.41"
+    }
+  ]
+}

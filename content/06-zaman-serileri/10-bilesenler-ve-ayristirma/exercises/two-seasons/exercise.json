@@ -1,0 +1,36 @@
+{
+  "id": "two-seasons",
+  "title": {
+    "tr": "İki mevsim birden",
+    "en": "Two seasons at once"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`MSTL(s, periods=(7, 365)).fit()`; mevsim sütunları `fit.seasonal[\"seasonal_7\"]` ve `fit.seasonal[\"seasonal_365\"]`.",
+      "en": "`MSTL(s, periods=(7, 365)).fit()`; the seasonal columns are `fit.seasonal[\"seasonal_7\"]` and `fit.seasonal[\"seasonal_365\"]`."
+    },
+    {
+      "tr": "Aya göre ortalama: `trend.groupby(trend.index.month).mean()`; farkı `max() - min()`.",
+      "en": "The mean by month: `trend.groupby(trend.index.month).mean()`; the difference is `max() - min()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import MSTL, seasonal_decompose\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\nclassic = seasonal_decompose(s, model=\"additive\", period=7)\nfit = MSTL(s, periods=(7, 365)).fit()\n\nprint(fit.seasonal.columns.tolist())\nprint(round(float(classic.resid.std()), 2), round(float(fit.resid.std()), 2))\n\n\ndef swing(trend):\n    by_month = trend.groupby(trend.index.month).mean()\n    return round(float(by_month.max() - by_month.min()))\n\n\nprint(swing(classic.trend), swing(fit.trend))\nprint(round(float(fit.trend.iloc[0]), 1), round(float(fit.trend.iloc[-1]), 1))\n\nyearly = fit.seasonal[\"seasonal_365\"].loc[\"2024\"]\nprint(yearly.idxmax().strftime(\"%m-%d\"), yearly.idxmin().strftime(\"%m-%d\"))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import MSTL, seasonal_decompose\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\nclassic = seasonal_decompose(s, model=\"additive\", period=7)\nfit = MSTL(s, periods=(7, 365)).fit()\n\nprint(fit.seasonal.columns.tolist())\nprint(round(float(classic.resid.std()), 2), round(float(fit.resid.std()), 2))\n\n\ndef swing(trend):\n    by_month = trend.groupby(trend.index.month).mean()\n    return round(float(by_month.max() - by_month.min()))\n\n\nprint(swing(classic.trend), swing(fit.trend))\nprint(round(float(fit.trend.iloc[0]), 1), round(float(fit.trend.iloc[-1]), 1))\n\nyearly = fit.seasonal[\"seasonal_365\"].loc[\"2024\"]\nprint(yearly.idxmax().strftime(\"%m-%d\"), yearly.idxmin().strftime(\"%m-%d\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['seasonal_7', 'seasonal_365']\n12.32 5.89\n91 32\n207.4 310.7\n12-30 06-11"
+    }
+  ]
+}

@@ -16,6 +16,7 @@ Mac'te aynı komutu çalıştırmalı; script gerekli farkları (simge biçimi,
 Kullanım:
     .venv\\Scripts\\python tools/build_exe.py
     .venv\\Scripts\\python tools/build_exe.py --temiz   # önce eskiyi sil
+    .venv\\Scripts\\python tools/build_exe.py --deneme  # yayın dışı deneme
 """
 
 from __future__ import annotations
@@ -78,6 +79,11 @@ COLLECT = [
     "pandas",
     "matplotlib",
     "sklearn",
+    # Zaman Serileri: durağanlık testi, ayrıştırma, ARIMA, üstel düzleştirme.
+    # Yalnızca kullanıcı kodu import ediyor, o yüzden elle toplanıyor.
+    "statsmodels",
+    "patsy",
+    "formulaic",   # statsmodels 0.15 formül arayüzü bununla çalışıyor
     # SQL alıştırmalarının sunucuya bağlanan katmanı. `sandbox/sql_runner.py`
     # pakete düz veri olarak giriyor ve PyInstaller içindeki `import
     # pyodbc`'yi görmüyor; toplanmazsa paketlenmiş sürüm SQL Server kurulu
@@ -182,7 +188,9 @@ def main() -> int:
         return 1
 
     eksik = changelog_dated()
-    if eksik:
+    # `--deneme`: yayın olmayan derleme (fark kurulumunu sınamak gibi);
+    # tarih denetimi atlanıyor. Bu paket yayınlanmaz.
+    if eksik and "--deneme" not in sys.argv:
         print(f"{eksik}: {APP_VERSION} başlığı hâlâ 'yayınlanmadı' diyor.")
         print("Önce tarihi yazın; paket günlüğü olduğu gibi taşıyor ve")
         print("uygulamanın Sürüm Notları ekranı bunu gösteriyor.")

@@ -1,0 +1,36 @@
+{
+  "id": "baselines-on-the-rig",
+  "title": {
+    "tr": "Taban çizgiler ve düzenek",
+    "en": "Baselines on the rig"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Test dönemi: `y.loc[cut + pd.Timedelta(days=1):].iloc[:28]`; tahmin fonksiyonuna `test.index` verilir.",
+      "en": "The test period: `y.loc[cut + pd.Timedelta(days=1):].iloc[:28]`; the forecast function is given `test.index`."
+    },
+    {
+      "tr": "Gün ortalamasını test günlerine yay: `profile.reindex(index.dayofweek).to_numpy()`.",
+      "en": "Spread the weekday mean over the test days: `profile.reindex(index.dayofweek).to_numpy()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ny = pd.read_csv(\"bike_clean.csv\", index_col=\"date\", parse_dates=True)[\"rentals\"]\ny = y.asfreq(\"D\").astype(float)\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\n\n\ndef backtest(forecast):\n    scores = []\n    for cut in cuts:\n        train = y.loc[:cut]\n        test = y.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n        error = test.to_numpy() - forecast(train, test.index)\n        scores.append(float(np.abs(error).mean()))\n    return round(float(np.mean(scores)), 1), round(max(scores), 1)\n\n\ndef naive(train, index):\n    return np.full(len(index), train.iloc[-1])\n\n\ndef seasonal_naive(train, index):\n    last = train.iloc[-7:].to_numpy()\n    return np.array([last[i % 7] for i in range(len(index))])\n\n\ndef week_mean(train, index):\n    recent = train.iloc[-28:]\n    profile = recent.groupby(recent.index.dayofweek).mean()\n    return profile.reindex(index.dayofweek).to_numpy()\n\n\nprint(backtest(naive))\nprint(backtest(seasonal_naive))\nprint(backtest(week_mean))\n\nlevel = float(y.loc[\"2024-01-03\":].mean())\nprint(round(level), round(backtest(seasonal_naive)[0] / level * 100))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ny = pd.read_csv(\"bike_clean.csv\", index_col=\"date\", parse_dates=True)[\"rentals\"]\ny = y.asfreq(\"D\").astype(float)\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\n\n\ndef backtest(forecast):\n    scores = []\n    for cut in cuts:\n        train = y.loc[:cut]\n        test = y.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n        error = test.to_numpy() - forecast(train, test.index)\n        scores.append(float(np.abs(error).mean()))\n    return round(float(np.mean(scores)), 1), round(max(scores), 1)\n\n\ndef naive(train, index):\n    return np.full(len(index), train.iloc[-1])\n\n\ndef seasonal_naive(train, index):\n    last = train.iloc[-7:].to_numpy()\n    return np.array([last[i % 7] for i in range(len(index))])\n\n\ndef week_mean(train, index):\n    recent = train.iloc[-28:]\n    profile = recent.groupby(recent.index.dayofweek).mean()\n    return profile.reindex(index.dayofweek).to_numpy()\n\n\nprint(backtest(naive))\nprint(backtest(seasonal_naive))\nprint(backtest(week_mean))\n\nlevel = float(y.loc[\"2024-01-03\":].mean())\nprint(round(level), round(backtest(seasonal_naive)[0] / level * 100))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(112.2, 234.9)\n(98.6, 199.1)\n(86.9, 129.7)\n410 24"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "month-end-price",
+  "title": {
+    "tr": "Fiyat toplanmaz",
+    "en": "A price is not added up"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`close.resample(\"ME\").last().loc[\"2024-03\"]` tek satırlık bir seri veriyor; değerini `.iloc[0]` ile al.",
+      "en": "`close.resample(\"ME\").last().loc[\"2024-03\"]` gives a one-row series; take its value with `.iloc[0]`."
+    },
+    {
+      "tr": "`ohlc()` dört sütunlu bir tablo veriyor: `open`, `high`, `low`, `close`.",
+      "en": "`ohlc()` gives a table with four columns: `open`, `high`, `low`, `close`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nclose = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\n\nmonth_sum = close.resample(\"ME\").sum()\nprint(round(float(month_sum.loc[\"2024-03\"].iloc[0]), 2))\n\nmonth_last = close.resample(\"ME\").last()\nmonth_mean = close.resample(\"ME\").mean()\nmarch = month_last.loc[\"2024-03\"].iloc[0]\nprint(round(float(march), 2), round(float(month_mean.loc[\"2024-03\"].iloc[0]), 2))\n\nbars = close.resample(\"ME\").ohlc().loc[\"2024-03\"].iloc[0]\nprint(round(float(bars[\"high\"]), 2), round(float(bars[\"low\"]), 2))\n\nfebruary = month_last.loc[\"2024-02\"].iloc[0]\nprint(round(float((march / february - 1) * 100), 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nclose = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\n\nmonth_sum = close.resample(\"ME\").sum()\nprint(round(float(month_sum.loc[\"2024-03\"].iloc[0]), 2))\n\nmonth_last = close.resample(\"ME\").last()\nmonth_mean = close.resample(\"ME\").mean()\nmarch = month_last.loc[\"2024-03\"].iloc[0]\nprint(round(float(march), 2), round(float(month_mean.loc[\"2024-03\"].iloc[0]), 2))\n\nbars = close.resample(\"ME\").ohlc().loc[\"2024-03\"].iloc[0]\nprint(round(float(bars[\"high\"]), 2), round(float(bars[\"low\"]), 2))\n\nfebruary = month_last.loc[\"2024-02\"].iloc[0]\nprint(round(float((march / february - 1) * 100), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3221.24\n166.33 153.39\n167.73 140.99\n19.3"
+    }
+  ]
+}

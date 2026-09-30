@@ -1,0 +1,36 @@
+{
+  "id": "local-days",
+  "title": {
+    "tr": "23 saatlik gün",
+    "en": "The 23-hour day"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Metindeki `Z` sayesinde sütun zaten UTC dilimli okunuyor; doğrudan `dt.tz_convert(\"Europe/Berlin\")`.",
+      "en": "Thanks to the `Z` in the text the column is already read as UTC-aware; go straight to `dt.tz_convert(\"Europe/Berlin\")`."
+    },
+    {
+      "tr": "En büyük değerin satırı: `sensor[\"temp_c\"].idxmax()`. O satırın yerel zamanı: `sensor.loc[o_index, \"local\"]`.",
+      "en": "The row of the largest value: `sensor[\"temp_c\"].idxmax()`. That row's local time: `sensor.loc[that_index, \"local\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nsensor = pd.read_csv(\"berlin_sensor.csv\")\nsensor[\"time_utc\"] = pd.to_datetime(sensor[\"time_utc\"])\nsensor[\"local\"] = sensor[\"time_utc\"].dt.tz_convert(\"Europe/Berlin\")\n\ncounts = sensor[\"local\"].dt.date.value_counts().sort_index()\nfor day, count in counts.items():\n    print(day, count)\n\nhottest = sensor.loc[sensor[\"temp_c\"].idxmax(), \"local\"]\nprint(hottest.strftime(\"%Y-%m-%d %H:%M\"))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nsensor = pd.read_csv(\"berlin_sensor.csv\")\nsensor[\"time_utc\"] = pd.to_datetime(sensor[\"time_utc\"])\nsensor[\"local\"] = sensor[\"time_utc\"].dt.tz_convert(\"Europe/Berlin\")\n\ncounts = sensor[\"local\"].dt.date.value_counts().sort_index()\nfor day, count in counts.items():\n    print(day, count)\n\nhottest = sensor.loc[sensor[\"temp_c\"].idxmax(), \"local\"]\nprint(hottest.strftime(\"%Y-%m-%d %H:%M\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2024-03-30 24\n2024-03-31 23\n2024-04-01 24\n2024-03-31 12:00"
+    }
+  ]
+}

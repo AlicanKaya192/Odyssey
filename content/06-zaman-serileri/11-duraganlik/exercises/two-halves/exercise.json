@@ -1,0 +1,36 @@
+{
+  "id": "two-halves",
+  "title": {
+    "tr": "İki yarı",
+    "en": "Two halves"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İlk yarı `x.iloc[:half]`, ikinci yarı `x.iloc[half:]`.",
+      "en": "The first half is `x.iloc[:half]`, the second `x.iloc[half:]`."
+    },
+    {
+      "tr": "Dört sayıyı parantez içinde virgülle ayırıp döndürürsen bir demet olur: `return (a, b, c, d)`.",
+      "en": "Return the four numbers in parentheses separated by commas and you get a tuple: `return (a, b, c, d)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nk = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\n\n\ndef halves(x):\n    half = len(x) // 2\n    first, second = x.iloc[:half], x.iloc[half:]\n    return (round(float(first.mean()), 2), round(float(second.mean()), 2),\n            round(float(first.std()), 2), round(float(second.std()), 2))\n\n\nprint(halves(k))\n\nchange = k.diff().dropna()\nprint(halves(change))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nk = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\n\n\ndef halves(x):\n    half = len(x) // 2\n    first, second = x.iloc[:half], x.iloc[half:]\n    return (round(float(first.mean()), 2), round(float(second.mean()), 2),\n            round(float(first.std()), 2), round(float(second.std()), 2))\n\n\nprint(halves(k))\n\nchange = k.diff().dropna()\nprint(halves(change))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(119.75, 144.06, 10.01, 17.66)\n(0.02, 0.15, 2.14, 2.4)"
+    }
+  ]
+}

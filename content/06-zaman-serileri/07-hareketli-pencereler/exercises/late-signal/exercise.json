@@ -1,0 +1,36 @@
+{
+  "id": "late-signal",
+  "title": {
+    "tr": "Geç gelen sinyal",
+    "en": "The late signal"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Aralığı seçip tepe tarihini bul: `centered.loc[\"2023-11-15\":\"2024-02-15\"].idxmax()`.",
+      "en": "Select the stretch and find the peak date: `centered.loc[\"2023-11-15\":\"2024-02-15\"].idxmax()`."
+    },
+    {
+      "tr": "Son 14 satır: `centered.iloc[-14:]`. İki tarihin farkı bir süre; gün sayısı `.days`.",
+      "en": "The last 14 rows: `centered.iloc[-14:]`. The difference of two dates is a duration; its day count is `.days`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ntrailing = s.rolling(28).mean()\ncentered = s.rolling(28, center=True).mean()\n\npart_c = centered.loc[\"2023-11-15\":\"2024-02-15\"]\npart_t = trailing.loc[\"2023-11-15\":\"2024-02-15\"]\n\npeak_c = part_c.idxmax()\npeak_t = part_t.idxmax()\nprint(peak_c.strftime(\"%Y-%m-%d\"))\nprint(peak_t.strftime(\"%Y-%m-%d\"))\nprint((peak_t - peak_c).days)\n\nprint(round(float(part_c.max()), 1), round(float(part_t.max()), 1))\nprint(int(centered.iloc[-14:].isna().sum()), int(trailing.iloc[-14:].isna().sum()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\ntrailing = s.rolling(28).mean()\ncentered = s.rolling(28, center=True).mean()\n\npart_c = centered.loc[\"2023-11-15\":\"2024-02-15\"]\npart_t = trailing.loc[\"2023-11-15\":\"2024-02-15\"]\n\npeak_c = part_c.idxmax()\npeak_t = part_t.idxmax()\nprint(peak_c.strftime(\"%Y-%m-%d\"))\nprint(peak_t.strftime(\"%Y-%m-%d\"))\nprint((peak_t - peak_c).days)\n\nprint(round(float(part_c.max()), 1), round(float(part_t.max()), 1))\nprint(int(centered.iloc[-14:].isna().sum()), int(trailing.iloc[-14:].isna().sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2023-12-19\n2024-01-01\n13\n330.9 330.9\n13 0"
+    }
+  ]
+}

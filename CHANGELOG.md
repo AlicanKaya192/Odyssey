@@ -19,6 +19,66 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.9.1] — 30 Eylül 2026
+
+### Eklendi
+- **Zaman Serileri patikası eklendi.** 23 bölüm, üç seviye: **Temel**
+  tarihlerle ve zaman indeksiyle çalışmak, yeniden örnekleme, pencereler;
+  **Orta** ayrıştırma, durağanlık, otokorelasyon, eksik ve aykırı değerler,
+  taban çizgi ve tahmini doğrulamak; **İleri** üstel düzleştirme, ARIMA, dış
+  değişkenler, makine öğrenmesiyle tahmin, tahmin aralıkları, anomali ve
+  değişim noktası. Son bölüm hepsini tek bir işte birleştiriyor: dağınık
+  bir dökümden aralığı olan 28 günlük tahmine. 153 alıştırma, 628 sınav
+  sorusu ve üç yeni rozet.
+- **Seviye ve unvanlar.** Tamamladığınız her bölüm ve kazandığınız her rozet
+  XP kazandırıyor; rozetler bölümlerden fazla, zor rozetler daha da fazla
+  veriyor. XP biriktikçe seviye atlıyorsunuz (50 seviye, her biri bir
+  öncekinden daha çok XP istiyor) ve sağ altta kendi sesiyle bir kart
+  çıkıyor. Profilde adınızın altında seviyeniz ve XP çubuğu var. Belirli
+  seviyelerde, bir patikanın tamamını bitirince ve birkaç zor koşulda
+  **unvan** kazanıyorsunuz; adınızın altındaki unvana tıklayıp
+  kazandıklarınızdan birini seçebiliyorsunuz, kilitli olanların üzerine
+  gelince nasıl kazanılacağı yazıyor. Daha önce bitirdiğiniz bölümler ve
+  kazandığınız rozetler de sayılıyor.
+- **Çalışma zamanlayıcısı.** Alt şeridin sağındaki saat simgesinden bir
+  düzen seçip başlatabiliyorsunuz: Pomodoro (25 / 5, dört turda bir uzun
+  mola), 52 / 17, derin çalışma (90 / 20), kısa adımlar (15 / 3) ya da
+  kendi süreleriniz. Kalan süre alt şeritte küçük bir sayaç olarak akıyor
+  ve yalnızca son saniyelerde hafifçe büyüyor; duraklatabilir, molayı
+  atlayabilir ya da bitirebilirsiniz. Tur ya da mola bitince kısa bir sesle
+  kart çıkıyor, program arkadaysa Windows bildirimi geliyor. Tamamlanan
+  odak turları o günün çalışması sayılıyor, seriye ve etkinlik takvimine
+  işleniyor.
+- **Geçmiş denemeler.** Alıştırmalarda yeni **Denemelerim** sekmesi: son
+  doğru çözümünüz ve yanlış denemeleriniz, her birinin neden geçmediğiyle
+  birlikte; yanlış denemede doğru çözümünüzde olmayan satırlar kırmızıyla
+  işaretli. Matematik problemlerinde denediğiniz cevaplar listeleniyor.
+  Sınavda **Yanlışlarımı gör** ve **Geçmiş denemeler**: her denemede hangi
+  soruya ne cevap verdiğiniz, doğrusu ve açıklaması. Bu sürümden sonraki
+  denemeler kaydediliyor.
+- **Tanıtım turu.** İlk açılışta (ve bu güncellemeden sonra bir kez)
+  programı tanıtan kısa bir tur isteyip istemediğiniz soruluyor. Turda
+  Odyssey'in sentoru rehberlik ediyor ve programın her parçasını sırayla
+  gösteriyor: patikalar, bir bölümün sekmeleri, ders, not, sınav,
+  alıştırma ekranı, profil, rozetler, rotalar, notlar, arama, çalışma
+  zamanlayıcısı ve ayarlar. Tur her an bırakılabiliyor ve Ayarlar ›
+  Öğrenme'den yeniden başlatılabiliyor.
+
+### Değişti
+- **Sınavdan yanlışlıkla çıkılmıyor.** Sınav sürerken başka bir sekmeye,
+  bölüme ya da ekrana geçmek istediğinizde soruluyor; "Sınavdan çık"
+  derseniz o deneme iptal oluyor ve sayılmıyor.
+- **Güncellemeler artık yalnızca değişen dosyaları indiriyor.** Bir önceki
+  sürümü kurulu olan, 233 MB'lık tam kurulum yerine yalnızca o sürümden bu
+  yana değişen dosyaları içeren küçük bir güncelleme paketi alıyor (bu
+  sürümden sonrakiler için). Paket kurulu sürümü denetliyor; uymazsa hiçbir
+  dosyaya dokunmuyor ve program bir sonraki denemede tam kurulumu indiriyor.
+  0.9.1'e geçiş son kez tam kurulumla oluyor.
+
+### Düzeltildi
+- Güncellemeden sonra masaüstü kısayolu eski simgeyi göstermeye devam
+  ediyordu. Kurulum artık Windows'a simgeleri yeniletiyor.
+
 ## [0.9.0] — 29 Eylül 2026
 
 ### Eklendi

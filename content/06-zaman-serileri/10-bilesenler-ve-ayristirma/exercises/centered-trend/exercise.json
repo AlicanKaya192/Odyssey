@@ -1,0 +1,36 @@
+{
+  "id": "centered-trend",
+  "title": {
+    "tr": "Trend: ortalanmış ortalama",
+    "en": "Trend: a centred average"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`trend.dropna()` dolu kısmı veriyor; ilk tarihi `valid.index[0].date()`.",
+      "en": "`trend.dropna()` gives the defined part; its first date is `valid.index[0].date()`."
+    },
+    {
+      "tr": "Tek bir günün değeri: `trend.loc[\"2024-12-25\"]`.",
+      "en": "The value on one day: `trend.loc[\"2024-12-25\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrend = s.rolling(7, center=True).mean()\nprint(int(trend.isna().sum()))\n\nvalid = trend.dropna()\nprint(valid.index[0].date(), valid.index[-1].date())\nprint(round(float(valid.iloc[0]), 1), round(float(valid.iloc[-1]), 1))\n\ntrailing = s.rolling(7).mean()\nprint(round(float(trend.loc[\"2024-12-25\"]), 1), round(float(trailing.loc[\"2024-12-28\"]), 1))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\n\ntrend = s.rolling(7, center=True).mean()\nprint(int(trend.isna().sum()))\n\nvalid = trend.dropna()\nprint(valid.index[0].date(), valid.index[-1].date())\nprint(round(float(valid.iloc[0]), 1), round(float(valid.iloc[-1]), 1))\n\ntrailing = s.rolling(7).mean()\nprint(round(float(trend.loc[\"2024-12-25\"]), 1), round(float(trailing.loc[\"2024-12-28\"]), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6\n2022-01-04 2024-12-28\n230.1 393.3\n386.1 386.1"
+    }
+  ]
+}

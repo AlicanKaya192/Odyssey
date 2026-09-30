@@ -1,0 +1,680 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Temel tahminlerin (baseline) iki işi nedir?",
+        "en": "What are the two jobs of baseline forecasts?"
+      },
+      "options": {
+        "tr": [
+          "Çoğu zaman iyi bir ilk tahmin vermek ve her modelin geçmesi gereken çıtayı koymak",
+          "Veriyi temizlemek ve sıralamak",
+          "Trendi ve mevsimi ayırmak",
+          "Eksik günleri doldurmak"
+        ],
+        "en": [
+          "Giving what is often a good first forecast, and setting the bar every model has to beat",
+          "Cleaning and sorting the data",
+          "Separating the trend and the season",
+          "Filling missing days"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir model temel yöntemi geçemiyorsa karmaşıklığının anlamı yok. Bu yüzden her tahmin işi temel yöntemlerin tablosuyla başlar.",
+        "en": "If a model cannot beat the baseline, its complexity is pointless. That is why every forecasting job starts with the table of baselines."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Zaman serisinde eğitim ve test verisi nasıl ayrılır?",
+        "en": "How are training and test data split in a time series?"
+      },
+      "options": {
+        "tr": [
+          "Zaman sırasına göre: test her zaman sonda",
+          "Rastgele karıştırılarak",
+          "Tek ve çift satırlar",
+          "Haftanın gününe göre"
+        ],
+        "en": [
+          "By the order of time: the test is always at the end",
+          "By random shuffling",
+          "Odd and even rows",
+          "By day of the week"
+        ]
+      },
+      "explanation": {
+        "tr": "Gelecek geçmişten sonra gelir. Rastgele ayırırsan model, tahmin edeceği günlerin komşularını görerek öğrenir: sızıntı.",
+        "en": "The future comes after the past. Split at random and the model learns having seen the neighbours of the days it will forecast: leakage."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "\"Ufuk\" (horizon) ne demek?",
+        "en": "What does \"horizon\" mean?"
+      },
+      "options": {
+        "tr": [
+          "Kaç adım ileriye tahmin edildiği",
+          "Eğitim verisinin uzunluğu",
+          "Mevsimin boyu",
+          "Hatanın büyüklüğü"
+        ],
+        "en": [
+          "How many steps ahead is forecast",
+          "The length of the training data",
+          "The length of the season",
+          "The size of the error"
+        ]
+      },
+      "explanation": {
+        "tr": "1 gün, 28 gün, 12 ay. Hata ufka bağlı olduğu için bir hata sayısı ufkuyla birlikte söylenir.",
+        "en": "1 day, 28 days, 12 months. Because the error depends on the horizon, an error figure is stated together with its horizon."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Naif tahmin nedir?",
+        "en": "What is the naive forecast?"
+      },
+      "options": {
+        "tr": [
+          "Gelecekteki her adım için son gözlemin değeri",
+          "Geçmişin ortalaması",
+          "Geçen yılın aynı günü",
+          "Trend doğrusunun uzantısı"
+        ],
+        "en": [
+          "The value of the last observation for every future step",
+          "The mean of the past",
+          "The same day last year",
+          "The extension of the trend line"
+        ]
+      },
+      "explanation": {
+        "tr": "`pd.Series(train.iloc[-1], index=future)`. Rastgele yürüyüş için en iyi tahmin budur; mevsimli seride ise deseni yok sayar.",
+        "en": "`pd.Series(train.iloc[-1], index=future)`. It is the best forecast for a random walk; on a seasonal series it ignores the pattern."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük veride mevsimsel naif tahmin 28 günlük ufukta ne yapar?",
+        "en": "What does seasonal naive do on daily data at a 28-day horizon?"
+      },
+      "options": {
+        "tr": [
+          "Eğitim verisinin son haftasını dört kez tekrarlar",
+          "Son günü 28 kez tekrarlar",
+          "28 günün ortalamasını alır",
+          "Geçen yılın aynı 28 gününü kopyalar"
+        ],
+        "en": [
+          "Repeats the last week of the training data four times",
+          "Repeats the last day 28 times",
+          "Averages 28 days",
+          "Copies the same 28 days of last year"
+        ]
+      },
+      "explanation": {
+        "tr": "Mevsim boyu 7 olduğu için her gün, eğitim verisindeki en son aynı haftanın günü kadar tahmin edilir: `last_week[i % 7]`.",
+        "en": "With a season of 7, each day is forecast as the latest same weekday in the training data: `last_week[i % 7]`."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`[last_week[i % 7] for i in range(h)]` ifadesinde `i % 7` ne işe yarar?",
+        "en": "What does `i % 7` do in `[last_week[i % 7] for i in range(h)]`?"
+      },
+      "options": {
+        "tr": [
+          "Sayacı 0–6 arasında döndürerek haftayı tekrarlatır",
+          "Yedinci günü atlar",
+          "Ortalamayı alır",
+          "Değeri 7'ye böler"
+        ],
+        "en": [
+          "Cycles the counter through 0–6 so that the week repeats",
+          "Skips the seventh day",
+          "Takes the mean",
+          "Divides the value by 7"
+        ]
+      },
+      "explanation": {
+        "tr": "Kalan işlemi 7, 8, 9... için yeniden 0, 1, 2... veriyor. Ufuk 7'nin katı olmasa da çalışır.",
+        "en": "The remainder gives 0, 1, 2... again for 7, 8, 9... It works even when the horizon is not a multiple of 7."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Kayma (drift) tahmini nasıl hesaplanır?",
+        "en": "How is the drift forecast computed?"
+      },
+      "options": {
+        "tr": [
+          "Son değere, ilk ve son gözlem arasındaki ortalama adım değişimi kadar ekleyerek",
+          "Son 7 günün ortalamasıyla",
+          "Geçen mevsimi kopyalayarak",
+          "Bütün verinin ortancasıyla"
+        ],
+        "en": [
+          "By adding to the last value the average step change between the first and the last observation",
+          "With the mean of the last 7 days",
+          "By copying the last season",
+          "With the median of all the data"
+        ]
+      },
+      "explanation": {
+        "tr": "Eğim = (son − ilk) / (n − 1); tahmin = son + eğim × adım. İlk ve son noktayı birleştiren doğrunun uzantısı.",
+        "en": "Slope = (last − first) / (n − 1); forecast = last + slope × step. It is the extension of the line joining the first and the last point."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük satışta kayma neden naiften iyi olmadı?",
+        "en": "Why was drift no better than naive on the daily sales?"
+      },
+      "options": {
+        "tr": [
+          "Eğimi yalnızca iki noktadan hesaplıyor ve ilk gün tesadüfen yüksek bir cumartesiydi",
+          "Seride trend olmadığı için",
+          "Kayma yalnızca aylık veride çalışır",
+          "Hesap hatası"
+        ],
+        "en": [
+          "It computes its slope from two points only, and the first day happened to be a high Saturday",
+          "Because the series has no trend",
+          "Drift only works on monthly data",
+          "A calculation error"
+        ]
+      },
+      "explanation": {
+        "tr": "Haftalık deseni olan seride tek bir günün değeri trendi temsil etmiyor. Kayma düzgün, mevsimsiz trendlerde işe yarar.",
+        "en": "In a series with a weekly pattern the value of one day does not represent the trend. Drift works for smooth trends without a season."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "Ortalama mutlak hata (MAE) nasıl hesaplanır?",
+        "en": "How is the mean absolute error (MAE) computed?"
+      },
+      "options": {
+        "tr": [
+          "`(actual - forecast).abs().mean()`",
+          "`(actual - forecast).mean()`",
+          "`(actual - forecast).sum()`",
+          "`actual.mean() - forecast.mean()`"
+        ],
+        "en": [
+          "`(actual - forecast).abs().mean()`",
+          "`(actual - forecast).mean()`",
+          "`(actual - forecast).sum()`",
+          "`actual.mean() - forecast.mean()`"
+        ]
+      },
+      "explanation": {
+        "tr": "Hataların işareti atılıp ortalaması alınıyor. Serinin biriminde olduğu için yorumu kolay: \"günde ortalama 12 birim yanılıyor\".",
+        "en": "The sign of the errors is dropped and they are averaged. Being in the unit of the series it is easy to read: \"off by 12 units a day on average\"."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Günlük satışta 28 günlük ufukta hangi temel yöntem en iyisi (MAE 11.6)?",
+        "en": "Which baseline is best on the daily sales at a 28-day horizon (MAE 11.6)?"
+      },
+      "options": {
+        "tr": [
+          "Mevsimsel naif",
+          "Ortalama",
+          "Naif",
+          "Kayma"
+        ],
+        "en": [
+          "Seasonal naive",
+          "Mean",
+          "Naive",
+          "Drift"
+        ]
+      },
+      "explanation": {
+        "tr": "Öbür üçü düz çizgi çiziyor ve haftalık deseni bilmiyor (MAE 64–76). Güçlü mevsimi olan seride çıta mevsimsel naiftir.",
+        "en": "The other three draw a flat line and do not know the weekly pattern (MAE 64–76). For a series with a strong season the bar is seasonal naive."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Hisse fiyatında neden naif tahmin ortalamadan çok daha iyi?",
+        "en": "Why is the naive forecast far better than the mean for the share price?"
+      },
+      "options": {
+        "tr": [
+          "Seri rastgele yürüyüş: en taze bilgi son değer",
+          "Fiyatlar hep yükselir",
+          "Ortalama yanlış hesaplanmış",
+          "Mevsimsellik güçlü"
+        ],
+        "en": [
+          "The series is a random walk: the freshest information is the last value",
+          "Prices always rise",
+          "The mean was computed wrongly",
+          "The seasonality is strong"
+        ]
+      },
+      "explanation": {
+        "tr": "Rastgele yürüyüşte düzey kayıyor; iki yılın ortalaması bugünün düzeyinden uzak. Bir sonraki adım öngörülemediği için en iyi tahmin son değer.",
+        "en": "In a random walk the level drifts; the average of two years is far from today's level. Since the next step is unpredictable, the best forecast is the last value."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Trendli bir seride ortalama tahmini neden kötü?",
+        "en": "Why is the mean forecast poor on a trending series?"
+      },
+      "options": {
+        "tr": [
+          "Geçmişin ortalaması bugünün düzeyinin çok gerisinde kalıyor",
+          "Hesaplaması uzun sürüyor",
+          "Mevsimi abartıyor",
+          "Çok oynak"
+        ],
+        "en": [
+          "The mean of the past is far behind today's level",
+          "It takes long to compute",
+          "It exaggerates the season",
+          "It is too volatile"
+        ]
+      },
+      "explanation": {
+        "tr": "Yolcu serisinde 11 yılın ortalaması 222, son ay 345. Ortalama yalnızca durağan, trendsiz seride makul bir tahmin.",
+        "en": "For the passenger series the 11-year mean is 222 and the last month 345. The mean is a reasonable forecast only for a stationary series with no trend."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Yanlılık (bias) nedir?",
+        "en": "What is the bias?"
+      },
+      "options": {
+        "tr": [
+          "Hataların (gerçek − tahmin) ortalaması",
+          "Hataların mutlak değerinin ortalaması",
+          "En büyük hata",
+          "Hataların standart sapması"
+        ],
+        "en": [
+          "The mean of the errors (actual − forecast)",
+          "The mean of the absolute errors",
+          "The largest error",
+          "The standard deviation of the errors"
+        ]
+      },
+      "explanation": {
+        "tr": "İşaret atılmadığı için artı ve eksi hatalar birbirini götürür. Sıfırdan uzaksa tahmin sistematik olarak bir yöne kayık.",
+        "en": "Because the sign is kept, positive and negative errors cancel. If it is far from zero the forecast is systematically off to one side."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Bir tahminde MAE 40.25 ve yanlılık +40.25. Bu ne demek?",
+        "en": "In a forecast the MAE is 40.25 and the bias +40.25. What does that mean?"
+      },
+      "options": {
+        "tr": [
+          "Bütün hatalar aynı işaretli: tahmin her gün düşük kalmış",
+          "Tahmin kusursuz",
+          "Hatalar rastgele dağılmış",
+          "Tahmin her gün yüksek"
+        ],
+        "en": [
+          "All the errors have the same sign: the forecast was too low every day",
+          "The forecast is perfect",
+          "The errors are scattered at random",
+          "The forecast was too high every day"
+        ]
+      },
+      "explanation": {
+        "tr": "Mutlak değer almak sonucu değiştirmiyorsa hiçbir hata eksi değil. Hata = gerçek − tahmin olduğu için artı yanlılık, tahminin düşük olduğunu söyler.",
+        "en": "If taking absolute values does not change the result, no error is negative. Since error = actual − forecast, a positive bias says the forecast is low."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Mevsimsel naif Aralık ayında neden sistematik olarak düşük tahmin etti?",
+        "en": "Why did seasonal naive forecast systematically low in December?"
+      },
+      "options": {
+        "tr": [
+          "Kasım sonunun haftasını kopyalıyor; yıl sonu yükselişini göremiyor",
+          "Aralık'ta haftalık desen yok",
+          "Eğitim verisi çok kısa",
+          "Hesap hatası"
+        ],
+        "en": [
+          "It copies the week at the end of November; it cannot see the year-end climb",
+          "There is no weekly pattern in December",
+          "The training data is too short",
+          "A calculation error"
+        ]
+      },
+      "explanation": {
+        "tr": "Temel yöntemler bildiğini tekrar eder; yeni bir yönü öngöremez. Yanlılığın nedeni biliniyorsa düzeltmesi de basit: trend ya da büyüme eklemek.",
+        "en": "Baselines repeat what they know; they cannot foresee a new direction. If the cause of the bias is known, the fix is simple too: add a trend or growth."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Yolcu serisinde mevsimsel naifi nasıl iyileştirdin (MAE 40.4 → 11.1)?",
+        "en": "How did you improve seasonal naive on the passenger series (MAE 40.4 → 11.1)?"
+      },
+      "options": {
+        "tr": [
+          "Geçen yılın değerlerini yıllık büyüme oranıyla çarparak",
+          "Ortalamayı çıkararak",
+          "Son ayı 12 kez tekrarlayarak",
+          "Logaritmasını alarak"
+        ],
+        "en": [
+          "By multiplying last year's values by the yearly growth rate",
+          "By subtracting the mean",
+          "By repeating the last month 12 times",
+          "By taking the logarithm"
+        ]
+      },
+      "explanation": {
+        "tr": "Seri yılda %10 büyüyor ve kopya bir yıl geride kalıyor. Büyüme çarpımsal olduğu için çarpmak, sabit bir sayı eklemekten (MAE 18.5) iyi.",
+        "en": "The series grows 10% a year and the copy is a year behind. Because the growth is multiplicative, multiplying beats adding a constant (MAE 18.5)."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Büyüme oranını hesaplarken hangi veriyi kullanmalısın?",
+        "en": "Which data should you use when computing the growth rate?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca eğitim verisini",
+          "Bütün veriyi",
+          "Yalnızca test verisini",
+          "Fark etmez"
+        ],
+        "en": [
+          "The training data only",
+          "All the data",
+          "The test data only",
+          "It does not matter"
+        ]
+      },
+      "explanation": {
+        "tr": "Test dönemini içeren her hesap sızıntıdır: tahmin anında o dönemi bilemezsin. Oran 2023 / 2022'den hesaplanır, 2024'ten değil.",
+        "en": "Any calculation that includes the test period is leakage: you could not know that period at forecast time. The rate is computed from 2023 / 2022, not from 2024."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Hisse fiyatında naif tahminin hatası 1 günlük ufukta 1.83, 40 günlük ufukta 12.16. Bu ne gösterir?",
+        "en": "For the share price the naive error is 1.83 at a 1-day horizon and 12.16 at 40 days. What does this show?"
+      },
+      "options": {
+        "tr": [
+          "Hata ufukla büyür, ama ufkun karekökü kadar (yavaşlayarak)",
+          "Hata ufukla doğru orantılı büyür",
+          "Hata ufuktan bağımsızdır",
+          "Uzak ufuk daha kolay tahmin edilir"
+        ],
+        "en": [
+          "The error grows with the horizon, but like its square root (more and more slowly)",
+          "The error grows in proportion to the horizon",
+          "The error does not depend on the horizon",
+          "A distant horizon is easier to forecast"
+        ]
+      },
+      "explanation": {
+        "tr": "40 kat uzak ufukta hata 6.7 kat (√40 = 6.3). Rastgele adımlar birbirini kısmen götürdüğü için doğrusal değil karekök büyümesi.",
+        "en": "At a horizon 40 times as far the error is 6.7 times as large (√40 = 6.3). Because random steps partly cancel, the growth is square-root rather than linear."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "\"Modelimin hatası 12\" cümlesinde eksik olan nedir?",
+        "en": "What is missing from the sentence \"my model's error is 12\"?"
+      },
+      "options": {
+        "tr": [
+          "Ufuk (ve ölçü, dönem)",
+          "Modelin adı",
+          "Verinin kaynağı",
+          "Hiçbir şey"
+        ],
+        "en": [
+          "The horizon (and the measure, the period)",
+          "The name of the model",
+          "The source of the data",
+          "Nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "1 günlük ufuktaki 12 ile 28 günlük ufuktaki 12 çok farklı başarılar. Ufku söylemeden hata söylenmez.",
+        "en": "A 12 at a 1-day horizon and a 12 at a 28-day horizon are very different achievements. An error without its horizon says nothing."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Tek adımlı ile çok adımlı tahmin arasındaki fark nedir?",
+        "en": "What is the difference between a one-step and a multi-step forecast?"
+      },
+      "options": {
+        "tr": [
+          "Tek adımlıda her adımda yeni veriyle yalnızca bir sonraki adım tahmin edilir",
+          "Tek adımlı daha çok veri kullanır",
+          "Çok adımlı yalnızca aylık veride olur",
+          "Fark yok"
+        ],
+        "en": [
+          "In one-step, only the next step is forecast, with new data at every step",
+          "One-step uses more data",
+          "Multi-step only exists for monthly data",
+          "There is none"
+        ]
+      },
+      "explanation": {
+        "tr": "Çok adımlıda tek bir başlangıçtan bütün ufuk tahmin edilir ve uzak adımlar daha zordur. İkisinin hatası doğrudan karşılaştırılamaz.",
+        "en": "In multi-step the whole horizon is forecast from a single origin and the distant steps are harder. Their errors cannot be compared directly."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Tek adımlı naif tahmin bütün geçmiş için nasıl kurulur?",
+        "en": "How is a one-step naive forecast set up for the whole past?"
+      },
+      "options": {
+        "tr": [
+          "`s.shift(1)`",
+          "`s.shift(-1)`",
+          "`s.rolling(1).mean()`",
+          "`s.diff()`"
+        ],
+        "en": [
+          "`s.shift(1)`",
+          "`s.shift(-1)`",
+          "`s.rolling(1).mean()`",
+          "`s.diff()`"
+        ]
+      },
+      "explanation": {
+        "tr": "Her günün tahmini bir önceki günün değeri. `shift(-1)` geleceği bugüne taşır: sızıntı. Mevsimsel naif için `s.shift(7)`.",
+        "en": "Each day's forecast is the previous day's value. `shift(-1)` brings the future into today: leakage. For seasonal naive, `s.shift(7)`."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "\"Yarın = son 7 günün ortalaması\" tahmini için doğru kod hangisi?",
+        "en": "Which code is right for the forecast \"tomorrow = the mean of the last 7 days\"?"
+      },
+      "options": {
+        "tr": [
+          "`s.shift(1).rolling(7).mean()`",
+          "`s.rolling(7).mean()`",
+          "`s.rolling(7, center=True).mean()`",
+          "`s.shift(-1).rolling(7).mean()`"
+        ],
+        "en": [
+          "`s.shift(1).rolling(7).mean()`",
+          "`s.rolling(7).mean()`",
+          "`s.rolling(7, center=True).mean()`",
+          "`s.shift(-1).rolling(7).mean()`"
+        ]
+      },
+      "explanation": {
+        "tr": "`rolling(7)` o günün kendisini de içerir; önce `shift(1)` gerekir. Yoksa tahmin, tahmin ettiği değeri görmüş olur.",
+        "en": "`rolling(7)` includes the day itself; `shift(1)` has to come first. Otherwise the forecast has seen the value it is forecasting."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Beceri (skill) puanı 0 ise ne anlaşılır?",
+        "en": "What does a skill score of 0 mean?"
+      },
+      "options": {
+        "tr": [
+          "Model temel yöntemle aynı hatayı yapıyor; hiçbir şey katmamış",
+          "Model kusursuz",
+          "Model temel yöntemin iki katı hata yapıyor",
+          "Hesaplanamamış"
+        ],
+        "en": [
+          "The model makes the same error as the baseline; it added nothing",
+          "The model is perfect",
+          "The model makes twice the error of the baseline",
+          "It could not be computed"
+        ]
+      },
+      "explanation": {
+        "tr": "Beceri = 1 − MAE(model) / MAE(temel). 1 kusursuz, 0 aynı, eksi ise temel yöntemden kötü.",
+        "en": "Skill = 1 − MAE(model) / MAE(baseline). 1 is perfect, 0 the same, negative worse than the baseline."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Bir modelin MAE'si 9, temel yöntemin MAE'si 12. Beceri kaçtır?",
+        "en": "A model's MAE is 9 and the baseline's 12. What is the skill?"
+      },
+      "options": {
+        "tr": [
+          "0.25",
+          "0.75",
+          "3",
+          "−0.25"
+        ],
+        "en": [
+          "0.25",
+          "0.75",
+          "3",
+          "−0.25"
+        ]
+      },
+      "explanation": {
+        "tr": "1 − 9 / 12 = 0.25: model hatayı dörtte bir azaltmış.",
+        "en": "1 − 9 / 12 = 0.25: the model cut the error by a quarter."
+      }
+    },
+    {
+      "id": "q25",
+      "answer": 0,
+      "text": {
+        "tr": "Kalıntı (residual) ile tahmin hatası arasındaki fark nedir?",
+        "en": "What is the difference between a residual and a forecast error?"
+      },
+      "options": {
+        "tr": [
+          "Kalıntı modelin gördüğü veride, hata görmediği veride hesaplanır",
+          "Aynı şeydir",
+          "Kalıntı hep daha büyüktür",
+          "Hata yalnızca aylık veride olur"
+        ],
+        "en": [
+          "A residual is computed on data the model has seen, an error on data it has not",
+          "They are the same",
+          "A residual is always larger",
+          "An error only exists for monthly data"
+        ]
+      },
+      "explanation": {
+        "tr": "Örnek içi uyum her zaman iyimserdir. Kalıntılar küçük, hatalar büyükse model ezberlemiş. Başarı yalnızca örnek dışı hatayla ölçülür.",
+        "en": "An in-sample fit is always optimistic. If the residuals are small and the errors large, the model has memorised. Success is measured only by the out-of-sample error."
+      }
+    },
+    {
+      "id": "q26",
+      "answer": 0,
+      "text": {
+        "tr": "Tek bir haftayı kopyalamak yerine son dört haftanın aynı günlerinin ortalamasını almanın artısı ve eksisi nedir?",
+        "en": "What are the pro and con of averaging the same weekdays of the last four weeks instead of copying a single week?"
+      },
+      "options": {
+        "tr": [
+          "Gürültü azalır, ama trende daha geç tepki verir",
+          "Her zaman daha iyidir",
+          "Her zaman daha kötüdür",
+          "Mevsimi siler"
+        ],
+        "en": [
+          "Less noise, but a slower reaction to a trend",
+          "It is always better",
+          "It is always worse",
+          "It erases the season"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek hafta o haftanın sürprizlerini de kopyalar. Dört haftanın ortalaması daha düzgün ama düzey değişiyorsa geride kalır.",
+        "en": "A single week copies that week's surprises too. The mean of four weeks is smoother but lags behind when the level is changing."
+      }
+    }
+  ]
+}

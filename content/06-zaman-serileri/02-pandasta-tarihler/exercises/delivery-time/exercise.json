@@ -1,0 +1,36 @@
+{
+  "id": "delivery-time",
+  "title": {
+    "tr": "Teslim süresi",
+    "en": "Delivery time"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`delivered_on` ISO olduğu için biçim gerekmiyor; yalnızca `errors=\"coerce\"`.",
+      "en": "`delivered_on` is ISO, so it needs no format; only `errors=\"coerce\"`."
+    },
+    {
+      "tr": "Geçerli değer sayısı `days.notna().sum()`. `NaT` olan satırlar `days > 3` karşılaştırmasında `False` sayılıyor.",
+      "en": "The number of valid values is `days.notna().sum()`. Rows that are `NaT` count as `False` in `days > 3`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\norders = pd.read_csv(\"orders_raw.csv\")\n\nordered = pd.to_datetime(orders[\"ordered_at\"],\n                         format=\"%d.%m.%Y %H:%M\", errors=\"coerce\")\ndelivered = pd.to_datetime(orders[\"delivered_on\"], errors=\"coerce\")\n\ndays = (delivered - ordered.dt.normalize()).dt.days\n\nprint(int(days.notna().sum()))\nprint(round(float(days.mean()), 2))\nprint(int(days.max()))\nprint(int((days > 3).sum()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\norders = pd.read_csv(\"orders_raw.csv\")\n\nordered = pd.to_datetime(orders[\"ordered_at\"],\n                         format=\"%d.%m.%Y %H:%M\", errors=\"coerce\")\ndelivered = pd.to_datetime(orders[\"delivered_on\"], errors=\"coerce\")\n\ndays = (delivered - ordered.dt.normalize()).dt.days\n\nprint(int(days.notna().sum()))\nprint(round(float(days.mean()), 2))\nprint(int(days.max()))\nprint(int((days > 3).sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "230\n2.33\n8\n33"
+    }
+  ]
+}

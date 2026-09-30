@@ -1,0 +1,36 @@
+{
+  "id": "widening",
+  "title": {
+    "tr": "Ufukla genişleme",
+    "en": "Widening with the horizon"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`k.shift(-h) - k`, her günden `h` gün sonrasına kadar olan değişim; bu, naif tahminin `h` günlük hatası.",
+      "en": "`k.shift(-h) - k` is the change from each day to `h` days later; that is the `h`-day error of the naive forecast."
+    },
+    {
+      "tr": "Koşullu ifade: `bound = a if widen else b`.",
+      "en": "A conditional expression: `bound = a if widen else b`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nk = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\n\nsd = float(k.diff().std())\nprint(round(sd, 3))\n\nlast = float(k.iloc[-1])\nfor h in (1, 10, 40):\n    half = 1.96 * sd * np.sqrt(h)\n    print(h, round(last - half, 1), round(last + half, 1))\n\n\ndef coverage(h, widen):\n    error = (k.shift(-h) - k).dropna()\n    bound = 1.96 * sd * np.sqrt(h) if widen else 1.96 * sd\n    return round(float((error.abs() <= bound).mean()), 3)\n\n\nfor h in (1, 10, 40):\n    print(h, coverage(h, True), coverage(h, False))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nk = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\n\nsd = float(k.diff().std())\nprint(round(sd, 3))\n\nlast = float(k.iloc[-1])\nfor h in (1, 10, 40):\n    half = 1.96 * sd * np.sqrt(h)\n    print(h, round(last - half, 1), round(last + half, 1))\n\n\ndef coverage(h, widen):\n    error = (k.shift(-h) - k).dropna()\n    bound = 1.96 * sd * np.sqrt(h) if widen else 1.96 * sd\n    return round(float((error.abs() <= bound).mean()), 3)\n\n\nfor h in (1, 10, 40):\n    print(h, coverage(h, True), coverage(h, False))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2.276\n1 162.0 170.9\n10 152.3 180.5\n40 138.2 194.7\n1 0.953 0.953\n10 0.925 0.411\n40 0.969 0.19"
+    }
+  ]
+}

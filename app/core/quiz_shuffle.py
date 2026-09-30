@@ -45,6 +45,11 @@ def _shuffle_options(question: dict, rng: random.Random) -> dict:
     rng.shuffle(sira)
 
     yeni = dict(question)
+    # Şıkların özgün dosyadaki sırası: gösterilen i. şık özgün `_order[i]`.
+    # Geçmiş denemelerde kişinin seçtiği şık dosyadaki haliyle saklanıyor;
+    # şıklar ikinci kez karıştırılırsa (`_fix_streaks`) sıralar birleşiyor.
+    onceki = question.get("_order") or list(range(uzunluk))
+    yeni["_order"] = [onceki[i] for i in sira]
     yeni["options"] = {
         dil: [options[dil][i] for i in sira] for dil in diller
     }

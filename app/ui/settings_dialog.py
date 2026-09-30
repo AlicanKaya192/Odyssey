@@ -269,6 +269,8 @@ class SettingsDialog(QDialog):
     # açık olan bölüm ekranı eski kilit durumunu göstermeye devam ediyor
     # ve kullanıcı çıkıp girmeden fark görmüyordu.
     lock_changed = Signal()
+    # Öğrenme › Tanıtım turu: pencere kapanıyor, tur başlıyor.
+    tour_requested = Signal()
     # Sınav süresi ayarı: açık bir sınav varken de o an uygulanıyor.
     timing_changed = Signal()
 
@@ -467,9 +469,18 @@ class SettingsDialog(QDialog):
         self._untimed_row = SettingRow()
         self._untimed_row.switch.toggled.connect(self._on_untimed)
 
-        layout.addWidget(self._group([self._unlock_row, self._untimed_row]))
+        self._tour_button = QPushButton()
+        self._tour_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._tour_button.clicked.connect(self._on_tour)
+        self._tour_row = SettingRow(self._tour_button)
+
+        layout.addWidget(self._group([self._unlock_row, self._untimed_row, self._tour_row]))
         layout.addStretch(1)
         return sayfa
+
+    def _on_tour(self) -> None:
+        self.tour_requested.emit()
+        self.accept()
 
     def _build_notifications(self) -> QWidget:
         """Seri hatırlatmaları: anahtar, saat ve deneme bildirimi.
@@ -910,6 +921,9 @@ class SettingsDialog(QDialog):
         self._language_row.description.setText(t("settings.language_help"))
 
         self._unlock_row.title.setText(t("settings.unlock_all"))
+        self._tour_row.title.setText(t("settings.tour"))
+        self._tour_row.description.setText(t("settings.tour_help"))
+        self._tour_button.setText(t("settings.tour_start"))
         self._unlock_row.description.setText(t("settings.unlock_all_help"))
 
         self._untimed_row.title.setText(t("settings.untimed_quiz"))

@@ -1,0 +1,36 @@
+{
+  "id": "against-target",
+  "title": {
+    "tr": "Hedefe göre",
+    "en": "Against the target"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki sütunlu anahtar: `actual.merge(targets, on=[\"month\", \"store\"], how=\"left\")`.",
+      "en": "A two-column key: `actual.merge(targets, on=[\"month\", \"store\"], how=\"left\")`."
+    },
+    {
+      "tr": "En küçük değerin satırı: `report.loc[report[\"pct\"].idxmin()]`.",
+      "en": "The row of the smallest value: `report.loc[report[\"pct\"].idxmin()]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nlong = pd.read_csv(\"stores.csv\", parse_dates=[\"date\"])\ntargets = pd.read_csv(\"targets.csv\")\n\nlong[\"month\"] = long[\"date\"].dt.to_period(\"M\").astype(str)\nactual = long.groupby([\"month\", \"store\"])[\"sales\"].sum().reset_index()\n\nreport = actual.merge(targets, on=[\"month\", \"store\"], how=\"left\")\nreport[\"pct\"] = (report[\"sales\"] / report[\"target\"] * 100).round(1)\n\njune = report[report[\"month\"] == \"2024-06\"]\nfor store, pct in zip(june[\"store\"], june[\"pct\"]):\n    print(store, pct)\n\nprint(int((report[\"pct\"] >= 100).sum()), len(report))\n\nworst = report.loc[report[\"pct\"].idxmin()]\nprint(worst[\"month\"], worst[\"store\"], worst[\"pct\"])\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nlong = pd.read_csv(\"stores.csv\", parse_dates=[\"date\"])\ntargets = pd.read_csv(\"targets.csv\")\n\nlong[\"month\"] = long[\"date\"].dt.to_period(\"M\").astype(str)\nactual = long.groupby([\"month\", \"store\"])[\"sales\"].sum().reset_index()\n\nreport = actual.merge(targets, on=[\"month\", \"store\"], how=\"left\")\nreport[\"pct\"] = (report[\"sales\"] / report[\"target\"] * 100).round(1)\n\njune = report[report[\"month\"] == \"2024-06\"]\nfor store, pct in zip(june[\"store\"], june[\"pct\"]):\n    print(store, pct)\n\nprint(int((report[\"pct\"] >= 100).sum()), len(report))\n\nworst = report.loc[report[\"pct\"].idxmin()]\nprint(worst[\"month\"], worst[\"store\"], worst[\"pct\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "A 93.2\nB 92.4\nC 94.4\nD 89.8\n27 44\n2024-06 D 89.8"
+    }
+  ]
+}

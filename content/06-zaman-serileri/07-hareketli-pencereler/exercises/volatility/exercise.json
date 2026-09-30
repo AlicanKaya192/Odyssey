@@ -1,0 +1,36 @@
+{
+  "id": "volatility",
+  "title": {
+    "tr": "Oynaklık",
+    "en": "Volatility"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Getiri serisinde hareketli standart sapma: `r.rolling(20).std()`.",
+      "en": "A rolling standard deviation on the return series: `r.rolling(20).std()`."
+    },
+    {
+      "tr": "`(close > ma100)` doğru/yanlış serisi; bir yılı `.loc[\"2024\"]` ile seçip `.sum()` ile say.",
+      "en": "`(close > ma100)` is a true/false series; select one year with `.loc[\"2024\"]` and count with `.sum()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nclose = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\nr = close.pct_change()\n\nvol = r.rolling(20).std() * (252 ** 0.5) * 100\nprint(round(float(vol.mean()), 1))\nprint(vol.idxmax().strftime(\"%Y-%m-%d\"), round(float(vol.max()), 1))\nprint(vol.idxmin().strftime(\"%Y-%m-%d\"), round(float(vol.min()), 1))\n\nma100 = close.rolling(100).mean()\nabove = (close > ma100).loc[\"2024\"]\nprint(int(above.sum()), len(above))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nclose = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\nr = close.pct_change()\n\nvol = r.rolling(20).std() * (252 ** 0.5) * 100\nprint(round(float(vol.mean()), 1))\nprint(vol.idxmax().strftime(\"%Y-%m-%d\"), round(float(vol.max()), 1))\nprint(vol.idxmin().strftime(\"%Y-%m-%d\"), round(float(vol.min()), 1))\n\nma100 = close.rolling(100).mean()\nabove = (close > ma100).loc[\"2024\"]\nprint(int(above.sum()), len(above))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "27.0\n2023-03-02 39.8\n2023-10-18 18.5\n157 262"
+    }
+  ]
+}

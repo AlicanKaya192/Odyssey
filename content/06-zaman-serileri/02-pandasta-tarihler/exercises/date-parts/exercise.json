@@ -1,0 +1,36 @@
+{
+  "id": "date-parts",
+  "title": {
+    "tr": "Tarihin parçaları",
+    "en": "The parts of a date"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yeni sütun açmadan da gruplanabiliyor: `sales.groupby(sales[\"date\"].dt.day_name())[\"sales\"].mean()`.",
+      "en": "You can group without adding a column: `sales.groupby(sales[\"date\"].dt.day_name())[\"sales\"].mean()`."
+    },
+    {
+      "tr": "İki koşul `&` ile ve parantezle birleşiyor: `(sales[\"date\"].dt.year == 2024) & (sales[\"date\"].dt.month == 3)`.",
+      "en": "Two conditions are joined with `&` and parentheses: `(sales[\"date\"].dt.year == 2024) & (sales[\"date\"].dt.month == 3)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nsales = pd.read_csv(\"store_sales.csv\", parse_dates=[\"date\"])\n\nby_day = sales.groupby(sales[\"date\"].dt.day_name())[\"sales\"].mean()\nby_day = by_day.sort_values(ascending=False)\nfor name, value in by_day.head(3).items():\n    print(name, round(float(value), 1))\n\nweekend = sales[\"date\"].dt.dayofweek >= 5\nshare = sales.loc[weekend, \"sales\"].sum() / sales[\"sales\"].sum() * 100\nprint(round(float(share), 1))\n\nmarch = (sales[\"date\"].dt.year == 2024) & (sales[\"date\"].dt.month == 3)\nprint(int(sales.loc[march, \"sales\"].sum()))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nsales = pd.read_csv(\"store_sales.csv\", parse_dates=[\"date\"])\n\nby_day = sales.groupby(sales[\"date\"].dt.day_name())[\"sales\"].mean()\nby_day = by_day.sort_values(ascending=False)\nfor name, value in by_day.head(3).items():\n    print(name, round(float(value), 1))\n\nweekend = sales[\"date\"].dt.dayofweek >= 5\nshare = sales.loc[weekend, \"sales\"].sum() / sales[\"sales\"].sum() * 100\nprint(round(float(share), 1))\n\nmarch = (sales[\"date\"].dt.year == 2024) & (sales[\"date\"].dt.month == 3)\nprint(int(sales.loc[march, \"sales\"].sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Saturday 336.1\nSunday 296.9\nFriday 278.9\n34.9\n8919"
+    }
+  ]
+}

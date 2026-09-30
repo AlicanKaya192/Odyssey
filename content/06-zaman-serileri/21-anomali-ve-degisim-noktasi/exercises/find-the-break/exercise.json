@@ -1,0 +1,36 @@
+{
+  "id": "find-the-break",
+  "title": {
+    "tr": "Değişim gününü bul",
+    "en": "Find the day of the change"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir parçanın kare toplamı: `((left - left.mean()) ** 2).sum()`.",
+      "en": "The sum of squares of one piece: `((left - left.mean()) ** 2).sum()`."
+    },
+    {
+      "tr": "Hafta sonu maskesi: `weekend = v.index.dayofweek >= 5`; hafta içi `~weekend`.",
+      "en": "The weekend mask: `weekend = v.index.dayofweek >= 5`; weekdays are `~weekend`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nv = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\nv = v.astype(float)\n\n\ndef best_split(x, margin=14):\n    x = np.asarray(x, dtype=float)\n    total = ((x - x.mean()) ** 2).sum()\n    best_k, best_sse = None, None\n    for k in range(margin, len(x) - margin):\n        left, right = x[:k], x[k:]\n        sse = ((left - left.mean()) ** 2).sum() + ((right - right.mean()) ** 2).sum()\n        if best_sse is None or sse < best_sse:\n            best_k, best_sse = k, sse\n    return best_k, 1 - best_sse / total\n\n\nk, gain = best_split(v)\nprint(v.index[k].strftime(\"%Y-%m-%d\"), round(float(gain), 2))\n\nweekend = v.index.dayofweek >= 5\nratio = v[weekend].median() / v[~weekend].median()\nprint(round(float(ratio), 3))\n\nadjusted = v.copy()\nadjusted[weekend] = adjusted[weekend] / ratio\nk, gain = best_split(adjusted)\nprint(adjusted.index[k].strftime(\"%Y-%m-%d\"), round(float(gain), 2))\n\nclean = adjusted.copy()\nclean.loc[pd.to_datetime([\"2024-03-14\", \"2024-06-20\", \"2024-10-08\"])] = np.nan\nclean = clean.interpolate()\nk, gain = best_split(clean)\nbefore = float(clean.iloc[:k].mean())\nafter = float(clean.iloc[k:].mean())\nprint(clean.index[k].strftime(\"%Y-%m-%d\"), round(float(gain), 2), round(before), round(after),\n      round((after / before - 1) * 100))\n\nleft_gain = best_split(clean.iloc[:k])[1]\nright_gain = best_split(clean.iloc[k:])[1]\nprint(round(float(left_gain), 3), round(float(right_gain), 3))\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nv = pd.read_csv(\"web_traffic.csv\", index_col=\"date\", parse_dates=True)[\"visits\"]\nv = v.astype(float)\n\n\ndef best_split(x, margin=14):\n    x = np.asarray(x, dtype=float)\n    total = ((x - x.mean()) ** 2).sum()\n    best_k, best_sse = None, None\n    for k in range(margin, len(x) - margin):\n        left, right = x[:k], x[k:]\n        sse = ((left - left.mean()) ** 2).sum() + ((right - right.mean()) ** 2).sum()\n        if best_sse is None or sse < best_sse:\n            best_k, best_sse = k, sse\n    return best_k, 1 - best_sse / total\n\n\nk, gain = best_split(v)\nprint(v.index[k].strftime(\"%Y-%m-%d\"), round(float(gain), 2))\n\nweekend = v.index.dayofweek >= 5\nratio = v[weekend].median() / v[~weekend].median()\nprint(round(float(ratio), 3))\n\nadjusted = v.copy()\nadjusted[weekend] = adjusted[weekend] / ratio\nk, gain = best_split(adjusted)\nprint(adjusted.index[k].strftime(\"%Y-%m-%d\"), round(float(gain), 2))\n\nclean = adjusted.copy()\nclean.loc[pd.to_datetime([\"2024-03-14\", \"2024-06-20\", \"2024-10-08\"])] = np.nan\nclean = clean.interpolate()\nk, gain = best_split(clean)\nbefore = float(clean.iloc[:k].mean())\nafter = float(clean.iloc[k:].mean())\nprint(clean.index[k].strftime(\"%Y-%m-%d\"), round(float(gain), 2), round(before), round(after),\n      round((after / before - 1) * 100))\n\nleft_gain = best_split(clean.iloc[:k])[1]\nright_gain = best_split(clean.iloc[k:])[1]\nprint(round(float(left_gain), 3), round(float(right_gain), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2024-09-02 0.3\n0.723\n2024-09-02 0.52\n2024-09-02 0.88 4004 5235 31\n0.013 0.015"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "two-kinds-of-missing",
+  "title": {
+    "tr": "Kapalı mı, yok mu?",
+    "en": "Closed or absent?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`NaN` olan günlerin tarihleri: `wide.index[wide[\"C\"].isna()]`. Üstünde `.day_name().unique()`.",
+      "en": "The dates of the `NaN` days: `wide.index[wide[\"C\"].isna()]`. Then `.day_name().unique()` on that."
+    },
+    {
+      "tr": "Satır boyunca toplam: `wide.sum(axis=1)`. Yalnızca bazı sütunlar: `wide[[\"A\", \"B\", \"C\"]]`.",
+      "en": "A total along the row: `wide.sum(axis=1)`. Only some columns: `wide[[\"A\", \"B\", \"C\"]]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\n\nlong = pd.read_csv(\"stores.csv\", parse_dates=[\"date\"])\nwide = long.pivot(index=\"date\", columns=\"store\", values=\"sales\")\n\nclosed = wide.index[wide[\"C\"].isna()]\nprint(closed.day_name().unique().tolist())\n\nprint(round(float(wide[\"C\"].mean()), 1), round(float(wide[\"C\"].fillna(0).mean()), 1))\nprint(round(float(wide[\"D\"].mean()), 1), round(float(wide[\"D\"].fillna(0).mean()), 1))\n\ntotal = wide.sum(axis=1)\nprint(total.loc[\"2024-04-30\"], total.loc[\"2024-05-01\"])\n\nsame_set = wide[[\"A\", \"B\", \"C\"]].sum(axis=1)\nprint(same_set.loc[\"2024-04-30\"], same_set.loc[\"2024-05-01\"])\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\n\nlong = pd.read_csv(\"stores.csv\", parse_dates=[\"date\"])\nwide = long.pivot(index=\"date\", columns=\"store\", values=\"sales\")\n\nclosed = wide.index[wide[\"C\"].isna()]\nprint(closed.day_name().unique().tolist())\n\nprint(round(float(wide[\"C\"].mean()), 1), round(float(wide[\"C\"].fillna(0).mean()), 1))\nprint(round(float(wide[\"D\"].mean()), 1), round(float(wide[\"D\"].fillna(0).mean()), 1))\n\ntotal = wide.sum(axis=1)\nprint(total.loc[\"2024-04-30\"], total.loc[\"2024-05-01\"])\n\nsame_set = wide[[\"A\", \"B\", \"C\"]].sum(axis=1)\nprint(same_set.loc[\"2024-04-30\"], same_set.loc[\"2024-05-01\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['Sunday']\n248.5 213.2\n170.9 114.4\n626.0 775.0\n626.0 669.0"
+    }
+  ]
+}

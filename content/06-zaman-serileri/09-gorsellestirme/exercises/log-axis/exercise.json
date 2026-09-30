@@ -1,0 +1,41 @@
+{
+  "id": "log-axis",
+  "title": {
+    "tr": "Doğrusal ve logaritmik",
+    "en": "Linear and logarithmic"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`plt.subplots(1, 2, ...)` iki eksen döndürüyor: `axes[0]` ve `axes[1]`.",
+      "en": "`plt.subplots(1, 2, ...)` returns two axes: `axes[0]` and `axes[1]`."
+    },
+    {
+      "tr": "Bir yılın satırı: `by_year.loc[2013]`; içinden `[\"min\"]` ve `[\"max\"]`.",
+      "en": "One year's row: `by_year.loc[2013]`; take `[\"min\"]` and `[\"max\"]` from it."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)[\"passengers\"]\n\nby_year = p.groupby(p.index.year).agg([\"min\", \"max\"])\nfirst = by_year.loc[2013]\nlast = by_year.loc[2024]\n\nprint(int(first[\"max\"] - first[\"min\"]), int(last[\"max\"] - last[\"min\"]))\nprint(round(float(first[\"max\"] / first[\"min\"]), 2), round(float(last[\"max\"] / last[\"min\"]), 2))\n\nfig, axes = plt.subplots(1, 2, figsize=(11, 4))\naxes[0].plot(p.index, p.values)\naxes[1].plot(p.index, p.values)\naxes[1].set_yscale(\"log\")\nfig.savefig(\"chart.png\")\n\nprint([ax.get_yscale() for ax in axes])\n```",
+      "en": "The solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\np = pd.read_csv(\"passengers_monthly.csv\", index_col=\"month\", parse_dates=True)[\"passengers\"]\n\nby_year = p.groupby(p.index.year).agg([\"min\", \"max\"])\nfirst = by_year.loc[2013]\nlast = by_year.loc[2024]\n\nprint(int(first[\"max\"] - first[\"min\"]), int(last[\"max\"] - last[\"min\"]))\nprint(round(float(first[\"max\"] / first[\"min\"]), 2), round(float(last[\"max\"] / last[\"min\"]), 2))\n\nfig, axes = plt.subplots(1, 2, figsize=(11, 4))\naxes[0].plot(p.index, p.values)\naxes[1].plot(p.index, p.values)\naxes[1].set_yscale(\"log\")\nfig.savefig(\"chart.png\")\n\nprint([ax.get_yscale() for ax in axes])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "artifact",
+      "name": "chart.png",
+      "min_bytes": 1000
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "61 183\n1.6 1.6\n['linear', 'log']"
+    }
+  ]
+}

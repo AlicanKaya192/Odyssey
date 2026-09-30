@@ -1,0 +1,36 @@
+{
+  "id": "random-walk-model",
+  "title": {
+    "tr": "Daha fazlasına gerek var mı?",
+    "en": "Is more needed?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Veri numpy dizisi olduğunda `fit.params` de bir dizi; adları `fit.param_names` içinde. İkisini `dict(zip(fit.param_names, fit.params))` ile eşleştir.",
+      "en": "When the data is a numpy array `fit.params` is an array too; the names are in `fit.param_names`. Pair them with `dict(zip(fit.param_names, fit.params))`."
+    },
+    {
+      "tr": "Modelleri bir sözlükte tut: `{order: ARIMA(k, order=order).fit() for order in orders}`.",
+      "en": "Keep the models in a dictionary: `{order: ARIMA(k, order=order).fit() for order in orders}`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\nk = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\nk = k.to_numpy()\n\norders = [(0, 1, 0), (1, 1, 0), (0, 1, 1), (1, 1, 1)]\n\nfits = {order: ARIMA(k, order=order).fit() for order in orders}\nfor order, fit in fits.items():\n    print(order, round(float(fit.aic), 1))\n\naics = [float(fit.aic) for fit in fits.values()]\nprint(round(max(aics) - min(aics), 1))\n\nnames = fits[(1, 1, 1)].param_names\nvalues = dict(zip(names, fits[(1, 1, 1)].params))\nprint(round(float(values[\"ar.L1\"]), 2), round(float(values[\"ma.L1\"]), 2))\n\nforecast = fits[(0, 1, 0)].forecast(3)\nprint([round(float(v), 2) for v in forecast], round(float(k[-1]), 2))\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\nk = pd.read_csv(\"stock_price.csv\", index_col=\"date\", parse_dates=True)[\"close\"]\nk = k.to_numpy()\n\norders = [(0, 1, 0), (1, 1, 0), (0, 1, 1), (1, 1, 1)]\n\nfits = {order: ARIMA(k, order=order).fit() for order in orders}\nfor order, fit in fits.items():\n    print(order, round(float(fit.aic), 1))\n\naics = [float(fit.aic) for fit in fits.values()]\nprint(round(max(aics) - min(aics), 1))\n\nnames = fits[(1, 1, 1)].param_names\nvalues = dict(zip(names, fits[(1, 1, 1)].params))\nprint(round(float(values[\"ar.L1\"]), 2), round(float(values[\"ma.L1\"]), 2))\n\nforecast = fits[(0, 1, 0)].forecast(3)\nprint([round(float(v), 2) for v in forecast], round(float(k[-1]), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(0, 1, 0) 3503.1\n(1, 1, 0) 3503.8\n(0, 1, 1) 3503.9\n(1, 1, 1) 3503.1\n0.8\n0.63 -0.57\n[166.44, 166.44, 166.44] 166.44"
+    }
+  ]
+}

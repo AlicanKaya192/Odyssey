@@ -1,0 +1,36 @@
+{
+  "id": "fair-comparison",
+  "title": {
+    "tr": "Adil karşılaştırma",
+    "en": "A fair comparison"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her deneyin mutlak hata dizisini bir listeye ekle, sonunda `np.array(rows)` ile 13 × 28 diziye çevir.",
+      "en": "Append each experiment's array of absolute errors to a list and turn it into a 13 × 28 array with `np.array(rows)` at the end."
+    },
+    {
+      "tr": "Haftaya göre: `e[:, i:i + 7].mean()` ve `i` için `range(0, 28, 7)`.",
+      "en": "By week: `e[:, i:i + 7].mean()` with `i` from `range(0, 28, 7)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\n\n\ndef snaive(train, h):\n    last = train.iloc[-7:].to_numpy()\n    return np.array([last[i % 7] for i in range(h)], dtype=float)\n\n\ndef weeks_mean(train, h, k):\n    pattern = train.iloc[-7 * k:].to_numpy().reshape(k, 7).mean(axis=0)\n    return np.array([pattern[i % 7] for i in range(h)])\n\n\ndef errors(forecast):\n    rows = []\n    for cut in cuts:\n        train = s.loc[:cut]\n        test = s.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n        rows.append(np.abs(test.to_numpy() - forecast(train, 28)))\n    return np.array(rows)\n\n\ne_naive = errors(snaive)\ne_weeks = errors(lambda train, h: weeks_mean(train, h, 4))\n\nmae_naive = e_naive.mean(axis=1)\nmae_weeks = e_weeks.mean(axis=1)\nprint(round(float(mae_naive.mean()), 2), round(float(mae_weeks.mean()), 2))\n\ndiff = mae_naive - mae_weeks\nprint(round(float(diff.mean()), 2), round(float(diff.std(ddof=1)), 2), int((diff < 0).sum()))\n\nprint(round(float(mae_naive[11]), 2), round(float(mae_weeks[11]), 2))\n\nfor e in (e_naive, e_weeks):\n    print([round(float(e[:, i:i + 7].mean()), 1) for i in range(0, 28, 7)])\n```",
+      "en": "The solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\ns = s.asfreq(\"D\")\ncuts = [pd.Timestamp(\"2024-01-02\") + pd.Timedelta(days=28 * i) for i in range(13)]\n\n\ndef snaive(train, h):\n    last = train.iloc[-7:].to_numpy()\n    return np.array([last[i % 7] for i in range(h)], dtype=float)\n\n\ndef weeks_mean(train, h, k):\n    pattern = train.iloc[-7 * k:].to_numpy().reshape(k, 7).mean(axis=0)\n    return np.array([pattern[i % 7] for i in range(h)])\n\n\ndef errors(forecast):\n    rows = []\n    for cut in cuts:\n        train = s.loc[:cut]\n        test = s.loc[cut + pd.Timedelta(days=1):].iloc[:28]\n        rows.append(np.abs(test.to_numpy() - forecast(train, 28)))\n    return np.array(rows)\n\n\ne_naive = errors(snaive)\ne_weeks = errors(lambda train, h: weeks_mean(train, h, 4))\n\nmae_naive = e_naive.mean(axis=1)\nmae_weeks = e_weeks.mean(axis=1)\nprint(round(float(mae_naive.mean()), 2), round(float(mae_weeks.mean()), 2))\n\ndiff = mae_naive - mae_weeks\nprint(round(float(diff.mean()), 2), round(float(diff.std(ddof=1)), 2), int((diff < 0).sum()))\n\nprint(round(float(mae_naive[11]), 2), round(float(mae_weeks[11]), 2))\n\nfor e in (e_naive, e_weeks):\n    print([round(float(e[:, i:i + 7].mean()), 1) for i in range(0, 28, 7)])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "17.95 17.2\n0.75 2.84 5\n11.64 14.84\n[15.9, 17.0, 18.2, 20.7]\n[13.9, 16.4, 17.9, 20.6]"
+    }
+  ]
+}

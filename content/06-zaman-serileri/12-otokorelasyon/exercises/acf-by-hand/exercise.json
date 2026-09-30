@@ -1,0 +1,36 @@
+{
+  "id": "acf-by-hand",
+  "title": {
+    "tr": "Elle otokorelasyon",
+    "en": "Autocorrelation by hand"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Gecikmeleri dolaşmak: `for k in range(1, 8)`; liste kavramasıyla tek satırda da olur.",
+      "en": "Looping over the lags: `for k in range(1, 8)`; a list comprehension does it in one line."
+    },
+    {
+      "tr": "`values[1:].argmax()` dilimdeki konumu veriyor; gecikme numarası bir fazlası.",
+      "en": "`values[1:].argmax()` gives the position within the slice; the lag number is one more."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.stattools import acf\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nby_hand = [round(float(s.corr(s.shift(k))), 2) for k in range(1, 8)]\nprint(by_hand)\n\nvalues = acf(s, nlags=7)\nprint([round(float(v), 2) for v in values[1:]])\n\nprint(int(values[1:].argmax()) + 1)\nprint(len(values), float(values[0]))\n```",
+      "en": "The solution:\n\n```python\nimport pandas as pd\nfrom statsmodels.tsa.stattools import acf\n\ns = pd.read_csv(\"store_sales.csv\", index_col=\"date\", parse_dates=True)[\"sales\"]\n\nby_hand = [round(float(s.corr(s.shift(k))), 2) for k in range(1, 8)]\nprint(by_hand)\n\nvalues = acf(s, nlags=7)\nprint([round(float(v), 2) for v in values[1:]])\n\nprint(int(values[1:].argmax()) + 1)\nprint(len(values), float(values[0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.69, 0.28, 0.11, 0.1, 0.27, 0.68, 0.96]\n[0.69, 0.28, 0.11, 0.1, 0.26, 0.67, 0.94]\n7\n8 1.0"
+    }
+  ]
+}

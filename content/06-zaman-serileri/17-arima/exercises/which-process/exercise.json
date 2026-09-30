@@ -1,0 +1,36 @@
+{
+  "id": "which-process",
+  "title": {
+    "tr": "AIC ile tür seçmek",
+    "en": "Choosing the kind by AIC"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki modeli bir demet olarak sakla: `fits[name] = (ar, ma)`; AIC `fit.aic`.",
+      "en": "Keep the two models as a tuple: `fits[name] = (ar, ma)`; the AIC is `fit.aic`."
+    },
+    {
+      "tr": "p-değerleri `fit.pvalues` içinde, katsayılarla aynı adlarla.",
+      "en": "The p-values are in `fit.pvalues`, under the same names as the coefficients."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\nw = pd.read_csv(\"two_processes.csv\", index_col=\"date\", parse_dates=True).asfreq(\"D\")\n\nfits = {}\nfor name in (\"x\", \"y\"):\n    ar = ARIMA(w[name], order=(1, 0, 0)).fit()\n    ma = ARIMA(w[name], order=(0, 0, 1)).fit()\n    fits[name] = (ar, ma)\n    print(name, round(float(ar.aic), 1), round(float(ma.aic), 1))\n\nfor name, (ar, ma) in fits.items():\n    if ar.aic < ma.aic:\n        print(name, \"AR\", round(float(ar.params[\"ar.L1\"]), 2))\n    else:\n        print(name, \"MA\", round(float(ma.params[\"ma.L1\"]), 2))\n\nbig = ARIMA(w[\"x\"], order=(2, 0, 0)).fit()\nprint(round(float(big.params[\"ar.L2\"]), 2), round(float(big.pvalues[\"ar.L2\"]), 2))\nprint(round(float(fits[\"x\"][0].aic), 1), round(float(big.aic), 1))\n```",
+      "en": "The solution:\n\n```python\nimport warnings\n\nwarnings.simplefilter(\"ignore\")\n\nimport pandas as pd\nfrom statsmodels.tsa.arima.model import ARIMA\n\nw = pd.read_csv(\"two_processes.csv\", index_col=\"date\", parse_dates=True).asfreq(\"D\")\n\nfits = {}\nfor name in (\"x\", \"y\"):\n    ar = ARIMA(w[name], order=(1, 0, 0)).fit()\n    ma = ARIMA(w[name], order=(0, 0, 1)).fit()\n    fits[name] = (ar, ma)\n    print(name, round(float(ar.aic), 1), round(float(ma.aic), 1))\n\nfor name, (ar, ma) in fits.items():\n    if ar.aic < ma.aic:\n        print(name, \"AR\", round(float(ar.params[\"ar.L1\"]), 2))\n    else:\n        print(name, \"MA\", round(float(ma.params[\"ma.L1\"]), 2))\n\nbig = ARIMA(w[\"x\"], order=(2, 0, 0)).fit()\nprint(round(float(big.params[\"ar.L2\"]), 2), round(float(big.pvalues[\"ar.L2\"]), 2))\nprint(round(float(fits[\"x\"][0].aic), 1), round(float(big.aic), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "x 1622.9 1744.9\ny 1722.5 1625.2\nx AR 0.69\ny MA 0.7\n-0.02 0.64\n1622.9 1624.7"
+    }
+  ]
+}
