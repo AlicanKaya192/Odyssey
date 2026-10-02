@@ -32,7 +32,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QSizePolicy, QVBoxLayout, QWidget
 
-from ..core import updater
+from ..core import log, updater
 from ..core.language import LanguageManager
 from ..core.updater import Asset
 from ..core.updates import UpdateInfo
@@ -40,6 +40,12 @@ from ..paths import updates_dir
 from ..resources.theme.tokens import FONTS, SPACING
 from ..widgets.progress_bar import ProgressBar
 from .update_scene import UpdateScene
+
+# Kurulum başlamadıysa sebebe göre metin; listede olmayan her hata indirme hatası.
+ERROR_TEXTS = {
+    "blocked": "update.blocked_by_windows",
+    "start": "update.start_failed",
+}
 
 MB = 1024 * 1024
 # İlerleme en fazla bu aralıkla yazılıyor (sn).
@@ -239,10 +245,17 @@ class UpdateWindow(QWidget):
         if hata:
             if hata == "cancelled":
                 return
+            log.get(__name__).warning("Güncelleme tamamlanamadı: %s", hata)
             self._state = "error"
             self._scene.set_mode("idle")
             self._heading.setText(self._language.t("update.failed_heading"))
-            self._status.setText(self._language.t("update.download_failed"))
+            self._status.setText(self._language.t(ERROR_TEXTS.get(hata, "update.download_failed")))
+            if hata in ERROR_TEXTS:
+                # İndirme bitmişti, sorun kurulumda: yüzde ve çubuk bir şey
+                # söylemiyor. Yerlerini açıklama alıyor (üç satıra sığmıyordu).
+                for parca in (self._percent_label, self._detail, self._bar):
+                    parca.hide()
+                self._status.setFixedHeight(88)
             self._detail.setText("")
             self._page_button.show()
             self._background_button.hide()

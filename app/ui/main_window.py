@@ -778,7 +778,9 @@ class MainWindow(QMainWindow):
             try:
                 win_notify.show_toast(baslik, metin, reminder_service.icon_path())
             except Exception:  # noqa: BLE001 — bildirim gösterilemezse kart yeter
-                pass
+                from ..core import log
+
+                log.get(__name__).exception("Zamanlayıcı bildirimi gösterilemedi")
         if phase == "focus":
             self._journey.refresh()
             self._refresh_progress()

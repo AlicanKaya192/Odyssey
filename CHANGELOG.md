@@ -19,6 +19,24 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.9.2] — yayınlanmadı
+
+### Eklendi
+- **İlerlemenizin günlük yedeği.** Program her gün açıldığında ilerleme
+  dosyanızın bir kopyasını alıyor ve son üç günü saklıyor. Elektrik kesintisi
+  ya da disk hatası yüzünden dosya bozulursa program bunu açılışta fark
+  edip en yeni sağlam yedeği yerine koyuyor ve size söylüyor; bozuk dosya
+  silinmiyor.
+- **Günlük kaydı.** Bir şey ters gittiğinde sebebi `%APPDATA%\Odyssey\logs`
+  klasöründeki bir dosyaya yazılıyor; hata bildirirken bu dosyayı
+  ekleyebilirsiniz. Yazdığınız kod, notlarınız ve cevaplarınız kayda
+  girmiyor, dosya hiçbir yere gönderilmiyor.
+
+### Düzeltildi
+- Windows güncellemenin kurulum dosyasını engellediğinde (örneğin Akıllı
+  Uygulama Denetimi) güncelleme penceresi "indirilemedi" diyordu. Artık
+  gerçek sebebi ve ne yapılabileceğini söylüyor.
+
 ## [0.9.1] — 30 Eylül 2026
 
 ### Eklendi

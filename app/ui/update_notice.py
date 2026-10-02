@@ -170,8 +170,9 @@ def install(path, window, owner) -> None:
     sormadan kapanıyor: çıkış onayı güncelleme penceresinin arkasında kalıp
     güncellemeyi bekletiyordu.
     """
-    if not updater.start_installer(path):
-        window.show_error("start")
+    hata = updater.start_installer(path)
+    if hata:
+        window.show_error(hata)
         return
     window.release()
     if owner is not None and hasattr(owner, "close_for_update"):

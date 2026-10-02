@@ -309,7 +309,9 @@ class TourOverlay(QWidget):
             try:
                 adim.prepare()
             except Exception:  # noqa: BLE001 — tur bir ekranı açamazsa kart yine çıksın
-                pass
+                from ..core import log
+
+                log.get(__name__).exception("Tur adımı hazırlanamadı (%d)", index)
         QTimer.singleShot(max(0, adim.wait), lambda i=index: self._arrive(i))
 
     def _arrive(self, index: int) -> None:
