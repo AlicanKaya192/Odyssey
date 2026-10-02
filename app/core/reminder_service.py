@@ -71,7 +71,9 @@ def ensure_async(store) -> None:
             win_notify.register(icon_path(), komut)
             reminder_task.install(saat)
         except Exception:  # noqa: BLE001 - açılışı hiçbir koşulda bozmasın
-            pass
+            from . import log
+
+            log.get(__name__).exception("Hatırlatma görevi tazelenemedi")
 
     threading.Thread(target=work, name="reminder-refresh", daemon=True).start()
 

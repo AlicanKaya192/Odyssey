@@ -114,6 +114,16 @@ def database_path() -> Path:
     return user_data_dir() / "progress.db"
 
 
+def backups_dir() -> Path:
+    """İlerleme veritabanının günlük yedekleri (`app/core/backup.py`)."""
+    return user_data_dir() / "backups"
+
+
+def logs_dir() -> Path:
+    """Günlük kaydının klasörü (`app/core/log.py`)."""
+    return user_data_dir() / "logs"
+
+
 def exercise_env_dir() -> Path:
     """Kullanıcı kodunun çalıştığı sanal ortamın klasörü."""
     return user_data_dir() / "exercise-env"

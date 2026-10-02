@@ -34,6 +34,9 @@ import time
 from dataclasses import dataclass, field
 
 from ..version import APP_VERSION
+from . import log
+
+_log = log.get(__name__)
 
 # Sürümlerin duyurulduğu adres. Depo public olduğunda kimlik doğrulaması
 # istemeden okunuyor; private olduğu sürece 404 dönüyor ve denetim sessizce
@@ -241,13 +244,16 @@ def fetch_latest(url: str = "", timeout: int = TIMEOUT_SEC) -> UpdateInfo:
             ham = cevap.read(MAX_RESPONSE_BYTES)
     except urllib.error.HTTPError as hata:
         # 404: depo private ya da hiç sürüm yok. 403: istek sınırı.
+        _log.warning("Sürüm denetimi: HTTP %s", hata.code)
         return UpdateInfo(status="error", detail=f"HTTP {hata.code}")
     except (urllib.error.URLError, TimeoutError, OSError) as hata:
+        _log.info("Sürüm denetimi: bağlantı yok (%s)", hata)
         return UpdateInfo(status="offline", detail=str(hata))
 
     try:
         veri = json.loads(ham)
     except (ValueError, UnicodeDecodeError) as hata:
+        _log.warning("Sürüm denetimi: cevap okunamadı (%s)", hata)
         return UpdateInfo(status="error", detail=str(hata))
 
     # Liste bekleniyor; tek bir sürüm dönen bir uca bakılırsa da çalışsın

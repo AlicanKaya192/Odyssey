@@ -73,6 +73,8 @@ class ConfirmDialog(QDialog):
         confirm.setCursor(Qt.CursorShape.PointingHandCursor)
         confirm.clicked.connect(self.accept)
         buttons.addWidget(confirm)
+        # Onay metni boşsa yalnızca bilgi veren kutu: tek düğme.
+        confirm.setVisible(bool(confirm_text))
 
         layout.addLayout(buttons)
 

@@ -101,6 +101,27 @@ def check_python() -> None:
         )
 
 
+def _show_restored(restored, language, theme, window) -> None:
+    """İlerleme dosyası bozuk çıktı ve yedekten dönüldü: kişiye bir kez söyle."""
+    from app.ui import titlebar
+    from app.ui.confirm_dialog import ConfirmDialog
+    from app.ui.modal import Backdrop
+
+    t = language.t
+    if restored.backup_day:
+        baslik = t("backup.restored_title")
+        metin = t("backup.restored_message", day=restored.backup_day, path=str(restored.broken_path))
+    else:
+        baslik = t("backup.lost_title")
+        metin = t("backup.lost_message", path=str(restored.broken_path))
+    perde = Backdrop(window)
+    perde.show()
+    kutu = ConfirmDialog(baslik, metin, "", t("backup.ok"), window)
+    titlebar.apply(kutu, theme.effective_mode)
+    kutu.exec()
+    perde.deleteLater()
+
+
 def main() -> int:
     # Denetleyici olarak çağrıldıysak arayüzü hiç kurmadan işi yapıp çıkıyoruz.
     if _run_harness_if_asked():
@@ -116,12 +137,13 @@ def main() -> int:
     # Görev Zamanlayıcı'nın hatırlatma çağrısı: arayüz kurulmadan, birkaç
     # saniyede bakıp gerekirse bildirim gösterip çıkıyor.
     if "--reminder-check" in sys.argv[1:]:
-        from app.core import reminder_service
+        from app.core import log, reminder_service
 
+        log.setup("reminder")
         try:
             reminder_service.run_check()
         except Exception:  # noqa: BLE001 - arka planda sessizce bitmeli
-            pass
+            log.get("odyssey").exception("Hatırlatma denetimi başarısız")
         return 0
 
     # Bildirime tıklanınca Windows `odyssey://open` ile çağırıyor. Program
@@ -155,7 +177,15 @@ def main() -> int:
     # Ayarlar Qt'den önce okunuyor: açılış animasyonu ayrı bir süreç ve en
     # başta başlatılırsa bu sürecin Qt'yi ve pencereyi kurmasıyla aynı anda
     # açılıyor. Veritabanı sqlite, Qt gerektirmiyor.
+    # Günlük kaydı ve veritabanı güvencesi: bozuk dosya açılmadan önce
+    # yedekten dönülüyor, sağlamsa o günün yedeği alınıyor.
+    from app.core import backup, log
+    from app.paths import backups_dir, database_path
+
+    log.setup("app")
+    restored = backup.recover(database_path(), backups_dir())
     store = ProgressStore()
+    backup.daily_backup(database_path(), backups_dir())
     from app.core import celebration_sound
 
     intro = IntroLink.launch(store.setting("theme", "dark"), store.setting("language", ""),
@@ -261,6 +291,9 @@ def main() -> int:
 
     # Beta uyarısı pencere göründükten sonra çıkıyor; boş ekranın önünde
     # açılan bir kutu, uygulamanın açılmadığı izlenimi veriyor.
+    if restored is not None:
+        _show_restored(restored, language, theme, window)
+
     from app.ui.beta_notice import BetaNoticeDialog, mark_seen, should_show
 
     if should_show(store):

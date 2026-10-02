@@ -35,7 +35,15 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ..paths import app_dir, updates_dir
+from . import log
 from .updates import USER_AGENT
+
+_log = log.get(__name__)
+
+# Windows'un "bu dosyayı ben başlatmadım" hataları. 4551: uygulama denetimi
+# ilkesi (Akıllı Uygulama Denetimi; 0.9.1'de imzasız kurulumu böyle engelledi,
+# ölçüldü), 1260: grup ilkesi / AppLocker, 225-226: virüs koruması.
+BLOCKED_ERRORS = {4551, 1260, 225, 226}
 
 # Kurulum dosyası: `Odyssey-0.8.3-setup.exe`.
 INSTALLER_PREFIX = "Odyssey-"
@@ -277,22 +285,28 @@ def installer_command(path: Path) -> list[str]:
     return komut
 
 
-def start_installer(path: Path) -> bool:
-    """Kurulum programını sessiz kipte başlatır.
+def start_installer(path: Path) -> str:
+    """Kurulum programını sessiz kipte başlatır; başlamadıysa sebebini döndürür.
 
-    Bu çağrıdan sonra uygulamanın kapanması gerekiyor: kurulum, dosyaların
-    kilidi kalksın diye bu sürecin bitmesini bekliyor.
+    Dönüş: "" başladı, "blocked" Windows engelledi (`BLOCKED_ERRORS`),
+    "start" başka bir sebeple başlamadı. Başladıysa uygulamanın kapanması
+    gerekiyor: kurulum, dosyaların kilidi kalksın diye bu sürecin bitmesini
+    bekliyor.
     """
     if not path.exists():
-        return False
+        _log.error("Kurulum dosyası yok: %s", path.name)
+        return "start"
     if "-patch-" in path.name:
         # `Odyssey-<yeni>-patch-<eski>.exe`: tutmazsa bir dahaki sefere tam kurulum.
         mark_patch_attempt(path.name.split("-")[1])
     try:
         subprocess.Popen(installer_command(path), cwd=str(path.parent), close_fds=True)
-    except OSError:
-        return False
-    return True
+    except OSError as hata:
+        kod = getattr(hata, "winerror", None)
+        _log.error("Kurulum başlatılamadı: %s (winerror %s)", path.name, kod, exc_info=True)
+        return "blocked" if kod in BLOCKED_ERRORS else "start"
+    _log.info("Kurulum başlatıldı: %s", path.name)
+    return ""
 
 
 # --- temizlik ----------------------------------------------------------

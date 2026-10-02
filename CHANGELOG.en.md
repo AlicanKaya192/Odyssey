@@ -21,6 +21,24 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.9.2] — unreleased
+
+### Added
+- **A daily backup of your progress.** Each day the program starts, it
+  keeps a copy of your progress file and holds on to the last three days.
+  If the file is damaged by a power cut or a disk error, the program notices
+  at startup, puts the newest healthy backup in its place and tells you; the
+  damaged file is not deleted.
+- **A log file.** When something goes wrong, the reason is written to a file
+  in `%APPDATA%\Odyssey\logs`; you can attach it when reporting a bug. Your
+  code, notes and answers are not logged, and the file is never sent
+  anywhere.
+
+### Fixed
+- When Windows blocked the update's installer (for example Smart App
+  Control), the update window said the download had failed. It now gives
+  the real reason and what you can do.
+
 ## [0.9.1] — 30 September 2026
 
 ### Added
