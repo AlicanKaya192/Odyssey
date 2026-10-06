@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Signs every executable file of the packaged application (dist/Odyssey),
+  uploaded by the release workflow as a GitHub artifact (a zip file).
+
+  Windows Smart App Control checks each loaded binary on its own, so the
+  .pyd and .dll files are signed too, not only Odyssey.exe. How files that
+  already carry their publisher's signature (Qt, Python, Microsoft runtime
+  DLLs) should be handled is to be agreed with SignPath during onboarding.
+
+  This file mirrors the artifact configuration "app-folder" of the SignPath
+  project "odyssey"; SignPath reads the configuration from its own
+  settings, so a change here has to be copied there.
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file-set>
+      <include path="Odyssey.exe" />
+      <include path="_internal/**/*.pyd" min-matches="0" max-matches="unbounded" />
+      <include path="_internal/**/*.dll" min-matches="0" max-matches="unbounded" />
+      <for-each>
+        <authenticode-sign />
+      </for-each>
+    </pe-file-set>
+  </zip-file>
+</artifact-configuration>
