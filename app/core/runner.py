@@ -31,6 +31,7 @@ from pathlib import Path
 
 from ..paths import artifacts_dir, exercise_python, is_frozen, sandbox_dir, workspace_dir
 from .memory_limit import CREATE_SUSPENDED, MemoryJob
+from .workspace_files import safe_name
 
 # Paketlenmiş uygulamanın kendini denetleyici olarak çağırdığı bayrak.
 HARNESS_FLAG = "--run-harness"
@@ -253,8 +254,22 @@ def _prepare_workspace(exercise_dir: Path | None) -> Path:
     return directory
 
 
+def _write_files(workspace: Path, files: dict[str, str]) -> None:
+    """Çok dosyalı alıştırmanın dosyalarını çalışma klasörüne yazar.
+
+    Alıştırma klasöründen kopyalanan aynı adlı dosyanın üstüne yazılıyor:
+    kişinin editördeki hâli geçerli. Ad klasörün dışına çıkıyorsa yazılmıyor.
+    """
+    for name, text in files.items():
+        if not safe_name(name):
+            raise ValueError(f"unsafe file name: {name!r}")
+        path = workspace / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+
 def run_code(
-    code: str,
+    code: str | dict[str, str],
     checks: list[dict],
     timeout_sec: int = 10,
     exercise_dir: Path | None = None,
@@ -263,6 +278,7 @@ def run_code(
     exercise_key: str = "",
     server_hint: str = "",
     trace: bool = False,
+    entry: str = "",
 ) -> RunResult:
     """Kodu çalıştırır ve kontrolleri uygular.
 
@@ -278,18 +294,33 @@ def run_code(
 
     `trace` kodu adım adım izleyerek çalıştırıyor (kontrol yok,
     `RunResult.steps` dolu); yalnızca Python.
+
+    `code` bir sözlükse çok dosyalı alıştırma: ad → metin, hepsi çalışma
+    klasörüne yazılıyor ve `entry` çalıştırılıyor. Denetleyici bu
+    dosyaların hepsini "kişinin kodu" sayıyor (hata satırı, izleme).
     """
     global _LAST_SERVER
 
     job: MemoryJob | None = None
     workspace = _prepare_workspace(exercise_dir)
-    code_path = workspace / f"cozum{LANGUAGE_SUFFIX.get(language, '.py')}"
     job_path = workspace / "job.json"
     result_path = workspace / "result.json"
     seed_path = workspace / "seed.sql"
+    user_files: list[str] = []
+    if isinstance(code, dict):
+        code_path = workspace / (entry or next(iter(code), "main.py"))
+    else:
+        code_path = workspace / f"cozum{LANGUAGE_SUFFIX.get(language, '.py')}"
 
     try:
-        code_path.write_text(code, encoding="utf-8")
+        if isinstance(code, dict):
+            try:
+                _write_files(workspace, code)
+            except ValueError as exc:
+                return RunResult(status="crashed", stderr=str(exc), timeout_sec=timeout_sec)
+            user_files = [str(workspace / name) for name in code if name.endswith(".py")]
+        else:
+            code_path.write_text(code, encoding="utf-8")
         job_path.write_text(
             json.dumps(
                 {
@@ -301,6 +332,7 @@ def run_code(
                     "seed_path": str(seed_path) if seed_path.exists() else "",
                     "server_hint": server_hint or _LAST_SERVER,
                     "trace": trace,
+                    "user_files": user_files,
                 },
                 ensure_ascii=False,
             ),

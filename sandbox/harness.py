@@ -12,8 +12,13 @@ Kullanım:
       "code_path":   çalıştırılacak dosya,
       "result_path": sonucun yazılacağı dosya,
       "checks":      uygulanacak kontroller,
-      "language":    "python" (varsayılan) ya da "tsql"
+      "language":    "python" (varsayılan) ya da "tsql",
+      "user_files":  çok dosyalı alıştırmada kişinin bütün .py dosyaları
     }
+
+Çok dosyalı alıştırmada (`user_files` dolu) `code_path` giriş dosyası;
+hata satırı, adım adım izleme ve AST kontrolleri öbür dosyalara da
+bakıyor ve sonuçta dosyanın adı (`file`) yazılıyor.
 
 `language` "tsql" ise kod bu süreçte **çalıştırılmıyor**: `sql_runner`
 gerçek bir MSSQL sunucusuna bağlanıp sorguyu orada çalıştırıyor. Sonuç
@@ -33,6 +38,7 @@ import ast
 import contextlib
 import io
 import json
+import os
 import sys
 import traceback
 from pathlib import Path
@@ -493,14 +499,20 @@ def run_checks(
     stdout: str,
     namespace: dict,
     artifacts: list[dict] | None = None,
+    trees: dict | None = None,
 ) -> list[dict]:
-    """Bütün kontrolleri sırayla uygular."""
+    """Bütün kontrolleri sırayla uygular.
+
+    Kaynağa bakan kontrol (`ast_*`, `annotation`) `file` alanı taşıyorsa
+    çok dosyalı alıştırmanın o dosyasına bakıyor; yoksa giriş dosyasına.
+    """
     results = []
 
     for check in checks:
         check = revive(check)
         kind = check.get("type")
         outcome: dict
+        tree_for = (trees or {}).get(check["file"]) if check.get("file") else tree
 
         if kind == "stdout":
             outcome = compare_stdout(check, stdout)
@@ -509,19 +521,19 @@ def run_checks(
         elif kind == "function":
             outcome = compare_function(check, namespace)
         elif kind == "ast_require":
-            found = tree is not None and has_node_type(
-                tree, check.get("node", ""), strict=bool(check.get("strict"))
+            found = tree_for is not None and has_node_type(
+                tree_for, check.get("node", ""), strict=bool(check.get("strict"))
             )
             outcome = {"passed": found, "detail": {"node": check.get("node", "")}}
         elif kind == "method":
             outcome = compare_method(check, namespace)
         elif kind == "annotation":
-            outcome = compare_annotation(check, tree)
+            outcome = compare_annotation(check, tree_for)
         elif kind == "artifact":
             outcome = check_artifact(check, artifacts or [])
         elif kind == "ast_forbid":
             forbidden = check.get("call", "")
-            used = tree is not None and forbidden in called_names(tree)
+            used = tree_for is not None and forbidden in called_names(tree_for)
             outcome = {"passed": not used, "detail": {"call": forbidden}}
         else:
             outcome = {"passed": False, "detail": {"unknown_type": kind}}
@@ -536,33 +548,49 @@ def run_checks(
     return results
 
 
-def format_user_traceback(exc: BaseException, code_path: str) -> dict:
+def _norm(path: str) -> str:
+    """Dosya yolunu karşılaştırılabilir yapar (Windows'ta büyük/küçük harf)."""
+    return os.path.normcase(os.path.abspath(path))
+
+
+def format_user_traceback(exc: BaseException, user_files: str | set, name_of=None) -> dict:
     """Hata bilgisini, kullanıcının anlayacağı biçimde toparlar.
 
-    Yığın izinden yalnızca kullanıcının kendi dosyasına ait satırlar tutulur;
-    bu dosyanın (harness) satırları gösterilmez, kafa karıştırır.
+    Yığın izinden yalnızca kullanıcının kendi dosyalarına ait satırlar
+    tutulur; bu dosyanın (harness) ve kütüphanelerin satırları gösterilmez,
+    kafa karıştırır. `name_of` verilmişse (çok dosyalı alıştırma) hatanın
+    hangi dosyada olduğu `file` alanına yazılıyor.
     """
+    if isinstance(user_files, str):
+        user_files = {_norm(user_files)}
+
     if isinstance(exc, SyntaxError):
-        return {
+        sonuc = {
             "type": type(exc).__name__,
             "message": exc.msg or str(exc),
             "line": exc.lineno,
             "traceback": "",
         }
+        if name_of is not None and exc.filename:
+            sonuc["file"] = name_of(exc.filename)
+        return sonuc
 
     frames = [
         frame for frame in traceback.extract_tb(exc.__traceback__)
-        if frame.filename == code_path
+        if _norm(frame.filename) in user_files
     ]
     line = frames[-1].lineno if frames else None
     rendered = "".join(traceback.format_list(frames)) if frames else ""
 
-    return {
+    sonuc = {
         "type": type(exc).__name__,
         "message": str(exc),
         "line": line,
         "traceback": rendered,
     }
+    if name_of is not None and frames:
+        sonuc["file"] = name_of(frames[-1].filename)
+    return sonuc
 
 
 # Kullanıcının kodu bir dosya üretmişse (grafik, rapor) onu görebilmeli.
@@ -644,6 +672,11 @@ def _trace_vars(frame) -> list[list[str]]:
     return satirlar
 
 
+def _class_body(code) -> bool:
+    """Sınıf gövdesinin kodu mu: modül değil ve fonksiyon değil (CO_OPTIMIZED yok)."""
+    return code.co_name != "<module>" and not code.co_flags & 0x1
+
+
 class _Frame:
     """Bitişteki son adım için: modülün isim alanını çerçeve gibi okutur."""
 
@@ -651,19 +684,35 @@ class _Frame:
         self.f_locals = namespace
 
 
-def run_traced(compiled, namespace: dict, code_path: str, out_buffer: io.StringIO, steps: list) -> bool:
+def run_traced(compiled, namespace: dict, user_files: set, out_buffer: io.StringIO, steps: list,
+               name_of=None) -> bool:
     """Kodu izleyerek çalıştırır, adımları `steps`'e ekler; sınıra ulaşıldı mı.
 
     Kodun hatası dışarı çıkıyor; o ana kadarki adımlar `steps`'te kalıyor.
+    Çok dosyalı alıştırmada (`name_of`) her adım hangi dosyada olduğunu
+    (`file`) taşıyor.
     """
     durum = {"dolu": False}
+    bilinen: dict = {}
+
+    def kisinin(dosya: str) -> bool:
+        # Her olayda yol çözmek pahalı; dosya adı başına bir kez.
+        if dosya not in bilinen:
+            bilinen[dosya] = _norm(dosya) in user_files
+        return bilinen[dosya]
 
     def yigin(frame) -> list[dict]:
         cerceveler = []
         while frame is not None:
-            if frame.f_code.co_filename == code_path:
+            if kisinin(frame.f_code.co_filename):
                 ad = frame.f_code.co_name
-                cerceveler.append({"func": "" if ad == "<module>" else ad, "vars": _trace_vars(frame)})
+                cerceve = {"func": "" if ad == "<module>" else ad, "vars": _trace_vars(frame)}
+                # Sınıf gövdesi de bir çerçeve; fonksiyon sanılmasın.
+                if _class_body(frame.f_code):
+                    cerceve["cls"] = True
+                if name_of is not None:
+                    cerceve["file"] = name_of(frame.f_code.co_filename)
+                cerceveler.append(cerceve)
             frame = frame.f_back
         cerceveler.reverse()
         return cerceveler
@@ -674,6 +723,8 @@ def run_traced(compiled, namespace: dict, code_path: str, out_buffer: io.StringI
             sys.settrace(None)
             return
         adim = {"line": frame.f_lineno, "event": olay, "out": out_buffer.tell(), "stack": yigin(frame)}
+        if name_of is not None:
+            adim["file"] = name_of(frame.f_code.co_filename)
         if olay == "return":
             adim["value"] = safe_repr(deger)[:TRACE_REPR_CHARS]
         steps.append(adim)
@@ -686,12 +737,12 @@ def run_traced(compiled, namespace: dict, code_path: str, out_buffer: io.StringI
             # üretiyor; gösterilecek bir satır yok.
             if frame.f_lineno >= 1:
                 kaydet(frame, "line")
-        elif olay == "return" and frame.f_code.co_name != "<module>":
+        elif olay == "return" and frame.f_code.co_name != "<module>" and not _class_body(frame.f_code):
             kaydet(frame, "return", arg)
         return yerel
 
     def genel(frame, olay, arg):
-        if durum["dolu"] or frame.f_code.co_filename != code_path:
+        if durum["dolu"] or not kisinin(frame.f_code.co_filename):
             return None
         return yerel
 
@@ -743,6 +794,18 @@ def main() -> int:
     if workspace not in sys.path:
         sys.path.insert(0, workspace)
 
+    # Çok dosyalı alıştırma: kişinin bütün .py dosyaları (giriş dosyası önde).
+    diger = [str(Path(p).resolve()) for p in job.get("user_files", [])]
+    kaynak_yollar = [code_path] + [p for p in diger if _norm(p) != _norm(code_path)]
+    user_files = {_norm(p) for p in kaynak_yollar}
+    name_of = None
+    if diger:
+        def name_of(path: str) -> str:
+            try:
+                return Path(path).resolve().relative_to(Path(workspace)).as_posix()
+            except ValueError:
+                return Path(path).name
+
     result: dict = {
         "status": "ok",
         "stdout": "",
@@ -762,12 +825,19 @@ def main() -> int:
 
     # 1) Önce kaynağı ayrıştır. Sözdizimi hatası varsa kod hiç çalışmaz ama
     #    yine de düzgün bir hata mesajı verebiliriz.
+    #    Çok dosyalı alıştırmada bütün dosyalar: hata import anında değil,
+    #    çalıştırmadan önce ve doğru dosyanın adıyla bildirilsin.
     tree: ast.AST | None = None
+    trees: dict = {}
     try:
         tree = ast.parse(source, filename=code_path)
+        if name_of is not None:
+            trees[name_of(code_path)] = tree
+            for yol in kaynak_yollar[1:]:
+                trees[name_of(yol)] = ast.parse(Path(yol).read_text(encoding="utf-8"), filename=yol)
     except SyntaxError as exc:
         result["status"] = "error"
-        result["error"] = format_user_traceback(exc, code_path)
+        result["error"] = format_user_traceback(exc, user_files, name_of)
         result["checks"] = run_checks(checks, None, "", {})
         result_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
         return 0
@@ -786,18 +856,21 @@ def main() -> int:
             with contextlib.suppress(SystemExit):
                 sys.stdin = io.StringIO()
                 if izle:
-                    steps_full = run_traced(compiled, namespace, code_path, out_buffer, steps)
+                    steps_full = run_traced(compiled, namespace, user_files, out_buffer, steps, name_of)
                 else:
                     exec(compiled, namespace)
     except BaseException as exc:  # KeyboardInterrupt dahil her şeyi yakala
         result["status"] = "error"
-        result["error"] = format_user_traceback(exc, code_path)
+        result["error"] = format_user_traceback(exc, user_files, name_of)
 
     if izle:
         # İzleme kipinde kontrol yok: adımlar, çıktı ve (varsa) hata yeter.
         # Son adım programın bittiği an: son satırın da etkisi görünsün.
-        steps.append({"line": 0, "event": "end", "out": out_buffer.tell(),
-                      "stack": [{"func": "", "vars": _trace_vars(_Frame(namespace))}]})
+        son = {"line": 0, "event": "end", "out": out_buffer.tell(),
+               "stack": [{"func": "", "vars": _trace_vars(_Frame(namespace))}]}
+        if name_of is not None:
+            son["file"] = name_of(code_path)
+        steps.append(son)
         result["stdout"], result["truncated"] = clip(out_buffer.getvalue())
         result["stderr"], _ = clip(err_buffer.getvalue())
         result["steps"] = steps
@@ -818,7 +891,7 @@ def main() -> int:
 
     # 3) Kod hata verse bile kontrolleri uygula: kısmen doğru bir çözümde
     #    hangi adımların tuttuğunu görmek öğrenciye yol gösterir.
-    result["checks"] = run_checks(checks, tree, stdout, namespace, result["artifacts"])
+    result["checks"] = run_checks(checks, tree, stdout, namespace, result["artifacts"], trees)
 
     result_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
     return 0

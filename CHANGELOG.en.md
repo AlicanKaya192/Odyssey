@@ -21,6 +21,16 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [0.9.3] — unreleased
+
+### Fixed
+- **Step-by-step tracing names classes correctly.** While the body of a
+  class was being traced, the panel called it "inside the function" and
+  said it "returned" a value at the end; it now says "body of the class".
+- **The error summary is fully English in the English interface.** When
+  code raised an error, the line information in the summary still said
+  "satır".
+
 ## [0.9.2] — 6 October 2026
 
 ### Added

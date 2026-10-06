@@ -47,6 +47,7 @@ SHORTCUTS = [
         (["Tab"], "shortcut.indent"),
         (["Shift", "Tab"], "shortcut.dedent"),
         (["Ctrl", "/"], "shortcut.comment"),
+        (["Ctrl", "PgUp", "PgDn"], "shortcut.files"),
     ]),
     ("quiz", [
         (["1–4", "A–D"], "shortcut.quiz_pick"),

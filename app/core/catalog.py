@@ -17,7 +17,13 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .workspace_files import file_language
+
 FALLBACK_LANGUAGE = "tr"
+
+# Tek dosyalı alıştırmada kişinin dosyasının adı (terminaldeki komut da
+# bunu yazıyor: `python cozum.py`, `sqlcmd -i sorgu.sql`).
+SINGLE_FILE_NAMES = {"python": "cozum.py", "tsql": "sorgu.sql"}
 
 
 class ContentError(Exception):
@@ -113,6 +119,76 @@ class Block:
         kopyalanabilsin ve temayla uyumlu görünsün diye.
         """
         return list(self.raw.get("documents", []))
+
+
+def read_template(directory: Path, name: str, language: str) -> str:
+    """`starter.{lang}.py` gibi bir kod dosyasını dile göre okur.
+
+    Dosya adında `{lang}` varsa kullanıcının diline göre çözülür; yorum
+    satırları böylece okunabilir kalıyor. İstenen dil yoksa Türkçesine
+    düşülür. Dosya yoksa boş metin.
+    """
+    if not name:
+        return ""
+    if "{lang}" in name:
+        wanted = directory / name.replace("{lang}", language)
+        if wanted.exists():
+            return wanted.read_text(encoding="utf-8")
+        name = name.replace("{lang}", FALLBACK_LANGUAGE)
+    path = directory / name
+    return path.read_text(encoding="utf-8") if path.exists() else ""
+
+
+@dataclass
+class ExerciseFile:
+    """Alıştırmanın bir dosyası (`exercise.json` → `files`).
+
+    ``{"name": "models.py", "starter": "starter-models.{lang}.py",
+    "solution": "solution-models.py"}`` düzenlenebilir bir dosya;
+    ``{"name": "settings.json", "readonly": true}`` alıştırma klasöründeki
+    dosyanın kendisi, editörde gösteriliyor ama değiştirilemiyor
+    (`source` başka bir ad verebilir). Başlangıcı olmayan düzenlenebilir
+    dosya boş açılıyor (kişi yazıyor).
+    """
+
+    name: str
+    directory: Path
+    raw: dict
+
+    @property
+    def readonly(self) -> bool:
+        return bool(self.raw.get("readonly", False))
+
+    @property
+    def language(self) -> str:
+        return str(self.raw.get("language") or file_language(self.name))
+
+    def starter_for(self, language: str) -> str:
+        if self.readonly:
+            return read_template(self.directory, str(self.raw.get("source") or self.name), language)
+        return read_template(self.directory, str(self.raw.get("starter", "")), language)
+
+    def solution_for(self, language: str) -> str:
+        """Çözümdeki hâli; çözümü yazılmamış dosya başlangıçtaki gibi kalıyor."""
+        if self.readonly or not self.raw.get("solution"):
+            return self.starter_for(language)
+        return read_template(self.directory, str(self.raw["solution"]), language)
+
+    def starter_variants(self) -> list[str]:
+        """Bütün dillerdeki başlangıç hâlleri (dil listesi dosya adlarından)."""
+        name = "" if self.readonly else str(self.raw.get("starter", ""))
+        if not name:
+            return [self.starter_for(FALLBACK_LANGUAGE)]
+        if "{lang}" not in name:
+            path = self.directory / name
+            return [path.read_text(encoding="utf-8")] if path.exists() else []
+        found = sorted(self.directory.glob(name.replace("{lang}", "*")))
+        return [path.read_text(encoding="utf-8") for path in found]
+
+    def is_untouched(self, code: str) -> bool:
+        """Metin hâlâ (herhangi bir dildeki) başlangıç hâli mi."""
+        current = code.strip()
+        return any(current == variant.strip() for variant in self.starter_variants())
 
 
 @dataclass
@@ -220,22 +296,55 @@ class Exercise:
     def _code_for(self, key: str, language: str) -> str:
         """`starter` / `solution` dosyasını dile göre okur.
 
-        Dosya adında `{lang}` varsa kullanıcının diline göre çözülür; yorum
-        satırları böylece okunabilir kalıyor. İstenen dil yoksa Türkçesine
-        düşülür.
+        Çok dosyalı alıştırmada giriş dosyasının hâli: tek metin bekleyen
+        yerler (ipucu, "takıldın mı?") onunla çalışmaya devam ediyor.
         """
-        name = self.raw.get(key)
-        if not name:
-            return ""
+        if self.is_multi_file:
+            entry = self.file(self.entry)
+            if entry is None:
+                return ""
+            return entry.starter_for(language) if key == "starter" else entry.solution_for(language)
+        return read_template(self.directory, str(self.raw.get(key) or ""), language)
 
-        if "{lang}" in name:
-            wanted = self.directory / name.replace("{lang}", language)
-            if wanted.exists():
-                return wanted.read_text(encoding="utf-8")
-            name = name.replace("{lang}", FALLBACK_LANGUAGE)
+    # --- çok dosyalı alıştırma ---------------------------------------------
 
-        path = self.directory / name
-        return path.read_text(encoding="utf-8") if path.exists() else ""
+    @property
+    def is_multi_file(self) -> bool:
+        """Alıştırma birden çok dosyadan mı oluşuyor (`files` alanı)."""
+        return bool(self.raw.get("files"))
+
+    @property
+    def files(self) -> list[ExerciseFile]:
+        """Editörde sekme olarak açılan dosyalar, sırasıyla.
+
+        Tek dosyalı alıştırmada da bir dosya var (`cozum.py` / `sorgu.sql`);
+        arayüz iki türü aynı yoldan kuruyor, sekme şeridini yalnızca birden
+        çok dosya varken gösteriyor.
+        """
+        if not self.is_multi_file:
+            raw = {"starter": self.raw.get("starter", ""), "solution": self.raw.get("solution", ""),
+                   "language": self.language}
+            return [ExerciseFile(SINGLE_FILE_NAMES.get(self.language, "cozum.py"), self.directory, raw)]
+        return [
+            ExerciseFile(str(item.get("name", "")), self.directory, dict(item))
+            for item in self.raw.get("files", [])
+            if isinstance(item, dict)
+        ]
+
+    def file(self, name: str) -> ExerciseFile | None:
+        return next((item for item in self.files if item.name == name), None)
+
+    @property
+    def entry(self) -> str:
+        """Çalıştırılan dosya: `entry` alanı, yoksa ilk dosya."""
+        files = self.files
+        return str(self.raw.get("entry") or (files[0].name if files else ""))
+
+    def starter_files(self, language: str) -> dict[str, str]:
+        return {item.name: item.starter_for(language) for item in self.files}
+
+    def solution_files(self, language: str) -> dict[str, str]:
+        return {item.name: item.solution_for(language) for item in self.files}
 
     def starter_code_for(self, language: str) -> str:
         return self._code_for("starter", language)

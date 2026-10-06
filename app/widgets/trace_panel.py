@@ -57,13 +57,15 @@ def _esc(text: str) -> str:
 
 
 class TracePanel(QFrame):
-    """Kaydedilmiş adımları gösterir; `step_changed(satır, tür)` yayar.
+    """Kaydedilmiş adımları gösterir; `step_changed(satır, tür, dosya)` yayar.
+
+    `dosya` çok dosyalı alıştırmada adımın dosyası, tek dosyada boş.
 
     tür: "line" (sıradaki satır), "return" (fonksiyon dönüyor), "error"
     (program bu satırda hata verdi) ya da "" (işaret yok).
     """
 
-    step_changed = Signal(object, str)
+    step_changed = Signal(object, str, str)
     closed = Signal()
     # "user" ya da "solution": kişi kaynağı değiştirmek istiyor.
     source_requested = Signal(str)
@@ -222,11 +224,12 @@ class TracePanel(QFrame):
     # --- veri ------------------------------------------------------------
 
     def load(self, steps: list[dict], stdout: str, error: dict | None, truncated: bool,
-             hint: str = "", source: str = "user", code: str = "") -> None:
+             hint: str = "", source: str = "user", code: str | dict = "") -> None:
         """Kaydı yükler; `hint` hatanın ne anlama geldiği (son adımda).
 
         `source` "solution" ise `code` panelin kendi kod alanında gösteriliyor
-        ve sıradaki satır orada işaretleniyor.
+        ve sıradaki satır orada işaretleniyor. Çok dosyalı alıştırmada `code`
+        ad → metin sözlüğü; alan adımın dosyasını gösteriyor.
         """
         self._hint = hint
         self._source = source
@@ -234,9 +237,12 @@ class TracePanel(QFrame):
             dugme.setChecked(kaynak == source)
         cozum = source == "solution"
         self._code_column.setVisible(cozum)
+        self._code_files = code if isinstance(code, dict) else {}
+        self._code_shown = None
         if cozum:
             self._code.set_language("python")
-            self._code.setPlainText(code)
+            if not self._code_files:
+                self._code.setPlainText(str(code))
         self._steps = steps or [{"line": 0, "event": "end", "out": len(stdout), "stack": []}]
         self._stdout = stdout
         self._error = error
@@ -290,12 +296,23 @@ class TracePanel(QFrame):
             satir, tur = (satir, "error") if isinstance(satir, int) else (None, "")
         else:
             satir, tur = adim["line"], adim["event"]
+        dosya = self._step_file(adim)
         if self._source == "solution":
             # Çözüm panelin kendi kod alanında; editördeki işaret kalkıyor.
+            if self._code_files and dosya != self._code_shown:
+                self._code_shown = dosya
+                self._code.setPlainText(self._code_files.get(dosya, ""))
+                self._code_title.setText(f"{self._t('trace.solution_code')} · {dosya}")
             self._code.set_trace_line(satir, tur or "line")
-            self.step_changed.emit(None, "")
+            self.step_changed.emit(None, "", "")
         else:
-            self.step_changed.emit(satir, tur)
+            self.step_changed.emit(satir, tur, dosya)
+
+    def _step_file(self, adim: dict) -> str:
+        """Adımın dosyası; son adımda hata varsa hatanın dosyası."""
+        if adim["event"] == "end" and (self._error or {}).get("file"):
+            return str(self._error["file"])
+        return str(adim.get("file", ""))
 
     # --- çizim -----------------------------------------------------------
 
@@ -308,10 +325,15 @@ class TracePanel(QFrame):
         yigin = adim["stack"]
         icteki = yigin[-1]["func"] if yigin else ""
         olay = adim["event"]
-        if olay == "line":
+        if olay == "line" and adim.get("file"):
+            mesaj = t("trace.next_line_file", line=adim["line"], file=adim["file"])
+            if icteki:
+                mesaj += " " + t("trace.inside_class" if yigin[-1].get("cls") else "trace.inside", func=icteki)
+            renk = "text"
+        elif olay == "line":
             mesaj = t("trace.next_line", line=adim["line"])
             if icteki:
-                mesaj += " " + t("trace.inside", func=icteki)
+                mesaj += " " + t("trace.inside_class" if yigin[-1].get("cls") else "trace.inside", func=icteki)
             renk = "text"
         elif olay == "return":
             mesaj, renk = t("trace.returned", func=icteki, value=adim.get("value", "")), "accent"
@@ -342,9 +364,18 @@ class TracePanel(QFrame):
         for derinlik in range(len(yigin) - 1, -1, -1):
             cerceve = yigin[derinlik]
             eski = {}
-            if derinlik < len(onceki) and onceki[derinlik]["func"] == cerceve["func"]:
+            if (derinlik < len(onceki) and onceki[derinlik]["func"] == cerceve["func"]
+                    and onceki[derinlik].get("file") == cerceve.get("file")):
                 eski = {ad: deger for ad, deger, _tur in onceki[derinlik]["vars"]}
-            baslik = t("trace.frame_func", func=cerceve["func"]) if cerceve["func"] else t("trace.frame_main")
+            if cerceve["func"] and cerceve.get("cls"):
+                baslik = t("trace.frame_class", func=cerceve["func"])
+            elif cerceve["func"]:
+                baslik = t("trace.frame_func", func=cerceve["func"])
+            elif derinlik and cerceve.get("file"):
+                # Çok dosyalı alıştırmada içe aktarılan dosyanın kendi gövdesi.
+                baslik = t("trace.frame_file", file=cerceve["file"])
+            else:
+                baslik = t("trace.frame_main")
             soluk = derinlik != len(yigin) - 1
             parcalar.append(
                 f'<div style="color:{COLORS["dim"] if soluk else COLORS["title"]};'
@@ -419,7 +450,8 @@ class TracePanel(QFrame):
         self._title.setText(t("trace.title"))
         self.close_button.setText(t("trace.close"))
         self._vars_title.setText(t("trace.vars"))
-        self._code_title.setText(t("trace.solution_code"))
+        gosterilen = getattr(self, "_code_shown", None)
+        self._code_title.setText(t("trace.solution_code") + (f" · {gosterilen}" if gosterilen else ""))
         self._source_buttons["user"].setText(t("trace.source_user"))
         self._source_buttons["solution"].setText(t("trace.source_solution"))
         self._source_buttons["solution"].setToolTip(t("trace.source_solution_tip"))

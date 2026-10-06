@@ -21,6 +21,7 @@ import html
 import json
 from datetime import datetime
 
+from ..core import workspace_files
 from ..core.grader import describe
 from ..core.language import AVAILABLE_LANGUAGES, LanguageManager
 
@@ -87,6 +88,46 @@ def _marked_code(code: str, reference: str | None) -> str:
     return '<div class="cmp code">' + "".join(parcalar) + "</div>"
 
 
+# Kod bloğu etiketi (editör dili → markdown).
+FENCE_TAGS = {"tsql": "sql", "shell": "bash"}
+
+
+def _fence(code: str, language: str) -> str:
+    return f"```{FENCE_TAGS.get(language, language)}\n{code.rstrip()}\n```"
+
+
+def _file_title(name: str) -> str:
+    return f'<div class="out-label">{html.escape(name)}</div>'
+
+
+def _right_code(code: str, code_language: str) -> list[str]:
+    """Son doğru çözüm; çok dosyalı kayıtta dosya dosya."""
+    files = workspace_files.decode(code)
+    if files is None:
+        return [_fence(code, code_language)]
+    parcalar = []
+    for name, text in files.items():
+        parcalar.append(_file_title(name))
+        parcalar.append(_fence(text, workspace_files.file_language(name)))
+    return parcalar
+
+
+def _wrong_code(code: str, reference: str | None) -> list[str]:
+    """Yanlış deneme; çok dosyalı kayıtta yalnızca son doğrudan farklı dosyalar."""
+    files = workspace_files.decode(code)
+    if files is None:
+        return [_marked_code(code.rstrip("\n"), reference)]
+    ref_files = workspace_files.decode(reference) if reference is not None else None
+    parcalar = []
+    for name, text in files.items():
+        ref = None if ref_files is None else ref_files.get(name, "")
+        if ref is not None and ref.strip() == text.strip():
+            continue
+        parcalar.append(_file_title(name))
+        parcalar.append(_marked_code(text.rstrip("\n"), ref))
+    return parcalar
+
+
 def _problem_answers(code: str) -> str:
     try:
         cevaplar = json.loads(code)
@@ -118,8 +159,7 @@ def exercise_markdown(language: LanguageManager, attempts: list[dict], code_lang
         if problem:
             parcalar.append(t("history.answers", answers=_problem_answers(son_dogru["code"])))
         else:
-            dil = "sql" if code_language == "tsql" else "python"
-            parcalar.append(f"```{dil}\n{son_dogru['code'].rstrip()}\n```")
+            parcalar.extend(_right_code(son_dogru["code"], code_language))
 
     if yanlis:
         parcalar.append(f"## {t('history.wrong_title')}")
@@ -138,7 +178,7 @@ def exercise_markdown(language: LanguageManager, attempts: list[dict], code_lang
             if problem:
                 parcalar.append(t("history.answers", answers=_problem_answers(deneme["code"])))
             else:
-                parcalar.append(_marked_code(deneme["code"].rstrip("\n"), referans))
+                parcalar.extend(_wrong_code(deneme["code"], referans))
     elif son_dogru is not None:
         parcalar.append(t("history.no_wrong"))
     return "\n\n".join(parcalar)
