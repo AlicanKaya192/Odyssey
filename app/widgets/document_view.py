@@ -511,6 +511,10 @@ class DocumentView(QWebEngineView):
         self._scroll_now(anchor)
 
     def _scroll_now(self, anchor: str) -> None:
+        if not anchor:
+            # Boş çapa: belgenin başı ("Takıldın mı?" kartından dersin başına).
+            self.page().runJavaScript("window.scrollTo({top: 0});")
+            return
         self.page().runJavaScript(
             f"document.getElementById({json.dumps(anchor)})?.scrollIntoView({{block:'start'}});"
         )

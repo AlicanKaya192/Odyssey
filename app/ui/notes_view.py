@@ -54,7 +54,7 @@ class NotesView(QWidget):
 
         layout.addWidget(self._build_selector())
 
-        self._reader = LessonView(self._language, show_toc=False, track_reading=True)
+        self._reader = LessonView(self._language, show_toc=False, track_reading=True, glossary=True)
         self._reader.action.connect(self._on_action)
         layout.addWidget(self._reader, 1)
 

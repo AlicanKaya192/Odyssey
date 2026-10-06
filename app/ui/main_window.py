@@ -134,6 +134,11 @@ class MainWindow(QMainWindow):
         self._store = store
         self._store.mark_seen()
         self._catalog = Catalog.load(content_dir())
+        # Bitmiş bölüm bitmiş kalır: ekranlar kurulmadan önce işaretleniyor
+        # (sonradan alıştırma eklenen bölümler; `core/completion.py`).
+        from ..core import completion
+
+        completion.stamp(self._catalog, self._store)
         # Animasyonlar ayarı ekranlar kurulmadan önce: ilk girişler de ona uyuyor.
         motion.set_enabled(animations.enabled(store))
 
@@ -295,6 +300,8 @@ class MainWindow(QMainWindow):
         # Öğrenme yolu
         self._journey = JourneyView(self._catalog, self._language, self._store)
         self._journey.section_opened.connect(self._open_section)
+        # Seviye tespiti kilitleri değiştiriyor; patika kartları ve rotalar tazelensin.
+        self._journey.path.placement_finished.connect(self._journey.tracks.refresh)
         self._journey.view_changed.connect(self._update_headers)
         self._journey_header = ScreenHeader(self._language)
         self._journey_header.back_clicked.connect(self._journey_back)
@@ -312,6 +319,7 @@ class MainWindow(QMainWindow):
         # Bölüm içeriği (kendi başlığını taşıyor)
         self._topic = TopicView(self._catalog, self._language, self._store)
         self._topic.back_requested.connect(self._topic_back)
+        self._topic.focus_mode_requested.connect(self.toggle_focus_mode)
         self._topic.progress_changed.connect(self._journey.refresh)
         self._topic.progress_changed.connect(self._refresh_progress)
         self._topic.open_notebook.connect(self._open_note)
@@ -493,6 +501,9 @@ class MainWindow(QMainWindow):
         rozetler alt şeritteki zile bildirim olarak düşüyordu; zil kalktı,
         şimdi sağ altta o an bir kart çıkıyor.
         """
+        from ..core import completion
+
+        completion.stamp(self._catalog, self._store)
         simdi = badge_core.completed_sections(self._catalog, self._store)
         yeni_bolumler = simdi - self._done_sections
         self._done_sections = simdi
@@ -687,6 +698,7 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence("Ctrl+K"), self, self._search.toggle)
         QShortcut(QKeySequence("Ctrl+M"), self, self._toggle_rail)
         QShortcut(QKeySequence(Qt.Key.Key_F1), self, self._toggle_shortcuts)
+        QShortcut(QKeySequence(Qt.Key.Key_F11), self, self.toggle_focus_mode)
         QShortcut(QKeySequence(Qt.Key.Key_Escape), self, self._escape)
 
     def _toggle_shortcuts(self) -> None:
@@ -828,6 +840,20 @@ class MainWindow(QMainWindow):
             ekranlar.append(
                 SearchItem("screen", t(anahtar), t("search.go"), {"type": "screen", "key": key, "icon": simge})
             )
+        # Komutlar (Alican istedi): adı yazınca iş yapılıyor. Boş aramada
+        # görünmüyorlar (yalnızca ekranlar ve patikalar), yazınca çıkıyorlar.
+        for key, simge in (("theme", "moon"), ("language", "globe"), ("timer", "clock"),
+                           ("tour", "compass"), ("shortcuts", "keyboard"), ("rail", "layers")):
+            ekranlar.append(SearchItem("command", t(f"search.cmd_{key}"), t("search.command"),
+                                       {"type": "action", "key": key, "icon": simge}))
+
+        # Terimler sözlüğü: seçilince Hakkında › Sözlük'te o terime gidiliyor.
+        from ..core.glossary import search_entries
+
+        terimler = [
+            SearchItem("term", baslik, t("search.term_sub"), {"type": "term", "id": kimlik}, body=metin)
+            for kimlik, baslik, metin in search_entries(self._language.language)
+        ]
 
         klasorler = {f["id"]: f["name"] for f in self._store.notebook_folders()}
         notlar = []
@@ -852,13 +878,85 @@ class MainWindow(QMainWindow):
                         "color": track.color})
             for track in self._catalog.tracks if not track.locked
         ]
-        return patikalar + ekranlar + notlar + katalog
+        return patikalar + ekranlar + notlar + terimler + katalog
 
     def _search_locked(self, target: dict) -> bool:
         """Sonuç kilitli bir bölüme mi götürüyor?"""
         if "chapter" not in target:
             return False
         return not is_unlocked(self._catalog, self._store, target["chapter"], target["section"])
+
+    def toggle_focus_mode(self) -> None:
+        """Okuma odağı: tam ekran, yalnızca bölümün içeriği.
+
+        Alican istedi; alışmamış biri nasıl çıkacağını unutmasın diye
+        girerken üstte birkaç saniye "Esc ya da F11 ile çık" yazıyor.
+        Yalnızca bir bölüm açıkken; çıkınca pencere eski hâline dönüyor.
+        """
+        durum = getattr(self, "_focus_state", None)
+        if durum is None:
+            if self._stack.currentWidget() is not self._topic:
+                return
+            self._focus_state = {"maximized": self.isMaximized(), "fullscreen": self.isFullScreen(),
+                                 "rail": self._rail.isVisible(), "toggle": self._rail_toggle.isVisible(),
+                                 "footer": self._footer.isVisible()}
+            for parca in (self._rail, self._rail_toggle, self._footer):
+                parca.hide()
+            self._topic.set_focus_mode(True)
+            self.showFullScreen()
+            self._show_focus_hint()
+            return
+        self._focus_state = None
+        self._topic.set_focus_mode(False)
+        self._rail.setVisible(durum["rail"])
+        self._rail_toggle.setVisible(durum["toggle"])
+        self._footer.setVisible(durum["footer"])
+        if not durum["fullscreen"]:
+            self.showMaximized() if durum["maximized"] else self.showNormal()
+        hint = getattr(self, "_focus_hint", None)
+        if hint is not None:
+            hint.hide()
+
+    def _show_focus_hint(self) -> None:
+        """Ekranın üst ortasında birkaç saniye görünen çıkış hatırlatması."""
+        from PySide6.QtWidgets import QLabel
+
+        hint = getattr(self, "_focus_hint", None)
+        if hint is None:
+            hint = QLabel(self._central)
+            hint.setProperty("role", "focus-hint")
+            hint.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+            self._focus_hint = hint
+            self._focus_hint_timer = QTimer(self)
+            self._focus_hint_timer.setSingleShot(True)
+            self._focus_hint_timer.timeout.connect(hint.hide)
+        p = PALETTES.get(self._theme.effective_mode, PALETTES["dark"])
+        hint.setStyleSheet(
+            f"QLabel {{ background: {p['surface']}; color: {p['text']}; border: 1px solid {p['border_strong']};"
+            f" border-radius: 10px; padding: 10px 18px; font-size: 14px; font-weight: 600; }}")
+        hint.setText(self._language.t("focus.exit_hint"))
+        hint.adjustSize()
+        QTimer.singleShot(60, lambda: (hint.move((self._central.width() - hint.width()) // 2, 18),
+                                       hint.show(), hint.raise_()))
+        self._focus_hint_timer.start(4500)
+
+    def _run_command(self, key: str) -> None:
+        """Aramadan seçilen komut (`_search_items` → `search.cmd_*`)."""
+        if key == "theme":
+            self._theme.set_mode("light" if self._theme.effective_mode == "dark" else "dark")
+            # Ayarlar penceresi kapanırken yazıyordu; komut kendisi kaydediyor.
+            self._store.set_setting("theme", self._theme.mode)
+        elif key == "language":
+            self._language.set_language("en" if self._language.language == "tr" else "tr")
+            self._store.set_setting("language", self._language.language)
+        elif key == "timer":
+            QTimer.singleShot(0, self._toggle_timer)
+        elif key == "tour":
+            QTimer.singleShot(150, self.start_tour)
+        elif key == "shortcuts":
+            QTimer.singleShot(0, self._toggle_shortcuts)
+        elif key == "rail":
+            self._toggle_rail()
 
     def _on_search(self, target: dict) -> None:
         """Arama kutusunda seçilen sonuca gider."""
@@ -875,8 +973,16 @@ class MainWindow(QMainWindow):
         if kind == "note":
             self._open_note(target["id"])
             return
+        if kind == "action":
+            self._run_command(target["key"])
+            return
         if kind == "track":
             self._open_track(target["track"])
+            return
+        if kind == "term":
+            self._navigate("about")
+            if self._stack.currentWidget() is self._about_screen:
+                self._about.show_term(target["id"])
             return
 
         self._open_section(target["chapter"], target["section"])
@@ -895,7 +1001,11 @@ class MainWindow(QMainWindow):
         """Bölümden çıkılacak: sınav sürüyorsa kişiye soruluyor."""
         if self._stack.currentWidget() is not self._topic:
             return True
-        return self._topic.confirm_leave_quiz()
+        tamam = self._topic.confirm_leave_quiz()
+        # Bölümden çıkılıyorsa okuma odağı da bitiyor (tam ekran geri alınıyor).
+        if tamam and getattr(self, "_focus_state", None) is not None:
+            self.toggle_focus_mode()
+        return tamam
 
     def _navigate(self, key: str) -> None:
         if key == "settings":
@@ -1062,6 +1172,9 @@ class MainWindow(QMainWindow):
         """
         if self._search.isVisible():
             self._search.close_palette()
+            return
+        if getattr(self, "_focus_state", None) is not None:
+            self.toggle_focus_mode()
             return
         tur = getattr(self, "_tour", None)
         if tur is not None:

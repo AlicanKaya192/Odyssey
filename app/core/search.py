@@ -36,7 +36,9 @@ _FOLD = str.maketrans({
 
 KIND_WEIGHT = {
     "screen": 12,
+    "command": 11,
     "section": 10,
+    "term": 8,
     "exercise": 6,
     "note": 6,
     "course_note": 4,

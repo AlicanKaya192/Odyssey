@@ -62,6 +62,8 @@ KIND_ICONS = {
     "exercise": "code",
     "note": "notebook",
     "screen": "chevron-right",
+    "command": "zap",
+    "term": "book-open",
 }
 
 ROLE_RESULT = Qt.ItemDataRole.UserRole
@@ -489,6 +491,6 @@ class SearchPalette(QWidget):
             yazi.setText(t(anahtar))
         self._delegate.kind_labels = {
             kind: t(f"search.kind.{kind}")
-            for kind in ("section", "lesson", "course_note", "exercise", "note", "screen", "track")
+            for kind in ("section", "lesson", "course_note", "exercise", "note", "screen", "track", "command", "term")
         }
         self._delegate.locked_text = t("search.locked")

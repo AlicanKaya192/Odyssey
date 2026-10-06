@@ -448,6 +448,13 @@ MODERN: dict[str, tuple[str, str]] = {
     "chevron-right": ("", '<path d="m9 6 6 6-6 6"/>'),
     "chevron-left": ("", '<path d="m15 6-6 6 6 6"/>'),
     "chevron-down": ("", '<path d="m6 9 6 6 6-6"/>'),
+    # Adım adım izleme: basamaklar (düğme), başa / sona atlama.
+    "steps": ("", '<path d="M3.5 19.5h5v-5h5v-5h5v-5h2"/>'),
+    "skip-start": ("", '<path d="M7 6v12M17 6l-6 6 6 6"/>'),
+    "skip-end": ("", '<path d="M17 6v12M7 6l6 6-6 6"/>'),
+    # Sözlük terimi (arama sonucu): açık kitap.
+    "book-open": ('<path d="M12 7v13c-2-1.6-4.6-2-8-2V5c3.4 0 6 .4 8 2zM12 7c2-1.6 4.6-2 8-2v13c-3.4 0-6 .4-8 2"/>',
+                  '<path d="M12 7v13M12 7c-2-1.6-4.6-2-8-2v13c3.4 0 6 .4 8 2 2-1.6 4.6-2 8-2V5c-3.4 0-6 .4-8 2z"/>'),
     "lock": ('<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/>',
              '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2"/>'),
     "play": ('<path d="M8 5.6v12.8a1 1 0 0 0 1.5.9l10-6.4a1 1 0 0 0 0-1.8l-10-6.4A1 1 0 0 0 8 5.6z"/>',

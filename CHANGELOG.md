@@ -22,6 +22,44 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.9.2] — yayınlanmadı
 
 ### Eklendi
+- **Python Temelleri'ne 22 yeni alıştırma.** Başlangıç, Değişkenler,
+  Operatörler, Koşullar, Döngüler ve Sözlükler bölümlerinde alıştırma
+  sayısı yediye çıktı. Yeniler daha zor ve düşündürmeye yönelik: tırnak
+  içinde tırnak, boşluğu boşluğuna hizalı çıktı, işlem önceliği tuzakları,
+  artık yıl kuralı, koşulların sırası, asal ve ikiz asal sayılar, en uzun
+  Collatz yolculuğu, ikili arama, yıldızdan elmas, kelime sayma, sipariş
+  işleme ve sözlüğü ters çevirme gibi. Bu bölümleri daha önce bitirdiyseniz
+  bitmiş sayılmaya devam ediyor; yeni alıştırmalar ek alıştırma olarak
+  bekliyor.
+- **Seviye tespit sınavı.** Bir modülün konularını zaten biliyorsanız
+  baştan başlamak zorunda değilsiniz: yolun başındaki karttan isteğe bağlı
+  sınava girilince her bölümden dört soru geliyor (en az üçü doğruysa o
+  bölümü biliyor sayılıyorsunuz); bildiğiniz bölümler ve arkasındaki ilk
+  bölüm açılıyor. Üst üste iki bölüm tutmazsa sınav
+  kendiliğinden bitiyor; sonuçta hangi bölümleri bildiğiniz, hangilerini
+  tekrar etmeniz gerektiği yazıyor. Açılan bölümler tamamlanmış sayılmıyor.
+- **Kodu adım adım izleme.** Python alıştırmalarında **Adım adım**
+  düğmesi kodu satır satır oynatıyor: editörde sıradaki satır
+  işaretleniyor, altta her adımdaki değişkenler ve o ana kadarki çıktı
+  görünüyor. Yeni gelen değişken yeşil, değeri değişen sarı; fonksiyonun
+  içine girildiğinde kendi değişkenleri ayrı gösteriliyor, bitince ne
+  döndürdüğü yazıyor. Oklarla ileri geri gidiliyor. Döngünün her turunda
+  ne olduğunu görmek için.
+- **Terimler sözlüğü.** Derslerde, ders notlarında ve alıştırma
+  yönergelerinde terimler ilk geçtikleri yerde noktalı altı çizgiyle
+  işaretli; üzerine gelince kısa açıklaması çıkıyor ("parametre neydi?"
+  diye dersten çıkmaya gerek kalmıyor). Bütün terimler Hakkında'daki yeni
+  **Sözlük** sekmesinde patikalara göre toplu; `Ctrl+K` ile de aranıyor.
+- **Takıldığında dersin ilgili kısmına yönlendirme.** Bir alıştırmada üç
+  kez üst üste olmayınca yönergenin altında "Takıldın mı?" kartı çıkıyor:
+  alıştırmanın dersteki hangi başlığa dayandığını söylüyor ve **Derse git**
+  o başlığı açıyor.
+- **İlerlemeyi başka bir bilgisayara taşıma.** Ayarlar'daki yeni **Veri**
+  sayfasından ilerlemeniz, notlarınız, ayarlarınız ve profil fotoğrafınız
+  tek bir `.odyssey` dosyasına aktarılıyor; başka bir bilgisayarda aynı
+  sayfadan içe aktarılınca Odyssey yeniden başlıyor ve kaldığınız yerden
+  devam ediyorsunuz. O bilgisayardaki eski ilerleme silinmiyor, yedekte
+  kalıyor. Otomatik yedeklerin klasörü de aynı sayfadan açılıyor.
 - **Hatalı satır editörde işaretleniyor.** Kod hata verince o satır
   editörde kırmızımsı bir zeminle boyanıyor, numarası işaretleniyor ve
   satır görünmüyorsa oraya kaydırılıyor; kodu değiştirince işaret kalkıyor.
@@ -32,6 +70,23 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   makine öğrenmesinde boş değer ve tablo boyutu hataları gibi. Windows'un
   Akıllı Uygulama Denetimi bir alıştırmanın kütüphanesini engellerse bunun
   kodla ilgisi olmadığı söyleniyor.
+- **Sınavda klavye.** Şıkları 1–4 ya da A–D tuşlarıyla seçip Enter ile
+  cevaplayabiliyor ve sonraki soruya geçebiliyorsunuz.
+- **Okuma odağı.** Bölüm başlığındaki çerçeve düğmesi ya da `F11` dersi tam
+  ekranda, sol menü ve şeritler olmadan açıyor. Çıkmak için `Esc` ya da
+  `F11`; girerken ekranın üstünde bunu hatırlatan bir yazı çıkıyor.
+- **Paylaşım kartı.** Profildeki "Paylaşım kartını kaydet" düğmesi
+  seviyenizi, unvanınızı, ilerlemenizi, son kazandığınız rozetleri ve son
+  bir yıldaki çalışma tablonuzu tek bir resimde kaydediyor; LinkedIn gibi
+  yerlerde paylaşabilirsiniz. Profil düzenleme penceresine GitHub kullanıcı
+  adınızı yazarsanız kartın köşesinde görünüyor.
+- **Aramadan komut çalıştırma.** `Ctrl+K` artık yalnızca içerik bulmuyor:
+  "tema", "dil", "zamanlayıcı", "tur", "kısayol" ya da "menü" yazınca
+  o işi yapan komut çıkıyor.
+- **"Bu sayfada sorun mu var?" düğmesi.** Bölüm başlığındaki bayrak
+  simgesi, bu sayfanın bilgileri önceden yazılmış bir GitHub hata
+  bildirimi açıyor; yanlış bir bilgiyi ya da çalışmayan bir alıştırmayı
+  tarif etmeden bildirebiliyorsunuz. Program hiçbir şey göndermiyor.
 - **İlerlemenizin günlük yedeği.** Program her gün açıldığında ilerleme
   dosyanızın bir kopyasını alıyor ve son üç günü saklıyor. Elektrik kesintisi
   ya da disk hatası yüzünden dosya bozulursa program bunu açılışta fark
@@ -41,14 +96,11 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   klasöründeki bir dosyaya yazılıyor; hata bildirirken bu dosyayı
   ekleyebilirsiniz. Yazdığınız kod, notlarınız ve cevaplarınız kayda
   girmiyor, dosya hiçbir yere gönderilmiyor.
-- **İlerlemeyi başka bir bilgisayara taşıma.** Ayarlar'daki yeni **Veri**
-  sayfasından ilerlemeniz, notlarınız, ayarlarınız ve profil fotoğrafınız
-  tek bir `.odyssey` dosyasına aktarılıyor; başka bir bilgisayarda aynı
-  sayfadan içe aktarılınca Odyssey yeniden başlıyor ve kaldığınız yerden
-  devam ediyorsunuz. O bilgisayardaki eski ilerleme silinmiyor, yedekte
-  kalıyor. Otomatik yedeklerin klasörü de aynı sayfadan açılıyor.
 
 ### Değişti
+- **Güncellemeden sonra "Neler yeni?" penceresi.** Program güncellendikten
+  sonraki ilk açılışta beta uyarısı yerine o sürümün en önemli beş
+  yeniliği çıkıyor; "Tüm sürüm notları" Sürüm Notları ekranını açıyor.
 - **Yarıda bırakılan sınavın cevapları kaybolmuyor.** Sınavdan bitirmeden
   çıktığınızda (ya da programı kapattığınızda) o ana kadar verdiğiniz
   cevaplar Geçmiş denemeler'e "yarıda bırakıldı" olarak kaydediliyor;

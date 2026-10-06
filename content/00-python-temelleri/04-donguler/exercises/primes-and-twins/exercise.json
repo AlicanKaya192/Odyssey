@@ -1,0 +1,63 @@
+{
+  "id": "primes-and-twins",
+  "title": {
+    "tr": "Asallar ve ikiz asallar",
+    "en": "Primes and twin primes"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Dış döngü `for number in range(2, limit + 1):` (100 dahil olsun diye `+ 1`). Hemen altında `is_prime = True`.",
+      "en": "The outer loop is `for number in range(2, limit + 1):` (`+ 1` so 100 is included). Right below it, `is_prime = True`."
+    },
+    {
+      "tr": "İç döngü `for divisor in range(2, number):` ve içinde `if number % divisor == 0:` → `is_prime = False` ve `break`.",
+      "en": "The inner loop is `for divisor in range(2, number):` with `if number % divisor == 0:` → `is_prime = False` and `break` inside."
+    },
+    {
+      "tr": "İç döngüden **sonra** (dış döngünün içinde) `if is_prime:`: sayacı artır, `number - previous == 2` ise `twin_a = previous`, `twin_b = number`; en son `previous = number`.",
+      "en": "**After** the inner loop (still inside the outer one), `if is_prime:`: increase the counter, if `number - previous == 2` then `twin_a = previous`, `twin_b = number`; finally `previous = number`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nlimit = 100\n\nprime_count = 0\nprevious = 0\ntwin_a = 0\ntwin_b = 0\n\nfor number in range(2, limit + 1):\n    is_prime = True\n    for divisor in range(2, number):\n        if number % divisor == 0:\n            is_prime = False\n            break\n    if is_prime:\n        prime_count = prime_count + 1\n        if number - previous == 2:\n            twin_a = previous\n            twin_b = number\n        previous = number\n\nprint(\"Primes up to\", limit, \":\", prime_count)\nprint(\"Largest twin pair:\", twin_a, twin_b)\n```",
+      "en": "The solution:\n\n```python\nlimit = 100\n\nprime_count = 0\nprevious = 0\ntwin_a = 0\ntwin_b = 0\n\nfor number in range(2, limit + 1):\n    is_prime = True\n    for divisor in range(2, number):\n        if number % divisor == 0:\n            is_prime = False\n            break\n    if is_prime:\n        prime_count = prime_count + 1\n        if number - previous == 2:\n            twin_a = previous\n            twin_b = number\n        previous = number\n\nprint(\"Primes up to\", limit, \":\", prime_count)\nprint(\"Largest twin pair:\", twin_a, twin_b)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "prime_count",
+      "equals": 25
+    },
+    {
+      "type": "variable",
+      "name": "twin_a",
+      "equals": 71
+    },
+    {
+      "type": "variable",
+      "name": "twin_b",
+      "equals": 73
+    },
+    {
+      "type": "ast_require",
+      "node": "For",
+      "hint": {
+        "tr": "Sayıları bir döngüyle gezmelisin.",
+        "en": "Walk through the numbers with a loop."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Primes up to 100 : 25\nLargest twin pair: 71 73"
+    }
+  ]
+}

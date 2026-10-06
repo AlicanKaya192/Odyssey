@@ -113,6 +113,23 @@ class ProfileEditDialog(QDialog):
             setattr(self, f"_{anahtar}", alan)
             layout.addWidget(alan)
 
+        # GitHub kullanıcı adı: paylaşım kartının sağ altında görünüyor
+        # (`profile_card.py`). Tam adres ya da @ad yapıştırılırsa da ad
+        # ayıklanıyor; GitHub'ın ad kuralına uymuyorsa kaydedilmiyor.
+        from .profile_card import GITHUB_KEY
+
+        self._github_label = QLabel()
+        self._github_label.setProperty("role", "muted")
+        layout.addWidget(self._github_label)
+        self._github = QLineEdit(store.setting(GITHUB_KEY, ""))
+        self._github.returnPressed.connect(self.accept)
+        layout.addWidget(self._github)
+        self._github_note = QLabel()
+        self._github_note.setProperty("tone", "danger")
+        self._github_note.setWordWrap(True)
+        self._github_note.hide()
+        layout.addWidget(self._github_note)
+
         layout.addSpacing(SPACING["md"])
 
         # --- düğmeler -----------------------------------------------------
@@ -149,6 +166,24 @@ class ProfileEditDialog(QDialog):
     @property
     def last_name(self) -> str:
         return self._last_name.text().strip()
+
+    @property
+    def github_username(self) -> str:
+        from .profile_card import normalize_github
+
+        return normalize_github(self._github.text()) or ""
+
+    def accept(self) -> None:  # noqa: D401
+        """GitHub adı geçersizse kaydetmeden uyarır."""
+        from .profile_card import normalize_github
+
+        if normalize_github(self._github.text()) is None:
+            self._github_note.setText(self._language.t("profile.github_invalid"))
+            self._github_note.show()
+            self._github.setFocus()
+            self.adjustSize()
+            return
+        super().accept()
 
     @property
     def photo_changed(self) -> bool:
@@ -207,6 +242,8 @@ class ProfileEditDialog(QDialog):
         self._last_label.setText(t("profile.last_name"))
         self._first_name.setPlaceholderText(t("profile.first_name"))
         self._last_name.setPlaceholderText(t("profile.last_name"))
+        self._github_label.setText(t("profile.github"))
+        self._github.setPlaceholderText(t("profile.github_placeholder"))
         self._photo_clear.setText(t("profile.photo_remove"))
         self._cancel.setText(t("common.cancel"))
         self._save.setText(t("common.save"))

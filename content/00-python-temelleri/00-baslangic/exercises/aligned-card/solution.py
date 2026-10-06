@@ -1,0 +1,5 @@
+print("+------------------+")
+print("| Odyssey          |")
+print("| Lesson: 00       |")
+print("| Score: ", 7 * 12 + 16, "     |")
+print("+------------------+")

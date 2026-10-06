@@ -115,6 +115,12 @@ class RunResult:
     # "Tablolar" penceresi bunu gösteriyor.
     tables: list[dict] = field(default_factory=list)
 
+    # Adım adım izlemede (`trace=True`) her satırdan önceki durum:
+    # {"line", "event", "out", "stack": [{"func", "vars": [[ad, değer, tür]]}]}.
+    # Sınıra ulaşıldıysa `steps_truncated`.
+    steps: list[dict] = field(default_factory=list)
+    steps_truncated: bool = False
+
     @property
     def passed(self) -> bool:
         """Alıştırma geçildi mi? Hata yoksa ve tüm kontroller tuttuysa."""
@@ -256,6 +262,7 @@ def run_code(
     language: str = "python",
     exercise_key: str = "",
     server_hint: str = "",
+    trace: bool = False,
 ) -> RunResult:
     """Kodu çalıştırır ve kontrolleri uygular.
 
@@ -268,6 +275,9 @@ def run_code(
     `exercise_key` SQL alıştırmasının veritabanını adlandırıyor; aynı adlı
     iki alıştırma farklı bölümlerde olabildiği için bölüm kimliğini de
     içermeli.
+
+    `trace` kodu adım adım izleyerek çalıştırıyor (kontrol yok,
+    `RunResult.steps` dolu); yalnızca Python.
     """
     global _LAST_SERVER
 
@@ -290,6 +300,7 @@ def run_code(
                     "exercise_key": exercise_key,
                     "seed_path": str(seed_path) if seed_path.exists() else "",
                     "server_hint": server_hint or _LAST_SERVER,
+                    "trace": trace,
                 },
                 ensure_ascii=False,
             ),
@@ -372,6 +383,8 @@ def run_code(
             timeout_sec=timeout_sec,
             server=raw.get("server", ""),
             tables=raw.get("tables", []),
+            steps=raw.get("steps", []),
+            steps_truncated=raw.get("steps_truncated", False),
         )
 
     finally:
