@@ -174,6 +174,20 @@ def install(path, window, owner) -> None:
     if hata:
         window.show_error(hata)
         return
+    # Kurulum sessiz; yeni sürüm açılana kadar ekranda "güncelleniyor"
+    # penceresi dursun (Alican: hiçbir şey görünmeyince çöktü sanılıyordu).
+    try:
+        from ..core import install_bridge
+        from ..paths import install_root, updates_dir
+
+        metinler, renkler, gorsel = window.bridge_assets()
+        install_bridge.show(updater.last_installer_pid, metinler, renkler,
+                            icon=install_root() / "app" / "resources" / "icon.ico",
+                            image=gorsel, folder=updates_dir())
+    except Exception:  # noqa: BLE001 — pencere çıkmasa da güncelleme sürer
+        from ..core import log
+
+        log.get(__name__).exception("Kurulum penceresi hazırlanamadı")
     window.release()
     if owner is not None and hasattr(owner, "close_for_update"):
         owner.close_for_update()

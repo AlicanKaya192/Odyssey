@@ -203,6 +203,11 @@ class ExerciseView(QWidget):
         self.lesson_source = lambda: ""
         self._trace_started = 0.0
         self._sizes_before_trace: list[int] | None = None
+        self._trace_source = "user"
+        self._trace_code = ""
+        # Örnek çözümü izlemeyi onaylanan alıştırmalar (oturum boyunca).
+        self._solution_confirmed: set[str] = set()
+        self.confirm_dialog = None
         self._snapshot: SnapshotWorker | None = None
         # Son çalıştırmanın sonundaki tablo hâli ve onu gösteren pencere.
         self._tables: list[dict] = []
@@ -366,6 +371,8 @@ class ExerciseView(QWidget):
         if action == "lesson-spot":
             spot = self._stuck_spot()
             self.lesson_requested.emit(spot.anchor if spot else "")
+        elif action == "trace-solution":
+            self.trace_solution()
 
     def set_advance_label(self, label: str | None) -> None:
         """Yönergenin en altındaki "devam" düğmesi.
@@ -517,7 +524,10 @@ class ExerciseView(QWidget):
             '<div class="stuck"><div class="hd">'
             f'{html.escape(t("stuck.title"))}</div>'
             f'<p>{html.escape(metin)}</p>'
-            f'<a class="go" href="app:lesson-spot">{html.escape(t("stuck.go"))}</a></div>'
+            f'<a class="go" href="app:lesson-spot">{html.escape(t("stuck.go"))}</a>'
+            + (f'<a class="go alt" href="app:trace-solution">{html.escape(t("stuck.trace"))}</a>'
+               if not self._exercise.is_problem and self._exercise.language != "tsql" else "")
+            + "</div>"
         )
 
     def _extra_html(self) -> str:
@@ -557,7 +567,10 @@ class ExerciseView(QWidget):
         self._trace = TracePanel()
         self._trace.step_changed.connect(self._on_trace_step)
         self._trace.closed.connect(self.close_trace)
-        self._editor.edited.connect(self.close_trace)
+        self._trace.source_requested.connect(self._on_trace_source)
+        # Kişi kendi kodunu değiştirince kayıt artık o koda ait değil; örnek
+        # çözüm izlenirken ise yazmaya devam edebilir.
+        self._editor.edited.connect(lambda: self.close_trace() if self._trace.source == "user" else None)
         self._bottom_stack = QStackedWidget()
         self._bottom_stack.addWidget(self._terminal)
         self._bottom_stack.addWidget(self._trace)
@@ -985,19 +998,69 @@ class ExerciseView(QWidget):
     def tracing(self) -> bool:
         return self._bottom_stack.currentWidget() is self._trace
 
-    def start_trace(self) -> None:
-        """Kodu izleyerek çalıştırır; bitince panel terminalin yerinde açılır."""
+    def start_trace(self, source: str = "user") -> None:
+        """Kodu izleyerek çalıştırır; bitince panel terminalin yerinde açılır.
+
+        `source` "solution" ise alıştırmanın örnek çözümü izleniyor (onay
+        `_on_trace_source` / `trace_solution`'da).
+        """
         if self._exercise is None or self._exercise.is_problem or self._exercise.language == "tsql":
             return
         if (self._worker and self._worker.isRunning()) or (
             self._trace_worker and self._trace_worker.isRunning()
         ):
             return
+        if source == "solution":
+            kod = self._exercise.solution_code_for(self._language.language) or ""
+        else:
+            kod = self._editor.toPlainText()
+        self._trace_source = source
+        self._trace_code = kod
         self._trace_spinner.start()
         self._trace_started = time.monotonic()
-        self._trace_worker = TraceWorker(self._editor.toPlainText(), self._exercise, self)
+        self._trace_worker = TraceWorker(kod, self._exercise, self)
         self._trace_worker.completed.connect(self._on_traced)
         self._trace_worker.start()
+
+    def _on_trace_source(self, source: str) -> None:
+        if source == "solution":
+            self.trace_solution()
+        else:
+            self.start_trace("user")
+
+    def trace_solution(self) -> None:
+        """Örnek çözümü adım adım oynatır; çözümü gösterdiği için ilk seferde sorar.
+
+        Son ipucu (çözümün tamamı) zaten açıldıysa ya da bu alıştırmada bir
+        kez onaylandıysa sorulmuyor.
+        """
+        if self._exercise is None:
+            return
+        son_ipucu = len(self._exercise.hints)
+        onayli = self._exercise.id in self._solution_confirmed or (son_ipucu and son_ipucu in self._revealed)
+        if not onayli:
+            if not self._confirm_solution():
+                return
+            self._solution_confirmed.add(self._exercise.id)
+        self.start_trace("solution")
+
+    def _confirm_solution(self) -> bool:
+        from . import titlebar
+        from .confirm_dialog import ConfirmDialog
+        from .modal import Backdrop
+
+        t = self._language.t
+        pencere = self.window()
+        perde = Backdrop(pencere)
+        perde.show()
+        dialog = ConfirmDialog(t("trace.solution_confirm_title"), t("trace.solution_confirm_text"),
+                               t("trace.solution_confirm"), t("common.cancel"), pencere)
+        titlebar.apply(dialog, self._mode)
+        self.confirm_dialog = dialog
+        kabul = dialog.exec() == ConfirmDialog.DialogCode.Accepted
+        self.confirm_dialog = None
+        perde.deleteLater()
+        return kabul
 
     def _on_traced(self, result: RunResult) -> None:
         self._trace_spinner.stop()
@@ -1014,17 +1077,21 @@ class ExerciseView(QWidget):
             return
         self._editor.set_error_line(None)
         self._trace.retranslate(self._language.t)
-        # Değişkenler ve çıktı sığsın: alt alan en az %45; kapanınca eski boy.
+        # Değişkenler ve çıktı sığsın: alt alan en az %45 (örnek çözümde
+        # kod sütunu da var, %58); kapanınca eski boy.
         boylar = self._work_splitter.sizes()
         if not self.tracing:
             self._sizes_before_trace = boylar
         toplam = sum(boylar)
-        if toplam and boylar[1] < toplam * 0.45:
-            self._work_splitter.setSizes([int(toplam * 0.55), toplam - int(toplam * 0.55)])
+        pay = 0.58 if self._trace_source == "solution" else 0.45
+        if toplam and boylar[1] < toplam * pay:
+            ust = int(toplam * (1 - pay))
+            self._work_splitter.setSizes([ust, toplam - ust])
         self._bottom_stack.setCurrentWidget(self._trace)
         aciklama = explain(result.error)
         ipucu = self._language.t(aciklama.key, **aciklama.values) if aciklama is not None else ""
-        self._trace.load(result.steps, result.stdout, result.error, result.steps_truncated, ipucu)
+        self._trace.load(result.steps, result.stdout, result.error, result.steps_truncated, ipucu,
+                         source=self._trace_source, code=self._trace_code)
         self._trace.setFocus()
 
     def _on_trace_step(self, satir, kind: str) -> None:

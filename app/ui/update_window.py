@@ -159,10 +159,13 @@ class UpdateWindow(QWidget):
             f"font-family: {FONTS['display']}; font-size: 26px; font-weight: 700;"
         )
         satir.addWidget(self._percent_label, 0, Qt.AlignmentFlag.AlignBottom)
-        satir.addStretch(1)
+        # Ayrıntı satırın kalan genişliğini kaplıyor, sağa yaslı: yazı her
+        # 0,1 sn'de değişirken genişliği yazıya bağlı kalınca bir an geride
+        # kalıp "kaldı" → "kald" diye kırpılıyordu.
         self._detail = QLabel("")
         self._detail.setProperty("role", "muted")
-        satir.addWidget(self._detail, 0, Qt.AlignmentFlag.AlignBottom)
+        self._detail.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
+        satir.addWidget(self._detail, 1, Qt.AlignmentFlag.AlignBottom)
         layout.addLayout(satir)
         layout.addSpacing(SPACING["sm"])
 
@@ -283,6 +286,35 @@ class UpdateWindow(QWidget):
     def show_error(self, key: str) -> None:
         """Kurulum programı başlatılamadıysa (çağıran söylüyor)."""
         self._on_finished(None, key)
+
+    def bridge_assets(self) -> tuple[dict, dict, "Path | None"]:
+        """Kurulum sırasındaki pencere için metinler, renkler ve sentorlu görsel."""
+        from pathlib import Path
+
+        from ..paths import updates_dir
+        from ..resources.theme.tokens import PALETTES
+        from ..widgets.effects import theme_mode
+
+        t = self._language.t
+        metinler = {
+            "title": t("update.bridge_title", version=self._info.version),
+            "heading": t("update.bridge_heading", version=self._info.version),
+            "text": t("update.bridge_text"),
+            "error_heading": t("update.bridge_error_heading"),
+            "error_text": t("update.bridge_error_text"),
+        }
+        mod = theme_mode()
+        p = PALETTES.get(mod, PALETTES["light"])
+        renkler = {"bg": p["surface"], "text": p["text"], "muted": p["text_muted"], "dark": mod == "dark",
+                   "track": p["surface_alt"], "accent": p["accent"], "accent2": p["accent_second"]}
+        gorsel: Path | None = updates_dir() / "bridge-scene.png"
+        try:
+            gorsel.parent.mkdir(parents=True, exist_ok=True)
+            if not self._scene.grab().save(str(gorsel)):
+                gorsel = None
+        except OSError:
+            gorsel = None
+        return metinler, renkler, gorsel
 
     def release(self) -> None:
         """Kurulum başladı, uygulama kapanıyor: pencere artık kapanmayı

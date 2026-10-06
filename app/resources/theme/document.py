@@ -533,6 +533,10 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
     background: {p['accent']}; color: #FFFFFF; font-size: 13.5px; font-weight: 650;
 }}
 .stuck a.go:hover {{ filter: brightness(1.08); }}
+.stuck a.go.alt {{
+    margin-left: 8px; background: transparent; color: {p['accent']};
+    border: 1px solid {p['accent']}; padding: 6px 13px;
+}}
 .hintbox {{
     margin-top: 26px; border: 1px solid {p['border']};
     border-radius: 18px; overflow: hidden;
@@ -628,6 +632,12 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
     box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
 }}
 .linkcard:hover {{ border-color: {p['accent']}; }}
+/* Hakkında: altı kartlık Ekstra İçerikler sayfası 1080p ekranda ~65 px
+ * taşıyıp kaydırma çubuğu çıkarıyordu; alt boşluk ve kart içi sıkılaştı. */
+.page.narrow.about {{ padding-bottom: 28px; }}
+.about .linkcard {{ padding: 16px 22px; }}
+.about .linkcard p {{ margin-top: 6px; }}
+.about .linkcard .url {{ margin-top: 8px; }}
 .linkcard .row {{ display: flex; align-items: center; gap: 12px; }}
 .linkcard b {{ font-size: 16.5px; font-weight: 660; color: {p['text']}; }}
 .linkcard .go {{

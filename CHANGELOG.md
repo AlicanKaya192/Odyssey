@@ -19,7 +19,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [0.9.2] — yayınlanmadı
+## [0.9.2] — 6 Ekim 2026
 
 ### Eklendi
 - **Python Temelleri'ne 22 yeni alıştırma.** Başlangıç, Değişkenler,
@@ -43,8 +43,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   işaretleniyor, altta her adımdaki değişkenler ve o ana kadarki çıktı
   görünüyor. Yeni gelen değişken yeşil, değeri değişen sarı; fonksiyonun
   içine girildiğinde kendi değişkenleri ayrı gösteriliyor, bitince ne
-  döndürdüğü yazıyor. Oklarla ileri geri gidiliyor. Döngünün her turunda
-  ne olduğunu görmek için.
+  döndürdüğü yazıyor. Oklarla ileri geri gidiliyor. Kodunuz boşsa ya da
+  nereden başlayacağınızı bilmiyorsanız **Örnek çözüm**'e geçip doğru
+  çözümün satır satır nasıl ilerlediğini izleyebilirsiniz (kendi kodunuz
+  yerinde kalıyor). "Takıldın mı?" kartından da açılıyor.
 - **Terimler sözlüğü.** Derslerde, ders notlarında ve alıştırma
   yönergelerinde terimler ilk geçtikleri yerde noktalı altı çizgiyle
   işaretli; üzerine gelince kısa açıklaması çıkıyor ("parametre neydi?"
@@ -101,6 +103,18 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Güncellemeden sonra "Neler yeni?" penceresi.** Program güncellendikten
   sonraki ilk açılışta beta uyarısı yerine o sürümün en önemli beş
   yeniliği çıkıyor; "Tüm sürüm notları" Sürüm Notları ekranını açıyor.
+- **Sınav ekranı yenilendi.** Başlangıç kartında daha önceki denemelerinizin
+  özeti (en iyi puan, son puan, deneme sayısı) ve sınavın nasıl ilerlediği,
+  soru kartında "Soru 3 / 10", sonuç kartında kaç doğru, yanlış ve boş
+  bıraktığınız ve ne kadar sürdüğü görünüyor.
+- **Tanıtım turu yeni özellikleri de gösteriyor:** seviye tespit sınavı,
+  terimler sözlüğü, okuma odağı ve sorun bildirme, adım adım izleme ve
+  paylaşım kartı. Turu Ayarlar › Öğrenme'den yeniden başlatabilirsiniz.
+- **Güncelleme kurulurken ekranda pencere kalıyor.** İndirme bitip Odyssey
+  kapandıktan sonra yeni sürüm açılana kadar ekranda hiçbir şey olmuyordu;
+  program çöktü sanılabiliyordu. Artık bu arada küçültülebilen bir
+  "Odyssey güncelleniyor" penceresi duruyor ve yeni sürüm açılınca
+  kendiliğinden kapanıyor. Bu, 0.9.2'den sonraki güncellemelerde görünür.
 - **Yarıda bırakılan sınavın cevapları kaybolmuyor.** Sınavdan bitirmeden
   çıktığınızda (ya da programı kapattığınızda) o ana kadar verdiğiniz
   cevaplar Geçmiş denemeler'e "yarıda bırakıldı" olarak kaydediliyor;

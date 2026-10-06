@@ -42,6 +42,30 @@ Every section has a lesson, lecture notes, a quiz and coding exercises; mathemat
   <img src="docs/media/exercise_en.gif" alt="Writing code in an exercise and running it: the terminal shows the result and the chart the code drew opens on the left" width="880">
 </p>
 
+**Step by step** replays your code one line at a time: the next line is marked in the editor, and below you see every variable — new ones in green, changed ones in yellow — and the output so far. If your code is empty or you do not know where to start, switch to the **sample solution** and watch a correct one unfold while your own code stays where it is.
+
+<p align="center">
+  <img src="docs/media/trace_en.gif" alt="Writing a loop, pressing Step by step and moving through it line by line while the variables and the output change, then switching to the sample solution" width="880">
+</p>
+
+**Terms** are marked with a dotted underline where they first appear in a lesson; hover over one to see a short explanation without leaving the page. Every term is gathered in **About › Glossary** and can be found with `Ctrl+K`.
+
+<p align="center">
+  <img src="docs/media/glossary_en.gif" alt="Hovering over underlined terms in the Functions lesson to show their explanations, then searching for parameter with Ctrl+K and landing on it in the Glossary" width="880">
+</p>
+
+**Quizzes** close every section. Answer with the mouse or the keyboard (`1–4` or `A–D`, then `Enter`); after each answer you see the right one and why. The start card sums up your past attempts and the result shows how many you got right, wrong or left blank. If you get stuck on an exercise three times in a row, a **Stuck?** card points you to the part of the lesson it builds on.
+
+<p align="center">
+  <img src="docs/media/quiz_en.gif" alt="The quiz start card with the best and last scores, four questions answered with the keyboard, then the result card with correct, wrong, blank and time" width="880">
+</p>
+
+**Already know some of it?** The optional placement test at the top of a path asks four questions from each section and unlocks the ones you know, so you can start where you actually are. Unlocked sections do not count as completed.
+
+<p align="center">
+  <img src="docs/media/placement_en.gif" alt="Opening the placement test from the Python path, answering questions, the result listing known sections, and the path with the unlocked sections" width="880">
+</p>
+
 **Mathematics problems** are worked out by hand on a drawing sheet. Only the answer is checked; once you solve it, or after two wrong tries, the solution paths open on the left so you can compare them with your own steps.
 
 <p align="center">
@@ -112,11 +136,11 @@ You can turn the check off under **Settings › Updates**. With it off, the appl
 
 Early development (`0.9.2`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
 
-**Content today:** six paths are **complete** — Python Fundamentals (eighteen sections, starting with packages and environments), Data Science (ten), Machine Learning (thirteen), SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures), Time Series (twenty-three, from working with dates to forecasting, prediction intervals and anomaly detection) and Mathematics, in two modules: Foundational Mathematics (twenty-eight sections, from numbers to probability and statistics) and The Mathematics of AI (thirty-two, linear algebra, calculus, probability and statistics). 4026 quiz questions, 420 coding exercises, 300 mathematics problems and 285 lecture notes, all of it in both Turkish and English.
+**Content today:** six paths are **complete** — Python Fundamentals (eighteen sections, starting with packages and environments), Data Science (ten), Machine Learning (thirteen), SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures), Time Series (twenty-three, from working with dates to forecasting, prediction intervals and anomaly detection) and Mathematics, in two modules: Foundational Mathematics (twenty-eight sections, from numbers to probability and statistics) and The Mathematics of AI (thirty-two, linear algebra, calculus, probability and statistics). 4026 quiz questions, 442 coding exercises, 300 mathematics problems, 285 lecture notes and a glossary of 92 terms, all of it in both Turkish and English.
 
 **Thirteen learning paths** are defined: Python, Data Science, Machine Learning, SQL, Mathematics and Time Series are open, while API, Docker, Natural Language Processing and the others are visible but locked until their content is written.
 
-**Working:** an animated start-up with the centaur mascot, learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations, mathematics problems on a drawing sheet with step-by-step solution paths, suggested study routes, streak reminders as Windows notifications, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 32 badges celebrated with a card as you earn them, XP, levels and titles you can show on your profile, a study timer with Pomodoro and other routines, a history of your past attempts in exercises and quizzes, a guided tour for new users, an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
+**Working:** an animated start-up with the centaur mascot, learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations with the failing line marked in the editor, step-by-step tracing of your code and of a sample solution, a glossary with explanations right in the lessons, a "Stuck?" pointer back to the lesson, a placement test that unlocks the sections you already know, mathematics problems on a drawing sheet with step-by-step solution paths, suggested study routes, streak reminders as Windows notifications, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 32 badges celebrated with a card as you earn them, XP, levels and titles you can show on your profile, a study timer with Pomodoro and other routines, a history of your past attempts in exercises and quizzes, quizzes you can answer from the keyboard, a full-screen reading mode, a share card with your level, badges and study calendar, moving your progress to another computer and a daily backup, a guided tour for new users, an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
 
 **Not there yet:** the content for the other paths, and a larger exercise engine for projects that run a dataset end to end.
 
