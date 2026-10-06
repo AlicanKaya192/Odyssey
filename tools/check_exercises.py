@@ -22,6 +22,11 @@ Python ve T-SQL alıştırmalarının ikisi de aynı yoldan geçiyor; fark
 `exercise.json` içindeki `language` alanında ve çalıştırıcı onu kendisi
 seçiyor.
 
+Çok dosyalı alıştırmada (`files`) son ipucu her dosyayı kendi adıyla
+veriyor: kod bloğunun hemen üstünde kalın yazılmış dosya adı
+(`**models.py**`). İpucundaki dosyalar başlangıç dosyalarının yerine
+konuyor; ipucunda olmayan dosya başlangıçtaki hâliyle kalıyor.
+
 Kullanım:
 
     python tools/check_exercises.py            # hepsi
@@ -52,6 +57,8 @@ from app.paths import content_dir  # noqa: E402
 # İpucundaki kod bloğu. Dil etiketi alıştırmanın diline göre değişiyor
 # (`python` / `sql`); ikisi de kabul ediliyor.
 KOD_BLOGU = re.compile(r"```(?:python|sql|tsql)\n(.*?)```", re.S)
+# Çok dosyalı ipucu: `**models.py**` (ya da **`models.py`**) ve altındaki blok.
+DOSYA_BLOGU = re.compile(r"\*\*`?([\w./-]+)`?\*\*[ \t]*\n+```[\w-]*\n(.*?)```", re.S)
 
 # Kaç alıştırma aynı anda çalışsın. Her biri bir alt süreç açıp beklerken
 # GIL'i bırakıyor, yani iş parçacığı yeterli — süreç havuzuna gerek yok.
@@ -69,6 +76,19 @@ def hint_kodu(exercise: Exercise, language: str) -> str | None:
         return None
     match = KOD_BLOGU.search(exercise.hints[-1].get(language, ""))
     return match.group(1) if match else None
+
+
+def hint_dosyalari(exercise: Exercise, language: str) -> dict[str, str] | None:
+    """Çok dosyalı alıştırmanın son ipucu: başlangıç dosyaları + ipucundakiler."""
+    if not exercise.hints:
+        return None
+    bloklar = DOSYA_BLOGU.findall(exercise.hints[-1].get(language, ""))
+    if not bloklar:
+        return None
+    dosyalar = exercise.starter_files(language)
+    for ad, kod in bloklar:
+        dosyalar[ad] = kod
+    return dosyalar
 
 
 def starter_kodu(exercise: Exercise, language: str) -> str:
@@ -90,7 +110,7 @@ def bir_alistirma(path: Path) -> list[str]:
     exercise = Exercise.load(path)
     where = f"{path.parts[-4]}/{path.parts[-3]}/{exercise.id}"
 
-    def calistir(kod: str):
+    def calistir(kod: str | dict):
         return run_code(
             kod,
             exercise.checks,
@@ -98,7 +118,11 @@ def bir_alistirma(path: Path) -> list[str]:
             path,
             language=exercise.language,
             exercise_key=where,
+            entry=exercise.entry,
         )
+
+    if exercise.is_multi_file:
+        return problems + _cok_dosya(exercise, where, calistir)
 
     result = calistir(exercise.solution_code)
     if not result.passed:
@@ -127,6 +151,25 @@ def bir_alistirma(path: Path) -> list[str]:
                 f"(tek başına {alone.status}, birleşik {hint_result.status})"
             )
 
+    return problems
+
+
+def _cok_dosya(exercise: Exercise, where: str, calistir) -> list[str]:
+    """Çok dosyalı alıştırma: iki dilde çözüm, iki dilde son ipucu; başlangıç geçmemeli."""
+    problems: list[str] = []
+    for language in ("tr", "en"):
+        result = calistir(exercise.solution_files(language))
+        if not result.passed:
+            problems.append(f"{where}: çözüm ({language}) geçmiyor ({result.status}) {result.error or ''}")
+        dosyalar = hint_dosyalari(exercise, language)
+        if dosyalar is None:
+            problems.append(f"{where}: son ipucunda ({language}) dosya adlı kod bloğu yok")
+            continue
+        hint_result = calistir(dosyalar)
+        if not hint_result.passed:
+            problems.append(f"{where}: son ipucu ({language}) alıştırmayı çözmüyor ({hint_result.status})")
+    if calistir(exercise.starter_files("tr")).passed:
+        problems.append(f"{where}: başlangıç dosyaları alıştırmayı zaten geçiyor")
     return problems
 
 

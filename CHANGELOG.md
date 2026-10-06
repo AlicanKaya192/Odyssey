@@ -19,6 +19,15 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [0.9.3] — yayınlanmadı
+
+### Düzeltildi
+- **Adım adım izleme sınıfları doğru adlandırıyor.** Bir sınıfın gövdesi
+  izlenirken panel onu "fonksiyonun içi" diye gösteriyor ve sınıf bitince
+  bir değer "geri verdi" diyordu; artık "sınıfın gövdesi" yazıyor.
+- **İngilizce arayüzde hata özeti tamamen İngilizce.** Kod hata verince
+  özetteki satır bilgisi İngilizce arayüzde de "satır" diye yazılıyordu.
+
 ## [0.9.2] — 6 Ekim 2026
 
 ### Eklendi

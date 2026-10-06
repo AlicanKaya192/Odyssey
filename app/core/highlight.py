@@ -4,9 +4,10 @@ Ders metinlerindeki ``` ile açılan kod blokları, maketteki renklerle
 boyanmış HTML'e çevriliyor. Pygments gibi bir bağımlılık eklemedim; kurallar
 editördekiyle aynı olsun diye tek yerden yönetiliyor.
 
-İki dil tanınıyor: Python ve SQL (T-SQL). Kod bloğunun etiketi (```` ```sql ````)
-hangisinin kullanılacağını söylüyor; etiketsiz blok Python sayılıyor, başka
-bir etiket boyanmıyor. SQL kelime listeleri burada duruyor ve kod
+Python ve SQL (T-SQL) dışında API ve Docker için Dockerfile, YAML, shell,
+JSON ve TOML tanınıyor. Kod bloğunun etiketi (```` ```sql ````) hangisinin
+kullanılacağını söylüyor; etiketsiz blok Python sayılıyor, tanınmayan
+etiket (```` ```text ````) boyanmıyor. SQL kelime listeleri burada duruyor ve kod
 editörü de (`widgets/code_editor.py`) buradan alıyor: ders metni, not,
 sınav ve editör aynı kelimeyi aynı renkte gösteriyor.
 
@@ -24,6 +25,11 @@ from ..resources.theme.tokens import SYNTAX
 
 LANGUAGE_PYTHON = "python"
 LANGUAGE_SQL = "sql"
+LANGUAGE_YAML = "yaml"
+LANGUAGE_DOCKERFILE = "dockerfile"
+LANGUAGE_SHELL = "shell"
+LANGUAGE_JSON = "json"
+LANGUAGE_TOML = "toml"
 
 # Kod bloğu etiketinden dile.
 LANGUAGE_TAGS = {
@@ -33,6 +39,17 @@ LANGUAGE_TAGS = {
     "sql": LANGUAGE_SQL,
     "tsql": LANGUAGE_SQL,
     "t-sql": LANGUAGE_SQL,
+    "yaml": LANGUAGE_YAML,
+    "yml": LANGUAGE_YAML,
+    "dockerfile": LANGUAGE_DOCKERFILE,
+    "docker": LANGUAGE_DOCKERFILE,
+    "bash": LANGUAGE_SHELL,
+    "sh": LANGUAGE_SHELL,
+    "shell": LANGUAGE_SHELL,
+    "console": LANGUAGE_SHELL,
+    "json": LANGUAGE_JSON,
+    "toml": LANGUAGE_TOML,
+    "ini": LANGUAGE_TOML,
 }
 
 KEYWORDS = {
@@ -185,7 +202,97 @@ def _sql_tokens(source: str) -> Iterator[tuple[str | None, str]]:
     yield None, source[position:]
 
 
+# --- yapılandırma dilleri (API ve Docker) ---------------------------------
+#
+# Bunlar satır satır okunuyor: çok satırlı metin yok denecek kadar az ve
+# editör de satır satır boyuyor. Desenin grup adı rengin türü (`SYNTAX`
+# anahtarı); editör aynı desenleri kullanıyor (`code_editor.PatternHighlighter`).
+
+DOCKERFILE_INSTRUCTIONS = (
+    "FROM", "RUN", "CMD", "ENTRYPOINT", "COPY", "ADD", "WORKDIR", "ENV", "ARG",
+    "EXPOSE", "USER", "VOLUME", "LABEL", "HEALTHCHECK", "SHELL", "STOPSIGNAL",
+    "ONBUILD", "MAINTAINER",
+)
+
+SHELL_KEYWORDS = (
+    "if", "then", "else", "elif", "fi", "for", "while", "do", "done", "case",
+    "esac", "function", "export",
+)
+
+LINE_PATTERNS = {
+    LANGUAGE_DOCKERFILE: re.compile(
+        rf"""
+        (?P<comment>^[ \t]*\#[^\n]*)
+      | (?P<keyword>^[ \t]*(?:{'|'.join(DOCKERFILE_INSTRUCTIONS)})\b|\bAS\b)
+      | (?P<string>"(?:\\.|[^"\\\n])*"|'[^'\n]*')
+      | (?P<variable>\$\{{?\w+\}}?)
+      | (?P<decorator>(?<![\w-])--[\w-]+)
+      | (?P<number>(?<![\w.])\d+(?:\.\d+)*(?![\w]))
+        """,
+        re.VERBOSE | re.MULTILINE | re.IGNORECASE,
+    ),
+    LANGUAGE_YAML: re.compile(
+        r"""
+        (?P<comment>(?:^|(?<=\s))\#[^\n]*)
+      | (?P<variable>(?:[\w.\-]+|"[^"\n]*"|'[^'\n]*')(?=[ \t]*:(?:[ \t]|$)))
+      | (?P<string>"(?:\\.|[^"\\\n])*"|'(?:''|[^'\n])*')
+      | (?P<keyword>^[ \t]*-(?=[ \t]|$)|^---[ \t]*$)
+      | (?P<constant>\b(?:true|false|null|yes|no|on|off)\b)
+      | (?P<number>(?<![\w.:-])-?\d+(?:\.\d+)?(?![\w.:-]))
+        """,
+        re.VERBOSE | re.MULTILINE,
+    ),
+    LANGUAGE_SHELL: re.compile(
+        rf"""
+        (?P<comment>(?:^|(?<=\s))\#[^\n]*)
+      | (?P<string>"(?:\\.|[^"\\\n])*"|'[^'\n]*')
+      | (?P<variable>\$\{{?\w+\}}?|\$\(|%\w+%)
+      | (?P<keyword>\b(?:{'|'.join(SHELL_KEYWORDS)})\b)
+      | (?P<builtin>(?:^[ \t]*(?:\$[ \t]+)?|(?<=\|[ \t])|(?<=&&[ \t])|(?<=;[ \t]))[A-Za-z_][\w.-]*)
+      | (?P<decorator>(?<![\w-])--?[A-Za-z][\w-]*)
+      | (?P<number>(?<![\w.:/-])\d+(?:\.\d+)?(?![\w.:/-]))
+        """,
+        re.VERBOSE | re.MULTILINE,
+    ),
+    LANGUAGE_JSON: re.compile(
+        r"""
+        (?P<variable>"(?:\\.|[^"\\\n])*"(?=[ \t]*:))
+      | (?P<string>"(?:\\.|[^"\\\n])*")
+      | (?P<constant>\b(?:true|false|null)\b)
+      | (?P<number>-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b)
+        """,
+        re.VERBOSE,
+    ),
+    LANGUAGE_TOML: re.compile(
+        r"""
+        (?P<comment>(?:^|(?<=\s))[\#;][^\n]*)
+      | (?P<definition>^[ \t]*\[[^\]\n]*\])
+      | (?P<variable>^[ \t]*[\w.\-"]+(?=[ \t]*=))
+      | (?P<string>"(?:\\.|[^"\\\n])*"|'[^'\n]*')
+      | (?P<constant>\b(?:true|false)\b)
+      | (?P<number>(?<![\w.])-?\d+(?:\.\d+)?(?![\w.]))
+        """,
+        re.VERBOSE | re.MULTILINE,
+    ),
+}
+
+
+def pattern_tokens(language: str, source: str) -> Iterator[tuple[str | None, str]]:
+    """Yapılandırma dilini desenine göre (tür, metin) parçalarına ayırır."""
+    pattern = LINE_PATTERNS[language]
+    position = 0
+    for match in pattern.finditer(source):
+        if match.end() == match.start():
+            continue
+        yield None, source[position:match.start()]
+        yield match.lastgroup, match.group()
+        position = match.end()
+    yield None, source[position:]
+
+
 TOKENIZERS = {LANGUAGE_PYTHON: _python_tokens, LANGUAGE_SQL: _sql_tokens}
+for _language in LINE_PATTERNS:
+    TOKENIZERS[_language] = lambda source, _language=_language: pattern_tokens(_language, source)
 
 # Satır içi stilde kalın ya da eğik yazılan türler.
 BOLD_KINDS = {"keyword", "constant"}

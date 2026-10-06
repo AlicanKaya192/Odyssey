@@ -33,7 +33,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import QTextEdit, QWidget
 
-from ..core.highlight import SQL_FUNCTIONS, SQL_KEYWORDS, SQL_TYPES
+from ..core.highlight import LINE_PATTERNS, SQL_FUNCTIONS, SQL_KEYWORDS, SQL_TYPES
 from ..resources.theme.tokens import FONTS, PALETTES, SYNTAX
 
 INDENT = "    "  # Python'da girinti 4 boşluk
@@ -44,8 +44,13 @@ LINE_HEIGHT_PERCENT = 165
 
 LANGUAGE_PYTHON = "python"
 LANGUAGE_SQL = "tsql"
+# Çok dosyalı alıştırmaların öbür dosyaları; renk desenleri `core/highlight.py`.
+LANGUAGE_TEXT = "text"
 
-COMMENT_PREFIX = {LANGUAGE_PYTHON: "#", LANGUAGE_SQL: "--"}
+COMMENT_PREFIX = {
+    LANGUAGE_PYTHON: "#", LANGUAGE_SQL: "--",
+    "yaml": "#", "dockerfile": "#", "shell": "#", "toml": "#",
+}
 
 BRACKET_PAIRS = {"(": ")", "[": "]", "{": "}"}
 CLOSING_BRACKETS = set(BRACKET_PAIRS.values())
@@ -276,7 +281,43 @@ class SqlHighlighter(_RuleHighlighter):
             search_from = start + 2
 
 
-HIGHLIGHTERS = {LANGUAGE_PYTHON: PythonHighlighter, LANGUAGE_SQL: SqlHighlighter}
+class PatternHighlighter(_RuleHighlighter):
+    """Yapılandırma dilleri (Dockerfile, YAML, shell, JSON, TOML).
+
+    Desen ders metnindeki kod bloklarıyla ortak: grup adı rengin türü.
+    """
+
+    language = ""
+
+    def _build(self, mode: str) -> tuple[list, QTextCharFormat]:
+        colors = SYNTAX.get(mode, SYNTAX["light"])
+        self._formats = {
+            kind: _char_format(colors[kind], bold=kind in ("keyword", "constant"),
+                               italic=kind == "comment")
+            for kind in ("comment", "keyword", "string", "variable", "decorator", "number",
+                         "constant", "builtin", "definition")
+        }
+        return [], QTextCharFormat()
+
+    def highlightBlock(self, text: str) -> None:  # noqa: N802
+        for match in LINE_PATTERNS[self.language].finditer(text):
+            fmt = self._formats.get(match.lastgroup or "")
+            if fmt is not None and match.end() > match.start():
+                self.setFormat(match.start(), match.end() - match.start(), fmt)
+
+
+class PlainHighlighter(_RuleHighlighter):
+    """Tanınmayan dosya (düz metin, CSV): renk yok."""
+
+    def _build(self, mode: str) -> tuple[list, QTextCharFormat]:
+        return [], QTextCharFormat()
+
+
+HIGHLIGHTERS = {LANGUAGE_PYTHON: PythonHighlighter, LANGUAGE_SQL: SqlHighlighter,
+                LANGUAGE_TEXT: PlainHighlighter}
+for _language in LINE_PATTERNS:
+    HIGHLIGHTERS[_language] = type(f"{_language.title()}Highlighter", (PatternHighlighter,),
+                                   {"language": _language})
 
 
 class CodeEditing:
@@ -650,7 +691,7 @@ class CodeEditor(CodeEditing, QTextEdit):
 
     def set_language(self, language: str) -> None:
         """Renklendirmeyi ve yorum işaretini alıştırmanın diline göre seçer."""
-        language = language if language in HIGHLIGHTERS else LANGUAGE_PYTHON
+        language = language if language in HIGHLIGHTERS else LANGUAGE_TEXT
         if language == self._language:
             return
         self._language = language

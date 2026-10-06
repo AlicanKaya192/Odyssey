@@ -14,6 +14,7 @@ Kod arka planda ayrı bir süreçte çalıştırılır; çalışırken arayüz d
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -30,6 +31,7 @@ import textwrap
 import time
 
 from ..widgets.feedback import ButtonSpinner, EdgeFlash
+from ..core import workspace_files
 from ..core.catalog import Exercise
 from ..core.grader import describe, summarise
 from ..core.language import LanguageManager
@@ -43,6 +45,7 @@ from ..version import APP_VERSION
 from ..widgets.code_editor import CodeEditor
 from ..widgets.common import SegmentedControl
 from ..widgets.draw_pad import clean_drawing, empty_drawing
+from ..widgets.file_tabs import FileTabs
 from ..widgets.grip_splitter import GripSplitter
 from ..widgets.problem_panel import ProblemPanel
 from ..widgets.terminal_view import TerminalView, block, line
@@ -84,6 +87,9 @@ PAGES = {"prompt": BRIEF_PROMPT, "solutions": BRIEF_SOLUTIONS, "output": PAGE_OU
 TAB_LABELS = {"prompt": "problem.tab_prompt", "solutions": "problem.tab_solutions",
               "output": "exercise.tab_output", "history": "history.tab"}
 
+# Nota eklenen kodun markdown etiketi (editör dili → kod bloğu etiketi).
+NOTE_TAGS = {"tsql": "sql", "shell": "bash", "text": "text"}
+
 # Terminal ile editör arasındaki ilk bölüşüm (piksel).
 EDITOR_SHARE = 560
 TERMINAL_SHARE = 240
@@ -98,9 +104,10 @@ class RunWorker(QThread):
 
     completed = Signal(object)
 
-    def __init__(self, code: str, exercise: Exercise, parent=None) -> None:
+    def __init__(self, code: str | dict, exercise: Exercise, parent=None) -> None:
         # Ebeveyn veriliyor: pencere kapanırken çalışan iş parçacıkları
         # `findChildren` ile bulunup bekleniyor (`MainWindow.closeEvent`).
+        # `code` çok dosyalı alıştırmada ad → metin sözlüğü.
         super().__init__(parent)
         self._code = code
         self._exercise = exercise
@@ -114,6 +121,7 @@ class RunWorker(QThread):
                 self._exercise.directory,
                 language=self._exercise.language,
                 exercise_key=exercise_key(self._exercise),
+                entry=self._exercise.entry,
             )
         )
 
@@ -125,7 +133,7 @@ class TraceWorker(QThread):
 
     completed = Signal(object)
 
-    def __init__(self, code: str, exercise: Exercise, parent=None) -> None:
+    def __init__(self, code: str | dict, exercise: Exercise, parent=None) -> None:
         super().__init__(parent)
         self._code = code
         self._exercise = exercise
@@ -139,6 +147,7 @@ class TraceWorker(QThread):
                 max(30, self._exercise.timeout_sec * 3),
                 self._exercise.directory,
                 trace=True,
+                entry=self._exercise.entry,
             )
         )
 
@@ -502,8 +511,12 @@ class ExerciseView(QWidget):
         dil = self._language.language
         prompt = self._exercise.prompt_for(dil)
         metin = prompt.path.read_text(encoding="utf-8") if prompt and prompt.exists else ""
-        kod = (self._exercise.solution_text(0, dil) if self._exercise.is_problem
-               else self._exercise.solution_code_for(dil)) or ""
+        if self._exercise.is_problem:
+            kod = self._exercise.solution_text(0, dil)
+        elif self._exercise.is_multi_file:
+            kod = "\n".join(self._exercise.solution_files(dil).values())
+        else:
+            kod = self._exercise.solution_code_for(dil) or ""
         spot = find_spot(self.lesson_source() or "", kod, metin,
                          override=str(self._exercise.raw.get("lesson_anchor", "")),
                          title=self._language.pick(self._exercise.title))
@@ -554,10 +567,24 @@ class ExerciseView(QWidget):
         kart = QVBoxLayout(self._editor_card)
         kart.setContentsMargins(4, 6, 4, 6)
         kart.setSpacing(0)
-        self._editor = CodeEditor(mode=self._mode)
-        self._editor.setProperty("card", "true")
-        self._editor.run_requested.connect(self.run)
-        kart.addWidget(self._editor)
+        # Çok dosyalı alıştırmada üstte dosya sekmeleri, her dosyanın kendi
+        # editörü (geri alma geçmişi dosya başına). Tek dosyada yalnızca ana
+        # editör var ve sekmeler gizli.
+        self._file_tabs = FileTabs()
+        self._file_tabs.current_changed.connect(lambda name: self._show_file(name, focus=True))
+        self._file_tabs.hide()
+        kart.addWidget(self._file_tabs)
+        self._editor_stack = QStackedWidget()
+        self._editor_stack.setProperty("role", "bare")
+        self._main_editor = self._new_editor()
+        self._editor = self._main_editor
+        self._editors: dict[str, CodeEditor] = {}
+        self._editor_stack.addWidget(self._main_editor)
+        kart.addWidget(self._editor_stack)
+        for tus, adim in (("Ctrl+PgDown", 1), ("Ctrl+PgUp", -1)):
+            kisayol = QShortcut(QKeySequence(tus), self)
+            kisayol.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+            kisayol.activated.connect(lambda adim=adim: self._file_tabs.step(adim))
         self._editor_flash = EdgeFlash(self._editor_card, radius=16)
         top_layout.addWidget(self._editor_card, 1)
         top_layout.addWidget(self._build_runbar())
@@ -568,9 +595,6 @@ class ExerciseView(QWidget):
         self._trace.step_changed.connect(self._on_trace_step)
         self._trace.closed.connect(self.close_trace)
         self._trace.source_requested.connect(self._on_trace_source)
-        # Kişi kendi kodunu değiştirince kayıt artık o koda ait değil; örnek
-        # çözüm izlenirken ise yazmaya devam edebilir.
-        self._editor.edited.connect(lambda: self.close_trace() if self._trace.source == "user" else None)
         self._bottom_stack = QStackedWidget()
         self._bottom_stack.addWidget(self._terminal)
         self._bottom_stack.addWidget(self._trace)
@@ -586,6 +610,73 @@ class ExerciseView(QWidget):
         self._work_splitter.setSizes([EDITOR_SHARE, TERMINAL_SHARE])
         self._work_splitter.setStretchFactor(0, 1)
         return self._work_splitter
+
+    def _new_editor(self) -> CodeEditor:
+        editor = CodeEditor(mode=self._mode)
+        editor.setProperty("card", "true")
+        editor.run_requested.connect(self.run)
+        editor.edited.connect(lambda: self._on_editor_edited(editor))
+        return editor
+
+    def _on_editor_edited(self, editor: CodeEditor) -> None:
+        # Kişi kendi kodunu değiştirince kayıt artık o koda ait değil; örnek
+        # çözüm izlenirken ise yazmaya devam edebilir.
+        if self._trace.source == "user":
+            self.close_trace()
+        if self._exercise is not None and self._exercise.is_multi_file and self._editors.get(self._file_tabs.current) is editor:
+            self._file_tabs.set_error("")
+
+    def _setup_editors(self, exercise: Exercise) -> None:
+        """Alıştırmanın dosyaları için editörler; ilk dosya ana editörde."""
+        for editor in self._editors.values():
+            if editor is not self._main_editor:
+                self._editor_stack.removeWidget(editor)
+                editor.deleteLater()
+        self._editors = {}
+        files = exercise.files
+        for index, item in enumerate(files):
+            editor = self._main_editor if index == 0 else self._new_editor()
+            if index:
+                editor.set_mode(self._mode)
+                self._editor_stack.addWidget(editor)
+            editor.set_language(item.language)
+            editor.setReadOnly(item.readonly)
+            editor.set_error_line(None)
+            editor.set_trace_line(None)
+            self._editors[item.name] = editor
+        self._file_tabs.set_files([(item.name, item.language, item.readonly) for item in files])
+        self._file_tabs.setVisible(exercise.is_multi_file)
+        self._editor = self._main_editor
+        self._editor_stack.setCurrentWidget(self._main_editor)
+
+    def _show_file(self, name: str, focus: bool = False) -> None:
+        """Dosyanın editörünü öne getirir (sekme de seçiliyor)."""
+        editor = self._editors.get(name)
+        if editor is None:
+            return
+        self._file_tabs.blockSignals(True)
+        self._file_tabs.set_current(name)
+        self._file_tabs.blockSignals(False)
+        self._editor = editor
+        self._editor_stack.setCurrentWidget(editor)
+        if focus:
+            editor.setFocus()
+
+    def _code_now(self) -> str | dict[str, str]:
+        """Çalıştırılacak kod: tek dosyada metin, çok dosyada bütün dosyalar."""
+        if self._exercise is not None and self._exercise.is_multi_file:
+            return {name: editor.toPlainText() for name, editor in self._editors.items()}
+        return self._main_editor.toPlainText()
+
+    def _code_to_save(self) -> str:
+        """Kayda giden metin; çok dosyada yalnızca düzenlenebilir dosyalar (JSON)."""
+        if self._exercise is not None and self._exercise.is_multi_file:
+            return workspace_files.encode({
+                item.name: self._editors[item.name].toPlainText()
+                for item in self._exercise.files
+                if not item.readonly and item.name in self._editors
+            })
+        return self._main_editor.toPlainText()
 
     def _build_problem_work(self) -> QWidget:
         """Problemin sağ tarafı: çalışma kâğıdı ve cevap. Tamamı kâğıda ait;
@@ -667,7 +758,8 @@ class ExerciseView(QWidget):
             code = self._editor.toPlainText()
         if not code.strip():
             return None
-        return code, "sql" if self._exercise.language == "tsql" else "python"
+        dil = self._editor._code_language()  # noqa: SLF001
+        return code, NOTE_TAGS.get(dil, dil)
 
     @property
     def current_exercise_id(self) -> str:
@@ -710,12 +802,23 @@ class ExerciseView(QWidget):
         # şey yazmadan çalıştırmış) o kayda tutunmuyoruz: dili şimdiki dile
         # göre seçiyoruz. Yazılmış bir kod varsa dokunulmuyor.
         saved = self._store.exercise_code(chapter_id, section_id, exercise.id)
-        if saved and exercise.is_untouched(saved):
-            saved = ""
-        self._editor.set_language(exercise.language)
-        self._editor.setPlainText(
-            saved or exercise.starter_code_for(self._language.language)
-        )
+        self._setup_editors(exercise)
+        dil = self._language.language
+        if exercise.is_multi_file:
+            # Alıştırma sonradan çok dosyalı olduysa eski kayıt düz kod:
+            # giriş dosyasına konuyor.
+            kayit = workspace_files.decode(saved)
+            if kayit is None:
+                kayit = {exercise.entry: saved} if saved else {}
+            for item in exercise.files:
+                metin = kayit.get(item.name)
+                if item.readonly or metin is None or item.is_untouched(metin):
+                    metin = item.starter_for(dil)
+                self._editors[item.name].setPlainText(metin)
+        else:
+            if saved and exercise.is_untouched(saved):
+                saved = ""
+            self._editor.setPlainText(saved or exercise.starter_code_for(dil))
 
         # Tablolar önceki alıştırmanın verisini göstermesin.
         self._tables = []
@@ -779,6 +882,8 @@ class ExerciseView(QWidget):
     def _command_name(self) -> str:
         if self._exercise is not None and self._exercise.language == "tsql":
             return "sqlcmd -i sorgu.sql"
+        if self._exercise is not None and self._exercise.is_multi_file:
+            return f"python {self._exercise.entry}"
         return "python cozum.py"
 
     def _welcome_html(self) -> str:
@@ -926,7 +1031,7 @@ class ExerciseView(QWidget):
         )
         self._run_started = time.monotonic()
 
-        self._worker = RunWorker(self._editor.toPlainText(), self._exercise, self)
+        self._worker = RunWorker(self._code_now(), self._exercise, self)
         self._worker.completed.connect(self._on_completed)
         self._worker.start()
 
@@ -937,15 +1042,26 @@ class ExerciseView(QWidget):
         p = PALETTES.get(self._mode, PALETTES["light"])
         self._editor_flash.flash(p["success"] if result.passed else p["danger"])
         # Hata veren satır editörde işaretleniyor (SQL'de satır bilgisi yok).
-        satir = (result.error or {}).get("line") if result.status == "error" else None
-        self._editor.set_error_line(satir if isinstance(satir, int) else None)
+        # Çok dosyalı alıştırmada hatanın dosyası öne geliyor, sekmesinde nokta.
+        hata = (result.error or {}) if result.status == "error" else {}
+        satir = hata.get("line") if isinstance(hata.get("line"), int) else None
+        for editor in self._editors.values():
+            editor.set_error_line(None)
+        if self._exercise is not None and self._exercise.is_multi_file:
+            dosya = str(hata.get("file") or self._exercise.entry) if satir else ""
+            self._file_tabs.set_error(dosya)
+            if dosya in self._editors:
+                self._show_file(dosya)
+                self._editors[dosya].set_error_line(satir)
+        else:
+            self._editor.set_error_line(satir)
 
         if self._exercise is not None:
             self._store.save_exercise(
                 self._chapter_id,
                 self._section_id,
                 self._exercise.id,
-                self._editor.toPlainText(),
+                self._code_to_save(),
                 solved=result.passed,
                 count_attempt=True,
             )
@@ -953,7 +1069,7 @@ class ExerciseView(QWidget):
                 self._chapter_id,
                 self._section_id,
                 self._exercise.id,
-                self._editor.toPlainText(),
+                self._code_to_save(),
                 result.passed,
                 run_detail(result),
             )
@@ -1011,9 +1127,11 @@ class ExerciseView(QWidget):
         ):
             return
         if source == "solution":
-            kod = self._exercise.solution_code_for(self._language.language) or ""
+            dil = self._language.language
+            kod = (self._exercise.solution_files(dil) if self._exercise.is_multi_file
+                   else self._exercise.solution_code_for(dil) or "")
         else:
-            kod = self._editor.toPlainText()
+            kod = self._code_now()
         self._trace_source = source
         self._trace_code = kod
         self._trace_spinner.start()
@@ -1075,7 +1193,9 @@ class ExerciseView(QWidget):
                 + self._terminal_body(result, time.monotonic() - self._trace_started, False)
             )
             return
-        self._editor.set_error_line(None)
+        for editor in self._editors.values():
+            editor.set_error_line(None)
+        self._file_tabs.set_error("")
         self._trace.retranslate(self._language.t)
         # Değişkenler ve çıktı sığsın: alt alan en az %45 (örnek çözümde
         # kod sütunu da var, %58); kapanınca eski boy.
@@ -1094,15 +1214,21 @@ class ExerciseView(QWidget):
                          source=self._trace_source, code=self._trace_code)
         self._trace.setFocus()
 
-    def _on_trace_step(self, satir, kind: str) -> None:
-        self._editor.set_trace_line(satir, kind or "line")
+    def _on_trace_step(self, satir, kind: str, dosya: str = "") -> None:
+        # Çok dosyalı alıştırmada adımın dosyası öne geliyor; odak panelde
+        # kalıyor (oklarla ilerlemeye devam edilsin).
+        if dosya and dosya in self._editors and dosya != self._file_tabs.current:
+            self._show_file(dosya)
+        for editor in self._editors.values():
+            editor.set_trace_line(satir if editor is self._editor else None, kind or "line")
 
     def close_trace(self) -> None:
         """Paneli kapatır, editördeki işareti kaldırır."""
         if not hasattr(self, "_bottom_stack") or not self.tracing:
             return
         self._bottom_stack.setCurrentWidget(self._terminal)
-        self._editor.set_trace_line(None)
+        for editor in self._editors.values():
+            editor.set_trace_line(None)
         if self._sizes_before_trace:
             self._work_splitter.setSizes(self._sizes_before_trace)
             self._sizes_before_trace = None
@@ -1196,6 +1322,12 @@ class ExerciseView(QWidget):
         if self._exercise is None:
             return
         # Terminal silinmiyor: önceki çalıştırmaların çıktısı yol gösterebilir.
+        if self._exercise.is_multi_file:
+            for item in self._exercise.files:
+                if not item.readonly and item.name in self._editors:
+                    self._editors[item.name].setPlainText(item.starter_for(self._language.language))
+            self._file_tabs.set_error("")
+            return
         self._editor.setPlainText(
             self._exercise.starter_code_for(self._language.language)
         )
@@ -1211,7 +1343,9 @@ class ExerciseView(QWidget):
         self._reset_button.setIcon(icon("refresh", p["text"], 16))
         if self._trace_spinner._saved_icon is None:  # noqa: SLF001
             self._trace_button.setIcon(icon("steps", p["text"], 16))
-        self._editor.set_mode(mode)
+        for editor in {self._main_editor, *self._editors.values()}:
+            editor.set_mode(mode)
+        self._file_tabs.set_mode(mode)
         self._prompt.set_mode(mode)
         self._solutions.set_mode(mode)
         self._output_view.set_mode(mode)
@@ -1230,6 +1364,7 @@ class ExerciseView(QWidget):
         self._trace.retranslate(self._language.t)
         self._fix_run_width()
         self._tables_button.setText(self._language.t("tables.button"))
+        self._file_tabs.set_texts(self._language.t("files.readonly"), self._language.t("files.error_here"))
         if self._tables_window is not None:
             self._tables_window.retranslate()
 
@@ -1257,6 +1392,16 @@ class ExerciseView(QWidget):
         silmemeli.
         """
         if self._exercise is None:
+            return
+
+        if self._exercise.is_multi_file:
+            for item in self._exercise.files:
+                editor = self._editors.get(item.name)
+                if editor is None or (not item.readonly and not item.is_untouched(editor.toPlainText())):
+                    continue
+                wanted = item.starter_for(self._language.language)
+                if wanted.strip() != editor.toPlainText().strip():
+                    editor.setPlainText(wanted)
             return
 
         current = self._editor.toPlainText()

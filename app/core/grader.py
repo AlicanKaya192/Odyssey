@@ -404,8 +404,11 @@ def summarise(result: RunResult, language: LanguageManager) -> str:
         error = result.error or {}
         line = error.get("line")
         message = f"{error.get('type', '')}: {error.get('message', '')}".strip(": ")
+        if line and error.get("file"):
+            where = language.t("exercise.error_at_file", message=message, file=error["file"], line=line)
+            return f"{language.t('exercise.error')}  ({where})"
         if line:
-            return f"{language.t('exercise.error')}  ({message} — satır {line})"
+            return f"{language.t('exercise.error')}  ({language.t('exercise.error_at', message=message, line=line)})"
         return f"{language.t('exercise.error')}  ({message})"
 
     if result.passed:

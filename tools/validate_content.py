@@ -25,6 +25,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.catalog import Catalog, ContentError  # noqa: E402
 from app.core.problem_check import parse_number  # noqa: E402
+from app.core.workspace_files import safe_name  # noqa: E402
 from app.paths import content_dir  # noqa: E402
 
 LANGUAGES = ("tr", "en")
@@ -328,6 +329,69 @@ def _check_problem(where: str, exercise) -> list[str]:
 ZORLUKLAR = (1, 2, 3)
 
 
+# Çok dosyalı alıştırmanın başlangıç / çözüm şablonları bu öneklerle
+# başlamalı: çalıştırıcı alıştırma klasörünü kopyalarken onları atlıyor
+# (`runner.SKIPPED_PREFIXES`); başka adla kişinin çalışma klasörüne düşerlerdi.
+SABLON_ONEKLERI = ("starter", "solution")
+
+
+def _check_files(where: str, exercise) -> list[str]:
+    """Çok dosyalı alıştırma (`files`): adlar, şablonlar, giriş dosyası."""
+    yer = f"{where}/{exercise.id}"
+    problems: list[str] = []
+    if exercise.language != "python":
+        problems.append(f"{yer}: çok dosyalı alıştırma şimdilik yalnızca python")
+    if exercise.raw.get("starter") or exercise.raw.get("solution"):
+        problems.append(f"{yer}: files varken starter/solution dosyanın içinde yazılır")
+
+    adlar = []
+    for item in exercise.raw.get("files", []):
+        if not isinstance(item, dict) or not item.get("name"):
+            problems.append(f"{yer}: files öğesinde name yok")
+            continue
+        ad = str(item["name"])
+        adlar.append(ad)
+        if not safe_name(ad):
+            problems.append(f"{yer}: dosya adı güvenli değil ({ad!r})")
+        if item.get("readonly"):
+            if item.get("starter") or item.get("solution"):
+                problems.append(f"{yer}: salt okunur {ad} starter/solution almaz")
+            kaynak = str(item.get("source") or ad)
+            if not (exercise.directory / kaynak).exists():
+                problems.append(f"{yer}: salt okunur dosya yok ({kaynak})")
+            continue
+        for alan in ("starter", "solution"):
+            sablon = item.get(alan)
+            if not sablon:
+                continue
+            if not str(sablon).startswith(SABLON_ONEKLERI):
+                problems.append(f"{yer}: {ad} {alan} şablonu {SABLON_ONEKLERI} ile başlamalı ({sablon})")
+            diller = LANGUAGES if "{lang}" in sablon else ("",)
+            for lang in diller:
+                dosya = sablon.replace("{lang}", lang)
+                if not (exercise.directory / dosya).exists():
+                    problems.append(f"{yer}: {ad} {alan} dosyası yok ({dosya})")
+
+    if len(set(adlar)) != len(adlar):
+        problems.append(f"{yer}: aynı adlı iki dosya var")
+    giris = exercise.file(exercise.entry)
+    if giris is None:
+        problems.append(f"{yer}: giriş dosyası ({exercise.entry}) files içinde yok")
+    elif not giris.name.endswith(".py"):
+        problems.append(f"{yer}: giriş dosyası .py olmalı ({giris.name})")
+
+    duzenlenebilir = [item for item in exercise.files if not item.readonly]
+    if not duzenlenebilir:
+        problems.append(f"{yer}: düzenlenebilir dosya yok")
+    elif all(item.solution_for("tr").strip() == item.starter_for("tr").strip() for item in duzenlenebilir):
+        problems.append(f"{yer}: çözüm başlangıçla aynı")
+
+    for check in exercise.checks:
+        if check.get("file") and check["file"] not in adlar:
+            problems.append(f"{yer}: kontrolün dosyası files içinde yok ({check['file']})")
+    return problems
+
+
 def _check_difficulty(where: str, exercise) -> list[str]:
     deger = exercise.raw.get("difficulty")
     if deger not in ZORLUKLAR:
@@ -366,6 +430,9 @@ def _check_exercise(where: str, exercise) -> list[str]:
             problems.append(f"{where}/{exercise.id}: seed.sql yok")
 
     problems.extend(_check_ascii(where, exercise))
+
+    if exercise.is_multi_file:
+        return problems + _check_files(where, exercise)
 
     for name in ("starter", "solution"):
         value = exercise.raw.get(name)

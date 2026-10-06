@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/AlicanKaya192/Odyssey/releases"><img alt="Sürüm 0.9.2" src="https://img.shields.io/badge/S%C3%9CR%C3%9CM-0.9.2-7466EE?style=for-the-badge&labelColor=1E1A3C"></a>
+  <a href="https://github.com/AlicanKaya192/Odyssey/releases"><img alt="Sürüm 0.9.3" src="https://img.shields.io/badge/S%C3%9CR%C3%9CM-0.9.3-7466EE?style=for-the-badge&labelColor=1E1A3C"></a>
   <img alt="Windows 10 ve 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-7466EE?style=for-the-badge&labelColor=1E1A3C">
   <img alt="Python 3.10 ile 3.14 arası" src="https://img.shields.io/badge/Python-3.10%E2%80%933.14-7466EE?style=for-the-badge&logo=python&logoColor=white&labelColor=1E1A3C">
   <img alt="Qt 6 ve PySide6 ile yapıldı" src="https://img.shields.io/badge/Qt%206-PySide6-7466EE?style=for-the-badge&logo=qt&logoColor=white&labelColor=1E1A3C">
@@ -134,7 +134,7 @@ Denetimi **Ayarlar › Güncelleme** bölümünden kapatabilirsiniz. Kapalıyken
 
 ## Durum
 
-Erken geliştirme aşaması (`0.9.2`), açık beta olarak yayınlandı. Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı, güncelleme — yerinde; müfredat büyümeye devam ediyor.
+Erken geliştirme aşaması (`0.9.3`), açık beta olarak yayınlandı. Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı, güncelleme — yerinde; müfredat büyümeye devam ediyor.
 
 **Bugünkü içerik:** altı patika **tamamlandı** — Python Temelleri (on sekiz bölüm, paketler ve ortamlarla başlıyor), Veri Bilimi (on), Makine Öğrenmesi (on üç), SQL (on altı; SQL Server'ı kurmaktan pencere fonksiyonlarına, dizinlere, görünümlere ve saklı yordamlara), Zaman Serileri (yirmi üç; tarihlerle çalışmaktan tahmine, tahmin aralıklarına ve anomali tespitine) ve iki modüllü Matematik: Temel Matematik (yirmi sekiz bölüm, sayılardan olasılık ve istatistiğe) ve Yapay Zekanın Matematiği (otuz iki; doğrusal cebir, kalkülüs, olasılık ve istatistik). 4026 sınav sorusu, 442 kod alıştırması, 300 matematik problemi, 285 ders notu ve 92 terimlik bir sözlük; tamamı Türkçe ve İngilizce.
 

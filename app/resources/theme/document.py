@@ -31,6 +31,7 @@ def build_css(mode: str) -> str:
 .hl-comment  {{ color: {s['comment']}; font-style: italic; }}
 .hl-variable {{ color: {s['variable']}; }}
 .hl-definition {{ color: {s['definition']}; }}
+.hl-decorator {{ color: {s['decorator']}; }}
 
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
 
