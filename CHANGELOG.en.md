@@ -21,7 +21,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [0.9.2] — unreleased
+## [0.9.2] — 6 October 2026
 
 ### Added
 - **22 new exercises in Python Fundamentals.** The Getting Started,
@@ -47,7 +47,9 @@ lecture note does not mean downloading the whole application again.
   at every step. A new variable shows in green, a changed value in
   yellow; inside a function its own variables are shown separately, and
   when it finishes you see what it returned. Use the arrow keys to move
-  back and forth. Made for seeing what happens on each turn of a loop.
+  back and forth. If your code is empty or you do not know where to start,
+  switch to **Sample solution** to watch a correct solution unfold line by
+  line (your own code stays as it is). The "Stuck?" card opens it too.
 - **A glossary of terms.** In lessons, lesson notes and exercise
   instructions, terms are marked with a dotted underline where they first
   appear; hovering shows a short explanation, so there is no need to leave
@@ -109,6 +111,19 @@ lecture note does not mean downloading the whole application again.
   opens after an update, it shows the five most important changes of that
   version instead of the beta notice; "All release notes" opens the Release
   Notes screen.
+- **The quiz screen has been reworked.** The start card sums up your past
+  attempts (best score, last score, number of attempts) and explains how
+  the quiz works, the question card shows "Question 3 / 10", and the result
+  card shows how many you got right, wrong or left blank and how long it
+  took.
+- **The guided tour covers the new features too:** the placement test, the
+  glossary, focus mode and reporting a problem, step-by-step tracing and
+  the share card. You can restart it from Settings › Learning.
+- **A window stays on screen while an update installs.** After the
+  download Odyssey closed and nothing was visible until the new version
+  opened, which could look like a crash. Now an "Odyssey is updating"
+  window, which you can minimise, stays until the new version opens and
+  then closes by itself. You will see it on updates after 0.9.2.
 - **Answers from an unfinished quiz are no longer lost.** When you leave a
   quiz before finishing it (or close the program), the answers you have
   given so far are saved to Past attempts as "left unfinished", so you can

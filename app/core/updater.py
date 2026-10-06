@@ -285,6 +285,11 @@ def installer_command(path: Path) -> list[str]:
     return komut
 
 
+# Son başlatılan kurulum sürecinin kimliği: "Odyssey güncelleniyor"
+# penceresi (`install_bridge`) onun bitişini bekliyor.
+last_installer_pid = 0
+
+
 def start_installer(path: Path) -> str:
     """Kurulum programını sessiz kipte başlatır; başlamadıysa sebebini döndürür.
 
@@ -299,8 +304,10 @@ def start_installer(path: Path) -> str:
     if "-patch-" in path.name:
         # `Odyssey-<yeni>-patch-<eski>.exe`: tutmazsa bir dahaki sefere tam kurulum.
         mark_patch_attempt(path.name.split("-")[1])
+    global last_installer_pid
     try:
-        subprocess.Popen(installer_command(path), cwd=str(path.parent), close_fds=True)
+        surec = subprocess.Popen(installer_command(path), cwd=str(path.parent), close_fds=True)
+        last_installer_pid = surec.pid
     except OSError as hata:
         kod = getattr(hata, "winerror", None)
         _log.error("Kurulum başlatılamadı: %s (winerror %s)", path.name, kod, exc_info=True)

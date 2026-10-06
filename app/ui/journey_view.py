@@ -2162,12 +2162,12 @@ class PathView(QWidget):
         return state.status(section.requires_quiz, section.requires_exercises)
 
     def _placement_banner(self, chapter, outline: list):
-        """Seviye tespit kartı; modülde yeterli bölüm yoksa, kilit kapalıysa
-        ya da bütün bölümler bittiyse yok."""
+        """Seviye tespit kartı; modülde yeterli bölüm yoksa ya da bütün
+        bölümler bittiyse yok. Kilit kaldırılmışken de görünüyor (Alican):
+        kişi nereden başlayacağını, neyi tekrar etmesi gerektiğini görsün."""
         from ..core import placement
-        from ..core.unlock import unlock_all
 
-        if unlock_all(self._store) or not placement.available(chapter, self._language.language):
+        if not placement.available(chapter, self._language.language):
             return None
         bolumler = [s for s in outline if not isinstance(s, dict)]
         if bolumler and all(self._state_of(chapter.id, s) == "completed" for s in bolumler):

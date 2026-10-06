@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import math
+import time
 from pathlib import Path
 
 from PySide6.QtCore import Property, QEvent, QPointF, QRectF, Qt, QTimer, Signal
@@ -387,6 +388,66 @@ class ScoreRing(QWidget):
         g.drawText(QRectF(0, self.height() / 2 + 12, self.width(), 18), Qt.AlignmentFlag.AlignCenter, self._caption)
 
 
+class QuizMedallion(QWidget):
+    """Başlangıç kartının tepesindeki simgeli madalyon (rozet ve seviye
+    kartlarındaki gibi): vurgu renginde yumuşak daire, içinde pano simgesi."""
+
+    SIZE = 64
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setFixedSize(self.SIZE, self.SIZE)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        p = theme_palette()
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        g.setPen(Qt.PenStyle.NoPen)
+        dis = QColor(p["accent"])
+        dis.setAlpha(36)
+        g.setBrush(dis)
+        g.drawEllipse(QRectF(0, 0, self.SIZE, self.SIZE))
+        ic = QColor(p["accent"])
+        ic.setAlpha(70)
+        g.setBrush(ic)
+        g.drawEllipse(QRectF(9, 9, self.SIZE - 18, self.SIZE - 18))
+        simge = pixmap("clipboard-check", p["accent"], 26)
+        g.drawPixmap(int((self.SIZE - 26) / 2), int((self.SIZE - 26) / 2), simge)
+
+
+class StatTile(QFrame):
+    """Küçük sayı kutusu: büyük değer, altında etiket (sonuç ve başlangıç)."""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setObjectName("qstat")
+        duzen = QVBoxLayout(self)
+        duzen.setContentsMargins(10, 9, 10, 9)
+        duzen.setSpacing(1)
+        self._value = QLabel()
+        self._value.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        duzen.addWidget(self._value)
+        self._caption = QLabel()
+        self._caption.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        duzen.addWidget(self._caption)
+        self._tone = "text"
+
+    def set_values(self, value: str, caption: str, tone: str = "text") -> None:
+        self._value.setText(value)
+        self._caption.setText(caption)
+        self._tone = tone
+        self.apply_palette()
+
+    def apply_palette(self) -> None:
+        p = theme_palette()
+        self.setStyleSheet(
+            f"QFrame#qstat {{ background: {p['surface_alt']}; border-radius: 12px; }}"
+            f"QFrame#qstat QLabel {{ background: transparent; }}"
+        )
+        self._value.setStyleSheet(f"color: {p[self._tone]}; font-size: 20px; font-weight: 700;")
+        self._caption.setStyleSheet(f"color: {p['text_muted']}; font-size: 12px; font-weight: 600;")
+
+
 class QuizView(QWidget):
     """Bir alt bölümün sınavı: başlangıç kartı, sorular, sonuç."""
 
@@ -427,9 +488,11 @@ class QuizView(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self._stack = QStackedWidget()
-        self._stack.addWidget(self._build_start_page())
+        # Başlangıç ve sonuç kartları uzadı (0.9.2: madalyon, özet, sayı
+        # kutuları); alçak pencerede kırpılmasınlar diye kaydırma alanında.
+        self._stack.addWidget(self._scrolled(self._build_start_page()))
         self._stack.addWidget(self._build_quiz_page())
-        self._stack.addWidget(self._build_result_page())
+        self._stack.addWidget(self._scrolled(self._build_result_page()))
         self._stack.addWidget(self._build_review_page())
         layout.addWidget(self._stack)
 
@@ -450,14 +513,31 @@ class QuizView(QWidget):
         outer.addStretch(2)
         return page
 
+    def _scrolled(self, page: QWidget) -> QScrollArea:
+        alan = QScrollArea()
+        alan.setWidgetResizable(True)
+        alan.setFrameShape(QFrame.Shape.NoFrame)
+        alan.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        alan.setWidget(page)
+        return alan
+
     def _build_start_page(self) -> QWidget:
         card = Card(mode=self._mode, padding=30)
         card.setProperty("variant", "qcard")
         self._start_card = card
+        # Diğer ekranların kartları gibi (rozet, seviye, neler yeni): üstte
+        # madalyon, başlık, ne olacağını anlatan kısa yazı (0.9.2).
+        card.body.addWidget(QuizMedallion(), 0, Qt.AlignmentFlag.AlignHCenter)
+        card.body.addSpacing(SPACING["sm"])
         self._start_title = QLabel()
         self._start_title.setProperty("role", "qcard-title")
         self._start_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         card.body.addWidget(self._start_title)
+        self._start_text = QLabel()
+        self._start_text.setProperty("role", "muted")
+        self._start_text.setWordWrap(True)
+        self._start_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        card.body.addWidget(self._start_text)
         card.body.addSpacing(SPACING["sm"])
 
         # Soru sayısı, süre ve geçme puanı üç çipte (önce tek cümleydi).
@@ -476,7 +556,7 @@ class QuizView(QWidget):
         card.body.addLayout(cips)
         card.body.addSpacing(SPACING["lg"])
 
-        self._preview_ring = TimerRing(150, 9)
+        self._preview_ring = TimerRing(132, 9)
         card.body.addWidget(self._preview_ring, 0, Qt.AlignmentFlag.AlignHCenter)
         card.body.addSpacing(22)
 
@@ -485,6 +565,17 @@ class QuizView(QWidget):
         self._previous_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._previous_label.hide()
         card.body.addWidget(self._previous_label)
+        # Önceki denemeler varsa özet: en iyi, son, kaç deneme.
+        self._start_stats_row = QWidget()
+        self._start_stats_row.setProperty("role", "bare")
+        satir = QHBoxLayout(self._start_stats_row)
+        satir.setContentsMargins(0, 0, 0, 0)
+        satir.setSpacing(SPACING["sm"])
+        self._start_stats = [StatTile() for _ in range(3)]
+        for kutu in self._start_stats:
+            satir.addWidget(kutu, 1)
+        self._start_stats_row.hide()
+        card.body.addWidget(self._start_stats_row)
         card.body.addSpacing(SPACING["sm"])
 
         self._start_button = QPushButton()
@@ -499,7 +590,12 @@ class QuizView(QWidget):
         self._history_button.clicked.connect(lambda: self._open_review(0))
         self._history_button.hide()
         card.body.addWidget(self._history_button)
-        return self._centered(card, 420)
+        self._start_keys = QLabel()
+        self._start_keys.setProperty("role", "muted")
+        self._start_keys.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        card.body.addSpacing(SPACING["xs"])
+        card.body.addWidget(self._start_keys)
+        return self._centered(card, 460)
 
     def _build_quiz_page(self) -> QWidget:
         page = QWidget()
@@ -515,6 +611,10 @@ class QuizView(QWidget):
         self._question_card = card
         ust = QHBoxLayout()
         ust.setSpacing(12)
+        # "Soru 3 / 10": çubuktaki bölmeleri saymak gerekmesin.
+        self._q_number = QLabel()
+        self._q_number.setProperty("role", "qtime")
+        ust.addWidget(self._q_number)
         self._dots = ProgressDots()
         ust.addWidget(self._dots, 1)
         # Kalan süre kartın içinde, saat simgesiyle (önce sağ üstte ayrı bir
@@ -570,7 +670,15 @@ class QuizView(QWidget):
         self._result_detail.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._result_detail.setWordWrap(True)
         card.body.addWidget(self._result_detail)
-        card.body.addSpacing(18 - SPACING["sm"])
+        card.body.addSpacing(SPACING["md"])
+        # Doğru / yanlış / boş / süre (0.9.2): tek sayı "neredeyim" demiyordu.
+        satir = QHBoxLayout()
+        satir.setSpacing(SPACING["sm"])
+        self._result_stats = [StatTile() for _ in range(4)]
+        for kutu in self._result_stats:
+            satir.addWidget(kutu, 1)
+        card.body.addLayout(satir)
+        card.body.addSpacing(SPACING["md"])
         # Üç düğme tek satırda dar kartta sığmıyor, yazılar kırpılıyordu
         # ("Yanlışlarımı gör" → "nlışlarımı g"). Üstte ikincil ikisi eşit
         # genişlikte yan yana, altta "devam" tam genişlikte.
@@ -661,10 +769,28 @@ class QuizView(QWidget):
         return self._history_provider() if self._history_provider else []
 
     def _sync_history_button(self) -> None:
-        sayi = len(self._attempts())
+        denemeler = self._attempts()
+        sayi = len(denemeler)
         self._history_button.setVisible(sayi > 0)
         if sayi:
             self._history_button.setText(self._language.t("quiz_history.open", count=sayi))
+        # Başlangıç kartında özet: en iyi puan, son puan, deneme sayısı.
+        # Yarıda bırakılan denemenin puanı sayılmıyor.
+        biten = [d for d in denemeler if not d.get("abandoned")]
+        self._start_stats_row.setVisible(bool(biten))
+        if biten:
+            t = self._language.t
+            en_iyi = max(int(d.get("score", 0)) for d in biten)
+            son = biten[0]
+            ton = "success" if son.get("passed") else "danger"
+            for kutu, (deger, ad, renk) in zip(self._start_stats, (
+                    (str(en_iyi), t("quiz.stat_best"), "success" if en_iyi >= self._pass_score else "text"),
+                    (str(int(son.get("score", 0))), t("quiz.stat_last"), ton),
+                    (str(len(biten)), t("quiz.stat_attempts"), "text"))):
+                kutu.set_values(deger, ad, renk)
+        # Özet varken "önceki denemende %X" satırı tekrar olur.
+        if biten:
+            self._previous_label.hide()
 
     def _open_review(self, back: int) -> None:
         self._review_attempts = self._attempts()
@@ -787,6 +913,7 @@ class QuizView(QWidget):
         self._questions_stack.addWidget(self._cards[0])
         self._questions_stack.setCurrentWidget(self._cards[0])
         self._stack.setCurrentIndex(1)
+        self._started_at = time.monotonic()
         self._scroll.verticalScrollBar().setValue(0)
         self._sync_question_ui()
         # Klavyeyle cevaplanabilsin: tuşlar sınava gelsin (`keyPressEvent`).
@@ -811,6 +938,8 @@ class QuizView(QWidget):
 
     def _sync_question_ui(self) -> None:
         self._dots.set_state(self._marks, self._current)
+        self._q_number.setText(self._language.t("quiz.question", current=self._current + 1,
+                                                total=len(self._cards)))
         self._render_clock()
         card = self._cards[self._current]
         if card.is_answered:
@@ -907,6 +1036,8 @@ class QuizView(QWidget):
         score = round(correct * 100 / len(self._cards))
         passed = score >= self._pass_score
         self._last_score, self._last_correct = score, correct
+        self._last_wrong = sum(1 for c in self._cards if c.is_answered and not c.is_correct)
+        self._last_seconds = int(time.monotonic() - getattr(self, "_started_at", time.monotonic()))
         self._stack.setCurrentIndex(2)
         self._render_result(timed_out)
         self._score_ring.show_score(score, passed, self._language.t("quiz.points"))
@@ -926,6 +1057,14 @@ class QuizView(QWidget):
         self._result_title.setText(baslik)
         self._result_detail.setText(self._language.t(
             "quiz.result_detail", correct=self._last_correct, total=len(self._cards), pass_score=self._pass_score))
+        t = self._language.t
+        bos = len(self._cards) - self._last_correct - getattr(self, "_last_wrong", 0)
+        for kutu, (deger, ad, ton) in zip(self._result_stats, (
+                (str(self._last_correct), t("quiz.stat_correct"), "success"),
+                (str(getattr(self, "_last_wrong", 0)), t("quiz.stat_wrong"), "danger"),
+                (str(bos), t("quiz.stat_empty"), "text_muted"),
+                (format_clock(getattr(self, "_last_seconds", 0)), t("quiz.stat_time"), "text"))):
+            kutu.set_values(deger, ad, ton)
 
     def _reset(self) -> None:
         """Baştan dene: başlangıç kartına dönüyor, sorular yeniden karışıyor."""
@@ -944,6 +1083,8 @@ class QuizView(QWidget):
         self._preview_ring.set_caption_color(palette["text_muted"])
         for card in self._cards:
             card.set_mode(mode)
+        for kutu in self._start_stats + self._result_stats:
+            kutu.apply_palette()
         if self._review_view is not None:
             self._review_view.set_mode(mode)
         self._review_pick.set_arrow_color(palette["text_muted"])
@@ -981,6 +1122,8 @@ class QuizView(QWidget):
             self._fill_review_pick()
         self._start_button.setText("  " + t("quiz.start"))
         self._start_title.setText(t("quiz.ready_title"))
+        self._start_text.setText(t("quiz.ready_text"))
+        self._start_keys.setText(t("quiz.keys_hint"))
         self._preview_ring.set_caption(t("quiz.ring_time"))
         self._chip_count.setText(" " + t("quiz.chip_questions", count=len(self._questions)))
         zamanli = self._time_limit and not self._untimed
@@ -995,6 +1138,7 @@ class QuizView(QWidget):
             self._previous_label.style().unpolish(self._previous_label)
             self._previous_label.style().polish(self._previous_label)
             self._previous_label.show()
+        self._sync_history_button()
         for card in self._cards:
             card.retranslate(len(self._cards))
         if self._cards and self._stack.currentIndex() == 1:

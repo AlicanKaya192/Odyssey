@@ -42,6 +42,30 @@ Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları va
   <img src="docs/media/exercise_tr.gif" alt="Bir alıştırmada kodu yazıp çalıştırmak: terminalde sonuç, solda kodun çizdiği grafik" width="880">
 </p>
 
+**Adım adım** kodunuzu satır satır oynatıyor: editörde sıradaki satır işaretleniyor, altta bütün değişkenler — yeni gelen yeşil, değişen sarı — ve o ana kadarki çıktı görünüyor. Kodunuz boşsa ya da nereden başlayacağınızı bilmiyorsanız **örnek çözüme** geçip doğrusunun nasıl ilerlediğini izleyebiliyorsunuz; kendi kodunuz yerinde kalıyor.
+
+<p align="center">
+  <img src="docs/media/trace_tr.gif" alt="Bir döngü yazıp Adım adım'a basmak ve değişkenler ile çıktı değişirken satır satır ilerlemek, sonra örnek çözüme geçmek" width="880">
+</p>
+
+**Terimler** derste ilk geçtikleri yerde noktalı altı çizgiyle işaretli; üzerine gelince sayfadan çıkmadan kısa açıklaması görünüyor. Bütün terimler **Hakkında › Sözlük**'te; `Ctrl+K` ile de bulunuyor.
+
+<p align="center">
+  <img src="docs/media/glossary_tr.gif" alt="Fonksiyonlar dersinde altı çizili terimlerin üzerine gelip açıklamalarını görmek, sonra Ctrl+K ile parametre arayıp Sözlük'te ona gitmek" width="880">
+</p>
+
+**Sınavlar** her bölümü kapatıyor. Fareyle ya da klavyeyle (`1–4` veya `A–D`, sonra `Enter`) cevaplıyorsunuz; her cevaptan sonra doğrusu ve açıklaması çıkıyor. Başlangıç kartında önceki denemelerinizin özeti, sonuçta kaç doğru, yanlış ve boş bıraktığınız var. Bir alıştırmada üç kez üst üste takılırsanız **Takıldın mı?** kartı sizi dersin ilgili kısmına yönlendiriyor.
+
+<p align="center">
+  <img src="docs/media/quiz_tr.gif" alt="En iyi ve son puanı gösteren sınav başlangıç kartı, klavyeyle cevaplanan dört soru, sonra doğru, yanlış, boş ve süreyi gösteren sonuç kartı" width="880">
+</p>
+
+**Bir kısmını zaten biliyor musunuz?** Patikanın başındaki isteğe bağlı seviye tespit sınavı her bölümden dört soru soruyor ve bildiğiniz bölümleri açıyor; gerçekten olduğunuz yerden başlıyorsunuz. Açılan bölümler tamamlanmış sayılmıyor.
+
+<p align="center">
+  <img src="docs/media/placement_tr.gif" alt="Python yolundan seviye tespit sınavını açmak, soruları cevaplamak, bilinen bölümleri listeleyen sonuç ve açılan bölümleriyle yol" width="880">
+</p>
+
 **Matematik problemleri** çizim kâğıdında elle çözülüyor. Yalnızca cevap denetleniyor; çözünce ya da iki yanlıştan sonra çözüm yolları solda açılıyor, kendi adımlarınızla karşılaştırabiliyorsunuz.
 
 <p align="center">
@@ -112,11 +136,11 @@ Denetimi **Ayarlar › Güncelleme** bölümünden kapatabilirsiniz. Kapalıyken
 
 Erken geliştirme aşaması (`0.9.2`), açık beta olarak yayınlandı. Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı, güncelleme — yerinde; müfredat büyümeye devam ediyor.
 
-**Bugünkü içerik:** altı patika **tamamlandı** — Python Temelleri (on sekiz bölüm, paketler ve ortamlarla başlıyor), Veri Bilimi (on), Makine Öğrenmesi (on üç), SQL (on altı; SQL Server'ı kurmaktan pencere fonksiyonlarına, dizinlere, görünümlere ve saklı yordamlara), Zaman Serileri (yirmi üç; tarihlerle çalışmaktan tahmine, tahmin aralıklarına ve anomali tespitine) ve iki modüllü Matematik: Temel Matematik (yirmi sekiz bölüm, sayılardan olasılık ve istatistiğe) ve Yapay Zekanın Matematiği (otuz iki; doğrusal cebir, kalkülüs, olasılık ve istatistik). 4026 sınav sorusu, 420 kod alıştırması, 300 matematik problemi ve 285 ders notu; tamamı Türkçe ve İngilizce.
+**Bugünkü içerik:** altı patika **tamamlandı** — Python Temelleri (on sekiz bölüm, paketler ve ortamlarla başlıyor), Veri Bilimi (on), Makine Öğrenmesi (on üç), SQL (on altı; SQL Server'ı kurmaktan pencere fonksiyonlarına, dizinlere, görünümlere ve saklı yordamlara), Zaman Serileri (yirmi üç; tarihlerle çalışmaktan tahmine, tahmin aralıklarına ve anomali tespitine) ve iki modüllü Matematik: Temel Matematik (yirmi sekiz bölüm, sayılardan olasılık ve istatistiğe) ve Yapay Zekanın Matematiği (otuz iki; doğrusal cebir, kalkülüs, olasılık ve istatistik). 4026 sınav sorusu, 442 kod alıştırması, 300 matematik problemi, 285 ders notu ve 92 terimlik bir sözlük; tamamı Türkçe ve İngilizce.
 
 **On üç öğrenme patikası** tanımlı: Python, Veri Bilimi, Makine Öğrenmesi, SQL, Matematik ve Zaman Serileri açık; API, Docker, Doğal Dil İşleme ve diğerleri içerikleri hazırlanana kadar kilitli görünüyor.
 
-**Çalışanlar:** sentor maskotlu açılış animasyonu, öğrenme patikaları, bölüm içi başlık listesi ve okuma takibiyle konu anlatımı, ders notları, süreli sınavlar, Python ve SQL için otomatik kontrollü kod alıştırmaları (SQL kendi SQL Server'ınızda çalışıyor, her deneme geri alınıyor), kademeli ipuçları, hata açıklamaları, çizim kâğıdında çözülen ve adım adım çözüm yolları olan matematik problemleri, önerilen çalışma rotaları, Windows bildirimi olarak gelen seri hatırlatmaları, sırayla açılan bölümler, kalıcı ilerleme kaydı, kendi notlarınız ve genel arama (`Ctrl+K`), kazanınca bir kartla kutlanan 32 rozet, XP, seviyeler ve profilde gösterilebilen unvanlar, Pomodoro ve başka düzenlerle çalışma zamanlayıcısı, alıştırma ve sınavlarda geçmiş denemeler, yeni gelenler için tanıtım turu, etkinlik takvimi, kendi fotoğrafınızı seçebildiğiniz profil, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema, uygulama içinden güncelleme, kilidi ve sınav süresini kaldırma seçenekleri.
+**Çalışanlar:** sentor maskotlu açılış animasyonu, öğrenme patikaları, bölüm içi başlık listesi ve okuma takibiyle konu anlatımı, ders notları, süreli sınavlar, Python ve SQL için otomatik kontrollü kod alıştırmaları (SQL kendi SQL Server'ınızda çalışıyor, her deneme geri alınıyor), kademeli ipuçları, hatalı satırı editörde işaretleyen hata açıklamaları, kodunuzu ve örnek çözümü adım adım izleme, derslerin içinde açıklaması görünen terimler sözlüğü, takılınca dersin ilgili kısmına yönlendirme, bildiğiniz bölümleri açan seviye tespit sınavı, çizim kâğıdında çözülen ve adım adım çözüm yolları olan matematik problemleri, önerilen çalışma rotaları, Windows bildirimi olarak gelen seri hatırlatmaları, sırayla açılan bölümler, kalıcı ilerleme kaydı, kendi notlarınız ve genel arama (`Ctrl+K`), kazanınca bir kartla kutlanan 32 rozet, XP, seviyeler ve profilde gösterilebilen unvanlar, Pomodoro ve başka düzenlerle çalışma zamanlayıcısı, alıştırma ve sınavlarda geçmiş denemeler, klavyeyle cevaplanabilen sınavlar, tam ekran okuma odağı, seviyeniz, rozetleriniz ve çalışma takviminizle paylaşım kartı, ilerlemeyi başka bir bilgisayara taşıma ve günlük yedek, yeni gelenler için tanıtım turu, etkinlik takvimi, kendi fotoğrafınızı seçebildiğiniz profil, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema, uygulama içinden güncelleme, kilidi ve sınav süresini kaldırma seçenekleri.
 
 **Henüz yok:** diğer patikaların içeriği ve bir veri setini baştan sona işleyen proje tipi alıştırmalar için daha geniş bir alıştırma motoru.
 

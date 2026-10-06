@@ -151,7 +151,7 @@ class AboutView(QWidget):
         if giris:
             self._entered = True
         self._document.set_body(
-            f'<div class="page narrow{giris}"><div class="content">{body}</div></div>'
+            f'<div class="page narrow about{giris}"><div class="content">{body}</div></div>'
         )
 
     def _author_html(self) -> str:

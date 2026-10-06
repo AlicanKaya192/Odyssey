@@ -682,7 +682,10 @@ def run_traced(compiled, namespace: dict, code_path: str, out_buffer: io.StringI
         if durum["dolu"]:
             return None
         if olay == "line":
-            kaydet(frame, "line")
+            # Yalnızca yorumdan oluşan kodda Python 0. satır için bir olay
+            # üretiyor; gösterilecek bir satır yok.
+            if frame.f_lineno >= 1:
+                kaydet(frame, "line")
         elif olay == "return" and frame.f_code.co_name != "<module>":
             kaydet(frame, "return", arg)
         return yerel

@@ -11,6 +11,14 @@ hangisinin **değiştiğini** renkle görüyor.
 
 Terminalin yerinde açılıyor ve onun koyu renklerini kullanıyor: aynı yer,
 aynı görünüm. Klavye: ← → adım, Home / End baş ve son, Esc kapatır.
+
+**İki kaynak** (Alican: kod yazmamış, soruyu anlamamış ya da yanlış yazmış
+biri doğru yolun nasıl ilerlediğini göremiyordu): "Kendi kodum" editördeki
+kodu, "Örnek çözüm" alıştırmanın çözümünü oynatıyor. Çözüm panelin içindeki
+ayrı, salt okunur kod alanında; kişinin editöründeki koda dokunulmuyor.
+Hangisinin çalıştırılacağına `ExerciseView` karar veriyor (çözüm cevabı
+gösterdiği için ilk seferde onay soruyor); panel yalnızca
+`source_requested` yayıyor.
 """
 
 from __future__ import annotations
@@ -32,6 +40,7 @@ from PySide6.QtWidgets import (
 
 from ..resources.icons import icon
 from ..resources.theme.tokens import FONTS
+from .code_editor import CodeEditor
 from .terminal_view import COLORS
 
 _BUTTON_CSS = (
@@ -56,6 +65,8 @@ class TracePanel(QFrame):
 
     step_changed = Signal(object, str)
     closed = Signal()
+    # "user" ya da "solution": kişi kaynağı değiştirmek istiyor.
+    source_requested = Signal(str)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -72,6 +83,7 @@ class TracePanel(QFrame):
         self._truncated = False
         self._hint = ""
         self._index = 0
+        self._source = "user"
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -95,6 +107,22 @@ class TracePanel(QFrame):
         self._counter = QLabel()
         self._counter.setStyleSheet(f"background:transparent; color:{COLORS['dim']}; font-size:12px;")
         bar_layout.addWidget(self._counter)
+        bar_layout.addSpacing(10)
+        # Kaynak seçimi: kendi kodum / örnek çözüm.
+        self._source_buttons: dict[str, QPushButton] = {}
+        for kaynak in ("user", "solution"):
+            dugme = QPushButton()
+            dugme.setCheckable(True)
+            dugme.setCursor(Qt.CursorShape.PointingHandCursor)
+            dugme.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            dugme.setStyleSheet(
+                _BUTTON_CSS
+                + f"QPushButton:checked {{ background:{COLORS['button_hover']}; color:{COLORS['accent']};"
+                f" border-color:{COLORS['prompt']}; }}"
+            )
+            dugme.clicked.connect(lambda _=False, k=kaynak: self._on_source(k))
+            self._source_buttons[kaynak] = dugme
+            bar_layout.addWidget(dugme)
         bar_layout.addStretch(1)
 
         self._buttons: dict[str, QPushButton] = {}
@@ -144,19 +172,34 @@ class TracePanel(QFrame):
         ust.addWidget(self._message)
         layout.addLayout(ust)
 
-        # --- değişkenler | çıktı -----------------------------------------
+        # --- (örnek çözüm) | değişkenler | çıktı --------------------------
         govde = QHBoxLayout()
         govde.setContentsMargins(4, 0, 4, 6)
         govde.setSpacing(0)
+        self._code_title, _bos = self._pane()
+        _bos.deleteLater()
+        # Örnek çözümün kodu: salt okunur, sıradaki satır işaretli. Kişinin
+        # editöründeki kod yerinde kalıyor.
+        self._code = CodeEditor(mode="dark")
+        self._code.setProperty("card", "true")
+        self._code.setReadOnly(True)
+        self._code.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self._code.setStyleSheet(f"QTextEdit {{ background:transparent; border:none; color:{COLORS['text']}; }}")
         self._vars_title, self._vars = self._pane()
         self._out_title, self._out = self._pane()
-        for baslik, alan, pay in ((self._vars_title, self._vars, 3), (self._out_title, self._out, 2)):
-            sutun = QVBoxLayout()
+        self._code_column = QWidget()
+        self._code_column.setStyleSheet("background:transparent;")
+        for baslik, alan, pay in ((self._code_title, self._code, 3), (self._vars_title, self._vars, 3),
+                                  (self._out_title, self._out, 2)):
+            kap = self._code_column if alan is self._code else QWidget()
+            kap.setStyleSheet("background:transparent;")
+            sutun = QVBoxLayout(kap)
             sutun.setContentsMargins(0, 0, 0, 0)
             sutun.setSpacing(0)
             sutun.addWidget(baslik)
             sutun.addWidget(alan, 1)
-            govde.addLayout(sutun, pay)
+            govde.addWidget(kap, pay)
+        self._code_column.hide()
         layout.addLayout(govde, 1)
 
     def _pane(self) -> tuple[QLabel, QTextEdit]:
@@ -179,9 +222,21 @@ class TracePanel(QFrame):
     # --- veri ------------------------------------------------------------
 
     def load(self, steps: list[dict], stdout: str, error: dict | None, truncated: bool,
-             hint: str = "") -> None:
-        """Kaydı yükler; `hint` hatanın ne anlama geldiği (son adımda)."""
+             hint: str = "", source: str = "user", code: str = "") -> None:
+        """Kaydı yükler; `hint` hatanın ne anlama geldiği (son adımda).
+
+        `source` "solution" ise `code` panelin kendi kod alanında gösteriliyor
+        ve sıradaki satır orada işaretleniyor.
+        """
         self._hint = hint
+        self._source = source
+        for kaynak, dugme in self._source_buttons.items():
+            dugme.setChecked(kaynak == source)
+        cozum = source == "solution"
+        self._code_column.setVisible(cozum)
+        if cozum:
+            self._code.set_language("python")
+            self._code.setPlainText(code)
         self._steps = steps or [{"line": 0, "event": "end", "out": len(stdout), "stack": []}]
         self._stdout = stdout
         self._error = error
@@ -195,6 +250,20 @@ class TracePanel(QFrame):
     @property
     def index(self) -> int:
         return self._index
+
+    @property
+    def source(self) -> str:
+        return self._source
+
+    def _on_source(self, kaynak: str) -> None:
+        # Düğme kendiliğinden işaretlenmesin; yükleme bitince `load` işaretliyor.
+        for k, dugme in self._source_buttons.items():
+            dugme.setChecked(k == self._source)
+        if kaynak != self._source:
+            self.source_requested.emit(kaynak)
+
+    def _has_lines(self) -> bool:
+        return any(adim["event"] != "end" for adim in self._steps)
 
     @property
     def count(self) -> int:
@@ -218,9 +287,15 @@ class TracePanel(QFrame):
         adim = self._steps[index]
         if adim["event"] == "end":
             satir = (self._error or {}).get("line")
-            self.step_changed.emit(satir if isinstance(satir, int) else None, "error" if satir else "")
+            satir, tur = (satir, "error") if isinstance(satir, int) else (None, "")
         else:
-            self.step_changed.emit(adim["line"], adim["event"])
+            satir, tur = adim["line"], adim["event"]
+        if self._source == "solution":
+            # Çözüm panelin kendi kod alanında; editördeki işaret kalkıyor.
+            self._code.set_trace_line(satir, tur or "line")
+            self.step_changed.emit(None, "")
+        else:
+            self.step_changed.emit(satir, tur)
 
     # --- çizim -----------------------------------------------------------
 
@@ -243,6 +318,9 @@ class TracePanel(QFrame):
         elif self._error:
             mesaj = t("trace.error", type=self._error.get("type", ""), message=self._error.get("message", ""))
             renk = "fail"
+        elif not self._has_lines() and self._source == "user":
+            # Kodda çalışacak satır yok (yalnızca yorum): örnek çözüme yönlendir.
+            mesaj, renk = t("trace.empty"), "warn"
         else:
             mesaj, renk = t("trace.finished", total=len(self._steps)), "ok"
         metin = f'<span style="color:{COLORS[renk]};">{_esc(mesaj)}</span>'
@@ -341,6 +419,10 @@ class TracePanel(QFrame):
         self._title.setText(t("trace.title"))
         self.close_button.setText(t("trace.close"))
         self._vars_title.setText(t("trace.vars"))
+        self._code_title.setText(t("trace.solution_code"))
+        self._source_buttons["user"].setText(t("trace.source_user"))
+        self._source_buttons["solution"].setText(t("trace.source_solution"))
+        self._source_buttons["solution"].setToolTip(t("trace.source_solution_tip"))
         self._out_title.setText(t("trace.output"))
         for ad in ("first", "prev", "next", "last"):
             self._buttons[ad].setToolTip(t(f"trace.{ad}"))

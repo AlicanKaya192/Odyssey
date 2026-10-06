@@ -884,7 +884,9 @@ class CodeEditor(CodeEditing, QTextEdit):
         selection.format.setProperty(QTextFormat.Property.FullWidthSelection, True)
         selection.cursor = self.textCursor()
         selection.cursor.clearSelection()
-        secimler = [selection]
+        # Salt okunur editörde (izleme panelindeki örnek çözüm) imleç satırı
+        # vurgulanmıyor; sıradaki satır işaretiyle karışıyordu.
+        secimler = [] if self.isReadOnly() else [selection]
         if self._error_block is not None:
             blok = self.document().findBlockByNumber(self._error_block)
             if blok.isValid():

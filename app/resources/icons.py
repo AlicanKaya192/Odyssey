@@ -452,6 +452,10 @@ MODERN: dict[str, tuple[str, str]] = {
     "steps": ("", '<path d="M3.5 19.5h5v-5h5v-5h5v-5h2"/>'),
     "skip-start": ("", '<path d="M7 6v12M17 6l-6 6 6 6"/>'),
     "skip-end": ("", '<path d="M17 6v12M7 6l6 6-6 6"/>'),
+    # Sınav başlangıç kartının madalyonu: onaylı pano.
+    "clipboard-check": ('<rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/>',
+                        '<rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/>'
+                        '<rect x="9" y="2.5" width="6" height="4" rx="1.2"/><path d="m9 13.5 2.2 2.2L15.5 11"/>'),
     # Sözlük terimi (arama sonucu): açık kitap.
     "book-open": ('<path d="M12 7v13c-2-1.6-4.6-2-8-2V5c3.4 0 6 .4 8 2zM12 7c2-1.6 4.6-2 8-2v13c-3.4 0-6 .4-8 2"/>',
                   '<path d="M12 7v13M12 7c-2-1.6-4.6-2-8-2v13c3.4 0 6 .4 8 2 2-1.6 4.6-2 8-2V5c-3.4 0-6 .4-8 2z"/>'),

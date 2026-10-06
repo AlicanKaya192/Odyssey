@@ -484,26 +484,45 @@ def steps_for(win) -> list[Step]:  # noqa: C901 — adım listesi uzun ama düz
     def kartlar():
         return list(getattr(getattr(journey, "tracks", None), "_cards", []))[:8]
 
+    def python_yolu() -> None:
+        # Python patikasının yolu: başındaki seviye tespit kartı görünsün.
+        win._tour_navigate("journey")
+        track = next((t for t in win._catalog.tracks
+                      if any(c.id == PY_CHAPTER for c in t.chapters)), None)
+        if track is not None:
+            journey.open_track(track.id)
+
+    def seviye_karti():
+        kart = getattr(journey.path, "_placement", None)
+        return [kart] if kart is not None else []
+
     return [
         Step("tour.s_welcome_title", "tour.s_welcome_text", prepare=nav("journey"), wait=350),
         Step("tour.s_rail_title", "tour.s_rail_text", targets=lambda: [rail]),
         Step("tour.s_hero_title", "tour.s_hero_text", targets=hero),
         Step("tour.s_tracks_title", "tour.s_tracks_text", targets=kartlar),
+        Step("tour.s_placement_title", "tour.s_placement_text", prepare=python_yolu, wait=900,
+             targets=seviye_karti),
         Step("tour.s_section_title", "tour.s_section_text",
              prepare=section(ilk_bolum(), "lesson"), wait=900,
              targets=lambda: [topic._segments]),
         Step("tour.s_lesson_title", "tour.s_lesson_text", targets=lambda: [topic._stack]),
+        Step("tour.s_glossary_title", "tour.s_glossary_text", targets=lambda: [topic._stack]),
         Step("tour.s_note_title", "tour.s_note_text", targets=lambda: [topic._note_button]),
+        Step("tour.s_tools_title", "tour.s_tools_text",
+             targets=lambda: [topic._report_button, topic._focus_button]),
         Step("tour.s_quiz_title", "tour.s_quiz_text", prepare=section(ilk_bolum(), "quiz"), wait=500,
              targets=lambda: [topic._stack]),
         Step("tour.s_editor_title", "tour.s_editor_text",
              prepare=section(EXERCISE_SECTION, "exercise"), wait=1000,
              targets=lambda: [topic._exercise._editor_card, topic._exercise._run_button]),
+        Step("tour.s_trace_title", "tour.s_trace_text", targets=lambda: [topic._exercise._trace_button]),
         Step("tour.s_terminal_title", "tour.s_terminal_text", targets=lambda: [topic._exercise._terminal]),
         Step("tour.s_brief_title", "tour.s_brief_text",
              targets=lambda: [topic._exercise._splitter.widget(0)]),
         Step("tour.s_profile_title", "tour.s_profile_text", prepare=nav("profile"), wait=600,
              targets=lambda: [profile._identity_card]),
+        Step("tour.s_card_title", "tour.s_card_text", targets=lambda: [profile._card_button]),
         Step("tour.s_badges_title", "tour.s_badges_text", targets=lambda: [profile._badges_card]),
         Step("tour.s_activity_title", "tour.s_activity_text", targets=lambda: [profile._activity_card]),
         Step("tour.s_roadmap_title", "tour.s_roadmap_text", prepare=nav("roadmap"), wait=700,

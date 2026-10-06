@@ -165,4 +165,7 @@ jobs:
             gh release create "$GITHUB_REF_NAME" --draft \
               --title "Odyssey ${{ steps.version.outputs.version }}" \
               --notes "Release notes to be written."
-          gh release upload "$GITHUB_REF_NAME" dist/*.exe --clobber
+          # The manifest goes along: the next version's patch installer is
+          # built against it, so it must be the one of the published files.
+          gh release upload "$GITHUB_REF_NAME" dist/*.exe \
+            "installer/manifests/${{ steps.version.outputs.version }}.json.gz" --clobber
