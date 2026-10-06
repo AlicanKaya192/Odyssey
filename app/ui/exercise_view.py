@@ -804,6 +804,9 @@ class ExerciseView(QWidget):
         self._run_button.setText("  " + self._language.t("exercise.run"))
         p = PALETTES.get(self._mode, PALETTES["light"])
         self._editor_flash.flash(p["success"] if result.passed else p["danger"])
+        # Hata veren satır editörde işaretleniyor (SQL'de satır bilgisi yok).
+        satir = (result.error or {}).get("line") if result.status == "error" else None
+        self._editor.set_error_line(satir if isinstance(satir, int) else None)
 
         if self._exercise is not None:
             self._store.save_exercise(

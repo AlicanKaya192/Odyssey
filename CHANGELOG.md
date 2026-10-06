@@ -22,6 +22,16 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [0.9.2] — yayınlanmadı
 
 ### Eklendi
+- **Hatalı satır editörde işaretleniyor.** Kod hata verince o satır
+  editörde kırmızımsı bir zeminle boyanıyor, numarası işaretleniyor ve
+  satır görünmüyorsa oraya kaydırılıyor; kodu değiştirince işaret kalkıyor.
+- **Daha fazla hata açıklaması.** Terminaldeki 💡 açıklamaları 28 yeni
+  hatayı tanıyor: değeri olmayan (`None`) değişkenle işlem, ondalıkta
+  virgül, bulunamayan dosya, kendini durmadan çağıran fonksiyon, tabloda
+  olmayan sütun, değişken ve değer sayısının tutmaması, koşulda tek `=`,
+  makine öğrenmesinde boş değer ve tablo boyutu hataları gibi. Windows'un
+  Akıllı Uygulama Denetimi bir alıştırmanın kütüphanesini engellerse bunun
+  kodla ilgisi olmadığı söyleniyor.
 - **İlerlemenizin günlük yedeği.** Program her gün açıldığında ilerleme
   dosyanızın bir kopyasını alıyor ve son üç günü saklıyor. Elektrik kesintisi
   ya da disk hatası yüzünden dosya bozulursa program bunu açılışta fark
@@ -31,6 +41,22 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   klasöründeki bir dosyaya yazılıyor; hata bildirirken bu dosyayı
   ekleyebilirsiniz. Yazdığınız kod, notlarınız ve cevaplarınız kayda
   girmiyor, dosya hiçbir yere gönderilmiyor.
+- **İlerlemeyi başka bir bilgisayara taşıma.** Ayarlar'daki yeni **Veri**
+  sayfasından ilerlemeniz, notlarınız, ayarlarınız ve profil fotoğrafınız
+  tek bir `.odyssey` dosyasına aktarılıyor; başka bir bilgisayarda aynı
+  sayfadan içe aktarılınca Odyssey yeniden başlıyor ve kaldığınız yerden
+  devam ediyorsunuz. O bilgisayardaki eski ilerleme silinmiyor, yedekte
+  kalıyor. Otomatik yedeklerin klasörü de aynı sayfadan açılıyor.
+
+### Değişti
+- **Yarıda bırakılan sınavın cevapları kaybolmuyor.** Sınavdan bitirmeden
+  çıktığınızda (ya da programı kapattığınızda) o ana kadar verdiğiniz
+  cevaplar Geçmiş denemeler'e "yarıda bırakıldı" olarak kaydediliyor;
+  yanlışlarınıza oradan bakabiliyorsunuz. Bu deneme puan sayılmıyor.
+- **İpuçları yenilendi.** Bir rozetin, serinin alevinin, seviye çubuğunun ya
+  da bir düğmenin üzerine gelince çıkan bilgi kartı artık programın
+  temasında, beklemeden ve takılmadan açılıyor; başlık, renkli bir durum
+  satırı (örneğin serinin ne zaman biteceği) ve açıklama olarak okunuyor.
 
 ### Düzeltildi
 - Windows güncellemenin kurulum dosyasını engellediğinde (örneğin Akıllı

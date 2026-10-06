@@ -171,8 +171,12 @@ def quiz_markdown(language: LanguageManager, questions: list[dict], attempt: dic
     except ValueError:
         cevaplar = []
     dogru = sum(1 for c in cevaplar if c.get("ok"))
-    parcalar = [t("quiz_history.summary", correct=dogru, total=len(cevaplar), score=attempt["score"],
-                  when=when(language, attempt["created_at"]))]
+    if attempt.get("abandoned"):
+        parcalar = [t("quiz_history.summary_abandoned", correct=dogru, total=len(cevaplar),
+                      when=when(language, attempt["created_at"]))]
+    else:
+        parcalar = [t("quiz_history.summary", correct=dogru, total=len(cevaplar),
+                      score=attempt["score"], when=when(language, attempt["created_at"]))]
     gosterilen = 0
     for sira, cevap in enumerate(cevaplar, start=1):
         if only_wrong and cevap.get("ok"):

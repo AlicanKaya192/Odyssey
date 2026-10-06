@@ -40,6 +40,11 @@ class Rule:
 
 # Sıra önemli: ilk eşleşen kural kazanır, özel kalıplar genel olanlardan önce.
 RULES: list[Rule] = [
+    # --- None ile işlem (fonksiyon bir şey döndürmedi) ----------------------
+    Rule("AttributeError", r"'NoneType' object has no attribute '(\w+)'", "mistake.none_attribute"),
+    Rule("TypeError", r"'NoneType' object is not (subscriptable|iterable)", "mistake.none_value"),
+    Rule("TypeError", r"object of type 'NoneType' has no len", "mistake.none_value"),
+
     # --- TypeError -------------------------------------------------------
     Rule("TypeError", r"can only concatenate str.*to str", "mistake.str_plus_int"),
     Rule("TypeError", r"unsupported operand type\(s\) for \+: 'int' and 'str'", "mistake.int_plus_str"),
@@ -48,16 +53,26 @@ RULES: list[Rule] = [
     Rule("TypeError", r"object is not subscriptable", "mistake.not_subscriptable"),
     Rule("TypeError", r"missing \d+ required positional argument", "mistake.missing_argument"),
     Rule("TypeError", r"takes \d+ positional arguments? but \d+ (was|were) given", "mistake.too_many_arguments"),
+    Rule("TypeError", r"unsupported operand type\(s\) for (\S+): '(\w+)' and '(\w+)'", "mistake.unsupported_operand"),
+    Rule("TypeError", r"'(\w+)' object is not iterable", "mistake.not_iterable"),
+    Rule("TypeError", r"'(\w+)' object does not support item assignment", "mistake.immutable"),
+    Rule("TypeError", r"got an unexpected keyword argument '(\w+)'", "mistake.unexpected_keyword"),
 
     # --- NameError -------------------------------------------------------
     Rule("NameError", r"name '(\w+)' is not defined", "mistake.undefined_name"),
+    Rule("UnboundLocalError", r"local variable '(\w+)'", "mistake.unbound_local"),
 
     # --- SyntaxError -----------------------------------------------------
     Rule("SyntaxError", r"unterminated string literal", "mistake.unterminated_string"),
     Rule("SyntaxError", r"EOL while scanning string literal", "mistake.unterminated_string"),
     Rule("SyntaxError", r"expected ':'", "mistake.missing_colon"),
+    Rule("SyntaxError", r"Maybe you meant '==' or ':=' instead of '='", "mistake.assign_in_condition"),
     Rule("SyntaxError", r"invalid syntax", "mistake.invalid_syntax"),
     Rule("SyntaxError", r"'\(' was never closed", "mistake.unclosed_bracket"),
+    Rule("SyntaxError", r"'([\[{])' was never closed", "mistake.unclosed_other"),
+    Rule("SyntaxError", r"unmatched '([)\]}])'", "mistake.unmatched_bracket"),
+    Rule("SyntaxError", r"invalid decimal literal", "mistake.name_starts_with_digit"),
+    Rule("SyntaxError", r"f-string: expecting '}'", "mistake.fstring_brace"),
     Rule("SyntaxError", r"cannot assign to literal", "mistake.assign_to_literal"),
 
     # --- Girinti ---------------------------------------------------------
@@ -68,10 +83,29 @@ RULES: list[Rule] = [
 
     # --- Değer ve dönüşüm ------------------------------------------------
     Rule("ValueError", r"invalid literal for int\(\) with base 10: '(.*)'", "mistake.int_conversion"),
+    Rule("ValueError", r"could not convert string to float: '(.*)'", "mistake.float_conversion"),
+    Rule("ValueError", r"too many values to unpack \(expected (\d+), got (\d+)\)", "mistake.unpack_many"),
+    Rule("ValueError", r"not enough values to unpack \(expected (\d+), got (\d+)\)", "mistake.unpack_few"),
     Rule("ZeroDivisionError", r"", "mistake.division_by_zero"),
+
+    # --- Yineleme ve tükenen yineleyici ------------------------------------
+    Rule("RecursionError", r"", "mistake.recursion"),
+    Rule("StopIteration", r"", "mistake.stop_iteration"),
+
+    # --- Dosyalar --------------------------------------------------------
+    Rule("FileNotFoundError", r"No such file or directory: '(.*)'", "mistake.file_not_found"),
+    Rule("PermissionError", r"Permission denied: '(.*)'", "mistake.permission"),
+
+    # --- pandas ve scikit-learn ------------------------------------------
+    Rule("ValueError", r"Length of values \((\d+)\) does not match length of index \((\d+)\)", "mistake.length_mismatch"),
+    Rule("ValueError", r"Input( X| y)? contains NaN", "mistake.nan_input"),
+    Rule("ValueError", r"inconsistent numbers of samples: \[(\d+), (\d+)\]", "mistake.sample_mismatch"),
+    Rule("ValueError", r"Expected (2D array|a 2-dimensional)", "mistake.expected_2d"),
 
     # --- Dizin ve anahtar ------------------------------------------------
     Rule("IndexError", r"list index out of range", "mistake.index_out_of_range"),
+    Rule("IndexError", r"(string|tuple) index out of range", "mistake.sequence_index"),
+    Rule("KeyError", r"'(.*)'", "mistake.missing_key_named"),
     Rule("KeyError", r"", "mistake.missing_key"),
     Rule("AttributeError", r"'(\w+)' object has no attribute '(\w+)'", "mistake.no_attribute"),
 
@@ -80,6 +114,10 @@ RULES: list[Rule] = [
 
     # --- İçe aktarma -----------------------------------------------------
     Rule("ModuleNotFoundError", r"No module named '(\w+)'", "mistake.module_missing"),
+    Rule("ImportError", r"cannot import name '(\w+)' from '([\w.]+)'", "mistake.cannot_import"),
+    # Windows'un Akıllı Uygulama Denetimi imzasız bir kütüphane dosyasını
+    # engelledi (mesaj Windows'un dilinde geliyor).
+    Rule("ImportError", r"DLL load failed.*(Application Control|Uygulama Denetimi)", "mistake.blocked_by_windows"),
 
     # --- SQL: sunucuya ulaşılamıyor --------------------------------------
     #

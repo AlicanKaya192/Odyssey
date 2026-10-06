@@ -699,25 +699,28 @@ class HeroCard(QFrame):
                 return t("streak.dh", d=saat // 24, h=saat % 24)
             return t("streak.hm", h=saat, m=dakika) if saat else t("streak.m", m=dakika)
 
-        satirlar = []
-        if self._streak <= 0:
-            satirlar.append(t("streak.start"))
-        elif self._studied_today:
-            satirlar.append(t("streak.safe", time=sure(gece + timedelta(days=1))))
-        else:
-            satirlar.append(t("streak.ends_in", time=sure(gece)))
-        tier = tier_for(self._streak)
-        sonraki = next_tier(self._streak)
-        asama = t(f"streak.tier_{tier.key}") if tier else t("streak.none")
-        if sonraki is not None:
-            asama += " · " + t("streak.next", days=sonraki.min_days - self._streak,
-                               name=t(f"streak.tier_{sonraki.key}"))
-        satirlar.append(asama)
-        satirlar.append(t("streak.counts"))
-        # Düz ipucu kendiliğinden sarılmıyor; uzun satır ekran boyu uzuyordu.
-        import textwrap
+        from ..widgets import tips
 
-        return "\n".join(textwrap.fill(s, 62) for s in satirlar)
+        # Başlık: kaç gün ve aşama; durum: ne zaman biter (renkli); altta
+        # sonraki aşama ve bir günün neyle sayıldığı.
+        tier = tier_for(self._streak)
+        if self._streak <= 0:
+            baslik = t("streak.title_none")
+            durum, ton = t("streak.start"), "accent"
+        else:
+            ad = t(f"streak.tier_{tier.key}") if tier else ""
+            baslik = t("streak.title", days=self._streak, tier=ad)
+            if self._studied_today:
+                durum, ton = t("streak.safe", time=sure(gece + timedelta(days=1))), "success"
+            else:
+                durum, ton = t("streak.ends_in", time=sure(gece)), "warning"
+        govde = []
+        sonraki = next_tier(self._streak)
+        if sonraki is not None:
+            govde.append(t("streak.next", days=sonraki.min_days - self._streak,
+                           name=t(f"streak.tier_{sonraki.key}")))
+        govde.append(t("streak.counts"))
+        return tips.rich(baslik, "\n\n".join(govde), durum, ton)
 
     def _render_flame(self) -> None:
         """Serinin alevi ve ipucu (bkz. `_streak_tooltip`)."""

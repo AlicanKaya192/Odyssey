@@ -97,7 +97,7 @@ def build_palette(mode: str) -> QPalette:
 # Qt'nin varsayılanı ~700 ms. Rozet duvarında ve etkinlik ızgarasında
 # bilgi **yalnızca** ipucunda duruyor; o kadar beklemek "burada bilgi yok"
 # gibi duruyordu.
-TOOLTIP_WAKE_MS = 180
+TOOLTIP_WAKE_MS = 120
 
 # İpucu kapandıktan sonra, komşu bir hedefe geçilirse yeniden beklenmeden
 # açılan süre. Rozetten rozete geçerken her seferinde baştan beklenmiyor.
@@ -132,10 +132,13 @@ _tooltip_style: "TooltipStyle | None" = None
 
 
 def install_tooltip_style(app: QApplication) -> None:
-    """İpucu zamanlamasını bir kez kurar."""
+    """İpucu zamanlamasını ve programın kendi ipucu kartını bir kez kurar."""
     global _tooltip_style
     if _tooltip_style is not None:
         return
+    from ..widgets import tips
+
+    tips.install(app)
     _tooltip_style = TooltipStyle(app.style())
     app.setStyle(_tooltip_style)
 

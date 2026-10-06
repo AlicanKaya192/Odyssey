@@ -1158,6 +1158,8 @@ class MainWindow(QMainWindow):
         # Ayarlar pencere kapandıktan sonra açılıyor (kip pencere açıkken
         # tur arkada kalırdı).
         dialog.tour_requested.connect(lambda: QTimer.singleShot(250, self.start_tour))
+        # İçe aktarılan ilerleme açılışta yerine konuyor: program yeniden başlıyor.
+        dialog.restart_requested.connect(lambda: QTimer.singleShot(150, self.restart_app))
         # Süre ayarı da aynı şekilde: açık bir sınav varsa sayaç o an
         # duruyor ya da geri geliyor.
         dialog.timing_changed.connect(self._on_timing_changed)
@@ -1373,6 +1375,26 @@ class MainWindow(QMainWindow):
             tur.reposition()
         self._toasts.reposition()
 
+    def restart_app(self) -> None:
+        """Programı yeniden başlatır (onay sormadan; kişi zaten kabul etti).
+
+        Yeni süreç, bu süreç veritabanını kapatana kadar içe aktarmayı
+        uygulamak için bekliyor (`transfer.apply_pending`).
+        """
+        import subprocess
+        import sys
+
+        from ..paths import install_root, is_frozen
+
+        komut = [sys.executable] if is_frozen() else [sys.executable, str(install_root() / "app" / "main.py")]
+        try:
+            subprocess.Popen(komut, close_fds=True, cwd=str(install_root()))
+        except OSError:
+            from ..core import log
+
+            log.get(__name__).exception("Program yeniden başlatılamadı")
+        self.close_for_update()
+
     def close_for_update(self) -> None:
         """Güncelleme yardımcısına yer açmak için onay sormadan kapanır.
 
@@ -1428,6 +1450,8 @@ class MainWindow(QMainWindow):
         # bölümdeki not paneli).
         self._notebook.flush()
         self._topic.flush_note()
+        # Sınavın ortasında kapatıldıysa o ana kadarki cevaplar geçmişe.
+        self._topic.save_partial_quiz()
 
         # Discord'daki yazı silinsin; yoksa kapatılan uygulama hâlâ
         # kullanılıyor gibi görünüyor.

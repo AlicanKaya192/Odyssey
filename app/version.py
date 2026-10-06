@@ -21,7 +21,7 @@ CONTENT_VERSION = "0.7.0"
 # sırayla uygulanır ve kullanıcının mevcut verisi korunur. Gerçek göç
 # `app/core/progress.py` içindeki `MIGRATIONS` listesinden geliyor; burası
 # onunla aynı sayıda tutulur.
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 
 # Uygulama verilerinin tutulduğu klasörün adı (%APPDATA% altında).
 APP_DIR_NAME = "Odyssey"

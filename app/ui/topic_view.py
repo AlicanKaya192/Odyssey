@@ -673,8 +673,22 @@ class TopicView(QWidget):
         kabul = dialog.exec() == ConfirmDialog.DialogCode.Accepted
         perde.deleteLater()
         if kabul:
+            self.save_partial_quiz()
             self._quiz.abandon()
         return kabul
+
+    def save_partial_quiz(self) -> None:
+        """Yarıda bırakılan sınavın o ana kadarki cevaplarını geçmişe yazar.
+
+        Puan sayılmıyor (bölümün sınav notu değişmiyor); kişi yanlışlarına
+        Geçmiş denemeler'den bakabiliyor. Hiç cevap yoksa bir şey yazılmıyor.
+        """
+        if self._section is None or not self._quiz.in_progress:
+            return
+        cevaplar = self._quiz.partial_answers()
+        if cevaplar:
+            self._store.add_quiz_attempt(self._section.chapter_id, self._section.id, 0, False,
+                                         cevaplar, abandoned=True)
 
     def _show_pane(self, index: int) -> None:
         if not self._panes:

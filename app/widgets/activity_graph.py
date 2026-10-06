@@ -19,7 +19,9 @@ from datetime import date, timedelta
 
 from PySide6.QtCore import QPoint, QRectF, Qt
 from PySide6.QtGui import QColor, QFont, QPainter
-from PySide6.QtWidgets import QToolTip, QWidget
+from PySide6.QtWidgets import QWidget
+
+from . import tips
 
 # Bir yıl 52 ya da 53 haftaya yayılıyor; ızgara her zaman 53 sütun ayırıyor,
 # yılın dışında kalan kutular çizilmiyor.
@@ -161,7 +163,7 @@ class ActivityGraph(QWidget):
     def mouseMoveEvent(self, event) -> None:  # noqa: N802
         gun = self._day_at(event.position().x(), event.position().y())
         if gun is None or gun > date.today() or self._tooltip_maker is None:
-            QToolTip.hideText()
+            tips.hide_text()
             self._hovered = None
             super().mouseMoveEvent(event)
             return
@@ -173,11 +175,11 @@ class ActivityGraph(QWidget):
         if gun != self._hovered:
             self._hovered = gun
             metin = self._tooltip_maker(gun, self._counts.get(gun.isoformat(), 0))
-            QToolTip.showText(event.globalPosition().toPoint(), metin, self)
+            tips.show_text(event.globalPosition().toPoint(), metin, self)
         super().mouseMoveEvent(event)
 
     def leaveEvent(self, event) -> None:  # noqa: N802
-        QToolTip.hideText()
+        tips.hide_text()
         self._hovered = None
         super().leaveEvent(event)
 
