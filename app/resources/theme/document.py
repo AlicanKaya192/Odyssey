@@ -152,6 +152,35 @@ aside.toc {{ grid-column: 3; padding-left: 48px; }}
 .content li {{ margin: 7px 0; }}
 .content a {{ color: {p['accent']}; }}
 .content strong {{ font-weight: 650; }}
+
+/* Terimler sözlüğü (core/glossary.py): terimin ilk geçtiği yer noktalı
+ * altı çizgili; üzerine gelince (ya da odaklanınca) açıklama kartı. */
+.term {{
+    position: relative; cursor: help; outline: none;
+    border-bottom: 1.5px dotted {p['accent']};
+}}
+.term-card {{
+    display: none; position: absolute; z-index: 30; left: -6px; top: calc(100% + 8px);
+    width: max-content; max-width: 300px; padding: 10px 13px 11px;
+    background: {p['surface']}; border: 1px solid {p['border']}; border-radius: 12px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, {'.45' if mode == 'dark' else '.14'});
+    color: {p['text_muted']}; font-size: 13.5px; font-weight: 400; line-height: 1.5;
+    font-style: normal; text-align: left; white-space: normal; cursor: default;
+}}
+.term-card b {{ display: block; color: {p['text']}; font-size: 14px; font-weight: 650; margin-bottom: 3px; }}
+.term-card code {{ font-size: 12.5px; padding: 1px 5px; }}
+.term:hover .term-card, .term:focus .term-card {{ display: block; animation: sIn 140ms var(--out); }}
+.term.flip .term-card {{ left: auto; right: -6px; }}
+.term.up .term-card {{ top: auto; bottom: calc(100% + 8px); }}
+/* Hakkında › Sözlük */
+.gl-list {{ display: grid; gap: 10px; margin: 14px 0 30px; }}
+.gl {{
+    background: {p['surface']}; border: 1px solid {p['border']}; border-radius: 14px;
+    padding: 13px 16px 12px; scroll-margin: 24px;
+}}
+.gl b {{ display: block; color: {p['text']}; font-size: 15px; font-weight: 650; margin-bottom: 4px; }}
+.content .gl p {{ margin: 0; color: {p['text_muted']}; font-size: 14px; line-height: 1.55; }}
+.gl.hit {{ border-color: {p['accent']}; animation: glowOnce 1.2s var(--out); }}
 .content hr {{ border: none; border-top: 1px solid {p['border']}; margin: 32px 0; }}
 
 .meta {{
@@ -492,6 +521,18 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
 .chip.mid  {{ background: {p['warning_soft']}; color: {p['warning']}; }}
 .chip.hard {{ background: {p['danger_soft']};  color: {p['danger']}; }}
 
+/* "Takıldın mı?" (core/stuck.py): üç başarısız denemeden sonra yönergede. */
+.stuck {{
+    margin-top: 26px; padding: 15px 18px 16px; border-radius: 18px;
+    background: {p['accent_soft']}; border: 1px solid {p['accent']};
+}}
+.stuck .hd {{ font-size: 14px; font-weight: 700; color: {p['text']}; margin-bottom: 6px; }}
+.content .stuck p {{ margin: 0 0 12px; color: {p['text']}; font-size: 14px; line-height: 1.55; }}
+.stuck a.go {{
+    display: inline-block; padding: 7px 14px; border-radius: 10px; text-decoration: none;
+    background: {p['accent']}; color: #FFFFFF; font-size: 13.5px; font-weight: 650;
+}}
+.stuck a.go:hover {{ filter: brightness(1.08); }}
 .hintbox {{
     margin-top: 26px; border: 1px solid {p['border']};
     border-radius: 18px; overflow: hidden;

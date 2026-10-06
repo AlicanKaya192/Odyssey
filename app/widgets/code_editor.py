@@ -24,6 +24,7 @@ from PySide6.QtGui import (
     QFontMetricsF,
     QKeyEvent,
     QPainter,
+    QPolygonF,
     QSyntaxHighlighter,
     QTextBlockFormat,
     QTextCharFormat,
@@ -606,6 +607,9 @@ class CodeEditor(CodeEditing, QTextEdit):
     """Alıştırmaların yazıldığı editör."""
 
     run_requested = Signal()
+    # Metin gerçekten değişti (biçim değişikliği değil): adım adım izleme
+    # kapanıyor, kayıt artık bu koda ait değil.
+    edited = Signal()
 
     def __init__(self, parent: QWidget | None = None, mode: str = "light") -> None:
         super().__init__(parent)
@@ -615,6 +619,9 @@ class CodeEditor(CodeEditing, QTextEdit):
         # Son çalıştırmada hata veren satır (0'dan sayılan blok numarası).
         # Kişi kodu değiştirince kalkıyor.
         self._error_block: int | None = None
+        # Adım adım izlemede sıradaki satır ve türü ("line" / "return" / "error").
+        self._trace_block: int | None = None
+        self._trace_kind = ""
         self._line_area = LineNumberArea(self)
         self._highlighter: _RuleHighlighter = PythonHighlighter(self.document(), mode)
 
@@ -739,23 +746,48 @@ class CodeEditor(CodeEditing, QTextEdit):
         self._error_block = blok
         self._highlight_current_line()
         if blok is not None:
-            rect = self.document().documentLayout().blockBoundingRect(
-                self.document().findBlockByNumber(blok))
-            bar = self.verticalScrollBar()
-            gorunen = self.viewport().height()
-            if rect.top() < bar.value() or rect.bottom() > bar.value() + gorunen:
-                bar.setValue(int(max(0, rect.top() - gorunen / 3)))
+            self._scroll_to_block(blok)
 
     @property
     def error_line(self) -> int | None:
         return None if self._error_block is None else self._error_block + 1
 
+    def set_trace_line(self, line: int | None, kind: str = "line") -> None:
+        """Adım adım izlemede sıradaki satırı işaretler; None kaldırır.
+
+        Satır vurgu renginde boyanıyor, numaranın solunda ok var; hata
+        adımında kırmızı. Görünmüyorsa oraya kaydırılıyor.
+        """
+        blok = None
+        if line is not None and 1 <= line <= self.document().blockCount():
+            blok = line - 1
+        self._trace_block, self._trace_kind = blok, kind
+        self._highlight_current_line()
+        if blok is not None:
+            self._scroll_to_block(blok)
+
+    @property
+    def trace_line(self) -> int | None:
+        return None if self._trace_block is None else self._trace_block + 1
+
+    def _scroll_to_block(self, blok: int) -> None:
+        rect = self.document().documentLayout().blockBoundingRect(
+            self.document().findBlockByNumber(blok))
+        bar = self.verticalScrollBar()
+        gorunen = self.viewport().height()
+        if rect.top() < bar.value() or rect.bottom() > bar.value() + gorunen:
+            bar.setValue(int(max(0, rect.top() - gorunen / 3)))
+
     def _on_contents_change(self, _position: int, removed: int, added: int) -> None:
         # Yalnızca metin değişince kalkıyor; satır aralığı biçimi (biçim
         # değişikliği, 0/0) işareti silmesin.
-        if self._error_block is not None and (removed or added):
+        if not (removed or added):
+            return
+        if self._error_block is not None or self._trace_block is not None:
             self._error_block = None
+            self._trace_block = None
             QTimer.singleShot(0, self._highlight_current_line)
+        self.edited.emit()
 
     def _on_blocks_changed(self, _count: int) -> None:
         self._update_margin()
@@ -804,15 +836,27 @@ class CodeEditor(CodeEditing, QTextEdit):
 
             if top + rect.height() >= event.rect().top() and block.isVisible():
                 hatali = block.blockNumber() == self._error_block
+                izlenen = block.blockNumber() == self._trace_block
+                iz_renk = palette["danger"] if self._trace_kind == "error" else palette["accent"]
                 painter.setPen(
                     QColor(
-                        palette["danger"] if hatali
+                        iz_renk if izlenen
+                        else palette["danger"] if hatali
                         else palette["text"]
                         if block.blockNumber() == current
                         else palette["text_muted"]
                     )
                 )
-                if hatali:
+                if izlenen:
+                    # Sıradaki satırın solunda küçük ok (▶).
+                    painter.save()
+                    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+                    painter.setBrush(QColor(iz_renk))
+                    painter.setPen(Qt.PenStyle.NoPen)
+                    orta = top + rect.height() / 2
+                    painter.drawPolygon(QPolygonF([QPointF(3, orta - 4.5), QPointF(10, orta), QPointF(3, orta + 4.5)]))
+                    painter.restore()
+                if hatali and not izlenen:
                     # Numaranın solunda küçük bir nokta: renk körü biri de
                     # satırın işaretli olduğunu görsün.
                     painter.save()
@@ -851,6 +895,16 @@ class CodeEditor(CodeEditing, QTextEdit):
                 hata.format.setProperty(QTextFormat.Property.FullWidthSelection, True)
                 hata.cursor = QTextCursor(blok)
                 secimler.append(hata)
+        if self._trace_block is not None:
+            blok = self.document().findBlockByNumber(self._trace_block)
+            if blok.isValid():
+                iz = QTextEdit.ExtraSelection()
+                renk = QColor(palette["danger" if self._trace_kind == "error" else "accent"])
+                renk.setAlpha(60)
+                iz.format.setBackground(renk)
+                iz.format.setProperty(QTextFormat.Property.FullWidthSelection, True)
+                iz.cursor = QTextCursor(blok)
+                secimler.append(iz)
         self.setExtraSelections(secimler)
         self._line_area.update()
 

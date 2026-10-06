@@ -35,7 +35,8 @@ from ..widgets.document_view import DocumentView
 # Sekmelerin sırası. Önce uygulamanın kendisi — ne olduğu, sık sorulanlar,
 # hangi lisansla dağıtıldığı — sonra benimle ilgili olanlar: bağlantılarım
 # ve diğer projelerim.
-SECTIONS = ("info", "faq", "license", "links", "extras")
+# Sözlük (0.9.2) SSS'nin yanında: ikisi de "takıldım, bakayım" sayfası.
+SECTIONS = ("info", "faq", "glossary", "license", "links", "extras")
 
 # Lisansın özgün dili. Bu dilde ayrıca çeviri gösterilmiyor.
 FALLBACK_LICENSE_LANGUAGE = "en"
@@ -136,6 +137,7 @@ class AboutView(QWidget):
         builders = {
             "info": self._info_html,
             "faq": self._faq_html,
+            "glossary": self._glossary_html,
             "links": self._links_html,
             "extras": self._extras_html,
             "license": self._license_html,
@@ -224,6 +226,50 @@ class AboutView(QWidget):
             )
 
         return f"{intro}<div class='faqlist'>{''.join(parts)}</div>"
+
+    def _glossary_html(self) -> str:
+        """Terimler sözlüğü: patikalara göre gruplu, gruplar içinde abece sırası."""
+        from ..core import glossary
+
+        dil = self._language.language
+        t = self._language.t
+        parts = [f'<p class="meta">{html.escape(t("about.glossary_intro"))}</p>']
+        terimler = glossary.load()
+        for grup in glossary.GROUPS:
+            grubun = sorted(
+                (term for term in terimler if term.get("group") == grup),
+                key=lambda term: glossary.sort_key(term["title"].get(dil, "")),
+            )
+            if not grubun:
+                continue
+            parts.append(f"<h2>{html.escape(t(f'glossary.group_{grup}'))}</h2><div class='gl-list'>")
+            for term in grubun:
+                parts.append(
+                    f"<div class='gl' id='{glossary.anchor(term['id'])}'>"
+                    f"<b>{html.escape(term['title'].get(dil, ''))}</b>"
+                    f"<p>{glossary.text_html(term['text'].get(dil, ''))}</p></div>"
+                )
+            parts.append("</div>")
+        return "".join(parts)
+
+    def show_term(self, term_id: str) -> None:
+        """Sözlük sekmesini açıp terime kaydırır ve kısa süre vurgular (arama)."""
+        from ..core import glossary
+
+        self.show_section("glossary")
+        kimlik = json.dumps(glossary.anchor(term_id))
+        betik = (
+            f"(function(){{var e=document.getElementById({kimlik});if(!e)return;"
+            "e.scrollIntoView({block:'center'});e.classList.remove('hit');void e.offsetWidth;"
+            "e.classList.add('hit');})();"
+        )
+        if self._document._loaded:  # noqa: SLF001
+            # Sekme değişiminin kaydırmayı başa alması bitsin diye bir tur sonra.
+            from PySide6.QtCore import QTimer
+
+            QTimer.singleShot(60, lambda: self._document.page().runJavaScript(betik))
+        else:
+            self._document._pending_anchor = glossary.anchor(term_id)  # noqa: SLF001
 
     def _links_html(self) -> str:
         cards = [

@@ -24,6 +24,46 @@ lecture note does not mean downloading the whole application again.
 ## [0.9.2] — unreleased
 
 ### Added
+- **22 new exercises in Python Fundamentals.** The Getting Started,
+  Variables, Operators, Conditions, Loops and Dictionaries sections now
+  have seven exercises each. The new ones are harder and meant to make you
+  think: quotes inside quotes, output aligned space for space, operator
+  precedence traps, the leap year rule, the order of conditions, primes and
+  twin primes, the longest Collatz journey, binary search, a diamond of
+  stars, counting words, processing orders and turning a dictionary around,
+  among others. If you had already finished these sections, they stay
+  finished; the new exercises wait for you as extra practice.
+- **Placement test.** If you already know a module's topics, you no
+  longer have to start from the beginning: the optional test from the card
+  at the top of the path asks four questions from each section (three right
+  means you know it) and unlocks the sections you know plus the first one
+  after them. It stops by itself
+  after two sections in a row are missed, and the result shows which
+  sections you know and which to review. Unlocked sections do not count as
+  completed.
+- **Tracing code step by step.** In Python exercises the **Step by
+  step** button replays your code line by line: the next line is marked
+  in the editor, and below you see the variables and the output so far
+  at every step. A new variable shows in green, a changed value in
+  yellow; inside a function its own variables are shown separately, and
+  when it finishes you see what it returned. Use the arrow keys to move
+  back and forth. Made for seeing what happens on each turn of a loop.
+- **A glossary of terms.** In lessons, lesson notes and exercise
+  instructions, terms are marked with a dotted underline where they first
+  appear; hovering shows a short explanation, so there is no need to leave
+  the lesson to look up "what was a parameter?". All terms are gathered
+  by track in the new **Glossary** tab under About and can be searched
+  with `Ctrl+K`.
+- **A pointer back to the lesson when you are stuck.** After three failed
+  tries in a row on an exercise, a "Stuck?" card appears under the brief:
+  it names the heading of the lesson the exercise builds on, and **Go to
+  the lesson** opens it right there.
+- **Moving your progress to another computer.** From the new **Data** page
+  in Settings, your progress, notes, settings and profile photo are
+  exported to a single `.odyssey` file; importing it on another computer
+  from the same page restarts Odyssey and you continue where you left off.
+  The progress that was on that computer is not deleted but kept as a
+  backup. The automatic backups folder opens from the same page.
 - **The line with the error is marked in the editor.** When your code
   fails, that line is shaded red in the editor, its number is marked and
   the editor scrolls to it if it is out of view; the mark goes away once
@@ -36,6 +76,24 @@ lecture note does not mean downloading the whole application again.
   and missing values and table shape errors in machine learning, among
   others. If Windows Smart App Control blocks a library an exercise needs,
   you are told it has nothing to do with your code.
+- **Keyboard in quizzes.** Pick an answer with 1–4 or A–D and press Enter
+  to confirm it and move on to the next question.
+- **Reading focus.** The frame button in a section's header, or `F11`,
+  opens the lesson full screen without the side menu and bars. Press `Esc`
+  or `F11` to leave; a note at the top of the screen reminds you of this
+  when you enter.
+- **Share card.** The "Save share card" button on your profile saves your
+  level, title, progress, latest badges and your study chart for the last
+  year as a single image you can share on sites such as LinkedIn. If you
+  enter your GitHub username in the profile edit window, it appears in the
+  card's corner.
+- **Commands from search.** `Ctrl+K` no longer only finds content: type
+  "theme", "language", "timer", "tour", "shortcuts" or "menu" and a
+  command that does it appears.
+- **"Something wrong on this page?" button.** The flag icon in a
+  section's header opens a GitHub bug report with this page's details
+  already filled in, so you can report a wrong fact or a broken exercise
+  without describing where it is. The program sends nothing itself.
 - **A daily backup of your progress.** Each day the program starts, it
   keeps a copy of your progress file and holds on to the last three days.
   If the file is damaged by a power cut or a disk error, the program notices
@@ -45,14 +103,12 @@ lecture note does not mean downloading the whole application again.
   in `%APPDATA%\Odyssey\logs`; you can attach it when reporting a bug. Your
   code, notes and answers are not logged, and the file is never sent
   anywhere.
-- **Moving your progress to another computer.** From the new **Data** page
-  in Settings, your progress, notes, settings and profile photo are
-  exported to a single `.odyssey` file; importing it on another computer
-  from the same page restarts Odyssey and you continue where you left off.
-  The progress that was on that computer is not deleted but kept as a
-  backup. The automatic backups folder opens from the same page.
 
 ### Changed
+- **A "What's new?" window after updates.** The first time the program
+  opens after an update, it shows the five most important changes of that
+  version instead of the beta notice; "All release notes" opens the Release
+  Notes screen.
 - **Answers from an unfinished quiz are no longer lost.** When you leave a
   quiz before finishing it (or close the program), the answers you have
   given so far are saved to Past attempts as "left unfinished", so you can

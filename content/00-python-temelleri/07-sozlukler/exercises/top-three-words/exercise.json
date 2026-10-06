@@ -1,0 +1,58 @@
+{
+  "id": "top-three-words",
+  "title": {
+    "tr": "En sık üç kelime",
+    "en": "The three most common words"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Saymak için: `for word in words:` → kelime sözlükte varsa bir artır (`counts[word] = counts[word] + 1`), yoksa `counts[word] = 1`.",
+      "en": "To count: `for word in words:` → if the word is in the dictionary, add one (`counts[word] = counts[word] + 1`), otherwise `counts[word] = 1`."
+    },
+    {
+      "tr": "Her turda `best = None` ile başla ve `for word in counts:` içinde seçilmişleri `continue` ile atla. `best is None` ya da sayısı büyük ya da (sayısı eşit ve `word < best`) ise `best = word`.",
+      "en": "Start each round with `best = None` and inside `for word in counts:` skip the chosen ones with `continue`. If `best is None` or its count is larger or (the count is equal and `word < best`), then `best = word`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nwords = [\"the\", \"cat\", \"and\", \"the\", \"dog\", \"and\", \"the\", \"bird\", \"sat\", \"on\", \"the\", \"mat\"]\n\ncounts = {}\nfor word in words:\n    if word in counts:\n        counts[word] = counts[word] + 1\n    else:\n        counts[word] = 1\n\nchosen = []\nfor round_number in range(3):\n    best = None\n    for word in counts:\n        if word in chosen:\n            continue\n        if best is None or counts[word] > counts[best] or (counts[word] == counts[best] and word < best):\n            best = word\n    chosen.append(best)\n    print(best, counts[best])\n```",
+      "en": "The solution:\n\n```python\nwords = [\"the\", \"cat\", \"and\", \"the\", \"dog\", \"and\", \"the\", \"bird\", \"sat\", \"on\", \"the\", \"mat\"]\n\ncounts = {}\nfor word in words:\n    if word in counts:\n        counts[word] = counts[word] + 1\n    else:\n        counts[word] = 1\n\nchosen = []\nfor round_number in range(3):\n    best = None\n    for word in counts:\n        if word in chosen:\n            continue\n        if best is None or counts[word] > counts[best] or (counts[word] == counts[best] and word < best):\n            best = word\n    chosen.append(best)\n    print(best, counts[best])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "counts",
+      "equals": {
+        "the": 4,
+        "cat": 1,
+        "and": 2,
+        "dog": 1,
+        "bird": 1,
+        "sat": 1,
+        "on": 1,
+        "mat": 1
+      }
+    },
+    {
+      "type": "ast_require",
+      "node": "For",
+      "hint": {
+        "tr": "Kelimeleri bir döngüyle saymalısın.",
+        "en": "Count the words with a loop."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "the 4\nand 2\nbird 1"
+    }
+  ]
+}

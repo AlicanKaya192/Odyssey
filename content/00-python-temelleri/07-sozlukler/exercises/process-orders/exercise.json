@@ -1,0 +1,60 @@
+{
+  "id": "process-orders",
+  "title": {
+    "tr": "Siparişleri işle",
+    "en": "Process the orders"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Önce bilinmeyen ürünü yakala: `if product not in stock:`. Ondan sonra `stock[product]`'a güvenle bakabilirsin.",
+      "en": "Catch the unknown product first: `if product not in stock:`. After that you can safely look at `stock[product]`."
+    },
+    {
+      "tr": "`elif stock[product] >= amount:` → stoktan düş; `else:` → `missing = amount - stock[product]`, `shortages[product] = missing`.",
+      "en": "`elif stock[product] >= amount:` → take it off the stock; `else:` → `missing = amount - stock[product]`, `shortages[product] = missing`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nstock = {\"apple\": 10, \"pear\": 4, \"plum\": 0}\norders = [(\"apple\", 3), (\"pear\", 5), (\"plum\", 1), (\"kiwi\", 2), (\"apple\", 6)]\n\nshortages = {}\nunknown = []\n\nfor product, amount in orders:\n    if product not in stock:\n        unknown.append(product)\n        print(product + \": unknown product\")\n    elif stock[product] >= amount:\n        stock[product] = stock[product] - amount\n        print(product + \": sent\", amount)\n    else:\n        missing = amount - stock[product]\n        shortages[product] = missing\n        print(product + \": short by\", missing)\n\nprint(\"Stock:\", stock)\n```",
+      "en": "The solution:\n\n```python\nstock = {\"apple\": 10, \"pear\": 4, \"plum\": 0}\norders = [(\"apple\", 3), (\"pear\", 5), (\"plum\", 1), (\"kiwi\", 2), (\"apple\", 6)]\n\nshortages = {}\nunknown = []\n\nfor product, amount in orders:\n    if product not in stock:\n        unknown.append(product)\n        print(product + \": unknown product\")\n    elif stock[product] >= amount:\n        stock[product] = stock[product] - amount\n        print(product + \": sent\", amount)\n    else:\n        missing = amount - stock[product]\n        shortages[product] = missing\n        print(product + \": short by\", missing)\n\nprint(\"Stock:\", stock)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "stock",
+      "equals": {
+        "apple": 1,
+        "pear": 4,
+        "plum": 0
+      }
+    },
+    {
+      "type": "variable",
+      "name": "shortages",
+      "equals": {
+        "pear": 1,
+        "plum": 1
+      }
+    },
+    {
+      "type": "variable",
+      "name": "unknown",
+      "equals": [
+        "kiwi"
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "apple: sent 3\npear: short by 1\nplum: short by 1\nkiwi: unknown product\napple: sent 6\nStock: {'apple': 1, 'pear': 4, 'plum': 0}"
+    }
+  ]
+}

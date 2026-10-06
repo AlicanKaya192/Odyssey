@@ -18,6 +18,9 @@ Bu güncellemeden önce ilerlemiş bir kullanıcının kayıtları sırasız ola
 (2'yi atlayıp 3'ü bitirmiş olabilir); ona "geri dön ve 2'yi de yap" demek
 yerine kaldığı yerden devam etmesine izin veriliyor.
 
+**Seviye tespit sınavı** (`core/placement.py`) bilinen bölümleri ve hemen
+arkasındakini açıyor; tamamlanmış saymadan.
+
 Ayarlardan **kilit kaldırılabiliyor**. O ayar açıkken bu modül her bölüm
 için "açık" diyor. Kontrol burada yapılıyor, çağıran yerlerde değil: üç
 çağrı noktası var ve biri ayarı unutursa o ekran kilidi uygulamaya devam
@@ -63,6 +66,11 @@ def blocking_section(catalog, store, chapter_id: str, section_id: str):
         # Başlanmış bölüm kilitlenmez. Modülün başına sonradan bölüm
         # eklenince, eski ilk bölümü bitirmiş biri onu kilitli görüyordu.
         if store.section_state(chapter_id, section.id, section.exercises).has_activity:
+            return None
+        # Seviye tespitinde bilinen bölümler ve arkasındaki açık.
+        from .placement import reach_index
+
+        if index <= reach_index(store, chapter) + 1:
             return None
         onceki = sections[index - 1]
         return None if _completed(store, chapter_id, onceki) else onceki

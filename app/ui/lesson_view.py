@@ -187,6 +187,7 @@ class LessonView(QWidget):
         compact: bool = False,
         show_toc: bool = True,
         track_reading: bool = False,
+        glossary: bool = False,
     ) -> None:
         """`compact`, dar bir panelde (alıştırma yönergesi gibi) kullanılır.
 
@@ -198,6 +199,10 @@ class LessonView(QWidget):
         self._compact = compact
         self._show_toc = show_toc and not compact
         self._track_reading = track_reading
+        # Terimler sözlüğü: dersin içindeki terimler işaretleniyor
+        # (`core/glossary.py`); hangi patikanın terimleri olduğu belgenin
+        # klasöründen anlaşılıyor.
+        self._glossary = glossary
 
         self._source = ""
         self._meta: list[str] = []
@@ -428,6 +433,12 @@ class LessonView(QWidget):
 
         self._has_progress_box = bool(aside)
         scripts = (SCROLL_SPY if aside else "") + COPY_BUTTONS
+        if self._glossary:
+            from ..core import glossary
+
+            patika = glossary.chapter_from_path(self._document._base_override)  # noqa: SLF001
+            if patika:
+                scripts += glossary.page_script(patika, self._language.language)
         return f'<div class="{page_class}">{content}{aside}</div>{scripts}'
 
     def _banner_html(self, tone: str, text: str) -> str:

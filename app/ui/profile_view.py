@@ -21,6 +21,8 @@ boşluk bırakıyordu.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from datetime import date
 
 from PySide6.QtCore import QRectF, QSize, Qt, QTimer, Signal
@@ -254,6 +256,14 @@ class ProfileView(QWidget):
         self._started.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         sag.addWidget(self._started)
 
+        # Paylaşım kartı: seviye, unvan, sayılar ve rozetler tek bir PNG'de
+        # (`ui/profile_card.py`).
+        self._card_button = QPushButton()
+        self._card_button.setProperty("variant", "ghost")
+        self._card_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._card_button.clicked.connect(self._save_card)
+        sag.addWidget(self._card_button, 0, Qt.AlignmentFlag.AlignHCenter)
+
         sag.addSpacing(10)
         satir = QHBoxLayout()
         # Seviye ve o seviyenin içindeki XP. Burada önce genel ilerleme
@@ -384,6 +394,7 @@ class ProfileView(QWidget):
             button.setIcon(icon(button.property("icon_name"), renk, PAGE_ICON))
             button.setIconSize(QSize(17, 17))
         self._edit_button.setIcon(icon("pencil", p["text"], 16))
+        self._card_button.setIcon(icon("download", p["text_muted"], 15))
 
     def _nice_date(self, iso: str) -> str:
         """`2026-09-30` → "30 Eylül 2026" / "30 September 2026"."""
@@ -615,6 +626,9 @@ class ProfileView(QWidget):
 
         if kabul:
             self._store.set_profile(dialog.first_name, dialog.last_name)
+            from .profile_card import GITHUB_KEY
+
+            self._store.set_setting(GITHUB_KEY, dialog.github_username)
             self.refresh()
             self.saved.emit()
         elif dialog.photo_changed:
@@ -622,6 +636,62 @@ class ProfileView(QWidget):
             # onu göstermesi gerekiyor.
             self.refresh()
             self.saved.emit()
+
+    def card_data(self):
+        """Paylaşım kartının verisi (testte de kullanılıyor)."""
+        from ..core.avatar import avatar_path
+        from ..resources.medals import medal_pixmap
+        from .profile_card import GITHUB_KEY, CardData
+
+        t = self._language.t
+        profil = self._store.profile()
+        ad = " ".join(s for s in (profil.get("first_name", ""), profil.get("last_name", "")) if s).strip()
+        secili = level_core.selected_tag(self._store, self._levels.tags)
+        tanim = next((u for u in self._tag_list if u.get("id") == secili), None)
+        unvan = self._language.pick(tanim.get("title"), "") if tanim else ""
+        durum = self._levels.state
+        toplam = sum(len(c.sections) for c in self._catalog.chapters)
+        biten = len(badge_core.completed_sections(self._catalog, self._store))
+        kazanilan = [b for b in self._badge_list if b.earned]
+        kazanilan.sort(key=lambda b: b.earned_at or "", reverse=True)
+        madalyalar = []
+        for b in kazanilan[:8]:
+            sekil, kademe = (list(b.medal) + ["bronze"])[:2]
+            madalyalar.append(medal_pixmap(sekil, kademe, b.icon, 72, True))
+        return CardData(
+            name=ad, tag=unvan, level=durum.level, xp=durum.xp, into=durum.into, need=durum.need,
+            sections_done=biten, sections_total=toplam,
+            exercises_solved=self._store.solved_exercise_count(), streak=self._store.streak(),
+            badges_earned=len(kazanilan), badges_total=len(self._badge_list), medals=madalyalar,
+            avatar=avatar_path(),
+            activity=self._store.activity_by_day(380),
+            github=self._store.setting(GITHUB_KEY, ""),
+            labels={
+                "level": t("card.level"), "xp": t("card.xp"), "sections": t("card.sections"),
+                "exercises": t("card.exercises"), "streak": t("card.streak"), "badges": t("card.badges"),
+                "anonymous": t("card.anonymous"), "activity": t("card.activity"),
+                "active_days": t("card.active_days"), "less": t("profile.activity_less"),
+                "more": t("profile.activity_more"),
+            },
+        )
+
+    def _save_card(self) -> None:
+        from PySide6.QtCore import QStandardPaths, QTimer
+        from PySide6.QtWidgets import QFileDialog
+
+        from . import profile_card
+
+        t = self._language.t
+        klasor = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)
+        oneri = str(Path(klasor) / "Odyssey-profile.png")
+        yol, _ = QFileDialog.getSaveFileName(self, t("card.save"), oneri, "PNG (*.png)")
+        if not yol:
+            return
+        if not yol.lower().endswith(".png"):
+            yol += ".png"
+        tamam = profile_card.render(self.card_data()).save(yol, "PNG")
+        self._card_button.setText(" " + t("card.saved" if tamam else "card.failed"))
+        QTimer.singleShot(3000, lambda: self._card_button.setText(" " + t("card.save")))
 
     def _render_level(self) -> None:
         """Seviye satırı, XP çubuğunun ipucu ve unvan düğmesi."""
@@ -734,6 +804,7 @@ class ProfileView(QWidget):
     def retranslate(self) -> None:
         t = self._language.t
         self._edit_button.setText("  " + t("profile.edit_title"))
+        self._card_button.setText(" " + t("card.save"))
         self._render_started()
         self._refresh_avatar()
         self._refresh_name()

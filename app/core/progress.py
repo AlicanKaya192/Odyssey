@@ -246,6 +246,11 @@ MIGRATIONS: list[str] = [
     """
     ALTER TABLE quiz_attempts ADD COLUMN abandoned INTEGER NOT NULL DEFAULT 0;
     """,
+    # 11 — bölümün ilk tamamlandığı an (0.9.2). Bölüme sonradan alıştırma
+    # eklenince bitirmiş olan "yarım kaldı"ya düşmesin (`core/completion.py`).
+    """
+    ALTER TABLE section_progress ADD COLUMN completed_at TEXT;
+    """,
 ]
 
 # Bir alıştırma için saklanan en fazla deneme; eskiler siliniyor.
@@ -267,6 +272,8 @@ class SectionState:
     quiz_passed: bool = False
     exercises_total: int = 0
     exercises_solved: int = 0
+    # İlk tamamlandığı an; doluysa bölüm hep tamamlanmış sayılıyor.
+    completed_at: str | None = None
 
     @property
     def has_activity(self) -> bool:
@@ -278,6 +285,8 @@ class SectionState:
         Kilit yok: her bölüm her zaman açılabilir, bu yüzden yalnızca
         "tamamlandı / yarım kaldı / başlanmadı" ayrımı var.
         """
+        if self.completed_at:
+            return "completed"
         quiz_ok = self.quiz_passed or not requires_quiz
         exercises_ok = (
             self.exercises_total > 0 and self.exercises_solved >= self.exercises_total
@@ -600,7 +609,17 @@ class ProgressStore:
             quiz_passed=bool(row["quiz_passed"]),
             exercises_total=exercises_total,
             exercises_solved=solved,
+            completed_at=row["completed_at"],
         )
+
+    def mark_section_completed(self, chapter_id: str, section_id: str) -> None:
+        """Bölümün ilk tamamlandığı anı yazar (bir kez; sonra değişmez)."""
+        with self._write() as connection:
+            connection.execute(
+                "UPDATE section_progress SET completed_at = ? "
+                "WHERE chapter_id = ? AND section_id = ? AND completed_at IS NULL",
+                (_now(), chapter_id, section_id),
+            )
 
     def _touch_section(self, chapter_id: str, section_id: str) -> None:
         with self._write() as connection:

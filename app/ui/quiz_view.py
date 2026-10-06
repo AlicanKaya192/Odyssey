@@ -396,6 +396,7 @@ class QuizView(QWidget):
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self._language = language
         self._cards: list[QuestionCard] = []
         self._questions: list[dict] = []
@@ -535,6 +536,10 @@ class QuizView(QWidget):
         card.body.addWidget(self._questions_stack)
 
         alt = QHBoxLayout()
+        # Klavyeyle cevaplanabildiğini söyleyen küçük not (fare şart değil).
+        self._keys_hint = QLabel()
+        self._keys_hint.setProperty("role", "muted")
+        alt.addWidget(self._keys_hint, 0, Qt.AlignmentFlag.AlignVCenter)
         alt.addStretch(1)
         self._answer_button = QPushButton()
         self._answer_button.setProperty("variant", "primary")
@@ -784,6 +789,8 @@ class QuizView(QWidget):
         self._stack.setCurrentIndex(1)
         self._scroll.verticalScrollBar().setValue(0)
         self._sync_question_ui()
+        # Klavyeyle cevaplanabilsin: tuşlar sınava gelsin (`keyPressEvent`).
+        self.setFocus(Qt.FocusReason.OtherFocusReason)
         if not self._untimed and self._time_limit:
             self._left = self._time_limit
             self._timer.start()
@@ -812,6 +819,36 @@ class QuizView(QWidget):
         else:
             self._answer_button.setText(self._language.t("quiz.answer"))
         self._answer_button.setEnabled(card.is_answered or card.selected is not None)
+
+    def keyPressEvent(self, event) -> None:  # noqa: N802
+        """1-4 ya da A-D şık seçer, Enter / boşluk cevaplar ya da ilerletir.
+
+        Alican istedi: fareyle tek tek tıklamak sınavı yavaşlatıyordu.
+        Yalnızca sorular açıkken; odak bir yazı alanındaysa tuş oraya gider
+        (yazı alanı olayı kendisi kullanıyor, buraya çıkmıyor).
+        """
+        if self.in_progress:
+            card = self._cards[self._current]
+            tus = event.key()
+            secim = None
+            if Qt.Key.Key_1 <= tus <= Qt.Key.Key_9:
+                secim = tus - Qt.Key.Key_1
+            elif Qt.Key.Key_A <= tus <= Qt.Key.Key_H and not event.modifiers() & (
+                    Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier):
+                secim = tus - Qt.Key.Key_A
+            if secim is not None:
+                secenekler = self._language.pick(card.question.get("options"), []) or []
+                if secim < len(secenekler) and not card.is_answered:
+                    card._pick(secim)  # noqa: SLF001
+                    self._sync_question_ui()
+                event.accept()
+                return
+            if tus in (Qt.Key.Key_Return, Qt.Key.Key_Enter, Qt.Key.Key_Space):
+                if self._answer_button.isEnabled():
+                    self._on_answer()
+                event.accept()
+                return
+        super().keyPressEvent(event)
 
     def _on_answer(self) -> None:
         card = self._cards[self._current]
@@ -933,6 +970,7 @@ class QuizView(QWidget):
 
     def retranslate(self) -> None:
         t = self._language.t
+        self._keys_hint.setText(t("quiz.keys_hint"))
         self._retry_button.setText("  " + t("quiz.retry"))
         self._review_button.setText(t("quiz_history.review_wrong"))
         self._review_back_button.setText("←  " + t("common.back"))

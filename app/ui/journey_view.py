@@ -56,7 +56,7 @@ from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.unlock import blocking_section
 from ..resources.icons import icon, pixmap
-from ..resources.theme.tokens import CONTENT_WIDTH, FONTS, PALETTES, RADIUS, SPACING
+from ..resources.theme.tokens import CONTENT_WIDTH, FONTS, PALETTES, RADIUS, SPACING, mix
 from ..widgets.common import ElidedText, StatBlock, horizontal_rule, section_label
 from ..widgets.streak_flame import FlickerFlame, hero_flame_pixmap, next_tier, tier_for
 from ..widgets.effects import apply_shadow, refresh_shadow
@@ -1761,6 +1761,45 @@ class LevelHeader(QWidget):
         row.addWidget(horizontal_rule(), 1, orta)
 
 
+class PlacementBanner(QFrame):
+    """Yolun başında "seviyeni belirle" kartı (`core/placement.py`).
+
+    Daha önce girildiyse sonucu yazıyor ve "Yeniden dene" diyor.
+    """
+
+    requested = Signal()
+
+    def __init__(self, title: str, text: str, button: str, mode: str) -> None:
+        super().__init__()
+        p = PALETTES.get(mode, PALETTES["light"])
+        self.setObjectName("placementBanner")
+        self.setStyleSheet(
+            f"QFrame#placementBanner {{ background: {p['accent_soft']}; border: 1px solid {mix(p['accent'], p['surface'], 0.55)};"
+            f" border-radius: 16px; }}"
+            "QFrame#placementBanner QLabel { background: transparent; }"
+        )
+        satir = QHBoxLayout(self)
+        satir.setContentsMargins(SPACING["lg"], SPACING["md"], SPACING["md"], SPACING["md"])
+        satir.setSpacing(SPACING["md"])
+        simge = QLabel()
+        simge.setPixmap(pixmap("target", p["accent"], 26))
+        satir.addWidget(simge, 0, Qt.AlignmentFlag.AlignVCenter)
+        yazilar = QVBoxLayout()
+        yazilar.setSpacing(2)
+        baslik = QLabel(title)
+        baslik.setStyleSheet(f"color: {p['text']}; font-weight: 650; font-size: 14.5px;")
+        yazilar.addWidget(baslik)
+        metin = QLabel(text)
+        metin.setWordWrap(True)
+        metin.setStyleSheet(f"color: {p['text_muted']}; font-size: 13px;")
+        yazilar.addWidget(metin)
+        satir.addLayout(yazilar, 1)
+        self.button = QPushButton(button)
+        self.button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.button.clicked.connect(self.requested)
+        satir.addWidget(self.button, 0, Qt.AlignmentFlag.AlignVCenter)
+
+
 # Oturum boyunca: hangi modülün yolu görüldü, görüldüğünde hangi bölümler
 # bitmişti. Yola dönüldüğünde aradaki fark "yeni biten" sayılıp canlandırılıyor.
 _SEEN_CHAPTERS: set[str] = set()
@@ -1772,6 +1811,8 @@ class PathView(QWidget):
 
     section_opened = Signal(str, str)
     back_requested = Signal()
+    # Seviye tespiti kaydedildi: kilitler değişti, başka ekranlar tazelensin.
+    placement_finished = Signal()
 
     def __init__(
         self,
@@ -1843,6 +1884,10 @@ class PathView(QWidget):
         current_index = self._current_index(outline, chapter.id)
 
         basliklar = self._level_headers(chapter, outline)
+
+        kart = self._placement_banner(chapter, outline)
+        if kart is not None:
+            self._layout.addWidget(kart)
 
         for index, section in enumerate(outline):
             son = index == len(outline) - 1
@@ -2116,9 +2161,70 @@ class PathView(QWidget):
         state = self._store.section_state(chapter_id, section.id, section.exercises)
         return state.status(section.requires_quiz, section.requires_exercises)
 
+    def _placement_banner(self, chapter, outline: list):
+        """Seviye tespit kartı; modülde yeterli bölüm yoksa, kilit kapalıysa
+        ya da bütün bölümler bittiyse yok."""
+        from ..core import placement
+        from ..core.unlock import unlock_all
+
+        if unlock_all(self._store) or not placement.available(chapter, self._language.language):
+            return None
+        bolumler = [s for s in outline if not isinstance(s, dict)]
+        if bolumler and all(self._state_of(chapter.id, s) == "completed" for s in bolumler):
+            return None
+        t = self._language.t
+        sonuc = placement.load(self._store, chapter.id)
+        if sonuc:
+            acilan = placement.reach_index(self._store, chapter) + 1
+            kart = PlacementBanner(t("placement.banner_done_title"),
+                                   t("placement.banner_done", count=acilan),
+                                   t("placement.retry"), self._mode)
+        else:
+            kart = PlacementBanner(t("placement.banner_title"), t("placement.banner_text"),
+                                   t("placement.banner_button"), self._mode)
+        kart.requested.connect(lambda: self.open_placement(chapter.id))
+        self._placement = kart
+        # Altında nefes payı: yol düğmeleri komşularına biniyor (`OverlapColumn`).
+        sarmal = QWidget()
+        sarmal.setProperty("role", "bare")
+        duzen = QVBoxLayout(sarmal)
+        duzen.setContentsMargins(0, 0, 0, SPACING["xl"])
+        duzen.addWidget(kart)
+        return sarmal
+
+    def open_placement(self, chapter_id: str, rng=None):
+        """Seviye tespit penceresini açar; sonuç kaydedildiyse yolu yeniden kurar."""
+        from .modal import Backdrop
+        from .placement_dialog import PlacementDialog
+
+        chapter = self._catalog.chapter(chapter_id)
+        if chapter is None:
+            return None
+        kok = self.window()
+        perde = Backdrop(kok)
+        perde.show()
+        dialog = PlacementDialog(self._language, self._store, chapter, self._mode, kok, rng=rng)
+        self.placement_dialog = dialog
+        dialog.finished.connect(lambda _r: self._placement_closed(perde, dialog))
+        dialog.open()
+        return dialog
+
+    def _placement_closed(self, perde, dialog) -> None:
+        perde.deleteLater()
+        if dialog.done_sections:
+            self._rebuild()
+            self.placement_finished.emit()
+        dialog.deleteLater()
+        self.placement_dialog = None
+
     def _current_index(self, outline: list, chapter_id: str) -> int:
+        # Seviye tespitinde atlanan bölümler "şu an buradasın" olmuyor:
+        # işaret bilinen son bölümün arkasındaki ilk tamamlanmamış bölümde.
+        from ..core.placement import reach_index
+
+        atla = reach_index(self._store, self._catalog.chapter(chapter_id))
         for index, section in enumerate(outline):
-            if isinstance(section, dict):
+            if isinstance(section, dict) or index <= atla:
                 continue
             if self._state_of(chapter_id, section) != "completed":
                 return index

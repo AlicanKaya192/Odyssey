@@ -36,6 +36,7 @@ SHORTCUTS = [
         (["Ctrl", "N"], "shortcut.note"),
         (["Ctrl", ","], "shortcut.settings"),
         (["Ctrl", "M"], "shortcut.menu"),
+        (["F11"], "shortcut.focus"),
         (["F1"], "shortcut.list"),
         (["Esc"], "shortcut.back"),
         (["Ctrl", "Z"], "shortcut.undo"),
@@ -46,6 +47,10 @@ SHORTCUTS = [
         (["Tab"], "shortcut.indent"),
         (["Shift", "Tab"], "shortcut.dedent"),
         (["Ctrl", "/"], "shortcut.comment"),
+    ]),
+    ("quiz", [
+        (["1–4", "A–D"], "shortcut.quiz_pick"),
+        (["Enter"], "shortcut.quiz_answer"),
     ]),
     ("notes", [
         (["Ctrl", "B"], "shortcut.bold"),

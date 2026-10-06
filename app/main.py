@@ -317,14 +317,29 @@ def main() -> int:
         _show_info(language.t("backup.imported_title"), language.t("backup.imported_message"),
                    language, theme, window)
 
-    from app.ui.beta_notice import BetaNoticeDialog, mark_seen, should_show
+    from app.ui.beta_notice import SETTING_KEY, BetaNoticeDialog, mark_seen, should_show
 
     if should_show(store):
         from app.ui import titlebar
 
-        notice = BetaNoticeDialog(language, window)
-        titlebar.apply(notice, theme.effective_mode)
-        notice.exec()
+        if store.setting(SETTING_KEY, "") == "":
+            # İlk kurulum: beta uyarısı.
+            notice = BetaNoticeDialog(language, window)
+            titlebar.apply(notice, theme.effective_mode)
+            notice.exec()
+        else:
+            # Güncellemeden sonraki ilk açılış: "Neler yeni?" (Alican istedi).
+            from app.ui.modal import Backdrop
+            from app.ui.whats_new import WhatsNewDialog
+
+            perde = Backdrop(window)
+            perde.show()
+            yenilik = WhatsNewDialog(language, window)
+            titlebar.apply(yenilik, theme.effective_mode)
+            yenilik.exec()
+            perde.deleteLater()
+            if yenilik.wants_notes:
+                window._navigate("releases")
         mark_seen(store)
 
     # Seri hatırlatmaları kendiliğinden açılmıyor: ilk açılışta bir kez,

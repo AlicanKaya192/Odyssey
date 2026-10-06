@@ -36,6 +36,7 @@ from ..core.language import LanguageManager
 from ..core.mistakes import explain
 from ..core.progress import ProgressStore
 from ..core.runner import RunResult, run_code
+from ..core.stuck import STUCK_AFTER, failures_since_pass, find_spot
 from ..resources.icons import icon
 from ..resources.theme.tokens import PALETTES, SPACING
 from ..version import APP_VERSION
@@ -45,6 +46,7 @@ from ..widgets.draw_pad import clean_drawing, empty_drawing
 from ..widgets.grip_splitter import GripSplitter
 from ..widgets.problem_panel import ProblemPanel
 from ..widgets.terminal_view import TerminalView, block, line
+from ..widgets.trace_panel import TracePanel
 from .attempt_history import exercise_markdown, run_detail
 from .lesson_view import LessonView, render_markdown
 from .tables_window import TablesWindow
@@ -118,6 +120,29 @@ class RunWorker(QThread):
 
 
 
+class TraceWorker(QThread):
+    """Kodu adım adım izleyerek çalıştırır (kontrol yok, kayıt yok)."""
+
+    completed = Signal(object)
+
+    def __init__(self, code: str, exercise: Exercise, parent=None) -> None:
+        super().__init__(parent)
+        self._code = code
+        self._exercise = exercise
+
+    def run(self) -> None:  # noqa: D102
+        # İzleme kodu yavaşlatıyor; süre normal çalıştırmanın üç katı.
+        self.completed.emit(
+            run_code(
+                self._code,
+                [],
+                max(30, self._exercise.timeout_sec * 3),
+                self._exercise.directory,
+                trace=True,
+            )
+        )
+
+
 class SnapshotWorker(QThread):
     """Kod çalıştırmadan yalnızca tabloların hâlini alır.
 
@@ -152,6 +177,8 @@ class ExerciseView(QWidget):
     solved = Signal(str)
     # Yönergenin altındaki "devam" düğmesi: sonraki alıştırma ya da bölüm.
     advance = Signal()
+    # "Takıldın mı?" kartındaki "Derse git": dersin o başlığına (çapa; "" başı).
+    lesson_requested = Signal(str)
 
     def __init__(
         self,
@@ -167,6 +194,15 @@ class ExerciseView(QWidget):
         self._chapter_id = ""
         self._section_id = ""
         self._worker: RunWorker | None = None
+        self._trace_worker: TraceWorker | None = None
+        # "Takıldın mı?" (core/stuck.py): bu oturumdaki başarısız çalıştırma
+        # sayısı ve bölümün ders metnini veren işlev (TopicView veriyor).
+        self._session_fails = 0
+        self._stuck_announced = False
+        self._stuck_cache: tuple[str, str, object] | None = None
+        self.lesson_source = lambda: ""
+        self._trace_started = 0.0
+        self._sizes_before_trace: list[int] | None = None
         self._snapshot: SnapshotWorker | None = None
         # Son çalıştırmanın sonundaki tablo hâli ve onu gösteren pencere.
         self._tables: list[dict] = []
@@ -239,7 +275,7 @@ class ExerciseView(QWidget):
         layout.addWidget(self._brief_tabs_holder)
 
         self._brief_stack = QStackedWidget()
-        self._prompt = LessonView(self._language, compact=True)
+        self._prompt = LessonView(self._language, compact=True, glossary=True)
         self._prompt.action.connect(self._on_prompt_action)
         self._brief_stack.addWidget(self._prompt)
         self._solutions = LessonView(self._language, compact=True)
@@ -325,7 +361,11 @@ class ExerciseView(QWidget):
                 self._revealed.discard(level)
             else:
                 self._revealed.add(level)
-            self._prompt.update_extra(self._hints_html())
+            self._prompt.update_extra(self._extra_html())
+            return
+        if action == "lesson-spot":
+            spot = self._stuck_spot()
+            self.lesson_requested.emit(spot.anchor if spot else "")
 
     def set_advance_label(self, label: str | None) -> None:
         """Yönergenin en altındaki "devam" düğmesi.
@@ -426,8 +466,62 @@ class ExerciseView(QWidget):
 
         self._prompt.set_base_dir(self._exercise.directory)
         self._prompt.show_text(
-            f"# {title}\n\n{self._chips_html()}\n\n{body}", extra=self._hints_html()
+            f"# {title}\n\n{self._chips_html()}\n\n{body}", extra=self._extra_html()
         )
+
+    # --- takıldın mı? -------------------------------------------------------
+
+    def _failures(self) -> int:
+        """Son başarılı denemeden bu yana başarısız deneme sayısı.
+
+        Kayıttaki denemeler (aynı kod + aynı sonuç bir kez yazılıyor) ile bu
+        oturumda düşen çalıştırmaların büyüğü: aynı kodu üç kez çalıştıran
+        da sayılsın.
+        """
+        if self._exercise is None:
+            return 0
+        kayit = failures_since_pass(
+            self._store.exercise_attempts(self._chapter_id, self._section_id, self._exercise.id)
+        )
+        return max(kayit, self._session_fails)
+
+    def _stuck_spot(self):
+        """Alıştırmanın dayandığı ders başlığı (dil ve alıştırma başına bir kez)."""
+        if self._exercise is None:
+            return None
+        anahtar = (self._exercise.id, self._language.language)
+        if self._stuck_cache is not None and self._stuck_cache[:2] == anahtar:
+            return self._stuck_cache[2]
+        dil = self._language.language
+        prompt = self._exercise.prompt_for(dil)
+        metin = prompt.path.read_text(encoding="utf-8") if prompt and prompt.exists else ""
+        kod = (self._exercise.solution_text(0, dil) if self._exercise.is_problem
+               else self._exercise.solution_code_for(dil)) or ""
+        spot = find_spot(self.lesson_source() or "", kod, metin,
+                         override=str(self._exercise.raw.get("lesson_anchor", "")),
+                         title=self._language.pick(self._exercise.title))
+        self._stuck_cache = (*anahtar, spot)
+        return spot
+
+    def _stuck_html(self) -> str:
+        """Üç başarısız denemeden sonra yönergenin altındaki kart."""
+        if self._exercise is None or self._failures() < STUCK_AFTER:
+            return ""
+        spot = self._stuck_spot()
+        if spot is None:
+            return ""
+        t = self._language.t
+        baslik = spot.title.replace("`", "")
+        metin = t("stuck.text", title=baslik) if baslik else t("stuck.text_start")
+        return (
+            '<div class="stuck"><div class="hd">'
+            f'{html.escape(t("stuck.title"))}</div>'
+            f'<p>{html.escape(metin)}</p>'
+            f'<a class="go" href="app:lesson-spot">{html.escape(t("stuck.go"))}</a></div>'
+        )
+
+    def _extra_html(self) -> str:
+        return self._stuck_html() + self._hints_html()
 
     # --- sağ: editör ve sonuçlar -----------------------------------------
 
@@ -459,11 +553,19 @@ class ExerciseView(QWidget):
         top_layout.addWidget(self._build_runbar())
 
         self._terminal = TerminalView()
+        # Adım adım izleme terminalin yerinde açılıyor (aynı yer, aynı renkler).
+        self._trace = TracePanel()
+        self._trace.step_changed.connect(self._on_trace_step)
+        self._trace.closed.connect(self.close_trace)
+        self._editor.edited.connect(self.close_trace)
+        self._bottom_stack = QStackedWidget()
+        self._bottom_stack.addWidget(self._terminal)
+        self._bottom_stack.addWidget(self._trace)
         alt = QWidget()
         alt.setProperty("role", "bare")
         alt_layout = QVBoxLayout(alt)
         alt_layout.setContentsMargins(8, 0, 18, 14)
-        alt_layout.addWidget(self._terminal)
+        alt_layout.addWidget(self._bottom_stack)
 
         self._work_splitter = GripSplitter(Qt.Orientation.Vertical)
         self._work_splitter.addWidget(top)
@@ -518,6 +620,14 @@ class ExerciseView(QWidget):
         self._reset_button.clicked.connect(self._reset)
         layout.addWidget(self._reset_button)
 
+        # Adım adım: yalnızca Python alıştırmalarında (SQL'de satır satır
+        # izlenecek bir program yok).
+        self._trace_button = QPushButton()
+        self._trace_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._trace_button.clicked.connect(self.start_trace)
+        self._trace_spinner = ButtonSpinner(self._trace_button)
+        layout.addWidget(self._trace_button)
+
         self._run_button = QPushButton()
         self._run_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._run_button.setProperty("variant", "primary")
@@ -546,6 +656,11 @@ class ExerciseView(QWidget):
             return None
         return code, "sql" if self._exercise.language == "tsql" else "python"
 
+    @property
+    def current_exercise_id(self) -> str:
+        """Açık alıştırmanın kimliği (yoksa boş); hata bildiriminde kullanılıyor."""
+        return self._exercise.id if getattr(self, "_exercise", None) is not None else ""
+
     def show_exercise(self, exercise: Exercise, chapter_id: str, section_id: str) -> None:
         """Alıştırmayı yükler ve varsa daha önce yazılan kodu geri getirir."""
         self._exercise = exercise
@@ -554,6 +669,8 @@ class ExerciseView(QWidget):
 
         # Yeni alıştırmada ipuçları kapalı başlar.
         self._revealed = set()
+        self._session_fails = 0
+        self._stuck_announced = False
         self._refresh_prompt()
 
         if exercise.is_problem:
@@ -590,6 +707,8 @@ class ExerciseView(QWidget):
         # Tablolar önceki alıştırmanın verisini göstermesin.
         self._tables = []
         self._tables_button.setVisible(exercise.language == "tsql")
+        self._trace_button.setVisible(exercise.language != "tsql")
+        self.close_trace()
         if self._tables_window is not None:
             self._tables_window.set_tables(
                 [], self._language.t("tables.not_run")
@@ -826,6 +945,14 @@ class ExerciseView(QWidget):
                 run_detail(result),
             )
             self._load_history()
+            self._session_fails = 0 if result.passed else self._session_fails + 1
+            self._prompt.update_extra(self._extra_html())
+        # Kart bu alıştırmada ilk kez çıktıysa yönerge öne geliyor ve terminal
+        # oraya işaret ediyor; yoksa "Çıktı" sekmesinin arkasında kalıyordu.
+        yeni_kart = (not result.passed and not self._stuck_announced
+                     and self._failures() >= STUCK_AFTER and self._stuck_spot() is not None)
+        if yeni_kart:
+            self._stuck_announced = True
 
         # Grafikler ve tutmayan çok satırlı çıktılar sol paneldeki "Çıktı"
         # sekmesinde, tam genişlikte; terminal kısa bir işaret bırakıyor.
@@ -833,10 +960,15 @@ class ExerciseView(QWidget):
         if cikti:
             self._output_view.set_base_dir(self._exercise.directory if self._exercise else None)
             self._output_view.show_text(cikti)
-        self._set_output(bool(cikti), focus=bool(cikti))
+        self._set_output(bool(cikti), focus=bool(cikti) and not yeni_kart)
+        if yeni_kart:
+            self._update_tabs("prompt")
 
         sure = time.monotonic() - self._run_started if self._run_started else 0.0
-        self._terminal.finish(self._terminal_body(result, sure, bool(cikti)))
+        govde = self._terminal_body(result, sure, bool(cikti))
+        if yeni_kart:
+            govde += self._prose(self._language.t("stuck.terminal"), "accent", prefix="💡 ")
+        self._terminal.finish(govde)
 
         # Tablolar penceresi açıksa çalıştırmanın bıraktığı hâli gösteriyor.
         if result.tables:
@@ -846,6 +978,67 @@ class ExerciseView(QWidget):
 
         if result.passed and self._exercise is not None:
             self.solved.emit(self._exercise.id)
+
+    # --- adım adım izleme -----------------------------------------------------
+
+    @property
+    def tracing(self) -> bool:
+        return self._bottom_stack.currentWidget() is self._trace
+
+    def start_trace(self) -> None:
+        """Kodu izleyerek çalıştırır; bitince panel terminalin yerinde açılır."""
+        if self._exercise is None or self._exercise.is_problem or self._exercise.language == "tsql":
+            return
+        if (self._worker and self._worker.isRunning()) or (
+            self._trace_worker and self._trace_worker.isRunning()
+        ):
+            return
+        self._trace_spinner.start()
+        self._trace_started = time.monotonic()
+        self._trace_worker = TraceWorker(self._editor.toPlainText(), self._exercise, self)
+        self._trace_worker.completed.connect(self._on_traced)
+        self._trace_worker.start()
+
+    def _on_traced(self, result: RunResult) -> None:
+        self._trace_spinner.stop()
+        if result.status not in ("ok", "error"):
+            # Zaman aşımı, bellek, çökme: izlenecek bir kayıt yok; terminal
+            # sebebini normal çalıştırmadaki gibi anlatıyor.
+            self.close_trace()
+            self._terminal.begin(line(f"❯ {self._command_name()}", "prompt", bold=True), "")
+            self._terminal.finish(
+                line(self._language.t("trace.failed"), "fail")
+                + line("")
+                + self._terminal_body(result, time.monotonic() - self._trace_started, False)
+            )
+            return
+        self._editor.set_error_line(None)
+        self._trace.retranslate(self._language.t)
+        # Değişkenler ve çıktı sığsın: alt alan en az %45; kapanınca eski boy.
+        boylar = self._work_splitter.sizes()
+        if not self.tracing:
+            self._sizes_before_trace = boylar
+        toplam = sum(boylar)
+        if toplam and boylar[1] < toplam * 0.45:
+            self._work_splitter.setSizes([int(toplam * 0.55), toplam - int(toplam * 0.55)])
+        self._bottom_stack.setCurrentWidget(self._trace)
+        aciklama = explain(result.error)
+        ipucu = self._language.t(aciklama.key, **aciklama.values) if aciklama is not None else ""
+        self._trace.load(result.steps, result.stdout, result.error, result.steps_truncated, ipucu)
+        self._trace.setFocus()
+
+    def _on_trace_step(self, satir, kind: str) -> None:
+        self._editor.set_trace_line(satir, kind or "line")
+
+    def close_trace(self) -> None:
+        """Paneli kapatır, editördeki işareti kaldırır."""
+        if not hasattr(self, "_bottom_stack") or not self.tracing:
+            return
+        self._bottom_stack.setCurrentWidget(self._terminal)
+        self._editor.set_trace_line(None)
+        if self._sizes_before_trace:
+            self._work_splitter.setSizes(self._sizes_before_trace)
+            self._sizes_before_trace = None
 
     def _on_problem_checked(self, answers: list, passed: bool) -> None:
         """Cevap denetlendi: kaydet, gerekiyorsa çözümü aç, çözüldüyse haber ver.
@@ -863,6 +1056,8 @@ class ExerciseView(QWidget):
         )
         self._load_history()
         self._update_tabs()
+        self._session_fails = 0 if passed else self._session_fails + 1
+        self._prompt.update_extra(self._extra_html())
         attempts = self._store.attempts(self._chapter_id, self._section_id, self._exercise.id)
         if passed or attempts >= REVEAL_AFTER_ATTEMPTS:
             self._reveal_solutions(True)
@@ -947,6 +1142,8 @@ class ExerciseView(QWidget):
         if self._run_spinner._saved_icon is None:  # noqa: SLF001
             self._run_button.setIcon(icon("play", "#FFFFFF", 16))
         self._reset_button.setIcon(icon("refresh", p["text"], 16))
+        if self._trace_spinner._saved_icon is None:  # noqa: SLF001
+            self._trace_button.setIcon(icon("steps", p["text"], 16))
         self._editor.set_mode(mode)
         self._prompt.set_mode(mode)
         self._solutions.set_mode(mode)
@@ -961,6 +1158,9 @@ class ExerciseView(QWidget):
     def retranslate(self) -> None:
         self._run_button.setText("  " + self._language.t("exercise.run"))
         self._reset_button.setText("  " + self._language.t("exercise.reset"))
+        self._trace_button.setText("  " + self._language.t("trace.button"))
+        self._trace_button.setToolTip(self._language.t("trace.button_tip"))
+        self._trace.retranslate(self._language.t)
         self._fix_run_width()
         self._tables_button.setText(self._language.t("tables.button"))
         if self._tables_window is not None:

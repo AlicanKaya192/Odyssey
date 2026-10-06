@@ -609,6 +609,97 @@ def collect_artifacts(workspace: Path, before: set[str]) -> list[dict]:
     return bulunan
 
 
+# --- Adım adım izleme --------------------------------------------------------
+#
+# "Adım adım" düğmesi kodu bu kipte çalıştırıyor: her satırdan önce o anki
+# değişkenler ve o ana kadarki çıktının uzunluğu kaydediliyor, arayüz de
+# kaydı ileri geri oynatıyor. Kontroller uygulanmıyor; bu bir deneme değil.
+#
+# Yalnızca kullanıcının dosyasındaki çerçeveler izleniyor (kütüphanelerin
+# içine girilmiyor). Sınıra ulaşınca izleme kapanıyor ve kod izlenmeden
+# sonuna kadar çalışıyor; uzun bir döngü yüzünden zaman aşımı olmasın.
+MAX_TRACE_STEPS = 1000
+TRACE_REPR_CHARS = 120
+
+
+def _trace_vars(frame) -> list[list[str]]:
+    """Çerçevenin gösterilecek değişkenleri: [ad, değer, tür]."""
+    satirlar = []
+    for ad, deger in list(frame.f_locals.items()):
+        if ad.startswith("__") or type(deger).__name__ == "module":
+            continue
+        try:
+            if type(deger).__name__ == "function":
+                kod = deger.__code__
+                metin = f"def {ad}({', '.join(kod.co_varnames[:kod.co_argcount])})"
+            elif isinstance(deger, type):
+                metin = f"class {deger.__name__}"
+            else:
+                metin = repr(deger)
+        except Exception:
+            metin = f"<{type(deger).__name__}>"
+        if len(metin) > TRACE_REPR_CHARS:
+            metin = metin[: TRACE_REPR_CHARS - 1] + "…"
+        satirlar.append([ad, metin, type(deger).__name__])
+    return satirlar
+
+
+class _Frame:
+    """Bitişteki son adım için: modülün isim alanını çerçeve gibi okutur."""
+
+    def __init__(self, namespace: dict) -> None:
+        self.f_locals = namespace
+
+
+def run_traced(compiled, namespace: dict, code_path: str, out_buffer: io.StringIO, steps: list) -> bool:
+    """Kodu izleyerek çalıştırır, adımları `steps`'e ekler; sınıra ulaşıldı mı.
+
+    Kodun hatası dışarı çıkıyor; o ana kadarki adımlar `steps`'te kalıyor.
+    """
+    durum = {"dolu": False}
+
+    def yigin(frame) -> list[dict]:
+        cerceveler = []
+        while frame is not None:
+            if frame.f_code.co_filename == code_path:
+                ad = frame.f_code.co_name
+                cerceveler.append({"func": "" if ad == "<module>" else ad, "vars": _trace_vars(frame)})
+            frame = frame.f_back
+        cerceveler.reverse()
+        return cerceveler
+
+    def kaydet(frame, olay: str, deger=None) -> None:
+        if len(steps) >= MAX_TRACE_STEPS:
+            durum["dolu"] = True
+            sys.settrace(None)
+            return
+        adim = {"line": frame.f_lineno, "event": olay, "out": out_buffer.tell(), "stack": yigin(frame)}
+        if olay == "return":
+            adim["value"] = safe_repr(deger)[:TRACE_REPR_CHARS]
+        steps.append(adim)
+
+    def yerel(frame, olay, arg):
+        if durum["dolu"]:
+            return None
+        if olay == "line":
+            kaydet(frame, "line")
+        elif olay == "return" and frame.f_code.co_name != "<module>":
+            kaydet(frame, "return", arg)
+        return yerel
+
+    def genel(frame, olay, arg):
+        if durum["dolu"] or frame.f_code.co_filename != code_path:
+            return None
+        return yerel
+
+    sys.settrace(genel)
+    try:
+        exec(compiled, namespace)
+    finally:
+        sys.settrace(None)
+    return durum["dolu"]
+
+
 def main() -> int:
     if len(sys.argv) < 2:
         print("Kullanım: harness.py <job.json>", file=sys.stderr)
@@ -681,6 +772,9 @@ def main() -> int:
     # 2) Kodu temiz bir isim alanında çalıştır.
     namespace: dict = {"__name__": "__main__", "__file__": code_path}
     out_buffer, err_buffer = io.StringIO(), io.StringIO()
+    izle = bool(job.get("trace"))
+    steps: list = []
+    steps_full = False
 
     try:
         compiled = compile(tree, filename=code_path, mode="exec")
@@ -688,10 +782,25 @@ def main() -> int:
         with contextlib.redirect_stdout(out_buffer), contextlib.redirect_stderr(err_buffer):
             with contextlib.suppress(SystemExit):
                 sys.stdin = io.StringIO()
-                exec(compiled, namespace)
+                if izle:
+                    steps_full = run_traced(compiled, namespace, code_path, out_buffer, steps)
+                else:
+                    exec(compiled, namespace)
     except BaseException as exc:  # KeyboardInterrupt dahil her şeyi yakala
         result["status"] = "error"
         result["error"] = format_user_traceback(exc, code_path)
+
+    if izle:
+        # İzleme kipinde kontrol yok: adımlar, çıktı ve (varsa) hata yeter.
+        # Son adım programın bittiği an: son satırın da etkisi görünsün.
+        steps.append({"line": 0, "event": "end", "out": out_buffer.tell(),
+                      "stack": [{"func": "", "vars": _trace_vars(_Frame(namespace))}]})
+        result["stdout"], result["truncated"] = clip(out_buffer.getvalue())
+        result["stderr"], _ = clip(err_buffer.getvalue())
+        result["steps"] = steps
+        result["steps_truncated"] = steps_full
+        result_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
+        return 0
 
     stdout, truncated_out = clip(out_buffer.getvalue())
     stderr, truncated_err = clip(err_buffer.getvalue())

@@ -59,6 +59,9 @@ STUDY_TICK_MS = 5000
 class TopicView(QWidget):
     """Tek bir alt bölümün tüm içeriği."""
 
+    # Okuma odağı düğmesi: ana pencere tam ekrana geçsin.
+    focus_mode_requested = Signal()
+
     back_requested = Signal()
     progress_changed = Signal()
     # Paneldeki "Notlarım'da aç": notun id'si.
@@ -117,6 +120,26 @@ class TopicView(QWidget):
         alt.addWidget(self._segments)
         alt.addStretch(1)
 
+        # "Bu sayfada sorun mu var?": tarayıcıda önceden doldurulmuş GitHub
+        # hata bildirimi (`core/report.py`). Program bir şey göndermiyor.
+        self._report_button = QPushButton()
+        self._report_button.setProperty("variant", "ghost")
+        self._report_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._report_button.setIconSize(QSize(17, 17))
+        self._report_button.setFixedSize(38, 38)
+        self._report_button.clicked.connect(self._report)
+        self.header.add_widget(self._report_button)
+
+        # Okuma odağı (F11): ana pencere tam ekrana geçip bölüm dışındaki her
+        # şeyi gizliyor (`MainWindow.toggle_focus_mode`).
+        self._focus_button = QPushButton()
+        self._focus_button.setProperty("variant", "ghost")
+        self._focus_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._focus_button.setIconSize(QSize(17, 17))
+        self._focus_button.setFixedSize(38, 38)
+        self._focus_button.clicked.connect(lambda: self.focus_mode_requested.emit())
+        self.header.add_widget(self._focus_button)
+
         self._note_button = QPushButton()
         self._note_button.setProperty("variant", "ghost")
         self._note_button.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -129,7 +152,7 @@ class TopicView(QWidget):
 
         # Sekmeler arası kısa çapraz sönme (ui-taslak.md C4).
         self._stack = FadeStack(subtle=True)
-        self._lesson = LessonView(language, track_reading=True)
+        self._lesson = LessonView(language, track_reading=True, glossary=True)
         self._notes = NotesView(language)
         self._pdf = PdfView(language)
         self._quiz = QuizView(language)
@@ -145,6 +168,10 @@ class TopicView(QWidget):
         self._notes.note_read.connect(self._on_note_read)
         self._quiz.advance.connect(self._on_quiz_advance)
         self._exercise.advance.connect(self._on_exercise_advance)
+        # "Takıldın mı?" kartı: alıştırma dersin metnine bakıyor, "Derse git"
+        # ders sekmesinde o başlığa götürüyor.
+        self._exercise.lesson_source = self._lesson_text
+        self._exercise.lesson_requested.connect(self._open_lesson_at)
 
         # İçerik solda, not paneli sağda.
         body = QWidget()
@@ -296,6 +323,22 @@ class TopicView(QWidget):
         self._update_progress_box(state)
         self._segments.set_current(0, notify=False)
         self._show_pane(0)
+
+    def _lesson_text(self) -> str:
+        """Bölümün ders metni, seçili dilde (yoksa boş)."""
+        for block in (self._section.blocks if self._section else []):
+            if block.type == "lesson":
+                resolved = block.file_for(self._language.language)
+                if resolved and resolved.exists:
+                    return resolved.path.read_text(encoding="utf-8")
+        return ""
+
+    def _open_lesson_at(self, anchor: str) -> None:
+        if "lesson" not in self._panes:
+            return
+        self.focus("lesson", anchor=anchor)
+        if not anchor:
+            self._lesson.scroll_to("")
 
     def _load_lesson(self, block, completed: bool) -> None:
         """Ders metnini seçili dilde yükler."""
@@ -869,11 +912,32 @@ class TopicView(QWidget):
 
     # --- tema ve dil ------------------------------------------------------
 
+    def set_focus_mode(self, on: bool) -> None:
+        """Okuma odağında bölüm başlığı ve sekme şeridi gizleniyor."""
+        self.header.setVisible(not on)
+        self._subbar.setVisible(not on)
+
+    def _report(self) -> None:
+        """Tarayıcıda bu sayfa için önceden doldurulmuş hata bildirimi açar."""
+        import webbrowser
+
+        from ..core.report import issue_url
+
+        if self._section is None:
+            return
+        sekme = getattr(self, "_pane_now", "") or "lesson"
+        alistirma = self._exercise.current_exercise_id if sekme == "exercise" else ""
+        webbrowser.open(issue_url(self._section.chapter_id, self._section.id,
+                                  self._language.pick(self._section.title), sekme, alistirma,
+                                  self._language.language))
+
     def set_mode(self, mode: str) -> None:
         self._stack.set_background(PALETTES[mode]["bg"])
         self._mode = mode
         self.header.set_mode(mode)
         renk = RAIL_COLORS.get(mode, RAIL_COLORS["light"])["notes"]
+        self._report_button.setIcon(icon("flag", PALETTES[mode]["text_muted"], 17))
+        self._focus_button.setIcon(icon("frame", PALETTES[mode]["text_muted"], 17))
         self._note_button.setIcon(icon("notebook", renk, 18))
         # Prototip `.notebtn`: notların yeşili, ince çerçeveli düğme.
         palette = PALETTES[mode]
@@ -908,6 +972,10 @@ class TopicView(QWidget):
         t = self._language.t
         self._note_button.setText(f" {t('notebook.take_note')}")
         self._note_button.setToolTip("Ctrl+N")
+        from ..widgets import tips
+
+        self._report_button.setToolTip(tips.rich(t("report.title"), t("report.help")))
+        self._focus_button.setToolTip(tips.rich(t("focus.title") + "  (F11)", t("focus.help")))
         for document in self._documents:
             document.enable_quote(t("notebook.add_selection"), t("notebook.copy"))
         self._note_panel.retranslate()
