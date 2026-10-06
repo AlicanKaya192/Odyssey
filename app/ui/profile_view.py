@@ -22,10 +22,9 @@ boşluk bırakıyordu.
 from __future__ import annotations
 
 from datetime import date
-from html import escape
 
 from PySide6.QtCore import QRectF, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QFont, QFontMetrics, QPainter
+from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -54,8 +53,6 @@ from ..widgets.segmented import SegmentedControl
 from ..widgets.effects import apply_shadow, refresh_shadow
 from ..widgets.common import Card
 
-# Rozet ipucunun genişliği. Zengin metinde Qt kendiliğinden sarmıyor.
-TOOLTIP_WIDTH = 280
 
 # Rozet duvarının sayfa okları ve "1 / 2" yazısı.
 # Düğmenin ölçüsü stil dosyasındaki `variant="page-nav"` kuralında.
@@ -388,69 +385,35 @@ class ProfileView(QWidget):
             button.setIconSize(QSize(17, 17))
         self._edit_button.setIcon(icon("pencil", p["text"], 16))
 
-    def _wrap(self, text: str, pixel_size: int) -> str:
-        """Metni ipucu genişliğine göre satırlara böler ve kaçışlar.
-
-        Kelime kelime ölçülüyor; karakter sayısına göre bölmek iki dilde
-        de yanlış yerde kesiyor.
-        """
-        font = QFont(self.font())
-        font.setPixelSize(pixel_size)
-        olcu = QFontMetrics(font)
-
-        satirlar: list[str] = []
-        gecerli = ""
-        for kelime in text.split():
-            aday = f"{gecerli} {kelime}".strip()
-            if gecerli and olcu.horizontalAdvance(aday) > TOOLTIP_WIDTH:
-                satirlar.append(gecerli)
-                gecerli = kelime
-            else:
-                gecerli = aday
-        if gecerli:
-            satirlar.append(gecerli)
-        return "<br>".join(escape(satir) for satir in satirlar)
+    def _nice_date(self, iso: str) -> str:
+        """`2026-09-30` → "30 Eylül 2026" / "30 September 2026"."""
+        try:
+            gun = date.fromisoformat(iso[:10])
+        except (TypeError, ValueError):
+            return ""
+        t = self._language.t
+        return t("profile.activity_date", d=gun.day, month=t(f"month_long.{gun.month}"), y=gun.year)
 
     def _badge_tooltip(self, badge) -> str:
-        """Rozetin üstüne gelince görünen kart.
+        """Rozetin üstüne gelince görünen kart: ad, durum, nasıl kazanılır.
 
-        Zengin metin: düz metinde üç satırın üçü de aynı boyutta ve aynı
-        renkte çıkıyordu, rozetin adı ile koşulu birbirinden ayrılmıyordu.
-        Qt ipucu içinde HTML'in bir alt kümesini çiziyor; başlık, durum ve
-        koşul burada boyut ve renkle ayrılıyor.
-
-        Satırlar elle bölünüyor. Zengin metinde Qt kendiliğinden sarmıyor
-        ve `<table width>` yalnızca **alt** sınır oluyor: 280 piksel
-        istendiğinde en uzun açıklama 494 piksel çiziliyordu, ölçüldü.
-        Tablo yine de duruyor, çünkü kısa ipuçlarına ortak bir en az
-        genişlik veriyor.
-
-        Emoji kullanılmıyor; `✓` ve `○` her yazı tipinde aynı çiziliyor ve
-        metin rengini alıyor.
+        Kart `widgets/tips.py`: renkler gösterilirken temadan, metin kartın
+        genişliğinde kendiliğinden sarılıyor (eskiden satırlar elle
+        bölünüyor, renkler HTML'e gömülüyordu).
         """
-        p = PALETTES.get(self._mode, PALETTES["light"])
-        title = self._wrap(self._language.pick(badge.title), 15)
-        desc = self._wrap(self._language.pick(badge.description), 13)
+        from ..widgets import tips
 
         if badge.earned:
-            tarih = badge.earned_at[:10] if badge.earned_at else ""
-            durum = self._wrap(
-                self._language.t("profile.badge_earned", date=tarih), 12
-            )
-            durum_rengi, isaret = p["success"], "✓"
+            durum = "✓  " + self._language.t("profile.badge_earned", date=self._nice_date(badge.earned_at))
+            ton = "success"
         else:
-            durum = self._wrap(self._language.t("profile.badge_locked"), 12)
-            durum_rengi, isaret = p["text_muted"], "○"
-
-        return (
-            f'<table width="{TOOLTIP_WIDTH}" cellspacing="0" cellpadding="0"><tr><td>'
-            f'<div style="font-size:15px; font-weight:700; color:{p["text"]};">'
-            f"{title}</div>"
-            f'<div style="font-size:12px; color:{durum_rengi};">'
-            f"{isaret}&nbsp;&nbsp;{durum}</div>"
-            f'<div style="margin-top:8px; font-size:13px; color:{p["text_muted"]};">'
-            f"{desc}</div>"
-            "</td></tr></table>"
+            durum = "○  " + self._language.t("profile.badge_locked")
+            ton = "muted"
+        return tips.rich(
+            self._language.pick(badge.title),
+            self._language.pick(badge.description),
+            durum,
+            ton,
         )
 
     # --- etkinlik ---------------------------------------------------------
@@ -555,10 +518,13 @@ class ProfileView(QWidget):
         )
 
     def _activity_tooltip(self, day: date, count: int) -> str:
-        tarih = day.strftime("%d.%m.%Y")
+        from ..widgets import tips
+
+        t = self._language.t
+        tarih = t("profile.activity_date", d=day.day, month=t(f"month_long.{day.month}"), y=day.year)
         if count == 0:
-            return self._language.t("profile.activity_none", date=tarih)
-        return self._language.t("profile.activity_count", count=count, date=tarih)
+            return tips.rich(tarih, "", t("profile.activity_none"), "muted")
+        return tips.rich(tarih, "", t("profile.activity_count", count=count), "success")
 
     # --- veri -------------------------------------------------------------
 
@@ -662,12 +628,16 @@ class ProfileView(QWidget):
         t = self._language.t
         durum = self._levels.state
         self._progress_caption.setText(t("level.label", level=durum.level))
+        from ..widgets import tips
+
         if durum.need:
             self._progress_percent.setText(t("level.xp", into=durum.into, need=durum.need))
-            ipucu = t("level.tooltip", xp=durum.xp, left=durum.need - durum.into)
+            ipucu = tips.rich(t("level.label", level=durum.level), t("level.tooltip", xp=durum.xp),
+                              t("level.tip_left", left=durum.need - durum.into), "accent")
         else:
             self._progress_percent.setText(t("level.max"))
-            ipucu = t("level.tooltip_max", xp=durum.xp)
+            ipucu = tips.rich(t("level.label", level=durum.level), t("level.tooltip_max", xp=durum.xp),
+                              t("level.max"), "success")
         for parca in (self._progress, self._progress_caption, self._progress_percent):
             parca.setToolTip(ipucu)
 

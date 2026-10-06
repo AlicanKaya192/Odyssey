@@ -16,6 +16,8 @@ hangisinin öğrenmeyle ilgili olduğu ayırt edilmiyordu.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from PySide6.QtCore import Property, QPointF, QRectF, QSize, QThread, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import (
@@ -70,12 +72,13 @@ LANGUAGE_OPTIONS = [("tr", "Türkçe"), ("en", "English")]
 THEME_OPTIONS = [("light", "", "sun"), ("dark", "", "moon")]
 
 # Soldaki kategoriler ve simgeleri. Sıra ekranda görünen sıra.
-PAGES = ["appearance", "learning", "notifications", "sql", "updates"]
+PAGES = ["appearance", "learning", "notifications", "sql", "data", "updates"]
 PAGE_ICONS = {
     "appearance": "palette",
     "learning": "graduation-cap",
     "notifications": "bell",
     "sql": "database",
+    "data": "folder",
     "updates": "refresh",
 }
 
@@ -271,6 +274,9 @@ class SettingsDialog(QDialog):
     lock_changed = Signal()
     # Öğrenme › Tanıtım turu: pencere kapanıyor, tur başlıyor.
     tour_requested = Signal()
+    # Veri › İçe aktar: dosya hazırlandı, program yeniden başlamalı
+    # (veritabanı açılmadan önce yerine konuyor).
+    restart_requested = Signal()
     # Sınav süresi ayarı: açık bir sınav varken de o an uygulanıyor.
     timing_changed = Signal()
 
@@ -369,6 +375,7 @@ class SettingsDialog(QDialog):
             "learning": self._build_learning(),
             "notifications": self._build_notifications(),
             "sql": self._build_sql(),
+            "data": self._build_data(),
             "updates": self._build_updates(),
         }
         for name in PAGES:
@@ -539,6 +546,114 @@ class SettingsDialog(QDialog):
         layout.addWidget(self._group([self._sql_row]))
         layout.addStretch(1)
         return sayfa
+
+    def _build_data(self) -> QWidget:
+        """İlerlemeyi başka bir bilgisayara taşımak ve otomatik yedekler.
+
+        Alican iki bilgisayar kullanıyor; ilerlemesi ikisinde ayrıydı.
+        Ayrıntı `app/core/transfer.py`.
+        """
+        sayfa, layout = self._page()
+
+        self._export_button = QPushButton()
+        self._export_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._export_button.clicked.connect(self._on_export)
+        self._export_row = SettingRow(self._export_button)
+
+        self._import_button = QPushButton()
+        self._import_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._import_button.clicked.connect(self._on_import)
+        self._import_row = SettingRow(self._import_button)
+
+        self._backups_button = QPushButton()
+        self._backups_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._backups_button.clicked.connect(self._on_open_backups)
+        self._backups_row = SettingRow(self._backups_button)
+
+        layout.addWidget(self._group([self._export_row, self._import_row]))
+        layout.addWidget(self._group([self._backups_row]))
+        layout.addStretch(1)
+        return sayfa
+
+    def _on_export(self) -> None:
+        from datetime import date
+
+        from PySide6.QtCore import QStandardPaths
+        from PySide6.QtWidgets import QFileDialog
+
+        from ..core import transfer
+        from ..core.avatar import avatar_path
+        from ..paths import database_path
+
+        t = self._language.t
+        klasor = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
+        oneri = str(Path(klasor) / t("settings.export_file", date=date.today().isoformat()))
+        yol, _ = QFileDialog.getSaveFileName(self, t("settings.export"), oneri, t("settings.export_filter"))
+        if not yol:
+            return
+        try:
+            hedef = transfer.export_to(Path(yol), database_path(), avatar_path())
+        except Exception:  # noqa: BLE001 — kullanıcıya söylenir, kayda yazılır
+            from ..core import log
+
+            log.get(__name__).exception("Dışa aktarma başarısız")
+            self._export_row.description.setText(t("settings.export_failed"))
+            return
+        self._export_row.description.setText(t("settings.export_done", name=hedef.name))
+
+    def _on_import(self) -> None:
+        from PySide6.QtCore import QStandardPaths
+        from PySide6.QtWidgets import QFileDialog
+
+        from ..core import transfer
+        from ..paths import user_data_dir
+
+        t = self._language.t
+        klasor = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
+        yol, _ = QFileDialog.getOpenFileName(self, t("settings.import"), klasor, t("settings.export_filter"))
+        if not yol:
+            return
+        try:
+            arsiv = transfer.read_archive(Path(yol))
+        except transfer.TransferError as hata:
+            self._import_row.description.setText(t(f"settings.import_error_{hata.code}"))
+            return
+        tarih = arsiv.created_at[:10]
+        if arsiv.name:
+            metin = t("settings.import_message_named", name=arsiv.name, date=tarih,
+                      version=arsiv.app_version, quizzes=arsiv.quizzes_passed)
+        else:
+            metin = t("settings.import_message", date=tarih, version=arsiv.app_version,
+                      quizzes=arsiv.quizzes_passed)
+        kutu = ConfirmDialog(t("settings.import_title"), metin, t("settings.import_confirm"),
+                             t("common.cancel"), self)
+        if kutu.exec() != ConfirmDialog.DialogCode.Accepted:
+            return
+        try:
+            transfer.stage(arsiv, user_data_dir())
+        except OSError:
+            from ..core import log
+
+            log.get(__name__).exception("İçe aktarma hazırlanamadı")
+            self._import_row.description.setText(t("settings.export_failed"))
+            return
+        self.restart_requested.emit()
+        self.accept()
+
+    def _on_open_backups(self) -> None:
+        import os
+
+        from ..paths import backups_dir
+
+        klasor = backups_dir()
+        klasor.mkdir(parents=True, exist_ok=True)
+        try:
+            os.startfile(str(klasor))  # noqa: S606 — kullanıcının kendi klasörü
+        except (AttributeError, OSError):
+            from PySide6.QtCore import QUrl
+            from PySide6.QtGui import QDesktopServices
+
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(klasor)))
 
     def _build_updates(self) -> QWidget:
         sayfa, layout = self._page()
@@ -946,6 +1061,16 @@ class SettingsDialog(QDialog):
         # Durum satırı sayı taşıyor; dil değişince yeniden üretilmesi
         # gerekiyor, yoksa eski dilde kalıyor.
         self._sql_refresh()
+
+        self._export_row.title.setText(t("settings.export"))
+        self._export_row.description.setText(t("settings.export_help"))
+        self._export_button.setText(t("settings.export_button"))
+        self._import_row.title.setText(t("settings.import"))
+        self._import_row.description.setText(t("settings.import_help"))
+        self._import_button.setText(t("settings.import_button"))
+        self._backups_row.title.setText(t("settings.backups"))
+        self._backups_row.description.setText(t("settings.backups_help"))
+        self._backups_button.setText(t("settings.backups_button"))
 
         self._update_row.title.setText(t("settings.update_check"))
         self._update_row.description.setText(t("settings.update_check_help"))

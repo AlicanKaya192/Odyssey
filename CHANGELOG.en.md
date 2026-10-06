@@ -24,6 +24,18 @@ lecture note does not mean downloading the whole application again.
 ## [0.9.2] — unreleased
 
 ### Added
+- **The line with the error is marked in the editor.** When your code
+  fails, that line is shaded red in the editor, its number is marked and
+  the editor scrolls to it if it is out of view; the mark goes away once
+  you change the code.
+- **More error explanations.** The 💡 explanations in the terminal now
+  recognise 28 more errors: working with a variable that holds nothing
+  (`None`), a comma as the decimal separator, a missing file, a function
+  that keeps calling itself, a column the table does not have, a mismatch
+  between the number of variables and values, a single `=` in a condition,
+  and missing values and table shape errors in machine learning, among
+  others. If Windows Smart App Control blocks a library an exercise needs,
+  you are told it has nothing to do with your code.
 - **A daily backup of your progress.** Each day the program starts, it
   keeps a copy of your progress file and holds on to the last three days.
   If the file is damaged by a power cut or a disk error, the program notices
@@ -33,6 +45,22 @@ lecture note does not mean downloading the whole application again.
   in `%APPDATA%\Odyssey\logs`; you can attach it when reporting a bug. Your
   code, notes and answers are not logged, and the file is never sent
   anywhere.
+- **Moving your progress to another computer.** From the new **Data** page
+  in Settings, your progress, notes, settings and profile photo are
+  exported to a single `.odyssey` file; importing it on another computer
+  from the same page restarts Odyssey and you continue where you left off.
+  The progress that was on that computer is not deleted but kept as a
+  backup. The automatic backups folder opens from the same page.
+
+### Changed
+- **Answers from an unfinished quiz are no longer lost.** When you leave a
+  quiz before finishing it (or close the program), the answers you have
+  given so far are saved to Past attempts as "left unfinished", so you can
+  look at your mistakes there. Such an attempt is not scored.
+- **Refreshed tooltips.** The card that appears when you hover over a
+  badge, the streak flame, the level bar or a button now matches the app's
+  theme and opens without delay or stutter; it reads as a title, a coloured
+  status line (such as when your streak ends) and a description.
 
 ### Fixed
 - When Windows blocked the update's installer (for example Smart App

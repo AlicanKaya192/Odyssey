@@ -101,6 +101,20 @@ def check_python() -> None:
         )
 
 
+def _show_info(title, message, language, theme, window) -> None:
+    """Tek düğmeli bilgi kutusu, arkası karartılmış."""
+    from app.ui import titlebar
+    from app.ui.confirm_dialog import ConfirmDialog
+    from app.ui.modal import Backdrop
+
+    perde = Backdrop(window)
+    perde.show()
+    kutu = ConfirmDialog(title, message, "", language.t("backup.ok"), window)
+    titlebar.apply(kutu, theme.effective_mode)
+    kutu.exec()
+    perde.deleteLater()
+
+
 def _show_restored(restored, language, theme, window) -> None:
     """İlerleme dosyası bozuk çıktı ve yedekten dönüldü: kişiye bir kez söyle."""
     from app.ui import titlebar
@@ -183,6 +197,12 @@ def main() -> int:
     from app.paths import backups_dir, database_path
 
     log.setup("app")
+    # Ayarlar › Veri › İçe aktar bir dosya bıraktıysa, veritabanı açılmadan
+    # önce yerine konuyor (mevcut ilerleme yedekleniyor).
+    from app.core import transfer
+    from app.core.avatar import avatar_path
+
+    imported = transfer.apply_pending(database_path(), avatar_path(), backups_dir())
     restored = backup.recover(database_path(), backups_dir())
     store = ProgressStore()
     backup.daily_backup(database_path(), backups_dir())
@@ -293,6 +313,9 @@ def main() -> int:
     # açılan bir kutu, uygulamanın açılmadığı izlenimi veriyor.
     if restored is not None:
         _show_restored(restored, language, theme, window)
+    elif imported:
+        _show_info(language.t("backup.imported_title"), language.t("backup.imported_message"),
+                   language, theme, window)
 
     from app.ui.beta_notice import BetaNoticeDialog, mark_seen, should_show
 

@@ -13,11 +13,11 @@ from __future__ import annotations
 
 from PySide6.QtCore import Property, QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QFont, QPainter, QPen
-from PySide6.QtWidgets import QSizePolicy, QToolTip, QWidget
+from PySide6.QtWidgets import QSizePolicy, QWidget
 
 from ..resources.theme.motion import bounce
 from ..resources.theme.tokens import mix
-from . import motion
+from . import motion, tips
 from .effects import theme_palette
 
 DOT = 34
@@ -94,7 +94,7 @@ class Stepper(QWidget):
             self._hover = i
             self.update()
             if 0 <= i < len(self._tips):
-                QToolTip.showText(event.globalPosition().toPoint(), self._tips[i], self)
+                tips.show_text(event.globalPosition().toPoint(), self._tips[i], self)
 
     def leaveEvent(self, event) -> None:  # noqa: N802
         self._hover = -1

@@ -643,6 +643,11 @@ class QuizView(QWidget):
         self._history_provider = provider
         self._sync_history_button()
 
+    def partial_answers(self) -> str:
+        """Süren denemede cevaplanan soruların cevapları (JSON); hiç yoksa ""."""
+        cevaplanan = [kart for kart in self._cards if kart.is_answered]
+        return quiz_answers(cevaplanan) if cevaplanan else ""
+
     def last_answers(self) -> str:
         """Son bitirilen denemenin cevapları (JSON), kaydetmek için."""
         return quiz_answers(self._cards)
@@ -676,10 +681,13 @@ class QuizView(QWidget):
         secili = max(0, self._review_pick.currentIndex())
         self._review_pick.clear()
         for deneme in self._review_attempts:
+            zaman = when(self._language, deneme["created_at"])
+            if deneme.get("abandoned"):
+                self._review_pick.addItem(t("quiz_history.item_abandoned", when=zaman))
+                continue
             isaret = "✓" if deneme["passed"] else "✕"
             self._review_pick.addItem(
-                t("quiz_history.item", when=when(self._language, deneme["created_at"]),
-                  score=deneme["score"], mark=isaret))
+                t("quiz_history.item", when=zaman, score=deneme["score"], mark=isaret))
         self._review_pick.setCurrentIndex(min(secili, len(self._review_attempts) - 1)
                                           if self._stack.currentIndex() == 3 else 0)
         self._review_pick.blockSignals(False)

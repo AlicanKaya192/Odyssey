@@ -240,6 +240,12 @@ MIGRATIONS: list[str] = [
     );
     CREATE INDEX IF NOT EXISTS idx_quiz_attempts ON quiz_attempts (chapter_id, section_id);
     """,
+    # 10 — yarıda bırakılan sınav denemesi (0.9.2). Sınavdan çıkan kişinin
+    # o ana kadarki cevapları ve yanlışları kayboluyordu (Alican'ın arkadaşı);
+    # artık puansız, "yarıda bırakıldı" olarak saklanıyor.
+    """
+    ALTER TABLE quiz_attempts ADD COLUMN abandoned INTEGER NOT NULL DEFAULT 0;
+    """,
 ]
 
 # Bir alıştırma için saklanan en fazla deneme; eskiler siliniyor.
@@ -778,14 +784,20 @@ class ProgressStore:
         return [dict(row) | {"passed": bool(row["passed"])} for row in rows]
 
     def add_quiz_attempt(
-        self, chapter_id: str, section_id: str, score: int, passed: bool, answers: str
+        self, chapter_id: str, section_id: str, score: int, passed: bool, answers: str,
+        abandoned: bool = False,
     ) -> None:
-        """Bir sınav denemesini cevaplarıyla kaydeder (`answers` JSON)."""
+        """Bir sınav denemesini cevaplarıyla kaydeder (`answers` JSON).
+
+        `abandoned`: sınav bitirilmeden çıkıldı; yalnızca cevaplanan sorular
+        var, puan sayılmıyor (bölümün sınav notuna yazılmıyor).
+        """
         with self._write() as connection:
             connection.execute(
                 "INSERT INTO quiz_attempts (chapter_id, section_id, score, passed, answers, "
-                "created_at) VALUES (?, ?, ?, ?, ?, ?)",
-                (chapter_id, section_id, int(score), int(bool(passed)), answers, _now()),
+                "created_at, abandoned) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (chapter_id, section_id, int(score), int(bool(passed)), answers, _now(),
+                 int(bool(abandoned))),
             )
             connection.execute(
                 "DELETE FROM quiz_attempts WHERE chapter_id = ? AND section_id = ? AND id NOT IN "
@@ -797,11 +809,12 @@ class ProgressStore:
     def quiz_attempts(self, chapter_id: str, section_id: str) -> list[dict]:
         """Sınav denemeleri, en yenisi başta."""
         rows = self._connection.execute(
-            "SELECT id, score, passed, answers, created_at FROM quiz_attempts "
+            "SELECT id, score, passed, answers, created_at, abandoned FROM quiz_attempts "
             "WHERE chapter_id = ? AND section_id = ? ORDER BY id DESC",
             (chapter_id, section_id),
         ).fetchall()
-        return [dict(row) | {"passed": bool(row["passed"])} for row in rows]
+        return [dict(row) | {"passed": bool(row["passed"]), "abandoned": bool(row["abandoned"])}
+                for row in rows]
 
     def attempts(self, chapter_id: str, section_id: str, exercise_id: str) -> int:
         row = self._connection.execute(

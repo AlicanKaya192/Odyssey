@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
 from ..core.language import LanguageManager
 from ..resources.icons import icon
 from ..resources.theme.tokens import PALETTES, SPACING
+from ..widgets import tips
 from . import modal
 
 DIALOG_WIDTH = 600
@@ -93,14 +94,17 @@ class TagDialog(QDialog):
                 dugme.setProperty("state", "selected" if secili else "earned" if acik else "locked")
                 dugme.setIconSize(QSize(ICON, ICON))
                 nasil = language.pick(tag.get("how"), "")
+                ad = language.pick(tag.get("title"), kimlik)
                 if secili:
                     dugme.setIcon(icon("check", "#FFFFFF", ICON, stroke=2.6))
-                    dugme.setToolTip(t("tags.tip_selected", how=nasil))
+                    dugme.setToolTip(tips.rich(ad, nasil + "\n\n" + t("tags.tip_selected"),
+                                               "✓  " + t("tags.state_selected"), "accent"))
                 elif acik:
-                    dugme.setToolTip(t("tags.tip_earned", how=nasil))
+                    dugme.setToolTip(tips.rich(ad, nasil + "\n\n" + t("tags.tip_earned"),
+                                               "✓  " + t("tags.state_earned"), "success"))
                 else:
                     dugme.setIcon(icon("lock", p["text_muted"], ICON))
-                    dugme.setToolTip(t("tags.tip_locked", how=nasil))
+                    dugme.setToolTip(tips.rich(ad, nasil, "○  " + t("tags.state_locked"), "muted"))
                 if acik:
                     dugme.setCursor(Qt.CursorShape.PointingHandCursor)
                     dugme.clicked.connect(lambda _=False, k=kimlik: self._pick(k))
