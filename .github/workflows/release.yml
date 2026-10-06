@@ -1,0 +1,168 @@
+# Builds the Windows release on GitHub's servers, so every installer is
+# built from the public source in a verifiable way (a requirement of the
+# SignPath Foundation code signing program).
+#
+# Runs when a `setup-X.Y.Z` tag is pushed, or by hand from the Actions tab.
+# Produces the full installer, the patch installer from the previous
+# version and the file manifest, and attaches them to a *draft* release;
+# the release text is written and the release is published by hand.
+#
+# Code signing is switched on by setting the repository variable
+# SIGNPATH_ORGANIZATION_ID (and the secret SIGNPATH_API_TOKEN). Without
+# them the workflow builds unsigned files, as before.
+
+name: Release build
+
+on:
+  push:
+    tags:
+      - "setup-*"
+  workflow_dispatch:
+    inputs:
+      trial:
+        description: "Trial build (not a release: skips the changelog date check and the draft release)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+env:
+  PYTHONUTF8: "1"
+  PYTHONIOENCODING: utf-8
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      SIGNING: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+
+    steps:
+      - name: Check out the source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements-build.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-build.txt
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Check the content
+        run: python tools/validate_content.py
+
+      - name: Read the version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(python -c "from app.version import APP_VERSION; print(APP_VERSION)")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "${GITHUB_REF_NAME}" != "setup-$VERSION" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match app version $VERSION" >&2
+            exit 1
+          fi
+
+      - name: Build the application
+        shell: bash
+        run: |
+          if [ "${{ inputs.trial }}" = "true" ]; then
+            python tools/build_exe.py --temiz --deneme
+          else
+            python tools/build_exe.py --temiz
+          fi
+
+      # --- signing, step 1: every executable file inside the application ---
+
+      - name: Upload the unsigned application
+        if: env.SIGNING == 'true'
+        id: unsigned-app
+        uses: actions/upload-artifact@v4
+        with:
+          name: odyssey-app-unsigned
+          path: dist/Odyssey
+
+      - name: Sign the application files
+        if: env.SIGNING == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: odyssey
+          signing-policy-slug: release-signing
+          artifact-configuration-slug: app-folder
+          github-artifact-id: ${{ steps.unsigned-app.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: dist/Odyssey-signed
+
+      - name: Use the signed application files
+        if: env.SIGNING == 'true'
+        shell: bash
+        run: |
+          rm -rf dist/Odyssey
+          mv dist/Odyssey-signed dist/Odyssey
+
+      # --- installers (built from the signed files when signing is on) ---
+
+      - name: Build the installers
+        run: python tools/build_installer.py
+
+      # --- signing, step 2: the installers themselves ---
+
+      - name: Upload the unsigned installers
+        if: env.SIGNING == 'true'
+        id: unsigned-setup
+        uses: actions/upload-artifact@v4
+        with:
+          name: odyssey-installers-unsigned
+          path: dist/*.exe
+
+      - name: Sign the installers
+        if: env.SIGNING == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: odyssey
+          signing-policy-slug: release-signing
+          artifact-configuration-slug: installers
+          github-artifact-id: ${{ steps.unsigned-setup.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: dist/signed
+
+      - name: Use the signed installers
+        if: env.SIGNING == 'true'
+        shell: bash
+        run: |
+          rm -f dist/*.exe
+          mv dist/signed/*.exe dist/
+
+      # --- results ---
+
+      - name: Keep the build outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: odyssey-${{ steps.version.outputs.version }}
+          path: |
+            dist/*.exe
+            installer/manifests/${{ steps.version.outputs.version }}.json.gz
+
+      - name: Attach the files to a draft release
+        if: github.ref_type == 'tag'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --draft \
+              --title "Odyssey ${{ steps.version.outputs.version }}" \
+              --notes "Release notes to be written."
+          gh release upload "$GITHUB_REF_NAME" dist/*.exe --clobber

@@ -117,6 +117,42 @@ def ensure_pyinstaller() -> None:
         )
 
 
+AUTHOR = "Alican Kaya"
+
+
+def version_file() -> Path:
+    """`Odyssey.exe`'nin Windows sürüm bilgisi (Özellikler › Ayrıntılar).
+
+    Kod imzası (SignPath) imzalanan dosyada ürün adı ve sürüm istiyor;
+    önce bu bilgi hiç yoktu. Sürüm dört parçalı sayıya tamamlanıyor
+    (`0.9.2` → `0.9.2.0`).
+    """
+    parcalar = [int(p) for p in APP_VERSION.split(".") if p.isdigit()][:4]
+    parcalar += [0] * (4 - len(parcalar))
+    sayi = tuple(parcalar)
+    metin = f"""VSVersionInfo(
+  ffi=FixedFileInfo(filevers={sayi}, prodvers={sayi}, mask=0x3f, flags=0x0,
+                    OS=0x40004, fileType=0x1, subtype=0x0, date=(0, 0)),
+  kids=[
+    StringFileInfo([StringTable('040904B0', [
+      StringStruct('CompanyName', '{AUTHOR}'),
+      StringStruct('FileDescription', '{APP_NAME}'),
+      StringStruct('FileVersion', '{APP_VERSION}'),
+      StringStruct('InternalName', '{APP_NAME}'),
+      StringStruct('LegalCopyright', 'Copyright (c) 2026 {AUTHOR}. MIT License.'),
+      StringStruct('OriginalFilename', '{APP_NAME}.exe'),
+      StringStruct('ProductName', '{APP_NAME}'),
+      StringStruct('ProductVersion', '{APP_VERSION}')])]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)
+"""
+    yol = PROJECT_ROOT / "build" / "version_info.txt"
+    yol.parent.mkdir(parents=True, exist_ok=True)
+    yol.write_text(metin, encoding="utf-8")
+    return yol
+
+
 def build_command() -> list[str]:
     command = [
         sys.executable, "-m", "PyInstaller",
@@ -128,6 +164,8 @@ def build_command() -> list[str]:
         "--workpath", str(PROJECT_ROOT / "build"),
         "--specpath", str(PROJECT_ROOT / "build"),
     ]
+    if sys.platform == "win32":
+        command += ["--version-file", str(version_file())]
 
     for source, target in DATA:
         command += ["--add-data", f"{PROJECT_ROOT / source}{';' if sys.platform == 'win32' else ':'}{target}"]
