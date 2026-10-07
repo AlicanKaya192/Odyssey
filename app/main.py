@@ -398,4 +398,11 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # Paketlenmiş `.exe`'de kişinin kodu `multiprocessing` ile süreç açınca
+    # alt süreç yine bu program olarak başlıyor; bu çağrı onu tanıyıp alt
+    # sürecin işini yaptırıyor. Yoksa süreç havuzu çöküyordu
+    # (`BrokenProcessPool`). Kaynaktan çalışırken hiçbir şey yapmıyor.
+    import multiprocessing
+
+    multiprocessing.freeze_support()
     raise SystemExit(main())
