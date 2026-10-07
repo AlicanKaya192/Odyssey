@@ -39,6 +39,19 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   Alıştırmalar programın içindeki bir Git terminalinde yazılıyor; Git
   kurmanız ya da GitHub hesabı açmanız gerekmiyor, hedefler terminalin
   yanında tek tek işaretleniyor.
+- **Docker patikası.** On yedi bölümde konteynerler: imajlar ve katmanlar,
+  Dockerfile, önbellek ve `.dockerignore`, portlar, ortam değişkenleri,
+  volume, Docker Compose ve çok servisli uygulamalar, imajı küçültmek,
+  güvenlik, hata ayıklama ve bir Python API'sini paketlemek. Alıştırmalar
+  Dockerfile'ınızı ve compose dosyanızı denetliyor; Docker Desktop açıksa
+  imajı gerçekten derleyip çalıştırıyor. Alıştırmaların bıraktığı imajları
+  ve SQL veritabanlarını Ayarlar'daki yeni **Depolama** sayfasından
+  silebiliyorsunuz.
+- **Veri Mühendisi rotası.** Rotalar'da veriyi bir kaynaktan çekip
+  temizleyen, saklayan ve sunan işler için yeni bir rota: Python, Git,
+  SQL, pandas, Büyük Veri, API ve Docker, her adımda odaklanılacak
+  bölümlerle. Yakında gelecek Büyük Veri patikası Veri Bilimci ve ML
+  Mühendisi rotalarına da isteğe bağlı adım olarak eklendi.
 
 ### Düzeltildi
 - **Adım adım izleme sınıfları doğru adlandırıyor.** Bir sınıfın gövdesi

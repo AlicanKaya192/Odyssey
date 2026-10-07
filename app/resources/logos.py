@@ -106,6 +106,11 @@ GLYPHS: dict[str, dict[str, object]] = {
         '<path fill="#fff" d="M10.5 3c.7 4 2.5 5.8 6.5 6.5-4 .7-5.8 2.5-6.5 6.5-.7-4-2.5-5.8-6.5-6.5 4-.7 5.8-2.5 6.5-6.5z"/>'
         '<path fill="#fff" opacity=".8" d="M18 13.5c.3 1.9 1.2 2.8 3 3.1-1.8.3-2.7 1.2-3 3.1-.3-1.9-1.2-2.8-3-3.1 1.8-.3 2.7-1.2 3-3.1z"/>'
     )},
+    "big": {"svg": (
+        '<path d="M12 3 21 7.5 12 12 3 7.5z" fill="#fff"/>'
+        '<path d="M4.6 11.2 3 12l9 4.5 9-4.5-1.6-.8L12 14.9z" fill="#fff" opacity=".8"/>'
+        '<path d="M4.6 15.7 3 16.5 12 21l9-4.5-1.6-.8L12 19.4z" fill="#fff" opacity=".6"/>'
+    )},
     "algo": {"svg": (
         '<g stroke="#fff" stroke-opacity=".6" stroke-width="1.6" fill="none">'
         '<path d="M12 5 6.5 12M12 5l5.5 7M6.5 12 3.8 19M6.5 12l2.7 7M17.5 12l-2.7 7"/></g>'
@@ -131,7 +136,7 @@ ICON_TO_LOGO = {
     "python": "python", "chart": "data", "network": "ml", "database": "sql",
     "calculator": "math", "link": "api", "package": "docker", "clock": "time", "git-branch": "git",
     "message": "nlp", "sparkles": "genai", "cpu": "algo", "library": "lib",
-    "server": "sys",
+    "server": "sys", "layers": "big",
 }
 
 # Matematik patikasının iki modülü kendi işaretini taşıyor.
