@@ -1,0 +1,46 @@
+{
+  "id": "first-dask-frame",
+  "title": {
+    "tr": "İlk dask tablosu",
+    "en": "Your first dask table"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Joker karakter: `dd.read_csv(\"orders-*.csv\")`; bölüm sayısı `ddf.npartitions`.",
+      "en": "The wildcard: `dd.read_csv(\"orders-*.csv\")`; the number of partitions is `ddf.npartitions`."
+    },
+    {
+      "tr": "Değer için `total.compute()`.",
+      "en": "For the value, `total.compute()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport dask\nimport dask.dataframe as dd\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\nfor i in range(4):\n    orders.iloc[i * 50_000:(i + 1) * 50_000].to_csv(f\"orders-{i}.csv\", index=False)\n\nddf = dd.read_csv(\"orders-*.csv\")\nprint(ddf.npartitions)\n\ntotal = ddf[\"quantity\"].sum()\nprint(type(total).__name__)\nprint(total.compute())\n\nprint(len(ddf))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport dask\nimport dask.dataframe as dd\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\nfor i in range(4):\n    orders.iloc[i * 50_000:(i + 1) * 50_000].to_csv(f\"orders-{i}.csv\", index=False)\n\nddf = dd.read_csv(\"orders-*.csv\")\nprint(ddf.npartitions)\n\ntotal = ddf[\"quantity\"].sum()\nprint(type(total).__name__)\nprint(total.compute())\n\nprint(len(ddf))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4\nScalar\n443926\n200000"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "csv-to-parquet",
+  "title": {
+    "tr": "Parça parça Parquet",
+    "en": "Parquet piece by piece"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "Parça tabloya: `pa.Table.from_pandas(chunk, preserve_index=False)`; yazıcıyı yalnızca `writer is None` iken aç.",
+      "en": "Piece to table: `pa.Table.from_pandas(chunk, preserve_index=False)`; open the writer only while `writer is None`."
+    },
+    {
+      "tr": "Sayılar: `pq.ParquetFile(\"orders.parquet\")` → `metadata.num_rows`, `num_row_groups`.",
+      "en": "The numbers: `pq.ParquetFile(\"orders.parquet\")` → `metadata.num_rows`, `num_row_groups`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport os\nimport pandas as pd\nimport pyarrow as pa\nimport pyarrow.parquet as pq\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 400_000)\nNUMERIC = {\"order_id\": \"int32\", \"customer_id\": \"int32\", \"quantity\": \"int8\"}\nMB = 1024**2\n\nwriter = None\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=100_000, dtype=NUMERIC):\n    chunk[\"month\"] = chunk[\"order_time\"].str[:7]\n    table = pa.Table.from_pandas(chunk, preserve_index=False)\n    if writer is None:\n        writer = pq.ParquetWriter(\"orders.parquet\", table.schema, compression=\"zstd\")\n    writer.write_table(table)\nwriter.close()\n\npf = pq.ParquetFile(\"orders.parquet\")\nprint(pf.metadata.num_rows)\nprint(pf.num_row_groups)\nprint(round(os.path.getsize(\"orders.csv\") / MB, 1), round(os.path.getsize(\"orders.parquet\") / MB, 1))\n\nmonths = pd.read_parquet(\"orders.parquet\", columns=[\"month\"])\nprint(months[\"month\"].nunique())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport os\nimport pandas as pd\nimport pyarrow as pa\nimport pyarrow.parquet as pq\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 400_000)\nNUMERIC = {\"order_id\": \"int32\", \"customer_id\": \"int32\", \"quantity\": \"int8\"}\nMB = 1024**2\n\nwriter = None\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=100_000, dtype=NUMERIC):\n    chunk[\"month\"] = chunk[\"order_time\"].str[:7]\n    table = pa.Table.from_pandas(chunk, preserve_index=False)\n    if writer is None:\n        writer = pq.ParquetWriter(\"orders.parquet\", table.schema, compression=\"zstd\")\n    writer.write_table(table)\nwriter.close()\n\npf = pq.ParquetFile(\"orders.parquet\")\nprint(pf.metadata.num_rows)\nprint(pf.num_row_groups)\nprint(round(os.path.getsize(\"orders.csv\") / MB, 1), round(os.path.getsize(\"orders.parquet\") / MB, 1))\n\nmonths = pd.read_parquet(\"orders.parquet\", columns=[\"month\"])\nprint(months[\"month\"].nunique())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "400000\n4\n24.1 7.1\n12"
+    }
+  ]
+}

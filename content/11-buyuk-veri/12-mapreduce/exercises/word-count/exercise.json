@@ -1,0 +1,36 @@
+{
+  "id": "word-count",
+  "title": {
+    "tr": "Kelime sayma",
+    "en": "Counting words"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for word in line.split(): yield word, 1`.",
+      "en": "`for word in line.split(): yield word, 1`."
+    },
+    {
+      "tr": "İki ölçütle sıralamak: `counts.sort(key=lambda kv: (-kv[1], kv[0]))`.",
+      "en": "Sorting by two criteria: `counts.sort(key=lambda kv: (-kv[1], kv[0]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import defaultdict\n\nlines = [\n    \"big data needs many machines\",\n    \"many machines need a plan\",\n    \"map then shuffle then reduce\",\n    \"reduce needs the shuffle\",\n    \"data moves in the shuffle\",\n]\n\n\ndef mapper(line):\n    for word in line.split():\n        yield word, 1\n\n\ndef reducer(key, values):\n    return key, sum(values)\n\n\ngroups = defaultdict(list)\nfor line in lines:\n    for key, value in mapper(line):\n        groups[key].append(value)\n\ncounts = [reducer(k, v) for k, v in groups.items()]\ncounts.sort(key=lambda kv: (-kv[1], kv[0]))\nfor word, count in counts:\n    if count >= 2:\n        print(word, count)\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import defaultdict\n\nlines = [\n    \"big data needs many machines\",\n    \"many machines need a plan\",\n    \"map then shuffle then reduce\",\n    \"reduce needs the shuffle\",\n    \"data moves in the shuffle\",\n]\n\n\ndef mapper(line):\n    for word in line.split():\n        yield word, 1\n\n\ndef reducer(key, values):\n    return key, sum(values)\n\n\ngroups = defaultdict(list)\nfor line in lines:\n    for key, value in mapper(line):\n        groups[key].append(value)\n\ncounts = [reducer(k, v) for k, v in groups.items()]\ncounts.sort(key=lambda kv: (-kv[1], kv[0]))\nfor word, count in counts:\n    if count >= 2:\n        print(word, count)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "shuffle 3\ndata 2\nmachines 2\nmany 2\nneeds 2\nreduce 2\nthe 2\nthen 2"
+    }
+  ]
+}

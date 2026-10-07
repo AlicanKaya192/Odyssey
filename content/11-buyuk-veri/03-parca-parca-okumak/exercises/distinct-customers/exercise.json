@@ -1,0 +1,46 @@
+{
+  "id": "distinct-customers",
+  "title": {
+    "tr": "Kaç farklı müşteri?",
+    "en": "How many different customers?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Bir kümeye bir serinin bütün değerlerini eklemek: `seen.update(chunk[\"customer_id\"])`.",
+      "en": "Adding all of a series' values to a set: `seen.update(chunk[\"customer_id\"])`."
+    },
+    {
+      "tr": "Yalnızca bir sütun: `usecols=[\"customer_id\"]`.",
+      "en": "Only one column: `usecols=[\"customer_id\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\nseen = set()\nwrong = 0\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=50_000, usecols=[\"customer_id\"]):\n    seen.update(chunk[\"customer_id\"])\n    wrong += chunk[\"customer_id\"].nunique()\n\nprint(len(seen))\nprint(wrong)\nprint(round(wrong / len(seen), 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\nseen = set()\nwrong = 0\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=50_000, usecols=[\"customer_id\"]):\n    seen.update(chunk[\"customer_id\"])\n    wrong += chunk[\"customer_id\"].nunique()\n\nprint(len(seen))\nprint(wrong)\nprint(round(wrong / len(seen), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "49031\n126247\n2.57"
+    }
+  ]
+}

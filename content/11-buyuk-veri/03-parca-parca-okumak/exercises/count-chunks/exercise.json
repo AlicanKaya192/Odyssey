@@ -1,0 +1,50 @@
+{
+  "id": "count-chunks",
+  "title": {
+    "tr": "Parçaları say",
+    "en": "Count the chunks"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`for chunk in pd.read_csv(\"orders.csv\", chunksize=30_000):` ve döngünün içinde `sizes.append(len(chunk))`.",
+      "en": "`for chunk in pd.read_csv(\"orders.csv\", chunksize=30_000):` and `sizes.append(len(chunk))` inside the loop."
+    },
+    {
+      "tr": "Toplam satır `sum(sizes)`, parça sayısı `len(sizes)`.",
+      "en": "Total rows is `sum(sizes)`, the number of chunks is `len(sizes)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 100_000)\n\nsizes = []\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=30_000):\n    sizes.append(len(chunk))\n\nprint(sizes)\nprint(sum(sizes), len(sizes))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 100_000)\n\nsizes = []\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=30_000):\n    sizes.append(len(chunk))\n\nprint(sizes)\nprint(sum(sizes), len(sizes))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[30000, 30000, 30000, 10000]\n100000 4"
+    },
+    {
+      "type": "ast_require",
+      "node": "For"
+    }
+  ]
+}

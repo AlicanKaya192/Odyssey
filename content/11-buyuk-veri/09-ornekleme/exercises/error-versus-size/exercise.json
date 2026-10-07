@@ -1,0 +1,46 @@
+{
+  "id": "error-versus-size",
+  "title": {
+    "tr": "Hata ve büyüklük",
+    "en": "Error and size"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "100 ortalama tek satırda: `[orders[\"unit_price\"].sample(n=n, random_state=i).mean() for i in range(100)]`.",
+      "en": "100 means in one line: `[orders[\"unit_price\"].sample(n=n, random_state=i).mean() for i in range(100)]`."
+    },
+    {
+      "tr": "Dağılımları bir sözlükte sakla ki sonda oranı hesaplayabilesin.",
+      "en": "Keep the spreads in a dictionary so you can work out the ratio at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\n\nspreads = {}\nfor n in [200, 2_000, 20_000]:\n    means = [orders[\"unit_price\"].sample(n=n, random_state=i).mean() for i in range(100)]\n    spreads[n] = np.std(means)\n    print(n, round(spreads[n], 2))\n\nprint(round(spreads[200] / spreads[20_000], 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\n\nspreads = {}\nfor n in [200, 2_000, 20_000]:\n    means = [orders[\"unit_price\"].sample(n=n, random_state=i).mean() for i in range(100)]\n    spreads[n] = np.std(means)\n    print(n, round(spreads[n], 2))\n\nprint(round(spreads[200] / spreads[20_000], 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "200 60.06\n2000 19.37\n20000 5.95\n10.1"
+    }
+  ]
+}

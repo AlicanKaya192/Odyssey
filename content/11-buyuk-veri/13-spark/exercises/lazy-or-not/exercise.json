@@ -1,0 +1,50 @@
+{
+  "id": "lazy-or-not",
+  "title": {
+    "tr": "Tembel mi, değil mi?",
+    "en": "Lazy or not?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    },
+    {
+      "name": "minispark.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Dönüşümler zincirlenebilir: `nums.map(...).filter(...).map(...)`.",
+      "en": "Transformations can be chained: `nums.map(...).filter(...).map(...)`."
+    },
+    {
+      "tr": "Sayaçlar: `sc.stats.jobs` ve `sc.stats.partitions_computed`.",
+      "en": "The counters: `sc.stats.jobs` and `sc.stats.partitions_computed`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom minispark import SparkSession\n\nspark = SparkSession.builder.appName(\"orders\").getOrCreate()\nsc = spark.sparkContext\n\nnums = sc.parallelize(range(100), 5)\nresult = nums.map(lambda x: x * 3).filter(lambda x: x % 2 == 0).map(lambda x: x + 1)\n\nprint(sc.stats.jobs, sc.stats.partitions_computed)\nprint(result.count())\nprint(sc.stats.jobs, sc.stats.partitions_computed)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom minispark import SparkSession\n\nspark = SparkSession.builder.appName(\"orders\").getOrCreate()\nsc = spark.sparkContext\n\nnums = sc.parallelize(range(100), 5)\nresult = nums.map(lambda x: x * 3).filter(lambda x: x % 2 == 0).map(lambda x: x + 1)\n\nprint(sc.stats.jobs, sc.stats.partitions_computed)\nprint(result.count())\nprint(sc.stats.jobs, sc.stats.partitions_computed)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 0\n50\n1 20"
+    }
+  ]
+}

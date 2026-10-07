@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "dask bir tabloyu nasıl tutar?",
+        "en": "How does dask hold a table?"
+      },
+      "options": {
+        "tr": [
+          "Bölümlere ayırarak; her bölüm sıradan bir pandas tablosu",
+          "Tek bir büyük pandas tablosu olarak",
+          "Bir SQL veritabanında",
+          "Metin dosyası olarak"
+        ],
+        "en": [
+          "Split into partitions; each partition is an ordinary pandas table",
+          "As one big pandas table",
+          "In a SQL database",
+          "As a text file"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölümler ayrı ayrı ve sırayla işlenebildiği için veri belleğinden büyük olabiliyor.",
+        "en": "Since the partitions can be processed separately and in turn, the data can be bigger than memory."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`dd.read_csv(\"orders-*.csv\")` dört dosya için kaç bölüm kurdu?",
+        "en": "How many partitions did `dd.read_csv(\"orders-*.csv\")` build for four files?"
+      },
+      "options": {
+        "tr": [
+          "4: her dosya bir bölüm",
+          "1",
+          "8",
+          "Dosya boyutu kadar"
+        ],
+        "en": [
+          "4: each file a partition",
+          "1",
+          "8",
+          "As many as the file size"
+        ]
+      },
+      "explanation": {
+        "tr": "Büyük tek bir dosyayı ise `blocksize=` ile parçalara bölüyor.",
+        "en": "A single big file, on the other hand, is cut into pieces with `blocksize=`."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`print(ddf)` neden değerleri göstermez?",
+        "en": "Why does `print(ddf)` not show the values?"
+      },
+      "options": {
+        "tr": [
+          "dask dosyaları henüz okumadı; elinde yalnızca yapı var",
+          "Değerler gizli",
+          "Dosyalar boş",
+          "Bir hata var"
+        ],
+        "en": [
+          "dask has not read the files yet; it holds only the structure",
+          "The values are hidden",
+          "The files are empty",
+          "There is an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Türleri tahmin etmek için yalnızca dosyaların başına baktı.",
+        "en": "It only looked at the beginnings of the files to guess the types."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "dask'taki \"tembel hesap\" (lazy evaluation) ne demek?",
+        "en": "What does \"lazy evaluation\" mean in dask?"
+      },
+      "options": {
+        "tr": [
+          "İşlemler hemen yapılmıyor, bir tarif olarak kaydediliyor; `compute()` ile çalışıyor",
+          "dask yavaş çalışıyor",
+          "İşlemler rastgele sırayla yapılıyor",
+          "Sonuçlar diske yazılmıyor"
+        ],
+        "en": [
+          "Operations are not done right away but recorded as a recipe; they run with `compute()`",
+          "dask runs slowly",
+          "Operations run in random order",
+          "Results are not written to disk"
+        ]
+      },
+      "explanation": {
+        "tr": "İşin tamamını görmeden başlamadığı için gereksiz okumaları atlayıp bağımsız adımları aynı anda çalıştırabiliyor.",
+        "en": "Since it does not start before seeing the whole job, it can skip needless reads and run independent steps at the same time."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "`revenue.compute()` ne döndürür?",
+        "en": "What does `revenue.compute()` return?"
+      },
+      "options": {
+        "tr": [
+          "Sıradan bir pandas nesnesi (burada `Series`)",
+          "Bir dask nesnesi",
+          "Bir dosya yolu",
+          "Hiçbir şey"
+        ],
+        "en": [
+          "An ordinary pandas object (a `Series` here)",
+          "A dask object",
+          "A file path",
+          "Nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Sonuç belleğe geliyor; büyükse `to_parquet` ile yazmak daha iyi.",
+        "en": "The result comes into memory; if it is big, writing it with `to_parquet` is better."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Hangisi `compute()` beklemeden hemen çalışır?",
+        "en": "Which of these runs right away without waiting for `compute()`?"
+      },
+      "options": {
+        "tr": [
+          "`ddf.head()` ve `len(ddf)`",
+          "`ddf[\"unit_price\"].mean()`",
+          "`ddf.groupby(\"city\").sum()`",
+          "`ddf[ddf[\"quantity\"] >= 4]`"
+        ],
+        "en": [
+          "`ddf.head()` and `len(ddf)`",
+          "`ddf[\"unit_price\"].mean()`",
+          "`ddf.groupby(\"city\").sum()`",
+          "`ddf[ddf[\"quantity\"] >= 4]`"
+        ]
+      },
+      "explanation": {
+        "tr": "`head` yalnızca ilk bölümün ilk satırlarını okuyor; `len` bütün dosyaları sayıyor.",
+        "en": "`head` reads only the first rows of the first partition; `len` counts all the files."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Görev grafiği (task graph) nedir?",
+        "en": "What is the task graph?"
+      },
+      "options": {
+        "tr": [
+          "dask'ın `compute`'ta çalıştıracağı adımların ve aralarındaki bağımlılıkların listesi",
+          "Bir çizgi grafik",
+          "Bölümlerin dosya listesi",
+          "Hata kayıtları"
+        ],
+        "en": [
+          "The list of steps dask will run at `compute` and the dependencies between them",
+          "A line chart",
+          "The list of partition files",
+          "Error logs"
+        ]
+      },
+      "explanation": {
+        "tr": "Sekiz bölümlü gruplamada 25 görev vardı; bağımsız olanlar aynı anda çalışabiliyor.",
+        "en": "The grouping with eight partitions had 25 tasks; the independent ones can run at the same time."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "dask'ın gruplaması Bölüm 3'teki hangi kalıba benzer?",
+        "en": "Which pattern from Section 3 does dask's grouping resemble?"
+      },
+      "options": {
+        "tr": [
+          "Parçada özetle, özetleri birleştir",
+          "Ortalamaların ortalaması",
+          "Satır satır oku",
+          "Kümede topla"
+        ],
+        "en": [
+          "Summarise in the piece, combine the summaries",
+          "The mean of means",
+          "Read row by row",
+          "Collect in a set"
+        ]
+      },
+      "explanation": {
+        "tr": "Fark: kalıbı sen değil dask kuruyor ve paralel çalıştırıyor.",
+        "en": "The difference: dask, not you, builds the pattern and runs it in parallel."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "Aynı veriden iki sonuç gerekiyorsa en iyi yol hangisi?",
+        "en": "If you need two results from the same data, which is the best way?"
+      },
+      "options": {
+        "tr": [
+          "`dask.compute(a, b)`: ortak adımları paylaşıp tek seferde",
+          "İkisini ayrı ayrı `compute` etmek",
+          "Önce pandas'a çevirmek",
+          "İki ayrı program"
+        ],
+        "en": [
+          "`dask.compute(a, b)`: sharing the common steps in one go",
+          "`compute` each separately",
+          "Turning it into pandas first",
+          "Two separate programs"
+        ]
+      },
+      "explanation": {
+        "tr": "Ayrı ayrı `compute` dosyaları iki kez okur.",
+        "en": "Separate `compute`s read the files twice."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "dask tablolarının varsayılan zamanlayıcısı hangisi?",
+        "en": "What is the default scheduler for dask tables?"
+      },
+      "options": {
+        "tr": [
+          "`threads`",
+          "`processes`",
+          "`synchronous`",
+          "`cluster`"
+        ],
+        "en": [
+          "`threads`",
+          "`processes`",
+          "`synchronous`",
+          "`cluster`"
+        ]
+      },
+      "explanation": {
+        "tr": "pandas ve NumPy işleri GIL'i bıraktığı için iş parçacıkları uygun.",
+        "en": "Since pandas and NumPy work releases the GIL, threads suit it."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`compute(scheduler=\"synchronous\")` ne zaman kullanılır?",
+        "en": "When is `compute(scheduler=\"synchronous\")` used?"
+      },
+      "options": {
+        "tr": [
+          "Hata ayıklarken: görevler tek tek, sırayla çalışır",
+          "En hızlı sonuç için",
+          "Kümede çalıştırmak için",
+          "Hiçbir zaman"
+        ],
+        "en": [
+          "When debugging: the tasks run one by one, in order",
+          "For the fastest result",
+          "To run on a cluster",
+          "Never"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu ölçümde sırayla çalışan dask pandas kadar sürdü (1,45 sn'ye karşı 1,41 sn).",
+        "en": "In this measurement dask running in sequence took as long as pandas (1.45 s against 1.41 s)."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Bu bilgisayarda dört CSV'den şehir başına ciroyu dask (`threads`) ve pandas kaç saniyede hesapladı?",
+        "en": "On this computer, how long did dask (`threads`) and pandas take to work out the revenue per city from four CSVs?"
+      },
+      "options": {
+        "tr": [
+          "dask 0,98 sn, pandas 1,41 sn",
+          "dask 0,01 sn, pandas 10 sn",
+          "İkisi de 5 sn",
+          "dask 3 sn, pandas 1 sn"
+        ],
+        "en": [
+          "dask 0.98 s, pandas 1.41 s",
+          "dask 0.01 s, pandas 10 s",
+          "Both 5 s",
+          "dask 3 s, pandas 1 s"
+        ]
+      },
+      "explanation": {
+        "tr": "1,4 kat hızlı; asıl kazanç bellekte: dört dosya hiçbir zaman aynı anda belleğe alınmadı.",
+        "en": "1.4 times faster; the real gain is memory: the four files were never in memory at once."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "`delayed(slow_square)(3)` ne yapar?",
+        "en": "What does `delayed(slow_square)(3)` do?"
+      },
+      "options": {
+        "tr": [
+          "Fonksiyonu çağırmaz; \"çağrılacak\" diye kaydeder",
+          "Fonksiyonu hemen üç kez çağırır",
+          "3 saniye bekler",
+          "Hata verir"
+        ],
+        "en": [
+          "It does not call the function; it records it as \"to be called\"",
+          "It calls the function three times straight away",
+          "It waits 3 seconds",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Çağrı `compute()` ile, diğer görevlerle birlikte ve paralel yapılıyor.",
+        "en": "The call is made at `compute()`, together with the other tasks and in parallel."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Sekiz tane 0,2 saniyelik `delayed` görevi `compute()` ile ne kadar sürdü?",
+        "en": "How long did eight 0.2-second `delayed` tasks take with `compute()`?"
+      },
+      "options": {
+        "tr": [
+          "0,21 sn (sırayla 1,61 sn)",
+          "1,6 sn",
+          "0,02 sn",
+          "8 sn"
+        ],
+        "en": [
+          "0.21 s (1.61 s in sequence)",
+          "1.6 s",
+          "0.02 s",
+          "8 s"
+        ]
+      },
+      "explanation": {
+        "tr": "Bekleyen görevler iş parçacıklarında aynı anda çalıştı.",
+        "en": "The waiting tasks ran at the same time on threads."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`dask.bag` ne için kullanılır?",
+        "en": "What is `dask.bag` used for?"
+      },
+      "options": {
+        "tr": [
+          "JSON satırları, kayıtlar gibi tabloya uymayan kayıt listeleri için",
+          "Yalnızca sayılar için",
+          "SQL sorguları için",
+          "Grafik çizmek için"
+        ],
+        "en": [
+          "For lists of records that do not fit a table, such as JSON lines and logs",
+          "Only for numbers",
+          "For SQL queries",
+          "For drawing charts"
+        ]
+      },
+      "explanation": {
+        "tr": "`map`, `filter`, `pluck`, `frequencies` gibi işlemleri bölümler hâlinde paralel yapıyor.",
+        "en": "It runs operations such as `map`, `filter`, `pluck` and `frequencies` in parallel across partitions."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`dask.bag` kodu `if __name__ == \"__main__\":` olmadan Windows'ta neden düştü?",
+        "en": "Why did `dask.bag` code fail on Windows without `if __name__ == \"__main__\":`?"
+      },
+      "options": {
+        "tr": [
+          "Varsayılan zamanlayıcısı süreçler; yeni süreçler dosyayı baştan çalıştırıyor",
+          "`bag` Windows'ta yok",
+          "JSON dosyası bozuktu",
+          "Bellek yetmedi"
+        ],
+        "en": [
+          "Its default scheduler is processes; new processes run the file from the top",
+          "`bag` does not exist on Windows",
+          "The JSON file was corrupt",
+          "Memory ran out"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölüm 10'daki kural: süreç kullanan kod korumalı blokta.",
+        "en": "The rule from Section 10: code that uses processes goes in the protected block."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "dask'ta `ddf[\"unit_price\"].median().compute()` ne verdi?",
+        "en": "What did `ddf[\"unit_price\"].median().compute()` give in dask?"
+      },
+      "options": {
+        "tr": [
+          "`NotImplementedError`: kesin ortanca paralel yapılamıyor",
+          "449,05",
+          "Bir uyarı ve sıfır",
+          "Ortalamayı"
+        ],
+        "en": [
+          "`NotImplementedError`: an exact median cannot be done in parallel",
+          "449.05",
+          "A warning and zero",
+          "The mean"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölüm 3'teki tablo: ortanca parçalardan kesin bulunamıyor.",
+        "en": "The table from Section 3: the median cannot be found exactly from pieces."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "dask'ın `quantile(0.5)` sonucu (449,72) neden kesin ortancadan (449,05) farklı?",
+        "en": "Why is dask's `quantile(0.5)` result (449.72) different from the exact median (449.05)?"
+      },
+      "options": {
+        "tr": [
+          "Yaklaşık bir yöntem kullanıyor",
+          "Veri farklı",
+          "Yuvarlama hatası",
+          "Bir bölüm atlandı"
+        ],
+        "en": [
+          "It uses an approximate method",
+          "The data is different",
+          "A rounding error",
+          "A partition was skipped"
+        ]
+      },
+      "explanation": {
+        "tr": "Kesin ortanca gerekiyorsa DuckDB'nin `median` işlevi ya da verinin tamamı.",
+        "en": "If an exact median is needed, DuckDB's `median` function or all of the data."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "dask'ta `sort_values` ve `set_index` neden pahalıdır?",
+        "en": "Why are `sort_values` and `set_index` expensive in dask?"
+      },
+      "options": {
+        "tr": [
+          "Verinin bölümler arasında yer değiştirmesini (shuffle) gerektiriyorlar",
+          "Desteklenmiyorlar",
+          "Diske yazıyorlar",
+          "Yalnızca ilk bölümü sıralıyorlar"
+        ],
+        "en": [
+          "They require the data to move between partitions (a shuffle)",
+          "They are not supported",
+          "They write to disk",
+          "They sort only the first partition"
+        ]
+      },
+      "explanation": {
+        "tr": "Çoğu analizde gerekmiyor; gerekirse bir kez yapıp sonucu sakla.",
+        "en": "Most analyses do not need them; if needed, do it once and keep the result."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "`compute()`'u bir döngünün içinde her şehir için ayrı çağırmak neden kötü?",
+        "en": "Why is calling `compute()` separately for each city inside a loop bad?"
+      },
+      "options": {
+        "tr": [
+          "Her `compute` tarifi baştan çalıştırıp dosyaları yeniden okuyor",
+          "Sonuçlar karışıyor",
+          "dask buna izin vermiyor",
+          "Kötü değil"
+        ],
+        "en": [
+          "Each `compute` runs the recipe from the start and reads the files again",
+          "The results get mixed up",
+          "dask does not allow it",
+          "It is not bad"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek bir `groupby` ya da tek bir `dask.compute(...)` yeterli.",
+        "en": "A single `groupby` or a single `dask.compute(...)` is enough."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "dask belgeleri bölüm başına kabaca ne kadar öneriyor?",
+        "en": "Roughly how much per partition does the dask documentation suggest?"
+      },
+      "options": {
+        "tr": [
+          "Yüz megabayt civarı",
+          "Bir kilobayt",
+          "On gigabayt",
+          "Bir satır"
+        ],
+        "en": [
+          "Around a hundred megabytes",
+          "One kilobyte",
+          "Ten gigabytes",
+          "One row"
+        ]
+      },
+      "explanation": {
+        "tr": "Çok küçük bölüm hazırlık işini çoğaltıyor, çok büyük bölüm belleğe sığmayabiliyor.",
+        "en": "Very small partitions multiply the preparation work; very big ones may not fit in memory."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`dd.read_parquet(\"orders.parquet\", split_row_groups=True)` 10 satır gruplu bir dosyada kaç bölüm kurdu?",
+        "en": "How many partitions did `dd.read_parquet(\"orders.parquet\", split_row_groups=True)` build for a file with 10 row groups?"
+      },
+      "options": {
+        "tr": [
+          "10: her satır grubu bir bölüm",
+          "1",
+          "4",
+          "100"
+        ],
+        "en": [
+          "10: each row group a partition",
+          "1",
+          "4",
+          "100"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu sürümde `split_row_groups` olmadan aynı dosya tek bölüm olarak okundu.",
+        "en": "In this version, without `split_row_groups` the same file was read as a single partition."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Veri belleğe rahatça sığıyorsa dask kullanmak gerekir mi?",
+        "en": "If the data fits comfortably in memory, is dask needed?"
+      },
+      "options": {
+        "tr": [
+          "Genellikle hayır; pandas daha basit ve yeterince hızlı",
+          "Evet, her zaman",
+          "Yalnızca CSV ise",
+          "Yalnızca Parquet ise"
+        ],
+        "en": [
+          "Usually not; pandas is simpler and fast enough",
+          "Yes, always",
+          "Only if it is CSV",
+          "Only if it is Parquet"
+        ]
+      },
+      "explanation": {
+        "tr": "dask'ın görev grafiği küçük veride yalnızca ek iş.",
+        "en": "dask's task graph is just extra work on small data."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "dask'ın aynı kodu birçok bilgisayarda çalıştırabilmesi neye kapı açar?",
+        "en": "What does dask's ability to run the same code on many computers open the door to?"
+      },
+      "options": {
+        "tr": [
+          "Kümelerde dağıtık işlemeye (Spark'ın dünyası)",
+          "Daha güzel grafiklere",
+          "Excel'e",
+          "Hiçbir şeye"
+        ],
+        "en": [
+          "Distributed processing on clusters (the world of Spark)",
+          "Nicer charts",
+          "Excel",
+          "Nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Çekirdekler yerine makinelere dağılan iş; Bölüm 12 ve 13'ün konusu.",
+        "en": "Work spread over machines instead of cores; the subject of Sections 12 and 13."
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "combiner-savings",
+  "title": {
+    "tr": "Birleştiricinin kazancı",
+    "en": "What the combiner saves"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Parça: `orders.iloc[i * 40_000:(i + 1) * 40_000]`; çiftler `zip(chunk[\"payment\"], chunk[\"quantity\"])`.",
+      "en": "A piece: `orders.iloc[i * 40_000:(i + 1) * 40_000]`; the pairs `zip(chunk[\"payment\"], chunk[\"quantity\"])`."
+    },
+    {
+      "tr": "Birleştiricinin göndereceği çift sayısı `len(local)`: her ödeme türü için bir çift.",
+      "en": "The number of pairs the combiner sends is `len(local)`: one pair per payment method."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom collections import defaultdict\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\n\nwithout = 0\nwith_combiner = 0\ncombined = defaultdict(int)\nfor i in range(5):\n    chunk = orders.iloc[i * 40_000:(i + 1) * 40_000]\n    pairs = list(zip(chunk[\"payment\"], chunk[\"quantity\"]))\n    without += len(pairs)\n    local = defaultdict(int)\n    for key, value in pairs:\n        local[key] += value\n    with_combiner += len(local)\n    for key, value in local.items():\n        combined[key] += value\n\nprint(without, with_combiner)\n\nexpected = orders.groupby(\"payment\")[\"quantity\"].sum()\nprint(all(combined[p] == expected[p] for p in expected.index))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom collections import defaultdict\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\n\nwithout = 0\nwith_combiner = 0\ncombined = defaultdict(int)\nfor i in range(5):\n    chunk = orders.iloc[i * 40_000:(i + 1) * 40_000]\n    pairs = list(zip(chunk[\"payment\"], chunk[\"quantity\"]))\n    without += len(pairs)\n    local = defaultdict(int)\n    for key, value in pairs:\n        local[key] += value\n    with_combiner += len(local)\n    for key, value in local.items():\n        combined[key] += value\n\nprint(without, with_combiner)\n\nexpected = orders.groupby(\"payment\")[\"quantity\"].sum()\nprint(all(combined[p] == expected[p] for p in expected.index))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "200000 15\nTrue"
+    }
+  ]
+}

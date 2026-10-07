@@ -1,0 +1,46 @@
+{
+  "id": "final-report",
+  "title": {
+    "tr": "Yönetici raporu",
+    "en": "The manager's report"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "Pay için toplamı alt sorguyla al: `sum(...) / (SELECT sum(quantity * unit_price) FROM 'orders.parquet')`.",
+      "en": "For the share, get the total with a subquery: `sum(...) / (SELECT sum(quantity * unit_price) FROM 'orders.parquet')`."
+    },
+    {
+      "tr": "Tek satırlık sonuç: `duckdb.sql(...).fetchone()` bir demet veriyor: `month, mean = ...`.",
+      "en": "A single-row result: `duckdb.sql(...).fetchone()` gives a tuple: `month, mean = ...`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(300_000)\norders[\"month\"] = orders[\"order_time\"].str[:7]\norders.to_parquet(\"orders.parquet\", index=False)\n\nrows = duckdb.sql(\"\"\"\n    SELECT city,\n           round(100 * sum(quantity * unit_price)\n                 / (SELECT sum(quantity * unit_price) FROM 'orders.parquet'), 1) AS share\n    FROM 'orders.parquet'\n    GROUP BY city\n    ORDER BY share DESC\n    LIMIT 3\n\"\"\").fetchall()\nfor city, share in rows:\n    print(city, share)\n\nmonth, mean = duckdb.sql(\"\"\"\n    SELECT month, round(avg(quantity * unit_price), 2) AS mean\n    FROM 'orders.parquet'\n    GROUP BY month\n    ORDER BY mean DESC\n    LIMIT 1\n\"\"\").fetchone()\nprint(month, mean)\n\ndata = pd.read_parquet(\"orders.parquet\")\ndata[\"revenue\"] = data[\"quantity\"] * data[\"unit_price\"]\nestimate = data.sample(frac=0.01, random_state=3)[\"revenue\"].mean()\ntrue = data[\"revenue\"].mean()\nprint(round(estimate, 2), round(true, 2), round(abs(estimate - true) / true * 100, 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(300_000)\norders[\"month\"] = orders[\"order_time\"].str[:7]\norders.to_parquet(\"orders.parquet\", index=False)\n\nrows = duckdb.sql(\"\"\"\n    SELECT city,\n           round(100 * sum(quantity * unit_price)\n                 / (SELECT sum(quantity * unit_price) FROM 'orders.parquet'), 1) AS share\n    FROM 'orders.parquet'\n    GROUP BY city\n    ORDER BY share DESC\n    LIMIT 3\n\"\"\").fetchall()\nfor city, share in rows:\n    print(city, share)\n\nmonth, mean = duckdb.sql(\"\"\"\n    SELECT month, round(avg(quantity * unit_price), 2) AS mean\n    FROM 'orders.parquet'\n    GROUP BY month\n    ORDER BY mean DESC\n    LIMIT 1\n\"\"\").fetchone()\nprint(month, mean)\n\ndata = pd.read_parquet(\"orders.parquet\")\ndata[\"revenue\"] = data[\"quantity\"] * data[\"unit_price\"]\nestimate = data.sample(frac=0.01, random_state=3)[\"revenue\"].mean()\ntrue = data[\"revenue\"].mean()\nprint(round(estimate, 2), round(true, 2), round(abs(estimate - true) / true * 100, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Istanbul 34.0\nAnkara 15.9\nIzmir 13.2\n2024-05 1665.57\n1627.57 1642.77 0.9"
+    }
+  ]
+}

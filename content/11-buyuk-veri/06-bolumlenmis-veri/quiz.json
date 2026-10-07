@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Bölümleme (partitioning) ne demek?",
+        "en": "What does partitioning mean?"
+      },
+      "options": {
+        "tr": [
+          "Veriyi bir sütunun değerine göre ayrı klasörlere ve dosyalara ayırmak",
+          "Veriyi sıkıştırmak",
+          "Sütunları ayrı dosyalara yazmak",
+          "Satırları rastgele karıştırmak"
+        ],
+        "en": [
+          "Splitting the data into separate folders and files by the value of a column",
+          "Compressing the data",
+          "Writing the columns to separate files",
+          "Shuffling the rows at random"
+        ]
+      },
+      "explanation": {
+        "tr": "Örneğin her ay kendi klasöründe: `orders/month=2024-03/part-0.parquet`.",
+        "en": "For example each month in its own folder: `orders/month=2024-03/part-0.parquet`."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`month=2024-03` gibi klasör adlarının biçimi nereden gelir?",
+        "en": "Where does the form of folder names such as `month=2024-03` come from?"
+      },
+      "options": {
+        "tr": [
+          "Hadoop dünyasındaki Hive aracından",
+          "Excel'den",
+          "pandas'ın kendi buluşu",
+          "Windows'un kuralı"
+        ],
+        "en": [
+          "From the Hive tool in the Hadoop world",
+          "From Excel",
+          "pandas' own invention",
+          "A Windows rule"
+        ]
+      },
+      "explanation": {
+        "tr": "Bugün pandas, Spark ve DuckDB bu `sütun=değer` yazımını tanıyor.",
+        "en": "Today pandas, Spark and DuckDB all recognise this `column=value` form."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Bölüm sütunu (ör. `month`) elle bölerken nereye yazılır?",
+        "en": "Where does the partition column (e.g. `month`) go when partitioning by hand?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca klasörün adına; dosyadan çıkarılır",
+          "Hem dosyaya hem ada",
+          "Yalnızca dosyaya",
+          "Ayrı bir CSV'ye"
+        ],
+        "en": [
+          "Only into the folder's name; it is dropped from the file",
+          "Both the file and the name",
+          "Only into the file",
+          "Into a separate CSV"
+        ]
+      },
+      "explanation": {
+        "tr": "`part.drop(columns=\"month\")`: bilgi klasör adında; iki kaynak olursa birbirini tutmayabilir.",
+        "en": "`part.drop(columns=\"month\")`: the information is in the folder name; two sources might not agree."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "`folder.mkdir(parents=True, exist_ok=True)` içindeki `exist_ok=True` ne işe yarar?",
+        "en": "What does `exist_ok=True` do in `folder.mkdir(parents=True, exist_ok=True)`?"
+      },
+      "options": {
+        "tr": [
+          "Klasör zaten varsa hata vermez",
+          "Klasörü siler ve yeniden açar",
+          "Üst klasörleri açar",
+          "Klasörü gizler"
+        ],
+        "en": [
+          "It raises no error if the folder already exists",
+          "It deletes and recreates the folder",
+          "It creates the parent folders",
+          "It hides the folder"
+        ]
+      },
+      "explanation": {
+        "tr": "Yoksa ikinci çalıştırmada `FileExistsError`. Üst klasörleri açan `parents=True`.",
+        "en": "Otherwise the second run raises `FileExistsError`. `parents=True` is what creates the parent folders."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Aya göre bölünmüş on iki dosyanın toplamı neden tek dosyadan biraz büyük çıktı (26,2 MB'a karşı 20,9 MB)?",
+        "en": "Why did the twelve month files add up to a little more than one file (26.2 MB against 20.9 MB)?"
+      },
+      "options": {
+        "tr": [
+          "Her dosya kendi sözlüğünü ve altbilgisini taşıyor",
+          "Satırlar iki kez yazıldı",
+          "Bölüm sütunu her satıra eklendi",
+          "Sıkıştırma kapandı"
+        ],
+        "en": [
+          "Each file carries its own dictionary and footer",
+          "The rows were written twice",
+          "The partition column was added to every row",
+          "Compression was switched off"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölmenin küçük bir yer bedeli var; okurken kazandığın zaman bunu karşılıyor.",
+        "en": "Partitioning costs a little space; the time saved when reading pays for it."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Bölüm budama (partition pruning) ne demek?",
+        "en": "What does partition pruning mean?"
+      },
+      "options": {
+        "tr": [
+          "Koşula uymayan klasörlerin dosyaları açılmadan, adlarına bakılarak elenmesi",
+          "Eski klasörlerin silinmesi",
+          "Satırların süzülmesi",
+          "Dosyaların sıkıştırılması"
+        ],
+        "en": [
+          "Eliminating folders that do not match the condition by their names, without opening their files",
+          "Deleting old folders",
+          "Filtering rows",
+          "Compressing files"
+        ]
+      },
+      "explanation": {
+        "tr": "Mart'ı isteyince on bir klasör hiç açılmadı.",
+        "en": "When March was asked for, eleven folders were never opened."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Bu bilgisayarda Mart siparişlerini bölümlenmiş veriden okumak, tek dosyadan okuyup süzmeye göre nasıldı?",
+        "en": "On this computer, how did reading the March orders from partitioned data compare with reading one file and filtering?"
+      },
+      "options": {
+        "tr": [
+          "Yaklaşık sekiz kat hızlı (0,009 sn'ye karşı 0,077 sn)",
+          "Aynı",
+          "İki kat yavaş",
+          "Yüz kat hızlı"
+        ],
+        "en": [
+          "About eight times faster (0.009 s against 0.077 s)",
+          "The same",
+          "Twice as slow",
+          "A hundred times faster"
+        ]
+      },
+      "explanation": {
+        "tr": "İkisi de 84 836 sipariş verdi; fark, okunan veri miktarında.",
+        "en": "Both gave 84 836 orders; the difference is in how much data was read."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`df.to_parquet(\"by_month\", partition_cols=[\"month\"])` ne yapar?",
+        "en": "What does `df.to_parquet(\"by_month\", partition_cols=[\"month\"])` do?"
+      },
+      "options": {
+        "tr": [
+          "Her ay için `month=...` klasörü açıp o ayın satırlarını içine yazar",
+          "Tek dosya yazar, ayları sıralar",
+          "Ay sütununu siler",
+          "On iki ayrı CSV yazar"
+        ],
+        "en": [
+          "It creates a `month=...` folder for each month and writes that month's rows into it",
+          "It writes one file, sorting the months",
+          "It deletes the month column",
+          "It writes twelve separate CSVs"
+        ]
+      },
+      "explanation": {
+        "tr": "Dosya adları rastgele; okurken `pd.read_parquet(\"by_month\")` ay sütununu adlardan geri kuruyor.",
+        "en": "The file names are random; when reading, `pd.read_parquet(\"by_month\")` rebuilds the month column from the names."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.read_parquet(\"by_month\")` ile okununca `month` sütunu hangi türde gelir?",
+        "en": "What type is the `month` column when read with `pd.read_parquet(\"by_month\")`?"
+      },
+      "options": {
+        "tr": [
+          "`category`",
+          "`datetime64`",
+          "`int64`",
+          "Sütun gelmez"
+        ],
+        "en": [
+          "`category`",
+          "`datetime64`",
+          "`int64`",
+          "The column does not come back"
+        ]
+      },
+      "explanation": {
+        "tr": "Klasör adlarından kuruluyor ve az sayıda farklı değeri olduğu için kategori.",
+        "en": "It is built from the folder names and, having few different values, is a category."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`partition_cols` ve klasör okuma neye ihtiyaç duyar?",
+        "en": "What do `partition_cols` and reading a folder need?"
+      },
+      "options": {
+        "tr": [
+          "`pyarrow.dataset` modülüne",
+          "İnternet bağlantısına",
+          "Excel'e",
+          "Hiçbir şeye"
+        ],
+        "en": [
+          "The `pyarrow.dataset` module",
+          "An internet connection",
+          "Excel",
+          "Nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "O modül yüklenemezse elle yöntem (groupby + klasörler, glob ile okuma) her yerde çalışıyor.",
+        "en": "If that module cannot be loaded, the by-hand method (groupby + folders, reading with glob) works everywhere."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Güne göre bölmek (366 dosya) bir milyon siparişte ne getirdi?",
+        "en": "What did splitting by day (366 files) bring for a million orders?"
+      },
+      "options": {
+        "tr": [
+          "Hepsini okumak tek dosyadan on beş kat yavaştı",
+          "En hızlı okuma",
+          "En küçük toplam boyut",
+          "Hiçbir fark"
+        ],
+        "en": [
+          "Reading all of them was fifteen times slower than one file",
+          "The fastest read",
+          "The smallest total size",
+          "No difference"
+        ]
+      },
+      "explanation": {
+        "tr": "1,09 sn'ye karşı 0,069 sn: her dosyayı açmak, altbilgisini okumak ayrı bir iş.",
+        "en": "1.09 s against 0.069 s: opening each file and reading its footer is separate work."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Büyük veri dünyasındaki \"small files problem\" nedir?",
+        "en": "What is the \"small files problem\" in the big data world?"
+      },
+      "options": {
+        "tr": [
+          "Çok sayıda küçük dosyanın her birini açmanın maliyetinin toplamda okumayı yavaşlatması",
+          "Küçük dosyaların sıkıştırılamaması",
+          "Küçük dosyaların kaybolması",
+          "Diskin küçük dosyaları reddetmesi"
+        ],
+        "en": [
+          "The cost of opening each of many small files adding up and slowing reading down",
+          "Small files not being compressible",
+          "Small files getting lost",
+          "The disk refusing small files"
+        ]
+      },
+      "explanation": {
+        "tr": "Çözüm: daha kaba bölmek ya da küçük dosyaları zaman zaman birleştirmek.",
+        "en": "The fix: split more coarsely, or merge small files from time to time."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "İyi bir bölüm sütunu hangisi?",
+        "en": "Which makes a good partition column?"
+      },
+      "options": {
+        "tr": [
+          "Sık süzülen ve az sayıda farklı değeri olan bir sütun (ay gibi)",
+          "Her satırda farklı olan sütun (sipariş numarası gibi)",
+          "Ondalıklı fiyat sütunu",
+          "Rastgele bir sütun"
+        ],
+        "en": [
+          "A column filtered on often with few different values (such as the month)",
+          "A column that differs on every row (such as the order number)",
+          "The decimal price column",
+          "Any column at random"
+        ]
+      },
+      "explanation": {
+        "tr": "Sipariş numarasına göre bölmek bir milyon klasör demek.",
+        "en": "Splitting by order number would mean a million folders."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Müşteriye göre bölmek neden kötü bir fikir?",
+        "en": "Why is splitting by customer a bad idea?"
+      },
+      "options": {
+        "tr": [
+          "245 461 klasör olurdu: çok küçük dosya sorunu",
+          "Müşteri numaraları metin",
+          "Müşteri sütunu boş",
+          "pandas izin vermiyor"
+        ],
+        "en": [
+          "There would be 245 461 folders: the small files problem",
+          "Customer numbers are text",
+          "The customer column is empty",
+          "pandas does not allow it"
+        ]
+      },
+      "explanation": {
+        "tr": "Çok değerli sütunlar için kovalama: `customer_id % 8`.",
+        "en": "For columns with many values, bucketing: `customer_id % 8`."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Bölümlenmiş veriye yeni bir ay eklemek için ne yapılır?",
+        "en": "What do you do to add a new month to partitioned data?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca yeni ayın klasörünü açıp dosyasını yazmak",
+          "Bütün klasörleri silip baştan yazmak",
+          "Yeni ayı en son dosyanın sonuna eklemek",
+          "Yeni ay eklenemez"
+        ],
+        "en": [
+          "Create only the new month's folder and write its file",
+          "Delete all folders and write from scratch",
+          "Append the new month to the last file",
+          "A new month cannot be added"
+        ]
+      },
+      "explanation": {
+        "tr": "Eski dosyalara dokunulmuyor; bu, artımlı yüklemeyi çok kolaylaştırıyor.",
+        "en": "The old files are not touched; this makes incremental loading very easy."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`f.parent.name.split(\"=\")[1]`, `orders/month=2024-12/part-0.parquet` için ne verir?",
+        "en": "What does `f.parent.name.split(\"=\")[1]` give for `orders/month=2024-12/part-0.parquet`?"
+      },
+      "options": {
+        "tr": [
+          "`\"2024-12\"`",
+          "`\"month\"`",
+          "`\"part-0.parquet\"`",
+          "`\"orders\"`"
+        ],
+        "en": [
+          "`\"2024-12\"`",
+          "`\"month\"`",
+          "`\"part-0.parquet\"`",
+          "`\"orders\"`"
+        ]
+      },
+      "explanation": {
+        "tr": "`f.parent.name` klasörün adı (`month=2024-12`), `split(\"=\")[1]` eşittirden sonrası.",
+        "en": "`f.parent.name` is the folder's name (`month=2024-12`); `split(\"=\")[1]` is what follows the equals sign."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Klasör adından geri kurulan `month` değeri hangi türdedir?",
+        "en": "What type is a `month` value rebuilt from a folder name?"
+      },
+      "options": {
+        "tr": [
+          "Metin; sayı ya da tarih gerekiyorsa çevrilmeli",
+          "Tarih",
+          "Tam sayı",
+          "Kategori"
+        ],
+        "en": [
+          "Text; it must be converted if a number or date is needed",
+          "A date",
+          "A whole number",
+          "A category"
+        ]
+      },
+      "explanation": {
+        "tr": "`\"2024-03\"` bir metin. `partition_cols` ile okurken pandas bunu kategoriye çeviriyor; elle okurken sen karar veriyorsun.",
+        "en": "`\"2024-03\"` is text. When reading with `partition_cols` pandas turns it into a category; when reading by hand you decide."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "`\"2024-10\" < \"2024-9\"` neden `True` verir?",
+        "en": "Why does `\"2024-10\" < \"2024-9\"` give `True`?"
+      },
+      "options": {
+        "tr": [
+          "Metin karakter karakter karşılaştırılıyor ve `1`, `9`'dan önce geliyor",
+          "Python tarihleri anlamıyor",
+          "Ekim gerçekten Eylül'den önce",
+          "Bu bir hata"
+        ],
+        "en": [
+          "Text is compared character by character, and `1` comes before `9`",
+          "Python does not understand dates",
+          "October really is before September",
+          "It is a bug"
+        ]
+      },
+      "explanation": {
+        "tr": "Ayı her zaman iki haneli yaz (`2024-09`): `strftime(\"%Y-%m\")` bunu kendisi yapıyor.",
+        "en": "Always write the month with two digits (`2024-09`): `strftime(\"%Y-%m\")` does it by itself."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`partition_cols` ile aynı veriyi aynı klasöre iki kez yazınca ne olur?",
+        "en": "What happens when you write the same data to the same folder twice with `partition_cols`?"
+      },
+      "options": {
+        "tr": [
+          "Eski dosyalar da kalır; okurken her satır iki kez gelir",
+          "İkinci yazma eskisinin yerine geçer",
+          "Hata verir",
+          "Hiçbir şey yazılmaz"
+        ],
+        "en": [
+          "The old files stay too; every row comes back twice when read",
+          "The second write replaces the first",
+          "It raises an error",
+          "Nothing is written"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu makinede 3 satır yazınca iki yazmadan sonra 6 satır okundu. Yeniden yazmadan önce klasörü temizle.",
+        "en": "On this machine, writing 3 rows twice gave 6 rows when read. Clear the folder before rewriting."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Kovalama (bucketing) nedir?",
+        "en": "What is bucketing?"
+      },
+      "options": {
+        "tr": [
+          "Çok değerli bir sütunu sabit sayıda gruba dağıtmak, ör. `customer_id % 8`",
+          "Satırları zamana göre sıralamak",
+          "Dosyaları sıkıştırmak",
+          "Sütunları birleştirmek"
+        ],
+        "en": [
+          "Spreading a column with many values over a fixed number of groups, e.g. `customer_id % 8`",
+          "Sorting rows by time",
+          "Compressing files",
+          "Joining columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Her müşteri tek bir kovaya düşüyor; bir müşterinin bütün siparişleri aynı kovada.",
+        "en": "Each customer falls into one bucket; all of a customer's orders are in the same bucket."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "1234 numaralı müşterinin siparişleri `customer_id % 8` kovalarından hangisinde?",
+        "en": "Which of the `customer_id % 8` buckets holds customer 1234's orders?"
+      },
+      "options": {
+        "tr": [
+          "2",
+          "4",
+          "0",
+          "Hepsine dağılmış"
+        ],
+        "en": [
+          "2",
+          "4",
+          "0",
+          "Spread over all of them"
+        ]
+      },
+      "explanation": {
+        "tr": "1234 = 154 × 8 + 2. Kalanı 2 olan kova; yalnızca o dosya okunur.",
+        "en": "1234 = 154 × 8 + 2. The bucket with remainder 2; only that file is read."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`customer_id % 8` kovaları neden neredeyse eşit büyüklükte çıktı?",
+        "en": "Why did the `customer_id % 8` buckets come out almost equal in size?"
+      },
+      "options": {
+        "tr": [
+          "Müşteri numaraları kalanlara düzgün dağılıyor",
+          "pandas kovaları eşitliyor",
+          "Her kovaya aynı müşteri konuyor",
+          "Rastlantı"
+        ],
+        "en": [
+          "Customer numbers spread evenly over the remainders",
+          "pandas evens out the buckets",
+          "The same customer goes into every bucket",
+          "Pure chance"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölümde her kova yaklaşık 125 000 sipariş tuttu. Eşit kovalar, her okumanın benzer süre alması demek.",
+        "en": "In the section each bucket held about 125 000 orders. Equal buckets mean every read takes a similar time."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "`Path(\"orders\").rglob(\"*.parquet\")` ile `Path(\"orders\").glob(\"*.parquet\")` farkı ne?",
+        "en": "What is the difference between `Path(\"orders\").rglob(\"*.parquet\")` and `Path(\"orders\").glob(\"*.parquet\")`?"
+      },
+      "options": {
+        "tr": [
+          "`rglob` bütün alt klasörlerde arar, `glob` yalnızca o klasörde",
+          "`rglob` dosyaları siler",
+          "`glob` daha yavaş",
+          "Fark yok"
+        ],
+        "en": [
+          "`rglob` searches all subfolders, `glob` only that folder",
+          "`rglob` deletes files",
+          "`glob` is slower",
+          "No difference"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölümlenmiş veride dosyalar alt klasörlerde; `glob(\"month=*/*.parquet\")` ya da `rglob(\"*.parquet\")`.",
+        "en": "With partitioned data the files are in subfolders; `glob(\"month=*/*.parquet\")` or `rglob(\"*.parquet\")`."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Bölüm değeri `home/garden` olsaydı ne sorun çıkardı?",
+        "en": "What would go wrong if a partition value were `home/garden`?"
+      },
+      "options": {
+        "tr": [
+          "`/` klasör yolunu böler; değer iki klasöre ayrılır",
+          "Hiçbir sorun",
+          "Değer sayıya çevrilir",
+          "Dosya sıkıştırılmaz"
+        ],
+        "en": [
+          "The `/` splits the folder path; the value is broken into two folders",
+          "No problem",
+          "The value is turned into a number",
+          "The file is not compressed"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölüm değerlerini sade tut: harf, rakam, `-`, `_`.",
+        "en": "Keep partition values plain: letters, digits, `-`, `_`."
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "two-columns-only",
+  "title": {
+    "tr": "Yalnızca iki sütun",
+    "en": "Only two columns"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`pd.read_parquet(\"orders.parquet\", columns=[\"city\", \"unit_price\"])`.",
+      "en": "`pd.read_parquet(\"orders.parquet\", columns=[\"city\", \"unit_price\"])`."
+    },
+    {
+      "tr": "`prices.groupby(\"city\", observed=True)[\"unit_price\"].mean().sort_values(ascending=False).head(3)`.",
+      "en": "`prices.groupby(\"city\", observed=True)[\"unit_price\"].mean().sort_values(ascending=False).head(3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import make_orders\n\ndf = make_orders(200_000)\ndf[\"order_time\"] = pd.to_datetime(df[\"order_time\"])\nfor c in [\"city\", \"category\", \"payment\"]:\n    df[c] = df[c].astype(\"category\")\n\ndf.to_parquet(\"orders.parquet\")\n\nprices = pd.read_parquet(\"orders.parquet\", columns=[\"city\", \"unit_price\"])\nprint(list(prices.columns))\n\nfull = pd.read_parquet(\"orders.parquet\")\nprint(round(prices.memory_usage(deep=True).sum() / 1024**2, 1),\n      round(full.memory_usage(deep=True).sum() / 1024**2, 1))\n\nmeans = prices.groupby(\"city\", observed=True)[\"unit_price\"].mean().sort_values(ascending=False)\nfor city, mean in means.head(3).items():\n    print(city, round(mean, 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import make_orders\n\ndf = make_orders(200_000)\ndf[\"order_time\"] = pd.to_datetime(df[\"order_time\"])\nfor c in [\"city\", \"category\", \"payment\"]:\n    df[c] = df[c].astype(\"category\")\n\ndf.to_parquet(\"orders.parquet\")\n\nprices = pd.read_parquet(\"orders.parquet\", columns=[\"city\", \"unit_price\"])\nprint(list(prices.columns))\n\nfull = pd.read_parquet(\"orders.parquet\")\nprint(round(prices.memory_usage(deep=True).sum() / 1024**2, 1),\n      round(full.memory_usage(deep=True).sum() / 1024**2, 1))\n\nmeans = prices.groupby(\"city\", observed=True)[\"unit_price\"].mean().sort_values(ascending=False)\nfor city, mean in means.head(3).items():\n    print(city, round(mean, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['city', 'unit_price']\n1.7 8.2\nTrabzon 744.1\nIzmir 741.4\nIstanbul 741.4"
+    }
+  ]
+}

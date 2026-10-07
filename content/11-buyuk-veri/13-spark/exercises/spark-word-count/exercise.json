@@ -1,0 +1,50 @@
+{
+  "id": "spark-word-count",
+  "title": {
+    "tr": "Spark'ta kelime sayma",
+    "en": "Word count in Spark"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    },
+    {
+      "name": "minispark.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`lines.flatMap(lambda line: line.split()).map(lambda word: (word, 1)).reduceByKey(lambda a, b: a + b)`.",
+      "en": "`lines.flatMap(lambda line: line.split()).map(lambda word: (word, 1)).reduceByKey(lambda a, b: a + b)`."
+    },
+    {
+      "tr": "`take(4)` çiftlerin listesini veriyor; `for word, count in ...:` ile yazdır.",
+      "en": "`take(4)` gives a list of pairs; print them with `for word, count in ...:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom minispark import SparkSession\n\nspark = SparkSession.builder.appName(\"orders\").getOrCreate()\nsc = spark.sparkContext\n\ntext = [\n    \"spark keeps data in memory\",\n    \"spark splits data into partitions\",\n    \"data moves in a shuffle\",\n    \"memory makes spark fast\",\n]\n\nlines = sc.parallelize(text, 2)\ncounts = (lines.flatMap(lambda line: line.split())\n               .map(lambda word: (word, 1))\n               .reduceByKey(lambda a, b: a + b)\n               .sortBy(lambda kv: (-kv[1], kv[0])))\n\nfor word, count in counts.take(4):\n    print(word, count)\nprint(counts.count())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom minispark import SparkSession\n\nspark = SparkSession.builder.appName(\"orders\").getOrCreate()\nsc = spark.sparkContext\n\ntext = [\n    \"spark keeps data in memory\",\n    \"spark splits data into partitions\",\n    \"data moves in a shuffle\",\n    \"memory makes spark fast\",\n]\n\nlines = sc.parallelize(text, 2)\ncounts = (lines.flatMap(lambda line: line.split())\n               .map(lambda word: (word, 1))\n               .reduceByKey(lambda a, b: a + b)\n               .sortBy(lambda kv: (-kv[1], kv[0])))\n\nfor word, count in counts.take(4):\n    print(word, count)\nprint(counts.count())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "data 3\nspark 3\nin 2\nmemory 2\n13"
+    }
+  ]
+}

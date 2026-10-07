@@ -1,0 +1,46 @@
+{
+  "id": "targets-join",
+  "title": {
+    "tr": "Hedefi tutturan şehirler",
+    "en": "Cities that hit the target"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "Önce ciroyu bir alt sorguda hesapla: `FROM (SELECT city, sum(quantity * unit_price) AS revenue FROM 'orders.parquet' WHERE month = ? GROUP BY city)`.",
+      "en": "Work out the revenue in a subquery first: `FROM (SELECT city, sum(quantity * unit_price) AS revenue FROM 'orders.parquet' WHERE month = ? GROUP BY city)`."
+    },
+    {
+      "tr": "Sonra `JOIN targets USING (city) WHERE revenue >= target ORDER BY revenue DESC`; pandas tablosu adıyla sorgulanıyor.",
+      "en": "Then `JOIN targets USING (city) WHERE revenue >= target ORDER BY revenue DESC`; the pandas table is queried by its name."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(300_000)\norders[\"month\"] = orders[\"order_time\"].str[:7]\norders.to_parquet(\"orders.parquet\", index=False)\n\ntargets = pd.DataFrame({\n    \"city\": [\"Istanbul\", \"Ankara\", \"Izmir\", \"Bursa\",\n             \"Antalya\", \"Konya\", \"Adana\", \"Trabzon\"],\n    \"target\": [14_000_000, 6_000_000, 5_000_000, 4_000_000,\n               3_500_000, 3_000_000, 3_000_000, 2_000_000],\n})\nMONTH = \"2024-03\"\n\nquery = \"\"\"\n    SELECT city, revenue, target\n    FROM (\n        SELECT city, sum(quantity * unit_price) AS revenue\n        FROM 'orders.parquet'\n        WHERE month = ?\n        GROUP BY city\n    )\n    JOIN targets USING (city)\n    WHERE revenue >= target\n    ORDER BY revenue DESC\n\"\"\"\nfor city, revenue, target in duckdb.execute(query, [MONTH]).fetchall():\n    print(city, round(revenue, 2), round(100 * revenue / target, 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(300_000)\norders[\"month\"] = orders[\"order_time\"].str[:7]\norders.to_parquet(\"orders.parquet\", index=False)\n\ntargets = pd.DataFrame({\n    \"city\": [\"Istanbul\", \"Ankara\", \"Izmir\", \"Bursa\",\n             \"Antalya\", \"Konya\", \"Adana\", \"Trabzon\"],\n    \"target\": [14_000_000, 6_000_000, 5_000_000, 4_000_000,\n               3_500_000, 3_000_000, 3_000_000, 2_000_000],\n})\nMONTH = \"2024-03\"\n\nquery = \"\"\"\n    SELECT city, revenue, target\n    FROM (\n        SELECT city, sum(quantity * unit_price) AS revenue\n        FROM 'orders.parquet'\n        WHERE month = ?\n        GROUP BY city\n    )\n    JOIN targets USING (city)\n    WHERE revenue >= target\n    ORDER BY revenue DESC\n\"\"\"\nfor city, revenue, target in duckdb.execute(query, [MONTH]).fetchall():\n    print(city, round(revenue, 2), round(100 * revenue / target, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Ankara 6635981.63 110.6\nIzmir 5146542.94 102.9\nAntalya 3559928.0 101.7\nTrabzon 2047646.76 102.4"
+    }
+  ]
+}

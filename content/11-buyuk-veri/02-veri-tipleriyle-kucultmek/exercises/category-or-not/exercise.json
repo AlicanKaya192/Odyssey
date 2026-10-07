@@ -1,0 +1,46 @@
+{
+  "id": "category-or-not",
+  "title": {
+    "tr": "Kategori olsun mu?",
+    "en": "Category or not?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Kategori hâli: `column.astype(\"category\").memory_usage(deep=True)`.",
+      "en": "The category version: `column.astype(\"category\").memory_usage(deep=True)`."
+    },
+    {
+      "tr": "Yazıyı seçmek için tek satırlık koşul: `\"yes\" if as_category < as_text else \"no\"`.",
+      "en": "A one-line condition to choose the word: `\"yes\" if as_category < as_text else \"no\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom orders_data import make_orders\n\ndf = make_orders(100_000)\n\nfor name in [\"order_time\", \"city\", \"category\", \"payment\"]:\n    column = df[name]\n    as_text = column.memory_usage(deep=True) / 1024\n    as_category = column.astype(\"category\").memory_usage(deep=True) / 1024\n    answer = \"yes\" if as_category < as_text else \"no\"\n    print(name, column.nunique(), round(as_text, 1), round(as_category, 1), answer)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom orders_data import make_orders\n\ndf = make_orders(100_000)\n\nfor name in [\"order_time\", \"city\", \"category\", \"payment\"]:\n    column = df[name]\n    as_text = column.memory_usage(deep=True) / 1024\n    as_category = column.astype(\"category\").memory_usage(deep=True) / 1024\n    answer = \"yes\" if as_category < as_text else \"no\"\n    print(name, column.nunique(), round(as_text, 1), round(as_category, 1), answer)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "order_time 99830 2636.8 3035.2 no\ncity 8 1412.8 97.9 yes\ncategory 6 1393.5 97.9 yes\npayment 3 1249.7 97.8 yes"
+    }
+  ]
+}

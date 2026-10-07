@@ -1,0 +1,46 @@
+{
+  "id": "keep-and-export",
+  "title": {
+    "tr": "Sakla ve dışa aktar",
+    "en": "Keep and export"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Özet tablo: `CREATE TABLE city_summary AS SELECT city, count(*) AS orders, ... FROM orders GROUP BY city ORDER BY city`.",
+      "en": "The summary table: `CREATE TABLE city_summary AS SELECT city, count(*) AS orders, ... FROM orders GROUP BY city ORDER BY city`."
+    },
+    {
+      "tr": "Bir tabloyu doğrudan yazmak: `COPY city_summary TO 'city_summary.csv' (HEADER)`.",
+      "en": "Writing a table directly: `COPY city_summary TO 'city_summary.csv' (HEADER)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport duckdb\nfrom orders_data import make_orders\n\nmake_orders(100_000).to_parquet(\"orders.parquet\", index=False)\n\ncon = duckdb.connect(\"shop.duckdb\")\ncon.sql(\"CREATE TABLE orders AS SELECT * FROM 'orders.parquet'\")\ncon.sql(\"\"\"\n    CREATE TABLE city_summary AS\n    SELECT city, count(*) AS orders, round(sum(quantity * unit_price), 2) AS revenue\n    FROM orders\n    GROUP BY city\n    ORDER BY city\n\"\"\")\ncon.sql(\"COPY city_summary TO 'city_summary.csv' (HEADER)\")\ncon.close()\n\ncon = duckdb.connect(\"shop.duckdb\")\nprint(con.sql(\"SELECT count(*) FROM orders\").fetchone()[0])\ncon.close()\n\nwith open(\"city_summary.csv\") as f:\n    for line in f.read().splitlines()[:3]:\n        print(line)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport duckdb\nfrom orders_data import make_orders\n\nmake_orders(100_000).to_parquet(\"orders.parquet\", index=False)\n\ncon = duckdb.connect(\"shop.duckdb\")\ncon.sql(\"CREATE TABLE orders AS SELECT * FROM 'orders.parquet'\")\ncon.sql(\"\"\"\n    CREATE TABLE city_summary AS\n    SELECT city, count(*) AS orders, round(sum(quantity * unit_price), 2) AS revenue\n    FROM orders\n    GROUP BY city\n    ORDER BY city\n\"\"\")\ncon.sql(\"COPY city_summary TO 'city_summary.csv' (HEADER)\")\ncon.close()\n\ncon = duckdb.connect(\"shop.duckdb\")\nprint(con.sql(\"SELECT count(*) FROM orders\").fetchone()[0])\ncon.close()\n\nwith open(\"city_summary.csv\") as f:\n    for line in f.read().splitlines()[:3]:\n        print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "100000\ncity,orders,revenue\nAdana,6936,11066810.58\nAnkara,15971,25958981.76"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "revenue-mapreduce",
+  "title": {
+    "tr": "Kategori cirosu MapReduce ile",
+    "en": "Category revenue with MapReduce"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`yield row[\"category\"], row[\"quantity\"] * row[\"unit_price\"]`.",
+      "en": "`yield row[\"category\"], row[\"quantity\"] * row[\"unit_price\"]`."
+    },
+    {
+      "tr": "Büyükten küçüğe ilk üç: `sorted(result.items(), key=lambda kv: -kv[1])[:3]`.",
+      "en": "The top three, largest first: `sorted(result.items(), key=lambda kv: -kv[1])[:3]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom collections import defaultdict\nfrom orders_data import make_orders\n\norders = make_orders(50_000)\nrows = orders[[\"category\", \"quantity\", \"unit_price\"]].to_dict(\"records\")\n\n\ndef mapper(row):\n    yield row[\"category\"], row[\"quantity\"] * row[\"unit_price\"]\n\n\ndef reducer(key, values):\n    return key, sum(values)\n\n\ngroups = defaultdict(list)\nfor row in rows:\n    for key, value in mapper(row):\n        groups[key].append(value)\nresult = dict(reducer(k, v) for k, v in groups.items())\n\ntop = sorted(result.items(), key=lambda kv: -kv[1])[:3]\nfor category, revenue in top:\n    print(category, round(revenue / 1e6, 2))\n\nexpected = (orders[\"quantity\"] * orders[\"unit_price\"]).groupby(orders[\"category\"]).sum()\nprint(all(abs(result[c] - expected[c]) < 0.01 for c in expected.index))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom collections import defaultdict\nfrom orders_data import make_orders\n\norders = make_orders(50_000)\nrows = orders[[\"category\", \"quantity\", \"unit_price\"]].to_dict(\"records\")\n\n\ndef mapper(row):\n    yield row[\"category\"], row[\"quantity\"] * row[\"unit_price\"]\n\n\ndef reducer(key, values):\n    return key, sum(values)\n\n\ngroups = defaultdict(list)\nfor row in rows:\n    for key, value in mapper(row):\n        groups[key].append(value)\nresult = dict(reducer(k, v) for k, v in groups.items())\n\ntop = sorted(result.items(), key=lambda kv: -kv[1])[:3]\nfor category, revenue in top:\n    print(category, round(revenue / 1e6, 2))\n\nexpected = (orders[\"quantity\"] * orders[\"unit_price\"]).groupby(orders[\"category\"]).sum()\nprint(all(abs(result[c] - expected[c]) < 0.01 for c in expected.index))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "electronics 39.67\nclothing 13.68\nhome 10.43\nTrue"
+    }
+  ]
+}

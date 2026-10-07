@@ -1,0 +1,46 @@
+{
+  "id": "shrink-safely",
+  "title": {
+    "tr": "Güvenle küçült",
+    "en": "Shrink safely"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "Sütunları döngüyle çevir: `for column in [...]: small[column] = pd.to_numeric(small[column], downcast=\"integer\")`.",
+      "en": "Convert the columns in a loop: `for column in [...]: small[column] = pd.to_numeric(small[column], downcast=\"integer\")`."
+    },
+    {
+      "tr": "Tür: `small[\"quantity\"].dtype`. Ciro: `(small[\"quantity\"] * small[\"unit_price\"]).sum()`.",
+      "en": "The type: `small[\"quantity\"].dtype`. Revenue: `(small[\"quantity\"] * small[\"unit_price\"]).sum()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\norders = pd.read_csv(\"orders.csv\")\nMB = 1024**2\n\nprint(round(orders.memory_usage(deep=True).sum() / MB, 1))\n\nsmall = orders.copy()\nfor column in [\"order_id\", \"customer_id\", \"quantity\"]:\n    small[column] = pd.to_numeric(small[column], downcast=\"integer\")\nfor column in [\"city\", \"category\", \"payment\"]:\n    small[column] = small[column].astype(\"category\")\n\nprint(round(small.memory_usage(deep=True).sum() / MB, 1))\nprint(small[\"quantity\"].dtype, small[\"customer_id\"].dtype)\n\nbefore = (orders[\"quantity\"] * orders[\"unit_price\"]).sum()\nafter = (small[\"quantity\"] * small[\"unit_price\"]).sum()\nprint(before == after)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\norders = pd.read_csv(\"orders.csv\")\nMB = 1024**2\n\nprint(round(orders.memory_usage(deep=True).sum() / MB, 1))\n\nsmall = orders.copy()\nfor column in [\"order_id\", \"customer_id\", \"quantity\"]:\n    small[column] = pd.to_numeric(small[column], downcast=\"integer\")\nfor column in [\"city\", \"category\", \"payment\"]:\n    small[column] = small[column].astype(\"category\")\n\nprint(round(small.memory_usage(deep=True).sum() / MB, 1))\nprint(small[\"quantity\"].dtype, small[\"customer_id\"].dtype)\n\nbefore = (orders[\"quantity\"] * orders[\"unit_price\"]).sum()\nafter = (small[\"quantity\"] * small[\"unit_price\"]).sum()\nprint(before == after)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "19.2\n9.0\nint8 int32\nTrue"
+    }
+  ]
+}

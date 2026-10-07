@@ -1,0 +1,46 @@
+{
+  "id": "segment-join",
+  "title": {
+    "tr": "Segmentlere göre birleştir",
+    "en": "Join by segment"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`FROM 'orders.parquet' AS o JOIN customers AS c USING (customer_id)`.",
+      "en": "`FROM 'orders.parquet' AS o JOIN customers AS c USING (customer_id)`."
+    },
+    {
+      "tr": "Ciro: `round(sum(o.quantity * o.unit_price) / 1e6, 2)`.",
+      "en": "The revenue: `round(sum(o.quantity * o.unit_price) / 1e6, 2)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\norders[\"order_time\"] = pd.to_datetime(orders[\"order_time\"])\norders.to_parquet(\"orders.parquet\", index=False)\n\nids = pd.RangeIndex(1, 50_000)\ncustomers = pd.DataFrame({\n    \"customer_id\": ids,\n    \"segment\": pd.Series([\"new\", \"regular\", \"vip\"]).iloc[ids % 3].values,\n})\n\nrows = duckdb.sql(\"\"\"\n    SELECT c.segment, count(*) AS orders,\n           round(sum(o.quantity * o.unit_price) / 1e6, 2) AS revenue_m\n    FROM 'orders.parquet' AS o\n    JOIN customers AS c USING (customer_id)\n    GROUP BY c.segment\n    ORDER BY c.segment\n\"\"\").fetchall()\nfor segment, orders, revenue in rows:\n    print(segment, orders, revenue)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\norders[\"order_time\"] = pd.to_datetime(orders[\"order_time\"])\norders.to_parquet(\"orders.parquet\", index=False)\n\nids = pd.RangeIndex(1, 50_000)\ncustomers = pd.DataFrame({\n    \"customer_id\": ids,\n    \"segment\": pd.Series([\"new\", \"regular\", \"vip\"]).iloc[ids % 3].values,\n})\n\nrows = duckdb.sql(\"\"\"\n    SELECT c.segment, count(*) AS orders,\n           round(sum(o.quantity * o.unit_price) / 1e6, 2) AS revenue_m\n    FROM 'orders.parquet' AS o\n    JOIN customers AS c USING (customer_id)\n    GROUP BY c.segment\n    ORDER BY c.segment\n\"\"\").fetchall()\nfor segment, orders, revenue in rows:\n    print(segment, orders, revenue)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "new 66603 109.69\nregular 67034 109.75\nvip 66363 107.99"
+    }
+  ]
+}

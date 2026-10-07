@@ -1,0 +1,50 @@
+{
+  "id": "spending-alert",
+  "title": {
+    "tr": "Harcama uyarısı",
+    "en": "A spending alert"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "stream_data.py",
+      "readonly": true
+    },
+    {
+      "name": "minilog.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Eski toplamı ekleme yapmadan önce sakla: `before = spent[card]`.",
+      "en": "Save the old total before adding: `before = spent[card]`."
+    },
+    {
+      "tr": "Soldan çıkarmak: `while recent[card][0][0] <= event[\"ts\"] - 120:` içinde `old_ts, old_amount = recent[card].popleft()` ve `spent[card] -= old_amount`. Eşik: `if before <= 1000 < spent[card]:`.",
+      "en": "Removing from the left: inside `while recent[card][0][0] <= event[\"ts\"] - 120:`, `old_ts, old_amount = recent[card].popleft()` and `spent[card] -= old_amount`. The limit: `if before <= 1000 < spent[card]:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom stream_data import payments\nfrom collections import defaultdict, deque\n\nrecent = defaultdict(deque)\nspent = defaultdict(float)\nalerts = 0\n\nfor event in payments(20_000):\n    card = event[\"card\"]\n    before = spent[card]\n    recent[card].append((event[\"ts\"], event[\"amount\"]))\n    spent[card] += event[\"amount\"]\n    while recent[card][0][0] <= event[\"ts\"] - 120:\n        old_ts, old_amount = recent[card].popleft()\n        spent[card] -= old_amount\n    if before <= 1000 < spent[card]:\n        alerts += 1\n        if alerts <= 3:\n            print(event[\"event_id\"], card, round(spent[card], 2))\n\nprint(alerts)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom stream_data import payments\nfrom collections import defaultdict, deque\n\nrecent = defaultdict(deque)\nspent = defaultdict(float)\nalerts = 0\n\nfor event in payments(20_000):\n    card = event[\"card\"]\n    before = spent[card]\n    recent[card].append((event[\"ts\"], event[\"amount\"]))\n    spent[card] += event[\"amount\"]\n    while recent[card][0][0] <= event[\"ts\"] - 120:\n        old_ts, old_amount = recent[card].popleft()\n        spent[card] -= old_amount\n    if before <= 1000 < spent[card]:\n        alerts += 1\n        if alerts <= 3:\n            print(event[\"event_id\"], card, round(spent[card], 2))\n\nprint(alerts)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "708 C086 1016.64\n869 C053 1057.89\n1331 C183 1002.36\n70"
+    }
+  ]
+}

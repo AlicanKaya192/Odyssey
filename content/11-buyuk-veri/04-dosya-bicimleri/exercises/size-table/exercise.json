@@ -1,0 +1,46 @@
+{
+  "id": "size-table",
+  "title": {
+    "tr": "Boyut tablosu",
+    "en": "A size table"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Gzip'li CSV için yalnızca dosya adının sonuna `.gz` ekle: `df.to_csv(\"orders.csv.gz\", index=False)`.",
+      "en": "For a gzipped CSV just add `.gz` to the file name: `df.to_csv(\"orders.csv.gz\", index=False)`."
+    },
+    {
+      "tr": "`for name in [\"orders.csv\", \"orders.csv.gz\", \"orders.parquet\"]:` ve `os.path.getsize(name) / 1024**2`.",
+      "en": "`for name in [\"orders.csv\", \"orders.csv.gz\", \"orders.parquet\"]:` and `os.path.getsize(name) / 1024**2`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport os\nimport pandas as pd\nfrom orders_data import make_orders\n\ndf = make_orders(200_000)\ndf[\"order_time\"] = pd.to_datetime(df[\"order_time\"])\nfor c in [\"city\", \"category\", \"payment\"]:\n    df[c] = df[c].astype(\"category\")\n\ndf.to_csv(\"orders.csv\", index=False)\ndf.to_csv(\"orders.csv.gz\", index=False)\ndf.to_parquet(\"orders.parquet\")\n\nfor name in [\"orders.csv\", \"orders.csv.gz\", \"orders.parquet\"]:\n    print(name, round(os.path.getsize(name) / 1024**2, 2))\n\nprint(round(os.path.getsize(\"orders.csv\") / os.path.getsize(\"orders.parquet\"), 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport os\nimport pandas as pd\nfrom orders_data import make_orders\n\ndf = make_orders(200_000)\ndf[\"order_time\"] = pd.to_datetime(df[\"order_time\"])\nfor c in [\"city\", \"category\", \"payment\"]:\n    df[c] = df[c].astype(\"category\")\n\ndf.to_csv(\"orders.csv\", index=False)\ndf.to_csv(\"orders.csv.gz\", index=False)\ndf.to_parquet(\"orders.parquet\")\n\nfor name in [\"orders.csv\", \"orders.csv.gz\", \"orders.parquet\"]:\n    print(name, round(os.path.getsize(name) / 1024**2, 2))\n\nprint(round(os.path.getsize(\"orders.csv\") / os.path.getsize(\"orders.parquet\"), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "orders.csv 11.99\norders.csv.gz 3.08\norders.parquet 4.29\n2.8"
+    }
+  ]
+}

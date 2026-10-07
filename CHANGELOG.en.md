@@ -48,11 +48,19 @@ lecture note does not mean downloading the whole application again.
   your Dockerfile and compose file; with Docker Desktop running they also
   really build and run the image. The new **Storage** page in Settings
   removes the images and SQL databases the exercises leave behind.
+- **The Big Data track.** Working with data that does not fit in memory, in
+  seventeen sections: measuring memory, shrinking with data types, reading
+  in chunks, Parquet and partitioned data, SQL on files with DuckDB,
+  sampling, parallel processing and dask, MapReduce, how Spark works,
+  streaming data and an end-to-end data pipeline. The exercises' large data
+  files are generated on your computer; the Spark and Kafka sections use
+  small look-alikes that come with the program, so nothing needs to be
+  installed.
 - **The Data Engineer roadmap.** A new route in Roadmaps for the work of
   pulling data from a source, cleaning, storing and serving it: Python,
   Git, SQL, pandas, Big Data, APIs and Docker, with focus sections at each
-  step. The upcoming Big Data track is also an optional step on the Data
-  Scientist and ML Engineer routes.
+  step. The Big Data track is also an optional step on the Data Scientist
+  and ML Engineer routes.
 
 ### Fixed
 - **Step-by-step tracing names classes correctly.** While the body of a

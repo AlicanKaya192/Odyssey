@@ -47,11 +47,18 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   imajı gerçekten derleyip çalıştırıyor. Alıştırmaların bıraktığı imajları
   ve SQL veritabanlarını Ayarlar'daki yeni **Depolama** sayfasından
   silebiliyorsunuz.
+- **Büyük Veri patikası.** On yedi bölümde belleğe sığmayan veriyle
+  çalışmak: belleği ölçmek, veri tipleriyle küçültmek, parça parça okumak,
+  Parquet ve bölümlenmiş veri, DuckDB ile dosyada SQL, örnekleme, paralel
+  işleme ve dask, MapReduce, Spark'ın mantığı, akan veri ve uçtan uca bir
+  veri hattı. Alıştırmaların büyük veri dosyaları bilgisayarınızda
+  üretiliyor; Spark ve Kafka bölümlerinde programla gelen küçük
+  benzerleri kullanılıyor, kurulum gerekmiyor.
 - **Veri Mühendisi rotası.** Rotalar'da veriyi bir kaynaktan çekip
   temizleyen, saklayan ve sunan işler için yeni bir rota: Python, Git,
   SQL, pandas, Büyük Veri, API ve Docker, her adımda odaklanılacak
-  bölümlerle. Yakında gelecek Büyük Veri patikası Veri Bilimci ve ML
-  Mühendisi rotalarına da isteğe bağlı adım olarak eklendi.
+  bölümlerle. Büyük Veri patikası Veri Bilimci ve ML Mühendisi
+  rotalarına da isteğe bağlı adım olarak eklendi.
 
 ### Düzeltildi
 - **Adım adım izleme sınıfları doğru adlandırıyor.** Bir sınıfın gövdesi

@@ -1,0 +1,46 @@
+{
+  "id": "measure-first",
+  "title": {
+    "tr": "Önce ölç",
+    "en": "Measure first"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "Örnek: `pd.read_csv(\"orders.csv\", nrows=5_000, dtype=DTYPES)`; satır başına `memory_usage(deep=True).sum() / len(sample)`.",
+      "en": "The sample: `pd.read_csv(\"orders.csv\", nrows=5_000, dtype=DTYPES)`; per row `memory_usage(deep=True).sum() / len(sample)`."
+    },
+    {
+      "tr": "Fark oranı: `abs(estimate - real) / real < 0.02`. Yuvarlamayı yalnızca yazdırırken yap.",
+      "en": "The difference ratio: `abs(estimate - real) / real < 0.02`. Round only when printing."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport os\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\nDTYPES = {\"order_id\": \"int32\", \"customer_id\": \"int32\", \"quantity\": \"int8\",\n          \"city\": \"category\", \"category\": \"category\", \"payment\": \"category\"}\nMB = 1024**2\n\nprint(round(os.path.getsize(\"orders.csv\") / MB, 1))\n\nsample = pd.read_csv(\"orders.csv\", nrows=5_000, dtype=DTYPES)\nestimate = sample.memory_usage(deep=True).sum() / len(sample) * 200_000 / MB\nprint(round(estimate, 1))\n\nfull = pd.read_csv(\"orders.csv\", dtype=DTYPES)\nreal = full.memory_usage(deep=True).sum() / MB\nprint(round(real, 1))\nprint(abs(estimate - real) / real < 0.02)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport os\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\nDTYPES = {\"order_id\": \"int32\", \"customer_id\": \"int32\", \"quantity\": \"int8\",\n          \"city\": \"category\", \"category\": \"category\", \"payment\": \"category\"}\nMB = 1024**2\n\nprint(round(os.path.getsize(\"orders.csv\") / MB, 1))\n\nsample = pd.read_csv(\"orders.csv\", nrows=5_000, dtype=DTYPES)\nestimate = sample.memory_usage(deep=True).sum() / len(sample) * 200_000 / MB\nprint(round(estimate, 1))\n\nfull = pd.read_csv(\"orders.csv\", dtype=DTYPES)\nreal = full.memory_usage(deep=True).sum() / MB\nprint(round(real, 1))\nprint(abs(estimate - real) / real < 0.02)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "12.0\n9.0\n9.0\nTrue"
+    }
+  ]
+}

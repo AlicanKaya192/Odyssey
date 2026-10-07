@@ -1,0 +1,36 @@
+{
+  "id": "primes-with-processes",
+  "title": {
+    "tr": "Süreçlerle asal say",
+    "en": "Count primes with processes"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "`with ProcessPoolExecutor(max_workers=2) as ex:` ve içinde `counts = list(ex.map(count_primes, parts))`.",
+      "en": "`with ProcessPoolExecutor(max_workers=2) as ex:` and inside it `counts = list(ex.map(count_primes, parts))`."
+    },
+    {
+      "tr": "Havuzu kuran kod `if __name__ == \"__main__\":` bloğunun içinde kalmalı.",
+      "en": "The code that builds the pool must stay inside the `if __name__ == \"__main__\":` block."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom concurrent.futures import ProcessPoolExecutor\n\n\ndef count_primes(bounds):\n    start, stop = bounds\n    count = 0\n    for n in range(start, stop):\n        if n < 2:\n            continue\n        d = 2\n        while d * d <= n:\n            if n % d == 0:\n                break\n            d += 1\n        else:\n            count += 1\n    return count\n\n\nif __name__ == \"__main__\":\n    parts = [(i * 25_000, (i + 1) * 25_000) for i in range(4)]\n    with ProcessPoolExecutor(max_workers=2) as ex:\n        counts = list(ex.map(count_primes, parts))\n    print(counts)\n    total = sum(counts)\n    print(total)\n    print(total == sum(map(count_primes, parts)))\n```",
+      "en": "The full solution:\n\n```python\nfrom concurrent.futures import ProcessPoolExecutor\n\n\ndef count_primes(bounds):\n    start, stop = bounds\n    count = 0\n    for n in range(start, stop):\n        if n < 2:\n            continue\n        d = 2\n        while d * d <= n:\n            if n % d == 0:\n                break\n            d += 1\n        else:\n            count += 1\n    return count\n\n\nif __name__ == \"__main__\":\n    parts = [(i * 25_000, (i + 1) * 25_000) for i in range(4)]\n    with ProcessPoolExecutor(max_workers=2) as ex:\n        counts = list(ex.map(count_primes, parts))\n    print(counts)\n    total = sum(counts)\n    print(total)\n    print(total == sum(map(count_primes, parts)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2762, 2371, 2260, 2199]\n9592\nTrue"
+    }
+  ]
+}

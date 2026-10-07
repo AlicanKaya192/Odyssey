@@ -1,0 +1,46 @@
+{
+  "id": "split-by-category",
+  "title": {
+    "tr": "Kategoriye göre böl",
+    "en": "Split by category"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Klasör yolu: `Path(\"by_category\") / f\"category={category}\"`.",
+      "en": "The folder path: `Path(\"by_category\") / f\"category={category}\"`."
+    },
+    {
+      "tr": "Klasörün içindekiler: `Path(\"by_category\").iterdir()`; adları `p.name`.",
+      "en": "A folder's contents: `Path(\"by_category\").iterdir()`; their names are `p.name`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom pathlib import Path\nfrom orders_data import make_orders\n\ndf = make_orders(100_000)\n\nfor category, part in df.groupby(\"category\"):\n    folder = Path(\"by_category\") / f\"category={category}\"\n    folder.mkdir(parents=True, exist_ok=True)\n    part.drop(columns=\"category\").to_parquet(folder / \"part-0.parquet\", index=False)\n\nnames = sorted(p.name for p in Path(\"by_category\").iterdir())\nfor name in names:\n    print(name)\nprint(len(names))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom pathlib import Path\nfrom orders_data import make_orders\n\ndf = make_orders(100_000)\n\nfor category, part in df.groupby(\"category\"):\n    folder = Path(\"by_category\") / f\"category={category}\"\n    folder.mkdir(parents=True, exist_ok=True)\n    part.drop(columns=\"category\").to_parquet(folder / \"part-0.parquet\", index=False)\n\nnames = sorted(p.name for p in Path(\"by_category\").iterdir())\nfor name in names:\n    print(name)\nprint(len(names))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "category=books\ncategory=clothing\ncategory=electronics\ncategory=home\ncategory=sports\ncategory=toys\n6"
+    }
+  ]
+}

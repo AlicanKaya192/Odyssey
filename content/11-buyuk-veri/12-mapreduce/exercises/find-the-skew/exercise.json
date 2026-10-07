@@ -1,0 +1,46 @@
+{
+  "id": "find-the-skew",
+  "title": {
+    "tr": "Çarpıklığı bul",
+    "en": "Find the skew"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Her siparişe makine: `orders[\"city\"].map(lambda city: partition(city, 3))`.",
+      "en": "A machine for each order: `orders[\"city\"].map(lambda city: partition(city, 3))`."
+    },
+    {
+      "tr": "Makine başına sayı: `value_counts().sort_index()`.",
+      "en": "The count per machine: `value_counts().sort_index()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport zlib\nfrom orders_data import make_orders\n\n\ndef partition(key, reducers):\n    return zlib.crc32(key.encode()) % reducers\n\n\norders = make_orders(200_000)\n\nmachine = orders[\"city\"].map(lambda city: partition(city, 3))\ncounts = machine.value_counts().sort_index()\nprint(counts.tolist())\n\nshares = (counts / counts.sum() * 100).round(1)\nprint(shares.tolist())\n\nprint(round(counts.max() / counts.min(), 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport zlib\nfrom orders_data import make_orders\n\n\ndef partition(key, reducers):\n    return zlib.crc32(key.encode()) % reducers\n\n\norders = make_orders(200_000)\n\nmachine = orders[\"city\"].map(lambda city: partition(city, 3))\ncounts = machine.value_counts().sort_index()\nprint(counts.tolist())\n\nshares = (counts / counts.sum() * 100).round(1)\nprint(shares.tolist())\n\nprint(round(counts.max() / counts.min(), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[132175, 57962, 9863]\n[66.1, 29.0, 4.9]\n13.4"
+    }
+  ]
+}

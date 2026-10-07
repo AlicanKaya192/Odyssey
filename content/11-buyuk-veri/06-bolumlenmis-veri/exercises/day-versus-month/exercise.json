@@ -1,0 +1,46 @@
+{
+  "id": "day-versus-month",
+  "title": {
+    "tr": "Gün mü, ay mı?",
+    "en": "Day or month?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "İki düzeni tek döngüyle yazmak: `for column, root in [(\"month\", \"by_month\"), (\"day\", \"by_day\")]:`.",
+      "en": "Writing both layouts in one loop: `for column, root in [(\"month\", \"by_month\"), (\"day\", \"by_day\")]:`."
+    },
+    {
+      "tr": "Toplam boyut: `sum(f.stat().st_size for f in files)`.",
+      "en": "The total size: `sum(f.stat().st_size for f in files)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom pathlib import Path\nimport pandas as pd\nfrom orders_data import make_orders\n\ndf = make_orders(50_000)\ndf[\"order_time\"] = pd.to_datetime(df[\"order_time\"])\n\ndf[\"month\"] = df[\"order_time\"].dt.strftime(\"%Y-%m\")\ndf[\"day\"] = df[\"order_time\"].dt.strftime(\"%Y-%m-%d\")\n\nfor column, root in [(\"month\", \"by_month\"), (\"day\", \"by_day\")]:\n    for value, part in df.groupby(column):\n        folder = Path(root) / f\"{column}={value}\"\n        folder.mkdir(parents=True, exist_ok=True)\n        part.drop(columns=[\"month\", \"day\"]).to_parquet(folder / \"part-0.parquet\", index=False)\n\ntotals = {}\nfor root in [\"by_month\", \"by_day\"]:\n    files = list(Path(root).rglob(\"*.parquet\"))\n    totals[root] = sum(f.stat().st_size for f in files)\n    print(root, len(files), round(totals[root] / 1024, 1))\n\nprint(round(totals[\"by_day\"] / totals[\"by_month\"], 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom pathlib import Path\nimport pandas as pd\nfrom orders_data import make_orders\n\ndf = make_orders(50_000)\ndf[\"order_time\"] = pd.to_datetime(df[\"order_time\"])\n\ndf[\"month\"] = df[\"order_time\"].dt.strftime(\"%Y-%m\")\ndf[\"day\"] = df[\"order_time\"].dt.strftime(\"%Y-%m-%d\")\n\nfor column, root in [(\"month\", \"by_month\"), (\"day\", \"by_day\")]:\n    for value, part in df.groupby(column):\n        folder = Path(root) / f\"{column}={value}\"\n        folder.mkdir(parents=True, exist_ok=True)\n        part.drop(columns=[\"month\", \"day\"]).to_parquet(folder / \"part-0.parquet\", index=False)\n\ntotals = {}\nfor root in [\"by_month\", \"by_day\"]:\n    files = list(Path(root).rglob(\"*.parquet\"))\n    totals[root] = sum(f.stat().st_size for f in files)\n    print(root, len(files), round(totals[root] / 1024, 1))\n\nprint(round(totals[\"by_day\"] / totals[\"by_month\"], 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "by_month 12 1366.6\nby_day 366 3164.8\n2.32"
+    }
+  ]
+}

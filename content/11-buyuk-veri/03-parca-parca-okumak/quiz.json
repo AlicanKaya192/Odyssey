@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.read_csv(\"orders.csv\", nrows=3)` ne yapar?",
+        "en": "What does `pd.read_csv(\"orders.csv\", nrows=3)` do?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca ilk 3 satırı okur",
+          "Dosyayı 3 parçaya böler",
+          "Her 3 satırdan birini okur",
+          "Son 3 satırı okur"
+        ],
+        "en": [
+          "It reads only the first 3 rows",
+          "It splits the file into 3 chunks",
+          "It reads every third row",
+          "It reads the last 3 rows"
+        ]
+      },
+      "explanation": {
+        "tr": "Büyük bir dosyada ilk iş sütunlara ve değerlerin biçimine bakmak; bütün dosyayı okumaya gerek yok.",
+        "en": "With a big file the first job is to look at the columns and the form of the values; there is no need to read the whole file."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.read_csv(\"orders.csv\", chunksize=100_000)` ne döndürür?",
+        "en": "What does `pd.read_csv(\"orders.csv\", chunksize=100_000)` return?"
+      },
+      "options": {
+        "tr": [
+          "Parçaları sırayla veren bir okuyucu",
+          "100 000 satırlık tek bir tablo",
+          "Parçaların listesi",
+          "Satır sayısı"
+        ],
+        "en": [
+          "A reader that hands out the chunks in turn",
+          "A single table of 100 000 rows",
+          "A list of the chunks",
+          "The number of rows"
+        ]
+      },
+      "explanation": {
+        "tr": "Tablo değil `TextFileReader`. `for chunk in reader:` ile gezince her adımda bir `DataFrame` geliyor.",
+        "en": "Not a table but a `TextFileReader`. Looping with `for chunk in reader:` brings one `DataFrame` at each step."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Parça parça okumanın bellekle ilgili asıl üstünlüğü ne?",
+        "en": "What is the real memory advantage of reading in chunks?"
+      },
+      "options": {
+        "tr": [
+          "Bellek dosyanın değil parçanın boyutuna bağlı",
+          "Dosya diskte küçülüyor",
+          "Sonuç her zaman daha hızlı çıkıyor",
+          "pandas daha az sütun okuyor"
+        ],
+        "en": [
+          "Memory depends on the size of the chunk, not of the file",
+          "The file shrinks on disk",
+          "The result always comes faster",
+          "pandas reads fewer columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Önceki parça bir sonraki gelmeden bırakılıyor; ölçümde tepe 4,7 MB'a karşı 23,8 MB çıktı.",
+        "en": "The previous chunk is let go before the next arrives; in the measurement the peak was 4.7 MB against 23.8 MB."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Bir `chunksize` okuyucusunu ikinci kez gezmek için ne gerekir?",
+        "en": "What do you need to loop over a `chunksize` reader a second time?"
+      },
+      "options": {
+        "tr": [
+          "`read_csv`'yi yeniden çağırmak",
+          "Hiçbir şey, yeniden gezilir",
+          "`reader.reset()`",
+          "Parçaları silmek"
+        ],
+        "en": [
+          "Calling `read_csv` again",
+          "Nothing, it can be looped again",
+          "`reader.reset()`",
+          "Deleting the chunks"
+        ]
+      },
+      "explanation": {
+        "tr": "Okuyucu bir yineleyici: dosyada ilerliyor ve sona gelince bitiyor.",
+        "en": "The reader is an iterator: it moves through the file and is done when it reaches the end."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Parçalardan toplam ciro nasıl bulunur?",
+        "en": "How do you find the total revenue from chunks?"
+      },
+      "options": {
+        "tr": [
+          "Her parçanın toplamını bir değişkene ekleyerek",
+          "Her parçanın ortalamasını alıp ortalamalarını alarak",
+          "Yalnızca son parçanın toplamıyla",
+          "Parçaları birleştirip tek tabloda toplayarak"
+        ],
+        "en": [
+          "By adding each chunk's total to a variable",
+          "By taking the mean of each chunk's mean",
+          "With the last chunk's total only",
+          "By joining the chunks into one table and adding up"
+        ]
+      },
+      "explanation": {
+        "tr": "`total += revenue.sum()`: sonuç dosyanın tamamından hesaplanan değerle birebir aynı, 1 635 737 361,77.",
+        "en": "`total += revenue.sum()`: the result is exactly the value worked out from the whole file, 1 635 737 361.77."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Parça büyüklükleri farklıyken ortalamaların ortalaması neden yanlıştır?",
+        "en": "Why is the mean of means wrong when chunk sizes differ?"
+      },
+      "options": {
+        "tr": [
+          "Küçük parçaya büyük parçalar kadar ağırlık veriyor",
+          "Ortalama parçalarla hesaplanamaz",
+          "pandas ortalamayı yanlış hesaplıyor",
+          "Yuvarlama yüzünden"
+        ],
+        "en": [
+          "It gives a small chunk as much weight as the big ones",
+          "A mean cannot be worked out with chunks",
+          "pandas works out means wrongly",
+          "Because of rounding"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölümde 736,287 çıktı, gerçek ortalama 736,869. 100 000 satırlık son parça, 300 000 satırlıklar kadar etkiledi.",
+        "en": "In the section it came to 736.287; the real mean is 736.869. The last chunk of 100 000 rows had as much effect as the chunks of 300 000."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Parçalarla ortalamanın doğru yolu hangisi?",
+        "en": "What is the right way to get the mean with chunks?"
+      },
+      "options": {
+        "tr": [
+          "Toplamı ve sayıyı ayrı biriktirip en sonda bölmek",
+          "Her parçanın ortancasını almak",
+          "Yalnızca ilk parçanın ortalamasını kullanmak",
+          "Ortalamaları çarpmak"
+        ],
+        "en": [
+          "Accumulate the total and the count separately and divide at the end",
+          "Take each chunk's median",
+          "Use only the first chunk's mean",
+          "Multiply the means"
+        ]
+      },
+      "explanation": {
+        "tr": "Ortalama birleşmiyor ama toplam ve sayı birleşiyor.",
+        "en": "Means do not combine, but totals and counts do."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "Parça parça şehir başına toplam için doğru kalıp hangisi?",
+        "en": "What is the right pattern for a total per city in chunks?"
+      },
+      "options": {
+        "tr": [
+          "Her parçada `groupby` toplamı, sonra `pd.concat(...).groupby(level=0).sum()`",
+          "Her parçada `groupby` ortalaması, sonra ortalamaların ortalaması",
+          "Yalnızca ilk parçada `groupby`",
+          "Parçaları tek tabloda birleştirip sonra `groupby`"
+        ],
+        "en": [
+          "A `groupby` total in each chunk, then `pd.concat(...).groupby(level=0).sum()`",
+          "A `groupby` mean in each chunk, then the mean of means",
+          "A `groupby` in the first chunk only",
+          "Joining the chunks into one table, then `groupby`"
+        ]
+      },
+      "explanation": {
+        "tr": "Parçada özetle, özetleri birleştir. Son seçenek de doğru sonucu verir ama bütün veriyi belleğe toplar; parçalarla okumanın anlamı kalmaz.",
+        "en": "Summarise in the chunk, combine the summaries. The last option also gives the right result but gathers all the data into memory, which defeats the point of chunks."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.concat(parts).groupby(level=0).sum()` içindeki `level=0` ne demek?",
+        "en": "What does `level=0` mean in `pd.concat(parts).groupby(level=0).sum()`?"
+      },
+      "options": {
+        "tr": [
+          "İndekse (burada şehir adına) göre grupla",
+          "İlk sütuna göre grupla",
+          "Yalnızca ilk parçayı al",
+          "Sıfır olan değerleri at"
+        ],
+        "en": [
+          "Group by the index (here, the city name)",
+          "Group by the first column",
+          "Take only the first chunk",
+          "Drop the values that are zero"
+        ]
+      },
+      "explanation": {
+        "tr": "Parça sonuçları şehir adı indeksli seriler; birleştirince aynı şehir birçok kez geçiyor ve indekse göre yeniden toplanıyor.",
+        "en": "The chunk results are series indexed by city name; once joined the same city appears many times and is added up again by the index."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Parça başına `nunique()` değerlerini toplamak neden yanlıştır?",
+        "en": "Why is adding up per-chunk `nunique()` values wrong?"
+      },
+      "options": {
+        "tr": [
+          "Aynı değer birçok parçada geçiyorsa birçok kez sayılıyor",
+          "`nunique()` parçalarda çalışmıyor",
+          "Sonuç her zaman küçük çıkıyor",
+          "Eksik değerler yüzünden"
+        ],
+        "en": [
+          "A value that appears in many chunks is counted many times",
+          "`nunique()` does not work on chunks",
+          "The result always comes out too small",
+          "Because of missing values"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölümde 824 660 çıktı; gerçek farklı müşteri sayısı 245 461.",
+        "en": "In the section it came to 824 660; the real number of different customers is 245 461."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Parçalarla farklı müşteri sayısını doğru bulmanın yolu ve bedeli ne?",
+        "en": "What is the way to count distinct customers correctly with chunks, and its cost?"
+      },
+      "options": {
+        "tr": [
+          "Görülenleri bir `set`'te toplamak; küme her farklı değeri bellekte tutar",
+          "`nunique()` toplamak; bedeli yok",
+          "Her parçanın en büyüğünü almak; bedeli yok",
+          "Bulunamaz"
+        ],
+        "en": [
+          "Collect the values seen in a `set`; the set keeps every different value in memory",
+          "Add up `nunique()`; no cost",
+          "Take each chunk's maximum; no cost",
+          "It cannot be found"
+        ]
+      },
+      "explanation": {
+        "tr": "Farklı değer sayısı çok büyükse küme de sığmayabilir; yaklaşık yöntemler Bölüm 9'da.",
+        "en": "If the number of different values is huge, the set may not fit either; approximate methods are in Section 9."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Ortanca neden parçalardan kesin bulunamaz?",
+        "en": "Why can the median not be found exactly from chunks?"
+      },
+      "options": {
+        "tr": [
+          "Parça ortancalarının bütünün ortancasıyla bir ilişkisi yok",
+          "pandas parçada ortanca hesaplamıyor",
+          "Ortanca yalnızca tam sayılarda hesaplanır",
+          "Bulunabilir, toplamak yeter"
+        ],
+        "en": [
+          "Chunk medians have no relationship to the median of the whole",
+          "pandas does not work out medians in chunks",
+          "Medians only exist for whole numbers",
+          "It can, just add them up"
+        ]
+      },
+      "explanation": {
+        "tr": "Kesin ortanca için bütün değerler gerekiyor; ya hepsi saklanır ya da yaklaşık bir yöntem kullanılır.",
+        "en": "An exact median needs all the values; either keep them all or use an approximate method."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Hangisi parçaların sonuçlarından **doğrudan** birleşir?",
+        "en": "Which of these combines **directly** from the chunks' results?"
+      },
+      "options": {
+        "tr": [
+          "En büyük değer",
+          "Ortalama",
+          "Ortanca",
+          "Farklı değer sayısı"
+        ],
+        "en": [
+          "The maximum",
+          "The mean",
+          "The median",
+          "The number of distinct values"
+        ]
+      },
+      "explanation": {
+        "tr": "Parçaların en büyüklerinin en büyüğü bütünün en büyüğü. Ortalama ancak toplam ve sayı biriktirilince, farklı değer sayısı ancak kümeyle.",
+        "en": "The largest of the chunks' maximums is the whole's maximum. The mean only with total and count, distinct values only with a set."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Her parçanın `nlargest(5)` sonuçları birleştirilip yeniden `nlargest(5)` alınırsa sonuç ne olur?",
+        "en": "If each chunk's `nlargest(5)` results are joined and `nlargest(5)` is taken again, what is the result?"
+      },
+      "options": {
+        "tr": [
+          "Bütünün en büyük 5 satırı, kesin olarak",
+          "Yaklaşık bir sonuç",
+          "Yalnızca son parçanın en büyük 5'i",
+          "Hata"
+        ],
+        "en": [
+          "The whole's 5 largest rows, exactly",
+          "An approximate result",
+          "Only the last chunk's 5 largest",
+          "An error"
+        ]
+      },
+      "explanation": {
+        "tr": "Bütünün en büyük 5 satırının her biri bulunduğu parçanın en büyük 5'i arasında olmak zorunda.",
+        "en": "Each of the whole's 5 largest rows has to be among the 5 largest of the chunk it is in."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Süzülmüş parçaları `pd.concat(pieces, ignore_index=True)` ile birleştirmek ne zaman uygundur?",
+        "en": "When is joining filtered chunks with `pd.concat(pieces, ignore_index=True)` suitable?"
+      },
+      "options": {
+        "tr": [
+          "Süzülen sonuç belleğe sığdığında",
+          "Her zaman",
+          "Hiçbir zaman",
+          "Yalnızca sayı sütunlarında"
+        ],
+        "en": [
+          "When the filtered result fits in memory",
+          "Always",
+          "Never",
+          "Only for numeric columns"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölümde bir milyon satırdan 139 775 elektronik siparişi kaldı: 14,1 MB. Sonuç büyükse dosyaya ekleyerek yaz.",
+        "en": "In the section 139 775 electronics orders remained out of a million rows: 14.1 MB. If the result is big, write it by appending to a file."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`ignore_index=True` ne işe yarar?",
+        "en": "What does `ignore_index=True` do?"
+      },
+      "options": {
+        "tr": [
+          "Parçaların eski indekslerini atıp 0'dan başlayan yeni bir indeks verir",
+          "Indeksi siler ve hiç indeks bırakmaz",
+          "Tekrar eden satırları atar",
+          "Sütun adlarını görmezden gelir"
+        ],
+        "en": [
+          "It drops the chunks' old indexes and gives a new index starting at 0",
+          "It deletes the index and leaves none",
+          "It drops repeated rows",
+          "It ignores the column names"
+        ]
+      },
+      "explanation": {
+        "tr": "Süzülmüş parçaların indeksleri dosyadaki satır numaraları; birleşince boşluklu ve karışık oluyor.",
+        "en": "The filtered chunks' indexes are row numbers from the file; once joined they are full of gaps."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Parça sonuçlarını bir dosyaya eklerken `mode=\"a\"` ne demek?",
+        "en": "When appending chunk results to a file, what does `mode=\"a\"` mean?"
+      },
+      "options": {
+        "tr": [
+          "Dosyanın sonuna ekle",
+          "Dosyayı sıfırdan yaz",
+          "Dosyayı yalnızca oku",
+          "Dosyayı sil"
+        ],
+        "en": [
+          "Add to the end of the file",
+          "Write the file from scratch",
+          "Only read the file",
+          "Delete the file"
+        ]
+      },
+      "explanation": {
+        "tr": "`a` = *append*. İlk parçada `mode=\"w\"` ile dosyayı sıfırdan açmak gerekiyor; yoksa eski bir çalıştırmanın satırları kalır.",
+        "en": "`a` = *append*. For the first chunk you need `mode=\"w\"` to start the file from scratch; otherwise rows from an old run remain."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Parçaları dosyaya eklerken neden `header=first` yazılır?",
+        "en": "Why write `header=first` when appending chunks to a file?"
+      },
+      "options": {
+        "tr": [
+          "Sütun adları yalnızca bir kez, en başa yazılsın diye",
+          "Her parçanın başına başlık konsun diye",
+          "Dosya daha küçük olsun diye",
+          "İlk sütun atlansın diye"
+        ],
+        "en": [
+          "So the column names are written once, at the top",
+          "So every chunk gets a header",
+          "So the file is smaller",
+          "So the first column is skipped"
+        ]
+      },
+      "explanation": {
+        "tr": "Her parçada başlık yazılırsa dosyanın ortasında sütun adlarından oluşan satırlar kalır ve okununca veri bozulur.",
+        "en": "If every chunk writes a header, rows of column names end up in the middle of the file and the data breaks when read."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "Çok küçük parçalar (ör. 10 000 satır) neden daha yavaş çalıştı?",
+        "en": "Why did very small chunks (e.g. 10 000 rows) run slower?"
+      },
+      "options": {
+        "tr": [
+          "pandas'ın her parçada sabit bir hazırlık işi var; çok parçada çok kez yapılıyor",
+          "Küçük parçalar daha çok bellek tutuyor",
+          "Disk küçük parçaları okuyamıyor",
+          "Küçük parçalarda hesap yanlış çıkıyor"
+        ],
+        "en": [
+          "pandas has a fixed amount of preparation for each chunk; with many chunks it is done many times",
+          "Small chunks take more memory",
+          "The disk cannot read small chunks",
+          "The calculation comes out wrong with small chunks"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu bilgisayarda 10 000'lik parçalar 1,23 sn, 100 000'lik parçalar 0,96 sn, tek seferde 0,89 sn sürdü.",
+        "en": "On this computer chunks of 10 000 took 1.23 s, chunks of 100 000 0.96 s, all at once 0.89 s."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "İyi bir parça büyüklüğü için kural hangisi?",
+        "en": "What is the rule for a good chunk size?"
+      },
+      "options": {
+        "tr": [
+          "Belleğe rahatça sığacak kadar küçük, hazırlık işini önemsiz kılacak kadar büyük",
+          "Her zaman 1 000 satır",
+          "Her zaman dosyanın yarısı",
+          "Ne kadar küçük o kadar iyi"
+        ],
+        "en": [
+          "Small enough to fit comfortably in memory, big enough to make the preparation negligible",
+          "Always 1 000 rows",
+          "Always half the file",
+          "The smaller the better"
+        ]
+      },
+      "explanation": {
+        "tr": "Birkaç on megabaytlık parçalar çoğu zaman iyi bir başlangıç; bu tabloda 100 000 satır yaklaşık 10 MB.",
+        "en": "Chunks of a few tens of megabytes are usually a good start; in this table 100 000 rows is about 10 MB."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`csv.DictReader` ile satır satır okumanın üstünlüğü ve bedeli ne?",
+        "en": "What are the advantage and the cost of reading row by row with `csv.DictReader`?"
+      },
+      "options": {
+        "tr": [
+          "Bellek dosyanın boyutundan bağımsız ama daha yavaş",
+          "Daha hızlı ama çok bellek tutuyor",
+          "Hem hızlı hem az bellek",
+          "Yalnızca küçük dosyalarda çalışıyor"
+        ],
+        "en": [
+          "Memory does not depend on the file size, but it is slower",
+          "Faster but takes a lot of memory",
+          "Both fast and low on memory",
+          "It only works on small files"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu bilgisayarda 1,74 sn, pandas parçalarıyla 0,96 sn: her değer Python'da tek tek sayıya çevriliyor.",
+        "en": "On this computer 1.74 s, against 0.96 s with pandas chunks: every value is turned into a number one by one in Python."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`csv.DictReader` her satırı hangi biçimde verir?",
+        "en": "In what form does `csv.DictReader` give each row?"
+      },
+      "options": {
+        "tr": [
+          "Sütun adı → değer sözlüğü; değerler metin",
+          "Sayılara çevrilmiş bir liste",
+          "Bir `DataFrame`",
+          "Tek bir metin"
+        ],
+        "en": [
+          "A dictionary of column name → value; the values are text",
+          "A list turned into numbers",
+          "A `DataFrame`",
+          "A single string"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu yüzden `int(row[\"quantity\"])` ve `float(row[\"unit_price\"])` ile çevirmek gerekiyor.",
+        "en": "That is why you need `int(row[\"quantity\"])` and `float(row[\"unit_price\"])` to convert them."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Python'da her adımda bir sonraki öğeyi üreten, hepsini bir listede tutmayan nesnelere ne denir?",
+        "en": "In Python, what are objects that produce the next item at each step without keeping them all in a list called?"
+      },
+      "options": {
+        "tr": [
+          "Yineleyici (iterator)",
+          "Sözlük",
+          "Küme",
+          "Demet"
+        ],
+        "en": [
+          "Iterators",
+          "Dictionaries",
+          "Sets",
+          "Tuples"
+        ]
+      },
+      "explanation": {
+        "tr": "Dosya nesnesi, `csv.DictReader` ve pandas'ın `chunksize` okuyucusu birer yineleyici.",
+        "en": "The file object, `csv.DictReader` and pandas' `chunksize` reader are all iterators."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Parçalarla okurken `usecols` ve `dtype` vermek neden hâlâ önemli?",
+        "en": "Why do `usecols` and `dtype` still matter when reading in chunks?"
+      },
+      "options": {
+        "tr": [
+          "Her parça daha küçük olur; aynı bellekle daha büyük parça okunabilir",
+          "Parçalarla okurken çalışmıyorlar",
+          "Yalnızca son parçayı etkiliyorlar",
+          "Önemli değil"
+        ],
+        "en": [
+          "Each chunk gets smaller; the same memory can hold a bigger chunk",
+          "They do not work when reading in chunks",
+          "They only affect the last chunk",
+          "They do not matter"
+        ]
+      },
+      "explanation": {
+        "tr": "Parçalama, sütun seçme ve doğru tür birbirini tamamlıyor; üçü birlikte en az belleği veriyor.",
+        "en": "Chunking, choosing columns and the right types complement each other; together they give the least memory."
+      }
+    }
+  ]
+}

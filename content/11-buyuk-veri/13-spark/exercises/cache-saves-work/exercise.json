@@ -1,0 +1,50 @@
+{
+  "id": "cache-saves-work",
+  "title": {
+    "tr": "Önbellek işi azaltır",
+    "en": "The cache saves work"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    },
+    {
+      "name": "minispark.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Artış: eylemlerden önce `before = sc.stats.partitions_computed`, sonra `sc.stats.partitions_computed - before`.",
+      "en": "The increase: `before = sc.stats.partitions_computed` before the actions, then `sc.stats.partitions_computed - before`."
+    },
+    {
+      "tr": "`cache()` dönüşüm zincirinin sonuna: `nums.map(...).cache()`.",
+      "en": "`cache()` goes at the end of the transformation chain: `nums.map(...).cache()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom minispark import SparkSession\n\nspark = SparkSession.builder.appName(\"orders\").getOrCreate()\nsc = spark.sparkContext\n\nnums = sc.parallelize(range(1_000), 4)\n\nplain = nums.map(lambda x: x * 2)\nbefore = sc.stats.partitions_computed\nplain.count()\nplain_sum = plain.sum()\nprint(sc.stats.partitions_computed - before)\n\ncached = nums.map(lambda x: x * 2).cache()\nbefore = sc.stats.partitions_computed\ncached.count()\ncached_sum = cached.sum()\nprint(sc.stats.partitions_computed - before)\n\nprint(plain_sum == cached_sum)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom minispark import SparkSession\n\nspark = SparkSession.builder.appName(\"orders\").getOrCreate()\nsc = spark.sparkContext\n\nnums = sc.parallelize(range(1_000), 4)\n\nplain = nums.map(lambda x: x * 2)\nbefore = sc.stats.partitions_computed\nplain.count()\nplain_sum = plain.sum()\nprint(sc.stats.partitions_computed - before)\n\ncached = nums.map(lambda x: x * 2).cache()\nbefore = sc.stats.partitions_computed\ncached.count()\ncached_sum = cached.sum()\nprint(sc.stats.partitions_computed - before)\n\nprint(plain_sum == cached_sum)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "16\n8\nTrue"
+    }
+  ]
+}

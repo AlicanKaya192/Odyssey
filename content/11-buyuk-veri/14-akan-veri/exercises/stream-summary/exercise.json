@@ -1,0 +1,58 @@
+{
+  "id": "stream-summary",
+  "title": {
+    "tr": "Akışın özeti",
+    "en": "A summary of the stream"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "stream_data.py",
+      "readonly": true
+    },
+    {
+      "name": "minilog.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Döngüden önce `count = 0`, `total = 0.0`, `big = 0`, `largest = None`.",
+      "en": "Before the loop: `count = 0`, `total = 0.0`, `big = 0`, `largest = None`."
+    },
+    {
+      "tr": "En büyüğü: `if largest is None or event[\"amount\"] > largest[\"amount\"]: largest = event`.",
+      "en": "The largest: `if largest is None or event[\"amount\"] > largest[\"amount\"]: largest = event`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom stream_data import payments\n\ncount = 0\ntotal = 0.0\nbig = 0\nlargest = None\nfor event in payments(50_000):\n    count += 1\n    total += event[\"amount\"]\n    if event[\"amount\"] > 1000:\n        big += 1\n    if largest is None or event[\"amount\"] > largest[\"amount\"]:\n        largest = event\n\nprint(count)\nprint(round(total, 2))\nprint(round(total / count, 2))\nprint(big)\nprint(largest[\"event_id\"], largest[\"amount\"])\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom stream_data import payments\n\ncount = 0\ntotal = 0.0\nbig = 0\nlargest = None\nfor event in payments(50_000):\n    count += 1\n    total += event[\"amount\"]\n    if event[\"amount\"] > 1000:\n        big += 1\n    if largest is None or event[\"amount\"] > largest[\"amount\"]:\n        largest = event\n\nprint(count)\nprint(round(total, 2))\nprint(round(total / count, 2))\nprint(big)\nprint(largest[\"event_id\"], largest[\"amount\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "50000\n6185404.53\n123.71\n60\n24849 3423.02"
+    },
+    {
+      "type": "ast_forbid",
+      "call": "list",
+      "hint": {
+        "tr": "Akışı `list(...)` ile listeye alma; döngüde durumu güncelle.",
+        "en": "Do not turn the stream into a list with `list(...)`; update the state in the loop."
+      }
+    }
+  ]
+}

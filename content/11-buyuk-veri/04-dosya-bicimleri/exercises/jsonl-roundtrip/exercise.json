@@ -1,0 +1,46 @@
+{
+  "id": "jsonl-roundtrip",
+  "title": {
+    "tr": "JSON Lines gidiş dönüş",
+    "en": "A JSON Lines round trip"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Dosyanın satırları: `open(\"orders.jsonl\").read().splitlines()`.",
+      "en": "The file's lines: `open(\"orders.jsonl\").read().splitlines()`."
+    },
+    {
+      "tr": "Geri okumak: `pd.read_json(\"orders.jsonl\", lines=True)`; satır ve sütun `back.shape`.",
+      "en": "Reading back: `pd.read_json(\"orders.jsonl\", lines=True)`; rows and columns are `back.shape`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport os\nimport pandas as pd\nfrom orders_data import make_orders\n\nsmall = make_orders(4)[[\"order_id\", \"quantity\"]]\nsmall.to_json(\"orders.jsonl\", orient=\"records\", lines=True)\n\nwith open(\"orders.jsonl\") as f:\n    lines = f.read().splitlines()\nprint(len(lines))\nprint(lines[0])\n\nback = pd.read_json(\"orders.jsonl\", lines=True)\nprint(back.shape, back[\"quantity\"].sum())\n\nbig = make_orders(50_000)\nbig.to_json(\"big.jsonl\", orient=\"records\", lines=True)\nbig.to_csv(\"big.csv\", index=False)\nprint(round(os.path.getsize(\"big.jsonl\") / os.path.getsize(\"big.csv\"), 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport os\nimport pandas as pd\nfrom orders_data import make_orders\n\nsmall = make_orders(4)[[\"order_id\", \"quantity\"]]\nsmall.to_json(\"orders.jsonl\", orient=\"records\", lines=True)\n\nwith open(\"orders.jsonl\") as f:\n    lines = f.read().splitlines()\nprint(len(lines))\nprint(lines[0])\n\nback = pd.read_json(\"orders.jsonl\", lines=True)\nprint(back.shape, back[\"quantity\"].sum())\n\nbig = make_orders(50_000)\nbig.to_json(\"big.jsonl\", orient=\"records\", lines=True)\nbig.to_csv(\"big.csv\", index=False)\nprint(round(os.path.getsize(\"big.jsonl\") / os.path.getsize(\"big.csv\"), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4\n{\"order_id\":1,\"quantity\":2}\n(4, 2) 15\n2.61"
+    }
+  ]
+}

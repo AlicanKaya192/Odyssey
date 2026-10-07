@@ -1,0 +1,46 @@
+{
+  "id": "equal-per-city",
+  "title": {
+    "tr": "Her şehirden eşit",
+    "en": "Equal from every city"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "Bir şehrin fiyatları: `part.loc[part[\"city\"] == \"Trabzon\", \"unit_price\"]`.",
+      "en": "One city's prices: `part.loc[part[\"city\"] == \"Trabzon\", \"unit_price\"]`."
+    },
+    {
+      "tr": "İki listeyi bir sözlükte tut: `errors = {\"simple\": [], \"stratified\": []}`.",
+      "en": "Keep the two lists in a dictionary: `errors = {\"simple\": [], \"stratified\": []}`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\n\ntrue = orders.loc[orders[\"city\"] == \"Trabzon\", \"unit_price\"].mean()\n\nerrors = {\"simple\": [], \"stratified\": []}\nfor i in range(50):\n    simple = orders.sample(n=800, random_state=i)\n    stratified = orders.groupby(\"city\", group_keys=False).sample(n=100, random_state=i)\n    for name, part in [(\"simple\", simple), (\"stratified\", stratified)]:\n        trabzon = part.loc[part[\"city\"] == \"Trabzon\", \"unit_price\"]\n        errors[name].append(abs(trabzon.mean() - true))\n\nfor name, values in errors.items():\n    print(name, round(sum(values) / len(values), 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\n\ntrue = orders.loc[orders[\"city\"] == \"Trabzon\", \"unit_price\"].mean()\n\nerrors = {\"simple\": [], \"stratified\": []}\nfor i in range(50):\n    simple = orders.sample(n=800, random_state=i)\n    stratified = orders.groupby(\"city\", group_keys=False).sample(n=100, random_state=i)\n    for name, part in [(\"simple\", simple), (\"stratified\", stratified)]:\n        trabzon = part.loc[part[\"city\"] == \"Trabzon\", \"unit_price\"]\n        errors[name].append(abs(trabzon.mean() - true))\n\nfor name, values in errors.items():\n    print(name, round(sum(values) / len(values), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "simple 100.8\nstratified 57.5"
+    }
+  ]
+}
