@@ -487,6 +487,28 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
     color: {p['text_muted']};
     font-size: 17px;
 }}
+/* Tek satıra sığmayan şema alt alta (`lesson_view.FLOW_FIT` sınıfı koyuyor). */
+.fig .flow.stack {{
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 4px;
+}}
+.fig .flow.stack .node {{
+    align-self: center;
+    width: min(100%, 420px);
+    box-sizing: border-box;
+}}
+/* Ok metni `→` ya da `->` olabiliyor; döndürmek yerine aşağı ok çiziliyor. */
+.fig .flow.stack .arrow {{
+    justify-content: center;
+    font-size: 0;
+    line-height: 1;
+}}
+.fig .flow.stack .arrow::after {{
+    content: "↓";
+    font-size: 17px;
+}}
 
 /* Yan yana karşılaştırma: solda "böyle değil", sağda "böyle". */
 .fig .versus {{ display: flex; gap: 14px; flex-wrap: wrap; }}

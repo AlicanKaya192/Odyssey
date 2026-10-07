@@ -122,6 +122,43 @@ COPY_BUTTONS = """
 </script>
 """
 
+# Akış şeması (`.fig .flow`) tek satıra sığmayınca alt alta diziliyor.
+#
+# Kutular satıra sığmadığında `flex-wrap` onları alt satıra atıyordu ve
+# satırın sonundaki ok boşta kalıyordu; eski patikalarda 43 şema geniş
+# sayfada bile böyleydi (6-8 kutulu süreçler), dar pencerede beş kutuluk
+# şemalar da sarıyordu. Betik önce şemayı yan yana çiziyor, bir kutu ilk
+# kutunun altından başlıyorsa `stack` sınıfıyla dikey düzene geçiriyor
+# (oklar aşağı dönüyor). Pencere boyu değişince yeniden bakıyor.
+FLOW_FIT = """
+<script>
+(function () {
+  const flows = [...document.querySelectorAll('.fig .flow')];
+  if (!flows.length) return;
+  function fit() {
+    flows.forEach(function (f) {
+      f.classList.remove('stack');
+      const nodes = f.querySelectorAll('.node');
+      if (nodes.length < 2) return;
+      const first = nodes[0];
+      const limit = first.offsetTop + first.offsetHeight;
+      for (const n of nodes) {
+        if (n.offsetTop >= limit) { f.classList.add('stack'); return; }
+      }
+    });
+  }
+  let pending = false;
+  window.addEventListener('resize', function () {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; fit(); });
+  });
+  fit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+})();
+</script>
+"""
+
 # İlerleme kutusunu **belgeyi yeniden yüklemeden** güncelleyen betik.
 #
 # Önce kutu değiştiğinde sayfanın tamamı baştan çiziliyordu. Uzun bir dersi
@@ -432,7 +469,7 @@ class LessonView(QWidget):
             aside = ""
 
         self._has_progress_box = bool(aside)
-        scripts = (SCROLL_SPY if aside else "") + COPY_BUTTONS
+        scripts = (SCROLL_SPY if aside else "") + COPY_BUTTONS + FLOW_FIT
         if self._glossary:
             from ..core import glossary
 
