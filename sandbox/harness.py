@@ -909,6 +909,14 @@ def main() -> int:
     kisinin_modulu = types.ModuleType("__main__")
     kisinin_modulu.__file__ = code_path
     sys.modules["__main__"] = kisinin_modulu
+    # Paketlenmiş `.exe`'de `multiprocessing` ana betiği programın kendisi
+    # sanıyor (`WINEXE`) ve alt sürece kişinin dosyasının yolunu
+    # göndermiyor; alt süreç kişinin fonksiyonunu bulamayıp ölüyordu
+    # (`BrokenProcessPool`). Kaynaktan çalışırken olduğu gibi yolu göndersin.
+    if getattr(sys, "frozen", False):
+        import multiprocessing.spawn
+
+        multiprocessing.spawn.WINEXE = False
     namespace: dict = kisinin_modulu.__dict__
     out_buffer, err_buffer = io.StringIO(), io.StringIO()
     izle = bool(job.get("trace"))

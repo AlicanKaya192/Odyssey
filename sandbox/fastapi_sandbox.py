@@ -239,7 +239,12 @@ def _forget_workspace_modules(workspace: Path) -> None:
     root = str(workspace.resolve()).lower()
     for name, module in list(sys.modules.items()):
         path = getattr(module, "__file__", None)
-        if path and str(Path(path).resolve()).lower().startswith(root):
+        # Paketlenmiş `.exe`'de standart kütüphanenin yolları göreli
+        # (`asyncio\__init__.py`); çözülünce çalışma klasörünün altında
+        # görünüyor ve silinirse `asyncio` yarım yükleniyordu (pytest çöktü).
+        if not path or not Path(path).is_absolute():
+            continue
+        if str(Path(path).resolve()).lower().startswith(root):
             del sys.modules[name]
 
 
