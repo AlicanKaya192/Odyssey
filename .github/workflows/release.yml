@@ -70,6 +70,12 @@ jobs:
             echo "Tag ${GITHUB_REF_NAME} does not match app version $VERSION" >&2
             exit 1
           fi
+          # A tagged build becomes a draft release; stop here, not after the
+          # build, if its text is missing.
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ ! -f "docs/releases/$VERSION.md" ]; then
+            echo "docs/releases/$VERSION.md is missing (title + release text)" >&2
+            exit 1
+          fi
 
       - name: Build the application
         shell: bash
@@ -161,10 +167,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # The release text lives in docs/releases/<version>.md: its first
+          # line ("# Odyssey X.Y.Z — ...") is the title, the whole file is
+          # the description, so the draft is ready to publish as it is.
+          # "Read the version" has already checked that the file exists.
+          NOTES="docs/releases/${{ steps.version.outputs.version }}.md"
+          TITLE="$(head -n 1 "$NOTES" | sed -e 's/^# *//' -e 's/\r$//')"
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
             gh release create "$GITHUB_REF_NAME" --draft \
-              --title "Odyssey ${{ steps.version.outputs.version }}" \
-              --notes "Release notes to be written."
+              --title "$TITLE" \
+              --notes-file "$NOTES"
           # The manifest goes along: the next version's patch installer is
           # built against it, so it must be the one of the published files.
           gh release upload "$GITHUB_REF_NAME" dist/*.exe \
