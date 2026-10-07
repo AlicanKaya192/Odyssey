@@ -41,6 +41,18 @@ lecture note does not mean downloading the whole application again.
   habits. Exercises are typed into a Git terminal inside the app; you don't
   need to install Git or open a GitHub account, and the goals are checked
   off one by one next to the terminal.
+- **The Docker track.** Containers in seventeen sections: images and
+  layers, the Dockerfile, caching and `.dockerignore`, ports, environment
+  variables, volumes, Docker Compose and multi-service apps, smaller
+  images, security, debugging and packaging a Python API. Exercises check
+  your Dockerfile and compose file; with Docker Desktop running they also
+  really build and run the image. The new **Storage** page in Settings
+  removes the images and SQL databases the exercises leave behind.
+- **The Data Engineer roadmap.** A new route in Roadmaps for the work of
+  pulling data from a source, cleaning, storing and serving it: Python,
+  Git, SQL, pandas, Big Data, APIs and Docker, with focus sections at each
+  step. The upcoming Big Data track is also an optional step on the Data
+  Scientist and ML Engineer routes.
 
 ### Fixed
 - **Step-by-step tracing names classes correctly.** While the body of a
