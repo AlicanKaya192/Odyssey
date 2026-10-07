@@ -1,0 +1,46 @@
+{
+  "id": "card-share",
+  "title": {
+    "tr": "Kartın payı",
+    "en": "The share of card"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`monthly.pivot(index=\"month\", columns=\"payment\", values=\"revenue\")`; ay sırası `month` metinleri sayesinde doğru.",
+      "en": "`monthly.pivot(index=\"month\", columns=\"payment\", values=\"revenue\")`; the month order is right thanks to the `month` strings."
+    },
+    {
+      "tr": "Her satırı kendi toplamına bölmek: `table.div(table.sum(axis=1), axis=0) * 100`.",
+      "en": "Dividing each row by its own total: `table.div(table.sum(axis=1), axis=0) * 100`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\norders[\"order_time\"] = pd.to_datetime(orders[\"order_time\"])\norders.to_parquet(\"orders.parquet\", index=False)\n\nmonthly = duckdb.sql(\"\"\"\n    SELECT strftime(order_time, '%Y-%m') AS month, payment,\n           sum(quantity * unit_price) AS revenue\n    FROM 'orders.parquet'\n    GROUP BY month, payment\n\"\"\").df()\n\ntable = monthly.pivot(index=\"month\", columns=\"payment\", values=\"revenue\")\nshare = table.div(table.sum(axis=1), axis=0) * 100\n\nfor month, value in share[\"card\"].head(3).items():\n    print(month, round(value, 1))\nprint(round(share[\"cash\"].mean(), 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\norders[\"order_time\"] = pd.to_datetime(orders[\"order_time\"])\norders.to_parquet(\"orders.parquet\", index=False)\n\nmonthly = duckdb.sql(\"\"\"\n    SELECT strftime(order_time, '%Y-%m') AS month, payment,\n           sum(quantity * unit_price) AS revenue\n    FROM 'orders.parquet'\n    GROUP BY month, payment\n\"\"\").df()\n\ntable = monthly.pivot(index=\"month\", columns=\"payment\", values=\"revenue\")\nshare = table.div(table.sum(axis=1), axis=0) * 100\n\nfor month, value in share[\"card\"].head(3).items():\n    print(month, round(value, 1))\nprint(round(share[\"cash\"].mean(), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2024-01 71.5\n2024-02 72.7\n2024-03 71.1\n8.1"
+    }
+  ]
+}

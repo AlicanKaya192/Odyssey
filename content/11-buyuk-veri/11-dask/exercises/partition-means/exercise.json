@@ -1,0 +1,46 @@
+{
+  "id": "partition-means",
+  "title": {
+    "tr": "Bölüm ortalamaları",
+    "en": "Partition means"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Dilimler: `orders.iloc[:50_000]`, `orders.iloc[50_000:100_000]`, `orders.iloc[100_000:]`.",
+      "en": "The slices: `orders.iloc[:50_000]`, `orders.iloc[50_000:100_000]`, `orders.iloc[100_000:]`."
+    },
+    {
+      "tr": "`map_partitions(...)` her bölüme aynı fonksiyonu uygulayan bir tarif; `.compute()` sonuçları bir seri olarak veriyor.",
+      "en": "`map_partitions(...)` is a recipe that applies the same function to each partition; `.compute()` gives the results as a series."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport dask.dataframe as dd\nfrom orders_data import make_orders\n\norders = make_orders(120_000)\n\norders.iloc[:50_000].to_csv(\"part-0.csv\", index=False)\norders.iloc[50_000:100_000].to_csv(\"part-1.csv\", index=False)\norders.iloc[100_000:].to_csv(\"part-2.csv\", index=False)\n\nddf = dd.read_csv(\"part-*.csv\")\nprint(list(ddf.map_partitions(len).compute()))\n\nmeans = ddf.map_partitions(lambda p: p[\"unit_price\"].mean()).compute()\nmean_of_means = round(float(means.mean()), 4)\nprint(mean_of_means)\n\ntrue_mean = round(float(ddf[\"unit_price\"].mean().compute()), 4)\nprint(true_mean)\n\nprint(mean_of_means == true_mean)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport dask.dataframe as dd\nfrom orders_data import make_orders\n\norders = make_orders(120_000)\n\norders.iloc[:50_000].to_csv(\"part-0.csv\", index=False)\norders.iloc[50_000:100_000].to_csv(\"part-1.csv\", index=False)\norders.iloc[100_000:].to_csv(\"part-2.csv\", index=False)\n\nddf = dd.read_csv(\"part-*.csv\")\nprint(list(ddf.map_partitions(len).compute()))\n\nmeans = ddf.map_partitions(lambda p: p[\"unit_price\"].mean()).compute()\nmean_of_means = round(float(means.mean()), 4)\nprint(mean_of_means)\n\ntrue_mean = round(float(ddf[\"unit_price\"].mean().compute()), 4)\nprint(true_mean)\n\nprint(mean_of_means == true_mean)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[50000, 50000, 20000]\n740.419\n738.3869\nFalse"
+    }
+  ]
+}

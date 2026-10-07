@@ -1,0 +1,46 @@
+{
+  "id": "first-orders",
+  "title": {
+    "tr": "İlk siparişler",
+    "en": "First orders"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Sorgu sonucunu değişkene koy: `first = duckdb.sql(\"\"\"...\"\"\")`; sonra `FROM first`.",
+      "en": "Put the query result in a variable: `first = duckdb.sql(\"\"\"...\"\"\")`; then `FROM first`."
+    },
+    {
+      "tr": "Ay: `month(order_time) = 1`; en küçük üç: `ORDER BY customer_id LIMIT 3`.",
+      "en": "The month: `month(order_time) = 1`; the three smallest: `ORDER BY customer_id LIMIT 3`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(100_000)\norders[\"order_time\"] = pd.to_datetime(orders[\"order_time\"])\norders.to_parquet(\"orders.parquet\", index=False)\n\nfirst = duckdb.sql(\"\"\"\n    SELECT customer_id, order_id, order_time\n    FROM 'orders.parquet'\n    QUALIFY row_number() OVER (PARTITION BY customer_id ORDER BY order_time) = 1\n\"\"\")\n\nprint(duckdb.sql(\"SELECT count(*) FROM first\").fetchone()[0])\nprint(duckdb.sql(\"SELECT count(*) FROM first WHERE month(order_time) = 1\").fetchone()[0])\nfor customer_id, order_id in duckdb.sql(\n        \"SELECT customer_id, order_id FROM first ORDER BY customer_id LIMIT 3\").fetchall():\n    print(customer_id, order_id)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(100_000)\norders[\"order_time\"] = pd.to_datetime(orders[\"order_time\"])\norders.to_parquet(\"orders.parquet\", index=False)\n\nfirst = duckdb.sql(\"\"\"\n    SELECT customer_id, order_id, order_time\n    FROM 'orders.parquet'\n    QUALIFY row_number() OVER (PARTITION BY customer_id ORDER BY order_time) = 1\n\"\"\")\n\nprint(duckdb.sql(\"SELECT count(*) FROM first\").fetchone()[0])\nprint(duckdb.sql(\"SELECT count(*) FROM first WHERE month(order_time) = 1\").fetchone()[0])\nfor customer_id, order_id in duckdb.sql(\n        \"SELECT customer_id, order_id FROM first ORDER BY customer_id LIMIT 3\").fetchall():\n    print(customer_id, order_id)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "24512\n7049\n1 20221\n2 61138\n3 3294"
+    }
+  ]
+}

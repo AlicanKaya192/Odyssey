@@ -1,0 +1,46 @@
+{
+  "id": "column-costs",
+  "title": {
+    "tr": "En pahalı sütunlar",
+    "en": "The most expensive columns"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`memory.sort_values(ascending=False).head(3)` en büyük üçünü veriyor.",
+      "en": "`memory.sort_values(ascending=False).head(3)` gives the three largest."
+    },
+    {
+      "tr": "Bir seride ad ve değeri birlikte gezmek: `for name, size in top.items():`.",
+      "en": "To loop over the label and value of a series together: `for name, size in top.items():`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 20_000)\ndf = pd.read_csv(\"orders.csv\")\n\nmemory = df.memory_usage(deep=True).drop(\"Index\")\ntop = memory.sort_values(ascending=False).head(3)\nfor name, size in top.items():\n    print(name, round(size / 1024, 1))\n\nprint(round(memory.sum() / 1024, 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 20_000)\ndf = pd.read_csv(\"orders.csv\")\n\nmemory = df.memory_usage(deep=True).drop(\"Index\")\ntop = memory.sort_values(ascending=False).head(3)\nfor name, size in top.items():\n    print(name, round(size / 1024, 1))\n\nprint(round(memory.sum() / 1024, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "order_time 527.3\ncity 282.2\ncategory 279.3\n1963.5"
+    }
+  ]
+}

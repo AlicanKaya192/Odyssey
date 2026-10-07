@@ -1,0 +1,46 @@
+{
+  "id": "shrink-on-read",
+  "title": {
+    "tr": "Okurken küçült",
+    "en": "Shrink while reading"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "`dtype=` bir sözlük alıyor: `{\"order_id\": \"int32\", ...}`. Tarih sütunu sözlüğe değil `parse_dates=[\"order_time\"]` listesine.",
+      "en": "`dtype=` takes a dictionary: `{\"order_id\": \"int32\", ...}`. The date column goes not in the dictionary but in the list `parse_dates=[\"order_time\"]`."
+    },
+    {
+      "tr": "Oranı yuvarlanmamış MB değerleriyle hesapla, sonra yuvarla.",
+      "en": "Work out the ratio from the unrounded MB values, then round."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\nplain = pd.read_csv(\"orders.csv\")\ntyped = pd.read_csv(\n    \"orders.csv\",\n    dtype={\"order_id\": \"int32\", \"customer_id\": \"int32\", \"quantity\": \"int8\",\n           \"unit_price\": \"float32\", \"city\": \"category\", \"category\": \"category\",\n           \"payment\": \"category\"},\n    parse_dates=[\"order_time\"],\n)\n\nplain_mb = plain.memory_usage(deep=True).sum() / 1024**2\ntyped_mb = typed.memory_usage(deep=True).sum() / 1024**2\nprint(round(plain_mb, 1), round(typed_mb, 1))\nprint(round(plain_mb / typed_mb, 1))\nprint(typed[\"order_time\"].dtype, typed[\"city\"].dtype)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\nplain = pd.read_csv(\"orders.csv\")\ntyped = pd.read_csv(\n    \"orders.csv\",\n    dtype={\"order_id\": \"int32\", \"customer_id\": \"int32\", \"quantity\": \"int8\",\n           \"unit_price\": \"float32\", \"city\": \"category\", \"category\": \"category\",\n           \"payment\": \"category\"},\n    parse_dates=[\"order_time\"],\n)\n\nplain_mb = plain.memory_usage(deep=True).sum() / 1024**2\ntyped_mb = typed.memory_usage(deep=True).sum() / 1024**2\nprint(round(plain_mb, 1), round(typed_mb, 1))\nprint(round(plain_mb / typed_mb, 1))\nprint(typed[\"order_time\"].dtype, typed[\"city\"].dtype)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "19.2 4.6\n4.2\ndatetime64[us] category"
+    }
+  ]
+}

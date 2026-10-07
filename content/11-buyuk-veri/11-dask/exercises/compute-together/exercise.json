@@ -1,0 +1,46 @@
+{
+  "id": "compute-together",
+  "title": {
+    "tr": "Birlikte hesapla",
+    "en": "Compute together"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Tarifler `compute`'suz yazılıyor: `ddf[\"unit_price\"].mean()` gibi.",
+      "en": "The recipes are written without `compute`: like `ddf[\"unit_price\"].mean()`."
+    },
+    {
+      "tr": "`a, b, c = dask.compute(x, y, z)` üç sonucu birden veriyor.",
+      "en": "`a, b, c = dask.compute(x, y, z)` gives all three results at once."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport dask\nimport dask.dataframe as dd\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\nfor i in range(4):\n    orders.iloc[i * 50_000:(i + 1) * 50_000].to_csv(f\"orders-{i}.csv\", index=False)\n\nddf = dd.read_csv(\"orders-*.csv\")\n\nmean_price = ddf[\"unit_price\"].mean()\nbig_orders = ddf[ddf[\"quantity\"] >= 4].shape[0]\ncities = ddf[\"city\"].nunique()\n\nmean_value, big_count, city_count = dask.compute(mean_price, big_orders, cities)\nprint(round(mean_value, 2))\nprint(big_count)\nprint(city_count)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport dask\nimport dask.dataframe as dd\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\nfor i in range(4):\n    orders.iloc[i * 50_000:(i + 1) * 50_000].to_csv(f\"orders-{i}.csv\", index=False)\n\nddf = dd.read_csv(\"orders-*.csv\")\n\nmean_price = ddf[\"unit_price\"].mean()\nbig_orders = ddf[ddf[\"quantity\"] >= 4].shape[0]\ncities = ddf[\"city\"].nunique()\n\nmean_value, big_count, city_count = dask.compute(mean_price, big_orders, cities)\nprint(round(mean_value, 2))\nprint(big_count)\nprint(city_count)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "739.31\n44225\n8"
+    }
+  ]
+}

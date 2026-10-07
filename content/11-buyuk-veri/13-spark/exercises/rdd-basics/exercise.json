@@ -1,0 +1,50 @@
+{
+  "id": "rdd-basics",
+  "title": {
+    "tr": "İlk RDD",
+    "en": "Your first RDD"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    },
+    {
+      "name": "minispark.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Bölüm başına öğe sayısı: `nums.glom().map(len).collect()`.",
+      "en": "Items per partition: `nums.glom().map(len).collect()`."
+    },
+    {
+      "tr": "Zincir: `nums.filter(lambda x: x % 2 == 0).map(lambda x: x * x).sum()`.",
+      "en": "The chain: `nums.filter(lambda x: x % 2 == 0).map(lambda x: x * x).sum()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom minispark import SparkSession\n\nspark = SparkSession.builder.appName(\"orders\").getOrCreate()\nsc = spark.sparkContext\n\nnums = sc.parallelize(range(1, 21), 4)\n\nprint(nums.getNumPartitions())\nprint(nums.glom().map(len).collect())\n\nprint(nums.filter(lambda x: x % 2 == 0).map(lambda x: x * x).sum())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom minispark import SparkSession\n\nspark = SparkSession.builder.appName(\"orders\").getOrCreate()\nsc = spark.sparkContext\n\nnums = sc.parallelize(range(1, 21), 4)\n\nprint(nums.getNumPartitions())\nprint(nums.glom().map(len).collect())\n\nprint(nums.filter(lambda x: x % 2 == 0).map(lambda x: x * x).sum())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4\n[5, 5, 5, 5]\n1540"
+    }
+  ]
+}

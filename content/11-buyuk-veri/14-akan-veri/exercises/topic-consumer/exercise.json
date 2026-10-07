@@ -1,0 +1,50 @@
+{
+  "id": "topic-consumer",
+  "title": {
+    "tr": "Konudan okumak",
+    "en": "Reading from a topic"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "stream_data.py",
+      "readonly": true
+    },
+    {
+      "name": "minilog.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Bir bölümü sonuna kadar okumak: `while offsets[p] < topic.end_offset(p):` ve içinde `batch = topic.read(p, offsets[p], max_records=250)`.",
+      "en": "Reading a partition to its end: `while offsets[p] < topic.end_offset(p):` and inside it `batch = topic.read(p, offsets[p], max_records=250)`."
+    },
+    {
+      "tr": "Partideki her kayıt `(offset, key, value)`: `for offset, card, event in batch:`. Sonra `offsets[p] = batch[-1][0] + 1`.",
+      "en": "Each record in a batch is `(offset, key, value)`: `for offset, card, event in batch:`. Then `offsets[p] = batch[-1][0] + 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom stream_data import payments\nfrom minilog import Topic\n\ntopic = Topic(\"payments\", partitions=3)\n\nfor event in payments(3_000, duplicates=True):\n    topic.send(event[\"card\"], event)\nprint([topic.end_offset(p) for p in range(topic.partitions)])\n\noffsets = {0: 0, 1: 0, 2: 0}\nread = 0\nseen = set()\nrevenue = 0.0\nfor p in offsets:\n    while offsets[p] < topic.end_offset(p):\n        batch = topic.read(p, offsets[p], max_records=250)\n        for offset, card, event in batch:\n            read += 1\n            if event[\"event_id\"] in seen:\n                continue\n            seen.add(event[\"event_id\"])\n            revenue += event[\"amount\"]\n        offsets[p] = batch[-1][0] + 1\n\nprint(read, len(seen))\nprint(round(revenue, 2))\nexpected = sum(event[\"amount\"] for event in payments(3_000))\nprint(round(revenue, 2) == round(expected, 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom stream_data import payments\nfrom minilog import Topic\n\ntopic = Topic(\"payments\", partitions=3)\n\nfor event in payments(3_000, duplicates=True):\n    topic.send(event[\"card\"], event)\nprint([topic.end_offset(p) for p in range(topic.partitions)])\n\noffsets = {0: 0, 1: 0, 2: 0}\nread = 0\nseen = set()\nrevenue = 0.0\nfor p in offsets:\n    while offsets[p] < topic.end_offset(p):\n        batch = topic.read(p, offsets[p], max_records=250)\n        for offset, card, event in batch:\n            read += 1\n            if event[\"event_id\"] in seen:\n                continue\n            seen.add(event[\"event_id\"])\n            revenue += event[\"amount\"]\n        offsets[p] = batch[-1][0] + 1\n\nprint(read, len(seen))\nprint(round(revenue, 2))\nexpected = sum(event[\"amount\"] for event in payments(3_000))\nprint(round(revenue, 2) == round(expected, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[949, 949, 1199]\n3097 3000\n360332.69\nTrue"
+    }
+  ]
+}

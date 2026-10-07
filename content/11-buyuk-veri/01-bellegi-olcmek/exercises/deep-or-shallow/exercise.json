@@ -1,0 +1,46 @@
+{
+  "id": "deep-or-shallow",
+  "title": {
+    "tr": "Derin mi, sığ mı?",
+    "en": "Deep or shallow?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Tek sütun da `memory_usage` biliyor: `df[\"payment\"].memory_usage(deep=True)`. Sonuca indeksin 132 baytı da dahil.",
+      "en": "A single column knows `memory_usage` too: `df[\"payment\"].memory_usage(deep=True)`. The index's 132 bytes are included."
+    },
+    {
+      "tr": "İki ölçümü değişkenlere al, oranı onlardan hesapla.",
+      "en": "Keep both measurements in variables and work out the ratio from them."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 20_000)\n\ndf = pd.read_csv(\"orders.csv\", dtype={\"payment\": object})\n\nshallow = df[\"payment\"].memory_usage()\ndeep = df[\"payment\"].memory_usage(deep=True)\nprint(shallow, deep)\n\nprint(df[\"quantity\"].memory_usage(), df[\"quantity\"].memory_usage(deep=True))\n\nprint(round(deep / shallow, 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 20_000)\n\ndf = pd.read_csv(\"orders.csv\", dtype={\"payment\": object})\n\nshallow = df[\"payment\"].memory_usage()\ndeep = df[\"payment\"].memory_usage(deep=True)\nprint(shallow, deep)\n\nprint(df[\"quantity\"].memory_usage(), df[\"quantity\"].memory_usage(deep=True))\n\nprint(round(deep / shallow, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "160132 1075752\n160132 160132\n6.7"
+    }
+  ]
+}

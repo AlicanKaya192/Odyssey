@@ -1,0 +1,46 @@
+{
+  "id": "text-share",
+  "title": {
+    "tr": "Metnin payı",
+    "en": "The share of text"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`df.select_dtypes(\"number\")` yalnızca sayı sütunlarından yeni bir tablo veriyor.",
+      "en": "`df.select_dtypes(\"number\")` gives a new table of only the numeric columns."
+    },
+    {
+      "tr": "Pay: `numbers_bytes / total * 100`; toplam iki grubun toplamı.",
+      "en": "The share: `numbers_bytes / total * 100`; the total is the two groups added."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 20_000)\ndf = pd.read_csv(\"orders.csv\")\n\nnumbers = df.select_dtypes(\"number\")\ntext = df.select_dtypes(exclude=\"number\")\n\nnumbers_bytes = numbers.memory_usage(deep=True, index=False).sum()\ntext_bytes = text.memory_usage(deep=True, index=False).sum()\ntotal = numbers_bytes + text_bytes\n\nprint(\"numbers\", round(numbers_bytes / total * 100, 1))\nprint(\"text\", round(text_bytes / total * 100, 1))\n\nprint(round(total / len(df), 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 20_000)\ndf = pd.read_csv(\"orders.csv\")\n\nnumbers = df.select_dtypes(\"number\")\ntext = df.select_dtypes(exclude=\"number\")\n\nnumbers_bytes = numbers.memory_usage(deep=True, index=False).sum()\ntext_bytes = text.memory_usage(deep=True, index=False).sum()\ntotal = numbers_bytes + text_bytes\n\nprint(\"numbers\", round(numbers_bytes / total * 100, 1))\nprint(\"text\", round(text_bytes / total * 100, 1))\n\nprint(round(total / len(df), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "numbers 31.8\ntext 68.2\n100.5"
+    }
+  ]
+}

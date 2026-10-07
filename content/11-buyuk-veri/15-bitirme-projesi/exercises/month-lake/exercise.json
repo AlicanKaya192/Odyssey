@@ -1,0 +1,46 @@
+{
+  "id": "month-lake",
+  "title": {
+    "tr": "Aylık göl",
+    "en": "A monthly lake"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "Klasörler: `for month, part in orders.groupby(\"month\"):` içinde `os.makedirs(folder, exist_ok=True)` ve `part.drop(columns=\"month\").to_parquet(...)`.",
+      "en": "The folders: inside `for month, part in orders.groupby(\"month\"):`, `os.makedirs(folder, exist_ok=True)` and `part.drop(columns=\"month\").to_parquet(...)`."
+    },
+    {
+      "tr": "Plan metni: `duckdb.sql(...).fetchall()[0][1]`; `re.search` bu metinde kalıbı arıyor, `.group()` bulunan parçayı veriyor.",
+      "en": "The plan text: `duckdb.sql(...).fetchall()[0][1]`; `re.search` looks for the pattern in this text, `.group()` gives the part found."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport os\nimport re\nimport duckdb\nfrom orders_data import make_orders\n\norders = make_orders(300_000)\norders[\"month\"] = orders[\"order_time\"].str[:7]\nLAKE = \"read_parquet('lake/*/*.parquet', hive_partitioning = true)\"\n\nfor month, part in orders.groupby(\"month\"):\n    folder = f\"lake/month={month}\"\n    os.makedirs(folder, exist_ok=True)\n    part.drop(columns=\"month\").to_parquet(f\"{folder}/part-0.parquet\", index=False)\nprint(len(os.listdir(\"lake\")))\n\nrows = duckdb.sql(f\"\"\"\n    SELECT category, round(sum(quantity * unit_price), 2) AS revenue\n    FROM {LAKE}\n    WHERE month = '2024-06'\n    GROUP BY category\n    ORDER BY revenue DESC\n    LIMIT 3\n\"\"\").fetchall()\nfor category, revenue in rows:\n    print(category, revenue)\n\nplan = duckdb.sql(f\"\"\"\n    EXPLAIN ANALYZE SELECT count(*) FROM {LAKE} WHERE month = '2024-06'\n\"\"\").fetchall()[0][1]\nprint(re.search(r\"Scanning Files: \\d+/\\d+\", plan).group())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport os\nimport re\nimport duckdb\nfrom orders_data import make_orders\n\norders = make_orders(300_000)\norders[\"month\"] = orders[\"order_time\"].str[:7]\nLAKE = \"read_parquet('lake/*/*.parquet', hive_partitioning = true)\"\n\nfor month, part in orders.groupby(\"month\"):\n    folder = f\"lake/month={month}\"\n    os.makedirs(folder, exist_ok=True)\n    part.drop(columns=\"month\").to_parquet(f\"{folder}/part-0.parquet\", index=False)\nprint(len(os.listdir(\"lake\")))\n\nrows = duckdb.sql(f\"\"\"\n    SELECT category, round(sum(quantity * unit_price), 2) AS revenue\n    FROM {LAKE}\n    WHERE month = '2024-06'\n    GROUP BY category\n    ORDER BY revenue DESC\n    LIMIT 3\n\"\"\").fetchall()\nfor category, revenue in rows:\n    print(category, revenue)\n\nplan = duckdb.sql(f\"\"\"\n    EXPLAIN ANALYZE SELECT count(*) FROM {LAKE} WHERE month = '2024-06'\n\"\"\").fetchall()[0][1]\nprint(re.search(r\"Scanning Files: \\d+/\\d+\", plan).group())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "12\nelectronics 19835690.29\nclothing 6965783.83\nhome 5271617.01\nScanning Files: 1/12"
+    }
+  ]
+}

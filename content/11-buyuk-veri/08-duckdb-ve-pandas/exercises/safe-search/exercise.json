@@ -1,0 +1,46 @@
+{
+  "id": "safe-search",
+  "title": {
+    "tr": "Güvenli arama",
+    "en": "A safe search"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Sorgu: `\"SELECT count(*) FROM 'orders.parquet' WHERE city = ? AND quantity >= ?\"`.",
+      "en": "The query: `\"SELECT count(*) FROM 'orders.parquet' WHERE city = ? AND quantity >= ?\"`."
+    },
+    {
+      "tr": "Değerler sırayla bir listede: `[city, min_quantity]`.",
+      "en": "The values in order, in a list: `[city, min_quantity]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(100_000)\norders[\"order_time\"] = pd.to_datetime(orders[\"order_time\"])\norders.to_parquet(\"orders.parquet\", index=False)\n\n\ndef count_orders(city, min_quantity):\n    query = \"SELECT count(*) FROM 'orders.parquet' WHERE city = ? AND quantity >= ?\"\n    return duckdb.execute(query, [city, min_quantity]).fetchone()[0]\n\n\nprint(count_orders(\"Izmir\", 3))\nprint(count_orders(\"Bursa\", 5))\nprint(count_orders(\"Izmir' OR '1'='1\", 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(100_000)\norders[\"order_time\"] = pd.to_datetime(orders[\"order_time\"])\norders.to_parquet(\"orders.parquet\", index=False)\n\n\ndef count_orders(city, min_quantity):\n    query = \"SELECT count(*) FROM 'orders.parquet' WHERE city = ? AND quantity >= ?\"\n    return duckdb.execute(query, [city, min_quantity]).fetchone()[0]\n\n\nprint(count_orders(\"Izmir\", 3))\nprint(count_orders(\"Bursa\", 5))\nprint(count_orders(\"Izmir' OR '1'='1\", 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4367\n994\n0"
+    }
+  ]
+}

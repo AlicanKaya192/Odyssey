@@ -1,0 +1,46 @@
+{
+  "id": "sample-and-interval",
+  "title": {
+    "tr": "Örneklem ve aralık",
+    "en": "A sample and its interval"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Standart hata: `sample.std() / np.sqrt(len(sample))`.",
+      "en": "The standard error: `sample.std() / np.sqrt(len(sample))`."
+    },
+    {
+      "tr": "Aralığın içinde mi: `low <= true_mean <= high`.",
+      "en": "Inside the interval: `low <= true_mean <= high`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\n\ntrue_mean = orders[\"unit_price\"].mean()\nprint(round(true_mean, 2))\n\nsample = orders[\"unit_price\"].sample(n=5_000, random_state=1)\nest = sample.mean()\nprint(round(est, 2))\n\nse = sample.std() / np.sqrt(len(sample))\nprint(round(se, 2))\n\nlow, high = est - 1.96 * se, est + 1.96 * se\nprint(round(low, 2), round(high, 2))\nprint(low <= true_mean <= high)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\n\ntrue_mean = orders[\"unit_price\"].mean()\nprint(round(true_mean, 2))\n\nsample = orders[\"unit_price\"].sample(n=5_000, random_state=1)\nest = sample.mean()\nprint(round(est, 2))\n\nse = sample.std() / np.sqrt(len(sample))\nprint(round(se, 2))\n\nlow, high = est - 1.96 * se, est + 1.96 * se\nprint(round(low, 2), round(high, 2))\nprint(low <= true_mean <= high)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "739.31\n748.36\n12.16\n724.54 772.19\nTrue"
+    }
+  ]
+}

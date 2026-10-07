@@ -1,0 +1,46 @@
+{
+  "id": "skip-row-groups",
+  "title": {
+    "tr": "Satır gruplarını atla",
+    "en": "Skip row groups"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "İstatistik: `stats = pf.metadata.row_group(i).column(col).statistics`; metinler de karşılaştırılabiliyor: `stats.max >= \"2024-12\"`.",
+      "en": "The statistics: `stats = pf.metadata.row_group(i).column(col).statistics`; text can be compared too: `stats.max >= \"2024-12\"`."
+    },
+    {
+      "tr": "Sayma: `part[\"order_time\"].str.startswith(\"2024-12\").sum()`.",
+      "en": "Counting: `part[\"order_time\"].str.startswith(\"2024-12\").sum()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nimport pyarrow.parquet as pq\nfrom orders_data import make_orders\n\nmake_orders(400_000).to_parquet(\"orders.parquet\", row_group_size=50_000, index=False)\npf = pq.ParquetFile(\"orders.parquet\")\ncol = pf.schema_arrow.names.index(\"order_time\")\n\ngroups = []\nfor i in range(pf.num_row_groups):\n    stats = pf.metadata.row_group(i).column(col).statistics\n    if stats.max >= \"2024-12\":\n        groups.append(i)\n\ndecember = 0\nfor i in groups:\n    part = pf.read_row_group(i, columns=[\"order_time\"]).to_pandas()\n    december += part[\"order_time\"].str.startswith(\"2024-12\").sum()\n\nprint(len(groups), pf.num_row_groups)\nprint(december)\n\neverything = pd.read_parquet(\"orders.parquet\", columns=[\"order_time\"])\nprint(december == everything[\"order_time\"].str.startswith(\"2024-12\").sum())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nimport pyarrow.parquet as pq\nfrom orders_data import make_orders\n\nmake_orders(400_000).to_parquet(\"orders.parquet\", row_group_size=50_000, index=False)\npf = pq.ParquetFile(\"orders.parquet\")\ncol = pf.schema_arrow.names.index(\"order_time\")\n\ngroups = []\nfor i in range(pf.num_row_groups):\n    stats = pf.metadata.row_group(i).column(col).statistics\n    if stats.max >= \"2024-12\":\n        groups.append(i)\n\ndecember = 0\nfor i in groups:\n    part = pf.read_row_group(i, columns=[\"order_time\"]).to_pandas()\n    december += part[\"order_time\"].str.startswith(\"2024-12\").sum()\n\nprint(len(groups), pf.num_row_groups)\nprint(december)\n\neverything = pd.read_parquet(\"orders.parquet\", columns=[\"order_time\"])\nprint(december == everything[\"order_time\"].str.startswith(\"2024-12\").sum())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 8\n33784\nTrue"
+    }
+  ]
+}

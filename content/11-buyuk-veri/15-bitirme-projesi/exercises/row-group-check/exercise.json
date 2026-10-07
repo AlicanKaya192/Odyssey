@@ -1,0 +1,46 @@
+{
+  "id": "row-group-check",
+  "title": {
+    "tr": "Satır gruplarıyla doğrula",
+    "en": "Check with row groups"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "Bir grubun kısmi sonuçları: `part.groupby(\"payment\")[\"revenue\"].agg([\"count\", \"sum\"])`; `iterrows()` ile dolaşıp sözlüklere ekle.",
+      "en": "A group's partial results: `part.groupby(\"payment\")[\"revenue\"].agg([\"count\", \"sum\"])`; go through with `iterrows()` and add into the dictionaries."
+    },
+    {
+      "tr": "DuckDB satırları `(payment, count, sum)`; karşılaştırma `all(counts[p] == n and abs(revenue[p] - r) < 0.01 for p, n, r in exact)`.",
+      "en": "DuckDB's rows are `(payment, count, sum)`; the comparison is `all(counts[p] == n and abs(revenue[p] - r) < 0.01 for p, n, r in exact)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport duckdb\nimport pyarrow.parquet as pq\nfrom orders_data import make_orders\n\nmake_orders(500_000).to_parquet(\"orders.parquet\", row_group_size=100_000, index=False)\npf = pq.ParquetFile(\"orders.parquet\")\ncounts = {}\nrevenue = {}\n\nfor i in range(pf.num_row_groups):\n    part = pf.read_row_group(i, columns=[\"payment\", \"quantity\", \"unit_price\"]).to_pandas()\n    part[\"revenue\"] = part[\"quantity\"] * part[\"unit_price\"]\n    summary = part.groupby(\"payment\")[\"revenue\"].agg([\"count\", \"sum\"])\n    for payment, row in summary.iterrows():\n        counts[payment] = counts.get(payment, 0) + int(row[\"count\"])\n        revenue[payment] = revenue.get(payment, 0.0) + row[\"sum\"]\n\nfor payment in sorted(counts):\n    print(payment, counts[payment], round(revenue[payment], 2))\n\nexact = duckdb.sql(\"\"\"\n    SELECT payment, count(*), sum(quantity * unit_price)\n    FROM 'orders.parquet'\n    GROUP BY payment\n\"\"\").fetchall()\nsame = all(counts[p] == n and abs(revenue[p] - r) < 0.01 for p, n, r in exact)\nprint(same)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport duckdb\nimport pyarrow.parquet as pq\nfrom orders_data import make_orders\n\nmake_orders(500_000).to_parquet(\"orders.parquet\", row_group_size=100_000, index=False)\npf = pq.ParquetFile(\"orders.parquet\")\ncounts = {}\nrevenue = {}\n\nfor i in range(pf.num_row_groups):\n    part = pf.read_row_group(i, columns=[\"payment\", \"quantity\", \"unit_price\"]).to_pandas()\n    part[\"revenue\"] = part[\"quantity\"] * part[\"unit_price\"]\n    summary = part.groupby(\"payment\")[\"revenue\"].agg([\"count\", \"sum\"])\n    for payment, row in summary.iterrows():\n        counts[payment] = counts.get(payment, 0) + int(row[\"count\"])\n        revenue[payment] = revenue.get(payment, 0.0) + row[\"sum\"]\n\nfor payment in sorted(counts):\n    print(payment, counts[payment], round(revenue[payment], 2))\n\nexact = duckdb.sql(\"\"\"\n    SELECT payment, count(*), sum(quantity * unit_price)\n    FROM 'orders.parquet'\n    GROUP BY payment\n\"\"\").fetchall()\nsame = all(counts[p] == n and abs(revenue[p] - r) < 0.01 for p, n, r in exact)\nprint(same)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "card 359248 589500728.87\ncash 40550 66462584.76\ntransfer 100202 164306286.55\nTrue"
+    }
+  ]
+}

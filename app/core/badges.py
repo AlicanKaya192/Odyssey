@@ -50,6 +50,7 @@ API_CHAPTER = "07-api-kullanmak"
 API2_CHAPTER = "08-api-yazmak"
 DOCKER_CHAPTER = "09-docker"
 GIT_CHAPTER = "10-git"
+BIGDATA_CHAPTER = "11-buyuk-veri"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -80,6 +81,9 @@ DOCKER_COMPOSE_SECTION = (DOCKER_CHAPTER, "10-compose")
 GIT_COMMIT_SECTION = (GIT_CHAPTER, "02-ilk-commit")
 GIT_MERGE_SECTION = (GIT_CHAPTER, "07-birlestirmek")
 GIT_PUSH_SECTION = (GIT_CHAPTER, "09-uzak-depolar")
+BIGDATA_PARQUET_SECTION = (BIGDATA_CHAPTER, "05-parquet")
+BIGDATA_DUCKDB_SECTION = (BIGDATA_CHAPTER, "07-duckdb")
+BIGDATA_SPARK_SECTION = (BIGDATA_CHAPTER, "13-spark")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 18
@@ -91,6 +95,7 @@ API_SECTION_COUNT = 17
 API2_SECTION_COUNT = 18
 DOCKER_SECTION_COUNT = 17
 GIT_SECTION_COUNT = 17
+BIGDATA_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -198,6 +203,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "branch-weaver": GIT_MERGE_SECTION in bitenler,
         "first-push": GIT_PUSH_SECTION in bitenler,
         "git-complete": modul_basina.get(GIT_CHAPTER, 0) >= GIT_SECTION_COUNT,
+        "columnar": BIGDATA_PARQUET_SECTION in bitenler,
+        "file-query": BIGDATA_DUCKDB_SECTION in bitenler,
+        "first-spark": BIGDATA_SPARK_SECTION in bitenler,
+        "bigdata-complete": modul_basina.get(BIGDATA_CHAPTER, 0) >= BIGDATA_SECTION_COUNT,
     }
 
 

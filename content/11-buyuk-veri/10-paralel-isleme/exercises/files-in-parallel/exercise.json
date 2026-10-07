@@ -1,0 +1,46 @@
+{
+  "id": "files-in-parallel",
+  "title": {
+    "tr": "Dosyaları paralel oku",
+    "en": "Read files in parallel"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "Parça: `orders.iloc[i * 25_000:(i + 1) * 25_000]`.",
+      "en": "A piece: `orders.iloc[i * 25_000:(i + 1) * 25_000]`."
+    },
+    {
+      "tr": "Birleştirme: `pd.concat(ex.map(category_quantity, paths)).groupby(level=0).sum()`; karşılaştırma `combined.equals(whole)`.",
+      "en": "Combining: `pd.concat(ex.map(category_quantity, paths)).groupby(level=0).sum()`; comparing `combined.equals(whole)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom concurrent.futures import ProcessPoolExecutor\nfrom orders_data import make_orders\n\n\ndef category_quantity(path):\n    part = pd.read_parquet(path)\n    return part.groupby(\"category\")[\"quantity\"].sum()\n\n\nif __name__ == \"__main__\":\n    orders = make_orders(100_000)\n    paths = []\n    for i in range(4):\n        path = f\"part-{i}.parquet\"\n        orders.iloc[i * 25_000:(i + 1) * 25_000].to_parquet(path, index=False)\n        paths.append(path)\n\n    with ProcessPoolExecutor(max_workers=2) as ex:\n        combined = pd.concat(ex.map(category_quantity, paths)).groupby(level=0).sum()\n\n    combined = combined.sort_index()\n    for category, quantity in combined.items():\n        print(category, quantity)\n\n    whole = orders.groupby(\"category\")[\"quantity\"].sum().sort_index()\n    print(combined.equals(whole))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom concurrent.futures import ProcessPoolExecutor\nfrom orders_data import make_orders\n\n\ndef category_quantity(path):\n    part = pd.read_parquet(path)\n    return part.groupby(\"category\")[\"quantity\"].sum()\n\n\nif __name__ == \"__main__\":\n    orders = make_orders(100_000)\n    paths = []\n    for i in range(4):\n        path = f\"part-{i}.parquet\"\n        orders.iloc[i * 25_000:(i + 1) * 25_000].to_parquet(path, index=False)\n        paths.append(path)\n\n    with ProcessPoolExecutor(max_workers=2) as ex:\n        combined = pd.concat(ex.map(category_quantity, paths)).groupby(level=0).sum()\n\n    combined = combined.sort_index()\n    for category, quantity in combined.items():\n        print(category, quantity)\n\n    whole = orders.groupby(\"category\")[\"quantity\"].sum().sort_index()\n    print(combined.equals(whole))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "books 49172\nclothing 49153\nelectronics 30440\nhome 44366\nsports 22432\ntoys 26628\nTrue"
+    }
+  ]
+}

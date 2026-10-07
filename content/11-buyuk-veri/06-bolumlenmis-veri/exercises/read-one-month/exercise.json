@@ -1,0 +1,46 @@
+{
+  "id": "read-one-month",
+  "title": {
+    "tr": "Yalnızca bir ay",
+    "en": "Just one month"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Tek dosya: `pd.read_parquet(\"orders/month=2024-06/part-0.parquet\")`.",
+      "en": "One file: `pd.read_parquet(\"orders/month=2024-06/part-0.parquet\")`."
+    },
+    {
+      "tr": "Hepsi: `pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)`.",
+      "en": "All of them: `pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom pathlib import Path\nimport pandas as pd\nfrom orders_data import make_orders\n\ndf = make_orders(200_000)\ndf[\"order_time\"] = pd.to_datetime(df[\"order_time\"])\ndf[\"month\"] = df[\"order_time\"].dt.strftime(\"%Y-%m\")\nfor month, part in df.groupby(\"month\"):\n    folder = Path(\"orders\") / f\"month={month}\"\n    folder.mkdir(parents=True, exist_ok=True)\n    part.drop(columns=\"month\").to_parquet(folder / \"part-0.parquet\", index=False)\n\njune = pd.read_parquet(\"orders/month=2024-06/part-0.parquet\")\nprint(len(june), round((june[\"quantity\"] * june[\"unit_price\"]).sum(), 2))\n\nfiles = sorted(Path(\"orders\").glob(\"month=*/*.parquet\"))\neverything = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)\nprint(len(files))\n\njune2 = everything[everything[\"order_time\"].dt.month == 6]\nprint(len(june) == len(june2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom pathlib import Path\nimport pandas as pd\nfrom orders_data import make_orders\n\ndf = make_orders(200_000)\ndf[\"order_time\"] = pd.to_datetime(df[\"order_time\"])\ndf[\"month\"] = df[\"order_time\"].dt.strftime(\"%Y-%m\")\nfor month, part in df.groupby(\"month\"):\n    folder = Path(\"orders\") / f\"month={month}\"\n    folder.mkdir(parents=True, exist_ok=True)\n    part.drop(columns=\"month\").to_parquet(folder / \"part-0.parquet\", index=False)\n\njune = pd.read_parquet(\"orders/month=2024-06/part-0.parquet\")\nprint(len(june), round((june[\"quantity\"] * june[\"unit_price\"]).sum(), 2))\n\nfiles = sorted(Path(\"orders\").glob(\"month=*/*.parquet\"))\neverything = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)\nprint(len(files))\n\njune2 = everything[everything[\"order_time\"].dt.month == 6]\nprint(len(june) == len(june2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "16392 26273056.88\n12\nTrue"
+    }
+  ]
+}

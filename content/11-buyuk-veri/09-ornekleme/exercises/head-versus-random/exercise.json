@@ -1,0 +1,46 @@
+{
+  "id": "head-versus-random",
+  "title": {
+    "tr": "İlk satırlar mı, rastgele mi?",
+    "en": "First rows or random?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Farklı ay sayısı: `part[\"order_time\"].dt.month.nunique()`.",
+      "en": "The number of different months: `part[\"order_time\"].dt.month.nunique()`."
+    },
+    {
+      "tr": "İki örneklemi bir listede `(ad, tablo)` ikilileri olarak tut ve döngüyle gez.",
+      "en": "Keep the two samples in a list as `(name, table)` pairs and loop over them."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\norders[\"order_time\"] = pd.to_datetime(orders[\"order_time\"])\n\nsamples = [(\"head\", orders.head(5_000)),\n           (\"random\", orders.sample(n=5_000, random_state=0))]\n\nfor name, part in samples:\n    t = part[\"order_time\"]\n    print(name, t.dt.month.nunique(), t.min().date(), t.max().date())\n\nfor name, part in samples:\n    print(name, part[\"order_time\"].dt.date.nunique())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\norders[\"order_time\"] = pd.to_datetime(orders[\"order_time\"])\n\nsamples = [(\"head\", orders.head(5_000)),\n           (\"random\", orders.sample(n=5_000, random_state=0))]\n\nfor name, part in samples:\n    t = part[\"order_time\"]\n    print(name, t.dt.month.nunique(), t.min().date(), t.max().date())\n\nfor name, part in samples:\n    print(name, part[\"order_time\"].dt.date.nunique())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "head 1 2024-01-01 2024-01-10\nrandom 12 2024-01-01 2024-12-31\nhead 10\nrandom 366"
+    }
+  ]
+}

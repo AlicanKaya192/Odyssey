@@ -1,0 +1,46 @@
+{
+  "id": "chunked-city-mean",
+  "title": {
+    "tr": "Parçalardan şehir ortalaması",
+    "en": "City means from chunks"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 120,
+  "hints": [
+    {
+      "tr": "Parça özeti: `chunk.groupby(\"city\")[\"unit_price\"].agg([\"sum\", \"count\", \"mean\"])`; `iterrows()` ile dolaş.",
+      "en": "The chunk summary: `chunk.groupby(\"city\")[\"unit_price\"].agg([\"sum\", \"count\", \"mean\"])`; go through it with `iterrows()`."
+    },
+    {
+      "tr": "Listeye eklemek: `chunk_means.setdefault(city, []).append(row[\"mean\"])`. Sıralamak: `sorted(means, key=means.get, reverse=True)`.",
+      "en": "Adding to a list: `chunk_means.setdefault(city, []).append(row[\"mean\"])`. Sorting: `sorted(means, key=means.get, reverse=True)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 300_000)\ntotals = {}\ncounts = {}\nchunk_means = {}\n\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=70_000):\n    summary = chunk.groupby(\"city\")[\"unit_price\"].agg([\"sum\", \"count\", \"mean\"])\n    for city, row in summary.iterrows():\n        totals[city] = totals.get(city, 0.0) + row[\"sum\"]\n        counts[city] = counts.get(city, 0) + int(row[\"count\"])\n        chunk_means.setdefault(city, []).append(row[\"mean\"])\n\nmeans = {city: totals[city] / counts[city] for city in totals}\nfor city in sorted(means, key=means.get, reverse=True)[:3]:\n    print(city, round(means[city], 2))\n\nwrong = sum(chunk_means[\"Istanbul\"]) / len(chunk_means[\"Istanbul\"])\nprint(round(means[\"Istanbul\"], 4), round(wrong, 4))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 300_000)\ntotals = {}\ncounts = {}\nchunk_means = {}\n\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=70_000):\n    summary = chunk.groupby(\"city\")[\"unit_price\"].agg([\"sum\", \"count\", \"mean\"])\n    for city, row in summary.iterrows():\n        totals[city] = totals.get(city, 0.0) + row[\"sum\"]\n        counts[city] = counts.get(city, 0) + int(row[\"count\"])\n        chunk_means.setdefault(city, []).append(row[\"mean\"])\n\nmeans = {city: totals[city] / counts[city] for city in totals}\nfor city in sorted(means, key=means.get, reverse=True)[:3]:\n    print(city, round(means[city], 2))\n\nwrong = sum(chunk_means[\"Istanbul\"]) / len(chunk_means[\"Istanbul\"])\nprint(round(means[\"Istanbul\"], 4), round(wrong, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Izmir 748.67\nBursa 745.81\nKonya 738.41\n736.2608 736.8614"
+    }
+  ]
+}

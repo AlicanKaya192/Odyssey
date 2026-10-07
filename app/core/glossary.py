@@ -26,7 +26,7 @@ from functools import lru_cache
 
 from ..paths import content_dir
 
-GROUPS = ("python", "data", "ml", "sql", "math", "ts", "api", "docker", "git")
+GROUPS = ("python", "data", "ml", "sql", "math", "ts", "api", "docker", "git", "bigdata")
 
 GROUP_CHAPTERS = {
     "python": ("00-python-temelleri",),
@@ -38,6 +38,7 @@ GROUP_CHAPTERS = {
     "api": ("07-api-kullanmak", "08-api-yazmak"),
     "docker": ("09-docker",),
     "git": ("10-git",),
+    "bigdata": ("11-buyuk-veri",),
 }
 
 _CODE = re.compile(r"`([^`]+)`")

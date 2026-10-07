@@ -1,0 +1,46 @@
+{
+  "id": "top-and-save",
+  "title": {
+    "tr": "En büyükler ve büyük siparişler",
+    "en": "The largest, and the big orders"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Ekleyerek yazma: `large.to_csv(\"large.csv\", mode=\"w\" if first else \"a\", header=first, index=False)` ve ardından `first = False`.",
+      "en": "Appending: `large.to_csv(\"large.csv\", mode=\"w\" if first else \"a\", header=first, index=False)` followed by `first = False`."
+    },
+    {
+      "tr": "Bütünün en büyük 3'ü: `pd.concat(tops).nlargest(3, \"revenue\")`.",
+      "en": "The top 3 of the whole: `pd.concat(tops).nlargest(3, \"revenue\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\ntops = []\nfirst = True\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=50_000):\n    chunk[\"revenue\"] = chunk[\"quantity\"] * chunk[\"unit_price\"]\n    tops.append(chunk.nlargest(3, \"revenue\"))\n    large = chunk[chunk[\"revenue\"] >= 20_000]\n    large.to_csv(\"large.csv\", mode=\"w\" if first else \"a\", header=first, index=False)\n    first = False\n\ntop = pd.concat(tops).nlargest(3, \"revenue\")\nfor order_id, revenue in zip(top[\"order_id\"], top[\"revenue\"]):\n    print(order_id, round(revenue, 2))\n\nsaved = pd.read_csv(\"large.csv\")\nprint(len(saved), round(saved[\"revenue\"].min(), 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\ntops = []\nfirst = True\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=50_000):\n    chunk[\"revenue\"] = chunk[\"quantity\"] * chunk[\"unit_price\"]\n    tops.append(chunk.nlargest(3, \"revenue\"))\n    large = chunk[chunk[\"revenue\"] >= 20_000]\n    large.to_csv(\"large.csv\", mode=\"w\" if first else \"a\", header=first, index=False)\n    first = False\n\ntop = pd.concat(tops).nlargest(3, \"revenue\")\nfor order_id, revenue in zip(top[\"order_id\"], top[\"revenue\"]):\n    print(order_id, round(revenue, 2))\n\nsaved = pd.read_csv(\"large.csv\")\nprint(len(saved), round(saved[\"revenue\"].min(), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "77834 37969.65\n64034 37358.2\n181799 35445.5\n284 20058.12"
+    }
+  ]
+}

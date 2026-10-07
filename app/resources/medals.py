@@ -180,6 +180,21 @@ GLYPHS: dict[str, str] = {
     "git-graph": ('<path d="M6.5 3.5v17"/><path d="M6.5 6c0 3.5 11 2 11 5.5v1c0 3.5-11 2-11 5.5" stroke-width="1.6"/>'
                   '<g fill="#fff" stroke="none"><circle cx="6.5" cy="3.5" r="2.3"/><circle cx="6.5" cy="20.5" r="2.3"/>'
                   '<circle cx="17.5" cy="12" r="2.6"/><circle cx="6.5" cy="12" r="1.8"/></g>'),
+    "parquet-columns": ('<g fill="#fff" fill-opacity=".3" stroke="none"><rect x="3.5" y="3.5" width="4.5" height="17" rx="1"/>'
+                        '<rect x="16" y="3.5" width="4.5" height="17" rx="1"/></g>'
+                        '<rect x="3.5" y="3.5" width="4.5" height="17" rx="1"/><rect x="16" y="3.5" width="4.5" height="17" rx="1"/>'
+                        '<rect x="9.75" y="3.5" width="4.5" height="17" rx="1" fill="#fff" stroke="none"/>'
+                        '<path d="M3.5 9.5H8M3.5 15H8M16 9.5h4.5M16 15h4.5" stroke-width="1.3"/>'),
+    "file-query": ('<path d="M5 21.5v-19h8.5l4 4V11"/><path d="M13.5 2.5v4h4" stroke-width="1.5"/>'
+                   '<path d="M8 9h6M8 12.5h3.5" stroke-width="1.4" stroke-opacity=".8"/>'
+                   '<circle cx="15.5" cy="16" r="3.8" fill="#fff" fill-opacity=".35"/><circle cx="15.5" cy="16" r="3.8"/>'
+                   '<path d="m18.3 18.8 3 3" stroke-width="2.2"/>'),
+    "spark-burst": ('<path fill="#fff" stroke="none" d="M12 2.5l2.3 7.2 7.2 2.3-7.2 2.3L12 21.5l-2.3-7.2L2.5 12l7.2-2.3z"/>'
+                    '<path d="M4.5 4.5l2 2M19.5 4.5l-2 2M4.5 19.5l2-2M19.5 19.5l-2-2" stroke-width="1.6"/>'),
+    "data-pyramid": ('<g fill="#fff" stroke="none"><rect x="9" y="3" width="6" height="3.4" rx=".8"/>'
+                     '<rect x="6.5" y="7.6" width="11" height="3.4" rx=".8" fill-opacity=".85"/>'
+                     '<rect x="4" y="12.2" width="16" height="3.4" rx=".8" fill-opacity=".7"/>'
+                     '<rect x="1.5" y="16.8" width="21" height="3.4" rx=".8" fill-opacity=".55"/></g>'),
 }
 
 

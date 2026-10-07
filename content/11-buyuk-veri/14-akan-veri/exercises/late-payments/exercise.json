@@ -1,0 +1,50 @@
+{
+  "id": "late-payments",
+  "title": {
+    "tr": "Geç gelen ödemeler",
+    "en": "Late payments"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "stream_data.py",
+      "readonly": true
+    },
+    {
+      "name": "minilog.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Kapanan pencereyi taşımak: `results[s] = open_windows.pop(s)`; kapananları önce bir listeye al (`[s for s in open_windows if ...]`), sözlük dolaşılırken değiştirilemez.",
+      "en": "Moving a closed window: `results[s] = open_windows.pop(s)`; collect the closed ones into a list first (`[s for s in open_windows if ...]`), a dictionary cannot change while you loop over it."
+    },
+    {
+      "tr": "Eksik pencereler: `sum(1 for s in results if results[s] != truth[s])`.",
+      "en": "Windows counted short: `sum(1 for s in results if results[s] != truth[s])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom stream_data import payments\nfrom collections import defaultdict\n\nLATENESS = 30\n\ntruth = defaultdict(int)\nfor event in payments(5_000):\n    truth[event[\"ts\"] // 60 * 60] += 1\n\nopen_windows = defaultdict(int)\nresults = {}\nnewest = 0\ndropped = 0\nfor event in payments(5_000, late=True):\n    start = event[\"ts\"] // 60 * 60\n    if start + 60 <= newest - LATENESS:\n        dropped += 1\n        continue\n    open_windows[start] += 1\n    newest = max(newest, event[\"ts\"])\n    for s in [s for s in open_windows if s + 60 <= newest - LATENESS]:\n        results[s] = open_windows.pop(s)\nfor s in list(open_windows):\n    results[s] = open_windows.pop(s)\n\nshort = sum(1 for s in results if results[s] != truth[s])\nprint(dropped)\nprint(short)\nprint(sum(results.values()) + dropped == 5_000)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom stream_data import payments\nfrom collections import defaultdict\n\nLATENESS = 30\n\ntruth = defaultdict(int)\nfor event in payments(5_000):\n    truth[event[\"ts\"] // 60 * 60] += 1\n\nopen_windows = defaultdict(int)\nresults = {}\nnewest = 0\ndropped = 0\nfor event in payments(5_000, late=True):\n    start = event[\"ts\"] // 60 * 60\n    if start + 60 <= newest - LATENESS:\n        dropped += 1\n        continue\n    open_windows[start] += 1\n    newest = max(newest, event[\"ts\"])\n    for s in [s for s in open_windows if s + 60 <= newest - LATENESS]:\n        results[s] = open_windows.pop(s)\nfor s in list(open_windows):\n    results[s] = open_windows.pop(s)\n\nshort = sum(1 for s in results if results[s] != truth[s])\nprint(dropped)\nprint(short)\nprint(sum(results.values()) + dropped == 5_000)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "197\n91\nTrue"
+    }
+  ]
+}

@@ -123,6 +123,18 @@ COLLECT = [
     "iniconfig",
     "pygments",
     "opentelemetry",
+    # Büyük Veri alıştırmaları: Parquet (pyarrow), dosyada SQL (duckdb),
+    # paralel tablolar (dask ve bağımlılıkları). Yalnızca kişinin kodu
+    # import ediyor; pandas'ın `str` sütunları da pyarrow ile çalışıyor.
+    "pyarrow",
+    "duckdb",
+    "dask",
+    "fsspec",
+    "toolz",
+    "partd",
+    "locket",
+    "cloudpickle",
+    "packaging",
 ]
 
 # Yalnızca denetleyicinin kullandığı standart kütüphane modülleri.

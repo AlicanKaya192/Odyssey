@@ -1,0 +1,46 @@
+{
+  "id": "revenue-by-payment",
+  "title": {
+    "tr": "Ödeme türüne göre ciro",
+    "en": "Revenue by payment method"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Parçada özet: `chunk.groupby(\"payment\")[\"revenue\"].sum()`; birleştirme: `pd.concat(parts).groupby(level=0).sum()`.",
+      "en": "The summary in a chunk: `chunk.groupby(\"payment\")[\"revenue\"].sum()`; combining: `pd.concat(parts).groupby(level=0).sum()`."
+    },
+    {
+      "tr": "İki seriyi karşılaştırmadan önce aynı sıraya getir: `full.reindex(combined.index)`. Sonra `(... == ...).all()`.",
+      "en": "Put the two series in the same order before comparing: `full.reindex(combined.index)`. Then `(... == ...).all()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\nparts = []\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=50_000):\n    chunk[\"revenue\"] = chunk[\"quantity\"] * chunk[\"unit_price\"]\n    parts.append(chunk.groupby(\"payment\")[\"revenue\"].sum())\n\ncombined = pd.concat(parts).groupby(level=0).sum().sort_values(ascending=False)\nfor payment, revenue in combined.items():\n    print(payment, round(revenue / 1e6, 2))\n\ndf = pd.read_csv(\"orders.csv\")\ndf[\"revenue\"] = df[\"quantity\"] * df[\"unit_price\"]\nfull = df.groupby(\"payment\")[\"revenue\"].sum()\nprint((combined.round(2) == full.round(2).reindex(combined.index)).all())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\nparts = []\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=50_000):\n    chunk[\"revenue\"] = chunk[\"quantity\"] * chunk[\"unit_price\"]\n    parts.append(chunk.groupby(\"payment\")[\"revenue\"].sum())\n\ncombined = pd.concat(parts).groupby(level=0).sum().sort_values(ascending=False)\nfor payment, revenue in combined.items():\n    print(payment, round(revenue / 1e6, 2))\n\ndf = pd.read_csv(\"orders.csv\")\ndf[\"revenue\"] = df[\"quantity\"] * df[\"unit_price\"]\nfull = df.groupby(\"payment\")[\"revenue\"].sum()\nprint((combined.round(2) == full.round(2).reindex(combined.index)).all())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "card 235.58\ntransfer 65.32\ncash 26.53\nTrue"
+    }
+  ]
+}

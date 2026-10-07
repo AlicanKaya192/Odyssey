@@ -1,0 +1,50 @@
+{
+  "id": "five-minute-windows",
+  "title": {
+    "tr": "Beş dakikalık pencereler",
+    "en": "Five-minute windows"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "stream_data.py",
+      "readonly": true
+    },
+    {
+      "name": "minilog.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Pencere değişti mi: `if start != current:`; içinde önce eskisini yazdır (ilk ödemede `current` `None`), sonra sayaçları sıfırla.",
+      "en": "Did the window change: `if start != current:`; inside, first print the old one (`current` is `None` at the first payment), then reset the counters."
+    },
+    {
+      "tr": "Sayaçlar `if` bloğundan sonra, her ödemede artar: `count += 1`, `total += event[\"amount\"]`.",
+      "en": "The counters go up at every payment, after the `if` block: `count += 1`, `total += event[\"amount\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom stream_data import payments\n\ncurrent = None\ncount = 0\ntotal = 0.0\n\nfor event in payments(2_000):\n    start = event[\"ts\"] // 300 * 300\n    if start != current:\n        if current is not None:\n            print(\"closed\", current, count, round(total, 2))\n        current, count, total = start, 0, 0.0\n    count += 1\n    total += event[\"amount\"]\n\nprint(\"open\", current, count, round(total, 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom stream_data import payments\n\ncurrent = None\ncount = 0\ntotal = 0.0\n\nfor event in payments(2_000):\n    start = event[\"ts\"] // 300 * 300\n    if start != current:\n        if current is not None:\n            print(\"closed\", current, count, round(total, 2))\n        current, count, total = start, 0, 0.0\n    count += 1\n    total += event[\"amount\"]\n\nprint(\"open\", current, count, round(total, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "closed 0 207 23060.11\nclosed 300 212 23432.8\nclosed 600 215 25068.68\nclosed 900 208 26918.22\nclosed 1200 212 24829.54\nclosed 1500 215 26446.96\nclosed 1800 225 26956.03\nclosed 2100 213 25240.26\nclosed 2400 197 26540.65\nopen 2700 96 10348.27"
+    }
+  ]
+}

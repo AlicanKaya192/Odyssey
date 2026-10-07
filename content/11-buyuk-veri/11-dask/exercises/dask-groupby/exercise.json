@@ -1,0 +1,46 @@
+{
+  "id": "dask-groupby",
+  "title": {
+    "tr": "dask ile gruplama",
+    "en": "Grouping with dask"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Yazım pandas'ınki gibi; sonunda `.compute()`.",
+      "en": "The syntax is like pandas'; `.compute()` at the end."
+    },
+    {
+      "tr": "Karşılaştırmadan önce ikisini de `sort_index()` ile ada göre sırala.",
+      "en": "Sort both by name with `sort_index()` before comparing."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport dask\nimport dask.dataframe as dd\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\nfor i in range(4):\n    orders.iloc[i * 50_000:(i + 1) * 50_000].to_csv(f\"orders-{i}.csv\", index=False)\n\nddf = dd.read_csv(\"orders-*.csv\")\nby_payment = ddf.groupby(\"payment\")[\"quantity\"].sum().compute().sort_index()\nfor payment, quantity in by_payment.items():\n    print(payment, quantity)\n\nexpected = orders.groupby(\"payment\")[\"quantity\"].sum().sort_index()\nprint(by_payment.equals(expected))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport dask\nimport dask.dataframe as dd\nimport pandas as pd\nfrom orders_data import make_orders\n\norders = make_orders(200_000)\nfor i in range(4):\n    orders.iloc[i * 50_000:(i + 1) * 50_000].to_csv(f\"orders-{i}.csv\", index=False)\n\nddf = dd.read_csv(\"orders-*.csv\")\nby_payment = ddf.groupby(\"payment\")[\"quantity\"].sum().compute().sort_index()\nfor payment, quantity in by_payment.items():\n    print(payment, quantity)\n\nexpected = orders.groupby(\"payment\")[\"quantity\"].sum().sort_index()\nprint(by_payment.equals(expected))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "card 319710\ncash 35594\ntransfer 88622\nTrue"
+    }
+  ]
+}

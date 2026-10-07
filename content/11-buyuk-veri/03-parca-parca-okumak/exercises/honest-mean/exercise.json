@@ -1,0 +1,46 @@
+{
+  "id": "honest-mean",
+  "title": {
+    "tr": "Dürüst ortalama",
+    "en": "An honest mean"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Aynı döngüde üç şey: `means.append(chunk[\"quantity\"].mean())`, `total += chunk[\"quantity\"].sum()`, `count += len(chunk)`.",
+      "en": "Three things in the same loop: `means.append(chunk[\"quantity\"].mean())`, `total += chunk[\"quantity\"].sum()`, `count += len(chunk)`."
+    },
+    {
+      "tr": "Ortalamaların ortalaması `sum(means) / len(means)`, doğrusu `total / count`.",
+      "en": "The mean of means is `sum(means) / len(means)`; the right one is `total / count`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\nmeans = []\ntotal = 0\ncount = 0\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=70_000):\n    means.append(chunk[\"quantity\"].mean())\n    total += chunk[\"quantity\"].sum()\n    count += len(chunk)\n\nprint(round(float(sum(means) / len(means)), 4))\nprint(round(float(total / count), 4))\n\nprint(round(float(pd.read_csv(\"orders.csv\")[\"quantity\"].mean()), 4))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\nmeans = []\ntotal = 0\ncount = 0\nfor chunk in pd.read_csv(\"orders.csv\", chunksize=70_000):\n    means.append(chunk[\"quantity\"].mean())\n    total += chunk[\"quantity\"].sum()\n    count += len(chunk)\n\nprint(round(float(sum(means) / len(means)), 4))\nprint(round(float(total / count), 4))\n\nprint(round(float(pd.read_csv(\"orders.csv\")[\"quantity\"].mean()), 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2.2198\n2.2196\n2.2196"
+    }
+  ]
+}

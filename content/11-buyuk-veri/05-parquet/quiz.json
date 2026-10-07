@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Parquet dosyasının katmanları dıştan içe hangi sırada?",
+        "en": "What is the order of a Parquet file's layers, from outside in?"
+      },
+      "options": {
+        "tr": [
+          "Dosya → satır grubu → sütun parçası → sayfa",
+          "Dosya → sayfa → sütun parçası → satır grubu",
+          "Satır grubu → dosya → sayfa",
+          "Sütun → satır → dosya"
+        ],
+        "en": [
+          "File → row group → column chunk → page",
+          "File → page → column chunk → row group",
+          "Row group → file → page",
+          "Column → row → file"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir grubun içinde her sütun ayrı bir parça; parçalar da sayfalara bölünüyor.",
+        "en": "Inside a group each column is a separate chunk; the chunks are split into pages."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Parquet dosyasının altbilgisi (footer) ne tutar?",
+        "en": "What does a Parquet file's footer hold?"
+      },
+      "options": {
+        "tr": [
+          "Şemayı, grupların yerini ve her sütun parçasının istatistiklerini",
+          "Verinin tamamını",
+          "Yalnızca sütun adlarını",
+          "Dosyanın sıkıştırılmamış kopyasını"
+        ],
+        "en": [
+          "The schema, where the groups are, and each column chunk's statistics",
+          "All of the data",
+          "Only the column names",
+          "An uncompressed copy of the file"
+        ]
+      },
+      "explanation": {
+        "tr": "Okuyan program önce bu küçük bölümü okuyup hangi parçalara gideceğine karar veriyor.",
+        "en": "The reading program reads this small section first and decides which parts to go to."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`pq.ParquetFile(\"orders.parquet\").metadata` neden dosyanın boyutundan bağımsız olarak hızlıdır?",
+        "en": "Why is `pq.ParquetFile(\"orders.parquet\").metadata` fast whatever the size of the file?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca altbilgiyi okuyor, veriyi okumuyor",
+          "Dosyayı sıkıştırıyor",
+          "Sonucu önbellekten veriyor",
+          "Yalnızca ilk satırı okuyor"
+        ],
+        "en": [
+          "It reads only the footer, not the data",
+          "It compresses the file",
+          "It answers from a cache",
+          "It reads only the first row"
+        ]
+      },
+      "explanation": {
+        "tr": "Satır, grup ve sütun sayısı altbilgide hazır duruyor.",
+        "en": "The numbers of rows, groups and columns sit ready in the footer."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "pandas `to_parquet` bir milyon satırı varsayılan olarak kaç satır grubuna koydu?",
+        "en": "Into how many row groups did pandas' `to_parquet` put a million rows by default?"
+      },
+      "options": {
+        "tr": [
+          "1",
+          "10",
+          "100",
+          "1 000 000"
+        ],
+        "en": [
+          "1",
+          "10",
+          "100",
+          "1 000 000"
+        ]
+      },
+      "explanation": {
+        "tr": "Daha küçük gruplar için `row_group_size=`: `100_000` ile 10 grup.",
+        "en": "For smaller groups, `row_group_size=`: with `100_000`, 10 groups."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Satır grubu istatistikleri her sütun için ne saklar?",
+        "en": "What do row group statistics store for each column?"
+      },
+      "options": {
+        "tr": [
+          "O gruptaki en küçük ve en büyük değeri (ve boş değer sayısını)",
+          "Bütün değerlerin listesini",
+          "Ortalamayı ve standart sapmayı",
+          "Yalnızca sütunun türünü"
+        ],
+        "en": [
+          "The smallest and largest value in that group (and the null count)",
+          "The list of all values",
+          "The mean and standard deviation",
+          "Only the column's type"
+        ]
+      },
+      "explanation": {
+        "tr": "`rg.column(j).statistics.min`, `.max`, `.null_count`.",
+        "en": "`rg.column(j).statistics.min`, `.max`, `.null_count`."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Siparişler zaman sırasıyla yazıldığında `order_time` istatistikleri neye benzer?",
+        "en": "When the orders are written in time order, what do the `order_time` statistics look like?"
+      },
+      "options": {
+        "tr": [
+          "Her grup yılın ayrı, çakışmayan bir dilimini tutar",
+          "Her grup bütün yılı kapsar",
+          "İstatistik tutulmaz",
+          "Bütün gruplarda aynı değer olur"
+        ],
+        "en": [
+          "Each group holds a separate, non-overlapping slice of the year",
+          "Every group covers the whole year",
+          "No statistics are kept",
+          "Every group has the same value"
+        ]
+      },
+      "explanation": {
+        "tr": "0. grup Ocak başı, 9. grup Aralık. Bu yüzden zamana göre süzerken gruplar atlanabiliyor.",
+        "en": "Group 0 is early January, group 9 December. That is why groups can be skipped when filtering by time."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Bir satır grubunun en büyük `order_time` değeri 25 Kasım. \"Aralık siparişleri\" için bu grup ne yapılır?",
+        "en": "A row group's largest `order_time` is 25 November. What happens to this group for \"the December orders\"?"
+      },
+      "options": {
+        "tr": [
+          "Okunmadan atlanır: içinde Aralık siparişi olamaz",
+          "Mutlaka okunur",
+          "Yarısı okunur",
+          "Silinir"
+        ],
+        "en": [
+          "It is skipped without reading: it cannot contain a December order",
+          "It is always read",
+          "Half of it is read",
+          "It is deleted"
+        ]
+      },
+      "explanation": {
+        "tr": "İstatistik grubun içine bakmadan bunu kesin söylüyor.",
+        "en": "The statistics say this for certain without looking inside the group."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "Bölümdeki Aralık örneğinde on gruptan kaçı okundu?",
+        "en": "In the December example in the section, how many of the ten groups were read?"
+      },
+      "options": {
+        "tr": [
+          "1",
+          "10",
+          "5",
+          "0"
+        ],
+        "en": [
+          "1",
+          "10",
+          "5",
+          "0"
+        ]
+      },
+      "explanation": {
+        "tr": "Yalnızca 9. grup; içinden de 85 002 Aralık siparişi süzüldü.",
+        "en": "Only group 9; 85 002 December orders were filtered out of it."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "İstatistikle atlamanın İngilizce adı hangisi?",
+        "en": "What is skipping by statistics called?"
+      },
+      "options": {
+        "tr": [
+          "Predicate pushdown",
+          "Garbage collection",
+          "Lazy loading",
+          "Overflow"
+        ],
+        "en": [
+          "Predicate pushdown",
+          "Garbage collection",
+          "Lazy loading",
+          "Overflow"
+        ]
+      },
+      "explanation": {
+        "tr": "Koşulu (predicate) veriye doğru itmek: koşul okumadan önce uygulanıyor.",
+        "en": "Pushing the condition (the predicate) down to the data: it is applied before reading."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.read_parquet(..., filters=[(\"order_time\", \">=\", t)])` ne yapar?",
+        "en": "What does `pd.read_parquet(..., filters=[(\"order_time\", \">=\", t)])` do?"
+      },
+      "options": {
+        "tr": [
+          "Koşula uyamayacak grupları atlar, kalanları okuyup süzer",
+          "Bütün dosyayı okuyup sonra süzer",
+          "Dosyayı sıralar",
+          "Yalnızca istatistikleri döndürür"
+        ],
+        "en": [
+          "It skips groups that cannot match, reads and filters the rest",
+          "It reads the whole file, then filters",
+          "It sorts the file",
+          "It returns only the statistics"
+        ]
+      },
+      "explanation": {
+        "tr": "Atlama işini `read_parquet` kendisi yapıyor; bölümde bunu elle de yaptık.",
+        "en": "`read_parquet` does the skipping itself; in the section we also did it by hand."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`filters=` listesindeki iki koşul nasıl bağlanır: `[(\"city\", \"==\", \"Izmir\"), (\"quantity\", \">=\", 3)]`?",
+        "en": "How are two conditions in a `filters=` list joined: `[(\"city\", \"==\", \"Izmir\"), (\"quantity\", \">=\", 3)]`?"
+      },
+      "options": {
+        "tr": [
+          "Ve: ikisi birden doğru olmalı",
+          "Veya: biri yeter",
+          "Yalnızca ilki uygulanır",
+          "Hata verir"
+        ],
+        "en": [
+          "And: both must be true",
+          "Or: one is enough",
+          "Only the first is applied",
+          "It raises an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Veya için listelerin listesi: `[[koşul1], [koşul2]]`.",
+        "en": "For or, a list of lists: `[[condition1], [condition2]]`."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Şehirler her grupta karışıksa `filters=[(\"city\", \"==\", \"Izmir\")]` kaç grubu atlayabilir?",
+        "en": "If cities are mixed in every group, how many groups can `filters=[(\"city\", \"==\", \"Izmir\")]` skip?"
+      },
+      "options": {
+        "tr": [
+          "Hiçbirini",
+          "Hepsini",
+          "Yarısını",
+          "Yalnızca ilkini"
+        ],
+        "en": [
+          "None of them",
+          "All of them",
+          "Half of them",
+          "Only the first"
+        ]
+      },
+      "explanation": {
+        "tr": "Her grubun istatistiği `Adana` – `Trabzon`; İzmir her grupta olabilir.",
+        "en": "Every group's statistics run `Adana` – `Trabzon`; Izmir could be in any group."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Şehir filtresinin grupları atlayabilmesi için dosya nasıl yazılmalı?",
+        "en": "How should the file be written so a city filter can skip groups?"
+      },
+      "options": {
+        "tr": [
+          "Şehre göre sıralanmış olarak",
+          "Satır grubu büyüklüğü 1 olarak",
+          "Sıkıştırmasız",
+          "CSV olarak"
+        ],
+        "en": [
+          "Sorted by city",
+          "With a row group size of 1",
+          "Uncompressed",
+          "As CSV"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıralanınca İzmir yalnızca 7. ve 8. gruplarda kaldı; diğer sekiz grup atlanıyor.",
+        "en": "Once sorted, Izmir was left only in groups 7 and 8; the other eight are skipped."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Dosyayı şehre göre sıralamanın bölümdeki bedeli neydi?",
+        "en": "What was the price of sorting the file by city in the section?"
+      },
+      "options": {
+        "tr": [
+          "Dosya 26,0 MB'tan 31,7 MB'a büyüdü",
+          "Satırlar kayboldu",
+          "Türler değişti",
+          "Bedeli yoktu"
+        ],
+        "en": [
+          "The file grew from 26.0 MB to 31.7 MB",
+          "Rows were lost",
+          "The types changed",
+          "There was no price"
+        ]
+      },
+      "explanation": {
+        "tr": "Önceden sıralı olan zaman ve sipariş numarası karıştı ve daha kötü sıkıştı.",
+        "en": "The time and order number, which were in order before, got mixed and compressed worse."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Bir dosyayı hangi sütuna göre sıralı yazmak en mantıklıdır?",
+        "en": "By which column is it most sensible to write a file sorted?"
+      },
+      "options": {
+        "tr": [
+          "En sık süzdüğün sütuna",
+          "En uzun metinli sütuna",
+          "Alfabetik olarak ilk sütuna",
+          "Hiçbirine; sıralamak hep zararlı"
+        ],
+        "en": [
+          "The column you filter on most",
+          "The column with the longest text",
+          "The alphabetically first column",
+          "None; sorting always hurts"
+        ]
+      },
+      "explanation": {
+        "tr": "Atlama süzülen sütunun sıralı olmasına bağlı; zaman serilerinde bu çoğu zaman zaman.",
+        "en": "Skipping depends on the filtered column being in order; for time series that is usually time."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "100 000 satırlık bir grupta `city` 38 081 bayt, `order_time` 848 893 bayt tuttu. Neden?",
+        "en": "In a group of 100 000 rows `city` took 38 081 bytes and `order_time` 848 893 bytes. Why?"
+      },
+      "options": {
+        "tr": [
+          "Tekrar eden şehirler sözlük kodlamasıyla çok küçük; zamanların neredeyse hepsi farklı",
+          "Şehir sütunu boş",
+          "Zaman sütunu iki kez yazılmış",
+          "Şehirler sıkıştırılmamış"
+        ],
+        "en": [
+          "Repeated cities are tiny with dictionary encoding; nearly every time is different",
+          "The city column is empty",
+          "The time column was written twice",
+          "The cities are not compressed"
+        ]
+      },
+      "explanation": {
+        "tr": "Sözlük kodlaması `category` türünün dosyadaki karşılığı: farklı değerler bir kez, satırlarda numaraları.",
+        "en": "Dictionary encoding is the file's counterpart of the `category` type: the different values once, their numbers in the rows."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "`pq.ParquetFile(yol).read_row_group(3)` ne okur?",
+        "en": "What does `pq.ParquetFile(path).read_row_group(3)` read?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca 3. satır grubunu",
+          "İlk 3 satırı",
+          "3. sütunu",
+          "Dosyanın tamamını"
+        ],
+        "en": [
+          "Only row group 3",
+          "The first 3 rows",
+          "The 3rd column",
+          "The whole file"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölümde 3. grup 300 001 ile 400 000 arasındaki siparişleri verdi.",
+        "en": "In the section group 3 gave the orders from 300 001 to 400 000."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Parquet'de `read_csv(chunksize=...)`'nin karşılığı hangisi?",
+        "en": "What is the Parquet counterpart of `read_csv(chunksize=...)`?"
+      },
+      "options": {
+        "tr": [
+          "`ParquetFile.iter_batches(batch_size=...)`",
+          "`read_parquet(nrows=...)`",
+          "`to_parquet(chunks=...)`",
+          "`ParquetWriter`"
+        ],
+        "en": [
+          "`ParquetFile.iter_batches(batch_size=...)`",
+          "`read_parquet(nrows=...)`",
+          "`to_parquet(chunks=...)`",
+          "`ParquetWriter`"
+        ]
+      },
+      "explanation": {
+        "tr": "Her adımda istenen büyüklükte bir parça veriyor; `columns=` da alıyor.",
+        "en": "It gives a piece of the requested size at each step; it takes `columns=` too."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`iter_batches`'in her adımda verdiği parça pandas tablosuna nasıl çevrilir?",
+        "en": "How is the piece `iter_batches` gives at each step turned into a pandas table?"
+      },
+      "options": {
+        "tr": [
+          "`batch.to_pandas()`",
+          "`pd.DataFrame(batch)` zorunlu",
+          "Çevrilemez",
+          "`batch.as_csv()`"
+        ],
+        "en": [
+          "`batch.to_pandas()`",
+          "`pd.DataFrame(batch)` is required",
+          "It cannot be",
+          "`batch.as_csv()`"
+        ]
+      },
+      "explanation": {
+        "tr": "Parça bir `pyarrow` kayıt yığını (*record batch*); `to_pandas()` onu `DataFrame` yapıyor.",
+        "en": "The piece is a `pyarrow` record batch; `to_pandas()` makes it a `DataFrame`."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Belleğe sığmayan bir CSV'yi tek bir Parquet dosyasına çevirmek için hangisi?",
+        "en": "Which turns a CSV that does not fit in memory into a single Parquet file?"
+      },
+      "options": {
+        "tr": [
+          "`pq.ParquetWriter` ile her parçayı yazıp sonda `close()`",
+          "Her parçada `to_parquet` ile aynı dosyaya yazmak",
+          "`read_csv(...).to_parquet(...)` tek seferde",
+          "Çevrilemez"
+        ],
+        "en": [
+          "`pq.ParquetWriter`, writing each piece and calling `close()` at the end",
+          "`to_parquet` to the same file for each piece",
+          "`read_csv(...).to_parquet(...)` in one go",
+          "It cannot be done"
+        ]
+      },
+      "explanation": {
+        "tr": "`to_parquet` her seferinde dosyayı baştan yazıyor; tek seferde okumak da belleğe sığmıyor.",
+        "en": "`to_parquet` writes the file from scratch each time; reading it all at once does not fit in memory."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`ParquetWriter` kapatılmadan dosya okunmaya çalışılırsa ne olur?",
+        "en": "What happens if you try to read the file before the `ParquetWriter` is closed?"
+      },
+      "options": {
+        "tr": [
+          "`ArrowInvalid: ... magic bytes not found in footer`",
+          "Dosya normal okunur",
+          "Yalnızca ilk grup okunur",
+          "Dosya silinir"
+        ],
+        "en": [
+          "`ArrowInvalid: ... magic bytes not found in footer`",
+          "The file reads normally",
+          "Only the first group is read",
+          "The file is deleted"
+        ]
+      },
+      "explanation": {
+        "tr": "Altbilgi `close()` ile yazılıyor; o olmadan dosya bir Parquet dosyası sayılmıyor.",
+        "en": "The footer is written by `close()`; without it the file does not count as a Parquet file."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Parçaların şeması farklıysa `writer.write_table` ne yapar?",
+        "en": "What does `writer.write_table` do if the pieces' schemas differ?"
+      },
+      "options": {
+        "tr": [
+          "`ValueError: Table schema does not match ...`",
+          "Farkı kendisi düzeltir",
+          "Yeni bir dosya açar",
+          "Sessizce atlar"
+        ],
+        "en": [
+          "`ValueError: Table schema does not match ...`",
+          "It fixes the difference itself",
+          "It opens a new file",
+          "It silently skips it"
+        ]
+      },
+      "explanation": {
+        "tr": "Türleri `read_csv`'ye `dtype=` ile sabit vermek her parçanın aynı şemada gelmesini sağlıyor.",
+        "en": "Fixing the types in `read_csv` with `dtype=` makes every piece arrive with the same schema."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "`pa.Table.from_pandas(..., safe=False)` neden tehlikeli?",
+        "en": "Why is `pa.Table.from_pandas(..., safe=False)` dangerous?"
+      },
+      "options": {
+        "tr": [
+          "Uymayan türü zorlarken değeri sessizce bozabilir (1,5 → 1)",
+          "Dosyayı siler",
+          "Belleği iki katına çıkarır",
+          "Hiç tehlikeli değil"
+        ],
+        "en": [
+          "When forcing a type that does not fit it can quietly break the value (1.5 → 1)",
+          "It deletes the file",
+          "It doubles memory",
+          "It is not dangerous at all"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu makinede ondalıklı 1,5 tam sayı şemasına zorlanınca 1 oldu, hiçbir uyarı çıkmadı.",
+        "en": "On this machine a decimal 1.5 forced into a whole-number schema became 1, with no warning."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Satır grubu çok küçük seçilirse (ör. 1 000 satır) ne olur?",
+        "en": "What happens if row groups are made very small (e.g. 1 000 rows)?"
+      },
+      "options": {
+        "tr": [
+          "Okuma yavaşlar: bu bilgisayarda 100 000'lik gruplardan yaklaşık üç kat",
+          "Dosya en küçük olur",
+          "Atlama işe yaramaz",
+          "Hiçbir şey değişmez"
+        ],
+        "en": [
+          "Reading slows down: about three times slower than groups of 100 000 on this computer",
+          "The file becomes the smallest",
+          "Skipping stops working",
+          "Nothing changes"
+        ]
+      },
+      "explanation": {
+        "tr": "Her grubun kendi hazırlığı var; 1 000 grupta bu 1 000 kez yapılıyor (0,121 sn'ye karşı 0,037 sn).",
+        "en": "Each group has its own preparation; with 1 000 groups it is done 1 000 times (0.121 s against 0.037 s)."
+      }
+    }
+  ]
+}

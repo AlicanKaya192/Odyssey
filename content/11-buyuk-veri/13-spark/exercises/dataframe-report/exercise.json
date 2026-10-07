@@ -1,0 +1,50 @@
+{
+  "id": "dataframe-report",
+  "title": {
+    "tr": "DataFrame raporu",
+    "en": "A DataFrame report"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    },
+    {
+      "name": "minispark.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Süzme metinle: `.filter(\"payment == 'card'\")`.",
+      "en": "Filtering with text: `.filter(\"payment == 'card'\")`."
+    },
+    {
+      "tr": "`agg` sütun adları `sum(revenue)` ve `count(order_id)`; `itertuples` ile satırda sırayla `row[1]`, `row[2]`.",
+      "en": "The `agg` column names are `sum(revenue)` and `count(order_id)`; with `itertuples`, `row[1]` and `row[2]` in order within the row."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom minispark import SparkSession\n\nspark = SparkSession.builder.appName(\"orders\").getOrCreate()\nsc = spark.sparkContext\nfrom orders_data import make_orders\n\ndf = spark.createDataFrame(make_orders(50_000), numPartitions=4)\n\ncard = df.withColumn(\"revenue\", \"quantity * unit_price\").filter(\"payment == 'card'\")\nreport = (card.groupBy(\"category\")\n              .agg({\"revenue\": \"sum\", \"order_id\": \"count\"})\n              .orderBy(\"category\")\n              .toPandas())\n\nfor row in report.itertuples(index=False):\n    print(row.category, row[2], round(row[1], 2))\n\ndf.createOrReplaceTempView(\"orders\")\nn = spark.sql(\"SELECT count(*) AS n FROM orders WHERE payment = 'card'\").toPandas()[\"n\"][0]\nprint(n == report[\"count(order_id)\"].sum())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom minispark import SparkSession\n\nspark = SparkSession.builder.appName(\"orders\").getOrCreate()\nsc = spark.sparkContext\nfrom orders_data import make_orders\n\ndf = spark.createDataFrame(make_orders(50_000), numPartitions=4)\n\ncard = df.withColumn(\"revenue\", \"quantity * unit_price\").filter(\"payment == 'card'\")\nreport = (card.groupBy(\"category\")\n              .agg({\"revenue\": \"sum\", \"order_id\": \"count\"})\n              .orderBy(\"category\")\n              .toPandas())\n\nfor row in report.itertuples(index=False):\n    print(row.category, row[2], round(row[1], 2))\n\ndf.createOrReplaceTempView(\"orders\")\nn = spark.sql(\"SELECT count(*) AS n FROM orders WHERE payment = 'card'\").toPandas()[\"n\"][0]\nprint(n == report[\"count(order_id)\"].sum())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "books 7801 3296344.0\nclothing 7974 9775615.22\nelectronics 5091 28591960.41\nhome 7090 7561763.12\nsports 3610 6548086.31\ntoys 4357 3315431.27\nTrue"
+    }
+  ]
+}

@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Veri hattı (data pipeline) nedir?",
+        "en": "What is a data pipeline?"
+      },
+      "options": {
+        "tr": [
+          "Ham veriyi alıp sorulara hazır hâle getiren adımlar dizisi",
+          "Veriyi taşıyan bir boru",
+          "Bir veritabanı türü",
+          "Bir grafik"
+        ],
+        "en": [
+          "A series of steps that takes raw data and makes it ready for questions",
+          "A pipe that carries data",
+          "A kind of database",
+          "A chart"
+        ]
+      },
+      "explanation": {
+        "tr": "Bu projede: ölç → Parquet → bölümle → sorgula → doğrula.",
+        "en": "In this project: measure → Parquet → partition → query → check."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Büyük bir CSV ile karşılaşınca ilk adım ne olmalı?",
+        "en": "What should the first step be when you meet a big CSV?"
+      },
+      "options": {
+        "tr": [
+          "Dosyanın boyutunu ve küçük bir örneğin belleğini ölçmek",
+          "Dosyanın tamamını pandas ile açmak",
+          "Spark kümesi kurmak",
+          "Dosyayı silmek"
+        ],
+        "en": [
+          "Measuring the file's size and a small sample's memory",
+          "Opening the whole file with pandas",
+          "Setting up a Spark cluster",
+          "Deleting the file"
+        ]
+      },
+      "explanation": {
+        "tr": "Örnekten satır başına bellek, tamamı için tahmin veriyor.",
+        "en": "The memory per row from a sample gives an estimate for the whole."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "On bin satırlık örnekten bir milyon satırın belleği nasıl tahmin edildi?",
+        "en": "How was the memory of a million rows estimated from a ten-thousand-row sample?"
+      },
+      "options": {
+        "tr": [
+          "Örneğin satır başına belleği bir milyonla çarpılarak",
+          "Dosya boyutu ikiyle çarpılarak",
+          "Rastgele",
+          "Tahmin edilemez"
+        ],
+        "en": [
+          "By multiplying the sample's memory per row by a million",
+          "By doubling the file size",
+          "At random",
+          "It cannot be estimated"
+        ]
+      },
+      "explanation": {
+        "tr": "`memory_usage(deep=True).sum() / len(sample)` satır başına bellek.",
+        "en": "`memory_usage(deep=True).sum() / len(sample)` is the memory per row."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Projede türlerle tahmin edilen bellek gerçeğe ne kadar yakındı?",
+        "en": "How close was the memory estimated with types to the real value in the project?"
+      },
+      "options": {
+        "tr": [
+          "Çok yakın: tahmin ile dosyanın tamamı neredeyse aynı çıktı",
+          "İki kat farklı",
+          "Hiç tutmadı",
+          "Ölçülmedi"
+        ],
+        "en": [
+          "Very close: the estimate and the whole file came out almost the same",
+          "Twice as different",
+          "Not at all",
+          "It was not measured"
+        ]
+      },
+      "explanation": {
+        "tr": "Satırlar birbirine benziyorsa küçük bir örnek iyi bir tahmin veriyor.",
+        "en": "If the rows are alike, a small sample gives a good estimate."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Bellek belleğe sığsa bile CSV neden Parquet'e çevrildi?",
+        "en": "Why was the CSV converted to Parquet even though it fit in memory?"
+      },
+      "options": {
+        "tr": [
+          "Her gün aynı CSV'yi baştan okumak boşa iş; Parquet küçük ve hızlı okunuyor",
+          "CSV bozuktu",
+          "pandas CSV okuyamıyor",
+          "Gerek yoktu"
+        ],
+        "en": [
+          "Reading the same CSV from the start every day is wasted work; Parquet is small and quick to read",
+          "The CSV was broken",
+          "pandas cannot read CSV",
+          "There was no need"
+        ]
+      },
+      "explanation": {
+        "tr": "Çevirme bir kez yapılıyor, sorgular her gün.",
+        "en": "The conversion is done once, the queries every day."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "CSV'yi parça parça Parquet'e çevirmenin faydası ne?",
+        "en": "What is the benefit of converting a CSV to Parquet piece by piece?"
+      },
+      "options": {
+        "tr": [
+          "Bellekte aynı anda yalnızca bir parça olur; dosya ne kadar büyük olursa olsun kod aynı kalır",
+          "Dosya daha büyük olur",
+          "Daha çok bellek kullanır",
+          "Sütun sırası değişir"
+        ],
+        "en": [
+          "Only one piece is in memory at a time; the code stays the same however big the file is",
+          "The file gets bigger",
+          "It uses more memory",
+          "The column order changes"
+        ]
+      },
+      "explanation": {
+        "tr": "`chunksize` ile okuyup her parçayı `ParquetWriter.write_table` ile yazmak.",
+        "en": "Reading with `chunksize` and writing each piece with `ParquetWriter.write_table`."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`ParquetWriter` ile her parça dosyada ne olur?",
+        "en": "With `ParquetWriter`, what does each piece become in the file?"
+      },
+      "options": {
+        "tr": [
+          "Bir satır grubu",
+          "Ayrı bir dosya",
+          "Bir sütun",
+          "Bir klasör"
+        ],
+        "en": [
+          "A row group",
+          "A separate file",
+          "A column",
+          "A folder"
+        ]
+      },
+      "explanation": {
+        "tr": "Projede 250 000 satırlık 4 parça → 4 satır grubu.",
+        "en": "In the project 4 pieces of 250 000 rows → 4 row groups."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`ParquetWriter` işi bitince neden `close()` çağrılır?",
+        "en": "Why is `close()` called when `ParquetWriter` is done?"
+      },
+      "options": {
+        "tr": [
+          "Dosyanın sonundaki üst veri (şema, satır grupları) ancak kapanınca yazılıyor",
+          "Belleği boşaltmak için, isteğe bağlı",
+          "Dosyayı silmek için",
+          "Gerekmez"
+        ],
+        "en": [
+          "The metadata at the end of the file (schema, row groups) is only written when it closes",
+          "To free memory, optional",
+          "To delete the file",
+          "It is not needed"
+        ]
+      },
+      "explanation": {
+        "tr": "Kapanmayan Parquet dosyası okunamıyor.",
+        "en": "A Parquet file that is not closed cannot be read."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "Projede Parquet dosyası CSV'ye göre nasıldı?",
+        "en": "How did the Parquet file compare with the CSV in the project?"
+      },
+      "options": {
+        "tr": [
+          "CSV'nin üçte birinden küçük",
+          "CSV'den büyük",
+          "Aynı boyutta",
+          "İki katı"
+        ],
+        "en": [
+          "Less than a third of the CSV",
+          "Bigger than the CSV",
+          "The same size",
+          "Twice the size"
+        ]
+      },
+      "explanation": {
+        "tr": "Sütun sütun saklama ve `zstd` sıkıştırma (Bölüm 4, 5).",
+        "en": "Column-by-column storage and `zstd` compression (Sections 4, 5)."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Metin sütunlarına Parquet'e yazarken neden `category` verilmedi?",
+        "en": "Why were the text columns not given `category` when writing to Parquet?"
+      },
+      "options": {
+        "tr": [
+          "Parquet tekrar eden değerleri zaten sözlükle kodluyor",
+          "Parquet metin saklayamıyor",
+          "`category` hata veriyor",
+          "Şehirler sayıya çevrildi"
+        ],
+        "en": [
+          "Parquet already encodes repeated values with a dictionary",
+          "Parquet cannot store text",
+          "`category` raises an error",
+          "Cities were turned into numbers"
+        ]
+      },
+      "explanation": {
+        "tr": "Bellekte `category` önemliydi; diskte Parquet kendi kodluyor.",
+        "en": "In memory `category` mattered; on disk Parquet does its own encoding."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Veriyi neden aya göre klasörlere ayırdık?",
+        "en": "Why did we split the data into folders by month?"
+      },
+      "options": {
+        "tr": [
+          "Sorular çoğunlukla bir ayla başladığı için bir ayın sorusu yalnızca o ayın dosyasını okusun",
+          "Dosyaları küçültmek için",
+          "DuckDB klasörsüz okuyamıyor",
+          "Rastgele"
+        ],
+        "en": [
+          "Because questions mostly start with a month, so a question about one month reads only that month's file",
+          "To shrink the files",
+          "DuckDB cannot read without folders",
+          "At random"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölümleme sütunu, sorulardan çıkıyor (Bölüm 6).",
+        "en": "The partitioning column comes from the questions (Section 6)."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "`lake/month=2024-03/part-0.parquet` yolunda ay bilgisi nerede?",
+        "en": "In the path `lake/month=2024-03/part-0.parquet`, where is the month?"
+      },
+      "options": {
+        "tr": [
+          "Klasörün adında (Hive bölümlemesi)",
+          "Yalnızca dosyanın içinde",
+          "Dosyanın adında",
+          "Hiçbir yerde"
+        ],
+        "en": [
+          "In the folder's name (Hive partitioning)",
+          "Only inside the file",
+          "In the file's name",
+          "Nowhere"
+        ]
+      },
+      "explanation": {
+        "tr": "DuckDB `hive_partitioning = true` ile klasör adını sütuna çeviriyor.",
+        "en": "DuckDB turns the folder name into a column with `hive_partitioning = true`."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Veri gölü (data lake) nedir?",
+        "en": "What is a data lake?"
+      },
+      "options": {
+        "tr": [
+          "Ham ya da işlenmiş dosyaların (örneğin Parquet) düzenli klasörlerde durduğu depo",
+          "Bir veritabanı sunucusu",
+          "Bir grafik türü",
+          "Bir Python paketi"
+        ],
+        "en": [
+          "A store where raw or processed files (for example Parquet) sit in organised folders",
+          "A database server",
+          "A kind of chart",
+          "A Python package"
+        ]
+      },
+      "explanation": {
+        "tr": "Projede `lake/month=.../` klasörleri küçük bir veri gölü.",
+        "en": "In the project the `lake/month=.../` folders are a small data lake."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Mart sorusunda DuckDB kaç dosya taradı?",
+        "en": "How many files did DuckDB scan for the March question?"
+      },
+      "options": {
+        "tr": [
+          "12 dosyadan 1'i",
+          "12'sinin hepsi",
+          "Hiçbiri",
+          "6"
+        ],
+        "en": [
+          "1 of the 12 files",
+          "All 12",
+          "None",
+          "6"
+        ]
+      },
+      "explanation": {
+        "tr": "`EXPLAIN ANALYZE` planında `Scanning Files: 1/12`.",
+        "en": "`Scanning Files: 1/12` in the `EXPLAIN ANALYZE` plan."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`EXPLAIN ANALYZE` ne yapar?",
+        "en": "What does `EXPLAIN ANALYZE` do?"
+      },
+      "options": {
+        "tr": [
+          "Sorguyu çalıştırıp her adımın ayrıntısını (taranan dosyalar, satırlar, süre) verir",
+          "Sorguyu çalıştırmadan siler",
+          "Veriyi düzeltir",
+          "Tabloyu yeniden adlandırır"
+        ],
+        "en": [
+          "It runs the query and gives the details of every step (files scanned, rows, time)",
+          "It deletes the query without running it",
+          "It fixes the data",
+          "It renames the table"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir iyileştirmenin gerçekten çalıştığını görmenin yolu.",
+        "en": "The way to see an improvement really working."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Bir sonucu yöneticiye vermeden önce neden ikinci bir yoldan hesapladık?",
+        "en": "Why did we work out a result a second way before giving it to the manager?"
+      },
+      "options": {
+        "tr": [
+          "İki bağımsız yol aynı sonucu verirse hata olasılığı çok düşer",
+          "İlk yol yavaştı",
+          "DuckDB hatalıdır",
+          "Gerek yoktu"
+        ],
+        "en": [
+          "If two independent ways give the same result, the chance of a mistake falls a lot",
+          "The first way was slow",
+          "DuckDB is buggy",
+          "There was no need"
+        ]
+      },
+      "explanation": {
+        "tr": "Projede satır gruplarından kısmi toplamlar ile DuckDB karşılaştırıldı.",
+        "en": "In the project, partial totals from row groups were compared with DuckDB."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Satır gruplarından kısmi toplam çıkarıp birleştirmek hangi bölümün fikri?",
+        "en": "Producing partial totals from row groups and combining them is the idea of which section?"
+      },
+      "options": {
+        "tr": [
+          "Bölüm 12: MapReduce'taki birleştirici",
+          "Bölüm 1: belleği ölçmek",
+          "Bölüm 4: dosya biçimleri",
+          "Bölüm 14: akan veri"
+        ],
+        "en": [
+          "Section 12: the combiner in MapReduce",
+          "Section 1: measuring memory",
+          "Section 4: file formats",
+          "Section 14: streaming data"
+        ]
+      },
+      "explanation": {
+        "tr": "Her parça kendi toplamını çıkarıyor, sonra toplamlar birleşiyor.",
+        "en": "Each piece produces its own total, then the totals are combined."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "İki toplamı neden `==` yerine \"farkı 0,01'den küçük\" diye karşılaştırdık?",
+        "en": "Why did we compare the two totals with \"the difference is less than 0.01\" instead of `==`?"
+      },
+      "options": {
+        "tr": [
+          "Ondalık sayıları farklı sırayla toplamak son basamaklarda çok küçük farklar bırakabilir",
+          "`==` yavaş",
+          "DuckDB yuvarlıyor",
+          "Fark yok"
+        ],
+        "en": [
+          "Adding decimal numbers in a different order can leave very small differences in the last digits",
+          "`==` is slow",
+          "DuckDB rounds",
+          "There is no difference"
+        ]
+      },
+      "explanation": {
+        "tr": "Kayan noktalı sayılarda toplama sırası sonucu en son basamakta değiştirebiliyor.",
+        "en": "With floating-point numbers the order of addition can change the result in the last digit."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "Projede %1'lik örneklemle kategori ortalamaları ne kadar tuttu?",
+        "en": "In the project, how well did the 1% sample match the category means?"
+      },
+      "options": {
+        "tr": [
+          "Hatalar yüzde birkaç: hızlı bir fikir için yeterli",
+          "Tam aynı",
+          "Yüzde elli hata",
+          "Hiç tutmadı"
+        ],
+        "en": [
+          "The errors were a few percent: enough for a quick idea",
+          "Exactly the same",
+          "Fifty percent error",
+          "Not at all"
+        ]
+      },
+      "explanation": {
+        "tr": "Yayımlanacak rapor için kesin sorgu çalıştırılıyor.",
+        "en": "For a report that will be published, the exact query is run."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Veri yüz kat büyüse hattın adımları ne olur?",
+        "en": "If the data grew a hundred times, what would happen to the pipeline's steps?"
+      },
+      "options": {
+        "tr": [
+          "Adımlar aynı kalır, araç değişir (dask ya da Spark)",
+          "Bütün adımlar değişir",
+          "Hat çalışmaz",
+          "Parquet bırakılır"
+        ],
+        "en": [
+          "The steps stay the same, the tool changes (dask or Spark)",
+          "All the steps change",
+          "The pipeline stops working",
+          "Parquet is dropped"
+        ]
+      },
+      "explanation": {
+        "tr": "Ölç, çevir, bölümle, sorgula, doğrula her ölçekte geçerli.",
+        "en": "Measure, convert, partition, query, check holds at every scale."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Siparişler canlı gelseydi hatta ne değişirdi?",
+        "en": "If orders arrived live, what would change in the pipeline?"
+      },
+      "options": {
+        "tr": [
+          "Gece CSV'si yerine bir Kafka konusu ve pencereler; gün sonunda olaylar yine göle yazılır",
+          "Hiçbir şey",
+          "Parquet kullanılamaz",
+          "DuckDB zorunlu olur"
+        ],
+        "en": [
+          "A Kafka topic and windows instead of a nightly CSV; at the end of the day events are still written to the lake",
+          "Nothing",
+          "Parquet could not be used",
+          "DuckDB would be required"
+        ]
+      },
+      "explanation": {
+        "tr": "Akış anlık sorulara, göl geçmişe bakan sorulara cevap veriyor.",
+        "en": "The stream answers live questions, the lake answers questions about the past."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Artımlı yüklemede (incremental loading) her gün ne yapılır?",
+        "en": "What is done every day in incremental loading?"
+      },
+      "options": {
+        "tr": [
+          "Yalnızca yeni günün verisi işlenip göle yeni dosya olarak eklenir",
+          "Bütün yıl baştan çevrilir",
+          "Göl silinir",
+          "Hiçbir şey"
+        ],
+        "en": [
+          "Only the new day's data is processed and added to the lake as a new file",
+          "The whole year is converted again",
+          "The lake is deleted",
+          "Nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Eski dosyalara dokunulmuyor; yarıda kalan yazma eski veriyi bozmuyor.",
+        "en": "Old files are not touched; a write that stops halfway does not damage old data."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Hangisi \"tekrar çalıştırılabilir hat\" kuralına uyar?",
+        "en": "Which one follows the rule of a \"pipeline you can run again\"?"
+      },
+      "options": {
+        "tr": [
+          "Bir adımı ikinci kez çalıştırmak aynı sonucu verir ve zarar vermez",
+          "Her çalıştırma sonuca bir satır daha ekler",
+          "Adımlar rastgele sırayla çalışır",
+          "Ara dosyalar hiç saklanmaz"
+        ],
+        "en": [
+          "Running a step a second time gives the same result and does no harm",
+          "Every run adds another row to the result",
+          "Steps run in random order",
+          "Intermediate files are never kept"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölüm 14'teki etkisiz tekrarın hattaki karşılığı.",
+        "en": "The pipeline's counterpart of the idempotence from Section 14."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Bu patikanın bir cümlelik dersi hangisi?",
+        "en": "Which is this track's lesson in one sentence?"
+      },
+      "options": {
+        "tr": [
+          "Önce ölç, sonra yalnızca gerekeni oku",
+          "Her zaman Spark kullan",
+          "Büyük veri yalnızca bulutta olur",
+          "Bellek her zaman yeter"
+        ],
+        "en": [
+          "Measure first, then read only what is needed",
+          "Always use Spark",
+          "Big data only happens in the cloud",
+          "Memory is always enough"
+        ]
+      },
+      "explanation": {
+        "tr": "Türler, sütun seçmek, Parquet, bölümleme, örneklem: hepsi gerekeni okumanın yolları.",
+        "en": "Types, choosing columns, Parquet, partitioning, sampling: all ways of reading only what is needed."
+      }
+    }
+  ]
+}

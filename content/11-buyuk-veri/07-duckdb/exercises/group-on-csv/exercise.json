@@ -1,0 +1,46 @@
+{
+  "id": "group-on-csv",
+  "title": {
+    "tr": "CSV'de gruplama",
+    "en": "Grouping on a CSV"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`GROUP BY category` ve `ORDER BY orders DESC`; ortalama `round(avg(unit_price), 2)`.",
+      "en": "`GROUP BY category` and `ORDER BY orders DESC`; the mean is `round(avg(unit_price), 2)`."
+    },
+    {
+      "tr": "Her satır bir demet; `for category, orders, avg_price in rows:` ile açabilirsin.",
+      "en": "Each row is a tuple; you can unpack it with `for category, orders, avg_price in rows:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport duckdb\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\nrows = duckdb.sql(\"\"\"\n    SELECT category, count(*) AS orders, round(avg(unit_price), 2) AS avg_price\n    FROM 'orders.csv'\n    GROUP BY category\n    ORDER BY orders DESC\n\"\"\").fetchall()\n\nfor category, orders, avg_price in rows:\n    print(category, orders, avg_price)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport duckdb\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 200_000)\n\nrows = duckdb.sql(\"\"\"\n    SELECT category, count(*) AS orders, round(avg(unit_price), 2) AS avg_price\n    FROM 'orders.csv'\n    GROUP BY category\n    ORDER BY orders DESC\n\"\"\").fetchall()\n\nfor category, orders, avg_price in rows:\n    print(category, orders, avg_price)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "clothing 44401 551.89\nbooks 43837 191.58\nhome 39756 477.68\nelectronics 28040 2557.45\ntoys 24143 340.94\nsports 19823 808.52"
+    }
+  ]
+}

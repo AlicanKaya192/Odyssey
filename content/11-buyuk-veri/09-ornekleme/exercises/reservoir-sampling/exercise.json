@@ -1,0 +1,40 @@
+{
+  "id": "reservoir-sampling",
+  "title": {
+    "tr": "Rezervuar örneklemesi",
+    "en": "Reservoir sampling"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for i, item in enumerate(items):` hem sırayı (`i`) hem öğeyi veriyor.",
+      "en": "`for i, item in enumerate(items):` gives both the position (`i`) and the item."
+    },
+    {
+      "tr": "`rng.randint(0, i)` iki ucu da dahil bir tam sayı veriyor.",
+      "en": "`rng.randint(0, i)` gives a whole number including both ends."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport random\n\n\ndef reservoir(items, k, seed):\n    rng = random.Random(seed)\n    sample = []\n    for i, item in enumerate(items):\n        if i < k:\n            sample.append(item)\n        else:\n            j = rng.randint(0, i)\n            if j < k:\n                sample[j] = item\n    return sample\n\n\nprint(sorted(reservoir(range(1, 100_001), 5, seed=7)))\n\nlow = 0\nhigh = 0\nfor seed in range(1000):\n    for x in reservoir(range(100), 5, seed):\n        if x < 50:\n            low += 1\n        else:\n            high += 1\nprint(low, high)\n```",
+      "en": "The full solution:\n\n```python\nimport random\n\n\ndef reservoir(items, k, seed):\n    rng = random.Random(seed)\n    sample = []\n    for i, item in enumerate(items):\n        if i < k:\n            sample.append(item)\n        else:\n            j = rng.randint(0, i)\n            if j < k:\n                sample[j] = item\n    return sample\n\n\nprint(sorted(reservoir(range(1, 100_001), 5, seed=7)))\n\nlow = 0\nhigh = 0\nfor seed in range(1000):\n    for x in reservoir(range(100), 5, seed):\n        if x < 50:\n            low += 1\n        else:\n            high += 1\nprint(low, high)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3302, 26216, 31671, 61488, 88915]\n2467 2533"
+    },
+    {
+      "type": "ast_require",
+      "node": "For"
+    }
+  ]
+}

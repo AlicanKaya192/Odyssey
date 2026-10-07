@@ -1,0 +1,46 @@
+{
+  "id": "guess-the-types",
+  "title": {
+    "tr": "Türleri kim tahmin etti?",
+    "en": "Who guessed the types?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`DESCRIBE` sonucu da bir tablo; ondan sütun seçmek için alt sorgu: `SELECT column_name, column_type FROM (DESCRIBE ...)`.",
+      "en": "The result of `DESCRIBE` is a table too; to choose columns from it, a subquery: `SELECT column_name, column_type FROM (DESCRIBE ...)`."
+    },
+    {
+      "tr": "pandas tarafı: `pd.read_csv(\"orders.csv\")[\"order_time\"].dtype`.",
+      "en": "The pandas side: `pd.read_csv(\"orders.csv\")[\"order_time\"].dtype`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 50_000)\n\nrows = duckdb.sql(\"\"\"\n    SELECT column_name, column_type\n    FROM (DESCRIBE SELECT * FROM 'orders.csv')\n\"\"\").fetchall()\nfor name, kind in rows:\n    print(name, kind)\n\nprint(pd.read_csv(\"orders.csv\")[\"order_time\"].dtype)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport duckdb\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 50_000)\n\nrows = duckdb.sql(\"\"\"\n    SELECT column_name, column_type\n    FROM (DESCRIBE SELECT * FROM 'orders.csv')\n\"\"\").fetchall()\nfor name, kind in rows:\n    print(name, kind)\n\nprint(pd.read_csv(\"orders.csv\")[\"order_time\"].dtype)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "order_id BIGINT\norder_time TIMESTAMP\ncustomer_id BIGINT\ncity VARCHAR\ncategory VARCHAR\nquantity BIGINT\nunit_price DOUBLE\npayment VARCHAR\nstr"
+    }
+  ]
+}

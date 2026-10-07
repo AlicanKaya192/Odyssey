@@ -1,0 +1,46 @@
+{
+  "id": "file-versus-memory",
+  "title": {
+    "tr": "Dosya mı, bellek mi?",
+    "en": "File or memory?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "orders_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Sütun sütun bellek: `memory = df.memory_usage(deep=True)`; tablonun tamamı `memory.sum()`.",
+      "en": "Memory column by column: `memory = df.memory_usage(deep=True)`; the whole table is `memory.sum()`."
+    },
+    {
+      "tr": "`memory.drop(\"Index\").idxmax()` en büyük değerin **etiketini**, yani sütunun adını veriyor.",
+      "en": "`memory.drop(\"Index\").idxmax()` gives the **label** of the largest value, that is the column's name."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport os\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 100_000)\ndf = pd.read_csv(\"orders.csv\")\n\nprint(len(df))\n\nfile_bytes = os.path.getsize(\"orders.csv\")\nmemory = df.memory_usage(deep=True)\nmemory_bytes = memory.sum()\nprint(round(file_bytes / 1024**2, 1), round(memory_bytes / 1024**2, 1))\n\nprint(round(memory_bytes / file_bytes, 2))\n\nprint(memory.drop(\"Index\").idxmax())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport os\nimport pandas as pd\nfrom orders_data import write_orders_csv\n\nwrite_orders_csv(\"orders.csv\", 100_000)\ndf = pd.read_csv(\"orders.csv\")\n\nprint(len(df))\n\nfile_bytes = os.path.getsize(\"orders.csv\")\nmemory = df.memory_usage(deep=True)\nmemory_bytes = memory.sum()\nprint(round(file_bytes / 1024**2, 1), round(memory_bytes / 1024**2, 1))\n\nprint(round(memory_bytes / file_bytes, 2))\n\nprint(memory.drop(\"Index\").idxmax())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "100000\n5.9 9.6\n1.62\norder_time"
+    }
+  ]
+}
