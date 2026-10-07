@@ -63,4 +63,15 @@ personal data in any of them:
 - **Links you click** open in your own web browser.
 
 The SQL exercises connect to the SQL Server instance on your own computer,
-not to the internet.
+not to the internet. The API exercises send their requests to a practice
+server that runs inside the program on your own computer (`127.0.0.1`).
+
+Two things in the exercises go online through other programs, not through
+Odyssey:
+
+- **Docker exercises.** Docker Desktop, which you install yourself,
+  downloads the two base images the track uses (`python:3.13-slim`,
+  `alpine:3.22`) from Docker Hub the first time they are needed.
+- **The FastAPI documentation page.** When you start your server in an API 2
+  exercise, the `/docs` page opens in your own browser, and the browser
+  loads that page's interface (Swagger UI) from `cdn.jsdelivr.net`.

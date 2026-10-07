@@ -18,7 +18,7 @@
   <a href="https://github.com/AlicanKaya192/Odyssey/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/AlicanKaya192/Odyssey?style=for-the-badge&logo=github&color=7466EE&labelColor=1E1A3C"></a>
 </p>
 
-An offline desktop application that teaches Python, data science, machine learning, SQL, time series and the mathematics behind them, one section at a time.
+An offline desktop application that teaches Python, Git, data science, machine learning, SQL, time series, APIs, Docker, big data and the mathematics behind them, one section at a time.
 
 Every section has a lesson, lecture notes, a quiz and coding exercises; mathematics sections have problems instead, worked on a drawing sheet. To complete a section you need to pass the quiz and solve the exercises. You write the code inside the application; it runs your code, then checks the output, the variables it created and the functions it defined. No artificial intelligence is involved — every check is defined in advance and evaluated deterministically, so the same code always produces the same result.
 
@@ -41,6 +41,8 @@ Every section has a lesson, lecture notes, a quiz and coding exercises; mathemat
 <p align="center">
   <img src="docs/media/exercise_en.gif" alt="Writing code in an exercise and running it: the terminal shows the result and the chart the code drew opens on the left" width="880">
 </p>
+
+**Git, API and Docker exercises** work in the same place. Git commands are typed into a built-in terminal that behaves like Git without Git being installed, and the goals tick off as you reach them; API exercises send requests to a practice server inside the application, so no internet connection is needed; with Docker Desktop running, Docker exercises really build and run your image. An exercise can span several files, each in its own tab.
 
 **Step by step** replays your code one line at a time: the next line is marked in the editor, and below you see every variable — new ones in green, changed ones in yellow — and the output so far. If your code is empty or you do not know where to start, switch to the **sample solution** and watch a correct one unfold while your own code stays where it is.
 
@@ -78,7 +80,7 @@ Every section has a lesson, lecture notes, a quiz and coding exercises; mathemat
   <img src="docs/media/notes_en.gif" alt="Opening the note panel in the Packages and Environments lesson, quoting a sentence, writing a note and opening it in My Notes" width="880">
 </p>
 
-**Roadmaps** suggest an order for your goal — starting from zero, moving into data science, or becoming an ML engineer. Each step says what it covers, what you will be able to do by the end and roughly how long it takes; the chapters to focus on open with a click.
+**Roadmaps** suggest an order for your goal — starting from zero, moving into data science, becoming a data engineer or an ML engineer. Each step says what it covers, what you will be able to do by the end and roughly how long it takes; the chapters to focus on open with a click.
 
 <p align="center">
   <img src="docs/media/roadmap_en.gif" alt="Scrolling through the Starting from zero route, then switching to Data Scientist and its chapters to focus on" width="880">
@@ -136,13 +138,13 @@ You can turn the check off under **Settings › Updates**. With it off, the appl
 
 Early development (`0.9.3`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
 
-**Content today:** six paths are **complete** — Python Fundamentals (eighteen sections, starting with packages and environments), Data Science (ten), Machine Learning (thirteen), SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures), Time Series (twenty-three, from working with dates to forecasting, prediction intervals and anomaly detection) and Mathematics, in two modules: Foundational Mathematics (twenty-eight sections, from numbers to probability and statistics) and The Mathematics of AI (thirty-two, linear algebra, calculus, probability and statistics). 4026 quiz questions, 442 coding exercises, 300 mathematics problems, 285 lecture notes and a glossary of 92 terms, all of it in both Turkish and English.
+**Content today:** ten paths are **complete** — Python Fundamentals (nineteen sections, from packages and environments to JSON and databases), Git (seventeen, from the first commit to branches, GitHub and recovering lost work), Data Science (ten), Machine Learning (thirteen), SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures), Time Series (twenty-three, from working with dates to forecasting, prediction intervals and anomaly detection), Mathematics in two modules (Foundational Mathematics, twenty-eight sections; The Mathematics of AI, thirty-two), API in two modules (Using REST APIs, seventeen; Writing REST APIs with FastAPI, eighteen), Docker (seventeen, from images to Compose and packaging a Python API) and Big Data (seventeen, from measuring memory to Parquet, DuckDB, dask, Spark and streaming data). 227 sections, 6194 quiz questions, 879 exercises (85 of them in the Git terminal), 300 mathematics problems, 459 lecture notes, a glossary of 164 terms and 50 badges, all of it in both Turkish and English.
 
-**Thirteen learning paths** are defined: Python, Data Science, Machine Learning, SQL, Mathematics and Time Series are open, while API, Docker, Natural Language Processing and the others are visible but locked until their content is written.
+**Fifteen learning paths** are defined: the ten above are open, while Natural Language Processing, GenAI & Prompt Engineering, Algorithms, Core Libraries and System Design are visible but locked until their content is written.
 
-**Working:** an animated start-up with the centaur mascot, learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, coding exercises in Python and SQL with automatic checking (SQL runs on your own SQL Server and every run is rolled back), graded hints, error explanations with the failing line marked in the editor, step-by-step tracing of your code and of a sample solution, a glossary with explanations right in the lessons, a "Stuck?" pointer back to the lesson, a placement test that unlocks the sections you already know, mathematics problems on a drawing sheet with step-by-step solution paths, suggested study routes, streak reminders as Windows notifications, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 32 badges celebrated with a card as you earn them, XP, levels and titles you can show on your profile, a study timer with Pomodoro and other routines, a history of your past attempts in exercises and quizzes, quizzes you can answer from the keyboard, a full-screen reading mode, a share card with your level, badges and study calendar, moving your progress to another computer and a daily backup, a guided tour for new users, an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
+**Working:** an animated start-up with the centaur mascot, learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, exercises in Python, SQL, Git, FastAPI and Docker with automatic checking (SQL runs on your own SQL Server and every run is rolled back, Git in a built-in terminal, Docker builds need Docker Desktop), exercises that span several files, a practice API server and a live FastAPI server you can try in the browser, graded hints, error explanations with the failing line marked in the editor, step-by-step tracing of your code and of a sample solution, a glossary with explanations right in the lessons, a "Stuck?" pointer back to the lesson, a placement test that unlocks the sections you already know, mathematics problems on a drawing sheet with step-by-step solution paths, suggested study routes, streak reminders as Windows notifications, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 50 badges celebrated with a card as you earn them, XP, levels and titles you can show on your profile, a study timer with Pomodoro and other routines, a history of your past attempts in exercises and quizzes, quizzes you can answer from the keyboard, a full-screen reading mode, a share card with your level, badges and study calendar, moving your progress to another computer and a daily backup, a Storage page in Settings that removes the databases and images exercises leave behind, a guided tour for new users, an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, in-app updates, and options to remove the section lock and the quiz time limit.
 
-**Not there yet:** the content for the other paths, and a larger exercise engine for projects that run a dataset end to end.
+**Not there yet:** the content for the remaining paths, and a macOS version.
 
 The roadmap moves along in [CHANGELOG.en.md](CHANGELOG.en.md).
 
@@ -175,7 +177,7 @@ Your code runs in a separate process, inside an isolated working folder. Its out
 
 ## Internet
 
-Everything about learning works offline: the lessons, the lecture notes, the quizzes, the exercises and your progress. None of it involves a server, and your progress never leaves your computer.
+Everything about learning works offline: the lessons, the lecture notes, the quizzes, the exercises and your progress. None of it involves a server of ours, and your progress never leaves your computer; the API exercises talk to a practice server that runs inside the application. Two exceptions come from other programs: Docker Desktop downloads the two base images of the Docker track from Docker Hub, and the `/docs` page of a FastAPI server you start in an API 2 exercise loads its interface from `cdn.jsdelivr.net` in your browser.
 
 The application goes online only if you leave the update check on: for the version check described above and, alongside it, to read the number of stars Odyssey has on GitHub, shown in the bottom strip. Neither request sends anything — no identity, no progress, no usage data — and a file is downloaded only when you press Update. With the check turned off, the application never touches the network.
 
