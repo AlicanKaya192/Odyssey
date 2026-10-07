@@ -18,7 +18,7 @@
   <a href="https://github.com/AlicanKaya192/Odyssey/stargazers"><img alt="GitHub yıldızları" src="https://img.shields.io/github/stars/AlicanKaya192/Odyssey?style=for-the-badge&logo=github&color=7466EE&labelColor=1E1A3C"></a>
 </p>
 
-Python, veri bilimi, makine öğrenmesi, SQL, zaman serileri ve bunların arkasındaki matematiği bölüm bölüm öğreten, çevrimdışı çalışan bir masaüstü uygulaması.
+Python, Git, veri bilimi, makine öğrenmesi, SQL, zaman serileri, API, Docker, büyük veri ve bunların arkasındaki matematiği bölüm bölüm öğreten, çevrimdışı çalışan bir masaüstü uygulaması.
 
 Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları var; matematik bölümlerinde alıştırma yerine çizim kâğıdında çözülen problemler var. Bir bölümü tamamlamak için sınavı geçmek ve alıştırmaları çözmek gerekiyor. Kod uygulamanın içinde yazılıyor; program onu çalıştırıyor, ardından çıktısını, oluşturduğu değişkenleri ve tanımladığı fonksiyonları kontrol ediyor. Yapay zeka kullanılmıyor — her kontrol önceden tanımlıdır ve deterministik olarak değerlendirilir, yani aynı kod her zaman aynı sonucu verir.
 
@@ -41,6 +41,8 @@ Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları va
 <p align="center">
   <img src="docs/media/exercise_tr.gif" alt="Bir alıştırmada kodu yazıp çalıştırmak: terminalde sonuç, solda kodun çizdiği grafik" width="880">
 </p>
+
+**Git, API ve Docker alıştırmaları** da aynı yerde. Git komutları, Git kurulu olmadan Git gibi davranan yerleşik bir terminale yazılıyor ve hedefler tuttukça işaretleniyor; API alıştırmaları programın içindeki bir alıştırma sunucusuna istek atıyor, internet gerekmiyor; Docker Desktop açıksa Docker alıştırmaları imajınızı gerçekten derleyip çalıştırıyor. Bir alıştırma birden fazla dosyadan oluşabiliyor, her dosya kendi sekmesinde.
 
 **Adım adım** kodunuzu satır satır oynatıyor: editörde sıradaki satır işaretleniyor, altta bütün değişkenler — yeni gelen yeşil, değişen sarı — ve o ana kadarki çıktı görünüyor. Kodunuz boşsa ya da nereden başlayacağınızı bilmiyorsanız **örnek çözüme** geçip doğrusunun nasıl ilerlediğini izleyebiliyorsunuz; kendi kodunuz yerinde kalıyor.
 
@@ -78,7 +80,7 @@ Her bölümde konu anlatımı, ders notları, sınav ve kod alıştırmaları va
   <img src="docs/media/notes_tr.gif" alt="Paketler ve Ortamlar dersinde not panelini açmak, bir cümle alıntılamak, not yazmak ve notu Notlarım'da açmak" width="880">
 </p>
 
-**Rotalar** hedefinize göre bir sıra öneriyor — sıfırdan başlamak, veri bilimine geçmek ya da ML mühendisi olmak. Her adım neleri kapsadığını, sonunda neler yapabileceğinizi ve yaklaşık süresini söylüyor; odaklanılacak bölümler tek tıkla açılıyor.
+**Rotalar** hedefinize göre bir sıra öneriyor — sıfırdan başlamak, veri bilimine geçmek, veri mühendisi ya da ML mühendisi olmak. Her adım neleri kapsadığını, sonunda neler yapabileceğinizi ve yaklaşık süresini söylüyor; odaklanılacak bölümler tek tıkla açılıyor.
 
 <p align="center">
   <img src="docs/media/roadmap_tr.gif" alt="Sıfırdan başlıyorum rotasını kaydırmak, ardından Veri Bilimci rotasına ve odaklanılacak bölümlerine geçmek" width="880">
@@ -136,13 +138,13 @@ Denetimi **Ayarlar › Güncelleme** bölümünden kapatabilirsiniz. Kapalıyken
 
 Erken geliştirme aşaması (`0.9.3`), açık beta olarak yayınlandı. Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı, güncelleme — yerinde; müfredat büyümeye devam ediyor.
 
-**Bugünkü içerik:** altı patika **tamamlandı** — Python Temelleri (on sekiz bölüm, paketler ve ortamlarla başlıyor), Veri Bilimi (on), Makine Öğrenmesi (on üç), SQL (on altı; SQL Server'ı kurmaktan pencere fonksiyonlarına, dizinlere, görünümlere ve saklı yordamlara), Zaman Serileri (yirmi üç; tarihlerle çalışmaktan tahmine, tahmin aralıklarına ve anomali tespitine) ve iki modüllü Matematik: Temel Matematik (yirmi sekiz bölüm, sayılardan olasılık ve istatistiğe) ve Yapay Zekanın Matematiği (otuz iki; doğrusal cebir, kalkülüs, olasılık ve istatistik). 4026 sınav sorusu, 442 kod alıştırması, 300 matematik problemi, 285 ders notu ve 92 terimlik bir sözlük; tamamı Türkçe ve İngilizce.
+**Bugünkü içerik:** on patika **tamamlandı** — Python Temelleri (on dokuz bölüm; paketler ve ortamlardan JSON'a ve veritabanına), Git (on yedi; ilk commit'ten dallara, GitHub'a ve kaybolanı kurtarmaya), Veri Bilimi (on), Makine Öğrenmesi (on üç), SQL (on altı; SQL Server'ı kurmaktan pencere fonksiyonlarına, dizinlere, görünümlere ve saklı yordamlara), Zaman Serileri (yirmi üç; tarihlerle çalışmaktan tahmine, tahmin aralıklarına ve anomali tespitine), iki modüllü Matematik (Temel Matematik, yirmi sekiz bölüm; Yapay Zekanın Matematiği, otuz iki), iki modüllü API (REST API Kullanmak, on yedi; FastAPI ile REST API Yazmak, on sekiz), Docker (on yedi; imajlardan Compose'a ve bir Python API'sini paketlemeye) ve Büyük Veri (on yedi; belleği ölçmekten Parquet'e, DuckDB'ye, dask'a, Spark'a ve akan veriye). 227 bölüm, 6194 sınav sorusu, 879 alıştırma (85'i Git terminalinde), 300 matematik problemi, 459 ders notu, 164 terimlik bir sözlük ve 50 rozet; tamamı Türkçe ve İngilizce.
 
-**On üç öğrenme patikası** tanımlı: Python, Veri Bilimi, Makine Öğrenmesi, SQL, Matematik ve Zaman Serileri açık; API, Docker, Doğal Dil İşleme ve diğerleri içerikleri hazırlanana kadar kilitli görünüyor.
+**On beş öğrenme patikası** tanımlı: yukarıdaki on patika açık; Doğal Dil İşleme, GenAI ve Prompt Mühendisliği, Algoritmalar, Temel Kütüphaneler ve Sistem Tasarımı içerikleri hazırlanana kadar kilitli görünüyor.
 
-**Çalışanlar:** sentor maskotlu açılış animasyonu, öğrenme patikaları, bölüm içi başlık listesi ve okuma takibiyle konu anlatımı, ders notları, süreli sınavlar, Python ve SQL için otomatik kontrollü kod alıştırmaları (SQL kendi SQL Server'ınızda çalışıyor, her deneme geri alınıyor), kademeli ipuçları, hatalı satırı editörde işaretleyen hata açıklamaları, kodunuzu ve örnek çözümü adım adım izleme, derslerin içinde açıklaması görünen terimler sözlüğü, takılınca dersin ilgili kısmına yönlendirme, bildiğiniz bölümleri açan seviye tespit sınavı, çizim kâğıdında çözülen ve adım adım çözüm yolları olan matematik problemleri, önerilen çalışma rotaları, Windows bildirimi olarak gelen seri hatırlatmaları, sırayla açılan bölümler, kalıcı ilerleme kaydı, kendi notlarınız ve genel arama (`Ctrl+K`), kazanınca bir kartla kutlanan 32 rozet, XP, seviyeler ve profilde gösterilebilen unvanlar, Pomodoro ve başka düzenlerle çalışma zamanlayıcısı, alıştırma ve sınavlarda geçmiş denemeler, klavyeyle cevaplanabilen sınavlar, tam ekran okuma odağı, seviyeniz, rozetleriniz ve çalışma takviminizle paylaşım kartı, ilerlemeyi başka bir bilgisayara taşıma ve günlük yedek, yeni gelenler için tanıtım turu, etkinlik takvimi, kendi fotoğrafınızı seçebildiğiniz profil, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema, uygulama içinden güncelleme, kilidi ve sınav süresini kaldırma seçenekleri.
+**Çalışanlar:** sentor maskotlu açılış animasyonu, öğrenme patikaları, bölüm içi başlık listesi ve okuma takibiyle konu anlatımı, ders notları, süreli sınavlar, Python, SQL, Git, FastAPI ve Docker için otomatik kontrollü alıştırmalar (SQL kendi SQL Server'ınızda çalışıyor ve her deneme geri alınıyor, Git yerleşik bir terminalde, Docker derlemeleri için Docker Desktop gerekiyor), birden fazla dosyadan oluşan alıştırmalar, alıştırma API sunucusu ve tarayıcıda denenebilen canlı FastAPI sunucusu, kademeli ipuçları, hatalı satırı editörde işaretleyen hata açıklamaları, kodunuzu ve örnek çözümü adım adım izleme, derslerin içinde açıklaması görünen terimler sözlüğü, takılınca dersin ilgili kısmına yönlendirme, bildiğiniz bölümleri açan seviye tespit sınavı, çizim kâğıdında çözülen ve adım adım çözüm yolları olan matematik problemleri, önerilen çalışma rotaları, Windows bildirimi olarak gelen seri hatırlatmaları, sırayla açılan bölümler, kalıcı ilerleme kaydı, kendi notlarınız ve genel arama (`Ctrl+K`), kazanınca bir kartla kutlanan 50 rozet, XP, seviyeler ve profilde gösterilebilen unvanlar, Pomodoro ve başka düzenlerle çalışma zamanlayıcısı, alıştırma ve sınavlarda geçmiş denemeler, klavyeyle cevaplanabilen sınavlar, tam ekran okuma odağı, seviyeniz, rozetleriniz ve çalışma takviminizle paylaşım kartı, ilerlemeyi başka bir bilgisayara taşıma ve günlük yedek, alıştırmaların bıraktığı veritabanlarını ve imajları silen Ayarlar › Depolama sayfası, yeni gelenler için tanıtım turu, etkinlik takvimi, kendi fotoğrafınızı seçebildiğiniz profil, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema, uygulama içinden güncelleme, kilidi ve sınav süresini kaldırma seçenekleri.
 
-**Henüz yok:** diğer patikaların içeriği ve bir veri setini baştan sona işleyen proje tipi alıştırmalar için daha geniş bir alıştırma motoru.
+**Henüz yok:** kalan patikaların içeriği ve macOS sürümü.
 
 Yol haritası [CHANGELOG.md](CHANGELOG.md) dosyasında ilerliyor.
 
@@ -175,7 +177,7 @@ Kodunuz ayrı bir işlemde, izole bir çalışma klasöründe çalıştırılır
 
 ## İnternet
 
-Öğrenmeyle ilgili her şey çevrimdışı çalışır: dersler, ders notları, sınavlar, alıştırmalar ve ilerlemeniz. Hiçbiri bir sunucuya uğramaz; ilerlemeniz bilgisayarınızdan çıkmaz.
+Öğrenmeyle ilgili her şey çevrimdışı çalışır: dersler, ders notları, sınavlar, alıştırmalar ve ilerlemeniz. Hiçbiri bizim bir sunucumuza uğramaz, ilerlemeniz bilgisayarınızdan çıkmaz; API alıştırmaları programın içinde çalışan bir alıştırma sunucusuyla konuşur. İki istisna başka programlardan gelir: Docker Desktop, Docker patikasının iki taban imajını Docker Hub'dan indirir; API 2 alıştırmasında başlattığınız FastAPI sunucusunun `/docs` sayfası arayüzünü tarayıcınızda `cdn.jsdelivr.net`'ten yükler.
 
 Uygulama yalnızca güncelleme denetimini açık bırakırsanız ağa çıkar: yukarıda anlatılan sürüm denetimi için ve onunla birlikte, alt şeritte görünen, Odyssey'in GitHub'daki yıldız sayısını okumak için. İki istekte de hiçbir bilgi gönderilmez — kimlik, ilerleme, kullanım verisi yok — ve dosya yalnızca siz Güncelle'ye bastığınızda iniyor. Denetim kapalıyken uygulama ağa hiç çıkmaz.
 

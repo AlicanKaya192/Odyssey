@@ -21,7 +21,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [0.9.3] — unreleased
+## [0.9.3] — 7 October 2026
 
 ### Added
 - **The API track.** Two modules: **API 1** (17 sections) is about using

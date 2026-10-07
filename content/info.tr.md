@@ -26,8 +26,10 @@ koşulun sağlandığını ve hangisinin sağlanmadığını tek tek gösterir.
 **Değerlendirme deterministiktir.** Alıştırmalar önceden tanımlanmış
 kurallarla denetlenir: çıktı karşılaştırması, değişken ve fonksiyon
 denetimleri, kodun yapısına bakan kontroller. Aynı kod her çalıştırmada aynı
-sonucu verir. Uygulamada dil modeli ya da API çağrısı bulunmaz; öğrenmeyle
-ilgili hiçbir işlem ağa çıkmaz.
+sonucu verir. Uygulamada dil modeli bulunmaz ve dışarıdaki bir servise
+istek gönderilmez; API alıştırmalarının sunucusu da programın içinde çalışır.
+Yalnızca Docker Desktop'ın taban imajları indirmesi ve FastAPI sunucusunun
+tarayıcıda açılan belge sayfası internete çıkar.
 
 **Verileriniz cihazınızda kalır.** İlerleme, yazdığınız kod ve ayarlar
 `%APPDATA%\Odyssey` klasöründeki yerel bir veritabanında tutulur. Hiçbir veri
@@ -46,19 +48,19 @@ XP, seviyeler ve unvanlar, çalışma zamanlayıcısı, önerilen rotalar, kendi
 notlarınız, genel arama, tanıtım turu, Türkçe/İngilizce arayüz, açık/koyu
 tema ve uygulama içi güncelleme hazırdır.
 
-Altı patika tamamlanmıştır: **Python Temelleri**, **Veri Bilimi**, **Makine
-Öğrenmesi**, **SQL**, **Zaman Serileri** ve **Matematik**. Matematik
-patikası iki modülden oluşur: sıfırdan başlayan biri için temel matematik ve
-makine öğrenmesinin dayandığı doğrusal cebir, kalkülüs, olasılık ve
-istatistik. Toplamda 140 bölüm, 4026 sınav sorusu, 420 kod alıştırması ve
-300 matematik problemi bulunur. API, Docker ve diğer ileri patikalar
-hazırlanmaktadır.
+On patika tamamlanmıştır: **Python Temelleri**, **Git**, **Veri Bilimi**,
+**Makine Öğrenmesi**, **SQL**, **Zaman Serileri**, **Matematik**, **API**,
+**Docker** ve **Büyük Veri**. Matematik patikası iki modülden oluşur:
+sıfırdan başlayan biri için temel matematik ve makine öğrenmesinin dayandığı
+doğrusal cebir, kalkülüs, olasılık ve istatistik. API patikası da iki
+modüldür: REST API kullanmak ve FastAPI ile API yazmak. Toplamda 227 bölüm,
+6194 sınav sorusu, 879 alıştırma ve 300 matematik problemi bulunur. Doğal
+Dil İşleme ve diğer patikalar hazırlanmaktadır.
 
 Programı ilk kez kullanıyorsanız **Ayarlar › Öğrenme › Tanıtım turu**
 bütün ekranları sırayla gösterir.
 
-Alıştırmaya bağlı olmayan serbest bir çalışma alanı ve macOS sürümü yol
-haritasındadır.
+macOS sürümü yol haritasındadır.
 
 Hangi değişikliğin hangi sürümde geldiğini **Sürüm Notları** ekranından
 izleyebilirsiniz.

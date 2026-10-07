@@ -64,4 +64,15 @@ göndermez:
 - **Tıkladığınız bağlantılar** kendi tarayıcınızda açılır.
 
 SQL alıştırmaları internete değil, kendi bilgisayarınızdaki SQL Server'a
-bağlanır.
+bağlanır. API alıştırmaları isteklerini programın içinde, kendi
+bilgisayarınızda çalışan bir alıştırma sunucusuna (`127.0.0.1`) gönderir.
+
+Alıştırmalarda iki şey Odyssey üzerinden değil, başka programlar üzerinden
+internete çıkar:
+
+- **Docker alıştırmaları.** Kendi kurduğunuz Docker Desktop, patikanın
+  kullandığı iki taban imajı (`python:3.13-slim`, `alpine:3.22`) ilk
+  gerektiğinde Docker Hub'dan indirir.
+- **FastAPI belge sayfası.** API 2 alıştırmasında sunucunuzu başlattığınızda
+  `/docs` sayfası kendi tarayıcınızda açılır ve tarayıcı o sayfanın
+  arayüzünü (Swagger UI) `cdn.jsdelivr.net`'ten yükler.

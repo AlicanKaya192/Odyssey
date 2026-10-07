@@ -19,7 +19,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [0.9.3] — yayınlanmadı
+## [0.9.3] — 7 Ekim 2026
 
 ### Eklendi
 - **API patikası.** İki modül: **API 1** (17 bölüm) REST API kullanmayı
