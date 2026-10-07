@@ -1,0 +1,43 @@
+{
+  "id": "clean-state",
+  "title": {
+    "tr": "Testler birbirini etkilemesin",
+    "en": "Tests mustn't affect each other"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "readonly": true
+    },
+    {
+      "name": "test_main.py",
+      "starter": "starter-test_main.py",
+      "solution": "solution-test_main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`@pytest.fixture(autouse=True)` işlevinde `books.clear()`, `yield`, `books.clear()`; dosyanın başına `import pytest`.",
+      "en": "`books.clear()`, `yield`, `books.clear()` in an `@pytest.fixture(autouse=True)` function; `import pytest` at the top."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test_main.py**\n\n```python\nimport pytest\nfrom fastapi.testclient import TestClient\n\nfrom main import app, books\n\nclient = TestClient(app)\n\n\n@pytest.fixture(autouse=True)\ndef clean():\n    books.clear()\n    yield\n    books.clear()\n\n\ndef test_add_first():\n    r = client.post(\"/books\", json={\"title\": \"Dune\", \"year\": 1965})\n    assert r.status_code == 201\n    assert len(books) == 1\n\n\ndef test_add_second():\n    client.post(\"/books\", json={\"title\": \"Emma\", \"year\": 1815})\n    assert len(books) == 1\n\n\ndef test_starts_empty():\n    assert books == {}\n```",
+      "en": "The full solution:\n\n**test_main.py**\n\n```python\nimport pytest\nfrom fastapi.testclient import TestClient\n\nfrom main import app, books\n\nclient = TestClient(app)\n\n\n@pytest.fixture(autouse=True)\ndef clean():\n    books.clear()\n    yield\n    books.clear()\n\n\ndef test_add_first():\n    r = client.post(\"/books\", json={\"title\": \"Dune\", \"year\": 1965})\n    assert r.status_code == 201\n    assert len(books) == 1\n\n\ndef test_add_second():\n    client.post(\"/books\", json={\"title\": \"Emma\", \"year\": 1815})\n    assert len(books) == 1\n\n\ndef test_starts_empty():\n    assert books == {}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "test_main.py",
+      "min": 3
+    }
+  ]
+}

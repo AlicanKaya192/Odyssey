@@ -1,0 +1,83 @@
+{
+  "id": "keep-api-internal",
+  "title": {
+    "tr": "API içeride kalsın",
+    "en": "Keep the API inside"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "compose.yaml",
+  "files": [
+    {
+      "name": "compose.yaml",
+      "starter": "starter-compose.yaml",
+      "solution": "solution-compose.yaml"
+    },
+    {
+      "name": "api/Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "api/server.py",
+      "readonly": true
+    },
+    {
+      "name": "site/index.html",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`api` altındaki `ports:` ve altındaki satırı sil.",
+      "en": "Delete `ports:` and the line below it under `api`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**compose.yaml**\n\n```yaml\nservices:\n  web:\n    image: python:3.13-slim\n    working_dir: /srv\n    volumes:\n      - ./site:/srv\n    command: [\"python\", \"-m\", \"http.server\", \"8000\"]\n    ports:\n      - \"8093:8000\"\n  api:\n    build: ./api\n```",
+      "en": "The full solution:\n\n**compose.yaml**\n\n```yaml\nservices:\n  web:\n    image: python:3.13-slim\n    working_dir: /srv\n    volumes:\n      - ./site:/srv\n    command: [\"python\", \"-m\", \"http.server\", \"8000\"]\n    ports:\n      - \"8093:8000\"\n  api:\n    build: ./api\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "compose",
+      "service": "api",
+      "no_ports": true
+    },
+    {
+      "type": "compose",
+      "service": "web",
+      "ports": [
+        "8093:8000"
+      ]
+    },
+    {
+      "type": "compose_up",
+      "running": [
+        "web",
+        "api"
+      ],
+      "http": [
+        {
+          "service": "web",
+          "port": 8000,
+          "path": "/",
+          "status": 200,
+          "contains": "Shop front"
+        },
+        {
+          "service": "api",
+          "port": 8000,
+          "path": "/",
+          "status": 200,
+          "json": {
+            "items": 3
+          }
+        }
+      ]
+    }
+  ]
+}

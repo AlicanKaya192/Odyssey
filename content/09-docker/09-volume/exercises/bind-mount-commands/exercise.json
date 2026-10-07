@@ -1,0 +1,82 @@
+{
+  "id": "bind-mount-commands",
+  "title": {
+    "tr": "Bind mount komutları",
+    "en": "Bind mount commands"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "commands.sh",
+  "files": [
+    {
+      "name": "commands.sh",
+      "starter": "starter-commands.sh.{lang}",
+      "solution": "solution-commands.sh"
+    }
+  ],
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "Salt okunur için sona `:ro`; iki bağlama için iki ayrı `-v`.",
+      "en": "`:ro` at the end for read-only; two separate `-v` for two mounts."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**commands.sh**\n\n```bash\ndocker run --rm -v ${PWD}:/app -w /app python:3.13-slim python app.py\ndocker run --rm -v ${PWD}/config:/config:ro app\ndocker run --rm -v notes:/data -v ${PWD}:/backup alpine:3.22 `\n  tar czf /backup/notes.tgz -C /data .\n```",
+      "en": "The full solution:\n\n**commands.sh**\n\n```bash\ndocker run --rm -v ${PWD}:/app -w /app python:3.13-slim python app.py\ndocker run --rm -v ${PWD}/config:/config:ro app\ndocker run --rm -v notes:/data -v ${PWD}:/backup alpine:3.22 `\n  tar czf /backup/notes.tgz -C /data .\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--rm": true,
+        "--volume": "${PWD}:/app",
+        "--workdir": "/app"
+      },
+      "args": [
+        "python:3.13-slim",
+        "python",
+        "app.py"
+      ],
+      "show": "docker run --rm -v ${PWD}:/app -w /app python:3.13-slim python app.py"
+    },
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--rm": true,
+        "--volume": "${PWD}/config:/config:ro"
+      },
+      "args": [
+        "app"
+      ],
+      "show": "docker run --rm -v ${PWD}/config:/config:ro app"
+    },
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--rm": true,
+        "--volume": [
+          "notes:/data",
+          "${PWD}:/backup"
+        ]
+      },
+      "args": [
+        "alpine:3.22",
+        "tar",
+        "czf",
+        "/backup/notes.tgz",
+        "-C",
+        "/data",
+        "."
+      ],
+      "show": "docker run --rm -v notes:/data -v ${PWD}:/backup alpine:3.22 tar czf ..."
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "id": "models-file",
+  "title": {
+    "tr": "Modeller ayrı dosyada",
+    "en": "Models in their own file"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "readonly": true
+    },
+    {
+      "name": "models.py",
+      "starter": "starter-models.{lang}.py",
+      "solution": "solution-models.py"
+    },
+    {
+      "name": "routers/books.py",
+      "readonly": true
+    },
+    {
+      "name": "routers/__init__.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`models.py` yalnızca `pydantic`'i içe aktarsın; `class BookIn(BaseModel):` ve `Field(...)`.",
+      "en": "`models.py` imports only `pydantic`; `class BookIn(BaseModel):` and `Field(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**models.py**\n\n```python\nfrom pydantic import BaseModel, Field\n\n\nclass BookIn(BaseModel):\n    title: str = Field(min_length=1)\n    year: int = Field(ge=1450, le=2100)\n```",
+      "en": "The full solution:\n\n**models.py**\n\n```python\nfrom pydantic import BaseModel, Field\n\n\nclass BookIn(BaseModel):\n    title: str = Field(min_length=1)\n    year: int = Field(ge=1450, le=2100)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Dune",
+            "year": 1965
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "id": 1,
+              "title": "Dune",
+              "year": 1965
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "",
+            "year": 1965
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "X",
+            "year": 3000
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "expect": {
+            "status": 200,
+            "json": {
+              "1": {
+                "title": "Dune",
+                "year": 1965
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "retry-after",
+  "title": {
+    "tr": "Sonra tekrar dene",
+    "en": "Try again later"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`HTTPException(status_code=503, detail={...}, headers={\"Retry-After\": \"30\"})`; başlık değeri metin.",
+      "en": "`HTTPException(status_code=503, detail={...}, headers={\"Retry-After\": \"30\"})`; the header value is a string."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI()\nreports = {1: \"ready\", 2: \"pending\"}\n\n\n@app.get(\"/reports/{report_id}\")\ndef get_report(report_id: int):\n    if report_id not in reports:\n        raise HTTPException(status_code=404, detail={\"code\": \"not_found\"})\n    if reports[report_id] == \"pending\":\n        raise HTTPException(status_code=503, detail={\"code\": \"not_ready\"},\n                            headers={\"Retry-After\": \"30\"})\n    return {\"id\": report_id, \"status\": \"ready\"}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI()\nreports = {1: \"ready\", 2: \"pending\"}\n\n\n@app.get(\"/reports/{report_id}\")\ndef get_report(report_id: int):\n    if report_id not in reports:\n        raise HTTPException(status_code=404, detail={\"code\": \"not_found\"})\n    if reports[report_id] == \"pending\":\n        raise HTTPException(status_code=503, detail={\"code\": \"not_ready\"},\n                            headers={\"Retry-After\": \"30\"})\n    return {\"id\": report_id, \"status\": \"ready\"}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/reports/1",
+          "expect": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "status": "ready"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/reports/2",
+          "expect": {
+            "status": 503,
+            "json": {
+              "detail": {
+                "code": "not_ready"
+              }
+            },
+            "headers": {
+              "retry-after": "30"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/reports/9",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": {
+                "code": "not_found"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

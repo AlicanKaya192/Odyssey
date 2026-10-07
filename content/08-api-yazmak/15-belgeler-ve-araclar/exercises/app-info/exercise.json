@@ -1,0 +1,60 @@
+{
+  "id": "app-info",
+  "title": {
+    "tr": "Uygulamanın kimliği",
+    "en": "The application's identity"
+  },
+  "difficulty": 1,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`app = FastAPI(title=..., version=..., description=...)`.",
+      "en": "`app = FastAPI(title=..., version=..., description=...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI(\n    title=\"Library API\",\n    version=\"2.0.0\",\n    description=\"Books of a small library.\",\n)\nbooks = {1: {\"title\": \"Dune\", \"year\": 1965}}\n\n\n@app.get(\"/books\")\ndef list_books():\n    return books\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI(\n    title=\"Library API\",\n    version=\"2.0.0\",\n    description=\"Books of a small library.\",\n)\nbooks = {1: {\"title\": \"Dune\", \"year\": 1965}}\n\n\n@app.get(\"/books\")\ndef list_books():\n    return books\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/openapi.json",
+          "expect": {
+            "status": 200,
+            "json_has": {
+              "info": {
+                "title": "Library API",
+                "version": "2.0.0",
+                "description": "Books of a small library."
+              }
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "expect": {
+            "status": 200
+          }
+        }
+      ]
+    }
+  ]
+}

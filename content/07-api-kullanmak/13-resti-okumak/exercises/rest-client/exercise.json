@@ -1,0 +1,52 @@
+{
+  "id": "rest-client",
+  "title": {
+    "tr": "Küçük bir REST istemcisi",
+    "en": "A small REST client"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`self.session = requests.Session()` ve `self.session.headers.update({\"Authorization\": \"Bearer \" + token})`; metotlarda `self.session.post/patch/get/delete`.",
+      "en": "`self.session = requests.Session()` and `self.session.headers.update({\"Authorization\": \"Bearer \" + token})`; in the methods use `self.session.post/patch/get/delete`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\nclass LibraryClient:\n    def __init__(self, base, token):\n        self.base = base\n        self.session = requests.Session()\n        self.session.headers.update({\"Authorization\": \"Bearer \" + token})\n\n    def create(self, book):\n        r = self.session.post(self.base + \"/books\", json=book)\n        return r.json()[\"id\"]\n\n    def change(self, book_id, fields):\n        r = self.session.patch(self.base + \"/books/\" + str(book_id), json=fields)\n        return r.json()\n\n    def read(self, book_id):\n        r = self.session.get(self.base + \"/books/\" + str(book_id))\n        if r.status_code == 404:\n            return None\n        return r.json()\n\n    def remove(self, book_id):\n        return self.session.delete(self.base + \"/books/\" + str(book_id)).status_code\n\n\nclient = LibraryClient(BASE, \"letmein\")\nnew_id = client.create({\"title\": \"Kindred\", \"price\": 11.5})\nprint(\"created:\", new_id)\nprint(\"changed price:\", client.change(new_id, {\"price\": 9.0})[\"price\"])\nbook = client.read(new_id)\nprint(\"read:\", book[\"title\"], book[\"price\"])\nprint(\"remove:\", client.remove(new_id))\nprint(\"read after remove:\", client.read(new_id))\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\nclass LibraryClient:\n    def __init__(self, base, token):\n        self.base = base\n        self.session = requests.Session()\n        self.session.headers.update({\"Authorization\": \"Bearer \" + token})\n\n    def create(self, book):\n        r = self.session.post(self.base + \"/books\", json=book)\n        return r.json()[\"id\"]\n\n    def change(self, book_id, fields):\n        r = self.session.patch(self.base + \"/books/\" + str(book_id), json=fields)\n        return r.json()\n\n    def read(self, book_id):\n        r = self.session.get(self.base + \"/books/\" + str(book_id))\n        if r.status_code == 404:\n            return None\n        return r.json()\n\n    def remove(self, book_id):\n        return self.session.delete(self.base + \"/books/\" + str(book_id)).status_code\n\n\nclient = LibraryClient(BASE, \"letmein\")\nnew_id = client.create({\"title\": \"Kindred\", \"price\": 11.5})\nprint(\"created:\", new_id)\nprint(\"changed price:\", client.change(new_id, {\"price\": 9.0})[\"price\"])\nbook = client.read(new_id)\nprint(\"read:\", book[\"title\"], book[\"price\"])\nprint(\"remove:\", client.remove(new_id))\nprint(\"read after remove:\", client.read(new_id))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "POST",
+      "path": "/books",
+      "headers": {
+        "Authorization": "Bearer letmein"
+      }
+    },
+    {
+      "type": "requests",
+      "method": "PATCH",
+      "path": "/books/24",
+      "json": {
+        "price": 9.0
+      }
+    },
+    {
+      "type": "requests",
+      "method": "DELETE",
+      "path": "/books/24"
+    },
+    {
+      "type": "stdout",
+      "expected": "created: 24\nchanged price: 9.0\nread: Kindred 9.0\nremove: 204\nread after remove: None"
+    }
+  ]
+}

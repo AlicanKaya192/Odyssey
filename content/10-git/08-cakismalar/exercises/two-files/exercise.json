@@ -1,0 +1,88 @@
+{
+  "id": "two-files",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "İki dosyada çakışma",
+    "en": "Conflicts in two files"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir cafe",
+    "cd cafe",
+    "git init",
+    "echo \"soup\" > menu.txt",
+    "echo \"coffee 3\" > prices.txt",
+    "git add .",
+    "git commit -m \"Open the cafe\"",
+    "git switch -c winter",
+    "echo \"hot soup\" > menu.txt",
+    "echo \"coffee 4\" > prices.txt",
+    "git commit -am \"Winter menu\"",
+    "git switch main",
+    "echo \"cold soup\" > menu.txt",
+    "echo \"coffee 2\" > prices.txt",
+    "git commit -am \"Summer menu\""
+  ],
+  "cwd": "cafe",
+  "allow_fail": [
+    0
+  ],
+  "solution": [
+    "git merge winter",
+    "git status",
+    "git checkout --ours menu.txt",
+    "git checkout --theirs prices.txt",
+    "git add menu.txt prices.txt",
+    "git commit --no-edit"
+  ],
+  "hints": [
+    {
+      "tr": "Her dosya için ayrı karar: `--ours` bulunduğun dal, `--theirs` gelen dal. İkisini de `git add` ile işaretle.",
+      "en": "A separate decision per file: `--ours` is your branch, `--theirs` the incoming one. Mark both with `git add`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit merge winter\ngit status\ngit checkout --ours menu.txt\ngit checkout --theirs prices.txt\ngit add menu.txt prices.txt\ngit commit --no-edit\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit merge winter\ngit status\ngit checkout --ours menu.txt\ngit checkout --theirs prices.txt\ngit add menu.txt prices.txt\ngit commit --no-edit\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "cafe",
+      "head_files": {
+        "menu.txt": "cold soup"
+      },
+      "label": {
+        "tr": "menu.txt main'deki gibi (cold soup)",
+        "en": "menu.txt as on main (cold soup)"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "cafe",
+      "head_files": {
+        "prices.txt": "coffee 4"
+      },
+      "label": {
+        "tr": "prices.txt winter'daki gibi (coffee 4)",
+        "en": "prices.txt as on winter (coffee 4)"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "cafe",
+      "merge_commit": true,
+      "no_conflicts": true,
+      "clean": true,
+      "label": {
+        "tr": "Birleştirme bitti, ağaç temiz",
+        "en": "Merge finished, tree clean"
+      }
+    }
+  ]
+}

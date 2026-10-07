@@ -1,0 +1,98 @@
+{
+  "id": "replace-book",
+  "title": {
+    "tr": "Yol + gövde: PUT",
+    "en": "Path + body: PUT"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`def replace_book(book_id: int, book: Book):` ve `books[book_id] = book.model_dump()`.",
+      "en": "`def replace_book(book_id: int, book: Book):` and `books[book_id] = book.model_dump()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nbooks = {\n    1: {\"title\": \"Dune\", \"year\": 1965},\n    2: {\"title\": \"Emma\", \"year\": 1815},\n}\n\n\nclass Book(BaseModel):\n    title: str\n    year: int\n\n\n@app.get(\"/books/{book_id}\")\ndef get_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n\n\n@app.put(\"/books/{book_id}\")\ndef replace_book(book_id: int, book: Book):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    books[book_id] = book.model_dump()\n    return {\"id\": book_id, **books[book_id]}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nbooks = {\n    1: {\"title\": \"Dune\", \"year\": 1965},\n    2: {\"title\": \"Emma\", \"year\": 1815},\n}\n\n\nclass Book(BaseModel):\n    title: str\n    year: int\n\n\n@app.get(\"/books/{book_id}\")\ndef get_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n\n\n@app.put(\"/books/{book_id}\")\ndef replace_book(book_id: int, book: Book):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    books[book_id] = book.model_dump()\n    return {\"id\": book_id, **books[book_id]}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "PUT",
+          "path": "/books/2",
+          "json": {
+            "title": "Persuasion",
+            "year": 1817
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "title": "Persuasion",
+              "year": 1817
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/2",
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "Persuasion",
+              "year": 1817
+            }
+          }
+        },
+        {
+          "method": "PUT",
+          "path": "/books/9",
+          "json": {
+            "title": "X",
+            "year": 1
+          },
+          "expect": {
+            "status": 404
+          }
+        },
+        {
+          "method": "PUT",
+          "path": "/books/1",
+          "json": {
+            "title": "Dune"
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/1",
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "Dune",
+              "year": 1965
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "can-retry",
+  "title": {
+    "tr": "Yeniden gönderilebilir mi?",
+    "en": "Can it be resent?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tekrarlanabilir yöntemleri bir listede tut; `method.upper() in IDEMPOTENT` doğrudan `True` ya da `False` verir.",
+      "en": "Keep the idempotent methods in a list; `method.upper() in IDEMPOTENT` gives `True` or `False` directly."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nIDEMPOTENT = [\"GET\", \"HEAD\", \"OPTIONS\", \"PUT\", \"DELETE\"]\n\n\ndef can_retry(method):\n    return method.upper() in IDEMPOTENT\n\n\nfailed = [\n    (\"GET\", \"/books\"),\n    (\"POST\", \"/orders\"),\n    (\"DELETE\", \"/books/7\"),\n    (\"patch\", \"/books/7\"),\n    (\"PUT\", \"/books/7\"),\n]\nfor method, path in failed:\n    if can_retry(method):\n        print(\"retry\", method.upper(), path)\n    else:\n        print(\"ask first\", method.upper(), path)\n```",
+      "en": "The solution:\n\n```python\nIDEMPOTENT = [\"GET\", \"HEAD\", \"OPTIONS\", \"PUT\", \"DELETE\"]\n\n\ndef can_retry(method):\n    return method.upper() in IDEMPOTENT\n\n\nfailed = [\n    (\"GET\", \"/books\"),\n    (\"POST\", \"/orders\"),\n    (\"DELETE\", \"/books/7\"),\n    (\"patch\", \"/books/7\"),\n    (\"PUT\", \"/books/7\"),\n]\nfor method, path in failed:\n    if can_retry(method):\n        print(\"retry\", method.upper(), path)\n    else:\n        print(\"ask first\", method.upper(), path)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "can_retry",
+      "cases": [
+        {
+          "args": [
+            "GET"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "delete"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "POST"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "Patch"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "OPTIONS"
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "retry GET /books\nask first POST /orders\nretry DELETE /books/7\nask first PATCH /books/7\nretry PUT /books/7"
+    }
+  ]
+}

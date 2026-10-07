@@ -1,0 +1,44 @@
+{
+  "id": "watch-remaining",
+  "title": {
+    "tr": "Kalan hakkı izle",
+    "en": "Watch the remaining allowance"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`int(r.headers[\"X-RateLimit-Remaining\"]) == 0` ise `time.sleep(1)`.",
+      "en": "If `int(r.headers[\"X-RateLimit-Remaining\"]) == 0`, `time.sleep(1)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport time\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\ncodes = []\nfor i in range(7):\n    r = requests.get(BASE + \"/limited\", timeout=5)\n    codes.append(r.status_code)\n    if int(r.headers[\"X-RateLimit-Remaining\"]) == 0:\n        print(\"pause\")\n        time.sleep(1)\n\nprint(codes)\n```",
+      "en": "The solution:\n\n```python\nimport time\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\ncodes = []\nfor i in range(7):\n    r = requests.get(BASE + \"/limited\", timeout=5)\n    codes.append(r.status_code)\n    if int(r.headers[\"X-RateLimit-Remaining\"]) == 0:\n        print(\"pause\")\n        time.sleep(1)\n\nprint(codes)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "codes",
+      "equals": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "pause\npause\n[200, 200, 200, 200, 200, 200, 200]"
+    }
+  ]
+}

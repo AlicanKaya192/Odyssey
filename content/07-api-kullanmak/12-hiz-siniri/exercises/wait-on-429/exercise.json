@@ -1,0 +1,42 @@
+{
+  "id": "wait-on-429",
+  "title": {
+    "tr": "429'da bekle",
+    "en": "Wait on 429"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while successful < 6:` içinde 429'da `time.sleep(int(r.headers[\"Retry-After\"]))` ve `continue`.",
+      "en": "Inside `while successful < 6:`, on 429 `time.sleep(int(r.headers[\"Retry-After\"]))` and `continue`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport time\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nsuccessful = 0\nsent = 0\nwhile successful < 6:\n    r = requests.get(BASE + \"/limited\", timeout=5)\n    sent += 1\n    if r.status_code == 429:\n        time.sleep(int(r.headers[\"Retry-After\"]))\n        print(\"waited\")\n        continue\n    successful += 1\n\nprint(\"successful:\", successful)\nprint(\"requests:\", sent)\n```",
+      "en": "The solution:\n\n```python\nimport time\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nsuccessful = 0\nsent = 0\nwhile successful < 6:\n    r = requests.get(BASE + \"/limited\", timeout=5)\n    sent += 1\n    if r.status_code == 429:\n        time.sleep(int(r.headers[\"Retry-After\"]))\n        print(\"waited\")\n        continue\n    successful += 1\n\nprint(\"successful:\", successful)\nprint(\"requests:\", sent)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/limited",
+      "min": 7,
+      "max": 7,
+      "hint": {
+        "tr": "Beklemeden yeniden denenmiş gibi görünüyor: 429'dan sonra Retry-After kadar bekle.",
+        "en": "It looks like you retried without waiting: after a 429, wait for Retry-After."
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "waited\nsuccessful: 6\nrequests: 7"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "apply-older",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Eski bir stash'i uygula",
+    "en": "Apply an older stash"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir site",
+    "cd site",
+    "git init",
+    "echo \"<h1>Welcom</h1>\" > index.html",
+    "echo \"body {}\" > style.css",
+    "git add .",
+    "git commit -m \"Add home page\"",
+    "echo \"body {font-family: serif}\" > style.css",
+    "git stash push -m \"fonts\"",
+    "echo \"body {background: navy}\" > style.css",
+    "git stash push -m \"colors\""
+  ],
+  "cwd": "site",
+  "solution": [
+    "git stash list",
+    "git stash apply stash@{1}"
+  ],
+  "hints": [
+    {
+      "tr": "En yeni `stash@{0}`; bir öncesi `stash@{1}`. Silmeden uygulamak `apply`.",
+      "en": "The newest is `stash@{0}`; the one before `stash@{1}`. Applying without removing is `apply`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit stash list\ngit stash apply stash@{1}\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit stash list\ngit stash apply stash@{1}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "site",
+      "files": {
+        "style.css": "body {font-family: serif}"
+      },
+      "label": {
+        "tr": "style.css'te yazı tipi değişikliği",
+        "en": "The font change is in style.css"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "site",
+      "stash": 2,
+      "label": {
+        "tr": "İki kayıt da listede duruyor",
+        "en": "Both entries are still in the list"
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "offset-and-limit",
+  "title": {
+    "tr": "Ofset ve sınır",
+    "en": "Offset and limit"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`params={\"offset\": offset, \"limit\": 8}`; durma koşulu `offset >= body[\"total\"]`.",
+      "en": "`params={\"offset\": offset, \"limit\": 8}`; the stopping condition is `offset >= body[\"total\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nitems = []\noffset = 0\nwhile True:\n    body = requests.get(BASE + \"/offset/books\", params={\"offset\": offset, \"limit\": 8}).json()\n    items.extend(body[\"items\"])\n    print(\"offset\", offset, \"->\", len(body[\"items\"]), \"books\")\n    offset += body[\"limit\"]\n    if offset >= body[\"total\"]:\n        break\n\nprint(\"total:\", len(items))\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nitems = []\noffset = 0\nwhile True:\n    body = requests.get(BASE + \"/offset/books\", params={\"offset\": offset, \"limit\": 8}).json()\n    items.extend(body[\"items\"])\n    print(\"offset\", offset, \"->\", len(body[\"items\"]), \"books\")\n    offset += body[\"limit\"]\n    if offset >= body[\"total\"]:\n        break\n\nprint(\"total:\", len(items))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/offset/books",
+      "query": {
+        "offset": "16",
+        "limit": "8"
+      }
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/offset/books",
+      "min": 3,
+      "max": 3
+    },
+    {
+      "type": "stdout",
+      "expected": "offset 0 -> 8 books\noffset 8 -> 8 books\noffset 16 -> 7 books\ntotal: 23"
+    }
+  ]
+}

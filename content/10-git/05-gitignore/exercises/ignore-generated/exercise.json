@@ -1,0 +1,84 @@
+{
+  "id": "ignore-generated",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Üretilen ve gizli dosyalar",
+    "en": "Generated and secret files"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "cd app",
+    "git init",
+    "echo \"print(1)\" > app.py",
+    "echo \"API_KEY=secret\" > .env",
+    "mkdir build",
+    "echo \"bin\" > build/app.exe",
+    "mkdir -p src/__pycache__",
+    "echo \"x = 1\" > src/util.py",
+    "echo \"pyc\" > src/__pycache__/util.cpython-314.pyc"
+  ],
+  "cwd": "app",
+  "solution": [
+    "echo \"build/\" > .gitignore",
+    "echo \"__pycache__/\" >> .gitignore",
+    "echo \".env\" >> .gitignore",
+    "git status -s",
+    "git add .",
+    "git commit -m \"Ignore generated files\""
+  ],
+  "hints": [
+    {
+      "tr": "İlk satır `>` ile, sonrakiler `>>` ile. Sonu `/` olan desen yalnızca klasörlere uyar.",
+      "en": "First line with `>`, the rest with `>>`. A pattern ending in `/` matches folders only."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\necho \"build/\" > .gitignore\necho \"__pycache__/\" >> .gitignore\necho \".env\" >> .gitignore\ngit status -s\ngit add .\ngit commit -m \"Ignore generated files\"\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\necho \"build/\" > .gitignore\necho \"__pycache__/\" >> .gitignore\necho \".env\" >> .gitignore\ngit status -s\ngit add .\ngit commit -m \"Ignore generated files\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "app",
+      "ignored": [
+        "build/app.exe",
+        "src/__pycache__/util.cpython-314.pyc",
+        ".env"
+      ],
+      "label": {
+        "tr": "build, __pycache__ ve .env görmezden geliniyor",
+        "en": "build, __pycache__ and .env are ignored"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "app",
+      "head_files": {
+        "app.py": null,
+        "src/util.py": null,
+        ".gitignore": null
+      },
+      "label": {
+        "tr": "Kod ve .gitignore commit'te",
+        "en": "The code and .gitignore are committed"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "app",
+      "clean": true,
+      "last_message": "^Ignore generated files$",
+      "show_message": "Ignore generated files",
+      "label": {
+        "tr": "Ağaç temiz",
+        "en": "Tree clean"
+      }
+    }
+  ]
+}

@@ -96,6 +96,15 @@ def _table(columns: list, rows: list) -> str:
     return "\n".join(p.rstrip() for p in parcalar)
 
 
+# Docker denetleyicisinin kontrol türleri (`sandbox/docker_runner.py`).
+DOCKER_CHECKS = {"dockerfile", "compose", "command", "container", "compose_up"}
+# Beklenen / gelen kutusuyla gösterilen sebepler (çok satırlı olabiliyor).
+DOCKER_COMPARISONS = {"logs", "http_body", "http_json"}
+# API 2 (FastAPI) kontrolleri de aynı biçimde sebep + değer veriyor.
+REASON_CHECKS = DOCKER_CHECKS | {"http", "pytest", "git_state", "git_command", "shell_state", "git_config"}
+REASON_COMPARISONS = DOCKER_COMPARISONS | {"json", "json_has", "file", "head_file"}
+
+
 def describe_check(check: CheckResult, language: LanguageManager) -> Feedback:
     """Tek bir kontrolü cümleye çevirir."""
     detail = check.detail
@@ -220,6 +229,46 @@ def describe_check(check: CheckResult, language: LanguageManager) -> Feedback:
                 expected=detail.get("expected", ""), actual=detail.get("actual", ""),
             ),
         )
+
+    if check.type == "requests":
+        # API alistirmasi: sunucuya giden istekler sayildi.
+        hedef = f"{detail.get('method', '')} {detail.get('path', '')}".strip()
+        if not hedef:
+            hedef = language.t("check.requests.any")
+        if detail.get("min_gap") is not None and detail.get("gap") is not None:
+            key, values = "check.requests.too_fast", {"gap": detail["gap"], "min_gap": detail["min_gap"]}
+        elif detail.get("count", 0) == 0:
+            key, values = "check.requests.missing", {"request": hedef}
+        elif detail.get("count", 0) < detail.get("min", 1):
+            key, values = "check.requests.too_few", {
+                "request": hedef, "count": detail["count"], "min": detail["min"]}
+        else:
+            key, values = "check.requests.too_many", {
+                "request": hedef, "count": detail["count"], "max": detail.get("max")}
+        hint = language.pick(check.hint)
+        return Feedback(passed=False, message=hint or language.t(key, **values))
+
+    if check.type in REASON_CHECKS:
+        # Docker ve FastAPI denetleyicisi sebebi ve degerleri hazir veriyor;
+        # metin `check.<tur>.<sebep>`, Docker'da ortak olanlar `check.docker.*`.
+        reason = str(detail.get("reason", ""))
+        values = dict(detail.get("values") or {})
+        for ad, deger in list(values.items()):
+            if isinstance(deger, dict) and ("tr" in deger or "en" in deger):
+                values[ad] = language.pick(deger)
+        if reason == "http_unreachable" and values.get("exited"):
+            reason = "http_exited"
+        key = f"check.{check.type}.{reason}"
+        if check.type.startswith("git_") or check.type == "shell_state":
+            key = f"check.git.{reason}"
+        elif language.t(key) == key:
+            key = f"check.docker.{reason}"
+        hint = language.pick(check.hint)
+        message = hint or language.t(key, **values)
+        if reason in REASON_COMPARISONS:
+            return Feedback(passed=False, message=message, expected=str(values.get("expected", "")),
+                            actual=str(values.get("actual", "")))
+        return Feedback(passed=False, message=message)
 
     if check.type == "annotation":
         # Belirtim kontrolu birden cok sekilde dusebiliyor; her biri farkli

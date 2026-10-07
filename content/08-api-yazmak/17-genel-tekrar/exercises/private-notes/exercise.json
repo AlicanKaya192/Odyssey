@@ -1,0 +1,171 @@
+{
+  "id": "private-notes",
+  "title": {
+    "tr": "Kişiye özel notlar",
+    "en": "Private notes"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kimlik Doğrulama bölümündeki giriş ve `current_user`; notlarda `owner` alanı.",
+      "en": "The login and `current_user` from the Authentication section; an `owner` field on notes."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport hashlib\nimport hmac\nimport secrets\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom fastapi.security import HTTPAuthorizationCredentials, HTTPBearer\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nbearer = HTTPBearer()\nusers = {\n    \"ada\": \"887362783edaec9e1b53b6e44e5e7fd3d15211a39abe696032db618b212115b3\",\n    \"alan\": \"a90c9f1188728ecdf5e047af7c9411d05288916f59c7a7446aa4074b0f0fdf01\",\n}\ntokens = {}\nnotes = {}\nnext_id = 1\n\n\ndef check_password(username: str, password: str) -> bool:\n    stored = users.get(username)\n    if stored is None:\n        return False\n    digest = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), b\"odyssey-salt\", 100_000).hex()\n    return hmac.compare_digest(stored, digest)\n\n\nclass Login(BaseModel):\n    username: str\n    password: str\n\n\nclass NoteIn(BaseModel):\n    text: str = Field(min_length=1)\n\n\n@app.post(\"/token\")\ndef login(form: Login):\n    if not check_password(form.username, form.password):\n        raise HTTPException(status_code=401, detail=\"Wrong username or password\")\n    token = secrets.token_hex(16)\n    tokens[token] = form.username\n    return {\"access_token\": token, \"token_type\": \"bearer\"}\n\n\ndef current_user(cred: Annotated[HTTPAuthorizationCredentials, Depends(bearer)]) -> str:\n    if cred.credentials not in tokens:\n        raise HTTPException(status_code=401, detail=\"Invalid token\")\n    return tokens[cred.credentials]\n\n\nUser = Annotated[str, Depends(current_user)]\n\n\n@app.post(\"/notes\", status_code=201)\ndef add_note(note: NoteIn, user: User):\n    global next_id\n    notes[next_id] = {\"id\": next_id, \"owner\": user, \"text\": note.text}\n    next_id += 1\n    return notes[next_id - 1]\n\n\n@app.get(\"/notes\")\ndef my_notes(user: User):\n    return [n for n in notes.values() if n[\"owner\"] == user]\n\n\n@app.delete(\"/notes/{note_id}\", status_code=204)\ndef delete_note(note_id: int, user: User):\n    if note_id not in notes:\n        raise HTTPException(status_code=404, detail=\"Note not found\")\n    if notes[note_id][\"owner\"] != user:\n        raise HTTPException(status_code=403, detail=\"Not your note\")\n    del notes[note_id]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport hashlib\nimport hmac\nimport secrets\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom fastapi.security import HTTPAuthorizationCredentials, HTTPBearer\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nbearer = HTTPBearer()\nusers = {\n    \"ada\": \"887362783edaec9e1b53b6e44e5e7fd3d15211a39abe696032db618b212115b3\",\n    \"alan\": \"a90c9f1188728ecdf5e047af7c9411d05288916f59c7a7446aa4074b0f0fdf01\",\n}\ntokens = {}\nnotes = {}\nnext_id = 1\n\n\ndef check_password(username: str, password: str) -> bool:\n    stored = users.get(username)\n    if stored is None:\n        return False\n    digest = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), b\"odyssey-salt\", 100_000).hex()\n    return hmac.compare_digest(stored, digest)\n\n\nclass Login(BaseModel):\n    username: str\n    password: str\n\n\nclass NoteIn(BaseModel):\n    text: str = Field(min_length=1)\n\n\n@app.post(\"/token\")\ndef login(form: Login):\n    if not check_password(form.username, form.password):\n        raise HTTPException(status_code=401, detail=\"Wrong username or password\")\n    token = secrets.token_hex(16)\n    tokens[token] = form.username\n    return {\"access_token\": token, \"token_type\": \"bearer\"}\n\n\ndef current_user(cred: Annotated[HTTPAuthorizationCredentials, Depends(bearer)]) -> str:\n    if cred.credentials not in tokens:\n        raise HTTPException(status_code=401, detail=\"Invalid token\")\n    return tokens[cred.credentials]\n\n\nUser = Annotated[str, Depends(current_user)]\n\n\n@app.post(\"/notes\", status_code=201)\ndef add_note(note: NoteIn, user: User):\n    global next_id\n    notes[next_id] = {\"id\": next_id, \"owner\": user, \"text\": note.text}\n    next_id += 1\n    return notes[next_id - 1]\n\n\n@app.get(\"/notes\")\ndef my_notes(user: User):\n    return [n for n in notes.values() if n[\"owner\"] == user]\n\n\n@app.delete(\"/notes/{note_id}\", status_code=204)\ndef delete_note(note_id: int, user: User):\n    if note_id not in notes:\n        raise HTTPException(status_code=404, detail=\"Note not found\")\n    if notes[note_id][\"owner\"] != user:\n        raise HTTPException(status_code=403, detail=\"Not your note\")\n    del notes[note_id]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/token",
+          "json": {
+            "username": "ada",
+            "password": "x"
+          },
+          "expect": {
+            "status": 401
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/token",
+          "json": {
+            "username": "ada",
+            "password": "lovelace"
+          },
+          "expect": {
+            "status": 200
+          },
+          "save": {
+            "ada": "access_token"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/token",
+          "json": {
+            "username": "alan",
+            "password": "enigma"
+          },
+          "expect": {
+            "status": 200
+          },
+          "save": {
+            "alan": "access_token"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/notes",
+          "headers": {
+            "Authorization": "Bearer {ada}"
+          },
+          "json": {
+            "text": "buy milk"
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "id": 1,
+              "owner": "ada",
+              "text": "buy milk"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/notes",
+          "headers": {
+            "Authorization": "Bearer {alan}"
+          },
+          "json": {
+            "text": "break codes"
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "id": 2,
+              "owner": "alan",
+              "text": "break codes"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/notes",
+          "headers": {
+            "Authorization": "Bearer {ada}"
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "owner": "ada",
+                "text": "buy milk"
+              }
+            ]
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/notes/2",
+          "headers": {
+            "Authorization": "Bearer {ada}"
+          },
+          "expect": {
+            "status": 403,
+            "json": {
+              "detail": "Not your note"
+            }
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/notes/9",
+          "headers": {
+            "Authorization": "Bearer {ada}"
+          },
+          "expect": {
+            "status": 404
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/notes/2",
+          "headers": {
+            "Authorization": "Bearer {alan}"
+          },
+          "expect": {
+            "status": 204
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/notes",
+          "expect": {
+            "status": 401
+          }
+        }
+      ]
+    }
+  ]
+}

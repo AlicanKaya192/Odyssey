@@ -238,6 +238,11 @@ PATHS: dict[str, str] = {
         '<path d="m12 2 9 5v10l-9 5-9-5V7z"/>'
         '<path d="m3 7 9 5 9-5"/><path d="M12 12v10"/>'
     ),
+    # Git: bir daldan ayrılan ikinci dal.
+    "git-branch": (
+        '<path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>'
+        '<path d="M18 9a9 9 0 0 1-9 9"/>'
+    ),
     # --- patika simgeleri -------------------------------------------------
     # Python: iki iç içe geçmiş kıvrım, dilin logosuna gönderme.
     "python": (
@@ -463,6 +468,8 @@ MODERN: dict[str, tuple[str, str]] = {
              '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2"/>'),
     "play": ('<path d="M8 5.6v12.8a1 1 0 0 0 1.5.9l10-6.4a1 1 0 0 0 0-1.8l-10-6.4A1 1 0 0 0 8 5.6z"/>',
              '<path d="M8 5.6v12.8a1 1 0 0 0 1.5.9l10-6.4a1 1 0 0 0 0-1.8l-10-6.4A1 1 0 0 0 8 5.6z"/>'),
+    "pause": ('<rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/>',
+              '<rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/>'),
     "check": ("", '<path d="m5 12.5 4.5 4.5L19 7.5"/>'),
     "x": ("", '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>'),
     "plus": ("", '<path d="M12 5v14M5 12h14"/>'),

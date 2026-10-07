@@ -1,0 +1,115 @@
+{
+  "id": "shared-paging",
+  "title": {
+    "tr": "Ortak sayfalama",
+    "en": "Shared paging"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`Paging = Annotated[dict, Depends(paging)]`, sonra `def list_books(page: Paging):`.",
+      "en": "`Paging = Annotated[dict, Depends(paging)]`, then `def list_books(page: Paging):`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, Query\n\napp = FastAPI()\nbooks = [\"Dune\", \"Emma\", \"Ubik\", \"Kindred\", \"Beloved\"]\nmovies = [\"Alien\", \"Heat\", \"Up\"]\n\n\ndef paging(limit: Annotated[int, Query(ge=1, le=5)] = 2,\n           offset: Annotated[int, Query(ge=0)] = 0):\n    return {\"limit\": limit, \"offset\": offset}\n\n\nPaging = Annotated[dict, Depends(paging)]\n\n\n@app.get(\"/books\")\ndef list_books(page: Paging):\n    return books[page[\"offset\"]:page[\"offset\"] + page[\"limit\"]]\n\n\n@app.get(\"/movies\")\ndef list_movies(page: Paging):\n    return movies[page[\"offset\"]:page[\"offset\"] + page[\"limit\"]]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, Query\n\napp = FastAPI()\nbooks = [\"Dune\", \"Emma\", \"Ubik\", \"Kindred\", \"Beloved\"]\nmovies = [\"Alien\", \"Heat\", \"Up\"]\n\n\ndef paging(limit: Annotated[int, Query(ge=1, le=5)] = 2,\n           offset: Annotated[int, Query(ge=0)] = 0):\n    return {\"limit\": limit, \"offset\": offset}\n\n\nPaging = Annotated[dict, Depends(paging)]\n\n\n@app.get(\"/books\")\ndef list_books(page: Paging):\n    return books[page[\"offset\"]:page[\"offset\"] + page[\"limit\"]]\n\n\n@app.get(\"/movies\")\ndef list_movies(page: Paging):\n    return movies[page[\"offset\"]:page[\"offset\"] + page[\"limit\"]]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/books",
+          "expect": {
+            "status": 200,
+            "json": [
+              "Dune",
+              "Emma"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "params": {
+            "limit": 2,
+            "offset": 3
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              "Kindred",
+              "Beloved"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/movies",
+          "params": {
+            "offset": 1
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              "Heat",
+              "Up"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/movies",
+          "params": {
+            "limit": 9
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "params": {
+            "offset": -1
+          },
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "paging",
+      "cases": [
+        {
+          "args": [
+            3,
+            1
+          ],
+          "returns": {
+            "limit": 3,
+            "offset": 1
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "what-next",
+  "title": {
+    "tr": "Şimdi ne yapmalı?",
+    "en": "What now?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce sınıflar (2xx, 3xx), sonra tek tek kodlar (`code in (401, 403)`, `code == 404`, `code == 429`), en sonda genel 4xx ve 5xx.",
+      "en": "First the classes (2xx, 3xx), then the individual codes (`code in (401, 403)`, `code == 404`, `code == 429`), and the general 4xx and 5xx last."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef next_step(code):\n    kind = code // 100\n    if kind == 2:\n        return \"use the body\"\n    if kind == 3:\n        return \"follow Location\"\n    if code in (401, 403):\n        return \"check your key\"\n    if code == 404:\n        return \"check the address\"\n    if code == 429:\n        return \"wait, then retry\"\n    if kind == 4:\n        return \"fix the request\"\n    return \"retry later\"\n\n\ncodes = [200, 201, 301, 401, 403, 404, 422, 429, 500, 503]\nfor code in codes:\n    print(code, \"->\", next_step(code))\n```",
+      "en": "The solution:\n\n```python\ndef next_step(code):\n    kind = code // 100\n    if kind == 2:\n        return \"use the body\"\n    if kind == 3:\n        return \"follow Location\"\n    if code in (401, 403):\n        return \"check your key\"\n    if code == 404:\n        return \"check the address\"\n    if code == 429:\n        return \"wait, then retry\"\n    if kind == 4:\n        return \"fix the request\"\n    return \"retry later\"\n\n\ncodes = [200, 201, 301, 401, 403, 404, 422, 429, 500, 503]\nfor code in codes:\n    print(code, \"->\", next_step(code))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "next_step",
+      "cases": [
+        {
+          "args": [
+            204
+          ],
+          "returns": "use the body"
+        },
+        {
+          "args": [
+            302
+          ],
+          "returns": "follow Location"
+        },
+        {
+          "args": [
+            401
+          ],
+          "returns": "check your key"
+        },
+        {
+          "args": [
+            404
+          ],
+          "returns": "check the address"
+        },
+        {
+          "args": [
+            429
+          ],
+          "returns": "wait, then retry"
+        },
+        {
+          "args": [
+            409
+          ],
+          "returns": "fix the request"
+        },
+        {
+          "args": [
+            502
+          ],
+          "returns": "retry later"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "200 -> use the body\n201 -> use the body\n301 -> follow Location\n401 -> check your key\n403 -> check your key\n404 -> check the address\n422 -> fix the request\n429 -> wait, then retry\n500 -> retry later\n503 -> retry later"
+    }
+  ]
+}

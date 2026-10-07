@@ -1,0 +1,64 @@
+{
+  "id": "status-first",
+  "title": {
+    "tr": "Önce durum kodu",
+    "en": "Status code first"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Adresi kurarken sayıyı metne çevir: `BASE + \"/books/\" + str(book_id)`.",
+      "en": "Turn the number into text when building the address: `BASE + \"/books/\" + str(book_id)`."
+    },
+    {
+      "tr": "Önce `if response.status_code == 200:`; yalnızca o zaman `response.json()[\"title\"]`.",
+      "en": "First `if response.status_code == 200:`; only then `response.json()[\"title\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef get_title(book_id):\n    response = requests.get(BASE + \"/books/\" + str(book_id))\n    if response.status_code == 200:\n        return response.json()[\"title\"]\n    return None\n\n\nids = [4, 99, 12, 0]\nfor book_id in ids:\n    print(book_id, \"->\", get_title(book_id))\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef get_title(book_id):\n    response = requests.get(BASE + \"/books/\" + str(book_id))\n    if response.status_code == 200:\n        return response.json()[\"title\"]\n    return None\n\n\nids = [4, 99, 12, 0]\nfor book_id in ids:\n    print(book_id, \"->\", get_title(book_id))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "get_title",
+      "cases": [
+        {
+          "args": [
+            2
+          ],
+          "returns": "Dune"
+        },
+        {
+          "args": [
+            500
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            16
+          ],
+          "returns": "War and Peace"
+        }
+      ]
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books/99"
+    },
+    {
+      "type": "stdout",
+      "expected": "4 -> Solaris\n99 -> None\n12 -> Animal Farm\n0 -> None"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "sqlite-in-volume",
+  "title": {
+    "tr": "Veritabanı volume'da",
+    "en": "The database in a volume"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "visits.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`ENV DB_PATH=/data/visits.db` ve `VOLUME /data`.",
+      "en": "`ENV DB_PATH=/data/visits.db` and `VOLUME /data`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY visits.py .\nENV DB_PATH=/data/visits.db\nVOLUME /data\nCMD [\"python\", \"visits.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY visits.py .\nENV DB_PATH=/data/visits.db\nVOLUME /data\nCMD [\"python\", \"visits.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "container",
+      "run": {
+        "volumes": [
+          "visits:/data"
+        ]
+      },
+      "expect": {
+        "env": {
+          "DB_PATH": "/data/visits.db"
+        },
+        "logs": "db: /data/visits.db visits: 1"
+      }
+    },
+    {
+      "type": "container",
+      "run": {
+        "volumes": [
+          "visits:/data"
+        ]
+      },
+      "expect": {
+        "logs": "db: /data/visits.db visits: 2"
+      }
+    }
+  ]
+}

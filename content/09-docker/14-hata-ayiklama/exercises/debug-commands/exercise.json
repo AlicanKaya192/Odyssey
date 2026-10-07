@@ -1,0 +1,89 @@
+{
+  "id": "debug-commands",
+  "title": {
+    "tr": "Hata ayıklama komutları",
+    "en": "Debugging commands"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "commands.sh",
+  "files": [
+    {
+      "name": "commands.sh",
+      "starter": "starter-commands.sh.{lang}",
+      "solution": "solution-commands.sh"
+    }
+  ],
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "`--tail 20`, `--entrypoint sh`, `docker cp web:/app/error.log .`, `--no-cache --progress=plain`.",
+      "en": "`--tail 20`, `--entrypoint sh`, `docker cp web:/app/error.log .`, `--no-cache --progress=plain`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**commands.sh**\n\n```bash\ndocker ps -a\ndocker logs --tail 20 web\ndocker run --rm -it --entrypoint sh app\ndocker cp web:/app/error.log .\ndocker build --no-cache --progress=plain -t app .\n```",
+      "en": "The full solution:\n\n**commands.sh**\n\n```bash\ndocker ps -a\ndocker logs --tail 20 web\ndocker run --rm -it --entrypoint sh app\ndocker cp web:/app/error.log .\ndocker build --no-cache --progress=plain -t app .\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "command",
+      "command": "ps",
+      "flags": {
+        "--all": true
+      },
+      "show": "docker ps -a"
+    },
+    {
+      "type": "command",
+      "command": "logs",
+      "flags": {
+        "--tail": "20"
+      },
+      "args": [
+        "web"
+      ],
+      "show": "docker logs --tail 20 web"
+    },
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--rm": true,
+        "--interactive": true,
+        "--tty": true,
+        "--entrypoint": "sh"
+      },
+      "args": [
+        "app"
+      ],
+      "show": "docker run --rm -it --entrypoint sh app"
+    },
+    {
+      "type": "command",
+      "command": "cp",
+      "args": [
+        "web:/app/error.log",
+        "."
+      ],
+      "show": "docker cp web:/app/error.log ."
+    },
+    {
+      "type": "command",
+      "command": "build",
+      "flags": {
+        "--no-cache": true,
+        "--progress": "plain",
+        "--tag": "app"
+      },
+      "args": [
+        "."
+      ],
+      "show": "docker build --no-cache --progress=plain -t app ."
+    }
+  ]
+}

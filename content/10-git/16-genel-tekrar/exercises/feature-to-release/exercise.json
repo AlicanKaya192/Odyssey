@@ -1,0 +1,98 @@
+{
+  "id": "feature-to-release",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Özellikten sürüme",
+    "en": "From feature to release"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    {
+      "remote": "https://github.com/ada/shop.git",
+      "files": {
+        "menu.txt": "soup 4\ntea 2\n",
+        "README.md": "# Shop\n"
+      },
+      "message": "Open the shop",
+      "author": [
+        "Ada Lovelace",
+        "ada@example.com"
+      ]
+    },
+    "git clone https://github.com/ada/shop.git"
+  ],
+  "cwd": "shop",
+  "solution": [
+    "git switch -c cake",
+    "echo \"cake 5\" >> menu.txt",
+    "git commit -am \"Add cake\"",
+    "git switch main",
+    "git merge --no-ff cake --no-edit",
+    "git branch -d cake",
+    "git tag -a v1.1 -m \"Cake release\"",
+    "git push",
+    "git push origin v1.1"
+  ],
+  "hints": [
+    {
+      "tr": "Birleştirme commit'i için `--no-ff`. Etiket ayrıca gönderilir.",
+      "en": "`--no-ff` for a merge commit. The tag is pushed separately."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit switch -c cake\necho \"cake 5\" >> menu.txt\ngit commit -am \"Add cake\"\ngit switch main\ngit merge --no-ff cake --no-edit\ngit branch -d cake\ngit tag -a v1.1 -m \"Cake release\"\ngit push\ngit push origin v1.1\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit switch -c cake\necho \"cake 5\" >> menu.txt\ngit commit -am \"Add cake\"\ngit switch main\ngit merge --no-ff cake --no-edit\ngit branch -d cake\ngit tag -a v1.1 -m \"Cake release\"\ngit push\ngit push origin v1.1\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "shop",
+      "branch": "main",
+      "merge_commit": true,
+      "no_branches": [
+        "cake"
+      ],
+      "head_files": {
+        "menu.txt": "soup 4\ntea 2\ncake 5"
+      },
+      "label": {
+        "tr": "cake birleştirildi, dal silindi",
+        "en": "cake merged, branch deleted"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "shop",
+      "annotated": [
+        "v1.1"
+      ],
+      "tag_at": {
+        "v1.1": "^Merge branch 'cake'$"
+      },
+      "label": {
+        "tr": "v1.1 açıklamalı, birleştirme commit'inde",
+        "en": "v1.1 annotated, on the merge commit"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "shop",
+      "pushed": true,
+      "remote_tags": {
+        "url": "https://github.com/ada/shop.git",
+        "tags": [
+          "v1.1"
+        ]
+      },
+      "label": {
+        "tr": "main ve v1.1 GitHub'da",
+        "en": "main and v1.1 are on GitHub"
+      }
+    }
+  ]
+}

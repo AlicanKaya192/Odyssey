@@ -1,0 +1,106 @@
+{
+  "id": "signup-rules",
+  "title": {
+    "tr": "Kendi kuralın",
+    "en": "Your own rule"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`@field_validator(\"username\")` + `@classmethod`; bozuksa `raise ValueError(...)`, değilse `return value.lower()`.",
+      "en": "`@field_validator(\"username\")` + `@classmethod`; `raise ValueError(...)` if broken, otherwise `return value.lower()`."
+    },
+    {
+      "tr": "`return` unutulursa alan `null` olur.",
+      "en": "If you forget `return`, the field becomes `null`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, field_validator\n\napp = FastAPI()\n\n\nclass Signup(BaseModel):\n    username: str\n    email: str\n\n    @field_validator(\"username\")\n    @classmethod\n    def clean_username(cls, value: str) -> str:\n        if not value.isalnum():\n            raise ValueError(\"only letters and digits\")\n        return value.lower()\n\n    @field_validator(\"email\")\n    @classmethod\n    def has_at(cls, value: str) -> str:\n        if \"@\" not in value:\n            raise ValueError(\"not an email address\")\n        return value\n\n\n@app.post(\"/signup\")\ndef signup(data: Signup):\n    return data\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, field_validator\n\napp = FastAPI()\n\n\nclass Signup(BaseModel):\n    username: str\n    email: str\n\n    @field_validator(\"username\")\n    @classmethod\n    def clean_username(cls, value: str) -> str:\n        if not value.isalnum():\n            raise ValueError(\"only letters and digits\")\n        return value.lower()\n\n    @field_validator(\"email\")\n    @classmethod\n    def has_at(cls, value: str) -> str:\n        if \"@\" not in value:\n            raise ValueError(\"not an email address\")\n        return value\n\n\n@app.post(\"/signup\")\ndef signup(data: Signup):\n    return data\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/signup",
+          "json": {
+            "username": "AdaL99",
+            "email": "ada@example.com"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "username": "adal99",
+              "email": "ada@example.com"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/signup",
+          "json": {
+            "username": "ada l",
+            "email": "ada@example.com"
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/signup",
+          "json": {
+            "username": "ada.l",
+            "email": "ada@example.com"
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/signup",
+          "json": {
+            "username": "ada",
+            "email": "ada.example.com"
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/signup",
+          "json": {
+            "username": "Grace",
+            "email": "g@x.org"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "username": "grace",
+              "email": "g@x.org"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

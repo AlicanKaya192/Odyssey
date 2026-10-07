@@ -55,6 +55,10 @@ BADGE_TAGS = {
     "oracle": "ml-complete",
     "query-master": "sql-complete",
     "time-bender": "ts-complete",
+    "bridge-builder": "api-complete",
+    "gatekeeper": "api2-complete",
+    "harbor-master": "docker-complete",
+    "record-keeper": "git-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200

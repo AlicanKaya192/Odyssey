@@ -1,0 +1,49 @@
+{
+  "id": "patch-the-price",
+  "title": {
+    "tr": "Fiyatı değiştir",
+    "en": "Change the price"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`requests.patch(BASE + \"/books/12\", json={\"price\": 5.5}, headers=AUTH)`.",
+      "en": "`requests.patch(BASE + \"/books/12\", json={\"price\": 5.5}, headers=AUTH)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\nAUTH = {\"Authorization\": \"Bearer letmein\"}\n\nurl = BASE + \"/books/12\"\nprint(\"old price:\", requests.get(url).json()[\"price\"])\n\nr = requests.patch(url, json={\"price\": 5.5}, headers=AUTH)\nprint(\"patch:\", r.status_code)\n\nbook = requests.get(url).json()\nprint(\"new price:\", book[\"price\"])\nprint(\"year:\", book[\"year\"])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\nAUTH = {\"Authorization\": \"Bearer letmein\"}\n\nurl = BASE + \"/books/12\"\nprint(\"old price:\", requests.get(url).json()[\"price\"])\n\nr = requests.patch(url, json={\"price\": 5.5}, headers=AUTH)\nprint(\"patch:\", r.status_code)\n\nbook = requests.get(url).json()\nprint(\"new price:\", book[\"price\"])\nprint(\"year:\", book[\"year\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "PATCH",
+      "path": "/books/12",
+      "json": {
+        "price": 5.5
+      },
+      "hint": {
+        "tr": "PATCH /books/12 gövdesinde yalnızca {\"price\": 5.5} olmalı.",
+        "en": "The body of PATCH /books/12 must be only {\"price\": 5.5}."
+      }
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books/12",
+      "min": 2
+    },
+    {
+      "type": "stdout",
+      "expected": "old price: 6.9\npatch: 200\nnew price: 5.5\nyear: 1945"
+    }
+  ]
+}

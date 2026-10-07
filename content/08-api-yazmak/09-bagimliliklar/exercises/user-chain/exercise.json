@@ -1,0 +1,110 @@
+{
+  "id": "user-chain",
+  "title": {
+    "tr": "Bağımlılık zinciri",
+    "en": "A chain of dependencies"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`def require_admin(user: Annotated[dict, Depends(get_user)]) -> dict:`.",
+      "en": "`def require_admin(user: Annotated[dict, Depends(get_user)]) -> dict:`."
+    },
+    {
+      "tr": "401 \"kim olduğunu bilmiyorum\", 403 \"biliyorum ama iznin yok\".",
+      "en": "401 \"I don't know who you are\", 403 \"I know, but you're not allowed\"."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, Header, HTTPException\n\napp = FastAPI()\nusers = {\"ada\": \"admin\", \"alan\": \"member\"}\n\n\ndef get_user(x_user: Annotated[str | None, Header()] = None) -> dict:\n    if x_user not in users:\n        raise HTTPException(status_code=401, detail=\"Unknown user\")\n    return {\"name\": x_user, \"role\": users[x_user]}\n\n\ndef require_admin(user: Annotated[dict, Depends(get_user)]) -> dict:\n    if user[\"role\"] != \"admin\":\n        raise HTTPException(status_code=403, detail=\"Admins only\")\n    return user\n\n\n@app.get(\"/me\")\ndef me(user: Annotated[dict, Depends(get_user)]):\n    return user\n\n\n@app.get(\"/admin\")\ndef admin(user: Annotated[dict, Depends(require_admin)]):\n    return {\"welcome\": user[\"name\"]}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, Header, HTTPException\n\napp = FastAPI()\nusers = {\"ada\": \"admin\", \"alan\": \"member\"}\n\n\ndef get_user(x_user: Annotated[str | None, Header()] = None) -> dict:\n    if x_user not in users:\n        raise HTTPException(status_code=401, detail=\"Unknown user\")\n    return {\"name\": x_user, \"role\": users[x_user]}\n\n\ndef require_admin(user: Annotated[dict, Depends(get_user)]) -> dict:\n    if user[\"role\"] != \"admin\":\n        raise HTTPException(status_code=403, detail=\"Admins only\")\n    return user\n\n\n@app.get(\"/me\")\ndef me(user: Annotated[dict, Depends(get_user)]):\n    return user\n\n\n@app.get(\"/admin\")\ndef admin(user: Annotated[dict, Depends(require_admin)]):\n    return {\"welcome\": user[\"name\"]}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/me",
+          "headers": {
+            "X-User": "alan"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "name": "alan",
+              "role": "member"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "expect": {
+            "status": 401,
+            "json": {
+              "detail": "Unknown user"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "headers": {
+            "X-User": "bob"
+          },
+          "expect": {
+            "status": 401
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/admin",
+          "headers": {
+            "X-User": "alan"
+          },
+          "expect": {
+            "status": 403,
+            "json": {
+              "detail": "Admins only"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/admin",
+          "headers": {
+            "X-User": "ada"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "welcome": "ada"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/admin",
+          "expect": {
+            "status": 401
+          }
+        }
+      ]
+    }
+  ]
+}

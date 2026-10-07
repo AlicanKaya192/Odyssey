@@ -1,0 +1,69 @@
+{
+  "id": "flow-test",
+  "title": {
+    "tr": "Akış testi",
+    "en": "A flow test"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "readonly": true
+    },
+    {
+      "name": "test_main.py",
+      "starter": "starter-test_main.{lang}.py",
+      "solution": "solution-test_main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`book_id = created.json()[\"id\"]`, sonra `client.get(f\"/books/{book_id}\")`.",
+      "en": "`book_id = created.json()[\"id\"]`, then `client.get(f\"/books/{book_id}\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test_main.py**\n\n```python\nfrom fastapi.testclient import TestClient\n\nfrom main import app\n\nclient = TestClient(app)\n\n\ndef test_book_lifecycle():\n    created = client.post(\"/books\", json={\"title\": \"Dune\", \"year\": 1965})\n    assert created.status_code == 201\n    book_id = created.json()[\"id\"]\n\n    read = client.get(f\"/books/{book_id}\")\n    assert read.status_code == 200\n    assert read.json() == {\"title\": \"Dune\", \"year\": 1965}\n\n    assert client.delete(f\"/books/{book_id}\").status_code == 204\n    assert client.get(f\"/books/{book_id}\").status_code == 404\n```",
+      "en": "The full solution:\n\n**test_main.py**\n\n```python\nfrom fastapi.testclient import TestClient\n\nfrom main import app\n\nclient = TestClient(app)\n\n\ndef test_book_lifecycle():\n    created = client.post(\"/books\", json={\"title\": \"Dune\", \"year\": 1965})\n    assert created.status_code == 201\n    book_id = created.json()[\"id\"]\n\n    read = client.get(f\"/books/{book_id}\")\n    assert read.status_code == 200\n    assert read.json() == {\"title\": \"Dune\", \"year\": 1965}\n\n    assert client.delete(f\"/books/{book_id}\").status_code == 204\n    assert client.get(f\"/books/{book_id}\").status_code == 404\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "test_main.py",
+      "min": 1,
+      "mutants": [
+        {
+          "file": "main.py",
+          "source": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nbooks = {}\nnext_id = 1\n\n\nclass Book(BaseModel):\n    title: str = Field(min_length=1)\n    year: int\n\n\n@app.post(\"/books\", status_code=201)\ndef add_book(book: Book):\n    global next_id\n    books[next_id] = book.model_dump()\n    record = {\"id\": next_id, **books[next_id]}\n    next_id += 1\n    return record\n\n\n@app.get(\"/books/{book_id}\")\ndef read_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n\n\n@app.delete(\"/books/{book_id}\", status_code=204)\ndef delete_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    pass\n",
+          "bug": {
+            "tr": "silme hiçbir şeyi silmiyor.",
+            "en": "deleting deletes nothing."
+          }
+        },
+        {
+          "file": "main.py",
+          "source": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nbooks = {}\nnext_id = 1\n\n\nclass Book(BaseModel):\n    title: str = Field(min_length=1)\n    year: int\n\n\n@app.post(\"/books\", status_code=201)\ndef add_book(book: Book):\n    global next_id\n    books[next_id] = book.model_dump()\n    record = {\"id\": next_id, **books[next_id]}\n    next_id += 1\n    return record\n\n\n@app.get(\"/books/{book_id}\")\ndef read_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return {}\n\n\n@app.delete(\"/books/{book_id}\", status_code=204)\ndef delete_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    del books[book_id]\n",
+          "bug": {
+            "tr": "kitap okunurken boş gövde dönüyor.",
+            "en": "reading a book returns an empty body."
+          }
+        },
+        {
+          "file": "main.py",
+          "source": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nbooks = {}\nnext_id = 1\n\n\nclass Book(BaseModel):\n    title: str = Field(min_length=1)\n    year: int\n\n\n@app.post(\"/books\", status_code=201)\ndef add_book(book: Book):\n    global next_id\n    books[next_id] = book.model_dump()\n    record = {\"id\": next_id + 1, **books[next_id]}\n    next_id += 1\n    return record\n\n\n@app.get(\"/books/{book_id}\")\ndef read_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n\n\n@app.delete(\"/books/{book_id}\", status_code=204)\ndef delete_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    del books[book_id]\n",
+          "bug": {
+            "tr": "eklenen kitabın cevaptaki numarası yanlış.",
+            "en": "the added book's number in the answer is wrong."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "id": "notes-api-port",
+  "title": {
+    "tr": "Kodu değiştirmeden port değiştirmek",
+    "en": "Changing the port without changing the code"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "compose.yaml",
+  "files": [
+    {
+      "name": ".env",
+      "starter": "starter-env",
+      "solution": "solution-env"
+    },
+    {
+      "name": "compose.yaml",
+      "starter": "starter-compose.yaml",
+      "solution": "solution-compose.yaml"
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "app.py",
+      "readonly": true
+    },
+    {
+      "name": "healthcheck.py",
+      "readonly": true
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": ".dockerignore",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`.env`: `PORT=9000`; `compose.yaml`: `\"8095:9000\"`.",
+      "en": "`.env`: `PORT=9000`; `compose.yaml`: `\"8095:9000\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.env**\n\n```text\nDB_PATH=/data/notes.db\nPORT=9000\n```\n\n**compose.yaml**\n\n```yaml\nservices:\n  web:\n    build: .\n    ports:\n      - \"8095:9000\"\n    env_file: .env\n    volumes:\n      - notes-data:/data\n    restart: unless-stopped\n\nvolumes:\n  notes-data:\n```",
+      "en": "The full solution:\n\n**.env**\n\n```text\nDB_PATH=/data/notes.db\nPORT=9000\n```\n\n**compose.yaml**\n\n```yaml\nservices:\n  web:\n    build: .\n    ports:\n      - \"8095:9000\"\n    env_file: .env\n    volumes:\n      - notes-data:/data\n    restart: unless-stopped\n\nvolumes:\n  notes-data:\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "compose",
+      "service": "web",
+      "ports": [
+        "8095:9000"
+      ],
+      "env_file": true
+    },
+    {
+      "type": "compose_up",
+      "running": [
+        "web"
+      ],
+      "healthy": [
+        "web"
+      ],
+      "wait": 60,
+      "http": [
+        {
+          "service": "web",
+          "port": 9000,
+          "path": "/health",
+          "json": {
+            "status": "ok"
+          }
+        }
+      ]
+    }
+  ]
+}

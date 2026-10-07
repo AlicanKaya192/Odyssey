@@ -1,0 +1,13 @@
+services:
+  api:
+    build: ./api
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000')"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+  web:
+    build: ./web
+    depends_on:
+      api:
+        condition: service_healthy

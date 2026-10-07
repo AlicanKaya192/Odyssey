@@ -29,6 +29,7 @@ import html
 import json
 import textwrap
 import time
+from pathlib import Path
 
 from ..widgets.feedback import ButtonSpinner, EdgeFlash
 from ..core import workspace_files
@@ -48,9 +49,11 @@ from ..widgets.draw_pad import clean_drawing, empty_drawing
 from ..widgets.file_tabs import FileTabs
 from ..widgets.grip_splitter import GripSplitter
 from ..widgets.problem_panel import ProblemPanel
+from ..widgets.request_panel import RequestPanel
 from ..widgets.terminal_view import TerminalView, block, line
 from ..widgets.trace_panel import TracePanel
 from .attempt_history import exercise_markdown, run_detail
+from .git_exercise import GitWork, saved_commands
 from .lesson_view import LessonView, render_markdown
 from .tables_window import TablesWindow
 
@@ -81,11 +84,13 @@ BRIEF_PROMPT = 0
 BRIEF_SOLUTIONS = 1
 PAGE_OUTPUT = 2
 PAGE_HISTORY = 3
+PAGE_REQUEST = 4
 # Sol paneldeki sekmelerin anahtarı → yığındaki sayfa.
 PAGES = {"prompt": BRIEF_PROMPT, "solutions": BRIEF_SOLUTIONS, "output": PAGE_OUTPUT,
-         "history": PAGE_HISTORY}
+         "history": PAGE_HISTORY, "request": PAGE_REQUEST}
 TAB_LABELS = {"prompt": "problem.tab_prompt", "solutions": "problem.tab_solutions",
-              "output": "exercise.tab_output", "history": "history.tab"}
+              "output": "exercise.tab_output", "history": "history.tab",
+              "request": "request.tab"}
 
 # Nota eklenen kodun markdown etiketi (editör dili → kod bloğu etiketi).
 NOTE_TAGS = {"tsql": "sql", "shell": "bash", "text": "text"}
@@ -97,6 +102,9 @@ TERMINAL_SHARE = 240
 # Terminaldeki düz yazı satırları bu genişlikte sarılıyor; satırlar
 # kaydırılmadığı için uzun bir açıklama yoksa ekrandan taşardı.
 PROSE_WIDTH = 92
+
+# Terminalde gösterilen en fazla istek satırı (API alıştırması).
+REQUEST_LINES = 12
 
 
 class RunWorker(QThread):
@@ -152,6 +160,52 @@ class TraceWorker(QThread):
         )
 
 
+class RequestWorker(QThread):
+    """API 2 istek paneli: isteği kodun şu anki hâline gönderir (kayıt yok)."""
+
+    completed = Signal(object)
+
+    def __init__(self, code: str | dict, exercise: Exercise, step: dict, parent=None) -> None:
+        super().__init__(parent)
+        self._code = code
+        self._exercise = exercise
+        self._step = step
+
+    def run(self) -> None:  # noqa: D102
+        http = next(c for c in self._exercise.checks if c.get("type") == "http")
+        check = {"type": "http", "app": http.get("app", "app"), "steps": [dict(self._step, capture=True)]}
+        if http.get("module"):
+            check["module"] = http["module"]
+        self.completed.emit(run_code(self._code, [check], self._exercise.timeout_sec,
+                                     self._exercise.directory, entry=self._exercise.entry))
+
+
+class ServerWorker(QThread):
+    """API 2: kişinin uygulamasını uvicorn ile açar ve hazır olmasını bekler."""
+
+    completed = Signal(object, bool)
+
+    def __init__(self, files: dict, exercise: Exercise, parent=None) -> None:
+        super().__init__(parent)
+        self._files = files
+        self._exercise = exercise
+
+    def run(self) -> None:  # noqa: D102
+        from ..core import live_server
+
+        http = next((c for c in self._exercise.checks if c.get("type") == "http"), {})
+        try:
+            server = live_server.start(self._files, self._exercise.directory, self._exercise.entry,
+                                       module=str(http.get("module", "")), app=str(http.get("app", "app")))
+        except Exception:  # noqa: BLE001 - açılamazsa kişiye söyleniyor
+            from ..core import log
+
+            log.get(__name__).exception("Sunucu başlatılamadı")
+            self.completed.emit(None, False)
+            return
+        self.completed.emit(server, server.wait_ready())
+
+
 class SnapshotWorker(QThread):
     """Kod çalıştırmadan yalnızca tabloların hâlini alır.
 
@@ -204,6 +258,10 @@ class ExerciseView(QWidget):
         self._section_id = ""
         self._worker: RunWorker | None = None
         self._trace_worker: TraceWorker | None = None
+        # API 2: istek paneli ve "Sunucuyu başlat".
+        self._request_worker: RequestWorker | None = None
+        self._server_worker: ServerWorker | None = None
+        self._server = None
         # "Takıldın mı?" (core/stuck.py): bu oturumdaki başarısız çalıştırma
         # sayısı ve bölümün ders metnini veren işlev (TopicView veriyor).
         self._session_fails = 0
@@ -236,6 +294,7 @@ class ExerciseView(QWidget):
         self._tab_keys = ["prompt"]
         self._tab_current = "prompt"
         self._attempt_count = 0
+        self._git_study_marked = False
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -250,6 +309,11 @@ class ExerciseView(QWidget):
         self._code_work = self._build_work()
         self._work_stack.addWidget(self._code_work)
         self._work_stack.addWidget(self._build_problem_work())
+        # Git patikası: kod yok, terminale komut yazılıyor.
+        self._git = GitWork(self._language)
+        self._git.changed.connect(self._on_git_changed)
+        self._git.solved.connect(self._on_git_solved)
+        self._work_stack.addWidget(self._git)
         splitter.addWidget(self._work_stack)
         # Maketteki oran: yönerge 340-430 arası, kalanı çalışma alanı.
         splitter.setSizes([430, 770])
@@ -302,6 +366,10 @@ class ExerciseView(QWidget):
         # Geçmiş denemeler: yanlış kodlar ve son doğru kod (Alican istedi).
         self._history_view = LessonView(self._language, compact=True)
         self._brief_stack.addWidget(self._history_view)
+        # API 2: kişinin yazdığı API'ye istek gönderen panel.
+        self._request_panel = RequestPanel(self._language)
+        self._request_panel.send_requested.connect(self._send_request)
+        self._brief_stack.addWidget(self._request_panel)
         layout.addWidget(self._brief_stack)
 
         return panel
@@ -325,8 +393,13 @@ class ExerciseView(QWidget):
             if ex.is_problem:
                 if self._revealed_solution:
                     anahtarlar.append("solutions")
-            elif self._has_output:
-                anahtarlar.append("output")
+            elif ex.is_terminal:
+                pass
+            else:
+                if self._is_api_app():
+                    anahtarlar.append("request")
+                if self._has_output:
+                    anahtarlar.append("output")
             if self._attempt_count:
                 anahtarlar.append("history")
         if focus in anahtarlar:
@@ -354,7 +427,7 @@ class ExerciseView(QWidget):
         if denemeler:
             self._history_view.set_base_dir(ex.directory)
             self._history_view.show_text(
-                exercise_markdown(self._language, denemeler, ex.language, ex.is_problem)
+                exercise_markdown(self._language, denemeler, "bash" if ex.is_terminal else ex.language, ex.is_problem)
             )
 
     def _on_prompt_action(self, action: str) -> None:
@@ -513,6 +586,8 @@ class ExerciseView(QWidget):
         metin = prompt.path.read_text(encoding="utf-8") if prompt and prompt.exists else ""
         if self._exercise.is_problem:
             kod = self._exercise.solution_text(0, dil)
+        elif self._exercise.is_terminal:
+            kod = "\n".join(self._exercise.solution_commands)
         elif self._exercise.is_multi_file:
             kod = "\n".join(self._exercise.solution_files(dil).values())
         else:
@@ -539,7 +614,7 @@ class ExerciseView(QWidget):
             f'<p>{html.escape(metin)}</p>'
             f'<a class="go" href="app:lesson-spot">{html.escape(t("stuck.go"))}</a>'
             + (f'<a class="go alt" href="app:trace-solution">{html.escape(t("stuck.trace"))}</a>'
-               if not self._exercise.is_problem and self._exercise.language != "tsql" else "")
+               if not self._exercise.is_problem and self._exercise.language == "python" else "")
             + "</div>"
         )
 
@@ -732,6 +807,14 @@ class ExerciseView(QWidget):
         self._trace_spinner = ButtonSpinner(self._trace_button)
         layout.addWidget(self._trace_button)
 
+        # API 2: uygulamayı gerçekten açıp tarayıcıda `/docs` göstermek.
+        self._server_button = QPushButton()
+        self._server_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._server_button.clicked.connect(self._toggle_server)
+        self._server_spinner = ButtonSpinner(self._server_button)
+        self._server_button.hide()
+        layout.addWidget(self._server_button)
+
         self._run_button = QPushButton()
         self._run_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._run_button.setProperty("variant", "primary")
@@ -751,6 +834,9 @@ class ExerciseView(QWidget):
         """
         if self._exercise is None or self._exercise.is_problem:
             return None
+        if self._exercise.is_terminal:
+            komutlar = [c for c in self._git.commands if c.strip()]
+            return ("\n".join(komutlar), "bash") if komutlar else None
         cursor = self._editor.textCursor()
         if cursor.hasSelection():
             code = cursor.selectedText().replace(" ", "\n")
@@ -793,6 +879,17 @@ class ExerciseView(QWidget):
             self._work_stack.setCurrentIndex(1)
             self.retranslate()
             return
+        if exercise.is_terminal:
+            self.stop_server()
+            self.close_trace()
+            self._revealed_solution = False
+            self._tab_current = "prompt"
+            self._load_history()
+            self._git.show_exercise(exercise, self._store.exercise_code(chapter_id, section_id, exercise.id))
+            self._work_stack.setCurrentIndex(2)
+            self.retranslate()
+            self._git.focus()
+            return
         self._work_stack.setCurrentIndex(0)
         self._revealed_solution = False
         self._tab_current = "prompt"
@@ -823,7 +920,12 @@ class ExerciseView(QWidget):
         # Tablolar önceki alıştırmanın verisini göstermesin.
         self._tables = []
         self._tables_button.setVisible(exercise.language == "tsql")
-        self._trace_button.setVisible(exercise.language != "tsql")
+        # Adım adım izleme yalnızca Python'da (SQL ve Docker'da satır yok).
+        self._trace_button.setVisible(exercise.language == "python")
+        # API 2: önceki alıştırmanın sunucusu kapanıyor, istek paneli sıfırlanıyor.
+        self.stop_server()
+        self._server_button.setVisible(self._is_api_app())
+        self._request_panel.reset(self._first_path())
         self.close_trace()
         if self._tables_window is not None:
             self._tables_window.set_tables(
@@ -832,6 +934,119 @@ class ExerciseView(QWidget):
 
         self._clear_results()
         self.retranslate()
+
+    # --- API 2: istek paneli ve sunucu ---------------------------------------
+
+    def _is_api_app(self) -> bool:
+        ex = self._exercise
+        return ex is not None and not ex.is_problem and any(c.get("type") == "http" for c in ex.checks)
+
+    def _first_path(self) -> str:
+        """İstek panelinin başlangıç adresi: alıştırmanın ilk denediği yol."""
+        for check in (self._exercise.checks if self._exercise else []):
+            if check.get("type") == "http" and check.get("steps"):
+                yol = str(check["steps"][0].get("path", "/"))
+                return yol if "{" not in yol else "/"
+        return "/"
+
+    def _code_files(self) -> dict:
+        """Sunucu için dosyalar: tek dosyalıda giriş dosyasının adıyla."""
+        kod = self._code_now()
+        if isinstance(kod, dict):
+            return kod
+        return {self._exercise.entry or "main.py": kod}
+
+    def _send_request(self, method: str, path: str, body) -> None:
+        if self._exercise is None or not self._is_api_app():
+            return
+        if self._request_worker is not None and self._request_worker.isRunning():
+            return
+        adim = {"method": method, "path": path}
+        if body is not None:
+            adim["json"] = body
+        self._request_worker = RequestWorker(self._code_now(), self._exercise, adim, self)
+        self._request_worker.completed.connect(self._on_request_done)
+        self._request_worker.start()
+
+    def _on_request_done(self, result: RunResult) -> None:
+        t = self._language.t
+        if result.status == "timeout":
+            self._request_panel.show_error(t("request.timeout"))
+            return
+        if result.checks and result.checks[0].passed:
+            values = result.checks[0].detail.get("values", {})
+            self._request_panel.show_response(int(values.get("status", 0)), str(values.get("body", "")))
+            return
+        if result.checks:
+            detay = result.checks[0].detail or {}
+            degerler = detay.get("values", {})
+            if detay.get("reason") in ("server_error", "server_error_at"):
+                # Panelde adım yok, tek istek var: "1. adımda" yazılmıyor.
+                yer = (t("request.where", file=degerler.get("file", ""), line=degerler.get("line", 0))
+                       if degerler.get("file") else "")
+                self._request_panel.show_error(t("request.server_error", error=degerler.get("error", ""))
+                                               + yer)
+                return
+            self._request_panel.show_error(describe(result, self._language)[0].message)
+            return
+        hata = result.error or {}
+        self._request_panel.show_error(f"{hata.get('type', '')}: {hata.get('message', '')}".strip(": "))
+
+    def _toggle_server(self) -> None:
+        if self._server is not None:
+            self.stop_server()
+            self._terminal.begin(line("❯ Ctrl+C", "prompt", bold=True), "")
+            self._terminal.finish(line(self._language.t("server.stopped"), "dim"))
+            return
+        if self._exercise is None or (self._server_worker is not None and self._server_worker.isRunning()):
+            return
+        self._server_spinner.start()
+        self._server_button.setText("  " + self._language.t("server.starting"))
+        modul = Path(self._exercise.entry or "main.py").stem
+        self._terminal.begin(line(f"❯ uvicorn {modul}:app", "prompt", bold=True),
+                             line(self._language.t("server.starting"), "dim"))
+        self._server_worker = ServerWorker(self._code_files(), self._exercise, self)
+        self._server_worker.completed.connect(self._on_server_ready)
+        self._server_worker.start()
+
+    def _on_server_ready(self, server, ok: bool) -> None:
+        self._server_spinner.stop()
+        t = self._language.t
+        if server is None or not ok:
+            gunluk = server.log_tail() if server is not None else ""
+            if server is not None:
+                server.stop()
+            satirlar = [line(t("server.failed"), "fail", bold=True)]
+            for metin in gunluk.strip().splitlines()[-12:]:
+                satirlar.append(line(metin, "fail", indent=2))
+            self._terminal.finish("".join(satirlar))
+            self._retranslate_server()
+            return
+        self._server = server
+        adres = f"{server.url}/docs"
+        self._terminal.finish(
+            line(t("server.running", url=server.url), "ok", bold=True)
+            + line(t("server.docs", url=adres), "dim", indent=2)
+            + line(t("server.reload_note"), "dim", indent=2)
+        )
+        self._retranslate_server()
+        from PySide6.QtCore import QUrl
+        from PySide6.QtGui import QDesktopServices
+
+        QDesktopServices.openUrl(QUrl(adres))
+
+    def stop_server(self) -> None:
+        """Açık sunucuyu kapatır (alıştırma değişince, düğmeyle, ekran kapanınca)."""
+        if self._server is not None:
+            self._server.stop()
+            self._server = None
+        self._retranslate_server()
+
+    def _retranslate_server(self) -> None:
+        anahtar = "server.stop" if self._server is not None else "server.start"
+        self._server_button.setText("  " + self._language.t(anahtar))
+        p = PALETTES.get(self._mode, PALETTES["light"])
+        self._server_button.setIcon(icon("x" if self._server is not None else "globe", p["text"], 16))
 
     def _show_tables(self) -> None:
         """Tablolar penceresini açar; veri yoksa önce anlık görüntü alır."""
@@ -877,11 +1092,16 @@ class ExerciseView(QWidget):
     # --- terminal ----------------------------------------------------------
 
     def _runtime_name(self) -> str:
-        return "SQL Server" if self._exercise is not None and self._exercise.language == "tsql" else "Python"
+        dil = self._exercise.language if self._exercise is not None else "python"
+        return {"tsql": "SQL Server", "docker": "Docker"}.get(dil, "Python")
 
     def _command_name(self) -> str:
         if self._exercise is not None and self._exercise.language == "tsql":
             return "sqlcmd -i sorgu.sql"
+        if self._exercise is not None and self._exercise.language == "docker":
+            # Odyssey'nin denetimi; Docker'ın kendi komutları (build, run)
+            # çıktının içinde ayrı satırlar olarak geliyor.
+            return "odyssey check"
         if self._exercise is not None and self._exercise.is_multi_file:
             return f"python {self._exercise.entry}"
         return "python cozum.py"
@@ -914,7 +1134,11 @@ class ExerciseView(QWidget):
             parcalar.append(block(result.stderr.rstrip("\n"), "fail"))
         if result.truncated:
             parcalar.append(line(f"[{t('exercise.output_truncated')}]", "dim"))
-        if not (result.stdout.strip() or result.stderr.strip()):
+        parcalar.extend(self._request_lines(result.requests))
+        docker = result.docker.get("state", "")
+        if docker in ("missing", "stopped"):
+            parcalar.append(self._prose(t(f"terminal.docker_{docker}"), "warn", prefix="🐳 "))
+        elif not (result.stdout.strip() or result.stderr.strip()):
             parcalar.append(line(t("terminal.no_output"), "dim"))
 
         parcalar.append(line("─" * 44, "dim"))
@@ -951,6 +1175,23 @@ class ExerciseView(QWidget):
             sure = sure.replace(".", ",")
         parcalar.append(line(t("terminal.took", seconds=sure), "dim"))
         return "".join(parcalar)
+
+    def _request_lines(self, requests: list[dict]) -> list[str]:
+        """API alıştırmasında sunucuya giden istekler: `→ GET /books?page=2  200`."""
+        if not requests:
+            return []
+        from urllib.parse import urlencode
+
+        satirlar = [line(self._language.t("terminal.requests", count=len(requests)), "dim")]
+        for istek in requests[:REQUEST_LINES]:
+            sorgu = urlencode(istek.get("query") or {})
+            hedef = istek.get("path", "") + (f"?{sorgu}" if sorgu else "")
+            durum = int(istek.get("status", 0))
+            renk = "ok" if durum < 300 else "warn" if durum < 500 and durum != 404 else "fail"
+            satirlar.append(line(f"→ {istek.get('method', '')} {hedef}  {durum}", renk, indent=2))
+        if len(requests) > REQUEST_LINES:
+            satirlar.append(line(f"… +{len(requests) - REQUEST_LINES}", "dim", indent=2))
+        return satirlar
 
     # --- sol: Çıktı sekmesi ------------------------------------------------
 
@@ -1120,7 +1361,7 @@ class ExerciseView(QWidget):
         `source` "solution" ise alıştırmanın örnek çözümü izleniyor (onay
         `_on_trace_source` / `trace_solution`'da).
         """
-        if self._exercise is None or self._exercise.is_problem or self._exercise.language == "tsql":
+        if self._exercise is None or self._exercise.is_problem or self._exercise.language != "python":
             return
         if (self._worker and self._worker.isRunning()) or (
             self._trace_worker and self._trace_worker.isRunning()
@@ -1257,6 +1498,35 @@ class ExerciseView(QWidget):
         if passed:
             self.solved.emit(self._exercise.id)
 
+    def _on_git_changed(self, code: str, passed: bool, failed: bool) -> None:
+        """Terminalde bir komut çalıştı: komut listesi kayda, hata sayacına."""
+        if self._exercise is None or not self._exercise.is_terminal:
+            return
+        self._store.save_exercise(self._chapter_id, self._section_id, self._exercise.id, code)
+        if not self._git_study_marked and saved_commands(code):
+            # Komut yazmak çalışma sayılıyor (seri); günde bir kez yeter.
+            self._store.mark_study_day()
+            self._git_study_marked = True
+        if failed:
+            self._session_fails += 1
+            if self._session_fails == STUCK_AFTER:
+                self._prompt.update_extra(self._extra_html())
+
+    def _on_git_solved(self, exercise_id: str) -> None:
+        """Hedeflerin hepsi tuttu: çözüldü olarak kaydet, deneme listesine yaz."""
+        if self._exercise is None or self._exercise.id != exercise_id:
+            return
+        komutlar = "\n".join(c for c in self._git.commands if c.strip())
+        self._store.save_exercise(self._chapter_id, self._section_id, exercise_id,
+                                  self._store.exercise_code(self._chapter_id, self._section_id, exercise_id),
+                                  solved=True, count_attempt=True)
+        self._store.add_exercise_attempt(self._chapter_id, self._section_id, exercise_id, komutlar, True)
+        self._session_fails = 0
+        self._load_history()
+        self._update_tabs()
+        self._prompt.update_extra(self._extra_html())
+        self.solved.emit(exercise_id)
+
     def _save_problem_state(self, solved: bool | None = None, count_attempt: bool = False) -> None:
         """Cevaplar, çalışma alanı ve çözümün açık olup olmadığı tek kayıtta.
 
@@ -1350,6 +1620,8 @@ class ExerciseView(QWidget):
         self._solutions.set_mode(mode)
         self._output_view.set_mode(mode)
         self._history_view.set_mode(mode)
+        self._request_panel.set_mode(mode)
+        self._retranslate_server()
         self._problem.set_mode(mode)
         self._splitter.set_mode(mode)
         self._work_splitter.set_mode(mode)
@@ -1360,6 +1632,9 @@ class ExerciseView(QWidget):
         self._run_button.setText("  " + self._language.t("exercise.run"))
         self._reset_button.setText("  " + self._language.t("exercise.reset"))
         self._trace_button.setText("  " + self._language.t("trace.button"))
+        self._retranslate_server()
+        self._server_button.setToolTip(self._language.t("server.tip"))
+        self._request_panel.retranslate()
         self._trace_button.setToolTip(self._language.t("trace.button_tip"))
         self._trace.retranslate(self._language.t)
         self._fix_run_width()
@@ -1371,6 +1646,7 @@ class ExerciseView(QWidget):
         # Başlık, etiketler ve ipuçları belgenin içinde olduğu için dil
         # değişince yönergeyi baştan çizmek yeterli.
         self._problem.retranslate()
+        self._git.retranslate()
         self._update_tabs()
         if self._attempt_count:
             self._load_history()
@@ -1381,7 +1657,7 @@ class ExerciseView(QWidget):
             self._render_solutions()
         if self._exercise is not None:
             self._refresh_prompt()
-            if not self._exercise.is_problem:
+            if not self._exercise.is_problem and not self._exercise.is_terminal:
                 self._sync_starter_language()
 
     def _sync_starter_language(self) -> None:

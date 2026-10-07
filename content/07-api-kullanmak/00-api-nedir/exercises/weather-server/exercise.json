@@ -1,0 +1,59 @@
+{
+  "id": "weather-server",
+  "title": {
+    "tr": "Hava durumu sunucusu",
+    "en": "A weather server"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sunucu bir sözlük döndürüyor; istemcide `response = server(city)` dedikten sonra `response[\"status\"]` ile durumu okuyabilirsin.",
+      "en": "The server returns a dictionary; after `response = server(city)` on the client side, read the status with `response[\"status\"]`."
+    },
+    {
+      "tr": "Hata satırında parantezleri metin olarak ekle: `\"(\" + response[\"error\"] + \")\"`. `print` virgülle verilen parçaların arasına boşluk koyuyor.",
+      "en": "Add the brackets as text on the error line: `\"(\" + response[\"error\"] + \")\"`. `print` puts a space between the pieces given with commas."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ntemps = {\"Istanbul\": 18, \"Ankara\": 12, \"Izmir\": 22}\n\n\ndef server(city):\n    if city in temps:\n        return {\"status\": 200, \"temp\": temps[city]}\n    return {\"status\": 404, \"error\": \"unknown city\"}\n\n\ncities = [\"Istanbul\", \"Paris\", \"Izmir\"]\nfor city in cities:\n    response = server(city)\n    if response[\"status\"] == 200:\n        print(city + \":\", response[\"temp\"])\n    else:\n        print(city + \": error\", response[\"status\"], \"(\" + response[\"error\"] + \")\")\n```",
+      "en": "The solution:\n\n```python\ntemps = {\"Istanbul\": 18, \"Ankara\": 12, \"Izmir\": 22}\n\n\ndef server(city):\n    if city in temps:\n        return {\"status\": 200, \"temp\": temps[city]}\n    return {\"status\": 404, \"error\": \"unknown city\"}\n\n\ncities = [\"Istanbul\", \"Paris\", \"Izmir\"]\nfor city in cities:\n    response = server(city)\n    if response[\"status\"] == 200:\n        print(city + \":\", response[\"temp\"])\n    else:\n        print(city + \": error\", response[\"status\"], \"(\" + response[\"error\"] + \")\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "server",
+      "cases": [
+        {
+          "args": [
+            "Ankara"
+          ],
+          "returns": {
+            "status": 200,
+            "temp": 12
+          }
+        },
+        {
+          "args": [
+            "Rome"
+          ],
+          "returns": {
+            "status": 404,
+            "error": "unknown city"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "Istanbul: 18\nParis: error 404 (unknown city)\nIzmir: 22"
+    }
+  ]
+}

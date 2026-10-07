@@ -1,0 +1,89 @@
+{
+  "id": "numpy-to-json",
+  "title": {
+    "tr": "NumPy'yi JSON'a çevir",
+    "en": "Turn NumPy into JSON"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`int(...)` ve `proba.tolist()`; liste kavramasıyla `round(p, 3)`.",
+      "en": "`int(...)` and `proba.tolist()`; `round(p, 3)` with a list comprehension."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom contextlib import asynccontextmanager\n\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field\nfrom sklearn.datasets import load_iris\nfrom sklearn.linear_model import LogisticRegression\n\nSPECIES = [\"setosa\", \"versicolor\", \"virginica\"]\nml = {}\nstats = {\"trainings\": 0}\n\n\ndef train_model():\n    stats[\"trainings\"] += 1\n    iris = load_iris()\n    return LogisticRegression(max_iter=1000).fit(iris.data, iris.target)\n\n\n@asynccontextmanager\nasync def lifespan(app):\n    ml[\"model\"] = train_model()\n    yield\n    ml.clear()\n\n\napp = FastAPI(lifespan=lifespan)\n\n\nclass Flower(BaseModel):\n    sepal_length: float = Field(gt=0, le=10)\n    sepal_width: float = Field(gt=0, le=10)\n    petal_length: float = Field(gt=0, le=10)\n    petal_width: float = Field(gt=0, le=10)\n\n\ndef to_row(flower: Flower) -> list:\n    return [flower.sepal_length, flower.sepal_width, flower.petal_length, flower.petal_width]\n\n\n@app.post(\"/predict\")\ndef predict(flower: Flower):\n    row = [to_row(flower)]\n    label = int(ml[\"model\"].predict(row)[0])\n    proba = ml[\"model\"].predict_proba(row)[0]\n    return {\"label\": label, \"species\": SPECIES[label],\n            \"probabilities\": [round(p, 3) for p in proba.tolist()]}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom contextlib import asynccontextmanager\n\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field\nfrom sklearn.datasets import load_iris\nfrom sklearn.linear_model import LogisticRegression\n\nSPECIES = [\"setosa\", \"versicolor\", \"virginica\"]\nml = {}\nstats = {\"trainings\": 0}\n\n\ndef train_model():\n    stats[\"trainings\"] += 1\n    iris = load_iris()\n    return LogisticRegression(max_iter=1000).fit(iris.data, iris.target)\n\n\n@asynccontextmanager\nasync def lifespan(app):\n    ml[\"model\"] = train_model()\n    yield\n    ml.clear()\n\n\napp = FastAPI(lifespan=lifespan)\n\n\nclass Flower(BaseModel):\n    sepal_length: float = Field(gt=0, le=10)\n    sepal_width: float = Field(gt=0, le=10)\n    petal_length: float = Field(gt=0, le=10)\n    petal_width: float = Field(gt=0, le=10)\n\n\ndef to_row(flower: Flower) -> list:\n    return [flower.sepal_length, flower.sepal_width, flower.petal_length, flower.petal_width]\n\n\n@app.post(\"/predict\")\ndef predict(flower: Flower):\n    row = [to_row(flower)]\n    label = int(ml[\"model\"].predict(row)[0])\n    proba = ml[\"model\"].predict_proba(row)[0]\n    return {\"label\": label, \"species\": SPECIES[label],\n            \"probabilities\": [round(p, 3) for p in proba.tolist()]}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/predict",
+          "json": {
+            "sepal_length": 5.1,
+            "sepal_width": 3.5,
+            "petal_length": 1.4,
+            "petal_width": 0.2
+          },
+          "expect": {
+            "status": 200,
+            "json_has": {
+              "label": 0,
+              "species": "setosa"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/predict",
+          "json": {
+            "sepal_length": 6.7,
+            "sepal_width": 3.0,
+            "petal_length": 5.2,
+            "petal_width": 2.3
+          },
+          "expect": {
+            "status": 200,
+            "json_has": {
+              "label": 2,
+              "species": "virginica"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/predict",
+          "json": {
+            "sepal_length": 5.9,
+            "sepal_width": 3.0,
+            "petal_length": 4.2,
+            "petal_width": 1.5
+          },
+          "expect": {
+            "status": 200,
+            "json_has": {
+              "label": 1
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

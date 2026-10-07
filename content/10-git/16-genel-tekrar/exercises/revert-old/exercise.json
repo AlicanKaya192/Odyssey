@@ -1,0 +1,78 @@
+{
+  "id": "revert-old",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Eski hatayı geri al",
+    "en": "Undo an old mistake"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    {
+      "remote": "https://github.com/ada/shop.git",
+      "files": {
+        "menu.txt": "soup 4\ntea 2\n",
+        "README.md": "# Shop\n"
+      },
+      "message": "Open the shop",
+      "author": [
+        "Ada Lovelace",
+        "ada@example.com"
+      ]
+    },
+    "git clone https://github.com/ada/shop.git",
+    "cd shop",
+    "echo \"soup 40\" > menu.txt",
+    "echo \"tea 2\" >> menu.txt",
+    "git commit -am \"Update prices\"",
+    "echo \"Open 9-17\" > hours.txt",
+    "git add .",
+    "git commit -m \"Add opening hours\"",
+    "git push"
+  ],
+  "cwd": "shop",
+  "solution": [
+    "git log --oneline",
+    "git revert HEAD~1 --no-edit",
+    "git push"
+  ],
+  "hints": [
+    {
+      "tr": "Paylaşılmış commit: `git revert <commit> --no-edit`.",
+      "en": "A shared commit: `git revert <commit> --no-edit`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit log --oneline\ngit revert HEAD~1 --no-edit\ngit push\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit log --oneline\ngit revert HEAD~1 --no-edit\ngit push\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "shop",
+      "last_message": "^Revert \"Update prices\"$",
+      "show_message": "Revert \"Update prices\"",
+      "files": {
+        "menu.txt": "soup 4\ntea 2",
+        "hours.txt": "Open 9-17"
+      },
+      "label": {
+        "tr": "Fiyat geri, saatler duruyor",
+        "en": "The price is back, the hours stay"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "shop",
+      "pushed": true,
+      "label": {
+        "tr": "GitHub güncel",
+        "en": "GitHub is up to date"
+      }
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "id": "replace-task",
+  "title": {
+    "tr": "PUT: tamamını değiştir",
+    "en": "PUT: replace all of it"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`def replace_task(task_id: int, task: TaskIn) -> TaskOut:`; önce `find_task(task_id)`, sonra `tasks[task_id] = {\"id\": task_id, **task.model_dump()}`.",
+      "en": "`def replace_task(task_id: int, task: TaskIn) -> TaskOut:`; first `find_task(task_id)`, then `tasks[task_id] = {\"id\": task_id, **task.model_dump()}`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\ntasks = {}\nnext_id = 1\n\n\nclass TaskIn(BaseModel):\n    title: str = Field(min_length=1)\n    done: bool = False\n\n\nclass TaskOut(TaskIn):\n    id: int\n\n\n@app.post(\"/tasks\", status_code=status.HTTP_201_CREATED)\ndef create_task(task: TaskIn) -> TaskOut:\n    global next_id\n    record = {\"id\": next_id, **task.model_dump()}\n    tasks[next_id] = record\n    next_id += 1\n    return record\n\n\ndef find_task(task_id: int) -> dict:\n    if task_id not in tasks:\n        raise HTTPException(status_code=404, detail=\"Task not found\")\n    return tasks[task_id]\n\n\n@app.get(\"/tasks/{task_id}\")\ndef read_task(task_id: int) -> TaskOut:\n    return find_task(task_id)\n\n\n@app.put(\"/tasks/{task_id}\")\ndef replace_task(task_id: int, task: TaskIn) -> TaskOut:\n    find_task(task_id)\n    tasks[task_id] = {\"id\": task_id, **task.model_dump()}\n    return tasks[task_id]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\ntasks = {}\nnext_id = 1\n\n\nclass TaskIn(BaseModel):\n    title: str = Field(min_length=1)\n    done: bool = False\n\n\nclass TaskOut(TaskIn):\n    id: int\n\n\n@app.post(\"/tasks\", status_code=status.HTTP_201_CREATED)\ndef create_task(task: TaskIn) -> TaskOut:\n    global next_id\n    record = {\"id\": next_id, **task.model_dump()}\n    tasks[next_id] = record\n    next_id += 1\n    return record\n\n\ndef find_task(task_id: int) -> dict:\n    if task_id not in tasks:\n        raise HTTPException(status_code=404, detail=\"Task not found\")\n    return tasks[task_id]\n\n\n@app.get(\"/tasks/{task_id}\")\ndef read_task(task_id: int) -> TaskOut:\n    return find_task(task_id)\n\n\n@app.put(\"/tasks/{task_id}\")\ndef replace_task(task_id: int, task: TaskIn) -> TaskOut:\n    find_task(task_id)\n    tasks[task_id] = {\"id\": task_id, **task.model_dump()}\n    return tasks[task_id]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/tasks",
+          "json": {
+            "title": "Read Dune"
+          },
+          "expect": {
+            "status": 201
+          }
+        },
+        {
+          "method": "PUT",
+          "path": "/tasks/1",
+          "json": {
+            "title": "Read Emma",
+            "done": true
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "Read Emma",
+              "done": true,
+              "id": 1
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tasks/1",
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "Read Emma",
+              "done": true,
+              "id": 1
+            }
+          }
+        },
+        {
+          "method": "PUT",
+          "path": "/tasks/1",
+          "json": {
+            "title": "Again"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "Again",
+              "done": false,
+              "id": 1
+            }
+          }
+        },
+        {
+          "method": "PUT",
+          "path": "/tasks/1",
+          "json": {
+            "done": true
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "PUT",
+          "path": "/tasks/5",
+          "json": {
+            "title": "X"
+          },
+          "expect": {
+            "status": 404
+          }
+        }
+      ]
+    }
+  ]
+}

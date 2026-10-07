@@ -1,0 +1,92 @@
+{
+  "id": "check-the-docs",
+  "title": {
+    "tr": "Belgeye göre denetle",
+    "en": "Check against the docs"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra önemli: önce uç nokta var mı, sonra zorunlular tamam mı, sonra bilinmeyen ad var mı. Her denetim bir sorun bulursa hemen `return` ile çık.",
+      "en": "The order matters: first does the endpoint exist, then are the required names all there, then is there an unknown name. Each check returns right away if it finds a problem."
+    },
+    {
+      "tr": "İzin verilen adlar zorunlu ve isteğe bağlı listelerin toplamı: `allowed = rules[\"required\"] + rules[\"optional\"]`. Sonuçları `print(path, params, \"->\", check(path, params))` ile yazdırabilirsin.",
+      "en": "The allowed names are the required and optional lists together: `allowed = rules[\"required\"] + rules[\"optional\"]`. You can print the results with `print(path, params, \"->\", check(path, params))`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndocs = {\n    \"/weather\": {\"required\": [\"city\"], \"optional\": [\"units\"]},\n    \"/forecast\": {\"required\": [\"city\", \"days\"], \"optional\": []},\n    \"/cities\": {\"required\": [], \"optional\": [\"country\"]},\n}\n\n\ndef check(path, params):\n    if path not in docs:\n        return \"404 unknown endpoint\"\n    rules = docs[path]\n    for name in rules[\"required\"]:\n        if name not in params:\n            return \"missing: \" + name\n    allowed = rules[\"required\"] + rules[\"optional\"]\n    for name in params:\n        if name not in allowed:\n            return \"unknown: \" + name\n    return \"ok\"\n\n\nrequests_to_check = [\n    (\"/weather\", [\"city\"]),\n    (\"/news\", []),\n    (\"/forecast\", [\"city\"]),\n    (\"/weather\", [\"city\", \"color\"]),\n    (\"/cities\", []),\n]\nfor path, params in requests_to_check:\n    print(path, params, \"->\", check(path, params))\n```",
+      "en": "The solution:\n\n```python\ndocs = {\n    \"/weather\": {\"required\": [\"city\"], \"optional\": [\"units\"]},\n    \"/forecast\": {\"required\": [\"city\", \"days\"], \"optional\": []},\n    \"/cities\": {\"required\": [], \"optional\": [\"country\"]},\n}\n\n\ndef check(path, params):\n    if path not in docs:\n        return \"404 unknown endpoint\"\n    rules = docs[path]\n    for name in rules[\"required\"]:\n        if name not in params:\n            return \"missing: \" + name\n    allowed = rules[\"required\"] + rules[\"optional\"]\n    for name in params:\n        if name not in allowed:\n            return \"unknown: \" + name\n    return \"ok\"\n\n\nrequests_to_check = [\n    (\"/weather\", [\"city\"]),\n    (\"/news\", []),\n    (\"/forecast\", [\"city\"]),\n    (\"/weather\", [\"city\", \"color\"]),\n    (\"/cities\", []),\n]\nfor path, params in requests_to_check:\n    print(path, params, \"->\", check(path, params))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check",
+      "cases": [
+        {
+          "args": [
+            "/weather",
+            [
+              "city"
+            ]
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "/news",
+            []
+          ],
+          "returns": "404 unknown endpoint"
+        },
+        {
+          "args": [
+            "/forecast",
+            [
+              "city"
+            ]
+          ],
+          "returns": "missing: days"
+        },
+        {
+          "args": [
+            "/forecast",
+            []
+          ],
+          "returns": "missing: city"
+        },
+        {
+          "args": [
+            "/weather",
+            [
+              "city",
+              "color"
+            ]
+          ],
+          "returns": "unknown: color"
+        },
+        {
+          "args": [
+            "/cities",
+            [
+              "country"
+            ]
+          ],
+          "returns": "ok"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "/weather ['city'] -> ok\n/news [] -> 404 unknown endpoint\n/forecast ['city'] -> missing: days\n/weather ['city', 'color'] -> unknown: color\n/cities [] -> ok"
+    }
+  ]
+}

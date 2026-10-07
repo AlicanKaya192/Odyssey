@@ -1,0 +1,87 @@
+{
+  "id": "rebase-feature",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Dalını yeni tabana taşı",
+    "en": "Move your branch to a new base"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "cd app",
+    "git init",
+    "echo \"a\" > f.txt",
+    "git add .",
+    "git commit -m \"Base\"",
+    "git switch -c feature",
+    "echo \"x\" > x.txt",
+    "git add .",
+    "git commit -m \"Add x\"",
+    "echo \"y\" > y.txt",
+    "git add .",
+    "git commit -m \"Add y\"",
+    "git switch main",
+    "echo \"m\" > m.txt",
+    "git add .",
+    "git commit -m \"Add m\""
+  ],
+  "cwd": "app",
+  "solution": [
+    "git switch feature",
+    "git rebase main",
+    "git log --oneline --graph --all"
+  ],
+  "hints": [
+    {
+      "tr": "Rebase edilecek daldayken: `git rebase main`.",
+      "en": "While on the branch to rebase: `git rebase main`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit switch feature\ngit rebase main\ngit log --oneline --graph --all\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit switch feature\ngit rebase main\ngit log --oneline --graph --all\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "app",
+      "branch": "feature",
+      "merged": [
+        "main"
+      ],
+      "linear": true,
+      "label": {
+        "tr": "feature, main'in üstünde düz çizgi",
+        "en": "feature sits on main in a straight line"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "app",
+      "messages": [
+        "Add y",
+        "Add x",
+        "Add m",
+        "Base"
+      ],
+      "label": {
+        "tr": "Sıra: Base, Add m, Add x, Add y",
+        "en": "Order: Base, Add m, Add x, Add y"
+      }
+    },
+    {
+      "type": "git_command",
+      "pattern": "^git rebase\\b",
+      "show": "git rebase main",
+      "label": {
+        "tr": "rebase kullandın",
+        "en": "You used rebase"
+      }
+    }
+  ]
+}

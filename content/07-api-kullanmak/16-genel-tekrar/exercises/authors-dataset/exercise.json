@@ -1,0 +1,41 @@
+{
+  "id": "authors-dataset",
+  "title": {
+    "tr": "Yazar veri seti",
+    "en": "An authors dataset"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her yazar için `BASE + \"/authors/\" + str(author[\"id\"]) + \"/books\"`; yıllar için `min`/`max`, ortalama için `round(sum(prices) / len(prices), 2)`.",
+      "en": "For each author `BASE + \"/authors/\" + str(author[\"id\"]) + \"/books\"`; `min`/`max` for the years, `round(sum(prices) / len(prices), 2)` for the average."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport csv\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nrows = []\nfor author in requests.get(BASE + \"/authors\", timeout=10).json()[\"data\"]:\n    books = requests.get(BASE + \"/authors/\" + str(author[\"id\"]) + \"/books\", timeout=10).json()[\"data\"]\n    years = [book[\"year\"] for book in books]\n    prices = [book[\"price\"] for book in books]\n    rows.append({\n        \"name\": author[\"name\"],\n        \"country\": author[\"country\"],\n        \"books\": len(books),\n        \"first\": min(years),\n        \"last\": max(years),\n        \"avg_price\": round(sum(prices) / len(prices), 2),\n    })\n\nwith open(\"authors.csv\", \"w\", newline=\"\", encoding=\"utf-8\") as handle:\n    writer = csv.DictWriter(handle, fieldnames=list(rows[0]))\n    writer.writeheader()\n    writer.writerows(rows)\n\nwith open(\"authors.csv\", encoding=\"utf-8\") as handle:\n    print(handle.read().strip())\n```",
+      "en": "The solution:\n\n```python\nimport csv\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nrows = []\nfor author in requests.get(BASE + \"/authors\", timeout=10).json()[\"data\"]:\n    books = requests.get(BASE + \"/authors/\" + str(author[\"id\"]) + \"/books\", timeout=10).json()[\"data\"]\n    years = [book[\"year\"] for book in books]\n    prices = [book[\"price\"] for book in books]\n    rows.append({\n        \"name\": author[\"name\"],\n        \"country\": author[\"country\"],\n        \"books\": len(books),\n        \"first\": min(years),\n        \"last\": max(years),\n        \"avg_price\": round(sum(prices) / len(prices), 2),\n    })\n\nwith open(\"authors.csv\", \"w\", newline=\"\", encoding=\"utf-8\") as handle:\n    writer = csv.DictWriter(handle, fieldnames=list(rows[0]))\n    writer.writeheader()\n    writer.writerows(rows)\n\nwith open(\"authors.csv\", encoding=\"utf-8\") as handle:\n    print(handle.read().strip())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/authors"
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/authors/8/books"
+    },
+    {
+      "type": "stdout",
+      "expected": "name,country,books,first,last,avg_price\nAusten,UK,4,1811,1817,10.19\nHerbert,US,2,1965,1969,10.45\nJoyce,IE,2,1914,1922,11.4\nLem,PL,3,1961,1986,12.2\nOrwell,UK,3,1938,1949,8.83\nLe Guin,US,4,1968,1974,10.09\nTolstoy,RU,2,1869,1878,16.1\nWoolf,UK,3,1925,1928,9.23"
+    }
+  ]
+}

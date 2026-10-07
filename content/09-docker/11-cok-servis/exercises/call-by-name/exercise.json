@@ -1,0 +1,61 @@
+{
+  "id": "call-by-name",
+  "title": {
+    "tr": "Adıyla çağır",
+    "en": "Call it by name"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "web/client.py",
+  "files": [
+    {
+      "name": "web/client.py",
+      "starter": "starter-web-client.py.{lang}",
+      "solution": "solution-web-client.py"
+    },
+    {
+      "name": "compose.yaml",
+      "readonly": true
+    },
+    {
+      "name": "api/Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "api/server.py",
+      "readonly": true
+    },
+    {
+      "name": "web/Dockerfile",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`API_URL = \"http://api:8000/\"`.",
+      "en": "`API_URL = \"http://api:8000/\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**web/client.py**\n\n```python\nimport json\nimport time\nimport urllib.request\n\nAPI_URL = \"http://api:8000/\"\n\nwhile True:\n    try:\n        data = json.load(urllib.request.urlopen(API_URL, timeout=3))\n        print(\"items:\", data[\"items\"], flush=True)\n        break\n    except OSError as error:\n        print(\"waiting for the API:\", error, flush=True)\n        time.sleep(1)\n\ntime.sleep(300)\n```",
+      "en": "The full solution:\n\n**web/client.py**\n\n```python\nimport json\nimport time\nimport urllib.request\n\nAPI_URL = \"http://api:8000/\"\n\nwhile True:\n    try:\n        data = json.load(urllib.request.urlopen(API_URL, timeout=3))\n        print(\"items:\", data[\"items\"], flush=True)\n        break\n    except OSError as error:\n        print(\"waiting for the API:\", error, flush=True)\n        time.sleep(1)\n\ntime.sleep(300)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "compose_up",
+      "running": [
+        "api",
+        "web"
+      ],
+      "logs_contains": {
+        "web": "items: 3"
+      },
+      "wait": 45
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "unstage-secret",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Yanlış dosyayı çıkar",
+    "en": "Take out the wrong file"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir site",
+    "cd site",
+    "git init",
+    "echo \"<h1>Hello</h1>\" > index.html",
+    "echo \"body {}\" > style.css",
+    "git add .",
+    "git commit -m \"Add home page\"",
+    "echo \"pin 1234\" > passwords.txt",
+    "echo \"Release notes\" > notes.txt",
+    "git add ."
+  ],
+  "cwd": "site",
+  "solution": [
+    "git status",
+    "git rm --cached passwords.txt",
+    "git commit -m \"Add release notes\"",
+    "git status -s"
+  ],
+  "hints": [
+    {
+      "tr": "`git status` ne yazman gerektiğini söylüyor. `--cached`'i unutursan dosya silinir.",
+      "en": "`git status` tells you what to type. Forget `--cached` and the file is deleted."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit status\ngit rm --cached passwords.txt\ngit commit -m \"Add release notes\"\ngit status -s\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit status\ngit rm --cached passwords.txt\ngit commit -m \"Add release notes\"\ngit status -s\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "site",
+      "not_tracked": [
+        "passwords.txt"
+      ],
+      "label": {
+        "tr": "passwords.txt commit'te değil",
+        "en": "passwords.txt is not in a commit"
+      }
+    },
+    {
+      "type": "shell_state",
+      "files": {
+        "site/passwords.txt": "pin 1234"
+      },
+      "label": {
+        "tr": "passwords.txt klasörde duruyor",
+        "en": "passwords.txt is still in the folder"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "site",
+      "tracked": [
+        "notes.txt"
+      ],
+      "last_message": "^Add release notes$",
+      "show_message": "Add release notes",
+      "label": {
+        "tr": "notes.txt Add release notes ile commit'lendi",
+        "en": "notes.txt committed as Add release notes"
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "baked-into-layer",
+  "title": {
+    "tr": "Katmana yazılan dosya",
+    "en": "A file baked into a layer"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`RUN` satırı yorumda hazır; `CMD [\"cat\", \"/built.txt\"]`.",
+      "en": "The `RUN` line is ready in the comment; `CMD [\"cat\", \"/built.txt\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM alpine:3.22\nRUN echo \"made at build time\" > /built.txt\nCMD [\"cat\", \"/built.txt\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM alpine:3.22\nRUN echo \"made at build time\" > /built.txt\nCMD [\"cat\", \"/built.txt\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "has",
+      "instruction": "RUN",
+      "value": "/built\\.txt",
+      "show": "RUN echo \"made at build time\" > /built.txt"
+    },
+    {
+      "type": "container",
+      "expect": {
+        "logs": "made at build time",
+        "file_exists": [
+          "/built.txt"
+        ],
+        "exit_code": 0
+      }
+    }
+  ]
+}

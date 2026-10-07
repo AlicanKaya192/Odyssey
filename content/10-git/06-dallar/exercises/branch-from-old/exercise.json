@@ -1,0 +1,71 @@
+{
+  "id": "branch-from-old",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Eski bir commit'ten dal",
+    "en": "A branch from an old commit"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir site",
+    "cd site",
+    "git init",
+    "echo \"<h1>Home</h1>\" > index.html",
+    "git add .",
+    "git commit -m \"Add home page\"",
+    "echo \"body {}\" > style.css",
+    "git add .",
+    "git commit -m \"Add styles\"",
+    "echo \"<h1>Home v2</h1>\" > index.html",
+    "git commit -am \"Redesign home page\""
+  ],
+  "cwd": "site",
+  "solution": [
+    "git log --oneline",
+    "git switch -c hotfix HEAD~1",
+    "echo \"h1 {color: navy}\" >> style.css",
+    "git commit -am \"Fix title color\""
+  ],
+  "hints": [
+    {
+      "tr": "`git switch -c <ad> <commit>` dalı o commit'ten açar. Commit'i hash'iyle ya da `HEAD~1` ile anabilirsin.",
+      "en": "`git switch -c <name> <commit>` creates the branch from that commit. Name the commit by its hash or as `HEAD~1`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit log --oneline\ngit switch -c hotfix HEAD~1\necho \"h1 {color: navy}\" >> style.css\ngit commit -am \"Fix title color\"\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit log --oneline\ngit switch -c hotfix HEAD~1\necho \"h1 {color: navy}\" >> style.css\ngit commit -am \"Fix title color\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "site",
+      "branch": "hotfix",
+      "messages": [
+        "Fix title color",
+        "Add styles",
+        "Add home page"
+      ],
+      "label": {
+        "tr": "hotfix, Add styles'ın üstünde: Fix title color",
+        "en": "hotfix sits on Add styles: Fix title color"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "site",
+      "tips": {
+        "main": "^Redesign home page$"
+      },
+      "label": {
+        "tr": "main yerinde (Redesign home page)",
+        "en": "main stayed put (Redesign home page)"
+      }
+    }
+  ]
+}

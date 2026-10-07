@@ -1,0 +1,95 @@
+{
+  "id": "squash-cleanup",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Squash'tan sonra",
+    "en": "After a squash"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    {
+      "remote": "https://github.com/ada/site.git",
+      "files": {
+        "index.html": "<h1>Site</h1>\n"
+      },
+      "message": "Add home page",
+      "author": [
+        "Ada Lovelace",
+        "ada@example.com"
+      ]
+    },
+    "git clone https://github.com/ada/site.git",
+    "cd site",
+    "git switch -c faq",
+    "echo \"Q\" > faq.html",
+    "git add .",
+    "git commit -m \"wip\"",
+    "echo \"A\" >> faq.html",
+    "git commit -am \"wip 2\"",
+    "git push -u origin faq",
+    {
+      "remote": "https://github.com/ada/site.git",
+      "files": {
+        "index.html": "<h1>Site</h1>\n",
+        "faq.html": "Q\nA\n"
+      },
+      "message": "Add FAQ page (#2)",
+      "author": [
+        "Grace Hopper",
+        "grace@example.com"
+      ]
+    },
+    "git push origin --delete faq"
+  ],
+  "cwd": "site",
+  "allow_fail": [
+    2
+  ],
+  "solution": [
+    "git switch main",
+    "git pull",
+    "git branch -d faq",
+    "git branch -D faq"
+  ],
+  "hints": [
+    {
+      "tr": "Squash'tan sonra dalın commit'leri main'de aynen yok; `-d` reddeder. `-D` zorla siler.",
+      "en": "After a squash the branch's commits aren't in main as they were; `-d` refuses. `-D` force-deletes."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit switch main\ngit pull\ngit branch -d faq\ngit branch -D faq\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit switch main\ngit pull\ngit branch -d faq\ngit branch -D faq\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "site",
+      "branch": "main",
+      "same_as": "origin/main",
+      "head_files": {
+        "faq.html": "Q\nA"
+      },
+      "label": {
+        "tr": "main güncel, faq.html içinde",
+        "en": "main is current, faq.html inside"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "site",
+      "no_branches": [
+        "faq"
+      ],
+      "label": {
+        "tr": "Yerel faq silindi",
+        "en": "Local faq is deleted"
+      }
+    }
+  ]
+}

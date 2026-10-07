@@ -1,0 +1,84 @@
+{
+  "id": "db-delete",
+  "title": {
+    "tr": "rowcount ile silmek",
+    "en": "Deleting with rowcount"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`cur = db.execute(\"DELETE FROM notes WHERE id = ?\", (note_id,))`, `db.commit()`, sonra `if cur.rowcount == 0:`.",
+      "en": "`cur = db.execute(\"DELETE FROM notes WHERE id = ?\", (note_id,))`, `db.commit()`, then `if cur.rowcount == 0:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport sqlite3\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nDB_PATH = \"notes.db\"\n\n\ndef init_db():\n    conn = sqlite3.connect(DB_PATH)\n    conn.execute(\"\"\"CREATE TABLE IF NOT EXISTS notes (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        text TEXT NOT NULL,\n        pinned INTEGER NOT NULL DEFAULT 0)\"\"\")\n    if conn.execute(\"SELECT COUNT(*) FROM notes\").fetchone()[0] == 0:\n        conn.executemany(\"INSERT INTO notes (text, pinned) VALUES (?, ?)\",\n                         [(\"buy milk\", 0), (\"call mom\", 1), (\"read Dune\", 0), (\"pay rent\", 1)])\n    conn.commit()\n    conn.close()\n\n\ninit_db()\n\n\ndef get_db():\n    conn = sqlite3.connect(DB_PATH, check_same_thread=False)\n    conn.row_factory = sqlite3.Row\n    try:\n        yield conn\n    finally:\n        conn.close()\n\n\nDB = Annotated[sqlite3.Connection, Depends(get_db)]\n\n\n@app.get(\"/notes\")\ndef list_notes(db: DB):\n    rows = db.execute(\"SELECT id, text FROM notes ORDER BY id\").fetchall()\n    return [dict(r) for r in rows]\n\n\n@app.delete(\"/notes/{note_id}\", status_code=204)\ndef delete_note(note_id: int, db: DB):\n    cur = db.execute(\"DELETE FROM notes WHERE id = ?\", (note_id,))\n    db.commit()\n    if cur.rowcount == 0:\n        raise HTTPException(status_code=404, detail=\"Note not found\")\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport sqlite3\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nDB_PATH = \"notes.db\"\n\n\ndef init_db():\n    conn = sqlite3.connect(DB_PATH)\n    conn.execute(\"\"\"CREATE TABLE IF NOT EXISTS notes (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        text TEXT NOT NULL,\n        pinned INTEGER NOT NULL DEFAULT 0)\"\"\")\n    if conn.execute(\"SELECT COUNT(*) FROM notes\").fetchone()[0] == 0:\n        conn.executemany(\"INSERT INTO notes (text, pinned) VALUES (?, ?)\",\n                         [(\"buy milk\", 0), (\"call mom\", 1), (\"read Dune\", 0), (\"pay rent\", 1)])\n    conn.commit()\n    conn.close()\n\n\ninit_db()\n\n\ndef get_db():\n    conn = sqlite3.connect(DB_PATH, check_same_thread=False)\n    conn.row_factory = sqlite3.Row\n    try:\n        yield conn\n    finally:\n        conn.close()\n\n\nDB = Annotated[sqlite3.Connection, Depends(get_db)]\n\n\n@app.get(\"/notes\")\ndef list_notes(db: DB):\n    rows = db.execute(\"SELECT id, text FROM notes ORDER BY id\").fetchall()\n    return [dict(r) for r in rows]\n\n\n@app.delete(\"/notes/{note_id}\", status_code=204)\ndef delete_note(note_id: int, db: DB):\n    cur = db.execute(\"DELETE FROM notes WHERE id = ?\", (note_id,))\n    db.commit()\n    if cur.rowcount == 0:\n        raise HTTPException(status_code=404, detail=\"Note not found\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "DELETE",
+          "path": "/notes/3",
+          "expect": {
+            "status": 204
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/notes",
+          "expect": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "text": "buy milk"
+              },
+              {
+                "id": 2,
+                "text": "call mom"
+              },
+              {
+                "id": 4,
+                "text": "pay rent"
+              }
+            ]
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/notes/3",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Note not found"
+            }
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/notes/99",
+          "expect": {
+            "status": 404
+          }
+        }
+      ]
+    }
+  ]
+}

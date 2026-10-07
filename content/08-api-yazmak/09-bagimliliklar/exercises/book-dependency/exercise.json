@@ -1,0 +1,95 @@
+{
+  "id": "book-dependency",
+  "title": {
+    "tr": "Kaydı bağımlılık bulsun",
+    "en": "Let a dependency find the record"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`def book_age(book: Annotated[dict, Depends(get_book)], now: int = 2026):`.",
+      "en": "`def book_age(book: Annotated[dict, Depends(get_book)], now: int = 2026):`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\n\napp = FastAPI()\nbooks = {1: {\"title\": \"Dune\", \"year\": 1965}, 2: {\"title\": \"Emma\", \"year\": 1815}}\n\n\ndef get_book(book_id: int) -> dict:\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n\n\nCurrentBook = Annotated[dict, Depends(get_book)]\n\n\n@app.get(\"/books/{book_id}\")\ndef read_book(book: CurrentBook):\n    return book\n\n\n@app.get(\"/books/{book_id}/age\")\ndef book_age(book: CurrentBook, now: int = 2026):\n    return {\"title\": book[\"title\"], \"age\": now - book[\"year\"]}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\n\napp = FastAPI()\nbooks = {1: {\"title\": \"Dune\", \"year\": 1965}, 2: {\"title\": \"Emma\", \"year\": 1815}}\n\n\ndef get_book(book_id: int) -> dict:\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n\n\nCurrentBook = Annotated[dict, Depends(get_book)]\n\n\n@app.get(\"/books/{book_id}\")\ndef read_book(book: CurrentBook):\n    return book\n\n\n@app.get(\"/books/{book_id}/age\")\ndef book_age(book: CurrentBook, now: int = 2026):\n    return {\"title\": book[\"title\"], \"age\": now - book[\"year\"]}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/books/1",
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "Dune",
+              "year": 1965
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/1/age",
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "Dune",
+              "age": 61
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/2/age",
+          "params": {
+            "now": 2000
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "Emma",
+              "age": 185
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/9",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Book not found"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/9/age",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Book not found"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

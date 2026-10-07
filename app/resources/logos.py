@@ -86,6 +86,12 @@ GLYPHS: dict[str, dict[str, object]] = {
         '<path d="M2.4 12.6h16.9c.7-1.5 2.1-2 2.9-1.7-.2 1-1 1.8-1.9 2.1-1.4 4.2-5 6.8-10 6.8-4.6 0-7.4-2.6-7.9-7.2z"/></g>'
         '<circle cx="7" cy="15.3" r=".8" fill="#1D63ED"/>'
     )},
+    "git": {"svg": (
+        '<path d="M7 5v10.4" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/>'
+        '<path d="M17 9.3c0 4.4-3.5 7-8 7.4" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/>'
+        '<circle cx="17" cy="6.6" r="2.6" fill="#fff"/><circle cx="7" cy="17.8" r="2.6" fill="#fff"/>'
+        '<circle cx="7" cy="4.4" r="1.7" fill="#fff" fill-opacity=".8"/>'
+    )},
     "time": {"svg": (
         '<path d="M3 20h18" stroke="#fff" stroke-opacity=".5" stroke-width="1.5" stroke-linecap="round"/>'
         '<path d="M3 15.5 7 11l3.5 3 4-7 3 4L21 8" fill="none" stroke="#fff" stroke-width="2.1" '
@@ -123,7 +129,7 @@ GLYPHS: dict[str, dict[str, object]] = {
 # `tracks.json` ve `chapter.json` içindeki `icon` adından logo anahtarına.
 ICON_TO_LOGO = {
     "python": "python", "chart": "data", "network": "ml", "database": "sql",
-    "calculator": "math", "link": "api", "package": "docker", "clock": "time",
+    "calculator": "math", "link": "api", "package": "docker", "clock": "time", "git-branch": "git",
     "message": "nlp", "sparkles": "genai", "cpu": "algo", "library": "lib",
     "server": "sys",
 }

@@ -1,0 +1,98 @@
+{
+  "id": "api-versions",
+  "title": {
+    "tr": "İki sürüm yan yana",
+    "en": "Two versions side by side"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "routers/books_v2.py",
+      "starter": "starter-routers-books_v2.{lang}.py",
+      "solution": "solution-routers-books_v2.py"
+    },
+    {
+      "name": "routers/books.py",
+      "readonly": true
+    },
+    {
+      "name": "routers/__init__.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`app.include_router(books.router, prefix=\"/v1\")` ve `app.include_router(books_v2.router, prefix=\"/v2\")`.",
+      "en": "`app.include_router(books.router, prefix=\"/v1\")` and `app.include_router(books_v2.router, prefix=\"/v2\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\nfrom routers import books, books_v2\n\napp = FastAPI(title=\"Library\")\napp.include_router(books.router, prefix=\"/v1\")\napp.include_router(books_v2.router, prefix=\"/v2\")\n```\n\n**routers/books_v2.py**\n\n```python\nfrom fastapi import APIRouter\n\nfrom routers.books import books\n\nrouter = APIRouter(prefix=\"/books\", tags=[\"books v2\"])\n\n\n@router.get(\"\")\ndef list_books():\n    return [{\"id\": book_id, \"title\": title} for book_id, title in books.items()]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\nfrom routers import books, books_v2\n\napp = FastAPI(title=\"Library\")\napp.include_router(books.router, prefix=\"/v1\")\napp.include_router(books_v2.router, prefix=\"/v2\")\n```\n\n**routers/books_v2.py**\n\n```python\nfrom fastapi import APIRouter\n\nfrom routers.books import books\n\nrouter = APIRouter(prefix=\"/books\", tags=[\"books v2\"])\n\n\n@router.get(\"\")\ndef list_books():\n    return [{\"id\": book_id, \"title\": title} for book_id, title in books.items()]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/v1/books",
+          "expect": {
+            "status": 200,
+            "json": {
+              "1": "Dune",
+              "2": "Emma"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v2/books",
+          "expect": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "title": "Dune"
+              },
+              {
+                "id": 2,
+                "title": "Emma"
+              }
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/books/1",
+          "expect": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "title": "Dune"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "expect": {
+            "status": 404
+          }
+        }
+      ]
+    }
+  ]
+}

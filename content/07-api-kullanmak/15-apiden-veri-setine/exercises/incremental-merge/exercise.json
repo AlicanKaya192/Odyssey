@@ -1,0 +1,43 @@
+{
+  "id": "incremental-merge",
+  "title": {
+    "tr": "Artımlı güncelleme",
+    "en": "An incremental update"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`known = {int(key): value for key, value in json.load(handle).items()}`; değişenleri `params={\"since\": since}` ile iste.",
+      "en": "`known = {int(key): value for key, value in json.load(handle).items()}`; ask for the changes with `params={\"since\": since}`."
+    },
+    {
+      "tr": "Yeni tarih: `max(book[\"updated\"] for book in changed)`; ISO tarihleri metin olarak da doğru sıralanır.",
+      "en": "The new date: `max(book[\"updated\"] for book in changed)`; ISO dates sort correctly even as text."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport json\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nwith open(\"last_sync.txt\", encoding=\"utf-8\") as handle:\n    since = handle.read().strip()\nwith open(\"known.json\", encoding=\"utf-8\") as handle:\n    known = {int(key): value for key, value in json.load(handle).items()}\n\nchanged = requests.get(BASE + \"/changes\", params={\"since\": since}, timeout=10).json()[\"data\"]\n\nupdated = 0\nadded = 0\nfor book in changed:\n    if book[\"id\"] in known:\n        updated += 1\n    else:\n        added += 1\n    known[book[\"id\"]] = book\n\nprint(\"changed:\", [book[\"id\"] for book in changed])\nprint(\"updated:\", updated, \"added:\", added)\nprint(\"records:\", len(known))\nprint(\"new last sync:\", max(book[\"updated\"] for book in changed))\n```",
+      "en": "The solution:\n\n```python\nimport json\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nwith open(\"last_sync.txt\", encoding=\"utf-8\") as handle:\n    since = handle.read().strip()\nwith open(\"known.json\", encoding=\"utf-8\") as handle:\n    known = {int(key): value for key, value in json.load(handle).items()}\n\nchanged = requests.get(BASE + \"/changes\", params={\"since\": since}, timeout=10).json()[\"data\"]\n\nupdated = 0\nadded = 0\nfor book in changed:\n    if book[\"id\"] in known:\n        updated += 1\n    else:\n        added += 1\n    known[book[\"id\"]] = book\n\nprint(\"changed:\", [book[\"id\"] for book in changed])\nprint(\"updated:\", updated, \"added:\", added)\nprint(\"records:\", len(known))\nprint(\"new last sync:\", max(book[\"updated\"] for book in changed))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/changes",
+      "query": {
+        "since": "2024-03-05"
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "changed: [6, 10, 13, 20, 23]\nupdated: 4 added: 1\nrecords: 21\nnew last sync: 2024-03-14"
+    }
+  ]
+}

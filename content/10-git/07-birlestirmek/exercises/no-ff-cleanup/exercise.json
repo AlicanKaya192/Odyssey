@@ -1,0 +1,81 @@
+{
+  "id": "no-ff-cleanup",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "İz bırakarak birleştir",
+    "en": "Merge and leave a trace"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir site",
+    "cd site",
+    "git init",
+    "echo \"<h1>Home</h1>\" > index.html",
+    "git add .",
+    "git commit -m \"Add home page\"",
+    "git switch -c faq",
+    "echo \"Q\" > faq.html",
+    "git add .",
+    "git commit -m \"Add FAQ page\"",
+    "echo \"A\" >> faq.html",
+    "git commit -am \"Answer questions\"",
+    "git switch main"
+  ],
+  "cwd": "site",
+  "solution": [
+    "git merge --no-ff faq --no-edit",
+    "git branch -d faq",
+    "git log --oneline --graph"
+  ],
+  "hints": [
+    {
+      "tr": "`--no-ff` ileri sarmayı kapatır. Hazır mesaj için `--no-edit`.",
+      "en": "`--no-ff` turns off the fast-forward. `--no-edit` for the ready-made message."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit merge --no-ff faq --no-edit\ngit branch -d faq\ngit log --oneline --graph\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit merge --no-ff faq --no-edit\ngit branch -d faq\ngit log --oneline --graph\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "site",
+      "merge_commit": true,
+      "last_message": "^Merge branch 'faq'$",
+      "show_message": "Merge branch 'faq'",
+      "label": {
+        "tr": "Birleştirme commit'i: Merge branch 'faq'",
+        "en": "Merge commit: Merge branch 'faq'"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "site",
+      "no_branches": [
+        "faq"
+      ],
+      "head_files": {
+        "faq.html": "Q\nA"
+      },
+      "label": {
+        "tr": "faq silindi, işi main'de",
+        "en": "faq deleted, its work is on main"
+      }
+    },
+    {
+      "type": "git_command",
+      "pattern": "^git merge .*--no-ff",
+      "show": "git merge --no-ff",
+      "label": {
+        "tr": "--no-ff kullandın",
+        "en": "You used --no-ff"
+      }
+    }
+  ]
+}

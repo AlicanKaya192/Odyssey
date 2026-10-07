@@ -1,0 +1,65 @@
+{
+  "id": "read-the-response",
+  "title": {
+    "tr": "Yanıtı oku",
+    "en": "Read the response"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`head, body = raw.split(\"\\n\\n\", 1)`; `head.split(\"\\n\")` ilk satır + başlıklar. Kod `int(lines[0].split(\" \", 2)[1])`.",
+      "en": "`head, body = raw.split(\"\\n\\n\", 1)`; `head.split(\"\\n\")` is the first line + headers. The code is `int(lines[0].split(\" \", 2)[1])`."
+    },
+    {
+      "tr": "İçerik türünün biçimi `value.split(\";\")[0]`. `Retry-After` metin olarak gelir; `int(...)` ile sayıya çevir.",
+      "en": "The format of the content type is `value.split(\";\")[0]`. `Retry-After` arrives as text; turn it into a number with `int(...)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nraw = \"\"\"HTTP/1.1 429 Too Many Requests\nContent-Type: application/json; charset=utf-8\nRetry-After: 30\n\n{\"error\": \"rate limit\", \"limit\": 60}\"\"\"\n\n\ndef parse_response(raw):\n    head, body = raw.split(\"\\n\\n\", 1)\n    lines = head.split(\"\\n\")\n    code = int(lines[0].split(\" \", 2)[1])\n    headers = {}\n    for line in lines[1:]:\n        name, value = line.split(\": \", 1)\n        headers[name.lower()] = value\n    return {\"code\": code, \"headers\": headers, \"body\": body}\n\n\nresponse = parse_response(raw)\nprint(response[\"code\"])\nprint(response[\"headers\"][\"content-type\"].split(\";\")[0])\nprint(\"wait\", int(response[\"headers\"][\"retry-after\"]), \"seconds\")\nprint(response[\"body\"])\n```",
+      "en": "The solution:\n\n```python\nraw = \"\"\"HTTP/1.1 429 Too Many Requests\nContent-Type: application/json; charset=utf-8\nRetry-After: 30\n\n{\"error\": \"rate limit\", \"limit\": 60}\"\"\"\n\n\ndef parse_response(raw):\n    head, body = raw.split(\"\\n\\n\", 1)\n    lines = head.split(\"\\n\")\n    code = int(lines[0].split(\" \", 2)[1])\n    headers = {}\n    for line in lines[1:]:\n        name, value = line.split(\": \", 1)\n        headers[name.lower()] = value\n    return {\"code\": code, \"headers\": headers, \"body\": body}\n\n\nresponse = parse_response(raw)\nprint(response[\"code\"])\nprint(response[\"headers\"][\"content-type\"].split(\";\")[0])\nprint(\"wait\", int(response[\"headers\"][\"retry-after\"]), \"seconds\")\nprint(response[\"body\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_response",
+      "cases": [
+        {
+          "args": [
+            "HTTP/1.1 204 No Content\nX-Id: 7\n\n"
+          ],
+          "returns": {
+            "code": 204,
+            "headers": {
+              "x-id": "7"
+            },
+            "body": ""
+          }
+        },
+        {
+          "args": [
+            "HTTP/1.1 404 Not Found\nContent-Type: text/plain\n\nno such book"
+          ],
+          "returns": {
+            "code": 404,
+            "headers": {
+              "content-type": "text/plain"
+            },
+            "body": "no such book"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "429\napplication/json\nwait 30 seconds\n{\"error\": \"rate limit\", \"limit\": 60}"
+    }
+  ]
+}

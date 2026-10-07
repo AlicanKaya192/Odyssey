@@ -1,0 +1,96 @@
+{
+  "id": "after-merge",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Birleştirmeden sonra toparla",
+    "en": "Tidy up after the merge"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    {
+      "remote": "https://github.com/ada/site.git",
+      "files": {
+        "index.html": "<h1>Site</h1>\n"
+      },
+      "message": "Add home page",
+      "author": [
+        "Ada Lovelace",
+        "ada@example.com"
+      ]
+    },
+    "git clone https://github.com/ada/site.git",
+    "cd site",
+    "git switch -c contact-form",
+    "echo \"<form>\" > contact.html",
+    "git add .",
+    "git commit -m \"Add contact form\"",
+    "git push -u origin contact-form",
+    "git clone https://github.com/ada/site.git /tmp/github",
+    "cd /tmp/github",
+    "git config user.name \"Grace Hopper\"",
+    "git config user.email grace@example.com",
+    "git merge --no-ff origin/contact-form -m \"Merge pull request #1 from ada/contact-form\"",
+    "git push",
+    "git push origin --delete contact-form",
+    "cd ~",
+    "rm -rf /tmp/github"
+  ],
+  "cwd": "site",
+  "solution": [
+    "git switch main",
+    "git pull",
+    "git branch -d contact-form",
+    "git fetch --prune"
+  ],
+  "hints": [
+    {
+      "tr": "Sıra: `git switch main`, `git pull`, `git branch -d <dal>`, `git fetch --prune`.",
+      "en": "The order: `git switch main`, `git pull`, `git branch -d <branch>`, `git fetch --prune`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit switch main\ngit pull\ngit branch -d contact-form\ngit fetch --prune\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit switch main\ngit pull\ngit branch -d contact-form\ngit fetch --prune\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "site",
+      "branch": "main",
+      "same_as": "origin/main",
+      "last_message": "^Merge pull request #1",
+      "show_message": "Merge pull request #1 from ada/contact-form",
+      "label": {
+        "tr": "main birleştirilmiş hâlde",
+        "en": "main is in the merged state"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "site",
+      "no_branches": [
+        "contact-form"
+      ],
+      "label": {
+        "tr": "Yerel contact-form silindi",
+        "en": "Local contact-form is deleted"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "site",
+      "no_remote_branches": [
+        "origin/contact-form"
+      ],
+      "label": {
+        "tr": "origin/contact-form izi temizlendi",
+        "en": "The origin/contact-form trace is gone"
+      }
+    }
+  ]
+}

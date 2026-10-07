@@ -1,0 +1,76 @@
+{
+  "id": "flatten-the-author",
+  "title": {
+    "tr": "Yazarı düzleştir",
+    "en": "Flatten the author"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her kayıtta `author = item[\"author\"]`; ülke için `author.get(\"country\", \"unknown\")`; fiyat için `float(item[\"price\"])`.",
+      "en": "For each record `author = item[\"author\"]`; for the country `author.get(\"country\", \"unknown\")`; for the price `float(item[\"price\"])`."
+    },
+    {
+      "tr": "İki ondalıklı yazmak için `f\"total price: {total:.2f}\"`.",
+      "en": "To print with two decimals use `f\"total price: {total:.2f}\"`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport json\n\nwith open(\"books.json\", encoding=\"utf-8\") as handle:\n    response = json.load(handle)\n\nrows = []\nfor item in response[\"data\"]:\n    author = item[\"author\"]\n    rows.append({\n        \"id\": item[\"id\"],\n        \"title\": item[\"title\"],\n        \"price\": float(item[\"price\"]),\n        \"author_name\": author[\"name\"],\n        \"author_country\": author.get(\"country\", \"unknown\"),\n    })\n\ntotal = 0\nfor row in rows:\n    print(row[\"id\"], \"|\", row[\"title\"], \"|\", row[\"price\"], \"|\", row[\"author_name\"], \"|\", row[\"author_country\"])\n    total += row[\"price\"]\nprint(f\"total price: {total:.2f}\")\n```",
+      "en": "The solution:\n\n```python\nimport json\n\nwith open(\"books.json\", encoding=\"utf-8\") as handle:\n    response = json.load(handle)\n\nrows = []\nfor item in response[\"data\"]:\n    author = item[\"author\"]\n    rows.append({\n        \"id\": item[\"id\"],\n        \"title\": item[\"title\"],\n        \"price\": float(item[\"price\"]),\n        \"author_name\": author[\"name\"],\n        \"author_country\": author.get(\"country\", \"unknown\"),\n    })\n\ntotal = 0\nfor row in rows:\n    print(row[\"id\"], \"|\", row[\"title\"], \"|\", row[\"price\"], \"|\", row[\"author_name\"], \"|\", row[\"author_country\"])\n    total += row[\"price\"]\nprint(f\"total price: {total:.2f}\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "rows",
+      "equals": [
+        {
+          "id": 1,
+          "title": "Emma",
+          "price": 12.5,
+          "author_name": "Austen",
+          "author_country": "UK"
+        },
+        {
+          "id": 2,
+          "title": "Dune",
+          "price": 9.99,
+          "author_name": "Herbert",
+          "author_country": "unknown"
+        },
+        {
+          "id": 3,
+          "title": "Ulysses",
+          "price": 15.0,
+          "author_name": "Joyce",
+          "author_country": "IE"
+        },
+        {
+          "id": 4,
+          "title": "Solaris",
+          "price": 11.2,
+          "author_name": "Lem",
+          "author_country": "PL"
+        },
+        {
+          "id": 5,
+          "title": "Persuasion",
+          "price": 8.75,
+          "author_name": "Austen",
+          "author_country": "UK"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "1 | Emma | 12.5 | Austen | UK\n2 | Dune | 9.99 | Herbert | unknown\n3 | Ulysses | 15.0 | Joyce | IE\n4 | Solaris | 11.2 | Lem | PL\n5 | Persuasion | 8.75 | Austen | UK\ntotal price: 57.44"
+    }
+  ]
+}

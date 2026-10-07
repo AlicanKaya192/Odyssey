@@ -1,0 +1,84 @@
+{
+  "id": "delete-note",
+  "title": {
+    "tr": "204 ile silmek",
+    "en": "Deleting with 204"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`@app.delete(\"/notes/{note_id}\", status_code=status.HTTP_204_NO_CONTENT)`; işlev `del notes[note_id]` yapıp bir şey döndürmesin.",
+      "en": "`@app.delete(\"/notes/{note_id}\", status_code=status.HTTP_204_NO_CONTENT)`; the function does `del notes[note_id]` and returns nothing."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\n\napp = FastAPI()\nnotes = {1: \"buy milk\", 2: \"call mom\", 3: \"read Dune\"}\n\n\n@app.get(\"/notes\")\ndef list_notes():\n    return notes\n\n\n@app.delete(\"/notes/{note_id}\", status_code=status.HTTP_204_NO_CONTENT)\ndef delete_note(note_id: int):\n    if note_id not in notes:\n        raise HTTPException(status_code=404, detail=\"Note not found\")\n    del notes[note_id]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\n\napp = FastAPI()\nnotes = {1: \"buy milk\", 2: \"call mom\", 3: \"read Dune\"}\n\n\n@app.get(\"/notes\")\ndef list_notes():\n    return notes\n\n\n@app.delete(\"/notes/{note_id}\", status_code=status.HTTP_204_NO_CONTENT)\ndef delete_note(note_id: int):\n    if note_id not in notes:\n        raise HTTPException(status_code=404, detail=\"Note not found\")\n    del notes[note_id]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "DELETE",
+          "path": "/notes/2",
+          "expect": {
+            "status": 204
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/notes",
+          "expect": {
+            "status": 200,
+            "json": {
+              "1": "buy milk",
+              "3": "read Dune"
+            }
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/notes/2",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Note not found"
+            }
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/notes/1",
+          "expect": {
+            "status": 204
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/notes",
+          "expect": {
+            "status": 200,
+            "json": {
+              "3": "read Dune"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "id": "load-once",
+  "title": {
+    "tr": "Bir kez yükle",
+    "en": "Load once"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`@asynccontextmanager` + `async def lifespan(app):` içinde `words.update(load_words())`, `yield`, `words.clear()`.",
+      "en": "`words.update(load_words())`, `yield`, `words.clear()` inside `@asynccontextmanager` + `async def lifespan(app):`."
+    },
+    {
+      "tr": "`load_words()`'ü uç noktada çağırırsan `loads` her istekte artar.",
+      "en": "If you call `load_words()` in the endpoint, `loads` goes up on every request."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom contextlib import asynccontextmanager\n\nfrom fastapi import FastAPI\n\nstats = {\"loads\": 0}\nwords = set()\n\n\ndef load_words() -> set:\n    stats[\"loads\"] += 1\n    return {\"api\", \"python\", \"odyssey\", \"fastapi\"}\n\n\n@asynccontextmanager\nasync def lifespan(app):\n    words.update(load_words())\n    yield\n    words.clear()\n\n\napp = FastAPI(lifespan=lifespan)\n\n\n@app.get(\"/check\")\ndef check(word: str):\n    return {\"word\": word, \"known\": word.lower() in words}\n\n\n@app.get(\"/stats\")\ndef show_stats():\n    return stats\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom contextlib import asynccontextmanager\n\nfrom fastapi import FastAPI\n\nstats = {\"loads\": 0}\nwords = set()\n\n\ndef load_words() -> set:\n    stats[\"loads\"] += 1\n    return {\"api\", \"python\", \"odyssey\", \"fastapi\"}\n\n\n@asynccontextmanager\nasync def lifespan(app):\n    words.update(load_words())\n    yield\n    words.clear()\n\n\napp = FastAPI(lifespan=lifespan)\n\n\n@app.get(\"/check\")\ndef check(word: str):\n    return {\"word\": word, \"known\": word.lower() in words}\n\n\n@app.get(\"/stats\")\ndef show_stats():\n    return stats\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/check",
+          "params": {
+            "word": "Python"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "word": "Python",
+              "known": true
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/check",
+          "params": {
+            "word": "java"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "word": "java",
+              "known": false
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/check",
+          "params": {
+            "word": "API"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "word": "API",
+              "known": true
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/stats",
+          "expect": {
+            "status": 200,
+            "json": {
+              "loads": 1
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

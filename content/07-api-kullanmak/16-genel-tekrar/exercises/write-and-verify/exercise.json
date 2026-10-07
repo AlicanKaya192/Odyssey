@@ -1,0 +1,52 @@
+{
+  "id": "write-and-verify",
+  "title": {
+    "tr": "Yaz ve doğrula",
+    "en": "Write and verify"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`location = r.headers[\"Location\"]` bir yol (`/books/24`); başına `BASE` ekle.",
+      "en": "`location = r.headers[\"Location\"]` is a path (`/books/24`); add `BASE` in front."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport os\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\ntoken = os.environ.get(\"LIBRARY_TOKEN\", \"letmein\")\nsession = requests.Session()\nsession.headers.update({\"Authorization\": \"Bearer \" + token})\n\nbook = {\"title\": \"The Word for World Is Forest\", \"price\": 11.5, \"author_id\": 6}\nr = session.post(BASE + \"/books\", json=book, timeout=10)\nlocation = r.headers[\"Location\"]\nprint(\"created:\", r.status_code, location)\n\nr = session.patch(BASE + location, json={\"price\": 9.99}, timeout=10)\nprint(\"patched:\", r.status_code)\n\nbook = session.get(BASE + location, timeout=10).json()\nprint(book[\"title\"], book[\"author\"][\"name\"], book[\"price\"])\n```",
+      "en": "The solution:\n\n```python\nimport os\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\ntoken = os.environ.get(\"LIBRARY_TOKEN\", \"letmein\")\nsession = requests.Session()\nsession.headers.update({\"Authorization\": \"Bearer \" + token})\n\nbook = {\"title\": \"The Word for World Is Forest\", \"price\": 11.5, \"author_id\": 6}\nr = session.post(BASE + \"/books\", json=book, timeout=10)\nlocation = r.headers[\"Location\"]\nprint(\"created:\", r.status_code, location)\n\nr = session.patch(BASE + location, json={\"price\": 9.99}, timeout=10)\nprint(\"patched:\", r.status_code)\n\nbook = session.get(BASE + location, timeout=10).json()\nprint(book[\"title\"], book[\"author\"][\"name\"], book[\"price\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "POST",
+      "path": "/books",
+      "headers": {
+        "Authorization": "Bearer letmein"
+      }
+    },
+    {
+      "type": "requests",
+      "method": "PATCH",
+      "path": "/books/24",
+      "json": {
+        "price": 9.99
+      }
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books/24"
+    },
+    {
+      "type": "stdout",
+      "expected": "created: 201 /books/24\npatched: 200\nThe Word for World Is Forest Le Guin 9.99"
+    }
+  ]
+}

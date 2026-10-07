@@ -1,0 +1,95 @@
+{
+  "id": "notes-api-compose",
+  "title": {
+    "tr": "Servisi Compose ile kurmak",
+    "en": "Setting up the service with Compose"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "compose.yaml",
+  "files": [
+    {
+      "name": "compose.yaml",
+      "starter": "starter-compose.yaml.{lang}",
+      "solution": "solution-compose.yaml"
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "app.py",
+      "readonly": true
+    },
+    {
+      "name": "healthcheck.py",
+      "readonly": true
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": ".dockerignore",
+      "readonly": true
+    },
+    {
+      "name": ".env",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`env_file: .env`, `volumes: [\"notes-data:/data\"]` ve en altta `volumes:` → `notes-data:`.",
+      "en": "`env_file: .env`, `volumes: [\"notes-data:/data\"]` and at the bottom `volumes:` → `notes-data:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**compose.yaml**\n\n```yaml\nservices:\n  web:\n    build: .\n    ports:\n      - \"8095:8000\"\n    env_file: .env\n    volumes:\n      - notes-data:/data\n    restart: unless-stopped\n\nvolumes:\n  notes-data:\n```",
+      "en": "The full solution:\n\n**compose.yaml**\n\n```yaml\nservices:\n  web:\n    build: .\n    ports:\n      - \"8095:8000\"\n    env_file: .env\n    volumes:\n      - notes-data:/data\n    restart: unless-stopped\n\nvolumes:\n  notes-data:\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "compose",
+      "service": "web",
+      "build": true,
+      "ports": [
+        "8095:8000"
+      ],
+      "env_file": true,
+      "volumes": [
+        "notes-data:/data"
+      ],
+      "top_volumes": [
+        "notes-data"
+      ],
+      "restart": "unless-stopped"
+    },
+    {
+      "type": "compose_up",
+      "running": [
+        "web"
+      ],
+      "healthy": [
+        "web"
+      ],
+      "wait": 60,
+      "http": [
+        {
+          "service": "web",
+          "port": 8000,
+          "path": "/stats",
+          "json": {
+            "notes": 0,
+            "starts": 1
+          }
+        }
+      ]
+    }
+  ]
+}

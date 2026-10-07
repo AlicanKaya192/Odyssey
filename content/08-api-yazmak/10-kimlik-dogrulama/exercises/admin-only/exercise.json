@@ -1,0 +1,120 @@
+{
+  "id": "admin-only",
+  "title": {
+    "tr": "Yalnızca yönetici",
+    "en": "Admins only"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`def require_admin(user: Annotated[str, Depends(current_user)]) -> str:`; liste `sorted(users)`.",
+      "en": "`def require_admin(user: Annotated[str, Depends(current_user)]) -> str:`; the list is `sorted(users)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport hashlib\nimport hmac\nimport secrets\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom fastapi.security import HTTPAuthorizationCredentials, HTTPBearer\nfrom pydantic import BaseModel\n\napp = FastAPI()\nSALT = \"odyssey-salt\"\nusers = {\n    \"ada\": \"887362783edaec9e1b53b6e44e5e7fd3d15211a39abe696032db618b212115b3\",\n    \"alan\": \"a90c9f1188728ecdf5e047af7c9411d05288916f59c7a7446aa4074b0f0fdf01\",\n}\ntokens = {}\nbearer = HTTPBearer()\n\n\ndef hash_password(password: str, salt: str) -> str:\n    return hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt.encode(), 100_000).hex()\n\n\ndef check_password(username: str, password: str) -> bool:\n    stored = users.get(username)\n    return stored is not None and hmac.compare_digest(stored, hash_password(password, SALT))\n\n\nclass Login(BaseModel):\n    username: str\n    password: str\nroles = {\"ada\": \"admin\", \"alan\": \"member\"}\n\n\n@app.post(\"/token\")\ndef login(form: Login):\n    if not check_password(form.username, form.password):\n        raise HTTPException(status_code=401, detail=\"Wrong username or password\")\n    token = secrets.token_hex(16)\n    tokens[token] = form.username\n    return {\"access_token\": token, \"token_type\": \"bearer\"}\n\n\ndef current_user(cred: Annotated[HTTPAuthorizationCredentials, Depends(bearer)]) -> str:\n    if cred.credentials not in tokens:\n        raise HTTPException(status_code=401, detail=\"Invalid token\")\n    return tokens[cred.credentials]\n\n\n@app.get(\"/me\")\ndef me(user: Annotated[str, Depends(current_user)]):\n    return {\"user\": user}\n\n\ndef require_admin(user: Annotated[str, Depends(current_user)]) -> str:\n    if roles.get(user) != \"admin\":\n        raise HTTPException(status_code=403, detail=\"Admins only\")\n    return user\n\n\n@app.get(\"/admin/users\")\ndef list_users(admin: Annotated[str, Depends(require_admin)]):\n    return sorted(users)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport hashlib\nimport hmac\nimport secrets\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom fastapi.security import HTTPAuthorizationCredentials, HTTPBearer\nfrom pydantic import BaseModel\n\napp = FastAPI()\nSALT = \"odyssey-salt\"\nusers = {\n    \"ada\": \"887362783edaec9e1b53b6e44e5e7fd3d15211a39abe696032db618b212115b3\",\n    \"alan\": \"a90c9f1188728ecdf5e047af7c9411d05288916f59c7a7446aa4074b0f0fdf01\",\n}\ntokens = {}\nbearer = HTTPBearer()\n\n\ndef hash_password(password: str, salt: str) -> str:\n    return hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt.encode(), 100_000).hex()\n\n\ndef check_password(username: str, password: str) -> bool:\n    stored = users.get(username)\n    return stored is not None and hmac.compare_digest(stored, hash_password(password, SALT))\n\n\nclass Login(BaseModel):\n    username: str\n    password: str\nroles = {\"ada\": \"admin\", \"alan\": \"member\"}\n\n\n@app.post(\"/token\")\ndef login(form: Login):\n    if not check_password(form.username, form.password):\n        raise HTTPException(status_code=401, detail=\"Wrong username or password\")\n    token = secrets.token_hex(16)\n    tokens[token] = form.username\n    return {\"access_token\": token, \"token_type\": \"bearer\"}\n\n\ndef current_user(cred: Annotated[HTTPAuthorizationCredentials, Depends(bearer)]) -> str:\n    if cred.credentials not in tokens:\n        raise HTTPException(status_code=401, detail=\"Invalid token\")\n    return tokens[cred.credentials]\n\n\n@app.get(\"/me\")\ndef me(user: Annotated[str, Depends(current_user)]):\n    return {\"user\": user}\n\n\ndef require_admin(user: Annotated[str, Depends(current_user)]) -> str:\n    if roles.get(user) != \"admin\":\n        raise HTTPException(status_code=403, detail=\"Admins only\")\n    return user\n\n\n@app.get(\"/admin/users\")\ndef list_users(admin: Annotated[str, Depends(require_admin)]):\n    return sorted(users)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/admin/users",
+          "expect": {
+            "status": 401
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/token",
+          "json": {
+            "username": "alan",
+            "password": "enigma"
+          },
+          "expect": {
+            "status": 200,
+            "json_has": {
+              "token_type": "bearer"
+            }
+          },
+          "save": {
+            "alan": "access_token"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/admin/users",
+          "headers": {
+            "Authorization": "Bearer {alan}"
+          },
+          "expect": {
+            "status": 403,
+            "json": {
+              "detail": "Admins only"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/token",
+          "json": {
+            "username": "ada",
+            "password": "lovelace"
+          },
+          "expect": {
+            "status": 200,
+            "json_has": {
+              "token_type": "bearer"
+            }
+          },
+          "save": {
+            "ada": "access_token"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/admin/users",
+          "headers": {
+            "Authorization": "Bearer {ada}"
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              "ada",
+              "alan"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "headers": {
+            "Authorization": "Bearer {alan}"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "user": "alan"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

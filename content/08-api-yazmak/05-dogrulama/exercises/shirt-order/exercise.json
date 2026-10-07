@@ -1,0 +1,118 @@
+{
+  "id": "shirt-order",
+  "title": {
+    "tr": "Seçenekler ve adet",
+    "en": "Options and quantity"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`size: Literal[\"small\", \"medium\", \"large\"]`, `qty: int = Field(default=1, ge=1, le=10)`; fiyat `prices[order.size]`.",
+      "en": "`size: Literal[\"small\", \"medium\", \"large\"]`, `qty: int = Field(default=1, ge=1, le=10)`; the price is `prices[order.size]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom typing import Literal\n\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nprices = {\"small\": 10, \"medium\": 12, \"large\": 15}\n\n\nclass Order(BaseModel):\n    size: Literal[\"small\", \"medium\", \"large\"]\n    qty: int = Field(default=1, ge=1, le=10)\n\n\n@app.post(\"/orders\")\ndef place_order(order: Order):\n    return {\"size\": order.size, \"qty\": order.qty, \"total\": prices[order.size] * order.qty}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom typing import Literal\n\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nprices = {\"small\": 10, \"medium\": 12, \"large\": 15}\n\n\nclass Order(BaseModel):\n    size: Literal[\"small\", \"medium\", \"large\"]\n    qty: int = Field(default=1, ge=1, le=10)\n\n\n@app.post(\"/orders\")\ndef place_order(order: Order):\n    return {\"size\": order.size, \"qty\": order.qty, \"total\": prices[order.size] * order.qty}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/orders",
+          "json": {
+            "size": "large",
+            "qty": 2
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "size": "large",
+              "qty": 2,
+              "total": 30
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/orders",
+          "json": {
+            "size": "small"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "size": "small",
+              "qty": 1,
+              "total": 10
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/orders",
+          "json": {
+            "size": "medium",
+            "qty": 10
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "size": "medium",
+              "qty": 10,
+              "total": 120
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/orders",
+          "json": {
+            "size": "huge"
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/orders",
+          "json": {
+            "size": "medium",
+            "qty": 11
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/orders",
+          "json": {
+            "size": "medium",
+            "qty": 0
+          },
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}

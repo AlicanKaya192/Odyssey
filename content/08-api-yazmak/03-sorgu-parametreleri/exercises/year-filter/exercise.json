@@ -1,0 +1,98 @@
+{
+  "id": "year-filter",
+  "title": {
+    "tr": "İsteğe bağlı süzgeç",
+    "en": "An optional filter"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`year_from: int | None = None` ve `if year_from is None: return books`.",
+      "en": "`year_from: int | None = None` and `if year_from is None: return books`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\nbooks = [\n    {\"id\": 1, \"title\": \"Dune\", \"author\": \"Herbert\", \"year\": 1965},\n    {\"id\": 2, \"title\": \"Emma\", \"author\": \"Austen\", \"year\": 1815},\n    {\"id\": 3, \"title\": \"Ulysses\", \"author\": \"Joyce\", \"year\": 1922},\n    {\"id\": 4, \"title\": \"Kindred\", \"author\": \"Butler\", \"year\": 1979},\n    {\"id\": 5, \"title\": \"Persuasion\", \"author\": \"Austen\", \"year\": 1817},\n    {\"id\": 6, \"title\": \"Beloved\", \"author\": \"Morrison\", \"year\": 1987},\n]\n\n\n@app.get(\"/books\")\ndef list_books(year_from: int | None = None):\n    if year_from is None:\n        return books\n    return [book for book in books if book[\"year\"] >= year_from]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\nbooks = [\n    {\"id\": 1, \"title\": \"Dune\", \"author\": \"Herbert\", \"year\": 1965},\n    {\"id\": 2, \"title\": \"Emma\", \"author\": \"Austen\", \"year\": 1815},\n    {\"id\": 3, \"title\": \"Ulysses\", \"author\": \"Joyce\", \"year\": 1922},\n    {\"id\": 4, \"title\": \"Kindred\", \"author\": \"Butler\", \"year\": 1979},\n    {\"id\": 5, \"title\": \"Persuasion\", \"author\": \"Austen\", \"year\": 1817},\n    {\"id\": 6, \"title\": \"Beloved\", \"author\": \"Morrison\", \"year\": 1987},\n]\n\n\n@app.get(\"/books\")\ndef list_books(year_from: int | None = None):\n    if year_from is None:\n        return books\n    return [book for book in books if book[\"year\"] >= year_from]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/books",
+          "params": {
+            "year_from": 1950
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "title": "Dune",
+                "author": "Herbert",
+                "year": 1965
+              },
+              {
+                "id": 4,
+                "title": "Kindred",
+                "author": "Butler",
+                "year": 1979
+              },
+              {
+                "id": 6,
+                "title": "Beloved",
+                "author": "Morrison",
+                "year": 1987
+              }
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "expect": {
+            "status": 200,
+            "json_len": 6
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "params": {
+            "year_from": 1815
+          },
+          "expect": {
+            "status": 200,
+            "json_len": 6
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "params": {
+            "year_from": "old"
+          },
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}

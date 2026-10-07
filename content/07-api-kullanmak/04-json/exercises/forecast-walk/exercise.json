@@ -1,0 +1,40 @@
+{
+  "id": "forecast-walk",
+  "title": {
+    "tr": "İç içe tahmin",
+    "en": "A nested forecast"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`with open(\"forecast.json\", encoding=\"utf-8\") as handle:` içinde `data = json.load(handle)`. Günler `data[\"forecast\"]` listesinde.",
+      "en": "Inside `with open(\"forecast.json\", encoding=\"utf-8\") as handle:` write `data = json.load(handle)`. The days are in the `data[\"forecast\"]` list."
+    },
+    {
+      "tr": "Rüzgâr yoksa zincir kopmasın: `wind = day.get(\"wind\", {})`, sonra `wind.get(\"speed\", \"?\")`.",
+      "en": "Keep the chain from breaking when there is no wind: `wind = day.get(\"wind\", {})`, then `wind.get(\"speed\", \"?\")`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport json\n\nwith open(\"forecast.json\", encoding=\"utf-8\") as handle:\n    data = json.load(handle)\n\nhottest = None\nbest = None\nfor day in data[\"forecast\"]:\n    wind = day.get(\"wind\", {})\n    print(day[\"day\"], day[\"temp\"], \"wind\", wind.get(\"speed\", \"?\"))\n    if best is None or day[\"temp\"] > best:\n        best = day[\"temp\"]\n        hottest = day[\"day\"]\n\nprint(\"hottest:\", hottest)\n```",
+      "en": "The solution:\n\n```python\nimport json\n\nwith open(\"forecast.json\", encoding=\"utf-8\") as handle:\n    data = json.load(handle)\n\nhottest = None\nbest = None\nfor day in data[\"forecast\"]:\n    wind = day.get(\"wind\", {})\n    print(day[\"day\"], day[\"temp\"], \"wind\", wind.get(\"speed\", \"?\"))\n    if best is None or day[\"temp\"] > best:\n        best = day[\"temp\"]\n        hottest = day[\"day\"]\n\nprint(\"hottest:\", hottest)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "hottest",
+      "equals": "wed"
+    },
+    {
+      "type": "stdout",
+      "expected": "mon 24 wind 12\ntue 21 wind ?\nwed 26 wind 7\nthu 19 wind 20\nhottest: wed"
+    }
+  ]
+}

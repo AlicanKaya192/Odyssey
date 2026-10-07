@@ -44,6 +44,7 @@ from ..core import celebration_sound, reminder_service, reminders
 from .reminder_prompt import TIMES as REMINDER_TIMES
 from ..widgets.common import DropdownBox
 from .update_check import UpdateWorker
+from ..core import docker_admin
 from ..core.runner import sql_admin
 from .confirm_dialog import ConfirmDialog
 from ..resources.theme.tokens import PALETTES, SPACING
@@ -72,12 +73,14 @@ LANGUAGE_OPTIONS = [("tr", "Türkçe"), ("en", "English")]
 THEME_OPTIONS = [("light", "", "sun"), ("dark", "", "moon")]
 
 # Soldaki kategoriler ve simgeleri. Sıra ekranda görünen sıra.
-PAGES = ["appearance", "learning", "notifications", "sql", "data", "updates"]
+# SQL ve Docker ayrı sayfalardı; ikisi de "alıştırmaların kapladığı yer"
+# olduğu için tek sayfada, ayrı kartlarda (Alican 7 Ekim).
+PAGES = ["appearance", "learning", "notifications", "storage", "data", "updates"]
 PAGE_ICONS = {
     "appearance": "palette",
     "learning": "graduation-cap",
     "notifications": "bell",
-    "sql": "database",
+    "storage": "database",
     "data": "folder",
     "updates": "refresh",
 }
@@ -144,6 +147,45 @@ class SqlAdminWorker(QThread):
             # Sunucu yoksa ya da beklenmedik bir şey olursa ayarlar
             # penceresi çökmüyor; satır "bulunamadı" diyor.
             self.completed.emit({"status": "crashed", "databases": []})
+
+
+class DockerAdminWorker(QThread):
+    """Docker'ın durumunu ve Odyssey'nin kapladığı yeri okur ya da siler.
+
+    `docker info` Docker Desktop açılırken birkaç saniye sürebiliyor;
+    pencere donmasın. İşler: `list`, `remove` (alıştırma imajları),
+    `remove_base` (taban imajlar), `prune` (derleme önbelleği). Sonuç:
+    {"status", "images", "base", "cache_mb", "action", "removed"}.
+    """
+
+    completed = Signal(dict)
+
+    def __init__(self, action: str, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._action = action
+
+    def run(self) -> None:  # noqa: D102
+        bos = {"status": {"state": "stopped", "version": ""}, "images": [], "base": [],
+               "cache_mb": 0.0, "action": self._action, "removed": 0}
+        try:
+            durum = docker_admin.status()
+            sonuc = dict(bos, status=durum)
+            if durum["state"] == "ok":
+                if self._action == "remove":
+                    sonuc["removed"] = docker_admin.remove_images()
+                elif self._action == "remove_base":
+                    sonuc["removed"] = docker_admin.remove_base_images()
+                elif self._action == "prune":
+                    docker_admin.prune_build_cache()
+                sonuc["images"] = docker_admin.list_images()
+                sonuc["base"] = docker_admin.list_base_images()
+                sonuc["cache_mb"] = docker_admin.build_cache_mb()
+            self.completed.emit(sonuc)
+        except Exception:
+            from ..core import log
+
+            log.get(__name__).exception("Docker bilgisi okunamadı")
+            self.completed.emit(bos)
 
 
 class SettingRow(QWidget):
@@ -304,6 +346,11 @@ class SettingsDialog(QDialog):
         self._found = None
         self._sql_worker: SqlAdminWorker | None = None
         self._sql_databases: list[dict] = []
+        self._docker_worker: DockerAdminWorker | None = None
+        self._docker_images: list[dict] = []
+        self._docker_result: dict | None = None
+        self._docker_base: list[dict] = []
+        self._docker_cache_mb = 0.0
         self._current_page = PAGES[0]
 
         modal.prepare(self)
@@ -374,7 +421,7 @@ class SettingsDialog(QDialog):
             "appearance": self._build_appearance(),
             "learning": self._build_learning(),
             "notifications": self._build_notifications(),
-            "sql": self._build_sql(),
+            "storage": self._build_storage(),
             "data": self._build_data(),
             "updates": self._build_updates(),
         }
@@ -526,26 +573,65 @@ class SettingsDialog(QDialog):
         layout.addStretch(1)
         return sayfa
 
-    def _build_sql(self) -> QWidget:
-        """SQL alıştırma veritabanları.
+    def _build_storage(self) -> QWidget:
+        """Alıştırmaların bilgisayarda kapladığı yer: SQL ve Docker ayrı kartlarda.
 
-        Her SQL alıştırması kendi veritabanını açıyor ve her biri diskte
-        ~16 MB tutuyor (ölçüldü). Patikanın tamamında bu bir gigabaytı
-        geçiyor; kullanıcının ne kadar yer kapladığını görüp silebilmesi
-        gerekiyor. Açıklama sayfa başlığının altında; kartta durum ve düğme.
+        SQL: her alıştırma kendi veritabanını açıyor, her biri ~16 MB
+        (ölçüldü); patikanın tamamında bir gigabaytı geçiyor. Docker: her
+        alıştırma kendi imajını kuruyor; yalnızca `odyssey=1` etiketliler ve
+        iki taban imaj sayılıp siliniyor, kişinin kendi imajlarına
+        dokunulmuyor. Derleme önbelleği etiketle ayrılamıyor, ortak.
         """
         sayfa, layout = self._page()
 
-        self._sql_button = QPushButton()
-        self._sql_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._sql_button.clicked.connect(self._on_sql_clear)
-        self._sql_row = SettingRow(self._sql_button)
-        self._sql_status = self._sql_row.title
-        self._sql_row.description.hide()
+        def baslik() -> QLabel:
+            etiket = QLabel()
+            etiket.setProperty("role", "section")
+            etiket.setContentsMargins(4, 0, 0, 0)
+            return etiket
 
+        def dugme(slot) -> QPushButton:
+            button = QPushButton()
+            button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.clicked.connect(slot)
+            return button
+
+        self._sql_heading = baslik()
+        self._sql_button = dugme(self._on_sql_clear)
+        self._sql_row = SettingRow(self._sql_button)
+        self._sql_status = self._sql_row.description
+        layout.addWidget(self._sql_heading)
         layout.addWidget(self._group([self._sql_row]))
+
+        # SQL kartı gibi yalnızca depolama satırları. Önce üstte bir durum
+        # satırı vardı ve Docker kapalıyken satırlar gizlenip yalnızca o
+        # kalıyordu; kart "silme" kartı gibi okunmuyordu (Alican). Şimdi
+        # satırlar hep yerinde, Docker kapalıysa açıklamaları bunu söylüyor.
+        self._docker_heading = baslik()
+        self._docker_button = dugme(self._on_docker_clear)
+        self._docker_row = SettingRow(self._docker_button)
+        self._docker_base_button = dugme(self._on_docker_base_clear)
+        self._docker_base_row = SettingRow(self._docker_base_button)
+        self._docker_cache_button = dugme(self._on_docker_prune)
+        self._docker_cache_row = SettingRow(self._docker_cache_button)
+        self._docker_autostop_row = SettingRow()
+        self._docker_autostop_row.switch.toggled.connect(self._on_docker_autostop)
+        layout.addWidget(self._docker_heading)
+        # Pencere sabit boyutlu; sayfa kaydırma çubuğu çıkarmadan sığsın diye
+        # kapatma anahtarı ayrı kart değil, Docker kartının son satırı ve bu
+        # sayfadaki satırların dikey iç boşluğu 14 yerine 10 (ölçüldü: ayrı
+        # kartla 471 piksel gerekiyordu, görünen alan 416).
+        for row in (self._sql_row, self._docker_row, self._docker_base_row,
+                    self._docker_cache_row, self._docker_autostop_row):
+            row.layout().setContentsMargins(18, 10, 18, 10)
+        layout.addWidget(self._group([self._docker_row, self._docker_base_row,
+                                      self._docker_cache_row, self._docker_autostop_row]))
         layout.addStretch(1)
         return sayfa
+
+    def _on_docker_autostop(self, checked: bool) -> None:
+        # Odyssey kapanırken okunuyor; açık ekrana sinyal gerekmiyor.
+        docker_admin.set_autostop(self._store, checked)
 
     def _build_data(self) -> QWidget:
         """İlerlemeyi başka bir bilgisayara taşımak ve otomatik yedekler.
@@ -689,12 +775,7 @@ class SettingsDialog(QDialog):
     def _render_page_header(self) -> None:
         t = self._language.t
         self._page_title.setText(t(f"settings.nav_{self._current_page}"))
-        # SQL sayfasının açıklaması eskiden sayfanın içindeydi; aynı metin.
-        anahtar = (
-            "settings.sql_help" if self._current_page == "sql"
-            else f"settings.page_{self._current_page}"
-        )
-        self._page_description.setText(t(anahtar))
+        self._page_description.setText(t(f"settings.page_{self._current_page}"))
 
     def _paint_nav_icons(self) -> None:
         p = PALETTES.get(self._theme.effective_mode, PALETTES["light"])
@@ -716,7 +797,7 @@ class SettingsDialog(QDialog):
         # edilip programı çökertmesin: sahibi ana pencere oluyor (kapanışta
         # onları bekliyor), iş bitince de kendini siliyor.
         sahip = self.parentWidget()
-        for worker in (self._worker, self._sql_worker):
+        for worker in (self._worker, self._sql_worker, self._docker_worker):
             if worker is not None and worker.isRunning():
                 worker.setParent(sahip)
                 worker.finished.connect(worker.deleteLater)
@@ -766,6 +847,9 @@ class SettingsDialog(QDialog):
         self._sound_row.switch.set_checked(
             celebration_sound.enabled(self._store), animate=False
         )
+        self._docker_autostop_row.switch.set_checked(
+            docker_admin.autostop_enabled(self._store), animate=False
+        )
         self._reminder_time.blockSignals(True)
         self._reminder_time.setCurrentText(
             reminders.reminder_time(self._store).strftime("%H:%M")
@@ -782,7 +866,7 @@ class SettingsDialog(QDialog):
         self._reminder_time.set_arrow_color(p["text_muted"])
         for row in (self._unlock_row, self._untimed_row,
                     self._presence_row, self._update_row, self._reminder_row,
-                    self._sound_row, self._animations_row):
+                    self._sound_row, self._animations_row, self._docker_autostop_row):
             row.switch.set_colors(
                 # Kart zemininde (`surface`) kapalı anahtarın izi seçilsin;
                 # `surface_alt` koyu temada kartla neredeyse aynıydı.
@@ -1014,6 +1098,112 @@ class SettingsDialog(QDialog):
         self._sql_databases = []
         self._sql_button.setEnabled(False)
 
+    # --- Docker imajları --------------------------------------------------
+
+    def _docker_buttons(self, enabled: bool) -> None:
+        for button in (self._docker_button, self._docker_base_button, self._docker_cache_button):
+            button.setEnabled(enabled)
+
+    def _docker_refresh(self, action: str = "list") -> None:
+        if self._docker_worker is not None and self._docker_worker.isRunning():
+            return
+        t = self._language.t
+        self._docker_buttons(False)
+        satir = {"remove": self._docker_row, "remove_base": self._docker_base_row,
+                 "prune": self._docker_cache_row}.get(action)
+        if satir is not None:
+            satir.description.setText(t("settings.docker_clearing"))
+        else:
+            for row in (self._docker_row, self._docker_base_row, self._docker_cache_row):
+                row.description.setText(t("settings.docker_reading"))
+        self._docker_worker = DockerAdminWorker(action, parent=self)
+        self._docker_worker.completed.connect(self._on_docker_listed)
+        self._docker_worker.start()
+
+    def _on_docker_listed(self, result: dict) -> None:
+        self._docker_result = result
+        self._render_docker()
+
+    def _render_docker(self) -> None:
+        """Durumu seçili dilde yazar (dil değişince Docker'a yeniden sorulmuyor)."""
+        result = self._docker_result
+        if result is None:
+            return
+        t = self._language.t
+        durum = result.get("status") or {}
+        state = durum.get("state", "stopped")
+        if state != "ok":
+            # Boyutlar yalnızca Docker çalışırken okunabiliyor.
+            for row in (self._docker_row, self._docker_base_row, self._docker_cache_row):
+                row.description.setText(t(f"settings.docker_{state}"))
+            self._docker_buttons(False)
+            return
+        self._docker_images = result.get("images", [])
+        self._docker_base = result.get("base", [])
+        self._docker_cache_mb = float(result.get("cache_mb", 0.0))
+        eylem = result.get("action", "list")
+
+        if self._docker_images:
+            toplam = sum(docker_admin.size_mb(item.get("size", "")) for item in self._docker_images)
+            metin = t("settings.docker_usage", count=len(self._docker_images), size=_size_label(toplam))
+        else:
+            metin = t("settings.docker_none")
+        if eylem == "remove":
+            metin = t("settings.docker_cleared", count=result.get("removed", 0)) + " " + metin
+        self._docker_row.description.setText(metin)
+        self._docker_button.setEnabled(bool(self._docker_images))
+
+        if self._docker_base:
+            toplam = sum(docker_admin.size_mb(item.get("size", "")) for item in self._docker_base)
+            adlar = ", ".join(item["name"] for item in self._docker_base)
+            metin = t("settings.docker_base_usage", names=adlar, size=_size_label(toplam))
+        else:
+            metin = t("settings.docker_base_none")
+        if eylem == "remove_base":
+            metin = t("settings.docker_cleared", count=result.get("removed", 0)) + " " + metin
+        self._docker_base_row.description.setText(metin)
+        self._docker_base_button.setEnabled(bool(self._docker_base))
+
+        if self._docker_cache_mb >= 1:
+            metin = t("settings.docker_cache_usage", size=_size_label(self._docker_cache_mb))
+        else:
+            metin = t("settings.docker_cache_none")
+        if eylem == "prune":
+            metin = t("settings.docker_cache_cleared") + " " + metin
+        self._docker_cache_row.description.setText(metin)
+        self._docker_cache_button.setEnabled(self._docker_cache_mb >= 1)
+
+    def _confirm(self, prefix: str, **values) -> bool:
+        t = self._language.t
+        onay = ConfirmDialog(
+            t(f"settings.{prefix}_confirm_title"),
+            t(f"settings.{prefix}_confirm_body", **values),
+            t(f"settings.{prefix}_confirm_yes"),
+            t("common.cancel"),
+            self,
+        )
+        return bool(onay.exec())
+
+    def _on_docker_clear(self) -> None:
+        if not self._docker_images:
+            return
+        toplam = sum(docker_admin.size_mb(item.get("size", "")) for item in self._docker_images)
+        if self._confirm("docker", count=len(self._docker_images), size=_size_label(toplam)):
+            self._docker_refresh("remove")
+
+    def _on_docker_base_clear(self) -> None:
+        if not self._docker_base:
+            return
+        toplam = sum(docker_admin.size_mb(item.get("size", "")) for item in self._docker_base)
+        if self._confirm("docker_base", size=_size_label(toplam)):
+            self._docker_refresh("remove_base")
+
+    def _on_docker_prune(self) -> None:
+        if self._docker_cache_mb < 1:
+            return
+        if self._confirm("docker_cache", size=_size_label(self._docker_cache_mb)):
+            self._docker_refresh("prune")
+
     def retranslate(self) -> None:
         t = self._language.t
         self.setWindowTitle(t("settings.title"))
@@ -1057,10 +1247,26 @@ class SettingsDialog(QDialog):
         self._reminder_test_row.description.setText(t("settings.reminder_test_help"))
         self._reminder_test.setText(t("settings.reminder_test"))
 
+        self._sql_heading.setText(t("settings.storage_sql").upper())
+        self._sql_row.title.setText(t("settings.sql_databases"))
         self._sql_button.setText(t("settings.sql_clear"))
         # Durum satırı sayı taşıyor; dil değişince yeniden üretilmesi
         # gerekiyor, yoksa eski dilde kalıyor.
         self._sql_refresh()
+
+        self._docker_heading.setText(t("settings.storage_docker").upper())
+        self._docker_row.title.setText(t("settings.docker_images"))
+        self._docker_button.setText(t("settings.docker_clear"))
+        self._docker_base_row.title.setText(t("settings.docker_base"))
+        self._docker_base_button.setText(t("settings.docker_base_clear"))
+        self._docker_cache_row.title.setText(t("settings.docker_cache"))
+        self._docker_cache_button.setText(t("settings.docker_cache_clear"))
+        self._docker_autostop_row.title.setText(t("settings.docker_autostop"))
+        self._docker_autostop_row.description.setText(t("settings.docker_autostop_help"))
+        if self._docker_result is None:
+            self._docker_refresh()
+        else:
+            self._render_docker()
 
         self._export_row.title.setText(t("settings.export"))
         self._export_row.description.setText(t("settings.export_help"))

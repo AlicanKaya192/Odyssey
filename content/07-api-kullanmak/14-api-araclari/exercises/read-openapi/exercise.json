@@ -1,0 +1,36 @@
+{
+  "id": "read-openapi",
+  "title": {
+    "tr": "OpenAPI belgesini oku",
+    "en": "Read the OpenAPI document"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki iç içe döngü: `for path, operations in spec[\"paths\"].items():` ve `for method, operation in operations.items():`.",
+      "en": "Two nested loops: `for path, operations in spec[\"paths\"].items():` and `for method, operation in operations.items():`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nspec = requests.get(BASE + \"/openapi.json\").json()\nprint(spec[\"info\"][\"title\"], spec[\"info\"][\"version\"])\n\nendpoints = []\nsecured = 0\nfor path, operations in spec[\"paths\"].items():\n    for method, operation in operations.items():\n        line = method.upper() + \" \" + path + \" - \" + operation[\"summary\"]\n        if \"security\" in operation:\n            line += \" (auth)\"\n            secured += 1\n        endpoints.append(line)\n\nfor line in endpoints:\n    print(line)\nprint(\"need auth:\", secured)\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nspec = requests.get(BASE + \"/openapi.json\").json()\nprint(spec[\"info\"][\"title\"], spec[\"info\"][\"version\"])\n\nendpoints = []\nsecured = 0\nfor path, operations in spec[\"paths\"].items():\n    for method, operation in operations.items():\n        line = method.upper() + \" \" + path + \" - \" + operation[\"summary\"]\n        if \"security\" in operation:\n            line += \" (auth)\"\n            secured += 1\n        endpoints.append(line)\n\nfor line in endpoints:\n    print(line)\nprint(\"need auth:\", secured)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/openapi.json"
+    },
+    {
+      "type": "stdout",
+      "expected": "Odyssey Library API 1.0\nGET /books - List books\nPOST /books - Add a book (auth)\nGET /books/{id} - Get one book\nPUT /books/{id} - Replace a book (auth)\nPATCH /books/{id} - Change a book (auth)\nDELETE /books/{id} - Delete a book (auth)\nGET /authors - List authors\nGET /authors/{id}/books - Books of one author\nGET /stats - Library statistics (auth)\nneed auth: 5"
+    }
+  ]
+}

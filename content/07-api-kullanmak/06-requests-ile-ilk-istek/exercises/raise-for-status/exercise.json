@@ -1,0 +1,44 @@
+{
+  "id": "raise-for-status",
+  "title": {
+    "tr": "Hatayı hataya çevir",
+    "en": "Turn the code into an error"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`try:` içinde `response.raise_for_status()`; `except requests.HTTPError:` içinde `failed` satırı ve `continue`.",
+      "en": "Inside `try:` call `response.raise_for_status()`; in `except requests.HTTPError:` print the `failed` line and `continue`."
+    },
+    {
+      "tr": "Başlık ya da ad: `body.get(\"title\", body.get(\"name\"))`.",
+      "en": "Title or name: `body.get(\"title\", body.get(\"name\"))`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\npaths = [\"/books/5\", \"/books/0\", \"/authors/3\", \"/authors/42\"]\n\nfor path in paths:\n    response = requests.get(BASE + path)\n    try:\n        response.raise_for_status()\n    except requests.HTTPError:\n        print(\"failed\", path, response.status_code)\n        continue\n    body = response.json()\n    print(\"ok\", path, body.get(\"title\", body.get(\"name\")))\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\npaths = [\"/books/5\", \"/books/0\", \"/authors/3\", \"/authors/42\"]\n\nfor path in paths:\n    response = requests.get(BASE + path)\n    try:\n        response.raise_for_status()\n    except requests.HTTPError:\n        print(\"failed\", path, response.status_code)\n        continue\n    body = response.json()\n    print(\"ok\", path, body.get(\"title\", body.get(\"name\")))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Try"
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/authors/42"
+    },
+    {
+      "type": "stdout",
+      "expected": "ok /books/5 Persuasion\nfailed /books/0 404\nok /authors/3 Joyce\nfailed /authors/42 404"
+    }
+  ]
+}

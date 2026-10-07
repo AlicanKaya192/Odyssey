@@ -1,0 +1,149 @@
+{
+  "id": "sqlite-shop",
+  "title": {
+    "tr": "SQLite dükkân",
+    "en": "A SQLite shop"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Veritabanı bölümü: `INSERT` + `commit` + `lastrowid`, `IntegrityError` → `409`, `rowcount`.",
+      "en": "The database section: `INSERT` + `commit` + `lastrowid`, `IntegrityError` → `409`, `rowcount`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport sqlite3\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nDB_PATH = \"shop.db\"\n\n\ndef init_db():\n    conn = sqlite3.connect(DB_PATH)\n    conn.execute(\"\"\"CREATE TABLE IF NOT EXISTS products (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        name TEXT NOT NULL UNIQUE,\n        price REAL NOT NULL)\"\"\")\n    conn.commit()\n    conn.close()\n\n\ninit_db()\n\n\ndef get_db():\n    conn = sqlite3.connect(DB_PATH, check_same_thread=False)\n    conn.row_factory = sqlite3.Row\n    try:\n        yield conn\n    finally:\n        conn.close()\n\n\nDB = Annotated[sqlite3.Connection, Depends(get_db)]\n\n\nclass ProductIn(BaseModel):\n    name: str = Field(min_length=1)\n    price: float = Field(gt=0)\n\n\n@app.post(\"/products\", status_code=201)\ndef add_product(product: ProductIn, db: DB):\n    try:\n        cur = db.execute(\"INSERT INTO products (name, price) VALUES (?, ?)\", (product.name, product.price))\n        db.commit()\n    except sqlite3.IntegrityError:\n        raise HTTPException(status_code=409, detail=\"Product already exists\")\n    return {\"id\": cur.lastrowid, **product.model_dump()}\n\n\n@app.get(\"/products\")\ndef list_products(db: DB, max_price: float | None = None):\n    if max_price is None:\n        rows = db.execute(\"SELECT id, name, price FROM products ORDER BY id\").fetchall()\n    else:\n        rows = db.execute(\"SELECT id, name, price FROM products WHERE price <= ? ORDER BY id\",\n                          (max_price,)).fetchall()\n    return [dict(r) for r in rows]\n\n\n@app.delete(\"/products/{product_id}\", status_code=204)\ndef delete_product(product_id: int, db: DB):\n    cur = db.execute(\"DELETE FROM products WHERE id = ?\", (product_id,))\n    db.commit()\n    if cur.rowcount == 0:\n        raise HTTPException(status_code=404, detail=\"Product not found\")\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport sqlite3\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nDB_PATH = \"shop.db\"\n\n\ndef init_db():\n    conn = sqlite3.connect(DB_PATH)\n    conn.execute(\"\"\"CREATE TABLE IF NOT EXISTS products (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        name TEXT NOT NULL UNIQUE,\n        price REAL NOT NULL)\"\"\")\n    conn.commit()\n    conn.close()\n\n\ninit_db()\n\n\ndef get_db():\n    conn = sqlite3.connect(DB_PATH, check_same_thread=False)\n    conn.row_factory = sqlite3.Row\n    try:\n        yield conn\n    finally:\n        conn.close()\n\n\nDB = Annotated[sqlite3.Connection, Depends(get_db)]\n\n\nclass ProductIn(BaseModel):\n    name: str = Field(min_length=1)\n    price: float = Field(gt=0)\n\n\n@app.post(\"/products\", status_code=201)\ndef add_product(product: ProductIn, db: DB):\n    try:\n        cur = db.execute(\"INSERT INTO products (name, price) VALUES (?, ?)\", (product.name, product.price))\n        db.commit()\n    except sqlite3.IntegrityError:\n        raise HTTPException(status_code=409, detail=\"Product already exists\")\n    return {\"id\": cur.lastrowid, **product.model_dump()}\n\n\n@app.get(\"/products\")\ndef list_products(db: DB, max_price: float | None = None):\n    if max_price is None:\n        rows = db.execute(\"SELECT id, name, price FROM products ORDER BY id\").fetchall()\n    else:\n        rows = db.execute(\"SELECT id, name, price FROM products WHERE price <= ? ORDER BY id\",\n                          (max_price,)).fetchall()\n    return [dict(r) for r in rows]\n\n\n@app.delete(\"/products/{product_id}\", status_code=204)\ndef delete_product(product_id: int, db: DB):\n    cur = db.execute(\"DELETE FROM products WHERE id = ?\", (product_id,))\n    db.commit()\n    if cur.rowcount == 0:\n        raise HTTPException(status_code=404, detail=\"Product not found\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/products",
+          "json": {
+            "name": "pen",
+            "price": 1.5
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "id": 1,
+              "name": "pen",
+              "price": 1.5
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/products",
+          "json": {
+            "name": "book",
+            "price": 12.0
+          },
+          "expect": {
+            "status": 201
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/products",
+          "json": {
+            "name": "lamp",
+            "price": 30.0
+          },
+          "expect": {
+            "status": 201
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/products",
+          "json": {
+            "name": "pen",
+            "price": 2.0
+          },
+          "expect": {
+            "status": 409,
+            "json": {
+              "detail": "Product already exists"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/products",
+          "json": {
+            "name": "cup",
+            "price": 0
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/products",
+          "params": {
+            "max_price": 12
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "name": "pen",
+                "price": 1.5
+              },
+              {
+                "id": 2,
+                "name": "book",
+                "price": 12.0
+              }
+            ]
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/products/2",
+          "expect": {
+            "status": 204
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/products/2",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Product not found"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/products",
+          "expect": {
+            "status": 200,
+            "json_len": 2
+          }
+        }
+      ]
+    }
+  ]
+}

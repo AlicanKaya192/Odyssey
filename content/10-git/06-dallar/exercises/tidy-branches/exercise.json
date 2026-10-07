@@ -1,0 +1,84 @@
+{
+  "id": "tidy-branches",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Dalları topla",
+    "en": "Tidy the branches"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir site",
+    "cd site",
+    "git init",
+    "echo \"<h1>Home</h1>\" > index.html",
+    "git add .",
+    "git commit -m \"Add home page\"",
+    "echo \"body {}\" > style.css",
+    "git add .",
+    "git commit -m \"Add styles\"",
+    "git branch tmp",
+    "git switch -c experment",
+    "echo \"red\" > colors.txt",
+    "git add .",
+    "git commit -m \"Try colors\"",
+    "git switch main",
+    "git switch -c old",
+    "echo \"junk\" > junk.txt",
+    "git add .",
+    "git commit -m \"Abandoned idea\"",
+    "git switch main"
+  ],
+  "cwd": "site",
+  "solution": [
+    "git branch -v",
+    "git branch -m experment experiment",
+    "git branch -d tmp",
+    "git branch -D old",
+    "git branch"
+  ],
+  "hints": [
+    {
+      "tr": "Ad değiştirmek `git branch -m eski yeni`. Birleştirilmemiş dalı `-d` silmez; `-D` gerekir.",
+      "en": "Renaming is `git branch -m old new`. `-d` won't delete an unmerged branch; it takes `-D`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit branch -v\ngit branch -m experment experiment\ngit branch -d tmp\ngit branch -D old\ngit branch\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit branch -v\ngit branch -m experment experiment\ngit branch -d tmp\ngit branch -D old\ngit branch\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "site",
+      "branches": [
+        "experiment",
+        "main"
+      ],
+      "tips": {
+        "experiment": "^Try colors$"
+      },
+      "label": {
+        "tr": "experiment dalı doğru adıyla duruyor",
+        "en": "The experiment branch exists with the right name"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "site",
+      "no_branches": [
+        "experment",
+        "tmp",
+        "old"
+      ],
+      "label": {
+        "tr": "experment, tmp ve old yok",
+        "en": "experment, tmp and old are gone"
+      }
+    }
+  ]
+}

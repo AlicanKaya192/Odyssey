@@ -1,0 +1,96 @@
+{
+  "id": "hide-password",
+  "title": {
+    "tr": "Şifre dışarı çıkmasın",
+    "en": "Keep the password in"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`response_model=UserOut` ve listede `response_model=list[UserOut]`.",
+      "en": "`response_model=UserOut`, and for the list `response_model=list[UserOut]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\nusers = {}\n\n\nclass UserIn(BaseModel):\n    name: str\n    password: str\n\n\nclass UserOut(BaseModel):\n    id: int\n    name: str\n\n\n@app.post(\"/users\", status_code=201, response_model=UserOut)\ndef create_user(user: UserIn):\n    new_id = len(users) + 1\n    users[new_id] = {\"id\": new_id, **user.model_dump()}\n    return users[new_id]\n\n\n@app.get(\"/users\", response_model=list[UserOut])\ndef list_users():\n    return list(users.values())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\nusers = {}\n\n\nclass UserIn(BaseModel):\n    name: str\n    password: str\n\n\nclass UserOut(BaseModel):\n    id: int\n    name: str\n\n\n@app.post(\"/users\", status_code=201, response_model=UserOut)\ndef create_user(user: UserIn):\n    new_id = len(users) + 1\n    users[new_id] = {\"id\": new_id, **user.model_dump()}\n    return users[new_id]\n\n\n@app.get(\"/users\", response_model=list[UserOut])\ndef list_users():\n    return list(users.values())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/users",
+          "json": {
+            "name": "Ada",
+            "password": "s3cret"
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "id": 1,
+              "name": "Ada"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/users",
+          "json": {
+            "name": "Alan",
+            "password": "enigma"
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "id": 2,
+              "name": "Alan"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users",
+          "expect": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "name": "Ada"
+              },
+              {
+                "id": 2,
+                "name": "Alan"
+              }
+            ]
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/users",
+          "json": {
+            "name": "Bo"
+          },
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}

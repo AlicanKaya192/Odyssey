@@ -1,0 +1,60 @@
+{
+  "id": "fix-the-risks",
+  "title": {
+    "tr": "Riskleri düzelt",
+    "en": "Fix the risks"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "report.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`USER root` yerine `USER app`; `ENV DB_PASSWORD` satırı silinir.",
+      "en": "`USER app` instead of `USER root`; the `ENV DB_PASSWORD` line is deleted."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nRUN useradd --create-home --uid 1000 app\nWORKDIR /app\nCOPY report.py .\nUSER app\nCMD [\"python\", \"report.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nRUN useradd --create-home --uid 1000 app\nWORKDIR /app\nCOPY report.py .\nUSER app\nCMD [\"python\", \"report.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "pinned"
+    },
+    {
+      "type": "dockerfile",
+      "rule": "forbid",
+      "instruction": "ENV",
+      "value": "PASSWORD",
+      "show": "ENV DB_PASSWORD=..."
+    },
+    {
+      "type": "dockerfile",
+      "rule": "non_root"
+    },
+    {
+      "type": "container",
+      "expect": {
+        "user": "app",
+        "logs": "user: app\npassword set: False"
+      }
+    }
+  ]
+}

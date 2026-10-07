@@ -1,0 +1,41 @@
+{
+  "id": "follow-the-links",
+  "title": {
+    "tr": "Bağlantıları izle",
+    "en": "Follow the links"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`links = requests.get(BASE + \"/\").json()[\"links\"]`; sonra `requests.get(BASE + links[\"books\"])`.",
+      "en": "`links = requests.get(BASE + \"/\").json()[\"links\"]`; then `requests.get(BASE + links[\"books\"])`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nlinks = requests.get(BASE + \"/\").json()[\"links\"]\nprint(links)\n\nbooks = requests.get(BASE + links[\"books\"]).json()\nprint(\"books:\", books[\"meta\"][\"total\"])\n\nauthors = requests.get(BASE + links[\"authors\"]).json()\nprint(\"authors:\", len(authors[\"data\"]))\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nlinks = requests.get(BASE + \"/\").json()[\"links\"]\nprint(links)\n\nbooks = requests.get(BASE + links[\"books\"]).json()\nprint(\"books:\", books[\"meta\"][\"total\"])\n\nauthors = requests.get(BASE + links[\"authors\"]).json()\nprint(\"authors:\", len(authors[\"data\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/authors"
+    },
+    {
+      "type": "stdout",
+      "expected": "{'books': '/books', 'authors': '/authors', 'stats': '/stats'}\nbooks: 23\nauthors: 8"
+    }
+  ]
+}

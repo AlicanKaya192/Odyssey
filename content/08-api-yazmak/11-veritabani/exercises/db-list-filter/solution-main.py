@@ -1,0 +1,46 @@
+import sqlite3
+from typing import Annotated
+
+from fastapi import Depends, FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI()
+DB_PATH = "notes.db"
+
+
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("""CREATE TABLE IF NOT EXISTS notes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        text TEXT NOT NULL,
+        pinned INTEGER NOT NULL DEFAULT 0)""")
+    if conn.execute("SELECT COUNT(*) FROM notes").fetchone()[0] == 0:
+        conn.executemany("INSERT INTO notes (text, pinned) VALUES (?, ?)",
+                         [("buy milk", 0), ("call mom", 1), ("read Dune", 0), ("pay rent", 1)])
+    conn.commit()
+    conn.close()
+
+
+init_db()
+
+
+def get_db():
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
+DB = Annotated[sqlite3.Connection, Depends(get_db)]
+
+
+@app.get("/notes")
+def list_notes(db: DB, pinned: bool | None = None):
+    if pinned is None:
+        rows = db.execute("SELECT id, text, pinned FROM notes ORDER BY id").fetchall()
+    else:
+        rows = db.execute("SELECT id, text, pinned FROM notes WHERE pinned = ? ORDER BY id",
+                          (int(pinned),)).fetchall()
+    return [{"id": r["id"], "text": r["text"], "pinned": bool(r["pinned"])} for r in rows]

@@ -1,0 +1,38 @@
+{
+  "id": "read-the-rejection",
+  "title": {
+    "tr": "Reddi oku",
+    "en": "Read the rejection"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Hata gövdesi `{\"error\": \"validation\", \"detail\": \"...\"}`; `r.json()[\"detail\"]`.",
+      "en": "The error body is `{\"error\": \"validation\", \"detail\": \"...\"}`; use `r.json()[\"detail\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\nAUTH = {\"Authorization\": \"Bearer letmein\"}\n\nbooks = [\n    {\"title\": \"\", \"price\": 7.0},\n    {\"title\": \"Kindred\", \"price\": \"11.50\"},\n    {\"title\": \"Kindred\", \"price\": 11.5, \"author_id\": 99},\n    {\"title\": \"Kindred\", \"price\": 11.5},\n]\n\nfor book in books:\n    r = requests.post(BASE + \"/books\", json=book, headers=AUTH)\n    if r.status_code == 201:\n        print(\"created\", r.headers[\"Location\"])\n    else:\n        print(r.status_code, r.json()[\"detail\"])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\nAUTH = {\"Authorization\": \"Bearer letmein\"}\n\nbooks = [\n    {\"title\": \"\", \"price\": 7.0},\n    {\"title\": \"Kindred\", \"price\": \"11.50\"},\n    {\"title\": \"Kindred\", \"price\": 11.5, \"author_id\": 99},\n    {\"title\": \"Kindred\", \"price\": 11.5},\n]\n\nfor book in books:\n    r = requests.post(BASE + \"/books\", json=book, headers=AUTH)\n    if r.status_code == 201:\n        print(\"created\", r.headers[\"Location\"])\n    else:\n        print(r.status_code, r.json()[\"detail\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "POST",
+      "path": "/books",
+      "min": 4,
+      "max": 4
+    },
+    {
+      "type": "stdout",
+      "expected": "422 title must be a non-empty string\n422 price must be a positive number\n422 author_id does not exist\ncreated /books/24"
+    }
+  ]
+}

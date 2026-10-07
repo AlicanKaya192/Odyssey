@@ -12,7 +12,7 @@ Kullanım:
       "code_path":   çalıştırılacak dosya,
       "result_path": sonucun yazılacağı dosya,
       "checks":      uygulanacak kontroller,
-      "language":    "python" (varsayılan) ya da "tsql",
+      "language":    "python" (varsayılan), "tsql" ya da "docker",
       "user_files":  çok dosyalı alıştırmada kişinin bütün .py dosyaları
     }
 
@@ -500,6 +500,9 @@ def run_checks(
     namespace: dict,
     artifacts: list[dict] | None = None,
     trees: dict | None = None,
+    api_log: list[dict] | None = None,
+    workspace: Path | None = None,
+    http_log: list[dict] | None = None,
 ) -> list[dict]:
     """Bütün kontrolleri sırayla uygular.
 
@@ -531,6 +534,19 @@ def run_checks(
             outcome = compare_annotation(check, tree_for)
         elif kind == "artifact":
             outcome = check_artifact(check, artifacts or [])
+        elif kind == "requests":
+            import api_sandbox
+
+            outcome = api_sandbox.check_requests(check, api_log or [])
+        elif kind == "http":
+            import fastapi_sandbox
+
+            outcome = fastapi_sandbox.check_http(check, namespace, workspace or Path.cwd(),
+                                                 http_log if http_log is not None else [])
+        elif kind == "pytest":
+            import fastapi_sandbox
+
+            outcome = fastapi_sandbox.check_pytest(check, workspace or Path.cwd())
         elif kind == "ast_forbid":
             forbidden = check.get("call", "")
             used = tree_for is not None and forbidden in called_names(tree_for)
@@ -754,6 +770,14 @@ def run_traced(compiled, namespace: dict, user_files: set, out_buffer: io.String
     return durum["dolu"]
 
 
+def _request_lines(log: list[dict]) -> list[dict]:
+    """Terminalde gösterilecek istek satırları (başlıklar ve gövde olmadan)."""
+    return [
+        {"method": e["method"], "path": e["path"], "query": e["query"], "status": e["status"]}
+        for e in log[:200]
+    ]
+
+
 def main() -> int:
     if len(sys.argv) < 2:
         print("Kullanım: harness.py <job.json>", file=sys.stderr)
@@ -775,6 +799,26 @@ def main() -> int:
             json.dumps(sonuc, ensure_ascii=False), encoding="utf-8"
         )
         return 0
+
+    # Docker alıştırmaları da bu süreçte çalışmıyor: dosyalar ayrıştırılıyor
+    # ve Docker açıksa imaj gerçekten kuruluyor (`docker_runner`).
+    if job.get("language") == "docker":
+        import docker_runner
+
+        try:
+            sonuc = docker_runner.run(job)
+        except Exception as exc:  # noqa: BLE001 - sonuç yine yazılmalı
+            sonuc = {"status": "error", "stdout": "", "stderr": traceback.format_exc()[-4000:],
+                     "error": {"type": type(exc).__name__, "message": str(exc)}, "checks": []}
+        result_path.write_text(json.dumps(sonuc, ensure_ascii=False), encoding="utf-8")
+        return 0
+
+    # API 2: "Sunucuyu başlat". Kişinin uygulaması uvicorn ile açılıyor ve
+    # süreç öldürülene kadar çalışıyor; sonuç dosyası yok.
+    if job.get("serve"):
+        import fastapi_sandbox
+
+        return fastapi_sandbox.serve(job)
 
     code_path = str(Path(job["code_path"]).resolve())
 
@@ -842,8 +886,30 @@ def main() -> int:
         result_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
         return 0
 
+    # API alıştırması: çalışma klasöründe `api_routes.py` varsa alıştırma
+    # sunucusu açılıyor (`api_sandbox.py`); kod ona gerçek istek atıyor.
+    import api_sandbox
+
+    api = api_sandbox.start_if_present(workspace_dir)
+
+    # API 2: `uvicorn.run(app)` sunucu açıp denetimi bekletmesin.
+    import fastapi_sandbox
+
+    kaynaklar = [source] + [Path(p).read_text(encoding="utf-8") for p in kaynak_yollar[1:]]
+    fastapi_sandbox.guard_uvicorn(kaynaklar)
+
     # 2) Kodu temiz bir isim alanında çalıştır.
-    namespace: dict = {"__name__": "__main__", "__file__": code_path}
+    #
+    # İsim alanı gerçek bir modül nesnesinin sözlüğü ve `sys.modules["__main__"]`
+    # o modül. Düz bir sözlükte çalışınca Pydantic iç içe modeldeki tipleri
+    # (`items: list[Item]`) `__main__` modülünde arayıp bulamıyordu ve uç
+    # nokta 500 veriyordu (API 2'de yakalandı); `pickle` da aynı yolu izliyor.
+    import types
+
+    kisinin_modulu = types.ModuleType("__main__")
+    kisinin_modulu.__file__ = code_path
+    sys.modules["__main__"] = kisinin_modulu
+    namespace: dict = kisinin_modulu.__dict__
     out_buffer, err_buffer = io.StringIO(), io.StringIO()
     izle = bool(job.get("trace"))
     steps: list = []
@@ -875,6 +941,9 @@ def main() -> int:
         result["stderr"], _ = clip(err_buffer.getvalue())
         result["steps"] = steps
         result["steps_truncated"] = steps_full
+        if api is not None:
+            result["requests"] = _request_lines(api.summary())
+            api.stop()
         result_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
         return 0
 
@@ -891,7 +960,14 @@ def main() -> int:
 
     # 3) Kod hata verse bile kontrolleri uygula: kısmen doğru bir çözümde
     #    hangi adımların tuttuğunu görmek öğrenciye yol gösterir.
-    result["checks"] = run_checks(checks, tree, stdout, namespace, result["artifacts"], trees)
+    api_log = api.summary() if api is not None else []
+    http_log: list[dict] = []
+    result["checks"] = run_checks(checks, tree, stdout, namespace, result["artifacts"], trees, api_log,
+                                  workspace_dir, http_log)
+    if api is not None or http_log:
+        result["requests"] = _request_lines(api_log + http_log)
+    if api is not None:
+        api.stop()
 
     result_path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
     return 0

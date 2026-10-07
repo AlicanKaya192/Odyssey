@@ -1,0 +1,107 @@
+{
+  "id": "safe-paging",
+  "title": {
+    "tr": "Sınırlı sayfalama",
+    "en": "Bounded paging"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`limit: Annotated[int, Query(ge=1, le=5)] = 3`; dilim `items[offset:offset + limit]`.",
+      "en": "`limit: Annotated[int, Query(ge=1, le=5)] = 3`; the slice is `items[offset:offset + limit]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import FastAPI, Query\n\napp = FastAPI()\nitems = [\"apple\", \"bread\", \"cheese\", \"dates\", \"eggs\", \"flour\", \"grapes\", \"honey\"]\n\n\n@app.get(\"/items\")\ndef list_items(limit: Annotated[int, Query(ge=1, le=5)] = 3,\n               offset: Annotated[int, Query(ge=0)] = 0):\n    return items[offset:offset + limit]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import FastAPI, Query\n\napp = FastAPI()\nitems = [\"apple\", \"bread\", \"cheese\", \"dates\", \"eggs\", \"flour\", \"grapes\", \"honey\"]\n\n\n@app.get(\"/items\")\ndef list_items(limit: Annotated[int, Query(ge=1, le=5)] = 3,\n               offset: Annotated[int, Query(ge=0)] = 0):\n    return items[offset:offset + limit]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/items",
+          "expect": {
+            "status": 200,
+            "json": [
+              "apple",
+              "bread",
+              "cheese"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/items",
+          "params": {
+            "limit": 2,
+            "offset": 6
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              "grapes",
+              "honey"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/items",
+          "params": {
+            "limit": 5
+          },
+          "expect": {
+            "status": 200,
+            "json_len": 5
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/items",
+          "params": {
+            "limit": 6
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/items",
+          "params": {
+            "limit": 0
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/items",
+          "params": {
+            "offset": -1
+          },
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}

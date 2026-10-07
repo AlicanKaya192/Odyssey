@@ -1,0 +1,124 @@
+{
+  "id": "read-task",
+  "title": {
+    "tr": "Birini oku, süzerek listele",
+    "en": "Read one, list with a filter"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`done: bool | None = None`; `if done is not None:` ile süz (`if done:` yazarsan `false` süzülmez).",
+      "en": "`done: bool | None = None`; filter with `if done is not None:` (with `if done:` a `false` filter wouldn't work)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\ntasks = {}\nnext_id = 1\n\n\nclass TaskIn(BaseModel):\n    title: str = Field(min_length=1)\n    done: bool = False\n\n\nclass TaskOut(TaskIn):\n    id: int\n\n\n@app.post(\"/tasks\", status_code=status.HTTP_201_CREATED)\ndef create_task(task: TaskIn) -> TaskOut:\n    global next_id\n    record = {\"id\": next_id, **task.model_dump()}\n    tasks[next_id] = record\n    next_id += 1\n    return record\n\n\ndef find_task(task_id: int) -> dict:\n    if task_id not in tasks:\n        raise HTTPException(status_code=404, detail=\"Task not found\")\n    return tasks[task_id]\n\n\n@app.get(\"/tasks\")\ndef list_tasks(done: bool | None = None) -> list[TaskOut]:\n    result = list(tasks.values())\n    if done is not None:\n        result = [t for t in result if t[\"done\"] == done]\n    return result\n\n\n@app.get(\"/tasks/{task_id}\")\ndef read_task(task_id: int) -> TaskOut:\n    return find_task(task_id)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\ntasks = {}\nnext_id = 1\n\n\nclass TaskIn(BaseModel):\n    title: str = Field(min_length=1)\n    done: bool = False\n\n\nclass TaskOut(TaskIn):\n    id: int\n\n\n@app.post(\"/tasks\", status_code=status.HTTP_201_CREATED)\ndef create_task(task: TaskIn) -> TaskOut:\n    global next_id\n    record = {\"id\": next_id, **task.model_dump()}\n    tasks[next_id] = record\n    next_id += 1\n    return record\n\n\ndef find_task(task_id: int) -> dict:\n    if task_id not in tasks:\n        raise HTTPException(status_code=404, detail=\"Task not found\")\n    return tasks[task_id]\n\n\n@app.get(\"/tasks\")\ndef list_tasks(done: bool | None = None) -> list[TaskOut]:\n    result = list(tasks.values())\n    if done is not None:\n        result = [t for t in result if t[\"done\"] == done]\n    return result\n\n\n@app.get(\"/tasks/{task_id}\")\ndef read_task(task_id: int) -> TaskOut:\n    return find_task(task_id)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/tasks",
+          "json": {
+            "title": "A"
+          },
+          "expect": {
+            "status": 201
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/tasks",
+          "json": {
+            "title": "B",
+            "done": true
+          },
+          "expect": {
+            "status": 201
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tasks",
+          "params": {
+            "done": "true"
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              {
+                "title": "B",
+                "done": true,
+                "id": 2
+              }
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tasks",
+          "params": {
+            "done": "false"
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              {
+                "title": "A",
+                "done": false,
+                "id": 1
+              }
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tasks",
+          "expect": {
+            "status": 200,
+            "json_len": 2
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tasks/2",
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "B",
+              "done": true,
+              "id": 2
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tasks/9",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Task not found"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

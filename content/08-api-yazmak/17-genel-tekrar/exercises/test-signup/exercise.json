@@ -1,0 +1,77 @@
+{
+  "id": "test-signup",
+  "title": {
+    "tr": "Kaydı test et",
+    "en": "Test the signup"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "readonly": true
+    },
+    {
+      "name": "test_main.py",
+      "starter": "starter-test_main.{lang}.py",
+      "solution": "solution-test_main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Durum paylaşılıyor: `emails.clear()` yapan `autouse` fixture. Sınır için `parametrize`: 12 ve 13.",
+      "en": "The state is shared: an `autouse` fixture doing `emails.clear()`. For the limit, `parametrize`: 12 and 13."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test_main.py**\n\n```python\nimport pytest\nfrom fastapi.testclient import TestClient\n\nfrom main import app, emails\n\nclient = TestClient(app)\n\n\n@pytest.fixture(autouse=True)\ndef clean():\n    emails.clear()\n    yield\n    emails.clear()\n\n\ndef test_signup():\n    r = client.post(\"/signup\", json={\"email\": \"Ada@X.org\", \"age\": 36})\n    assert r.status_code == 201\n    assert r.json() == {\"email\": \"ada@x.org\"}\n\n\ndef test_duplicate():\n    client.post(\"/signup\", json={\"email\": \"ada@x.org\", \"age\": 36})\n    r = client.post(\"/signup\", json={\"email\": \"ADA@x.org\", \"age\": 36})\n    assert r.status_code == 409\n\n\n@pytest.mark.parametrize(\"age, code\", [(12, 422), (13, 201)])\ndef test_age_limit(age, code):\n    r = client.post(\"/signup\", json={\"email\": f\"kid{age}@x.org\", \"age\": age})\n    assert r.status_code == code\n```",
+      "en": "The full solution:\n\n**test_main.py**\n\n```python\nimport pytest\nfrom fastapi.testclient import TestClient\n\nfrom main import app, emails\n\nclient = TestClient(app)\n\n\n@pytest.fixture(autouse=True)\ndef clean():\n    emails.clear()\n    yield\n    emails.clear()\n\n\ndef test_signup():\n    r = client.post(\"/signup\", json={\"email\": \"Ada@X.org\", \"age\": 36})\n    assert r.status_code == 201\n    assert r.json() == {\"email\": \"ada@x.org\"}\n\n\ndef test_duplicate():\n    client.post(\"/signup\", json={\"email\": \"ada@x.org\", \"age\": 36})\n    r = client.post(\"/signup\", json={\"email\": \"ADA@x.org\", \"age\": 36})\n    assert r.status_code == 409\n\n\n@pytest.mark.parametrize(\"age, code\", [(12, 422), (13, 201)])\ndef test_age_limit(age, code):\n    r = client.post(\"/signup\", json={\"email\": f\"kid{age}@x.org\", \"age\": age})\n    assert r.status_code == code\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "test_main.py",
+      "min": 4,
+      "mutants": [
+        {
+          "file": "main.py",
+          "source": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nemails = set()\n\n\nclass Signup(BaseModel):\n    email: str = Field(min_length=3)\n    age: int = Field(ge=13)\n\n\n@app.post(\"/signup\")\ndef signup(data: Signup):\n    email = data.email.lower()\n    if email in emails:\n        raise HTTPException(status_code=409, detail=\"Email already registered\")\n    emails.add(email)\n    return {\"email\": email}\n",
+          "bug": {
+            "tr": "kayıt 201 yerine 200 dönüyor.",
+            "en": "signing up returns 200 instead of 201."
+          }
+        },
+        {
+          "file": "main.py",
+          "source": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nemails = set()\n\n\nclass Signup(BaseModel):\n    email: str = Field(min_length=3)\n    age: int = Field(ge=13)\n\n\n@app.post(\"/signup\", status_code=201)\ndef signup(data: Signup):\n    email = data.email.lower()\n    emails.add(email)\n    return {\"email\": email}\n",
+          "bug": {
+            "tr": "aynı e-posta ikinci kez kabul ediliyor.",
+            "en": "the same email is accepted twice."
+          }
+        },
+        {
+          "file": "main.py",
+          "source": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nemails = set()\n\n\nclass Signup(BaseModel):\n    email: str = Field(min_length=3)\n    age: int\n\n\n@app.post(\"/signup\", status_code=201)\ndef signup(data: Signup):\n    email = data.email.lower()\n    if email in emails:\n        raise HTTPException(status_code=409, detail=\"Email already registered\")\n    emails.add(email)\n    return {\"email\": email}\n",
+          "bug": {
+            "tr": "13 yaşından küçükler kabul ediliyor.",
+            "en": "people under 13 are accepted."
+          }
+        },
+        {
+          "file": "main.py",
+          "source": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nemails = set()\n\n\nclass Signup(BaseModel):\n    email: str = Field(min_length=3)\n    age: int = Field(ge=13)\n\n\n@app.post(\"/signup\", status_code=201)\ndef signup(data: Signup):\n    email = data.email\n    if email in emails:\n        raise HTTPException(status_code=409, detail=\"Email already registered\")\n    emails.add(email)\n    return {\"email\": email}\n",
+          "bug": {
+            "tr": "e-posta küçük harfe çevrilmiyor.",
+            "en": "the email isn't lower-cased."
+          }
+        }
+      ]
+    }
+  ]
+}

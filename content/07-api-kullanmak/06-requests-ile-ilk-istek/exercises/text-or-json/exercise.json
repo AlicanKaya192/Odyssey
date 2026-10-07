@@ -1,0 +1,58 @@
+{
+  "id": "text-or-json",
+  "title": {
+    "tr": "Metin mi JSON mu?",
+    "en": "Text or JSON?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`response.headers.get(\"Content-Type\", \"\").startswith(\"application/json\")` koşulu yeter.",
+      "en": "The condition `response.headers.get(\"Content-Type\", \"\").startswith(\"application/json\")` is enough."
+    },
+    {
+      "tr": "`/authors` uzun bir liste döndürüyor; yazdırırken yalnızca yazar sayısını yaz: `str(len(body[\"data\"])) + \" authors\"`.",
+      "en": "`/authors` returns a long list; when printing, write only the number of authors: `str(len(body[\"data\"])) + \" authors\"`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef read_body(path):\n    response = requests.get(BASE + path)\n    content_type = response.headers.get(\"Content-Type\", \"\")\n    if content_type.startswith(\"application/json\"):\n        return response.json()\n    return response.text\n\n\nfor path in [\"/status\", \"/authors/2\", \"/authors\"]:\n    body = read_body(path)\n    kind = type(body).__name__\n    if isinstance(body, dict) and \"data\" in body:\n        body = str(len(body[\"data\"])) + \" authors\"\n    print(path, kind, body)\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef read_body(path):\n    response = requests.get(BASE + path)\n    content_type = response.headers.get(\"Content-Type\", \"\")\n    if content_type.startswith(\"application/json\"):\n        return response.json()\n    return response.text\n\n\nfor path in [\"/status\", \"/authors/2\", \"/authors\"]:\n    body = read_body(path)\n    kind = type(body).__name__\n    if isinstance(body, dict) and \"data\" in body:\n        body = str(len(body[\"data\"])) + \" authors\"\n    print(path, kind, body)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "read_body",
+      "cases": [
+        {
+          "args": [
+            "/status"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "/authors/1"
+          ],
+          "returns": {
+            "id": 1,
+            "name": "Austen",
+            "country": "UK",
+            "born": 1775
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "/status str ok\n/authors/2 dict {'id': 2, 'name': 'Herbert', 'country': 'US', 'born': 1920}\n/authors dict 8 authors"
+    }
+  ]
+}

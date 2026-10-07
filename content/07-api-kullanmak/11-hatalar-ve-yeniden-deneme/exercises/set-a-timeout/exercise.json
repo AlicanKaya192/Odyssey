@@ -1,0 +1,42 @@
+{
+  "id": "set-a-timeout",
+  "title": {
+    "tr": "Süre koy",
+    "en": "Set a time limit"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`try:` içinde `requests.get(BASE + \"/slow\", timeout=1)`, `except requests.Timeout:` içinde mesaj.",
+      "en": "Inside `try:` call `requests.get(BASE + \"/slow\", timeout=1)`; print the message inside `except requests.Timeout:`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\ntry:\n    requests.get(BASE + \"/slow\", timeout=1)\nexcept requests.Timeout:\n    print(\"too slow: gave up after 1 second\")\n\nr = requests.get(BASE + \"/slow\", timeout=5)\nprint(\"status:\", r.status_code)\nprint(\"ok:\", r.json()[\"ok\"])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\ntry:\n    requests.get(BASE + \"/slow\", timeout=1)\nexcept requests.Timeout:\n    print(\"too slow: gave up after 1 second\")\n\nr = requests.get(BASE + \"/slow\", timeout=5)\nprint(\"status:\", r.status_code)\nprint(\"ok:\", r.json()[\"ok\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "Try"
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/slow",
+      "min": 2,
+      "max": 2
+    },
+    {
+      "type": "stdout",
+      "expected": "too slow: gave up after 1 second\nstatus: 200\nok: True"
+    }
+  ]
+}

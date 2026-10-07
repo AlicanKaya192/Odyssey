@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "API yanıtını tabloya dökmek neden ayrı bir iş gerektirir?",
+        "en": "Why does turning an API response into a table take extra work?"
+      },
+      "options": {
+        "tr": [
+          "Yanıt iç içe bir ağaç, tablo ise düz satırlar ister",
+          "API'ler tablo göndermeyi yasaklar",
+          "JSON tabloya çevrilemez",
+          "Tablolar yalnızca Excel'de olur"
+        ],
+        "en": [
+          "The response is a nested tree while a table needs flat rows",
+          "APIs forbid sending tables",
+          "JSON cannot be turned into a table",
+          "Tables only exist in Excel"
+        ]
+      },
+      "explanation": {
+        "tr": "Kayıtlar listelerin, sözlüklerin içinde. Tablo ise her satırda tek düzeyli alanlar istiyor; aradaki dönüşümü sen yapıyorsun.",
+        "en": "The records sit inside lists and dictionaries. A table wants single-level fields in every row; you do the conversion in between."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "Yanıtın en dışındaki, kayıt listesini taşıyan sözlüğe ne denebilir?",
+        "en": "What can you call the outermost dictionary of a response that carries the list of records?"
+      },
+      "options": {
+        "tr": [
+          "Zarf (envelope)",
+          "Başlık",
+          "Gövde satırı",
+          "Anahtar"
+        ],
+        "en": [
+          "The envelope",
+          "The header",
+          "The body line",
+          "The key"
+        ]
+      },
+      "explanation": {
+        "tr": "Zarf kayıtları bir anahtarın altında taşıyor (`data`, `items`, `results`) ve yanında `meta` gibi ek bilgiler veriyor.",
+        "en": "The envelope carries the records under one key (`data`, `items`, `results`) and gives extra information such as `meta` next to them."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`{\"data\": [...], \"meta\": {\"total\": 42}}` yanıtında kayıt listesine nasıl ulaşılır?",
+        "en": "In the response `{\"data\": [...], \"meta\": {\"total\": 42}}`, how do you reach the list of records?"
+      },
+      "options": {
+        "tr": [
+          "`response[\"data\"]`",
+          "`response[\"meta\"]`",
+          "`response[0]`",
+          "`response[\"total\"]`"
+        ],
+        "en": [
+          "`response[\"data\"]`",
+          "`response[\"meta\"]`",
+          "`response[0]`",
+          "`response[\"total\"]`"
+        ]
+      },
+      "explanation": {
+        "tr": "Kayıtlar `data` anahtarında. `meta` onlar hakkında bilgi; `response[0]` sözlükte çalışmaz.",
+        "en": "The records are under the `data` key. `meta` is information about them; `response[0]` does not work on a dictionary."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Yanıtta 3 kayıt var ama `meta.total` 42 diyor. Bu ne anlatır?",
+        "en": "The response has 3 records but `meta.total` says 42. What does this tell you?"
+      },
+      "options": {
+        "tr": [
+          "Verinin tamamı değil, yalnızca bir sayfası elinde",
+          "39 kayıt silinmiş",
+          "API hatalı",
+          "Toplam her zaman 14 katıdır"
+        ],
+        "en": [
+          "You hold only one page, not all of the data",
+          "39 records were deleted",
+          "The API is broken",
+          "The total is always 14 times larger"
+        ]
+      },
+      "explanation": {
+        "tr": "API'ler büyük listeleri sayfalara böler. Hepsini çekmek için sonraki sayfaları da istemek gerekir (Bölüm 10).",
+        "en": "APIs split large lists into pages. To get all of it you must ask for the following pages too (Section 10)."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Sözlüklerden oluşan bir liste tabloda neye karşılık gelir?",
+        "en": "What does a list of dictionaries correspond to in a table?"
+      },
+      "options": {
+        "tr": [
+          "Her sözlük bir satır, her anahtar bir sütun",
+          "Her sözlük bir sütun",
+          "Her anahtar bir satır",
+          "Bütün liste tek bir hücre"
+        ],
+        "en": [
+          "Each dictionary is a row, each key a column",
+          "Each dictionary is a column",
+          "Each key is a row",
+          "The whole list is one cell"
+        ]
+      },
+      "explanation": {
+        "tr": "Python'da tablonun en yaygın hâli bu. `csv.DictWriter` ve `pandas.DataFrame` bunu doğrudan kabul eder.",
+        "en": "This is the most common form of a table in Python. `csv.DictWriter` and `pandas.DataFrame` accept it directly."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`{\"author\": {\"name\": \"Austen\"}}` alanını düzleştirince sütun adı genellikle ne olur?",
+        "en": "When you flatten the field `{\"author\": {\"name\": \"Austen\"}}`, what is the column name usually?"
+      },
+      "options": {
+        "tr": [
+          "`author_name` (ya da `author.name`)",
+          "`name`",
+          "`author`",
+          "`Austen`"
+        ],
+        "en": [
+          "`author_name` (or `author.name`)",
+          "`name`",
+          "`author`",
+          "`Austen`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ad, yol birleştirilerek kurulur. Yalnızca `name` deseydin, başka bir sözlükteki `name` ile karışırdı.",
+        "en": "The name is built by joining the path. With just `name`, it would clash with a `name` from another dictionary."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Bazı kayıtlarda `country` alanı yok. Hangisi güvenli okuma?",
+        "en": "Some records have no `country` field. Which is a safe way to read it?"
+      },
+      "options": {
+        "tr": [
+          "`author.get(\"country\", \"unknown\")`",
+          "`author[\"country\"]`",
+          "`author.country`",
+          "`author[0]`"
+        ],
+        "en": [
+          "`author.get(\"country\", \"unknown\")`",
+          "`author[\"country\"]`",
+          "`author.country`",
+          "`author[0]`"
+        ]
+      },
+      "explanation": {
+        "tr": "Köşeli parantez eksik anahtarda `KeyError` verir; `get` varsayılan değeri döndürür. API'nin her alanı her kayıtta göndereceğine güvenme.",
+        "en": "Square brackets raise a `KeyError` on a missing key; `get` returns the default. Do not trust an API to send every field in every record."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "Bir fonksiyonun kendini yeniden çağırmasına ne denir?",
+        "en": "What is a function calling itself called?"
+      },
+      "options": {
+        "tr": [
+          "Özyineleme (recursion)",
+          "Döngü",
+          "Serileştirme",
+          "Düzleştirme"
+        ],
+        "en": [
+          "Recursion",
+          "A loop",
+          "Serialization",
+          "Flattening"
+        ]
+      },
+      "explanation": {
+        "tr": "`flatten` iç içe bir sözlükle karşılaşınca aynı işi onun için yapsın diye kendini çağırıyor. Böylece her derinlikte çalışıyor.",
+        "en": "`flatten` calls itself when it meets a nested dictionary so the same job is done for it. That way it works at any depth."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`isinstance(value, dict)` ne sorar?",
+        "en": "What does `isinstance(value, dict)` ask?"
+      },
+      "options": {
+        "tr": [
+          "Bu değer bir sözlük mü?",
+          "Bu değer boş mu?",
+          "Bu değer JSON mu?",
+          "Bu değer bir anahtar mı?"
+        ],
+        "en": [
+          "Is this value a dictionary?",
+          "Is this value empty?",
+          "Is this value JSON?",
+          "Is this value a key?"
+        ]
+      },
+      "explanation": {
+        "tr": "`isinstance` bir değerin belli bir türde olup olmadığını söyler. `flatten` bununla iç içe sözlükleri ayırt ediyor.",
+        "en": "`isinstance` tells whether a value is of a certain type. `flatten` uses it to tell nested dictionaries apart."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`a = {\"x\": 1}; a.update({\"y\": 2})` sonrasında `a` nedir?",
+        "en": "After `a = {\"x\": 1}; a.update({\"y\": 2})`, what is `a`?"
+      },
+      "options": {
+        "tr": [
+          "`{\"x\": 1, \"y\": 2}`",
+          "`{\"y\": 2}`",
+          "`{\"x\": 1}`",
+          "`[1, 2]`"
+        ],
+        "en": [
+          "`{\"x\": 1, \"y\": 2}`",
+          "`{\"y\": 2}`",
+          "`{\"x\": 1}`",
+          "`[1, 2]`"
+        ]
+      },
+      "explanation": {
+        "tr": "`update` bir sözlüğün içeriğini ötekine ekler; aynı anahtar varsa değerini yenisiyle değiştirir.",
+        "en": "`update` adds the contents of one dictionary to another; if the same key exists, its value is replaced by the new one."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "`tags` listesini tek hücrede tutmanın yolu hangisi?",
+        "en": "Which is a way to keep the `tags` list in one cell?"
+      },
+      "options": {
+        "tr": [
+          "`\"|\".join(item[\"tags\"])`",
+          "`item[\"tags\"][0]`",
+          "`len(item[\"tags\"])`",
+          "`item[\"tags\"].sort()`"
+        ],
+        "en": [
+          "`\"|\".join(item[\"tags\"])`",
+          "`item[\"tags\"][0]`",
+          "`len(item[\"tags\"])`",
+          "`item[\"tags\"].sort()`"
+        ]
+      },
+      "explanation": {
+        "tr": "`join` listeyi tek bir metne birleştirir: `classic|novel`. İlk etiketi almak bilgiyi kaybettirir; `len` yalnızca sayıyı verir.",
+        "en": "`join` combines the list into one string: `classic|novel`. Taking the first tag loses information; `len` only gives the count."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Etiketleri birleştirirken ayraç olarak neden `|` seçilir?",
+        "en": "Why choose `|` as the separator when joining tags?"
+      },
+      "options": {
+        "tr": [
+          "Virgül CSV'nin sütun ayracı olduğu için karışıklık çıkmasın diye",
+          "`|` daha hızlıdır",
+          "Virgül JSON'da yasak",
+          "Python başka ayraç kabul etmez"
+        ],
+        "en": [
+          "Because a comma is CSV's column separator and would cause confusion",
+          "`|` is faster",
+          "Commas are forbidden in JSON",
+          "Python accepts no other separator"
+        ]
+      },
+      "explanation": {
+        "tr": "CSV sütunları virgülle ayırır. Hücre içindeki virgüller tırnakla korunur ama başka araçlarda karışıklığa yol açabilir.",
+        "en": "CSV separates columns with commas. Commas inside a cell are protected with quotes, but they can cause confusion in other tools."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "\"Hangi etiket kaç kitapta var?\" sorusu için hangi biçim daha uygun?",
+        "en": "Which form suits the question \"how many books have each tag?\" better?"
+      },
+      "options": {
+        "tr": [
+          "Her kitap–etiket çifti için ayrı satır",
+          "Etiketlerin tek hücrede birleştirildiği tablo",
+          "Yalnızca ilk etiketin tutulduğu tablo",
+          "Etiketsiz tablo"
+        ],
+        "en": [
+          "A separate row for each book–tag pair",
+          "A table with tags joined in one cell",
+          "A table that keeps only the first tag",
+          "A table without tags"
+        ]
+      },
+      "explanation": {
+        "tr": "Her çift ayrı satırsa etiketleri saymak, bir sütundaki değerleri saymak kadar kolay.",
+        "en": "If each pair is its own row, counting tags is as easy as counting the values in one column."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Her kitap–etiket çifti için ayrı satır açınca etiketi olmayan kitaba ne olur?",
+        "en": "When you open a row for each book–tag pair, what happens to a book with no tags?"
+      },
+      "options": {
+        "tr": [
+          "O tabloda hiç görünmez",
+          "Boş bir satırla görünür",
+          "Hata verir",
+          "İki kez görünür"
+        ],
+        "en": [
+          "It does not appear in that table at all",
+          "It appears with an empty row",
+          "It raises an error",
+          "It appears twice"
+        ]
+      },
+      "explanation": {
+        "tr": "İç döngü boş listede hiç dönmez, satır eklenmez. Bu tablo kitabı değil kitap–etiket ilişkisini tutuyor.",
+        "en": "The inner loop never runs on an empty list, so no row is added. This table holds the book–tag relationship, not the book."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "API fiyatı `\"12.50\"` olarak gönderiyor. Tabloya koymadan önce ne yapmalısın?",
+        "en": "The API sends the price as `\"12.50\"`. What should you do before putting it in the table?"
+      },
+      "options": {
+        "tr": [
+          "`float(...)` ile sayıya çevirmek",
+          "Olduğu gibi bırakmak",
+          "Tırnakları silmek için metni düzenlemek",
+          "Silmek"
+        ],
+        "en": [
+          "Turn it into a number with `float(...)`",
+          "Leave it as it is",
+          "Edit the text to remove the quotes",
+          "Delete it"
+        ]
+      },
+      "explanation": {
+        "tr": "Metinle toplama, ortalama yapılamaz. Türü satırı kurarken düzeltmek en temiz yol.",
+        "en": "You cannot sum or average text. Fixing the type while building the row is the cleanest way."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "API'lerde hangisi sık görülen bir tür sorunudur?",
+        "en": "Which is a common type problem in APIs?"
+      },
+      "options": {
+        "tr": [
+          "Sayıların ve tarihlerin metin olarak gelmesi",
+          "Metinlerin sayı olarak gelmesi",
+          "Bütün değerlerin `true` gelmesi",
+          "Listelerin hiç gelmemesi"
+        ],
+        "en": [
+          "Numbers and dates arriving as text",
+          "Text arriving as numbers",
+          "Every value arriving as `true`",
+          "Lists never arriving"
+        ]
+      },
+      "explanation": {
+        "tr": "`\"12.50\"`, `\"42\"`, `\"2024-03-01T09:00:00Z\"` gibi değerler metin gelir; boş değer de `null`, `\"\"` ya da `\"N/A\"` olabilir.",
+        "en": "Values such as `\"12.50\"`, `\"42\"` and `\"2024-03-01T09:00:00Z\"` arrive as text; empty values may be `null`, `\"\"` or `\"N/A\"`."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "`csv.DictWriter` içindeki `fieldnames` neyi belirler?",
+        "en": "What does `fieldnames` in `csv.DictWriter` decide?"
+      },
+      "options": {
+        "tr": [
+          "Sütunları ve sıralarını",
+          "Dosyanın adını",
+          "Satır sayısını",
+          "Ayraç karakterini"
+        ],
+        "en": [
+          "The columns and their order",
+          "The file's name",
+          "The number of rows",
+          "The separator character"
+        ]
+      },
+      "explanation": {
+        "tr": "Her satır sözlüğü bu adlara göre yazılır; `writeheader()` aynı adları ilk satıra koyar.",
+        "en": "Each row dictionary is written according to these names; `writeheader()` puts the same names on the first line."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "CSV dosyasını açarken `newline=\"\"` neden verilir?",
+        "en": "Why is `newline=\"\"` given when opening a CSV file?"
+      },
+      "options": {
+        "tr": [
+          "Windows'ta satırlar arasında fazladan boş satır çıkmasın diye",
+          "Dosya boş açılsın diye",
+          "Satır sonları silinsin diye",
+          "Türkçe harfler için"
+        ],
+        "en": [
+          "So that no extra blank line appears between rows on Windows",
+          "So that the file opens empty",
+          "So that line endings are removed",
+          "For Turkish letters"
+        ]
+      },
+      "explanation": {
+        "tr": "`csv` modülü satır sonlarını kendisi yazar. `newline=\"\"` verilmezse Windows bir tane daha ekler ve her satırın arasında boşluk olur.",
+        "en": "The `csv` module writes line endings itself. Without `newline=\"\"`, Windows adds another one and there is a blank line between every row."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`writer.writerows(rows)` ne yapar?",
+        "en": "What does `writer.writerows(rows)` do?"
+      },
+      "options": {
+        "tr": [
+          "Listedeki bütün satırları tek seferde yazar",
+          "Yalnızca ilk satırı yazar",
+          "Başlık satırını yazar",
+          "Dosyayı siler"
+        ],
+        "en": [
+          "Writes every row in the list at once",
+          "Writes only the first row",
+          "Writes the header line",
+          "Deletes the file"
+        ]
+      },
+      "explanation": {
+        "tr": "Döngüyle `writerow` çağırmanın kısa hâli. Başlık için ayrıca `writeheader()` gerekir.",
+        "en": "It is the short form of calling `writerow` in a loop. The header still needs `writeheader()`."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "`pd.json_normalize(response[\"data\"])` iç içe `author` sözlüğünü nasıl adlandırır?",
+        "en": "How does `pd.json_normalize(response[\"data\"])` name the nested `author` dictionary?"
+      },
+      "options": {
+        "tr": [
+          "Noktalı sütunlarla: `author.name`, `author.country`",
+          "`author_1`, `author_2`",
+          "Tek bir `author` sütunu olarak bırakır",
+          "Siler"
+        ],
+        "en": [
+          "With dotted columns: `author.name`, `author.country`",
+          "`author_1`, `author_2`",
+          "It leaves a single `author` column",
+          "It drops it"
+        ]
+      },
+      "explanation": {
+        "tr": "`json_normalize` iç içe sözlükleri noktalı adlarla açar ve eksik değere `NaN` koyar.",
+        "en": "`json_normalize` opens nested dictionaries into dotted names and puts `NaN` in missing values."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`json_normalize` hangi kararı senin yerine vermez?",
+        "en": "Which decision does `json_normalize` not make for you?"
+      },
+      "options": {
+        "tr": [
+          "Listelerin nasıl açılacağı ve metin sayıların türü",
+          "İç içe sözlüklerin düzleştirilmesi",
+          "Eksik değerlerin doldurulması",
+          "Sütun adlarının kurulması"
+        ],
+        "en": [
+          "How lists are opened and the type of numbers given as text",
+          "Flattening nested dictionaries",
+          "Filling missing values",
+          "Building column names"
+        ]
+      },
+      "explanation": {
+        "tr": "`tags` listesi olduğu gibi kalıyor, `\"12.50\"` hâlâ metin. 4. ve 5. adımlar senin kararın.",
+        "en": "The `tags` list stays as it is and `\"12.50\"` is still text. Steps 4 and 5 are your decisions."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Yanıtın kendisi bir liste (`[{...}, {...}]`). Kayıt listesi hangisi?",
+        "en": "The response itself is a list (`[{...}, {...}]`). Which is the list of records?"
+      },
+      "options": {
+        "tr": [
+          "`response`",
+          "`response[\"data\"]`",
+          "`response[\"items\"]`",
+          "`response[0][\"data\"]`"
+        ],
+        "en": [
+          "`response`",
+          "`response[\"data\"]`",
+          "`response[\"items\"]`",
+          "`response[0][\"data\"]`"
+        ]
+      },
+      "explanation": {
+        "tr": "Zarfsız yanıtlarda liste doğrudan gelir. `response[\"data\"]` bir listede `TypeError` verir.",
+        "en": "In responses without an envelope the list arrives directly. `response[\"data\"]` raises a `TypeError` on a list."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "`/books/42` isteği tek bir kayıt döndürdü. Satır listesine çevirmenin kolay yolu?",
+        "en": "The request `/books/42` returned a single record. What is an easy way to turn it into a list of rows?"
+      },
+      "options": {
+        "tr": [
+          "`items = [response]`",
+          "`items = response[\"data\"]`",
+          "`items = list(response)`",
+          "`items = response.values()`"
+        ],
+        "en": [
+          "`items = [response]`",
+          "`items = response[\"data\"]`",
+          "`items = list(response)`",
+          "`items = response.values()`"
+        ]
+      },
+      "explanation": {
+        "tr": "Tek kaydı tek elemanlı bir listeye koyarsın; tarifin geri kalanı değişmeden çalışır. `list(response)` yalnızca anahtarları verir.",
+        "en": "Put the single record in a one-item list; the rest of the recipe works unchanged. `list(response)` only gives the keys."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Bir API'nin zarf biçimini en güvenilir nasıl öğrenirsin?",
+        "en": "What is the most reliable way to learn an API's envelope format?"
+      },
+      "options": {
+        "tr": [
+          "Belgedeki örnek yanıta ya da `json.dumps(..., indent=2)` ile yazdırılmış gerçek yanıta bakarak",
+          "Tahmin ederek",
+          "Her zaman `data` olduğunu varsayarak",
+          "API'nin adından"
+        ],
+        "en": [
+          "By looking at the sample response in the documentation, or a real response printed with `json.dumps(..., indent=2)`",
+          "By guessing",
+          "By assuming it is always `data`",
+          "From the API's name"
+        ]
+      },
+      "explanation": {
+        "tr": "Zarf API'den API'ye değişiyor (`data`, `results`, `items`, düz liste). Gözle bakmak en hızlı ve kesin yol.",
+        "en": "The envelope differs from API to API (`data`, `results`, `items`, a bare list). Looking with your own eyes is the quickest and surest way."
+      }
+    }
+  ]
+}

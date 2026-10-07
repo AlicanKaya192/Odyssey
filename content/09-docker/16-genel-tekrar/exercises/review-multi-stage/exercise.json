@@ -1,0 +1,59 @@
+{
+  "id": "review-multi-stage",
+  "title": {
+    "tr": "Python'suz rapor imajı",
+    "en": "A report image without Python"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "report.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`FROM python:3.13-slim AS build` ... `FROM alpine:3.22` + `COPY --from=build /src/report.txt /report.txt`.",
+      "en": "`FROM python:3.13-slim AS build` ... `FROM alpine:3.22` + `COPY --from=build /src/report.txt /report.txt`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim AS build\nWORKDIR /src\nCOPY report.py .\nRUN python report.py > report.txt\n\nFROM alpine:3.22\nCOPY --from=build /src/report.txt /report.txt\nCMD [\"cat\", \"/report.txt\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim AS build\nWORKDIR /src\nCOPY report.py .\nRUN python report.py > report.txt\n\nFROM alpine:3.22\nCOPY --from=build /src/report.txt /report.txt\nCMD [\"cat\", \"/report.txt\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "stages",
+      "min": 2
+    },
+    {
+      "type": "dockerfile",
+      "rule": "has",
+      "instruction": "COPY",
+      "value": "--from=build",
+      "stage": "last",
+      "show": "COPY --from=build /src/report.txt /report.txt"
+    },
+    {
+      "type": "container",
+      "expect": {
+        "max_size_mb": 20,
+        "logs": "apples    12\npears      7\nplums     30\ntotal     49",
+        "exit_code": 0
+      }
+    }
+  ]
+}

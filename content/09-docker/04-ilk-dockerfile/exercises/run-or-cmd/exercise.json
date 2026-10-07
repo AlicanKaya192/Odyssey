@@ -1,0 +1,61 @@
+{
+  "id": "run-or-cmd",
+  "title": {
+    "tr": "RUN mu, CMD mi?",
+    "en": "RUN or CMD?"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "clock.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`RUN python clock.py` → `CMD [\"python\", \"clock.py\"]`.",
+      "en": "`RUN python clock.py` → `CMD [\"python\", \"clock.py\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY clock.py .\nCMD [\"python\", \"clock.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY clock.py .\nCMD [\"python\", \"clock.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "forbid",
+      "instruction": "RUN",
+      "value": "python clock\\.py",
+      "show": "RUN python clock.py"
+    },
+    {
+      "type": "dockerfile",
+      "rule": "exec_form",
+      "instruction": "CMD",
+      "args": [
+        "python",
+        "clock.py"
+      ],
+      "show": "CMD [\"python\", \"clock.py\"]"
+    },
+    {
+      "type": "container",
+      "expect": {
+        "logs": "the clock is ticking"
+      }
+    }
+  ]
+}

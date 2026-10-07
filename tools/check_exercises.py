@@ -51,12 +51,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.core.catalog import Exercise  # noqa: E402
+from app.core import docker_admin  # noqa: E402
+from app.core.git_checks import build_world, evaluate, hint_commands  # noqa: E402
 from app.core.runner import run_code, sql_admin  # noqa: E402
 from app.paths import content_dir  # noqa: E402
 
+LANGUAGES = ("tr", "en")
+
 # İpucundaki kod bloğu. Dil etiketi alıştırmanın diline göre değişiyor
 # (`python` / `sql`); ikisi de kabul ediliyor.
-KOD_BLOGU = re.compile(r"```(?:python|sql|tsql)\n(.*?)```", re.S)
+KOD_BLOGU = re.compile(r"```(?:python|sql|tsql|dockerfile)\n(.*?)```", re.S)
 # Çok dosyalı ipucu: `**models.py**` (ya da **`models.py`**) ve altındaki blok.
 DOSYA_BLOGU = re.compile(r"\*\*`?([\w./-]+)`?\*\*[ \t]*\n+```[\w-]*\n(.*?)```", re.S)
 
@@ -67,7 +71,7 @@ DOSYA_BLOGU = re.compile(r"\*\*`?([\w./-]+)`?\*\*[ \t]*\n+```[\w-]*\n(.*?)```", 
 ISCI_SAYISI = 6
 
 # Başlangıç kodunda yorum satırının nasıl başladığı.
-YORUM_ONEKI = {"python": "#", "tsql": "--"}
+YORUM_ONEKI = {"python": "#", "tsql": "--", "docker": "#"}
 
 
 def hint_kodu(exercise: Exercise, language: str) -> str | None:
@@ -104,11 +108,43 @@ def starter_kodu(exercise: Exercise, language: str) -> str:
     )
 
 
+def _terminal(exercise: Exercise, where: str) -> list[str]:
+    """Git terminal alıştırması: benzeticide başlangıç geçmemeli, çözüm
+    komutları ve son ipucunun komutları iki dilde de geçmeli."""
+    problems: list[str] = []
+    for language in LANGUAGES:
+        world = build_world(exercise, language)
+        if all(r["passed"] for r in evaluate(world, exercise.checks)):
+            problems.append(f"{where}: başlangıç durumu ({language}) zaten geçiyor")
+        # `allow_fail`: çözümün bilerek hata gösteren adımları (sıra numarası).
+        izinli = set(exercise.raw.get("allow_fail", []))
+        for i, line in enumerate(exercise.solution_commands):
+            _, code = world.run(line)
+            if code not in (0, 1) and i not in izinli:
+                problems.append(f"{where}: çözüm komutu ({language}) {code} ile bitti: {line}")
+        dusen = [r for r in evaluate(world, exercise.checks) if not r["passed"]]
+        if dusen:
+            problems.append(f"{where}: çözüm ({language}) geçmiyor: {dusen[0]['detail']}")
+        komutlar = hint_commands(exercise.hints[-1].get(language, "")) if exercise.hints else []
+        if not komutlar:
+            problems.append(f"{where}: son ipucunda ({language}) bash bloğu yok")
+            continue
+        world = build_world(exercise, language)
+        for line in komutlar:
+            world.run(line)
+        dusen = [r for r in evaluate(world, exercise.checks) if not r["passed"]]
+        if dusen:
+            problems.append(f"{where}: son ipucu ({language}) alıştırmayı çözmüyor: {dusen[0]['detail']}")
+    return problems
+
+
 def bir_alistirma(path: Path) -> list[str]:
     """Tek bir alıştırmayı denetler; bulduğu sorunları döndürür."""
     problems: list[str] = []
     exercise = Exercise.load(path)
     where = f"{path.parts[-4]}/{path.parts[-3]}/{exercise.id}"
+    if exercise.is_terminal:
+        return _terminal(exercise, where)
 
     def calistir(kod: str | dict):
         return run_code(
@@ -174,14 +210,26 @@ def _cok_dosya(exercise: Exercise, where: str, calistir) -> list[str]:
 
 
 def denetle(directories: list[Path]) -> list[str]:
-    """Alıştırmaları paralel çalıştırır; sorunları kaynak sırasında verir."""
-    isci = min(ISCI_SAYISI, max(1, len(directories)))
-    with ThreadPoolExecutor(max_workers=isci) as havuz:
-        # `map` sırayı koruyor: rapor her çalıştırmada aynı sırada çıkıyor.
-        sonuclar = list(havuz.map(bir_alistirma, directories))
+    """Alıştırmaları paralel çalıştırır; sorunları kaynak sırasında verir.
 
-    print(f"{len(directories)} alıştırma çalıştırıldı ({isci} paralel).")
-    return [sorun for grup in sonuclar for sorun in grup]
+    Docker alıştırmaları sırayla: compose dosyaları ana makinede sabit port
+    açıyor (`8080:8000`), aynı anda iki tanesi aynı portu isteyince biri
+    düşerdi.
+    """
+    docker = [d for d in directories if Exercise.load(d).language == "docker"]
+    diger = [d for d in directories if d not in docker]
+    sonuc_haritasi: dict[Path, list[str]] = {}
+    isci = min(ISCI_SAYISI, max(1, len(diger)))
+    if diger:
+        with ThreadPoolExecutor(max_workers=isci) as havuz:
+            sonuc_haritasi.update(zip(diger, havuz.map(bir_alistirma, diger)))
+    for directory in docker:
+        sonuc_haritasi[directory] = bir_alistirma(directory)
+
+    print(f"{len(directories)} alıştırma çalıştırıldı ({isci} paralel"
+          + (f", {len(docker)} Docker alıştırması sırayla" if docker else "") + ").")
+    # Rapor her çalıştırmada aynı sırada (kaynak sırası).
+    return [sorun for directory in directories for sorun in sonuc_haritasi[directory]]
 
 
 def _veritabanlari() -> set[str] | None:
@@ -233,11 +281,15 @@ def main() -> int:
     onceki = _veritabanlari() if sql_var else None
 
     started = time.time()
+    docker_var = any(Exercise.load(d).language == "docker" for d in directories)
     try:
         problems = denetle(directories)
     finally:
         if onceki is not None:
             _test_veritabanlarini_sil(onceki)
+        if docker_var:
+            # Denetimin kurduğu imajlar (yalnızca `odyssey=1` etiketliler).
+            print(f"Denetimin kurduğu {docker_admin.remove_images()} Docker imajı silindi.")
     elapsed = time.time() - started
 
     print("-" * 66)

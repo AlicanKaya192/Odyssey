@@ -21,6 +21,25 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ## [0.9.3] — yayınlanmadı
 
+### Eklendi
+- **API patikası.** İki modül: **API 1** (17 bölüm) REST API kullanmayı
+  anlatıyor: adresler, HTTP, JSON, `requests`, kimlik doğrulama,
+  sayfalama, hata ve yeniden deneme, bir API'den veri seti kurmak.
+  Alıştırmalar programın içindeki bir alıştırma sunucusuna istek atıyor;
+  internet gerekmiyor. **API 2** (18 bölüm) masanın öbür tarafı: FastAPI
+  ile kendi API'nizi yazmak; doğrulama, CRUD, hata cevapları,
+  bağımlılıklar, kimlik doğrulama, SQLite, testler, async ve bir
+  makine öğrenmesi modelini sunmak. API 2'de yazdığınız sunucuyu tek
+  düğmeyle başlatıp tarayıcıda deneyebiliyor, yan paneldeki **İstek**
+  sekmesinden istek gönderebiliyorsunuz.
+- **Git patikası.** On yedi bölümde sürüm kontrolü: ilk commit ve üç alan,
+  değişikliklere bakmak ve geri almak, `.gitignore`, dallar, birleştirme ve
+  çakışmalar, uzak depolar ve GitHub (pull request, fork), stash, geçmişi
+  düzenlemek, etiketler, kaybolanı kurtarmak ve iyi alışkanlıklar.
+  Alıştırmalar programın içindeki bir Git terminalinde yazılıyor; Git
+  kurmanız ya da GitHub hesabı açmanız gerekmiyor, hedefler terminalin
+  yanında tek tek işaretleniyor.
+
 ### Düzeltildi
 - **Adım adım izleme sınıfları doğru adlandırıyor.** Bir sınıfın gövdesi
   izlenirken panel onu "fonksiyonun içi" diye gösteriyor ve sınıf bitince

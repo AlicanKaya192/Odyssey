@@ -1,0 +1,83 @@
+{
+  "id": "resolve-by-hand",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Çakışmayı elle çöz",
+    "en": "Resolve the conflict by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir shop",
+    "cd shop",
+    "git init",
+    "echo \"Welcome\" > page.txt",
+    "echo \"We sell books\" >> page.txt",
+    "echo \"Open 9-17\" >> page.txt",
+    "git add .",
+    "git commit -m \"Add page\"",
+    "git switch -c summer",
+    "echo \"Welcome\" > page.txt",
+    "echo \"We sell books\" >> page.txt",
+    "echo \"Open 9-20\" >> page.txt",
+    "git commit -am \"Summer hours\"",
+    "git switch main",
+    "echo \"Welcome\" > page.txt",
+    "echo \"We sell books\" >> page.txt",
+    "echo \"Open 8-17\" >> page.txt",
+    "git commit -am \"Open earlier\""
+  ],
+  "cwd": "shop",
+  "allow_fail": [
+    0
+  ],
+  "solution": [
+    "git merge summer",
+    "cat page.txt",
+    "echo \"Welcome\" > page.txt",
+    "echo \"We sell books\" >> page.txt",
+    "echo \"Open 8-20\" >> page.txt",
+    "git add page.txt",
+    "git commit --no-edit"
+  ],
+  "hints": [
+    {
+      "tr": "Dosyayı `echo` ile yeniden yaz: ilk satır `>`, sonrakiler `>>`. Sonra `git add page.txt` ve `git commit --no-edit`.",
+      "en": "Rewrite the file with `echo`: first line `>`, the rest `>>`. Then `git add page.txt` and `git commit --no-edit`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit merge summer\ncat page.txt\necho \"Welcome\" > page.txt\necho \"We sell books\" >> page.txt\necho \"Open 8-20\" >> page.txt\ngit add page.txt\ngit commit --no-edit\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit merge summer\ncat page.txt\necho \"Welcome\" > page.txt\necho \"We sell books\" >> page.txt\necho \"Open 8-20\" >> page.txt\ngit add page.txt\ngit commit --no-edit\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "shop",
+      "merge_commit": true,
+      "no_conflicts": true,
+      "last_message": "^Merge branch 'summer'$",
+      "show_message": "Merge branch 'summer'",
+      "label": {
+        "tr": "Birleştirme bitti: Merge branch 'summer'",
+        "en": "Merge finished: Merge branch 'summer'"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "shop",
+      "head_files": {
+        "page.txt": "Welcome\nWe sell books\nOpen 8-20"
+      },
+      "clean": true,
+      "label": {
+        "tr": "page.txt doğru üç satır",
+        "en": "page.txt has the right three lines"
+      }
+    }
+  ]
+}

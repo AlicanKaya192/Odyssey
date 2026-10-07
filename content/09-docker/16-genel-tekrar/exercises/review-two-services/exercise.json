@@ -1,0 +1,91 @@
+{
+  "id": "review-two-services",
+  "title": {
+    "tr": "API ve istemcisi",
+    "en": "An API and its client"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "compose.yaml",
+  "files": [
+    {
+      "name": "compose.yaml",
+      "starter": "starter-compose.yaml.{lang}",
+      "solution": "solution-compose.yaml"
+    },
+    {
+      "name": "api/Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "api/app.py",
+      "readonly": true
+    },
+    {
+      "name": "api/healthcheck.py",
+      "readonly": true
+    },
+    {
+      "name": "api/requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "client/Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "client/client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`depends_on:` → `api:` → `condition: service_healthy`; sağlık denetimi zaten imajda.",
+      "en": "`depends_on:` → `api:` → `condition: service_healthy`; the health check is already in the image."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**compose.yaml**\n\n```yaml\nservices:\n  api:\n    build: ./api\n    volumes:\n      - notes-data:/data\n  client:\n    build: ./client\n    depends_on:\n      api:\n        condition: service_healthy\n\nvolumes:\n  notes-data:\n```",
+      "en": "The full solution:\n\n**compose.yaml**\n\n```yaml\nservices:\n  api:\n    build: ./api\n    volumes:\n      - notes-data:/data\n  client:\n    build: ./client\n    depends_on:\n      api:\n        condition: service_healthy\n\nvolumes:\n  notes-data:\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "compose",
+      "service": "api",
+      "build": true,
+      "volumes": [
+        "notes-data:/data"
+      ],
+      "top_volumes": [
+        "notes-data"
+      ]
+    },
+    {
+      "type": "compose",
+      "service": "client",
+      "build": true,
+      "depends_on": [
+        "api"
+      ],
+      "depends_condition": "service_healthy"
+    },
+    {
+      "type": "compose_up",
+      "running": [
+        "api"
+      ],
+      "healthy": [
+        "api"
+      ],
+      "wait": 60,
+      "logs_contains": {
+        "client": "notes: 0 starts: 1"
+      }
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "id": "run-variations",
+  "title": {
+    "tr": "Çalıştırma çeşitleri",
+    "en": "Ways to run"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "commands.sh",
+  "files": [
+    {
+      "name": "commands.sh",
+      "starter": "starter-commands.sh.{lang}",
+      "solution": "solution-commands.sh"
+    }
+  ],
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "`--entrypoint sh` imajın adından önce; `docker stop -t 30 worker`.",
+      "en": "`--entrypoint sh` before the image name; `docker stop -t 30 worker`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**commands.sh**\n\n```bash\ndocker run --rm greet Ada\ndocker run --rm -it --entrypoint sh greet\ndocker run -d --init --name worker worker\ndocker stop -t 30 worker\n```",
+      "en": "The full solution:\n\n**commands.sh**\n\n```bash\ndocker run --rm greet Ada\ndocker run --rm -it --entrypoint sh greet\ndocker run -d --init --name worker worker\ndocker stop -t 30 worker\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--rm": true
+      },
+      "args": [
+        "greet",
+        "Ada"
+      ],
+      "show": "docker run --rm greet Ada"
+    },
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--rm": true,
+        "--interactive": true,
+        "--tty": true,
+        "--entrypoint": "sh"
+      },
+      "args": [
+        "greet"
+      ],
+      "show": "docker run --rm -it --entrypoint sh greet"
+    },
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--detach": true,
+        "--init": true,
+        "--name": "worker"
+      },
+      "args": [
+        "worker"
+      ],
+      "show": "docker run -d --init --name worker worker"
+    },
+    {
+      "type": "command",
+      "command": "stop",
+      "flags": {
+        "--time": "30"
+      },
+      "args": [
+        "worker"
+      ],
+      "show": "docker stop -t 30 worker"
+    }
+  ]
+}

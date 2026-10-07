@@ -1,0 +1,87 @@
+{
+  "id": "review-commands",
+  "title": {
+    "tr": "Patikanın komutları",
+    "en": "The track's commands"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "commands.sh",
+  "files": [
+    {
+      "name": "commands.sh",
+      "starter": "starter-commands.sh.{lang}",
+      "solution": "solution-commands.sh"
+    }
+  ],
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "`-t notes`, `-d --name api -p 8095:8000 -v notes-data:/data`, `logs -f`, `up -d --build`, `down -v`.",
+      "en": "`-t notes`, `-d --name api -p 8095:8000 -v notes-data:/data`, `logs -f`, `up -d --build`, `down -v`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**commands.sh**\n\n```bash\ndocker build -t notes .\ndocker run -d --name api -p 8095:8000 -v notes-data:/data notes\ndocker logs -f api\ndocker compose up -d --build\ndocker compose down -v\n```",
+      "en": "The full solution:\n\n**commands.sh**\n\n```bash\ndocker build -t notes .\ndocker run -d --name api -p 8095:8000 -v notes-data:/data notes\ndocker logs -f api\ndocker compose up -d --build\ndocker compose down -v\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "command",
+      "command": "build",
+      "flags": {
+        "--tag": "notes"
+      },
+      "args": [
+        "."
+      ],
+      "show": "docker build -t notes ."
+    },
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--detach": true,
+        "--name": "api",
+        "--publish": "8095:8000",
+        "--volume": "notes-data:/data"
+      },
+      "args": [
+        "notes"
+      ],
+      "show": "docker run -d --name api -p 8095:8000 -v notes-data:/data notes"
+    },
+    {
+      "type": "command",
+      "command": "logs",
+      "flags": {
+        "--follow": true
+      },
+      "args": [
+        "api"
+      ],
+      "show": "docker logs -f api"
+    },
+    {
+      "type": "command",
+      "command": "compose up",
+      "flags": {
+        "--detach": true,
+        "--build": true
+      },
+      "show": "docker compose up -d --build"
+    },
+    {
+      "type": "command",
+      "command": "compose down",
+      "flags": {
+        "--volumes": true
+      },
+      "show": "docker compose down -v"
+    }
+  ]
+}

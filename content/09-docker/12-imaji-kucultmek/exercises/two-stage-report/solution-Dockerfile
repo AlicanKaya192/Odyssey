@@ -1,0 +1,8 @@
+FROM python:3.13-slim AS build
+WORKDIR /src
+COPY build_report.py .
+RUN python build_report.py
+
+FROM alpine:3.22
+COPY --from=build /out /report
+CMD ["cat", "/report/index.html"]

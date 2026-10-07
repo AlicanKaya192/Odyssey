@@ -1,0 +1,85 @@
+{
+  "id": "take-theirs",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Gelen tarafı al",
+    "en": "Take their side"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "cd app",
+    "git init",
+    "echo \"debug=false\" > settings.ini",
+    "echo \"port=80\" >> settings.ini",
+    "git add .",
+    "git commit -m \"Add settings\"",
+    "git switch -c new-settings",
+    "echo \"debug=false\" > settings.ini",
+    "echo \"port=8080\" >> settings.ini",
+    "git commit -am \"Use port 8080\"",
+    "git switch main",
+    "echo \"debug=true\" > settings.ini",
+    "echo \"port=8000\" >> settings.ini",
+    "git commit -am \"Try port 8000\""
+  ],
+  "cwd": "app",
+  "allow_fail": [
+    0
+  ],
+  "solution": [
+    "git merge new-settings",
+    "git checkout --theirs settings.ini",
+    "git add settings.ini",
+    "git commit -m \"Merge new settings\""
+  ],
+  "hints": [
+    {
+      "tr": "Birleştirmede `theirs` = getirdiğin dal. `git checkout --theirs <dosya>`, sonra `git add`.",
+      "en": "In a merge `theirs` = the branch you bring in. `git checkout --theirs <file>`, then `git add`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit merge new-settings\ngit checkout --theirs settings.ini\ngit add settings.ini\ngit commit -m \"Merge new settings\"\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit merge new-settings\ngit checkout --theirs settings.ini\ngit add settings.ini\ngit commit -m \"Merge new settings\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "app",
+      "merge_commit": true,
+      "no_conflicts": true,
+      "last_message": "^Merge new settings$",
+      "show_message": "Merge new settings",
+      "label": {
+        "tr": "Birleştirme bitti: Merge new settings",
+        "en": "Merge finished: Merge new settings"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "app",
+      "head_files": {
+        "settings.ini": "debug=false\nport=8080"
+      },
+      "label": {
+        "tr": "settings.ini new-settings'teki gibi",
+        "en": "settings.ini as on new-settings"
+      }
+    },
+    {
+      "type": "git_command",
+      "pattern": "^git (checkout|restore) .*--theirs",
+      "show": "git checkout --theirs",
+      "label": {
+        "tr": "--theirs kullandın",
+        "en": "You used --theirs"
+      }
+    }
+  ]
+}

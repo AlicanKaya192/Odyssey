@@ -122,6 +122,14 @@ class RunResult:
     steps: list[dict] = field(default_factory=list)
     steps_truncated: bool = False
 
+    # API alıştırmasında kodun alıştırma sunucusuna gönderdiği istekler:
+    # {"method", "path", "query", "status"} (terminalde `→ GET /books 200`).
+    requests: list[dict] = field(default_factory=list)
+
+    # Docker alıştırmasında Docker'ın durumu: {"state": "ok" | "missing" |
+    # "stopped" | "" (gerçek kontrol yoksa), "version"}.
+    docker: dict = field(default_factory=dict)
+
     @property
     def passed(self) -> bool:
         """Alıştırma geçildi mi? Hata yoksa ve tüm kontroller tuttuysa."""
@@ -302,6 +310,11 @@ def run_code(
     global _LAST_SERVER
 
     job: MemoryJob | None = None
+    if language == "docker":
+        # Odyssey kapanırken Docker Desktop'ı kapatma kararı buna bakıyor.
+        from .docker_admin import mark_used
+
+        mark_used()
     workspace = _prepare_workspace(exercise_dir)
     job_path = workspace / "job.json"
     result_path = workspace / "result.json"
@@ -310,7 +323,8 @@ def run_code(
     if isinstance(code, dict):
         code_path = workspace / (entry or next(iter(code), "main.py"))
     else:
-        code_path = workspace / f"cozum{LANGUAGE_SUFFIX.get(language, '.py')}"
+        code_path = workspace / ("Dockerfile" if language == "docker"
+                                 else f"cozum{LANGUAGE_SUFFIX.get(language, '.py')}")
 
     try:
         if isinstance(code, dict):
@@ -333,6 +347,11 @@ def run_code(
                     "server_hint": server_hint or _LAST_SERVER,
                     "trace": trace,
                     "user_files": user_files,
+                    # Docker: konteynerler bu kimlikle etiketleniyor; süre
+                    # dolarsa arkada kalanlar onunla bulunup siliniyor.
+                    "run_id": workspace.name,
+                    "workspace": str(workspace),
+                    "timeout_sec": timeout_sec,
                 },
                 ensure_ascii=False,
             ),
@@ -369,6 +388,11 @@ def run_code(
             _, process_stderr = process.communicate(timeout=timeout_sec)
         except subprocess.TimeoutExpired:
             _kill_tree(process)
+            if language == "docker":
+                # Denetleyici öldürüldü, kendi temizliğini yapamadı.
+                from .docker_admin import cleanup_run
+
+                cleanup_run(workspace.name)
             return RunResult(status="timeout", timeout_sec=timeout_sec, **_memory_of(job))
 
         bellek = _memory_of(job)
@@ -417,6 +441,8 @@ def run_code(
             tables=raw.get("tables", []),
             steps=raw.get("steps", []),
             steps_truncated=raw.get("steps_truncated", False),
+            requests=raw.get("requests", []),
+            docker=raw.get("docker") or {},
         )
 
     finally:

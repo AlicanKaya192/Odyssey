@@ -387,7 +387,14 @@ def main() -> int:
 
     window.start_update_check()
 
-    return application.exec()
+    kod = application.exec()
+
+    # Bu oturumda Docker alıştırması çalıştıysa ve ayar açıksa Docker
+    # Desktop da kapanıyor (kişi yalnızca Odyssey için açıp unutabiliyor).
+    from app.core import docker_admin
+
+    docker_admin.stop_if_used(store)
+    return kod
 
 
 if __name__ == "__main__":

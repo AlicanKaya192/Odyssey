@@ -1,0 +1,56 @@
+{
+  "id": "permission-denied",
+  "title": {
+    "tr": "Permission denied",
+    "en": "Permission denied"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "writer.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`RUN chown app:app /app`.",
+      "en": "`RUN chown app:app /app`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nRUN useradd --create-home --uid 1000 app\nWORKDIR /app\nCOPY writer.py .\nRUN chown app:app /app\nUSER app\nCMD [\"python\", \"writer.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nRUN useradd --create-home --uid 1000 app\nWORKDIR /app\nCOPY writer.py .\nRUN chown app:app /app\nUSER app\nCMD [\"python\", \"writer.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "non_root"
+    },
+    {
+      "type": "dockerfile",
+      "rule": "forbid",
+      "instruction": "RUN",
+      "value": "777",
+      "show": "chmod 777"
+    },
+    {
+      "type": "container",
+      "expect": {
+        "user": "app",
+        "logs": "saved 3 lines as app"
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "clean-before-sending",
+  "title": {
+    "tr": "Göndermeden önce temizle",
+    "en": "Clean before sending"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`sorted(record[\"tags\"])` kümeyi sıralı listeye, `list(record[\"coords\"])` demeti listeye çevirir.",
+      "en": "`sorted(record[\"tags\"])` turns the set into a sorted list, `list(record[\"coords\"])` turns the tuple into a list."
+    },
+    {
+      "tr": "Anahtarları çevirmek için döngü: `for year, score in record[\"scores\"].items(): scores[str(year)] = score`.",
+      "en": "To convert the keys, loop: `for year, score in record[\"scores\"].items(): scores[str(year)] = score`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport json\n\nrecord = {\n    \"id\": 7,\n    \"tags\": {\"novel\", \"classic\", \"english\"},\n    \"coords\": (38.42, 27.14),\n    \"scores\": {2023: 4.5, 2024: 4.8},\n}\n\nscores = {}\nfor year, score in record[\"scores\"].items():\n    scores[str(year)] = score\n\nclean = {\n    \"id\": record[\"id\"],\n    \"tags\": sorted(record[\"tags\"]),\n    \"coords\": list(record[\"coords\"]),\n    \"scores\": scores,\n}\n\ntext = json.dumps(clean, sort_keys=True)\nprint(text)\n\nback = json.loads(text)\nprint(\"same after round trip:\", back == clean)\n```",
+      "en": "The solution:\n\n```python\nimport json\n\nrecord = {\n    \"id\": 7,\n    \"tags\": {\"novel\", \"classic\", \"english\"},\n    \"coords\": (38.42, 27.14),\n    \"scores\": {2023: 4.5, 2024: 4.8},\n}\n\nscores = {}\nfor year, score in record[\"scores\"].items():\n    scores[str(year)] = score\n\nclean = {\n    \"id\": record[\"id\"],\n    \"tags\": sorted(record[\"tags\"]),\n    \"coords\": list(record[\"coords\"]),\n    \"scores\": scores,\n}\n\ntext = json.dumps(clean, sort_keys=True)\nprint(text)\n\nback = json.loads(text)\nprint(\"same after round trip:\", back == clean)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "clean",
+      "equals": {
+        "id": 7,
+        "tags": [
+          "classic",
+          "english",
+          "novel"
+        ],
+        "coords": [
+          38.42,
+          27.14
+        ],
+        "scores": {
+          "2023": 4.5,
+          "2024": 4.8
+        }
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "{\"coords\": [38.42, 27.14], \"id\": 7, \"scores\": {\"2023\": 4.5, \"2024\": 4.8}, \"tags\": [\"classic\", \"english\", \"novel\"]}\nsame after round trip: True"
+    }
+  ]
+}

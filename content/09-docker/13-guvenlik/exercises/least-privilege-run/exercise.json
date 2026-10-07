@@ -1,0 +1,68 @@
+{
+  "id": "least-privilege-run",
+  "title": {
+    "tr": "En az yetkiyle çalıştır",
+    "en": "Run with the least privilege"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "commands.sh",
+  "files": [
+    {
+      "name": "commands.sh",
+      "starter": "starter-commands.sh.{lang}",
+      "solution": "solution-commands.sh"
+    }
+  ],
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "`--read-only --cap-drop ALL --memory 512m`; kullanıcı `--user 1000`.",
+      "en": "`--read-only --cap-drop ALL --memory 512m`; the user is `--user 1000`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**commands.sh**\n\n```bash\ndocker run -d --name api --read-only --cap-drop ALL --memory 512m app\ndocker run --rm --user 1000 app id\n```",
+      "en": "The full solution:\n\n**commands.sh**\n\n```bash\ndocker run -d --name api --read-only --cap-drop ALL --memory 512m app\ndocker run --rm --user 1000 app id\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--detach": true,
+        "--name": "api",
+        "--read-only": true,
+        "--cap-drop": "ALL",
+        "--memory": "512m"
+      },
+      "args": [
+        "app"
+      ],
+      "forbid_flags": [
+        "--privileged"
+      ],
+      "show": "docker run -d --name api --read-only --cap-drop ALL --memory 512m app"
+    },
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--rm": true,
+        "--user": "1000"
+      },
+      "args": [
+        "app",
+        "id"
+      ],
+      "forbid_flags": [
+        "--privileged"
+      ],
+      "show": "docker run --rm --user 1000 app id"
+    }
+  ]
+}

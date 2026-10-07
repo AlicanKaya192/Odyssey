@@ -132,6 +132,54 @@ GLYPHS: dict[str, str] = {
     "hourglass": ('<path d="M6 3h12M6 21h12"/><path fill="#fff" fill-opacity=".3" d="M7.5 3v3.5L12 12l4.5-5.5V3z"/>'
                   '<path d="M7.5 3v3.5L12 12l-4.5 5.5V21M16.5 3v3.5L12 12l4.5 5.5V21"/>'
                   '<path fill="#fff" stroke="none" d="m9.2 20.2 2.8-3.6 2.8 3.6z"/>'),
+    "cargo": ('<path d="M12 2v3" stroke-width="1.8"/><path d="M12 5 4.5 10M12 5l7.5 5" stroke-width="1.5"/>'
+              '<rect x="3" y="10" width="18" height="10" rx="1.2" fill="#fff" fill-opacity=".3"/>'
+              '<rect x="3" y="10" width="18" height="10" rx="1.2"/><path d="M7.5 12.5v5M12 12.5v5M16.5 12.5v5"/>'),
+    "baton": ('<path d="M3.5 20.5 12.5 11.5" stroke-width="2.6"/><circle cx="4" cy="20" r="2.4" fill="#fff" stroke="none"/>'
+              '<g fill="#fff" fill-opacity=".85" stroke-width="1.6"><rect x="11" y="2" width="6" height="6" rx="1.2"/>'
+              '<rect x="16" y="9" width="6" height="6" rx="1.2"/><rect x="13" y="16" width="6" height="6" rx="1.2"/></g>'),
+    "plane": ('<path fill="#fff" fill-opacity=".35" d="M21 3 2.5 10.5l7.5 3 3 7.5z"/>'
+              '<path d="M21 3 2.5 10.5l7.5 3 3 7.5zM21 3 10 13.5"/>'
+              '<path d="M3 17.5 6 14.5M5.5 20.5l3-3" stroke-width="1.6" stroke-opacity=".75"/>'),
+    "braces-table": ('<path d="M6.5 4.5C5 4.5 4.5 5.3 4.5 6.5V10c0 1-.6 1.8-2 2 1.4.2 2 1 2 2v3.5c0 1.2.5 2 2 2"/>'
+                     '<path d="M8.5 12h4.5m-2-2.3 2.3 2.3-2.3 2.3" stroke-width="2"/>'
+                     '<rect x="15" y="5" width="7" height="14" rx="1.3" fill="#fff" fill-opacity=".35"/>'
+                     '<rect x="15" y="5" width="7" height="14" rx="1.3"/><path d="M15 9.7h7M15 14.3h7M18.5 5v14" stroke-width="1.5"/>'),
+    "plug": ('<path d="M9 2.5v4.5M15 2.5v4.5"/>'
+             '<path fill="#fff" fill-opacity=".35" d="M6 7h12v3.5a6 6 0 0 1-12 0z"/>'
+             '<path d="M6 7h12v3.5a6 6 0 0 1-12 0zM12 16.5v5"/>'),
+    "ship": ('<g fill="#fff" fill-opacity=".9" stroke="none"><rect x="5.5" y="9" width="4" height="3.4" rx=".5"/>'
+             '<rect x="10" y="9" width="4" height="3.4" rx=".5"/><rect x="14.5" y="9" width="4" height="3.4" rx=".5"/>'
+             '<rect x="7.8" y="5.1" width="4" height="3.4" rx=".5"/><rect x="12.3" y="5.1" width="4" height="3.4" rx=".5"/></g>'
+             '<path fill="#fff" fill-opacity=".35" d="M2.5 13.5h19l-2.5 5h-14z"/><path d="M2.5 13.5h19l-2.5 5h-14z"/>'
+             '<path d="M2.5 21.5c1.6-1.2 3.1-1.2 4.7 0s3.1 1.2 4.7 0 3.1-1.2 4.7 0 3.1 1.2 4.7 0" stroke-width="1.6"/>'),
+    "commit-dot": ('<path d="M2 12h5.5M16.5 12H22" stroke-width="2.2"/>'
+                   '<circle cx="12" cy="12" r="4.5" fill="#fff" fill-opacity=".35"/><circle cx="12" cy="12" r="4.5"/>'
+                   '<circle cx="12" cy="12" r="1.6" fill="#fff" stroke="none"/>'),
+    "merge-join": ('<path d="M6 6.5c0 4.5 6 4.5 6 8.5M18 6.5c0 4.5-6 4.5-6 8.5M12 15v6"/>'
+                   '<g fill="#fff" stroke="none"><circle cx="6" cy="4.5" r="2.4"/><circle cx="18" cy="4.5" r="2.4"/>'
+                   '<circle cx="12" cy="15" r="3"/></g>'),
+    "cloud-up": ('<path fill="#fff" fill-opacity=".35" d="M7 17.5a4.5 4.5 0 0 1-.6-9 6 6 0 0 1 11.4 1.1 4 4 0 0 1-.3 7.9z"/>'
+                 '<path d="M7 17.5a4.5 4.5 0 0 1-.6-9 6 6 0 0 1 11.4 1.1 4 4 0 0 1-.3 7.9"/>'
+                 '<path d="M12 21.5v-9m-3.2 3.2L12 12.5l3.2 3.2" stroke-width="2"/>'),
+    "server-up": ('<rect x="4" y="13.5" width="16" height="7" rx="1.6" fill="#fff" fill-opacity=".3"/>'
+                  '<rect x="4" y="13.5" width="16" height="7" rx="1.6"/><circle cx="8" cy="17" r="1.2" fill="#fff" stroke="none"/>'
+                  '<path d="M16.5 17h-3" stroke-width="1.6"/><path d="M12 10.5V2.5m-3.5 3.5L12 2.5l3.5 3.5" stroke-width="2"/>'),
+    "crud-grid": ('<rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6" fill="#fff" stroke="none"/>'
+                  '<rect x="13" y="3.5" width="7.5" height="7.5" rx="1.6" fill="#fff" fill-opacity=".6" stroke="none"/>'
+                  '<rect x="3.5" y="13" width="7.5" height="7.5" rx="1.6" fill="#fff" fill-opacity=".6" stroke="none"/>'
+                  '<rect x="13" y="13" width="7.5" height="7.5" rx="1.6" fill="#fff" fill-opacity=".25"/>'
+                  '<rect x="13" y="13" width="7.5" height="7.5" rx="1.6"/>'),
+    "model-serve": ('<rect x="2.5" y="4.5" width="12" height="15" rx="2" fill="#fff" fill-opacity=".3"/>'
+                    '<rect x="2.5" y="4.5" width="12" height="15" rx="2"/>'
+                    '<path d="M6.5 8.5l4 3.5-4 3.5M10.5 12H6.5" stroke-width="1.3" stroke-opacity=".8"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="6.5" cy="8.5" r="1.4"/><circle cx="10.5" cy="12" r="1.4"/>'
+                    '<circle cx="6.5" cy="15.5" r="1.4"/></g><path d="M15 12h6.5m-2.5-2.5 2.5 2.5-2.5 2.5" stroke-width="1.9"/>'),
+    "gateway": ('<path fill="#fff" fill-opacity=".3" d="M8 21v-8.5a4 4 0 0 1 8 0V21z"/>'
+                '<path d="M4 21V10a8 8 0 0 1 16 0v11M8 21v-8.5a4 4 0 0 1 8 0V21M2.5 21h19"/>'),
+    "git-graph": ('<path d="M6.5 3.5v17"/><path d="M6.5 6c0 3.5 11 2 11 5.5v1c0 3.5-11 2-11 5.5" stroke-width="1.6"/>'
+                  '<g fill="#fff" stroke="none"><circle cx="6.5" cy="3.5" r="2.3"/><circle cx="6.5" cy="20.5" r="2.3"/>'
+                  '<circle cx="17.5" cy="12" r="2.6"/><circle cx="6.5" cy="12" r="1.8"/></g>'),
 }
 
 

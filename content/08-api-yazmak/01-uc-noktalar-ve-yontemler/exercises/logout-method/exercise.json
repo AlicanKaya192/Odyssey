@@ -1,0 +1,56 @@
+{
+  "id": "logout-method",
+  "title": {
+    "tr": "Yanlış yöntem",
+    "en": "The wrong method"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`@app.get` → `@app.post`.",
+      "en": "`@app.get` → `@app.post`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\nsession = {\"logged_in\": True}\n\n\n@app.post(\"/logout\")\ndef logout():\n    session[\"logged_in\"] = False\n    return session\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\nsession = {\"logged_in\": True}\n\n\n@app.post(\"/logout\")\ndef logout():\n    session[\"logged_in\"] = False\n    return session\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/logout",
+          "expect": {
+            "status": 405
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/logout",
+          "expect": {
+            "status": 200,
+            "json": {
+              "logged_in": false
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

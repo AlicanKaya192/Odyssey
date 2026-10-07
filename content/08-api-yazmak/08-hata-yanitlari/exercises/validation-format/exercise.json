@@ -1,0 +1,104 @@
+{
+  "id": "validation-format",
+  "title": {
+    "tr": "422'nin biçimi",
+    "en": "The 422 format"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`@app.exception_handler(RequestValidationError)`; `exc.errors()` listesinde her `e[\"loc\"][1:]`.",
+      "en": "`@app.exception_handler(RequestValidationError)`; `e[\"loc\"][1:]` for each item of `exc.errors()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, Request\nfrom fastapi.exceptions import RequestValidationError\nfrom fastapi.responses import JSONResponse\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\n\n\nclass Book(BaseModel):\n    title: str = Field(min_length=1)\n    year: int\n\n\n@app.exception_handler(RequestValidationError)\ndef validation_handler(request: Request, exc: RequestValidationError):\n    fields = [\".\".join(str(p) for p in e[\"loc\"][1:]) for e in exc.errors()]\n    return JSONResponse(status_code=422,\n                        content={\"error\": \"invalid_input\", \"fields\": fields})\n\n\n@app.post(\"/books\", status_code=201)\ndef add_book(book: Book):\n    return book\n\n\n@app.get(\"/books\")\ndef list_books(limit: int = 10):\n    return {\"limit\": limit}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, Request\nfrom fastapi.exceptions import RequestValidationError\nfrom fastapi.responses import JSONResponse\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\n\n\nclass Book(BaseModel):\n    title: str = Field(min_length=1)\n    year: int\n\n\n@app.exception_handler(RequestValidationError)\ndef validation_handler(request: Request, exc: RequestValidationError):\n    fields = [\".\".join(str(p) for p in e[\"loc\"][1:]) for e in exc.errors()]\n    return JSONResponse(status_code=422,\n                        content={\"error\": \"invalid_input\", \"fields\": fields})\n\n\n@app.post(\"/books\", status_code=201)\ndef add_book(book: Book):\n    return book\n\n\n@app.get(\"/books\")\ndef list_books(limit: int = 10):\n    return {\"limit\": limit}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "",
+            "year": "x"
+          },
+          "expect": {
+            "status": 422,
+            "json": {
+              "error": "invalid_input",
+              "fields": [
+                "title",
+                "year"
+              ]
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "params": {
+            "limit": "abc"
+          },
+          "expect": {
+            "status": 422,
+            "json": {
+              "error": "invalid_input",
+              "fields": [
+                "limit"
+              ]
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Dune"
+          },
+          "expect": {
+            "status": 422,
+            "json": {
+              "error": "invalid_input",
+              "fields": [
+                "year"
+              ]
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Dune",
+            "year": 1965
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "title": "Dune",
+              "year": 1965
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

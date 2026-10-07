@@ -1,0 +1,64 @@
+{
+  "id": "two-stage-report",
+  "title": {
+    "tr": "İki aşamalı rapor",
+    "en": "A two-stage report"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "build_report.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`FROM python:3.13-slim AS build` ... `FROM alpine:3.22` + `COPY --from=build /out /report`.",
+      "en": "`FROM python:3.13-slim AS build` ... `FROM alpine:3.22` + `COPY --from=build /out /report`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim AS build\nWORKDIR /src\nCOPY build_report.py .\nRUN python build_report.py\n\nFROM alpine:3.22\nCOPY --from=build /out /report\nCMD [\"cat\", \"/report/index.html\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim AS build\nWORKDIR /src\nCOPY build_report.py .\nRUN python build_report.py\n\nFROM alpine:3.22\nCOPY --from=build /out /report\nCMD [\"cat\", \"/report/index.html\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "stages",
+      "min": 2
+    },
+    {
+      "type": "dockerfile",
+      "rule": "has",
+      "instruction": "COPY",
+      "value": "--from=build",
+      "stage": "last",
+      "show": "COPY --from=build /out /report"
+    },
+    {
+      "type": "container",
+      "expect": {
+        "max_size_mb": 20,
+        "logs_contains": [
+          "<h1>Squares</h1>",
+          "5 x 5 = 25"
+        ],
+        "file_missing": [
+          "/usr/local/bin/python"
+        ]
+      }
+    }
+  ]
+}

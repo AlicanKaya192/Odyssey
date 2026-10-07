@@ -1,0 +1,52 @@
+{
+  "id": "by-author",
+  "title": {
+    "tr": "Yazara göre süz",
+    "en": "Filter by author"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`r = requests.get(BASE + \"/books\", params={\"author\": \"Orwell\"})`; kitaplar `r.json()[\"data\"]`.",
+      "en": "`r = requests.get(BASE + \"/books\", params={\"author\": \"Orwell\"})`; the books are `r.json()[\"data\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nr = requests.get(BASE + \"/books\", params={\"author\": \"Orwell\"})\nprint(r.url)\n\ntitles = []\nfor book in r.json()[\"data\"]:\n    titles.append(book[\"title\"])\nfor title in titles:\n    print(title)\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nr = requests.get(BASE + \"/books\", params={\"author\": \"Orwell\"})\nprint(r.url)\n\ntitles = []\nfor book in r.json()[\"data\"]:\n    titles.append(book[\"title\"])\nfor title in titles:\n    print(title)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books",
+      "query": {
+        "author": "Orwell"
+      },
+      "hint": {
+        "tr": "author=Orwell parametresiyle /books isteği gelmedi; params= ile gönder.",
+        "en": "No /books request with author=Orwell arrived; send it with params=."
+      }
+    },
+    {
+      "type": "variable",
+      "name": "titles",
+      "equals": [
+        "Nineteen Eighty-Four",
+        "Animal Farm",
+        "Homage to Catalonia"
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "http://api.odyssey.test/books?author=Orwell\nNineteen Eighty-Four\nAnimal Farm\nHomage to Catalonia"
+    }
+  ]
+}

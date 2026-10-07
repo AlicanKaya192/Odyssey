@@ -1,0 +1,55 @@
+{
+  "id": "diagnose",
+  "title": {
+    "tr": "Teşhis koy",
+    "en": "Make a diagnosis"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `try`/`except requests.Timeout`; sonra koda göre `if` zinciri.",
+      "en": "First `try`/`except requests.Timeout`; then a chain of `if`s on the code."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef diagnose(path):\n    try:\n        r = requests.get(BASE + path, timeout=1)\n    except requests.Timeout:\n        return \"too slow\"\n    code = r.status_code\n    if 200 <= code < 300:\n        return \"ok\"\n    if code in (401, 403):\n        return \"need permission\"\n    if code == 404:\n        return \"not found\"\n    if code >= 500:\n        return \"server error\"\n    return \"other\"\n\n\npaths = [\"/books/1\", \"/books/0\", \"/stats\", \"/broken\", \"/slow\", \"/me\"]\nfor path in paths:\n    print(path, \"->\", diagnose(path))\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef diagnose(path):\n    try:\n        r = requests.get(BASE + path, timeout=1)\n    except requests.Timeout:\n        return \"too slow\"\n    code = r.status_code\n    if 200 <= code < 300:\n        return \"ok\"\n    if code in (401, 403):\n        return \"need permission\"\n    if code == 404:\n        return \"not found\"\n    if code >= 500:\n        return \"server error\"\n    return \"other\"\n\n\npaths = [\"/books/1\", \"/books/0\", \"/stats\", \"/broken\", \"/slow\", \"/me\"]\nfor path in paths:\n    print(path, \"->\", diagnose(path))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "diagnose",
+      "cases": [
+        {
+          "args": [
+            "/authors/1"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "/admin/report"
+          ],
+          "returns": "need permission"
+        },
+        {
+          "args": [
+            "/nowhere"
+          ],
+          "returns": "not found"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "/books/1 -> ok\n/books/0 -> not found\n/stats -> need permission\n/broken -> server error\n/slow -> too slow\n/me -> need permission"
+    }
+  ]
+}

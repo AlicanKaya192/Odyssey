@@ -1,0 +1,96 @@
+{
+  "id": "discard-and-clean",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Deneme izlerini temizle",
+    "en": "Clean up the experiment"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir notes",
+    "cd notes",
+    "git init",
+    "echo \"Buy milk\" > todo.txt",
+    "git add .",
+    "git commit -m \"Add todo list\"",
+    "echo \"Call Ada\" >> todo.txt",
+    "git commit -am \"Add call\"",
+    "echo \"# Notes\" > readme.md",
+    "git add .",
+    "git commit -m \"Add readme\"",
+    "echo \"oops\" > todo.txt",
+    "echo \"Shared notes\" >> readme.md",
+    "echo \"tmp\" > a.tmp",
+    "echo \"tmp\" > b.tmp"
+  ],
+  "cwd": "notes",
+  "solution": [
+    "git status -s",
+    "git restore todo.txt",
+    "git clean -n",
+    "git clean -f"
+  ],
+  "hints": [
+    {
+      "tr": "Dosyadaki değişikliği atmak `git restore`. İzlenmeyenleri silmek `git clean`: önce `-n`, sonra `-f`.",
+      "en": "Throwing away a change in a file is `git restore`. Deleting untracked files is `git clean`: first `-n`, then `-f`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit status -s\ngit restore todo.txt\ngit clean -n\ngit clean -f\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit status -s\ngit restore todo.txt\ngit clean -n\ngit clean -f\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "files": {
+        "todo.txt": "Buy milk\nCall Ada"
+      },
+      "label": {
+        "tr": "todo.txt son commit'teki hâlinde",
+        "en": "todo.txt is as in the last commit"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "unstaged": [
+        "readme.md"
+      ],
+      "files": {
+        "readme.md": "# Notes\nShared notes"
+      },
+      "label": {
+        "tr": "readme.md'deki değişiklik duruyor",
+        "en": "The change in readme.md is still there"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "missing_files": [
+        "a.tmp",
+        "b.tmp"
+      ],
+      "label": {
+        "tr": ".tmp dosyaları silindi",
+        "en": "The .tmp files are deleted"
+      }
+    },
+    {
+      "type": "git_command",
+      "pattern": "^git clean (-n|--dry-run|-nd|-dn)\\b",
+      "show": "git clean -n",
+      "label": {
+        "tr": "Silmeden önce git clean -n ile baktın",
+        "en": "You looked with git clean -n before deleting"
+      }
+    }
+  ]
+}

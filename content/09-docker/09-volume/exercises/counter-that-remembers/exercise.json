@@ -1,0 +1,60 @@
+{
+  "id": "counter-that-remembers",
+  "title": {
+    "tr": "Unutmayan sayaç",
+    "en": "A counter that remembers"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "counter.py",
+  "files": [
+    {
+      "name": "counter.py",
+      "starter": "starter-counter.py.{lang}",
+      "solution": "solution-counter.py"
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`path = \"/data/count.txt\"`.",
+      "en": "`path = \"/data/count.txt\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**counter.py**\n\n```python\nimport os\n\npath = \"/data/count.txt\"\ncount = 0\nif os.path.exists(path):\n    with open(path) as handle:\n        count = int(handle.read())\ncount += 1\nwith open(path, \"w\") as handle:\n    handle.write(str(count))\nprint(\"count:\", count)\n```",
+      "en": "The full solution:\n\n**counter.py**\n\n```python\nimport os\n\npath = \"/data/count.txt\"\ncount = 0\nif os.path.exists(path):\n    with open(path) as handle:\n        count = int(handle.read())\ncount += 1\nwith open(path, \"w\") as handle:\n    handle.write(str(count))\nprint(\"count:\", count)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "container",
+      "run": {
+        "volumes": [
+          "counter:/data"
+        ]
+      },
+      "expect": {
+        "logs": "count: 1"
+      }
+    },
+    {
+      "type": "container",
+      "run": {
+        "volumes": [
+          "counter:/data"
+        ]
+      },
+      "expect": {
+        "logs": "count: 2"
+      }
+    }
+  ]
+}

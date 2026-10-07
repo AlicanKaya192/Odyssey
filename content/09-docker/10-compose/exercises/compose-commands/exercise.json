@@ -1,0 +1,76 @@
+{
+  "id": "compose-commands",
+  "title": {
+    "tr": "Compose komutları",
+    "en": "Compose commands"
+  },
+  "difficulty": 1,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "commands.sh",
+  "files": [
+    {
+      "name": "commands.sh",
+      "starter": "starter-commands.sh.{lang}",
+      "solution": "solution-commands.sh"
+    }
+  ],
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "`up -d --build`, `ps`, `logs -f web`, `exec web sh`, `down` (`-v` değil).",
+      "en": "`up -d --build`, `ps`, `logs -f web`, `exec web sh`, `down` (not `-v`)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**commands.sh**\n\n```bash\ndocker compose up -d --build\ndocker compose ps\ndocker compose logs -f web\ndocker compose exec web sh\ndocker compose down\n```",
+      "en": "The full solution:\n\n**commands.sh**\n\n```bash\ndocker compose up -d --build\ndocker compose ps\ndocker compose logs -f web\ndocker compose exec web sh\ndocker compose down\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "command",
+      "command": "compose up",
+      "flags": {
+        "--detach": true,
+        "--build": true
+      },
+      "show": "docker compose up -d --build"
+    },
+    {
+      "type": "command",
+      "command": "compose ps",
+      "show": "docker compose ps"
+    },
+    {
+      "type": "command",
+      "command": "compose logs",
+      "flags": {
+        "--follow": true
+      },
+      "args": [
+        "web"
+      ],
+      "show": "docker compose logs -f web"
+    },
+    {
+      "type": "command",
+      "command": "compose exec",
+      "args": [
+        "web",
+        "sh"
+      ],
+      "show": "docker compose exec web sh"
+    },
+    {
+      "type": "command",
+      "command": "compose down",
+      "forbid_flags": [
+        "--volumes"
+      ],
+      "show": "docker compose down"
+    }
+  ]
+}

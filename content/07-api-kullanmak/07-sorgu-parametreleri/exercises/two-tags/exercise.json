@@ -1,0 +1,39 @@
+{
+  "id": "two-tags",
+  "title": {
+    "tr": "İki etiket birden",
+    "en": "Two tags at once"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`params={\"tag\": [\"scifi\", \"classic\"]}` adreste `tag=scifi&tag=classic` olur.",
+      "en": "`params={\"tag\": [\"scifi\", \"classic\"]}` becomes `tag=scifi&tag=classic` in the address."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nr = requests.get(BASE + \"/books\", params={\"tag\": [\"scifi\", \"classic\"]})\nprint(r.url)\nfor book in r.json()[\"data\"]:\n    print(book[\"title\"])\n\nr = requests.get(BASE + \"/books\", params={\"tag\": \"scifi\"})\nprint(\"scifi only:\", r.json()[\"meta\"][\"total\"])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nr = requests.get(BASE + \"/books\", params={\"tag\": [\"scifi\", \"classic\"]})\nprint(r.url)\nfor book in r.json()[\"data\"]:\n    print(book[\"title\"])\n\nr = requests.get(BASE + \"/books\", params={\"tag\": \"scifi\"})\nprint(\"scifi only:\", r.json()[\"meta\"][\"total\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books",
+      "query": {
+        "tag": "scifi"
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "http://api.odyssey.test/books?tag=scifi&tag=classic\nDune\nscifi only: 8"
+    }
+  ]
+}

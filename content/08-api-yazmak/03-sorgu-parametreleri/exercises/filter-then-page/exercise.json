@@ -1,0 +1,102 @@
+{
+  "id": "filter-then-page",
+  "title": {
+    "tr": "Önce süz, sonra sayfala",
+    "en": "Filter first, then page"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `found` listesini süz, `total = len(found)`, sonra `found` üzerinde dilimle.",
+      "en": "Filter a `found` list first, `total = len(found)`, then slice `found`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\nbooks = [\n    {\"id\": 1, \"title\": \"Dune\", \"author\": \"Herbert\", \"year\": 1965},\n    {\"id\": 2, \"title\": \"Emma\", \"author\": \"Austen\", \"year\": 1815},\n    {\"id\": 3, \"title\": \"Ulysses\", \"author\": \"Joyce\", \"year\": 1922},\n    {\"id\": 4, \"title\": \"Kindred\", \"author\": \"Butler\", \"year\": 1979},\n    {\"id\": 5, \"title\": \"Persuasion\", \"author\": \"Austen\", \"year\": 1817},\n    {\"id\": 6, \"title\": \"Beloved\", \"author\": \"Morrison\", \"year\": 1987},\n]\n\n\n@app.get(\"/books\")\ndef list_books(author: str | None = None, page: int = 1, per_page: int = 2):\n    found = books\n    if author is not None:\n        found = [book for book in found if book[\"author\"] == author]\n    start = (page - 1) * per_page\n    return {\"total\": len(found), \"titles\": [book[\"title\"] for book in found[start:start + per_page]]}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\nbooks = [\n    {\"id\": 1, \"title\": \"Dune\", \"author\": \"Herbert\", \"year\": 1965},\n    {\"id\": 2, \"title\": \"Emma\", \"author\": \"Austen\", \"year\": 1815},\n    {\"id\": 3, \"title\": \"Ulysses\", \"author\": \"Joyce\", \"year\": 1922},\n    {\"id\": 4, \"title\": \"Kindred\", \"author\": \"Butler\", \"year\": 1979},\n    {\"id\": 5, \"title\": \"Persuasion\", \"author\": \"Austen\", \"year\": 1817},\n    {\"id\": 6, \"title\": \"Beloved\", \"author\": \"Morrison\", \"year\": 1987},\n]\n\n\n@app.get(\"/books\")\ndef list_books(author: str | None = None, page: int = 1, per_page: int = 2):\n    found = books\n    if author is not None:\n        found = [book for book in found if book[\"author\"] == author]\n    start = (page - 1) * per_page\n    return {\"total\": len(found), \"titles\": [book[\"title\"] for book in found[start:start + per_page]]}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/books",
+          "params": {
+            "author": "Austen"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "total": 2,
+              "titles": [
+                "Emma",
+                "Persuasion"
+              ]
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "params": {
+            "author": "Austen",
+            "page": 2
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "total": 2,
+              "titles": []
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "params": {
+            "page": 2
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "total": 6,
+              "titles": [
+                "Ulysses",
+                "Kindred"
+              ]
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "params": {
+            "author": "Nobody"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "total": 0,
+              "titles": []
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

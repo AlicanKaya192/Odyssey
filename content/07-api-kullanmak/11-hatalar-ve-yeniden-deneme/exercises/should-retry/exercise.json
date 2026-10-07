@@ -1,0 +1,83 @@
+{
+  "id": "should-retry",
+  "title": {
+    "tr": "Yeniden denemeli mi?",
+    "en": "Should it be retried?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce yöntem: `if method.upper() not in IDEMPOTENT: return False`. Sonra metin sonuçlar, en sonda kodlar.",
+      "en": "First the method: `if method.upper() not in IDEMPOTENT: return False`. Then the text outcomes, and the codes last."
+    },
+    {
+      "tr": "Metin ile sayıyı `>=` ile karşılaştırma; metinleri koddan önce denetle.",
+      "en": "Do not compare text with a number using `>=`; check the text outcomes before the codes."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nIDEMPOTENT = [\"GET\", \"HEAD\", \"OPTIONS\", \"PUT\", \"DELETE\"]\n\n\ndef should_retry(method, outcome):\n    if method.upper() not in IDEMPOTENT:\n        return False\n    if outcome in (\"timeout\", \"connection\"):\n        return True\n    return outcome == 429 or outcome >= 500\n\n\ncases = [\n    (\"GET\", 503),\n    (\"GET\", 404),\n    (\"get\", \"timeout\"),\n    (\"POST\", 503),\n    (\"DELETE\", \"connection\"),\n    (\"PUT\", 429),\n    (\"GET\", 200),\n    (\"patch\", 500),\n]\nfor method, outcome in cases:\n    print(method, outcome, \"->\", should_retry(method, outcome))\n```",
+      "en": "The solution:\n\n```python\nIDEMPOTENT = [\"GET\", \"HEAD\", \"OPTIONS\", \"PUT\", \"DELETE\"]\n\n\ndef should_retry(method, outcome):\n    if method.upper() not in IDEMPOTENT:\n        return False\n    if outcome in (\"timeout\", \"connection\"):\n        return True\n    return outcome == 429 or outcome >= 500\n\n\ncases = [\n    (\"GET\", 503),\n    (\"GET\", 404),\n    (\"get\", \"timeout\"),\n    (\"POST\", 503),\n    (\"DELETE\", \"connection\"),\n    (\"PUT\", 429),\n    (\"GET\", 200),\n    (\"patch\", 500),\n]\nfor method, outcome in cases:\n    print(method, outcome, \"->\", should_retry(method, outcome))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "should_retry",
+      "cases": [
+        {
+          "args": [
+            "GET",
+            502
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "GET",
+            422
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "head",
+            "timeout"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "POST",
+            "connection"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "PUT",
+            429
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "DELETE",
+            204
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "GET 503 -> True\nGET 404 -> False\nget timeout -> True\nPOST 503 -> False\nDELETE connection -> True\nPUT 429 -> True\nGET 200 -> False\npatch 500 -> False"
+    }
+  ]
+}

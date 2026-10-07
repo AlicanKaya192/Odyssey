@@ -1,0 +1,72 @@
+{
+  "id": "blocked-switch",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Dal değiştirilemiyor",
+    "en": "Can't switch branches"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir site",
+    "cd site",
+    "git init",
+    "echo \"<h1>Home</h1>\" > index.html",
+    "git add .",
+    "git commit -m \"Add home page\"",
+    "echo \"body {}\" > style.css",
+    "git add .",
+    "git commit -m \"Add styles\"",
+    "git switch -c login",
+    "echo \"<h1>Login</h1>\" > index.html",
+    "git commit -am \"Change title\"",
+    "git switch main",
+    "echo \"<h1>Welcome</h1>\" > index.html"
+  ],
+  "cwd": "site",
+  "allow_fail": [
+    0
+  ],
+  "solution": [
+    "git switch login",
+    "git commit -am \"Update welcome\"",
+    "git switch login"
+  ],
+  "hints": [
+    {
+      "tr": "Git commit'lenmemiş değişikliği ezmemek için reddediyor. Commit'leyince değişiklik main'de güvende olur.",
+      "en": "Git refuses so it won't overwrite the uncommitted change. Once committed, the change is safe on main."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit switch login\ngit commit -am \"Update welcome\"\ngit switch login\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit switch login\ngit commit -am \"Update welcome\"\ngit switch login\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "site",
+      "tips": {
+        "main": "^Update welcome$"
+      },
+      "label": {
+        "tr": "main'de Update welcome commit'i",
+        "en": "Update welcome commit on main"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "site",
+      "branch": "login",
+      "clean": true,
+      "label": {
+        "tr": "login dalındasın, ağaç temiz",
+        "en": "On login, tree clean"
+      }
+    }
+  ]
+}

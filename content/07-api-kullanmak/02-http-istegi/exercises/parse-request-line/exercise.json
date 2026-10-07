@@ -1,0 +1,57 @@
+{
+  "id": "parse-request-line",
+  "title": {
+    "tr": "İstek satırını ayır",
+    "en": "Split the request line"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`line.split(\" \")` üç parçalı bir liste verir; üç değişkene birden açabilirsin: `method, target, version = line.split(\" \")`.",
+      "en": "`line.split(\" \")` gives a list of three pieces; you can unpack it into three variables at once: `method, target, version = line.split(\" \")`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef parse_request_line(line):\n    method, target, version = line.split(\" \")\n    return {\"method\": method, \"target\": target, \"version\": version}\n\n\nlines = [\n    \"GET /v1/books?author=Austen HTTP/1.1\",\n    \"POST /v1/books HTTP/1.1\",\n    \"DELETE /v1/books/42 HTTP/2\",\n]\nfor line in lines:\n    parts = parse_request_line(line)\n    print(parts[\"method\"], \"->\", parts[\"target\"])\n```",
+      "en": "The solution:\n\n```python\ndef parse_request_line(line):\n    method, target, version = line.split(\" \")\n    return {\"method\": method, \"target\": target, \"version\": version}\n\n\nlines = [\n    \"GET /v1/books?author=Austen HTTP/1.1\",\n    \"POST /v1/books HTTP/1.1\",\n    \"DELETE /v1/books/42 HTTP/2\",\n]\nfor line in lines:\n    parts = parse_request_line(line)\n    print(parts[\"method\"], \"->\", parts[\"target\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_request_line",
+      "cases": [
+        {
+          "args": [
+            "GET /v1/weather?city=Izmir HTTP/1.1"
+          ],
+          "returns": {
+            "method": "GET",
+            "target": "/v1/weather?city=Izmir",
+            "version": "HTTP/1.1"
+          }
+        },
+        {
+          "args": [
+            "PATCH /books/7 HTTP/2"
+          ],
+          "returns": {
+            "method": "PATCH",
+            "target": "/books/7",
+            "version": "HTTP/2"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "GET -> /v1/books?author=Austen\nPOST -> /v1/books\nDELETE -> /v1/books/42"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "rebase-then-merge",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Rebase ve ileri sarma",
+    "en": "Rebase and fast-forward"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "cd app",
+    "git init",
+    "echo \"a\" > f.txt",
+    "git add .",
+    "git commit -m \"Base\"",
+    "git switch -c feature",
+    "echo \"x\" > x.txt",
+    "git add .",
+    "git commit -m \"Add x\"",
+    "echo \"y\" > y.txt",
+    "git add .",
+    "git commit -m \"Add y\"",
+    "git switch main",
+    "echo \"m\" > m.txt",
+    "git add .",
+    "git commit -m \"Add m\""
+  ],
+  "cwd": "app",
+  "solution": [
+    "git switch feature",
+    "git rebase main",
+    "git switch main",
+    "git merge feature"
+  ],
+  "hints": [
+    {
+      "tr": "Rebase'ten sonra birleştirme ileri sarma olur.",
+      "en": "After the rebase the merge is a fast-forward."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit switch feature\ngit rebase main\ngit switch main\ngit merge feature\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit switch feature\ngit rebase main\ngit switch main\ngit merge feature\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "app",
+      "branch": "main",
+      "tips": {
+        "main": "^Add y$"
+      },
+      "label": {
+        "tr": "main'in ucu Add y",
+        "en": "main's tip is Add y"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "app",
+      "linear": true,
+      "commits": 4,
+      "label": {
+        "tr": "Düz geçmiş, birleştirme commit'i yok",
+        "en": "Straight history, no merge commit"
+      }
+    }
+  ]
+}

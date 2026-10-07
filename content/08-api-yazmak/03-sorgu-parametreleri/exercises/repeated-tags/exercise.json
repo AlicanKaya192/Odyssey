@@ -1,0 +1,65 @@
+{
+  "id": "repeated-tags",
+  "title": {
+    "tr": "Tekrarlanan parametre",
+    "en": "A repeated parameter"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`tag: list[str] = Query(default=[])`; sıralamak için `sorted(tag)`.",
+      "en": "`tag: list[str] = Query(default=[])`; `sorted(tag)` to sort."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, Query\n\napp = FastAPI()\n\n\n@app.get(\"/tags\")\ndef tags(tag: list[str] = Query(default=[])):\n    return {\"tags\": sorted(tag), \"count\": len(tag)}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, Query\n\napp = FastAPI()\n\n\n@app.get(\"/tags\")\ndef tags(tag: list[str] = Query(default=[])):\n    return {\"tags\": sorted(tag), \"count\": len(tag)}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/tags?tag=python&tag=api&tag=docker",
+          "expect": {
+            "status": 200,
+            "json": {
+              "tags": [
+                "api",
+                "docker",
+                "python"
+              ],
+              "count": 3
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tags",
+          "expect": {
+            "status": 200,
+            "json": {
+              "tags": [],
+              "count": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "id": "booking-dates",
+  "title": {
+    "tr": "İki alan birlikte",
+    "en": "Two fields together"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`@model_validator(mode=\"after\")` işlevi `self` alır; `self.check_out <= self.check_in` ise `ValueError`.",
+      "en": "The `@model_validator(mode=\"after\")` function takes `self`; `ValueError` if `self.check_out <= self.check_in`."
+    },
+    {
+      "tr": "Sonunda `return self`.",
+      "en": "`return self` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field, model_validator\n\napp = FastAPI()\n\n\nclass Booking(BaseModel):\n    check_in: int = Field(ge=1, le=365)\n    check_out: int = Field(ge=1, le=365)\n    guests: int = Field(default=1, ge=1, le=4)\n\n    @model_validator(mode=\"after\")\n    def check_dates(self):\n        if self.check_out <= self.check_in:\n            raise ValueError(\"check_out must be after check_in\")\n        return self\n\n\n@app.post(\"/bookings\")\ndef book(booking: Booking):\n    return {\"nights\": booking.check_out - booking.check_in, \"guests\": booking.guests}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field, model_validator\n\napp = FastAPI()\n\n\nclass Booking(BaseModel):\n    check_in: int = Field(ge=1, le=365)\n    check_out: int = Field(ge=1, le=365)\n    guests: int = Field(default=1, ge=1, le=4)\n\n    @model_validator(mode=\"after\")\n    def check_dates(self):\n        if self.check_out <= self.check_in:\n            raise ValueError(\"check_out must be after check_in\")\n        return self\n\n\n@app.post(\"/bookings\")\ndef book(booking: Booking):\n    return {\"nights\": booking.check_out - booking.check_in, \"guests\": booking.guests}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/bookings",
+          "json": {
+            "check_in": 10,
+            "check_out": 13
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "nights": 3,
+              "guests": 1
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/bookings",
+          "json": {
+            "check_in": 1,
+            "check_out": 365,
+            "guests": 4
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "nights": 364,
+              "guests": 4
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/bookings",
+          "json": {
+            "check_in": 10,
+            "check_out": 10
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/bookings",
+          "json": {
+            "check_in": 10,
+            "check_out": 8,
+            "guests": 2
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/bookings",
+          "json": {
+            "check_in": 10,
+            "check_out": 12,
+            "guests": 5
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/bookings",
+          "json": {
+            "check_in": 0,
+            "check_out": 12
+          },
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}

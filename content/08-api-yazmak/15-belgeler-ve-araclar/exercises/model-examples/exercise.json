@@ -1,0 +1,98 @@
+{
+  "id": "model-examples",
+  "title": {
+    "tr": "Örnekler ve eskiyen uç nokta",
+    "en": "Examples and an ageing endpoint"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`title: str = Field(examples=[\"Dune\"], description=\"...\")`; dekoratöre `deprecated=True`.",
+      "en": "`title: str = Field(examples=[\"Dune\"], description=\"...\")`; `deprecated=True` on the decorator."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\n\n\nclass Book(BaseModel):\n    title: str = Field(examples=[\"Dune\"], description=\"The book's title\")\n    year: int = Field(examples=[1965], description=\"Year of first publication\")\n\n\n@app.post(\"/books\", status_code=201, tags=[\"books\"])\ndef add_book(book: Book):\n    return book\n\n\n@app.get(\"/old-books\", tags=[\"books\"], deprecated=True)\ndef old_books():\n    return []\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\n\n\nclass Book(BaseModel):\n    title: str = Field(examples=[\"Dune\"], description=\"The book's title\")\n    year: int = Field(examples=[1965], description=\"Year of first publication\")\n\n\n@app.post(\"/books\", status_code=201, tags=[\"books\"])\ndef add_book(book: Book):\n    return book\n\n\n@app.get(\"/old-books\", tags=[\"books\"], deprecated=True)\ndef old_books():\n    return []\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/openapi.json",
+          "expect": {
+            "status": 200,
+            "json_has": {
+              "components": {
+                "schemas": {
+                  "Book": {
+                    "properties": {
+                      "title": {
+                        "examples": [
+                          "Dune"
+                        ],
+                        "description": "The book's title"
+                      },
+                      "year": {
+                        "examples": [
+                          1965
+                        ],
+                        "description": "Year of first publication"
+                      }
+                    }
+                  }
+                }
+              },
+              "paths": {
+                "/old-books": {
+                  "get": {
+                    "deprecated": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Emma",
+            "year": 1815
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "title": "Emma",
+              "year": 1815
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/old-books",
+          "expect": {
+            "status": 200,
+            "json": []
+          }
+        }
+      ]
+    }
+  ]
+}

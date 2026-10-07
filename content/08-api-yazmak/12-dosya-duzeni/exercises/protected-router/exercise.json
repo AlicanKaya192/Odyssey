@@ -1,0 +1,102 @@
+{
+  "id": "protected-router",
+  "title": {
+    "tr": "Korunan router",
+    "en": "A protected router"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "readonly": true
+    },
+    {
+      "name": "routers/admin.py",
+      "starter": "starter-routers-admin.py",
+      "solution": "solution-routers-admin.py"
+    },
+    {
+      "name": "routers/books.py",
+      "readonly": true
+    },
+    {
+      "name": "deps.py",
+      "readonly": true
+    },
+    {
+      "name": "routers/__init__.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`from deps import require_key` ve `APIRouter(..., dependencies=[Depends(require_key)])`.",
+      "en": "`from deps import require_key` and `APIRouter(..., dependencies=[Depends(require_key)])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**routers/admin.py**\n\n```python\nfrom fastapi import APIRouter, Depends\n\nfrom deps import require_key\n\nrouter = APIRouter(prefix=\"/admin\", tags=[\"admin\"], dependencies=[Depends(require_key)])\n\n\n@router.get(\"/stats\")\ndef stats():\n    return {\"books\": 2}\n\n\n@router.post(\"/reset\")\ndef reset():\n    return {\"reset\": True}\n```",
+      "en": "The full solution:\n\n**routers/admin.py**\n\n```python\nfrom fastapi import APIRouter, Depends\n\nfrom deps import require_key\n\nrouter = APIRouter(prefix=\"/admin\", tags=[\"admin\"], dependencies=[Depends(require_key)])\n\n\n@router.get(\"/stats\")\ndef stats():\n    return {\"books\": 2}\n\n\n@router.post(\"/reset\")\ndef reset():\n    return {\"reset\": True}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/admin/stats",
+          "expect": {
+            "status": 401
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/admin/stats",
+          "headers": {
+            "X-Api-Key": "letmein"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "books": 2
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/admin/reset",
+          "expect": {
+            "status": 401
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/admin/reset",
+          "headers": {
+            "X-Api-Key": "letmein"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "reset": true
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "expect": {
+            "status": 200
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "id": "conflict-push",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Çakışan gönderim",
+    "en": "A conflicting push"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    {
+      "remote": "https://github.com/ada/shop.git",
+      "files": {
+        "menu.txt": "soup 4\ntea 2\n",
+        "README.md": "# Shop\n"
+      },
+      "message": "Open the shop",
+      "author": [
+        "Ada Lovelace",
+        "ada@example.com"
+      ]
+    },
+    "git clone https://github.com/ada/shop.git",
+    "cd shop",
+    "echo \"soup 5\" > menu.txt",
+    "echo \"tea 2\" >> menu.txt",
+    "git commit -am \"Raise soup price\"",
+    {
+      "remote": "https://github.com/ada/shop.git",
+      "files": {
+        "menu.txt": "soup 3\ntea 2\n",
+        "README.md": "# Shop\n"
+      },
+      "message": "Discount soup",
+      "author": [
+        "Grace Hopper",
+        "grace@example.com"
+      ]
+    }
+  ],
+  "cwd": "shop",
+  "allow_fail": [
+    0,
+    1
+  ],
+  "solution": [
+    "git push",
+    "git pull --no-rebase",
+    "echo \"soup 4\" > menu.txt",
+    "echo \"tea 2\" >> menu.txt",
+    "git add menu.txt",
+    "git commit --no-edit",
+    "git push"
+  ],
+  "hints": [
+    {
+      "tr": "push reddedilir → `git pull --no-rebase` çakışır → dosyayı düzelt, `git add`, `git commit --no-edit`, `git push`.",
+      "en": "push is refused → `git pull --no-rebase` conflicts → fix the file, `git add`, `git commit --no-edit`, `git push`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit push\ngit pull --no-rebase\necho \"soup 4\" > menu.txt\necho \"tea 2\" >> menu.txt\ngit add menu.txt\ngit commit --no-edit\ngit push\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit push\ngit pull --no-rebase\necho \"soup 4\" > menu.txt\necho \"tea 2\" >> menu.txt\ngit add menu.txt\ngit commit --no-edit\ngit push\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "shop",
+      "merge_commit": true,
+      "no_conflicts": true,
+      "head_files": {
+        "menu.txt": "soup 4\ntea 2"
+      },
+      "label": {
+        "tr": "Birleştirme bitti: soup 4",
+        "en": "Merge finished: soup 4"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "shop",
+      "pushed": true,
+      "label": {
+        "tr": "GitHub güncel",
+        "en": "GitHub is up to date"
+      }
+    }
+  ]
+}

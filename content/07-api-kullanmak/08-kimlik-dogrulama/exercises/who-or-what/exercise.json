@@ -1,0 +1,55 @@
+{
+  "id": "who-or-what",
+  "title": {
+    "tr": "Kimlik mi, yetki mi?",
+    "en": "Identity or permission?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Durum koduna göre üç `if`: 200, 401, 403.",
+      "en": "Three `if`s on the status code: 200, 401, 403."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef access(key):\n    r = requests.get(BASE + \"/admin/report\", headers={\"X-API-Key\": key})\n    if r.status_code == 200:\n        return \"ok\"\n    if r.status_code == 401:\n        return \"unknown key\"\n    if r.status_code == 403:\n        return \"not allowed\"\n    return \"unexpected \" + str(r.status_code)\n\n\nkeys = [\"admin-key-999\", \"demo-key-123\", \"my-guess\"]\nfor key in keys:\n    print(key, \"->\", access(key))\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef access(key):\n    r = requests.get(BASE + \"/admin/report\", headers={\"X-API-Key\": key})\n    if r.status_code == 200:\n        return \"ok\"\n    if r.status_code == 401:\n        return \"unknown key\"\n    if r.status_code == 403:\n        return \"not allowed\"\n    return \"unexpected \" + str(r.status_code)\n\n\nkeys = [\"admin-key-999\", \"demo-key-123\", \"my-guess\"]\nfor key in keys:\n    print(key, \"->\", access(key))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "access",
+      "cases": [
+        {
+          "args": [
+            "admin-key-999"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "demo-key-123"
+          ],
+          "returns": "not allowed"
+        },
+        {
+          "args": [
+            "nope"
+          ],
+          "returns": "unknown key"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "admin-key-999 -> ok\ndemo-key-123 -> not allowed\nmy-guess -> unknown key"
+    }
+  ]
+}

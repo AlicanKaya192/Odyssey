@@ -1,0 +1,69 @@
+{
+  "id": "stop-early",
+  "title": {
+    "tr": "Yeterince toplayınca dur",
+    "en": "Stop once you have enough"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngü koşulu `while len(titles) < n:`; boş sayfa gelirse `break`; sonunda `titles[:n]`.",
+      "en": "The loop condition is `while len(titles) < n:`; `break` on an empty page; at the end `titles[:n]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef newest(n):\n    titles = []\n    page = 1\n    while len(titles) < n:\n        body = requests.get(BASE + \"/books\", params={\"sort\": \"-year\", \"per_page\": 5, \"page\": page}).json()\n        if not body[\"data\"]:\n            break\n        titles.extend(book[\"title\"] for book in body[\"data\"])\n        page += 1\n    return titles[:n]\n\n\nfor title in newest(7):\n    print(title)\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef newest(n):\n    titles = []\n    page = 1\n    while len(titles) < n:\n        body = requests.get(BASE + \"/books\", params={\"sort\": \"-year\", \"per_page\": 5, \"page\": page}).json()\n        if not body[\"data\"]:\n            break\n        titles.extend(book[\"title\"] for book in body[\"data\"])\n        page += 1\n    return titles[:n]\n\n\nfor title in newest(7):\n    print(title)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "newest",
+      "cases": [
+        {
+          "args": [
+            3
+          ],
+          "returns": [
+            "Fiasco",
+            "The Dispossessed",
+            "The Lathe of Heaven"
+          ]
+        },
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            "Fiasco"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books",
+      "query": {
+        "sort": "-year"
+      },
+      "min": 1,
+      "max": 2,
+      "hint": {
+        "tr": "7 kitap için 2 sayfa yeter; gereğinden fazla sayfa istendi.",
+        "en": "Two pages are enough for 7 books; more pages than needed were requested."
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "Fiasco\nThe Dispossessed\nThe Lathe of Heaven\nDune Messiah\nThe Left Hand of Darkness\nA Wizard of Earthsea\nDune"
+    }
+  ]
+}

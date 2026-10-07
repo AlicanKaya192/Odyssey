@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "API'ler uzun listeleri neden sayfalara böler?",
+        "en": "Why do APIs split long lists into pages?"
+      },
+      "options": {
+        "tr": [
+          "Milyonlarca kaydı tek yanıtta göndermek sunucuyu yorar ve yanıtı çok uzatır",
+          "Kayıtları gizlemek için",
+          "İstemciyi yavaşlatmak için",
+          "JSON uzun listeleri desteklemediği için"
+        ],
+        "en": [
+          "Sending millions of records in one response tires the server and makes the response very long",
+          "To hide records",
+          "To slow the client down",
+          "Because JSON does not support long lists"
+        ]
+      },
+      "explanation": {
+        "tr": "Sayfalama yükü küçük, düzenli parçalara böler; sen ihtiyacın olan sayfaları sırayla istersin.",
+        "en": "Pagination splits the load into small, regular pieces; you ask for the pages you need one after another."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`meta` `{\"page\": 1, \"per_page\": 5, \"total\": 23, \"pages\": 5}` ise kaç istek gerekir?",
+        "en": "If `meta` is `{\"page\": 1, \"per_page\": 5, \"total\": 23, \"pages\": 5}`, how many requests are needed?"
+      },
+      "options": {
+        "tr": [
+          "5",
+          "23",
+          "1",
+          "4"
+        ],
+        "en": [
+          "5",
+          "23",
+          "1",
+          "4"
+        ]
+      },
+      "explanation": {
+        "tr": "23 kaydı 5'erli sayfalara bölünce 5 sayfa olur: 4 dolu, sonuncusu 3 kayıtlı.",
+        "en": "Splitting 23 records into pages of 5 gives 5 pages: 4 full ones and a last one with 3 records."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "`links.next` son sayfada ne olur?",
+        "en": "What is `links.next` on the last page?"
+      },
+      "options": {
+        "tr": [
+          "None (null)",
+          "İlk sayfanın adresi",
+          "Son sayfanın adresi",
+          "Boş liste"
+        ],
+        "en": [
+          "None (null)",
+          "The first page's address",
+          "The last page's address",
+          "An empty list"
+        ]
+      },
+      "explanation": {
+        "tr": "Gidilecek sonraki sayfa yok; döngü `while url:` ile tam burada durur.",
+        "en": "There is no next page to go to; a `while url:` loop stops exactly here."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "`books.extend(body[\"data\"])` ile `books.append(body[\"data\"])` farkı nedir?",
+        "en": "What is the difference between `books.extend(body[\"data\"])` and `books.append(body[\"data\"])`?"
+      },
+      "options": {
+        "tr": [
+          "`extend` sayfanın öğelerini tek tek ekler; `append` sayfayı tek öğe (liste) olarak ekler",
+          "Fark yok",
+          "`append` daha hızlı",
+          "`extend` listeyi siler"
+        ],
+        "en": [
+          "`extend` adds the page's items one by one; `append` adds the page as a single item (a list)",
+          "No difference",
+          "`append` is faster",
+          "`extend` deletes the list"
+        ]
+      },
+      "explanation": {
+        "tr": "`append` ile liste içinde listeler oluşur: `[[...], [...]]`.",
+        "en": "With `append` you get lists inside a list: `[[...], [...]]`."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "`pages` bilgisini vermeyen bir API'de sayfa döngüsü ne zaman durur?",
+        "en": "In an API that does not give `pages`, when does the page loop stop?"
+      },
+      "options": {
+        "tr": [
+          "Boş bir sayfa geldiğinde",
+          "Hiçbir zaman",
+          "İlk sayfadan sonra",
+          "Hata geldiğinde"
+        ],
+        "en": [
+          "When an empty page arrives",
+          "Never",
+          "After the first page",
+          "When an error arrives"
+        ]
+      },
+      "explanation": {
+        "tr": "Var olmayan sayfa çoğu API'de boş liste döndürür: `if not body[\"data\"]: break`.",
+        "en": "In most APIs a page that does not exist returns an empty list: `if not body[\"data\"]: break`."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Var olmayan bir sayfa (`page=9`) için alıştırma sunucusu ne döndürür?",
+        "en": "What does the practice server return for a page that does not exist (`page=9`)?"
+      },
+      "options": {
+        "tr": [
+          "200 ve boş `data`",
+          "404",
+          "Son sayfayı",
+          "500"
+        ],
+        "en": [
+          "200 and an empty `data`",
+          "404",
+          "The last page",
+          "500"
+        ]
+      },
+      "explanation": {
+        "tr": "İstek geçerli, yalnızca o sayfada kayıt yok.",
+        "en": "The request is valid; there are simply no records on that page."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`next` bağlantısını izlemenin sayfa numarası hesaplamaya göre üstünlüğü nedir?",
+        "en": "What is the advantage of following the `next` link over computing page numbers?"
+      },
+      "options": {
+        "tr": [
+          "Sunucu sonraki adresi süzme ve sıralama parametreleriyle birlikte söyler; hesap yapmazsın",
+          "Daha az veri gelir",
+          "İstekler şifrelenir",
+          "Sayfa boyu büyür"
+        ],
+        "en": [
+          "The server gives the next address with the filtering and sorting parameters; you do no arithmetic",
+          "Less data comes back",
+          "Requests are encrypted",
+          "The page size grows"
+        ]
+      },
+      "explanation": {
+        "tr": "Elle `?page=` kurarken süzme parametrelerini unutmak kolay; `next` onları korur.",
+        "en": "When building `?page=` by hand it is easy to forget the filter parameters; `next` keeps them."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`while url:` döngüsü ne zaman durur?",
+        "en": "When does a `while url:` loop stop?"
+      },
+      "options": {
+        "tr": [
+          "`url` `None` (ya da boş) olduğunda",
+          "Hiçbir zaman",
+          "İlk istekten sonra",
+          "Bir hata geldiğinde"
+        ],
+        "en": [
+          "When `url` is `None` (or empty)",
+          "Never",
+          "After the first request",
+          "When an error comes"
+        ]
+      },
+      "explanation": {
+        "tr": "`None` ve boş metin koşulda `False` sayılır.",
+        "en": "`None` and empty text count as `False` in a condition."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`?offset=10&limit=10` ne ister?",
+        "en": "What does `?offset=10&limit=10` ask for?"
+      },
+      "options": {
+        "tr": [
+          "İlk 10 kaydı atlayıp sonraki 10 kaydı",
+          "10. sayfayı",
+          "10 sayfanın tamamını",
+          "İlk 10 kaydı"
+        ],
+        "en": [
+          "Skip the first 10 records and give the next 10",
+          "Page 10",
+          "All 10 pages",
+          "The first 10 records"
+        ]
+      },
+      "explanation": {
+        "tr": "Ofset atlanacak kayıt sayısı, sınır verilecek kayıt sayısı.",
+        "en": "The offset is how many records to skip; the limit how many to give."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "23 kayıtta `limit=10` ile ofset döngüsü hangi ofsetleri ister?",
+        "en": "With 23 records and `limit=10`, which offsets does the offset loop ask for?"
+      },
+      "options": {
+        "tr": [
+          "0, 10, 20",
+          "1, 11, 21",
+          "0, 10, 20, 30",
+          "10, 20, 30"
+        ],
+        "en": [
+          "0, 10, 20",
+          "1, 11, 21",
+          "0, 10, 20, 30",
+          "10, 20, 30"
+        ]
+      },
+      "explanation": {
+        "tr": "Ofset 0'dan başlar ve her seferinde sınır kadar artar; 30 toplamı geçtiği için döngü 20'den sonra durur.",
+        "en": "The offset starts at 0 and grows by the limit each time; since 30 is past the total, the loop stops after 20."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "İmleç (cursor) sayfalaması hangi sorunu önler?",
+        "en": "Which problem does cursor pagination prevent?"
+      },
+      "options": {
+        "tr": [
+          "Liste değişirken kayıtların kayması (aynı kaydı iki kez görmek)",
+          "Yavaş internet",
+          "Şifreleme eksikliği",
+          "JSON hataları"
+        ],
+        "en": [
+          "Records drifting while the list changes (seeing the same record twice)",
+          "Slow internet",
+          "Missing encryption",
+          "JSON errors"
+        ]
+      },
+      "explanation": {
+        "tr": "Sayfa numarası kayıtların sırasına bağlı; başa yeni kayıt eklenince sayfalar kayar. İmleç \"kaldığın yer\"i işaretler.",
+        "en": "A page number depends on the order of records; when one is added at the top, pages shift. A cursor marks \"where you stopped\"."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Gelen imleç `c4` gibi görünüyor. Ne yapmalısın?",
+        "en": "The cursor you got looks like `c4`. What should you do?"
+      },
+      "options": {
+        "tr": [
+          "Olduğu gibi geri göndermek; içini yorumlamamak",
+          "`c` harfini silip sayıyla oynamak",
+          "Bir sonrakini tahmin etmek (`c5`)",
+          "Yok saymak"
+        ],
+        "en": [
+          "Send it back as it is; do not interpret it",
+          "Remove the `c` and play with the number",
+          "Guess the next one (`c5`)",
+          "Ignore it"
+        ]
+      },
+      "explanation": {
+        "tr": "İmleç opak: içi sunucunun işi. Biçimi her an değişebilir.",
+        "en": "A cursor is opaque: its inside is the server's business. Its format can change at any time."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "İmleç döngüsü ne zaman durur?",
+        "en": "When does the cursor loop stop?"
+      },
+      "options": {
+        "tr": [
+          "`next_cursor` `None` olduğunda",
+          "İlk istekte",
+          "İmleç `c0` olduğunda",
+          "Hiçbir zaman"
+        ],
+        "en": [
+          "When `next_cursor` is `None`",
+          "On the first request",
+          "When the cursor is `c0`",
+          "Never"
+        ]
+      },
+      "explanation": {
+        "tr": "Sunucu son parçayı gönderince bir sonraki imleci vermez.",
+        "en": "When the server sends the last piece, it gives no next cursor."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`per_page=100` istedin ama `meta.per_page` 20 geldi. Neden?",
+        "en": "You asked for `per_page=100` but `meta.per_page` came back as 20. Why?"
+      },
+      "options": {
+        "tr": [
+          "Sunucunun sayfa boyu için bir üst sınırı var",
+          "İstek bozuldu",
+          "Sunucu hatası",
+          "100 geçersiz bir sayı"
+        ],
+        "en": [
+          "The server has an upper limit for the page size",
+          "The request was corrupted",
+          "A server error",
+          "100 is an invalid number"
+        ]
+      },
+      "explanation": {
+        "tr": "Neredeyse her API'de böyle bir sınır var. Gelen gerçek sayıyı her zaman `meta`'dan oku.",
+        "en": "Almost every API has such a limit. Always read the real count from `meta`."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Büyük sayfa boyunun faydası nedir?",
+        "en": "What is the benefit of a large page size?"
+      },
+      "options": {
+        "tr": [
+          "Aynı veriyi daha az istekle almak",
+          "Daha güvenli bağlantı",
+          "Sunucuyu yormamak için her zaman küçük daha iyidir",
+          "Daha az bellek kullanmak"
+        ],
+        "en": [
+          "Getting the same data with fewer requests",
+          "A safer connection",
+          "Smaller is always better so as not to tire the server",
+          "Using less memory"
+        ]
+      },
+      "explanation": {
+        "tr": "23 kitap: 5'erli 5 istek, 20'li 2 istek. Sınırı aşmamak kaydıyla büyük sayfa daha az istek demek.",
+        "en": "23 books: pages of 5 mean 5 requests, pages of 20 mean 2. As long as you stay under the limit, bigger pages mean fewer requests."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Sayfalama döngüsünde neden bir güvenlik sınırı (`for page in range(1, 500)`) konur?",
+        "en": "Why put a safety limit (`for page in range(1, 500)`) in a pagination loop?"
+      },
+      "options": {
+        "tr": [
+          "Durma koşulu bozulursa sonsuz istek atmamak için",
+          "Daha hızlı çalışsın diye",
+          "Sunucu bunu ister",
+          "Gereksizdir"
+        ],
+        "en": [
+          "So as not to send endless requests if the stopping condition breaks",
+          "So it runs faster",
+          "The server requires it",
+          "It is unnecessary"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir hata durma koşulunu hiç doğru yapmayabilir; üst sınır en kötü durumu sınırlar.",
+        "en": "A bug may keep the stopping condition from ever becoming true; an upper bound limits the worst case."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Yalnızca ilk 7 kitaba ihtiyacın varsa 5'erli sayfalarda kaç sayfa istemelisin?",
+        "en": "If you only need the first 7 books, how many pages of 5 should you ask for?"
+      },
+      "options": {
+        "tr": [
+          "2",
+          "5",
+          "1",
+          "7"
+        ],
+        "en": [
+          "2",
+          "5",
+          "1",
+          "7"
+        ]
+      },
+      "explanation": {
+        "tr": "İlk sayfa 5, ikincisi 5 kayıt getirir; 7'ye ulaşınca durursun. Gereğinden fazla isteme.",
+        "en": "The first page brings 5 records and the second 5 more; you stop once you reach 7. Do not ask for more than you need."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Austen'ın kitaplarını bütün sayfalardan toplamak için en az istek atan yol hangisi?",
+        "en": "What is the way with the fewest requests to collect Austen's books from all pages?"
+      },
+      "options": {
+        "tr": [
+          "`author=Austen` ile sayfalamak",
+          "Bütün sayfaları çekip Python'da süzmek",
+          "Her kitabı ayrı istemek",
+          "Sayfa numarasını tahmin etmek"
+        ],
+        "en": [
+          "Paging with `author=Austen`",
+          "Fetching every page and filtering in Python",
+          "Asking for every book separately",
+          "Guessing the page number"
+        ]
+      },
+      "explanation": {
+        "tr": "Süzme sunucuda yapılınca yalnızca eşleşen kayıtlar sayfalanır.",
+        "en": "When the filtering is done on the server, only the matching records are paged."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`while True:` sayfa döngüsünde `break`'ten önce ne yapılmalı?",
+        "en": "In a `while True:` page loop, what must happen before `break`?"
+      },
+      "options": {
+        "tr": [
+          "Son sayfanın kayıtları listeye eklenmeli",
+          "Liste temizlenmeli",
+          "Sayfa numarası sıfırlanmalı",
+          "Hiçbir şey"
+        ],
+        "en": [
+          "The last page's records must be added to the list",
+          "The list must be cleared",
+          "The page number must be reset",
+          "Nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Önce `extend`, sonra durma denetimi; yoksa son sayfa kaybolur.",
+        "en": "First `extend`, then check whether to stop; otherwise the last page is lost."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Sayfa döngün hep aynı sayfayı getiriyor. Büyük olasılıkla neden?",
+        "en": "Your page loop keeps fetching the same page. What is the likely cause?"
+      },
+      "options": {
+        "tr": [
+          "`page` artırılmıyor ya da `params`'a konmuyor",
+          "Sunucu bozuk",
+          "İnternet yavaş",
+          "`extend` kullanıldı"
+        ],
+        "en": [
+          "`page` is not increased or not put in `params`",
+          "The server is broken",
+          "The internet is slow",
+          "`extend` was used"
+        ]
+      },
+      "explanation": {
+        "tr": "`r.url`'ye bakmak hangi sayfanın istendiğini hemen gösterir.",
+        "en": "Looking at `r.url` shows at once which page was requested."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Sunucu `next` bağlantısını yalnızca yol olarak veriyor (`/books?page=2`). Ne yapmalısın?",
+        "en": "The server gives the `next` link only as a path (`/books?page=2`). What should you do?"
+      },
+      "options": {
+        "tr": [
+          "Başına taban adresi eklemek",
+          "Hiçbir şey; requests yolu anlar",
+          "Bağlantıyı yok sayıp sayfa numarası hesaplamak",
+          "Yolu tersine çevirmek"
+        ],
+        "en": [
+          "Add the base address in front",
+          "Nothing; requests understands a path",
+          "Ignore the link and compute page numbers",
+          "Reverse the path"
+        ]
+      },
+      "explanation": {
+        "tr": "requests tam adres ister. Bazı API'ler tam adres verir; o zaman eklemezsin.",
+        "en": "requests needs a full address. Some APIs give a full address; then you do not add it."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "Bazı API'ler sayfa bağlantılarını nerede gönderir?",
+        "en": "Where do some APIs send the page links?"
+      },
+      "options": {
+        "tr": [
+          "`Link` başlığında; requests onları `r.links` ile okutur",
+          "Hiçbir yerde",
+          "Durum kodunda",
+          "Çerezlerde"
+        ],
+        "en": [
+          "In the `Link` header; requests makes them readable through `r.links`",
+          "Nowhere",
+          "In the status code",
+          "In cookies"
+        ]
+      },
+      "explanation": {
+        "tr": "Gövde yerine başlıkta gelen bağlantılar da var; belgede yazar.",
+        "en": "Links may come in a header rather than the body; the documentation says so."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Sayfa numarası biçiminin zayıf yanı nedir?",
+        "en": "What is the weakness of the page number form?"
+      },
+      "options": {
+        "tr": [
+          "Liste değişirken kayıtlar sayfalar arasında kayabilir",
+          "İstediğin sayfaya atlayamazsın",
+          "Hiç kullanılmaz",
+          "Çok karmaşıktır"
+        ],
+        "en": [
+          "Records can drift between pages while the list changes",
+          "You cannot jump to the page you want",
+          "It is never used",
+          "It is very complicated"
+        ]
+      },
+      "explanation": {
+        "tr": "Belli bir sayfaya atlamak bu biçimin güçlü yanı; zayıf yanı değişen listelerde tutarsızlık.",
+        "en": "Jumping to a page is this form's strength; its weakness is inconsistency on changing lists."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Her sayfalama biçiminde döngünün ortak adımları nelerdir?",
+        "en": "What are the shared steps of the loop in every pagination form?"
+      },
+      "options": {
+        "tr": [
+          "İste, kayıtları ekle, devam mı dur mu karar ver",
+          "Sil, ekle, sırala",
+          "Şifrele, gönder, çöz",
+          "Başla, bekle, kapat"
+        ],
+        "en": [
+          "Ask, add the records, decide whether to go on or stop",
+          "Delete, add, sort",
+          "Encrypt, send, decrypt",
+          "Start, wait, close"
+        ]
+      },
+      "explanation": {
+        "tr": "Değişen yalnızca \"nerede kaldım\" bilgisinin biçimi: sayfa, bağlantı, ofset ya da imleç.",
+        "en": "Only the form of the \"where did I stop\" information changes: a page, a link, an offset or a cursor."
+      }
+    }
+  ]
+}

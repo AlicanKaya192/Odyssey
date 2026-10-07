@@ -1,0 +1,49 @@
+{
+  "id": "key-from-env",
+  "title": {
+    "tr": "Anahtar ortamdan",
+    "en": "The key from the environment"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`return os.environ.get(\"LIBRARY_KEY\", \"demo-key-123\")`.",
+      "en": "`return os.environ.get(\"LIBRARY_KEY\", \"demo-key-123\")`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport os\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef get_key():\n    return os.environ.get(\"LIBRARY_KEY\", \"demo-key-123\")\n\n\nprint(\"LIBRARY_KEY defined:\", \"LIBRARY_KEY\" in os.environ)\n\nr = requests.get(BASE + \"/stats\", headers={\"X-API-Key\": get_key()})\nprint(\"status:\", r.status_code)\nprint(\"books:\", r.json()[\"books\"])\n```",
+      "en": "The solution:\n\n```python\nimport os\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef get_key():\n    return os.environ.get(\"LIBRARY_KEY\", \"demo-key-123\")\n\n\nprint(\"LIBRARY_KEY defined:\", \"LIBRARY_KEY\" in os.environ)\n\nr = requests.get(BASE + \"/stats\", headers={\"X-API-Key\": get_key()})\nprint(\"status:\", r.status_code)\nprint(\"books:\", r.json()[\"books\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "get_key",
+      "cases": [
+        {
+          "args": [],
+          "returns": "demo-key-123"
+        }
+      ]
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/stats",
+      "headers": {
+        "X-API-Key": "demo-key-123"
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "LIBRARY_KEY defined: False\nstatus: 200\nbooks: 23"
+    }
+  ]
+}

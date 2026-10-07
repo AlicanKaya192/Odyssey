@@ -1,0 +1,49 @@
+{
+  "id": "run-as-user",
+  "title": {
+    "tr": "Kullanıcıyla çalış",
+    "en": "Run as a user"
+  },
+  "difficulty": 1,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "whoami.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`RUN useradd --create-home --uid 1000 app` ve `CMD`'den önce `USER app`.",
+      "en": "`RUN useradd --create-home --uid 1000 app` and `USER app` before `CMD`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nRUN useradd --create-home --uid 1000 app\nWORKDIR /app\nCOPY whoami.py .\nUSER app\nCMD [\"python\", \"whoami.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nRUN useradd --create-home --uid 1000 app\nWORKDIR /app\nCOPY whoami.py .\nUSER app\nCMD [\"python\", \"whoami.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "non_root"
+    },
+    {
+      "type": "container",
+      "expect": {
+        "user": "app",
+        "logs": "running as app"
+      }
+    }
+  ]
+}

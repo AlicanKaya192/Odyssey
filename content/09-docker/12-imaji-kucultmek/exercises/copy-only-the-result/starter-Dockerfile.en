@@ -1,0 +1,10 @@
+FROM python:3.13-slim AS build
+WORKDIR /src
+COPY make_data.py .
+RUN mkdir /out && python make_data.py
+
+FROM python:3.13-slim
+WORKDIR /app
+# 1) Copy ONLY /out/primes.json from the build stage here
+# 2) Copy show.py
+CMD ["python", "show.py"]

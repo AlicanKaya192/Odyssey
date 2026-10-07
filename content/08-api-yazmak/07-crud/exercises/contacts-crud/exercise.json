@@ -1,0 +1,187 @@
+{
+  "id": "contacts-crud",
+  "title": {
+    "tr": "Sıfırdan tam kaynak",
+    "en": "A complete resource from scratch"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dersteki kitap kaynağının aynı düzeni: üç model, `find_contact` yardımcısı, `next_id` sayacı.",
+      "en": "The same layout as the book resource in the lesson: three models, a `find_contact` helper, a `next_id` counter."
+    },
+    {
+      "tr": "`ContactOut(ContactIn)` + `id: int`; `PATCH`'te `exclude_unset=True`.",
+      "en": "`ContactOut(ContactIn)` + `id: int`; `exclude_unset=True` in `PATCH`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\ncontacts = {}\nnext_id = 1\n\n\nclass ContactIn(BaseModel):\n    name: str = Field(min_length=1)\n    phone: str = Field(min_length=3)\n\n\nclass ContactPatch(BaseModel):\n    name: str | None = Field(default=None, min_length=1)\n    phone: str | None = Field(default=None, min_length=3)\n\n\nclass ContactOut(ContactIn):\n    id: int\n\n\ndef find_contact(contact_id: int) -> dict:\n    if contact_id not in contacts:\n        raise HTTPException(status_code=404, detail=\"Contact not found\")\n    return contacts[contact_id]\n\n\n@app.post(\"/contacts\", status_code=status.HTTP_201_CREATED)\ndef create_contact(contact: ContactIn) -> ContactOut:\n    global next_id\n    record = {\"id\": next_id, **contact.model_dump()}\n    contacts[next_id] = record\n    next_id += 1\n    return record\n\n\n@app.get(\"/contacts\")\ndef list_contacts() -> list[ContactOut]:\n    return list(contacts.values())\n\n\n@app.get(\"/contacts/{contact_id}\")\ndef read_contact(contact_id: int) -> ContactOut:\n    return find_contact(contact_id)\n\n\n@app.patch(\"/contacts/{contact_id}\")\ndef update_contact(contact_id: int, patch: ContactPatch) -> ContactOut:\n    record = find_contact(contact_id)\n    record.update(patch.model_dump(exclude_unset=True))\n    return record\n\n\n@app.delete(\"/contacts/{contact_id}\", status_code=status.HTTP_204_NO_CONTENT)\ndef delete_contact(contact_id: int):\n    find_contact(contact_id)\n    del contacts[contact_id]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\ncontacts = {}\nnext_id = 1\n\n\nclass ContactIn(BaseModel):\n    name: str = Field(min_length=1)\n    phone: str = Field(min_length=3)\n\n\nclass ContactPatch(BaseModel):\n    name: str | None = Field(default=None, min_length=1)\n    phone: str | None = Field(default=None, min_length=3)\n\n\nclass ContactOut(ContactIn):\n    id: int\n\n\ndef find_contact(contact_id: int) -> dict:\n    if contact_id not in contacts:\n        raise HTTPException(status_code=404, detail=\"Contact not found\")\n    return contacts[contact_id]\n\n\n@app.post(\"/contacts\", status_code=status.HTTP_201_CREATED)\ndef create_contact(contact: ContactIn) -> ContactOut:\n    global next_id\n    record = {\"id\": next_id, **contact.model_dump()}\n    contacts[next_id] = record\n    next_id += 1\n    return record\n\n\n@app.get(\"/contacts\")\ndef list_contacts() -> list[ContactOut]:\n    return list(contacts.values())\n\n\n@app.get(\"/contacts/{contact_id}\")\ndef read_contact(contact_id: int) -> ContactOut:\n    return find_contact(contact_id)\n\n\n@app.patch(\"/contacts/{contact_id}\")\ndef update_contact(contact_id: int, patch: ContactPatch) -> ContactOut:\n    record = find_contact(contact_id)\n    record.update(patch.model_dump(exclude_unset=True))\n    return record\n\n\n@app.delete(\"/contacts/{contact_id}\", status_code=status.HTTP_204_NO_CONTENT)\ndef delete_contact(contact_id: int):\n    find_contact(contact_id)\n    del contacts[contact_id]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/contacts",
+          "json": {
+            "name": "Ada",
+            "phone": "555-0101"
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "name": "Ada",
+              "phone": "555-0101",
+              "id": 1
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/contacts",
+          "json": {
+            "name": "Alan",
+            "phone": "555-0202"
+          },
+          "expect": {
+            "status": 201,
+            "json_has": {
+              "id": 2
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/contacts",
+          "json": {
+            "name": "",
+            "phone": "555"
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/contacts",
+          "json": {
+            "name": "Bo",
+            "phone": "55"
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/contacts",
+          "expect": {
+            "status": 200,
+            "json_len": 2
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/contacts/1",
+          "json": {
+            "phone": "555-0199"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "name": "Ada",
+              "phone": "555-0199",
+              "id": 1
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/1",
+          "expect": {
+            "status": 200,
+            "json": {
+              "name": "Ada",
+              "phone": "555-0199",
+              "id": 1
+            }
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/contacts/1",
+          "expect": {
+            "status": 204
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/1",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Contact not found"
+            }
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/contacts/1",
+          "expect": {
+            "status": 404
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/contacts",
+          "json": {
+            "name": "Grace",
+            "phone": "555-0303"
+          },
+          "expect": {
+            "status": 201,
+            "json_has": {
+              "id": 3
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/contacts",
+          "expect": {
+            "status": 200,
+            "json": [
+              {
+                "name": "Alan",
+                "phone": "555-0202",
+                "id": 2
+              },
+              {
+                "name": "Grace",
+                "phone": "555-0303",
+                "id": 3
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

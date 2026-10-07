@@ -1,0 +1,76 @@
+{
+  "id": "review-entrypoint",
+  "title": {
+    "tr": "Sabit komut, değişen argüman",
+    "en": "A fixed command, a changing argument"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "greet.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`ENTRYPOINT [\"python\", \"greet.py\"]` ve `CMD [\"world\"]`.",
+      "en": "`ENTRYPOINT [\"python\", \"greet.py\"]` and `CMD [\"world\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY greet.py .\nENTRYPOINT [\"python\", \"greet.py\"]\nCMD [\"world\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY greet.py .\nENTRYPOINT [\"python\", \"greet.py\"]\nCMD [\"world\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "exec_form",
+      "instruction": "ENTRYPOINT",
+      "args": [
+        "python",
+        "greet.py"
+      ],
+      "show": "ENTRYPOINT [\"python\", \"greet.py\"]"
+    },
+    {
+      "type": "dockerfile",
+      "rule": "exec_form",
+      "instruction": "CMD",
+      "args": [
+        "world"
+      ],
+      "show": "CMD [\"world\"]"
+    },
+    {
+      "type": "container",
+      "expect": {
+        "logs": "hello world",
+        "exit_code": 0
+      }
+    },
+    {
+      "type": "container",
+      "run": {
+        "cmd": [
+          "Ada"
+        ]
+      },
+      "expect": {
+        "logs": "hello Ada",
+        "exit_code": 0
+      }
+    }
+  ]
+}

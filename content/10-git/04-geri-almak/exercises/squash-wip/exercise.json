@@ -1,0 +1,87 @@
+{
+  "id": "squash-wip",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Üç küçük commit'i birleştir",
+    "en": "Combine three small commits"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir notes",
+    "cd notes",
+    "git init",
+    "echo \"Buy milk\" > todo.txt",
+    "git add .",
+    "git commit -m \"Add todo list\"",
+    "echo \"Call Ada\" >> todo.txt",
+    "git commit -am \"Add call\"",
+    "echo \"# Notes\" > readme.md",
+    "git add .",
+    "git commit -m \"Add readme\"",
+    "echo \"eggs\" > shop.txt",
+    "git add .",
+    "git commit -m \"wip\"",
+    "echo \"bread\" >> shop.txt",
+    "git commit -am \"wip 2\"",
+    "echo \"cheese\" >> shop.txt",
+    "git commit -am \"wip 3\""
+  ],
+  "cwd": "notes",
+  "solution": [
+    "git log --oneline",
+    "git reset --soft HEAD~3",
+    "git status -s",
+    "git commit -m \"Add shopping list\""
+  ],
+  "hints": [
+    {
+      "tr": "`--soft` dalı geri taşır, değişiklikleri hazırlık alanında bırakır. Üç commit geri: `HEAD~3`.",
+      "en": "`--soft` moves the branch back and leaves the changes staged. Three commits back: `HEAD~3`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit log --oneline\ngit reset --soft HEAD~3\ngit status -s\ngit commit -m \"Add shopping list\"\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit log --oneline\ngit reset --soft HEAD~3\ngit status -s\ngit commit -m \"Add shopping list\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "commits": 4,
+      "messages": [
+        "Add shopping list",
+        "Add readme"
+      ],
+      "label": {
+        "tr": "wip'lerin yerine tek commit: Add shopping list",
+        "en": "One commit instead of the wips: Add shopping list"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "head_files": {
+        "shop.txt": "eggs\nbread\ncheese"
+      },
+      "clean": true,
+      "label": {
+        "tr": "shop.txt üç satırıyla commit'te",
+        "en": "shop.txt is in the commit with all three lines"
+      }
+    },
+    {
+      "type": "git_command",
+      "pattern": "^git reset --soft\\b",
+      "show": "git reset --soft",
+      "label": {
+        "tr": "git reset --soft kullandın",
+        "en": "You used git reset --soft"
+      }
+    }
+  ]
+}

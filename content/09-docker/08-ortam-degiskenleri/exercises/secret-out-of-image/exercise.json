@@ -1,0 +1,63 @@
+{
+  "id": "secret-out-of-image",
+  "title": {
+    "tr": "Sır imajdan çıksın",
+    "en": "Get the secret out of the image"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`ENV API_KEY=...` satırını sil.",
+      "en": "Delete the `ENV API_KEY=...` line."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY app.py .\nCMD [\"python\", \"app.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY app.py .\nCMD [\"python\", \"app.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "forbid",
+      "instruction": "ENV",
+      "value": "API_KEY",
+      "show": "ENV API_KEY=..."
+    },
+    {
+      "type": "dockerfile",
+      "rule": "forbid",
+      "instruction": "ARG",
+      "value": "API_KEY",
+      "show": "ARG API_KEY"
+    },
+    {
+      "type": "container",
+      "run": {
+        "env": {
+          "API_KEY": "test-key-123"
+        }
+      },
+      "expect": {
+        "logs": "key loaded: 12 chars"
+      }
+    }
+  ]
+}

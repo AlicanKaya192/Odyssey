@@ -1,0 +1,77 @@
+{
+  "id": "cherry-pick-fix",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Yalnızca düzeltmeyi al",
+    "en": "Take only the fix"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "cd app",
+    "git init",
+    "echo \"a\" > f.txt",
+    "git add .",
+    "git commit -m \"Base\"",
+    "echo \"<footer>Copyrigt</footer>\" > footer.html",
+    "git add .",
+    "git commit -m \"Add footer\"",
+    "git switch -c experiment",
+    "echo \"grid\" > layout.css",
+    "git add .",
+    "git commit -m \"Try grid layout\"",
+    "echo \"<footer>Copyright</footer>\" > footer.html",
+    "git commit -am \"Fix footer typo\"",
+    "echo \"flex\" > layout.css",
+    "git commit -am \"Try flex layout\"",
+    "git switch main"
+  ],
+  "cwd": "app",
+  "solution": [
+    "git log --oneline experiment",
+    "git cherry-pick experiment~1"
+  ],
+  "hints": [
+    {
+      "tr": "`git cherry-pick <commit>`. Commit'i hash'iyle ya da `experiment~1` ile anabilirsin.",
+      "en": "`git cherry-pick <commit>`. Name the commit by its hash or as `experiment~1`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit log --oneline experiment\ngit cherry-pick experiment~1\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit log --oneline experiment\ngit cherry-pick experiment~1\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "app",
+      "branch": "main",
+      "tips": {
+        "main": "^Fix footer typo$"
+      },
+      "head_files": {
+        "footer.html": "<footer>Copyright</footer>"
+      },
+      "label": {
+        "tr": "main'de Fix footer typo",
+        "en": "Fix footer typo on main"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "app",
+      "missing_files": [
+        "layout.css"
+      ],
+      "label": {
+        "tr": "Düzen denemeleri main'e gelmedi",
+        "en": "The layout experiments didn't come to main"
+      }
+    }
+  ]
+}

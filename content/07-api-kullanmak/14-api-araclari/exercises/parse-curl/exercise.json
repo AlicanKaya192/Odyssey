@@ -1,0 +1,72 @@
+{
+  "id": "parse-curl",
+  "title": {
+    "tr": "curl komutunu çöz",
+    "en": "Take a curl command apart"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`parts = shlex.split(command)`; `i = 1`'den başlayan bir `while` döngüsüyle parçaları oku; seçenekten sonra `i += 2`.",
+      "en": "`parts = shlex.split(command)`; read the pieces with a `while` loop starting at `i = 1`; after an option use `i += 2`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport shlex\n\n\ndef parse_curl(command):\n    parts = shlex.split(command)\n    method = None\n    url = None\n    headers = {}\n    data = None\n    i = 1\n    while i < len(parts):\n        part = parts[i]\n        if part == \"-X\":\n            method = parts[i + 1]\n            i += 2\n        elif part == \"-H\":\n            name, value = parts[i + 1].split(\": \", 1)\n            headers[name] = value\n            i += 2\n        elif part == \"-d\":\n            data = parts[i + 1]\n            i += 2\n        else:\n            url = part\n            i += 1\n    if method is None:\n        method = \"POST\" if data is not None else \"GET\"\n    return {\"method\": method, \"url\": url, \"headers\": headers, \"data\": data}\n\n\ncommands = [\n    \"curl http://api.odyssey.test/books/1\",\n    \"curl -H \\\"X-API-Key: demo-key-123\\\" http://api.odyssey.test/stats\",\n    'curl -X POST http://api.odyssey.test/books -H \"Authorization: Bearer letmein\" -H \"Content-Type: application/json\" -d \\'{\"title\": \"Kindred\", \"price\": 11.5}\\'',\n]\nfor command in commands:\n    request = parse_curl(command)\n    print(request[\"method\"], request[\"url\"], len(request[\"headers\"]), request[\"data\"])\n```",
+      "en": "The solution:\n\n```python\nimport shlex\n\n\ndef parse_curl(command):\n    parts = shlex.split(command)\n    method = None\n    url = None\n    headers = {}\n    data = None\n    i = 1\n    while i < len(parts):\n        part = parts[i]\n        if part == \"-X\":\n            method = parts[i + 1]\n            i += 2\n        elif part == \"-H\":\n            name, value = parts[i + 1].split(\": \", 1)\n            headers[name] = value\n            i += 2\n        elif part == \"-d\":\n            data = parts[i + 1]\n            i += 2\n        else:\n            url = part\n            i += 1\n    if method is None:\n        method = \"POST\" if data is not None else \"GET\"\n    return {\"method\": method, \"url\": url, \"headers\": headers, \"data\": data}\n\n\ncommands = [\n    \"curl http://api.odyssey.test/books/1\",\n    \"curl -H \\\"X-API-Key: demo-key-123\\\" http://api.odyssey.test/stats\",\n    'curl -X POST http://api.odyssey.test/books -H \"Authorization: Bearer letmein\" -H \"Content-Type: application/json\" -d \\'{\"title\": \"Kindred\", \"price\": 11.5}\\'',\n]\nfor command in commands:\n    request = parse_curl(command)\n    print(request[\"method\"], request[\"url\"], len(request[\"headers\"]), request[\"data\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_curl",
+      "cases": [
+        {
+          "args": [
+            "curl https://api.example.com/books"
+          ],
+          "returns": {
+            "method": "GET",
+            "url": "https://api.example.com/books",
+            "headers": {},
+            "data": null
+          }
+        },
+        {
+          "args": [
+            "curl -X DELETE https://api.example.com/books/7 -H \"Authorization: Bearer abc\""
+          ],
+          "returns": {
+            "method": "DELETE",
+            "url": "https://api.example.com/books/7",
+            "headers": {
+              "Authorization": "Bearer abc"
+            },
+            "data": null
+          }
+        },
+        {
+          "args": [
+            "curl https://api.example.com/books -d 'x=1'"
+          ],
+          "returns": {
+            "method": "POST",
+            "url": "https://api.example.com/books",
+            "headers": {},
+            "data": "x=1"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "GET http://api.odyssey.test/books/1 0 None\nGET http://api.odyssey.test/stats 1 None\nPOST http://api.odyssey.test/books 2 {\"title\": \"Kindred\", \"price\": 11.5}"
+    }
+  ]
+}

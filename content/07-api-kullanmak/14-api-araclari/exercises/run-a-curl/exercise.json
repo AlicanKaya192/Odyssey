@@ -1,0 +1,43 @@
+{
+  "id": "run-a-curl",
+  "title": {
+    "tr": "curl komutunu çalıştır",
+    "en": "Run a curl command"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`r = requests.request(request[\"method\"], request[\"url\"], headers=request[\"headers\"], data=request[\"data\"])`.",
+      "en": "`r = requests.request(request[\"method\"], request[\"url\"], headers=request[\"headers\"], data=request[\"data\"])`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport shlex\n\nimport requests\n\n\ndef parse_curl(command):\n    parts = shlex.split(command)\n    method = None\n    url = None\n    headers = {}\n    data = None\n    i = 1\n    while i < len(parts):\n        part = parts[i]\n        if part == \"-X\":\n            method = parts[i + 1]\n            i += 2\n        elif part == \"-H\":\n            name, value = parts[i + 1].split(\": \", 1)\n            headers[name] = value\n            i += 2\n        elif part == \"-d\":\n            data = parts[i + 1]\n            i += 2\n        else:\n            url = part\n            i += 1\n    if method is None:\n        method = \"POST\" if data is not None else \"GET\"\n    return {\"method\": method, \"url\": url, \"headers\": headers, \"data\": data}\n\n\ncommand = 'curl -X POST http://api.odyssey.test/books -H \"Authorization: Bearer letmein\" -H \"Content-Type: application/json\" -d \\'{\"title\": \"Kindred\", \"price\": 11.5}\\''\n\nrequest = parse_curl(command)\nr = requests.request(request[\"method\"], request[\"url\"], headers=request[\"headers\"], data=request[\"data\"])\nprint(\"status:\", r.status_code)\nprint(\"location:\", r.headers[\"Location\"])\nprint(\"title:\", r.json()[\"title\"])\n```",
+      "en": "The solution:\n\n```python\nimport shlex\n\nimport requests\n\n\ndef parse_curl(command):\n    parts = shlex.split(command)\n    method = None\n    url = None\n    headers = {}\n    data = None\n    i = 1\n    while i < len(parts):\n        part = parts[i]\n        if part == \"-X\":\n            method = parts[i + 1]\n            i += 2\n        elif part == \"-H\":\n            name, value = parts[i + 1].split(\": \", 1)\n            headers[name] = value\n            i += 2\n        elif part == \"-d\":\n            data = parts[i + 1]\n            i += 2\n        else:\n            url = part\n            i += 1\n    if method is None:\n        method = \"POST\" if data is not None else \"GET\"\n    return {\"method\": method, \"url\": url, \"headers\": headers, \"data\": data}\n\n\ncommand = 'curl -X POST http://api.odyssey.test/books -H \"Authorization: Bearer letmein\" -H \"Content-Type: application/json\" -d \\'{\"title\": \"Kindred\", \"price\": 11.5}\\''\n\nrequest = parse_curl(command)\nr = requests.request(request[\"method\"], request[\"url\"], headers=request[\"headers\"], data=request[\"data\"])\nprint(\"status:\", r.status_code)\nprint(\"location:\", r.headers[\"Location\"])\nprint(\"title:\", r.json()[\"title\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "POST",
+      "path": "/books",
+      "headers": {
+        "Authorization": "Bearer letmein"
+      },
+      "json": {
+        "title": "Kindred",
+        "price": 11.5
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "status: 201\nlocation: /books/24\ntitle: Kindred"
+    }
+  ]
+}

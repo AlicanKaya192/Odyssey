@@ -1,0 +1,61 @@
+{
+  "id": "static-site",
+  "title": {
+    "tr": "Konteynerde bir site",
+    "en": "A site in a container"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "index.html",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`CMD [\"python\", \"-m\", \"http.server\", \"8000\"]`.",
+      "en": "`CMD [\"python\", \"-m\", \"http.server\", \"8000\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /srv\nCOPY index.html .\nEXPOSE 8000\nCMD [\"python\", \"-m\", \"http.server\", \"8000\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /srv\nCOPY index.html .\nEXPOSE 8000\nCMD [\"python\", \"-m\", \"http.server\", \"8000\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "has",
+      "instruction": "EXPOSE",
+      "value": "^8000$",
+      "show": "EXPOSE 8000"
+    },
+    {
+      "type": "container",
+      "run": {
+        "port": 8000
+      },
+      "expect": {
+        "exposed": [
+          8000
+        ],
+        "http": {
+          "path": "/",
+          "status": 200,
+          "contains": "Odyssey Docs"
+        }
+      }
+    }
+  ]
+}

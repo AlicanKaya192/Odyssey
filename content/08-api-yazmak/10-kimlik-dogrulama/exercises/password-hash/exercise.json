@@ -1,0 +1,117 @@
+{
+  "id": "password-hash",
+  "title": {
+    "tr": "Şifreyi özetle denetlemek",
+    "en": "Checking a password with a hash"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`stored = users.get(form.username)`; `stored is None` ya da `not hmac.compare_digest(stored, hash_password(form.password, SALT))` ise 401.",
+      "en": "`stored = users.get(form.username)`; 401 if `stored is None` or `not hmac.compare_digest(stored, hash_password(form.password, SALT))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport hashlib\nimport hmac\n\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nSALT = \"odyssey-salt\"\nusers = {\n    \"ada\": \"887362783edaec9e1b53b6e44e5e7fd3d15211a39abe696032db618b212115b3\",\n    \"alan\": \"a90c9f1188728ecdf5e047af7c9411d05288916f59c7a7446aa4074b0f0fdf01\",\n}\n\n\ndef hash_password(password: str, salt: str) -> str:\n    return hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt.encode(), 100_000).hex()\n\n\nclass Login(BaseModel):\n    username: str\n    password: str\n\n\n@app.post(\"/login\")\ndef login(form: Login):\n    stored = users.get(form.username)\n    if stored is None or not hmac.compare_digest(stored, hash_password(form.password, SALT)):\n        raise HTTPException(status_code=401, detail=\"Wrong username or password\")\n    return {\"ok\": True, \"user\": form.username}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport hashlib\nimport hmac\n\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nSALT = \"odyssey-salt\"\nusers = {\n    \"ada\": \"887362783edaec9e1b53b6e44e5e7fd3d15211a39abe696032db618b212115b3\",\n    \"alan\": \"a90c9f1188728ecdf5e047af7c9411d05288916f59c7a7446aa4074b0f0fdf01\",\n}\n\n\ndef hash_password(password: str, salt: str) -> str:\n    return hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt.encode(), 100_000).hex()\n\n\nclass Login(BaseModel):\n    username: str\n    password: str\n\n\n@app.post(\"/login\")\ndef login(form: Login):\n    stored = users.get(form.username)\n    if stored is None or not hmac.compare_digest(stored, hash_password(form.password, SALT)):\n        raise HTTPException(status_code=401, detail=\"Wrong username or password\")\n    return {\"ok\": True, \"user\": form.username}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hash_password",
+      "cases": [
+        {
+          "args": [
+            "lovelace",
+            "odyssey-salt"
+          ],
+          "returns": "887362783edaec9e1b53b6e44e5e7fd3d15211a39abe696032db618b212115b3"
+        },
+        {
+          "args": [
+            "enigma",
+            "odyssey-salt"
+          ],
+          "returns": "a90c9f1188728ecdf5e047af7c9411d05288916f59c7a7446aa4074b0f0fdf01"
+        }
+      ]
+    },
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/login",
+          "json": {
+            "username": "ada",
+            "password": "lovelace"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "ok": true,
+              "user": "ada"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/login",
+          "json": {
+            "username": "alan",
+            "password": "enigma"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "ok": true,
+              "user": "alan"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/login",
+          "json": {
+            "username": "ada",
+            "password": "enigma"
+          },
+          "expect": {
+            "status": 401,
+            "json": {
+              "detail": "Wrong username or password"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/login",
+          "json": {
+            "username": "bob",
+            "password": "x"
+          },
+          "expect": {
+            "status": 401,
+            "json": {
+              "detail": "Wrong username or password"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

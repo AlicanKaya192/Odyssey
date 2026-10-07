@@ -1,0 +1,103 @@
+{
+  "id": "admin-key",
+  "title": {
+    "tr": "Anahtar denetimi",
+    "en": "A key check"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`def require_key(x_api_key: Annotated[str | None, Header()] = None):`; `X-Api-Key` → `x_api_key`.",
+      "en": "`def require_key(x_api_key: Annotated[str | None, Header()] = None):`; `X-Api-Key` → `x_api_key`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, Header, HTTPException\n\napp = FastAPI()\n\n\ndef require_key(x_api_key: Annotated[str | None, Header()] = None):\n    if x_api_key != \"letmein\":\n        raise HTTPException(status_code=401, detail=\"Invalid API key\")\n\n\n@app.get(\"/health\")\ndef health():\n    return {\"status\": \"ok\"}\n\n\n@app.get(\"/admin/stats\", dependencies=[Depends(require_key)])\ndef stats():\n    return {\"users\": 42}\n\n\n@app.get(\"/admin/logs\", dependencies=[Depends(require_key)])\ndef logs():\n    return [\"started\", \"ready\"]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, Header, HTTPException\n\napp = FastAPI()\n\n\ndef require_key(x_api_key: Annotated[str | None, Header()] = None):\n    if x_api_key != \"letmein\":\n        raise HTTPException(status_code=401, detail=\"Invalid API key\")\n\n\n@app.get(\"/health\")\ndef health():\n    return {\"status\": \"ok\"}\n\n\n@app.get(\"/admin/stats\", dependencies=[Depends(require_key)])\ndef stats():\n    return {\"users\": 42}\n\n\n@app.get(\"/admin/logs\", dependencies=[Depends(require_key)])\ndef logs():\n    return [\"started\", \"ready\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/health",
+          "expect": {
+            "status": 200,
+            "json": {
+              "status": "ok"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/admin/stats",
+          "expect": {
+            "status": 401,
+            "json": {
+              "detail": "Invalid API key"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/admin/stats",
+          "headers": {
+            "X-Api-Key": "wrong"
+          },
+          "expect": {
+            "status": 401
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/admin/stats",
+          "headers": {
+            "X-Api-Key": "letmein"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "users": 42
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/admin/logs",
+          "expect": {
+            "status": 401
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/admin/logs",
+          "headers": {
+            "x-api-key": "letmein"
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              "started",
+              "ready"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

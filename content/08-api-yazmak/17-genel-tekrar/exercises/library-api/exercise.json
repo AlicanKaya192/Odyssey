@@ -1,0 +1,169 @@
+{
+  "id": "library-api",
+  "title": {
+    "tr": "Kütüphane API'si",
+    "en": "A library API"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "CRUD bölümündeki düzen: üç model, `find_book`, `next_id`, `exclude_unset=True`.",
+      "en": "The layout from the CRUD section: three models, `find_book`, `next_id`, `exclude_unset=True`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nbooks = {}\nnext_id = 1\n\n\nclass BookIn(BaseModel):\n    title: str = Field(min_length=1)\n    year: int = Field(ge=1450, le=2100)\n\n\nclass BookPatch(BaseModel):\n    title: str | None = Field(default=None, min_length=1)\n    year: int | None = Field(default=None, ge=1450, le=2100)\n\n\nclass BookOut(BookIn):\n    id: int\n\n\ndef find_book(book_id: int) -> dict:\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n\n\n@app.post(\"/books\", status_code=status.HTTP_201_CREATED)\ndef create_book(book: BookIn) -> BookOut:\n    global next_id\n    record = {\"id\": next_id, **book.model_dump()}\n    books[next_id] = record\n    next_id += 1\n    return record\n\n\n@app.get(\"/books\")\ndef list_books(year: int | None = None) -> list[BookOut]:\n    result = list(books.values())\n    if year is not None:\n        result = [b for b in result if b[\"year\"] == year]\n    return result\n\n\n@app.get(\"/books/{book_id}\")\ndef read_book(book_id: int) -> BookOut:\n    return find_book(book_id)\n\n\n@app.patch(\"/books/{book_id}\")\ndef update_book(book_id: int, patch: BookPatch) -> BookOut:\n    record = find_book(book_id)\n    record.update(patch.model_dump(exclude_unset=True))\n    return record\n\n\n@app.delete(\"/books/{book_id}\", status_code=status.HTTP_204_NO_CONTENT)\ndef delete_book(book_id: int):\n    find_book(book_id)\n    del books[book_id]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nbooks = {}\nnext_id = 1\n\n\nclass BookIn(BaseModel):\n    title: str = Field(min_length=1)\n    year: int = Field(ge=1450, le=2100)\n\n\nclass BookPatch(BaseModel):\n    title: str | None = Field(default=None, min_length=1)\n    year: int | None = Field(default=None, ge=1450, le=2100)\n\n\nclass BookOut(BookIn):\n    id: int\n\n\ndef find_book(book_id: int) -> dict:\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n\n\n@app.post(\"/books\", status_code=status.HTTP_201_CREATED)\ndef create_book(book: BookIn) -> BookOut:\n    global next_id\n    record = {\"id\": next_id, **book.model_dump()}\n    books[next_id] = record\n    next_id += 1\n    return record\n\n\n@app.get(\"/books\")\ndef list_books(year: int | None = None) -> list[BookOut]:\n    result = list(books.values())\n    if year is not None:\n        result = [b for b in result if b[\"year\"] == year]\n    return result\n\n\n@app.get(\"/books/{book_id}\")\ndef read_book(book_id: int) -> BookOut:\n    return find_book(book_id)\n\n\n@app.patch(\"/books/{book_id}\")\ndef update_book(book_id: int, patch: BookPatch) -> BookOut:\n    record = find_book(book_id)\n    record.update(patch.model_dump(exclude_unset=True))\n    return record\n\n\n@app.delete(\"/books/{book_id}\", status_code=status.HTTP_204_NO_CONTENT)\ndef delete_book(book_id: int):\n    find_book(book_id)\n    del books[book_id]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Dune",
+            "year": 1965
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "title": "Dune",
+              "year": 1965,
+              "id": 1
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Emma",
+            "year": 1815
+          },
+          "expect": {
+            "status": 201
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "",
+            "year": 1965
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "X",
+            "year": 3000
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "params": {
+            "year": 1815
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              {
+                "title": "Emma",
+                "year": 1815,
+                "id": 2
+              }
+            ]
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/books/1",
+          "json": {
+            "year": 1966
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "Dune",
+              "year": 1966,
+              "id": 1
+            }
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/books/1",
+          "json": {
+            "year": 1000
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/books/2",
+          "expect": {
+            "status": 204
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/2",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Book not found"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Ubik",
+            "year": 1969
+          },
+          "expect": {
+            "status": 201,
+            "json_has": {
+              "id": 3
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books",
+          "expect": {
+            "status": 200,
+            "json_len": 2
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "id": "name-taken",
+  "title": {
+    "tr": "Program için hata kodu",
+    "en": "An error code for programs"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`raise HTTPException(status_code=409, detail={\"code\": \"name_taken\", \"name\": name})`.",
+      "en": "`raise HTTPException(status_code=409, detail={\"code\": \"name_taken\", \"name\": name})`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nnames = {\"ada\"}\n\n\nclass Signup(BaseModel):\n    name: str\n\n\n@app.post(\"/signup\", status_code=201)\ndef signup(data: Signup):\n    name = data.name.lower()\n    if name in names:\n        raise HTTPException(status_code=409,\n                            detail={\"code\": \"name_taken\", \"name\": name})\n    names.add(name)\n    return {\"name\": name}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nnames = {\"ada\"}\n\n\nclass Signup(BaseModel):\n    name: str\n\n\n@app.post(\"/signup\", status_code=201)\ndef signup(data: Signup):\n    name = data.name.lower()\n    if name in names:\n        raise HTTPException(status_code=409,\n                            detail={\"code\": \"name_taken\", \"name\": name})\n    names.add(name)\n    return {\"name\": name}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/signup",
+          "json": {
+            "name": "Grace"
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "name": "grace"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/signup",
+          "json": {
+            "name": "ADA"
+          },
+          "expect": {
+            "status": 409,
+            "json": {
+              "detail": {
+                "code": "name_taken",
+                "name": "ada"
+              }
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/signup",
+          "json": {
+            "name": "grace"
+          },
+          "expect": {
+            "status": 409,
+            "json": {
+              "detail": {
+                "code": "name_taken",
+                "name": "grace"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

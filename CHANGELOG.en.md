@@ -23,6 +23,25 @@ lecture note does not mean downloading the whole application again.
 
 ## [0.9.3] — unreleased
 
+### Added
+- **The API track.** Two modules: **API 1** (17 sections) is about using
+  REST APIs: addresses, HTTP, JSON, `requests`, authentication, paging,
+  errors and retries, building a dataset from an API. Exercises send
+  requests to a practice server inside the app; no internet needed.
+  **API 2** (18 sections) is the other side of the table: writing your own
+  API with FastAPI; validation, CRUD, error responses, dependencies,
+  authentication, SQLite, tests, async and serving a machine learning
+  model. In API 2 you can start the server you wrote with one button, try
+  it in the browser, and send requests from the **Request** tab in the side
+  panel.
+- **The Git track.** Version control in seventeen sections: the first
+  commit and the three areas, looking at and undoing changes, `.gitignore`,
+  branches, merging and conflicts, remotes and GitHub (pull requests,
+  forks), stash, rewriting history, tags, recovering what was lost and good
+  habits. Exercises are typed into a Git terminal inside the app; you don't
+  need to install Git or open a GitHub account, and the goals are checked
+  off one by one next to the terminal.
+
 ### Fixed
 - **Step-by-step tracing names classes correctly.** While the body of a
   class was being traced, the panel called it "inside the function" and

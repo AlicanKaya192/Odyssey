@@ -1,0 +1,95 @@
+{
+  "id": "second-router",
+  "title": {
+    "tr": "İkinci router",
+    "en": "A second router"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "routers/books.py",
+      "readonly": true
+    },
+    {
+      "name": "routers/authors.py",
+      "starter": "starter-routers-authors.{lang}.py",
+      "solution": "solution-routers-authors.py"
+    },
+    {
+      "name": "routers/__init__.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`routers/books.py`'yi örnek al; `main.py`'de `from routers import authors, books`.",
+      "en": "Use `routers/books.py` as an example; `from routers import authors, books` in `main.py`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\nfrom routers import authors, books\n\napp = FastAPI(title=\"Library\")\napp.include_router(books.router)\napp.include_router(authors.router)\n```\n\n**routers/authors.py**\n\n```python\nfrom fastapi import APIRouter, HTTPException\n\nrouter = APIRouter(prefix=\"/authors\", tags=[\"authors\"])\nauthors = {1: \"Frank Herbert\", 2: \"Jane Austen\"}\n\n\n@router.get(\"\")\ndef list_authors():\n    return authors\n\n\n@router.get(\"/{author_id}\")\ndef read_author(author_id: int):\n    if author_id not in authors:\n        raise HTTPException(status_code=404, detail=\"Author not found\")\n    return {\"id\": author_id, \"name\": authors[author_id]}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\nfrom routers import authors, books\n\napp = FastAPI(title=\"Library\")\napp.include_router(books.router)\napp.include_router(authors.router)\n```\n\n**routers/authors.py**\n\n```python\nfrom fastapi import APIRouter, HTTPException\n\nrouter = APIRouter(prefix=\"/authors\", tags=[\"authors\"])\nauthors = {1: \"Frank Herbert\", 2: \"Jane Austen\"}\n\n\n@router.get(\"\")\ndef list_authors():\n    return authors\n\n\n@router.get(\"/{author_id}\")\ndef read_author(author_id: int):\n    if author_id not in authors:\n        raise HTTPException(status_code=404, detail=\"Author not found\")\n    return {\"id\": author_id, \"name\": authors[author_id]}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/authors",
+          "expect": {
+            "status": 200,
+            "json": {
+              "1": "Frank Herbert",
+              "2": "Jane Austen"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/authors/2",
+          "expect": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "name": "Jane Austen"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/authors/5",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Author not found"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/1",
+          "expect": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "title": "Dune"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
