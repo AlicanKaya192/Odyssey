@@ -1,0 +1,75 @@
+{
+  "id": "greeting-tool",
+  "title": {
+    "tr": "Selam aracı",
+    "en": "A greeting tool"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "greet.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`ENTRYPOINT [\"python\", \"greet.py\"]` ve `CMD [\"World\"]`.",
+      "en": "`ENTRYPOINT [\"python\", \"greet.py\"]` and `CMD [\"World\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY greet.py .\nENTRYPOINT [\"python\", \"greet.py\"]\nCMD [\"World\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY greet.py .\nENTRYPOINT [\"python\", \"greet.py\"]\nCMD [\"World\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "exec_form",
+      "instruction": "ENTRYPOINT",
+      "args": [
+        "python",
+        "greet.py"
+      ],
+      "show": "ENTRYPOINT [\"python\", \"greet.py\"]"
+    },
+    {
+      "type": "dockerfile",
+      "rule": "exec_form",
+      "instruction": "CMD",
+      "args": [
+        "World"
+      ],
+      "show": "CMD [\"World\"]"
+    },
+    {
+      "type": "container",
+      "expect": {
+        "logs": "Hello, World!"
+      }
+    },
+    {
+      "type": "container",
+      "run": {
+        "cmd": [
+          "Ada",
+          "Lovelace"
+        ]
+      },
+      "expect": {
+        "logs": "Hello, Ada Lovelace!"
+      }
+    }
+  ]
+}

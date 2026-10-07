@@ -1,0 +1,61 @@
+{
+  "id": "skip-empty",
+  "title": {
+    "tr": "Boş alanları atlamak",
+    "en": "Skipping empty fields"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`@app.get(..., response_model=Profile, response_model_exclude_none=True)`.",
+      "en": "`@app.get(..., response_model=Profile, response_model_exclude_none=True)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\nprofiles = {\n    1: {\"name\": \"Ada\", \"bio\": \"Mathematician\", \"website\": None, \"secret_note\": \"x\"},\n    2: {\"name\": \"Alan\", \"bio\": None, \"website\": \"https://example.com\", \"secret_note\": \"y\"},\n}\n\n\nclass Profile(BaseModel):\n    name: str\n    bio: str | None = None\n    website: str | None = None\n\n\n@app.get(\"/profiles/{profile_id}\", response_model=Profile, response_model_exclude_none=True)\ndef get_profile(profile_id: int):\n    return profiles[profile_id]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\nprofiles = {\n    1: {\"name\": \"Ada\", \"bio\": \"Mathematician\", \"website\": None, \"secret_note\": \"x\"},\n    2: {\"name\": \"Alan\", \"bio\": None, \"website\": \"https://example.com\", \"secret_note\": \"y\"},\n}\n\n\nclass Profile(BaseModel):\n    name: str\n    bio: str | None = None\n    website: str | None = None\n\n\n@app.get(\"/profiles/{profile_id}\", response_model=Profile, response_model_exclude_none=True)\ndef get_profile(profile_id: int):\n    return profiles[profile_id]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/profiles/1",
+          "expect": {
+            "status": 200,
+            "json": {
+              "name": "Ada",
+              "bio": "Mathematician"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/profiles/2",
+          "expect": {
+            "status": 200,
+            "json": {
+              "name": "Alan",
+              "website": "https://example.com"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

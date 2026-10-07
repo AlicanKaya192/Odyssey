@@ -1,0 +1,44 @@
+{
+  "id": "read-headers",
+  "title": {
+    "tr": "Başlıkları oku",
+    "en": "Read the headers"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`raw.split(\"\\n\")` satırları verir; başlıklar `lines[1:]`. Her satırda `name, value = line.split(\": \", 1)`.",
+      "en": "`raw.split(\"\\n\")` gives the lines; the headers are `lines[1:]`. On each line: `name, value = line.split(\": \", 1)`."
+    },
+    {
+      "tr": "Saklarken `headers[name.lower()] = value`. Var mı yok mu sorusu için `\"authorization\" in headers`.",
+      "en": "Store with `headers[name.lower()] = value`. To ask whether it is there: `\"authorization\" in headers`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nraw = \"\"\"GET /v1/books HTTP/1.1\nHost: localhost:8000\nACCEPT: application/json\nuser-agent: odyssey-client/1.0\"\"\"\n\nlines = raw.split(\"\\n\")\nheaders = {}\nfor line in lines[1:]:\n    name, value = line.split(\": \", 1)\n    headers[name.lower()] = value\n\nprint(\"host:\", headers[\"host\"])\nprint(\"accept:\", headers[\"accept\"])\nprint(\"has authorization:\", \"authorization\" in headers)\n```",
+      "en": "The solution:\n\n```python\nraw = \"\"\"GET /v1/books HTTP/1.1\nHost: localhost:8000\nACCEPT: application/json\nuser-agent: odyssey-client/1.0\"\"\"\n\nlines = raw.split(\"\\n\")\nheaders = {}\nfor line in lines[1:]:\n    name, value = line.split(\": \", 1)\n    headers[name.lower()] = value\n\nprint(\"host:\", headers[\"host\"])\nprint(\"accept:\", headers[\"accept\"])\nprint(\"has authorization:\", \"authorization\" in headers)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "headers",
+      "equals": {
+        "host": "localhost:8000",
+        "accept": "application/json",
+        "user-agent": "odyssey-client/1.0"
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "host: localhost:8000\naccept: application/json\nhas authorization: False"
+    }
+  ]
+}

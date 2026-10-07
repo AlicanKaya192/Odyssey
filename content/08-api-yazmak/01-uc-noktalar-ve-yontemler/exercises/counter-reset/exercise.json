@@ -1,0 +1,79 @@
+{
+  "id": "counter-reset",
+  "title": {
+    "tr": "Sayacı sıfırlamak",
+    "en": "Resetting the counter"
+  },
+  "difficulty": 1,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`@app.delete(\"/counter\")` ve `state[\"count\"] = 0`.",
+      "en": "`@app.delete(\"/counter\")` and `state[\"count\"] = 0`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\nstate = {\"count\": 0}\n\n\n@app.get(\"/counter\")\ndef read_counter():\n    return state\n\n\n@app.post(\"/counter\")\ndef increase():\n    state[\"count\"] += 1\n    return state\n\n\n@app.delete(\"/counter\")\ndef reset():\n    state[\"count\"] = 0\n    return state\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\nstate = {\"count\": 0}\n\n\n@app.get(\"/counter\")\ndef read_counter():\n    return state\n\n\n@app.post(\"/counter\")\ndef increase():\n    state[\"count\"] += 1\n    return state\n\n\n@app.delete(\"/counter\")\ndef reset():\n    state[\"count\"] = 0\n    return state\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/counter",
+          "expect": {
+            "status": 200,
+            "json": {
+              "count": 1
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/counter",
+          "expect": {
+            "status": 200,
+            "json": {
+              "count": 2
+            }
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/counter",
+          "expect": {
+            "status": 200,
+            "json": {
+              "count": 0
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/counter",
+          "expect": {
+            "status": 200,
+            "json": {
+              "count": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

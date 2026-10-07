@@ -1,0 +1,41 @@
+{
+  "id": "fetch-every-book",
+  "title": {
+    "tr": "Bütün kitapları güvenle çek",
+    "en": "Fetch every book safely"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`body = get_json(session, \"/books\", {\"page\": page, \"per_page\": 20})`; `books.extend(body[\"data\"])`; `page >= body[\"meta\"][\"pages\"]` ise döndür.",
+      "en": "`body = get_json(session, \"/books\", {\"page\": page, \"per_page\": 20})`; `books.extend(body[\"data\"])`; return when `page >= body[\"meta\"][\"pages\"]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport time\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef get_json(session, path, params=None, attempts=3):\n    for attempt in range(attempts):\n        try:\n            r = session.get(BASE + path, params=params, timeout=10)\n            if r.status_code == 429:\n                time.sleep(int(r.headers.get(\"Retry-After\", 1)))\n                continue\n            r.raise_for_status()\n            return r.json()\n        except (requests.Timeout, requests.ConnectionError):\n            time.sleep(2 ** attempt)\n    raise RuntimeError(\"giving up on \" + path)\n\n\ndef fetch_all(session):\n    books, page = [], 1\n    while True:\n        body = get_json(session, \"/books\", {\"page\": page, \"per_page\": 20})\n        books.extend(body[\"data\"])\n        if page >= body[\"meta\"][\"pages\"]:\n            return books\n        page += 1\n\n\nsession = requests.Session()\nbooks = fetch_all(session)\nprint(\"books:\", len(books))\nprint(\"first:\", books[0][\"title\"])\nprint(\"last:\", books[-1][\"title\"])\n```",
+      "en": "The solution:\n\n```python\nimport time\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef get_json(session, path, params=None, attempts=3):\n    for attempt in range(attempts):\n        try:\n            r = session.get(BASE + path, params=params, timeout=10)\n            if r.status_code == 429:\n                time.sleep(int(r.headers.get(\"Retry-After\", 1)))\n                continue\n            r.raise_for_status()\n            return r.json()\n        except (requests.Timeout, requests.ConnectionError):\n            time.sleep(2 ** attempt)\n    raise RuntimeError(\"giving up on \" + path)\n\n\ndef fetch_all(session):\n    books, page = [], 1\n    while True:\n        body = get_json(session, \"/books\", {\"page\": page, \"per_page\": 20})\n        books.extend(body[\"data\"])\n        if page >= body[\"meta\"][\"pages\"]:\n            return books\n        page += 1\n\n\nsession = requests.Session()\nbooks = fetch_all(session)\nprint(\"books:\", len(books))\nprint(\"first:\", books[0][\"title\"])\nprint(\"last:\", books[-1][\"title\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books",
+      "query": {
+        "per_page": "20"
+      },
+      "min": 2,
+      "max": 2
+    },
+    {
+      "type": "stdout",
+      "expected": "books: 23\nfirst: Emma\nlast: The Lathe of Heaven"
+    }
+  ]
+}

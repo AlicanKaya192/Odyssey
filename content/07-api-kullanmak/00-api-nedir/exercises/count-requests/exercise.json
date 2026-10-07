@@ -1,0 +1,45 @@
+{
+  "id": "count-requests",
+  "title": {
+    "tr": "Sunucu kaydını say",
+    "en": "Count the server log"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Demeti döngüde ikiye açabilirsin: `for client, path in log:`. Sayaç için `counts[path] = counts.get(path, 0) + 1`.",
+      "en": "You can unpack the tuple in the loop: `for client, path in log:`. For the counter use `counts[path] = counts.get(path, 0) + 1`."
+    },
+    {
+      "tr": "`sorted(counts)` sözlüğün anahtarlarını abece sırasıyla verir. 404 sayısı için `known` içinde olmayan anahtarların sayılarını topla.",
+      "en": "`sorted(counts)` gives the dictionary's keys in alphabetical order. For the 404 count, add up the counts of keys that are not in `known`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nlog = [\n    (\"app\", \"/weather\"),\n    (\"web\", \"/weather\"),\n    (\"app\", \"/cities\"),\n    (\"bot\", \"/news\"),\n    (\"app\", \"/weather\"),\n    (\"web\", \"/forecast\"),\n    (\"bot\", \"/news\"),\n    (\"app\", \"/forecast\"),\n]\nknown = [\"/weather\", \"/forecast\", \"/cities\"]\n\ncounts = {}\nfor client, path in log:\n    counts[path] = counts.get(path, 0) + 1\n\nfor path in sorted(counts):\n    print(path, counts[path])\n\nmissing = 0\nfor path in counts:\n    if path not in known:\n        missing += counts[path]\nprint(\"404 responses:\", missing)\n```",
+      "en": "The solution:\n\n```python\nlog = [\n    (\"app\", \"/weather\"),\n    (\"web\", \"/weather\"),\n    (\"app\", \"/cities\"),\n    (\"bot\", \"/news\"),\n    (\"app\", \"/weather\"),\n    (\"web\", \"/forecast\"),\n    (\"bot\", \"/news\"),\n    (\"app\", \"/forecast\"),\n]\nknown = [\"/weather\", \"/forecast\", \"/cities\"]\n\ncounts = {}\nfor client, path in log:\n    counts[path] = counts.get(path, 0) + 1\n\nfor path in sorted(counts):\n    print(path, counts[path])\n\nmissing = 0\nfor path in counts:\n    if path not in known:\n        missing += counts[path]\nprint(\"404 responses:\", missing)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "counts",
+      "equals": {
+        "/weather": 3,
+        "/cities": 1,
+        "/news": 2,
+        "/forecast": 2
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "/cities 1\n/forecast 2\n/news 2\n/weather 3\n404 responses: 2"
+    }
+  ]
+}

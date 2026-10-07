@@ -1,0 +1,39 @@
+{
+  "id": "resilient-fetch",
+  "title": {
+    "tr": "Dayanıklı çekme",
+    "en": "A resilient fetch"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Döngü içinde önce 429, sonra `>= 500` denetimi; ikisinde de bekleyip `continue`.",
+      "en": "Inside the loop check 429 first, then `>= 500`; in both, wait and `continue`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport time\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef get(path):\n    for attempt in range(5):\n        r = requests.get(BASE + path, timeout=5)\n        if r.status_code == 429:\n            time.sleep(int(r.headers.get(\"Retry-After\", 1)))\n            continue\n        if r.status_code >= 500:\n            time.sleep(1)\n            continue\n        return r\n    return None\n\n\nprint(\"/flaky\", get(\"/flaky\").status_code)\nfor i in range(5):\n    print(\"/limited\", get(\"/limited\").status_code)\n```",
+      "en": "The solution:\n\n```python\nimport time\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef get(path):\n    for attempt in range(5):\n        r = requests.get(BASE + path, timeout=5)\n        if r.status_code == 429:\n            time.sleep(int(r.headers.get(\"Retry-After\", 1)))\n            continue\n        if r.status_code >= 500:\n            time.sleep(1)\n            continue\n        return r\n    return None\n\n\nprint(\"/flaky\", get(\"/flaky\").status_code)\nfor i in range(5):\n    print(\"/limited\", get(\"/limited\").status_code)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/flaky",
+      "min": 3,
+      "max": 3,
+      "min_gap": 1
+    },
+    {
+      "type": "stdout",
+      "expected": "/flaky 200\n/limited 200\n/limited 200\n/limited 200\n/limited 200\n/limited 200"
+    }
+  ]
+}

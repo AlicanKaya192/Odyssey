@@ -1,0 +1,79 @@
+{
+  "id": "publish-commands",
+  "title": {
+    "tr": "Yayınlama komutları",
+    "en": "Publishing commands"
+  },
+  "difficulty": 1,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "commands.sh",
+  "files": [
+    {
+      "name": "commands.sh",
+      "starter": "starter-commands.sh.{lang}",
+      "solution": "solution-commands.sh"
+    }
+  ],
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "`-p ana-makine:konteyner`, adresli hâli `-p 127.0.0.1:9000:8000`, rastgele `-P`.",
+      "en": "`-p host:container`, with an address `-p 127.0.0.1:9000:8000`, random `-P`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**commands.sh**\n\n```bash\ndocker run -d --name web -p 8080:8000 site\ndocker port web\ndocker run -d --name local -p 127.0.0.1:9000:8000 site\ndocker run -d --name random -P site\n```",
+      "en": "The full solution:\n\n**commands.sh**\n\n```bash\ndocker run -d --name web -p 8080:8000 site\ndocker port web\ndocker run -d --name local -p 127.0.0.1:9000:8000 site\ndocker run -d --name random -P site\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--detach": true,
+        "--name": "web",
+        "--publish": "8080:8000"
+      },
+      "args": [
+        "site"
+      ],
+      "show": "docker run -d --name web -p 8080:8000 site"
+    },
+    {
+      "type": "command",
+      "command": "port",
+      "args": [
+        "web"
+      ],
+      "show": "docker port web"
+    },
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--name": "local",
+        "--publish": "127.0.0.1:9000:8000"
+      },
+      "args": [
+        "site"
+      ],
+      "show": "docker run -d --name local -p 127.0.0.1:9000:8000 site"
+    },
+    {
+      "type": "command",
+      "command": "run",
+      "flags": {
+        "--name": "random",
+        "--publish-all": true
+      },
+      "args": [
+        "site"
+      ],
+      "show": "docker run -d --name random -P site"
+    }
+  ]
+}

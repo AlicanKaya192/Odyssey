@@ -1,0 +1,60 @@
+{
+  "id": "dashboard-gather",
+  "title": {
+    "tr": "İki beklemeyi birlikte",
+    "en": "Two waits together"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`weather, news = await asyncio.gather(get_weather(city), get_news(city))`.",
+      "en": "`weather, news = await asyncio.gather(get_weather(city), get_news(city))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport asyncio\n\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\nasync def get_weather(city: str) -> dict:\n    await asyncio.sleep(0.2)\n    return {\"city\": city, \"temp\": 21}\n\n\nasync def get_news(city: str) -> list:\n    await asyncio.sleep(0.2)\n    return [f\"{city} opens a new library\", f\"{city} marathon on Sunday\"]\n\n\n@app.get(\"/dashboard/{city}\")\nasync def dashboard(city: str):\n    weather, news = await asyncio.gather(get_weather(city), get_news(city))\n    return {\"weather\": weather, \"news\": news}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport asyncio\n\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\nasync def get_weather(city: str) -> dict:\n    await asyncio.sleep(0.2)\n    return {\"city\": city, \"temp\": 21}\n\n\nasync def get_news(city: str) -> list:\n    await asyncio.sleep(0.2)\n    return [f\"{city} opens a new library\", f\"{city} marathon on Sunday\"]\n\n\n@app.get(\"/dashboard/{city}\")\nasync def dashboard(city: str):\n    weather, news = await asyncio.gather(get_weather(city), get_news(city))\n    return {\"weather\": weather, \"news\": news}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/dashboard/Izmir",
+          "expect": {
+            "status": 200,
+            "json": {
+              "weather": {
+                "city": "Izmir",
+                "temp": 21
+              },
+              "news": [
+                "Izmir opens a new library",
+                "Izmir marathon on Sunday"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_require",
+      "node": "Await"
+    }
+  ]
+}

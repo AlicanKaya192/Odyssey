@@ -1,0 +1,61 @@
+{
+  "id": "override-key",
+  "title": {
+    "tr": "Bağımlılığı testte değiştirmek",
+    "en": "Swapping a dependency in a test"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "readonly": true
+    },
+    {
+      "name": "test_main.py",
+      "starter": "starter-test_main.{lang}.py",
+      "solution": "solution-test_main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`app.dependency_overrides[require_key] = lambda: None`; `try:` ... `finally: app.dependency_overrides.clear()`.",
+      "en": "`app.dependency_overrides[require_key] = lambda: None`; `try:` ... `finally: app.dependency_overrides.clear()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test_main.py**\n\n```python\nfrom fastapi.testclient import TestClient\n\nfrom main import app, require_key\n\nclient = TestClient(app)\n\n\ndef test_stats_need_a_key():\n    assert client.get(\"/admin/stats\").status_code == 401\n\n\ndef test_stats_with_override():\n    app.dependency_overrides[require_key] = lambda: None\n    try:\n        r = client.get(\"/admin/stats\")\n        assert r.status_code == 200\n        assert r.json() == {\"books\": 3}\n    finally:\n        app.dependency_overrides.clear()\n```",
+      "en": "The full solution:\n\n**test_main.py**\n\n```python\nfrom fastapi.testclient import TestClient\n\nfrom main import app, require_key\n\nclient = TestClient(app)\n\n\ndef test_stats_need_a_key():\n    assert client.get(\"/admin/stats\").status_code == 401\n\n\ndef test_stats_with_override():\n    app.dependency_overrides[require_key] = lambda: None\n    try:\n        r = client.get(\"/admin/stats\")\n        assert r.status_code == 200\n        assert r.json() == {\"books\": 3}\n    finally:\n        app.dependency_overrides.clear()\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "test_main.py",
+      "min": 2,
+      "mutants": [
+        {
+          "file": "main.py",
+          "source": "from typing import Annotated\n\nfrom fastapi import Depends, FastAPI, Header, HTTPException\n\napp = FastAPI()\nbooks = {1: \"Dune\", 2: \"Emma\", 3: \"Ubik\"}\n\n\ndef require_key(x_api_key: Annotated[str | None, Header()] = None):\n    return None\n\n\n@app.get(\"/admin/stats\", dependencies=[Depends(require_key)])\ndef stats():\n    return {\"books\": len(books)}\n",
+          "bug": {
+            "tr": "anahtar denetimi hiçbir isteği durdurmuyor.",
+            "en": "the key check stops no request."
+          }
+        },
+        {
+          "file": "main.py",
+          "source": "from typing import Annotated\n\nfrom fastapi import Depends, FastAPI, Header, HTTPException\n\napp = FastAPI()\nbooks = {1: \"Dune\", 2: \"Emma\", 3: \"Ubik\"}\n\n\ndef require_key(x_api_key: Annotated[str | None, Header()] = None):\n    if x_api_key != \"a-secret-you-do-not-know\":\n        raise HTTPException(status_code=401, detail=\"Invalid API key\")\n\n\n@app.get(\"/admin/stats\", dependencies=[Depends(require_key)])\ndef stats():\n    return {\"books\": 0}\n",
+          "bug": {
+            "tr": "istatistik her zaman 0 diyor.",
+            "en": "the stats always say 0."
+          }
+        }
+      ]
+    }
+  ]
+}

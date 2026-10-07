@@ -1,0 +1,70 @@
+{
+  "id": "test-stage",
+  "title": {
+    "tr": "Test aşaması",
+    "en": "A test stage"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "calc.py",
+      "readonly": true
+    },
+    {
+      "name": "main.py",
+      "readonly": true
+    },
+    {
+      "name": "test_calc.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`FROM base AS test` ve altında `RUN python -m unittest`.",
+      "en": "`FROM base AS test` and below it `RUN python -m unittest`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim AS base\nWORKDIR /app\nCOPY calc.py main.py test_calc.py ./\n\nFROM base AS test\nRUN python -m unittest\n\nFROM base AS runtime\nCMD [\"python\", \"main.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim AS base\nWORKDIR /app\nCOPY calc.py main.py test_calc.py ./\n\nFROM base AS test\nRUN python -m unittest\n\nFROM base AS runtime\nCMD [\"python\", \"main.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "has",
+      "instruction": "FROM",
+      "value": "^base AS test$",
+      "show": "FROM base AS test"
+    },
+    {
+      "type": "container",
+      "build": {
+        "target": "test"
+      },
+      "expect": {
+        "file_exists": [
+          "/app/test_calc.py"
+        ]
+      }
+    },
+    {
+      "type": "container",
+      "expect": {
+        "logs": "2 + 3 = 5"
+      }
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "id": "action-to-request",
+  "title": {
+    "tr": "İşten isteğe",
+    "en": "From a job to a request"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yöntemleri bir sözlükte tut; kimlik `None` ise adres `/books`, değilse `/books/` + kimlik.",
+      "en": "Keep the methods in a dictionary; if the identifier is `None` the address is `/books`, otherwise `/books/` + the identifier."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nMETHODS = {\"list\": \"GET\", \"read\": \"GET\", \"create\": \"POST\",\n           \"replace\": \"PUT\", \"change\": \"PATCH\", \"remove\": \"DELETE\"}\n\n\ndef to_request(action, book_id):\n    method = METHODS[action]\n    if book_id is None:\n        return (method, \"/books\")\n    return (method, \"/books/\" + str(book_id))\n\n\njobs = [(\"list\", None), (\"read\", 42), (\"create\", None), (\"change\", 7), (\"remove\", 3), (\"replace\", 9)]\nfor action, book_id in jobs:\n    method, path = to_request(action, book_id)\n    print(action, \"->\", method, path)\n```",
+      "en": "The solution:\n\n```python\nMETHODS = {\"list\": \"GET\", \"read\": \"GET\", \"create\": \"POST\",\n           \"replace\": \"PUT\", \"change\": \"PATCH\", \"remove\": \"DELETE\"}\n\n\ndef to_request(action, book_id):\n    method = METHODS[action]\n    if book_id is None:\n        return (method, \"/books\")\n    return (method, \"/books/\" + str(book_id))\n\n\njobs = [(\"list\", None), (\"read\", 42), (\"create\", None), (\"change\", 7), (\"remove\", 3), (\"replace\", 9)]\nfor action, book_id in jobs:\n    method, path = to_request(action, book_id)\n    print(action, \"->\", method, path)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "to_request",
+      "cases": [
+        {
+          "args": [
+            "list",
+            null
+          ],
+          "returns": {
+            "__tuple__": [
+              "GET",
+              "/books"
+            ]
+          }
+        },
+        {
+          "args": [
+            "change",
+            12
+          ],
+          "returns": {
+            "__tuple__": [
+              "PATCH",
+              "/books/12"
+            ]
+          }
+        },
+        {
+          "args": [
+            "create",
+            null
+          ],
+          "returns": {
+            "__tuple__": [
+              "POST",
+              "/books"
+            ]
+          }
+        },
+        {
+          "args": [
+            "remove",
+            5
+          ],
+          "returns": {
+            "__tuple__": [
+              "DELETE",
+              "/books/5"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "list -> GET /books\nread -> GET /books/42\ncreate -> POST /books\nchange -> PATCH /books/7\nremove -> DELETE /books/3\nreplace -> PUT /books/9"
+    }
+  ]
+}

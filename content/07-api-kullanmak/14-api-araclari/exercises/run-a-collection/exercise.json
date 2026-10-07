@@ -1,0 +1,77 @@
+{
+  "id": "run-a-collection",
+  "title": {
+    "tr": "Koleksiyonu çalıştır",
+    "en": "Run a collection"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`fill` içinde her değişken için `text = text.replace(\"{{\" + name + \"}}\", value)`.",
+      "en": "Inside `fill`, for every variable `text = text.replace(\"{{\" + name + \"}}\", value)`."
+    },
+    {
+      "tr": "Gövdesi olmayan isteklerde `item.get(\"body\")` `None` verir; `json=None` gövde göndermez.",
+      "en": "For requests without a body, `item.get(\"body\")` gives `None`; `json=None` sends no body."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nenvironment = {\"base_url\": \"http://api.odyssey.test\", \"token\": \"letmein\"}\n\ncollection = [\n    {\"name\": \"List books\", \"method\": \"GET\", \"url\": \"{{base_url}}/books\", \"headers\": {}},\n    {\"name\": \"Who am I\", \"method\": \"GET\", \"url\": \"{{base_url}}/me\",\n     \"headers\": {\"Authorization\": \"Bearer {{token}}\"}},\n    {\"name\": \"Add a book\", \"method\": \"POST\", \"url\": \"{{base_url}}/books\",\n     \"headers\": {\"Authorization\": \"Bearer {{token}}\"}, \"body\": {\"title\": \"Kindred\", \"price\": 11.5}},\n    {\"name\": \"Missing book\", \"method\": \"GET\", \"url\": \"{{base_url}}/books/99\", \"headers\": {}},\n]\n\n\ndef fill(text, variables):\n    for name, value in variables.items():\n        text = text.replace(\"{{\" + name + \"}}\", value)\n    return text\n\n\nfor item in collection:\n    url = fill(item[\"url\"], environment)\n    headers = {name: fill(value, environment) for name, value in item[\"headers\"].items()}\n    r = requests.request(item[\"method\"], url, headers=headers, json=item.get(\"body\"))\n    print(item[\"name\"] + \":\", r.status_code)\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nenvironment = {\"base_url\": \"http://api.odyssey.test\", \"token\": \"letmein\"}\n\ncollection = [\n    {\"name\": \"List books\", \"method\": \"GET\", \"url\": \"{{base_url}}/books\", \"headers\": {}},\n    {\"name\": \"Who am I\", \"method\": \"GET\", \"url\": \"{{base_url}}/me\",\n     \"headers\": {\"Authorization\": \"Bearer {{token}}\"}},\n    {\"name\": \"Add a book\", \"method\": \"POST\", \"url\": \"{{base_url}}/books\",\n     \"headers\": {\"Authorization\": \"Bearer {{token}}\"}, \"body\": {\"title\": \"Kindred\", \"price\": 11.5}},\n    {\"name\": \"Missing book\", \"method\": \"GET\", \"url\": \"{{base_url}}/books/99\", \"headers\": {}},\n]\n\n\ndef fill(text, variables):\n    for name, value in variables.items():\n        text = text.replace(\"{{\" + name + \"}}\", value)\n    return text\n\n\nfor item in collection:\n    url = fill(item[\"url\"], environment)\n    headers = {name: fill(value, environment) for name, value in item[\"headers\"].items()}\n    r = requests.request(item[\"method\"], url, headers=headers, json=item.get(\"body\"))\n    print(item[\"name\"] + \":\", r.status_code)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fill",
+      "cases": [
+        {
+          "args": [
+            "{{a}}/x/{{b}}",
+            {
+              "a": "1",
+              "b": "2"
+            }
+          ],
+          "returns": "1/x/2"
+        },
+        {
+          "args": [
+            "no vars",
+            {
+              "a": "1"
+            }
+          ],
+          "returns": "no vars"
+        }
+      ]
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/me",
+      "headers": {
+        "Authorization": "Bearer letmein"
+      }
+    },
+    {
+      "type": "requests",
+      "method": "POST",
+      "path": "/books",
+      "json": {
+        "title": "Kindred",
+        "price": 11.5
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "List books: 200\nWho am I: 200\nAdd a book: 201\nMissing book: 404"
+    }
+  ]
+}

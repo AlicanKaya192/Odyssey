@@ -1,0 +1,78 @@
+{
+  "id": "port-as-argument",
+  "title": {
+    "tr": "Port bir argüman",
+    "en": "The port is an argument"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "index.html",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`ENTRYPOINT [\"python\", \"-m\", \"http.server\"]`, `CMD [\"8000\"]`.",
+      "en": "`ENTRYPOINT [\"python\", \"-m\", \"http.server\"]`, `CMD [\"8000\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /srv\nCOPY index.html .\nEXPOSE 8000\nENTRYPOINT [\"python\", \"-m\", \"http.server\"]\nCMD [\"8000\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /srv\nCOPY index.html .\nEXPOSE 8000\nENTRYPOINT [\"python\", \"-m\", \"http.server\"]\nCMD [\"8000\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "exec_form",
+      "instruction": "ENTRYPOINT",
+      "args": [
+        "python",
+        "-m",
+        "http.server"
+      ],
+      "show": "ENTRYPOINT [\"python\", \"-m\", \"http.server\"]"
+    },
+    {
+      "type": "container",
+      "run": {
+        "port": 8000
+      },
+      "expect": {
+        "http": {
+          "path": "/",
+          "status": 200,
+          "contains": "Odyssey Docs"
+        }
+      }
+    },
+    {
+      "type": "container",
+      "run": {
+        "port": 9000,
+        "cmd": [
+          "9000"
+        ]
+      },
+      "expect": {
+        "http": {
+          "path": "/",
+          "status": 200,
+          "contains": "Odyssey Docs"
+        }
+      }
+    }
+  ]
+}

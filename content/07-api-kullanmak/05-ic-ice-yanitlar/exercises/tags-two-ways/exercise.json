@@ -1,0 +1,45 @@
+{
+  "id": "tags-two-ways",
+  "title": {
+    "tr": "Etiketler iki yoldan",
+    "en": "Tags two ways"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tek hücre için `\"|\".join(item[\"tags\"])`. Çiftler için iki iç içe döngü: dışta kitaplar, içte o kitabın etiketleri.",
+      "en": "For one cell use `\"|\".join(item[\"tags\"])`. For the pairs, two nested loops: the books outside, that book's tags inside."
+    },
+    {
+      "tr": "Sayım: `tag_counts[tag] = tag_counts.get(tag, 0) + 1`; yazdırırken `sorted(tag_counts)`. Çıktıdaki `pairs: 8` satırını da unutma.",
+      "en": "Counting: `tag_counts[tag] = tag_counts.get(tag, 0) + 1`; when printing use `sorted(tag_counts)`. Do not forget the `pairs: 8` line in the output."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport json\n\nwith open(\"books.json\", encoding=\"utf-8\") as handle:\n    response = json.load(handle)\n\nitems = response[\"data\"]\nfor item in items:\n    print(item[\"title\"] + \":\", \"|\".join(item[\"tags\"]))\n\npairs = []\nfor item in items:\n    for tag in item[\"tags\"]:\n        pairs.append({\"book_id\": item[\"id\"], \"tag\": tag})\n\ntag_counts = {}\nfor pair in pairs:\n    tag_counts[pair[\"tag\"]] = tag_counts.get(pair[\"tag\"], 0) + 1\n\nprint(\"pairs:\", len(pairs))\nfor tag in sorted(tag_counts):\n    print(tag + \":\", tag_counts[tag])\n```",
+      "en": "The solution:\n\n```python\nimport json\n\nwith open(\"books.json\", encoding=\"utf-8\") as handle:\n    response = json.load(handle)\n\nitems = response[\"data\"]\nfor item in items:\n    print(item[\"title\"] + \":\", \"|\".join(item[\"tags\"]))\n\npairs = []\nfor item in items:\n    for tag in item[\"tags\"]:\n        pairs.append({\"book_id\": item[\"id\"], \"tag\": tag})\n\ntag_counts = {}\nfor pair in pairs:\n    tag_counts[pair[\"tag\"]] = tag_counts.get(pair[\"tag\"], 0) + 1\n\nprint(\"pairs:\", len(pairs))\nfor tag in sorted(tag_counts):\n    print(tag + \":\", tag_counts[tag])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "tag_counts",
+      "equals": {
+        "classic": 3,
+        "novel": 2,
+        "scifi": 2,
+        "romance": 1
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "Emma: classic|novel\nDune: scifi|classic\nUlysses:\nSolaris: scifi\nPersuasion: classic|romance|novel\npairs: 8\nclassic: 3\nnovel: 2\nromance: 1\nscifi: 2"
+    }
+  ]
+}

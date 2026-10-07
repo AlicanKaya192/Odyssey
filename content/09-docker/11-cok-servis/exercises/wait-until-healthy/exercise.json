@@ -1,0 +1,75 @@
+{
+  "id": "wait-until-healthy",
+  "title": {
+    "tr": "Sağlıklı olana kadar bekle",
+    "en": "Wait until healthy"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "compose.yaml",
+  "files": [
+    {
+      "name": "compose.yaml",
+      "starter": "starter-compose.yaml.{lang}",
+      "solution": "solution-compose.yaml"
+    },
+    {
+      "name": "api/Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "api/server.py",
+      "readonly": true
+    },
+    {
+      "name": "web/Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "web/client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`depends_on:` altında `api:` ve onun altında `condition: service_healthy`.",
+      "en": "Under `depends_on:`, `api:`, and under it `condition: service_healthy`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**compose.yaml**\n\n```yaml\nservices:\n  api:\n    build: ./api\n    healthcheck:\n      test: [\"CMD\", \"python\", \"-c\", \"import urllib.request as u; u.urlopen('http://localhost:8000')\"]\n      interval: 2s\n      timeout: 3s\n      retries: 15\n  web:\n    build: ./web\n    depends_on:\n      api:\n        condition: service_healthy\n```",
+      "en": "The full solution:\n\n**compose.yaml**\n\n```yaml\nservices:\n  api:\n    build: ./api\n    healthcheck:\n      test: [\"CMD\", \"python\", \"-c\", \"import urllib.request as u; u.urlopen('http://localhost:8000')\"]\n      interval: 2s\n      timeout: 3s\n      retries: 15\n  web:\n    build: ./web\n    depends_on:\n      api:\n        condition: service_healthy\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "compose",
+      "service": "api",
+      "build": true,
+      "healthcheck": true
+    },
+    {
+      "type": "compose",
+      "service": "web",
+      "build": true,
+      "depends_on": [
+        "api"
+      ],
+      "depends_condition": "service_healthy"
+    },
+    {
+      "type": "compose_up",
+      "running": [
+        "api"
+      ],
+      "logs_contains": {
+        "web": "items: 3"
+      },
+      "wait": 60
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "id": "all-pages",
+  "title": {
+    "tr": "Bütün sayfalar",
+    "en": "All the pages"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while True:` içinde iste, `extend` et, `if page >= body[\"meta\"][\"pages\"]: break`, sonra `page += 1`.",
+      "en": "Inside `while True:` request, `extend`, `if page >= body[\"meta\"][\"pages\"]: break`, then `page += 1`."
+    },
+    {
+      "tr": "Son üç öğe `books[-3:]`.",
+      "en": "The last three items are `books[-3:]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nbooks = []\npage = 1\nrequests_sent = 0\nwhile True:\n    body = requests.get(BASE + \"/books\", params={\"page\": page}).json()\n    requests_sent += 1\n    books.extend(body[\"data\"])\n    if page >= body[\"meta\"][\"pages\"]:\n        break\n    page += 1\n\nprint(\"books:\", len(books))\nprint(\"requests:\", requests_sent)\nfor book in books[-3:]:\n    print(book[\"title\"])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nbooks = []\npage = 1\nrequests_sent = 0\nwhile True:\n    body = requests.get(BASE + \"/books\", params={\"page\": page}).json()\n    requests_sent += 1\n    books.extend(body[\"data\"])\n    if page >= body[\"meta\"][\"pages\"]:\n        break\n    page += 1\n\nprint(\"books:\", len(books))\nprint(\"requests:\", requests_sent)\nfor book in books[-3:]:\n    print(book[\"title\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books",
+      "min": 5,
+      "max": 5,
+      "hint": {
+        "tr": "Tam 5 sayfa istenmeli: sayfa boyu 5, toplam 23.",
+        "en": "Exactly 5 pages should be requested: page size 5, total 23."
+      }
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books",
+      "query": {
+        "page": "5"
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "books: 23\nrequests: 5\nFiasco\nHomage to Catalonia\nThe Lathe of Heaven"
+    }
+  ]
+}

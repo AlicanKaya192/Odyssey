@@ -1,0 +1,80 @@
+{
+  "id": "welcome-mail",
+  "title": {
+    "tr": "Arka planda e-posta",
+    "en": "An email in the background"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`def signup(email: str, tasks: BackgroundTasks):` ve `tasks.add_task(send_welcome, email)`.",
+      "en": "`def signup(email: str, tasks: BackgroundTasks):` and `tasks.add_task(send_welcome, email)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import BackgroundTasks, FastAPI\n\napp = FastAPI()\noutbox = []\n\n\ndef send_welcome(email: str):\n    outbox.append(f\"Welcome, {email}!\")\n\n\n@app.post(\"/signup\")\ndef signup(email: str, tasks: BackgroundTasks):\n    tasks.add_task(send_welcome, email)\n    return {\"queued\": True}\n\n\n@app.get(\"/outbox\")\ndef show_outbox():\n    return outbox\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import BackgroundTasks, FastAPI\n\napp = FastAPI()\noutbox = []\n\n\ndef send_welcome(email: str):\n    outbox.append(f\"Welcome, {email}!\")\n\n\n@app.post(\"/signup\")\ndef signup(email: str, tasks: BackgroundTasks):\n    tasks.add_task(send_welcome, email)\n    return {\"queued\": True}\n\n\n@app.get(\"/outbox\")\ndef show_outbox():\n    return outbox\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/signup",
+          "params": {
+            "email": "ada@x.org"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "queued": true
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/signup",
+          "params": {
+            "email": "alan@x.org"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "queued": true
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/outbox",
+          "expect": {
+            "status": 200,
+            "json": [
+              "Welcome, ada@x.org!",
+              "Welcome, alan@x.org!"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "call": "send_welcome"
+    }
+  ]
+}

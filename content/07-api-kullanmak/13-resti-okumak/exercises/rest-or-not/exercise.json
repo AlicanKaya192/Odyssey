@@ -1,0 +1,65 @@
+{
+  "id": "rest-or-not",
+  "title": {
+    "tr": "REST'e uyuyor mu?",
+    "en": "Is it RESTful?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`pieces = [p for p in path.split(\"/\") if p]`; her parça için `p.lower().startswith(verb)`.",
+      "en": "`pieces = [p for p in path.split(\"/\") if p]`; for each piece `p.lower().startswith(verb)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nVERBS = [\"get\", \"create\", \"update\", \"delete\", \"remove\", \"add\"]\n\n\ndef check_endpoint(method, path):\n    pieces = [piece for piece in path.split(\"/\") if piece]\n    for piece in pieces:\n        for verb in VERBS:\n            if piece.lower().startswith(verb):\n                return \"verb in path\"\n    return \"ok\"\n\n\nendpoints = [\n    (\"GET\", \"/books\"),\n    (\"GET\", \"/getBooks\"),\n    (\"POST\", \"/books/42/delete\"),\n    (\"DELETE\", \"/books/42\"),\n    (\"POST\", \"/createBook\"),\n    (\"GET\", \"/authors/6/books\"),\n    (\"PATCH\", \"/books/42\"),\n]\nfor method, path in endpoints:\n    print(method, path, \"->\", check_endpoint(method, path))\n```",
+      "en": "The solution:\n\n```python\nVERBS = [\"get\", \"create\", \"update\", \"delete\", \"remove\", \"add\"]\n\n\ndef check_endpoint(method, path):\n    pieces = [piece for piece in path.split(\"/\") if piece]\n    for piece in pieces:\n        for verb in VERBS:\n            if piece.lower().startswith(verb):\n                return \"verb in path\"\n    return \"ok\"\n\n\nendpoints = [\n    (\"GET\", \"/books\"),\n    (\"GET\", \"/getBooks\"),\n    (\"POST\", \"/books/42/delete\"),\n    (\"DELETE\", \"/books/42\"),\n    (\"POST\", \"/createBook\"),\n    (\"GET\", \"/authors/6/books\"),\n    (\"PATCH\", \"/books/42\"),\n]\nfor method, path in endpoints:\n    print(method, path, \"->\", check_endpoint(method, path))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_endpoint",
+      "cases": [
+        {
+          "args": [
+            "GET",
+            "/reports"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "POST",
+            "/updatePrice"
+          ],
+          "returns": "verb in path"
+        },
+        {
+          "args": [
+            "GET",
+            "/students/17/remove"
+          ],
+          "returns": "verb in path"
+        },
+        {
+          "args": [
+            "DELETE",
+            "/students/17"
+          ],
+          "returns": "ok"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "GET /books -> ok\nGET /getBooks -> verb in path\nPOST /books/42/delete -> verb in path\nDELETE /books/42 -> ok\nPOST /createBook -> verb in path\nGET /authors/6/books -> ok\nPATCH /books/42 -> ok"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "id": "bank-exception",
+  "title": {
+    "tr": "Kendi istisnan",
+    "en": "Your own exception"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`class InsufficientFunds(Exception):` ve `__init__(self, balance)` içinde `self.balance = balance`.",
+      "en": "`class InsufficientFunds(Exception):` and `self.balance = balance` in `__init__(self, balance)`."
+    },
+    {
+      "tr": "`@app.exception_handler(InsufficientFunds)` işlevi `(request: Request, exc: InsufficientFunds)` alır ve `JSONResponse` döndürür.",
+      "en": "The `@app.exception_handler(InsufficientFunds)` function takes `(request: Request, exc: InsufficientFunds)` and returns a `JSONResponse`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, Request\nfrom fastapi.responses import JSONResponse\n\napp = FastAPI()\naccounts = {\"ada\": 100, \"alan\": 20}\n\n\nclass InsufficientFunds(Exception):\n    def __init__(self, balance: int):\n        self.balance = balance\n\n\ndef withdraw(name: str, amount: int) -> int:\n    if accounts[name] < amount:\n        raise InsufficientFunds(accounts[name])\n    accounts[name] -= amount\n    return accounts[name]\n\n\n@app.exception_handler(InsufficientFunds)\ndef funds_handler(request: Request, exc: InsufficientFunds):\n    return JSONResponse(status_code=400,\n                        content={\"error\": \"insufficient_funds\", \"balance\": exc.balance})\n\n\n@app.post(\"/accounts/{name}/withdraw\")\ndef withdraw_money(name: str, amount: int):\n    return {\"name\": name, \"balance\": withdraw(name, amount)}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, Request\nfrom fastapi.responses import JSONResponse\n\napp = FastAPI()\naccounts = {\"ada\": 100, \"alan\": 20}\n\n\nclass InsufficientFunds(Exception):\n    def __init__(self, balance: int):\n        self.balance = balance\n\n\ndef withdraw(name: str, amount: int) -> int:\n    if accounts[name] < amount:\n        raise InsufficientFunds(accounts[name])\n    accounts[name] -= amount\n    return accounts[name]\n\n\n@app.exception_handler(InsufficientFunds)\ndef funds_handler(request: Request, exc: InsufficientFunds):\n    return JSONResponse(status_code=400,\n                        content={\"error\": \"insufficient_funds\", \"balance\": exc.balance})\n\n\n@app.post(\"/accounts/{name}/withdraw\")\ndef withdraw_money(name: str, amount: int):\n    return {\"name\": name, \"balance\": withdraw(name, amount)}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/accounts/ada/withdraw",
+          "params": {
+            "amount": 30
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "name": "ada",
+              "balance": 70
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/accounts/alan/withdraw",
+          "params": {
+            "amount": 50
+          },
+          "expect": {
+            "status": 400,
+            "json": {
+              "error": "insufficient_funds",
+              "balance": 20
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/accounts/ada/withdraw",
+          "params": {
+            "amount": 70
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "name": "ada",
+              "balance": 0
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/accounts/ada/withdraw",
+          "params": {
+            "amount": 1
+          },
+          "expect": {
+            "status": 400,
+            "json": {
+              "error": "insufficient_funds",
+              "balance": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "call": "HTTPException"
+    }
+  ]
+}

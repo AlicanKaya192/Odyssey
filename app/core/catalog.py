@@ -23,7 +23,7 @@ FALLBACK_LANGUAGE = "tr"
 
 # Tek dosyalı alıştırmada kişinin dosyasının adı (terminaldeki komut da
 # bunu yazıyor: `python cozum.py`, `sqlcmd -i sorgu.sql`).
-SINGLE_FILE_NAMES = {"python": "cozum.py", "tsql": "sorgu.sql"}
+SINGLE_FILE_NAMES = {"python": "cozum.py", "tsql": "sorgu.sql", "docker": "Dockerfile"}
 
 
 class ContentError(Exception):
@@ -216,6 +216,26 @@ class Exercise:
         return self.kind == "problem"
 
     @property
+    def is_terminal(self) -> bool:
+        """Git patikası: kişi terminale komut yazıyor, benzetici (`git_sim`) çalıştırıyor."""
+        return self.kind == "terminal"
+
+    @property
+    def setup(self) -> list:
+        """Terminal alıştırmasının sessiz başlangıç adımları (komut ya da uzak depo tanımı)."""
+        return list(self.raw.get("setup", []))
+
+    @property
+    def solution_commands(self) -> list[str]:
+        """Terminal alıştırmasının örnek çözümü: komut listesi (son ipucu bundan)."""
+        return [str(c) for c in self.raw.get("solution", [])] if self.is_terminal else []
+
+    @property
+    def start_dir(self) -> str:
+        """Terminalin açıldığı klasör (ev klasörüne göre); boşsa ev klasörü."""
+        return str(self.raw.get("cwd", ""))
+
+    @property
     def answers(self) -> list[dict]:
         """Problemin cevap alanları; kod alıştırmasında boş."""
         return list(self.raw.get("answers", []))
@@ -321,9 +341,13 @@ class Exercise:
         arayüz iki türü aynı yoldan kuruyor, sekme şeridini yalnızca birden
         çok dosya varken gösteriyor.
         """
+        if self.is_terminal:
+            # Git terminal alıştırmasında düzenlenen dosya yok; komutlar terminalde.
+            return []
         if not self.is_multi_file:
+            # Docker alıştırmasının tek dosyası Dockerfile; editör dili ona göre.
             raw = {"starter": self.raw.get("starter", ""), "solution": self.raw.get("solution", ""),
-                   "language": self.language}
+                   "language": "dockerfile" if self.language == "docker" else self.language}
             return [ExerciseFile(SINGLE_FILE_NAMES.get(self.language, "cozum.py"), self.directory, raw)]
         return [
             ExerciseFile(str(item.get("name", "")), self.directory, dict(item))

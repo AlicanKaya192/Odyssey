@@ -1,0 +1,66 @@
+{
+  "id": "add-numbers",
+  "title": {
+    "tr": "İki parametre",
+    "en": "Two parameters"
+  },
+  "difficulty": 1,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`@app.get(\"/add/{a}/{b}\")` ve `def add(a: int, b: int):`.",
+      "en": "`@app.get(\"/add/{a}/{b}\")` and `def add(a: int, b: int):`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\n@app.get(\"/add/{a}/{b}\")\ndef add(a: int, b: int):\n    return {\"result\": a + b}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\n@app.get(\"/add/{a}/{b}\")\ndef add(a: int, b: int):\n    return {\"result\": a + b}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/add/2/3",
+          "expect": {
+            "status": 200,
+            "json": {
+              "result": 5
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/add/-4/10",
+          "expect": {
+            "status": 200,
+            "json": {
+              "result": 6
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/add/x/3",
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}

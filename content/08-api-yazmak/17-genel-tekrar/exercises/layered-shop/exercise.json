@@ -1,0 +1,123 @@
+{
+  "id": "layered-shop",
+  "title": {
+    "tr": "Katmanlı uygulama",
+    "en": "A layered application"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "routers/orders.py",
+      "starter": "starter-routers-orders.{lang}.py",
+      "solution": "solution-routers-orders.py"
+    },
+    {
+      "name": "errors.py",
+      "readonly": true
+    },
+    {
+      "name": "deps.py",
+      "readonly": true
+    },
+    {
+      "name": "stock.py",
+      "readonly": true
+    },
+    {
+      "name": "routers/__init__.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Router: `APIRouter(prefix=\"/orders\", dependencies=[Depends(require_key)])`; main: `@app.exception_handler(OutOfStock)`.",
+      "en": "Router: `APIRouter(prefix=\"/orders\", dependencies=[Depends(require_key)])`; main: `@app.exception_handler(OutOfStock)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, Request\nfrom fastapi.responses import JSONResponse\n\nfrom errors import OutOfStock\nfrom routers import orders\n\napp = FastAPI(title=\"Shop\")\napp.include_router(orders.router)\n\n\n@app.exception_handler(OutOfStock)\ndef out_of_stock(request: Request, exc: OutOfStock):\n    return JSONResponse(status_code=409, content={\"error\": \"out_of_stock\", \"item\": exc.item})\n```\n\n**routers/orders.py**\n\n```python\nfrom fastapi import APIRouter, Depends\n\nfrom deps import require_key\nfrom errors import OutOfStock\nfrom stock import stock\n\nrouter = APIRouter(prefix=\"/orders\", tags=[\"orders\"], dependencies=[Depends(require_key)])\n\n\n@router.post(\"/{item}\")\ndef order(item: str):\n    if stock.get(item, 0) == 0:\n        raise OutOfStock(item)\n    stock[item] -= 1\n    return {\"item\": item, \"left\": stock[item]}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, Request\nfrom fastapi.responses import JSONResponse\n\nfrom errors import OutOfStock\nfrom routers import orders\n\napp = FastAPI(title=\"Shop\")\napp.include_router(orders.router)\n\n\n@app.exception_handler(OutOfStock)\ndef out_of_stock(request: Request, exc: OutOfStock):\n    return JSONResponse(status_code=409, content={\"error\": \"out_of_stock\", \"item\": exc.item})\n```\n\n**routers/orders.py**\n\n```python\nfrom fastapi import APIRouter, Depends\n\nfrom deps import require_key\nfrom errors import OutOfStock\nfrom stock import stock\n\nrouter = APIRouter(prefix=\"/orders\", tags=[\"orders\"], dependencies=[Depends(require_key)])\n\n\n@router.post(\"/{item}\")\ndef order(item: str):\n    if stock.get(item, 0) == 0:\n        raise OutOfStock(item)\n    stock[item] -= 1\n    return {\"item\": item, \"left\": stock[item]}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/orders/pen",
+          "expect": {
+            "status": 401
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/orders/pen",
+          "headers": {
+            "X-Api-Key": "letmein"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "item": "pen",
+              "left": 1
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/orders/pen",
+          "headers": {
+            "X-Api-Key": "letmein"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "item": "pen",
+              "left": 0
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/orders/pen",
+          "headers": {
+            "X-Api-Key": "letmein"
+          },
+          "expect": {
+            "status": 409,
+            "json": {
+              "error": "out_of_stock",
+              "item": "pen"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/orders/book",
+          "headers": {
+            "X-Api-Key": "letmein"
+          },
+          "expect": {
+            "status": 409,
+            "json": {
+              "error": "out_of_stock",
+              "item": "book"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

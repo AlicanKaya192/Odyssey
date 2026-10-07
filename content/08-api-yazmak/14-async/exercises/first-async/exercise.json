@@ -1,0 +1,70 @@
+{
+  "id": "first-async",
+  "title": {
+    "tr": "İlk async uç nokta",
+    "en": "Your first async endpoint"
+  },
+  "difficulty": 1,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`async def slow(seconds: float = 0.1):` ve `await asyncio.sleep(seconds)`.",
+      "en": "`async def slow(seconds: float = 0.1):` and `await asyncio.sleep(seconds)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport asyncio\n\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\n@app.get(\"/slow\")\nasync def slow(seconds: float = 0.1):\n    await asyncio.sleep(seconds)\n    return {\"waited\": seconds}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport asyncio\n\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\n@app.get(\"/slow\")\nasync def slow(seconds: float = 0.1):\n    await asyncio.sleep(seconds)\n    return {\"waited\": seconds}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/slow",
+          "expect": {
+            "status": 200,
+            "json": {
+              "waited": 0.1
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/slow",
+          "params": {
+            "seconds": 0.2
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "waited": 0.2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_require",
+      "node": "AsyncFunctionDef"
+    },
+    {
+      "type": "ast_require",
+      "node": "Await"
+    }
+  ]
+}

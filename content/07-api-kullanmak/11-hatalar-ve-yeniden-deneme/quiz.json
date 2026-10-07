@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "requests'te `timeout` verilmezse ne olur?",
+        "en": "What happens in requests if no `timeout` is given?"
+      },
+      "options": {
+        "tr": [
+          "Sunucu cevap vermezse sonsuza kadar bekler",
+          "5 saniye sonra vazgeçer",
+          "Hemen hata verir",
+          "İsteği kendisi yeniden dener"
+        ],
+        "en": [
+          "It waits for ever if the server does not answer",
+          "It gives up after 5 seconds",
+          "It raises an error at once",
+          "It retries the request itself"
+        ]
+      },
+      "explanation": {
+        "tr": "Varsayılan bekleme süresi yok. Altın kural: her isteğe `timeout=` ver.",
+        "en": "There is no default waiting limit. The golden rule: give every request a `timeout=`."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`requests.get(url, timeout=1)` 3 saniyede cevap veren bir sunucuya ne yapar?",
+        "en": "What does `requests.get(url, timeout=1)` do with a server that answers in 3 seconds?"
+      },
+      "options": {
+        "tr": [
+          "`requests.Timeout` fırlatır",
+          "3 saniye bekleyip cevabı alır",
+          "504 döndürür",
+          "Boş yanıt döndürür"
+        ],
+        "en": [
+          "Raises `requests.Timeout`",
+          "Waits 3 seconds and gets the answer",
+          "Returns 504",
+          "Returns an empty response"
+        ]
+      },
+      "explanation": {
+        "tr": "1 saniyede yanıt gelmeyince requests vazgeçip istisna fırlatıyor.",
+        "en": "When no response arrives within 1 second, requests gives up and raises an exception."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Sunucuya hiç ulaşılamıyorsa hangi istisna gelir?",
+        "en": "Which exception comes when the server cannot be reached at all?"
+      },
+      "options": {
+        "tr": [
+          "`requests.ConnectionError`",
+          "`requests.HTTPError`",
+          "`requests.JSONDecodeError`",
+          "`KeyError`"
+        ],
+        "en": [
+          "`requests.ConnectionError`",
+          "`requests.HTTPError`",
+          "`requests.JSONDecodeError`",
+          "`KeyError`"
+        ]
+      },
+      "explanation": {
+        "tr": "Ad çözülemedi, makine kapalı ya da ağ yok: bağlantı kurulamadı.",
+        "en": "The name could not be resolved, the machine is off or there is no network: no connection was made."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "`404` yanıtı geldiğinde requests istisna fırlatır mı?",
+        "en": "Does requests raise an exception when a `404` response comes back?"
+      },
+      "options": {
+        "tr": [
+          "Hayır; yanıt geldi, koda bakarsın ya da `raise_for_status()` çağırırsın",
+          "Evet, her zaman `HTTPError`",
+          "Evet, `ConnectionError`",
+          "Program kapanır"
+        ],
+        "en": [
+          "No; a response came, so you look at the code or call `raise_for_status()`",
+          "Yes, always `HTTPError`",
+          "Yes, `ConnectionError`",
+          "The program closes"
+        ]
+      },
+      "explanation": {
+        "tr": "İstisna yalnızca yanıt hiç gelmediğinde ya da `raise_for_status()` çağrıldığında.",
+        "en": "An exception only comes when no response arrives or when `raise_for_status()` is called."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "requests istisnalarının ortak atası hangisi?",
+        "en": "What is the common ancestor of requests' exceptions?"
+      },
+      "options": {
+        "tr": [
+          "`requests.RequestException`",
+          "`requests.HTTPError`",
+          "`ValueError`",
+          "`requests.Timeout`"
+        ],
+        "en": [
+          "`requests.RequestException`",
+          "`requests.HTTPError`",
+          "`ValueError`",
+          "`requests.Timeout`"
+        ]
+      },
+      "explanation": {
+        "tr": "`except requests.RequestException` hepsini yakalar.",
+        "en": "`except requests.RequestException` catches them all."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`except` blokları hangi sırayla yazılmalı?",
+        "en": "In which order should the `except` blocks be written?"
+      },
+      "options": {
+        "tr": [
+          "Özelden genele: `Timeout`, `ConnectionError`, ... en sonda `RequestException`",
+          "Genelden özele: önce `RequestException`",
+          "Sıra önemli değil",
+          "Alfabetik"
+        ],
+        "en": [
+          "Specific to general: `Timeout`, `ConnectionError`, ... `RequestException` last",
+          "General to specific: `RequestException` first",
+          "The order does not matter",
+          "Alphabetically"
+        ]
+      },
+      "explanation": {
+        "tr": "Python ilk uyan `except`'i çalıştırır. Genel olan önce gelirse özel olanlara hiç sıra gelmez.",
+        "en": "Python runs the first matching `except`. If the general one comes first, the specific ones never get a turn."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "Hangisi yeniden denemeye uygun bir hata?",
+        "en": "Which error is suitable for a retry?"
+      },
+      "options": {
+        "tr": [
+          "503 Service Unavailable",
+          "404 Not Found",
+          "401 Unauthorized",
+          "422 Unprocessable Content"
+        ],
+        "en": [
+          "503 Service Unavailable",
+          "404 Not Found",
+          "401 Unauthorized",
+          "422 Unprocessable Content"
+        ]
+      },
+      "explanation": {
+        "tr": "503 geçici: sunucu meşgul ya da bakımda. Diğerleri isteğindeki bir yanlış; beklemek düzeltmez.",
+        "en": "503 is temporary: the server is busy or under maintenance. The others are mistakes in your request; waiting does not fix them."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`404` aldığın isteği yeniden denemek neden işe yaramaz?",
+        "en": "Why is retrying a request that got `404` pointless?"
+      },
+      "options": {
+        "tr": [
+          "Sorun istekte; aynı istek aynı sonucu verir",
+          "404 hiçbir zaman tekrar gelmez",
+          "Sunucu seni engeller",
+          "requests buna izin vermez"
+        ],
+        "en": [
+          "The problem is in the request; the same request gives the same result",
+          "A 404 never comes twice",
+          "The server blocks you",
+          "requests does not allow it"
+        ]
+      },
+      "explanation": {
+        "tr": "4xx kalıcıdır: adresi, kimliği ya da gövdeyi düzeltmek gerekir.",
+        "en": "A 4xx is permanent: the address, identifier or body needs fixing."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "Zaman aşımına uğrayan bir `POST`'u otomatik yeniden göndermenin riski nedir?",
+        "en": "What is the risk of automatically resending a `POST` that timed out?"
+      },
+      "options": {
+        "tr": [
+          "İlk istek sunucuya ulaşmış olabilir; kopya kayıt oluşur",
+          "Hiçbir risk yok",
+          "Sunucu çöker",
+          "Jeton silinir"
+        ],
+        "en": [
+          "The first request may have reached the server; a duplicate record is created",
+          "There is no risk",
+          "The server crashes",
+          "The token is deleted"
+        ]
+      },
+      "explanation": {
+        "tr": "Zaman aşımı \"yanıt gelmedi\" demek, \"istek ulaşmadı\" değil. `POST` tekrarlanabilir değil.",
+        "en": "A timeout means \"no response came\", not \"the request did not arrive\". `POST` is not idempotent."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Yeniden deneme döngüsünde neden bir üst sınır olmalı?",
+        "en": "Why should a retry loop have an upper limit?"
+      },
+      "options": {
+        "tr": [
+          "Kalıcı bir sorunda sonsuza kadar istek atmamak için",
+          "Python sınırsız döngüye izin vermez",
+          "Sunucu ister",
+          "Gereksizdir"
+        ],
+        "en": [
+          "So as not to send requests for ever on a permanent problem",
+          "Python does not allow endless loops",
+          "The server requires it",
+          "It is unnecessary"
+        ]
+      },
+      "explanation": {
+        "tr": "`/broken` hiç düzelmeyecek; belli sayıda denedikten sonra vazgeçmek gerekir.",
+        "en": "`/broken` will never get better; you must give up after a set number of attempts."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Yeniden denemeden önce neden beklenir?",
+        "en": "Why wait before retrying?"
+      },
+      "options": {
+        "tr": [
+          "Zaten zorlanan sunucuya daha çok yük bindirmemek ve toparlanmasına zaman tanımak için",
+          "Python hızlı istek atamaz",
+          "Bekleme isteği şifreler",
+          "Bekleme gerekmez"
+        ],
+        "en": [
+          "To avoid adding load to a struggling server and give it time to recover",
+          "Python cannot send requests quickly",
+          "Waiting encrypts the request",
+          "Waiting is not needed"
+        ]
+      },
+      "explanation": {
+        "tr": "Beklemeden yeniden denemek sorunu büyütür; sunucu sahipleri bundan şikâyet eder.",
+        "en": "Retrying without waiting makes the problem worse; server owners complain about it."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Üstel geri çekilmede (exponential backoff) bekleme süreleri nasıl ilerler?",
+        "en": "How do the waits progress with exponential backoff?"
+      },
+      "options": {
+        "tr": [
+          "Her denemede katlanır: 1, 2, 4, 8 saniye",
+          "Hep aynı: 1, 1, 1",
+          "Azalır: 4, 2, 1",
+          "Rastgele"
+        ],
+        "en": [
+          "They double each time: 1, 2, 4, 8 seconds",
+          "Always the same: 1, 1, 1",
+          "They shrink: 4, 2, 1",
+          "Random"
+        ]
+      },
+      "explanation": {
+        "tr": "Kısa aksaklıkta hızlı toparlanırsın, uzun sorunda sunucuyu boşuna yormazsın.",
+        "en": "You recover quickly from a short hiccup and do not tire the server for nothing on a long problem."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "Bekleme süresine eklenen küçük rastgelelik (jitter) neyi önler?",
+        "en": "What does a little randomness added to the wait (jitter) prevent?"
+      },
+      "options": {
+        "tr": [
+          "Aynı anda düşen çok sayıda istemcinin aynı saniyede geri dönüp sunucuyu boğmasını",
+          "Zaman aşımını",
+          "JSON hatalarını",
+          "404'leri"
+        ],
+        "en": [
+          "Many clients that failed together coming back in the same second and swamping the server",
+          "Timeouts",
+          "JSON errors",
+          "404s"
+        ]
+      },
+      "explanation": {
+        "tr": "Rastgelelik geri dönüşleri zamana yayar.",
+        "en": "The randomness spreads the returns out over time."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`get_with_retry` fonksiyonu neden 4xx yanıtı hemen döndürür?",
+        "en": "Why does the `get_with_retry` function return a 4xx response at once?"
+      },
+      "options": {
+        "tr": [
+          "Beklemek 4xx'i düzeltmez; karar çağırana kalır",
+          "4xx başarı demektir",
+          "Sunucu 4xx'i tekrar göndermez",
+          "Hata olduğu için"
+        ],
+        "en": [
+          "Waiting does not fix a 4xx; the decision is left to the caller",
+          "A 4xx means success",
+          "The server does not send a 4xx twice",
+          "Because it is an error"
+        ]
+      },
+      "explanation": {
+        "tr": "Yalnızca geçici hatalar (5xx, bağlantı, zaman aşımı) yeniden denenir.",
+        "en": "Only temporary errors (5xx, connection problems, timeouts) are retried."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "Son denemeden sonra neden beklenmez?",
+        "en": "Why is there no wait after the last attempt?"
+      },
+      "options": {
+        "tr": [
+          "Bir deneme daha yapılmayacak; beklemek boşa zaman",
+          "Son deneme her zaman başarılıdır",
+          "Python izin vermez",
+          "Beklenmeli"
+        ],
+        "en": [
+          "There will be no further attempt; waiting wastes time",
+          "The last attempt always succeeds",
+          "Python does not allow it",
+          "It should wait"
+        ]
+      },
+      "explanation": {
+        "tr": "`if attempt < attempts - 1:` koşulu son turda beklemeyi atlıyor.",
+        "en": "The condition `if attempt < attempts - 1:` skips the wait on the last round."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Bütün denemeler bitince iyi bir program ne yapar?",
+        "en": "What does a good program do when every attempt is used up?"
+      },
+      "options": {
+        "tr": [
+          "Vazgeçer ve ne olduğunu açıkça bildirir: adres, deneme sayısı, son hata",
+          "Sessizce devam eder",
+          "Sonsuza kadar dener",
+          "Bilgisayarı yeniden başlatır"
+        ],
+        "en": [
+          "Gives up and reports clearly what happened: the address, the number of attempts, the last error",
+          "Carries on quietly",
+          "Keeps trying for ever",
+          "Restarts the computer"
+        ]
+      },
+      "explanation": {
+        "tr": "\"Bir şeyler ters gitti\" yetmez; sorunu çözecek kişinin bilgiye ihtiyacı var.",
+        "en": "\"Something went wrong\" is not enough; whoever fixes the problem needs the details."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "`/flaky` ilk iki istekte `503` veriyor. 1 saniye bekleyerek yeniden deneyen döngü kaç istek atar?",
+        "en": "`/flaky` returns `503` for the first two requests. How many requests does a loop that retries with a 1-second wait send?"
+      },
+      "options": {
+        "tr": [
+          "3",
+          "1",
+          "2",
+          "5"
+        ],
+        "en": [
+          "3",
+          "1",
+          "2",
+          "5"
+        ]
+      },
+      "explanation": {
+        "tr": "İki `503`, ardından üçüncü istekte `200`; döngü `break` ile çıkar.",
+        "en": "Two `503`s, then `200` on the third request; the loop exits with `break`."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Bir isteğe hangi `timeout` değeri sık kullanılan bir başlangıçtır?",
+        "en": "Which `timeout` value is a common starting point for a request?"
+      },
+      "options": {
+        "tr": [
+          "5–10 saniye",
+          "0 saniye",
+          "1 saat",
+          "Hiç koymamak"
+        ],
+        "en": [
+          "5–10 seconds",
+          "0 seconds",
+          "1 hour",
+          "Setting none"
+        ]
+      },
+      "explanation": {
+        "tr": "İşe göre değişir; önemli olan bir değer koymak.",
+        "en": "It depends on the job; what matters is setting a value."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`ReadTimeout` ne demek?",
+        "en": "What does `ReadTimeout` mean?"
+      },
+      "options": {
+        "tr": [
+          "Bağlantı kuruldu ama yanıt zamanında okunamadı",
+          "Bağlantı hiç kurulamadı",
+          "JSON okunamadı",
+          "Dosya okunamadı"
+        ],
+        "en": [
+          "The connection was made but the response could not be read in time",
+          "No connection could be made",
+          "The JSON could not be read",
+          "A file could not be read"
+        ]
+      },
+      "explanation": {
+        "tr": "`Timeout`'un bir türü. Bağlantının kendisi zamanında kurulamazsa `ConnectTimeout` gelir.",
+        "en": "It is a kind of `Timeout`. If the connection itself is not made in time, `ConnectTimeout` comes instead."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Gece çalışan bir veri çekme betiği tek bir bağlantı hatasında durmasın diye ne yapılır?",
+        "en": "What do you do so that an overnight data-pulling script does not stop on a single connection error?"
+      },
+      "options": {
+        "tr": [
+          "İstekleri yeniden deneme ile sarmak ve alınanları ara ara kaydetmek",
+          "Hataları görmezden gelmek",
+          "Daha çok istek atmak",
+          "`timeout`'u kaldırmak"
+        ],
+        "en": [
+          "Wrap the requests in retries and save what you have from time to time",
+          "Ignore the errors",
+          "Send more requests",
+          "Remove the `timeout`"
+        ]
+      },
+      "explanation": {
+        "tr": "Geçici bir kopma bütün işi bitirmemeli; kaldığın yerden devam edebilmelisin (Bölüm 15).",
+        "en": "A temporary drop should not end the whole job; you should be able to continue from where you stopped (Section 15)."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "`r.raise_for_status()` çağrısını `try` içine koyup `except requests.HTTPError` yazınca ne yakalanır?",
+        "en": "If you put `r.raise_for_status()` inside `try` and write `except requests.HTTPError`, what is caught?"
+      },
+      "options": {
+        "tr": [
+          "4xx ve 5xx durum kodları",
+          "Zaman aşımları",
+          "Bağlantı hataları",
+          "Hiçbir şey"
+        ],
+        "en": [
+          "4xx and 5xx status codes",
+          "Timeouts",
+          "Connection errors",
+          "Nothing"
+        ]
+      },
+      "explanation": {
+        "tr": "Zaman aşımı ve bağlantı hataları `requests.get` satırında fırlatılır; onlar için ayrı `except` gerekir.",
+        "en": "Timeouts and connection errors are raised on the `requests.get` line; they need their own `except`."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`429` ile `503` için ortak iyi davranış hangisi?",
+        "en": "Which good behaviour is shared by `429` and `503`?"
+      },
+      "options": {
+        "tr": [
+          "`Retry-After` başlığı varsa o kadar bekleyip yeniden denemek",
+          "Hemen yeniden denemek",
+          "Vazgeçmek",
+          "İsteği değiştirmek"
+        ],
+        "en": [
+          "Waiting as long as `Retry-After` says, if present, then retrying",
+          "Retrying at once",
+          "Giving up",
+          "Changing the request"
+        ]
+      },
+      "explanation": {
+        "tr": "Sunucu ne kadar bekleyeceğini söylüyorsa ona uymak en doğru yol (Bölüm 12).",
+        "en": "If the server says how long to wait, following it is the right way (Section 12)."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "Hangisi yeniden deneme için güvenli (tekrarlanabilir) bir istek?",
+        "en": "Which request is safe (idempotent) to retry?"
+      },
+      "options": {
+        "tr": [
+          "`GET /books/2`",
+          "`POST /orders`",
+          "`POST /books`",
+          "`POST /payments`"
+        ],
+        "en": [
+          "`GET /books/2`",
+          "`POST /orders`",
+          "`POST /books`",
+          "`POST /payments`"
+        ]
+      },
+      "explanation": {
+        "tr": "`GET` hiçbir şeyi değiştirmez; tekrar göndermek zararsız. `POST` her seferinde yeni bir şey oluşturur.",
+        "en": "`GET` changes nothing, so resending it is harmless. `POST` creates something new each time."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Yeniden deneme bir \"umut\" değil \"plan\" olmalı. Bu ne demek?",
+        "en": "A retry should be a \"plan\", not a \"hope\". What does that mean?"
+      },
+      "options": {
+        "tr": [
+          "Hangi hatada, kaç kez, ne kadar bekleyerek deneneceği ve ne zaman vazgeçileceği belli olmalı",
+          "Hata olunca dua etmek",
+          "Her hatada sonsuza kadar denemek",
+          "Hiç denememek"
+        ],
+        "en": [
+          "Which errors, how many times, how long to wait and when to give up must be set out",
+          "Praying when there is an error",
+          "Trying for ever on every error",
+          "Never retrying"
+        ]
+      },
+      "explanation": {
+        "tr": "İyi bir yeniden deneme kuralları belli bir davranış: geçici hatalar, üst sınır, artan bekleme, açık vazgeçiş.",
+        "en": "A good retry is behaviour with clear rules: temporary errors, an upper limit, growing waits, a clear give-up."
+      }
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "id": "describe-endpoint",
+  "title": {
+    "tr": "Uç noktayı anlatmak",
+    "en": "Describing an endpoint"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dekoratöre `tags=`, `summary=`, `responses={404: {\"description\": ...}}`; işlevin ilk satırına `\"\"\"...\"\"\"`.",
+      "en": "`tags=`, `summary=`, `responses={404: {\"description\": ...}}` on the decorator; `\"\"\"...\"\"\"` as the function's first line."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI(title=\"Library API\")\nbooks = {1: {\"title\": \"Dune\", \"year\": 1965}}\n\n\n@app.get(\"/books/{book_id}\", tags=[\"books\"], summary=\"Read one book\",\n         responses={404: {\"description\": \"No book with this id\"}})\ndef read_book(book_id: int):\n    \"\"\"Returns the book with the given id.\"\"\"\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI(title=\"Library API\")\nbooks = {1: {\"title\": \"Dune\", \"year\": 1965}}\n\n\n@app.get(\"/books/{book_id}\", tags=[\"books\"], summary=\"Read one book\",\n         responses={404: {\"description\": \"No book with this id\"}})\ndef read_book(book_id: int):\n    \"\"\"Returns the book with the given id.\"\"\"\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/openapi.json",
+          "expect": {
+            "status": 200,
+            "json_has": {
+              "paths": {
+                "/books/{book_id}": {
+                  "get": {
+                    "tags": [
+                      "books"
+                    ],
+                    "summary": "Read one book",
+                    "description": "Returns the book with the given id.",
+                    "responses": {
+                      "404": {
+                        "description": "No book with this id"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/1",
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "Dune",
+              "year": 1965
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/9",
+          "expect": {
+            "status": 404
+          }
+        }
+      ]
+    }
+  ]
+}

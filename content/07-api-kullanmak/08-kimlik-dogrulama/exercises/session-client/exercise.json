@@ -1,0 +1,55 @@
+{
+  "id": "session-client",
+  "title": {
+    "tr": "Oturumla istemci",
+    "en": "A client with a session"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`session.headers.update({\"Authorization\": \"Bearer letmein\", \"X-API-Key\": \"demo-key-123\", \"User-Agent\": \"library-cli/1.0\"})`.",
+      "en": "`session.headers.update({\"Authorization\": \"Bearer letmein\", \"X-API-Key\": \"demo-key-123\", \"User-Agent\": \"library-cli/1.0\"})`."
+    },
+    {
+      "tr": "İstekleri `requests.get` ile değil `session.get` ile gönder.",
+      "en": "Send the requests with `session.get`, not `requests.get`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nsession = requests.Session()\nsession.headers.update({\n    \"Authorization\": \"Bearer letmein\",\n    \"X-API-Key\": \"demo-key-123\",\n    \"User-Agent\": \"library-cli/1.0\",\n})\n\nfor path in [\"/me\", \"/stats\", \"/books/2\"]:\n    r = session.get(BASE + path)\n    print(path, r.status_code)\n\nprint(\"user agent:\", r.request.headers[\"User-Agent\"])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nsession = requests.Session()\nsession.headers.update({\n    \"Authorization\": \"Bearer letmein\",\n    \"X-API-Key\": \"demo-key-123\",\n    \"User-Agent\": \"library-cli/1.0\",\n})\n\nfor path in [\"/me\", \"/stats\", \"/books/2\"]:\n    r = session.get(BASE + path)\n    print(path, r.status_code)\n\nprint(\"user agent:\", r.request.headers[\"User-Agent\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "headers": {
+        "User-Agent": "library-cli/1.0"
+      },
+      "min": 3,
+      "max": 3,
+      "hint": {
+        "tr": "Üç isteğin üçü de oturumun User-Agent başlığıyla gitmeli: istekleri session.get ile gönder.",
+        "en": "All three requests must carry the session's User-Agent: send them with session.get."
+      }
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/me",
+      "headers": {
+        "Authorization": "Bearer letmein"
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "/me 200\n/stats 200\n/books/2 200\nuser agent: library-cli/1.0"
+    }
+  ]
+}

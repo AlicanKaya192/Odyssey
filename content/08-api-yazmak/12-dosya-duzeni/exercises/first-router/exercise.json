@@ -1,0 +1,80 @@
+{
+  "id": "first-router",
+  "title": {
+    "tr": "İlk router",
+    "en": "Your first router"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "routers/books.py",
+      "starter": "starter-routers-books.py",
+      "solution": "solution-routers-books.py"
+    },
+    {
+      "name": "routers/__init__.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`APIRouter(prefix=\"/books\", tags=[\"books\"])` ve `main.py`'de `app.include_router(books.router)`.",
+      "en": "`APIRouter(prefix=\"/books\", tags=[\"books\"])` and `app.include_router(books.router)` in `main.py`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\nfrom routers import books\n\napp = FastAPI(title=\"Library\")\napp.include_router(books.router)\n```\n\n**routers/books.py**\n\n```python\nfrom fastapi import APIRouter, HTTPException\n\nrouter = APIRouter(prefix=\"/books\", tags=[\"books\"])\nbooks = {1: \"Dune\", 2: \"Emma\"}\n\n\n@router.get(\"\")\ndef list_books():\n    return books\n\n\n@router.get(\"/{book_id}\")\ndef read_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return {\"id\": book_id, \"title\": books[book_id]}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\nfrom routers import books\n\napp = FastAPI(title=\"Library\")\napp.include_router(books.router)\n```\n\n**routers/books.py**\n\n```python\nfrom fastapi import APIRouter, HTTPException\n\nrouter = APIRouter(prefix=\"/books\", tags=[\"books\"])\nbooks = {1: \"Dune\", 2: \"Emma\"}\n\n\n@router.get(\"\")\ndef list_books():\n    return books\n\n\n@router.get(\"/{book_id}\")\ndef read_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return {\"id\": book_id, \"title\": books[book_id]}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/books",
+          "expect": {
+            "status": 200,
+            "json": {
+              "1": "Dune",
+              "2": "Emma"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/2",
+          "expect": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "title": "Emma"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/9",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Book not found"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "notes-volume",
+  "title": {
+    "tr": "Not defteri volume'da",
+    "en": "A notebook in a volume"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "notes.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`VOLUME /data` ve `ENTRYPOINT [\"python\", \"notes.py\"]`.",
+      "en": "`VOLUME /data` and `ENTRYPOINT [\"python\", \"notes.py\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY notes.py .\nVOLUME /data\nENTRYPOINT [\"python\", \"notes.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY notes.py .\nVOLUME /data\nENTRYPOINT [\"python\", \"notes.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "has",
+      "instruction": "VOLUME",
+      "value": "/data",
+      "show": "VOLUME /data"
+    },
+    {
+      "type": "container",
+      "run": {
+        "volumes": [
+          "notes:/data"
+        ],
+        "cmd": [
+          "buy",
+          "milk"
+        ]
+      },
+      "expect": {
+        "logs": "notes: 1"
+      }
+    },
+    {
+      "type": "container",
+      "run": {
+        "volumes": [
+          "notes:/data"
+        ],
+        "cmd": [
+          "call",
+          "Ada"
+        ]
+      },
+      "expect": {
+        "logs": "notes: 2"
+      }
+    }
+  ]
+}

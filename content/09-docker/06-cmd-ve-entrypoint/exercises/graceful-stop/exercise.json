@@ -1,0 +1,51 @@
+{
+  "id": "graceful-stop",
+  "title": {
+    "tr": "Düzgün kapan",
+    "en": "Shut down properly"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "worker.py",
+  "files": [
+    {
+      "name": "worker.py",
+      "starter": "starter-worker.py.{lang}",
+      "solution": "solution-worker.py"
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "Fonksiyon iki parametre alıyor: `def stop(signum, frame):`.",
+      "en": "The function takes two parameters: `def stop(signum, frame):`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**worker.py**\n\n```python\nimport signal\nimport time\n\nrunning = True\n\n\ndef stop(signum, frame):\n    global running\n    running = False\n\n\nsignal.signal(signal.SIGTERM, stop)\n\nwhile running:\n    time.sleep(0.2)\n\nprint(\"saved, bye\", flush=True)\n```",
+      "en": "The full solution:\n\n**worker.py**\n\n```python\nimport signal\nimport time\n\nrunning = True\n\n\ndef stop(signum, frame):\n    global running\n    running = False\n\n\nsignal.signal(signal.SIGTERM, stop)\n\nwhile running:\n    time.sleep(0.2)\n\nprint(\"saved, bye\", flush=True)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "container",
+      "run": {
+        "cmd": [
+          "sh",
+          "-c",
+          "python worker.py & sleep 1; kill -TERM $!; wait $!; echo exit=$?"
+        ]
+      },
+      "expect": {
+        "logs": "saved, bye\nexit=0"
+      }
+    }
+  ]
+}

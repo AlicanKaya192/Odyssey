@@ -1,0 +1,64 @@
+{
+  "id": "data-folder-owner",
+  "title": {
+    "tr": "Veri klasörünün sahibi",
+    "en": "The data folder's owner"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "counter.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`RUN mkdir -p /data && chown app:app /data`.",
+      "en": "`RUN mkdir -p /data && chown app:app /data`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nRUN useradd --create-home --uid 1000 app\nWORKDIR /app\nCOPY counter.py .\nRUN mkdir -p /data && chown app:app /data\nVOLUME /data\nUSER app\nCMD [\"python\", \"counter.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nRUN useradd --create-home --uid 1000 app\nWORKDIR /app\nCOPY counter.py .\nRUN mkdir -p /data && chown app:app /data\nVOLUME /data\nUSER app\nCMD [\"python\", \"counter.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "non_root"
+    },
+    {
+      "type": "container",
+      "run": {
+        "volumes": [
+          "counter:/data"
+        ]
+      },
+      "expect": {
+        "logs": "count: 1"
+      }
+    },
+    {
+      "type": "container",
+      "run": {
+        "volumes": [
+          "counter:/data"
+        ]
+      },
+      "expect": {
+        "logs": "count: 2"
+      }
+    }
+  ]
+}

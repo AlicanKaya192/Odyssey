@@ -1,0 +1,140 @@
+{
+  "id": "book-rules",
+  "title": {
+    "tr": "Alan kuralları",
+    "en": "Field rules"
+  },
+  "difficulty": 1,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`Field(min_length=1, max_length=80)`, `Field(ge=1450, le=2100)`, `Field(gt=0)`.",
+      "en": "`Field(min_length=1, max_length=80)`, `Field(ge=1450, le=2100)`, `Field(gt=0)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\n\n\nclass Book(BaseModel):\n    title: str = Field(min_length=1, max_length=80)\n    year: int = Field(ge=1450, le=2100)\n    pages: int = Field(gt=0)\n\n\n@app.post(\"/books\", status_code=201)\ndef add_book(book: Book):\n    return book\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\n\n\nclass Book(BaseModel):\n    title: str = Field(min_length=1, max_length=80)\n    year: int = Field(ge=1450, le=2100)\n    pages: int = Field(gt=0)\n\n\n@app.post(\"/books\", status_code=201)\ndef add_book(book: Book):\n    return book\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Dune",
+            "year": 1965,
+            "pages": 412
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "title": "Dune",
+              "year": 1965,
+              "pages": 412
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "",
+            "year": 1965,
+            "pages": 412
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "year": 1965,
+            "pages": 412
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Dune",
+            "year": 2101,
+            "pages": 412
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Dune",
+            "year": 1449,
+            "pages": 412
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Dune",
+            "year": 1450,
+            "pages": 1
+          },
+          "expect": {
+            "status": 201
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Dune",
+            "year": 2100,
+            "pages": 1
+          },
+          "expect": {
+            "status": 201
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Dune",
+            "year": 1965,
+            "pages": 0
+          },
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}

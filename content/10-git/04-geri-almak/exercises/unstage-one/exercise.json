@@ -1,0 +1,75 @@
+{
+  "id": "unstage-one",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Birini hazırlıktan çıkar",
+    "en": "Unstage one"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir notes",
+    "cd notes",
+    "git init",
+    "echo \"Buy milk\" > todo.txt",
+    "git add .",
+    "git commit -m \"Add todo list\"",
+    "echo \"Call Ada\" >> todo.txt",
+    "git commit -am \"Add call\"",
+    "echo \"# Notes\" > readme.md",
+    "git add .",
+    "git commit -m \"Add readme\"",
+    "echo \"Buy eggs\" >> todo.txt",
+    "echo \"Shared notes\" >> readme.md",
+    "git add ."
+  ],
+  "cwd": "notes",
+  "solution": [
+    "git restore --staged todo.txt",
+    "git commit -m \"Update readme\""
+  ],
+  "hints": [
+    {
+      "tr": "`git status` ne yazacağını söylüyor: `git restore --staged <dosya>`.",
+      "en": "`git status` tells you what to type: `git restore --staged <file>`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit restore --staged todo.txt\ngit commit -m \"Update readme\"\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit restore --staged todo.txt\ngit commit -m \"Update readme\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "last_message": "^Update readme$",
+      "show_message": "Update readme",
+      "head_files": {
+        "readme.md": "# Notes\nShared notes",
+        "todo.txt": "Buy milk\nCall Ada"
+      },
+      "label": {
+        "tr": "Update readme commit'inde yalnızca readme.md",
+        "en": "The Update readme commit has only readme.md"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "unstaged": [
+        "todo.txt"
+      ],
+      "files": {
+        "todo.txt": "Buy milk\nCall Ada\nBuy eggs"
+      },
+      "label": {
+        "tr": "todo.txt'deki değişiklik dosyada duruyor",
+        "en": "The change in todo.txt is still in the file"
+      }
+    }
+  ]
+}

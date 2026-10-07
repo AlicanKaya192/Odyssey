@@ -1,0 +1,53 @@
+{
+  "id": "check-the-length",
+  "title": {
+    "tr": "Gövdenin boyunu denetle",
+    "en": "Check the body length"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`head, body = raw.split(\"\\n\\n\", 1)` metni ilk boş satırdan ikiye ayırır. Başlıklar `head.split(\"\\n\")[1:]`.",
+      "en": "`head, body = raw.split(\"\\n\\n\", 1)` splits the text in two at the first blank line. The headers are `head.split(\"\\n\")[1:]`."
+    },
+    {
+      "tr": "Başlık değeri metin; `int(value)` ile sayıya çevir. Gerçek boy `len(body.encode(\"utf-8\"))`.",
+      "en": "The header value is text; turn it into a number with `int(value)`. The real size is `len(body.encode(\"utf-8\"))`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ngood = \"\"\"POST /v1/books HTTP/1.1\nHost: api.example.com\nContent-Type: application/json\nContent-Length: 37\n\n{\"title\": \"Emma\", \"author\": \"Austen\"}\"\"\"\n\nbad = \"\"\"POST /v1/books HTTP/1.1\nHost: api.example.com\nContent-Type: application/json\nContent-Length: 50\n\n{\"title\": \"Dune\", \"author\": \"Herbert\"}\"\"\"\n\n\ndef check_length(raw):\n    head, body = raw.split(\"\\n\\n\", 1)\n    declared = None\n    for line in head.split(\"\\n\")[1:]:\n        name, value = line.split(\": \", 1)\n        if name.lower() == \"content-length\":\n            declared = int(value)\n    actual = len(body.encode(\"utf-8\"))\n    if declared == actual:\n        return \"ok\"\n    return \"mismatch: declared \" + str(declared) + \", actual \" + str(actual)\n\n\nprint(\"good:\", check_length(good))\nprint(\"bad:\", check_length(bad))\n```",
+      "en": "The solution:\n\n```python\ngood = \"\"\"POST /v1/books HTTP/1.1\nHost: api.example.com\nContent-Type: application/json\nContent-Length: 37\n\n{\"title\": \"Emma\", \"author\": \"Austen\"}\"\"\"\n\nbad = \"\"\"POST /v1/books HTTP/1.1\nHost: api.example.com\nContent-Type: application/json\nContent-Length: 50\n\n{\"title\": \"Dune\", \"author\": \"Herbert\"}\"\"\"\n\n\ndef check_length(raw):\n    head, body = raw.split(\"\\n\\n\", 1)\n    declared = None\n    for line in head.split(\"\\n\")[1:]:\n        name, value = line.split(\": \", 1)\n        if name.lower() == \"content-length\":\n            declared = int(value)\n    actual = len(body.encode(\"utf-8\"))\n    if declared == actual:\n        return \"ok\"\n    return \"mismatch: declared \" + str(declared) + \", actual \" + str(actual)\n\n\nprint(\"good:\", check_length(good))\nprint(\"bad:\", check_length(bad))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_length",
+      "cases": [
+        {
+          "args": [
+            "POST /x HTTP/1.1\nContent-Length: 2\n\nhi"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "POST /x HTTP/1.1\ncontent-length: 5\n\nhi"
+          ],
+          "returns": "mismatch: declared 5, actual 2"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "good: ok\nbad: mismatch: declared 50, actual 38"
+    }
+  ]
+}

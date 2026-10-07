@@ -1,0 +1,72 @@
+{
+  "id": "hotfix-from-old",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Eski sürüme yama",
+    "en": "A patch for an old version"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "cd app",
+    "git init",
+    "echo \"1\" > f.txt",
+    "git add .",
+    "git commit -m \"One\"",
+    "echo \"2\" >> f.txt",
+    "git commit -am \"Two\"",
+    "echo \"3\" >> f.txt",
+    "git commit -am \"Three\"",
+    "git tag -a v1.0 -m \"Version 1.0\" HEAD~1"
+  ],
+  "cwd": "app",
+  "solution": [
+    "git checkout v1.0",
+    "git switch -c hotfix-1.0",
+    "echo \"fix\" > fix.txt",
+    "git add .",
+    "git commit -m \"Fix crash\""
+  ],
+  "hints": [
+    {
+      "tr": "`git checkout v1.0`, sonra `git switch -c <ad>`. Ya da tek komut: `git switch -c <ad> v1.0`.",
+      "en": "`git checkout v1.0`, then `git switch -c <name>`. Or in one command: `git switch -c <name> v1.0`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit checkout v1.0\ngit switch -c hotfix-1.0\necho \"fix\" > fix.txt\ngit add .\ngit commit -m \"Fix crash\"\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit checkout v1.0\ngit switch -c hotfix-1.0\necho \"fix\" > fix.txt\ngit add .\ngit commit -m \"Fix crash\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "app",
+      "branch": "hotfix-1.0",
+      "messages": [
+        "Fix crash",
+        "Two",
+        "One"
+      ],
+      "label": {
+        "tr": "hotfix-1.0, v1.0'ın üstünde: Fix crash",
+        "en": "hotfix-1.0 sits on v1.0: Fix crash"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "app",
+      "tips": {
+        "main": "^Three$"
+      },
+      "label": {
+        "tr": "main değişmedi",
+        "en": "main unchanged"
+      }
+    }
+  ]
+}

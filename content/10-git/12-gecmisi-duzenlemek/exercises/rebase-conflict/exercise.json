@@ -1,0 +1,78 @@
+{
+  "id": "rebase-conflict",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Rebase'te çakışma",
+    "en": "A conflict in a rebase"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "cd app",
+    "git init",
+    "echo \"a\" > f.txt",
+    "git add .",
+    "git commit -m \"Base\"",
+    "git switch -c feature",
+    "echo \"aa\" > f.txt",
+    "git commit -am \"Double a\"",
+    "git switch main",
+    "echo \"A\" > f.txt",
+    "git commit -am \"Upper a\"",
+    "git switch feature"
+  ],
+  "cwd": "app",
+  "allow_fail": [
+    0
+  ],
+  "solution": [
+    "git rebase main",
+    "echo \"AA\" > f.txt",
+    "git add f.txt",
+    "git rebase --continue"
+  ],
+  "hints": [
+    {
+      "tr": "Dosyayı düzelt, `git add`, sonra commit değil `git rebase --continue`.",
+      "en": "Fix the file, `git add`, then not commit but `git rebase --continue`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit rebase main\necho \"AA\" > f.txt\ngit add f.txt\ngit rebase --continue\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit rebase main\necho \"AA\" > f.txt\ngit add f.txt\ngit rebase --continue\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "app",
+      "branch": "feature",
+      "no_conflicts": true,
+      "linear": true,
+      "label": {
+        "tr": "Rebase bitti, feature'dasın",
+        "en": "Rebase finished, you are on feature"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "app",
+      "messages": [
+        "Double a",
+        "Upper a",
+        "Base"
+      ],
+      "head_files": {
+        "f.txt": "AA"
+      },
+      "label": {
+        "tr": "Double a, Upper a'nın üstünde; f.txt: AA",
+        "en": "Double a sits on Upper a; f.txt: AA"
+      }
+    }
+  ]
+}

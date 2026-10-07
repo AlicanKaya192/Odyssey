@@ -1,0 +1,95 @@
+{
+  "id": "db-unique",
+  "title": {
+    "tr": "Aynı e-posta iki kez olmaz",
+    "en": "The same email can't be used twice"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`try:` içinde `INSERT` ve `commit`, `except sqlite3.IntegrityError:` içinde `raise HTTPException(status_code=409, ...)`.",
+      "en": "`INSERT` and `commit` inside `try:`, `raise HTTPException(status_code=409, ...)` inside `except sqlite3.IntegrityError:`."
+    },
+    {
+      "tr": "Başarısız `INSERT` de bir numara harcıyor; ikinci başarılı kullanıcı bu yüzden `3`.",
+      "en": "A failed `INSERT` also uses up a number; that's why the second successful user is `3`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport sqlite3\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nDB_PATH = \"users.db\"\n\n\ndef init_db():\n    conn = sqlite3.connect(DB_PATH)\n    conn.execute(\"\"\"CREATE TABLE IF NOT EXISTS users (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        email TEXT NOT NULL UNIQUE,\n        name TEXT NOT NULL)\"\"\")\n    conn.commit()\n    conn.close()\n\n\ninit_db()\n\n\ndef get_db():\n    conn = sqlite3.connect(DB_PATH, check_same_thread=False)\n    conn.row_factory = sqlite3.Row\n    try:\n        yield conn\n    finally:\n        conn.close()\n\n\nDB = Annotated[sqlite3.Connection, Depends(get_db)]\n\n\nclass UserIn(BaseModel):\n    email: str\n    name: str\n\n\n@app.post(\"/users\", status_code=201)\ndef create_user(user: UserIn, db: DB):\n    try:\n        cur = db.execute(\"INSERT INTO users (email, name) VALUES (?, ?)\", (user.email, user.name))\n        db.commit()\n    except sqlite3.IntegrityError:\n        raise HTTPException(status_code=409, detail=\"Email already registered\")\n    return {\"id\": cur.lastrowid, **user.model_dump()}\n\n\n@app.get(\"/users\")\ndef list_users(db: DB):\n    return [dict(r) for r in db.execute(\"SELECT id, email, name FROM users ORDER BY id\").fetchall()]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport sqlite3\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nDB_PATH = \"users.db\"\n\n\ndef init_db():\n    conn = sqlite3.connect(DB_PATH)\n    conn.execute(\"\"\"CREATE TABLE IF NOT EXISTS users (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        email TEXT NOT NULL UNIQUE,\n        name TEXT NOT NULL)\"\"\")\n    conn.commit()\n    conn.close()\n\n\ninit_db()\n\n\ndef get_db():\n    conn = sqlite3.connect(DB_PATH, check_same_thread=False)\n    conn.row_factory = sqlite3.Row\n    try:\n        yield conn\n    finally:\n        conn.close()\n\n\nDB = Annotated[sqlite3.Connection, Depends(get_db)]\n\n\nclass UserIn(BaseModel):\n    email: str\n    name: str\n\n\n@app.post(\"/users\", status_code=201)\ndef create_user(user: UserIn, db: DB):\n    try:\n        cur = db.execute(\"INSERT INTO users (email, name) VALUES (?, ?)\", (user.email, user.name))\n        db.commit()\n    except sqlite3.IntegrityError:\n        raise HTTPException(status_code=409, detail=\"Email already registered\")\n    return {\"id\": cur.lastrowid, **user.model_dump()}\n\n\n@app.get(\"/users\")\ndef list_users(db: DB):\n    return [dict(r) for r in db.execute(\"SELECT id, email, name FROM users ORDER BY id\").fetchall()]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/users",
+          "json": {
+            "email": "ada@x.org",
+            "name": "Ada"
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "id": 1,
+              "email": "ada@x.org",
+              "name": "Ada"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/users",
+          "json": {
+            "email": "ada@x.org",
+            "name": "Ada L"
+          },
+          "expect": {
+            "status": 409,
+            "json": {
+              "detail": "Email already registered"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/users",
+          "json": {
+            "email": "alan@x.org",
+            "name": "Alan"
+          },
+          "expect": {
+            "status": 201,
+            "json_has": {
+              "email": "alan@x.org"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users",
+          "expect": {
+            "status": 200,
+            "json_len": 2
+          }
+        }
+      ]
+    }
+  ]
+}

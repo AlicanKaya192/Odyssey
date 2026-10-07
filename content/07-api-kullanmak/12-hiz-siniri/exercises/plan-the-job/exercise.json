@@ -1,0 +1,80 @@
+{
+  "id": "plan-the-job",
+  "title": {
+    "tr": "İşi planla",
+    "en": "Plan the job"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Aralık `window_seconds / allowed`; süre `total_requests * aralık / 60` dakika.",
+      "en": "The gap is `window_seconds / allowed`; the duration is `total_requests * gap / 60` minutes."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef min_gap(allowed, window_seconds):\n    return round(window_seconds / allowed, 2)\n\n\ndef job_minutes(total_requests, allowed, window_seconds):\n    seconds = total_requests * (window_seconds / allowed)\n    return round(seconds / 60, 1)\n\n\njobs = [\n    (500, 60, 60),\n    (120, 3, 1),\n    (10000, 1000, 3600),\n]\nfor total, allowed, window in jobs:\n    print(total, \"requests: gap\", min_gap(allowed, window), \"s, at least\",\n          job_minutes(total, allowed, window), \"min\")\n```",
+      "en": "The solution:\n\n```python\ndef min_gap(allowed, window_seconds):\n    return round(window_seconds / allowed, 2)\n\n\ndef job_minutes(total_requests, allowed, window_seconds):\n    seconds = total_requests * (window_seconds / allowed)\n    return round(seconds / 60, 1)\n\n\njobs = [\n    (500, 60, 60),\n    (120, 3, 1),\n    (10000, 1000, 3600),\n]\nfor total, allowed, window in jobs:\n    print(total, \"requests: gap\", min_gap(allowed, window), \"s, at least\",\n          job_minutes(total, allowed, window), \"min\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "min_gap",
+      "cases": [
+        {
+          "args": [
+            60,
+            60
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            3,
+            1
+          ],
+          "returns": 0.33
+        },
+        {
+          "args": [
+            30,
+            60
+          ],
+          "returns": 2.0
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "job_minutes",
+      "cases": [
+        {
+          "args": [
+            600,
+            60,
+            60
+          ],
+          "returns": 10.0
+        },
+        {
+          "args": [
+            90,
+            3,
+            1
+          ],
+          "returns": 0.5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "500 requests: gap 1.0 s, at least 8.3 min\n120 requests: gap 0.33 s, at least 0.7 min\n10000 requests: gap 3.6 s, at least 600.0 min"
+    }
+  ]
+}

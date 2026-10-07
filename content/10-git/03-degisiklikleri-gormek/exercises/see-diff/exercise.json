@@ -1,0 +1,76 @@
+{
+  "id": "see-diff",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Farkı gör, sonra commit'le",
+    "en": "See the diff, then commit"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir notes",
+    "cd notes",
+    "git init",
+    "echo \"Buy milk\" > todo.txt",
+    "git add .",
+    "git commit -m \"Add todo list\"",
+    "echo \"Call Ada\" >> todo.txt",
+    "git commit -am \"Add call\"",
+    "echo \"# Notes\" > readme.md",
+    "git add .",
+    "git commit -m \"Add readme\"",
+    "echo \"Buy bread\" >> todo.txt"
+  ],
+  "cwd": "notes",
+  "solution": [
+    "git diff",
+    "git add todo.txt",
+    "git diff --staged",
+    "git commit -m \"Add bread\""
+  ],
+  "hints": [
+    {
+      "tr": "`git diff` tek başına çalışma alanını gösterir; `git add`'den sonra `--staged` gerekir.",
+      "en": "`git diff` alone shows the working tree; after `git add` you need `--staged`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit diff\ngit add todo.txt\ngit diff --staged\ngit commit -m \"Add bread\"\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit diff\ngit add todo.txt\ngit diff --staged\ngit commit -m \"Add bread\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_command",
+      "pattern": "^git diff$",
+      "show": "git diff",
+      "label": {
+        "tr": "Hazırlanmamış farkı gördün (git diff)",
+        "en": "You saw the unstaged diff (git diff)"
+      }
+    },
+    {
+      "type": "git_command",
+      "pattern": "^git diff --(staged|cached)$",
+      "show": "git diff --staged",
+      "label": {
+        "tr": "Hazırlanmış farkı gördün (--staged)",
+        "en": "You saw the staged diff (--staged)"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "last_message": "^Add bread$",
+      "show_message": "Add bread",
+      "clean": true,
+      "label": {
+        "tr": "Add bread commit'i atıldı, ağaç temiz",
+        "en": "Add bread committed, tree clean"
+      }
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "api-on-9000",
+  "title": {
+    "tr": "9000'de bir API",
+    "en": "An API on 9000"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "api.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "Son satır `HTTPServer((\"0.0.0.0\", 9000), ...)`: port 9000.",
+      "en": "The last line is `HTTPServer((\"0.0.0.0\", 9000), ...)`: port 9000."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY api.py .\nEXPOSE 9000\nCMD [\"python\", \"api.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY api.py .\nEXPOSE 9000\nCMD [\"python\", \"api.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "has",
+      "instruction": "EXPOSE",
+      "value": "^9000$",
+      "show": "EXPOSE 9000"
+    },
+    {
+      "type": "container",
+      "run": {
+        "port": 9000
+      },
+      "expect": {
+        "exposed": [
+          9000
+        ],
+        "http": [
+          {
+            "path": "/health",
+            "status": 200,
+            "json": {
+              "status": "ok"
+            }
+          },
+          {
+            "path": "/missing",
+            "status": 404
+          }
+        ]
+      }
+    }
+  ]
+}

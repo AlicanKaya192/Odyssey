@@ -1,0 +1,65 @@
+{
+  "id": "join-safely",
+  "title": {
+    "tr": "Eğik çizgiyi doğru koy",
+    "en": "Get the slash right"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`\"abc/\".rstrip(\"/\")` sağdaki çizgiyi, `\"/abc\".lstrip(\"/\")` soldaki çizgiyi siler. Çizgi yoksa metne dokunmazlar.",
+      "en": "`\"abc/\".rstrip(\"/\")` removes the slash on the right, `\"/abc\".lstrip(\"/\")` the one on the left. If there is no slash they leave the text alone."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef endpoint_url(base, path):\n    return base.rstrip(\"/\") + \"/\" + path.lstrip(\"/\")\n\n\nprint(endpoint_url(\"https://api.example.com/v1\", \"weather\"))\nprint(endpoint_url(\"https://api.example.com/v1/\", \"/weather\"))\nprint(endpoint_url(\"https://api.example.com/v1/\", \"weather\"))\nprint(endpoint_url(\"https://api.example.com/v1\", \"/books/42\"))\n```",
+      "en": "The solution:\n\n```python\ndef endpoint_url(base, path):\n    return base.rstrip(\"/\") + \"/\" + path.lstrip(\"/\")\n\n\nprint(endpoint_url(\"https://api.example.com/v1\", \"weather\"))\nprint(endpoint_url(\"https://api.example.com/v1/\", \"/weather\"))\nprint(endpoint_url(\"https://api.example.com/v1/\", \"weather\"))\nprint(endpoint_url(\"https://api.example.com/v1\", \"/books/42\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "endpoint_url",
+      "cases": [
+        {
+          "args": [
+            "https://api.example.com/v1",
+            "weather"
+          ],
+          "returns": "https://api.example.com/v1/weather"
+        },
+        {
+          "args": [
+            "https://api.example.com/v1/",
+            "/weather"
+          ],
+          "returns": "https://api.example.com/v1/weather"
+        },
+        {
+          "args": [
+            "http://localhost:8000/",
+            "books/42"
+          ],
+          "returns": "http://localhost:8000/books/42"
+        },
+        {
+          "args": [
+            "http://localhost:8000",
+            "/"
+          ],
+          "returns": "http://localhost:8000/"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "https://api.example.com/v1/weather\nhttps://api.example.com/v1/weather\nhttps://api.example.com/v1/weather\nhttps://api.example.com/v1/books/42"
+    }
+  ]
+}

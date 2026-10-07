@@ -1,0 +1,76 @@
+{
+  "id": "lamp-toggle",
+  "title": {
+    "tr": "Lamba",
+    "en": "The lamp"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tersine çevirmek: `lamp[\"on\"] = not lamp[\"on\"]`.",
+      "en": "Flipping: `lamp[\"on\"] = not lamp[\"on\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\nlamp = {\"on\": False}\n\n\n@app.get(\"/lamp\")\ndef read_lamp():\n    return lamp\n\n\n@app.post(\"/lamp/toggle\")\ndef toggle():\n    lamp[\"on\"] = not lamp[\"on\"]\n    return lamp\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\nlamp = {\"on\": False}\n\n\n@app.get(\"/lamp\")\ndef read_lamp():\n    return lamp\n\n\n@app.post(\"/lamp/toggle\")\ndef toggle():\n    lamp[\"on\"] = not lamp[\"on\"]\n    return lamp\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/lamp",
+          "expect": {
+            "status": 200,
+            "json": {
+              "on": false
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/lamp/toggle",
+          "expect": {
+            "status": 200,
+            "json": {
+              "on": true
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/lamp/toggle",
+          "expect": {
+            "status": 200,
+            "json": {
+              "on": false
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/lamp/toggle",
+          "expect": {
+            "status": 405
+          }
+        }
+      ]
+    }
+  ]
+}

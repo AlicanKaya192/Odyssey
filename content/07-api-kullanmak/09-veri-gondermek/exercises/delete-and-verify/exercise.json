@@ -1,0 +1,45 @@
+{
+  "id": "delete-and-verify",
+  "title": {
+    "tr": "Sil ve doğrula",
+    "en": "Delete and verify"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`requests.delete(BASE + \"/books/7\", headers=AUTH)`; silme de jeton istiyor.",
+      "en": "`requests.delete(BASE + \"/books/7\", headers=AUTH)`; deleting needs the token too."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\nAUTH = {\"Authorization\": \"Bearer letmein\"}\n\nurl = BASE + \"/books/7\"\nr = requests.delete(url, headers=AUTH)\nprint(\"delete:\", r.status_code, \"empty body:\", r.text == \"\")\n\nprint(\"get after delete:\", requests.get(url).status_code)\nprint(\"delete again:\", requests.delete(url, headers=AUTH).status_code)\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\nAUTH = {\"Authorization\": \"Bearer letmein\"}\n\nurl = BASE + \"/books/7\"\nr = requests.delete(url, headers=AUTH)\nprint(\"delete:\", r.status_code, \"empty body:\", r.text == \"\")\n\nprint(\"get after delete:\", requests.get(url).status_code)\nprint(\"delete again:\", requests.delete(url, headers=AUTH).status_code)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "DELETE",
+      "path": "/books/7",
+      "headers": {
+        "Authorization": "Bearer letmein"
+      },
+      "min": 2
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books/7"
+    },
+    {
+      "type": "stdout",
+      "expected": "delete: 204 empty body: True\nget after delete: 404\ndelete again: 404"
+    }
+  ]
+}

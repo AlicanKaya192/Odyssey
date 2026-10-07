@@ -1,0 +1,82 @@
+{
+  "id": "stop-tracking",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "İzlemeyi bırak",
+    "en": "Stop tracking"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "cd app",
+    "git init",
+    "echo \"print(1)\" > app.py",
+    "echo \"{}\" > config.local.json",
+    "git add .",
+    "git commit -m \"First version\"",
+    "echo \"{debug: true}\" > config.local.json"
+  ],
+  "cwd": "app",
+  "solution": [
+    "echo \"config.local.json\" > .gitignore",
+    "git rm --cached config.local.json",
+    "git add .gitignore",
+    "git commit -m \"Stop tracking local config\""
+  ],
+  "hints": [
+    {
+      "tr": "`.gitignore` izlenen dosyayı etkilemez. `git rm --cached` dosyayı klasörde bırakıp izlemeden çıkarır.",
+      "en": "`.gitignore` doesn't affect a tracked file. `git rm --cached` takes it out of tracking but leaves it in the folder."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\necho \"config.local.json\" > .gitignore\ngit rm --cached config.local.json\ngit add .gitignore\ngit commit -m \"Stop tracking local config\"\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\necho \"config.local.json\" > .gitignore\ngit rm --cached config.local.json\ngit add .gitignore\ngit commit -m \"Stop tracking local config\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "app",
+      "not_tracked": [
+        "config.local.json"
+      ],
+      "ignored": [
+        "config.local.json"
+      ],
+      "label": {
+        "tr": "config.local.json izlenmiyor ve görmezden geliniyor",
+        "en": "config.local.json is untracked and ignored"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "app",
+      "files": {
+        "config.local.json": "{debug: true}"
+      },
+      "label": {
+        "tr": "Dosya klasörde duruyor",
+        "en": "The file is still in the folder"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "app",
+      "clean": true,
+      "last_message": "^Stop tracking local config$",
+      "show_message": "Stop tracking local config",
+      "head_files": {
+        ".gitignore": "config.local.json"
+      },
+      "label": {
+        "tr": "Commit atıldı, ağaç temiz",
+        "en": "Committed, tree clean"
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "create-a-book",
+  "title": {
+    "tr": "Kitap ekle",
+    "en": "Add a book"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`r = requests.post(BASE + \"/books\", json=new_book, headers=AUTH)`.",
+      "en": "`r = requests.post(BASE + \"/books\", json=new_book, headers=AUTH)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\nAUTH = {\"Authorization\": \"Bearer letmein\"}\n\nnew_book = {\"title\": \"The Word for World Is Forest\", \"author_id\": 6, \"year\": 1972, \"price\": 9.4}\n\nr = requests.post(BASE + \"/books\", json=new_book, headers=AUTH)\nsaved = r.json()\nprint(\"status:\", r.status_code)\nprint(\"location:\", r.headers[\"Location\"])\nprint(\"id:\", saved[\"id\"])\nprint(\"author:\", saved[\"author\"][\"name\"])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\nAUTH = {\"Authorization\": \"Bearer letmein\"}\n\nnew_book = {\"title\": \"The Word for World Is Forest\", \"author_id\": 6, \"year\": 1972, \"price\": 9.4}\n\nr = requests.post(BASE + \"/books\", json=new_book, headers=AUTH)\nsaved = r.json()\nprint(\"status:\", r.status_code)\nprint(\"location:\", r.headers[\"Location\"])\nprint(\"id:\", saved[\"id\"])\nprint(\"author:\", saved[\"author\"][\"name\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "POST",
+      "path": "/books",
+      "headers": {
+        "Authorization": "Bearer letmein"
+      },
+      "json": {
+        "title": "The Word for World Is Forest",
+        "author_id": 6,
+        "year": 1972,
+        "price": 9.4
+      },
+      "hint": {
+        "tr": "POST /books isteği gövdede new_book ile (json=) ve jetonla gelmedi.",
+        "en": "No POST /books request arrived with new_book in the body (json=) and the token."
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "status: 201\nlocation: /books/24\nid: 24\nauthor: Le Guin"
+    }
+  ]
+}

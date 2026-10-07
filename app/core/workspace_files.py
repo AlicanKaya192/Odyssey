@@ -32,8 +32,8 @@ NAME_LANGUAGES = {
 }
 
 # Çalışma klasöründe denetleyicinin kendi dosyaları; alıştırma dosyası bu
-# adları alamaz.
-RESERVED_NAMES = {"job.json", "result.json", "seed.sql"}
+# adları alamaz (`api_routes.py` API alıştırmasının sunucusu).
+RESERVED_NAMES = {"job.json", "result.json", "seed.sql", "api_routes.py"}
 
 
 def file_language(name: str) -> str:

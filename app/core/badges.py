@@ -46,6 +46,10 @@ DATA_CHAPTER = "01-veri-bilimi"
 ML_CHAPTER = "02-makine-ogrenmesi"
 SQL_CHAPTER = "03-sql"
 TS_CHAPTER = "06-zaman-serileri"
+API_CHAPTER = "07-api-kullanmak"
+API2_CHAPTER = "08-api-yazmak"
+DOCKER_CHAPTER = "09-docker"
+GIT_CHAPTER = "10-git"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -66,6 +70,16 @@ SQL_JOIN_SECTION = (SQL_CHAPTER, "06-tablolari-birlestirmek")
 SQL_WINDOW_SECTION = (SQL_CHAPTER, "11-pencere-fonksiyonlari")
 TS_DECOMPOSE_SECTION = (TS_CHAPTER, "10-bilesenler-ve-ayristirma")
 TS_FORECAST_SECTION = (TS_CHAPTER, "14-temel-tahminler")
+API_REQUEST_SECTION = (API_CHAPTER, "06-requests-ile-ilk-istek")
+API_PIPELINE_SECTION = (API_CHAPTER, "15-apiden-veri-setine")
+API2_ENDPOINT_SECTION = (API2_CHAPTER, "00-api-yazmaya-giris")
+API2_CRUD_SECTION = (API2_CHAPTER, "07-crud")
+API2_MODEL_SECTION = (API2_CHAPTER, "16-model-sunmak")
+DOCKER_IMAGE_SECTION = (DOCKER_CHAPTER, "04-ilk-dockerfile")
+DOCKER_COMPOSE_SECTION = (DOCKER_CHAPTER, "10-compose")
+GIT_COMMIT_SECTION = (GIT_CHAPTER, "02-ilk-commit")
+GIT_MERGE_SECTION = (GIT_CHAPTER, "07-birlestirmek")
+GIT_PUSH_SECTION = (GIT_CHAPTER, "09-uzak-depolar")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 18
@@ -73,6 +87,10 @@ DATA_SECTION_COUNT = 10
 ML_SECTION_COUNT = 13
 SQL_SECTION_COUNT = 16
 TS_SECTION_COUNT = 23
+API_SECTION_COUNT = 17
+API2_SECTION_COUNT = 18
+DOCKER_SECTION_COUNT = 17
+GIT_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -166,6 +184,20 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "season-reader": TS_DECOMPOSE_SECTION in bitenler,
         "first-forecast": TS_FORECAST_SECTION in bitenler,
         "ts-complete": modul_basina.get(TS_CHAPTER, 0) >= TS_SECTION_COUNT,
+        "first-request": API_REQUEST_SECTION in bitenler,
+        "data-pipeline": API_PIPELINE_SECTION in bitenler,
+        "api-complete": modul_basina.get(API_CHAPTER, 0) >= API_SECTION_COUNT,
+        "first-endpoint": API2_ENDPOINT_SECTION in bitenler,
+        "full-resource": API2_CRUD_SECTION in bitenler,
+        "model-server": API2_MODEL_SECTION in bitenler,
+        "api2-complete": modul_basina.get(API2_CHAPTER, 0) >= API2_SECTION_COUNT,
+        "first-image": DOCKER_IMAGE_SECTION in bitenler,
+        "conductor": DOCKER_COMPOSE_SECTION in bitenler,
+        "docker-complete": modul_basina.get(DOCKER_CHAPTER, 0) >= DOCKER_SECTION_COUNT,
+        "first-commit": GIT_COMMIT_SECTION in bitenler,
+        "branch-weaver": GIT_MERGE_SECTION in bitenler,
+        "first-push": GIT_PUSH_SECTION in bitenler,
+        "git-complete": modul_basina.get(GIT_CHAPTER, 0) >= GIT_SECTION_COUNT,
     }
 
 

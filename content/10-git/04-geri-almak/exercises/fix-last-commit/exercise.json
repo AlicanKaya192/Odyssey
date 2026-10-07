@@ -1,0 +1,80 @@
+{
+  "id": "fix-last-commit",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Son commit'i düzelt",
+    "en": "Fix the last commit"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir notes",
+    "cd notes",
+    "git init",
+    "echo \"Buy milk\" > todo.txt",
+    "git add .",
+    "git commit -m \"Add todo list\"",
+    "echo \"Call Ada\" >> todo.txt",
+    "git commit -am \"Add call\"",
+    "echo \"# Notes\" > readme.md",
+    "git add .",
+    "git commit -m \"Add readme\"",
+    "echo \"Call Grace\" >> todo.txt",
+    "echo \"Monday: gym\" > plan.txt",
+    "git add todo.txt",
+    "git commit -m \"Plna the week\""
+  ],
+  "cwd": "notes",
+  "solution": [
+    "git add plan.txt",
+    "git commit --amend -m \"Plan the week\"",
+    "git log --oneline"
+  ],
+  "hints": [
+    {
+      "tr": "`--amend` son commit'i yeniden yazar: önce dosyayı `git add` ile ekle, sonra `--amend -m` ile mesajı da ver.",
+      "en": "`--amend` rewrites the last commit: first `git add` the file, then give the message with `--amend -m`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit add plan.txt\ngit commit --amend -m \"Plan the week\"\ngit log --oneline\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit add plan.txt\ngit commit --amend -m \"Plan the week\"\ngit log --oneline\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "commits": 4,
+      "label": {
+        "tr": "Hâlâ dört commit",
+        "en": "Still four commits"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "last_message": "^Plan the week$",
+      "show_message": "Plan the week",
+      "label": {
+        "tr": "Mesaj: Plan the week",
+        "en": "Message: Plan the week"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "head_files": {
+        "plan.txt": "Monday: gym"
+      },
+      "clean": true,
+      "label": {
+        "tr": "plan.txt son commit'te, ağaç temiz",
+        "en": "plan.txt is in the last commit, tree clean"
+      }
+    }
+  ]
+}

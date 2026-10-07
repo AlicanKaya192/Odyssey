@@ -1,0 +1,42 @@
+{
+  "id": "search-and-count",
+  "title": {
+    "tr": "Ara ve say",
+    "en": "Search and count"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`params = {\"tag\": \"scifi\", \"year_min\": 1960, \"sort\": \"year\", \"per_page\": 20}`.",
+      "en": "`params = {\"tag\": \"scifi\", \"year_min\": 1960, \"sort\": \"year\", \"per_page\": 20}`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nparams = {\"tag\": \"scifi\", \"year_min\": 1960, \"sort\": \"year\", \"per_page\": 20}\nr = requests.get(BASE + \"/books\", params=params, timeout=10)\nbody = r.json()\nprint(r.url)\nprint(\"total:\", body[\"meta\"][\"total\"])\nfor book in body[\"data\"]:\n    print(book[\"year\"], book[\"title\"])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nparams = {\"tag\": \"scifi\", \"year_min\": 1960, \"sort\": \"year\", \"per_page\": 20}\nr = requests.get(BASE + \"/books\", params=params, timeout=10)\nbody = r.json()\nprint(r.url)\nprint(\"total:\", body[\"meta\"][\"total\"])\nfor book in body[\"data\"]:\n    print(book[\"year\"], book[\"title\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books",
+      "query": {
+        "tag": "scifi",
+        "year_min": "1960",
+        "sort": "year",
+        "per_page": "20"
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "http://api.odyssey.test/books?tag=scifi&year_min=1960&sort=year&per_page=20\ntotal: 8\n1961 Solaris\n1965 Dune\n1965 The Cyberiad\n1969 Dune Messiah\n1969 The Left Hand of Darkness\n1971 The Lathe of Heaven\n1974 The Dispossessed\n1986 Fiasco"
+    }
+  ]
+}

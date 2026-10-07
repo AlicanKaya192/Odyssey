@@ -1,0 +1,101 @@
+{
+  "id": "order-total",
+  "title": {
+    "tr": "İç içe model: sipariş",
+    "en": "A nested model: an order"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`items: list[Item]`; Item, Order'dan önce tanımlanmalı.",
+      "en": "`items: list[Item]`; Item must be defined before Order."
+    },
+    {
+      "tr": "`sum(item.price * item.qty for item in order.items)`.",
+      "en": "`sum(item.price * item.qty for item in order.items)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n\nclass Item(BaseModel):\n    name: str\n    price: float\n    qty: int = 1\n\n\nclass Order(BaseModel):\n    customer: str\n    items: list[Item]\n\n\n@app.post(\"/orders\")\ndef place_order(order: Order):\n    total = sum(item.price * item.qty for item in order.items)\n    return {\"customer\": order.customer, \"lines\": len(order.items), \"total\": round(total, 2)}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n\nclass Item(BaseModel):\n    name: str\n    price: float\n    qty: int = 1\n\n\nclass Order(BaseModel):\n    customer: str\n    items: list[Item]\n\n\n@app.post(\"/orders\")\ndef place_order(order: Order):\n    total = sum(item.price * item.qty for item in order.items)\n    return {\"customer\": order.customer, \"lines\": len(order.items), \"total\": round(total, 2)}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/orders",
+          "json": {
+            "customer": "Ada",
+            "items": [
+              {
+                "name": "pen",
+                "price": 1.5,
+                "qty": 4
+              },
+              {
+                "name": "book",
+                "price": 12.25
+              }
+            ]
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "customer": "Ada",
+              "lines": 2,
+              "total": 18.25
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/orders",
+          "json": {
+            "customer": "Tim",
+            "items": []
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "customer": "Tim",
+              "lines": 0,
+              "total": 0
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/orders",
+          "json": {
+            "customer": "Bo",
+            "items": [
+              {
+                "name": "pen",
+                "price": "free"
+              }
+            ]
+          },
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}

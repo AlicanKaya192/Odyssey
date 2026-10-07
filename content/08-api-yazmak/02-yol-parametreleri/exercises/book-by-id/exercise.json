@@ -1,0 +1,68 @@
+{
+  "id": "book-by-id",
+  "title": {
+    "tr": "Kimlikle kitap",
+    "en": "A book by id"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`if book_id not in books:` → `raise HTTPException(status_code=404, detail=\"Book not found\")`.",
+      "en": "`if book_id not in books:` → `raise HTTPException(status_code=404, detail=\"Book not found\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI()\nbooks = {\n    1: {\"id\": 1, \"title\": \"Dune\", \"year\": 1965},\n    2: {\"id\": 2, \"title\": \"Emma\", \"year\": 1815},\n    3: {\"id\": 3, \"title\": \"Ulysses\", \"year\": 1922},\n}\n\n\n@app.get(\"/books/{book_id}\")\ndef get_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI()\nbooks = {\n    1: {\"id\": 1, \"title\": \"Dune\", \"year\": 1965},\n    2: {\"id\": 2, \"title\": \"Emma\", \"year\": 1815},\n    3: {\"id\": 3, \"title\": \"Ulysses\", \"year\": 1922},\n}\n\n\n@app.get(\"/books/{book_id}\")\ndef get_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/books/2",
+          "expect": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "title": "Emma",
+              "year": 1815
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/99",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Book not found"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/abc",
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}

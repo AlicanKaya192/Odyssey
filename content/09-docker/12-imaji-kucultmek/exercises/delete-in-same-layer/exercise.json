@@ -1,0 +1,48 @@
+{
+  "id": "delete-in-same-layer",
+  "title": {
+    "tr": "Aynı katmanda sil",
+    "en": "Delete in the same layer"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile",
+      "solution": "solution-Dockerfile"
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`RUN a && b && c` biçiminde; silme de aynı satırda.",
+      "en": "In the form `RUN a && b && c`; the delete on the same line too."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM alpine:3.22\nRUN head -c 30000000 /dev/urandom > /tmp/cache.bin && \\\n    sha256sum /tmp/cache.bin | cut -c1-8 > /checksum.txt && \\\n    rm /tmp/cache.bin\nCMD [\"sh\", \"-c\", \"echo checksum ready && wc -c < /checksum.txt\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM alpine:3.22\nRUN head -c 30000000 /dev/urandom > /tmp/cache.bin && \\\n    sha256sum /tmp/cache.bin | cut -c1-8 > /checksum.txt && \\\n    rm /tmp/cache.bin\nCMD [\"sh\", \"-c\", \"echo checksum ready && wc -c < /checksum.txt\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "count",
+      "instruction": "RUN",
+      "max": 1,
+      "show": "RUN"
+    },
+    {
+      "type": "container",
+      "expect": {
+        "max_size_mb": 20,
+        "logs": "checksum ready\n9"
+      }
+    }
+  ]
+}

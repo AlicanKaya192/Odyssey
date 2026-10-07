@@ -1,0 +1,55 @@
+{
+  "id": "copy-only-the-result",
+  "title": {
+    "tr": "Yalnızca sonucu al",
+    "en": "Take only the result"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "make_data.py",
+      "readonly": true
+    },
+    {
+      "name": "show.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`COPY --from=build /out/primes.json .` ve `COPY show.py .`.",
+      "en": "`COPY --from=build /out/primes.json .` and `COPY show.py .`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim AS build\nWORKDIR /src\nCOPY make_data.py .\nRUN mkdir /out && python make_data.py\n\nFROM python:3.13-slim\nWORKDIR /app\nCOPY --from=build /out/primes.json .\nCOPY show.py .\nCMD [\"python\", \"show.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim AS build\nWORKDIR /src\nCOPY make_data.py .\nRUN mkdir /out && python make_data.py\n\nFROM python:3.13-slim\nWORKDIR /app\nCOPY --from=build /out/primes.json .\nCOPY show.py .\nCMD [\"python\", \"show.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "container",
+      "expect": {
+        "logs": "15 primes, the largest is 47",
+        "file_exists": [
+          "/app/primes.json"
+        ],
+        "file_missing": [
+          "/app/make_data.py",
+          "/src"
+        ]
+      }
+    }
+  ]
+}

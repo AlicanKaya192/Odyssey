@@ -1,0 +1,60 @@
+{
+  "id": "required-search",
+  "title": {
+    "tr": "Zorunlu sorgu",
+    "en": "A required query"
+  },
+  "difficulty": 1,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`def search(q: str):` (varsayılan yok) ve `len(q)`.",
+      "en": "`def search(q: str):` (no default) and `len(q)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\n@app.get(\"/search\")\ndef search(q: str):\n    return {\"q\": q, \"length\": len(q)}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\n@app.get(\"/search\")\ndef search(q: str):\n    return {\"q\": q, \"length\": len(q)}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/search",
+          "params": {
+            "q": "dune"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "q": "dune",
+              "length": 4
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/search",
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "cache-friendly-order",
+  "title": {
+    "tr": "Önbellek dostu sıra",
+    "en": "A cache-friendly order"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "app.py",
+      "readonly": true
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`COPY . .`'ı `RUN pip install`'ın altına taşı ve üstüne `COPY requirements.txt .` ekle.",
+      "en": "Move `COPY . .` below `RUN pip install` and add `COPY requirements.txt .` above it."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nCMD [\"python\", \"app.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nCMD [\"python\", \"app.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "order",
+      "steps": [
+        {
+          "instruction": "COPY",
+          "value": "^requirements\\.txt ",
+          "show": "COPY requirements.txt ."
+        },
+        {
+          "instruction": "RUN",
+          "value": "pip install",
+          "show": "RUN pip install"
+        },
+        {
+          "instruction": "COPY",
+          "value": "^\\. ",
+          "show": "COPY . ."
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "expect": {
+        "logs": "built with a warm cache"
+      }
+    }
+  ]
+}

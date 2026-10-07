@@ -1,0 +1,49 @@
+{
+  "id": "put-versus-patch",
+  "title": {
+    "tr": "PUT ile PATCH farkı",
+    "en": "PUT versus PATCH"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`requests.request(method, url, json=CHANGE, headers=AUTH)`; ardından `requests.get(url).json()` döndür.",
+      "en": "`requests.request(method, url, json=CHANGE, headers=AUTH)`; then return `requests.get(url).json()`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\nAUTH = {\"Authorization\": \"Bearer letmein\"}\nCHANGE = {\"title\": \"Changed\", \"price\": 9.0}\n\n\ndef change_and_read(method, book_id):\n    url = BASE + \"/books/\" + str(book_id)\n    requests.request(method, url, json=CHANGE, headers=AUTH)\n    return requests.get(url).json()\n\n\nfor method, book_id in [(\"PATCH\", 15), (\"PUT\", 14)]:\n    book = change_and_read(method, book_id)\n    print(method, book[\"title\"], book[\"price\"], book[\"year\"], book[\"tags\"])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\nAUTH = {\"Authorization\": \"Bearer letmein\"}\nCHANGE = {\"title\": \"Changed\", \"price\": 9.0}\n\n\ndef change_and_read(method, book_id):\n    url = BASE + \"/books/\" + str(book_id)\n    requests.request(method, url, json=CHANGE, headers=AUTH)\n    return requests.get(url).json()\n\n\nfor method, book_id in [(\"PATCH\", 15), (\"PUT\", 14)]:\n    book = change_and_read(method, book_id)\n    print(method, book[\"title\"], book[\"price\"], book[\"year\"], book[\"tags\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "PATCH",
+      "path": "/books/15",
+      "json": {
+        "title": "Changed",
+        "price": 9.0
+      }
+    },
+    {
+      "type": "requests",
+      "method": "PUT",
+      "path": "/books/14",
+      "json": {
+        "title": "Changed",
+        "price": 9.0
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "PATCH Changed 9.0 1968 ['fantasy']\nPUT Changed 9.0 0 []"
+    }
+  ]
+}

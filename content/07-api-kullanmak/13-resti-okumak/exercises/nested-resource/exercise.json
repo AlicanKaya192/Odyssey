@@ -1,0 +1,41 @@
+{
+  "id": "nested-resource",
+  "title": {
+    "tr": "İç içe kaynak",
+    "en": "A nested resource"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yazarları dolaş, `author[\"name\"] == \"Le Guin\"` olanın `id`'sini al.",
+      "en": "Loop over the authors and take the `id` of the one where `author[\"name\"] == \"Le Guin\"`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nauthor_id = None\nfor author in requests.get(BASE + \"/authors\").json()[\"data\"]:\n    if author[\"name\"] == \"Le Guin\":\n        author_id = author[\"id\"]\n\nbooks = requests.get(BASE + \"/authors/\" + str(author_id) + \"/books\").json()[\"data\"]\nprint(\"author id:\", author_id)\nprint(\"books:\", len(books))\nfor book in books:\n    print(book[\"year\"], book[\"title\"])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nauthor_id = None\nfor author in requests.get(BASE + \"/authors\").json()[\"data\"]:\n    if author[\"name\"] == \"Le Guin\":\n        author_id = author[\"id\"]\n\nbooks = requests.get(BASE + \"/authors/\" + str(author_id) + \"/books\").json()[\"data\"]\nprint(\"author id:\", author_id)\nprint(\"books:\", len(books))\nfor book in books:\n    print(book[\"year\"], book[\"title\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "author_id",
+      "equals": 6
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/authors/6/books"
+    },
+    {
+      "type": "stdout",
+      "expected": "author id: 6\nbooks: 4\n1974 The Dispossessed\n1969 The Left Hand of Darkness\n1968 A Wizard of Earthsea\n1971 The Lathe of Heaven"
+    }
+  ]
+}

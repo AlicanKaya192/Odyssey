@@ -1,0 +1,69 @@
+{
+  "id": "orphan-rescue",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Geride kalan commit",
+    "en": "The commit left behind"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "cd app",
+    "git init",
+    "echo \"1\" > f.txt",
+    "git add .",
+    "git commit -m \"One\"",
+    "echo \"2\" >> f.txt",
+    "git commit -am \"Two\"",
+    "echo \"3\" >> f.txt",
+    "git commit -am \"Three\"",
+    "git checkout HEAD~1",
+    "echo \"q\" > quick.txt",
+    "git add .",
+    "git commit -m \"Quick idea\"",
+    "git switch main"
+  ],
+  "cwd": "app",
+  "solution": [
+    "git reflog -3",
+    "git branch rescue HEAD@{1}",
+    "git log --oneline rescue -2"
+  ],
+  "hints": [
+    {
+      "tr": "`main`'e dönüş `HEAD@{0}`; ondan önceki hareket `Quick idea` commit'i.",
+      "en": "Going back to `main` is `HEAD@{0}`; the move before it is the `Quick idea` commit."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit reflog -3\ngit branch rescue HEAD@{1}\ngit log --oneline rescue -2\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit reflog -3\ngit branch rescue HEAD@{1}\ngit log --oneline rescue -2\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "app",
+      "tips": {
+        "rescue": "^Quick idea$"
+      },
+      "label": {
+        "tr": "rescue dalı Quick idea'da",
+        "en": "The rescue branch is on Quick idea"
+      }
+    },
+    {
+      "type": "git_command",
+      "pattern": "^git reflog\\b",
+      "show": "git reflog",
+      "label": {
+        "tr": "reflog ile buldun",
+        "en": "You found it with the reflog"
+      }
+    }
+  ]
+}

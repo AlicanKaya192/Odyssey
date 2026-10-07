@@ -1,0 +1,73 @@
+{
+  "id": "cursor-walk",
+  "title": {
+    "tr": "İmleçle gezin",
+    "en": "Walk with a cursor"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İlk istekte `params = {}`, sonrakilerde `{\"cursor\": cursor}`: `params = {\"cursor\": cursor} if cursor else {}`.",
+      "en": "On the first request `params = {}`, after that `{\"cursor\": cursor}`: `params = {\"cursor\": cursor} if cursor else {}`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef fetch_all():\n    titles = []\n    cursor = None\n    while True:\n        params = {\"cursor\": cursor} if cursor else {}\n        body = requests.get(BASE + \"/cursor/books\", params=params).json()\n        titles.extend(book[\"title\"] for book in body[\"results\"])\n        cursor = body[\"next_cursor\"]\n        if cursor is None:\n            return titles\n\n\ntitles = fetch_all()\nprint(\"books:\", len(titles))\nprint(\"first:\", titles[0])\nprint(\"last:\", titles[-1])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef fetch_all():\n    titles = []\n    cursor = None\n    while True:\n        params = {\"cursor\": cursor} if cursor else {}\n        body = requests.get(BASE + \"/cursor/books\", params=params).json()\n        titles.extend(book[\"title\"] for book in body[\"results\"])\n        cursor = body[\"next_cursor\"]\n        if cursor is None:\n            return titles\n\n\ntitles = fetch_all()\nprint(\"books:\", len(titles))\nprint(\"first:\", titles[0])\nprint(\"last:\", titles[-1])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fetch_all",
+      "cases": [
+        {
+          "args": [],
+          "returns": [
+            "Emma",
+            "Dune",
+            "Ulysses",
+            "Solaris",
+            "Persuasion",
+            "Pride and Prejudice",
+            "Sense and Sensibility",
+            "Dune Messiah",
+            "Dubliners",
+            "The Cyberiad",
+            "Nineteen Eighty-Four",
+            "Animal Farm",
+            "The Dispossessed",
+            "The Left Hand of Darkness",
+            "A Wizard of Earthsea",
+            "War and Peace",
+            "Anna Karenina",
+            "Mrs Dalloway",
+            "To the Lighthouse",
+            "Orlando",
+            "Fiasco",
+            "Homage to Catalonia",
+            "The Lathe of Heaven"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/cursor/books",
+      "query": {
+        "cursor": "c20"
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "books: 23\nfirst: Emma\nlast: The Lathe of Heaven"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "run-to-compose",
+  "title": {
+    "tr": "Komuttan dosyaya",
+    "en": "From command to file"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "compose.yaml",
+  "files": [
+    {
+      "name": "compose.yaml",
+      "starter": "starter-compose.yaml.{lang}",
+      "solution": "solution-compose.yaml"
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "server.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`volumes:` iki yerde: servisin altında `- appdata:/data`, en altta `appdata:`.",
+      "en": "`volumes:` in two places: `- appdata:/data` under the service, `appdata:` at the bottom."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**compose.yaml**\n\n```yaml\nservices:\n  web:\n    build: .\n    ports:\n      - \"8091:8000\"\n    environment:\n      APP_ENV: production\n      DB_PATH: /data/app.db\n    volumes:\n      - appdata:/data\n    restart: unless-stopped\n\nvolumes:\n  appdata:\n```",
+      "en": "The full solution:\n\n**compose.yaml**\n\n```yaml\nservices:\n  web:\n    build: .\n    ports:\n      - \"8091:8000\"\n    environment:\n      APP_ENV: production\n      DB_PATH: /data/app.db\n    volumes:\n      - appdata:/data\n    restart: unless-stopped\n\nvolumes:\n  appdata:\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "compose",
+      "service": "web",
+      "build": true,
+      "ports": [
+        "8091:8000"
+      ],
+      "environment": {
+        "APP_ENV": "production",
+        "DB_PATH": "/data/app.db"
+      },
+      "volumes": [
+        "appdata:/data"
+      ],
+      "restart": "unless-stopped"
+    },
+    {
+      "type": "compose",
+      "top_volumes": [
+        "appdata"
+      ]
+    },
+    {
+      "type": "compose_up",
+      "running": [
+        "web"
+      ],
+      "http": {
+        "service": "web",
+        "port": 8000,
+        "path": "/",
+        "status": 200,
+        "json": {
+          "env": "production",
+          "db": "/data/app.db"
+        }
+      }
+    }
+  ]
+}

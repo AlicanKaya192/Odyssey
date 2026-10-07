@@ -1,0 +1,67 @@
+{
+  "id": "build-arg-version",
+  "title": {
+    "tr": "Derleme argümanı",
+    "en": "A build argument"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`ARG VERSION=1.0` ve altına `ENV APP_VERSION=$VERSION`.",
+      "en": "`ARG VERSION=1.0` and below it `ENV APP_VERSION=$VERSION`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM alpine:3.22\nARG VERSION=1.0\nENV APP_VERSION=$VERSION\nCMD [\"sh\", \"-c\", \"echo version $APP_VERSION\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM alpine:3.22\nARG VERSION=1.0\nENV APP_VERSION=$VERSION\nCMD [\"sh\", \"-c\", \"echo version $APP_VERSION\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "order",
+      "steps": [
+        {
+          "instruction": "ARG",
+          "value": "^VERSION=1\\.0$",
+          "show": "ARG VERSION=1.0"
+        },
+        {
+          "instruction": "ENV",
+          "value": "APP_VERSION=\\$\\{?VERSION",
+          "show": "ENV APP_VERSION=$VERSION"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "expect": {
+        "logs": "version 1.0"
+      }
+    },
+    {
+      "type": "container",
+      "build": {
+        "args": {
+          "VERSION": "2.4"
+        }
+      },
+      "expect": {
+        "logs": "version 2.4"
+      }
+    }
+  ]
+}

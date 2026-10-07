@@ -1,0 +1,56 @@
+{
+  "id": "to-curl",
+  "title": {
+    "tr": "İstekten curl'e",
+    "en": "From a request to curl"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Parçaları bir listede topla, sonda `\" \".join(parts)`. Başlık parçası: `'-H \"' + name + \": \" + value + '\"'`.",
+      "en": "Collect the pieces in a list and finish with `\" \".join(parts)`. A header piece: `'-H \"' + name + \": \" + value + '\"'`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef to_curl(method, url, headers):\n    parts = [\"curl\"]\n    if method != \"GET\":\n        parts += [\"-X\", method]\n    parts.append(url)\n    for name, value in headers.items():\n        parts.append('-H \"' + name + \": \" + value + '\"')\n    return \" \".join(parts)\n\n\nsamples = [\n    (\"GET\", \"https://api.example.com/books\", {}),\n    (\"GET\", \"https://api.example.com/stats\", {\"X-API-Key\": \"abc\"}),\n    (\"DELETE\", \"https://api.example.com/books/7\", {\"Authorization\": \"Bearer abc\"}),\n]\nfor method, url, headers in samples:\n    print(to_curl(method, url, headers))\n```",
+      "en": "The solution:\n\n```python\ndef to_curl(method, url, headers):\n    parts = [\"curl\"]\n    if method != \"GET\":\n        parts += [\"-X\", method]\n    parts.append(url)\n    for name, value in headers.items():\n        parts.append('-H \"' + name + \": \" + value + '\"')\n    return \" \".join(parts)\n\n\nsamples = [\n    (\"GET\", \"https://api.example.com/books\", {}),\n    (\"GET\", \"https://api.example.com/stats\", {\"X-API-Key\": \"abc\"}),\n    (\"DELETE\", \"https://api.example.com/books/7\", {\"Authorization\": \"Bearer abc\"}),\n]\nfor method, url, headers in samples:\n    print(to_curl(method, url, headers))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "to_curl",
+      "cases": [
+        {
+          "args": [
+            "GET",
+            "http://x.test/a",
+            {}
+          ],
+          "returns": "curl http://x.test/a"
+        },
+        {
+          "args": [
+            "PATCH",
+            "http://x.test/a/1",
+            {
+              "A": "1",
+              "B": "2"
+            }
+          ],
+          "returns": "curl -X PATCH http://x.test/a/1 -H \"A: 1\" -H \"B: 2\""
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "curl https://api.example.com/books\ncurl https://api.example.com/stats -H \"X-API-Key: abc\"\ncurl -X DELETE https://api.example.com/books/7 -H \"Authorization: Bearer abc\""
+    }
+  ]
+}

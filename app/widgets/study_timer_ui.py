@@ -16,8 +16,10 @@ import math
 from PySide6.QtCore import QRectF, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QFont, QFontMetrics, QPainter, QPen
 from PySide6.QtWidgets import (
+    QAbstractButton,
     QButtonGroup,
     QFrame,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -29,13 +31,12 @@ from PySide6.QtWidgets import (
 from ..core import study_timer as core
 from ..core.language import LanguageManager
 from ..resources.icons import icon
-from ..resources.theme.tokens import PALETTES, SPACING
+from ..resources.theme.tokens import FONTS, PALETTES, SPACING
 from . import motion
 from .common import DropdownBox
 from .popover import Popover
-from .progress_bar import ProgressBar
 
-PANEL_WIDTH = 360
+PANEL_WIDTH = 380
 CHIP_HEIGHT = 20
 ICON = 14
 RING = 11
@@ -43,9 +44,240 @@ FONT_PX = 11.5
 # Son saniyelerde en fazla bu kadar büyüyor.
 GROW = 0.16
 
+# Düzen kartlarının simgesi (Lucide); her düzen kendi ritmini anlatıyor.
+PRESET_ICONS = {"pomodoro": "repeat", "flow": "wave", "deep": "target", "short": "zap", "custom": "sliders"}
+TILE_HEIGHT = 58
+PREVIEW_HEIGHT = 138
+# Önizleme şeridinde gösterilen tur sayısı (Pomodoro'nun bir döngüsü).
+CYCLE_ROUNDS = 4
+ACTIVE_RING = 168
+
 
 def _phase_color(timer: core.StudyTimer, p: dict) -> str:
     return p["success"] if timer.phase == "break" else p["accent"]
+
+
+def _px_font(base: QFont, px: float, weight: QFont.Weight = QFont.Weight.Normal, family: str = "") -> QFont:
+    f = QFont(base)
+    if family:
+        f.setFamilies([part.strip().strip('"') for part in family.split(",")])
+    f.setPixelSize(round(px))
+    f.setWeight(weight)
+    return f
+
+
+def _cycle(preset: core.Preset) -> list[tuple[str, int]]:
+    """Önizleme şeridinin parçaları: [("work", 25), ("rest", 5), ...]."""
+    parcalar: list[tuple[str, int]] = []
+    for tur in range(1, CYCLE_ROUNDS + 1):
+        parcalar.append(("work", preset.work))
+        if preset.long_every and tur % preset.long_every == 0 and preset.long_rest:
+            parcalar.append(("long", preset.long_rest))
+        elif preset.rest:
+            parcalar.append(("rest", preset.rest))
+    return parcalar
+
+
+class PresetTile(QAbstractButton):
+    """Düzen kartı: simge dairesi, ad ve "25 / 5 dk". Seçili olan vurgu renginde."""
+
+    def __init__(self, kimlik: str, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.kimlik = kimlik
+        self._mode = "dark"
+        self._name = ""
+        self._line = ""
+        self.setCheckable(True)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setAttribute(Qt.WidgetAttribute.WA_Hover)
+        self.setFixedHeight(TILE_HEIGHT)
+
+    def set_texts(self, name: str, line: str) -> None:
+        self._name, self._line = name, line
+        self.setAccessibleName(f"{name}, {line}")
+        self.update()
+
+    def set_mode(self, mode: str) -> None:
+        self._mode = mode
+        self.update()
+
+    def sizeHint(self) -> QSize:  # noqa: N802
+        return QSize(150, TILE_HEIGHT)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        p = PALETTES.get(self._mode, PALETTES["dark"])
+        secili = self.isChecked()
+        uzerinde = self.underMouse()
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        kutu = QRectF(self.rect()).adjusted(0.75, 0.75, -0.75, -0.75)
+        zemin = p["accent_soft"] if secili else (p["surface_hover"] if uzerinde else p["surface_alt"])
+        g.setBrush(QColor(zemin))
+        cerceve = p["accent"] if secili else (p["border_strong"] if uzerinde else p["border"])
+        g.setPen(QPen(QColor(cerceve), 1.5 if secili else 1))
+        g.drawRoundedRect(kutu, 12, 12)
+
+        # Simge dairesi
+        cap = 32
+        daire = QRectF(12, (self.height() - cap) / 2, cap, cap)
+        g.setPen(Qt.PenStyle.NoPen)
+        g.setBrush(QColor(p["accent"] if secili else p["surface"]))
+        g.drawEllipse(daire)
+        renk = p["text_inverse"] if secili else p["text_muted"]
+        simge = icon(PRESET_ICONS.get(self.kimlik, "clock"), renk, 16).pixmap(QSize(16, 16), self.devicePixelRatioF())
+        g.drawPixmap(QRectF(daire.center().x() - 8, daire.center().y() - 8, 16, 16), simge, QRectF(simge.rect()))
+
+        x = daire.right() + 10
+        alan = QRectF(x, 0, self.width() - x - 10, self.height())
+        g.setPen(QColor(p["accent"] if secili else p["text"]))
+        g.setFont(_px_font(self.font(), 13, QFont.Weight.DemiBold))
+        ust = QRectF(alan.x(), self.height() / 2 - 18, alan.width(), 18)
+        g.drawText(ust, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom,
+                   QFontMetrics(g.font()).elidedText(self._name, Qt.TextElideMode.ElideRight, int(ust.width())))
+        g.setPen(QColor(p["text_muted"]))
+        g.setFont(_px_font(self.font(), 11.5))
+        alt = QRectF(alan.x(), self.height() / 2 + 2, alan.width(), 16)
+        g.drawText(alt, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
+                   QFontMetrics(g.font()).elidedText(self._line, Qt.TextElideMode.ElideRight, int(alt.width())))
+        g.end()
+
+
+class PresetPreview(QWidget):
+    """Seçili düzenin özeti: odak/mola oranı halkası, ad, açıklama ve dört
+    turluk döngü şeridi (odak mor, mola yeşil, uzun mola koyu yeşil)."""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._mode = "dark"
+        self._preset = core.PRESETS[0]
+        self._name = ""
+        self._line = ""
+        self._unit = ""
+        self._cycle_text = ""
+        self.setFixedHeight(PREVIEW_HEIGHT)
+
+    def set_preset(self, preset: core.Preset, name: str, line: str, unit: str, cycle_text: str) -> None:
+        self._preset, self._name, self._line, self._unit, self._cycle_text = preset, name, line, unit, cycle_text
+        self.update()
+
+    def set_mode(self, mode: str) -> None:
+        self._mode = mode
+        self.update()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        p = PALETTES.get(self._mode, PALETTES["dark"])
+        pr = self._preset
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        kart = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+        g.setPen(QPen(QColor(p["border"]), 1))
+        g.setBrush(QColor(p["surface_alt"]))
+        g.drawRoundedRect(kart, 14, 14)
+
+        # Oran halkası: odak (vurgu) + mola (yeşil), aralarında küçük boşluk.
+        cap = 86
+        halka = QRectF(16, 16, cap, cap)
+        kalinlik = 9
+        g.setBrush(Qt.BrushStyle.NoBrush)
+        g.setPen(QPen(QColor(p["border"]), kalinlik))
+        g.drawEllipse(halka)
+        toplam = pr.work + pr.rest
+        bosluk = 6 if pr.rest else 0
+        odak = 360 * pr.work / toplam if toplam else 360
+        for renk, bas, aci in ((p["accent"], 90, odak), (p["success"], 90 - odak, 360 - odak)):
+            if aci <= bosluk:
+                continue
+            kalem = QPen(QColor(renk), kalinlik)
+            kalem.setCapStyle(Qt.PenCapStyle.RoundCap)
+            g.setPen(kalem)
+            g.drawArc(halka, round((bas - bosluk / 2) * 16), -round((aci - bosluk) * 16))
+        g.setPen(QColor(p["text"]))
+        g.setFont(_px_font(self.font(), 26, QFont.Weight.Bold, FONTS["display"]))
+        g.drawText(QRectF(halka.x(), halka.y() + 18, cap, 32), Qt.AlignmentFlag.AlignCenter, str(pr.work))
+        g.setPen(QColor(p["text_muted"]))
+        g.setFont(_px_font(self.font(), 10.5, QFont.Weight.DemiBold))
+        g.drawText(QRectF(halka.x(), halka.y() + 48, cap, 16), Qt.AlignmentFlag.AlignCenter, self._unit)
+
+        # Sağ: ad, satır, döngü şeridi.
+        x = halka.right() + 18
+        genislik = self.width() - x - 16
+        g.setPen(QColor(p["text"]))
+        g.setFont(_px_font(self.font(), 16, QFont.Weight.Bold, FONTS["display"]))
+        g.drawText(QRectF(x, 18, genislik, 24), Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                   QFontMetrics(g.font()).elidedText(self._name, Qt.TextElideMode.ElideRight, int(genislik)))
+        g.setPen(QColor(p["text_muted"]))
+        g.setFont(_px_font(self.font(), 12))
+        g.drawText(QRectF(x, 44, genislik, 18), Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                   QFontMetrics(g.font()).elidedText(self._line, Qt.TextElideMode.ElideRight, int(genislik)))
+
+        parcalar = _cycle(pr)
+        sure = sum(dk for _, dk in parcalar)
+        aralik = 3
+        serit_y = 76
+        kullanilir = genislik - aralik * (len(parcalar) - 1)
+        px = x
+        renkler = {"work": QColor(p["accent"]), "rest": QColor(p["success"]),
+                   "long": QColor(p["success"])}
+        for tur, dk in parcalar:
+            w = max(4.0, kullanilir * dk / sure) if sure else 0
+            renk = QColor(renkler[tur])
+            if tur == "rest":
+                renk.setAlphaF(0.55)
+            g.setPen(Qt.PenStyle.NoPen)
+            g.setBrush(renk)
+            g.drawRoundedRect(QRectF(px, serit_y, w, 10), 3, 3)
+            px += w + aralik
+        g.setPen(QColor(p["text_muted"]))
+        g.setFont(_px_font(self.font(), 11.5))
+        g.drawText(QRectF(x, serit_y + 16, genislik, 18), Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                   self._cycle_text)
+        g.end()
+
+
+class ActiveRing(QWidget):
+    """Çalışan sayfanın büyük halkası: kalan süre, evre ve ilerleme."""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._mode = "dark"
+        self._ratio = 1.0
+        self._color = "#8B84FF"
+        self._clock = "00:00"
+        self._phase = ""
+        self._paused = False
+        self.setFixedHeight(ACTIVE_RING + 8)
+
+    def set_state(self, ratio: float, color: str, clock: str, phase: str, paused: bool) -> None:
+        self._ratio, self._color, self._clock, self._phase, self._paused = ratio, color, clock, phase, paused
+        self.update()
+
+    def set_mode(self, mode: str) -> None:
+        self._mode = mode
+        self.update()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        p = PALETTES.get(self._mode, PALETTES["dark"])
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        cap = ACTIVE_RING
+        halka = QRectF((self.width() - cap) / 2, 4, cap, cap)
+        kalinlik = 10
+        g.setPen(QPen(QColor(p["surface_alt"]), kalinlik))
+        g.drawEllipse(halka.adjusted(kalinlik / 2, kalinlik / 2, -kalinlik / 2, -kalinlik / 2))
+        renk = QColor(p["text_muted"] if self._paused else self._color)
+        if self._ratio > 0:
+            kalem = QPen(renk, kalinlik)
+            kalem.setCapStyle(Qt.PenCapStyle.RoundCap)
+            g.setPen(kalem)
+            g.drawArc(halka.adjusted(kalinlik / 2, kalinlik / 2, -kalinlik / 2, -kalinlik / 2),
+                      90 * 16, -round(360 * 16 * self._ratio))
+        g.setPen(QColor(p["text_muted"] if self._paused else p["text"]))
+        g.setFont(_px_font(self.font(), 38, QFont.Weight.Bold, FONTS["display"]))
+        g.drawText(QRectF(halka.x(), halka.y() + cap / 2 - 30, cap, 46), Qt.AlignmentFlag.AlignCenter, self._clock)
+        g.setPen(QColor(renk))
+        g.setFont(_px_font(self.font(), 11, QFont.Weight.Bold))
+        g.drawText(QRectF(halka.x(), halka.y() + cap / 2 + 18, cap, 18), Qt.AlignmentFlag.AlignCenter, self._phase)
+        g.end()
 
 
 class TimerChip(QPushButton):
@@ -156,6 +388,41 @@ class TimerChip(QPushButton):
         g.end()
 
 
+class TodayLine(QWidget):
+    """Panelin altındaki "bugün" satırı: alev simgesi ve özet, ortalanmış."""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setProperty("role", "bare")
+        self._mode = "dark"
+        self._active = False
+        satir = QHBoxLayout(self)
+        satir.setContentsMargins(0, 0, 0, 0)
+        satir.setSpacing(6)
+        satir.addStretch(1)
+        self._icon = QLabel()
+        self._icon.setFixedSize(14, 14)
+        self._text = QLabel()
+        self._text.setProperty("role", "timer-today")
+        satir.addWidget(self._icon)
+        satir.addWidget(self._text)
+        satir.addStretch(1)
+
+    def set_text(self, text: str, active: bool) -> None:
+        self._text.setText(text)
+        self._active = active
+        self._paint_icon()
+
+    def set_mode(self, mode: str) -> None:
+        self._mode = mode
+        self._paint_icon()
+
+    def _paint_icon(self) -> None:
+        p = PALETTES.get(self._mode, PALETTES["dark"])
+        renk = p["warning"] if self._active else p["text_muted"]
+        self._icon.setPixmap(icon("flame", renk, 14).pixmap(QSize(14, 14), self.devicePixelRatioF()))
+
+
 class TimerPanel(Popover):
     """Düzen seçimi ve çalışan sayacın denetimleri."""
 
@@ -195,31 +462,44 @@ class TimerPanel(Popover):
         sayfa.setProperty("role", "bare")
         duzen = QVBoxLayout(sayfa)
         duzen.setContentsMargins(SPACING["md"], SPACING["sm"], SPACING["md"], SPACING["md"])
-        duzen.setSpacing(6)
+        duzen.setSpacing(SPACING["sm"])
 
         self._hint = QLabel()
         self._hint.setProperty("role", "popover-text")
         self._hint.setWordWrap(True)
         duzen.addWidget(self._hint)
-        duzen.addSpacing(4)
 
+        # Seçili düzenin önizlemesi: oran halkası + döngü şeridi.
+        self._preview = PresetPreview()
+        duzen.addWidget(self._preview)
+        self._about = QLabel()
+        self._about.setProperty("role", "timer-about")
+        self._about.setWordWrap(True)
+        duzen.addWidget(self._about)
+
+        # Düzen kartları: dördü ikili ızgarada, "kendi düzenin" tam genişlik.
+        izgara = QGridLayout()
+        izgara.setHorizontalSpacing(SPACING["xs"])
+        izgara.setVerticalSpacing(SPACING["xs"])
         self._group = QButtonGroup(self)
         self._group.setExclusive(True)
-        self._preset_buttons: dict[str, QPushButton] = {}
-        for kimlik in [p.id for p in core.PRESETS] + ["custom"]:
-            dugme = QPushButton()
-            dugme.setProperty("variant", "timer-preset")
-            dugme.setCheckable(True)
-            dugme.setCursor(Qt.CursorShape.PointingHandCursor)
-            dugme.clicked.connect(lambda _=False, k=kimlik: self._choose(k))
-            self._group.addButton(dugme)
-            self._preset_buttons[kimlik] = dugme
-            duzen.addWidget(dugme)
+        self._preset_buttons: dict[str, PresetTile] = {}
+        kimlikler = [p.id for p in core.PRESETS] + ["custom"]
+        for sira, kimlik in enumerate(kimlikler):
+            kart = PresetTile(kimlik)
+            kart.clicked.connect(lambda _=False, k=kimlik: self._choose(k))
+            self._group.addButton(kart)
+            self._preset_buttons[kimlik] = kart
+            if kimlik == "custom":
+                izgara.addWidget(kart, sira // 2, 0, 1, 2)
+            else:
+                izgara.addWidget(kart, sira // 2, sira % 2)
+        duzen.addLayout(izgara)
 
         self._custom = QWidget()
         self._custom.setProperty("role", "bare")
         ozel = QHBoxLayout(self._custom)
-        ozel.setContentsMargins(0, 2, 0, 0)
+        ozel.setContentsMargins(4, 0, 0, 0)
         ozel.setSpacing(SPACING["xs"])
         self._work_label = QLabel()
         self._work_label.setProperty("role", "popover-text")
@@ -232,31 +512,25 @@ class TimerPanel(Popover):
         for dakika in core.CUSTOM_BREAK_CHOICES:
             self._break_box.addItem("", dakika)
         for kutu in (self._work_box, self._break_box):
-            kutu.setFixedWidth(92)
+            kutu.setFixedWidth(100)
             kutu.currentIndexChanged.connect(self._custom_changed)
         ozel.addWidget(self._work_label)
         ozel.addWidget(self._work_box)
-        ozel.addSpacing(SPACING["xs"])
+        ozel.addSpacing(SPACING["sm"])
         ozel.addWidget(self._break_label)
         ozel.addWidget(self._break_box)
         ozel.addStretch(1)
         duzen.addWidget(self._custom)
 
-        self._about = QLabel()
-        self._about.setProperty("role", "timer-about")
-        self._about.setWordWrap(True)
-        duzen.addWidget(self._about)
-
-        duzen.addSpacing(4)
+        duzen.addSpacing(2)
         self._start = QPushButton()
         self._start.setProperty("variant", "primary")
         self._start.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._start.setIconSize(QSize(15, 15))
         self._start.clicked.connect(self._on_start)
         duzen.addWidget(self._start)
 
-        self._today_setup = QLabel()
-        self._today_setup.setProperty("role", "timer-today")
-        self._today_setup.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self._today_setup = TodayLine()
         duzen.addWidget(self._today_setup)
         return sayfa
 
@@ -267,29 +541,22 @@ class TimerPanel(Popover):
         sayfa.setProperty("role", "bare")
         duzen = QVBoxLayout(sayfa)
         duzen.setContentsMargins(SPACING["md"], SPACING["sm"], SPACING["md"], SPACING["md"])
-        duzen.setSpacing(6)
+        duzen.setSpacing(SPACING["sm"])
 
-        self._phase = QLabel()
-        self._phase.setProperty("role", "timer-phase")
-        self._phase.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        duzen.addWidget(self._phase)
-        self._clock = QLabel()
-        self._clock.setProperty("role", "timer-clock")
-        self._clock.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        duzen.addWidget(self._clock)
-        self._bar = ProgressBar()
-        duzen.addWidget(self._bar)
+        self._ring = ActiveRing()
+        duzen.addWidget(self._ring)
         self._plan = QLabel()
-        self._plan.setProperty("role", "timer-today")
+        self._plan.setProperty("role", "timer-about")
         self._plan.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         duzen.addWidget(self._plan)
 
-        duzen.addSpacing(4)
+        duzen.addSpacing(2)
         satir = QHBoxLayout()
         satir.setSpacing(SPACING["xs"])
         self._main = QPushButton()
         self._main.setProperty("variant", "primary")
         self._main.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._main.setIconSize(QSize(15, 15))
         self._main.clicked.connect(self._on_main)
         self._skip = QPushButton()
         self._skip.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -303,9 +570,7 @@ class TimerPanel(Popover):
         satir.addWidget(self._stop)
         duzen.addLayout(satir)
 
-        self._today_active = QLabel()
-        self._today_active.setProperty("role", "timer-today")
-        self._today_active.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self._today_active = TodayLine()
         duzen.addWidget(self._today_active)
         return sayfa
 
@@ -355,21 +620,39 @@ class TimerPanel(Popover):
                 else self._minutes(dk))
         return self._language.t("timer.today", time=sure, count=adet)
 
+    def _tile_line(self, p: core.Preset) -> str:
+        if p.rest:
+            return self._language.t("timer.tile_line", work=p.work, rest=p.rest)
+        return self._language.t("timer.tile_line_norest", work=p.work)
+
+    def _duration(self, minutes: int) -> str:
+        saat, dk = divmod(minutes, 60)
+        if saat and dk:
+            return self._language.t("timer.hours_minutes", h=saat, m=dk)
+        if saat:
+            return self._language.t("timer.hours", h=saat)
+        return self._minutes(dk)
+
     def _render_setup(self) -> None:
         t = self._language.t
         secili = self._store.setting(core.PRESET_KEY, core.DEFAULT_PRESET)
-        for kimlik, dugme in self._preset_buttons.items():
+        for kimlik, kart in self._preset_buttons.items():
             p = core.preset(self._store, kimlik)
-            dugme.setText(f"{t(f'timer.preset.{kimlik}')}   ·   {self._preset_line(p)}")
-            dugme.setChecked(kimlik == secili)
+            kart.set_texts(t(f"timer.preset.{kimlik}"), self._tile_line(p))
+            kart.setChecked(kimlik == secili)
         self._custom.setVisible(secili == "custom")
         ozel = core.preset(self._store, "custom")
         self._custom_loading = True
         self._work_box.setCurrentIndex(max(0, self._work_box.findData(ozel.work)))
         self._break_box.setCurrentIndex(max(0, self._break_box.findData(ozel.rest)))
         self._custom_loading = False
+        sec = core.preset(self._store, secili)
+        toplam = sum(dk for _, dk in _cycle(sec))
+        self._preview.set_preset(sec, t(f"timer.preset.{secili}"), self._preset_line(sec), t("timer.focus_unit"),
+                                 t("timer.cycle", rounds=CYCLE_ROUNDS, time=self._duration(toplam)))
         self._about.setText(t(f"timer.about.{secili}"))
-        self._today_setup.setText(self._today_text())
+        self._start.setText(" " + t("timer.start_with", minutes=sec.work))
+        self._today_setup.set_text(self._today_text(), self._store.focus_today()[1] > 0)
 
     def _refresh(self) -> None:
         tm = self._timer
@@ -392,19 +675,25 @@ class TimerPanel(Popover):
             etiket = t("timer.phase_focus", round=tm.round)
         if tm.paused:
             etiket = f"{etiket} · {t('timer.paused')}"
-        self._phase.setText(self._language.t_upper("timer.phase_wrap", text=etiket))
-        self._clock.setText(core.format_clock(tm.remaining) if tm.running else "00:00")
-        self._bar.set_color(_phase_color(tm, p))
-        self._bar.set_percent(100 * tm.ratio if tm.running else 100, animate=False)
+        self._ring.set_state(
+            (1 - tm.ratio) if tm.running else 1.0, _phase_color(tm, p),
+            core.format_clock(tm.remaining) if tm.running else "00:00",
+            self._language.t_upper("timer.phase_wrap", text=etiket), tm.paused)
         self._plan.setText(f"{t(f'timer.preset.{tm.preset.id}')} · {self._preset_line(tm.preset)}")
+        ters = p["text_inverse"]
         if tm.phase == "ready":
-            self._main.setText(t("timer.next"))
+            self._main.setText(" " + t("timer.next"))
+            self._main.setIcon(icon("play", ters, 15))
+        elif tm.paused:
+            self._main.setText(" " + t("timer.resume"))
+            self._main.setIcon(icon("play", ters, 15))
         else:
-            self._main.setText(t("timer.resume") if tm.paused else t("timer.pause"))
+            self._main.setText(" " + t("timer.pause"))
+            self._main.setIcon(icon("pause", ters, 15))
         self._skip.setVisible(tm.phase == "break")
         self._skip.setText(t("timer.skip"))
         self._stop.setText(t("timer.stop"))
-        self._today_active.setText(self._today_text())
+        self._today_active.set_text(self._today_text(), self._store.focus_today()[1] > 0)
 
     def _fit(self) -> None:
         sayfa = self._pages.currentWidget()
@@ -421,10 +710,14 @@ class TimerPanel(Popover):
     def set_mode(self, mode: str) -> None:
         self._mode = mode
         super().set_mode(mode)
-        muted = PALETTES.get(mode, PALETTES["dark"])["text_muted"]
+        p = PALETTES.get(mode, PALETTES["dark"])
         for kutu in (self._work_box, self._break_box):
-            kutu.set_arrow_color(muted)
-        self._bar.set_mode(mode)
+            kutu.set_arrow_color(p["text_muted"])
+        for kart in self._preset_buttons.values():
+            kart.set_mode(mode)
+        for parca in (self._preview, self._ring, self._today_setup, self._today_active):
+            parca.set_mode(mode)
+        self._start.setIcon(icon("play", p["text_inverse"], 15))
         self._refresh()
 
     def retranslate(self) -> None:

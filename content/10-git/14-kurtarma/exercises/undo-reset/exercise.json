@@ -1,0 +1,68 @@
+{
+  "id": "undo-reset",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "reset --hard'ı geri al",
+    "en": "Undo a reset --hard"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "cd app",
+    "git init",
+    "echo \"1\" > f.txt",
+    "git add .",
+    "git commit -m \"One\"",
+    "echo \"2\" >> f.txt",
+    "git commit -am \"Two\"",
+    "echo \"3\" >> f.txt",
+    "git commit -am \"Three\"",
+    "git reset --hard HEAD~2"
+  ],
+  "cwd": "app",
+  "solution": [
+    "git log --oneline",
+    "git reflog",
+    "git reset --hard HEAD@{1}",
+    "git log --oneline"
+  ],
+  "hints": [
+    {
+      "tr": "Reset'ten hemen önceki hâl `HEAD@{1}`.",
+      "en": "The state right before the reset is `HEAD@{1}`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit log --oneline\ngit reflog\ngit reset --hard HEAD@{1}\ngit log --oneline\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit log --oneline\ngit reflog\ngit reset --hard HEAD@{1}\ngit log --oneline\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "app",
+      "branch": "main",
+      "commits": 3,
+      "tips": {
+        "main": "^Three$"
+      },
+      "label": {
+        "tr": "main yine Three'de, üç commit",
+        "en": "main is back on Three, three commits"
+      }
+    },
+    {
+      "type": "git_command",
+      "pattern": "^git reflog\\b",
+      "show": "git reflog",
+      "label": {
+        "tr": "reflog'a baktın",
+        "en": "You looked at the reflog"
+      }
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "old-price",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Eski fiyat",
+    "en": "The old price"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir cafe",
+    "cd cafe",
+    "git init",
+    "echo \"coffee 3\" > prices.txt",
+    "echo \"tea 2\" >> prices.txt",
+    "git add .",
+    "git commit -m \"Add prices\"",
+    "echo \"coffee 4\" > prices.txt",
+    "echo \"tea 2\" >> prices.txt",
+    "git commit -am \"Raise coffee price\"",
+    "echo \"cake 6\" >> prices.txt",
+    "git commit -am \"Add cake\""
+  ],
+  "cwd": "cafe",
+  "solution": [
+    "git log --oneline",
+    "git show HEAD~2:prices.txt",
+    "echo 3 > answer.txt"
+  ],
+  "hints": [
+    {
+      "tr": "`git show <commit>:<dosya>` dosyanın o commit'teki hâlini yazar. İlk commit üç commit'in en eskisi: `HEAD~2`.",
+      "en": "`git show <commit>:<file>` prints the file as it was in that commit. The first commit is the oldest of three: `HEAD~2`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit log --oneline\ngit show HEAD~2:prices.txt\necho 3 > answer.txt\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit log --oneline\ngit show HEAD~2:prices.txt\necho 3 > answer.txt\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_command",
+      "pattern": "^git (show \\S+:prices\\.txt|log .*-p|show HEAD~2|show 40af3fe)",
+      "show": "git show HEAD~2:prices.txt",
+      "label": {
+        "tr": "Dosyanın eski hâline baktın",
+        "en": "You looked at the old version of the file"
+      }
+    },
+    {
+      "type": "shell_state",
+      "files": {
+        "cafe/answer.txt": "3",
+        "cafe/prices.txt": "coffee 4\ntea 2\ncake 6"
+      },
+      "label": {
+        "tr": "answer.txt: 3, prices.txt değişmedi",
+        "en": "answer.txt: 3, prices.txt unchanged"
+      }
+    }
+  ]
+}

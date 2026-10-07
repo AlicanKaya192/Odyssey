@@ -1,0 +1,79 @@
+{
+  "id": "keep-sample",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Biri hariç hepsi",
+    "en": "All but one"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir study",
+    "cd study",
+    "git init",
+    "echo \"import pandas\" > analysis.py",
+    "mkdir data",
+    "echo \"big\" > data/sales.csv",
+    "echo \"big\" > data/users.csv",
+    "echo \"id,v\" > data/sample.csv"
+  ],
+  "cwd": "study",
+  "solution": [
+    "echo \"data/*.csv\" > .gitignore",
+    "echo '!data/sample.csv' >> .gitignore",
+    "git status -s",
+    "git add .",
+    "git commit -m \"Add analysis\""
+  ],
+  "hints": [
+    {
+      "tr": "İstisna `!` ile başlar ve genel kuralın **altına** yazılır; `!` içeren satırı tek tırnakla yaz. Klasörün tamamını (`data/`) değil, içindekileri (`data/*.csv`) görmezden gel.",
+      "en": "An exception starts with `!` and goes **below** the general rule; write a line with `!` in single quotes. Ignore the contents (`data/*.csv`), not the whole folder (`data/`)."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\necho \"data/*.csv\" > .gitignore\necho '!data/sample.csv' >> .gitignore\ngit status -s\ngit add .\ngit commit -m \"Add analysis\"\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\necho \"data/*.csv\" > .gitignore\necho '!data/sample.csv' >> .gitignore\ngit status -s\ngit add .\ngit commit -m \"Add analysis\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "study",
+      "ignored": [
+        "data/sales.csv",
+        "data/users.csv"
+      ],
+      "label": {
+        "tr": "Büyük csv'ler görmezden geliniyor",
+        "en": "The big csv files are ignored"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "study",
+      "head_files": {
+        "data/sample.csv": null,
+        "analysis.py": null
+      },
+      "label": {
+        "tr": "sample.csv ve analysis.py commit'te",
+        "en": "sample.csv and analysis.py are committed"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "study",
+      "clean": true,
+      "last_message": "^Add analysis$",
+      "show_message": "Add analysis",
+      "label": {
+        "tr": "Ağaç temiz",
+        "en": "Tree clean"
+      }
+    }
+  ]
+}

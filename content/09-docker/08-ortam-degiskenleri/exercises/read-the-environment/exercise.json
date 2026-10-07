@@ -1,0 +1,56 @@
+{
+  "id": "read-the-environment",
+  "title": {
+    "tr": "Ortamı oku",
+    "en": "Read the environment"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "app.py",
+  "files": [
+    {
+      "name": "app.py",
+      "starter": "starter-app.py.{lang}",
+      "solution": "solution-app.py"
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`int(os.environ.get(\"PORT\", \"8000\"))`.",
+      "en": "`int(os.environ.get(\"PORT\", \"8000\"))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**app.py**\n\n```python\nimport os\n\nenv = os.environ.get(\"APP_ENV\", \"development\")\nport = int(os.environ.get(\"PORT\", \"8000\"))\nprint(\"env:\", env, \"port:\", port + 0)\n```",
+      "en": "The full solution:\n\n**app.py**\n\n```python\nimport os\n\nenv = os.environ.get(\"APP_ENV\", \"development\")\nport = int(os.environ.get(\"PORT\", \"8000\"))\nprint(\"env:\", env, \"port:\", port + 0)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "container",
+      "expect": {
+        "logs": "env: development port: 8000"
+      }
+    },
+    {
+      "type": "container",
+      "run": {
+        "env": {
+          "APP_ENV": "production",
+          "PORT": "9000"
+        }
+      },
+      "expect": {
+        "logs": "env: production port: 9000"
+      }
+    }
+  ]
+}

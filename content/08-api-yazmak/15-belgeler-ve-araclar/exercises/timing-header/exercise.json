@@ -1,0 +1,75 @@
+{
+  "id": "timing-header",
+  "title": {
+    "tr": "Her cevaba başlık",
+    "en": "A header on every answer"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`@app.middleware(\"http\")` + `async def ...(request: Request, call_next):`; `response = await call_next(request)`, sonra `response.headers[...] = ...`.",
+      "en": "`@app.middleware(\"http\")` + `async def ...(request: Request, call_next):`; `response = await call_next(request)`, then `response.headers[...] = ...`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport time\n\nfrom fastapi import FastAPI, Request\n\napp = FastAPI()\n\n\n@app.middleware(\"http\")\nasync def add_headers(request: Request, call_next):\n    start = time.perf_counter()\n    response = await call_next(request)\n    response.headers[\"X-Process-Time\"] = f\"{time.perf_counter() - start:.4f}\"\n    response.headers[\"X-App-Version\"] = \"2.0.0\"\n    return response\n\n\n@app.get(\"/books\")\ndef list_books():\n    return [\"Dune\", \"Emma\"]\n\n\n@app.get(\"/authors\")\ndef list_authors():\n    return [\"Herbert\", \"Austen\"]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport time\n\nfrom fastapi import FastAPI, Request\n\napp = FastAPI()\n\n\n@app.middleware(\"http\")\nasync def add_headers(request: Request, call_next):\n    start = time.perf_counter()\n    response = await call_next(request)\n    response.headers[\"X-Process-Time\"] = f\"{time.perf_counter() - start:.4f}\"\n    response.headers[\"X-App-Version\"] = \"2.0.0\"\n    return response\n\n\n@app.get(\"/books\")\ndef list_books():\n    return [\"Dune\", \"Emma\"]\n\n\n@app.get(\"/authors\")\ndef list_authors():\n    return [\"Herbert\", \"Austen\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/books",
+          "expect": {
+            "status": 200,
+            "json": [
+              "Dune",
+              "Emma"
+            ],
+            "headers": {
+              "x-process-time": "<any>",
+              "x-app-version": "2.0.0"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/authors",
+          "expect": {
+            "status": 200,
+            "headers": {
+              "x-app-version": "2.0.0"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/nothing",
+          "expect": {
+            "status": 404,
+            "headers": {
+              "x-process-time": "<any>",
+              "x-app-version": "2.0.0"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

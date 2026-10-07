@@ -1,0 +1,39 @@
+{
+  "id": "write-the-csv",
+  "title": {
+    "tr": "Tabloyu CSV'ye yaz",
+    "en": "Write the table to CSV"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`writer = csv.DictWriter(handle, fieldnames=[\"id\", \"title\", \"price\", \"author_name\", \"tags\"])`, sonra `writer.writeheader()` ve `writer.writerows(rows)`.",
+      "en": "`writer = csv.DictWriter(handle, fieldnames=[\"id\", \"title\", \"price\", \"author_name\", \"tags\"])`, then `writer.writeheader()` and `writer.writerows(rows)`."
+    },
+    {
+      "tr": "Okurken ikinci bir `with open(\"books.csv\", encoding=\"utf-8\") as handle:` ve `print(handle.read())`.",
+      "en": "To read, a second `with open(\"books.csv\", encoding=\"utf-8\") as handle:` and `print(handle.read())`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport csv\nimport json\n\nwith open(\"books.json\", encoding=\"utf-8\") as handle:\n    response = json.load(handle)\n\nrows = []\nfor item in response[\"data\"]:\n    rows.append({\n        \"id\": item[\"id\"],\n        \"title\": item[\"title\"],\n        \"price\": float(item[\"price\"]),\n        \"author_name\": item[\"author\"][\"name\"],\n        \"tags\": \"|\".join(item[\"tags\"]),\n    })\n\ncolumns = [\"id\", \"title\", \"price\", \"author_name\", \"tags\"]\nwith open(\"books.csv\", \"w\", newline=\"\", encoding=\"utf-8\") as handle:\n    writer = csv.DictWriter(handle, fieldnames=columns)\n    writer.writeheader()\n    writer.writerows(rows)\n\nwith open(\"books.csv\", encoding=\"utf-8\") as handle:\n    print(handle.read())\n```",
+      "en": "The solution:\n\n```python\nimport csv\nimport json\n\nwith open(\"books.json\", encoding=\"utf-8\") as handle:\n    response = json.load(handle)\n\nrows = []\nfor item in response[\"data\"]:\n    rows.append({\n        \"id\": item[\"id\"],\n        \"title\": item[\"title\"],\n        \"price\": float(item[\"price\"]),\n        \"author_name\": item[\"author\"][\"name\"],\n        \"tags\": \"|\".join(item[\"tags\"]),\n    })\n\ncolumns = [\"id\", \"title\", \"price\", \"author_name\", \"tags\"]\nwith open(\"books.csv\", \"w\", newline=\"\", encoding=\"utf-8\") as handle:\n    writer = csv.DictWriter(handle, fieldnames=columns)\n    writer.writeheader()\n    writer.writerows(rows)\n\nwith open(\"books.csv\", encoding=\"utf-8\") as handle:\n    print(handle.read())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "With"
+    },
+    {
+      "type": "stdout",
+      "expected": "id,title,price,author_name,tags\n1,Emma,12.5,Austen,classic|novel\n2,Dune,9.99,Herbert,scifi|classic\n3,Ulysses,15.0,Joyce,\n4,Solaris,11.2,Lem,scifi\n5,Persuasion,8.75,Austen,classic|romance|novel"
+    }
+  ]
+}

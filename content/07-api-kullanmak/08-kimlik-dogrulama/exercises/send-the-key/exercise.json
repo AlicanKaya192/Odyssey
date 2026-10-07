@@ -1,0 +1,43 @@
+{
+  "id": "send-the-key",
+  "title": {
+    "tr": "Anahtarı gönder",
+    "en": "Send the key"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`requests.get(BASE + \"/stats\", headers={\"X-API-Key\": \"demo-key-123\"})`.",
+      "en": "`requests.get(BASE + \"/stats\", headers={\"X-API-Key\": \"demo-key-123\"})`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nr = requests.get(BASE + \"/stats\")\nprint(\"without key:\", r.status_code)\n\nr = requests.get(BASE + \"/stats\", headers={\"X-API-Key\": \"demo-key-123\"})\nstats = r.json()\nprint(\"with key:\", r.status_code)\nprint(\"books:\", stats[\"books\"])\nprint(\"newest:\", stats[\"newest\"])\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nr = requests.get(BASE + \"/stats\")\nprint(\"without key:\", r.status_code)\n\nr = requests.get(BASE + \"/stats\", headers={\"X-API-Key\": \"demo-key-123\"})\nstats = r.json()\nprint(\"with key:\", r.status_code)\nprint(\"books:\", stats[\"books\"])\nprint(\"newest:\", stats[\"newest\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/stats",
+      "headers": {
+        "X-API-Key": "demo-key-123"
+      },
+      "hint": {
+        "tr": "Anahtarlı /stats isteği gelmedi: başlık adı X-API-Key, değeri demo-key-123 olmalı.",
+        "en": "No /stats request with the key arrived: the header name must be X-API-Key and the value demo-key-123."
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "without key: 401\nwith key: 200\nbooks: 23\nnewest: 1986"
+    }
+  ]
+}

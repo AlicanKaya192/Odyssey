@@ -1,0 +1,104 @@
+{
+  "id": "db-insert-read",
+  "title": {
+    "tr": "Eklemek ve okumak",
+    "en": "Adding and reading"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`cur = db.execute(\"INSERT INTO notes (text, pinned) VALUES (?, ?)\", (note.text, int(note.pinned)))`, sonra `db.commit()`.",
+      "en": "`cur = db.execute(\"INSERT INTO notes (text, pinned) VALUES (?, ?)\", (note.text, int(note.pinned)))`, then `db.commit()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport sqlite3\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nDB_PATH = \"notes.db\"\n\n\ndef init_db():\n    conn = sqlite3.connect(DB_PATH)\n    conn.execute(\"\"\"CREATE TABLE IF NOT EXISTS notes (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        text TEXT NOT NULL,\n        pinned INTEGER NOT NULL DEFAULT 0)\"\"\")\n    conn.commit()\n    conn.close()\n\n\ninit_db()\n\n\ndef get_db():\n    conn = sqlite3.connect(DB_PATH, check_same_thread=False)\n    conn.row_factory = sqlite3.Row\n    try:\n        yield conn\n    finally:\n        conn.close()\n\n\nDB = Annotated[sqlite3.Connection, Depends(get_db)]\n\n\nclass NoteIn(BaseModel):\n    text: str\n    pinned: bool = False\n\n\n@app.post(\"/notes\", status_code=201)\ndef create_note(note: NoteIn, db: DB):\n    cur = db.execute(\"INSERT INTO notes (text, pinned) VALUES (?, ?)\", (note.text, int(note.pinned)))\n    db.commit()\n    return {\"id\": cur.lastrowid, **note.model_dump()}\n\n\n@app.get(\"/notes/{note_id}\")\ndef read_note(note_id: int, db: DB):\n    row = db.execute(\"SELECT id, text, pinned FROM notes WHERE id = ?\", (note_id,)).fetchone()\n    if row is None:\n        raise HTTPException(status_code=404, detail=\"Note not found\")\n    return {\"id\": row[\"id\"], \"text\": row[\"text\"], \"pinned\": bool(row[\"pinned\"])}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport sqlite3\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\nDB_PATH = \"notes.db\"\n\n\ndef init_db():\n    conn = sqlite3.connect(DB_PATH)\n    conn.execute(\"\"\"CREATE TABLE IF NOT EXISTS notes (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        text TEXT NOT NULL,\n        pinned INTEGER NOT NULL DEFAULT 0)\"\"\")\n    conn.commit()\n    conn.close()\n\n\ninit_db()\n\n\ndef get_db():\n    conn = sqlite3.connect(DB_PATH, check_same_thread=False)\n    conn.row_factory = sqlite3.Row\n    try:\n        yield conn\n    finally:\n        conn.close()\n\n\nDB = Annotated[sqlite3.Connection, Depends(get_db)]\n\n\nclass NoteIn(BaseModel):\n    text: str\n    pinned: bool = False\n\n\n@app.post(\"/notes\", status_code=201)\ndef create_note(note: NoteIn, db: DB):\n    cur = db.execute(\"INSERT INTO notes (text, pinned) VALUES (?, ?)\", (note.text, int(note.pinned)))\n    db.commit()\n    return {\"id\": cur.lastrowid, **note.model_dump()}\n\n\n@app.get(\"/notes/{note_id}\")\ndef read_note(note_id: int, db: DB):\n    row = db.execute(\"SELECT id, text, pinned FROM notes WHERE id = ?\", (note_id,)).fetchone()\n    if row is None:\n        raise HTTPException(status_code=404, detail=\"Note not found\")\n    return {\"id\": row[\"id\"], \"text\": row[\"text\"], \"pinned\": bool(row[\"pinned\"])}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/notes",
+          "json": {
+            "text": "buy milk"
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "id": 1,
+              "text": "buy milk",
+              "pinned": false
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/notes",
+          "json": {
+            "text": "call mom",
+            "pinned": true
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "id": 2,
+              "text": "call mom",
+              "pinned": true
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/notes/1",
+          "expect": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "text": "buy milk",
+              "pinned": false
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/notes/2",
+          "expect": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "text": "call mom",
+              "pinned": true
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/notes/9",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Note not found"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

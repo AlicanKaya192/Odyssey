@@ -1,0 +1,20 @@
+FROM python:3.13-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DB_PATH=/data/notes.db \
+    PORT=8000
+
+RUN useradd --create-home --uid 1000 app \
+ && mkdir /data \
+ && chown app:app /data
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY app.py healthcheck.py ./
+
+USER app
+EXPOSE 8000
+HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD ["python", "healthcheck.py"]
+CMD ["python", "app.py"]

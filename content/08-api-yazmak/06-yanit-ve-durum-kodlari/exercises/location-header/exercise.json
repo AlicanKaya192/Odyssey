@@ -1,0 +1,83 @@
+{
+  "id": "location-header",
+  "title": {
+    "tr": "Yeni kaydın adresi",
+    "en": "The new record's address"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İşleve `response: Response` parametresi ekle; `response.headers[\"Location\"] = f\"/books/{new_id}\"`.",
+      "en": "Add a `response: Response` parameter; `response.headers[\"Location\"] = f\"/books/{new_id}\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, Response\nfrom pydantic import BaseModel\n\napp = FastAPI()\nbooks = {}\n\n\nclass Book(BaseModel):\n    title: str\n    year: int\n\n\n@app.post(\"/books\", status_code=201)\ndef add_book(book: Book, response: Response):\n    new_id = len(books) + 1\n    books[new_id] = book.model_dump()\n    response.headers[\"Location\"] = f\"/books/{new_id}\"\n    return {\"id\": new_id, **books[new_id]}\n\n\n@app.get(\"/books/{book_id}\")\ndef get_book(book_id: int):\n    return books[book_id]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, Response\nfrom pydantic import BaseModel\n\napp = FastAPI()\nbooks = {}\n\n\nclass Book(BaseModel):\n    title: str\n    year: int\n\n\n@app.post(\"/books\", status_code=201)\ndef add_book(book: Book, response: Response):\n    new_id = len(books) + 1\n    books[new_id] = book.model_dump()\n    response.headers[\"Location\"] = f\"/books/{new_id}\"\n    return {\"id\": new_id, **books[new_id]}\n\n\n@app.get(\"/books/{book_id}\")\ndef get_book(book_id: int):\n    return books[book_id]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Dune",
+            "year": 1965
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "id": 1,
+              "title": "Dune",
+              "year": 1965
+            },
+            "headers": {
+              "location": "/books/1"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/books",
+          "json": {
+            "title": "Emma",
+            "year": 1815
+          },
+          "expect": {
+            "status": 201,
+            "headers": {
+              "location": "/books/2"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/books/2",
+          "expect": {
+            "status": 200,
+            "json": {
+              "title": "Emma",
+              "year": 1815
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

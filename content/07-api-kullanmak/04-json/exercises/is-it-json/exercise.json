@@ -1,0 +1,81 @@
+{
+  "id": "is-it-json",
+  "title": {
+    "tr": "Geçerli JSON mu?",
+    "en": "Is it valid JSON?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`try:` içinde `json.loads(text)`; `except json.JSONDecodeError:` içinde `return False`; hata yoksa `return True`.",
+      "en": "Inside `try:`, call `json.loads(text)`; in `except json.JSONDecodeError:`, `return False`; if there is no error, `return True`."
+    },
+    {
+      "tr": "Hizalama için `\"valid\"` sonrasına iki boşluk koy: `print(\"valid  \", text)` (print araya bir boşluk daha ekler).",
+      "en": "For alignment put two spaces after `\"valid\"`: `print(\"valid  \", text)` (print adds one more space in between)."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport json\n\n\ndef is_valid(text):\n    try:\n        json.loads(text)\n    except json.JSONDecodeError:\n        return False\n    return True\n\n\nsamples = [\n    '{\"city\": \"Izmir\"}',\n    \"{'city': 'Izmir'}\",\n    '{\"ok\": True}',\n    '[1, 2,]',\n    'null',\n]\nfor text in samples:\n    if is_valid(text):\n        print(\"valid  \", text)\n    else:\n        print(\"invalid\", text)\n```",
+      "en": "The solution:\n\n```python\nimport json\n\n\ndef is_valid(text):\n    try:\n        json.loads(text)\n    except json.JSONDecodeError:\n        return False\n    return True\n\n\nsamples = [\n    '{\"city\": \"Izmir\"}',\n    \"{'city': 'Izmir'}\",\n    '{\"ok\": True}',\n    '[1, 2,]',\n    'null',\n]\nfor text in samples:\n    if is_valid(text):\n        print(\"valid  \", text)\n    else:\n        print(\"invalid\", text)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "is_valid",
+      "cases": [
+        {
+          "args": [
+            "{\"a\": 1}"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "{'a': 1}"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "{\"a\": None}"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "[1, 2]"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "{\"a\": 1,}"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "true"
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "ast_require",
+      "node": "Try"
+    },
+    {
+      "type": "stdout",
+      "expected": "valid   {\"city\": \"Izmir\"}\ninvalid {'city': 'Izmir'}\ninvalid {\"ok\": True}\ninvalid [1, 2,]\nvalid   null"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "id": "grade-boundaries",
+  "title": {
+    "tr": "Sınırları denemek",
+    "en": "Trying the boundaries"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "readonly": true
+    },
+    {
+      "name": "test_main.py",
+      "starter": "starter-test_main.{lang}.py",
+      "solution": "solution-test_main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sınır değerleri: 90, 89, 80, 70, 69 ve aralık dışı -1, 101.",
+      "en": "The boundary values: 90, 89, 80, 70, 69, and outside the range -1, 101."
+    },
+    {
+      "tr": "`@pytest.mark.parametrize(\"score, letter\", [(90, \"A\"), ...])`.",
+      "en": "`@pytest.mark.parametrize(\"score, letter\", [(90, \"A\"), ...])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test_main.py**\n\n```python\nimport pytest\nfrom fastapi.testclient import TestClient\n\nfrom main import app\n\nclient = TestClient(app)\n\n\n@pytest.mark.parametrize(\"score, letter\", [\n    (100, \"A\"), (90, \"A\"), (89, \"B\"), (80, \"B\"), (70, \"C\"), (69, \"F\"), (0, \"F\"),\n])\ndef test_letters(score, letter):\n    r = client.get(\"/grade\", params={\"score\": score})\n    assert r.status_code == 200\n    assert r.json()[\"letter\"] == letter\n\n\n@pytest.mark.parametrize(\"score\", [-1, 101])\ndef test_out_of_range(score):\n    assert client.get(\"/grade\", params={\"score\": score}).status_code == 422\n```",
+      "en": "The full solution:\n\n**test_main.py**\n\n```python\nimport pytest\nfrom fastapi.testclient import TestClient\n\nfrom main import app\n\nclient = TestClient(app)\n\n\n@pytest.mark.parametrize(\"score, letter\", [\n    (100, \"A\"), (90, \"A\"), (89, \"B\"), (80, \"B\"), (70, \"C\"), (69, \"F\"), (0, \"F\"),\n])\ndef test_letters(score, letter):\n    r = client.get(\"/grade\", params={\"score\": score})\n    assert r.status_code == 200\n    assert r.json()[\"letter\"] == letter\n\n\n@pytest.mark.parametrize(\"score\", [-1, 101])\ndef test_out_of_range(score):\n    assert client.get(\"/grade\", params={\"score\": score}).status_code == 422\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "test_main.py",
+      "min": 5,
+      "mutants": [
+        {
+          "file": "main.py",
+          "source": "from typing import Annotated\n\nfrom fastapi import FastAPI, Query\n\napp = FastAPI()\n\n\n@app.get(\"/grade\")\ndef grade(score: Annotated[int, Query(ge=0, le=100)]):\n    if score > 90:\n        letter = \"A\"\n    elif score >= 80:\n        letter = \"B\"\n    elif score >= 70:\n        letter = \"C\"\n    else:\n        letter = \"F\"\n    return {\"score\": score, \"letter\": letter}\n",
+          "bug": {
+            "tr": "90 puan A yerine B alıyor.",
+            "en": "a score of 90 gets B instead of A."
+          }
+        },
+        {
+          "file": "main.py",
+          "source": "from typing import Annotated\n\nfrom fastapi import FastAPI, Query\n\napp = FastAPI()\n\n\n@app.get(\"/grade\")\ndef grade(score: Annotated[int, Query(ge=0, le=100)]):\n    if score >= 90:\n        letter = \"A\"\n    elif score >= 80:\n        letter = \"B\"\n    elif score > 70:\n        letter = \"C\"\n    else:\n        letter = \"F\"\n    return {\"score\": score, \"letter\": letter}\n",
+          "bug": {
+            "tr": "70 puan C yerine F alıyor.",
+            "en": "a score of 70 gets F instead of C."
+          }
+        },
+        {
+          "file": "main.py",
+          "source": "from typing import Annotated\n\nfrom fastapi import FastAPI, Query\n\napp = FastAPI()\n\n\n@app.get(\"/grade\")\ndef grade(score: Annotated[int, Query(ge=0)]):\n    if score >= 90:\n        letter = \"A\"\n    elif score >= 80:\n        letter = \"B\"\n    elif score >= 70:\n        letter = \"C\"\n    else:\n        letter = \"F\"\n    return {\"score\": score, \"letter\": letter}\n",
+          "bug": {
+            "tr": "101 puan kabul ediliyor.",
+            "en": "a score of 101 is accepted."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "id": "batch-limit",
+  "title": {
+    "tr": "Sınırlı toplu tahmin",
+    "en": "A limited batch prediction"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`labels = ml[\"model\"].predict([to_row(f) for f in flowers])`; `413` \"çok büyük\" demek.",
+      "en": "`labels = ml[\"model\"].predict([to_row(f) for f in flowers])`; `413` means \"too large\"."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom contextlib import asynccontextmanager\n\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\nfrom sklearn.datasets import load_iris\nfrom sklearn.linear_model import LogisticRegression\n\nSPECIES = [\"setosa\", \"versicolor\", \"virginica\"]\nml = {}\nstats = {\"trainings\": 0}\n\n\ndef train_model():\n    stats[\"trainings\"] += 1\n    iris = load_iris()\n    return LogisticRegression(max_iter=1000).fit(iris.data, iris.target)\n\n\n@asynccontextmanager\nasync def lifespan(app):\n    ml[\"model\"] = train_model()\n    yield\n    ml.clear()\n\n\napp = FastAPI(lifespan=lifespan)\n\n\nclass Flower(BaseModel):\n    sepal_length: float = Field(gt=0, le=10)\n    sepal_width: float = Field(gt=0, le=10)\n    petal_length: float = Field(gt=0, le=10)\n    petal_width: float = Field(gt=0, le=10)\n\n\ndef to_row(flower: Flower) -> list:\n    return [flower.sepal_length, flower.sepal_width, flower.petal_length, flower.petal_width]\n\n\n@app.post(\"/predict/batch\")\ndef predict_batch(flowers: list[Flower]):\n    if not flowers:\n        raise HTTPException(status_code=422, detail=\"Send at least one flower\")\n    if len(flowers) > 5:\n        raise HTTPException(status_code=413, detail=\"At most 5 flowers per request\")\n    labels = ml[\"model\"].predict([to_row(f) for f in flowers])\n    return [SPECIES[int(i)] for i in labels]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom contextlib import asynccontextmanager\n\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\nfrom sklearn.datasets import load_iris\nfrom sklearn.linear_model import LogisticRegression\n\nSPECIES = [\"setosa\", \"versicolor\", \"virginica\"]\nml = {}\nstats = {\"trainings\": 0}\n\n\ndef train_model():\n    stats[\"trainings\"] += 1\n    iris = load_iris()\n    return LogisticRegression(max_iter=1000).fit(iris.data, iris.target)\n\n\n@asynccontextmanager\nasync def lifespan(app):\n    ml[\"model\"] = train_model()\n    yield\n    ml.clear()\n\n\napp = FastAPI(lifespan=lifespan)\n\n\nclass Flower(BaseModel):\n    sepal_length: float = Field(gt=0, le=10)\n    sepal_width: float = Field(gt=0, le=10)\n    petal_length: float = Field(gt=0, le=10)\n    petal_width: float = Field(gt=0, le=10)\n\n\ndef to_row(flower: Flower) -> list:\n    return [flower.sepal_length, flower.sepal_width, flower.petal_length, flower.petal_width]\n\n\n@app.post(\"/predict/batch\")\ndef predict_batch(flowers: list[Flower]):\n    if not flowers:\n        raise HTTPException(status_code=422, detail=\"Send at least one flower\")\n    if len(flowers) > 5:\n        raise HTTPException(status_code=413, detail=\"At most 5 flowers per request\")\n    labels = ml[\"model\"].predict([to_row(f) for f in flowers])\n    return [SPECIES[int(i)] for i in labels]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/predict/batch",
+          "json": [
+            {
+              "sepal_length": 5.1,
+              "sepal_width": 3.5,
+              "petal_length": 1.4,
+              "petal_width": 0.2
+            },
+            {
+              "sepal_length": 6.7,
+              "sepal_width": 3.0,
+              "petal_length": 5.2,
+              "petal_width": 2.3
+            }
+          ],
+          "expect": {
+            "status": 200,
+            "json": [
+              "setosa",
+              "virginica"
+            ]
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/predict/batch",
+          "json": [
+            {
+              "sepal_length": 5.9,
+              "sepal_width": 3.0,
+              "petal_length": 4.2,
+              "petal_width": 1.5
+            },
+            {
+              "sepal_length": 5.1,
+              "sepal_width": 3.5,
+              "petal_length": 1.4,
+              "petal_width": 0.2
+            },
+            {
+              "sepal_length": 6.7,
+              "sepal_width": 3.0,
+              "petal_length": 5.2,
+              "petal_width": 2.3
+            },
+            {
+              "sepal_length": 5.1,
+              "sepal_width": 3.5,
+              "petal_length": 1.4,
+              "petal_width": 0.2
+            },
+            {
+              "sepal_length": 5.9,
+              "sepal_width": 3.0,
+              "petal_length": 4.2,
+              "petal_width": 1.5
+            }
+          ],
+          "expect": {
+            "status": 200,
+            "json": [
+              "versicolor",
+              "setosa",
+              "virginica",
+              "setosa",
+              "versicolor"
+            ]
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/predict/batch",
+          "json": [
+            {
+              "sepal_length": 5.1,
+              "sepal_width": 3.5,
+              "petal_length": 1.4,
+              "petal_width": 0.2
+            },
+            {
+              "sepal_length": 5.1,
+              "sepal_width": 3.5,
+              "petal_length": 1.4,
+              "petal_width": 0.2
+            },
+            {
+              "sepal_length": 5.1,
+              "sepal_width": 3.5,
+              "petal_length": 1.4,
+              "petal_width": 0.2
+            },
+            {
+              "sepal_length": 5.1,
+              "sepal_width": 3.5,
+              "petal_length": 1.4,
+              "petal_width": 0.2
+            },
+            {
+              "sepal_length": 5.1,
+              "sepal_width": 3.5,
+              "petal_length": 1.4,
+              "petal_width": 0.2
+            },
+            {
+              "sepal_length": 5.1,
+              "sepal_width": 3.5,
+              "petal_length": 1.4,
+              "petal_width": 0.2
+            }
+          ],
+          "expect": {
+            "status": 413,
+            "json": {
+              "detail": "At most 5 flowers per request"
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/predict/batch",
+          "json": [],
+          "expect": {
+            "status": 422,
+            "json": {
+              "detail": "Send at least one flower"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

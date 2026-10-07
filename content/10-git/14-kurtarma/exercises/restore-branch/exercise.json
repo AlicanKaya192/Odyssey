@@ -1,0 +1,73 @@
+{
+  "id": "restore-branch",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Silinen dalı geri getir",
+    "en": "Bring back a deleted branch"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "cd app",
+    "git init",
+    "echo \"1\" > f.txt",
+    "git add .",
+    "git commit -m \"One\"",
+    "echo \"2\" >> f.txt",
+    "git commit -am \"Two\"",
+    "echo \"3\" >> f.txt",
+    "git commit -am \"Three\"",
+    "git switch -c filters",
+    "echo \"f\" > filters.txt",
+    "git add .",
+    "git commit -m \"Add filters\"",
+    "git switch main",
+    "git branch -D filters"
+  ],
+  "cwd": "app",
+  "solution": [
+    "git reflog -3",
+    "git branch filters HEAD@{1}",
+    "git log --oneline filters -2"
+  ],
+  "hints": [
+    {
+      "tr": "`git branch <ad> <commit>`; commit `HEAD@{n}` ya da reflog'daki hash.",
+      "en": "`git branch <name> <commit>`; the commit is `HEAD@{n}` or the hash in the reflog."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit reflog -3\ngit branch filters HEAD@{1}\ngit log --oneline filters -2\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit reflog -3\ngit branch filters HEAD@{1}\ngit log --oneline filters -2\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "app",
+      "branches": [
+        "filters"
+      ],
+      "tips": {
+        "filters": "^Add filters$"
+      },
+      "label": {
+        "tr": "filters dalı Add filters'ta",
+        "en": "The filters branch is on Add filters"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "app",
+      "branch": "main",
+      "label": {
+        "tr": "main'desin",
+        "en": "You are on main"
+      }
+    }
+  ]
+}

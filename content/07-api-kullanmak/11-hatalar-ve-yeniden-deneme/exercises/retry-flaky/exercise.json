@@ -1,0 +1,43 @@
+{
+  "id": "retry-flaky",
+  "title": {
+    "tr": "Meşgul sunucuyu yeniden dene",
+    "en": "Retry the busy server"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for attempt in range(1, 6):` içinde iste ve yazdır; `if r.status_code == 200: break`; değilse `time.sleep(1)`.",
+      "en": "Inside `for attempt in range(1, 6):` request and print; `if r.status_code == 200: break`; otherwise `time.sleep(1)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport time\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nfor attempt in range(1, 6):\n    r = requests.get(BASE + \"/flaky\", timeout=5)\n    print(\"attempt\", attempt, r.status_code)\n    if r.status_code == 200:\n        break\n    time.sleep(1)\n\nbody = r.json()\nprint(\"report:\", body[\"report\"])\nprint(\"after attempt:\", body[\"attempt\"])\n```",
+      "en": "The solution:\n\n```python\nimport time\n\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nfor attempt in range(1, 6):\n    r = requests.get(BASE + \"/flaky\", timeout=5)\n    print(\"attempt\", attempt, r.status_code)\n    if r.status_code == 200:\n        break\n    time.sleep(1)\n\nbody = r.json()\nprint(\"report:\", body[\"report\"])\nprint(\"after attempt:\", body[\"attempt\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/flaky",
+      "min": 3,
+      "max": 3,
+      "min_gap": 1,
+      "hint": {
+        "tr": "Üç istek olmalı ve aralarında en az 1 saniye beklenmeli.",
+        "en": "There should be three requests with at least 1 second between them."
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "attempt 1 503\nattempt 2 503\nattempt 3 200\nreport: ready\nafter attempt: 3"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "notes-api-non-root",
+  "title": {
+    "tr": "Root olmadan, veri /data'da",
+    "en": "Without root, data in /data"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "app.py",
+      "readonly": true
+    },
+    {
+      "name": "healthcheck.py",
+      "readonly": true
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`RUN useradd --create-home --uid 1000 app && mkdir /data && chown app:app /data`.",
+      "en": "`RUN useradd --create-home --uid 1000 app && mkdir /data && chown app:app /data`."
+    },
+    {
+      "tr": "`chown` olmazsa program `unable to open database file` ile düşer: boş volume klasörün imajdaki sahibini alıyor.",
+      "en": "Without `chown` the program fails with `unable to open database file`: an empty volume takes the folder's owner in the image."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\n\nENV PYTHONDONTWRITEBYTECODE=1 \\\n    PYTHONUNBUFFERED=1 \\\n    DB_PATH=/data/notes.db\n\nRUN useradd --create-home --uid 1000 app \\\n && mkdir /data \\\n && chown app:app /data\n\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY app.py healthcheck.py ./\n\nUSER app\nEXPOSE 8000\nCMD [\"python\", \"app.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\n\nENV PYTHONDONTWRITEBYTECODE=1 \\\n    PYTHONUNBUFFERED=1 \\\n    DB_PATH=/data/notes.db\n\nRUN useradd --create-home --uid 1000 app \\\n && mkdir /data \\\n && chown app:app /data\n\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY app.py healthcheck.py ./\n\nUSER app\nEXPOSE 8000\nCMD [\"python\", \"app.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "non_root"
+    },
+    {
+      "type": "container",
+      "run": {
+        "volumes": [
+          "notes:/data"
+        ]
+      },
+      "expect": {
+        "user": "app",
+        "env": {
+          "DB_PATH": "/data/notes.db"
+        },
+        "http": {
+          "port": 8000,
+          "path": "/stats",
+          "json": {
+            "notes": 0,
+            "starts": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "container",
+      "run": {
+        "volumes": [
+          "notes:/data"
+        ]
+      },
+      "expect": {
+        "http": {
+          "port": 8000,
+          "path": "/stats",
+          "json": {
+            "notes": 0,
+            "starts": 2
+          }
+        }
+      }
+    }
+  ]
+}

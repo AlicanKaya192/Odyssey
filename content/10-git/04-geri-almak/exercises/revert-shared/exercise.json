@@ -1,0 +1,68 @@
+{
+  "id": "revert-shared",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Paylaşılmış commit'i geri al",
+    "en": "Undo a shared commit"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir cafe",
+    "cd cafe",
+    "git init",
+    "echo \"coffee 3\" > prices.txt",
+    "git add .",
+    "git commit -m \"Add prices\"",
+    "echo \"coffee 9\" > prices.txt",
+    "git commit -am \"Change prices\"",
+    "echo \"Open 8-18\" > hours.txt",
+    "git add .",
+    "git commit -m \"Add opening hours\""
+  ],
+  "cwd": "cafe",
+  "solution": [
+    "git log --oneline",
+    "git revert HEAD~1 --no-edit",
+    "cat prices.txt"
+  ],
+  "hints": [
+    {
+      "tr": "`git revert <commit> --no-edit`. Commit'i hash'iyle ya da `HEAD~1` ile anabilirsin.",
+      "en": "`git revert <commit> --no-edit`. You can name the commit by its hash or as `HEAD~1`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit log --oneline\ngit revert HEAD~1 --no-edit\ncat prices.txt\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit log --oneline\ngit revert HEAD~1 --no-edit\ncat prices.txt\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "cafe",
+      "commits": 4,
+      "last_message": "^Revert \"Change prices\"$",
+      "show_message": "Revert \"Change prices\"",
+      "label": {
+        "tr": "Yeni commit: Revert \"Change prices\"",
+        "en": "New commit: Revert \"Change prices\""
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "cafe",
+      "files": {
+        "prices.txt": "coffee 3",
+        "hours.txt": "Open 8-18"
+      },
+      "label": {
+        "tr": "Fiyat eski hâlinde, açılış saatleri duruyor",
+        "en": "The price is back, the opening hours stay"
+      }
+    }
+  ]
+}

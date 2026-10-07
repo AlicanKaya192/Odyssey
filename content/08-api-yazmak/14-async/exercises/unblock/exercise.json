@@ -1,0 +1,53 @@
+{
+  "id": "unblock",
+  "title": {
+    "tr": "Kilidi aç",
+    "en": "Unlock the loop"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`time.sleep(0.2)` yerine `await asyncio.sleep(0.2)`. (Uç noktayı düz `def` yapmak da kilidi açardı; burada `await` istiyoruz.)",
+      "en": "`await asyncio.sleep(0.2)` instead of `time.sleep(0.2)`. (Making the endpoint a plain `def` would also unlock it; here we want `await`.)"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport asyncio\nimport time\n\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\n@app.get(\"/report\")\nasync def report():\n    await asyncio.sleep(0.2)\n    return {\"rows\": 120}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport asyncio\nimport time\n\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\n@app.get(\"/report\")\nasync def report():\n    await asyncio.sleep(0.2)\n    return {\"rows\": 120}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/report",
+          "expect": {
+            "status": 200,
+            "json": {
+              "rows": 120
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_require",
+      "node": "Await"
+    }
+  ]
+}

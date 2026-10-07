@@ -89,7 +89,49 @@ COLLECT = [
     # pyodbc`'yi görmüyor; toplanmazsa paketlenmiş sürüm SQL Server kurulu
     # olsa bile "sürücü yok" diyordu.
     "pyodbc",
+    # API alıştırmaları: kullanıcı kodu `requests` ile alıştırma sunucusuna
+    # istek atıyor; uygulama import etmediği için elle toplanıyor.
+    "requests",
+    "urllib3",
+    "idna",
+    "certifi",
+    "charset_normalizer",
+    # Docker alıştırmaları: compose.yaml denetleyicide okunuyor
+    # (`sandbox/docker_runner.py`); Docker kurulu olmasa da.
+    "yaml",
+    # API 2 alıştırmaları: kişinin FastAPI uygulaması, denetleyicide
+    # TestClient ile (`sandbox/fastapi_sandbox.py`); test bölümünde pytest.
+    # Hepsini yalnızca kişinin kodu ve denetleyici import ediyor.
+    "fastapi",
+    "starlette",
+    "pydantic",
+    "pydantic_core",
+    "annotated_types",
+    "annotated_doc",
+    "typing_inspection",
+    "anyio",
+    "httpx2",
+    "httpcore2",
+    "httpx",
+    "httpcore",
+    "h11",
+    "uvicorn",
+    "click",
+    "pytest",
+    "_pytest",
+    "pluggy",
+    "iniconfig",
+    "pygments",
+    "opentelemetry",
 ]
+
+# Yalnızca denetleyicinin kullandığı standart kütüphane modülleri.
+# Denetleyici pakete düz dosya olarak giriyor; PyInstaller içindeki
+# import'ları görmüyor. Alıştırma sunucusu (`sandbox/api_sandbox.py`)
+# bunlarla kuruluyor; Docker denetleyicisi (`sandbox/docker_runner.py`)
+# komutları `shlex` ile ayrıştırıyor, konteynere `urllib.request` ile
+# istek atıyor.
+HIDDEN = ["http.server", "socketserver", "shlex", "urllib.request"]
 
 # Gereksiz yere paketi büyüten, kullanılmayan Qt modülleri.
 #
@@ -172,6 +214,9 @@ def build_command() -> list[str]:
 
     for module in COLLECT:
         command += ["--collect-all", module]
+
+    for module in HIDDEN:
+        command += ["--hidden-import", module]
 
     for module in EXCLUDE:
         command += ["--exclude-module", module]

@@ -1,0 +1,49 @@
+{
+  "id": "catch-by-kind",
+  "title": {
+    "tr": "Hatayı türüne göre yakala",
+    "en": "Catch errors by kind"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Üç `except`: `requests.Timeout`, `requests.ConnectionError`, `requests.HTTPError`. Başarılıysa `try` bloğundan sonra `return \"ok \" + str(r.status_code)`.",
+      "en": "Three `except`s: `requests.Timeout`, `requests.ConnectionError`, `requests.HTTPError`. On success, after the `try` block, `return \"ok \" + str(r.status_code)`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef fetch(url):\n    try:\n        r = requests.get(url, timeout=1)\n        r.raise_for_status()\n    except requests.Timeout:\n        return \"timeout\"\n    except requests.ConnectionError:\n        return \"no connection\"\n    except requests.HTTPError:\n        return \"http error \" + str(r.status_code)\n    return \"ok \" + str(r.status_code)\n\n\nurls = [\n    BASE + \"/books/1\",\n    BASE + \"/books/0\",\n    BASE + \"/slow\",\n    \"http://offline.odyssey.test/books\",\n]\nfor url in urls:\n    print(fetch(url))\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef fetch(url):\n    try:\n        r = requests.get(url, timeout=1)\n        r.raise_for_status()\n    except requests.Timeout:\n        return \"timeout\"\n    except requests.ConnectionError:\n        return \"no connection\"\n    except requests.HTTPError:\n        return \"http error \" + str(r.status_code)\n    return \"ok \" + str(r.status_code)\n\n\nurls = [\n    BASE + \"/books/1\",\n    BASE + \"/books/0\",\n    BASE + \"/slow\",\n    \"http://offline.odyssey.test/books\",\n]\nfor url in urls:\n    print(fetch(url))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fetch",
+      "cases": [
+        {
+          "args": [
+            "http://api.odyssey.test/books/2"
+          ],
+          "returns": "ok 200"
+        },
+        {
+          "args": [
+            "http://api.odyssey.test/broken"
+          ],
+          "returns": "http error 500"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "ok 200\nhttp error 404\ntimeout\nno connection"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+# to_curl(method, url, headers): curl komutu (metin)
+
+
+samples = [
+    ("GET", "https://api.example.com/books", {}),
+    ("GET", "https://api.example.com/stats", {"X-API-Key": "abc"}),
+    ("DELETE", "https://api.example.com/books/7", {"Authorization": "Bearer abc"}),
+]

@@ -1,0 +1,106 @@
+{
+  "id": "notes-api-dockerfile",
+  "title": {
+    "tr": "API için Dockerfile",
+    "en": "A Dockerfile for the API"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "app.py",
+      "readonly": true
+    },
+    {
+      "name": "healthcheck.py",
+      "readonly": true
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "Sıra: `WORKDIR` → `COPY requirements.txt .` → `RUN pip install ...` → `COPY app.py healthcheck.py ./` → `EXPOSE` → `CMD`.",
+      "en": "Order: `WORKDIR` → `COPY requirements.txt .` → `RUN pip install ...` → `COPY app.py healthcheck.py ./` → `EXPOSE` → `CMD`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\n\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY app.py healthcheck.py ./\n\nEXPOSE 8000\nCMD [\"python\", \"app.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\n\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY app.py healthcheck.py ./\n\nEXPOSE 8000\nCMD [\"python\", \"app.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "rule": "order",
+      "steps": [
+        {
+          "instruction": "FROM",
+          "value": "^python:3\\.13-slim$",
+          "show": "FROM python:3.13-slim"
+        },
+        {
+          "instruction": "WORKDIR",
+          "value": "^/app/?$",
+          "show": "WORKDIR /app"
+        },
+        {
+          "instruction": "COPY",
+          "value": "^requirements\\.txt ",
+          "show": "COPY requirements.txt ."
+        },
+        {
+          "instruction": "RUN",
+          "value": "pip install .*-r requirements\\.txt",
+          "show": "RUN pip install ... -r requirements.txt"
+        },
+        {
+          "instruction": "COPY",
+          "value": "app\\.py",
+          "show": "COPY app.py healthcheck.py ./"
+        }
+      ]
+    },
+    {
+      "type": "dockerfile",
+      "rule": "exec_form",
+      "instruction": "CMD",
+      "args": [
+        "python",
+        "app.py"
+      ],
+      "show": "CMD [\"python\", \"app.py\"]"
+    },
+    {
+      "type": "container",
+      "expect": {
+        "workdir": "/app",
+        "exposed": [
+          8000
+        ],
+        "file_exists": [
+          "/app/healthcheck.py"
+        ],
+        "http": {
+          "port": 8000,
+          "path": "/health",
+          "json": {
+            "status": "ok"
+          }
+        }
+      }
+    }
+  ]
+}

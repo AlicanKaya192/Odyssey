@@ -1,0 +1,77 @@
+{
+  "id": "settings-defaults",
+  "title": {
+    "tr": "Varsayılan değerler",
+    "en": "Default values"
+  },
+  "difficulty": 1,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her alana varsayılan: `theme: str = \"dark\"`; işlev `return settings`.",
+      "en": "A default for every field: `theme: str = \"dark\"`; the function does `return settings`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n\nclass Settings(BaseModel):\n    theme: str = \"dark\"\n    font_size: int = 14\n    beta: bool = False\n\n\n@app.post(\"/settings\")\ndef save_settings(settings: Settings):\n    return settings\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n\nclass Settings(BaseModel):\n    theme: str = \"dark\"\n    font_size: int = 14\n    beta: bool = False\n\n\n@app.post(\"/settings\")\ndef save_settings(settings: Settings):\n    return settings\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/settings",
+          "json": {},
+          "expect": {
+            "status": 200,
+            "json": {
+              "theme": "dark",
+              "font_size": 14,
+              "beta": false
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/settings",
+          "json": {
+            "font_size": 18
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "theme": "dark",
+              "font_size": 18,
+              "beta": false
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/settings",
+          "json": {
+            "font_size": "big"
+          },
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}

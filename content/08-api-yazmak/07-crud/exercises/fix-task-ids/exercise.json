@@ -1,0 +1,106 @@
+{
+  "id": "fix-task-ids",
+  "title": {
+    "tr": "Kimlik numarası hatası",
+    "en": "The id number bug"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İşlevin başında `global next_id`; kaydı `next_id` ile koy, sonra `next_id += 1`.",
+      "en": "`global next_id` at the start of the function; store the record under `next_id`, then `next_id += 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\ntasks = {}\nnext_id = 1\n\n\nclass TaskIn(BaseModel):\n    title: str = Field(min_length=1)\n    done: bool = False\n\n\nclass TaskOut(TaskIn):\n    id: int\n\n\n@app.post(\"/tasks\", status_code=status.HTTP_201_CREATED)\ndef create_task(task: TaskIn) -> TaskOut:\n    global next_id\n    record = {\"id\": next_id, **task.model_dump()}\n    tasks[next_id] = record\n    next_id += 1\n    return record\n\n\n@app.get(\"/tasks\")\ndef list_tasks() -> list[TaskOut]:\n    return list(tasks.values())\n\n\n@app.delete(\"/tasks/{task_id}\", status_code=status.HTTP_204_NO_CONTENT)\ndef delete_task(task_id: int):\n    if task_id not in tasks:\n        raise HTTPException(status_code=404, detail=\"Task not found\")\n    del tasks[task_id]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI, HTTPException, status\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\ntasks = {}\nnext_id = 1\n\n\nclass TaskIn(BaseModel):\n    title: str = Field(min_length=1)\n    done: bool = False\n\n\nclass TaskOut(TaskIn):\n    id: int\n\n\n@app.post(\"/tasks\", status_code=status.HTTP_201_CREATED)\ndef create_task(task: TaskIn) -> TaskOut:\n    global next_id\n    record = {\"id\": next_id, **task.model_dump()}\n    tasks[next_id] = record\n    next_id += 1\n    return record\n\n\n@app.get(\"/tasks\")\ndef list_tasks() -> list[TaskOut]:\n    return list(tasks.values())\n\n\n@app.delete(\"/tasks/{task_id}\", status_code=status.HTTP_204_NO_CONTENT)\ndef delete_task(task_id: int):\n    if task_id not in tasks:\n        raise HTTPException(status_code=404, detail=\"Task not found\")\n    del tasks[task_id]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/tasks",
+          "json": {
+            "title": "A"
+          },
+          "expect": {
+            "status": 201,
+            "json": {
+              "title": "A",
+              "done": false,
+              "id": 1
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/tasks",
+          "json": {
+            "title": "B"
+          },
+          "expect": {
+            "status": 201,
+            "json_has": {
+              "id": 2
+            }
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/tasks/1",
+          "expect": {
+            "status": 204
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/tasks",
+          "json": {
+            "title": "C"
+          },
+          "expect": {
+            "status": 201,
+            "json_has": {
+              "id": 3
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tasks",
+          "expect": {
+            "status": 200,
+            "json": [
+              {
+                "title": "B",
+                "done": false,
+                "id": 2
+              },
+              {
+                "title": "C",
+                "done": false,
+                "id": 3
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "id": "search-function",
+  "title": {
+    "tr": "Arama fonksiyonu",
+    "en": "A search function"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`params = {\"author\": author, \"tag\": tag, \"sort\": sort, \"per_page\": 20}`; `None` değerleri requests atlıyor.",
+      "en": "`params = {\"author\": author, \"tag\": tag, \"sort\": sort, \"per_page\": 20}`; requests skips the `None` values."
+    },
+    {
+      "tr": "Boş liste `if titles:` koşulunda `False` sayılır.",
+      "en": "An empty list counts as `False` in `if titles:`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef search(author, tag, sort):\n    params = {\"author\": author, \"tag\": tag, \"sort\": sort, \"per_page\": 20}\n    books = requests.get(BASE + \"/books\", params=params).json()[\"data\"]\n    return [book[\"title\"] for book in books]\n\n\nfor args in [(\"Woolf\", None, None), (None, \"fantasy\", None), (\"Lem\", None, \"-year\"), (\"nobody\", None, None)]:\n    titles = search(*args)\n    if titles:\n        print(\", \".join(titles))\n    else:\n        print(\"nothing found\")\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\n\ndef search(author, tag, sort):\n    params = {\"author\": author, \"tag\": tag, \"sort\": sort, \"per_page\": 20}\n    books = requests.get(BASE + \"/books\", params=params).json()[\"data\"]\n    return [book[\"title\"] for book in books]\n\n\nfor args in [(\"Woolf\", None, None), (None, \"fantasy\", None), (\"Lem\", None, \"-year\"), (\"nobody\", None, None)]:\n    titles = search(*args)\n    if titles:\n        print(\", \".join(titles))\n    else:\n        print(\"nothing found\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "search",
+      "cases": [
+        {
+          "args": [
+            "Woolf",
+            null,
+            null
+          ],
+          "returns": [
+            "Mrs Dalloway",
+            "To the Lighthouse",
+            "Orlando"
+          ]
+        },
+        {
+          "args": [
+            null,
+            "humor",
+            null
+          ],
+          "returns": [
+            "The Cyberiad"
+          ]
+        },
+        {
+          "args": [
+            "nobody",
+            null,
+            null
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books",
+      "query": {
+        "author": "Lem",
+        "sort": "-year"
+      }
+    },
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books",
+      "query": {
+        "tag": "fantasy"
+      },
+      "no_query": [
+        "author",
+        "sort"
+      ],
+      "hint": {
+        "tr": "fantasy aramasında author ya da sort da gitmiş; None değerleri adrese girmemeli.",
+        "en": "The fantasy search also sent author or sort; None values must stay out of the address."
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "Mrs Dalloway, To the Lighthouse, Orlando\nA Wizard of Earthsea\nFiasco, The Cyberiad, Solaris\nnothing found"
+    }
+  ]
+}

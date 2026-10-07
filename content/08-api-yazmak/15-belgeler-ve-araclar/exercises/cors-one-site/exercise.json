@@ -1,0 +1,92 @@
+{
+  "id": "cors-one-site",
+  "title": {
+    "tr": "Tek siteye izin",
+    "en": "Allowing one site"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`app.add_middleware(CORSMiddleware, allow_origins=[...], allow_methods=[\"GET\"], allow_headers=[\"*\"])`.",
+      "en": "`app.add_middleware(CORSMiddleware, allow_origins=[...], allow_methods=[\"GET\"], allow_headers=[\"*\"])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom fastapi.middleware.cors import CORSMiddleware\n\napp = FastAPI()\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"https://library.example.com\"],\n    allow_methods=[\"GET\"],\n    allow_headers=[\"*\"],\n)\n\n\n@app.get(\"/books\")\ndef list_books():\n    return [\"Dune\", \"Emma\"]\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom fastapi import FastAPI\nfrom fastapi.middleware.cors import CORSMiddleware\n\napp = FastAPI()\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"https://library.example.com\"],\n    allow_methods=[\"GET\"],\n    allow_headers=[\"*\"],\n)\n\n\n@app.get(\"/books\")\ndef list_books():\n    return [\"Dune\", \"Emma\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/books",
+          "headers": {
+            "Origin": "https://library.example.com"
+          },
+          "expect": {
+            "status": 200,
+            "json": [
+              "Dune",
+              "Emma"
+            ],
+            "headers": {
+              "access-control-allow-origin": "https://library.example.com"
+            }
+          }
+        },
+        {
+          "method": "OPTIONS",
+          "path": "/books",
+          "headers": {
+            "Origin": "https://library.example.com",
+            "Access-Control-Request-Method": "GET"
+          },
+          "expect": {
+            "status": 200,
+            "headers": {
+              "access-control-allow-methods": "GET"
+            }
+          }
+        },
+        {
+          "method": "OPTIONS",
+          "path": "/books",
+          "headers": {
+            "Origin": "https://evil.example.com",
+            "Access-Control-Request-Method": "GET"
+          },
+          "expect": {
+            "status": 400
+          }
+        },
+        {
+          "method": "OPTIONS",
+          "path": "/books",
+          "headers": {
+            "Origin": "https://library.example.com",
+            "Access-Control-Request-Method": "DELETE"
+          },
+          "expect": {
+            "status": 400
+          }
+        }
+      ]
+    }
+  ]
+}

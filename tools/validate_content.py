@@ -259,6 +259,14 @@ def _check_ascii(where: str, exercise) -> list[str]:
                 denetle("parametre belirtimi", tip)
         elif kind == "ast_forbid":
             denetle("yasaklı çağrı", check.get("call"))
+        elif kind == "http":
+            # Kişinin yazacağı adres ve gövdeler (`/books`, alan adları).
+            denetle("uygulama adı", check.get("app"))
+            for step in check.get("steps", []):
+                denetle("istek adresi", step.get("path"))
+                denetle("istek gövdesi", step.get("json"))
+                denetle("beklenen yanıt", (step.get("expect") or {}).get("json"))
+                denetle("beklenen alanlar", (step.get("expect") or {}).get("json_has"))
         elif kind in ("rows", "columns"):
             # SQL sonuç kümesi: sütun adları ve beklenen hücreler de
             # öğrencinin yazacağı şeyler arasında.
@@ -272,18 +280,24 @@ def _check_ascii(where: str, exercise) -> list[str]:
 # Tanınan alıştırma dilleri ve her birinin kabul ettiği kontrol tipleri.
 # Yanlış eşleşme sessizce geçmesin: bir Python alıştırmasına `rows`
 # yazıldığında kontrol hiç çalışmıyor ama alıştırma "geçti" görünüyor.
-DILLER = ("python", "tsql")
+DILLER = ("python", "tsql", "docker")
 ORTAK_KONTROLLER = {"stdout", "artifact"}
 DILE_OZEL_KONTROLLER = {
     "python": {
         "variable", "function", "ast_require", "ast_forbid",
-        "annotation", "method",
+        "annotation", "method", "requests",
+        # API 2: FastAPI uygulaması sunucusuz çağrılıyor, kişinin testleri koşuyor.
+        "http", "pytest",
     },
     "tsql": {
         "rows", "columns", "affected_rows", "sql_require", "sql_forbid",
         "schema_unchanged",
     },
+    # Docker'da ortak kontroller (stdout, artifact) yok: kişinin kodu
+    # çalışmıyor, dosyaları denetleniyor ve imaj kuruluyor.
+    "docker": {"dockerfile", "compose", "command", "container", "compose_up"},
 }
+ORTAKSIZ_DILLER = {"docker"}
 
 
 def _check_problem(where: str, exercise) -> list[str]:
@@ -339,8 +353,8 @@ def _check_files(where: str, exercise) -> list[str]:
     """Çok dosyalı alıştırma (`files`): adlar, şablonlar, giriş dosyası."""
     yer = f"{where}/{exercise.id}"
     problems: list[str] = []
-    if exercise.language != "python":
-        problems.append(f"{yer}: çok dosyalı alıştırma şimdilik yalnızca python")
+    if exercise.language not in ("python", "docker"):
+        problems.append(f"{yer}: çok dosyalı alıştırma yalnızca python ve docker")
     if exercise.raw.get("starter") or exercise.raw.get("solution"):
         problems.append(f"{yer}: files varken starter/solution dosyanın içinde yazılır")
 
@@ -377,7 +391,7 @@ def _check_files(where: str, exercise) -> list[str]:
     giris = exercise.file(exercise.entry)
     if giris is None:
         problems.append(f"{yer}: giriş dosyası ({exercise.entry}) files içinde yok")
-    elif not giris.name.endswith(".py"):
+    elif exercise.language == "python" and not giris.name.endswith(".py"):
         problems.append(f"{yer}: giriş dosyası .py olmalı ({giris.name})")
 
     duzenlenebilir = [item for item in exercise.files if not item.readonly]
@@ -399,9 +413,76 @@ def _check_difficulty(where: str, exercise) -> list[str]:
     return []
 
 
+# Git terminal alıştırmasının `git_state` alanları (`app/core/git_checks.py`).
+GIT_STATE_KEYS = {
+    "type", "repo", "label", "hint", "show_message", "exists", "branch", "branches", "no_branches",
+    "no_remote_branches",
+    "commits", "min_commits", "clean", "staged", "unstaged", "untracked", "tracked", "not_tracked",
+    "files", "missing_files", "head_files", "last_message", "messages", "merged", "merge_commit",
+    "linear", "no_conflicts", "in_progress", "tags", "annotated", "stash", "config", "remotes",
+    "upstream", "pushed", "remote_commits", "ignored", "detached", "same_as", "blob_of", "tips", "tag_at", "remote_tags", "last_body", "show_body",
+}
+
+
+def _check_terminal(where: str, exercise) -> list[str]:
+    """Git terminal alıştırması: kod dosyası yok; kurulum, çözüm komutları,
+    kontroller ve hedef etiketleri. Çözümün gerçekten geçtiğine
+    `check_exercises.py` bakıyor."""
+    problems: list[str] = []
+    yer = f"{where}/{exercise.id}"
+    if exercise.language != "git":
+        problems.append(f"{yer}: terminal alıştırmasının dili 'git' olmalı ({exercise.language!r})")
+    for alan in ("starter", "files", "entry"):
+        if alan in exercise.raw:
+            problems.append(f"{yer}: terminal alıştırmasında {alan!r} olmaz")
+    if not exercise.checks:
+        problems.append(f"{yer}: hiç kontrol tanımlanmamış")
+    etiketli = 0
+    for check in exercise.checks:
+        tur = check.get("type", "")
+        if tur == "git_state":
+            for key in check:
+                if key not in GIT_STATE_KEYS:
+                    problems.append(f"{yer}: bilinmeyen git_state alanı {key!r}")
+        elif tur == "shell_state":
+            for key in check:
+                if key not in {"type", "label", "hint", "dirs", "files", "missing", "cwd"}:
+                    problems.append(f"{yer}: bilinmeyen shell_state alanı {key!r}")
+        elif tur == "git_config":
+            for key in check:
+                if key not in {"type", "label", "hint", "repo", "global", "local"}:
+                    problems.append(f"{yer}: bilinmeyen git_config alanı {key!r}")
+        elif tur == "git_command":
+            if not check.get("pattern"):
+                problems.append(f"{yer}: git_command kontrolünde pattern yok")
+        else:
+            problems.append(f"{yer}: terminal alıştırmasında geçersiz kontrol tipi {tur!r}")
+        label = check.get("label")
+        if label:
+            etiketli += 1
+            for lang in LANGUAGES:
+                if not label.get(lang):
+                    problems.append(f"{yer}: hedef etiketi {lang} dilinde yok")
+    if exercise.checks and not etiketli:
+        problems.append(f"{yer}: hiçbir kontrolün hedef etiketi (label) yok")
+    komutlar = exercise.solution_commands
+    if not komutlar or not isinstance(exercise.raw.get("solution"), list):
+        problems.append(f"{yer}: solution komut listesi olmalı")
+    for komut in komutlar:
+        if not komut.isascii():
+            disi = sorted({ch for ch in komut if not ch.isascii()})
+            problems.append(f"{yer}: çözüm komutu ASCII değil ({''.join(disi)}) -> {komut!r}")
+    for adim in exercise.setup:
+        if not isinstance(adim, (str, dict)) or (isinstance(adim, dict) and not adim.get("remote")):
+            problems.append(f"{yer}: kurulum adımı komut ya da {{'remote': ...}} olmalı: {adim!r}")
+    return problems
+
+
 def _check_exercise(where: str, exercise) -> list[str]:
     if exercise.is_problem:
         return _check_difficulty(where, exercise) + _check_problem(where, exercise)
+    if exercise.is_terminal:
+        return _check_difficulty(where, exercise) + _check_terminal(where, exercise)
 
     problems: list[str] = _check_difficulty(where, exercise)
 
@@ -415,7 +496,7 @@ def _check_exercise(where: str, exercise) -> list[str]:
             f"(beklenen: {', '.join(DILLER)})"
         )
     else:
-        izinli = ORTAK_KONTROLLER | DILE_OZEL_KONTROLLER[dil]
+        izinli = DILE_OZEL_KONTROLLER[dil] | (set() if dil in ORTAKSIZ_DILLER else ORTAK_KONTROLLER)
         for check in exercise.checks:
             tur = check.get("type", "")
             if tur not in izinli:

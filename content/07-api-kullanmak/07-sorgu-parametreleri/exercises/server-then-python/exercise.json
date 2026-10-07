@@ -1,0 +1,53 @@
+{
+  "id": "server-then-python",
+  "title": {
+    "tr": "Önce sunucu, sonra Python",
+    "en": "Server first, then Python"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Python'da süzmek için kavrama: `[book for book in books if book[\"price\"] < 10]`.",
+      "en": "To filter in Python use a comprehension: `[book for book in books if book[\"price\"] < 10]`."
+    },
+    {
+      "tr": "Fiyata göre sıralamak: `cheap.sort(key=lambda book: book[\"price\"])`.",
+      "en": "Sorting by price: `cheap.sort(key=lambda book: book[\"price\"])`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nbooks = requests.get(BASE + \"/books\", params={\"tag\": \"classic\", \"per_page\": 20}).json()[\"data\"]\n\ncheap = [book for book in books if book[\"price\"] < 10]\ncheap.sort(key=lambda book: book[\"price\"])\n\nfor book in cheap:\n    print(book[\"title\"], book[\"price\"])\nprint(\"cheap classics:\", len(cheap))\n```",
+      "en": "The solution:\n\n```python\nimport requests\n\nBASE = \"http://api.odyssey.test\"\n\nbooks = requests.get(BASE + \"/books\", params={\"tag\": \"classic\", \"per_page\": 20}).json()[\"data\"]\n\ncheap = [book for book in books if book[\"price\"] < 10]\ncheap.sort(key=lambda book: book[\"price\"])\n\nfor book in cheap:\n    print(book[\"title\"], book[\"price\"])\nprint(\"cheap classics:\", len(cheap))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "requests",
+      "method": "GET",
+      "path": "/books",
+      "query": {
+        "tag": "classic",
+        "per_page": "20"
+      }
+    },
+    {
+      "type": "requests",
+      "min": 1,
+      "max": 1,
+      "hint": {
+        "tr": "Birden çok istek gitti; hepsini tek istekle al.",
+        "en": "More than one request went out; get everything with a single request."
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "Animal Farm 6.9\nDubliners 7.8\nPersuasion 8.75\nSense and Sensibility 9.1\nMrs Dalloway 9.3\nNineteen Eighty-Four 9.5\nTo the Lighthouse 9.8\nDune 9.99\ncheap classics: 8"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "build-a-request",
+  "title": {
+    "tr": "İsteği kendin yaz",
+    "en": "Write the request yourself"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satırları bir listede topla: `lines = [method + \" \" + target + \" HTTP/1.1\", \"Host: \" + host]`. Gövde varsa iki başlığı `append` ile ekle.",
+      "en": "Collect the lines in a list: `lines = [method + \" \" + target + \" HTTP/1.1\", \"Host: \" + host]`. If there is a body, `append` the two headers."
+    },
+    {
+      "tr": "Sayı metne `str(...)` ile çevrilir. Sonunda `\"\\n\".join(lines) + \"\\n\\n\" + body` döndür.",
+      "en": "Turn the number into text with `str(...)`. At the end return `\"\\n\".join(lines) + \"\\n\\n\" + body`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\ndef build_request(method, target, host, body=\"\"):\n    lines = [method + \" \" + target + \" HTTP/1.1\", \"Host: \" + host]\n    if body:\n        lines.append(\"Content-Type: application/json\")\n        lines.append(\"Content-Length: \" + str(len(body.encode(\"utf-8\"))))\n    return \"\\n\".join(lines) + \"\\n\\n\" + body\n\n\nprint(build_request(\"GET\", \"/v1/books?author=Austen\", \"api.example.com\"))\nprint(\"---\")\nprint(build_request(\"POST\", \"/v1/books\", \"api.example.com\", '{\"title\": \"Emma\"}'))\n```",
+      "en": "The solution:\n\n```python\ndef build_request(method, target, host, body=\"\"):\n    lines = [method + \" \" + target + \" HTTP/1.1\", \"Host: \" + host]\n    if body:\n        lines.append(\"Content-Type: application/json\")\n        lines.append(\"Content-Length: \" + str(len(body.encode(\"utf-8\"))))\n    return \"\\n\".join(lines) + \"\\n\\n\" + body\n\n\nprint(build_request(\"GET\", \"/v1/books?author=Austen\", \"api.example.com\"))\nprint(\"---\")\nprint(build_request(\"POST\", \"/v1/books\", \"api.example.com\", '{\"title\": \"Emma\"}'))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "build_request",
+      "cases": [
+        {
+          "args": [
+            "GET",
+            "/books",
+            "localhost:8000"
+          ],
+          "returns": "GET /books HTTP/1.1\nHost: localhost:8000\n\n"
+        },
+        {
+          "args": [
+            "POST",
+            "/books",
+            "localhost:8000",
+            "{\"a\": 1}"
+          ],
+          "returns": "POST /books HTTP/1.1\nHost: localhost:8000\nContent-Type: application/json\nContent-Length: 8\n\n{\"a\": 1}"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "GET /v1/books?author=Austen HTTP/1.1\nHost: api.example.com\n\n\n---\nPOST /v1/books HTTP/1.1\nHost: api.example.com\nContent-Type: application/json\nContent-Length: 17\n\n{\"title\": \"Emma\"}"
+    }
+  ]
+}

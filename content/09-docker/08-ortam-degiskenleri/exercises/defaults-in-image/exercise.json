@@ -1,0 +1,59 @@
+{
+  "id": "defaults-in-image",
+  "title": {
+    "tr": "İmajdaki varsayılanlar",
+    "en": "Defaults in the image"
+  },
+  "difficulty": 1,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "Dockerfile",
+  "files": [
+    {
+      "name": "Dockerfile",
+      "starter": "starter-Dockerfile.{lang}",
+      "solution": "solution-Dockerfile"
+    },
+    {
+      "name": "app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`ENV APP_ENV=production` ve `ENV PYTHONUNBUFFERED=1`.",
+      "en": "`ENV APP_ENV=production` and `ENV PYTHONUNBUFFERED=1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nENV APP_ENV=production\nENV PYTHONUNBUFFERED=1\nCOPY app.py .\nCMD [\"python\", \"app.py\"]\n```",
+      "en": "The full solution:\n\n**Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nENV APP_ENV=production\nENV PYTHONUNBUFFERED=1\nCOPY app.py .\nCMD [\"python\", \"app.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "container",
+      "expect": {
+        "env": {
+          "APP_ENV": "production",
+          "PYTHONUNBUFFERED": "1"
+        },
+        "logs": "env: production"
+      }
+    },
+    {
+      "type": "container",
+      "run": {
+        "env": {
+          "APP_ENV": "test"
+        }
+      },
+      "expect": {
+        "logs": "env: test"
+      }
+    }
+  ]
+}

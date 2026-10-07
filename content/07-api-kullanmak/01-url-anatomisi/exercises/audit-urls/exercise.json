@@ -1,0 +1,43 @@
+{
+  "id": "audit-urls",
+  "title": {
+    "tr": "Adresleri denetle",
+    "en": "Audit the addresses"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her adres için `parts = urlparse(url)`; şema `parts.scheme`, ana makine `parts.hostname` (port içermez).",
+      "en": "For each address `parts = urlparse(url)`; the scheme is `parts.scheme`, the host `parts.hostname` (without the port)."
+    },
+    {
+      "tr": "İki koşul birlikte: `parts.scheme == \"http\" and parts.hostname not in (\"localhost\", \"127.0.0.1\")`. Sayım için bir sözlük, yazdırırken `sorted(hosts)`.",
+      "en": "Two conditions together: `parts.scheme == \"http\" and parts.hostname not in (\"localhost\", \"127.0.0.1\")`. Use a dictionary to count and `sorted(hosts)` when printing."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nfrom urllib.parse import urlparse\n\nurls = [\n    \"https://api.example.com/v1/weather?city=Izmir\",\n    \"http://api.example.com/v1/login?user=ada\",\n    \"http://localhost:8000/books\",\n    \"https://api.github.com/repos/python/cpython\",\n    \"http://127.0.0.1:8000/books/42\",\n    \"http://data.example.org/export?format=csv\",\n]\n\ninsecure = []\nhosts = {}\nfor url in urls:\n    parts = urlparse(url)\n    local = parts.hostname in (\"localhost\", \"127.0.0.1\")\n    if parts.scheme == \"http\" and not local:\n        insecure.append(url)\n    hosts[parts.hostname] = hosts.get(parts.hostname, 0) + 1\n\nprint(\"Insecure:\")\nfor url in insecure:\n    print(url)\nprint(\"Requests per host:\")\nfor host in sorted(hosts):\n    print(host, hosts[host])\n```",
+      "en": "The solution:\n\n```python\nfrom urllib.parse import urlparse\n\nurls = [\n    \"https://api.example.com/v1/weather?city=Izmir\",\n    \"http://api.example.com/v1/login?user=ada\",\n    \"http://localhost:8000/books\",\n    \"https://api.github.com/repos/python/cpython\",\n    \"http://127.0.0.1:8000/books/42\",\n    \"http://data.example.org/export?format=csv\",\n]\n\ninsecure = []\nhosts = {}\nfor url in urls:\n    parts = urlparse(url)\n    local = parts.hostname in (\"localhost\", \"127.0.0.1\")\n    if parts.scheme == \"http\" and not local:\n        insecure.append(url)\n    hosts[parts.hostname] = hosts.get(parts.hostname, 0) + 1\n\nprint(\"Insecure:\")\nfor url in insecure:\n    print(url)\nprint(\"Requests per host:\")\nfor host in sorted(hosts):\n    print(host, hosts[host])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "insecure",
+      "equals": [
+        "http://api.example.com/v1/login?user=ada",
+        "http://data.example.org/export?format=csv"
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "Insecure:\nhttp://api.example.com/v1/login?user=ada\nhttp://data.example.org/export?format=csv\nRequests per host:\n127.0.0.1 1\napi.example.com 2\napi.github.com 1\ndata.example.org 1\nlocalhost 1"
+    }
+  ]
+}

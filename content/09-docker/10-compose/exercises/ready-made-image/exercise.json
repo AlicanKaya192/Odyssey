@@ -1,0 +1,51 @@
+{
+  "id": "ready-made-image",
+  "title": {
+    "tr": "Hazır imajla servis",
+    "en": "A service from a ready-made image"
+  },
+  "difficulty": 2,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "compose.yaml",
+  "files": [
+    {
+      "name": "compose.yaml",
+      "starter": "starter-compose.yaml.{lang}",
+      "solution": "solution-compose.yaml"
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`command: [\"sh\", \"-c\", \"echo hello from compose && sleep 300\"]`.",
+      "en": "`command: [\"sh\", \"-c\", \"echo hello from compose && sleep 300\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**compose.yaml**\n\n```yaml\nservices:\n  worker:\n    image: alpine:3.22\n    command: [\"sh\", \"-c\", \"echo hello from compose && sleep 300\"]\n```",
+      "en": "The full solution:\n\n**compose.yaml**\n\n```yaml\nservices:\n  worker:\n    image: alpine:3.22\n    command: [\"sh\", \"-c\", \"echo hello from compose && sleep 300\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "compose",
+      "service": "worker",
+      "image": "^alpine:3\\.22$",
+      "show_image": "alpine:3.22",
+      "command": "echo hello from compose",
+      "show_command": "sh -c \"echo hello from compose && sleep 300\""
+    },
+    {
+      "type": "compose_up",
+      "running": [
+        "worker"
+      ],
+      "logs_contains": {
+        "worker": "hello from compose"
+      }
+    }
+  ]
+}

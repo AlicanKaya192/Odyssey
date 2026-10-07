@@ -1,0 +1,77 @@
+{
+  "id": "abort-merge",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Vazgeç",
+    "en": "Back out"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir shop",
+    "cd shop",
+    "git init",
+    "echo \"Welcome\" > page.txt",
+    "echo \"We sell books\" >> page.txt",
+    "echo \"Open 9-17\" >> page.txt",
+    "git add .",
+    "git commit -m \"Add page\"",
+    "git switch -c summer",
+    "echo \"Welcome\" > page.txt",
+    "echo \"We sell books\" >> page.txt",
+    "echo \"Open 9-20\" >> page.txt",
+    "git commit -am \"Summer hours\"",
+    "git switch main",
+    "echo \"Welcome\" > page.txt",
+    "echo \"We sell books\" >> page.txt",
+    "echo \"Open 8-17\" >> page.txt",
+    "git commit -am \"Open earlier\"",
+    "git merge summer"
+  ],
+  "cwd": "shop",
+  "solution": [
+    "git status",
+    "git merge --abort",
+    "git status"
+  ],
+  "hints": [
+    {
+      "tr": "`git merge --abort`.",
+      "en": "`git merge --abort`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit status\ngit merge --abort\ngit status\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit status\ngit merge --abort\ngit status\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "shop",
+      "no_conflicts": true,
+      "clean": true,
+      "label": {
+        "tr": "Yarım birleştirme yok, ağaç temiz",
+        "en": "No half-done merge, tree clean"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "shop",
+      "tips": {
+        "main": "^Open earlier$"
+      },
+      "files": {
+        "page.txt": "Welcome\nWe sell books\nOpen 8-17"
+      },
+      "label": {
+        "tr": "main birleştirmeden önceki hâlinde",
+        "en": "main is as it was before the merge"
+      }
+    }
+  ]
+}

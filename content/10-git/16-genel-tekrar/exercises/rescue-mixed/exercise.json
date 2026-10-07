@@ -1,0 +1,71 @@
+{
+  "id": "rescue-mixed",
+  "kind": "terminal",
+  "language": "git",
+  "title": {
+    "tr": "Karışık kurtarma",
+    "en": "A mixed rescue"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir notes",
+    "cd notes",
+    "git init",
+    "echo \"a\" > a.txt",
+    "git add .",
+    "git commit -m \"Add a\"",
+    "echo \"b\" > b.txt",
+    "git add .",
+    "git commit -m \"Add b\"",
+    "git reset --hard HEAD~1",
+    "echo \"draft\" > draft.txt",
+    "git add ."
+  ],
+  "cwd": "notes",
+  "solution": [
+    "git stash",
+    "git reflog -3",
+    "git reset --hard HEAD@{2}",
+    "git stash pop"
+  ],
+  "hints": [
+    {
+      "tr": "Önce `git stash` (yoksa `reset --hard` onu siler). Stash da reflog'a bir `reset: moving to HEAD` satırı yazar; `git reflog`'da `commit: Add b` satırının `HEAD@{n}`'ini seç.",
+      "en": "First `git stash` (otherwise `reset --hard` deletes it). The stash also writes a `reset: moving to HEAD` line to the reflog; in `git reflog` pick the `HEAD@{n}` of the `commit: Add b` line."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngit stash\ngit reflog -3\ngit reset --hard HEAD@{2}\ngit stash pop\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngit stash\ngit reflog -3\ngit reset --hard HEAD@{2}\ngit stash pop\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "tips": {
+        "main": "^Add b$"
+      },
+      "commits": 2,
+      "label": {
+        "tr": "main yine Add b'de",
+        "en": "main is back on Add b"
+      }
+    },
+    {
+      "type": "git_state",
+      "repo": "notes",
+      "stash": 0,
+      "files": {
+        "draft.txt": "draft"
+      },
+      "label": {
+        "tr": "draft.txt geri geldi, stash boş",
+        "en": "draft.txt is back, stash empty"
+      }
+    }
+  ]
+}

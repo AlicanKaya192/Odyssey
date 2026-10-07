@@ -1,0 +1,69 @@
+{
+  "id": "first-tests",
+  "title": {
+    "tr": "İlk testler",
+    "en": "Your first tests"
+  },
+  "difficulty": 2,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "readonly": true
+    },
+    {
+      "name": "test_main.py",
+      "starter": "starter-test_main.{lang}.py",
+      "solution": "solution-test_main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`r = client.post(\"/books\", json={...})`, sonra `assert r.status_code == 201` ve `assert r.json() == {...}`.",
+      "en": "`r = client.post(\"/books\", json={...})`, then `assert r.status_code == 201` and `assert r.json() == {...}`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test_main.py**\n\n```python\nfrom fastapi.testclient import TestClient\n\nfrom main import app\n\nclient = TestClient(app)\n\n\ndef test_add_book():\n    r = client.post(\"/books\", json={\"title\": \"Dune\", \"year\": 1965})\n    assert r.status_code == 201\n    assert r.json() == {\"id\": 1, \"title\": \"Dune\", \"year\": 1965}\n\n\ndef test_read_missing():\n    r = client.get(\"/books/999\")\n    assert r.status_code == 404\n\n\ndef test_empty_title():\n    r = client.post(\"/books\", json={\"title\": \"\", \"year\": 1965})\n    assert r.status_code == 422\n```",
+      "en": "The full solution:\n\n**test_main.py**\n\n```python\nfrom fastapi.testclient import TestClient\n\nfrom main import app\n\nclient = TestClient(app)\n\n\ndef test_add_book():\n    r = client.post(\"/books\", json={\"title\": \"Dune\", \"year\": 1965})\n    assert r.status_code == 201\n    assert r.json() == {\"id\": 1, \"title\": \"Dune\", \"year\": 1965}\n\n\ndef test_read_missing():\n    r = client.get(\"/books/999\")\n    assert r.status_code == 404\n\n\ndef test_empty_title():\n    r = client.post(\"/books\", json={\"title\": \"\", \"year\": 1965})\n    assert r.status_code == 422\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "test_main.py",
+      "min": 3,
+      "mutants": [
+        {
+          "file": "main.py",
+          "source": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nbooks = {}\nnext_id = 1\n\n\nclass Book(BaseModel):\n    title: str = Field(min_length=1)\n    year: int\n\n\n@app.post(\"/books\", status_code=201)\ndef add_book(book: Book):\n    global next_id\n    books[next_id] = book.model_dump()\n    record = {\"id\": next_id, **books[next_id]}\n    next_id += 1\n    return record\n\n\n@app.get(\"/books/{book_id}\")\ndef read_book(book_id: int):\n    return books.get(book_id)\n\n\n@app.delete(\"/books/{book_id}\", status_code=204)\ndef delete_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    del books[book_id]\n",
+          "bug": {
+            "tr": "olmayan kitap 404 yerine 200 dönüyor.",
+            "en": "a missing book returns 200 instead of 404."
+          }
+        },
+        {
+          "file": "main.py",
+          "source": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nbooks = {}\nnext_id = 1\n\n\nclass Book(BaseModel):\n    title: str = Field(min_length=1)\n    year: int\n\n\n@app.post(\"/books\")\ndef add_book(book: Book):\n    global next_id\n    books[next_id] = book.model_dump()\n    record = {\"id\": next_id, **books[next_id]}\n    next_id += 1\n    return record\n\n\n@app.get(\"/books/{book_id}\")\ndef read_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n\n\n@app.delete(\"/books/{book_id}\", status_code=204)\ndef delete_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    del books[book_id]\n",
+          "bug": {
+            "tr": "ekleme 201 yerine 200 dönüyor.",
+            "en": "adding returns 200 instead of 201."
+          }
+        },
+        {
+          "file": "main.py",
+          "source": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nbooks = {}\nnext_id = 1\n\n\nclass Book(BaseModel):\n    title: str\n    year: int\n\n\n@app.post(\"/books\", status_code=201)\ndef add_book(book: Book):\n    global next_id\n    books[next_id] = book.model_dump()\n    record = {\"id\": next_id, **books[next_id]}\n    next_id += 1\n    return record\n\n\n@app.get(\"/books/{book_id}\")\ndef read_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    return books[book_id]\n\n\n@app.delete(\"/books/{book_id}\", status_code=204)\ndef delete_book(book_id: int):\n    if book_id not in books:\n        raise HTTPException(status_code=404, detail=\"Book not found\")\n    del books[book_id]\n",
+          "bug": {
+            "tr": "boş başlık kabul ediliyor.",
+            "en": "an empty title is accepted."
+          }
+        }
+      ]
+    }
+  ]
+}

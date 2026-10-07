@@ -1,0 +1,101 @@
+{
+  "id": "open-close",
+  "title": {
+    "tr": "Aç ve kapat",
+    "en": "Open and close"
+  },
+  "difficulty": 3,
+  "language": "python",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`events.append(\"open\")`, sonra `try: yield \"conn\"` ve `finally: events.append(\"close\")`.",
+      "en": "`events.append(\"open\")`, then `try: yield \"conn\"` and `finally: events.append(\"close\")`."
+    },
+    {
+      "tr": "`try/finally` olmazsa `404`'lü istekte `close` yazılmıyor.",
+      "en": "Without `try/finally`, `close` isn't written on the request that gets `404`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\n\napp = FastAPI()\nitems = {1: \"pen\", 2: \"book\"}\nevents = []\n\n\ndef get_conn():\n    events.append(\"open\")\n    try:\n        yield \"conn\"\n    finally:\n        events.append(\"close\")\n\n\nConn = Annotated[str, Depends(get_conn)]\n\n\n@app.get(\"/items\")\ndef list_items(conn: Conn):\n    return items\n\n\n@app.get(\"/items/{item_id}\")\ndef read_item(item_id: int, conn: Conn):\n    if item_id not in items:\n        raise HTTPException(status_code=404, detail=\"Item not found\")\n    return {\"id\": item_id, \"name\": items[item_id]}\n\n\n@app.get(\"/events\")\ndef show_events():\n    return events\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException\n\napp = FastAPI()\nitems = {1: \"pen\", 2: \"book\"}\nevents = []\n\n\ndef get_conn():\n    events.append(\"open\")\n    try:\n        yield \"conn\"\n    finally:\n        events.append(\"close\")\n\n\nConn = Annotated[str, Depends(get_conn)]\n\n\n@app.get(\"/items\")\ndef list_items(conn: Conn):\n    return items\n\n\n@app.get(\"/items/{item_id}\")\ndef read_item(item_id: int, conn: Conn):\n    if item_id not in items:\n        raise HTTPException(status_code=404, detail=\"Item not found\")\n    return {\"id\": item_id, \"name\": items[item_id]}\n\n\n@app.get(\"/events\")\ndef show_events():\n    return events\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "GET",
+          "path": "/items",
+          "expect": {
+            "status": 200,
+            "json": {
+              "1": "pen",
+              "2": "book"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/events",
+          "expect": {
+            "status": 200,
+            "json": [
+              "open",
+              "close"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/items/9",
+          "expect": {
+            "status": 404,
+            "json": {
+              "detail": "Item not found"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/items/2",
+          "expect": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "name": "book"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/events",
+          "expect": {
+            "status": 200,
+            "json": [
+              "open",
+              "close",
+              "open",
+              "close",
+              "open",
+              "close"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

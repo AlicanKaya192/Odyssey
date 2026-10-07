@@ -1,0 +1,45 @@
+{
+  "id": "log-summary",
+  "title": {
+    "tr": "Kayıt özeti",
+    "en": "Log summary"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sözlüğü sıfırlarla başlat: `{\"2xx\": 0, \"3xx\": 0, \"4xx\": 0, \"5xx\": 0}`. Anahtar `str(code // 100) + \"xx\"`.",
+      "en": "Start the dictionary with zeros: `{\"2xx\": 0, \"3xx\": 0, \"4xx\": 0, \"5xx\": 0}`. The key is `str(code // 100) + \"xx\"`."
+    },
+    {
+      "tr": "Hata kodlarını ayrı bir sözlükte say; en sık olanı `max(errors, key=errors.get)` verir. Adı `HTTPStatus(code).phrase`.",
+      "en": "Count the error codes in a separate dictionary; `max(errors, key=errors.get)` gives the most frequent. Its name is `HTTPStatus(code).phrase`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nfrom http import HTTPStatus\n\ncodes = [200, 200, 404, 200, 201, 500, 200, 429, 200, 404,\n         200, 304, 200, 404, 503, 200, 201, 200, 429, 404]\n\ncounts = {\"2xx\": 0, \"3xx\": 0, \"4xx\": 0, \"5xx\": 0}\nerrors = {}\nfor code in codes:\n    counts[str(code // 100) + \"xx\"] += 1\n    if code >= 400:\n        errors[code] = errors.get(code, 0) + 1\n\nfor name in [\"2xx\", \"3xx\", \"4xx\", \"5xx\"]:\n    print(name + \":\", counts[name])\n\nrate = (counts[\"4xx\"] + counts[\"5xx\"]) / len(codes) * 100\nprint(f\"error rate: {rate:.1f}%\")\n\nworst = max(errors, key=errors.get)\nprint(\"most common error:\", worst, HTTPStatus(worst).phrase)\n```",
+      "en": "The solution:\n\n```python\nfrom http import HTTPStatus\n\ncodes = [200, 200, 404, 200, 201, 500, 200, 429, 200, 404,\n         200, 304, 200, 404, 503, 200, 201, 200, 429, 404]\n\ncounts = {\"2xx\": 0, \"3xx\": 0, \"4xx\": 0, \"5xx\": 0}\nerrors = {}\nfor code in codes:\n    counts[str(code // 100) + \"xx\"] += 1\n    if code >= 400:\n        errors[code] = errors.get(code, 0) + 1\n\nfor name in [\"2xx\", \"3xx\", \"4xx\", \"5xx\"]:\n    print(name + \":\", counts[name])\n\nrate = (counts[\"4xx\"] + counts[\"5xx\"]) / len(codes) * 100\nprint(f\"error rate: {rate:.1f}%\")\n\nworst = max(errors, key=errors.get)\nprint(\"most common error:\", worst, HTTPStatus(worst).phrase)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "variable",
+      "name": "counts",
+      "equals": {
+        "2xx": 11,
+        "3xx": 1,
+        "4xx": 6,
+        "5xx": 2
+      }
+    },
+    {
+      "type": "stdout",
+      "expected": "2xx: 11\n3xx: 1\n4xx: 6\n5xx: 2\nerror rate: 40.0%\nmost common error: 404 Not Found"
+    }
+  ]
+}

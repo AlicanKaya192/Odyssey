@@ -1,0 +1,85 @@
+{
+  "id": "flatten-any-depth",
+  "title": {
+    "tr": "Her derinlikte düzleştir",
+    "en": "Flatten at any depth"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for key, value in obj.items():` içinde `if isinstance(value, dict):` ise `flat.update(flatten(value, prefix + key + \"_\"))`, değilse `flat[prefix + key] = value`.",
+      "en": "Inside `for key, value in obj.items():`, if `isinstance(value, dict)` then `flat.update(flatten(value, prefix + key + \"_\"))`, otherwise `flat[prefix + key] = value`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nrecord = {\n    \"id\": 7,\n    \"title\": \"Emma\",\n    \"author\": {\n        \"name\": \"Austen\",\n        \"address\": {\"city\": \"Bath\", \"country\": \"UK\"},\n    },\n    \"tags\": [\"classic\", \"novel\"],\n}\n\n\ndef flatten(obj, prefix=\"\"):\n    flat = {}\n    for key, value in obj.items():\n        name = prefix + key\n        if isinstance(value, dict):\n            flat.update(flatten(value, name + \"_\"))\n        else:\n            flat[name] = value\n    return flat\n\n\nfor name, value in flatten(record).items():\n    print(name, \"=\", value)\n```",
+      "en": "The solution:\n\n```python\nrecord = {\n    \"id\": 7,\n    \"title\": \"Emma\",\n    \"author\": {\n        \"name\": \"Austen\",\n        \"address\": {\"city\": \"Bath\", \"country\": \"UK\"},\n    },\n    \"tags\": [\"classic\", \"novel\"],\n}\n\n\ndef flatten(obj, prefix=\"\"):\n    flat = {}\n    for key, value in obj.items():\n        name = prefix + key\n        if isinstance(value, dict):\n            flat.update(flatten(value, name + \"_\"))\n        else:\n            flat[name] = value\n    return flat\n\n\nfor name, value in flatten(record).items():\n    print(name, \"=\", value)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "flatten",
+      "cases": [
+        {
+          "args": [
+            {
+              "a": 1,
+              "b": {
+                "c": 2,
+                "d": {
+                  "e": 3
+                }
+              }
+            }
+          ],
+          "returns": {
+            "a": 1,
+            "b_c": 2,
+            "b_d_e": 3
+          }
+        },
+        {
+          "args": [
+            {
+              "x": [
+                1,
+                2
+              ],
+              "y": {}
+            }
+          ],
+          "returns": {
+            "x": [
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "args": [
+            {
+              "k": {
+                "v": null
+              }
+            },
+            "row_"
+          ],
+          "returns": {
+            "row_k_v": null
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "expected": "id = 7\ntitle = Emma\nauthor_name = Austen\nauthor_address_city = Bath\nauthor_address_country = UK\ntags = ['classic', 'novel']"
+    }
+  ]
+}

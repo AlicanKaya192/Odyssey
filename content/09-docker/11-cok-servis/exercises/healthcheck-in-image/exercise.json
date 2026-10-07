@@ -1,0 +1,68 @@
+{
+  "id": "healthcheck-in-image",
+  "title": {
+    "tr": "Sağlık denetimi imajda",
+    "en": "The healthcheck in the image"
+  },
+  "difficulty": 3,
+  "language": "docker",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "api/Dockerfile",
+  "files": [
+    {
+      "name": "api/Dockerfile",
+      "starter": "starter-api-Dockerfile.{lang}",
+      "solution": "solution-api-Dockerfile"
+    },
+    {
+      "name": "compose.yaml",
+      "readonly": true
+    },
+    {
+      "name": "api/server.py",
+      "readonly": true
+    },
+    {
+      "name": "web/Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "web/client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 180,
+  "hints": [
+    {
+      "tr": "`HEALTHCHECK --interval=2s --timeout=3s --retries=15 CMD python -c \"...\"`.",
+      "en": "`HEALTHCHECK --interval=2s --timeout=3s --retries=15 CMD python -c \"...\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**api/Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY server.py .\nHEALTHCHECK --interval=2s --timeout=3s --retries=15 \\\n  CMD python -c \"import urllib.request as u; u.urlopen('http://localhost:8000')\"\nCMD [\"python\", \"server.py\"]\n```",
+      "en": "The full solution:\n\n**api/Dockerfile**\n\n```dockerfile\nFROM python:3.13-slim\nWORKDIR /app\nCOPY server.py .\nHEALTHCHECK --interval=2s --timeout=3s --retries=15 \\\n  CMD python -c \"import urllib.request as u; u.urlopen('http://localhost:8000')\"\nCMD [\"python\", \"server.py\"]\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "dockerfile",
+      "file": "api/Dockerfile",
+      "rule": "has",
+      "instruction": "HEALTHCHECK",
+      "value": "CMD",
+      "show": "HEALTHCHECK ... CMD ..."
+    },
+    {
+      "type": "compose_up",
+      "running": [
+        "api"
+      ],
+      "logs_contains": {
+        "web": "items: 3"
+      },
+      "wait": 60
+    }
+  ]
+}
