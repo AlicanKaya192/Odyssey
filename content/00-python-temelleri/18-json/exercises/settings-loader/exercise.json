@@ -1,0 +1,81 @@
+{
+  "id": "settings-loader",
+  "title": {
+    "tr": "Ayarları yüklemek",
+    "en": "Loading settings"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Okumayı `try:` içine al; iki ayrı `except` (`FileNotFoundError`, `json.JSONDecodeError`) ikisi de `return settings`.",
+      "en": "Put the reading inside `try:`; two separate `except` blocks (`FileNotFoundError`, `json.JSONDecodeError`), both `return settings`."
+    },
+    {
+      "tr": "Dosyadaki değerleri aktarmak: `for key in loaded: settings[key] = loaded[key]`.",
+      "en": "Copying the values from the file: `for key in loaded: settings[key] = loaded[key]`."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nimport json\n\nDEFAULTS = {\"theme\": \"dark\", \"font_size\": 12, \"language\": \"en\"}\n\n\ndef load_settings(path):\n    settings = DEFAULTS.copy()\n    try:\n        with open(path, encoding=\"utf-8\") as file:\n            loaded = json.load(file)\n    except FileNotFoundError:\n        return settings\n    except json.JSONDecodeError:\n        return settings\n    for key in loaded:\n        settings[key] = loaded[key]\n    return settings\n\n\nfor path in [\"good.json\", \"missing.json\", \"broken.json\"]:\n    settings = load_settings(path)\n    print(settings[\"theme\"], settings[\"font_size\"], settings[\"language\"])\n```",
+      "en": "The solution:\n\n```python\nimport json\n\nDEFAULTS = {\"theme\": \"dark\", \"font_size\": 12, \"language\": \"en\"}\n\n\ndef load_settings(path):\n    settings = DEFAULTS.copy()\n    try:\n        with open(path, encoding=\"utf-8\") as file:\n            loaded = json.load(file)\n    except FileNotFoundError:\n        return settings\n    except json.JSONDecodeError:\n        return settings\n    for key in loaded:\n        settings[key] = loaded[key]\n    return settings\n\n\nfor path in [\"good.json\", \"missing.json\", \"broken.json\"]:\n    settings = load_settings(path)\n    print(settings[\"theme\"], settings[\"font_size\"], settings[\"language\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "load_settings",
+      "cases": [
+        {
+          "args": [
+            "good.json"
+          ],
+          "returns": {
+            "theme": "light",
+            "font_size": 14,
+            "language": "en"
+          }
+        },
+        {
+          "args": [
+            "missing.json"
+          ],
+          "returns": {
+            "theme": "dark",
+            "font_size": 12,
+            "language": "en"
+          }
+        },
+        {
+          "args": [
+            "broken.json"
+          ],
+          "returns": {
+            "theme": "dark",
+            "font_size": 12,
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "type": "variable",
+      "name": "DEFAULTS",
+      "equals": {
+        "theme": "dark",
+        "font_size": 12,
+        "language": "en"
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "light 14 en\ndark 12 en\ndark 12 en"
+    }
+  ]
+}

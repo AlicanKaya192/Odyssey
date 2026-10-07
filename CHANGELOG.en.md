@@ -56,6 +56,10 @@ lecture note does not mean downloading the whole application again.
   files are generated on your computer; the Spark and Kafka sections use
   small look-alikes that come with the program, so nothing needs to be
   installed.
+- **A JSON section in the Python track.** A new section after Working with
+  Files: writing dictionaries and lists to a file as JSON and reading them
+  back, moving through nested data step by step, and dealing with missing
+  fields and broken files; 24 questions and 7 exercises.
 - **The Data Engineer roadmap.** A new route in Roadmaps for the work of
   pulling data from a source, cleaning, storing and serving it: Python,
   Git, SQL, pandas, Big Data, APIs and Docker, with focus sections at each

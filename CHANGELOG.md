@@ -54,6 +54,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   veri hattı. Alıştırmaların büyük veri dosyaları bilgisayarınızda
   üretiliyor; Spark ve Kafka bölümlerinde programla gelen küçük
   benzerleri kullanılıyor, kurulum gerekmiyor.
+- **Python patikasında JSON bölümü.** Dosya İşlemleri'nin arkasına yeni bir
+  bölüm: sözlükleri ve listeleri JSON olarak dosyaya yazıp geri okumak, iç
+  içe veride adım adım gezinmek, eksik alanlar ve bozuk dosyalarla başa
+  çıkmak; 24 soru ve 7 alıştırma.
 - **Veri Mühendisi rotası.** Rotalar'da veriyi bir kaynaktan çekip
   temizleyen, saklayan ve sunan işler için yeni bir rota: Python, Git,
   SQL, pandas, Büyük Veri, API ve Docker, her adımda odaklanılacak
