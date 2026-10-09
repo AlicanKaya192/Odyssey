@@ -242,6 +242,87 @@ Note: the `Shape` class itself has no `area` method, yet `describe` calls it.
 That is deliberate — every shape works out its area differently, and the
 subclasses fill that in.
 
+## Your own error class
+
+In the Handling Errors section you raised ready error types with
+`raise ValueError(...)`. Error types are classes too, and all of them derive
+from the `Exception` class. With inheritance you can write your own error
+type:
+
+```python
+class InsufficientFunds(Exception):
+    pass
+
+
+class Account:
+    def __init__(self, balance):
+        self.balance = balance
+
+    def withdraw(self, amount):
+        if amount > self.balance:
+            raise InsufficientFunds(f"balance {self.balance}, wanted {amount}")
+        self.balance -= amount
+
+
+account = Account(100)
+account.withdraw(30)
+try:
+    account.withdraw(150)
+except InsufficientFunds as error:
+    print("not enough money:", error)
+print(account.balance)
+```
+
+```text
+not enough money: balance 70, wanted 150
+70
+```
+
+- `class InsufficientFunds(Exception):` is a new error type. Its body is
+  `pass` (empty): it takes everything it does from `Exception`, the
+  explanation text included.
+- **The gain is the name.** The caller can catch exactly this situation:
+  `except InsufficientFunds`. Had it caught a `ValueError`, it would also
+  catch unrelated `ValueError`s coming from elsewhere in the code.
+- The error was raised **before** the `self.balance -= amount` line; the
+  balance stayed at 70 and did not go negative.
+
+### Translating and chaining an error: `raise ... from`
+
+Sometimes the error underneath (a missing key, a number that cannot be read)
+is too much detail for the caller; you want to give it an error that speaks
+the language of its own area:
+
+```python
+class ConfigError(Exception):
+    pass
+
+
+def read_port(settings):
+    try:
+        return int(settings["port"])
+    except (KeyError, ValueError) as error:
+        raise ConfigError("port is missing or not a number") from error
+
+
+print(read_port({"port": "8080"}))
+try:
+    read_port({"port": "abc"})
+except ConfigError as error:
+    print(error)
+```
+
+```text
+8080
+port is missing or not a number
+```
+
+`from error` links the real cause to the new error. If the error is not
+caught, the traceback shows both: first the `KeyError` or `ValueError`, then
+`The above exception was the direct cause of the following exception:`, then
+the `ConfigError`. That way both a clear message and the real cause are
+visible.
+
 ## When should you write a class?
 
 A class is not the answer to every problem. Where it helps:
@@ -276,4 +357,6 @@ write a class; if not, a function.
   rather than printing one.
 - `class Child(Parent):` is inheritance; `super().__init__(...)` calls the
   parent's constructor.
+- Your own error type: `class InsufficientFunds(Exception): pass`.
+  `raise ... from error` links the real cause to the new error.
 - For an operation with no state, write a function rather than a class.

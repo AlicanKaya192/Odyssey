@@ -1,0 +1,55 @@
+{
+  "id": "wallet-errors",
+  "title": {
+    "tr": "Kendi hata türün",
+    "en": "Your own error type"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Hata sınıfının gövdesi boş olabilir: `class InsufficientFunds(Exception):` ve altında `pass`.",
+      "en": "The error class's body can be empty: `class InsufficientFunds(Exception):` with `pass` below it."
+    },
+    {
+      "tr": "Kontroller bakiyeyi değiştiren satırdan **önce** gelir; `raise` çalışınca metot orada durur ve bakiye satırına hiç gelinmez.",
+      "en": "The checks come **before** the line that changes the balance; when `raise` runs the method stops there and the balance line is never reached."
+    },
+    {
+      "tr": "Çözüm:\n\n```python\nclass InsufficientFunds(Exception):\n    pass\n\n\nclass Wallet:\n    def __init__(self, balance):\n        self.balance = balance\n\n    def spend(self, amount):\n        if amount <= 0:\n            raise ValueError(\"amount must be positive\")\n        if amount > self.balance:\n            raise InsufficientFunds(f\"balance {self.balance}, wanted {amount}\")\n        self.balance = self.balance - amount\n\n\nwallet = Wallet(50)\nfor amount in [20, -5, 100]:\n    try:\n        wallet.spend(amount)\n        print(\"spent\", amount)\n    except ValueError as error:\n        print(\"ValueError:\", error)\n    except InsufficientFunds as error:\n        print(\"InsufficientFunds:\", error)\nprint(wallet.balance)\n```",
+      "en": "The solution:\n\n```python\nclass InsufficientFunds(Exception):\n    pass\n\n\nclass Wallet:\n    def __init__(self, balance):\n        self.balance = balance\n\n    def spend(self, amount):\n        if amount <= 0:\n            raise ValueError(\"amount must be positive\")\n        if amount > self.balance:\n            raise InsufficientFunds(f\"balance {self.balance}, wanted {amount}\")\n        self.balance = self.balance - amount\n\n\nwallet = Wallet(50)\nfor amount in [20, -5, 100]:\n    try:\n        wallet.spend(amount)\n        print(\"spent\", amount)\n    except ValueError as error:\n        print(\"ValueError:\", error)\n    except InsufficientFunds as error:\n        print(\"InsufficientFunds:\", error)\nprint(wallet.balance)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "method",
+      "class": "Wallet",
+      "args": [
+        50
+      ],
+      "cases": [
+        {
+          "method": "spend",
+          "args": [
+            20
+          ]
+        },
+        {
+          "attribute": "balance",
+          "equals": 30
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "spent 20\nValueError: amount must be positive\nInsufficientFunds: balance 30, wanted 100\n30"
+    }
+  ]
+}

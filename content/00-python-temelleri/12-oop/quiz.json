@@ -519,6 +519,58 @@
         "tr": "Liste sınıf gövdesinde değil, **varsayılan değerde** — ama sonuç aynı.\n\nVarsayılan değer **fonksiyon tanımlanırken bir kez** oluşuyor, her çağrıda değil. İki `Box()` çağrısı da aynı listeyi alıyor ve `self.items` ikisinde de o listeyi gösteriyor.\n\nDoğrusu:\n\n```python\ndef __init__(self, items=None):\n    if items is None:\n        items = []\n    self.items = items\n```\n\nBu tuzak sınıflara özel değil; her fonksiyonda geçerli. Kural: **varsayılan değer asla değiştirilebilir bir nesne olmaz.**",
         "en": "The list is not in the class body but in the **default value** — and the result is the same.\n\nA default value is created **once, when the function is defined**, not on every call. Both `Box()` calls receive the same list, and `self.items` points at it in both.\n\nThe right way:\n\n```python\ndef __init__(self, items=None):\n    if items is None:\n        items = []\n    self.items = items\n```\n\nThis trap is not specific to classes; it applies to every function. The rule: **a default value is never a mutable object.**"
       }
+    },
+    {
+      "id": "q21",
+      "text": {
+        "tr": "`class InsufficientFunds(Exception): pass` yazmanın kazancı ne?",
+        "en": "What is the gain of writing `class InsufficientFunds(Exception): pass`?"
+      },
+      "options": {
+        "tr": [
+          "Çağıran tam bu durumu `except InsufficientFunds` ile yakalayabilir",
+          "Program daha hızlı çalışır",
+          "Hata hiç fırlatılmaz",
+          "Kazancı yok; `pass` yüzünden çalışmaz"
+        ],
+        "en": [
+          "The caller can catch exactly this situation with `except InsufficientFunds`",
+          "The program runs faster",
+          "The error is never raised",
+          "No gain; it does not work because of `pass`"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Yeni sınıf `Exception`'dan türüyor; gövdesi boş olsa da hata olmak için gereken her şeyi oradan alıyor.\n\nKazancı **adı**: `except InsufficientFunds` yalnızca bu durumu yakalar. `ValueError` kullanılsaydı kodun başka yerinden gelen ilgisiz `ValueError`'lar da yakalanırdı.",
+        "en": "The new class derives from `Exception`; even with an empty body it takes everything it needs to be an error from there.\n\nThe gain is **the name**: `except InsufficientFunds` catches only this situation. With `ValueError`, unrelated `ValueError`s from elsewhere in the code would be caught too."
+      }
+    },
+    {
+      "id": "q22",
+      "text": {
+        "tr": "`raise ConfigError(\"bad port\") from error` içinde `from error` ne yapar?",
+        "en": "In `raise ConfigError(\"bad port\") from error`, what does `from error` do?"
+      },
+      "options": {
+        "tr": [
+          "Asıl sebebi yeni hataya bağlar; traceback ikisini de gösterir",
+          "Eski hatayı siler",
+          "Hatayı yakalar",
+          "`error`'u yeniden fırlatır, `ConfigError`'u değil"
+        ],
+        "en": [
+          "Links the real cause to the new error; the traceback shows both",
+          "Deletes the old error",
+          "Catches the error",
+          "Raises `error` again instead of `ConfigError`"
+        ]
+      },
+      "answer": 0,
+      "explanation": {
+        "tr": "Fırlatılan `ConfigError`; ama asıl sebep (`KeyError`, `ValueError`) ona bağlanıyor. Yakalanmazsa traceback önce asıl hatayı, sonra `The above exception was the direct cause of the following exception:` satırını, en sonda `ConfigError`'u gösteriyor.",
+        "en": "What is raised is `ConfigError`, but the real cause (`KeyError`, `ValueError`) is linked to it. If not caught, the traceback shows the real error first, then the line `The above exception was the direct cause of the following exception:`, and `ConfigError` last."
+      }
     }
   ]
 }
