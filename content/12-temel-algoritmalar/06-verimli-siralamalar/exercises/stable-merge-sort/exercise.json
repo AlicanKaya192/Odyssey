@@ -1,0 +1,208 @@
+{
+  "id": "stable-merge-sort",
+  "title": {
+    "tr": "Kararlı sıralama",
+    "en": "A stable sort"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Merge sort'un aynısı; tek fark birleştirmedeki karşılaştırma: `left[i][1] <= right[j][1]`.",
+      "en": "The same as merge sort; the only difference is the comparison in the merge: `left[i][1] <= right[j][1]`."
+    },
+    {
+      "tr": "İki yarıyı `sort_by_score` ile sırala, sonra iki indeksle birleştir; `<` yazarsan eşitlerde sağdaki öne geçer.",
+      "en": "Sort both halves with `sort_by_score`, then merge with two indices; with `<` the right one moves ahead on ties."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef sort_by_score(records):\n    if len(records) <= 1:\n        return records\n    mid = len(records) // 2\n    left = sort_by_score(records[:mid])\n    right = sort_by_score(records[mid:])\n    result = []\n    i = j = 0\n    while i < len(left) and j < len(right):\n        if left[i][1] <= right[j][1]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    result.extend(left[i:])\n    result.extend(right[j:])\n    return result\n\n\nprint(sort_by_score([[\"Bora\", 2], [\"Ada\", 2], [\"Cem\", 1]]))\nprint(sort_by_score([[\"x\", 5], [\"y\", 3], [\"z\", 5], [\"w\", 3]]))\n```",
+      "en": "The full solution:\n\n```python\ndef sort_by_score(records):\n    if len(records) <= 1:\n        return records\n    mid = len(records) // 2\n    left = sort_by_score(records[:mid])\n    right = sort_by_score(records[mid:])\n    result = []\n    i = j = 0\n    while i < len(left) and j < len(right):\n        if left[i][1] <= right[j][1]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    result.extend(left[i:])\n    result.extend(right[j:])\n    return result\n\n\nprint(sort_by_score([[\"Bora\", 2], [\"Ada\", 2], [\"Cem\", 1]]))\nprint(sort_by_score([[\"x\", 5], [\"y\", 3], [\"z\", 5], [\"w\", 3]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "recursive": "sort_by_score",
+      "hint": {
+        "tr": "`sort_by_score` kendini çağırmalı (özyineleme).",
+        "en": "`sort_by_score` must call itself (recursion)."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma; algoritmayı kendin yaz.",
+        "en": "Do not use `sorted`; write the algorithm yourself."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`.sort()` kullanma; algoritmayı kendin yaz.",
+        "en": "Do not use `.sort()`; write the algorithm yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "sort_by_score",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "Bora",
+                2
+              ],
+              [
+                "Ada",
+                2
+              ],
+              [
+                "Cem",
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "Cem",
+              1
+            ],
+            [
+              "Bora",
+              2
+            ],
+            [
+              "Ada",
+              2
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "x",
+                5
+              ],
+              [
+                "y",
+                3
+              ],
+              [
+                "z",
+                5
+              ],
+              [
+                "w",
+                3
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "y",
+              3
+            ],
+            [
+              "w",
+              3
+            ],
+            [
+              "x",
+              5
+            ],
+            [
+              "z",
+              5
+            ]
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                1
+              ],
+              [
+                "b",
+                1
+              ],
+              [
+                "c",
+                1
+              ],
+              [
+                "d",
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "a",
+              1
+            ],
+            [
+              "b",
+              1
+            ],
+            [
+              "c",
+              1
+            ],
+            [
+              "d",
+              1
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "p",
+                9
+              ],
+              [
+                "q",
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "q",
+              1
+            ],
+            [
+              "p",
+              9
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[['Cem', 1], ['Bora', 2], ['Ada', 2]]\n[['y', 3], ['w', 3], ['x', 5], ['z', 5]]"
+    }
+  ]
+}

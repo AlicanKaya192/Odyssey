@@ -1,0 +1,161 @@
+{
+  "id": "count-inversions",
+  "title": {
+    "tr": "Ters sayımı hızlı say",
+    "en": "Count inversions fast"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`left, a = sort_and_count(items[:mid])` ve `right, b = sort_and_count(items[mid:])`.",
+      "en": "`left, a = sort_and_count(items[:mid])` and `right, b = sort_and_count(items[mid:])`."
+    },
+    {
+      "tr": "Birleştirmenin `else` dalında (sağdaki küçük) `count += len(left) - i`. Sonunda `return merged, a + b + count`.",
+      "en": "In the merge's `else` branch (the right one is smaller), `count += len(left) - i`. Finally `return merged, a + b + count`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport random\n\n\ndef sort_and_count(items):\n    if len(items) <= 1:\n        return items, 0\n    mid = len(items) // 2\n    left, a = sort_and_count(items[:mid])\n    right, b = sort_and_count(items[mid:])\n    merged = []\n    count = 0\n    i = j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            merged.append(left[i])\n            i += 1\n        else:\n            merged.append(right[j])\n            count += len(left) - i\n            j += 1\n    merged.extend(left[i:])\n    merged.extend(right[j:])\n    return merged, a + b + count\n\n\nprint(sort_and_count([2, 4, 1, 3, 5]))\nprint(sort_and_count([5, 4, 3, 2, 1]))\nrandom.seed(7)\ndata = random.sample(range(50_000), 50_000)\nprint(sort_and_count(data)[1])\n```",
+      "en": "The full solution:\n\n```python\nimport random\n\n\ndef sort_and_count(items):\n    if len(items) <= 1:\n        return items, 0\n    mid = len(items) // 2\n    left, a = sort_and_count(items[:mid])\n    right, b = sort_and_count(items[mid:])\n    merged = []\n    count = 0\n    i = j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            merged.append(left[i])\n            i += 1\n        else:\n            merged.append(right[j])\n            count += len(left) - i\n            j += 1\n    merged.extend(left[i:])\n    merged.extend(right[j:])\n    return merged, a + b + count\n\n\nprint(sort_and_count([2, 4, 1, 3, 5]))\nprint(sort_and_count([5, 4, 3, 2, 1]))\nrandom.seed(7)\ndata = random.sample(range(50_000), 50_000)\nprint(sort_and_count(data)[1])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "recursive": "sort_and_count",
+      "hint": {
+        "tr": "`sort_and_count` kendini çağırmalı (özyineleme).",
+        "en": "`sort_and_count` must call itself (recursion)."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma; algoritmayı kendin yaz.",
+        "en": "Do not use `sorted`; write the algorithm yourself."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`.sort()` kullanma; algoritmayı kendin yaz.",
+        "en": "Do not use `.sort()`; write the algorithm yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "sort_and_count",
+      "cases": [
+        {
+          "args": [
+            [
+              2,
+              4,
+              1,
+              3,
+              5
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              3
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              5,
+              4,
+              3,
+              2,
+              1
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              10
+            ]
+          }
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": {
+            "__tuple__": [
+              [],
+              0
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                1,
+                2,
+                3
+              ],
+              0
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              3,
+              3,
+              1
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                1,
+                3,
+                3
+              ],
+              2
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "([1, 2, 3, 4, 5], 3)\n([1, 2, 3, 4, 5], 10)\n622355072"
+    }
+  ]
+}
