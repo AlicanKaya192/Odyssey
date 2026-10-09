@@ -1,0 +1,94 @@
+{
+  "id": "tree-sum",
+  "title": {
+    "tr": "Ağacın toplamı",
+    "en": "The sum of a tree"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`if node is None: return 0`.",
+      "en": "`if node is None: return 0`."
+    },
+    {
+      "tr": "Sonra `return node.value + tree_sum(node.left) + tree_sum(node.right)`.",
+      "en": "Then `return node.value + tree_sum(node.left) + tree_sum(node.right)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef build_tree(spec):\n    # [value, left, right] -> TreeNode; a plain value is a leaf; None is empty.\n    if spec is None:\n        return None\n    if not isinstance(spec, list):\n        return TreeNode(spec)\n    value, left, right = spec\n    return TreeNode(value, build_tree(left), build_tree(right))\n\n\nTREE = [1, [2, 4, 5], [3, None, 6]]\n\n\ndef tree_sum(node):\n    if node is None:\n        return 0\n    return node.value + tree_sum(node.left) + tree_sum(node.right)\n\ndef sum_of(spec):\n    return tree_sum(build_tree(spec))\n\nprint(sum_of(TREE))\nprint(sum_of(None))\n```",
+      "en": "The full solution:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef build_tree(spec):\n    # [value, left, right] -> TreeNode; a plain value is a leaf; None is empty.\n    if spec is None:\n        return None\n    if not isinstance(spec, list):\n        return TreeNode(spec)\n    value, left, right = spec\n    return TreeNode(value, build_tree(left), build_tree(right))\n\n\nTREE = [1, [2, 4, 5], [3, None, 6]]\n\n\ndef tree_sum(node):\n    if node is None:\n        return 0\n    return node.value + tree_sum(node.left) + tree_sum(node.right)\n\ndef sum_of(spec):\n    return tree_sum(build_tree(spec))\n\nprint(sum_of(TREE))\nprint(sum_of(None))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "recursive": "tree_sum",
+      "hint": {
+        "tr": "`tree_sum` kendini çağırmalı.",
+        "en": "`tree_sum` should call itself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "sum_of",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              [
+                2,
+                4,
+                5
+              ],
+              [
+                3,
+                null,
+                6
+              ]
+            ]
+          ],
+          "returns": 21
+        },
+        {
+          "args": [
+            null
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            7
+          ],
+          "returns": 7
+        },
+        {
+          "args": [
+            [
+              -5,
+              [
+                3,
+                null,
+                -2
+              ],
+              10
+            ]
+          ],
+          "returns": 6
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "21\n0"
+    }
+  ]
+}

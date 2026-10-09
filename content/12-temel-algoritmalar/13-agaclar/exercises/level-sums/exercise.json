@@ -1,0 +1,131 @@
+{
+  "id": "level-sums",
+  "title": {
+    "tr": "Seviye toplamları",
+    "en": "Level sums"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while queue:` içinde `total = 0`, sonra `for _ in range(len(queue)):` ile bu seviyedeki düğümleri `popleft` et.",
+      "en": "Inside `while queue:`, `total = 0`, then `popleft` this level's nodes with `for _ in range(len(queue)):`."
+    },
+    {
+      "tr": "Her düğümde `total += node.value`, çocukları kuyruğa ekle; iç döngü bitince `sums.append(total)`.",
+      "en": "At each node `total += node.value` and add the children to the queue; after the inner loop `sums.append(total)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef build_tree(spec):\n    # [value, left, right] -> TreeNode; a plain value is a leaf; None is empty.\n    if spec is None:\n        return None\n    if not isinstance(spec, list):\n        return TreeNode(spec)\n    value, left, right = spec\n    return TreeNode(value, build_tree(left), build_tree(right))\n\n\nTREE = [1, [2, 4, 5], [3, None, 6]]\n\n\nfrom collections import deque\n\n\ndef level_sums(root):\n    if root is None:\n        return []\n    sums = []\n    queue = deque([root])\n    while queue:\n        total = 0\n        for _ in range(len(queue)):\n            node = queue.popleft()\n            total += node.value\n            if node.left:\n                queue.append(node.left)\n            if node.right:\n                queue.append(node.right)\n        sums.append(total)\n    return sums\n\ndef sums_of(spec):\n    return level_sums(build_tree(spec))\n\nprint(sums_of(TREE))\nprint(sums_of(None))\n```",
+      "en": "The full solution:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef build_tree(spec):\n    # [value, left, right] -> TreeNode; a plain value is a leaf; None is empty.\n    if spec is None:\n        return None\n    if not isinstance(spec, list):\n        return TreeNode(spec)\n    value, left, right = spec\n    return TreeNode(value, build_tree(left), build_tree(right))\n\n\nTREE = [1, [2, 4, 5], [3, None, 6]]\n\n\nfrom collections import deque\n\n\ndef level_sums(root):\n    if root is None:\n        return []\n    sums = []\n    queue = deque([root])\n    while queue:\n        total = 0\n        for _ in range(len(queue)):\n            node = queue.popleft()\n            total += node.value\n            if node.left:\n                queue.append(node.left)\n            if node.right:\n                queue.append(node.right)\n        sums.append(total)\n    return sums\n\ndef sums_of(spec):\n    return level_sums(build_tree(spec))\n\nprint(sums_of(TREE))\nprint(sums_of(None))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "While",
+      "hint": {
+        "tr": "Kuyruğu bir `while queue:` döngüsüyle boşalt.",
+        "en": "Empty the queue with a `while queue:` loop."
+      }
+    },
+    {
+      "type": "function",
+      "name": "sums_of",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              [
+                2,
+                4,
+                5
+              ],
+              [
+                3,
+                null,
+                6
+              ]
+            ]
+          ],
+          "returns": [
+            1,
+            5,
+            15
+          ]
+        },
+        {
+          "args": [
+            null
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            5
+          ],
+          "returns": [
+            5
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              [
+                2,
+                [
+                  3,
+                  null,
+                  4
+                ],
+                null
+              ],
+              null
+            ]
+          ],
+          "returns": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "args": [
+            [
+              10,
+              [
+                -2,
+                1,
+                1
+              ],
+              [
+                7,
+                0,
+                null
+              ]
+            ]
+          ],
+          "returns": [
+            10,
+            5,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 5, 15]\n[]"
+    }
+  ]
+}

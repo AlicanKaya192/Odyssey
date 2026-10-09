@@ -1,0 +1,136 @@
+{
+  "id": "decision-tree-accuracy",
+  "title": {
+    "tr": "Karar ağacının doğruluğu",
+    "en": "A decision tree's accuracy"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`predict`: `while isinstance(node, dict):` içinde eşiğe göre `node = node[\"left\"]` ya da `node[\"right\"]`; döngü bitince `return node`.",
+      "en": "`predict`: inside `while isinstance(node, dict):`, `node = node[\"left\"]` or `node[\"right\"]` by the threshold; after the loop `return node`."
+    },
+    {
+      "tr": "`accuracy`: `zip(flowers, labels)` ile gez, `predict(tree, flower) == label` olanları say, `len(labels)`'a böl.",
+      "en": "`accuracy`: walk `zip(flowers, labels)`, count those where `predict(tree, flower) == label`, divide by `len(labels)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ntree = {\n    \"feature\": \"petal_length\", \"threshold\": 2.5,\n    \"left\": \"setosa\",\n    \"right\": {\n        \"feature\": \"petal_width\", \"threshold\": 1.75,\n        \"left\": \"versicolor\",\n        \"right\": \"virginica\",\n    },\n}\n\nflowers = [\n    {\"petal_length\": 1.3, \"petal_width\": 0.3},\n    {\"petal_length\": 4.7, \"petal_width\": 1.4},\n    {\"petal_length\": 6.1, \"petal_width\": 2.3},\n    {\"petal_length\": 4.8, \"petal_width\": 1.8},\n    {\"petal_length\": 5.1, \"petal_width\": 1.9},\n]\nlabels = [\"setosa\", \"versicolor\", \"virginica\", \"versicolor\", \"virginica\"]\n\n\ndef predict(node, flower):\n    while isinstance(node, dict):\n        if flower[node[\"feature\"]] <= node[\"threshold\"]:\n            node = node[\"left\"]\n        else:\n            node = node[\"right\"]\n    return node\n\n\ndef accuracy(tree, flowers, labels):\n    correct = 0\n    for flower, label in zip(flowers, labels):\n        if predict(tree, flower) == label:\n            correct += 1\n    return correct / len(labels)\n\n\nfor flower, label in zip(flowers, labels):\n    print(predict(tree, flower), label)\nprint(accuracy(tree, flowers, labels))\n```",
+      "en": "The full solution:\n\n```python\ntree = {\n    \"feature\": \"petal_length\", \"threshold\": 2.5,\n    \"left\": \"setosa\",\n    \"right\": {\n        \"feature\": \"petal_width\", \"threshold\": 1.75,\n        \"left\": \"versicolor\",\n        \"right\": \"virginica\",\n    },\n}\n\nflowers = [\n    {\"petal_length\": 1.3, \"petal_width\": 0.3},\n    {\"petal_length\": 4.7, \"petal_width\": 1.4},\n    {\"petal_length\": 6.1, \"petal_width\": 2.3},\n    {\"petal_length\": 4.8, \"petal_width\": 1.8},\n    {\"petal_length\": 5.1, \"petal_width\": 1.9},\n]\nlabels = [\"setosa\", \"versicolor\", \"virginica\", \"versicolor\", \"virginica\"]\n\n\ndef predict(node, flower):\n    while isinstance(node, dict):\n        if flower[node[\"feature\"]] <= node[\"threshold\"]:\n            node = node[\"left\"]\n        else:\n            node = node[\"right\"]\n    return node\n\n\ndef accuracy(tree, flowers, labels):\n    correct = 0\n    for flower, label in zip(flowers, labels):\n        if predict(tree, flower) == label:\n            correct += 1\n    return correct / len(labels)\n\n\nfor flower, label in zip(flowers, labels):\n    print(predict(tree, flower), label)\nprint(accuracy(tree, flowers, labels))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "predict",
+      "cases": [
+        {
+          "args": [
+            {
+              "feature": "x",
+              "threshold": 1,
+              "left": "a",
+              "right": "b"
+            },
+            {
+              "x": 1
+            }
+          ],
+          "returns": "a"
+        },
+        {
+          "args": [
+            {
+              "feature": "x",
+              "threshold": 1,
+              "left": "a",
+              "right": "b"
+            },
+            {
+              "x": 2
+            }
+          ],
+          "returns": "b"
+        },
+        {
+          "args": [
+            "leaf",
+            {
+              "x": 0
+            }
+          ],
+          "returns": "leaf"
+        },
+        {
+          "args": [
+            {
+              "feature": "x",
+              "threshold": 0,
+              "left": "neg",
+              "right": {
+                "feature": "y",
+                "threshold": 5,
+                "left": "low",
+                "right": "high"
+              }
+            },
+            {
+              "x": 3,
+              "y": 9
+            }
+          ],
+          "returns": "high"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "accuracy",
+      "cases": [
+        {
+          "args": [
+            {
+              "feature": "x",
+              "threshold": 1,
+              "left": "a",
+              "right": "b"
+            },
+            [
+              {
+                "x": 0
+              },
+              {
+                "x": 5
+              },
+              {
+                "x": 1
+              },
+              {
+                "x": 2
+              }
+            ],
+            [
+              "a",
+              "b",
+              "b",
+              "b"
+            ]
+          ],
+          "returns": 0.75
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "setosa setosa\nversicolor versicolor\nvirginica virginica\nvirginica versicolor\nvirginica virginica\n0.8"
+    }
+  ]
+}
