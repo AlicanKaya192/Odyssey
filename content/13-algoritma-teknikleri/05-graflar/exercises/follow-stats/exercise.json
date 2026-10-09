@@ -1,0 +1,132 @@
+{
+  "id": "follow-stats",
+  "title": {
+    "tr": "Takipçi sayıları",
+    "en": "Follower counts"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for a, b in follows:` içinde `following.setdefault(a, set()).add(b)`.",
+      "en": "Inside `for a, b in follows:`, `following.setdefault(a, set()).add(b)`."
+    },
+    {
+      "tr": "Ve `followers.setdefault(b, set()).add(a)`; gerisi hazır.",
+      "en": "And `followers.setdefault(b, set()).add(a)`; the rest is ready."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef follow_stats(follows):\n    followers, following = {}, {}\n    for a, b in follows:\n        following.setdefault(a, set()).add(b)\n        followers.setdefault(b, set()).add(a)\n    people = sorted(set(followers) | set(following))\n    return {p: [len(followers.get(p, ())), len(following.get(p, ()))] for p in people}\n\n\nfollows = [[\"ada\", \"bora\"], [\"cem\", \"bora\"], [\"deniz\", \"bora\"],\n           [\"bora\", \"ece\"], [\"ada\", \"ece\"], [\"ece\", \"ada\"]]\nfor person, (fans, follows_count) in follow_stats(follows).items():\n    print(person, fans, follows_count)\n```",
+      "en": "The full solution:\n\n```python\ndef follow_stats(follows):\n    followers, following = {}, {}\n    for a, b in follows:\n        following.setdefault(a, set()).add(b)\n        followers.setdefault(b, set()).add(a)\n    people = sorted(set(followers) | set(following))\n    return {p: [len(followers.get(p, ())), len(following.get(p, ()))] for p in people}\n\n\nfollows = [[\"ada\", \"bora\"], [\"cem\", \"bora\"], [\"deniz\", \"bora\"],\n           [\"bora\", \"ece\"], [\"ada\", \"ece\"], [\"ece\", \"ada\"]]\nfor person, (fans, follows_count) in follow_stats(follows).items():\n    print(person, fans, follows_count)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "follow_stats",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "cem",
+                "bora"
+              ],
+              [
+                "deniz",
+                "bora"
+              ],
+              [
+                "bora",
+                "ece"
+              ],
+              [
+                "ada",
+                "ece"
+              ],
+              [
+                "ece",
+                "ada"
+              ]
+            ]
+          ],
+          "returns": {
+            "ada": [
+              1,
+              2
+            ],
+            "bora": [
+              3,
+              1
+            ],
+            "cem": [
+              0,
+              1
+            ],
+            "deniz": [
+              0,
+              1
+            ],
+            "ece": [
+              2,
+              1
+            ]
+          }
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": {}
+        },
+        {
+          "args": [
+            [
+              [
+                "x",
+                "y"
+              ],
+              [
+                "y",
+                "x"
+              ],
+              [
+                "x",
+                "z"
+              ]
+            ]
+          ],
+          "returns": {
+            "x": [
+              1,
+              2
+            ],
+            "y": [
+              1,
+              1
+            ],
+            "z": [
+              1,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada 1 2\nbora 3 1\ncem 0 1\ndeniz 0 1\nece 2 1"
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "id": "build-graph",
+  "title": {
+    "tr": "Kenarlardan graf",
+    "en": "A graph from edges"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for a, b in edges:` içinde `graph.setdefault(a, set()).add(b)`.",
+      "en": "Inside `for a, b in edges:`, `graph.setdefault(a, set()).add(b)`."
+    },
+    {
+      "tr": "Aynısını ters yönde: `graph.setdefault(b, set()).add(a)`.",
+      "en": "The same the other way: `graph.setdefault(b, set()).add(a)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef neighbours(edges):\n    graph = build_graph(edges)\n    return {node: sorted(graph[node]) for node in sorted(graph)}\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"]]\nfor node, near in neighbours(edges).items():\n    print(node, near)\n```",
+      "en": "The full solution:\n\n```python\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef neighbours(edges):\n    graph = build_graph(edges)\n    return {node: sorted(graph[node]) for node in sorted(graph)}\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"]]\nfor node, near in neighbours(edges).items():\n    print(node, near)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "neighbours",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ]
+            ]
+          ],
+          "returns": {
+            "ada": [
+              "bora",
+              "cem"
+            ],
+            "bora": [
+              "ada",
+              "cem",
+              "deniz"
+            ],
+            "cem": [
+              "ada",
+              "bora",
+              "deniz"
+            ],
+            "deniz": [
+              "bora",
+              "cem",
+              "ece"
+            ],
+            "ece": [
+              "deniz",
+              "fuat"
+            ],
+            "fuat": [
+              "ece"
+            ]
+          }
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": {}
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ],
+              [
+                "c",
+                "d"
+              ],
+              [
+                "a",
+                "c"
+              ],
+              [
+                "e",
+                "a"
+              ]
+            ]
+          ],
+          "returns": {
+            "a": [
+              "b",
+              "c",
+              "e"
+            ],
+            "b": [
+              "a"
+            ],
+            "c": [
+              "a",
+              "d"
+            ],
+            "d": [
+              "c"
+            ],
+            "e": [
+              "a"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada ['bora', 'cem']\nbora ['ada', 'cem', 'deniz']\ncem ['ada', 'bora', 'deniz']\ndeniz ['bora', 'cem', 'ece']\nece ['deniz', 'fuat']\nfuat ['ece']"
+    }
+  ]
+}
