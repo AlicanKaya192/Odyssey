@@ -1,0 +1,96 @@
+{
+  "id": "count-subsets",
+  "title": {
+    "tr": "Ortada buluşma",
+    "en": "Meet in the middle"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`subset_sums`: `for x in items: sums += [s + x for s in sums]`.",
+      "en": "`subset_sums`: `for x in items: sums += [s + x for s in sums]`."
+    },
+    {
+      "tr": "`left`, sıralı `right`; `return sum(bisect_right(right, limit - s) for s in left)`.",
+      "en": "`left`, a sorted `right`; `return sum(bisect_right(right, limit - s) for s in left)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport random\nfrom bisect import bisect_right\n\n\ndef subset_sums(items):\n    sums = [0]\n    for x in items:\n        sums += [s + x for s in sums]\n    return sums\n\n\ndef count_subsets(items, limit):\n    half = len(items) // 2\n    left = subset_sums(items[:half])\n    right = sorted(subset_sums(items[half:]))\n    return sum(bisect_right(right, limit - s) for s in left)\n\nprint(count_subsets([3, 5, 2, 8], 7))\nrng = random.Random(9)\nitems = [rng.randint(1, 1000) for _ in range(30)]\nprint(count_subsets(items, 5000))\n```",
+      "en": "The full solution:\n\n```python\nimport random\nfrom bisect import bisect_right\n\n\ndef subset_sums(items):\n    sums = [0]\n    for x in items:\n        sums += [s + x for s in sums]\n    return sums\n\n\ndef count_subsets(items, limit):\n    half = len(items) // 2\n    left = subset_sums(items[:half])\n    right = sorted(subset_sums(items[half:]))\n    return sum(bisect_right(right, limit - s) for s in left)\n\nprint(count_subsets([3, 5, 2, 8], 7))\nrng = random.Random(9)\nitems = [rng.randint(1, 1000) for _ in range(30)]\nprint(count_subsets(items, 5000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "count_subsets",
+      "cases": [
+        {
+          "args": [
+            [
+              3,
+              5,
+              2,
+              8
+            ],
+            7
+          ],
+          "returns": 6
+        },
+        {
+          "args": [
+            [],
+            0
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              1
+            ],
+            2
+          ],
+          "returns": 7
+        },
+        {
+          "args": [
+            [
+              10,
+              20
+            ],
+            5
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              4,
+              6,
+              1,
+              9,
+              3,
+              7
+            ],
+            12
+          ],
+          "returns": 23
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6\n46879146"
+    }
+  ]
+}

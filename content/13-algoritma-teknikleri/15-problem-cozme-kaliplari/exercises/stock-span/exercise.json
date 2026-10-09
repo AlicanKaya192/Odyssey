@@ -1,0 +1,114 @@
+{
+  "id": "stock-span",
+  "title": {
+    "tr": "Fiyat aralığı",
+    "en": "The price span"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`while stack and prices[stack[-1]] <= p: stack.pop()`.",
+      "en": "`while stack and prices[stack[-1]] <= p: stack.pop()`."
+    },
+    {
+      "tr": "Aralık: yığın boşsa `i + 1`, değilse `i - stack[-1]`; sonra `stack.append(i)`.",
+      "en": "The span: `i + 1` if the stack is empty, otherwise `i - stack[-1]`; then `stack.append(i)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef stock_span(prices):\n    spans = []\n    stack = []\n    for i, p in enumerate(prices):\n        while stack and prices[stack[-1]] <= p:\n            stack.pop()\n        spans.append(i - stack[-1] if stack else i + 1)\n        stack.append(i)\n    return spans\n\nprint(stock_span([100, 80, 60, 70, 60, 75, 85]))\nrising = list(range(100_000))\nprint(stock_span(rising)[-1])\n```",
+      "en": "The full solution:\n\n```python\ndef stock_span(prices):\n    spans = []\n    stack = []\n    for i, p in enumerate(prices):\n        while stack and prices[stack[-1]] <= p:\n            stack.pop()\n        spans.append(i - stack[-1] if stack else i + 1)\n        stack.append(i)\n    return spans\n\nprint(stock_span([100, 80, 60, 70, 60, 75, 85]))\nrising = list(range(100_000))\nprint(stock_span(rising)[-1])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "stock_span",
+      "cases": [
+        {
+          "args": [
+            [
+              100,
+              80,
+              60,
+              70,
+              60,
+              75,
+              85
+            ]
+          ],
+          "returns": [
+            1,
+            1,
+            1,
+            2,
+            1,
+            4,
+            6
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              5,
+              5
+            ]
+          ],
+          "returns": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              3,
+              2,
+              1
+            ]
+          ],
+          "returns": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4
+            ]
+          ],
+          "returns": [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 1, 1, 2, 1, 4, 6]\n100000"
+    }
+  ]
+}
