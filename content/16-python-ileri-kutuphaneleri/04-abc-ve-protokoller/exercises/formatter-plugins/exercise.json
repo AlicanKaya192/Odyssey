@@ -1,0 +1,63 @@
+{
+  "id": "formatter-plugins",
+  "title": {
+    "tr": "Biçimlendirici eklentileri",
+    "en": "Formatter plugins"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Eklenti: `class UpperFormatter(Formatter, name=\"upper\"):` ve içinde `def format(self, text):`.",
+      "en": "A plugin: `class UpperFormatter(Formatter, name=\"upper\"):` with `def format(self, text):` inside."
+    },
+    {
+      "tr": "`apply`: `Formatter.registry[name]().format(text)`.",
+      "en": "`apply`: `Formatter.registry[name]().format(text)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom abc import ABC, abstractmethod\n\n\nclass Formatter(ABC):\n    registry: dict[str, type[\"Formatter\"]] = {}\n\n    def __init_subclass__(cls, name: str, **kwargs):\n        super().__init_subclass__(**kwargs)\n        Formatter.registry[name] = cls\n\n    @abstractmethod\n    def format(self, text: str) -> str:\n        ...\n\n\nclass UpperFormatter(Formatter, name=\"upper\"):\n    def format(self, text):\n        return text.upper()\n\n\nclass ReverseFormatter(Formatter, name=\"reverse\"):\n    def format(self, text):\n        return text[::-1]\n\n\ndef apply(name, text):\n    return Formatter.registry[name]().format(text)\n\nprint(apply(\"upper\", \"odyssey\"))\nprint(apply(\"reverse\", \"odyssey\"))\nprint(sorted(Formatter.registry))\n```",
+      "en": "The full solution:\n\n```python\nfrom abc import ABC, abstractmethod\n\n\nclass Formatter(ABC):\n    registry: dict[str, type[\"Formatter\"]] = {}\n\n    def __init_subclass__(cls, name: str, **kwargs):\n        super().__init_subclass__(**kwargs)\n        Formatter.registry[name] = cls\n\n    @abstractmethod\n    def format(self, text: str) -> str:\n        ...\n\n\nclass UpperFormatter(Formatter, name=\"upper\"):\n    def format(self, text):\n        return text.upper()\n\n\nclass ReverseFormatter(Formatter, name=\"reverse\"):\n    def format(self, text):\n        return text[::-1]\n\n\ndef apply(name, text):\n    return Formatter.registry[name]().format(text)\n\nprint(apply(\"upper\", \"odyssey\"))\nprint(apply(\"reverse\", \"odyssey\"))\nprint(sorted(Formatter.registry))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "apply",
+      "cases": [
+        {
+          "args": [
+            "upper",
+            "odyssey"
+          ],
+          "returns": "ODYSSEY"
+        },
+        {
+          "args": [
+            "reverse",
+            "abc"
+          ],
+          "returns": "cba"
+        },
+        {
+          "args": [
+            "upper",
+            ""
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ODYSSEY\nyessydo\n['reverse', 'upper']"
+    }
+  ]
+}

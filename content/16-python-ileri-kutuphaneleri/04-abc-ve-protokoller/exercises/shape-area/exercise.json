@@ -1,0 +1,77 @@
+{
+  "id": "shape-area",
+  "title": {
+    "tr": "Şekillerin alanı",
+    "en": "The area of shapes"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her alt sınıf `class Rectangle(Shape):` ve kendi `area` metodu.",
+      "en": "Each subclass: `class Rectangle(Shape):` and its own `area` method."
+    },
+    {
+      "tr": "Türden sınıfa sözlük: `kinds = {\"rect\": Rectangle, \"tri\": Triangle}`, sonra `kinds[kind](a, b)`.",
+      "en": "A dictionary from kind to class: `kinds = {\"rect\": Rectangle, \"tri\": Triangle}`, then `kinds[kind](a, b)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom abc import ABC, abstractmethod\n\n\nclass Shape(ABC):\n    @abstractmethod\n    def area(self) -> float:\n        ...\n\n\nclass Rectangle(Shape):\n    def __init__(self, width, height):\n        self.width, self.height = width, height\n\n    def area(self):\n        return self.width * self.height\n\n\nclass Triangle(Shape):\n    def __init__(self, base, height):\n        self.base, self.height = base, height\n\n    def area(self):\n        return self.base * self.height / 2\n\n\ndef total_area(specs):\n    kinds = {\"rect\": Rectangle, \"tri\": Triangle}\n    shapes = [kinds[kind](a, b) for kind, a, b in specs]\n    return sum(s.area() for s in shapes)\n\nprint(total_area([[\"rect\", 3, 4], [\"tri\", 6, 2]]))\n```",
+      "en": "The full solution:\n\n```python\nfrom abc import ABC, abstractmethod\n\n\nclass Shape(ABC):\n    @abstractmethod\n    def area(self) -> float:\n        ...\n\n\nclass Rectangle(Shape):\n    def __init__(self, width, height):\n        self.width, self.height = width, height\n\n    def area(self):\n        return self.width * self.height\n\n\nclass Triangle(Shape):\n    def __init__(self, base, height):\n        self.base, self.height = base, height\n\n    def area(self):\n        return self.base * self.height / 2\n\n\ndef total_area(specs):\n    kinds = {\"rect\": Rectangle, \"tri\": Triangle}\n    shapes = [kinds[kind](a, b) for kind, a, b in specs]\n    return sum(s.area() for s in shapes)\n\nprint(total_area([[\"rect\", 3, 4], [\"tri\", 6, 2]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "total_area",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "rect",
+                3,
+                4
+              ],
+              [
+                "tri",
+                6,
+                2
+              ]
+            ]
+          ],
+          "returns": 18.0
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              [
+                "tri",
+                1,
+                1
+              ]
+            ]
+          ],
+          "returns": 0.5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "18.0"
+    }
+  ]
+}
