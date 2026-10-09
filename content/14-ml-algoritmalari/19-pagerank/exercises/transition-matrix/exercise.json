@@ -1,0 +1,137 @@
+{
+  "id": "transition-matrix",
+  "title": {
+    "tr": "Geçiş matrisi",
+    "en": "The transition matrix"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her `j` için `outs = links[j]`; boşsa sayfa çıkmaz.",
+      "en": "For each `j`, `outs = links[j]`; if empty, the page is dangling."
+    },
+    {
+      "tr": "Bağlantı varsa `M[i, j] = 1 / len(outs)`, yoksa `M[:, j] = 1 / n`.",
+      "en": "If there are links `M[i, j] = 1 / len(outs)`, otherwise `M[:, j] = 1 / n`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef transition_matrix(links):\n    n = len(links)\n    M = np.zeros((n, n))\n    for j in range(n):\n        outs = links[j]\n        if outs:\n            for i in outs:\n                M[i, j] = 1 / len(outs)\n        else:\n            M[:, j] = 1 / n\n    return M.round(3).tolist()\n\nlinks = [[1, 2], [2], [0]]\nfor row in transition_matrix(links):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef transition_matrix(links):\n    n = len(links)\n    M = np.zeros((n, n))\n    for j in range(n):\n        outs = links[j]\n        if outs:\n            for i in outs:\n                M[i, j] = 1 / len(outs)\n        else:\n            M[:, j] = 1 / n\n    return M.round(3).tolist()\n\nlinks = [[1, 2], [2], [0]]\nfor row in transition_matrix(links):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "transition_matrix",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                2
+              ],
+              [
+                2
+              ],
+              [
+                0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.5,
+              0.0,
+              0.0
+            ],
+            [
+              0.5,
+              1.0,
+              0.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1
+              ],
+              []
+            ]
+          ],
+          "returns": [
+            [
+              0.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.5
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                2,
+                3
+              ],
+              [],
+              [
+                0
+              ],
+              []
+            ]
+          ],
+          "returns": [
+            [
+              0.0,
+              0.25,
+              1.0,
+              0.25
+            ],
+            [
+              0.333,
+              0.25,
+              0.0,
+              0.25
+            ],
+            [
+              0.333,
+              0.25,
+              0.0,
+              0.25
+            ],
+            [
+              0.333,
+              0.25,
+              0.0,
+              0.25
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.0, 0.0, 1.0]\n[0.5, 0.0, 0.0]\n[0.5, 1.0, 0.0]"
+    }
+  ]
+}
