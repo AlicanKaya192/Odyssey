@@ -1,0 +1,196 @@
+{
+  "id": "count-in-range",
+  "title": {
+    "tr": "Aralıkta kaç değer var?",
+    "en": "How many values in a range?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`low` dahil sayılsın diye alt sınır `bisect_left(items, low)`: `low`'a eşit ilk değerin yeri.",
+      "en": "For `low` to be counted, the lower boundary is `bisect_left(items, low)`: the place of the first value equal to `low`."
+    },
+    {
+      "tr": "`high` dahil sayılsın diye üst sınır `bisect_right(items, high)`: `high`'a eşit son değerin bir sağı. Fark cevap.",
+      "en": "For `high` to be counted, the upper boundary is `bisect_right(items, high)`: one past the last value equal to `high`. The difference is the answer."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport bisect\n\n\ndef count_value(items, x):\n    return bisect.bisect_right(items, x) - bisect.bisect_left(items, x)\n\n\ndef count_in_range(items, low, high):\n    return bisect.bisect_right(items, high) - bisect.bisect_left(items, low)\n\n\nages = [18, 21, 21, 25, 30, 30, 30, 42, 57]\nprint(count_value(ages, 30))\nprint(count_value(ages, 19))\nprint(count_in_range(ages, 21, 30))\nprint(count_in_range(ages, 31, 41))\n```",
+      "en": "The full solution:\n\n```python\nimport bisect\n\n\ndef count_value(items, x):\n    return bisect.bisect_right(items, x) - bisect.bisect_left(items, x)\n\n\ndef count_in_range(items, low, high):\n    return bisect.bisect_right(items, high) - bisect.bisect_left(items, low)\n\n\nages = [18, 21, 21, 25, 30, 30, 30, 42, 57]\nprint(count_value(ages, 30))\nprint(count_value(ages, 19))\nprint(count_in_range(ages, 21, 30))\nprint(count_in_range(ages, 31, 41))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "count",
+      "hint": {
+        "tr": "`.count()` kullanma; iki `bisect` sınırının farkını al.",
+        "en": "Do not use `.count()`; take the difference of two `bisect` boundaries."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "len",
+      "hint": {
+        "tr": "Döngüyle ya da filtreleyip `len` ile sayma; `bisect` sınırlarını kullan.",
+        "en": "Do not count with a loop or by filtering and `len`; use `bisect` boundaries."
+      }
+    },
+    {
+      "type": "function",
+      "name": "count_value",
+      "cases": [
+        {
+          "args": [
+            [
+              18,
+              21,
+              21,
+              25,
+              30,
+              30,
+              30,
+              42,
+              57
+            ],
+            30
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            [
+              18,
+              21,
+              21,
+              25,
+              30,
+              30,
+              30,
+              42,
+              57
+            ],
+            19
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [],
+            1
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              5,
+              5,
+              5
+            ],
+            5
+          ],
+          "returns": 3
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "count_in_range",
+      "cases": [
+        {
+          "args": [
+            [
+              18,
+              21,
+              21,
+              25,
+              30,
+              30,
+              30,
+              42,
+              57
+            ],
+            21,
+            30
+          ],
+          "returns": 6
+        },
+        {
+          "args": [
+            [
+              18,
+              21,
+              21,
+              25,
+              30,
+              30,
+              30,
+              42,
+              57
+            ],
+            31,
+            41
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              18,
+              21,
+              21,
+              25,
+              30,
+              30,
+              30,
+              42,
+              57
+            ],
+            0,
+            100
+          ],
+          "returns": 9
+        },
+        {
+          "args": [
+            [
+              18,
+              21,
+              21,
+              25,
+              30,
+              30,
+              30,
+              42,
+              57
+            ],
+            57,
+            57
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [],
+            1,
+            5
+          ],
+          "returns": 0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n0\n6\n0"
+    }
+  ]
+}

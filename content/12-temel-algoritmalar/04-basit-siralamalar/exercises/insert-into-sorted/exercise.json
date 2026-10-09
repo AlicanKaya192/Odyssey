@@ -1,0 +1,155 @@
+{
+  "id": "insert-into-sorted",
+  "title": {
+    "tr": "Sıralı listeye yerleştir",
+    "en": "Place into a sorted list"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while j >= 0 and items[j] > value:` sürdükçe `items[j + 1] = items[j]` ve `j -= 1`.",
+      "en": "While `j >= 0 and items[j] > value:` holds, do `items[j + 1] = items[j]` and `j -= 1`."
+    },
+    {
+      "tr": "Döngü durunca boşalan yer `j + 1`: `items[j + 1] = value`.",
+      "en": "When the loop stops, the free place is `j + 1`: `items[j + 1] = value`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef insert_sorted(sorted_items, value):\n    items = sorted_items[:]\n    items.append(value)\n    j = len(items) - 2\n    while j >= 0 and items[j] > value:\n        items[j + 1] = items[j]\n        j -= 1\n    items[j + 1] = value\n    return items\n\n\nprint(insert_sorted([10, 20, 30, 40], 25))\nprint(insert_sorted([10, 20, 30, 40], 5))\nprint(insert_sorted([10, 20, 30, 40], 50))\nprint(insert_sorted([], 7))\n```",
+      "en": "The full solution:\n\n```python\ndef insert_sorted(sorted_items, value):\n    items = sorted_items[:]\n    items.append(value)\n    j = len(items) - 2\n    while j >= 0 and items[j] > value:\n        items[j + 1] = items[j]\n        j -= 1\n    items[j + 1] = value\n    return items\n\n\nprint(insert_sorted([10, 20, 30, 40], 25))\nprint(insert_sorted([10, 20, 30, 40], 5))\nprint(insert_sorted([10, 20, 30, 40], 50))\nprint(insert_sorted([], 7))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "insert",
+      "hint": {
+        "tr": "`insert` kullanma; kaydırarak yerleştir.",
+        "en": "Do not use `insert`; place it by shifting."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma.",
+        "en": "Do not use `sorted`."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`.sort()` kullanma.",
+        "en": "Do not use `.sort()`."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "insort",
+      "hint": {
+        "tr": "`bisect.insort` kullanma.",
+        "en": "Do not use `bisect.insort`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "insert_sorted",
+      "cases": [
+        {
+          "args": [
+            [
+              10,
+              20,
+              30,
+              40
+            ],
+            25
+          ],
+          "returns": [
+            10,
+            20,
+            25,
+            30,
+            40
+          ]
+        },
+        {
+          "args": [
+            [
+              10,
+              20,
+              30,
+              40
+            ],
+            5
+          ],
+          "returns": [
+            5,
+            10,
+            20,
+            30,
+            40
+          ]
+        },
+        {
+          "args": [
+            [
+              10,
+              20,
+              30,
+              40
+            ],
+            50
+          ],
+          "returns": [
+            10,
+            20,
+            30,
+            40,
+            50
+          ]
+        },
+        {
+          "args": [
+            [],
+            7
+          ],
+          "returns": [
+            7
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              2,
+              3
+            ],
+            2
+          ],
+          "returns": [
+            1,
+            2,
+            2,
+            2,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[10, 20, 25, 30, 40]\n[5, 10, 20, 30, 40]\n[10, 20, 30, 40, 50]\n[7]"
+    }
+  ]
+}

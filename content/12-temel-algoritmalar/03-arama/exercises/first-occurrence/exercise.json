@@ -1,0 +1,147 @@
+{
+  "id": "first-occurrence",
+  "title": {
+    "tr": "İlk geçiş",
+    "en": "The first occurrence"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İkili aramadan tek fark eşleşme dalında: `return mid` yerine `answer = mid` ve `hi = mid - 1`.",
+      "en": "The only difference from binary search is in the match branch: instead of `return mid`, `answer = mid` and `hi = mid - 1`."
+    },
+    {
+      "tr": "Döngü bitince `return answer`: hiç eşleşme olmadıysa `-1` olarak kalmıştır.",
+      "en": "After the loop, `return answer`: if there was no match it is still `-1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef first_occurrence(items, target):\n    lo, hi = 0, len(items) - 1\n    answer = -1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if items[mid] == target:\n            answer = mid\n            hi = mid - 1\n        elif items[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return answer\n\n\nscores = [40, 55, 55, 55, 70, 70, 90]\nprint(first_occurrence(scores, 55))\nprint(first_occurrence(scores, 70))\nprint(first_occurrence(scores, 60))\n```",
+      "en": "The full solution:\n\n```python\ndef first_occurrence(items, target):\n    lo, hi = 0, len(items) - 1\n    answer = -1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if items[mid] == target:\n            answer = mid\n            hi = mid - 1\n        elif items[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return answer\n\n\nscores = [40, 55, 55, 55, 70, 70, 90]\nprint(first_occurrence(scores, 55))\nprint(first_occurrence(scores, 70))\nprint(first_occurrence(scores, 60))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "index",
+      "hint": {
+        "tr": "`.index()` kullanma; ikili aramayla bul.",
+        "en": "Do not use `.index()`; find it with binary search."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "bisect_left",
+      "hint": {
+        "tr": "`bisect` kullanma; ikili aramayı kendin yaz.",
+        "en": "Do not use `bisect`; write the binary search yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "first_occurrence",
+      "cases": [
+        {
+          "args": [
+            [
+              40,
+              55,
+              55,
+              55,
+              70,
+              70,
+              90
+            ],
+            55
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              40,
+              55,
+              55,
+              55,
+              70,
+              70,
+              90
+            ],
+            70
+          ],
+          "returns": 4
+        },
+        {
+          "args": [
+            [
+              40,
+              55,
+              55,
+              55,
+              70,
+              70,
+              90
+            ],
+            60
+          ],
+          "returns": -1
+        },
+        {
+          "args": [
+            [
+              7,
+              7,
+              7,
+              7
+            ],
+            7
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [],
+            1
+          ],
+          "returns": -1
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5,
+              5
+            ],
+            5
+          ],
+          "returns": 4
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ],
+            1
+          ],
+          "returns": 0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\n4\n-1"
+    }
+  ]
+}

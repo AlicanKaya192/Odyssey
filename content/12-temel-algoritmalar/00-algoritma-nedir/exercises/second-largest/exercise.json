@@ -1,0 +1,140 @@
+{
+  "id": "second-largest",
+  "title": {
+    "tr": "İkinci en büyük",
+    "en": "The second largest"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Üç durum var: sayı `first`'ten büyük (eski `first` `second` olur), sayı `first`'e eşit (hiçbir şey yapma) ve sayı `first`'ten küçük (belki yeni `second`).",
+      "en": "There are three cases: the number is bigger than `first` (the old `first` becomes `second`), equal to `first` (do nothing) and smaller than `first` (maybe a new `second`)."
+    },
+    {
+      "tr": "`None` ile karşılaştırma yapılamaz: `first is None or number > first` gibi önce `None` olup olmadığına bak.",
+      "en": "You cannot compare with `None`: check for `None` first, as in `first is None or number > first`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef second_largest(numbers):\n    first = None\n    second = None\n    for number in numbers:\n        if first is None or number > first:\n            second = first\n            first = number\n        elif number < first and (second is None or number > second):\n            second = number\n    return second\n\n\nprint(second_largest([4, 9, 7, 9]))\nprint(second_largest([5, 5]))\nprint(second_largest([-2, -8, -5]))\n```",
+      "en": "The full solution:\n\n```python\ndef second_largest(numbers):\n    first = None\n    second = None\n    for number in numbers:\n        if first is None or number > first:\n            second = first\n            first = number\n        elif number < first and (second is None or number > second):\n            second = number\n    return second\n\n\nprint(second_largest([4, 9, 7, 9]))\nprint(second_largest([5, 5]))\nprint(second_largest([-2, -8, -5]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted()` kullanma; tek geçişte iki değer tut.",
+        "en": "Do not use `sorted()`; keep two values in one pass."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`.sort()` kullanma; tek geçişte iki değer tut.",
+        "en": "Do not use `.sort()`; keep two values in one pass."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "max",
+      "hint": {
+        "tr": "`max()` kullanma; en büyüğü kendin izle.",
+        "en": "Do not use `max()`; track the largest yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "second_largest",
+      "cases": [
+        {
+          "args": [
+            [
+              4,
+              9,
+              7,
+              9
+            ]
+          ],
+          "returns": 7
+        },
+        {
+          "args": [
+            [
+              5,
+              5
+            ]
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            [
+              3
+            ]
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            [
+              -2,
+              -8,
+              -5
+            ]
+          ],
+          "returns": -5
+        },
+        {
+          "args": [
+            [
+              1,
+              2
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              2,
+              1
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              10,
+              10,
+              3,
+              10,
+              8
+            ]
+          ],
+          "returns": 8
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "7\nNone\n-5"
+    }
+  ]
+}
