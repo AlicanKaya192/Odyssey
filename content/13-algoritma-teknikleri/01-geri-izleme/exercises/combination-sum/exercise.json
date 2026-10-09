@@ -1,0 +1,142 @@
+{
+  "id": "combination-sum",
+  "title": {
+    "tr": "Hedef toplam",
+    "en": "Target sum"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`if total == target: result.append(path[:]); return`.",
+      "en": "`if total == target: result.append(path[:]); return`."
+    },
+    {
+      "tr": "`for i in range(start, len(values)):` içinde `total + values[i] > target` ise `break`; değilse ekle, `backtrack(i + 1, total + values[i])`, `path.pop()`.",
+      "en": "Inside `for i in range(start, len(values)):`, `break` if `total + values[i] > target`; otherwise append, `backtrack(i + 1, total + values[i])`, `path.pop()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef combination_sum(candidates, target):\n    values = sorted(candidates)\n    result, path = [], []\n\n    def backtrack(start, total):\n        if total == target:\n            result.append(path[:])\n            return\n        for i in range(start, len(values)):\n            if total + values[i] > target:\n                break\n            path.append(values[i])\n            backtrack(i + 1, total + values[i])\n            path.pop()\n\n    backtrack(0, 0)\n    return result\n\n\nprint(combination_sum([10, 1, 2, 7, 6, 5], 8))\nprint(len(combination_sum(list(range(1, 41)), 30)))\n```",
+      "en": "The full solution:\n\n```python\ndef combination_sum(candidates, target):\n    values = sorted(candidates)\n    result, path = [], []\n\n    def backtrack(start, total):\n        if total == target:\n            result.append(path[:])\n            return\n        for i in range(start, len(values)):\n            if total + values[i] > target:\n                break\n            path.append(values[i])\n            backtrack(i + 1, total + values[i])\n            path.pop()\n\n    backtrack(0, 0)\n    return result\n\n\nprint(combination_sum([10, 1, 2, 7, 6, 5], 8))\nprint(len(combination_sum(list(range(1, 41)), 30)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "combinations",
+      "hint": {
+        "tr": "`itertools` kullanma; budamalı geri izleme yaz.",
+        "en": "Do not use `itertools`; write pruned backtracking."
+      }
+    },
+    {
+      "type": "function",
+      "name": "combination_sum",
+      "cases": [
+        {
+          "args": [
+            [
+              10,
+              1,
+              2,
+              7,
+              6,
+              5
+            ],
+            8
+          ],
+          "returns": [
+            [
+              1,
+              2,
+              5
+            ],
+            [
+              1,
+              7
+            ],
+            [
+              2,
+              6
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              2,
+              3,
+              5
+            ],
+            8
+          ],
+          "returns": [
+            [
+              3,
+              5
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              4,
+              6
+            ],
+            3
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            5
+          ],
+          "returns": [
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              5
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              7
+            ],
+            7
+          ],
+          "returns": [
+            [
+              7
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[1, 2, 5], [1, 7], [2, 6]]\n296"
+    }
+  ]
+}

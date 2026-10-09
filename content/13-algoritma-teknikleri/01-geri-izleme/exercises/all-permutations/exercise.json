@@ -1,0 +1,166 @@
+{
+  "id": "all-permutations",
+  "title": {
+    "tr": "Bütün sıralanışlar",
+    "en": "All orderings"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başta `if len(path) == len(items): result.append(path[:]); return`.",
+      "en": "At the start, `if len(path) == len(items): result.append(path[:]); return`."
+    },
+    {
+      "tr": "`for i, x in enumerate(items):` içinde `used[i]` ise `continue`; değilse işaretle, ekle, `backtrack()`, sonra `path.pop()` ve `used[i] = False`.",
+      "en": "Inside `for i, x in enumerate(items):`, `continue` if `used[i]`; otherwise mark, append, `backtrack()`, then `path.pop()` and `used[i] = False`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef permutations(items):\n    result, path, used = [], [], [False] * len(items)\n\n    def backtrack():\n        if len(path) == len(items):\n            result.append(path[:])\n            return\n        for i, x in enumerate(items):\n            if used[i]:\n                continue\n            used[i] = True\n            path.append(x)\n            backtrack()\n            path.pop()\n            used[i] = False\n\n    backtrack()\n    return result\n\n\nfor order in permutations([1, 2, 3]):\n    print(order)\nprint(len(permutations(list(range(7)))))\n```",
+      "en": "The full solution:\n\n```python\ndef permutations(items):\n    result, path, used = [], [], [False] * len(items)\n\n    def backtrack():\n        if len(path) == len(items):\n            result.append(path[:])\n            return\n        for i, x in enumerate(items):\n            if used[i]:\n                continue\n            used[i] = True\n            path.append(x)\n            backtrack()\n            path.pop()\n            used[i] = False\n\n    backtrack()\n    return result\n\n\nfor order in permutations([1, 2, 3]):\n    print(order)\nprint(len(permutations(list(range(7)))))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "node": "Import",
+      "hint": {
+        "tr": "İçe aktarma yok: `itertools` kullanmadan geri izlemeyle yaz.",
+        "en": "No imports: write it with backtracking, without `itertools`."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "node": "ImportFrom",
+      "hint": {
+        "tr": "İçe aktarma yok: `itertools` kullanmadan geri izlemeyle yaz.",
+        "en": "No imports: write it with backtracking, without `itertools`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "permutations",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ]
+          ],
+          "returns": [
+            [
+              1,
+              2,
+              3
+            ],
+            [
+              1,
+              3,
+              2
+            ],
+            [
+              2,
+              1,
+              3
+            ],
+            [
+              2,
+              3,
+              1
+            ],
+            [
+              3,
+              1,
+              2
+            ],
+            [
+              3,
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": [
+            []
+          ]
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ]
+          ],
+          "returns": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              "b",
+              "a"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              4,
+              4,
+              1
+            ]
+          ],
+          "returns": [
+            [
+              4,
+              4,
+              1
+            ],
+            [
+              4,
+              1,
+              4
+            ],
+            [
+              4,
+              4,
+              1
+            ],
+            [
+              4,
+              1,
+              4
+            ],
+            [
+              1,
+              4,
+              4
+            ],
+            [
+              1,
+              4,
+              4
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 2, 3]\n[1, 3, 2]\n[2, 1, 3]\n[2, 3, 1]\n[3, 1, 2]\n[3, 2, 1]\n5040"
+    }
+  ]
+}
