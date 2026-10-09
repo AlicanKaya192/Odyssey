@@ -1,0 +1,85 @@
+{
+  "id": "scaled-knn",
+  "title": {
+    "tr": "Ölçekleyerek KNN",
+    "en": "KNN with scaling"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`mu, sd = X.mean(axis=0), X.std(axis=0)` yalnızca eğitimden.",
+      "en": "`mu, sd = X.mean(axis=0), X.std(axis=0)` only from training."
+    },
+    {
+      "tr": "`knn_labels((X - mu) / sd, y, (Xq - mu) / sd, k)`.",
+      "en": "`knn_labels((X - mu) / sd, y, (Xq - mu) / sd, k)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef knn_labels(Xtr, ytr, Xq, k):\n    d = ((Xq[:, None, :] - Xtr[None, :, :]) ** 2).sum(axis=2)\n    near = np.argsort(d, axis=1)[:, :k]\n    return np.array([np.bincount(v).argmax() for v in ytr[near]])\n\n\ndef scaled_knn(X, y, Xq, k):\n    X, y, Xq = np.array(X, dtype=float), np.array(y), np.array(Xq, dtype=float)\n    mu, sd = X.mean(axis=0), X.std(axis=0)\n    return [int(v) for v in knn_labels((X - mu) / sd, y, (Xq - mu) / sd, k)]\n\nX = [[1, 1000], [2, 3000], [9, 1100], [10, 2900]]\ny = [0, 0, 1, 1]\nprint(scaled_knn(X, y, [[1.5, 2800], [9.5, 1200]], 1))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef knn_labels(Xtr, ytr, Xq, k):\n    d = ((Xq[:, None, :] - Xtr[None, :, :]) ** 2).sum(axis=2)\n    near = np.argsort(d, axis=1)[:, :k]\n    return np.array([np.bincount(v).argmax() for v in ytr[near]])\n\n\ndef scaled_knn(X, y, Xq, k):\n    X, y, Xq = np.array(X, dtype=float), np.array(y), np.array(Xq, dtype=float)\n    mu, sd = X.mean(axis=0), X.std(axis=0)\n    return [int(v) for v in knn_labels((X - mu) / sd, y, (Xq - mu) / sd, k)]\n\nX = [[1, 1000], [2, 3000], [9, 1100], [10, 2900]]\ny = [0, 0, 1, 1]\nprint(scaled_knn(X, y, [[1.5, 2800], [9.5, 1200]], 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "scaled_knn",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                1000
+              ],
+              [
+                2,
+                3000
+              ],
+              [
+                9,
+                1100
+              ],
+              [
+                10,
+                2900
+              ]
+            ],
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              [
+                1.5,
+                2800
+              ],
+              [
+                9.5,
+                1200
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 1]"
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "id": "knn-classify",
+  "title": {
+    "tr": "KNN sınıflandırıcı",
+    "en": "A KNN classifier"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`d = ((Xq[:, None, :] - X[None, :, :]) ** 2).sum(axis=2)`, `near = np.argsort(d, axis=1)[:, :k]`.",
+      "en": "`d = ((Xq[:, None, :] - X[None, :, :]) ** 2).sum(axis=2)`, `near = np.argsort(d, axis=1)[:, :k]`."
+    },
+    {
+      "tr": "`[int(np.bincount(v).argmax()) for v in y[near]]`.",
+      "en": "`[int(np.bincount(v).argmax()) for v in y[near]]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef knn_classify(X, y, Xq, k):\n    X, y, Xq = np.array(X, dtype=float), np.array(y), np.array(Xq, dtype=float)\n    d = ((Xq[:, None, :] - X[None, :, :]) ** 2).sum(axis=2)\n    near = np.argsort(d, axis=1)[:, :k]\n    return [int(np.bincount(v).argmax()) for v in y[near]]\n\nX = [[0, 0], [0, 1], [1, 0], [5, 5], [5, 6], [6, 5]]\ny = [0, 0, 0, 1, 1, 1]\nprint(knn_classify(X, y, [[0.5, 0.5], [5.5, 5.2], [3, 3]], 3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef knn_classify(X, y, Xq, k):\n    X, y, Xq = np.array(X, dtype=float), np.array(y), np.array(Xq, dtype=float)\n    d = ((Xq[:, None, :] - X[None, :, :]) ** 2).sum(axis=2)\n    near = np.argsort(d, axis=1)[:, :k]\n    return [int(np.bincount(v).argmax()) for v in y[near]]\n\nX = [[0, 0], [0, 1], [1, 0], [5, 5], [5, 6], [6, 5]]\ny = [0, 0, 0, 1, 1, 1]\nprint(knn_classify(X, y, [[0.5, 0.5], [5.5, 5.2], [3, 3]], 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "KNeighborsClassifier",
+      "hint": {
+        "tr": "`KNeighborsClassifier` kullanma.",
+        "en": "Do not use `KNeighborsClassifier`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "knn_classify",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                5,
+                5
+              ],
+              [
+                5,
+                6
+              ],
+              [
+                6,
+                5
+              ]
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ],
+            [
+              [
+                0.5,
+                0.5
+              ],
+              [
+                5.5,
+                5.2
+              ],
+              [
+                3,
+                3
+              ]
+            ],
+            3
+          ],
+          "returns": [
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0
+              ],
+              [
+                1
+              ],
+              [
+                2
+              ],
+              [
+                3
+              ]
+            ],
+            [
+              1,
+              0,
+              1,
+              0
+            ],
+            [
+              [
+                1.4
+              ]
+            ],
+            2
+          ],
+          "returns": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 1, 0]"
+    }
+  ]
+}

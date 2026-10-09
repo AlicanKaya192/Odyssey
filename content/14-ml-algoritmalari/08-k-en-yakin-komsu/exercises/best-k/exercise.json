@@ -1,0 +1,96 @@
+{
+  "id": "best-k",
+  "title": {
+    "tr": "k seçmek",
+    "en": "Choosing k"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for k in sorted(ks):` (küçükten büyüğe: eşitlikte küçük kalır) ve katlarda doğruluk.",
+      "en": "`for k in sorted(ks):` (small to large: the smaller stays on a tie) and accuracy over the folds."
+    },
+    {
+      "tr": "Ortalama doğruluk öncekinden **büyükse** `best` güncellenir.",
+      "en": "Update `best` only if the mean accuracy is **greater**."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef knn_labels(Xtr, ytr, Xq, k):\n    d = ((Xq[:, None, :] - Xtr[None, :, :]) ** 2).sum(axis=2)\n    near = np.argsort(d, axis=1)[:, :k]\n    return np.array([np.bincount(v).argmax() for v in ytr[near]])\n\n\ndef best_k(X, y, ks, folds):\n    X, y = np.array(X, dtype=float), np.array(y)\n    n = len(y)\n    best, best_acc = None, -1.0\n    for k in sorted(ks):\n        accs = []\n        for test in np.array_split(np.arange(n), folds):\n            train = np.setdiff1d(np.arange(n), test)\n            accs.append((knn_labels(X[train], y[train], X[test], k) == y[test]).mean())\n        if np.mean(accs) > best_acc:\n            best, best_acc = k, np.mean(accs)\n    return best\n\nrng = np.random.default_rng(3)\nX = rng.normal(0, 1, (60, 2))\ny = (X[:, 0] + X[:, 1] > 0).astype(int)\nprint(best_k(X.tolist(), y.tolist(), [1, 3, 7, 15], 5))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef knn_labels(Xtr, ytr, Xq, k):\n    d = ((Xq[:, None, :] - Xtr[None, :, :]) ** 2).sum(axis=2)\n    near = np.argsort(d, axis=1)[:, :k]\n    return np.array([np.bincount(v).argmax() for v in ytr[near]])\n\n\ndef best_k(X, y, ks, folds):\n    X, y = np.array(X, dtype=float), np.array(y)\n    n = len(y)\n    best, best_acc = None, -1.0\n    for k in sorted(ks):\n        accs = []\n        for test in np.array_split(np.arange(n), folds):\n            train = np.setdiff1d(np.arange(n), test)\n            accs.append((knn_labels(X[train], y[train], X[test], k) == y[test]).mean())\n        if np.mean(accs) > best_acc:\n            best, best_acc = k, np.mean(accs)\n    return best\n\nrng = np.random.default_rng(3)\nX = rng.normal(0, 1, (60, 2))\ny = (X[:, 0] + X[:, 1] > 0).astype(int)\nprint(best_k(X.tolist(), y.tolist(), [1, 3, 7, 15], 5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "best_k",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                5,
+                5
+              ],
+              [
+                5,
+                6
+              ],
+              [
+                6,
+                5
+              ],
+              [
+                6,
+                6
+              ]
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              3
+            ],
+            4
+          ],
+          "returns": 1
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3"
+    }
+  ]
+}
