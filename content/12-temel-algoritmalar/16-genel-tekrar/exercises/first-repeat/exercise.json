@@ -1,0 +1,108 @@
+{
+  "id": "first-repeat",
+  "title": {
+    "tr": "İlk tekrar eden",
+    "en": "The first repeat"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`seen = set()`; her `x` için önce `if x in seen: return x`, sonra `seen.add(x)`.",
+      "en": "`seen = set()`; for each `x`, first `if x in seen: return x`, then `seen.add(x)`."
+    },
+    {
+      "tr": "Döngü biterse `return None`. Kümede `in` ortalama `O(1)`.",
+      "en": "If the loop ends, `return None`. `in` on a set is `O(1)` on average."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef first_repeat(items):\n    seen = set()\n    for x in items:\n        if x in seen:\n            return x\n        seen.add(x)\n    return None\n\n\nprint(first_repeat([3, 1, 4, 1, 5, 3]))\nprint(first_repeat([1, 2, 3]))\nbig = list(range(200_000)) + [199_999]\nprint(first_repeat(big))\n```",
+      "en": "The full solution:\n\n```python\ndef first_repeat(items):\n    seen = set()\n    for x in items:\n        if x in seen:\n            return x\n        seen.add(x)\n    return None\n\n\nprint(first_repeat([3, 1, 4, 1, 5, 3]))\nprint(first_repeat([1, 2, 3]))\nbig = list(range(200_000)) + [199_999]\nprint(first_repeat(big))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "count",
+      "hint": {
+        "tr": "`count` kullanma; görülenleri kümede tut.",
+        "en": "Do not use `count`; keep the seen values in a set."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "index",
+      "hint": {
+        "tr": "`index` kullanma.",
+        "en": "Do not use `index`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "first_repeat",
+      "cases": [
+        {
+          "args": [
+            [
+              3,
+              1,
+              4,
+              1,
+              5,
+              3
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ]
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            [
+              7,
+              7
+            ]
+          ],
+          "returns": 7
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b",
+              "c",
+              "b",
+              "a"
+            ]
+          ],
+          "returns": "b"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\nNone\n199999"
+    }
+  ]
+}
