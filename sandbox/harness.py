@@ -523,6 +523,12 @@ def run_checks(
             outcome = compare_variable(check, namespace)
         elif kind == "function":
             outcome = compare_function(check, namespace)
+        elif kind == "ast_require" and check.get("recursive"):
+            # Özyineleme şartı: fonksiyonun gövdesinde kendi adı çağrılıyor mu?
+            name = check["recursive"]
+            func = find_function(tree_for, name) if tree_for is not None else None
+            found = func is not None and name in called_names(func)
+            outcome = {"passed": found, "detail": {"recursive": name}}
         elif kind == "ast_require":
             found = tree_for is not None and has_node_type(
                 tree_for, check.get("node", ""), strict=bool(check.get("strict"))
@@ -547,6 +553,14 @@ def run_checks(
             import fastapi_sandbox
 
             outcome = fastapi_sandbox.check_pytest(check, workspace or Path.cwd())
+        elif kind == "ast_forbid" and check.get("node"):
+            # Bir yapıyı yasaklamak ("döngü kullanma"): `For` yasağı, `strict`
+            # değilse liste kavramasını da kapsıyor (o da bir döngü).
+            node_name = check["node"]
+            used = tree_for is not None and has_node_type(
+                tree_for, node_name, strict=bool(check.get("strict"))
+            )
+            outcome = {"passed": not used, "detail": {"node": node_name}}
         elif kind == "ast_forbid":
             forbidden = check.get("call", "")
             used = tree_for is not None and forbidden in called_names(tree_for)
