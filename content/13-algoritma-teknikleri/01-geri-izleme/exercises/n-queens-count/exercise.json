@@ -1,0 +1,86 @@
+{
+  "id": "n-queens-count",
+  "title": {
+    "tr": "n vezir",
+    "en": "n queens"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`if row == n: count += 1; return`; sonra `for col in range(n):` içinde tehdit varsa `continue`.",
+      "en": "`if row == n: count += 1; return`; then inside `for col in range(n):` `continue` if attacked."
+    },
+    {
+      "tr": "Üç kümeye ekle, `place(row + 1)`, üçünden de sil.",
+      "en": "Add to the three sets, `place(row + 1)`, remove from all three."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef count_queens(n):\n    cols, diag1, diag2 = set(), set(), set()\n    count = 0\n\n    def place(row):\n        nonlocal count\n        if row == n:\n            count += 1\n            return\n        for col in range(n):\n            if col in cols or row - col in diag1 or row + col in diag2:\n                continue\n            cols.add(col)\n            diag1.add(row - col)\n            diag2.add(row + col)\n            place(row + 1)\n            cols.remove(col)\n            diag1.remove(row - col)\n            diag2.remove(row + col)\n\n    place(0)\n    return count\n\n\nfor n in [4, 6, 8]:\n    print(n, count_queens(n))\nprint(11, count_queens(11))\n```",
+      "en": "The full solution:\n\n```python\ndef count_queens(n):\n    cols, diag1, diag2 = set(), set(), set()\n    count = 0\n\n    def place(row):\n        nonlocal count\n        if row == n:\n            count += 1\n            return\n        for col in range(n):\n            if col in cols or row - col in diag1 or row + col in diag2:\n                continue\n            cols.add(col)\n            diag1.add(row - col)\n            diag2.add(row + col)\n            place(row + 1)\n            cols.remove(col)\n            diag1.remove(row - col)\n            diag2.remove(row + col)\n\n    place(0)\n    return count\n\n\nfor n in [4, 6, 8]:\n    print(n, count_queens(n))\nprint(11, count_queens(11))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "permutations",
+      "hint": {
+        "tr": "Bütün sıralanışları deneme; tehdit altındaki kareyi budayarak geri izle.",
+        "en": "Do not try every ordering; backtrack pruning the squares under attack."
+      }
+    },
+    {
+      "type": "function",
+      "name": "count_queens",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            2
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            3
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            4
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            5
+          ],
+          "returns": 10
+        },
+        {
+          "args": [
+            8
+          ],
+          "returns": 92
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4 2\n6 4\n8 92\n11 2680"
+    }
+  ]
+}
