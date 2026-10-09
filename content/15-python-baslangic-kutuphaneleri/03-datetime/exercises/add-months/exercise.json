@@ -1,0 +1,84 @@
+{
+  "id": "add-months",
+  "title": {
+    "tr": "Ay ekle",
+    "en": "Add months"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yıl taşması `month_index // 12`, yeni ay `month_index % 12 + 1`.",
+      "en": "The year overflow is `month_index // 12`, the new month `month_index % 12 + 1`."
+    },
+    {
+      "tr": "İkinci nottaki `add_months` gibi; sonunda `.isoformat()`.",
+      "en": "Like `add_months` in the second note; `.isoformat()` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport calendar\nfrom datetime import date\n\n\ndef add_months(text, n):\n    d = date.fromisoformat(text)\n    month_index = d.month - 1 + n\n    year = d.year + month_index // 12\n    month = month_index % 12 + 1\n    last = calendar.monthrange(year, month)[1]\n    return date(year, month, min(d.day, last)).isoformat()\n\nprint(add_months(\"2026-01-31\", 1))\nprint(add_months(\"2026-11-15\", 3))\nprint(add_months(\"2026-03-31\", -1))\n```",
+      "en": "The full solution:\n\n```python\nimport calendar\nfrom datetime import date\n\n\ndef add_months(text, n):\n    d = date.fromisoformat(text)\n    month_index = d.month - 1 + n\n    year = d.year + month_index // 12\n    month = month_index % 12 + 1\n    last = calendar.monthrange(year, month)[1]\n    return date(year, month, min(d.day, last)).isoformat()\n\nprint(add_months(\"2026-01-31\", 1))\nprint(add_months(\"2026-11-15\", 3))\nprint(add_months(\"2026-03-31\", -1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "add_months",
+      "cases": [
+        {
+          "args": [
+            "2026-01-31",
+            1
+          ],
+          "returns": "2026-02-28"
+        },
+        {
+          "args": [
+            "2026-11-15",
+            3
+          ],
+          "returns": "2027-02-15"
+        },
+        {
+          "args": [
+            "2026-03-31",
+            -1
+          ],
+          "returns": "2026-02-28"
+        },
+        {
+          "args": [
+            "2028-01-31",
+            1
+          ],
+          "returns": "2028-02-29"
+        },
+        {
+          "args": [
+            "2026-05-10",
+            -17
+          ],
+          "returns": "2024-12-10"
+        },
+        {
+          "args": [
+            "2026-05-10",
+            0
+          ],
+          "returns": "2026-05-10"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2026-02-28\n2027-02-15\n2026-02-28"
+    }
+  ]
+}
