@@ -1,0 +1,140 @@
+{
+  "id": "kth-highest-score",
+  "title": {
+    "tr": "k'inci en yüksek not",
+    "en": "The k-th highest score"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Saydıktan sonra `for score in range(100, -1, -1):` ile yukarıdan aşağı in; `seen += counts[score]`.",
+      "en": "After counting, go down with `for score in range(100, -1, -1):`; `seen += counts[score]`."
+    },
+    {
+      "tr": "`if seen >= k: return score`. Döngü biterse `return None`.",
+      "en": "`if seen >= k: return score`. If the loop ends, `return None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef kth_highest(scores, k):\n    counts = [0] * 101\n    for score in scores:\n        counts[score] += 1\n    seen = 0\n    for score in range(100, -1, -1):\n        seen += counts[score]\n        if seen >= k:\n            return score\n    return None\n\n\ndata = [70, 95, 80, 95, 60]\nprint(kth_highest(data, 1))\nprint(kth_highest(data, 3))\nprint(kth_highest(data, 9))\n```",
+      "en": "The full solution:\n\n```python\ndef kth_highest(scores, k):\n    counts = [0] * 101\n    for score in scores:\n        counts[score] += 1\n    seen = 0\n    for score in range(100, -1, -1):\n        seen += counts[score]\n        if seen >= k:\n            return score\n    return None\n\n\ndata = [70, 95, 80, 95, 60]\nprint(kth_highest(data, 1))\nprint(kth_highest(data, 3))\nprint(kth_highest(data, 9))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma; sayarak çöz.",
+        "en": "Do not use `sorted`; solve it by counting."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`.sort()` kullanma; sayarak çöz.",
+        "en": "Do not use `.sort()`; solve it by counting."
+      }
+    },
+    {
+      "type": "function",
+      "name": "kth_highest",
+      "cases": [
+        {
+          "args": [
+            [
+              70,
+              95,
+              80,
+              95,
+              60
+            ],
+            1
+          ],
+          "returns": 95
+        },
+        {
+          "args": [
+            [
+              70,
+              95,
+              80,
+              95,
+              60
+            ],
+            2
+          ],
+          "returns": 95
+        },
+        {
+          "args": [
+            [
+              70,
+              95,
+              80,
+              95,
+              60
+            ],
+            3
+          ],
+          "returns": 80
+        },
+        {
+          "args": [
+            [
+              70,
+              95,
+              80,
+              95,
+              60
+            ],
+            5
+          ],
+          "returns": 60
+        },
+        {
+          "args": [
+            [
+              70,
+              95,
+              80,
+              95,
+              60
+            ],
+            6
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            [
+              0,
+              100
+            ],
+            2
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [],
+            1
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "95\n80\nNone"
+    }
+  ]
+}

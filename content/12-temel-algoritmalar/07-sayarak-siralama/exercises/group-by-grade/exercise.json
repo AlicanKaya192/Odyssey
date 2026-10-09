@@ -1,0 +1,133 @@
+{
+  "id": "group-by-grade",
+  "title": {
+    "tr": "Nota göre kovala",
+    "en": "Bucket by grade"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for name, grade in records: buckets[grade].append(name)`.",
+      "en": "`for name, grade in records: buckets[grade].append(name)`."
+    },
+    {
+      "tr": "Kovaları sırayla `result.extend(bucket)` ile ekle; ekleme sırası korunduğu için kararlı.",
+      "en": "Add the buckets in order with `result.extend(bucket)`; since appending order is kept, it is stable."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef order_by_grade(records):\n    buckets = [[] for _ in range(6)]\n    for name, grade in records:\n        buckets[grade].append(name)\n    result = []\n    for bucket in buckets:\n        result.extend(bucket)\n    return result\n\n\nprint(order_by_grade([[\"Ada\", 3], [\"Bora\", 1], [\"Cem\", 3], [\"Deniz\", 2]]))\nprint(order_by_grade([]))\n```",
+      "en": "The full solution:\n\n```python\ndef order_by_grade(records):\n    buckets = [[] for _ in range(6)]\n    for name, grade in records:\n        buckets[grade].append(name)\n    result = []\n    for bucket in buckets:\n        result.extend(bucket)\n    return result\n\n\nprint(order_by_grade([[\"Ada\", 3], [\"Bora\", 1], [\"Cem\", 3], [\"Deniz\", 2]]))\nprint(order_by_grade([]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma; sayarak çöz.",
+        "en": "Do not use `sorted`; solve it by counting."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`.sort()` kullanma; sayarak çöz.",
+        "en": "Do not use `.sort()`; solve it by counting."
+      }
+    },
+    {
+      "type": "function",
+      "name": "order_by_grade",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "Ada",
+                3
+              ],
+              [
+                "Bora",
+                1
+              ],
+              [
+                "Cem",
+                3
+              ],
+              [
+                "Deniz",
+                2
+              ]
+            ]
+          ],
+          "returns": [
+            "Bora",
+            "Deniz",
+            "Ada",
+            "Cem"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "x",
+                5
+              ],
+              [
+                "y",
+                5
+              ],
+              [
+                "z",
+                5
+              ]
+            ]
+          ],
+          "returns": [
+            "x",
+            "y",
+            "z"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "p",
+                2
+              ],
+              [
+                "q",
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            "q",
+            "p"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['Bora', 'Deniz', 'Ada', 'Cem']\n[]"
+    }
+  ]
+}
