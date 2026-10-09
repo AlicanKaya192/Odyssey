@@ -1,0 +1,232 @@
+{
+  "id": "kth-smallest",
+  "title": {
+    "tr": "k. en küçük",
+    "en": "The k-th smallest"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`smaller`, `equal`, `larger` listelerini kavramayla kur.",
+      "en": "Build the `smaller`, `equal`, `larger` lists with comprehensions."
+    },
+    {
+      "tr": "`k < len(smaller)` → solda; `k < len(smaller) + len(equal)` → `return pivot`; yoksa `k`'dan iki boyu çıkar ve sağa geç.",
+      "en": "`k < len(smaller)` → left; `k < len(smaller) + len(equal)` → `return pivot`; otherwise subtract both lengths from `k` and move right."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport random\n\n\ndef kth_smallest(values, k):\n    items = list(values)\n    while True:\n        pivot = random.choice(items)\n        smaller = [x for x in items if x < pivot]\n        equal = [x for x in items if x == pivot]\n        if k < len(smaller):\n            items = smaller\n        elif k < len(smaller) + len(equal):\n            return pivot\n        else:\n            k -= len(smaller) + len(equal)\n            items = [x for x in items if x > pivot]\n\nvalues = [7, 2, 9, 4, 4, 1, 8]\nprint(kth_smallest(values, 0), kth_smallest(values, 3), kth_smallest(values, 6))\nrng = random.Random(5)\nbig = [rng.randint(0, 10**6) for _ in range(200_001)]\nprint(kth_smallest(big, 100_000))\n```",
+      "en": "The full solution:\n\n```python\nimport random\n\n\ndef kth_smallest(values, k):\n    items = list(values)\n    while True:\n        pivot = random.choice(items)\n        smaller = [x for x in items if x < pivot]\n        equal = [x for x in items if x == pivot]\n        if k < len(smaller):\n            items = smaller\n        elif k < len(smaller) + len(equal):\n            return pivot\n        else:\n            k -= len(smaller) + len(equal)\n            items = [x for x in items if x > pivot]\n\nvalues = [7, 2, 9, 4, 4, 1, 8]\nprint(kth_smallest(values, 0), kth_smallest(values, 3), kth_smallest(values, 6))\nrng = random.Random(5)\nbig = [rng.randint(0, 10**6) for _ in range(200_001)]\nprint(kth_smallest(big, 100_000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma; quickselect yaz.",
+        "en": "Do not use `sorted`; write quickselect."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`sort` kullanma; quickselect yaz.",
+        "en": "Do not use `sort`; write quickselect."
+      }
+    },
+    {
+      "type": "function",
+      "name": "kth_smallest",
+      "cases": [
+        {
+          "args": [
+            [
+              7,
+              2,
+              9,
+              4,
+              4,
+              1,
+              8
+            ],
+            0
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              7,
+              2,
+              9,
+              4,
+              4,
+              1,
+              8
+            ],
+            3
+          ],
+          "returns": 4
+        },
+        {
+          "args": [
+            [
+              7,
+              2,
+              9,
+              4,
+              4,
+              1,
+              8
+            ],
+            6
+          ],
+          "returns": 9
+        },
+        {
+          "args": [
+            [
+              5
+            ],
+            0
+          ],
+          "returns": 5
+        },
+        {
+          "args": [
+            [
+              3,
+              3,
+              3,
+              3
+            ],
+            2
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            [
+              100,
+              99,
+              98,
+              97,
+              96,
+              95,
+              94,
+              93,
+              92,
+              91,
+              90,
+              89,
+              88,
+              87,
+              86,
+              85,
+              84,
+              83,
+              82,
+              81,
+              80,
+              79,
+              78,
+              77,
+              76,
+              75,
+              74,
+              73,
+              72,
+              71,
+              70,
+              69,
+              68,
+              67,
+              66,
+              65,
+              64,
+              63,
+              62,
+              61,
+              60,
+              59,
+              58,
+              57,
+              56,
+              55,
+              54,
+              53,
+              52,
+              51,
+              50,
+              49,
+              48,
+              47,
+              46,
+              45,
+              44,
+              43,
+              42,
+              41,
+              40,
+              39,
+              38,
+              37,
+              36,
+              35,
+              34,
+              33,
+              32,
+              31,
+              30,
+              29,
+              28,
+              27,
+              26,
+              25,
+              24,
+              23,
+              22,
+              21,
+              20,
+              19,
+              18,
+              17,
+              16,
+              15,
+              14,
+              13,
+              12,
+              11,
+              10,
+              9,
+              8,
+              7,
+              6,
+              5,
+              4,
+              3,
+              2,
+              1
+            ],
+            49
+          ],
+          "returns": 50
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 4 9\n497600"
+    }
+  ]
+}
