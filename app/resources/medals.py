@@ -256,6 +256,17 @@ GLYPHS: dict[str, str] = {
                       '<circle cx="5.5" cy="12" r="1.4"/></g>'
                       '<g fill="#fff" stroke="none" fill-opacity=".55"><circle cx="15" cy="13" r="1.4"/>'
                       '<circle cx="18.5" cy="17" r="1.4"/><circle cx="14" cy="18.5" r="1.4"/></g>'),
+    "folder-tree": ('<rect x="2.5" y="3" width="8" height="5.5" rx="1.2" stroke-width="1.5"/>'
+                    '<path d="M6 8.5v10h5M6 13h5" stroke-width="1.4"/>'
+                    '<rect x="11" y="10.3" width="10" height="5.2" rx="1.2" stroke-width="1.5"/>'
+                    '<rect x="11" y="15.9" width="10" height="5.2" rx="1.2" stroke-width="1.5"/>'
+                    '<g fill="#fff" stroke="none"><rect x="2.5" y="3" width="4" height="2" rx=".8"/></g>'),
+    "regex-pattern": ('<path d="M7.5 3.5H4.5v17h3M16.5 3.5h3v17h-3" stroke-width="1.7"/>'
+                      '<path d="M12 7v10M7.7 9.5l8.6 5M16.3 9.5l-8.6 5" stroke-width="1.8"/>'),
+    "battery-pack": ('<rect x="2" y="6.5" width="17.5" height="11" rx="2.2" stroke-width="1.6"/>'
+                     '<path d="M21.6 10.2v3.6" stroke-width="2.2"/>'
+                     '<g fill="#fff" stroke="none"><rect x="4.6" y="9" width="3.4" height="6" rx=".7"/>'
+                     '<rect x="9.1" y="9" width="3.4" height="6" rx=".7"/><rect x="13.6" y="9" width="3.4" height="6" rx=".7"/></g>'),
 }
 
 

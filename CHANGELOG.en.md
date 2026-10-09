@@ -42,6 +42,13 @@ lecture note does not mean downloading the whole application again.
   only finish within the time limit with an efficient solution. New badges,
   the "Puzzle Solver", "Strategist" and "Daedalus" titles, and algorithm terms
   in the glossary.
+- **Core Libraries path.** It covers the libraries of Python and data science
+  that are a must to know. The first module, **Python Libraries: Beginner**
+  (17 sections), teaches working with the standard library without
+  installing any package: maths and statistics, randomness, dates and time
+  zones, measuring time, files and folders, CSV, regular expressions,
+  collections, itertools, text tools, archives. New badges and the "Artisan"
+  title.
 
 ### Changed
 - **Odyssey is no longer an open beta.** 1.0 is the first full release: the

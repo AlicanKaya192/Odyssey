@@ -39,6 +39,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   bazı alıştırmalar ancak verimli bir çözümle süre sınırına yetişiyor. Yeni
   rozetler, "Bulmaca Çözücü", "Stratejist" ve "Dedalos" unvanları, sözlükte
   algoritma terimleri.
+- **Temel Kütüphaneler patikası.** Python'un ve veri biliminin mutlaka
+  bilinmesi gereken kütüphaneleri anlatıyor. İlk modül **Python Kütüphaneleri:
+  Başlangıç** (17 bölüm) hiçbir paket kurmadan standart kütüphaneyle
+  çalışmayı öğretiyor: matematik ve istatistik, rastgelelik, tarih ve saat
+  dilimleri, süre ölçmek, dosyalar ve klasörler, CSV, düzenli ifadeler,
+  collections, itertools, metin araçları, arşivler. Yeni rozetler ve
+  "Zanaatkâr" unvanı.
 
 ### Değişti
 - **Odyssey artık açık beta değil.** 1.0 ilk tam sürüm: açılıştaki
