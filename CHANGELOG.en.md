@@ -25,6 +25,17 @@ lecture note does not mean downloading the whole application again.
 
 ## [1.0.0] — unreleased
 
+### Added
+- **Algorithms path.** It teaches writing algorithms in your own code and
+  telling in advance how a solution behaves as the data grows. ALG 1 —
+  Core Algorithms and Data Structures (17 sections): complexity and Big O,
+  searching and sorting, two pointers, sliding windows, prefix sums,
+  hashing, stacks, queues, linked lists, trees, binary search trees and
+  heaps. Every time and step count in the lessons was measured; some
+  exercises only finish within the time limit with an efficient solution.
+  Four new badges, the "Puzzle Solver" title and algorithm terms in the
+  glossary.
+
 ### Changed
 - **Odyssey is no longer an open beta.** 1.0 is the first full release: the
   "Open Beta" label is gone from the start-up screen, and first-time users
