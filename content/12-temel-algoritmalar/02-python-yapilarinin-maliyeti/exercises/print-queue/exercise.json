@@ -1,0 +1,141 @@
+{
+  "id": "print-queue",
+  "title": {
+    "tr": "Yazıcı kuyruğu",
+    "en": "The printer queue"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while queue:` kuyruk boşalana kadar döner. Turun başında `name, pages = queue.popleft()`.",
+      "en": "`while queue:` runs until the queue is empty. At the start of the round, `name, pages = queue.popleft()`."
+    },
+    {
+      "tr": "`pages -= 2`; hâlâ `pages > 0` ise `queue.append([name, pages])`, değilse `finished.append(name)`.",
+      "en": "`pages -= 2`; if `pages > 0` still holds, `queue.append([name, pages])`, otherwise `finished.append(name)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import deque\n\n\ndef print_order(jobs):\n    queue = deque()\n    for name, pages in jobs:\n        queue.append([name, pages])\n    finished = []\n    while queue:\n        name, pages = queue.popleft()\n        pages -= 2\n        if pages > 0:\n            queue.append([name, pages])\n        else:\n            finished.append(name)\n    return finished\n\n\nprint(print_order([[\"a\", 3], [\"b\", 1], [\"c\", 2]]))\nprint(print_order([[\"report\", 5], [\"memo\", 1]]))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import deque\n\n\ndef print_order(jobs):\n    queue = deque()\n    for name, pages in jobs:\n        queue.append([name, pages])\n    finished = []\n    while queue:\n        name, pages = queue.popleft()\n        pages -= 2\n        if pages > 0:\n            queue.append([name, pages])\n        else:\n            finished.append(name)\n    return finished\n\n\nprint(print_order([[\"a\", 3], [\"b\", 1], [\"c\", 2]]))\nprint(print_order([[\"report\", 5], [\"memo\", 1]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "pop",
+      "hint": {
+        "tr": "`pop` kullanma; kuyruğun başından `popleft` ile al.",
+        "en": "Do not use `pop`; take from the front of the queue with `popleft`."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "insert",
+      "hint": {
+        "tr": "`insert` kullanma; deque'in iki ucunu kullan.",
+        "en": "Do not use `insert`; use the two ends of the deque."
+      }
+    },
+    {
+      "type": "function",
+      "name": "print_order",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "a",
+                3
+              ],
+              [
+                "b",
+                1
+              ],
+              [
+                "c",
+                2
+              ]
+            ]
+          ],
+          "returns": [
+            "b",
+            "c",
+            "a"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "report",
+                5
+              ],
+              [
+                "memo",
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            "memo",
+            "report"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "solo",
+                7
+              ]
+            ]
+          ],
+          "returns": [
+            "solo"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "x",
+                2
+              ],
+              [
+                "y",
+                2
+              ],
+              [
+                "z",
+                2
+              ]
+            ]
+          ],
+          "returns": [
+            "x",
+            "y",
+            "z"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['b', 'c', 'a']\n['memo', 'report']"
+    }
+  ]
+}

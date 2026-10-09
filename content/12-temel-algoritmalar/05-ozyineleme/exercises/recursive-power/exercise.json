@@ -1,0 +1,117 @@
+{
+  "id": "recursive-power",
+  "title": {
+    "tr": "Üs almak",
+    "en": "Raising to a power"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Temel durum: `if exp == 0: return 1` (her sayının 0. kuvveti 1).",
+      "en": "Base case: `if exp == 0: return 1` (any number to the power 0 is 1)."
+    },
+    {
+      "tr": "Adım: `return base * power(base, exp - 1)`.",
+      "en": "Step: `return base * power(base, exp - 1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef power(base, exp):\n    if exp == 0:\n        return 1\n    return base * power(base, exp - 1)\n\n\nprint(power(2, 10))\nprint(power(5, 0))\nprint(power(3, 4))\n```",
+      "en": "The full solution:\n\n```python\ndef power(base, exp):\n    if exp == 0:\n        return 1\n    return base * power(base, exp - 1)\n\n\nprint(power(2, 10))\nprint(power(5, 0))\nprint(power(3, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "recursive": "power",
+      "hint": {
+        "tr": "`power` kendini çağırmalı (özyineleme).",
+        "en": "`power` must call itself (recursion)."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For",
+      "hint": {
+        "tr": "Döngü kullanma; problemi özyinelemeyle çöz.",
+        "en": "Do not use a loop; solve it with recursion."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "node": "While",
+      "hint": {
+        "tr": "Döngü kullanma; problemi özyinelemeyle çöz.",
+        "en": "Do not use a loop; solve it with recursion."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "node": "Pow",
+      "hint": {
+        "tr": "`**` işlecini kullanma; çarpmayla özyinele.",
+        "en": "Do not use the `**` operator; recurse with multiplication."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "pow",
+      "hint": {
+        "tr": "`pow` kullanma; çarpmayla özyinele.",
+        "en": "Do not use `pow`; recurse with multiplication."
+      }
+    },
+    {
+      "type": "function",
+      "name": "power",
+      "cases": [
+        {
+          "args": [
+            2,
+            10
+          ],
+          "returns": 1024
+        },
+        {
+          "args": [
+            5,
+            0
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            3,
+            4
+          ],
+          "returns": 81
+        },
+        {
+          "args": [
+            -2,
+            3
+          ],
+          "returns": -8
+        },
+        {
+          "args": [
+            7,
+            1
+          ],
+          "returns": 7
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1024\n1\n81"
+    }
+  ]
+}

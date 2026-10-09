@@ -1,0 +1,183 @@
+{
+  "id": "towers-of-hanoi",
+  "title": {
+    "tr": "Hanoi kuleleri",
+    "en": "The Towers of Hanoi"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Birinci adım: `moves = hanoi(n - 1, source, spare, target)` (hedef ve yedeğin yeri değişti).",
+      "en": "The first step: `moves = hanoi(n - 1, source, spare, target)` (target and spare have swapped places)."
+    },
+    {
+      "tr": "Sonra `moves.append((source, target))` ve `moves += hanoi(n - 1, spare, target, source)`; sonunda `return moves`.",
+      "en": "Then `moves.append((source, target))` and `moves += hanoi(n - 1, spare, target, source)`; finally `return moves`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef hanoi(n, source, target, spare):\n    if n == 0:\n        return []\n    moves = hanoi(n - 1, source, spare, target)\n    moves.append((source, target))\n    moves += hanoi(n - 1, spare, target, source)\n    return moves\n\n\nfor move in hanoi(3, \"A\", \"C\", \"B\"):\n    print(move[0], \"->\", move[1])\nprint(len(hanoi(10, \"A\", \"C\", \"B\")))\n```",
+      "en": "The full solution:\n\n```python\ndef hanoi(n, source, target, spare):\n    if n == 0:\n        return []\n    moves = hanoi(n - 1, source, spare, target)\n    moves.append((source, target))\n    moves += hanoi(n - 1, spare, target, source)\n    return moves\n\n\nfor move in hanoi(3, \"A\", \"C\", \"B\"):\n    print(move[0], \"->\", move[1])\nprint(len(hanoi(10, \"A\", \"C\", \"B\")))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "recursive": "hanoi",
+      "hint": {
+        "tr": "`hanoi` kendini çağırmalı (özyineleme).",
+        "en": "`hanoi` must call itself (recursion)."
+      }
+    },
+    {
+      "type": "function",
+      "name": "hanoi",
+      "cases": [
+        {
+          "args": [
+            0,
+            "A",
+            "C",
+            "B"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            1,
+            "A",
+            "C",
+            "B"
+          ],
+          "returns": [
+            {
+              "__tuple__": [
+                "A",
+                "C"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            2,
+            "A",
+            "C",
+            "B"
+          ],
+          "returns": [
+            {
+              "__tuple__": [
+                "A",
+                "B"
+              ]
+            },
+            {
+              "__tuple__": [
+                "A",
+                "C"
+              ]
+            },
+            {
+              "__tuple__": [
+                "B",
+                "C"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            3,
+            "A",
+            "C",
+            "B"
+          ],
+          "returns": [
+            {
+              "__tuple__": [
+                "A",
+                "C"
+              ]
+            },
+            {
+              "__tuple__": [
+                "A",
+                "B"
+              ]
+            },
+            {
+              "__tuple__": [
+                "C",
+                "B"
+              ]
+            },
+            {
+              "__tuple__": [
+                "A",
+                "C"
+              ]
+            },
+            {
+              "__tuple__": [
+                "B",
+                "A"
+              ]
+            },
+            {
+              "__tuple__": [
+                "B",
+                "C"
+              ]
+            },
+            {
+              "__tuple__": [
+                "A",
+                "C"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            2,
+            "X",
+            "Y",
+            "Z"
+          ],
+          "returns": [
+            {
+              "__tuple__": [
+                "X",
+                "Z"
+              ]
+            },
+            {
+              "__tuple__": [
+                "X",
+                "Y"
+              ]
+            },
+            {
+              "__tuple__": [
+                "Z",
+                "Y"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "A -> C\nA -> B\nC -> B\nA -> C\nB -> A\nB -> C\nA -> C\n1023"
+    }
+  ]
+}
