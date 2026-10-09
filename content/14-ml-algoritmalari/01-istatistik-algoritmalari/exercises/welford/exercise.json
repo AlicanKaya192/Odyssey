@@ -1,0 +1,113 @@
+{
+  "id": "welford",
+  "title": {
+    "tr": "Welford",
+    "en": "Welford"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for v in values:` içinde dört güncelleme, sırası önemli.",
+      "en": "Inside `for v in values:` four updates; the order matters."
+    },
+    {
+      "tr": "`m2 += delta * (v - mean)` yeni ortalamayla; sonunda `round(m2 / n, 4)`.",
+      "en": "`m2 += delta * (v - mean)` with the new mean; finally `round(m2 / n, 4)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef welford(values):\n    n, mean, m2 = 0, 0.0, 0.0\n    for v in values:\n        n += 1\n        delta = v - mean\n        mean += delta / n\n        m2 += delta * (v - mean)\n    return round(mean, 4), round(m2 / n, 4)\n\nprint(welford([2, 4, 4, 4, 5, 5, 7, 9]))\nprint(welford([10.0]))\n```",
+      "en": "The full solution:\n\n```python\ndef welford(values):\n    n, mean, m2 = 0, 0.0, 0.0\n    for v in values:\n        n += 1\n        delta = v - mean\n        mean += delta / n\n        m2 += delta * (v - mean)\n    return round(mean, 4), round(m2 / n, 4)\n\nprint(welford([2, 4, 4, 4, 5, 5, 7, 9]))\nprint(welford([10.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "var",
+      "hint": {
+        "tr": "`var` kullanma; hesabı kendin yaz.",
+        "en": "Do not use `var`; write the calculation yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "welford",
+      "cases": [
+        {
+          "args": [
+            [
+              2,
+              4,
+              4,
+              4,
+              5,
+              5,
+              7,
+              9
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              5.0,
+              4.0
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              10.0
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              10.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              2.5,
+              1.25
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              -5,
+              5
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              0.0,
+              25.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(5.0, 4.0)\n(10.0, 0.0)"
+    }
+  ]
+}

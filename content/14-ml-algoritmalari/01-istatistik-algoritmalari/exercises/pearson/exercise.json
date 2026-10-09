@@ -1,0 +1,116 @@
+{
+  "id": "pearson",
+  "title": {
+    "tr": "Pearson korelasyonu",
+    "en": "Pearson correlation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`da, db = a - a.mean(), b - b.mean()`.",
+      "en": "`da, db = a - a.mean(), b - b.mean()`."
+    },
+    {
+      "tr": "`(da @ db) / np.sqrt((da @ da) * (db @ db))`; `float` ve `round(..., 4)`.",
+      "en": "`(da @ db) / np.sqrt((da @ da) * (db @ db))`; `float` and `round(..., 4)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef pearson(a, b):\n    a = np.asarray(a, dtype=float)\n    b = np.asarray(b, dtype=float)\n    da, db = a - a.mean(), b - b.mean()\n    return round(float((da @ db) / np.sqrt((da @ da) * (db @ db))), 4)\n\nprint(pearson([1, 2, 3, 4, 5], [2, 4, 5, 4, 5]))\nprint(pearson([1, 2, 3], [3, 2, 1]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef pearson(a, b):\n    a = np.asarray(a, dtype=float)\n    b = np.asarray(b, dtype=float)\n    da, db = a - a.mean(), b - b.mean()\n    return round(float((da @ db) / np.sqrt((da @ da) * (db @ db))), 4)\n\nprint(pearson([1, 2, 3, 4, 5], [2, 4, 5, 4, 5]))\nprint(pearson([1, 2, 3], [3, 2, 1]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "corrcoef",
+      "hint": {
+        "tr": "`corrcoef` kullanma; hesabı kendin yaz.",
+        "en": "Do not use `corrcoef`; write the calculation yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "pearson",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              2,
+              4,
+              5,
+              4,
+              5
+            ]
+          ],
+          "returns": 0.7746
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ],
+            [
+              3,
+              2,
+              1
+            ]
+          ],
+          "returns": -1.0
+        },
+        {
+          "args": [
+            [
+              -1,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              1
+            ]
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4
+            ],
+            [
+              10,
+              20,
+              30,
+              41
+            ]
+          ],
+          "returns": 0.9997
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.7746\n-1.0"
+    }
+  ]
+}
