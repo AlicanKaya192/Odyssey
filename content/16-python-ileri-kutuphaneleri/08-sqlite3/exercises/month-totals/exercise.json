@@ -1,0 +1,94 @@
+{
+  "id": "month-totals",
+  "title": {
+    "tr": "Aylık toplam",
+    "en": "Monthly totals"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`SELECT strftime('%m', day), SUM(total) FROM orders WHERE strftime('%Y', day) = ?`.",
+      "en": "`SELECT strftime('%m', day), SUM(total) FROM orders WHERE strftime('%Y', day) = ?`."
+    },
+    {
+      "tr": "Sonuna `GROUP BY 1 ORDER BY 1`; iki sütunlu satırlar `dict(...)` ile sözlük olur.",
+      "en": "Add `GROUP BY 1 ORDER BY 1`; two-column rows become a dictionary with `dict(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport sqlite3\n\nQUERY = (\"SELECT strftime('%m', day), SUM(total) FROM orders \"\n         \"WHERE strftime('%Y', day) = ? GROUP BY 1 ORDER BY 1\")\n\n\ndef month_totals(orders, year):\n    conn = sqlite3.connect(\":memory:\")\n    conn.execute(\"CREATE TABLE orders (day TEXT, total REAL)\")\n    conn.executemany(\"INSERT INTO orders VALUES (?, ?)\", orders)\n    return dict(conn.execute(QUERY, (year,)))\n\norders = [[\"2026-01-05\", 10.0], [\"2026-01-20\", 5.5], [\"2026-03-02\", 20.0],\n          [\"2025-03-10\", 99.0]]\nprint(month_totals(orders, \"2026\"))\n```",
+      "en": "The full solution:\n\n```python\nimport sqlite3\n\nQUERY = (\"SELECT strftime('%m', day), SUM(total) FROM orders \"\n         \"WHERE strftime('%Y', day) = ? GROUP BY 1 ORDER BY 1\")\n\n\ndef month_totals(orders, year):\n    conn = sqlite3.connect(\":memory:\")\n    conn.execute(\"CREATE TABLE orders (day TEXT, total REAL)\")\n    conn.executemany(\"INSERT INTO orders VALUES (?, ?)\", orders)\n    return dict(conn.execute(QUERY, (year,)))\n\norders = [[\"2026-01-05\", 10.0], [\"2026-01-20\", 5.5], [\"2026-03-02\", 20.0],\n          [\"2025-03-10\", 99.0]]\nprint(month_totals(orders, \"2026\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "month_totals",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "2026-01-05",
+                10.0
+              ],
+              [
+                "2026-01-20",
+                5.5
+              ],
+              [
+                "2026-03-02",
+                20.0
+              ],
+              [
+                "2025-03-10",
+                99.0
+              ]
+            ],
+            "2026"
+          ],
+          "returns": {
+            "01": 15.5,
+            "03": 20.0
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "2026-12-31",
+                1.0
+              ],
+              [
+                "2027-01-01",
+                2.0
+              ]
+            ],
+            "2027"
+          ],
+          "returns": {
+            "01": 2.0
+          }
+        },
+        {
+          "args": [
+            [],
+            "2026"
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'01': 15.5, '03': 20.0}"
+    }
+  ]
+}

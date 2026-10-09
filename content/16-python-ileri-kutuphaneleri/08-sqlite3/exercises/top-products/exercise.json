@@ -1,0 +1,99 @@
+{
+  "id": "top-products",
+  "title": {
+    "tr": "En pahalı ürünler",
+    "en": "The most expensive products"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`conn.row_factory = sqlite3.Row` ve `conn.executemany(\"INSERT INTO products VALUES (?, ?)\", items)`.",
+      "en": "`conn.row_factory = sqlite3.Row` and `conn.executemany(\"INSERT INTO products VALUES (?, ?)\", items)`."
+    },
+    {
+      "tr": "Sıralamayı SQL yapsın: `ORDER BY price DESC LIMIT ?` ve parametre `(n,)`.",
+      "en": "Let SQL do the sorting: `ORDER BY price DESC LIMIT ?` with the parameter `(n,)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport sqlite3\n\n\ndef top_products(items, n):\n    conn = sqlite3.connect(\":memory:\")\n    conn.row_factory = sqlite3.Row\n    conn.execute(\"CREATE TABLE products (name TEXT, price REAL)\")\n    conn.executemany(\"INSERT INTO products VALUES (?, ?)\", items)\n    query = \"SELECT name FROM products ORDER BY price DESC LIMIT ?\"\n    return [row[\"name\"] for row in conn.execute(query, (n,))]\n\nitems = [[\"pen\", 1.5], [\"ink\", 0.5], [\"book\", 12.0], [\"bag\", 30.0]]\nprint(top_products(items, 2))\n```",
+      "en": "The full solution:\n\n```python\nimport sqlite3\n\n\ndef top_products(items, n):\n    conn = sqlite3.connect(\":memory:\")\n    conn.row_factory = sqlite3.Row\n    conn.execute(\"CREATE TABLE products (name TEXT, price REAL)\")\n    conn.executemany(\"INSERT INTO products VALUES (?, ?)\", items)\n    query = \"SELECT name FROM products ORDER BY price DESC LIMIT ?\"\n    return [row[\"name\"] for row in conn.execute(query, (n,))]\n\nitems = [[\"pen\", 1.5], [\"ink\", 0.5], [\"book\", 12.0], [\"bag\", 30.0]]\nprint(top_products(items, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_products",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "pen",
+                1.5
+              ],
+              [
+                "ink",
+                0.5
+              ],
+              [
+                "book",
+                12.0
+              ],
+              [
+                "bag",
+                30.0
+              ]
+            ],
+            2
+          ],
+          "returns": [
+            "bag",
+            "book"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "pen",
+                1.5
+              ],
+              [
+                "ink",
+                0.5
+              ]
+            ],
+            5
+          ],
+          "returns": [
+            "pen",
+            "ink"
+          ]
+        },
+        {
+          "args": [
+            [],
+            3
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sorted"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['bag', 'book']"
+    }
+  ]
+}
