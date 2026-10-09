@@ -1,0 +1,116 @@
+{
+  "id": "residual-means",
+  "title": {
+    "tr": "Artıklardaki desen",
+    "en": "The pattern in residuals"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`A = np.column_stack([np.ones(len(x)), x])`, `w = np.linalg.lstsq(A, y, rcond=None)[0]`, `resid = y - A @ w`.",
+      "en": "`A = np.column_stack([np.ones(len(x)), x])`, `w = np.linalg.lstsq(A, y, rcond=None)[0]`, `resid = y - A @ w`."
+    },
+    {
+      "tr": "`[round(float(p.mean()), 2) for p in np.array_split(resid, parts)]`.",
+      "en": "`[round(float(p.mean()), 2) for p in np.array_split(resid, parts)]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef residual_means(x, y, parts):\n    x, y = np.array(x, dtype=float), np.array(y, dtype=float)\n    order = np.argsort(x)\n    x, y = x[order], y[order]\n    A = np.column_stack([np.ones(len(x)), x])\n    w = np.linalg.lstsq(A, y, rcond=None)[0]\n    resid = y - A @ w\n    return [round(float(p.mean()), 2) for p in np.array_split(resid, parts)]\n\nx = [0, 1, 2, 3, 4, 5, 6, 7, 8]\ny = [v * v for v in x]\nprint(residual_means(x, y, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef residual_means(x, y, parts):\n    x, y = np.array(x, dtype=float), np.array(y, dtype=float)\n    order = np.argsort(x)\n    x, y = x[order], y[order]\n    A = np.column_stack([np.ones(len(x)), x])\n    w = np.linalg.lstsq(A, y, rcond=None)[0]\n    resid = y - A @ w\n    return [round(float(p.mean()), 2) for p in np.array_split(resid, parts)]\n\nx = [0, 1, 2, 3, 4, 5, 6, 7, 8]\ny = [v * v for v in x]\nprint(residual_means(x, y, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "residual_means",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            [
+              0,
+              1,
+              4,
+              9,
+              16,
+              25,
+              36,
+              49,
+              64
+            ],
+            3
+          ],
+          "returns": [
+            3.0,
+            -6.0,
+            3.0
+          ]
+        },
+        {
+          "args": [
+            [
+              3,
+              1,
+              2,
+              0
+            ],
+            [
+              6,
+              2,
+              4,
+              0
+            ],
+            2
+          ],
+          "returns": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "args": [
+            [
+              0,
+              1,
+              2,
+              3
+            ],
+            [
+              1,
+              0,
+              0,
+              1
+            ],
+            2
+          ],
+          "returns": [
+            -0.0,
+            -0.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3.0, -6.0, 3.0]"
+    }
+  ]
+}

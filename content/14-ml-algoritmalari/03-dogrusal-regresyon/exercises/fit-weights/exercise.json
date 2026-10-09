@@ -1,0 +1,145 @@
+{
+  "id": "fit-weights",
+  "title": {
+    "tr": "Normal denklem",
+    "en": "The normal equation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`A = np.column_stack([np.ones(len(X)), X])`.",
+      "en": "`A = np.column_stack([np.ones(len(X)), X])`."
+    },
+    {
+      "tr": "`np.linalg.solve(A.T @ A, A.T @ y).round(4).tolist()`.",
+      "en": "`np.linalg.solve(A.T @ A, A.T @ y).round(4).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef fit_weights(X, y):\n    X, y = np.array(X, dtype=float), np.array(y, dtype=float)\n    A = np.column_stack([np.ones(len(X)), X])\n    return np.linalg.solve(A.T @ A, A.T @ y).round(4).tolist()\n\nX = [[1, 2], [2, 1], [3, 4], [4, 3], [5, 5]]\ny = [9, 6, 17, 14, 21]\nprint(fit_weights(X, y))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef fit_weights(X, y):\n    X, y = np.array(X, dtype=float), np.array(y, dtype=float)\n    A = np.column_stack([np.ones(len(X)), X])\n    return np.linalg.solve(A.T @ A, A.T @ y).round(4).tolist()\n\nX = [[1, 2], [2, 1], [3, 4], [4, 3], [5, 5]]\ny = [9, 6, 17, 14, 21]\nprint(fit_weights(X, y))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "LinearRegression",
+      "hint": {
+        "tr": "`LinearRegression` kullanma; normal denklemi çöz.",
+        "en": "Do not use `LinearRegression`; solve the normal equation."
+      }
+    },
+    {
+      "type": "function",
+      "name": "fit_weights",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                3,
+                4
+              ],
+              [
+                4,
+                3
+              ],
+              [
+                5,
+                5
+              ]
+            ],
+            [
+              9,
+              6,
+              17,
+              14,
+              21
+            ]
+          ],
+          "returns": [
+            1.7333,
+            0.4444,
+            3.4444
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0
+              ],
+              [
+                1
+              ],
+              [
+                2
+              ]
+            ],
+            [
+              1,
+              3,
+              5
+            ]
+          ],
+          "returns": [
+            1.0,
+            2.0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                1
+              ]
+            ],
+            [
+              3,
+              2,
+              5,
+              7
+            ]
+          ],
+          "returns": [
+            0.5,
+            2.5,
+            1.6667
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.7333, 0.4444, 3.4444]"
+    }
+  ]
+}
