@@ -1861,6 +1861,9 @@ class PathView(QWidget):
             self._rebuild()
 
     def _rebuild(self) -> None:
+        # Açılıştaki çizim animasyonu (800 ms) eski çizgilere bağlı; yol o
+        # sırada yeniden kurulursa silinmiş çizgiye ulaşıp çöküyordu.
+        motion.stop(self, "draw")
         self._nodes = []
         self._curves = {}
         while self._layout.count():
