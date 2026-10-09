@@ -1,0 +1,67 @@
+{
+  "id": "key-values",
+  "title": {
+    "tr": "Ayarları sözlüğe çevir",
+    "en": "Turn settings into a dictionary"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Grup varken `findall` `[(anahtar, değer), ...]` verir.",
+      "en": "With groups, `findall` gives `[(key, value), ...]`."
+    },
+    {
+      "tr": "`{key: value.strip() for key, value in pairs}`.",
+      "en": "`{key: value.strip() for key, value in pairs}`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef key_values(text):\n    pairs = re.findall(r\"(\\w+)\\s*=\\s*([^;]+)\", text)\n    return {key: value.strip() for key, value in pairs}\n\nsettings = key_values(\"name=Ada; age=36; city=London\")\nfor key in settings:\n    print(key, settings[key])\nprint(key_values(\"mode = test ;debug=1\"))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef key_values(text):\n    pairs = re.findall(r\"(\\w+)\\s*=\\s*([^;]+)\", text)\n    return {key: value.strip() for key, value in pairs}\n\nsettings = key_values(\"name=Ada; age=36; city=London\")\nfor key in settings:\n    print(key, settings[key])\nprint(key_values(\"mode = test ;debug=1\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "key_values",
+      "cases": [
+        {
+          "args": [
+            "name=Ada; age=36; city=London"
+          ],
+          "returns": {
+            "name": "Ada",
+            "age": "36",
+            "city": "London"
+          }
+        },
+        {
+          "args": [
+            "mode = test ;debug=1"
+          ],
+          "returns": {
+            "mode": "test",
+            "debug": "1"
+          }
+        },
+        {
+          "args": [
+            "nothing here"
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "name Ada\nage 36\ncity London\n{'mode': 'test', 'debug': '1'}"
+    }
+  ]
+}

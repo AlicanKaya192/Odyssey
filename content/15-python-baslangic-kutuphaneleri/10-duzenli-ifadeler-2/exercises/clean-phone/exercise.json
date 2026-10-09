@@ -1,0 +1,72 @@
+{
+  "id": "clean-phone",
+  "title": {
+    "tr": "Telefonu temizle",
+    "en": "Clean the phone number"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Rakam olmayan her şey `\\D`: `re.sub(r\"\\D\", \"\", text)`.",
+      "en": "Everything that is not a digit is `\\D`: `re.sub(r\"\\D\", \"\", text)`."
+    },
+    {
+      "tr": "Sonra `re.fullmatch(r\"0\\d{10}\", digits)`.",
+      "en": "Then `re.fullmatch(r\"0\\d{10}\", digits)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef clean_phone(text):\n    digits = re.sub(r\"\\D\", \"\", text)\n    if re.fullmatch(r\"0\\d{10}\", digits):\n        return digits\n    return None\n\nfor raw in [\"0532 123 45 67\", \"(0532) 123-4567\", \"532 123 45 67\", \"05321234567x\"]:\n    print(clean_phone(raw))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef clean_phone(text):\n    digits = re.sub(r\"\\D\", \"\", text)\n    if re.fullmatch(r\"0\\d{10}\", digits):\n        return digits\n    return None\n\nfor raw in [\"0532 123 45 67\", \"(0532) 123-4567\", \"532 123 45 67\", \"05321234567x\"]:\n    print(clean_phone(raw))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "clean_phone",
+      "cases": [
+        {
+          "args": [
+            "0532 123 45 67"
+          ],
+          "returns": "05321234567"
+        },
+        {
+          "args": [
+            "(0532) 123-4567"
+          ],
+          "returns": "05321234567"
+        },
+        {
+          "args": [
+            "532 123 45 67"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "05321234567x"
+          ],
+          "returns": "05321234567"
+        },
+        {
+          "args": [
+            "0532 123 45 678"
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "05321234567\n05321234567\nNone\n05321234567"
+    }
+  ]
+}
