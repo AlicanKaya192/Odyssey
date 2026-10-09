@@ -29,9 +29,11 @@ SECTION_XP = 60
 TIER_XP = {"bronze": 100, "silver": 200, "gold": 400, "legendary": 1000}
 
 MAX_LEVEL = 50
-# Bir sonraki seviye için gereken XP: 1 → 2 için 100, her seviyede 40 artıyor.
+# Bir sonraki seviye için gereken XP: 1 → 2 için 100, her seviyede 55 artıyor.
+# (1.0'da 40'tan 55'e çıktı: algoritma patikasıyla içeriğin tamamı 42'ye
+# ulaşmıştı; 50 ileride yazılacak patikalara kalsın.)
 FIRST_STEP = 100
-STEP_GROWTH = 40
+STEP_GROWTH = 55
 
 SEEN_LEVEL_KEY = "level_seen"
 EARNED_TAGS_KEY = "tags_earned"
@@ -61,6 +63,7 @@ BADGE_TAGS = {
     "record-keeper": "git-complete",
     "deep-diver": "bigdata-complete",
     "puzzle-solver": "alg1-complete",
+    "strategist": "alg2-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200
