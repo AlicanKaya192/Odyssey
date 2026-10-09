@@ -1,0 +1,102 @@
+{
+  "id": "responsibilities",
+  "title": {
+    "tr": "E adımı",
+    "en": "The E step"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`keepdims=True` bölmeyi satır satır yapar.",
+      "en": "`keepdims=True` makes the division row by row."
+    },
+    {
+      "tr": "`r = dens / dens.sum(axis=1, keepdims=True)`.",
+      "en": "`r = dens / dens.sum(axis=1, keepdims=True)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef normal_pdf(x, mu, var):\n    return np.exp(-(x - mu) ** 2 / (2 * var)) / np.sqrt(2 * np.pi * var)\n\n\ndef responsibilities(xs, weights, mus, variances):\n    xs, w = np.array(xs, dtype=float), np.array(weights, dtype=float)\n    mu, var = np.array(mus, dtype=float), np.array(variances, dtype=float)\n    dens = w * normal_pdf(xs[:, None], mu, var)\n    r = dens / dens.sum(axis=1, keepdims=True)\n    return r.round(3).tolist()\n\nr = responsibilities([-1.0, 2.0, 6.0], [0.6, 0.4], [0.0, 4.0], [1.0, 2.25])\nfor row in r:\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef normal_pdf(x, mu, var):\n    return np.exp(-(x - mu) ** 2 / (2 * var)) / np.sqrt(2 * np.pi * var)\n\n\ndef responsibilities(xs, weights, mus, variances):\n    xs, w = np.array(xs, dtype=float), np.array(weights, dtype=float)\n    mu, var = np.array(mus, dtype=float), np.array(variances, dtype=float)\n    dens = w * normal_pdf(xs[:, None], mu, var)\n    r = dens / dens.sum(axis=1, keepdims=True)\n    return r.round(3).tolist()\n\nr = responsibilities([-1.0, 2.0, 6.0], [0.6, 0.4], [0.0, 4.0], [1.0, 2.25])\nfor row in r:\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "responsibilities",
+      "cases": [
+        {
+          "args": [
+            [
+              -1.0,
+              2.0,
+              6.0
+            ],
+            [
+              0.6,
+              0.4
+            ],
+            [
+              0.0,
+              4.0
+            ],
+            [
+              1.0,
+              2.25
+            ]
+          ],
+          "returns": [
+            [
+              0.997,
+              0.003
+            ],
+            [
+              0.426,
+              0.574
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              5.0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              5.0,
+              5.0
+            ],
+            [
+              1.0,
+              1.0
+            ]
+          ],
+          "returns": [
+            [
+              0.5,
+              0.5
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.997, 0.003]\n[0.426, 0.574]\n[0.0, 1.0]"
+    }
+  ]
+}
