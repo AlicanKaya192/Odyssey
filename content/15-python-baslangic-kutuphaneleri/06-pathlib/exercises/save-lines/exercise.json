@@ -1,0 +1,72 @@
+{
+  "id": "save-lines",
+  "title": {
+    "tr": "Satırları kaydet",
+    "en": "Save the lines"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu klasör yokken düşüyor (`out/reports`).",
+      "en": "The starter code fails when the folder is missing (`out/reports`)."
+    },
+    {
+      "tr": "Yazmadan önce `target.parent.mkdir(parents=True, exist_ok=True)`.",
+      "en": "Before writing, `target.parent.mkdir(parents=True, exist_ok=True)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom pathlib import Path\n\n\ndef save_lines(path, lines):\n    target = Path(path)\n    target.parent.mkdir(parents=True, exist_ok=True)\n    target.write_text(\"\\n\".join(lines) + \"\\n\", encoding=\"utf-8\")\n    return len(target.read_text(encoding=\"utf-8\").splitlines())\n\nprint(save_lines(\"out/reports/summary.txt\", [\"total 345\", \"days 3\"]))\nprint(Path(\"out/reports/summary.txt\").read_text(encoding=\"utf-8\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom pathlib import Path\n\n\ndef save_lines(path, lines):\n    target = Path(path)\n    target.parent.mkdir(parents=True, exist_ok=True)\n    target.write_text(\"\\n\".join(lines) + \"\\n\", encoding=\"utf-8\")\n    return len(target.read_text(encoding=\"utf-8\").splitlines())\n\nprint(save_lines(\"out/reports/summary.txt\", [\"total 345\", \"days 3\"]))\nprint(Path(\"out/reports/summary.txt\").read_text(encoding=\"utf-8\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "save_lines",
+      "cases": [
+        {
+          "args": [
+            "out/reports/summary.txt",
+            [
+              "total 345",
+              "days 3"
+            ]
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            "logs/a/b/c.txt",
+            [
+              "one"
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            "single.txt",
+            [
+              "x",
+              "y",
+              "z"
+            ]
+          ],
+          "returns": 3
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\ntotal 345\ndays 3"
+    }
+  ]
+}
