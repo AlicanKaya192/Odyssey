@@ -263,13 +263,23 @@ class AboutView(QWidget):
             "e.scrollIntoView({block:'center'});e.classList.remove('hit');void e.offsetWidth;"
             "e.classList.add('hit');})();"
         )
-        if self._document._loaded:  # noqa: SLF001
-            # Sekme değişiminin kaydırmayı başa alması bitsin diye bir tur sonra.
-            from PySide6.QtCore import QTimer
+        from PySide6.QtCore import QTimer
 
-            QTimer.singleShot(60, lambda: self._document.page().runJavaScript(betik))
-        else:
-            self._document._pending_anchor = glossary.anchor(term_id)  # noqa: SLF001
+        view = self._document
+        if view._loaded:  # noqa: SLF001
+            # Sekme değişiminin kaydırmayı başa alması bitsin diye bir tur sonra.
+            QTimer.singleShot(60, lambda: view.page().runJavaScript(betik))
+            return
+
+        # Sayfa daha yükleniyor: yükleme bitince aynı betik (kaydır + vurgula).
+        # Önce yalnızca bekleyen çapa veriliyordu; terim kaydırılıyor ama
+        # vurgulanmıyordu, sözlük büyüdükçe arama çoğu zaman bu yola düşüyordu.
+        def _once(ok: bool) -> None:
+            view.loadFinished.disconnect(_once)
+            if ok:
+                QTimer.singleShot(60, lambda: view.page().runJavaScript(betik))
+
+        view.loadFinished.connect(_once)
 
     def _links_html(self) -> str:
         cards = [
