@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/AlicanKaya192/Odyssey/releases"><img alt="Version 0.9.3" src="https://img.shields.io/badge/version-0.9.3-7466EE?style=for-the-badge&labelColor=1E1A3C"></a>
+  <a href="https://github.com/AlicanKaya192/Odyssey/releases"><img alt="Version 1.0.0" src="https://img.shields.io/badge/version-1.0.0-7466EE?style=for-the-badge&labelColor=1E1A3C"></a>
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-7466EE?style=for-the-badge&labelColor=1E1A3C">
   <img alt="Python 3.10 to 3.14" src="https://img.shields.io/badge/Python-3.10%E2%80%933.14-7466EE?style=for-the-badge&logo=python&logoColor=white&labelColor=1E1A3C">
   <img alt="Built with Qt 6 and PySide6" src="https://img.shields.io/badge/Qt%206-PySide6-7466EE?style=for-the-badge&logo=qt&logoColor=white&labelColor=1E1A3C">
@@ -136,7 +136,7 @@ You can turn the check off under **Settings › Updates**. With it off, the appl
 
 ## Status
 
-Early development (`0.9.3`), released as an open beta. The application works end to end. The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is in place; the curriculum is still growing.
+Version `1.0.0`, the first full release after the open beta (0.7.1 – 0.9.3). The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is complete; new paths keep arriving as `1.x` releases.
 
 **Content today:** ten paths are **complete** — Python Fundamentals (nineteen sections, from packages and environments to JSON and databases), Git (seventeen, from the first commit to branches, GitHub and recovering lost work), Data Science (ten), Machine Learning (thirteen), SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures), Time Series (twenty-three, from working with dates to forecasting, prediction intervals and anomaly detection), Mathematics in two modules (Foundational Mathematics, twenty-eight sections; The Mathematics of AI, thirty-two), API in two modules (Using REST APIs, seventeen; Writing REST APIs with FastAPI, eighteen), Docker (seventeen, from images to Compose and packaging a Python API) and Big Data (seventeen, from measuring memory to Parquet, DuckDB, dask, Spark and streaming data). 227 sections, 6194 quiz questions, 879 exercises (85 of them in the Git terminal), 300 mathematics problems, 459 lecture notes, a glossary of 164 terms and 50 badges, all of it in both Turkish and English.
 

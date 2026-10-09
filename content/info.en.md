@@ -41,7 +41,7 @@ the source can be read, modified and redistributed.
 
 ## Where things stand
 
-The application is in open beta and works end to end: the learning path,
+With version 1.0 the open beta is over; the application works end to end: the learning path,
 lessons, lecture notes, quizzes, coding exercises, staged hints, a history
 of past attempts in exercises and quizzes, progress tracking, a profile,
 badges, XP, levels and titles, a study timer, suggested routes, your own

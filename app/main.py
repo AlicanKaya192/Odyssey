@@ -258,7 +258,7 @@ def main() -> int:
             icon_path,
             theme.effective_mode,
             language.t("app.subtitle"),
-            f"v{APP_VERSION} · {language.t('splash.beta')}",
+            f"v{APP_VERSION}",
         )
         application.processEvents()
 
@@ -309,7 +309,7 @@ def main() -> int:
     else:
         show_window(window)
 
-    # Beta uyarısı pencere göründükten sonra çıkıyor; boş ekranın önünde
+    # Hoş geldiniz penceresi pencere göründükten sonra çıkıyor; boş ekranın önünde
     # açılan bir kutu, uygulamanın açılmadığı izlenimi veriyor.
     if restored is not None:
         _show_restored(restored, language, theme, window)
@@ -317,14 +317,14 @@ def main() -> int:
         _show_info(language.t("backup.imported_title"), language.t("backup.imported_message"),
                    language, theme, window)
 
-    from app.ui.beta_notice import SETTING_KEY, BetaNoticeDialog, mark_seen, should_show
+    from app.ui.welcome import SETTING_KEY, WelcomeDialog, mark_seen, should_show
 
     if should_show(store):
         from app.ui import titlebar
 
         if store.setting(SETTING_KEY, "") == "":
-            # İlk kurulum: beta uyarısı.
-            notice = BetaNoticeDialog(language, window)
+            # İlk kurulum: hoş geldiniz.
+            notice = WelcomeDialog(language, window)
             titlebar.apply(notice, theme.effective_mode)
             notice.exec()
         else:

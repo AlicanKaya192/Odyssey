@@ -1,13 +1,15 @@
-"""Açılışta çıkan beta uyarısı.
+"""İlk kurulumda çıkan hoş geldiniz penceresi.
 
-Uygulama açık beta sürümünde. Kullanan kişi karşılaşacağı şeyi
-baştan bilsin diye ilk açılışta kısa bir bilgilendirme çıkıyor: kararsız
-çalışabilir, hata verebilir, eksik bölümler olabilir.
+1.0'a kadar burada açık beta uyarısı vardı ("kararsız çalışabilir").
+1.0'da uyarı kalktı; yeni kuran kişiye programın ne olduğu, verisinin
+yalnızca kendi bilgisayarında durduğu ve sorunu nasıl bildireceği
+anlatılıyor.
 
-Uyarı sürüm başına bir kez gösteriliyor. Her açılışta çıkarsa kısa sürede
-okunmadan kapatılan bir engel hâline gelir; hiç tekrarlanmazsa da yeni bir
-beta sürümüne geçen kişi neyin değiştiğini bilmez. Görüldüğü sürüm
-`beta_notice_seen` ayarında saklanıyor.
+Sürüm başına bir kez sayılıyor: ayar boşsa (ilk kurulum) bu pencere,
+doluysa ve sürüm değiştiyse (güncelleme) "Neler yeni?" çıkıyor
+(`main.py`). Görülen sürüm `beta_notice_seen` ayarında; ad eski ama
+değiştirilmiyor, yoksa güncelleyen herkes ilk kurulum sayılıp bu pencereyi
+görürdü.
 """
 
 from __future__ import annotations
@@ -34,7 +36,7 @@ ISSUES_URL = "https://github.com/AlicanKaya192/Odyssey/issues"
 
 
 def should_show(store: ProgressStore) -> bool:
-    """Bu sürümün uyarısı daha önce gösterildi mi?"""
+    """Bu sürüm için açılış penceresi (hoş geldiniz ya da "Neler yeni?") gösterildi mi?"""
     return store.setting(SETTING_KEY, "") != APP_VERSION
 
 
@@ -42,8 +44,8 @@ def mark_seen(store: ProgressStore) -> None:
     store.set_setting(SETTING_KEY, APP_VERSION)
 
 
-class BetaNoticeDialog(QDialog):
-    """Kapalı beta bilgilendirmesi."""
+class WelcomeDialog(QDialog):
+    """İlk kurulumdaki hoş geldiniz penceresi."""
 
     def __init__(
         self,
@@ -67,7 +69,7 @@ class BetaNoticeDialog(QDialog):
         self._heading.setWordWrap(True)
         layout.addWidget(self._heading)
 
-        # Üç ayrı paragraf: ne beklemeli, verisine ne oluyor, nasıl bildirir.
+        # Üç ayrı paragraf: program ne, verisine ne oluyor, nasıl bildirir.
         self._body = QLabel()
         self._data = QLabel()
         self._feedback = QLabel()
@@ -100,10 +102,10 @@ class BetaNoticeDialog(QDialog):
         webbrowser.open(ISSUES_URL)
 
     def retranslate(self) -> None:
-        self.setWindowTitle(self._language.t("beta.title"))
-        self._heading.setText(self._language.t("beta.heading"))
-        self._body.setText(self._language.t("beta.body"))
-        self._data.setText(self._language.t("beta.data"))
-        self._feedback.setText(self._language.t("beta.feedback"))
-        self._report_button.setText(self._language.t("beta.report"))
-        self._close_button.setText(self._language.t("beta.close"))
+        self.setWindowTitle(self._language.t("welcome.title"))
+        self._heading.setText(self._language.t("welcome.heading"))
+        self._body.setText(self._language.t("welcome.body"))
+        self._data.setText(self._language.t("welcome.data"))
+        self._feedback.setText(self._language.t("welcome.feedback"))
+        self._report_button.setText(self._language.t("welcome.report"))
+        self._close_button.setText(self._language.t("welcome.close"))

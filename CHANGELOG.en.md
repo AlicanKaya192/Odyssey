@@ -10,16 +10,25 @@ The Turkish version is in `CHANGELOG.md`; both are kept in step.
 
 `MAJOR.MINOR.PATCH` — three parts:
 
-- **Patch** (`0.1.0` → `0.1.1`): fixes and small additions. During development
-  this is the one that usually moves.
-- **Minor** (`0.1.x` → `0.2.0`): when a milestone is finished, such as the
-  content import.
-- **Major** (`0.x` → `1.0.0`): the first version somebody other than me can use.
+- **Patch** (`1.0.0` → `1.0.1`): bug fixes only.
+- **Minor** (`1.0.x` → `1.1.0`): a new path or a major feature.
+- **Major** (`1.x` → `2.0.0`): a version in which the application is largely
+  rebuilt.
+
+The `0.x` versions were the development period: open beta from `0.7.1` to
+`0.9.3`, alpha before that. `1.0.0` is the first full release.
 
 The course content has its own version (`content_version`), so fixing a single
 lecture note does not mean downloading the whole application again.
 
 ---
+
+## [1.0.0] — unreleased
+
+### Changed
+- **Odyssey is no longer an open beta.** 1.0 is the first full release: the
+  "Open Beta" label is gone from the start-up screen, and first-time users
+  see a short welcome window instead of the beta notice.
 
 ## [0.9.3] — 7 October 2026
 

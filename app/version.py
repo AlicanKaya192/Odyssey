@@ -5,14 +5,15 @@ ders notu düzeltildiğinde kullanıcının tüm uygulamayı yeniden indirmesi
 gerekmez; yalnızca değişen içerik paketi iner.
 """
 
-# Sürüm numaraları BÜYÜK.ORTA.KÜÇÜK biçiminde ilerliyor:
-#   küçük  — düzeltmeler ve küçük eklemeler (geliştirme boyunca çoğunlukla bu)
-#   orta   — bir aşama tamamlandığında
-#   büyük  — benden başkasının kullanabileceği ilk sürümde 1.0.0
+# Sürüm numaraları BÜYÜK.ORTA.KÜÇÜK biçiminde ilerliyor. 1.0.0 açık betadan
+# çıkılan ilk tam sürüm; ondan sonra:
+#   küçük  — yalnızca hata düzeltmeleri (1.0.0 → 1.0.1)
+#   orta   — yeni patika ya da büyük özellik (1.0.x → 1.1.0)
+#   büyük  — programın büyük ölçüde yeniden kurulduğu bir sürüm (2.0.0)
 # Ayrıntısı CHANGELOG.md'nin başında yazılı.
 
 # Uygulama kodunun sürümü.
-APP_VERSION = "0.9.3"
+APP_VERSION = "1.0.0"
 
 # Müfredat içeriğinin sürümü. Uygulama kodundan ayrı ilerliyor.
 CONTENT_VERSION = "0.7.0"

@@ -8,16 +8,25 @@ uygulamanın içindeki metin aynı kaynaktan gelir.
 
 `BÜYÜK.ORTA.KÜÇÜK` — üç parça:
 
-- **Küçük** (`0.1.0` → `0.1.1`): düzeltmeler ve küçük eklemeler. Geliştirme
-  boyunca çoğunlukla burası artar.
-- **Orta** (`0.1.x` → `0.2.0`): bir aşama tamamlandığında. Örneğin içerik
-  aktarımı bittiğinde.
-- **Büyük** (`0.x` → `1.0.0`): benden başkasının kullanabileceği ilk sürüm.
+- **Küçük** (`1.0.0` → `1.0.1`): yalnızca hata düzeltmeleri.
+- **Orta** (`1.0.x` → `1.1.0`): yeni bir patika ya da büyük bir özellik.
+- **Büyük** (`1.x` → `2.0.0`): programın büyük ölçüde yeniden kurulduğu bir
+  sürüm.
+
+`0.x` sürümleri geliştirme dönemiydi: `0.7.1`'den `0.9.3`'e kadar açık beta,
+öncesi alpha. `1.0.0` ilk tam sürüm.
 
 Ders içeriğinin ayrı bir sürümü var (`content_version`). Sadece bir ders notu
 düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
+
+## [1.0.0] — yayınlanmadı
+
+### Değişti
+- **Odyssey artık açık beta değil.** 1.0 ilk tam sürüm: açılıştaki
+  "Açık Beta" yazısı kalktı, ilk kez kuranlar beta uyarısı yerine kısa bir
+  hoş geldiniz penceresi görüyor.
 
 ## [0.9.3] — 7 Ekim 2026
 

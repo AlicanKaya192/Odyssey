@@ -56,9 +56,8 @@ def _stage(version: str) -> str:
 
     Uygulama **0.7.1'den itibaren açık beta**; ondan öncesi alpha'ydı ve
     sürüm notlarında öyle kalması doğru — o sürümleri indiren kişi gerçekten
-    alpha bir program kullandı. 1.0'da rozet kendiliğinden kayboluyor.
-
-    Eşik tek yerde duruyor; açık betadan çıkıldığında burası değişecek.
+    alpha bir program kullandı. 1.0 ve sonrasında etiket yok (tam sürüm);
+    eski sürümlerin etiketi geçmişte olduğu gibi kalıyor.
     """
     from ..core.updates import parse_version
 
