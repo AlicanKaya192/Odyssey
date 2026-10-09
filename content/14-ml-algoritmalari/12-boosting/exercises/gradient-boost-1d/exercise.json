@@ -1,0 +1,105 @@
+{
+  "id": "gradient-boost-1d",
+  "title": {
+    "tr": "Kütüklerle gradyan artırma",
+    "en": "Gradient boosting with stumps"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngüde `t, left, right = fit_stump_reg(x, y - pred)`.",
+      "en": "In the loop `t, left, right = fit_stump_reg(x, y - pred)`."
+    },
+    {
+      "tr": "`pred += lr * np.where(x <= t, left, right)`.",
+      "en": "`pred += lr * np.where(x <= t, left, right)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef fit_stump_reg(x, y):\n    order = np.argsort(x)\n    x, y = x[order], y[order]\n    best = None\n    for i in range(1, len(x)):\n        if x[i] == x[i - 1]:\n            continue\n        left, right = y[:i], y[i:]\n        err = ((left - left.mean()) ** 2).sum() + ((right - right.mean()) ** 2).sum()\n        if best is None or err < best[0] - 1e-12:\n            best = (err, (x[i - 1] + x[i]) / 2, left.mean(), right.mean())\n    return best[1], best[2], best[3]\n\n\ndef gradient_boost_1d(x, y, rounds, lr):\n    x, y = np.array(x, dtype=float), np.array(y, dtype=float)\n    pred = np.full(len(y), y.mean())\n    for _ in range(rounds):\n        t, left, right = fit_stump_reg(x, y - pred)\n        pred += lr * np.where(x <= t, left, right)\n    return round(float(((y - pred) ** 2).mean()), 4)\n\nx = [1, 2, 3, 4, 5, 6, 7, 8]\ny = [1.0, 1.5, 1.2, 4.0, 4.5, 4.2, 8.0, 8.4]\nfor rounds in (0, 1, 5, 30):\n    print(rounds, gradient_boost_1d(x, y, rounds, 0.5))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef fit_stump_reg(x, y):\n    order = np.argsort(x)\n    x, y = x[order], y[order]\n    best = None\n    for i in range(1, len(x)):\n        if x[i] == x[i - 1]:\n            continue\n        left, right = y[:i], y[i:]\n        err = ((left - left.mean()) ** 2).sum() + ((right - right.mean()) ** 2).sum()\n        if best is None or err < best[0] - 1e-12:\n            best = (err, (x[i - 1] + x[i]) / 2, left.mean(), right.mean())\n    return best[1], best[2], best[3]\n\n\ndef gradient_boost_1d(x, y, rounds, lr):\n    x, y = np.array(x, dtype=float), np.array(y, dtype=float)\n    pred = np.full(len(y), y.mean())\n    for _ in range(rounds):\n        t, left, right = fit_stump_reg(x, y - pred)\n        pred += lr * np.where(x <= t, left, right)\n    return round(float(((y - pred) ** 2).mean()), 4)\n\nx = [1, 2, 3, 4, 5, 6, 7, 8]\ny = [1.0, 1.5, 1.2, 4.0, 4.5, 4.2, 8.0, 8.4]\nfor rounds in (0, 1, 5, 30):\n    print(rounds, gradient_boost_1d(x, y, rounds, 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "gradient_boost_1d",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            [
+              1.0,
+              1.5,
+              1.2,
+              4.0,
+              4.5,
+              4.2,
+              8.0,
+              8.4
+            ],
+            5,
+            0.5
+          ],
+          "returns": 0.0814
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ],
+            [
+              1,
+              2,
+              3
+            ],
+            0,
+            0.1
+          ],
+          "returns": 0.6667
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4
+            ],
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            1,
+            1.0
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 7.3325\n1 3.13\n5 0.0814\n30 0.0048"
+    }
+  ]
+}
