@@ -1,0 +1,66 @@
+{
+  "id": "error-counts",
+  "title": {
+    "tr": "Hataları say",
+    "en": "Count the errors"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`re.MULTILINE` olmadan `^` yalnızca ilk satırın başı.",
+      "en": "Without `re.MULTILINE`, `^` is only the first line's start."
+    },
+    {
+      "tr": "`for message in re.findall(...)`: `counts[message] = counts.get(message, 0) + 1`.",
+      "en": "`for message in re.findall(...)`: `counts[message] = counts.get(message, 0) + 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nERROR_LINE = re.compile(r\"^\\S+ \\S+ ERROR (.+)$\", re.MULTILINE)\n\n\ndef error_counts(log):\n    counts = {}\n    for message in ERROR_LINE.findall(log):\n        counts[message] = counts.get(message, 0) + 1\n    return counts\n\nLOG = \"\"\"2026-03-15 10:02 ERROR disk full\n2026-03-15 10:05 INFO saved\n2026-03-15 10:09 ERROR timeout\n2026-03-15 10:12 ERROR disk full\n2026-03-15 10:13 WARNING slow\"\"\"\nprint(error_counts(LOG))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nERROR_LINE = re.compile(r\"^\\S+ \\S+ ERROR (.+)$\", re.MULTILINE)\n\n\ndef error_counts(log):\n    counts = {}\n    for message in ERROR_LINE.findall(log):\n        counts[message] = counts.get(message, 0) + 1\n    return counts\n\nLOG = \"\"\"2026-03-15 10:02 ERROR disk full\n2026-03-15 10:05 INFO saved\n2026-03-15 10:09 ERROR timeout\n2026-03-15 10:12 ERROR disk full\n2026-03-15 10:13 WARNING slow\"\"\"\nprint(error_counts(LOG))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "error_counts",
+      "cases": [
+        {
+          "args": [
+            "2026-03-15 10:02 ERROR disk full\n2026-03-15 10:05 INFO saved\n2026-03-15 10:09 ERROR timeout\n2026-03-15 10:12 ERROR disk full\n2026-03-15 10:13 WARNING slow"
+          ],
+          "returns": {
+            "disk full": 2,
+            "timeout": 1
+          }
+        },
+        {
+          "args": [
+            "2026-03-15 10:00 INFO ok"
+          ],
+          "returns": {}
+        },
+        {
+          "args": [
+            "a b ERROR x\nc d ERROR x\ne f ERROR y"
+          ],
+          "returns": {
+            "x": 2,
+            "y": 1
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'disk full': 2, 'timeout': 1}"
+    }
+  ]
+}

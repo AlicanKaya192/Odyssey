@@ -1,0 +1,78 @@
+{
+  "id": "parse-date",
+  "title": {
+    "tr": "Tarihi parçala",
+    "en": "Take the date apart"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bulamazsa `search` `None` döner; önce onu kontrol et.",
+      "en": "When nothing is found `search` returns `None`; check that first."
+    },
+    {
+      "tr": "`day, month, year = m.groups()`, sonra `int(year), int(month), int(day)`.",
+      "en": "`day, month, year = m.groups()`, then `int(year), int(month), int(day)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef parse_date(text):\n    m = re.search(r\"(\\d{2})\\.(\\d{2})\\.(\\d{4})\", text)\n    if m is None:\n        return None\n    day, month, year = m.groups()\n    return int(year), int(month), int(day)\n\nprint(parse_date(\"Invoice 0042, due 15.03.2026, paid 20.03.2026\"))\nprint(parse_date(\"no date\"))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef parse_date(text):\n    m = re.search(r\"(\\d{2})\\.(\\d{2})\\.(\\d{4})\", text)\n    if m is None:\n        return None\n    day, month, year = m.groups()\n    return int(year), int(month), int(day)\n\nprint(parse_date(\"Invoice 0042, due 15.03.2026, paid 20.03.2026\"))\nprint(parse_date(\"no date\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_date",
+      "cases": [
+        {
+          "args": [
+            "Invoice 0042, due 15.03.2026, paid 20.03.2026"
+          ],
+          "returns": {
+            "__tuple__": [
+              2026,
+              3,
+              15
+            ]
+          }
+        },
+        {
+          "args": [
+            "no date"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "01.12.1999"
+          ],
+          "returns": {
+            "__tuple__": [
+              1999,
+              12,
+              1
+            ]
+          }
+        },
+        {
+          "args": [
+            "15-03-2026"
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(2026, 3, 15)\nNone"
+    }
+  ]
+}
