@@ -1,0 +1,115 @@
+{
+  "id": "hash-buckets",
+  "title": {
+    "tr": "Hashing trick",
+    "en": "The hashing trick"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for word in text.lower().split():`.",
+      "en": "`for word in text.lower().split():`."
+    },
+    {
+      "tr": "`vector[zlib.crc32(word.encode()) % buckets] += 1`.",
+      "en": "`vector[zlib.crc32(word.encode()) % buckets] += 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport zlib\n\n\ndef hash_buckets(text, buckets):\n    vector = [0] * buckets\n    for word in text.lower().split():\n        vector[zlib.crc32(word.encode()) % buckets] += 1\n    return vector\n\nprint(hash_buckets(\"the cat sat on the mat\", 8))\nprint(hash_buckets(\"data data data\", 4))\n```",
+      "en": "The full solution:\n\n```python\nimport zlib\n\n\ndef hash_buckets(text, buckets):\n    vector = [0] * buckets\n    for word in text.lower().split():\n        vector[zlib.crc32(word.encode()) % buckets] += 1\n    return vector\n\nprint(hash_buckets(\"the cat sat on the mat\", 8))\nprint(hash_buckets(\"data data data\", 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hash_buckets",
+      "cases": [
+        {
+          "args": [
+            "the cat sat on the mat",
+            8
+          ],
+          "returns": [
+            3,
+            0,
+            1,
+            0,
+            0,
+            0,
+            2,
+            0
+          ]
+        },
+        {
+          "args": [
+            "data data data",
+            4
+          ],
+          "returns": [
+            0,
+            0,
+            0,
+            3
+          ]
+        },
+        {
+          "args": [
+            "",
+            3
+          ],
+          "returns": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "args": [
+            "Model model MODEL",
+            2
+          ],
+          "returns": [
+            0,
+            3
+          ]
+        },
+        {
+          "args": [
+            "a b c d e f g h",
+            16
+          ],
+          "returns": [
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, 0, 1, 0, 0, 0, 2, 0]\n[0, 0, 0, 3]"
+    }
+  ]
+}
