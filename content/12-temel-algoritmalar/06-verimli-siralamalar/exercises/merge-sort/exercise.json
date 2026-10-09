@@ -1,0 +1,146 @@
+{
+  "id": "merge-sort",
+  "title": {
+    "tr": "Merge sort",
+    "en": "Merge sort"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Temel durum `if len(items) <= 1: return items`. Sonra `mid = len(items) // 2`.",
+      "en": "Base case `if len(items) <= 1: return items`. Then `mid = len(items) // 2`."
+    },
+    {
+      "tr": "`return merge(merge_sort(items[:mid]), merge_sort(items[mid:]))`.",
+      "en": "`return merge(merge_sort(items[:mid]), merge_sort(items[mid:]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef merge(left, right):\n    result = []\n    i = j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    result.extend(left[i:])\n    result.extend(right[j:])\n    return result\n\n\ndef merge_sort(items):\n    if len(items) <= 1:\n        return items\n    mid = len(items) // 2\n    return merge(merge_sort(items[:mid]), merge_sort(items[mid:]))\n\n\nprint(merge_sort([38, 27, 43, 3, 9, 82, 10]))\nprint(merge_sort([]))\n```",
+      "en": "The full solution:\n\n```python\ndef merge(left, right):\n    result = []\n    i = j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    result.extend(left[i:])\n    result.extend(right[j:])\n    return result\n\n\ndef merge_sort(items):\n    if len(items) <= 1:\n        return items\n    mid = len(items) // 2\n    return merge(merge_sort(items[:mid]), merge_sort(items[mid:]))\n\n\nprint(merge_sort([38, 27, 43, 3, 9, 82, 10]))\nprint(merge_sort([]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "recursive": "merge_sort",
+      "hint": {
+        "tr": "`merge_sort` kendini çağırmalı (özyineleme).",
+        "en": "`merge_sort` must call itself (recursion)."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma; algoritmayı kendin yaz.",
+        "en": "Do not use `sorted`; write the algorithm yourself."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`.sort()` kullanma; algoritmayı kendin yaz.",
+        "en": "Do not use `.sort()`; write the algorithm yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "merge_sort",
+      "cases": [
+        {
+          "args": [
+            [
+              38,
+              27,
+              43,
+              3,
+              9,
+              82,
+              10
+            ]
+          ],
+          "returns": [
+            3,
+            9,
+            10,
+            27,
+            38,
+            43,
+            82
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              1
+            ]
+          ],
+          "returns": [
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              5,
+              1,
+              1
+            ]
+          ],
+          "returns": [
+            1,
+            1,
+            5,
+            5
+          ]
+        },
+        {
+          "args": [
+            [
+              9,
+              8,
+              7,
+              6,
+              5,
+              4,
+              3,
+              2,
+              1
+            ]
+          ],
+          "returns": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, 9, 10, 27, 38, 43, 82]\n[]"
+    }
+  ]
+}
