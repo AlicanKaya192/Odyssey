@@ -1,0 +1,172 @@
+{
+  "id": "em-fit",
+  "title": {
+    "tr": "EM döngüsü",
+    "en": "The EM loop"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngünün içinde önce sorumluluklar (E), sonra `nk`, pay, ortalama, varyans (M).",
+      "en": "Inside the loop first the responsibilities (E), then `nk`, share, mean, variance (M)."
+    },
+    {
+      "tr": "M adımında ortalamayı varyanstan **önce** güncelle; varyans yeni ortalamayı kullanır.",
+      "en": "In the M step update the mean **before** the variance; the variance uses the new mean."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef normal_pdf(x, mu, var):\n    return np.exp(-(x - mu) ** 2 / (2 * var)) / np.sqrt(2 * np.pi * var)\n\n\ndef em_fit(xs, weights, mus, variances, iters):\n    xs, w = np.array(xs, dtype=float), np.array(weights, dtype=float)\n    mu, var = np.array(mus, dtype=float), np.array(variances, dtype=float)\n    for _ in range(iters):\n        dens = w * normal_pdf(xs[:, None], mu, var)\n        r = dens / dens.sum(axis=1, keepdims=True)\n        nk = r.sum(axis=0)\n        w = nk / len(xs)\n        mu = (r * xs[:, None]).sum(axis=0) / nk\n        var = (r * (xs[:, None] - mu) ** 2).sum(axis=0) / nk\n    return w.round(3).tolist(), mu.round(3).tolist(), var.round(3).tolist()\n\nxs = [-1.2, -0.5, 0.1, 0.4, 0.9, 3.8, 4.4, 5.1, 5.6, 6.3]\nw, mu, var = em_fit(xs, [0.5, 0.5], [0.0, 1.0], [1.0, 1.0], 50)\nprint(w)\nprint(mu)\nprint(var)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef normal_pdf(x, mu, var):\n    return np.exp(-(x - mu) ** 2 / (2 * var)) / np.sqrt(2 * np.pi * var)\n\n\ndef em_fit(xs, weights, mus, variances, iters):\n    xs, w = np.array(xs, dtype=float), np.array(weights, dtype=float)\n    mu, var = np.array(mus, dtype=float), np.array(variances, dtype=float)\n    for _ in range(iters):\n        dens = w * normal_pdf(xs[:, None], mu, var)\n        r = dens / dens.sum(axis=1, keepdims=True)\n        nk = r.sum(axis=0)\n        w = nk / len(xs)\n        mu = (r * xs[:, None]).sum(axis=0) / nk\n        var = (r * (xs[:, None] - mu) ** 2).sum(axis=0) / nk\n    return w.round(3).tolist(), mu.round(3).tolist(), var.round(3).tolist()\n\nxs = [-1.2, -0.5, 0.1, 0.4, 0.9, 3.8, 4.4, 5.1, 5.6, 6.3]\nw, mu, var = em_fit(xs, [0.5, 0.5], [0.0, 1.0], [1.0, 1.0], 50)\nprint(w)\nprint(mu)\nprint(var)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "GaussianMixture",
+      "hint": {
+        "tr": "`GaussianMixture` kullanma; döngüyü kendin yaz.",
+        "en": "Do not use `GaussianMixture`; write the loop yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "em_fit",
+      "cases": [
+        {
+          "args": [
+            [
+              -1.2,
+              -0.5,
+              0.1,
+              0.4,
+              0.9,
+              3.8,
+              4.4,
+              5.1,
+              5.6,
+              6.3
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            50
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                0.5,
+                0.5
+              ],
+              [
+                -0.06,
+                5.04
+              ],
+              [
+                0.53,
+                0.77
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              0.0,
+              0.2,
+              9.8,
+              10.0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1.0,
+              9.0
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            20
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                0.5,
+                0.5
+              ],
+              [
+                0.1,
+                9.9
+              ],
+              [
+                0.01,
+                0.01
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              1.0,
+              2.0,
+              3.0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1.0,
+              3.0
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            0
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                0.5,
+                0.5
+              ],
+              [
+                1.0,
+                3.0
+              ],
+              [
+                1.0,
+                1.0
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.5, 0.5]\n[-0.06, 5.04]\n[0.53, 0.77]"
+    }
+  ]
+}

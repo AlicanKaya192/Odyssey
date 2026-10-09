@@ -1,0 +1,111 @@
+{
+  "id": "mixture-density",
+  "title": {
+    "tr": "Karışımın yoğunluğu",
+    "en": "The mixture density"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`xs[:, None]` her `x`'i her bileşenle eşleştirir: `(n, k)`.",
+      "en": "`xs[:, None]` pairs every `x` with every component: `(n, k)`."
+    },
+    {
+      "tr": "`dens = w * normal_pdf(xs[:, None], mu, var)`, sonra `dens.sum(axis=1)`.",
+      "en": "`dens = w * normal_pdf(xs[:, None], mu, var)`, then `dens.sum(axis=1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef normal_pdf(x, mu, var):\n    return np.exp(-(x - mu) ** 2 / (2 * var)) / np.sqrt(2 * np.pi * var)\n\n\ndef mixture_density(xs, weights, mus, variances):\n    xs, w = np.array(xs, dtype=float), np.array(weights, dtype=float)\n    mu, var = np.array(mus, dtype=float), np.array(variances, dtype=float)\n    dens = w * normal_pdf(xs[:, None], mu, var)\n    return dens.sum(axis=1).round(4).tolist()\n\nprint(mixture_density([0.0, 2.0, 4.0], [0.6, 0.4], [0.0, 4.0], [1.0, 2.25]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef normal_pdf(x, mu, var):\n    return np.exp(-(x - mu) ** 2 / (2 * var)) / np.sqrt(2 * np.pi * var)\n\n\ndef mixture_density(xs, weights, mus, variances):\n    xs, w = np.array(xs, dtype=float), np.array(weights, dtype=float)\n    mu, var = np.array(mus, dtype=float), np.array(variances, dtype=float)\n    dens = w * normal_pdf(xs[:, None], mu, var)\n    return dens.sum(axis=1).round(4).tolist()\n\nprint(mixture_density([0.0, 2.0, 4.0], [0.6, 0.4], [0.0, 4.0], [1.0, 2.25]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mixture_density",
+      "cases": [
+        {
+          "args": [
+            [
+              0.0,
+              2.0,
+              4.0
+            ],
+            [
+              0.6,
+              0.4
+            ],
+            [
+              0.0,
+              4.0
+            ],
+            [
+              1.0,
+              2.25
+            ]
+          ],
+          "returns": [
+            0.2424,
+            0.0761,
+            0.1065
+          ]
+        },
+        {
+          "args": [
+            [
+              1.0
+            ],
+            [
+              1.0
+            ],
+            [
+              1.0
+            ],
+            [
+              4.0
+            ]
+          ],
+          "returns": [
+            0.1995
+          ]
+        },
+        {
+          "args": [
+            [
+              0.0,
+              10.0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              0.0,
+              10.0
+            ],
+            [
+              1.0,
+              1.0
+            ]
+          ],
+          "returns": [
+            0.1995,
+            0.1995
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.2424, 0.0761, 0.1065]"
+    }
+  ]
+}
