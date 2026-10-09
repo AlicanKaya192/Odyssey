@@ -1,0 +1,154 @@
+{
+  "id": "knapsack-value",
+  "title": {
+    "tr": "Sırt çantasının en iyisi",
+    "en": "The best knapsack"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`for i in range(1, n + 1):` içinde `value, weight = items[i - 1]` ve `for w in range(capacity + 1):`.",
+      "en": "Inside `for i in range(1, n + 1):`, `value, weight = items[i - 1]` and `for w in range(capacity + 1):`."
+    },
+    {
+      "tr": "Önce `best[i][w] = best[i - 1][w]`; sığıyorsa ve almak daha iyiyse `best[i - 1][w - weight] + value`.",
+      "en": "First `best[i][w] = best[i - 1][w]`; if it fits and taking is better, `best[i - 1][w - weight] + value`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef knapsack(items, capacity):\n    n = len(items)\n    best = [[0] * (capacity + 1) for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        value, weight = items[i - 1]\n        for w in range(capacity + 1):\n            best[i][w] = best[i - 1][w]\n            if weight <= w and best[i - 1][w - weight] + value > best[i][w]:\n                best[i][w] = best[i - 1][w - weight] + value\n    return best[n][capacity]\n\n\nprint(knapsack([[60, 10], [100, 20], [120, 30]], 50))\nprint(knapsack([[10, 5], [40, 4], [30, 6], [50, 3]], 10))\nbig = [[(i * 37) % 97 + 1, (i * 53) % 61 + 1] for i in range(100)]\nprint(knapsack(big, 2000))\n```",
+      "en": "The full solution:\n\n```python\ndef knapsack(items, capacity):\n    n = len(items)\n    best = [[0] * (capacity + 1) for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        value, weight = items[i - 1]\n        for w in range(capacity + 1):\n            best[i][w] = best[i - 1][w]\n            if weight <= w and best[i - 1][w - weight] + value > best[i][w]:\n                best[i][w] = best[i - 1][w - weight] + value\n    return best[n][capacity]\n\n\nprint(knapsack([[60, 10], [100, 20], [120, 30]], 50))\nprint(knapsack([[10, 5], [40, 4], [30, 6], [50, 3]], 10))\nbig = [[(i * 37) % 97 + 1, (i * 53) % 61 + 1] for i in range(100)]\nprint(knapsack(big, 2000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "combinations",
+      "hint": {
+        "tr": "Alt kümeleri deneme; tablo doldur.",
+        "en": "Do not try subsets; fill a table."
+      }
+    },
+    {
+      "type": "function",
+      "name": "knapsack",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                60,
+                10
+              ],
+              [
+                100,
+                20
+              ],
+              [
+                120,
+                30
+              ]
+            ],
+            50
+          ],
+          "returns": 220
+        },
+        {
+          "args": [
+            [
+              [
+                10,
+                5
+              ],
+              [
+                40,
+                4
+              ],
+              [
+                30,
+                6
+              ],
+              [
+                50,
+                3
+              ]
+            ],
+            10
+          ],
+          "returns": 90
+        },
+        {
+          "args": [
+            [
+              [
+                5,
+                1
+              ],
+              [
+                4,
+                2
+              ],
+              [
+                3,
+                3
+              ]
+            ],
+            0
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              [
+                7,
+                3
+              ],
+              [
+                8,
+                4
+              ],
+              [
+                4,
+                2
+              ],
+              [
+                10,
+                5
+              ]
+            ],
+            9
+          ],
+          "returns": 19
+        },
+        {
+          "args": [
+            [
+              [
+                20,
+                8
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            5
+          ],
+          "returns": 1
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "220\n90\n4428"
+    }
+  ]
+}
