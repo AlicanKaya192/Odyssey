@@ -1,0 +1,72 @@
+{
+  "id": "module-kind",
+  "title": {
+    "tr": "Modülün türü",
+    "en": "The kind of module"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra önemli: yerleşik modüller standart listede de var.",
+      "en": "Order matters: built-in modules are in the standard list too."
+    },
+    {
+      "tr": "Üç `if` ve sonda `return \"missing\"`; `find_spec(name) is not None`.",
+      "en": "Three `if`s and `return \"missing\"` at the end; `find_spec(name) is not None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport importlib.util\nimport sys\n\n\ndef module_kind(name):\n    if name in sys.builtin_module_names:\n        return \"built-in\"\n    if name in sys.stdlib_module_names:\n        return \"standard\"\n    if importlib.util.find_spec(name) is not None:\n        return \"third-party\"\n    return \"missing\"\n\nfor name in (\"math\", \"json\", \"numpy\", \"no_such_module_x\"):\n    print(name, module_kind(name))\n```",
+      "en": "The full solution:\n\n```python\nimport importlib.util\nimport sys\n\n\ndef module_kind(name):\n    if name in sys.builtin_module_names:\n        return \"built-in\"\n    if name in sys.stdlib_module_names:\n        return \"standard\"\n    if importlib.util.find_spec(name) is not None:\n        return \"third-party\"\n    return \"missing\"\n\nfor name in (\"math\", \"json\", \"numpy\", \"no_such_module_x\"):\n    print(name, module_kind(name))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "module_kind",
+      "cases": [
+        {
+          "args": [
+            "math"
+          ],
+          "returns": "built-in"
+        },
+        {
+          "args": [
+            "json"
+          ],
+          "returns": "standard"
+        },
+        {
+          "args": [
+            "numpy"
+          ],
+          "returns": "third-party"
+        },
+        {
+          "args": [
+            "no_such_module_x"
+          ],
+          "returns": "missing"
+        },
+        {
+          "args": [
+            "sys"
+          ],
+          "returns": "built-in"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "math built-in\njson standard\nnumpy third-party\nno_such_module_x missing"
+    }
+  ]
+}
