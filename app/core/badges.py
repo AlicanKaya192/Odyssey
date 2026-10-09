@@ -54,6 +54,7 @@ BIGDATA_CHAPTER = "11-buyuk-veri"
 ALG1_CHAPTER = "12-temel-algoritmalar"
 ALG2_CHAPTER = "13-algoritma-teknikleri"
 ALG3_CHAPTER = "14-ml-algoritmalari"
+PYLIB1_CHAPTER = "15-python-baslangic-kutuphaneleri"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -96,6 +97,8 @@ ALG2_SKETCH_SECTION = (ALG2_CHAPTER, "13-olasiliksal-veri-yapilari")
 ALG3_DESCENT_SECTION = (ALG3_CHAPTER, "04-gradyan-inisi")
 ALG3_KMEANS_SECTION = (ALG3_CHAPTER, "14-k-means")
 ALG3_NETWORK_SECTION = (ALG3_CHAPTER, "20-sinir-agi")
+PYLIB1_PATH_SECTION = (PYLIB1_CHAPTER, "06-pathlib")
+PYLIB1_REGEX_SECTION = (PYLIB1_CHAPTER, "10-duzenli-ifadeler-2")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -111,6 +114,7 @@ BIGDATA_SECTION_COUNT = 17
 ALG1_SECTION_COUNT = 17
 ALG2_SECTION_COUNT = 17
 ALG3_SECTION_COUNT = 23
+PYLIB1_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -234,6 +238,9 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "centroid-finder": ALG3_KMEANS_SECTION in bitenler,
         "first-network": ALG3_NETWORK_SECTION in bitenler,
         "alg3-complete": modul_basina.get(ALG3_CHAPTER, 0) >= ALG3_SECTION_COUNT,
+        "file-explorer": PYLIB1_PATH_SECTION in bitenler,
+        "pattern-hunter": PYLIB1_REGEX_SECTION in bitenler,
+        "pylib1-complete": modul_basina.get(PYLIB1_CHAPTER, 0) >= PYLIB1_SECTION_COUNT,
     }
 
 
