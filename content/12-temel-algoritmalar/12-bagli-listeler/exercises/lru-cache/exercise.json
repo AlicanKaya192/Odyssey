@@ -1,0 +1,122 @@
+{
+  "id": "lru-cache",
+  "title": {
+    "tr": "LRU önbellek",
+    "en": "An LRU cache"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`get`: anahtar yoksa `return None`; varsa `self.data.move_to_end(key)` ve değeri döndür.",
+      "en": "`get`: `return None` if the key is missing; otherwise `self.data.move_to_end(key)` and return the value."
+    },
+    {
+      "tr": "`put`: yaz, `move_to_end`, sonra `if len(self.data) > self.capacity: self.data.popitem(last=False)`.",
+      "en": "`put`: write, `move_to_end`, then `if len(self.data) > self.capacity: self.data.popitem(last=False)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import OrderedDict\n\n\nclass LRUCache:\n    def __init__(self, capacity):\n        self.capacity = capacity\n        self.data = OrderedDict()\n\n    def get(self, key):\n        if key not in self.data:\n            return None\n        self.data.move_to_end(key)\n        return self.data[key]\n\n    def put(self, key, value):\n        self.data[key] = value\n        self.data.move_to_end(key)\n        if len(self.data) > self.capacity:\n            self.data.popitem(last=False)\n\n\ncache = LRUCache(2)\ncache.put(\"a\", 1)\ncache.put(\"b\", 2)\nprint(cache.get(\"a\"))\ncache.put(\"c\", 3)\nprint(cache.get(\"b\"), cache.get(\"a\"), cache.get(\"c\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import OrderedDict\n\n\nclass LRUCache:\n    def __init__(self, capacity):\n        self.capacity = capacity\n        self.data = OrderedDict()\n\n    def get(self, key):\n        if key not in self.data:\n            return None\n        self.data.move_to_end(key)\n        return self.data[key]\n\n    def put(self, key, value):\n        self.data[key] = value\n        self.data.move_to_end(key)\n        if len(self.data) > self.capacity:\n            self.data.popitem(last=False)\n\n\ncache = LRUCache(2)\ncache.put(\"a\", 1)\ncache.put(\"b\", 2)\nprint(cache.get(\"a\"))\ncache.put(\"c\", 3)\nprint(cache.get(\"b\"), cache.get(\"a\"), cache.get(\"c\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "method",
+      "class": "LRUCache",
+      "args": [
+        2
+      ],
+      "cases": [
+        {
+          "method": "put",
+          "args": [
+            "a",
+            1
+          ]
+        },
+        {
+          "method": "put",
+          "args": [
+            "b",
+            2
+          ]
+        },
+        {
+          "method": "get",
+          "args": [
+            "a"
+          ],
+          "returns": 1
+        },
+        {
+          "method": "put",
+          "args": [
+            "c",
+            3
+          ]
+        },
+        {
+          "method": "get",
+          "args": [
+            "b"
+          ],
+          "returns": null
+        },
+        {
+          "method": "get",
+          "args": [
+            "a"
+          ],
+          "returns": 1
+        },
+        {
+          "method": "put",
+          "args": [
+            "d",
+            4
+          ]
+        },
+        {
+          "method": "get",
+          "args": [
+            "c"
+          ],
+          "returns": null
+        },
+        {
+          "method": "get",
+          "args": [
+            "d"
+          ],
+          "returns": 4
+        },
+        {
+          "method": "put",
+          "args": [
+            "a",
+            10
+          ]
+        },
+        {
+          "method": "get",
+          "args": [
+            "a"
+          ],
+          "returns": 10
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\nNone 1 3"
+    }
+  ]
+}
