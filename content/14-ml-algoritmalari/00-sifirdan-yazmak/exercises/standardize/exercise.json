@@ -1,0 +1,146 @@
+{
+  "id": "standardize",
+  "title": {
+    "tr": "Eğitimle ölçekle",
+    "en": "Scale with training"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`mean = train.mean(axis=0)`, `scale = train.std(axis=0)`.",
+      "en": "`mean = train.mean(axis=0)`, `scale = train.std(axis=0)`."
+    },
+    {
+      "tr": "`return ((test - mean) / scale).round(3).tolist()`.",
+      "en": "`return ((test - mean) / scale).round(3).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef standardize(train, test):\n    train = np.array(train, dtype=float)\n    test = np.array(test, dtype=float)\n    mean = train.mean(axis=0)\n    scale = train.std(axis=0)\n    return ((test - mean) / scale).round(3).tolist()\n\ntrain = [[50, 3.0], [60, 3.5], [40, 2.5], [70, 3.0]]\ntest = [[55, 3.2], [30, 2.0]]\nprint(standardize(train, test))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef standardize(train, test):\n    train = np.array(train, dtype=float)\n    test = np.array(test, dtype=float)\n    mean = train.mean(axis=0)\n    scale = train.std(axis=0)\n    return ((test - mean) / scale).round(3).tolist()\n\ntrain = [[50, 3.0], [60, 3.5], [40, 2.5], [70, 3.0]]\ntest = [[55, 3.2], [30, 2.0]]\nprint(standardize(train, test))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "StandardScaler",
+      "hint": {
+        "tr": "`StandardScaler` kullanma; ortalama ve sapmayı kendin hesapla.",
+        "en": "Do not use `StandardScaler`; compute the mean and sd yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "standardize",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                50,
+                3.0
+              ],
+              [
+                60,
+                3.5
+              ],
+              [
+                40,
+                2.5
+              ],
+              [
+                70,
+                3.0
+              ]
+            ],
+            [
+              [
+                55,
+                3.2
+              ],
+              [
+                30,
+                2.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.0,
+              0.566
+            ],
+            [
+              -2.236,
+              -2.828
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0
+              ],
+              [
+                2
+              ]
+            ],
+            [
+              [
+                1
+              ],
+              [
+                4
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.0
+            ],
+            [
+              3.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                10
+              ],
+              [
+                3,
+                30
+              ]
+            ],
+            [
+              [
+                2,
+                20
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[0.0, 0.566], [-2.236, -2.828]]"
+    }
+  ]
+}
