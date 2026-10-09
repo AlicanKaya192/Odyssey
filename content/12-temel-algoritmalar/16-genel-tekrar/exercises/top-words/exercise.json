@@ -1,0 +1,137 @@
+{
+  "id": "top-words",
+  "title": {
+    "tr": "En sık k kelime",
+    "en": "The k most frequent words"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for word in words: counts[word] = counts.get(word, 0) + 1`.",
+      "en": "`for word in words: counts[word] = counts.get(word, 0) + 1`."
+    },
+    {
+      "tr": "`import heapq` ve `return heapq.nsmallest(k, counts, key=lambda w: (-counts[w], w))` (ya da aynı anahtarla `sorted(...)[:k]`).",
+      "en": "`import heapq` and `return heapq.nsmallest(k, counts, key=lambda w: (-counts[w], w))` (or `sorted(...)[:k]` with the same key)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport heapq\n\n\ndef top_words(words, k):\n    counts = {}\n    for word in words:\n        counts[word] = counts.get(word, 0) + 1\n    return heapq.nsmallest(k, counts, key=lambda w: (-counts[w], w))\n\n\ntext = \"the cat and the dog and the bird saw a cat\"\nprint(top_words(text.split(), 3))\nprint(top_words([\"b\", \"a\", \"b\", \"a\", \"c\"], 2))\n```",
+      "en": "The full solution:\n\n```python\nimport heapq\n\n\ndef top_words(words, k):\n    counts = {}\n    for word in words:\n        counts[word] = counts.get(word, 0) + 1\n    return heapq.nsmallest(k, counts, key=lambda w: (-counts[w], w))\n\n\ntext = \"the cat and the dog and the bird saw a cat\"\nprint(top_words(text.split(), 3))\nprint(top_words([\"b\", \"a\", \"b\", \"a\", \"c\"], 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "Counter",
+      "hint": {
+        "tr": "`Counter` kullanma; sözlükle say.",
+        "en": "Do not use `Counter`; count with a dictionary."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "most_common",
+      "hint": {
+        "tr": "`most_common` kullanma.",
+        "en": "Do not use `most_common`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "top_words",
+      "cases": [
+        {
+          "args": [
+            [
+              "the",
+              "cat",
+              "and",
+              "the",
+              "dog",
+              "and",
+              "the",
+              "bird",
+              "saw",
+              "a",
+              "cat"
+            ],
+            3
+          ],
+          "returns": [
+            "the",
+            "and",
+            "cat"
+          ]
+        },
+        {
+          "args": [
+            [
+              "b",
+              "a",
+              "b",
+              "a",
+              "c"
+            ],
+            2
+          ],
+          "returns": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "args": [
+            [],
+            3
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "x",
+              "y",
+              "z"
+            ],
+            5
+          ],
+          "returns": [
+            "x",
+            "y",
+            "z"
+          ]
+        },
+        {
+          "args": [
+            [
+              "d",
+              "c",
+              "d",
+              "b",
+              "c",
+              "a"
+            ],
+            3
+          ],
+          "returns": [
+            "c",
+            "d",
+            "a"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['the', 'and', 'cat']\n['a', 'b']"
+    }
+  ]
+}
