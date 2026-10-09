@@ -1,0 +1,100 @@
+{
+  "id": "count-components",
+  "title": {
+    "tr": "Kaç parça?",
+    "en": "How many pieces?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`for start in range(n):` içinde görülmüşse `continue`; değilse `count += 1` ve oradan BFS.",
+      "en": "Inside `for start in range(n):`, `continue` if seen; otherwise `count += 1` and a BFS from there."
+    },
+    {
+      "tr": "BFS'te komşuyu kuyruğa koyarken `seen`'e ekle.",
+      "en": "In the BFS, add a neighbour to `seen` when you put it in the queue."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import deque\n\n\ndef count_components(n, edges):\n    graph = {i: [] for i in range(n)}\n    for a, b in edges:\n        graph[a].append(b)\n        graph[b].append(a)\n    seen = set()\n    count = 0\n    for start in range(n):\n        if start in seen:\n            continue\n        count += 1\n        seen.add(start)\n        queue = deque([start])\n        while queue:\n            node = queue.popleft()\n            for neighbour in graph[node]:\n                if neighbour not in seen:\n                    seen.add(neighbour)\n                    queue.append(neighbour)\n    return count\n\n\nprint(count_components(5, [[0, 1], [1, 2], [3, 4]]))\nprint(count_components(4, []))\nchain = [[i, i + 1] for i in range(199_999)]\nprint(count_components(200_000, chain))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import deque\n\n\ndef count_components(n, edges):\n    graph = {i: [] for i in range(n)}\n    for a, b in edges:\n        graph[a].append(b)\n        graph[b].append(a)\n    seen = set()\n    count = 0\n    for start in range(n):\n        if start in seen:\n            continue\n        count += 1\n        seen.add(start)\n        queue = deque([start])\n        while queue:\n            node = queue.popleft()\n            for neighbour in graph[node]:\n                if neighbour not in seen:\n                    seen.add(neighbour)\n                    queue.append(neighbour)\n    return count\n\n\nprint(count_components(5, [[0, 1], [1, 2], [3, 4]]))\nprint(count_components(4, []))\nchain = [[i, i + 1] for i in range(199_999)]\nprint(count_components(200_000, chain))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "count_components",
+      "cases": [
+        {
+          "args": [
+            5,
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                3,
+                4
+              ]
+            ]
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            4,
+            []
+          ],
+          "returns": 4
+        },
+        {
+          "args": [
+            1,
+            []
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            6,
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                4,
+                5
+              ]
+            ]
+          ],
+          "returns": 3
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\n4\n1"
+    }
+  ]
+}

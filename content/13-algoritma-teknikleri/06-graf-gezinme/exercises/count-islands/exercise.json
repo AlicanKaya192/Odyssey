@@ -1,0 +1,80 @@
+{
+  "id": "count-islands",
+  "title": {
+    "tr": "Adaları say",
+    "en": "Count the islands"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "İki döngüyle her hücreye bak; kara ve görülmemişse `islands += 1` ve oradan BFS.",
+      "en": "Look at every cell with two loops; if land and not seen, `islands += 1` and a BFS from there."
+    },
+    {
+      "tr": "BFS dört yöndeki görülmemiş kara hücreleri `seen`'e ve kuyruğa ekler.",
+      "en": "The BFS adds the unseen land cells in four directions to `seen` and the queue."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import deque\n\n\ndef count_islands(grid):\n    rows, cols = len(grid), len(grid[0])\n    seen = set()\n    islands = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] != \"#\" or (r, c) in seen:\n                continue\n            islands += 1\n            seen.add((r, c))\n            queue = deque([(r, c)])\n            while queue:\n                cr, cc = queue.popleft()\n                for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    nr, nc = cr + dr, cc + dc\n                    if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == \"#\" and (nr, nc) not in seen:\n                        seen.add((nr, nc))\n                        queue.append((nr, nc))\n    return islands\n\n\nprint(count_islands([\"##..\", \"#..#\", \"..##\", \"#...\"]))\nprint(count_islands([\"...\", \"...\"]))\nbig = [\"\".join(\"#\" if (r // 3 + c // 3) % 7 != 0 else \".\" for c in range(400)) for r in range(400)]\nprint(count_islands(big))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import deque\n\n\ndef count_islands(grid):\n    rows, cols = len(grid), len(grid[0])\n    seen = set()\n    islands = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] != \"#\" or (r, c) in seen:\n                continue\n            islands += 1\n            seen.add((r, c))\n            queue = deque([(r, c)])\n            while queue:\n                cr, cc = queue.popleft()\n                for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    nr, nc = cr + dr, cc + dc\n                    if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == \"#\" and (nr, nc) not in seen:\n                        seen.add((nr, nc))\n                        queue.append((nr, nc))\n    return islands\n\n\nprint(count_islands([\"##..\", \"#..#\", \"..##\", \"#...\"]))\nprint(count_islands([\"...\", \"...\"]))\nbig = [\"\".join(\"#\" if (r // 3 + c // 3) % 7 != 0 else \".\" for c in range(400)) for r in range(400)]\nprint(count_islands(big))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "count_islands",
+      "cases": [
+        {
+          "args": [
+            [
+              "##..",
+              "#..#",
+              "..##",
+              "#..."
+            ]
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            [
+              "...",
+              "..."
+            ]
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              "#"
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              "#.#",
+              ".#.",
+              "#.#"
+            ]
+          ],
+          "returns": 5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n0\n38"
+    }
+  ]
+}

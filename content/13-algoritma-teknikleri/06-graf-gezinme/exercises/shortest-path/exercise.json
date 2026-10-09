@@ -1,0 +1,218 @@
+{
+  "id": "shortest-path",
+  "title": {
+    "tr": "En az adımlı yol",
+    "en": "The path with the fewest steps"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "BFS'te `for neighbour in sorted(graph[node]):`; `parent`'ta yoksa `parent[neighbour] = node`.",
+      "en": "In BFS, `for neighbour in sorted(graph[node]):`; if not in `parent`, `parent[neighbour] = node`."
+    },
+    {
+      "tr": "Hedef `parent`'ta yoksa `None`; varsa `path = [goal]`, ebeveynleri ekle, `path[::-1]`.",
+      "en": "`None` if the goal is not in `parent`; otherwise `path = [goal]`, append the parents, `path[::-1]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import deque\n\n\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef shortest_path(edges, start, goal):\n    graph = build_graph(edges)\n    parent = {start: None}\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        if node == goal:\n            break\n        for neighbour in sorted(graph[node]):\n            if neighbour not in parent:\n                parent[neighbour] = node\n                queue.append(neighbour)\n    if goal not in parent:\n        return None\n    path = [goal]\n    while parent[path[-1]] is not None:\n        path.append(parent[path[-1]])\n    return path[::-1]\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"], [\"gul\", \"hakan\"]]\nprint(shortest_path(edges, \"ada\", \"fuat\"))\nprint(shortest_path(edges, \"cem\", \"ece\"))\nprint(shortest_path(edges, \"ada\", \"hakan\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import deque\n\n\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef shortest_path(edges, start, goal):\n    graph = build_graph(edges)\n    parent = {start: None}\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        if node == goal:\n            break\n        for neighbour in sorted(graph[node]):\n            if neighbour not in parent:\n                parent[neighbour] = node\n                queue.append(neighbour)\n    if goal not in parent:\n        return None\n    path = [goal]\n    while parent[path[-1]] is not None:\n        path.append(parent[path[-1]])\n    return path[::-1]\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"], [\"gul\", \"hakan\"]]\nprint(shortest_path(edges, \"ada\", \"fuat\"))\nprint(shortest_path(edges, \"cem\", \"ece\"))\nprint(shortest_path(edges, \"ada\", \"hakan\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "shortest_path",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ],
+              [
+                "gul",
+                "hakan"
+              ]
+            ],
+            "ada",
+            "fuat"
+          ],
+          "returns": [
+            "ada",
+            "bora",
+            "deniz",
+            "ece",
+            "fuat"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ],
+              [
+                "gul",
+                "hakan"
+              ]
+            ],
+            "cem",
+            "ece"
+          ],
+          "returns": [
+            "cem",
+            "deniz",
+            "ece"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ],
+              [
+                "gul",
+                "hakan"
+              ]
+            ],
+            "ada",
+            "hakan"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ],
+              [
+                "gul",
+                "hakan"
+              ]
+            ],
+            "deniz",
+            "deniz"
+          ],
+          "returns": [
+            "deniz"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['ada', 'bora', 'deniz', 'ece', 'fuat']\n['cem', 'deniz', 'ece']\nNone"
+    }
+  ]
+}

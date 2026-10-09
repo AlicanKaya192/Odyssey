@@ -1,0 +1,80 @@
+{
+  "id": "maze-steps",
+  "title": {
+    "tr": "Labirentten çıkış",
+    "en": "Out of the maze"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`while queue:` içinde `r, c, steps = queue.popleft()`; hedefse `return steps`.",
+      "en": "Inside `while queue:`, `r, c, steps = queue.popleft()`; `return steps` if it is the goal."
+    },
+    {
+      "tr": "Dört yön için sınır içinde, `.` ve görülmemişse `seen`'e ekle ve `(nr, nc, steps + 1)` kuyruğa.",
+      "en": "For the four directions, if inside, `.` and not seen, add to `seen` and push `(nr, nc, steps + 1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import deque\n\n\ndef maze_steps(maze):\n    rows, cols = len(maze), len(maze[0])\n    queue = deque([(0, 0, 0)])\n    seen = {(0, 0)}\n    while queue:\n        r, c, steps = queue.popleft()\n        if (r, c) == (rows - 1, cols - 1):\n            return steps\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols and maze[nr][nc] == \".\" and (nr, nc) not in seen:\n                seen.add((nr, nc))\n                queue.append((nr, nc, steps + 1))\n    return -1\n\n\nprint(maze_steps([\"..#\", \".#.\", \"...\"]))\nprint(maze_steps([\".#\", \"#.\"]))\nbig = [\"\".join(\"#\" if (r * 7 + c * 13) % 11 == 0 and (r, c) != (0, 0) else \".\" for c in range(300)) for r in range(300)]\nprint(maze_steps(big))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import deque\n\n\ndef maze_steps(maze):\n    rows, cols = len(maze), len(maze[0])\n    queue = deque([(0, 0, 0)])\n    seen = {(0, 0)}\n    while queue:\n        r, c, steps = queue.popleft()\n        if (r, c) == (rows - 1, cols - 1):\n            return steps\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols and maze[nr][nc] == \".\" and (nr, nc) not in seen:\n                seen.add((nr, nc))\n                queue.append((nr, nc, steps + 1))\n    return -1\n\n\nprint(maze_steps([\"..#\", \".#.\", \"...\"]))\nprint(maze_steps([\".#\", \"#.\"]))\nbig = [\"\".join(\"#\" if (r * 7 + c * 13) % 11 == 0 and (r, c) != (0, 0) else \".\" for c in range(300)) for r in range(300)]\nprint(maze_steps(big))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "maze_steps",
+      "cases": [
+        {
+          "args": [
+            [
+              "..#",
+              ".#.",
+              "..."
+            ]
+          ],
+          "returns": 4
+        },
+        {
+          "args": [
+            [
+              ".#",
+              "#."
+            ]
+          ],
+          "returns": -1
+        },
+        {
+          "args": [
+            [
+              "."
+            ]
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              "....",
+              "##.#",
+              "....",
+              ".##."
+            ]
+          ],
+          "returns": 6
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4\n-1\n598"
+    }
+  ]
+}
