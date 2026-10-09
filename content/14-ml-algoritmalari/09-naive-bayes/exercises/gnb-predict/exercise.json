@@ -1,0 +1,107 @@
+{
+  "id": "gnb-predict",
+  "title": {
+    "tr": "Gauss NB",
+    "en": "Gaussian NB"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her sınıf için `mean, var = Xc.mean(axis=0), Xc.var(axis=0) + eps` ve satır başına log olabilirlik (`sum(axis=1)`).",
+      "en": "For each class `mean, var = Xc.mean(axis=0), Xc.var(axis=0) + eps` and the per-row log-likelihood (`sum(axis=1)`)."
+    },
+    {
+      "tr": "Puanlar listesinde `np.argmax(scores, axis=0)` sorgu başına en iyi sınıf.",
+      "en": "On the scores list `np.argmax(scores, axis=0)` is the best class per query."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef gnb_predict(X, y, Xq):\n    X, y, Xq = np.array(X, dtype=float), np.array(y), np.array(Xq, dtype=float)\n    classes = np.unique(y)\n    eps = 1e-9 * X.var(axis=0).max()\n    scores = []\n    for c in classes:\n        Xc = X[y == c]\n        mean, var = Xc.mean(axis=0), Xc.var(axis=0) + eps\n        ll = (-0.5 * np.log(2 * np.pi * var) - (Xq - mean) ** 2 / (2 * var)).sum(axis=1)\n        scores.append(np.log(len(Xc) / len(X)) + ll)\n    return [int(classes[i]) for i in np.argmax(scores, axis=0)]\n\nX = [[1.0, 2.0], [1.2, 1.8], [0.8, 2.1], [4.0, 0.5], [4.2, 0.4], [3.9, 0.7]]\ny = [0, 0, 0, 1, 1, 1]\nprint(gnb_predict(X, y, [[1.1, 2.0], [4.0, 0.6], [2.5, 1.2]]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef gnb_predict(X, y, Xq):\n    X, y, Xq = np.array(X, dtype=float), np.array(y), np.array(Xq, dtype=float)\n    classes = np.unique(y)\n    eps = 1e-9 * X.var(axis=0).max()\n    scores = []\n    for c in classes:\n        Xc = X[y == c]\n        mean, var = Xc.mean(axis=0), Xc.var(axis=0) + eps\n        ll = (-0.5 * np.log(2 * np.pi * var) - (Xq - mean) ** 2 / (2 * var)).sum(axis=1)\n        scores.append(np.log(len(Xc) / len(X)) + ll)\n    return [int(classes[i]) for i in np.argmax(scores, axis=0)]\n\nX = [[1.0, 2.0], [1.2, 1.8], [0.8, 2.1], [4.0, 0.5], [4.2, 0.4], [3.9, 0.7]]\ny = [0, 0, 0, 1, 1, 1]\nprint(gnb_predict(X, y, [[1.1, 2.0], [4.0, 0.6], [2.5, 1.2]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "GaussianNB",
+      "hint": {
+        "tr": "`GaussianNB` kullanma.",
+        "en": "Do not use `GaussianNB`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "gnb_predict",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                2.0
+              ],
+              [
+                1.2,
+                1.8
+              ],
+              [
+                0.8,
+                2.1
+              ],
+              [
+                4.0,
+                0.5
+              ],
+              [
+                4.2,
+                0.4
+              ],
+              [
+                3.9,
+                0.7
+              ]
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ],
+            [
+              [
+                1.1,
+                2.0
+              ],
+              [
+                4.0,
+                0.6
+              ],
+              [
+                2.5,
+                1.2
+              ]
+            ]
+          ],
+          "returns": [
+            0,
+            1,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 1, 0]"
+    }
+  ]
+}
