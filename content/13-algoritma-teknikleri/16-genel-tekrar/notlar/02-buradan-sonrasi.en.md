@@ -24,7 +24,7 @@
 
 ## What comes next?
 
-**ALG 3 — Data Science and Machine Learning Algorithms**
+**Data Science and Machine Learning Algorithms**
 
 Linear and logistic regression, gradient descent, decision trees, random
 forests and gradient boosting, k-nearest neighbours, k-means and DBSCAN, PCA,

@@ -48,4 +48,4 @@ still `O(n log n)`.
   why it is very fast on nearly sorted data.
 - **On data that does not fit in memory.** Sorting a file piece by piece,
   writing the pieces to disk and then merging them (external sort) is the
-  same bottom-up thinking; `heapq.merge` from ALG 1 did this last step.
+  same bottom-up thinking; `heapq.merge` from the Core Algorithms module did this last step.

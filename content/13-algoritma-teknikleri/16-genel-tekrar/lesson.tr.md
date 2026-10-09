@@ -1,6 +1,6 @@
 # Genel Tekrar
 
-ALG 2'nin sonuna geldin. ALG 1'de maliyeti ölçmeyi ve temel yapıları
+Algoritma Teknikleri modülünün sonuna geldin. Temel Algoritmalar modülünde maliyeti ölçmeyi ve temel yapıları
 öğrenmiştin; burada **problem çözme tekniklerini** öğrendin: problemi
 parçalamak, akıllıca denemek, tekrar eden işi saklamak, ilişkileri graf olarak
 görmek ve kesin cevap pahalıysa iyi bir tahminle yetinmek. Bu bölüm her
@@ -14,7 +14,7 @@ tekniğin özünü ve ölçtüğümüz en önemli sayıları bir arada topluyor.
     <span class="node">Rastgelelik<br><small>12–13</small></span><span class="arrow">→</span>
     <span class="node acc">Sezgisel, kalıp<br><small>14–15</small></span>
   </div>
-  <figcaption>ALG 2'nin yolu: önce genel teknikler, sonra graflar, sonra özel alanlar ve yaklaşık yöntemler.</figcaption>
+  <figcaption>Algoritma Teknikleri modülünün yolu: önce genel teknikler, sonra graflar, sonra özel alanlar ve yaklaşık yöntemler.</figcaption>
 </figure>
 
 ## 1. Böl ve fethet (Bölüm 0)
@@ -117,7 +117,7 @@ kümelemeyi verdi ve scikit-learn ile aynı grupları buldu.
 
 ## Özet
 
-ALG 2'deki her teknik aynı soruya farklı bir cevap: **tekrar eden ya da
+Algoritma Teknikleri modülündeki her teknik aynı soruya farklı bir cevap: **tekrar eden ya da
 gereksiz işi nasıl atarım?** Bölerek, budayarak, saklayarak, grafın yapısını
-kullanarak ya da kesinlikten biraz vazgeçerek. ALG 3'te bu araçlar makine
+kullanarak ya da kesinlikten biraz vazgeçerek. ML Algoritmaları modülünde bu araçlar makine
 öğrenmesi algoritmalarının içinde yeniden karşına çıkacak.

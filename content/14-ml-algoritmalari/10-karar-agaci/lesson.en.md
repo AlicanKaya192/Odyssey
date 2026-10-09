@@ -2,7 +2,7 @@
 
 A **decision tree** splits the data with yes/no questions: "is x₀ ≤ 5.97?" Each
 question divides the data in two, and a prediction sits in each leaf. Prediction
-is a walk from the root to a leaf (the trees of ALG 1). The model is readable,
+is a walk from the root to a leaf (the trees of the Core Algorithms module). The model is readable,
 needs no scaling, and handles numbers and categories together. In this section
 we write the **CART** algorithm that scikit-learn uses, from scratch.
 

@@ -275,7 +275,7 @@ sort). Büyük Veri patikasındaki parça parça işleme fikrinin aynısı.
   `top_k`'nın aynısı (en küçük `k`).
 - **Öneri sistemleri:** milyonlarca ürünün puanından en iyi 20'si; sıralama
   değil heap.
-- **En kısa yol:** ALG 2'deki Dijkstra algoritması "en yakın açılmamış
+- **En kısa yol:** Algoritma Teknikleri modülündeki Dijkstra algoritması "en yakın açılmamış
   düğümü" bir öncelik kuyruğundan alır.
 
 ## Özet

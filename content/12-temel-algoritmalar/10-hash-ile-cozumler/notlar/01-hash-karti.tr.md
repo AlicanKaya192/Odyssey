@@ -25,7 +25,7 @@
 - **Sayı mı indeks mi saklanacak?** "Kaç kez" için sayaç; "nerede" için ilk
   ya da son indeks; "hangileri" için liste.
 - **Bellek yetecek mi?** Her kalıp `O(n)` ek bellek ister. Milyarlarca
-  değerde yaklaşık yapılar (Bloom filtresi, Count-Min) ALG 2'de.
+  değerde yaklaşık yapılar (Bloom filtresi, Count-Min) Algoritma Teknikleri modülünde.
 
 ## `__hash__` yazarken
 

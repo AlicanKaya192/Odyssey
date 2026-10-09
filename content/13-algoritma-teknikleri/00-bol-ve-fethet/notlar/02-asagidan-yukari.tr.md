@@ -47,4 +47,4 @@ liste. Tur sayısı `⌈log₂ n⌉`, her tur `n` iş: yine `O(n log n)`.
   yakın veride bu yüzden çok hızlıdır.
 - **Belleğe sığmayan veride.** Dosyayı parça parça sıralayıp diske yazmak,
   sonra parçaları birleştirmek (dış sıralama) aşağıdan yukarı düşünmenin
-  aynısı; ALG 1'deki `heapq.merge` bu son adımı yapıyordu.
+  aynısı; Temel Algoritmalar modülündeki `heapq.merge` bu son adımı yapıyordu.

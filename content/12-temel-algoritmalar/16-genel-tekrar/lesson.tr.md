@@ -1,6 +1,6 @@
 # Genel Tekrar
 
-ALG 1'in sonuna geldin. "Algoritma nedir?" sorusuyla başladın; şimdi bir
+Temel Algoritmalar modülünün sonuna geldin. "Algoritma nedir?" sorusuyla başladın; şimdi bir
 kodun girdi büyüyünce nasıl davranacağını önceden söyleyebiliyor, Python'un
 yapılarının gizli maliyetlerini biliyor, arayıp sıralayabiliyor ve sık
 karşılaşılan problemleri tanıdık kalıplarla `O(n)`'e indirebiliyorsun. Bu
@@ -15,7 +15,7 @@ en çok kullanacağın kod.
     <span class="node">Yapılar<br><small>11–12</small></span><span class="arrow">→</span>
     <span class="node acc">Ağaçlar<br><small>13–15</small></span>
   </div>
-  <figcaption>ALG 1'in yolu: önce maliyeti ölçmeyi, sonra arama ve sıralamayı, sonra kalıpları ve yapıları öğrendin.</figcaption>
+  <figcaption>Temel Algoritmalar modülünün yolu: önce maliyeti ölçmeyi, sonra arama ve sıralamayı, sonra kalıpları ve yapıları öğrendin.</figcaption>
 </figure>
 
 ## 1. Algoritma ve karmaşıklık (Bölüm 0–1)
@@ -95,7 +95,7 @@ Python'da derinlik sınırı yaklaşık 1000.
 
 Böl ve fethet: parçala, parçaları kendinle çöz, birleştir. Merge sort
 "ortadan böl, birleştir", quick sort "pivotun etrafında ayır". Aynı alt
-problemi tekrar tekrar çözen özyineleme üstel büyüyebilir; çaresi ALG 2'deki
+problemi tekrar tekrar çözen özyineleme üstel büyüyebilir; çaresi Algoritma Teknikleri modülündeki
 dinamik programlama.
 
 ## 6. O(n)'e indiren kalıplar (Bölüm 8–10)
@@ -154,8 +154,8 @@ for i, x in enumerate(nums):         # two-sum: tümleyeni sözlükte ara
 
 ## Sırada ne var?
 
-ALG 2 bu araçları birleştirir: dinamik programlama (özyinelemenin tekrar eden
+Algoritma Teknikleri modülü bu araçları birleştirir: dinamik programlama (özyinelemenin tekrar eden
 alt problemlerini bir kez çözmek), açgözlü algoritmalar, geri izleme (tüm
 olasılıkları akıllıca denemek), graflar (BFS, Dijkstra, en küçük kapsayan
-ağaç), metin algoritmaları ve olasılıksal veri yapıları. ALG 3'te de veri
+ağaç), metin algoritmaları ve olasılıksal veri yapıları. ML Algoritmaları modülünde de veri
 bilimi ve makine öğrenmesi algoritmalarını NumPy ile sıfırdan kuracaksın.

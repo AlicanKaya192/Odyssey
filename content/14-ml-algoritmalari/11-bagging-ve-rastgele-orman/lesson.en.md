@@ -12,7 +12,7 @@ as the building block.
 
 **Bagging** (bootstrap aggregating): each tree is trained on a sample of the
 same size drawn **with replacement** from the training data (the bootstrap of
-ALG 2); the prediction is the trees' majority vote.
+the Algorithm Techniques module); the prediction is the trees' majority vote.
 
 ```python
 import numpy as np

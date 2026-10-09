@@ -1,6 +1,6 @@
 # Divide and Conquer
 
-In ALG 1 you wrote merge sort and quick sort: split the list in two, solve
+In the Core Algorithms module you wrote merge sort and quick sort: split the list in two, solve
 the two halves with yourself, combine the results. In this section we treat
 the same idea as a **technique**: how the cost of a divide-and-conquer
 algorithm is computed, when it helps, when it does not, and where it is used
@@ -285,7 +285,7 @@ divide and conquer: 2271 distances, closest 0.1504
 
 The same answer with about a thousandth of brute force's distance
 computations. It can be proved that each point in the strip looks at only a
-few neighbours; the total is `O(n log n)`. The k-d tree from ALG 1 works on
+few neighbours; the total is `O(n log n)`. The k-d tree from the Core Algorithms module works on
 the same idea: split the space in two, rule out the far half.
 
 ## When does it not help?

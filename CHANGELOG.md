@@ -25,12 +25,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ### Eklendi
 - **Algoritmalar patikası.** Kendi kodunda algoritma yazmayı ve bir çözümün
-  veri büyüyünce nasıl davranacağını önceden söylemeyi öğretiyor. **ALG 1**
+  veri büyüyünce nasıl davranacağını önceden söylemeyi öğretiyor. **Temel Algoritmalar**
   (17 bölüm) temel algoritmalar ve veri yapıları: karmaşıklık, arama ve
-  sıralama, hash, yığın, kuyruk, ağaç ve heap. **ALG 2** (17 bölüm) problem
+  sıralama, hash, yığın, kuyruk, ağaç ve heap. **Algoritma Teknikleri** (17 bölüm) problem
   çözme teknikleri: böl ve fethet, geri izleme, açgözlü yöntemler, dinamik
   programlama, graflar ve en kısa yol, metin ve sayı algoritmaları, rastgele
-  ve olasılıksal yöntemler, sezgisel optimizasyon. **ALG 3** (23 bölüm)
+  ve olasılıksal yöntemler, sezgisel optimizasyon. **ML Algoritmaları** (23 bölüm)
   makine öğrenmesi algoritmalarını NumPy ile sıfırdan yazdırıp sonuçları
   scikit-learn'le karşılaştırıyor: doğrusal ve lojistik regresyon, gradyan
   inişi, KNN, Naive Bayes, karar ağacı, rastgele orman, boosting, SVM,

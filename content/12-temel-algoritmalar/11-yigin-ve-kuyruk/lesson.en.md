@@ -175,7 +175,7 @@ print(list(queue))
 - **Work processed in order:** printer queues, request queues, message queues
   (the Kafka simulation in the Big Data path is a queue).
 - **Breadth-first search (BFS):** walking a graph or tree level by level, from
-  near to far. It will be done with this queue in the Trees section and ALG 2's
+  near to far. It will be done with this queue in the Trees section and the Algorithm Techniques module's
   graph sections.
 - **The last `k` events:** `deque(maxlen=k)` (we saw it in the sliding window
   section).

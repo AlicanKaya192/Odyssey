@@ -109,7 +109,7 @@ print(sorted(degree.items(), key=lambda kv: (-kv[1], kv[0])))
 
 Sosyal ağ analizinde derece en basit **merkezilik (centrality)** ölçüsü:
 çok bağlantısı olan kişi bilgiyi hızla yayar. Daha incelikli ölçüler
-(PageRank) ALG 3'te.
+(PageRank) ML Algoritmaları modülünde.
 
 ## Arkadaş önerisi: ortak komşular
 

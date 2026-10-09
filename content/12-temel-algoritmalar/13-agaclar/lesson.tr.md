@@ -316,7 +316,7 @@ virginica
 
 scikit-learn'ün `DecisionTreeClassifier`'ı da tahmin ederken tam olarak bunu
 yapar; maliyet ağacın **derinliği** kadar, veri setinin boyutundan bağımsız.
-Ağacın soruları veriden nasıl seçtiğini ALG 3'te sıfırdan kuracağız.
+Ağacın soruları veriden nasıl seçtiğini ML Algoritmaları modülünde sıfırdan kuracağız.
 
 ## Özet
 

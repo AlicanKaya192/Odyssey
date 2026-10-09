@@ -2,7 +2,7 @@
 
 **Karar ağacı** veriyi evet/hayır sorularıyla böler: "x₀ ≤ 5,97 mi?" Her soru
 veriyi ikiye ayırır, her yaprakta bir tahmin durur. Tahmin, kökten yaprağa
-bir yürüyüş (ALG 1'deki ağaçlar). Model okunabilir, ölçeklemeye ihtiyaç
+bir yürüyüş (Temel Algoritmalar modülündeki ağaçlar). Model okunabilir, ölçeklemeye ihtiyaç
 duymaz, sayıları ve kategorileri birlikte kaldırır. Bu bölümde scikit-learn'ün
 kullandığı **CART** algoritmasını sıfırdan yazıyoruz.
 

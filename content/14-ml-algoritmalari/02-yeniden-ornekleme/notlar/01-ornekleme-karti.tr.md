@@ -9,7 +9,7 @@
 | Gruplu k-katlı | aynı grubun örnekleri aynı katta | `GroupKFold` | aynı hastanın, kullanıcının birden çok satırı |
 | Zaman serisi ayrımı | eğitim hep testten önce | `TimeSeriesSplit` | zamana bağlı veri |
 | Permütasyon testi | etiketi karıştırıp tekrar ölçer | `permutation_test_score` | sonuç şanstan iyi mi? |
-| Bootstrap | yerine koyarak örnekler | — (ALG 2 · 12) | güven aralığı |
+| Bootstrap | yerine koyarak örnekler | — (Algoritma Teknikleri · 12) | güven aralığı |
 
 ## Sık hatalar
 

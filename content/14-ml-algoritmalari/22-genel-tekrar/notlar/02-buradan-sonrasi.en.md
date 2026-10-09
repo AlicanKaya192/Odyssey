@@ -1,4 +1,4 @@
-In ALG 3 you built the core of classical machine learning. A few paths open
+In the ML Algorithms module you built the core of classical machine learning. A few paths open
 from here:
 
 - **Deep learning.** The same network as in Section 20, with more layers.

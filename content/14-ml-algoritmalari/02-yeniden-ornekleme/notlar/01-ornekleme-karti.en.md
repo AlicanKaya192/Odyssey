@@ -9,7 +9,7 @@
 | Group k-fold | samples of the same group in the same fold | `GroupKFold` | several rows of the same patient, user |
 | Time series split | training always before testing | `TimeSeriesSplit` | time-dependent data |
 | Permutation test | shuffles the labels and measures again | `permutation_test_score` | does the result beat chance? |
-| Bootstrap | samples with replacement | — (ALG 2 · 12) | a confidence interval |
+| Bootstrap | samples with replacement | — (Algorithm Techniques · 12) | a confidence interval |
 
 ## Common mistakes
 

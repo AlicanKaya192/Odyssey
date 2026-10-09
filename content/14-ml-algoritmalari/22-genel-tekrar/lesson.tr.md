@@ -1,6 +1,6 @@
 # Genel Tekrar
 
-ALG 3'ün sonuna geldin. Makine öğrenmesi algoritmalarının çoğunu NumPy ile
+ML Algoritmaları modülünün sonuna geldin. Makine öğrenmesi algoritmalarının çoğunu NumPy ile
 **sıfırdan** yazdın ve sonuçlarını scikit-learn'le karşılaştırdın. Artık bir
 kütüphane fonksiyonunu çağırdığında arkasında ne döndüğünü biliyorsun: hangi
 kaybı küçülttüğünü, hangi varsayıma dayandığını, nerede yanıldığını. Bu bölüm
@@ -14,7 +14,7 @@ her algoritmanın özünü ve ölçtüğümüz en önemli sonuçları bir arada 
     <span class="node">Denetimsiz<br><small>14–19</small></span><span class="arrow">→</span>
     <span class="node acc">Ağ ve öneri<br><small>20–21</small></span>
   </div>
-  <figcaption>ALG 3'ün yolu: ölçmeyi öğren, doğrusal modelleri kur, sınıflandırıcıları karşılaştır, etiketsiz veriye geç, sonunda sinir ağı ve öneri.</figcaption>
+  <figcaption>ML Algoritmaları modülünün yolu: ölçmeyi öğren, doğrusal modelleri kur, sınıflandırıcıları karşılaştır, etiketsiz veriye geç, sonunda sinir ağı ve öneri.</figcaption>
 </figure>
 
 ## 1. Temeller (Bölüm 0–2)

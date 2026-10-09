@@ -24,7 +24,7 @@ ilk seçimini açgözlü seçimle değiştir, çözümün kötüleşmediğini g�
 | En küçük kapsayan ağaç | en hafif kenar (Kruskal) | evet |
 | Gezgin satıcı | en yakın komşuya git | hayır, yalnızca yaklaşık |
 
-Son üç satır ALG 2'nin graf bölümlerinde.
+Son üç satır Algoritma Teknikleri modülünün graf bölümlerinde.
 
 ## Pratik ipuçları
 

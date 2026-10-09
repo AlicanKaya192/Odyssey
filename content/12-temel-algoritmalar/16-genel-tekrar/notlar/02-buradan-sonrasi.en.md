@@ -29,7 +29,7 @@ window", "stack", "tree", "heap" map directly to these sections.
 
 ## What comes next?
 
-**ALG 2 — Algorithm Techniques and Graphs**
+**Algorithm Techniques and Graphs**
 
 - Divide and conquer, backtracking, greedy algorithms
 - Dynamic programming (two sections): solving repeated subproblems once
@@ -39,7 +39,7 @@ window", "stack", "tree", "heap" map directly to these sections.
 - Probabilistic data structures (Bloom filters, HyperLogLog), heuristic
   optimisation
 
-**ALG 3 — Data Science and Machine Learning Algorithms**
+**Data Science and Machine Learning Algorithms**
 
 Regression, gradient descent, decision trees, ensemble methods, SVMs,
 clustering, PCA, neural networks and recommender systems from scratch with

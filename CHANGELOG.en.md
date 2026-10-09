@@ -27,13 +27,13 @@ lecture note does not mean downloading the whole application again.
 
 ### Added
 - **Algorithms path.** It teaches writing algorithms in your own code and
-  telling in advance how a solution behaves as the data grows. **ALG 1**
+  telling in advance how a solution behaves as the data grows. **Core Algorithms**
   (17 sections) covers core algorithms and data structures: complexity,
-  searching and sorting, hashing, stacks, queues, trees and heaps. **ALG 2**
+  searching and sorting, hashing, stacks, queues, trees and heaps. **Algorithm Techniques**
   (17 sections) covers problem-solving techniques: divide and conquer,
   backtracking, greedy methods, dynamic programming, graphs and shortest
   paths, string and number algorithms, randomised and probabilistic methods,
-  heuristic optimisation. **ALG 3** (23 sections) has you write machine
+  heuristic optimisation. **ML Algorithms** (23 sections) has you write machine
   learning algorithms from scratch with NumPy and compare the results with
   scikit-learn: linear and logistic regression, gradient descent, KNN, Naive
   Bayes, decision trees, random forests, boosting, SVMs, clustering, PCA,

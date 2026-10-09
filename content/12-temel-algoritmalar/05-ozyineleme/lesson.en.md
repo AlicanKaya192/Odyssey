@@ -185,7 +185,7 @@ for n in [10, 20, 25, 30]:
 `fib(28)`; `fib(29)` calls `fib(28)` again; the same values are computed from
 scratch over and over. The call count grows about 1.6 times every time `n`
 goes up by 1: exponential growth. The fix (computing each result once and
-keeping it) comes in ALG 2's **Dynamic Programming** section.
+keeping it) comes in the Algorithm Techniques module's **Dynamic Programming** section.
 
 ## Summary
 

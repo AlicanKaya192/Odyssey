@@ -1,6 +1,6 @@
 # Sıfırdan Yazmak
 
-ALG 3'te makine öğrenmesi algoritmalarını **NumPy ile sıfırdan** yazacağız ve
+ML Algoritmaları modülünde makine öğrenmesi algoritmalarını **NumPy ile sıfırdan** yazacağız ve
 her birini scikit-learn'ün sonucuyla karşılaştıracağız. Amaç scikit-learn'ün
 yerine bir şey koymak değil: bir modelin içinde ne olduğunu bilen kişi, onu
 doğru ayarlar, hatasını teşhis eder ve sınırını bilir. "Bu model neden böyle

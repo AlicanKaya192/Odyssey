@@ -26,7 +26,7 @@
   last index for "where"; a list for "which ones".
 - **Will memory suffice?** Every pattern needs `O(n)` extra memory. For
   billions of values, approximate structures (Bloom filter, Count-Min) come in
-  ALG 2.
+  the Algorithm Techniques module.
 
 ## Writing `__hash__`
 
