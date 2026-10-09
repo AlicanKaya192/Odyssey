@@ -1,0 +1,193 @@
+{
+  "id": "prim-cost",
+  "title": {
+    "tr": "Prim ile ağaç",
+    "en": "A tree with Prim"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while heap:` içinde `w, node = heapq.heappop(heap)`; `node in seen` ise `continue`.",
+      "en": "Inside `while heap:`, `w, node = heapq.heappop(heap)`; `continue` if `node in seen`."
+    },
+    {
+      "tr": "Yeni düğümü `seen`'e ekle, `total += w`, görülmemiş komşuları `(w2, nxt)` olarak heap'e it.",
+      "en": "Add the new node to `seen`, `total += w`, push the unseen neighbours as `(w2, nxt)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport heapq\n\n\ndef prim_cost(graph, start):\n    seen = set()\n    heap = [(0, start)]\n    total = 0\n    while heap and len(seen) < len(graph):\n        w, node = heapq.heappop(heap)\n        if node in seen:\n            continue\n        seen.add(node)\n        total += w\n        for nxt, w2 in graph[node]:\n            if nxt not in seen:\n                heapq.heappush(heap, (w2, nxt))\n    return total\n\ngraph = {\n    \"A\": [(\"B\", 4), (\"C\", 3)],\n    \"B\": [(\"A\", 4), (\"C\", 2), (\"D\", 5)],\n    \"C\": [(\"A\", 3), (\"B\", 2), (\"D\", 7)],\n    \"D\": [(\"B\", 5), (\"C\", 7)],\n}\nprint(prim_cost(graph, \"A\"))\nprint(prim_cost(graph, \"D\"))\n```",
+      "en": "The full solution:\n\n```python\nimport heapq\n\n\ndef prim_cost(graph, start):\n    seen = set()\n    heap = [(0, start)]\n    total = 0\n    while heap and len(seen) < len(graph):\n        w, node = heapq.heappop(heap)\n        if node in seen:\n            continue\n        seen.add(node)\n        total += w\n        for nxt, w2 in graph[node]:\n            if nxt not in seen:\n                heapq.heappush(heap, (w2, nxt))\n    return total\n\ngraph = {\n    \"A\": [(\"B\", 4), (\"C\", 3)],\n    \"B\": [(\"A\", 4), (\"C\", 2), (\"D\", 5)],\n    \"C\": [(\"A\", 3), (\"B\", 2), (\"D\", 7)],\n    \"D\": [(\"B\", 5), (\"C\", 7)],\n}\nprint(prim_cost(graph, \"A\"))\nprint(prim_cost(graph, \"D\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "prim_cost",
+      "cases": [
+        {
+          "args": [
+            {
+              "A": [
+                [
+                  "B",
+                  4
+                ],
+                [
+                  "C",
+                  3
+                ]
+              ],
+              "B": [
+                [
+                  "A",
+                  4
+                ],
+                [
+                  "C",
+                  2
+                ],
+                [
+                  "D",
+                  5
+                ]
+              ],
+              "C": [
+                [
+                  "A",
+                  3
+                ],
+                [
+                  "B",
+                  2
+                ],
+                [
+                  "D",
+                  7
+                ]
+              ],
+              "D": [
+                [
+                  "B",
+                  5
+                ],
+                [
+                  "C",
+                  7
+                ]
+              ]
+            },
+            "A"
+          ],
+          "returns": 10
+        },
+        {
+          "args": [
+            {
+              "A": [
+                [
+                  "B",
+                  4
+                ],
+                [
+                  "C",
+                  3
+                ]
+              ],
+              "B": [
+                [
+                  "A",
+                  4
+                ],
+                [
+                  "C",
+                  2
+                ],
+                [
+                  "D",
+                  5
+                ]
+              ],
+              "C": [
+                [
+                  "A",
+                  3
+                ],
+                [
+                  "B",
+                  2
+                ],
+                [
+                  "D",
+                  7
+                ]
+              ],
+              "D": [
+                [
+                  "B",
+                  5
+                ],
+                [
+                  "C",
+                  7
+                ]
+              ]
+            },
+            "D"
+          ],
+          "returns": 10
+        },
+        {
+          "args": [
+            {
+              "x": [
+                [
+                  "y",
+                  9
+                ]
+              ],
+              "y": [
+                [
+                  "x",
+                  9
+                ],
+                [
+                  "z",
+                  1
+                ]
+              ],
+              "z": [
+                [
+                  "y",
+                  1
+                ]
+              ]
+            },
+            "x"
+          ],
+          "returns": 10
+        },
+        {
+          "args": [
+            {
+              "solo": []
+            },
+            "solo"
+          ],
+          "returns": 0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "10\n10"
+    }
+  ]
+}
