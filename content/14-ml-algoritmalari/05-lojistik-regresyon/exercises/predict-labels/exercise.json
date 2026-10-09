@@ -1,0 +1,126 @@
+{
+  "id": "predict-labels",
+  "title": {
+    "tr": "Eşikle karar",
+    "en": "Deciding with a threshold"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`p = 1 / (1 + np.exp(-(A @ w)))`.",
+      "en": "`p = 1 / (1 + np.exp(-(A @ w)))`."
+    },
+    {
+      "tr": "`(p >= threshold).astype(int).tolist()`.",
+      "en": "`(p >= threshold).astype(int).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef predict_labels(A, w, threshold):\n    A, w = np.array(A, dtype=float), np.array(w, dtype=float)\n    p = 1 / (1 + np.exp(-(A @ w)))\n    return (p >= threshold).astype(int).tolist()\n\nA = [[1, -1.0], [1, 0.0], [1, 0.3], [1, 2.0]]\nw = [0.0, 2.0]\nprint(predict_labels(A, w, 0.5))\nprint(predict_labels(A, w, 0.3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef predict_labels(A, w, threshold):\n    A, w = np.array(A, dtype=float), np.array(w, dtype=float)\n    p = 1 / (1 + np.exp(-(A @ w)))\n    return (p >= threshold).astype(int).tolist()\n\nA = [[1, -1.0], [1, 0.0], [1, 0.3], [1, 2.0]]\nw = [0.0, 2.0]\nprint(predict_labels(A, w, 0.5))\nprint(predict_labels(A, w, 0.3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "predict_labels",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                -1.0
+              ],
+              [
+                1,
+                0.0
+              ],
+              [
+                1,
+                0.3
+              ],
+              [
+                1,
+                2.0
+              ]
+            ],
+            [
+              0.0,
+              2.0
+            ],
+            0.5
+          ],
+          "returns": [
+            0,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                -1.0
+              ],
+              [
+                1,
+                0.0
+              ],
+              [
+                1,
+                0.3
+              ],
+              [
+                1,
+                2.0
+              ]
+            ],
+            [
+              0.0,
+              2.0
+            ],
+            0.3
+          ],
+          "returns": [
+            0,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                5
+              ]
+            ],
+            [
+              -10,
+              1
+            ],
+            0.5
+          ],
+          "returns": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 1, 1, 1]\n[0, 1, 1, 1]"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "id": "cross-entropy",
+  "title": {
+    "tr": "Log kaybı",
+    "en": "Log loss"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Formül `-(y * np.log(p) + (1 - y) * np.log(1 - p)).mean()`.",
+      "en": "The formula `-(y * np.log(p) + (1 - y) * np.log(1 - p)).mean()`."
+    },
+    {
+      "tr": "`float` ve `round(..., 4)`.",
+      "en": "`float` and `round(..., 4)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef cross_entropy(y, p):\n    y = np.array(y, dtype=float)\n    p = np.clip(np.array(p, dtype=float), 1e-12, 1 - 1e-12)\n    return round(float(-(y * np.log(p) + (1 - y) * np.log(1 - p)).mean()), 4)\n\nprint(cross_entropy([1, 0, 1], [0.9, 0.2, 0.6]))\nprint(cross_entropy([0], [0.99]))\nprint(cross_entropy([1], [1.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef cross_entropy(y, p):\n    y = np.array(y, dtype=float)\n    p = np.clip(np.array(p, dtype=float), 1e-12, 1 - 1e-12)\n    return round(float(-(y * np.log(p) + (1 - y) * np.log(1 - p)).mean()), 4)\n\nprint(cross_entropy([1, 0, 1], [0.9, 0.2, 0.6]))\nprint(cross_entropy([0], [0.99]))\nprint(cross_entropy([1], [1.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "log_loss",
+      "hint": {
+        "tr": "`log_loss` kullanma; formülü yaz.",
+        "en": "Do not use `log_loss`; write the formula."
+      }
+    },
+    {
+      "type": "function",
+      "name": "cross_entropy",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              0,
+              1
+            ],
+            [
+              0.9,
+              0.2,
+              0.6
+            ]
+          ],
+          "returns": 0.2798
+        },
+        {
+          "args": [
+            [
+              0
+            ],
+            [
+              0.99
+            ]
+          ],
+          "returns": 4.6052
+        },
+        {
+          "args": [
+            [
+              1
+            ],
+            [
+              1.0
+            ]
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              0,
+              1
+            ],
+            [
+              0.5,
+              0.5
+            ]
+          ],
+          "returns": 0.6931
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.2798\n4.6052\n0.0"
+    }
+  ]
+}

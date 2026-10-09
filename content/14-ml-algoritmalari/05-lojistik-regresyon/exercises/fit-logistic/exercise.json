@@ -1,0 +1,118 @@
+{
+  "id": "fit-logistic",
+  "title": {
+    "tr": "Lojistik eğitmek",
+    "en": "Training logistic regression"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngüde `p = 1 / (1 + np.exp(-(A @ w)))`.",
+      "en": "In the loop `p = 1 / (1 + np.exp(-(A @ w)))`."
+    },
+    {
+      "tr": "`w -= lr * A.T @ (p - y) / len(y)`.",
+      "en": "`w -= lr * A.T @ (p - y) / len(y)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef fit_logistic(A, y, lr, steps):\n    A, y = np.array(A, dtype=float), np.array(y, dtype=float)\n    w = np.zeros(A.shape[1])\n    for _ in range(steps):\n        p = 1 / (1 + np.exp(-(A @ w)))\n        w -= lr * A.T @ (p - y) / len(y)\n    return w.round(3).tolist()\n\nA = [[1, -2.0], [1, -1.0], [1, -0.5], [1, 0.5], [1, 1.0], [1, 2.0]]\ny = [0, 0, 1, 0, 1, 1]\nprint(fit_logistic(A, y, 0.5, 2000))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef fit_logistic(A, y, lr, steps):\n    A, y = np.array(A, dtype=float), np.array(y, dtype=float)\n    w = np.zeros(A.shape[1])\n    for _ in range(steps):\n        p = 1 / (1 + np.exp(-(A @ w)))\n        w -= lr * A.T @ (p - y) / len(y)\n    return w.round(3).tolist()\n\nA = [[1, -2.0], [1, -1.0], [1, -0.5], [1, 0.5], [1, 1.0], [1, 2.0]]\ny = [0, 0, 1, 0, 1, 1]\nprint(fit_logistic(A, y, 0.5, 2000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "LogisticRegression",
+      "hint": {
+        "tr": "`LogisticRegression` kullanma; gradyan inişini yaz.",
+        "en": "Do not use `LogisticRegression`; write gradient descent."
+      }
+    },
+    {
+      "type": "function",
+      "name": "fit_logistic",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                -2.0
+              ],
+              [
+                1,
+                -1.0
+              ],
+              [
+                1,
+                -0.5
+              ],
+              [
+                1,
+                0.5
+              ],
+              [
+                1,
+                1.0
+              ],
+              [
+                1,
+                2.0
+              ]
+            ],
+            [
+              0,
+              0,
+              1,
+              0,
+              1,
+              1
+            ],
+            0.5,
+            2000
+          ],
+          "returns": [
+            -0.0,
+            1.351
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              0,
+              1
+            ],
+            0.1,
+            10
+          ],
+          "returns": [
+            -0.013,
+            0.237
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-0.0, 1.351]"
+    }
+  ]
+}
