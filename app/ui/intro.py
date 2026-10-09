@@ -970,7 +970,7 @@ def build_scene(settings: dict) -> IntroScene:
     palette = PALETTES.get(mode, PALETTES["dark"])
     return IntroScene(
         subtitle=language.t("app.subtitle"),
-        version_line=f"v{APP_VERSION} · {language.t('splash.beta')}",
+        version_line=f"v{APP_VERSION}",
         preparing=language.t("intro.preparing"),
         final_bg=palette["bg"],
         skip_hint=language.t("intro.skip_hint"),

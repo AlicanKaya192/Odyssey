@@ -94,7 +94,7 @@ class IntroLink:
         """Pencere hazır: animasyonun sonunu bekler, sonra pencereyi gösterir.
 
         Beklerken olay döngüsü dönüyor (pencerenin belge alanları ısınmaya
-        devam ediyor); ama akış burada duruyor, beta uyarısı gibi pencereler
+        devam ediyor); ama akış burada duruyor, hoş geldiniz gibi pencereler
         animasyon bitmeden açılmıyor.
         """
         from PySide6.QtCore import QEventLoop, QTimer

@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/AlicanKaya192/Odyssey/releases"><img alt="Sürüm 0.9.3" src="https://img.shields.io/badge/S%C3%9CR%C3%9CM-0.9.3-7466EE?style=for-the-badge&labelColor=1E1A3C"></a>
+  <a href="https://github.com/AlicanKaya192/Odyssey/releases"><img alt="Sürüm 1.0.0" src="https://img.shields.io/badge/S%C3%9CR%C3%9CM-1.0.0-7466EE?style=for-the-badge&labelColor=1E1A3C"></a>
   <img alt="Windows 10 ve 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-7466EE?style=for-the-badge&labelColor=1E1A3C">
   <img alt="Python 3.10 ile 3.14 arası" src="https://img.shields.io/badge/Python-3.10%E2%80%933.14-7466EE?style=for-the-badge&logo=python&logoColor=white&labelColor=1E1A3C">
   <img alt="Qt 6 ve PySide6 ile yapıldı" src="https://img.shields.io/badge/Qt%206-PySide6-7466EE?style=for-the-badge&logo=qt&logoColor=white&labelColor=1E1A3C">
@@ -136,7 +136,7 @@ Denetimi **Ayarlar › Güncelleme** bölümünden kapatabilirsiniz. Kapalıyken
 
 ## Durum
 
-Erken geliştirme aşaması (`0.9.3`), açık beta olarak yayınlandı. Uygulama uçtan uca çalışıyor. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme kaydı, güncelleme — yerinde; müfredat büyümeye devam ediyor.
+Sürüm `1.0.0`: açık betadan (0.7.1 – 0.9.3) sonraki ilk tam sürüm. Motor — öğrenme yolları, konu anlatımı, sınavlar, alıştırma çalıştırıcısı, ilerleme takibi, güncellemeler — tamam; yeni patikalar `1.x` sürümleriyle gelmeye devam ediyor.
 
 **Bugünkü içerik:** on patika **tamamlandı** — Python Temelleri (on dokuz bölüm; paketler ve ortamlardan JSON'a ve veritabanına), Git (on yedi; ilk commit'ten dallara, GitHub'a ve kaybolanı kurtarmaya), Veri Bilimi (on), Makine Öğrenmesi (on üç), SQL (on altı; SQL Server'ı kurmaktan pencere fonksiyonlarına, dizinlere, görünümlere ve saklı yordamlara), Zaman Serileri (yirmi üç; tarihlerle çalışmaktan tahmine, tahmin aralıklarına ve anomali tespitine), iki modüllü Matematik (Temel Matematik, yirmi sekiz bölüm; Yapay Zekanın Matematiği, otuz iki), iki modüllü API (REST API Kullanmak, on yedi; FastAPI ile REST API Yazmak, on sekiz), Docker (on yedi; imajlardan Compose'a ve bir Python API'sini paketlemeye) ve Büyük Veri (on yedi; belleği ölçmekten Parquet'e, DuckDB'ye, dask'a, Spark'a ve akan veriye). 227 bölüm, 6194 sınav sorusu, 879 alıştırma (85'i Git terminalinde), 300 matematik problemi, 459 ders notu, 164 terimlik bir sözlük ve 50 rozet; tamamı Türkçe ve İngilizce.
 

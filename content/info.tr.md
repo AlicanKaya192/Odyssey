@@ -41,7 +41,7 @@ incelenebilir, değiştirilebilir ve yeniden dağıtılabilir.
 
 ## Şu an nerede?
 
-Uygulama açık beta sürümündedir ve uçtan uca çalışır: öğrenme yolu, konu
+1.0 sürümüyle açık beta dönemi bitti; uygulama uçtan uca çalışır: öğrenme yolu, konu
 anlatımı, ders notları, sınavlar, kod alıştırmaları, kademeli ipuçları,
 alıştırma ve sınavlarda geçmiş denemeler, ilerleme kaydı, profil, rozetler,
 XP, seviyeler ve unvanlar, çalışma zamanlayıcısı, önerilen rotalar, kendi

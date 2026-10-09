@@ -3,7 +3,7 @@
 Alican istedi: güncellemeden sonra beta uyarısı yerine üstte "ODYSSEY X.Y.Z
 GÜNCELLEMESİ" yazan bir banner, altında en önemli beş yenilik ve "tüm
 sürüm notları" bağlantısı (programın Sürüm Notları ekranına götürüyor).
-İlk kez kuran kişi yine beta uyarısını görüyor (`main.py`).
+İlk kez kuran kişi hoş geldiniz penceresini görüyor (`main.py`, `welcome.py`).
 
 Yenilikler sürüm notundan (`CHANGELOG.<dil>.md`) okunuyor: bu sürümün
 kalın başlıklı maddeleri, yazıldıkları sırayla (sürüm notunda en önemli
