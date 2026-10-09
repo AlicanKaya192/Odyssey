@@ -1,0 +1,143 @@
+{
+  "id": "task-scheduler",
+  "title": {
+    "tr": "Görev sırası",
+    "en": "Task order"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for number, (priority, name) in enumerate(tasks):` ve `heapq.heappush(heap, (priority, number, name))`.",
+      "en": "`for number, (priority, name) in enumerate(tasks):` and `heapq.heappush(heap, (priority, number, name))`."
+    },
+    {
+      "tr": "`while heap:` içinde `heapq.heappop(heap)[2]`'yi `order`'a ekle.",
+      "en": "Inside `while heap:`, add `heapq.heappop(heap)[2]` to `order`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport heapq\n\n\ndef run_order(tasks):\n    heap = []\n    for number, (priority, name) in enumerate(tasks):\n        heapq.heappush(heap, (priority, number, name))\n    order = []\n    while heap:\n        order.append(heapq.heappop(heap)[2])\n    return order\n\n\ntasks = [[2, \"tests\"], [1, \"bugfix\"], [3, \"docs\"], [1, \"deploy\"], [2, \"review\"]]\nfor name in run_order(tasks):\n    print(name)\n```",
+      "en": "The full solution:\n\n```python\nimport heapq\n\n\ndef run_order(tasks):\n    heap = []\n    for number, (priority, name) in enumerate(tasks):\n        heapq.heappush(heap, (priority, number, name))\n    order = []\n    while heap:\n        order.append(heapq.heappop(heap)[2])\n    return order\n\n\ntasks = [[2, \"tests\"], [1, \"bugfix\"], [3, \"docs\"], [1, \"deploy\"], [2, \"review\"]]\nfor name in run_order(tasks):\n    print(name)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma; heap kullan.",
+        "en": "Do not use `sorted`; use a heap."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`sort` kullanma.",
+        "en": "Do not use `sort`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "run_order",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                2,
+                "tests"
+              ],
+              [
+                1,
+                "bugfix"
+              ],
+              [
+                3,
+                "docs"
+              ],
+              [
+                1,
+                "deploy"
+              ],
+              [
+                2,
+                "review"
+              ]
+            ]
+          ],
+          "returns": [
+            "bugfix",
+            "deploy",
+            "tests",
+            "review",
+            "docs"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                5,
+                "z"
+              ],
+              [
+                5,
+                "a"
+              ],
+              [
+                5,
+                "m"
+              ]
+            ]
+          ],
+          "returns": [
+            "z",
+            "a",
+            "m"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                3,
+                "c"
+              ],
+              [
+                2,
+                "b"
+              ],
+              [
+                1,
+                "a"
+              ]
+            ]
+          ],
+          "returns": [
+            "a",
+            "b",
+            "c"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "bugfix\ndeploy\ntests\nreview\ndocs"
+    }
+  ]
+}

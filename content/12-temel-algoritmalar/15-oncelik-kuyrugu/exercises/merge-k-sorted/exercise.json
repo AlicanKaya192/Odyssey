@@ -1,0 +1,151 @@
+{
+  "id": "merge-k-sorted",
+  "title": {
+    "tr": "k sıralı listeyi birleştir",
+    "en": "Merge k sorted lists"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for number, items in enumerate(lists):` içinde boş değilse `heappush(heap, (items[0], number, 0))`.",
+      "en": "Inside `for number, items in enumerate(lists):`, if not empty, `heappush(heap, (items[0], number, 0))`."
+    },
+    {
+      "tr": "`while heap:` içinde `value, number, index = heapq.heappop(heap)`; `index + 1 < len(lists[number])` ise sonrakini koy.",
+      "en": "Inside `while heap:`, `value, number, index = heapq.heappop(heap)`; if `index + 1 < len(lists[number])`, push the next one."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport heapq\n\n\ndef merge_sorted(lists):\n    heap = []\n    for number, items in enumerate(lists):\n        if items:\n            heapq.heappush(heap, (items[0], number, 0))\n    result = []\n    while heap:\n        value, number, index = heapq.heappop(heap)\n        result.append(value)\n        if index + 1 < len(lists[number]):\n            heapq.heappush(heap, (lists[number][index + 1], number, index + 1))\n    return result\n\n\nprint(merge_sorted([[1, 4, 9], [2, 3, 10], [5]]))\nprint(merge_sorted([[], [7], [1, 1]]))\n```",
+      "en": "The full solution:\n\n```python\nimport heapq\n\n\ndef merge_sorted(lists):\n    heap = []\n    for number, items in enumerate(lists):\n        if items:\n            heapq.heappush(heap, (items[0], number, 0))\n    result = []\n    while heap:\n        value, number, index = heapq.heappop(heap)\n        result.append(value)\n        if index + 1 < len(lists[number]):\n            heapq.heappush(heap, (lists[number][index + 1], number, index + 1))\n    return result\n\n\nprint(merge_sorted([[1, 4, 9], [2, 3, 10], [5]]))\nprint(merge_sorted([[], [7], [1, 1]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma; heap kullan.",
+        "en": "Do not use `sorted`; use a heap."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`sort` kullanma.",
+        "en": "Do not use `sort`."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "merge",
+      "hint": {
+        "tr": "`heapq.merge` kullanma; heap'i kendin yönet.",
+        "en": "Do not use `heapq.merge`; manage the heap yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "merge_sorted",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                4,
+                9
+              ],
+              [
+                2,
+                3,
+                10
+              ],
+              [
+                5
+              ]
+            ]
+          ],
+          "returns": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            9,
+            10
+          ]
+        },
+        {
+          "args": [
+            [
+              [],
+              [
+                7
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            1,
+            1,
+            7
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                -3,
+                0,
+                2
+              ],
+              [
+                -5,
+                8
+              ],
+              [
+                1,
+                1,
+                1,
+                9
+              ]
+            ]
+          ],
+          "returns": [
+            -5,
+            -3,
+            0,
+            1,
+            1,
+            1,
+            2,
+            8,
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 2, 3, 4, 5, 9, 10]\n[1, 1, 7]"
+    }
+  ]
+}
