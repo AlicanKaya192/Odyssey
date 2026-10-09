@@ -1,0 +1,86 @@
+{
+  "id": "minhash-similarity",
+  "title": {
+    "tr": "MinHash",
+    "en": "MinHash"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`sig_a = [min(h(x, s) for x in a) for s in range(size)]`; `b` için de aynısı.",
+      "en": "`sig_a = [min(h(x, s) for x in a) for s in range(size)]`; the same for `b`."
+    },
+    {
+      "tr": "`same = sum(x == y for x, y in zip(sig_a, sig_b))`; `round(same / size, 3)`.",
+      "en": "`same = sum(x == y for x, y in zip(sig_a, sig_b))`; `round(same / size, 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport math\n\n\ndef h(item, seed):\n    data = f\"{seed}:{item}\".encode()\n    return int.from_bytes(hashlib.blake2b(data, digest_size=8).digest(), \"big\")\n\n\ndef minhash_similarity(a, b, size):\n    sig_a = [min(h(x, s) for x in a) for s in range(size)]\n    sig_b = [min(h(x, s) for x in b) for s in range(size)]\n    same = sum(x == y for x, y in zip(sig_a, sig_b))\n    return round(same / size, 3)\n\na = {\"red\", \"green\", \"blue\", \"black\"}\nb = {\"red\", \"green\", \"blue\", \"white\"}\nprint(minhash_similarity(a, b, 64))\nprint(minhash_similarity(a, a, 64))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport math\n\n\ndef h(item, seed):\n    data = f\"{seed}:{item}\".encode()\n    return int.from_bytes(hashlib.blake2b(data, digest_size=8).digest(), \"big\")\n\n\ndef minhash_similarity(a, b, size):\n    sig_a = [min(h(x, s) for x in a) for s in range(size)]\n    sig_b = [min(h(x, s) for x in b) for s in range(size)]\n    same = sum(x == y for x, y in zip(sig_a, sig_b))\n    return round(same / size, 3)\n\na = {\"red\", \"green\", \"blue\", \"black\"}\nb = {\"red\", \"green\", \"blue\", \"white\"}\nprint(minhash_similarity(a, b, 64))\nprint(minhash_similarity(a, a, 64))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "minhash_similarity",
+      "cases": [
+        {
+          "args": [
+            [
+              "red",
+              "green",
+              "blue",
+              "black"
+            ],
+            [
+              "red",
+              "green",
+              "blue",
+              "white"
+            ],
+            64
+          ],
+          "returns": 0.625
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              "c",
+              "d"
+            ],
+            32
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              "x"
+            ],
+            [
+              "x"
+            ],
+            10
+          ],
+          "returns": 1.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.625\n1.0"
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "id": "bloom-check",
+  "title": {
+    "tr": "Bloom filtresi",
+    "en": "A Bloom filter"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Eklerken `for s in range(hashes): table[h(item, s) % bits] = 1`.",
+      "en": "When adding, `for s in range(hashes): table[h(item, s) % bits] = 1`."
+    },
+    {
+      "tr": "Sorgu: `all(table[h(q, s) % bits] for s in range(hashes))`.",
+      "en": "Query: `all(table[h(q, s) % bits] for s in range(hashes))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport math\n\n\ndef h(item, seed):\n    data = f\"{seed}:{item}\".encode()\n    return int.from_bytes(hashlib.blake2b(data, digest_size=8).digest(), \"big\")\n\n\ndef bloom_check(items, queries, bits, hashes):\n    table = bytearray(bits)\n    for item in items:\n        for s in range(hashes):\n            table[h(item, s) % bits] = 1\n    return [all(table[h(q, s) % bits] for s in range(hashes)) for q in queries]\n\nseen = [f\"user{i}\" for i in range(1000)]\nprint(bloom_check(seen, [\"user5\", \"user999\", \"guest1\"], 10_000, 7))\nhits = bloom_check(seen, [f\"guest{i}\" for i in range(1000)], 10_000, 7)\nprint(sum(hits))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport math\n\n\ndef h(item, seed):\n    data = f\"{seed}:{item}\".encode()\n    return int.from_bytes(hashlib.blake2b(data, digest_size=8).digest(), \"big\")\n\n\ndef bloom_check(items, queries, bits, hashes):\n    table = bytearray(bits)\n    for item in items:\n        for s in range(hashes):\n            table[h(item, s) % bits] = 1\n    return [all(table[h(q, s) % bits] for s in range(hashes)) for q in queries]\n\nseen = [f\"user{i}\" for i in range(1000)]\nprint(bloom_check(seen, [\"user5\", \"user999\", \"guest1\"], 10_000, 7))\nhits = bloom_check(seen, [f\"guest{i}\" for i in range(1000)], 10_000, 7)\nprint(sum(hits))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "bloom_check",
+      "cases": [
+        {
+          "args": [
+            [
+              "cat",
+              "dog"
+            ],
+            [
+              "cat",
+              "dog",
+              "fox",
+              "owl"
+            ],
+            16,
+            3
+          ],
+          "returns": [
+            true,
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "args": [
+            [
+              "u0",
+              "u1",
+              "u2",
+              "u3",
+              "u4",
+              "u5",
+              "u6",
+              "u7",
+              "u8",
+              "u9",
+              "u10",
+              "u11",
+              "u12",
+              "u13",
+              "u14",
+              "u15",
+              "u16",
+              "u17",
+              "u18",
+              "u19",
+              "u20",
+              "u21",
+              "u22",
+              "u23",
+              "u24",
+              "u25",
+              "u26",
+              "u27",
+              "u28",
+              "u29",
+              "u30",
+              "u31",
+              "u32",
+              "u33",
+              "u34",
+              "u35",
+              "u36",
+              "u37",
+              "u38",
+              "u39",
+              "u40",
+              "u41",
+              "u42",
+              "u43",
+              "u44",
+              "u45",
+              "u46",
+              "u47",
+              "u48",
+              "u49"
+            ],
+            [
+              "u0",
+              "u49",
+              "v1"
+            ],
+            500,
+            4
+          ],
+          "returns": [
+            true,
+            true,
+            false
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              "a"
+            ],
+            8,
+            2
+          ],
+          "returns": [
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[True, True, False]\n15"
+    }
+  ]
+}
