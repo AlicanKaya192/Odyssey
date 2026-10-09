@@ -1,0 +1,153 @@
+{
+  "id": "apriori-candidates",
+  "title": {
+    "tr": "Aday üretme ve budama",
+    "en": "Candidates and pruning"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`u = a | b`; `len(u) == k + 1` olmalı.",
+      "en": "`u = a | b`; it must have `len(u) == k + 1`."
+    },
+    {
+      "tr": "Budama: `all(frozenset(s) in sets for s in combinations(u, k))`.",
+      "en": "Pruning: `all(frozenset(s) in sets for s in combinations(u, k))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom itertools import combinations\n\n\ndef candidates(frequent):\n    sets = [frozenset(f) for f in frequent]\n    k = len(sets[0])\n    found = set()\n    for a, b in combinations(sets, 2):\n        u = a | b\n        subsets = combinations(u, k)\n        if len(u) == k + 1 and all(frozenset(s) in sets for s in subsets):\n            found.add(u)\n    return sorted(sorted(c) for c in found)\n\nfrequent = [[\"bread\", \"butter\"], [\"bread\", \"milk\"], [\"butter\", \"milk\"],\n            [\"milk\", \"tea\"]]\nfor c in candidates(frequent):\n    print(c)\n```",
+      "en": "The full solution:\n\n```python\nfrom itertools import combinations\n\n\ndef candidates(frequent):\n    sets = [frozenset(f) for f in frequent]\n    k = len(sets[0])\n    found = set()\n    for a, b in combinations(sets, 2):\n        u = a | b\n        subsets = combinations(u, k)\n        if len(u) == k + 1 and all(frozenset(s) in sets for s in subsets):\n            found.add(u)\n    return sorted(sorted(c) for c in found)\n\nfrequent = [[\"bread\", \"butter\"], [\"bread\", \"milk\"], [\"butter\", \"milk\"],\n            [\"milk\", \"tea\"]]\nfor c in candidates(frequent):\n    print(c)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "candidates",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "bread",
+                "butter"
+              ],
+              [
+                "bread",
+                "milk"
+              ],
+              [
+                "butter",
+                "milk"
+              ],
+              [
+                "milk",
+                "tea"
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "bread",
+              "butter",
+              "milk"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "a"
+              ],
+              [
+                "b"
+              ],
+              [
+                "c"
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              "a",
+              "c"
+            ],
+            [
+              "b",
+              "c"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ],
+              [
+                "a",
+                "c"
+              ]
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ],
+              [
+                "a",
+                "c"
+              ],
+              [
+                "b",
+                "c"
+              ],
+              [
+                "c",
+                "d"
+              ],
+              [
+                "b",
+                "d"
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "a",
+              "b",
+              "c"
+            ],
+            [
+              "b",
+              "c",
+              "d"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['bread', 'butter', 'milk']"
+    }
+  ]
+}

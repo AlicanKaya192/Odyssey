@@ -1,0 +1,182 @@
+{
+  "id": "frequent-pairs",
+  "title": {
+    "tr": "Sık ikililer",
+    "en": "Frequent pairs"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for a, b in combinations(items, 2):` ve iki ürünü birlikte içeren sepetleri say.",
+      "en": "`for a, b in combinations(items, 2):` and count baskets containing both."
+    },
+    {
+      "tr": "`if count / len(baskets) >= min_support: result.append([a, b])`.",
+      "en": "`if count / len(baskets) >= min_support: result.append([a, b])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom itertools import combinations\n\n\ndef frequent_pairs(baskets, min_support):\n    items = sorted({i for b in baskets for i in b})\n    result = []\n    for a, b in combinations(items, 2):\n        count = sum(1 for bk in baskets if a in bk and b in bk)\n        if count / len(baskets) >= min_support:\n            result.append([a, b])\n    return result\n\nbaskets = [[\"bread\", \"butter\", \"milk\"], [\"bread\", \"butter\"], [\"milk\", \"tea\"],\n           [\"bread\", \"milk\"], [\"tea\"], [\"bread\", \"butter\", \"tea\"], [\"milk\"],\n           [\"bread\", \"butter\", \"milk\"]]\nfor pair in frequent_pairs(baskets, 0.25):\n    print(pair)\n```",
+      "en": "The full solution:\n\n```python\nfrom itertools import combinations\n\n\ndef frequent_pairs(baskets, min_support):\n    items = sorted({i for b in baskets for i in b})\n    result = []\n    for a, b in combinations(items, 2):\n        count = sum(1 for bk in baskets if a in bk and b in bk)\n        if count / len(baskets) >= min_support:\n            result.append([a, b])\n    return result\n\nbaskets = [[\"bread\", \"butter\", \"milk\"], [\"bread\", \"butter\"], [\"milk\", \"tea\"],\n           [\"bread\", \"milk\"], [\"tea\"], [\"bread\", \"butter\", \"tea\"], [\"milk\"],\n           [\"bread\", \"butter\", \"milk\"]]\nfor pair in frequent_pairs(baskets, 0.25):\n    print(pair)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "frequent_pairs",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "bread",
+                "butter",
+                "milk"
+              ],
+              [
+                "bread",
+                "butter"
+              ],
+              [
+                "milk",
+                "tea"
+              ],
+              [
+                "bread",
+                "milk"
+              ],
+              [
+                "tea"
+              ],
+              [
+                "bread",
+                "butter",
+                "tea"
+              ],
+              [
+                "milk"
+              ],
+              [
+                "bread",
+                "butter",
+                "milk"
+              ]
+            ],
+            0.25
+          ],
+          "returns": [
+            [
+              "bread",
+              "butter"
+            ],
+            [
+              "bread",
+              "milk"
+            ],
+            [
+              "butter",
+              "milk"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "bread",
+                "butter",
+                "milk"
+              ],
+              [
+                "bread",
+                "butter"
+              ],
+              [
+                "milk",
+                "tea"
+              ],
+              [
+                "bread",
+                "milk"
+              ],
+              [
+                "tea"
+              ],
+              [
+                "bread",
+                "butter",
+                "tea"
+              ],
+              [
+                "milk"
+              ],
+              [
+                "bread",
+                "butter",
+                "milk"
+              ]
+            ],
+            0.5
+          ],
+          "returns": [
+            [
+              "bread",
+              "butter"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ],
+              [
+                "a",
+                "c"
+              ],
+              [
+                "a",
+                "b",
+                "c"
+              ],
+              [
+                "b"
+              ],
+              [
+                "c"
+              ]
+            ],
+            0.2
+          ],
+          "returns": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              "a",
+              "c"
+            ],
+            [
+              "b",
+              "c"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['bread', 'butter']\n['bread', 'milk']\n['butter', 'milk']"
+    }
+  ]
+}
