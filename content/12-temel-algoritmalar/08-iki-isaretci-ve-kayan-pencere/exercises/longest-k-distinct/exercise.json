@@ -1,0 +1,84 @@
+{
+  "id": "longest-k-distinct",
+  "title": {
+    "tr": "En fazla k farklı harf",
+    "en": "At most k distinct letters"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her `end, ch` için `counts[ch] = counts.get(ch, 0) + 1`; sonra `while len(counts) > k:` ile soldan küçült.",
+      "en": "For each `end, ch`, `counts[ch] = counts.get(ch, 0) + 1`; then shrink from the left with `while len(counts) > k:`."
+    },
+    {
+      "tr": "Küçültürken `counts[text[start]] -= 1`, sıfırsa `del`, `start += 1`. Döngü sonunda `best = max(best, end - start + 1)`.",
+      "en": "While shrinking, `counts[text[start]] -= 1`, `del` it if zero, `start += 1`. At the end of the round, `best = max(best, end - start + 1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef longest_k_distinct(text, k):\n    counts = {}\n    start = 0\n    best = 0\n    for end, ch in enumerate(text):\n        counts[ch] = counts.get(ch, 0) + 1\n        while len(counts) > k:\n            left = text[start]\n            counts[left] -= 1\n            if counts[left] == 0:\n                del counts[left]\n            start += 1\n        best = max(best, end - start + 1)\n    return best\n\n\nprint(longest_k_distinct(\"eceba\", 2))\nprint(longest_k_distinct(\"aaabbcc\", 2))\nprint(longest_k_distinct(\"abc\", 0))\n```",
+      "en": "The full solution:\n\n```python\ndef longest_k_distinct(text, k):\n    counts = {}\n    start = 0\n    best = 0\n    for end, ch in enumerate(text):\n        counts[ch] = counts.get(ch, 0) + 1\n        while len(counts) > k:\n            left = text[start]\n            counts[left] -= 1\n            if counts[left] == 0:\n                del counts[left]\n            start += 1\n        best = max(best, end - start + 1)\n    return best\n\n\nprint(longest_k_distinct(\"eceba\", 2))\nprint(longest_k_distinct(\"aaabbcc\", 2))\nprint(longest_k_distinct(\"abc\", 0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "longest_k_distinct",
+      "cases": [
+        {
+          "args": [
+            "eceba",
+            2
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            "aaabbcc",
+            2
+          ],
+          "returns": 5
+        },
+        {
+          "args": [
+            "abc",
+            0
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "",
+            3
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "abaccc",
+            2
+          ],
+          "returns": 4
+        },
+        {
+          "args": [
+            "abc",
+            5
+          ],
+          "returns": 3
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n5\n0"
+    }
+  ]
+}
