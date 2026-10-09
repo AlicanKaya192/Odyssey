@@ -1,0 +1,142 @@
+{
+  "id": "dc-max",
+  "title": {
+    "tr": "Böl ve fethet ile en büyük",
+    "en": "The largest by divide and conquer"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`if lo == hi: return values[lo]`; sonra `mid = (lo + hi) // 2`.",
+      "en": "`if lo == hi: return values[lo]`; then `mid = (lo + hi) // 2`."
+    },
+    {
+      "tr": "`left = dc_max(values, lo, mid)`, `right = dc_max(values, mid + 1, hi)` ve büyüğünü `if` ile döndür.",
+      "en": "`left = dc_max(values, lo, mid)`, `right = dc_max(values, mid + 1, hi)` and return the larger with an `if`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef dc_max(values, lo=0, hi=None):\n    if hi is None:\n        hi = len(values) - 1\n    if lo == hi:\n        return values[lo]\n    mid = (lo + hi) // 2\n    left = dc_max(values, lo, mid)\n    right = dc_max(values, mid + 1, hi)\n    return left if left >= right else right\n\n\nprint(dc_max([3, 9, 2, 7, 5]))\nprint(dc_max([-4, -1, -8]))\n```",
+      "en": "The full solution:\n\n```python\ndef dc_max(values, lo=0, hi=None):\n    if hi is None:\n        hi = len(values) - 1\n    if lo == hi:\n        return values[lo]\n    mid = (lo + hi) // 2\n    left = dc_max(values, lo, mid)\n    right = dc_max(values, mid + 1, hi)\n    return left if left >= right else right\n\n\nprint(dc_max([3, 9, 2, 7, 5]))\nprint(dc_max([-4, -1, -8]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "recursive": "dc_max",
+      "hint": {
+        "tr": "`dc_max` kendini çağırmalı.",
+        "en": "`dc_max` should call itself."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "max",
+      "hint": {
+        "tr": "`max` kullanma; iki cevabı kendin karşılaştır.",
+        "en": "Do not use `max`; compare the two answers yourself."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For",
+      "hint": {
+        "tr": "Döngü kullanma; işi bölerek yap.",
+        "en": "Do not use a loop; do it by splitting."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "node": "While",
+      "hint": {
+        "tr": "Döngü kullanma.",
+        "en": "Do not use a loop."
+      }
+    },
+    {
+      "type": "function",
+      "name": "dc_max",
+      "cases": [
+        {
+          "args": [
+            [
+              3,
+              9,
+              2,
+              7,
+              5
+            ]
+          ],
+          "returns": 9
+        },
+        {
+          "args": [
+            [
+              -4,
+              -1,
+              -8
+            ]
+          ],
+          "returns": -1
+        },
+        {
+          "args": [
+            [
+              7
+            ]
+          ],
+          "returns": 7
+        },
+        {
+          "args": [
+            [
+              5,
+              5,
+              5,
+              5
+            ]
+          ],
+          "returns": 5
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              100
+            ]
+          ],
+          "returns": 100
+        },
+        {
+          "args": [
+            [
+              100,
+              1,
+              2,
+              3
+            ]
+          ],
+          "returns": 100
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "9\n-1"
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "id": "peak-index",
+  "title": {
+    "tr": "Dağın zirvesi",
+    "en": "The top of the mountain"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`while lo < hi:` içinde `mid = (lo + hi) // 2`; `values[mid] < values[mid + 1]` ise `lo = mid + 1`.",
+      "en": "Inside `while lo < hi:`, `mid = (lo + hi) // 2`; if `values[mid] < values[mid + 1]`, `lo = mid + 1`."
+    },
+    {
+      "tr": "Değilse `hi = mid` (zirve `mid` olabilir); döngü bitince `return lo`.",
+      "en": "Otherwise `hi = mid` (the peak may be `mid`); after the loop `return lo`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef peak_index(values):\n    lo, hi = 0, len(values) - 1\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if values[mid] < values[mid + 1]:\n            lo = mid + 1\n        else:\n            hi = mid\n    return lo\n\n\nprint(peak_index([1, 4, 9, 7, 2]))\nprint(peak_index([1, 2, 3]))\nmountain = list(range(600_000)) + list(range(400_000, 0, -1))\nprint(sum(peak_index(mountain) for _ in range(2000)))\n```",
+      "en": "The full solution:\n\n```python\ndef peak_index(values):\n    lo, hi = 0, len(values) - 1\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if values[mid] < values[mid + 1]:\n            lo = mid + 1\n        else:\n            hi = mid\n    return lo\n\n\nprint(peak_index([1, 4, 9, 7, 2]))\nprint(peak_index([1, 2, 3]))\nmountain = list(range(600_000)) + list(range(400_000, 0, -1))\nprint(sum(peak_index(mountain) for _ in range(2000)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "max",
+      "hint": {
+        "tr": "`max` kullanma; ikili aramayla bul.",
+        "en": "Do not use `max`; find it with binary search."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "index",
+      "hint": {
+        "tr": "`index` kullanma.",
+        "en": "Do not use `index`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "peak_index",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              4,
+              9,
+              7,
+              2
+            ]
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ]
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            [
+              3,
+              2,
+              1
+            ]
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              5
+            ]
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              1,
+              3,
+              5,
+              7,
+              9,
+              11,
+              10
+            ]
+          ],
+          "returns": 5
+        },
+        {
+          "args": [
+            [
+              0,
+              10,
+              9,
+              8,
+              7,
+              6,
+              5,
+              4
+            ]
+          ],
+          "returns": 1
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\n2\n1199998000"
+    }
+  ]
+}

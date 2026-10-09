@@ -1,0 +1,189 @@
+{
+  "id": "closest-pair",
+  "title": {
+    "tr": "En yakın iki nokta",
+    "en": "The two closest points"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`mid = n // 2`, `mid_x = points[mid][0]`, `d = min(closest(points[:mid]), closest(points[mid:]))`.",
+      "en": "`mid = n // 2`, `mid_x = points[mid][0]`, `d = min(closest(points[:mid]), closest(points[mid:]))`."
+    },
+    {
+      "tr": "`strip = sorted((p for p in points if abs(p[0] - mid_x) < d), key=lambda p: p[1])`; iç içe döngüde `q[1] - p[1] >= d` olunca `break`, değilse `d = min(d, math.dist(p, q))`.",
+      "en": "`strip = sorted((p for p in points if abs(p[0] - mid_x) < d), key=lambda p: p[1])`; in the nested loop `break` when `q[1] - p[1] >= d`, otherwise `d = min(d, math.dist(p, q))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef closest(points):\n    n = len(points)\n    if n <= 3:\n        return min((math.dist(p, q) for i, p in enumerate(points)\n                    for q in points[i + 1:]), default=math.inf)\n    mid = n // 2\n    mid_x = points[mid][0]\n    d = min(closest(points[:mid]), closest(points[mid:]))\n    strip = sorted((p for p in points if abs(p[0] - mid_x) < d), key=lambda p: p[1])\n    for i, p in enumerate(strip):\n        for q in strip[i + 1:]:\n            if q[1] - p[1] >= d:\n                break\n            d = min(d, math.dist(p, q))\n    return d\n\n\ndef closest_distance(points):\n    return round(closest(sorted(tuple(p) for p in points)), 6)\n\n\nprint(closest_distance([[0, 0], [5, 5], [1, 1], [9, 0], [5, 6]]))\npts = [[(i * 7919) % 10007, (i * 104729) % 10009] for i in range(30_000)]\nprint(closest_distance(pts))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef closest(points):\n    n = len(points)\n    if n <= 3:\n        return min((math.dist(p, q) for i, p in enumerate(points)\n                    for q in points[i + 1:]), default=math.inf)\n    mid = n // 2\n    mid_x = points[mid][0]\n    d = min(closest(points[:mid]), closest(points[mid:]))\n    strip = sorted((p for p in points if abs(p[0] - mid_x) < d), key=lambda p: p[1])\n    for i, p in enumerate(strip):\n        for q in strip[i + 1:]:\n            if q[1] - p[1] >= d:\n                break\n            d = min(d, math.dist(p, q))\n    return d\n\n\ndef closest_distance(points):\n    return round(closest(sorted(tuple(p) for p in points)), 6)\n\n\nprint(closest_distance([[0, 0], [5, 5], [1, 1], [9, 0], [5, 6]]))\npts = [[(i * 7919) % 10007, (i * 104729) % 10009] for i in range(30_000)]\nprint(closest_distance(pts))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "recursive": "closest",
+      "hint": {
+        "tr": "`closest` iki yarı için kendini çağırmalı.",
+        "en": "`closest` should call itself for the two halves."
+      }
+    },
+    {
+      "type": "function",
+      "name": "closest_distance",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                5,
+                5
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                9,
+                0
+              ],
+              [
+                5,
+                6
+              ]
+            ]
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                3,
+                4
+              ]
+            ]
+          ],
+          "returns": 5.0
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                10,
+                0
+              ],
+              [
+                20,
+                0
+              ],
+              [
+                30,
+                0
+              ],
+              [
+                40,
+                0
+              ],
+              [
+                41,
+                0
+              ]
+            ]
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              [
+                5,
+                0
+              ],
+              [
+                5,
+                10
+              ],
+              [
+                5,
+                3
+              ],
+              [
+                6,
+                20
+              ],
+              [
+                4,
+                30
+              ],
+              [
+                5,
+                31
+              ]
+            ]
+          ],
+          "returns": 1.414214
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                100,
+                100
+              ],
+              [
+                50,
+                50
+              ],
+              [
+                49,
+                52
+              ],
+              [
+                10,
+                90
+              ],
+              [
+                90,
+                10
+              ],
+              [
+                51,
+                49
+              ]
+            ]
+          ],
+          "returns": 1.414214
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.0\n28.79236"
+    }
+  ]
+}
