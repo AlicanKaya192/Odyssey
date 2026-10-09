@@ -1,0 +1,72 @@
+{
+  "id": "convert-args",
+  "title": {
+    "tr": "Çok dosya ve biçim",
+    "en": "Many files and a format"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Birden çok dosya için `nargs=\"+\"`.",
+      "en": "For several files, `nargs=\"+\"`."
+    },
+    {
+      "tr": "`parser.add_argument(\"--format\", choices=[\"csv\", \"json\"], default=\"csv\")`.",
+      "en": "`parser.add_argument(\"--format\", choices=[\"csv\", \"json\"], default=\"csv\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport argparse\n\n\ndef convert_args(argv):\n    parser = argparse.ArgumentParser(prog=\"convert\")\n    parser.add_argument(\"files\", nargs=\"+\")\n    parser.add_argument(\"--format\", choices=[\"csv\", \"json\"], default=\"csv\")\n    args = parser.parse_args(argv)\n    return [args.files, args.format]\n\nprint(convert_args([\"a.txt\", \"b.txt\", \"--format\", \"json\"]))\nprint(convert_args([\"x.txt\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport argparse\n\n\ndef convert_args(argv):\n    parser = argparse.ArgumentParser(prog=\"convert\")\n    parser.add_argument(\"files\", nargs=\"+\")\n    parser.add_argument(\"--format\", choices=[\"csv\", \"json\"], default=\"csv\")\n    args = parser.parse_args(argv)\n    return [args.files, args.format]\n\nprint(convert_args([\"a.txt\", \"b.txt\", \"--format\", \"json\"]))\nprint(convert_args([\"x.txt\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "convert_args",
+      "cases": [
+        {
+          "args": [
+            [
+              "a.txt",
+              "b.txt",
+              "--format",
+              "json"
+            ]
+          ],
+          "returns": [
+            [
+              "a.txt",
+              "b.txt"
+            ],
+            "json"
+          ]
+        },
+        {
+          "args": [
+            [
+              "x.txt"
+            ]
+          ],
+          "returns": [
+            [
+              "x.txt"
+            ],
+            "csv"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[['a.txt', 'b.txt'], 'json']\n[['x.txt'], 'csv']"
+    }
+  ]
+}
