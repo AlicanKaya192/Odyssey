@@ -17,7 +17,7 @@ her seferinde **en küçüğü** (en öncelikliyi) al.
 
 ## Heap nedir?
 
-**Heap (yığın ağacı)**, iki kuralı olan bir ikili ağaç:
+**Heap**, iki kuralı olan bir ikili ağaç:
 
 1. **Şekil:** ağaç seviye seviye, soldan sağa **boşluksuz** dolar (tam ikili
    ağaç). Bu yüzden yüksekliği her zaman `≈ log₂ n`; BST'deki zincir sorunu

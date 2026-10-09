@@ -195,6 +195,23 @@ GLYPHS: dict[str, str] = {
                      '<rect x="6.5" y="7.6" width="11" height="3.4" rx=".8" fill-opacity=".85"/>'
                      '<rect x="4" y="12.2" width="16" height="3.4" rx=".8" fill-opacity=".7"/>'
                      '<rect x="1.5" y="16.8" width="21" height="3.4" rx=".8" fill-opacity=".55"/></g>'),
+    "growth-curve": ('<path d="M3.5 3v17.5H21" stroke-width="1.6"/>'
+                     '<path d="M6 18.5c5.5 0 9.5-4 12-14.5" stroke-width="2.2"/>'
+                     '<path d="M6 18.5c3-3.2 7-4.8 13.5-5" stroke-width="1.5" stroke-dasharray="2 2.4" stroke-opacity=".8"/>'
+                     '<circle cx="18" cy="4" r="2.1" fill="#fff" stroke="none"/>'),
+    "split-merge": ('<rect x="7" y="2.5" width="10" height="4" rx="1" fill="#fff" stroke="none"/>'
+                    '<path d="M9.5 6.5 6 10.5M14.5 6.5l3.5 4M6 14l3.5 4M18 14l-3.5 4" stroke-width="1.6"/>'
+                    '<rect x="2.5" y="10.5" width="7" height="3.5" rx="1"/><rect x="14.5" y="10.5" width="7" height="3.5" rx="1"/>'
+                    '<rect x="5.5" y="18" width="13" height="3.5" rx="1" fill="#fff" fill-opacity=".55"/>'),
+    "binary-tree": ('<path d="M12 5 6.5 12M12 5l5.5 7M6.5 12l-3 7M6.5 12l3 7" stroke-width="1.6"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="12" cy="4.5" r="2.7"/><circle cx="6.5" cy="12" r="2.3"/></g>'
+                    '<circle cx="17.5" cy="12" r="2.3" fill="#fff" fill-opacity=".35"/>'
+                    '<circle cx="3.5" cy="19.5" r="2" fill="#fff" fill-opacity=".35"/>'
+                    '<circle cx="9.5" cy="19.5" r="2" fill="#fff" fill-opacity=".35"/>'),
+    "chip": ('<rect x="6" y="6" width="12" height="12" rx="2" fill="#fff" fill-opacity=".3"/>'
+             '<rect x="6" y="6" width="12" height="12" rx="2"/>'
+             '<rect x="9.5" y="9.5" width="5" height="5" rx="1" fill="#fff" stroke="none"/>'
+             '<path d="M9.5 2.5V6M14.5 2.5V6M9.5 18v3.5M14.5 18v3.5M2.5 9.5H6M2.5 14.5H6M18 9.5h3.5M18 14.5h3.5" stroke-width="1.6"/>'),
 }
 
 

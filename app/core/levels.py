@@ -60,6 +60,7 @@ BADGE_TAGS = {
     "harbor-master": "docker-complete",
     "record-keeper": "git-complete",
     "deep-diver": "bigdata-complete",
+    "puzzle-solver": "alg1-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200
