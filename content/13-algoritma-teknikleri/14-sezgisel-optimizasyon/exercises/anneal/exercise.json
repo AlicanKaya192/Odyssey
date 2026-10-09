@@ -1,0 +1,70 @@
+{
+  "id": "anneal",
+  "title": {
+    "tr": "Tavlama benzetimi",
+    "en": "Simulated annealing"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for _ in range(3000):` içinde aday ve `delta`; `if delta < 0 or rng.random() < math.exp(-delta / temp): x = cand`.",
+      "en": "Inside `for _ in range(3000):` the candidate and `delta`; `if delta < 0 or rng.random() < math.exp(-delta / temp): x = cand`."
+    },
+    {
+      "tr": "Sonra `if f(x) < f(best): best = x` ve `temp *= 0.998`.",
+      "en": "Then `if f(x) < f(best): best = x` and `temp *= 0.998`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\nimport random\n\n\ndef f(x):\n    return x * x / 10 + 10 * math.sin(x)\n\n\ndef anneal(x, seed):\n    rng = random.Random(seed)\n    temp = 20.0\n    best = x\n    for _ in range(3000):\n        cand = x + rng.uniform(-3, 3)\n        delta = f(cand) - f(x)\n        if delta < 0 or rng.random() < math.exp(-delta / temp):\n            x = cand\n        if f(x) < f(best):\n            best = x\n        temp *= 0.998\n    return round(best, 2)\n\nfor seed in range(4):\n    print(seed, anneal(25.0, seed))\n```",
+      "en": "The full solution:\n\n```python\nimport math\nimport random\n\n\ndef f(x):\n    return x * x / 10 + 10 * math.sin(x)\n\n\ndef anneal(x, seed):\n    rng = random.Random(seed)\n    temp = 20.0\n    best = x\n    for _ in range(3000):\n        cand = x + rng.uniform(-3, 3)\n        delta = f(cand) - f(x)\n        if delta < 0 or rng.random() < math.exp(-delta / temp):\n            x = cand\n        if f(x) < f(best):\n            best = x\n        temp *= 0.998\n    return round(best, 2)\n\nfor seed in range(4):\n    print(seed, anneal(25.0, seed))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "anneal",
+      "cases": [
+        {
+          "args": [
+            25.0,
+            0
+          ],
+          "returns": -1.54
+        },
+        {
+          "args": [
+            25.0,
+            3
+          ],
+          "returns": -1.54
+        },
+        {
+          "args": [
+            -28.0,
+            5
+          ],
+          "returns": -1.53
+        },
+        {
+          "args": [
+            0.0,
+            1
+          ],
+          "returns": -1.54
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 -1.54\n1 -1.54\n2 -1.54\n3 -1.54"
+    }
+  ]
+}
