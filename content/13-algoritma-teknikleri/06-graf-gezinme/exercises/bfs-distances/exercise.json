@@ -1,0 +1,208 @@
+{
+  "id": "bfs-distances",
+  "title": {
+    "tr": "BFS ile uzaklıklar",
+    "en": "Distances with BFS"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while queue:` içinde `node = queue.popleft()`.",
+      "en": "Inside `while queue:`, `node = queue.popleft()`."
+    },
+    {
+      "tr": "Her `neighbour` sözlükte yoksa `distance[neighbour] = distance[node] + 1` ve kuyruğa ekle.",
+      "en": "For each `neighbour` not in the dictionary, `distance[neighbour] = distance[node] + 1` and add it to the queue."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import deque\n\n\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef distances(edges, start):\n    graph = build_graph(edges)\n    distance = {start: 0}\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        for neighbour in graph[node]:\n            if neighbour not in distance:\n                distance[neighbour] = distance[node] + 1\n                queue.append(neighbour)\n    return dict(sorted(distance.items()))\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"], [\"gul\", \"hakan\"]]\nfor node, steps in distances(edges, \"ada\").items():\n    print(node, steps)\nprint(distances(edges, \"gul\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import deque\n\n\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef distances(edges, start):\n    graph = build_graph(edges)\n    distance = {start: 0}\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        for neighbour in graph[node]:\n            if neighbour not in distance:\n                distance[neighbour] = distance[node] + 1\n                queue.append(neighbour)\n    return dict(sorted(distance.items()))\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"], [\"gul\", \"hakan\"]]\nfor node, steps in distances(edges, \"ada\").items():\n    print(node, steps)\nprint(distances(edges, \"gul\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "distances",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ],
+              [
+                "gul",
+                "hakan"
+              ]
+            ],
+            "ada"
+          ],
+          "returns": {
+            "ada": 0,
+            "bora": 1,
+            "cem": 1,
+            "deniz": 2,
+            "ece": 3,
+            "fuat": 4
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ],
+              [
+                "gul",
+                "hakan"
+              ]
+            ],
+            "fuat"
+          ],
+          "returns": {
+            "ada": 4,
+            "bora": 3,
+            "cem": 3,
+            "deniz": 2,
+            "ece": 1,
+            "fuat": 0
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ],
+              [
+                "gul",
+                "hakan"
+              ]
+            ],
+            "hakan"
+          ],
+          "returns": {
+            "gul": 1,
+            "hakan": 0
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ],
+              [
+                "b",
+                "c"
+              ],
+              [
+                "c",
+                "a"
+              ],
+              [
+                "c",
+                "d"
+              ]
+            ],
+            "a"
+          ],
+          "returns": {
+            "a": 0,
+            "b": 1,
+            "c": 1,
+            "d": 2
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada 0\nbora 1\ncem 1\ndeniz 2\nece 3\nfuat 4\n{'gul': 0, 'hakan': 1}"
+    }
+  ]
+}
