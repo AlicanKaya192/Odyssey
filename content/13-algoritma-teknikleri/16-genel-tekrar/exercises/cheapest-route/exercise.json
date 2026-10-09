@@ -1,0 +1,137 @@
+{
+  "id": "cheapest-route",
+  "title": {
+    "tr": "En ucuz yol",
+    "en": "The cheapest route"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while heap:` içinde `d, city = heapq.heappop(heap)`; `city == goal` ise `return d`; `d > dist[city]` ise `continue`.",
+      "en": "Inside `while heap:`, `d, city = heapq.heappop(heap)`; if `city == goal`, `return d`; if `d > dist[city]`, `continue`."
+    },
+    {
+      "tr": "Her komşuda `d + cost` daha küçükse `dist`'i güncelle ve heap'e it.",
+      "en": "For each neighbour, if `d + cost` is smaller, update `dist` and push to the heap."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport heapq\n\n\ndef cheapest(n, roads, start, goal):\n    out = [[] for _ in range(n)]\n    for a, b, cost in roads:\n        out[a].append((b, cost))\n    dist = {start: 0}\n    heap = [(0, start)]\n    while heap:\n        d, city = heapq.heappop(heap)\n        if city == goal:\n            return d\n        if d > dist[city]:\n            continue\n        for nxt, cost in out[city]:\n            if d + cost < dist.get(nxt, float(\"inf\")):\n                dist[nxt] = d + cost\n                heapq.heappush(heap, (d + cost, nxt))\n    return -1\n\nroads = [[0, 1, 4], [0, 2, 1], [2, 1, 2], [1, 3, 1], [2, 3, 5]]\nprint(cheapest(4, roads, 0, 3))\nprint(cheapest(3, [[0, 1, 2]], 0, 2))\n```",
+      "en": "The full solution:\n\n```python\nimport heapq\n\n\ndef cheapest(n, roads, start, goal):\n    out = [[] for _ in range(n)]\n    for a, b, cost in roads:\n        out[a].append((b, cost))\n    dist = {start: 0}\n    heap = [(0, start)]\n    while heap:\n        d, city = heapq.heappop(heap)\n        if city == goal:\n            return d\n        if d > dist[city]:\n            continue\n        for nxt, cost in out[city]:\n            if d + cost < dist.get(nxt, float(\"inf\")):\n                dist[nxt] = d + cost\n                heapq.heappush(heap, (d + cost, nxt))\n    return -1\n\nroads = [[0, 1, 4], [0, 2, 1], [2, 1, 2], [1, 3, 1], [2, 3, 5]]\nprint(cheapest(4, roads, 0, 3))\nprint(cheapest(3, [[0, 1, 2]], 0, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cheapest",
+      "cases": [
+        {
+          "args": [
+            4,
+            [
+              [
+                0,
+                1,
+                4
+              ],
+              [
+                0,
+                2,
+                1
+              ],
+              [
+                2,
+                1,
+                2
+              ],
+              [
+                1,
+                3,
+                1
+              ],
+              [
+                2,
+                3,
+                5
+              ]
+            ],
+            0,
+            3
+          ],
+          "returns": 4
+        },
+        {
+          "args": [
+            3,
+            [
+              [
+                0,
+                1,
+                2
+              ]
+            ],
+            0,
+            2
+          ],
+          "returns": -1
+        },
+        {
+          "args": [
+            2,
+            [
+              [
+                0,
+                1,
+                7
+              ]
+            ],
+            1,
+            1
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            3,
+            [
+              [
+                1,
+                0,
+                1
+              ],
+              [
+                0,
+                2,
+                9
+              ],
+              [
+                0,
+                1,
+                1
+              ],
+              [
+                1,
+                2,
+                1
+              ]
+            ],
+            0,
+            2
+          ],
+          "returns": 2
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4\n-1"
+    }
+  ]
+}

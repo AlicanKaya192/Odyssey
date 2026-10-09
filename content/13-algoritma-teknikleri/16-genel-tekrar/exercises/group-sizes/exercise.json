@@ -1,0 +1,111 @@
+{
+  "id": "group-sizes",
+  "title": {
+    "tr": "Grup boyları",
+    "en": "Group sizes"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`find` içinde `while parent[x] != x:` yol kısaltarak çık; her çiftte kökler farklıysa birleştir.",
+      "en": "In `find`, climb with `while parent[x] != x:` shortening the path; for each pair merge if the roots differ."
+    },
+    {
+      "tr": "`Counter(find(i) for i in range(n))` ve `sorted(counts.values(), reverse=True)`.",
+      "en": "`Counter(find(i) for i in range(n))` and `sorted(counts.values(), reverse=True)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef group_sizes(n, pairs):\n    parent = list(range(n))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    for a, b in pairs:\n        ra, rb = find(a), find(b)\n        if ra != rb:\n            parent[ra] = rb\n    counts = Counter(find(i) for i in range(n))\n    return sorted(counts.values(), reverse=True)\n\npairs = [[0, 1], [1, 2], [3, 4], [5, 5]]\nprint(group_sizes(7, pairs))\nprint(group_sizes(3, []))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef group_sizes(n, pairs):\n    parent = list(range(n))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    for a, b in pairs:\n        ra, rb = find(a), find(b)\n        if ra != rb:\n            parent[ra] = rb\n    counts = Counter(find(i) for i in range(n))\n    return sorted(counts.values(), reverse=True)\n\npairs = [[0, 1], [1, 2], [3, 4], [5, 5]]\nprint(group_sizes(7, pairs))\nprint(group_sizes(3, []))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "group_sizes",
+      "cases": [
+        {
+          "args": [
+            7,
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                3,
+                4
+              ],
+              [
+                5,
+                5
+              ]
+            ]
+          ],
+          "returns": [
+            3,
+            2,
+            1,
+            1
+          ]
+        },
+        {
+          "args": [
+            3,
+            []
+          ],
+          "returns": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "args": [
+            0,
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            4,
+            [
+              [
+                0,
+                1
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ],
+          "returns": [
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, 2, 1, 1]\n[1, 1, 1]"
+    }
+  ]
+}

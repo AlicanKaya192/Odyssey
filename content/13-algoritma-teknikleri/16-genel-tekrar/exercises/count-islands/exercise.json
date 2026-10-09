@@ -1,0 +1,96 @@
+{
+  "id": "count-islands",
+  "title": {
+    "tr": "Adalar",
+    "en": "Islands"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki iç içe döngüyle hücreleri gez; `\"1\"` ve görülmemişse `islands += 1` ve o hücreden BFS.",
+      "en": "Walk the cells with two nested loops; if `\"1\"` and unseen, `islands += 1` and a BFS from that cell."
+    },
+    {
+      "tr": "BFS'te dört komşu; ızgara içinde, `\"1\"` ve görülmemişse `seen`'e ekle ve kuyruğa koy.",
+      "en": "In the BFS, four neighbours; if inside the grid, `\"1\"` and unseen, add to `seen` and the queue."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import deque\n\n\ndef count_islands(grid):\n    seen = set()\n    islands = 0\n    rows = len(grid)\n    cols = len(grid[0]) if grid else 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] != \"1\" or (r, c) in seen:\n                continue\n            islands += 1\n            seen.add((r, c))\n            queue = deque([(r, c)])\n            while queue:\n                y, x = queue.popleft()\n                for ny, nx in ((y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)):\n                    inside = 0 <= ny < rows and 0 <= nx < cols\n                    if inside and grid[ny][nx] == \"1\" and (ny, nx) not in seen:\n                        seen.add((ny, nx))\n                        queue.append((ny, nx))\n    return islands\n\ngrid = [\"11000\",\n        \"11010\",\n        \"00011\",\n        \"10000\"]\nprint(count_islands(grid))\nprint(count_islands([\"000\", \"000\"]))\nbig = [\"10\" * 150 if r % 2 == 0 else \"0\" * 300 for r in range(300)]\nprint(count_islands(big))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import deque\n\n\ndef count_islands(grid):\n    seen = set()\n    islands = 0\n    rows = len(grid)\n    cols = len(grid[0]) if grid else 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] != \"1\" or (r, c) in seen:\n                continue\n            islands += 1\n            seen.add((r, c))\n            queue = deque([(r, c)])\n            while queue:\n                y, x = queue.popleft()\n                for ny, nx in ((y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)):\n                    inside = 0 <= ny < rows and 0 <= nx < cols\n                    if inside and grid[ny][nx] == \"1\" and (ny, nx) not in seen:\n                        seen.add((ny, nx))\n                        queue.append((ny, nx))\n    return islands\n\ngrid = [\"11000\",\n        \"11010\",\n        \"00011\",\n        \"10000\"]\nprint(count_islands(grid))\nprint(count_islands([\"000\", \"000\"]))\nbig = [\"10\" * 150 if r % 2 == 0 else \"0\" * 300 for r in range(300)]\nprint(count_islands(big))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "count_islands",
+      "cases": [
+        {
+          "args": [
+            [
+              "11000",
+              "11010",
+              "00011",
+              "10000"
+            ]
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            [
+              "000",
+              "000"
+            ]
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              "1"
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              "101",
+              "010",
+              "101"
+            ]
+          ],
+          "returns": 5
+        },
+        {
+          "args": [
+            [
+              "111",
+              "101",
+              "111"
+            ]
+          ],
+          "returns": 1
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n0\n22500"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "count-queens",
+  "title": {
+    "tr": "N vezir",
+    "en": "N queens"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`place(row)`: `row == n` ise `return 1`; her `c` için tehdit varsa `continue`.",
+      "en": "`place(row)`: if `row == n`, `return 1`; for each `c`, `continue` if threatened."
+    },
+    {
+      "tr": "Kümelere ekle, `total += place(row + 1)`, sonra kümelerden çıkar (geri al).",
+      "en": "Add to the sets, `total += place(row + 1)`, then remove from the sets (undo)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef count_queens(n):\n    cols, diag1, diag2 = set(), set(), set()\n\n    def place(row):\n        if row == n:\n            return 1\n        total = 0\n        for c in range(n):\n            if c in cols or row - c in diag1 or row + c in diag2:\n                continue\n            cols.add(c)\n            diag1.add(row - c)\n            diag2.add(row + c)\n            total += place(row + 1)\n            cols.remove(c)\n            diag1.remove(row - c)\n            diag2.remove(row + c)\n        return total\n\n    return place(0)\n\nfor n in range(1, 9):\n    print(n, count_queens(n))\n```",
+      "en": "The full solution:\n\n```python\ndef count_queens(n):\n    cols, diag1, diag2 = set(), set(), set()\n\n    def place(row):\n        if row == n:\n            return 1\n        total = 0\n        for c in range(n):\n            if c in cols or row - c in diag1 or row + c in diag2:\n                continue\n            cols.add(c)\n            diag1.add(row - c)\n            diag2.add(row + c)\n            total += place(row + 1)\n            cols.remove(c)\n            diag1.remove(row - c)\n            diag2.remove(row + c)\n        return total\n\n    return place(0)\n\nfor n in range(1, 9):\n    print(n, count_queens(n))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "count_queens",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            2
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            3
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            4
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            6
+          ],
+          "returns": 4
+        },
+        {
+          "args": [
+            8
+          ],
+          "returns": 92
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 1\n2 0\n3 0\n4 2\n5 10\n6 4\n7 40\n8 92"
+    }
+  ]
+}
