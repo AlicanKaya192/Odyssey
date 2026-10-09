@@ -1,0 +1,141 @@
+{
+  "id": "train-logistic",
+  "title": {
+    "tr": "Lojistik regresyonu eğit",
+    "en": "Train logistic regression"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngüde önce `p`, sonra `w` ve `b`; ikisi de aynı `p` ile.",
+      "en": "In the loop first `p`, then `w` and `b`; both with the same `p`."
+    },
+    {
+      "tr": "`w = w - lr * X.T @ (p - y) / len(y)`, `b = b - lr * np.mean(p - y)`.",
+      "en": "`w = w - lr * X.T @ (p - y) / len(y)`, `b = b - lr * np.mean(p - y)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef train_logistic(X, y, lr, epochs):\n    X, y = np.array(X, dtype=float), np.array(y, dtype=float)\n    w, b = np.zeros(X.shape[1]), 0.0\n    for _ in range(epochs):\n        p = 1 / (1 + np.exp(-(X @ w + b)))\n        w = w - lr * X.T @ (p - y) / len(y)\n        b = b - lr * float(np.mean(p - y))\n    return w.round(3).tolist(), round(b, 3)\n\nX = [[0.0, 1.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]\ny = [1, 0, 1, 0]\nw, b = train_logistic(X, y, 0.5, 200)\nprint(w)\nprint(b)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef train_logistic(X, y, lr, epochs):\n    X, y = np.array(X, dtype=float), np.array(y, dtype=float)\n    w, b = np.zeros(X.shape[1]), 0.0\n    for _ in range(epochs):\n        p = 1 / (1 + np.exp(-(X @ w + b)))\n        w = w - lr * X.T @ (p - y) / len(y)\n        b = b - lr * float(np.mean(p - y))\n    return w.round(3).tolist(), round(b, 3)\n\nX = [[0.0, 1.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]\ny = [1, 0, 1, 0]\nw, b = train_logistic(X, y, 0.5, 200)\nprint(w)\nprint(b)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "LogisticRegression",
+      "hint": {
+        "tr": "`LogisticRegression` kullanma.",
+        "en": "Do not use `LogisticRegression`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "train_logistic",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            [
+              1,
+              0,
+              1,
+              0
+            ],
+            0.5,
+            200
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                -0.422,
+                5.887
+              ],
+              -2.517
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                1.0
+              ],
+              [
+                2.0
+              ]
+            ],
+            [
+              0,
+              1
+            ],
+            0.1,
+            0
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                0.0
+              ],
+              0.0
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                1.0
+              ],
+              [
+                -1.0
+              ]
+            ],
+            [
+              1,
+              0
+            ],
+            1.0,
+            1
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                0.5
+              ],
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-0.422, 5.887]\n-2.517"
+    }
+  ]
+}
