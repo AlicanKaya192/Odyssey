@@ -1,0 +1,168 @@
+{
+  "id": "run-waves",
+  "title": {
+    "tr": "Paralel dalgalar",
+    "en": "Parallel waves"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sayaçları kur; ilk dalga `waiting` 0 olanlar (sıralı).",
+      "en": "Build the counters; the first wave is those with `waiting` 0 (sorted)."
+    },
+    {
+      "tr": "Döngüde dalgayı sonuca ekle; dalgadaki işlerin arkasındakilerin sayacını düşür, 0 olanlar sıradaki dalga.",
+      "en": "In the loop add the wave to the result; decrease the counters of the jobs behind the wave, those reaching 0 are the next wave."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef all_nodes(deps):\n    return set(deps) | {d for needs in deps.values() for d in needs}\n\n\ndef waves(deps):\n    nodes = all_nodes(deps)\n    after = {n: [] for n in nodes}\n    waiting = {n: 0 for n in nodes}\n    for task, needs in deps.items():\n        for need in needs:\n            after[need].append(task)\n            waiting[task] += 1\n    current = sorted(n for n in nodes if waiting[n] == 0)\n    result = []\n    while current:\n        result.append(current)\n        nxt = []\n        for task in current:\n            for later in after[task]:\n                waiting[later] -= 1\n                if waiting[later] == 0:\n                    nxt.append(later)\n        current = sorted(nxt)\n    return result\n\n\ndeps = {\"clean\": [\"extract\"], \"validate\": [\"extract\"],\n        \"features\": [\"clean\", \"validate\"], \"train\": [\"features\"],\n        \"evaluate\": [\"train\"], \"report\": [\"clean\", \"evaluate\"]}\nfor wave in waves(deps):\n    print(wave)\n```",
+      "en": "The full solution:\n\n```python\ndef all_nodes(deps):\n    return set(deps) | {d for needs in deps.values() for d in needs}\n\n\ndef waves(deps):\n    nodes = all_nodes(deps)\n    after = {n: [] for n in nodes}\n    waiting = {n: 0 for n in nodes}\n    for task, needs in deps.items():\n        for need in needs:\n            after[need].append(task)\n            waiting[task] += 1\n    current = sorted(n for n in nodes if waiting[n] == 0)\n    result = []\n    while current:\n        result.append(current)\n        nxt = []\n        for task in current:\n            for later in after[task]:\n                waiting[later] -= 1\n                if waiting[later] == 0:\n                    nxt.append(later)\n        current = sorted(nxt)\n    return result\n\n\ndeps = {\"clean\": [\"extract\"], \"validate\": [\"extract\"],\n        \"features\": [\"clean\", \"validate\"], \"train\": [\"features\"],\n        \"evaluate\": [\"train\"], \"report\": [\"clean\", \"evaluate\"]}\nfor wave in waves(deps):\n    print(wave)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "node": "Import",
+      "hint": {
+        "tr": "İçe aktarma yok: `graphlib` kullanmadan turları kendin kur.",
+        "en": "No imports: build the rounds yourself, without `graphlib`."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "node": "ImportFrom",
+      "hint": {
+        "tr": "İçe aktarma yok: `graphlib` kullanmadan turları kendin kur.",
+        "en": "No imports: build the rounds yourself, without `graphlib`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "waves",
+      "cases": [
+        {
+          "args": [
+            {
+              "clean": [
+                "extract"
+              ],
+              "validate": [
+                "extract"
+              ],
+              "features": [
+                "clean",
+                "validate"
+              ],
+              "train": [
+                "features"
+              ],
+              "evaluate": [
+                "train"
+              ],
+              "report": [
+                "clean",
+                "evaluate"
+              ]
+            }
+          ],
+          "returns": [
+            [
+              "extract"
+            ],
+            [
+              "clean",
+              "validate"
+            ],
+            [
+              "features"
+            ],
+            [
+              "train"
+            ],
+            [
+              "evaluate"
+            ],
+            [
+              "report"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "b": [
+                "a"
+              ],
+              "c": [
+                "a"
+              ],
+              "d": [
+                "b",
+                "c"
+              ]
+            }
+          ],
+          "returns": [
+            [
+              "a"
+            ],
+            [
+              "b",
+              "c"
+            ],
+            [
+              "d"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "c": [
+                "a",
+                "b"
+              ],
+              "d": [
+                "c"
+              ],
+              "e": [
+                "a"
+              ]
+            }
+          ],
+          "returns": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              "c",
+              "e"
+            ],
+            [
+              "d"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['extract']\n['clean', 'validate']\n['features']\n['train']\n['evaluate']\n['report']"
+    }
+  ]
+}
