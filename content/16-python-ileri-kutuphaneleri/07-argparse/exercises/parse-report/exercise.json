@@ -1,0 +1,87 @@
+{
+  "id": "parse-report",
+  "title": {
+    "tr": "Rapor argümanları",
+    "en": "Report arguments"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`parser.add_argument(\"--top\", type=int, default=5)`.",
+      "en": "`parser.add_argument(\"--top\", type=int, default=5)`."
+    },
+    {
+      "tr": "`parser.add_argument(\"--verbose\", action=\"store_true\")`; dönüş `(args.path, args.top, args.verbose)`.",
+      "en": "`parser.add_argument(\"--verbose\", action=\"store_true\")`; return `(args.path, args.top, args.verbose)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport argparse\n\n\ndef parse_report(argv):\n    parser = argparse.ArgumentParser(prog=\"report\")\n    parser.add_argument(\"path\")\n    parser.add_argument(\"--top\", type=int, default=5)\n    parser.add_argument(\"--verbose\", action=\"store_true\")\n    args = parser.parse_args(argv)\n    return (args.path, args.top, args.verbose)\n\nprint(parse_report([\"sales.csv\", \"--top\", \"3\"]))\nprint(parse_report([\"data.csv\", \"--verbose\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport argparse\n\n\ndef parse_report(argv):\n    parser = argparse.ArgumentParser(prog=\"report\")\n    parser.add_argument(\"path\")\n    parser.add_argument(\"--top\", type=int, default=5)\n    parser.add_argument(\"--verbose\", action=\"store_true\")\n    args = parser.parse_args(argv)\n    return (args.path, args.top, args.verbose)\n\nprint(parse_report([\"sales.csv\", \"--top\", \"3\"]))\nprint(parse_report([\"data.csv\", \"--verbose\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_report",
+      "cases": [
+        {
+          "args": [
+            [
+              "sales.csv",
+              "--top",
+              "3"
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              "sales.csv",
+              3,
+              false
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              "data.csv",
+              "--verbose"
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              "data.csv",
+              5,
+              true
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              "x.csv"
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              "x.csv",
+              5,
+              false
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "('sales.csv', 3, False)\n('data.csv', 5, True)"
+    }
+  ]
+}

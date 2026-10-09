@@ -1,0 +1,66 @@
+{
+  "id": "safe-top",
+  "title": {
+    "tr": "Hatayı kendin ele al",
+    "en": "Handle the error yourself"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu hatalı girdide programı `SystemExit` ile bitiriyor.",
+      "en": "The starter code ends the program with `SystemExit` on bad input."
+    },
+    {
+      "tr": "`ArgumentParser(..., exit_on_error=False)` ve `except argparse.ArgumentError: return \"invalid\"`.",
+      "en": "`ArgumentParser(..., exit_on_error=False)` and `except argparse.ArgumentError: return \"invalid\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport argparse\n\n\ndef safe_top(argv):\n    parser = argparse.ArgumentParser(prog=\"report\", exit_on_error=False)\n    parser.add_argument(\"--top\", type=int, default=5)\n    try:\n        return parser.parse_args(argv).top\n    except argparse.ArgumentError:\n        return \"invalid\"\n\nprint(safe_top([\"--top\", \"3\"]), safe_top([\"--top\", \"ten\"]), safe_top([]))\n```",
+      "en": "The full solution:\n\n```python\nimport argparse\n\n\ndef safe_top(argv):\n    parser = argparse.ArgumentParser(prog=\"report\", exit_on_error=False)\n    parser.add_argument(\"--top\", type=int, default=5)\n    try:\n        return parser.parse_args(argv).top\n    except argparse.ArgumentError:\n        return \"invalid\"\n\nprint(safe_top([\"--top\", \"3\"]), safe_top([\"--top\", \"ten\"]), safe_top([]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "safe_top",
+      "cases": [
+        {
+          "args": [
+            [
+              "--top",
+              "3"
+            ]
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            [
+              "--top",
+              "ten"
+            ]
+          ],
+          "returns": "invalid"
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": 5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3 invalid 5"
+    }
+  ]
+}
