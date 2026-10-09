@@ -1,0 +1,105 @@
+{
+  "id": "item-means",
+  "title": {
+    "tr": "Ürün ortalamaları",
+    "en": "Item means"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`R[mask[:, i], i]` i. ürünün dolu hücreleri.",
+      "en": "`R[mask[:, i], i]` are item i's filled cells."
+    },
+    {
+      "tr": "Boşsa genel ortalama `R[mask].mean()`.",
+      "en": "If empty, the global mean `R[mask].mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef item_means(R):\n    R = np.array(R, dtype=float)\n    mask = R > 0\n    mu = R[mask].mean()\n    result = []\n    for i in range(R.shape[1]):\n        col = R[mask[:, i], i]\n        result.append(round(float(col.mean()) if len(col) else float(mu), 2))\n    return result\n\nR = [[5, 0, 3], [4, 0, 0], [0, 0, 1], [3, 0, 2]]\nprint(item_means(R))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef item_means(R):\n    R = np.array(R, dtype=float)\n    mask = R > 0\n    mu = R[mask].mean()\n    result = []\n    for i in range(R.shape[1]):\n        col = R[mask[:, i], i]\n        result.append(round(float(col.mean()) if len(col) else float(mu), 2))\n    return result\n\nR = [[5, 0, 3], [4, 0, 0], [0, 0, 1], [3, 0, 2]]\nprint(item_means(R))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "item_means",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                5,
+                0,
+                3
+              ],
+              [
+                4,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                3,
+                0,
+                2
+              ]
+            ]
+          ],
+          "returns": [
+            4.0,
+            3.0,
+            2.0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                2,
+                4
+              ]
+            ]
+          ],
+          "returns": [
+            2.0,
+            4.0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                3
+              ]
+            ]
+          ],
+          "returns": [
+            2.0,
+            2.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[4.0, 3.0, 2.0]"
+    }
+  ]
+}

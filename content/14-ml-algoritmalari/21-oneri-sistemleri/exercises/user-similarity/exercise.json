@@ -1,0 +1,104 @@
+{
+  "id": "user-similarity",
+  "title": {
+    "tr": "Kullanıcı benzerliği",
+    "en": "User similarity"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`center` hazır: dolu puanlardan kendi ortalamasını çıkarıyor.",
+      "en": "`center` is given: it subtracts the user's own mean from filled ratings."
+    },
+    {
+      "tr": "`ca @ cb / (np.linalg.norm(ca) * np.linalg.norm(cb))`; norm 0 ise 0.",
+      "en": "`ca @ cb / (np.linalg.norm(ca) * np.linalg.norm(cb))`; 0 if a norm is 0."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef center(r):\n    r = np.array(r, dtype=float)\n    m = r > 0\n    return np.where(m, r - r[m].mean(), 0.0)\n\n\ndef user_similarity(a, b):\n    ca, cb = center(a), center(b)\n    na, nb = np.linalg.norm(ca), np.linalg.norm(cb)\n    if na == 0 or nb == 0:\n        return 0.0\n    return round(float(ca @ cb / (na * nb)), 3)\n\na = [5, 3, 0, 1]\nb = [4, 0, 0, 1]\nc = [1, 0, 5, 4]\nprint(user_similarity(a, b))\nprint(user_similarity(a, c))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef center(r):\n    r = np.array(r, dtype=float)\n    m = r > 0\n    return np.where(m, r - r[m].mean(), 0.0)\n\n\ndef user_similarity(a, b):\n    ca, cb = center(a), center(b)\n    na, nb = np.linalg.norm(ca), np.linalg.norm(cb)\n    if na == 0 or nb == 0:\n        return 0.0\n    return round(float(ca @ cb / (na * nb)), 3)\n\na = [5, 3, 0, 1]\nb = [4, 0, 0, 1]\nc = [1, 0, 5, 4]\nprint(user_similarity(a, b))\nprint(user_similarity(a, c))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "user_similarity",
+      "cases": [
+        {
+          "args": [
+            [
+              5,
+              3,
+              0,
+              1
+            ],
+            [
+              4,
+              0,
+              0,
+              1
+            ]
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              5,
+              3,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              5,
+              4
+            ]
+          ],
+          "returns": -0.721
+        },
+        {
+          "args": [
+            [
+              3,
+              3,
+              0
+            ],
+            [
+              5,
+              1,
+              0
+            ]
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              1,
+              5
+            ],
+            [
+              5,
+              1
+            ]
+          ],
+          "returns": -1.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.0\n-0.721"
+    }
+  ]
+}

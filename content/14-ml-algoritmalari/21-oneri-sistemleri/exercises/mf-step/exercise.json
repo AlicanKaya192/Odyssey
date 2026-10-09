@@ -1,0 +1,123 @@
+{
+  "id": "mf-step",
+  "title": {
+    "tr": "Bir SGD adımı",
+    "en": "One SGD step"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`p_new = p + lr * (err * q - reg * p)`.",
+      "en": "`p_new = p + lr * (err * q - reg * p)`."
+    },
+    {
+      "tr": "`q_new` eski `p` ile: `q + lr * (err * p - reg * q)`; `p`'yi önce değiştirme.",
+      "en": "`q_new` with the old `p`: `q + lr * (err * p - reg * q)`; do not overwrite `p` first."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef mf_step(r, p, q, lr, reg):\n    p, q = np.array(p, dtype=float), np.array(q, dtype=float)\n    err = r - p @ q\n    p_new = p + lr * (err * q - reg * p)\n    q_new = q + lr * (err * p - reg * q)\n    return p_new.round(4).tolist(), q_new.round(4).tolist()\n\np, q = mf_step(4.0, [0.1, 0.2], [0.3, -0.1], 0.1, 0.05)\nprint(p)\nprint(q)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef mf_step(r, p, q, lr, reg):\n    p, q = np.array(p, dtype=float), np.array(q, dtype=float)\n    err = r - p @ q\n    p_new = p + lr * (err * q - reg * p)\n    q_new = q + lr * (err * p - reg * q)\n    return p_new.round(4).tolist(), q_new.round(4).tolist()\n\np, q = mf_step(4.0, [0.1, 0.2], [0.3, -0.1], 0.1, 0.05)\nprint(p)\nprint(q)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mf_step",
+      "cases": [
+        {
+          "args": [
+            4.0,
+            [
+              0.1,
+              0.2
+            ],
+            [
+              0.3,
+              -0.1
+            ],
+            0.1,
+            0.05
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                0.2192,
+                0.1591
+              ],
+              [
+                0.3384,
+                -0.0197
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            1.0,
+            [
+              1.0
+            ],
+            [
+              1.0
+            ],
+            0.5,
+            0.0
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                1.0
+              ],
+              [
+                1.0
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            3.0,
+            [
+              0.5,
+              0.5,
+              0.5
+            ],
+            [
+              1.0,
+              0.0,
+              -1.0
+            ],
+            0.01,
+            0.1
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                0.5295,
+                0.4995,
+                0.4695
+              ],
+              [
+                1.014,
+                0.015,
+                -0.984
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.2192, 0.1591]\n[0.3384, -0.0197]"
+    }
+  ]
+}
