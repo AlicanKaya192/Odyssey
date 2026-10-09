@@ -1,0 +1,54 @@
+{
+  "id": "oldest-user",
+  "title": {
+    "tr": "JSON'dan nesneye",
+    "en": "From JSON to objects"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`users = [User(**d) for d in json.loads(text)]`.",
+      "en": "`users = [User(**d) for d in json.loads(text)]`."
+    },
+    {
+      "tr": "`max(users, key=lambda u: u.age).name`.",
+      "en": "`max(users, key=lambda u: u.age).name`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport json\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass User:\n    name: str\n    age: int\n\n\ndef oldest_user(text):\n    users = [User(**d) for d in json.loads(text)]\n    return max(users, key=lambda u: u.age).name\n\ntext = '[{\"name\": \"ada\", \"age\": 36}, {\"name\": \"grace\", \"age\": 85}]'\nprint(oldest_user(text))\n```",
+      "en": "The full solution:\n\n```python\nimport json\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass User:\n    name: str\n    age: int\n\n\ndef oldest_user(text):\n    users = [User(**d) for d in json.loads(text)]\n    return max(users, key=lambda u: u.age).name\n\ntext = '[{\"name\": \"ada\", \"age\": 36}, {\"name\": \"grace\", \"age\": 85}]'\nprint(oldest_user(text))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "oldest_user",
+      "cases": [
+        {
+          "args": [
+            "[{\"name\": \"ada\", \"age\": 36}, {\"name\": \"grace\", \"age\": 85}]"
+          ],
+          "returns": "grace"
+        },
+        {
+          "args": [
+            "[{\"name\": \"solo\", \"age\": 1}]"
+          ],
+          "returns": "solo"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "grace"
+    }
+  ]
+}
