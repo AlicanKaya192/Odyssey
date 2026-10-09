@@ -1,0 +1,122 @@
+{
+  "id": "confusion-counts",
+  "title": {
+    "tr": "Karışıklık sayıları",
+    "en": "Confusion counts"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her durum için iki koşulu `&` ile birleştir: `((pred == 1) & (y == 1)).sum()`.",
+      "en": "For each case combine two conditions with `&`: `((pred == 1) & (y == 1)).sum()`."
+    },
+    {
+      "tr": "Dördünü `int` yapıp `return tp, fp, fn, tn`.",
+      "en": "Make all four `int` and `return tp, fp, fn, tn`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef confusion_counts(y, pred):\n    y, pred = np.array(y), np.array(pred)\n    tp = int(((pred == 1) & (y == 1)).sum())\n    fp = int(((pred == 1) & (y == 0)).sum())\n    fn = int(((pred == 0) & (y == 1)).sum())\n    tn = int(((pred == 0) & (y == 0)).sum())\n    return tp, fp, fn, tn\n\ny = [1, 0, 1, 1, 0, 0, 1, 0]\npred = [1, 0, 0, 1, 1, 0, 1, 0]\nprint(confusion_counts(y, pred))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef confusion_counts(y, pred):\n    y, pred = np.array(y), np.array(pred)\n    tp = int(((pred == 1) & (y == 1)).sum())\n    fp = int(((pred == 1) & (y == 0)).sum())\n    fn = int(((pred == 0) & (y == 1)).sum())\n    tn = int(((pred == 0) & (y == 0)).sum())\n    return tp, fp, fn, tn\n\ny = [1, 0, 1, 1, 0, 0, 1, 0]\npred = [1, 0, 0, 1, 1, 0, 1, 0]\nprint(confusion_counts(y, pred))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "confusion_matrix",
+      "hint": {
+        "tr": "`confusion_matrix` kullanma; dört durumu say.",
+        "en": "Do not use `confusion_matrix`; count the four cases."
+      }
+    },
+    {
+      "type": "function",
+      "name": "confusion_counts",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              0,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              3,
+              1,
+              1,
+              3
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              0,
+              0,
+              0,
+              2
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              1,
+              0,
+              1,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(3, 1, 1, 3)"
+    }
+  ]
+}

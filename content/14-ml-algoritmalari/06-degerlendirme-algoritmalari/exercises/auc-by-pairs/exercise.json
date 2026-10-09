@@ -1,0 +1,114 @@
+{
+  "id": "auc-by-pairs",
+  "title": {
+    "tr": "Çiftlerle AUC",
+    "en": "AUC by pairs"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yayınla bütün çiftler: `pos[:, None] > neg[None, :]` bir matris verir.",
+      "en": "All pairs with broadcasting: `pos[:, None] > neg[None, :]` gives a matrix."
+    },
+    {
+      "tr": "Kazanç `(büyük).sum() + 0.5 * (eşit).sum()`, bölü `len(pos) * len(neg)`.",
+      "en": "Wins `(greater).sum() + 0.5 * (equal).sum()`, divided by `len(pos) * len(neg)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef auc_by_pairs(y, score):\n    y, score = np.array(y), np.array(score, dtype=float)\n    pos, neg = score[y == 1], score[y == 0]\n    wins = (pos[:, None] > neg[None, :]).sum() + 0.5 * (pos[:, None] == neg[None, :]).sum()\n    return round(float(wins / (len(pos) * len(neg))), 4)\n\nprint(auc_by_pairs([1, 0, 1, 0], [0.9, 0.1, 0.4, 0.6]))\nprint(auc_by_pairs([1, 0], [0.5, 0.5]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef auc_by_pairs(y, score):\n    y, score = np.array(y), np.array(score, dtype=float)\n    pos, neg = score[y == 1], score[y == 0]\n    wins = (pos[:, None] > neg[None, :]).sum() + 0.5 * (pos[:, None] == neg[None, :]).sum()\n    return round(float(wins / (len(pos) * len(neg))), 4)\n\nprint(auc_by_pairs([1, 0, 1, 0], [0.9, 0.1, 0.4, 0.6]))\nprint(auc_by_pairs([1, 0], [0.5, 0.5]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "roc_auc_score",
+      "hint": {
+        "tr": "`roc_auc_score` kullanma; çiftleri say.",
+        "en": "Do not use `roc_auc_score`; count the pairs."
+      }
+    },
+    {
+      "type": "function",
+      "name": "auc_by_pairs",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              0,
+              1,
+              0
+            ],
+            [
+              0.9,
+              0.1,
+              0.4,
+              0.6
+            ]
+          ],
+          "returns": 0.75
+        },
+        {
+          "args": [
+            [
+              1,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ]
+          ],
+          "returns": 0.5
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              0,
+              0
+            ],
+            [
+              0.1,
+              0.2,
+              0.3,
+              0.4
+            ]
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              0,
+              1,
+              0,
+              1
+            ],
+            [
+              1,
+              2,
+              3,
+              4
+            ]
+          ],
+          "returns": 0.75
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.75\n0.5"
+    }
+  ]
+}

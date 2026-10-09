@@ -1,0 +1,108 @@
+{
+  "id": "threshold-for-recall",
+  "title": {
+    "tr": "Hedef duyarlılık",
+    "en": "A target recall"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for i in order:` içinde bulunan pozitifleri say: `found += y[i]`.",
+      "en": "Inside `for i in order:` count the positives found: `found += y[i]`."
+    },
+    {
+      "tr": "`found / y.sum() >= target` olunca `return float(score[i])`.",
+      "en": "When `found / y.sum() >= target`, `return float(score[i])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef threshold_for_recall(y, score, target):\n    y, score = np.array(y), np.array(score, dtype=float)\n    order = np.argsort(-score)\n    found = 0\n    for i in order:\n        found += y[i]\n        if found / y.sum() >= target:\n            return float(score[i])\n    return None\n\ny = [1, 0, 1, 1, 0, 0, 1, 0]\nscore = [0.9, 0.8, 0.7, 0.6, 0.5, 0.3, 0.2, 0.1]\nprint(threshold_for_recall(y, score, 0.5))\nprint(threshold_for_recall(y, score, 1.0))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef threshold_for_recall(y, score, target):\n    y, score = np.array(y), np.array(score, dtype=float)\n    order = np.argsort(-score)\n    found = 0\n    for i in order:\n        found += y[i]\n        if found / y.sum() >= target:\n            return float(score[i])\n    return None\n\ny = [1, 0, 1, 1, 0, 0, 1, 0]\nscore = [0.9, 0.8, 0.7, 0.6, 0.5, 0.3, 0.2, 0.1]\nprint(threshold_for_recall(y, score, 0.5))\nprint(threshold_for_recall(y, score, 1.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "threshold_for_recall",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              0,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0
+            ],
+            [
+              0.9,
+              0.8,
+              0.7,
+              0.6,
+              0.5,
+              0.3,
+              0.2,
+              0.1
+            ],
+            0.5
+          ],
+          "returns": 0.7
+        },
+        {
+          "args": [
+            [
+              1,
+              0,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0
+            ],
+            [
+              0.9,
+              0.8,
+              0.7,
+              0.6,
+              0.5,
+              0.3,
+              0.2,
+              0.1
+            ],
+            1.0
+          ],
+          "returns": 0.2
+        },
+        {
+          "args": [
+            [
+              0,
+              1
+            ],
+            [
+              0.4,
+              0.3
+            ],
+            0.5
+          ],
+          "returns": 0.3
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.7\n0.2"
+    }
+  ]
+}
