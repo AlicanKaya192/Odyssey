@@ -1,0 +1,112 @@
+{
+  "id": "karatsuba",
+  "title": {
+    "tr": "Karatsuba çarpması",
+    "en": "Karatsuba multiplication"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`a, b = divmod(x, 10 ** half)` ve `c, d = divmod(y, 10 ** half)`; sonra `ac = karatsuba(a, c)`, `bd = karatsuba(b, d)`.",
+      "en": "`a, b = divmod(x, 10 ** half)` and `c, d = divmod(y, 10 ** half)`; then `ac = karatsuba(a, c)`, `bd = karatsuba(b, d)`."
+    },
+    {
+      "tr": "`middle = karatsuba(a + b, c + d) - ac - bd`; `return ac * 10 ** (2 * half) + middle * 10 ** half + bd`.",
+      "en": "`middle = karatsuba(a + b, c + d) - ac - bd`; `return ac * 10 ** (2 * half) + middle * 10 ** half + bd`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nMULTS = 0\n\n\ndef karatsuba(x, y):\n    global MULTS\n    if x < 10 or y < 10:\n        MULTS += 1\n        return x * y\n    half = max(len(str(x)), len(str(y))) // 2\n    a, b = divmod(x, 10 ** half)\n    c, d = divmod(y, 10 ** half)\n    ac = karatsuba(a, c)\n    bd = karatsuba(b, d)\n    middle = karatsuba(a + b, c + d) - ac - bd\n    return ac * 10 ** (2 * half) + middle * 10 ** half + bd\n\n\ndef count_mults(x, y):\n    global MULTS\n    MULTS = 0\n    karatsuba(x, y)\n    return MULTS\n\n\nprint(karatsuba(1234, 5678))\nprint(karatsuba(31415926535, 27182818284) == 31415926535 * 27182818284)\nprint(count_mults(12345678, 87654321))\n```",
+      "en": "The full solution:\n\n```python\nMULTS = 0\n\n\ndef karatsuba(x, y):\n    global MULTS\n    if x < 10 or y < 10:\n        MULTS += 1\n        return x * y\n    half = max(len(str(x)), len(str(y))) // 2\n    a, b = divmod(x, 10 ** half)\n    c, d = divmod(y, 10 ** half)\n    ac = karatsuba(a, c)\n    bd = karatsuba(b, d)\n    middle = karatsuba(a + b, c + d) - ac - bd\n    return ac * 10 ** (2 * half) + middle * 10 ** half + bd\n\n\ndef count_mults(x, y):\n    global MULTS\n    MULTS = 0\n    karatsuba(x, y)\n    return MULTS\n\n\nprint(karatsuba(1234, 5678))\nprint(karatsuba(31415926535, 27182818284) == 31415926535 * 27182818284)\nprint(count_mults(12345678, 87654321))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "recursive": "karatsuba",
+      "hint": {
+        "tr": "`karatsuba` kendini çağırmalı.",
+        "en": "`karatsuba` should call itself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "karatsuba",
+      "cases": [
+        {
+          "args": [
+            1234,
+            5678
+          ],
+          "returns": 7006652
+        },
+        {
+          "args": [
+            0,
+            987654
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            99,
+            99
+          ],
+          "returns": 9801
+        },
+        {
+          "args": [
+            123456789,
+            987654321
+          ],
+          "returns": 121932631112635269
+        },
+        {
+          "args": [
+            10,
+            1000000
+          ],
+          "returns": 10000000
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "count_mults",
+      "cases": [
+        {
+          "args": [
+            12345678,
+            87654321
+          ],
+          "returns": 33
+        },
+        {
+          "args": [
+            1234,
+            5678
+          ],
+          "returns": 11
+        },
+        {
+          "args": [
+            31415926535897,
+            27182818284590
+          ],
+          "returns": 103
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "7006652\nTrue\n33"
+    }
+  ]
+}
