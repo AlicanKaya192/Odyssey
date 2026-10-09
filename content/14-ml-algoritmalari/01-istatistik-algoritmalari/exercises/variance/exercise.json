@@ -1,0 +1,100 @@
+{
+  "id": "variance",
+  "title": {
+    "tr": "İki geçişli varyans",
+    "en": "Two-pass variance"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`mean = sum(values) / n`.",
+      "en": "`mean = sum(values) / n`."
+    },
+    {
+      "tr": "`return round(sum((v - mean) ** 2 for v in values) / n, 4)`.",
+      "en": "`return round(sum((v - mean) ** 2 for v in values) / n, 4)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef variance(values):\n    n = len(values)\n    mean = sum(values) / n\n    return round(sum((v - mean) ** 2 for v in values) / n, 4)\n\nprint(variance([2, 4, 4, 4, 5, 5, 7, 9]))\nrng = np.random.default_rng(1)\nx = (1e9 + rng.normal(0, 1, size=50_000)).tolist()\nprint(variance(x))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef variance(values):\n    n = len(values)\n    mean = sum(values) / n\n    return round(sum((v - mean) ** 2 for v in values) / n, 4)\n\nprint(variance([2, 4, 4, 4, 5, 5, 7, 9]))\nrng = np.random.default_rng(1)\nx = (1e9 + rng.normal(0, 1, size=50_000)).tolist()\nprint(variance(x))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "var",
+      "hint": {
+        "tr": "`var` kullanma; hesabı kendin yaz.",
+        "en": "Do not use `var`; write the calculation yourself."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "std",
+      "hint": {
+        "tr": "`std` kullanma; hesabı kendin yaz.",
+        "en": "Do not use `std`; write the calculation yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "variance",
+      "cases": [
+        {
+          "args": [
+            [
+              2,
+              4,
+              4,
+              4,
+              5,
+              5,
+              7,
+              9
+            ]
+          ],
+          "returns": 4.0
+        },
+        {
+          "args": [
+            [
+              5
+            ]
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              1,
+              2
+            ]
+          ],
+          "returns": 0.25
+        },
+        {
+          "args": [
+            [
+              1000000001.0,
+              1000000003.0,
+              1000000005.0
+            ]
+          ],
+          "returns": 2.6667
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4.0\n0.9911"
+    }
+  ]
+}
