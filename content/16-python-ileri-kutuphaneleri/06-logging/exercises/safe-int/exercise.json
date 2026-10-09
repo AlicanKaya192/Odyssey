@@ -1,0 +1,60 @@
+{
+  "id": "safe-int",
+  "title": {
+    "tr": "Hatayı kaydet",
+    "en": "Log the error"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Hata sessizce yutuluyor; `except` içinde önce kaydet.",
+      "en": "The error is swallowed silently; log it first inside `except`."
+    },
+    {
+      "tr": "`log.exception(\"bad number: %s\", text)` sonra `return None`.",
+      "en": "`log.exception(\"bad number: %s\", text)`, then `return None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport logging\nimport sys\nimport io\n\nbuffer = io.StringIO()\nlog = logging.getLogger(\"numbers\")\nhandler = logging.StreamHandler(buffer)\nhandler.setFormatter(logging.Formatter(\"%(levelname)s: %(message)s\"))\nlog.addHandler(handler)\n\n\ndef safe_int(text):\n    try:\n        return int(text)\n    except ValueError:\n        log.exception(\"bad number: %s\", text)\n        return None\n\nprint(safe_int(\"42\"), safe_int(\"4x\"))\nlines = buffer.getvalue().splitlines()\nprint(lines[0])\nprint(lines[-1].split(\":\")[0])\n```",
+      "en": "The full solution:\n\n```python\nimport logging\nimport sys\nimport io\n\nbuffer = io.StringIO()\nlog = logging.getLogger(\"numbers\")\nhandler = logging.StreamHandler(buffer)\nhandler.setFormatter(logging.Formatter(\"%(levelname)s: %(message)s\"))\nlog.addHandler(handler)\n\n\ndef safe_int(text):\n    try:\n        return int(text)\n    except ValueError:\n        log.exception(\"bad number: %s\", text)\n        return None\n\nprint(safe_int(\"42\"), safe_int(\"4x\"))\nlines = buffer.getvalue().splitlines()\nprint(lines[0])\nprint(lines[-1].split(\":\")[0])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "safe_int",
+      "cases": [
+        {
+          "args": [
+            "42"
+          ],
+          "returns": 42
+        },
+        {
+          "args": [
+            "4x"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "-7"
+          ],
+          "returns": -7
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "42 None\nERROR: bad number: 4x\nValueError"
+    }
+  ]
+}

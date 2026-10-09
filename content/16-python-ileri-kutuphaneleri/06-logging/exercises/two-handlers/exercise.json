@@ -1,0 +1,36 @@
+{
+  "id": "two-handlers",
+  "title": {
+    "tr": "Ekran ve dosya",
+    "en": "Screen and file"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ekran işleyicisine `setLevel(logging.WARNING)`; dosyanınkine düzey verme (her şeyi alsın).",
+      "en": "Give the screen handler `setLevel(logging.WARNING)`; give the file one no level (it takes everything)."
+    },
+    {
+      "tr": "Her işleyiciye `setFormatter(logging.Formatter(...))`, sonra `log.addHandler(...)`.",
+      "en": "`setFormatter(logging.Formatter(...))` for each handler, then `log.addHandler(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport logging\nimport sys\nfrom pathlib import Path\n\n\ndef setup():\n    log = logging.getLogger(\"app\")\n    log.setLevel(logging.DEBUG)\n    screen = logging.StreamHandler(sys.stdout)\n    screen.setLevel(logging.WARNING)\n    screen.setFormatter(logging.Formatter(\"%(levelname)s: %(message)s\"))\n    file = logging.FileHandler(\"app.log\", encoding=\"utf-8\")\n    file.setFormatter(logging.Formatter(\"%(levelname)s %(message)s\"))\n    log.addHandler(screen)\n    log.addHandler(file)\n\n\nsetup()\n\nlog = logging.getLogger(\"app\")\nlog.debug(\"reading config\")\nlog.warning(\"config missing\")\nfor handler in log.handlers:\n    handler.close()\nprint(Path(\"app.log\").read_text(encoding=\"utf-8\"))\n```",
+      "en": "The full solution:\n\n```python\nimport logging\nimport sys\nfrom pathlib import Path\n\n\ndef setup():\n    log = logging.getLogger(\"app\")\n    log.setLevel(logging.DEBUG)\n    screen = logging.StreamHandler(sys.stdout)\n    screen.setLevel(logging.WARNING)\n    screen.setFormatter(logging.Formatter(\"%(levelname)s: %(message)s\"))\n    file = logging.FileHandler(\"app.log\", encoding=\"utf-8\")\n    file.setFormatter(logging.Formatter(\"%(levelname)s %(message)s\"))\n    log.addHandler(screen)\n    log.addHandler(file)\n\n\nsetup()\n\nlog = logging.getLogger(\"app\")\nlog.debug(\"reading config\")\nlog.warning(\"config missing\")\nfor handler in log.handlers:\n    handler.close()\nprint(Path(\"app.log\").read_text(encoding=\"utf-8\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "WARNING: config missing\nDEBUG reading config\nWARNING config missing"
+    }
+  ]
+}
