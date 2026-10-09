@@ -1,0 +1,121 @@
+{
+  "id": "prf",
+  "title": {
+    "tr": "Kesinlik, duyarlılık, F1",
+    "en": "Precision, recall, F1"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`precision = tp / (tp + fp) if tp + fp else 0.0`; duyarlılık da benzer.",
+      "en": "`precision = tp / (tp + fp) if tp + fp else 0.0`; recall similarly."
+    },
+    {
+      "tr": "`f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0`.",
+      "en": "`f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef prf(y, pred):\n    y, pred = np.array(y), np.array(pred)\n    tp = int(((pred == 1) & (y == 1)).sum())\n    fp = int(((pred == 1) & (y == 0)).sum())\n    fn = int(((pred == 0) & (y == 1)).sum())\n    precision = tp / (tp + fp) if tp + fp else 0.0\n    recall = tp / (tp + fn) if tp + fn else 0.0\n    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0\n    return round(precision, 3), round(recall, 3), round(f1, 3)\n\ny = [1, 0, 1, 1, 0, 0, 1, 0]\npred = [1, 0, 0, 1, 1, 0, 1, 0]\nprint(prf(y, pred))\nprint(prf([1, 0], [0, 0]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef prf(y, pred):\n    y, pred = np.array(y), np.array(pred)\n    tp = int(((pred == 1) & (y == 1)).sum())\n    fp = int(((pred == 1) & (y == 0)).sum())\n    fn = int(((pred == 0) & (y == 1)).sum())\n    precision = tp / (tp + fp) if tp + fp else 0.0\n    recall = tp / (tp + fn) if tp + fn else 0.0\n    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0\n    return round(precision, 3), round(recall, 3), round(f1, 3)\n\ny = [1, 0, 1, 1, 0, 0, 1, 0]\npred = [1, 0, 0, 1, 1, 0, 1, 0]\nprint(prf(y, pred))\nprint(prf([1, 0], [0, 0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "f1_score",
+      "hint": {
+        "tr": "`f1_score` kullanma.",
+        "en": "Do not use `f1_score`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "prf",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              0,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              0.75,
+              0.75,
+              0.75
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              1,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              1,
+              1,
+              1
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              0.667,
+              1.0,
+              0.8
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(0.75, 0.75, 0.75)\n(0.0, 0.0, 0.0)"
+    }
+  ]
+}

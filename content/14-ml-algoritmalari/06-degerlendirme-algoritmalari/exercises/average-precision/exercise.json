@@ -1,0 +1,99 @@
+{
+  "id": "average-precision",
+  "title": {
+    "tr": "Ortalama kesinlik",
+    "en": "Average precision"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`tp = np.cumsum(ys)`, `precision = tp / np.arange(1, len(ys) + 1)`, `recall = tp / ys.sum()`.",
+      "en": "`tp = np.cumsum(ys)`, `precision = tp / np.arange(1, len(ys) + 1)`, `recall = tp / ys.sum()`."
+    },
+    {
+      "tr": "`gains = np.diff(np.concatenate([[0], recall]))`; sonuç `(gains * precision).sum()`.",
+      "en": "`gains = np.diff(np.concatenate([[0], recall]))`; the result `(gains * precision).sum()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef average_precision(y, score):\n    y, score = np.array(y), np.array(score, dtype=float)\n    ys = y[np.argsort(-score)]\n    tp = np.cumsum(ys)\n    precision = tp / np.arange(1, len(ys) + 1)\n    recall = tp / ys.sum()\n    gains = np.diff(np.concatenate([[0], recall]))\n    return round(float((gains * precision).sum()), 4)\n\nprint(average_precision([1, 0, 1, 0, 0, 1], [0.9, 0.8, 0.7, 0.6, 0.5, 0.4]))\nprint(average_precision([1, 1, 0], [0.9, 0.8, 0.1]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef average_precision(y, score):\n    y, score = np.array(y), np.array(score, dtype=float)\n    ys = y[np.argsort(-score)]\n    tp = np.cumsum(ys)\n    precision = tp / np.arange(1, len(ys) + 1)\n    recall = tp / ys.sum()\n    gains = np.diff(np.concatenate([[0], recall]))\n    return round(float((gains * precision).sum()), 4)\n\nprint(average_precision([1, 0, 1, 0, 0, 1], [0.9, 0.8, 0.7, 0.6, 0.5, 0.4]))\nprint(average_precision([1, 1, 0], [0.9, 0.8, 0.1]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "average_precision_score",
+      "hint": {
+        "tr": "`average_precision_score` kullanma.",
+        "en": "Do not use `average_precision_score`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "average_precision",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              0,
+              1,
+              0,
+              0,
+              1
+            ],
+            [
+              0.9,
+              0.8,
+              0.7,
+              0.6,
+              0.5,
+              0.4
+            ]
+          ],
+          "returns": 0.7222
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              0.9,
+              0.8,
+              0.1
+            ]
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              0,
+              1
+            ],
+            [
+              0.9,
+              0.1
+            ]
+          ],
+          "returns": 0.5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.7222\n1.0"
+    }
+  ]
+}
