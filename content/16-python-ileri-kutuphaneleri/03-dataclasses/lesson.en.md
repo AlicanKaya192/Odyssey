@@ -120,7 +120,7 @@ FrozenInstanceError: cannot assign to field 'major'
   `major`, then `minor`); `sorted` and `max` work. The order the fields are
   written in is the comparison order.
 
-## `__post_init__`, `asdict`, `replace`
+## Validation, asdict and replace
 
 ```python
 from dataclasses import asdict, dataclass, field, replace
