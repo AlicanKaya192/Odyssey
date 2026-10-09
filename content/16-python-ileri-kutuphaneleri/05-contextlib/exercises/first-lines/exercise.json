@@ -1,0 +1,72 @@
+{
+  "id": "first-lines",
+  "title": {
+    "tr": "Birçok dosyanın ilk satırı",
+    "en": "The first line of many files"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`with ExitStack() as stack:` ve her dosya `stack.enter_context(open(p, encoding=\"utf-8\"))`.",
+      "en": "`with ExitStack() as stack:` and each file `stack.enter_context(open(p, encoding=\"utf-8\"))`."
+    },
+    {
+      "tr": "Blok içinde `[f.readline().strip() for f in files]`.",
+      "en": "Inside the block, `[f.readline().strip() for f in files]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom contextlib import ExitStack\n\n\ndef first_lines(paths):\n    with ExitStack() as stack:\n        files = [stack.enter_context(open(p, encoding=\"utf-8\")) for p in paths]\n        return [f.readline().strip() for f in files]\n\nprint(first_lines([\"part0.txt\", \"part1.txt\", \"part2.txt\"]))\n```",
+      "en": "The full solution:\n\n```python\nfrom contextlib import ExitStack\n\n\ndef first_lines(paths):\n    with ExitStack() as stack:\n        files = [stack.enter_context(open(p, encoding=\"utf-8\")) for p in paths]\n        return [f.readline().strip() for f in files]\n\nprint(first_lines([\"part0.txt\", \"part1.txt\", \"part2.txt\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "first_lines",
+      "cases": [
+        {
+          "args": [
+            [
+              "part0.txt",
+              "part1.txt",
+              "part2.txt"
+            ]
+          ],
+          "returns": [
+            "line 0",
+            "line 1",
+            "line 2"
+          ]
+        },
+        {
+          "args": [
+            [
+              "part2.txt"
+            ]
+          ],
+          "returns": [
+            "line 2"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['line 0', 'line 1', 'line 2']"
+    }
+  ]
+}

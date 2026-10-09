@@ -1,0 +1,36 @@
+{
+  "id": "transaction",
+  "title": {
+    "tr": "Geri alınabilen işlem",
+    "en": "An undoable transaction"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `snapshot = dict(data)`; `yield`'i `try` içine al.",
+      "en": "First `snapshot = dict(data)`; put `yield` inside `try`."
+    },
+    {
+      "tr": "`except Exception:` içinde `data.clear()`, `data.update(snapshot)`, `raise`.",
+      "en": "Inside `except Exception:`, `data.clear()`, `data.update(snapshot)`, `raise`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom contextlib import contextmanager\n\n\n@contextmanager\ndef transaction(data):\n    snapshot = dict(data)\n    try:\n        yield data\n    except Exception:\n        data.clear()\n        data.update(snapshot)\n        raise\n\ndata = {\"balance\": 100}\nwith transaction(data):\n    data[\"balance\"] -= 30\nprint(data)\ntry:\n    with transaction(data):\n        data[\"balance\"] -= 500\n        raise ValueError(\"not enough money\")\nexcept ValueError as error:\n    print(\"ValueError:\", error)\nprint(data)\n```",
+      "en": "The full solution:\n\n```python\nfrom contextlib import contextmanager\n\n\n@contextmanager\ndef transaction(data):\n    snapshot = dict(data)\n    try:\n        yield data\n    except Exception:\n        data.clear()\n        data.update(snapshot)\n        raise\n\ndata = {\"balance\": 100}\nwith transaction(data):\n    data[\"balance\"] -= 30\nprint(data)\ntry:\n    with transaction(data):\n        data[\"balance\"] -= 500\n        raise ValueError(\"not enough money\")\nexcept ValueError as error:\n    print(\"ValueError:\", error)\nprint(data)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'balance': 70}\nValueError: not enough money\n{'balance': 70}"
+    }
+  ]
+}

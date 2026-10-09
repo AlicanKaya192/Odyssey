@@ -1,0 +1,36 @@
+{
+  "id": "remove-all",
+  "title": {
+    "tr": "Varsa sil",
+    "en": "Delete if present"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Silme hata verirse sayaç artmamalı: ikisi aynı `with` bloğunda.",
+      "en": "The counter must not grow if deleting fails: both in the same `with` block."
+    },
+    {
+      "tr": "`with suppress(FileNotFoundError):` içinde `unlink()` ve `removed += 1`.",
+      "en": "Inside `with suppress(FileNotFoundError):`, `unlink()` and `removed += 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom contextlib import suppress\nfrom pathlib import Path\n\n\ndef remove_all(paths):\n    removed = 0\n    for path in paths:\n        with suppress(FileNotFoundError):\n            Path(path).unlink()\n            removed += 1\n    return removed\n\nfor name in [\"a.txt\", \"b.txt\"]:\n    Path(name).write_text(\"x\", encoding=\"utf-8\")\nprint(remove_all([\"a.txt\", \"missing.txt\", \"b.txt\"]))\nprint(Path(\"a.txt\").exists(), Path(\"b.txt\").exists())\n```",
+      "en": "The full solution:\n\n```python\nfrom contextlib import suppress\nfrom pathlib import Path\n\n\ndef remove_all(paths):\n    removed = 0\n    for path in paths:\n        with suppress(FileNotFoundError):\n            Path(path).unlink()\n            removed += 1\n    return removed\n\nfor name in [\"a.txt\", \"b.txt\"]:\n    Path(name).write_text(\"x\", encoding=\"utf-8\")\nprint(remove_all([\"a.txt\", \"missing.txt\", \"b.txt\"]))\nprint(Path(\"a.txt\").exists(), Path(\"b.txt\").exists())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\nFalse False"
+    }
+  ]
+}

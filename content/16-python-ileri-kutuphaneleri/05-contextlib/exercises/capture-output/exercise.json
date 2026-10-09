@@ -1,0 +1,36 @@
+{
+  "id": "capture-output",
+  "title": {
+    "tr": "Çıktıyı yakala",
+    "en": "Capture the output"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`buffer = io.StringIO()`, sonra `with redirect_stdout(buffer):` içinde çağır.",
+      "en": "`buffer = io.StringIO()`, then call it inside `with redirect_stdout(buffer):`."
+    },
+    {
+      "tr": "Sonunda `return buffer.getvalue()`.",
+      "en": "At the end, `return buffer.getvalue()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport io\nfrom contextlib import redirect_stdout\n\n\ndef capture(func, *args):\n    buffer = io.StringIO()\n    with redirect_stdout(buffer):\n        func(*args)\n    return buffer.getvalue()\n\n\ndef greet(name):\n    print(f\"hello {name}\")\n    print(\"bye\")\n\n\nprint(repr(capture(greet, \"ada\")))\n```",
+      "en": "The full solution:\n\n```python\nimport io\nfrom contextlib import redirect_stdout\n\n\ndef capture(func, *args):\n    buffer = io.StringIO()\n    with redirect_stdout(buffer):\n        func(*args)\n    return buffer.getvalue()\n\n\ndef greet(name):\n    print(f\"hello {name}\")\n    print(\"bye\")\n\n\nprint(repr(capture(greet, \"ada\")))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "'hello ada\\nbye\\n'"
+    }
+  ]
+}
