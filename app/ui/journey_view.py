@@ -897,6 +897,7 @@ class TrackCard(GlowCard):
         self._title.setProperty("role", "track-title")
         baslik.addWidget(self._title)
         self._sub = QLabel()
+        self._sub_names = ""
         self._sub.setProperty("role", "track-sub")
         baslik.addWidget(self._sub)
         baslik.addStretch(1)
@@ -1109,11 +1110,30 @@ class TrackCard(GlowCard):
         stil = "" if secilen == TITLE_SIZES[0] else f"font-size: {secilen}px;"
         if self._title.styleSheet() != stil:
             self._title.setStyleSheet(stil)
+        self._fit_sub(oda)
+
+    def _fit_sub(self, oda: int) -> None:
+        """Modül adları sığmazsa alt satırda modül sayısı yazılır.
+
+        Algoritmalar patikasının modülleri "ALG 1" gibi numarayla değil adıyla
+        anılınca (Alican: tıklamadan hangisi olduğu anlaşılmıyordu) üç ad kart
+        başlığının altına sığmadı ve kırpıldı.
+        """
+        if not self._sub_names:
+            return
+        self._sub.ensurePolished()
+        if self._sub.fontMetrics().horizontalAdvance(self._sub_names) <= oda:
+            metin = self._sub_names
+        else:
+            metin = self._language.t("track.modules", count=len(self._track.chapters))
+        if self._sub.text() != metin:
+            self._sub.setText(metin)
 
     def retranslate(self) -> None:
         self._title.setText(self._language.pick(self._track.title))
         self._fit_title()
         self._description.set_full_text(self._language.pick(self._track.description))
+        self._sub_names = ""
         if self._track.locked:
             self._sub.setText("")
             self._caption.set_full_text(
@@ -1122,11 +1142,13 @@ class TrackCard(GlowCard):
         else:
             if self._track.chapter_tabs and len(self._track.chapters) > 1:
                 kisa = [self._language.pick(c.raw.get("short"), "") for c in self._track.chapters]
-                self._sub.setText(" · ".join(k for k in kisa if k))
+                self._sub_names = " · ".join(k for k in kisa if k)
+                self._sub.setText(self._sub_names)
             else:
                 # Bölüm sayısı kartın altında ("1 / 17 bölüm") zaten yazıyor.
                 self._sub.setText("")
         self._sub.setVisible(bool(self._sub.text()))
+        self._fit_title()
         self._render_meta()
 
 

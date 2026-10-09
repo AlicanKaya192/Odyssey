@@ -21,7 +21,7 @@
 
 ## Sırada ne var?
 
-**ALG 3 — Veri Bilimi ve Makine Öğrenmesi Algoritmaları**
+**Veri Bilimi ve Makine Öğrenmesi Algoritmaları**
 
 Doğrusal ve lojistik regresyon, gradyan inişi, karar ağaçları, rastgele orman
 ve gradyan artırma, k-en yakın komşu, k-ortalamalar ve DBSCAN, PCA, Naive

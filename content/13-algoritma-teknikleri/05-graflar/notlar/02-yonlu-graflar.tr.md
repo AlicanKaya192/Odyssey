@@ -35,4 +35,4 @@ mutual: [('ada', 'ece')]
 
 Web de yönlü bir graf: sayfalar birbirine bağlantı verir. Bir sayfaya giren
 bağlantıların sayısı ve **kimlerden** geldiği, Google'ın ilk arama
-algoritması PageRank'in fikri; ALG 3'te NumPy ile yazacağız.
+algoritması PageRank'in fikri; ML Algoritmaları modülünde NumPy ile yazacağız.

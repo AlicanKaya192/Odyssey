@@ -281,7 +281,7 @@ piece by piece, write the pieces to disk, then merge them with `merge`
   `top_k` over the distances (the smallest `k`).
 - **Recommender systems:** the best 20 of the scores of millions of products;
   a heap, not a sort.
-- **Shortest paths:** Dijkstra's algorithm in ALG 2 takes "the closest
+- **Shortest paths:** Dijkstra's algorithm in the Algorithm Techniques module takes "the closest
   unopened node" from a priority queue.
 
 ## Summary

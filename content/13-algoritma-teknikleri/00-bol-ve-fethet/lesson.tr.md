@@ -1,6 +1,6 @@
 # Böl ve Fethet
 
-ALG 1'de merge sort ve quick sort'u yazdın: listeyi ikiye böl, iki yarıyı
+Temel Algoritmalar modülünde merge sort ve quick sort'u yazdın: listeyi ikiye böl, iki yarıyı
 kendinle çöz, sonuçları birleştir. Bu bölümde aynı fikri bir **teknik**
 olarak ele alıyoruz: bir böl-fethet algoritmasının maliyeti nasıl
 hesaplanır, ne zaman işe yarar, ne zaman yaramaz ve sıralamanın dışında
@@ -279,7 +279,7 @@ divide and conquer: 2271 distances, closest 0.1504
 
 Aynı cevap, kaba kuvvetin yaklaşık binde biri kadar uzaklık hesabıyla. Şeritte her
 noktanın en fazla birkaç komşusuna bakıldığı ispatlanabiliyor; toplam
-`O(n log n)`. ALG 1'deki k-d ağacı da aynı fikirle çalışır: uzayı ikiye böl,
+`O(n log n)`. Temel Algoritmalar modülündeki k-d ağacı da aynı fikirle çalışır: uzayı ikiye böl,
 uzak yarıyı ele.
 
 ## Ne zaman işe yaramaz?

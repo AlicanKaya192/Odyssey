@@ -36,4 +36,4 @@ mutual: [('ada', 'ece')]
 
 The web is a directed graph too: pages link to each other. The number of links
 into a page and **who** they come from is the idea of PageRank, Google's
-first search algorithm; we will write it with NumPy in ALG 3.
+first search algorithm; we will write it with NumPy in the ML Algorithms module.

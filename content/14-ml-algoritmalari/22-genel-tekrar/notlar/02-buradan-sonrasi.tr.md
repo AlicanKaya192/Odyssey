@@ -1,4 +1,4 @@
-ALG 3'te klasik makine öğrenmesinin çekirdeğini kurdun. Buradan birkaç yol
+ML Algoritmaları modülünde klasik makine öğrenmesinin çekirdeğini kurdun. Buradan birkaç yol
 açılıyor:
 
 - **Derin öğrenme.** Bölüm 20'deki ağın aynısı, daha çok katmanla. PyTorch ya

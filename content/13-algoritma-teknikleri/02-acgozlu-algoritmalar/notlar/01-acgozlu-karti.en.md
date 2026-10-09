@@ -25,7 +25,7 @@ worse.
 | Minimum spanning tree | the lightest edge (Kruskal) | yes |
 | Travelling salesman | go to the nearest neighbour | no, only approximate |
 
-The last three rows are in the graph sections of ALG 2.
+The last three rows are in the graph sections of the Algorithm Techniques module.
 
 ## Practical tips
 

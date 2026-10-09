@@ -113,7 +113,7 @@ print(sorted(degree.items(), key=lambda kv: (-kv[1], kv[0])))
 
 In social network analysis degree is the simplest **centrality** measure: a
 person with many connections spreads information quickly. Subtler measures
-(PageRank) are in ALG 3.
+(PageRank) are in the ML Algorithms module.
 
 ## Friend suggestions: common neighbours
 

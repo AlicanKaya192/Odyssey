@@ -28,7 +28,7 @@ Kod problemi siteleri (kolay ve orta seviye) bu bölümlerin alıştırmalarına
 
 ## Sırada ne var?
 
-**ALG 2 — Algoritma Teknikleri ve Graflar**
+**Algoritma Teknikleri ve Graflar**
 
 - Böl ve fethet, geri izleme, açgözlü algoritmalar
 - Dinamik programlama (iki bölüm): tekrar eden alt problemleri bir kez çözmek
@@ -38,7 +38,7 @@ Kod problemi siteleri (kolay ve orta seviye) bu bölümlerin alıştırmalarına
 - Olasılıksal veri yapıları (Bloom filtresi, HyperLogLog), sezgisel
   optimizasyon
 
-**ALG 3 — Veri Bilimi ve Makine Öğrenmesi Algoritmaları**
+**Veri Bilimi ve Makine Öğrenmesi Algoritmaları**
 
 Regresyon, gradyan inişi, karar ağaçları, topluluk yöntemleri, SVM,
 kümeleme, PCA, sinir ağı ve öneri sistemleri NumPy ile sıfırdan.

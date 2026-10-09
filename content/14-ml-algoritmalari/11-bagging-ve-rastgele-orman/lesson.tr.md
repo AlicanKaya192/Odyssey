@@ -10,7 +10,7 @@ scikit-learn'ün `DecisionTreeClassifier`'ını yapı taşı olarak kullanıyoru
 ## Bagging: önyükleme + oylama
 
 **Bagging** (bootstrap aggregating): her ağaç, eğitim verisinden **yerine
-koyarak** çekilmiş aynı boyda bir örnekle eğitilir (ALG 2'deki bootstrap);
+koyarak** çekilmiş aynı boyda bir örnekle eğitilir (Algoritma Teknikleri modülündeki bootstrap);
 tahmin, ağaçların çoğunluk oyu.
 
 ```python

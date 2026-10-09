@@ -183,7 +183,7 @@ for n in [10, 20, 25, 30]:
 `fib(28)`'i çağırıyor; `fib(29)` da yine `fib(28)`'i çağırıyor; aynı değerler
 defalarca baştan hesaplanıyor. Çağrı sayısı `n` her 1 arttığında yaklaşık
 1,6 katına çıkıyor: üstel büyüme. Çözümü (her sonucu bir kez hesaplayıp
-saklamak) ALG 2'nin **Dinamik Programlama** bölümünde göreceğiz.
+saklamak) Algoritma Teknikleri modülünün **Dinamik Programlama** bölümünde göreceğiz.
 
 ## Özet
 

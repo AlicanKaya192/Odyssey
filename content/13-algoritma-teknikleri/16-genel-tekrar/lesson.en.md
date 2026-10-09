@@ -1,6 +1,6 @@
 # Overall Review
 
-You have reached the end of ALG 2. In ALG 1 you learned to measure cost and
+You have reached the end of the Algorithm Techniques module. In the Core Algorithms module you learned to measure cost and
 the basic structures; here you learned **problem-solving techniques**:
 splitting a problem, trying cleverly, storing repeated work, seeing relations
 as a graph and settling for a good estimate when the exact answer is
@@ -15,7 +15,7 @@ important numbers we measured.
     <span class="node">Randomness<br><small>12–13</small></span><span class="arrow">→</span>
     <span class="node acc">Heuristics, patterns<br><small>14–15</small></span>
   </div>
-  <figcaption>The path of ALG 2: general techniques first, then graphs, then special fields and approximate methods.</figcaption>
+  <figcaption>The path of the Algorithm Techniques module: general techniques first, then graphs, then special fields and approximate methods.</figcaption>
 </figure>
 
 ## 1. Divide and conquer (Section 0)
@@ -122,7 +122,7 @@ gave single-linkage clustering and found the same groups as scikit-learn.
 
 ## Summary
 
-Each technique in ALG 2 is a different answer to the same question: **how do I
+Each technique in the Algorithm Techniques module is a different answer to the same question: **how do I
 drop repeated or needless work?** By splitting, pruning, storing, using the
-graph's structure or giving up a little exactness. In ALG 3 these tools will
+graph's structure or giving up a little exactness. In the ML Algorithms module these tools will
 show up again inside machine learning algorithms.

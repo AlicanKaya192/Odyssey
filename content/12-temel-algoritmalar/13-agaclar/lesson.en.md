@@ -322,7 +322,7 @@ virginica
 scikit-learn's `DecisionTreeClassifier` does exactly this when predicting;
 the cost is the tree's **depth**, independent of the size of the data set.
 We will build how the tree picks its questions from the data from scratch in
-ALG 3.
+the ML Algorithms module.
 
 ## Summary
 

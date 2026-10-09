@@ -248,8 +248,8 @@ iki yolun aynı cevabı verdiğini doğruluyor.
 | "bir sonraki büyük / küçük" | monoton yığın |
 | "en az hamle", durumlar ve hamleler | durum uzayında BFS |
 | `n` ~40, alt kümeler | ortada buluşma |
-| alt dizi toplamı, aralık sorgusu | önek toplamı (ALG 1) |
-| sıralı dizide çift, pencere | iki işaretçi, kayan pencere (ALG 1) |
+| alt dizi toplamı, aralık sorgusu | önek toplamı (Temel Algoritmalar) |
+| sıralı dizide çift, pencere | iki işaretçi, kayan pencere (Temel Algoritmalar) |
 | "kaç yol / en iyi" + örtüşen alt problemler | dinamik programlama |
 | her adımda yerel en iyi seçim güvenli | açgözlü |
 

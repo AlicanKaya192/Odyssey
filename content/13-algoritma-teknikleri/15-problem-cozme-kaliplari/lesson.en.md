@@ -250,8 +250,8 @@ brute force can keep up, both ways give the same answer.
 | "the next greater / smaller" | a monotonic stack |
 | "fewest moves", states and moves | BFS in a state space |
 | `n` ~40, subsets | meet in the middle |
-| subarray sums, range queries | prefix sums (ALG 1) |
-| pairs in a sorted array, a window | two pointers, sliding window (ALG 1) |
+| subarray sums, range queries | prefix sums (Core Algorithms) |
+| pairs in a sorted array, a window | two pointers, sliding window (Core Algorithms) |
 | "how many ways / the best" + overlapping subproblems | dynamic programming |
 | choosing the local best at each step is safe | greedy |
 

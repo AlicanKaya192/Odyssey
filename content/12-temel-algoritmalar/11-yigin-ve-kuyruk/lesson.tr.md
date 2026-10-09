@@ -174,7 +174,7 @@ print(list(queue))
 - **Sırayla işlenen işler:** yazıcı kuyruğu, istek kuyruğu, mesaj kuyrukları
   (Büyük Veri patikasındaki Kafka benzetimi bir kuyruk).
 - **Genişlik öncelikli arama (BFS):** bir graf ya da ağaçta yakından uzağa
-  katman katman gezmek. Ağaçlar bölümünde ve ALG 2'nin graf bölümlerinde bu
+  katman katman gezmek. Ağaçlar bölümünde ve Algoritma Teknikleri modülünün graf bölümlerinde bu
   kuyrukla yapılacak.
 - **Son `k` olay:** `deque(maxlen=k)` (kayan pencere bölümünde gördük).
 

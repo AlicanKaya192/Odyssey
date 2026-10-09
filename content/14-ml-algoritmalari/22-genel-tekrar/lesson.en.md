@@ -1,6 +1,6 @@
 # Overall Review
 
-You have reached the end of ALG 3. You wrote most machine learning algorithms
+You have reached the end of the ML Algorithms module. You wrote most machine learning algorithms
 **from scratch** with NumPy and compared their results with scikit-learn. Now
 when you call a library function you know what runs behind it: which loss it
 minimises, which assumption it rests on, where it goes wrong. This section
@@ -15,7 +15,7 @@ measured in one place.
     <span class="node">Unsupervised<br><small>14–19</small></span><span class="arrow">→</span>
     <span class="node acc">Networks, recs<br><small>20–21</small></span>
   </div>
-  <figcaption>The path of ALG 3: learn to measure, build linear models, compare classifiers, move to unlabelled data, and finally neural networks and recommendation.</figcaption>
+  <figcaption>The path of the ML Algorithms module: learn to measure, build linear models, compare classifiers, move to unlabelled data, and finally neural networks and recommendation.</figcaption>
 </figure>
 
 ## 1. Foundations (Sections 0–2)

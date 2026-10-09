@@ -1,6 +1,6 @@
 # Overall Review
 
-You have reached the end of ALG 1. You started with the question "What is an
+You have reached the end of the Core Algorithms module. You started with the question "What is an
 algorithm?"; now you can tell in advance how code will behave as its input
 grows, you know the hidden costs of Python's structures, you can search and
 sort, and you can bring common problems down to `O(n)` with familiar
@@ -15,7 +15,7 @@ stop the most important idea and the code you will use most.
     <span class="node">Structures<br><small>11–12</small></span><span class="arrow">→</span>
     <span class="node acc">Trees<br><small>13–15</small></span>
   </div>
-  <figcaption>The path of ALG 1: first measuring cost, then searching and sorting, then patterns and structures.</figcaption>
+  <figcaption>The path of the Core Algorithms module: first measuring cost, then searching and sorting, then patterns and structures.</figcaption>
 </figure>
 
 ## 1. Algorithms and complexity (Sections 0–1)
@@ -100,7 +100,7 @@ call stack; in Python the depth limit is about 1000.
 Divide and conquer: split, solve the pieces with yourself, combine. Merge
 sort "splits in the middle and merges", quick sort "partitions around the
 pivot". Recursion that solves the same subproblem over and over can grow
-exponentially; the cure is dynamic programming in ALG 2.
+exponentially; the cure is dynamic programming in the Algorithm Techniques module.
 
 ## 6. Patterns that bring it down to O(n) (Sections 8–10)
 
@@ -162,8 +162,8 @@ for i, x in enumerate(nums):         # two-sum: look for the complement
 
 ## What comes next?
 
-ALG 2 combines these tools: dynamic programming (solving recursion's repeated
+The Algorithm Techniques module combines these tools: dynamic programming (solving recursion's repeated
 subproblems once), greedy algorithms, backtracking (trying all possibilities
 cleverly), graphs (BFS, Dijkstra, minimum spanning trees), string algorithms
-and probabilistic data structures. In ALG 3 you will build data science and
+and probabilistic data structures. In the ML Algorithms module you will build data science and
 machine learning algorithms from scratch with NumPy.

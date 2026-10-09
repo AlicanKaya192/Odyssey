@@ -1,6 +1,6 @@
 # Writing It from Scratch
 
-In ALG 3 we will write machine learning algorithms **from scratch with NumPy**
+In the ML Algorithms module we will write machine learning algorithms **from scratch with NumPy**
 and compare each with scikit-learn's result. The aim is not to replace
 scikit-learn: someone who knows what is inside a model tunes it correctly,
 diagnoses its errors and knows its limits. The answer to "why did this model
