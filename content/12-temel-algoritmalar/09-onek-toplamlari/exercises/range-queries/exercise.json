@@ -1,0 +1,103 @@
+{
+  "id": "range-queries",
+  "title": {
+    "tr": "Binlerce aralık sorusu",
+    "en": "Thousands of range questions"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Önce `prefix = [0]` ve döngüyle önek toplamı.",
+      "en": "First `prefix = [0]` and the prefix sum with a loop."
+    },
+    {
+      "tr": "`return [prefix[hi] - prefix[lo] for lo, hi in queries]`.",
+      "en": "`return [prefix[hi] - prefix[lo] for lo, hi in queries]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport random\n\n\ndef answer_queries(values, queries):\n    prefix = [0]\n    for x in values:\n        prefix.append(prefix[-1] + x)\n    return [prefix[hi] - prefix[lo] for lo, hi in queries]\n\n\nprint(answer_queries([3, 1, 4, 1, 5, 9], [[0, 3], [2, 6], [4, 4]]))\nrandom.seed(4)\nvalues = [random.randint(-100, 100) for _ in range(100_000)]\nqueries = [[0, 100_000 - i] for i in range(50_000)]\nprint(sum(answer_queries(values, queries)))\n```",
+      "en": "The full solution:\n\n```python\nimport random\n\n\ndef answer_queries(values, queries):\n    prefix = [0]\n    for x in values:\n        prefix.append(prefix[-1] + x)\n    return [prefix[hi] - prefix[lo] for lo, hi in queries]\n\n\nprint(answer_queries([3, 1, 4, 1, 5, 9], [[0, 3], [2, 6], [4, 4]]))\nrandom.seed(4)\nvalues = [random.randint(-100, 100) for _ in range(100_000)]\nqueries = [[0, 100_000 - i] for i in range(50_000)]\nprint(sum(answer_queries(values, queries)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "answer_queries",
+      "cases": [
+        {
+          "args": [
+            [
+              3,
+              1,
+              4,
+              1,
+              5,
+              9
+            ],
+            [
+              [
+                0,
+                3
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                4,
+                4
+              ]
+            ]
+          ],
+          "returns": [
+            8,
+            19,
+            0
+          ]
+        },
+        {
+          "args": [
+            [],
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              5,
+              -5,
+              5
+            ],
+            [
+              [
+                0,
+                3
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ],
+          "returns": [
+            5,
+            -5
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[8, 19, 0]\n-605946111"
+    }
+  ]
+}
