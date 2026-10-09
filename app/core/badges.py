@@ -53,6 +53,7 @@ GIT_CHAPTER = "10-git"
 BIGDATA_CHAPTER = "11-buyuk-veri"
 ALG1_CHAPTER = "12-temel-algoritmalar"
 ALG2_CHAPTER = "13-algoritma-teknikleri"
+ALG3_CHAPTER = "14-ml-algoritmalari"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -92,6 +93,9 @@ ALG1_TREE_SECTION = (ALG1_CHAPTER, "13-agaclar")
 ALG2_DP_SECTION = (ALG2_CHAPTER, "03-dinamik-programlama-1")
 ALG2_PATH_SECTION = (ALG2_CHAPTER, "07-en-kisa-yol")
 ALG2_SKETCH_SECTION = (ALG2_CHAPTER, "13-olasiliksal-veri-yapilari")
+ALG3_DESCENT_SECTION = (ALG3_CHAPTER, "04-gradyan-inisi")
+ALG3_KMEANS_SECTION = (ALG3_CHAPTER, "14-k-means")
+ALG3_NETWORK_SECTION = (ALG3_CHAPTER, "20-sinir-agi")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -106,6 +110,7 @@ GIT_SECTION_COUNT = 17
 BIGDATA_SECTION_COUNT = 17
 ALG1_SECTION_COUNT = 17
 ALG2_SECTION_COUNT = 17
+ALG3_SECTION_COUNT = 23
 
 
 def _completed_sections(
@@ -225,6 +230,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "pathfinder": ALG2_PATH_SECTION in bitenler,
         "small-memory": ALG2_SKETCH_SECTION in bitenler,
         "alg2-complete": modul_basina.get(ALG2_CHAPTER, 0) >= ALG2_SECTION_COUNT,
+        "downhill": ALG3_DESCENT_SECTION in bitenler,
+        "centroid-finder": ALG3_KMEANS_SECTION in bitenler,
+        "first-network": ALG3_NETWORK_SECTION in bitenler,
+        "alg3-complete": modul_basina.get(ALG3_CHAPTER, 0) >= ALG3_SECTION_COUNT,
     }
 
 
