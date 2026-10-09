@@ -1,0 +1,123 @@
+{
+  "id": "pagerank-exact",
+  "title": {
+    "tr": "Tam çözüm",
+    "en": "The exact solution"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`A = np.eye(n) - d * M`, `b = np.full(n, (1 - d) / n)`.",
+      "en": "`A = np.eye(n) - d * M`, `b = np.full(n, (1 - d) / n)`."
+    },
+    {
+      "tr": "`np.linalg.solve(A, b).round(3).tolist()`.",
+      "en": "`np.linalg.solve(A, b).round(3).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef pagerank_exact(M, d):\n    M = np.array(M, dtype=float)\n    n = len(M)\n    A = np.eye(n) - d * M\n    b = np.full(n, (1 - d) / n)\n    return np.linalg.solve(A, b).round(3).tolist()\n\nM = [[0, 0, 1], [0.5, 0, 0], [0.5, 1, 0]]\nprint(pagerank_exact(M, 0.85))\nprint(pagerank_exact(M, 0.5))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef pagerank_exact(M, d):\n    M = np.array(M, dtype=float)\n    n = len(M)\n    A = np.eye(n) - d * M\n    b = np.full(n, (1 - d) / n)\n    return np.linalg.solve(A, b).round(3).tolist()\n\nM = [[0, 0, 1], [0.5, 0, 0], [0.5, 1, 0]]\nprint(pagerank_exact(M, 0.85))\nprint(pagerank_exact(M, 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "node": "For",
+      "hint": {
+        "tr": "Döngü yok; `np.linalg.solve` kullan.",
+        "en": "No loops; use `np.linalg.solve`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "pagerank_exact",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0.5,
+                0,
+                0
+              ],
+              [
+                0.5,
+                1,
+                0
+              ]
+            ],
+            0.85
+          ],
+          "returns": [
+            0.388,
+            0.215,
+            0.397
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0.5,
+                0,
+                0
+              ],
+              [
+                0.5,
+                1,
+                0
+              ]
+            ],
+            0.5
+          ],
+          "returns": [
+            0.359,
+            0.256,
+            0.385
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            0.85
+          ],
+          "returns": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.388, 0.215, 0.397]\n[0.359, 0.256, 0.385]"
+    }
+  ]
+}
