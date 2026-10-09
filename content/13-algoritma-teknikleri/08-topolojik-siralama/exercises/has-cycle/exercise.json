@@ -1,0 +1,132 @@
+{
+  "id": "has-cycle",
+  "title": {
+    "tr": "Döngü var mı?",
+    "en": "Is there a cycle?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "Sayaçları kur; `waiting` 0 olanlardan kuyruk başlat, her alınan işte `taken += 1`.",
+      "en": "Build the counters; start a queue from those with `waiting` 0, `taken += 1` for each job taken."
+    },
+    {
+      "tr": "Sonda `return taken < len(nodes)`.",
+      "en": "Finally `return taken < len(nodes)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import deque\n\n\ndef all_nodes(deps):\n    return set(deps) | {d for needs in deps.values() for d in needs}\n\n\ndef has_cycle(deps):\n    nodes = all_nodes(deps)\n    after = {n: [] for n in nodes}\n    waiting = {n: 0 for n in nodes}\n    for task, needs in deps.items():\n        for need in needs:\n            after[need].append(task)\n            waiting[task] += 1\n    queue = deque(n for n in nodes if waiting[n] == 0)\n    taken = 0\n    while queue:\n        task = queue.popleft()\n        taken += 1\n        for nxt in after[task]:\n            waiting[nxt] -= 1\n            if waiting[nxt] == 0:\n                queue.append(nxt)\n    return taken < len(nodes)\n\n\ndeps = {\"clean\": [\"extract\"], \"validate\": [\"extract\"],\n        \"features\": [\"clean\", \"validate\"], \"train\": [\"features\"],\n        \"evaluate\": [\"train\"], \"report\": [\"clean\", \"evaluate\"]}\nprint(has_cycle(deps))\nprint(has_cycle(dict(deps, extract=[\"report\"])))\nchain = {i: [i - 1] for i in range(1, 50_000)}\nprint(has_cycle(chain), has_cycle({**chain, 0: [49_999]}))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import deque\n\n\ndef all_nodes(deps):\n    return set(deps) | {d for needs in deps.values() for d in needs}\n\n\ndef has_cycle(deps):\n    nodes = all_nodes(deps)\n    after = {n: [] for n in nodes}\n    waiting = {n: 0 for n in nodes}\n    for task, needs in deps.items():\n        for need in needs:\n            after[need].append(task)\n            waiting[task] += 1\n    queue = deque(n for n in nodes if waiting[n] == 0)\n    taken = 0\n    while queue:\n        task = queue.popleft()\n        taken += 1\n        for nxt in after[task]:\n            waiting[nxt] -= 1\n            if waiting[nxt] == 0:\n                queue.append(nxt)\n    return taken < len(nodes)\n\n\ndeps = {\"clean\": [\"extract\"], \"validate\": [\"extract\"],\n        \"features\": [\"clean\", \"validate\"], \"train\": [\"features\"],\n        \"evaluate\": [\"train\"], \"report\": [\"clean\", \"evaluate\"]}\nprint(has_cycle(deps))\nprint(has_cycle(dict(deps, extract=[\"report\"])))\nchain = {i: [i - 1] for i in range(1, 50_000)}\nprint(has_cycle(chain), has_cycle({**chain, 0: [49_999]}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "has_cycle",
+      "cases": [
+        {
+          "args": [
+            {
+              "clean": [
+                "extract"
+              ],
+              "validate": [
+                "extract"
+              ],
+              "features": [
+                "clean",
+                "validate"
+              ],
+              "train": [
+                "features"
+              ],
+              "evaluate": [
+                "train"
+              ],
+              "report": [
+                "clean",
+                "evaluate"
+              ]
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "clean": [
+                "extract"
+              ],
+              "validate": [
+                "extract"
+              ],
+              "features": [
+                "clean",
+                "validate"
+              ],
+              "train": [
+                "features"
+              ],
+              "evaluate": [
+                "train"
+              ],
+              "report": [
+                "clean",
+                "evaluate"
+              ],
+              "extract": [
+                "report"
+              ]
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {
+              "b": [
+                "a"
+              ],
+              "c": [
+                "a"
+              ],
+              "d": [
+                "b",
+                "c"
+              ]
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "a": [
+                "a"
+              ]
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False\nTrue\nFalse True"
+    }
+  ]
+}
