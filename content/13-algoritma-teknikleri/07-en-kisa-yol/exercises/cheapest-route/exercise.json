@@ -1,0 +1,228 @@
+{
+  "id": "cheapest-route",
+  "title": {
+    "tr": "En ucuz rota",
+    "en": "The cheapest route"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dijkstra'da güncellerken `parent[nxt] = node`.",
+      "en": "When updating in Dijkstra, `parent[nxt] = node`."
+    },
+    {
+      "tr": "`goal not in dist` ise `None`; değilse `path = [goal]`, ebeveynleri ekle, `[dist[goal], path[::-1]]`.",
+      "en": "`None` if `goal not in dist`; otherwise `path = [goal]`, append the parents, `[dist[goal], path[::-1]]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport heapq\nimport math\n\n\ndef cheapest_route(graph, start, goal):\n    dist, parent = {start: 0}, {start: None}\n    heap, done = [(0, start)], set()\n    while heap:\n        d, node = heapq.heappop(heap)\n        if node in done:\n            continue\n        done.add(node)\n        for nxt, w in graph[node].items():\n            if d + w < dist.get(nxt, math.inf):\n                dist[nxt] = d + w\n                parent[nxt] = node\n                heapq.heappush(heap, (d + w, nxt))\n    if goal not in dist:\n        return None\n    path = [goal]\n    while parent[path[-1]] is not None:\n        path.append(parent[path[-1]])\n    return [dist[goal], path[::-1]]\n\n\ngraph = {\"A\": {\"B\": 4, \"C\": 2},\n         \"B\": {\"A\": 4, \"C\": 1, \"D\": 5},\n         \"C\": {\"A\": 2, \"B\": 1, \"D\": 8, \"E\": 10},\n         \"D\": {\"B\": 5, \"C\": 8, \"E\": 2, \"F\": 6},\n         \"E\": {\"C\": 10, \"D\": 2, \"F\": 3},\n         \"F\": {\"D\": 6, \"E\": 3}}\nprint(cheapest_route(graph, \"A\", \"F\"))\nprint(cheapest_route(graph, \"F\", \"B\"))\n```",
+      "en": "The full solution:\n\n```python\nimport heapq\nimport math\n\n\ndef cheapest_route(graph, start, goal):\n    dist, parent = {start: 0}, {start: None}\n    heap, done = [(0, start)], set()\n    while heap:\n        d, node = heapq.heappop(heap)\n        if node in done:\n            continue\n        done.add(node)\n        for nxt, w in graph[node].items():\n            if d + w < dist.get(nxt, math.inf):\n                dist[nxt] = d + w\n                parent[nxt] = node\n                heapq.heappush(heap, (d + w, nxt))\n    if goal not in dist:\n        return None\n    path = [goal]\n    while parent[path[-1]] is not None:\n        path.append(parent[path[-1]])\n    return [dist[goal], path[::-1]]\n\n\ngraph = {\"A\": {\"B\": 4, \"C\": 2},\n         \"B\": {\"A\": 4, \"C\": 1, \"D\": 5},\n         \"C\": {\"A\": 2, \"B\": 1, \"D\": 8, \"E\": 10},\n         \"D\": {\"B\": 5, \"C\": 8, \"E\": 2, \"F\": 6},\n         \"E\": {\"C\": 10, \"D\": 2, \"F\": 3},\n         \"F\": {\"D\": 6, \"E\": 3}}\nprint(cheapest_route(graph, \"A\", \"F\"))\nprint(cheapest_route(graph, \"F\", \"B\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cheapest_route",
+      "cases": [
+        {
+          "args": [
+            {
+              "A": {
+                "B": 4,
+                "C": 2
+              },
+              "B": {
+                "A": 4,
+                "C": 1,
+                "D": 5
+              },
+              "C": {
+                "A": 2,
+                "B": 1,
+                "D": 8,
+                "E": 10
+              },
+              "D": {
+                "B": 5,
+                "C": 8,
+                "E": 2,
+                "F": 6
+              },
+              "E": {
+                "C": 10,
+                "D": 2,
+                "F": 3
+              },
+              "F": {
+                "D": 6,
+                "E": 3
+              }
+            },
+            "A",
+            "F"
+          ],
+          "returns": [
+            13,
+            [
+              "A",
+              "C",
+              "B",
+              "D",
+              "E",
+              "F"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "A": {
+                "B": 4,
+                "C": 2
+              },
+              "B": {
+                "A": 4,
+                "C": 1,
+                "D": 5
+              },
+              "C": {
+                "A": 2,
+                "B": 1,
+                "D": 8,
+                "E": 10
+              },
+              "D": {
+                "B": 5,
+                "C": 8,
+                "E": 2,
+                "F": 6
+              },
+              "E": {
+                "C": 10,
+                "D": 2,
+                "F": 3
+              },
+              "F": {
+                "D": 6,
+                "E": 3
+              }
+            },
+            "F",
+            "B"
+          ],
+          "returns": [
+            10,
+            [
+              "F",
+              "E",
+              "D",
+              "B"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "x": {
+                "y": 7
+              },
+              "y": {
+                "z": 1
+              },
+              "z": {},
+              "w": {
+                "x": 1
+              }
+            },
+            "w",
+            "z"
+          ],
+          "returns": [
+            9,
+            [
+              "w",
+              "x",
+              "y",
+              "z"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "x": {
+                "y": 7
+              },
+              "y": {
+                "z": 1
+              },
+              "z": {},
+              "w": {
+                "x": 1
+              }
+            },
+            "z",
+            "w"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            {
+              "A": {
+                "B": 4,
+                "C": 2
+              },
+              "B": {
+                "A": 4,
+                "C": 1,
+                "D": 5
+              },
+              "C": {
+                "A": 2,
+                "B": 1,
+                "D": 8,
+                "E": 10
+              },
+              "D": {
+                "B": 5,
+                "C": 8,
+                "E": 2,
+                "F": 6
+              },
+              "E": {
+                "C": 10,
+                "D": 2,
+                "F": 3
+              },
+              "F": {
+                "D": 6,
+                "E": 3
+              }
+            },
+            "C",
+            "C"
+          ],
+          "returns": [
+            0,
+            [
+              "C"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[13, ['A', 'C', 'B', 'D', 'E', 'F']]\n[10, ['F', 'E', 'D', 'B']]"
+    }
+  ]
+}

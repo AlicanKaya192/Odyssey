@@ -1,0 +1,175 @@
+{
+  "id": "dijkstra-distances",
+  "title": {
+    "tr": "Dijkstra ile uzaklıklar",
+    "en": "Distances with Dijkstra"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while heap:` içinde `d, node = heapq.heappop(heap)`; `node in done` ise `continue`, değilse `done.add(node)`.",
+      "en": "Inside `while heap:`, `d, node = heapq.heappop(heap)`; `continue` if `node in done`, otherwise `done.add(node)`."
+    },
+    {
+      "tr": "Her `nxt, w` için `d + w < dist.get(nxt, math.inf)` ise güncelle ve `heapq.heappush(heap, (d + w, nxt))`.",
+      "en": "For each `nxt, w`, if `d + w < dist.get(nxt, math.inf)`, update and `heapq.heappush(heap, (d + w, nxt))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport heapq\nimport math\n\n\ndef shortest_distances(graph, start):\n    dist = {start: 0}\n    heap, done = [(0, start)], set()\n    while heap:\n        d, node = heapq.heappop(heap)\n        if node in done:\n            continue\n        done.add(node)\n        for nxt, w in graph[node].items():\n            if d + w < dist.get(nxt, math.inf):\n                dist[nxt] = d + w\n                heapq.heappush(heap, (d + w, nxt))\n    return dict(sorted(dist.items()))\n\n\ngraph = {\"A\": {\"B\": 4, \"C\": 2},\n         \"B\": {\"A\": 4, \"C\": 1, \"D\": 5},\n         \"C\": {\"A\": 2, \"B\": 1, \"D\": 8, \"E\": 10},\n         \"D\": {\"B\": 5, \"C\": 8, \"E\": 2, \"F\": 6},\n         \"E\": {\"C\": 10, \"D\": 2, \"F\": 3},\n         \"F\": {\"D\": 6, \"E\": 3}}\nfor start in [\"A\", \"F\"]:\n    print(start, list(shortest_distances(graph, start).values()))\n```",
+      "en": "The full solution:\n\n```python\nimport heapq\nimport math\n\n\ndef shortest_distances(graph, start):\n    dist = {start: 0}\n    heap, done = [(0, start)], set()\n    while heap:\n        d, node = heapq.heappop(heap)\n        if node in done:\n            continue\n        done.add(node)\n        for nxt, w in graph[node].items():\n            if d + w < dist.get(nxt, math.inf):\n                dist[nxt] = d + w\n                heapq.heappush(heap, (d + w, nxt))\n    return dict(sorted(dist.items()))\n\n\ngraph = {\"A\": {\"B\": 4, \"C\": 2},\n         \"B\": {\"A\": 4, \"C\": 1, \"D\": 5},\n         \"C\": {\"A\": 2, \"B\": 1, \"D\": 8, \"E\": 10},\n         \"D\": {\"B\": 5, \"C\": 8, \"E\": 2, \"F\": 6},\n         \"E\": {\"C\": 10, \"D\": 2, \"F\": 3},\n         \"F\": {\"D\": 6, \"E\": 3}}\nfor start in [\"A\", \"F\"]:\n    print(start, list(shortest_distances(graph, start).values()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "shortest_distances",
+      "cases": [
+        {
+          "args": [
+            {
+              "A": {
+                "B": 4,
+                "C": 2
+              },
+              "B": {
+                "A": 4,
+                "C": 1,
+                "D": 5
+              },
+              "C": {
+                "A": 2,
+                "B": 1,
+                "D": 8,
+                "E": 10
+              },
+              "D": {
+                "B": 5,
+                "C": 8,
+                "E": 2,
+                "F": 6
+              },
+              "E": {
+                "C": 10,
+                "D": 2,
+                "F": 3
+              },
+              "F": {
+                "D": 6,
+                "E": 3
+              }
+            },
+            "A"
+          ],
+          "returns": {
+            "A": 0,
+            "B": 3,
+            "C": 2,
+            "D": 8,
+            "E": 10,
+            "F": 13
+          }
+        },
+        {
+          "args": [
+            {
+              "A": {
+                "B": 4,
+                "C": 2
+              },
+              "B": {
+                "A": 4,
+                "C": 1,
+                "D": 5
+              },
+              "C": {
+                "A": 2,
+                "B": 1,
+                "D": 8,
+                "E": 10
+              },
+              "D": {
+                "B": 5,
+                "C": 8,
+                "E": 2,
+                "F": 6
+              },
+              "E": {
+                "C": 10,
+                "D": 2,
+                "F": 3
+              },
+              "F": {
+                "D": 6,
+                "E": 3
+              }
+            },
+            "D"
+          ],
+          "returns": {
+            "A": 8,
+            "B": 5,
+            "C": 6,
+            "D": 0,
+            "E": 2,
+            "F": 5
+          }
+        },
+        {
+          "args": [
+            {
+              "x": {
+                "y": 7
+              },
+              "y": {
+                "z": 1
+              },
+              "z": {},
+              "w": {
+                "x": 1
+              }
+            },
+            "w"
+          ],
+          "returns": {
+            "w": 0,
+            "x": 1,
+            "y": 8,
+            "z": 9
+          }
+        },
+        {
+          "args": [
+            {
+              "x": {
+                "y": 7
+              },
+              "y": {
+                "z": 1
+              },
+              "z": {},
+              "w": {
+                "x": 1
+              }
+            },
+            "z"
+          ],
+          "returns": {
+            "z": 0
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "A [0, 3, 2, 8, 10, 13]\nF [13, 10, 11, 5, 3, 0]"
+    }
+  ]
+}
