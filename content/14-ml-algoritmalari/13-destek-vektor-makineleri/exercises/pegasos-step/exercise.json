@@ -1,0 +1,114 @@
+{
+  "id": "pegasos-step",
+  "title": {
+    "tr": "Bir Pegasos adımı",
+    "en": "One Pegasos step"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Koşul `yi * (x @ w + b) < 1`.",
+      "en": "The condition `yi * (x @ w + b) < 1`."
+    },
+    {
+      "tr": "İçerideyse iki güncelleme (w ve b), değilse yalnızca w küçülür.",
+      "en": "If inside, two updates (w and b); otherwise only w shrinks."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef pegasos_step(x, yi, w, b, lam, t):\n    x, w = np.array(x, dtype=float), np.array(w, dtype=float)\n    lr = 1 / (lam * t)\n    if yi * (x @ w + b) < 1:\n        w = (1 - lr * lam) * w + lr * yi * x\n        b = b + lr * yi\n    else:\n        w = (1 - lr * lam) * w\n    return w.round(4).tolist(), round(float(b), 4)\n\nw, b = [0.0, 0.0], 0.0\nw, b = pegasos_step([1.0, 2.0], 1, w, b, 0.1, 1)\nprint(w, b)\nw, b = pegasos_step([2.0, 2.0], 1, w, b, 0.1, 2)\nprint(w, b)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef pegasos_step(x, yi, w, b, lam, t):\n    x, w = np.array(x, dtype=float), np.array(w, dtype=float)\n    lr = 1 / (lam * t)\n    if yi * (x @ w + b) < 1:\n        w = (1 - lr * lam) * w + lr * yi * x\n        b = b + lr * yi\n    else:\n        w = (1 - lr * lam) * w\n    return w.round(4).tolist(), round(float(b), 4)\n\nw, b = [0.0, 0.0], 0.0\nw, b = pegasos_step([1.0, 2.0], 1, w, b, 0.1, 1)\nprint(w, b)\nw, b = pegasos_step([2.0, 2.0], 1, w, b, 0.1, 2)\nprint(w, b)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pegasos_step",
+      "cases": [
+        {
+          "args": [
+            [
+              1.0,
+              2.0
+            ],
+            1,
+            [
+              0.0,
+              0.0
+            ],
+            0.0,
+            0.1,
+            1
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                10.0,
+                20.0
+              ],
+              10.0
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              2.0,
+              2.0
+            ],
+            1,
+            [
+              5.0,
+              5.0
+            ],
+            0.0,
+            0.1,
+            2
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                2.5,
+                2.5
+              ],
+              0.0
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              1.0
+            ],
+            -1,
+            [
+              0.2
+            ],
+            0.1,
+            0.5,
+            4
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                -0.35
+              ],
+              -0.4
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[10.0, 20.0] 10.0\n[5.0, 10.0] 10.0"
+    }
+  ]
+}
