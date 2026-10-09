@@ -1,0 +1,125 @@
+{
+  "id": "bst-contains",
+  "title": {
+    "tr": "Ağaçta var mı?",
+    "en": "Is it in the tree?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while node:` içinde eşitse `return True`.",
+      "en": "Inside `while node:`, `return True` if equal."
+    },
+    {
+      "tr": "Değilse `node = node.left if target < node.value else node.right`; döngü bitince `return False`.",
+      "en": "Otherwise `node = node.left if target < node.value else node.right`; after the loop `return False`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef insert(node, value):\n    if node is None:\n        return TreeNode(value)\n    if value < node.value:\n        node.left = insert(node.left, value)\n    elif value > node.value:\n        node.right = insert(node.right, value)\n    return node\n\n\ndef build_bst(values):\n    root = None\n    for value in values:\n        root = insert(root, value)\n    return root\n\n\nVALUES = [8, 3, 10, 1, 6, 14, 4, 7, 13]\n\n\ndef contains(node, target):\n    while node:\n        if target == node.value:\n            return True\n        node = node.left if target < node.value else node.right\n    return False\n\ndef contains_in(values, target):\n    return contains(build_bst(values), target)\n\nprint(contains_in(VALUES, 6), contains_in(VALUES, 5))\nprint(contains_in([], 1))\n```",
+      "en": "The full solution:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef insert(node, value):\n    if node is None:\n        return TreeNode(value)\n    if value < node.value:\n        node.left = insert(node.left, value)\n    elif value > node.value:\n        node.right = insert(node.right, value)\n    return node\n\n\ndef build_bst(values):\n    root = None\n    for value in values:\n        root = insert(root, value)\n    return root\n\n\nVALUES = [8, 3, 10, 1, 6, 14, 4, 7, 13]\n\n\ndef contains(node, target):\n    while node:\n        if target == node.value:\n            return True\n        node = node.left if target < node.value else node.right\n    return False\n\ndef contains_in(values, target):\n    return contains(build_bst(values), target)\n\nprint(contains_in(VALUES, 6), contains_in(VALUES, 5))\nprint(contains_in([], 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_require",
+      "node": "While",
+      "hint": {
+        "tr": "Bir `while node:` döngüsüyle in.",
+        "en": "Go down with a `while node:` loop."
+      }
+    },
+    {
+      "type": "function",
+      "name": "contains_in",
+      "cases": [
+        {
+          "args": [
+            [
+              8,
+              3,
+              10,
+              1,
+              6,
+              14,
+              4,
+              7,
+              13
+            ],
+            6
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            [
+              8,
+              3,
+              10,
+              1,
+              6,
+              14,
+              4,
+              7,
+              13
+            ],
+            5
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            [
+              8,
+              3,
+              10,
+              1,
+              6,
+              14,
+              4,
+              7,
+              13
+            ],
+            13
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            [
+              8,
+              3,
+              10,
+              1,
+              6,
+              14,
+              4,
+              7,
+              13
+            ],
+            15
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            [],
+            1
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True False\nFalse"
+    }
+  ]
+}

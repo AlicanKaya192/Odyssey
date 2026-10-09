@@ -1,0 +1,155 @@
+{
+  "id": "kth-smallest",
+  "title": {
+    "tr": "k'inci en küçük",
+    "en": "The k-th smallest"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İçeride `walk(node)` yaz: `None` ise dön; önce `walk(node.left)`, sonra `values.append(node.value)`, sonra sağ.",
+      "en": "Write `walk(node)` inside: return if `None`; first `walk(node.left)`, then `values.append(node.value)`, then the right."
+    },
+    {
+      "tr": "Sonunda `values[k - 1]`, yeterince değer yoksa `None`. İstersen `len(values) >= k` olunca gezmeyi durdur.",
+      "en": "Finally `values[k - 1]`, or `None` if there are not enough values. You may stop walking once `len(values) >= k`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef insert(node, value):\n    if node is None:\n        return TreeNode(value)\n    if value < node.value:\n        node.left = insert(node.left, value)\n    elif value > node.value:\n        node.right = insert(node.right, value)\n    return node\n\n\ndef build_bst(values):\n    root = None\n    for value in values:\n        root = insert(root, value)\n    return root\n\n\nVALUES = [8, 3, 10, 1, 6, 14, 4, 7, 13]\n\n\ndef kth_smallest(root, k):\n    values = []\n\n    def walk(node):\n        if node is None or len(values) >= k:\n            return\n        walk(node.left)\n        if len(values) < k:\n            values.append(node.value)\n        walk(node.right)\n\n    walk(root)\n    return values[k - 1] if len(values) >= k else None\n\ndef kth_of(values, k):\n    return kth_smallest(build_bst(values), k)\n\nfor k in [1, 3, 9, 10]:\n    print(k, kth_of(VALUES, k))\n```",
+      "en": "The full solution:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef insert(node, value):\n    if node is None:\n        return TreeNode(value)\n    if value < node.value:\n        node.left = insert(node.left, value)\n    elif value > node.value:\n        node.right = insert(node.right, value)\n    return node\n\n\ndef build_bst(values):\n    root = None\n    for value in values:\n        root = insert(root, value)\n    return root\n\n\nVALUES = [8, 3, 10, 1, 6, 14, 4, 7, 13]\n\n\ndef kth_smallest(root, k):\n    values = []\n\n    def walk(node):\n        if node is None or len(values) >= k:\n            return\n        walk(node.left)\n        if len(values) < k:\n            values.append(node.value)\n        walk(node.right)\n\n    walk(root)\n    return values[k - 1] if len(values) >= k else None\n\ndef kth_of(values, k):\n    return kth_smallest(build_bst(values), k)\n\nfor k in [1, 3, 9, 10]:\n    print(k, kth_of(VALUES, k))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma; inorder zaten sıralı.",
+        "en": "Do not use `sorted`; inorder is already sorted."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`sort` kullanma.",
+        "en": "Do not use `sort`."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "min",
+      "hint": {
+        "tr": "`min` kullanma.",
+        "en": "Do not use `min`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "kth_of",
+      "cases": [
+        {
+          "args": [
+            [
+              8,
+              3,
+              10,
+              1,
+              6,
+              14,
+              4,
+              7,
+              13
+            ],
+            1
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              8,
+              3,
+              10,
+              1,
+              6,
+              14,
+              4,
+              7,
+              13
+            ],
+            3
+          ],
+          "returns": 4
+        },
+        {
+          "args": [
+            [
+              8,
+              3,
+              10,
+              1,
+              6,
+              14,
+              4,
+              7,
+              13
+            ],
+            9
+          ],
+          "returns": 14
+        },
+        {
+          "args": [
+            [
+              8,
+              3,
+              10,
+              1,
+              6,
+              14,
+              4,
+              7,
+              13
+            ],
+            10
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            [
+              50,
+              20,
+              70,
+              60,
+              80,
+              10
+            ],
+            4
+          ],
+          "returns": 60
+        },
+        {
+          "args": [
+            [],
+            1
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 1\n3 4\n9 14\n10 None"
+    }
+  ]
+}

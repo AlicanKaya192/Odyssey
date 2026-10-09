@@ -1,0 +1,144 @@
+{
+  "id": "is-valid-bst",
+  "title": {
+    "tr": "Gerçekten BST mi?",
+    "en": "Is it really a BST?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`None` ise `True`. `low` varsa ve `node.value <= low` ise `False`; `high` için tersi.",
+      "en": "`True` if `None`. If `low` is set and `node.value <= low`, `False`; the opposite for `high`."
+    },
+    {
+      "tr": "Sonra `is_bst(node.left, low, node.value) and is_bst(node.right, node.value, high)`.",
+      "en": "Then `is_bst(node.left, low, node.value) and is_bst(node.right, node.value, high)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef build_tree(spec):\n    # [value, left, right] -> TreeNode; a plain value is a leaf; None is empty.\n    if spec is None:\n        return None\n    if not isinstance(spec, list):\n        return TreeNode(spec)\n    value, left, right = spec\n    return TreeNode(value, build_tree(left), build_tree(right))\n\n\ndef is_bst(node, low=None, high=None):\n    if node is None:\n        return True\n    if low is not None and node.value <= low:\n        return False\n    if high is not None and node.value >= high:\n        return False\n    return is_bst(node.left, low, node.value) and is_bst(node.right, node.value, high)\n\ndef check(spec):\n    return is_bst(build_tree(spec))\n\nprint(check([5, [3, 1, 6], 8]))\nprint(check([5, [3, 1, 4], 8]))\nprint(check(None))\n```",
+      "en": "The full solution:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef build_tree(spec):\n    # [value, left, right] -> TreeNode; a plain value is a leaf; None is empty.\n    if spec is None:\n        return None\n    if not isinstance(spec, list):\n        return TreeNode(spec)\n    value, left, right = spec\n    return TreeNode(value, build_tree(left), build_tree(right))\n\n\ndef is_bst(node, low=None, high=None):\n    if node is None:\n        return True\n    if low is not None and node.value <= low:\n        return False\n    if high is not None and node.value >= high:\n        return False\n    return is_bst(node.left, low, node.value) and is_bst(node.right, node.value, high)\n\ndef check(spec):\n    return is_bst(build_tree(spec))\n\nprint(check([5, [3, 1, 6], 8]))\nprint(check([5, [3, 1, 4], 8]))\nprint(check(None))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check",
+      "cases": [
+        {
+          "args": [
+            [
+              5,
+              [
+                3,
+                1,
+                6
+              ],
+              8
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            [
+              5,
+              [
+                3,
+                1,
+                4
+              ],
+              8
+            ]
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            null
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            [
+              8,
+              [
+                3,
+                1,
+                [
+                  6,
+                  4,
+                  7
+                ]
+              ],
+              [
+                10,
+                null,
+                [
+                  14,
+                  13,
+                  null
+                ]
+              ]
+            ]
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            [
+              2,
+              2,
+              null
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            [
+              10,
+              5,
+              [
+                15,
+                6,
+                20
+              ]
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            [
+              1,
+              null,
+              [
+                2,
+                null,
+                [
+                  3,
+                  null,
+                  4
+                ]
+              ]
+            ]
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False\nTrue\nTrue"
+    }
+  ]
+}
