@@ -1,0 +1,74 @@
+{
+  "id": "meeting-time",
+  "title": {
+    "tr": "Toplantı orada saat kaçta?",
+    "en": "What time is the meeting there?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`replace(tzinfo=...)` saati değiştirmeden dilimi ekler; `astimezone` çevirir.",
+      "en": "`replace(tzinfo=...)` adds the zone without changing the time; `astimezone` converts."
+    },
+    {
+      "tr": "`moment = datetime.strptime(local, \"%Y-%m-%d %H:%M\").replace(tzinfo=ZoneInfo(from_zone))`, sonra `return moment.astimezone(ZoneInfo(to_zone)).strftime(\"%H:%M\")`.",
+      "en": "`moment = datetime.strptime(local, \"%Y-%m-%d %H:%M\").replace(tzinfo=ZoneInfo(from_zone))`, then `return moment.astimezone(ZoneInfo(to_zone)).strftime(\"%H:%M\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom datetime import datetime\nfrom zoneinfo import ZoneInfo\n\n\ndef meeting_time(local, from_zone, to_zone):\n    moment = datetime.strptime(local, \"%Y-%m-%d %H:%M\")\n    moment = moment.replace(tzinfo=ZoneInfo(from_zone))\n    return moment.astimezone(ZoneInfo(to_zone)).strftime(\"%H:%M\")\n\nprint(meeting_time(\"2026-03-15 14:30\", \"Europe/Istanbul\", \"America/New_York\"))\nprint(meeting_time(\"2026-07-01 09:00\", \"Europe/London\", \"Asia/Tokyo\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom datetime import datetime\nfrom zoneinfo import ZoneInfo\n\n\ndef meeting_time(local, from_zone, to_zone):\n    moment = datetime.strptime(local, \"%Y-%m-%d %H:%M\")\n    moment = moment.replace(tzinfo=ZoneInfo(from_zone))\n    return moment.astimezone(ZoneInfo(to_zone)).strftime(\"%H:%M\")\n\nprint(meeting_time(\"2026-03-15 14:30\", \"Europe/Istanbul\", \"America/New_York\"))\nprint(meeting_time(\"2026-07-01 09:00\", \"Europe/London\", \"Asia/Tokyo\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "meeting_time",
+      "cases": [
+        {
+          "args": [
+            "2026-03-15 14:30",
+            "Europe/Istanbul",
+            "America/New_York"
+          ],
+          "returns": "07:30"
+        },
+        {
+          "args": [
+            "2026-07-01 09:00",
+            "Europe/London",
+            "Asia/Tokyo"
+          ],
+          "returns": "17:00"
+        },
+        {
+          "args": [
+            "2026-01-10 23:00",
+            "Europe/Istanbul",
+            "UTC"
+          ],
+          "returns": "20:00"
+        },
+        {
+          "args": [
+            "2026-03-01 14:30",
+            "Europe/Istanbul",
+            "America/New_York"
+          ],
+          "returns": "06:30"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "07:30\n17:00"
+    }
+  ]
+}
