@@ -1,0 +1,69 @@
+{
+  "id": "archive-year",
+  "title": {
+    "tr": "Yılı arşive taşı",
+    "en": "Archive a year"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce hedef klasörü aç: `target.mkdir(parents=True, exist_ok=True)`.",
+      "en": "Create the target folder first: `target.mkdir(parents=True, exist_ok=True)`."
+    },
+    {
+      "tr": "`for path in Path(folder).glob(f\"{year}-*.txt\"): shutil.move(path, target)`.",
+      "en": "`for path in Path(folder).glob(f\"{year}-*.txt\"): shutil.move(path, target)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport shutil\nfrom pathlib import Path\n\n\ndef archive_year(folder, year):\n    target = Path(folder) / \"archive\" / str(year)\n    target.mkdir(parents=True, exist_ok=True)\n    for path in Path(folder).glob(f\"{year}-*.txt\"):\n        shutil.move(path, target)\n    return sorted(p.name for p in target.iterdir())\n\nprint(archive_year(\"logs\", 2025))\nprint(sorted(p.name for p in Path(\"logs\").glob(\"*.txt\")))\n```",
+      "en": "The full solution:\n\n```python\nimport shutil\nfrom pathlib import Path\n\n\ndef archive_year(folder, year):\n    target = Path(folder) / \"archive\" / str(year)\n    target.mkdir(parents=True, exist_ok=True)\n    for path in Path(folder).glob(f\"{year}-*.txt\"):\n        shutil.move(path, target)\n    return sorted(p.name for p in target.iterdir())\n\nprint(archive_year(\"logs\", 2025))\nprint(sorted(p.name for p in Path(\"logs\").glob(\"*.txt\")))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "archive_year",
+      "cases": [
+        {
+          "args": [
+            "logs",
+            2025
+          ],
+          "returns": [
+            "2025-11.txt",
+            "2025-12.txt"
+          ]
+        },
+        {
+          "args": [
+            "logs",
+            2026
+          ],
+          "returns": [
+            "2026-01.txt",
+            "2026-02.txt"
+          ]
+        },
+        {
+          "args": [
+            "logs",
+            2024
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['2025-11.txt', '2025-12.txt']\n['2026-01.txt', '2026-02.txt', 'README.txt']"
+    }
+  ]
+}

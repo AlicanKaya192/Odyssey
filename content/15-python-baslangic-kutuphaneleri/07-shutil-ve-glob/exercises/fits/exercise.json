@@ -1,0 +1,78 @@
+{
+  "id": "fits",
+  "title": {
+    "tr": "Sığar mı?",
+    "en": "Will it fit?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`Path(folder).rglob(\"*\")` klasörleri de verir; `is_file()` ile ele.",
+      "en": "`Path(folder).rglob(\"*\")` also gives folders; filter with `is_file()`."
+    },
+    {
+      "tr": "`total += path.stat().st_size`.",
+      "en": "`total += path.stat().st_size`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom pathlib import Path\n\n\ndef fits(folder, free):\n    total = 0\n    for path in Path(folder).rglob(\"*\"):\n        if path.is_file():\n            total += path.stat().st_size\n    return total, total <= free\n\nprint(fits(\"media\", 100))\nprint(fits(\"media\", 10))\n```",
+      "en": "The full solution:\n\n```python\nfrom pathlib import Path\n\n\ndef fits(folder, free):\n    total = 0\n    for path in Path(folder).rglob(\"*\"):\n        if path.is_file():\n            total += path.stat().st_size\n    return total, total <= free\n\nprint(fits(\"media\", 100))\nprint(fits(\"media\", 10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fits",
+      "cases": [
+        {
+          "args": [
+            "media",
+            100
+          ],
+          "returns": {
+            "__tuple__": [
+              18,
+              true
+            ]
+          }
+        },
+        {
+          "args": [
+            "media",
+            10
+          ],
+          "returns": {
+            "__tuple__": [
+              18,
+              false
+            ]
+          }
+        },
+        {
+          "args": [
+            "media/clips",
+            10
+          ],
+          "returns": {
+            "__tuple__": [
+              10,
+              true
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(18, True)\n(18, False)"
+    }
+  ]
+}

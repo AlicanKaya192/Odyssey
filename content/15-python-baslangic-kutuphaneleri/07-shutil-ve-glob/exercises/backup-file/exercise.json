@@ -1,0 +1,56 @@
+{
+  "id": "backup-file",
+  "title": {
+    "tr": "Dosyayı yedekle",
+    "en": "Back up a file"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu klasör yokken `backup` adlı bir **dosya** oluşturuyor.",
+      "en": "The starter code creates a **file** called `backup` when the folder is missing."
+    },
+    {
+      "tr": "Önce `Path(folder).mkdir(parents=True, exist_ok=True)`, sonunda `Path(copied).as_posix()`.",
+      "en": "First `Path(folder).mkdir(parents=True, exist_ok=True)`, at the end `Path(copied).as_posix()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport shutil\nfrom pathlib import Path\n\n\ndef backup_file(path, folder):\n    Path(folder).mkdir(parents=True, exist_ok=True)\n    copied = shutil.copy2(path, folder)\n    return Path(copied).as_posix()\n\nprint(backup_file(\"notes.txt\", \"backup\"))\nprint(Path(\"backup/notes.txt\").read_text(encoding=\"utf-8\"))\n```",
+      "en": "The full solution:\n\n```python\nimport shutil\nfrom pathlib import Path\n\n\ndef backup_file(path, folder):\n    Path(folder).mkdir(parents=True, exist_ok=True)\n    copied = shutil.copy2(path, folder)\n    return Path(copied).as_posix()\n\nprint(backup_file(\"notes.txt\", \"backup\"))\nprint(Path(\"backup/notes.txt\").read_text(encoding=\"utf-8\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "backup_file",
+      "cases": [
+        {
+          "args": [
+            "notes.txt",
+            "backup"
+          ],
+          "returns": "backup/notes.txt"
+        },
+        {
+          "args": [
+            "notes.txt",
+            "copies/2026/march"
+          ],
+          "returns": "copies/2026/march/notes.txt"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "backup/notes.txt\nMeeting at 10."
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "list-matches",
+  "title": {
+    "tr": "Kalıpla bul",
+    "en": "Find with a pattern"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Windows'ta yollar `\\` ile gelir: `path.replace(\"\\\\\", \"/\")`.",
+      "en": "On Windows paths come with `\\`: `path.replace(\"\\\\\", \"/\")`."
+    },
+    {
+      "tr": "`sorted(path.replace(\"\\\\\", \"/\") for path in glob.glob(pattern, recursive=True))`.",
+      "en": "`sorted(path.replace(\"\\\\\", \"/\") for path in glob.glob(pattern, recursive=True))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport glob\n\n\ndef list_matches(pattern):\n    found = glob.glob(pattern, recursive=True)\n    return sorted(path.replace(\"\\\\\", \"/\") for path in found)\n\nprint(len(list_matches(\"logs/2026-*.txt\")))\nfor path in list_matches(\"logs/**/*.txt\"):\n    print(path)\n```",
+      "en": "The full solution:\n\n```python\nimport glob\n\n\ndef list_matches(pattern):\n    found = glob.glob(pattern, recursive=True)\n    return sorted(path.replace(\"\\\\\", \"/\") for path in found)\n\nprint(len(list_matches(\"logs/2026-*.txt\")))\nfor path in list_matches(\"logs/**/*.txt\"):\n    print(path)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "list_matches",
+      "cases": [
+        {
+          "args": [
+            "logs/2026-*.txt"
+          ],
+          "returns": [
+            "logs/2026-01.txt",
+            "logs/2026-02.txt"
+          ]
+        },
+        {
+          "args": [
+            "logs/**/*.txt"
+          ],
+          "returns": [
+            "logs/2025-11.txt",
+            "logs/2025-12.txt",
+            "logs/2026-01.txt",
+            "logs/2026-02.txt",
+            "logs/README.txt",
+            "logs/old/2024-12.txt"
+          ]
+        },
+        {
+          "args": [
+            "logs/202?-12.txt"
+          ],
+          "returns": [
+            "logs/2025-12.txt"
+          ]
+        },
+        {
+          "args": [
+            "logs/*.csv"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\nlogs/2025-11.txt\nlogs/2025-12.txt\nlogs/2026-01.txt\nlogs/2026-02.txt\nlogs/README.txt\nlogs/old/2024-12.txt"
+    }
+  ]
+}
