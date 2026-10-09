@@ -1,0 +1,87 @@
+{
+  "id": "changed-lines",
+  "title": {
+    "tr": "Değişen satırlar",
+    "en": "The changed lines"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `--- ` ve `+++ ` başlıklarını da alıyor.",
+      "en": "The starter code also takes the `--- ` and `+++ ` headers."
+    },
+    {
+      "tr": "Koşula `not line.startswith((\"+++\", \"---\"))` ekle.",
+      "en": "Add `not line.startswith((\"+++\", \"---\"))` to the condition."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport difflib\n\n\ndef changed_lines(old, new):\n    diff = difflib.unified_diff(old, new, lineterm=\"\")\n    return [line for line in diff\n            if line[:1] in \"+-\" and not line.startswith((\"+++\", \"---\"))]\n\nold = [\"a = 1\", \"b = 2\", \"print(a + b)\"]\nnew = [\"a = 1\", \"b = 3\", \"print(a + b)\", \"print('done')\"]\nfor line in changed_lines(old, new):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nimport difflib\n\n\ndef changed_lines(old, new):\n    diff = difflib.unified_diff(old, new, lineterm=\"\")\n    return [line for line in diff\n            if line[:1] in \"+-\" and not line.startswith((\"+++\", \"---\"))]\n\nold = [\"a = 1\", \"b = 2\", \"print(a + b)\"]\nnew = [\"a = 1\", \"b = 3\", \"print(a + b)\", \"print('done')\"]\nfor line in changed_lines(old, new):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "changed_lines",
+      "cases": [
+        {
+          "args": [
+            [
+              "a = 1",
+              "b = 2",
+              "print(a + b)"
+            ],
+            [
+              "a = 1",
+              "b = 3",
+              "print(a + b)",
+              "print('done')"
+            ]
+          ],
+          "returns": [
+            "-b = 2",
+            "+b = 3",
+            "+print('done')"
+          ]
+        },
+        {
+          "args": [
+            [
+              "x"
+            ],
+            [
+              "x"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "one"
+            ],
+            [
+              "two"
+            ]
+          ],
+          "returns": [
+            "-one",
+            "+two"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "-b = 2\n+b = 3\n+print('done')"
+    }
+  ]
+}
