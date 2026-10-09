@@ -1,0 +1,112 @@
+{
+  "id": "count-leaves",
+  "title": {
+    "tr": "Yaprakları say",
+    "en": "Count the leaves"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`None` ise 0; iki çocuğu da `None` ise 1.",
+      "en": "0 if `None`; 1 if both children are `None`."
+    },
+    {
+      "tr": "Değilse `count_leaves(node.left) + count_leaves(node.right)`; iç düğümün kendisi sayılmaz.",
+      "en": "Otherwise `count_leaves(node.left) + count_leaves(node.right)`; the inner node itself is not counted."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef build_tree(spec):\n    # [value, left, right] -> TreeNode; a plain value is a leaf; None is empty.\n    if spec is None:\n        return None\n    if not isinstance(spec, list):\n        return TreeNode(spec)\n    value, left, right = spec\n    return TreeNode(value, build_tree(left), build_tree(right))\n\n\nTREE = [1, [2, 4, 5], [3, None, 6]]\n\n\ndef count_leaves(node):\n    if node is None:\n        return 0\n    if node.left is None and node.right is None:\n        return 1\n    return count_leaves(node.left) + count_leaves(node.right)\n\ndef leaves_of(spec):\n    return count_leaves(build_tree(spec))\n\nprint(leaves_of(TREE))\nprint(leaves_of([1, [2, [3, None, 4], None], None]))\nprint(leaves_of(None))\n```",
+      "en": "The full solution:\n\n```python\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n\ndef build_tree(spec):\n    # [value, left, right] -> TreeNode; a plain value is a leaf; None is empty.\n    if spec is None:\n        return None\n    if not isinstance(spec, list):\n        return TreeNode(spec)\n    value, left, right = spec\n    return TreeNode(value, build_tree(left), build_tree(right))\n\n\nTREE = [1, [2, 4, 5], [3, None, 6]]\n\n\ndef count_leaves(node):\n    if node is None:\n        return 0\n    if node.left is None and node.right is None:\n        return 1\n    return count_leaves(node.left) + count_leaves(node.right)\n\ndef leaves_of(spec):\n    return count_leaves(build_tree(spec))\n\nprint(leaves_of(TREE))\nprint(leaves_of([1, [2, [3, None, 4], None], None]))\nprint(leaves_of(None))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "leaves_of",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              [
+                2,
+                4,
+                5
+              ],
+              [
+                3,
+                null,
+                6
+              ]
+            ]
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            [
+              1,
+              [
+                2,
+                [
+                  3,
+                  null,
+                  4
+                ],
+                null
+              ],
+              null
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            null
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            9
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              1,
+              [
+                2,
+                3,
+                4
+              ],
+              [
+                5,
+                6,
+                [
+                  7,
+                  8,
+                  9
+                ]
+              ]
+            ]
+          ],
+          "returns": 5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n1\n0"
+    }
+  ]
+}
