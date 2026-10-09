@@ -1,0 +1,132 @@
+{
+  "id": "assign-labels",
+  "title": {
+    "tr": "Ata adımı",
+    "en": "The assign step"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`X[:, None, :] - C[None, :, :]` her nokta–merkez farkını verir.",
+      "en": "`X[:, None, :] - C[None, :, :]` gives every point–centroid difference."
+    },
+    {
+      "tr": "`d = (...) ** 2).sum(axis=2)`, sonra `d.argmin(axis=1).tolist()`.",
+      "en": "`d = (...) ** 2).sum(axis=2)`, then `d.argmin(axis=1).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef assign_labels(X, centers):\n    X, C = np.array(X, dtype=float), np.array(centers, dtype=float)\n    d = ((X[:, None, :] - C[None, :, :]) ** 2).sum(axis=2)\n    return d.argmin(axis=1).tolist()\n\nX = [[0, 0], [1, 1], [9, 9], [10, 8], [4, 4]]\ncenters = [[0, 0], [10, 10]]\nprint(assign_labels(X, centers))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef assign_labels(X, centers):\n    X, C = np.array(X, dtype=float), np.array(centers, dtype=float)\n    d = ((X[:, None, :] - C[None, :, :]) ** 2).sum(axis=2)\n    return d.argmin(axis=1).tolist()\n\nX = [[0, 0], [1, 1], [9, 9], [10, 8], [4, 4]]\ncenters = [[0, 0], [10, 10]]\nprint(assign_labels(X, centers))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "assign_labels",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                9,
+                9
+              ],
+              [
+                10,
+                8
+              ],
+              [
+                4,
+                4
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                10,
+                10
+              ]
+            ]
+          ],
+          "returns": [
+            0,
+            0,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                5
+              ]
+            ],
+            [
+              [
+                0
+              ],
+              [
+                4
+              ],
+              [
+                8
+              ]
+            ]
+          ],
+          "returns": [
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                2
+              ],
+              [
+                3,
+                4
+              ]
+            ],
+            [
+              [
+                3,
+                4
+              ]
+            ]
+          ],
+          "returns": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 0, 1, 1, 0]"
+    }
+  ]
+}

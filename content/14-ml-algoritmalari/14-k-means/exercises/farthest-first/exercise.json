@@ -1,0 +1,152 @@
+{
+  "id": "farthest-first",
+  "title": {
+    "tr": "En uzak nokta başlangıcı",
+    "en": "Farthest-first start"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`X[chosen]` seçilmiş merkezler; `.min(axis=1)` her noktanın en yakınına uzaklığı.",
+      "en": "`X[chosen]` are the chosen centroids; `.min(axis=1)` each point's distance to its nearest."
+    },
+    {
+      "tr": "`chosen.append(int(d.argmax()))`; seçilmişlerin uzaklığı 0 olduğu için tekrar seçilmezler.",
+      "en": "`chosen.append(int(d.argmax()))`; chosen points have distance 0 so they are not picked again."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef farthest_first(X, k):\n    X = np.array(X, dtype=float)\n    chosen = [0]\n    while len(chosen) < k:\n        C = X[chosen]\n        d = ((X[:, None, :] - C[None, :, :]) ** 2).sum(axis=2).min(axis=1)\n        chosen.append(int(d.argmax()))\n    return chosen\n\nX = [[0, 0], [1, 0], [10, 0], [5, 5], [0, 9], [9, 9]]\nprint(farthest_first(X, 3))\nprint(farthest_first(X, 4))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef farthest_first(X, k):\n    X = np.array(X, dtype=float)\n    chosen = [0]\n    while len(chosen) < k:\n        C = X[chosen]\n        d = ((X[:, None, :] - C[None, :, :]) ** 2).sum(axis=2).min(axis=1)\n        chosen.append(int(d.argmax()))\n    return chosen\n\nX = [[0, 0], [1, 0], [10, 0], [5, 5], [0, 9], [9, 9]]\nprint(farthest_first(X, 3))\nprint(farthest_first(X, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "farthest_first",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                10,
+                0
+              ],
+              [
+                5,
+                5
+              ],
+              [
+                0,
+                9
+              ],
+              [
+                9,
+                9
+              ]
+            ],
+            3
+          ],
+          "returns": [
+            0,
+            5,
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                10,
+                0
+              ],
+              [
+                5,
+                5
+              ],
+              [
+                0,
+                9
+              ],
+              [
+                9,
+                9
+              ]
+            ],
+            4
+          ],
+          "returns": [
+            0,
+            5,
+            2,
+            4
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0
+              ],
+              [
+                1
+              ],
+              [
+                2
+              ],
+              [
+                3
+              ]
+            ],
+            2
+          ],
+          "returns": [
+            0,
+            3
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                1
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 5, 2]\n[0, 5, 2, 4]"
+    }
+  ]
+}
