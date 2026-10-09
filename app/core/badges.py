@@ -52,6 +52,7 @@ DOCKER_CHAPTER = "09-docker"
 GIT_CHAPTER = "10-git"
 BIGDATA_CHAPTER = "11-buyuk-veri"
 ALG1_CHAPTER = "12-temel-algoritmalar"
+ALG2_CHAPTER = "13-algoritma-teknikleri"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -88,6 +89,9 @@ BIGDATA_SPARK_SECTION = (BIGDATA_CHAPTER, "13-spark")
 ALG1_BIG_O_SECTION = (ALG1_CHAPTER, "01-karmasiklik")
 ALG1_SORT_SECTION = (ALG1_CHAPTER, "06-verimli-siralamalar")
 ALG1_TREE_SECTION = (ALG1_CHAPTER, "13-agaclar")
+ALG2_DP_SECTION = (ALG2_CHAPTER, "03-dinamik-programlama-1")
+ALG2_PATH_SECTION = (ALG2_CHAPTER, "07-en-kisa-yol")
+ALG2_SKETCH_SECTION = (ALG2_CHAPTER, "13-olasiliksal-veri-yapilari")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -101,6 +105,7 @@ DOCKER_SECTION_COUNT = 17
 GIT_SECTION_COUNT = 17
 BIGDATA_SECTION_COUNT = 17
 ALG1_SECTION_COUNT = 17
+ALG2_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -216,6 +221,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "divide-conquer": ALG1_SORT_SECTION in bitenler,
         "root-to-leaf": ALG1_TREE_SECTION in bitenler,
         "alg1-complete": modul_basina.get(ALG1_CHAPTER, 0) >= ALG1_SECTION_COUNT,
+        "memo-table": ALG2_DP_SECTION in bitenler,
+        "pathfinder": ALG2_PATH_SECTION in bitenler,
+        "small-memory": ALG2_SKETCH_SECTION in bitenler,
+        "alg2-complete": modul_basina.get(ALG2_CHAPTER, 0) >= ALG2_SECTION_COUNT,
     }
 
 

@@ -212,6 +212,27 @@ GLYPHS: dict[str, str] = {
              '<rect x="6" y="6" width="12" height="12" rx="2"/>'
              '<rect x="9.5" y="9.5" width="5" height="5" rx="1" fill="#fff" stroke="none"/>'
              '<path d="M9.5 2.5V6M14.5 2.5V6M9.5 18v3.5M14.5 18v3.5M2.5 9.5H6M2.5 14.5H6M18 9.5h3.5M18 14.5h3.5" stroke-width="1.6"/>'),
+    "dp-grid": ('<rect x="3" y="3" width="18" height="18" rx="1.5"/>'
+                '<path d="M9 3v18M15 3v18M3 9h18M3 15h18" stroke-width="1.2"/>'
+                '<rect x="9" y="15" width="6" height="6" fill="#fff" fill-opacity=".45" stroke="none"/>'
+                '<rect x="15" y="9" width="6" height="6" fill="#fff" fill-opacity=".45" stroke="none"/>'
+                '<rect x="15" y="15" width="6" height="6" fill="#fff" stroke="none"/>'),
+    "route-graph": ('<path d="M4.5 18.5 10 6M10 6l10 -1M10 6l5 9" stroke-width="1.2" stroke-opacity=".5"/>'
+                    '<path d="M4.5 18.5 15 15l5-10" stroke-width="2.4"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="4.5" cy="18.5" r="2.4"/><circle cx="20" cy="5" r="2.4"/>'
+                    '<circle cx="15" cy="15" r="2"/></g>'
+                    '<circle cx="10" cy="6" r="2" fill="#fff" fill-opacity=".35"/>'),
+    "bloom-bits": ('<circle cx="12" cy="4.5" r="2.4" fill="#fff" stroke="none"/>'
+                   '<path d="M11 6.8 5 13.5M12 7v6.5M13 6.8l6 6.7" stroke-width="1.4"/>'
+                   '<rect x="2" y="15" width="20" height="5" rx="1"/>'
+                   '<path d="M6 15v5M10 15v5M14 15v5M18 15v5" stroke-width="1"/>'
+                   '<g fill="#fff" stroke="none"><rect x="2" y="15" width="4" height="5"/><rect x="10" y="15" width="4" height="5"/>'
+                   '<rect x="18" y="15" width="4" height="5"/></g>'),
+    "network-star": ('<path d="M12 4l6.9 4v8L12 20l-6.9-4V8z" stroke-width="1.2" stroke-opacity=".55"/>'
+                     '<path d="M12 12V4M12 12l6.9-4M12 12l6.9 4M12 12v8M12 12l-6.9 4M12 12 5.1 8" stroke-width="1.5"/>'
+                     '<g fill="#fff" stroke="none"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="4" r="1.7"/>'
+                     '<circle cx="18.9" cy="8" r="1.7"/><circle cx="18.9" cy="16" r="1.7"/><circle cx="12" cy="20" r="1.7"/>'
+                     '<circle cx="5.1" cy="16" r="1.7"/><circle cx="5.1" cy="8" r="1.7"/></g>'),
 }
 
 

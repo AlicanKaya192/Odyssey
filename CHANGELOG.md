@@ -25,18 +25,23 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ### Eklendi
 - **Algoritmalar patikası.** Kendi kodunda algoritma yazmayı ve bir çözümün
-  veri büyüyünce nasıl davranacağını önceden söylemeyi öğretiyor. ALG 1 —
-  Temel Algoritmalar ve Veri Yapıları (17 bölüm): karmaşıklık ve Büyük O,
-  arama ve sıralama, iki işaretçi, kayan pencere, önek toplamı, hash,
-  yığın, kuyruk, bağlı liste, ağaç, ikili arama ağacı ve heap. Derslerdeki
-  her süre ve adım sayısı ölçülerek yazıldı; bazı alıştırmalar ancak verimli
-  bir çözümle süre sınırına yetişiyor. Dört yeni rozet, "Bulmaca Çözücü"
-  unvanı ve sözlükte algoritma terimleri.
+  veri büyüyünce nasıl davranacağını önceden söylemeyi öğretiyor. **ALG 1**
+  (17 bölüm) temel algoritmalar ve veri yapıları: karmaşıklık, arama ve
+  sıralama, hash, yığın, kuyruk, ağaç ve heap. **ALG 2** (17 bölüm) problem
+  çözme teknikleri: böl ve fethet, geri izleme, açgözlü yöntemler, dinamik
+  programlama, graflar ve en kısa yol, metin ve sayı algoritmaları, rastgele
+  ve olasılıksal yöntemler, sezgisel optimizasyon. Derslerdeki her süre ve
+  adım sayısı ölçülerek yazıldı; bazı alıştırmalar ancak verimli bir çözümle
+  süre sınırına yetişiyor. Yeni rozetler, "Bulmaca Çözücü" ve "Stratejist"
+  unvanları, sözlükte algoritma terimleri.
 
 ### Değişti
 - **Odyssey artık açık beta değil.** 1.0 ilk tam sürüm: açılıştaki
   "Açık Beta" yazısı kalktı, ilk kez kuranlar beta uyarısı yerine kısa bir
   hoş geldiniz penceresi görüyor.
+- **Seviyeler yeni patikalara göre genişletildi.** Bir sonraki seviye için
+  gereken XP biraz arttı; mevcut seviyeniz birkaç basamak düşebilir.
+  Kazandığınız unvanlar sizde kalıyor.
 
 ## [0.9.3] — 7 Ekim 2026
 
