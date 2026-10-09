@@ -1,0 +1,81 @@
+{
+  "id": "bce-loss",
+  "title": {
+    "tr": "İkili çapraz entropi",
+    "en": "Binary cross-entropy"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`np.clip(p, 1e-12, 1 - 1e-12)` log(0)'ı önler.",
+      "en": "`np.clip(p, 1e-12, 1 - 1e-12)` avoids log(0)."
+    },
+    {
+      "tr": "`-np.mean(y * np.log(p) + (1 - y) * np.log(1 - p))`, `round(..., 4)`.",
+      "en": "`-np.mean(y * np.log(p) + (1 - y) * np.log(1 - p))`, `round(..., 4)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef bce_loss(y, p):\n    y, p = np.array(y, dtype=float), np.array(p, dtype=float)\n    p = np.clip(p, 1e-12, 1 - 1e-12)\n    loss = -np.mean(y * np.log(p) + (1 - y) * np.log(1 - p))\n    return round(abs(float(loss)), 4)\n\nprint(bce_loss([1, 0, 1], [0.9, 0.2, 0.6]))\nprint(bce_loss([0, 1], [0.0, 1.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef bce_loss(y, p):\n    y, p = np.array(y, dtype=float), np.array(p, dtype=float)\n    p = np.clip(p, 1e-12, 1 - 1e-12)\n    loss = -np.mean(y * np.log(p) + (1 - y) * np.log(1 - p))\n    return round(abs(float(loss)), 4)\n\nprint(bce_loss([1, 0, 1], [0.9, 0.2, 0.6]))\nprint(bce_loss([0, 1], [0.0, 1.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "bce_loss",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              0,
+              1
+            ],
+            [
+              0.9,
+              0.2,
+              0.6
+            ]
+          ],
+          "returns": 0.2798
+        },
+        {
+          "args": [
+            [
+              0,
+              1
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              1
+            ],
+            [
+              0.5
+            ]
+          ],
+          "returns": 0.6931
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.2798\n0.0"
+    }
+  ]
+}
