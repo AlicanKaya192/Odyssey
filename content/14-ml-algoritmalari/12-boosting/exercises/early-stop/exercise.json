@@ -1,0 +1,96 @@
+{
+  "id": "early-stop",
+  "title": {
+    "tr": "Erken durdurma",
+    "en": "Early stopping"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for n, err in enumerate(val_errors, 1):` iyileşmede `waited = 0`, değilse `waited += 1`.",
+      "en": "`for n, err in enumerate(val_errors, 1):` on improvement `waited = 0`, otherwise `waited += 1`."
+    },
+    {
+      "tr": "`waited == patience` olunca `return best_round, n`.",
+      "en": "When `waited == patience`, `return best_round, n`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef early_stop(val_errors, patience):\n    best, best_round, waited = float(\"inf\"), 0, 0\n    for n, err in enumerate(val_errors, 1):\n        if err < best:\n            best, best_round, waited = err, n, 0\n        else:\n            waited += 1\n        if waited == patience:\n            return best_round, n\n    return best_round, len(val_errors)\n\nerrors = [5.0, 4.0, 3.5, 3.6, 3.4, 3.45, 3.5, 3.55, 3.6]\nprint(early_stop(errors, 3))\nprint(early_stop([3.0, 2.0, 1.0], 5))\n```",
+      "en": "The full solution:\n\n```python\ndef early_stop(val_errors, patience):\n    best, best_round, waited = float(\"inf\"), 0, 0\n    for n, err in enumerate(val_errors, 1):\n        if err < best:\n            best, best_round, waited = err, n, 0\n        else:\n            waited += 1\n        if waited == patience:\n            return best_round, n\n    return best_round, len(val_errors)\n\nerrors = [5.0, 4.0, 3.5, 3.6, 3.4, 3.45, 3.5, 3.55, 3.6]\nprint(early_stop(errors, 3))\nprint(early_stop([3.0, 2.0, 1.0], 5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "early_stop",
+      "cases": [
+        {
+          "args": [
+            [
+              5.0,
+              4.0,
+              3.5,
+              3.6,
+              3.4,
+              3.45,
+              3.5,
+              3.55,
+              3.6
+            ],
+            3
+          ],
+          "returns": {
+            "__tuple__": [
+              5,
+              8
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              3.0,
+              2.0,
+              1.0
+            ],
+            5
+          ],
+          "returns": {
+            "__tuple__": [
+              3,
+              3
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              1.0,
+              2.0,
+              3.0
+            ],
+            2
+          ],
+          "returns": {
+            "__tuple__": [
+              1,
+              3
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(5, 8)\n(3, 3)"
+    }
+  ]
+}
