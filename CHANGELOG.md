@@ -30,10 +30,15 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   sıralama, hash, yığın, kuyruk, ağaç ve heap. **ALG 2** (17 bölüm) problem
   çözme teknikleri: böl ve fethet, geri izleme, açgözlü yöntemler, dinamik
   programlama, graflar ve en kısa yol, metin ve sayı algoritmaları, rastgele
-  ve olasılıksal yöntemler, sezgisel optimizasyon. Derslerdeki her süre ve
-  adım sayısı ölçülerek yazıldı; bazı alıştırmalar ancak verimli bir çözümle
-  süre sınırına yetişiyor. Yeni rozetler, "Bulmaca Çözücü" ve "Stratejist"
-  unvanları, sözlükte algoritma terimleri.
+  ve olasılıksal yöntemler, sezgisel optimizasyon. **ALG 3** (23 bölüm)
+  makine öğrenmesi algoritmalarını NumPy ile sıfırdan yazdırıp sonuçları
+  scikit-learn'le karşılaştırıyor: doğrusal ve lojistik regresyon, gradyan
+  inişi, KNN, Naive Bayes, karar ağacı, rastgele orman, boosting, SVM,
+  kümeleme, PCA, birliktelik kuralları, PageRank, sinir ağı ve öneri
+  sistemleri. Derslerdeki her süre, adım sayısı ve sonuç ölçülerek yazıldı;
+  bazı alıştırmalar ancak verimli bir çözümle süre sınırına yetişiyor. Yeni
+  rozetler, "Bulmaca Çözücü", "Stratejist" ve "Dedalos" unvanları, sözlükte
+  algoritma terimleri.
 
 ### Değişti
 - **Odyssey artık açık beta değil.** 1.0 ilk tam sürüm: açılıştaki

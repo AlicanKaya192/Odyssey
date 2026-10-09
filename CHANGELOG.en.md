@@ -33,10 +33,15 @@ lecture note does not mean downloading the whole application again.
   (17 sections) covers problem-solving techniques: divide and conquer,
   backtracking, greedy methods, dynamic programming, graphs and shortest
   paths, string and number algorithms, randomised and probabilistic methods,
-  heuristic optimisation. Every time and step count in the lessons was
-  measured; some exercises only finish within the time limit with an
-  efficient solution. New badges, the "Puzzle Solver" and "Strategist"
-  titles, and algorithm terms in the glossary.
+  heuristic optimisation. **ALG 3** (23 sections) has you write machine
+  learning algorithms from scratch with NumPy and compare the results with
+  scikit-learn: linear and logistic regression, gradient descent, KNN, Naive
+  Bayes, decision trees, random forests, boosting, SVMs, clustering, PCA,
+  association rules, PageRank, neural networks and recommender systems. Every
+  time, step count and result in the lessons was measured; some exercises
+  only finish within the time limit with an efficient solution. New badges,
+  the "Puzzle Solver", "Strategist" and "Daedalus" titles, and algorithm terms
+  in the glossary.
 
 ### Changed
 - **Odyssey is no longer an open beta.** 1.0 is the first full release: the

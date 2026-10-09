@@ -233,6 +233,29 @@ GLYPHS: dict[str, str] = {
                      '<g fill="#fff" stroke="none"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="4" r="1.7"/>'
                      '<circle cx="18.9" cy="8" r="1.7"/><circle cx="18.9" cy="16" r="1.7"/><circle cx="12" cy="20" r="1.7"/>'
                      '<circle cx="5.1" cy="16" r="1.7"/><circle cx="5.1" cy="8" r="1.7"/></g>'),
+    "descent-steps": ('<path d="M2.5 4.5C5 14 8.5 19.5 12 19.5S19 14 21.5 4.5" stroke-width="1.6"/>'
+                      '<g fill="#fff" stroke="none"><circle cx="4" cy="9" r="1.6" fill-opacity=".35"/>'
+                      '<circle cx="6.6" cy="14.6" r="1.7" fill-opacity=".55"/><circle cx="9.2" cy="18.2" r="1.8" fill-opacity=".8"/>'
+                      '<circle cx="12" cy="19.5" r="2.3"/></g>'),
+    "centroid-rings": ('<g fill="#fff" stroke="none" fill-opacity=".6"><circle cx="3.5" cy="5" r="1.1"/><circle cx="8" cy="4" r="1.1"/>'
+                       '<circle cx="5" cy="9.5" r="1.1"/><circle cx="16" cy="3.5" r="1.1"/><circle cx="20.5" cy="6" r="1.1"/>'
+                       '<circle cx="17" cy="9.5" r="1.1"/><circle cx="8.5" cy="16.5" r="1.1"/><circle cx="13" cy="21" r="1.1"/>'
+                       '<circle cx="15" cy="15.5" r="1.1"/></g>'
+                       '<circle cx="5.6" cy="6.2" r="3.2" stroke-width="1.3"/><circle cx="17.8" cy="6.3" r="3.2" stroke-width="1.3"/>'
+                       '<circle cx="12.1" cy="17.7" r="3.2" stroke-width="1.3"/>'
+                       '<g fill="#fff" stroke="none"><circle cx="5.6" cy="6.2" r="1.3"/><circle cx="17.8" cy="6.3" r="1.3"/>'
+                       '<circle cx="12.1" cy="17.7" r="1.3"/></g>'),
+    "neural-layers": ('<path d="M4.5 8 12 4.5M4.5 8 12 12M4.5 8 12 19.5M4.5 16 12 4.5M4.5 16 12 12M4.5 16 12 19.5'
+                      'M12 4.5 19.5 12M12 12h7.5M12 19.5l7.5-7.5" stroke-width="1" stroke-opacity=".6"/>'
+                      '<g fill="#fff" stroke="none"><circle cx="4.5" cy="8" r="2"/><circle cx="4.5" cy="16" r="2"/>'
+                      '<circle cx="12" cy="4.5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19.5" r="2"/>'
+                      '<circle cx="19.5" cy="12" r="2.4"/></g>'),
+    "sigmoid-split": ('<rect x="2.5" y="2.5" width="19" height="19" rx="2" stroke-width="1.2" stroke-opacity=".55"/>'
+                      '<path d="M4 17.5C10 17.5 9.5 6.5 20 6.5" stroke-width="2"/>'
+                      '<g fill="#fff" stroke="none"><circle cx="6" cy="8" r="1.4"/><circle cx="9" cy="5.5" r="1.4"/>'
+                      '<circle cx="5.5" cy="12" r="1.4"/></g>'
+                      '<g fill="#fff" stroke="none" fill-opacity=".55"><circle cx="15" cy="13" r="1.4"/>'
+                      '<circle cx="18.5" cy="17" r="1.4"/><circle cx="14" cy="18.5" r="1.4"/></g>'),
 }
 
 
