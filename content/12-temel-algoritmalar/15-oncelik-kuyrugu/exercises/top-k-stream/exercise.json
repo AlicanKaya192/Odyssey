@@ -1,0 +1,145 @@
+{
+  "id": "top-k-stream",
+  "title": {
+    "tr": "Akıştan en büyük k",
+    "en": "The largest k from a stream"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngüde: `len(heap) < k` ise `heappush`; `elif x > heap[0]:` ise `heapreplace(heap, x)`.",
+      "en": "In the loop: `heappush` if `len(heap) < k`; `heapreplace(heap, x)` if `elif x > heap[0]:`."
+    },
+    {
+      "tr": "`while heap: result.append(heapq.heappop(heap))`, sonra `result.reverse()`.",
+      "en": "`while heap: result.append(heapq.heappop(heap))`, then `result.reverse()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport heapq\n\n\ndef top_k(stream, k):\n    if k <= 0:\n        return []\n    heap = []\n    for x in stream:\n        if len(heap) < k:\n            heapq.heappush(heap, x)\n        elif x > heap[0]:\n            heapq.heapreplace(heap, x)\n    result = []\n    while heap:\n        result.append(heapq.heappop(heap))\n    result.reverse()\n    return result\n\n\nprint(top_k([4, 1, 7, 3, 9, 2, 8], 3))\nprint(top_k([5, 5, 5], 2))\n```",
+      "en": "The full solution:\n\n```python\nimport heapq\n\n\ndef top_k(stream, k):\n    if k <= 0:\n        return []\n    heap = []\n    for x in stream:\n        if len(heap) < k:\n            heapq.heappush(heap, x)\n        elif x > heap[0]:\n            heapq.heapreplace(heap, x)\n    result = []\n    while heap:\n        result.append(heapq.heappop(heap))\n    result.reverse()\n    return result\n\n\nprint(top_k([4, 1, 7, 3, 9, 2, 8], 3))\nprint(top_k([5, 5, 5], 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma; heap kullan.",
+        "en": "Do not use `sorted`; use a heap."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`sort` kullanma.",
+        "en": "Do not use `sort`."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "nlargest",
+      "hint": {
+        "tr": "`nlargest` kullanma; heap'i kendin tut.",
+        "en": "Do not use `nlargest`; keep the heap yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "top_k",
+      "cases": [
+        {
+          "args": [
+            [
+              4,
+              1,
+              7,
+              3,
+              9,
+              2,
+              8
+            ],
+            3
+          ],
+          "returns": [
+            9,
+            8,
+            7
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              5,
+              5
+            ],
+            2
+          ],
+          "returns": [
+            5,
+            5
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2
+            ],
+            5
+          ],
+          "returns": [
+            2,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              3,
+              1,
+              2
+            ],
+            0
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              10,
+              -4,
+              33,
+              7,
+              33,
+              0,
+              21,
+              -9,
+              15
+            ],
+            4
+          ],
+          "returns": [
+            33,
+            33,
+            21,
+            15
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[9, 8, 7]\n[5, 5]"
+    }
+  ]
+}

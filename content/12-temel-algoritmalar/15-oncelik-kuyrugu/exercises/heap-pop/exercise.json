@@ -1,0 +1,182 @@
+{
+  "id": "heap-pop",
+  "title": {
+    "tr": "Heap'ten al: aşağı kaydırma",
+    "en": "Take from a heap: sift down"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`n = len(heap)` ve `while True:` içinde `smallest = i`; her `child` için `child < n and heap[child] < heap[smallest]` ise `smallest = child`.",
+      "en": "`n = len(heap)` and inside `while True:`, `smallest = i`; for each `child`, if `child < n and heap[child] < heap[smallest]`, `smallest = child`."
+    },
+    {
+      "tr": "`smallest == i` ise `return top`; değilse yer değiştir ve `i = smallest`.",
+      "en": "If `smallest == i`, `return top`; otherwise swap and `i = smallest`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef push(heap, x):\n    heap.append(x)\n    i = len(heap) - 1\n    while i > 0:\n        parent = (i - 1) // 2\n        if heap[i] >= heap[parent]:\n            break\n        heap[i], heap[parent] = heap[parent], heap[i]\n        i = parent\n\n\ndef pop(heap):\n    last = heap.pop()\n    if not heap:\n        return last\n    top, heap[0] = heap[0], last\n    i = 0\n    n = len(heap)\n    while True:\n        smallest = i\n        for child in (2 * i + 1, 2 * i + 2):\n            if child < n and heap[child] < heap[smallest]:\n                smallest = child\n        if smallest == i:\n            return top\n        heap[i], heap[smallest] = heap[smallest], heap[i]\n        i = smallest\n\n\ndef pop_all(values):\n    heap = []\n    for x in values:\n        push(heap, x)\n    return [pop(heap) for _ in range(len(values))]\n\n\nprint(pop_all([5, 3, 8, 1, 9, 2]))\nprint(pop_all([4, 4, 1, 7]))\n```",
+      "en": "The full solution:\n\n```python\ndef push(heap, x):\n    heap.append(x)\n    i = len(heap) - 1\n    while i > 0:\n        parent = (i - 1) // 2\n        if heap[i] >= heap[parent]:\n            break\n        heap[i], heap[parent] = heap[parent], heap[i]\n        i = parent\n\n\ndef pop(heap):\n    last = heap.pop()\n    if not heap:\n        return last\n    top, heap[0] = heap[0], last\n    i = 0\n    n = len(heap)\n    while True:\n        smallest = i\n        for child in (2 * i + 1, 2 * i + 2):\n            if child < n and heap[child] < heap[smallest]:\n                smallest = child\n        if smallest == i:\n            return top\n        heap[i], heap[smallest] = heap[smallest], heap[i]\n        i = smallest\n\n\ndef pop_all(values):\n    heap = []\n    for x in values:\n        push(heap, x)\n    return [pop(heap) for _ in range(len(values))]\n\n\nprint(pop_all([5, 3, 8, 1, 9, 2]))\nprint(pop_all([4, 4, 1, 7]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "sorted",
+      "hint": {
+        "tr": "`sorted` kullanma; heap kullan.",
+        "en": "Do not use `sorted`; use a heap."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sort",
+      "hint": {
+        "tr": "`sort` kullanma.",
+        "en": "Do not use `sort`."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "heappop",
+      "hint": {
+        "tr": "`heapq.heappop` kullanma; aşağı kaydırmayı kendin yaz.",
+        "en": "Do not use `heapq.heappop`; write the sift down yourself."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "min",
+      "hint": {
+        "tr": "`min` kullanma; çocukları karşılaştır.",
+        "en": "Do not use `min`; compare the children."
+      }
+    },
+    {
+      "type": "function",
+      "name": "pop_all",
+      "cases": [
+        {
+          "args": [
+            [
+              5,
+              3,
+              8,
+              1,
+              9,
+              2
+            ]
+          ],
+          "returns": [
+            1,
+            2,
+            3,
+            5,
+            8,
+            9
+          ]
+        },
+        {
+          "args": [
+            [
+              4,
+              4,
+              1,
+              7
+            ]
+          ],
+          "returns": [
+            1,
+            4,
+            4,
+            7
+          ]
+        },
+        {
+          "args": [
+            [
+              1
+            ]
+          ],
+          "returns": [
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              9,
+              8,
+              7,
+              6,
+              5,
+              4,
+              3,
+              2,
+              1,
+              0
+            ]
+          ],
+          "returns": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "args": [
+            [
+              2,
+              7,
+              1,
+              8,
+              2,
+              8,
+              1,
+              8,
+              2,
+              8,
+              4,
+              5,
+              9
+            ]
+          ],
+          "returns": [
+            1,
+            1,
+            2,
+            2,
+            2,
+            4,
+            5,
+            7,
+            8,
+            8,
+            8,
+            8,
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 2, 3, 5, 8, 9]\n[1, 4, 4, 7]"
+    }
+  ]
+}
