@@ -1,0 +1,65 @@
+{
+  "id": "strip-accents",
+  "title": {
+    "tr": "Aksanları at",
+    "en": "Drop the accents"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ayrıştırılmış metinde aksanlar ayrı karakter; ekranda yine aynı görünür.",
+      "en": "In the decomposed text the accents are separate characters; on screen it still looks the same."
+    },
+    {
+      "tr": "`\"\".join(ch for ch in decomposed if unicodedata.category(ch) != \"Mn\")`.",
+      "en": "`\"\".join(ch for ch in decomposed if unicodedata.category(ch) != \"Mn\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport unicodedata\n\n\ndef strip_accents(text):\n    decomposed = unicodedata.normalize(\"NFD\", text)\n    return \"\".join(ch for ch in decomposed if unicodedata.category(ch) != \"Mn\")\n\n\ndef ascii_lines(path):\n    with open(path, encoding=\"utf-8\") as f:\n        return [strip_accents(line) for line in f.read().splitlines()]\n\n\nfor line in ascii_lines(\"names.txt\"):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nimport unicodedata\n\n\ndef strip_accents(text):\n    decomposed = unicodedata.normalize(\"NFD\", text)\n    return \"\".join(ch for ch in decomposed if unicodedata.category(ch) != \"Mn\")\n\n\ndef ascii_lines(path):\n    with open(path, encoding=\"utf-8\") as f:\n        return [strip_accents(line) for line in f.read().splitlines()]\n\n\nfor line in ascii_lines(\"names.txt\"):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ascii_lines",
+      "cases": [
+        {
+          "args": [
+            "names.txt"
+          ],
+          "returns": [
+            "Cafe Creme",
+            "Unlu Seker",
+            "Zoe Saldana",
+            "plain"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "strip_accents",
+      "cases": [
+        {
+          "args": [
+            "plain"
+          ],
+          "returns": "plain"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Cafe Creme\nUnlu Seker\nZoe Saldana\nplain"
+    }
+  ]
+}

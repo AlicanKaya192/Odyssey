@@ -1,0 +1,75 @@
+{
+  "id": "suggest",
+  "title": {
+    "tr": "Bunu mu demek istediniz?",
+    "en": "Did you mean?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sonuç bir liste; boşsa `None` döndür.",
+      "en": "The result is a list; if it is empty, return `None`."
+    },
+    {
+      "tr": "`matches = difflib.get_close_matches(word, options, n=1)`, varsa `matches[0]`.",
+      "en": "`matches = difflib.get_close_matches(word, options, n=1)`, `matches[0]` if any."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport difflib\n\n\ndef suggest(word, options):\n    matches = difflib.get_close_matches(word, options, n=1)\n    if matches:\n        return matches[0]\n    return None\n\ncommands = [\"start\", \"stop\", \"status\", \"restart\", \"help\"]\nprint(suggest(\"hlep\", commands))\nprint(suggest(\"xyz\", commands))\n```",
+      "en": "The full solution:\n\n```python\nimport difflib\n\n\ndef suggest(word, options):\n    matches = difflib.get_close_matches(word, options, n=1)\n    if matches:\n        return matches[0]\n    return None\n\ncommands = [\"start\", \"stop\", \"status\", \"restart\", \"help\"]\nprint(suggest(\"hlep\", commands))\nprint(suggest(\"xyz\", commands))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "suggest",
+      "cases": [
+        {
+          "args": [
+            "hlep",
+            [
+              "start",
+              "stop",
+              "status",
+              "restart",
+              "help"
+            ]
+          ],
+          "returns": "help"
+        },
+        {
+          "args": [
+            "xyz",
+            [
+              "start",
+              "stop"
+            ]
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "statsu",
+            [
+              "start",
+              "status"
+            ]
+          ],
+          "returns": "status"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "help\nNone"
+    }
+  ]
+}
