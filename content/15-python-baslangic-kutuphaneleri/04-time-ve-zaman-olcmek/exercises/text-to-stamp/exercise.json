@@ -1,0 +1,60 @@
+{
+  "id": "text-to-stamp",
+  "title": {
+    "tr": "Damgaya çevir",
+    "en": "Turn into a timestamp"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodundaki tarih saf (naive): `timestamp()` onu yerel saat sayıyor.",
+      "en": "The date in the starter code is naive: `timestamp()` treats it as local time."
+    },
+    {
+      "tr": "`moment = moment.replace(tzinfo=timezone.utc)` satırını ekle.",
+      "en": "Add the line `moment = moment.replace(tzinfo=timezone.utc)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom datetime import datetime, timezone\n\n\ndef text_to_stamp(text):\n    moment = datetime.strptime(text, \"%Y-%m-%d %H:%M\")\n    moment = moment.replace(tzinfo=timezone.utc)\n    return int(moment.timestamp())\n\nprint(text_to_stamp(\"2026-03-15 14:30\"))\nprint(text_to_stamp(\"1970-01-02 00:00\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom datetime import datetime, timezone\n\n\ndef text_to_stamp(text):\n    moment = datetime.strptime(text, \"%Y-%m-%d %H:%M\")\n    moment = moment.replace(tzinfo=timezone.utc)\n    return int(moment.timestamp())\n\nprint(text_to_stamp(\"2026-03-15 14:30\"))\nprint(text_to_stamp(\"1970-01-02 00:00\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "text_to_stamp",
+      "cases": [
+        {
+          "args": [
+            "2026-03-15 14:30"
+          ],
+          "returns": 1773585000
+        },
+        {
+          "args": [
+            "1970-01-02 00:00"
+          ],
+          "returns": 86400
+        },
+        {
+          "args": [
+            "2027-01-15 08:00"
+          ],
+          "returns": 1800000000
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1773585000\n86400"
+    }
+  ]
+}
