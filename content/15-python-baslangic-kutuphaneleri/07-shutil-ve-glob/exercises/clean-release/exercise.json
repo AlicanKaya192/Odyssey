@@ -1,0 +1,73 @@
+{
+  "id": "clean-release",
+  "title": {
+    "tr": "Temiz yayın klasörü",
+    "en": "A clean release folder"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Atlanacaklar `shutil.ignore_patterns(\"*.tmp\", \"temp\")`; ikinci çağrı için `dirs_exist_ok=True`.",
+      "en": "What to skip: `shutil.ignore_patterns(\"*.tmp\", \"temp\")`; for the second call `dirs_exist_ok=True`."
+    },
+    {
+      "tr": "Dosyalar `[p for p in Path(dst).rglob(\"*\") if p.is_file()]`, sonra `relative_to(dst).as_posix()`.",
+      "en": "Files: `[p for p in Path(dst).rglob(\"*\") if p.is_file()]`, then `relative_to(dst).as_posix()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport shutil\nfrom pathlib import Path\n\n\ndef clean_release(src, dst):\n    skip = shutil.ignore_patterns(\"*.tmp\", \"temp\")\n    shutil.copytree(src, dst, ignore=skip, dirs_exist_ok=True)\n    files = [p for p in Path(dst).rglob(\"*\") if p.is_file()]\n    return sorted(p.relative_to(dst).as_posix() for p in files)\n\nfor name in clean_release(\"app\", \"release\"):\n    print(name)\n```",
+      "en": "The full solution:\n\n```python\nimport shutil\nfrom pathlib import Path\n\n\ndef clean_release(src, dst):\n    skip = shutil.ignore_patterns(\"*.tmp\", \"temp\")\n    shutil.copytree(src, dst, ignore=skip, dirs_exist_ok=True)\n    files = [p for p in Path(dst).rglob(\"*\") if p.is_file()]\n    return sorted(p.relative_to(dst).as_posix() for p in files)\n\nfor name in clean_release(\"app\", \"release\"):\n    print(name)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "clean_release",
+      "cases": [
+        {
+          "args": [
+            "app",
+            "release"
+          ],
+          "returns": [
+            "data/config.json",
+            "main.py",
+            "utils.py"
+          ]
+        },
+        {
+          "args": [
+            "app",
+            "release"
+          ],
+          "returns": [
+            "data/config.json",
+            "main.py",
+            "utils.py"
+          ]
+        },
+        {
+          "args": [
+            "app/data",
+            "config-only"
+          ],
+          "returns": [
+            "config.json"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "data/config.json\nmain.py\nutils.py"
+    }
+  ]
+}
