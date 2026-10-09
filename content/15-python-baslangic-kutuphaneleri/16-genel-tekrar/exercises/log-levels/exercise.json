@@ -1,0 +1,52 @@
+{
+  "id": "log-levels",
+  "title": {
+    "tr": "Kayıt düzeylerini say",
+    "en": "Count the log levels"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Uymayan satırda `fullmatch` `None` döner; `if m:` ile atla.",
+      "en": "On a non-matching line `fullmatch` returns `None`; skip it with `if m:`."
+    },
+    {
+      "tr": "Düzey `m.group(1)`; `counts[m.group(1)] += 1`.",
+      "en": "The level is `m.group(1)`; `counts[m.group(1)] += 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\nfrom collections import Counter\nfrom pathlib import Path\n\nLINE = re.compile(r\"\\S+ \\S+ (\\w+) \\[\\w+\\] .+\")\n\n\ndef log_levels(path):\n    counts = Counter()\n    for line in Path(path).read_text(encoding=\"utf-8\").splitlines():\n        m = LINE.fullmatch(line)\n        if m:\n            counts[m.group(1)] += 1\n    return dict(counts)\n\nlevels = log_levels(\"app.log\")\nfor level in sorted(levels):\n    print(level, levels[level])\n```",
+      "en": "The full solution:\n\n```python\nimport re\nfrom collections import Counter\nfrom pathlib import Path\n\nLINE = re.compile(r\"\\S+ \\S+ (\\w+) \\[\\w+\\] .+\")\n\n\ndef log_levels(path):\n    counts = Counter()\n    for line in Path(path).read_text(encoding=\"utf-8\").splitlines():\n        m = LINE.fullmatch(line)\n        if m:\n            counts[m.group(1)] += 1\n    return dict(counts)\n\nlevels = log_levels(\"app.log\")\nfor level in sorted(levels):\n    print(level, levels[level])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "log_levels",
+      "cases": [
+        {
+          "args": [
+            "app.log"
+          ],
+          "returns": {
+            "ERROR": 2,
+            "INFO": 2,
+            "WARNING": 1
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ERROR 2\nINFO 2\nWARNING 1"
+    }
+  ]
+}
