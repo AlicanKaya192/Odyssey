@@ -1,0 +1,52 @@
+{
+  "id": "parse-prices",
+  "title": {
+    "tr": "Excel'den gelen fiyatlar",
+    "en": "Prices from Excel"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İlk hata `KeyError: 'product'`: BOM ilk sütun adına yapışmış. `encoding=\"utf-8-sig\"`.",
+      "en": "The first error is `KeyError: 'product'`: the BOM stuck to the first column name. `encoding=\"utf-8-sig\"`."
+    },
+    {
+      "tr": "Sonra `float(\"3,50\")` düşer: `row[\"price\"].replace(\",\", \".\")`.",
+      "en": "Then `float(\"3,50\")` fails: `row[\"price\"].replace(\",\", \".\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport csv\n\n\ndef parse_prices(path):\n    prices = {}\n    with open(path, newline=\"\", encoding=\"utf-8-sig\") as f:\n        for row in csv.DictReader(f, delimiter=\";\"):\n            prices[row[\"product\"]] = float(row[\"price\"].replace(\",\", \".\"))\n    return prices\n\nprices = parse_prices(\"prices.csv\")\nfor name in sorted(prices):\n    print(name, prices[name])\n```",
+      "en": "The full solution:\n\n```python\nimport csv\n\n\ndef parse_prices(path):\n    prices = {}\n    with open(path, newline=\"\", encoding=\"utf-8-sig\") as f:\n        for row in csv.DictReader(f, delimiter=\";\"):\n            prices[row[\"product\"]] = float(row[\"price\"].replace(\",\", \".\"))\n    return prices\n\nprices = parse_prices(\"prices.csv\")\nfor name in sorted(prices):\n    print(name, prices[name])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_prices",
+      "cases": [
+        {
+          "args": [
+            "prices.csv"
+          ],
+          "returns": {
+            "pen": 3.5,
+            "book": 12.9,
+            "eraser": 1.25
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "book 12.9\neraser 1.25\npen 3.5"
+    }
+  ]
+}

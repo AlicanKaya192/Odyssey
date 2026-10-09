@@ -1,0 +1,69 @@
+{
+  "id": "filter-rows",
+  "title": {
+    "tr": "Büyük satışları ayır",
+    "en": "Separate the big sales"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki dosya aynı `with` satırında açılabilir: `with open(src, ...) as fin, open(dst, \"w\", ...) as fout:`.",
+      "en": "Two files can be opened on the same `with` line: `with open(src, ...) as fin, open(dst, \"w\", ...) as fout:`."
+    },
+    {
+      "tr": "`writer = csv.DictWriter(fout, fieldnames=reader.fieldnames)`, `writeheader()`, koşulu tutan satırda `writerow(row)`.",
+      "en": "`writer = csv.DictWriter(fout, fieldnames=reader.fieldnames)`, `writeheader()`, `writerow(row)` for rows that pass."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport csv\n\n\ndef filter_rows(src, dst, column, minimum):\n    count = 0\n    with open(src, newline=\"\", encoding=\"utf-8\") as fin, \\\n            open(dst, \"w\", newline=\"\", encoding=\"utf-8\") as fout:\n        reader = csv.DictReader(fin)\n        writer = csv.DictWriter(fout, fieldnames=reader.fieldnames)\n        writer.writeheader()\n        for row in reader:\n            if float(row[column]) >= minimum:\n                writer.writerow(row)\n                count += 1\n    return count\n\nprint(filter_rows(\"sales.csv\", \"big.csv\", \"amount\", 100))\nprint(open(\"big.csv\", encoding=\"utf-8\").read())\n```",
+      "en": "The full solution:\n\n```python\nimport csv\n\n\ndef filter_rows(src, dst, column, minimum):\n    count = 0\n    with open(src, newline=\"\", encoding=\"utf-8\") as fin, \\\n            open(dst, \"w\", newline=\"\", encoding=\"utf-8\") as fout:\n        reader = csv.DictReader(fin)\n        writer = csv.DictWriter(fout, fieldnames=reader.fieldnames)\n        writer.writeheader()\n        for row in reader:\n            if float(row[column]) >= minimum:\n                writer.writerow(row)\n                count += 1\n    return count\n\nprint(filter_rows(\"sales.csv\", \"big.csv\", \"amount\", 100))\nprint(open(\"big.csv\", encoding=\"utf-8\").read())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "filter_rows",
+      "cases": [
+        {
+          "args": [
+            "sales.csv",
+            "big.csv",
+            "amount",
+            100
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            "sales.csv",
+            "none.csv",
+            "amount",
+            1000
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "sales.csv",
+            "all.csv",
+            "amount",
+            0
+          ],
+          "returns": 5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\ndate,customer,city,amount\n2026-03-01,Ada,\"London, UK\",120.50\n2026-03-02,Grace,\"New York, US\",200.25"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "write-people",
+  "title": {
+    "tr": "Kişileri yaz",
+    "en": "Write the people"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Elle `\",\".join` başlığı yazmıyor ve virgüllü değeri tırnağa almıyor.",
+      "en": "Joining by hand with `\",\".join` writes no header and does not quote the value with a comma."
+    },
+    {
+      "tr": "`writer = csv.DictWriter(f, fieldnames=list(people[0]))`, `writeheader()`, `writerows(people)`; `newline=\"\"` unutma.",
+      "en": "`writer = csv.DictWriter(f, fieldnames=list(people[0]))`, `writeheader()`, `writerows(people)`; do not forget `newline=\"\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport csv\n\n\ndef write_people(path, people):\n    with open(path, \"w\", newline=\"\", encoding=\"utf-8\") as f:\n        writer = csv.DictWriter(f, fieldnames=list(people[0]))\n        writer.writeheader()\n        writer.writerows(people)\n    with open(path, encoding=\"utf-8\") as f:\n        return f.read().splitlines()\n\npeople = [{\"name\": \"Ada\", \"city\": \"London, UK\"}, {\"name\": \"Alan\", \"city\": \"Wilmslow\"}]\nfor line in write_people(\"out.csv\", people):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nimport csv\n\n\ndef write_people(path, people):\n    with open(path, \"w\", newline=\"\", encoding=\"utf-8\") as f:\n        writer = csv.DictWriter(f, fieldnames=list(people[0]))\n        writer.writeheader()\n        writer.writerows(people)\n    with open(path, encoding=\"utf-8\") as f:\n        return f.read().splitlines()\n\npeople = [{\"name\": \"Ada\", \"city\": \"London, UK\"}, {\"name\": \"Alan\", \"city\": \"Wilmslow\"}]\nfor line in write_people(\"out.csv\", people):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "write_people",
+      "cases": [
+        {
+          "args": [
+            "out.csv",
+            [
+              {
+                "name": "Ada",
+                "city": "London, UK"
+              },
+              {
+                "name": "Alan",
+                "city": "Wilmslow"
+              }
+            ]
+          ],
+          "returns": [
+            "name,city",
+            "Ada,\"London, UK\"",
+            "Alan,Wilmslow"
+          ]
+        },
+        {
+          "args": [
+            "quotes.csv",
+            [
+              {
+                "title": "Say \"hi\"",
+                "year": "2026"
+              }
+            ]
+          ],
+          "returns": [
+            "title,year",
+            "\"Say \"\"hi\"\"\",2026"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "name,city\nAda,\"London, UK\"\nAlan,Wilmslow"
+    }
+  ]
+}
