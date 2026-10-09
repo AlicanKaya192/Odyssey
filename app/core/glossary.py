@@ -29,7 +29,8 @@ from ..paths import content_dir
 GROUPS = ("python", "data", "ml", "sql", "math", "ts", "api", "docker", "git", "bigdata", "algorithm")
 
 GROUP_CHAPTERS = {
-    "python": ("00-python-temelleri", "15-python-baslangic-kutuphaneleri"),
+    "python": ("00-python-temelleri", "15-python-baslangic-kutuphaneleri",
+               "16-python-ileri-kutuphaneleri"),
     "data": ("01-veri-bilimi",),
     "ml": ("02-makine-ogrenmesi",),
     "sql": ("03-sql",),

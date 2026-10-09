@@ -1,0 +1,78 @@
+{
+  "id": "sort-versions",
+  "title": {
+    "tr": "Sürümleri sırala",
+    "en": "Sort the versions"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`self.parts = tuple(int(p) for p in text.split(\".\"))`; demetler sayı sayı karşılaştırılır.",
+      "en": "`self.parts = tuple(int(p) for p in text.split(\".\"))`; tuples compare number by number."
+    },
+    {
+      "tr": "`__eq__` ve `__lt__` yaz, sınıfın üstüne `@total_ordering`: `>=` kendiliğinden gelir.",
+      "en": "Write `__eq__` and `__lt__` and put `@total_ordering` above the class: `>=` comes by itself."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom functools import total_ordering\n\n\n@total_ordering\nclass Version:\n    def __init__(self, text):\n        self.text = text\n        self.parts = tuple(int(p) for p in text.split(\".\"))\n\n    def __eq__(self, other):\n        return self.parts == other.parts\n\n    def __lt__(self, other):\n        return self.parts < other.parts\n\n\ndef sort_versions(texts):\n    return [v.text for v in sorted(Version(t) for t in texts)]\n\nprint(sort_versions([\"1.10\", \"1.2\", \"1.2.1\", \"0.9\"]))\nprint(Version(\"2.0\") >= Version(\"1.10\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom functools import total_ordering\n\n\n@total_ordering\nclass Version:\n    def __init__(self, text):\n        self.text = text\n        self.parts = tuple(int(p) for p in text.split(\".\"))\n\n    def __eq__(self, other):\n        return self.parts == other.parts\n\n    def __lt__(self, other):\n        return self.parts < other.parts\n\n\ndef sort_versions(texts):\n    return [v.text for v in sorted(Version(t) for t in texts)]\n\nprint(sort_versions([\"1.10\", \"1.2\", \"1.2.1\", \"0.9\"]))\nprint(Version(\"2.0\") >= Version(\"1.10\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sort_versions",
+      "cases": [
+        {
+          "args": [
+            [
+              "1.10",
+              "1.2",
+              "1.2.1",
+              "0.9"
+            ]
+          ],
+          "returns": [
+            "0.9",
+            "1.2",
+            "1.2.1",
+            "1.10"
+          ]
+        },
+        {
+          "args": [
+            [
+              "2.0",
+              "10.0",
+              "9.9.9"
+            ]
+          ],
+          "returns": [
+            "2.0",
+            "9.9.9",
+            "10.0"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['0.9', '1.2', '1.2.1', '1.10']\nTrue"
+    }
+  ]
+}
