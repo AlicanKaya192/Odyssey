@@ -118,7 +118,7 @@ FrozenInstanceError: cannot assign to field 'major'
   `major`, sonra `minor`) üretir; `sorted` ve `max` çalışır. Alanların
   yazılış sırası karşılaştırma sırasıdır.
 
-## __post_init__, asdict, replace
+## `__post_init__`, `asdict`, `replace`
 
 ```python
 from dataclasses import asdict, dataclass, field, replace
