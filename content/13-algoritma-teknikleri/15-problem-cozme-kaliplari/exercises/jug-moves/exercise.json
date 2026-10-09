@@ -1,0 +1,82 @@
+{
+  "id": "jug-moves",
+  "title": {
+    "tr": "Kovalar",
+    "en": "Buckets"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while queue:` içinde durumu al; `goal in (x, y)` ise `return dist[(x, y)]`.",
+      "en": "Inside `while queue:` take the state; if `goal in (x, y)`, `return dist[(x, y)]`."
+    },
+    {
+      "tr": "Dökme miktarları `min(x, b - y)` ve `min(y, a - x)`; yeni durum `dist`'te yoksa uzaklığı bir fazla yaz ve kuyruğa ekle.",
+      "en": "The pour amounts are `min(x, b - y)` and `min(y, a - x)`; if a new state is not in `dist`, write its distance one more and add it to the queue."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import deque\n\n\ndef min_moves(a, b, goal):\n    dist = {(0, 0): 0}\n    queue = deque([(0, 0)])\n    while queue:\n        x, y = queue.popleft()\n        if goal in (x, y):\n            return dist[(x, y)]\n        pour_xy = min(x, b - y)\n        pour_yx = min(y, a - x)\n        for nxt in [(a, y), (x, b), (0, y), (x, 0),\n                    (x - pour_xy, y + pour_xy), (x + pour_yx, y - pour_yx)]:\n            if nxt not in dist:\n                dist[nxt] = dist[(x, y)] + 1\n                queue.append(nxt)\n    return -1\n\nprint(min_moves(3, 5, 4))\nprint(min_moves(2, 4, 3))\nprint(min_moves(7, 11, 6))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import deque\n\n\ndef min_moves(a, b, goal):\n    dist = {(0, 0): 0}\n    queue = deque([(0, 0)])\n    while queue:\n        x, y = queue.popleft()\n        if goal in (x, y):\n            return dist[(x, y)]\n        pour_xy = min(x, b - y)\n        pour_yx = min(y, a - x)\n        for nxt in [(a, y), (x, b), (0, y), (x, 0),\n                    (x - pour_xy, y + pour_xy), (x + pour_yx, y - pour_yx)]:\n            if nxt not in dist:\n                dist[nxt] = dist[(x, y)] + 1\n                queue.append(nxt)\n    return -1\n\nprint(min_moves(3, 5, 4))\nprint(min_moves(2, 4, 3))\nprint(min_moves(7, 11, 6))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "min_moves",
+      "cases": [
+        {
+          "args": [
+            3,
+            5,
+            4
+          ],
+          "returns": 6
+        },
+        {
+          "args": [
+            2,
+            4,
+            3
+          ],
+          "returns": -1
+        },
+        {
+          "args": [
+            7,
+            11,
+            6
+          ],
+          "returns": 10
+        },
+        {
+          "args": [
+            3,
+            5,
+            0
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            4,
+            9,
+            9
+          ],
+          "returns": 1
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6\n-1\n10"
+    }
+  ]
+}
