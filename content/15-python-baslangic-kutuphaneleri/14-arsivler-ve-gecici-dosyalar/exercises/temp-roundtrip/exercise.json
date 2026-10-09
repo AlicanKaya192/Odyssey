@@ -1,0 +1,70 @@
+{
+  "id": "temp-roundtrip",
+  "title": {
+    "tr": "Geçici klasörde çalış",
+    "en": "Work in a temporary folder"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Klasörün yolu `base = Path(tmp)`; yazmak `(base / name).write_text(...)`.",
+      "en": "The folder's path is `base = Path(tmp)`; writing is `(base / name).write_text(...)`."
+    },
+    {
+      "tr": "Adları blok içinde al; `base.exists()`'i bloktan **sonra** sor.",
+      "en": "Take the names inside the block; ask `base.exists()` **after** it."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport tempfile\nfrom pathlib import Path\n\n\ndef temp_roundtrip(files):\n    with tempfile.TemporaryDirectory() as tmp:\n        base = Path(tmp)\n        for name, text in files.items():\n            (base / name).write_text(text, encoding=\"utf-8\")\n        names = sorted(p.name for p in base.iterdir())\n    return names, base.exists()\n\nprint(temp_roundtrip({\"b.txt\": \"two\", \"a.txt\": \"one\"}))\n```",
+      "en": "The full solution:\n\n```python\nimport tempfile\nfrom pathlib import Path\n\n\ndef temp_roundtrip(files):\n    with tempfile.TemporaryDirectory() as tmp:\n        base = Path(tmp)\n        for name, text in files.items():\n            (base / name).write_text(text, encoding=\"utf-8\")\n        names = sorted(p.name for p in base.iterdir())\n    return names, base.exists()\n\nprint(temp_roundtrip({\"b.txt\": \"two\", \"a.txt\": \"one\"}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "temp_roundtrip",
+      "cases": [
+        {
+          "args": [
+            {
+              "b.txt": "two",
+              "a.txt": "one"
+            }
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                "a.txt",
+                "b.txt"
+              ],
+              false
+            ]
+          }
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": {
+            "__tuple__": [
+              [],
+              false
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(['a.txt', 'b.txt'], False)"
+    }
+  ]
+}
