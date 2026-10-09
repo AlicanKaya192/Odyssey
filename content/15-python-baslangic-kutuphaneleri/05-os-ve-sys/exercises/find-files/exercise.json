@@ -1,0 +1,82 @@
+{
+  "id": "find-files",
+  "title": {
+    "tr": "Dosyaları bul",
+    "en": "Find the files"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tam yol `os.path.join(root, name)`; göreli yol `os.path.relpath(full, folder)`.",
+      "en": "The full path is `os.path.join(root, name)`; the relative one `os.path.relpath(full, folder)`."
+    },
+    {
+      "tr": "Windows'ta ayıraç `\\`; `.replace(os.sep, \"/\")` ve sonda `sorted`.",
+      "en": "On Windows the separator is `\\`; `.replace(os.sep, \"/\")` and `sorted` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport os\n\n\ndef find_files(folder, ext):\n    found = []\n    for root, dirs, files in os.walk(folder):\n        for name in files:\n            if os.path.splitext(name)[1] == ext:\n                full = os.path.join(root, name)\n                found.append(os.path.relpath(full, folder).replace(os.sep, \"/\"))\n    return sorted(found)\n\nfor path in find_files(\"project\", \".csv\"):\n    print(path)\n```",
+      "en": "The full solution:\n\n```python\nimport os\n\n\ndef find_files(folder, ext):\n    found = []\n    for root, dirs, files in os.walk(folder):\n        for name in files:\n            if os.path.splitext(name)[1] == ext:\n                full = os.path.join(root, name)\n                found.append(os.path.relpath(full, folder).replace(os.sep, \"/\"))\n    return sorted(found)\n\nfor path in find_files(\"project\", \".csv\"):\n    print(path)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "find_files",
+      "cases": [
+        {
+          "args": [
+            "project",
+            ".csv"
+          ],
+          "returns": [
+            "data/old/sales-2025.csv",
+            "data/sales.csv",
+            "data/stock.csv"
+          ]
+        },
+        {
+          "args": [
+            "project",
+            ".py"
+          ],
+          "returns": [
+            "main.py",
+            "src/app.py",
+            "src/utils.py"
+          ]
+        },
+        {
+          "args": [
+            "project",
+            ".json"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "project/data",
+            ".csv"
+          ],
+          "returns": [
+            "old/sales-2025.csv",
+            "sales.csv",
+            "stock.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "data/old/sales-2025.csv\ndata/sales.csv\ndata/stock.csv"
+    }
+  ]
+}
