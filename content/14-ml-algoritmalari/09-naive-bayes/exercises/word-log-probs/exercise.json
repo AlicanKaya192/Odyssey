@@ -1,0 +1,116 @@
+{
+  "id": "word-log-probs",
+  "title": {
+    "tr": "Kelime olasılıkları",
+    "en": "Word probabilities"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`word = np.array([C[y == c].sum(axis=0) for c in np.unique(y)]) + alpha`.",
+      "en": "`word = np.array([C[y == c].sum(axis=0) for c in np.unique(y)]) + alpha`."
+    },
+    {
+      "tr": "`np.log(word / word.sum(axis=1, keepdims=True)).round(4).tolist()`.",
+      "en": "`np.log(word / word.sum(axis=1, keepdims=True)).round(4).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef word_log_probs(C, y, alpha):\n    C, y = np.array(C, dtype=float), np.array(y)\n    word = np.array([C[y == c].sum(axis=0) for c in np.unique(y)]) + alpha\n    return np.log(word / word.sum(axis=1, keepdims=True)).round(4).tolist()\n\nC = [[2, 1, 0], [1, 0, 0], [0, 0, 3], [0, 1, 2]]\ny = [0, 0, 1, 1]\nfor row in word_log_probs(C, y, 1.0):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef word_log_probs(C, y, alpha):\n    C, y = np.array(C, dtype=float), np.array(y)\n    word = np.array([C[y == c].sum(axis=0) for c in np.unique(y)]) + alpha\n    return np.log(word / word.sum(axis=1, keepdims=True)).round(4).tolist()\n\nC = [[2, 1, 0], [1, 0, 0], [0, 0, 3], [0, 1, 2]]\ny = [0, 0, 1, 1]\nfor row in word_log_probs(C, y, 1.0):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "word_log_probs",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                2,
+                1,
+                0
+              ],
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                3
+              ],
+              [
+                0,
+                1,
+                2
+              ]
+            ],
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            1.0
+          ],
+          "returns": [
+            [
+              -0.5596,
+              -1.2528,
+              -1.9459
+            ],
+            [
+              -2.1972,
+              -1.5041,
+              -0.4055
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              0,
+              1
+            ],
+            0.5
+          ],
+          "returns": [
+            [
+              -0.6931,
+              -0.6931
+            ],
+            [
+              -0.6931,
+              -0.6931
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-0.5596, -1.2528, -1.9459]\n[-2.1972, -1.5041, -0.4055]"
+    }
+  ]
+}

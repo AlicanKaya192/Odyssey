@@ -1,0 +1,105 @@
+{
+  "id": "mnb-predict",
+  "title": {
+    "tr": "Metin sınıflandırmak",
+    "en": "Classifying text"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`prior = np.log(...)`, `logw = np.log(word / word.sum(axis=1, keepdims=True))`.",
+      "en": "`prior = np.log(...)`, `logw = np.log(word / word.sum(axis=1, keepdims=True))`."
+    },
+    {
+      "tr": "`scores = prior + Cq @ logw.T`; `scores.argmax(axis=1)` ile sınıf.",
+      "en": "`scores = prior + Cq @ logw.T`; the class with `scores.argmax(axis=1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef mnb_predict(C, y, Cq, alpha):\n    C, y, Cq = np.array(C, dtype=float), np.array(y), np.array(Cq, dtype=float)\n    classes = np.unique(y)\n    prior = np.log(np.array([(y == c).mean() for c in classes]))\n    word = np.array([C[y == c].sum(axis=0) for c in classes]) + alpha\n    logw = np.log(word / word.sum(axis=1, keepdims=True))\n    scores = prior + Cq @ logw.T\n    return [int(classes[i]) for i in scores.argmax(axis=1)]\n\nC = [[2, 1, 0], [1, 0, 0], [0, 0, 3], [0, 1, 2]]\ny = [0, 0, 1, 1]\nprint(mnb_predict(C, y, [[1, 0, 0], [0, 0, 1], [0, 2, 0]], 1.0))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef mnb_predict(C, y, Cq, alpha):\n    C, y, Cq = np.array(C, dtype=float), np.array(y), np.array(Cq, dtype=float)\n    classes = np.unique(y)\n    prior = np.log(np.array([(y == c).mean() for c in classes]))\n    word = np.array([C[y == c].sum(axis=0) for c in classes]) + alpha\n    logw = np.log(word / word.sum(axis=1, keepdims=True))\n    scores = prior + Cq @ logw.T\n    return [int(classes[i]) for i in scores.argmax(axis=1)]\n\nC = [[2, 1, 0], [1, 0, 0], [0, 0, 3], [0, 1, 2]]\ny = [0, 0, 1, 1]\nprint(mnb_predict(C, y, [[1, 0, 0], [0, 0, 1], [0, 2, 0]], 1.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "MultinomialNB",
+      "hint": {
+        "tr": "`MultinomialNB` kullanma.",
+        "en": "Do not use `MultinomialNB`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "mnb_predict",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                2,
+                1,
+                0
+              ],
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                3
+              ],
+              [
+                0,
+                1,
+                2
+              ]
+            ],
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                2,
+                0
+              ]
+            ],
+            1.0
+          ],
+          "returns": [
+            0,
+            1,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 1, 0]"
+    }
+  ]
+}
