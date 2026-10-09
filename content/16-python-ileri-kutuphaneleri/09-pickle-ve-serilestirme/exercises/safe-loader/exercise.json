@@ -1,0 +1,36 @@
+{
+  "id": "safe-loader",
+  "title": {
+    "tr": "Kısıtlı yükleyici",
+    "en": "A restricted loader"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`class SafeUnpickler(pickle.Unpickler)` içinde `def find_class(self, module, name)`; izinliyse `return super().find_class(module, name)`.",
+      "en": "In `class SafeUnpickler(pickle.Unpickler)`, `def find_class(self, module, name)`; if allowed, `return super().find_class(module, name)`."
+    },
+    {
+      "tr": "İzinsizse `raise pickle.UnpicklingError(f\"blocked: {module}.{name}\")`; `load_safely` bunu yakalayıp `str(error)` döndürür.",
+      "en": "If not allowed, `raise pickle.UnpicklingError(f\"blocked: {module}.{name}\")`; `load_safely` catches it and returns `str(error)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport io\nimport pickle\nfrom collections import Counter\n\nALLOWED = {(\"collections\", \"Counter\")}\n\n\nclass SafeUnpickler(pickle.Unpickler):\n    def find_class(self, module, name):\n        if (module, name) in ALLOWED:\n            return super().find_class(module, name)\n        raise pickle.UnpicklingError(f\"blocked: {module}.{name}\")\n\n\ndef load_safely(blob):\n    try:\n        return SafeUnpickler(io.BytesIO(blob)).load()\n    except pickle.UnpicklingError as error:\n        return str(error)\n\n\nclass Trap:\n    def __reduce__(self):\n        return (print, (\"loaded!\",))\n\n\nprint(load_safely(pickle.dumps(Counter(\"abca\"))))\nprint(load_safely(pickle.dumps(Trap())))\nprint(load_safely(pickle.dumps([1, \"x\", None])))\n```",
+      "en": "The full solution:\n\n```python\nimport io\nimport pickle\nfrom collections import Counter\n\nALLOWED = {(\"collections\", \"Counter\")}\n\n\nclass SafeUnpickler(pickle.Unpickler):\n    def find_class(self, module, name):\n        if (module, name) in ALLOWED:\n            return super().find_class(module, name)\n        raise pickle.UnpicklingError(f\"blocked: {module}.{name}\")\n\n\ndef load_safely(blob):\n    try:\n        return SafeUnpickler(io.BytesIO(blob)).load()\n    except pickle.UnpicklingError as error:\n        return str(error)\n\n\nclass Trap:\n    def __reduce__(self):\n        return (print, (\"loaded!\",))\n\n\nprint(load_safely(pickle.dumps(Counter(\"abca\"))))\nprint(load_safely(pickle.dumps(Trap())))\nprint(load_safely(pickle.dumps([1, \"x\", None])))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Counter({'a': 2, 'b': 1, 'c': 1})\nblocked: builtins.print\n[1, 'x', None]"
+    }
+  ]
+}
