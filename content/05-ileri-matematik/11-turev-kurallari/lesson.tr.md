@@ -7,7 +7,7 @@ fonksiyonların türevini veriyor. Bir sinir ağı iç içe fonksiyonlardan
 başka bir şey değil ve onu eğiten **geri yayılım** algoritması, zincir
 kuralının defalarca uygulanması.
 
-Ön bilgi: Türev bölümü, MAT 1'deki Fonksiyonlar (bileşke).
+Ön bilgi: Türev bölümü, Temel Matematik modülündeki Fonksiyonlar (bileşke).
 
 ## Kuvvet kuralı
 

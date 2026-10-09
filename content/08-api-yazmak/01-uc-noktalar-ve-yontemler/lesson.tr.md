@@ -7,7 +7,7 @@ FastAPI'nin döndürdüğün değerleri nasıl JSON'a çevirdiğini görüyorsun
 
 ## Yöntem başına bir dekoratör
 
-API 1'de öğrendiğin her HTTP yönteminin FastAPI'de bir dekoratörü var:
+API Kullanmak modülünde öğrendiğin her HTTP yönteminin FastAPI'de bir dekoratörü var:
 
 | Yöntem | Dekoratör | Genellikle ne için? |
 |---|---|---|
@@ -82,7 +82,7 @@ Sayaç için bir `DELETE` yazmadık. Biri yine de gönderirse:
 DELETE /counter   405  {"detail":"Method Not Allowed"}
 ```
 
-`404` değil `405`: adres **var**, ama bu yöntem izinli değil. API 1'de
+`404` değil `405`: adres **var**, ama bu yöntem izinli değil. API Kullanmak modülünde
 istemci olarak bu iki kodu ayırt etmeyi öğrenmiştin; şimdi FastAPI onları
 senin yerine doğru veriyor.
 
@@ -112,7 +112,7 @@ de adresleri tutarlı yaz: sonda eğik çizgi **olmadan** (`/books`,
 
 ## İyi adres, iyi yöntem
 
-API 1'deki REST kuralları burada senin sorumluluğunda:
+API Kullanmak modülündeki REST kuralları burada senin sorumluluğunda:
 
 - Adres bir **şeyi** (kaynağı) anlatsın, yöntem **ne yapılacağını**:
   `POST /counter`, `POST /increase-counter` değil.

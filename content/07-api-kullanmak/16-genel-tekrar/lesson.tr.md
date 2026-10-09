@@ -1,6 +1,6 @@
 # Genel Tekrar
 
-API 1'in sonuna geldin. "API nedir?" sorusuyla başladın; şimdi bir API'den
+API Kullanmak modülünün sonuna geldin. "API nedir?" sorusuyla başladın; şimdi bir API'den
 sayfa sayfa, hatalara ve hız sınırına dayanıklı biçimde veri çekip temiz bir
 veri setine dökebiliyorsun. Bu bölüm yolu baştan sona bir kez daha yürüyor:
 her durakta en önemli fikir ve en çok kullanacağın kod.
@@ -13,7 +13,7 @@ her durakta en önemli fikir ve en çok kullanacağın kod.
     <span class="node">REST<br><small>13–14</small></span><span class="arrow">→</span>
     <span class="node acc">Veri hattı<br><small>15</small></span>
   </div>
-  <figcaption>API 1'in yolu: kavramdan, gerçek bir veri setini güvenilir biçimde çeken bir programa.</figcaption>
+  <figcaption>API Kullanmak modülünün yolu: kavramdan, gerçek bir veri setini güvenilir biçimde çeken bir programa.</figcaption>
 </figure>
 
 ## 1. Kavramlar (Bölüm 00)
@@ -134,7 +134,7 @@ Satır satır okuyabiliyorsan, bu patikanın amacına ulaştın.
 
 ## Sırada ne var?
 
-API 2'de masanın öbür tarafına geçeceksin: FastAPI ile **kendi** API'ni
+API Yazmak modülünde masanın öbür tarafına geçeceksin: FastAPI ile **kendi** API'ni
 yazacak, uç noktalar tanımlayacak, gelen veriyi doğrulayacak, kimlik
 isteyecek, belgeni `/docs`'ta göreceksin. Bu patikada istemci olarak
 öğrendiğin her kural (yöntemler, kodlar, REST tasarımı), orada sunucu olarak

@@ -4,7 +4,7 @@ Polinom, $x$'in kuvvetlerinden kurulan ifade: $3x^2 - 5x + 2$ gibi.
 Doğru ($y = mx + b$) birinci dereceden, parabol ikinci dereceden bir
 polinomdu; bu bölümde dereceyi serbest bırakıyoruz. Polinomlar
 matematiğin "yapı taşı" fonksiyonları: toplamak, çarpmak, değerini
-hesaplamak kolay, yine de neredeyse her eğriye yaklaşabiliyorlar. MAT 2'deki
+hesaplamak kolay, yine de neredeyse her eğriye yaklaşabiliyorlar. İleri Matematik modülündeki
 Taylor yaklaşımı tam olarak bunu yapar; makine öğrenmesindeki polinom
 regresyonu da bir doğrunun yakalayamadığı eğriyi bir polinomla yakalar.
 Polinomları tanıyacak, onlarla işlem yapacak, bölecek ve köklerini
@@ -258,7 +258,7 @@ geçer; eğitim hatası sıfır olur ama eğri noktaların arasında çılgınca
 salınır ve yeni veride kötü tahmin eder. Buna **aşırı öğrenme** denir;
 dereceyi seçmek modeli seçmenin parçası.
 
-**Yaklaşım.** MAT 2'deki Taylor yaklaşımı, $e^x$ ya da $\sin x$ gibi
+**Yaklaşım.** İleri Matematik modülündeki Taylor yaklaşımı, $e^x$ ya da $\sin x$ gibi
 fonksiyonları bir noktanın yakınında polinomla taklit eder. Bilgisayarlar
 da bu fonksiyonları içeride polinomlarla hesaplar: polinom yalnızca
 toplama ve çarpma ister.

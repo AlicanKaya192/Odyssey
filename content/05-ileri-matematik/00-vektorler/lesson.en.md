@@ -6,12 +6,12 @@ side they become a single object: $(120,\ 3,\ 10)$. A photo is a vector of
 thousands of pixel values, a word is a vector of hundreds of numbers, and
 the weights a model learns are a vector too.
 
-That is why vectors are the first topic of MATH 2. In this chapter you will
+That is why vectors are the first topic of the Advanced Mathematics module. In this chapter you will
 see what a vector is, how it is written, how vectors are added and scaled,
 and how their length is found. In the next chapter (Dot Product) we will
 learn to measure how similar two vectors are.
 
-Before starting you need three things from MATH 1: the **coordinate plane**
+Before starting you need three things from the Foundational Mathematics module: the **coordinate plane**
 (writing a point as $(x, y)$), **Pythagoras' theorem** ($a^2 + b^2 = c^2$)
 and **square roots**. I will remind you of each as we go.
 
@@ -58,7 +58,7 @@ them in bold ($\mathbf{v}$) or with an arrow on top ($\vec{v}$). By hand
 on paper the arrow is more practical.
 
 The same vector can also be written vertically; this is called a **column
-vector**, and later in MATH 2, when we work with matrices, this form will
+vector**, and later in the Advanced Mathematics module, when we work with matrices, this form will
 be used:
 
 $$
@@ -261,7 +261,7 @@ $$
 $$
 
 The components are really just how many steps are taken in these two basic
-directions. Later in MATH 2 (Linear Independence, Basis and Rank) this idea
+directions. Later in the Advanced Mathematics module (Linear Independence, Basis and Rank) this idea
 will be generalised under the name "basis".
 
 Linear combinations are everywhere in machine learning: a linear model makes

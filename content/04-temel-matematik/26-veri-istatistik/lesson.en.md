@@ -112,7 +112,7 @@ than the whole population, the variance is computed with
 $\frac{1}{n - 1} \sum (x_i - \bar{x})^2$: $\frac{32}{7} \approx 4.57$.
 The sample mean lies closer to the data than the population mean does, so
 the divisor is made a little smaller to correct for it. As the data grows
-the difference becomes negligible; the Sampling section of MATH 2 explains
+the difference becomes negligible; the Sampling section of the Advanced Mathematics module explains
 why.
 
 ## Quartiles and box plots

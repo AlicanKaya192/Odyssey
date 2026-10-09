@@ -10,6 +10,6 @@ $$
 
 **Adım 3 — $\cos B$.** $B$ ikinci geminin köşesinde. Oradan limana vektör $(-2{,}5; -4{,}33)$, birinci gemiye $(5{,}5; -4{,}33)$. Karşılıklı çarpımların toplamı $-13{,}75 + 18{,}75 = 5$; uzunluklar $5$ ve $7$: $\cos B = \frac{5}{5 \cdot 7} = \frac{1}{7}$.
 
-**Neden aynı sonuç?** Uzaklık formülünü açınca $(8 - 5\cos\theta)^2 + (5\sin\theta)^2 = 64 - 80\cos\theta + 25$ çıkar; bu kosinüs teoreminin kendisi. Üçüncü adımdaki hesap MAT 2'deki nokta çarpımı ve kosinüs benzerliği.
+**Neden aynı sonuç?** Uzaklık formülünü açınca $(8 - 5\cos\theta)^2 + (5\sin\theta)^2 = 64 - 80\cos\theta + 25$ çıkar; bu kosinüs teoreminin kendisi. Üçüncü adımdaki hesap İleri Matematik modülündeki nokta çarpımı ve kosinüs benzerliği.
 
 **Cevap:** $7$, $11{,}358$ ve $\frac{1}{7}$.

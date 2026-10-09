@@ -156,6 +156,6 @@ patikanın amacına ulaştın.
 ## Sırada ne var?
 
 Docker bir programı **paketlemeyi** ve **çalıştırmayı** öğretti. Sıradaki
-adım, yazdığın API'yi (API 2 patikası) ya da bir makine öğrenmesi modelini
+adım, yazdığın API'yi (API Yazmak modülü) ya da bir makine öğrenmesi modelini
 bu paketle bir sunucuya taşımak: aynı imaj, aynı `compose.yaml`, yalnızca
 farklı bir `.env`.

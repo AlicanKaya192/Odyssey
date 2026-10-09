@@ -1,4 +1,4 @@
-MAT 2'nin bütün formülleri tek sayfada. Bir soruda takıldığında buraya dön; ayrıntısı ilgili bölümün başvuru notunda.
+İleri Matematik modülünün bütün formülleri tek sayfada. Bir soruda takıldığında buraya dön; ayrıntısı ilgili bölümün başvuru notunda.
 
 ## Doğrusal cebir
 

@@ -177,7 +177,7 @@ Your code runs in a separate process, inside an isolated working folder. Its out
 
 ## Internet
 
-Everything about learning works offline: the lessons, the lecture notes, the quizzes, the exercises and your progress. None of it involves a server of ours, and your progress never leaves your computer; the API exercises talk to a practice server that runs inside the application. Two exceptions come from other programs: Docker Desktop downloads the two base images of the Docker track from Docker Hub, and the `/docs` page of a FastAPI server you start in an API 2 exercise loads its interface from `cdn.jsdelivr.net` in your browser.
+Everything about learning works offline: the lessons, the lecture notes, the quizzes, the exercises and your progress. None of it involves a server of ours, and your progress never leaves your computer; the API exercises talk to a practice server that runs inside the application. Two exceptions come from other programs: Docker Desktop downloads the two base images of the Docker track from Docker Hub, and the `/docs` page of a FastAPI server you start in a Writing APIs exercise loads its interface from `cdn.jsdelivr.net` in your browser.
 
 The application goes online only if you leave the update check on: for the version check described above and, alongside it, to read the number of stars Odyssey has on GitHub, shown in the bottom strip. Neither request sends anything — no identity, no progress, no usage data — and a file is downloaded only when you press Update. With the check turned off, the application never touches the network.
 

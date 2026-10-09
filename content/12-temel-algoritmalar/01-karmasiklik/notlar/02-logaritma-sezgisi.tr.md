@@ -34,4 +34,4 @@ mi, geride mi?" diye bakarsın. 1 000 sayfalık rehberde en fazla 10 kez
 açman yeter. Rehber 1 000 000 sayfa olsaydı 20 kez. Sayfa sayısı bin kat
 arttı, iş yalnızca iki katına çıktı.
 
-Logaritmanın matematiği MAT 1'in **Logaritma** bölümünde.
+Logaritmanın matematiği Temel Matematik modülünün **Logaritma** bölümünde.

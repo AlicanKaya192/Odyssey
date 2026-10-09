@@ -9,7 +9,7 @@ togetherness, **covariance** and **correlation**, and then the **covariance
 matrix**, the summary of multivariate data.
 
 Prerequisites: Random Variables, Expectation and Variance; Data and Basic
-Statistics from MATH 1.
+Statistics from the Foundational Mathematics module.
 
 ## The scatter plot
 

@@ -11,7 +11,7 @@ important discrete distributions (Bernoulli, binomial, Poisson) and
 continuous ones (uniform, exponential, normal).
 
 Prerequisites: Random Variables, Expectation and Variance; Counting in
-MATH 1.
+the Foundational Mathematics module.
 
 ## The Bernoulli distribution
 
@@ -117,7 +117,7 @@ $180$, and $95$ percent between $150$ and $190$.
 
 **The standard normal.** The transformation $Z = \frac{X - \mu}{\sigma}$
 turns every normal distribution into $\mathcal{N}(0, 1)$; this is the
-z-score of MATH 1. The cumulative probabilities of the standard normal are
+z-score of the Foundational Mathematics module. The cumulative probabilities of the standard normal are
 ready in tables or software:
 
 | $z$ | $0.5$ | $1$ | $1.5$ | $1.96$ | $2$ | $3$ |

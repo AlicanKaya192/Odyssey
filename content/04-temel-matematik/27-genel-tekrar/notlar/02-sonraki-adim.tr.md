@@ -1,10 +1,10 @@
-MAT 1'i bitirdin. Buradan iki yol var ve ikisi birbirini tamamlıyor.
+Temel Matematik modülünü bitirdin. Buradan iki yol var ve ikisi birbirini tamamlıyor.
 
-## MAT 2 — Yapay Zekanın Matematiği
+## Yapay Zekanın Matematiği
 
-MAT 1'in her kolu MAT 2'de bir üst basamağa çıkıyor:
+Temel Matematik modülünün her kolu İleri Matematik modülünde bir üst basamağa çıkıyor:
 
-| MAT 1'de | MAT 2'de |
+| Temel Matematik modülünde | İleri Matematik modülünde |
 |---|---|
 | koordinat, uzaklık, trigonometri | vektörler, nokta çarpımı, kosinüs benzerliği |
 | denklem sistemleri | matrisler, Gauss eleme, rank |
@@ -15,7 +15,7 @@ MAT 1'in her kolu MAT 2'de bir üst basamağa çıkıyor:
 | olasılık | koşullu olasılık, Bayes, dağılımlar |
 | istatistik | örnekleme, güven aralığı, regresyonun matematiği |
 
-MAT 2'nin ilk bölümü Vektörler; Koordinat Düzlemi ve Trigonometri'yi taze
+İleri Matematik modülünün ilk bölümü Vektörler; Koordinat Düzlemi ve Trigonometri'yi taze
 tutmak yeter.
 
 ## Makine öğrenmesi patikası

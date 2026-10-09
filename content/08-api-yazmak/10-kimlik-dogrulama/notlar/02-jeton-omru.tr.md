@@ -39,7 +39,7 @@ Bu bölümdeki `tokens` sözlüğü sunucu belleğinde: sunucu yeniden başlarsa
 herkes çıkış yapmış olur. Gerçek bir uygulamada jetonlar veritabanında
 tutulur ya da JWT gibi sunucunun saklamadığı imzalı jetonlar kullanılır.
 
-## İstemci tarafı (API 1'den)
+## İstemci tarafı (API Kullanmak modülünden)
 
 ```python
 r = requests.post(f"{BASE}/token", json={"username": "ada", "password": "..."})

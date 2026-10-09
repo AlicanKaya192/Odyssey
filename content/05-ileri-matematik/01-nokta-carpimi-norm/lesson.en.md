@@ -12,7 +12,7 @@ chapter we will look at the dot product, the angle between two vectors,
 projection, cosine similarity and different measures of length (norms).
 
 Prerequisites: the previous chapter (Vectors) and the **cosine**. The
-cosine is covered in detail in the Trigonometry chapter of MATH 1; here I
+cosine is covered in detail in the Trigonometry chapter of the Foundational Mathematics module; here I
 will briefly recall the part we need.
 
 ## Definition: multiply and add

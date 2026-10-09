@@ -66,7 +66,7 @@ The body of the `422` says what is wrong:
 | `input` | What came |
 
 This is exactly the body you read when you got a `422` from an API in
-API 1. This time you did not write it; FastAPI produced it from the type
+the Using APIs module. This time you did not write it; FastAPI produced it from the type
 hint.
 
 Without a type (`def get_book(book_id):`) the value stays text and

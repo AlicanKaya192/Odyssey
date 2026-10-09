@@ -36,6 +36,6 @@ $$
 
 **Sağlama:** İkinci denklem de tutmalı: $2 \cdot 4 + 1 = 9$. ✓
 
-**Neden bu yol?** Bilinmeyen sayısı arttıkça yerine koyma karışıyor; yok etme ise hep aynı hareketi tekrarlıyor. MAT 2'nin Gauss eleme bölümü bu yöntemin büyük sistemler için düzenlenmiş hâli.
+**Neden bu yol?** Bilinmeyen sayısı arttıkça yerine koyma karışıyor; yok etme ise hep aynı hareketi tekrarlıyor. İleri Matematik modülünün Gauss eleme bölümü bu yöntemin büyük sistemler için düzenlenmiş hâli.
 
 **Cevap:** $a = 4$, $b = 1$.

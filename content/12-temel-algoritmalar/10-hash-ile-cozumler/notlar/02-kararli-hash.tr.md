@@ -38,7 +38,7 @@ indirilen dosyayı doğrulamak.
 | Bir süreç içinde küme/sözlük | yerleşik `hash()` (kendiliğinden) |
 | Veriyi sabit biçimde `n` parçaya bölmek | `zlib.crc32(...) % n` |
 | İçeriğin parmak izi, bütünlük denetimi | `hashlib.sha256` |
-| Parola saklamak | hiçbiri tek başına değil: tuzlu, yavaş özel fonksiyonlar (`hashlib.pbkdf2_hmac`; API 2'de kullandık) |
+| Parola saklamak | hiçbiri tek başına değil: tuzlu, yavaş özel fonksiyonlar (`hashlib.pbkdf2_hmac`; API Yazmak modülünde kullandık) |
 
 **Not:** `hashlib` ve `crc32` metin değil **bayt** ister; `encode("utf-8")`
 unutulursa `TypeError` alınır.

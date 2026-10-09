@@ -9,7 +9,7 @@ Beş yöntem, dekoratörleri ve her birinin tekrar edilince ne olduğu.
 | `DELETE` | `@app.delete` | Evet | İlki siler, ikincisi `404` |
 
 "İki kez gönderilince sonuç aynı" olan yöntemlere **idempotent** denir
-(`GET`, `PUT`, `DELETE`). API 1'deki yeniden deneme kuralı buradan
+(`GET`, `PUT`, `DELETE`). API Kullanmak modülündeki yeniden deneme kuralı buradan
 geliyor: istemci bir isteği tekrar gönderebilir; `POST`'u tekrar etmek
 tehlikeli, ötekiler değil.
 

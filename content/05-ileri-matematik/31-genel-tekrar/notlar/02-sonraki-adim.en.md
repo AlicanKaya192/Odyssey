@@ -1,11 +1,11 @@
-You have finished MATH 2. The mathematical foundation of AI is now in your hands; there are several ways on from here.
+You have finished the Advanced Mathematics module. The mathematical foundation of AI is now in your hands; there are several ways on from here.
 
 ## The Machine Learning path
 
 The code counterparts of the formulas you derived here are in the Machine
 Learning path:
 
-| In MATH 2 | In code |
+| In the Advanced Mathematics module | In code |
 |---|---|
 | normal equations, least squares | training linear regression |
 | sigmoid, log-loss, gradient | logistic regression |

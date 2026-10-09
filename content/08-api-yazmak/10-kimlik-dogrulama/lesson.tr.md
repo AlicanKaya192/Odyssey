@@ -8,7 +8,7 @@ soruyu cevaplıyorsun:
 - **Kimlik doğrulama** (authentication): *Sen kimsin?* Bilmiyorsam `401`.
 - **Yetkilendirme** (authorization): *Bunu yapmaya iznin var mı?* Yoksa `403`.
 
-API 1'de istemci olarak anahtar ve jeton göndermiştin; şimdi onları
+API Kullanmak modülünde istemci olarak anahtar ve jeton göndermiştin; şimdi onları
 **denetleyen** tarafı yazıyorsun.
 
 ## 1. API anahtarı

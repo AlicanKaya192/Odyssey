@@ -10,7 +10,7 @@ değiştirirsem kayıp ne kadar değişir? Bu sayı hem hangi yöne gideceğimiz
 hem de ne kadar gideceğimizi söylüyor. Bu bölümde türevi tanımdan
 kuracağız, ne anlattığını göreceğiz ve ilk öğrenme adımını atacağız.
 
-Ön bilgi: Limit ve Süreklilik bölümü, MAT 1'deki Koordinat Düzlemi ve Doğru
+Ön bilgi: Limit ve Süreklilik bölümü, Temel Matematik modülündeki Koordinat Düzlemi ve Doğru
 (eğim).
 
 ## Ortalama değişim hızı

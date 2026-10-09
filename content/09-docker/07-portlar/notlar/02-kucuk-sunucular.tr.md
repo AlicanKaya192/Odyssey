@@ -52,5 +52,5 @@ kullanılıyor:
 | Django | `python manage.py runserver 0.0.0.0:8000` | Varsayılan 127.0.0.1 |
 | Streamlit | `streamlit run app.py --server.address 0.0.0.0` | |
 
-API 2 patikasında FastAPI ile kendi API'ni yazıp bu patikanın
+API Yazmak modülünde FastAPI ile kendi API'ni yazıp bu patikanın
 yöntemleriyle konteynere koyacaksın.

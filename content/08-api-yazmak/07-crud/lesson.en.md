@@ -18,7 +18,7 @@ deleting books. These five jobs are called **CRUD** for short.
 
 Two addresses are enough: the collection (`/books`) and one record
 (`/books/{id}`). The method says what to do. This is the pattern you used
-as a client in API 1; now you're writing its server.
+as a client in the Using APIs module; now you're writing its server.
 
 <figure class="fig">
   <div class="versus">

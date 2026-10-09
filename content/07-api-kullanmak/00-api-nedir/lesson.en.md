@@ -6,7 +6,7 @@ warm is it in Istanbul?" That program sends the answer back.
 
 The door that lets programs ask each other questions and get answers is
 called an **API**. On this path you will first learn to ask someone else's
-API for data (API 1), then to write your own API (API 2).
+API for data (Using APIs), then to write your own API (Writing APIs).
 
 In this section we do not connect to the internet yet. First we settle the
 ideas: who asks, who answers, and what the rules in between are.
@@ -77,7 +77,7 @@ waits to be asked.
 
 Do not let the word "server" scare you. A server does not have to be a
 special machine; **any program** that waits for requests and answers them is
-a server. In API 2 you will run a server on your own computer.
+a server. In the Writing APIs module you will run a server on your own computer.
 
 ## What a request and a response look like
 
@@ -176,7 +176,7 @@ an API:
 There is also the other direction: the most common way to let other people
 use a model you trained is to put it behind an API. An app that asks "what
 would this house sell for?" gets the answer from your model's API. You will
-do that in API 2.
+do that in the Writing APIs module.
 
 ## REST: the most common API style
 

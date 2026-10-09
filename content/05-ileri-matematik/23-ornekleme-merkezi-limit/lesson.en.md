@@ -62,7 +62,7 @@ ten times the precision takes a hundred times. The return on collecting
 data keeps falling.
 
 If $\sigma$ is unknown, the sample standard deviation $s$ is used instead
-(computed with $n - 1$; the sample variance of MATH 1). The sample variance
+(computed with $n - 1$; the sample variance of the Foundational Mathematics module). The sample variance
 divided by $n - 1$ is unbiased too: $E[s^2] = \sigma^2$.
 
 ## The Central Limit Theorem

@@ -1,6 +1,6 @@
 # Query Parameters
 
-In API 1 you used **query parameters**, added after a `?` at the end of the
+In the Using APIs module you used **query parameters**, added after a `?` at the end of the
 address, to filter and page a list: `/books?page=2`, `/books?author=Austen`.
 In `requests` they went with `params=`. Now you write the side that receives
 them.
@@ -66,7 +66,7 @@ comes, `1950`; if not, `None`.
 
 ## Pagination
 
-In API 1 you fetched data from an API page by page. The side that pages is
+In the Using APIs module you fetched data from an API page by page. The side that pages is
 written like this:
 
 ```python
@@ -93,7 +93,7 @@ GET /books?page=2               page 2: Ulysses, Kindred
 GET /books?page=3&per_page=2    page 3: Beloved
 ```
 
-`total` lets the client work out how many pages there are; in API 1 you
+`total` lets the client work out how many pages there are; in the Using APIs module you
 looked at exactly this to know the last page.
 
 ## Other types

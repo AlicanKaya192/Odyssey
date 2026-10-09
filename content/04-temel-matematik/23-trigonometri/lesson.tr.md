@@ -167,7 +167,7 @@ açının hesabına (nokta çarpımı) giden yol.
 
 **Kosinüs benzerliği.** İki vektör arasındaki açı $\theta$ ise
 $\cos\theta$ ne kadar aynı yöne baktıklarını söyler: $1$ aynı yön, $0$
-dik (ilgisiz), $-1$ zıt yön. MAT 2'de nokta çarpımıyla hesaplanacak:
+dik (ilgisiz), $-1$ zıt yön. İleri Matematik modülünde nokta çarpımıyla hesaplanacak:
 $\cos\theta = \frac{\mathbf{u} \cdot \mathbf{v}}{\lVert \mathbf{u} \rVert
 \lVert \mathbf{v} \rVert}$. $(3, 4)$ ile $(4, 3)$ için
 $\frac{12 + 12}{5 \cdot 5} = 0{,}96$: çok benzer. Arama motorları ve öneri
@@ -193,7 +193,7 @@ kodlar. Her konum dalgalarda farklı bir noktaya düşer; yakın konumların
 kodları birbirine benzer.
 
 **Döndürme.** Bir noktayı başlangıç çevresinde $\theta$ kadar döndürmek
-için $\cos\theta$ ve $\sin\theta$'lı bir matris kullanılır (MAT 2, Matris
+için $\cos\theta$ ve $\sin\theta$'lı bir matris kullanılır (İleri Matematik, Matris
 Çarpımı ve Dönüşümler). Görüntü artırmada resimleri döndürmek bu hesaptır.
 
 ## Sık yapılan hatalar

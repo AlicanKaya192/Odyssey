@@ -1,6 +1,6 @@
 # Sorgu Parametreleri
 
-API 1'de bir listeyi süzmek ve sayfalamak için adresin sonuna `?` ile
+API Kullanmak modülünde bir listeyi süzmek ve sayfalamak için adresin sonuna `?` ile
 eklenen **sorgu parametrelerini** kullanmıştın: `/books?page=2`,
 `/books?author=Austen`. `requests`'te bunlar `params=` ile gidiyordu. Şimdi
 onları karşılayan tarafı yazıyorsun.
@@ -66,7 +66,7 @@ def list_books(year_from: int | None = None):
 
 ## Sayfalama
 
-API 1'de bir API'den sayfa sayfa veri çekmiştin. Sayfalayan taraf şöyle
+API Kullanmak modülünde bir API'den sayfa sayfa veri çekmiştin. Sayfalayan taraf şöyle
 yazılıyor:
 
 ```python
@@ -93,7 +93,7 @@ GET /books?page=2               page 2: Ulysses, Kindred
 GET /books?page=3&per_page=2    page 3: Beloved
 ```
 
-`total` istemciye kaç sayfa olduğunu hesaplatıyor; API 1'de son sayfayı
+`total` istemciye kaç sayfa olduğunu hesaplatıyor; API Kullanmak modülünde son sayfayı
 anlamak için tam olarak buna bakıyordun.
 
 ## Diğer tipler

@@ -6,12 +6,12 @@ yazınca tek bir nesne olur: $(120,\ 3,\ 10)$. Bir fotoğraf binlerce piksel
 değerinden oluşan bir vektör, bir kelime yüzlerce sayılık bir vektör, bir
 modelin öğrendiği ağırlıklar da bir vektör.
 
-MAT 2'nin ilk konusu bu yüzden vektörler. Bu bölümde vektörün ne olduğunu,
+İleri Matematik modülünün ilk konusu bu yüzden vektörler. Bu bölümde vektörün ne olduğunu,
 nasıl yazıldığını, nasıl toplanıp ölçeklendiğini ve uzunluğunun nasıl
 bulunduğunu göreceksin. Bir sonraki bölümde (Nokta Çarpımı) iki vektörün
 birbirine ne kadar benzediğini ölçmeyi öğreneceğiz.
 
-Başlamadan önce MAT 1'den üç şey gerekiyor: **koordinat düzlemi** (bir
+Başlamadan önce Temel Matematik modülünden üç şey gerekiyor: **koordinat düzlemi** (bir
 noktanın $(x, y)$ ile yazılması), **Pisagor teoremi** ($a^2 + b^2 = c^2$)
 ve **karekök**. Hepsini yeri geldikçe hatırlatacağım.
 
@@ -58,7 +58,7 @@ Burada birinci bileşen $v_1 = 3$ (sağa 3 birim), ikinci bileşen $v_2 = 4$
 yazarken ok daha pratik.
 
 Aynı vektör dikey olarak da yazılabilir; buna **sütun vektör** denir ve
-MAT 2'nin ilerleyen bölümlerinde, matrislerle çalışırken bu yazılış
+İleri Matematik modülünün ilerleyen bölümlerinde, matrislerle çalışırken bu yazılış
 kullanılacak:
 
 $$
@@ -256,7 +256,7 @@ $$
 $$
 
 Bileşenler, aslında bu iki temel yönde kaç adım atıldığının sayısıdır.
-MAT 2'nin ilerisinde (Doğrusal Bağımsızlık, Taban ve Rank) bu fikir
+İleri Matematik modülünün ilerisinde (Doğrusal Bağımsızlık, Taban ve Rank) bu fikir
 "taban" adıyla genelleşecek.
 
 Makine öğrenmesinde doğrusal kombinasyon her yerde: bir doğrusal model

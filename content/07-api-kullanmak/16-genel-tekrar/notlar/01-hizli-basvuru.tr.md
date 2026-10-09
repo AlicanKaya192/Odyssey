@@ -1,4 +1,4 @@
-API 1'in tamamı tek sayfada.
+API Kullanmak modülünün tamamı tek sayfada.
 
 ## requests
 

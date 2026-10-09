@@ -11,7 +11,7 @@ kadar baktığını söylüyor. Bu bölümde nokta çarpımını, iki vektör
 arasındaki açıyı, izdüşümü, kosinüs benzerliğini ve farklı uzunluk
 ölçülerini (normları) göreceğiz.
 
-Ön bilgi: bir önceki bölüm (Vektörler) ve **kosinüs**. Kosinüs MAT 1'in
+Ön bilgi: bir önceki bölüm (Vektörler) ve **kosinüs**. Kosinüs Temel Matematik modülünün
 Trigonometri bölümünde ayrıntılı anlatılıyor; burada ihtiyacımız olan
 kısmını kısaca hatırlatacağım.
 

@@ -11,7 +11,7 @@ infinitely close to a point?"
 In this section we will look at limits by intuition and by calculation,
 and get to know behaviour at infinity and continuity.
 
-Prerequisite: the Functions and Factoring sections of MATH 1.
+Prerequisite: the Functions and Factoring sections of the Foundational Mathematics module.
 
 ## Getting close: limits with numbers
 

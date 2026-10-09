@@ -56,7 +56,7 @@ Many companies put their API under a separate name: the site is
 **subdomain**.
 
 Learn one special host name now: **`localhost`** (or `127.0.0.1`) means
-**your own computer**. The server you write in API 2 and the practice server
+**your own computer**. The server you write in the Writing APIs module and the practice server
 you will send requests to on this path will run there.
 
 ## Port: the flat number in the building

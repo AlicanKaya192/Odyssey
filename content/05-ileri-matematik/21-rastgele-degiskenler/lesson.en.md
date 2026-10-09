@@ -13,7 +13,7 @@ we will see discrete and continuous random variables, expectation, variance
 and their rules of calculation.
 
 Prerequisites: Conditional Probability and Bayes, Integrals and Area, and
-Data and Basic Statistics in MATH 1.
+Data and Basic Statistics in the Foundational Mathematics module.
 
 ## Random variables
 

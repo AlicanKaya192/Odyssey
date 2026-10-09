@@ -1,4 +1,4 @@
-All the formulas of MATH 2 on one page. Come back here when you get stuck on a question; the details are in each section's reference note.
+All the formulas of the Advanced Mathematics module on one page. Come back here when you get stuck on a question; the details are in each section's reference note.
 
 ## Linear algebra
 

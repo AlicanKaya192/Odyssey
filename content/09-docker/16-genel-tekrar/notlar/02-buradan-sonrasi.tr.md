@@ -36,7 +36,7 @@ Dersteki not API'sini büyüt:
 
 ## Sıradaki patikalar
 
-- **API 2 — FastAPI ile REST API yazmak:** kendi API'ni yazıp bu patikada
+- **FastAPI ile REST API yazmak:** kendi API'ni yazıp bu patikada
   öğrendiğin gibi paketleyeceksin.
 - **Makine Öğrenmesi:** eğittiğin bir modeli bir API'nin arkasına koyup
   konteynerle dağıtmak, iki patikanın buluştuğu yer.

@@ -1,4 +1,4 @@
-The address rules you saw while reading REST in API 1, this time as the one
+The address rules you saw while reading REST in the Using APIs module, this time as the one
 who writes the address.
 
 ## Resource and id

@@ -2,7 +2,7 @@
 
 Until now all the information came in the address: the path and the query.
 When adding a new book, though, the title, year, tags, a note... do not fit
-in the address, and should not. In API 1 you sent a **body** with
+in the address, and should not. In the Using APIs module you sent a **body** with
 `requests.post(url, json={...})`. In this section you write the side that
 receives the body, and you describe the body's shape with **Pydantic**.
 

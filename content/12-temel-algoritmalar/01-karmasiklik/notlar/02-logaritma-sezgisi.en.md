@@ -35,4 +35,4 @@ check "further on or further back?". In a 1 000-page book at most 10 openings
 are enough. If the book had 1 000 000 pages, 20. The page count grew a
 thousandfold; the work only doubled.
 
-The mathematics of the logarithm is in MAT 1's **Logarithms** section.
+The mathematics of the logarithm is in the Foundational Mathematics module's **Logarithms** section.

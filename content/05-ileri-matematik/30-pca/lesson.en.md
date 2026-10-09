@@ -4,7 +4,7 @@ A data set may have hundreds of features; but they are often tied to each
 other and really vary in far fewer "directions". **Principal component
 analysis** (PCA) finds the directions in which the data spreads most and
 reduces the dimension by projecting the data onto those few directions.
-This section joins the two halves of MATH 2: the covariance matrix
+This section joins the two halves of the Advanced Mathematics module: the covariance matrix
 (statistics), and eigenvalues and eigenvectors, the SVD and orthogonal
 projection (linear algebra).
 

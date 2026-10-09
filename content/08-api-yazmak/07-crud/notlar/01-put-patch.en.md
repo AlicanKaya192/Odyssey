@@ -16,7 +16,7 @@ the network drops and the client sends the request again, no harm is done.
 (`DELETE` returns `404` the second time, but the record is still deleted.)
 
 `POST` isn't: a `POST /books` sent twice creates two books. That's where
-the retry rule from API 1 comes from: don't blindly repeat a `POST`.
+the retry rule from the Using APIs module comes from: don't blindly repeat a `POST`.
 
 ## `exclude_unset`, `exclude_none`, `exclude_defaults`
 

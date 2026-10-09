@@ -9,7 +9,7 @@ verir: **gözlenen veriyi en olası kılan parametreyi seç.** Makine
 kayıp fonksiyonlarının çoğu bu fikirden çıkar.
 
 Ön bilgi: Olasılık Dağılımları; Türevin Uygulamaları; Gradyan İnişi;
-MAT 1'deki Logaritma.
+Temel Matematik modülündeki Logaritma.
 
 ## Olabilirlik
 

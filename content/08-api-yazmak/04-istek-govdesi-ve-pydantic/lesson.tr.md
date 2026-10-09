@@ -2,7 +2,7 @@
 
 Şimdiye kadar bütün bilgi adresle geldi: yol ve sorgu. Yeni bir kitap
 eklerken ise başlık, yıl, etiketler, not... adrese sığmaz ve sığmamalı.
-API 1'de `requests.post(url, json={...})` ile bir **gövde** göndermiştin.
+API Kullanmak modülünde `requests.post(url, json={...})` ile bir **gövde** göndermiştin.
 Bu bölümde gövdeyi karşılayan tarafı yazıyorsun; gövdenin şeklini de
 **Pydantic** ile tarif ediyorsun.
 

@@ -11,7 +11,7 @@ dropout'taki ölçekleme bir beklenen değeri korumak için. Bu bölümde kesikl
 ve sürekli rastgele değişkenleri, beklenen değeri, varyansı ve bunların
 hesap kurallarını göreceğiz.
 
-Ön bilgi: Koşullu Olasılık ve Bayes, İntegral ve Alan, MAT 1'deki Veri ve
+Ön bilgi: Koşullu Olasılık ve Bayes, İntegral ve Alan, Temel Matematik modülündeki Veri ve
 Temel İstatistik bölümleri.
 
 ## Rastgele değişken

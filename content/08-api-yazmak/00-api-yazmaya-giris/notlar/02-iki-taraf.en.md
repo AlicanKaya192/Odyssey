@@ -1,7 +1,7 @@
 The server-side counterpart of everything you learned on the client side
-in API 1. You can come back to this table throughout the module.
+in the Using APIs module. You can come back to this table throughout the module.
 
-| Concept | API 1: client (requests) | API 2: server (FastAPI) | Section |
+| Concept | Using APIs: client (requests) | Writing APIs: server (FastAPI) | Section |
 |---|---|---|---|
 | Method and address | `requests.get(BASE + "/books")` | `@app.get("/books")` | 01 |
 | Path parameter | Building the `/books/42` address | `@app.get("/books/{book_id}")` + `book_id: int` | 02 |

@@ -109,7 +109,7 @@ wrong; `500` means "there is a bug on the server".
 ## Status codes
 
 The answer's first line lets the client understand the result without
-reading the body. The codes you read in API 1 are **your choice** here:
+reading the body. The codes you read in the Using APIs module are **your choice** here:
 
 | Status | When? |
 |---|---|

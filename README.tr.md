@@ -177,7 +177,7 @@ Kodunuz ayrı bir işlemde, izole bir çalışma klasöründe çalıştırılır
 
 ## İnternet
 
-Öğrenmeyle ilgili her şey çevrimdışı çalışır: dersler, ders notları, sınavlar, alıştırmalar ve ilerlemeniz. Hiçbiri bizim bir sunucumuza uğramaz, ilerlemeniz bilgisayarınızdan çıkmaz; API alıştırmaları programın içinde çalışan bir alıştırma sunucusuyla konuşur. İki istisna başka programlardan gelir: Docker Desktop, Docker patikasının iki taban imajını Docker Hub'dan indirir; API 2 alıştırmasında başlattığınız FastAPI sunucusunun `/docs` sayfası arayüzünü tarayıcınızda `cdn.jsdelivr.net`'ten yükler.
+Öğrenmeyle ilgili her şey çevrimdışı çalışır: dersler, ders notları, sınavlar, alıştırmalar ve ilerlemeniz. Hiçbiri bizim bir sunucumuza uğramaz, ilerlemeniz bilgisayarınızdan çıkmaz; API alıştırmaları programın içinde çalışan bir alıştırma sunucusuyla konuşur. İki istisna başka programlardan gelir: Docker Desktop, Docker patikasının iki taban imajını Docker Hub'dan indirir; API Yazmak alıştırmasında başlattığınız FastAPI sunucusunun `/docs` sayfası arayüzünü tarayıcınızda `cdn.jsdelivr.net`'ten yükler.
 
 Uygulama yalnızca güncelleme denetimini açık bırakırsanız ağa çıkar: yukarıda anlatılan sürüm denetimi için ve onunla birlikte, alt şeritte görünen, Odyssey'in GitHub'daki yıldız sayısını okumak için. İki istekte de hiçbir bilgi gönderilmez — kimlik, ilerleme, kullanım verisi yok — ve dosya yalnızca siz Güncelle'ye bastığınızda iniyor. Denetim kapalıyken uygulama ağa hiç çıkmaz.
 

@@ -176,7 +176,7 @@ product).
 
 **Cosine similarity.** If the angle between two vectors is $\theta$,
 $\cos\theta$ says how much they point the same way: $1$ same direction, $0$
-perpendicular (unrelated), $-1$ opposite. In MATH 2 it will be computed
+perpendicular (unrelated), $-1$ opposite. In the Advanced Mathematics module it will be computed
 with the dot product: $\cos\theta = \frac{\mathbf{u} \cdot \mathbf{v}}
 {\lVert \mathbf{u} \rVert \lVert \mathbf{v} \rVert}$. For $(3, 4)$ and
 $(4, 3)$: $\frac{12 + 12}{5 \cdot 5} = 0.96$, very similar. Search engines
@@ -205,7 +205,7 @@ periods. Each position lands on a different point of the waves; nearby
 positions get similar codes.
 
 **Rotation.** Rotating a point about the origin by $\theta$ uses a matrix
-with $\cos\theta$ and $\sin\theta$ (MATH 2, Matrix Multiplication and
+with $\cos\theta$ and $\sin\theta$ (Advanced Mathematics, Matrix Multiplication and
 Transformations). Rotating images for data augmentation is this
 calculation.
 

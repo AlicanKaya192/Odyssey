@@ -14,7 +14,7 @@ from here:
   uncertainty.
 - **Time series.** Validation on ordered data follows other rules; Odyssey has
   a separate path for it.
-- **Big data and production.** Serving a model through an API (API 2),
+- **Big data and production.** Serving a model through an API (Writing APIs),
   packaging it with Docker, working on large data (the Big Data path).
 
 Keep the habit of writing from scratch: first write a new method by hand on a

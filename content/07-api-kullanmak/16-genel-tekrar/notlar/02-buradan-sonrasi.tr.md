@@ -1,4 +1,4 @@
-API 1 bitti. Öğrendiklerini kalıcı yapmanın ve bir sonraki adıma geçmenin
+API Kullanmak modülü bitti. Öğrendiklerini kalıcı yapmanın ve bir sonraki adıma geçmenin
 yolları.
 
 ## Gerçek API'lerle pratik
@@ -28,7 +28,7 @@ dene, sonra Python'a dök.
 
 ## Sıradaki patikalar
 
-- **API 2 — FastAPI ile REST API yazmak:** masanın öbür tarafı. Kendi
+- **FastAPI ile REST API yazmak:** masanın öbür tarafı. Kendi
   uç noktalarını yazacak, Pydantic ile doğrulama yapacak, `/docs`'ta Swagger
   UI'ını göreceksin; patikanın sonunda bir makine öğrenmesi modelini API
   arkasına koyacaksın.

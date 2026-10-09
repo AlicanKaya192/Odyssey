@@ -111,7 +111,7 @@ and the response. You try things on the same page while reading the
 documentation. **ReDoc** produces a more readable (but non-interactive)
 documentation page from the same file.
 
-The FastAPI applications you will write in API 2 produce this page **on their
+The FastAPI applications you will write in the Writing APIs module produce this page **on their
 own**: run the application, go to `/docs` and Swagger UI opens. So knowing
 Swagger UI well will help when you try out your own API too.
 

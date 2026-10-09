@@ -10,6 +10,6 @@ $$
 
 **Step 3 — $\cos B$.** $B$ is at the second ship's corner. From there the vector to the port is $(-2.5, -4.33)$ and to the first ship $(5.5, -4.33)$. The sum of the matching products is $-13.75 + 18.75 = 5$; the lengths are $5$ and $7$: $\cos B = \frac{5}{5 \cdot 7} = \frac{1}{7}$.
 
-**Why the same result?** Expanding the distance formula gives $(8 - 5\cos\theta)^2 + (5\sin\theta)^2 = 64 - 80\cos\theta + 25$; this is the law of cosines itself. The calculation in step 3 is the dot product and cosine similarity of MATH 2.
+**Why the same result?** Expanding the distance formula gives $(8 - 5\cos\theta)^2 + (5\sin\theta)^2 = 64 - 80\cos\theta + 25$; this is the law of cosines itself. The calculation in step 3 is the dot product and cosine similarity of the Advanced Mathematics module.
 
 **Answer:** $7$, $11.358$ and $\frac{1}{7}$.

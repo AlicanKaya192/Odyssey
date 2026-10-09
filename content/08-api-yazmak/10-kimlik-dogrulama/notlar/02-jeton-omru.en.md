@@ -40,7 +40,7 @@ The `tokens` dictionary in this section lives in the server's memory: if the
 server restarts, everyone is logged out. A real application keeps tokens in
 a database, or uses signed tokens the server doesn't store, like JWT.
 
-## The client side (from API 1)
+## The client side (from the Using APIs module)
 
 ```python
 r = requests.post(f"{BASE}/token", json={"username": "ada", "password": "..."})

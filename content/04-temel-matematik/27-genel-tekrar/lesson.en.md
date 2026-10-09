@@ -1,6 +1,6 @@
 # Overall Review
 
-MATH 1 ends here. You started by reading numbers; you calculated with
+The Foundational Mathematics module ends here. You started by reading numbers; you calculated with
 fractions, powers and roots, set up equations with algebra, drew
 relationships with functions, measured shapes with geometry and
 trigonometry, and put uncertainty into numbers with counting, probability
@@ -11,8 +11,8 @@ module.
 
 ## How do the parts connect?
 
-The topics of MATH 1 advance along four branches, and all of them flow into
-MATH 2.
+The topics of the Foundational Mathematics module advance along four branches, and all of them flow into
+the Advanced Mathematics module.
 
 <figure class="fig">
   <div class="flow">
@@ -35,7 +35,7 @@ MATH 2.
     <span class="arrow">→</span>
     <span class="node"><b>Trigonometry</b><br>sin, cos, unit circle</span>
   </div>
-  <figcaption>The shape branch: Pythagoras gives the distance formula, the right triangle gives trigonometry. Vectors in MATH 2 continue this branch.</figcaption>
+  <figcaption>The shape branch: Pythagoras gives the distance formula, the right triangle gives trigonometry. Vectors in the Advanced Mathematics module continue this branch.</figcaption>
 </figure>
 
 <figure class="fig">
@@ -57,7 +57,7 @@ the loss function is written with it, and it is used in all three branches.
 ## One problem from start to finish
 
 Imagine an analyst looking at the data of a learning app. The questions
-come, one after another, from different corners of MATH 1.
+come, one after another, from different corners of the Foundational Mathematics module.
 
 ### 1. Growth: an exponential function
 
@@ -147,7 +147,7 @@ this.
 
 ## The most common traps
 
-The mistakes that came up again and again in MATH 1, in one list:
+The mistakes that came up again and again in the Foundational Mathematics module, in one list:
 
 | Trap | Correct |
 |---|---|
@@ -166,7 +166,7 @@ The mistakes that came up again and again in MATH 1, in one list:
 
 ## The next step
 
-MATH 2 — The Mathematics of AI continues along three branches:
+The Mathematics of AI continues along three branches:
 
 - **Linear algebra:** vectors and matrices. The coordinate plane and
   trigonometry carry over here; a row of data is a vector, a dataset a
@@ -181,7 +181,7 @@ MATH 2 — The Mathematics of AI continues along three branches:
 
 ## Summary
 
-- The four branches of MATH 1: calculation (from numbers to functions),
+- The four branches of the Foundational Mathematics module: calculation (from numbers to functions),
   shape (from coordinates to trigonometry), uncertainty (from sets to
   statistics) and Σ notation, which ties them together.
 - In a real problem these branches work together: growth is exponential,
@@ -190,4 +190,4 @@ MATH 2 — The Mathematics of AI continues along three branches:
 - The most common mistakes come from operations that do not distribute
   (squares, roots, logarithms), from signs and directions, from adding
   percentages and from units.
-- Next up is MATH 2: linear algebra, calculus and probability–statistics.
+- Next up is the Advanced Mathematics module: linear algebra, calculus and probability–statistics.

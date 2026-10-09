@@ -5,7 +5,7 @@ $3x^2 - 5x + 2$. A line ($y = mx + b$) was a polynomial of degree one and a
 parabola one of degree two; in this section we set the degree free.
 Polynomials are the "building block" functions of mathematics: they are
 easy to add, multiply and evaluate, and yet they can approximate almost
-any curve. Taylor approximation in MATH 2 does exactly that, and
+any curve. Taylor approximation in the Advanced Mathematics module does exactly that, and
 polynomial regression in machine learning catches, with a polynomial, a
 curve that a line cannot. We will get to know polynomials, calculate with
 them, divide them and find their roots.
@@ -270,7 +270,7 @@ passes through $8$ points; the training error becomes zero, but the curve
 swings wildly between the points and predicts badly on new data. This is
 called **overfitting**; choosing the degree is part of choosing the model.
 
-**Approximation.** Taylor approximation in MATH 2 imitates functions such
+**Approximation.** Taylor approximation in the Advanced Mathematics module imitates functions such
 as $e^x$ or $\sin x$ with a polynomial near a point. Computers also
 evaluate these functions internally with polynomials: a polynomial needs
 only addition and multiplication.

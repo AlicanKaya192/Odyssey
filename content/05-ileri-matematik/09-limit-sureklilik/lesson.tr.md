@@ -10,7 +10,7 @@ var: "bir noktaya sonsuz yaklaşınca ne oluyor?" sorusu.
 Bu bölümde limiti sezgiyle ve hesapla göreceğiz, sonsuzdaki davranışı ve
 sürekliliği tanıyacağız.
 
-Ön bilgi: MAT 1'deki Fonksiyonlar ve Çarpanlara Ayırma bölümleri.
+Ön bilgi: Temel Matematik modülündeki Fonksiyonlar ve Çarpanlara Ayırma bölümleri.
 
 ## Yaklaşmak: sayılarla limit
 

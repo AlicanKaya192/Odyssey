@@ -63,7 +63,7 @@ GET /books/2.5    422
 | `msg` | Ne bekleniyordu |
 | `input` | Ne geldi |
 
-API 1'de bir API'den `422` aldığında okuduğun gövde tam olarak buydu.
+API Kullanmak modülünde bir API'den `422` aldığında okuduğun gövde tam olarak buydu.
 Şimdi sen yazmadın, FastAPI tip belirtiminden üretti.
 
 Tip yazmazsan (`def get_book(book_id):`) değer metin kalır ve

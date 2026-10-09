@@ -29,7 +29,7 @@ Whoever asks is the client.
 
 **A server is not necessarily a distant machine.** A program running on your
 own computer and waiting for requests is a server too. You will do that in
-API 2.
+the Writing APIs module.
 
 ## Worth remembering
 

@@ -1,7 +1,7 @@
-API 1'de istemci tarafında öğrendiğin her şeyin sunucu tarafındaki
+API Kullanmak modülünde istemci tarafında öğrendiğin her şeyin sunucu tarafındaki
 karşılığı. Bu modül boyunca bu tabloya dönebilirsin.
 
-| Kavram | API 1: istemci (requests) | API 2: sunucu (FastAPI) | Bölüm |
+| Kavram | API Kullanmak: istemci (requests) | API Yazmak: sunucu (FastAPI) | Bölüm |
 |---|---|---|---|
 | Yöntem ve adres | `requests.get(BASE + "/books")` | `@app.get("/books")` | 01 |
 | Yol parametresi | `/books/42` adresini kurmak | `@app.get("/books/{book_id}")` + `book_id: int` | 02 |

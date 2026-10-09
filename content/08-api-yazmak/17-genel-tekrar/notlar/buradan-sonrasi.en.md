@@ -31,4 +31,4 @@ and tools you'll meet when you move on to a real project.
 ## Continuing in Odyssey
 
 - The **Docker** track: running the API the same everywhere.
-- **API 1**: using other APIs; now you know both sides.
+- **Using APIs**: using other APIs; now you know both sides.

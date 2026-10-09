@@ -1,4 +1,4 @@
-API 1'de REST'i okurken gördüğün adres kurallarını, bu sefer adresi
+API Kullanmak modülünde REST'i okurken gördüğün adres kurallarını, bu sefer adresi
 yazan olarak.
 
 ## Kaynak ve kimlik

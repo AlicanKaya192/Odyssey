@@ -1,6 +1,6 @@
 # Genel Tekrar
 
-API 2'nin sonuna geldin. API 1'de masanın bir tarafındaydın, istek
+API Yazmak modülünün sonuna geldin. API Kullanmak modülünde masanın bir tarafındaydın, istek
 gönderiyordun; şimdi öbür tarafı, o istekleri karşılayan sunucuyu baştan
 sona yazabiliyorsun. Bu bölümde öğrendiklerini bir isteğin yolculuğu
 üzerinden bir kez daha görüyorsun; sonra 40 soruluk karışık bir sınav ve

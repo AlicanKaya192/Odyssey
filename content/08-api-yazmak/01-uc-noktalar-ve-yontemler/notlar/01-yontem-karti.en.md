@@ -9,7 +9,7 @@ Five methods, their decorators and what happens when each is repeated.
 | `DELETE` | `@app.delete` | Yes | The first deletes, the second gets `404` |
 
 Methods whose result is the same when sent twice are called **idempotent**
-(`GET`, `PUT`, `DELETE`). The retry rule in API 1 comes from here: a client
+(`GET`, `PUT`, `DELETE`). The retry rule in the Using APIs module comes from here: a client
 may send a request again; repeating a `POST` is risky, the others are not.
 
 ## The pattern
