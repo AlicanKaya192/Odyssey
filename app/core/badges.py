@@ -51,6 +51,7 @@ API2_CHAPTER = "08-api-yazmak"
 DOCKER_CHAPTER = "09-docker"
 GIT_CHAPTER = "10-git"
 BIGDATA_CHAPTER = "11-buyuk-veri"
+ALG1_CHAPTER = "12-temel-algoritmalar"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -84,6 +85,9 @@ GIT_PUSH_SECTION = (GIT_CHAPTER, "09-uzak-depolar")
 BIGDATA_PARQUET_SECTION = (BIGDATA_CHAPTER, "05-parquet")
 BIGDATA_DUCKDB_SECTION = (BIGDATA_CHAPTER, "07-duckdb")
 BIGDATA_SPARK_SECTION = (BIGDATA_CHAPTER, "13-spark")
+ALG1_BIG_O_SECTION = (ALG1_CHAPTER, "01-karmasiklik")
+ALG1_SORT_SECTION = (ALG1_CHAPTER, "06-verimli-siralamalar")
+ALG1_TREE_SECTION = (ALG1_CHAPTER, "13-agaclar")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -96,6 +100,7 @@ API2_SECTION_COUNT = 18
 DOCKER_SECTION_COUNT = 17
 GIT_SECTION_COUNT = 17
 BIGDATA_SECTION_COUNT = 17
+ALG1_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -207,6 +212,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "file-query": BIGDATA_DUCKDB_SECTION in bitenler,
         "first-spark": BIGDATA_SPARK_SECTION in bitenler,
         "bigdata-complete": modul_basina.get(BIGDATA_CHAPTER, 0) >= BIGDATA_SECTION_COUNT,
+        "big-o": ALG1_BIG_O_SECTION in bitenler,
+        "divide-conquer": ALG1_SORT_SECTION in bitenler,
+        "root-to-leaf": ALG1_TREE_SECTION in bitenler,
+        "alg1-complete": modul_basina.get(ALG1_CHAPTER, 0) >= ALG1_SECTION_COUNT,
     }
 
 
