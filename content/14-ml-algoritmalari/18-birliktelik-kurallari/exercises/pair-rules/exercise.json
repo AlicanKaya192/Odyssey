@@ -1,0 +1,167 @@
+{
+  "id": "pair-rules",
+  "title": {
+    "tr": "İkili kurallar",
+    "en": "Pair rules"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her sık ikili için `for x, y in ((a, b), (b, a)):`, güven `s / support(baskets, [x])`.",
+      "en": "For each frequent pair `for x, y in ((a, b), (b, a)):`, confidence `s / support(baskets, [x])`."
+    },
+    {
+      "tr": "`found.append((-lift, metin))`; `sorted(found)` büyük kaldıracı öne alır, eşitlikte metne bakar.",
+      "en": "`found.append((-lift, text))`; `sorted(found)` puts the large lift first and breaks ties by text."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom itertools import combinations\n\n\ndef support(baskets, items):\n    want = set(items)\n    return sum(1 for b in baskets if want <= set(b)) / len(baskets)\n\n\ndef pair_rules(baskets, min_support, min_conf):\n    items = sorted({i for b in baskets for i in b})\n    found = []\n    for a, b in combinations(items, 2):\n        s = support(baskets, [a, b])\n        if s < min_support:\n            continue\n        for x, y in ((a, b), (b, a)):\n            conf = s / support(baskets, [x])\n            if conf >= min_conf:\n                lift = round(conf / support(baskets, [y]), 2)\n                found.append((-lift, f\"{x} -> {y} {lift}\"))\n    return [text for _, text in sorted(found)]\n\nbaskets = [[\"bread\", \"butter\", \"milk\"], [\"bread\", \"butter\"], [\"milk\", \"tea\"],\n           [\"bread\", \"milk\"], [\"tea\"], [\"bread\", \"butter\", \"tea\"], [\"milk\"],\n           [\"bread\", \"butter\", \"milk\"]]\nfor rule in pair_rules(baskets, 0.25, 0.5):\n    print(rule)\n```",
+      "en": "The full solution:\n\n```python\nfrom itertools import combinations\n\n\ndef support(baskets, items):\n    want = set(items)\n    return sum(1 for b in baskets if want <= set(b)) / len(baskets)\n\n\ndef pair_rules(baskets, min_support, min_conf):\n    items = sorted({i for b in baskets for i in b})\n    found = []\n    for a, b in combinations(items, 2):\n        s = support(baskets, [a, b])\n        if s < min_support:\n            continue\n        for x, y in ((a, b), (b, a)):\n            conf = s / support(baskets, [x])\n            if conf >= min_conf:\n                lift = round(conf / support(baskets, [y]), 2)\n                found.append((-lift, f\"{x} -> {y} {lift}\"))\n    return [text for _, text in sorted(found)]\n\nbaskets = [[\"bread\", \"butter\", \"milk\"], [\"bread\", \"butter\"], [\"milk\", \"tea\"],\n           [\"bread\", \"milk\"], [\"tea\"], [\"bread\", \"butter\", \"tea\"], [\"milk\"],\n           [\"bread\", \"butter\", \"milk\"]]\nfor rule in pair_rules(baskets, 0.25, 0.5):\n    print(rule)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pair_rules",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "bread",
+                "butter",
+                "milk"
+              ],
+              [
+                "bread",
+                "butter"
+              ],
+              [
+                "milk",
+                "tea"
+              ],
+              [
+                "bread",
+                "milk"
+              ],
+              [
+                "tea"
+              ],
+              [
+                "bread",
+                "butter",
+                "tea"
+              ],
+              [
+                "milk"
+              ],
+              [
+                "bread",
+                "butter",
+                "milk"
+              ]
+            ],
+            0.25,
+            0.5
+          ],
+          "returns": [
+            "bread -> butter 1.6",
+            "butter -> bread 1.6",
+            "bread -> milk 0.96",
+            "milk -> bread 0.96",
+            "butter -> milk 0.8"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "bread",
+                "butter",
+                "milk"
+              ],
+              [
+                "bread",
+                "butter"
+              ],
+              [
+                "milk",
+                "tea"
+              ],
+              [
+                "bread",
+                "milk"
+              ],
+              [
+                "tea"
+              ],
+              [
+                "bread",
+                "butter",
+                "tea"
+              ],
+              [
+                "milk"
+              ],
+              [
+                "bread",
+                "butter",
+                "milk"
+              ]
+            ],
+            0.1,
+            0.9
+          ],
+          "returns": [
+            "butter -> bread 1.6"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ],
+              [
+                "a",
+                "c"
+              ],
+              [
+                "a",
+                "b",
+                "c"
+              ],
+              [
+                "b"
+              ],
+              [
+                "c"
+              ]
+            ],
+            0.2,
+            0.5
+          ],
+          "returns": [
+            "a -> b 1.11",
+            "a -> c 1.11",
+            "b -> a 1.11",
+            "c -> a 1.11"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "bread -> butter 1.6\nbutter -> bread 1.6\nbread -> milk 0.96\nmilk -> bread 0.96\nbutter -> milk 0.8"
+    }
+  ]
+}

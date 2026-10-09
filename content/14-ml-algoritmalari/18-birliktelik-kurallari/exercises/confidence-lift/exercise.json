@@ -1,0 +1,181 @@
+{
+  "id": "confidence-lift",
+  "title": {
+    "tr": "Güven ve kaldıraç",
+    "en": "Confidence and lift"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`A + B` iki listeyi birleştirir; `support` hazır.",
+      "en": "`A + B` joins the two lists; `support` is given."
+    },
+    {
+      "tr": "`conf = support(baskets, A + B) / support(baskets, A)`; `lift = conf / support(baskets, B)`.",
+      "en": "`conf = support(baskets, A + B) / support(baskets, A)`; `lift = conf / support(baskets, B)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef support(baskets, items):\n    want = set(items)\n    return sum(1 for b in baskets if want <= set(b)) / len(baskets)\n\n\ndef confidence_lift(baskets, A, B):\n    conf = support(baskets, A + B) / support(baskets, A)\n    lift = conf / support(baskets, B)\n    return round(conf, 3), round(lift, 3)\n\nbaskets = [[\"bread\", \"butter\", \"milk\"], [\"bread\", \"butter\"], [\"milk\", \"tea\"],\n           [\"bread\", \"milk\"], [\"tea\"], [\"bread\", \"butter\", \"tea\"], [\"milk\"],\n           [\"bread\", \"butter\", \"milk\"]]\nprint(confidence_lift(baskets, [\"bread\"], [\"butter\"]))\nprint(confidence_lift(baskets, [\"milk\"], [\"tea\"]))\n```",
+      "en": "The full solution:\n\n```python\ndef support(baskets, items):\n    want = set(items)\n    return sum(1 for b in baskets if want <= set(b)) / len(baskets)\n\n\ndef confidence_lift(baskets, A, B):\n    conf = support(baskets, A + B) / support(baskets, A)\n    lift = conf / support(baskets, B)\n    return round(conf, 3), round(lift, 3)\n\nbaskets = [[\"bread\", \"butter\", \"milk\"], [\"bread\", \"butter\"], [\"milk\", \"tea\"],\n           [\"bread\", \"milk\"], [\"tea\"], [\"bread\", \"butter\", \"tea\"], [\"milk\"],\n           [\"bread\", \"butter\", \"milk\"]]\nprint(confidence_lift(baskets, [\"bread\"], [\"butter\"]))\nprint(confidence_lift(baskets, [\"milk\"], [\"tea\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "confidence_lift",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "bread",
+                "butter",
+                "milk"
+              ],
+              [
+                "bread",
+                "butter"
+              ],
+              [
+                "milk",
+                "tea"
+              ],
+              [
+                "bread",
+                "milk"
+              ],
+              [
+                "tea"
+              ],
+              [
+                "bread",
+                "butter",
+                "tea"
+              ],
+              [
+                "milk"
+              ],
+              [
+                "bread",
+                "butter",
+                "milk"
+              ]
+            ],
+            [
+              "bread"
+            ],
+            [
+              "butter"
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              0.8,
+              1.6
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "bread",
+                "butter",
+                "milk"
+              ],
+              [
+                "bread",
+                "butter"
+              ],
+              [
+                "milk",
+                "tea"
+              ],
+              [
+                "bread",
+                "milk"
+              ],
+              [
+                "tea"
+              ],
+              [
+                "bread",
+                "butter",
+                "tea"
+              ],
+              [
+                "milk"
+              ],
+              [
+                "bread",
+                "butter",
+                "milk"
+              ]
+            ],
+            [
+              "milk"
+            ],
+            [
+              "tea"
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              0.2,
+              0.533
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ],
+              [
+                "a",
+                "c"
+              ],
+              [
+                "a",
+                "b",
+                "c"
+              ],
+              [
+                "b"
+              ],
+              [
+                "c"
+              ]
+            ],
+            [
+              "a"
+            ],
+            [
+              "b"
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              0.667,
+              1.111
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(0.8, 1.6)\n(0.2, 0.533)"
+    }
+  ]
+}
