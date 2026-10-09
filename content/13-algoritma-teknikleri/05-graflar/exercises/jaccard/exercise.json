@@ -1,0 +1,215 @@
+{
+  "id": "jaccard",
+  "title": {
+    "tr": "Jaccard benzerliği",
+    "en": "Jaccard similarity"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`union = first | second`; boşsa `return 0.0`.",
+      "en": "`union = first | second`; `return 0.0` if empty."
+    },
+    {
+      "tr": "`return round(len(first & second) / len(union), 3)`.",
+      "en": "`return round(len(first & second) / len(union), 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef jaccard(edges, a, b):\n    graph = build_graph(edges)\n    first, second = graph.get(a, set()), graph.get(b, set())\n    union = first | second\n    if not union:\n        return 0.0\n    return round(len(first & second) / len(union), 3)\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"]]\nprint(jaccard(edges, \"ada\", \"deniz\"))\nprint(jaccard(edges, \"bora\", \"cem\"))\nprint(jaccard(edges, \"ada\", \"fuat\"))\n```",
+      "en": "The full solution:\n\n```python\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef jaccard(edges, a, b):\n    graph = build_graph(edges)\n    first, second = graph.get(a, set()), graph.get(b, set())\n    union = first | second\n    if not union:\n        return 0.0\n    return round(len(first & second) / len(union), 3)\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"]]\nprint(jaccard(edges, \"ada\", \"deniz\"))\nprint(jaccard(edges, \"bora\", \"cem\"))\nprint(jaccard(edges, \"ada\", \"fuat\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "jaccard",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ]
+            ],
+            "ada",
+            "deniz"
+          ],
+          "returns": 0.667
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ]
+            ],
+            "bora",
+            "cem"
+          ],
+          "returns": 0.5
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ]
+            ],
+            "ada",
+            "fuat"
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ]
+            ],
+            "x",
+            "y"
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ],
+              [
+                "c",
+                "d"
+              ],
+              [
+                "a",
+                "c"
+              ],
+              [
+                "e",
+                "a"
+              ]
+            ],
+            "b",
+            "c"
+          ],
+          "returns": 0.5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.667\n0.5\n0.0"
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "id": "most-connected",
+  "title": {
+    "tr": "En bağlantılı kişi",
+    "en": "The most connected person"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Anahtar olarak `(-len(graph[n]), n)` kullan: önce büyük derece, sonra ad.",
+      "en": "Use `(-len(graph[n]), n)` as the key: higher degree first, then the name."
+    },
+    {
+      "tr": "`node = min(graph, key=lambda n: (-len(graph[n]), n))`; `return [node, len(graph[node])]`.",
+      "en": "`node = min(graph, key=lambda n: (-len(graph[n]), n))`; `return [node, len(graph[node])]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef most_connected(edges):\n    graph = build_graph(edges)\n    node = min(graph, key=lambda n: (-len(graph[n]), n))\n    return [node, len(graph[node])]\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"]]\nprint(most_connected(edges))\nprint(most_connected([[\"x\", \"y\"], [\"y\", \"z\"], [\"a\", \"y\"]]))\n```",
+      "en": "The full solution:\n\n```python\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef most_connected(edges):\n    graph = build_graph(edges)\n    node = min(graph, key=lambda n: (-len(graph[n]), n))\n    return [node, len(graph[node])]\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"]]\nprint(most_connected(edges))\nprint(most_connected([[\"x\", \"y\"], [\"y\", \"z\"], [\"a\", \"y\"]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "most_connected",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ]
+            ]
+          ],
+          "returns": [
+            "bora",
+            3
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ],
+              [
+                "c",
+                "d"
+              ],
+              [
+                "a",
+                "c"
+              ],
+              [
+                "e",
+                "a"
+              ]
+            ]
+          ],
+          "returns": [
+            "a",
+            3
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "p",
+                "q"
+              ]
+            ]
+          ],
+          "returns": [
+            "p",
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['bora', 3]\n['y', 3]"
+    }
+  ]
+}

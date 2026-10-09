@@ -1,0 +1,186 @@
+{
+  "id": "suggest-friend",
+  "title": {
+    "tr": "Arkadaş önerisi",
+    "en": "A friend suggestion"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for friend in graph[person]:` içinde `for other in graph[friend]:`; kendisi ve mevcut arkadaş değilse `scores[other] += 1`.",
+      "en": "Inside `for friend in graph[person]:`, `for other in graph[friend]:`; if it is not the person or an existing friend, `scores[other] += 1`."
+    },
+    {
+      "tr": "Boşsa `None`; değilse `min(scores, key=lambda n: (-scores[n], n))`.",
+      "en": "`None` if empty; otherwise `min(scores, key=lambda n: (-scores[n], n))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef suggest(edges, person):\n    graph = build_graph(edges)\n    scores = {}\n    for friend in graph[person]:\n        for other in graph[friend]:\n            if other != person and other not in graph[person]:\n                scores[other] = scores.get(other, 0) + 1\n    if not scores:\n        return None\n    return min(scores, key=lambda n: (-scores[n], n))\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"]]\nfor person in [\"ada\", \"ece\", \"fuat\", \"cem\"]:\n    print(person, \"->\", suggest(edges, person))\n```",
+      "en": "The full solution:\n\n```python\ndef build_graph(edges):\n    graph = {}\n    for a, b in edges:\n        graph.setdefault(a, set()).add(b)\n        graph.setdefault(b, set()).add(a)\n    return graph\n\n\ndef suggest(edges, person):\n    graph = build_graph(edges)\n    scores = {}\n    for friend in graph[person]:\n        for other in graph[friend]:\n            if other != person and other not in graph[person]:\n                scores[other] = scores.get(other, 0) + 1\n    if not scores:\n        return None\n    return min(scores, key=lambda n: (-scores[n], n))\n\n\nedges = [[\"ada\", \"bora\"], [\"ada\", \"cem\"], [\"bora\", \"cem\"], [\"bora\", \"deniz\"],\n         [\"cem\", \"deniz\"], [\"deniz\", \"ece\"], [\"ece\", \"fuat\"]]\nfor person in [\"ada\", \"ece\", \"fuat\", \"cem\"]:\n    print(person, \"->\", suggest(edges, person))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "suggest",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ]
+            ],
+            "ada"
+          ],
+          "returns": "deniz"
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ]
+            ],
+            "ece"
+          ],
+          "returns": "bora"
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "bora"
+              ],
+              [
+                "ada",
+                "cem"
+              ],
+              [
+                "bora",
+                "cem"
+              ],
+              [
+                "bora",
+                "deniz"
+              ],
+              [
+                "cem",
+                "deniz"
+              ],
+              [
+                "deniz",
+                "ece"
+              ],
+              [
+                "ece",
+                "fuat"
+              ]
+            ],
+            "fuat"
+          ],
+          "returns": "deniz"
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ]
+            ],
+            "a"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ],
+              [
+                "c",
+                "d"
+              ],
+              [
+                "a",
+                "c"
+              ],
+              [
+                "e",
+                "a"
+              ]
+            ],
+            "b"
+          ],
+          "returns": "c"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada -> deniz\nece -> bora\nfuat -> deniz\ncem -> ece"
+    }
+  ]
+}
