@@ -1,0 +1,127 @@
+{
+  "id": "point-types",
+  "title": {
+    "tr": "Çekirdek, sınır, gürültü",
+    "en": "Core, border, noise"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`core = near.sum(axis=1) >= min_samples` (satır toplamı kendisini de sayar).",
+      "en": "`core = near.sum(axis=1) >= min_samples` (the row sum counts itself too)."
+    },
+    {
+      "tr": "Sınır: `(near[i] & core).any()`.",
+      "en": "Border: `(near[i] & core).any()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef point_types(X, eps, min_samples):\n    X = np.array(X, dtype=float)\n    D = np.sqrt(((X[:, None] - X[None]) ** 2).sum(axis=2))\n    near = D <= eps\n    core = near.sum(axis=1) >= min_samples\n    types = []\n    for i in range(len(X)):\n        if core[i]:\n            types.append(\"core\")\n        elif (near[i] & core).any():\n            types.append(\"border\")\n        else:\n            types.append(\"noise\")\n    return types\n\nX = [[0, 0], [0, 1], [1, 0], [1, 1], [2.5, 0.5], [6, 6]]\nfor i, kind in enumerate(point_types(X, 1.6, 4)):\n    print(i, kind)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef point_types(X, eps, min_samples):\n    X = np.array(X, dtype=float)\n    D = np.sqrt(((X[:, None] - X[None]) ** 2).sum(axis=2))\n    near = D <= eps\n    core = near.sum(axis=1) >= min_samples\n    types = []\n    for i in range(len(X)):\n        if core[i]:\n            types.append(\"core\")\n        elif (near[i] & core).any():\n            types.append(\"border\")\n        else:\n            types.append(\"noise\")\n    return types\n\nX = [[0, 0], [0, 1], [1, 0], [1, 1], [2.5, 0.5], [6, 6]]\nfor i, kind in enumerate(point_types(X, 1.6, 4)):\n    print(i, kind)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "point_types",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2.5,
+                0.5
+              ],
+              [
+                6,
+                6
+              ]
+            ],
+            1.6,
+            4
+          ],
+          "returns": [
+            "core",
+            "core",
+            "core",
+            "core",
+            "border",
+            "noise"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                5,
+                5
+              ]
+            ],
+            1.0,
+            2
+          ],
+          "returns": [
+            "noise",
+            "noise"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ]
+            ],
+            1.0,
+            3
+          ],
+          "returns": [
+            "border",
+            "core",
+            "border"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 core\n1 core\n2 core\n3 core\n4 border\n5 noise"
+    }
+  ]
+}
