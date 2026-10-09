@@ -1,0 +1,95 @@
+{
+  "id": "best-alpha",
+  "title": {
+    "tr": "α seçmek",
+    "en": "Choosing α"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İç fonksiyon `cv_error(alpha)`: her katta eğit, test MSE'sini listeye ekle, ortalamasını döndür.",
+      "en": "An inner function `cv_error(alpha)`: train in each fold, append the test MSE, return the mean."
+    },
+    {
+      "tr": "`return min(alphas, key=cv_error)`.",
+      "en": "`return min(alphas, key=cv_error)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef ridge(X, y, alpha):\n    xm, ym = X.mean(axis=0), y.mean()\n    Xc, yc = X - xm, y - ym\n    w = np.linalg.solve(Xc.T @ Xc + alpha * np.eye(X.shape[1]), Xc.T @ yc)\n    return ym - xm @ w, w\n\n\ndef best_alpha(X, y, alphas, k):\n    X, y = np.array(X, dtype=float), np.array(y, dtype=float)\n    n = len(y)\n\n    def cv_error(alpha):\n        errs = []\n        for test in np.array_split(np.arange(n), k):\n            train = np.setdiff1d(np.arange(n), test)\n            b, w = ridge(X[train], y[train], alpha)\n            errs.append(((b + X[test] @ w - y[test]) ** 2).mean())\n        return np.mean(errs)\n\n    return min(alphas, key=cv_error)\n\nrng = np.random.default_rng(1)\nX = rng.normal(0, 1, size=(40, 5))\ny = X @ np.array([2.0, -1.0, 0.0, 0.0, 0.5]) + rng.normal(0, 1, 40)\nprint(best_alpha(X.tolist(), y.tolist(), [0.01, 1.0, 100.0], 4))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef ridge(X, y, alpha):\n    xm, ym = X.mean(axis=0), y.mean()\n    Xc, yc = X - xm, y - ym\n    w = np.linalg.solve(Xc.T @ Xc + alpha * np.eye(X.shape[1]), Xc.T @ yc)\n    return ym - xm @ w, w\n\n\ndef best_alpha(X, y, alphas, k):\n    X, y = np.array(X, dtype=float), np.array(y, dtype=float)\n    n = len(y)\n\n    def cv_error(alpha):\n        errs = []\n        for test in np.array_split(np.arange(n), k):\n            train = np.setdiff1d(np.arange(n), test)\n            b, w = ridge(X[train], y[train], alpha)\n            errs.append(((b + X[test] @ w - y[test]) ** 2).mean())\n        return np.mean(errs)\n\n    return min(alphas, key=cv_error)\n\nrng = np.random.default_rng(1)\nX = rng.normal(0, 1, size=(40, 5))\ny = X @ np.array([2.0, -1.0, 0.0, 0.0, 0.5]) + rng.normal(0, 1, 40)\nprint(best_alpha(X.tolist(), y.tolist(), [0.01, 1.0, 100.0], 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "RidgeCV",
+      "hint": {
+        "tr": "`RidgeCV` kullanma; katları kendin dön.",
+        "en": "Do not use `RidgeCV`; loop over the folds yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "best_alpha",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4,
+                3
+              ],
+              [
+                5,
+                2
+              ]
+            ],
+            [
+              1,
+              2,
+              5,
+              5,
+              9,
+              8
+            ],
+            [
+              0.0,
+              1.0,
+              100.0
+            ],
+            3
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.01"
+    }
+  ]
+}
