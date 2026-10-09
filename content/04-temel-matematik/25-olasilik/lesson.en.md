@@ -8,7 +8,7 @@ cat with probability $92$ percent". In this section we will see the sample
 space and events, the two interpretations of probability, the complement,
 union and intersection rules, independence, probability trees and a first
 look at conditional probability. The probability and statistics part of
-MATH 2 is built on this foundation.
+the Advanced Mathematics module is built on this foundation.
 
 Prerequisites: Fractions, Sets and Logic, Counting: Permutations and
 Combinations.
@@ -168,7 +168,7 @@ appears in $24$ of the spam ones and in $7$ of the $70$ that are not spam.
   the question a filter that sees the word asks.
 
 The two conditional probabilities are different numbers; the way to get one
-from the other is **Bayes' rule** in MATH 2.
+from the other is **Bayes' rule** in the Advanced Mathematics module.
 
 ## Probability in machine learning
 

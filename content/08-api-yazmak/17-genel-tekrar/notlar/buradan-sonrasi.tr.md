@@ -30,4 +30,4 @@ geçerken karşına çıkacak konular ve araçlar.
 ## Odyssey'de devam
 
 - **Docker** patikası: API'yi her yerde aynı çalıştırmak.
-- **API 1**: başka API'leri kullanmak; artık iki tarafı da biliyorsun.
+- **API Kullanmak**: başka API'leri kullanmak; artık iki tarafı da biliyorsun.

@@ -52,7 +52,7 @@ $a = 1$ and $b = 2$.
 **Check:** $1\,(2, 1) + 2\,(-1, 3) = (2, 1) + (-2, 6) = (0, 7)$. ✓
 
 Writing a vector as a linear combination of other vectors always means
-solving a **system of equations**. The Linear Systems chapter of MATH 2
+solving a **system of equations**. The Linear Systems chapter of the Advanced Mathematics module
 does this on a large scale.
 
 ## 4. Length and unit vector

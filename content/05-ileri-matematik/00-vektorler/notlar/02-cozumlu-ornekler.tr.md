@@ -50,7 +50,7 @@ Birinciden $b = 2a$. İkinciye koy: $a + 6a = 7$, yani $a = 1$ ve $b = 2$.
 **Sağlama:** $1\,(2, 1) + 2\,(-1, 3) = (2, 1) + (-2, 6) = (0, 7)$. ✓
 
 Bir vektörü başka vektörlerin doğrusal kombinasyonu olarak yazmak her
-zaman bir **denklem sistemi** çözmektir. MAT 2'nin Doğrusal Sistemler
+zaman bir **denklem sistemi** çözmektir. İleri Matematik modülünün Doğrusal Sistemler
 bölümü bunu büyük ölçekte yapıyor.
 
 ## 4. Uzunluk ve birim vektör

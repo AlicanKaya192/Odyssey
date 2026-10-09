@@ -39,7 +39,7 @@ Grow the notes API from the lesson:
 
 ## Next tracks
 
-- **API 2 — Writing a REST API with FastAPI:** you will write your own API
+- **Writing a REST API with FastAPI:** you will write your own API
   and package it the way you learned on this track.
 - **Machine Learning:** putting a model you trained behind an API and
   shipping it in a container is where the two tracks meet.

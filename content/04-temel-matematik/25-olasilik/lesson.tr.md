@@ -7,7 +7,7 @@ karşımıza çıkar. Bir sınıflandırıcı çoğu zaman "bu kedi" demez, "bu
 yüzde $92$ olasılıkla kedi" der. Bu bölümde örnek uzayı ve olayları,
 olasılığın iki yorumunu, tümleyen, birleşim ve kesişim kurallarını,
 bağımsızlığı, olasılık ağaçlarını ve koşullu olasılığa ilk bakışı
-göreceğiz. MAT 2'deki olasılık ve istatistik kısmı bu temelin üstüne
+göreceğiz. İleri Matematik modülündeki olasılık ve istatistik kısmı bu temelin üstüne
 kurulur.
 
 Ön bilgi: Kesirler, Kümeler ve Mantık, Sayma: Permütasyon ve Kombinasyon.
@@ -163,7 +163,7 @@ kelimesi geçiyor.
   kelimeyi gören filtrenin sorduğu soru bu.
 
 İki koşullu olasılık farklı sayılar; birini ötekinden çıkarmanın yolu
-MAT 2'deki **Bayes kuralı**.
+İleri Matematik modülündeki **Bayes kuralı**.
 
 ## Makine öğrenmesinde olasılık
 

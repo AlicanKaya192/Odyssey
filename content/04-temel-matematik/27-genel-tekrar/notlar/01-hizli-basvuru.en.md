@@ -1,4 +1,4 @@
-All the formulas of MATH 1 on one page. Come back here when you get stuck on a question; the details are in each section's reference note.
+All the formulas of the Foundational Mathematics module on one page. Come back here when you get stuck on a question; the details are in each section's reference note.
 
 ## Numbers, powers and roots
 

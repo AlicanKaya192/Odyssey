@@ -5,8 +5,8 @@ bir uydusu yok. Yaptığı tek şey **başka bir programa sormak**: "İstanbul'd
 hava kaç derece?" O program da cevabı geri gönderiyor.
 
 Programların birbirine soru sorup cevap almasını sağlayan bu kapının adı
-**API**. Bu patikada önce başkasının API'sinden veri istemeyi (API 1),
-sonra kendi API'ni yazmayı (API 2) öğreneceksin.
+**API**. Bu patikada önce başkasının API'sinden veri istemeyi (API Kullanmak),
+sonra kendi API'ni yazmayı (API Yazmak) öğreneceksin.
 
 Bu bölümde henüz internete bağlanmıyoruz. Önce kavramları oturtacağız:
 kim soruyor, kim cevaplıyor, aradaki kurallar ne.
@@ -74,7 +74,7 @@ oluşuyor; sunucu kendiliğinden konuşmuyor, hep sorulmayı bekliyor.
 </figure>
 
 "Sunucu" kelimesi seni korkutmasın. Sunucu özel bir makine olmak zorunda
-değil; isteği bekleyen ve cevaplayan **her program** sunucu. API 2'de kendi
+değil; isteği bekleyen ve cevaplayan **her program** sunucu. API Yazmak modülünde kendi
 bilgisayarında bir sunucu çalıştıracaksın.
 
 ## Bir isteğin ve yanıtın görünüşü
@@ -172,7 +172,7 @@ API'den çekiliyor:
 
 Bir de öbür yönü var: eğittiğin bir modeli başkalarının kullanması için en
 yaygın yol, onu bir API'nin arkasına koymak. "Bu evin fiyatı ne olur?" diye
-soran bir uygulama, cevabı senin modelinin API'sinden alır. Bunu API 2'de
+soran bir uygulama, cevabı senin modelinin API'sinden alır. Bunu API Yazmak modülünde
 yapacaksın.
 
 ## REST: en yaygın API tarzı

@@ -177,7 +177,7 @@ score are written here too.
 
 To run this API on another computer, take the road from the Docker track:
 `main.py` + `model.joblib` + `requirements.txt` go into an image, started
-with `uvicorn main:app --host 0.0.0.0`. The end of API 2 is the beginning of
+with `uvicorn main:app --host 0.0.0.0`. The end of the Writing APIs module is the beginning of
 opening your model to the world.
 
 ## Summary

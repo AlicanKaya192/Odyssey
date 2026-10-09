@@ -109,7 +109,7 @@ her uç noktanın yanında "Try it out" düğmesi, parametre kutuları, gönder
 düğmesi ve yanıt. Belgeyi okurken aynı sayfada deniyorsun. **ReDoc** aynı
 dosyadan daha okunaklı (ama denemesiz) bir belge sayfası üretiyor.
 
-API 2'de yazacağın FastAPI uygulamaları bu sayfayı **kendiliğinden** üretiyor:
+API Yazmak modülünde yazacağın FastAPI uygulamaları bu sayfayı **kendiliğinden** üretiyor:
 uygulamayı çalıştırıp `/docs` adresine gidince Swagger UI açılıyor. Bu yüzden
 Swagger UI'ı iyi tanımak, kendi API'ni denerken de işine yarayacak.
 

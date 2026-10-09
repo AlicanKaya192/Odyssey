@@ -168,7 +168,7 @@ $1000 \cdot e^{0{,}1} \approx 1105{,}17$ TL. Fark küçük, ama sürekli büyüm
 hepsinin tavanı.
 
 $e^x$'e **doğal üstel fonksiyon** denir ve $\exp(x)$ diye de yazılır.
-Neden bu kadar önemli olduğu MAT 2'de netleşir: $e^x$'in türevi yine
+Neden bu kadar önemli olduğu İleri Matematik modülünde netleşir: $e^x$'in türevi yine
 $e^x$; değişim hızı her an kendi değerine eşit.
 
 ## Üstel denklemler

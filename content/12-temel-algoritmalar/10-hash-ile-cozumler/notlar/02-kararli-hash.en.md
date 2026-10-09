@@ -38,7 +38,7 @@ downloaded file.
 | A set/dictionary within one process | the built-in `hash()` (automatically) |
 | Splitting data into `n` parts in a fixed way | `zlib.crc32(...) % n` |
 | A content fingerprint, an integrity check | `hashlib.sha256` |
-| Storing passwords | none of them alone: salted, slow special functions (`hashlib.pbkdf2_hmac`; we used it in API 2) |
+| Storing passwords | none of them alone: salted, slow special functions (`hashlib.pbkdf2_hmac`; we used it in the Writing APIs module) |
 
 **Note:** `hashlib` and `crc32` want **bytes**, not a string; forgetting
 `encode("utf-8")` gives a `TypeError`.

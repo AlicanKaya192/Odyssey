@@ -1,4 +1,4 @@
-API 1 is done. Ways to make what you learnt stick and to move to the next step.
+The Using APIs module is done. Ways to make what you learnt stick and to move to the next step.
 
 ## Practice with real APIs
 
@@ -27,7 +27,7 @@ the browser or with curl/Postman, then turn it into Python.
 
 ## The next paths
 
-- **API 2 — Writing REST APIs with FastAPI:** the other side of the table.
+- **Writing REST APIs with FastAPI:** the other side of the table.
   You will write your own endpoints, validate with Pydantic and see Swagger UI
   at `/docs`; at the end of the path you will put a machine learning model
   behind an API.

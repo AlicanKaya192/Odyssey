@@ -8,7 +8,7 @@ bölümde bu birlikteliği ölçen iki sayıyı, **kovaryansı** ve
 **korelasyonu**, sonra da çok değişkenli verinin özeti olan **kovaryans
 matrisini** göreceğiz.
 
-Ön bilgi: Rastgele Değişkenler, Beklenen Değer ve Varyans; MAT 1'deki Veri
+Ön bilgi: Rastgele Değişkenler, Beklenen Değer ve Varyans; Temel Matematik modülündeki Veri
 ve Temel İstatistik.
 
 ## Saçılım grafiği

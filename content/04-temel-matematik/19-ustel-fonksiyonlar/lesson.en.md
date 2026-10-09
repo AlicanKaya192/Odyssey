@@ -174,7 +174,7 @@ applied continuously. The difference is small, but continuous growth is
 the ceiling of them all.
 
 $e^x$ is called the **natural exponential function** and is also written
-$\exp(x)$. Why it matters so much becomes clear in MATH 2: the derivative
+$\exp(x)$. Why it matters so much becomes clear in the Advanced Mathematics module: the derivative
 of $e^x$ is $e^x$ again; its rate of change equals its own value at every
 moment.
 

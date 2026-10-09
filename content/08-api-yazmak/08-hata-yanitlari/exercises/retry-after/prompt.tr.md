@@ -8,4 +8,4 @@ tutuyor.
   `Retry-After: 30` başlığı (istemciye "30 saniye sonra dene" diyor)
 - Hazır → `{"id": ..., "status": "ready"}`
 
-API 1'de istemci olarak `Retry-After`'ı okumuştun; şimdi gönderiyorsun.
+API Kullanmak modülünde istemci olarak `Retry-After`'ı okumuştun; şimdi gönderiyorsun.

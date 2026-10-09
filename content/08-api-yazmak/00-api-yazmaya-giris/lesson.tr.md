@@ -1,11 +1,11 @@
 # API Yazmaya Giriş
 
-API 1'de masanın bir tarafındaydın: **istemci**. Bir adrese istek atıyor,
+API Kullanmak modülünde masanın bir tarafındaydın: **istemci**. Bir adrese istek atıyor,
 gelen JSON'u okuyor, durum koduna bakıyordun. Bu modülde masanın öbür
 tarafına geçiyorsun: isteği **karşılayan** ve cevabı **üreten** programı,
 yani **sunucuyu** yazacaksın.
 
-İyi haber: API 1'de öğrendiğin her kavram burada da geçerli. Yöntem (`GET`,
+İyi haber: API Kullanmak modülünde öğrendiğin her kavram burada da geçerli. Yöntem (`GET`,
 `POST`), adres, durum kodu, JSON, başlık... Yalnızca bu sefer onları sen
 okumuyorsun, sen veriyorsun.
 
@@ -34,7 +34,7 @@ Bir istek geldiğinde sunucu dört şey yapar:
 
 Bunların hepsini elle yazmak mümkün ama uzun ve hataya açık: gelen baytları
 ayrıştırmak, adresi parçalara bölmek, JSON'u çözmek, hatalı veriye uygun
-cevap vermek... API 1'de alıştırma sunucusu tam olarak bunu yapıyordu ve
+cevap vermek... API Kullanmak modülünde alıştırma sunucusu tam olarak bunu yapıyordu ve
 her uç noktası için `if request.path == "/books" and request.method ==
 "GET":` gibi satırlar gerekiyordu.
 
@@ -126,7 +126,7 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 ```
 
-Artık tarayıcıda `http://127.0.0.1:8000` adresini açabilir ya da API 1'deki
+Artık tarayıcıda `http://127.0.0.1:8000` adresini açabilir ya da API Kullanmak modülündeki
 gibi `curl` ile istek atabilirsin:
 
 ```text
@@ -160,7 +160,7 @@ Durdurmak için terminalde `Ctrl+C`.
 
 ## `/docs`: hazır belge
 
-API 1'de bir API'yi tanımak için belgesini okumuştun. FastAPI belgeyi senin
+API Kullanmak modülünde bir API'yi tanımak için belgesini okumuştun. FastAPI belgeyi senin
 yerine yazıyor. Sunucu açıkken `http://127.0.0.1:8000/docs` adresine git:
 **Swagger UI** sayfası, uç noktalarının listesini gösterir; her birini
 "Try it out" düğmesiyle tarayıcıdan deneyebilirsin.

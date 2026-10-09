@@ -17,7 +17,7 @@ Bu beş işe kısaca **CRUD** denir.
 | Sil | **D**elete | `DELETE` | `/books/{id}` | `204` |
 
 İki adres yetiyor: koleksiyon (`/books`) ve tek kayıt (`/books/{id}`).
-Ne yapılacağını yöntem söylüyor. API 1'de istemci olarak kullandığın düzen
+Ne yapılacağını yöntem söylüyor. API Kullanmak modülünde istemci olarak kullandığın düzen
 buydu; şimdi sunucusunu yazıyorsun.
 
 <figure class="fig">

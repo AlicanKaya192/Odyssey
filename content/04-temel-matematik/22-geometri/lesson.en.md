@@ -210,7 +210,7 @@ terms: $\sqrt{\Delta_1^2 + \dots + \Delta_{100}^2}$.
 
 **Angle and similarity.** How similar two documents or two words are is
 often measured by the angle between them: a small angle means similar. The
-calculation comes with Trigonometry and the dot product in MATH 2.
+calculation comes with Trigonometry and the dot product in the Advanced Mathematics module.
 
 **IoU.** An object detection model predicts a box in an image. How good the
 prediction is gets measured by the **ratio of the intersection area to the

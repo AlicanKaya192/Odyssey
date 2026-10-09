@@ -1,4 +1,4 @@
-All of API 1 on one page.
+All of the Using APIs module on one page.
 
 ## requests
 

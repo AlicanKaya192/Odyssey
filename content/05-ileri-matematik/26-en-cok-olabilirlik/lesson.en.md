@@ -9,7 +9,7 @@ machine learning, "training" a model is very often exactly this; most of
 the loss functions we use come from this idea.
 
 Prerequisites: Probability Distributions; Applications of Derivatives;
-Gradient Descent; Logarithms from MATH 1.
+Gradient Descent; Logarithms from the Foundational Mathematics module.
 
 ## Likelihood
 

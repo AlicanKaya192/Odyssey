@@ -1,6 +1,6 @@
 # Genel Tekrar
 
-MAT 2 burada bitiyor. Vektörlerle başladın; matrisler, özdeğerler ve SVD
+İleri Matematik modülü burada bitiyor. Vektörlerle başladın; matrisler, özdeğerler ve SVD
 ile veriyi geometrik bir nesne olarak gördün. Limit, türev, gradyan ve
 geri yayılımla bir modelin nasıl öğrendiğini çıkardın. Olasılık,
 dağılımlar, örnekleme ve kestirimle belirsizliği ölçtün; sonunda
@@ -12,7 +12,7 @@ modülden karışık.
 
 ## Parçalar nasıl bağlanıyor?
 
-MAT 2 üç kolda ilerliyor ve üçü de makine öğrenmesinde buluşuyor.
+İleri Matematik modülü üç kolda ilerliyor ve üçü de makine öğrenmesinde buluşuyor.
 
 <figure class="fig">
   <div class="flow">
@@ -59,7 +59,7 @@ denklemler (cebir), kayıp ve gradyan (kalkülüs) ve normal gürültü
 ## Baştan sona bir problem
 
 Bir öneri ve sınıflandırma sistemi üzerinde çalışan bir mühendis düşün.
-Sorular sırayla MAT 2'nin farklı köşelerinden geliyor.
+Sorular sırayla İleri Matematik modülünün farklı köşelerinden geliyor.
 
 ### 1. Benzerlik: vektörler
 
@@ -179,7 +179,7 @@ sisteminin matematiği tam olarak bu parçalardan oluşur.
 
 ## Bir sonraki adım
 
-MAT 2 ile yapay zekanın matematik temeli tamamlandı. Buradan sonra:
+İleri Matematik modülü ile yapay zekanın matematik temeli tamamlandı. Buradan sonra:
 
 - **Makine Öğrenmesi patikası:** burada türettiğin her formülün kodda nasıl
   kullanıldığını görürsün; doğrusal ve lojistik regresyon, karar ağaçları,
@@ -192,7 +192,7 @@ MAT 2 ile yapay zekanın matematik temeli tamamlandı. Buradan sonra:
 
 ## Özet
 
-- MAT 2'nin üç kolu: doğrusal cebir (veri ve modelin dili), kalkülüs
+- İleri Matematik modülünün üç kolu: doğrusal cebir (veri ve modelin dili), kalkülüs
   (öğrenmenin mekanizması), olasılık ve istatistik (belirsizlik ve kayıp).
 - Gerçek bir problemde üç kol birlikte çalışıyor: benzerlik vektörle,
   öğrenme gradyanla, karar olasılıkla, güvenilirlik örneklemeyle ölçülüyor.

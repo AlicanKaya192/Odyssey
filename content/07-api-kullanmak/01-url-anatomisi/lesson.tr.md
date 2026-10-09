@@ -53,7 +53,7 @@ Birçok şirket API'sini ayrı bir ada koyar: sitesi `example.com`, API'si
 `api.example.com`. Baştaki `api.` bir **alt alan adı** (subdomain).
 
 Özel bir ana makine adını şimdiden bil: **`localhost`** (ya da
-`127.0.0.1`) **kendi bilgisayarın** demek. API 2'de yazacağın sunucu ve
+`127.0.0.1`) **kendi bilgisayarın** demek. API Yazmak modülünde yazacağın sunucu ve
 bu patikada istek atacağın alıştırma sunucusu orada çalışacak.
 
 ## Port: binadaki daire numarası

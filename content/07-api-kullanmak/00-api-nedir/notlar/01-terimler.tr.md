@@ -28,7 +28,7 @@ sunucu, hatta komut satırındaki tek bir komut istemci olabilir. Soran kimse
 istemci odur.
 
 **Sunucu illa uzak bir makine değil.** Kendi bilgisayarında çalışan ve istek
-bekleyen bir program da sunucu. API 2'de bunu yapacaksın.
+bekleyen bir program da sunucu. API Yazmak modülünde bunu yapacaksın.
 
 ## Akılda kalsın
 

@@ -1,6 +1,6 @@
 # Overall Review
 
-MATH 2 ends here. You started with vectors; with matrices, eigenvalues and
+The Advanced Mathematics module ends here. You started with vectors; with matrices, eigenvalues and
 the SVD you saw data as a geometric object. With limits, derivatives,
 gradients and backpropagation you worked out how a model learns. With
 probability, distributions, sampling and estimation you measured
@@ -12,7 +12,7 @@ problems are mixed from the whole module.
 
 ## How do the pieces connect?
 
-MATH 2 advances along three branches, and all three meet in machine
+The Advanced Mathematics module advances along three branches, and all three meet in machine
 learning.
 
 <figure class="fig">
@@ -61,7 +61,7 @@ theory and likelihood.
 ## One problem from start to finish
 
 Picture an engineer working on a recommendation and classification
-system. The questions come in turn from different corners of MATH 2.
+system. The questions come in turn from different corners of the Advanced Mathematics module.
 
 ### 1. Similarity: vectors
 
@@ -185,7 +185,7 @@ pieces.
 
 ## The next step
 
-With MATH 2 the mathematical foundation of AI is complete. From here:
+With the Advanced Mathematics module the mathematical foundation of AI is complete. From here:
 
 - **The Machine Learning path:** see how every formula you derived here is
   used in code; linear and logistic regression, decision trees,
@@ -199,7 +199,7 @@ With MATH 2 the mathematical foundation of AI is complete. From here:
 
 ## Summary
 
-- The three branches of MATH 2: linear algebra (the language of data and
+- The three branches of the Advanced Mathematics module: linear algebra (the language of data and
   models), calculus (the mechanism of learning), probability and
   statistics (uncertainty and loss).
 - In a real problem the three work together: similarity is measured with

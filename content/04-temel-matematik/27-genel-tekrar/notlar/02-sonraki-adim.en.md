@@ -1,10 +1,10 @@
-You have finished MATH 1. There are two paths from here, and they complement each other.
+You have finished the Foundational Mathematics module. There are two paths from here, and they complement each other.
 
-## MATH 2 — The Mathematics of AI
+## The Mathematics of AI
 
-Every branch of MATH 1 climbs one level in MATH 2:
+Every branch of the Foundational Mathematics module climbs one level in the Advanced Mathematics module:
 
-| In MATH 1 | In MATH 2 |
+| In the Foundational Mathematics module | In the Advanced Mathematics module |
 |---|---|
 | coordinates, distance, trigonometry | vectors, dot product, cosine similarity |
 | systems of equations | matrices, Gaussian elimination, rank |
@@ -15,7 +15,7 @@ Every branch of MATH 1 climbs one level in MATH 2:
 | probability | conditional probability, Bayes, distributions |
 | statistics | sampling, confidence intervals, the mathematics of regression |
 
-The first section of MATH 2 is Vectors; keeping The Coordinate Plane and
+The first section of the Advanced Mathematics module is Vectors; keeping The Coordinate Plane and
 Lines and Trigonometry fresh is enough.
 
 ## The machine learning path

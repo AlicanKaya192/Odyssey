@@ -1,6 +1,6 @@
 # Overall Review
 
-You have reached the end of API 1. You started with the question "what is an
+You have reached the end of the Using APIs module. You started with the question "what is an
 API?"; now you can pull data from an API page by page, resilient to errors and
 rate limits, and pour it into a clean dataset. This section walks the path
 once more from start to finish: the most important idea and the code you will
@@ -14,7 +14,7 @@ use most at every stop.
     <span class="node">REST<br><small>13–14</small></span><span class="arrow">→</span>
     <span class="node acc">Pipeline<br><small>15</small></span>
   </div>
-  <figcaption>The path of API 1: from the concepts to a program that reliably pulls a real dataset.</figcaption>
+  <figcaption>The path of the Using APIs module: from the concepts to a program that reliably pulls a real dataset.</figcaption>
 </figure>
 
 ## 1. Concepts (Section 00)
@@ -137,7 +137,7 @@ If you can read it line by line, this path has done its job.
 
 ## What comes next?
 
-In API 2 you move to the other side of the table: you will write **your own**
+In the Writing APIs module you move to the other side of the table: you will write **your own**
 API with FastAPI, define endpoints, validate incoming data, require identity
 and see your documentation at `/docs`. Every rule you learnt here as a client
 (methods, codes, REST design) is a rule you will apply there as a server.

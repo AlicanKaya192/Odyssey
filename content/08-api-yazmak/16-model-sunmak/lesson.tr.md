@@ -174,7 +174,7 @@ puanı da yazılır.
 
 Bu API'yi başka bir bilgisayarda çalıştırmak için Docker patikasında
 gördüğün yol: `main.py` + `model.joblib` + `requirements.txt` bir imaja
-konur, `uvicorn main:app --host 0.0.0.0` ile başlatılır. API 2'nin sonu,
+konur, `uvicorn main:app --host 0.0.0.0` ile başlatılır. API Yazmak modülünün sonu,
 modelini dünyaya açmanın başı.
 
 ## Özet

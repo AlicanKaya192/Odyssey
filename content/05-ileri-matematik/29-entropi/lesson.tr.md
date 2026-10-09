@@ -9,7 +9,7 @@ varsaymanın bedeli olan **çapraz entropi**, ve iki dağılım arasındaki
 farkı ölçen **KL ıraksaması**.
 
 Ön bilgi: Olasılık Dağılımları; En Çok Olabilirlik Kestirimi; Lojistik
-Regresyon ve Log-Loss; MAT 1'deki Logaritma.
+Regresyon ve Log-Loss; Temel Matematik modülündeki Logaritma.
 
 ## Bilgi: bir sonucun şaşırtıcılığı
 

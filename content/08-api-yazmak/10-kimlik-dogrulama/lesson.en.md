@@ -8,7 +8,7 @@ answer two questions:
 - **Authentication**: *Who are you?* If I don't know, `401`.
 - **Authorization**: *Are you allowed to do this?* If not, `403`.
 
-In API 1 you sent keys and tokens as a client; now you write the side that
+In the Using APIs module you sent keys and tokens as a client; now you write the side that
 **checks** them.
 
 ## 1. An API key

@@ -8,4 +8,4 @@ each report's status.
   `Retry-After: 30` header (telling the client "try in 30 seconds")
 - Ready → `{"id": ..., "status": "ready"}`
 
-In API 1 you read `Retry-After` as a client; now you're sending it.
+In the Using APIs module you read `Retry-After` as a client; now you're sending it.

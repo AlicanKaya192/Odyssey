@@ -61,7 +61,7 @@ $$
 on katına çıkarmak yüz kat. Veri toplamanın getirisi giderek azalır.
 
 $\sigma$ bilinmiyorsa yerine örneklemin standart sapması $s$ yazılır
-($n - 1$ ile hesaplanan; MAT 1'deki örneklem varyansı). $n - 1$ ile bölünen
+($n - 1$ ile hesaplanan; Temel Matematik modülündeki örneklem varyansı). $n - 1$ ile bölünen
 örneklem varyansı da yansızdır: $E[s^2] = \sigma^2$.
 
 ## Merkezi Limit Teoremi

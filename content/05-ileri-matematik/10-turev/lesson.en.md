@@ -12,7 +12,7 @@ way to go and how far. In this section we will build the derivative from
 its definition, see what it tells us and take a first learning step.
 
 Prerequisite: the Limits and Continuity section, and The Coordinate Plane
-and Lines (slope) in MATH 1.
+and Lines (slope) in the Foundational Mathematics module.
 
 ## Average rate of change
 

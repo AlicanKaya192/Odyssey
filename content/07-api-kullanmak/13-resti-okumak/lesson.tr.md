@@ -6,7 +6,7 @@ araya getirip REST'i adıyla okuyacağız. Amaç iki yönlü:
 
 - Yeni bir API'nin belgesini açtığında **tahmin edebilmek**: "kitapları
   silmek büyük olasılıkla `DELETE /books/<id>`".
-- İyi ve kötü tasarımı **ayırt edebilmek**: API 2'de kendi API'ni yazarken
+- İyi ve kötü tasarımı **ayırt edebilmek**: API Yazmak modülünde kendi API'ni yazarken
   doğru kararları vermek.
 
 ## REST nedir?
@@ -155,7 +155,7 @@ REST en yaygın tarz ama tek değil. Adını duyacağın birkaç tanesi:
 - **Webhook:** tersine çalışır: sunucu bir şey olunca **senin** adresine
   istek atar.
 
-Bu patikada ve API 2'de REST ile çalışıyoruz; ötekileri tanıman yeterli.
+Bu patikada ve API Yazmak modülünde REST ile çalışıyoruz; ötekileri tanıman yeterli.
 
 ## Özet
 

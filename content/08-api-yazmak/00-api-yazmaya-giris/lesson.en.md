@@ -1,12 +1,12 @@
 # Introduction to Writing APIs
 
-In API 1 you sat on one side of the table: the **client**. You sent a
+In the Using APIs module you sat on one side of the table: the **client**. You sent a
 request to an address, read the JSON that came back and looked at the
 status code. In this module you move to the other side of the table: you
 will write the program that **receives** the request and **produces** the
 answer, the **server**.
 
-The good news: every concept you learned in API 1 holds here too. Method
+The good news: every concept you learned in the Using APIs module holds here too. Method
 (`GET`, `POST`), address, status code, JSON, header... Only this time you do
 not read them, you give them.
 
@@ -35,7 +35,7 @@ When a request arrives, the server does four things:
 It is possible to write all of this by hand, but it is long and
 error-prone: parsing the incoming bytes, splitting the address into parts,
 decoding the JSON, giving a proper answer to bad data... The exercise
-server in API 1 did exactly this, and every endpoint needed lines such as
+server in the Using APIs module did exactly this, and every endpoint needed lines such as
 `if request.path == "/books" and request.method == "GET":`.
 
 A ready-made library that takes over these repeated jobs is called a
@@ -129,7 +129,7 @@ INFO:     Application startup complete.
 ```
 
 Now you can open `http://127.0.0.1:8000` in a browser, or send a request
-with `curl` as in API 1:
+with `curl` as in the Using APIs module:
 
 ```text
 curl -i http://127.0.0.1:8000/
@@ -162,7 +162,7 @@ To stop it, `Ctrl+C` in the terminal.
 
 ## `/docs`: ready-made documentation
 
-In API 1 you read an API's documentation to get to know it. FastAPI writes
+In the Using APIs module you read an API's documentation to get to know it. FastAPI writes
 the documentation for you. While the server is running, go to
 `http://127.0.0.1:8000/docs`: the **Swagger UI** page lists your endpoints;
 you can try each one from the browser with the "Try it out" button.

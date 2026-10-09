@@ -1,6 +1,6 @@
 # Genel Tekrar
 
-MAT 1 burada bitiyor. Sayıları okumaktan başladın; kesirler, üsler ve
+Temel Matematik modülü burada bitiyor. Sayıları okumaktan başladın; kesirler, üsler ve
 köklerle hesap yaptın, cebirle denklem kurdun, fonksiyonlarla ilişkileri
 çizdin, geometri ve trigonometriyle şekilleri ölçtün, sayma, olasılık ve
 istatistikle belirsizliği sayılara döktün. Bu bölüm yeni bir konu
@@ -10,7 +10,7 @@ listede topluyor. Sınav ve problemler de bütün modülden karışık.
 
 ## Parçalar nasıl bağlanıyor?
 
-MAT 1'in konuları dört kolda ilerliyor ve hepsi MAT 2'ye akıyor.
+Temel Matematik modülünün konuları dört kolda ilerliyor ve hepsi İleri Matematik modülüne akıyor.
 
 <figure class="fig">
   <div class="flow">
@@ -33,7 +33,7 @@ MAT 1'in konuları dört kolda ilerliyor ve hepsi MAT 2'ye akıyor.
     <span class="arrow">→</span>
     <span class="node"><b>Trigonometri</b><br>sin, cos, birim çember</span>
   </div>
-  <figcaption>Şekil kolu: Pisagor uzaklık formülünü, dik üçgen trigonometriyi doğuruyor. MAT 2'de vektörler bu kolun devamı.</figcaption>
+  <figcaption>Şekil kolu: Pisagor uzaklık formülünü, dik üçgen trigonometriyi doğuruyor. İleri Matematik modülünde vektörler bu kolun devamı.</figcaption>
 </figure>
 
 <figure class="fig">
@@ -55,7 +55,7 @@ her toplam onunla yazılıyor ve üç kolun hepsinde kullanılıyor.
 ## Baştan sona bir problem
 
 Bir öğrenme uygulamasının verisine bakan bir analist düşün. Sorular
-sırayla MAT 1'in farklı köşelerinden geliyor.
+sırayla Temel Matematik modülünün farklı köşelerinden geliyor.
 
 ### 1. Büyüme: üstel fonksiyon
 
@@ -144,7 +144,7 @@ projesinin ilk günü tam olarak böyle görünür.
 
 ## En sık düşülen tuzaklar
 
-MAT 1 boyunca defalarca karşına çıkan hatalar, tek listede:
+Temel Matematik modülü boyunca defalarca karşına çıkan hatalar, tek listede:
 
 | Tuzak | Doğrusu |
 |---|---|
@@ -163,7 +163,7 @@ MAT 1 boyunca defalarca karşına çıkan hatalar, tek listede:
 
 ## Bir sonraki adım
 
-MAT 2 — Yapay Zekanın Matematiği üç kolla devam ediyor:
+Yapay Zekanın Matematiği üç kolla devam ediyor:
 
 - **Doğrusal cebir:** vektörler ve matrisler. Koordinat düzlemi ve
   trigonometri buraya taşınıyor; bir veri satırı bir vektör, bir veri
@@ -177,11 +177,11 @@ MAT 2 — Yapay Zekanın Matematiği üç kolla devam ediyor:
 
 ## Özet
 
-- MAT 1'in dört kolu: hesap (sayılardan fonksiyonlara), şekil (koordinattan
+- Temel Matematik modülünün dört kolu: hesap (sayılardan fonksiyonlara), şekil (koordinattan
   trigonometriye), belirsizlik (kümelerden istatistiğe) ve hepsini bağlayan
   Σ gösterimi.
 - Gerçek bir problemde bu kollar birlikte çalışıyor: büyüme üstel,
   "ne zaman" logaritma, ilişki doğru, özet istatistik, risk olasılık.
 - En sık hatalar dağılmayan işlemlerden (kare, kök, logaritma), işaret ve
   yönden, yüzdelerin toplanmasından ve birimlerden geliyor.
-- Sırada MAT 2: doğrusal cebir, kalkülüs ve olasılık–istatistik.
+- Sırada İleri Matematik modülü: doğrusal cebir, kalkülüs ve olasılık–istatistik.

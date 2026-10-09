@@ -9,7 +9,7 @@ kullanılır. Makine öğrenmesinde de böyle: ikili sınıflandırma Bernoulli,
 dağılımla bağlantılı. Bu bölümde en önemli kesikli dağılımları (Bernoulli,
 binom, Poisson) ve sürekli dağılımları (tekdüze, üstel, normal) göreceğiz.
 
-Ön bilgi: Rastgele Değişkenler, Beklenen Değer ve Varyans; MAT 1'deki
+Ön bilgi: Rastgele Değişkenler, Beklenen Değer ve Varyans; Temel Matematik modülündeki
 Sayma bölümü.
 
 ## Bernoulli dağılımı
@@ -112,7 +112,7 @@ cm ise insanların yaklaşık yüzde $68$'i $160$ ile $180$ arasında, yüzde
 $95$'i $150$ ile $190$ arasında.
 
 **Standart normal.** $Z = \frac{X - \mu}{\sigma}$ dönüşümü her normal
-dağılımı $\mathcal{N}(0, 1)$'e çevirir; MAT 1'deki z puanı bu. Standart
+dağılımı $\mathcal{N}(0, 1)$'e çevirir; Temel Matematik modülündeki z puanı bu. Standart
 normalin birikimli olasılıkları tablolarda ya da yazılımda hazır:
 
 | $z$ | $0{,}5$ | $1$ | $1{,}5$ | $1{,}96$ | $2$ | $3$ |

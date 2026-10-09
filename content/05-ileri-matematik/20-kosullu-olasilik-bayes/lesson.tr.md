@@ -9,7 +9,7 @@ düşüktür. Bu bölümde koşullu olasılığı, toplam olasılık kuralını,
 kuralını, ardışık güncellemeyi ve Naive Bayes sınıflandırıcısını
 göreceğiz.
 
-Ön bilgi: MAT 1'deki Olasılığa Giriş ve Sayma bölümleri.
+Ön bilgi: Temel Matematik modülündeki Olasılığa Giriş ve Sayma bölümleri.
 
 ## Koşullu olasılık ve çarpım kuralı
 

@@ -36,6 +36,6 @@ $$
 
 **Check:** The second equation must hold too: $2 \cdot 4 + 1 = 9$. ✓
 
-**Why this method?** As the number of unknowns grows, substitution gets messy, while elimination repeats the same move every time. The Gaussian elimination section of MAT 2 is this method organised for large systems.
+**Why this method?** As the number of unknowns grows, substitution gets messy, while elimination repeats the same move every time. The Gaussian elimination section of the Advanced Mathematics module is this method organised for large systems.
 
 **Answer:** $a = 4$, $b = 1$.

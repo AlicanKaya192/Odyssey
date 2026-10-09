@@ -195,7 +195,7 @@ uzaklığı, yüz terimli bir Pisagor: $\sqrt{\Delta_1^2 + \dots + \Delta_{100}^
 
 **Açı ve benzerlik.** İki belgenin ya da iki kelimenin ne kadar benzediği
 çoğu zaman aralarındaki açıyla ölçülür: açı küçükse benzerler. Bunun
-hesabı Trigonometri ve MAT 2'deki nokta çarpımıyla geliyor.
+hesabı Trigonometri ve İleri Matematik modülündeki nokta çarpımıyla geliyor.
 
 **IoU.** Bir nesne tespit modeli resimde bir kutu tahmin eder. Tahminin
 ne kadar iyi olduğu, gerçek kutu ile tahmin edilen kutunun **kesişim

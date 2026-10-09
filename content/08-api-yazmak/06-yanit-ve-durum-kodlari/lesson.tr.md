@@ -107,7 +107,7 @@ ResponseValidationError: 1 validation error:
 ## Durum kodları
 
 Cevabın ilk satırı, istemcinin gövdeyi okumadan sonucu anlamasını sağlar.
-API 1'de okuduğun kodlar burada **senin seçimin**:
+API Kullanmak modülünde okuduğun kodlar burada **senin seçimin**:
 
 | Durum | Ne zaman? |
 |---|---|

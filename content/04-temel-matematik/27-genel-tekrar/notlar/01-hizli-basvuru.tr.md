@@ -1,4 +1,4 @@
-MAT 1'in bütün formülleri tek sayfada. Bir soruda takıldığında buraya dön; ayrıntısı ilgili bölümün başvuru notunda.
+Temel Matematik modülünün bütün formülleri tek sayfada. Bir soruda takıldığında buraya dön; ayrıntısı ilgili bölümün başvuru notunda.
 
 ## Sayılar, üs ve kök
 

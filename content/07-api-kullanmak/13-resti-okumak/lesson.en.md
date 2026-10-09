@@ -7,7 +7,7 @@ put the pieces together and read REST by name. The aim is two-way:
 - When you open a new API's documentation, being able to **predict**:
   "deleting books is most likely `DELETE /books/<id>`".
 - Being able to **tell good design from bad**: making the right decisions
-  when you write your own API in API 2.
+  when you write your own API in the Writing APIs module.
 
 ## What is REST?
 
@@ -158,7 +158,7 @@ REST is the most common style but not the only one. A few you will hear of:
 - **Webhook:** works the other way round: when something happens, the server
   sends a request to **your** address.
 
-On this path and in API 2 we work with REST; knowing the others exist is
+On this path and in the Writing APIs module we work with REST; knowing the others exist is
 enough.
 
 ## Summary

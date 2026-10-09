@@ -16,7 +16,7 @@ gönderirse zarar olmaz. (`DELETE` ikinci kez `404` döner ama kayıt yine
 silinmiş durumdadır.)
 
 `POST` değildir: iki kez gönderilen `POST /books` iki kitap oluşturur.
-API 1'deki yeniden deneme kuralı buradan geliyor: `POST`'u körü körüne
+API Kullanmak modülündeki yeniden deneme kuralı buradan geliyor: `POST`'u körü körüne
 tekrar etme.
 
 ## `exclude_unset`, `exclude_none`, `exclude_defaults`

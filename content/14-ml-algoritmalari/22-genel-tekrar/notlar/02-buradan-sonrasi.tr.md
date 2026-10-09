@@ -12,7 +12,7 @@ açılıyor:
   istatistiği, gizli değişkenli modeller, belirsizliği ölçen tahminler.
 - **Zaman serileri.** Sıralı veride doğrulama başka kurallarla yapılır;
   bunun için Odyssey'de ayrı bir patika var.
-- **Büyük veri ve üretim.** Modeli bir API ile sunmak (API 2), Docker ile
+- **Büyük veri ve üretim.** Modeli bir API ile sunmak (API Yazmak), Docker ile
   paketlemek, büyük veride çalışmak (Büyük Veri patikası).
 
 Sıfırdan yazma alışkanlığını koru: yeni bir yöntemi önce küçük bir örnekte elle

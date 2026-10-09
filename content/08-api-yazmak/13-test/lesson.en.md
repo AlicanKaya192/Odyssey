@@ -36,7 +36,7 @@ def test_read_missing():
 
 - `TestClient(app)`: a client that calls the application **in the same
   process**, without starting a server. The same style as `requests` in
-  API 1: `client.get`, `client.post(..., json=...)`, `r.status_code`,
+  Using APIs: `client.get`, `client.post(..., json=...)`, `r.status_code`,
   `r.json()`.
 - Every function whose name starts with `test_` is a test. pytest finds them
   by itself.

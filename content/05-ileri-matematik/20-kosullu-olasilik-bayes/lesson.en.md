@@ -9,7 +9,7 @@ is usually much lower. In this section we will see conditional
 probability, the law of total probability, Bayes' rule, sequential
 updating and the Naive Bayes classifier.
 
-Prerequisites: Introduction to Probability and Counting in MATH 1.
+Prerequisites: Introduction to Probability and Counting in the Foundational Mathematics module.
 
 ## Conditional probability and the product rule
 

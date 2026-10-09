@@ -160,6 +160,6 @@ this track.
 ## What comes next?
 
 Docker taught you to **package** and **run** a program. The next step is to
-take the API you write (the API 2 track) or a machine learning model to a
+take the API you write (the Writing APIs module) or a machine learning model to a
 server in this package: the same image, the same `compose.yaml`, only a
 different `.env`.

@@ -8,7 +8,7 @@ return into JSON.
 
 ## One decorator per method
 
-Every HTTP method you learned in API 1 has a decorator in FastAPI:
+Every HTTP method you learned in the Using APIs module has a decorator in FastAPI:
 
 | Method | Decorator | Usually for? |
 |---|---|---|
@@ -86,7 +86,7 @@ DELETE /counter   405  {"detail":"Method Not Allowed"}
 ```
 
 `405`, not `404`: the address **exists**, but this method is not allowed. In
-API 1 you learned to tell these two codes apart as a client; now FastAPI
+the Using APIs module you learned to tell these two codes apart as a client; now FastAPI
 gives them correctly for you.
 
 ## Whatever you return becomes JSON
@@ -115,7 +115,7 @@ addresses consistently: **without** a slash at the end (`/books`,
 
 ## Good address, good method
 
-The REST rules from API 1 are your responsibility here:
+The REST rules from the Using APIs module are your responsibility here:
 
 - The address names a **thing** (a resource), the method says **what to
   do**: `POST /counter`, not `POST /increase-counter`.

@@ -3,7 +3,7 @@
 Bir veri kümesinde yüzlerce özellik olabilir; ama çoğu zaman bunlar
 birbirine bağlıdır ve gerçekte çok daha az "yönde" değişirler. **Temel
 bileşenler analizi** (PCA), verinin en çok yayıldığı yönleri bulur ve
-veriyi o birkaç yöne izdüşürerek boyutu indirir. Bu bölüm MAT 2'nin iki
+veriyi o birkaç yöne izdüşürerek boyutu indirir. Bu bölüm İleri Matematik modülünün iki
 yarısını birleştiriyor: kovaryans matrisi (istatistik), özdeğer ve
 özvektörler, SVD ve dik izdüşüm (doğrusal cebir).
 

@@ -9,7 +9,7 @@ wrong distribution; and **KL divergence**, which measures the difference
 between two distributions.
 
 Prerequisites: Probability Distributions; Maximum Likelihood Estimation;
-Logistic Regression and Log-Loss; Logarithms from MATH 1.
+Logistic Regression and Log-Loss; Logarithms from the Foundational Mathematics module.
 
 ## Information: how surprising an outcome is
 

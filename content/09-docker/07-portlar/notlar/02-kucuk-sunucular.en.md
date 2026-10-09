@@ -55,5 +55,5 @@ frameworks:
 | Django | `python manage.py runserver 0.0.0.0:8000` | Default 127.0.0.1 |
 | Streamlit | `streamlit run app.py --server.address 0.0.0.0` | |
 
-In the API 2 path you will write your own API with FastAPI and put it into a
+In the Writing APIs module you will write your own API with FastAPI and put it into a
 container with the methods of this path.

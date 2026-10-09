@@ -1,6 +1,6 @@
 # Overall Review
 
-You've reached the end of API 2. In API 1 you were on one side of the table,
+You've reached the end of the Writing APIs module. In the Using APIs module you were on one side of the table,
 sending requests; now you can write the other side, the server that answers
 them, from start to finish. In this section you see what you learned once
 more through the journey of a request; then there's a 40-question mixed exam

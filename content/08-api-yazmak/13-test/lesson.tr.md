@@ -35,7 +35,7 @@ def test_read_missing():
 ```
 
 - `TestClient(app)`: sunucu açmadan, uygulamayı **aynı süreçte**
-  çağıran bir istemci. API 1'deki `requests` ile aynı yazım: `client.get`,
+  çağıran bir istemci. API Kullanmak modülündeki `requests` ile aynı yazım: `client.get`,
   `client.post(..., json=...)`, `r.status_code`, `r.json()`.
 - Adı `test_` ile başlayan her işlev bir test. pytest onları kendisi
   buluyor.
