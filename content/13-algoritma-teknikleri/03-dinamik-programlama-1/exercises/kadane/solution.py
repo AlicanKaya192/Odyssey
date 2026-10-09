@@ -1,0 +1,12 @@
+def max_subarray(values):
+    best = current = values[0]
+    for x in values[1:]:
+        current = max(x, current + x)
+        best = max(best, current)
+    return best
+
+
+print(max_subarray([2, -5, 6, -2, 3, -8, 4]))
+print(max_subarray([-3, -1, -2]))
+big = [((i * 7919) % 201) - 100 for i in range(1_000_000)]
+print(max_subarray(big))
