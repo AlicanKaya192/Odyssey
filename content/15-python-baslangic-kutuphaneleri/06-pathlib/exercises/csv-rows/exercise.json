@@ -1,0 +1,66 @@
+{
+  "id": "csv-rows",
+  "title": {
+    "tr": "CSV satırlarını say",
+    "en": "Count CSV rows"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satır sayısı `len(path.read_text(encoding=\"utf-8\").splitlines())`; başlık için 1 çıkar.",
+      "en": "The line count is `len(path.read_text(encoding=\"utf-8\").splitlines())`; subtract 1 for the header."
+    },
+    {
+      "tr": "Anahtar `path.relative_to(base).as_posix()`.",
+      "en": "The key is `path.relative_to(base).as_posix()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom pathlib import Path\n\n\ndef csv_rows(folder):\n    base = Path(folder)\n    rows = {}\n    for path in base.rglob(\"*.csv\"):\n        lines = path.read_text(encoding=\"utf-8\").splitlines()\n        rows[path.relative_to(base).as_posix()] = len(lines) - 1\n    return rows\n\nrows = csv_rows(\"shop\")\nfor name in sorted(rows):\n    print(name, rows[name])\n```",
+      "en": "The full solution:\n\n```python\nfrom pathlib import Path\n\n\ndef csv_rows(folder):\n    base = Path(folder)\n    rows = {}\n    for path in base.rglob(\"*.csv\"):\n        lines = path.read_text(encoding=\"utf-8\").splitlines()\n        rows[path.relative_to(base).as_posix()] = len(lines) - 1\n    return rows\n\nrows = csv_rows(\"shop\")\nfor name in sorted(rows):\n    print(name, rows[name])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "csv_rows",
+      "cases": [
+        {
+          "args": [
+            "shop"
+          ],
+          "returns": {
+            "data/sales.csv": 3,
+            "data/stock.csv": 2,
+            "data/old/sales-2025.csv": 4
+          }
+        },
+        {
+          "args": [
+            "shop/data/old"
+          ],
+          "returns": {
+            "sales-2025.csv": 4
+          }
+        },
+        {
+          "args": [
+            "shop/src"
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "data/old/sales-2025.csv 4\ndata/sales.csv 3\ndata/stock.csv 2"
+    }
+  ]
+}

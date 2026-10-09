@@ -1,0 +1,36 @@
+{
+  "id": "unique-path",
+  "title": {
+    "tr": "Boş ad bul",
+    "en": "Find a free name"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sayaç 1'den başlar; her turda `path.with_stem(f\"{path.stem}-{counter}\")`.",
+      "en": "The counter starts at 1; each round `path.with_stem(f\"{path.stem}-{counter}\")`."
+    },
+    {
+      "tr": "Yeni adı hep **ilk** `path`'ten kur; yoksa `report-1-2.txt` olur.",
+      "en": "Always build the new name from the **original** `path`; otherwise you get `report-1-2.txt`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom pathlib import Path\n\n\ndef unique_path(path):\n    candidate = path\n    counter = 1\n    while candidate.exists():\n        candidate = path.with_stem(f\"{path.stem}-{counter}\")\n        counter += 1\n    return candidate\n\nPath(\"report.txt\").write_text(\"v1\", encoding=\"utf-8\")\nprint(unique_path(Path(\"report.txt\")).name)\nPath(\"report-1.txt\").write_text(\"v2\", encoding=\"utf-8\")\nprint(unique_path(Path(\"report.txt\")).name)\nprint(unique_path(Path(\"new.txt\")).name)\n```",
+      "en": "The full solution:\n\n```python\nfrom pathlib import Path\n\n\ndef unique_path(path):\n    candidate = path\n    counter = 1\n    while candidate.exists():\n        candidate = path.with_stem(f\"{path.stem}-{counter}\")\n        counter += 1\n    return candidate\n\nPath(\"report.txt\").write_text(\"v1\", encoding=\"utf-8\")\nprint(unique_path(Path(\"report.txt\")).name)\nPath(\"report-1.txt\").write_text(\"v2\", encoding=\"utf-8\")\nprint(unique_path(Path(\"report.txt\")).name)\nprint(unique_path(Path(\"new.txt\")).name)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "report-1.txt\nreport-2.txt\nnew.txt"
+    }
+  ]
+}

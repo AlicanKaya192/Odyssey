@@ -1,0 +1,55 @@
+{
+  "id": "organize",
+  "title": {
+    "tr": "Klasörü düzenle",
+    "en": "Tidy the folder"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Klasör adı `path.suffix.lower().lstrip(\".\") or \"other\"`.",
+      "en": "The folder name is `path.suffix.lower().lstrip(\".\") or \"other\"`."
+    },
+    {
+      "tr": "Taşırken listeyi değiştirdiğin için önce `list(base.iterdir())`; klasörleri `is_file` ile atla.",
+      "en": "You change the folder while moving, so take `list(base.iterdir())` first; skip folders with `is_file`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom pathlib import Path\n\n\ndef organize(folder):\n    base = Path(folder)\n    for path in list(base.iterdir()):\n        if not path.is_file():\n            continue\n        kind = path.suffix.lower().lstrip(\".\") or \"other\"\n        (base / kind).mkdir(exist_ok=True)\n        path.rename(base / kind / path.name)\n    files = [p for p in base.rglob(\"*\") if p.is_file()]\n    return sorted(p.relative_to(base).as_posix() for p in files)\n\nfor path in organize(\"inbox\"):\n    print(path)\n```",
+      "en": "The full solution:\n\n```python\nfrom pathlib import Path\n\n\ndef organize(folder):\n    base = Path(folder)\n    for path in list(base.iterdir()):\n        if not path.is_file():\n            continue\n        kind = path.suffix.lower().lstrip(\".\") or \"other\"\n        (base / kind).mkdir(exist_ok=True)\n        path.rename(base / kind / path.name)\n    files = [p for p in base.rglob(\"*\") if p.is_file()]\n    return sorted(p.relative_to(base).as_posix() for p in files)\n\nfor path in organize(\"inbox\"):\n    print(path)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "organize",
+      "cases": [
+        {
+          "args": [
+            "inbox"
+          ],
+          "returns": [
+            "csv/data.csv",
+            "jpg/photo.jpg",
+            "other/README",
+            "pdf/report.pdf",
+            "pdf/scan.PDF",
+            "txt/notes.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "csv/data.csv\njpg/photo.jpg\nother/README\npdf/report.pdf\npdf/scan.PDF\ntxt/notes.txt"
+    }
+  ]
+}
