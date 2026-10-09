@@ -1,0 +1,75 @@
+{
+  "id": "zip-files",
+  "title": {
+    "tr": "Dosyaları zip'le",
+    "en": "Zip the files"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yazmak için `with zipfile.ZipFile(zip_path, \"w\", compression=zipfile.ZIP_DEFLATED) as zf:` ve `zf.write(path)`.",
+      "en": "To write: `with zipfile.ZipFile(zip_path, \"w\", compression=zipfile.ZIP_DEFLATED) as zf:` and `zf.write(path)`."
+    },
+    {
+      "tr": "Okumak için ikinci bir `with zipfile.ZipFile(zip_path) as zf:` ve `sorted(zf.namelist())`.",
+      "en": "To read, a second `with zipfile.ZipFile(zip_path) as zf:` and `sorted(zf.namelist())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport zipfile\n\n\ndef zip_files(zip_path, paths):\n    with zipfile.ZipFile(zip_path, \"w\", compression=zipfile.ZIP_DEFLATED) as zf:\n        for path in paths:\n            zf.write(path)\n    with zipfile.ZipFile(zip_path) as zf:\n        return sorted(zf.namelist())\n\nprint(zip_files(\"out.zip\", [\"a.txt\", \"data/c.csv\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport zipfile\n\n\ndef zip_files(zip_path, paths):\n    with zipfile.ZipFile(zip_path, \"w\", compression=zipfile.ZIP_DEFLATED) as zf:\n        for path in paths:\n            zf.write(path)\n    with zipfile.ZipFile(zip_path) as zf:\n        return sorted(zf.namelist())\n\nprint(zip_files(\"out.zip\", [\"a.txt\", \"data/c.csv\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "zip_files",
+      "cases": [
+        {
+          "args": [
+            "out.zip",
+            [
+              "a.txt",
+              "data/c.csv"
+            ]
+          ],
+          "returns": [
+            "a.txt",
+            "data/c.csv"
+          ]
+        },
+        {
+          "args": [
+            "two.zip",
+            [
+              "b.txt",
+              "a.txt"
+            ]
+          ],
+          "returns": [
+            "a.txt",
+            "b.txt"
+          ]
+        },
+        {
+          "args": [
+            "empty.zip",
+            []
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['a.txt', 'data/c.csv']"
+    }
+  ]
+}

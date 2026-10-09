@@ -1,0 +1,67 @@
+{
+  "id": "zip-sizes",
+  "title": {
+    "tr": "Arşivdeki boyutlar",
+    "en": "Sizes in the archive"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`[(info.filename, info.file_size) for info in zf.infolist()]`.",
+      "en": "`[(info.filename, info.file_size) for info in zf.infolist()]`."
+    },
+    {
+      "tr": "`sorted(sizes, key=lambda item: item[1], reverse=True)`.",
+      "en": "`sorted(sizes, key=lambda item: item[1], reverse=True)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport zipfile\n\n\ndef zip_sizes(zip_path):\n    with zipfile.ZipFile(zip_path) as zf:\n        sizes = [(info.filename, info.file_size) for info in zf.infolist()]\n    return sorted(sizes, key=lambda item: item[1], reverse=True)\n\nwith zipfile.ZipFile(\"pack.zip\", \"w\") as zf:\n    zf.writestr(\"big.txt\", \"x\" * 500)\n    zf.writestr(\"small.txt\", \"hi\")\n    zf.writestr(\"docs/mid.txt\", \"y\" * 50)\nfor name, size in zip_sizes(\"pack.zip\"):\n    print(name, size)\n```",
+      "en": "The full solution:\n\n```python\nimport zipfile\n\n\ndef zip_sizes(zip_path):\n    with zipfile.ZipFile(zip_path) as zf:\n        sizes = [(info.filename, info.file_size) for info in zf.infolist()]\n    return sorted(sizes, key=lambda item: item[1], reverse=True)\n\nwith zipfile.ZipFile(\"pack.zip\", \"w\") as zf:\n    zf.writestr(\"big.txt\", \"x\" * 500)\n    zf.writestr(\"small.txt\", \"hi\")\n    zf.writestr(\"docs/mid.txt\", \"y\" * 50)\nfor name, size in zip_sizes(\"pack.zip\"):\n    print(name, size)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "zip_sizes",
+      "cases": [
+        {
+          "args": [
+            "pack.zip"
+          ],
+          "returns": [
+            {
+              "__tuple__": [
+                "big.txt",
+                500
+              ]
+            },
+            {
+              "__tuple__": [
+                "docs/mid.txt",
+                50
+              ]
+            },
+            {
+              "__tuple__": [
+                "small.txt",
+                2
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "big.txt 500\ndocs/mid.txt 50\nsmall.txt 2"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "count-errors",
+  "title": {
+    "tr": "Sıkıştırılmış kayıtta hata say",
+    "en": "Count errors in a compressed log"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`with gzip.open(path, \"rt\", encoding=\"utf-8\") as f:` düz dosya gibi satır verir.",
+      "en": "`with gzip.open(path, \"rt\", encoding=\"utf-8\") as f:` gives lines like a plain file."
+    },
+    {
+      "tr": "`for line in f: if line.startswith(\"ERROR\"): count += 1`.",
+      "en": "`for line in f: if line.startswith(\"ERROR\"): count += 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport gzip\n\n\ndef count_errors(path):\n    count = 0\n    with gzip.open(path, \"rt\", encoding=\"utf-8\") as f:\n        for line in f:\n            if line.startswith(\"ERROR\"):\n                count += 1\n    return count\n\nwith gzip.open(\"app.log.gz\", \"wt\", encoding=\"utf-8\") as f:\n    f.write(\"INFO start\\nERROR disk\\nINFO ok\\nERROR net\\nERROR disk\\n\")\nprint(count_errors(\"app.log.gz\"))\n```",
+      "en": "The full solution:\n\n```python\nimport gzip\n\n\ndef count_errors(path):\n    count = 0\n    with gzip.open(path, \"rt\", encoding=\"utf-8\") as f:\n        for line in f:\n            if line.startswith(\"ERROR\"):\n                count += 1\n    return count\n\nwith gzip.open(\"app.log.gz\", \"wt\", encoding=\"utf-8\") as f:\n    f.write(\"INFO start\\nERROR disk\\nINFO ok\\nERROR net\\nERROR disk\\n\")\nprint(count_errors(\"app.log.gz\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "count_errors",
+      "cases": [
+        {
+          "args": [
+            "app.log.gz"
+          ],
+          "returns": 3
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3"
+    }
+  ]
+}
