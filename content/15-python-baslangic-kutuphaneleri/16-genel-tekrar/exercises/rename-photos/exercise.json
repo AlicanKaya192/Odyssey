@@ -1,0 +1,53 @@
+{
+  "id": "rename-photos",
+  "title": {
+    "tr": "Fotoğrafları yeniden adlandır",
+    "en": "Rename the photos"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ad kalıbı `PHOTO.fullmatch(path.name)`; tarih metni `m.group(1)`.",
+      "en": "The name pattern is `PHOTO.fullmatch(path.name)`; the date text is `m.group(1)`."
+    },
+    {
+      "tr": "`taken = datetime.strptime(m.group(1), \"%Y%m%d_%H%M%S\")`, sonra `path.rename(base / taken.strftime(\"%Y-%m-%d_%H-%M-%S.jpg\"))`.",
+      "en": "`taken = datetime.strptime(m.group(1), \"%Y%m%d_%H%M%S\")`, then `path.rename(base / taken.strftime(\"%Y-%m-%d_%H-%M-%S.jpg\"))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\nfrom datetime import datetime\nfrom pathlib import Path\n\nPHOTO = re.compile(r\"IMG_(\\d{8}_\\d{6})\\.jpg\")\n\n\ndef rename_photos(folder):\n    base = Path(folder)\n    for path in list(base.iterdir()):\n        m = PHOTO.fullmatch(path.name)\n        if m:\n            taken = datetime.strptime(m.group(1), \"%Y%m%d_%H%M%S\")\n            path.rename(base / taken.strftime(\"%Y-%m-%d_%H-%M-%S.jpg\"))\n    return sorted(p.name for p in base.iterdir())\n\nfor name in rename_photos(\"photos\"):\n    print(name)\n```",
+      "en": "The full solution:\n\n```python\nimport re\nfrom datetime import datetime\nfrom pathlib import Path\n\nPHOTO = re.compile(r\"IMG_(\\d{8}_\\d{6})\\.jpg\")\n\n\ndef rename_photos(folder):\n    base = Path(folder)\n    for path in list(base.iterdir()):\n        m = PHOTO.fullmatch(path.name)\n        if m:\n            taken = datetime.strptime(m.group(1), \"%Y%m%d_%H%M%S\")\n            path.rename(base / taken.strftime(\"%Y-%m-%d_%H-%M-%S.jpg\"))\n    return sorted(p.name for p in base.iterdir())\n\nfor name in rename_photos(\"photos\"):\n    print(name)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "rename_photos",
+      "cases": [
+        {
+          "args": [
+            "photos"
+          ],
+          "returns": [
+            "2026-03-15_10-15-00.jpg",
+            "2026-03-16_08-30-12.jpg",
+            "IMG_bad.jpg",
+            "notes.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2026-03-15_10-15-00.jpg\n2026-03-16_08-30-12.jpg\nIMG_bad.jpg\nnotes.txt"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "duplicate-files",
+  "title": {
+    "tr": "Kopya dosyaları bul",
+    "en": "Find duplicate files"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Anahtar içerik: `groups[path.read_text(encoding=\"utf-8\")].append(...)`.",
+      "en": "The key is the content: `groups[path.read_text(encoding=\"utf-8\")].append(...)`."
+    },
+    {
+      "tr": "`sorted(sorted(paths) for paths in groups.values() if len(paths) > 1)`.",
+      "en": "`sorted(sorted(paths) for paths in groups.values() if len(paths) > 1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import defaultdict\nfrom pathlib import Path\n\n\ndef duplicate_files(folder):\n    base = Path(folder)\n    groups = defaultdict(list)\n    for path in base.rglob(\"*\"):\n        if path.is_file():\n            content = path.read_text(encoding=\"utf-8\")\n            groups[content].append(path.relative_to(base).as_posix())\n    return sorted(sorted(paths) for paths in groups.values() if len(paths) > 1)\n\nfor group in duplicate_files(\"files\"):\n    print(group)\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import defaultdict\nfrom pathlib import Path\n\n\ndef duplicate_files(folder):\n    base = Path(folder)\n    groups = defaultdict(list)\n    for path in base.rglob(\"*\"):\n        if path.is_file():\n            content = path.read_text(encoding=\"utf-8\")\n            groups[content].append(path.relative_to(base).as_posix())\n    return sorted(sorted(paths) for paths in groups.values() if len(paths) > 1)\n\nfor group in duplicate_files(\"files\"):\n    print(group)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "duplicate_files",
+      "cases": [
+        {
+          "args": [
+            "files"
+          ],
+          "returns": [
+            [
+              "a.txt",
+              "copy/a2.txt",
+              "notes.txt"
+            ],
+            [
+              "b.txt",
+              "c.txt"
+            ]
+          ]
+        },
+        {
+          "args": [
+            "files/copy"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['a.txt', 'copy/a2.txt', 'notes.txt']\n['b.txt', 'c.txt']"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "sales-by-weekday",
+  "title": {
+    "tr": "Haftanın günlerine göre satış",
+    "en": "Sales by day of the week"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Gün adı `DAYS[date.fromisoformat(row[\"date\"]).weekday()]`.",
+      "en": "The day name is `DAYS[date.fromisoformat(row[\"date\"]).weekday()]`."
+    },
+    {
+      "tr": "`totals[day] += float(row[\"amount\"])`; sonda `round`.",
+      "en": "`totals[day] += float(row[\"amount\"])`; `round` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport csv\nfrom collections import defaultdict\nfrom datetime import date\n\nDAYS = [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"]\n\n\ndef sales_by_weekday(path):\n    totals = defaultdict(float)\n    with open(path, newline=\"\", encoding=\"utf-8\") as f:\n        for row in csv.DictReader(f):\n            day = DAYS[date.fromisoformat(row[\"date\"]).weekday()]\n            totals[day] += float(row[\"amount\"])\n    return {day: round(total, 2) for day, total in totals.items()}\n\ntotals = sales_by_weekday(\"sales.csv\")\nfor day in [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"]:\n    if day in totals:\n        print(day, totals[day])\n```",
+      "en": "The full solution:\n\n```python\nimport csv\nfrom collections import defaultdict\nfrom datetime import date\n\nDAYS = [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"]\n\n\ndef sales_by_weekday(path):\n    totals = defaultdict(float)\n    with open(path, newline=\"\", encoding=\"utf-8\") as f:\n        for row in csv.DictReader(f):\n            day = DAYS[date.fromisoformat(row[\"date\"]).weekday()]\n            totals[day] += float(row[\"amount\"])\n    return {day: round(total, 2) for day, total in totals.items()}\n\ntotals = sales_by_weekday(\"sales.csv\")\nfor day in [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"]:\n    if day in totals:\n        print(day, totals[day])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sales_by_weekday",
+      "cases": [
+        {
+          "args": [
+            "sales.csv"
+          ],
+          "returns": {
+            "Mon": 160.75,
+            "Tue": 80.0,
+            "Sat": 200.0,
+            "Sun": 15.75
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Mon 160.75\nTue 80.0\nSat 200.0\nSun 15.75"
+    }
+  ]
+}
