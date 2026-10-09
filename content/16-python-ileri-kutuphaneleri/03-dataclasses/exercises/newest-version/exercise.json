@@ -1,0 +1,70 @@
+{
+  "id": "newest-version",
+  "title": {
+    "tr": "En yeni sürüm",
+    "en": "The newest version"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu metinleri karşılaştırıyor: `\"1.9.9\" > \"1.10.0\"`.",
+      "en": "The starter code compares texts: `\"1.9.9\" > \"1.10.0\"`."
+    },
+    {
+      "tr": "`@dataclass(frozen=True, order=True)`; `Version(*map(int, t.split(\".\")))` ve `max`.",
+      "en": "`@dataclass(frozen=True, order=True)`; `Version(*map(int, t.split(\".\")))` and `max`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom dataclasses import dataclass\n\n\n@dataclass(frozen=True, order=True)\nclass Version:\n    major: int\n    minor: int\n    patch: int\n\n\ndef newest(texts):\n    versions = [Version(*map(int, t.split(\".\"))) for t in texts]\n    best = max(versions)\n    return f\"{best.major}.{best.minor}.{best.patch}\"\n\nprint(newest([\"1.2.0\", \"1.10.0\", \"1.9.9\"]))\nprint(newest([\"0.1.0\"]))\n```",
+      "en": "The full solution:\n\n```python\nfrom dataclasses import dataclass\n\n\n@dataclass(frozen=True, order=True)\nclass Version:\n    major: int\n    minor: int\n    patch: int\n\n\ndef newest(texts):\n    versions = [Version(*map(int, t.split(\".\"))) for t in texts]\n    best = max(versions)\n    return f\"{best.major}.{best.minor}.{best.patch}\"\n\nprint(newest([\"1.2.0\", \"1.10.0\", \"1.9.9\"]))\nprint(newest([\"0.1.0\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "newest",
+      "cases": [
+        {
+          "args": [
+            [
+              "1.2.0",
+              "1.10.0",
+              "1.9.9"
+            ]
+          ],
+          "returns": "1.10.0"
+        },
+        {
+          "args": [
+            [
+              "0.1.0"
+            ]
+          ],
+          "returns": "0.1.0"
+        },
+        {
+          "args": [
+            [
+              "2.0.0",
+              "10.0.0",
+              "9.99.99"
+            ]
+          ],
+          "returns": "10.0.0"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.10.0\n0.1.0"
+    }
+  ]
+}

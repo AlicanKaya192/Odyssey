@@ -1,0 +1,36 @@
+{
+  "id": "temperature",
+  "title": {
+    "tr": "Doğrulayan sıcaklık",
+    "en": "A validating temperature"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`fahrenheit: float = field(init=False)`; değeri `__post_init__` atar.",
+      "en": "`fahrenheit: float = field(init=False)`; `__post_init__` assigns its value."
+    },
+    {
+      "tr": "`__post_init__` içinde önce denetim (`raise ValueError(...)`), sonra hesap.",
+      "en": "In `__post_init__`, first the check (`raise ValueError(...)`), then the computation."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom dataclasses import dataclass, field\n\n\n@dataclass\nclass Temperature:\n    celsius: float\n    fahrenheit: float = field(init=False)\n\n    def __post_init__(self):\n        if self.celsius < -273.15:\n            raise ValueError(\"below absolute zero\")\n        self.fahrenheit = self.celsius * 9 / 5 + 32\n\nprint(Temperature(100))\ntry:\n    Temperature(-300)\nexcept ValueError as error:\n    print(\"ValueError:\", error)\n```",
+      "en": "The full solution:\n\n```python\nfrom dataclasses import dataclass, field\n\n\n@dataclass\nclass Temperature:\n    celsius: float\n    fahrenheit: float = field(init=False)\n\n    def __post_init__(self):\n        if self.celsius < -273.15:\n            raise ValueError(\"below absolute zero\")\n        self.fahrenheit = self.celsius * 9 / 5 + 32\n\nprint(Temperature(100))\ntry:\n    Temperature(-300)\nexcept ValueError as error:\n    print(\"ValueError:\", error)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Temperature(celsius=100, fahrenheit=212.0)\nValueError: below absolute zero"
+    }
+  ]
+}
