@@ -1,0 +1,108 @@
+{
+  "id": "output-grads",
+  "title": {
+    "tr": "Çıkış katmanının türevi",
+    "en": "The output layer's derivative"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`dz2 = (p - y)[:, None] / len(y)` sütun vektörü yapar.",
+      "en": "`dz2 = (p - y)[:, None] / len(y)` makes a column vector."
+    },
+    {
+      "tr": "`dW2 = H.T @ dz2`; `db2 = dz2.sum()`.",
+      "en": "`dW2 = H.T @ dz2`; `db2 = dz2.sum()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef output_grads(H, p, y):\n    H, p, y = (np.array(a, dtype=float) for a in (H, p, y))\n    dz2 = (p - y)[:, None] / len(y)\n    dW2 = H.T @ dz2\n    return dW2.round(4).tolist(), round(float(dz2.sum()), 4)\n\nH = [[0.5, -0.2], [0.1, 0.8], [-0.3, 0.4]]\ndW2, db2 = output_grads(H, [0.7, 0.4, 0.9], [1, 0, 1])\nprint(dW2)\nprint(db2)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef output_grads(H, p, y):\n    H, p, y = (np.array(a, dtype=float) for a in (H, p, y))\n    dz2 = (p - y)[:, None] / len(y)\n    dW2 = H.T @ dz2\n    return dW2.round(4).tolist(), round(float(dz2.sum()), 4)\n\nH = [[0.5, -0.2], [0.1, 0.8], [-0.3, 0.4]]\ndW2, db2 = output_grads(H, [0.7, 0.4, 0.9], [1, 0, 1])\nprint(dW2)\nprint(db2)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "output_grads",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.5,
+                -0.2
+              ],
+              [
+                0.1,
+                0.8
+              ],
+              [
+                -0.3,
+                0.4
+              ]
+            ],
+            [
+              0.7,
+              0.4,
+              0.9
+            ],
+            [
+              1,
+              0,
+              1
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                [
+                  -0.0267
+                ],
+                [
+                  0.1133
+                ]
+              ],
+              -0.0
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                1.0
+              ]
+            ],
+            [
+              0.25
+            ],
+            [
+              1
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                [
+                  -0.75
+                ]
+              ],
+              -0.75
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[-0.0267], [0.1133]]\n-0.0"
+    }
+  ]
+}

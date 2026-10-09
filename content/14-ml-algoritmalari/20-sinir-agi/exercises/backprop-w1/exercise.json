@@ -1,0 +1,133 @@
+{
+  "id": "backprop-w1",
+  "title": {
+    "tr": "Gizli katmanın türevi",
+    "en": "The hidden layer's derivative"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İleri: `H = np.tanh(X @ W1 + b1)`, `p = sigmoid(H @ W2 + b2).ravel()`.",
+      "en": "Forward: `H = np.tanh(X @ W1 + b1)`, `p = sigmoid(H @ W2 + b2).ravel()`."
+    },
+    {
+      "tr": "Geri: `dz1 = (dz2 @ W2.T) * (1 - H ** 2)`, sonra `X.T @ dz1`.",
+      "en": "Backward: `dz1 = (dz2 @ W2.T) * (1 - H ** 2)`, then `X.T @ dz1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef backprop_w1(X, y, W1, b1, W2, b2):\n    X, W1, W2 = (np.array(a, dtype=float) for a in (X, W1, W2))\n    b1, b2 = np.array(b1, dtype=float), np.array(b2, dtype=float)\n    y = np.array(y, dtype=float)\n    H = np.tanh(X @ W1 + b1)\n    p = (1 / (1 + np.exp(-(H @ W2 + b2)))).ravel()\n    dz2 = (p - y)[:, None] / len(y)\n    dz1 = (dz2 @ W2.T) * (1 - H ** 2)\n    return (X.T @ dz1).round(4).tolist()\n\nX = [[0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]\ny = [1, 1, 0]\nW1 = [[0.5, -0.5], [0.3, 0.8]]\nW2 = [[1.0], [-1.0]]\nfor row in backprop_w1(X, y, W1, [0.0, 0.0], W2, [0.0]):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef backprop_w1(X, y, W1, b1, W2, b2):\n    X, W1, W2 = (np.array(a, dtype=float) for a in (X, W1, W2))\n    b1, b2 = np.array(b1, dtype=float), np.array(b2, dtype=float)\n    y = np.array(y, dtype=float)\n    H = np.tanh(X @ W1 + b1)\n    p = (1 / (1 + np.exp(-(H @ W2 + b2)))).ravel()\n    dz2 = (p - y)[:, None] / len(y)\n    dz1 = (dz2 @ W2.T) * (1 - H ** 2)\n    return (X.T @ dz1).round(4).tolist()\n\nX = [[0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]\ny = [1, 1, 0]\nW1 = [[0.5, -0.5], [0.3, 0.8]]\nW2 = [[1.0], [-1.0]]\nfor row in backprop_w1(X, y, W1, [0.0, 0.0], W2, [0.0]):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "backprop_w1",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              [
+                0.5,
+                -0.5
+              ],
+              [
+                0.3,
+                0.8
+              ]
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              [
+                1.0
+              ],
+              [
+                -1.0
+              ]
+            ],
+            [
+              0.0
+            ]
+          ],
+          "returns": [
+            [
+              0.0359,
+              -0.1061
+            ],
+            [
+              -0.0703,
+              -0.0703
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0
+              ]
+            ],
+            [
+              0
+            ],
+            [
+              [
+                0.5
+              ]
+            ],
+            [
+              0.0
+            ],
+            [
+              [
+                2.0
+              ]
+            ],
+            [
+              0.0
+            ]
+          ],
+          "returns": [
+            [
+              1.126
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.0359, -0.1061]\n[-0.0703, -0.0703]"
+    }
+  ]
+}
