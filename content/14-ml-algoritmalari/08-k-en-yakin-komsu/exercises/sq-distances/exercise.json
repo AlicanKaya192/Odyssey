@@ -1,0 +1,136 @@
+{
+  "id": "sq-distances",
+  "title": {
+    "tr": "Uzaklık matrisi",
+    "en": "The distance matrix"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`A[:, None, :] - B[None, :, :]` boyu `(len(A), len(B), d)`.",
+      "en": "`A[:, None, :] - B[None, :, :]` has shape `(len(A), len(B), d)`."
+    },
+    {
+      "tr": "`(... ** 2).sum(axis=2).round(4).tolist()`.",
+      "en": "`(... ** 2).sum(axis=2).round(4).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef sq_distances(A, B):\n    A, B = np.array(A, dtype=float), np.array(B, dtype=float)\n    return ((A[:, None, :] - B[None, :, :]) ** 2).sum(axis=2).round(4).tolist()\n\nprint(sq_distances([[0, 0], [1, 1]], [[1, 0], [3, 4], [0, 0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef sq_distances(A, B):\n    A, B = np.array(A, dtype=float), np.array(B, dtype=float)\n    return ((A[:, None, :] - B[None, :, :]) ** 2).sum(axis=2).round(4).tolist()\n\nprint(sq_distances([[0, 0], [1, 1]], [[1, 0], [3, 4], [0, 0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "node": "For",
+      "hint": {
+        "tr": "Döngü yok; yayın kullan.",
+        "en": "No loops; use broadcasting."
+      }
+    },
+    {
+      "type": "function",
+      "name": "sq_distances",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                3,
+                4
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              1.0,
+              25.0,
+              0.0
+            ],
+            [
+              1.0,
+              13.0,
+              2.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                2,
+                3
+              ]
+            ],
+            [
+              [
+                1,
+                2,
+                3
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0.5
+              ]
+            ],
+            [
+              [
+                1.5
+              ],
+              [
+                2.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              1.0,
+              2.25
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[1.0, 25.0, 0.0], [1.0, 13.0, 2.0]]"
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "id": "knn-regress",
+  "title": {
+    "tr": "KNN regresyonu",
+    "en": "KNN regression"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Uzaklıklar ve `near` sınıflandırıcıdaki gibi.",
+      "en": "Distances and `near` as in the classifier."
+    },
+    {
+      "tr": "`y[near].mean(axis=1)` her satırın ortalaması.",
+      "en": "`y[near].mean(axis=1)` is each row's mean."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef knn_regress(X, y, Xq, k):\n    X, y, Xq = np.array(X, dtype=float), np.array(y, dtype=float), np.array(Xq, dtype=float)\n    d = ((Xq[:, None, :] - X[None, :, :]) ** 2).sum(axis=2)\n    near = np.argsort(d, axis=1)[:, :k]\n    return [round(float(v), 3) for v in y[near].mean(axis=1)]\n\nX = [[1], [2], [3], [10], [11]]\ny = [1.0, 2.0, 3.0, 10.0, 11.0]\nprint(knn_regress(X, y, [[2.2], [10.4]], 2))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef knn_regress(X, y, Xq, k):\n    X, y, Xq = np.array(X, dtype=float), np.array(y, dtype=float), np.array(Xq, dtype=float)\n    d = ((Xq[:, None, :] - X[None, :, :]) ** 2).sum(axis=2)\n    near = np.argsort(d, axis=1)[:, :k]\n    return [round(float(v), 3) for v in y[near].mean(axis=1)]\n\nX = [[1], [2], [3], [10], [11]]\ny = [1.0, 2.0, 3.0, 10.0, 11.0]\nprint(knn_regress(X, y, [[2.2], [10.4]], 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "KNeighborsRegressor",
+      "hint": {
+        "tr": "`KNeighborsRegressor` kullanma.",
+        "en": "Do not use `KNeighborsRegressor`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "knn_regress",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1
+              ],
+              [
+                2
+              ],
+              [
+                3
+              ],
+              [
+                10
+              ],
+              [
+                11
+              ]
+            ],
+            [
+              1.0,
+              2.0,
+              3.0,
+              10.0,
+              11.0
+            ],
+            [
+              [
+                2.2
+              ],
+              [
+                10.4
+              ]
+            ],
+            2
+          ],
+          "returns": [
+            2.5,
+            10.5
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              5,
+              7
+            ],
+            [
+              [
+                0,
+                0
+              ]
+            ],
+            2
+          ],
+          "returns": [
+            6.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2.5, 10.5]"
+    }
+  ]
+}
