@@ -1,0 +1,124 @@
+{
+  "id": "two-opt-fast",
+  "title": {
+    "tr": "Hızlı 2-opt",
+    "en": "Fast 2-opt"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`while improved:` içinde `improved = False`, sonra iki iç içe döngü.",
+      "en": "Inside `while improved:`, `improved = False`, then the two nested loops."
+    },
+    {
+      "tr": "`change < -1e-9` ise `tour[i:j + 1] = tour[i:j + 1][::-1]` ve `improved = True`.",
+      "en": "If `change < -1e-9`, `tour[i:j + 1] = tour[i:j + 1][::-1]` and `improved = True`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\nimport random\n\n\ndef two_opt_length(pts, tour):\n    tour = list(tour)\n    n = len(tour)\n\n    def dist(a, b):\n        return math.dist(pts[a], pts[b])\n\n    improved = True\n    while improved:\n        improved = False\n        for i in range(1, n - 1):\n            for j in range(i + 1, n):\n                a, b, c, d = tour[i - 1], tour[i], tour[j], tour[(j + 1) % n]\n                change = dist(a, c) + dist(b, d) - dist(a, b) - dist(c, d)\n                if change < -1e-9:\n                    tour[i:j + 1] = tour[i:j + 1][::-1]\n                    improved = True\n    return round(sum(dist(tour[i - 1], tour[i]) for i in range(n)), 1)\n\nsquare = [(0, 0), (4, 3), (0, 3), (4, 0)]\nprint(two_opt_length(square, [0, 1, 2, 3]))\nrng = random.Random(11)\ncities = [(rng.random() * 100, rng.random() * 100) for _ in range(300)]\nprint(two_opt_length(cities, list(range(300))))\n```",
+      "en": "The full solution:\n\n```python\nimport math\nimport random\n\n\ndef two_opt_length(pts, tour):\n    tour = list(tour)\n    n = len(tour)\n\n    def dist(a, b):\n        return math.dist(pts[a], pts[b])\n\n    improved = True\n    while improved:\n        improved = False\n        for i in range(1, n - 1):\n            for j in range(i + 1, n):\n                a, b, c, d = tour[i - 1], tour[i], tour[j], tour[(j + 1) % n]\n                change = dist(a, c) + dist(b, d) - dist(a, b) - dist(c, d)\n                if change < -1e-9:\n                    tour[i:j + 1] = tour[i:j + 1][::-1]\n                    improved = True\n    return round(sum(dist(tour[i - 1], tour[i]) for i in range(n)), 1)\n\nsquare = [(0, 0), (4, 3), (0, 3), (4, 0)]\nprint(two_opt_length(square, [0, 1, 2, 3]))\nrng = random.Random(11)\ncities = [(rng.random() * 100, rng.random() * 100) for _ in range(300)]\nprint(two_opt_length(cities, list(range(300))))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "two_opt_length",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                4,
+                3
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                4,
+                0
+              ]
+            ],
+            [
+              0,
+              1,
+              2,
+              3
+            ]
+          ],
+          "returns": 14.0
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "returns": 2.0
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                1,
+                3
+              ]
+            ],
+            [
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          ],
+          "returns": 8.8
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "14.0\n1521.7"
+    }
+  ]
+}

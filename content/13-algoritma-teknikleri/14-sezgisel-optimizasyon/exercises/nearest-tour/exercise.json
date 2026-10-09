@@ -1,0 +1,148 @@
+{
+  "id": "nearest-tour",
+  "title": {
+    "tr": "En yakın komşu",
+    "en": "Nearest neighbour"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while left:` içinde son şehrin konumu `here = pts[tour[-1]]`.",
+      "en": "Inside `while left:`, the last city's position is `here = pts[tour[-1]]`."
+    },
+    {
+      "tr": "Eşitlikte küçük indeks için: `min(sorted(left), key=lambda c: math.dist(here, pts[c]))`.",
+      "en": "For the smaller index on ties: `min(sorted(left), key=lambda c: math.dist(here, pts[c]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef nearest_tour(pts, start):\n    tour = [start]\n    left = set(range(len(pts))) - {start}\n    while left:\n        here = pts[tour[-1]]\n        nxt = min(sorted(left), key=lambda c: math.dist(here, pts[c]))\n        tour.append(nxt)\n        left.remove(nxt)\n    return tour\n\npts = [(0, 0), (5, 0), (1, 1), (6, 1), (2, 0)]\nprint(nearest_tour(pts, 0))\nprint(nearest_tour(pts, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef nearest_tour(pts, start):\n    tour = [start]\n    left = set(range(len(pts))) - {start}\n    while left:\n        here = pts[tour[-1]]\n        nxt = min(sorted(left), key=lambda c: math.dist(here, pts[c]))\n        tour.append(nxt)\n        left.remove(nxt)\n    return tour\n\npts = [(0, 0), (5, 0), (1, 1), (6, 1), (2, 0)]\nprint(nearest_tour(pts, 0))\nprint(nearest_tour(pts, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "nearest_tour",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                5,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                6,
+                1
+              ],
+              [
+                2,
+                0
+              ]
+            ],
+            0
+          ],
+          "returns": [
+            0,
+            2,
+            4,
+            1,
+            3
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                5,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                6,
+                1
+              ],
+              [
+                2,
+                0
+              ]
+            ],
+            3
+          ],
+          "returns": [
+            3,
+            1,
+            4,
+            2,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                -1,
+                0
+              ]
+            ],
+            0
+          ],
+          "returns": [
+            0,
+            1,
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                3,
+                3
+              ]
+            ],
+            0
+          ],
+          "returns": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 2, 4, 1, 3]\n[3, 1, 4, 2, 0]"
+    }
+  ]
+}
