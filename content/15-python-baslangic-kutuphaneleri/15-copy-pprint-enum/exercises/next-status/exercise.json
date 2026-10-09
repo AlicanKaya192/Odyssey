@@ -1,0 +1,72 @@
+{
+  "id": "next-status",
+  "title": {
+    "tr": "Sonraki durum",
+    "en": "The next status"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `current = Status(value)`; `ValueError` gelirse `\"invalid\"`.",
+      "en": "First `current = Status(value)`; on `ValueError`, `\"invalid\"`."
+    },
+    {
+      "tr": "`members = list(Status)`, `index = members.index(current)`; sonuncuysa `None`, değilse `members[index + 1].value`.",
+      "en": "`members = list(Status)`, `index = members.index(current)`; `None` if last, else `members[index + 1].value`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom enum import Enum\n\n\nclass Status(Enum):\n    PENDING = \"pending\"\n    PAID = \"paid\"\n    SHIPPED = \"shipped\"\n    DELIVERED = \"delivered\"\n\n\ndef next_status(value):\n    try:\n        current = Status(value)\n    except ValueError:\n        return \"invalid\"\n    members = list(Status)\n    index = members.index(current)\n    if index + 1 == len(members):\n        return None\n    return members[index + 1].value\n\nprint(next_status(\"pending\"))\nprint(next_status(\"shipped\"))\nprint(next_status(\"delivered\"))\nprint(next_status(\"lost\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom enum import Enum\n\n\nclass Status(Enum):\n    PENDING = \"pending\"\n    PAID = \"paid\"\n    SHIPPED = \"shipped\"\n    DELIVERED = \"delivered\"\n\n\ndef next_status(value):\n    try:\n        current = Status(value)\n    except ValueError:\n        return \"invalid\"\n    members = list(Status)\n    index = members.index(current)\n    if index + 1 == len(members):\n        return None\n    return members[index + 1].value\n\nprint(next_status(\"pending\"))\nprint(next_status(\"shipped\"))\nprint(next_status(\"delivered\"))\nprint(next_status(\"lost\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "next_status",
+      "cases": [
+        {
+          "args": [
+            "pending"
+          ],
+          "returns": "paid"
+        },
+        {
+          "args": [
+            "shipped"
+          ],
+          "returns": "delivered"
+        },
+        {
+          "args": [
+            "delivered"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "lost"
+          ],
+          "returns": "invalid"
+        },
+        {
+          "args": [
+            "paid"
+          ],
+          "returns": "shipped"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "paid\ndelivered\nNone\ninvalid"
+    }
+  ]
+}

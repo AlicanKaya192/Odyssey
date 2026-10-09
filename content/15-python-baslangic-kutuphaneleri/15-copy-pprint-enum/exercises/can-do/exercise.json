@@ -1,0 +1,77 @@
+{
+  "id": "can-do",
+  "title": {
+    "tr": "İzin yeterli mi?",
+    "en": "Is the permission enough?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Hazır `combine` adları birleştirilmiş bayrağa çeviriyor; `Perm(0)` boş izin.",
+      "en": "The ready `combine` turns names into a combined flag; `Perm(0)` is no permission."
+    },
+    {
+      "tr": "`return combine(needed) in combine(granted)`.",
+      "en": "`return combine(needed) in combine(granted)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom enum import Flag, auto\n\n\nclass Perm(Flag):\n    READ = auto()\n    WRITE = auto()\n    EXECUTE = auto()\n\n\ndef combine(names):\n    result = Perm(0)\n    for name in names:\n        result |= Perm[name]\n    return result\n\n\ndef can_do(granted, needed):\n    return combine(needed) in combine(granted)\n\nprint(can_do([\"READ\", \"WRITE\"], [\"WRITE\"]))\nprint(can_do([\"READ\"], [\"READ\", \"EXECUTE\"]))\n```",
+      "en": "The full solution:\n\n```python\nfrom enum import Flag, auto\n\n\nclass Perm(Flag):\n    READ = auto()\n    WRITE = auto()\n    EXECUTE = auto()\n\n\ndef combine(names):\n    result = Perm(0)\n    for name in names:\n        result |= Perm[name]\n    return result\n\n\ndef can_do(granted, needed):\n    return combine(needed) in combine(granted)\n\nprint(can_do([\"READ\", \"WRITE\"], [\"WRITE\"]))\nprint(can_do([\"READ\"], [\"READ\", \"EXECUTE\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "can_do",
+      "cases": [
+        {
+          "args": [
+            [
+              "READ",
+              "WRITE"
+            ],
+            [
+              "WRITE"
+            ]
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            [
+              "READ"
+            ],
+            [
+              "READ",
+              "EXECUTE"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            [
+              "READ",
+              "WRITE",
+              "EXECUTE"
+            ],
+            []
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse"
+    }
+  ]
+}
