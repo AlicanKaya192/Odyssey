@@ -1,0 +1,98 @@
+{
+  "id": "stratified-test",
+  "title": {
+    "tr": "Katmanlı test",
+    "en": "A stratified test"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for c in np.unique(y):` içinde `idx = rng.permutation(np.flatnonzero(y == c))`.",
+      "en": "Inside `for c in np.unique(y):`, `idx = rng.permutation(np.flatnonzero(y == c))`."
+    },
+    {
+      "tr": "`cut = round(len(idx) * test_size)`; `test.extend(int(i) for i in idx[:cut])`.",
+      "en": "`cut = round(len(idx) * test_size)`; `test.extend(int(i) for i in idx[:cut])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef stratified_test(y, test_size, seed):\n    y = np.array(y)\n    rng = np.random.default_rng(seed)\n    test = []\n    for c in np.unique(y):\n        idx = rng.permutation(np.flatnonzero(y == c))\n        cut = round(len(idx) * test_size)\n        test.extend(int(i) for i in idx[:cut])\n    return sorted(test)\n\ny = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1]\nprint(stratified_test(y, 0.5, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef stratified_test(y, test_size, seed):\n    y = np.array(y)\n    rng = np.random.default_rng(seed)\n    test = []\n    for c in np.unique(y):\n        idx = rng.permutation(np.flatnonzero(y == c))\n        cut = round(len(idx) * test_size)\n        test.extend(int(i) for i in idx[:cut])\n    return sorted(test)\n\ny = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1]\nprint(stratified_test(y, 0.5, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "stratified_test",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1
+            ],
+            0.5,
+            3
+          ],
+          "returns": [
+            2,
+            4,
+            5,
+            7,
+            8
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              0,
+              0
+            ],
+            0.5,
+            0
+          ],
+          "returns": [
+            0,
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              2,
+              2,
+              2,
+              5
+            ],
+            0.34,
+            1
+          ],
+          "returns": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 4, 5, 7, 8]"
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "id": "permutation-p",
+  "title": {
+    "tr": "Permütasyon testi",
+    "en": "A permutation test"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngüde `mixed = rng.permutation(both)`; fark `abs(mixed[:len(a)].mean() - mixed[len(a):].mean())`.",
+      "en": "In the loop `mixed = rng.permutation(both)`; the difference `abs(mixed[:len(a)].mean() - mixed[len(a):].mean())`."
+    },
+    {
+      "tr": "`diff >= real` ise say; sonunda `round((hits + 1) / (rounds + 1), 4)`.",
+      "en": "Count if `diff >= real`; finally `round((hits + 1) / (rounds + 1), 4)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef permutation_p(a, b, rounds, seed):\n    a, b = np.array(a, dtype=float), np.array(b, dtype=float)\n    real = abs(a.mean() - b.mean())\n    both = np.concatenate([a, b])\n    rng = np.random.default_rng(seed)\n    hits = 0\n    for _ in range(rounds):\n        mixed = rng.permutation(both)\n        diff = abs(mixed[:len(a)].mean() - mixed[len(a):].mean())\n        if diff >= real:\n            hits += 1\n    return round((hits + 1) / (rounds + 1), 4)\n\na = [12.1, 11.8, 12.6, 13.0, 12.4]\nb = [11.2, 11.5, 11.0, 11.9, 11.4]\nprint(permutation_p(a, b, 999, 0))\nprint(permutation_p([1, 2, 3], [1, 2, 3], 99, 0))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef permutation_p(a, b, rounds, seed):\n    a, b = np.array(a, dtype=float), np.array(b, dtype=float)\n    real = abs(a.mean() - b.mean())\n    both = np.concatenate([a, b])\n    rng = np.random.default_rng(seed)\n    hits = 0\n    for _ in range(rounds):\n        mixed = rng.permutation(both)\n        diff = abs(mixed[:len(a)].mean() - mixed[len(a):].mean())\n        if diff >= real:\n            hits += 1\n    return round((hits + 1) / (rounds + 1), 4)\n\na = [12.1, 11.8, 12.6, 13.0, 12.4]\nb = [11.2, 11.5, 11.0, 11.9, 11.4]\nprint(permutation_p(a, b, 999, 0))\nprint(permutation_p([1, 2, 3], [1, 2, 3], 99, 0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "permutation_p",
+      "cases": [
+        {
+          "args": [
+            [
+              12.1,
+              11.8,
+              12.6,
+              13.0,
+              12.4
+            ],
+            [
+              11.2,
+              11.5,
+              11.0,
+              11.9,
+              11.4
+            ],
+            999,
+            0
+          ],
+          "returns": 0.022
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ],
+            [
+              1,
+              2,
+              3
+            ],
+            99,
+            0
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              5,
+              6
+            ],
+            [
+              1,
+              2
+            ],
+            9,
+            3
+          ],
+          "returns": 0.4
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.022\n1.0"
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "id": "cv-accuracy",
+  "title": {
+    "tr": "Çapraz doğrulama",
+    "en": "Cross-validation"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her katta `test = np.arange(start, start + size)`, `train = np.setdiff1d(np.arange(n), test)`.",
+      "en": "In each fold `test = np.arange(start, start + size)`, `train = np.setdiff1d(np.arange(n), test)`."
+    },
+    {
+      "tr": "`model = centroid_fit(X[train], y[train])`; doğruluk `(centroid_predict(model, X[test]) == y[test]).mean()`.",
+      "en": "`model = centroid_fit(X[train], y[train])`; accuracy `(centroid_predict(model, X[test]) == y[test]).mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef centroid_fit(X, y):\n    return {c: X[y == c].mean(axis=0) for c in np.unique(y)}\n\n\ndef centroid_predict(centers, X):\n    labels = list(centers)\n    dists = np.stack([((X - centers[c]) ** 2).sum(axis=1) for c in labels])\n    return np.array(labels)[dists.argmin(axis=0)]\n\n\ndef cv_accuracy(X, y, k):\n    X, y = np.array(X), np.array(y)\n    n = len(y)\n    scores = []\n    start = 0\n    for i in range(k):\n        size = n // k + (1 if i < n % k else 0)\n        test = np.arange(start, start + size)\n        train = np.setdiff1d(np.arange(n), test)\n        model = centroid_fit(X[train], y[train])\n        scores.append((centroid_predict(model, X[test]) == y[test]).mean())\n        start += size\n    return round(float(np.mean(scores)), 3) if scores else 0.0\n\nrng = np.random.default_rng(2)\ny = (rng.random(60) < 0.4).astype(int)\nX = rng.normal(0, 1, size=(60, 2)) + y[:, None] * 1.5\nprint(cv_accuracy(X.tolist(), y.tolist(), 5))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef centroid_fit(X, y):\n    return {c: X[y == c].mean(axis=0) for c in np.unique(y)}\n\n\ndef centroid_predict(centers, X):\n    labels = list(centers)\n    dists = np.stack([((X - centers[c]) ** 2).sum(axis=1) for c in labels])\n    return np.array(labels)[dists.argmin(axis=0)]\n\n\ndef cv_accuracy(X, y, k):\n    X, y = np.array(X), np.array(y)\n    n = len(y)\n    scores = []\n    start = 0\n    for i in range(k):\n        size = n // k + (1 if i < n % k else 0)\n        test = np.arange(start, start + size)\n        train = np.setdiff1d(np.arange(n), test)\n        model = centroid_fit(X[train], y[train])\n        scores.append((centroid_predict(model, X[test]) == y[test]).mean())\n        start += size\n    return round(float(np.mean(scores)), 3) if scores else 0.0\n\nrng = np.random.default_rng(2)\ny = (rng.random(60) < 0.4).astype(int)\nX = rng.normal(0, 1, size=(60, 2)) + y[:, None] * 1.5\nprint(cv_accuracy(X.tolist(), y.tolist(), 5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "cross_val_score",
+      "hint": {
+        "tr": "`cross_val_score` kullanma; katları kendin dön.",
+        "en": "Do not use `cross_val_score`; loop over the folds yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "cv_accuracy",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                5,
+                5
+              ],
+              [
+                5,
+                6
+              ],
+              [
+                0,
+                0.5
+              ],
+              [
+                5,
+                5.5
+              ]
+            ],
+            [
+              0,
+              0,
+              1,
+              1,
+              0,
+              1
+            ],
+            3
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              [
+                0
+              ],
+              [
+                1
+              ],
+              [
+                2
+              ],
+              [
+                10
+              ],
+              [
+                11
+              ],
+              [
+                12
+              ]
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ],
+            2
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.917"
+    }
+  ]
+}
