@@ -1,0 +1,70 @@
+{
+  "id": "monte-carlo-area",
+  "title": {
+    "tr": "Eğrinin altındaki alan",
+    "en": "The area under a curve"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 10,
+  "hints": [
+    {
+      "tr": "`for _ in range(n):` içinde önce `x = rng.random()`, sonra `y = rng.random()`.",
+      "en": "Inside `for _ in range(n):` first `x = rng.random()`, then `y = rng.random()`."
+    },
+    {
+      "tr": "`y <= x * x` ise `below += 1`.",
+      "en": "If `y <= x * x`, `below += 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport random\n\n\ndef estimate_area(n, seed):\n    rng = random.Random(seed)\n    below = 0\n    for _ in range(n):\n        x = rng.random()\n        y = rng.random()\n        if y <= x * x:\n            below += 1\n    return round(below / n, 4)\n\nfor n in (100, 10_000, 1_000_000):\n    print(n, estimate_area(n, 7))\n```",
+      "en": "The full solution:\n\n```python\nimport random\n\n\ndef estimate_area(n, seed):\n    rng = random.Random(seed)\n    below = 0\n    for _ in range(n):\n        x = rng.random()\n        y = rng.random()\n        if y <= x * x:\n            below += 1\n    return round(below / n, 4)\n\nfor n in (100, 10_000, 1_000_000):\n    print(n, estimate_area(n, 7))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "estimate_area",
+      "cases": [
+        {
+          "args": [
+            100,
+            7
+          ],
+          "returns": 0.27
+        },
+        {
+          "args": [
+            10000,
+            7
+          ],
+          "returns": 0.3392
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            5000,
+            123
+          ],
+          "returns": 0.3242
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "100 0.27\n10000 0.3392\n1000000 0.334"
+    }
+  ]
+}

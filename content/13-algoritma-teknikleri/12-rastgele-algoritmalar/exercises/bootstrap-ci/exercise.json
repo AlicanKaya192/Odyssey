@@ -1,0 +1,104 @@
+{
+  "id": "bootstrap-ci",
+  "title": {
+    "tr": "Bootstrap aralığı",
+    "en": "A bootstrap interval"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngüde `sample = rng.choices(values, k=len(values))` ve `means.append(sum(sample) / len(sample))`.",
+      "en": "In the loop `sample = rng.choices(values, k=len(values))` and `means.append(sum(sample) / len(sample))`."
+    },
+    {
+      "tr": "`means.sort()`; sonra iki indeks ve `round(..., 2)`.",
+      "en": "`means.sort()`; then the two indices and `round(..., 2)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport random\n\n\ndef bootstrap_ci(values, reps, seed):\n    rng = random.Random(seed)\n    means = []\n    for _ in range(reps):\n        sample = rng.choices(values, k=len(values))\n        means.append(sum(sample) / len(sample))\n    means.sort()\n    low = means[int(0.025 * reps)]\n    high = means[int(0.975 * reps)]\n    return round(low, 2), round(high, 2)\n\nscores = [72, 85, 90, 64, 78, 88, 95, 70, 81, 77]\nprint(bootstrap_ci(scores, 2000, 1))\nprint(bootstrap_ci([5, 5, 5, 5], 100, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport random\n\n\ndef bootstrap_ci(values, reps, seed):\n    rng = random.Random(seed)\n    means = []\n    for _ in range(reps):\n        sample = rng.choices(values, k=len(values))\n        means.append(sum(sample) / len(sample))\n    means.sort()\n    low = means[int(0.025 * reps)]\n    high = means[int(0.975 * reps)]\n    return round(low, 2), round(high, 2)\n\nscores = [72, 85, 90, 64, 78, 88, 95, 70, 81, 77]\nprint(bootstrap_ci(scores, 2000, 1))\nprint(bootstrap_ci([5, 5, 5, 5], 100, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "bootstrap_ci",
+      "cases": [
+        {
+          "args": [
+            [
+              72,
+              85,
+              90,
+              64,
+              78,
+              88,
+              95,
+              70,
+              81,
+              77
+            ],
+            2000,
+            1
+          ],
+          "returns": {
+            "__tuple__": [
+              74.3,
+              85.8
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              5,
+              5,
+              5,
+              5
+            ],
+            100,
+            3
+          ],
+          "returns": {
+            "__tuple__": [
+              5.0,
+              5.0
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            500,
+            8
+          ],
+          "returns": {
+            "__tuple__": [
+              2.17,
+              5.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(74.3, 85.8)\n(5.0, 5.0)"
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "id": "fisher-yates",
+  "title": {
+    "tr": "Fisher-Yates",
+    "en": "Fisher-Yates"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for i in range(len(result) - 1, 0, -1):`.",
+      "en": "`for i in range(len(result) - 1, 0, -1):`."
+    },
+    {
+      "tr": "`j = rng.randint(0, i)` ve `result[i], result[j] = result[j], result[i]`.",
+      "en": "`j = rng.randint(0, i)` and `result[i], result[j] = result[j], result[i]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport random\n\n\ndef shuffled(items, seed):\n    rng = random.Random(seed)\n    result = list(items)\n    for i in range(len(result) - 1, 0, -1):\n        j = rng.randint(0, i)\n        result[i], result[j] = result[j], result[i]\n    return result\n\nprint(shuffled([1, 2, 3, 4, 5], 1))\nprint(shuffled([1, 2, 3, 4, 5], 2))\nprint(shuffled([\"a\", \"b\", \"c\"], 7))\n```",
+      "en": "The full solution:\n\n```python\nimport random\n\n\ndef shuffled(items, seed):\n    rng = random.Random(seed)\n    result = list(items)\n    for i in range(len(result) - 1, 0, -1):\n        j = rng.randint(0, i)\n        result[i], result[j] = result[j], result[i]\n    return result\n\nprint(shuffled([1, 2, 3, 4, 5], 1))\nprint(shuffled([1, 2, 3, 4, 5], 2))\nprint(shuffled([\"a\", \"b\", \"c\"], 7))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "shuffle",
+      "hint": {
+        "tr": "`shuffle` kullanma; Fisher-Yates'i yaz.",
+        "en": "Do not use `shuffle`; write Fisher-Yates."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "sample",
+      "hint": {
+        "tr": "`sample` kullanma; Fisher-Yates'i yaz.",
+        "en": "Do not use `sample`; write Fisher-Yates."
+      }
+    },
+    {
+      "type": "function",
+      "name": "shuffled",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            1
+          ],
+          "returns": [
+            3,
+            4,
+            5,
+            1,
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            2
+          ],
+          "returns": [
+            3,
+            2,
+            4,
+            5,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b",
+              "c"
+            ],
+            7
+          ],
+          "returns": [
+            "c",
+            "a",
+            "b"
+          ]
+        },
+        {
+          "args": [
+            [],
+            3
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              9
+            ],
+            4
+          ],
+          "returns": [
+            9
+          ]
+        },
+        {
+          "args": [
+            [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            0
+          ],
+          "returns": [
+            7,
+            8,
+            1,
+            5,
+            3,
+            4,
+            2,
+            0,
+            9,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, 4, 5, 1, 2]\n[3, 2, 4, 5, 1]\n['c', 'a', 'b']"
+    }
+  ]
+}
