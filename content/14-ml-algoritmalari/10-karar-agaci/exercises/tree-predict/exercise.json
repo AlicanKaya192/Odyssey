@@ -1,0 +1,101 @@
+{
+  "id": "tree-predict",
+  "title": {
+    "tr": "Ağaçla tahmin",
+    "en": "Predicting with a tree"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`while \"leaf\" not in node:` içinde yönü seç.",
+      "en": "Choose the direction inside `while \"leaf\" not in node:`."
+    },
+    {
+      "tr": "Döngüden sonra `out.append(node[\"leaf\"])`.",
+      "en": "After the loop, `out.append(node[\"leaf\"])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef tree_predict(tree, X):\n    out = []\n    for x in X:\n        node = tree\n        while \"leaf\" not in node:\n            go_left = x[node[\"feature\"]] <= node[\"threshold\"]\n            node = node[\"left\"] if go_left else node[\"right\"]\n        out.append(node[\"leaf\"])\n    return out\n\ntree = {\"feature\": 0, \"threshold\": 5.0,\n        \"left\": {\"leaf\": 0},\n        \"right\": {\"feature\": 1, \"threshold\": 2.0,\n                  \"left\": {\"leaf\": 1}, \"right\": {\"leaf\": 0}}}\nprint(tree_predict(tree, [[3, 9], [6, 1], [7, 3]]))\n```",
+      "en": "The full solution:\n\n```python\ndef tree_predict(tree, X):\n    out = []\n    for x in X:\n        node = tree\n        while \"leaf\" not in node:\n            go_left = x[node[\"feature\"]] <= node[\"threshold\"]\n            node = node[\"left\"] if go_left else node[\"right\"]\n        out.append(node[\"leaf\"])\n    return out\n\ntree = {\"feature\": 0, \"threshold\": 5.0,\n        \"left\": {\"leaf\": 0},\n        \"right\": {\"feature\": 1, \"threshold\": 2.0,\n                  \"left\": {\"leaf\": 1}, \"right\": {\"leaf\": 0}}}\nprint(tree_predict(tree, [[3, 9], [6, 1], [7, 3]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "tree_predict",
+      "cases": [
+        {
+          "args": [
+            {
+              "feature": 0,
+              "threshold": 5.0,
+              "left": {
+                "leaf": 0
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 2.0,
+                "left": {
+                  "leaf": 1
+                },
+                "right": {
+                  "leaf": 0
+                }
+              }
+            },
+            [
+              [
+                3,
+                9
+              ],
+              [
+                6,
+                1
+              ],
+              [
+                7,
+                3
+              ]
+            ]
+          ],
+          "returns": [
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "args": [
+            {
+              "leaf": 4
+            },
+            [
+              [
+                1
+              ],
+              [
+                2
+              ]
+            ]
+          ],
+          "returns": [
+            4,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 1, 0]"
+    }
+  ]
+}

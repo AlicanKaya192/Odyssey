@@ -1,0 +1,94 @@
+{
+  "id": "split-gini",
+  "title": {
+    "tr": "Bölmenin değeri",
+    "en": "A split's value"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sol `y[left]`, sağ `y[~left]`; ağırlıklar `left.sum()` ve `(~left).sum()`.",
+      "en": "Left `y[left]`, right `y[~left]`; weights `left.sum()` and `(~left).sum()`."
+    },
+    {
+      "tr": "Toplamı `len(y)`'ye böl; `round(float(g), 4)`.",
+      "en": "Divide the total by `len(y)`; `round(float(g), 4)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef gini(y):\n    if len(y) == 0:\n        return 0.0\n    p = np.bincount(y) / len(y)\n    return 1 - (p ** 2).sum()\n\n\ndef split_gini(x, y, t):\n    x, y = np.array(x, dtype=float), np.array(y, dtype=int)\n    left = x <= t\n    g = (left.sum() * gini(y[left]) + (~left).sum() * gini(y[~left])) / len(y)\n    return round(float(g), 4)\n\nx = [1, 2, 3, 4, 5, 6]\ny = [0, 0, 0, 1, 1, 0]\nfor t in (1.5, 3.5, 5.5):\n    print(t, split_gini(x, y, t))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef gini(y):\n    if len(y) == 0:\n        return 0.0\n    p = np.bincount(y) / len(y)\n    return 1 - (p ** 2).sum()\n\n\ndef split_gini(x, y, t):\n    x, y = np.array(x, dtype=float), np.array(y, dtype=int)\n    left = x <= t\n    g = (left.sum() * gini(y[left]) + (~left).sum() * gini(y[~left])) / len(y)\n    return round(float(g), 4)\n\nx = [1, 2, 3, 4, 5, 6]\ny = [0, 0, 0, 1, 1, 0]\nfor t in (1.5, 3.5, 5.5):\n    print(t, split_gini(x, y, t))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "split_gini",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              0
+            ],
+            3.5
+          ],
+          "returns": 0.2222
+        },
+        {
+          "args": [
+            [
+              1,
+              2
+            ],
+            [
+              0,
+              1
+            ],
+            1.5
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            10
+          ],
+          "returns": 0.4444
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.5 0.4\n3.5 0.2222\n5.5 0.4"
+    }
+  ]
+}
