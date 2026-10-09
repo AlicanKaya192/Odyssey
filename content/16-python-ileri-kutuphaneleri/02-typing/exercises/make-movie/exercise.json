@@ -1,0 +1,86 @@
+{
+  "id": "make-movie",
+  "title": {
+    "tr": "TypedDict kur",
+    "en": "Build a TypedDict"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`0.0` da geçerli bir puan: `if rating:` değil `if rating is not None:`.",
+      "en": "`0.0` is a valid rating too: not `if rating:` but `if rating is not None:`."
+    },
+    {
+      "tr": "`if rating is not None: movie[\"rating\"] = rating`.",
+      "en": "`if rating is not None: movie[\"rating\"] = rating`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom typing import NotRequired, TypedDict\n\n\nclass Movie(TypedDict):\n    title: str\n    year: int\n    rating: NotRequired[float]\n\n\ndef make_movie(title: str, year: int, rating: float | None = None) -> Movie:\n    movie: Movie = {\"title\": title, \"year\": year}\n    if rating is not None:\n        movie[\"rating\"] = rating\n    return movie\n\nprint(sorted(make_movie(\"Up\", 2009)))\nprint(make_movie(\"Coco\", 2017, 8.4)[\"rating\"])\n```",
+      "en": "The full solution:\n\n```python\nfrom typing import NotRequired, TypedDict\n\n\nclass Movie(TypedDict):\n    title: str\n    year: int\n    rating: NotRequired[float]\n\n\ndef make_movie(title: str, year: int, rating: float | None = None) -> Movie:\n    movie: Movie = {\"title\": title, \"year\": year}\n    if rating is not None:\n        movie[\"rating\"] = rating\n    return movie\n\nprint(sorted(make_movie(\"Up\", 2009)))\nprint(make_movie(\"Coco\", 2017, 8.4)[\"rating\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "make_movie",
+      "cases": [
+        {
+          "args": [
+            "Up",
+            2009
+          ],
+          "returns": {
+            "title": "Up",
+            "year": 2009
+          }
+        },
+        {
+          "args": [
+            "Coco",
+            2017,
+            8.4
+          ],
+          "returns": {
+            "title": "Coco",
+            "year": 2017,
+            "rating": 8.4
+          }
+        },
+        {
+          "args": [
+            "Zero",
+            2000,
+            0.0
+          ],
+          "returns": {
+            "title": "Zero",
+            "year": 2000,
+            "rating": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "type": "annotation",
+      "name": "make_movie",
+      "params": {
+        "title": "str",
+        "year": "int",
+        "rating": "float | None"
+      },
+      "returns": "Movie"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['title', 'year']\n8.4"
+    }
+  ]
+}
