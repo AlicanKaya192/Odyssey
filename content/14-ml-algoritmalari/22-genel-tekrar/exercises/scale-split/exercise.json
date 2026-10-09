@@ -1,0 +1,130 @@
+{
+  "id": "scale-split",
+  "title": {
+    "tr": "Sızıntısız ölçekleme",
+    "en": "Scaling without leakage"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`mean, std = train.mean(axis=0), train.std(axis=0)`; `std[std == 0] = 1`.",
+      "en": "`mean, std = train.mean(axis=0), train.std(axis=0)`; `std[std == 0] = 1`."
+    },
+    {
+      "tr": "İkisi de `(veri - mean) / std`; test kendi ortalamasını kullanmaz.",
+      "en": "Both `(data - mean) / std`; the test does not use its own mean."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef scale_split(train, test):\n    train, test = np.array(train, dtype=float), np.array(test, dtype=float)\n    mean, std = train.mean(axis=0), train.std(axis=0)\n    std[std == 0] = 1\n    tr = (train - mean) / std\n    te = (test - mean) / std\n    return tr.round(3).tolist(), te.round(3).tolist()\n\ntrain = [[1.0, 100.0], [3.0, 300.0], [5.0, 200.0]]\ntest = [[2.0, 250.0]]\ntr, te = scale_split(train, test)\nprint(tr[0])\nprint(te)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef scale_split(train, test):\n    train, test = np.array(train, dtype=float), np.array(test, dtype=float)\n    mean, std = train.mean(axis=0), train.std(axis=0)\n    std[std == 0] = 1\n    tr = (train - mean) / std\n    te = (test - mean) / std\n    return tr.round(3).tolist(), te.round(3).tolist()\n\ntrain = [[1.0, 100.0], [3.0, 300.0], [5.0, 200.0]]\ntest = [[2.0, 250.0]]\ntr, te = scale_split(train, test)\nprint(tr[0])\nprint(te)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "scale_split",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                100.0
+              ],
+              [
+                3.0,
+                300.0
+              ],
+              [
+                5.0,
+                200.0
+              ]
+            ],
+            [
+              [
+                2.0,
+                250.0
+              ]
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                [
+                  -1.225,
+                  -1.225
+                ],
+                [
+                  0.0,
+                  1.225
+                ],
+                [
+                  1.225,
+                  0.0
+                ]
+              ],
+              [
+                [
+                  -0.612,
+                  0.612
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                2.0,
+                2.0
+              ],
+              [
+                4.0,
+                2.0
+              ]
+            ],
+            [
+              [
+                3.0,
+                5.0
+              ]
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                [
+                  -1.0,
+                  0.0
+                ],
+                [
+                  1.0,
+                  0.0
+                ]
+              ],
+              [
+                [
+                  0.0,
+                  3.0
+                ]
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-1.225, -1.225]\n[[-0.612, 0.612]]"
+    }
+  ]
+}

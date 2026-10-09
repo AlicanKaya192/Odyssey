@@ -1,0 +1,111 @@
+{
+  "id": "class-metrics",
+  "title": {
+    "tr": "Sınıflandırma ölçüleri",
+    "en": "Classification measures"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kesinlik `tp / (tp + fp)`, duyarlılık `tp / (tp + fn)`.",
+      "en": "Precision `tp / (tp + fp)`, recall `tp / (tp + fn)`."
+    },
+    {
+      "tr": "F1 `2 · k · d / (k + d)`; paydalar sıfırsa 0.",
+      "en": "F1 `2 · p · r / (p + r)`; 0 if a denominator is zero."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef class_metrics(y_true, y_pred):\n    pairs = list(zip(y_true, y_pred))\n    tp = sum(1 for t, p in pairs if t == 1 and p == 1)\n    fp = sum(1 for t, p in pairs if t == 0 and p == 1)\n    fn = sum(1 for t, p in pairs if t == 1 and p == 0)\n    precision = tp / (tp + fp) if tp + fp else 0.0\n    recall = tp / (tp + fn) if tp + fn else 0.0\n    total = precision + recall\n    f1 = 2 * precision * recall / total if total else 0.0\n    return round(precision, 3), round(recall, 3), round(f1, 3)\n\nprint(class_metrics([1, 0, 1, 1, 0, 0, 1], [1, 0, 0, 1, 1, 0, 1]))\nprint(class_metrics([0, 0, 1], [0, 0, 0]))\n```",
+      "en": "The full solution:\n\n```python\ndef class_metrics(y_true, y_pred):\n    pairs = list(zip(y_true, y_pred))\n    tp = sum(1 for t, p in pairs if t == 1 and p == 1)\n    fp = sum(1 for t, p in pairs if t == 0 and p == 1)\n    fn = sum(1 for t, p in pairs if t == 1 and p == 0)\n    precision = tp / (tp + fp) if tp + fp else 0.0\n    recall = tp / (tp + fn) if tp + fn else 0.0\n    total = precision + recall\n    f1 = 2 * precision * recall / total if total else 0.0\n    return round(precision, 3), round(recall, 3), round(f1, 3)\n\nprint(class_metrics([1, 0, 1, 1, 0, 0, 1], [1, 0, 0, 1, 1, 0, 1]))\nprint(class_metrics([0, 0, 1], [0, 0, 0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "class_metrics",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              0,
+              1,
+              1,
+              0,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              0,
+              1,
+              1,
+              0,
+              1
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              0.75,
+              0.75,
+              0.75
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(0.75, 0.75, 0.75)\n(0.0, 0.0, 0.0)"
+    }
+  ]
+}
