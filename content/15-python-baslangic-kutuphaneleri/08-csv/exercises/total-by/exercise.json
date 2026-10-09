@@ -1,0 +1,80 @@
+{
+  "id": "total-by",
+  "title": {
+    "tr": "Kişiye göre topla",
+    "en": "Total per person"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Değerler metin: `float(row[value])`.",
+      "en": "Values are text: `float(row[value])`."
+    },
+    {
+      "tr": "`totals[name] = totals.get(name, 0) + float(row[value])`, sonda `round`.",
+      "en": "`totals[name] = totals.get(name, 0) + float(row[value])`, `round` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport csv\n\n\ndef total_by(path, key, value):\n    totals = {}\n    with open(path, newline=\"\", encoding=\"utf-8\") as f:\n        for row in csv.DictReader(f):\n            name = row[key]\n            totals[name] = totals.get(name, 0) + float(row[value])\n    return {name: round(total, 2) for name, total in totals.items()}\n\ntotals = total_by(\"sales.csv\", \"customer\", \"amount\")\nfor name in sorted(totals):\n    print(name, totals[name])\n```",
+      "en": "The full solution:\n\n```python\nimport csv\n\n\ndef total_by(path, key, value):\n    totals = {}\n    with open(path, newline=\"\", encoding=\"utf-8\") as f:\n        for row in csv.DictReader(f):\n            name = row[key]\n            totals[name] = totals.get(name, 0) + float(row[value])\n    return {name: round(total, 2) for name, total in totals.items()}\n\ntotals = total_by(\"sales.csv\", \"customer\", \"amount\")\nfor name in sorted(totals):\n    print(name, totals[name])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "total_by",
+      "cases": [
+        {
+          "args": [
+            "sales.csv",
+            "customer",
+            "amount"
+          ],
+          "returns": {
+            "Ada": 180.5,
+            "Alan": 80.0,
+            "Grace": 200.25,
+            "Linus": 45.0
+          }
+        },
+        {
+          "args": [
+            "sales.csv",
+            "date",
+            "amount"
+          ],
+          "returns": {
+            "2026-03-01": 200.5,
+            "2026-03-02": 200.25,
+            "2026-03-03": 105.0
+          }
+        },
+        {
+          "args": [
+            "sales.csv",
+            "city",
+            "amount"
+          ],
+          "returns": {
+            "London, UK": 180.5,
+            "Wilmslow": 80.0,
+            "New York, US": 200.25,
+            "Helsinki": 45.0
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Ada 180.5\nAlan 80.0\nGrace 200.25\nLinus 45.0"
+    }
+  ]
+}
