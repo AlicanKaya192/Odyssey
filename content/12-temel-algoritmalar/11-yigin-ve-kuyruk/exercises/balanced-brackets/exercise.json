@@ -1,0 +1,84 @@
+{
+  "id": "balanced-brackets",
+  "title": {
+    "tr": "Parantezler dengeli mi?",
+    "en": "Are the brackets balanced?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Açan parantezde `stack.append(ch)`. Kapananda `if not stack or stack.pop() != pairs[ch]: return False`.",
+      "en": "On an opening bracket `stack.append(ch)`. On a closing one `if not stack or stack.pop() != pairs[ch]: return False`."
+    },
+    {
+      "tr": "Döngü bitince `return not stack`: açık kalan varsa False.",
+      "en": "After the loop, `return not stack`: False if any stay open."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef is_balanced(text):\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in text:\n        if ch in \"([{\":\n            stack.append(ch)\n        elif ch in pairs:\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n    return not stack\n\n\nfor t in [\"(a[b]{c})\", \"(a[b)]\", \"((\", \")(\", \"\"]:\n    print(t, is_balanced(t))\n```",
+      "en": "The full solution:\n\n```python\ndef is_balanced(text):\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in text:\n        if ch in \"([{\":\n            stack.append(ch)\n        elif ch in pairs:\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n    return not stack\n\n\nfor t in [\"(a[b]{c})\", \"(a[b)]\", \"((\", \")(\", \"\"]:\n    print(t, is_balanced(t))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "is_balanced",
+      "cases": [
+        {
+          "args": [
+            "(a[b]{c})"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "(a[b)]"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "(("
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            ")("
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "{[()()]}"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "]"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(a[b]{c}) True\n(a[b)] False\n(( False\n)( False\n True"
+    }
+  ]
+}

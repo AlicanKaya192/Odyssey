@@ -1,0 +1,125 @@
+{
+  "id": "recent-requests",
+  "title": {
+    "tr": "Son 10 saniyedeki istekler",
+    "en": "Requests in the last 10 seconds"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for t in times:` içinde önce `queue.append(t)`.",
+      "en": "Inside `for t in times:`, first `queue.append(t)`."
+    },
+    {
+      "tr": "`while queue[0] <= t - window: queue.popleft()`, sonra `counts.append(len(queue))`.",
+      "en": "`while queue[0] <= t - window: queue.popleft()`, then `counts.append(len(queue))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import deque\n\n\ndef recent_counts(times, window):\n    queue = deque()\n    counts = []\n    for t in times:\n        queue.append(t)\n        while queue[0] <= t - window:\n            queue.popleft()\n        counts.append(len(queue))\n    return counts\n\n\nprint(recent_counts([1, 2, 5, 12, 13], 10))\nprint(recent_counts([], 10))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import deque\n\n\ndef recent_counts(times, window):\n    queue = deque()\n    counts = []\n    for t in times:\n        queue.append(t)\n        while queue[0] <= t - window:\n            queue.popleft()\n        counts.append(len(queue))\n    return counts\n\n\nprint(recent_counts([1, 2, 5, 12, 13], 10))\nprint(recent_counts([], 10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "pop",
+      "hint": {
+        "tr": "`pop` kullanma; kuyruğun başından `popleft` ile al.",
+        "en": "Do not use `pop`; take from the front of the queue with `popleft`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "recent_counts",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              2,
+              5,
+              12,
+              13
+            ],
+            10
+          ],
+          "returns": [
+            1,
+            2,
+            3,
+            2,
+            3
+          ]
+        },
+        {
+          "args": [
+            [],
+            10
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              1
+            ],
+            1
+          ],
+          "returns": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "args": [
+            [
+              0,
+              10,
+              20,
+              30
+            ],
+            10
+          ],
+          "returns": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              3,
+              4,
+              5,
+              100
+            ],
+            50
+          ],
+          "returns": [
+            1,
+            2,
+            3,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 2, 3, 2, 3]\n[]"
+    }
+  ]
+}
