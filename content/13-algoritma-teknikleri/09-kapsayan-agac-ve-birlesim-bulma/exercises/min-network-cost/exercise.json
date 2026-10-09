@@ -1,0 +1,161 @@
+{
+  "id": "min-network-cost",
+  "title": {
+    "tr": "En ucuz ağ",
+    "en": "The cheapest network"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıralı kenarlarda `ra != rb` ise `parent[ra] = rb`, `total += cost`, `taken += 1`.",
+      "en": "On the sorted edges, if `ra != rb`: `parent[ra] = rb`, `total += cost`, `taken += 1`."
+    },
+    {
+      "tr": "Sonda `return total if taken == n - 1 else None`.",
+      "en": "Finally `return total if taken == n - 1 else None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef min_network_cost(n, roads):\n    parent = list(range(n))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    total, taken = 0, 0\n    for a, b, cost in sorted(roads, key=lambda r: r[2]):\n        ra, rb = find(a), find(b)\n        if ra != rb:\n            parent[ra] = rb\n            total += cost\n            taken += 1\n    return total if taken == n - 1 else None\n\nroads = [[0, 1, 4], [0, 2, 3], [1, 2, 2], [1, 3, 5],\n         [2, 3, 7], [2, 4, 6], [3, 4, 1]]\nprint(min_network_cost(5, roads))\nprint(min_network_cost(4, [[0, 1, 1], [2, 3, 1]]))\n```",
+      "en": "The full solution:\n\n```python\ndef min_network_cost(n, roads):\n    parent = list(range(n))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    total, taken = 0, 0\n    for a, b, cost in sorted(roads, key=lambda r: r[2]):\n        ra, rb = find(a), find(b)\n        if ra != rb:\n            parent[ra] = rb\n            total += cost\n            taken += 1\n    return total if taken == n - 1 else None\n\nroads = [[0, 1, 4], [0, 2, 3], [1, 2, 2], [1, 3, 5],\n         [2, 3, 7], [2, 4, 6], [3, 4, 1]]\nprint(min_network_cost(5, roads))\nprint(min_network_cost(4, [[0, 1, 1], [2, 3, 1]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "min_network_cost",
+      "cases": [
+        {
+          "args": [
+            5,
+            [
+              [
+                0,
+                1,
+                4
+              ],
+              [
+                0,
+                2,
+                3
+              ],
+              [
+                1,
+                2,
+                2
+              ],
+              [
+                1,
+                3,
+                5
+              ],
+              [
+                2,
+                3,
+                7
+              ],
+              [
+                2,
+                4,
+                6
+              ],
+              [
+                3,
+                4,
+                1
+              ]
+            ]
+          ],
+          "returns": 11
+        },
+        {
+          "args": [
+            4,
+            [
+              [
+                0,
+                1,
+                1
+              ],
+              [
+                2,
+                3,
+                1
+              ]
+            ]
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            1,
+            []
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            2,
+            [
+              [
+                0,
+                1,
+                9
+              ],
+              [
+                1,
+                0,
+                2
+              ]
+            ]
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            4,
+            [
+              [
+                0,
+                1,
+                1
+              ],
+              [
+                1,
+                2,
+                1
+              ],
+              [
+                2,
+                3,
+                1
+              ],
+              [
+                3,
+                0,
+                1
+              ],
+              [
+                0,
+                2,
+                1
+              ]
+            ]
+          ],
+          "returns": 3
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "11\nNone"
+    }
+  ]
+}

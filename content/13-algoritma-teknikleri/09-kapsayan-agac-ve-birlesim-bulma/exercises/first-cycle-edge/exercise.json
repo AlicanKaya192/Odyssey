@@ -1,0 +1,162 @@
+{
+  "id": "first-cycle-edge",
+  "title": {
+    "tr": "Fazla kablo",
+    "en": "The extra cable"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngüde `ra, rb = find(edge[0]), find(edge[1])`.",
+      "en": "In the loop, `ra, rb = find(edge[0]), find(edge[1])`."
+    },
+    {
+      "tr": "`ra == rb` ise `return edge`; değilse `parent[ra] = rb`. Döngü biterse `None`.",
+      "en": "If `ra == rb`, `return edge`; otherwise `parent[ra] = rb`. `None` when the loop ends."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef first_cycle_edge(n, edges):\n    parent = list(range(n))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    for edge in edges:\n        ra, rb = find(edge[0]), find(edge[1])\n        if ra == rb:\n            return edge\n        parent[ra] = rb\n    return None\n\nprint(first_cycle_edge(4, [[0, 1], [1, 2], [2, 0], [2, 3]]))\nprint(first_cycle_edge(3, [[0, 1], [1, 2]]))\nprint(first_cycle_edge(5, [[3, 4], [0, 1], [4, 3]]))\n```",
+      "en": "The full solution:\n\n```python\ndef first_cycle_edge(n, edges):\n    parent = list(range(n))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    for edge in edges:\n        ra, rb = find(edge[0]), find(edge[1])\n        if ra == rb:\n            return edge\n        parent[ra] = rb\n    return None\n\nprint(first_cycle_edge(4, [[0, 1], [1, 2], [2, 0], [2, 3]]))\nprint(first_cycle_edge(3, [[0, 1], [1, 2]]))\nprint(first_cycle_edge(5, [[3, 4], [0, 1], [4, 3]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "first_cycle_edge",
+      "cases": [
+        {
+          "args": [
+            4,
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                2,
+                3
+              ]
+            ]
+          ],
+          "returns": [
+            2,
+            0
+          ]
+        },
+        {
+          "args": [
+            3,
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            5,
+            [
+              [
+                3,
+                4
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                4,
+                3
+              ]
+            ]
+          ],
+          "returns": [
+            4,
+            3
+          ]
+        },
+        {
+          "args": [
+            1,
+            [
+              [
+                0,
+                0
+              ]
+            ]
+          ],
+          "returns": [
+            0,
+            0
+          ]
+        },
+        {
+          "args": [
+            6,
+            [
+              [
+                0,
+                1
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                4,
+                5
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                3,
+                5
+              ],
+              [
+                0,
+                4
+              ],
+              [
+                1,
+                5
+              ]
+            ]
+          ],
+          "returns": [
+            0,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 0]\nNone\n[4, 3]"
+    }
+  ]
+}
