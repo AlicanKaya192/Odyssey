@@ -1,0 +1,145 @@
+{
+  "id": "minibatch-epoch",
+  "title": {
+    "tr": "Bir epoch",
+    "en": "One epoch"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for start in range(0, len(y), batch):` ve `idx = order[start:start + batch]`.",
+      "en": "`for start in range(0, len(y), batch):` and `idx = order[start:start + batch]`."
+    },
+    {
+      "tr": "`w = w - lr * 2 / len(idx) * Ab.T @ (Ab @ w - yb)`.",
+      "en": "`w = w - lr * 2 / len(idx) * Ab.T @ (Ab @ w - yb)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef minibatch_epoch(A, y, w, lr, batch, seed):\n    A, y, w = np.array(A, dtype=float), np.array(y, dtype=float), np.array(w, dtype=float)\n    order = np.random.default_rng(seed).permutation(len(y))\n    for start in range(0, len(y), batch):\n        idx = order[start:start + batch]\n        Ab, yb = A[idx], y[idx]\n        w = w - lr * 2 / len(idx) * Ab.T @ (Ab @ w - yb)\n    return w.round(4).tolist()\n\nA = [[1, x] for x in range(10)]\ny = [2 + 3 * x for x in range(10)]\nw = [0.0, 0.0]\nfor epoch in range(3):\n    w = minibatch_epoch(A, y, w, 0.01, 4, epoch)\n    print(w)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef minibatch_epoch(A, y, w, lr, batch, seed):\n    A, y, w = np.array(A, dtype=float), np.array(y, dtype=float), np.array(w, dtype=float)\n    order = np.random.default_rng(seed).permutation(len(y))\n    for start in range(0, len(y), batch):\n        idx = order[start:start + batch]\n        Ab, yb = A[idx], y[idx]\n        w = w - lr * 2 / len(idx) * Ab.T @ (Ab @ w - yb)\n    return w.round(4).tolist()\n\nA = [[1, x] for x in range(10)]\ny = [2 + 3 * x for x in range(10)]\nw = [0.0, 0.0]\nfor epoch in range(3):\n    w = minibatch_epoch(A, y, w, 0.01, 4, epoch)\n    print(w)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "minibatch_epoch",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                1,
+                3
+              ],
+              [
+                1,
+                4
+              ],
+              [
+                1,
+                5
+              ],
+              [
+                1,
+                6
+              ],
+              [
+                1,
+                7
+              ],
+              [
+                1,
+                8
+              ],
+              [
+                1,
+                9
+              ]
+            ],
+            [
+              2,
+              5,
+              8,
+              11,
+              14,
+              17,
+              20,
+              23,
+              26,
+              29
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            0.01,
+            4,
+            0
+          ],
+          "returns": [
+            0.5286,
+            3.0044
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                1,
+                3
+              ]
+            ],
+            [
+              1,
+              2,
+              3
+            ],
+            [
+              0,
+              0
+            ],
+            0.1,
+            2,
+            5
+          ],
+          "returns": [
+            0.34,
+            1.14
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.5286, 3.0044]\n[0.5863, 3.2303]\n[0.6083, 3.2057]"
+    }
+  ]
+}
