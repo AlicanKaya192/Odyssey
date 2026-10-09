@@ -1,0 +1,168 @@
+{
+  "id": "dbscan-labels",
+  "title": {
+    "tr": "DBSCAN",
+    "en": "DBSCAN"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dışta `for i`: etiketli ya da çekirdek olmayanı atla; yoksa `labels[i] = c`, `stack = [i]`.",
+      "en": "Outer `for i`: skip labelled or non-core points; otherwise `labels[i] = c`, `stack = [i]`."
+    },
+    {
+      "tr": "Yığından çıkan çekirdek değilse yayma; çekirdekse `np.where(near[p])[0]` komşularından etiketsiz olanları etiketle ve yığına koy.",
+      "en": "If the popped point is not core, do not spread; if it is, label its unlabelled neighbours from `np.where(near[p])[0]` and push them."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef dbscan_labels(X, eps, min_samples):\n    X = np.array(X, dtype=float)\n    D = np.sqrt(((X[:, None] - X[None]) ** 2).sum(axis=2))\n    near = D <= eps\n    core = near.sum(axis=1) >= min_samples\n    labels = [-1] * len(X)\n    c = 0\n    for i in range(len(X)):\n        if labels[i] != -1 or not core[i]:\n            continue\n        labels[i] = c\n        stack = [i]\n        while stack:\n            p = stack.pop()\n            if not core[p]:\n                continue\n            for q in np.where(near[p])[0]:\n                if labels[q] == -1:\n                    labels[q] = c\n                    stack.append(q)\n        c += 1\n    return labels\n\nX = [[0, 0], [0, 1], [1, 0], [1, 1], [2.5, 0.5],\n     [6, 6], [6, 7], [7, 6], [7, 7], [12, 0]]\nprint(dbscan_labels(X, 1.6, 4))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef dbscan_labels(X, eps, min_samples):\n    X = np.array(X, dtype=float)\n    D = np.sqrt(((X[:, None] - X[None]) ** 2).sum(axis=2))\n    near = D <= eps\n    core = near.sum(axis=1) >= min_samples\n    labels = [-1] * len(X)\n    c = 0\n    for i in range(len(X)):\n        if labels[i] != -1 or not core[i]:\n            continue\n        labels[i] = c\n        stack = [i]\n        while stack:\n            p = stack.pop()\n            if not core[p]:\n                continue\n            for q in np.where(near[p])[0]:\n                if labels[q] == -1:\n                    labels[q] = c\n                    stack.append(q)\n        c += 1\n    return labels\n\nX = [[0, 0], [0, 1], [1, 0], [1, 1], [2.5, 0.5],\n     [6, 6], [6, 7], [7, 6], [7, 7], [12, 0]]\nprint(dbscan_labels(X, 1.6, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "DBSCAN",
+      "hint": {
+        "tr": "`DBSCAN` sınıfını kullanma; kendin yaz.",
+        "en": "Do not use the `DBSCAN` class; write it yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "dbscan_labels",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2.5,
+                0.5
+              ],
+              [
+                6,
+                6
+              ],
+              [
+                6,
+                7
+              ],
+              [
+                7,
+                6
+              ],
+              [
+                7,
+                7
+              ],
+              [
+                12,
+                0
+              ]
+            ],
+            1.6,
+            4
+          ],
+          "returns": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                10,
+                10
+              ]
+            ],
+            1.0,
+            2
+          ],
+          "returns": [
+            -1,
+            -1
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0
+              ],
+              [
+                1
+              ],
+              [
+                2
+              ],
+              [
+                3
+              ],
+              [
+                10
+              ],
+              [
+                11
+              ],
+              [
+                12
+              ]
+            ],
+            1.0,
+            2
+          ],
+          "returns": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 0, 0, 0, 0, 1, 1, 1, 1, -1]"
+    }
+  ]
+}
