@@ -1,0 +1,93 @@
+{
+  "id": "shelf-scores",
+  "title": {
+    "tr": "Rafta puanlar",
+    "en": "Scores on a shelf"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`scores = db.get(name, [])` ile listeyi al, `scores.append(score)`.",
+      "en": "Take the list with `scores = db.get(name, [])`, then `scores.append(score)`."
+    },
+    {
+      "tr": "Sonra geri ata: `db[name] = scores`.",
+      "en": "Then assign it back: `db[name] = scores`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport shelve\n\n\ndef add_scores(path, pairs):\n    with shelve.open(path) as db:\n        for name, score in pairs:\n            scores = db.get(name, [])\n            scores.append(score)\n            db[name] = scores\n        return {name: db[name] for name in sorted(db)}\n\nprint(add_scores(\"scores\", [[\"ada\", 90], [\"alan\", 75], [\"ada\", 85]]))\n```",
+      "en": "The full solution:\n\n```python\nimport shelve\n\n\ndef add_scores(path, pairs):\n    with shelve.open(path) as db:\n        for name, score in pairs:\n            scores = db.get(name, [])\n            scores.append(score)\n            db[name] = scores\n        return {name: db[name] for name in sorted(db)}\n\nprint(add_scores(\"scores\", [[\"ada\", 90], [\"alan\", 75], [\"ada\", 85]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "add_scores",
+      "cases": [
+        {
+          "args": [
+            "first",
+            [
+              [
+                "ada",
+                90
+              ],
+              [
+                "alan",
+                75
+              ],
+              [
+                "ada",
+                85
+              ]
+            ]
+          ],
+          "returns": {
+            "ada": [
+              90,
+              85
+            ],
+            "alan": [
+              75
+            ]
+          }
+        },
+        {
+          "args": [
+            "second",
+            [
+              [
+                "x",
+                1
+              ]
+            ]
+          ],
+          "returns": {
+            "x": [
+              1
+            ]
+          }
+        },
+        {
+          "args": [
+            "third",
+            []
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'ada': [90, 85], 'alan': [75]}"
+    }
+  ]
+}
