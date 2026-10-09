@@ -1,0 +1,109 @@
+{
+  "id": "kmp-count",
+  "title": {
+    "tr": "KMP ile say",
+    "en": "Count with KMP"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her `ch` için önce `while k > 0 and ch != pattern[k]: k = table[k - 1]`; sonra eşitse `k += 1`.",
+      "en": "For each `ch` first `while k > 0 and ch != pattern[k]: k = table[k - 1]`; then `k += 1` if equal."
+    },
+    {
+      "tr": "`k == len(pattern)` ise `total += 1` ve `k = table[k - 1]`.",
+      "en": "If `k == len(pattern)`, `total += 1` and `k = table[k - 1]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef prefix_table(pattern):\n    table = [0] * len(pattern)\n    k = 0\n    for i in range(1, len(pattern)):\n        while k > 0 and pattern[i] != pattern[k]:\n            k = table[k - 1]\n        if pattern[i] == pattern[k]:\n            k += 1\n        table[i] = k\n    return table\n\n\ndef kmp_count(text, pattern):\n    table = prefix_table(pattern)\n    total, k = 0, 0\n    for ch in text:\n        while k > 0 and ch != pattern[k]:\n            k = table[k - 1]\n        if ch == pattern[k]:\n            k += 1\n        if k == len(pattern):\n            total += 1\n            k = table[k - 1]\n    return total\n\nprint(kmp_count(\"abababab\", \"abab\"))\nprint(kmp_count(\"a\" * 20, \"aaa\"))\nprint(kmp_count(\"data science\", \"xyz\"))\n```",
+      "en": "The full solution:\n\n```python\ndef prefix_table(pattern):\n    table = [0] * len(pattern)\n    k = 0\n    for i in range(1, len(pattern)):\n        while k > 0 and pattern[i] != pattern[k]:\n            k = table[k - 1]\n        if pattern[i] == pattern[k]:\n            k += 1\n        table[i] = k\n    return table\n\n\ndef kmp_count(text, pattern):\n    table = prefix_table(pattern)\n    total, k = 0, 0\n    for ch in text:\n        while k > 0 and ch != pattern[k]:\n            k = table[k - 1]\n        if ch == pattern[k]:\n            k += 1\n        if k == len(pattern):\n            total += 1\n            k = table[k - 1]\n    return total\n\nprint(kmp_count(\"abababab\", \"abab\"))\nprint(kmp_count(\"a\" * 20, \"aaa\"))\nprint(kmp_count(\"data science\", \"xyz\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "find",
+      "hint": {
+        "tr": "`find` kullanma; karşılaştırmayı kendin yaz.",
+        "en": "Do not use `find`; write the comparison yourself."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "index",
+      "hint": {
+        "tr": "`index` kullanma; karşılaştırmayı kendin yaz.",
+        "en": "Do not use `index`; write the comparison yourself."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "count",
+      "hint": {
+        "tr": "`count` kullanma; karşılaştırmayı kendin yaz.",
+        "en": "Do not use `count`; write the comparison yourself."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "startswith",
+      "hint": {
+        "tr": "`startswith` kullanma; karşılaştırmayı kendin yaz.",
+        "en": "Do not use `startswith`; write the comparison yourself."
+      }
+    },
+    {
+      "type": "function",
+      "name": "kmp_count",
+      "cases": [
+        {
+          "args": [
+            "abababab",
+            "abab"
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            "aaaaaaaaaaaaaaaaaaaa",
+            "aaa"
+          ],
+          "returns": 18
+        },
+        {
+          "args": [
+            "data science",
+            "xyz"
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "aabaabaab",
+            "aab"
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            "ab",
+            "abc"
+          ],
+          "returns": 0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n18\n0"
+    }
+  ]
+}

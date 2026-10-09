@@ -1,0 +1,139 @@
+{
+  "id": "multi-search",
+  "title": {
+    "tr": "Çok kalıp",
+    "en": "Many patterns"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for i in range(len(text) - m + 1):` ve `window = text[i:i + m]`.",
+      "en": "`for i in range(len(text) - m + 1):` and `window = text[i:i + m]`."
+    },
+    {
+      "tr": "`window in wanted` ise `found.append((i, window))`.",
+      "en": "If `window in wanted`, `found.append((i, window))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef multi_search(text, patterns):\n    wanted = set(patterns)\n    m = len(patterns[0])\n    found = []\n    for i in range(len(text) - m + 1):\n        window = text[i:i + m]\n        if window in wanted:\n            found.append((i, window))\n    return found\n\ntext = \"the cat sat on the mat with a hat\"\nfor item in multi_search(text, [\"cat\", \"hat\", \"mat\", \"dog\"]):\n    print(item)\n```",
+      "en": "The full solution:\n\n```python\ndef multi_search(text, patterns):\n    wanted = set(patterns)\n    m = len(patterns[0])\n    found = []\n    for i in range(len(text) - m + 1):\n        window = text[i:i + m]\n        if window in wanted:\n            found.append((i, window))\n    return found\n\ntext = \"the cat sat on the mat with a hat\"\nfor item in multi_search(text, [\"cat\", \"hat\", \"mat\", \"dog\"]):\n    print(item)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "multi_search",
+      "cases": [
+        {
+          "args": [
+            "the cat sat on the mat with a hat",
+            [
+              "cat",
+              "hat",
+              "mat",
+              "dog"
+            ]
+          ],
+          "returns": [
+            {
+              "__tuple__": [
+                4,
+                "cat"
+              ]
+            },
+            {
+              "__tuple__": [
+                19,
+                "mat"
+              ]
+            },
+            {
+              "__tuple__": [
+                30,
+                "hat"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            "abcabc",
+            [
+              "bc",
+              "ca"
+            ]
+          ],
+          "returns": [
+            {
+              "__tuple__": [
+                1,
+                "bc"
+              ]
+            },
+            {
+              "__tuple__": [
+                2,
+                "ca"
+              ]
+            },
+            {
+              "__tuple__": [
+                4,
+                "bc"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            "xyz",
+            [
+              "ab"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "aaaa",
+            [
+              "aa"
+            ]
+          ],
+          "returns": [
+            {
+              "__tuple__": [
+                0,
+                "aa"
+              ]
+            },
+            {
+              "__tuple__": [
+                1,
+                "aa"
+              ]
+            },
+            {
+              "__tuple__": [
+                2,
+                "aa"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(4, 'cat')\n(19, 'mat')\n(30, 'hat')"
+    }
+  ]
+}

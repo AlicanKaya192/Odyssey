@@ -1,0 +1,108 @@
+{
+  "id": "count-prefix",
+  "title": {
+    "tr": "Önekle say",
+    "en": "Count by prefix"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Eklerken: `node = node.setdefault(ch, {\"#\": 0})` ve `node[\"#\"] += 1` (kökte de bir kez).",
+      "en": "When inserting: `node = node.setdefault(ch, {\"#\": 0})` and `node[\"#\"] += 1` (once at the root too)."
+    },
+    {
+      "tr": "Sorguda `node = node.get(ch)`; `None` olursa sayı 0, yoksa `node[\"#\"]`.",
+      "en": "For a query `node = node.get(ch)`; if it becomes `None` the count is 0, otherwise `node[\"#\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef count_prefix(words, prefixes):\n    root = {\"#\": 0}\n    for word in words:\n        node = root\n        node[\"#\"] += 1\n        for ch in word:\n            node = node.setdefault(ch, {\"#\": 0})\n            node[\"#\"] += 1\n    result = []\n    for prefix in prefixes:\n        node = root\n        for ch in prefix:\n            node = node.get(ch)\n            if node is None:\n                break\n        result.append(node[\"#\"] if node else 0)\n    return result\n\nwords = [\"data\", \"database\", \"dataset\", \"date\", \"deep\",\n         \"model\", \"modem\", \"mode\"]\nprint(count_prefix(words, [\"dat\", \"d\", \"mode\", \"x\", \"\"]))\n```",
+      "en": "The full solution:\n\n```python\ndef count_prefix(words, prefixes):\n    root = {\"#\": 0}\n    for word in words:\n        node = root\n        node[\"#\"] += 1\n        for ch in word:\n            node = node.setdefault(ch, {\"#\": 0})\n            node[\"#\"] += 1\n    result = []\n    for prefix in prefixes:\n        node = root\n        for ch in prefix:\n            node = node.get(ch)\n            if node is None:\n                break\n        result.append(node[\"#\"] if node else 0)\n    return result\n\nwords = [\"data\", \"database\", \"dataset\", \"date\", \"deep\",\n         \"model\", \"modem\", \"mode\"]\nprint(count_prefix(words, [\"dat\", \"d\", \"mode\", \"x\", \"\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "startswith",
+      "hint": {
+        "tr": "`startswith` kullanma; trie'de in.",
+        "en": "Do not use `startswith`; go down the trie."
+      }
+    },
+    {
+      "type": "function",
+      "name": "count_prefix",
+      "cases": [
+        {
+          "args": [
+            [
+              "data",
+              "database",
+              "dataset",
+              "date",
+              "deep",
+              "model",
+              "modem",
+              "mode"
+            ],
+            [
+              "dat",
+              "d",
+              "mode",
+              "x",
+              ""
+            ]
+          ],
+          "returns": [
+            4,
+            5,
+            3,
+            0,
+            8
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              "a"
+            ]
+          ],
+          "returns": [
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              "a",
+              "a",
+              "ab"
+            ],
+            [
+              "a",
+              "ab",
+              "abc"
+            ]
+          ],
+          "returns": [
+            3,
+            1,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[4, 5, 3, 0, 8]"
+    }
+  ]
+}
