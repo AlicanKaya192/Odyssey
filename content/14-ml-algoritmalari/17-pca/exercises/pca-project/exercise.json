@@ -1,0 +1,173 @@
+{
+  "id": "pca-project",
+  "title": {
+    "tr": "İzdüşüm",
+    "en": "Projection"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her sütun `j` için: `if vecs[np.argmax(np.abs(vecs[:, j])), j] < 0: vecs[:, j] = -vecs[:, j]`.",
+      "en": "For each column `j`: `if vecs[np.argmax(np.abs(vecs[:, j])), j] < 0: vecs[:, j] = -vecs[:, j]`."
+    },
+    {
+      "tr": "`(Xc @ vecs[:, :k]).round(3).tolist()`.",
+      "en": "`(Xc @ vecs[:, :k]).round(3).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef pca_project(X, k):\n    X = np.array(X, dtype=float)\n    Xc = X - X.mean(axis=0)\n    C = Xc.T @ Xc / (len(X) - 1)\n    vals, vecs = np.linalg.eigh(C)\n    order = np.argsort(vals)[::-1]\n    vals, vecs = vals[order], vecs[:, order]\n    for j in range(vecs.shape[1]):\n        if vecs[np.argmax(np.abs(vecs[:, j])), j] < 0:\n            vecs[:, j] = -vecs[:, j]\n    return (Xc @ vecs[:, :k]).round(3).tolist()\n\nX = [[1, 2], [2, 3], [3, 5], [4, 4], [5, 7]]\nfor row in pca_project(X, 1):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef pca_project(X, k):\n    X = np.array(X, dtype=float)\n    Xc = X - X.mean(axis=0)\n    C = Xc.T @ Xc / (len(X) - 1)\n    vals, vecs = np.linalg.eigh(C)\n    order = np.argsort(vals)[::-1]\n    vals, vecs = vals[order], vecs[:, order]\n    for j in range(vecs.shape[1]):\n        if vecs[np.argmax(np.abs(vecs[:, j])), j] < 0:\n            vecs[:, j] = -vecs[:, j]\n    return (Xc @ vecs[:, :k]).round(3).tolist()\n\nX = [[1, 2], [2, 3], [3, 5], [4, 4], [5, 7]]\nfor row in pca_project(X, 1):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "PCA",
+      "hint": {
+        "tr": "`PCA` kullanma; özvektörlerle kendin yaz.",
+        "en": "Do not use `PCA`; write it yourself with eigenvectors."
+      }
+    },
+    {
+      "type": "function",
+      "name": "pca_project",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                3,
+                5
+              ],
+              [
+                4,
+                4
+              ],
+              [
+                5,
+                7
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            [
+              -2.968
+            ],
+            [
+              -1.562
+            ],
+            [
+              0.623
+            ],
+            [
+              0.471
+            ],
+            [
+              3.435
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                3,
+                5
+              ],
+              [
+                4,
+                4
+              ],
+              [
+                5,
+                7
+              ]
+            ],
+            2
+          ],
+          "returns": [
+            [
+              -2.968,
+              -0.178
+            ],
+            [
+              -1.562,
+              -0.026
+            ],
+            [
+              0.623,
+              -0.502
+            ],
+            [
+              0.471,
+              0.904
+            ],
+            [
+              3.435,
+              -0.199
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            [
+              -2.0
+            ],
+            [
+              0.0
+            ],
+            [
+              2.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-2.968]\n[-1.562]\n[0.623]\n[0.471]\n[3.435]"
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "id": "covariance-matrix",
+  "title": {
+    "tr": "Kovaryans matrisi",
+    "en": "The covariance matrix"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`Xc = X - X.mean(axis=0)`.",
+      "en": "`Xc = X - X.mean(axis=0)`."
+    },
+    {
+      "tr": "`C = Xc.T @ Xc / (len(X) - 1)`, sonra `.round(3).tolist()`.",
+      "en": "`C = Xc.T @ Xc / (len(X) - 1)`, then `.round(3).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef covariance_matrix(X):\n    X = np.array(X, dtype=float)\n    Xc = X - X.mean(axis=0)\n    C = Xc.T @ Xc / (len(X) - 1)\n    return C.round(3).tolist()\n\nX = [[1, 2], [2, 3], [3, 5], [4, 4], [5, 7]]\nC = covariance_matrix(X)\nprint(C[0])\nprint(C[1])\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef covariance_matrix(X):\n    X = np.array(X, dtype=float)\n    Xc = X - X.mean(axis=0)\n    C = Xc.T @ Xc / (len(X) - 1)\n    return C.round(3).tolist()\n\nX = [[1, 2], [2, 3], [3, 5], [4, 4], [5, 7]]\nC = covariance_matrix(X)\nprint(C[0])\nprint(C[1])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "cov",
+      "hint": {
+        "tr": "`np.cov` kullanma.",
+        "en": "Do not use `np.cov`."
+      }
+    },
+    {
+      "type": "function",
+      "name": "covariance_matrix",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                3,
+                5
+              ],
+              [
+                4,
+                4
+              ],
+              [
+                5,
+                7
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              2.5,
+              2.75
+            ],
+            [
+              2.75,
+              3.7
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                2
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              2.0,
+              2.0
+            ],
+            [
+              2.0,
+              2.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                0,
+                2
+              ],
+              [
+                3,
+                1,
+                0
+              ],
+              [
+                2,
+                2,
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              1.0,
+              0.5,
+              -1.0
+            ],
+            [
+              0.5,
+              1.0,
+              -0.5
+            ],
+            [
+              -1.0,
+              -0.5,
+              1.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2.5, 2.75]\n[2.75, 3.7]"
+    }
+  ]
+}

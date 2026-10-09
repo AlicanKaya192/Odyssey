@@ -1,0 +1,136 @@
+{
+  "id": "reconstruction-error",
+  "title": {
+    "tr": "Geri kurma hatası",
+    "en": "Reconstruction error"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`V = vecs[:, :k]`; izdüşüm `Z = Xc @ V`.",
+      "en": "`V = vecs[:, :k]`; projection `Z = Xc @ V`."
+    },
+    {
+      "tr": "Geri kurma `R = Z @ V.T + X.mean(axis=0)`; hata `((X - R) ** 2).mean()`.",
+      "en": "Rebuild `R = Z @ V.T + X.mean(axis=0)`; error `((X - R) ** 2).mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef reconstruction_error(X, k):\n    X = np.array(X, dtype=float)\n    Xc = X - X.mean(axis=0)\n    C = Xc.T @ Xc / (len(X) - 1)\n    vals, vecs = np.linalg.eigh(C)\n    order = np.argsort(vals)[::-1]\n    vals, vecs = vals[order], vecs[:, order]\n    V = vecs[:, :k]\n    R = (Xc @ V) @ V.T + X.mean(axis=0)\n    return round(abs(float(((X - R) ** 2).mean())), 4)\n\nX = [[1, 2, 0], [2, 3, 1], [3, 5, 1], [4, 4, 2], [5, 7, 2]]\nprint(reconstruction_error(X, 1))\nprint(reconstruction_error(X, 2))\nprint(reconstruction_error(X, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef reconstruction_error(X, k):\n    X = np.array(X, dtype=float)\n    Xc = X - X.mean(axis=0)\n    C = Xc.T @ Xc / (len(X) - 1)\n    vals, vecs = np.linalg.eigh(C)\n    order = np.argsort(vals)[::-1]\n    vals, vecs = vals[order], vecs[:, order]\n    V = vecs[:, :k]\n    R = (Xc @ V) @ V.T + X.mean(axis=0)\n    return round(abs(float(((X - R) ** 2).mean())), 4)\n\nX = [[1, 2, 0], [2, 3, 1], [3, 5, 1], [4, 4, 2], [5, 7, 2]]\nprint(reconstruction_error(X, 1))\nprint(reconstruction_error(X, 2))\nprint(reconstruction_error(X, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "PCA",
+      "hint": {
+        "tr": "`PCA` kullanma; özvektörlerle kendin yaz.",
+        "en": "Do not use `PCA`; write it yourself with eigenvectors."
+      }
+    },
+    {
+      "type": "function",
+      "name": "reconstruction_error",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                2,
+                0
+              ],
+              [
+                2,
+                3,
+                1
+              ],
+              [
+                3,
+                5,
+                1
+              ],
+              [
+                4,
+                4,
+                2
+              ],
+              [
+                5,
+                7,
+                2
+              ]
+            ],
+            1
+          ],
+          "returns": 0.1251
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                2,
+                0
+              ],
+              [
+                2,
+                3,
+                1
+              ],
+              [
+                3,
+                5,
+                1
+              ],
+              [
+                4,
+                4,
+                2
+              ],
+              [
+                5,
+                7,
+                2
+              ]
+            ],
+            2
+          ],
+          "returns": 0.0046
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ]
+            ],
+            1
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.1251\n0.0046\n0.0"
+    }
+  ]
+}

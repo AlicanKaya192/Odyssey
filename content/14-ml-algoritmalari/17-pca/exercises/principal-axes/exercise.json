@@ -1,0 +1,156 @@
+{
+  "id": "principal-axes",
+  "title": {
+    "tr": "Temel eksenler",
+    "en": "Principal axes"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`eigh` küçükten büyüğe verir: `order = np.argsort(vals)[::-1]`.",
+      "en": "`eigh` returns small to large: `order = np.argsort(vals)[::-1]`."
+    },
+    {
+      "tr": "`v = vecs[:, 0]`; `if v[np.argmax(np.abs(v))] < 0: v = -v`.",
+      "en": "`v = vecs[:, 0]`; `if v[np.argmax(np.abs(v))] < 0: v = -v`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef principal_axes(X):\n    X = np.array(X, dtype=float)\n    Xc = X - X.mean(axis=0)\n    C = Xc.T @ Xc / (len(X) - 1)\n    vals, vecs = np.linalg.eigh(C)\n    order = np.argsort(vals)[::-1]\n    vals, vecs = vals[order], vecs[:, order]\n    v = vecs[:, 0]\n    if v[np.argmax(np.abs(v))] < 0:\n        v = -v\n    return vals.round(3).tolist(), v.round(3).tolist()\n\nX = [[1, 2], [2, 3], [3, 5], [4, 4], [5, 7]]\nvals, first = principal_axes(X)\nprint(vals)\nprint(first)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef principal_axes(X):\n    X = np.array(X, dtype=float)\n    Xc = X - X.mean(axis=0)\n    C = Xc.T @ Xc / (len(X) - 1)\n    vals, vecs = np.linalg.eigh(C)\n    order = np.argsort(vals)[::-1]\n    vals, vecs = vals[order], vecs[:, order]\n    v = vecs[:, 0]\n    if v[np.argmax(np.abs(v))] < 0:\n        v = -v\n    return vals.round(3).tolist(), v.round(3).tolist()\n\nX = [[1, 2], [2, 3], [3, 5], [4, 4], [5, 7]]\nvals, first = principal_axes(X)\nprint(vals)\nprint(first)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "PCA",
+      "hint": {
+        "tr": "`PCA` kullanma; özvektörlerle kendin yaz.",
+        "en": "Do not use `PCA`; write it yourself with eigenvectors."
+      }
+    },
+    {
+      "type": "function",
+      "name": "principal_axes",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                3,
+                5
+              ],
+              [
+                4,
+                4
+              ],
+              [
+                5,
+                7
+              ]
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                5.915,
+                0.285
+              ],
+              [
+                0.627,
+                0.779
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                4,
+                2
+              ]
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                5.333,
+                1.333
+              ],
+              [
+                1.0,
+                0.0
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                -2
+              ],
+              [
+                -1,
+                2
+              ],
+              [
+                2,
+                -3
+              ],
+              [
+                0,
+                1
+              ]
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                7.272,
+                0.061
+              ],
+              [
+                -0.472,
+                0.882
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[5.915, 0.285]\n[0.627, 0.779]"
+    }
+  ]
+}
