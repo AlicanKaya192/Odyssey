@@ -1,0 +1,70 @@
+{
+  "id": "find-user",
+  "title": {
+    "tr": "Güvenli sorgu",
+    "en": "A safe query"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Değer SQL metnine girmesin; sorguda `?` yazılır, değer ikinci argümanda gider.",
+      "en": "The value must not enter the SQL text; write `?` in the query and pass the value as the second argument."
+    },
+    {
+      "tr": "`conn.execute(\"SELECT name FROM users WHERE name = ?\", (name,))`; tek parametre `(name,)`.",
+      "en": "`conn.execute(\"SELECT name FROM users WHERE name = ?\", (name,))`; a single parameter is `(name,)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE users (name TEXT, admin INTEGER)\")\nconn.execute(\"INSERT INTO users VALUES ('ada', 1), ('alan', 0)\")\n\n\ndef find_user(name):\n    query = \"SELECT name FROM users WHERE name = ?\"\n    return [row[0] for row in conn.execute(query, (name,))]\n\nprint(find_user(\"ada\"))\nprint(find_user(\"x' OR '1'='1\"))\n```",
+      "en": "The full solution:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE users (name TEXT, admin INTEGER)\")\nconn.execute(\"INSERT INTO users VALUES ('ada', 1), ('alan', 0)\")\n\n\ndef find_user(name):\n    query = \"SELECT name FROM users WHERE name = ?\"\n    return [row[0] for row in conn.execute(query, (name,))]\n\nprint(find_user(\"ada\"))\nprint(find_user(\"x' OR '1'='1\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "find_user",
+      "cases": [
+        {
+          "args": [
+            "ada"
+          ],
+          "returns": [
+            "ada"
+          ]
+        },
+        {
+          "args": [
+            "x' OR '1'='1"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "o'neil"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "alan"
+          ],
+          "returns": [
+            "alan"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['ada']\n[]"
+    }
+  ]
+}

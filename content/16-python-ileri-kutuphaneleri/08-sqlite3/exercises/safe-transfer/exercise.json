@@ -1,0 +1,87 @@
+{
+  "id": "safe-transfer",
+  "title": {
+    "tr": "Ya hepsi ya hiçbiri",
+    "en": "All or nothing"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodunda ikinci güncelleme düşünce ilki geri alınmıyor: `ada` 600 oluyor.",
+      "en": "In the starter code the first update is not undone when the second fails: `ada` becomes 600."
+    },
+    {
+      "tr": "İki `execute`'u `try:` içinde bir `with conn:` bloğuna al.",
+      "en": "Put the two `execute` calls in a `with conn:` block inside the `try:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport sqlite3\n\nADD = \"UPDATE accounts SET balance = balance + ? WHERE name = ?\"\nSUB = \"UPDATE accounts SET balance = balance - ? WHERE name = ?\"\n\n\ndef transfer(balances, src, dst, amount):\n    conn = sqlite3.connect(\":memory:\")\n    conn.execute(\"CREATE TABLE accounts \"\n                 \"(name TEXT PRIMARY KEY, balance INTEGER CHECK (balance >= 0))\")\n    conn.executemany(\"INSERT INTO accounts VALUES (?, ?)\", balances.items())\n    conn.commit()\n    try:\n        with conn:\n            conn.execute(ADD, (amount, dst))\n            conn.execute(SUB, (amount, src))\n    except sqlite3.IntegrityError:\n        pass\n    return dict(conn.execute(\"SELECT name, balance FROM accounts\"))\n\nprint(transfer({\"ada\": 100, \"alan\": 20}, \"ada\", \"alan\", 30))\nprint(transfer({\"ada\": 100, \"alan\": 20}, \"alan\", \"ada\", 500))\n```",
+      "en": "The full solution:\n\n```python\nimport sqlite3\n\nADD = \"UPDATE accounts SET balance = balance + ? WHERE name = ?\"\nSUB = \"UPDATE accounts SET balance = balance - ? WHERE name = ?\"\n\n\ndef transfer(balances, src, dst, amount):\n    conn = sqlite3.connect(\":memory:\")\n    conn.execute(\"CREATE TABLE accounts \"\n                 \"(name TEXT PRIMARY KEY, balance INTEGER CHECK (balance >= 0))\")\n    conn.executemany(\"INSERT INTO accounts VALUES (?, ?)\", balances.items())\n    conn.commit()\n    try:\n        with conn:\n            conn.execute(ADD, (amount, dst))\n            conn.execute(SUB, (amount, src))\n    except sqlite3.IntegrityError:\n        pass\n    return dict(conn.execute(\"SELECT name, balance FROM accounts\"))\n\nprint(transfer({\"ada\": 100, \"alan\": 20}, \"ada\", \"alan\", 30))\nprint(transfer({\"ada\": 100, \"alan\": 20}, \"alan\", \"ada\", 500))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "transfer",
+      "cases": [
+        {
+          "args": [
+            {
+              "ada": 100,
+              "alan": 20
+            },
+            "ada",
+            "alan",
+            30
+          ],
+          "returns": {
+            "ada": 70,
+            "alan": 50
+          }
+        },
+        {
+          "args": [
+            {
+              "ada": 100,
+              "alan": 20
+            },
+            "alan",
+            "ada",
+            500
+          ],
+          "returns": {
+            "ada": 100,
+            "alan": 20
+          }
+        },
+        {
+          "args": [
+            {
+              "ada": 5,
+              "alan": 5
+            },
+            "ada",
+            "alan",
+            5
+          ],
+          "returns": {
+            "ada": 0,
+            "alan": 10
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'ada': 70, 'alan': 50}\n{'ada': 100, 'alan': 20}"
+    }
+  ]
+}
