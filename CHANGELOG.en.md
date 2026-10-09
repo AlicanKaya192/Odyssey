@@ -51,6 +51,11 @@ lecture note does not mean downloading the whole application again.
   title.
 
 ### Changed
+- **`raise` is explained in more depth.** The Python path's Handling Errors
+  lesson now walks through raising an error yourself, choosing the error
+  type and raising a caught error again. The Object-Oriented Programming
+  lesson gained writing your own error class and `raise ... from`, with a new
+  exercise.
 - **Odyssey is no longer an open beta.** 1.0 is the first full release: the
   "Open Beta" label is gone from the start-up screen, and first-time users
   see a short welcome window instead of the beta notice.

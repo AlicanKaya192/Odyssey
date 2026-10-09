@@ -188,30 +188,106 @@ bağlantıyı bırakmak gibi. Hata çıksa bile o iş yapılmalı.
 ## `raise` — hatayı sen çıkar
 
 Yakalamak kadar önemli bir şey daha var: bazen hatayı **sen** çıkarmalısın.
+Şimdiye kadar gördüğün hataları Python çıkarıyordu (`int("abc")` gibi).
+`raise` aynısını senin kodunda yapmanı sağlıyor.
 
 ```python
 def set_age(age):
     if age < 0:
-        raise ValueError("age cannot be negative")
+        raise ValueError(f"age cannot be negative: {age}")
+    print("age saved")
     return age
-```
 
-Neden? Çünkü fonksiyonun elindeki değer anlamsız ve devam etmenin bir anlamı
-yok. Sessizce sıfır döndürmek yerine "bu değer olmaz" demek, hatanın
-kaynağını çağıran tarafa göstermiş oluyor.
 
-Çıkardığın hata da normal bir hata gibi yakalanıyor:
-
-```python
+print(set_age(30))
 try:
     set_age(-5)
 except ValueError as error:
-    print(error)
+    print("caught:", error)
 ```
 
+```text
+age saved
+30
+caught: age cannot be negative: -5
 ```
-age cannot be negative
+
+Ne oldu, adım adım:
+
+- `raise ValueError("...")` bir hata kuruyor ve onu **fırlatıyor**.
+  Parantezdeki metin hatanın açıklaması; `as error` ile yakalanınca
+  `print` bunu yazıyor.
+- `raise` çalıştığı anda fonksiyon **orada duruyor**: `-5` için
+  "age saved" yazılmadı, `return` hiç çalışmadı. `return` gibi fonksiyondan
+  çıkıyor; farkı, bir değer değil bir hata götürmesi.
+- Hata, fonksiyonu **çağıran yere** gidiyor. Orada `try` varsa yakalanıyor;
+  yoksa bir üstteki çağırana, en sonunda programın kendisine ulaşıyor ve
+  program duruyor. `try` olmadan, `print(set_age(30))` satırının altına
+  yalnızca `set_age(-5)` yazılsaydı traceback'in son satırında senin
+  yazdığın açıklama çıkardı (dosya yolu kısaltıldı):
+
+```text
+Traceback (most recent call last):
+  File "main.py", line 9, in <module>
+    set_age(-5)
+    ~~~~~~~^^^^
+  File "main.py", line 3, in set_age
+    raise ValueError(f"age cannot be negative: {age}")
+ValueError: age cannot be negative: -5
 ```
+
+Neden kendin hata çıkarasın? Çünkü fonksiyonun elindeki değer anlamsız ve
+devam etmenin bir anlamı yok. Sessizce sıfır döndürmek yerine "bu değer
+olmaz" demek, hatanın kaynağını çağıran tarafa göstermiş oluyor. Eksi bir yaş
+kaydedilip üç fonksiyon sonra garip bir sonuç vermesindense, girdiği yerde
+durması çok daha kolay bulunur.
+
+**Hangi hatayı fırlatmalı?** Python'un hazır hata türlerinden durumu
+anlatanı seç:
+
+| Durum | Hata |
+|---|---|
+| Tür doğru ama değer olmaz (eksi yaş, boş ad) | `ValueError` |
+| Tür yanlış (sayı beklenirken metin geldi) | `TypeError` |
+| İstenen anahtar yok | `KeyError` |
+
+Düz `Exception` fırlatma: çağıran onu yakalamak için `except Exception`
+yazmak zorunda kalır ve böylece başka bütün hataları da yakalar. Açıklama da
+neyin yanlış olduğunu ve gelen değeri söylesin: `age cannot be negative: -5`,
+`invalid input`'tan çok daha yararlı.
+
+## Yakala, bir şey yap, yeniden fırlat
+
+Bazen hatayı yakalayıp bir not düşmek ama çözmeyi çağırana bırakmak
+istersin. `except` bloğunun içinde **tek başına `raise`** yakalanan hatayı
+olduğu gibi yukarı gönderir:
+
+```python
+def read_age(text):
+    try:
+        return int(text)
+    except ValueError:
+        print("could not read:", text)
+        raise
+
+
+try:
+    read_age("abc")
+except ValueError as error:
+    print("caller:", error)
+```
+
+```text
+could not read: abc
+caller: invalid literal for int() with base 10: 'abc'
+```
+
+`read_age` hatayı gördü ve yazdı, ama yutmadı: çağıran taraf aynı hatayı
+aynı açıklamayla aldı. Hatayı yakalayıp hiçbir şey yokmuş gibi devam
+etmekle (`pass`) arasındaki fark bu.
+
+Kendi hata türünü yazmak (`InsufficientFunds` gibi) sınıf bilgisi istiyor;
+o, Nesne Tabanlı Programlama bölümünde.
 
 ## Ne zaman yakalanır, ne zaman bırakılır?
 
@@ -247,5 +323,7 @@ except:
 - Hangi hatayı beklediğini yaz; çıplak `except` her şeyi yutuyor.
 - `as error` ile hata açıklamasına ulaşıyorsun.
 - `else` hata çıkmazsa, `finally` her durumda çalışır.
-- `raise` ile hatayı sen çıkarırsın.
+- `raise ValueError("açıklama")` hatayı sen çıkarır ve fonksiyonu orada
+  durdurur; değer yanlışsa `ValueError`, tür yanlışsa `TypeError`.
+- `except` içinde tek başına `raise` aynı hatayı yukarı iletir.
 - Yakalayacak bir şey yapamıyorsan yakalama.

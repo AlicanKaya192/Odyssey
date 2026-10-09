@@ -48,6 +48,11 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   "Zanaatkâr" unvanı.
 
 ### Değişti
+- **`raise` daha ayrıntılı anlatılıyor.** Python patikasının Hata Yakalama
+  dersi hatayı kendin fırlatmayı, hangi hata türünün seçileceğini ve
+  yakaladığın hatayı yeniden fırlatmayı adım adım anlatıyor. Nesne Tabanlı
+  Programlama dersine kendi hata sınıfını yazmak ve `raise ... from` eklendi,
+  yanında yeni bir alıştırma.
 - **Odyssey artık açık beta değil.** 1.0 ilk tam sürüm: açılıştaki
   "Açık Beta" yazısı kalktı, ilk kez kuranlar beta uyarısı yerine kısa bir
   hoş geldiniz penceresi görüyor.

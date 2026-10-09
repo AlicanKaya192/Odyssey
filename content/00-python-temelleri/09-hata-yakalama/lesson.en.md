@@ -192,31 +192,107 @@ go of a connection. That work has to happen even when something failed.
 ## `raise` — raising an error yourself
 
 There is something as important as catching: sometimes **you** should raise
-the error.
+the error. Until now the errors you saw were raised by Python (like
+`int("abc")`). `raise` lets you do the same in your own code.
 
 ```python
 def set_age(age):
     if age < 0:
-        raise ValueError("age cannot be negative")
+        raise ValueError(f"age cannot be negative: {age}")
+    print("age saved")
     return age
-```
 
-Why? Because the value the function was handed is meaningless and there is no
-sense in carrying on. Saying "this value will not do" rather than quietly
-returning zero shows the caller where the problem came from.
 
-An error you raise is caught like any other:
-
-```python
+print(set_age(30))
 try:
     set_age(-5)
 except ValueError as error:
-    print(error)
+    print("caught:", error)
 ```
 
+```text
+age saved
+30
+caught: age cannot be negative: -5
 ```
-age cannot be negative
+
+What happened, step by step:
+
+- `raise ValueError("...")` builds an error and **throws** it. The text in
+  the brackets is the error's explanation; caught with `as error`, `print`
+  writes it.
+- The moment `raise` runs, the function **stops there**: for `-5`, "age
+  saved" was not printed and `return` never ran. Like `return`, it leaves the
+  function; the difference is that it carries an error, not a value.
+- The error goes to **the place that called** the function. If there is a
+  `try` there, it is caught; if not, it goes to the caller above, finally
+  reaching the program itself, and the program stops. Had only
+  `set_age(-5)` been written below the `print(set_age(30))` line, without a
+  `try`, the explanation you wrote would appear on the last line of the
+  traceback (the file path is shortened):
+
+```text
+Traceback (most recent call last):
+  File "main.py", line 9, in <module>
+    set_age(-5)
+    ~~~~~~~^^^^
+  File "main.py", line 3, in set_age
+    raise ValueError(f"age cannot be negative: {age}")
+ValueError: age cannot be negative: -5
 ```
+
+Why raise an error yourself? Because the value the function was handed is
+meaningless and there is no sense in carrying on. Saying "this value will not
+do" rather than quietly returning zero shows the caller where the problem
+came from. A negative age that stops where it came in is far easier to find
+than one that is saved and gives a strange result three functions later.
+
+**Which error to raise?** Pick the one of Python's ready error types that
+describes the situation:
+
+| Situation | Error |
+|---|---|
+| The type is right but the value will not do (a negative age, an empty name) | `ValueError` |
+| The type is wrong (text came where a number was expected) | `TypeError` |
+| The requested key is missing | `KeyError` |
+
+Do not raise a plain `Exception`: to catch it, the caller has to write
+`except Exception` and so catches every other error too. Let the explanation
+say what is wrong and what value came in: `age cannot be negative: -5` is far
+more useful than `invalid input`.
+
+## Catch, do something, raise again
+
+Sometimes you want to catch an error and make a note of it but leave the
+fixing to the caller. A **bare `raise`** inside an `except` block sends the
+caught error up as it is:
+
+```python
+def read_age(text):
+    try:
+        return int(text)
+    except ValueError:
+        print("could not read:", text)
+        raise
+
+
+try:
+    read_age("abc")
+except ValueError as error:
+    print("caller:", error)
+```
+
+```text
+could not read: abc
+caller: invalid literal for int() with base 10: 'abc'
+```
+
+`read_age` saw the error and wrote it down, but did not swallow it: the
+caller got the same error with the same explanation. That is the difference
+from catching the error and carrying on as if nothing happened (`pass`).
+
+Writing your own error type (like `InsufficientFunds`) needs classes; that
+comes in the Object-Oriented Programming section.
 
 ## When to catch and when to leave it
 
@@ -253,5 +329,8 @@ In the second example the data was not saved and nobody was told.
 - Name the error you expect; a bare `except` swallows everything.
 - `as error` gets you the explanation.
 - `else` runs when nothing failed, `finally` runs either way.
-- `raise` is how you raise an error yourself.
+- `raise ValueError("explanation")` raises an error yourself and stops the
+  function there; `ValueError` for a wrong value, `TypeError` for a wrong
+  type.
+- A bare `raise` inside `except` passes the same error up.
 - If you cannot do anything about it, do not catch it.

@@ -238,6 +238,83 @@ Dikkat: `Shape` sınıfının kendisinde `area` metodu yok, ama `describe` onu
 çağırıyor. Bu kasıtlı — her şeklin alanı farklı hesaplanıyor ve bunu alt
 sınıflar dolduruyor.
 
+## Kendi hata sınıfın
+
+Hata Yakalama bölümünde `raise ValueError(...)` ile hazır hata türlerini
+fırlattın. Hata türleri de birer sınıf ve hepsi `Exception` sınıfından
+türüyor. Kalıtımla kendi hata türünü yazabilirsin:
+
+```python
+class InsufficientFunds(Exception):
+    pass
+
+
+class Account:
+    def __init__(self, balance):
+        self.balance = balance
+
+    def withdraw(self, amount):
+        if amount > self.balance:
+            raise InsufficientFunds(f"balance {self.balance}, wanted {amount}")
+        self.balance -= amount
+
+
+account = Account(100)
+account.withdraw(30)
+try:
+    account.withdraw(150)
+except InsufficientFunds as error:
+    print("not enough money:", error)
+print(account.balance)
+```
+
+```text
+not enough money: balance 70, wanted 150
+70
+```
+
+- `class InsufficientFunds(Exception):` yeni bir hata türü. Gövdesi `pass`
+  (boş): yapacağı her şeyi `Exception`'dan alıyor, açıklama metni dahil.
+- **Kazancı adı.** Çağıran tam olarak bu durumu yakalayabiliyor:
+  `except InsufficientFunds`. Bir `ValueError` yakalasaydı, kodun başka
+  yerinden gelen ilgisiz `ValueError`'ları da yakalardı.
+- Hata, `self.balance -= amount` satırından **önce** fırlatıldı; bakiye 70'te
+  kaldı, eksiye düşmedi.
+
+### Hatayı çevirip zincirlemek: `raise ... from`
+
+Bazen alttaki hata (eksik anahtar, okunamayan sayı) çağıran için fazla
+ayrıntı olur; ona kendi alanının diliyle konuşan bir hata vermek istersin:
+
+```python
+class ConfigError(Exception):
+    pass
+
+
+def read_port(settings):
+    try:
+        return int(settings["port"])
+    except (KeyError, ValueError) as error:
+        raise ConfigError("port is missing or not a number") from error
+
+
+print(read_port({"port": "8080"}))
+try:
+    read_port({"port": "abc"})
+except ConfigError as error:
+    print(error)
+```
+
+```text
+8080
+port is missing or not a number
+```
+
+`from error` asıl sebebi yeni hataya bağlıyor. Hata yakalanmazsa traceback
+ikisini de gösteriyor: önce `KeyError` ya da `ValueError`, arada
+`The above exception was the direct cause of the following exception:`,
+sonra `ConfigError`. Böylece hem anlaşılır mesaj hem asıl sebep görünüyor.
+
 ## Ne zaman sınıf yazılır?
 
 Sınıf her sorunun cevabı değil. İşe yaradığı yerler:
@@ -271,4 +348,6 @@ fonksiyon.
   döndürür, yazdırmaz.
 - `class Alt(Ust):` kalıtımdır; `super().__init__(...)` üst sınıfın
   kurucusunu çağırır.
+- Kendi hata türün: `class InsufficientFunds(Exception): pass`.
+  `raise ... from error` asıl sebebi yeni hataya bağlar.
 - Durumu olmayan bir işlem için sınıf değil fonksiyon yazılır.
