@@ -1,0 +1,103 @@
+{
+  "id": "encode-cities",
+  "title": {
+    "tr": "Bilinmeyen şehre hazır ol",
+    "en": "Be ready for an unknown city"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Bilinmeyen kategoriye karşı `handle_unknown=\"ignore\"`.",
+      "en": "Against an unknown category, `handle_unknown=\"ignore\"`."
+    },
+    {
+      "tr": "`OneHotEncoder(handle_unknown=\"ignore\", sparse_output=False)`.",
+      "en": "`OneHotEncoder(handle_unknown=\"ignore\", sparse_output=False)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import OneHotEncoder\n\n\ndef encode_cities(train, test):\n    enc = OneHotEncoder(handle_unknown=\"ignore\", sparse_output=False)\n    enc.fit(pd.DataFrame({\"city\": train}))\n    coded = enc.transform(pd.DataFrame({\"city\": test})).astype(int).tolist()\n    return {\"names\": enc.get_feature_names_out().tolist(), \"test\": coded}\n\nresult = encode_cities([\"Izmir\", \"Ankara\", \"Izmir\", \"Bursa\"], [\"Van\", \"Bursa\"])\nprint(result[\"names\"])\nprint(result[\"test\"])\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import OneHotEncoder\n\n\ndef encode_cities(train, test):\n    enc = OneHotEncoder(handle_unknown=\"ignore\", sparse_output=False)\n    enc.fit(pd.DataFrame({\"city\": train}))\n    coded = enc.transform(pd.DataFrame({\"city\": test})).astype(int).tolist()\n    return {\"names\": enc.get_feature_names_out().tolist(), \"test\": coded}\n\nresult = encode_cities([\"Izmir\", \"Ankara\", \"Izmir\", \"Bursa\"], [\"Van\", \"Bursa\"])\nprint(result[\"names\"])\nprint(result[\"test\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "encode_cities",
+      "cases": [
+        {
+          "args": [
+            [
+              "Izmir",
+              "Ankara",
+              "Izmir",
+              "Bursa"
+            ],
+            [
+              "Van",
+              "Bursa"
+            ]
+          ],
+          "returns": {
+            "names": [
+              "city_Ankara",
+              "city_Bursa",
+              "city_Izmir"
+            ],
+            "test": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              "b",
+              "a"
+            ]
+          ],
+          "returns": {
+            "names": [
+              "city_a",
+              "city_b"
+            ],
+            "test": [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['city_Ankara', 'city_Bursa', 'city_Izmir']\n[[0, 0, 0], [0, 1, 0]]"
+    }
+  ]
+}

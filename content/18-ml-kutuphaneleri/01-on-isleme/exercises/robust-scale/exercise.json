@@ -1,0 +1,90 @@
+{
+  "id": "robust-scale",
+  "title": {
+    "tr": "Aykırıya dayanıklı ölçek",
+    "en": "An outlier-proof scale"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Ölçekleyiciyi `RobustScaler()` yap; gerisi aynı.",
+      "en": "Make the scaler `RobustScaler()`; the rest stays."
+    },
+    {
+      "tr": "`RobustScaler().fit_transform(X).ravel().round(2).tolist()`.",
+      "en": "`RobustScaler().fit_transform(X).ravel().round(2).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom sklearn.preprocessing import RobustScaler, StandardScaler\n\n\ndef robust_scale(values):\n    X = np.array(values, dtype=float).reshape(-1, 1)\n    return RobustScaler().fit_transform(X).ravel().round(2).tolist()\n\nprint(robust_scale([30, 35, 40, 45, 500]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom sklearn.preprocessing import RobustScaler, StandardScaler\n\n\ndef robust_scale(values):\n    X = np.array(values, dtype=float).reshape(-1, 1)\n    return RobustScaler().fit_transform(X).ravel().round(2).tolist()\n\nprint(robust_scale([30, 35, 40, 45, 500]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "robust_scale",
+      "cases": [
+        {
+          "args": [
+            [
+              30,
+              35,
+              40,
+              45,
+              500
+            ]
+          ],
+          "returns": [
+            -1.0,
+            -0.5,
+            0.0,
+            0.5,
+            46.0
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ]
+          ],
+          "returns": [
+            -1.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "args": [
+            [
+              10,
+              10,
+              20,
+              30
+            ]
+          ],
+          "returns": [
+            -0.4,
+            -0.4,
+            0.4,
+            1.2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-1.0, -0.5, 0.0, 0.5, 46.0]"
+    }
+  ]
+}
