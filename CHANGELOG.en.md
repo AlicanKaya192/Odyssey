@@ -49,8 +49,14 @@ lecture note does not mean downloading the whole application again.
   expressions, collections, itertools, archives. **Python Libraries:
   Advanced** (18 sections) covers the tools of growing programs: types and
   dataclasses, logging, argparse, sqlite3, pickle, decimal, hashlib,
-  concurrency and asyncio, tests, measurement and memory leaks. New badges
-  and the "Artisan" and "Architect" titles.
+  concurrency and asyncio, tests, measurement and memory leaks. **Data
+  Science Libraries** (17 sections) covers NumPy, pandas, Matplotlib, seaborn
+  and SciPy in depth: array types and broadcasting, the index and MultiIndex,
+  combining, reshaping, time, text and categories, performance, chart types
+  and customisation, statistical tests, optimisation. The charts in the
+  lessons are matplotlib's real output. New badges, the "Artisan",
+  "Architect" and "Cartographer" titles; a new step in the Data Scientist
+  route.
 
 ### Changed
 - **`raise` is explained in more depth.** The Python path's Handling Errors

@@ -56,6 +56,7 @@ ALG2_CHAPTER = "13-algoritma-teknikleri"
 ALG3_CHAPTER = "14-ml-algoritmalari"
 PYLIB1_CHAPTER = "15-python-baslangic-kutuphaneleri"
 PYLIB2_CHAPTER = "16-python-ileri-kutuphaneleri"
+DSLIB_CHAPTER = "17-veri-bilimi-kutuphaneleri"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -103,6 +104,9 @@ PYLIB1_REGEX_SECTION = (PYLIB1_CHAPTER, "10-duzenli-ifadeler-2")
 PYLIB2_THREADS_SECTION = (PYLIB2_CHAPTER, "12-threading-ve-concurrent-futures")
 PYLIB2_TESTS_SECTION = (PYLIB2_CHAPTER, "14-unittest-ve-doctest")
 PYLIB2_LEAK_SECTION = (PYLIB2_CHAPTER, "16-bellek-sizintisi")
+DSLIB_BROADCAST_SECTION = (DSLIB_CHAPTER, "02-numpy-yayinlama-ve-ufunc")
+DSLIB_RESHAPE_SECTION = (DSLIB_CHAPTER, "06-pandas-yeniden-sekillendirme")
+DSLIB_STATS_SECTION = (DSLIB_CHAPTER, "14-scipy-stats")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -120,6 +124,7 @@ ALG2_SECTION_COUNT = 17
 ALG3_SECTION_COUNT = 23
 PYLIB1_SECTION_COUNT = 17
 PYLIB2_SECTION_COUNT = 18
+DSLIB_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -250,6 +255,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "test-guard": PYLIB2_TESTS_SECTION in bitenler,
         "leak-hunter": PYLIB2_LEAK_SECTION in bitenler,
         "pylib2-complete": modul_basina.get(PYLIB2_CHAPTER, 0) >= PYLIB2_SECTION_COUNT,
+        "no-loops": DSLIB_BROADCAST_SECTION in bitenler,
+        "shape-shifter": DSLIB_RESHAPE_SECTION in bitenler,
+        "evidence-seeker": DSLIB_STATS_SECTION in bitenler,
+        "dslib-complete": modul_basina.get(DSLIB_CHAPTER, 0) >= DSLIB_SECTION_COUNT,
     }
 
 

@@ -47,7 +47,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   **Python Kütüphaneleri: İleri** (18 bölüm) büyüyen programların araçlarını
   anlatıyor: tipler ve dataclass'lar, logging, argparse, sqlite3, pickle,
   decimal, hashlib, eşzamanlılık ve asyncio, testler, ölçüm ve bellek
-  sızıntısı. Yeni rozetler, "Zanaatkâr" ve "Mimar" unvanları.
+  sızıntısı. **Veri Bilimi Kütüphaneleri** (17 bölüm) NumPy, pandas,
+  Matplotlib, seaborn ve SciPy'yi derinlemesine anlatıyor: dizi türleri ve
+  yayınlama, indeks ve MultiIndex, birleştirme, yeniden şekillendirme, zaman,
+  metin ve kategori, performans, grafik türleri ve özelleştirme, istatistik
+  testleri, en iyileme. Derslerdeki grafikler matplotlib'in gerçek çıktısı.
+  Yeni rozetler, "Zanaatkâr", "Mimar" ve "Kartograf" unvanları; Veri Bilimci
+  rotasına yeni adım.
 
 ### Değişti
 - **`raise` daha ayrıntılı anlatılıyor.** Python patikasının Hata Yakalama
