@@ -1,0 +1,67 @@
+{
+  "id": "leaves-search",
+  "title": {
+    "tr": "num_leaves araması",
+    "en": "Searching num_leaves"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Izgara `{\"num_leaves\": options}`; LightGBM modeli doğrudan `GridSearchCV`'ye girer.",
+      "en": "The grid `{\"num_leaves\": options}`; the LightGBM model goes straight into `GridSearchCV`."
+    },
+    {
+      "tr": "`search = GridSearchCV(model, {\"num_leaves\": options}, cv=3).fit(X_train, y_train)`.",
+      "en": "`search = GridSearchCV(model, {\"num_leaves\": options}, cv=3).fit(X_train, y_train)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=5000, n_features=20, n_informative=6,\n                           flip_y=0.1, random_state=5)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=5)\nfrom lightgbm import LGBMClassifier\nfrom sklearn.model_selection import GridSearchCV\n\n\ndef leaves_search(options):\n    model = LGBMClassifier(n_estimators=100, random_state=0, verbose=-1)\n    search = GridSearchCV(model, {\"num_leaves\": options}, cv=3).fit(X_train, y_train)\n    return [search.best_params_[\"num_leaves\"], round(float(search.best_score_), 3)]\n\nprint(leaves_search([4, 15, 63]))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=5000, n_features=20, n_informative=6,\n                           flip_y=0.1, random_state=5)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=5)\nfrom lightgbm import LGBMClassifier\nfrom sklearn.model_selection import GridSearchCV\n\n\ndef leaves_search(options):\n    model = LGBMClassifier(n_estimators=100, random_state=0, verbose=-1)\n    search = GridSearchCV(model, {\"num_leaves\": options}, cv=3).fit(X_train, y_train)\n    return [search.best_params_[\"num_leaves\"], round(float(search.best_score_), 3)]\n\nprint(leaves_search([4, 15, 63]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "leaves_search",
+      "cases": [
+        {
+          "args": [
+            [
+              4,
+              15,
+              63
+            ]
+          ],
+          "returns": [
+            63,
+            0.911
+          ]
+        },
+        {
+          "args": [
+            [
+              2,
+              8
+            ]
+          ],
+          "returns": [
+            8,
+            0.907
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[63, 0.911]"
+    }
+  ]
+}

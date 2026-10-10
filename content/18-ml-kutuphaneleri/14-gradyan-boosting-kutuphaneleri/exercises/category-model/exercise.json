@@ -1,0 +1,66 @@
+{
+  "id": "category-model",
+  "title": {
+    "tr": "Kategorik ve eksik",
+    "en": "Categorical and missing"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Bütün DataFrame'i ver (`d_train`, `d_test`) ve `categorical_features=\"from_dtype\"` ekle.",
+      "en": "Give the whole DataFrame (`d_train`, `d_test`) and add `categorical_features=\"from_dtype\"`."
+    },
+    {
+      "tr": "`HistGradientBoostingClassifier(min_samples_leaf=min_leaf, random_state=0, categorical_features=\"from_dtype\")`.",
+      "en": "`HistGradientBoostingClassifier(min_samples_leaf=min_leaf, random_state=0, categorical_features=\"from_dtype\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\nrng = np.random.default_rng(2)\nnames = [f\"c{i}\" for i in range(30)]\neffect = dict(zip(names, rng.normal(0, 1, 30)))\ncity = rng.choice(names, 6000)\nx1 = rng.normal(0, 1, 6000)\nchance = 1 / (1 + np.exp(-(1.5 * pd.Series(city).map(effect) + x1)))\ntarget = (rng.random(6000) < chance).astype(int)\ndf = pd.DataFrame({\"city\": pd.Categorical(city), \"x1\": x1})\ndf.loc[rng.random(6000) < 0.1, \"x1\"] = np.nan\nd_train, d_test, t_train, t_test = train_test_split(df, target, random_state=2)\nfrom sklearn.ensemble import HistGradientBoostingClassifier\n\n\ndef category_model(min_leaf):\n    model = HistGradientBoostingClassifier(min_samples_leaf=min_leaf, random_state=0,\n                                           categorical_features=\"from_dtype\")\n    model.fit(d_train, t_train)\n    score = model.score(d_test, t_test)\n    return [model.is_categorical_.tolist(), round(float(score), 3)]\n\nprint(category_model(20))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\nrng = np.random.default_rng(2)\nnames = [f\"c{i}\" for i in range(30)]\neffect = dict(zip(names, rng.normal(0, 1, 30)))\ncity = rng.choice(names, 6000)\nx1 = rng.normal(0, 1, 6000)\nchance = 1 / (1 + np.exp(-(1.5 * pd.Series(city).map(effect) + x1)))\ntarget = (rng.random(6000) < chance).astype(int)\ndf = pd.DataFrame({\"city\": pd.Categorical(city), \"x1\": x1})\ndf.loc[rng.random(6000) < 0.1, \"x1\"] = np.nan\nd_train, d_test, t_train, t_test = train_test_split(df, target, random_state=2)\nfrom sklearn.ensemble import HistGradientBoostingClassifier\n\n\ndef category_model(min_leaf):\n    model = HistGradientBoostingClassifier(min_samples_leaf=min_leaf, random_state=0,\n                                           categorical_features=\"from_dtype\")\n    model.fit(d_train, t_train)\n    score = model.score(d_test, t_test)\n    return [model.is_categorical_.tolist(), round(float(score), 3)]\n\nprint(category_model(20))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "category_model",
+      "cases": [
+        {
+          "args": [
+            20
+          ],
+          "returns": [
+            [
+              true,
+              false
+            ],
+            0.739
+          ]
+        },
+        {
+          "args": [
+            100
+          ],
+          "returns": [
+            [
+              true,
+              false
+            ],
+            0.741
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[True, False], 0.739]"
+    }
+  ]
+}
