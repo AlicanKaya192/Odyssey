@@ -1,0 +1,60 @@
+{
+  "id": "cluster-ari",
+  "title": {
+    "tr": "Kümelemeyi ölçmek",
+    "en": "Measuring a clustering"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`adjusted_rand_score(y, labels)` numaralara bakmaz.",
+      "en": "`adjusted_rand_score(y, labels)` ignores the numbers."
+    },
+    {
+      "tr": "`return round(float(adjusted_rand_score(y, labels)), 3)`.",
+      "en": "`return round(float(adjusted_rand_score(y, labels)), 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_blobs\n\nX, y = make_blobs(n_samples=300, centers=3, random_state=4)\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import accuracy_score, adjusted_rand_score\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef cluster_ari(k):\n    kmeans = KMeans(n_clusters=k, n_init=10, random_state=0)\n    labels = make_pipeline(StandardScaler(), kmeans).fit_predict(X)\n    return round(float(adjusted_rand_score(y, labels)), 3)\n\nprint(cluster_ari(3))\nprint(cluster_ari(2))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_blobs\n\nX, y = make_blobs(n_samples=300, centers=3, random_state=4)\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import accuracy_score, adjusted_rand_score\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef cluster_ari(k):\n    kmeans = KMeans(n_clusters=k, n_init=10, random_state=0)\n    labels = make_pipeline(StandardScaler(), kmeans).fit_predict(X)\n    return round(float(adjusted_rand_score(y, labels)), 3)\n\nprint(cluster_ari(3))\nprint(cluster_ari(2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cluster_ari",
+      "cases": [
+        {
+          "args": [
+            3
+          ],
+          "returns": 0.923
+        },
+        {
+          "args": [
+            2
+          ],
+          "returns": 0.57
+        },
+        {
+          "args": [
+            4
+          ],
+          "returns": 0.753
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.923\n0.57"
+    }
+  ]
+}
