@@ -1,0 +1,84 @@
+{
+  "id": "tag-counts",
+  "title": {
+    "tr": "Etiketleri say",
+    "en": "Count the tags"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce her metni listeye çevir: `.str.split(\",\")`; sonra `.explode()`.",
+      "en": "First turn each text into a list: `.str.split(\",\")`; then `.explode()`."
+    },
+    {
+      "tr": "`pd.Series(tags).str.split(\",\").explode().value_counts().sort_index().to_dict()`.",
+      "en": "`pd.Series(tags).str.split(\",\").explode().value_counts().sort_index().to_dict()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef tag_counts(tags):\n    s = pd.Series(tags).str.split(\",\").explode()\n    return s.value_counts().sort_index().to_dict()\n\nprint(tag_counts([\"gift,fast\", \"fast\", \"gift,eco,fast\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef tag_counts(tags):\n    s = pd.Series(tags).str.split(\",\").explode()\n    return s.value_counts().sort_index().to_dict()\n\nprint(tag_counts([\"gift,fast\", \"fast\", \"gift,eco,fast\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "tag_counts",
+      "cases": [
+        {
+          "args": [
+            [
+              "gift,fast",
+              "fast",
+              "gift,eco,fast"
+            ]
+          ],
+          "returns": {
+            "eco": 1,
+            "fast": 3,
+            "gift": 2
+          }
+        },
+        {
+          "args": [
+            [
+              "a"
+            ]
+          ],
+          "returns": {
+            "a": 1
+          }
+        },
+        {
+          "args": [
+            [
+              "b,a",
+              "a,b",
+              "c"
+            ]
+          ],
+          "returns": {
+            "a": 2,
+            "b": 2,
+            "c": 1
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'eco': 1, 'fast': 3, 'gift': 2}"
+    }
+  ]
+}

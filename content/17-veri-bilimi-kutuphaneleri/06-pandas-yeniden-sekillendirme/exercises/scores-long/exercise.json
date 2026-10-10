@@ -1,0 +1,147 @@
+{
+  "id": "scores-long",
+  "title": {
+    "tr": "Yıl sütun adında",
+    "en": "The year in the column name"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`pd.wide_to_long(wide, stubnames=\"score\", i=\"id\", j=\"year\", sep=\"_\")`.",
+      "en": "`pd.wide_to_long(wide, stubnames=\"score\", i=\"id\", j=\"year\", sep=\"_\")`."
+    },
+    {
+      "tr": "`.reset_index().sort_values([\"id\", \"year\"]).values.tolist()`.",
+      "en": "`.reset_index().sort_values([\"id\", \"year\"]).values.tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef scores_long(table):\n    wide = pd.DataFrame(table)\n    long = pd.wide_to_long(wide, stubnames=\"score\", i=\"id\", j=\"year\", sep=\"_\")\n    long = long.reset_index().sort_values([\"id\", \"year\"])\n    return long.values.tolist()\n\nTABLE = {\"id\": [1, 2], \"score_2024\": [60, 75], \"score_2025\": [70, 80]}\nprint(*scores_long(TABLE), sep=\"\\n\")\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef scores_long(table):\n    wide = pd.DataFrame(table)\n    long = pd.wide_to_long(wide, stubnames=\"score\", i=\"id\", j=\"year\", sep=\"_\")\n    long = long.reset_index().sort_values([\"id\", \"year\"])\n    return long.values.tolist()\n\nTABLE = {\"id\": [1, 2], \"score_2024\": [60, 75], \"score_2025\": [70, 80]}\nprint(*scores_long(TABLE), sep=\"\\n\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "scores_long",
+      "cases": [
+        {
+          "args": [
+            {
+              "id": [
+                1,
+                2
+              ],
+              "score_2024": [
+                60,
+                75
+              ],
+              "score_2025": [
+                70,
+                80
+              ]
+            }
+          ],
+          "returns": [
+            [
+              1,
+              2024,
+              60
+            ],
+            [
+              1,
+              2025,
+              70
+            ],
+            [
+              2,
+              2024,
+              75
+            ],
+            [
+              2,
+              2025,
+              80
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "id": [
+                7
+              ],
+              "score_2020": [
+                1
+              ],
+              "score_2021": [
+                2
+              ],
+              "score_2022": [
+                3
+              ]
+            }
+          ],
+          "returns": [
+            [
+              7,
+              2020,
+              1
+            ],
+            [
+              7,
+              2021,
+              2
+            ],
+            [
+              7,
+              2022,
+              3
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "id": [
+                3,
+                1
+              ],
+              "score_1": [
+                5,
+                6
+              ]
+            }
+          ],
+          "returns": [
+            [
+              1,
+              1,
+              6
+            ],
+            [
+              3,
+              1,
+              5
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 2024, 60]\n[1, 2025, 70]\n[2, 2024, 75]\n[2, 2025, 80]"
+    }
+  ]
+}

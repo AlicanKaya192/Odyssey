@@ -1,0 +1,142 @@
+{
+  "id": "to-long",
+  "title": {
+    "tr": "Genişten uzuna",
+    "en": "Wide to long"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`wide.melt(id_vars=\"city\", var_name=\"month\", value_name=\"sales\")`.",
+      "en": "`wide.melt(id_vars=\"city\", var_name=\"month\", value_name=\"sales\")`."
+    },
+    {
+      "tr": "Sonucu `.values.tolist()` ile döndür.",
+      "en": "Return the result with `.values.tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef to_long(rows, months):\n    wide = pd.DataFrame(rows, columns=[\"city\", *months])\n    long = wide.melt(id_vars=\"city\", var_name=\"month\", value_name=\"sales\")\n    return long.values.tolist()\n\nROWS = [[\"Izmir\", 80, 95], [\"Ankara\", 120, 110]]\nprint(*to_long(ROWS, [\"jan\", \"feb\"]), sep=\"\\n\")\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef to_long(rows, months):\n    wide = pd.DataFrame(rows, columns=[\"city\", *months])\n    long = wide.melt(id_vars=\"city\", var_name=\"month\", value_name=\"sales\")\n    return long.values.tolist()\n\nROWS = [[\"Izmir\", 80, 95], [\"Ankara\", 120, 110]]\nprint(*to_long(ROWS, [\"jan\", \"feb\"]), sep=\"\\n\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "to_long",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "Izmir",
+                80,
+                95
+              ],
+              [
+                "Ankara",
+                120,
+                110
+              ]
+            ],
+            [
+              "jan",
+              "feb"
+            ]
+          ],
+          "returns": [
+            [
+              "Izmir",
+              "jan",
+              80
+            ],
+            [
+              "Ankara",
+              "jan",
+              120
+            ],
+            [
+              "Izmir",
+              "feb",
+              95
+            ],
+            [
+              "Ankara",
+              "feb",
+              110
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "Van",
+                1,
+                2,
+                3
+              ]
+            ],
+            [
+              "a",
+              "b",
+              "c"
+            ]
+          ],
+          "returns": [
+            [
+              "Van",
+              "a",
+              1
+            ],
+            [
+              "Van",
+              "b",
+              2
+            ],
+            [
+              "Van",
+              "c",
+              3
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "X",
+                5
+              ]
+            ],
+            [
+              "q1"
+            ]
+          ],
+          "returns": [
+            [
+              "X",
+              "q1",
+              5
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['Izmir', 'jan', 80]\n['Ankara', 'jan', 120]\n['Izmir', 'feb', 95]\n['Ankara', 'feb', 110]"
+    }
+  ]
+}
