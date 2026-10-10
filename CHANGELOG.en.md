@@ -54,9 +54,13 @@ lecture note does not mean downloading the whole application again.
   and SciPy in depth: array types and broadcasting, the index and MultiIndex,
   combining, reshaping, time, text and categories, performance, chart types
   and customisation, statistical tests, optimisation. The charts in the
-  lessons are matplotlib's real output. New badges, the "Artisan",
-  "Architect" and "Cartographer" titles; a new step in the Data Scientist
-  route.
+  lessons are matplotlib's real output. **Machine Learning Libraries** (17
+  sections) walks a model's whole path with scikit-learn, statsmodels and
+  LightGBM: preprocessing and pipelines, hyperparameter search, validation
+  tools, metrics and the decision threshold, linear, tree and boosting
+  models, clustering, statistical inference, saving and explaining models.
+  New badges, the "Artisan", "Architect", "Cartographer" and "Alchemist"
+  titles; a new step in the Data Scientist route.
 
 ### Changed
 - **`raise` is explained in more depth.** The Python path's Handling Errors

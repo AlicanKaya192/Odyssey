@@ -52,8 +52,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   yayınlama, indeks ve MultiIndex, birleştirme, yeniden şekillendirme, zaman,
   metin ve kategori, performans, grafik türleri ve özelleştirme, istatistik
   testleri, en iyileme. Derslerdeki grafikler matplotlib'in gerçek çıktısı.
-  Yeni rozetler, "Zanaatkâr", "Mimar" ve "Kartograf" unvanları; Veri Bilimci
-  rotasına yeni adım.
+  **Makine Öğrenmesi Kütüphaneleri** (17 bölüm) bir modelin bütün yolunu
+  scikit-learn, statsmodels ve LightGBM ile anlatıyor: ön işleme ve pipeline,
+  hiperparametre arama, doğrulama araçları, metrikler ve karar eşiği,
+  doğrusal, ağaç ve boosting modelleri, kümeleme, istatistiksel çıkarım,
+  modeli kaydetmek ve açıklamak. Yeni rozetler, "Zanaatkâr", "Mimar",
+  "Kartograf" ve "Simyacı" unvanları; Veri Bilimci rotasına yeni adım.
 
 ### Değişti
 - **`raise` daha ayrıntılı anlatılıyor.** Python patikasının Hata Yakalama
