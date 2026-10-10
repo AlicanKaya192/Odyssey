@@ -1,0 +1,60 @@
+{
+  "id": "vote-score",
+  "title": {
+    "tr": "Yumuşak oylama",
+    "en": "Soft voting"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Yalnızca `voting` değişiyor.",
+      "en": "Only `voting` changes."
+    },
+    {
+      "tr": "`VotingClassifier(base, voting=\"soft\", weights=weights)`.",
+      "en": "`VotingClassifier(base, voting=\"soft\", weights=weights)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=600, n_features=10, n_informative=4,\n                           flip_y=0.1, random_state=8)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=8)\nfrom sklearn.ensemble import RandomForestClassifier, VotingClassifier\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef vote_score(weights):\n    base = [(\"lr\", make_pipeline(StandardScaler(), LogisticRegression())),\n            (\"rf\", RandomForestClassifier(n_estimators=100, random_state=0))]\n    vote = VotingClassifier(base, voting=\"soft\", weights=weights)\n    return round(float(cross_val_score(vote, X_train, y_train, cv=5).mean()), 3)\n\nprint(vote_score([1, 1]))\nprint(vote_score([1, 3]))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=600, n_features=10, n_informative=4,\n                           flip_y=0.1, random_state=8)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=8)\nfrom sklearn.ensemble import RandomForestClassifier, VotingClassifier\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef vote_score(weights):\n    base = [(\"lr\", make_pipeline(StandardScaler(), LogisticRegression())),\n            (\"rf\", RandomForestClassifier(n_estimators=100, random_state=0))]\n    vote = VotingClassifier(base, voting=\"soft\", weights=weights)\n    return round(float(cross_val_score(vote, X_train, y_train, cv=5).mean()), 3)\n\nprint(vote_score([1, 1]))\nprint(vote_score([1, 3]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "vote_score",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              1
+            ]
+          ],
+          "returns": 0.904
+        },
+        {
+          "args": [
+            [
+              1,
+              3
+            ]
+          ],
+          "returns": 0.907
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.904\n0.907"
+    }
+  ]
+}

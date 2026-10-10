@@ -1,0 +1,65 @@
+{
+  "id": "top-columns",
+  "title": {
+    "tr": "En önemli sütunlar",
+    "en": "The most important columns"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`rf.feature_importances_.argsort()[::-1]` büyükten küçüğe sıra numaraları.",
+      "en": "`rf.feature_importances_.argsort()[::-1]` gives the indices from largest to smallest."
+    },
+    {
+      "tr": "`order = rf.feature_importances_.argsort()[::-1]`; `[X.columns[i] for i in order[:k]]`.",
+      "en": "`order = rf.feature_importances_.argsort()[::-1]`; `[X.columns[i] for i in order[:k]]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom sklearn.datasets import load_breast_cancer\n\ndata = load_breast_cancer(as_frame=True)\nX = data.data.iloc[:, :5].copy()\ny = data.target\nrng = np.random.default_rng(0)\nX[\"row_id\"] = rng.permutation(len(X))\nX[\"coin\"] = rng.integers(0, 2, len(X))\nfrom sklearn.ensemble import RandomForestClassifier\n\n\ndef top_columns(k):\n    rf = RandomForestClassifier(n_estimators=200, random_state=0).fit(X, y)\n    order = rf.feature_importances_.argsort()[::-1]\n    return [X.columns[i] for i in order[:k]]\n\nprint(top_columns(2))\nprint(top_columns(7)[-2:])\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom sklearn.datasets import load_breast_cancer\n\ndata = load_breast_cancer(as_frame=True)\nX = data.data.iloc[:, :5].copy()\ny = data.target\nrng = np.random.default_rng(0)\nX[\"row_id\"] = rng.permutation(len(X))\nX[\"coin\"] = rng.integers(0, 2, len(X))\nfrom sklearn.ensemble import RandomForestClassifier\n\n\ndef top_columns(k):\n    rf = RandomForestClassifier(n_estimators=200, random_state=0).fit(X, y)\n    order = rf.feature_importances_.argsort()[::-1]\n    return [X.columns[i] for i in order[:k]]\n\nprint(top_columns(2))\nprint(top_columns(7)[-2:])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_columns",
+      "cases": [
+        {
+          "args": [
+            2
+          ],
+          "returns": [
+            "mean perimeter",
+            "mean area"
+          ]
+        },
+        {
+          "args": [
+            7
+          ],
+          "returns": [
+            "mean perimeter",
+            "mean area",
+            "mean radius",
+            "mean texture",
+            "mean smoothness",
+            "row_id",
+            "coin"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['mean perimeter', 'mean area']\n['row_id', 'coin']"
+    }
+  ]
+}

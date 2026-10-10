@@ -1,0 +1,88 @@
+{
+  "id": "leaf-table",
+  "title": {
+    "tr": "Yaprak boyu tablosu",
+    "en": "A leaf size table"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngüdeki model `min_samples_leaf=size` almalı.",
+      "en": "The model in the loop should get `min_samples_leaf=size`."
+    },
+    {
+      "tr": "`model = DecisionTreeClassifier(min_samples_leaf=size, random_state=0)`.",
+      "en": "`model = DecisionTreeClassifier(min_samples_leaf=size, random_state=0)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=600, n_features=10, n_informative=4,\n                           flip_y=0.1, random_state=8)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=8)\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.tree import DecisionTreeClassifier\n\n\ndef leaf_table(sizes):\n    rows = []\n    for size in sizes:\n        model = DecisionTreeClassifier(min_samples_leaf=size, random_state=0)\n        score = cross_val_score(model, X_train, y_train, cv=5).mean()\n        leaves = model.fit(X_train, y_train).get_n_leaves()\n        rows.append([size, int(leaves), round(float(score), 3)])\n    return rows\n\nprint(*leaf_table([1, 10, 30]), sep=\"\\n\")\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=600, n_features=10, n_informative=4,\n                           flip_y=0.1, random_state=8)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=8)\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.tree import DecisionTreeClassifier\n\n\ndef leaf_table(sizes):\n    rows = []\n    for size in sizes:\n        model = DecisionTreeClassifier(min_samples_leaf=size, random_state=0)\n        score = cross_val_score(model, X_train, y_train, cv=5).mean()\n        leaves = model.fit(X_train, y_train).get_n_leaves()\n        rows.append([size, int(leaves), round(float(score), 3)])\n    return rows\n\nprint(*leaf_table([1, 10, 30]), sep=\"\\n\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "leaf_table",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              10,
+              30
+            ]
+          ],
+          "returns": [
+            [
+              1,
+              48,
+              0.82
+            ],
+            [
+              10,
+              22,
+              0.851
+            ],
+            [
+              30,
+              10,
+              0.838
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              3,
+              100
+            ]
+          ],
+          "returns": [
+            [
+              3,
+              39,
+              0.831
+            ],
+            [
+              100,
+              4,
+              0.764
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 48, 0.82]\n[10, 22, 0.851]\n[30, 10, 0.838]"
+    }
+  ]
+}
