@@ -1,0 +1,49 @@
+{
+  "id": "claim-model",
+  "title": {
+    "tr": "Maruziyetle Poisson",
+    "en": "Poisson with exposure"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`smf.glm(..., family=sm.families.Poisson(), offset=np.log(d3[\"days\"]))`.",
+      "en": "`smf.glm(..., family=sm.families.Poisson(), offset=np.log(d3[\"days\"]))`."
+    },
+    {
+      "tr": "Yalnızca `smf.glm` çağrısına `offset=` ekleniyor.",
+      "en": "Only `offset=` is added to the `smf.glm` call."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\nimport statsmodels.formula.api as smf\n\nrng = np.random.default_rng(9)\ndays = rng.integers(10, 365, 500)\nrisk = rng.normal(0, 1, 500)\nclaims = rng.poisson(np.exp(-4 + 0.5 * risk) * days)\nd3 = pd.DataFrame({\"claims\": claims, \"risk\": risk, \"days\": days})\ndef claim_model():\n    res = smf.glm(\"claims ~ risk\", data=d3, family=sm.families.Poisson(),\n                  offset=np.log(d3[\"days\"])).fit()\n    return [round(float(np.exp(res.params[\"risk\"])), 3), round(float(res.params[\"Intercept\"]), 3)]\n\nprint(claim_model())\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\nimport statsmodels.formula.api as smf\n\nrng = np.random.default_rng(9)\ndays = rng.integers(10, 365, 500)\nrisk = rng.normal(0, 1, 500)\nclaims = rng.poisson(np.exp(-4 + 0.5 * risk) * days)\nd3 = pd.DataFrame({\"claims\": claims, \"risk\": risk, \"days\": days})\ndef claim_model():\n    res = smf.glm(\"claims ~ risk\", data=d3, family=sm.families.Poisson(),\n                  offset=np.log(d3[\"days\"])).fit()\n    return [round(float(np.exp(res.params[\"risk\"])), 3), round(float(res.params[\"Intercept\"]), 3)]\n\nprint(claim_model())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "claim_model",
+      "cases": [
+        {
+          "args": [],
+          "returns": [
+            1.578,
+            -3.958
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.578, -3.958]"
+    }
+  ]
+}

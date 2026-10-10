@@ -1,0 +1,54 @@
+{
+  "id": "interaction-slope",
+  "title": {
+    "tr": "Etkileşim",
+    "en": "Interaction"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`area + C(city)` yerine `area * C(city)`.",
+      "en": "`area * C(city)` instead of `area + C(city)`."
+    },
+    {
+      "tr": "`smf.ols(\"price2 ~ area * C(city) + age\", data=df).fit()`.",
+      "en": "`smf.ols(\"price2 ~ area * C(city) + age\", data=df).fit()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.formula.api as smf\n\nrng = np.random.default_rng(11)\ndf = pd.DataFrame({\n    \"area\": rng.uniform(50, 200, 300).round(),\n    \"city\": rng.choice([\"Ankara\", \"Izmir\", \"Istanbul\"], 300),\n    \"age\": rng.uniform(0, 40, 300).round(),\n})\nbonus = df[\"city\"].map({\"Ankara\": 0, \"Izmir\": 40, \"Istanbul\": 120})\ndf[\"price\"] = 50 + 3 * df[\"area\"] - 2 * df[\"age\"] + bonus + rng.normal(0, 30, 300)\nextra = 1.5 * df[\"area\"] * (df[\"city\"] == \"Istanbul\")\ndf[\"price2\"] = 50 + 3 * df[\"area\"] + extra - 2 * df[\"age\"] + rng.normal(0, 30, 300)\ndef interaction_slope(city):\n    res = smf.ols(\"price2 ~ area * C(city) + age\", data=df).fit()\n    return round(float(res.params[f\"area:C(city)[T.{city}]\"]), 2)\n\nprint(interaction_slope(\"Istanbul\"))\nprint(interaction_slope(\"Izmir\"))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.formula.api as smf\n\nrng = np.random.default_rng(11)\ndf = pd.DataFrame({\n    \"area\": rng.uniform(50, 200, 300).round(),\n    \"city\": rng.choice([\"Ankara\", \"Izmir\", \"Istanbul\"], 300),\n    \"age\": rng.uniform(0, 40, 300).round(),\n})\nbonus = df[\"city\"].map({\"Ankara\": 0, \"Izmir\": 40, \"Istanbul\": 120})\ndf[\"price\"] = 50 + 3 * df[\"area\"] - 2 * df[\"age\"] + bonus + rng.normal(0, 30, 300)\nextra = 1.5 * df[\"area\"] * (df[\"city\"] == \"Istanbul\")\ndf[\"price2\"] = 50 + 3 * df[\"area\"] + extra - 2 * df[\"age\"] + rng.normal(0, 30, 300)\ndef interaction_slope(city):\n    res = smf.ols(\"price2 ~ area * C(city) + age\", data=df).fit()\n    return round(float(res.params[f\"area:C(city)[T.{city}]\"]), 2)\n\nprint(interaction_slope(\"Istanbul\"))\nprint(interaction_slope(\"Izmir\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "interaction_slope",
+      "cases": [
+        {
+          "args": [
+            "Istanbul"
+          ],
+          "returns": 1.49
+        },
+        {
+          "args": [
+            "Izmir"
+          ],
+          "returns": -0.02
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.49\n-0.02"
+    }
+  ]
+}
