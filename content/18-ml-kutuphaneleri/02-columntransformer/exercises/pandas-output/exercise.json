@@ -1,0 +1,106 @@
+{
+  "id": "pandas-output",
+  "title": {
+    "tr": "Sütun adlı çıktı",
+    "en": "Output with column names"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "`prep.set_output(transform=\"pandas\")` çıktıyı DataFrame yapar; sütun `out[\"size\"]`.",
+      "en": "`prep.set_output(transform=\"pandas\")` makes the output a DataFrame; the column is `out[\"size\"]`."
+    },
+    {
+      "tr": "Üçüncü satır: `float(out[\"size\"].iloc[2])`.",
+      "en": "The third row: `float(out[\"size\"].iloc[2])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\n\ndef prep_frame(rows):\n    df = pd.DataFrame(rows, columns=[\"size\", \"city\", \"id\"])\n    onehot = OneHotEncoder(handle_unknown=\"ignore\", sparse_output=False)\n    prep = ColumnTransformer([(\"num\", SimpleImputer(strategy=\"median\"), [\"size\"]),\n                              (\"cat\", onehot, [\"city\"])],\n                             verbose_feature_names_out=False)\n    prep.set_output(transform=\"pandas\")\n    out = prep.fit_transform(df)\n    return [out.columns.tolist(), float(out[\"size\"].iloc[2])]\n\nROWS = [[80.0, \"Izmir\", 1], [120.0, \"Ankara\", 2], [None, \"Izmir\", 3], [95.0, \"Bursa\", 4]]\ncolumns, size = prep_frame(ROWS)\nprint(*columns, sep=\"\\n\")\nprint(size)\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\n\ndef prep_frame(rows):\n    df = pd.DataFrame(rows, columns=[\"size\", \"city\", \"id\"])\n    onehot = OneHotEncoder(handle_unknown=\"ignore\", sparse_output=False)\n    prep = ColumnTransformer([(\"num\", SimpleImputer(strategy=\"median\"), [\"size\"]),\n                              (\"cat\", onehot, [\"city\"])],\n                             verbose_feature_names_out=False)\n    prep.set_output(transform=\"pandas\")\n    out = prep.fit_transform(df)\n    return [out.columns.tolist(), float(out[\"size\"].iloc[2])]\n\nROWS = [[80.0, \"Izmir\", 1], [120.0, \"Ankara\", 2], [None, \"Izmir\", 3], [95.0, \"Bursa\", 4]]\ncolumns, size = prep_frame(ROWS)\nprint(*columns, sep=\"\\n\")\nprint(size)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "prep_frame",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                80.0,
+                "Izmir",
+                1
+              ],
+              [
+                120.0,
+                "Ankara",
+                2
+              ],
+              [
+                null,
+                "Izmir",
+                3
+              ],
+              [
+                95.0,
+                "Bursa",
+                4
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "size",
+              "city_Ankara",
+              "city_Bursa",
+              "city_Izmir"
+            ],
+            95.0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                "a",
+                1
+              ],
+              [
+                3.0,
+                "b",
+                2
+              ],
+              [
+                null,
+                "a",
+                3
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "size",
+              "city_a",
+              "city_b"
+            ],
+            2.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "size\ncity_Ankara\ncity_Bursa\ncity_Izmir\n95.0"
+    }
+  ]
+}
