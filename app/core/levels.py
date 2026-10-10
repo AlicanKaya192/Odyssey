@@ -29,11 +29,12 @@ SECTION_XP = 60
 TIER_XP = {"bronze": 100, "silver": 200, "gold": 400, "legendary": 1000}
 
 MAX_LEVEL = 50
-# Bir sonraki seviye için gereken XP: 1 → 2 için 100, her seviyede 55 artıyor.
-# (1.0'da 40'tan 55'e çıktı: algoritma patikasıyla içeriğin tamamı 42'ye
-# ulaşmıştı; 50 ileride yazılacak patikalara kalsın.)
+# Bir sonraki seviye için gereken XP: 1 → 2 için 100, her seviyede 70 artıyor.
+# (1.0'da 40'tan önce 55'e, Temel Kütüphaneler'in üç modülüyle 70'e çıktı:
+# içeriğin tamamı yine 42'ye ulaşmıştı; 40 ve 50 ileride yazılacak
+# patikalara kalsın.)
 FIRST_STEP = 100
-STEP_GROWTH = 55
+STEP_GROWTH = 70
 
 SEEN_LEVEL_KEY = "level_seen"
 EARNED_TAGS_KEY = "tags_earned"
@@ -67,6 +68,7 @@ BADGE_TAGS = {
     "daedalus": "alg3-complete",
     "artisan": "pylib1-complete",
     "architect": "pylib2-complete",
+    "cartographer": "dslib-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200

@@ -285,6 +285,27 @@ GLYPHS: dict[str, str] = {
                   '<path d="M19.3 16.6L20.8 16.6M18.1 18.8L18.8 20.1M15.6 18.8L14.8 20.1M14.3 16.6L12.8 16.6'
                   'M15.5 14.4L14.8 13.1M18.1 14.4L18.8 13.1" stroke-width="1.9"/>'
                   '<g fill="#fff" stroke="none"><circle cx="9" cy="9.5" r="1.3"/><circle cx="16.8" cy="16.6" r="0.9"/></g>'),
+    "broadcast-grid": ('<rect x="3" y="2.5" width="18" height="4.5" rx="1" stroke-width="1.5"/>'
+                       '<path d="M5.5 9.6 7 11.1l1.5-1.5M10.5 9.6 12 11.1l1.5-1.5M15.5 9.6 17 11.1l1.5-1.5"'
+                       ' stroke-width="1.3"/>'
+                       '<rect x="3" y="13" width="18" height="8.5" rx="1" stroke-width="1.5"/>'
+                       '<path d="M9 13v8.5M15 13v8.5M3 17.25h18" stroke-width="1.1"/>'
+                       '<g fill="#fff" stroke="none"><circle cx="6" cy="4.75" r="0.9"/><circle cx="12" cy="4.75" r="0.9"/>'
+                       '<circle cx="18" cy="4.75" r="0.9"/></g>'),
+    "pivot-arrows": ('<rect x="2.5" y="3.5" width="6" height="17" rx="1" stroke-width="1.5"/>'
+                     '<path d="M2.5 9.2h6M2.5 14.8h6" stroke-width="1.1"/>'
+                     '<rect x="11.5" y="13.5" width="10" height="6.5" rx="1" stroke-width="1.5"/>'
+                     '<path d="M14.8 13.5v6.5M18.2 13.5v6.5" stroke-width="1.1"/>'
+                     '<path d="M10.5 6c4.2 0 6.3 1.7 6.3 4.6" stroke-width="1.6"/>'
+                     '<path d="M14.8 9.2l2 2 2-2" stroke-width="1.6"/>'),
+    "bell-check": ('<path d="M2 19C6.5 19 8.2 5.5 12 5.5S17.5 19 22 19" stroke-width="1.6"/>'
+                   '<path d="M2 19.5h20" stroke-width="1.2"/>'
+                   '<path d="M17 15.4c1.1 2.2 2.4 3.6 4.5 3.6v.5H17z" fill="#fff" stroke="none"/>'
+                   '<path d="M8.2 13.2l2.2 2.2 4.2-4.8" stroke-width="1.9"/>'),
+    "array-chart": ('<rect x="3" y="3" width="18" height="18" rx="2" stroke-width="1.5"/>'
+                    '<path d="M3 9h18M3 15h18M9 3v18M15 3v18" stroke-width="0.8"/>'
+                    '<path d="M5.5 18l4.5-5 3.5 2.5 5-8" stroke-width="2.1"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="18.5" cy="7.5" r="1.6"/></g>'),
 }
 
 
