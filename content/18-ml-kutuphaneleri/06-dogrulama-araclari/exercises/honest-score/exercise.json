@@ -1,0 +1,60 @@
+{
+  "id": "honest-score",
+  "title": {
+    "tr": "Hastaya göre doğrulama",
+    "en": "Validating by patient"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "İkinci skorda bölücü `GroupKFold(5)`; grupları `cross_val_score`'a `groups=` ile ver.",
+      "en": "In the second score the splitter is `GroupKFold(5)`; pass the groups to `cross_val_score` with `groups=`."
+    },
+    {
+      "tr": "`grouped = cross_val_score(model, X, y, cv=GroupKFold(5), groups=groups)`.",
+      "en": "`grouped = cross_val_score(model, X, y, cv=GroupKFold(5), groups=groups)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\nrng = np.random.default_rng(5)\ncenters = rng.normal(size=(30, 4))\nlabels = rng.integers(0, 2, size=30)\ngroups = np.repeat(np.arange(30), 5)\nX = centers[groups] + rng.normal(scale=0.1, size=(150, 4))\ny = labels[groups]\nfrom sklearn.model_selection import GroupKFold, KFold, cross_val_score\nfrom sklearn.neighbors import KNeighborsClassifier\n\n\ndef honest_score(k):\n    model = KNeighborsClassifier(n_neighbors=k)\n    plain = cross_val_score(model, X, y, cv=KFold(5, shuffle=True, random_state=0))\n    grouped = cross_val_score(model, X, y, cv=GroupKFold(5), groups=groups)\n    return [round(float(plain.mean()), 3), round(float(grouped.mean()), 3)]\n\nprint(honest_score(3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\nrng = np.random.default_rng(5)\ncenters = rng.normal(size=(30, 4))\nlabels = rng.integers(0, 2, size=30)\ngroups = np.repeat(np.arange(30), 5)\nX = centers[groups] + rng.normal(scale=0.1, size=(150, 4))\ny = labels[groups]\nfrom sklearn.model_selection import GroupKFold, KFold, cross_val_score\nfrom sklearn.neighbors import KNeighborsClassifier\n\n\ndef honest_score(k):\n    model = KNeighborsClassifier(n_neighbors=k)\n    plain = cross_val_score(model, X, y, cv=KFold(5, shuffle=True, random_state=0))\n    grouped = cross_val_score(model, X, y, cv=GroupKFold(5), groups=groups)\n    return [round(float(plain.mean()), 3), round(float(grouped.mean()), 3)]\n\nprint(honest_score(3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "honest_score",
+      "cases": [
+        {
+          "args": [
+            3
+          ],
+          "returns": [
+            1.0,
+            0.52
+          ]
+        },
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            1.0,
+            0.493
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.0, 0.52]"
+    }
+  ]
+}
