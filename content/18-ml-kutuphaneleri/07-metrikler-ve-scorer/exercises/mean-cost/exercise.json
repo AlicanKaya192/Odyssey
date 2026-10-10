@@ -1,0 +1,63 @@
+{
+  "id": "mean-cost",
+  "title": {
+    "tr": "Maliyet scorer'ı",
+    "en": "A cost scorer"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Maliyet küçük olmalı: `greater_is_better=False`. Scorer o zaman eksi döndürür, `-scores.mean()` artı olur.",
+      "en": "The cost should be small: `greater_is_better=False`. The scorer then returns negatives and `-scores.mean()` is positive."
+    },
+    {
+      "tr": "`scorer = make_scorer(cost, greater_is_better=False)`.",
+      "en": "`scorer = make_scorer(cost, greater_is_better=False)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=1000, n_features=8, n_informative=4,\n                           weights=[0.9], flip_y=0.02, random_state=7)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=7,\n                                                    stratify=y)\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import confusion_matrix, make_scorer\nfrom sklearn.model_selection import cross_val_score\n\n\ndef mean_cost(fn_cost, weight):\n    def cost(y_true, y_pred):\n        tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()\n        return int(fp + fn * fn_cost)\n\n    scorer = make_scorer(cost, greater_is_better=False)\n    model = LogisticRegression(class_weight=weight)\n    scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scorer)\n    return round(float(-scores.mean()), 1)\n\nprint(mean_cost(10, None))\nprint(mean_cost(10, \"balanced\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=1000, n_features=8, n_informative=4,\n                           weights=[0.9], flip_y=0.02, random_state=7)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=7,\n                                                    stratify=y)\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import confusion_matrix, make_scorer\nfrom sklearn.model_selection import cross_val_score\n\n\ndef mean_cost(fn_cost, weight):\n    def cost(y_true, y_pred):\n        tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()\n        return int(fp + fn * fn_cost)\n\n    scorer = make_scorer(cost, greater_is_better=False)\n    model = LogisticRegression(class_weight=weight)\n    scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scorer)\n    return round(float(-scores.mean()), 1)\n\nprint(mean_cost(10, None))\nprint(mean_cost(10, \"balanced\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mean_cost",
+      "cases": [
+        {
+          "args": [
+            10,
+            null
+          ],
+          "returns": 26.4
+        },
+        {
+          "args": [
+            10,
+            "balanced"
+          ],
+          "returns": 21.6
+        },
+        {
+          "args": [
+            2,
+            null
+          ],
+          "returns": 5.6
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "26.4\n21.6"
+    }
+  ]
+}

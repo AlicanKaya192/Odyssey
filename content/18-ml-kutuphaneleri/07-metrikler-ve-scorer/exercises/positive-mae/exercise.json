@@ -1,0 +1,60 @@
+{
+  "id": "positive-mae",
+  "title": {
+    "tr": "Eksi işaret",
+    "en": "The minus sign"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Skorlar eksi; MAE onların ortalamasının eksisi.",
+      "en": "The scores are negative; the MAE is the negative of their mean."
+    },
+    {
+      "tr": "`return round(float(-scores.mean()), 2)`.",
+      "en": "`return round(float(-scores.mean()), 2)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_regression\n\nX, y = make_regression(n_samples=200, n_features=4, noise=20, random_state=1)\nfrom sklearn.linear_model import Ridge\nfrom sklearn.model_selection import cross_val_score\n\n\ndef positive_mae(alpha):\n    scores = cross_val_score(Ridge(alpha=alpha), X, y, cv=5,\n                             scoring=\"neg_mean_absolute_error\")\n    return round(float(-scores.mean()), 2)\n\nprint(positive_mae(1.0))\nprint(positive_mae(100.0))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_regression\n\nX, y = make_regression(n_samples=200, n_features=4, noise=20, random_state=1)\nfrom sklearn.linear_model import Ridge\nfrom sklearn.model_selection import cross_val_score\n\n\ndef positive_mae(alpha):\n    scores = cross_val_score(Ridge(alpha=alpha), X, y, cv=5,\n                             scoring=\"neg_mean_absolute_error\")\n    return round(float(-scores.mean()), 2)\n\nprint(positive_mae(1.0))\nprint(positive_mae(100.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "positive_mae",
+      "cases": [
+        {
+          "args": [
+            1.0
+          ],
+          "returns": 14.19
+        },
+        {
+          "args": [
+            100.0
+          ],
+          "returns": 39.76
+        },
+        {
+          "args": [
+            0.1
+          ],
+          "returns": 14.21
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "14.19\n39.76"
+    }
+  ]
+}

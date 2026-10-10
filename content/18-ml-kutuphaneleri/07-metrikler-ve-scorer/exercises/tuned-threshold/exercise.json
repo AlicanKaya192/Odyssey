@@ -1,0 +1,60 @@
+{
+  "id": "tuned-threshold",
+  "title": {
+    "tr": "Eşiği ayarlamak",
+    "en": "Tuning the threshold"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "`scorer = make_scorer(cost, greater_is_better=False, fn_cost=fn_cost)`; ek ayar `cost`'a geçer.",
+      "en": "`scorer = make_scorer(cost, greater_is_better=False, fn_cost=fn_cost)`; the extra setting passes to `cost`."
+    },
+    {
+      "tr": "`tuned = TunedThresholdClassifierCV(LogisticRegression(), scoring=scorer, cv=5).fit(X_train, y_train)`; sonra `tuned.best_threshold_` ve `tuned.predict(X_test)`.",
+      "en": "`tuned = TunedThresholdClassifierCV(LogisticRegression(), scoring=scorer, cv=5).fit(X_train, y_train)`; then `tuned.best_threshold_` and `tuned.predict(X_test)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=1000, n_features=8, n_informative=4,\n                           weights=[0.9], flip_y=0.02, random_state=7)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=7,\n                                                    stratify=y)\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import confusion_matrix, make_scorer\nfrom sklearn.model_selection import TunedThresholdClassifierCV\n\n\ndef cost(y_true, y_pred, fn_cost):\n    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()\n    return int(fp + fn * fn_cost)\n\n\ndef tuned_threshold(fn_cost):\n    scorer = make_scorer(cost, greater_is_better=False, fn_cost=fn_cost)\n    tuned = TunedThresholdClassifierCV(LogisticRegression(), scoring=scorer, cv=5)\n    tuned.fit(X_train, y_train)\n    return [round(float(tuned.best_threshold_), 3), cost(y_test, tuned.predict(X_test), fn_cost)]\n\nprint(tuned_threshold(1))\nprint(tuned_threshold(10))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=1000, n_features=8, n_informative=4,\n                           weights=[0.9], flip_y=0.02, random_state=7)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=7,\n                                                    stratify=y)\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import confusion_matrix, make_scorer\nfrom sklearn.model_selection import TunedThresholdClassifierCV\n\n\ndef cost(y_true, y_pred, fn_cost):\n    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()\n    return int(fp + fn * fn_cost)\n\n\ndef tuned_threshold(fn_cost):\n    scorer = make_scorer(cost, greater_is_better=False, fn_cost=fn_cost)\n    tuned = TunedThresholdClassifierCV(LogisticRegression(), scoring=scorer, cv=5)\n    tuned.fit(X_train, y_train)\n    return [round(float(tuned.best_threshold_), 3), cost(y_test, tuned.predict(X_test), fn_cost)]\n\nprint(tuned_threshold(1))\nprint(tuned_threshold(10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "tuned_threshold",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            0.455,
+            4
+          ]
+        },
+        {
+          "args": [
+            10
+          ],
+          "returns": [
+            0.293,
+            43
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.455, 4]\n[0.293, 43]"
+    }
+  ]
+}
