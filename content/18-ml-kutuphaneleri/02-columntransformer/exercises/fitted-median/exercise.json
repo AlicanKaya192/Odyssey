@@ -1,0 +1,96 @@
+{
+  "id": "fitted-median",
+  "title": {
+    "tr": "Öğrenilen medyan",
+    "en": "The learned median"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Eğitilmiş parçalar `named_transformers_` sözlüğünde.",
+      "en": "Fitted parts are in the `named_transformers_` dictionary."
+    },
+    {
+      "tr": "`float(prep.named_transformers_[\"num\"].statistics_[0])`.",
+      "en": "`float(prep.named_transformers_[\"num\"].statistics_[0])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\n\ndef fitted_median(rows):\n    df = pd.DataFrame(rows, columns=[\"size\", \"city\", \"id\"])\n    prep = ColumnTransformer([(\"num\", SimpleImputer(strategy=\"median\"), [\"size\"])]).fit(df)\n    return float(prep.named_transformers_[\"num\"].statistics_[0])\n\nROWS = [[80.0, \"Izmir\", 1], [120.0, \"Ankara\", 2], [None, \"Izmir\", 3], [95.0, \"Bursa\", 4]]\nprint(fitted_median(ROWS))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\n\ndef fitted_median(rows):\n    df = pd.DataFrame(rows, columns=[\"size\", \"city\", \"id\"])\n    prep = ColumnTransformer([(\"num\", SimpleImputer(strategy=\"median\"), [\"size\"])]).fit(df)\n    return float(prep.named_transformers_[\"num\"].statistics_[0])\n\nROWS = [[80.0, \"Izmir\", 1], [120.0, \"Ankara\", 2], [None, \"Izmir\", 3], [95.0, \"Bursa\", 4]]\nprint(fitted_median(ROWS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fitted_median",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                80.0,
+                "Izmir",
+                1
+              ],
+              [
+                120.0,
+                "Ankara",
+                2
+              ],
+              [
+                null,
+                "Izmir",
+                3
+              ],
+              [
+                95.0,
+                "Bursa",
+                4
+              ]
+            ]
+          ],
+          "returns": 95.0
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                "a",
+                1
+              ],
+              [
+                9.0,
+                "b",
+                2
+              ],
+              [
+                null,
+                "c",
+                3
+              ],
+              [
+                4.0,
+                "d",
+                4
+              ]
+            ]
+          ],
+          "returns": 4.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "95.0"
+    }
+  ]
+}
