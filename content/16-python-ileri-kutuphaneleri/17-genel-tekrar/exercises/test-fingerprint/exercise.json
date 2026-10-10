@@ -1,0 +1,80 @@
+{
+  "id": "test-fingerprint",
+  "title": {
+    "tr": "Parmak izini test et",
+    "en": "Test the fingerprint"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "tools.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`self.assertEqual(len(fingerprint(\"hello\")), 12)`.",
+      "en": "`self.assertEqual(len(fingerprint(\"hello\")), 12)`."
+    },
+    {
+      "tr": "Farklılık için `self.assertNotEqual(fingerprint(\"hello\"), fingerprint(\"hello!\"))`.",
+      "en": "For the difference, `self.assertNotEqual(fingerprint(\"hello\"), fingerprint(\"hello!\"))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport unittest\n\nfrom tools import fingerprint\n\n\nclass TestFingerprint(unittest.TestCase):\n    def test_length(self):\n        self.assertEqual(len(fingerprint(\"hello\")), 12)\n\n    def test_same_text(self):\n        self.assertEqual(fingerprint(\"Hello\"), fingerprint(\"  hello  \"))\n\n    def test_different_text(self):\n        self.assertNotEqual(fingerprint(\"hello\"), fingerprint(\"hello!\"))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport unittest\n\nfrom tools import fingerprint\n\n\nclass TestFingerprint(unittest.TestCase):\n    def test_length(self):\n        self.assertEqual(len(fingerprint(\"hello\")), 12)\n\n    def test_same_text(self):\n        self.assertEqual(fingerprint(\"Hello\"), fingerprint(\"  hello  \"))\n\n    def test_different_text(self):\n        self.assertNotEqual(fingerprint(\"hello\"), fingerprint(\"hello!\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "main.py",
+      "min": 3,
+      "mutants": [
+        {
+          "file": "tools.py",
+          "source": "import hashlib\n\n\ndef fingerprint(text):\n    clean = text.lower()\n    return hashlib.sha256(clean.encode()).hexdigest()[:12]\n",
+          "bug": {
+            "tr": "boşluklar kırpılmıyor.",
+            "en": "spaces are not trimmed."
+          }
+        },
+        {
+          "file": "tools.py",
+          "source": "import hashlib\n\n\ndef fingerprint(text):\n    clean = text.strip()\n    return hashlib.sha256(clean.encode()).hexdigest()[:12]\n",
+          "bug": {
+            "tr": "büyük/küçük harf farkı kalıyor.",
+            "en": "upper and lower case still differ."
+          }
+        },
+        {
+          "file": "tools.py",
+          "source": "import hashlib\n\n\ndef fingerprint(text):\n    clean = text.strip().lower()\n    return hashlib.sha256(clean.encode()).hexdigest()[:10]\n",
+          "bug": {
+            "tr": "parmak izi 10 karakter.",
+            "en": "the fingerprint has 10 characters."
+          }
+        },
+        {
+          "file": "tools.py",
+          "source": "import hashlib\n\n\ndef fingerprint(text):\n    clean = text.strip().lower()\n    return hashlib.sha256(b\"x\").hexdigest()[:12]\n",
+          "bug": {
+            "tr": "her metin aynı parmak izini veriyor.",
+            "en": "every text gives the same fingerprint."
+          }
+        }
+      ]
+    }
+  ]
+}

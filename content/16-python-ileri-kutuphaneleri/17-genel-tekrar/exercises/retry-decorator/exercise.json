@@ -1,0 +1,36 @@
+{
+  "id": "retry-decorator",
+  "title": {
+    "tr": "Yeniden deneyen süsleyici",
+    "en": "A retrying decorator"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`wrapper` içinde `for attempt in range(1, times + 1):` ve `try: return func(*args, **kwargs)`.",
+      "en": "Inside `wrapper`, `for attempt in range(1, times + 1):` and `try: return func(*args, **kwargs)`."
+    },
+    {
+      "tr": "`except ValueError as error:` içinde son denemeyse `raise`, değilse `log.warning(...)`; `wrapper`'ın üstüne `@functools.wraps(func)`.",
+      "en": "In `except ValueError as error:`, `raise` on the last attempt, otherwise `log.warning(...)`; put `@functools.wraps(func)` above `wrapper`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport functools\nimport io\nimport logging\n\nlog = logging.getLogger(\"retry\")\n\n\ndef retry(times):\n    def decorate(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            for attempt in range(1, times + 1):\n                try:\n                    return func(*args, **kwargs)\n                except ValueError as error:\n                    if attempt == times:\n                        raise\n                    log.warning(\"retry %d: %s\", attempt, error)\n        return wrapper\n    return decorate\n\nstream = io.StringIO()\nhandler = logging.StreamHandler(stream)\nhandler.setFormatter(logging.Formatter(\"%(levelname)s %(message)s\"))\nlog.addHandler(handler)\nlog.setLevel(logging.WARNING)\ncalls = []\n\n\n@retry(3)\ndef flaky():\n    \"\"\"Fail twice, then work.\"\"\"\n    calls.append(1)\n    if len(calls) < 3:\n        raise ValueError(f\"try {len(calls)}\")\n    return \"ok\"\n\n\nprint(flaky(), len(calls), flaky.__name__)\nprint(stream.getvalue().strip())\n```",
+      "en": "The full solution:\n\n```python\nimport functools\nimport io\nimport logging\n\nlog = logging.getLogger(\"retry\")\n\n\ndef retry(times):\n    def decorate(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            for attempt in range(1, times + 1):\n                try:\n                    return func(*args, **kwargs)\n                except ValueError as error:\n                    if attempt == times:\n                        raise\n                    log.warning(\"retry %d: %s\", attempt, error)\n        return wrapper\n    return decorate\n\nstream = io.StringIO()\nhandler = logging.StreamHandler(stream)\nhandler.setFormatter(logging.Formatter(\"%(levelname)s %(message)s\"))\nlog.addHandler(handler)\nlog.setLevel(logging.WARNING)\ncalls = []\n\n\n@retry(3)\ndef flaky():\n    \"\"\"Fail twice, then work.\"\"\"\n    calls.append(1)\n    if len(calls) < 3:\n        raise ValueError(f\"try {len(calls)}\")\n    return \"ok\"\n\n\nprint(flaky(), len(calls), flaky.__name__)\nprint(stream.getvalue().strip())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok 3 flaky\nWARNING retry 1: try 1\nWARNING retry 2: try 2"
+    }
+  ]
+}

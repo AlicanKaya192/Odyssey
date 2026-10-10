@@ -1,0 +1,83 @@
+{
+  "id": "parallel-word-count",
+  "title": {
+    "tr": "Paralel kelime sayımı",
+    "en": "Parallel word count"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir metni sayan yardımcı: `def count(text): return Counter(text.split())`.",
+      "en": "A helper counting one text: `def count(text): return Counter(text.split())`."
+    },
+    {
+      "tr": "`for part in pool.map(count, texts): total += part`; sonda `total.most_common(n)`.",
+      "en": "`for part in pool.map(count, texts): total += part`; at the end `total.most_common(n)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\nfrom concurrent.futures import ThreadPoolExecutor\n\n\ndef count(text):\n    return Counter(text.split())\n\n\ndef top_words(texts, n):\n    total = Counter()\n    with ThreadPoolExecutor() as pool:\n        for part in pool.map(count, texts):\n            total += part\n    return [[word, k] for word, k in total.most_common(n)]\n\ntexts = [\"a b a\", \"b a c\", \"a c c d\"]\nprint(top_words(texts, 2))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\nfrom concurrent.futures import ThreadPoolExecutor\n\n\ndef count(text):\n    return Counter(text.split())\n\n\ndef top_words(texts, n):\n    total = Counter()\n    with ThreadPoolExecutor() as pool:\n        for part in pool.map(count, texts):\n            total += part\n    return [[word, k] for word, k in total.most_common(n)]\n\ntexts = [\"a b a\", \"b a c\", \"a c c d\"]\nprint(top_words(texts, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_words",
+      "cases": [
+        {
+          "args": [
+            [
+              "a b a",
+              "b a c",
+              "a c c d"
+            ],
+            2
+          ],
+          "returns": [
+            [
+              "a",
+              4
+            ],
+            [
+              "c",
+              3
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "x"
+            ],
+            3
+          ],
+          "returns": [
+            [
+              "x",
+              1
+            ]
+          ]
+        },
+        {
+          "args": [
+            [],
+            1
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[['a', 4], ['c', 3]]"
+    }
+  ]
+}
