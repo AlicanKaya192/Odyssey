@@ -1,0 +1,79 @@
+{
+  "id": "json-proba",
+  "title": {
+    "tr": "JSON'dan tahmin",
+    "en": "Predicting from JSON"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ölçekleme: `(np.array(rows) - np.array(p[\"mean\"])) / np.array(p[\"scale\"])`.",
+      "en": "Scaling: `(np.array(rows) - np.array(p[\"mean\"])) / np.array(p[\"scale\"])`."
+    },
+    {
+      "tr": "`z = (np.array(rows) - np.array(p[\"mean\"])) / np.array(p[\"scale\"])`; gerisi aynı.",
+      "en": "`z = (np.array(rows) - np.array(p[\"mean\"])) / np.array(p[\"scale\"])`; the rest stays."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\nfrom sklearn.datasets import make_classification\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\nX, y = make_classification(n_samples=500, n_features=4, n_informative=3,\n                           n_redundant=0, random_state=2)\nCOLUMNS = [\"age\", \"income\", \"visits\", \"score\"]\nX = pd.DataFrame(X, columns=COLUMNS)\nmodel = make_pipeline(StandardScaler(), LogisticRegression()).fit(X, y)\nimport json\n\nimport numpy as np\n\nscaler, clf = model[0], model[-1]\nTEXT = json.dumps({\"mean\": scaler.mean_.tolist(), \"scale\": scaler.scale_.tolist(),\n                   \"coef\": clf.coef_[0].tolist(), \"intercept\": float(clf.intercept_[0])})\n\n\ndef json_proba(rows):\n    p = json.loads(TEXT)\n    z = (np.array(rows) - np.array(p[\"mean\"])) / np.array(p[\"scale\"])\n    proba = 1 / (1 + np.exp(-(z @ np.array(p[\"coef\"]) + p[\"intercept\"])))\n    return proba.round(3).tolist()\n\nprint(json_proba([[0.5, -1.0, 0.3, 1.2], [-0.2, 1.5, -0.7, 0.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\nfrom sklearn.datasets import make_classification\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\nX, y = make_classification(n_samples=500, n_features=4, n_informative=3,\n                           n_redundant=0, random_state=2)\nCOLUMNS = [\"age\", \"income\", \"visits\", \"score\"]\nX = pd.DataFrame(X, columns=COLUMNS)\nmodel = make_pipeline(StandardScaler(), LogisticRegression()).fit(X, y)\nimport json\n\nimport numpy as np\n\nscaler, clf = model[0], model[-1]\nTEXT = json.dumps({\"mean\": scaler.mean_.tolist(), \"scale\": scaler.scale_.tolist(),\n                   \"coef\": clf.coef_[0].tolist(), \"intercept\": float(clf.intercept_[0])})\n\n\ndef json_proba(rows):\n    p = json.loads(TEXT)\n    z = (np.array(rows) - np.array(p[\"mean\"])) / np.array(p[\"scale\"])\n    proba = 1 / (1 + np.exp(-(z @ np.array(p[\"coef\"]) + p[\"intercept\"])))\n    return proba.round(3).tolist()\n\nprint(json_proba([[0.5, -1.0, 0.3, 1.2], [-0.2, 1.5, -0.7, 0.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "json_proba",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.5,
+                -1.0,
+                0.3,
+                1.2
+              ],
+              [
+                -0.2,
+                1.5,
+                -0.7,
+                0.0
+              ]
+            ]
+          ],
+          "returns": [
+            0.293,
+            0.817
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            ]
+          ],
+          "returns": [
+            0.64
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.293, 0.817]"
+    }
+  ]
+}
