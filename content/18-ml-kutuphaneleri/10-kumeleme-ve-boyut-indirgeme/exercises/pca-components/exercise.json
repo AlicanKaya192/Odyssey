@@ -1,0 +1,69 @@
+{
+  "id": "pca-components",
+  "title": {
+    "tr": "Varyansa göre bileşen",
+    "en": "Components by variance"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`n_components` bir oran olunca PCA varyansa göre seçer.",
+      "en": "When `n_components` is a fraction, PCA chooses by variance."
+    },
+    {
+      "tr": "`pca = PCA(n_components=ratio).fit(scaled)`.",
+      "en": "`pca = PCA(n_components=ratio).fit(scaled)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import load_digits\n\nX, y = load_digits(return_X_y=True)\nfrom sklearn.decomposition import PCA\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef pca_components(ratio):\n    scaled = StandardScaler().fit_transform(X)\n    pca = PCA(n_components=ratio).fit(scaled)\n    kept = pca.explained_variance_ratio_.sum()\n    return [int(pca.n_components_), round(float(kept), 3)]\n\nprint(pca_components(0.95))\nprint(pca_components(0.5))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import load_digits\n\nX, y = load_digits(return_X_y=True)\nfrom sklearn.decomposition import PCA\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef pca_components(ratio):\n    scaled = StandardScaler().fit_transform(X)\n    pca = PCA(n_components=ratio).fit(scaled)\n    kept = pca.explained_variance_ratio_.sum()\n    return [int(pca.n_components_), round(float(kept), 3)]\n\nprint(pca_components(0.95))\nprint(pca_components(0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pca_components",
+      "cases": [
+        {
+          "args": [
+            0.95
+          ],
+          "returns": [
+            40,
+            0.951
+          ]
+        },
+        {
+          "args": [
+            0.5
+          ],
+          "returns": [
+            8,
+            0.529
+          ]
+        },
+        {
+          "args": [
+            0.8
+          ],
+          "returns": [
+            21,
+            0.807
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[40, 0.951]\n[8, 0.529]"
+    }
+  ]
+}

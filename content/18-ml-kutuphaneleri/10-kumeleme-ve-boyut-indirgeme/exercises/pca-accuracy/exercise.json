@@ -1,0 +1,54 @@
+{
+  "id": "pca-accuracy",
+  "title": {
+    "tr": "PCA'lı pipeline",
+    "en": "A pipeline with PCA"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "PCA ölçeklemeden sonra, modelden önce.",
+      "en": "PCA after scaling, before the model."
+    },
+    {
+      "tr": "`make_pipeline(StandardScaler(), PCA(n_components=n), LogisticRegression(max_iter=2000))`.",
+      "en": "`make_pipeline(StandardScaler(), PCA(n_components=n), LogisticRegression(max_iter=2000))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import load_digits\n\nX, y = load_digits(return_X_y=True)\nfrom sklearn.decomposition import PCA\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef pca_accuracy(n):\n    model = make_pipeline(StandardScaler(), PCA(n_components=n), LogisticRegression(max_iter=2000))\n    return round(float(cross_val_score(model, X, y, cv=5).mean()), 3)\n\nprint(pca_accuracy(10))\nprint(pca_accuracy(30))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import load_digits\n\nX, y = load_digits(return_X_y=True)\nfrom sklearn.decomposition import PCA\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef pca_accuracy(n):\n    model = make_pipeline(StandardScaler(), PCA(n_components=n), LogisticRegression(max_iter=2000))\n    return round(float(cross_val_score(model, X, y, cv=5).mean()), 3)\n\nprint(pca_accuracy(10))\nprint(pca_accuracy(30))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pca_accuracy",
+      "cases": [
+        {
+          "args": [
+            10
+          ],
+          "returns": 0.84
+        },
+        {
+          "args": [
+            30
+          ],
+          "returns": 0.907
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.84\n0.907"
+    }
+  ]
+}

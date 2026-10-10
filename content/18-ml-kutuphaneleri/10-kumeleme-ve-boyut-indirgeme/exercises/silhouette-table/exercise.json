@@ -1,0 +1,83 @@
+{
+  "id": "silhouette-table",
+  "title": {
+    "tr": "Siluet tablosu",
+    "en": "A silhouette table"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ölçeklenmiş veri: `model[0].transform(X)`.",
+      "en": "The scaled data: `model[0].transform(X)`."
+    },
+    {
+      "tr": "`silhouette_score(model[0].transform(X), labels)`.",
+      "en": "`silhouette_score(model[0].transform(X), labels)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_blobs\n\nX, y = make_blobs(n_samples=300, centers=3, random_state=4)\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef silhouette_table(ks):\n    rows = []\n    for k in ks:\n        model = make_pipeline(StandardScaler(), KMeans(n_clusters=k, n_init=10, random_state=0))\n        labels = model.fit_predict(X)\n        rows.append([k, round(float(silhouette_score(model[0].transform(X), labels)), 3)])\n    return rows\n\nprint(*silhouette_table([2, 3, 4]), sep=\"\\n\")\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_blobs\n\nX, y = make_blobs(n_samples=300, centers=3, random_state=4)\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef silhouette_table(ks):\n    rows = []\n    for k in ks:\n        model = make_pipeline(StandardScaler(), KMeans(n_clusters=k, n_init=10, random_state=0))\n        labels = model.fit_predict(X)\n        rows.append([k, round(float(silhouette_score(model[0].transform(X), labels)), 3)])\n    return rows\n\nprint(*silhouette_table([2, 3, 4]), sep=\"\\n\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "silhouette_table",
+      "cases": [
+        {
+          "args": [
+            [
+              2,
+              3,
+              4
+            ]
+          ],
+          "returns": [
+            [
+              2,
+              0.755
+            ],
+            [
+              3,
+              0.571
+            ],
+            [
+              4,
+              0.546
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              6
+            ]
+          ],
+          "returns": [
+            [
+              5,
+              0.416
+            ],
+            [
+              6,
+              0.401
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 0.755]\n[3, 0.571]\n[4, 0.546]"
+    }
+  ]
+}
