@@ -1,0 +1,138 @@
+{
+  "id": "monthly-sum",
+  "title": {
+    "tr": "Tekrarları topla",
+    "en": "Total the repeats"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`pivot` hesaplamaz; tekrarları birleştirmek için `pivot_table`.",
+      "en": "`pivot` does not compute; to combine repeats, `pivot_table`."
+    },
+    {
+      "tr": "`long.pivot_table(index=\"city\", columns=\"month\", values=\"sales\", aggfunc=\"sum\", fill_value=0)`.",
+      "en": "`long.pivot_table(index=\"city\", columns=\"month\", values=\"sales\", aggfunc=\"sum\", fill_value=0)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef monthly_sum(records):\n    long = pd.DataFrame(records, columns=[\"city\", \"month\", \"sales\"])\n    table = long.pivot_table(index=\"city\", columns=\"month\", values=\"sales\",\n                             aggfunc=\"sum\", fill_value=0)\n    return table.to_dict(orient=\"index\")\n\nSALES = [[\"Izmir\", \"jan\", 30], [\"Izmir\", \"jan\", 50],\n         [\"Ankara\", \"jan\", 120], [\"Bursa\", \"feb\", 65]]\ntable = monthly_sum(SALES)\nprint(table[\"Izmir\"])\nprint(table[\"Bursa\"])\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef monthly_sum(records):\n    long = pd.DataFrame(records, columns=[\"city\", \"month\", \"sales\"])\n    table = long.pivot_table(index=\"city\", columns=\"month\", values=\"sales\",\n                             aggfunc=\"sum\", fill_value=0)\n    return table.to_dict(orient=\"index\")\n\nSALES = [[\"Izmir\", \"jan\", 30], [\"Izmir\", \"jan\", 50],\n         [\"Ankara\", \"jan\", 120], [\"Bursa\", \"feb\", 65]]\ntable = monthly_sum(SALES)\nprint(table[\"Izmir\"])\nprint(table[\"Bursa\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "monthly_sum",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "Izmir",
+                "jan",
+                30
+              ],
+              [
+                "Izmir",
+                "jan",
+                50
+              ],
+              [
+                "Ankara",
+                "jan",
+                120
+              ],
+              [
+                "Bursa",
+                "feb",
+                65
+              ]
+            ]
+          ],
+          "returns": {
+            "Ankara": {
+              "feb": 0,
+              "jan": 120
+            },
+            "Bursa": {
+              "feb": 65,
+              "jan": 0
+            },
+            "Izmir": {
+              "feb": 0,
+              "jan": 80
+            }
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "A",
+                "x",
+                1
+              ],
+              [
+                "A",
+                "x",
+                2
+              ],
+              [
+                "A",
+                "x",
+                3
+              ]
+            ]
+          ],
+          "returns": {
+            "A": {
+              "x": 6
+            }
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "A",
+                "x",
+                1
+              ],
+              [
+                "B",
+                "y",
+                2
+              ]
+            ]
+          ],
+          "returns": {
+            "A": {
+              "x": 1,
+              "y": 0
+            },
+            "B": {
+              "x": 0,
+              "y": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'feb': 0, 'jan': 80}\n{'feb': 65, 'jan': 0}"
+    }
+  ]
+}
