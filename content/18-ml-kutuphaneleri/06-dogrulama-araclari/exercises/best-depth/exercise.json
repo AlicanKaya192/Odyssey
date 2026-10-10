@@ -1,0 +1,78 @@
+{
+  "id": "best-depth",
+  "title": {
+    "tr": "En iyi derinlik",
+    "en": "The best depth"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`train, test = validation_curve(...)`; `test` satır başına bir derinlik, sütun başına bir kat.",
+      "en": "`train, test = validation_curve(...)`; `test` has a row per depth, a column per fold."
+    },
+    {
+      "tr": "`means = test.mean(axis=1).round(3)`; en iyisi `depths[int(np.argmax(means))]`.",
+      "en": "`means = test.mean(axis=1).round(3)`; the best is `depths[int(np.argmax(means))]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\n\nX, y = make_classification(n_samples=300, n_features=8, n_informative=4,\n                           weights=[0.8], flip_y=0.05, random_state=6)\nimport numpy as np\nfrom sklearn.model_selection import validation_curve\nfrom sklearn.tree import DecisionTreeClassifier\n\n\ndef best_depth(depths):\n    train, test = validation_curve(DecisionTreeClassifier(random_state=0), X, y,\n                                   param_name=\"max_depth\", param_range=depths, cv=5)\n    means = test.mean(axis=1).round(3)\n    return [depths[int(np.argmax(means))], means.tolist()]\n\nprint(best_depth([1, 2, 4, 8]))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\n\nX, y = make_classification(n_samples=300, n_features=8, n_informative=4,\n                           weights=[0.8], flip_y=0.05, random_state=6)\nimport numpy as np\nfrom sklearn.model_selection import validation_curve\nfrom sklearn.tree import DecisionTreeClassifier\n\n\ndef best_depth(depths):\n    train, test = validation_curve(DecisionTreeClassifier(random_state=0), X, y,\n                                   param_name=\"max_depth\", param_range=depths, cv=5)\n    means = test.mean(axis=1).round(3)\n    return [depths[int(np.argmax(means))], means.tolist()]\n\nprint(best_depth([1, 2, 4, 8]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "best_depth",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              2,
+              4,
+              8
+            ]
+          ],
+          "returns": [
+            4,
+            [
+              0.773,
+              0.79,
+              0.82,
+              0.787
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              3,
+              6,
+              12
+            ]
+          ],
+          "returns": [
+            6,
+            [
+              0.81,
+              0.817,
+              0.78
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[4, [0.773, 0.79, 0.82, 0.787]]"
+    }
+  ]
+}

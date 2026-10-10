@@ -1,0 +1,72 @@
+{
+  "id": "train-test-gap",
+  "title": {
+    "tr": "Eğitim ve test",
+    "en": "Training and test"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Anahtarlar `train_accuracy`, `test_accuracy`, `test_f1`; her biri 5 katın dizisi.",
+      "en": "The keys are `train_accuracy`, `test_accuracy`, `test_f1`; each an array of 5 folds."
+    },
+    {
+      "tr": "`res = cross_validate(model, X, y, cv=5, scoring=[\"accuracy\", \"f1\"], return_train_score=True)`.",
+      "en": "`res = cross_validate(model, X, y, cv=5, scoring=[\"accuracy\", \"f1\"], return_train_score=True)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\n\nX, y = make_classification(n_samples=300, n_features=8, n_informative=4,\n                           weights=[0.8], flip_y=0.05, random_state=6)\nfrom sklearn.model_selection import cross_validate\nfrom sklearn.tree import DecisionTreeClassifier\n\n\ndef train_test_gap(depth):\n    model = DecisionTreeClassifier(max_depth=depth, random_state=0)\n    res = cross_validate(model, X, y, cv=5, scoring=[\"accuracy\", \"f1\"],\n                         return_train_score=True)\n    return {\"train\": round(float(res[\"train_accuracy\"].mean()), 3),\n            \"test\": round(float(res[\"test_accuracy\"].mean()), 3),\n            \"f1\": round(float(res[\"test_f1\"].mean()), 3)}\n\nprint(train_test_gap(None))\nprint(train_test_gap(3))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\n\nX, y = make_classification(n_samples=300, n_features=8, n_informative=4,\n                           weights=[0.8], flip_y=0.05, random_state=6)\nfrom sklearn.model_selection import cross_validate\nfrom sklearn.tree import DecisionTreeClassifier\n\n\ndef train_test_gap(depth):\n    model = DecisionTreeClassifier(max_depth=depth, random_state=0)\n    res = cross_validate(model, X, y, cv=5, scoring=[\"accuracy\", \"f1\"],\n                         return_train_score=True)\n    return {\"train\": round(float(res[\"train_accuracy\"].mean()), 3),\n            \"test\": round(float(res[\"test_accuracy\"].mean()), 3),\n            \"f1\": round(float(res[\"test_f1\"].mean()), 3)}\n\nprint(train_test_gap(None))\nprint(train_test_gap(3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "train_test_gap",
+      "cases": [
+        {
+          "args": [
+            null
+          ],
+          "returns": {
+            "train": 1.0,
+            "test": 0.78,
+            "f1": 0.488
+          }
+        },
+        {
+          "args": [
+            3
+          ],
+          "returns": {
+            "train": 0.87,
+            "test": 0.81,
+            "f1": 0.429
+          }
+        },
+        {
+          "args": [
+            1
+          ],
+          "returns": {
+            "train": 0.787,
+            "test": 0.773,
+            "f1": 0.142
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'train': 1.0, 'test': 0.78, 'f1': 0.488}\n{'train': 0.87, 'test': 0.81, 'f1': 0.429}"
+    }
+  ]
+}
