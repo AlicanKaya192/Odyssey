@@ -1,0 +1,36 @@
+{
+  "id": "weak-registry",
+  "title": {
+    "tr": "Zayıf kayıt",
+    "en": "A weak registry"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tek satır değişiyor: `self.items = weakref.WeakSet()`.",
+      "en": "Only one line changes: `self.items = weakref.WeakSet()`."
+    },
+    {
+      "tr": "WeakSet nesneyi canlı tutmaz; son başvuru gidince kendiliğinden çıkar.",
+      "en": "A WeakSet does not keep the object alive; it leaves by itself when the last reference goes."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport weakref\n\n\nclass Registry:\n    def __init__(self):\n        self.items = weakref.WeakSet()\n\n    def add(self, item):\n        self.items.add(item)\n\n    def count(self):\n        return len(self.items)\n\nclass Item:\n    pass\n\n\nregistry = Registry()\nitems = [Item() for _ in range(3)]\nfor item in items:\n    registry.add(item)\ndel item  # the loop variable is a reference too\nprint(registry.count())\ndel items[0]\nprint(registry.count())\nitems.clear()\nprint(registry.count())\n```",
+      "en": "The full solution:\n\n```python\nimport weakref\n\n\nclass Registry:\n    def __init__(self):\n        self.items = weakref.WeakSet()\n\n    def add(self, item):\n        self.items.add(item)\n\n    def count(self):\n        return len(self.items)\n\nclass Item:\n    pass\n\n\nregistry = Registry()\nitems = [Item() for _ in range(3)]\nfor item in items:\n    registry.add(item)\ndel item  # the loop variable is a reference too\nprint(registry.count())\ndel items[0]\nprint(registry.count())\nitems.clear()\nprint(registry.count())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n2\n0"
+    }
+  ]
+}

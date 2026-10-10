@@ -1,0 +1,36 @@
+{
+  "id": "break-cycle",
+  "title": {
+    "tr": "Döngüyü kır",
+    "en": "Break the cycle"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`self.parent = weakref.ref(parent) if parent is not None else None`.",
+      "en": "`self.parent = weakref.ref(parent) if parent is not None else None`."
+    },
+    {
+      "tr": "`parent_node`: `return self.parent() if self.parent is not None else None`; zayıf başvuru çağrılınca nesneyi verir.",
+      "en": "`parent_node`: `return self.parent() if self.parent is not None else None`; calling a weak reference gives the object."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport gc\nimport weakref\n\n\nclass TreeNode:\n    def __init__(self, name, parent=None):\n        self.name = name\n        self.children = []\n        self.parent = weakref.ref(parent) if parent is not None else None\n\n    def parent_node(self):\n        return self.parent() if self.parent is not None else None\n\n\ngc.disable()\nfreed = []\nroot = TreeNode(\"root\")\nchild = TreeNode(\"child\", parent=root)\nroot.children.append(child)\nweakref.finalize(root, freed.append, \"root\")\nweakref.finalize(child, freed.append, \"child\")\nprint(child.parent_node().name)\ndel root, child\nprint(sorted(freed))\ngc.enable()\n```",
+      "en": "The full solution:\n\n```python\nimport gc\nimport weakref\n\n\nclass TreeNode:\n    def __init__(self, name, parent=None):\n        self.name = name\n        self.children = []\n        self.parent = weakref.ref(parent) if parent is not None else None\n\n    def parent_node(self):\n        return self.parent() if self.parent is not None else None\n\n\ngc.disable()\nfreed = []\nroot = TreeNode(\"root\")\nchild = TreeNode(\"child\", parent=root)\nroot.children.append(child)\nweakref.finalize(root, freed.append, \"root\")\nweakref.finalize(child, freed.append, \"child\")\nprint(child.parent_node().name)\ndel root, child\nprint(sorted(freed))\ngc.enable()\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "root\n['child', 'root']"
+    }
+  ]
+}
