@@ -1,0 +1,103 @@
+{
+  "id": "top-chart",
+  "title": {
+    "tr": "Sıralı ve vurgulu grafik",
+    "en": "A sorted, highlighted chart"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Toplam: `pd.Series(sales, index=channels).groupby(level=0).sum().sort_values(ascending=False)`.",
+      "en": "Totals: `pd.Series(sales, index=channels).groupby(level=0).sum().sort_values(ascending=False)`."
+    },
+    {
+      "tr": "`bars = ax.barh(order[::-1], totals.values[::-1], color=\"lightgray\")`; en büyük artık son çubuk: `bars[-1].set_color(\"tab:blue\")`.",
+      "en": "`bars = ax.barh(order[::-1], totals.values[::-1], color=\"lightgray\")`; the largest is now the last bar: `bars[-1].set_color(\"tab:blue\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\n\ndef top_chart(channels, sales):\n    totals = pd.Series(sales, index=channels).groupby(level=0).sum().sort_values(ascending=False)\n    order = totals.index.tolist()\n    fig, ax = plt.subplots()\n    bars = ax.barh(order[::-1], totals.values[::-1], color=\"lightgray\")\n    bars[-1].set_color(\"tab:blue\")\n    labels = [t.get_text() for t in ax.bar_label(bars, padding=3)]\n    fig.savefig(\"top.png\")\n    plt.close(fig)\n    return {\"order\": order, \"labels\": labels, \"highlight\": order[0]}\n\nresult = top_chart([\"web\", \"store\", \"phone\", \"web\", \"store\", \"web\"], [5, 3, 2, 4, 6, 1])\nprint(result[\"order\"])\nprint(result[\"labels\"])\nprint(result[\"highlight\"])\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\n\ndef top_chart(channels, sales):\n    totals = pd.Series(sales, index=channels).groupby(level=0).sum().sort_values(ascending=False)\n    order = totals.index.tolist()\n    fig, ax = plt.subplots()\n    bars = ax.barh(order[::-1], totals.values[::-1], color=\"lightgray\")\n    bars[-1].set_color(\"tab:blue\")\n    labels = [t.get_text() for t in ax.bar_label(bars, padding=3)]\n    fig.savefig(\"top.png\")\n    plt.close(fig)\n    return {\"order\": order, \"labels\": labels, \"highlight\": order[0]}\n\nresult = top_chart([\"web\", \"store\", \"phone\", \"web\", \"store\", \"web\"], [5, 3, 2, 4, 6, 1])\nprint(result[\"order\"])\nprint(result[\"labels\"])\nprint(result[\"highlight\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_chart",
+      "cases": [
+        {
+          "args": [
+            [
+              "web",
+              "store",
+              "phone",
+              "web",
+              "store",
+              "web"
+            ],
+            [
+              5,
+              3,
+              2,
+              4,
+              6,
+              1
+            ]
+          ],
+          "returns": {
+            "order": [
+              "web",
+              "store",
+              "phone"
+            ],
+            "labels": [
+              "2",
+              "9",
+              "10"
+            ],
+            "highlight": "web"
+          }
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              1,
+              5
+            ]
+          ],
+          "returns": {
+            "order": [
+              "b",
+              "a"
+            ],
+            "labels": [
+              "1",
+              "5"
+            ],
+            "highlight": "b"
+          }
+        }
+      ]
+    },
+    {
+      "min_bytes": 1000,
+      "type": "artifact",
+      "name": "top.png"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['web', 'store', 'phone']\n['2', '9', '10']\nweb"
+    }
+  ]
+}
