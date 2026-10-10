@@ -1,0 +1,99 @@
+{
+  "id": "store-totals",
+  "title": {
+    "tr": "Toplam satış çubuğu",
+    "en": "A total sales bar"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "`barplot`'un hesabı `estimator=` ile seçilir.",
+      "en": "`barplot`'s calculation is chosen with `estimator=`."
+    },
+    {
+      "tr": "`sns.barplot(df, x=\"store\", y=\"sales\", order=order, estimator=\"sum\", errorbar=None, ax=ax)`.",
+      "en": "`sns.barplot(df, x=\"store\", y=\"sales\", order=order, estimator=\"sum\", errorbar=None, ax=ax)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\n\n\ndef store_totals(stores, sales, order):\n    df = pd.DataFrame({\"store\": stores, \"sales\": sales})\n    fig, ax = plt.subplots()\n    sns.barplot(df, x=\"store\", y=\"sales\", order=order, estimator=\"sum\", errorbar=None, ax=ax)\n    fig.savefig(\"totals.png\")\n    heights = [round(float(p.get_height()), 1) for p in ax.patches]\n    plt.close(fig)\n    return heights\n\nSTORES = [\"Izmir\", \"Ankara\", \"Izmir\", \"Bursa\", \"Ankara\", \"Izmir\"]\nSALES = [100, 80, 120, 90, 70, 110]\nprint(store_totals(STORES, SALES, [\"Izmir\", \"Ankara\", \"Bursa\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\n\n\ndef store_totals(stores, sales, order):\n    df = pd.DataFrame({\"store\": stores, \"sales\": sales})\n    fig, ax = plt.subplots()\n    sns.barplot(df, x=\"store\", y=\"sales\", order=order, estimator=\"sum\", errorbar=None, ax=ax)\n    fig.savefig(\"totals.png\")\n    heights = [round(float(p.get_height()), 1) for p in ax.patches]\n    plt.close(fig)\n    return heights\n\nSTORES = [\"Izmir\", \"Ankara\", \"Izmir\", \"Bursa\", \"Ankara\", \"Izmir\"]\nSALES = [100, 80, 120, 90, 70, 110]\nprint(store_totals(STORES, SALES, [\"Izmir\", \"Ankara\", \"Bursa\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "store_totals",
+      "cases": [
+        {
+          "args": [
+            [
+              "Izmir",
+              "Ankara",
+              "Izmir",
+              "Bursa",
+              "Ankara",
+              "Izmir"
+            ],
+            [
+              100,
+              80,
+              120,
+              90,
+              70,
+              110
+            ],
+            [
+              "Izmir",
+              "Ankara",
+              "Bursa"
+            ]
+          ],
+          "returns": [
+            330.0,
+            150.0,
+            90.0
+          ]
+        },
+        {
+          "args": [
+            [
+              "A",
+              "A",
+              "B"
+            ],
+            [
+              1,
+              2,
+              10
+            ],
+            [
+              "B",
+              "A"
+            ]
+          ],
+          "returns": [
+            10.0,
+            3.0
+          ]
+        }
+      ]
+    },
+    {
+      "min_bytes": 1000,
+      "type": "artifact",
+      "name": "totals.png"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[330.0, 150.0, 90.0]"
+    }
+  ]
+}
