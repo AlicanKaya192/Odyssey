@@ -1,0 +1,154 @@
+{
+  "id": "attach-names",
+  "title": {
+    "tr": "Adları ekle",
+    "en": "Attach the names"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`how=\"left\"` soldakilerin hepsini tutar.",
+      "en": "`how=\"left\"` keeps all of the left."
+    },
+    {
+      "tr": "`left.merge(right, on=\"customer\", how=\"left\")`, sonra `[\"name\"].fillna(\"?\").tolist()`.",
+      "en": "`left.merge(right, on=\"customer\", how=\"left\")`, then `[\"name\"].fillna(\"?\").tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef attach_names(orders, customers):\n    left = pd.DataFrame(orders, columns=[\"order\", \"customer\", \"amount\"])\n    right = pd.DataFrame(customers, columns=[\"customer\", \"name\"])\n    joined = left.merge(right, on=\"customer\", how=\"left\")\n    return joined[\"name\"].fillna(\"?\").tolist()\n\nORDERS = [[1, 10, 250], [2, 20, 90], [3, 10, 40], [4, 40, 70]]\nCUSTOMERS = [[10, \"Ada\"], [20, \"Can\"], [30, \"Eda\"]]\nprint(attach_names(ORDERS, CUSTOMERS))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef attach_names(orders, customers):\n    left = pd.DataFrame(orders, columns=[\"order\", \"customer\", \"amount\"])\n    right = pd.DataFrame(customers, columns=[\"customer\", \"name\"])\n    joined = left.merge(right, on=\"customer\", how=\"left\")\n    return joined[\"name\"].fillna(\"?\").tolist()\n\nORDERS = [[1, 10, 250], [2, 20, 90], [3, 10, 40], [4, 40, 70]]\nCUSTOMERS = [[10, \"Ada\"], [20, \"Can\"], [30, \"Eda\"]]\nprint(attach_names(ORDERS, CUSTOMERS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "attach_names",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                10,
+                250
+              ],
+              [
+                2,
+                20,
+                90
+              ],
+              [
+                3,
+                10,
+                40
+              ],
+              [
+                4,
+                40,
+                70
+              ]
+            ],
+            [
+              [
+                10,
+                "Ada"
+              ],
+              [
+                20,
+                "Can"
+              ],
+              [
+                30,
+                "Eda"
+              ]
+            ]
+          ],
+          "returns": [
+            "Ada",
+            "Can",
+            "Ada",
+            "?"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                5,
+                10
+              ]
+            ],
+            [
+              [
+                10,
+                "Ada"
+              ],
+              [
+                20,
+                "Can"
+              ],
+              [
+                30,
+                "Eda"
+              ]
+            ]
+          ],
+          "returns": [
+            "?"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                7,
+                30,
+                1
+              ],
+              [
+                8,
+                10,
+                2
+              ]
+            ],
+            [
+              [
+                10,
+                "Ada"
+              ],
+              [
+                20,
+                "Can"
+              ],
+              [
+                30,
+                "Eda"
+              ]
+            ]
+          ],
+          "returns": [
+            "Eda",
+            "Ada"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['Ada', 'Can', 'Ada', '?']"
+    }
+  ]
+}

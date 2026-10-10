@@ -1,0 +1,154 @@
+{
+  "id": "revenue-by-title",
+  "title": {
+    "tr": "Ürüne göre ciro",
+    "en": "Revenue by product"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`right[\"id\"] = right[\"id\"].astype(int)` türleri eşitler.",
+      "en": "`right[\"id\"] = right[\"id\"].astype(int)` makes the types equal."
+    },
+    {
+      "tr": "Birleştirdikten sonra `joined[\"revenue\"] = joined[\"qty\"] * joined[\"price\"]`, `groupby(\"title\")[\"revenue\"].sum().to_dict()`.",
+      "en": "After merging, `joined[\"revenue\"] = joined[\"qty\"] * joined[\"price\"]`, `groupby(\"title\")[\"revenue\"].sum().to_dict()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef revenue_by_title(sales, products):\n    left = pd.DataFrame(sales, columns=[\"product_id\", \"qty\"])\n    right = pd.DataFrame(products, columns=[\"id\", \"title\", \"price\"])\n    right[\"id\"] = right[\"id\"].astype(int)\n    joined = left.merge(right, left_on=\"product_id\", right_on=\"id\")\n    joined[\"revenue\"] = joined[\"qty\"] * joined[\"price\"]\n    return joined.groupby(\"title\")[\"revenue\"].sum().to_dict()\n\nSALES = [[1, 3], [2, 5], [1, 1]]\nPRODUCTS = [[\"1\", \"pen\", 2.5], [\"2\", \"cup\", 4.0], [\"3\", \"box\", 9.0]]\nprint(revenue_by_title(SALES, PRODUCTS))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef revenue_by_title(sales, products):\n    left = pd.DataFrame(sales, columns=[\"product_id\", \"qty\"])\n    right = pd.DataFrame(products, columns=[\"id\", \"title\", \"price\"])\n    right[\"id\"] = right[\"id\"].astype(int)\n    joined = left.merge(right, left_on=\"product_id\", right_on=\"id\")\n    joined[\"revenue\"] = joined[\"qty\"] * joined[\"price\"]\n    return joined.groupby(\"title\")[\"revenue\"].sum().to_dict()\n\nSALES = [[1, 3], [2, 5], [1, 1]]\nPRODUCTS = [[\"1\", \"pen\", 2.5], [\"2\", \"cup\", 4.0], [\"3\", \"box\", 9.0]]\nprint(revenue_by_title(SALES, PRODUCTS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "revenue_by_title",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                3
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                "1",
+                "pen",
+                2.5
+              ],
+              [
+                "2",
+                "cup",
+                4.0
+              ],
+              [
+                "3",
+                "box",
+                9.0
+              ]
+            ]
+          ],
+          "returns": {
+            "cup": 20.0,
+            "pen": 10.0
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                3,
+                2
+              ]
+            ],
+            [
+              [
+                "1",
+                "pen",
+                2.5
+              ],
+              [
+                "2",
+                "cup",
+                4.0
+              ],
+              [
+                "3",
+                "box",
+                9.0
+              ]
+            ]
+          ],
+          "returns": {
+            "box": 18.0
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                2,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ]
+            ],
+            [
+              [
+                "1",
+                "pen",
+                2.5
+              ],
+              [
+                "2",
+                "cup",
+                4.0
+              ],
+              [
+                "3",
+                "box",
+                9.0
+              ]
+            ]
+          ],
+          "returns": {
+            "box": 9.0,
+            "cup": 12.0
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'cup': 20.0, 'pen': 10.0}"
+    }
+  ]
+}
