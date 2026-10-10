@@ -1,0 +1,78 @@
+{
+  "id": "multi-start",
+  "title": {
+    "tr": "Çok başlangıç",
+    "en": "Many starts"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her başlangıcın sonucunu bir listeye topla; `min(..., key=lambda r: r.fun)` en derinini seçer.",
+      "en": "Collect each start's result in a list; `min(..., key=lambda r: r.fun)` picks the deepest."
+    },
+    {
+      "tr": "`results = [optimize.minimize(bumpy, x0=[s]) for s in starts]`.",
+      "en": "`results = [optimize.minimize(bumpy, x0=[s]) for s in starts]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom scipy import optimize\n\n\ndef bumpy(x):\n    return np.sin(3 * x[0]) + 0.1 * x[0] ** 2\n\n\ndef multi_start(starts):\n    results = [optimize.minimize(bumpy, x0=[s]) for s in starts]\n    best = min(results, key=lambda r: r.fun)\n    return [round(float(best.x[0]), 3), round(float(best.fun), 3)]\n\nprint(multi_start([-2.0, 0.0, 2.0]))\nprint(multi_start([2.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom scipy import optimize\n\n\ndef bumpy(x):\n    return np.sin(3 * x[0]) + 0.1 * x[0] ** 2\n\n\ndef multi_start(starts):\n    results = [optimize.minimize(bumpy, x0=[s]) for s in starts]\n    best = min(results, key=lambda r: r.fun)\n    return [round(float(best.x[0]), 3), round(float(best.fun), 3)]\n\nprint(multi_start([-2.0, 0.0, 2.0]))\nprint(multi_start([2.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "multi_start",
+      "cases": [
+        {
+          "args": [
+            [
+              -2.0,
+              0.0,
+              2.0
+            ]
+          ],
+          "returns": [
+            -0.512,
+            -0.973
+          ]
+        },
+        {
+          "args": [
+            [
+              2.0
+            ]
+          ],
+          "returns": [
+            1.537,
+            -0.759
+          ]
+        },
+        {
+          "args": [
+            [
+              -4.0,
+              4.0
+            ]
+          ],
+          "returns": [
+            3.585,
+            0.314
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-0.512, -0.973]\n[1.537, -0.759]"
+    }
+  ]
+}

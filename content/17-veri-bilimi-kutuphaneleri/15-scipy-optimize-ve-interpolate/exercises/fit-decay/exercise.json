@@ -1,0 +1,94 @@
+{
+  "id": "fit-decay",
+  "title": {
+    "tr": "Azalma eğrisi",
+    "en": "A decay curve"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`(a, k), _ = optimize.curve_fit(decay, t, y, p0=[y.max(), 0.1])`.",
+      "en": "`(a, k), _ = optimize.curve_fit(decay, t, y, p0=[y.max(), 0.1])`."
+    },
+    {
+      "tr": "Yarılanma `np.log(2) / k`; sayıları `float` yapıp yuvarla.",
+      "en": "The half-life is `np.log(2) / k`; turn the numbers into `float` and round."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom scipy import optimize\n\n\ndef decay(t, a, k):\n    return a * np.exp(-k * t)\n\n\ndef fit_decay(t, y):\n    t = np.array(t, dtype=float)\n    y = np.array(y, dtype=float)\n    (a, k), _ = optimize.curve_fit(decay, t, y, p0=[y.max(), 0.1])\n    return [round(float(a), 3), round(float(k), 3), round(float(np.log(2) / k), 2)]\n\nT = [0, 1, 2, 3, 4, 5, 6, 7, 8]\nY = [80.4, 56.1, 40.2, 27.9, 20.0, 13.8, 10.1, 6.9, 5.1]\nprint(fit_decay(T, Y))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom scipy import optimize\n\n\ndef decay(t, a, k):\n    return a * np.exp(-k * t)\n\n\ndef fit_decay(t, y):\n    t = np.array(t, dtype=float)\n    y = np.array(y, dtype=float)\n    (a, k), _ = optimize.curve_fit(decay, t, y, p0=[y.max(), 0.1])\n    return [round(float(a), 3), round(float(k), 3), round(float(np.log(2) / k), 2)]\n\nT = [0, 1, 2, 3, 4, 5, 6, 7, 8]\nY = [80.4, 56.1, 40.2, 27.9, 20.0, 13.8, 10.1, 6.9, 5.1]\nprint(fit_decay(T, Y))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fit_decay",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            [
+              80.4,
+              56.1,
+              40.2,
+              27.9,
+              20.0,
+              13.8,
+              10.1,
+              6.9,
+              5.1
+            ]
+          ],
+          "returns": [
+            80.203,
+            0.349,
+            1.98
+          ]
+        },
+        {
+          "args": [
+            [
+              0,
+              2,
+              4,
+              6
+            ],
+            [
+              100,
+              50,
+              25,
+              12.5
+            ]
+          ],
+          "returns": [
+            100.0,
+            0.347,
+            2.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[80.203, 0.349, 1.98]"
+    }
+  ]
+}

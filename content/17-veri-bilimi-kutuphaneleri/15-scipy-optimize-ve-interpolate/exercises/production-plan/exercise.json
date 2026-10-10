@@ -1,0 +1,128 @@
+{
+  "id": "production-plan",
+  "title": {
+    "tr": "Üretim planı",
+    "en": "A production plan"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Amaç: `cost = [-p for p in profits]`; sınırlar `[(0, None)] * len(profits)`.",
+      "en": "The goal: `cost = [-p for p in profits]`; bounds `[(0, None)] * len(profits)`."
+    },
+    {
+      "tr": "`res = optimize.linprog(cost, A_ub=hours, b_ub=limits, bounds=free)`; kâr `-res.fun`.",
+      "en": "`res = optimize.linprog(cost, A_ub=hours, b_ub=limits, bounds=free)`; the profit is `-res.fun`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom scipy import optimize\n\n\ndef plan(profits, hours, limits):\n    cost = [-p for p in profits]\n    free = [(0, None)] * len(profits)\n    res = optimize.linprog(cost, A_ub=hours, b_ub=limits, bounds=free)\n    return {\"units\": res.x.round(2).tolist(), \"profit\": round(float(-res.fun), 1)}\n\nresult = plan([30, 50], [[2, 4], [3, 2]], [80, 90])\nprint(result[\"units\"], result[\"profit\"])\n```",
+      "en": "The full solution:\n\n```python\nfrom scipy import optimize\n\n\ndef plan(profits, hours, limits):\n    cost = [-p for p in profits]\n    free = [(0, None)] * len(profits)\n    res = optimize.linprog(cost, A_ub=hours, b_ub=limits, bounds=free)\n    return {\"units\": res.x.round(2).tolist(), \"profit\": round(float(-res.fun), 1)}\n\nresult = plan([30, 50], [[2, 4], [3, 2]], [80, 90])\nprint(result[\"units\"], result[\"profit\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "plan",
+      "cases": [
+        {
+          "args": [
+            [
+              30,
+              50
+            ],
+            [
+              [
+                2,
+                4
+              ],
+              [
+                3,
+                2
+              ]
+            ],
+            [
+              80,
+              90
+            ]
+          ],
+          "returns": {
+            "units": [
+              25.0,
+              7.5
+            ],
+            "profit": 1125.0
+          }
+        },
+        {
+          "args": [
+            [
+              10,
+              10
+            ],
+            [
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              5
+            ]
+          ],
+          "returns": {
+            "units": [
+              5.0,
+              0.0
+            ],
+            "profit": 50.0
+          }
+        },
+        {
+          "args": [
+            [
+              3,
+              2,
+              4
+            ],
+            [
+              [
+                1,
+                1,
+                2
+              ],
+              [
+                2,
+                1,
+                1
+              ]
+            ],
+            [
+              40,
+              30
+            ]
+          ],
+          "returns": {
+            "units": [
+              6.67,
+              0.0,
+              16.67
+            ],
+            "profit": 86.7
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[25.0, 7.5] 1125.0"
+    }
+  ]
+}
