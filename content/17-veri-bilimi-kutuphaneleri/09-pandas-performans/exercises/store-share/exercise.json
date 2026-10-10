@@ -1,0 +1,103 @@
+{
+  "id": "store-share",
+  "title": {
+    "tr": "Mağaza payı",
+    "en": "Store share"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`totals = df.groupby(\"store\")[\"sales\"].transform(\"sum\")` her satıra kendi mağazasının toplamını yazar.",
+      "en": "`totals = df.groupby(\"store\")[\"sales\"].transform(\"sum\")` gives each row its own store's total."
+    },
+    {
+      "tr": "`(df[\"sales\"] / totals).round(3).tolist()`.",
+      "en": "`(df[\"sales\"] / totals).round(3).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef store_share(stores, sales):\n    df = pd.DataFrame({\"store\": stores, \"sales\": sales})\n    totals = df.groupby(\"store\")[\"sales\"].transform(\"sum\")\n    return (df[\"sales\"] / totals).round(3).tolist()\n\nprint(store_share([\"A\", \"B\", \"A\", \"A\"], [10.0, 5.0, 30.0, 60.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef store_share(stores, sales):\n    df = pd.DataFrame({\"store\": stores, \"sales\": sales})\n    totals = df.groupby(\"store\")[\"sales\"].transform(\"sum\")\n    return (df[\"sales\"] / totals).round(3).tolist()\n\nprint(store_share([\"A\", \"B\", \"A\", \"A\"], [10.0, 5.0, 30.0, 60.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "store_share",
+      "cases": [
+        {
+          "args": [
+            [
+              "A",
+              "B",
+              "A",
+              "A"
+            ],
+            [
+              10.0,
+              5.0,
+              30.0,
+              60.0
+            ]
+          ],
+          "returns": [
+            0.1,
+            1.0,
+            0.3,
+            0.6
+          ]
+        },
+        {
+          "args": [
+            [
+              "X"
+            ],
+            [
+              4.0
+            ]
+          ],
+          "returns": [
+            1.0
+          ]
+        },
+        {
+          "args": [
+            [
+              "P",
+              "Q",
+              "P",
+              "Q"
+            ],
+            [
+              1.0,
+              1.0,
+              2.0,
+              3.0
+            ]
+          ],
+          "returns": [
+            0.333,
+            0.25,
+            0.667,
+            0.75
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.1, 1.0, 0.3, 0.6]"
+    }
+  ]
+}

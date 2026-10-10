@@ -1,0 +1,99 @@
+{
+  "id": "shrink",
+  "title": {
+    "tr": "Belleği küçült",
+    "en": "Shrink the memory"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`small = df.assign(qty=pd.to_numeric(df[\"qty\"], downcast=\"unsigned\"), price=df[\"price\"].astype(\"float32\"))`.",
+      "en": "`small = df.assign(qty=pd.to_numeric(df[\"qty\"], downcast=\"unsigned\"), price=df[\"price\"].astype(\"float32\"))`."
+    },
+    {
+      "tr": "İki tablonun `memory_usage(deep=True).sum()` değerini karşılaştır; sonucu `bool(...)` ile döndür.",
+      "en": "Compare the two tables' `memory_usage(deep=True).sum()`; return the result with `bool(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef shrink(qtys, prices):\n    df = pd.DataFrame({\"qty\": qtys, \"price\": prices})\n    small = df.assign(qty=pd.to_numeric(df[\"qty\"], downcast=\"unsigned\"),\n                      price=df[\"price\"].astype(\"float32\"))\n    before = df.memory_usage(deep=True).sum()\n    after = small.memory_usage(deep=True).sum()\n    return {\"dtypes\": small.dtypes.astype(str).tolist(), \"smaller\": bool(after < before)}\n\nresult = shrink([3, 50, 99], [1.5, 2.25, 9.0])\nprint(result[\"dtypes\"])\nprint(result[\"smaller\"])\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef shrink(qtys, prices):\n    df = pd.DataFrame({\"qty\": qtys, \"price\": prices})\n    small = df.assign(qty=pd.to_numeric(df[\"qty\"], downcast=\"unsigned\"),\n                      price=df[\"price\"].astype(\"float32\"))\n    before = df.memory_usage(deep=True).sum()\n    after = small.memory_usage(deep=True).sum()\n    return {\"dtypes\": small.dtypes.astype(str).tolist(), \"smaller\": bool(after < before)}\n\nresult = shrink([3, 50, 99], [1.5, 2.25, 9.0])\nprint(result[\"dtypes\"])\nprint(result[\"smaller\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "shrink",
+      "cases": [
+        {
+          "args": [
+            [
+              3,
+              50,
+              99
+            ],
+            [
+              1.5,
+              2.25,
+              9.0
+            ]
+          ],
+          "returns": {
+            "dtypes": [
+              "uint8",
+              "float32"
+            ],
+            "smaller": true
+          }
+        },
+        {
+          "args": [
+            [
+              300,
+              1
+            ],
+            [
+              1.0,
+              2.0
+            ]
+          ],
+          "returns": {
+            "dtypes": [
+              "uint16",
+              "float32"
+            ],
+            "smaller": true
+          }
+        },
+        {
+          "args": [
+            [
+              70000
+            ],
+            [
+              0.5
+            ]
+          ],
+          "returns": {
+            "dtypes": [
+              "uint32",
+              "float32"
+            ],
+            "smaller": true
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['uint8', 'float32']\nTrue"
+    }
+  ]
+}
