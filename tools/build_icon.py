@@ -57,12 +57,12 @@ DISCORD_COVER = (1024, 576)
 BANNER_DIR = PROJECT_ROOT / "docs" / "media"
 BANNER = (1600, 480)
 BANNER_TEXT = {
-    "en": ("Learn Python, data science, machine learning, SQL and the mathematics "
-           "behind them, one chapter at a time.",
-           "Offline  ·  Open source  ·  Turkish & English"),
-    "tr": ("Python, veri bilimi, makine öğrenmesi, SQL ve arkalarındaki matematik; "
-           "bölüm bölüm, adım adım.",
-           "Çevrimdışı  ·  Açık kaynak  ·  Türkçe ve İngilizce"),
+    "en": ("Learn Python, Git, algorithms, data science, machine learning, SQL, "
+           "APIs, Docker, big data and the mathematics behind them.",
+           "12 paths  ·  353 sections  ·  Offline  ·  Open source  ·  Turkish & English"),
+    "tr": ("Python, Git, algoritmalar, veri bilimi, makine öğrenmesi, SQL, API, "
+           "Docker, büyük veri ve arkalarındaki matematik; adım adım.",
+           "12 patika  ·  353 bölüm  ·  Çevrimdışı  ·  Açık kaynak  ·  Türkçe ve İngilizce"),
 }
 
 
