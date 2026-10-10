@@ -1,0 +1,79 @@
+{
+  "id": "queue-workers",
+  "title": {
+    "tr": "Kuyruk ve işçiler",
+    "en": "A queue and workers"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "İşçi: `while True:` içinde `item = tasks.get()`; `if item is STOP: break`; değilse `results.put(item * item)`.",
+      "en": "Worker: inside `while True:`, `item = tasks.get()`; `if item is STOP: break`; otherwise `results.put(item * item)`."
+    },
+    {
+      "tr": "Her işçiye bir `STOP` koymayı unutma; yoksa `join` hiç dönmez.",
+      "en": "Do not forget one `STOP` per worker; otherwise `join` never returns."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport queue\nimport threading\n\nSTOP = None\n\n\ndef square_all(numbers, n_workers):\n    tasks = queue.Queue()\n    results = queue.Queue()\n\n    def worker():\n        while True:\n            item = tasks.get()\n            if item is STOP:\n                break\n            results.put(item * item)\n\n    workers = [threading.Thread(target=worker) for _ in range(n_workers)]\n    for w in workers:\n        w.start()\n    for n in numbers:\n        tasks.put(n)\n    for _ in workers:\n        tasks.put(STOP)\n    for w in workers:\n        w.join()\n    return sorted(results.get() for _ in range(results.qsize()))\n\nprint(square_all([3, 1, 2], 2))\nprint(square_all(list(range(10)), 3))\n```",
+      "en": "The full solution:\n\n```python\nimport queue\nimport threading\n\nSTOP = None\n\n\ndef square_all(numbers, n_workers):\n    tasks = queue.Queue()\n    results = queue.Queue()\n\n    def worker():\n        while True:\n            item = tasks.get()\n            if item is STOP:\n                break\n            results.put(item * item)\n\n    workers = [threading.Thread(target=worker) for _ in range(n_workers)]\n    for w in workers:\n        w.start()\n    for n in numbers:\n        tasks.put(n)\n    for _ in workers:\n        tasks.put(STOP)\n    for w in workers:\n        w.join()\n    return sorted(results.get() for _ in range(results.qsize()))\n\nprint(square_all([3, 1, 2], 2))\nprint(square_all(list(range(10)), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "square_all",
+      "cases": [
+        {
+          "args": [
+            [
+              3,
+              1,
+              2
+            ],
+            2
+          ],
+          "returns": [
+            1,
+            4,
+            9
+          ]
+        },
+        {
+          "args": [
+            [],
+            3
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              5,
+              -5,
+              0
+            ],
+            1
+          ],
+          "returns": [
+            0,
+            25,
+            25
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 4, 9]\n[0, 1, 4, 9, 16, 25, 36, 49, 64, 81]"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "id": "collect-errors",
+  "title": {
+    "tr": "Hataları da topla",
+    "en": "Collect the errors too"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İşteki hata `future.result()` çağrılınca yükselir; orayı `try` içine al.",
+      "en": "The job's error is raised when `future.result()` is called; put that inside a `try`."
+    },
+    {
+      "tr": "`except ValueError: results.append(\"error\")`; Future listesini sırayla dolaş.",
+      "en": "`except ValueError: results.append(\"error\")`; walk the list of Futures in order."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom concurrent.futures import ThreadPoolExecutor\n\n\ndef check(x):\n    if x < 0:\n        raise ValueError(f\"negative: {x}\")\n    return x * 10\n\n\ndef run_all(values):\n    results = []\n    with ThreadPoolExecutor() as pool:\n        futures = [pool.submit(check, v) for v in values]\n        for future in futures:\n            try:\n                results.append(future.result())\n            except ValueError:\n                results.append(\"error\")\n    return results\n\nprint(run_all([1, -2, 3]))\nprint(run_all([]))\n```",
+      "en": "The full solution:\n\n```python\nfrom concurrent.futures import ThreadPoolExecutor\n\n\ndef check(x):\n    if x < 0:\n        raise ValueError(f\"negative: {x}\")\n    return x * 10\n\n\ndef run_all(values):\n    results = []\n    with ThreadPoolExecutor() as pool:\n        futures = [pool.submit(check, v) for v in values]\n        for future in futures:\n            try:\n                results.append(future.result())\n            except ValueError:\n                results.append(\"error\")\n    return results\n\nprint(run_all([1, -2, 3]))\nprint(run_all([]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "run_all",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              -2,
+              3
+            ]
+          ],
+          "returns": [
+            10,
+            "error",
+            30
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              -1,
+              -5
+            ]
+          ],
+          "returns": [
+            "error",
+            "error"
+          ]
+        },
+        {
+          "args": [
+            [
+              4
+            ]
+          ],
+          "returns": [
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[10, 'error', 30]\n[]"
+    }
+  ]
+}

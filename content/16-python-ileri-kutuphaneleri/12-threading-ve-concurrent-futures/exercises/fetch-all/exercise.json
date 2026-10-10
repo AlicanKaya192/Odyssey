@@ -1,0 +1,62 @@
+{
+  "id": "fetch-all",
+  "title": {
+    "tr": "Hepsini birlikte çek",
+    "en": "Fetch them all together"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "`with ThreadPoolExecutor(max_workers=10) as pool:` bloğu aç.",
+      "en": "Open a `with ThreadPoolExecutor(max_workers=10) as pool:` block."
+    },
+    {
+      "tr": "`return list(pool.map(fake_fetch, urls))`: `map` sırayı korur.",
+      "en": "`return list(pool.map(fake_fetch, urls))`: `map` keeps the order."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport time\nfrom concurrent.futures import ThreadPoolExecutor\n\n\ndef fake_fetch(url):\n    time.sleep(0.3)\n    return len(url)\n\n\ndef fetch_all(urls):\n    with ThreadPoolExecutor(max_workers=10) as pool:\n        return list(pool.map(fake_fetch, urls))\n\nurls = [f\"https://example.test/{i}\" for i in range(10)]\nstart = time.perf_counter()\nprint(fetch_all(urls))\nprint(time.perf_counter() - start < 1.5)\n```",
+      "en": "The full solution:\n\n```python\nimport time\nfrom concurrent.futures import ThreadPoolExecutor\n\n\ndef fake_fetch(url):\n    time.sleep(0.3)\n    return len(url)\n\n\ndef fetch_all(urls):\n    with ThreadPoolExecutor(max_workers=10) as pool:\n        return list(pool.map(fake_fetch, urls))\n\nurls = [f\"https://example.test/{i}\" for i in range(10)]\nstart = time.perf_counter()\nprint(fetch_all(urls))\nprint(time.perf_counter() - start < 1.5)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fetch_all",
+      "cases": [
+        {
+          "args": [
+            [
+              "a",
+              "bb",
+              "ccc"
+            ]
+          ],
+          "returns": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[22, 22, 22, 22, 22, 22, 22, 22, 22, 22]\nTrue"
+    }
+  ]
+}

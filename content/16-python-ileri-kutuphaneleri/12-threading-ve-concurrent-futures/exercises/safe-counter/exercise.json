@@ -1,0 +1,36 @@
+{
+  "id": "safe-counter",
+  "title": {
+    "tr": "Kilitli sayaç",
+    "en": "A locked counter"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "`__init__` içinde `self.lock = threading.Lock()`.",
+      "en": "In `__init__`, `self.lock = threading.Lock()`."
+    },
+    {
+      "tr": "Döngüde üç satırı (`current = ...`, `sleep`, `self.value = ...`) `with self.lock:` altına girintile.",
+      "en": "In the loop, indent the three lines (`current = ...`, `sleep`, `self.value = ...`) under `with self.lock:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport threading\nimport time\n\n\nclass Counter:\n    def __init__(self):\n        self.value = 0\n        self.lock = threading.Lock()\n\n    def add_many(self, n):\n        for _ in range(n):\n            with self.lock:\n                current = self.value\n                time.sleep(0)\n                self.value = current + 1\n\n\ncounter = Counter()\nworkers = [threading.Thread(target=counter.add_many, args=(500,)) for _ in range(4)]\nfor w in workers:\n    w.start()\nfor w in workers:\n    w.join()\nprint(counter.value)\n```",
+      "en": "The full solution:\n\n```python\nimport threading\nimport time\n\n\nclass Counter:\n    def __init__(self):\n        self.value = 0\n        self.lock = threading.Lock()\n\n    def add_many(self, n):\n        for _ in range(n):\n            with self.lock:\n                current = self.value\n                time.sleep(0)\n                self.value = current + 1\n\n\ncounter = Counter()\nworkers = [threading.Thread(target=counter.add_many, args=(500,)) for _ in range(4)]\nfor w in workers:\n    w.start()\nfor w in workers:\n    w.join()\nprint(counter.value)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2000"
+    }
+  ]
+}
