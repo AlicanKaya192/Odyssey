@@ -1,0 +1,140 @@
+{
+  "id": "standardize",
+  "title": {
+    "tr": "Sütunları standartlaştır",
+    "en": "Standardise the columns"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sütun başına istatistik için `axis=0`; şekil `(sütun sayısı,)` olur ve sağdan uyar.",
+      "en": "For per-column statistics, `axis=0`; the shape becomes `(columns,)` and fits from the right."
+    },
+    {
+      "tr": "`((X - X.mean(axis=0)) / X.std(axis=0)).round(2).tolist()`.",
+      "en": "`((X - X.mean(axis=0)) / X.std(axis=0)).round(2).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef standardize(rows):\n    X = np.array(rows, dtype=float)\n    return ((X - X.mean(axis=0)) / X.std(axis=0)).round(2).tolist()\n\nprint(*standardize([[1.0, 200.0], [2.0, 400.0], [3.0, 600.0]]), sep=\"\\n\")\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef standardize(rows):\n    X = np.array(rows, dtype=float)\n    return ((X - X.mean(axis=0)) / X.std(axis=0)).round(2).tolist()\n\nprint(*standardize([[1.0, 200.0], [2.0, 400.0], [3.0, 600.0]]), sep=\"\\n\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "standardize",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                200.0
+              ],
+              [
+                2.0,
+                400.0
+              ],
+              [
+                3.0,
+                600.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              -1.22,
+              -1.22
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              1.22,
+              1.22
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                10
+              ],
+              [
+                10,
+                0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              -1.0,
+              1.0
+            ],
+            [
+              1.0,
+              -1.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                2,
+                3
+              ],
+              [
+                4,
+                5,
+                6
+              ],
+              [
+                7,
+                8,
+                10
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              -1.22,
+              -1.22,
+              -1.16
+            ],
+            [
+              0.0,
+              0.0,
+              -0.12
+            ],
+            [
+              1.22,
+              1.22,
+              1.28
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-1.22, -1.22]\n[0.0, 0.0]\n[1.22, 1.22]"
+    }
+  ]
+}

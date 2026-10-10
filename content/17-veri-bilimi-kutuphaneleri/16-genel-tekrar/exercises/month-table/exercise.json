@@ -1,0 +1,119 @@
+{
+  "id": "month-table",
+  "title": {
+    "tr": "Ay × mağaza tablosu",
+    "en": "A month × store table"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ay: `pd.to_datetime(df[\"date\"], format=\"%Y-%m-%d\").dt.to_period(\"M\").astype(str)`.",
+      "en": "Month: `pd.to_datetime(df[\"date\"], format=\"%Y-%m-%d\").dt.to_period(\"M\").astype(str)`."
+    },
+    {
+      "tr": "`df.pivot_table(index=\"month\", columns=\"store\", values=\"amount\", aggfunc=\"sum\", fill_value=0)`.",
+      "en": "`df.pivot_table(index=\"month\", columns=\"store\", values=\"amount\", aggfunc=\"sum\", fill_value=0)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef month_table(dates, stores, amounts):\n    df = pd.DataFrame({\"date\": dates, \"store\": stores, \"amount\": amounts})\n    df[\"month\"] = pd.to_datetime(df[\"date\"], format=\"%Y-%m-%d\").dt.to_period(\"M\").astype(str)\n    table = df.pivot_table(index=\"month\", columns=\"store\", values=\"amount\", aggfunc=\"sum\", fill_value=0)\n    return {\"months\": table.index.tolist(), \"values\": table.values.tolist()}\n\nDATES = [\"2026-01-05\", \"2026-01-20\", \"2026-02-11\", \"2026-03-02\"]\nSTORES = [\"A\", \"B\", \"A\", \"B\"]\nresult = month_table(DATES, STORES, [100, 50, 70, 30])\nprint(result[\"months\"])\nprint(result[\"values\"])\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef month_table(dates, stores, amounts):\n    df = pd.DataFrame({\"date\": dates, \"store\": stores, \"amount\": amounts})\n    df[\"month\"] = pd.to_datetime(df[\"date\"], format=\"%Y-%m-%d\").dt.to_period(\"M\").astype(str)\n    table = df.pivot_table(index=\"month\", columns=\"store\", values=\"amount\", aggfunc=\"sum\", fill_value=0)\n    return {\"months\": table.index.tolist(), \"values\": table.values.tolist()}\n\nDATES = [\"2026-01-05\", \"2026-01-20\", \"2026-02-11\", \"2026-03-02\"]\nSTORES = [\"A\", \"B\", \"A\", \"B\"]\nresult = month_table(DATES, STORES, [100, 50, 70, 30])\nprint(result[\"months\"])\nprint(result[\"values\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "month_table",
+      "cases": [
+        {
+          "args": [
+            [
+              "2026-01-05",
+              "2026-01-20",
+              "2026-02-11",
+              "2026-03-02"
+            ],
+            [
+              "A",
+              "B",
+              "A",
+              "B"
+            ],
+            [
+              100,
+              50,
+              70,
+              30
+            ]
+          ],
+          "returns": {
+            "months": [
+              "2026-01",
+              "2026-02",
+              "2026-03"
+            ],
+            "values": [
+              [
+                100,
+                50
+              ],
+              [
+                70,
+                0
+              ],
+              [
+                0,
+                30
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              "2025-12-31",
+              "2026-01-01"
+            ],
+            [
+              "X",
+              "X"
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "returns": {
+            "months": [
+              "2025-12",
+              "2026-01"
+            ],
+            "values": [
+              [
+                5
+              ],
+              [
+                6
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['2026-01', '2026-02', '2026-03']\n[[100, 50], [70, 0], [0, 30]]"
+    }
+  ]
+}

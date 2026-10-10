@@ -1,0 +1,137 @@
+{
+  "id": "region-sales",
+  "title": {
+    "tr": "Temizle, birleştir, topla",
+    "en": "Clean, combine, total"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Temizlik: `left[\"city\"] = left[\"city\"].str.strip().str.title()`; birleştirme `how=\"left\"`.",
+      "en": "Cleaning: `left[\"city\"] = left[\"city\"].str.strip().str.title()`; merge with `how=\"left\"`."
+    },
+    {
+      "tr": "Bölgesi olmayanlar: `joined.loc[joined[\"region\"].isna(), \"no\"].tolist()`.",
+      "en": "Those without a region: `joined.loc[joined[\"region\"].isna(), \"no\"].tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef region_sales(orders, regions):\n    left = pd.DataFrame(orders, columns=[\"no\", \"city\", \"amount\"])\n    left[\"city\"] = left[\"city\"].str.strip().str.title()\n    right = pd.DataFrame(regions, columns=[\"city\", \"region\"])\n    joined = left.merge(right, on=\"city\", how=\"left\")\n    sales = joined.groupby(\"region\")[\"amount\"].sum().to_dict()\n    unmatched = joined.loc[joined[\"region\"].isna(), \"no\"].tolist()\n    return {\"sales\": sales, \"unmatched\": unmatched}\n\nORDERS = [[1, \" izmir\", 120], [2, \"Izmir \", 80], [3, \"ANKARA\", 50], [4, \"bursa\", 70]]\nREGIONS = [[\"Izmir\", \"Aegean\"], [\"Ankara\", \"Central\"]]\nresult = region_sales(ORDERS, REGIONS)\nprint(result[\"sales\"])\nprint(result[\"unmatched\"])\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef region_sales(orders, regions):\n    left = pd.DataFrame(orders, columns=[\"no\", \"city\", \"amount\"])\n    left[\"city\"] = left[\"city\"].str.strip().str.title()\n    right = pd.DataFrame(regions, columns=[\"city\", \"region\"])\n    joined = left.merge(right, on=\"city\", how=\"left\")\n    sales = joined.groupby(\"region\")[\"amount\"].sum().to_dict()\n    unmatched = joined.loc[joined[\"region\"].isna(), \"no\"].tolist()\n    return {\"sales\": sales, \"unmatched\": unmatched}\n\nORDERS = [[1, \" izmir\", 120], [2, \"Izmir \", 80], [3, \"ANKARA\", 50], [4, \"bursa\", 70]]\nREGIONS = [[\"Izmir\", \"Aegean\"], [\"Ankara\", \"Central\"]]\nresult = region_sales(ORDERS, REGIONS)\nprint(result[\"sales\"])\nprint(result[\"unmatched\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "region_sales",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                " izmir",
+                120
+              ],
+              [
+                2,
+                "Izmir ",
+                80
+              ],
+              [
+                3,
+                "ANKARA",
+                50
+              ],
+              [
+                4,
+                "bursa",
+                70
+              ]
+            ],
+            [
+              [
+                "Izmir",
+                "Aegean"
+              ],
+              [
+                "Ankara",
+                "Central"
+              ]
+            ]
+          ],
+          "returns": {
+            "sales": {
+              "Aegean": 200,
+              "Central": 50
+            },
+            "unmatched": [
+              4
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                "van",
+                5
+              ]
+            ],
+            [
+              [
+                "Van",
+                "East"
+              ]
+            ]
+          ],
+          "returns": {
+            "sales": {
+              "East": 5
+            },
+            "unmatched": []
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                9,
+                "x",
+                1
+              ]
+            ],
+            [
+              [
+                "Y",
+                "Z"
+              ]
+            ]
+          ],
+          "returns": {
+            "sales": {},
+            "unmatched": [
+              9
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'Aegean': 200, 'Central': 50}\n[4]"
+    }
+  ]
+}
