@@ -1,0 +1,192 @@
+{
+  "id": "city-table",
+  "title": {
+    "tr": "Şehir × yıl tablosu",
+    "en": "A city × year table"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`table = df.groupby([\"city\", \"year\"])[\"sales\"].sum().unstack(fill_value=0)`.",
+      "en": "`table = df.groupby([\"city\", \"year\"])[\"sales\"].sum().unstack(fill_value=0)`."
+    },
+    {
+      "tr": "`table.columns.tolist()`, `table.index.tolist()`, `table.values.tolist()`.",
+      "en": "`table.columns.tolist()`, `table.index.tolist()`, `table.values.tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef city_table(rows):\n    df = pd.DataFrame(rows, columns=[\"city\", \"year\", \"sales\"])\n    table = df.groupby([\"city\", \"year\"])[\"sales\"].sum().unstack(fill_value=0)\n    return {\"years\": table.columns.tolist(), \"cities\": table.index.tolist(),\n            \"values\": table.values.tolist()}\n\nROWS = [[\"Izmir\", 2024, 30], [\"Izmir\", 2024, 50], [\"Ankara\", 2025, 110],\n        [\"Ankara\", 2024, 120], [\"Bursa\", 2024, 50], [\"Izmir\", 2025, 95]]\nresult = city_table(ROWS)\nprint(result[\"years\"])\nprint(result[\"cities\"])\nprint(*result[\"values\"], sep=\"\\n\")\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef city_table(rows):\n    df = pd.DataFrame(rows, columns=[\"city\", \"year\", \"sales\"])\n    table = df.groupby([\"city\", \"year\"])[\"sales\"].sum().unstack(fill_value=0)\n    return {\"years\": table.columns.tolist(), \"cities\": table.index.tolist(),\n            \"values\": table.values.tolist()}\n\nROWS = [[\"Izmir\", 2024, 30], [\"Izmir\", 2024, 50], [\"Ankara\", 2025, 110],\n        [\"Ankara\", 2024, 120], [\"Bursa\", 2024, 50], [\"Izmir\", 2025, 95]]\nresult = city_table(ROWS)\nprint(result[\"years\"])\nprint(result[\"cities\"])\nprint(*result[\"values\"], sep=\"\\n\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "city_table",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "Izmir",
+                2024,
+                30
+              ],
+              [
+                "Izmir",
+                2024,
+                50
+              ],
+              [
+                "Ankara",
+                2025,
+                110
+              ],
+              [
+                "Ankara",
+                2024,
+                120
+              ],
+              [
+                "Bursa",
+                2024,
+                50
+              ],
+              [
+                "Izmir",
+                2025,
+                95
+              ]
+            ]
+          ],
+          "returns": {
+            "years": [
+              2024,
+              2025
+            ],
+            "cities": [
+              "Ankara",
+              "Bursa",
+              "Izmir"
+            ],
+            "values": [
+              [
+                120,
+                110
+              ],
+              [
+                50,
+                0
+              ],
+              [
+                80,
+                95
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "Izmir",
+                2024,
+                80
+              ],
+              [
+                "Izmir",
+                2025,
+                95
+              ],
+              [
+                "Ankara",
+                2024,
+                120
+              ],
+              [
+                "Ankara",
+                2025,
+                110
+              ],
+              [
+                "Bursa",
+                2024,
+                50
+              ],
+              [
+                "Bursa",
+                2025,
+                65
+              ]
+            ]
+          ],
+          "returns": {
+            "years": [
+              2024,
+              2025
+            ],
+            "cities": [
+              "Ankara",
+              "Bursa",
+              "Izmir"
+            ],
+            "values": [
+              [
+                120,
+                110
+              ],
+              [
+                50,
+                65
+              ],
+              [
+                80,
+                95
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "Van",
+                2023,
+                5
+              ]
+            ]
+          ],
+          "returns": {
+            "years": [
+              2023
+            ],
+            "cities": [
+              "Van"
+            ],
+            "values": [
+              [
+                5
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2024, 2025]\n['Ankara', 'Bursa', 'Izmir']\n[120, 110]\n[50, 0]\n[80, 95]"
+    }
+  ]
+}
