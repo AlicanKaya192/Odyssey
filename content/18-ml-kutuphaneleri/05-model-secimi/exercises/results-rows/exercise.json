@@ -1,0 +1,82 @@
+{
+  "id": "results-rows",
+  "title": {
+    "tr": "Sonuç tablosu",
+    "en": "The results table"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`res = search.cv_results_`; `res[\"params\"]`, `res[\"mean_test_score\"]`, `res[\"std_test_score\"]` aynı sırada.",
+      "en": "`res = search.cv_results_`; `res[\"params\"]`, `res[\"mean_test_score\"]`, `res[\"std_test_score\"]` are in the same order."
+    },
+    {
+      "tr": "Üçünü `zip` ile dolaş; her satır `[params[\"C\"], round(float(mean), 3), round(float(std), 3)]`.",
+      "en": "Walk the three with `zip`; each row `[params[\"C\"], round(float(mean), 3), round(float(std), 3)]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=300, n_features=10, n_informative=4,\n                           flip_y=0.05, random_state=10)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=10)\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import GridSearchCV\n\n\ndef results_rows(cs):\n    search = GridSearchCV(LogisticRegression(), {\"C\": cs}, cv=5).fit(X_train, y_train)\n    res = search.cv_results_\n    rows = []\n    for params, mean, std in zip(res[\"params\"], res[\"mean_test_score\"], res[\"std_test_score\"]):\n        rows.append([params[\"C\"], round(float(mean), 3), round(float(std), 3)])\n    return rows\n\nprint(*results_rows([0.001, 0.1, 10.0]), sep=\"\\n\")\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=300, n_features=10, n_informative=4,\n                           flip_y=0.05, random_state=10)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=10)\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import GridSearchCV\n\n\ndef results_rows(cs):\n    search = GridSearchCV(LogisticRegression(), {\"C\": cs}, cv=5).fit(X_train, y_train)\n    res = search.cv_results_\n    rows = []\n    for params, mean, std in zip(res[\"params\"], res[\"mean_test_score\"], res[\"std_test_score\"]):\n        rows.append([params[\"C\"], round(float(mean), 3), round(float(std), 3)])\n    return rows\n\nprint(*results_rows([0.001, 0.1, 10.0]), sep=\"\\n\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "results_rows",
+      "cases": [
+        {
+          "args": [
+            [
+              0.001,
+              0.1,
+              10.0
+            ]
+          ],
+          "returns": [
+            [
+              0.001,
+              0.733,
+              0.063
+            ],
+            [
+              0.1,
+              0.831,
+              0.023
+            ],
+            [
+              10.0,
+              0.822,
+              0.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              1.0
+            ]
+          ],
+          "returns": [
+            [
+              1.0,
+              0.822,
+              0.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.001, 0.733, 0.063]\n[0.1, 0.831, 0.023]\n[10.0, 0.822, 0.0]"
+    }
+  ]
+}

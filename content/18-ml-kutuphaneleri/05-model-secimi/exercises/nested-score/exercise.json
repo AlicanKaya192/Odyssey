@@ -1,0 +1,68 @@
+{
+  "id": "nested-score",
+  "title": {
+    "tr": "İç içe doğrulama",
+    "en": "Nested validation"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "İç: `GridSearchCV(...).fit(X, y).best_score_`. Dış: aramanın kendisini `cross_val_score`'a ver.",
+      "en": "Inner: `GridSearchCV(...).fit(X, y).best_score_`. Outer: give the search itself to `cross_val_score`."
+    },
+    {
+      "tr": "`outer = cross_val_score(GridSearchCV(LogisticRegression(), {\"C\": cs}, cv=5), X, y, cv=5).mean()`.",
+      "en": "`outer = cross_val_score(GridSearchCV(LogisticRegression(), {\"C\": cs}, cv=5), X, y, cv=5).mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=300, n_features=10, n_informative=4,\n                           flip_y=0.05, random_state=10)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=10)\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import GridSearchCV, cross_val_score\n\n\ndef nested(cs):\n    search = GridSearchCV(LogisticRegression(), {\"C\": cs}, cv=5)\n    inner = search.fit(X, y).best_score_\n    outer = cross_val_score(GridSearchCV(LogisticRegression(), {\"C\": cs}, cv=5), X, y, cv=5).mean()\n    return {\"inner\": round(float(inner), 3), \"outer\": round(float(outer), 3)}\n\nresult = nested([0.001, 0.01, 0.1, 1.0, 10.0])\nprint(result[\"inner\"], result[\"outer\"])\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=300, n_features=10, n_informative=4,\n                           flip_y=0.05, random_state=10)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=10)\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import GridSearchCV, cross_val_score\n\n\ndef nested(cs):\n    search = GridSearchCV(LogisticRegression(), {\"C\": cs}, cv=5)\n    inner = search.fit(X, y).best_score_\n    outer = cross_val_score(GridSearchCV(LogisticRegression(), {\"C\": cs}, cv=5), X, y, cv=5).mean()\n    return {\"inner\": round(float(inner), 3), \"outer\": round(float(outer), 3)}\n\nresult = nested([0.001, 0.01, 0.1, 1.0, 10.0])\nprint(result[\"inner\"], result[\"outer\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "nested",
+      "cases": [
+        {
+          "args": [
+            [
+              0.001,
+              0.01,
+              0.1,
+              1.0,
+              10.0
+            ]
+          ],
+          "returns": {
+            "inner": 0.847,
+            "outer": 0.847
+          }
+        },
+        {
+          "args": [
+            [
+              1.0
+            ]
+          ],
+          "returns": {
+            "inner": 0.833,
+            "outer": 0.833
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.847 0.847"
+    }
+  ]
+}
