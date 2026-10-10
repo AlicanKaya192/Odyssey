@@ -1,0 +1,68 @@
+{
+  "id": "best-c",
+  "title": {
+    "tr": "Pipeline'da C araması",
+    "en": "Searching C in a pipeline"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Adım adı `make_pipeline`'ın verdiği: `logisticregression`.",
+      "en": "The step name is what `make_pipeline` gives: `logisticregression`."
+    },
+    {
+      "tr": "`{\"logisticregression__C\": options}`; sonucu da aynı anahtarla oku.",
+      "en": "`{\"logisticregression__C\": options}`; read the result with the same key."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.model_selection import StratifiedKFold, train_test_split\n\nrng = np.random.default_rng(16)\ndf = pd.DataFrame({\n    \"tenure\": rng.integers(1, 72, 1500).astype(float),\n    \"monthly\": rng.uniform(20, 120, 1500).round(2),\n    \"plan\": rng.choice([\"basic\", \"plus\", \"pro\"], 1500),\n    \"support\": rng.poisson(1.5, 1500).astype(float),\n})\nplan_effect = df[\"plan\"].map({\"basic\": 0.6, \"plus\": 0.0, \"pro\": -0.6})\nlogit = (-0.04 * df[\"tenure\"] + 0.02 * df[\"monthly\"] + 0.5 * df[\"support\"]\n         + plan_effect - 0.5)\ndf[\"churn\"] = (rng.random(1500) < 1 / (1 + np.exp(-logit))).astype(int)\ndf.loc[rng.random(1500) < 0.08, \"monthly\"] = np.nan\nX, y = df.drop(columns=\"churn\"), df[\"churn\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y,\n                                                    random_state=0)\ncv = StratifiedKFold(5, shuffle=True, random_state=0)\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\nprep = ColumnTransformer([\n    (\"num\", make_pipeline(SimpleImputer(strategy=\"median\"), StandardScaler()),\n     numeric),\n    (\"cat\", OneHotEncoder(handle_unknown=\"ignore\"), [\"plan\"]),\n])\nfrom sklearn.model_selection import GridSearchCV\n\n\ndef best_c(options):\n    pipe = make_pipeline(prep, LogisticRegression())\n    search = GridSearchCV(pipe, {\"logisticregression__C\": options}, cv=cv, scoring=\"roc_auc\")\n    search.fit(X_train, y_train)\n    return [search.best_params_[\"logisticregression__C\"], round(float(search.best_score_), 3)]\n\nprint(best_c([0.01, 0.1, 1, 10]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.model_selection import StratifiedKFold, train_test_split\n\nrng = np.random.default_rng(16)\ndf = pd.DataFrame({\n    \"tenure\": rng.integers(1, 72, 1500).astype(float),\n    \"monthly\": rng.uniform(20, 120, 1500).round(2),\n    \"plan\": rng.choice([\"basic\", \"plus\", \"pro\"], 1500),\n    \"support\": rng.poisson(1.5, 1500).astype(float),\n})\nplan_effect = df[\"plan\"].map({\"basic\": 0.6, \"plus\": 0.0, \"pro\": -0.6})\nlogit = (-0.04 * df[\"tenure\"] + 0.02 * df[\"monthly\"] + 0.5 * df[\"support\"]\n         + plan_effect - 0.5)\ndf[\"churn\"] = (rng.random(1500) < 1 / (1 + np.exp(-logit))).astype(int)\ndf.loc[rng.random(1500) < 0.08, \"monthly\"] = np.nan\nX, y = df.drop(columns=\"churn\"), df[\"churn\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y,\n                                                    random_state=0)\ncv = StratifiedKFold(5, shuffle=True, random_state=0)\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\nprep = ColumnTransformer([\n    (\"num\", make_pipeline(SimpleImputer(strategy=\"median\"), StandardScaler()),\n     numeric),\n    (\"cat\", OneHotEncoder(handle_unknown=\"ignore\"), [\"plan\"]),\n])\nfrom sklearn.model_selection import GridSearchCV\n\n\ndef best_c(options):\n    pipe = make_pipeline(prep, LogisticRegression())\n    search = GridSearchCV(pipe, {\"logisticregression__C\": options}, cv=cv, scoring=\"roc_auc\")\n    search.fit(X_train, y_train)\n    return [search.best_params_[\"logisticregression__C\"], round(float(search.best_score_), 3)]\n\nprint(best_c([0.01, 0.1, 1, 10]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "best_c",
+      "cases": [
+        {
+          "args": [
+            [
+              0.01,
+              0.1,
+              1,
+              10
+            ]
+          ],
+          "returns": [
+            0.1,
+            0.777
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              100
+            ]
+          ],
+          "returns": [
+            1,
+            0.777
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.1, 0.777]"
+    }
+  ]
+}
