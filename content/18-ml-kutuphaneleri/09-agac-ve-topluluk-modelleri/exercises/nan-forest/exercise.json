@@ -1,0 +1,54 @@
+{
+  "id": "nan-forest",
+  "title": {
+    "tr": "Eksikle orman",
+    "en": "A forest with gaps"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`np.nan_to_num` satırı gereksiz; orman `NaN`'la eğitilir.",
+      "en": "The `np.nan_to_num` line is unnecessary; the forest trains with `NaN`."
+    },
+    {
+      "tr": "O satırı sil; geri kalanı aynı.",
+      "en": "Delete that line; the rest stays."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=600, n_features=10, n_informative=4,\n                           flip_y=0.1, random_state=8)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=8)\nimport numpy as np\nfrom sklearn.ensemble import RandomForestClassifier\n\n\ndef nan_forest(rate):\n    X_nan = X_train.copy()\n    rng = np.random.default_rng(0)\n    X_nan[rng.random(X_nan.shape) < rate] = np.nan\n    model = RandomForestClassifier(n_estimators=100, random_state=0).fit(X_nan, y_train)\n    return round(float(model.score(X_test, y_test)), 3)\n\nprint(nan_forest(0.1))\nprint(nan_forest(0.3))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=600, n_features=10, n_informative=4,\n                           flip_y=0.1, random_state=8)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=8)\nimport numpy as np\nfrom sklearn.ensemble import RandomForestClassifier\n\n\ndef nan_forest(rate):\n    X_nan = X_train.copy()\n    rng = np.random.default_rng(0)\n    X_nan[rng.random(X_nan.shape) < rate] = np.nan\n    model = RandomForestClassifier(n_estimators=100, random_state=0).fit(X_nan, y_train)\n    return round(float(model.score(X_test, y_test)), 3)\n\nprint(nan_forest(0.1))\nprint(nan_forest(0.3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "nan_forest",
+      "cases": [
+        {
+          "args": [
+            0.1
+          ],
+          "returns": 0.9
+        },
+        {
+          "args": [
+            0.3
+          ],
+          "returns": 0.893
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.9\n0.893"
+    }
+  ]
+}
