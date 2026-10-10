@@ -1,0 +1,84 @@
+{
+  "id": "round-price",
+  "title": {
+    "tr": "Kurala göre yuvarla",
+    "en": "Round by the rule"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`Decimal(text).quantize(Decimal(\"0.01\"), rounding=...)`.",
+      "en": "`Decimal(text).quantize(Decimal(\"0.01\"), rounding=...)`."
+    },
+    {
+      "tr": "Kuralı sözlükten seç: `{\"up\": ROUND_HALF_UP, \"even\": ROUND_HALF_EVEN}[rule]`.",
+      "en": "Pick the rule from a dictionary: `{\"up\": ROUND_HALF_UP, \"even\": ROUND_HALF_EVEN}[rule]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_EVEN\n\nRULES = {\"up\": ROUND_HALF_UP, \"even\": ROUND_HALF_EVEN}\n\n\ndef round_price(text, rule):\n    value = Decimal(text).quantize(Decimal(\"0.01\"), rounding=RULES[rule])\n    return str(value)\n\nprint(round_price(\"2.665\", \"up\"), round_price(\"2.665\", \"even\"))\nprint(round_price(\"10\", \"up\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_EVEN\n\nRULES = {\"up\": ROUND_HALF_UP, \"even\": ROUND_HALF_EVEN}\n\n\ndef round_price(text, rule):\n    value = Decimal(text).quantize(Decimal(\"0.01\"), rounding=RULES[rule])\n    return str(value)\n\nprint(round_price(\"2.665\", \"up\"), round_price(\"2.665\", \"even\"))\nprint(round_price(\"10\", \"up\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "round_price",
+      "cases": [
+        {
+          "args": [
+            "2.665",
+            "up"
+          ],
+          "returns": "2.67"
+        },
+        {
+          "args": [
+            "2.665",
+            "even"
+          ],
+          "returns": "2.66"
+        },
+        {
+          "args": [
+            "2.675",
+            "even"
+          ],
+          "returns": "2.68"
+        },
+        {
+          "args": [
+            "10",
+            "up"
+          ],
+          "returns": "10.00"
+        },
+        {
+          "args": [
+            "0.125",
+            "up"
+          ],
+          "returns": "0.13"
+        },
+        {
+          "args": [
+            "0.125",
+            "even"
+          ],
+          "returns": "0.12"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2.67 2.66\n10.00"
+    }
+  ]
+}

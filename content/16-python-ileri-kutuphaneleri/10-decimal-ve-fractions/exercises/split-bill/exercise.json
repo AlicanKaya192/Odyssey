@@ -1,0 +1,99 @@
+{
+  "id": "split-bill",
+  "title": {
+    "tr": "Hesabı böl",
+    "en": "Split the bill"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`base = (amount / n).quantize(Decimal(\"0.01\"), rounding=ROUND_DOWN)`; kalan `amount - base * n`.",
+      "en": "`base = (amount / n).quantize(Decimal(\"0.01\"), rounding=ROUND_DOWN)`; the remainder is `amount - base * n`."
+    },
+    {
+      "tr": "Kalan kuruş sayısı `int(kalan / Decimal(\"0.01\"))`; `i < cents` olan paylara `0.01` ekle.",
+      "en": "The number of leftover cents is `int(rest / Decimal(\"0.01\"))`; add `0.01` to shares with `i < cents`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom decimal import Decimal, ROUND_DOWN\n\nCENT = Decimal(\"0.01\")\n\n\ndef split_bill(total, n):\n    amount = Decimal(total)\n    base = (amount / n).quantize(CENT, rounding=ROUND_DOWN)\n    cents = int((amount - base * n) / CENT)\n    return [str(base + CENT) if i < cents else str(base) for i in range(n)]\n\nprint(split_bill(\"100.00\", 3))\nprint(split_bill(\"0.05\", 3))\n```",
+      "en": "The full solution:\n\n```python\nfrom decimal import Decimal, ROUND_DOWN\n\nCENT = Decimal(\"0.01\")\n\n\ndef split_bill(total, n):\n    amount = Decimal(total)\n    base = (amount / n).quantize(CENT, rounding=ROUND_DOWN)\n    cents = int((amount - base * n) / CENT)\n    return [str(base + CENT) if i < cents else str(base) for i in range(n)]\n\nprint(split_bill(\"100.00\", 3))\nprint(split_bill(\"0.05\", 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "split_bill",
+      "cases": [
+        {
+          "args": [
+            "100.00",
+            3
+          ],
+          "returns": [
+            "33.34",
+            "33.33",
+            "33.33"
+          ]
+        },
+        {
+          "args": [
+            "10.00",
+            4
+          ],
+          "returns": [
+            "2.50",
+            "2.50",
+            "2.50",
+            "2.50"
+          ]
+        },
+        {
+          "args": [
+            "0.05",
+            3
+          ],
+          "returns": [
+            "0.02",
+            "0.02",
+            "0.01"
+          ]
+        },
+        {
+          "args": [
+            "1.00",
+            6
+          ],
+          "returns": [
+            "0.17",
+            "0.17",
+            "0.17",
+            "0.17",
+            "0.16",
+            "0.16"
+          ]
+        },
+        {
+          "args": [
+            "7.00",
+            1
+          ],
+          "returns": [
+            "7.00"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['33.34', '33.33', '33.33']\n['0.02', '0.02', '0.01']"
+    }
+  ]
+}
