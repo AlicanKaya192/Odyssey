@@ -1,0 +1,72 @@
+{
+  "id": "limited-downloads",
+  "title": {
+    "tr": "Aynı anda en fazla",
+    "en": "At most at once"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "`gate = asyncio.Semaphore(limit)`.",
+      "en": "`gate = asyncio.Semaphore(limit)`."
+    },
+    {
+      "tr": "`download` içindeki beş satırı `async with gate:` altına girintile.",
+      "en": "Indent the five lines inside `download` under `async with gate:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport asyncio\n\n\nasync def download(n, gate, state):\n    async with gate:\n        state[\"active\"] += 1\n        state[\"peak\"] = max(state[\"peak\"], state[\"active\"])\n        await asyncio.sleep(0.02)\n        state[\"active\"] -= 1\n        return n\n\n\nasync def download_all(count, limit):\n    gate = asyncio.Semaphore(limit)\n    state = {\"active\": 0, \"peak\": 0}\n    results = await asyncio.gather(*(download(n, gate, state) for n in range(count)))\n    return [len(results), state[\"peak\"]]\n\ndef run_downloads(count, limit):\n    return asyncio.run(download_all(count, limit))\n\n\nprint(run_downloads(10, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport asyncio\n\n\nasync def download(n, gate, state):\n    async with gate:\n        state[\"active\"] += 1\n        state[\"peak\"] = max(state[\"peak\"], state[\"active\"])\n        await asyncio.sleep(0.02)\n        state[\"active\"] -= 1\n        return n\n\n\nasync def download_all(count, limit):\n    gate = asyncio.Semaphore(limit)\n    state = {\"active\": 0, \"peak\": 0}\n    results = await asyncio.gather(*(download(n, gate, state) for n in range(count)))\n    return [len(results), state[\"peak\"]]\n\ndef run_downloads(count, limit):\n    return asyncio.run(download_all(count, limit))\n\n\nprint(run_downloads(10, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "run_downloads",
+      "cases": [
+        {
+          "args": [
+            10,
+            3
+          ],
+          "returns": [
+            10,
+            3
+          ]
+        },
+        {
+          "args": [
+            5,
+            1
+          ],
+          "returns": [
+            5,
+            1
+          ]
+        },
+        {
+          "args": [
+            4,
+            10
+          ],
+          "returns": [
+            4,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[10, 3]"
+    }
+  ]
+}

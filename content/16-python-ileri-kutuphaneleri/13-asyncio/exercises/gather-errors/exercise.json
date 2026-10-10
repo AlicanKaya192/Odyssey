@@ -1,0 +1,72 @@
+{
+  "id": "gather-errors",
+  "title": {
+    "tr": "Hatalar sonuçta",
+    "en": "Errors in the results"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`await asyncio.gather(..., return_exceptions=True)` hatayı sonucun yerine koyar.",
+      "en": "`await asyncio.gather(..., return_exceptions=True)` puts the error in place of the result."
+    },
+    {
+      "tr": "`[\"error\" if isinstance(r, Exception) else r for r in results]`.",
+      "en": "`[\"error\" if isinstance(r, Exception) else r for r in results]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport asyncio\n\n\nasync def check(x):\n    await asyncio.sleep(0.01)\n    if x < 0:\n        raise ValueError(x)\n    return x * 10\n\n\nasync def safe_all(values):\n    results = await asyncio.gather(*(check(v) for v in values), return_exceptions=True)\n    return [\"error\" if isinstance(r, Exception) else r for r in results]\n\ndef run_safe(values):\n    return asyncio.run(safe_all(values))\n\n\nprint(run_safe([1, -2, 3]))\n```",
+      "en": "The full solution:\n\n```python\nimport asyncio\n\n\nasync def check(x):\n    await asyncio.sleep(0.01)\n    if x < 0:\n        raise ValueError(x)\n    return x * 10\n\n\nasync def safe_all(values):\n    results = await asyncio.gather(*(check(v) for v in values), return_exceptions=True)\n    return [\"error\" if isinstance(r, Exception) else r for r in results]\n\ndef run_safe(values):\n    return asyncio.run(safe_all(values))\n\n\nprint(run_safe([1, -2, 3]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "run_safe",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              -2,
+              3
+            ]
+          ],
+          "returns": [
+            10,
+            "error",
+            30
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              -1
+            ]
+          ],
+          "returns": [
+            "error"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[10, 'error', 30]"
+    }
+  ]
+}

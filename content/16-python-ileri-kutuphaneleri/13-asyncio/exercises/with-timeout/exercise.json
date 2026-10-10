@@ -1,0 +1,63 @@
+{
+  "id": "with-timeout",
+  "title": {
+    "tr": "Süre sınırı",
+    "en": "A time limit"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "`try:` içinde `async with asyncio.timeout(limit):` ve altında `return await slow(delay)`.",
+      "en": "Inside `try:`, `async with asyncio.timeout(limit):` and under it `return await slow(delay)`."
+    },
+    {
+      "tr": "`except TimeoutError: return \"timeout\"`.",
+      "en": "`except TimeoutError: return \"timeout\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport asyncio\n\n\nasync def slow(delay):\n    await asyncio.sleep(delay)\n    return \"ok\"\n\n\nasync def fetch_or_default(delay, limit):\n    try:\n        async with asyncio.timeout(limit):\n            return await slow(delay)\n    except TimeoutError:\n        return \"timeout\"\n\ndef check(delay, limit):\n    return asyncio.run(fetch_or_default(delay, limit))\n\n\nprint(check(0.05, 0.5), check(1.0, 0.1))\n```",
+      "en": "The full solution:\n\n```python\nimport asyncio\n\n\nasync def slow(delay):\n    await asyncio.sleep(delay)\n    return \"ok\"\n\n\nasync def fetch_or_default(delay, limit):\n    try:\n        async with asyncio.timeout(limit):\n            return await slow(delay)\n    except TimeoutError:\n        return \"timeout\"\n\ndef check(delay, limit):\n    return asyncio.run(fetch_or_default(delay, limit))\n\n\nprint(check(0.05, 0.5), check(1.0, 0.1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check",
+      "cases": [
+        {
+          "args": [
+            0.05,
+            0.5
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            1.0,
+            0.1
+          ],
+          "returns": "timeout"
+        },
+        {
+          "args": [
+            0.3,
+            0.1
+          ],
+          "returns": "timeout"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok timeout"
+    }
+  ]
+}
