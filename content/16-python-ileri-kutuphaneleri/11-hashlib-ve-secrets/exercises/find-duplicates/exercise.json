@@ -1,0 +1,88 @@
+{
+  "id": "find-duplicates",
+  "title": {
+    "tr": "Aynı içerikli dosyalar",
+    "en": "Files with the same content"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Özeti `hashlib.file_digest(file, \"sha256\").hexdigest()` ile al; `groups.setdefault(digest, []).append(path)`.",
+      "en": "Take the digest with `hashlib.file_digest(file, \"sha256\").hexdigest()`; `groups.setdefault(digest, []).append(path)`."
+    },
+    {
+      "tr": "`[sorted(g) for g in groups.values() if len(g) > 1]` ve sonucu `sorted(...)`.",
+      "en": "`[sorted(g) for g in groups.values() if len(g) > 1]` and `sorted(...)` the result."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef duplicates(paths):\n    groups = {}\n    for path in paths:\n        with open(path, \"rb\") as file:\n            digest = hashlib.file_digest(file, \"sha256\").hexdigest()\n        groups.setdefault(digest, []).append(path)\n    found = [sorted(group) for group in groups.values() if len(group) > 1]\n    return sorted(found)\n\nfor group in duplicates([\"files/a.txt\", \"files/b.txt\", \"files/c.txt\", \"files/d.txt\"]):\n    print(group)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef duplicates(paths):\n    groups = {}\n    for path in paths:\n        with open(path, \"rb\") as file:\n            digest = hashlib.file_digest(file, \"sha256\").hexdigest()\n        groups.setdefault(digest, []).append(path)\n    found = [sorted(group) for group in groups.values() if len(group) > 1]\n    return sorted(found)\n\nfor group in duplicates([\"files/a.txt\", \"files/b.txt\", \"files/c.txt\", \"files/d.txt\"]):\n    print(group)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "duplicates",
+      "cases": [
+        {
+          "args": [
+            [
+              "files/a.txt",
+              "files/b.txt",
+              "files/c.txt",
+              "files/d.txt"
+            ]
+          ],
+          "returns": [
+            [
+              "files/a.txt",
+              "files/c.txt"
+            ],
+            [
+              "files/b.txt",
+              "files/d.txt"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "files/a.txt",
+              "files/d.txt"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "files/e.txt",
+              "files/c.txt",
+              "files/a.txt",
+              "files/f.txt"
+            ]
+          ],
+          "returns": [
+            [
+              "files/a.txt",
+              "files/c.txt",
+              "files/f.txt"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['files/a.txt', 'files/c.txt']\n['files/b.txt', 'files/d.txt']"
+    }
+  ]
+}

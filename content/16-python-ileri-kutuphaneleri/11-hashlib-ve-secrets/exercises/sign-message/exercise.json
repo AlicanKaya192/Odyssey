@@ -1,0 +1,93 @@
+{
+  "id": "sign-message",
+  "title": {
+    "tr": "Mesajı imzala",
+    "en": "Sign a message"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`hmac.new(key.encode(), message.encode(), hashlib.sha256).hexdigest()`.",
+      "en": "`hmac.new(key.encode(), message.encode(), hashlib.sha256).hexdigest()`."
+    },
+    {
+      "tr": "`verify`: `hmac.compare_digest(sign(key, message), tag)`.",
+      "en": "`verify`: `hmac.compare_digest(sign(key, message), tag)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef sign(key, message):\n    return hmac.new(key.encode(), message.encode(), hashlib.sha256).hexdigest()\n\n\ndef verify(key, message, tag):\n    return hmac.compare_digest(sign(key, message), tag)\n\ntag = sign(\"k1\", \"amount=100\")\nprint(tag[:16])\nprint(verify(\"k1\", \"amount=100\", tag), verify(\"k1\", \"amount=900\", tag))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef sign(key, message):\n    return hmac.new(key.encode(), message.encode(), hashlib.sha256).hexdigest()\n\n\ndef verify(key, message, tag):\n    return hmac.compare_digest(sign(key, message), tag)\n\ntag = sign(\"k1\", \"amount=100\")\nprint(tag[:16])\nprint(verify(\"k1\", \"amount=100\", tag), verify(\"k1\", \"amount=900\", tag))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sign",
+      "cases": [
+        {
+          "args": [
+            "k1",
+            "amount=100"
+          ],
+          "returns": "e3b44dc2cb8596823f38b4a9caf4821d4d2462eef51946ae46c9fd7836e05f19"
+        },
+        {
+          "args": [
+            "k2",
+            "amount=100"
+          ],
+          "returns": "cc8c7f9d28c180e58e92e421a9e088d62f9f24d3308252c5784b4c074d400eb5"
+        },
+        {
+          "args": [
+            "k1",
+            ""
+          ],
+          "returns": "e6f06a89ac679df9f3f5774369cac0d555f1963cf3b15c4b7fbf4f7e2c428a91"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "verify",
+      "cases": [
+        {
+          "args": [
+            "k1",
+            "amount=100",
+            "e3b44dc2cb8596823f38b4a9caf4821d4d2462eef51946ae46c9fd7836e05f19"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "k1",
+            "amount=900",
+            "e3b44dc2cb8596823f38b4a9caf4821d4d2462eef51946ae46c9fd7836e05f19"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "k2",
+            "amount=100",
+            "e3b44dc2cb8596823f38b4a9caf4821d4d2462eef51946ae46c9fd7836e05f19"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "e3b44dc2cb859682\nTrue False"
+    }
+  ]
+}
