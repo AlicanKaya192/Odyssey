@@ -66,6 +66,7 @@ BADGE_TAGS = {
     "strategist": "alg2-complete",
     "daedalus": "alg3-complete",
     "artisan": "pylib1-complete",
+    "architect": "pylib2-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200
