@@ -1,0 +1,122 @@
+{
+  "id": "distances",
+  "title": {
+    "tr": "Uzaklık matrisi",
+    "en": "A distance matrix"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`diff = P[:, None, :] - P[None, :, :]` şekli `(n, n, boyut)`.",
+      "en": "`diff = P[:, None, :] - P[None, :, :]` has shape `(n, n, dims)`."
+    },
+    {
+      "tr": "`np.sqrt((diff ** 2).sum(axis=-1)).round(2).tolist()`.",
+      "en": "`np.sqrt((diff ** 2).sum(axis=-1)).round(2).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef distances(points):\n    P = np.array(points, dtype=float)\n    diff = P[:, None, :] - P[None, :, :]\n    return np.sqrt((diff ** 2).sum(axis=-1)).round(2).tolist()\n\nfor row in distances([[0, 0], [3, 4], [6, 8]]):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef distances(points):\n    P = np.array(points, dtype=float)\n    diff = P[:, None, :] - P[None, :, :]\n    return np.sqrt((diff ** 2).sum(axis=-1)).round(2).tolist()\n\nfor row in distances([[0, 0], [3, 4], [6, 8]]):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "distances",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                3,
+                4
+              ],
+              [
+                6,
+                8
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.0,
+              5.0,
+              10.0
+            ],
+            [
+              5.0,
+              0.0,
+              5.0
+            ],
+            [
+              10.0,
+              5.0,
+              0.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                2,
+                2
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.0,
+              3.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.0, 5.0, 10.0]\n[5.0, 0.0, 5.0]\n[10.0, 5.0, 0.0]"
+    }
+  ]
+}
