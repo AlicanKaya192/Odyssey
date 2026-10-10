@@ -1,0 +1,60 @@
+{
+  "id": "perm-mae",
+  "title": {
+    "tr": "MAE ile önem",
+    "en": "Importance with MAE"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "`permutation_importance(..., scoring=\"neg_mean_absolute_error\")`.",
+      "en": "`permutation_importance(..., scoring=\"neg_mean_absolute_error\")`."
+    },
+    {
+      "tr": "Eksi ölçünün düşüşü artı çıkar: MAE'deki artış.",
+      "en": "The drop of a negated measure comes out positive: the rise in MAE."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.ensemble import RandomForestRegressor\nfrom sklearn.model_selection import train_test_split\n\nrng = np.random.default_rng(0)\ndf = pd.DataFrame({\n    \"area\": rng.uniform(40, 200, 2000),\n    \"age\": rng.uniform(0, 50, 2000),\n    \"floor\": rng.integers(0, 15, 2000),\n    \"row_id\": rng.permutation(2000),\n    \"coin\": rng.integers(0, 2, 2000),\n})\ndf[\"price\"] = (df[\"area\"] - 0.1 * (df[\"age\"] - 25) ** 2\n               + 8 * np.minimum(df[\"floor\"], 8) + rng.normal(0, 15, 2000))\nX, y = df.drop(columns=\"price\"), df[\"price\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)\nrf = RandomForestRegressor(n_estimators=100, random_state=0).fit(X_train, y_train)\nfrom sklearn.inspection import permutation_importance\n\n\ndef perm_mae(column):\n    result = permutation_importance(rf, X_test, y_test, n_repeats=5, random_state=0,\n                                    scoring=\"neg_mean_absolute_error\")\n    return round(float(result.importances_mean[X.columns.get_loc(column)]), 2)\n\nprint(perm_mae(\"area\"))\nprint(perm_mae(\"floor\"))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.ensemble import RandomForestRegressor\nfrom sklearn.model_selection import train_test_split\n\nrng = np.random.default_rng(0)\ndf = pd.DataFrame({\n    \"area\": rng.uniform(40, 200, 2000),\n    \"age\": rng.uniform(0, 50, 2000),\n    \"floor\": rng.integers(0, 15, 2000),\n    \"row_id\": rng.permutation(2000),\n    \"coin\": rng.integers(0, 2, 2000),\n})\ndf[\"price\"] = (df[\"area\"] - 0.1 * (df[\"age\"] - 25) ** 2\n               + 8 * np.minimum(df[\"floor\"], 8) + rng.normal(0, 15, 2000))\nX, y = df.drop(columns=\"price\"), df[\"price\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)\nrf = RandomForestRegressor(n_estimators=100, random_state=0).fit(X_train, y_train)\nfrom sklearn.inspection import permutation_importance\n\n\ndef perm_mae(column):\n    result = permutation_importance(rf, X_test, y_test, n_repeats=5, random_state=0,\n                                    scoring=\"neg_mean_absolute_error\")\n    return round(float(result.importances_mean[X.columns.get_loc(column)]), 2)\n\nprint(perm_mae(\"area\"))\nprint(perm_mae(\"floor\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "perm_mae",
+      "cases": [
+        {
+          "args": [
+            "area"
+          ],
+          "returns": 42.37
+        },
+        {
+          "args": [
+            "floor"
+          ],
+          "returns": 13.47
+        },
+        {
+          "args": [
+            "coin"
+          ],
+          "returns": -0.03
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "42.37\n13.47"
+    }
+  ]
+}
