@@ -1,0 +1,84 @@
+{
+  "id": "percent-ticks",
+  "title": {
+    "tr": "Yüzde ekseni",
+    "en": "A percent axis"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`xmax`, yüzde 100'ün karşılığı olan değer; oranlar 0–1 arasındaysa `1`.",
+      "en": "`xmax` is the value that means 100 percent; `1` when rates are between 0 and 1."
+    },
+    {
+      "tr": "`PercentFormatter(xmax=1, decimals=0)`.",
+      "en": "`PercentFormatter(xmax=1, decimals=0)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\nfrom matplotlib.ticker import PercentFormatter\n\n\ndef percent_ticks(rates):\n    fig, ax = plt.subplots()\n    ax.plot(rates, marker=\"o\")\n    ax.yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0))\n    fig.canvas.draw()\n    labels = [t.get_text() for t in ax.get_yticklabels()][:3]\n    plt.close(fig)\n    return labels\n\nprint(percent_ticks([0.05, 0.184, 0.115, 0.313]))\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\nfrom matplotlib.ticker import PercentFormatter\n\n\ndef percent_ticks(rates):\n    fig, ax = plt.subplots()\n    ax.plot(rates, marker=\"o\")\n    ax.yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0))\n    fig.canvas.draw()\n    labels = [t.get_text() for t in ax.get_yticklabels()][:3]\n    plt.close(fig)\n    return labels\n\nprint(percent_ticks([0.05, 0.184, 0.115, 0.313]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "percent_ticks",
+      "cases": [
+        {
+          "args": [
+            [
+              0.05,
+              0.184,
+              0.115,
+              0.313
+            ]
+          ],
+          "returns": [
+            "0%",
+            "5%",
+            "10%"
+          ]
+        },
+        {
+          "args": [
+            [
+              0.5,
+              0.75,
+              1.0
+            ]
+          ],
+          "returns": [
+            "40%",
+            "50%",
+            "60%"
+          ]
+        },
+        {
+          "args": [
+            [
+              0.01,
+              0.02
+            ]
+          ],
+          "returns": [
+            "1%",
+            "1%",
+            "1%"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['0%', '5%', '10%']"
+    }
+  ]
+}
