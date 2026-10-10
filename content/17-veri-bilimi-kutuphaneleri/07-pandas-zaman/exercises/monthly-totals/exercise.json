@@ -1,0 +1,94 @@
+{
+  "id": "monthly-totals",
+  "title": {
+    "tr": "Aylık toplam",
+    "en": "Monthly totals"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`monthly = s.resample(\"ME\").sum()`.",
+      "en": "`monthly = s.resample(\"ME\").sum()`."
+    },
+    {
+      "tr": "`dict(zip(monthly.index.strftime(\"%Y-%m\"), monthly.tolist()))`.",
+      "en": "`dict(zip(monthly.index.strftime(\"%Y-%m\"), monthly.tolist()))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef monthly_totals(dates, amounts):\n    s = pd.Series(amounts, index=pd.to_datetime(dates))\n    monthly = s.resample(\"ME\").sum()\n    return dict(zip(monthly.index.strftime(\"%Y-%m\"), monthly.tolist()))\n\nDATES = [\"2026-01-05\", \"2026-01-20\", \"2026-03-02\"]\nprint(*monthly_totals(DATES, [100, 50, 70]).items(), sep=\"\\n\")\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef monthly_totals(dates, amounts):\n    s = pd.Series(amounts, index=pd.to_datetime(dates))\n    monthly = s.resample(\"ME\").sum()\n    return dict(zip(monthly.index.strftime(\"%Y-%m\"), monthly.tolist()))\n\nDATES = [\"2026-01-05\", \"2026-01-20\", \"2026-03-02\"]\nprint(*monthly_totals(DATES, [100, 50, 70]).items(), sep=\"\\n\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "monthly_totals",
+      "cases": [
+        {
+          "args": [
+            [
+              "2026-01-05",
+              "2026-01-20",
+              "2026-03-02"
+            ],
+            [
+              100,
+              50,
+              70
+            ]
+          ],
+          "returns": {
+            "2026-01": 150,
+            "2026-02": 0,
+            "2026-03": 70
+          }
+        },
+        {
+          "args": [
+            [
+              "2025-12-31",
+              "2026-01-01"
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "returns": {
+            "2025-12": 1,
+            "2026-01": 2
+          }
+        },
+        {
+          "args": [
+            [
+              "2026-05-10"
+            ],
+            [
+              9
+            ]
+          ],
+          "returns": {
+            "2026-05": 9
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "('2026-01', 150)\n('2026-02', 0)\n('2026-03', 70)"
+    }
+  ]
+}

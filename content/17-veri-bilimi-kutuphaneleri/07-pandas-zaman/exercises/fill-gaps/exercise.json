@@ -1,0 +1,127 @@
+{
+  "id": "fill-gaps",
+  "title": {
+    "tr": "Eksik günleri doldur",
+    "en": "Fill the missing days"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`s = pd.Series(values, index=pd.to_datetime(dates)).asfreq(\"D\")`.",
+      "en": "`s = pd.Series(values, index=pd.to_datetime(dates)).asfreq(\"D\")`."
+    },
+    {
+      "tr": "`if how == \"zero\": s = s.fillna(0)`, `elif how == \"ffill\": s = s.ffill()`, `else: s = s.interpolate()`; `s.round(1).tolist()`.",
+      "en": "`if how == \"zero\": s = s.fillna(0)`, `elif how == \"ffill\": s = s.ffill()`, `else: s = s.interpolate()`; `s.round(1).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef fill_gaps(dates, values, how):\n    s = pd.Series(values, index=pd.to_datetime(dates)).asfreq(\"D\")\n    if how == \"zero\":\n        s = s.fillna(0)\n    elif how == \"ffill\":\n        s = s.ffill()\n    else:\n        s = s.interpolate()\n    return s.round(1).tolist()\n\nDATES = [\"2026-03-02\", \"2026-03-03\", \"2026-03-06\"]\nfor how in [\"zero\", \"ffill\", \"interpolate\"]:\n    print(how, fill_gaps(DATES, [40, 42, 51], how))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef fill_gaps(dates, values, how):\n    s = pd.Series(values, index=pd.to_datetime(dates)).asfreq(\"D\")\n    if how == \"zero\":\n        s = s.fillna(0)\n    elif how == \"ffill\":\n        s = s.ffill()\n    else:\n        s = s.interpolate()\n    return s.round(1).tolist()\n\nDATES = [\"2026-03-02\", \"2026-03-03\", \"2026-03-06\"]\nfor how in [\"zero\", \"ffill\", \"interpolate\"]:\n    print(how, fill_gaps(DATES, [40, 42, 51], how))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fill_gaps",
+      "cases": [
+        {
+          "args": [
+            [
+              "2026-03-02",
+              "2026-03-03",
+              "2026-03-06"
+            ],
+            [
+              40,
+              42,
+              51
+            ],
+            "zero"
+          ],
+          "returns": [
+            40.0,
+            42.0,
+            0.0,
+            0.0,
+            51.0
+          ]
+        },
+        {
+          "args": [
+            [
+              "2026-03-02",
+              "2026-03-03",
+              "2026-03-06"
+            ],
+            [
+              40,
+              42,
+              51
+            ],
+            "ffill"
+          ],
+          "returns": [
+            40.0,
+            42.0,
+            42.0,
+            42.0,
+            51.0
+          ]
+        },
+        {
+          "args": [
+            [
+              "2026-03-02",
+              "2026-03-03",
+              "2026-03-06"
+            ],
+            [
+              40,
+              42,
+              51
+            ],
+            "interpolate"
+          ],
+          "returns": [
+            40.0,
+            42.0,
+            45.0,
+            48.0,
+            51.0
+          ]
+        },
+        {
+          "args": [
+            [
+              "2026-01-30",
+              "2026-02-02"
+            ],
+            [
+              1,
+              4
+            ],
+            "interpolate"
+          ],
+          "returns": [
+            1.0,
+            2.0,
+            3.0,
+            4.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "zero [40.0, 42.0, 0.0, 0.0, 51.0]\nffill [40.0, 42.0, 42.0, 42.0, 51.0]\ninterpolate [40.0, 42.0, 45.0, 48.0, 51.0]"
+    }
+  ]
+}

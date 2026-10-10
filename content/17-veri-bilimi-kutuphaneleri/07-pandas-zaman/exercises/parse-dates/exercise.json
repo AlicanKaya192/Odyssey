@@ -1,0 +1,90 @@
+{
+  "id": "parse-dates",
+  "title": {
+    "tr": "Türk usulü tarihler",
+    "en": "Day-first dates"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`pd.to_datetime(pd.Series(texts), format=\"%d.%m.%Y\", errors=\"coerce\")`.",
+      "en": "`pd.to_datetime(pd.Series(texts), format=\"%d.%m.%Y\", errors=\"coerce\")`."
+    },
+    {
+      "tr": "`int(dates.isna().sum())` ve `dates.dropna().dt.strftime(\"%Y-%m-%d\").tolist()`.",
+      "en": "`int(dates.isna().sum())` and `dates.dropna().dt.strftime(\"%Y-%m-%d\").tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef parse_dates(texts):\n    dates = pd.to_datetime(pd.Series(texts), format=\"%d.%m.%Y\", errors=\"coerce\")\n    good = dates.dropna().dt.strftime(\"%Y-%m-%d\").tolist()\n    return {\"bad\": int(dates.isna().sum()), \"dates\": good}\n\nresult = parse_dates([\"02.03.2026\", \"31.02.2026\", \"15.03.2026\", \"?\"])\nprint(result[\"bad\"])\nprint(result[\"dates\"])\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef parse_dates(texts):\n    dates = pd.to_datetime(pd.Series(texts), format=\"%d.%m.%Y\", errors=\"coerce\")\n    good = dates.dropna().dt.strftime(\"%Y-%m-%d\").tolist()\n    return {\"bad\": int(dates.isna().sum()), \"dates\": good}\n\nresult = parse_dates([\"02.03.2026\", \"31.02.2026\", \"15.03.2026\", \"?\"])\nprint(result[\"bad\"])\nprint(result[\"dates\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_dates",
+      "cases": [
+        {
+          "args": [
+            [
+              "02.03.2026",
+              "31.02.2026",
+              "15.03.2026",
+              "?"
+            ]
+          ],
+          "returns": {
+            "bad": 2,
+            "dates": [
+              "2026-03-02",
+              "2026-03-15"
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              "01.01.2000"
+            ]
+          ],
+          "returns": {
+            "bad": 0,
+            "dates": [
+              "2000-01-01"
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              "2026-03-02",
+              "1.2.2026"
+            ]
+          ],
+          "returns": {
+            "bad": 1,
+            "dates": [
+              "2026-02-01"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\n['2026-03-02', '2026-03-15']"
+    }
+  ]
+}
