@@ -1,0 +1,88 @@
+{
+  "id": "discounts",
+  "title": {
+    "tr": "Kademeli indirim",
+    "en": "Tiered discount"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İlk tutan koşul kazanır; en dar koşulu (`>= 25`) öne al.",
+      "en": "The first condition that holds wins; put the narrowest (`>= 25`) first."
+    },
+    {
+      "tr": "`np.select([q >= 25, q >= 10], [0.2, 0.1], default=0.0)`.",
+      "en": "`np.select([q >= 25, q >= 10], [0.2, 0.1], default=0.0)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\n\n\ndef discounts(qtys):\n    q = pd.Series(qtys)\n    rate = np.select([q >= 25, q >= 10], [0.2, 0.1], default=0.0)\n    return rate.tolist()\n\nprint(discounts([1, 12, 5, 30, 25]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\n\ndef discounts(qtys):\n    q = pd.Series(qtys)\n    rate = np.select([q >= 25, q >= 10], [0.2, 0.1], default=0.0)\n    return rate.tolist()\n\nprint(discounts([1, 12, 5, 30, 25]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "discounts",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              12,
+              5,
+              30,
+              25
+            ]
+          ],
+          "returns": [
+            0.0,
+            0.1,
+            0.0,
+            0.2,
+            0.2
+          ]
+        },
+        {
+          "args": [
+            [
+              10,
+              9,
+              24
+            ]
+          ],
+          "returns": [
+            0.1,
+            0.0,
+            0.1
+          ]
+        },
+        {
+          "args": [
+            [
+              100
+            ]
+          ],
+          "returns": [
+            0.2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.0, 0.1, 0.0, 0.2, 0.2]"
+    }
+  ]
+}
