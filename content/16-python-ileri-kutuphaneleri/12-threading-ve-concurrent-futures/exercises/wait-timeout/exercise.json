@@ -1,0 +1,81 @@
+{
+  "id": "wait-timeout",
+  "title": {
+    "tr": "Süre dolana kadar",
+    "en": "Until the time is up"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`done, not_done = wait(futures, timeout=limit)`.",
+      "en": "`done, not_done = wait(futures, timeout=limit)`."
+    },
+    {
+      "tr": "`return [len(done), len(not_done)]`; `wait` süre dolunca bitmeyenleri beklemeden döner.",
+      "en": "`return [len(done), len(not_done)]`; when time is up, `wait` returns without waiting for the rest."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport time\nfrom concurrent.futures import ThreadPoolExecutor, wait\n\n\ndef nap(seconds):\n    time.sleep(seconds)\n    return seconds\n\n\ndef finished_within(delays, limit):\n    with ThreadPoolExecutor() as pool:\n        futures = [pool.submit(nap, d) for d in delays]\n        done, not_done = wait(futures, timeout=limit)\n        return [len(done), len(not_done)]\n\nprint(finished_within([0.1, 0.1, 1.5], 0.5))\n```",
+      "en": "The full solution:\n\n```python\nimport time\nfrom concurrent.futures import ThreadPoolExecutor, wait\n\n\ndef nap(seconds):\n    time.sleep(seconds)\n    return seconds\n\n\ndef finished_within(delays, limit):\n    with ThreadPoolExecutor() as pool:\n        futures = [pool.submit(nap, d) for d in delays]\n        done, not_done = wait(futures, timeout=limit)\n        return [len(done), len(not_done)]\n\nprint(finished_within([0.1, 0.1, 1.5], 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "finished_within",
+      "cases": [
+        {
+          "args": [
+            [
+              0.1,
+              0.1,
+              1.5
+            ],
+            0.5
+          ],
+          "returns": [
+            2,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              0.1
+            ],
+            1.0
+          ],
+          "returns": [
+            1,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              1.5,
+              1.5
+            ],
+            0.3
+          ],
+          "returns": [
+            0,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 1]"
+    }
+  ]
+}
