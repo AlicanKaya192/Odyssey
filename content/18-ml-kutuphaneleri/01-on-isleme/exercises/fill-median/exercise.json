@@ -1,0 +1,119 @@
+{
+  "id": "fill-median",
+  "title": {
+    "tr": "Medyanla doldur, eksiği işaretle",
+    "en": "Fill with the median, flag the gap"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "`np.array(rows, dtype=float)` `None`'ları `nan` yapar.",
+      "en": "`np.array(rows, dtype=float)` turns the `None`s into `nan`."
+    },
+    {
+      "tr": "`SimpleImputer(strategy=\"median\", add_indicator=True).fit_transform(X)`.",
+      "en": "`SimpleImputer(strategy=\"median\", add_indicator=True).fit_transform(X)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom sklearn.impute import SimpleImputer\n\n\ndef fill_median(rows):\n    X = np.array(rows, dtype=float)\n    imp = SimpleImputer(strategy=\"median\", add_indicator=True)\n    return imp.fit_transform(X).round(2).tolist()\n\nprint(*fill_median([[1.0, 7.0], [None, 8.0], [3.0, None], [100.0, 9.0]]), sep=\"\\n\")\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom sklearn.impute import SimpleImputer\n\n\ndef fill_median(rows):\n    X = np.array(rows, dtype=float)\n    imp = SimpleImputer(strategy=\"median\", add_indicator=True)\n    return imp.fit_transform(X).round(2).tolist()\n\nprint(*fill_median([[1.0, 7.0], [None, 8.0], [3.0, None], [100.0, 9.0]]), sep=\"\\n\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fill_median",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                7.0
+              ],
+              [
+                null,
+                8.0
+              ],
+              [
+                3.0,
+                null
+              ],
+              [
+                100.0,
+                9.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              1.0,
+              7.0,
+              0.0,
+              0.0
+            ],
+            [
+              3.0,
+              8.0,
+              1.0,
+              0.0
+            ],
+            [
+              3.0,
+              8.0,
+              0.0,
+              1.0
+            ],
+            [
+              100.0,
+              9.0,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0
+              ],
+              [
+                null
+              ],
+              [
+                5.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              3.0,
+              1.0
+            ],
+            [
+              5.0,
+              0.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.0, 7.0, 0.0, 0.0]\n[3.0, 8.0, 1.0, 0.0]\n[3.0, 8.0, 0.0, 1.0]\n[100.0, 9.0, 0.0, 0.0]"
+    }
+  ]
+}

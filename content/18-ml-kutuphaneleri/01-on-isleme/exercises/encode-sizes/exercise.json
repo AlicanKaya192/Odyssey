@@ -1,0 +1,82 @@
+{
+  "id": "encode-sizes",
+  "title": {
+    "tr": "Bedenleri sırasıyla kodla",
+    "en": "Encode sizes in order"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Sıra `categories=` ile verilir; her sütun için bir liste.",
+      "en": "The order is given with `categories=`; one list per column."
+    },
+    {
+      "tr": "`OrdinalEncoder(categories=[[\"S\", \"M\", \"L\", \"XL\"]])`.",
+      "en": "`OrdinalEncoder(categories=[[\"S\", \"M\", \"L\", \"XL\"]])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import OrdinalEncoder\n\n\ndef encode_sizes(sizes):\n    df = pd.DataFrame({\"size\": sizes})\n    enc = OrdinalEncoder(categories=[[\"S\", \"M\", \"L\", \"XL\"]])\n    return enc.fit_transform(df).ravel().astype(int).tolist()\n\nprint(encode_sizes([\"M\", \"S\", \"XL\", \"L\", \"S\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import OrdinalEncoder\n\n\ndef encode_sizes(sizes):\n    df = pd.DataFrame({\"size\": sizes})\n    enc = OrdinalEncoder(categories=[[\"S\", \"M\", \"L\", \"XL\"]])\n    return enc.fit_transform(df).ravel().astype(int).tolist()\n\nprint(encode_sizes([\"M\", \"S\", \"XL\", \"L\", \"S\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "encode_sizes",
+      "cases": [
+        {
+          "args": [
+            [
+              "M",
+              "S",
+              "XL",
+              "L",
+              "S"
+            ]
+          ],
+          "returns": [
+            1,
+            0,
+            3,
+            2,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              "XL"
+            ]
+          ],
+          "returns": [
+            3
+          ]
+        },
+        {
+          "args": [
+            [
+              "L",
+              "M"
+            ]
+          ],
+          "returns": [
+            2,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 0, 3, 2, 0]"
+    }
+  ]
+}

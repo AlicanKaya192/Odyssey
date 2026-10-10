@@ -1,0 +1,80 @@
+{
+  "id": "target-codes",
+  "title": {
+    "tr": "Sızdırmayan hedef kodlama",
+    "en": "Leak-free target encoding"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Yeni veride `transform`; eğitim satırlarının kendi kodu için olsaydı `fit_transform` gerekirdi.",
+      "en": "`transform` on new data; for the training rows' own codes it would be `fit_transform`."
+    },
+    {
+      "tr": "`enc = TargetEncoder(random_state=0)`; `enc.fit(pd.DataFrame({\"shop\": shops}), bought)`.",
+      "en": "`enc = TargetEncoder(random_state=0)`; `enc.fit(pd.DataFrame({\"shop\": shops}), bought)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import TargetEncoder\n\n\ndef target_codes(shops, bought, new_shops):\n    enc = TargetEncoder(random_state=0)\n    enc.fit(pd.DataFrame({\"shop\": shops}), bought)\n    codes = enc.transform(pd.DataFrame({\"shop\": new_shops}))\n    return codes.ravel().round(3).tolist()\n\nSHOPS = [\"a\", \"a\", \"a\", \"b\", \"b\", \"c\", \"c\", \"c\", \"c\", \"d\"]\nBOUGHT = [1, 1, 0, 0, 0, 1, 1, 1, 0, 1]\nprint(target_codes(SHOPS, BOUGHT, [\"a\", \"c\", \"z\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\nfrom sklearn.preprocessing import TargetEncoder\n\n\ndef target_codes(shops, bought, new_shops):\n    enc = TargetEncoder(random_state=0)\n    enc.fit(pd.DataFrame({\"shop\": shops}), bought)\n    codes = enc.transform(pd.DataFrame({\"shop\": new_shops}))\n    return codes.ravel().round(3).tolist()\n\nSHOPS = [\"a\", \"a\", \"a\", \"b\", \"b\", \"c\", \"c\", \"c\", \"c\", \"d\"]\nBOUGHT = [1, 1, 0, 0, 0, 1, 1, 1, 0, 1]\nprint(target_codes(SHOPS, BOUGHT, [\"a\", \"c\", \"z\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "target_codes",
+      "cases": [
+        {
+          "args": [
+            [
+              "a",
+              "a",
+              "a",
+              "b",
+              "b",
+              "c",
+              "c",
+              "c",
+              "c",
+              "d"
+            ],
+            [
+              1,
+              1,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              0,
+              1
+            ],
+            [
+              "a",
+              "c",
+              "z"
+            ]
+          ],
+          "returns": [
+            0.651,
+            0.725,
+            0.6
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.651, 0.725, 0.6]"
+    }
+  ]
+}
