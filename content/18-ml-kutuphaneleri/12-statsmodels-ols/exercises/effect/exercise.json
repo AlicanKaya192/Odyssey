@@ -1,0 +1,75 @@
+{
+  "id": "effect",
+  "title": {
+    "tr": "Bir sütunun etkisi",
+    "en": "The effect of one column"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`sm.OLS(price, sm.add_constant(X)).fit()`.",
+      "en": "`sm.OLS(price, sm.add_constant(X)).fit()`."
+    },
+    {
+      "tr": "Yalnızca modelin kurulduğu satır değişiyor.",
+      "en": "Only the line that builds the model changes."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\n\nrng = np.random.default_rng(7)\narea = rng.uniform(50, 200, 120)\nage = rng.uniform(0, 40, 120)\nnoise = rng.normal(0, 1, 120)\nprice = 50 + 3 * area - 2 * age + rng.normal(0, 40, 120)\nX = pd.DataFrame({\"area\": area, \"age\": age, \"noise\": noise})\ndef effect(column):\n    res = sm.OLS(price, sm.add_constant(X)).fit()\n    low, high = res.conf_int().loc[column]\n    values = [res.params[column], res.pvalues[column], low, high]\n    return [round(float(v), 3) for v in values]\n\nprint(effect(\"area\"))\nprint(effect(\"noise\"))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\n\nrng = np.random.default_rng(7)\narea = rng.uniform(50, 200, 120)\nage = rng.uniform(0, 40, 120)\nnoise = rng.normal(0, 1, 120)\nprice = 50 + 3 * area - 2 * age + rng.normal(0, 40, 120)\nX = pd.DataFrame({\"area\": area, \"age\": age, \"noise\": noise})\ndef effect(column):\n    res = sm.OLS(price, sm.add_constant(X)).fit()\n    low, high = res.conf_int().loc[column]\n    values = [res.params[column], res.pvalues[column], low, high]\n    return [round(float(v), 3) for v in values]\n\nprint(effect(\"area\"))\nprint(effect(\"noise\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "effect",
+      "cases": [
+        {
+          "args": [
+            "area"
+          ],
+          "returns": [
+            2.934,
+            0.0,
+            2.778,
+            3.089
+          ]
+        },
+        {
+          "args": [
+            "noise"
+          ],
+          "returns": [
+            -4.147,
+            0.253,
+            -11.29,
+            2.996
+          ]
+        },
+        {
+          "args": [
+            "age"
+          ],
+          "returns": [
+            -2.587,
+            0.0,
+            -3.16,
+            -2.014
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2.934, 0.0, 2.778, 3.089]\n[-4.147, 0.253, -11.29, 2.996]"
+    }
+  ]
+}

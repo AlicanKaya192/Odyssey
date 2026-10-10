@@ -1,0 +1,82 @@
+{
+  "id": "vif-values",
+  "title": {
+    "tr": "VIF",
+    "en": "VIF"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`data = sm.add_constant(X[columns]).values`; sıralar `range(1, len(columns) + 1)`.",
+      "en": "`data = sm.add_constant(X[columns]).values`; the indices `range(1, len(columns) + 1)`."
+    },
+    {
+      "tr": "`[round(float(variance_inflation_factor(data, i)), 1) for i in range(1, len(columns) + 1)]`.",
+      "en": "`[round(float(variance_inflation_factor(data, i)), 1) for i in range(1, len(columns) + 1)]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\n\nrng = np.random.default_rng(7)\narea = rng.uniform(50, 200, 120)\nage = rng.uniform(0, 40, 120)\nnoise = rng.normal(0, 1, 120)\nprice = 50 + 3 * area - 2 * age + rng.normal(0, 40, 120)\nX = pd.DataFrame({\"area\": area, \"age\": age, \"noise\": noise})\nX[\"twin\"] = area * 0.09 + rng.normal(0, 0.5, 120)\nfrom statsmodels.stats.outliers_influence import variance_inflation_factor\n\n\ndef vif_values(columns):\n    data = sm.add_constant(X[columns]).values\n    return [round(float(variance_inflation_factor(data, i)), 1) for i in range(1, len(columns) + 1)]\n\nprint(vif_values([\"area\", \"twin\", \"age\"]))\nprint(vif_values([\"area\", \"age\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\n\nrng = np.random.default_rng(7)\narea = rng.uniform(50, 200, 120)\nage = rng.uniform(0, 40, 120)\nnoise = rng.normal(0, 1, 120)\nprice = 50 + 3 * area - 2 * age + rng.normal(0, 40, 120)\nX = pd.DataFrame({\"area\": area, \"age\": age, \"noise\": noise})\nX[\"twin\"] = area * 0.09 + rng.normal(0, 0.5, 120)\nfrom statsmodels.stats.outliers_influence import variance_inflation_factor\n\n\ndef vif_values(columns):\n    data = sm.add_constant(X[columns]).values\n    return [round(float(variance_inflation_factor(data, i)), 1) for i in range(1, len(columns) + 1)]\n\nprint(vif_values([\"area\", \"twin\", \"age\"]))\nprint(vif_values([\"area\", \"age\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "vif_values",
+      "cases": [
+        {
+          "args": [
+            [
+              "area",
+              "twin",
+              "age"
+            ]
+          ],
+          "returns": [
+            79.1,
+            78.9,
+            1.0
+          ]
+        },
+        {
+          "args": [
+            [
+              "area",
+              "age"
+            ]
+          ],
+          "returns": [
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "args": [
+            [
+              "noise",
+              "age",
+              "twin"
+            ]
+          ],
+          "returns": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[79.1, 78.9, 1.0]\n[1.0, 1.0]"
+    }
+  ]
+}
