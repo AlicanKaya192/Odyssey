@@ -1,0 +1,87 @@
+{
+  "id": "smallest-int",
+  "title": {
+    "tr": "Sığan en küçük tip",
+    "en": "The smallest type that fits"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`info = np.iinfo(kind)`; `info.min` ve `info.max` ile karşılaştır.",
+      "en": "`info = np.iinfo(kind)`; compare with `info.min` and `info.max`."
+    },
+    {
+      "tr": "İlk uyan tipte `return np.dtype(kind).name`.",
+      "en": "At the first type that fits, `return np.dtype(kind).name`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef smallest_int(values):\n    low, high = min(values), max(values)\n    for kind in (np.int8, np.int16, np.int32, np.int64):\n        info = np.iinfo(kind)\n        if low >= info.min and high <= info.max:\n            return np.dtype(kind).name\n    return \"int64\"\n\nprint(smallest_int([0, 100]), smallest_int([-200, 5]), smallest_int([0, 40_000]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef smallest_int(values):\n    low, high = min(values), max(values)\n    for kind in (np.int8, np.int16, np.int32, np.int64):\n        info = np.iinfo(kind)\n        if low >= info.min and high <= info.max:\n            return np.dtype(kind).name\n    return \"int64\"\n\nprint(smallest_int([0, 100]), smallest_int([-200, 5]), smallest_int([0, 40_000]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "smallest_int",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              100
+            ]
+          ],
+          "returns": "int8"
+        },
+        {
+          "args": [
+            [
+              -200,
+              5
+            ]
+          ],
+          "returns": "int16"
+        },
+        {
+          "args": [
+            [
+              0,
+              40000
+            ]
+          ],
+          "returns": "int32"
+        },
+        {
+          "args": [
+            [
+              -3000000000,
+              0
+            ]
+          ],
+          "returns": "int64"
+        },
+        {
+          "args": [
+            [
+              127,
+              -128
+            ]
+          ],
+          "returns": "int8"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "int8 int16 int32"
+    }
+  ]
+}
