@@ -21,7 +21,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [1.0.0] — yayınlanmadı
+## [1.0.0] — 10 Ekim 2026
 
 ### Eklendi
 - **Algoritmalar patikası.** Kendi kodunda algoritma yazmayı ve bir çözümün

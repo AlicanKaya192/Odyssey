@@ -23,7 +23,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [1.0.0] — unreleased
+## [1.0.0] — 10 October 2026
 
 ### Added
 - **Algorithms path.** It teaches writing algorithms in your own code and
