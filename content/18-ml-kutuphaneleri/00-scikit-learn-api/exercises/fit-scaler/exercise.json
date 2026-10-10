@@ -1,0 +1,110 @@
+{
+  "id": "fit-scaler",
+  "title": {
+    "tr": "Ölçekleyiciyi doğru fit et",
+    "en": "Fit the scaler correctly"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Ölçekleyici yalnızca `train` görür: `StandardScaler().fit(train)`.",
+      "en": "The scaler sees only `train`: `StandardScaler().fit(train)`."
+    },
+    {
+      "tr": "`scaler.transform(test)` ile test dönüştürülür; birleştirmeye gerek yok.",
+      "en": "The test is transformed with `scaler.transform(test)`; no joining needed."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef fit_scaler(train, test):\n    scaler = StandardScaler().fit(np.array(train, dtype=float))\n    return [scaler.mean_.round(3).tolist(), scaler.transform(np.array(test, dtype=float)).round(2).tolist()]\n\nprint(fit_scaler([[1.0, 10.0], [3.0, 30.0]], [[2.0, 50.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef fit_scaler(train, test):\n    scaler = StandardScaler().fit(np.array(train, dtype=float))\n    return [scaler.mean_.round(3).tolist(), scaler.transform(np.array(test, dtype=float)).round(2).tolist()]\n\nprint(fit_scaler([[1.0, 10.0], [3.0, 30.0]], [[2.0, 50.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fit_scaler",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                10.0
+              ],
+              [
+                3.0,
+                30.0
+              ]
+            ],
+            [
+              [
+                2.0,
+                50.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              2.0,
+              20.0
+            ],
+            [
+              [
+                0.0,
+                3.0
+              ]
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0.0
+              ],
+              [
+                4.0
+              ],
+              [
+                8.0
+              ]
+            ],
+            [
+              [
+                2.0
+              ],
+              [
+                10.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              4.0
+            ],
+            [
+              [
+                -0.61
+              ],
+              [
+                1.84
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[2.0, 20.0], [[0.0, 3.0]]]"
+    }
+  ]
+}

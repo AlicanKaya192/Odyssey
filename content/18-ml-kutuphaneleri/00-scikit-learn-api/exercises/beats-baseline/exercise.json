@@ -1,0 +1,72 @@
+{
+  "id": "beats-baseline",
+  "title": {
+    "tr": "Taban çizgisini geçiyor mu?",
+    "en": "Does it beat the baseline?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Veri: `X, y = make_classification(n_samples=1000, n_features=5, weights=[weight], random_state=3)`.",
+      "en": "The data: `X, y = make_classification(n_samples=1000, n_features=5, weights=[weight], random_state=3)`."
+    },
+    {
+      "tr": "İki modelin `score(X_test, y_test)` değerini karşılaştır; `better = model - base >= 0.02`.",
+      "en": "Compare the two models' `score(X_test, y_test)`; `better = model - base >= 0.02`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.dummy import DummyClassifier\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\n\n\ndef beats_baseline(weight):\n    X, y = make_classification(n_samples=1000, n_features=5, weights=[weight], random_state=3)\n    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=3)\n    base = DummyClassifier(strategy=\"most_frequent\").fit(X_train, y_train).score(X_test, y_test)\n    model = LogisticRegression().fit(X_train, y_train).score(X_test, y_test)\n    return {\"baseline\": round(base, 3), \"model\": round(model, 3), \"better\": bool(model - base >= 0.02)}\n\nresult = beats_baseline(0.9)\nprint(result[\"baseline\"], result[\"model\"])\nprint(result[\"better\"])\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.dummy import DummyClassifier\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\n\n\ndef beats_baseline(weight):\n    X, y = make_classification(n_samples=1000, n_features=5, weights=[weight], random_state=3)\n    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=3)\n    base = DummyClassifier(strategy=\"most_frequent\").fit(X_train, y_train).score(X_test, y_test)\n    model = LogisticRegression().fit(X_train, y_train).score(X_test, y_test)\n    return {\"baseline\": round(base, 3), \"model\": round(model, 3), \"better\": bool(model - base >= 0.02)}\n\nresult = beats_baseline(0.9)\nprint(result[\"baseline\"], result[\"model\"])\nprint(result[\"better\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "beats_baseline",
+      "cases": [
+        {
+          "args": [
+            0.9
+          ],
+          "returns": {
+            "baseline": 0.892,
+            "model": 0.94,
+            "better": true
+          }
+        },
+        {
+          "args": [
+            0.5
+          ],
+          "returns": {
+            "baseline": 0.508,
+            "model": 0.876,
+            "better": true
+          }
+        },
+        {
+          "args": [
+            0.99
+          ],
+          "returns": {
+            "baseline": 0.988,
+            "model": 0.988,
+            "better": false
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.892 0.94\nTrue"
+    }
+  ]
+}

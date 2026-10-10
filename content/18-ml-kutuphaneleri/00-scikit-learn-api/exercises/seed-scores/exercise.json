@@ -1,0 +1,78 @@
+{
+  "id": "seed-scores",
+  "title": {
+    "tr": "Tohum tohum skor",
+    "en": "Score by seed"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Ormana `random_state=seed` ver.",
+      "en": "Give the forest `random_state=seed`."
+    },
+    {
+      "tr": "`RandomForestClassifier(n_estimators=5, random_state=seed)`.",
+      "en": "`RandomForestClassifier(n_estimators=5, random_state=seed)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=300, n_features=6, n_informative=3,\n                           flip_y=0.1, random_state=0)\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)\nfrom sklearn.ensemble import RandomForestClassifier\n\n\ndef seed_scores(seeds):\n    scores = []\n    for seed in seeds:\n        forest = RandomForestClassifier(n_estimators=5, random_state=seed).fit(X_train, y_train)\n        scores.append(round(forest.score(X_test, y_test), 3))\n    return scores\n\nprint(seed_scores([0, 1, 2]))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=300, n_features=6, n_informative=3,\n                           flip_y=0.1, random_state=0)\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)\nfrom sklearn.ensemble import RandomForestClassifier\n\n\ndef seed_scores(seeds):\n    scores = []\n    for seed in seeds:\n        forest = RandomForestClassifier(n_estimators=5, random_state=seed).fit(X_train, y_train)\n        scores.append(round(forest.score(X_test, y_test), 3))\n    return scores\n\nprint(seed_scores([0, 1, 2]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "seed_scores",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "returns": [
+            0.84,
+            0.853,
+            0.867
+          ]
+        },
+        {
+          "args": [
+            [
+              7
+            ]
+          ],
+          "returns": [
+            0.867
+          ]
+        },
+        {
+          "args": [
+            [
+              3,
+              3
+            ]
+          ],
+          "returns": [
+            0.84,
+            0.84
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.84, 0.853, 0.867]"
+    }
+  ]
+}
