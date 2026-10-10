@@ -1,0 +1,114 @@
+{
+  "id": "compare-groups",
+  "title": {
+    "tr": "Welch testi",
+    "en": "Welch's test"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Welch testi için `equal_var=False`.",
+      "en": "For Welch's test, `equal_var=False`."
+    },
+    {
+      "tr": "`res = stats.ttest_ind(b, a, equal_var=False)`; gerisi aynı.",
+      "en": "`res = stats.ttest_ind(b, a, equal_var=False)`; the rest stays."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom scipy import stats\n\n\ndef compare_groups(a, b):\n    res = stats.ttest_ind(b, a, equal_var=False)\n    diff = round(float(np.mean(b) - np.mean(a)), 2)\n    p = round(float(res.pvalue), 4)\n    return [diff, p, bool(res.pvalue < 0.05)]\n\nA = [52.1, 48.3, 55.0, 61.2, 47.5, 50.8, 58.9, 44.2, 53.7, 49.9]\nB = [60.4, 71.8, 45.2, 80.1, 66.3, 52.7, 77.9, 58.0]\nprint(compare_groups(A, B))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom scipy import stats\n\n\ndef compare_groups(a, b):\n    res = stats.ttest_ind(b, a, equal_var=False)\n    diff = round(float(np.mean(b) - np.mean(a)), 2)\n    p = round(float(res.pvalue), 4)\n    return [diff, p, bool(res.pvalue < 0.05)]\n\nA = [52.1, 48.3, 55.0, 61.2, 47.5, 50.8, 58.9, 44.2, 53.7, 49.9]\nB = [60.4, 71.8, 45.2, 80.1, 66.3, 52.7, 77.9, 58.0]\nprint(compare_groups(A, B))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "compare_groups",
+      "cases": [
+        {
+          "args": [
+            [
+              52.1,
+              48.3,
+              55.0,
+              61.2,
+              47.5,
+              50.8,
+              58.9,
+              44.2,
+              53.7,
+              49.9
+            ],
+            [
+              60.4,
+              71.8,
+              45.2,
+              80.1,
+              66.3,
+              52.7,
+              77.9,
+              58.0
+            ]
+          ],
+          "returns": [
+            11.89,
+            0.0302,
+            true
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4
+            ],
+            [
+              10,
+              20,
+              30,
+              40,
+              50
+            ]
+          ],
+          "returns": [
+            27.5,
+            0.0174,
+            true
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              6,
+              7
+            ],
+            [
+              5,
+              6,
+              7.5
+            ]
+          ],
+          "returns": [
+            0.17,
+            0.8666,
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[11.89, 0.0302, True]"
+    }
+  ]
+}
