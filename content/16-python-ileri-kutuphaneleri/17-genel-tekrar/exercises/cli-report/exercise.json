@@ -1,0 +1,116 @@
+{
+  "id": "cli-report",
+  "title": {
+    "tr": "Komut satırından rapor",
+    "en": "A report from the command line"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`parser.add_argument(\"--min\", type=Decimal, default=Decimal(\"0\"))`; tabloyu `:memory:`'de kur.",
+      "en": "`parser.add_argument(\"--min\", type=Decimal, default=Decimal(\"0\"))`; build the table in `:memory:`."
+    },
+    {
+      "tr": "Müşteri verildiyse sorguya `WHERE customer = ?` ekle; sonda `Decimal(total) >= args.min` olanları tut.",
+      "en": "If a customer is given, add `WHERE customer = ?`; at the end keep those with `Decimal(total) >= args.min`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport argparse\nimport sqlite3\nfrom decimal import Decimal\n\nORDERS = [(\"ada\", \"19.99\"), (\"alan\", \"5.01\"), (\"ada\", \"12.50\"), (\"grace\", \"40.00\")]\n\n\ndef report(argv):\n    parser = argparse.ArgumentParser(prog=\"report\")\n    parser.add_argument(\"--min\", type=Decimal, default=Decimal(\"0\"))\n    parser.add_argument(\"--customer\")\n    args = parser.parse_args(argv)\n    conn = sqlite3.connect(\":memory:\")\n    conn.execute(\"CREATE TABLE orders (id INTEGER PRIMARY KEY, customer TEXT, total TEXT)\")\n    conn.executemany(\"INSERT INTO orders (customer, total) VALUES (?, ?)\", ORDERS)\n    query = \"SELECT id, total FROM orders\"\n    params = ()\n    if args.customer:\n        query += \" WHERE customer = ?\"\n        params = (args.customer,)\n    rows = conn.execute(query + \" ORDER BY id\", params).fetchall()\n    conn.close()\n    return [[i, total] for i, total in rows if Decimal(total) >= args.min]\n\nprint(report([\"--min\", \"10\"]))\nprint(report([\"--customer\", \"ada\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport argparse\nimport sqlite3\nfrom decimal import Decimal\n\nORDERS = [(\"ada\", \"19.99\"), (\"alan\", \"5.01\"), (\"ada\", \"12.50\"), (\"grace\", \"40.00\")]\n\n\ndef report(argv):\n    parser = argparse.ArgumentParser(prog=\"report\")\n    parser.add_argument(\"--min\", type=Decimal, default=Decimal(\"0\"))\n    parser.add_argument(\"--customer\")\n    args = parser.parse_args(argv)\n    conn = sqlite3.connect(\":memory:\")\n    conn.execute(\"CREATE TABLE orders (id INTEGER PRIMARY KEY, customer TEXT, total TEXT)\")\n    conn.executemany(\"INSERT INTO orders (customer, total) VALUES (?, ?)\", ORDERS)\n    query = \"SELECT id, total FROM orders\"\n    params = ()\n    if args.customer:\n        query += \" WHERE customer = ?\"\n        params = (args.customer,)\n    rows = conn.execute(query + \" ORDER BY id\", params).fetchall()\n    conn.close()\n    return [[i, total] for i, total in rows if Decimal(total) >= args.min]\n\nprint(report([\"--min\", \"10\"]))\nprint(report([\"--customer\", \"ada\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "report",
+      "cases": [
+        {
+          "args": [
+            [
+              "--min",
+              "10"
+            ]
+          ],
+          "returns": [
+            [
+              1,
+              "19.99"
+            ],
+            [
+              3,
+              "12.50"
+            ],
+            [
+              4,
+              "40.00"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "--customer",
+              "ada"
+            ]
+          ],
+          "returns": [
+            [
+              1,
+              "19.99"
+            ],
+            [
+              3,
+              "12.50"
+            ]
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": [
+            [
+              1,
+              "19.99"
+            ],
+            [
+              2,
+              "5.01"
+            ],
+            [
+              3,
+              "12.50"
+            ],
+            [
+              4,
+              "40.00"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "--min",
+              "20",
+              "--customer",
+              "ada"
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[1, '19.99'], [3, '12.50'], [4, '40.00']]\n[[1, '19.99'], [3, '12.50']]"
+    }
+  ]
+}
