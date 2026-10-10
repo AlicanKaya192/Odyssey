@@ -1,0 +1,60 @@
+{
+  "id": "skewed-fit",
+  "title": {
+    "tr": "Çarpık hedef",
+    "en": "A skewed target"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Hedef dönüşümü için `TransformedTargetRegressor`; içine `regressor=`, `func=`, `inverse_func=`.",
+      "en": "For a target transformation, `TransformedTargetRegressor`; inside it `regressor=`, `func=`, `inverse_func=`."
+    },
+    {
+      "tr": "`TransformedTargetRegressor(regressor=LinearRegression(), func=np.log, inverse_func=np.exp)`.",
+      "en": "`TransformedTargetRegressor(regressor=LinearRegression(), func=np.log, inverse_func=np.exp)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom sklearn.compose import TransformedTargetRegressor\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import train_test_split\n\n\ndef skewed_fit(seed):\n    rng = np.random.default_rng(seed)\n    X = rng.uniform(0, 3, size=(300, 1))\n    y = np.exp(1.0 + 1.2 * X[:, 0] + rng.normal(0, 0.3, 300))\n    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed)\n    model = TransformedTargetRegressor(regressor=LinearRegression(), func=np.log, inverse_func=np.exp)\n    model.fit(X_train, y_train)\n    return [round(model.score(X_test, y_test), 2), round(float(model.predict([[0.0]])[0]), 2)]\n\nprint(skewed_fit(7))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom sklearn.compose import TransformedTargetRegressor\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import train_test_split\n\n\ndef skewed_fit(seed):\n    rng = np.random.default_rng(seed)\n    X = rng.uniform(0, 3, size=(300, 1))\n    y = np.exp(1.0 + 1.2 * X[:, 0] + rng.normal(0, 0.3, 300))\n    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed)\n    model = TransformedTargetRegressor(regressor=LinearRegression(), func=np.log, inverse_func=np.exp)\n    model.fit(X_train, y_train)\n    return [round(model.score(X_test, y_test), 2), round(float(model.predict([[0.0]])[0]), 2)]\n\nprint(skewed_fit(7))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "skewed_fit",
+      "cases": [
+        {
+          "args": [
+            7
+          ],
+          "returns": [
+            0.81,
+            2.66
+          ]
+        },
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            0.88,
+            2.58
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.81, 2.66]"
+    }
+  ]
+}

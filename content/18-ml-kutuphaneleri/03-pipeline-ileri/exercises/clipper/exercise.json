@@ -1,0 +1,111 @@
+{
+  "id": "clipper",
+  "title": {
+    "tr": "Kendi dönüştürücün",
+    "en": "Your own transformer"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "`fit` öğrenir ve `self` döner; `transform` yalnızca uygular.",
+      "en": "`fit` learns and returns `self`; `transform` only applies."
+    },
+    {
+      "tr": "`self.upper_ = np.quantile(np.asarray(X, dtype=float), self.high, axis=0)`; `transform`'da `np.minimum(X, self.upper_)`.",
+      "en": "`self.upper_ = np.quantile(np.asarray(X, dtype=float), self.high, axis=0)`; in `transform`, `np.minimum(X, self.upper_)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom sklearn.base import BaseEstimator, TransformerMixin\nfrom sklearn.utils.validation import check_is_fitted\n\n\nclass Clipper(BaseEstimator, TransformerMixin):\n    def __init__(self, high=0.99):\n        self.high = high\n\n    def fit(self, X, y=None):\n        self.upper_ = np.quantile(np.asarray(X, dtype=float), self.high, axis=0)\n        return self\n\n    def transform(self, X):\n        check_is_fitted(self)\n        return np.minimum(np.asarray(X, dtype=float), self.upper_)\n\n\ndef clip_values(train, test, high):\n    clip = Clipper(high=high).fit(train)\n    return clip.transform(test).tolist()\n\nprint(clip_values([[1.0], [2.0], [3.0], [4.0], [100.0]], [[0.0], [50.0]], 0.75))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom sklearn.base import BaseEstimator, TransformerMixin\nfrom sklearn.utils.validation import check_is_fitted\n\n\nclass Clipper(BaseEstimator, TransformerMixin):\n    def __init__(self, high=0.99):\n        self.high = high\n\n    def fit(self, X, y=None):\n        self.upper_ = np.quantile(np.asarray(X, dtype=float), self.high, axis=0)\n        return self\n\n    def transform(self, X):\n        check_is_fitted(self)\n        return np.minimum(np.asarray(X, dtype=float), self.upper_)\n\n\ndef clip_values(train, test, high):\n    clip = Clipper(high=high).fit(train)\n    return clip.transform(test).tolist()\n\nprint(clip_values([[1.0], [2.0], [3.0], [4.0], [100.0]], [[0.0], [50.0]], 0.75))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "clip_values",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0
+              ],
+              [
+                2.0
+              ],
+              [
+                3.0
+              ],
+              [
+                4.0
+              ],
+              [
+                100.0
+              ]
+            ],
+            [
+              [
+                0.0
+              ],
+              [
+                50.0
+              ]
+            ],
+            0.75
+          ],
+          "returns": [
+            [
+              0.0
+            ],
+            [
+              4.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                10.0
+              ],
+              [
+                2.0,
+                20.0
+              ],
+              [
+                3.0,
+                30.0
+              ]
+            ],
+            [
+              [
+                9.0,
+                9.0
+              ]
+            ],
+            0.5
+          ],
+          "returns": [
+            [
+              2.0,
+              9.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[0.0], [4.0]]"
+    }
+  ]
+}

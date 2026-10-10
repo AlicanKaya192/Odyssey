@@ -1,0 +1,54 @@
+{
+  "id": "honest-score",
+  "title": {
+    "tr": "Dürüst çapraz doğrulama",
+    "en": "Honest cross-validation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Seçim öğrenen bir adım; pipeline'ın içinde olmalı.",
+      "en": "Selection is a learning step; it belongs inside the pipeline."
+    },
+    {
+      "tr": "`pipe = make_pipeline(SelectKBest(f_classif, k=10), LogisticRegression())`; `cross_val_score(pipe, X, y, cv=5)`.",
+      "en": "`pipe = make_pipeline(SelectKBest(f_classif, k=10), LogisticRegression())`; `cross_val_score(pipe, X, y, cv=5)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom sklearn.feature_selection import SelectKBest, f_classif\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.pipeline import make_pipeline\n\n\ndef honest_score(seed):\n    rng = np.random.default_rng(seed)\n    X = rng.normal(size=(60, 2000))\n    y = rng.integers(0, 2, 60)\n    pipe = make_pipeline(SelectKBest(f_classif, k=10), LogisticRegression())\n    return round(float(cross_val_score(pipe, X, y, cv=5).mean()), 2)\n\nprint(honest_score(6))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom sklearn.feature_selection import SelectKBest, f_classif\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.pipeline import make_pipeline\n\n\ndef honest_score(seed):\n    rng = np.random.default_rng(seed)\n    X = rng.normal(size=(60, 2000))\n    y = rng.integers(0, 2, 60)\n    pipe = make_pipeline(SelectKBest(f_classif, k=10), LogisticRegression())\n    return round(float(cross_val_score(pipe, X, y, cv=5).mean()), 2)\n\nprint(honest_score(6))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "honest_score",
+      "cases": [
+        {
+          "args": [
+            6
+          ],
+          "returns": 0.45
+        },
+        {
+          "args": [
+            1
+          ],
+          "returns": 0.62
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.45"
+    }
+  ]
+}
