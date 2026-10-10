@@ -1,0 +1,75 @@
+{
+  "id": "price-interval",
+  "title": {
+    "tr": "Tek evin aralığı",
+    "en": "One house's interval"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tek satırda her sütun sabit görünür; `has_constant=\"add\"` ile zorla.",
+      "en": "With one row every column looks constant; force it with `has_constant=\"add\"`."
+    },
+    {
+      "tr": "`sm.add_constant(new, has_constant=\"add\")`.",
+      "en": "`sm.add_constant(new, has_constant=\"add\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\n\nrng = np.random.default_rng(7)\narea = rng.uniform(50, 200, 120)\nage = rng.uniform(0, 40, 120)\nnoise = rng.normal(0, 1, 120)\nprice = 50 + 3 * area - 2 * age + rng.normal(0, 40, 120)\nX = pd.DataFrame({\"area\": area, \"age\": age, \"noise\": noise})\nres = sm.OLS(price, sm.add_constant(X)).fit()\n\n\ndef price_interval(area, age):\n    new = pd.DataFrame({\"area\": [area], \"age\": [age], \"noise\": [0.0]})\n    frame = res.get_prediction(sm.add_constant(new, has_constant=\"add\")).summary_frame(alpha=0.05)\n    row = frame.iloc[0]\n    return [round(float(row[\"mean\"]), 1), round(float(row[\"obs_ci_lower\"]), 1),\n            round(float(row[\"obs_ci_upper\"]), 1)]\n\nprint(price_interval(100, 10))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\n\nrng = np.random.default_rng(7)\narea = rng.uniform(50, 200, 120)\nage = rng.uniform(0, 40, 120)\nnoise = rng.normal(0, 1, 120)\nprice = 50 + 3 * area - 2 * age + rng.normal(0, 40, 120)\nX = pd.DataFrame({\"area\": area, \"age\": age, \"noise\": noise})\nres = sm.OLS(price, sm.add_constant(X)).fit()\n\n\ndef price_interval(area, age):\n    new = pd.DataFrame({\"area\": [area], \"age\": [age], \"noise\": [0.0]})\n    frame = res.get_prediction(sm.add_constant(new, has_constant=\"add\")).summary_frame(alpha=0.05)\n    row = frame.iloc[0]\n    return [round(float(row[\"mean\"]), 1), round(float(row[\"obs_ci_lower\"]), 1),\n            round(float(row[\"obs_ci_upper\"]), 1)]\n\nprint(price_interval(100, 10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "price_interval",
+      "cases": [
+        {
+          "args": [
+            100,
+            10
+          ],
+          "returns": [
+            330.9,
+            256.9,
+            405.0
+          ]
+        },
+        {
+          "args": [
+            180,
+            30
+          ],
+          "returns": [
+            513.9,
+            439.5,
+            588.2
+          ]
+        },
+        {
+          "args": [
+            60,
+            5
+          ],
+          "returns": [
+            226.5,
+            151.7,
+            301.3
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[330.9, 256.9, 405.0]"
+    }
+  ]
+}

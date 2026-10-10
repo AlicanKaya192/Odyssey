@@ -1,0 +1,70 @@
+{
+  "id": "significant",
+  "title": {
+    "tr": "Ayırt edilebilen sütunlar",
+    "en": "Columns that can be told apart"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Koşula `res.pvalues[name] < alpha` ekle.",
+      "en": "Add `res.pvalues[name] < alpha` to the condition."
+    },
+    {
+      "tr": "`[name for name in res.pvalues.index if name != \"const\" and res.pvalues[name] < alpha]`.",
+      "en": "`[name for name in res.pvalues.index if name != \"const\" and res.pvalues[name] < alpha]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\n\nrng = np.random.default_rng(7)\narea = rng.uniform(50, 200, 120)\nage = rng.uniform(0, 40, 120)\nnoise = rng.normal(0, 1, 120)\nprice = 50 + 3 * area - 2 * age + rng.normal(0, 40, 120)\nX = pd.DataFrame({\"area\": area, \"age\": age, \"noise\": noise})\ndef significant(alpha):\n    res = sm.OLS(price, sm.add_constant(X)).fit()\n    return [name for name in res.pvalues.index\n            if name != \"const\" and res.pvalues[name] < alpha]\n\nprint(significant(0.05))\nprint(significant(0.3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.api as sm\n\nrng = np.random.default_rng(7)\narea = rng.uniform(50, 200, 120)\nage = rng.uniform(0, 40, 120)\nnoise = rng.normal(0, 1, 120)\nprice = 50 + 3 * area - 2 * age + rng.normal(0, 40, 120)\nX = pd.DataFrame({\"area\": area, \"age\": age, \"noise\": noise})\ndef significant(alpha):\n    res = sm.OLS(price, sm.add_constant(X)).fit()\n    return [name for name in res.pvalues.index\n            if name != \"const\" and res.pvalues[name] < alpha]\n\nprint(significant(0.05))\nprint(significant(0.3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "significant",
+      "cases": [
+        {
+          "args": [
+            0.05
+          ],
+          "returns": [
+            "area",
+            "age"
+          ]
+        },
+        {
+          "args": [
+            0.3
+          ],
+          "returns": [
+            "area",
+            "age",
+            "noise"
+          ]
+        },
+        {
+          "args": [
+            0.0001
+          ],
+          "returns": [
+            "area",
+            "age"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['area', 'age']\n['area', 'age', 'noise']"
+    }
+  ]
+}
