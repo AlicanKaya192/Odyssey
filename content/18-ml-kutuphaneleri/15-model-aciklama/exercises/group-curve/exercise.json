@@ -1,0 +1,66 @@
+{
+  "id": "group-curve",
+  "title": {
+    "tr": "Gruba göre ICE",
+    "en": "ICE by group"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Eğriler `result[\"individual\"][0]` (satır × nokta). Satırları `(X[\"renovated\"] == flag).to_numpy()` ile seç.",
+      "en": "The curves are `result[\"individual\"][0]` (row × point). Select rows with `(X[\"renovated\"] == flag).to_numpy()`."
+    },
+    {
+      "tr": "`rows.mean(axis=0).round().astype(int).tolist()`.",
+      "en": "`rows.mean(axis=0).round().astype(int).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.ensemble import RandomForestRegressor\n\nrng = np.random.default_rng(4)\ndf = pd.DataFrame({\"age\": rng.uniform(0, 50, 1500),\n                   \"renovated\": rng.integers(0, 2, 1500).astype(float)})\ndf[\"price\"] = 200 - 3 * df[\"age\"] * (1 - df[\"renovated\"]) + rng.normal(0, 10, 1500)\nX, y = df[[\"age\", \"renovated\"]], df[\"price\"]\nrf = RandomForestRegressor(n_estimators=100, random_state=0).fit(X, y)\nfrom sklearn.inspection import partial_dependence\n\n\ndef group_curve(flag):\n    result = partial_dependence(rf, X, [\"age\"], grid_resolution=5, kind=\"both\")\n    rows = result[\"individual\"][0][(X[\"renovated\"] == flag).to_numpy()]\n    return rows.mean(axis=0).round().astype(int).tolist()\n\nprint(group_curve(0.0))\nprint(group_curve(1.0))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.ensemble import RandomForestRegressor\n\nrng = np.random.default_rng(4)\ndf = pd.DataFrame({\"age\": rng.uniform(0, 50, 1500),\n                   \"renovated\": rng.integers(0, 2, 1500).astype(float)})\ndf[\"price\"] = 200 - 3 * df[\"age\"] * (1 - df[\"renovated\"]) + rng.normal(0, 10, 1500)\nX, y = df[[\"age\", \"renovated\"]], df[\"price\"]\nrf = RandomForestRegressor(n_estimators=100, random_state=0).fit(X, y)\nfrom sklearn.inspection import partial_dependence\n\n\ndef group_curve(flag):\n    result = partial_dependence(rf, X, [\"age\"], grid_resolution=5, kind=\"both\")\n    rows = result[\"individual\"][0][(X[\"renovated\"] == flag).to_numpy()]\n    return rows.mean(axis=0).round().astype(int).tolist()\n\nprint(group_curve(0.0))\nprint(group_curve(1.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "group_curve",
+      "cases": [
+        {
+          "args": [
+            0.0
+          ],
+          "returns": [
+            184,
+            157,
+            118,
+            97,
+            61
+          ]
+        },
+        {
+          "args": [
+            1.0
+          ],
+          "returns": [
+            195,
+            203,
+            191,
+            189,
+            204
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[184, 157, 118, 97, 61]\n[195, 203, 191, 189, 204]"
+    }
+  ]
+}

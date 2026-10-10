@@ -1,0 +1,78 @@
+{
+  "id": "pdp-values",
+  "title": {
+    "tr": "Kısmi bağımlılık değerleri",
+    "en": "Partial dependence values"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "`X_test.astype({column: float})` yalnızca o sütunu çevirir.",
+      "en": "`X_test.astype({column: float})` converts only that column."
+    },
+    {
+      "tr": "`partial_dependence(rf, X_test.astype({column: float}), [column], grid_resolution=points)`.",
+      "en": "`partial_dependence(rf, X_test.astype({column: float}), [column], grid_resolution=points)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.ensemble import RandomForestRegressor\nfrom sklearn.model_selection import train_test_split\n\nrng = np.random.default_rng(0)\ndf = pd.DataFrame({\n    \"area\": rng.uniform(40, 200, 2000),\n    \"age\": rng.uniform(0, 50, 2000),\n    \"floor\": rng.integers(0, 15, 2000),\n    \"row_id\": rng.permutation(2000),\n    \"coin\": rng.integers(0, 2, 2000),\n})\ndf[\"price\"] = (df[\"area\"] - 0.1 * (df[\"age\"] - 25) ** 2\n               + 8 * np.minimum(df[\"floor\"], 8) + rng.normal(0, 15, 2000))\nX, y = df.drop(columns=\"price\"), df[\"price\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)\nrf = RandomForestRegressor(n_estimators=100, random_state=0).fit(X_train, y_train)\nfrom sklearn.inspection import partial_dependence\n\n\ndef pdp_values(column, points):\n    result = partial_dependence(rf, X_test.astype({column: float}), [column],\n                                grid_resolution=points)\n    return result[\"average\"][0].round().astype(int).tolist()\n\nprint(pdp_values(\"floor\", 5))\nprint(pdp_values(\"age\", 4))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.ensemble import RandomForestRegressor\nfrom sklearn.model_selection import train_test_split\n\nrng = np.random.default_rng(0)\ndf = pd.DataFrame({\n    \"area\": rng.uniform(40, 200, 2000),\n    \"age\": rng.uniform(0, 50, 2000),\n    \"floor\": rng.integers(0, 15, 2000),\n    \"row_id\": rng.permutation(2000),\n    \"coin\": rng.integers(0, 2, 2000),\n})\ndf[\"price\"] = (df[\"area\"] - 0.1 * (df[\"age\"] - 25) ** 2\n               + 8 * np.minimum(df[\"floor\"], 8) + rng.normal(0, 15, 2000))\nX, y = df.drop(columns=\"price\"), df[\"price\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)\nrf = RandomForestRegressor(n_estimators=100, random_state=0).fit(X_train, y_train)\nfrom sklearn.inspection import partial_dependence\n\n\ndef pdp_values(column, points):\n    result = partial_dependence(rf, X_test.astype({column: float}), [column],\n                                grid_resolution=points)\n    return result[\"average\"][0].round().astype(int).tolist()\n\nprint(pdp_values(\"floor\", 5))\nprint(pdp_values(\"age\", 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pdp_values",
+      "cases": [
+        {
+          "args": [
+            "floor",
+            5
+          ],
+          "returns": [
+            106,
+            124,
+            159,
+            163,
+            163
+          ]
+        },
+        {
+          "args": [
+            "age",
+            4
+          ],
+          "returns": [
+            118,
+            158,
+            157,
+            115
+          ]
+        },
+        {
+          "args": [
+            "area",
+            3
+          ],
+          "returns": [
+            67,
+            144,
+            219
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[106, 124, 159, 163, 163]\n[118, 158, 157, 115]"
+    }
+  ]
+}
