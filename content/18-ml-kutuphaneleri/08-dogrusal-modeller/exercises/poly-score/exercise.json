@@ -1,0 +1,60 @@
+{
+  "id": "poly-score",
+  "title": {
+    "tr": "Eğriyi öğrenmek",
+    "en": "Learning the curve"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`PolynomialFeatures(degree)` pipeline'ın ilk adımı.",
+      "en": "`PolynomialFeatures(degree)` is the pipeline's first step."
+    },
+    {
+      "tr": "`model = make_pipeline(PolynomialFeatures(degree), StandardScaler(), Ridge(alpha=1e-3))`.",
+      "en": "`model = make_pipeline(PolynomialFeatures(degree), StandardScaler(), Ridge(alpha=1e-3))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\nrng = np.random.default_rng(1)\nx = rng.uniform(-3, 3, 200)\ny = 2 * np.sin(x) + rng.normal(0, 0.3, 200)\nX = x.reshape(-1, 1)\nfrom sklearn.linear_model import Ridge\nfrom sklearn.model_selection import KFold, cross_val_score\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import PolynomialFeatures, StandardScaler\n\n\ndef poly_score(degree):\n    model = make_pipeline(PolynomialFeatures(degree), StandardScaler(), Ridge(alpha=1e-3))\n    cv = KFold(5, shuffle=True, random_state=0)\n    return round(float(cross_val_score(model, X, y, cv=cv).mean()), 3)\n\nprint(poly_score(1))\nprint(poly_score(3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\nrng = np.random.default_rng(1)\nx = rng.uniform(-3, 3, 200)\ny = 2 * np.sin(x) + rng.normal(0, 0.3, 200)\nX = x.reshape(-1, 1)\nfrom sklearn.linear_model import Ridge\nfrom sklearn.model_selection import KFold, cross_val_score\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import PolynomialFeatures, StandardScaler\n\n\ndef poly_score(degree):\n    model = make_pipeline(PolynomialFeatures(degree), StandardScaler(), Ridge(alpha=1e-3))\n    cv = KFold(5, shuffle=True, random_state=0)\n    return round(float(cross_val_score(model, X, y, cv=cv).mean()), 3)\n\nprint(poly_score(1))\nprint(poly_score(3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "poly_score",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": 0.641
+        },
+        {
+          "args": [
+            3
+          ],
+          "returns": 0.963
+        },
+        {
+          "args": [
+            5
+          ],
+          "returns": 0.966
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.641\n0.963"
+    }
+  ]
+}

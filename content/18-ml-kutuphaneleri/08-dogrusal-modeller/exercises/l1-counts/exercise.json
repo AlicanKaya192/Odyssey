@@ -1,0 +1,72 @@
+{
+  "id": "l1-counts",
+  "title": {
+    "tr": "L1 ile seyrek katsayı",
+    "en": "Sparse coefficients with L1"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "L1 için `l1_ratio=1`; L1'i destekleyen çözücü `saga`.",
+      "en": "For L1, `l1_ratio=1`; the solver that supports L1 is `saga`."
+    },
+    {
+      "tr": "`LogisticRegression(l1_ratio=1, solver=\"saga\", C=c, max_iter=5000)`.",
+      "en": "`LogisticRegression(l1_ratio=1, solver=\"saga\", C=c, max_iter=5000)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import load_wine\nfrom sklearn.preprocessing import StandardScaler\n\nX, y = load_wine(return_X_y=True)\nXs = StandardScaler().fit_transform(X)\nfrom sklearn.linear_model import LogisticRegression\n\n\ndef l1_counts(c):\n    model = LogisticRegression(l1_ratio=1, solver=\"saga\", C=c, max_iter=5000).fit(Xs, y)\n    return (model.coef_ != 0).sum(axis=1).tolist()\n\nprint(l1_counts(1))\nprint(l1_counts(0.1))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import load_wine\nfrom sklearn.preprocessing import StandardScaler\n\nX, y = load_wine(return_X_y=True)\nXs = StandardScaler().fit_transform(X)\nfrom sklearn.linear_model import LogisticRegression\n\n\ndef l1_counts(c):\n    model = LogisticRegression(l1_ratio=1, solver=\"saga\", C=c, max_iter=5000).fit(Xs, y)\n    return (model.coef_ != 0).sum(axis=1).tolist()\n\nprint(l1_counts(1))\nprint(l1_counts(0.1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "l1_counts",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            3,
+            8,
+            4
+          ]
+        },
+        {
+          "args": [
+            0.1
+          ],
+          "returns": [
+            4,
+            4,
+            4
+          ]
+        },
+        {
+          "args": [
+            0.05
+          ],
+          "returns": [
+            2,
+            2,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, 8, 4]\n[4, 4, 4]"
+    }
+  ]
+}
