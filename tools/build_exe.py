@@ -87,6 +87,8 @@ COLLECT = [
     # Temel Kütüphaneler: seaborn bölümü. Saf Python; yalnızca kullanıcı
     # kodu import ediyor.
     "seaborn",
+    # Temel Kütüphaneler: gradyan boosting bölümü (lib_lightgbm.dll paketin içinde).
+    "lightgbm",
     # SQL alıştırmalarının sunucuya bağlanan katmanı. `sandbox/sql_runner.py`
     # pakete düz veri olarak giriyor ve PyInstaller içindeki `import
     # pyodbc`'yi görmüyor; toplanmazsa paketlenmiş sürüm SQL Server kurulu
