@@ -43,12 +43,14 @@ lecture note does not mean downloading the whole application again.
   the "Puzzle Solver", "Strategist" and "Daedalus" titles, and algorithm terms
   in the glossary.
 - **Core Libraries path.** It covers the libraries of Python and data science
-  that are a must to know. The first module, **Python Libraries: Beginner**
-  (17 sections), teaches working with the standard library without
-  installing any package: maths and statistics, randomness, dates and time
-  zones, measuring time, files and folders, CSV, regular expressions,
-  collections, itertools, text tools, archives. New badges and the "Artisan"
-  title.
+  that are a must to know. **Python Libraries: Beginner** (17 sections)
+  teaches working with the standard library without installing any package:
+  maths and statistics, dates and times, files and folders, CSV, regular
+  expressions, collections, itertools, archives. **Python Libraries:
+  Advanced** (18 sections) covers the tools of growing programs: types and
+  dataclasses, logging, argparse, sqlite3, pickle, decimal, hashlib,
+  concurrency and asyncio, tests, measurement and memory leaks. New badges
+  and the "Artisan" and "Architect" titles.
 
 ### Changed
 - **`raise` is explained in more depth.** The Python path's Handling Errors

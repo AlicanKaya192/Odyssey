@@ -267,6 +267,24 @@ GLYPHS: dict[str, str] = {
                      '<path d="M21.6 10.2v3.6" stroke-width="2.2"/>'
                      '<g fill="#fff" stroke="none"><rect x="4.6" y="9" width="3.4" height="6" rx=".7"/>'
                      '<rect x="9.1" y="9" width="3.4" height="6" rx=".7"/><rect x="13.6" y="9" width="3.4" height="6" rx=".7"/></g>'),
+    "parallel-lanes": ('<path d="M5 6h12.5M5 12h12.5M5 18h12.5" stroke-width="1.8"/>'
+                       '<path d="M15 3.5 18.5 6 15 8.5M15 9.5 18.5 12 15 14.5M15 15.5 18.5 18 15 20.5" stroke-width="1.6"/>'
+                       '<g fill="#fff" stroke="none"><circle cx="3.5" cy="6" r="1.5"/><circle cx="3.5" cy="12" r="1.5"/>'
+                       '<circle cx="3.5" cy="18" r="1.5"/></g>'),
+    "bug-check": ('<ellipse cx="9.5" cy="13" rx="3.6" ry="4.6" stroke-width="1.6"/>'
+                  '<path d="M9.5 8.6v8.8M5.9 11 3 9.5M5.9 15 3 16.5M13.1 11 15.5 10M7.8 8.7 6.5 6M11.2 8.7 12.5 6"'
+                  ' stroke-width="1.4"/>'
+                  '<path d="M14.5 18l2.3 2.3 4.7-5.3" stroke-width="2"/>'),
+    "leak-drop": ('<path d="M12 2.5C9 7 6 10.5 6 14a6 6 0 0 0 12 0c0-3.5-3-7-6-11.5z" stroke-width="1.6"/>'
+                  '<circle cx="12" cy="14" r="2.6" stroke-width="1.3"/>'
+                  '<path d="M12 9.6v1.8M12 16.6v1.8M7.6 14h1.8M14.6 14h1.8" stroke-width="1.3"/>'),
+    "gear-pair": ('<circle cx="9" cy="9.5" r="3.6" stroke-width="1.5"/>'
+                  '<path d="M12.6 9.5L14.6 9.5M11.5 12L13 13.5M9 13.1L9 15.1M6.5 12L5 13.5M5.4 9.5L3.4 9.5'
+                  'M6.5 7L5 5.5M9 5.9L9 3.9M11.5 7L13 5.5" stroke-width="2.1"/>'
+                  '<circle cx="16.8" cy="16.6" r="2.5" stroke-width="1.3"/>'
+                  '<path d="M19.3 16.6L20.8 16.6M18.1 18.8L18.8 20.1M15.6 18.8L14.8 20.1M14.3 16.6L12.8 16.6'
+                  'M15.5 14.4L14.8 13.1M18.1 14.4L18.8 13.1" stroke-width="1.9"/>'
+                  '<g fill="#fff" stroke="none"><circle cx="9" cy="9.5" r="1.3"/><circle cx="16.8" cy="16.6" r="0.9"/></g>'),
 }
 
 

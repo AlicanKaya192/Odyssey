@@ -55,6 +55,7 @@ ALG1_CHAPTER = "12-temel-algoritmalar"
 ALG2_CHAPTER = "13-algoritma-teknikleri"
 ALG3_CHAPTER = "14-ml-algoritmalari"
 PYLIB1_CHAPTER = "15-python-baslangic-kutuphaneleri"
+PYLIB2_CHAPTER = "16-python-ileri-kutuphaneleri"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -99,6 +100,9 @@ ALG3_KMEANS_SECTION = (ALG3_CHAPTER, "14-k-means")
 ALG3_NETWORK_SECTION = (ALG3_CHAPTER, "20-sinir-agi")
 PYLIB1_PATH_SECTION = (PYLIB1_CHAPTER, "06-pathlib")
 PYLIB1_REGEX_SECTION = (PYLIB1_CHAPTER, "10-duzenli-ifadeler-2")
+PYLIB2_THREADS_SECTION = (PYLIB2_CHAPTER, "12-threading-ve-concurrent-futures")
+PYLIB2_TESTS_SECTION = (PYLIB2_CHAPTER, "14-unittest-ve-doctest")
+PYLIB2_LEAK_SECTION = (PYLIB2_CHAPTER, "16-bellek-sizintisi")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -115,6 +119,7 @@ ALG1_SECTION_COUNT = 17
 ALG2_SECTION_COUNT = 17
 ALG3_SECTION_COUNT = 23
 PYLIB1_SECTION_COUNT = 17
+PYLIB2_SECTION_COUNT = 18
 
 
 def _completed_sections(
@@ -241,6 +246,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "file-explorer": PYLIB1_PATH_SECTION in bitenler,
         "pattern-hunter": PYLIB1_REGEX_SECTION in bitenler,
         "pylib1-complete": modul_basina.get(PYLIB1_CHAPTER, 0) >= PYLIB1_SECTION_COUNT,
+        "all-at-once": PYLIB2_THREADS_SECTION in bitenler,
+        "test-guard": PYLIB2_TESTS_SECTION in bitenler,
+        "leak-hunter": PYLIB2_LEAK_SECTION in bitenler,
+        "pylib2-complete": modul_basina.get(PYLIB2_CHAPTER, 0) >= PYLIB2_SECTION_COUNT,
     }
 
 

@@ -40,12 +40,14 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   rozetler, "Bulmaca Çözücü", "Stratejist" ve "Dedalos" unvanları, sözlükte
   algoritma terimleri.
 - **Temel Kütüphaneler patikası.** Python'un ve veri biliminin mutlaka
-  bilinmesi gereken kütüphaneleri anlatıyor. İlk modül **Python Kütüphaneleri:
+  bilinmesi gereken kütüphaneleri anlatıyor. **Python Kütüphaneleri:
   Başlangıç** (17 bölüm) hiçbir paket kurmadan standart kütüphaneyle
-  çalışmayı öğretiyor: matematik ve istatistik, rastgelelik, tarih ve saat
-  dilimleri, süre ölçmek, dosyalar ve klasörler, CSV, düzenli ifadeler,
-  collections, itertools, metin araçları, arşivler. Yeni rozetler ve
-  "Zanaatkâr" unvanı.
+  çalışmayı öğretiyor: matematik ve istatistik, tarih ve saat, dosyalar ve
+  klasörler, CSV, düzenli ifadeler, collections, itertools, arşivler.
+  **Python Kütüphaneleri: İleri** (18 bölüm) büyüyen programların araçlarını
+  anlatıyor: tipler ve dataclass'lar, logging, argparse, sqlite3, pickle,
+  decimal, hashlib, eşzamanlılık ve asyncio, testler, ölçüm ve bellek
+  sızıntısı. Yeni rozetler, "Zanaatkâr" ve "Mimar" unvanları.
 
 ### Değişti
 - **`raise` daha ayrıntılı anlatılıyor.** Python patikasının Hata Yakalama
