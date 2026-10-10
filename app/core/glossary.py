@@ -32,7 +32,7 @@ GROUP_CHAPTERS = {
     "python": ("00-python-temelleri", "15-python-baslangic-kutuphaneleri",
                "16-python-ileri-kutuphaneleri"),
     "data": ("01-veri-bilimi", "17-veri-bilimi-kutuphaneleri"),
-    "ml": ("02-makine-ogrenmesi",),
+    "ml": ("02-makine-ogrenmesi", "18-ml-kutuphaneleri"),
     "sql": ("03-sql",),
     "math": ("04-temel-matematik", "05-ileri-matematik"),
     "ts": ("06-zaman-serileri",),
