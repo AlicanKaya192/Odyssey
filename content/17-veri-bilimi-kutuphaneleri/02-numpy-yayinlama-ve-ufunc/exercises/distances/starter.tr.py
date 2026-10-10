@@ -6,5 +6,4 @@ def distances(points):
     # P[:, None, :] - P[None, :, :]
     return []
 
-for row in distances([[0, 0], [3, 4], [6, 8]]):
-    print(row)
+print(*distances([[0, 0], [3, 4], [6, 8]]), sep="\n")
