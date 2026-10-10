@@ -1,0 +1,88 @@
+{
+  "id": "l1-columns",
+  "title": {
+    "tr": "L1 ile seçim",
+    "en": "Selection with L1"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "`l1 = LogisticRegression(penalty=\"l1\", C=c, solver=\"liblinear\")`.",
+      "en": "`l1 = LogisticRegression(penalty=\"l1\", C=c, solver=\"liblinear\")`."
+    },
+    {
+      "tr": "`SelectFromModel(l1).fit(X, y).get_support(indices=True).tolist()`.",
+      "en": "`SelectFromModel(l1).fit(X, y).get_support(indices=True).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\n\nX, y = make_classification(n_samples=500, n_features=20, n_informative=4,\n                           n_redundant=0, shuffle=False, random_state=8)\nfrom sklearn.feature_selection import SelectFromModel\nfrom sklearn.linear_model import LogisticRegression\n\n\ndef l1_columns(c):\n    l1 = LogisticRegression(penalty=\"l1\", C=c, solver=\"liblinear\")\n    sfm = SelectFromModel(l1).fit(X, y)\n    return sfm.get_support(indices=True).tolist()\n\nprint(l1_columns(0.05))\nprint(l1_columns(0.01))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\n\nX, y = make_classification(n_samples=500, n_features=20, n_informative=4,\n                           n_redundant=0, shuffle=False, random_state=8)\nfrom sklearn.feature_selection import SelectFromModel\nfrom sklearn.linear_model import LogisticRegression\n\n\ndef l1_columns(c):\n    l1 = LogisticRegression(penalty=\"l1\", C=c, solver=\"liblinear\")\n    sfm = SelectFromModel(l1).fit(X, y)\n    return sfm.get_support(indices=True).tolist()\n\nprint(l1_columns(0.05))\nprint(l1_columns(0.01))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "l1_columns",
+      "cases": [
+        {
+          "args": [
+            0.05
+          ],
+          "returns": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "args": [
+            0.01
+          ],
+          "returns": [
+            0,
+            2
+          ]
+        },
+        {
+          "args": [
+            1.0
+          ],
+          "returns": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 1, 2, 3]\n[0, 2]"
+    }
+  ]
+}
