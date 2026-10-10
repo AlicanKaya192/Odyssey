@@ -1,0 +1,91 @@
+{
+  "id": "save-all",
+  "title": {
+    "tr": "Döngüde kaydet ve kapat",
+    "en": "Save and close in a loop"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "pyplot açtığı şekli kapatılana kadar tutar.",
+      "en": "pyplot keeps a figure until it is closed."
+    },
+    {
+      "tr": "Döngünün içinde, `savefig`'den sonra `plt.close(fig)`.",
+      "en": "Inside the loop, `plt.close(fig)` after `savefig`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\n\n\ndef save_all(series):\n    saved = 0\n    for name, values in series.items():\n        fig, ax = plt.subplots()\n        ax.plot(values)\n        ax.set_title(name)\n        fig.savefig(f\"{name}.png\")\n        plt.close(fig)\n        saved += 1\n    return [saved, len(plt.get_fignums())]\n\nprint(save_all({\"izmir\": [1, 3, 2], \"ankara\": [4, 2, 5], \"bursa\": [2, 2, 3]}))\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\n\n\ndef save_all(series):\n    saved = 0\n    for name, values in series.items():\n        fig, ax = plt.subplots()\n        ax.plot(values)\n        ax.set_title(name)\n        fig.savefig(f\"{name}.png\")\n        plt.close(fig)\n        saved += 1\n    return [saved, len(plt.get_fignums())]\n\nprint(save_all({\"izmir\": [1, 3, 2], \"ankara\": [4, 2, 5], \"bursa\": [2, 2, 3]}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "save_all",
+      "cases": [
+        {
+          "args": [
+            {
+              "izmir": [
+                1,
+                3,
+                2
+              ],
+              "ankara": [
+                4,
+                2,
+                5
+              ],
+              "bursa": [
+                2,
+                2,
+                3
+              ]
+            }
+          ],
+          "returns": [
+            3,
+            0
+          ]
+        },
+        {
+          "args": [
+            {
+              "one": [
+                1,
+                2
+              ]
+            }
+          ],
+          "returns": [
+            1,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "min_bytes": 1000,
+      "type": "artifact",
+      "name": "izmir.png"
+    },
+    {
+      "min_bytes": 1000,
+      "type": "artifact",
+      "name": "bursa.png"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, 0]"
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "id": "shared-axis",
+  "title": {
+    "tr": "Ortak eksen",
+    "en": "A shared axis"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`plt.subplots(1, 2, sharey=True)` iki alana tek y ekseni verir.",
+      "en": "`plt.subplots(1, 2, sharey=True)` gives both areas one y axis."
+    },
+    {
+      "tr": "`get_ylim()` NumPy sayısı verebilir; `round(float(low), 1)`.",
+      "en": "`get_ylim()` can give NumPy numbers; `round(float(low), 1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\n\n\ndef compare(a, b):\n    fig, (left, right) = plt.subplots(1, 2, sharey=True)\n    left.plot(a)\n    right.plot(b)\n    fig.savefig(\"compare.png\")\n    same = left.get_ylim() == right.get_ylim()\n    low, high = left.get_ylim()\n    plt.close(fig)\n    return [same, [round(float(low), 1), round(float(high), 1)]]\n\nprint(compare([10, 20, 15], [100, 120, 90]))\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\n\n\ndef compare(a, b):\n    fig, (left, right) = plt.subplots(1, 2, sharey=True)\n    left.plot(a)\n    right.plot(b)\n    fig.savefig(\"compare.png\")\n    same = left.get_ylim() == right.get_ylim()\n    low, high = left.get_ylim()\n    plt.close(fig)\n    return [same, [round(float(low), 1), round(float(high), 1)]]\n\nprint(compare([10, 20, 15], [100, 120, 90]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "compare",
+      "cases": [
+        {
+          "args": [
+            [
+              10,
+              20,
+              15
+            ],
+            [
+              100,
+              120,
+              90
+            ]
+          ],
+          "returns": [
+            true,
+            [
+              4.5,
+              125.5
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "returns": [
+            true,
+            [
+              0.8,
+              4.2
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              5,
+              5
+            ],
+            [
+              0,
+              10,
+              0
+            ]
+          ],
+          "returns": [
+            true,
+            [
+              -0.5,
+              10.5
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "min_bytes": 1000,
+      "type": "artifact",
+      "name": "compare.png"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[True, [4.5, 125.5]]"
+    }
+  ]
+}
