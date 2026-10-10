@@ -1,0 +1,80 @@
+{
+  "id": "pipe-search",
+  "title": {
+    "tr": "Pipeline'da arama",
+    "en": "Searching a pipeline"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Adlar `make_pipeline`'ın verdiği: `selectkbest`, `logisticregression`.",
+      "en": "The names are those `make_pipeline` gives: `selectkbest`, `logisticregression`."
+    },
+    {
+      "tr": "`grid = {\"selectkbest__k\": ks, \"logisticregression__C\": cs}`; sonuçta aynı anahtarlarla oku.",
+      "en": "`grid = {\"selectkbest__k\": ks, \"logisticregression__C\": cs}`; read the result with the same keys."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=300, n_features=10, n_informative=4,\n                           flip_y=0.05, random_state=10)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=10)\nfrom sklearn.feature_selection import SelectKBest, f_classif\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import GridSearchCV\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef pipe_search(ks, cs):\n    pipe = make_pipeline(StandardScaler(), SelectKBest(f_classif), LogisticRegression())\n    grid = {\"selectkbest__k\": ks, \"logisticregression__C\": cs}\n    search = GridSearchCV(pipe, grid, cv=5).fit(X_train, y_train)\n    best = search.best_params_\n    params = [best[\"selectkbest__k\"], best[\"logisticregression__C\"]]\n    return {\"params\": params, \"test\": round(search.score(X_test, y_test), 3)}\n\nresult = pipe_search([2, 4, 8], [0.1, 1.0])\nprint(result[\"params\"])\nprint(result[\"test\"])\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=300, n_features=10, n_informative=4,\n                           flip_y=0.05, random_state=10)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=10)\nfrom sklearn.feature_selection import SelectKBest, f_classif\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import GridSearchCV\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef pipe_search(ks, cs):\n    pipe = make_pipeline(StandardScaler(), SelectKBest(f_classif), LogisticRegression())\n    grid = {\"selectkbest__k\": ks, \"logisticregression__C\": cs}\n    search = GridSearchCV(pipe, grid, cv=5).fit(X_train, y_train)\n    best = search.best_params_\n    params = [best[\"selectkbest__k\"], best[\"logisticregression__C\"]]\n    return {\"params\": params, \"test\": round(search.score(X_test, y_test), 3)}\n\nresult = pipe_search([2, 4, 8], [0.1, 1.0])\nprint(result[\"params\"])\nprint(result[\"test\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pipe_search",
+      "cases": [
+        {
+          "args": [
+            [
+              2,
+              4,
+              8
+            ],
+            [
+              0.1,
+              1.0
+            ]
+          ],
+          "returns": {
+            "params": [
+              8,
+              0.1
+            ],
+            "test": 0.893
+          }
+        },
+        {
+          "args": [
+            [
+              1,
+              10
+            ],
+            [
+              1.0
+            ]
+          ],
+          "returns": {
+            "params": [
+              10,
+              1.0
+            ],
+            "test": 0.907
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[8, 0.1]\n0.893"
+    }
+  ]
+}
