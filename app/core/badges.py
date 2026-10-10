@@ -57,6 +57,7 @@ ALG3_CHAPTER = "14-ml-algoritmalari"
 PYLIB1_CHAPTER = "15-python-baslangic-kutuphaneleri"
 PYLIB2_CHAPTER = "16-python-ileri-kutuphaneleri"
 DSLIB_CHAPTER = "17-veri-bilimi-kutuphaneleri"
+MLLIB_CHAPTER = "18-ml-kutuphaneleri"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -107,6 +108,9 @@ PYLIB2_LEAK_SECTION = (PYLIB2_CHAPTER, "16-bellek-sizintisi")
 DSLIB_BROADCAST_SECTION = (DSLIB_CHAPTER, "02-numpy-yayinlama-ve-ufunc")
 DSLIB_RESHAPE_SECTION = (DSLIB_CHAPTER, "06-pandas-yeniden-sekillendirme")
 DSLIB_STATS_SECTION = (DSLIB_CHAPTER, "14-scipy-stats")
+MLLIB_PIPELINE_SECTION = (MLLIB_CHAPTER, "03-pipeline-ileri")
+MLLIB_VALIDATION_SECTION = (MLLIB_CHAPTER, "06-dogrulama-araclari")
+MLLIB_EXPLAIN_SECTION = (MLLIB_CHAPTER, "15-model-aciklama")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -125,6 +129,7 @@ ALG3_SECTION_COUNT = 23
 PYLIB1_SECTION_COUNT = 17
 PYLIB2_SECTION_COUNT = 18
 DSLIB_SECTION_COUNT = 17
+MLLIB_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -259,6 +264,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "shape-shifter": DSLIB_RESHAPE_SECTION in bitenler,
         "evidence-seeker": DSLIB_STATS_SECTION in bitenler,
         "dslib-complete": modul_basina.get(DSLIB_CHAPTER, 0) >= DSLIB_SECTION_COUNT,
+        "leak-proof": MLLIB_PIPELINE_SECTION in bitenler,
+        "fair-judge": MLLIB_VALIDATION_SECTION in bitenler,
+        "box-opener": MLLIB_EXPLAIN_SECTION in bitenler,
+        "mllib-complete": modul_basina.get(MLLIB_CHAPTER, 0) >= MLLIB_SECTION_COUNT,
     }
 
 

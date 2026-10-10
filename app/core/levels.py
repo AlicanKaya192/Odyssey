@@ -69,6 +69,7 @@ BADGE_TAGS = {
     "artisan": "pylib1-complete",
     "architect": "pylib2-complete",
     "cartographer": "dslib-complete",
+    "alchemist": "mllib-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200

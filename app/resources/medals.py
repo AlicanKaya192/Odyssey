@@ -306,6 +306,21 @@ GLYPHS: dict[str, str] = {
                     '<path d="M3 9h18M3 15h18M9 3v18M15 3v18" stroke-width="0.8"/>'
                     '<path d="M5.5 18l4.5-5 3.5 2.5 5-8" stroke-width="2.1"/>'
                     '<g fill="#fff" stroke="none"><circle cx="18.5" cy="7.5" r="1.6"/></g>'),
+    "sealed-pipe": ('<rect x="2" y="13" width="20" height="5" rx="1" stroke-width="1.5"/>'
+                    '<path d="M6 11v9M18 11v9" stroke-width="2"/>'
+                    '<path d="M9.6 8V6a2.4 2.4 0 0 1 4.8 0v2" stroke-width="1.5"/>'
+                    '<rect x="8.6" y="8" width="6.8" height="4.6" rx="0.8" fill="#fff" stroke="none"/>'),
+    "fold-split": ('<rect x="2.5" y="5" width="19" height="14" rx="1.5" stroke-width="1.5"/>'
+                   '<path d="M6.3 5v14M10.1 5v14M13.9 5v14M17.7 5v14" stroke-width="1"/>'
+                   '<rect x="13.9" y="5" width="3.8" height="14" fill="#fff" stroke="none"/>'
+                   '<path d="M15.8 2v2M15.8 20v2" stroke-width="1.4"/>'),
+    "open-box": ('<path d="M4 12h16v8.5H4z" stroke-width="1.5"/>'
+                 '<path d="M4 12 8.5 4.5h7" stroke-width="1.5"/>'
+                 '<path d="M8 18v-2.5M12 18v-6.5M16 18v-4" stroke-width="2"/>'
+                 '<g fill="#fff" stroke="none"><circle cx="12" cy="8.3" r="1.2"/></g>'),
+    "model-stack": ('<path d="M12 3 21 7.5 12 12 3 7.5z" stroke-width="1.5"/>'
+                    '<path d="M3 12l9 4.5 9-4.5M3 16.5l9 4.5 9-4.5" stroke-width="1.5"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="12" cy="7.5" r="1.5"/></g>'),
 }
 
 
