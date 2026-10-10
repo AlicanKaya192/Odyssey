@@ -1,0 +1,154 @@
+{
+  "id": "unmatched-orders",
+  "title": {
+    "tr": "Eşleşmeyen siparişler",
+    "en": "Unmatched orders"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`check = left.merge(right, on=\"customer\", how=\"outer\", indicator=True)`.",
+      "en": "`check = left.merge(right, on=\"customer\", how=\"outer\", indicator=True)`."
+    },
+    {
+      "tr": "`check.loc[check[\"_merge\"] == \"left_only\", \"order\"].astype(int).tolist()` (outer `NaN` yüzünden ondalık olur).",
+      "en": "`check.loc[check[\"_merge\"] == \"left_only\", \"order\"].astype(int).tolist()` (it turns decimal because of outer's `NaN`)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef unmatched_orders(orders, customers):\n    left = pd.DataFrame(orders, columns=[\"order\", \"customer\", \"amount\"])\n    right = pd.DataFrame(customers, columns=[\"customer\", \"name\"])\n    check = left.merge(right, on=\"customer\", how=\"outer\", indicator=True)\n    lost = check.loc[check[\"_merge\"] == \"left_only\", \"order\"]\n    return lost.astype(int).tolist()\n\nORDERS = [[1, 10, 250], [2, 20, 90], [3, 10, 40], [4, 40, 70]]\nCUSTOMERS = [[10, \"Ada\"], [20, \"Can\"], [30, \"Eda\"]]\nprint(unmatched_orders(ORDERS, CUSTOMERS))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef unmatched_orders(orders, customers):\n    left = pd.DataFrame(orders, columns=[\"order\", \"customer\", \"amount\"])\n    right = pd.DataFrame(customers, columns=[\"customer\", \"name\"])\n    check = left.merge(right, on=\"customer\", how=\"outer\", indicator=True)\n    lost = check.loc[check[\"_merge\"] == \"left_only\", \"order\"]\n    return lost.astype(int).tolist()\n\nORDERS = [[1, 10, 250], [2, 20, 90], [3, 10, 40], [4, 40, 70]]\nCUSTOMERS = [[10, \"Ada\"], [20, \"Can\"], [30, \"Eda\"]]\nprint(unmatched_orders(ORDERS, CUSTOMERS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "unmatched_orders",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                10,
+                250
+              ],
+              [
+                2,
+                20,
+                90
+              ],
+              [
+                3,
+                10,
+                40
+              ],
+              [
+                4,
+                40,
+                70
+              ]
+            ],
+            [
+              [
+                10,
+                "Ada"
+              ],
+              [
+                20,
+                "Can"
+              ],
+              [
+                30,
+                "Eda"
+              ]
+            ]
+          ],
+          "returns": [
+            4
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                10,
+                5
+              ]
+            ],
+            [
+              [
+                10,
+                "Ada"
+              ],
+              [
+                20,
+                "Can"
+              ],
+              [
+                30,
+                "Eda"
+              ]
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                5,
+                99,
+                1
+              ],
+              [
+                6,
+                98,
+                2
+              ],
+              [
+                7,
+                20,
+                3
+              ]
+            ],
+            [
+              [
+                10,
+                "Ada"
+              ],
+              [
+                20,
+                "Can"
+              ],
+              [
+                30,
+                "Eda"
+              ]
+            ]
+          ],
+          "returns": [
+            6,
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[4]"
+    }
+  ]
+}

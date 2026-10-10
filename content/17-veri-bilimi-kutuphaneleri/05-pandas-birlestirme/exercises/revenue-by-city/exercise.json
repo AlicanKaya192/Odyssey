@@ -1,0 +1,143 @@
+{
+  "id": "revenue-by-city",
+  "title": {
+    "tr": "Şehre göre ciro",
+    "en": "Revenue by city"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce sağ tablodaki tekrarları at: `.drop_duplicates(\"customer\")` ilkini tutar.",
+      "en": "First drop the repeats in the right table: `.drop_duplicates(\"customer\")` keeps the first."
+    },
+    {
+      "tr": "`left.merge(right, on=\"customer\", how=\"left\", validate=\"many_to_one\")`, sonra `groupby(\"city\")[\"amount\"].sum().to_dict()`.",
+      "en": "`left.merge(right, on=\"customer\", how=\"left\", validate=\"many_to_one\")`, then `groupby(\"city\")[\"amount\"].sum().to_dict()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef revenue_by_city(orders, cities):\n    left = pd.DataFrame(orders, columns=[\"order\", \"customer\", \"amount\"])\n    right = pd.DataFrame(cities, columns=[\"customer\", \"city\"]).drop_duplicates(\"customer\")\n    joined = left.merge(right, on=\"customer\", how=\"left\", validate=\"many_to_one\")\n    return joined.groupby(\"city\")[\"amount\"].sum().to_dict()\n\nORDERS = [[1, 10, 250], [2, 20, 90], [3, 10, 40], [4, 40, 70]]\nCITIES = [[10, \"Izmir\"], [10, \"Ankara\"], [20, \"Bursa\"], [40, \"Izmir\"]]\nprint(revenue_by_city(ORDERS, CITIES))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef revenue_by_city(orders, cities):\n    left = pd.DataFrame(orders, columns=[\"order\", \"customer\", \"amount\"])\n    right = pd.DataFrame(cities, columns=[\"customer\", \"city\"]).drop_duplicates(\"customer\")\n    joined = left.merge(right, on=\"customer\", how=\"left\", validate=\"many_to_one\")\n    return joined.groupby(\"city\")[\"amount\"].sum().to_dict()\n\nORDERS = [[1, 10, 250], [2, 20, 90], [3, 10, 40], [4, 40, 70]]\nCITIES = [[10, \"Izmir\"], [10, \"Ankara\"], [20, \"Bursa\"], [40, \"Izmir\"]]\nprint(revenue_by_city(ORDERS, CITIES))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "revenue_by_city",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                10,
+                250
+              ],
+              [
+                2,
+                20,
+                90
+              ],
+              [
+                3,
+                10,
+                40
+              ],
+              [
+                4,
+                40,
+                70
+              ]
+            ],
+            [
+              [
+                10,
+                "Izmir"
+              ],
+              [
+                10,
+                "Ankara"
+              ],
+              [
+                20,
+                "Bursa"
+              ],
+              [
+                40,
+                "Izmir"
+              ]
+            ]
+          ],
+          "returns": {
+            "Bursa": 90,
+            "Izmir": 360
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                1,
+                5
+              ],
+              [
+                2,
+                1,
+                7
+              ]
+            ],
+            [
+              [
+                1,
+                "Van"
+              ],
+              [
+                1,
+                "Mus"
+              ]
+            ]
+          ],
+          "returns": {
+            "Van": 12
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                2,
+                3
+              ]
+            ],
+            [
+              [
+                2,
+                "Rize"
+              ]
+            ]
+          ],
+          "returns": {
+            "Rize": 3
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'Bursa': 90, 'Izmir': 360}"
+    }
+  ]
+}

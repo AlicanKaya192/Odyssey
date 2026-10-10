@@ -1,0 +1,149 @@
+{
+  "id": "stack-months",
+  "title": {
+    "tr": "Ayları birleştir",
+    "en": "Stack the months"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`stacked = pd.concat(frames, keys=list(months))`; `len(stacked)` satır sayısı.",
+      "en": "`stacked = pd.concat(frames, keys=list(months))`; `len(stacked)` is the row count."
+    },
+    {
+      "tr": "`pd.concat(frames, ignore_index=True).index.tolist()` ve `stacked.groupby(level=0, sort=False)[\"sales\"].sum().to_dict()`.",
+      "en": "`pd.concat(frames, ignore_index=True).index.tolist()` and `stacked.groupby(level=0, sort=False)[\"sales\"].sum().to_dict()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef stack_months(months):\n    frames = [pd.DataFrame(rows, columns=[\"city\", \"sales\"]) for rows in months.values()]\n    stacked = pd.concat(frames, keys=list(months))\n    flat = pd.concat(frames, ignore_index=True)\n    totals = stacked.groupby(level=0, sort=False)[\"sales\"].sum()\n    return {\"rows\": len(stacked), \"index\": flat.index.tolist(), \"totals\": totals.to_dict()}\n\nMONTHS = {\"jan\": [[\"Izmir\", 80], [\"Ankara\", 120]], \"feb\": [[\"Bursa\", 50]],\n          \"mar\": [[\"Izmir\", 95], [\"Bursa\", 65], [\"Van\", 10]]}\nresult = stack_months(MONTHS)\nprint(result[\"rows\"], result[\"index\"])\nprint(result[\"totals\"])\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef stack_months(months):\n    frames = [pd.DataFrame(rows, columns=[\"city\", \"sales\"]) for rows in months.values()]\n    stacked = pd.concat(frames, keys=list(months))\n    flat = pd.concat(frames, ignore_index=True)\n    totals = stacked.groupby(level=0, sort=False)[\"sales\"].sum()\n    return {\"rows\": len(stacked), \"index\": flat.index.tolist(), \"totals\": totals.to_dict()}\n\nMONTHS = {\"jan\": [[\"Izmir\", 80], [\"Ankara\", 120]], \"feb\": [[\"Bursa\", 50]],\n          \"mar\": [[\"Izmir\", 95], [\"Bursa\", 65], [\"Van\", 10]]}\nresult = stack_months(MONTHS)\nprint(result[\"rows\"], result[\"index\"])\nprint(result[\"totals\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "stack_months",
+      "cases": [
+        {
+          "args": [
+            {
+              "jan": [
+                [
+                  "Izmir",
+                  80
+                ],
+                [
+                  "Ankara",
+                  120
+                ]
+              ],
+              "feb": [
+                [
+                  "Bursa",
+                  50
+                ]
+              ],
+              "mar": [
+                [
+                  "Izmir",
+                  95
+                ],
+                [
+                  "Bursa",
+                  65
+                ],
+                [
+                  "Van",
+                  10
+                ]
+              ]
+            }
+          ],
+          "returns": {
+            "rows": 6,
+            "index": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "totals": {
+              "jan": 200,
+              "feb": 50,
+              "mar": 170
+            }
+          }
+        },
+        {
+          "args": [
+            {
+              "x": [
+                [
+                  "Van",
+                  1
+                ]
+              ]
+            }
+          ],
+          "returns": {
+            "rows": 1,
+            "index": [
+              0
+            ],
+            "totals": {
+              "x": 1
+            }
+          }
+        },
+        {
+          "args": [
+            {
+              "b": [
+                [
+                  "A",
+                  1
+                ],
+                [
+                  "B",
+                  2
+                ]
+              ],
+              "a": [
+                [
+                  "C",
+                  3
+                ]
+              ]
+            }
+          ],
+          "returns": {
+            "rows": 3,
+            "index": [
+              0,
+              1,
+              2
+            ],
+            "totals": {
+              "b": 3,
+              "a": 3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6 [0, 1, 2, 3, 4, 5]\n{'jan': 200, 'feb': 50, 'mar': 170}"
+    }
+  ]
+}
