@@ -1,0 +1,60 @@
+{
+  "id": "checksum",
+  "title": {
+    "tr": "Dosyanın özeti",
+    "en": "A file's digest"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`h = hashlib.sha256()` ve `with open(path, \"rb\") as file:`.",
+      "en": "`h = hashlib.sha256()` and `with open(path, \"rb\") as file:`."
+    },
+    {
+      "tr": "Döngüde `chunk = file.read(4096)`; boşsa `break`, değilse `h.update(chunk)`; sonda `h.hexdigest()`.",
+      "en": "In a loop `chunk = file.read(4096)`; `break` if empty, otherwise `h.update(chunk)`; at the end `h.hexdigest()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef checksum(path):\n    h = hashlib.sha256()\n    with open(path, \"rb\") as file:\n        while True:\n            chunk = file.read(4096)\n            if not chunk:\n                break\n            h.update(chunk)\n    return h.hexdigest()\n\nprint(checksum(\"data/notes.txt\")[:16])\nprint(checksum(\"data/empty.txt\")[:16])\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef checksum(path):\n    h = hashlib.sha256()\n    with open(path, \"rb\") as file:\n        while True:\n            chunk = file.read(4096)\n            if not chunk:\n                break\n            h.update(chunk)\n    return h.hexdigest()\n\nprint(checksum(\"data/notes.txt\")[:16])\nprint(checksum(\"data/empty.txt\")[:16])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "checksum",
+      "cases": [
+        {
+          "args": [
+            "data/notes.txt"
+          ],
+          "returns": "a6a364ba6b5c813b31fc1acf3d236f74f7c7588921cc1c8816322c60fd67a096"
+        },
+        {
+          "args": [
+            "data/empty.txt"
+          ],
+          "returns": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "args": [
+            "data/big.txt"
+          ],
+          "returns": "378417bfa37dd99f0113ac331390195259734af1c406028c82f1c5186f50aded"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "a6a364ba6b5c813b\ne3b0c44298fc1c14"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "password-check",
+  "title": {
+    "tr": "Şifre özeti ve doğrulama",
+    "en": "Password digest and check"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`hashlib.pbkdf2_hmac(\"sha256\", password.encode(), bytes.fromhex(salt_hex), 100_000).hex()`.",
+      "en": "`hashlib.pbkdf2_hmac(\"sha256\", password.encode(), bytes.fromhex(salt_hex), 100_000).hex()`."
+    },
+    {
+      "tr": "Doğrulama: `hmac.compare_digest(hash_password(password, salt_hex), key_hex)`.",
+      "en": "Check: `hmac.compare_digest(hash_password(password, salt_hex), key_hex)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef hash_password(password, salt_hex):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, 100_000)\n    return key.hex()\n\n\ndef check_password(password, salt_hex, key_hex):\n    return hmac.compare_digest(hash_password(password, salt_hex), key_hex)\n\nsalt = \"00112233445566778899aabbccddeeff\"\nkey = hash_password(\"secret123\", salt)\nprint(key[:16], len(key))\nprint(check_password(\"secret123\", salt, key), check_password(\"secret124\", salt, key))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef hash_password(password, salt_hex):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, 100_000)\n    return key.hex()\n\n\ndef check_password(password, salt_hex, key_hex):\n    return hmac.compare_digest(hash_password(password, salt_hex), key_hex)\n\nsalt = \"00112233445566778899aabbccddeeff\"\nkey = hash_password(\"secret123\", salt)\nprint(key[:16], len(key))\nprint(check_password(\"secret123\", salt, key), check_password(\"secret124\", salt, key))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hash_password",
+      "cases": [
+        {
+          "args": [
+            "secret123",
+            "00112233445566778899aabbccddeeff"
+          ],
+          "returns": "ed2bacebbe4b33a28b05ff39340f347719961dd10d8597023e43f47d31b0b89e"
+        },
+        {
+          "args": [
+            "",
+            "ffffffffffffffffffffffffffffffff"
+          ],
+          "returns": "4598454fb3f6a6d63bf65ced21a6d9ecdf286b58c7999805aa11b8ea7e4141bd"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "check_password",
+      "cases": [
+        {
+          "args": [
+            "secret123",
+            "00112233445566778899aabbccddeeff",
+            "ed2bacebbe4b33a28b05ff39340f347719961dd10d8597023e43f47d31b0b89e"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "secret124",
+            "00112233445566778899aabbccddeeff",
+            "ed2bacebbe4b33a28b05ff39340f347719961dd10d8597023e43f47d31b0b89e"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ed2bacebbe4b33a2 64\nTrue False"
+    }
+  ]
+}
