@@ -1,0 +1,36 @@
+{
+  "id": "find-growth",
+  "title": {
+    "tr": "Büyüyen satırı bul",
+    "en": "Find the growing line"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki fotoğraf: `first = tracemalloc.take_snapshot()`, `func()`, `second = tracemalloc.take_snapshot()`.",
+      "en": "Two snapshots: `first = tracemalloc.take_snapshot()`, `func()`, `second = tracemalloc.take_snapshot()`."
+    },
+    {
+      "tr": "`frame = second.compare_to(first, \"lineno\")[0].traceback[0]` ve `linecache.getline(frame.filename, frame.lineno).strip()`.",
+      "en": "`frame = second.compare_to(first, \"lineno\")[0].traceback[0]` and `linecache.getline(frame.filename, frame.lineno).strip()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport linecache\nimport tracemalloc\n\nkept = []\n\n\ndef top_growth(func):\n    tracemalloc.start()\n    first = tracemalloc.take_snapshot()\n    func()\n    second = tracemalloc.take_snapshot()\n    tracemalloc.stop()\n    frame = second.compare_to(first, \"lineno\")[0].traceback[0]\n    return linecache.getline(frame.filename, frame.lineno).strip()\n\n\ndef leaky():\n    for _ in range(3_000):\n        kept.append(bytearray(1_000))\n\n\nprint(top_growth(leaky))\n```",
+      "en": "The full solution:\n\n```python\nimport linecache\nimport tracemalloc\n\nkept = []\n\n\ndef top_growth(func):\n    tracemalloc.start()\n    first = tracemalloc.take_snapshot()\n    func()\n    second = tracemalloc.take_snapshot()\n    tracemalloc.stop()\n    frame = second.compare_to(first, \"lineno\")[0].traceback[0]\n    return linecache.getline(frame.filename, frame.lineno).strip()\n\n\ndef leaky():\n    for _ in range(3_000):\n        kept.append(bytearray(1_000))\n\n\nprint(top_growth(leaky))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "kept.append(bytearray(1_000))"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "id": "bounded-cache",
+  "title": {
+    "tr": "Sınırlı önbellek",
+    "en": "A bounded cache"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`self.data = OrderedDict()`; `put` sonunda `if len(self.data) > self.max_size: self.data.popitem(last=False)`.",
+      "en": "`self.data = OrderedDict()`; at the end of `put`, `if len(self.data) > self.max_size: self.data.popitem(last=False)`."
+    },
+    {
+      "tr": "`get` içinde bulunan anahtarı `self.data.move_to_end(key)` ile en sona al.",
+      "en": "In `get`, move a found key to the end with `self.data.move_to_end(key)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import OrderedDict\n\n\nclass BoundedCache:\n    def __init__(self, max_size):\n        self.max_size = max_size\n        self.data = OrderedDict()\n\n    def put(self, key, value):\n        self.data[key] = value\n        self.data.move_to_end(key)\n        if len(self.data) > self.max_size:\n            self.data.popitem(last=False)\n\n    def get(self, key):\n        if key not in self.data:\n            return None\n        self.data.move_to_end(key)\n        return self.data[key]\n\n\ndef simulate(max_size, keys):\n    cache = BoundedCache(max_size)\n    for key in keys:\n        if cache.get(key) is None:\n            cache.put(key, key.upper())\n    return list(cache.data)\n\n\nprint(simulate(3, [\"a\", \"b\", \"c\", \"a\", \"d\"]))\nprint(simulate(2, [\"x\", \"y\", \"z\"]))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import OrderedDict\n\n\nclass BoundedCache:\n    def __init__(self, max_size):\n        self.max_size = max_size\n        self.data = OrderedDict()\n\n    def put(self, key, value):\n        self.data[key] = value\n        self.data.move_to_end(key)\n        if len(self.data) > self.max_size:\n            self.data.popitem(last=False)\n\n    def get(self, key):\n        if key not in self.data:\n            return None\n        self.data.move_to_end(key)\n        return self.data[key]\n\n\ndef simulate(max_size, keys):\n    cache = BoundedCache(max_size)\n    for key in keys:\n        if cache.get(key) is None:\n            cache.put(key, key.upper())\n    return list(cache.data)\n\n\nprint(simulate(3, [\"a\", \"b\", \"c\", \"a\", \"d\"]))\nprint(simulate(2, [\"x\", \"y\", \"z\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "simulate",
+      "cases": [
+        {
+          "args": [
+            3,
+            [
+              "a",
+              "b",
+              "c",
+              "a",
+              "d"
+            ]
+          ],
+          "returns": [
+            "c",
+            "a",
+            "d"
+          ]
+        },
+        {
+          "args": [
+            2,
+            [
+              "x",
+              "y",
+              "z"
+            ]
+          ],
+          "returns": [
+            "y",
+            "z"
+          ]
+        },
+        {
+          "args": [
+            5,
+            [
+              "a",
+              "a",
+              "a"
+            ]
+          ],
+          "returns": [
+            "a"
+          ]
+        },
+        {
+          "args": [
+            1,
+            [
+              "p",
+              "q"
+            ]
+          ],
+          "returns": [
+            "q"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['c', 'a', 'd']\n['y', 'z']"
+    }
+  ]
+}
