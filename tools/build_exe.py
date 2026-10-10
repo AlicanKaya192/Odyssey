@@ -84,6 +84,9 @@ COLLECT = [
     "statsmodels",
     "patsy",
     "formulaic",   # statsmodels 0.15 formül arayüzü bununla çalışıyor
+    # Temel Kütüphaneler: seaborn bölümü. Saf Python; yalnızca kullanıcı
+    # kodu import ediyor.
+    "seaborn",
     # SQL alıştırmalarının sunucuya bağlanan katmanı. `sandbox/sql_runner.py`
     # pakete düz veri olarak giriyor ve PyInstaller içindeki `import
     # pyodbc`'yi görmüyor; toplanmazsa paketlenmiş sürüm SQL Server kurulu
