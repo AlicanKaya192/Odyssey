@@ -1,0 +1,68 @@
+{
+  "id": "scaled-coefs",
+  "title": {
+    "tr": "Karşılaştırılabilir katsayılar",
+    "en": "Comparable coefficients"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`make_pipeline(StandardScaler(), LinearRegression())`; katsayılar son adımda: `model[-1].coef_`.",
+      "en": "`make_pipeline(StandardScaler(), LinearRegression())`; the coefficients are in the last step: `model[-1].coef_`."
+    },
+    {
+      "tr": "`model = make_pipeline(StandardScaler(), LinearRegression()).fit(data[columns], price)`.",
+      "en": "`model = make_pipeline(StandardScaler(), LinearRegression()).fit(data[columns], price)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nrng = np.random.default_rng(0)\narea = rng.uniform(50, 200, 300)\nrooms = rng.integers(1, 6, 300)\nage = rng.uniform(0, 40, 300)\nprice = 3 * area + 20 * rooms - 2 * age + rng.normal(0, 30, 300)\ndata = pd.DataFrame({\"area\": area, \"rooms\": rooms, \"age\": age})\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef scaled_coefs(columns):\n    model = make_pipeline(StandardScaler(), LinearRegression()).fit(data[columns], price)\n    return [round(float(v), 1) for v in model[-1].coef_]\n\nprint(scaled_coefs([\"area\", \"rooms\", \"age\"]))\nprint(scaled_coefs([\"age\", \"rooms\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\n\nrng = np.random.default_rng(0)\narea = rng.uniform(50, 200, 300)\nrooms = rng.integers(1, 6, 300)\nage = rng.uniform(0, 40, 300)\nprice = 3 * area + 20 * rooms - 2 * age + rng.normal(0, 30, 300)\ndata = pd.DataFrame({\"area\": area, \"rooms\": rooms, \"age\": age})\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef scaled_coefs(columns):\n    model = make_pipeline(StandardScaler(), LinearRegression()).fit(data[columns], price)\n    return [round(float(v), 1) for v in model[-1].coef_]\n\nprint(scaled_coefs([\"area\", \"rooms\", \"age\"]))\nprint(scaled_coefs([\"age\", \"rooms\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "scaled_coefs",
+      "cases": [
+        {
+          "args": [
+            [
+              "area",
+              "rooms",
+              "age"
+            ]
+          ],
+          "returns": [
+            132.2,
+            28.4,
+            -22.7
+          ]
+        },
+        {
+          "args": [
+            [
+              "age",
+              "rooms"
+            ]
+          ],
+          "returns": [
+            -19.0,
+            24.3
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[132.2, 28.4, -22.7]\n[-19.0, 24.3]"
+    }
+  ]
+}
