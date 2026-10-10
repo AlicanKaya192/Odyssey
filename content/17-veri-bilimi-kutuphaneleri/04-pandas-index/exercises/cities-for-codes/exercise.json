@@ -1,0 +1,133 @@
+{
+  "id": "cities-for-codes",
+  "title": {
+    "tr": "Kodla bul",
+    "en": "Find by code"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`items = pd.DataFrame(...).set_index(\"code\")`.",
+      "en": "`items = pd.DataFrame(...).set_index(\"code\")`."
+    },
+    {
+      "tr": "`part = items.loc[codes]`; `[part[\"city\"].tolist(), int(part[\"stock\"].sum())]`.",
+      "en": "`part = items.loc[codes]`; `[part[\"city\"].tolist(), int(part[\"stock\"].sum())]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef cities_for(rows, codes):\n    items = pd.DataFrame(rows, columns=[\"code\", \"city\", \"stock\"]).set_index(\"code\")\n    part = items.loc[codes]\n    return [part[\"city\"].tolist(), int(part[\"stock\"].sum())]\n\nSTOCK = [[\"A7\", \"Izmir\", 14], [\"B2\", \"Ankara\", 3], [\"C9\", \"Bursa\", 8]]\nprint(cities_for(STOCK, [\"C9\", \"A7\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef cities_for(rows, codes):\n    items = pd.DataFrame(rows, columns=[\"code\", \"city\", \"stock\"]).set_index(\"code\")\n    part = items.loc[codes]\n    return [part[\"city\"].tolist(), int(part[\"stock\"].sum())]\n\nSTOCK = [[\"A7\", \"Izmir\", 14], [\"B2\", \"Ankara\", 3], [\"C9\", \"Bursa\", 8]]\nprint(cities_for(STOCK, [\"C9\", \"A7\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cities_for",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "A7",
+                "Izmir",
+                14
+              ],
+              [
+                "B2",
+                "Ankara",
+                3
+              ],
+              [
+                "C9",
+                "Bursa",
+                8
+              ]
+            ],
+            [
+              "C9",
+              "A7"
+            ]
+          ],
+          "returns": [
+            [
+              "Bursa",
+              "Izmir"
+            ],
+            22
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "A7",
+                "Izmir",
+                14
+              ],
+              [
+                "B2",
+                "Ankara",
+                3
+              ],
+              [
+                "C9",
+                "Bursa",
+                8
+              ]
+            ],
+            [
+              "B2"
+            ]
+          ],
+          "returns": [
+            [
+              "Ankara"
+            ],
+            3
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "X",
+                "Konya",
+                1
+              ],
+              [
+                "Y",
+                "Van",
+                2
+              ]
+            ],
+            [
+              "Y",
+              "X",
+              "Y"
+            ]
+          ],
+          "returns": [
+            [
+              "Van",
+              "Konya",
+              "Van"
+            ],
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[['Bursa', 'Izmir'], 22]"
+    }
+  ]
+}

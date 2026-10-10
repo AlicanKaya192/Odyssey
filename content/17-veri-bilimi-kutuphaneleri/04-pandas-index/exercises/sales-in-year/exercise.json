@@ -1,0 +1,145 @@
+{
+  "id": "sales-in-year",
+  "title": {
+    "tr": "Bir yılın satışları",
+    "en": "One year's sales"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`m.xs(year, level=\"year\")` o yılın satırlarını verir; şehir indeks kalır.",
+      "en": "`m.xs(year, level=\"year\")` gives that year's rows; the city stays the index."
+    },
+    {
+      "tr": "`m.xs(year, level=\"year\")[\"sales\"].to_dict()`.",
+      "en": "`m.xs(year, level=\"year\")[\"sales\"].to_dict()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef sales_in_year(rows, year):\n    df = pd.DataFrame(rows, columns=[\"city\", \"year\", \"sales\"])\n    m = df.set_index([\"city\", \"year\"]).sort_index()\n    return m.xs(year, level=\"year\")[\"sales\"].to_dict()\n\nROWS = [[\"Izmir\", 2024, 80], [\"Izmir\", 2025, 95], [\"Ankara\", 2024, 120],\n        [\"Ankara\", 2025, 110], [\"Bursa\", 2024, 50], [\"Bursa\", 2025, 65]]\nprint(sales_in_year(ROWS, 2025))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef sales_in_year(rows, year):\n    df = pd.DataFrame(rows, columns=[\"city\", \"year\", \"sales\"])\n    m = df.set_index([\"city\", \"year\"]).sort_index()\n    return m.xs(year, level=\"year\")[\"sales\"].to_dict()\n\nROWS = [[\"Izmir\", 2024, 80], [\"Izmir\", 2025, 95], [\"Ankara\", 2024, 120],\n        [\"Ankara\", 2025, 110], [\"Bursa\", 2024, 50], [\"Bursa\", 2025, 65]]\nprint(sales_in_year(ROWS, 2025))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sales_in_year",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "Izmir",
+                2024,
+                80
+              ],
+              [
+                "Izmir",
+                2025,
+                95
+              ],
+              [
+                "Ankara",
+                2024,
+                120
+              ],
+              [
+                "Ankara",
+                2025,
+                110
+              ],
+              [
+                "Bursa",
+                2024,
+                50
+              ],
+              [
+                "Bursa",
+                2025,
+                65
+              ]
+            ],
+            2025
+          ],
+          "returns": {
+            "Ankara": 110,
+            "Bursa": 65,
+            "Izmir": 95
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "Izmir",
+                2024,
+                80
+              ],
+              [
+                "Izmir",
+                2025,
+                95
+              ],
+              [
+                "Ankara",
+                2024,
+                120
+              ],
+              [
+                "Ankara",
+                2025,
+                110
+              ],
+              [
+                "Bursa",
+                2024,
+                50
+              ],
+              [
+                "Bursa",
+                2025,
+                65
+              ]
+            ],
+            2024
+          ],
+          "returns": {
+            "Ankara": 120,
+            "Bursa": 50,
+            "Izmir": 80
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "Van",
+                2023,
+                5
+              ]
+            ],
+            2023
+          ],
+          "returns": {
+            "Van": 5
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'Ankara': 110, 'Bursa': 65, 'Izmir': 95}"
+    }
+  ]
+}
