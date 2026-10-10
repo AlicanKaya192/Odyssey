@@ -1,0 +1,72 @@
+{
+  "id": "best-price",
+  "title": {
+    "tr": "Kârı en büyük yapan fiyat",
+    "en": "The profit-maximising price"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "En büyüğü bulmak için fonksiyonun **eksisini** en küçükle; sonuçtaki kâr `-res.fun`.",
+      "en": "To find the maximum, minimise the **negative**; the profit in the result is `-res.fun`."
+    },
+    {
+      "tr": "`return -(price - cost) * (1000 - 8 * price)` ve `round(float(-res.fun), 1)`.",
+      "en": "`return -(price - cost) * (1000 - 8 * price)` and `round(float(-res.fun), 1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom scipy import optimize\n\n\ndef best_price(cost, max_price):\n    def loss(price):\n        return -(price - cost) * (1000 - 8 * price)\n\n    res = optimize.minimize_scalar(loss, bounds=(cost, max_price), method=\"bounded\")\n    return [round(float(res.x), 2), round(float(-res.fun), 1)]\n\nprint(best_price(20, 125))\nprint(best_price(40, 125))\n```",
+      "en": "The full solution:\n\n```python\nfrom scipy import optimize\n\n\ndef best_price(cost, max_price):\n    def loss(price):\n        return -(price - cost) * (1000 - 8 * price)\n\n    res = optimize.minimize_scalar(loss, bounds=(cost, max_price), method=\"bounded\")\n    return [round(float(res.x), 2), round(float(-res.fun), 1)]\n\nprint(best_price(20, 125))\nprint(best_price(40, 125))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "best_price",
+      "cases": [
+        {
+          "args": [
+            20,
+            125
+          ],
+          "returns": [
+            72.5,
+            22050.0
+          ]
+        },
+        {
+          "args": [
+            40,
+            125
+          ],
+          "returns": [
+            82.5,
+            14450.0
+          ]
+        },
+        {
+          "args": [
+            10,
+            50
+          ],
+          "returns": [
+            50.0,
+            24000.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[72.5, 22050.0]\n[82.5, 14450.0]"
+    }
+  ]
+}

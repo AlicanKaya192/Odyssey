@@ -1,0 +1,105 @@
+{
+  "id": "readings",
+  "title": {
+    "tr": "Ölçümlerin arası",
+    "en": "Between measurements"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`np.interp(at, hours, temps)` doğrusal ara değeri verir.",
+      "en": "`np.interp(at, hours, temps)` gives the linear in-between value."
+    },
+    {
+      "tr": "`interpolate.PchipInterpolator(hours, temps)` bir fonksiyon döndürür; `(at)` ile çağır.",
+      "en": "`interpolate.PchipInterpolator(hours, temps)` returns a function; call it with `(at)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom scipy import interpolate\n\n\ndef readings(hours, temps, at):\n    linear = np.interp(at, hours, temps)\n    curve = interpolate.PchipInterpolator(hours, temps)(at)\n    return [round(float(linear), 2), round(float(curve), 2)]\n\nHOURS = [0, 3, 6, 9, 12]\nTEMP = [12.0, 10.0, 15.0, 22.0, 25.0]\nprint(readings(HOURS, TEMP, 7.5))\nprint(readings(HOURS, TEMP, 1.5))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom scipy import interpolate\n\n\ndef readings(hours, temps, at):\n    linear = np.interp(at, hours, temps)\n    curve = interpolate.PchipInterpolator(hours, temps)(at)\n    return [round(float(linear), 2), round(float(curve), 2)]\n\nHOURS = [0, 3, 6, 9, 12]\nTEMP = [12.0, 10.0, 15.0, 22.0, 25.0]\nprint(readings(HOURS, TEMP, 7.5))\nprint(readings(HOURS, TEMP, 1.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "readings",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              3,
+              6,
+              9,
+              12
+            ],
+            [
+              12.0,
+              10.0,
+              15.0,
+              22.0,
+              25.0
+            ],
+            7.5
+          ],
+          "returns": [
+            18.5,
+            18.7
+          ]
+        },
+        {
+          "args": [
+            [
+              0,
+              3,
+              6,
+              9,
+              12
+            ],
+            [
+              12.0,
+              10.0,
+              15.0,
+              22.0,
+              25.0
+            ],
+            1.5
+          ],
+          "returns": [
+            11.0,
+            10.31
+          ]
+        },
+        {
+          "args": [
+            [
+              0,
+              10
+            ],
+            [
+              0.0,
+              100.0
+            ],
+            2.5
+          ],
+          "returns": [
+            25.0,
+            25.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[18.5, 18.7]\n[11.0, 10.31]"
+    }
+  ]
+}
