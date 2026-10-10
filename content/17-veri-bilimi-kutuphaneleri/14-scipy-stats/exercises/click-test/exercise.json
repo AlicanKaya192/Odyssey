@@ -1,0 +1,137 @@
+{
+  "id": "click-test",
+  "title": {
+    "tr": "Tıklama oranı reklama bağlı mı?",
+    "en": "Does the click rate depend on the ad?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sonuç nesnesinde `statistic`, `pvalue`, `dof`, `expected_freq` var.",
+      "en": "The result object has `statistic`, `pvalue`, `dof`, `expected_freq`."
+    },
+    {
+      "tr": "`round(float(res.statistic), 2)`, `int(res.dof)`, `bool(res.pvalue < 0.05)`, `res.expected_freq.round(1).tolist()`.",
+      "en": "`round(float(res.statistic), 2)`, `int(res.dof)`, `bool(res.pvalue < 0.05)`, `res.expected_freq.round(1).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom scipy import stats\n\n\ndef click_test(table):\n    res = stats.chi2_contingency(np.array(table))\n    return {\"stat\": round(float(res.statistic), 2), \"dof\": int(res.dof),\n            \"significant\": bool(res.pvalue < 0.05),\n            \"expected\": res.expected_freq.round(1).tolist()}\n\nresult = click_test([[90, 60], [45, 105]])\nprint(result[\"stat\"], result[\"dof\"], result[\"significant\"])\nprint(result[\"expected\"])\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom scipy import stats\n\n\ndef click_test(table):\n    res = stats.chi2_contingency(np.array(table))\n    return {\"stat\": round(float(res.statistic), 2), \"dof\": int(res.dof),\n            \"significant\": bool(res.pvalue < 0.05),\n            \"expected\": res.expected_freq.round(1).tolist()}\n\nresult = click_test([[90, 60], [45, 105]])\nprint(result[\"stat\"], result[\"dof\"], result[\"significant\"])\nprint(result[\"expected\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "click_test",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                90,
+                60
+              ],
+              [
+                45,
+                105
+              ]
+            ]
+          ],
+          "returns": {
+            "stat": 26.07,
+            "dof": 1,
+            "significant": true,
+            "expected": [
+              [
+                67.5,
+                82.5
+              ],
+              [
+                67.5,
+                82.5
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                20,
+                20
+              ],
+              [
+                21,
+                19
+              ]
+            ]
+          ],
+          "returns": {
+            "stat": 0.0,
+            "dof": 1,
+            "significant": false,
+            "expected": [
+              [
+                20.5,
+                19.5
+              ],
+              [
+                20.5,
+                19.5
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                10,
+                30
+              ],
+              [
+                30,
+                10
+              ],
+              [
+                20,
+                20
+              ]
+            ]
+          ],
+          "returns": {
+            "stat": 20.0,
+            "dof": 2,
+            "significant": true,
+            "expected": [
+              [
+                20.0,
+                20.0
+              ],
+              [
+                20.0,
+                20.0
+              ],
+              [
+                20.0,
+                20.0
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "26.07 1 True\n[[67.5, 82.5], [67.5, 82.5]]"
+    }
+  ]
+}

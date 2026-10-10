@@ -1,0 +1,114 @@
+{
+  "id": "diff-interval",
+  "title": {
+    "tr": "Farkın güven aralığı",
+    "en": "The difference's interval"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`low, high = res.confidence_interval(confidence_level=0.95)`.",
+      "en": "`low, high = res.confidence_interval(confidence_level=0.95)`."
+    },
+    {
+      "tr": "Sıfır içinde mi: `low <= 0 <= high`; `bool(...)` ile döndür.",
+      "en": "Contains zero: `low <= 0 <= high`; return it with `bool(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom scipy import stats\n\n\ndef diff_interval(a, b):\n    res = stats.ttest_ind(b, a, equal_var=False)\n    low, high = res.confidence_interval(confidence_level=0.95)\n    return [round(float(low), 2), round(float(high), 2), bool(low <= 0 <= high)]\n\nA = [52.1, 48.3, 55.0, 61.2, 47.5, 50.8, 58.9, 44.2, 53.7, 49.9]\nB = [60.4, 71.8, 45.2, 80.1, 66.3, 52.7, 77.9, 58.0]\nprint(diff_interval(A, B))\n```",
+      "en": "The full solution:\n\n```python\nfrom scipy import stats\n\n\ndef diff_interval(a, b):\n    res = stats.ttest_ind(b, a, equal_var=False)\n    low, high = res.confidence_interval(confidence_level=0.95)\n    return [round(float(low), 2), round(float(high), 2), bool(low <= 0 <= high)]\n\nA = [52.1, 48.3, 55.0, 61.2, 47.5, 50.8, 58.9, 44.2, 53.7, 49.9]\nB = [60.4, 71.8, 45.2, 80.1, 66.3, 52.7, 77.9, 58.0]\nprint(diff_interval(A, B))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "diff_interval",
+      "cases": [
+        {
+          "args": [
+            [
+              52.1,
+              48.3,
+              55.0,
+              61.2,
+              47.5,
+              50.8,
+              58.9,
+              44.2,
+              53.7,
+              49.9
+            ],
+            [
+              60.4,
+              71.8,
+              45.2,
+              80.1,
+              66.3,
+              52.7,
+              77.9,
+              58.0
+            ]
+          ],
+          "returns": [
+            1.42,
+            22.36,
+            false
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4
+            ],
+            [
+              10,
+              20,
+              30,
+              40,
+              50
+            ]
+          ],
+          "returns": [
+            7.91,
+            47.09,
+            false
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              6,
+              7
+            ],
+            [
+              5,
+              6,
+              7.5
+            ]
+          ],
+          "returns": [
+            -2.46,
+            2.8,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.42, 22.36, False]"
+    }
+  ]
+}
