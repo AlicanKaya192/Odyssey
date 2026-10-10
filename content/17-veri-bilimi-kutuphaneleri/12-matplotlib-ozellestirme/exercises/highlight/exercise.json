@@ -1,0 +1,105 @@
+{
+  "id": "highlight",
+  "title": {
+    "tr": "Tek vurgu",
+    "en": "One highlight"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce hepsi `color=\"lightgray\"`; sonra `bars[names.index(target)].set_color(\"tab:blue\")`.",
+      "en": "First all `color=\"lightgray\"`; then `bars[names.index(target)].set_color(\"tab:blue\")`."
+    },
+    {
+      "tr": "`ax.bar_label(bars, padding=3)` yazı nesnelerini döndürür; `get_text()` ile oku.",
+      "en": "`ax.bar_label(bars, padding=3)` returns the text objects; read them with `get_text()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\nfrom matplotlib.colors import to_hex\n\n\ndef highlight(names, values, target):\n    fig, ax = plt.subplots()\n    bars = ax.barh(names, values, color=\"lightgray\")\n    bars[names.index(target)].set_color(\"tab:blue\")\n    labels = [t.get_text() for t in ax.bar_label(bars, padding=3)]\n    ax.spines[[\"top\", \"right\"]].set_visible(False)\n    fig.savefig(\"bars.png\")\n    result = {\n        \"colors\": [to_hex(b.get_facecolor()) for b in bars],\n        \"labels\": labels,\n        \"spines\": [ax.spines[\"top\"].get_visible(), ax.spines[\"right\"].get_visible()],\n    }\n    plt.close(fig)\n    return result\n\nresult = highlight([\"Bursa\", \"Izmir\", \"Istanbul\"], [65, 95, 240], \"Istanbul\")\nprint(result[\"colors\"])\nprint(result[\"labels\"], result[\"spines\"])\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\nfrom matplotlib.colors import to_hex\n\n\ndef highlight(names, values, target):\n    fig, ax = plt.subplots()\n    bars = ax.barh(names, values, color=\"lightgray\")\n    bars[names.index(target)].set_color(\"tab:blue\")\n    labels = [t.get_text() for t in ax.bar_label(bars, padding=3)]\n    ax.spines[[\"top\", \"right\"]].set_visible(False)\n    fig.savefig(\"bars.png\")\n    result = {\n        \"colors\": [to_hex(b.get_facecolor()) for b in bars],\n        \"labels\": labels,\n        \"spines\": [ax.spines[\"top\"].get_visible(), ax.spines[\"right\"].get_visible()],\n    }\n    plt.close(fig)\n    return result\n\nresult = highlight([\"Bursa\", \"Izmir\", \"Istanbul\"], [65, 95, 240], \"Istanbul\")\nprint(result[\"colors\"])\nprint(result[\"labels\"], result[\"spines\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "highlight",
+      "cases": [
+        {
+          "args": [
+            [
+              "Bursa",
+              "Izmir",
+              "Istanbul"
+            ],
+            [
+              65,
+              95,
+              240
+            ],
+            "Istanbul"
+          ],
+          "returns": {
+            "colors": [
+              "#d3d3d3",
+              "#d3d3d3",
+              "#1f77b4"
+            ],
+            "labels": [
+              "65",
+              "95",
+              "240"
+            ],
+            "spines": [
+              false,
+              false
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              1,
+              2
+            ],
+            "A"
+          ],
+          "returns": {
+            "colors": [
+              "#1f77b4",
+              "#d3d3d3"
+            ],
+            "labels": [
+              "1",
+              "2"
+            ],
+            "spines": [
+              false,
+              false
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "min_bytes": 1000,
+      "type": "artifact",
+      "name": "bars.png"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['#d3d3d3', '#d3d3d3', '#1f77b4']\n['65', '95', '240'] [False, False]"
+    }
+  ]
+}

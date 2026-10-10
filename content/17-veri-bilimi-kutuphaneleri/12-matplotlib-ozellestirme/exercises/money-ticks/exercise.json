@@ -1,0 +1,81 @@
+{
+  "id": "money-ticks",
+  "title": {
+    "tr": "Binlik ayraç",
+    "en": "Thousands separators"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Biçimlendirici y eksenine verilir: `ax.yaxis.set_major_formatter(...)`.",
+      "en": "The formatter goes to the y axis: `ax.yaxis.set_major_formatter(...)`."
+    },
+    {
+      "tr": "`ax.yaxis.set_major_formatter(StrMethodFormatter(\"{x:,.0f}\"))`, `draw`'dan önce.",
+      "en": "`ax.yaxis.set_major_formatter(StrMethodFormatter(\"{x:,.0f}\"))`, before `draw`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\nfrom matplotlib.ticker import StrMethodFormatter\n\n\ndef money_ticks(values):\n    fig, ax = plt.subplots()\n    ax.bar(range(len(values)), values)\n    ax.yaxis.set_major_formatter(StrMethodFormatter(\"{x:,.0f}\"))\n    fig.canvas.draw()\n    labels = [t.get_text() for t in ax.get_yticklabels()][:3]\n    plt.close(fig)\n    return labels\n\nprint(money_ticks([1_250_000, 1_480_000, 1_310_000]))\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\nfrom matplotlib.ticker import StrMethodFormatter\n\n\ndef money_ticks(values):\n    fig, ax = plt.subplots()\n    ax.bar(range(len(values)), values)\n    ax.yaxis.set_major_formatter(StrMethodFormatter(\"{x:,.0f}\"))\n    fig.canvas.draw()\n    labels = [t.get_text() for t in ax.get_yticklabels()][:3]\n    plt.close(fig)\n    return labels\n\nprint(money_ticks([1_250_000, 1_480_000, 1_310_000]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "money_ticks",
+      "cases": [
+        {
+          "args": [
+            [
+              1250000,
+              1480000,
+              1310000
+            ]
+          ],
+          "returns": [
+            "0",
+            "200,000",
+            "400,000"
+          ]
+        },
+        {
+          "args": [
+            [
+              1000,
+              5000
+            ]
+          ],
+          "returns": [
+            "0",
+            "1,000",
+            "2,000"
+          ]
+        },
+        {
+          "args": [
+            [
+              42
+            ]
+          ],
+          "returns": [
+            "0",
+            "5",
+            "10"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['0', '200,000', '400,000']"
+    }
+  ]
+}

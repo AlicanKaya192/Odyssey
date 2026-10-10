@@ -1,0 +1,93 @@
+{
+  "id": "twin-axes",
+  "title": {
+    "tr": "İki y ekseni",
+    "en": "Two y axes"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`ax2 = ax.twinx()` sağda yeni bir alan açar; satışı ona çiz ve adını `ax2.set_ylabel` ile ver.",
+      "en": "`ax2 = ax.twinx()` opens a new area on the right; draw sales on it and name it with `ax2.set_ylabel`."
+    },
+    {
+      "tr": "İki çizgiyi tut (`line1, = ...`, `line2, = ...`) ve `ax.legend(handles=[line1, line2])`.",
+      "en": "Keep both lines (`line1, = ...`, `line2, = ...`) and `ax.legend(handles=[line1, line2])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\n\n\ndef twin_axes(temp, sales):\n    fig, ax = plt.subplots()\n    line1, = ax.plot(temp, color=\"tab:orange\", label=\"temperature\")\n    ax.set_ylabel(\"temperature\")\n    ax2 = ax.twinx()\n    line2, = ax2.plot(sales, color=\"tab:blue\", label=\"sales\")\n    ax2.set_ylabel(\"sales\")\n    legend = ax.legend(handles=[line1, line2])\n    fig.savefig(\"twin.png\")\n    names = [t.get_text() for t in legend.get_texts()]\n    result = [len(fig.axes), ax.get_ylabel(), ax2.get_ylabel(), names]\n    plt.close(fig)\n    return result\n\nareas, left, right, names = twin_axes([8, 14, 23, 28], [120, 180, 390, 520])\nprint(areas, left, right)\nprint(names)\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\n\n\ndef twin_axes(temp, sales):\n    fig, ax = plt.subplots()\n    line1, = ax.plot(temp, color=\"tab:orange\", label=\"temperature\")\n    ax.set_ylabel(\"temperature\")\n    ax2 = ax.twinx()\n    line2, = ax2.plot(sales, color=\"tab:blue\", label=\"sales\")\n    ax2.set_ylabel(\"sales\")\n    legend = ax.legend(handles=[line1, line2])\n    fig.savefig(\"twin.png\")\n    names = [t.get_text() for t in legend.get_texts()]\n    result = [len(fig.axes), ax.get_ylabel(), ax2.get_ylabel(), names]\n    plt.close(fig)\n    return result\n\nareas, left, right, names = twin_axes([8, 14, 23, 28], [120, 180, 390, 520])\nprint(areas, left, right)\nprint(names)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "twin_axes",
+      "cases": [
+        {
+          "args": [
+            [
+              8,
+              14,
+              23,
+              28
+            ],
+            [
+              120,
+              180,
+              390,
+              520
+            ]
+          ],
+          "returns": [
+            2,
+            "temperature",
+            "sales",
+            [
+              "temperature",
+              "sales"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2
+            ],
+            [
+              100,
+              50
+            ]
+          ],
+          "returns": [
+            2,
+            "temperature",
+            "sales",
+            [
+              "temperature",
+              "sales"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "min_bytes": 1000,
+      "type": "artifact",
+      "name": "twin.png"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2 temperature sales\n['temperature', 'sales']"
+    }
+  ]
+}

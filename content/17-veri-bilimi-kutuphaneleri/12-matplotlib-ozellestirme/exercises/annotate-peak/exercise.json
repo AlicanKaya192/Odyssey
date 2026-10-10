@@ -1,0 +1,97 @@
+{
+  "id": "annotate-peak",
+  "title": {
+    "tr": "Zirveyi işaretle",
+    "en": "Mark the peak"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "En büyüğün konumu: `values.index(max(values))`.",
+      "en": "The position of the largest: `values.index(max(values))`."
+    },
+    {
+      "tr": "`x = values.index(max(values))`; gerisi aynı.",
+      "en": "`x = values.index(max(values))`; the rest stays."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\n\n\ndef annotate_peak(values):\n    fig, ax = plt.subplots()\n    ax.plot(values, marker=\"o\")\n    x = values.index(max(values))\n    y = values[x]\n    note = ax.annotate(\"peak\", xy=(x, y), xytext=(x + 1, y), arrowprops=dict(arrowstyle=\"->\"))\n    fig.savefig(\"peak.png\")\n    plt.close(fig)\n    return [note.get_text(), [int(v) for v in note.xy]]\n\nprint(annotate_peak([120, 118, 125, 310, 128, 135]))\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\n\n\ndef annotate_peak(values):\n    fig, ax = plt.subplots()\n    ax.plot(values, marker=\"o\")\n    x = values.index(max(values))\n    y = values[x]\n    note = ax.annotate(\"peak\", xy=(x, y), xytext=(x + 1, y), arrowprops=dict(arrowstyle=\"->\"))\n    fig.savefig(\"peak.png\")\n    plt.close(fig)\n    return [note.get_text(), [int(v) for v in note.xy]]\n\nprint(annotate_peak([120, 118, 125, 310, 128, 135]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "annotate_peak",
+      "cases": [
+        {
+          "args": [
+            [
+              120,
+              118,
+              125,
+              310,
+              128,
+              135
+            ]
+          ],
+          "returns": [
+            "peak",
+            [
+              3,
+              310
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              5
+            ]
+          ],
+          "returns": [
+            "peak",
+            [
+              0,
+              5
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              9,
+              9,
+              2
+            ]
+          ],
+          "returns": [
+            "peak",
+            [
+              1,
+              9
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "min_bytes": 1000,
+      "type": "artifact",
+      "name": "peak.png"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['peak', [3, 310]]"
+    }
+  ]
+}
