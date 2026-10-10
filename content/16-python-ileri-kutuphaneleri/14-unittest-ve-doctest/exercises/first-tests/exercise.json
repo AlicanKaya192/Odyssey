@@ -1,0 +1,64 @@
+{
+  "id": "first-tests",
+  "title": {
+    "tr": "İlk testler",
+    "en": "Your first tests"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_tools.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her test bir metot: `def test_empty(self): self.assertEqual(word_count(\"\"), 0)`.",
+      "en": "Each test is a method: `def test_empty(self): self.assertEqual(word_count(\"\"), 0)`."
+    },
+    {
+      "tr": "Fazla boşluk testi: `self.assertEqual(word_count(\"  a   b \"), 2)`.",
+      "en": "The extra spaces test: `self.assertEqual(word_count(\"  a   b \"), 2)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport unittest\n\nfrom text_tools import word_count\n\n\nclass TestWordCount(unittest.TestCase):\n    def test_simple(self):\n        self.assertEqual(word_count(\"a b c\"), 3)\n\n    def test_empty(self):\n        self.assertEqual(word_count(\"\"), 0)\n\n    def test_spaces(self):\n        self.assertEqual(word_count(\"  a   b \"), 2)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport unittest\n\nfrom text_tools import word_count\n\n\nclass TestWordCount(unittest.TestCase):\n    def test_simple(self):\n        self.assertEqual(word_count(\"a b c\"), 3)\n\n    def test_empty(self):\n        self.assertEqual(word_count(\"\"), 0)\n\n    def test_spaces(self):\n        self.assertEqual(word_count(\"  a   b \"), 2)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "main.py",
+      "min": 3,
+      "mutants": [
+        {
+          "file": "text_tools.py",
+          "source": "def word_count(text):\n    return len(text.split(\" \"))\n",
+          "bug": {
+            "tr": "boşluk tek tek bölünüyor; boş metin 1, fazla boşluk yanlış sayılıyor.",
+            "en": "it splits on single spaces; empty text gives 1 and extra spaces are miscounted."
+          }
+        },
+        {
+          "file": "text_tools.py",
+          "source": "def word_count(text):\n    return len(text.strip().split(\" \"))\n",
+          "bug": {
+            "tr": "kelimeler arasındaki fazla boşluklar kelime sayılıyor.",
+            "en": "extra spaces between words are counted as words."
+          }
+        }
+      ]
+    }
+  ]
+}

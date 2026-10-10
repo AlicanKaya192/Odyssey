@@ -1,0 +1,64 @@
+{
+  "id": "mock-test",
+  "title": {
+    "tr": "Sahte hava durumu",
+    "en": "Fake weather"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "weather.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her test için `@patch(\"weather.fetch_temp\", return_value=5)` ve metodun ikinci parametresi `fake`.",
+      "en": "For each test `@patch(\"weather.fetch_temp\", return_value=5)` and a second method parameter `fake`."
+    },
+    {
+      "tr": "Sınır testi: `return_value=10` ile `self.assertEqual(advice(\"Bern\"), \"t-shirt\")`.",
+      "en": "The boundary test: with `return_value=10`, `self.assertEqual(advice(\"Bern\"), \"t-shirt\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport unittest\nfrom unittest.mock import patch\n\nfrom weather import advice\n\n\nclass TestAdvice(unittest.TestCase):\n    @patch(\"weather.fetch_temp\", return_value=5)\n    def test_cold(self, fake):\n        self.assertEqual(advice(\"Oslo\"), \"coat\")\n\n    @patch(\"weather.fetch_temp\", return_value=20)\n    def test_warm(self, fake):\n        self.assertEqual(advice(\"Izmir\"), \"t-shirt\")\n\n    @patch(\"weather.fetch_temp\", return_value=10)\n    def test_boundary(self, fake):\n        self.assertEqual(advice(\"Bern\"), \"t-shirt\")\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport unittest\nfrom unittest.mock import patch\n\nfrom weather import advice\n\n\nclass TestAdvice(unittest.TestCase):\n    @patch(\"weather.fetch_temp\", return_value=5)\n    def test_cold(self, fake):\n        self.assertEqual(advice(\"Oslo\"), \"coat\")\n\n    @patch(\"weather.fetch_temp\", return_value=20)\n    def test_warm(self, fake):\n        self.assertEqual(advice(\"Izmir\"), \"t-shirt\")\n\n    @patch(\"weather.fetch_temp\", return_value=10)\n    def test_boundary(self, fake):\n        self.assertEqual(advice(\"Bern\"), \"t-shirt\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "main.py",
+      "min": 3,
+      "mutants": [
+        {
+          "file": "weather.py",
+          "source": "def fetch_temp(city):\n    raise ConnectionError(\"no network\")\n\n\ndef advice(city):\n    temp = fetch_temp(city)\n    if temp <= 10:\n        return \"coat\"\n    return \"t-shirt\"\n",
+          "bug": {
+            "tr": "10 derecede mont öneriliyor.",
+            "en": "a coat is suggested at 10 degrees."
+          }
+        },
+        {
+          "file": "weather.py",
+          "source": "def fetch_temp(city):\n    raise ConnectionError(\"no network\")\n\n\ndef advice(city):\n    temp = fetch_temp(city)\n    return \"t-shirt\"\n",
+          "bug": {
+            "tr": "her zaman tişört öneriliyor.",
+            "en": "a t-shirt is always suggested."
+          }
+        }
+      ]
+    }
+  ]
+}

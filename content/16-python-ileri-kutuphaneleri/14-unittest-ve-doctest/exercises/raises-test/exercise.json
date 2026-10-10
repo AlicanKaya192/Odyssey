@@ -1,0 +1,72 @@
+{
+  "id": "raises-test",
+  "title": {
+    "tr": "Hatayı test et",
+    "en": "Test the error"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "bank.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`with self.assertRaises(ValueError): self.account.withdraw(500)`, sonra bakiyeyi denetle.",
+      "en": "`with self.assertRaises(ValueError): self.account.withdraw(500)`, then check the balance."
+    },
+    {
+      "tr": "Tam bakiye: `self.account.withdraw(100)` ve `self.assertEqual(self.account.balance, 0)`.",
+      "en": "The whole balance: `self.account.withdraw(100)` and `self.assertEqual(self.account.balance, 0)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport unittest\n\nfrom bank import Account\n\n\nclass TestAccount(unittest.TestCase):\n    def setUp(self):\n        self.account = Account(100)\n\n    def test_withdraw(self):\n        self.account.withdraw(30)\n        self.assertEqual(self.account.balance, 70)\n\n    def test_too_much(self):\n        with self.assertRaises(ValueError):\n            self.account.withdraw(500)\n        self.assertEqual(self.account.balance, 100)\n\n    def test_exact_balance(self):\n        self.account.withdraw(100)\n        self.assertEqual(self.account.balance, 0)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport unittest\n\nfrom bank import Account\n\n\nclass TestAccount(unittest.TestCase):\n    def setUp(self):\n        self.account = Account(100)\n\n    def test_withdraw(self):\n        self.account.withdraw(30)\n        self.assertEqual(self.account.balance, 70)\n\n    def test_too_much(self):\n        with self.assertRaises(ValueError):\n            self.account.withdraw(500)\n        self.assertEqual(self.account.balance, 100)\n\n    def test_exact_balance(self):\n        self.account.withdraw(100)\n        self.assertEqual(self.account.balance, 0)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "main.py",
+      "min": 3,
+      "mutants": [
+        {
+          "file": "bank.py",
+          "source": "class Account:\n    def __init__(self, balance=0):\n        self.balance = balance\n\n    def withdraw(self, amount):\n        self.balance -= amount\n",
+          "bug": {
+            "tr": "fazla çekime izin veriliyor, bakiye eksiye düşüyor.",
+            "en": "overdrawing is allowed and the balance goes negative."
+          }
+        },
+        {
+          "file": "bank.py",
+          "source": "class Account:\n    def __init__(self, balance=0):\n        self.balance = balance\n\n    def withdraw(self, amount):\n        if amount >= self.balance:\n            raise ValueError(\"not enough money\")\n        self.balance -= amount\n",
+          "bug": {
+            "tr": "bakiyenin tamamını çekmek hata veriyor.",
+            "en": "withdrawing the whole balance raises an error."
+          }
+        },
+        {
+          "file": "bank.py",
+          "source": "class Account:\n    def __init__(self, balance=0):\n        self.balance = balance\n\n    def withdraw(self, amount):\n        if amount > self.balance:\n            self.balance -= amount\n            raise ValueError(\"not enough money\")\n        self.balance -= amount\n",
+          "bug": {
+            "tr": "hata verilmeden önce para düşülüyor.",
+            "en": "the money is taken before the error is raised."
+          }
+        }
+      ]
+    }
+  ]
+}
