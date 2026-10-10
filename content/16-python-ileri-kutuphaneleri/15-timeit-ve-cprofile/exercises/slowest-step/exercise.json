@@ -1,0 +1,46 @@
+{
+  "id": "slowest-step",
+  "title": {
+    "tr": "En yavaş adım",
+    "en": "The slowest step"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 20,
+  "hints": [
+    {
+      "tr": "`profiler.runcall(pipeline)`; istatistiklerde adı `STEPS` içinde olanların `values[3]`'ünü sözlüğe topla.",
+      "en": "`profiler.runcall(pipeline)`; collect `values[3]` of the ones whose name is in `STEPS` into a dictionary."
+    },
+    {
+      "tr": "En büyüğün adı: `max(times, key=times.get)`.",
+      "en": "The name of the largest: `max(times, key=times.get)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport cProfile\nimport pstats\nimport time\n\n\ndef read():\n    time.sleep(0.15)\n\n\ndef clean():\n    time.sleep(0.05)\n\n\ndef save():\n    time.sleep(0.1)\n\n\ndef pipeline():\n    read()\n    clean()\n    save()\n\n\nSTEPS = [\"read\", \"clean\", \"save\"]\n\n\ndef slowest_step():\n    profiler = cProfile.Profile()\n    profiler.runcall(pipeline)\n    times = {}\n    for (_, _, name), values in pstats.Stats(profiler).stats.items():\n        if name in STEPS:\n            times[name] = values[3]\n    return max(times, key=times.get)\n\nprint(slowest_step())\n```",
+      "en": "The full solution:\n\n```python\nimport cProfile\nimport pstats\nimport time\n\n\ndef read():\n    time.sleep(0.15)\n\n\ndef clean():\n    time.sleep(0.05)\n\n\ndef save():\n    time.sleep(0.1)\n\n\ndef pipeline():\n    read()\n    clean()\n    save()\n\n\nSTEPS = [\"read\", \"clean\", \"save\"]\n\n\ndef slowest_step():\n    profiler = cProfile.Profile()\n    profiler.runcall(pipeline)\n    times = {}\n    for (_, _, name), values in pstats.Stats(profiler).stats.items():\n        if name in STEPS:\n            times[name] = values[3]\n    return max(times, key=times.get)\n\nprint(slowest_step())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "slowest_step",
+      "cases": [
+        {
+          "args": [],
+          "returns": "read"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "read"
+    }
+  ]
+}
