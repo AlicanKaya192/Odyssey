@@ -1,0 +1,100 @@
+{
+  "id": "split-codes",
+  "title": {
+    "tr": "Kodları parçala",
+    "en": "Take the codes apart"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Desen: `r\"(?P<country>[A-Z]{2})-(?P<region>\\d{2})-(?P<num>\\d{4})\"`.",
+      "en": "The pattern: `r\"(?P<country>[A-Z]{2})-(?P<region>\\d{2})-(?P<num>\\d{4})\"`."
+    },
+    {
+      "tr": "`parts = pd.Series(codes).str.extract(pattern).dropna()`; numara `parts[\"num\"].astype(int).tolist()`.",
+      "en": "`parts = pd.Series(codes).str.extract(pattern).dropna()`; the number `parts[\"num\"].astype(int).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef split_codes(codes):\n    pattern = r\"(?P<country>[A-Z]{2})-(?P<region>\\d{2})-(?P<num>\\d{4})\"\n    parts = pd.Series(codes).str.extract(pattern).dropna()\n    return {\"country\": parts[\"country\"].tolist(), \"num\": parts[\"num\"].astype(int).tolist()}\n\nresult = split_codes([\"TR-34-0012\", \"TR-06-0450\", \"bad\", \"DE-11-0007\"])\nprint(result[\"country\"])\nprint(result[\"num\"])\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef split_codes(codes):\n    pattern = r\"(?P<country>[A-Z]{2})-(?P<region>\\d{2})-(?P<num>\\d{4})\"\n    parts = pd.Series(codes).str.extract(pattern).dropna()\n    return {\"country\": parts[\"country\"].tolist(), \"num\": parts[\"num\"].astype(int).tolist()}\n\nresult = split_codes([\"TR-34-0012\", \"TR-06-0450\", \"bad\", \"DE-11-0007\"])\nprint(result[\"country\"])\nprint(result[\"num\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "split_codes",
+      "cases": [
+        {
+          "args": [
+            [
+              "TR-34-0012",
+              "TR-06-0450",
+              "bad",
+              "DE-11-0007"
+            ]
+          ],
+          "returns": {
+            "country": [
+              "TR",
+              "TR",
+              "DE"
+            ],
+            "num": [
+              12,
+              450,
+              7
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              "FR-75-1000"
+            ]
+          ],
+          "returns": {
+            "country": [
+              "FR"
+            ],
+            "num": [
+              1000
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              "X-1-2",
+              "tr-34-0001",
+              "NL-01-0099"
+            ]
+          ],
+          "returns": {
+            "country": [
+              "NL"
+            ],
+            "num": [
+              99
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['TR', 'TR', 'DE']\n[12, 450, 7]"
+    }
+  ]
+}

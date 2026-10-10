@@ -1,0 +1,102 @@
+{
+  "id": "size-report",
+  "title": {
+    "tr": "Beden sırası",
+    "en": "Size order"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`size_type = pd.CategoricalDtype([\"S\", \"M\", \"L\", \"XL\"], ordered=True)`.",
+      "en": "`size_type = pd.CategoricalDtype([\"S\", \"M\", \"L\", \"XL\"], ordered=True)`."
+    },
+    {
+      "tr": "`s = pd.Series(sizes).astype(size_type)`; sonra aynı üç hesap artık bedene göre çalışır.",
+      "en": "`s = pd.Series(sizes).astype(size_type)`; the same three calculations now work by size."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef size_report(sizes):\n    size_type = pd.CategoricalDtype([\"S\", \"M\", \"L\", \"XL\"], ordered=True)\n    s = pd.Series(sizes).astype(size_type)\n    return {\"sorted\": s.sort_values().tolist(), \"large\": int((s >= \"L\").sum()), \"max\": s.max()}\n\nresult = size_report([\"M\", \"S\", \"XL\", \"M\", \"L\"])\nprint(result[\"sorted\"])\nprint(result[\"large\"], result[\"max\"])\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef size_report(sizes):\n    size_type = pd.CategoricalDtype([\"S\", \"M\", \"L\", \"XL\"], ordered=True)\n    s = pd.Series(sizes).astype(size_type)\n    return {\"sorted\": s.sort_values().tolist(), \"large\": int((s >= \"L\").sum()), \"max\": s.max()}\n\nresult = size_report([\"M\", \"S\", \"XL\", \"M\", \"L\"])\nprint(result[\"sorted\"])\nprint(result[\"large\"], result[\"max\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "size_report",
+      "cases": [
+        {
+          "args": [
+            [
+              "M",
+              "S",
+              "XL",
+              "M",
+              "L"
+            ]
+          ],
+          "returns": {
+            "sorted": [
+              "S",
+              "M",
+              "M",
+              "L",
+              "XL"
+            ],
+            "large": 2,
+            "max": "XL"
+          }
+        },
+        {
+          "args": [
+            [
+              "S",
+              "M"
+            ]
+          ],
+          "returns": {
+            "sorted": [
+              "S",
+              "M"
+            ],
+            "large": 0,
+            "max": "M"
+          }
+        },
+        {
+          "args": [
+            [
+              "XL",
+              "L",
+              "S"
+            ]
+          ],
+          "returns": {
+            "sorted": [
+              "S",
+              "L",
+              "XL"
+            ],
+            "large": 2,
+            "max": "XL"
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['S', 'M', 'M', 'L', 'XL']\n2 XL"
+    }
+  ]
+}
