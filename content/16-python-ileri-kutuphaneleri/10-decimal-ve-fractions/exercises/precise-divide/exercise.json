@@ -1,0 +1,66 @@
+{
+  "id": "precise-divide",
+  "title": {
+    "tr": "Geçici duyarlık",
+    "en": "Temporary precision"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`with localcontext() as ctx:` bloğu aç ve içinde `ctx.prec = digits`.",
+      "en": "Open a `with localcontext() as ctx:` block and set `ctx.prec = digits` inside it."
+    },
+    {
+      "tr": "Bölmeyi ve `return`'ü bloğun içinde yap; blok bitince duyarlık eskiye döner.",
+      "en": "Do the division and the `return` inside the block; when it ends the precision goes back."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom decimal import Decimal, getcontext, localcontext\n\n\ndef precise_divide(a, b, digits):\n    with localcontext() as ctx:\n        ctx.prec = digits\n        return str(Decimal(a) / Decimal(b))\n\nprint(precise_divide(\"1\", \"7\", 5))\nprint(precise_divide(\"2\", \"3\", 3))\nprint(getcontext().prec)\n```",
+      "en": "The full solution:\n\n```python\nfrom decimal import Decimal, getcontext, localcontext\n\n\ndef precise_divide(a, b, digits):\n    with localcontext() as ctx:\n        ctx.prec = digits\n        return str(Decimal(a) / Decimal(b))\n\nprint(precise_divide(\"1\", \"7\", 5))\nprint(precise_divide(\"2\", \"3\", 3))\nprint(getcontext().prec)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "precise_divide",
+      "cases": [
+        {
+          "args": [
+            "1",
+            "7",
+            5
+          ],
+          "returns": "0.14286"
+        },
+        {
+          "args": [
+            "2",
+            "3",
+            3
+          ],
+          "returns": "0.667"
+        },
+        {
+          "args": [
+            "10",
+            "4",
+            2
+          ],
+          "returns": "2.5"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.14286\n0.667\n28"
+    }
+  ]
+}
