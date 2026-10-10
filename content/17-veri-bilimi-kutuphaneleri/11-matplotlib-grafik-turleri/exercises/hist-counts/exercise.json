@@ -1,0 +1,140 @@
+{
+  "id": "hist-counts",
+  "title": {
+    "tr": "Aynı kutularla iki histogram",
+    "en": "Two histograms with the same bins"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki `ax.hist` çağrısına da aynı `bins` ve `range=(low, high)`.",
+      "en": "Give both `ax.hist` calls the same `bins` and `range=(low, high)`."
+    },
+    {
+      "tr": "`opts = dict(bins=bins, range=(low, high), alpha=0.6)` ve `ax.hist(a, **opts)`.",
+      "en": "`opts = dict(bins=bins, range=(low, high), alpha=0.6)` and `ax.hist(a, **opts)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\nimport numpy as np\n\n\ndef hist_counts(a, b, bins, low, high):\n    fig, ax = plt.subplots()\n    opts = dict(bins=bins, range=(low, high), alpha=0.6)\n    counts_a, _, _ = ax.hist(a, **opts)\n    counts_b, _, _ = ax.hist(b, **opts)\n    plt.close(fig)\n    return [[int(c) for c in counts_a], [int(c) for c in counts_b]]\n\nA = [12, 25, 31, 33, 38, 44, 51]\nB = [30, 41, 45, 48, 55, 62, 70, 79]\ncounts_a, counts_b = hist_counts(A, B, 4, 0, 80)\nprint(counts_a)\nprint(counts_b)\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport numpy as np\n\n\ndef hist_counts(a, b, bins, low, high):\n    fig, ax = plt.subplots()\n    opts = dict(bins=bins, range=(low, high), alpha=0.6)\n    counts_a, _, _ = ax.hist(a, **opts)\n    counts_b, _, _ = ax.hist(b, **opts)\n    plt.close(fig)\n    return [[int(c) for c in counts_a], [int(c) for c in counts_b]]\n\nA = [12, 25, 31, 33, 38, 44, 51]\nB = [30, 41, 45, 48, 55, 62, 70, 79]\ncounts_a, counts_b = hist_counts(A, B, 4, 0, 80)\nprint(counts_a)\nprint(counts_b)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hist_counts",
+      "cases": [
+        {
+          "args": [
+            [
+              12,
+              25,
+              31,
+              33,
+              38,
+              44,
+              51
+            ],
+            [
+              30,
+              41,
+              45,
+              48,
+              55,
+              62,
+              70,
+              79
+            ],
+            4,
+            0,
+            80
+          ],
+          "returns": [
+            [
+              1,
+              4,
+              2,
+              0
+            ],
+            [
+              0,
+              1,
+              4,
+              3
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ],
+            [
+              4,
+              5,
+              6
+            ],
+            2,
+            0,
+            10
+          ],
+          "returns": [
+            [
+              3,
+              0
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              5
+            ],
+            [
+              1,
+              9
+            ],
+            5,
+            0,
+            10
+          ],
+          "returns": [
+            [
+              0,
+              0,
+              2,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 4, 2, 0]\n[0, 1, 4, 3]"
+    }
+  ]
+}
