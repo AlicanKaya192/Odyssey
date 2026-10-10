@@ -1,0 +1,119 @@
+{
+  "id": "store-panels",
+  "title": {
+    "tr": "Mağaza panelleri",
+    "en": "Store panels"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "`FacetGrid`'in `set_titles` metodu başlık şablonu alır.",
+      "en": "`FacetGrid`'s `set_titles` method takes a title template."
+    },
+    {
+      "tr": "`grid.set_titles(\"{col_name}\")`, kaydetmeden önce.",
+      "en": "`grid.set_titles(\"{col_name}\")`, before saving."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\n\n\ndef store_panels(hours, sales, stores, order):\n    df = pd.DataFrame({\"hour\": hours, \"sales\": sales, \"store\": stores})\n    grid = sns.relplot(df, x=\"hour\", y=\"sales\", col=\"store\", col_order=order, height=2)\n    grid.set_titles(\"{col_name}\")\n    grid.figure.savefig(\"panels.png\")\n    result = {\"shape\": list(grid.axes.shape), \"titles\": [ax.get_title() for ax in grid.axes.flat]}\n    plt.close(grid.figure)\n    return result\n\nresult = store_panels([9, 10, 11, 9, 10, 11], [100, 120, 110, 80, 90, 95],\n                      [\"Izmir\", \"Izmir\", \"Izmir\", \"Bursa\", \"Bursa\", \"Bursa\"],\n                      [\"Izmir\", \"Bursa\"])\nprint(result[\"shape\"])\nprint(result[\"titles\"])\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\n\n\ndef store_panels(hours, sales, stores, order):\n    df = pd.DataFrame({\"hour\": hours, \"sales\": sales, \"store\": stores})\n    grid = sns.relplot(df, x=\"hour\", y=\"sales\", col=\"store\", col_order=order, height=2)\n    grid.set_titles(\"{col_name}\")\n    grid.figure.savefig(\"panels.png\")\n    result = {\"shape\": list(grid.axes.shape), \"titles\": [ax.get_title() for ax in grid.axes.flat]}\n    plt.close(grid.figure)\n    return result\n\nresult = store_panels([9, 10, 11, 9, 10, 11], [100, 120, 110, 80, 90, 95],\n                      [\"Izmir\", \"Izmir\", \"Izmir\", \"Bursa\", \"Bursa\", \"Bursa\"],\n                      [\"Izmir\", \"Bursa\"])\nprint(result[\"shape\"])\nprint(result[\"titles\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "store_panels",
+      "cases": [
+        {
+          "args": [
+            [
+              9,
+              10,
+              11,
+              9,
+              10,
+              11
+            ],
+            [
+              100,
+              120,
+              110,
+              80,
+              90,
+              95
+            ],
+            [
+              "Izmir",
+              "Izmir",
+              "Izmir",
+              "Bursa",
+              "Bursa",
+              "Bursa"
+            ],
+            [
+              "Izmir",
+              "Bursa"
+            ]
+          ],
+          "returns": {
+            "shape": [
+              1,
+              2
+            ],
+            "titles": [
+              "Izmir",
+              "Bursa"
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              "X",
+              "Y"
+            ],
+            [
+              "Y",
+              "X"
+            ]
+          ],
+          "returns": {
+            "shape": [
+              1,
+              2
+            ],
+            "titles": [
+              "Y",
+              "X"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "min_bytes": 1000,
+      "type": "artifact",
+      "name": "panels.png"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 2]\n['Izmir', 'Bursa']"
+    }
+  ]
+}

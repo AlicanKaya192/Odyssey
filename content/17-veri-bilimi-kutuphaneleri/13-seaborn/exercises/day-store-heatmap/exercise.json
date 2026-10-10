@@ -1,0 +1,127 @@
+{
+  "id": "day-store-heatmap",
+  "title": {
+    "tr": "Gün × mağaza ısı haritası",
+    "en": "A day × store heat map"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "`table = df.pivot_table(index=\"day\", columns=\"store\", values=\"sales\", aggfunc=\"mean\")`; sıra `table.loc[day_order, store_order]`.",
+      "en": "`table = df.pivot_table(index=\"day\", columns=\"store\", values=\"sales\", aggfunc=\"mean\")`; the order `table.loc[day_order, store_order]`."
+    },
+    {
+      "tr": "`sns.heatmap(table, annot=True, fmt=\".0f\", ax=ax)`; yazılar `ax.texts`'te satır satır.",
+      "en": "`sns.heatmap(table, annot=True, fmt=\".0f\", ax=ax)`; the texts are in `ax.texts` row by row."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\n\n\ndef day_store_table(days, stores, sales, day_order, store_order):\n    df = pd.DataFrame({\"day\": days, \"store\": stores, \"sales\": sales})\n    table = df.pivot_table(index=\"day\", columns=\"store\", values=\"sales\", aggfunc=\"mean\")\n    table = table.loc[day_order, store_order]\n    fig, ax = plt.subplots()\n    sns.heatmap(table, annot=True, fmt=\".0f\", ax=ax)\n    fig.savefig(\"heat.png\")\n    texts = [t.get_text() for t in ax.texts]\n    plt.close(fig)\n    return {\"shape\": list(table.shape), \"first_row\": texts[:len(store_order)]}\n\nresult = day_store_table([\"Mon\", \"Mon\", \"Sat\", \"Sat\"], [\"A\", \"B\", \"A\", \"B\"],\n                         [100, 80, 140, 120], [\"Mon\", \"Sat\"], [\"A\", \"B\"])\nprint(result[\"shape\"])\nprint(result[\"first_row\"])\n```",
+      "en": "The full solution:\n\n```python\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\n\n\ndef day_store_table(days, stores, sales, day_order, store_order):\n    df = pd.DataFrame({\"day\": days, \"store\": stores, \"sales\": sales})\n    table = df.pivot_table(index=\"day\", columns=\"store\", values=\"sales\", aggfunc=\"mean\")\n    table = table.loc[day_order, store_order]\n    fig, ax = plt.subplots()\n    sns.heatmap(table, annot=True, fmt=\".0f\", ax=ax)\n    fig.savefig(\"heat.png\")\n    texts = [t.get_text() for t in ax.texts]\n    plt.close(fig)\n    return {\"shape\": list(table.shape), \"first_row\": texts[:len(store_order)]}\n\nresult = day_store_table([\"Mon\", \"Mon\", \"Sat\", \"Sat\"], [\"A\", \"B\", \"A\", \"B\"],\n                         [100, 80, 140, 120], [\"Mon\", \"Sat\"], [\"A\", \"B\"])\nprint(result[\"shape\"])\nprint(result[\"first_row\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "day_store_table",
+      "cases": [
+        {
+          "args": [
+            [
+              "Mon",
+              "Mon",
+              "Sat",
+              "Sat"
+            ],
+            [
+              "A",
+              "B",
+              "A",
+              "B"
+            ],
+            [
+              100,
+              80,
+              140,
+              120
+            ],
+            [
+              "Mon",
+              "Sat"
+            ],
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "returns": {
+            "shape": [
+              2,
+              2
+            ],
+            "first_row": [
+              "100",
+              "80"
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              "d1",
+              "d2",
+              "d1",
+              "d1"
+            ],
+            [
+              "x",
+              "x",
+              "y",
+              "x"
+            ],
+            [
+              10,
+              20,
+              30,
+              50
+            ],
+            [
+              "d2",
+              "d1"
+            ],
+            [
+              "y",
+              "x"
+            ]
+          ],
+          "returns": {
+            "shape": [
+              2,
+              2
+            ],
+            "first_row": [
+              "20",
+              "30"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "min_bytes": 1000,
+      "type": "artifact",
+      "name": "heat.png"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 2]\n['100', '80']"
+    }
+  ]
+}
