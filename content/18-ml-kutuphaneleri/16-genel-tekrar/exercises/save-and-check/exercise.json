@@ -1,0 +1,66 @@
+{
+  "id": "save-and-check",
+  "title": {
+    "tr": "Kaydet ve doğrula",
+    "en": "Save and verify"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Sözlüğe `\"columns\": list(X.columns)`, `dump`'a `compress=3`.",
+      "en": "Add `\"columns\": list(X.columns)` to the dictionary and `compress=3` to `dump`."
+    },
+    {
+      "tr": "`joblib.dump({\"model\": model, \"columns\": list(X.columns)}, path, compress=3)`.",
+      "en": "`joblib.dump({\"model\": model, \"columns\": list(X.columns)}, path, compress=3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.model_selection import StratifiedKFold, train_test_split\n\nrng = np.random.default_rng(16)\ndf = pd.DataFrame({\n    \"tenure\": rng.integers(1, 72, 1500).astype(float),\n    \"monthly\": rng.uniform(20, 120, 1500).round(2),\n    \"plan\": rng.choice([\"basic\", \"plus\", \"pro\"], 1500),\n    \"support\": rng.poisson(1.5, 1500).astype(float),\n})\nplan_effect = df[\"plan\"].map({\"basic\": 0.6, \"plus\": 0.0, \"pro\": -0.6})\nlogit = (-0.04 * df[\"tenure\"] + 0.02 * df[\"monthly\"] + 0.5 * df[\"support\"]\n         + plan_effect - 0.5)\ndf[\"churn\"] = (rng.random(1500) < 1 / (1 + np.exp(-logit))).astype(int)\ndf.loc[rng.random(1500) < 0.08, \"monthly\"] = np.nan\nX, y = df.drop(columns=\"churn\"), df[\"churn\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y,\n                                                    random_state=0)\ncv = StratifiedKFold(5, shuffle=True, random_state=0)\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\nprep = ColumnTransformer([\n    (\"num\", make_pipeline(SimpleImputer(strategy=\"median\"), StandardScaler()),\n     numeric),\n    (\"cat\", OneHotEncoder(handle_unknown=\"ignore\"), [\"plan\"]),\n])\nimport joblib\n\nmodel = make_pipeline(prep, LogisticRegression(C=0.1)).fit(X_train, y_train)\n\n\ndef save_and_check(path):\n    joblib.dump({\"model\": model, \"columns\": list(X.columns)}, path, compress=3)\n    loaded = joblib.load(path)\n    same = bool((loaded[\"model\"].predict(X_test) == model.predict(X_test)).all())\n    return [sorted(loaded), same]\n\nprint(save_and_check(\"churn.joblib\"))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.model_selection import StratifiedKFold, train_test_split\n\nrng = np.random.default_rng(16)\ndf = pd.DataFrame({\n    \"tenure\": rng.integers(1, 72, 1500).astype(float),\n    \"monthly\": rng.uniform(20, 120, 1500).round(2),\n    \"plan\": rng.choice([\"basic\", \"plus\", \"pro\"], 1500),\n    \"support\": rng.poisson(1.5, 1500).astype(float),\n})\nplan_effect = df[\"plan\"].map({\"basic\": 0.6, \"plus\": 0.0, \"pro\": -0.6})\nlogit = (-0.04 * df[\"tenure\"] + 0.02 * df[\"monthly\"] + 0.5 * df[\"support\"]\n         + plan_effect - 0.5)\ndf[\"churn\"] = (rng.random(1500) < 1 / (1 + np.exp(-logit))).astype(int)\ndf.loc[rng.random(1500) < 0.08, \"monthly\"] = np.nan\nX, y = df.drop(columns=\"churn\"), df[\"churn\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y,\n                                                    random_state=0)\ncv = StratifiedKFold(5, shuffle=True, random_state=0)\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\nnumeric = [\"tenure\", \"monthly\", \"support\"]\nprep = ColumnTransformer([\n    (\"num\", make_pipeline(SimpleImputer(strategy=\"median\"), StandardScaler()),\n     numeric),\n    (\"cat\", OneHotEncoder(handle_unknown=\"ignore\"), [\"plan\"]),\n])\nimport joblib\n\nmodel = make_pipeline(prep, LogisticRegression(C=0.1)).fit(X_train, y_train)\n\n\ndef save_and_check(path):\n    joblib.dump({\"model\": model, \"columns\": list(X.columns)}, path, compress=3)\n    loaded = joblib.load(path)\n    same = bool((loaded[\"model\"].predict(X_test) == model.predict(X_test)).all())\n    return [sorted(loaded), same]\n\nprint(save_and_check(\"churn.joblib\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "save_and_check",
+      "cases": [
+        {
+          "args": [
+            "churn.joblib"
+          ],
+          "returns": [
+            [
+              "columns",
+              "model"
+            ],
+            true
+          ]
+        },
+        {
+          "args": [
+            "m.joblib"
+          ],
+          "returns": [
+            [
+              "columns",
+              "model"
+            ],
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[['columns', 'model'], True]"
+    }
+  ]
+}
