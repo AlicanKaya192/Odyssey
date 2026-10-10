@@ -1,0 +1,70 @@
+{
+  "id": "f1-averages",
+  "title": {
+    "tr": "F1 ortalamaları",
+    "en": "F1 averages"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`f1_score(y_test, pred, average=None)` dizi, `\"macro\"` ve `\"weighted\"` tek sayı verir.",
+      "en": "`f1_score(y_test, pred, average=None)` gives an array, `\"macro\"` and `\"weighted\"` one number."
+    },
+    {
+      "tr": "Dizi için `np.round(..., 3).tolist()`, sayılar için `round(float(...), 3)`.",
+      "en": "For the array `np.round(..., 3).tolist()`, for the numbers `round(float(...), 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=600, n_features=8, n_informative=5,\n                           n_classes=3, weights=[0.7, 0.2, 0.1], random_state=3)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=3,\n                                                    stratify=y)\nimport numpy as np\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import f1_score\n\n\ndef f1_averages(c):\n    pred = LogisticRegression(C=c).fit(X_train, y_train).predict(X_test)\n    per_class = np.round(f1_score(y_test, pred, average=None), 3).tolist()\n    macro = round(float(f1_score(y_test, pred, average=\"macro\")), 3)\n    weighted = round(float(f1_score(y_test, pred, average=\"weighted\")), 3)\n    return {\"per_class\": per_class, \"macro\": macro, \"weighted\": weighted}\n\nresult = f1_averages(1.0)\nprint(result[\"per_class\"])\nprint(result[\"macro\"], result[\"weighted\"])\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.datasets import make_classification\nfrom sklearn.model_selection import train_test_split\n\nX, y = make_classification(n_samples=600, n_features=8, n_informative=5,\n                           n_classes=3, weights=[0.7, 0.2, 0.1], random_state=3)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=3,\n                                                    stratify=y)\nimport numpy as np\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import f1_score\n\n\ndef f1_averages(c):\n    pred = LogisticRegression(C=c).fit(X_train, y_train).predict(X_test)\n    per_class = np.round(f1_score(y_test, pred, average=None), 3).tolist()\n    macro = round(float(f1_score(y_test, pred, average=\"macro\")), 3)\n    weighted = round(float(f1_score(y_test, pred, average=\"weighted\")), 3)\n    return {\"per_class\": per_class, \"macro\": macro, \"weighted\": weighted}\n\nresult = f1_averages(1.0)\nprint(result[\"per_class\"])\nprint(result[\"macro\"], result[\"weighted\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "f1_averages",
+      "cases": [
+        {
+          "args": [
+            1.0
+          ],
+          "returns": {
+            "per_class": [
+              0.841,
+              0.392,
+              0.125
+            ],
+            "macro": 0.453,
+            "weighted": 0.68
+          }
+        },
+        {
+          "args": [
+            0.01
+          ],
+          "returns": {
+            "per_class": [
+              0.835,
+              0.326,
+              0.0
+            ],
+            "macro": 0.387,
+            "weighted": 0.649
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.841, 0.392, 0.125]\n0.453 0.68"
+    }
+  ]
+}
