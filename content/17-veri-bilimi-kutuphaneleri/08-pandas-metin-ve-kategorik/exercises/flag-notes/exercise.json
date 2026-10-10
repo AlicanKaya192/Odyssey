@@ -1,0 +1,100 @@
+{
+  "id": "flag-notes",
+  "title": {
+    "tr": "Şikâyetleri işaretle",
+    "en": "Flag the complaints"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`pattern = \"|\".join(words)` \"late ya da broken\" demek.",
+      "en": "`pattern = \"|\".join(words)` means \"late or broken\"."
+    },
+    {
+      "tr": "`s.str.contains(pattern, case=False, na=False).tolist()`.",
+      "en": "`s.str.contains(pattern, case=False, na=False).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef flag_notes(notes, words):\n    s = pd.Series(notes, dtype=object)\n    pattern = \"|\".join(words)\n    return s.str.contains(pattern, case=False, na=False).tolist()\n\nNOTES = [\"late delivery\", \"Delivery OK\", None, \"BROKEN box\", \"fine\"]\nprint(flag_notes(NOTES, [\"late\", \"broken\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef flag_notes(notes, words):\n    s = pd.Series(notes, dtype=object)\n    pattern = \"|\".join(words)\n    return s.str.contains(pattern, case=False, na=False).tolist()\n\nNOTES = [\"late delivery\", \"Delivery OK\", None, \"BROKEN box\", \"fine\"]\nprint(flag_notes(NOTES, [\"late\", \"broken\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "flag_notes",
+      "cases": [
+        {
+          "args": [
+            [
+              "late delivery",
+              "Delivery OK",
+              null,
+              "BROKEN box",
+              "fine"
+            ],
+            [
+              "late",
+              "broken"
+            ]
+          ],
+          "returns": [
+            true,
+            false,
+            false,
+            true,
+            false
+          ]
+        },
+        {
+          "args": [
+            [
+              "ok",
+              "Ok"
+            ],
+            [
+              "ok"
+            ]
+          ],
+          "returns": [
+            true,
+            true
+          ]
+        },
+        {
+          "args": [
+            [
+              null,
+              "x"
+            ],
+            [
+              "x",
+              "y",
+              "z"
+            ]
+          ],
+          "returns": [
+            false,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[True, False, False, True, False]"
+    }
+  ]
+}

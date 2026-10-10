@@ -1,0 +1,95 @@
+{
+  "id": "age-groups",
+  "title": {
+    "tr": "Yaş grupları",
+    "en": "Age groups"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`pd.cut(pd.Series(ages), bins=[0, 18, 40, 65, 120], labels=labels)`; aralıklar sağdan kapalı.",
+      "en": "`pd.cut(pd.Series(ages), bins=[0, 18, 40, 65, 120], labels=labels)`; intervals are closed on the right."
+    },
+    {
+      "tr": "`groups.value_counts(sort=False).to_dict()`.",
+      "en": "`groups.value_counts(sort=False).to_dict()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pandas as pd\n\n\ndef age_groups(ages):\n    labels = [\"child\", \"young\", \"middle\", \"senior\"]\n    groups = pd.cut(pd.Series(ages), bins=[0, 18, 40, 65, 120], labels=labels)\n    return groups.value_counts(sort=False).to_dict()\n\nprint(*age_groups([15, 22, 37, 70, 8]).items(), sep=\"\\n\")\n```",
+      "en": "The full solution:\n\n```python\nimport pandas as pd\n\n\ndef age_groups(ages):\n    labels = [\"child\", \"young\", \"middle\", \"senior\"]\n    groups = pd.cut(pd.Series(ages), bins=[0, 18, 40, 65, 120], labels=labels)\n    return groups.value_counts(sort=False).to_dict()\n\nprint(*age_groups([15, 22, 37, 70, 8]).items(), sep=\"\\n\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "age_groups",
+      "cases": [
+        {
+          "args": [
+            [
+              15,
+              22,
+              37,
+              70,
+              8
+            ]
+          ],
+          "returns": {
+            "child": 2,
+            "young": 2,
+            "middle": 0,
+            "senior": 1
+          }
+        },
+        {
+          "args": [
+            [
+              18,
+              40,
+              65
+            ]
+          ],
+          "returns": {
+            "child": 1,
+            "young": 1,
+            "middle": 1,
+            "senior": 0
+          }
+        },
+        {
+          "args": [
+            [
+              19,
+              41,
+              66,
+              100,
+              1
+            ]
+          ],
+          "returns": {
+            "child": 1,
+            "young": 1,
+            "middle": 1,
+            "senior": 2
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For"
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "('child', 2)\n('young', 2)\n('middle', 0)\n('senior', 1)"
+    }
+  ]
+}
