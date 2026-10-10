@@ -1,0 +1,60 @@
+{
+  "id": "odds-ratio",
+  "title": {
+    "tr": "Olasılık oranı",
+    "en": "The odds ratio"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Olasılık oranı katsayının üsteli: `np.exp(...)`.",
+      "en": "The odds ratio is the exponential of the coefficient: `np.exp(...)`."
+    },
+    {
+      "tr": "`round(float(np.exp(res.params[column])), 2)`.",
+      "en": "`round(float(np.exp(res.params[column])), 2)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.formula.api as smf\n\nrng = np.random.default_rng(4)\nscore = rng.normal(0, 1, 1000)\npremium = rng.integers(0, 2, 1000)\nchance = 1 / (1 + np.exp(-(-1 + 0.8 * score + 1.2 * premium)))\nd2 = pd.DataFrame({\"y\": (rng.random(1000) < chance).astype(int),\n                   \"score\": score, \"premium\": premium})\ndef odds_ratio(column):\n    res = smf.logit(\"y ~ score + premium\", data=d2).fit(disp=0)\n    return round(float(np.exp(res.params[column])), 2)\n\nprint(odds_ratio(\"score\"))\nprint(odds_ratio(\"premium\"))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.formula.api as smf\n\nrng = np.random.default_rng(4)\nscore = rng.normal(0, 1, 1000)\npremium = rng.integers(0, 2, 1000)\nchance = 1 / (1 + np.exp(-(-1 + 0.8 * score + 1.2 * premium)))\nd2 = pd.DataFrame({\"y\": (rng.random(1000) < chance).astype(int),\n                   \"score\": score, \"premium\": premium})\ndef odds_ratio(column):\n    res = smf.logit(\"y ~ score + premium\", data=d2).fit(disp=0)\n    return round(float(np.exp(res.params[column])), 2)\n\nprint(odds_ratio(\"score\"))\nprint(odds_ratio(\"premium\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "odds_ratio",
+      "cases": [
+        {
+          "args": [
+            "score"
+          ],
+          "returns": 2.12
+        },
+        {
+          "args": [
+            "premium"
+          ],
+          "returns": 3.43
+        },
+        {
+          "args": [
+            "Intercept"
+          ],
+          "returns": 0.34
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2.12\n3.43"
+    }
+  ]
+}

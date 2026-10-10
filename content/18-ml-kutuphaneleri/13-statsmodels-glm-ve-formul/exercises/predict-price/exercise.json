@@ -1,0 +1,66 @@
+{
+  "id": "predict-price",
+  "title": {
+    "tr": "Ham veriyle tahmin",
+    "en": "Predicting from raw data"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yeni DataFrame'e `\"city\": [city]` ekle; formül onu kendisi kodlar.",
+      "en": "Add `\"city\": [city]` to the new DataFrame; the formula encodes it itself."
+    },
+    {
+      "tr": "`new = pd.DataFrame({\"area\": [area], \"age\": [age], \"city\": [city]})`.",
+      "en": "`new = pd.DataFrame({\"area\": [area], \"age\": [age], \"city\": [city]})`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.formula.api as smf\n\nrng = np.random.default_rng(11)\ndf = pd.DataFrame({\n    \"area\": rng.uniform(50, 200, 300).round(),\n    \"city\": rng.choice([\"Ankara\", \"Izmir\", \"Istanbul\"], 300),\n    \"age\": rng.uniform(0, 40, 300).round(),\n})\nbonus = df[\"city\"].map({\"Ankara\": 0, \"Izmir\": 40, \"Istanbul\": 120})\ndf[\"price\"] = 50 + 3 * df[\"area\"] - 2 * df[\"age\"] + bonus + rng.normal(0, 30, 300)\nextra = 1.5 * df[\"area\"] * (df[\"city\"] == \"Istanbul\")\ndf[\"price2\"] = 50 + 3 * df[\"area\"] + extra - 2 * df[\"age\"] + rng.normal(0, 30, 300)\nres = smf.ols(\"price ~ area + age + C(city)\", data=df).fit()\n\n\ndef predict_price(area, age, city):\n    new = pd.DataFrame({\"area\": [area], \"age\": [age], \"city\": [city]})\n    return round(float(res.predict(new).iloc[0]), 1)\n\nprint(predict_price(100, 10, \"Izmir\"))\nprint(predict_price(150, 5, \"Istanbul\"))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport pandas as pd\nimport statsmodels.formula.api as smf\n\nrng = np.random.default_rng(11)\ndf = pd.DataFrame({\n    \"area\": rng.uniform(50, 200, 300).round(),\n    \"city\": rng.choice([\"Ankara\", \"Izmir\", \"Istanbul\"], 300),\n    \"age\": rng.uniform(0, 40, 300).round(),\n})\nbonus = df[\"city\"].map({\"Ankara\": 0, \"Izmir\": 40, \"Istanbul\": 120})\ndf[\"price\"] = 50 + 3 * df[\"area\"] - 2 * df[\"age\"] + bonus + rng.normal(0, 30, 300)\nextra = 1.5 * df[\"area\"] * (df[\"city\"] == \"Istanbul\")\ndf[\"price2\"] = 50 + 3 * df[\"area\"] + extra - 2 * df[\"age\"] + rng.normal(0, 30, 300)\nres = smf.ols(\"price ~ area + age + C(city)\", data=df).fit()\n\n\ndef predict_price(area, age, city):\n    new = pd.DataFrame({\"area\": [area], \"age\": [age], \"city\": [city]})\n    return round(float(res.predict(new).iloc[0]), 1)\n\nprint(predict_price(100, 10, \"Izmir\"))\nprint(predict_price(150, 5, \"Istanbul\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "predict_price",
+      "cases": [
+        {
+          "args": [
+            100,
+            10,
+            "Izmir"
+          ],
+          "returns": 370.1
+        },
+        {
+          "args": [
+            150,
+            5,
+            "Istanbul"
+          ],
+          "returns": 606.0
+        },
+        {
+          "args": [
+            80,
+            30,
+            "Ankara"
+          ],
+          "returns": 227.7
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "370.1\n606.0"
+    }
+  ]
+}
