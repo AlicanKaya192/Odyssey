@@ -1,0 +1,82 @@
+{
+  "id": "safe-sqrt",
+  "title": {
+    "tr": "Güvenli karekök",
+    "en": "A safe square root"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`result = np.full(len(v), -1.0)` ve `np.sqrt(v, where=v >= 0, out=result)`.",
+      "en": "`result = np.full(len(v), -1.0)` and `np.sqrt(v, where=v >= 0, out=result)`."
+    },
+    {
+      "tr": "`where` yanlış olan yerlere dokunmaz; orada `-1.0` kalır.",
+      "en": "`where` does not touch the places where it is false; `-1.0` stays there."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef safe_sqrt(values):\n    v = np.array(values, dtype=float)\n    result = np.full(len(v), -1.0)\n    np.sqrt(v, where=v >= 0, out=result)\n    return result.tolist()\n\nprint(safe_sqrt([4, -1, 9, -16, 0]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef safe_sqrt(values):\n    v = np.array(values, dtype=float)\n    result = np.full(len(v), -1.0)\n    np.sqrt(v, where=v >= 0, out=result)\n    return result.tolist()\n\nprint(safe_sqrt([4, -1, 9, -16, 0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "safe_sqrt",
+      "cases": [
+        {
+          "args": [
+            [
+              4,
+              -1,
+              9,
+              -16,
+              0
+            ]
+          ],
+          "returns": [
+            2.0,
+            -1.0,
+            3.0,
+            -1.0,
+            0.0
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2.25
+            ]
+          ],
+          "returns": [
+            1.0,
+            1.5
+          ]
+        },
+        {
+          "args": [
+            [
+              -4
+            ]
+          ],
+          "returns": [
+            -1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2.0, -1.0, 3.0, -1.0, 0.0]"
+    }
+  ]
+}
