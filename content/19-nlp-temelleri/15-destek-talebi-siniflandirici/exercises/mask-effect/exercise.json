@@ -1,0 +1,61 @@
+{
+  "id": "mask-effect",
+  "title": {
+    "tr": "Maskelemenin etkisi",
+    "en": "The effect of masking"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Vektörleştiriciyi bir değişkende tut; eğitimden sonra `len(vectorizer.vocabulary_)`.",
+      "en": "Keep the vectoriser in a variable; after training `len(vectorizer.vocabulary_)`."
+    },
+    {
+      "tr": "`f1_score(y_test, pipe.predict(X_test), average=\"macro\")`.",
+      "en": "`f1_score(y_test, pipe.predict(X_test), average=\"macro\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics import f1_score\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.svm import LinearSVC\nfrom sklearn.model_selection import train_test_split\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\ntexts = [t[\"text\"] for t in tickets]\nlabels = np.array([t[\"category\"] for t in tickets])\nX_train, X_test, y_train, y_test = train_test_split(\n    texts, labels, test_size=0.25, random_state=0, stratify=labels)\nMASKS = [(r\"\\bORD-\\d+\\b\", \" ordernum \"), (r\"\\$[\\d,]+(?:\\.\\d{2})?\", \" amount \"),\n         (r\"\\S+@\\S+\", \" email \"), (r\"\\b\\d{4}-\\d{2}-\\d{2}\\b\", \" date \"),\n         (r\"\\bE\\d{3,4}\\b\", \" errcode \")]\n\n\ndef mask(text):\n    for pattern, placeholder in MASKS:\n        text = re.sub(pattern, placeholder, text)\n    return \" \".join(text.lower().split())\n\n\ndef evaluate(preprocessor):\n    vectorizer = TfidfVectorizer(preprocessor=preprocessor)\n    pipe = Pipeline([(\"tfidf\", vectorizer), (\"model\", LinearSVC())])\n    pipe.fit(X_train, y_train)\n    macro = f1_score(y_test, pipe.predict(X_test), average=\"macro\")\n    return [len(vectorizer.vocabulary_), round(float(macro), 3)]\n\n\nprint(evaluate(None))\nprint(evaluate(mask))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics import f1_score\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.svm import LinearSVC\nfrom sklearn.model_selection import train_test_split\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\ntexts = [t[\"text\"] for t in tickets]\nlabels = np.array([t[\"category\"] for t in tickets])\nX_train, X_test, y_train, y_test = train_test_split(\n    texts, labels, test_size=0.25, random_state=0, stratify=labels)\nMASKS = [(r\"\\bORD-\\d+\\b\", \" ordernum \"), (r\"\\$[\\d,]+(?:\\.\\d{2})?\", \" amount \"),\n         (r\"\\S+@\\S+\", \" email \"), (r\"\\b\\d{4}-\\d{2}-\\d{2}\\b\", \" date \"),\n         (r\"\\bE\\d{3,4}\\b\", \" errcode \")]\n\n\ndef mask(text):\n    for pattern, placeholder in MASKS:\n        text = re.sub(pattern, placeholder, text)\n    return \" \".join(text.lower().split())\n\n\ndef evaluate(preprocessor):\n    vectorizer = TfidfVectorizer(preprocessor=preprocessor)\n    pipe = Pipeline([(\"tfidf\", vectorizer), (\"model\", LinearSVC())])\n    pipe.fit(X_train, y_train)\n    macro = f1_score(y_test, pipe.predict(X_test), average=\"macro\")\n    return [len(vectorizer.vocabulary_), round(float(macro), 3)]\n\n\nprint(evaluate(None))\nprint(evaluate(mask))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "evaluate",
+      "cases": [
+        {
+          "args": [
+            null
+          ],
+          "returns": [
+            1210,
+            0.931
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1210, 0.931]\n[347, 0.935]"
+    }
+  ]
+}

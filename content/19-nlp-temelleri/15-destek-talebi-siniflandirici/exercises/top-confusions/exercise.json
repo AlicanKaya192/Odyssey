@@ -1,0 +1,81 @@
+{
+  "id": "top-confusions",
+  "title": {
+    "tr": "En sık karışıklıklar",
+    "en": "The most common confusions"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yalnızca yanlışlar: `Counter((t, p) for t, p in zip(y_true, y_pred) if t != p)`.",
+      "en": "Only the wrong ones: `Counter((t, p) for t, p in zip(y_true, y_pred) if t != p)`."
+    },
+    {
+      "tr": "Sıralama anahtarı `(-sayı, çift)`: `sorted(errors.items(), key=lambda item: (-item[1], item[0]))`.",
+      "en": "The sort key is `(-count, pair)`: `sorted(errors.items(), key=lambda item: (-item[1], item[0]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef top_confusions(y_true, y_pred, k):\n    errors = Counter((t, p) for t, p in zip(y_true, y_pred) if t != p)\n    ranked = sorted(errors.items(), key=lambda item: (-item[1], item[0]))\n    return [[t, p, n] for (t, p), n in ranked[:k]]\n\ny_true = [\"a\", \"a\", \"b\", \"b\", \"c\", \"c\", \"c\"]\ny_pred = [\"a\", \"b\", \"a\", \"c\", \"b\", \"b\", \"c\"]\nprint(top_confusions(y_true, y_pred, 2))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef top_confusions(y_true, y_pred, k):\n    errors = Counter((t, p) for t, p in zip(y_true, y_pred) if t != p)\n    ranked = sorted(errors.items(), key=lambda item: (-item[1], item[0]))\n    return [[t, p, n] for (t, p), n in ranked[:k]]\n\ny_true = [\"a\", \"a\", \"b\", \"b\", \"c\", \"c\", \"c\"]\ny_pred = [\"a\", \"b\", \"a\", \"c\", \"b\", \"b\", \"c\"]\nprint(top_confusions(y_true, y_pred, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_confusions",
+      "cases": [
+        {
+          "args": [
+            [
+              "x",
+              "x",
+              "y"
+            ],
+            [
+              "y",
+              "y",
+              "x"
+            ],
+            5
+          ],
+          "returns": [
+            [
+              "x",
+              "y",
+              2
+            ],
+            [
+              "y",
+              "x",
+              1
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "a"
+            ],
+            [
+              "a"
+            ],
+            3
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[['c', 'b', 2], ['a', 'b', 1]]"
+    }
+  ]
+}

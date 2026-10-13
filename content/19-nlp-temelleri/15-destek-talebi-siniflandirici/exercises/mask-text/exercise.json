@@ -1,0 +1,60 @@
+{
+  "id": "mask-text",
+  "title": {
+    "tr": "Maskele",
+    "en": "Mask it"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngü: `for pattern, placeholder in MASKS:` ve `text = re.sub(...)`.",
+      "en": "A loop: `for pattern, placeholder in MASKS:` and `text = re.sub(...)`."
+    },
+    {
+      "tr": "Son adım: `\" \".join(text.lower().split())`.",
+      "en": "The last step: `\" \".join(text.lower().split())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nMASKS = [(r\"\\bORD-\\d+\\b\", \" ordernum \"), (r\"\\$[\\d,]+(?:\\.\\d{2})?\", \" amount \"),\n         (r\"\\S+@\\S+\", \" email \"), (r\"\\b\\d{4}-\\d{2}-\\d{2}\\b\", \" date \"),\n         (r\"\\bE\\d{3,4}\\b\", \" errcode \")]\n\n\ndef mask(text):\n    for pattern, placeholder in MASKS:\n        text = re.sub(pattern, placeholder, text)\n    return \" \".join(text.lower().split())\n\nprint(mask(\"Refund $1,200.00 for ORD-27246 by 2026-05-01!\"))\nprint(mask(\"Error E502 for ana7@example.com\"))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nMASKS = [(r\"\\bORD-\\d+\\b\", \" ordernum \"), (r\"\\$[\\d,]+(?:\\.\\d{2})?\", \" amount \"),\n         (r\"\\S+@\\S+\", \" email \"), (r\"\\b\\d{4}-\\d{2}-\\d{2}\\b\", \" date \"),\n         (r\"\\bE\\d{3,4}\\b\", \" errcode \")]\n\n\ndef mask(text):\n    for pattern, placeholder in MASKS:\n        text = re.sub(pattern, placeholder, text)\n    return \" \".join(text.lower().split())\n\nprint(mask(\"Refund $1,200.00 for ORD-27246 by 2026-05-01!\"))\nprint(mask(\"Error E502 for ana7@example.com\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mask",
+      "cases": [
+        {
+          "args": [
+            "ORD-1 and ORD-22"
+          ],
+          "returns": "ordernum and ordernum"
+        },
+        {
+          "args": [
+            "Pay $5 NOW"
+          ],
+          "returns": "pay amount now"
+        },
+        {
+          "args": [
+            "no codes here"
+          ],
+          "returns": "no codes here"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "refund amount for ordernum by date !\nerror errcode for email"
+    }
+  ]
+}
