@@ -90,20 +90,27 @@ class IntroLink:
         except (OSError, ValueError):
             self._reveal.set()
 
-    def reveal(self, window) -> None:
+    def reveal(self, window, steps=None) -> None:
         """Pencere hazır: animasyonun sonunu bekler, sonra pencereyi gösterir.
 
         Beklerken olay döngüsü dönüyor (pencerenin belge alanları ısınmaya
         devam ediyor); ama akış burada duruyor, hoş geldiniz gibi pencereler
         animasyon bitmeden açılmıyor.
+
+        `steps` (üreteç) beklerken birer birer ilerletiliyor: pencere hâlâ
+        görünmezken yapılacak işler (bkz. `MainWindow.warm_up_steps`).
+        Animasyon `reveal` dediğinde kalanı bırakılıyor; pencere bir adımdan
+        fazla bekletilmiyor.
         """
         from PySide6.QtCore import QEventLoop, QTimer
 
         self._send("ready")
         ready_at = time.monotonic()
         loop = QEventLoop()
+        adimda = False
 
         def check() -> None:
+            nonlocal steps, adimda
             now = time.monotonic()
             if self._reveal.is_set():
                 loop.quit()
@@ -111,6 +118,16 @@ class IntroLink:
                 loop.quit()  # animasyon hiç görünmedi
             elif now - ready_at > REVEAL_TIMEOUT_S:
                 loop.quit()
+            elif steps is not None and not adimda:
+                # Adımın içindeki `processEvents` bu zamanlayıcıyı yeniden
+                # çağırabiliyor; iç içe adım atılmasın.
+                adimda = True
+                try:
+                    next(steps)
+                except StopIteration:
+                    steps = None
+                finally:
+                    adimda = False
 
         timer = QTimer()
         timer.setInterval(10)
@@ -120,6 +137,8 @@ class IntroLink:
         if not self._reveal.is_set():
             loop.exec()
         timer.stop()
+        if steps is not None:
+            steps.close()
 
         if not self._shown.is_set():
             self.stop()

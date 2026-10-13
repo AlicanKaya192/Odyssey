@@ -319,16 +319,8 @@ class MainWindow(QMainWindow):
         self._journey_subbar.hide()
         self._journey_screen = Screen(self._journey_header, self._journey, self._journey_subbar)
 
-        # Bölüm içeriği (kendi başlığını taşıyor)
-        self._topic = TopicView(self._catalog, self._language, self._store)
-        self._topic.back_requested.connect(self._topic_back)
-        self._topic.focus_mode_requested.connect(self.toggle_focus_mode)
-        self._topic.progress_changed.connect(self._journey.refresh)
-        self._topic.progress_changed.connect(self._refresh_progress)
-        self._topic.open_notebook.connect(self._open_note)
-        # İlk yazılı not bir rozet koşulu; ilerleme hesabı rozetleri de
-        # kaydedip bildirime düşürüyor.
-        self._topic.notes_changed.connect(self._refresh_progress)
+        # Bölüm içeriği ilk gerektiğinde kuruluyor (`_topic`).
+        self._topic_view: TopicView | None = None
 
         # Profil
         self._profile = ProfileView(self._catalog, self._language, self._store)
@@ -380,7 +372,6 @@ class MainWindow(QMainWindow):
 
         for widget in (
             self._journey_screen,
-            self._topic,
             self._roadmap_screen,
             self._notebook_screen,
             self._profile_screen,
@@ -388,6 +379,38 @@ class MainWindow(QMainWindow):
             self._releases_screen,
         ):
             self._stack.addWidget(widget)
+
+    @property
+    def _topic(self) -> TopicView:
+        """Bölüm ekranı; ilk gerektiğinde kuruluyor.
+
+        Açılışta görünmüyor ama kurulması ~0,55 sn sürüyordu (dört belge
+        alanı); ana pencere bu yüzden açılış animasyonundan geç hazır
+        oluyordu (14 Ekim, ölçüldü). Animasyon varken görünmez pencerede
+        `warm_up_steps` kuruyor; yoksa ilk bölüm açılırken. Açılış yolundaki
+        tema, dil ve ayar çağrıları ekran kurulmadıysa onu atlıyor
+        (`_topic_view`), kurulunca o anki tema ve dille başlıyor.
+        """
+        if self._topic_view is None:
+            self._topic_view = self._build_topic()
+        return self._topic_view
+
+    def _build_topic(self) -> TopicView:
+        topic = TopicView(self._catalog, self._language, self._store)
+        topic.back_requested.connect(self._topic_back)
+        topic.focus_mode_requested.connect(self.toggle_focus_mode)
+        topic.progress_changed.connect(self._journey.refresh)
+        topic.progress_changed.connect(self._refresh_progress)
+        topic.open_notebook.connect(self._open_note)
+        # İlk yazılı not bir rozet koşulu; ilerleme hesabı rozetleri de
+        # kaydedip bildirime düşürüyor.
+        topic.notes_changed.connect(self._refresh_progress)
+        mode = self._theme.effective_mode
+        topic.set_mode(mode)
+        topic.header.set_accent(RAIL_COLORS.get(mode, RAIL_COLORS["light"])["journey"])
+        topic.retranslate()
+        self._stack.insertWidget(1, topic)
+        return topic
 
     def warm_up(self) -> None:
         """Bütün ekranları bir kez çizdirir.
@@ -406,24 +429,46 @@ class MainWindow(QMainWindow):
         """
         from PySide6.QtWidgets import QApplication
 
-        onceki = self._stack.currentWidget()
-
-        for index in range(self._stack.count()):
-            self._stack.setCurrentIndex(index)
-            QApplication.processEvents()
-
-        # Konu ekranı kendi içinde birden fazla belge alanı taşıyor.
-        self._stack.setCurrentWidget(self._topic)
-        self._topic.warm_up()
-
-        # Notlarım'ın okuma alanı açılışta boş ekranın arkasında duruyor;
-        # ilk not seçilince siyah kare görünmesin.
-        self._stack.setCurrentWidget(self._notebook_screen)
-        self._notebook.warm_up()
-
-        if onceki is not None:
-            self._stack.setCurrentWidget(onceki)
         QApplication.processEvents()
+        for _ in self.warm_up_steps():
+            pass
+
+    def warm_up_steps(self):
+        """Görünen ekran dışındakileri birer adımda çizdirir (üreteç).
+
+        Açılış animasyonu varken açık ekran çizilince `ready` gidiyor ve bu
+        adımlar animasyonun son geçişi sırasında atılıyor (pencere hâlâ
+        görünmez); hepsi önceden yapılınca ana pencere animasyondan ~0,3 sn
+        geç hazır oluyordu (14 Ekim, ölçüldü). Bölüm ekranı da burada
+        kuruluyor (`_topic`). Yarıda bırakılırsa (`close`) açık ekran yerine
+        konuyor; kurulmamış ekranlar ilk gerektiğinde kuruluyor.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        onceki = self._stack.currentWidget()
+        try:
+            # Konu ekranı kendi içinde birden fazla belge alanı taşıyor ve
+            # açılıştan sonra en sık girilen yer; önce o kuruluyor, sonra
+            # çiziliyor.
+            topic = self._topic
+            yield
+            self._stack.setCurrentWidget(topic)
+            topic.warm_up()
+            yield
+            for index in range(self._stack.count()):
+                if self._stack.widget(index) in (onceki, self._topic_view):
+                    continue
+                self._stack.setCurrentIndex(index)
+                QApplication.processEvents()
+                yield
+            # Notlarım'ın okuma alanı açılışta boş ekranın arkasında duruyor;
+            # ilk not seçilince siyah kare görünmesin.
+            self._stack.setCurrentWidget(self._notebook_screen)
+            self._notebook.warm_up()
+        finally:
+            if onceki is not None:
+                self._stack.setCurrentWidget(onceki)
+            QApplication.processEvents()
 
     def start_update_check(self) -> None:
         """Açılışta yeni sürüm var mı diye bakar.
@@ -735,7 +780,7 @@ class MainWindow(QMainWindow):
         katman.start()
 
     def _tour_navigate(self, key: str) -> None:
-        if self._stack.currentWidget() is self._topic or key != getattr(self, "_tour_screen", ""):
+        if self._stack.currentWidget() is self._topic_view or key != getattr(self, "_tour_screen", ""):
             self._navigate(key)
         self._tour_screen = key
 
@@ -923,7 +968,7 @@ class MainWindow(QMainWindow):
         """
         durum = getattr(self, "_focus_state", None)
         if durum is None:
-            if self._stack.currentWidget() is not self._topic:
+            if self._stack.currentWidget() is not self._topic_view:
                 return
             self._focus_state = {"maximized": self.isMaximized(), "fullscreen": self.isFullScreen(),
                                  "rail": self._rail.isVisible(), "toggle": self._rail_toggle.isVisible(),
@@ -1027,7 +1072,7 @@ class MainWindow(QMainWindow):
 
     def _leaving_topic_ok(self) -> bool:
         """Bölümden çıkılacak: sınav sürüyorsa kişiye soruluyor."""
-        if self._stack.currentWidget() is not self._topic:
+        if self._stack.currentWidget() is not self._topic_view:
             return True
         tamam = self._topic.confirm_leave_quiz()
         # Bölümden çıkılıyorsa okuma odağı da bitiyor (tam ekran geri alınıyor).
@@ -1213,7 +1258,7 @@ class MainWindow(QMainWindow):
                 panel.close()
                 return
         current = self._stack.currentWidget()
-        if current is self._topic:
+        if current is self._topic_view:
             self._topic_back()
         elif current is self._journey_screen and not self._journey.showing_tracks:
             self._journey_back()
@@ -1334,11 +1379,13 @@ class MainWindow(QMainWindow):
     def _on_lock_changed(self) -> None:
         """Kilit ayarı değişti; kilide bakan her ekran yenileniyor."""
         self._journey.refresh()
-        self._topic.refresh_navigation()
+        if self._topic_view is not None:
+            self._topic_view.refresh_navigation()
 
     def _on_timing_changed(self) -> None:
         """Sınav süresi ayarı değişti; açık sınav o an güncelleniyor."""
-        self._topic.refresh_quiz_timing()
+        if self._topic_view is not None:
+            self._topic_view.refresh_quiz_timing()
 
     # --- olaylar ----------------------------------------------------------
 
@@ -1362,7 +1409,8 @@ class MainWindow(QMainWindow):
             header.set_accent(colors[key])
 
         self._about_header.set_accent(colors["about"])
-        self._topic.header.set_accent(colors["journey"])
+        if self._topic_view is not None:
+            self._topic_view.header.set_accent(colors["journey"])
 
     def _on_theme_changed(self, mode: str) -> None:
         # Windows başlık çubuğu Qt'nin dışında kalıyor; koyu temada pencere
@@ -1374,7 +1422,8 @@ class MainWindow(QMainWindow):
         self._stack.set_background(PALETTES[mode]["bg"])
         self._journey.set_mode(mode)
         self._journey_header.set_mode(mode)
-        self._topic.set_mode(mode)
+        if self._topic_view is not None:
+            self._topic_view.set_mode(mode)
         self._roadmap.set_mode(mode)
         self._roadmap_header.set_mode(mode)
         self._notebook.set_mode(mode)
@@ -1400,7 +1449,8 @@ class MainWindow(QMainWindow):
         self._refresh_progress()
         self._footer.retranslate()
         self._journey.retranslate()
-        self._topic.retranslate()
+        if self._topic_view is not None:
+            self._topic_view.retranslate()
         self._roadmap.retranslate()
         self._notebook.retranslate()
         self._profile.retranslate()
@@ -1590,9 +1640,10 @@ class MainWindow(QMainWindow):
         # Notta yazılıp henüz kaydedilmemiş son harfler (Notlarım ve
         # bölümdeki not paneli).
         self._notebook.flush()
-        self._topic.flush_note()
-        # Sınavın ortasında kapatıldıysa o ana kadarki cevaplar geçmişe.
-        self._topic.save_partial_quiz()
+        if self._topic_view is not None:
+            self._topic_view.flush_note()
+            # Sınavın ortasında kapatıldıysa o ana kadarki cevaplar geçmişe.
+            self._topic_view.save_partial_quiz()
 
         # Discord'daki yazı silinsin; yoksa kapatılan uygulama hâlâ
         # kullanılıyor gibi görünüyor.

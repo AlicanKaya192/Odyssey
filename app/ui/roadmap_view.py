@@ -29,6 +29,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ..core.catalog import Catalog
+from ..core.completion import is_completed
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.unlock import is_unlocked
@@ -180,7 +181,8 @@ class RoadmapView(QWidget):
         else:
             sections = [s for chapter in track.chapters for s in chapter.sections]
 
-        completed = sum(1 for section in sections if self._completed(section))
+        active = self._store.active_sections()
+        completed = sum(1 for section in sections if is_completed(self._store, section, active))
         total = len(sections)
         return {
             "soon": False,
@@ -191,12 +193,7 @@ class RoadmapView(QWidget):
         }
 
     def _completed(self, section) -> bool:
-        state = self._store.section_state(
-            section.chapter_id, section.id, section.exercises
-        )
-        return state.status(
-            section.requires_quiz, section.requires_exercises
-        ) == "completed"
+        return is_completed(self._store, section, self._store.active_sections())
 
     def _step_html(self, number: int, step: dict, state: dict, is_next: bool) -> str:
         t = self._language.t

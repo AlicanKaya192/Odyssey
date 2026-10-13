@@ -52,6 +52,7 @@ from ..widgets import motion
 from ..widgets.path_node import PAD as NODE_PAD, NodeButton
 from ..resources.logos import logo_key
 from ..core.catalog import Catalog, Chapter, Track
+from ..core.completion import is_completed
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.unlock import blocking_section
@@ -1233,22 +1234,15 @@ class TracksView(QWidget):
             QTimer.singleShot(0, self, lambda: QTimer.singleShot(
                 16, self, lambda: [b() for b in hepsi]))
 
-    def _chapter_progress(self, chapter) -> tuple[int, int]:
+    def _chapter_progress(self, chapter, active) -> tuple[int, int]:
         """Bir modülde kaç bölüm tamamlandı, kaç bölüm var."""
-        biten = 0
-        for section in chapter.sections:
-            state = self._store.section_state(
-                chapter.id, section.id, section.exercises
-            )
-            if state.status(
-                section.requires_quiz, section.requires_exercises
-            ) == "completed":
-                biten += 1
+        biten = sum(1 for section in chapter.sections if is_completed(self._store, section, active))
         return biten, len(chapter.sections)
 
     def refresh(self) -> None:
         toplam = 0
         biten = 0
+        active = self._store.active_sections()
 
         for card in self._cards:
             track = self._catalog.track(card.track_id)
@@ -1256,7 +1250,7 @@ class TracksView(QWidget):
                 continue
             t_biten = t_toplam = 0
             for chapter in track.chapters:
-                b, s = self._chapter_progress(chapter)
+                b, s = self._chapter_progress(chapter, active)
                 t_biten += b
                 t_toplam += s
             card.update_progress(t_biten, t_toplam)
@@ -1270,7 +1264,7 @@ class TracksView(QWidget):
             total_sections=toplam,
             exercises=self._store.solved_exercise_count(),
             total_exercises=sum(
-                len(section.exercises) for section in self._catalog.all_sections
+                section.exercise_count for section in self._catalog.all_sections
             ),
             streak=self._store.streak(),
             progress=round(biten * 100 / toplam) if toplam else 0,
@@ -1399,19 +1393,15 @@ class ModulesView(QWidget):
         """İlerleme verilerini veritabanından okuyup ekranı günceller."""
         total_sections = 0
         completed_sections = 0
+        active = self._store.active_sections()
 
         for card in self._cards:
             chapter = self._catalog.chapter(card.chapter_id)
             if chapter is None:
                 continue
 
-            done = 0
-            for section in chapter.sections:
-                state = self._store.section_state(
-                    chapter.id, section.id, section.exercises
-                )
-                if state.status(section.requires_quiz, section.requires_exercises) == "completed":
-                    done += 1
+            done = sum(1 for section in chapter.sections
+                       if is_completed(self._store, section, active))
 
             card.update_progress(done, len(chapter.sections))
             card.retranslate()
@@ -1419,7 +1409,7 @@ class ModulesView(QWidget):
             completed_sections += done
 
         total_exercises = sum(
-            len(section.exercises) for section in self._catalog.all_sections
+            section.exercise_count for section in self._catalog.all_sections
         )
         self._hero.update_stats(
             name=self._store.profile().get("first_name", ""),

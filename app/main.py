@@ -308,7 +308,11 @@ def main() -> int:
     window.show()
     if intro is not None:
         window.lower()
-    window.warm_up()
+        # Yalnızca açılışta görünecek ekran çizilip `ready` gidiyor; ötekiler
+        # animasyonun son geçişi sırasında (`intro.reveal`).
+        application.processEvents()
+    else:
+        window.warm_up()
 
     first_name = store.profile().get("first_name", "").strip()
     greeting = (
@@ -318,7 +322,7 @@ def main() -> int:
     )
     if intro is not None:
         # Animasyonun sonunu bekleyip pencereyi gösteriyor.
-        intro.reveal(window)
+        intro.reveal(window, window.warm_up_steps())
         window.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, False)
     elif splash is not None:
         close_splash(splash, window, splash_started, greeting)

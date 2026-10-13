@@ -36,6 +36,23 @@ GRANDFATHERED: dict[tuple[str, str], tuple[str, ...]] = {
 }
 
 
+def is_completed(store, section, active: dict[tuple[str, str], str | None]) -> bool:
+    """Bölüm tamamlanmış mı; `active` = `store.active_sections()`.
+
+    Etkinliği olmayan bölüm tamamlanmış olamaz, tarihi yazılı olan
+    tamamlanmıştır; yalnızca arada kalanlar (genelde birkaç bölüm) için
+    alıştırma dosyaları okunup sorulur. Ekranlar bütün bölümleri tek tek
+    sorunca açılış ~0,5 sn uzuyordu (13–14 Ekim, ölçüldü).
+    """
+    key = (section.chapter_id, section.id)
+    if key not in active:
+        return False
+    if active[key]:
+        return True
+    state = store.section_state(section.chapter_id, section.id, section.exercises)
+    return state.status(section.requires_quiz, section.requires_exercises) == "completed"
+
+
 def stamp(catalog, store) -> int:
     """Tamamlanmış ama tarihi yazılmamış bölümleri işaretler; kaç tane yazıldı.
 

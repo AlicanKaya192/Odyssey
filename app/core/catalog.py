@@ -481,6 +481,21 @@ class Section:
             self._exercises = found
         return list(self._exercises)
 
+    @property
+    def exercise_count(self) -> int:
+        """Alıştırma sayısı, dosyaları okumadan.
+
+        Karşılama kartındaki toplam için bütün bölümlerin `exercises`'ı
+        okunuyordu: açılışta 1980 `exercise.json` yalnızca saymak için
+        (~0,5 sn, 14 Ekim ölçüldü).
+        """
+        if self._exercises is not None:
+            return len(self._exercises)
+        return sum(
+            1 for block in self.blocks_of("exercise")
+            if block.exercise_dir and block.exercise_dir.exists()
+        )
+
     @classmethod
     def load(cls, directory: Path, chapter_id: str) -> "Section":
         raw = _read_json(directory / "section.json")
