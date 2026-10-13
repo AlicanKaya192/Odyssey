@@ -1,0 +1,66 @@
+{
+  "id": "recall-at-k",
+  "title": {
+    "tr": "R@k",
+    "en": "R@k"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`ranking[:k]` ilk k sonuç.",
+      "en": "`ranking[:k]` is the first k results."
+    },
+    {
+      "tr": "`any(...)` her sorgu için doğru/yanlış verir.",
+      "en": "`any(...)` gives true/false per query."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef recall_at_k(rankings, relevant, k):\n    hits = [any(item in good for item in ranking[:k])\n            for ranking, good in zip(rankings, relevant)]\n    return round(sum(hits) / len(hits), 3)\n\nrankings = [[\"a\", \"b\", \"c\"], [\"b\", \"c\", \"a\"], [\"c\", \"b\", \"a\"]]\nrelevant = [[\"a\"], [\"a\"], [\"b\", \"c\"]]\nfor k in [1, 2, 3]:\n    print(k, recall_at_k(rankings, relevant, k))\n```",
+      "en": "The full solution:\n\n```python\ndef recall_at_k(rankings, relevant, k):\n    hits = [any(item in good for item in ranking[:k])\n            for ranking, good in zip(rankings, relevant)]\n    return round(sum(hits) / len(hits), 3)\n\nrankings = [[\"a\", \"b\", \"c\"], [\"b\", \"c\", \"a\"], [\"c\", \"b\", \"a\"]]\nrelevant = [[\"a\"], [\"a\"], [\"b\", \"c\"]]\nfor k in [1, 2, 3]:\n    print(k, recall_at_k(rankings, relevant, k))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "recall_at_k",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "x",
+                "y"
+              ],
+              [
+                "y",
+                "x"
+              ]
+            ],
+            [
+              [
+                "x"
+              ],
+              [
+                "x"
+              ]
+            ],
+            1
+          ],
+          "returns": 0.5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 0.667\n2 0.667\n3 1.0"
+    }
+  ]
+}
