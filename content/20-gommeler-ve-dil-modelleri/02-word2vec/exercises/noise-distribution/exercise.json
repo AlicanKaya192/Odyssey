@@ -1,0 +1,68 @@
+{
+  "id": "noise-distribution",
+  "title": {
+    "tr": "Olumsuz örnek dağılımı",
+    "en": "The negative sampling distribution"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce ağırlıklar: `{w: n ** alpha for w, n in counts.items()}`.",
+      "en": "Weights first: `{w: n ** alpha for w, n in counts.items()}`."
+    },
+    {
+      "tr": "Toplama böl ve `round(x / total, 3)`.",
+      "en": "Divide by the total and `round(x / total, 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef noise_distribution(counts, alpha):\n    weights = {w: n ** alpha for w, n in counts.items()}\n    total = sum(weights.values())\n    return {w: round(x / total, 3) for w, x in weights.items()}\n\ncounts = {\"the\": 800, \"cat\": 100, \"throne\": 4}\nfor word, p in noise_distribution(counts, 0.75).items():\n    print(word, p)\n```",
+      "en": "The full solution:\n\n```python\ndef noise_distribution(counts, alpha):\n    weights = {w: n ** alpha for w, n in counts.items()}\n    total = sum(weights.values())\n    return {w: round(x / total, 3) for w, x in weights.items()}\n\ncounts = {\"the\": 800, \"cat\": 100, \"throne\": 4}\nfor word, p in noise_distribution(counts, 0.75).items():\n    print(word, p)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "noise_distribution",
+      "cases": [
+        {
+          "args": [
+            {
+              "a": 1,
+              "b": 3
+            },
+            1.0
+          ],
+          "returns": {
+            "a": 0.25,
+            "b": 0.75
+          }
+        },
+        {
+          "args": [
+            {
+              "a": 16,
+              "b": 1
+            },
+            0.5
+          ],
+          "returns": {
+            "a": 0.8,
+            "b": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "the 0.814\ncat 0.171\nthrone 0.015"
+    }
+  ]
+}

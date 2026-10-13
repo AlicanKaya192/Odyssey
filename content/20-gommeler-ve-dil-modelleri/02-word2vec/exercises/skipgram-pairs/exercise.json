@@ -1,0 +1,106 @@
+{
+  "id": "skipgram-pairs",
+  "title": {
+    "tr": "Atlamalı gram çiftleri",
+    "en": "Skip-gram pairs"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki döngü: `for i, center in enumerate(tokens)` ve pencere sınırları arasında `j`.",
+      "en": "Two loops: `for i, center in enumerate(tokens)` and `j` between the window bounds."
+    },
+    {
+      "tr": "`j != i` ise `pairs.append([center, tokens[j]])`.",
+      "en": "If `j != i`, `pairs.append([center, tokens[j]])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef skipgram_pairs(tokens, window):\n    pairs = []\n    for i, center in enumerate(tokens):\n        for j in range(max(0, i - window), min(len(tokens), i + window + 1)):\n            if j != i:\n                pairs.append([center, tokens[j]])\n    return pairs\n\nfor center, context in skipgram_pairs(\"a cat sat\".split(), 1):\n    print(center, context)\n```",
+      "en": "The full solution:\n\n```python\ndef skipgram_pairs(tokens, window):\n    pairs = []\n    for i, center in enumerate(tokens):\n        for j in range(max(0, i - window), min(len(tokens), i + window + 1)):\n            if j != i:\n                pairs.append([center, tokens[j]])\n    return pairs\n\nfor center, context in skipgram_pairs(\"a cat sat\".split(), 1):\n    print(center, context)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "skipgram_pairs",
+      "cases": [
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            1
+          ],
+          "returns": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              "b",
+              "a"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "x",
+              "y",
+              "z"
+            ],
+            2
+          ],
+          "returns": [
+            [
+              "x",
+              "y"
+            ],
+            [
+              "x",
+              "z"
+            ],
+            [
+              "y",
+              "x"
+            ],
+            [
+              "y",
+              "z"
+            ],
+            [
+              "z",
+              "x"
+            ],
+            [
+              "z",
+              "y"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "w"
+            ],
+            3
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "a cat\ncat a\ncat sat\nsat cat"
+    }
+  ]
+}

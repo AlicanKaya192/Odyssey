@@ -1,0 +1,77 @@
+{
+  "id": "sgd-step",
+  "title": {
+    "tr": "Bir gradyan adımı",
+    "en": "One gradient step"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "NumPy dizilerine çevir; `g_neg = sigmoid(u_negs @ v)` her olumsuz için bir sayı.",
+      "en": "Convert to NumPy arrays; `g_neg = sigmoid(u_negs @ v)` gives one number per negative."
+    },
+    {
+      "tr": "Yeni değerleri ayrı adlarla hesapla ki hepsi eski `v` ile güncellensin.",
+      "en": "Compute the new values under separate names so all are updated with the old `v`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef sigmoid(x):\n    return 1 / (1 + np.exp(-x))\n\n\ndef sgd_step(v, u_pos, u_negs, lr):\n    v, u_pos, u_negs = np.array(v), np.array(u_pos), np.array(u_negs)\n    g_pos = sigmoid(v @ u_pos) - 1\n    g_neg = sigmoid(u_negs @ v)\n    grad_v = g_pos * u_pos + (g_neg[:, None] * u_negs).sum(axis=0)\n    new_u_pos = u_pos - lr * g_pos * v\n    new_u_negs = u_negs - lr * g_neg[:, None] * v\n    new_v = v - lr * grad_v\n    return [new_v.round(3).tolist(), new_u_pos.round(3).tolist(), new_u_negs.round(3).tolist()]\n\nv, u_pos, u_negs = sgd_step([0.5, -0.5], [1.0, -1.0], [[0.2, 0.1]], 0.1)\nprint(v)\nprint(u_pos)\nprint(u_negs)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef sigmoid(x):\n    return 1 / (1 + np.exp(-x))\n\n\ndef sgd_step(v, u_pos, u_negs, lr):\n    v, u_pos, u_negs = np.array(v), np.array(u_pos), np.array(u_negs)\n    g_pos = sigmoid(v @ u_pos) - 1\n    g_neg = sigmoid(u_negs @ v)\n    grad_v = g_pos * u_pos + (g_neg[:, None] * u_negs).sum(axis=0)\n    new_u_pos = u_pos - lr * g_pos * v\n    new_u_negs = u_negs - lr * g_neg[:, None] * v\n    new_v = v - lr * grad_v\n    return [new_v.round(3).tolist(), new_u_pos.round(3).tolist(), new_u_negs.round(3).tolist()]\n\nv, u_pos, u_negs = sgd_step([0.5, -0.5], [1.0, -1.0], [[0.2, 0.1]], 0.1)\nprint(v)\nprint(u_pos)\nprint(u_negs)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sgd_step",
+      "cases": [
+        {
+          "args": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0
+            ],
+            [
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            0.5
+          ],
+          "returns": [
+            [
+              0.634,
+              -0.116
+            ],
+            [
+              0.25,
+              1.0
+            ],
+            [
+              [
+                0.634,
+                1.0
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.517, -0.532]\n[1.013, -1.013]\n[[0.174, 0.126]]"
+    }
+  ]
+}

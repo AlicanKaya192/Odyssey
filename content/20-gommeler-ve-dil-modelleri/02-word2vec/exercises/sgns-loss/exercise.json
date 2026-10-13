@@ -1,0 +1,77 @@
+{
+  "id": "sgns-loss",
+  "title": {
+    "tr": "SGNS kaybı",
+    "en": "The SGNS loss"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir `dot(a, b)` yardımcısı yaz.",
+      "en": "Write a `dot(a, b)` helper."
+    },
+    {
+      "tr": "Başla: `loss = -math.log(sigmoid(dot(v, u_pos)))`; her olumsuz için `loss -= math.log(sigmoid(-dot(v, u)))`.",
+      "en": "Start with `loss = -math.log(sigmoid(dot(v, u_pos)))`; for each negative `loss -= math.log(sigmoid(-dot(v, u)))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef sigmoid(x):\n    return 1 / (1 + math.exp(-x))\n\n\ndef dot(a, b):\n    return sum(x * y for x, y in zip(a, b))\n\n\ndef sgns_loss(v, u_pos, u_negs):\n    loss = -math.log(sigmoid(dot(v, u_pos)))\n    for u in u_negs:\n        loss -= math.log(sigmoid(-dot(v, u)))\n    return round(loss, 3)\n\nv = [0.5, -0.5]\nprint(sgns_loss(v, [1.0, -1.0], [[0.2, 0.1], [-0.3, 0.4]]))\nprint(sgns_loss([0.0, 0.0], [1.0, 1.0], [[1.0, 1.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef sigmoid(x):\n    return 1 / (1 + math.exp(-x))\n\n\ndef dot(a, b):\n    return sum(x * y for x, y in zip(a, b))\n\n\ndef sgns_loss(v, u_pos, u_negs):\n    loss = -math.log(sigmoid(dot(v, u_pos)))\n    for u in u_negs:\n        loss -= math.log(sigmoid(-dot(v, u)))\n    return round(loss, 3)\n\nv = [0.5, -0.5]\nprint(sgns_loss(v, [1.0, -1.0], [[0.2, 0.1], [-0.3, 0.4]]))\nprint(sgns_loss([0.0, 0.0], [1.0, 1.0], [[1.0, 1.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sgns_loss",
+      "cases": [
+        {
+          "args": [
+            [
+              1.0
+            ],
+            [
+              2.0
+            ],
+            [
+              [
+                -1.0
+              ]
+            ]
+          ],
+          "returns": 0.44
+        },
+        {
+          "args": [
+            [
+              0.0
+            ],
+            [
+              0.0
+            ],
+            [
+              [
+                0.0
+              ],
+              [
+                0.0
+              ]
+            ]
+          ],
+          "returns": 2.079
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.565\n1.386"
+    }
+  ]
+}
