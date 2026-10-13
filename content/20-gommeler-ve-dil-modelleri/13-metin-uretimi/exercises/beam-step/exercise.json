@@ -1,0 +1,70 @@
+{
+  "id": "beam-step",
+  "title": {
+    "tr": "Işının bir adımı",
+    "en": "One beam step"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yolun son kelimesi `words[-1]`; `table[words[-1]].items()`.",
+      "en": "The path's last word is `words[-1]`; `table[words[-1]].items()`."
+    },
+    {
+      "tr": "Yeni yol `words + [w]`; sıralama `key=lambda b: -b[0]`.",
+      "en": "The new path is `words + [w]`; sort with `key=lambda b: -b[0]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef beam_step(beams, table, width):\n    pool = []\n    for score, words in beams:\n        for w, p in table[words[-1]].items():\n            pool.append([round(score + math.log(p), 3), words + [w]])\n    pool.sort(key=lambda b: -b[0])\n    return pool[:width]\n\ntable = {\n    \"<s>\": {\"my\": 0.6, \"the\": 0.4},\n    \"my\": {\"order\": 0.5, \"parcel\": 0.5},\n    \"the\": {\"app\": 0.9, \"box\": 0.1},\n}\nbeams = beam_step([[0.0, [\"<s>\"]]], table, 2)\nfor score, words in beam_step(beams, table, 2):\n    print(score, words)\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef beam_step(beams, table, width):\n    pool = []\n    for score, words in beams:\n        for w, p in table[words[-1]].items():\n            pool.append([round(score + math.log(p), 3), words + [w]])\n    pool.sort(key=lambda b: -b[0])\n    return pool[:width]\n\ntable = {\n    \"<s>\": {\"my\": 0.6, \"the\": 0.4},\n    \"my\": {\"order\": 0.5, \"parcel\": 0.5},\n    \"the\": {\"app\": 0.9, \"box\": 0.1},\n}\nbeams = beam_step([[0.0, [\"<s>\"]]], table, 2)\nfor score, words in beam_step(beams, table, 2):\n    print(score, words)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "beam_step",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0,
+                [
+                  "x"
+                ]
+              ]
+            ],
+            {
+              "x": {
+                "a": 0.5,
+                "b": 0.25
+              }
+            },
+            1
+          ],
+          "returns": [
+            [
+              -0.693,
+              [
+                "x",
+                "a"
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "-1.021 ['<s>', 'the', 'app']\n-1.204 ['<s>', 'my', 'order']"
+    }
+  ]
+}

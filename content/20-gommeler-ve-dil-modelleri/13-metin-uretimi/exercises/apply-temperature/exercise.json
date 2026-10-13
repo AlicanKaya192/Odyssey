@@ -1,0 +1,55 @@
+{
+  "id": "apply-temperature",
+  "title": {
+    "tr": "Sıcaklık",
+    "en": "Temperature"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `weights = {w: p ** (1 / t) ...}`.",
+      "en": "First `weights = {w: p ** (1 / t) ...}`."
+    },
+    {
+      "tr": "Sonra her birini `sum(weights.values())`'a böl.",
+      "en": "Then divide each by `sum(weights.values())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef apply_temperature(probs, t):\n    weights = {w: p ** (1 / t) for w, p in probs.items()}\n    total = sum(weights.values())\n    return {w: round(x / total, 3) for w, x in weights.items()}\n\nprobs = {\"order\": 0.6, \"parcel\": 0.3, \"box\": 0.1}\nfor t in [0.5, 1.0, 2.0]:\n    result = apply_temperature(probs, t)\n    print(t, \" \".join(f\"{w}={x}\" for w, x in result.items()))\n```",
+      "en": "The full solution:\n\n```python\ndef apply_temperature(probs, t):\n    weights = {w: p ** (1 / t) for w, p in probs.items()}\n    total = sum(weights.values())\n    return {w: round(x / total, 3) for w, x in weights.items()}\n\nprobs = {\"order\": 0.6, \"parcel\": 0.3, \"box\": 0.1}\nfor t in [0.5, 1.0, 2.0]:\n    result = apply_temperature(probs, t)\n    print(t, \" \".join(f\"{w}={x}\" for w, x in result.items()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "apply_temperature",
+      "cases": [
+        {
+          "args": [
+            {
+              "a": 0.8,
+              "b": 0.2
+            },
+            0.25
+          ],
+          "returns": {
+            "a": 0.996,
+            "b": 0.004
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.5 order=0.783 parcel=0.196 box=0.022\n1.0 order=0.6 parcel=0.3 box=0.1\n2.0 order=0.473 parcel=0.334 box=0.193"
+    }
+  ]
+}
