@@ -1,0 +1,58 @@
+{
+  "id": "softmax-backward",
+  "title": {
+    "tr": "Softmax'ın geri hesabı",
+    "en": "The softmax backward pass"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `a · da`: `sum(x * y for x, y in zip(a, da))`.",
+      "en": "First `a · da`: `sum(x * y for x, y in zip(a, da))`."
+    },
+    {
+      "tr": "Sonra her eleman `x * (y - dot)`.",
+      "en": "Then every element `x * (y - dot)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef softmax_backward(a, da):\n    dot = sum(x * y for x, y in zip(a, da))\n    return [round(x * (y - dot), 4) for x, y in zip(a, da)]\n\ngrad = softmax_backward([0.5, 0.3, 0.2], [1.0, 0.0, -1.0])\nprint(grad)\nprint(abs(sum(grad)) < 1e-9)\n```",
+      "en": "The full solution:\n\n```python\ndef softmax_backward(a, da):\n    dot = sum(x * y for x, y in zip(a, da))\n    return [round(x * (y - dot), 4) for x, y in zip(a, da)]\n\ngrad = softmax_backward([0.5, 0.3, 0.2], [1.0, 0.0, -1.0])\nprint(grad)\nprint(abs(sum(grad)) < 1e-9)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "softmax_backward",
+      "cases": [
+        {
+          "args": [
+            [
+              0.25,
+              0.75
+            ],
+            [
+              2.0,
+              0.0
+            ]
+          ],
+          "returns": [
+            0.375,
+            -0.375
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.35, -0.09, -0.26]\nTrue"
+    }
+  ]
+}

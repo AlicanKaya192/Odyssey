@@ -1,0 +1,66 @@
+{
+  "id": "self-attention",
+  "title": {
+    "tr": "Kendi kendine dikkat",
+    "en": "Self-attention"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Puan tablosu n × n: `X @ X.T`.",
+      "en": "The score table is n × n: `X @ X.T`."
+    },
+    {
+      "tr": "Satır en büyüğünü `axis=1, keepdims=True` ile çıkar.",
+      "en": "Subtract each row's maximum with `axis=1, keepdims=True`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef self_attention(X):\n    X = np.array(X)\n    scores = X @ X.T / np.sqrt(X.shape[1])\n    scores = scores - scores.max(axis=1, keepdims=True)\n    weights = np.exp(scores)\n    weights = weights / weights.sum(axis=1, keepdims=True)\n    return weights.round(3).tolist()\n\nX = [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]\nfor row in self_attention(X):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef self_attention(X):\n    X = np.array(X)\n    scores = X @ X.T / np.sqrt(X.shape[1])\n    scores = scores - scores.max(axis=1, keepdims=True)\n    weights = np.exp(scores)\n    weights = weights / weights.sum(axis=1, keepdims=True)\n    return weights.round(3).tolist()\n\nX = [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]\nfor row in self_attention(X):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "self_attention",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                2.0,
+                0.0
+              ],
+              [
+                0.0,
+                2.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.944,
+              0.056
+            ],
+            [
+              0.056,
+              0.944
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.401, 0.198, 0.401]\n[0.198, 0.401, 0.401]\n[0.248, 0.248, 0.503]"
+    }
+  ]
+}

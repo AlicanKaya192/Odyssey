@@ -1,0 +1,74 @@
+{
+  "id": "scaled-attention",
+  "title": {
+    "tr": "Ölçekli dikkat",
+    "en": "Scaled attention"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce NumPy dizilerine çevir.",
+      "en": "Convert to NumPy arrays first."
+    },
+    {
+      "tr": "Softmax'tan önce en büyük puanı çıkar; sonuç `weights @ values`.",
+      "en": "Subtract the largest score before softmax; the result is `weights @ values`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef attention(query, keys, values):\n    query, keys, values = np.array(query), np.array(keys), np.array(values)\n    scores = keys @ query / np.sqrt(len(query))\n    weights = np.exp(scores - scores.max())\n    weights = weights / weights.sum()\n    return (weights @ values).round(2).tolist()\n\nkeys = [[1.0, 0.0], [0.0, 1.0], [0.7, 0.7]]\nvalues = [[10.0], [20.0], [30.0]]\nprint(attention([0.0, 2.0], keys, values))\nprint(attention([0.0, 0.0], keys, values))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef attention(query, keys, values):\n    query, keys, values = np.array(query), np.array(keys), np.array(values)\n    scores = keys @ query / np.sqrt(len(query))\n    weights = np.exp(scores - scores.max())\n    weights = weights / weights.sum()\n    return (weights @ values).round(2).tolist()\n\nkeys = [[1.0, 0.0], [0.0, 1.0], [0.7, 0.7]]\nvalues = [[10.0], [20.0], [30.0]]\nprint(attention([0.0, 2.0], keys, values))\nprint(attention([0.0, 0.0], keys, values))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "attention",
+      "cases": [
+        {
+          "args": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            [
+              [
+                4.0,
+                0.0
+              ],
+              [
+                0.0,
+                4.0
+              ]
+            ]
+          ],
+          "returns": [
+            2.68,
+            1.32
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[22.17]\n[20.0]"
+    }
+  ]
+}
