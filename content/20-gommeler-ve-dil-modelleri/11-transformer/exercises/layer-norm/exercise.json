@@ -1,0 +1,58 @@
+{
+  "id": "layer-norm",
+  "title": {
+    "tr": "Katman normu",
+    "en": "Layer normalisation"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `mean`, sonra `var = sum((x - mean) ** 2 ...) / len(row)`.",
+      "en": "First `mean`, then `var = sum((x - mean) ** 2 ...) / len(row)`."
+    },
+    {
+      "tr": "`1e-5` sıfıra bölmeyi önler.",
+      "en": "`1e-5` prevents division by zero."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef layer_norm(rows):\n    result = []\n    for row in rows:\n        mean = sum(row) / len(row)\n        var = sum((x - mean) ** 2 for x in row) / len(row)\n        result.append([round((x - mean) / math.sqrt(var + 1e-5), 3) for x in row])\n    return result\n\nfor row in layer_norm([[1.0, 2.0, 3.0], [5.0, 5.0, 8.0]]):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef layer_norm(rows):\n    result = []\n    for row in rows:\n        mean = sum(row) / len(row)\n        var = sum((x - mean) ** 2 for x in row) / len(row)\n        result.append([round((x - mean) / math.sqrt(var + 1e-5), 3) for x in row])\n    return result\n\nfor row in layer_norm([[1.0, 2.0, 3.0], [5.0, 5.0, 8.0]]):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "layer_norm",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0,
+                4.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              -1.0,
+              1.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-1.225, 0.0, 1.225]\n[-0.707, -0.707, 1.414]"
+    }
+  ]
+}

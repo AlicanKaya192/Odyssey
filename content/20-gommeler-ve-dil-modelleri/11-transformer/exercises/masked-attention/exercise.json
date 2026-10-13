@@ -1,0 +1,64 @@
+{
+  "id": "masked-attention",
+  "title": {
+    "tr": "Maskeli dikkat",
+    "en": "Masked attention"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Maske `np.tril(np.ones((n, n), dtype=bool))`; `np.where(mask, scores, -np.inf)`.",
+      "en": "Mask `np.tril(np.ones((n, n), dtype=bool))`; `np.where(mask, scores, -np.inf)`."
+    },
+    {
+      "tr": "Softmax'tan önce satır en büyüğünü çıkar.",
+      "en": "Subtract the row maximum before softmax."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef masked_attention(X):\n    X = np.array(X)\n    n, d = X.shape\n    scores = X @ X.T / np.sqrt(d)\n    scores = np.where(np.tril(np.ones((n, n), dtype=bool)), scores, -np.inf)\n    weights = np.exp(scores - scores.max(axis=1, keepdims=True))\n    weights = weights / weights.sum(axis=1, keepdims=True)\n    return weights.round(3).tolist()\n\nfor row in masked_attention([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef masked_attention(X):\n    X = np.array(X)\n    n, d = X.shape\n    scores = X @ X.T / np.sqrt(d)\n    scores = np.where(np.tril(np.ones((n, n), dtype=bool)), scores, -np.inf)\n    weights = np.exp(scores - scores.max(axis=1, keepdims=True))\n    weights = weights / weights.sum(axis=1, keepdims=True)\n    return weights.round(3).tolist()\n\nfor row in masked_attention([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "masked_attention",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                2.0
+              ],
+              [
+                1.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              0.731,
+              0.269
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.0, 0.0, 0.0]\n[0.33, 0.67, 0.0]\n[0.248, 0.248, 0.503]"
+    }
+  ]
+}
