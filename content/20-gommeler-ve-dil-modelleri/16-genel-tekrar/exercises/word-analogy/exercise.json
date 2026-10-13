@@ -1,0 +1,72 @@
+{
+  "id": "word-analogy",
+  "title": {
+    "tr": "Benzetme",
+    "en": "Analogy"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Hedef: `[y - x + z for x, y, z in zip(...)]`.",
+      "en": "Target: `[y - x + z for x, y, z in zip(...)]`."
+    },
+    {
+      "tr": "Kosinüs = nokta çarpımı / (iki uzunluğun çarpımı).",
+      "en": "Cosine = dot product / (the two lengths multiplied)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef analogy(vectors, a, b, c):\n    target = [y - x + z for x, y, z in zip(vectors[a], vectors[b], vectors[c])]\n    norm_t = math.sqrt(sum(t * t for t in target))\n    best, best_sim = None, -2.0\n    for word, v in vectors.items():\n        if word in (a, b, c):\n            continue\n        dot = sum(t * x for t, x in zip(target, v))\n        sim = dot / (norm_t * math.sqrt(sum(x * x for x in v)))\n        if sim > best_sim:\n            best, best_sim = word, sim\n    return best\n\nvectors = {\"king\": [1.0, 1.0], \"man\": [1.0, 0.0], \"woman\": [0.0, 1.0],\n           \"queen\": [0.1, 2.0], \"prince\": [1.0, 0.5]}\nprint(analogy(vectors, \"man\", \"king\", \"woman\"))\nprint(analogy(vectors, \"woman\", \"queen\", \"man\"))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef analogy(vectors, a, b, c):\n    target = [y - x + z for x, y, z in zip(vectors[a], vectors[b], vectors[c])]\n    norm_t = math.sqrt(sum(t * t for t in target))\n    best, best_sim = None, -2.0\n    for word, v in vectors.items():\n        if word in (a, b, c):\n            continue\n        dot = sum(t * x for t, x in zip(target, v))\n        sim = dot / (norm_t * math.sqrt(sum(x * x for x in v)))\n        if sim > best_sim:\n            best, best_sim = word, sim\n    return best\n\nvectors = {\"king\": [1.0, 1.0], \"man\": [1.0, 0.0], \"woman\": [0.0, 1.0],\n           \"queen\": [0.1, 2.0], \"prince\": [1.0, 0.5]}\nprint(analogy(vectors, \"man\", \"king\", \"woman\"))\nprint(analogy(vectors, \"woman\", \"queen\", \"man\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "analogy",
+      "cases": [
+        {
+          "args": [
+            {
+              "a": [
+                1.0,
+                0.0
+              ],
+              "b": [
+                1.0,
+                1.0
+              ],
+              "c": [
+                0.0,
+                1.0
+              ],
+              "d": [
+                0.0,
+                2.0
+              ],
+              "e": [
+                1.0,
+                -1.0
+              ]
+            },
+            "a",
+            "b",
+            "c"
+          ],
+          "returns": "d"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "queen\nking"
+    }
+  ]
+}

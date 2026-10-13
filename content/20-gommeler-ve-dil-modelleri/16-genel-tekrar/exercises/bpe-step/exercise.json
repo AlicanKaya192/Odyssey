@@ -1,0 +1,74 @@
+{
+  "id": "bpe-step",
+  "title": {
+    "tr": "Bir BPE adımı",
+    "en": "One BPE step"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Çiftler: `Counter(p for w in words for p in zip(w, w[1:]))`.",
+      "en": "Pairs: `Counter(p for w in words for p in zip(w, w[1:]))`."
+    },
+    {
+      "tr": "Birleştirirken `i`'yi eşleşmede 2, değilse 1 ilerlet.",
+      "en": "When merging, advance `i` by 2 on a match, else by 1."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef bpe_step(words):\n    pairs = Counter(p for w in words for p in zip(w, w[1:]))\n    if not pairs:\n        return words\n    top = max(pairs.values())\n    a, b = min(p for p, n in pairs.items() if n == top)\n    merged = []\n    for w in words:\n        out, i = [], 0\n        while i < len(w):\n            if i + 1 < len(w) and w[i] == a and w[i + 1] == b:\n                out.append(a + b)\n                i += 2\n            else:\n                out.append(w[i])\n                i += 1\n        merged.append(out)\n    return merged\n\nwords = [[\"l\", \"o\", \"w\"], [\"l\", \"o\", \"w\", \"e\", \"r\"], [\"n\", \"e\", \"w\"]]\nwords = bpe_step(words)\nprint([\" \".join(w) for w in words])\nprint([\" \".join(w) for w in bpe_step(words)])\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef bpe_step(words):\n    pairs = Counter(p for w in words for p in zip(w, w[1:]))\n    if not pairs:\n        return words\n    top = max(pairs.values())\n    a, b = min(p for p, n in pairs.items() if n == top)\n    merged = []\n    for w in words:\n        out, i = [], 0\n        while i < len(w):\n            if i + 1 < len(w) and w[i] == a and w[i + 1] == b:\n                out.append(a + b)\n                i += 2\n            else:\n                out.append(w[i])\n                i += 1\n        merged.append(out)\n    return merged\n\nwords = [[\"l\", \"o\", \"w\"], [\"l\", \"o\", \"w\", \"e\", \"r\"], [\"n\", \"e\", \"w\"]]\nwords = bpe_step(words)\nprint([\" \".join(w) for w in words])\nprint([\" \".join(w) for w in bpe_step(words)])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "bpe_step",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b",
+                "a",
+                "b"
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "ab",
+              "ab"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "x"
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "x"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['lo w', 'lo w e r', 'n e w']\n['low', 'low e r', 'n e w']"
+    }
+  ]
+}

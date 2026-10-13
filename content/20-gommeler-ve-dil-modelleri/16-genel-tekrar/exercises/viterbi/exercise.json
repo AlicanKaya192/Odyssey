@@ -1,0 +1,74 @@
+{
+  "id": "viterbi",
+  "title": {
+    "tr": "Viterbi",
+    "en": "Viterbi"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Puanları `{etiket: log olasılık}` sözlüğünde tut.",
+      "en": "Keep scores in a `{tag: log probability}` dictionary."
+    },
+    {
+      "tr": "Her adımın `pointers` sözlüğünü `back`'e ekle; sonda ters sırayla izle.",
+      "en": "Append each step's `pointers` dict to `back`; trace it in reverse at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef viterbi(words, start, trans, emit):\n    tags = list(start)\n    score = {t: math.log(start[t]) + math.log(emit[t][words[0]]) for t in tags}\n    back = []\n    for word in words[1:]:\n        new, pointers = {}, {}\n        for t in tags:\n            prev = max(tags, key=lambda p: score[p] + math.log(trans[p][t]))\n            new[t] = score[prev] + math.log(trans[prev][t]) + math.log(emit[t][word])\n            pointers[t] = prev\n        score = new\n        back.append(pointers)\n    best = max(tags, key=lambda t: score[t])\n    path = [best]\n    for pointers in reversed(back):\n        path.append(pointers[path[-1]])\n    return path[::-1]\n\nstart = {\"DET\": 0.8, \"NOUN\": 0.2}\ntrans = {\"DET\": {\"DET\": 0.1, \"NOUN\": 0.9}, \"NOUN\": {\"DET\": 0.4, \"NOUN\": 0.6}}\nemit = {\"DET\": {\"the\": 0.9, \"dog\": 0.1}, \"NOUN\": {\"the\": 0.1, \"dog\": 0.9}}\nprint(viterbi([\"the\", \"dog\"], start, trans, emit))\nprint(viterbi([\"dog\", \"the\", \"dog\"], start, trans, emit))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef viterbi(words, start, trans, emit):\n    tags = list(start)\n    score = {t: math.log(start[t]) + math.log(emit[t][words[0]]) for t in tags}\n    back = []\n    for word in words[1:]:\n        new, pointers = {}, {}\n        for t in tags:\n            prev = max(tags, key=lambda p: score[p] + math.log(trans[p][t]))\n            new[t] = score[prev] + math.log(trans[prev][t]) + math.log(emit[t][word])\n            pointers[t] = prev\n        score = new\n        back.append(pointers)\n    best = max(tags, key=lambda t: score[t])\n    path = [best]\n    for pointers in reversed(back):\n        path.append(pointers[path[-1]])\n    return path[::-1]\n\nstart = {\"DET\": 0.8, \"NOUN\": 0.2}\ntrans = {\"DET\": {\"DET\": 0.1, \"NOUN\": 0.9}, \"NOUN\": {\"DET\": 0.4, \"NOUN\": 0.6}}\nemit = {\"DET\": {\"the\": 0.9, \"dog\": 0.1}, \"NOUN\": {\"the\": 0.1, \"dog\": 0.9}}\nprint(viterbi([\"the\", \"dog\"], start, trans, emit))\nprint(viterbi([\"dog\", \"the\", \"dog\"], start, trans, emit))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "viterbi",
+      "cases": [
+        {
+          "args": [
+            [
+              "dog"
+            ],
+            {
+              "A": 0.5,
+              "B": 0.5
+            },
+            {
+              "A": {
+                "A": 0.5,
+                "B": 0.5
+              },
+              "B": {
+                "A": 0.5,
+                "B": 0.5
+              }
+            },
+            {
+              "A": {
+                "dog": 0.2
+              },
+              "B": {
+                "dog": 0.8
+              }
+            }
+          ],
+          "returns": [
+            "B"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['DET', 'NOUN']\n['NOUN', 'DET', 'NOUN']"
+    }
+  ]
+}
