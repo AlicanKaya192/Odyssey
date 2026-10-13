@@ -1,0 +1,80 @@
+{
+  "id": "keep-apostrophes",
+  "title": {
+    "tr": "Kesme işaretini koru",
+    "en": "Keep the apostrophe"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kelime kısmına isteğe bağlı bir kesme işaretli devam ekle: `(?:'\\w+)?`.",
+      "en": "Add an optional apostrophe part to the word: `(?:'\\w+)?`."
+    },
+    {
+      "tr": "Desen: `r\"\\w+(?:'\\w+)?|[^\\w\\s]\"`.",
+      "en": "The pattern: `r\"\\w+(?:'\\w+)?|[^\\w\\s]\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef tokenize(text):\n    return re.findall(r\"\\w+(?:'\\w+)?|[^\\w\\s]\", text)\n\nprint(\"|\".join(tokenize(\"I can't believe it's here!\")))\nprint(\"|\".join(tokenize(\"Don't stop.\")))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef tokenize(text):\n    return re.findall(r\"\\w+(?:'\\w+)?|[^\\w\\s]\", text)\n\nprint(\"|\".join(tokenize(\"I can't believe it's here!\")))\nprint(\"|\".join(tokenize(\"Don't stop.\")))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "tokenize",
+      "cases": [
+        {
+          "args": [
+            "can't"
+          ],
+          "returns": [
+            "can't"
+          ]
+        },
+        {
+          "args": [
+            "It's ok."
+          ],
+          "returns": [
+            "It's",
+            "ok",
+            "."
+          ]
+        },
+        {
+          "args": [
+            "'quoted'"
+          ],
+          "returns": [
+            "'",
+            "quoted",
+            "'"
+          ]
+        },
+        {
+          "args": [
+            "rock and roll"
+          ],
+          "returns": [
+            "rock",
+            "and",
+            "roll"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "I|can't|believe|it's|here|!\nDon't|stop|."
+    }
+  ]
+}

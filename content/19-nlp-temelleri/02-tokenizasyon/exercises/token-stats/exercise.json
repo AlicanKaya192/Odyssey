@@ -1,0 +1,109 @@
+{
+  "id": "token-stats",
+  "title": {
+    "tr": "Hangi parçalayıcı kaç token?",
+    "en": "How many tokens per tokeniser?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Üç parçalayıcıyı bir listede dolaş; her biri metin alıp token listesi döndüren bir fonksiyon.",
+      "en": "Loop over the three tokenisers in a list; each is a function taking text and returning a token list."
+    },
+    {
+      "tr": "Toplam: `len(tokens)`, farklı: `len(set(tokens))`.",
+      "en": "Total: `len(tokens)`, distinct: `len(set(tokens))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom text_data import make_reviews\n\n\ndef token_stats(n):\n    texts = [r[\"text\"].lower() for r in make_reviews(n)]\n    analyze = CountVectorizer().build_analyzer()\n    results = []\n    for tokenize in [str.split, lambda t: re.findall(r\"\\w+|[^\\w\\s]\", t), analyze]:\n        tokens = [tok for t in texts for tok in tokenize(t)]\n        results.append([len(tokens), len(set(tokens))])\n    return results\n\n\nfor name, (total, distinct) in zip([\"split\", \"regex\", \"sklearn\"], token_stats(2000)):\n    print(name, total, distinct)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom text_data import make_reviews\n\n\ndef token_stats(n):\n    texts = [r[\"text\"].lower() for r in make_reviews(n)]\n    analyze = CountVectorizer().build_analyzer()\n    results = []\n    for tokenize in [str.split, lambda t: re.findall(r\"\\w+|[^\\w\\s]\", t), analyze]:\n        tokens = [tok for t in texts for tok in tokenize(t)]\n        results.append([len(tokens), len(set(tokens))])\n    return results\n\n\nfor name, (total, distinct) in zip([\"split\", \"regex\", \"sklearn\"], token_stats(2000)):\n    print(name, total, distinct)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "token_stats",
+      "cases": [
+        {
+          "args": [
+            2000
+          ],
+          "returns": [
+            [
+              31171,
+              519
+            ],
+            [
+              38001,
+              365
+            ],
+            [
+              30080,
+              350
+            ]
+          ]
+        },
+        {
+          "args": [
+            100
+          ],
+          "returns": [
+            [
+              1533,
+              251
+            ],
+            [
+              1865,
+              202
+            ],
+            [
+              1475,
+              192
+            ]
+          ]
+        },
+        {
+          "args": [
+            10
+          ],
+          "returns": [
+            [
+              141,
+              74
+            ],
+            [
+              170,
+              73
+            ],
+            [
+              133,
+              70
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "split 31171 519\nregex 38001 365\nsklearn 30080 350"
+    }
+  ]
+}

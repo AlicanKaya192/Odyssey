@@ -1,0 +1,88 @@
+{
+  "id": "ticket-tokens",
+  "title": {
+    "tr": "Destek talebi parçalayıcısı",
+    "en": "A support ticket tokeniser"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Alternatifleri `|` ile, özelden genele sırala; `re.VERBOSE` ile her birini ayrı satıra yaz.",
+      "en": "Order the alternatives with `|` from special to general; with `re.VERBOSE` write each on its own line."
+    },
+    {
+      "tr": "Desenin içindeki açıklamalar zorunlu değil; sıra zorunlu.",
+      "en": "Comments inside the pattern are optional; the order is not."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nfrom text_data import make_tickets\n\nTOKEN = re.compile(r\"\"\"\n    [\\w.+-]+@\\w+\\.\\w+\n  | \\$\\d+(?:\\.\\d+)?\n  | [A-Z]+-\\d+\n  | \\w+(?:'\\w+)?\n  | [^\\w\\s]\n\"\"\", re.VERBOSE)\n\n\ndef ticket_tokens(text):\n    return TOKEN.findall(text)\n\n\nfor ticket in make_tickets(8):\n    tokens = ticket_tokens(ticket[\"text\"])\n    print(len(tokens), [t for t in tokens if len(t) > 1 and (t[0] == \"$\" or \"@\" in t or \"-\" in t)])\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nfrom text_data import make_tickets\n\nTOKEN = re.compile(r\"\"\"\n    [\\w.+-]+@\\w+\\.\\w+\n  | \\$\\d+(?:\\.\\d+)?\n  | [A-Z]+-\\d+\n  | \\w+(?:'\\w+)?\n  | [^\\w\\s]\n\"\"\", re.VERBOSE)\n\n\ndef ticket_tokens(text):\n    return TOKEN.findall(text)\n\n\nfor ticket in make_tickets(8):\n    tokens = ticket_tokens(ticket[\"text\"])\n    print(len(tokens), [t for t in tokens if len(t) > 1 and (t[0] == \"$\" or \"@\" in t or \"-\" in t)])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ticket_tokens",
+      "cases": [
+        {
+          "args": [
+            "Refund $12.50 for ORD-12345 please."
+          ],
+          "returns": [
+            "Refund",
+            "$12.50",
+            "for",
+            "ORD-12345",
+            "please",
+            "."
+          ]
+        },
+        {
+          "args": [
+            "Mail jo1@example.com now!"
+          ],
+          "returns": [
+            "Mail",
+            "jo1@example.com",
+            "now",
+            "!"
+          ]
+        },
+        {
+          "args": [
+            "I can't log in."
+          ],
+          "returns": [
+            "I",
+            "can't",
+            "log",
+            "in",
+            "."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "24 []\n25 ['ben52@example.com']\n18 ['ORD-65149']\n18 ['jo11@example.com', 'ORD-34877']\n29 ['ORD-27246']\n25 ['ORD-86146']\n17 ['ORD-15317']\n36 ['ORD-25113', '$233.00']"
+    }
+  ]
+}

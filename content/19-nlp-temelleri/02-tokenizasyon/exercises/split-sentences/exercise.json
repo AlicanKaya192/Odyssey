@@ -1,0 +1,78 @@
+{
+  "id": "split-sentences",
+  "title": {
+    "tr": "Kısaltmalara dikkat eden cümle bölücü",
+    "en": "A sentence splitter that minds abbreviations"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önceki cümlenin son kelimesi: `sentences[-1].split()[-1].lower()`.",
+      "en": "The previous sentence's last word: `sentences[-1].split()[-1].lower()`."
+    },
+    {
+      "tr": "Liste boşken ilk parçayı doğrudan ekle: `if sentences and ...`.",
+      "en": "Add the first piece directly while the list is empty: `if sentences and ...`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nABBREVIATIONS = {\"dr.\", \"mr.\", \"mrs.\", \"e.g.\", \"i.e.\"}\n\n\ndef split_sentences(text):\n    sentences = []\n    for part in re.split(r\"(?<=[.!?])\\s+\", text):\n        if sentences and sentences[-1].split()[-1].lower() in ABBREVIATIONS:\n            sentences[-1] += \" \" + part\n        else:\n            sentences.append(part)\n    return sentences\n\n\ntext = \"Dr. Lee paid $4.50 today. Great service! Ask Mr. Kim, e.g. by mail. Done?\"\nfor sentence in split_sentences(text):\n    print(sentence)\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nABBREVIATIONS = {\"dr.\", \"mr.\", \"mrs.\", \"e.g.\", \"i.e.\"}\n\n\ndef split_sentences(text):\n    sentences = []\n    for part in re.split(r\"(?<=[.!?])\\s+\", text):\n        if sentences and sentences[-1].split()[-1].lower() in ABBREVIATIONS:\n            sentences[-1] += \" \" + part\n        else:\n            sentences.append(part)\n    return sentences\n\n\ntext = \"Dr. Lee paid $4.50 today. Great service! Ask Mr. Kim, e.g. by mail. Done?\"\nfor sentence in split_sentences(text):\n    print(sentence)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "split_sentences",
+      "cases": [
+        {
+          "args": [
+            "Dr. Lee is here. Hi."
+          ],
+          "returns": [
+            "Dr. Lee is here.",
+            "Hi."
+          ]
+        },
+        {
+          "args": [
+            "One. Two! Three?"
+          ],
+          "returns": [
+            "One.",
+            "Two!",
+            "Three?"
+          ]
+        },
+        {
+          "args": [
+            "Hello"
+          ],
+          "returns": [
+            "Hello"
+          ]
+        },
+        {
+          "args": [
+            "See e.g. this. And i.e. that."
+          ],
+          "returns": [
+            "See e.g. this.",
+            "And i.e. that."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Dr. Lee paid $4.50 today.\nGreat service!\nAsk Mr. Kim, e.g. by mail.\nDone?"
+    }
+  ]
+}
