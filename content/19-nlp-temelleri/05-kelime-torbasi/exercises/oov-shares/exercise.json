@@ -1,0 +1,70 @@
+{
+  "id": "oov-shares",
+  "title": {
+    "tr": "Dağarcık dışı pay",
+    "en": "The out-of-vocabulary share"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "`CountVectorizer().fit(REVIEWS[:n_train])` ve `analyze = vectorizer.build_analyzer()`.",
+      "en": "`CountVectorizer().fit(REVIEWS[:n_train])` and `analyze = vectorizer.build_analyzer()`."
+    },
+    {
+      "tr": "Pay: `sum(w not in vectorizer.vocabulary_ for w in tokens) / len(tokens)`; iki grup için tekrarla.",
+      "en": "The share: `sum(w not in vectorizer.vocabulary_ for w in tokens) / len(tokens)`; repeat for both groups."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom text_data import make_reviews, make_tickets\n\nREVIEWS = [r[\"text\"] for r in make_reviews(2000)]\nTICKETS = [t[\"text\"] for t in make_tickets(300)]\n\n\ndef oov_shares(n_train):\n    vectorizer = CountVectorizer().fit(REVIEWS[:n_train])\n    analyze = vectorizer.build_analyzer()\n\n    def share(texts):\n        tokens = [w for t in texts for w in analyze(t)]\n        return round(sum(w not in vectorizer.vocabulary_ for w in tokens) / len(tokens), 3)\n\n    return [share(REVIEWS[1000:]), share(TICKETS)]\n\n\nfor n in [50, 200, 1000]:\n    print(n, oov_shares(n))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom text_data import make_reviews, make_tickets\n\nREVIEWS = [r[\"text\"] for r in make_reviews(2000)]\nTICKETS = [t[\"text\"] for t in make_tickets(300)]\n\n\ndef oov_shares(n_train):\n    vectorizer = CountVectorizer().fit(REVIEWS[:n_train])\n    analyze = vectorizer.build_analyzer()\n\n    def share(texts):\n        tokens = [w for t in texts for w in analyze(t)]\n        return round(sum(w not in vectorizer.vocabulary_ for w in tokens) / len(tokens), 3)\n\n    return [share(REVIEWS[1000:]), share(TICKETS)]\n\n\nfor n in [50, 200, 1000]:\n    print(n, oov_shares(n))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "oov_shares",
+      "cases": [
+        {
+          "args": [
+            50
+          ],
+          "returns": [
+            0.078,
+            0.637
+          ]
+        },
+        {
+          "args": [
+            1000
+          ],
+          "returns": [
+            0.005,
+            0.635
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "50 [0.078, 0.637]\n200 [0.012, 0.636]\n1000 [0.005, 0.635]"
+    }
+  ]
+}
