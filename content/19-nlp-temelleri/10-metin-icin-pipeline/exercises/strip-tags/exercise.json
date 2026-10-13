@@ -1,0 +1,77 @@
+{
+  "id": "strip-tags",
+  "title": {
+    "tr": "Etiketleri ön işlemede at",
+    "en": "Drop tags in preprocessing"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Etiket: `re.sub(r\"<[^>]+>\", \" \", text)`; boşluk: `\" \".join(text.split())`.",
+      "en": "Tags: `re.sub(r\"<[^>]+>\", \" \", text)`; spaces: `\" \".join(text.split())`."
+    },
+    {
+      "tr": "`TfidfVectorizer(preprocessor=preprocessor).fit(texts).vocabulary_` bir sözlük; `word in ...`.",
+      "en": "`TfidfVectorizer(preprocessor=preprocessor).fit(texts).vocabulary_` is a dictionary; `word in ...`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom text_data import messy_reviews\n\ntexts = [r[\"text\"] for r in messy_reviews(500)]\n\n\ndef strip_tags(text):\n    text = re.sub(r\"<[^>]+>\", \" \", text)\n    return \" \".join(text.split()).lower()\n\n\ndef vocab_has(word, preprocessor):\n    vectorizer = TfidfVectorizer(preprocessor=preprocessor).fit(texts)\n    return word in vectorizer.vocabulary_\n\n\nprint(strip_tags(\"<b>Good</b> value<br>Works\"))\nprint(vocab_has(\"br\", None))\nprint(vocab_has(\"br\", strip_tags))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom text_data import messy_reviews\n\ntexts = [r[\"text\"] for r in messy_reviews(500)]\n\n\ndef strip_tags(text):\n    text = re.sub(r\"<[^>]+>\", \" \", text)\n    return \" \".join(text.split()).lower()\n\n\ndef vocab_has(word, preprocessor):\n    vectorizer = TfidfVectorizer(preprocessor=preprocessor).fit(texts)\n    return word in vectorizer.vocabulary_\n\n\nprint(strip_tags(\"<b>Good</b> value<br>Works\"))\nprint(vocab_has(\"br\", None))\nprint(vocab_has(\"br\", strip_tags))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "strip_tags",
+      "cases": [
+        {
+          "args": [
+            "<p>Nice</p>"
+          ],
+          "returns": "nice"
+        },
+        {
+          "args": [
+            "A<br/>B  C"
+          ],
+          "returns": "a b c"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "vocab_has",
+      "cases": [
+        {
+          "args": [
+            "br",
+            null
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "good value works\nTrue\nFalse"
+    }
+  ]
+}

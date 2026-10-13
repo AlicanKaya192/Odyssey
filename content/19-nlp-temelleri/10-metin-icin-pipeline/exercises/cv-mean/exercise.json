@@ -1,0 +1,64 @@
+{
+  "id": "cv-mean",
+  "title": {
+    "tr": "Çapraz doğrulama ortalaması",
+    "en": "Cross-validation mean"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Pipeline'ı fonksiyonun içinde kur, `C=C` modele gider.",
+      "en": "Build the Pipeline inside the function; `C=C` goes to the model."
+    },
+    {
+      "tr": "`cross_val_score(pipe, texts, labels, cv=5, scoring=\"f1_macro\")` ve `float(scores.mean())`.",
+      "en": "`cross_val_score(pipe, texts, labels, cv=5, scoring=\"f1_macro\")` and `float(scores.mean())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.pipeline import Pipeline\nfrom text_data import make_reviews\n\nreviews = make_reviews(1000)\ntexts = [r[\"text\"] for r in reviews]\nlabels = np.array([r[\"label\"] for r in reviews])\n\n\ndef cv_mean(C):\n    pipe = Pipeline([(\"tfidf\", TfidfVectorizer()),\n                     (\"model\", LogisticRegression(C=C, max_iter=1000))])\n    scores = cross_val_score(pipe, texts, labels, cv=5, scoring=\"f1_macro\")\n    return round(float(scores.mean()), 3)\n\n\nprint(cv_mean(1))\nprint(cv_mean(10))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.pipeline import Pipeline\nfrom text_data import make_reviews\n\nreviews = make_reviews(1000)\ntexts = [r[\"text\"] for r in reviews]\nlabels = np.array([r[\"label\"] for r in reviews])\n\n\ndef cv_mean(C):\n    pipe = Pipeline([(\"tfidf\", TfidfVectorizer()),\n                     (\"model\", LogisticRegression(C=C, max_iter=1000))])\n    scores = cross_val_score(pipe, texts, labels, cv=5, scoring=\"f1_macro\")\n    return round(float(scores.mean()), 3)\n\n\nprint(cv_mean(1))\nprint(cv_mean(10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cv_mean",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": 0.828
+        },
+        {
+          "args": [
+            10
+          ],
+          "returns": 0.84
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.828\n0.84"
+    }
+  ]
+}
