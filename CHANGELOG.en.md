@@ -37,11 +37,17 @@ lecture note does not mean downloading the whole application again.
   RNNs, the attention mechanism and the transformer block, pretraining, text
   generation and evaluation, ending with a semantic search engine. The models
   are built from scratch with NumPy.
+- **All your notes without leaving the section.** In a section, the library
+  button in the "Take a note" panel opens all your notes; search them by
+  name or by a word inside, then read or edit the one you want next to the
+  exercise or the lesson. "This lesson's note" takes you back.
 
 ### Changed
 - **Levels were widened for the new path.** The XP needed for the next level
   went up a little; your current level may drop by a few steps. The titles
   you have earned stay yours.
+- **The note panel is closed during a quiz.** It closes when the quiz
+  starts and cannot be opened until the quiz ends or is abandoned.
 
 ### Fixed
 - **Odyssey opens faster.** After the start-up animation ended, it waited a

@@ -454,6 +454,9 @@ class QuizView(QWidget):
     completed = Signal(int, bool)  # puan, geçti mi
     # Sonuç ekranındaki "devam" düğmesi: bölümün bir sonraki adımına geç.
     advance = Signal()
+    # Sorular açıldı (True) ya da sınav bitti / bırakıldı (False); sınav
+    # sürerken bölümün not paneli kapalı.
+    running_changed = Signal(bool)
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -870,6 +873,7 @@ class QuizView(QWidget):
     def _show_start(self) -> None:
         self._timer.stop()
         self._stack.setCurrentIndex(0)
+        self.running_changed.emit(False)
         self._sync_history_button()
         self._preview_ring.set_untimed(self._untimed)
         self._preview_ring.set_total(self._time_limit)
@@ -914,6 +918,7 @@ class QuizView(QWidget):
         self._questions_stack.setCurrentWidget(self._cards[0])
         self._stack.setCurrentIndex(1)
         self._started_at = time.monotonic()
+        self.running_changed.emit(True)
         self._scroll.verticalScrollBar().setValue(0)
         self._sync_question_ui()
         # Klavyeyle cevaplanabilsin: tuşlar sınava gelsin (`keyPressEvent`).
@@ -1032,6 +1037,7 @@ class QuizView(QWidget):
             return
         self._timer.stop()
         self._finished = True
+        self.running_changed.emit(False)
         correct = sum(1 for c in self._cards if c.is_answered and c.is_correct)
         score = round(correct * 100 / len(self._cards))
         passed = score >= self._pass_score

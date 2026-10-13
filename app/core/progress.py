@@ -882,9 +882,9 @@ class ProgressStore:
         return [dict(row) for row in rows]
 
     def notebook_entries_with_body(self) -> list[dict]:
-        """Bütün notlar gövdeleriyle (genel arama için)."""
+        """Bütün notlar gövdeleriyle (genel arama ve not panelinin listesi için)."""
         rows = self._connection.execute(
-            "SELECT id, chapter_id, section_id, folder_id, title, body "
+            "SELECT id, chapter_id, section_id, folder_id, title, body, updated_at "
             "FROM notebook_entries ORDER BY created_at, id"
         ).fetchall()
         return [dict(row) for row in rows]

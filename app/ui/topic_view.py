@@ -10,6 +10,8 @@ Sağda açılıp kapanan bir not paneli var (`note_panel.py`): başlıktaki
 "Not al" düğmesi ya da `Ctrl+N`. Panel hangi sekmede olunursa olsun açık
 kalıyor ve bölümden bölüme geçerken de açık kalıyor. Ders, ders notu ve
 alıştırma yönergesinde seçilen metin sağ tıkla nota eklenebiliyor.
+Panelden bütün notlara da ulaşılıyor; **sınav sürerken panel kapalı**
+(Alican 13 Ekim: notlar sınav dışında açık olsun).
 """
 
 from __future__ import annotations
@@ -163,6 +165,7 @@ class TopicView(QWidget):
 
         self._lesson.action.connect(self._on_lesson_action)
         self._quiz.completed.connect(self._on_quiz_completed)
+        self._quiz.running_changed.connect(self._on_quiz_running)
         self._exercise.solved.connect(self._on_exercise_solved)
         self._notes.advance.connect(self._on_notes_advance)
         self._notes.note_read.connect(self._on_note_read)
@@ -193,7 +196,7 @@ class TopicView(QWidget):
         # Not paneli içeriği itmiyor: sağda, içeriğin üstünde yüzen bir
         # çekmece (prototip `.drawer`). Konumu gövdenin boyutundan.
         self._body = body
-        self._note_panel = NotePanel(language, store, body)
+        self._note_panel = NotePanel(language, store, catalog, body)
         self._note_panel.hide()
         self._note_panel.close_requested.connect(lambda: self.toggle_note(False))
         self._note_panel.open_in_notebook.connect(self.open_notebook)
@@ -784,9 +787,14 @@ class TopicView(QWidget):
     # --- not paneli -------------------------------------------------------
 
     def toggle_note(self, visible: bool | None = None) -> None:
-        """Not panelini açar ya da kapatır; açılınca imleç notta."""
+        """Not panelini açar ya da kapatır; açılınca imleç notta.
+
+        Sınav sürerken açılmıyor: panelden bütün notlara ulaşılıyor.
+        """
         if visible is None:
             visible = self._note_panel.isHidden()
+        if visible and self._quiz.in_progress:
+            return
         self._note_button.setProperty("active", "true" if visible else "false")
         # Panel sağdan açılıp kapanıyor (ui-taslak F3): genişlik yayla büyüyor.
         # Çekmece sağdan yayla kayarak giriyor, kısa ve hızlanarak çıkıyor.
@@ -802,6 +810,13 @@ class TopicView(QWidget):
         elif not panel.isHidden():
             motion.animate(panel, "slide", self._note_slide, 0.0, self._set_note_slide, "short", "in",
                            on_done=panel.hide)
+
+    def _on_quiz_running(self, running: bool) -> None:
+        """Sınav başladı: panel kapanıyor, düğmesi sınav bitene kadar pasif."""
+        if running:
+            self.toggle_note(False)
+        self._note_button.setEnabled(not running)
+        self._note_button.setToolTip(self._language.t("notebook.quiz_locked") if running else "Ctrl+N")
 
     def _set_note_slide(self, value: float) -> None:
         self._note_slide = value
@@ -946,7 +961,9 @@ class TopicView(QWidget):
             f" font-size: 13px; padding: 8px 12px; border-radius: 10px;"
             f" border: 1px solid {mix(renk, palette['border'], 0.7)}; }}"
             f"QPushButton:hover, QPushButton[active=\"true\"] {{"
-            f" background: {mix(renk, palette['bg'], 0.88)}; }}")
+            f" background: {mix(renk, palette['bg'], 0.88)}; }}"
+            f"QPushButton:disabled {{ color: {palette['text_muted']};"
+            f" border-color: {palette['border']}; }}")
         self._note_panel.set_mode(mode)
         refresh_shadow(self._note_panel, "dark", True)
         self._lesson.set_mode(mode)
@@ -971,7 +988,7 @@ class TopicView(QWidget):
 
         t = self._language.t
         self._note_button.setText(f" {t('notebook.take_note')}")
-        self._note_button.setToolTip("Ctrl+N")
+        self._note_button.setToolTip(t("notebook.quiz_locked") if self._quiz.in_progress else "Ctrl+N")
         from ..widgets import tips
 
         self._report_button.setToolTip(tips.rich(t("report.title"), t("report.help")))

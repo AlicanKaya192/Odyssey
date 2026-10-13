@@ -34,11 +34,17 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   RNN, dikkat mekanizması ve transformer bloğu, ön eğitim, metin üretimi ve
   değerlendirme; sonunda bir anlamsal arama motoru. Modeller NumPy ile
   sıfırdan kuruluyor.
+- **Bölümden çıkmadan bütün notlarınız.** Bir bölümde "Not al" panelindeki
+  kitaplık düğmesi bütün notlarınızı açıyor; adına ya da içindeki bir
+  kelimeye göre arayıp istediğinizi alıştırmanın ya da dersin yanında
+  okuyabilir, düzenleyebilirsiniz. "Bu dersin notu" sizi geri götürüyor.
 
 ### Değişti
 - **Seviyeler yeni patikaya göre genişletildi.** Bir sonraki seviye için
   gereken XP biraz arttı; mevcut seviyeniz birkaç basamak düşebilir.
   Kazandığınız unvanlar sizde kalıyor.
+- **Sınav sürerken not paneli kapalı.** Sınav başlayınca panel kapanıyor
+  ve sınav bitene ya da bırakılana kadar açılmıyor.
 
 ### Düzeltildi
 - **Program daha hızlı açılıyor.** Açılış animasyonu bittikten sonra
