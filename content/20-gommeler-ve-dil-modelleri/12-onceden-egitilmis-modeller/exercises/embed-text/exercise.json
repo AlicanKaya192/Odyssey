@@ -1,0 +1,58 @@
+{
+  "id": "embed-text",
+  "title": {
+    "tr": "Metnin vektörü",
+    "en": "A text's vector"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Boyut: `len(next(iter(vectors.values())))`.",
+      "en": "The size: `len(next(iter(vectors.values())))`."
+    },
+    {
+      "tr": "Her boyut için `sum(v[i] for v in known) / len(known)`.",
+      "en": "For each dimension `sum(v[i] for v in known) / len(known)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef embed_text(text, vectors):\n    dims = len(next(iter(vectors.values())))\n    known = [vectors[w] for w in text.lower().split() if w in vectors]\n    if not known:\n        return [0.0] * dims\n    return [round(sum(v[i] for v in known) / len(known), 3) for i in range(dims)]\n\nvectors = {\"parcel\": [1.0, 0.0], \"late\": [0.0, 1.0], \"box\": [1.0, 1.0]}\nprint(embed_text(\"parcel late\", vectors))\nprint(embed_text(\"Parcel BOX hello\", vectors))\nprint(embed_text(\"hello there\", vectors))\n```",
+      "en": "The full solution:\n\n```python\ndef embed_text(text, vectors):\n    dims = len(next(iter(vectors.values())))\n    known = [vectors[w] for w in text.lower().split() if w in vectors]\n    if not known:\n        return [0.0] * dims\n    return [round(sum(v[i] for v in known) / len(known), 3) for i in range(dims)]\n\nvectors = {\"parcel\": [1.0, 0.0], \"late\": [0.0, 1.0], \"box\": [1.0, 1.0]}\nprint(embed_text(\"parcel late\", vectors))\nprint(embed_text(\"Parcel BOX hello\", vectors))\nprint(embed_text(\"hello there\", vectors))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "embed_text",
+      "cases": [
+        {
+          "args": [
+            "a a b",
+            {
+              "a": [
+                2.0
+              ],
+              "b": [
+                5.0
+              ]
+            }
+          ],
+          "returns": [
+            3.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.5, 0.5]\n[1.0, 0.5]\n[0.0, 0.0]"
+    }
+  ]
+}

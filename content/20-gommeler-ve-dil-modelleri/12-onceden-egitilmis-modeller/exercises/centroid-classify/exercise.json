@@ -1,0 +1,69 @@
+{
+  "id": "centroid-classify",
+  "title": {
+    "tr": "Az örnekle merkez",
+    "en": "Centroids from few examples"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce etiketlere göre grupla: `groups.setdefault(label, []).append(v)`.",
+      "en": "First group by label: `groups.setdefault(label, []).append(v)`."
+    },
+    {
+      "tr": "Ortalama sütun sütun: `zip(*vs)`.",
+      "en": "Average column by column: `zip(*vs)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef centroid_classify(train_vectors, train_labels, test_vectors):\n    groups = {}\n    for v, label in zip(train_vectors, train_labels):\n        groups.setdefault(label, []).append(v)\n    centroids = {label: [sum(col) / len(vs) for col in zip(*vs)]\n                 for label, vs in groups.items()}\n    guesses = []\n    for t in test_vectors:\n        best = max(centroids, key=lambda c: sum(a * b for a, b in zip(t, centroids[c])))\n        guesses.append(best)\n    return guesses\n\ntrain = [[1.0, 0.0], [0.8, 0.2], [0.0, 1.0], [0.2, 0.9]]\nlabels = [\"billing\", \"billing\", \"refund\", \"refund\"]\nprint(centroid_classify(train, labels, [[0.9, 0.3], [0.1, 0.7]]))\n```",
+      "en": "The full solution:\n\n```python\ndef centroid_classify(train_vectors, train_labels, test_vectors):\n    groups = {}\n    for v, label in zip(train_vectors, train_labels):\n        groups.setdefault(label, []).append(v)\n    centroids = {label: [sum(col) / len(vs) for col in zip(*vs)]\n                 for label, vs in groups.items()}\n    guesses = []\n    for t in test_vectors:\n        best = max(centroids, key=lambda c: sum(a * b for a, b in zip(t, centroids[c])))\n        guesses.append(best)\n    return guesses\n\ntrain = [[1.0, 0.0], [0.8, 0.2], [0.0, 1.0], [0.2, 0.9]]\nlabels = [\"billing\", \"billing\", \"refund\", \"refund\"]\nprint(centroid_classify(train, labels, [[0.9, 0.3], [0.1, 0.7]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "centroid_classify",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                2.0,
+                0.0
+              ],
+              [
+                0.0,
+                2.0
+              ]
+            ],
+            [
+              "x",
+              "y"
+            ],
+            [
+              [
+                1.0,
+                0.5
+              ]
+            ]
+          ],
+          "returns": [
+            "x"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['billing', 'refund']"
+    }
+  ]
+}

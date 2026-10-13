@@ -1,0 +1,69 @@
+{
+  "id": "zero-shot",
+  "title": {
+    "tr": "Sıfır atışlı",
+    "en": "Zero-shot"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her etiket için `sum(a * b for a, b in zip(d, v))`.",
+      "en": "For each label `sum(a * b for a, b in zip(d, v))`."
+    },
+    {
+      "tr": "`scores.index(max(scores))` ilk en büyüğü verir.",
+      "en": "`scores.index(max(scores))` gives the first maximum."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef zero_shot(doc_vectors, label_vectors, names):\n    guesses = []\n    for d in doc_vectors:\n        scores = [sum(a * b for a, b in zip(d, v)) for v in label_vectors]\n        guesses.append(names[scores.index(max(scores))])\n    return guesses\n\nlabels = [[1.0, 0.0], [0.0, 1.0]]\nnames = [\"shipping\", \"account\"]\ndocs = [[0.9, 0.1], [0.2, 0.8], [0.6, 0.4]]\nprint(zero_shot(docs, labels, names))\n```",
+      "en": "The full solution:\n\n```python\ndef zero_shot(doc_vectors, label_vectors, names):\n    guesses = []\n    for d in doc_vectors:\n        scores = [sum(a * b for a, b in zip(d, v)) for v in label_vectors]\n        guesses.append(names[scores.index(max(scores))])\n    return guesses\n\nlabels = [[1.0, 0.0], [0.0, 1.0]]\nnames = [\"shipping\", \"account\"]\ndocs = [[0.9, 0.1], [0.2, 0.8], [0.6, 0.4]]\nprint(zero_shot(docs, labels, names))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "zero_shot",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            [
+              "a",
+              "b"
+            ]
+          ],
+          "returns": [
+            "a"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['shipping', 'account', 'shipping']"
+    }
+  ]
+}
