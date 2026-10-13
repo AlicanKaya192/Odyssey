@@ -1,0 +1,89 @@
+{
+  "id": "lsh-candidates",
+  "title": {
+    "tr": "LSH aday çiftleri",
+    "en": "LSH candidate pairs"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kova anahtarı bant numarasını da içermeli: `(b, tuple(sig[b * rows:(b + 1) * rows]))`.",
+      "en": "The bucket key must include the band number: `(b, tuple(sig[b * rows:(b + 1) * rows]))`."
+    },
+    {
+      "tr": "Her kovanın üyelerinden `combinations(members, 2)`; bir kümede topla, `sorted` ile sırala.",
+      "en": "From each bucket's members `combinations(members, 2)`; collect in a set and sort with `sorted`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom itertools import combinations\n\n\ndef candidates(signatures, bands, rows):\n    buckets = {}\n    for idx, sig in enumerate(signatures):\n        for b in range(bands):\n            key = (b, tuple(sig[b * rows:(b + 1) * rows]))\n            buckets.setdefault(key, []).append(idx)\n    pairs = set()\n    for members in buckets.values():\n        pairs.update(combinations(members, 2))\n    return [list(p) for p in sorted(pairs)]\n\nsignatures = [[1, 2, 3, 4], [1, 2, 9, 9], [7, 7, 3, 4], [5, 6, 7, 8]]\nprint(candidates(signatures, 2, 2))\nprint(candidates(signatures, 1, 4))\n```",
+      "en": "The full solution:\n\n```python\nfrom itertools import combinations\n\n\ndef candidates(signatures, bands, rows):\n    buckets = {}\n    for idx, sig in enumerate(signatures):\n        for b in range(bands):\n            key = (b, tuple(sig[b * rows:(b + 1) * rows]))\n            buckets.setdefault(key, []).append(idx)\n    pairs = set()\n    for members in buckets.values():\n        pairs.update(combinations(members, 2))\n    return [list(p) for p in sorted(pairs)]\n\nsignatures = [[1, 2, 3, 4], [1, 2, 9, 9], [7, 7, 3, 4], [5, 6, 7, 8]]\nprint(candidates(signatures, 2, 2))\nprint(candidates(signatures, 1, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "candidates",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                3,
+                1
+              ]
+            ],
+            2,
+            1
+          ],
+          "returns": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                2
+              ],
+              [
+                3,
+                4
+              ]
+            ],
+            1,
+            2
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[0, 1], [0, 2]]\n[]"
+    }
+  ]
+}

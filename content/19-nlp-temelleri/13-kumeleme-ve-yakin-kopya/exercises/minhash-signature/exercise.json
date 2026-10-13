@@ -1,0 +1,102 @@
+{
+  "id": "minhash-signature",
+  "title": {
+    "tr": "MinHash imzası",
+    "en": "A MinHash signature"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tohum başına: `min(zlib.crc32(f\"{seed}:{item}\".encode()) for item in items)`.",
+      "en": "Per seed: `min(zlib.crc32(f\"{seed}:{item}\".encode()) for item in items)`."
+    },
+    {
+      "tr": "Eşitleri say: `sum(a == b for a, b in zip(sig_a, sig_b))`.",
+      "en": "Count the equal ones: `sum(a == b for a, b in zip(sig_a, sig_b))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport zlib\n\n\ndef minhash(items, num):\n    return [min(zlib.crc32(f\"{seed}:{item}\".encode()) for item in items)\n            for seed in range(num)]\n\n\ndef estimate(sig_a, sig_b):\n    same = sum(a == b for a, b in zip(sig_a, sig_b))\n    return round(same / len(sig_a), 3)\n\nsig_a = minhash([\"exact\", \"xactl\", \"actly\"], 4)\nsig_b = minhash([\"exact\", \"xactl\", \"other\"], 4)\nfor value in sig_a:\n    print(value)\nprint(estimate(sig_a, sig_b))\n```",
+      "en": "The full solution:\n\n```python\nimport zlib\n\n\ndef minhash(items, num):\n    return [min(zlib.crc32(f\"{seed}:{item}\".encode()) for item in items)\n            for seed in range(num)]\n\n\ndef estimate(sig_a, sig_b):\n    same = sum(a == b for a, b in zip(sig_a, sig_b))\n    return round(same / len(sig_a), 3)\n\nsig_a = minhash([\"exact\", \"xactl\", \"actly\"], 4)\nsig_b = minhash([\"exact\", \"xactl\", \"other\"], 4)\nfor value in sig_a:\n    print(value)\nprint(estimate(sig_a, sig_b))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "minhash",
+      "cases": [
+        {
+          "args": [
+            [
+              "ab",
+              "cd"
+            ],
+            3
+          ],
+          "returns": [
+            667491689,
+            1142996411,
+            1452610133
+          ]
+        },
+        {
+          "args": [
+            [
+              "x"
+            ],
+            2
+          ],
+          "returns": [
+            2690456565,
+            2711581122
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "estimate",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4
+            ],
+            [
+              1,
+              0,
+              3,
+              0
+            ]
+          ],
+          "returns": 0.5
+        },
+        {
+          "args": [
+            [
+              5
+            ],
+            [
+              5
+            ]
+          ],
+          "returns": 1.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1058669311\n137461500\n143626334\n250746978\n0.75"
+    }
+  ]
+}

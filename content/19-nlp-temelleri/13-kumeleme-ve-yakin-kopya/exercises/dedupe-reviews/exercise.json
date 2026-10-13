@@ -1,0 +1,66 @@
+{
+  "id": "dedupe-reviews",
+  "title": {
+    "tr": "Yakın kopyaları ayıkla",
+    "en": "Drop near duplicates"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Tutulanların kiremit kümelerini bir listede biriktir.",
+      "en": "Collect the shingle sets of the kept reviews in a list."
+    },
+    {
+      "tr": "`all(jaccard(s, other) < threshold for other in kept)` ise tut.",
+      "en": "Keep it if `all(jaccard(s, other) < threshold for other in kept)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom text_data import make_reviews\n\n\ndef shingles(text, n=5):\n    text = \" \".join(text.lower().split())\n    return {text[i:i + n] for i in range(len(text) - n + 1)}\n\n\ndef jaccard(a, b):\n    return len(a & b) / len(a | b)\n\n\ndef dedupe(n, threshold):\n    kept = []\n    for review in make_reviews(n):\n        s = shingles(review[\"text\"])\n        if all(jaccard(s, other) < threshold for other in kept):\n            kept.append(s)\n    return len(kept)\n\n\nprint(dedupe(600, 1.0))\nprint(dedupe(600, 0.8))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom text_data import make_reviews\n\n\ndef shingles(text, n=5):\n    text = \" \".join(text.lower().split())\n    return {text[i:i + n] for i in range(len(text) - n + 1)}\n\n\ndef jaccard(a, b):\n    return len(a & b) / len(a | b)\n\n\ndef dedupe(n, threshold):\n    kept = []\n    for review in make_reviews(n):\n        s = shingles(review[\"text\"])\n        if all(jaccard(s, other) < threshold for other in kept):\n            kept.append(s)\n    return len(kept)\n\n\nprint(dedupe(600, 1.0))\nprint(dedupe(600, 0.8))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "dedupe",
+      "cases": [
+        {
+          "args": [
+            300,
+            0.8
+          ],
+          "returns": 298
+        },
+        {
+          "args": [
+            300,
+            0.5
+          ],
+          "returns": 278
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "591\n589"
+    }
+  ]
+}
