@@ -1,0 +1,78 @@
+{
+  "id": "next-word",
+  "title": {
+    "tr": "En olası sonraki kelime",
+    "en": "The most likely next word"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sonrakiler: `Counter(b for s in padded for a, b in zip(s, s[1:]) if a == word)`.",
+      "en": "The followers: `Counter(b for s in padded for a, b in zip(s, s[1:]) if a == word)`."
+    },
+    {
+      "tr": "Seçim: `min(after, key=lambda w: (-after[w], w))`.",
+      "en": "The pick: `min(after, key=lambda w: (-after[w], w))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\nSENTENCES = [[\"my\", \"order\", \"is\", \"late\"], [\"my\", \"card\", \"was\", \"charged\"],\n             [\"my\", \"order\", \"never\", \"came\"], [\"the\", \"order\", \"is\", \"late\"]]\n\n\ndef next_word(sentences, word):\n    padded = [[\"<s>\"] + s + [\"</s>\"] for s in sentences]\n    after = Counter(b for s in padded for a, b in zip(s, s[1:]) if a == word)\n    return min(after, key=lambda w: (-after[w], w))\n\nprint(next_word(SENTENCES, \"my\"))\nprint(next_word(SENTENCES, \"order\"))\nprint(next_word(SENTENCES, \"<s>\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\nSENTENCES = [[\"my\", \"order\", \"is\", \"late\"], [\"my\", \"card\", \"was\", \"charged\"],\n             [\"my\", \"order\", \"never\", \"came\"], [\"the\", \"order\", \"is\", \"late\"]]\n\n\ndef next_word(sentences, word):\n    padded = [[\"<s>\"] + s + [\"</s>\"] for s in sentences]\n    after = Counter(b for s in padded for a, b in zip(s, s[1:]) if a == word)\n    return min(after, key=lambda w: (-after[w], w))\n\nprint(next_word(SENTENCES, \"my\"))\nprint(next_word(SENTENCES, \"order\"))\nprint(next_word(SENTENCES, \"<s>\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "next_word",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ],
+              [
+                "a",
+                "c"
+              ],
+              [
+                "a",
+                "c"
+              ]
+            ],
+            "a"
+          ],
+          "returns": "c"
+        },
+        {
+          "args": [
+            [
+              [
+                "x",
+                "z"
+              ],
+              [
+                "x",
+                "y"
+              ]
+            ],
+            "x"
+          ],
+          "returns": "y"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "order\nis\nmy"
+    }
+  ]
+}
