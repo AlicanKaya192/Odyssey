@@ -511,6 +511,11 @@ class IntroScene:
             p.fillPath(puff, _alpha(INK, .28 * (1 - k)))
 
     def _paint_figure(self, p: QPainter, t: float) -> None:
+        # Atıştan sonra kamera hedefte duruyor, sentor koşmaya devam ediyor;
+        # pencere geç hazır olunca soldan yeniden girip yazının üstünden
+        # geçiyordu (Alican, 13 Ekim). T_MIN_END'de zaten ekranın dışında.
+        if t > T_MIN_END:
+            return
         ox, oy = self._figure_origin(t)
         p.save()
         p.translate(ox, oy)
@@ -826,6 +831,7 @@ class IntroWindow(QWidget):
         self._reader.closed.connect(self._on_parent_gone)
 
     def start(self) -> None:
+        self._warm_up()
         self.setWindowOpacity(0.0)
         self.show()
         self._round_corners()
@@ -836,6 +842,20 @@ class IntroWindow(QWidget):
         self._timer.start()
         self._reader.start()
         _send("shown")
+
+    def _warm_up(self) -> None:
+        """İlk kareyi pencere görünmeden ve saat başlamadan bir kez çizer.
+
+        Sahnenin önbellekleri (zemin ve şerit katmanları, yazı tipleri) ilk
+        karede kuruluyor: ~200 ms, sonraki kareler ~5 ms (ölçüldü). Saat
+        çalışırken kurulunca animasyon o kadar sıçrıyordu.
+        """
+        dpr = self.devicePixelRatioF()
+        pix = QPixmap(max(1, round(self.width() * dpr)), max(1, round(self.height() * dpr)))
+        pix.setDevicePixelRatio(dpr)
+        painter = QPainter(pix)
+        self._scene.paint(painter, 0.0, self.width(), self.height(), False)
+        painter.end()
 
     def now(self) -> float:
         return time.monotonic() - self._began + self._offset

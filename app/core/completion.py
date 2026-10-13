@@ -42,9 +42,16 @@ def stamp(catalog, store) -> int:
     İlk çağrıda (ayar yoksa) `GRANDFATHERED` listeleri de deneniyor.
     """
     legacy = store.setting(LEGACY_KEY, "") != "1"
+    # Hiç etkinliği olmayan ya da tarihi zaten yazılı bölümlerin alıştırma
+    # dosyalarını okumaya ve ayrı ayrı sormaya gerek yok; açılışta bu tarama
+    # üç kez çalışıyor ve her biri ~0,2 sn sürüyordu (ölçüldü).
+    active = store.active_sections()
     yazilan = 0
     for chapter in catalog.chapters:
         for section in chapter.sections:
+            key = (chapter.id, section.id)
+            if key not in active or active[key]:
+                continue
             state = store.section_state(chapter.id, section.id, section.exercises)
             if state.completed_at or not state.has_activity:
                 continue

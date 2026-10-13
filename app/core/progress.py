@@ -612,6 +612,26 @@ class ProgressStore:
             completed_at=row["completed_at"],
         )
 
+    def active_sections(self) -> dict[tuple[str, str], str | None]:
+        """Etkinliği olan bölümler → ilk tamamlandığı an (yoksa `None`).
+
+        Etkinlik: ders okundu, sınava girildi ya da bölümde çözülmüş bir
+        alıştırma var. İki sorguyla bütün bölümler; bölüm bölüm
+        `section_state` çağırmak açılışta 387 bölüm için ~10 000 sorgu
+        demekti.
+        """
+        active: dict[tuple[str, str], str | None] = {}
+        for row in self._connection.execute(
+            "SELECT DISTINCT chapter_id, section_id FROM exercise_progress WHERE solved = 1"
+        ):
+            active[(row["chapter_id"], row["section_id"])] = None
+        for row in self._connection.execute(
+            "SELECT chapter_id, section_id, completed_at FROM section_progress "
+            "WHERE lesson_read = 1 OR quiz_score IS NOT NULL OR completed_at IS NOT NULL"
+        ):
+            active[(row["chapter_id"], row["section_id"])] = row["completed_at"]
+        return active
+
     def mark_section_completed(self, chapter_id: str, section_id: str) -> None:
         """Bölümün ilk tamamlandığı anı yazar (bir kez; sonra değişmez)."""
         with self._write() as connection:

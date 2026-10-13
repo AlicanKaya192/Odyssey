@@ -42,8 +42,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ### Düzeltildi
 - **Program daha hızlı açılıyor.** Açılış animasyonu bittikten sonra
-  "Hazırlanıyor" yazısında birkaç saniye bekleniyordu; arama dizini artık
-  program açıldıktan sonra arka planda hazırlanıyor ve bu bekleme kalktı.
+  "Hazırlanıyor" yazısında birkaç saniye bekleniyordu; program artık
+  animasyon biterken hazır oluyor. Animasyon başında kısa bir an takılmıyor
+  ve beklerken sentor yeniden koşup yazının üstünden geçmiyor.
 - **Açılış ekranı küçültülebiliyor.** Görev çubuğundan aşağı alınabiliyor ve
   başka bir uygulamaya geçince onun arkasında kalıyor; önce bütün
   pencerelerin önünde duruyordu.

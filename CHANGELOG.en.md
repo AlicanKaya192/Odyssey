@@ -45,8 +45,9 @@ lecture note does not mean downloading the whole application again.
 
 ### Fixed
 - **Odyssey opens faster.** After the start-up animation ended, it waited a
-  few seconds on "Preparing"; the search index is now prepared in the
-  background once the application is open, and that wait is gone.
+  few seconds on "Preparing"; the application is now ready as the animation
+  ends. The animation no longer stalls for a moment at the start, and the
+  centaur no longer runs back across the title while it waits.
 - **The start-up screen can be minimised.** It can be sent to the taskbar
   and stays behind another application when you switch to it; it used to
   stay in front of every window.

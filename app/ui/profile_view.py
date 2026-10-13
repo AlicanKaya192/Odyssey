@@ -549,9 +549,13 @@ class ProfileView(QWidget):
 
         total = 0
         completed = 0
+        # Etkinliği olmayan bölüm tamamlanmış olamaz; ona sorulmuyor.
+        active = self._store.active_sections()
         for chapter in self._catalog.chapters:
             for section in chapter.sections:
                 total += 1
+                if (chapter.id, section.id) not in active:
+                    continue
                 state = self._store.section_state(
                     chapter.id, section.id, section.exercises
                 )

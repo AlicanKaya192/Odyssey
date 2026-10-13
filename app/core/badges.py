@@ -155,9 +155,15 @@ def _completed_sections(
     modul = 0
     modul_basina: dict[str, int] = {}
     bitenler: set[tuple[str, str]] = set()
+    # Etkinliği olmayan bölüm tamamlanmış olamaz; onların alıştırma
+    # dosyaları okunmuyor ve ayrı ayrı sorulmuyor (açılışta yedi kez).
+    active = store.active_sections()
     for chapter in catalog.chapters:
         hepsi = True
         for section in chapter.sections:
+            if (chapter.id, section.id) not in active:
+                hepsi = False
+                continue
             state = store.section_state(
                 chapter.id, section.id, section.exercises
             )
