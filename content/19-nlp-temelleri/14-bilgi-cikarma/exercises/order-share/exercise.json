@@ -1,0 +1,64 @@
+{
+  "id": "order-share",
+  "title": {
+    "tr": "Hangi talepte sipariş numarası var?",
+    "en": "Which tickets have an order number?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kategorinin metinleri: `[t[\"text\"] for t in tickets if t[\"category\"] == category]`.",
+      "en": "The category's texts: `[t[\"text\"] for t in tickets if t[\"category\"] == category]`."
+    },
+    {
+      "tr": "`bool(re.search(...))` her metin için; doğruların oranı.",
+      "en": "`bool(re.search(...))` for each text; the share of the true ones."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\n\n\ndef order_share(category):\n    texts = [t[\"text\"] for t in tickets if t[\"category\"] == category]\n    found = [bool(re.search(r\"\\bORD-\\d{5}\\b\", text)) for text in texts]\n    return round(sum(found) / len(found), 3)\n\n\nfor category in [\"account\", \"billing\", \"refund\", \"shipping\", \"technical\"]:\n    print(category, order_share(category))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\n\n\ndef order_share(category):\n    texts = [t[\"text\"] for t in tickets if t[\"category\"] == category]\n    found = [bool(re.search(r\"\\bORD-\\d{5}\\b\", text)) for text in texts]\n    return round(sum(found) / len(found), 3)\n\n\nfor category in [\"account\", \"billing\", \"refund\", \"shipping\", \"technical\"]:\n    print(category, order_share(category))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "order_share",
+      "cases": [
+        {
+          "args": [
+            "refund"
+          ],
+          "returns": 0.641
+        },
+        {
+          "args": [
+            "account"
+          ],
+          "returns": 0.12
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "account 0.12\nbilling 0.475\nrefund 0.641\nshipping 0.669\ntechnical 0.131"
+    }
+  ]
+}

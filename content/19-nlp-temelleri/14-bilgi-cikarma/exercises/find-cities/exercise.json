@@ -1,0 +1,75 @@
+{
+  "id": "find-cities",
+  "title": {
+    "tr": "Sözlükle şehir bul",
+    "en": "Find cities with a list"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Adları `|` ile birleştir; özel karakterler için `re.escape(c)` (\"St. Ives\" içindeki nokta).",
+      "en": "Join the names with `|`; use `re.escape(c)` for special characters (the dot in \"St. Ives\")."
+    },
+    {
+      "tr": "`r\"\\b(\" + \"|\".join(...) + r\")\\b\"` ve `re.findall`.",
+      "en": "`r\"\\b(\" + \"|\".join(...) + r\")\\b\"` and `re.findall`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef find_cities(text, cities):\n    pattern = r\"\\b(\" + \"|\".join(re.escape(c) for c in cities) + r\")\\b\"\n    return re.findall(pattern, text)\n\nCITIES = [\"Oslo\", \"New York\", \"Nice\"]\nprint(find_cities(\"From Oslo to New York, a nice trip.\", CITIES))\nprint(find_cities(\"Oslonian food in Nice.\", CITIES))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef find_cities(text, cities):\n    pattern = r\"\\b(\" + \"|\".join(re.escape(c) for c in cities) + r\")\\b\"\n    return re.findall(pattern, text)\n\nCITIES = [\"Oslo\", \"New York\", \"Nice\"]\nprint(find_cities(\"From Oslo to New York, a nice trip.\", CITIES))\nprint(find_cities(\"Oslonian food in Nice.\", CITIES))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "find_cities",
+      "cases": [
+        {
+          "args": [
+            "Lisbon, Oslo",
+            [
+              "Oslo",
+              "Lisbon"
+            ]
+          ],
+          "returns": [
+            "Lisbon",
+            "Oslo"
+          ]
+        },
+        {
+          "args": [
+            "St. Ives",
+            [
+              "St. Ives"
+            ]
+          ],
+          "returns": [
+            "St. Ives"
+          ]
+        },
+        {
+          "args": [
+            "nice day",
+            [
+              "Nice"
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['Oslo', 'New York']\n['Nice']"
+    }
+  ]
+}
