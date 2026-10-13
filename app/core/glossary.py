@@ -42,7 +42,7 @@ GROUP_CHAPTERS = {
     "git": ("10-git",),
     "bigdata": ("11-buyuk-veri",),
     "algorithm": ("12-temel-algoritmalar", "13-algoritma-teknikleri", "14-ml-algoritmalari"),
-    "nlp": ("19-nlp-temelleri",),
+    "nlp": ("19-nlp-temelleri", "20-gommeler-ve-dil-modelleri"),
 }
 
 _CODE = re.compile(r"`([^`]+)`")

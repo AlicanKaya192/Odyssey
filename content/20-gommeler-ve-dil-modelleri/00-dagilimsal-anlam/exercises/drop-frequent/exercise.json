@@ -1,0 +1,68 @@
+{
+  "id": "drop-frequent",
+  "title": {
+    "tr": "Sık bağlamları at",
+    "en": "Drop frequent contexts"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "corpus_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Atılacak sütunlar `counts.most_common(drop)`; kalan sütun numaraları `keep`.",
+      "en": "The columns to drop come from `counts.most_common(drop)`; the remaining column numbers are `keep`."
+    },
+    {
+      "tr": "İki satır `M[index[a], keep]` ve `M[index[b], keep]`; kosinüs `x @ y / norm(x) / norm(y)`.",
+      "en": "The two rows are `M[index[a], keep]` and `M[index[b], keep]`; cosine `x @ y / norm(x) / norm(y)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom collections import Counter\n\nimport numpy as np\nfrom corpus_data import make_corpus\n\nsentences = [s.split() for s in make_corpus(5000)]\ncounts = Counter(w for s in sentences for w in s)\nvocab = sorted(counts)\nindex = {w: i for i, w in enumerate(vocab)}\nM = np.zeros((len(vocab), len(vocab)))\nfor s in sentences:\n    for i, w in enumerate(s):\n        for j in range(max(0, i - 2), min(len(s), i + 3)):\n            if j != i:\n                M[index[w], index[s[j]]] += 1\n\n\ndef similarity(a, b, drop):\n    frequent = {index[w] for w, _ in counts.most_common(drop)}\n    keep = [i for i in range(len(vocab)) if i not in frequent]\n    x, y = M[index[a], keep], M[index[b], keep]\n    return round(float(x @ y / np.linalg.norm(x) / np.linalg.norm(y)), 3)\n\n\nfor drop in [0, 5]:\n    print(drop, similarity(\"cat\", \"dog\", drop), similarity(\"cat\", \"bread\", drop))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom collections import Counter\n\nimport numpy as np\nfrom corpus_data import make_corpus\n\nsentences = [s.split() for s in make_corpus(5000)]\ncounts = Counter(w for s in sentences for w in s)\nvocab = sorted(counts)\nindex = {w: i for i, w in enumerate(vocab)}\nM = np.zeros((len(vocab), len(vocab)))\nfor s in sentences:\n    for i, w in enumerate(s):\n        for j in range(max(0, i - 2), min(len(s), i + 3)):\n            if j != i:\n                M[index[w], index[s[j]]] += 1\n\n\ndef similarity(a, b, drop):\n    frequent = {index[w] for w, _ in counts.most_common(drop)}\n    keep = [i for i in range(len(vocab)) if i not in frequent]\n    x, y = M[index[a], keep], M[index[b], keep]\n    return round(float(x @ y / np.linalg.norm(x) / np.linalg.norm(y)), 3)\n\n\nfor drop in [0, 5]:\n    print(drop, similarity(\"cat\", \"dog\", drop), similarity(\"cat\", \"bread\", drop))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "similarity",
+      "cases": [
+        {
+          "args": [
+            "car",
+            "bus",
+            3
+          ],
+          "returns": 0.947
+        },
+        {
+          "args": [
+            "king",
+            "paris",
+            10
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 0.995 0.564\n5 0.978 0.331"
+    }
+  ]
+}
