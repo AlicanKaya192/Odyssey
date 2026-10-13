@@ -7,6 +7,7 @@ random module.
     make_reviews(n, seed=7)   -> list of dicts: id, product, text, rating, label
     make_tickets(n, seed=11)  -> list of dicts: id, text, category, priority
     messy_reviews(n, seed=5)  -> the same reviews with web-page clutter
+    make_articles()           -> 15 help-centre articles (a search corpus)
     write_reviews_csv(path, n, seed=7)
     write_tickets_csv(path, n, seed=11)
 
@@ -259,6 +260,63 @@ def make_tickets(n, seed=11):
         rows.append({"id": i, "text": text, "category": cat,
                      "priority": "high" if urgent else "normal"})
     return rows
+
+
+# ---------------------------------------------------------------- help articles
+
+ARTICLES = [
+    ("billing", "Understanding your invoice",
+     "Every order gets an invoice. The invoice lists each item, the shipping cost and the total amount. "
+     "You can download a copy of any invoice from the orders page of your account."),
+    ("billing", "Double charges and pending payments",
+     "A pending payment can look like a second charge on your card. Pending payments usually disappear "
+     "within three days. If the money stays charged twice after that, contact us with the order number."),
+    ("billing", "Changing your payment method or billing address",
+     "You can update your card and your billing address in the payment settings. New details are used "
+     "for your next order; orders already placed keep the old payment method."),
+    ("shipping", "Tracking your order",
+     "Once your order ships we send a tracking number by email. Tracking can take up to a day to start "
+     "working. If the tracking number does not work after two days, let us know."),
+    ("shipping", "Delivery times by country",
+     "Standard delivery takes three to five working days in most countries. Delivery to remote areas can "
+     "take longer. Express delivery arrives in one to two days."),
+    ("shipping", "Lost, late or damaged parcels",
+     "If your parcel says delivered but you never got it, check with your neighbours first. If a parcel "
+     "arrives damaged, keep the box and send us a photo so we can replace the item."),
+    ("account", "Resetting your password",
+     "Use the forgot password link on the login page. We send a reset link to your email address. "
+     "The link works for one hour; request a new one if it has expired."),
+    ("account", "Locked accounts and login problems",
+     "After too many failed login attempts your account is locked for thirty minutes. If you think "
+     "someone else has access to your account, reset your password and contact us."),
+    ("account", "Changing your email or deleting your account",
+     "You can change the email address of your account in the profile settings. To delete your account "
+     "and all your data, use the delete account option at the bottom of the same page."),
+    ("technical", "The app crashes or does not load",
+     "Update the app to the latest version and restart your phone. If the app still crashes, delete it "
+     "and install it again; your orders and settings are kept in your account."),
+    ("technical", "Error codes explained",
+     "Error E401 and E403 mean you are not logged in or not allowed to see the page. Error E500 and E502 "
+     "mean a problem on our side; wait a few minutes and try again."),
+    ("technical", "Notifications and a slow website",
+     "If push notifications stopped after an update, turn them on again in the app settings. If the "
+     "website is slow, clear your browser cache or try another browser."),
+    ("refund", "How refunds work",
+     "Once we receive your return we refund the money to the card you paid with. Refunds take five to "
+     "ten working days to show on your card, depending on your bank."),
+    ("refund", "Partial refunds",
+     "If only part of an order is returned, only that part is refunded. Shipping costs are refunded only "
+     "when the item was damaged or wrong."),
+    ("refund", "Refund or replacement for a damaged item",
+     "For a damaged item you can choose a refund or a free replacement. Tell us which you prefer and send "
+     "a photo of the damage with your order number."),
+]
+
+
+def make_articles():
+    """The 15 help-centre articles (3 per ticket category) used as a search corpus."""
+    return [{"id": i, "category": cat, "title": title, "text": text}
+            for i, (cat, title, text) in enumerate(ARTICLES, 1)]
 
 
 # ---------------------------------------------------------------- messy text

@@ -58,6 +58,7 @@ PYLIB1_CHAPTER = "15-python-baslangic-kutuphaneleri"
 PYLIB2_CHAPTER = "16-python-ileri-kutuphaneleri"
 DSLIB_CHAPTER = "17-veri-bilimi-kutuphaneleri"
 MLLIB_CHAPTER = "18-ml-kutuphaneleri"
+NLP1_CHAPTER = "19-nlp-temelleri"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -111,6 +112,9 @@ DSLIB_STATS_SECTION = (DSLIB_CHAPTER, "14-scipy-stats")
 MLLIB_PIPELINE_SECTION = (MLLIB_CHAPTER, "03-pipeline-ileri")
 MLLIB_VALIDATION_SECTION = (MLLIB_CHAPTER, "06-dogrulama-araclari")
 MLLIB_EXPLAIN_SECTION = (MLLIB_CHAPTER, "15-model-aciklama")
+NLP1_BAG_SECTION = (NLP1_CHAPTER, "05-kelime-torbasi")
+NLP1_CLASSIFIER_SECTION = (NLP1_CHAPTER, "08-naive-bayes")
+NLP1_DUPLICATE_SECTION = (NLP1_CHAPTER, "13-kumeleme-ve-yakin-kopya")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -130,6 +134,7 @@ PYLIB1_SECTION_COUNT = 17
 PYLIB2_SECTION_COUNT = 18
 DSLIB_SECTION_COUNT = 17
 MLLIB_SECTION_COUNT = 17
+NLP1_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -268,6 +273,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "fair-judge": MLLIB_VALIDATION_SECTION in bitenler,
         "box-opener": MLLIB_EXPLAIN_SECTION in bitenler,
         "mllib-complete": modul_basina.get(MLLIB_CHAPTER, 0) >= MLLIB_SECTION_COUNT,
+        "text-to-numbers": NLP1_BAG_SECTION in bitenler,
+        "first-text-classifier": NLP1_CLASSIFIER_SECTION in bitenler,
+        "twin-hunter": NLP1_DUPLICATE_SECTION in bitenler,
+        "nlp1-complete": modul_basina.get(NLP1_CHAPTER, 0) >= NLP1_SECTION_COUNT,
     }
 
 

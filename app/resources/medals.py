@@ -321,6 +321,25 @@ GLYPHS: dict[str, str] = {
     "model-stack": ('<path d="M12 3 21 7.5 12 12 3 7.5z" stroke-width="1.5"/>'
                     '<path d="M3 12l9 4.5 9-4.5M3 16.5l9 4.5 9-4.5" stroke-width="1.5"/>'
                     '<g fill="#fff" stroke="none"><circle cx="12" cy="7.5" r="1.5"/></g>'),
+    "word-bag": ('<path d="M9.2 6.5h5.6l1.4-3H7.8z" stroke-width="1.4"/>'
+                 '<path d="M9 6.5C5 9 3.8 13 4.3 16.6 4.9 20 8.2 21 12 21s7.1-1 7.7-4.4'
+                 'C20.2 13 19 9 15 6.5z" stroke-width="1.5"/>'
+                 '<path d="M8.6 17.5v-2.5M12 17.5v-5M15.4 17.5v-3.5" stroke-width="2"/>'
+                 '<g fill="#fff" stroke="none"><circle cx="12" cy="9.4" r="1.1"/></g>'),
+    "sorting-page": ('<rect x="2.5" y="5" width="8" height="11" rx="1" stroke-width="1.5"/>'
+                     '<path d="M4.5 8h4M4.5 10.5h4M4.5 13h2.5" stroke-width="1"/>'
+                     '<path d="M10.5 10.5H13l3-5M13 10.5l3 5" stroke-width="1.5"/>'
+                     '<rect x="16.5" y="3" width="5" height="4.5" rx="0.8" stroke-width="1.4"/>'
+                     '<rect x="16.5" y="13.5" width="5" height="4.5" rx="0.8" fill="#fff" stroke="none"/>'),
+    "twin-pages": ('<rect x="3" y="3" width="10" height="13" rx="1" stroke-width="1.5"/>'
+                   '<rect x="11" y="8" width="10" height="13" rx="1" stroke-width="1.5"/>'
+                   '<path d="M5 6.5h6M5 9h4M13 11.5h6M13 14h6" stroke-width="1"/>'
+                   '<g fill="#fff" stroke="none"><rect x="13.5" y="16.3" width="5" height="1.4" rx="0.5"/>'
+                   '<rect x="13.5" y="18.5" width="5" height="1.4" rx="0.5"/></g>'),
+    "speech-lines": ('<path d="M4 3.5h16A1.5 1.5 0 0 1 21.5 5v9.5A1.5 1.5 0 0 1 20 16h-9l-4.5 4.5V16H4'
+                     'A1.5 1.5 0 0 1 2.5 14.5V5A1.5 1.5 0 0 1 4 3.5z" stroke-width="1.5"/>'
+                     '<path d="M6.5 7.5h11M6.5 10.5h6.5" stroke-width="1.4"/>'
+                     '<g fill="#fff" stroke="none"><circle cx="16.8" cy="10.5" r="1.4"/></g>'),
 }
 
 
