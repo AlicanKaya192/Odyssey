@@ -14,6 +14,9 @@ global random module.
     make_tagged(n, seed=13)  -> list of n sentences, each a list of
                                 (word, tag) pairs; some words have two tags
                                 ("book", "watch", "run", "light", ...)
+    make_jobs(n, seed=21, skew=None) -> list of n sentences about occupations;
+                                the pronoun is skewed by occupation (JOB_SKEW),
+                                like the biased text embeddings learn from
 
 Words in the same class are used in the same kinds of sentences, so their
 meaning can be learned from the words around them.
@@ -161,3 +164,30 @@ def make_tagged(n, seed=13):
     """n sentences, each a list of (word, tag) pairs."""
     rng = random.Random(seed)
     return [_tagged(rng) for _ in range(n)]
+
+
+# ---------------------------------------------------------------- occupations
+
+# Share of "she" for each occupation: a deliberately biased text.
+JOB_SKEW = {"nurse": 0.85, "secretary": 0.85, "dancer": 0.8, "florist": 0.8,
+            "engineer": 0.15, "pilot": 0.15, "mechanic": 0.2, "plumber": 0.2,
+            "teacher": 0.5, "writer": 0.5}
+
+
+def make_jobs(n, seed=21, skew=None):
+    """n sentences about occupations with gendered pronouns; `skew` maps each
+    occupation to its share of "she" (default JOB_SKEW)."""
+    skew = skew or JOB_SKEW
+    rng = random.Random(seed)
+    out = []
+    for _ in range(n):
+        job = rng.choice(list(skew))
+        pron, pos = ("she", "her") if rng.random() < skew[job] else ("he", "his")
+        out.append(rng.choice([
+            f"the {job} said that {pron} was tired",
+            f"the {job} finished {pos} work",
+            f"{pron} works as a {job}",
+            f"the {job} took {pos} bag",
+            f"the {job} went home after {pos} shift",
+        ]))
+    return out
