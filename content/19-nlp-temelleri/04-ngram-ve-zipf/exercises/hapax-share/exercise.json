@@ -1,0 +1,64 @@
+{
+  "id": "hapax-share",
+  "title": {
+    "tr": "Bir kez geçenlerin payı",
+    "en": "The share of words seen once"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Bir kez geçenler: `sum(1 for c in counts.values() if c == 1)`.",
+      "en": "Words seen once: `sum(1 for c in counts.values() if c == 1)`."
+    },
+    {
+      "tr": "Payı dağarcık büyüklüğüne böl: `len(counts)`; `round(..., 3)`.",
+      "en": "Divide by the vocabulary size: `len(counts)`; `round(..., 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\nfrom collections import Counter\n\nfrom text_data import make_tickets\n\n\ndef hapax_share(n):\n    texts = [t[\"text\"] for t in make_tickets(n)]\n    counts = Counter(w for t in texts for w in re.findall(r\"[a-z0-9']+\", t.lower()))\n    once = sum(1 for c in counts.values() if c == 1)\n    return round(once / len(counts), 3)\n\n\nfor n in [100, 1000, 3000]:\n    print(n, hapax_share(n))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\nfrom collections import Counter\n\nfrom text_data import make_tickets\n\n\ndef hapax_share(n):\n    texts = [t[\"text\"] for t in make_tickets(n)]\n    counts = Counter(w for t in texts for w in re.findall(r\"[a-z0-9']+\", t.lower()))\n    once = sum(1 for c in counts.values() if c == 1)\n    return round(once / len(counts), 3)\n\n\nfor n in [100, 1000, 3000]:\n    print(n, hapax_share(n))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hapax_share",
+      "cases": [
+        {
+          "args": [
+            100
+          ],
+          "returns": 0.371
+        },
+        {
+          "args": [
+            1000
+          ],
+          "returns": 0.596
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "100 0.371\n1000 0.596\n3000 0.65"
+    }
+  ]
+}

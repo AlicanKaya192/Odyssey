@@ -1,0 +1,71 @@
+{
+  "id": "top-bigrams",
+  "title": {
+    "tr": "Etikete göre en sık çiftler",
+    "en": "The most frequent pairs by label"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Bir `Counter` aç; etiketi uyan her yorum için `pairs.update(zip(d, d[1:]))`.",
+      "en": "Start a `Counter`; for every review with a matching label, `pairs.update(zip(d, d[1:]))`."
+    },
+    {
+      "tr": "`most_common(k)` `((a, b), sayı)` verir; `a + \" \" + b` ile metne çevir.",
+      "en": "`most_common(k)` gives `((a, b), count)`; turn it into text with `a + \" \" + b`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\nfrom collections import Counter\n\nfrom text_data import make_reviews\n\nreviews = make_reviews(2000)\ndocs = [re.findall(r\"[a-z']+\", r[\"text\"].lower()) for r in reviews]\n\n\ndef top_bigrams(label, k):\n    pairs = Counter()\n    for d, r in zip(docs, reviews):\n        if r[\"label\"] == label:\n            pairs.update(zip(d, d[1:]))\n    return [a + \" \" + b for (a, b), _ in pairs.most_common(k)]\n\n\nfor label in [\"neutral\", \"negative\"]:\n    print(label)\n    for pair in top_bigrams(label, 3):\n        print(\"  \", pair)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\nfrom collections import Counter\n\nfrom text_data import make_reviews\n\nreviews = make_reviews(2000)\ndocs = [re.findall(r\"[a-z']+\", r[\"text\"].lower()) for r in reviews]\n\n\ndef top_bigrams(label, k):\n    pairs = Counter()\n    for d, r in zip(docs, reviews):\n        if r[\"label\"] == label:\n            pairs.update(zip(d, d[1:]))\n    return [a + \" \" + b for (a, b), _ in pairs.most_common(k)]\n\n\nfor label in [\"neutral\", \"negative\"]:\n    print(label)\n    for pair in top_bigrams(label, 3):\n        print(\"  \", pair)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_bigrams",
+      "cases": [
+        {
+          "args": [
+            "positive",
+            2
+          ],
+          "returns": [
+            "for the",
+            "the money"
+          ]
+        },
+        {
+          "args": [
+            "neutral",
+            1
+          ],
+          "returns": [
+            "took days"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "neutral\n   took days\n   delivery took\n   for the\nnegative\n   after days\n   working after\n   stopped working"
+    }
+  ]
+}

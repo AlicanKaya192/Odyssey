@@ -1,0 +1,85 @@
+{
+  "id": "pmi-pairs",
+  "title": {
+    "tr": "PMI ile eşdizimler",
+    "en": "Collocations with PMI"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Önce bir `pmi(pair)` yardımcı fonksiyonu yaz: `math.log2(together / apart)`.",
+      "en": "First write a helper `pmi(pair)`: `math.log2(together / apart)`."
+    },
+    {
+      "tr": "Adaylar `[b for b, c in bigrams.items() if c >= min_count]`; `sorted(..., key=pmi, reverse=True)[:k]`.",
+      "en": "Candidates `[b for b, c in bigrams.items() if c >= min_count]`; `sorted(..., key=pmi, reverse=True)[:k]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport math\nimport re\nfrom collections import Counter\n\nfrom text_data import make_reviews\n\ndocs = [re.findall(r\"[a-z']+\", r[\"text\"].lower()) for r in make_reviews(2000)]\nunigrams = Counter(w for d in docs for w in d)\nbigrams = Counter(b for d in docs for b in zip(d, d[1:]))\nn_uni, n_bi = sum(unigrams.values()), sum(bigrams.values())\n\n\ndef pmi(pair):\n    together = bigrams[pair] / n_bi\n    apart = (unigrams[pair[0]] / n_uni) * (unigrams[pair[1]] / n_uni)\n    return math.log2(together / apart)\n\n\ndef top_pmi(min_count, k):\n    frequent = [b for b, c in bigrams.items() if c >= min_count]\n    return [a + \" \" + b for a, b in sorted(frequent, key=pmi, reverse=True)[:k]]\n\n\nfor pair in top_pmi(50, 4):\n    print(pair)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport math\nimport re\nfrom collections import Counter\n\nfrom text_data import make_reviews\n\ndocs = [re.findall(r\"[a-z']+\", r[\"text\"].lower()) for r in make_reviews(2000)]\nunigrams = Counter(w for d in docs for w in d)\nbigrams = Counter(b for d in docs for b in zip(d, d[1:]))\nn_uni, n_bi = sum(unigrams.values()), sum(bigrams.values())\n\n\ndef pmi(pair):\n    together = bigrams[pair] / n_bi\n    apart = (unigrams[pair[0]] / n_uni) * (unigrams[pair[1]] / n_uni)\n    return math.log2(together / apart)\n\n\ndef top_pmi(min_count, k):\n    frequent = [b for b, c in bigrams.items() if c >= min_count]\n    return [a + \" \" + b for a, b in sorted(frequent, key=pmi, reverse=True)[:k]]\n\n\nfor pair in top_pmi(50, 4):\n    print(pair)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_pmi",
+      "cases": [
+        {
+          "args": [
+            50,
+            4
+          ],
+          "returns": [
+            "can't say",
+            "bluetooth connection",
+            "brewing time",
+            "step counter"
+          ]
+        },
+        {
+          "args": [
+            20,
+            2
+          ],
+          "returns": [
+            "broke on",
+            "on day"
+          ]
+        },
+        {
+          "args": [
+            300,
+            3
+          ],
+          "returns": [
+            "buy this",
+            "my old",
+            "than my"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "can't say\nbluetooth connection\nbrewing time\nstep counter"
+    }
+  ]
+}

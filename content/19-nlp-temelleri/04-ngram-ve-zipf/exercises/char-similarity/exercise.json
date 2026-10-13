@@ -1,0 +1,66 @@
+{
+  "id": "char-similarity",
+  "title": {
+    "tr": "Harf n-gram benzerliği",
+    "en": "Character n-gram similarity"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki kümeyi kur: `x, y = char_ngrams(a, n), char_ngrams(b, n)`.",
+      "en": "Build both sets: `x, y = char_ngrams(a, n), char_ngrams(b, n)`."
+    },
+    {
+      "tr": "Kesişim `x & y`, birleşim `x | y`; `round(len(x & y) / len(x | y), 2)`.",
+      "en": "Intersection `x & y`, union `x | y`; `round(len(x & y) / len(x | y), 2)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef char_ngrams(word, n):\n    padded = \"<\" + word + \">\"\n    return {padded[i:i + n] for i in range(len(padded) - n + 1)}\n\n\ndef similarity(a, b, n):\n    x, y = char_ngrams(a, n), char_ngrams(b, n)\n    return round(len(x & y) / len(x | y), 2)\n\n\nfor other in [\"cable\", \"cables\", \"cabel\", \"able\"]:\n    print(other, similarity(\"cable\", other, 3), similarity(\"cable\", other, 2))\n```",
+      "en": "The full solution:\n\n```python\ndef char_ngrams(word, n):\n    padded = \"<\" + word + \">\"\n    return {padded[i:i + n] for i in range(len(padded) - n + 1)}\n\n\ndef similarity(a, b, n):\n    x, y = char_ngrams(a, n), char_ngrams(b, n)\n    return round(len(x & y) / len(x | y), 2)\n\n\nfor other in [\"cable\", \"cables\", \"cabel\", \"able\"]:\n    print(other, similarity(\"cable\", other, 3), similarity(\"cable\", other, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "similarity",
+      "cases": [
+        {
+          "args": [
+            "love",
+            "loves",
+            3
+          ],
+          "returns": 0.5
+        },
+        {
+          "args": [
+            "love",
+            "lvoe",
+            2
+          ],
+          "returns": 0.25
+        },
+        {
+          "args": [
+            "a",
+            "a",
+            2
+          ],
+          "returns": 1.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "cable 1.0 1.0\ncables 0.57 0.62\ncabel 0.25 0.33\nable 0.5 0.57"
+    }
+  ]
+}
