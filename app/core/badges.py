@@ -59,6 +59,7 @@ PYLIB2_CHAPTER = "16-python-ileri-kutuphaneleri"
 DSLIB_CHAPTER = "17-veri-bilimi-kutuphaneleri"
 MLLIB_CHAPTER = "18-ml-kutuphaneleri"
 NLP1_CHAPTER = "19-nlp-temelleri"
+NLP2_CHAPTER = "20-gommeler-ve-dil-modelleri"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -115,6 +116,9 @@ MLLIB_EXPLAIN_SECTION = (MLLIB_CHAPTER, "15-model-aciklama")
 NLP1_BAG_SECTION = (NLP1_CHAPTER, "05-kelime-torbasi")
 NLP1_CLASSIFIER_SECTION = (NLP1_CHAPTER, "08-naive-bayes")
 NLP1_DUPLICATE_SECTION = (NLP1_CHAPTER, "13-kumeleme-ve-yakin-kopya")
+NLP2_WORD2VEC_SECTION = (NLP2_CHAPTER, "02-word2vec")
+NLP2_ATTENTION_SECTION = (NLP2_CHAPTER, "10-dikkat-mekanizmasi")
+NLP2_SEARCH_SECTION = (NLP2_CHAPTER, "15-anlamsal-arama-motoru")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -135,6 +139,7 @@ PYLIB2_SECTION_COUNT = 18
 DSLIB_SECTION_COUNT = 17
 MLLIB_SECTION_COUNT = 17
 NLP1_SECTION_COUNT = 17
+NLP2_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -277,6 +282,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "first-text-classifier": NLP1_CLASSIFIER_SECTION in bitenler,
         "twin-hunter": NLP1_DUPLICATE_SECTION in bitenler,
         "nlp1-complete": modul_basina.get(NLP1_CHAPTER, 0) >= NLP1_SECTION_COUNT,
+        "meaning-coordinates": NLP2_WORD2VEC_SECTION in bitenler,
+        "first-attention": NLP2_ATTENTION_SECTION in bitenler,
+        "search-builder": NLP2_SEARCH_SECTION in bitenler,
+        "nlp2-complete": modul_basina.get(NLP2_CHAPTER, 0) >= NLP2_SECTION_COUNT,
     }
 
 

@@ -340,6 +340,27 @@ GLYPHS: dict[str, str] = {
                      'A1.5 1.5 0 0 1 2.5 14.5V5A1.5 1.5 0 0 1 4 3.5z" stroke-width="1.5"/>'
                      '<path d="M6.5 7.5h11M6.5 10.5h6.5" stroke-width="1.4"/>'
                      '<g fill="#fff" stroke="none"><circle cx="16.8" cy="10.5" r="1.4"/></g>'),
+    "vector-arrows": ('<path d="M4 20 18.5 6.5M4 20l15.5-6.5M4 20 10.5 4.5" stroke-width="1.5"/>'
+                      '<path d="M10.2 14.6a7 7 0 0 1 .9 2.7" stroke-width="1.2"/>'
+                      '<g fill="#fff" stroke="none"><circle cx="18.5" cy="6.5" r="1.6"/>'
+                      '<circle cx="19.5" cy="13.5" r="1.6"/><circle cx="10.5" cy="4.5" r="1.6"/></g>'),
+    "attention-eye": ('<path d="M2.5 9C5 5 8.3 3.5 12 3.5S19 5 21.5 9C19 13 15.7 14.5 12 14.5S5 13 2.5 9z"'
+                      ' stroke-width="1.5"/>'
+                      '<circle cx="12" cy="9" r="2.6" stroke-width="1.5"/>'
+                      '<path d="M12 14.5 5 19M12 14.5V19M12 14.5l7 4.5" stroke-width="1.1"/>'
+                      '<g fill="#fff" stroke="none"><rect x="3" y="19" width="4" height="2.2" rx="0.6"/>'
+                      '<rect x="10" y="19" width="4" height="2.2" rx="0.6"/>'
+                      '<rect x="17" y="19" width="4" height="2.2" rx="0.6"/></g>'),
+    "search-rank": ('<circle cx="9" cy="9" r="5.5" stroke-width="1.6"/>'
+                    '<path d="M13 13l4.5 4.5" stroke-width="2"/>'
+                    '<path d="M15.5 4h6M17.5 7.5h4M19 11h2.5" stroke-width="1.4"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="9" cy="9" r="1.6"/></g>'),
+    "block-stack": ('<rect x="3" y="3" width="13" height="4.5" rx="1" stroke-width="1.4"/>'
+                    '<rect x="3" y="9.75" width="13" height="4.5" rx="1" stroke-width="1.4"/>'
+                    '<rect x="3" y="16.5" width="13" height="4.5" rx="1" stroke-width="1.4"/>'
+                    '<path d="M16 5.25c4 0 4 6.75 0 6.75M16 12c4 0 4 6.75 0 6.75" stroke-width="1.2"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="6" cy="5.25" r="0.9"/>'
+                    '<circle cx="9.5" cy="12" r="0.9"/><circle cx="13" cy="18.75" r="0.9"/></g>'),
 }
 
 
