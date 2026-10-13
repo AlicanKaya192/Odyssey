@@ -1,0 +1,92 @@
+{
+  "id": "tfidf-vectors",
+  "title": {
+    "tr": "TF-IDF'i elle",
+    "en": "TF-IDF by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Belge sıklığı: `sum(w in d.split() for d in docs)`.",
+      "en": "Document frequency: `sum(w in d.split() for d in docs)`."
+    },
+    {
+      "tr": "Norm: `math.sqrt(sum(x * x for x in raw))`; her değeri ona böl.",
+      "en": "The norm: `math.sqrt(sum(x * x for x in raw))`; divide every value by it."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef tfidf_vectors(docs):\n    vocab = sorted({w for d in docs for w in d.split()})\n    n = len(docs)\n    idf = {w: math.log((1 + n) / (1 + sum(w in d.split() for d in docs))) + 1 for w in vocab}\n    rows = []\n    for d in docs:\n        raw = [d.split().count(w) * idf[w] for w in vocab]\n        norm = math.sqrt(sum(x * x for x in raw))\n        rows.append([round(x / norm, 3) for x in raw])\n    return rows\n\n\nfor row in tfidf_vectors([\"a b c\", \"a b\", \"c c d\"]):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef tfidf_vectors(docs):\n    vocab = sorted({w for d in docs for w in d.split()})\n    n = len(docs)\n    idf = {w: math.log((1 + n) / (1 + sum(w in d.split() for d in docs))) + 1 for w in vocab}\n    rows = []\n    for d in docs:\n        raw = [d.split().count(w) * idf[w] for w in vocab]\n        norm = math.sqrt(sum(x * x for x in raw))\n        rows.append([round(x / norm, 3) for x in raw])\n    return rows\n\n\nfor row in tfidf_vectors([\"a b c\", \"a b\", \"c c d\"]):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "tfidf_vectors",
+      "cases": [
+        {
+          "args": [
+            [
+              "a b",
+              "b c"
+            ]
+          ],
+          "returns": [
+            [
+              0.815,
+              0.58,
+              0.0
+            ],
+            [
+              0.0,
+              0.58,
+              0.815
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "x"
+            ]
+          ],
+          "returns": [
+            [
+              1.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "a a",
+              "b"
+            ]
+          ],
+          "returns": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.577, 0.577, 0.577, 0.0]\n[0.707, 0.707, 0.0, 0.0]\n[0.0, 0.0, 0.836, 0.549]"
+    }
+  ]
+}

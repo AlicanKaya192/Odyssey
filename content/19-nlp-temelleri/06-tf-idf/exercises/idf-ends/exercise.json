@@ -1,0 +1,82 @@
+{
+  "id": "idf-ends",
+  "title": {
+    "tr": "En sık ve en nadir kelimeler",
+    "en": "The most and least common words"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "`order = np.argsort(vectorizer.idf_, kind=\"stable\")`.",
+      "en": "`order = np.argsort(vectorizer.idf_, kind=\"stable\")`."
+    },
+    {
+      "tr": "Baştan `order[:k]`, sondan `order[-k:]`; kelimeleri `str(words[i])` ile.",
+      "en": "From the start `order[:k]`, from the end `order[-k:]`; the words with `str(words[i])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom text_data import make_tickets\n\nvectorizer = TfidfVectorizer().fit([t[\"text\"] for t in make_tickets(2000)])\nwords = vectorizer.get_feature_names_out()\n\n\ndef idf_ends(k):\n    order = np.argsort(vectorizer.idf_, kind=\"stable\")\n    return [[str(words[i]) for i in order[:k]], [str(words[i]) for i in order[-k:]]]\n\n\nlow, high = idf_ends(5)\nprint(\", \".join(low))\nprint(\", \".join(high))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom text_data import make_tickets\n\nvectorizer = TfidfVectorizer().fit([t[\"text\"] for t in make_tickets(2000)])\nwords = vectorizer.get_feature_names_out()\n\n\ndef idf_ends(k):\n    order = np.argsort(vectorizer.idf_, kind=\"stable\")\n    return [[str(words[i]) for i in order[:k]], [str(words[i]) for i in order[-k:]]]\n\n\nlow, high = idf_ends(5)\nprint(\", \".join(low))\nprint(\", \".join(high))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "idf_ends",
+      "cases": [
+        {
+          "args": [
+            3
+          ],
+          "returns": [
+            [
+              "the",
+              "my",
+              "for"
+            ],
+            [
+              "whree",
+              "wlil",
+              "wokring"
+            ]
+          ]
+        },
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            [
+              "the"
+            ],
+            [
+              "wokring"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "the, my, for, order, ord\nwatiing, webstie, whree, wlil, wokring"
+    }
+  ]
+}

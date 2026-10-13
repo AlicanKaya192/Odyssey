@@ -1,0 +1,64 @@
+{
+  "id": "sublinear-changes",
+  "title": {
+    "tr": "sublinear_tf neyi değiştirir?",
+    "en": "What does sublinear_tf change?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "İkinci tablo: `TfidfVectorizer(sublinear_tf=True).fit_transform(texts)`.",
+      "en": "The second table: `TfidfVectorizer(sublinear_tf=True).fit_transform(texts)`."
+    },
+    {
+      "tr": "`a = np.asarray(plain.argmax(axis=1)).ravel()`, aynısı `b` için; `int((a != b).sum())`.",
+      "en": "`a = np.asarray(plain.argmax(axis=1)).ravel()`, the same for `b`; `int((a != b).sum())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom text_data import make_reviews\n\n\ndef top_word_changes(n):\n    texts = [r[\"text\"] for r in make_reviews(n)]\n    plain = TfidfVectorizer().fit_transform(texts)\n    soft = TfidfVectorizer(sublinear_tf=True).fit_transform(texts)\n    a = np.asarray(plain.argmax(axis=1)).ravel()\n    b = np.asarray(soft.argmax(axis=1)).ravel()\n    return int((a != b).sum())\n\n\nfor n in [100, 500, 2000]:\n    print(n, top_word_changes(n))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom text_data import make_reviews\n\n\ndef top_word_changes(n):\n    texts = [r[\"text\"] for r in make_reviews(n)]\n    plain = TfidfVectorizer().fit_transform(texts)\n    soft = TfidfVectorizer(sublinear_tf=True).fit_transform(texts)\n    a = np.asarray(plain.argmax(axis=1)).ravel()\n    b = np.asarray(soft.argmax(axis=1)).ravel()\n    return int((a != b).sum())\n\n\nfor n in [100, 500, 2000]:\n    print(n, top_word_changes(n))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_word_changes",
+      "cases": [
+        {
+          "args": [
+            100
+          ],
+          "returns": 8
+        },
+        {
+          "args": [
+            300
+          ],
+          "returns": 16
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "100 8\n500 38\n2000 135"
+    }
+  ]
+}
