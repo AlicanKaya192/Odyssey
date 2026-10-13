@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/AlicanKaya192/Odyssey/releases"><img alt="Version 1.0.0" src="https://img.shields.io/badge/version-1.0.0-7466EE?style=for-the-badge&labelColor=1E1A3C"></a>
+  <a href="https://github.com/AlicanKaya192/Odyssey/releases"><img alt="Version 1.1.0" src="https://img.shields.io/badge/version-1.1.0-7466EE?style=for-the-badge&labelColor=1E1A3C"></a>
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-7466EE?style=for-the-badge&labelColor=1E1A3C">
   <img alt="Python 3.10 to 3.14" src="https://img.shields.io/badge/Python-3.10%E2%80%933.14-7466EE?style=for-the-badge&logo=python&logoColor=white&labelColor=1E1A3C">
   <img alt="Built with Qt 6 and PySide6" src="https://img.shields.io/badge/Qt%206-PySide6-7466EE?style=for-the-badge&logo=qt&logoColor=white&labelColor=1E1A3C">
@@ -136,7 +136,7 @@ You can turn the check off under **Settings › Updates**. With it off, the appl
 
 ## Status
 
-Version `1.0.0`, the first full release after the open beta (0.7.1 – 0.9.3). The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is complete; new paths keep arriving as `1.x` releases.
+Version `1.1.0`; `1.0.0` was the first full release after the open beta (0.7.1 – 0.9.3). The engine — learning paths, lessons, quizzes, the exercise runner, progress tracking, updates — is complete; new paths keep arriving as `1.x` releases.
 
 **Content today:** twelve paths are **complete** — Python Fundamentals (nineteen sections, from packages and environments to JSON and databases), Git (seventeen, from the first commit to branches, GitHub and recovering lost work), Algorithms in three modules (Core Algorithms and Data Structures, seventeen sections; Algorithm Techniques and Graphs, seventeen; Data Science and Machine Learning Algorithms, twenty-three, where each model is written from scratch with NumPy and compared with scikit-learn), Core Libraries in four modules (Python Libraries: Beginner, seventeen sections on the standard library; Python Libraries: Advanced, eighteen; Data Science Libraries, seventeen, on NumPy, pandas, Matplotlib, seaborn and SciPy; Machine Learning Libraries, seventeen, on scikit-learn, statsmodels and LightGBM), Data Science (ten), Machine Learning (thirteen), SQL (sixteen, from installing SQL Server to window functions, indexes, views and stored procedures), Time Series (twenty-three, from working with dates to forecasting, prediction intervals and anomaly detection), Mathematics in two modules (Foundational Mathematics, twenty-eight sections; The Mathematics of AI, thirty-two), API in two modules (Using REST APIs, seventeen; Writing REST APIs with FastAPI, eighteen), Docker (seventeen, from images to Compose and packaging a Python API) and Big Data (seventeen, from measuring memory to Parquet, DuckDB, dask, Spark and streaming data). 353 sections, 9333 quiz questions, 1510 exercises (85 of them in the Git terminal), 300 mathematics problems, 711 lecture notes, a glossary of 267 terms and 77 badges, all of it in both Turkish and English.
 

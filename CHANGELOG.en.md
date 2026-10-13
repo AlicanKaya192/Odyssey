@@ -23,6 +23,13 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [1.1.0] — unreleased
+
+### Added
+- **Natural Language Processing (NLP) path.** From turning text into numbers
+  to how language models work. The **NLP Fundamentals** and **Embeddings and
+  Language Models** modules are being written.
+
 ## [1.0.0] — 10 October 2026
 
 ### Added

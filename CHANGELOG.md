@@ -21,6 +21,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [1.1.0] — yayınlanmadı
+
+### Eklendi
+- **Doğal Dil İşleme (NLP) patikası.** Metni sayıya çevirmekten dil
+  modellerinin nasıl çalıştığına kadar. **NLP Temelleri** ve **Gömmeler ve
+  Dil Modelleri** modülleri yazılıyor.
+
 ## [1.0.0] — 10 Ekim 2026
 
 ### Eklendi
