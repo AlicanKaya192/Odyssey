@@ -1,0 +1,66 @@
+{
+  "id": "clean-tokens",
+  "title": {
+    "tr": "Temizle ve parçala",
+    "en": "Clean and split"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Etiketler: `re.sub(r\"<[^>]+>\", \" \", text)`.",
+      "en": "Tags: `re.sub(r\"<[^>]+>\", \" \", text)`."
+    },
+    {
+      "tr": "Son adım bir liste kavraması: `[w for w in ... if w not in STOP]`.",
+      "en": "The last step is a list comprehension: `[w for w in ... if w not in STOP]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport html\nimport re\n\nSTOP = {\"the\", \"a\", \"is\", \"and\"}\n\n\ndef clean_tokens(text):\n    text = html.unescape(text)\n    text = re.sub(r\"<[^>]+>\", \" \", text)\n    return [w for w in re.findall(r\"[a-z']+\", text.lower()) if w not in STOP]\n\nprint(clean_tokens(\"<p>The lid is <b>NOT</b> tight &amp; leaks</p>\"))\n```",
+      "en": "The full solution:\n\n```python\nimport html\nimport re\n\nSTOP = {\"the\", \"a\", \"is\", \"and\"}\n\n\ndef clean_tokens(text):\n    text = html.unescape(text)\n    text = re.sub(r\"<[^>]+>\", \" \", text)\n    return [w for w in re.findall(r\"[a-z']+\", text.lower()) if w not in STOP]\n\nprint(clean_tokens(\"<p>The lid is <b>NOT</b> tight &amp; leaks</p>\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "clean_tokens",
+      "cases": [
+        {
+          "args": [
+            "A <i>good</i> fit"
+          ],
+          "returns": [
+            "good",
+            "fit"
+          ]
+        },
+        {
+          "args": [
+            "Fish &amp; chips"
+          ],
+          "returns": [
+            "fish",
+            "chips"
+          ]
+        },
+        {
+          "args": [
+            "<br>"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['lid', 'not', 'tight', 'leaks']"
+    }
+  ]
+}

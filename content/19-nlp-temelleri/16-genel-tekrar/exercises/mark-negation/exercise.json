@@ -1,0 +1,82 @@
+{
+  "id": "mark-negation",
+  "title": {
+    "tr": "Olumsuzluğu işaretle",
+    "en": "Mark negation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir bayrak tut: `negated = False`; olumsuzlayıcıda `True`, noktalamada `False`.",
+      "en": "Keep a flag: `negated = False`; `True` on a negator, `False` on punctuation."
+    },
+    {
+      "tr": "Diğer token: `\"NOT_\" + token if negated else token`.",
+      "en": "Other tokens: `\"NOT_\" + token if negated else token`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nNEGATORS = {\"not\", \"no\", \"never\"}\nPUNCT = {\".\", \",\", \"!\", \"?\"}\n\n\ndef mark_negation(tokens):\n    result, negated = [], False\n    for token in tokens:\n        if token in PUNCT:\n            negated = False\n            result.append(token)\n        elif token in NEGATORS:\n            negated = True\n            result.append(token)\n        else:\n            result.append(\"NOT_\" + token if negated else token)\n    return result\n\ntokens = [\"it\", \"is\", \"not\", \"good\", \"at\", \"all\", \".\", \"love\", \"it\"]\nprint(\" \".join(mark_negation(tokens)))\n```",
+      "en": "The full solution:\n\n```python\nNEGATORS = {\"not\", \"no\", \"never\"}\nPUNCT = {\".\", \",\", \"!\", \"?\"}\n\n\ndef mark_negation(tokens):\n    result, negated = [], False\n    for token in tokens:\n        if token in PUNCT:\n            negated = False\n            result.append(token)\n        elif token in NEGATORS:\n            negated = True\n            result.append(token)\n        else:\n            result.append(\"NOT_\" + token if negated else token)\n    return result\n\ntokens = [\"it\", \"is\", \"not\", \"good\", \"at\", \"all\", \".\", \"love\", \"it\"]\nprint(\" \".join(mark_negation(tokens)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mark_negation",
+      "cases": [
+        {
+          "args": [
+            [
+              "never",
+              "again",
+              "!",
+              "ok"
+            ]
+          ],
+          "returns": [
+            "never",
+            "NOT_again",
+            "!",
+            "ok"
+          ]
+        },
+        {
+          "args": [
+            [
+              "no",
+              "no",
+              "way"
+            ]
+          ],
+          "returns": [
+            "no",
+            "no",
+            "NOT_way"
+          ]
+        },
+        {
+          "args": [
+            [
+              "fine"
+            ]
+          ],
+          "returns": [
+            "fine"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "it is not NOT_good NOT_at NOT_all . love it"
+    }
+  ]
+}

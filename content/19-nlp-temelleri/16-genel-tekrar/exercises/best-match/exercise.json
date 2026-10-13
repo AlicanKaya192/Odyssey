@@ -1,0 +1,73 @@
+{
+  "id": "best-match",
+  "title": {
+    "tr": "En yakın belge",
+    "en": "The closest document"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kosinüs: nokta çarpım / iki uzunluğun çarpımı; uzunluk `math.sqrt(sum(v * v ...))`.",
+      "en": "Cosine: dot product / the product of the two lengths; a length is `math.sqrt(sum(v * v ...))`."
+    },
+    {
+      "tr": "İlk en büyük: `scores.index(max(scores))`.",
+      "en": "The first largest: `scores.index(max(scores))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\nfrom collections import Counter\n\n\ndef cosine(a, b):\n    dot = sum(a[w] * b[w] for w in a)\n    norm = math.sqrt(sum(v * v for v in a.values())) * math.sqrt(sum(v * v for v in b.values()))\n    return dot / norm if norm else 0.0\n\n\ndef best_match(query, docs):\n    q = Counter(query.lower().split())\n    scores = [cosine(q, Counter(d.lower().split())) for d in docs]\n    return scores.index(max(scores))\n\ndocs = [\"refund for my card\", \"the parcel arrived damaged\", \"reset my password\"]\nprint(best_match(\"my parcel is damaged\", docs))\nprint(best_match(\"password reset please\", docs))\n```",
+      "en": "The full solution:\n\n```python\nimport math\nfrom collections import Counter\n\n\ndef cosine(a, b):\n    dot = sum(a[w] * b[w] for w in a)\n    norm = math.sqrt(sum(v * v for v in a.values())) * math.sqrt(sum(v * v for v in b.values()))\n    return dot / norm if norm else 0.0\n\n\ndef best_match(query, docs):\n    q = Counter(query.lower().split())\n    scores = [cosine(q, Counter(d.lower().split())) for d in docs]\n    return scores.index(max(scores))\n\ndocs = [\"refund for my card\", \"the parcel arrived damaged\", \"reset my password\"]\nprint(best_match(\"my parcel is damaged\", docs))\nprint(best_match(\"password reset please\", docs))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "best_match",
+      "cases": [
+        {
+          "args": [
+            "a b",
+            [
+              "c",
+              "a b",
+              "a"
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            "x",
+            [
+              "y",
+              "z"
+            ]
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "A",
+            [
+              "b",
+              "a a"
+            ]
+          ],
+          "returns": 1
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\n2"
+    }
+  ]
+}

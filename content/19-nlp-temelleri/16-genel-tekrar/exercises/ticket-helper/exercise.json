@@ -1,0 +1,70 @@
+{
+  "id": "ticket-helper",
+  "title": {
+    "tr": "Talep yardımcısı",
+    "en": "A ticket helper"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Kategori: `str(pipe.predict([text])[0])`.",
+      "en": "Category: `str(pipe.predict([text])[0])`."
+    },
+    {
+      "tr": "Makale: `cosine_similarity(search.transform([text]), A).argmax()` ve `articles[...][\"title\"]`.",
+      "en": "Article: `cosine_similarity(search.transform([text]), A).argmax()` and `articles[...][\"title\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics.pairwise import cosine_similarity\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.svm import LinearSVC\nfrom text_data import make_articles, make_tickets\n\ntickets = make_tickets(2000)\npipe = Pipeline([(\"tfidf\", TfidfVectorizer(ngram_range=(1, 2))),\n                 (\"model\", LinearSVC())])\npipe.fit([t[\"text\"] for t in tickets], [t[\"category\"] for t in tickets])\narticles = make_articles()\nsearch = TfidfVectorizer(stop_words=\"english\")\nA = search.fit_transform([a[\"title\"] + \" \" + a[\"text\"] for a in articles])\n\n\ndef helper(text):\n    category = str(pipe.predict([text])[0])\n    best = int(cosine_similarity(search.transform([text]), A).argmax())\n    return [category, articles[best][\"title\"]]\n\n\nfor line in helper(\"I forgot my password and cannot log in.\"):\n    print(line)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics.pairwise import cosine_similarity\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.svm import LinearSVC\nfrom text_data import make_articles, make_tickets\n\ntickets = make_tickets(2000)\npipe = Pipeline([(\"tfidf\", TfidfVectorizer(ngram_range=(1, 2))),\n                 (\"model\", LinearSVC())])\npipe.fit([t[\"text\"] for t in tickets], [t[\"category\"] for t in tickets])\narticles = make_articles()\nsearch = TfidfVectorizer(stop_words=\"english\")\nA = search.fit_transform([a[\"title\"] + \" \" + a[\"text\"] for a in articles])\n\n\ndef helper(text):\n    category = str(pipe.predict([text])[0])\n    best = int(cosine_similarity(search.transform([text]), A).argmax())\n    return [category, articles[best][\"title\"]]\n\n\nfor line in helper(\"I forgot my password and cannot log in.\"):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "helper",
+      "cases": [
+        {
+          "args": [
+            "Where is my parcel? The tracking number does not work."
+          ],
+          "returns": [
+            "shipping",
+            "Tracking your order"
+          ]
+        },
+        {
+          "args": [
+            "I was charged twice on my card."
+          ],
+          "returns": [
+            "billing",
+            "Double charges and pending payments"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "account\nResetting your password"
+    }
+  ]
+}

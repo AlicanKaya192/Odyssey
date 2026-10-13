@@ -1,0 +1,90 @@
+{
+  "id": "tfidf-by-hand",
+  "title": {
+    "tr": "Elle TF-IDF",
+    "en": "TF-IDF by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`df = sum(word in doc for doc in docs)`; `math.log` doğal logaritmadır.",
+      "en": "`df = sum(word in doc for doc in docs)`; `math.log` is the natural logarithm."
+    },
+    {
+      "tr": "Her belge için `round(doc.count(word) * idf, 3)`.",
+      "en": "For each document `round(doc.count(word) * idf, 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef tfidf_weights(docs, word):\n    n = len(docs)\n    df = sum(word in doc for doc in docs)\n    idf = math.log((1 + n) / (1 + df)) + 1\n    return [round(doc.count(word) * idf, 3) for doc in docs]\n\ndocs = [[\"good\", \"good\", \"price\"], [\"bad\", \"price\"], [\"good\", \"fit\"]]\nprint(tfidf_weights(docs, \"good\"))\nprint(tfidf_weights(docs, \"price\"))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef tfidf_weights(docs, word):\n    n = len(docs)\n    df = sum(word in doc for doc in docs)\n    idf = math.log((1 + n) / (1 + df)) + 1\n    return [round(doc.count(word) * idf, 3) for doc in docs]\n\ndocs = [[\"good\", \"good\", \"price\"], [\"bad\", \"price\"], [\"good\", \"fit\"]]\nprint(tfidf_weights(docs, \"good\"))\nprint(tfidf_weights(docs, \"price\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "tfidf_weights",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "a"
+              ],
+              [
+                "b"
+              ]
+            ],
+            "a"
+          ],
+          "returns": [
+            1.405,
+            0.0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "x",
+                "x"
+              ],
+              [
+                "x"
+              ]
+            ],
+            "x"
+          ],
+          "returns": [
+            2.0,
+            1.0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "a"
+              ]
+            ],
+            "z"
+          ],
+          "returns": [
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2.575, 0.0, 1.288]\n[1.288, 1.288, 0.0]"
+    }
+  ]
+}
