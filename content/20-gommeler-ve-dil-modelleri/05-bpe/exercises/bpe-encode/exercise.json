@@ -1,0 +1,75 @@
+{
+  "id": "bpe-encode",
+  "title": {
+    "tr": "BPE ile parçala",
+    "en": "Split with BPE"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç: `list(word) + [\"</w>\"]`.",
+      "en": "Start: `list(word) + [\"</w>\"]`."
+    },
+    {
+      "tr": "`for pair in merges: symbols = merge_pair(symbols, pair)`.",
+      "en": "`for pair in merges: symbols = merge_pair(symbols, pair)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef merge_pair(symbols, pair):\n    out, i = [], 0\n    while i < len(symbols):\n        if i < len(symbols) - 1 and [symbols[i], symbols[i + 1]] == pair:\n            out.append(symbols[i] + symbols[i + 1])\n            i += 2\n        else:\n            out.append(symbols[i])\n            i += 1\n    return out\n\n\ndef encode(word, merges):\n    symbols = list(word) + [\"</w>\"]\n    for pair in merges:\n        symbols = merge_pair(symbols, pair)\n    return symbols\n\nmerges = [[\"e\", \"r\"], [\"l\", \"o\"], [\"lo\", \"w\"], [\"er\", \"</w>\"]]\nprint(encode(\"lower\", merges))\nprint(encode(\"slow\", merges))\n```",
+      "en": "The full solution:\n\n```python\ndef merge_pair(symbols, pair):\n    out, i = [], 0\n    while i < len(symbols):\n        if i < len(symbols) - 1 and [symbols[i], symbols[i + 1]] == pair:\n            out.append(symbols[i] + symbols[i + 1])\n            i += 2\n        else:\n            out.append(symbols[i])\n            i += 1\n    return out\n\n\ndef encode(word, merges):\n    symbols = list(word) + [\"</w>\"]\n    for pair in merges:\n        symbols = merge_pair(symbols, pair)\n    return symbols\n\nmerges = [[\"e\", \"r\"], [\"l\", \"o\"], [\"lo\", \"w\"], [\"er\", \"</w>\"]]\nprint(encode(\"lower\", merges))\nprint(encode(\"slow\", merges))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "encode",
+      "cases": [
+        {
+          "args": [
+            "ab",
+            [
+              [
+                "a",
+                "b"
+              ]
+            ]
+          ],
+          "returns": [
+            "ab",
+            "</w>"
+          ]
+        },
+        {
+          "args": [
+            "ab",
+            [
+              [
+                "b",
+                "</w>"
+              ],
+              [
+                "a",
+                "b</w>"
+              ]
+            ]
+          ],
+          "returns": [
+            "ab</w>"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['low', 'er</w>']\n['s', 'low', '</w>']"
+    }
+  ]
+}

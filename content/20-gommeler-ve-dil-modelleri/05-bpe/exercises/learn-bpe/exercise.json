@@ -1,0 +1,79 @@
+{
+  "id": "learn-bpe",
+  "title": {
+    "tr": "BPE kurallarını öğren",
+    "en": "Learn the BPE rules"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kelimeleri `tuple(w) + (\"</w>\",)` demetlerine çevir; her turda çiftleri say.",
+      "en": "Turn words into `tuple(w) + (\"</w>\",)` tuples; count pairs every round."
+    },
+    {
+      "tr": "En iyi çift `max(pairs, key=lambda p: (pairs[p], p))`; sonra her kelimede birleştir.",
+      "en": "The best pair is `max(pairs, key=lambda p: (pairs[p], p))`; then merge it in every word."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef merge(symbols, pair):\n    out, i = [], 0\n    while i < len(symbols):\n        if i < len(symbols) - 1 and (symbols[i], symbols[i + 1]) == pair:\n            out.append(symbols[i] + symbols[i + 1])\n            i += 2\n        else:\n            out.append(symbols[i])\n            i += 1\n    return tuple(out)\n\n\ndef learn_bpe(counts, n_merges):\n    words = {tuple(w) + (\"</w>\",): n for w, n in counts.items()}\n    merges = []\n    for _ in range(n_merges):\n        pairs = Counter()\n        for symbols, n in words.items():\n            for a, b in zip(symbols, symbols[1:]):\n                pairs[a, b] += n\n        if not pairs:\n            break\n        best = max(pairs, key=lambda p: (pairs[p], p))\n        merges.append(list(best))\n        new_words = Counter()\n        for symbols, n in words.items():\n            new_words[merge(symbols, best)] += n\n        words = new_words\n    return merges\n\ncounts = {\"low\": 5, \"lower\": 2, \"newest\": 6, \"widest\": 3}\nfor rule in learn_bpe(counts, 5):\n    print(rule)\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef merge(symbols, pair):\n    out, i = [], 0\n    while i < len(symbols):\n        if i < len(symbols) - 1 and (symbols[i], symbols[i + 1]) == pair:\n            out.append(symbols[i] + symbols[i + 1])\n            i += 2\n        else:\n            out.append(symbols[i])\n            i += 1\n    return tuple(out)\n\n\ndef learn_bpe(counts, n_merges):\n    words = {tuple(w) + (\"</w>\",): n for w, n in counts.items()}\n    merges = []\n    for _ in range(n_merges):\n        pairs = Counter()\n        for symbols, n in words.items():\n            for a, b in zip(symbols, symbols[1:]):\n                pairs[a, b] += n\n        if not pairs:\n            break\n        best = max(pairs, key=lambda p: (pairs[p], p))\n        merges.append(list(best))\n        new_words = Counter()\n        for symbols, n in words.items():\n            new_words[merge(symbols, best)] += n\n        words = new_words\n    return merges\n\ncounts = {\"low\": 5, \"lower\": 2, \"newest\": 6, \"widest\": 3}\nfor rule in learn_bpe(counts, 5):\n    print(rule)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "learn_bpe",
+      "cases": [
+        {
+          "args": [
+            {
+              "aa": 3,
+              "ab": 1
+            },
+            3
+          ],
+          "returns": [
+            [
+              "a",
+              "a"
+            ],
+            [
+              "aa",
+              "</w>"
+            ],
+            [
+              "b",
+              "</w>"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "x": 1
+            },
+            4
+          ],
+          "returns": [
+            [
+              "x",
+              "</w>"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['t', '</w>']\n['s', 't</w>']\n['e', 'st</w>']\n['o', 'w']\n['l', 'ow']"
+    }
+  ]
+}

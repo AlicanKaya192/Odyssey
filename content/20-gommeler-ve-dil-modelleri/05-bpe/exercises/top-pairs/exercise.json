@@ -1,0 +1,97 @@
+{
+  "id": "top-pairs",
+  "title": {
+    "tr": "En sık çiftler",
+    "en": "The most frequent pairs"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for a, b in zip(symbols, symbols[1:])` ve `pairs[a, b] += n`.",
+      "en": "`for a, b in zip(symbols, symbols[1:])` and `pairs[a, b] += n`."
+    },
+    {
+      "tr": "`sorted(pairs.items(), key=lambda item: (-item[1], item[0]))`.",
+      "en": "`sorted(pairs.items(), key=lambda item: (-item[1], item[0]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef top_pairs(words, k):\n    pairs = Counter()\n    for symbols, n in words:\n        for a, b in zip(symbols, symbols[1:]):\n            pairs[a, b] += n\n    ranked = sorted(pairs.items(), key=lambda item: (-item[1], item[0]))\n    return [[a, b, n] for (a, b), n in ranked[:k]]\n\nwords = [[[\"l\", \"o\", \"w\", \"</w>\"], 5], [[\"l\", \"o\", \"w\", \"e\", \"r\", \"</w>\"], 2],\n         [[\"n\", \"e\", \"w\", \"</w>\"], 6]]\nfor row in top_pairs(words, 3):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef top_pairs(words, k):\n    pairs = Counter()\n    for symbols, n in words:\n        for a, b in zip(symbols, symbols[1:]):\n            pairs[a, b] += n\n    ranked = sorted(pairs.items(), key=lambda item: (-item[1], item[0]))\n    return [[a, b, n] for (a, b), n in ranked[:k]]\n\nwords = [[[\"l\", \"o\", \"w\", \"</w>\"], 5], [[\"l\", \"o\", \"w\", \"e\", \"r\", \"</w>\"], 2],\n         [[\"n\", \"e\", \"w\", \"</w>\"], 6]]\nfor row in top_pairs(words, 3):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_pairs",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                [
+                  "a",
+                  "b",
+                  "</w>"
+                ],
+                2
+              ]
+            ],
+            5
+          ],
+          "returns": [
+            [
+              "a",
+              "b",
+              2
+            ],
+            [
+              "b",
+              "</w>",
+              2
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                [
+                  "x",
+                  "y"
+                ],
+                1
+              ],
+              [
+                [
+                  "y",
+                  "x"
+                ],
+                1
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            [
+              "x",
+              "y",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['w', '</w>', 11]\n['l', 'o', 7]\n['o', 'w', 7]"
+    }
+  ]
+}
