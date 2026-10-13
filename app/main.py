@@ -25,6 +25,9 @@ from app.core.runner import HARNESS_FLAG  # noqa: E402
 from app.version import APP_VERSION  # noqa: E402
 
 MIN_PYTHON = (3, 10)
+# Pencere belirdikten bu kadar sonra arama dizini arka planda kurulmaya
+# başlıyor (belirme ve yol çizimi animasyonu takılmasın).
+SEARCH_INDEX_DELAY_MS = 1500
 
 
 def _run_harness_if_asked() -> bool:
@@ -146,7 +149,9 @@ def main() -> int:
     if len(sys.argv) >= 3 and sys.argv[1] == "--intro":
         from app.ui.intro import run as run_intro
 
-        return run_intro(sys.argv[2])
+        # Ana pencereyle aynı kimlik: görev çubuğunda tek düğme, Odyssey simgesi.
+        _claim_taskbar_identity()
+        return run_intro(sys.argv[2], _icon_file())
 
     # Görev Zamanlayıcı'nın hatırlatma çağrısı: arayüz kurulmadan, birkaç
     # saniyede bakıp gerekirse bildirim gösterip çıkıyor.
@@ -290,9 +295,19 @@ def main() -> int:
     # Opaklığı sıfır bir pencere işletim sistemi tarafından yine de
     # bileşikleniyor, yani Chromium çiziyor ama kimse görmüyor. Açılış
     # ekranı kaybolurken opaklık bire çekiliyor.
+    #
+    # Animasyon penceresi her zaman üstte değil (küçültülebiliyor). Görünmez
+    # pencere onun önüne geçip tıklamaları ve Esc'i yutmasın diye
+    # etkinleştirilmeden açılıyor ve en alta iniyor; belirirken öne geliyor.
+    from PySide6.QtCore import Qt, QTimer
+
     stage("splash.stage_pages", 0.8)
     window.setWindowOpacity(0.0)
+    if intro is not None:
+        window.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
     window.show()
+    if intro is not None:
+        window.lower()
     window.warm_up()
 
     first_name = store.profile().get("first_name", "").strip()
@@ -304,10 +319,15 @@ def main() -> int:
     if intro is not None:
         # Animasyonun sonunu bekleyip pencereyi gösteriyor.
         intro.reveal(window)
+        window.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, False)
     elif splash is not None:
         close_splash(splash, window, splash_started, greeting)
     else:
         show_window(window)
+
+    # Arama dizini açılışı geciktirmesin diye pencere göründükten sonra,
+    # belirme geçişi bittiğinde arka planda kuruluyor.
+    QTimer.singleShot(SEARCH_INDEX_DELAY_MS, window.start_search_index)
 
     # Hoş geldiniz penceresi pencere göründükten sonra çıkıyor; boş ekranın önünde
     # açılan bir kutu, uygulamanın açılmadığı izlenimi veriyor.

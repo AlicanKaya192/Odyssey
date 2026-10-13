@@ -30,6 +30,14 @@ lecture note does not mean downloading the whole application again.
   to how language models work. The **NLP Fundamentals** and **Embeddings and
   Language Models** modules are being written.
 
+### Fixed
+- **Odyssey opens faster.** After the start-up animation ended, it waited a
+  few seconds on "Preparing"; the search index is now prepared in the
+  background once the application is open, and that wait is gone.
+- **The start-up screen can be minimised.** It can be sent to the taskbar
+  and stays behind another application when you switch to it; it used to
+  stay in front of every window.
+
 ## [1.0.0] — 10 October 2026
 
 ### Added

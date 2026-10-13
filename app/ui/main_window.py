@@ -14,6 +14,8 @@ Ekranlar:
 
 from __future__ import annotations
 
+import threading
+
 from PySide6.QtCore import QEvent, QPoint, QThread, Qt, QTimer
 from PySide6.QtGui import QColor
 from PySide6.QtGui import QKeySequence, QShortcut
@@ -238,6 +240,7 @@ class MainWindow(QMainWindow):
         # dizini dil başına bir kez kuruluyor (dosya okuma), notlar ve
         # ekranlar her açılışta tazeleniyor.
         self._search_index: tuple[str, list] = ("", [])
+        self._index_thread: threading.Thread | None = None
         self._search = SearchPalette(language, self)
         self._search.set_provider(self._search_items, self._search_locked)
         # Bölüm sonuçlarında patika logosu için katalog.
@@ -417,9 +420,6 @@ class MainWindow(QMainWindow):
         # ilk not seçilince siyah kare görünmesin.
         self._stack.setCurrentWidget(self._notebook_screen)
         self._notebook.warm_up()
-
-        # Genel aramanın dizini de burada, pencere görünmezken kuruluyor.
-        self._catalog_index()
 
         if onceki is not None:
             self._stack.setCurrentWidget(onceki)
@@ -799,13 +799,41 @@ class MainWindow(QMainWindow):
 
     # --- genel arama ------------------------------------------------------
 
+    def start_search_index(self) -> None:
+        """Katalogun arama dizinini arka planda kurar.
+
+        Kurmak 1.0'da ~2,6 sn (her dersin, notun ve yönergenin okunması).
+        Önce `warm_up` içinde, pencere görünmeden kuruluyordu ve açılışı o
+        kadar geciktiriyordu; açılış animasyonu bitip "Hazırlanıyor"da
+        bekliyordu. Artık pencere göründükten sonra ayrı iş parçacığında.
+        """
+        if self._index_thread is not None:
+            return
+        dil = self._language.language
+
+        def build() -> None:
+            try:
+                items = build_index(self._catalog, dil, self._language.pick)
+            except Exception:
+                from ..core import log
+
+                log.get(__name__).exception("Arama dizini kurulamadı")
+                return
+            # Kurulurken dil değiştiyse dizin karışık dilde olabilir; atılıyor.
+            if self._language.language == dil:
+                self._search_index = (dil, items)
+
+        self._index_thread = threading.Thread(target=build, name="search-index", daemon=True)
+        self._index_thread.start()
+
     def _catalog_index(self) -> list[SearchItem]:
         """Katalogun arama dizini; seçili dilde, dil başına bir kez kuruluyor.
 
-        Kurmak ~0,4 sn (bin dosya okunuyor). Açılışta pencere görünmeden
-        (`warm_up`) kuruluyor; yoksa ilk `Ctrl+K`'da kutu o kadar
-        gecikiyordu. Dil değişince bir sonraki açılışta yeniden.
+        Arka plandaki kurulum (`start_search_index`) sürüyorsa önce o
+        bekleniyor; dil değişince ilk aramada yeniden kuruluyor.
         """
+        if self._index_thread is not None:
+            self._index_thread.join()
         dil = self._language.language
         if self._search_index[0] != dil:
             self._search_index = (dil, build_index(self._catalog, dil, self._language.pick))

@@ -46,6 +46,7 @@ from PySide6.QtGui import (
     QColor,
     QFont,
     QFontMetricsF,
+    QIcon,
     QLinearGradient,
     QPainter,
     QPainterPath,
@@ -101,6 +102,11 @@ PROP = QColor("#2B2168")
 SPARK = QColor("#E4E1FF")
 
 STYLE = C.Style(fig=INK, far=INK_FAR, incise=INCISE, string=INK, arrow=INK, tip=INK)
+
+# Windows pencere stili (winuser.h): görev çubuğundan küçültmeyi açmak için.
+GWL_STYLE = -16
+WS_MINIMIZEBOX = 0x00020000
+WS_SYSMENU = 0x00080000
 
 
 def _ease_out_cubic(t: float) -> float:
@@ -791,11 +797,12 @@ class IntroWindow(QWidget):
         self._closing = False
         self._began = time.monotonic()
 
-        self.setWindowFlags(
-            Qt.WindowType.FramelessWindowHint
-            | Qt.WindowType.SplashScreen
-            | Qt.WindowType.WindowStaysOnTopHint
-        )
+        # Sıradan bir pencere: görev çubuğunda düğmesi var, küçültülebiliyor ve
+        # başka uygulamaya geçince arkada kalıyor. Önce "her zaman üstte"
+        # açılış ekranıydı; küçültülemiyordu ve öbür pencerelerin önünde
+        # kalıyordu (Alican, 13 Ekim).
+        self.setWindowFlags(Qt.WindowType.Window | Qt.WindowType.FramelessWindowHint)
+        self.setWindowTitle("Odyssey")
         self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent)
         self.setAttribute(Qt.WidgetAttribute.WA_NoSystemBackground)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -822,6 +829,7 @@ class IntroWindow(QWidget):
         self.setWindowOpacity(0.0)
         self.show()
         self._round_corners()
+        self._allow_minimize()
         self._allow_parent_foreground()
         self._began = time.monotonic()
         self._play("intro")
@@ -939,6 +947,29 @@ class IntroWindow(QWidget):
         except (OSError, AttributeError):
             pass
 
+    def _allow_minimize(self) -> None:
+        """Görev çubuğu düğmesine tıklayınca pencere küçülsün.
+
+        Çerçevesiz Qt penceresinde Windows'un küçültme stili yok; o olmadan
+        görev çubuğu tıklaması pencereyi indirmiyor.
+        """
+        if sys.platform != "win32":
+            return
+        try:
+            import ctypes
+            from ctypes import wintypes
+
+            user32 = ctypes.windll.user32
+            user32.GetWindowLongW.argtypes = [wintypes.HWND, ctypes.c_int]
+            user32.GetWindowLongW.restype = wintypes.LONG
+            user32.SetWindowLongW.argtypes = [wintypes.HWND, ctypes.c_int, wintypes.LONG]
+            user32.SetWindowLongW.restype = wintypes.LONG
+            hwnd = wintypes.HWND(int(self.winId()))
+            style = user32.GetWindowLongW(hwnd, GWL_STYLE)
+            user32.SetWindowLongW(hwnd, GWL_STYLE, style | WS_MINIMIZEBOX | WS_SYSMENU)
+        except (OSError, AttributeError):
+            pass
+
     def _allow_parent_foreground(self) -> None:
         """Ana sürecin, animasyon bitince kendi penceresini öne alabilmesi için.
 
@@ -977,13 +1008,16 @@ def build_scene(settings: dict) -> IntroScene:
     )
 
 
-def run(payload: str) -> int:
-    """`--intro` ile başlatılan sürecin girişi."""
+def run(payload: str, icon_path=None) -> int:
+    """`--intro` ile başlatılan sürecin girişi; `icon_path` görev çubuğu simgesi."""
     try:
         settings = json.loads(payload)
     except ValueError:
         settings = {}
     app = QApplication.instance() or QApplication(sys.argv[:1])
+    app.setApplicationName("Odyssey")
+    if icon_path is not None:
+        app.setWindowIcon(QIcon(str(icon_path)))
     window = IntroWindow(build_scene(settings), int(settings.get("pid") or 0), bool(settings.get("sound")))
     window.start()
     return app.exec()

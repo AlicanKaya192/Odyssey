@@ -28,6 +28,14 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   modellerinin nasıl çalıştığına kadar. **NLP Temelleri** ve **Gömmeler ve
   Dil Modelleri** modülleri yazılıyor.
 
+### Düzeltildi
+- **Program daha hızlı açılıyor.** Açılış animasyonu bittikten sonra
+  "Hazırlanıyor" yazısında birkaç saniye bekleniyordu; arama dizini artık
+  program açıldıktan sonra arka planda hazırlanıyor ve bu bekleme kalktı.
+- **Açılış ekranı küçültülebiliyor.** Görev çubuğundan aşağı alınabiliyor ve
+  başka bir uygulamaya geçince onun arkasında kalıyor; önce bütün
+  pencerelerin önünde duruyordu.
+
 ## [1.0.0] — 10 Ekim 2026
 
 ### Eklendi
