@@ -1,0 +1,70 @@
+{
+  "id": "top-k",
+  "title": {
+    "tr": "İlk k",
+    "en": "The first k"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`np.argpartition(-sims, k - 1)[:k]` en büyük k'nın yerlerini (sırasız) verir.",
+      "en": "`np.argpartition(-sims, k - 1)[:k]` gives the positions of the k largest (unordered)."
+    },
+    {
+      "tr": "Onları `np.argsort(-sims[top])` ile sırala; `int(...)` ile düz sayıya çevir.",
+      "en": "Sort them with `np.argsort(-sims[top])`; convert with `int(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef top_k(sims, k):\n    sims = np.array(sims)\n    top = np.argpartition(-sims, k - 1)[:k]\n    return [int(i) for i in top[np.argsort(-sims[top])]]\n\nsims = [0.2, 0.9, -0.1, 0.75, 0.5, 0.95]\nprint(top_k(sims, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef top_k(sims, k):\n    sims = np.array(sims)\n    top = np.argpartition(-sims, k - 1)[:k]\n    return [int(i) for i in top[np.argsort(-sims[top])]]\n\nsims = [0.2, 0.9, -0.1, 0.75, 0.5, 0.95]\nprint(top_k(sims, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_k",
+      "cases": [
+        {
+          "args": [
+            [
+              0.1,
+              0.3,
+              0.2
+            ],
+            1
+          ],
+          "returns": [
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              5.0,
+              1.0,
+              3.0,
+              4.0
+            ],
+            2
+          ],
+          "returns": [
+            0,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[5, 1, 3]"
+    }
+  ]
+}

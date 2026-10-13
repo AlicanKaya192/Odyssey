@@ -1,0 +1,77 @@
+{
+  "id": "project-neutralize",
+  "title": {
+    "tr": "İzdüşüm ve nötrleştirme",
+    "en": "Projection and neutralizing"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Birim yön: `d / np.linalg.norm(d)`; bunu bir yardımcı fonksiyona koy.",
+      "en": "Unit direction: `d / np.linalg.norm(d)`; put it in a helper function."
+    },
+    {
+      "tr": "`(v - (v @ g) * g).round(3).tolist()`.",
+      "en": "`(v - (v @ g) * g).round(3).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef unit(direction):\n    d = np.array(direction, dtype=float)\n    return d / np.linalg.norm(d)\n\n\ndef projection(v, direction):\n    return round(float(np.array(v) @ unit(direction)), 3)\n\n\ndef neutralize(v, direction):\n    g = unit(direction)\n    v = np.array(v, dtype=float)\n    return (v - (v @ g) * g).round(3).tolist()\n\nv = [3.0, 4.0]\nprint(projection(v, [1.0, 0.0]))\nprint(neutralize(v, [1.0, 0.0]))\nprint(neutralize(v, [1.0, 1.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef unit(direction):\n    d = np.array(direction, dtype=float)\n    return d / np.linalg.norm(d)\n\n\ndef projection(v, direction):\n    return round(float(np.array(v) @ unit(direction)), 3)\n\n\ndef neutralize(v, direction):\n    g = unit(direction)\n    v = np.array(v, dtype=float)\n    return (v - (v @ g) * g).round(3).tolist()\n\nv = [3.0, 4.0]\nprint(projection(v, [1.0, 0.0]))\nprint(neutralize(v, [1.0, 0.0]))\nprint(neutralize(v, [1.0, 1.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "projection",
+      "cases": [
+        {
+          "args": [
+            [
+              1.0,
+              1.0
+            ],
+            [
+              0.0,
+              2.0
+            ]
+          ],
+          "returns": 1.0
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "neutralize",
+      "cases": [
+        {
+          "args": [
+            [
+              2.0,
+              2.0
+            ],
+            [
+              0.0,
+              5.0
+            ]
+          ],
+          "returns": [
+            2.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3.0\n[0.0, 4.0]\n[-0.5, 0.5]"
+    }
+  ]
+}

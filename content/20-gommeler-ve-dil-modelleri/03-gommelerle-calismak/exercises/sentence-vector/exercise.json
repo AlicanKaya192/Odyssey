@@ -1,0 +1,75 @@
+{
+  "id": "sentence-vector",
+  "title": {
+    "tr": "Bilinen kelimelerin ortalaması",
+    "en": "The average of known words"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bilinenler: `[table[t] for t in tokens if t in table]`; boşsa sıfırlar.",
+      "en": "Known ones: `[table[t] for t in tokens if t in table]`; zeros if empty."
+    },
+    {
+      "tr": "Her boyut için ortalama: `sum(v[i] for v in known) / len(known)`.",
+      "en": "Mean for each dimension: `sum(v[i] for v in known) / len(known)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef sentence_vector(tokens, table, dim):\n    known = [table[t] for t in tokens if t in table]\n    if not known:\n        return [0.0] * dim\n    return [round(sum(v[i] for v in known) / len(known), 3) for i in range(dim)]\n\ntable = {\"the\": [1.0, 0.0], \"cat\": [0.0, 1.0], \"sat\": [1.0, 1.0]}\nprint(sentence_vector(\"the cat sat\".split(), table, 2))\nprint(sentence_vector(\"the dog\".split(), table, 2))\nprint(sentence_vector(\"a dog\".split(), table, 2))\n```",
+      "en": "The full solution:\n\n```python\ndef sentence_vector(tokens, table, dim):\n    known = [table[t] for t in tokens if t in table]\n    if not known:\n        return [0.0] * dim\n    return [round(sum(v[i] for v in known) / len(known), 3) for i in range(dim)]\n\ntable = {\"the\": [1.0, 0.0], \"cat\": [0.0, 1.0], \"sat\": [1.0, 1.0]}\nprint(sentence_vector(\"the cat sat\".split(), table, 2))\nprint(sentence_vector(\"the dog\".split(), table, 2))\nprint(sentence_vector(\"a dog\".split(), table, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sentence_vector",
+      "cases": [
+        {
+          "args": [
+            [
+              "x",
+              "y"
+            ],
+            {
+              "x": [
+                2.0,
+                4.0
+              ]
+            },
+            2
+          ],
+          "returns": [
+            2.0,
+            4.0
+          ]
+        },
+        {
+          "args": [
+            [
+              "z"
+            ],
+            {},
+            3
+          ],
+          "returns": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.667, 0.667]\n[1.0, 0.0]\n[0.0, 0.0]"
+    }
+  ]
+}
