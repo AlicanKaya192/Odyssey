@@ -1,0 +1,72 @@
+{
+  "id": "search-articles",
+  "title": {
+    "tr": "Yardım merkezinde ara",
+    "en": "Search the help centre"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Fonksiyondan önce: `vectorizer = TfidfVectorizer(stop_words=\"english\").fit(texts)` ve `A = vectorizer.transform(texts)`.",
+      "en": "Before the function: `vectorizer = TfidfVectorizer(stop_words=\"english\").fit(texts)` and `A = vectorizer.transform(texts)`."
+    },
+    {
+      "tr": "`np.argsort(scores, kind=\"stable\")[::-1][:k]`; `articles[i][\"title\"]` ve `scores[i] > 0` şartı.",
+      "en": "`np.argsort(scores, kind=\"stable\")[::-1][:k]`; `articles[i][\"title\"]` with the `scores[i] > 0` condition."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics.pairwise import cosine_similarity\nfrom text_data import make_articles\n\narticles = make_articles()\ntexts = [a[\"title\"] + \". \" + a[\"text\"] for a in articles]\n\n\nvectorizer = TfidfVectorizer(stop_words=\"english\").fit(texts)\nA = vectorizer.transform(texts)\n\n\ndef search(query, k):\n    scores = cosine_similarity(vectorizer.transform([query]), A).ravel()\n    best = np.argsort(scores, kind=\"stable\")[::-1][:k]\n    return [articles[i][\"title\"] for i in best if scores[i] > 0]\n\n\nfor query in [\"my card was charged two times\", \"the box came broken\", \"error E500\"]:\n    print(query)\n    for title in search(query, 2):\n        print(\"-\", title)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics.pairwise import cosine_similarity\nfrom text_data import make_articles\n\narticles = make_articles()\ntexts = [a[\"title\"] + \". \" + a[\"text\"] for a in articles]\n\n\nvectorizer = TfidfVectorizer(stop_words=\"english\").fit(texts)\nA = vectorizer.transform(texts)\n\n\ndef search(query, k):\n    scores = cosine_similarity(vectorizer.transform([query]), A).ravel()\n    best = np.argsort(scores, kind=\"stable\")[::-1][:k]\n    return [articles[i][\"title\"] for i in best if scores[i] > 0]\n\n\nfor query in [\"my card was charged two times\", \"the box came broken\", \"error E500\"]:\n    print(query)\n    for title in search(query, 2):\n        print(\"-\", title)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "search",
+      "cases": [
+        {
+          "args": [
+            "forgot password",
+            1
+          ],
+          "returns": [
+            "Resetting your password"
+          ]
+        },
+        {
+          "args": [
+            "refund card",
+            3
+          ],
+          "returns": [
+            "How refunds work",
+            "Refund or replacement for a damaged item",
+            "Changing your payment method or billing address"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "my card was charged two times\n- How refunds work\n- Double charges and pending payments\nthe box came broken\n- Lost, late or damaged parcels\nerror E500\n- Error codes explained"
+    }
+  ]
+}

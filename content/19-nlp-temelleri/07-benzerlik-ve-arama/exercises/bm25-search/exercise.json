@@ -1,0 +1,96 @@
+{
+  "id": "bm25-search",
+  "title": {
+    "tr": "BM25'i yaz",
+    "en": "Write BM25"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her makale için `tf = Counter(doc)` ve `norm`; sonra sorgu kelimelerini dolaş.",
+      "en": "For each article `tf = Counter(doc)` and `norm`; then walk the query words."
+    },
+    {
+      "tr": "Yalnızca `if w in tf:` olan kelimeler puana katılır.",
+      "en": "Only words with `if w in tf:` add to the score."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport math\nfrom collections import Counter\n\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom text_data import make_articles\n\narticles = make_articles()\nanalyze = CountVectorizer().build_analyzer()\ntokens = [analyze(a[\"title\"] + \". \" + a[\"text\"]) for a in articles]\navg_len = sum(len(t) for t in tokens) / len(tokens)\ndf = Counter(w for t in tokens for w in set(t))\nN = len(tokens)\n\n\ndef bm25(query, k1=1.5, b=0.75):\n    scores = []\n    for doc in tokens:\n        tf = Counter(doc)\n        norm = k1 * (1 - b + b * len(doc) / avg_len)\n        score = 0.0\n        for w in analyze(query):\n            if w in tf:\n                idf = math.log(1 + (N - df[w] + 0.5) / (df[w] + 0.5))\n                score += idf * tf[w] * (k1 + 1) / (tf[w] + norm)\n        scores.append(score)\n    return scores\n\n\nfor query in [\"tracking number not working\", \"reset my password\"]:\n    scores = bm25(query)\n    best = max(range(N), key=lambda i: scores[i])\n    print(round(scores[best], 3))\n    print(articles[best][\"title\"])\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport math\nfrom collections import Counter\n\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom text_data import make_articles\n\narticles = make_articles()\nanalyze = CountVectorizer().build_analyzer()\ntokens = [analyze(a[\"title\"] + \". \" + a[\"text\"]) for a in articles]\navg_len = sum(len(t) for t in tokens) / len(tokens)\ndf = Counter(w for t in tokens for w in set(t))\nN = len(tokens)\n\n\ndef bm25(query, k1=1.5, b=0.75):\n    scores = []\n    for doc in tokens:\n        tf = Counter(doc)\n        norm = k1 * (1 - b + b * len(doc) / avg_len)\n        score = 0.0\n        for w in analyze(query):\n            if w in tf:\n                idf = math.log(1 + (N - df[w] + 0.5) / (df[w] + 0.5))\n                score += idf * tf[w] * (k1 + 1) / (tf[w] + norm)\n        scores.append(score)\n    return scores\n\n\nfor query in [\"tracking number not working\", \"reset my password\"]:\n    scores = bm25(query)\n    best = max(range(N), key=lambda i: scores[i])\n    print(round(scores[best], 3))\n    print(articles[best][\"title\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "bm25",
+      "cases": [
+        {
+          "args": [
+            "refund"
+          ],
+          "returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.8595667600610462,
+            0.0,
+            2.732479180815642
+          ]
+        },
+        {
+          "args": [
+            "login locked"
+          ],
+          "returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.8844543889505316,
+            6.041044451746302,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "9.441\nTracking your order\n4.565\nResetting your password"
+    }
+  ]
+}

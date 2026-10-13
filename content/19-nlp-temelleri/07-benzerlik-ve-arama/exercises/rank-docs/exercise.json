@@ -1,0 +1,66 @@
+{
+  "id": "rank-docs",
+  "title": {
+    "tr": "Belgeleri sırala",
+    "en": "Rank the documents"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Puanlar: `cosine_similarity(vectorizer.transform([query]), vectorizer.transform(DOCS)).ravel()`.",
+      "en": "The scores: `cosine_similarity(vectorizer.transform([query]), vectorizer.transform(DOCS)).ravel()`."
+    },
+    {
+      "tr": "Sıradaki her `i` için `scores[i] > 0` ise `int(i)` ekle.",
+      "en": "For each `i` in the order, add `int(i)` if `scores[i] > 0`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics.pairwise import cosine_similarity\n\nDOCS = [\"my parcel never arrived\", \"reset my password please\", \"the parcel arrived damaged\",\n        \"refund for the damaged parcel\", \"app crashes on start\"]\n\n\ndef rank(query):\n    vectorizer = TfidfVectorizer().fit(DOCS)\n    scores = cosine_similarity(vectorizer.transform([query]), vectorizer.transform(DOCS)).ravel()\n    order = np.argsort(scores, kind=\"stable\")[::-1]\n    return [int(i) for i in order if scores[i] > 0]\n\n\nprint(rank(\"damaged parcel\"))\nprint(rank(\"password\"))\nprint(rank(\"weather today\"))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics.pairwise import cosine_similarity\n\nDOCS = [\"my parcel never arrived\", \"reset my password please\", \"the parcel arrived damaged\",\n        \"refund for the damaged parcel\", \"app crashes on start\"]\n\n\ndef rank(query):\n    vectorizer = TfidfVectorizer().fit(DOCS)\n    scores = cosine_similarity(vectorizer.transform([query]), vectorizer.transform(DOCS)).ravel()\n    order = np.argsort(scores, kind=\"stable\")[::-1]\n    return [int(i) for i in order if scores[i] > 0]\n\n\nprint(rank(\"damaged parcel\"))\nprint(rank(\"password\"))\nprint(rank(\"weather today\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "rank",
+      "cases": [
+        {
+          "args": [
+            "parcel"
+          ],
+          "returns": [
+            2,
+            0,
+            3
+          ]
+        },
+        {
+          "args": [
+            "refund"
+          ],
+          "returns": [
+            3
+          ]
+        },
+        {
+          "args": [
+            "nothing matches"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 3, 0]\n[1]\n[]"
+    }
+  ]
+}

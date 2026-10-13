@@ -1,0 +1,64 @@
+{
+  "id": "precision-at-k",
+  "title": {
+    "tr": "precision@k",
+    "en": "precision@k"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Sıralama: `np.argsort(S, axis=1, kind=\"stable\")[:, ::-1][:, :k]`.",
+      "en": "The ranking: `np.argsort(S, axis=1, kind=\"stable\")[:, ::-1][:, :k]`."
+    },
+    {
+      "tr": "`(cats[ranked] == truth[:, None]).any(axis=1)` isabetler; ortalamasını al.",
+      "en": "`(cats[ranked] == truth[:, None]).any(axis=1)` gives the hits; take their mean."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics.pairwise import cosine_similarity\nfrom text_data import make_articles, make_tickets\n\narticles = make_articles()\ntexts = [a[\"title\"] + \". \" + a[\"text\"] for a in articles]\ncats = np.array([a[\"category\"] for a in articles])\ntickets = make_tickets(1000)\ntruth = np.array([t[\"category\"] for t in tickets])\nvectorizer = TfidfVectorizer(stop_words=\"english\").fit(texts)\nS = cosine_similarity(vectorizer.transform([t[\"text\"] for t in tickets]), vectorizer.transform(texts))\n\n\ndef precision_at_k(k):\n    ranked = np.argsort(S, axis=1, kind=\"stable\")[:, ::-1][:, :k]\n    hit = (cats[ranked] == truth[:, None]).any(axis=1)\n    return round(float(hit.mean()), 3)\n\n\nfor k in [1, 2, 3]:\n    print(k, precision_at_k(k))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics.pairwise import cosine_similarity\nfrom text_data import make_articles, make_tickets\n\narticles = make_articles()\ntexts = [a[\"title\"] + \". \" + a[\"text\"] for a in articles]\ncats = np.array([a[\"category\"] for a in articles])\ntickets = make_tickets(1000)\ntruth = np.array([t[\"category\"] for t in tickets])\nvectorizer = TfidfVectorizer(stop_words=\"english\").fit(texts)\nS = cosine_similarity(vectorizer.transform([t[\"text\"] for t in tickets]), vectorizer.transform(texts))\n\n\ndef precision_at_k(k):\n    ranked = np.argsort(S, axis=1, kind=\"stable\")[:, ::-1][:, :k]\n    hit = (cats[ranked] == truth[:, None]).any(axis=1)\n    return round(float(hit.mean()), 3)\n\n\nfor k in [1, 2, 3]:\n    print(k, precision_at_k(k))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "precision_at_k",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": 0.809
+        },
+        {
+          "args": [
+            5
+          ],
+          "returns": 0.98
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 0.809\n2 0.885\n3 0.934"
+    }
+  ]
+}
