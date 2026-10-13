@@ -24,9 +24,21 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [1.1.0] — yayınlanmadı
 
 ### Eklendi
-- **Doğal Dil İşleme (NLP) patikası.** Metni sayıya çevirmekten dil
-  modellerinin nasıl çalıştığına kadar. **NLP Temelleri** ve **Gömmeler ve
-  Dil Modelleri** modülleri yazılıyor.
+- **Doğal Dil İşleme (NLP) patikası.** Metni temizlemekten bir dil modelinin
+  içini anlamaya kadar. **NLP Temelleri** (17 bölüm) klasik NLP'nin araç
+  kutusu: metni temizlemek ve parçalamak, kelime torbası ve TF-IDF, metin
+  sınıflandırma ve duygu analizi, konu modelleme, yakın kopyalar ve bilgi
+  çıkarma; sonunda bir destek talebi sınıflandırıcısı. **Gömmeler ve Dil
+  Modelleri** (17 bölüm) kelime vektörlerinden transformer'a: PPMI ve
+  Word2Vec, alt kelime parçalama, n-gram dil modeli ve HMM, sinir ağları,
+  RNN, dikkat mekanizması ve transformer bloğu, ön eğitim, metin üretimi ve
+  değerlendirme; sonunda bir anlamsal arama motoru. Modeller NumPy ile
+  sıfırdan kuruluyor.
+
+### Değişti
+- **Seviyeler yeni patikaya göre genişletildi.** Bir sonraki seviye için
+  gereken XP biraz arttı; mevcut seviyeniz birkaç basamak düşebilir.
+  Kazandığınız unvanlar sizde kalıyor.
 
 ### Düzeltildi
 - **Program daha hızlı açılıyor.** Açılış animasyonu bittikten sonra

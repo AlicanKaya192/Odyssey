@@ -26,9 +26,22 @@ lecture note does not mean downloading the whole application again.
 ## [1.1.0] — unreleased
 
 ### Added
-- **Natural Language Processing (NLP) path.** From turning text into numbers
-  to how language models work. The **NLP Fundamentals** and **Embeddings and
-  Language Models** modules are being written.
+- **Natural Language Processing (NLP) path.** From cleaning text to
+  understanding what is inside a language model. **NLP Fundamentals** (17
+  sections) is the toolbox of classical NLP: cleaning and splitting text, bag
+  of words and TF-IDF, text classification and sentiment analysis, topic
+  modelling, near duplicates and information extraction, ending with a
+  support ticket classifier. **Embeddings and Language Models** (17
+  sections) goes from word vectors to the transformer: PPMI and Word2Vec,
+  subword tokenisation, the n-gram language model and HMMs, neural networks,
+  RNNs, the attention mechanism and the transformer block, pretraining, text
+  generation and evaluation, ending with a semantic search engine. The models
+  are built from scratch with NumPy.
+
+### Changed
+- **Levels were widened for the new path.** The XP needed for the next level
+  went up a little; your current level may drop by a few steps. The titles
+  you have earned stay yours.
 
 ### Fixed
 - **Odyssey opens faster.** After the start-up animation ended, it waited a
