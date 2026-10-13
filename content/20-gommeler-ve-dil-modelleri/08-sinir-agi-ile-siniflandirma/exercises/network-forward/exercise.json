@@ -1,0 +1,77 @@
+{
+  "id": "network-forward",
+  "title": {
+    "tr": "İleri hesap",
+    "en": "The forward pass"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "NumPy dizilerine çevir; ReLU `np.maximum(..., 0)`.",
+      "en": "Convert to NumPy arrays; ReLU is `np.maximum(..., 0)`."
+    },
+    {
+      "tr": "Softmax'tan önce satır en büyüğünü çıkar.",
+      "en": "Subtract each row's maximum before softmax."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef forward(A, E, W1, W2):\n    x = np.array(A) @ np.array(E)\n    h = np.maximum(x @ np.array(W1), 0)\n    z = h @ np.array(W2)\n    z = z - z.max(axis=1, keepdims=True)\n    p = np.exp(z) / np.exp(z).sum(axis=1, keepdims=True)\n    return p.round(3).tolist()\n\nE = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]\nW1 = [[1.0, -1.0], [0.5, 1.0]]\nW2 = [[1.0, 0.0], [0.0, 1.0]]\nprint(forward([[0.0, 0.5, 0.5]], E, W1, W2))\nprint(forward([[0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], E, W1, W2))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef forward(A, E, W1, W2):\n    x = np.array(A) @ np.array(E)\n    h = np.maximum(x @ np.array(W1), 0)\n    z = h @ np.array(W2)\n    z = z - z.max(axis=1, keepdims=True)\n    p = np.exp(z) / np.exp(z).sum(axis=1, keepdims=True)\n    return p.round(3).tolist()\n\nE = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]\nW1 = [[1.0, -1.0], [0.5, 1.0]]\nW2 = [[1.0, 0.0], [0.0, 1.0]]\nprint(forward([[0.0, 0.5, 0.5]], E, W1, W2))\nprint(forward([[0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], E, W1, W2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "forward",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                1.0
+              ],
+              [
+                0.0
+              ]
+            ],
+            [
+              [
+                2.0
+              ]
+            ],
+            [
+              [
+                1.0,
+                -1.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.982,
+              0.018
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[0.679, 0.321]]\n[[0.731, 0.269], [0.378, 0.622]]"
+    }
+  ]
+}

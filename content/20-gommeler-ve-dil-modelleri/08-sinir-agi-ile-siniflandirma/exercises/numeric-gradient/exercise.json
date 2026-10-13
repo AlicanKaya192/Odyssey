@@ -1,0 +1,55 @@
+{
+  "id": "numeric-gradient",
+  "title": {
+    "tr": "Sayısal türev",
+    "en": "A numerical derivative"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her ağırlık için iki kopya: `up, down = list(w), list(w)`.",
+      "en": "Two copies per weight: `up, down = list(w), list(w)`."
+    },
+    {
+      "tr": "`up[i] += eps`, `down[i] -= eps`; farkı `2 * eps`'ye böl.",
+      "en": "`up[i] += eps`, `down[i] -= eps`; divide by `2 * eps`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\nX = [[1.0, 2.0], [2.0, -1.0], [-1.0, 0.5]]\nY = [1, 0, 1]\n\n\ndef loss(w):\n    total = 0.0\n    for x, y in zip(X, Y):\n        p = 1 / (1 + math.exp(-(w[0] * x[0] + w[1] * x[1])))\n        total -= math.log(p if y == 1 else 1 - p)\n    return total / len(X)\n\n\ndef numeric_gradient(w, eps):\n    grads = []\n    for i in range(len(w)):\n        up, down = list(w), list(w)\n        up[i] += eps\n        down[i] -= eps\n        grads.append(round((loss(up) - loss(down)) / (2 * eps), 4))\n    return grads\n\nprint(numeric_gradient([0.5, -0.2], 1e-5))\nprint(numeric_gradient([0.0, 0.0], 1e-5))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\nX = [[1.0, 2.0], [2.0, -1.0], [-1.0, 0.5]]\nY = [1, 0, 1]\n\n\ndef loss(w):\n    total = 0.0\n    for x, y in zip(X, Y):\n        p = 1 / (1 + math.exp(-(w[0] * x[0] + w[1] * x[1])))\n        total -= math.log(p if y == 1 else 1 - p)\n    return total / len(X)\n\n\ndef numeric_gradient(w, eps):\n    grads = []\n    for i in range(len(w)):\n        up, down = list(w), list(w)\n        up[i] += eps\n        down[i] -= eps\n        grads.append(round((loss(up) - loss(down)) / (2 * eps), 4))\n    return grads\n\nprint(numeric_gradient([0.5, -0.2], 1e-5))\nprint(numeric_gradient([0.0, 0.0], 1e-5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "numeric_gradient",
+      "cases": [
+        {
+          "args": [
+            [
+              1.0,
+              1.0
+            ],
+            1e-05
+          ],
+          "returns": [
+            0.6791,
+            -0.379
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.5692, -0.6805]\n[0.3333, -0.5833]"
+    }
+  ]
+}
