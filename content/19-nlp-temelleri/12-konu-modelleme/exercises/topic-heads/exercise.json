@@ -1,0 +1,72 @@
+{
+  "id": "topic-heads",
+  "title": {
+    "tr": "k konulu NMF",
+    "en": "NMF with k topics"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "`nmf.components_` konu başına bir satır; `words[row.argsort()[::-1][:2]]`.",
+      "en": "`nmf.components_` has one row per topic; `words[row.argsort()[::-1][:2]]`."
+    },
+    {
+      "tr": "Listeyi `sorted(...)` ile döndür.",
+      "en": "Return the list with `sorted(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom sklearn.decomposition import NMF\nfrom sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, TfidfVectorizer\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\ntexts = [t[\"text\"] for t in tickets]\nstop = list(ENGLISH_STOP_WORDS | {\"ord\", \"com\", \"example\", \"hi\", \"hello\",\n                                  \"thanks\", \"thank\", \"dear\", \"support\",\n                                  \"regards\", \"help\"})\ntfidf = TfidfVectorizer(stop_words=stop, token_pattern=r\"[a-z]{2,}\", min_df=5)\nX = tfidf.fit_transform(texts)\nwords = tfidf.get_feature_names_out()\n\n\ndef topic_heads(k):\n    nmf = NMF(n_components=k, random_state=0, max_iter=500).fit(X)\n    heads = [\" \".join(words[row.argsort()[::-1][:2]]) for row in nmf.components_]\n    return sorted(heads)\n\nfor head in topic_heads(3):\n    print(head)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom sklearn.decomposition import NMF\nfrom sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, TfidfVectorizer\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\ntexts = [t[\"text\"] for t in tickets]\nstop = list(ENGLISH_STOP_WORDS | {\"ord\", \"com\", \"example\", \"hi\", \"hello\",\n                                  \"thanks\", \"thank\", \"dear\", \"support\",\n                                  \"regards\", \"help\"})\ntfidf = TfidfVectorizer(stop_words=stop, token_pattern=r\"[a-z]{2,}\", min_df=5)\nX = tfidf.fit_transform(texts)\nwords = tfidf.get_feature_names_out()\n\n\ndef topic_heads(k):\n    nmf = NMF(n_components=k, random_state=0, max_iter=500).fit(X)\n    heads = [\" \".join(words[row.argsort()[::-1][:2]]) for row in nmf.components_]\n    return sorted(heads)\n\nfor head in topic_heads(3):\n    print(head)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "topic_heads",
+      "cases": [
+        {
+          "args": [
+            2
+          ],
+          "returns": [
+            "account address",
+            "order app"
+          ]
+        },
+        {
+          "args": [
+            4
+          ],
+          "returns": [
+            "account email",
+            "app page",
+            "arrived box",
+            "delivered order"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "account address\napp page\norder delivered"
+    }
+  ]
+}

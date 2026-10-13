@@ -1,0 +1,70 @@
+{
+  "id": "money-topic",
+  "title": {
+    "tr": "Fatura ve iade nereye gitti?",
+    "en": "Where did billing and refund go?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Kategorinin talepleri: `[int(W[i].argmax()) for i, t in enumerate(tickets) if t[\"category\"] == category]`.",
+      "en": "The category's tickets: `[int(W[i].argmax()) for i, t in enumerate(tickets) if t[\"category\"] == category]`."
+    },
+    {
+      "tr": "En sık konu `max(set(topics), key=topics.count)`; kelimeleri `nmf.components_[best]` satırından.",
+      "en": "The most common topic is `max(set(topics), key=topics.count)`; the words come from the row `nmf.components_[best]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom sklearn.decomposition import NMF\nfrom sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, TfidfVectorizer\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\ntexts = [t[\"text\"] for t in tickets]\nstop = list(ENGLISH_STOP_WORDS | {\"ord\", \"com\", \"example\", \"hi\", \"hello\",\n                                  \"thanks\", \"thank\", \"dear\", \"support\",\n                                  \"regards\", \"help\"})\ntfidf = TfidfVectorizer(stop_words=stop, token_pattern=r\"[a-z]{2,}\", min_df=5)\nX = tfidf.fit_transform(texts)\nwords = tfidf.get_feature_names_out()\nnmf = NMF(n_components=8, random_state=0, max_iter=500)\nW = nmf.fit_transform(X)\n\n\ndef main_topic(category):\n    topics = [int(W[i].argmax()) for i, t in enumerate(tickets) if t[\"category\"] == category]\n    best = max(set(topics), key=topics.count)\n    head = \" \".join(words[nmf.components_[best].argsort()[::-1][:3]])\n    return [head, round(topics.count(best) / len(topics), 3)]\n\nfor category in [\"billing\", \"refund\"]:\n    print(category, main_topic(category))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom sklearn.decomposition import NMF\nfrom sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, TfidfVectorizer\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\ntexts = [t[\"text\"] for t in tickets]\nstop = list(ENGLISH_STOP_WORDS | {\"ord\", \"com\", \"example\", \"hi\", \"hello\",\n                                  \"thanks\", \"thank\", \"dear\", \"support\",\n                                  \"regards\", \"help\"})\ntfidf = TfidfVectorizer(stop_words=stop, token_pattern=r\"[a-z]{2,}\", min_df=5)\nX = tfidf.fit_transform(texts)\nwords = tfidf.get_feature_names_out()\nnmf = NMF(n_components=8, random_state=0, max_iter=500)\nW = nmf.fit_transform(X)\n\n\ndef main_topic(category):\n    topics = [int(W[i].argmax()) for i, t in enumerate(tickets) if t[\"category\"] == category]\n    best = max(set(topics), key=topics.count)\n    head = \" \".join(words[nmf.components_[best].argsort()[::-1][:3]])\n    return [head, round(topics.count(best) / len(topics), 3)]\n\nfor category in [\"billing\", \"refund\"]:\n    print(category, main_topic(category))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "main_topic",
+      "cases": [
+        {
+          "args": [
+            "refund"
+          ],
+          "returns": [
+            "card paid credit",
+            0.815
+          ]
+        },
+        {
+          "args": [
+            "technical"
+          ],
+          "returns": [
+            "app page error",
+            0.511
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "billing ['card paid credit', 0.453]\nrefund ['card paid credit', 0.815]"
+    }
+  ]
+}

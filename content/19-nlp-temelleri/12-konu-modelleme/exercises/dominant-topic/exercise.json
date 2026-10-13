@@ -1,0 +1,75 @@
+{
+  "id": "dominant-topic",
+  "title": {
+    "tr": "Baskın konu",
+    "en": "The dominant topic"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "En ağır konu: `max(range(len(row)), key=lambda i: row[i])`.",
+      "en": "The heaviest topic: `max(range(len(row)), key=lambda i: row[i])`."
+    },
+    {
+      "tr": "Önce toplamın 0 olmadığına bak, sonra `row[best] / total >= share`.",
+      "en": "Check the total is not 0 first, then `row[best] / total >= share`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef dominant(weights, share):\n    result = []\n    for row in weights:\n        total = sum(row)\n        best = max(range(len(row)), key=lambda i: row[i])\n        result.append(best if total and row[best] / total >= share else -1)\n    return result\n\nweights = [[0.8, 0.1, 0.1], [0.4, 0.35, 0.25], [0.0, 0.0, 0.0]]\nprint(dominant(weights, 0.5))\n```",
+      "en": "The full solution:\n\n```python\ndef dominant(weights, share):\n    result = []\n    for row in weights:\n        total = sum(row)\n        best = max(range(len(row)), key=lambda i: row[i])\n        result.append(best if total and row[best] / total >= share else -1)\n    return result\n\nweights = [[0.8, 0.1, 0.1], [0.4, 0.35, 0.25], [0.0, 0.0, 0.0]]\nprint(dominant(weights, 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "dominant",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.2,
+                0.6
+              ]
+            ],
+            0.7
+          ],
+          "returns": [
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0.0,
+                3.0
+              ],
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            0.5
+          ],
+          "returns": [
+            1,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, -1, -1]"
+    }
+  ]
+}

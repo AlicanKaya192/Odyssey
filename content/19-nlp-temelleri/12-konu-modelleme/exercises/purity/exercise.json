@@ -1,0 +1,72 @@
+{
+  "id": "purity",
+  "title": {
+    "tr": "Saflık",
+    "en": "Purity"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Konuya göre grupla: `groups.setdefault(topic, []).append(label)`.",
+      "en": "Group by topic: `groups.setdefault(topic, []).append(label)`."
+    },
+    {
+      "tr": "Her grubun en sık etiketinin sayısı: `Counter(group).most_common(1)[0][1]`.",
+      "en": "The count of each group's most common label: `Counter(group).most_common(1)[0][1]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef purity(topics, labels):\n    groups = {}\n    for topic, label in zip(topics, labels):\n        groups.setdefault(topic, []).append(label)\n    hits = sum(Counter(group).most_common(1)[0][1] for group in groups.values())\n    return round(hits / len(labels), 3)\n\ntopics = [0, 0, 0, 1, 1, 2]\nlabels = [\"a\", \"a\", \"b\", \"b\", \"b\", \"a\"]\nprint(purity(topics, labels))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef purity(topics, labels):\n    groups = {}\n    for topic, label in zip(topics, labels):\n        groups.setdefault(topic, []).append(label)\n    hits = sum(Counter(group).most_common(1)[0][1] for group in groups.values())\n    return round(hits / len(labels), 3)\n\ntopics = [0, 0, 0, 1, 1, 2]\nlabels = [\"a\", \"a\", \"b\", \"b\", \"b\", \"a\"]\nprint(purity(topics, labels))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "purity",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              "a",
+              "b",
+              "b"
+            ]
+          ],
+          "returns": 0.667
+        },
+        {
+          "args": [
+            [
+              0,
+              1,
+              2
+            ],
+            [
+              "a",
+              "a",
+              "a"
+            ]
+          ],
+          "returns": 1.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.833"
+    }
+  ]
+}
