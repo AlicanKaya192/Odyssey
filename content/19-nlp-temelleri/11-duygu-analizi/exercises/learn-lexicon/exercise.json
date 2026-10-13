@@ -1,0 +1,72 @@
+{
+  "id": "learn-lexicon",
+  "title": {
+    "tr": "Sözlüğü veriden öğren",
+    "en": "Learn the lexicon from data"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "`math.log(pos / neg)`; `pos` ve `neg` yumuşatılmış oranlar.",
+      "en": "`math.log(pos / neg)`; `pos` and `neg` are the smoothed rates."
+    },
+    {
+      "tr": "Eşit oranlar her seferinde aynı sırada çıksın diye önce abece sırasına koy: `sorted(sorted(...), key=log_odds)`; olumlu için ters çevir.",
+      "en": "So that ties come out in the same order every time, sort alphabetically first: `sorted(sorted(...), key=log_odds)`; reverse it for positive."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport math\nimport re\nfrom collections import Counter\n\nfrom text_data import make_reviews\n\ncounts = {\"positive\": Counter(), \"negative\": Counter()}\nfor r in make_reviews(1000):\n    if r[\"label\"] in counts:\n        counts[r[\"label\"]].update(set(re.findall(r\"[a-z']+\", r[\"text\"].lower())))\nsizes = {\"positive\": 0, \"negative\": 0}\nfor r in make_reviews(1000):\n    if r[\"label\"] in sizes:\n        sizes[r[\"label\"]] += 1\ncommon = counts[\"positive\"] + counts[\"negative\"]\n\n\ndef log_odds(word):\n    pos = (counts[\"positive\"][word] + 1) / (sizes[\"positive\"] + 2)\n    neg = (counts[\"negative\"][word] + 1) / (sizes[\"negative\"] + 2)\n    return math.log(pos / neg)\n\n\ndef top_words(label, k):\n    words = sorted(sorted(w for w in common if common[w] >= 5), key=log_odds)\n    if label == \"positive\":\n        words = words[::-1]\n    return words[:k]\n\n\nprint(top_words(\"negative\", 4))\nprint(top_words(\"positive\", 4))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport math\nimport re\nfrom collections import Counter\n\nfrom text_data import make_reviews\n\ncounts = {\"positive\": Counter(), \"negative\": Counter()}\nfor r in make_reviews(1000):\n    if r[\"label\"] in counts:\n        counts[r[\"label\"]].update(set(re.findall(r\"[a-z']+\", r[\"text\"].lower())))\nsizes = {\"positive\": 0, \"negative\": 0}\nfor r in make_reviews(1000):\n    if r[\"label\"] in sizes:\n        sizes[r[\"label\"]] += 1\ncommon = counts[\"positive\"] + counts[\"negative\"]\n\n\ndef log_odds(word):\n    pos = (counts[\"positive\"][word] + 1) / (sizes[\"positive\"] + 2)\n    neg = (counts[\"negative\"][word] + 1) / (sizes[\"negative\"] + 2)\n    return math.log(pos / neg)\n\n\ndef top_words(label, k):\n    words = sorted(sorted(w for w in common if common[w] >= 5), key=log_odds)\n    if label == \"positive\":\n        words = words[::-1]\n    return words[:k]\n\n\nprint(top_words(\"negative\", 4))\nprint(top_words(\"positive\", 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_words",
+      "cases": [
+        {
+          "args": [
+            "negative",
+            2
+          ],
+          "returns": [
+            "hate",
+            "honest"
+          ]
+        },
+        {
+          "args": [
+            "positive",
+            2
+          ],
+          "returns": [
+            "love",
+            "expected"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['hate', 'honest', 'worse', 'stopped']\n['love', 'expected', 'totally', 'packed']"
+    }
+  ]
+}

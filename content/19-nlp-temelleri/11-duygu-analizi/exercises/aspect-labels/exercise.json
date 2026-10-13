@@ -1,0 +1,74 @@
+{
+  "id": "aspect-labels",
+  "title": {
+    "tr": "Özellik başına etiket",
+    "en": "A label per aspect"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Toplamları `totals.get(aspect, 0) + negated(sentence, 3)` ile biriktir.",
+      "en": "Accumulate the totals with `totals.get(aspect, 0) + negated(sentence, 3)`."
+    },
+    {
+      "tr": "Son adım bir sözlük kavraması: `{a: ... for a, s in totals.items()}`.",
+      "en": "The last step is a dictionary comprehension: `{a: ... for a, s in totals.items()}`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nGOOD = {\"good\", \"great\", \"love\", \"worth\"}\nBAD = {\"bad\", \"awful\", \"hate\"}\nNEGATORS = {\"not\", \"never\", \"can't\"}\n\n\ndef negated(text, window):\n    total, left = 0, 0\n    for word in re.findall(r\"[a-z']+|[.,!?]\", text.lower()):\n        if word in \".,!?\":\n            left = 0\n        elif word in NEGATORS:\n            left = window\n        else:\n            value = (word in GOOD) - (word in BAD)\n            total += -value if left else value\n            left = max(left - 1, 0)\n    return total\n\n\ndef aspect_labels(text, aspects):\n    totals = {}\n    for sentence in re.findall(r\"[^.!?]+\", text.lower()):\n        for aspect in aspects:\n            if aspect in sentence:\n                totals[aspect] = totals.get(aspect, 0) + negated(sentence, 3)\n    return {a: \"positive\" if s > 0 else \"negative\" if s < 0 else \"neutral\"\n            for a, s in totals.items()}\n\ntext = \"The strap is great. The screen is not good. Fast delivery.\"\nprint(aspect_labels(text, [\"strap\", \"screen\", \"battery\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nGOOD = {\"good\", \"great\", \"love\", \"worth\"}\nBAD = {\"bad\", \"awful\", \"hate\"}\nNEGATORS = {\"not\", \"never\", \"can't\"}\n\n\ndef negated(text, window):\n    total, left = 0, 0\n    for word in re.findall(r\"[a-z']+|[.,!?]\", text.lower()):\n        if word in \".,!?\":\n            left = 0\n        elif word in NEGATORS:\n            left = window\n        else:\n            value = (word in GOOD) - (word in BAD)\n            total += -value if left else value\n            left = max(left - 1, 0)\n    return total\n\n\ndef aspect_labels(text, aspects):\n    totals = {}\n    for sentence in re.findall(r\"[^.!?]+\", text.lower()):\n        for aspect in aspects:\n            if aspect in sentence:\n                totals[aspect] = totals.get(aspect, 0) + negated(sentence, 3)\n    return {a: \"positive\" if s > 0 else \"negative\" if s < 0 else \"neutral\"\n            for a, s in totals.items()}\n\ntext = \"The strap is great. The screen is not good. Fast delivery.\"\nprint(aspect_labels(text, [\"strap\", \"screen\", \"battery\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "aspect_labels",
+      "cases": [
+        {
+          "args": [
+            "The strap is great. The strap is bad.",
+            [
+              "strap",
+              "screen"
+            ]
+          ],
+          "returns": {
+            "strap": "neutral"
+          }
+        },
+        {
+          "args": [
+            "I love the screen",
+            [
+              "screen"
+            ]
+          ],
+          "returns": {
+            "screen": "positive"
+          }
+        },
+        {
+          "args": [
+            "Nothing here.",
+            [
+              "strap"
+            ]
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'strap': 'positive', 'screen': 'negative'}"
+    }
+  ]
+}

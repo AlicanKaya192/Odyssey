@@ -1,0 +1,79 @@
+{
+  "id": "abstain",
+  "title": {
+    "tr": "Emin değilsen karar verme",
+    "en": "Do not decide when unsure"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Maske: `keep = np.abs(scores) > margin`; tahmin `np.where(scores > 0, \"positive\", \"negative\")`.",
+      "en": "The mask: `keep = np.abs(scores) > margin`; predictions `np.where(scores > 0, \"positive\", \"negative\")`."
+    },
+    {
+      "tr": "Kapsama `keep.mean()`, doğruluk `(pred[keep] == labels[keep]).mean()`; `float(...)` ile yuvarla.",
+      "en": "Coverage is `keep.mean()`, accuracy `(pred[keep] == labels[keep]).mean()`; round with `float(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nimport numpy as np\nfrom text_data import make_reviews\n\nPOSITIVE = {\"good\", \"solid\", \"comfortable\", \"reliable\", \"sturdy\", \"nice\",\n            \"quiet\", \"great\", \"excellent\", \"perfect\", \"fantastic\",\n            \"impressive\", \"love\", \"loves\", \"worth\", \"better\", \"well\", \"needed\"}\nNEGATIVE = {\"bad\", \"weak\", \"flimsy\", \"poor\", \"uncomfortable\", \"loud\",\n            \"fragile\", \"terrible\", \"awful\", \"useless\", \"disappointing\", \"hate\",\n            \"worse\", \"waste\", \"broke\", \"damaged\", \"late\", \"returned\",\n            \"stopped\", \"never\"}\nNEGATORS = {\"not\", \"can't\", \"never\", \"no\", \"don't\", \"didn't\"}\n\n\ndef negated_score(text):\n    total, left = 0, 0\n    for word in re.findall(r\"[a-z']+|[.,!?]\", text.lower()):\n        if word in \".,!?\":\n            left = 0\n        elif word in NEGATORS:\n            left = 3\n        else:\n            value = (word in POSITIVE) - (word in NEGATIVE)\n            total += -value if left else value\n            left = max(left - 1, 0)\n    return total\n\n\nreviews = make_reviews(2000)\nscores = np.array([negated_score(r[\"text\"]) for r in reviews])\nlabels = np.array([r[\"label\"] for r in reviews])\n\n\ndef coverage_accuracy(margin):\n    keep = np.abs(scores) > margin\n    pred = np.where(scores > 0, \"positive\", \"negative\")\n    accuracy = (pred[keep] == labels[keep]).mean()\n    return [round(float(keep.mean()), 3), round(float(accuracy), 3)]\n\n\nfor margin in [0, 1, 2]:\n    print(margin, coverage_accuracy(margin))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nimport numpy as np\nfrom text_data import make_reviews\n\nPOSITIVE = {\"good\", \"solid\", \"comfortable\", \"reliable\", \"sturdy\", \"nice\",\n            \"quiet\", \"great\", \"excellent\", \"perfect\", \"fantastic\",\n            \"impressive\", \"love\", \"loves\", \"worth\", \"better\", \"well\", \"needed\"}\nNEGATIVE = {\"bad\", \"weak\", \"flimsy\", \"poor\", \"uncomfortable\", \"loud\",\n            \"fragile\", \"terrible\", \"awful\", \"useless\", \"disappointing\", \"hate\",\n            \"worse\", \"waste\", \"broke\", \"damaged\", \"late\", \"returned\",\n            \"stopped\", \"never\"}\nNEGATORS = {\"not\", \"can't\", \"never\", \"no\", \"don't\", \"didn't\"}\n\n\ndef negated_score(text):\n    total, left = 0, 0\n    for word in re.findall(r\"[a-z']+|[.,!?]\", text.lower()):\n        if word in \".,!?\":\n            left = 0\n        elif word in NEGATORS:\n            left = 3\n        else:\n            value = (word in POSITIVE) - (word in NEGATIVE)\n            total += -value if left else value\n            left = max(left - 1, 0)\n    return total\n\n\nreviews = make_reviews(2000)\nscores = np.array([negated_score(r[\"text\"]) for r in reviews])\nlabels = np.array([r[\"label\"] for r in reviews])\n\n\ndef coverage_accuracy(margin):\n    keep = np.abs(scores) > margin\n    pred = np.where(scores > 0, \"positive\", \"negative\")\n    accuracy = (pred[keep] == labels[keep]).mean()\n    return [round(float(keep.mean()), 3), round(float(accuracy), 3)]\n\n\nfor margin in [0, 1, 2]:\n    print(margin, coverage_accuracy(margin))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "coverage_accuracy",
+      "cases": [
+        {
+          "args": [
+            0
+          ],
+          "returns": [
+            0.777,
+            0.881
+          ]
+        },
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            0.436,
+            0.979
+          ]
+        },
+        {
+          "args": [
+            3
+          ],
+          "returns": [
+            0.051,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 [0.777, 0.881]\n1 [0.436, 0.979]\n2 [0.182, 0.997]"
+    }
+  ]
+}
