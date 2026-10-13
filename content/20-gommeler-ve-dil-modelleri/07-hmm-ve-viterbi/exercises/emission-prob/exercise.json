@@ -1,0 +1,78 @@
+{
+  "id": "emission-prob",
+  "title": {
+    "tr": "Yayım olasılığı",
+    "en": "An emission probability"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "O etiketin kelimeleri: `Counter(w for s in train for w, t in s if t == tag)`.",
+      "en": "The tag's words: `Counter(w for s in train for w, t in s if t == tag)`."
+    },
+    {
+      "tr": "`V = len(vocab) + 1`.",
+      "en": "`V = len(vocab) + 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\nTRAIN = [[[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"book\", \"VERB\"]],\n         [[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"run\", \"VERB\"]]]\n\n\ndef emission_prob(train, tag, word, k):\n    counts = Counter(w for s in train for w, t in s if t == tag)\n    vocab = {w for s in train for w, _ in s}\n    V = len(vocab) + 1\n    return round((counts[word] + k) / (sum(counts.values()) + k * V), 3)\n\nprint(emission_prob(TRAIN, \"NOUN\", \"book\", 0))\nprint(emission_prob(TRAIN, \"VERB\", \"book\", 0.5))\nprint(emission_prob(TRAIN, \"VERB\", \"zebra\", 0.5))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\nTRAIN = [[[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"book\", \"VERB\"]],\n         [[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"run\", \"VERB\"]]]\n\n\ndef emission_prob(train, tag, word, k):\n    counts = Counter(w for s in train for w, t in s if t == tag)\n    vocab = {w for s in train for w, _ in s}\n    V = len(vocab) + 1\n    return round((counts[word] + k) / (sum(counts.values()) + k * V), 3)\n\nprint(emission_prob(TRAIN, \"NOUN\", \"book\", 0))\nprint(emission_prob(TRAIN, \"VERB\", \"book\", 0.5))\nprint(emission_prob(TRAIN, \"VERB\", \"zebra\", 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "emission_prob",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                [
+                  "a",
+                  "X"
+                ],
+                [
+                  "b",
+                  "X"
+                ]
+              ]
+            ],
+            "X",
+            "a",
+            0
+          ],
+          "returns": 0.5
+        },
+        {
+          "args": [
+            [
+              [
+                [
+                  "a",
+                  "X"
+                ]
+              ]
+            ],
+            "X",
+            "z",
+            1
+          ],
+          "returns": 0.333
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.0\n0.333\n0.111"
+    }
+  ]
+}

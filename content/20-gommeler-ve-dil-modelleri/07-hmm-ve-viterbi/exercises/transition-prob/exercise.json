@@ -1,0 +1,76 @@
+{
+  "id": "transition-prob",
+  "title": {
+    "tr": "Geçiş olasılığı",
+    "en": "A transition probability"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Etiket dizisi: `[\"<s>\"] + [t for _, t in s]`.",
+      "en": "The tag sequence: `[\"<s>\"] + [t for _, t in s]`."
+    },
+    {
+      "tr": "Çiftleri ve başlangıçları say, sonra böl.",
+      "en": "Count pairs and starts, then divide."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\nTRAIN = [[[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"book\", \"VERB\"]],\n         [[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"run\", \"VERB\"]]]\n\n\ndef transition_prob(train, a, b):\n    pairs, starts = Counter(), Counter()\n    for s in train:\n        tags = [\"<s>\"] + [t for _, t in s]\n        for x, y in zip(tags, tags[1:]):\n            pairs[x, y] += 1\n            starts[x] += 1\n    return round(pairs[a, b] / starts[a], 3) if starts[a] else 0.0\n\nprint(transition_prob(TRAIN, \"<s>\", \"DET\"))\nprint(transition_prob(TRAIN, \"PRON\", \"VERB\"))\nprint(transition_prob(TRAIN, \"DET\", \"VERB\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\nTRAIN = [[[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"book\", \"VERB\"]],\n         [[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"run\", \"VERB\"]]]\n\n\ndef transition_prob(train, a, b):\n    pairs, starts = Counter(), Counter()\n    for s in train:\n        tags = [\"<s>\"] + [t for _, t in s]\n        for x, y in zip(tags, tags[1:]):\n            pairs[x, y] += 1\n            starts[x] += 1\n    return round(pairs[a, b] / starts[a], 3) if starts[a] else 0.0\n\nprint(transition_prob(TRAIN, \"<s>\", \"DET\"))\nprint(transition_prob(TRAIN, \"PRON\", \"VERB\"))\nprint(transition_prob(TRAIN, \"DET\", \"VERB\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "transition_prob",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                [
+                  "x",
+                  "A"
+                ],
+                [
+                  "y",
+                  "B"
+                ]
+              ]
+            ],
+            "A",
+            "B"
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              [
+                [
+                  "x",
+                  "A"
+                ]
+              ]
+            ],
+            "B",
+            "A"
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.5\n1.0\n0.0"
+    }
+  ]
+}

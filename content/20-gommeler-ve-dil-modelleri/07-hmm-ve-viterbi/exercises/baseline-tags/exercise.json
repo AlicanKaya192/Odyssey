@@ -1,0 +1,74 @@
+{
+  "id": "baseline-tags",
+  "title": {
+    "tr": "En sık etiket",
+    "en": "The most frequent tag"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Çiftleri say: `Counter((w, t) for s in train for w, t in s)`.",
+      "en": "Count the pairs: `Counter((w, t) for s in train for w, t in s)`."
+    },
+    {
+      "tr": "Bir kelimenin etiketleri `{t: n for (w, t), n in pairs.items() if w == word}`; `max(sorted(seen), key=seen.get)`.",
+      "en": "A word's tags `{t: n for (w, t), n in pairs.items() if w == word}`; `max(sorted(seen), key=seen.get)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\nTRAIN = [[[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"book\", \"VERB\"]],\n         [[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"run\", \"VERB\"]]]\n\n\ndef baseline_tags(train, words):\n    pairs = Counter((w, t) for s in train for w, t in s)\n    out = []\n    for word in words:\n        seen = {t: n for (w, t), n in pairs.items() if w == word}\n        out.append(max(sorted(seen), key=seen.get) if seen else \"NOUN\")\n    return out\n\nprint(baseline_tags(TRAIN, [\"the\", \"book\", \"zebra\"]))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\nTRAIN = [[[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"book\", \"VERB\"]],\n         [[\"the\", \"DET\"], [\"book\", \"NOUN\"]], [[\"i\", \"PRON\"], [\"run\", \"VERB\"]]]\n\n\ndef baseline_tags(train, words):\n    pairs = Counter((w, t) for s in train for w, t in s)\n    out = []\n    for word in words:\n        seen = {t: n for (w, t), n in pairs.items() if w == word}\n        out.append(max(sorted(seen), key=seen.get) if seen else \"NOUN\")\n    return out\n\nprint(baseline_tags(TRAIN, [\"the\", \"book\", \"zebra\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "baseline_tags",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                [
+                  "a",
+                  "X"
+                ]
+              ],
+              [
+                [
+                  "a",
+                  "Y"
+                ]
+              ],
+              [
+                [
+                  "a",
+                  "Y"
+                ]
+              ]
+            ],
+            [
+              "a",
+              "b"
+            ]
+          ],
+          "returns": [
+            "Y",
+            "NOUN"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['DET', 'NOUN', 'NOUN']"
+    }
+  ]
+}

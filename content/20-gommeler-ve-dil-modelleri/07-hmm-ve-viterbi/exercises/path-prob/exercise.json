@@ -1,0 +1,68 @@
+{
+  "id": "path-prob",
+  "title": {
+    "tr": "Bir etiket dizisinin olasılığı",
+    "en": "The probability of a tag sequence"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başla: `p = START.get(tags[0], 0.0)`.",
+      "en": "Start: `p = START.get(tags[0], 0.0)`."
+    },
+    {
+      "tr": "Her adımda geçişle (ilk adım hariç) ve yayımla çarp; `.get(..., 0.0)`.",
+      "en": "At each step multiply by the transition (except the first) and the emission; `.get(..., 0.0)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nSTART = {\"DET\": 0.6, \"PRON\": 0.4}\nTRANS = {\"DET\": {\"DET\": 0.0, \"NOUN\": 0.9, \"VERB\": 0.1, \"PRON\": 0.0},\n         \"PRON\": {\"DET\": 0.0, \"NOUN\": 0.1, \"VERB\": 0.9, \"PRON\": 0.0},\n         \"VERB\": {\"DET\": 0.8, \"NOUN\": 0.2, \"VERB\": 0.0, \"PRON\": 0.0},\n         \"NOUN\": {\"DET\": 0.1, \"NOUN\": 0.1, \"VERB\": 0.8, \"PRON\": 0.0}}\nEMIT = {\"DET\": {\"the\": 1.0}, \"PRON\": {\"i\": 1.0},\n        \"NOUN\": {\"book\": 0.6, \"table\": 0.4}, \"VERB\": {\"book\": 0.5, \"read\": 0.5}}\n\n\ndef path_prob(words, tags):\n    p = START.get(tags[0], 0.0)\n    for i, (word, tag) in enumerate(zip(words, tags)):\n        if i > 0:\n            p *= TRANS[tags[i - 1]].get(tag, 0.0)\n        p *= EMIT[tag].get(word, 0.0)\n    return round(p, 6)\n\nprint(path_prob([\"i\", \"book\", \"the\", \"table\"], [\"PRON\", \"VERB\", \"DET\", \"NOUN\"]))\nprint(path_prob([\"i\", \"book\", \"the\", \"table\"], [\"PRON\", \"NOUN\", \"DET\", \"NOUN\"]))\n```",
+      "en": "The full solution:\n\n```python\nSTART = {\"DET\": 0.6, \"PRON\": 0.4}\nTRANS = {\"DET\": {\"DET\": 0.0, \"NOUN\": 0.9, \"VERB\": 0.1, \"PRON\": 0.0},\n         \"PRON\": {\"DET\": 0.0, \"NOUN\": 0.1, \"VERB\": 0.9, \"PRON\": 0.0},\n         \"VERB\": {\"DET\": 0.8, \"NOUN\": 0.2, \"VERB\": 0.0, \"PRON\": 0.0},\n         \"NOUN\": {\"DET\": 0.1, \"NOUN\": 0.1, \"VERB\": 0.8, \"PRON\": 0.0}}\nEMIT = {\"DET\": {\"the\": 1.0}, \"PRON\": {\"i\": 1.0},\n        \"NOUN\": {\"book\": 0.6, \"table\": 0.4}, \"VERB\": {\"book\": 0.5, \"read\": 0.5}}\n\n\ndef path_prob(words, tags):\n    p = START.get(tags[0], 0.0)\n    for i, (word, tag) in enumerate(zip(words, tags)):\n        if i > 0:\n            p *= TRANS[tags[i - 1]].get(tag, 0.0)\n        p *= EMIT[tag].get(word, 0.0)\n    return round(p, 6)\n\nprint(path_prob([\"i\", \"book\", \"the\", \"table\"], [\"PRON\", \"VERB\", \"DET\", \"NOUN\"]))\nprint(path_prob([\"i\", \"book\", \"the\", \"table\"], [\"PRON\", \"NOUN\", \"DET\", \"NOUN\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "path_prob",
+      "cases": [
+        {
+          "args": [
+            [
+              "the",
+              "book"
+            ],
+            [
+              "DET",
+              "NOUN"
+            ]
+          ],
+          "returns": 0.324
+        },
+        {
+          "args": [
+            [
+              "i",
+              "read"
+            ],
+            [
+              "PRON",
+              "VERB"
+            ]
+          ],
+          "returns": 0.18
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.05184\n0.000864"
+    }
+  ]
+}
