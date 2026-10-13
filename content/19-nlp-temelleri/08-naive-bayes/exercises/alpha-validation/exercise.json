@@ -1,0 +1,76 @@
+{
+  "id": "alpha-validation",
+  "title": {
+    "tr": "alpha'yı doğrulamayla seç",
+    "en": "Choose alpha with validation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Önce `A, V = vectorizer.transform(X_train), vectorizer.transform(X_val)`.",
+      "en": "First `A, V = vectorizer.transform(X_train), vectorizer.transform(X_val)`."
+    },
+    {
+      "tr": "Puan listesi kur; `scores.index(max(scores))` ilk en büyüğü verir.",
+      "en": "Build a list of scores; `scores.index(max(scores))` gives the first largest."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.naive_bayes import MultinomialNB\nfrom text_data import make_reviews\n\nreviews = make_reviews(2000)\ntexts = [r[\"text\"] for r in reviews]\nlabels = np.array([r[\"label\"] for r in reviews])\nX_rest, X_test, y_rest, y_test = train_test_split(\n    texts, labels, test_size=0.25, random_state=0, stratify=labels)\nX_train, X_val, y_train, y_val = train_test_split(\n    X_rest, y_rest, test_size=0.25, random_state=0, stratify=y_rest)\nvectorizer = CountVectorizer().fit(X_train)\n\n\ndef best_alpha(alphas):\n    A, V = vectorizer.transform(X_train), vectorizer.transform(X_val)\n    scores = [round(MultinomialNB(alpha=a).fit(A, y_train).score(V, y_val), 3) for a in alphas]\n    best = scores.index(max(scores))\n    return [alphas[best], scores[best]]\n\n\nalpha, val = best_alpha([0.01, 0.03, 0.1, 0.3, 1.0, 3.0])\nmodel = MultinomialNB(alpha=alpha).fit(vectorizer.transform(X_train), y_train)\nprint(alpha, val, round(model.score(vectorizer.transform(X_test), y_test), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.naive_bayes import MultinomialNB\nfrom text_data import make_reviews\n\nreviews = make_reviews(2000)\ntexts = [r[\"text\"] for r in reviews]\nlabels = np.array([r[\"label\"] for r in reviews])\nX_rest, X_test, y_rest, y_test = train_test_split(\n    texts, labels, test_size=0.25, random_state=0, stratify=labels)\nX_train, X_val, y_train, y_val = train_test_split(\n    X_rest, y_rest, test_size=0.25, random_state=0, stratify=y_rest)\nvectorizer = CountVectorizer().fit(X_train)\n\n\ndef best_alpha(alphas):\n    A, V = vectorizer.transform(X_train), vectorizer.transform(X_val)\n    scores = [round(MultinomialNB(alpha=a).fit(A, y_train).score(V, y_val), 3) for a in alphas]\n    best = scores.index(max(scores))\n    return [alphas[best], scores[best]]\n\n\nalpha, val = best_alpha([0.01, 0.03, 0.1, 0.3, 1.0, 3.0])\nmodel = MultinomialNB(alpha=alpha).fit(vectorizer.transform(X_train), y_train)\nprint(alpha, val, round(model.score(vectorizer.transform(X_test), y_test), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "best_alpha",
+      "cases": [
+        {
+          "args": [
+            [
+              0.1,
+              1.0
+            ]
+          ],
+          "returns": [
+            1.0,
+            0.909
+          ]
+        },
+        {
+          "args": [
+            [
+              10.0,
+              100.0
+            ]
+          ],
+          "returns": [
+            10.0,
+            0.885
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.01 0.909 0.872"
+    }
+  ]
+}

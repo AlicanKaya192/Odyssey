@@ -1,0 +1,67 @@
+{
+  "id": "per-class-hits",
+  "title": {
+    "tr": "Sınıf başına isabet",
+    "en": "Hits per class"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Tahminler: `pred = model.predict(vectorizer.transform(X_test))`.",
+      "en": "The predictions: `pred = model.predict(vectorizer.transform(X_test))`."
+    },
+    {
+      "tr": "Sınıf c için `(pred[y_test == c] == c).mean()`; anahtar `str(c)`.",
+      "en": "For class c, `(pred[y_test == c] == c).mean()`; the key is `str(c)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.naive_bayes import MultinomialNB\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\ntexts = [t[\"text\"] for t in tickets]\nlabels = np.array([t[\"category\"] for t in tickets])\nX_train, X_test, y_train, y_test = train_test_split(\n    texts, labels, test_size=0.25, random_state=0, stratify=labels)\n\n\ndef per_class_hits(ngrams):\n    vectorizer = CountVectorizer(ngram_range=tuple(ngrams)).fit(X_train)\n    model = MultinomialNB().fit(vectorizer.transform(X_train), y_train)\n    pred = model.predict(vectorizer.transform(X_test))\n    return {str(c): round(float((pred[y_test == c] == c).mean()), 3) for c in sorted(set(y_test))}\n\n\nfor ngrams in [(1, 1), (1, 2)]:\n    print(ngrams)\n    for label, hit in per_class_hits(ngrams).items():\n        print(\"  \", label, hit)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.naive_bayes import MultinomialNB\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\ntexts = [t[\"text\"] for t in tickets]\nlabels = np.array([t[\"category\"] for t in tickets])\nX_train, X_test, y_train, y_test = train_test_split(\n    texts, labels, test_size=0.25, random_state=0, stratify=labels)\n\n\ndef per_class_hits(ngrams):\n    vectorizer = CountVectorizer(ngram_range=tuple(ngrams)).fit(X_train)\n    model = MultinomialNB().fit(vectorizer.transform(X_train), y_train)\n    pred = model.predict(vectorizer.transform(X_test))\n    return {str(c): round(float((pred[y_test == c] == c).mean()), 3) for c in sorted(set(y_test))}\n\n\nfor ngrams in [(1, 1), (1, 2)]:\n    print(ngrams)\n    for label, hit in per_class_hits(ngrams).items():\n        print(\"  \", label, hit)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "per_class_hits",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              1
+            ]
+          ],
+          "returns": {
+            "account": 0.942,
+            "billing": 0.924,
+            "refund": 0.87,
+            "shipping": 0.932,
+            "technical": 0.935
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(1, 1)\n   account 0.942\n   billing 0.924\n   refund 0.87\n   shipping 0.932\n   technical 0.935\n(1, 2)\n   account 0.951\n   billing 0.962\n   refund 0.87\n   shipping 0.939\n   technical 0.952"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "nb-from-scratch",
+  "title": {
+    "tr": "Naive Bayes'i elle yaz",
+    "en": "Write Naive Bayes by hand"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sınıfın kelime toplamı: `sum(counts[label].values())`.",
+      "en": "The class's word total: `sum(counts[label].values())`."
+    },
+    {
+      "tr": "En iyiyi takip et: `best, best_score = None, -math.inf`; puan büyükse güncelle.",
+      "en": "Track the best: `best, best_score = None, -math.inf`; update when a score is larger."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\nfrom collections import Counter\n\nTRAIN = [(\"great battery great sound\", \"pos\"), (\"love the sound\", \"pos\"),\n         (\"battery died fast\", \"neg\"), (\"terrible sound and battery\", \"neg\"),\n         (\"works great\", \"pos\")]\n\n\ndef train(data):\n    priors = Counter(label for _, label in data)\n    counts = {label: Counter() for label in priors}\n    for text, label in data:\n        counts[label].update(text.split())\n    vocab = {w for text, _ in data for w in text.split()}\n    return priors, counts, vocab\n\n\ndef predict(text, model=train(TRAIN)):\n    priors, counts, vocab = model\n    total = sum(priors.values())\n    best, best_score = None, -math.inf\n    for label in sorted(priors):\n        score = math.log(priors[label] / total)\n        size = sum(counts[label].values())\n        for w in text.split():\n            if w in vocab:\n                score += math.log((counts[label][w] + 1) / (size + len(vocab)))\n        if score > best_score:\n            best, best_score = label, score\n    return best\n\n\nfor text in [\"great sound\", \"battery died\", \"terrible\", \"unknown words\"]:\n    print(text, \"->\", predict(text))\n```",
+      "en": "The full solution:\n\n```python\nimport math\nfrom collections import Counter\n\nTRAIN = [(\"great battery great sound\", \"pos\"), (\"love the sound\", \"pos\"),\n         (\"battery died fast\", \"neg\"), (\"terrible sound and battery\", \"neg\"),\n         (\"works great\", \"pos\")]\n\n\ndef train(data):\n    priors = Counter(label for _, label in data)\n    counts = {label: Counter() for label in priors}\n    for text, label in data:\n        counts[label].update(text.split())\n    vocab = {w for text, _ in data for w in text.split()}\n    return priors, counts, vocab\n\n\ndef predict(text, model=train(TRAIN)):\n    priors, counts, vocab = model\n    total = sum(priors.values())\n    best, best_score = None, -math.inf\n    for label in sorted(priors):\n        score = math.log(priors[label] / total)\n        size = sum(counts[label].values())\n        for w in text.split():\n            if w in vocab:\n                score += math.log((counts[label][w] + 1) / (size + len(vocab)))\n        if score > best_score:\n            best, best_score = label, score\n    return best\n\n\nfor text in [\"great sound\", \"battery died\", \"terrible\", \"unknown words\"]:\n    print(text, \"->\", predict(text))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "predict",
+      "cases": [
+        {
+          "args": [
+            "love it"
+          ],
+          "returns": "pos"
+        },
+        {
+          "args": [
+            "died"
+          ],
+          "returns": "neg"
+        },
+        {
+          "args": [
+            "great great"
+          ],
+          "returns": "pos"
+        },
+        {
+          "args": [
+            "nothing known"
+          ],
+          "returns": "pos"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "great sound -> pos\nbattery died -> neg\nterrible -> neg\nunknown words -> pos"
+    }
+  ]
+}
