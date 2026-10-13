@@ -1,0 +1,57 @@
+{
+  "id": "clip-gradients",
+  "title": {
+    "tr": "Türev kırpma",
+    "en": "Gradient clipping"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`norm = math.sqrt(sum(g * g for g in grads))`.",
+      "en": "`norm = math.sqrt(sum(g * g for g in grads))`."
+    },
+    {
+      "tr": "Sıfır büyüklükte bölme yapma: önce `norm <= max_norm` denetle.",
+      "en": "Do not divide by a zero size: check `norm <= max_norm` first."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef clip_gradients(grads, max_norm):\n    norm = math.sqrt(sum(g * g for g in grads))\n    if norm <= max_norm:\n        return [round(g, 3) for g in grads]\n    return [round(g * max_norm / norm, 3) for g in grads]\n\nprint(clip_gradients([3.0, 4.0], 5.0))\nprint(clip_gradients([6.0, 8.0], 5.0))\nprint(clip_gradients([0.0, 0.0], 5.0))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef clip_gradients(grads, max_norm):\n    norm = math.sqrt(sum(g * g for g in grads))\n    if norm <= max_norm:\n        return [round(g, 3) for g in grads]\n    return [round(g * max_norm / norm, 3) for g in grads]\n\nprint(clip_gradients([3.0, 4.0], 5.0))\nprint(clip_gradients([6.0, 8.0], 5.0))\nprint(clip_gradients([0.0, 0.0], 5.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "clip_gradients",
+      "cases": [
+        {
+          "args": [
+            [
+              1.0,
+              -2.0,
+              2.0
+            ],
+            1.5
+          ],
+          "returns": [
+            0.5,
+            -1.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3.0, 4.0]\n[3.0, 4.0]\n[0.0, 0.0]"
+    }
+  ]
+}

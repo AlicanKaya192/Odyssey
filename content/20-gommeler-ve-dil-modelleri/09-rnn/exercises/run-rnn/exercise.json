@@ -1,0 +1,70 @@
+{
+  "id": "run-rnn",
+  "title": {
+    "tr": "Bir diziyi okumak",
+    "en": "Reading a sequence"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`h = np.zeros(len(b))`.",
+      "en": "`h = np.zeros(len(b))`."
+    },
+    {
+      "tr": "Döngüde `h`'yi her adımda yeniden ata.",
+      "en": "Reassign `h` at every step in the loop."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef run_rnn(xs, Wx, Wh, b):\n    Wx, Wh, b = np.array(Wx), np.array(Wh), np.array(b)\n    h = np.zeros(len(b))\n    for x in xs:\n        h = np.tanh(np.array(x) @ Wx + h @ Wh + b)\n    return h.round(3).tolist()\n\nWx = [[1.0, 0.0], [0.0, 1.0]]\nWh = [[0.5, 0.5], [-0.5, 0.5]]\nb = [0.0, 0.0]\nxs = [[1.0, 0.0], [0.0, 1.0], [0.0, 0.0]]\nprint(run_rnn(xs, Wx, Wh, b))\nprint(run_rnn(xs[::-1], Wx, Wh, b))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef run_rnn(xs, Wx, Wh, b):\n    Wx, Wh, b = np.array(Wx), np.array(Wh), np.array(b)\n    h = np.zeros(len(b))\n    for x in xs:\n        h = np.tanh(np.array(x) @ Wx + h @ Wh + b)\n    return h.round(3).tolist()\n\nWx = [[1.0, 0.0], [0.0, 1.0]]\nWh = [[0.5, 0.5], [-0.5, 0.5]]\nb = [0.0, 0.0]\nxs = [[1.0, 0.0], [0.0, 1.0], [0.0, 0.0]]\nprint(run_rnn(xs, Wx, Wh, b))\nprint(run_rnn(xs[::-1], Wx, Wh, b))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "run_rnn",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0
+              ],
+              [
+                1.0
+              ]
+            ],
+            [
+              [
+                1.0
+              ]
+            ],
+            [
+              [
+                1.0
+              ]
+            ],
+            [
+              0.0
+            ]
+          ],
+          "returns": [
+            0.943
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-0.253, 0.553]\n[0.551, 0.363]"
+    }
+  ]
+}
