@@ -1,0 +1,82 @@
+{
+  "id": "vocab-steps",
+  "title": {
+    "tr": "Adım adım dağarcık",
+    "en": "The vocabulary step by step"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Ham: `words = {w for d in docs for w in d}`.",
+      "en": "Raw: `words = {w for d in docs for w in d}`."
+    },
+    {
+      "tr": "`kept = {w for w in words if w not in STOP}`, `stems = {stem(w) for w in kept}`; üçünün `len`'i.",
+      "en": "`kept = {w for w in words if w not in STOP}`, `stems = {stem(w) for w in kept}`; the `len` of all three."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nfrom sklearn.feature_extraction.text import ENGLISH_STOP_WORDS\nfrom text_data import make_reviews\n\nSTOP = ENGLISH_STOP_WORDS - {\"not\", \"no\", \"never\", \"nor\", \"very\", \"too\"}\nSUFFIX_RULES = [(\"ies\", \"y\"), (\"ing\", \"\"), (\"ed\", \"\"), (\"ly\", \"\"), (\"s\", \"\")]\n\n\ndef stem(word):\n    for suffix, replacement in SUFFIX_RULES:\n        if word.endswith(suffix) and len(word) - len(suffix) >= 3:\n            if suffix == \"s\" and word.endswith(\"ss\"):\n                return word\n            return word[: len(word) - len(suffix)] + replacement\n    return word\n\n\ndef vocab_steps(n):\n    docs = [re.findall(r\"[a-z]+\", r[\"text\"].lower()) for r in make_reviews(n)]\n    words = {w for d in docs for w in d}\n    kept = {w for w in words if w not in STOP}\n    stems = {stem(w) for w in kept}\n    return [len(words), len(kept), len(stems)]\n\n\nprint(vocab_steps(2000))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nfrom sklearn.feature_extraction.text import ENGLISH_STOP_WORDS\nfrom text_data import make_reviews\n\nSTOP = ENGLISH_STOP_WORDS - {\"not\", \"no\", \"never\", \"nor\", \"very\", \"too\"}\nSUFFIX_RULES = [(\"ies\", \"y\"), (\"ing\", \"\"), (\"ed\", \"\"), (\"ly\", \"\"), (\"s\", \"\")]\n\n\ndef stem(word):\n    for suffix, replacement in SUFFIX_RULES:\n        if word.endswith(suffix) and len(word) - len(suffix) >= 3:\n            if suffix == \"s\" and word.endswith(\"ss\"):\n                return word\n            return word[: len(word) - len(suffix)] + replacement\n    return word\n\n\ndef vocab_steps(n):\n    docs = [re.findall(r\"[a-z]+\", r[\"text\"].lower()) for r in make_reviews(n)]\n    words = {w for d in docs for w in d}\n    kept = {w for w in words if w not in STOP}\n    stems = {stem(w) for w in kept}\n    return [len(words), len(kept), len(stems)]\n\n\nprint(vocab_steps(2000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "vocab_steps",
+      "cases": [
+        {
+          "args": [
+            2000
+          ],
+          "returns": [
+            332,
+            303,
+            297
+          ]
+        },
+        {
+          "args": [
+            200
+          ],
+          "returns": [
+            205,
+            176,
+            171
+          ]
+        },
+        {
+          "args": [
+            20
+          ],
+          "returns": [
+            102,
+            77,
+            76
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[332, 303, 297]"
+    }
+  ]
+}

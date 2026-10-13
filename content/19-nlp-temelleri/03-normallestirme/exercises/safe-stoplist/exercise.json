@@ -1,0 +1,68 @@
+{
+  "id": "safe-stoplist",
+  "title": {
+    "tr": "Olumsuzluğu koruyan durak listesi",
+    "en": "A stop list that keeps negation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Küme farkı: `STOP = ENGLISH_STOP_WORDS - KEEP`.",
+      "en": "A set difference: `STOP = ENGLISH_STOP_WORDS - KEEP`."
+    },
+    {
+      "tr": "Süzgeçte `ENGLISH_STOP_WORDS` yerine `STOP` kullan.",
+      "en": "Use `STOP` instead of `ENGLISH_STOP_WORDS` in the filter."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nfrom sklearn.feature_extraction.text import ENGLISH_STOP_WORDS\n\nKEEP = {\"not\", \"no\", \"never\", \"nor\", \"very\", \"too\"}\nSTOP = ENGLISH_STOP_WORDS - KEEP\n\n\ndef filter_tokens(text):\n    tokens = re.findall(r\"[a-z']+\", text.lower())\n    return [t for t in tokens if t not in STOP]\n\n\nprint(filter_tokens(\"The fit is not good at all.\"))\nprint(filter_tokens(\"It was very cheap and never broke.\"))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nfrom sklearn.feature_extraction.text import ENGLISH_STOP_WORDS\n\nKEEP = {\"not\", \"no\", \"never\", \"nor\", \"very\", \"too\"}\nSTOP = ENGLISH_STOP_WORDS - KEEP\n\n\ndef filter_tokens(text):\n    tokens = re.findall(r\"[a-z']+\", text.lower())\n    return [t for t in tokens if t not in STOP]\n\n\nprint(filter_tokens(\"The fit is not good at all.\"))\nprint(filter_tokens(\"It was very cheap and never broke.\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "filter_tokens",
+      "cases": [
+        {
+          "args": [
+            "not bad"
+          ],
+          "returns": [
+            "not",
+            "bad"
+          ]
+        },
+        {
+          "args": [
+            "Too loud!"
+          ],
+          "returns": [
+            "too",
+            "loud"
+          ]
+        },
+        {
+          "args": [
+            "the end"
+          ],
+          "returns": [
+            "end"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['fit', 'not', 'good']\n['very', 'cheap', 'never', 'broke']"
+    }
+  ]
+}

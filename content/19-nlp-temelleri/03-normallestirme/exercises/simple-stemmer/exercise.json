@@ -1,0 +1,84 @@
+{
+  "id": "simple-stemmer",
+  "title": {
+    "tr": "Basit kök bulucu",
+    "en": "A simple stemmer"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngü: `for suffix, replacement in SUFFIX_RULES:`; koşul `word.endswith(suffix) and len(word) - len(suffix) >= 3`.",
+      "en": "The loop: `for suffix, replacement in SUFFIX_RULES:`; the condition `word.endswith(suffix) and len(word) - len(suffix) >= 3`."
+    },
+    {
+      "tr": "Kesmek: `word[: len(word) - len(suffix)] + replacement`; `\"ss\"` istisnasını `return word` ile koru.",
+      "en": "Cutting: `word[: len(word) - len(suffix)] + replacement`; guard the `\"ss\"` exception with `return word`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nSUFFIX_RULES = [(\"ies\", \"y\"), (\"ing\", \"\"), (\"ed\", \"\"), (\"ly\", \"\"), (\"s\", \"\")]\n\n\ndef stem(word):\n    for suffix, replacement in SUFFIX_RULES:\n        if word.endswith(suffix) and len(word) - len(suffix) >= 3:\n            if suffix == \"s\" and word.endswith(\"ss\"):\n                return word\n            return word[: len(word) - len(suffix)] + replacement\n    return word\n\n\nfor word in [\"cables\", \"replies\", \"charging\", \"worked\", \"glass\", \"boss\", \"is\", \"slowly\"]:\n    print(word, stem(word))\n```",
+      "en": "The full solution:\n\n```python\nSUFFIX_RULES = [(\"ies\", \"y\"), (\"ing\", \"\"), (\"ed\", \"\"), (\"ly\", \"\"), (\"s\", \"\")]\n\n\ndef stem(word):\n    for suffix, replacement in SUFFIX_RULES:\n        if word.endswith(suffix) and len(word) - len(suffix) >= 3:\n            if suffix == \"s\" and word.endswith(\"ss\"):\n                return word\n            return word[: len(word) - len(suffix)] + replacement\n    return word\n\n\nfor word in [\"cables\", \"replies\", \"charging\", \"worked\", \"glass\", \"boss\", \"is\", \"slowly\"]:\n    print(word, stem(word))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "stem",
+      "cases": [
+        {
+          "args": [
+            "batteries"
+          ],
+          "returns": "battery"
+        },
+        {
+          "args": [
+            "loves"
+          ],
+          "returns": "love"
+        },
+        {
+          "args": [
+            "kiss"
+          ],
+          "returns": "kiss"
+        },
+        {
+          "args": [
+            "was"
+          ],
+          "returns": "was"
+        },
+        {
+          "args": [
+            "running"
+          ],
+          "returns": "runn"
+        },
+        {
+          "args": [
+            "quickly"
+          ],
+          "returns": "quick"
+        },
+        {
+          "args": [
+            "dog"
+          ],
+          "returns": "dog"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "cables cable\nreplies reply\ncharging charg\nworked work\nglass glass\nboss boss\nis is\nslowly slow"
+    }
+  ]
+}

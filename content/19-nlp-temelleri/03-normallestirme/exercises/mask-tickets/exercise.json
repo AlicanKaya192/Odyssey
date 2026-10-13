@@ -1,0 +1,76 @@
+{
+  "id": "mask-tickets",
+  "title": {
+    "tr": "Yer tutucular",
+    "en": "Placeholders"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngü: `for pattern, placeholder in RULES:`.",
+      "en": "The loop: `for pattern, placeholder in RULES:`."
+    },
+    {
+      "tr": "Her adımda metni güncelle: `text = re.sub(pattern, placeholder, text)`.",
+      "en": "Update the text at every step: `text = re.sub(pattern, placeholder, text)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nfrom text_data import make_tickets\n\nRULES = [\n    (r\"[\\w.+-]+@\\w+\\.\\w+\", \"<email>\"),\n    (r\"\\$\\d+(?:\\.\\d+)?\", \"<money>\"),\n    (r\"[A-Z]+-\\d+\", \"<order>\"),\n    (r\"\\d+\", \"<num>\"),\n]\n\n\ndef mask(text):\n    for pattern, placeholder in RULES:\n        text = re.sub(pattern, placeholder, text)\n    return text\n\n\ntickets = [t[\"text\"] for t in make_tickets(1000)]\nprint(mask(\"Paid $9.99 on ORD-11111, mail bo7@example.com\"))\nprint(len({w for t in tickets for w in mask(t).lower().split()}))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nfrom text_data import make_tickets\n\nRULES = [\n    (r\"[\\w.+-]+@\\w+\\.\\w+\", \"<email>\"),\n    (r\"\\$\\d+(?:\\.\\d+)?\", \"<money>\"),\n    (r\"[A-Z]+-\\d+\", \"<order>\"),\n    (r\"\\d+\", \"<num>\"),\n]\n\n\ndef mask(text):\n    for pattern, placeholder in RULES:\n        text = re.sub(pattern, placeholder, text)\n    return text\n\n\ntickets = [t[\"text\"] for t in make_tickets(1000)]\nprint(mask(\"Paid $9.99 on ORD-11111, mail bo7@example.com\"))\nprint(len({w for t in tickets for w in mask(t).lower().split()}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mask",
+      "cases": [
+        {
+          "args": [
+            "Pay $5 now"
+          ],
+          "returns": "Pay <money> now"
+        },
+        {
+          "args": [
+            "See ORD-77777"
+          ],
+          "returns": "See <order>"
+        },
+        {
+          "args": [
+            "call 112"
+          ],
+          "returns": "call <num>"
+        },
+        {
+          "args": [
+            "no numbers"
+          ],
+          "returns": "no numbers"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Paid <money> on <order>, mail <email>\n329"
+    }
+  ]
+}
