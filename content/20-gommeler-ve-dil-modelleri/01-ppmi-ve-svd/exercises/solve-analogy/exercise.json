@@ -1,0 +1,68 @@
+{
+  "id": "solve-analogy",
+  "title": {
+    "tr": "Benzetme çöz",
+    "en": "Solve an analogy"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Birim vektörler: `np.array(v, dtype=float) / np.linalg.norm(v)`.",
+      "en": "Unit vectors: `np.array(v, dtype=float) / np.linalg.norm(v)`."
+    },
+    {
+      "tr": "Adayları dolaş, sorudakileri atla, kosinüsü en büyük olanı tut.",
+      "en": "Walk the candidates, skip the question words, keep the one with the largest cosine."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef analogy(vectors, a, b, c):\n    unit = {w: np.array(v, dtype=float) / np.linalg.norm(v) for w, v in vectors.items()}\n    target = unit[b] - unit[a] + unit[c]\n    best, best_sim = \"\", -np.inf\n    for w, v in unit.items():\n        if w in (a, b, c):\n            continue\n        sim = v @ target / np.linalg.norm(target)\n        if sim > best_sim:\n            best, best_sim = w, sim\n    return best\n\nvectors = {\"man\": [1, 0], \"woman\": [1, 1], \"king\": [3, 0],\n           \"queen\": [3, 1], \"apple\": [0, 2]}\nprint(analogy(vectors, \"man\", \"king\", \"woman\"))\nprint(analogy(vectors, \"king\", \"man\", \"queen\"))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef analogy(vectors, a, b, c):\n    unit = {w: np.array(v, dtype=float) / np.linalg.norm(v) for w, v in vectors.items()}\n    target = unit[b] - unit[a] + unit[c]\n    best, best_sim = \"\", -np.inf\n    for w, v in unit.items():\n        if w in (a, b, c):\n            continue\n        sim = v @ target / np.linalg.norm(target)\n        if sim > best_sim:\n            best, best_sim = w, sim\n    return best\n\nvectors = {\"man\": [1, 0], \"woman\": [1, 1], \"king\": [3, 0],\n           \"queen\": [3, 1], \"apple\": [0, 2]}\nprint(analogy(vectors, \"man\", \"king\", \"woman\"))\nprint(analogy(vectors, \"king\", \"man\", \"queen\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "analogy",
+      "cases": [
+        {
+          "args": [
+            {
+              "x": [
+                1,
+                0
+              ],
+              "y": [
+                0,
+                1
+              ],
+              "z": [
+                1,
+                1
+              ],
+              "w": [
+                -1,
+                1
+              ]
+            },
+            "x",
+            "y",
+            "z"
+          ],
+          "returns": "w"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "queen\nwoman"
+    }
+  ]
+}

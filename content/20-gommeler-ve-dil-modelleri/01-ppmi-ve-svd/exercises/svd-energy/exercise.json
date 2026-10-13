@@ -1,0 +1,74 @@
+{
+  "id": "svd-energy",
+  "title": {
+    "tr": "SVD enerjisi",
+    "en": "SVD energy"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yalnızca tekil değerler: `np.linalg.svd(M, compute_uv=False)` (büyükten küçüğe).",
+      "en": "Only the singular values: `np.linalg.svd(M, compute_uv=False)` (largest first)."
+    },
+    {
+      "tr": "`(S[:k] ** 2).sum() / (S ** 2).sum()`.",
+      "en": "`(S[:k] ** 2).sum() / (S ** 2).sum()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef energy(matrix, k):\n    S = np.linalg.svd(np.array(matrix, dtype=float), compute_uv=False)\n    return round(float((S[:k] ** 2).sum() / (S ** 2).sum()), 3)\n\nM = [[3, 1, 0], [1, 3, 0], [0, 0, 1]]\nfor k in [1, 2, 3]:\n    print(k, energy(M, k))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef energy(matrix, k):\n    S = np.linalg.svd(np.array(matrix, dtype=float), compute_uv=False)\n    return round(float((S[:k] ** 2).sum() / (S ** 2).sum()), 3)\n\nM = [[3, 1, 0], [1, 3, 0], [0, 0, 1]]\nfor k in [1, 2, 3]:\n    print(k, energy(M, k))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "energy",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                2,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            1
+          ],
+          "returns": 0.8
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            1
+          ],
+          "returns": 0.5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 0.762\n2 0.952\n3 1.0"
+    }
+  ]
+}
