@@ -1,0 +1,79 @@
+{
+  "id": "rule-vs-baseline",
+  "title": {
+    "tr": "Kural mı, taban çizgisi mi?",
+    "en": "Rule or baseline?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kural: `sum(predict(r[\"text\"]) == r[\"label\"] for r in reviews) / n`.",
+      "en": "The rule: `sum(predict(r[\"text\"]) == r[\"label\"] for r in reviews) / n`."
+    },
+    {
+      "tr": "`Counter(...).most_common(1)[0][1]` en sık etiketin sayısını verir.",
+      "en": "`Counter(...).most_common(1)[0][1]` gives the count of the most frequent label."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom collections import Counter\nfrom text_data import make_reviews\n\nGOOD = {\"good\", \"great\", \"excellent\", \"perfect\",\n        \"love\", \"worth\", \"fantastic\", \"comfortable\"}\nBAD = {\"bad\", \"terrible\", \"awful\", \"broke\",\n       \"hate\", \"waste\", \"poor\", \"useless\"}\n\n\ndef predict(text):\n    words = [w.strip(\".,!?\") for w in text.lower().split()]\n    score = sum(w in GOOD for w in words) - sum(w in BAD for w in words)\n    if score > 0:\n        return \"positive\"\n    if score < 0:\n        return \"negative\"\n    return \"neutral\"\n\n\ndef compare(n):\n    reviews = make_reviews(n)\n    rule = sum(predict(r[\"text\"]) == r[\"label\"] for r in reviews) / n\n    top_count = Counter(r[\"label\"] for r in reviews).most_common(1)[0][1]\n    return [round(rule, 3), round(top_count / n, 3)]\n\nprint(compare(2000))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom collections import Counter\nfrom text_data import make_reviews\n\nGOOD = {\"good\", \"great\", \"excellent\", \"perfect\",\n        \"love\", \"worth\", \"fantastic\", \"comfortable\"}\nBAD = {\"bad\", \"terrible\", \"awful\", \"broke\",\n       \"hate\", \"waste\", \"poor\", \"useless\"}\n\n\ndef predict(text):\n    words = [w.strip(\".,!?\") for w in text.lower().split()]\n    score = sum(w in GOOD for w in words) - sum(w in BAD for w in words)\n    if score > 0:\n        return \"positive\"\n    if score < 0:\n        return \"negative\"\n    return \"neutral\"\n\n\ndef compare(n):\n    reviews = make_reviews(n)\n    rule = sum(predict(r[\"text\"]) == r[\"label\"] for r in reviews) / n\n    top_count = Counter(r[\"label\"] for r in reviews).most_common(1)[0][1]\n    return [round(rule, 3), round(top_count / n, 3)]\n\nprint(compare(2000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "compare",
+      "cases": [
+        {
+          "args": [
+            2000
+          ],
+          "returns": [
+            0.449,
+            0.659
+          ]
+        },
+        {
+          "args": [
+            300
+          ],
+          "returns": [
+            0.437,
+            0.667
+          ]
+        },
+        {
+          "args": [
+            50
+          ],
+          "returns": [
+            0.52,
+            0.66
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.449, 0.659]"
+    }
+  ]
+}

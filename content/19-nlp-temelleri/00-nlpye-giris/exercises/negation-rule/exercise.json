@@ -1,0 +1,88 @@
+{
+  "id": "negation-rule",
+  "title": {
+    "tr": "Olumsuzlamayı yakala",
+    "en": "Catch the negation"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kelimeleri sırayla dolaş: `for i, w in enumerate(words):`; önceki kelime `words[i - 1]`.",
+      "en": "Walk the words in order: `for i, w in enumerate(words):`; the previous word is `words[i - 1]`."
+    },
+    {
+      "tr": "Kelimenin işareti: `1 if w in GOOD else -1 if w in BAD else 0`; önünde `not` varsa `sign = -sign`.",
+      "en": "The word's sign: `1 if w in GOOD else -1 if w in BAD else 0`; if `not` comes before it, `sign = -sign`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom text_data import make_reviews\n\nGOOD = {\"good\", \"great\", \"excellent\", \"perfect\",\n        \"love\", \"worth\", \"fantastic\", \"comfortable\"}\nBAD = {\"bad\", \"terrible\", \"awful\", \"broke\",\n       \"hate\", \"waste\", \"poor\", \"useless\"}\n\n\ndef predict_neg(text):\n    words = [w.strip(\".,!?\") for w in text.lower().split()]\n    score = 0\n    for i, w in enumerate(words):\n        sign = 1 if w in GOOD else -1 if w in BAD else 0\n        if sign and i > 0 and words[i - 1] == \"not\":\n            sign = -sign\n        score += sign\n    if score > 0:\n        return \"positive\"\n    if score < 0:\n        return \"negative\"\n    return \"neutral\"\n\nprint(predict_neg(\"Not bad for the price.\"))\nprint(predict_neg(\"Not worth the money.\"))\nprint(predict_neg(\"Not really good, to be honest.\"))\nreviews = make_reviews(2000)\nprint(sum(predict_neg(r[\"text\"]) == r[\"label\"] for r in reviews))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom text_data import make_reviews\n\nGOOD = {\"good\", \"great\", \"excellent\", \"perfect\",\n        \"love\", \"worth\", \"fantastic\", \"comfortable\"}\nBAD = {\"bad\", \"terrible\", \"awful\", \"broke\",\n       \"hate\", \"waste\", \"poor\", \"useless\"}\n\n\ndef predict_neg(text):\n    words = [w.strip(\".,!?\") for w in text.lower().split()]\n    score = 0\n    for i, w in enumerate(words):\n        sign = 1 if w in GOOD else -1 if w in BAD else 0\n        if sign and i > 0 and words[i - 1] == \"not\":\n            sign = -sign\n        score += sign\n    if score > 0:\n        return \"positive\"\n    if score < 0:\n        return \"negative\"\n    return \"neutral\"\n\nprint(predict_neg(\"Not bad for the price.\"))\nprint(predict_neg(\"Not worth the money.\"))\nprint(predict_neg(\"Not really good, to be honest.\"))\nreviews = make_reviews(2000)\nprint(sum(predict_neg(r[\"text\"]) == r[\"label\"] for r in reviews))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "predict_neg",
+      "cases": [
+        {
+          "args": [
+            "Not bad for the price."
+          ],
+          "returns": "positive"
+        },
+        {
+          "args": [
+            "Not worth the money."
+          ],
+          "returns": "negative"
+        },
+        {
+          "args": [
+            "The fit is not great at all."
+          ],
+          "returns": "negative"
+        },
+        {
+          "args": [
+            "Not terrible. Not great either."
+          ],
+          "returns": "neutral"
+        },
+        {
+          "args": [
+            "I love it."
+          ],
+          "returns": "positive"
+        },
+        {
+          "args": [
+            "It does the job."
+          ],
+          "returns": "neutral"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "positive\nnegative\npositive\n1005"
+    }
+  ]
+}
