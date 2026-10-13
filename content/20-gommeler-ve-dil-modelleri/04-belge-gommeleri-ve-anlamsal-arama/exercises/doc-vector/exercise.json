@@ -1,0 +1,81 @@
+{
+  "id": "doc-vector",
+  "title": {
+    "tr": "Belge vektörü",
+    "en": "A document vector"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ortalama: `np.mean(known, axis=0)`.",
+      "en": "Average: `np.mean(known, axis=0)`."
+    },
+    {
+      "tr": "Birim uzunluk: `v / np.linalg.norm(v)`, sonra `.round(3).tolist()`.",
+      "en": "Unit length: `v / np.linalg.norm(v)`, then `.round(3).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef doc_vector(tokens, table):\n    known = [table[t] for t in tokens if t in table]\n    if not known:\n        return [0.0, 0.0]\n    v = np.mean(known, axis=0)\n    return (v / np.linalg.norm(v)).round(3).tolist()\n\ntable = {\"parcel\": [1.0, 0.0], \"box\": [0.6, 0.8], \"password\": [0.0, 1.0]}\nprint(doc_vector(\"the parcel box\".split(), table))\nprint(doc_vector(\"hello\".split(), table))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef doc_vector(tokens, table):\n    known = [table[t] for t in tokens if t in table]\n    if not known:\n        return [0.0, 0.0]\n    v = np.mean(known, axis=0)\n    return (v / np.linalg.norm(v)).round(3).tolist()\n\ntable = {\"parcel\": [1.0, 0.0], \"box\": [0.6, 0.8], \"password\": [0.0, 1.0]}\nprint(doc_vector(\"the parcel box\".split(), table))\nprint(doc_vector(\"hello\".split(), table))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "doc_vector",
+      "cases": [
+        {
+          "args": [
+            [
+              "x"
+            ],
+            {
+              "x": [
+                3.0,
+                4.0
+              ]
+            }
+          ],
+          "returns": [
+            0.6,
+            0.8
+          ]
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            {
+              "a": [
+                1.0,
+                0.0
+              ],
+              "b": [
+                -1.0,
+                2.0
+              ]
+            }
+          ],
+          "returns": [
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.894, 0.447]\n[0.0, 0.0]"
+    }
+  ]
+}

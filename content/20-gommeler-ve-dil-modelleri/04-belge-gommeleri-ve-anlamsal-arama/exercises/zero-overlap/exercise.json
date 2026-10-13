@@ -1,0 +1,58 @@
+{
+  "id": "zero-overlap",
+  "title": {
+    "tr": "Hiç ortak kelimesi olmayanlar",
+    "en": "No shared words"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Puanlar `cosine_similarity(tfidf.transform(queries), tfidf.transform(article_texts))`.",
+      "en": "Scores are `cosine_similarity(tfidf.transform(queries), tfidf.transform(article_texts))`."
+    },
+    {
+      "tr": "Satırın en büyüğü 0 ise hepsi 0: `(scores.max(axis=1) == 0).sum()`.",
+      "en": "If a row's maximum is 0, all are: `(scores.max(axis=1) == 0).sum()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics.pairwise import cosine_similarity\nfrom text_data import make_articles, make_tickets\n\narticles = make_articles()\narticle_texts = [a[\"title\"] + \" \" + a[\"text\"] for a in articles]\ntfidf = TfidfVectorizer(stop_words=\"english\").fit(article_texts)\n\n\ndef zero_overlap(n):\n    queries = [t[\"text\"] for t in make_tickets(n)]\n    scores = cosine_similarity(tfidf.transform(queries), tfidf.transform(article_texts))\n    return int((scores.max(axis=1) == 0).sum())\n\n\nprint(zero_overlap(500))\nprint(zero_overlap(2000))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics.pairwise import cosine_similarity\nfrom text_data import make_articles, make_tickets\n\narticles = make_articles()\narticle_texts = [a[\"title\"] + \" \" + a[\"text\"] for a in articles]\ntfidf = TfidfVectorizer(stop_words=\"english\").fit(article_texts)\n\n\ndef zero_overlap(n):\n    queries = [t[\"text\"] for t in make_tickets(n)]\n    scores = cosine_similarity(tfidf.transform(queries), tfidf.transform(article_texts))\n    return int((scores.max(axis=1) == 0).sum())\n\n\nprint(zero_overlap(500))\nprint(zero_overlap(2000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "zero_overlap",
+      "cases": [
+        {
+          "args": [
+            1000
+          ],
+          "returns": 2
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\n5"
+    }
+  ]
+}

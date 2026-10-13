@@ -1,0 +1,91 @@
+{
+  "id": "rank-documents",
+  "title": {
+    "tr": "Belgeleri sırala",
+    "en": "Rank the documents"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satırları ve sorguyu birim uzunluğa getir; benzerlik `D @ q`.",
+      "en": "Scale the rows and the query to unit length; similarity is `D @ q`."
+    },
+    {
+      "tr": "Kararlı sıralama: `np.argsort(-sims, kind=\"stable\")`.",
+      "en": "Stable sorting: `np.argsort(-sims, kind=\"stable\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef rank(doc_vectors, query):\n    D = np.array(doc_vectors, dtype=float)\n    D = D / np.linalg.norm(D, axis=1, keepdims=True)\n    q = np.array(query, dtype=float)\n    sims = D @ (q / np.linalg.norm(q))\n    return [int(i) for i in np.argsort(-sims, kind=\"stable\")]\n\ndocs = [[1.0, 0.0], [0.7, 0.7], [0.0, 1.0], [-1.0, 0.0]]\nprint(rank(docs, [0.9, 0.1]))\nprint(rank(docs, [0.0, 2.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef rank(doc_vectors, query):\n    D = np.array(doc_vectors, dtype=float)\n    D = D / np.linalg.norm(D, axis=1, keepdims=True)\n    q = np.array(query, dtype=float)\n    sims = D @ (q / np.linalg.norm(q))\n    return [int(i) for i in np.argsort(-sims, kind=\"stable\")]\n\ndocs = [[1.0, 0.0], [0.7, 0.7], [0.0, 1.0], [-1.0, 0.0]]\nprint(rank(docs, [0.9, 0.1]))\nprint(rank(docs, [0.0, 2.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "rank",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                2.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            [
+              1.0,
+              0.0
+            ]
+          ],
+          "returns": [
+            0,
+            1,
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            [
+              1.0,
+              0.0
+            ]
+          ],
+          "returns": [
+            1,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 1, 2, 3]\n[2, 1, 0, 3]"
+    }
+  ]
+}
