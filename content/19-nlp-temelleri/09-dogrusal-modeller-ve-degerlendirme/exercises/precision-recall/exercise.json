@@ -1,0 +1,94 @@
+{
+  "id": "precision-recall",
+  "title": {
+    "tr": "Kesinlik, duyarlılık, F1",
+    "en": "Precision, recall, F1"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Doğru tahmin: `sum(t == label and p == label for t, p in zip(y_true, y_pred))`.",
+      "en": "Correct predictions: `sum(t == label and p == label for t, p in zip(y_true, y_pred))`."
+    },
+    {
+      "tr": "Bölmeden önce paydanın 0 olup olmadığına bak: `tp / said if said else 0.0`.",
+      "en": "Check the denominator before dividing: `tp / said if said else 0.0`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef prf(y_true, y_pred, label):\n    tp = sum(t == label and p == label for t, p in zip(y_true, y_pred))\n    said = sum(p == label for p in y_pred)\n    real = sum(t == label for t in y_true)\n    precision = tp / said if said else 0.0\n    recall = tp / real if real else 0.0\n    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0\n    return [round(precision, 3), round(recall, 3), round(f1, 3)]\n\n\ny_true = [\"neg\", \"neg\", \"neg\", \"pos\", \"pos\", \"pos\", \"pos\"]\ny_pred = [\"neg\", \"pos\", \"pos\", \"pos\", \"pos\", \"pos\", \"neg\"]\nprint(prf(y_true, y_pred, \"neg\"))\nprint(prf(y_true, y_pred, \"pos\"))\n```",
+      "en": "The full solution:\n\n```python\ndef prf(y_true, y_pred, label):\n    tp = sum(t == label and p == label for t, p in zip(y_true, y_pred))\n    said = sum(p == label for p in y_pred)\n    real = sum(t == label for t in y_true)\n    precision = tp / said if said else 0.0\n    recall = tp / real if real else 0.0\n    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0\n    return [round(precision, 3), round(recall, 3), round(f1, 3)]\n\n\ny_true = [\"neg\", \"neg\", \"neg\", \"pos\", \"pos\", \"pos\", \"pos\"]\ny_pred = [\"neg\", \"pos\", \"pos\", \"pos\", \"pos\", \"pos\", \"neg\"]\nprint(prf(y_true, y_pred, \"neg\"))\nprint(prf(y_true, y_pred, \"pos\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "prf",
+      "cases": [
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              "a",
+              "a"
+            ],
+            "a"
+          ],
+          "returns": [
+            0.5,
+            1.0,
+            0.667
+          ]
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              "b",
+              "b"
+            ],
+            "a"
+          ],
+          "returns": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "args": [
+            [
+              "x"
+            ],
+            [
+              "x"
+            ],
+            "x"
+          ],
+          "returns": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.5, 0.333, 0.4]\n[0.6, 0.75, 0.667]"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "ticket-coefs",
+  "title": {
+    "tr": "Taleplerde güçlü kelimeler",
+    "en": "Strong words in the tickets"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Satır: `model.coef_[list(model.classes_).index(label)]`.",
+      "en": "The row: `model.coef_[list(model.classes_).index(label)]`."
+    },
+    {
+      "tr": "`np.argsort(row)[::-1][:k]` ve `str(words[i])`.",
+      "en": "`np.argsort(row)[::-1][:k]` and `str(words[i])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.linear_model import LogisticRegression\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\nvectorizer = TfidfVectorizer(min_df=2)\nX = vectorizer.fit_transform([t[\"text\"] for t in tickets])\nmodel = LogisticRegression(max_iter=1000).fit(X, [t[\"category\"] for t in tickets])\nwords = vectorizer.get_feature_names_out()\n\n\ndef top_words(label, k):\n    row = model.coef_[list(model.classes_).index(label)]\n    return [str(words[i]) for i in np.argsort(row)[::-1][:k]]\n\n\nfor label in model.classes_:\n    print(label, \", \".join(top_words(label, 3)))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.linear_model import LogisticRegression\nfrom text_data import make_tickets\n\ntickets = make_tickets(2000)\nvectorizer = TfidfVectorizer(min_df=2)\nX = vectorizer.fit_transform([t[\"text\"] for t in tickets])\nmodel = LogisticRegression(max_iter=1000).fit(X, [t[\"category\"] for t in tickets])\nwords = vectorizer.get_feature_names_out()\n\n\ndef top_words(label, k):\n    row = model.coef_[list(model.classes_).index(label)]\n    return [str(words[i]) for i in np.argsort(row)[::-1][:k]]\n\n\nfor label in model.classes_:\n    print(label, \", \".join(top_words(label, 3)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_words",
+      "cases": [
+        {
+          "args": [
+            "refund",
+            2
+          ],
+          "returns": [
+            "refund",
+            "will"
+          ]
+        },
+        {
+          "args": [
+            "account",
+            1
+          ],
+          "returns": [
+            "account"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "account account, email, example\nbilling charged, invoice, billing\nrefund refund, will, back\nshipping delivered, it, arrived\ntechnical app, error, page"
+    }
+  ]
+}

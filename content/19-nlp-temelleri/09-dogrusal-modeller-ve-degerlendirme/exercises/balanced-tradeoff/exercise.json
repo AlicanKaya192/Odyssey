@@ -1,0 +1,61 @@
+{
+  "id": "balanced-tradeoff",
+  "title": {
+    "tr": "Dengeli ağırlığın bedeli",
+    "en": "The price of balanced weights"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Doğru nötr: `((pred == \"neutral\") & (y_test == \"neutral\")).sum()`.",
+      "en": "Correct neutrals: `((pred == \"neutral\") & (y_test == \"neutral\")).sum()`."
+    },
+    {
+      "tr": "Kesinlik paydası `(pred == \"neutral\").sum()`, duyarlılığınki `(y_test == \"neutral\").sum()`; `float(...)` ile yuvarla.",
+      "en": "The precision denominator is `(pred == \"neutral\").sum()`, recall's `(y_test == \"neutral\").sum()`; round with `float(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\nfrom text_data import make_reviews\n\nreviews = make_reviews(2000)\ntexts = [r[\"text\"] for r in reviews]\nlabels = np.array([r[\"label\"] for r in reviews])\nX_train, X_test, y_train, y_test = train_test_split(\n    texts, labels, test_size=0.25, random_state=0, stratify=labels)\nvectorizer = TfidfVectorizer().fit(X_train)\nA, B = vectorizer.transform(X_train), vectorizer.transform(X_test)\n\n\ndef neutral_scores(class_weight):\n    model = LogisticRegression(max_iter=1000, class_weight=class_weight).fit(A, y_train)\n    pred = model.predict(B)\n    precision = ((pred == \"neutral\") & (y_test == \"neutral\")).sum() / (pred == \"neutral\").sum()\n    recall = ((pred == \"neutral\") & (y_test == \"neutral\")).sum() / (y_test == \"neutral\").sum()\n    return [round(float(precision), 3), round(float(recall), 3)]\n\n\nprint(\"plain\", neutral_scores(None))\nprint(\"balanced\", neutral_scores(\"balanced\"))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\nfrom text_data import make_reviews\n\nreviews = make_reviews(2000)\ntexts = [r[\"text\"] for r in reviews]\nlabels = np.array([r[\"label\"] for r in reviews])\nX_train, X_test, y_train, y_test = train_test_split(\n    texts, labels, test_size=0.25, random_state=0, stratify=labels)\nvectorizer = TfidfVectorizer().fit(X_train)\nA, B = vectorizer.transform(X_train), vectorizer.transform(X_test)\n\n\ndef neutral_scores(class_weight):\n    model = LogisticRegression(max_iter=1000, class_weight=class_weight).fit(A, y_train)\n    pred = model.predict(B)\n    precision = ((pred == \"neutral\") & (y_test == \"neutral\")).sum() / (pred == \"neutral\").sum()\n    recall = ((pred == \"neutral\") & (y_test == \"neutral\")).sum() / (y_test == \"neutral\").sum()\n    return [round(float(precision), 3), round(float(recall), 3)]\n\n\nprint(\"plain\", neutral_scores(None))\nprint(\"balanced\", neutral_scores(\"balanced\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "neutral_scores",
+      "cases": [
+        {
+          "args": [
+            null
+          ],
+          "returns": [
+            0.778,
+            0.681
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "plain [0.778, 0.681]\nbalanced [0.652, 0.806]"
+    }
+  ]
+}
