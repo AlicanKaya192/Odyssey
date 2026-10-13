@@ -1,0 +1,66 @@
+{
+  "id": "clean-html",
+  "title": {
+    "tr": "HTML artıklarını temizle",
+    "en": "Clean the HTML leftovers"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `text = html.unescape(text)`, sonra etiketler.",
+      "en": "First `text = html.unescape(text)`, then the tags."
+    },
+    {
+      "tr": "Etiketler: `re.sub(r\"<[^>]+>\", \" \", text)`; sonra `\" \".join(text.split())`.",
+      "en": "Tags: `re.sub(r\"<[^>]+>\", \" \", text)`; then `\" \".join(text.split())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport html\nimport re\n\n\ndef clean_html(text):\n    text = html.unescape(text)\n    text = re.sub(r\"<[^>]+>\", \" \", text)\n    return \" \".join(text.split())\n\nprint(clean_html(\"<p>Great &amp; cheap</p>\"))\nprint(clean_html(\"Fast<br>delivery,   <b>well</b> packed\"))\nprint(clean_html(\"5 &lt; 7\"))\n```",
+      "en": "The full solution:\n\n```python\nimport html\nimport re\n\n\ndef clean_html(text):\n    text = html.unescape(text)\n    text = re.sub(r\"<[^>]+>\", \" \", text)\n    return \" \".join(text.split())\n\nprint(clean_html(\"<p>Great &amp; cheap</p>\"))\nprint(clean_html(\"Fast<br>delivery,   <b>well</b> packed\"))\nprint(clean_html(\"5 &lt; 7\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "clean_html",
+      "cases": [
+        {
+          "args": [
+            "<p>Great &amp; cheap</p>"
+          ],
+          "returns": "Great & cheap"
+        },
+        {
+          "args": [
+            "a<br>b"
+          ],
+          "returns": "a b"
+        },
+        {
+          "args": [
+            "no tags"
+          ],
+          "returns": "no tags"
+        },
+        {
+          "args": [
+            "<b>Not</b>  bad"
+          ],
+          "returns": "Not bad"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Great & cheap\nFast delivery, well packed\n5 < 7"
+    }
+  ]
+}

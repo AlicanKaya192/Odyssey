@@ -6,6 +6,7 @@ random module.
 
     make_reviews(n, seed=7)   -> list of dicts: id, product, text, rating, label
     make_tickets(n, seed=11)  -> list of dicts: id, text, category, priority
+    messy_reviews(n, seed=5)  -> the same reviews with web-page clutter
     write_reviews_csv(path, n, seed=7)
     write_tickets_csv(path, n, seed=11)
 
@@ -257,6 +258,60 @@ def make_tickets(n, seed=11):
         urgent = "urgent" in text.lower() or rng.random() < 0.1
         rows.append({"id": i, "text": text, "category": cat,
                      "priority": "high" if urgent else "normal"})
+    return rows
+
+
+# ---------------------------------------------------------------- messy text
+
+# Characters that look like ordinary ones but are not (written with chr so the
+# file itself stays plain ASCII).
+NBSP = chr(0xA0)            # no-break space
+ZWSP = chr(0x200B)          # zero-width space
+RSQUO = chr(0x2019)         # right single quotation mark
+LDQUO, RDQUO = chr(0x201C), chr(0x201D)
+FW_EXCL = chr(0xFF01)       # full-width exclamation mark
+ELLIPSIS = chr(0x2026)
+
+
+def _mess(text, rng):
+    words = text.split(" ")
+    out = []
+    for w in words:
+        roll = rng.random()
+        if roll < 0.06:
+            out.append(w + NBSP)
+        elif roll < 0.09:
+            out.append(w + ZWSP + " ")
+        elif roll < 0.13:
+            out.append(w + "  ")
+        else:
+            out.append(w + " ")
+    text = "".join(out).strip()
+    text = text.replace("'", RSQUO) if rng.random() < 0.7 else text
+    if rng.random() < 0.25:
+        text = text.replace(" and ", " &amp; ")
+    if rng.random() < 0.2:
+        text = text.replace(". ", ".<br>", 1)
+    if rng.random() < 0.15:
+        text = "<p>" + text + "</p>"
+    if rng.random() < 0.15:
+        text = LDQUO + text + RDQUO
+    if rng.random() < 0.1:
+        text = text.rstrip(".!") + FW_EXCL
+    if rng.random() < 0.1:
+        text = text.rstrip(".!") + ELLIPSIS
+    if rng.random() < 0.1:
+        text = "\t" + text + "\n"
+    return text
+
+
+def messy_reviews(n, seed=5):
+    """The first n reviews of make_reviews(n), copied from a web page: hidden
+    spaces, curly quotes, HTML leftovers, full-width punctuation."""
+    rng = random.Random(seed)
+    rows = make_reviews(n)
+    for row in rows:
+        row["text"] = _mess(row["text"], rng)
     return rows
 
 

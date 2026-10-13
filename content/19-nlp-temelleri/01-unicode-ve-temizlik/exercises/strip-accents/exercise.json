@@ -1,0 +1,60 @@
+{
+  "id": "strip-accents",
+  "title": {
+    "tr": "Aksanları at",
+    "en": "Remove the accents"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce ayır: `unicodedata.normalize(\"NFD\", text)`.",
+      "en": "Split first: `unicodedata.normalize(\"NFD\", text)`."
+    },
+    {
+      "tr": "Sonra süz: `\"\".join(c for c in decomposed if not unicodedata.combining(c))`.",
+      "en": "Then filter: `\"\".join(c for c in decomposed if not unicodedata.combining(c))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport unicodedata\n\n\ndef strip_accents(text):\n    decomposed = unicodedata.normalize(\"NFD\", text)\n    return \"\".join(c for c in decomposed if not unicodedata.combining(c))\n\nwith open(\"words.txt\", encoding=\"utf-8\") as f:\n    for line in f:\n        print(strip_accents(line.strip()))\n```",
+      "en": "The full solution:\n\n```python\nimport unicodedata\n\n\ndef strip_accents(text):\n    decomposed = unicodedata.normalize(\"NFD\", text)\n    return \"\".join(c for c in decomposed if not unicodedata.combining(c))\n\nwith open(\"words.txt\", encoding=\"utf-8\") as f:\n    for line in f:\n        print(strip_accents(line.strip()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "strip_accents",
+      "cases": [
+        {
+          "args": [
+            "plain"
+          ],
+          "returns": "plain"
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": ""
+        },
+        {
+          "args": [
+            "Mixed Case"
+          ],
+          "returns": "Mixed Case"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "cafe\nnaive\nAngstrom\nseker\nIzmir\nuber\nfacade\nresume\njalapeno\ncreme brulee"
+    }
+  ]
+}

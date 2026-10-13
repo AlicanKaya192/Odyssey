@@ -1,0 +1,79 @@
+{
+  "id": "vocab-after-clean",
+  "title": {
+    "tr": "Temizlik kelime dağarcığını ne kadar küçültür?",
+    "en": "How much does cleaning shrink the vocabulary?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "text_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 40,
+  "hints": [
+    {
+      "tr": "Her adım bir önceki adımın sonucunu alsın: `text = ...` satırlarını alt alta yaz.",
+      "en": "Each step takes the result of the one before: write the `text = ...` lines one under another."
+    },
+    {
+      "tr": "Görünmez boşluk: `text = text.replace(chr(0x200B), \"\")`; son satır `return \" \".join(text.split())`.",
+      "en": "The invisible space: `text = text.replace(chr(0x200B), \"\")`; the last line is `return \" \".join(text.split())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport html\nimport re\nimport unicodedata\n\nfrom text_data import messy_reviews\n\nQUOTES = str.maketrans({chr(0x2018): \"'\", chr(0x2019): \"'\",\n                        chr(0x201C): '\"', chr(0x201D): '\"'})\n\n\ndef clean(text):\n    text = html.unescape(text)\n    text = re.sub(r\"<[^>]+>\", \" \", text)\n    text = unicodedata.normalize(\"NFKC\", text)\n    text = text.translate(QUOTES)\n    text = text.replace(chr(0x200B), \"\")\n    return \" \".join(text.split())\n\n\ndef vocabulary(texts):\n    return {w.strip(\".,!?\" + chr(34)).lower() for t in texts for w in t.split(\" \")}\n\n\ndef vocab_sizes(n):\n    raw = [r[\"text\"] for r in messy_reviews(n)]\n    return [len(vocabulary(raw)), len(vocabulary(clean(t) for t in raw))]\n\n\nprint(vocab_sizes(2000))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport html\nimport re\nimport unicodedata\n\nfrom text_data import messy_reviews\n\nQUOTES = str.maketrans({chr(0x2018): \"'\", chr(0x2019): \"'\",\n                        chr(0x201C): '\"', chr(0x201D): '\"'})\n\n\ndef clean(text):\n    text = html.unescape(text)\n    text = re.sub(r\"<[^>]+>\", \" \", text)\n    text = unicodedata.normalize(\"NFKC\", text)\n    text = text.translate(QUOTES)\n    text = text.replace(chr(0x200B), \"\")\n    return \" \".join(text.split())\n\n\ndef vocabulary(texts):\n    return {w.strip(\".,!?\" + chr(34)).lower() for t in texts for w in t.split(\" \")}\n\n\ndef vocab_sizes(n):\n    raw = [r[\"text\"] for r in messy_reviews(n)]\n    return [len(vocabulary(raw)), len(vocabulary(clean(t) for t in raw))]\n\n\nprint(vocab_sizes(2000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "vocab_sizes",
+      "cases": [
+        {
+          "args": [
+            2000
+          ],
+          "returns": [
+            2225,
+            362
+          ]
+        },
+        {
+          "args": [
+            300
+          ],
+          "returns": [
+            704,
+            240
+          ]
+        },
+        {
+          "args": [
+            50
+          ],
+          "returns": [
+            259,
+            168
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2225, 362]"
+    }
+  ]
+}
