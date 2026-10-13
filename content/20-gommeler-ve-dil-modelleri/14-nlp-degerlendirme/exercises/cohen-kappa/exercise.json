@@ -1,0 +1,59 @@
+{
+  "id": "cohen-kappa",
+  "title": {
+    "tr": "Cohen'in kappa'sı",
+    "en": "Cohen's kappa"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`p_e = sum(ca[k] * cb[k] for k in ca) / len(a) ** 2`.",
+      "en": "`p_e = sum(ca[k] * cb[k] for k in ca) / len(a) ** 2`."
+    },
+    {
+      "tr": "Bütün etiketler tek ve aynıysa `p_e` 1 olur.",
+      "en": "If all labels are one and the same, `p_e` is 1."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef cohen_kappa(a, b):\n    observed = sum(x == y for x, y in zip(a, b)) / len(a)\n    ca, cb = Counter(a), Counter(b)\n    expected = sum(ca[k] * cb[k] for k in ca) / len(a) ** 2\n    if expected == 1:\n        return 1.0\n    return round((observed - expected) / (1 - expected), 3)\n\na = [\"pos\", \"pos\", \"neg\", \"neg\", \"pos\", \"neu\"]\nb = [\"pos\", \"neg\", \"neg\", \"neg\", \"pos\", \"pos\"]\nprint(cohen_kappa(a, b))\nprint(cohen_kappa(a, a))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef cohen_kappa(a, b):\n    observed = sum(x == y for x, y in zip(a, b)) / len(a)\n    ca, cb = Counter(a), Counter(b)\n    expected = sum(ca[k] * cb[k] for k in ca) / len(a) ** 2\n    if expected == 1:\n        return 1.0\n    return round((observed - expected) / (1 - expected), 3)\n\na = [\"pos\", \"pos\", \"neg\", \"neg\", \"pos\", \"neu\"]\nb = [\"pos\", \"neg\", \"neg\", \"neg\", \"pos\", \"pos\"]\nprint(cohen_kappa(a, b))\nprint(cohen_kappa(a, a))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cohen_kappa",
+      "cases": [
+        {
+          "args": [
+            [
+              "x",
+              "y",
+              "x",
+              "y"
+            ],
+            [
+              "x",
+              "x",
+              "y",
+              "y"
+            ]
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.429\n1.0"
+    }
+  ]
+}

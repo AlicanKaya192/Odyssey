@@ -1,0 +1,58 @@
+{
+  "id": "clipped-precision",
+  "title": {
+    "tr": "Kırpılmış kesinlik",
+    "en": "Clipped precision"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki `Counter`: `tuple(c[i:i + n])`.",
+      "en": "Two `Counter`s: `tuple(c[i:i + n])`."
+    },
+    {
+      "tr": "Her grup için `min(k, ref[g])`.",
+      "en": "For each group `min(k, ref[g])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef clipped_precision(candidate, reference, n):\n    c, r = candidate.split(), reference.split()\n    cand = Counter(tuple(c[i:i + n]) for i in range(len(c) - n + 1))\n    ref = Counter(tuple(r[i:i + n]) for i in range(len(r) - n + 1))\n    total = sum(cand.values())\n    if total == 0:\n        return 0.0\n    return round(sum(min(k, ref[g]) for g, k in cand.items()) / total, 3)\n\nref = \"the parcel arrived damaged\"\nprint(clipped_precision(\"the parcel arrived late\", ref, 1))\nprint(clipped_precision(\"the the the the\", ref, 1))\nprint(clipped_precision(\"the parcel arrived late\", ref, 2))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef clipped_precision(candidate, reference, n):\n    c, r = candidate.split(), reference.split()\n    cand = Counter(tuple(c[i:i + n]) for i in range(len(c) - n + 1))\n    ref = Counter(tuple(r[i:i + n]) for i in range(len(r) - n + 1))\n    total = sum(cand.values())\n    if total == 0:\n        return 0.0\n    return round(sum(min(k, ref[g]) for g, k in cand.items()) / total, 3)\n\nref = \"the parcel arrived damaged\"\nprint(clipped_precision(\"the parcel arrived late\", ref, 1))\nprint(clipped_precision(\"the the the the\", ref, 1))\nprint(clipped_precision(\"the parcel arrived late\", ref, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "clipped_precision",
+      "cases": [
+        {
+          "args": [
+            "a a b",
+            "a b",
+            1
+          ],
+          "returns": 0.667
+        },
+        {
+          "args": [
+            "a",
+            "a b",
+            2
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.75\n0.25\n0.667"
+    }
+  ]
+}

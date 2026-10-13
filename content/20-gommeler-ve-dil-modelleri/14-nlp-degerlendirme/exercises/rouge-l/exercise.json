@@ -1,0 +1,56 @@
+{
+  "id": "rouge-l",
+  "title": {
+    "tr": "ROUGE-L",
+    "en": "ROUGE-L"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tablo `(len(a) + 1) × (len(b) + 1)`, sıfırlarla.",
+      "en": "A `(len(a) + 1) × (len(b) + 1)` table of zeros."
+    },
+    {
+      "tr": "Eşitse çapraz + 1, değilse üst ya da soldakinin büyüğü.",
+      "en": "If equal, diagonal + 1; otherwise the larger of above or left."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef rouge_l(candidate, reference):\n    a, b = candidate.split(), reference.split()\n    table = [[0] * (len(b) + 1) for _ in range(len(a) + 1)]\n    for i, x in enumerate(a):\n        for j, y in enumerate(b):\n            if x == y:\n                table[i + 1][j + 1] = table[i][j] + 1\n            else:\n                table[i + 1][j + 1] = max(table[i][j + 1], table[i + 1][j])\n    return round(table[-1][-1] / len(b), 3)\n\nref = \"the parcel arrived damaged and the customer wants a refund\"\nprint(rouge_l(\"the customer wants a refund\", ref))\nprint(rouge_l(\"refund wants customer the\", ref))\n```",
+      "en": "The full solution:\n\n```python\ndef rouge_l(candidate, reference):\n    a, b = candidate.split(), reference.split()\n    table = [[0] * (len(b) + 1) for _ in range(len(a) + 1)]\n    for i, x in enumerate(a):\n        for j, y in enumerate(b):\n            if x == y:\n                table[i + 1][j + 1] = table[i][j] + 1\n            else:\n                table[i + 1][j + 1] = max(table[i][j + 1], table[i + 1][j])\n    return round(table[-1][-1] / len(b), 3)\n\nref = \"the parcel arrived damaged and the customer wants a refund\"\nprint(rouge_l(\"the customer wants a refund\", ref))\nprint(rouge_l(\"refund wants customer the\", ref))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "rouge_l",
+      "cases": [
+        {
+          "args": [
+            "a c",
+            "a b c"
+          ],
+          "returns": 0.667
+        },
+        {
+          "args": [
+            "c a",
+            "a b c"
+          ],
+          "returns": 0.333
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.5\n0.1"
+    }
+  ]
+}
