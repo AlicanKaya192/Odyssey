@@ -46,6 +46,9 @@ class IntroLink:
         self._shown = threading.Event()
         self._reveal = threading.Event()
         self._ended = threading.Event()
+        # Animasyon penceresinin ekrana geldiği an (`time.monotonic`); açılış
+        # süreleri günlüğü için.
+        self.shown_at: float | None = None
         threading.Thread(target=self._read, daemon=True).start()
 
     @classmethod
@@ -75,6 +78,7 @@ class IntroLink:
             for raw in stream:
                 line = raw.decode("utf-8", "replace").strip()
                 if line == "shown":
+                    self.shown_at = time.monotonic()
                     self._shown.set()
                 elif line == "reveal":
                     self._reveal.set()

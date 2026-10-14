@@ -176,6 +176,10 @@ def main() -> int:
 
     check_python()
 
+    from app.core.startup_timing import StartupTimes
+
+    times = StartupTimes()
+
     try:
         from PySide6.QtWidgets import QApplication
     except ImportError as exc:
@@ -277,6 +281,7 @@ def main() -> int:
 
     stage("splash.stage_content", 0.55)
     window = MainWindow(language, theme, store)
+    times.mark("pencere")
     # Simge pencereye de ayrıca veriliyor. Windows görev çubuğu ve Alt+Tab
     # listesi uygulamanınkini değil, pencerenin kendi simgesini okuyor.
     if not icon.isNull():
@@ -320,14 +325,19 @@ def main() -> int:
         if first_name
         else language.t("home.welcome")
     )
+    times.mark("hazir")
     if intro is not None:
         # Animasyonun sonunu bekleyip pencereyi gösteriyor.
         intro.reveal(window, window.warm_up_steps())
         window.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, False)
+        if intro.shown_at is not None:
+            times.mark("animasyon", intro.shown_at)
     elif splash is not None:
         close_splash(splash, window, splash_started, greeting)
     else:
         show_window(window)
+    times.mark("belirdi")
+    log.get("odyssey").info("Açılış süreleri (sn, süreç başlangıcından): %s", times.summary())
 
     # Arama dizini açılışı geciktirmesin diye pencere göründükten sonra,
     # belirme geçişi bittiğinde arka planda kuruluyor.
