@@ -1,0 +1,101 @@
+{
+  "id": "score-by-outcome",
+  "title": {
+    "tr": "Sonuca göre puan",
+    "en": "Score by outcome"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `{beklenen: [doğru, toplam]}` say.",
+      "en": "First count `{expected: [right, total]}`."
+    },
+    {
+      "tr": "Abece sırası için `sorted(table.items())`.",
+      "en": "For alphabetical order `sorted(table.items())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef score_by_outcome(results):\n    table = {}\n    for outcome, expected in results:\n        right, total = table.get(expected, [0, 0])\n        table[expected] = [right + (outcome == expected), total + 1]\n    return {key: f\"{right}/{total}\" for key, (right, total) in sorted(table.items())}\n\n\nRESULTS = [[\"sent\", \"sent\"], [\"blocked\", \"blocked\"],\n           [\"handover\", \"sent\"], [\"handover\", \"handover\"],\n           [\"fallback\", \"fallback\"], [\"sent\", \"handover\"],\n           [\"sent\", \"sent\"]]\nfor key, value in score_by_outcome(RESULTS).items():\n    print(key, value)\n```",
+      "en": "The full solution:\n\n```python\ndef score_by_outcome(results):\n    table = {}\n    for outcome, expected in results:\n        right, total = table.get(expected, [0, 0])\n        table[expected] = [right + (outcome == expected), total + 1]\n    return {key: f\"{right}/{total}\" for key, (right, total) in sorted(table.items())}\n\n\nRESULTS = [[\"sent\", \"sent\"], [\"blocked\", \"blocked\"],\n           [\"handover\", \"sent\"], [\"handover\", \"handover\"],\n           [\"fallback\", \"fallback\"], [\"sent\", \"handover\"],\n           [\"sent\", \"sent\"]]\nfor key, value in score_by_outcome(RESULTS).items():\n    print(key, value)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "score_by_outcome",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "sent",
+                "sent"
+              ],
+              [
+                "blocked",
+                "blocked"
+              ],
+              [
+                "handover",
+                "sent"
+              ],
+              [
+                "handover",
+                "handover"
+              ],
+              [
+                "fallback",
+                "fallback"
+              ],
+              [
+                "sent",
+                "handover"
+              ],
+              [
+                "sent",
+                "sent"
+              ]
+            ]
+          ],
+          "returns": {
+            "blocked": "1/1",
+            "fallback": "1/1",
+            "handover": "1/2",
+            "sent": "2/3"
+          }
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": {}
+        },
+        {
+          "args": [
+            [
+              [
+                "sent",
+                "handover"
+              ]
+            ]
+          ],
+          "returns": {
+            "handover": "0/1"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "blocked 1/1\nfallback 1/1\nhandover 1/2\nsent 2/3"
+    }
+  ]
+}

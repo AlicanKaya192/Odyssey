@@ -1,0 +1,106 @@
+{
+  "id": "classify-repair",
+  "title": {
+    "tr": "Onarımlı sınıflandırma",
+    "en": "Classification with repair"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Çağrı sayısı: `len(client.calls)`.",
+      "en": "The number of calls: `len(client.calls)`."
+    },
+    {
+      "tr": "Onarım yalnızca bir kez; ikinci cevap da ayrıştırılamazsa `None`.",
+      "en": "Repair only once; if the second answer cannot be parsed either, `None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient\nfrom shop_data import LABELS\n\nCLASSIFY = \"Answer with one word: \" + \", \".join(LABELS) + \".\"\n\n\ndef parse_label(text):\n    label = text.strip().strip(\".\").lower()\n    return label if label in LABELS else None\n\n\ndef classify_with_repair(script, message):\n    client = ChatClient(script)\n    messages = [{\"role\": \"system\", \"content\": CLASSIFY},\n                {\"role\": \"user\", \"content\": message}]\n    text = client.chat(messages, max_tokens=20).text\n    if parse_label(text) is None:\n        messages += [{\"role\": \"assistant\", \"content\": text},\n                     {\"role\": \"user\", \"content\": \"Only the category word, please.\"}]\n        text = client.chat(messages, max_tokens=20).text\n    return [parse_label(text), len(client.calls)]\n\n\nprint(classify_with_repair([\"Payment.\"], \"Card declined.\"))\nprint(classify_with_repair([\"It is about payment.\", \"payment\"],\n                           \"Card declined.\"))\nprint(classify_with_repair([\"Hmm.\", \"No idea.\"], \"Hello\"))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient\nfrom shop_data import LABELS\n\nCLASSIFY = \"Answer with one word: \" + \", \".join(LABELS) + \".\"\n\n\ndef parse_label(text):\n    label = text.strip().strip(\".\").lower()\n    return label if label in LABELS else None\n\n\ndef classify_with_repair(script, message):\n    client = ChatClient(script)\n    messages = [{\"role\": \"system\", \"content\": CLASSIFY},\n                {\"role\": \"user\", \"content\": message}]\n    text = client.chat(messages, max_tokens=20).text\n    if parse_label(text) is None:\n        messages += [{\"role\": \"assistant\", \"content\": text},\n                     {\"role\": \"user\", \"content\": \"Only the category word, please.\"}]\n        text = client.chat(messages, max_tokens=20).text\n    return [parse_label(text), len(client.calls)]\n\n\nprint(classify_with_repair([\"Payment.\"], \"Card declined.\"))\nprint(classify_with_repair([\"It is about payment.\", \"payment\"],\n                           \"Card declined.\"))\nprint(classify_with_repair([\"Hmm.\", \"No idea.\"], \"Hello\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "classify_with_repair",
+      "cases": [
+        {
+          "args": [
+            [
+              "Payment."
+            ],
+            "Card declined."
+          ],
+          "returns": [
+            "payment",
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              "It is about payment.",
+              "payment"
+            ],
+            "Card declined."
+          ],
+          "returns": [
+            "payment",
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              "Hmm.",
+              "No idea."
+            ],
+            "Hello"
+          ],
+          "returns": [
+            null,
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              "WARRANTY"
+            ],
+            "Pole snapped."
+          ],
+          "returns": [
+            "warranty",
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['payment', 1]\n['payment', 2]\n[None, 2]"
+    }
+  ]
+}

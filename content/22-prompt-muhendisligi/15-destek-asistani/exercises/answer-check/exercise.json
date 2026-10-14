@@ -1,0 +1,101 @@
+{
+  "id": "answer-check",
+  "title": {
+    "tr": "Cevap denetimi",
+    "en": "The answer check"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sipariş verisi boşsa `facts.get(\"date\")` `None` döner; her tarih sorun olur.",
+      "en": "If the order data is empty, `facts.get(\"date\")` returns `None`; every date is a problem."
+    },
+    {
+      "tr": "Kalıplar için `.search(text)` yeter.",
+      "en": "For the patterns `.search(text)` is enough."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nfrom shop_data import LABELS, ORDERS\n\nDETECT = re.compile(r\"ignore (all |the )?(previous|above) instructions\"\n                    r\"|reveal .{0,20}prompt|you are now\", re.I)\nORDER_ID = re.compile(r\"ORD-\\d{5}\")\nPROMISE = re.compile(r\"\\b(will (arrive|reach)|tomorrow|guarantee)\", re.I)\nACTION = re.compile(r\"\\b(cancelled|refunded|changed)\\b\", re.I)\n\n\ndef answer_problems(text, facts):\n    problems = []\n    for date in re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", text):\n        if date != facts.get(\"date\"):\n            problems.append(\"date\")\n    if PROMISE.search(text):\n        problems.append(\"promise\")\n    if ACTION.search(text):\n        problems.append(\"action\")\n    return problems\n\n\nFACTS = {\"order_id\": \"ORD-48213\", \"status\": \"shipped\",\n         \"date\": \"2026-10-09\"}\nfor text in [\"It was shipped on 2026-10-09.\",\n             \"It will arrive on 2026-10-12.\",\n             \"I have cancelled it for you.\"]:\n    print(answer_problems(text, FACTS))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nfrom shop_data import LABELS, ORDERS\n\nDETECT = re.compile(r\"ignore (all |the )?(previous|above) instructions\"\n                    r\"|reveal .{0,20}prompt|you are now\", re.I)\nORDER_ID = re.compile(r\"ORD-\\d{5}\")\nPROMISE = re.compile(r\"\\b(will (arrive|reach)|tomorrow|guarantee)\", re.I)\nACTION = re.compile(r\"\\b(cancelled|refunded|changed)\\b\", re.I)\n\n\ndef answer_problems(text, facts):\n    problems = []\n    for date in re.findall(r\"\\d{4}-\\d{2}-\\d{2}\", text):\n        if date != facts.get(\"date\"):\n            problems.append(\"date\")\n    if PROMISE.search(text):\n        problems.append(\"promise\")\n    if ACTION.search(text):\n        problems.append(\"action\")\n    return problems\n\n\nFACTS = {\"order_id\": \"ORD-48213\", \"status\": \"shipped\",\n         \"date\": \"2026-10-09\"}\nfor text in [\"It was shipped on 2026-10-09.\",\n             \"It will arrive on 2026-10-12.\",\n             \"I have cancelled it for you.\"]:\n    print(answer_problems(text, FACTS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "answer_problems",
+      "cases": [
+        {
+          "args": [
+            "It was shipped on 2026-10-09.",
+            {
+              "order_id": "ORD-48213",
+              "status": "shipped",
+              "date": "2026-10-09"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "It will arrive on 2026-10-12.",
+            {
+              "order_id": "ORD-48213",
+              "status": "shipped",
+              "date": "2026-10-09"
+            }
+          ],
+          "returns": [
+            "date",
+            "promise"
+          ]
+        },
+        {
+          "args": [
+            "I have cancelled it for you.",
+            {
+              "order_id": "ORD-48213",
+              "status": "shipped",
+              "date": "2026-10-09"
+            }
+          ],
+          "returns": [
+            "action"
+          ]
+        },
+        {
+          "args": [
+            "Shipped 2026-10-01, refunded 2026-10-02.",
+            {}
+          ],
+          "returns": [
+            "date",
+            "date",
+            "action"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[]\n['date', 'promise']\n['action']"
+    }
+  ]
+}
