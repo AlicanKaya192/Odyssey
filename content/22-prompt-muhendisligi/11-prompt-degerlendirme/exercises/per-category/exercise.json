@@ -1,0 +1,76 @@
+{
+  "id": "per-category",
+  "title": {
+    "tr": "Kategori başına doğru",
+    "en": "Right answers per category"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sözlüğü sıfırlarla başlat: `{label: 0 for label in LABELS}`.",
+      "en": "Start the dictionary with zeros: `{label: 0 for label in LABELS}`."
+    },
+    {
+      "tr": "Mesaj ile cevabı birlikte gez: `zip(TICKETS, RECORDED[version])`.",
+      "en": "Go through message and answer together: `zip(TICKETS, RECORDED[version])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom shop_data import TICKETS, LABELS, RECORDED\n\n\ndef per_category(version):\n    right = {label: 0 for label in LABELS}\n    for ticket, reply in zip(TICKETS, RECORDED[version]):\n        if reply.strip().lower().rstrip(\".!\") == ticket[\"label\"]:\n            right[ticket[\"label\"]] += 1\n    return right\n\n\nfor version in [\"v1\", \"v2\"]:\n    print(version, list(per_category(version).values()))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom shop_data import TICKETS, LABELS, RECORDED\n\n\ndef per_category(version):\n    right = {label: 0 for label in LABELS}\n    for ticket, reply in zip(TICKETS, RECORDED[version]):\n        if reply.strip().lower().rstrip(\".!\") == ticket[\"label\"]:\n            right[ticket[\"label\"]] += 1\n    return right\n\n\nfor version in [\"v1\", \"v2\"]:\n    print(version, list(per_category(version).values()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "per_category",
+      "cases": [
+        {
+          "args": [
+            "v1"
+          ],
+          "returns": {
+            "shipping": 6,
+            "returns": 7,
+            "refunds": 4,
+            "warranty": 8,
+            "payment": 6
+          }
+        },
+        {
+          "args": [
+            "v2"
+          ],
+          "returns": {
+            "shipping": 8,
+            "returns": 8,
+            "refunds": 6,
+            "warranty": 7,
+            "payment": 7
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "v1 [6, 7, 4, 8, 6]\nv2 [8, 8, 6, 7, 7]"
+    }
+  ]
+}

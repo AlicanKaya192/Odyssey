@@ -66,6 +66,17 @@ for _i in range(8):
     for _label in LABELS:
         TICKETS.append({"id": len(TICKETS) + 1, "text": _TEXTS[_label][_i], "label": _label})
 
+# Example replies of two prompt versions to the 40 messages, written for the
+# lessons (not taken from a model). A reply is the right label unless the
+# version is listed here with something else for that message id.
+_V1 = {2: "Returns.", 9: "Warranty.", 16: "Shipping.", 23: "Refunds.", 30: "Payment.",
+       5: "It is about payment.", 12: "It is about returns.", 26: "It is about shipping.",
+       33: "It is about refunds.",
+       13: "payment", 18: "shipping", 20: "refunds", 31: "payment", 38: "payment"}
+_V2 = {24: "Warranty", 13: "refunds or payment", 8: "payment", 20: "refunds", 39: "returns"}
+RECORDED = {"v1": [_V1.get(t["id"], t["label"]) for t in TICKETS],
+            "v2": [_V2.get(t["id"], t["label"]) for t in TICKETS]}
+
 # items: [product, unit price in euros, count]
 ORDERS = {
     "ORD-48213": {"status": "shipped", "date": "2026-10-09",

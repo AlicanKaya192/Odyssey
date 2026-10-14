@@ -1,0 +1,121 @@
+{
+  "id": "confused-pairs",
+  "title": {
+    "tr": "En çok karışan çiftler",
+    "en": "The most confused pairs"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sayım: `Counter((g, p) for g, p in zip(gold, parsed) if g != p)`.",
+      "en": "The count: `Counter((g, p) for g, p in zip(gold, parsed) if g != p)`."
+    },
+    {
+      "tr": "Sıralama anahtarı `(-item[1], item[0])`.",
+      "en": "The sort key is `(-item[1], item[0])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef top_confusions(gold, parsed, n):\n    counts = Counter((g, p) for g, p in zip(gold, parsed) if g != p)\n    ordered = sorted(counts.items(), key=lambda item: (-item[1], item[0]))\n    return [[g, p, count] for (g, p), count in ordered[:n]]\n\n\nGOLD = [\"refunds\", \"refunds\", \"payment\", \"shipping\", \"refunds\"]\nPARSED = [\"payment\", \"payment\", \"refunds\", \"shipping\", \"needs_review\"]\nfor item in top_confusions(GOLD, PARSED, 2):\n    print(item)\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef top_confusions(gold, parsed, n):\n    counts = Counter((g, p) for g, p in zip(gold, parsed) if g != p)\n    ordered = sorted(counts.items(), key=lambda item: (-item[1], item[0]))\n    return [[g, p, count] for (g, p), count in ordered[:n]]\n\n\nGOLD = [\"refunds\", \"refunds\", \"payment\", \"shipping\", \"refunds\"]\nPARSED = [\"payment\", \"payment\", \"refunds\", \"shipping\", \"needs_review\"]\nfor item in top_confusions(GOLD, PARSED, 2):\n    print(item)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_confusions",
+      "cases": [
+        {
+          "args": [
+            [
+              "refunds",
+              "refunds",
+              "payment",
+              "shipping",
+              "refunds"
+            ],
+            [
+              "payment",
+              "payment",
+              "refunds",
+              "shipping",
+              "needs_review"
+            ],
+            2
+          ],
+          "returns": [
+            [
+              "refunds",
+              "payment",
+              2
+            ],
+            [
+              "payment",
+              "refunds",
+              1
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "refunds",
+              "refunds",
+              "payment",
+              "shipping",
+              "refunds"
+            ],
+            [
+              "payment",
+              "payment",
+              "refunds",
+              "shipping",
+              "needs_review"
+            ],
+            10
+          ],
+          "returns": [
+            [
+              "refunds",
+              "payment",
+              2
+            ],
+            [
+              "payment",
+              "refunds",
+              1
+            ],
+            [
+              "refunds",
+              "needs_review",
+              1
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "a"
+            ],
+            [
+              "a"
+            ],
+            3
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['refunds', 'payment', 2]\n['payment', 'refunds', 1]"
+    }
+  ]
+}

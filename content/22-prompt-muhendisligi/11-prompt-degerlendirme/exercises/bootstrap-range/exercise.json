@@ -1,0 +1,251 @@
+{
+  "id": "bootstrap-range",
+  "title": {
+    "tr": "Farkın aralığı",
+    "en": "The range of the difference"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tek bir `rng` nesnesi; çekiliş sırası sonucu belirler.",
+      "en": "A single `rng` object; the order of draws decides the result."
+    },
+    {
+      "tr": "`True - False` Python'da 1; mantıksal değerler doğrudan çıkarılabilir.",
+      "en": "`True - False` is 1 in Python; booleans can be subtracted directly."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport random\n\n\ndef bootstrap(ok1, ok2, rounds, seed):\n    n = len(ok1)\n    rng = random.Random(seed)\n    diffs = []\n    for _ in range(rounds):\n        picks = [rng.randrange(n) for _ in range(n)]\n        diffs.append(sum(ok2[i] - ok1[i] for i in picks) / n)\n    diffs.sort()\n    low, high = diffs[rounds // 20], diffs[rounds - rounds // 20 - 1]\n    return [round((sum(ok2) - sum(ok1)) / n, 3), round(low, 3), round(high, 3)]\n\n\nOK1 = [True] * 31 + [False] * 9\nOK2 = [True] * 29 + [False, False] + [True] * 7 + [False, False]\nprint(bootstrap(OK1, OK2, 2000, 0))\n```",
+      "en": "The full solution:\n\n```python\nimport random\n\n\ndef bootstrap(ok1, ok2, rounds, seed):\n    n = len(ok1)\n    rng = random.Random(seed)\n    diffs = []\n    for _ in range(rounds):\n        picks = [rng.randrange(n) for _ in range(n)]\n        diffs.append(sum(ok2[i] - ok1[i] for i in picks) / n)\n    diffs.sort()\n    low, high = diffs[rounds // 20], diffs[rounds - rounds // 20 - 1]\n    return [round((sum(ok2) - sum(ok1)) / n, 3), round(low, 3), round(high, 3)]\n\n\nOK1 = [True] * 31 + [False] * 9\nOK2 = [True] * 29 + [False, False] + [True] * 7 + [False, False]\nprint(bootstrap(OK1, OK2, 2000, 0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "bootstrap",
+      "cases": [
+        {
+          "args": [
+            [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              false,
+              false,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              false,
+              false
+            ],
+            2000,
+            0
+          ],
+          "returns": [
+            0.125,
+            0.0,
+            0.25
+          ]
+        },
+        {
+          "args": [
+            [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              false,
+              false,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              false,
+              false
+            ],
+            200,
+            1
+          ],
+          "returns": [
+            0.125,
+            0.0,
+            0.25
+          ]
+        },
+        {
+          "args": [
+            [
+              true,
+              false
+            ],
+            [
+              true,
+              true
+            ],
+            100,
+            2
+          ],
+          "returns": [
+            0.5,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.125, 0.0, 0.25]"
+    }
+  ]
+}
