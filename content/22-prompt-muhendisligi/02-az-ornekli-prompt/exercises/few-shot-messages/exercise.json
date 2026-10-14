@@ -1,0 +1,101 @@
+{
+  "id": "few-shot-messages",
+  "title": {
+    "tr": "Örnekli mesaj listesi",
+    "en": "A message list with examples"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngüde çifti açarak: `for example_text, label in examples:`.",
+      "en": "Unpack the pair in the loop: `for example_text, label in examples:`."
+    },
+    {
+      "tr": "Her çift iki mesaj ekler; yeni girdi döngüden sonra eklenir.",
+      "en": "Each pair adds two messages; the new input is added after the loop."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef build_messages(system, examples, text):\n    messages = [{\"role\": \"system\", \"content\": system}]\n    for example_text, label in examples:\n        messages.append({\"role\": \"user\", \"content\": example_text})\n        messages.append({\"role\": \"assistant\", \"content\": label})\n    messages.append({\"role\": \"user\", \"content\": text})\n    return messages\n\n\nmsgs = build_messages(\"One word.\", [[\"Late parcel\", \"shipping\"],\n                                     [\"Zip broke\", \"warranty\"]],\n                      \"Card declined\")\nprint(len(msgs))\nprint([m[\"role\"] for m in msgs][-3:])\nprint(msgs[-2][\"content\"])\n```",
+      "en": "The full solution:\n\n```python\ndef build_messages(system, examples, text):\n    messages = [{\"role\": \"system\", \"content\": system}]\n    for example_text, label in examples:\n        messages.append({\"role\": \"user\", \"content\": example_text})\n        messages.append({\"role\": \"assistant\", \"content\": label})\n    messages.append({\"role\": \"user\", \"content\": text})\n    return messages\n\n\nmsgs = build_messages(\"One word.\", [[\"Late parcel\", \"shipping\"],\n                                     [\"Zip broke\", \"warranty\"]],\n                      \"Card declined\")\nprint(len(msgs))\nprint([m[\"role\"] for m in msgs][-3:])\nprint(msgs[-2][\"content\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "build_messages",
+      "cases": [
+        {
+          "args": [
+            "One word.",
+            [
+              [
+                "Late parcel",
+                "shipping"
+              ],
+              [
+                "Zip broke",
+                "warranty"
+              ]
+            ],
+            "Card declined"
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "One word."
+            },
+            {
+              "role": "user",
+              "content": "Late parcel"
+            },
+            {
+              "role": "assistant",
+              "content": "shipping"
+            },
+            {
+              "role": "user",
+              "content": "Zip broke"
+            },
+            {
+              "role": "assistant",
+              "content": "warranty"
+            },
+            {
+              "role": "user",
+              "content": "Card declined"
+            }
+          ]
+        },
+        {
+          "args": [
+            "Be brief.",
+            [],
+            "Hi"
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "Be brief."
+            },
+            {
+              "role": "user",
+              "content": "Hi"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6\n['user', 'assistant', 'user']\nwarranty"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "id": "nearest-examples",
+  "title": {
+    "tr": "En benzer örneklerin kategorisi",
+    "en": "The categories of the nearest examples"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Puanlar: `(pool_vectors @ vectorizer.transform([text]).T).toarray().ravel()`.",
+      "en": "The scores: `(pool_vectors @ vectorizer.transform([text]).T).toarray().ravel()`."
+    },
+    {
+      "tr": "`sorted` kararlı sıralar; eşitlerde havuz sırası korunur.",
+      "en": "`sorted` is stable; on ties the pool order is kept."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom sklearn.feature_extraction.text import TfidfVectorizer\n\nfrom shop_data import TICKETS\n\nPOOL = [t for t in TICKETS if t[\"id\"] % 4 != 0]\n\n\ndef nearest_labels(text, k):\n    vectorizer = TfidfVectorizer().fit([t[\"text\"] for t in POOL])\n    pool_vectors = vectorizer.transform([t[\"text\"] for t in POOL])\n    scores = (pool_vectors @ vectorizer.transform([text]).T).toarray().ravel()\n    order = sorted(range(len(POOL)), key=lambda i: -scores[i])\n    return [POOL[i][\"label\"] for i in order[:k]]\n\n\nprint(nearest_labels(\"My refund has not arrived yet.\", 3))\nprint(nearest_labels(\"The tent zip is broken.\", 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom sklearn.feature_extraction.text import TfidfVectorizer\n\nfrom shop_data import TICKETS\n\nPOOL = [t for t in TICKETS if t[\"id\"] % 4 != 0]\n\n\ndef nearest_labels(text, k):\n    vectorizer = TfidfVectorizer().fit([t[\"text\"] for t in POOL])\n    pool_vectors = vectorizer.transform([t[\"text\"] for t in POOL])\n    scores = (pool_vectors @ vectorizer.transform([text]).T).toarray().ravel()\n    order = sorted(range(len(POOL)), key=lambda i: -scores[i])\n    return [POOL[i][\"label\"] for i in order[:k]]\n\n\nprint(nearest_labels(\"My refund has not arrived yet.\", 3))\nprint(nearest_labels(\"The tent zip is broken.\", 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "nearest_labels",
+      "cases": [
+        {
+          "args": [
+            "My refund has not arrived yet.",
+            3
+          ],
+          "returns": [
+            "shipping",
+            "shipping",
+            "refunds"
+          ]
+        },
+        {
+          "args": [
+            "The tent zip is broken.",
+            2
+          ],
+          "returns": [
+            "returns",
+            "warranty"
+          ]
+        },
+        {
+          "args": [
+            "Can I pay by invoice?",
+            1
+          ],
+          "returns": [
+            "payment"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['shipping', 'shipping', 'refunds']\n['returns', 'warranty']"
+    }
+  ]
+}

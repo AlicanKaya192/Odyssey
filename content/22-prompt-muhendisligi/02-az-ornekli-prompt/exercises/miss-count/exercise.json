@@ -1,0 +1,80 @@
+{
+  "id": "miss-count",
+  "title": {
+    "tr": "Rastgele seçim kaç kez kaçırır?",
+    "en": "How often does a random choice miss?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Seçilen kategoriler: `{t[\"label\"] for t in picked}`; boyu `len(LABELS)`'tan küçükse eksik var.",
+      "en": "The chosen categories: `{t[\"label\"] for t in picked}`; if its size is below `len(LABELS)`, one is missing."
+    },
+    {
+      "tr": "Her tohum için yeni bir `random.Random(seed)`.",
+      "en": "A new `random.Random(seed)` for every seed."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport random\n\nfrom shop_data import TICKETS, LABELS\n\nPOOL = [t for t in TICKETS if t[\"id\"] % 4 != 0]\n\n\ndef miss_count(k, draws):\n    missing = 0\n    for seed in range(draws):\n        picked = random.Random(seed).sample(POOL, k)\n        if len({t[\"label\"] for t in picked}) < len(LABELS):\n            missing += 1\n    return missing\n\n\nfor k in [5, 10, 15]:\n    print(k, miss_count(k, 1000))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport random\n\nfrom shop_data import TICKETS, LABELS\n\nPOOL = [t for t in TICKETS if t[\"id\"] % 4 != 0]\n\n\ndef miss_count(k, draws):\n    missing = 0\n    for seed in range(draws):\n        picked = random.Random(seed).sample(POOL, k)\n        if len({t[\"label\"] for t in picked}) < len(LABELS):\n            missing += 1\n    return missing\n\n\nfor k in [5, 10, 15]:\n    print(k, miss_count(k, 1000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "miss_count",
+      "cases": [
+        {
+          "args": [
+            5,
+            1000
+          ],
+          "returns": 932
+        },
+        {
+          "args": [
+            10,
+            1000
+          ],
+          "returns": 312
+        },
+        {
+          "args": [
+            15,
+            200
+          ],
+          "returns": 11
+        },
+        {
+          "args": [
+            30,
+            10
+          ],
+          "returns": 0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "5 932\n10 312\n15 49"
+    }
+  ]
+}

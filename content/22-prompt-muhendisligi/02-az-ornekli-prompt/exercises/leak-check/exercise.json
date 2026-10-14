@@ -1,0 +1,100 @@
+{
+  "id": "leak-check",
+  "title": {
+    "tr": "Sızıntıyı bul",
+    "en": "Find the leakage"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Örnekleri bir kümeye koy: `{text.strip().lower() for text in examples}`.",
+      "en": "Put the examples into a set: `{text.strip().lower() for text in examples}`."
+    },
+    {
+      "tr": "`sorted(t[\"id\"] for t in test if ...)`.",
+      "en": "`sorted(t[\"id\"] for t in test if ...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef leaked(examples, test):\n    seen = {text.strip().lower() for text in examples}\n    return sorted(t[\"id\"] for t in test if t[\"text\"].strip().lower() in seen)\n\n\nEXAMPLES = [\"Where is my parcel?\", \"the zip broke. \", \"Card declined\"]\nTEST = [{\"id\": 7, \"text\": \"The zip broke.\"},\n        {\"id\": 3, \"text\": \"Where is my parcel?\"},\n        {\"id\": 9, \"text\": \"Can I pay later?\"}]\nprint(leaked(EXAMPLES, TEST))\n```",
+      "en": "The full solution:\n\n```python\ndef leaked(examples, test):\n    seen = {text.strip().lower() for text in examples}\n    return sorted(t[\"id\"] for t in test if t[\"text\"].strip().lower() in seen)\n\n\nEXAMPLES = [\"Where is my parcel?\", \"the zip broke. \", \"Card declined\"]\nTEST = [{\"id\": 7, \"text\": \"The zip broke.\"},\n        {\"id\": 3, \"text\": \"Where is my parcel?\"},\n        {\"id\": 9, \"text\": \"Can I pay later?\"}]\nprint(leaked(EXAMPLES, TEST))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "leaked",
+      "cases": [
+        {
+          "args": [
+            [
+              "Where is my parcel?",
+              "the zip broke. ",
+              "Card declined"
+            ],
+            [
+              {
+                "id": 7,
+                "text": "The zip broke."
+              },
+              {
+                "id": 3,
+                "text": "Where is my parcel?"
+              },
+              {
+                "id": 9,
+                "text": "Can I pay later?"
+              }
+            ]
+          ],
+          "returns": [
+            3,
+            7
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              {
+                "id": 7,
+                "text": "The zip broke."
+              },
+              {
+                "id": 3,
+                "text": "Where is my parcel?"
+              },
+              {
+                "id": 9,
+                "text": "Can I pay later?"
+              }
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "Where is my parcel?",
+              "the zip broke. ",
+              "Card declined"
+            ],
+            []
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, 7]"
+    }
+  ]
+}
