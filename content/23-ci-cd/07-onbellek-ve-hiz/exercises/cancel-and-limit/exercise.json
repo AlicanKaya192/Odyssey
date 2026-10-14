@@ -1,0 +1,60 @@
+{
+  "id": "cancel-and-limit",
+  "title": {
+    "tr": "Eskisini İptal Et",
+    "en": "Cancel the Old One"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`concurrency:` altında iki anahtar: `group:` ve `cancel-in-progress: true`.",
+      "en": "Two keys under `concurrency:`: `group:` and `cancel-in-progress: true`."
+    },
+    {
+      "tr": "İşte `runs-on` ile aynı hizada `timeout-minutes: 15`.",
+      "en": "On the job, in the same column as `runs-on`: `timeout-minutes: 15`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\nconcurrency:\n  group: ${{ github.workflow }}-${{ github.ref }}\n  cancel-in-progress: true\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\nconcurrency:\n  group: ${{ github.workflow }}-${{ github.ref }}\n  cancel-in-progress: true\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "keys": {
+        "concurrency.group": "github\\.ref",
+        "concurrency.cancel-in-progress": "^True$",
+        "jobs.test.timeout-minutes": "^15$"
+      },
+      "show_keys": {
+        "concurrency.group": "${{ github.workflow }}-${{ github.ref }}",
+        "concurrency.cancel-in-progress": "true",
+        "jobs.test.timeout-minutes": "15"
+      }
+    }
+  ]
+}

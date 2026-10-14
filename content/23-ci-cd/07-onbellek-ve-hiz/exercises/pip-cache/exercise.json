@@ -1,0 +1,66 @@
+{
+  "id": "pip-cache",
+  "title": {
+    "tr": "Paketleri Sakla",
+    "en": "Keep the Packages"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Anahtar: `key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}`.",
+      "en": "The key: `key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}`."
+    },
+    {
+      "tr": "`restore-keys: |` ve altında bir satır içeride `pip-${{ runner.os }}-`.",
+      "en": "`restore-keys: |` and, one level in below it, `pip-${{ runner.os }}-`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - uses: actions/cache@v4\n        with:\n          path: ~/.cache/pip\n          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}\n          restore-keys: |\n            pip-${{ runner.os }}-\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - uses: actions/cache@v4\n        with:\n          path: ~/.cache/pip\n          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}\n          restore-keys: |\n            pip-${{ runner.os }}-\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "steps": [
+        {
+          "uses": "^actions/cache@",
+          "with": {
+            "path": "\\.cache/pip",
+            "key": "hashFiles\\(\\s*'requirements\\.txt'\\s*\\)",
+            "restore-keys": "pip-"
+          },
+          "show": "uses: actions/cache@v4 (path, key, restore-keys)"
+        },
+        {
+          "run": "pip install -r requirements\\.txt",
+          "show": "run: pip install -r requirements.txt"
+        }
+      ]
+    }
+  ]
+}

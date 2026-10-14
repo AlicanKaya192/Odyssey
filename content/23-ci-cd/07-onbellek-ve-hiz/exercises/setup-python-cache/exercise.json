@@ -1,0 +1,64 @@
+{
+  "id": "setup-python-cache",
+  "title": {
+    "tr": "Kısa Yol",
+    "en": "The Short Way"
+  },
+  "difficulty": 1,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Ayar `with:` altında, `python-version` ile aynı hizada.",
+      "en": "The setting goes under `with:`, in the same column as `python-version`."
+    },
+    {
+      "tr": "`cache: pip`",
+      "en": "`cache: pip`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "steps": [
+        {
+          "uses": "^actions/setup-python@",
+          "with": {
+            "cache": "^pip$"
+          },
+          "show": "setup-python: cache: pip"
+        },
+        {
+          "run": "pip install -r requirements\\.txt",
+          "show": "run: pip install -r requirements.txt"
+        }
+      ]
+    }
+  ]
+}

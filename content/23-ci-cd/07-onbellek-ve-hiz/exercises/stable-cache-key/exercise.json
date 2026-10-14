@@ -1,0 +1,74 @@
+{
+  "id": "stable-cache-key",
+  "title": {
+    "tr": "Sağlam Anahtar",
+    "en": "A Sturdy Key"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satırlar: `requirements.split(\"\\n\")`; her biri `line.strip()`; boş olmayanları bir listeye ekle.",
+      "en": "The lines: `requirements.split(\"\\n\")`; each one `line.strip()`; add the non-empty ones to a list."
+    },
+    {
+      "tr": "`\"\\n\".join(sorted(lines))` metninin özetini al; `digest[:8]` ilk 8 karakter.",
+      "en": "Hash the text `\"\\n\".join(sorted(lines))`; `digest[:8]` is the first 8 characters."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef cache_key(tool, runner_os, requirements):\n    lines = []\n    for line in requirements.split(\"\\n\"):\n        line = line.strip()\n        if line:\n            lines.append(line)\n    text = \"\\n\".join(sorted(lines))\n    digest = hashlib.sha256(text.encode()).hexdigest()\n    return tool + \"-\" + runner_os + \"-\" + digest[:8]\n\n\na = \"pytest==8.4.2\\nrequests==2.32.5\\n\"\nb = \"requests==2.32.5\\n\\npytest==8.4.2\\n\"\nc = \"pytest==8.4.2\\nrequests==2.32.6\\n\"\nprint(cache_key(\"pip\", \"Linux\", a))\nprint(cache_key(\"pip\", \"Linux\", b))\nprint(cache_key(\"pip\", \"Linux\", c))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef cache_key(tool, runner_os, requirements):\n    lines = []\n    for line in requirements.split(\"\\n\"):\n        line = line.strip()\n        if line:\n            lines.append(line)\n    text = \"\\n\".join(sorted(lines))\n    digest = hashlib.sha256(text.encode()).hexdigest()\n    return tool + \"-\" + runner_os + \"-\" + digest[:8]\n\n\na = \"pytest==8.4.2\\nrequests==2.32.5\\n\"\nb = \"requests==2.32.5\\n\\npytest==8.4.2\\n\"\nc = \"pytest==8.4.2\\nrequests==2.32.6\\n\"\nprint(cache_key(\"pip\", \"Linux\", a))\nprint(cache_key(\"pip\", \"Linux\", b))\nprint(cache_key(\"pip\", \"Linux\", c))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cache_key",
+      "cases": [
+        {
+          "args": [
+            "pip",
+            "Linux",
+            "a\nb\n"
+          ],
+          "returns": "pip-Linux-7e18f737"
+        },
+        {
+          "args": [
+            "pip",
+            "Linux",
+            "b\n\na\n"
+          ],
+          "returns": "pip-Linux-7e18f737"
+        },
+        {
+          "args": [
+            "uv",
+            "macOS",
+            "x==1\n"
+          ],
+          "returns": "uv-macOS-ef966e05"
+        },
+        {
+          "args": [
+            "pip",
+            "Windows",
+            "  a  \nb"
+          ],
+          "returns": "pip-Windows-7e18f737"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "pip-Linux-509b0a14\npip-Linux-509b0a14\npip-Linux-9c118a73"
+    }
+  ]
+}

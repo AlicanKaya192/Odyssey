@@ -1,0 +1,110 @@
+{
+  "id": "pick-cache",
+  "title": {
+    "tr": "Hangi Önbellek?",
+    "en": "Which Cache?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir metnin bir önekle başlayıp başlamadığını `name.startswith(prefix)` söyler.",
+      "en": "`name.startswith(prefix)` tells whether a text starts with a prefix."
+    },
+    {
+      "tr": "En yeniyi bulmak için şimdiye kadarki en büyük dakikayı (`best_time`) ve adını (`best`) tut.",
+      "en": "To find the newest, keep the largest minute so far (`best_time`) and its name (`best`)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef pick_cache(key, restore_keys, saved):\n    for name, created in saved:\n        if name == key:\n            return \"hit: \" + name\n    for prefix in restore_keys:\n        best = None\n        best_time = -1\n        for name, created in saved:\n            if name.startswith(prefix) and created > best_time:\n                best = name\n                best_time = created\n        if best is not None:\n            return \"partial: \" + best\n    return \"miss\"\n\n\nsaved = [[\"pip-Linux-aaaa\", 10], [\"pip-Linux-cccc\", 30], [\"pip-Windows-bbbb\", 20], [\"pip-Linux-dddd\", 25]]\nprint(pick_cache(\"pip-Linux-aaaa\", [\"pip-Linux-\"], saved))\nprint(pick_cache(\"pip-Linux-eeee\", [\"pip-Linux-\"], saved))\nprint(pick_cache(\"pip-macOS-ffff\", [\"pip-macOS-\", \"pip-\"], saved))\nprint(pick_cache(\"npm-Linux-gggg\", [\"npm-\"], saved))\n```",
+      "en": "The full solution:\n\n```python\ndef pick_cache(key, restore_keys, saved):\n    for name, created in saved:\n        if name == key:\n            return \"hit: \" + name\n    for prefix in restore_keys:\n        best = None\n        best_time = -1\n        for name, created in saved:\n            if name.startswith(prefix) and created > best_time:\n                best = name\n                best_time = created\n        if best is not None:\n            return \"partial: \" + best\n    return \"miss\"\n\n\nsaved = [[\"pip-Linux-aaaa\", 10], [\"pip-Linux-cccc\", 30], [\"pip-Windows-bbbb\", 20], [\"pip-Linux-dddd\", 25]]\nprint(pick_cache(\"pip-Linux-aaaa\", [\"pip-Linux-\"], saved))\nprint(pick_cache(\"pip-Linux-eeee\", [\"pip-Linux-\"], saved))\nprint(pick_cache(\"pip-macOS-ffff\", [\"pip-macOS-\", \"pip-\"], saved))\nprint(pick_cache(\"npm-Linux-gggg\", [\"npm-\"], saved))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pick_cache",
+      "cases": [
+        {
+          "args": [
+            "a-1",
+            [
+              "a-"
+            ],
+            [
+              [
+                "a-1",
+                5
+              ]
+            ]
+          ],
+          "returns": "hit: a-1"
+        },
+        {
+          "args": [
+            "a-2",
+            [
+              "a-"
+            ],
+            [
+              [
+                "a-1",
+                5
+              ],
+              [
+                "a-3",
+                9
+              ],
+              [
+                "b-1",
+                12
+              ]
+            ]
+          ],
+          "returns": "partial: a-3"
+        },
+        {
+          "args": [
+            "c-1",
+            [
+              "c-",
+              "a-"
+            ],
+            [
+              [
+                "a-1",
+                5
+              ],
+              [
+                "a-3",
+                2
+              ]
+            ]
+          ],
+          "returns": "partial: a-1"
+        },
+        {
+          "args": [
+            "x",
+            [
+              "y"
+            ],
+            []
+          ],
+          "returns": "miss"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "hit: pip-Linux-aaaa\npartial: pip-Linux-cccc\npartial: pip-Linux-cccc\nmiss"
+    }
+  ]
+}
