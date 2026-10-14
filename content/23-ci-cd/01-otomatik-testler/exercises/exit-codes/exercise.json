@@ -1,0 +1,122 @@
+{
+  "id": "exit-codes",
+  "title": {
+    "tr": "Hattın Kararı",
+    "en": "The Pipeline's Decision"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`pipeline_status`'ta bir sayaç tut: `step = 1`, döngünün sonunda `step = step + 1`.",
+      "en": "Keep a counter in `pipeline_status`: `step = 1`, and `step = step + 1` at the end of the loop."
+    },
+    {
+      "tr": "Metni parçalardan kur: `\"red at step \" + str(step) + \" (\" + step_status(code) + \")\"`.",
+      "en": "Build the text from pieces: `\"red at step \" + str(step) + \" (\" + step_status(code) + \")\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef step_status(code):\n    if code == 0:\n        return \"green\"\n    if code == 1:\n        return \"red: tests failed\"\n    if code == 5:\n        return \"red: no tests\"\n    return \"red: error\"\n\n\ndef pipeline_status(codes):\n    step = 1\n    for code in codes:\n        if code != 0:\n            return \"red at step \" + str(step) + \" (\" + step_status(code) + \")\"\n        step = step + 1\n    return \"green\"\n\n\nprint(step_status(0))\nprint(step_status(1))\nprint(step_status(5))\nprint(step_status(2))\nprint(pipeline_status([0, 0, 0]))\nprint(pipeline_status([0, 1, 0]))\nprint(pipeline_status([0, 0, 5]))\n```",
+      "en": "The full solution:\n\n```python\ndef step_status(code):\n    if code == 0:\n        return \"green\"\n    if code == 1:\n        return \"red: tests failed\"\n    if code == 5:\n        return \"red: no tests\"\n    return \"red: error\"\n\n\ndef pipeline_status(codes):\n    step = 1\n    for code in codes:\n        if code != 0:\n            return \"red at step \" + str(step) + \" (\" + step_status(code) + \")\"\n        step = step + 1\n    return \"green\"\n\n\nprint(step_status(0))\nprint(step_status(1))\nprint(step_status(5))\nprint(step_status(2))\nprint(pipeline_status([0, 0, 0]))\nprint(pipeline_status([0, 1, 0]))\nprint(pipeline_status([0, 0, 5]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "step_status",
+      "cases": [
+        {
+          "args": [
+            0
+          ],
+          "returns": "green"
+        },
+        {
+          "args": [
+            1
+          ],
+          "returns": "red: tests failed"
+        },
+        {
+          "args": [
+            5
+          ],
+          "returns": "red: no tests"
+        },
+        {
+          "args": [
+            2
+          ],
+          "returns": "red: error"
+        },
+        {
+          "args": [
+            127
+          ],
+          "returns": "red: error"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "pipeline_status",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              0
+            ]
+          ],
+          "returns": "green"
+        },
+        {
+          "args": [
+            [
+              1,
+              0
+            ]
+          ],
+          "returns": "red at step 1 (red: tests failed)"
+        },
+        {
+          "args": [
+            [
+              0,
+              0,
+              5
+            ]
+          ],
+          "returns": "red at step 3 (red: no tests)"
+        },
+        {
+          "args": [
+            [
+              0,
+              4,
+              1
+            ]
+          ],
+          "returns": "red at step 2 (red: error)"
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": "green"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "green\nred: tests failed\nred: no tests\nred: error\ngreen\nred at step 2 (red: tests failed)\nred at step 3 (red: no tests)"
+    }
+  ]
+}

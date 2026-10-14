@@ -1,0 +1,72 @@
+{
+  "id": "parametrize-grades",
+  "title": {
+    "tr": "Sınırları Tek Testte Dene",
+    "en": "Try the Edges in One Test"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "grades.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satırlar `(puan, harf)` çiftleri: `(90, \"A\")`. Liste köşeli parantez, her satır sonunda virgül.",
+      "en": "The rows are `(score, letter)` pairs: `(90, \"A\")`. The list uses square brackets, with a comma after each row."
+    },
+    {
+      "tr": "Test fonksiyonu iki parametre alır: `def test_letter(score, expected):` ve içinde tek `assert`.",
+      "en": "The test function takes two parameters: `def test_letter(score, expected):` with one `assert` inside."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pytest\n\nfrom grades import letter\n\n\n@pytest.mark.parametrize(\"score, expected\", [\n    (90, \"A\"),\n    (89, \"B\"),\n    (80, \"B\"),\n    (79, \"C\"),\n    (70, \"C\"),\n    (69, \"F\"),\n])\ndef test_letter(score, expected):\n    assert letter(score) == expected\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pytest\n\nfrom grades import letter\n\n\n@pytest.mark.parametrize(\"score, expected\", [\n    (90, \"A\"),\n    (89, \"B\"),\n    (80, \"B\"),\n    (79, \"C\"),\n    (70, \"C\"),\n    (69, \"F\"),\n])\ndef test_letter(score, expected):\n    assert letter(score) == expected\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "main.py",
+      "min": 5,
+      "mutants": [
+        {
+          "file": "grades.py",
+          "source": "def letter(score):\n    if score > 90:\n        return \"A\"\n    if score >= 80:\n        return \"B\"\n    if score >= 70:\n        return \"C\"\n    return \"F\"\n",
+          "bug": {
+            "tr": "tam 90 `B` oluyor.",
+            "en": "exactly 90 becomes `B`."
+          }
+        },
+        {
+          "file": "grades.py",
+          "source": "def letter(score):\n    if score >= 90:\n        return \"A\"\n    if score >= 81:\n        return \"B\"\n    if score >= 70:\n        return \"C\"\n    return \"F\"\n",
+          "bug": {
+            "tr": "tam 80 `C` oluyor.",
+            "en": "exactly 80 becomes `C`."
+          }
+        },
+        {
+          "file": "grades.py",
+          "source": "def letter(score):\n    if score >= 90:\n        return \"A\"\n    if score >= 80:\n        return \"B\"\n    if score > 70:\n        return \"C\"\n    return \"F\"\n",
+          "bug": {
+            "tr": "tam 70 `F` oluyor.",
+            "en": "exactly 70 becomes `F`."
+          }
+        }
+      ]
+    }
+  ]
+}

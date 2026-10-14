@@ -1,0 +1,72 @@
+{
+  "id": "first-pytest",
+  "title": {
+    "tr": "İlk pytest Testlerin",
+    "en": "Your First pytest Tests"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shipping.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir test şöyle görünür: `def test_one_kilo():` ve içinde `assert shipping_cost(1) == 5`.",
+      "en": "A test looks like this: `def test_one_kilo():` with `assert shipping_cost(1) == 5` inside."
+    },
+    {
+      "tr": "Üç ayrı fonksiyon yaz; her birinin adı farklı olsun ve `test_` ile başlasın.",
+      "en": "Write three separate functions; each needs a different name starting with `test_`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom shipping import shipping_cost\n\n\ndef test_one_kilo():\n    assert shipping_cost(1) == 5\n\n\ndef test_five_kilos():\n    assert shipping_cost(5) == 9\n\n\ndef test_seven_kilos():\n    assert shipping_cost(7) == 13\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom shipping import shipping_cost\n\n\ndef test_one_kilo():\n    assert shipping_cost(1) == 5\n\n\ndef test_five_kilos():\n    assert shipping_cost(5) == 9\n\n\ndef test_seven_kilos():\n    assert shipping_cost(7) == 13\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "main.py",
+      "min": 3,
+      "mutants": [
+        {
+          "file": "shipping.py",
+          "source": "def shipping_cost(weight_kg):\n    if weight_kg < 1:\n        return 5\n    if weight_kg <= 5:\n        return 9\n    return 9 + (weight_kg - 5) * 2\n",
+          "bug": {
+            "tr": "1 kg sınırı `<` ile yazılmış; tam 1 kg 9 tutuyor.",
+            "en": "the 1 kg limit uses `<`; exactly 1 kg costs 9."
+          }
+        },
+        {
+          "file": "shipping.py",
+          "source": "def shipping_cost(weight_kg):\n    if weight_kg <= 1:\n        return 5\n    if weight_kg <= 5:\n        return 9\n    return 9 + (weight_kg - 5) * 3\n",
+          "bug": {
+            "tr": "fazla kg başına 3 alınıyor.",
+            "en": "it charges 3 for each extra kg."
+          }
+        },
+        {
+          "file": "shipping.py",
+          "source": "def shipping_cost(weight_kg):\n    if weight_kg <= 1:\n        return 5\n    if weight_kg <= 5:\n        return 10\n    return 9 + (weight_kg - 5) * 2\n",
+          "bug": {
+            "tr": "5 kg'a kadar 10 alınıyor.",
+            "en": "it charges 10 up to 5 kg."
+          }
+        }
+      ]
+    }
+  ]
+}

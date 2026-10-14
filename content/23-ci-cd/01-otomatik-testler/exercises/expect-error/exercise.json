@@ -1,0 +1,72 @@
+{
+  "id": "expect-error",
+  "title": {
+    "tr": "Hatayı Bekleyen Test",
+    "en": "A Test That Expects an Error"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ages.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Hata bekleyen test: `with pytest.raises(ValueError):` satırının altında, bir girinti içeride `parse_age(\"abc\")`.",
+      "en": "A test that expects an error: `parse_age(\"abc\")` one indent inside a `with pytest.raises(ValueError):` line."
+    },
+    {
+      "tr": "Bozuk sürümlerden biri eksi yaşı, biri 150'den büyüğü kabul ediyor; ikisini de ayrı testlerle dene.",
+      "en": "One broken version accepts negative ages and one accepts ages above 150; try both in separate tests."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pytest\n\nfrom ages import parse_age\n\n\ndef test_valid_age():\n    assert parse_age(\"42\") == 42\n\n\ndef test_text_is_rejected():\n    with pytest.raises(ValueError):\n        parse_age(\"abc\")\n\n\ndef test_negative_is_rejected():\n    with pytest.raises(ValueError):\n        parse_age(\"-1\")\n\n\ndef test_too_old_is_rejected():\n    with pytest.raises(ValueError):\n        parse_age(\"200\")\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pytest\n\nfrom ages import parse_age\n\n\ndef test_valid_age():\n    assert parse_age(\"42\") == 42\n\n\ndef test_text_is_rejected():\n    with pytest.raises(ValueError):\n        parse_age(\"abc\")\n\n\ndef test_negative_is_rejected():\n    with pytest.raises(ValueError):\n        parse_age(\"-1\")\n\n\ndef test_too_old_is_rejected():\n    with pytest.raises(ValueError):\n        parse_age(\"200\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "main.py",
+      "min": 4,
+      "mutants": [
+        {
+          "file": "ages.py",
+          "source": "def parse_age(text):\n    return int(text)\n",
+          "bug": {
+            "tr": "sınır denetimi hiç yok.",
+            "en": "there is no range check at all."
+          }
+        },
+        {
+          "file": "ages.py",
+          "source": "def parse_age(text):\n    age = int(text)\n    if age > 150:\n        raise ValueError(\"age out of range\")\n    return age\n",
+          "bug": {
+            "tr": "eksi yaşlar kabul ediliyor.",
+            "en": "negative ages are accepted."
+          }
+        },
+        {
+          "file": "ages.py",
+          "source": "def parse_age(text):\n    age = int(text)\n    if age < 0:\n        raise ValueError(\"age out of range\")\n    return age\n",
+          "bug": {
+            "tr": "150'den büyük yaşlar kabul ediliyor.",
+            "en": "ages above 150 are accepted."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "id": "ci-runs-tests",
+  "title": {
+    "tr": "Testleri Hatta Çalıştır",
+    "en": "Run the Tests in the Pipeline"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "cart.py",
+      "readonly": true
+    },
+    {
+      "name": "test_cart.py",
+      "readonly": true
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`with:` eylem satırının altında iki boşluk içeride, `python-version` onun da iki boşluk içinde.",
+      "en": "`with:` goes two spaces inside the action line, and `python-version` two spaces inside that."
+    },
+    {
+      "tr": "Sürümü tırnak içinde yaz: `\"3.13\"`. Tırnaksız `3.10` YAML'da `3.1` sayısına dönüşür.",
+      "en": "Write the version in quotes: `\"3.13\"`. Without quotes, `3.10` turns into the number `3.1` in YAML."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: [push, pull_request]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: [push, pull_request]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "on": [
+        "push",
+        "pull_request"
+      ],
+      "job": "test",
+      "runs_on": "ubuntu-latest",
+      "steps": [
+        {
+          "uses": "^actions/checkout@",
+          "show": "uses: actions/checkout@v4"
+        },
+        {
+          "uses": "^actions/setup-python@",
+          "with": {
+            "python-version": "^3\\.13$"
+          },
+          "show": "uses: actions/setup-python@v5 (python-version: \"3.13\")"
+        },
+        {
+          "run": "pip install -r requirements\\.txt",
+          "show": "run: pip install -r requirements.txt"
+        },
+        {
+          "run": "pytest",
+          "show": "run: python -m pytest"
+        }
+      ]
+    }
+  ]
+}
