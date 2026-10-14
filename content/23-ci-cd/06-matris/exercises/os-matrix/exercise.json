@@ -1,0 +1,60 @@
+{
+  "id": "os-matrix",
+  "title": {
+    "tr": "Üç İşletim Sistemi",
+    "en": "Three Operating Systems"
+  },
+  "difficulty": 1,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "İşin altına `strategy:`, onun altına `matrix:`, onun altına `os: [ubuntu-latest, windows-latest, macos-latest]`.",
+      "en": "Under the job `strategy:`, under it `matrix:`, under that `os: [ubuntu-latest, windows-latest, macos-latest]`."
+    },
+    {
+      "tr": "`runs-on: ${{ matrix.os }}` yazmazsan bütün işler yine Linux'ta çalışır.",
+      "en": "If you do not write `runs-on: ${{ matrix.os }}`, all jobs still run on Linux."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: push\n\njobs:\n  test:\n    runs-on: ${{ matrix.os }}\n    strategy:\n      matrix:\n        os: [ubuntu-latest, windows-latest, macos-latest]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: push\n\njobs:\n  test:\n    runs-on: ${{ matrix.os }}\n    strategy:\n      matrix:\n        os: [ubuntu-latest, windows-latest, macos-latest]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "matrix": {
+        "os": [
+          "ubuntu-latest",
+          "windows-latest",
+          "macos-latest"
+        ]
+      },
+      "runs_on": "matrix\\.os",
+      "show_runs_on": "${{ matrix.os }}"
+    }
+  ]
+}

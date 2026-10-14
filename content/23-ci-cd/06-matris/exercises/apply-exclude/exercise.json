@@ -1,0 +1,128 @@
+{
+  "id": "apply-exclude",
+  "title": {
+    "tr": "Çıkarılanlar",
+    "en": "The Excluded Ones"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce küçük bir yardımcı yaz: `matches(combo, rule)` kuraldaki her çift tutuyorsa `True`.",
+      "en": "First write a small helper: `matches(combo, rule)` is `True` if every pair in the rule holds."
+    },
+    {
+      "tr": "`combo.get(key)` anahtar yoksa `None` verir, hata vermez.",
+      "en": "`combo.get(key)` gives `None` if the key is missing, without an error."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef matches(combo, rule):\n    for key, value in rule.items():\n        if combo.get(key) != value:\n            return False\n    return True\n\n\ndef apply_exclude(combos, exclude):\n    kept = []\n    for combo in combos:\n        removed = False\n        for rule in exclude:\n            if matches(combo, rule):\n                removed = True\n        if not removed:\n            kept.append(combo)\n    return kept\n\n\ncombos = [\n    {\"os\": \"ubuntu-latest\", \"python\": \"3.12\"},\n    {\"os\": \"ubuntu-latest\", \"python\": \"3.13\"},\n    {\"os\": \"windows-latest\", \"python\": \"3.12\"},\n    {\"os\": \"windows-latest\", \"python\": \"3.13\"},\n]\nfor combo in apply_exclude(combos, [{\"os\": \"windows-latest\", \"python\": \"3.12\"}]):\n    print(combo)\nprint(len(apply_exclude(combos, [{\"os\": \"windows-latest\"}])))\n```",
+      "en": "The full solution:\n\n```python\ndef matches(combo, rule):\n    for key, value in rule.items():\n        if combo.get(key) != value:\n            return False\n    return True\n\n\ndef apply_exclude(combos, exclude):\n    kept = []\n    for combo in combos:\n        removed = False\n        for rule in exclude:\n            if matches(combo, rule):\n                removed = True\n        if not removed:\n            kept.append(combo)\n    return kept\n\n\ncombos = [\n    {\"os\": \"ubuntu-latest\", \"python\": \"3.12\"},\n    {\"os\": \"ubuntu-latest\", \"python\": \"3.13\"},\n    {\"os\": \"windows-latest\", \"python\": \"3.12\"},\n    {\"os\": \"windows-latest\", \"python\": \"3.13\"},\n]\nfor combo in apply_exclude(combos, [{\"os\": \"windows-latest\", \"python\": \"3.12\"}]):\n    print(combo)\nprint(len(apply_exclude(combos, [{\"os\": \"windows-latest\"}])))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "apply_exclude",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "a": 1
+              },
+              {
+                "a": 2
+              }
+            ],
+            [
+              {
+                "a": 2
+              }
+            ]
+          ],
+          "returns": [
+            {
+              "a": 1
+            }
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "a": 1,
+                "b": 1
+              },
+              {
+                "a": 1,
+                "b": 2
+              }
+            ],
+            [
+              {
+                "a": 1
+              }
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "a": 1
+              }
+            ],
+            []
+          ],
+          "returns": [
+            {
+              "a": 1
+            }
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "a": 1,
+                "b": 2
+              },
+              {
+                "a": 2,
+                "b": 2
+              }
+            ],
+            [
+              {
+                "b": 3
+              },
+              {
+                "a": 2,
+                "b": 2
+              }
+            ]
+          ],
+          "returns": [
+            {
+              "a": 1,
+              "b": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'os': 'ubuntu-latest', 'python': '3.12'}\n{'os': 'ubuntu-latest', 'python': '3.13'}\n{'os': 'windows-latest', 'python': '3.13'}\n2"
+    }
+  ]
+}

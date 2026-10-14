@@ -1,0 +1,71 @@
+{
+  "id": "trial-version",
+  "title": {
+    "tr": "Deneme Sürümü",
+    "en": "A Trial Version"
+  },
+  "difficulty": 3,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`include:` `matrix`'in altında, `python-version` ile aynı hizada; girdisi `- python-version: \"3.15\"` ve altında `experimental: true`.",
+      "en": "`include:` is under `matrix`, in the same column as `python-version`; its entry is `- python-version: \"3.15\"` with `experimental: true` under it."
+    },
+    {
+      "tr": "`fail-fast: false` `strategy`'nin altında, `matrix` ile aynı hizada.",
+      "en": "`fail-fast: false` is under `strategy`, in the same column as `matrix`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: push\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    continue-on-error: ${{ matrix.experimental == true }}\n    strategy:\n      fail-fast: false\n      matrix:\n        python-version: [\"3.12\", \"3.13\"]\n        include:\n          - python-version: \"3.15\"\n            experimental: true\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python-version }}\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: push\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    continue-on-error: ${{ matrix.experimental == true }}\n    strategy:\n      fail-fast: false\n      matrix:\n        python-version: [\"3.12\", \"3.13\"]\n        include:\n          - python-version: \"3.15\"\n            experimental: true\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python-version }}\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "matrix": {
+        "python-version": [
+          "3.12",
+          "3.13"
+        ]
+      },
+      "matrix_include": [
+        {
+          "python-version": "3.15",
+          "experimental": true
+        }
+      ],
+      "keys": {
+        "jobs.test.strategy.fail-fast": "^False$",
+        "jobs.test.continue-on-error": "matrix\\.experimental\\s*==\\s*true"
+      },
+      "show_keys": {
+        "jobs.test.strategy.fail-fast": "false",
+        "jobs.test.continue-on-error": "${{ matrix.experimental == true }}"
+      }
+    }
+  ]
+}

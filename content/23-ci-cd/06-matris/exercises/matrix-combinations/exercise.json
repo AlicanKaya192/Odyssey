@@ -1,0 +1,160 @@
+{
+  "id": "matrix-combinations",
+  "title": {
+    "tr": "Birleşimler",
+    "en": "The Combinations"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her anahtar için yeni bir liste kur: eldeki her `combo` ve o anahtarın her `value`'su için `combo.copy()` al, `new[key] = value` yaz, listeye ekle.",
+      "en": "For each key build a new list: for every `combo` you have and every `value` of that key, take `combo.copy()`, set `new[key] = value`, add it to the list."
+    },
+    {
+      "tr": "Anahtarın sonunda `combos = grown`; böylece bir sonraki anahtar genişlemiş listeyle çalışır.",
+      "en": "At the end of the key, `combos = grown`; so the next key works with the grown list."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef combinations(matrix):\n    combos = [{}]\n    for key, values in matrix.items():\n        grown = []\n        for combo in combos:\n            for value in values:\n                new = combo.copy()\n                new[key] = value\n                grown.append(new)\n        combos = grown\n    return combos\n\n\nmatrix = {\"os\": [\"ubuntu-latest\", \"windows-latest\"], \"python\": [\"3.12\", \"3.13\"]}\nfor combo in combinations(matrix):\n    print(combo)\nprint(len(combinations({\"a\": [1, 2, 3], \"b\": [1, 2], \"c\": [1, 2]})))\n```",
+      "en": "The full solution:\n\n```python\ndef combinations(matrix):\n    combos = [{}]\n    for key, values in matrix.items():\n        grown = []\n        for combo in combos:\n            for value in values:\n                new = combo.copy()\n                new[key] = value\n                grown.append(new)\n        combos = grown\n    return combos\n\n\nmatrix = {\"os\": [\"ubuntu-latest\", \"windows-latest\"], \"python\": [\"3.12\", \"3.13\"]}\nfor combo in combinations(matrix):\n    print(combo)\nprint(len(combinations({\"a\": [1, 2, 3], \"b\": [1, 2], \"c\": [1, 2]})))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "combinations",
+      "cases": [
+        {
+          "args": [
+            {
+              "a": [
+                1
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "a": 1
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "a": [
+                1,
+                2
+              ],
+              "b": [
+                "x",
+                "y",
+                "z"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "a": 1,
+              "b": "x"
+            },
+            {
+              "a": 1,
+              "b": "y"
+            },
+            {
+              "a": 1,
+              "b": "z"
+            },
+            {
+              "a": 2,
+              "b": "x"
+            },
+            {
+              "a": 2,
+              "b": "y"
+            },
+            {
+              "a": 2,
+              "b": "z"
+            }
+          ]
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": [
+            {}
+          ]
+        },
+        {
+          "args": [
+            {
+              "os": [
+                "u"
+              ],
+              "py": [
+                "1",
+                "2"
+              ],
+              "db": [
+                "p",
+                "m"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "os": "u",
+              "py": "1",
+              "db": "p"
+            },
+            {
+              "os": "u",
+              "py": "1",
+              "db": "m"
+            },
+            {
+              "os": "u",
+              "py": "2",
+              "db": "p"
+            },
+            {
+              "os": "u",
+              "py": "2",
+              "db": "m"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "Import",
+      "hint": {
+        "tr": "`itertools` kullanma; döngüyle kur.",
+        "en": "Do not use `itertools`; build it with loops."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "node": "ImportFrom",
+      "hint": {
+        "tr": "`itertools` kullanma; döngüyle kur.",
+        "en": "Do not use `itertools`; build it with loops."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'os': 'ubuntu-latest', 'python': '3.12'}\n{'os': 'ubuntu-latest', 'python': '3.13'}\n{'os': 'windows-latest', 'python': '3.12'}\n{'os': 'windows-latest', 'python': '3.13'}\n12"
+    }
+  ]
+}
