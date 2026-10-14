@@ -1,0 +1,69 @@
+{
+  "id": "debug-prints",
+  "title": {
+    "tr": "Unutulmuş print'ler",
+    "en": "Forgotten prints"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satır satır gez, her satırda `line.strip().startswith(\"print(\")` diye sor.",
+      "en": "Go line by line and ask `line.strip().startswith(\"print(\")` for each line."
+    },
+    {
+      "tr": "`printer = 1` sayılmaz: `print(` ile, yani parantezle birlikte başlamıyor.",
+      "en": "`printer = 1` does not count: it does not start with `print(`, bracket included."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nCODE = \"\"\"import math\n\n\ndef area(r):\n    print(\"debug\", r)\n    return math.pi * r * r\n\n\nprint(area(2))\n    # print(\"old\")\n\"\"\"\n\n\ndef find_prints(source):\n    found = []\n    number = 1\n    for line in source.split(\"\\n\"):\n        if line.strip().startswith(\"print(\"):\n            found.append(number)\n        number = number + 1\n    return found\n\n\nprint(find_prints(CODE))\nprint(find_prints(\"x = 1\"))\n```",
+      "en": "The full solution:\n\n```python\nCODE = \"\"\"import math\n\n\ndef area(r):\n    print(\"debug\", r)\n    return math.pi * r * r\n\n\nprint(area(2))\n    # print(\"old\")\n\"\"\"\n\n\ndef find_prints(source):\n    found = []\n    number = 1\n    for line in source.split(\"\\n\"):\n        if line.strip().startswith(\"print(\"):\n            found.append(number)\n        number = number + 1\n    return found\n\n\nprint(find_prints(CODE))\nprint(find_prints(\"x = 1\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "find_prints",
+      "cases": [
+        {
+          "args": [
+            "print(1)\nx = 2\n    print(x)"
+          ],
+          "returns": [
+            1,
+            3
+          ]
+        },
+        {
+          "args": [
+            "# print(1)"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "printer = 1\nprint (2)"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[5, 9]\n[]"
+    }
+  ]
+}

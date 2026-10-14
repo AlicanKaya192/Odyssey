@@ -1,0 +1,125 @@
+{
+  "id": "quality-gate",
+  "title": {
+    "tr": "Kalite Kapısının Kararı",
+    "en": "The Quality Gate's Decision"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dört ayrı `if` yaz, `elif` değil: birden çok kapı aynı anda kapanabilir.",
+      "en": "Write four separate `if`s, not `elif`: several gates can close at the same time."
+    },
+    {
+      "tr": "Kapsam tam eşikteyse kapı geçer: koşul `results[\"coverage\"] < min_coverage`.",
+      "en": "If coverage is exactly at the threshold the gate passes: the condition is `results[\"coverage\"] < min_coverage`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef failed_gates(results, min_coverage):\n    failed = []\n    if results[\"syntax\"] != 0:\n        failed.append(\"syntax\")\n    if results[\"format\"] != 0:\n        failed.append(\"format\")\n    if results[\"lint_errors\"] > 0:\n        failed.append(\"lint\")\n    if results[\"coverage\"] < min_coverage:\n        failed.append(\"coverage\")\n    return failed\n\n\ndef gate_message(failed):\n    if len(failed) == 0:\n        return \"PASS\"\n    return \"FAIL: \" + \", \".join(failed)\n\n\ngood = {\"syntax\": 0, \"format\": 0, \"lint_errors\": 0, \"coverage\": 91}\nbad = {\"syntax\": 0, \"format\": 1, \"lint_errors\": 3, \"coverage\": 72}\nprint(failed_gates(good, 80))\nprint(failed_gates(bad, 80))\nprint(gate_message(failed_gates(good, 80)))\nprint(gate_message(failed_gates(bad, 80)))\n```",
+      "en": "The full solution:\n\n```python\ndef failed_gates(results, min_coverage):\n    failed = []\n    if results[\"syntax\"] != 0:\n        failed.append(\"syntax\")\n    if results[\"format\"] != 0:\n        failed.append(\"format\")\n    if results[\"lint_errors\"] > 0:\n        failed.append(\"lint\")\n    if results[\"coverage\"] < min_coverage:\n        failed.append(\"coverage\")\n    return failed\n\n\ndef gate_message(failed):\n    if len(failed) == 0:\n        return \"PASS\"\n    return \"FAIL: \" + \", \".join(failed)\n\n\ngood = {\"syntax\": 0, \"format\": 0, \"lint_errors\": 0, \"coverage\": 91}\nbad = {\"syntax\": 0, \"format\": 1, \"lint_errors\": 3, \"coverage\": 72}\nprint(failed_gates(good, 80))\nprint(failed_gates(bad, 80))\nprint(gate_message(failed_gates(good, 80)))\nprint(gate_message(failed_gates(bad, 80)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "failed_gates",
+      "cases": [
+        {
+          "args": [
+            {
+              "syntax": 0,
+              "format": 0,
+              "lint_errors": 0,
+              "coverage": 80
+            },
+            80
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "syntax": 1,
+              "format": 0,
+              "lint_errors": 0,
+              "coverage": 95
+            },
+            80
+          ],
+          "returns": [
+            "syntax"
+          ]
+        },
+        {
+          "args": [
+            {
+              "syntax": 0,
+              "format": 1,
+              "lint_errors": 2,
+              "coverage": 79
+            },
+            80
+          ],
+          "returns": [
+            "format",
+            "lint",
+            "coverage"
+          ]
+        },
+        {
+          "args": [
+            {
+              "syntax": 0,
+              "format": 0,
+              "lint_errors": 0,
+              "coverage": 50
+            },
+            0
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "gate_message",
+      "cases": [
+        {
+          "args": [
+            []
+          ],
+          "returns": "PASS"
+        },
+        {
+          "args": [
+            [
+              "lint"
+            ]
+          ],
+          "returns": "FAIL: lint"
+        },
+        {
+          "args": [
+            [
+              "syntax",
+              "coverage"
+            ]
+          ],
+          "returns": "FAIL: syntax, coverage"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[]\n['format', 'lint', 'coverage']\nPASS\nFAIL: format, lint, coverage"
+    }
+  ]
+}

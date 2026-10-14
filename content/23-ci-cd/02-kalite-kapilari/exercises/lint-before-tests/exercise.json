@@ -1,0 +1,87 @@
+{
+  "id": "lint-before-tests",
+  "title": {
+    "tr": "Kapılar Testlerden Önce",
+    "en": "Gates Before the Tests"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "cart.py",
+      "readonly": true
+    },
+    {
+      "name": "test_cart.py",
+      "readonly": true
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Her komut kendi adımında: `      - run: ruff check .` (başında altı boşluk).",
+      "en": "Each command gets its own step: `      - run: ruff check .` (six spaces in front)."
+    },
+    {
+      "tr": "Biçim adımında `--check` unutulursa hat dosyaları düzeltir ama hiçbir şey denetlenmez.",
+      "en": "If `--check` is forgotten in the format step, the pipeline fixes the files but checks nothing."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: [push, pull_request]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install ruff\n      - run: ruff check .\n      - run: ruff format --check .\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: [push, pull_request]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install ruff\n      - run: ruff check .\n      - run: ruff format --check .\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "steps": [
+        {
+          "uses": "^actions/setup-python@",
+          "show": "uses: actions/setup-python@v5"
+        },
+        {
+          "run": "pip install ruff",
+          "show": "run: pip install ruff"
+        },
+        {
+          "run": "^ruff check",
+          "show": "run: ruff check ."
+        },
+        {
+          "run": "^ruff format --check",
+          "show": "run: ruff format --check ."
+        },
+        {
+          "run": "pip install -r requirements\\.txt",
+          "show": "run: pip install -r requirements.txt"
+        },
+        {
+          "run": "pytest",
+          "show": "run: python -m pytest"
+        }
+      ],
+      "forbid": [
+        {
+          "pattern": "ruff format \\.\\s*$|ruff format \\.\\n",
+          "show": "ruff format . (--check olmadan / without --check)"
+        }
+      ]
+    }
+  ]
+}
