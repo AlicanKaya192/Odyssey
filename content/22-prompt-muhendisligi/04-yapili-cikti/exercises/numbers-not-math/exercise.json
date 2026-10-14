@@ -1,0 +1,78 @@
+{
+  "id": "numbers-not-math",
+  "title": {
+    "tr": "Model sayıları çıkarsın, kod hesaplasın",
+    "en": "The model extracts numbers, code calculates"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `json.loads`'u `try` içinde dene; sonra her kuralda uymayan durumda hemen `return None`.",
+      "en": "First try `json.loads` inside `try`; then for every rule `return None` at once when it fails."
+    },
+    {
+      "tr": "Sayı denetimi: `isinstance(price, (int, float))`; adet için yalnızca `int`.",
+      "en": "The number check: `isinstance(price, (int, float))`; for the count only `int`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport json\n\n\ndef total_from_json(text):\n    try:\n        data = json.loads(text)\n    except json.JSONDecodeError:\n        return None\n    if not isinstance(data, dict):\n        return None\n    items, discount = data.get(\"items\"), data.get(\"discount\")\n    if not isinstance(items, list) or not items:\n        return None\n    if not isinstance(discount, (int, float)) or not 0 <= discount <= 0.5:\n        return None\n    subtotal = 0\n    for item in items:\n        price, count = item.get(\"price\"), item.get(\"count\")\n        if not isinstance(price, (int, float)) or price <= 0:\n            return None\n        if not isinstance(count, int) or count < 1:\n            return None\n        subtotal += price * count\n    return round(subtotal * (1 - discount), 2)\n\n\nGOOD = ('{\"items\": [{\"price\": 189.9, \"count\": 1}, '\n        '{\"price\": 12.5, \"count\": 2}], \"discount\": 0.1}')\nprint(total_from_json(GOOD))\nprint(total_from_json('{\"items\": [{\"price\": 12.5, \"count\": \"two\"}], \"discount\": 0}'))\nprint(total_from_json('{\"items\": [], \"discount\": 0.9}'))\n```",
+      "en": "The full solution:\n\n```python\nimport json\n\n\ndef total_from_json(text):\n    try:\n        data = json.loads(text)\n    except json.JSONDecodeError:\n        return None\n    if not isinstance(data, dict):\n        return None\n    items, discount = data.get(\"items\"), data.get(\"discount\")\n    if not isinstance(items, list) or not items:\n        return None\n    if not isinstance(discount, (int, float)) or not 0 <= discount <= 0.5:\n        return None\n    subtotal = 0\n    for item in items:\n        price, count = item.get(\"price\"), item.get(\"count\")\n        if not isinstance(price, (int, float)) or price <= 0:\n            return None\n        if not isinstance(count, int) or count < 1:\n            return None\n        subtotal += price * count\n    return round(subtotal * (1 - discount), 2)\n\n\nGOOD = ('{\"items\": [{\"price\": 189.9, \"count\": 1}, '\n        '{\"price\": 12.5, \"count\": 2}], \"discount\": 0.1}')\nprint(total_from_json(GOOD))\nprint(total_from_json('{\"items\": [{\"price\": 12.5, \"count\": \"two\"}], \"discount\": 0}'))\nprint(total_from_json('{\"items\": [], \"discount\": 0.9}'))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "total_from_json",
+      "cases": [
+        {
+          "args": [
+            "{\"items\": [{\"price\": 189.9, \"count\": 1}, {\"price\": 12.5, \"count\": 2}], \"discount\": 0.1}"
+          ],
+          "returns": 193.41
+        },
+        {
+          "args": [
+            "{\"items\": [{\"price\": 12.5, \"count\": \"two\"}], \"discount\": 0}"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "{\"items\": [], \"discount\": 0.9}"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "{\"items\": [{\"price\": 10, \"count\": 3}], \"discount\": 0}"
+          ],
+          "returns": 30
+        },
+        {
+          "args": [
+            "not json"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "{\"items\": [{\"price\": 10, \"count\": 1}], \"discount\": 0.6}"
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "193.41\nNone\nNone"
+    }
+  ]
+}

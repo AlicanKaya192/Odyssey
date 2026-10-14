@@ -1,0 +1,101 @@
+{
+  "id": "repair-loop",
+  "title": {
+    "tr": "Onarım döngüsü",
+    "en": "The repair loop"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Mesaj listesini kopyala: `messages = list(QUESTION)`; her başarısız denemede iki mesaj ekle.",
+      "en": "Copy the message list: `messages = list(QUESTION)`; add two messages after every failed try."
+    },
+    {
+      "tr": "Son çağrının mesaj sayısı başarıda `len(messages)`, başarısızlıkta `len(client.calls[-1][\"messages\"])`.",
+      "en": "The last call's message count is `len(messages)` on success and `len(client.calls[-1][\"messages\"])` on failure."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport json\n\nfrom llm_client import ChatClient\n\nLABELS = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\nQUESTION = [{\"role\": \"user\", \"content\": \"My parcel ORD-48213 is late!\"}]\n\n\ndef parse_json(text):\n    try:\n        return json.loads(text[text.find(\"{\"): text.rfind(\"}\") + 1])\n    except json.JSONDecodeError:\n        return None\n\n\ndef validate(data):\n    if not isinstance(data, dict):\n        return [\"not valid JSON\"]\n    errors = []\n    if data.get(\"category\") not in LABELS:\n        errors.append(\"category must be one of \" + \", \".join(LABELS))\n    if not isinstance(data.get(\"urgent\"), bool):\n        errors.append(\"urgent must be true or false\")\n    return errors\n\n\ndef ask_json(script, max_tries):\n    client = ChatClient(script)\n    messages = list(QUESTION)\n    for tries in range(1, max_tries + 1):\n        reply = client.chat(messages, max_tokens=60)\n        errors = validate(parse_json(reply.text))\n        if not errors:\n            return [parse_json(reply.text), tries, len(messages)]\n        feedback = (\"Your answer was not valid: \" + \"; \".join(errors)\n                    + \". Reply with the JSON object only.\")\n        messages += [{\"role\": \"assistant\", \"content\": reply.text},\n                     {\"role\": \"user\", \"content\": feedback}]\n    return [None, max_tries, len(client.calls[-1][\"messages\"])]\n\n\nSCRIPT = ['{\"category\": \"late\", \"urgent\": true}',\n          \"Sorry, I cannot answer.\",\n          '{\"category\": \"shipping\", \"urgent\": true}']\nfor tries in [3, 2]:\n    data, used, sent = ask_json(SCRIPT, tries)\n    print(data)\n    print(used, sent)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport json\n\nfrom llm_client import ChatClient\n\nLABELS = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\nQUESTION = [{\"role\": \"user\", \"content\": \"My parcel ORD-48213 is late!\"}]\n\n\ndef parse_json(text):\n    try:\n        return json.loads(text[text.find(\"{\"): text.rfind(\"}\") + 1])\n    except json.JSONDecodeError:\n        return None\n\n\ndef validate(data):\n    if not isinstance(data, dict):\n        return [\"not valid JSON\"]\n    errors = []\n    if data.get(\"category\") not in LABELS:\n        errors.append(\"category must be one of \" + \", \".join(LABELS))\n    if not isinstance(data.get(\"urgent\"), bool):\n        errors.append(\"urgent must be true or false\")\n    return errors\n\n\ndef ask_json(script, max_tries):\n    client = ChatClient(script)\n    messages = list(QUESTION)\n    for tries in range(1, max_tries + 1):\n        reply = client.chat(messages, max_tokens=60)\n        errors = validate(parse_json(reply.text))\n        if not errors:\n            return [parse_json(reply.text), tries, len(messages)]\n        feedback = (\"Your answer was not valid: \" + \"; \".join(errors)\n                    + \". Reply with the JSON object only.\")\n        messages += [{\"role\": \"assistant\", \"content\": reply.text},\n                     {\"role\": \"user\", \"content\": feedback}]\n    return [None, max_tries, len(client.calls[-1][\"messages\"])]\n\n\nSCRIPT = ['{\"category\": \"late\", \"urgent\": true}',\n          \"Sorry, I cannot answer.\",\n          '{\"category\": \"shipping\", \"urgent\": true}']\nfor tries in [3, 2]:\n    data, used, sent = ask_json(SCRIPT, tries)\n    print(data)\n    print(used, sent)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ask_json",
+      "cases": [
+        {
+          "args": [
+            [
+              "{\"category\": \"late\", \"urgent\": true}",
+              "Sorry, I cannot answer.",
+              "{\"category\": \"shipping\", \"urgent\": true}"
+            ],
+            3
+          ],
+          "returns": [
+            {
+              "category": "shipping",
+              "urgent": true
+            },
+            3,
+            5
+          ]
+        },
+        {
+          "args": [
+            [
+              "{\"category\": \"late\", \"urgent\": true}",
+              "Sorry, I cannot answer.",
+              "{\"category\": \"shipping\", \"urgent\": true}"
+            ],
+            2
+          ],
+          "returns": [
+            null,
+            2,
+            3
+          ]
+        },
+        {
+          "args": [
+            [
+              "{\"category\": \"shipping\", \"urgent\": true}"
+            ],
+            1
+          ],
+          "returns": [
+            {
+              "category": "shipping",
+              "urgent": true
+            },
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'category': 'shipping', 'urgent': True}\n3 5\nNone\n2 3"
+    }
+  ]
+}

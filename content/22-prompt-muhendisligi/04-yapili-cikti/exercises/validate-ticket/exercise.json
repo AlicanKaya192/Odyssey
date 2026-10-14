@@ -1,0 +1,108 @@
+{
+  "id": "validate-ticket",
+  "title": {
+    "tr": "Şemaya göre doğrula",
+    "en": "Validate against the schema"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Eksik alanlar: `[\"missing:\" + key for key in [...] if key not in data]`.",
+      "en": "Missing fields: `[\"missing:\" + key for key in [...] if key not in data]`."
+    },
+    {
+      "tr": "Kalıp: `re.fullmatch(r\"ORD-\\d{5}\", str(order))`; eksik `order_id` için `data.get` `None` verir.",
+      "en": "The pattern: `re.fullmatch(r\"ORD-\\d{5}\", str(order))`; for a missing `order_id`, `data.get` gives `None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nLABELS = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\n\n\ndef validate(data):\n    if not isinstance(data, dict):\n        return [\"object\"]\n    errors = [\"missing:\" + key for key in [\"category\", \"urgent\", \"order_id\"]\n              if key not in data]\n    if \"category\" in data and data[\"category\"] not in LABELS:\n        errors.append(\"category\")\n    if \"urgent\" in data and not isinstance(data[\"urgent\"], bool):\n        errors.append(\"urgent\")\n    order = data.get(\"order_id\")\n    if order is not None and not re.fullmatch(r\"ORD-\\d{5}\", str(order)):\n        errors.append(\"order_id\")\n    return errors\n\n\nprint(validate({\"category\": \"refunds\", \"urgent\": False, \"order_id\": None}))\nprint(validate({\"category\": \"delivery\", \"urgent\": \"yes\"}))\nprint(validate([1, 2]))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nLABELS = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\n\n\ndef validate(data):\n    if not isinstance(data, dict):\n        return [\"object\"]\n    errors = [\"missing:\" + key for key in [\"category\", \"urgent\", \"order_id\"]\n              if key not in data]\n    if \"category\" in data and data[\"category\"] not in LABELS:\n        errors.append(\"category\")\n    if \"urgent\" in data and not isinstance(data[\"urgent\"], bool):\n        errors.append(\"urgent\")\n    order = data.get(\"order_id\")\n    if order is not None and not re.fullmatch(r\"ORD-\\d{5}\", str(order)):\n        errors.append(\"order_id\")\n    return errors\n\n\nprint(validate({\"category\": \"refunds\", \"urgent\": False, \"order_id\": None}))\nprint(validate({\"category\": \"delivery\", \"urgent\": \"yes\"}))\nprint(validate([1, 2]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "validate",
+      "cases": [
+        {
+          "args": [
+            {
+              "category": "refunds",
+              "urgent": false,
+              "order_id": null
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "category": "delivery",
+              "urgent": "yes"
+            }
+          ],
+          "returns": [
+            "missing:order_id",
+            "category",
+            "urgent"
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2
+            ]
+          ],
+          "returns": [
+            "object"
+          ]
+        },
+        {
+          "args": [
+            {
+              "category": "payment",
+              "urgent": true,
+              "order_id": "ORD-1234"
+            }
+          ],
+          "returns": [
+            "order_id"
+          ]
+        },
+        {
+          "args": [
+            {
+              "category": "payment",
+              "urgent": true,
+              "order_id": "ORD-12345"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": [
+            "missing:category",
+            "missing:urgent",
+            "missing:order_id"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[]\n['missing:order_id', 'category', 'urgent']\n['object']"
+    }
+  ]
+}

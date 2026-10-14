@@ -1,0 +1,102 @@
+{
+  "id": "parse-stages",
+  "title": {
+    "tr": "Katmanlı ayrıştırma",
+    "en": "Parsing in layers"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Denemeleri sıralı bir sözlükte tut ve `for name, candidate in attempts.items():` ile gez.",
+      "en": "Keep the attempts in an ordered dictionary and go through them with `for name, candidate in attempts.items():`."
+    },
+    {
+      "tr": "`json.loads` başaramazsa `json.JSONDecodeError` fırlatır; yakala ve sonrakine geç.",
+      "en": "If `json.loads` fails it raises `json.JSONDecodeError`; catch it and go on to the next."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport json\nimport re\n\n\ndef parse_json(text):\n    attempts = {\n        \"as is\": text,\n        \"fence\": re.sub(r\"^`{3}(?:json)?\\s*|\\s*`{3}$\", \"\", text.strip()),\n        \"braces\": text[text.find(\"{\"): text.rfind(\"}\") + 1],\n    }\n    for name, candidate in attempts.items():\n        try:\n            return [json.loads(candidate), name]\n        except json.JSONDecodeError:\n            pass\n    return [None, \"failed\"]\n\n\nFENCE = \"`\" * 3\nfor text in ['{\"a\": 1}', FENCE + 'json\\n{\"a\": 2}\\n' + FENCE,\n             'Here: {\"a\": 3} ok', \"{'a': 4}\"]:\n    print(parse_json(text))\n```",
+      "en": "The full solution:\n\n```python\nimport json\nimport re\n\n\ndef parse_json(text):\n    attempts = {\n        \"as is\": text,\n        \"fence\": re.sub(r\"^`{3}(?:json)?\\s*|\\s*`{3}$\", \"\", text.strip()),\n        \"braces\": text[text.find(\"{\"): text.rfind(\"}\") + 1],\n    }\n    for name, candidate in attempts.items():\n        try:\n            return [json.loads(candidate), name]\n        except json.JSONDecodeError:\n            pass\n    return [None, \"failed\"]\n\n\nFENCE = \"`\" * 3\nfor text in ['{\"a\": 1}', FENCE + 'json\\n{\"a\": 2}\\n' + FENCE,\n             'Here: {\"a\": 3} ok', \"{'a': 4}\"]:\n    print(parse_json(text))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_json",
+      "cases": [
+        {
+          "args": [
+            "{\"a\": 1}"
+          ],
+          "returns": [
+            {
+              "a": 1
+            },
+            "as is"
+          ]
+        },
+        {
+          "args": [
+            "```json\n{\"a\": 2}\n```"
+          ],
+          "returns": [
+            {
+              "a": 2
+            },
+            "fence"
+          ]
+        },
+        {
+          "args": [
+            "Here: {\"a\": 3} ok"
+          ],
+          "returns": [
+            {
+              "a": 3
+            },
+            "braces"
+          ]
+        },
+        {
+          "args": [
+            "{'a': 4}"
+          ],
+          "returns": [
+            null,
+            "failed"
+          ]
+        },
+        {
+          "args": [
+            "{\"a\": [1, 2"
+          ],
+          "returns": [
+            null,
+            "failed"
+          ]
+        },
+        {
+          "args": [
+            "no json"
+          ],
+          "returns": [
+            null,
+            "failed"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[{'a': 1}, 'as is']\n[{'a': 2}, 'fence']\n[{'a': 3}, 'braces']\n[None, 'failed']"
+    }
+  ]
+}
