@@ -1,0 +1,101 @@
+{
+  "id": "answer-groups",
+  "title": {
+    "tr": "Cevapları grupla",
+    "en": "Group the answers"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `key is None` mı diye ayır; sonra `answer == NOT_FOUND`.",
+      "en": "First split on `key is None`; then `answer == NOT_FOUND`."
+    },
+    {
+      "tr": "Sayaçları bir listede tut: `counts[0]` doğru, `[1]` doğru çekimser, `[2]` yanlış, `[3]` kaçırılan.",
+      "en": "Keep the counters in a list: `counts[0]` correct, `[1]` abstain ok, `[2]` wrong, `[3]` missed."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nNOT_FOUND = \"I could not find this in the sources.\"\nSYSTEM = \"Answer only from the numbered sources.\"\n\n\ndef groups(results):\n    counts = [0, 0, 0, 0]\n    for key, answer in results:\n        if key is None:\n            counts[1 if answer == NOT_FOUND else 2] += 1\n        elif answer == NOT_FOUND:\n            counts[3] += 1\n        else:\n            counts[0 if key in answer else 2] += 1\n    return counts\n\n\nresults = [[\"3 years\", \"Valid for 3 years. [1]\"], [None, NOT_FOUND],\n           [\"24 hours\", NOT_FOUND], [None, \"Open 9:00 [2]\"]]\nprint(groups(results))\n```",
+      "en": "The full solution:\n\n```python\nNOT_FOUND = \"I could not find this in the sources.\"\nSYSTEM = \"Answer only from the numbered sources.\"\n\n\ndef groups(results):\n    counts = [0, 0, 0, 0]\n    for key, answer in results:\n        if key is None:\n            counts[1 if answer == NOT_FOUND else 2] += 1\n        elif answer == NOT_FOUND:\n            counts[3] += 1\n        else:\n            counts[0 if key in answer else 2] += 1\n    return counts\n\n\nresults = [[\"3 years\", \"Valid for 3 years. [1]\"], [None, NOT_FOUND],\n           [\"24 hours\", NOT_FOUND], [None, \"Open 9:00 [2]\"]]\nprint(groups(results))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "groups",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "3 years",
+                "Valid for 3 years. [1]"
+              ],
+              [
+                null,
+                "I could not find this in the sources."
+              ],
+              [
+                "24 hours",
+                "I could not find this in the sources."
+              ],
+              [
+                null,
+                "Open 9:00 [2]"
+              ]
+            ]
+          ],
+          "returns": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "a b [1]"
+              ],
+              [
+                "b",
+                "x [2]"
+              ]
+            ]
+          ],
+          "returns": [
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 1, 1, 1]"
+    }
+  ]
+}

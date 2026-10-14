@@ -1,0 +1,94 @@
+{
+  "id": "rag-pipeline",
+  "title": {
+    "tr": "Düzeneği bağla",
+    "en": "Wire up the setup"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "retrieval.py",
+      "readonly": true
+    },
+    {
+      "name": "doc_data.py",
+      "readonly": true
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    },
+    {
+      "name": "rag_tools.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra: ara → mesajları kur → istemci → `chat`.",
+      "en": "The order: search → build the messages → client → `chat`."
+    },
+    {
+      "tr": "Cevap `reply.text`, token `reply.input_tokens`.",
+      "en": "The answer is `reply.text`, the tokens `reply.input_tokens`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport textwrap\n\nfrom llm_client import ChatClient\nfrom rag_tools import index, build_messages, make_reader\n\n\ndef answer(question, k):\n    found = index.search(question, k)\n    client = ChatClient([make_reader(2)])\n    reply = client.chat(build_messages(question, found), max_tokens=100)\n    return [reply.text, reply.input_tokens]\n\n\nfor question in [\"Do gift cards expire?\", \"Do you sell bicycles?\"]:\n    text, tokens = answer(question, 3)\n    print(tokens)\n    print(textwrap.fill(text, 40))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport textwrap\n\nfrom llm_client import ChatClient\nfrom rag_tools import index, build_messages, make_reader\n\n\ndef answer(question, k):\n    found = index.search(question, k)\n    client = ChatClient([make_reader(2)])\n    reply = client.chat(build_messages(question, found), max_tokens=100)\n    return [reply.text, reply.input_tokens]\n\n\nfor question in [\"Do gift cards expire?\", \"Do you sell bicycles?\"]:\n    text, tokens = answer(question, 3)\n    print(tokens)\n    print(textwrap.fill(text, 40))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "answer",
+      "cases": [
+        {
+          "args": [
+            "Do gift cards expire?",
+            3
+          ],
+          "returns": [
+            "Gift cards are available for 25, 50 and 100 euros and are valid for 3 years. [1]",
+            135
+          ]
+        },
+        {
+          "args": [
+            "Do you sell bicycles?",
+            3
+          ],
+          "returns": [
+            "I could not find this in the sources.",
+            117
+          ]
+        },
+        {
+          "args": [
+            "How long does a repair take?",
+            1
+          ],
+          "returns": [
+            "I could not find this in the sources.",
+            85
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "135\nGift cards are available for 25, 50 and\n100 euros and are valid for 3 years. [1]\n117\nI could not find this in the sources."
+    }
+  ]
+}

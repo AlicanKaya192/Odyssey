@@ -1,0 +1,74 @@
+{
+  "id": "parse-answer",
+  "title": {
+    "tr": "Cevabı ve kaynağı ayır",
+    "en": "Split answer and source"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Numaralar `re.findall(r\"\\[(\\d+)\\]\", text)`; `int` listesine çevir.",
+      "en": "The numbers are `re.findall(r\"\\[(\\d+)\\]\", text)`; turn them into a list of `int`."
+    },
+    {
+      "tr": "Silmek için `re.sub(r\"\\s*\\[\\d+\\]\", \"\", text).strip()`.",
+      "en": "To remove them, `re.sub(r\"\\s*\\[\\d+\\]\", \"\", text).strip()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nNOT_FOUND = \"I could not find this in the sources.\"\nSYSTEM = \"Answer only from the numbered sources.\"\n\n\ndef parse_answer(text):\n    numbers = [int(n) for n in re.findall(r\"\\[(\\d+)\\]\", text)]\n    clean = re.sub(r\"\\s*\\[\\d+\\]\", \"\", text).strip()\n    return [clean, numbers]\n\n\nprint(parse_answer(\"Valid for 3 years. [1]\"))\nprint(parse_answer(\"Open 9:00 [2] and online [3].\"))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nNOT_FOUND = \"I could not find this in the sources.\"\nSYSTEM = \"Answer only from the numbered sources.\"\n\n\ndef parse_answer(text):\n    numbers = [int(n) for n in re.findall(r\"\\[(\\d+)\\]\", text)]\n    clean = re.sub(r\"\\s*\\[\\d+\\]\", \"\", text).strip()\n    return [clean, numbers]\n\n\nprint(parse_answer(\"Valid for 3 years. [1]\"))\nprint(parse_answer(\"Open 9:00 [2] and online [3].\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_answer",
+      "cases": [
+        {
+          "args": [
+            "Gift cards are valid for 3 years. [1]"
+          ],
+          "returns": [
+            "Gift cards are valid for 3 years.",
+            [
+              1
+            ]
+          ]
+        },
+        {
+          "args": [
+            "I could not find this in the sources."
+          ],
+          "returns": [
+            "I could not find this in the sources.",
+            []
+          ]
+        },
+        {
+          "args": [
+            "Open 9:00 to 17:00 [2] and online [3]."
+          ],
+          "returns": [
+            "Open 9:00 to 17:00 and online.",
+            [
+              2,
+              3
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['Valid for 3 years.', [1]]\n['Open 9:00 and online.', [2, 3]]"
+    }
+  ]
+}

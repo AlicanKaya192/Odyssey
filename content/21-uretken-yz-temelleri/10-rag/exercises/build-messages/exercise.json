@@ -1,0 +1,79 @@
+{
+  "id": "build-messages",
+  "title": {
+    "tr": "Prompt'u kur",
+    "en": "Build the prompt"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Numaralı satırlar: `\"\\n\".join(f\"[{i}] {text}\" for i, text in enumerate(texts, 1))`.",
+      "en": "The numbered lines: `\"\\n\".join(f\"[{i}] {text}\" for i, text in enumerate(texts, 1))`."
+    },
+    {
+      "tr": "Kullanıcı içeriği `f\"Sources:\\n{sources}\\n\\nQuestion: {question}\"`.",
+      "en": "The user content is `f\"Sources:\\n{sources}\\n\\nQuestion: {question}\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nNOT_FOUND = \"I could not find this in the sources.\"\nSYSTEM = \"Answer only from the numbered sources.\"\n\n\ndef build_messages(question, texts):\n    sources = \"\\n\".join(f\"[{i}] {text}\" for i, text in enumerate(texts, 1))\n    user = f\"Sources:\\n{sources}\\n\\nQuestion: {question}\"\n    return [{\"role\": \"system\", \"content\": SYSTEM}, {\"role\": \"user\", \"content\": user}]\n\n\nmessages = build_messages(\"Do gift cards expire?\",\n                          [\"Gift cards are valid for 3 years.\", \"Points expire.\"])\nfor line in messages[1][\"content\"].splitlines():\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nNOT_FOUND = \"I could not find this in the sources.\"\nSYSTEM = \"Answer only from the numbered sources.\"\n\n\ndef build_messages(question, texts):\n    sources = \"\\n\".join(f\"[{i}] {text}\" for i, text in enumerate(texts, 1))\n    user = f\"Sources:\\n{sources}\\n\\nQuestion: {question}\"\n    return [{\"role\": \"system\", \"content\": SYSTEM}, {\"role\": \"user\", \"content\": user}]\n\n\nmessages = build_messages(\"Do gift cards expire?\",\n                          [\"Gift cards are valid for 3 years.\", \"Points expire.\"])\nfor line in messages[1][\"content\"].splitlines():\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "build_messages",
+      "cases": [
+        {
+          "args": [
+            "Do gift cards expire?",
+            [
+              "Gift cards are valid for 3 years.",
+              "Points expire."
+            ]
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "Answer only from the numbered sources."
+            },
+            {
+              "role": "user",
+              "content": "Sources:\n[1] Gift cards are valid for 3 years.\n[2] Points expire.\n\nQuestion: Do gift cards expire?"
+            }
+          ]
+        },
+        {
+          "args": [
+            "Hi?",
+            [
+              "One."
+            ]
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "Answer only from the numbered sources."
+            },
+            {
+              "role": "user",
+              "content": "Sources:\n[1] One.\n\nQuestion: Hi?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Sources:\n[1] Gift cards are valid for 3 years.\n[2] Points expire.\n\nQuestion: Do gift cards expire?"
+    }
+  ]
+}

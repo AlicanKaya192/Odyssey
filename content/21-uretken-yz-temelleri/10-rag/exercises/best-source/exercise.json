@@ -1,0 +1,75 @@
+{
+  "id": "best-source",
+  "title": {
+    "tr": "En uygun kaynak",
+    "en": "The best source"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ortak kelimeler `words(question) & words(source)`; sayısı `len(...)`.",
+      "en": "The shared words are `words(question) & words(source)`; their count `len(...)`."
+    },
+    {
+      "tr": "Yalnızca kesin büyükse güncelle (`>`), böylece eşitlikte önce gelen kalır.",
+      "en": "Update only when strictly greater (`>`), so the earlier one stays on a tie."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nSTOP = {\"the\", \"a\", \"an\", \"is\", \"are\", \"do\", \"does\", \"i\", \"my\", \"you\", \"to\", \"of\", \"in\", \"for\"}\n\n\ndef words(text):\n    found = re.findall(r\"[a-z0-9]+\", text.lower())\n    return {w for w in found if w not in STOP}\n\n\ndef best_source(question, sources, min_overlap):\n    best, best_overlap = 0, 0\n    for n, source in enumerate(sources, 1):\n        overlap = len(words(question) & words(source))\n        if overlap > best_overlap:\n            best, best_overlap = n, overlap\n    return best if best_overlap >= min_overlap else 0\n\n\nsources = [\"Gift cards are valid for 3 years.\", \"Points expire after 12 months.\"]\nprint(best_source(\"Do gift cards expire?\", sources, 2))\nprint(best_source(\"Do you sell bikes?\", sources, 1))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nSTOP = {\"the\", \"a\", \"an\", \"is\", \"are\", \"do\", \"does\", \"i\", \"my\", \"you\", \"to\", \"of\", \"in\", \"for\"}\n\n\ndef words(text):\n    found = re.findall(r\"[a-z0-9]+\", text.lower())\n    return {w for w in found if w not in STOP}\n\n\ndef best_source(question, sources, min_overlap):\n    best, best_overlap = 0, 0\n    for n, source in enumerate(sources, 1):\n        overlap = len(words(question) & words(source))\n        if overlap > best_overlap:\n            best, best_overlap = n, overlap\n    return best if best_overlap >= min_overlap else 0\n\n\nsources = [\"Gift cards are valid for 3 years.\", \"Points expire after 12 months.\"]\nprint(best_source(\"Do gift cards expire?\", sources, 2))\nprint(best_source(\"Do you sell bikes?\", sources, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "best_source",
+      "cases": [
+        {
+          "args": [
+            "Do gift cards expire?",
+            [
+              "Gift cards are valid for 3 years.",
+              "Points expire after 12 months."
+            ],
+            2
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            "Do you sell bikes?",
+            [
+              "Gift cards are valid for 3 years.",
+              "Points expire after 12 months."
+            ],
+            1
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "When do points expire?",
+            [
+              "Gift cards are valid.",
+              "Points expire after 12 months."
+            ],
+            1
+          ],
+          "returns": 2
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\n0"
+    }
+  ]
+}
