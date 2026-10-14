@@ -1,0 +1,66 @@
+{
+  "id": "mask-phone",
+  "title": {
+    "tr": "Parantezli numara",
+    "en": "The bracketed number"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Desenleri bir sözlükte tut ve sırayla `re.sub(pattern, f\"[{label}]\", text)` uygula.",
+      "en": "Keep the patterns in a dictionary and apply `re.sub(pattern, f\"[{label}]\", text)` in turn."
+    },
+    {
+      "tr": "`\\(?` \"bir parantez olabilir de olmayabilir de\" demek.",
+      "en": "`\\(?` means \"there may or may not be a bracket\"."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nPATTERNS = {\n    \"EMAIL\": r\"[\\w.+-]+@[\\w-]+\\.[\\w.]+\",\n    \"PHONE\": r\"\\+?\\(?\\d[\\d\\s()-]{8,}\\d\",\n    \"ORDER\": r\"ORD-\\d{5}\",\n}\n\n\ndef mask(text):\n    for label, pattern in PATTERNS.items():\n        text = re.sub(pattern, f\"[{label}]\", text)\n    return text\n\n\nfor text in [\"My number is (555) 123-4567.\", \"Mail ana.k@example.com\", \"Order ORD-48213\"]:\n    print(mask(text))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nPATTERNS = {\n    \"EMAIL\": r\"[\\w.+-]+@[\\w-]+\\.[\\w.]+\",\n    \"PHONE\": r\"\\+?\\(?\\d[\\d\\s()-]{8,}\\d\",\n    \"ORDER\": r\"ORD-\\d{5}\",\n}\n\n\ndef mask(text):\n    for label, pattern in PATTERNS.items():\n        text = re.sub(pattern, f\"[{label}]\", text)\n    return text\n\n\nfor text in [\"My number is (555) 123-4567.\", \"Mail ana.k@example.com\", \"Order ORD-48213\"]:\n    print(mask(text))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mask",
+      "cases": [
+        {
+          "args": [
+            "My number is (555) 123-4567."
+          ],
+          "returns": "My number is [PHONE]."
+        },
+        {
+          "args": [
+            "Mail ana.k@example.com"
+          ],
+          "returns": "Mail [EMAIL]"
+        },
+        {
+          "args": [
+            "Order ORD-48213"
+          ],
+          "returns": "Order [ORDER]"
+        },
+        {
+          "args": [
+            "Call +90 532 123 45 67"
+          ],
+          "returns": "Call [PHONE]"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "My number is [PHONE].\nMail [EMAIL]\nOrder [ORDER]"
+    }
+  ]
+}
