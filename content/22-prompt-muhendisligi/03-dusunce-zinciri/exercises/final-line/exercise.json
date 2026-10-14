@@ -1,0 +1,72 @@
+{
+  "id": "final-line",
+  "title": {
+    "tr": "Son cevap satırı",
+    "en": "The final answer line"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`re.M` ile `^` ve `$` her satırın başı ve sonu olur.",
+      "en": "With `re.M`, `^` and `$` mean the start and end of every line."
+    },
+    {
+      "tr": "Eşleşme varsa `float(found.group(1))`, yoksa `None`.",
+      "en": "If there is a match `float(found.group(1))`, otherwise `None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef final_answer(text):\n    found = re.search(r\"^Answer:\\s*(\\d+(?:\\.\\d+)?)\\s*$\", text, flags=re.M)\n    return float(found.group(1)) if found else None\n\n\nprint(final_answer(\"2 + 3 = 5\\nAnswer: 5\"))\nprint(final_answer(\"Answer: 12.50\\nThanks!\"))\nprint(final_answer(\"The answer is 7.\"))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef final_answer(text):\n    found = re.search(r\"^Answer:\\s*(\\d+(?:\\.\\d+)?)\\s*$\", text, flags=re.M)\n    return float(found.group(1)) if found else None\n\n\nprint(final_answer(\"2 + 3 = 5\\nAnswer: 5\"))\nprint(final_answer(\"Answer: 12.50\\nThanks!\"))\nprint(final_answer(\"The answer is 7.\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "final_answer",
+      "cases": [
+        {
+          "args": [
+            "2 + 3 = 5\nAnswer: 5"
+          ],
+          "returns": 5.0
+        },
+        {
+          "args": [
+            "Answer: 12.50\nThanks!"
+          ],
+          "returns": 12.5
+        },
+        {
+          "args": [
+            "The answer is 7."
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "Answer: about 9"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "Answer:  3.5  "
+          ],
+          "returns": 3.5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "5.0\n12.5\nNone"
+    }
+  ]
+}

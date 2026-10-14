@@ -1,0 +1,92 @@
+{
+  "id": "checked-retry",
+  "title": {
+    "tr": "Doğrulanana kadar sor",
+    "en": "Ask until it checks out"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Doğru tutarı bir kez hesapla: `expected = order_total(ITEMS, 0.10)`.",
+      "en": "Compute the right amount once: `expected = order_total(ITEMS, 0.10)`."
+    },
+    {
+      "tr": "`for tries in range(1, max_tries + 1):`; eşleşince hemen döndür.",
+      "en": "`for tries in range(1, max_tries + 1):`; return as soon as it matches."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nfrom llm_client import ChatClient\n\nMESSAGES = [{\"role\": \"user\", \"content\": \"Tent 189.90, two socks at 12.50, \"\n                                        \"10% off. What do I pay? \"\n                                        \"End with: Answer: <number>\"}]\nITEMS = [[189.90, 1], [12.50, 2]]\n\n\ndef final_answer(text):\n    found = re.search(r\"^Answer:\\s*(\\d+(?:\\.\\d+)?)\\s*$\", text, flags=re.M)\n    return float(found.group(1)) if found else None\n\n\ndef order_total(items, discount):\n    subtotal = sum(price * count for price, count in items)\n    return round(subtotal * (1 - discount), 2)\n\n\ndef ask_checked(script, max_tries):\n    client = ChatClient(script)\n    expected = order_total(ITEMS, 0.10)\n    for tries in range(1, max_tries + 1):\n        reply = client.chat(MESSAGES, max_tokens=120, temperature=0.7)\n        if final_answer(reply.text) == expected:\n            return [expected, tries]\n    return [None, max_tries]\n\n\nSCRIPT = [\"About 193 euros.\", \"Answer: 182.16\",\n          \"25 + 189.90 = 214.90\\nAnswer: 193.41\"]\nprint(ask_checked(SCRIPT, 3))\nprint(ask_checked(SCRIPT, 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nfrom llm_client import ChatClient\n\nMESSAGES = [{\"role\": \"user\", \"content\": \"Tent 189.90, two socks at 12.50, \"\n                                        \"10% off. What do I pay? \"\n                                        \"End with: Answer: <number>\"}]\nITEMS = [[189.90, 1], [12.50, 2]]\n\n\ndef final_answer(text):\n    found = re.search(r\"^Answer:\\s*(\\d+(?:\\.\\d+)?)\\s*$\", text, flags=re.M)\n    return float(found.group(1)) if found else None\n\n\ndef order_total(items, discount):\n    subtotal = sum(price * count for price, count in items)\n    return round(subtotal * (1 - discount), 2)\n\n\ndef ask_checked(script, max_tries):\n    client = ChatClient(script)\n    expected = order_total(ITEMS, 0.10)\n    for tries in range(1, max_tries + 1):\n        reply = client.chat(MESSAGES, max_tokens=120, temperature=0.7)\n        if final_answer(reply.text) == expected:\n            return [expected, tries]\n    return [None, max_tries]\n\n\nSCRIPT = [\"About 193 euros.\", \"Answer: 182.16\",\n          \"25 + 189.90 = 214.90\\nAnswer: 193.41\"]\nprint(ask_checked(SCRIPT, 3))\nprint(ask_checked(SCRIPT, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ask_checked",
+      "cases": [
+        {
+          "args": [
+            [
+              "About 193 euros.",
+              "Answer: 182.16",
+              "25 + 189.90 = 214.90\nAnswer: 193.41"
+            ],
+            3
+          ],
+          "returns": [
+            193.41,
+            3
+          ]
+        },
+        {
+          "args": [
+            [
+              "About 193 euros.",
+              "Answer: 182.16",
+              "25 + 189.90 = 214.90\nAnswer: 193.41"
+            ],
+            2
+          ],
+          "returns": [
+            null,
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              "25 + 189.90 = 214.90\nAnswer: 193.41"
+            ],
+            1
+          ],
+          "returns": [
+            193.41,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[193.41, 3]\n[None, 2]"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "id": "majority-vote",
+  "title": {
+    "tr": "Çoğunluk oyu",
+    "en": "A majority vote"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`Counter(a for a in answers if a is not None)`; `most_common(1)` eşitlikte önce görüleni verir.",
+      "en": "`Counter(a for a in answers if a is not None)`; on ties `most_common(1)` gives the one seen first."
+    },
+    {
+      "tr": "Oran bütün cevaplara bölünür, `None`'lar dahil.",
+      "en": "The share is divided by all answers, `None` included."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef vote(answers):\n    votes = Counter(a for a in answers if a is not None)\n    if not votes:\n        return [None, 0, 0.0]\n    answer, count = votes.most_common(1)[0]\n    return [answer, count, round(count / len(answers), 2)]\n\n\nprint(vote([193.41, 193.41, 182.16, 193.41, None]))\nprint(vote([None, None]))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef vote(answers):\n    votes = Counter(a for a in answers if a is not None)\n    if not votes:\n        return [None, 0, 0.0]\n    answer, count = votes.most_common(1)[0]\n    return [answer, count, round(count / len(answers), 2)]\n\n\nprint(vote([193.41, 193.41, 182.16, 193.41, None]))\nprint(vote([None, None]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "vote",
+      "cases": [
+        {
+          "args": [
+            [
+              193.41,
+              193.41,
+              182.16,
+              193.41,
+              null
+            ]
+          ],
+          "returns": [
+            193.41,
+            3,
+            0.6
+          ]
+        },
+        {
+          "args": [
+            [
+              null,
+              null
+            ]
+          ],
+          "returns": [
+            null,
+            0,
+            0.0
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              2,
+              1
+            ]
+          ],
+          "returns": [
+            1,
+            2,
+            0.5
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": [
+            null,
+            0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[193.41, 3, 0.6]\n[None, 0, 0.0]"
+    }
+  ]
+}
