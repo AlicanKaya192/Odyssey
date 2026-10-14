@@ -1,0 +1,70 @@
+{
+  "id": "wheel-filename",
+  "title": {
+    "tr": "Tekerleğin Adı",
+    "en": "The Wheel's Name"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for char in name.lower():` içinde `char in \"-_.\"` mi diye bak.",
+      "en": "Inside `for char in name.lower():`, check whether `char in \"-_.\"`."
+    },
+    {
+      "tr": "Ayraçta, kurduğun ad zaten `_` ile bitiyorsa (`clean.endswith(\"_\")`) bir şey ekleme.",
+      "en": "For a separator, add nothing if the name you built already ends with `_` (`clean.endswith(\"_\")`)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef wheel_filename(name, version):\n    clean = \"\"\n    for char in name.lower():\n        if char in \"-_.\":\n            if not clean.endswith(\"_\"):\n                clean += \"_\"\n        else:\n            clean += char\n    return clean + \"-\" + version + \"-py3-none-any.whl\"\n\n\nprint(wheel_filename(\"greeter\", \"0.1.0\"))\nprint(wheel_filename(\"My-Package\", \"1.0\"))\nprint(wheel_filename(\"data.tools\", \"2.3.1\"))\nprint(wheel_filename(\"a__b--c\", \"0.0.1\"))\n```",
+      "en": "The full solution:\n\n```python\ndef wheel_filename(name, version):\n    clean = \"\"\n    for char in name.lower():\n        if char in \"-_.\":\n            if not clean.endswith(\"_\"):\n                clean += \"_\"\n        else:\n            clean += char\n    return clean + \"-\" + version + \"-py3-none-any.whl\"\n\n\nprint(wheel_filename(\"greeter\", \"0.1.0\"))\nprint(wheel_filename(\"My-Package\", \"1.0\"))\nprint(wheel_filename(\"data.tools\", \"2.3.1\"))\nprint(wheel_filename(\"a__b--c\", \"0.0.1\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "wheel_filename",
+      "cases": [
+        {
+          "args": [
+            "x",
+            "1"
+          ],
+          "returns": "x-1-py3-none-any.whl"
+        },
+        {
+          "args": [
+            "A.B",
+            "2.0"
+          ],
+          "returns": "a_b-2.0-py3-none-any.whl"
+        },
+        {
+          "args": [
+            "a-.-b",
+            "0.1"
+          ],
+          "returns": "a_b-0.1-py3-none-any.whl"
+        },
+        {
+          "args": [
+            "Tool_Kit",
+            "3.4.5"
+          ],
+          "returns": "tool_kit-3.4.5-py3-none-any.whl"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "greeter-0.1.0-py3-none-any.whl\nmy_package-1.0-py3-none-any.whl\ndata_tools-2.3.1-py3-none-any.whl\na_b_c-0.0.1-py3-none-any.whl"
+    }
+  ]
+}

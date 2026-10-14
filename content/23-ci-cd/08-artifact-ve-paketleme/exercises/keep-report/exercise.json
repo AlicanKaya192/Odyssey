@@ -1,0 +1,75 @@
+{
+  "id": "keep-report",
+  "title": {
+    "tr": "Raporu Sakla",
+    "en": "Keep the Report"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "pyproject.toml",
+      "readonly": true
+    },
+    {
+      "name": "greeter/__init__.py",
+      "readonly": true
+    },
+    {
+      "name": "test_greeter.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Yükleme adımına `if: always()`; yoksa düşen testten sonra atlanır.",
+      "en": "`if: always()` on the upload step; otherwise it is skipped after a failing test."
+    },
+    {
+      "tr": "`with:` altında `name: test-report`, `path: report.xml`, `retention-days: 14`.",
+      "en": "Under `with:`, `name: test-report`, `path: report.xml`, `retention-days: 14`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest --junitxml=report.xml\n      - uses: actions/upload-artifact@v4\n        if: always()\n        with:\n          name: test-report\n          path: report.xml\n          retention-days: 14\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest --junitxml=report.xml\n      - uses: actions/upload-artifact@v4\n        if: always()\n        with:\n          name: test-report\n          path: report.xml\n          retention-days: 14\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "steps": [
+        {
+          "run": "pytest.*--junitxml=report\\.xml",
+          "show": "run: python -m pytest --junitxml=report.xml"
+        },
+        {
+          "uses": "^actions/upload-artifact@",
+          "if": "always\\(\\)",
+          "with": {
+            "name": "^test-report$",
+            "path": "report\\.xml",
+            "retention-days": "^14$"
+          },
+          "show": "uses: actions/upload-artifact@v4 (if: always(), name: test-report, retention-days: 14)"
+        }
+      ]
+    }
+  ]
+}

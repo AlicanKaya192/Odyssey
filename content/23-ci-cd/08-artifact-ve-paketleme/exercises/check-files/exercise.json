@@ -1,0 +1,84 @@
+{
+  "id": "check-files",
+  "title": {
+    "tr": "Dosyalar Değişmiş mi?",
+    "en": "Did the Files Change?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `if name not in files`, sonra `elif sha256_text(files[name]) != digest`, en son `else`.",
+      "en": "First `if name not in files`, then `elif sha256_text(files[name]) != digest`, last `else`."
+    },
+    {
+      "tr": "İkinci döngü `files` üzerinde: `if name not in manifest:`.",
+      "en": "The second loop goes over `files`: `if name not in manifest:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef sha256_text(text):\n    return hashlib.sha256(text.encode()).hexdigest()\n\n\ndef check_files(manifest, files):\n    lines = []\n    for name, digest in manifest.items():\n        if name not in files:\n            lines.append(name + \": missing\")\n        elif sha256_text(files[name]) != digest:\n            lines.append(name + \": changed\")\n        else:\n            lines.append(name + \": ok\")\n    for name in files:\n        if name not in manifest:\n            lines.append(name + \": unexpected\")\n    return lines\n\n\nmanifest = {\n    \"app.py\": sha256_text(\"print('hello')\"),\n    \"config.json\": sha256_text(\"{}\"),\n    \"data.csv\": sha256_text(\"a,b\"),\n}\nfiles = {\"app.py\": \"print('hello')\", \"config.json\": \"{ }\", \"notes.txt\": \"todo\"}\nfor line in check_files(manifest, files):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef sha256_text(text):\n    return hashlib.sha256(text.encode()).hexdigest()\n\n\ndef check_files(manifest, files):\n    lines = []\n    for name, digest in manifest.items():\n        if name not in files:\n            lines.append(name + \": missing\")\n        elif sha256_text(files[name]) != digest:\n            lines.append(name + \": changed\")\n        else:\n            lines.append(name + \": ok\")\n    for name in files:\n        if name not in manifest:\n            lines.append(name + \": unexpected\")\n    return lines\n\n\nmanifest = {\n    \"app.py\": sha256_text(\"print('hello')\"),\n    \"config.json\": sha256_text(\"{}\"),\n    \"data.csv\": sha256_text(\"a,b\"),\n}\nfiles = {\"app.py\": \"print('hello')\", \"config.json\": \"{ }\", \"notes.txt\": \"todo\"}\nfor line in check_files(manifest, files):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_files",
+      "cases": [
+        {
+          "args": [
+            {},
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a": "x"
+            },
+            {}
+          ],
+          "returns": [
+            "a: missing"
+          ]
+        },
+        {
+          "args": [
+            {},
+            {
+              "b": "1"
+            }
+          ],
+          "returns": [
+            "b: unexpected"
+          ]
+        },
+        {
+          "args": [
+            {
+              "a": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+            },
+            {
+              "a": "a"
+            }
+          ],
+          "returns": [
+            "a: ok"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "app.py: ok\nconfig.json: changed\ndata.csv: missing\nnotes.txt: unexpected"
+    }
+  ]
+}
