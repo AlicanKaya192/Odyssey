@@ -381,6 +381,27 @@ GLYPHS: dict[str, str] = {
                     '<ellipse cx="12" cy="11.5" rx="10" ry="4" transform="rotate(-20 12 11.5)" stroke-width="1.1"/>'
                     '<g fill="#fff" stroke="none"><circle cx="19.5" cy="19.5" r="1.2"/>'
                     '<circle cx="4.5" cy="3.5" r="0.9"/></g>'),
+    "schema-check": ('<path d="M7 3.5c-2 0-2.5 1-2.5 2.5v3c0 1.5-1 2.5-2 3 1 .5 2 1.5 2 3v3c0 1.5.5 2.5 2.5 2.5"'
+                     ' stroke-width="1.5"/>'
+                     '<path d="M17 3.5c2 0 2.5 1 2.5 2.5v3c0 1.5 1 2.5 2 3-1 .5-2 1.5-2 3v3c0 1.5-.5 2.5-2.5 2.5"'
+                     ' stroke-width="1.5"/>'
+                     '<path d="M8.5 12.2l2.3 2.3 4.7-4.7" stroke-width="1.7"/>'),
+    "tool-call": ('<path d="M4 3h8a1.5 1.5 0 0 1 1.5 1.5v4.5a1.5 1.5 0 0 1-1.5 1.5H7.5L5 12.5v-2H4'
+                  'A1.5 1.5 0 0 1 2.5 9V4.5A1.5 1.5 0 0 1 4 3z" stroke-width="1.4"/>'
+                  '<path d="M8 13.5c0 3 1.5 4.5 5 4.5" stroke-width="1.3"/>'
+                  '<path d="M11.5 16.3l1.8 1.7-1.8 1.7" stroke-width="1.3"/>'
+                  '<rect x="15" y="14.5" width="6.5" height="7" rx="1" stroke-width="1.5"/>'
+                  '<path d="M17.2 16.8l-1 1.2 1 1.2M19.3 16.8l1 1.2-1 1.2" stroke-width="1"/>'
+                  '<g fill="#fff" stroke="none"><circle cx="5.5" cy="6.75" r="0.8"/>'
+                  '<circle cx="8" cy="6.75" r="0.8"/><circle cx="10.5" cy="6.75" r="0.8"/></g>'),
+    "layered-guard": ('<path d="M12 2.5l8 3v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10v-6z" stroke-width="1.5"/>'
+                      '<path d="M12 6.5l4.5 1.7v3.6c0 2.9-2 5-4.5 5.9-2.5-.9-4.5-3-4.5-5.9V8.2z" stroke-width="1.2"/>'
+                      '<g fill="#fff" stroke="none"><circle cx="12" cy="11.8" r="1.4"/></g>'),
+    "prompt-thread": ('<path d="M4 3h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-6l-3.5 3v-3H4a2 2 0 0 1-2-2V5'
+                      'a2 2 0 0 1 2-2z" stroke-width="1.5"/>'
+                      '<path d="M5.5 8.5c1.5-2 3-2 4.5 0s3 2 4.5 0" stroke-width="1.2"/>'
+                      '<path d="M12.5 16.5c2 0 3 1.5 4.5 3s3 1 3.8-.8" stroke-width="1.1"/>'
+                      '<g fill="#fff" stroke="none"><circle cx="21" cy="18.2" r="1.2"/></g>'),
 }
 
 

@@ -43,7 +43,7 @@ GROUP_CHAPTERS = {
     "bigdata": ("11-buyuk-veri",),
     "algorithm": ("12-temel-algoritmalar", "13-algoritma-teknikleri", "14-ml-algoritmalari"),
     "nlp": ("19-nlp-temelleri", "20-gommeler-ve-dil-modelleri"),
-    "genai": ("21-uretken-yz-temelleri",),
+    "genai": ("21-uretken-yz-temelleri", "22-prompt-muhendisligi"),
 }
 
 _CODE = re.compile(r"`([^`]+)`")

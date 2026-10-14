@@ -29,12 +29,12 @@ SECTION_XP = 60
 TIER_XP = {"bronze": 100, "silver": 200, "gold": 400, "legendary": 1000}
 
 MAX_LEVEL = 50
-# Bir sonraki seviye için gereken XP: 1 → 2 için 100, her seviyede 80 artıyor.
+# Bir sonraki seviye için gereken XP: 1 → 2 için 100, her seviyede 90 artıyor.
 # (1.0'da 40'tan önce 55'e, Temel Kütüphaneler'in üç modülüyle 70'e, 1.1'de
-# NLP patikasıyla 80'e çıktı: içeriğin tamamı her seferinde 40'ı geçmişti;
-# 40 ve 50 ileride yazılacak patikalara kalsın.)
+# NLP patikasıyla 80'e, GenAI patikasıyla 90'a çıktı: içeriğin tamamı her
+# seferinde 40'ı geçmişti; 40 ve 50 ileride yazılacak patikalara kalsın.)
 FIRST_STEP = 100
-STEP_GROWTH = 80
+STEP_GROWTH = 90
 
 SEEN_LEVEL_KEY = "level_seen"
 EARNED_TAGS_KEY = "tags_earned"
@@ -73,6 +73,7 @@ BADGE_TAGS = {
     "hermes": "nlp1-complete",
     "calliope": "nlp2-complete",
     "pygmalion": "genai1-complete",
+    "ariadne": "genai2-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200
