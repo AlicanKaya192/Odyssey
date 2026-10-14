@@ -1,0 +1,73 @@
+{
+  "id": "first-workflow",
+  "title": {
+    "tr": "İlk İş Akışı",
+    "en": "Your First Workflow"
+  },
+  "difficulty": 1,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Yorum satırlarını sil ve yerlerine `      - run: pip install -r requirements.txt` yaz; başında altı boşluk var.",
+      "en": "Delete the comment lines and write `      - run: pip install -r requirements.txt` in their place; it starts with six spaces."
+    },
+    {
+      "tr": "Testi çalıştıran adım kurulumdan sonra gelir: önce paketler kurulmalı, yoksa `pytest` bulunamaz.",
+      "en": "The step that runs the tests comes after the install: the packages must be installed first, or `pytest` is not found."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: push\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: push\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "on": [
+        "push"
+      ],
+      "job": "test",
+      "runs_on": "ubuntu-latest",
+      "steps": [
+        {
+          "uses": "^actions/checkout@",
+          "show": "uses: actions/checkout@v4"
+        },
+        {
+          "uses": "^actions/setup-python@",
+          "show": "uses: actions/setup-python@v5"
+        },
+        {
+          "run": "pip install -r requirements\\.txt",
+          "show": "run: pip install -r requirements.txt"
+        },
+        {
+          "run": "pytest",
+          "show": "run: python -m pytest"
+        }
+      ]
+    }
+  ]
+}

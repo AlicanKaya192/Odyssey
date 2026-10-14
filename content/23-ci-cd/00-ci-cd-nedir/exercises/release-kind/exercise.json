@@ -1,0 +1,90 @@
+{
+  "id": "release-kind",
+  "title": {
+    "tr": "Hangi Seviye?",
+    "en": "Which Level?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her koşulda erken dön: `if not tests_auto: return \"manual\"`. Sonraki `if` ancak öncekiler geçince çalışır.",
+      "en": "Return early at each condition: `if not tests_auto: return \"manual\"`. The next `if` only runs when the earlier ones passed."
+    },
+    {
+      "tr": "Testler kendiliğinden değilse paketleme kendiliğinden olsa bile sonuç `\"manual\"`: hat testten başlar.",
+      "en": "If the tests are not automatic, the answer is `\"manual\"` even if packaging is: the pipeline starts with the tests."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef release_kind(tests_auto, package_auto, release_auto):\n    if not tests_auto:\n        return \"manual\"\n    if not package_auto:\n        return \"continuous integration\"\n    if not release_auto:\n        return \"continuous delivery\"\n    return \"continuous deployment\"\n\n\nprint(release_kind(False, False, False))\nprint(release_kind(True, False, False))\nprint(release_kind(True, True, False))\nprint(release_kind(True, True, True))\n```",
+      "en": "The full solution:\n\n```python\ndef release_kind(tests_auto, package_auto, release_auto):\n    if not tests_auto:\n        return \"manual\"\n    if not package_auto:\n        return \"continuous integration\"\n    if not release_auto:\n        return \"continuous delivery\"\n    return \"continuous deployment\"\n\n\nprint(release_kind(False, False, False))\nprint(release_kind(True, False, False))\nprint(release_kind(True, True, False))\nprint(release_kind(True, True, True))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "release_kind",
+      "cases": [
+        {
+          "args": [
+            false,
+            false,
+            false
+          ],
+          "returns": "manual"
+        },
+        {
+          "args": [
+            false,
+            true,
+            true
+          ],
+          "returns": "manual"
+        },
+        {
+          "args": [
+            true,
+            false,
+            false
+          ],
+          "returns": "continuous integration"
+        },
+        {
+          "args": [
+            true,
+            false,
+            true
+          ],
+          "returns": "continuous integration"
+        },
+        {
+          "args": [
+            true,
+            true,
+            false
+          ],
+          "returns": "continuous delivery"
+        },
+        {
+          "args": [
+            true,
+            true,
+            true
+          ],
+          "returns": "continuous deployment"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "manual\ncontinuous integration\ncontinuous delivery\ncontinuous deployment"
+    }
+  ]
+}

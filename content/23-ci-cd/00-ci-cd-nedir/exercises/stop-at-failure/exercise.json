@@ -1,0 +1,97 @@
+{
+  "id": "stop-at-failure",
+  "title": {
+    "tr": "İlk Düşen Aşama",
+    "en": "The First Failing Stage"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Listeyi `for name, passed in stages:` ile gez: her çiftin iki parçası iki değişkene ayrılır.",
+      "en": "Loop over the list with `for name, passed in stages:`: the two parts of each pair go into two variables."
+    },
+    {
+      "tr": "`if not passed:` olduğu anda `return name` yaz; `return` döngüyü de bitirir. Döngü biterse hepsi geçmiş demektir.",
+      "en": "As soon as `if not passed:` holds, write `return name`; `return` also ends the loop. If the loop finishes, all of them passed."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef run_pipeline(stages):\n    for name, passed in stages:\n        if not passed:\n            return name\n    return \"passed\"\n\n\nprint(run_pipeline([(\"install\", True), (\"lint\", True), (\"test\", False), (\"package\", True)]))\nprint(run_pipeline([(\"install\", True), (\"test\", True), (\"package\", True)]))\nprint(run_pipeline([(\"install\", False), (\"test\", False)]))\n```",
+      "en": "The full solution:\n\n```python\ndef run_pipeline(stages):\n    for name, passed in stages:\n        if not passed:\n            return name\n    return \"passed\"\n\n\nprint(run_pipeline([(\"install\", True), (\"lint\", True), (\"test\", False), (\"package\", True)]))\nprint(run_pipeline([(\"install\", True), (\"test\", True), (\"package\", True)]))\nprint(run_pipeline([(\"install\", False), (\"test\", False)]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "run_pipeline",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "install",
+                true
+              ],
+              [
+                "test",
+                false
+              ],
+              [
+                "package",
+                true
+              ]
+            ]
+          ],
+          "returns": "test"
+        },
+        {
+          "args": [
+            [
+              [
+                "install",
+                true
+              ],
+              [
+                "test",
+                true
+              ]
+            ]
+          ],
+          "returns": "passed"
+        },
+        {
+          "args": [
+            [
+              [
+                "lint",
+                false
+              ],
+              [
+                "test",
+                false
+              ]
+            ]
+          ],
+          "returns": "lint"
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": "passed"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "test\npassed\ninstall"
+    }
+  ]
+}
