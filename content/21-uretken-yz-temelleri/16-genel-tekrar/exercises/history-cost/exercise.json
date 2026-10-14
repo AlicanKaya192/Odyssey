@@ -1,0 +1,82 @@
+{
+  "id": "history-cost",
+  "title": {
+    "tr": "Büyüyen geçmişin bedeli",
+    "en": "The cost of a growing history"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Gönderilen toplamı büyüt: `sent += t`, sonra `total_in += sent`.",
+      "en": "Grow the amount sent: `sent += t`, then `total_in += sent`."
+    },
+    {
+      "tr": "Çıkan token `20 * len(tokens)`.",
+      "en": "The output tokens are `20 * len(tokens)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef history_cost(tokens, price_in, price_out):\n    total_in, sent = 0, 0\n    for t in tokens:\n        sent += t\n        total_in += sent\n    total_out = 20 * len(tokens)\n    cost = (total_in * price_in + total_out * price_out) / 1_000_000\n    return [total_in, round(cost, 6)]\n\n\nprint(history_cost([10, 8, 12, 6], 0.5, 1.5))\n```",
+      "en": "The full solution:\n\n```python\ndef history_cost(tokens, price_in, price_out):\n    total_in, sent = 0, 0\n    for t in tokens:\n        sent += t\n        total_in += sent\n    total_out = 20 * len(tokens)\n    cost = (total_in * price_in + total_out * price_out) / 1_000_000\n    return [total_in, round(cost, 6)]\n\n\nprint(history_cost([10, 8, 12, 6], 0.5, 1.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "history_cost",
+      "cases": [
+        {
+          "args": [
+            [
+              10,
+              8,
+              12,
+              6
+            ],
+            0.5,
+            1.5
+          ],
+          "returns": [
+            94,
+            0.000167
+          ]
+        },
+        {
+          "args": [
+            [
+              100
+            ],
+            1.0,
+            1.0
+          ],
+          "returns": [
+            100,
+            0.00012
+          ]
+        },
+        {
+          "args": [
+            [],
+            0.5,
+            1.5
+          ],
+          "returns": [
+            0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[94, 0.000167]"
+    }
+  ]
+}

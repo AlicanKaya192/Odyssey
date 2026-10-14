@@ -1,0 +1,70 @@
+{
+  "id": "tiny-rag",
+  "title": {
+    "tr": "Küçük bir RAG",
+    "en": "A tiny RAG"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "doc_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dizini bir kez kur; her soruda yalnızca soruyu dönüştür.",
+      "en": "Build the index once; for every question only transform the question."
+    },
+    {
+      "tr": "En iyi puan `scores[best]`; eşik 0,25.",
+      "en": "The best score is `scores[best]`; the threshold is 0.25."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom doc_data import DOCS\n\nSENTENCES = [s for d in DOCS for s in re.split(r\"(?<=\\.) \", d[\"text\"])]\nVECTORIZER = TfidfVectorizer(stop_words=\"english\")\nMATRIX = VECTORIZER.fit_transform(SENTENCES)\n\n\ndef answer(question):\n    scores = (MATRIX @ VECTORIZER.transform([question]).T).toarray().ravel()\n    best = int(np.argmax(scores))\n    return SENTENCES[best] if scores[best] >= 0.25 else \"I could not find this in the sources.\"\n\n\nfor question in [\"Do gift cards expire?\", \"Do you sell bicycles?\"]:\n    print(\" \".join(answer(question).split()[:5]))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom doc_data import DOCS\n\nSENTENCES = [s for d in DOCS for s in re.split(r\"(?<=\\.) \", d[\"text\"])]\nVECTORIZER = TfidfVectorizer(stop_words=\"english\")\nMATRIX = VECTORIZER.fit_transform(SENTENCES)\n\n\ndef answer(question):\n    scores = (MATRIX @ VECTORIZER.transform([question]).T).toarray().ravel()\n    best = int(np.argmax(scores))\n    return SENTENCES[best] if scores[best] >= 0.25 else \"I could not find this in the sources.\"\n\n\nfor question in [\"Do gift cards expire?\", \"Do you sell bicycles?\"]:\n    print(\" \".join(answer(question).split()[:5]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "answer",
+      "cases": [
+        {
+          "args": [
+            "Do gift cards expire?"
+          ],
+          "returns": "Gift cards are available for 25, 50 and 100 euros and are valid for 3 years."
+        },
+        {
+          "args": [
+            "Do you sell bicycles?"
+          ],
+          "returns": "I could not find this in the sources."
+        },
+        {
+          "args": [
+            "How long does a repair take?"
+          ],
+          "returns": "A repair usually takes 3 weeks."
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Gift cards are available for\nI could not find this"
+    }
+  ]
+}
