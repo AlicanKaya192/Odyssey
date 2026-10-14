@@ -1,0 +1,82 @@
+{
+  "id": "noisy-points",
+  "title": {
+    "tr": "Halkayı gürültüye boğ",
+    "en": "Drown the ring in noise"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Uzaklık tablosu `np.linalg.norm(xt[:, None] - CENTRES[None], axis=2)`; her satırın en küçüğü `.min(axis=1)`.",
+      "en": "The distance table is `np.linalg.norm(xt[:, None] - CENTRES[None], axis=2)`; the smallest in each row `.min(axis=1)`."
+    },
+    {
+      "tr": "Standart sapma bütün değerler üzerinden: `xt.std()` (eksen vermeden).",
+      "en": "The standard deviation is over all values: `xt.std()` (without an axis)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef ring(n, seed):\n    rng = np.random.default_rng(seed)\n    angle = rng.integers(0, 8, n) * np.pi / 4\n    centre = np.stack([2 * np.cos(angle), 2 * np.sin(angle)], axis=1)\n    return centre + rng.normal(0, 0.1, (n, 2))\n\n\nangles = np.arange(8) * np.pi / 4\nCENTRES = np.stack([2 * np.cos(angles), 2 * np.sin(angles)], axis=1)\nT = 100\nbetas = np.linspace(1e-4, 0.1, T)\nalphas = 1 - betas\nalpha_bar = np.cumprod(alphas)\nx0 = ring(2000, 0)\n\n\ndef noisy_near(t, seed):\n    eps = np.random.default_rng(seed).normal(size=x0.shape)\n    xt = np.sqrt(alpha_bar[t]) * x0 + np.sqrt(1 - alpha_bar[t]) * eps\n    dist = np.linalg.norm(xt[:, None] - CENTRES[None], axis=2)\n    near = (dist.min(axis=1) < 0.3).mean()\n    return [round(float(near), 3), round(float(xt.std()), 2)]\n\n\nfor t in [0, 29, 99]:\n    print(t, noisy_near(t, 1))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef ring(n, seed):\n    rng = np.random.default_rng(seed)\n    angle = rng.integers(0, 8, n) * np.pi / 4\n    centre = np.stack([2 * np.cos(angle), 2 * np.sin(angle)], axis=1)\n    return centre + rng.normal(0, 0.1, (n, 2))\n\n\nangles = np.arange(8) * np.pi / 4\nCENTRES = np.stack([2 * np.cos(angles), 2 * np.sin(angles)], axis=1)\nT = 100\nbetas = np.linspace(1e-4, 0.1, T)\nalphas = 1 - betas\nalpha_bar = np.cumprod(alphas)\nx0 = ring(2000, 0)\n\n\ndef noisy_near(t, seed):\n    eps = np.random.default_rng(seed).normal(size=x0.shape)\n    xt = np.sqrt(alpha_bar[t]) * x0 + np.sqrt(1 - alpha_bar[t]) * eps\n    dist = np.linalg.norm(xt[:, None] - CENTRES[None], axis=2)\n    near = (dist.min(axis=1) < 0.3).mean()\n    return [round(float(near), 3), round(float(xt.std()), 2)]\n\n\nfor t in [0, 29, 99]:\n    print(t, noisy_near(t, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "noisy_near",
+      "cases": [
+        {
+          "args": [
+            0,
+            1
+          ],
+          "returns": [
+            0.993,
+            1.41
+          ]
+        },
+        {
+          "args": [
+            29,
+            1
+          ],
+          "returns": [
+            0.109,
+            1.3
+          ]
+        },
+        {
+          "args": [
+            99,
+            1
+          ],
+          "returns": [
+            0.041,
+            1.01
+          ]
+        },
+        {
+          "args": [
+            49,
+            4
+          ],
+          "returns": [
+            0.065,
+            1.12
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 [0.993, 1.41]\n29 [0.109, 1.3]\n99 [0.041, 1.01]"
+    }
+  ]
+}

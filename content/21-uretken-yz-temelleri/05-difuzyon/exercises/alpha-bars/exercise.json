@@ -1,0 +1,95 @@
+{
+  "id": "alpha-bars",
+  "title": {
+    "tr": "Verinin kalan payı",
+    "en": "The data's remaining share"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`np.cumprod` birikimli çarpım verir: `[a1, a1*a2, a1*a2*a3, ...]`.",
+      "en": "`np.cumprod` gives the cumulative product: `[a1, a1*a2, a1*a2*a3, ...]`."
+    },
+    {
+      "tr": "İlk adımda `alpha_bar` `1 - start`'a eşit olmalı; kendi sonucunu bununla dene.",
+      "en": "At the first step `alpha_bar` must equal `1 - start`; test your result with it."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef alpha_bars(T, start, end, ts):\n    betas = np.linspace(start, end, T)\n    alpha_bar = np.cumprod(1 - betas)\n    return [round(float(alpha_bar[t]), 4) for t in ts]\n\n\nprint(alpha_bars(100, 0.0001, 0.1, [0, 9, 29, 99]))\nprint(alpha_bars(1000, 0.0001, 0.02, [0, 499, 999]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef alpha_bars(T, start, end, ts):\n    betas = np.linspace(start, end, T)\n    alpha_bar = np.cumprod(1 - betas)\n    return [round(float(alpha_bar[t]), 4) for t in ts]\n\n\nprint(alpha_bars(100, 0.0001, 0.1, [0, 9, 29, 99]))\nprint(alpha_bars(1000, 0.0001, 0.02, [0, 499, 999]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "alpha_bars",
+      "cases": [
+        {
+          "args": [
+            100,
+            0.0001,
+            0.1,
+            [
+              0,
+              9,
+              29,
+              99
+            ]
+          ],
+          "returns": [
+            0.9999,
+            0.9545,
+            0.6399,
+            0.0056
+          ]
+        },
+        {
+          "args": [
+            1000,
+            0.0001,
+            0.02,
+            [
+              0,
+              499,
+              999
+            ]
+          ],
+          "returns": [
+            0.9999,
+            0.0786,
+            0.0
+          ]
+        },
+        {
+          "args": [
+            50,
+            0.001,
+            0.2,
+            [
+              0,
+              10,
+              49
+            ]
+          ],
+          "returns": [
+            0.999,
+            0.7883,
+            0.0045
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.9999, 0.9545, 0.6399, 0.0056]\n[0.9999, 0.0786, 0.0]"
+    }
+  ]
+}

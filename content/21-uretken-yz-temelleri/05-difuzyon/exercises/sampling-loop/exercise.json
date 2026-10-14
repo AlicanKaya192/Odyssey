@@ -1,0 +1,72 @@
+{
+  "id": "sampling-loop",
+  "title": {
+    "tr": "Gürültüden örneğe",
+    "en": "From noise to a sample"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "diffusion_model.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Döngü `for t in reversed(range(T)):`; taze gürültü yalnızca `if t:` içinde.",
+      "en": "The loop is `for t in reversed(range(T)):`; the fresh noise only inside `if t:`."
+    },
+    {
+      "tr": "Küme sayısı için `counts >= 0.02 * n`; `mode_report` `(counts, near)` döndürür.",
+      "en": "For the number of clusters `counts >= 0.02 * n`; `mode_report` returns `(counts, near)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom diffusion_model import (T, betas, alphas, alpha_bar, features, forward,\n                             mode_report, train_denoiser)\n\nnet = train_denoiser(3000)\n\n\ndef generate(n, seed):\n    rng = np.random.default_rng(seed)\n    x = rng.normal(size=(n, 2))\n    for t in reversed(range(T)):\n        eps_hat = forward(features(x, np.full(n, t)), net)[-1]\n        x = (x - betas[t] / np.sqrt(1 - alpha_bar[t]) * eps_hat) / np.sqrt(alphas[t])\n        if t:\n            x = x + np.sqrt(betas[t]) * rng.normal(size=x.shape)\n    counts, near = mode_report(x)\n    return [int((counts >= 0.02 * n).sum()), round(float(near), 3)]\n\n\nprint(generate(2000, 100))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom diffusion_model import (T, betas, alphas, alpha_bar, features, forward,\n                             mode_report, train_denoiser)\n\nnet = train_denoiser(3000)\n\n\ndef generate(n, seed):\n    rng = np.random.default_rng(seed)\n    x = rng.normal(size=(n, 2))\n    for t in reversed(range(T)):\n        eps_hat = forward(features(x, np.full(n, t)), net)[-1]\n        x = (x - betas[t] / np.sqrt(1 - alpha_bar[t]) * eps_hat) / np.sqrt(alphas[t])\n        if t:\n            x = x + np.sqrt(betas[t]) * rng.normal(size=x.shape)\n    counts, near = mode_report(x)\n    return [int((counts >= 0.02 * n).sum()), round(float(near), 3)]\n\n\nprint(generate(2000, 100))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "generate",
+      "cases": [
+        {
+          "args": [
+            2000,
+            100
+          ],
+          "returns": [
+            8,
+            0.615
+          ]
+        },
+        {
+          "args": [
+            1000,
+            7
+          ],
+          "returns": [
+            8,
+            0.607
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[8, 0.615]"
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "id": "reverse-step",
+  "title": {
+    "tr": "Bir adım geri",
+    "en": "One step back"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Listeleri önce diziye çevir; formül eleman eleman çalışır.",
+      "en": "Turn the lists into arrays first; the formula works element by element."
+    },
+    {
+      "tr": "`t == 0` iken `z` hiç kullanılmamalı: aynı `x` ve `eps_hat` ile `z`'yi değiştirmek sonucu değiştirmemeli.",
+      "en": "When `t == 0`, `z` must not be used at all: changing `z` with the same `x` and `eps_hat` must not change the result."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\nT = 100\nbetas = np.linspace(1e-4, 0.1, T)\nalphas = 1 - betas\nalpha_bar = np.cumprod(alphas)\n\n\ndef reverse_step(x, eps_hat, t, z):\n    x, eps_hat, z = np.array(x), np.array(eps_hat), np.array(z)\n    x = (x - betas[t] / np.sqrt(1 - alpha_bar[t]) * eps_hat) / np.sqrt(alphas[t])\n    if t:\n        x = x + np.sqrt(betas[t]) * z\n    return x.round(4).tolist()\n\n\nprint(reverse_step([[0.5, -1.0], [2.0, 0.0]], [[0.1, 0.2], [-0.3, 0.0]], 50, [[1.0, -1.0], [0.0, 0.5]]))\nprint(reverse_step([[0.5, -1.0]], [[0.1, 0.2]], 0, [[1.0, -1.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\nT = 100\nbetas = np.linspace(1e-4, 0.1, T)\nalphas = 1 - betas\nalpha_bar = np.cumprod(alphas)\n\n\ndef reverse_step(x, eps_hat, t, z):\n    x, eps_hat, z = np.array(x), np.array(eps_hat), np.array(z)\n    x = (x - betas[t] / np.sqrt(1 - alpha_bar[t]) * eps_hat) / np.sqrt(alphas[t])\n    if t:\n        x = x + np.sqrt(betas[t]) * z\n    return x.round(4).tolist()\n\n\nprint(reverse_step([[0.5, -1.0], [2.0, 0.0]], [[0.1, 0.2], [-0.3, 0.0]], 50, [[1.0, -1.0], [0.0, 0.5]]))\nprint(reverse_step([[0.5, -1.0]], [[0.1, 0.2]], 0, [[1.0, -1.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "reverse_step",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.5,
+                -1.0
+              ],
+              [
+                2.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                0.1,
+                0.2
+              ],
+              [
+                -0.3,
+                0.0
+              ]
+            ],
+            50,
+            [
+              [
+                1.0,
+                -1.0
+              ],
+              [
+                0.0,
+                0.5
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.7319,
+              -1.2633
+            ],
+            [
+              2.0708,
+              0.1124
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0.5,
+                -1.0
+              ]
+            ],
+            [
+              [
+                0.1,
+                0.2
+              ]
+            ],
+            0,
+            [
+              [
+                1.0,
+                -1.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.499,
+              -1.0021
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            [
+              [
+                0.5,
+                -0.5
+              ]
+            ],
+            99,
+            [
+              [
+                0.2,
+                0.2
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              1.0645,
+              1.1702
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[0.7319, -1.2633], [2.0708, 0.1124]]\n[[0.499, -1.0021]]"
+    }
+  ]
+}
