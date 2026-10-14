@@ -1,0 +1,96 @@
+{
+  "id": "bootstrap-difference",
+  "title": {
+    "tr": "Fark güvenilir mi?",
+    "en": "Is the difference reliable?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Listeleri diziye çevir; `a[pick]` aynı soruları iki ayarda birlikte seçer.",
+      "en": "Turn the lists into arrays; `a[pick]` picks the same questions for both settings."
+    },
+    {
+      "tr": "Gözlenen fark `int(a.sum() - b.sum())`; yüzdelikler `np.percentile(diffs, [5, 95])`.",
+      "en": "The observed difference is `int(a.sum() - b.sum())`; the percentiles `np.percentile(diffs, [5, 95])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef bootstrap(a, b, n, seed):\n    a, b = np.array(a), np.array(b)\n    rng = np.random.default_rng(seed)\n    diffs = []\n    for _ in range(n):\n        pick = rng.integers(0, len(a), len(a))\n        diffs.append(a[pick].sum() - b[pick].sum())\n    low, high = np.percentile(diffs, [5, 95])\n    return [int(a.sum() - b.sum()), round(float(low), 1), round(float(high), 1)]\n\n\na = [1, 1, 0, 1, 1, 0, 1, 1]\nb = [1, 0, 0, 1, 1, 0, 1, 0]\nprint(bootstrap(a, b, 2000, 0))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef bootstrap(a, b, n, seed):\n    a, b = np.array(a), np.array(b)\n    rng = np.random.default_rng(seed)\n    diffs = []\n    for _ in range(n):\n        pick = rng.integers(0, len(a), len(a))\n        diffs.append(a[pick].sum() - b[pick].sum())\n    low, high = np.percentile(diffs, [5, 95])\n    return [int(a.sum() - b.sum()), round(float(low), 1), round(float(high), 1)]\n\n\na = [1, 1, 0, 1, 1, 0, 1, 1]\nb = [1, 0, 0, 1, 1, 0, 1, 0]\nprint(bootstrap(a, b, 2000, 0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "bootstrap",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              1
+            ],
+            [
+              1,
+              0,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0
+            ],
+            2000,
+            0
+          ],
+          "returns": [
+            2,
+            0.0,
+            4.0
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1
+            ],
+            500,
+            3
+          ],
+          "returns": [
+            0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 0.0, 4.0]"
+    }
+  ]
+}
