@@ -168,15 +168,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # The release text lives in docs/releases/<version>.md: its first
-          # line ("# Odyssey X.Y.Z — ...") is the title, the whole file is
-          # the description, so the draft is ready to publish as it is.
+          # line ("# Odyssey X.Y.Z — ...") is the title and the rest is the
+          # description. The title line is left out of the description,
+          # otherwise the release page shows it twice.
           # "Read the version" has already checked that the file exists.
           NOTES="docs/releases/${{ steps.version.outputs.version }}.md"
           TITLE="$(head -n 1 "$NOTES" | sed -e 's/^# *//' -e 's/\r$//')"
+          BODY="$(mktemp)"
+          tail -n +2 "$NOTES" | sed -e 's/\r$//' -e '/./,$!d' > "$BODY"
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
             gh release create "$GITHUB_REF_NAME" --draft \
               --title "$TITLE" \
-              --notes-file "$NOTES"
+              --notes-file "$BODY"
           # The manifest goes along: the next version's patch installer is
           # built against it, so it must be the one of the published files.
           gh release upload "$GITHUB_REF_NAME" dist/*.exe \
