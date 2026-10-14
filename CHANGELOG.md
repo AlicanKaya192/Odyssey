@@ -21,6 +21,14 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [1.2.0] — yayınlanmadı
+
+### Eklendi
+- **Sistem Tasarımı (CI/CD) patikası.** Kodu her değişiklikte kendiliğinden
+  test eden ve yayına hazırlayan hattı kurmaktan bir modeli güvenilir bir
+  sisteme dönüştürmeye kadar. **CI/CD ve DevOps** ile **MLOps ve ML Sistem
+  Tasarımı** modülleri yazılıyor.
+
 ## [1.1.0] — 14 Ekim 2026
 
 ### Eklendi

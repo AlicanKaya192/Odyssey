@@ -23,6 +23,14 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [1.2.0] — unreleased
+
+### Added
+- **System Design (CI/CD) path.** From building the pipeline that tests
+  every change and prepares it for release to turning a model into a
+  reliable system. The **CI/CD and DevOps** and **MLOps and ML System
+  Design** modules are being written.
+
 ## [1.1.0] — 14 October 2026
 
 ### Added
