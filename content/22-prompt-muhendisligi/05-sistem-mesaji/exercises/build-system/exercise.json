@@ -1,0 +1,74 @@
+{
+  "id": "build-system",
+  "title": {
+    "tr": "Ayarlardan sistem mesajı",
+    "en": "A system message from settings"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kuralları güvenle al: `rules = settings.get(\"rules\", [])`.",
+      "en": "Get the rules safely: `rules = settings.get(\"rules\", [])`."
+    },
+    {
+      "tr": "Numara için `enumerate(rules, 1)`.",
+      "en": "For the numbers, `enumerate(rules, 1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef build_system(settings):\n    lines = [settings[\"role\"], settings[\"tone\"]]\n    rules = settings.get(\"rules\", [])\n    if rules:\n        lines.append(\"Rules:\")\n        lines += [f\"{i}. {rule}\" for i, rule in enumerate(rules, 1)]\n    return \"\\n\".join(lines)\n\n\nprint(build_system({\"role\": \"You help hikers.\", \"tone\": \"Be brief.\",\n                    \"rules\": [\"No promises.\", \"Be polite.\"]}))\nprint(\"---\")\nprint(build_system({\"role\": \"You help hikers.\", \"tone\": \"Be brief.\"}))\n```",
+      "en": "The full solution:\n\n```python\ndef build_system(settings):\n    lines = [settings[\"role\"], settings[\"tone\"]]\n    rules = settings.get(\"rules\", [])\n    if rules:\n        lines.append(\"Rules:\")\n        lines += [f\"{i}. {rule}\" for i, rule in enumerate(rules, 1)]\n    return \"\\n\".join(lines)\n\n\nprint(build_system({\"role\": \"You help hikers.\", \"tone\": \"Be brief.\",\n                    \"rules\": [\"No promises.\", \"Be polite.\"]}))\nprint(\"---\")\nprint(build_system({\"role\": \"You help hikers.\", \"tone\": \"Be brief.\"}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "build_system",
+      "cases": [
+        {
+          "args": [
+            {
+              "role": "You help hikers.",
+              "tone": "Be brief.",
+              "rules": [
+                "No promises.",
+                "Be polite."
+              ]
+            }
+          ],
+          "returns": "You help hikers.\nBe brief.\nRules:\n1. No promises.\n2. Be polite."
+        },
+        {
+          "args": [
+            {
+              "role": "You help hikers.",
+              "tone": "Be brief."
+            }
+          ],
+          "returns": "You help hikers.\nBe brief."
+        },
+        {
+          "args": [
+            {
+              "role": "R.",
+              "tone": "T.",
+              "rules": []
+            }
+          ],
+          "returns": "R.\nT."
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "You help hikers.\nBe brief.\nRules:\n1. No promises.\n2. Be polite.\n---\nYou help hikers.\nBe brief."
+    }
+  ]
+}

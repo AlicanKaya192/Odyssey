@@ -1,0 +1,72 @@
+{
+  "id": "log-version",
+  "title": {
+    "tr": "Sürümü kayda yaz",
+    "en": "Log the version"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`hashlib.sha256(system.encode(\"utf-8\")).hexdigest()[:8]`.",
+      "en": "`hashlib.sha256(system.encode(\"utf-8\")).hexdigest()[:8]`."
+    },
+    {
+      "tr": "Bir karakterlik fark bile farklı özet verir.",
+      "en": "Even a one-character difference gives a different digest."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef log_entry(system, reply):\n    digest = hashlib.sha256(system.encode(\"utf-8\")).hexdigest()[:8]\n    return {\"system_version\": digest, \"reply_words\": len(reply.split())}\n\n\na = log_entry(\"Be brief.\", \"Your parcel left yesterday.\")\nb = log_entry(\"Be brief!\", \"Your parcel left yesterday.\")\nprint(a[\"system_version\"], a[\"reply_words\"])\nprint(a[\"system_version\"] == b[\"system_version\"])\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef log_entry(system, reply):\n    digest = hashlib.sha256(system.encode(\"utf-8\")).hexdigest()[:8]\n    return {\"system_version\": digest, \"reply_words\": len(reply.split())}\n\n\na = log_entry(\"Be brief.\", \"Your parcel left yesterday.\")\nb = log_entry(\"Be brief!\", \"Your parcel left yesterday.\")\nprint(a[\"system_version\"], a[\"reply_words\"])\nprint(a[\"system_version\"] == b[\"system_version\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "log_entry",
+      "cases": [
+        {
+          "args": [
+            "Be brief.",
+            "Your parcel left yesterday."
+          ],
+          "returns": {
+            "system_version": "213c22ed",
+            "reply_words": 4
+          }
+        },
+        {
+          "args": [
+            "Be brief!",
+            "Hi"
+          ],
+          "returns": {
+            "system_version": "872c02c5",
+            "reply_words": 1
+          }
+        },
+        {
+          "args": [
+            "",
+            ""
+          ],
+          "returns": {
+            "system_version": "e3b0c442",
+            "reply_words": 0
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "213c22ed 4\nFalse"
+    }
+  ]
+}

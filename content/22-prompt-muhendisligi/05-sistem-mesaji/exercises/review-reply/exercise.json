@@ -1,0 +1,86 @@
+{
+  "id": "review-reply",
+  "title": {
+    "tr": "Cevabı kurallara göre denetle",
+    "en": "Check the answer against the rules"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Cümleler: `[s for s in re.split(r\"[.!?]+\", reply) if s.strip()]`.",
+      "en": "Sentences: `[s for s in re.split(r\"[.!?]+\", reply) if s.strip()]`."
+    },
+    {
+      "tr": "Vaat: `PROMISE.search(reply)`; kendini anlatma: `re.search(r\"\\bas an ai\\b\", reply, re.I)`.",
+      "en": "Promise: `PROMISE.search(reply)`; talking about itself: `re.search(r\"\\bas an ai\\b\", reply, re.I)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nPROMISE = re.compile(r\"refund (is|has been) approved|you will get a refund\"\n                     r\"|discount code\", re.I)\n\n\ndef review(reply, max_sentences):\n    problems = []\n    sentences = [s for s in re.split(r\"[.!?]+\", reply) if s.strip()]\n    if len(sentences) > max_sentences:\n        problems.append(\"too long\")\n    if PROMISE.search(reply):\n        problems.append(\"promise\")\n    if re.search(r\"\\bas an ai\\b\", reply, re.I):\n        problems.append(\"talks about itself\")\n    return problems\n\n\nfor reply in [\"Your refund is approved.\",\n              \"One. Two. Three.\",\n              \"As an AI I am not sure. Ask a colleague.\"]:\n    print(review(reply, 2) or \"ok\")\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nPROMISE = re.compile(r\"refund (is|has been) approved|you will get a refund\"\n                     r\"|discount code\", re.I)\n\n\ndef review(reply, max_sentences):\n    problems = []\n    sentences = [s for s in re.split(r\"[.!?]+\", reply) if s.strip()]\n    if len(sentences) > max_sentences:\n        problems.append(\"too long\")\n    if PROMISE.search(reply):\n        problems.append(\"promise\")\n    if re.search(r\"\\bas an ai\\b\", reply, re.I):\n        problems.append(\"talks about itself\")\n    return problems\n\n\nfor reply in [\"Your refund is approved.\",\n              \"One. Two. Three.\",\n              \"As an AI I am not sure. Ask a colleague.\"]:\n    print(review(reply, 2) or \"ok\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "review",
+      "cases": [
+        {
+          "args": [
+            "Your refund is approved.",
+            2
+          ],
+          "returns": [
+            "promise"
+          ]
+        },
+        {
+          "args": [
+            "One. Two. Three.",
+            2
+          ],
+          "returns": [
+            "too long"
+          ]
+        },
+        {
+          "args": [
+            "As an AI I am not sure. Ask a colleague.",
+            2
+          ],
+          "returns": [
+            "talks about itself"
+          ]
+        },
+        {
+          "args": [
+            "Here is a DISCOUNT CODE: A1. Enjoy. Bye. Now.",
+            3
+          ],
+          "returns": [
+            "too long",
+            "promise"
+          ]
+        },
+        {
+          "args": [
+            "Fine.",
+            1
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['promise']\n['too long']\n['talks about itself']"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "id": "guarded-answer",
+  "title": {
+    "tr": "Denetimli cevap",
+    "en": "A checked answer"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "En fazla iki deneme: `for _ in range(2):`; çağrı sayısı `len(client.calls)`.",
+      "en": "At most two tries: `for _ in range(2):`; the number of calls is `len(client.calls)`."
+    },
+    {
+      "tr": "Vaat denetimi uzunluktan önce gelir; vaatte yeniden sorulmaz.",
+      "en": "The promise check comes before length; a promise is not asked again."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nfrom llm_client import ChatClient\n\nSYSTEM = \"You are a shop assistant. At most 2 sentences. Never promise refunds.\"\nHANDOVER = \"A colleague will get back to you soon.\"\nSHORTEN = \"Please answer again in at most 2 sentences.\"\n\n\ndef review(reply):\n    problems = []\n    if len([s for s in re.split(r\"[.!?]+\", reply) if s.strip()]) > 2:\n        problems.append(\"too long\")\n    if re.search(r\"refund (is|has been) approved\", reply, re.I):\n        problems.append(\"promise\")\n    return problems\n\n\ndef answer(script, question):\n    client = ChatClient(script)\n    messages = [{\"role\": \"system\", \"content\": SYSTEM},\n                {\"role\": \"user\", \"content\": question}]\n    for _ in range(2):\n        reply = client.chat(messages, max_tokens=80)\n        problems = review(reply.text)\n        if \"promise\" in problems:\n            return [HANDOVER, len(client.calls)]\n        if not problems:\n            return [reply.text, len(client.calls)]\n        messages += [{\"role\": \"assistant\", \"content\": reply.text},\n                     {\"role\": \"user\", \"content\": SHORTEN}]\n    return [HANDOVER, len(client.calls)]\n\n\nSCRIPTS = [[\"It left yesterday.\"],\n           [\"Sorry. It is late. It left today.\", \"It left today.\"],\n           [\"Your refund is approved.\"]]\nfor script in SCRIPTS:\n    text, calls = answer(script, \"Where is my order?\")\n    print(calls, text)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nfrom llm_client import ChatClient\n\nSYSTEM = \"You are a shop assistant. At most 2 sentences. Never promise refunds.\"\nHANDOVER = \"A colleague will get back to you soon.\"\nSHORTEN = \"Please answer again in at most 2 sentences.\"\n\n\ndef review(reply):\n    problems = []\n    if len([s for s in re.split(r\"[.!?]+\", reply) if s.strip()]) > 2:\n        problems.append(\"too long\")\n    if re.search(r\"refund (is|has been) approved\", reply, re.I):\n        problems.append(\"promise\")\n    return problems\n\n\ndef answer(script, question):\n    client = ChatClient(script)\n    messages = [{\"role\": \"system\", \"content\": SYSTEM},\n                {\"role\": \"user\", \"content\": question}]\n    for _ in range(2):\n        reply = client.chat(messages, max_tokens=80)\n        problems = review(reply.text)\n        if \"promise\" in problems:\n            return [HANDOVER, len(client.calls)]\n        if not problems:\n            return [reply.text, len(client.calls)]\n        messages += [{\"role\": \"assistant\", \"content\": reply.text},\n                     {\"role\": \"user\", \"content\": SHORTEN}]\n    return [HANDOVER, len(client.calls)]\n\n\nSCRIPTS = [[\"It left yesterday.\"],\n           [\"Sorry. It is late. It left today.\", \"It left today.\"],\n           [\"Your refund is approved.\"]]\nfor script in SCRIPTS:\n    text, calls = answer(script, \"Where is my order?\")\n    print(calls, text)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "answer",
+      "cases": [
+        {
+          "args": [
+            [
+              "It left yesterday."
+            ],
+            "Where is my order?"
+          ],
+          "returns": [
+            "It left yesterday.",
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              "Sorry. It is late. It left today.",
+              "It left today."
+            ],
+            "Where is my order?"
+          ],
+          "returns": [
+            "It left today.",
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              "Your refund is approved."
+            ],
+            "Where is my order?"
+          ],
+          "returns": [
+            "A colleague will get back to you soon.",
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              "A. B. C.",
+              "D. E. F."
+            ],
+            "Where is my order?"
+          ],
+          "returns": [
+            "A colleague will get back to you soon.",
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 It left yesterday.\n2 It left today.\n1 A colleague will get back to you soon."
+    }
+  ]
+}
