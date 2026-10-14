@@ -1,0 +1,69 @@
+{
+  "id": "env-and-multiline",
+  "title": {
+    "tr": "Ortam Değişkeni ve Çok Satırlı Komut",
+    "en": "An Environment Variable and a Multi-line Command"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`env:` iki satır: `    env:` ve altında iki boşluk içeride `      APP_ENV: test`.",
+      "en": "`env:` is two lines: `    env:` and, two spaces further in, `      APP_ENV: test`."
+    },
+    {
+      "tr": "`run: |` satırından sonraki komutlar `run`'dan daha içeride, alt alta yazılır.",
+      "en": "The commands after the `run: |` line are written one under another, further in than `run`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: push\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    env:\n      APP_ENV: test\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - name: Install dependencies\n        run: |\n          python -m pip install --upgrade pip\n          pip install -r requirements.txt\n      - run: python -m pytest\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non: push\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    env:\n      APP_ENV: test\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - name: Install dependencies\n        run: |\n          python -m pip install --upgrade pip\n          pip install -r requirements.txt\n      - run: python -m pytest\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "env": {
+        "APP_ENV": "^test$"
+      },
+      "steps": [
+        {
+          "uses": "^actions/setup-python@",
+          "show": "uses: actions/setup-python@v5"
+        },
+        {
+          "name": "^Install dependencies$",
+          "run": "--upgrade pip[\\s\\S]*pip install -r requirements\\.txt",
+          "show": "name: Install dependencies (run: | ... iki satir / two lines)"
+        },
+        {
+          "run": "pytest",
+          "show": "run: python -m pytest"
+        }
+      ]
+    }
+  ]
+}

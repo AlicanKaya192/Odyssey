@@ -1,0 +1,82 @@
+{
+  "id": "step-kind",
+  "title": {
+    "tr": "Adımın Türü",
+    "en": "The Kind of a Step"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir anahtarın sözlükte olup olmadığını `\"uses\" in step` sorar.",
+      "en": "`\"uses\" in step` asks whether a key is in the dictionary."
+    },
+    {
+      "tr": "İlk satır: `step[\"run\"].split(\"\\n\")[0]`.",
+      "en": "The first line: `step[\"run\"].split(\"\\n\")[0]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef step_kind(step):\n    if \"uses\" in step and \"run\" in step:\n        return \"invalid\"\n    if \"uses\" in step:\n        return \"action: \" + step[\"uses\"]\n    if \"run\" in step:\n        return \"command: \" + step[\"run\"].split(\"\\n\")[0]\n    return \"invalid\"\n\n\nprint(step_kind({\"uses\": \"actions/checkout@v4\"}))\nprint(step_kind({\"run\": \"python -m pytest\"}))\nprint(step_kind({\"name\": \"Install\", \"run\": \"pip install -U pip\\npip install -r requirements.txt\"}))\nprint(step_kind({\"uses\": \"actions/checkout@v4\", \"run\": \"ls\"}))\nprint(step_kind({\"name\": \"empty\"}))\n```",
+      "en": "The full solution:\n\n```python\ndef step_kind(step):\n    if \"uses\" in step and \"run\" in step:\n        return \"invalid\"\n    if \"uses\" in step:\n        return \"action: \" + step[\"uses\"]\n    if \"run\" in step:\n        return \"command: \" + step[\"run\"].split(\"\\n\")[0]\n    return \"invalid\"\n\n\nprint(step_kind({\"uses\": \"actions/checkout@v4\"}))\nprint(step_kind({\"run\": \"python -m pytest\"}))\nprint(step_kind({\"name\": \"Install\", \"run\": \"pip install -U pip\\npip install -r requirements.txt\"}))\nprint(step_kind({\"uses\": \"actions/checkout@v4\", \"run\": \"ls\"}))\nprint(step_kind({\"name\": \"empty\"}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "step_kind",
+      "cases": [
+        {
+          "args": [
+            {
+              "uses": "a/b@v1"
+            }
+          ],
+          "returns": "action: a/b@v1"
+        },
+        {
+          "args": [
+            {
+              "run": "ls\npwd"
+            }
+          ],
+          "returns": "command: ls"
+        },
+        {
+          "args": [
+            {
+              "uses": "a@v1",
+              "run": "x"
+            }
+          ],
+          "returns": "invalid"
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": "invalid"
+        },
+        {
+          "args": [
+            {
+              "name": "n",
+              "run": "echo hi"
+            }
+          ],
+          "returns": "command: echo hi"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "action: actions/checkout@v4\ncommand: python -m pytest\ncommand: pip install -U pip\ninvalid\ninvalid"
+    }
+  ]
+}

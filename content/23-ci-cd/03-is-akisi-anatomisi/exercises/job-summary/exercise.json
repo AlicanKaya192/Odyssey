@@ -1,0 +1,92 @@
+{
+  "id": "job-summary",
+  "title": {
+    "tr": "İşlerin Özeti",
+    "en": "A Summary of the Jobs"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for name, job in workflow[\"jobs\"].items():` ile işleri gez.",
+      "en": "Go through the jobs with `for name, job in workflow[\"jobs\"].items():`."
+    },
+    {
+      "tr": "Sayıyı metne katmak için `str(...)`: `name + \": \" + job[\"runs-on\"] + \", \" + str(count) + \" steps\"`.",
+      "en": "Use `str(...)` to put the number into text: `name + \": \" + job[\"runs-on\"] + \", \" + str(count) + \" steps\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nWORKFLOW = {\n    \"name\": \"CI\",\n    \"jobs\": {\n        \"lint\": {\n            \"runs-on\": \"ubuntu-latest\",\n            \"steps\": [{\"uses\": \"actions/checkout@v4\"}, {\"run\": \"ruff check .\"}],\n        },\n        \"test\": {\n            \"runs-on\": \"windows-latest\",\n            \"steps\": [\n                {\"uses\": \"actions/checkout@v4\"},\n                {\"uses\": \"actions/setup-python@v5\"},\n                {\"run\": \"python -m pytest\"},\n            ],\n        },\n    },\n}\n\n\ndef job_summary(workflow):\n    lines = []\n    for name, job in workflow[\"jobs\"].items():\n        count = len(job[\"steps\"])\n        lines.append(name + \": \" + job[\"runs-on\"] + \", \" + str(count) + \" steps\")\n    return lines\n\n\nfor line in job_summary(WORKFLOW):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nWORKFLOW = {\n    \"name\": \"CI\",\n    \"jobs\": {\n        \"lint\": {\n            \"runs-on\": \"ubuntu-latest\",\n            \"steps\": [{\"uses\": \"actions/checkout@v4\"}, {\"run\": \"ruff check .\"}],\n        },\n        \"test\": {\n            \"runs-on\": \"windows-latest\",\n            \"steps\": [\n                {\"uses\": \"actions/checkout@v4\"},\n                {\"uses\": \"actions/setup-python@v5\"},\n                {\"run\": \"python -m pytest\"},\n            ],\n        },\n    },\n}\n\n\ndef job_summary(workflow):\n    lines = []\n    for name, job in workflow[\"jobs\"].items():\n        count = len(job[\"steps\"])\n        lines.append(name + \": \" + job[\"runs-on\"] + \", \" + str(count) + \" steps\")\n    return lines\n\n\nfor line in job_summary(WORKFLOW):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "job_summary",
+      "cases": [
+        {
+          "args": [
+            {
+              "jobs": {
+                "a": {
+                  "runs-on": "x",
+                  "steps": [
+                    {
+                      "run": "1"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "returns": [
+            "a: x, 1 steps"
+          ]
+        },
+        {
+          "args": [
+            {
+              "jobs": {
+                "b": {
+                  "runs-on": "ubuntu-latest",
+                  "steps": []
+                },
+                "c": {
+                  "runs-on": "y",
+                  "steps": [
+                    {},
+                    {}
+                  ]
+                }
+              }
+            }
+          ],
+          "returns": [
+            "b: ubuntu-latest, 0 steps",
+            "c: y, 2 steps"
+          ]
+        },
+        {
+          "args": [
+            {
+              "jobs": {}
+            }
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "lint: ubuntu-latest, 2 steps\ntest: windows-latest, 3 steps"
+    }
+  ]
+}
