@@ -1093,12 +1093,12 @@ class ExerciseView(QWidget):
 
     def _runtime_name(self) -> str:
         dil = self._exercise.language if self._exercise is not None else "python"
-        return {"tsql": "SQL Server", "docker": "Docker"}.get(dil, "Python")
+        return {"tsql": "SQL Server", "docker": "Docker", "workflow": "GitHub Actions"}.get(dil, "Python")
 
     def _command_name(self) -> str:
         if self._exercise is not None and self._exercise.language == "tsql":
             return "sqlcmd -i sorgu.sql"
-        if self._exercise is not None and self._exercise.language == "docker":
+        if self._exercise is not None and self._exercise.language in ("docker", "workflow"):
             # Odyssey'nin denetimi; Docker'ın kendi komutları (build, run)
             # çıktının içinde ayrı satırlar olarak geliyor.
             return "odyssey check"

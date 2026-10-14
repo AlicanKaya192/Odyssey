@@ -71,7 +71,7 @@ DOSYA_BLOGU = re.compile(r"\*\*`?([\w./-]+)`?\*\*[ \t]*\n+```[\w-]*\n(.*?)```", 
 ISCI_SAYISI = 6
 
 # Başlangıç kodunda yorum satırının nasıl başladığı.
-YORUM_ONEKI = {"python": "#", "tsql": "--", "docker": "#"}
+YORUM_ONEKI = {"python": "#", "tsql": "--", "docker": "#", "workflow": "#"}
 
 
 def hint_kodu(exercise: Exercise, language: str) -> str | None:

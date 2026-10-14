@@ -280,7 +280,7 @@ def _check_ascii(where: str, exercise) -> list[str]:
 # Tanınan alıştırma dilleri ve her birinin kabul ettiği kontrol tipleri.
 # Yanlış eşleşme sessizce geçmesin: bir Python alıştırmasına `rows`
 # yazıldığında kontrol hiç çalışmıyor ama alıştırma "geçti" görünüyor.
-DILLER = ("python", "tsql", "docker")
+DILLER = ("python", "tsql", "docker", "workflow")
 ORTAK_KONTROLLER = {"stdout", "artifact"}
 DILE_OZEL_KONTROLLER = {
     "python": {
@@ -288,6 +288,8 @@ DILE_OZEL_KONTROLLER = {
         "annotation", "method", "requests",
         # API 2: FastAPI uygulaması sunucusuz çağrılıyor, kişinin testleri koşuyor.
         "http", "pytest",
+        # Sistem Tasarımı: testlerle birlikte yazılan iş akışı dosyası.
+        "workflow",
     },
     "tsql": {
         "rows", "columns", "affected_rows", "sql_require", "sql_forbid",
@@ -296,8 +298,10 @@ DILE_OZEL_KONTROLLER = {
     # Docker'da ortak kontroller (stdout, artifact) yok: kişinin kodu
     # çalışmıyor, dosyaları denetleniyor ve imaj kuruluyor.
     "docker": {"dockerfile", "compose", "command", "container", "compose_up"},
+    # Yalnızca iş akışı dosyası: çalışan kod yok, YAML durağan denetleniyor.
+    "workflow": {"workflow"},
 }
-ORTAKSIZ_DILLER = {"docker"}
+ORTAKSIZ_DILLER = {"docker", "workflow"}
 
 
 def _check_problem(where: str, exercise) -> list[str]:
@@ -353,8 +357,8 @@ def _check_files(where: str, exercise) -> list[str]:
     """Çok dosyalı alıştırma (`files`): adlar, şablonlar, giriş dosyası."""
     yer = f"{where}/{exercise.id}"
     problems: list[str] = []
-    if exercise.language not in ("python", "docker"):
-        problems.append(f"{yer}: çok dosyalı alıştırma yalnızca python ve docker")
+    if exercise.language not in ("python", "docker", "workflow"):
+        problems.append(f"{yer}: çok dosyalı alıştırma yalnızca python, docker ve workflow")
     if exercise.raw.get("starter") or exercise.raw.get("solution"):
         problems.append(f"{yer}: files varken starter/solution dosyanın içinde yazılır")
 

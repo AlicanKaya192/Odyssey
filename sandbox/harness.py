@@ -12,7 +12,7 @@ Kullanım:
       "code_path":   çalıştırılacak dosya,
       "result_path": sonucun yazılacağı dosya,
       "checks":      uygulanacak kontroller,
-      "language":    "python" (varsayılan), "tsql" ya da "docker",
+      "language":    "python" (varsayılan), "tsql", "docker" ya da "workflow",
       "user_files":  çok dosyalı alıştırmada kişinin bütün .py dosyaları
     }
 
@@ -553,6 +553,12 @@ def run_checks(
             import fastapi_sandbox
 
             outcome = fastapi_sandbox.check_pytest(check, workspace or Path.cwd())
+        elif kind == "workflow":
+            import workflow_check
+
+            sonuc = workflow_check.check_workflow(check, workspace or Path.cwd())
+            outcome = {"passed": sonuc["passed"],
+                       "detail": {"reason": sonuc["reason"], "values": sonuc["values"]}}
         elif kind == "ast_forbid" and check.get("node"):
             # Bir yapıyı yasaklamak ("döngü kullanma"): `For` yasağı, `strict`
             # değilse liste kavramasını da kapsıyor (o da bir döngü).
@@ -824,6 +830,15 @@ def main() -> int:
         except Exception as exc:  # noqa: BLE001 - sonuç yine yazılmalı
             sonuc = {"status": "error", "stdout": "", "stderr": traceback.format_exc()[-4000:],
                      "error": {"type": type(exc).__name__, "message": str(exc)}, "checks": []}
+        result_path.write_text(json.dumps(sonuc, ensure_ascii=False), encoding="utf-8")
+        return 0
+
+    # İş akışı (GitHub Actions) alıştırmaları: yalnızca YAML dosyası var,
+    # çalıştırılacak kod yok; dosya durağan denetleniyor.
+    if job.get("language") == "workflow":
+        import workflow_check
+
+        sonuc = workflow_check.run(job)
         result_path.write_text(json.dumps(sonuc, ensure_ascii=False), encoding="utf-8")
         return 0
 

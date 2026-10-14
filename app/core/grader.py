@@ -101,7 +101,8 @@ DOCKER_CHECKS = {"dockerfile", "compose", "command", "container", "compose_up"}
 # Beklenen / gelen kutusuyla gösterilen sebepler (çok satırlı olabiliyor).
 DOCKER_COMPARISONS = {"logs", "http_body", "http_json"}
 # API 2 (FastAPI) kontrolleri de aynı biçimde sebep + değer veriyor.
-REASON_CHECKS = DOCKER_CHECKS | {"http", "pytest", "git_state", "git_command", "shell_state", "git_config"}
+REASON_CHECKS = DOCKER_CHECKS | {"http", "pytest", "git_state", "git_command", "shell_state", "git_config",
+                                 "workflow"}
 REASON_COMPARISONS = DOCKER_COMPARISONS | {"json", "json_has", "file", "head_file"}
 
 
