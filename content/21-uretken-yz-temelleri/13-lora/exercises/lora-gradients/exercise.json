@@ -1,0 +1,68 @@
+{
+  "id": "lora-gradients",
+  "title": {
+    "tr": "LoRA'nın türevleri",
+    "en": "LoRA's gradients"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "finetune_tools.py",
+      "readonly": true
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Zincir kuralı: `M = W1 + A @ B` için `∂L/∂A = (∂L/∂M) Bᵀ`.",
+      "en": "The chain rule: for `M = W1 + A @ B`, `∂L/∂A = (∂L/∂M) Bᵀ`."
+    },
+    {
+      "tr": "`g_A, g_B = g_M @ B.T, A.T @ g_M`; ikisini de güncellemeden önce hesapla.",
+      "en": "`g_A, g_B = g_M @ B.T, A.T @ g_M`; compute both before updating."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom finetune_tools import X_old, y_old, X_new, y_new, init, train, accuracy\n\npre = train(init([64, 32, 10], np.random.default_rng(0)), X_old[:700], y_old[:700], 500)\nfew = np.concatenate([np.where(y_new[:400] == d)[0][:10] for d in range(5, 10)])\nXf, yf = X_new[few], y_new[few]\n\n\ndef train_lora(pre, X, y, r, steps=300, lr=0.5, seed=0):\n    rng = np.random.default_rng(seed)\n    (W1, b1), (W2, b2) = pre\n    A, B = rng.normal(0, 0.01, (64, r)), np.zeros((r, 32))\n    W2, b2 = W2.copy(), b2.copy()\n    onehot = np.eye(10)[y]\n    for _ in range(steps):\n        h = np.tanh(X @ (W1 + A @ B) + b1)\n        z = h @ W2 + b2\n        e = np.exp(z - z.max(axis=1, keepdims=True))\n        grad = (e / e.sum(axis=1, keepdims=True) - onehot) / len(X)\n        g_W2, g_b2 = h.T @ grad, grad.sum(axis=0)\n        g_M = X.T @ (grad @ W2.T * (1 - h ** 2))\n        g_A, g_B = g_M @ B.T, A.T @ g_M\n        W2, b2 = W2 - lr * g_W2, b2 - lr * g_b2\n        A, B = A - lr * g_A, B - lr * g_B\n    return A, B, (W2, b2)\n\n\ndef lora_accuracy(r):\n    A, B, head = train_lora(pre, Xf, yf, r)\n    (W1, b1), _ = pre\n    return accuracy([(W1 + A @ B, b1), head], X_new[400:], y_new[400:])\n\n\nprint(lora_accuracy(4))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom finetune_tools import X_old, y_old, X_new, y_new, init, train, accuracy\n\npre = train(init([64, 32, 10], np.random.default_rng(0)), X_old[:700], y_old[:700], 500)\nfew = np.concatenate([np.where(y_new[:400] == d)[0][:10] for d in range(5, 10)])\nXf, yf = X_new[few], y_new[few]\n\n\ndef train_lora(pre, X, y, r, steps=300, lr=0.5, seed=0):\n    rng = np.random.default_rng(seed)\n    (W1, b1), (W2, b2) = pre\n    A, B = rng.normal(0, 0.01, (64, r)), np.zeros((r, 32))\n    W2, b2 = W2.copy(), b2.copy()\n    onehot = np.eye(10)[y]\n    for _ in range(steps):\n        h = np.tanh(X @ (W1 + A @ B) + b1)\n        z = h @ W2 + b2\n        e = np.exp(z - z.max(axis=1, keepdims=True))\n        grad = (e / e.sum(axis=1, keepdims=True) - onehot) / len(X)\n        g_W2, g_b2 = h.T @ grad, grad.sum(axis=0)\n        g_M = X.T @ (grad @ W2.T * (1 - h ** 2))\n        g_A, g_B = g_M @ B.T, A.T @ g_M\n        W2, b2 = W2 - lr * g_W2, b2 - lr * g_b2\n        A, B = A - lr * g_A, B - lr * g_B\n    return A, B, (W2, b2)\n\n\ndef lora_accuracy(r):\n    A, B, head = train_lora(pre, Xf, yf, r)\n    (W1, b1), _ = pre\n    return accuracy([(W1 + A @ B, b1), head], X_new[400:], y_new[400:])\n\n\nprint(lora_accuracy(4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "lora_accuracy",
+      "cases": [
+        {
+          "args": [
+            4
+          ],
+          "returns": 0.94
+        },
+        {
+          "args": [
+            1
+          ],
+          "returns": 0.869
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.94"
+    }
+  ]
+}

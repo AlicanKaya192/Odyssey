@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "LoRA ne demektir?",
+        "en": "What does LoRA stand for?"
+      },
+      "options": {
+        "tr": [
+          "Düşük ranklı uyarlama (low-rank adaptation)",
+          "Uzun bağlam dikkati",
+          "Kayıplı sıkıştırma",
+          "Doğrusal regresyon"
+        ],
+        "en": [
+          "Low-rank adaptation",
+          "Long-context attention",
+          "Lossy compression",
+          "Linear regression"
+        ]
+      },
+      "explanation": {
+        "tr": "Ağırlıkları dondurup yanlarına küçük bir düzeltme ekler.",
+        "en": "It freezes the weights and adds a small correction beside them."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "LoRA'nın temel gözlemi nedir?",
+        "en": "What is LoRA's basic observation?"
+      },
+      "options": {
+        "tr": [
+          "İnce ayarın ağırlıklarda yaptığı değişim çoğu zaman düşük ranklıdır",
+          "Ağırlıklar hiç değişmez",
+          "Her ağırlık eşit değişir",
+          "Değişim rastgeledir"
+        ],
+        "en": [
+          "The change fine-tuning makes to the weights is often low-rank",
+          "The weights never change",
+          "Every weight changes equally",
+          "The change is random"
+        ]
+      },
+      "explanation": {
+        "tr": "Değişim birkaç yönde yoğunlaşır.",
+        "en": "The change is concentrated in a few directions."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "LoRA'da ΔW nasıl yazılır?",
+        "en": "How is ΔW written in LoRA?"
+      },
+      "options": {
+        "tr": [
+          "A·B, A: d_giriş × r, B: r × d_çıkış",
+          "W + 1",
+          "Tam bir matris",
+          "Bir vektör"
+        ],
+        "en": [
+          "A·B, A: d_in × r, B: r × d_out",
+          "W + 1",
+          "A full matrix",
+          "A vector"
+        ]
+      },
+      "explanation": {
+        "tr": "r küçük seçilir.",
+        "en": "r is chosen small."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "64 × 32'lik bir katmanda r = 4 LoRA kaç sayı tutar?",
+        "en": "How many numbers does an r = 4 LoRA hold for a 64 × 32 layer?"
+      },
+      "options": {
+        "tr": [
+          "384",
+          "2048",
+          "96",
+          "4"
+        ],
+        "en": [
+          "384",
+          "2048",
+          "96",
+          "4"
+        ]
+      },
+      "explanation": {
+        "tr": "4 × (64 + 32) = 384.",
+        "en": "4 × (64 + 32) = 384."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "Bölümde tam ince ayarın değişiminin ilk 8 yönü ne kadarını taşıyordu?",
+        "en": "How much of full fine-tuning's change did the first 8 directions carry in the section?"
+      },
+      "options": {
+        "tr": [
+          "%99,6",
+          "%32",
+          "%50",
+          "%10"
+        ],
+        "en": [
+          "99.6%",
+          "32%",
+          "50%",
+          "10%"
+        ]
+      },
+      "explanation": {
+        "tr": "İlk 4 yön %85.",
+        "en": "The first 4 directions 85%."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "Değişimin yönleri nasıl ölçüldü?",
+        "en": "How were the directions of the change measured?"
+      },
+      "options": {
+        "tr": [
+          "ΔW'nin tekil değerlerinin karelerinin birikimli payıyla",
+          "Ağırlıkların ortalamasıyla",
+          "Doğrulukla",
+          "Ölçülmedi"
+        ],
+        "en": [
+          "With the cumulative share of the squared singular values of ΔW",
+          "With the mean of the weights",
+          "With accuracy",
+          "It was not measured"
+        ]
+      },
+      "explanation": {
+        "tr": "`np.linalg.svd(delta, compute_uv=False)`.",
+        "en": "`np.linalg.svd(delta, compute_uv=False)`."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "B neden sıfırdan başlatılır?",
+        "en": "Why is B initialised at zero?"
+      },
+      "options": {
+        "tr": [
+          "Eğitim başında model ön eğitimli modelin tam kendisi olsun diye",
+          "Hızlı olsun diye",
+          "Bellek azalsın diye",
+          "Rastgele olsun diye"
+        ],
+        "en": [
+          "So that at the start of training the model is exactly the pre-trained model",
+          "To be fast",
+          "To save memory",
+          "To be random"
+        ]
+      },
+      "explanation": {
+        "tr": "A·B = 0 olur.",
+        "en": "A·B is then 0."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "LoRA eğitiminde hangi parametreler güncellenir?",
+        "en": "Which parameters are updated in LoRA training?"
+      },
+      "options": {
+        "tr": [
+          "A, B ve son katman",
+          "Bütün ağırlıklar",
+          "Yalnızca W1",
+          "Hiçbiri"
+        ],
+        "en": [
+          "A, B and the last layer",
+          "All the weights",
+          "Only W1",
+          "None"
+        ]
+      },
+      "explanation": {
+        "tr": "W1 donuk kalır.",
+        "en": "W1 stays frozen."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "M = W1 + AB için ∂L/∂A nedir?",
+        "en": "For M = W1 + AB, what is ∂L/∂A?"
+      },
+      "options": {
+        "tr": [
+          "(∂L/∂M) Bᵀ",
+          "Aᵀ (∂L/∂M)",
+          "∂L/∂M",
+          "0"
+        ],
+        "en": [
+          "(∂L/∂M) Bᵀ",
+          "Aᵀ (∂L/∂M)",
+          "∂L/∂M",
+          "0"
+        ]
+      },
+      "explanation": {
+        "tr": "∂L/∂B ise Aᵀ (∂L/∂M).",
+        "en": "∂L/∂B is Aᵀ (∂L/∂M)."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "Bölümde yalnızca son katmanı eğitmek ne verdi?",
+        "en": "What did training only the last layer give in the section?"
+      },
+      "options": {
+        "tr": [
+          "%80",
+          "%94",
+          "%93",
+          "%50"
+        ],
+        "en": [
+          "80%",
+          "94%",
+          "93%",
+          "50%"
+        ]
+      },
+      "explanation": {
+        "tr": "330 parametre.",
+        "en": "330 parameters."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "r = 4 LoRA'nın sonucu neydi?",
+        "en": "What was the result of the r = 4 LoRA?"
+      },
+      "options": {
+        "tr": [
+          "%94, 714 parametreyle",
+          "%80, 330 parametreyle",
+          "%93, 2410 parametreyle",
+          "%50"
+        ],
+        "en": [
+          "94%, with 714 parameters",
+          "80%, with 330 parameters",
+          "93%, with 2410 parameters",
+          "50%"
+        ]
+      },
+      "explanation": {
+        "tr": "Tam ince ayar 2410 parametreyle %93.",
+        "en": "Full fine-tuning 93% with 2410 parameters."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "r = 8 neden bir şey katmadı?",
+        "en": "Why did r = 8 add nothing?"
+      },
+      "options": {
+        "tr": [
+          "Değişimin neredeyse tamamı zaten ilk birkaç yöndeydi",
+          "Eğitim bozuldu",
+          "Parametre azdı",
+          "Kattı"
+        ],
+        "en": [
+          "Almost all of the change was already in the first few directions",
+          "Training broke",
+          "There were too few parameters",
+          "It did add"
+        ]
+      },
+      "explanation": {
+        "tr": "%94'te kaldı.",
+        "en": "It stayed at 94%."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "LoRA ile tam ince ayarı karşılaştırırken neden üç tohum denendi?",
+        "en": "Why were three seeds tried when comparing LoRA with full fine-tuning?"
+      },
+      "options": {
+        "tr": [
+          "Bir puanın altındaki farkın tek tohumda yanıltıcı olabileceği için",
+          "Daha hızlı olduğu için",
+          "Kural",
+          "Denenmedi"
+        ],
+        "en": [
+          "Because a difference below one point could mislead with one seed",
+          "Because it is faster",
+          "A rule",
+          "They were not"
+        ]
+      },
+      "explanation": {
+        "tr": "Farklar yön değiştirdi: LoRA aynı düzeyde.",
+        "en": "The differences changed direction: LoRA is at the same level."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "Bölüme göre LoRA tam ince ayardan daha mı iyi?",
+        "en": "According to the section, is LoRA better than full fine-tuning?"
+      },
+      "options": {
+        "tr": [
+          "Aynı düzeyde; daha iyi demek için daha çok veri gerekir",
+          "Her zaman daha iyi",
+          "Her zaman daha kötü",
+          "Hiç çalışmadı"
+        ],
+        "en": [
+          "At the same level; saying it is better would need more data",
+          "Always better",
+          "Always worse",
+          "It did not work"
+        ]
+      },
+      "explanation": {
+        "tr": "Üç tohumda %93,1–94'e karşı %92,1–93,8.",
+        "en": "With three seeds 93.1–94% against 92.1–93.8%."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "LoRA'nın pratikteki en büyük kolaylığı nedir?",
+        "en": "What is LoRA's biggest practical convenience?"
+      },
+      "options": {
+        "tr": [
+          "Ön eğitimli model değişmez; her görev için küçük bir adaptör saklanır",
+          "Eğitim gerektirmez",
+          "Daha büyük model üretir",
+          "Veri gerektirmez"
+        ],
+        "en": [
+          "The pre-trained model does not change; a small adapter is stored per task",
+          "It needs no training",
+          "It produces a larger model",
+          "It needs no data"
+        ]
+      },
+      "explanation": {
+        "tr": "Aynı büyük modele istenen adaptör takılır.",
+        "en": "The wanted adapter is attached to the same large model."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "Adaptör birleştirmek (merge) ne demek?",
+        "en": "What does merging an adapter mean?"
+      },
+      "options": {
+        "tr": [
+          "W1 + AB'yi tek bir matrise çevirip ek hesap maliyetini kaldırmak",
+          "İki modeli eğitmek",
+          "Adaptörü silmek",
+          "Veriyi birleştirmek"
+        ],
+        "en": [
+          "Turning W1 + AB into a single matrix and removing the extra compute cost",
+          "Training two models",
+          "Deleting the adapter",
+          "Merging the data"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölümde birleştirilmiş matris aynı çıktıyı verdi.",
+        "en": "In the section the merged matrix gave the same output."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "LoRA eğitiminden sonra ön eğitimli model eski görevde nasıldı?",
+        "en": "How was the pre-trained model on the old task after LoRA training?"
+      },
+      "options": {
+        "tr": [
+          "Hâlâ kusursuz (1,0); ona hiç dokunulmadı",
+          "%6,5'e düştü",
+          "%50",
+          "Silindi"
+        ],
+        "en": [
+          "Still perfect (1.0); it was never touched",
+          "It fell to 6.5%",
+          "50%",
+          "It was deleted"
+        ]
+      },
+      "explanation": {
+        "tr": "Tam ince ayarda eski görev unutulmuştu.",
+        "en": "With full fine-tuning the old task had been forgotten."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Bölümde adaptörün boyu tam kopyaya göre ne kadardı?",
+        "en": "How large was the adapter compared with a full copy in the section?"
+      },
+      "options": {
+        "tr": [
+          "384'e karşı 2048",
+          "2048'e karşı 384",
+          "Eşit",
+          "1'e karşı 1000"
+        ],
+        "en": [
+          "384 against 2048",
+          "2048 against 384",
+          "Equal",
+          "1 against 1000"
+        ]
+      },
+      "explanation": {
+        "tr": "Büyük modellerde fark çok daha çarpıcıdır.",
+        "en": "In large models the difference is far more striking."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "r büyüdükçe ne olur?",
+        "en": "What happens as r grows?"
+      },
+      "options": {
+        "tr": [
+          "Parametre artar; bir noktadan sonra doğruluk artmaz",
+          "Parametre azalır",
+          "Doğruluk hep artar",
+          "Model küçülür"
+        ],
+        "en": [
+          "Parameters rise; past a point accuracy stops rising",
+          "Parameters fall",
+          "Accuracy always rises",
+          "The model shrinks"
+        ]
+      },
+      "explanation": {
+        "tr": "Bölümde r = 4 ile 8 aynı doğruluğu verdi.",
+        "en": "In the section r = 4 and 8 gave the same accuracy."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Yalnızca son katmanı eğitmek ile LoRA arasındaki fark nedir?",
+        "en": "What is the difference between training only the last layer and LoRA?"
+      },
+      "options": {
+        "tr": [
+          "LoRA alttaki katmanın davranışını da az parametreyle değiştirebilir",
+          "Fark yok",
+          "Son katman daha çok parametre kullanır",
+          "LoRA son katmanı dondurur"
+        ],
+        "en": [
+          "LoRA can also change the lower layer's behaviour with few parameters",
+          "No difference",
+          "The last layer uses more parameters",
+          "LoRA freezes the last layer"
+        ]
+      },
+      "explanation": {
+        "tr": "%80'den %94'e.",
+        "en": "From 80% to 94%."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Bir rankı r olan A·B çarpımının rankı en fazla kaçtır?",
+        "en": "At most what rank does the product A·B with rank r have?"
+      },
+      "options": {
+        "tr": [
+          "r",
+          "d_giriş",
+          "d_çıkış",
+          "Sınırsız"
+        ],
+        "en": [
+          "r",
+          "d_in",
+          "d_out",
+          "Unlimited"
+        ]
+      },
+      "explanation": {
+        "tr": "A'nın sütun sayısı r.",
+        "en": "A has r columns."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "LoRA hangi soruna çözüm olarak doğdu?",
+        "en": "Which problem was LoRA born to solve?"
+      },
+      "options": {
+        "tr": [
+          "Büyük modelin bütün ağırlıklarını her görev için güncellemenin pahalı olması",
+          "Halüsinasyon",
+          "Token sayımı",
+          "Arama"
+        ],
+        "en": [
+          "Updating all of a large model's weights for every task being expensive",
+          "Hallucination",
+          "Token counting",
+          "Search"
+        ]
+      },
+      "explanation": {
+        "tr": "Hem hesap hem de saklama maliyeti.",
+        "en": "Both the compute and the storage cost."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "LoRA'nın düşük ranklılık gözlemi bölümdeki küçük ağda nasıl sınandı?",
+        "en": "How was LoRA's low-rank observation tested on the section's small network?"
+      },
+      "options": {
+        "tr": [
+          "Tam ince ayarın ΔW'sinin tekil değerlerine bakılarak",
+          "Model büyütülerek",
+          "Tahmin edilerek",
+          "Sınanmadı"
+        ],
+        "en": [
+          "By looking at the singular values of full fine-tuning's ΔW",
+          "By enlarging the model",
+          "By guessing",
+          "It was not"
+        ]
+      },
+      "explanation": {
+        "tr": "İlk 8 yön %99,6.",
+        "en": "The first 8 directions 99.6%."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Bu bölümün ana fikri nedir?",
+        "en": "What is this section's main idea?"
+      },
+      "options": {
+        "tr": [
+          "Az sayıda parametreyle, modeli değiştirmeden tam ince ayar düzeyinde uyarlama",
+          "Modeli her zaman baştan eğitmek",
+          "Bütün ağırlıkları güncellemek",
+          "Prompt yazmak"
+        ],
+        "en": [
+          "Adapting at full fine-tuning level with few parameters, without changing the model",
+          "Always training the model from scratch",
+          "Updating all the weights",
+          "Writing a prompt"
+        ]
+      },
+      "explanation": {
+        "tr": "Adaptör takılıp çıkarılabilir.",
+        "en": "The adapter can be attached and detached."
+      }
+    }
+  ]
+}

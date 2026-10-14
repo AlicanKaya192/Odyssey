@@ -1,0 +1,104 @@
+{
+  "id": "low-rank-energy",
+  "title": {
+    "tr": "Değişimin yönleri",
+    "en": "The directions of the change"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tekil değerler büyükten küçüğe sıralı gelir; ilk `r`'si `S[:r]`.",
+      "en": "The singular values come sorted from large to small; the first `r` are `S[:r]`."
+    },
+    {
+      "tr": "Pay `(S[:r] ** 2).sum() / (S ** 2).sum()`; rankı 1 olan matriste ilk yön her şeyi taşır.",
+      "en": "The share is `(S[:r] ** 2).sum() / (S ** 2).sum()`; in a rank-1 matrix the first direction carries everything."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef energy(matrix, r):\n    S = np.linalg.svd(np.array(matrix, dtype=float), compute_uv=False)\n    return round(float((S[:r] ** 2).sum() / (S ** 2).sum()), 3)\n\n\nM = [[3, 0, 0], [0, 1, 0], [0, 0, 0.5]]\nfor r in [1, 2, 3]:\n    print(r, energy(M, r))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef energy(matrix, r):\n    S = np.linalg.svd(np.array(matrix, dtype=float), compute_uv=False)\n    return round(float((S[:r] ** 2).sum() / (S ** 2).sum()), 3)\n\n\nM = [[3, 0, 0], [0, 1, 0], [0, 0, 0.5]]\nfor r in [1, 2, 3]:\n    print(r, energy(M, r))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "energy",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                3,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0.5
+              ]
+            ],
+            1
+          ],
+          "returns": 0.878
+        },
+        {
+          "args": [
+            [
+              [
+                3,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0.5
+              ]
+            ],
+            2
+          ],
+          "returns": 0.976
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                4
+              ]
+            ],
+            1
+          ],
+          "returns": 1.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 0.878\n2 0.976\n3 1.0"
+    }
+  ]
+}

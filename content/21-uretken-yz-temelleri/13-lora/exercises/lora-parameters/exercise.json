@@ -1,0 +1,78 @@
+{
+  "id": "lora-parameters",
+  "title": {
+    "tr": "LoRA kaç parametre?",
+    "en": "How many parameters for LoRA?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "A `d_in × r`, B `r × d_out`: toplam `r * (d_in + d_out)`.",
+      "en": "A is `d_in × r`, B `r × d_out`: in total `r * (d_in + d_out)`."
+    },
+    {
+      "tr": "Büyük katmanda oran çok küçülür: 4096 × 4096'da r = 8 binde 4'e yakın.",
+      "en": "For a large layer the ratio becomes tiny: at 4096 × 4096, r = 8 is close to 4 in a thousand."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef lora_params(d_in, d_out, r):\n    full = d_in * d_out\n    lora = r * (d_in + d_out)\n    return [full, lora, round(lora / full, 4)]\n\n\nprint(lora_params(64, 32, 4))\nprint(lora_params(4096, 4096, 8))\n```",
+      "en": "The full solution:\n\n```python\ndef lora_params(d_in, d_out, r):\n    full = d_in * d_out\n    lora = r * (d_in + d_out)\n    return [full, lora, round(lora / full, 4)]\n\n\nprint(lora_params(64, 32, 4))\nprint(lora_params(4096, 4096, 8))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "lora_params",
+      "cases": [
+        {
+          "args": [
+            64,
+            32,
+            4
+          ],
+          "returns": [
+            2048,
+            384,
+            0.1875
+          ]
+        },
+        {
+          "args": [
+            4096,
+            4096,
+            8
+          ],
+          "returns": [
+            16777216,
+            65536,
+            0.0039
+          ]
+        },
+        {
+          "args": [
+            10,
+            10,
+            10
+          ],
+          "returns": [
+            100,
+            200,
+            2.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2048, 384, 0.1875]\n[16777216, 65536, 0.0039]"
+    }
+  ]
+}
