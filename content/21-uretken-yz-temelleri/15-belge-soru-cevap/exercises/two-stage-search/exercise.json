@@ -1,0 +1,90 @@
+{
+  "id": "two-stage-search",
+  "title": {
+    "tr": "İki aşamalı arama",
+    "en": "Two-stage search"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "retrieval.py",
+      "readonly": true
+    },
+    {
+      "name": "doc_data.py",
+      "readonly": true
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Arama `[((doc, metin), puan)]` döndürür; makale kimliği `[0][0][0]`.",
+      "en": "The search returns `[((doc, text), score)]`; the article id is `[0][0][0]`."
+    },
+    {
+      "tr": "Dizini fonksiyonun dışında bir kez kur.",
+      "en": "Build the index once outside the function."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom retrieval import Index, by_article, by_sentence\n\nARTICLES = Index(by_article())\nSENTENCES = by_sentence()\n\n\ndef two_stage(question):\n    (doc, _), _ = ARTICLES.search(question, 1)[0]\n    return [text for d, text in SENTENCES if d == doc]\n\n\nfor sentence in two_stage(\"Do gift cards expire?\"):\n    print(\" \".join(sentence.split()[:5]))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom retrieval import Index, by_article, by_sentence\n\nARTICLES = Index(by_article())\nSENTENCES = by_sentence()\n\n\ndef two_stage(question):\n    (doc, _), _ = ARTICLES.search(question, 1)[0]\n    return [text for d, text in SENTENCES if d == doc]\n\n\nfor sentence in two_stage(\"Do gift cards expire?\"):\n    print(\" \".join(sentence.split()[:5]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "two_stage",
+      "cases": [
+        {
+          "args": [
+            "Do gift cards expire?"
+          ],
+          "returns": [
+            "Gift cards are available for 25, 50 and 100 euros and are valid for 3 years.",
+            "They cannot be exchanged for cash.",
+            "You can use one gift card and one discount code per order."
+          ]
+        },
+        {
+          "args": [
+            "How long does a repair take?"
+          ],
+          "returns": [
+            "We repair broken zips for free while the product is under warranty.",
+            "After the warranty, a repair costs from 15 euros.",
+            "A repair usually takes 3 weeks."
+          ]
+        },
+        {
+          "args": [
+            "Is the store open on Sunday?"
+          ],
+          "returns": [
+            "Customer service is open Monday to Friday, 9:00 to 17:00, by phone and chat.",
+            "We answer emails within 2 working days.",
+            "Our store is open Monday to Saturday, 10:00 to 19:00, and closed on Sundays and public holidays."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Gift cards are available for\nThey cannot be exchanged for\nYou can use one gift"
+    }
+  ]
+}

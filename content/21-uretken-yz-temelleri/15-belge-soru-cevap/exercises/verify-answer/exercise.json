@@ -1,0 +1,87 @@
+{
+  "id": "verify-answer",
+  "title": {
+    "tr": "Cevabı doğrula",
+    "en": "Verify the answer"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `NOT_FOUND`'u ele; sonra numarayı `re.search(r\"\\[(\\d+)\\]\", answer)` ile bul.",
+      "en": "Handle `NOT_FOUND` first; then find the number with `re.search(r\"\\[(\\d+)\\]\", answer)`."
+    },
+    {
+      "tr": "Sayıları numarayı çıkardıktan sonra al: `answer.replace(cite.group(0), \"\")`.",
+      "en": "Take the numbers after removing the citation: `answer.replace(cite.group(0), \"\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nNOT_FOUND = \"I could not find this in the sources.\"\n\n\ndef verify(answer, sources):\n    if answer == NOT_FOUND:\n        return True\n    cite = re.search(r\"\\[(\\d+)\\]\", answer)\n    if not cite or not 1 <= int(cite.group(1)) <= len(sources):\n        return False\n    source = sources[int(cite.group(1)) - 1]\n    claims = re.findall(r\"\\d+\", answer.replace(cite.group(0), \"\"))\n    return all(c in re.findall(r\"\\d+\", source) for c in claims)\n\n\nsources = [\"Gift cards are valid for 3 years.\", \"Points expire after 12 months.\"]\nfor answer in [\"Valid for 3 years. [1]\", \"Valid for 5 years. [1]\", \"Points [3].\"]:\n    print(verify(answer, sources))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nNOT_FOUND = \"I could not find this in the sources.\"\n\n\ndef verify(answer, sources):\n    if answer == NOT_FOUND:\n        return True\n    cite = re.search(r\"\\[(\\d+)\\]\", answer)\n    if not cite or not 1 <= int(cite.group(1)) <= len(sources):\n        return False\n    source = sources[int(cite.group(1)) - 1]\n    claims = re.findall(r\"\\d+\", answer.replace(cite.group(0), \"\"))\n    return all(c in re.findall(r\"\\d+\", source) for c in claims)\n\n\nsources = [\"Gift cards are valid for 3 years.\", \"Points expire after 12 months.\"]\nfor answer in [\"Valid for 3 years. [1]\", \"Valid for 5 years. [1]\", \"Points [3].\"]:\n    print(verify(answer, sources))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify",
+      "cases": [
+        {
+          "args": [
+            "Valid for 3 years. [1]",
+            [
+              "Gift cards are valid for 3 years.",
+              "Points expire after 12 months."
+            ]
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "Valid for 5 years. [1]",
+            [
+              "Gift cards are valid for 3 years."
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "Points [3].",
+            [
+              "a",
+              "b"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "I could not find this in the sources.",
+            []
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "No citation here.",
+            [
+              "a"
+            ]
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse"
+    }
+  ]
+}
