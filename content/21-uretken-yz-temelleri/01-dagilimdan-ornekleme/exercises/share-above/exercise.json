@@ -1,0 +1,88 @@
+{
+  "id": "share-above",
+  "title": {
+    "tr": "Monte Carlo",
+    "en": "Monte Carlo"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Örnekler: `sim = np.random.default_rng(seed).normal(m, s, n)`.",
+      "en": "The samples: `sim = np.random.default_rng(seed).normal(m, s, n)`."
+    },
+    {
+      "tr": "Oran, mantıksal dizinin ortalamasıdır: `(sim > limit).mean()`.",
+      "en": "A share is the mean of a boolean array: `(sim > limit).mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import make_fish\n\nX, y = make_fish()\ny = np.array(y)\n\n\ndef share_above(name, limit, n, seed):\n    weights = X[y == name, 1]\n    m, s = weights.mean(), weights.std(ddof=1)\n    sim = np.random.default_rng(seed).normal(m, s, n)\n    return [round(float((sim > limit).mean()), 4), round(float((weights > limit).mean()), 4)]\n\n\nprint(share_above(\"bream\", 700, 100000, 9))\nprint(share_above(\"perch\", 400, 100000, 9))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import make_fish\n\nX, y = make_fish()\ny = np.array(y)\n\n\ndef share_above(name, limit, n, seed):\n    weights = X[y == name, 1]\n    m, s = weights.mean(), weights.std(ddof=1)\n    sim = np.random.default_rng(seed).normal(m, s, n)\n    return [round(float((sim > limit).mean()), 4), round(float((weights > limit).mean()), 4)]\n\n\nprint(share_above(\"bream\", 700, 100000, 9))\nprint(share_above(\"perch\", 400, 100000, 9))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "share_above",
+      "cases": [
+        {
+          "args": [
+            "bream",
+            700,
+            100000,
+            9
+          ],
+          "returns": [
+            0.0846,
+            0.0605
+          ]
+        },
+        {
+          "args": [
+            "perch",
+            400,
+            100000,
+            9
+          ],
+          "returns": [
+            0.0766,
+            0.0784
+          ]
+        },
+        {
+          "args": [
+            "perch",
+            250,
+            50000,
+            3
+          ],
+          "returns": [
+            0.7946,
+            0.7962
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.0846, 0.0605]\n[0.0766, 0.0784]"
+    }
+  ]
+}

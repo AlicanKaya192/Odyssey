@@ -1,0 +1,88 @@
+{
+  "id": "histogram-sample",
+  "title": {
+    "tr": "Histogramdan üret",
+    "en": "Generate from a histogram"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kutu olasılıkları `p = counts / counts.sum()`.",
+      "en": "The bin probabilities are `p = counts / counts.sum()`."
+    },
+    {
+      "tr": "Aynı üreteçle önce kutuları, sonra değerleri çek: sıra sonucu değiştirir.",
+      "en": "With the same generator draw the bins first, then the values: the order changes the result."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import make_fish\n\nX, y = make_fish()\ny = np.array(y)\n\n\ndef histogram_sample(name, bins, n, seed):\n    weights = X[y == name, 1]\n    counts, edges = np.histogram(weights, bins=bins)\n    p = counts / counts.sum()\n    g = np.random.default_rng(seed)\n    box = g.choice(len(p), size=n, p=p)\n    fake = g.uniform(edges[box], edges[box + 1])\n    return [round(float(fake.mean()), 1), round(float(fake.std()), 1)]\n\n\nprint(histogram_sample(\"bream\", 10, 5000, 5))\nprint(histogram_sample(\"perch\", 4, 2000, 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import make_fish\n\nX, y = make_fish()\ny = np.array(y)\n\n\ndef histogram_sample(name, bins, n, seed):\n    weights = X[y == name, 1]\n    counts, edges = np.histogram(weights, bins=bins)\n    p = counts / counts.sum()\n    g = np.random.default_rng(seed)\n    box = g.choice(len(p), size=n, p=p)\n    fake = g.uniform(edges[box], edges[box + 1])\n    return [round(float(fake.mean()), 1), round(float(fake.std()), 1)]\n\n\nprint(histogram_sample(\"bream\", 10, 5000, 5))\nprint(histogram_sample(\"perch\", 4, 2000, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "histogram_sample",
+      "cases": [
+        {
+          "args": [
+            "bream",
+            10,
+            5000,
+            5
+          ],
+          "returns": [
+            552.1,
+            106.6
+          ]
+        },
+        {
+          "args": [
+            "perch",
+            4,
+            2000,
+            1
+          ],
+          "returns": [
+            306.8,
+            71.1
+          ]
+        },
+        {
+          "args": [
+            "perch",
+            20,
+            3000,
+            2
+          ],
+          "returns": [
+            305.4,
+            66.8
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[552.1, 106.6]\n[306.8, 71.1]"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "exponential-mean",
+  "title": {
+    "tr": "Ters dönüşüm",
+    "en": "Inverse transform"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Formül: `waits = -np.log(1 - u) / rate`.",
+      "en": "The formula: `waits = -np.log(1 - u) / rate`."
+    },
+    {
+      "tr": "`round(float(waits.mean()), 3)` ile NumPy sayısını düz `float` yap.",
+      "en": "Turn the NumPy number into a plain `float` with `round(float(waits.mean()), 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef exponential_mean(rate, n, seed):\n    u = np.random.default_rng(seed).random(n)\n    waits = -np.log(1 - u) / rate\n    return round(float(waits.mean()), 3)\n\n\nprint(exponential_mean(0.5, 10000, 1))\nprint(exponential_mean(2.0, 10000, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef exponential_mean(rate, n, seed):\n    u = np.random.default_rng(seed).random(n)\n    waits = -np.log(1 - u) / rate\n    return round(float(waits.mean()), 3)\n\n\nprint(exponential_mean(0.5, 10000, 1))\nprint(exponential_mean(2.0, 10000, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "exponential_mean",
+      "cases": [
+        {
+          "args": [
+            0.5,
+            10000,
+            1
+          ],
+          "returns": 2.014
+        },
+        {
+          "args": [
+            2.0,
+            10000,
+            3
+          ],
+          "returns": 0.498
+        },
+        {
+          "args": [
+            1.0,
+            100,
+            5
+          ],
+          "returns": 1.101
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "call": "exponential",
+      "hint": {
+        "tr": "Hazır `exponential` yerine formülü kullan.",
+        "en": "Use the formula instead of the built-in `exponential`."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2.014\n0.498"
+    }
+  ]
+}

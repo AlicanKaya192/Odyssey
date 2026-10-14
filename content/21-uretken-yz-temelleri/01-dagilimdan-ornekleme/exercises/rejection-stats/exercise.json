@@ -1,0 +1,72 @@
+{
+  "id": "rejection-stats",
+  "title": {
+    "tr": "Reddetme yöntemi",
+    "en": "Rejection sampling"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra önemli: önce `x = r.random(n)`, sonra `height = r.random(n) * 1.5`.",
+      "en": "Order matters: first `x = r.random(n)`, then `height = r.random(n) * 1.5`."
+    },
+    {
+      "tr": "Tutulanlar `x[height < 6 * x * (1 - x)]`; kabul oranı `len(kept) / n`.",
+      "en": "The kept values are `x[height < 6 * x * (1 - x)]`; the acceptance rate is `len(kept) / n`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef rejection_stats(n, seed):\n    r = np.random.default_rng(seed)\n    x = r.random(n)\n    height = r.random(n) * 1.5\n    kept = x[height < 6 * x * (1 - x)]\n    return [round(len(kept) / n, 3), round(float(kept.mean()), 3)]\n\n\nprint(rejection_stats(10000, 2))\nprint(rejection_stats(500, 8))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef rejection_stats(n, seed):\n    r = np.random.default_rng(seed)\n    x = r.random(n)\n    height = r.random(n) * 1.5\n    kept = x[height < 6 * x * (1 - x)]\n    return [round(len(kept) / n, 3), round(float(kept.mean()), 3)]\n\n\nprint(rejection_stats(10000, 2))\nprint(rejection_stats(500, 8))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "rejection_stats",
+      "cases": [
+        {
+          "args": [
+            10000,
+            2
+          ],
+          "returns": [
+            0.664,
+            0.502
+          ]
+        },
+        {
+          "args": [
+            500,
+            8
+          ],
+          "returns": [
+            0.73,
+            0.482
+          ]
+        },
+        {
+          "args": [
+            2000,
+            11
+          ],
+          "returns": [
+            0.681,
+            0.499
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.664, 0.502]\n[0.73, 0.482]"
+    }
+  ]
+}

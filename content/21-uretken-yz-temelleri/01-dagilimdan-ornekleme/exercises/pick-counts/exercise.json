@@ -1,0 +1,98 @@
+{
+  "id": "pick-counts",
+  "title": {
+    "tr": "Cetvelle seç",
+    "en": "Pick with the ruler"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`cum = np.cumsum(probs)`; düzgün sayılar `u = np.random.default_rng(seed).random(n)`.",
+      "en": "`cum = np.cumsum(probs)`; the uniform numbers `u = np.random.default_rng(seed).random(n)`."
+    },
+    {
+      "tr": "Seçimler `np.searchsorted(cum, u, side=\"right\")`; sayım `np.bincount(picks, minlength=len(probs))`.",
+      "en": "The picks `np.searchsorted(cum, u, side=\"right\")`; the counts `np.bincount(picks, minlength=len(probs))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef pick_counts(probs, n, seed):\n    cum = np.cumsum(probs)\n    u = np.random.default_rng(seed).random(n)\n    picks = np.searchsorted(cum, u, side=\"right\")\n    return np.bincount(picks, minlength=len(probs)).tolist()\n\n\nprint(pick_counts([0.5, 0.3, 0.2], 1000, 4))\nprint(pick_counts([0.9, 0.1], 50, 1))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef pick_counts(probs, n, seed):\n    cum = np.cumsum(probs)\n    u = np.random.default_rng(seed).random(n)\n    picks = np.searchsorted(cum, u, side=\"right\")\n    return np.bincount(picks, minlength=len(probs)).tolist()\n\n\nprint(pick_counts([0.5, 0.3, 0.2], 1000, 4))\nprint(pick_counts([0.9, 0.1], 50, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pick_counts",
+      "cases": [
+        {
+          "args": [
+            [
+              0.5,
+              0.3,
+              0.2
+            ],
+            1000,
+            4
+          ],
+          "returns": [
+            471,
+            313,
+            216
+          ]
+        },
+        {
+          "args": [
+            [
+              0.9,
+              0.1
+            ],
+            50,
+            1
+          ],
+          "returns": [
+            44,
+            6
+          ]
+        },
+        {
+          "args": [
+            [
+              0.25,
+              0.25,
+              0.25,
+              0.25
+            ],
+            400,
+            2
+          ],
+          "returns": [
+            105,
+            102,
+            97,
+            96
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "call": "choice",
+      "hint": {
+        "tr": "Bu alıştırmada `choice` yerine cetveli kendin kur.",
+        "en": "In this exercise build the ruler yourself instead of `choice`."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[471, 313, 216]\n[44, 6]"
+    }
+  ]
+}
