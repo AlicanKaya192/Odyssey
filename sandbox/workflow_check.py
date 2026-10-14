@@ -80,7 +80,21 @@ def _structure_problem(data) -> dict | None:
             problem = _step_problem(job_id, number, step)
             if problem:
                 return problem
+    stuck = _needs_cycle(jobs)
+    if stuck:
+        return _fail("needs_cycle", jobs=", ".join(stuck))
     return None
+
+
+def _needs_cycle(jobs: dict) -> list[str]:
+    """Başlayamayan işler: `needs` okları bir döngü kuruyorsa hiçbiri başlayamaz."""
+    done: set[str] = set()
+    waiting = {job_id: set(_as_list(job.get("needs"))) for job_id, job in jobs.items()}
+    while True:
+        ready = [job_id for job_id, needs in waiting.items() if job_id not in done and needs <= done]
+        if not ready:
+            return [job_id for job_id in waiting if job_id not in done]
+        done.update(ready)
 
 
 def _step_problem(job_id: str, number: int, step) -> dict | None:
