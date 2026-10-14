@@ -1,0 +1,70 @@
+{
+  "id": "train-discriminator",
+  "title": {
+    "tr": "Ayırt ediciyi eğit",
+    "en": "Train the discriminator"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gan_model.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`backward` iki şey döndürür: katmanların türevleri ve girdiye giden türev; burada yalnızca ilki gerekli: `g_r, _ = ...`.",
+      "en": "`backward` returns two things: the layers' gradients and the gradient to the input; only the first is needed here: `g_r, _ = ...`."
+    },
+    {
+      "tr": "İki listeyi katman katman topla: `[(a + c, b + d) for (a, b), (c, d) in zip(g_r, g_f)]`.",
+      "en": "Add the two lists layer by layer: `[(a + c, b + d) for (a, b), (c, d) in zip(g_r, g_f)]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gan_model import data, sigmoid, init, forward, backward, Adam, CENTRES\n\n\ndef train_discriminator(steps):\n    rng = np.random.default_rng(0)\n    disc = init([2, 32, 32, 1], rng)\n    opt = Adam(disc, 0.002)\n    for _ in range(steps):\n        real = data[rng.integers(0, len(data), 128)]\n        fake = CENTRES[0] + rng.normal(0, 0.1, (128, 2))\n        acts_r, acts_f = forward(real, disc), forward(fake, disc)\n        p_r, p_f = sigmoid(acts_r[-1]), sigmoid(acts_f[-1])\n        g_r, _ = backward(acts_r, (p_r - 1) / 128, disc)\n        g_f, _ = backward(acts_f, p_f / 128, disc)\n        opt.step(disc, [(a + c, b + d) for (a, b), (c, d) in zip(g_r, g_f)])\n    check = np.random.default_rng(9)\n    real = data[check.integers(0, len(data), 1000)]\n    fake = CENTRES[0] + check.normal(0, 0.1, (1000, 2))\n    d_real = sigmoid(forward(real, disc)[-1]).mean()\n    d_fake = sigmoid(forward(fake, disc)[-1]).mean()\n    return [round(float(d_real), 2), round(float(d_fake), 2)]\n\n\nprint(train_discriminator(200))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gan_model import data, sigmoid, init, forward, backward, Adam, CENTRES\n\n\ndef train_discriminator(steps):\n    rng = np.random.default_rng(0)\n    disc = init([2, 32, 32, 1], rng)\n    opt = Adam(disc, 0.002)\n    for _ in range(steps):\n        real = data[rng.integers(0, len(data), 128)]\n        fake = CENTRES[0] + rng.normal(0, 0.1, (128, 2))\n        acts_r, acts_f = forward(real, disc), forward(fake, disc)\n        p_r, p_f = sigmoid(acts_r[-1]), sigmoid(acts_f[-1])\n        g_r, _ = backward(acts_r, (p_r - 1) / 128, disc)\n        g_f, _ = backward(acts_f, p_f / 128, disc)\n        opt.step(disc, [(a + c, b + d) for (a, b), (c, d) in zip(g_r, g_f)])\n    check = np.random.default_rng(9)\n    real = data[check.integers(0, len(data), 1000)]\n    fake = CENTRES[0] + check.normal(0, 0.1, (1000, 2))\n    d_real = sigmoid(forward(real, disc)[-1]).mean()\n    d_fake = sigmoid(forward(fake, disc)[-1]).mean()\n    return [round(float(d_real), 2), round(float(d_fake), 2)]\n\n\nprint(train_discriminator(200))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "train_discriminator",
+      "cases": [
+        {
+          "args": [
+            200
+          ],
+          "returns": [
+            0.87,
+            0.11
+          ]
+        },
+        {
+          "args": [
+            50
+          ],
+          "returns": [
+            0.66,
+            0.17
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.87, 0.11]"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "id": "gan-losses",
+  "title": {
+    "tr": "İki kayıp",
+    "en": "The two losses"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Listeleri diziye çevir: `np.array(p_real)`; `np.log` eleman eleman çalışır.",
+      "en": "Turn the lists into arrays: `np.array(p_real)`; `np.log` works element by element."
+    },
+    {
+      "tr": "Dengede (`0.5` ve `0.5`) ayırt edicinin kaybı `2 * log(2)`, yani yaklaşık 1,3863 olmalı.",
+      "en": "At equilibrium (`0.5` and `0.5`) the discriminator's loss must be `2 * log(2)`, about 1.3863."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef gan_losses(p_real, p_fake):\n    p_real, p_fake = np.array(p_real), np.array(p_fake)\n    d = -np.log(p_real).mean() - np.log(1 - p_fake).mean()\n    g = -np.log(p_fake).mean()\n    old = np.log(1 - p_fake).mean()\n    return [round(float(d), 4), round(float(g), 4), round(float(old), 4)]\n\n\nprint(gan_losses([0.9, 0.8], [0.1, 0.3]))\nprint(gan_losses([0.5], [0.5]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef gan_losses(p_real, p_fake):\n    p_real, p_fake = np.array(p_real), np.array(p_fake)\n    d = -np.log(p_real).mean() - np.log(1 - p_fake).mean()\n    g = -np.log(p_fake).mean()\n    old = np.log(1 - p_fake).mean()\n    return [round(float(d), 4), round(float(g), 4), round(float(old), 4)]\n\n\nprint(gan_losses([0.9, 0.8], [0.1, 0.3]))\nprint(gan_losses([0.5], [0.5]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "gan_losses",
+      "cases": [
+        {
+          "args": [
+            [
+              0.9,
+              0.8
+            ],
+            [
+              0.1,
+              0.3
+            ]
+          ],
+          "returns": [
+            0.3953,
+            1.7533,
+            -0.231
+          ]
+        },
+        {
+          "args": [
+            [
+              0.5
+            ],
+            [
+              0.5
+            ]
+          ],
+          "returns": [
+            1.3863,
+            0.6931,
+            -0.6931
+          ]
+        },
+        {
+          "args": [
+            [
+              0.99,
+              0.95,
+              0.97
+            ],
+            [
+              0.01,
+              0.02,
+              0.05
+            ]
+          ],
+          "returns": [
+            0.0578,
+            3.8376,
+            -0.0272
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.3953, 1.7533, -0.231]\n[1.3863, 0.6931, -0.6931]"
+    }
+  ]
+}

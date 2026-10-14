@@ -1,0 +1,72 @@
+{
+  "id": "generator-step",
+  "title": {
+    "tr": "Üreticinin adımı",
+    "en": "The generator's step"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gan_model.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Ayırt edicinin `backward`'ından girdiye giden türevi al: `_, d_fake = backward(acts_f, (p_f - 1) / 128, disc)`.",
+      "en": "Take the gradient to the input from the discriminator's `backward`: `_, d_fake = backward(acts_f, (p_f - 1) / 128, disc)`."
+    },
+    {
+      "tr": "Sonra `g_g, _ = backward(acts_g, d_fake, gen)` ve `opt_g.step(gen, g_g)`.",
+      "en": "Then `g_g, _ = backward(acts_g, d_fake, gen)` and `opt_g.step(gen, g_g)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gan_model import data, sigmoid, init, forward, backward, Adam, mode_report\n\n\ndef train(steps, seed):\n    rng = np.random.default_rng(seed)\n    gen = init([2, 32, 32, 2], rng)\n    disc = init([2, 32, 32, 1], rng)\n    opt_g, opt_d = Adam(gen, 0.002), Adam(disc, 0.002)\n    for _ in range(steps):\n        real = data[rng.integers(0, len(data), 128)]\n        fake = forward(rng.normal(size=(128, 2)), gen)[-1]\n        acts_r, acts_f = forward(real, disc), forward(fake, disc)\n        p_r, p_f = sigmoid(acts_r[-1]), sigmoid(acts_f[-1])\n        g_r, _ = backward(acts_r, (p_r - 1) / 128, disc)\n        g_f, _ = backward(acts_f, p_f / 128, disc)\n        opt_d.step(disc, [(a + c, b + d) for (a, b), (c, d) in zip(g_r, g_f)])\n        acts_g = forward(rng.normal(size=(128, 2)), gen)\n        acts_f = forward(acts_g[-1], disc)\n        p_f = sigmoid(acts_f[-1])\n        _, d_fake = backward(acts_f, (p_f - 1) / 128, disc)\n        g_g, _ = backward(acts_g, d_fake, gen)\n        opt_g.step(gen, g_g)\n    noise = np.random.default_rng(100).normal(size=(2000, 2))\n    counts, near = mode_report(forward(noise, gen)[-1])\n    return [int((counts >= 40).sum()), round(float(near), 3)]\n\n\nprint(train(1500, 0))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gan_model import data, sigmoid, init, forward, backward, Adam, mode_report\n\n\ndef train(steps, seed):\n    rng = np.random.default_rng(seed)\n    gen = init([2, 32, 32, 2], rng)\n    disc = init([2, 32, 32, 1], rng)\n    opt_g, opt_d = Adam(gen, 0.002), Adam(disc, 0.002)\n    for _ in range(steps):\n        real = data[rng.integers(0, len(data), 128)]\n        fake = forward(rng.normal(size=(128, 2)), gen)[-1]\n        acts_r, acts_f = forward(real, disc), forward(fake, disc)\n        p_r, p_f = sigmoid(acts_r[-1]), sigmoid(acts_f[-1])\n        g_r, _ = backward(acts_r, (p_r - 1) / 128, disc)\n        g_f, _ = backward(acts_f, p_f / 128, disc)\n        opt_d.step(disc, [(a + c, b + d) for (a, b), (c, d) in zip(g_r, g_f)])\n        acts_g = forward(rng.normal(size=(128, 2)), gen)\n        acts_f = forward(acts_g[-1], disc)\n        p_f = sigmoid(acts_f[-1])\n        _, d_fake = backward(acts_f, (p_f - 1) / 128, disc)\n        g_g, _ = backward(acts_g, d_fake, gen)\n        opt_g.step(gen, g_g)\n    noise = np.random.default_rng(100).normal(size=(2000, 2))\n    counts, near = mode_report(forward(noise, gen)[-1])\n    return [int((counts >= 40).sum()), round(float(near), 3)]\n\n\nprint(train(1500, 0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "train",
+      "cases": [
+        {
+          "args": [
+            1500,
+            0
+          ],
+          "returns": [
+            8,
+            0.892
+          ]
+        },
+        {
+          "args": [
+            1500,
+            2
+          ],
+          "returns": [
+            8,
+            0.851
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[8, 0.892]"
+    }
+  ]
+}

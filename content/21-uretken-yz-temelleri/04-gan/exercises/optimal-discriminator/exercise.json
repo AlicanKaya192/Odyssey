@@ -1,0 +1,90 @@
+{
+  "id": "optimal-discriminator",
+  "title": {
+    "tr": "En iyi ayırt edici",
+    "en": "The best discriminator"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yoğunluğu bir yardımcı fonksiyona yaz: `density(x, m, s)`; gerçek veri için `density(x, 0.0, 1.0)`.",
+      "en": "Write the density as a helper function: `density(x, m, s)`; for the real data `density(x, 0.0, 1.0)`."
+    },
+    {
+      "tr": "Üretici veriyle aynıysa (`mu_g = 0`, `sd_g = 1`) her değer 0,5 çıkmalı.",
+      "en": "If the generator equals the data (`mu_g = 0`, `sd_g = 1`) every value must be 0.5."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef density(x, m, s):\n    return np.exp(-(x - m) ** 2 / (2 * s ** 2)) / (s * np.sqrt(2 * np.pi))\n\n\ndef optimal_d(xs, mu_g, sd_g):\n    xs = np.array(xs)\n    p_data = density(xs, 0.0, 1.0)\n    p_g = density(xs, mu_g, sd_g)\n    return [round(float(v), 3) for v in p_data / (p_data + p_g)]\n\n\nprint(optimal_d([0.0, 1.0, 2.0], 0.0, 1.0))\nprint(optimal_d([0.0, 1.0, 2.0], 2.0, 1.0))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef density(x, m, s):\n    return np.exp(-(x - m) ** 2 / (2 * s ** 2)) / (s * np.sqrt(2 * np.pi))\n\n\ndef optimal_d(xs, mu_g, sd_g):\n    xs = np.array(xs)\n    p_data = density(xs, 0.0, 1.0)\n    p_g = density(xs, mu_g, sd_g)\n    return [round(float(v), 3) for v in p_data / (p_data + p_g)]\n\n\nprint(optimal_d([0.0, 1.0, 2.0], 0.0, 1.0))\nprint(optimal_d([0.0, 1.0, 2.0], 2.0, 1.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "optimal_d",
+      "cases": [
+        {
+          "args": [
+            [
+              0.0,
+              1.0,
+              2.0
+            ],
+            0.0,
+            1.0
+          ],
+          "returns": [
+            0.5,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "args": [
+            [
+              0.0,
+              1.0,
+              2.0
+            ],
+            2.0,
+            1.0
+          ],
+          "returns": [
+            0.881,
+            0.5,
+            0.119
+          ]
+        },
+        {
+          "args": [
+            [
+              -1.0,
+              0.0,
+              3.0
+            ],
+            0.0,
+            2.0
+          ],
+          "returns": [
+            0.579,
+            0.667,
+            0.064
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.5, 0.5, 0.5]\n[0.881, 0.5, 0.119]"
+    }
+  ]
+}

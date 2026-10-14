@@ -1,0 +1,132 @@
+{
+  "id": "mode-summary",
+  "title": {
+    "tr": "Kümeleri say",
+    "en": "Count the clusters"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Uzaklık tablosu: `np.linalg.norm(points[:, None] - CENTRES[None], axis=2)`; her satır bir nokta.",
+      "en": "The distance table: `np.linalg.norm(points[:, None] - CENTRES[None], axis=2)`; each row is a point."
+    },
+    {
+      "tr": "En yakın merkez `dist.argmin(axis=1)`; yalnızca yakın olanların merkezlerini bir kümede topla.",
+      "en": "The nearest centre is `dist.argmin(axis=1)`; collect only the near points' centres in a set."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\nangles = np.arange(8) * np.pi / 4\nCENTRES = np.stack([2 * np.cos(angles), 2 * np.sin(angles)], axis=1)\nEXAMPLE = [[2.0, 0.1], [1.9, -0.1], [0.0, 2.05], [-2.0, 0.0], [-1.41, -1.41],\n           [0.0, 0.0], [1.0, 1.0], [2.1, 0.0], [0.1, -1.95], [-2.2, 0.1]]\n\n\ndef mode_summary(points):\n    points = np.array(points)\n    dist = np.linalg.norm(points[:, None] - CENTRES[None], axis=2)\n    near = dist.min(axis=1) < 0.3\n    found = len(set(dist.argmin(axis=1)[near].tolist()))\n    return [found, round(float(near.mean()), 3)]\n\n\nprint(mode_summary(EXAMPLE))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\nangles = np.arange(8) * np.pi / 4\nCENTRES = np.stack([2 * np.cos(angles), 2 * np.sin(angles)], axis=1)\nEXAMPLE = [[2.0, 0.1], [1.9, -0.1], [0.0, 2.05], [-2.0, 0.0], [-1.41, -1.41],\n           [0.0, 0.0], [1.0, 1.0], [2.1, 0.0], [0.1, -1.95], [-2.2, 0.1]]\n\n\ndef mode_summary(points):\n    points = np.array(points)\n    dist = np.linalg.norm(points[:, None] - CENTRES[None], axis=2)\n    near = dist.min(axis=1) < 0.3\n    found = len(set(dist.argmin(axis=1)[near].tolist()))\n    return [found, round(float(near.mean()), 3)]\n\n\nprint(mode_summary(EXAMPLE))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mode_summary",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                2.0,
+                0.1
+              ],
+              [
+                1.9,
+                -0.1
+              ],
+              [
+                0.0,
+                2.05
+              ],
+              [
+                -2.0,
+                0.0
+              ],
+              [
+                -1.41,
+                -1.41
+              ],
+              [
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0
+              ],
+              [
+                2.1,
+                0.0
+              ],
+              [
+                0.1,
+                -1.95
+              ],
+              [
+                -2.2,
+                0.1
+              ]
+            ]
+          ],
+          "returns": [
+            5,
+            0.8
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.5,
+                0.5
+              ]
+            ]
+          ],
+          "returns": [
+            0,
+            0.0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.42,
+                1.4
+              ],
+              [
+                1.4,
+                1.43
+              ],
+              [
+                -0.05,
+                -2.0
+              ]
+            ]
+          ],
+          "returns": [
+            2,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[5, 0.8]"
+    }
+  ]
+}
