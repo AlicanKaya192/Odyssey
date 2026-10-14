@@ -137,6 +137,10 @@ def _check_job(check: dict, data: dict, _path: Path) -> dict | None:
             return _fail("needs_missing", job=job_id, name=wanted)
     if "if" in check and not re.search(check["if"], str(job.get("if", "") or "")):
         return _fail("if_missing", job=job_id, expected=check.get("show_if", check["if"]))
+    env = job.get("env") if isinstance(job.get("env"), dict) else {}
+    for key, pattern in (check.get("env") or {}).items():
+        if key not in env or not re.search(pattern, str(env[key])):
+            return _fail("env_missing", job=job_id, name=key)
     problem = _check_matrix(check, job_id, job)
     if problem:
         return problem
