@@ -72,6 +72,7 @@ BADGE_TAGS = {
     "alchemist": "mllib-complete",
     "hermes": "nlp1-complete",
     "calliope": "nlp2-complete",
+    "pygmalion": "genai1-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200

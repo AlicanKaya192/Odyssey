@@ -361,6 +361,26 @@ GLYPHS: dict[str, str] = {
                     '<path d="M16 5.25c4 0 4 6.75 0 6.75M16 12c4 0 4 6.75 0 6.75" stroke-width="1.2"/>'
                     '<g fill="#fff" stroke="none"><circle cx="6" cy="5.25" r="0.9"/>'
                     '<circle cx="9.5" cy="12" r="0.9"/><circle cx="13" cy="18.75" r="0.9"/></g>'),
+    "noise-shape": ('<g fill="#fff" stroke="none"><circle cx="3.5" cy="6" r="1"/>'
+                    '<circle cx="7.5" cy="4.5" r="0.8"/><circle cx="6.5" cy="11" r="1"/>'
+                    '<circle cx="3" cy="15.5" r="1"/><circle cx="7" cy="19" r="0.8"/></g>'
+                    '<path d="M9.5 12h3.5M11.5 10l2 2-2 2" stroke-width="1.4"/>'
+                    '<circle cx="18" cy="12" r="4" stroke-width="1.6"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="18" cy="12" r="1.3"/></g>'),
+    "cited-page": ('<rect x="2.5" y="2.5" width="11" height="14" rx="1" stroke-width="1.5"/>'
+                   '<path d="M5 6h6M5 8.5h6M5 11h3.5" stroke-width="1"/>'
+                   '<path d="M12 13.5h8A1.5 1.5 0 0 1 21.5 15v4a1.5 1.5 0 0 1-1.5 1.5h-5l-3 2.5v-2.5'
+                   'A1.5 1.5 0 0 1 10.5 19v-4A1.5 1.5 0 0 1 12 13.5z" stroke-width="1.4"/>'
+                   '<path d="M13.6 17.2l1.7 1.5 3.2-3.2" stroke-width="1.4"/>'),
+    "low-rank": ('<rect x="2.5" y="8.5" width="3.5" height="12.5" rx="0.8" stroke-width="1.4"/>'
+                 '<rect x="8.5" y="2.5" width="13" height="3.5" rx="0.8" stroke-width="1.4"/>'
+                 '<rect x="8.5" y="8.5" width="13" height="12.5" rx="1" stroke-width="1.5"/>'
+                 '<path d="M11 18.5l8-7.5" stroke-width="1.2"/>'
+                 '<g fill="#fff" stroke="none"><circle cx="4.25" cy="4.25" r="1.3"/></g>'),
+    "spark-orbit": ('<path d="M12 4.5l1.8 5.2L19 11.5l-5.2 1.8L12 18.5l-1.8-5.2L5 11.5l5.2-1.8z" stroke-width="1.5"/>'
+                    '<ellipse cx="12" cy="11.5" rx="10" ry="4" transform="rotate(-20 12 11.5)" stroke-width="1.1"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="19.5" cy="19.5" r="1.2"/>'
+                    '<circle cx="4.5" cy="3.5" r="0.9"/></g>'),
 }
 
 

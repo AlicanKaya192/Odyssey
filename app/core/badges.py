@@ -60,6 +60,7 @@ DSLIB_CHAPTER = "17-veri-bilimi-kutuphaneleri"
 MLLIB_CHAPTER = "18-ml-kutuphaneleri"
 NLP1_CHAPTER = "19-nlp-temelleri"
 NLP2_CHAPTER = "20-gommeler-ve-dil-modelleri"
+GENAI1_CHAPTER = "21-uretken-yz-temelleri"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -119,6 +120,9 @@ NLP1_DUPLICATE_SECTION = (NLP1_CHAPTER, "13-kumeleme-ve-yakin-kopya")
 NLP2_WORD2VEC_SECTION = (NLP2_CHAPTER, "02-word2vec")
 NLP2_ATTENTION_SECTION = (NLP2_CHAPTER, "10-dikkat-mekanizmasi")
 NLP2_SEARCH_SECTION = (NLP2_CHAPTER, "15-anlamsal-arama-motoru")
+GENAI1_DIFFUSION_SECTION = (GENAI1_CHAPTER, "05-difuzyon")
+GENAI1_RAG_SECTION = (GENAI1_CHAPTER, "10-rag")
+GENAI1_LORA_SECTION = (GENAI1_CHAPTER, "13-lora")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -140,6 +144,7 @@ DSLIB_SECTION_COUNT = 17
 MLLIB_SECTION_COUNT = 17
 NLP1_SECTION_COUNT = 17
 NLP2_SECTION_COUNT = 17
+GENAI1_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -292,6 +297,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "first-attention": NLP2_ATTENTION_SECTION in bitenler,
         "search-builder": NLP2_SEARCH_SECTION in bitenler,
         "nlp2-complete": modul_basina.get(NLP2_CHAPTER, 0) >= NLP2_SECTION_COUNT,
+        "from-noise": GENAI1_DIFFUSION_SECTION in bitenler,
+        "cited-answer": GENAI1_RAG_SECTION in bitenler,
+        "light-touch": GENAI1_LORA_SECTION in bitenler,
+        "genai1-complete": modul_basina.get(GENAI1_CHAPTER, 0) >= GENAI1_SECTION_COUNT,
     }
 
 
