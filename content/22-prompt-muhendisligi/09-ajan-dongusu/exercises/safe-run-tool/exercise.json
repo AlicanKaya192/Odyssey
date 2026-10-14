@@ -1,0 +1,111 @@
+{
+  "id": "safe-run-tool",
+  "title": {
+    "tr": "Çökmeyen araç çalıştırıcı",
+    "en": "A tool runner that does not crash"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Aracı `TOOLS.get(call[\"name\"])` ile al; `None` ise hata sözlüğü.",
+      "en": "Get the tool with `TOOLS.get(call[\"name\"])`; if `None`, an error dictionary."
+    },
+    {
+      "tr": "`except (TypeError, KeyError):` iki hatayı birlikte yakalar.",
+      "en": "`except (TypeError, KeyError):` catches both errors together."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom shop_data import ORDERS\n\n\ndef get_order(order_id):\n    order = ORDERS[order_id]\n    return {\"status\": order[\"status\"]}\n\n\nTOOLS = {\"get_order\": get_order}\n\n\ndef run_tool(call):\n    function = TOOLS.get(call[\"name\"])\n    if function is None:\n        return {\"error\": f\"unknown tool {call['name']}\"}\n    try:\n        return function(**call.get(\"arguments\", {}))\n    except (TypeError, KeyError):\n        return {\"error\": \"wrong arguments\"}\n\n\nfor call in [{\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-48213\"}},\n             {\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-00000\"}},\n             {\"name\": \"get_order\", \"arguments\": {\"id\": \"ORD-48213\"}},\n             {\"name\": \"refund\"}]:\n    print(run_tool(call))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom shop_data import ORDERS\n\n\ndef get_order(order_id):\n    order = ORDERS[order_id]\n    return {\"status\": order[\"status\"]}\n\n\nTOOLS = {\"get_order\": get_order}\n\n\ndef run_tool(call):\n    function = TOOLS.get(call[\"name\"])\n    if function is None:\n        return {\"error\": f\"unknown tool {call['name']}\"}\n    try:\n        return function(**call.get(\"arguments\", {}))\n    except (TypeError, KeyError):\n        return {\"error\": \"wrong arguments\"}\n\n\nfor call in [{\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-48213\"}},\n             {\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-00000\"}},\n             {\"name\": \"get_order\", \"arguments\": {\"id\": \"ORD-48213\"}},\n             {\"name\": \"refund\"}]:\n    print(run_tool(call))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "run_tool",
+      "cases": [
+        {
+          "args": [
+            {
+              "name": "get_order",
+              "arguments": {
+                "order_id": "ORD-48213"
+              }
+            }
+          ],
+          "returns": {
+            "status": "shipped"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "get_order",
+              "arguments": {
+                "order_id": "ORD-00000"
+              }
+            }
+          ],
+          "returns": {
+            "error": "wrong arguments"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "get_order",
+              "arguments": {
+                "id": "ORD-48213"
+              }
+            }
+          ],
+          "returns": {
+            "error": "wrong arguments"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "refund"
+            }
+          ],
+          "returns": {
+            "error": "unknown tool refund"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "get_order"
+            }
+          ],
+          "returns": {
+            "error": "wrong arguments"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'status': 'shipped'}\n{'error': 'wrong arguments'}\n{'error': 'wrong arguments'}\n{'error': 'unknown tool refund'}"
+    }
+  ]
+}

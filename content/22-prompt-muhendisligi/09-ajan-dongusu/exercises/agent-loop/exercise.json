@@ -1,0 +1,156 @@
+{
+  "id": "agent-loop",
+  "title": {
+    "tr": "Ajan döngüsü",
+    "en": "The agent loop"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tur döngüsü: `for step in range(1, max_steps + 1):`.",
+      "en": "The round loop: `for step in range(1, max_steps + 1):`."
+    },
+    {
+      "tr": "Sonuç metin olarak eklenir: `json.dumps(result)`.",
+      "en": "The result is added as text: `json.dumps(result)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport json\n\nfrom llm_client import ChatClient\nfrom shop_data import ORDERS\n\nSYSTEM = \"You are a shop assistant. Use the tools; answer when you know.\"\nSCHEMA = [{\"name\": \"get_order\", \"parameters\": [\"order_id\"]}]\n\n\ndef run_tool(call):\n    if call[\"name\"] != \"get_order\":\n        return {\"error\": f\"unknown tool {call['name']}\"}\n    order = ORDERS.get(call.get(\"arguments\", {}).get(\"order_id\"))\n    if order is None:\n        return {\"error\": \"no such order\"}\n    return {\"status\": order[\"status\"]}\n\n\ndef agent(script, question, max_steps):\n    client = ChatClient(script)\n    messages = [{\"role\": \"system\", \"content\": SYSTEM},\n                {\"role\": \"user\", \"content\": question}]\n    seen, trace = set(), []\n    for step in range(1, max_steps + 1):\n        reply = client.chat(messages, tools=SCHEMA)\n        trace.append(reply.input_tokens)\n        if not reply.tool_calls:\n            return [reply.text, step, trace]\n        messages.append({\"role\": \"assistant\", \"content\": \"\",\n                         \"tool_calls\": reply.tool_calls})\n        for call in reply.tool_calls:\n            key = json.dumps(call, sort_keys=True)\n            if key in seen:\n                result = {\"error\": \"you already made this call\"}\n            else:\n                result = run_tool(call)\n            seen.add(key)\n            messages.append({\"role\": \"tool\", \"content\": json.dumps(result)})\n    return [None, max_steps, trace]\n\n\nLOOK = {\"tool_calls\": [{\"name\": \"get_order\",\n                        \"arguments\": {\"order_id\": \"ORD-23345\"}}]}\nfor script in [[LOOK, \"It is being prepared.\"], [LOOK] * 4]:\n    text, steps, trace = agent(script, \"Where is ORD-23345?\", 3)\n    print(text, steps)\n    print(trace)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport json\n\nfrom llm_client import ChatClient\nfrom shop_data import ORDERS\n\nSYSTEM = \"You are a shop assistant. Use the tools; answer when you know.\"\nSCHEMA = [{\"name\": \"get_order\", \"parameters\": [\"order_id\"]}]\n\n\ndef run_tool(call):\n    if call[\"name\"] != \"get_order\":\n        return {\"error\": f\"unknown tool {call['name']}\"}\n    order = ORDERS.get(call.get(\"arguments\", {}).get(\"order_id\"))\n    if order is None:\n        return {\"error\": \"no such order\"}\n    return {\"status\": order[\"status\"]}\n\n\ndef agent(script, question, max_steps):\n    client = ChatClient(script)\n    messages = [{\"role\": \"system\", \"content\": SYSTEM},\n                {\"role\": \"user\", \"content\": question}]\n    seen, trace = set(), []\n    for step in range(1, max_steps + 1):\n        reply = client.chat(messages, tools=SCHEMA)\n        trace.append(reply.input_tokens)\n        if not reply.tool_calls:\n            return [reply.text, step, trace]\n        messages.append({\"role\": \"assistant\", \"content\": \"\",\n                         \"tool_calls\": reply.tool_calls})\n        for call in reply.tool_calls:\n            key = json.dumps(call, sort_keys=True)\n            if key in seen:\n                result = {\"error\": \"you already made this call\"}\n            else:\n                result = run_tool(call)\n            seen.add(key)\n            messages.append({\"role\": \"tool\", \"content\": json.dumps(result)})\n    return [None, max_steps, trace]\n\n\nLOOK = {\"tool_calls\": [{\"name\": \"get_order\",\n                        \"arguments\": {\"order_id\": \"ORD-23345\"}}]}\nfor script in [[LOOK, \"It is being prepared.\"], [LOOK] * 4]:\n    text, steps, trace = agent(script, \"Where is ORD-23345?\", 3)\n    print(text, steps)\n    print(trace)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "agent",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "tool_calls": [
+                  {
+                    "name": "get_order",
+                    "arguments": {
+                      "order_id": "ORD-23345"
+                    }
+                  }
+                ]
+              },
+              "It is being prepared."
+            ],
+            "Where is ORD-23345?",
+            3
+          ],
+          "returns": [
+            "It is being prepared.",
+            2,
+            [
+              37,
+              57
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "tool_calls": [
+                  {
+                    "name": "get_order",
+                    "arguments": {
+                      "order_id": "ORD-23345"
+                    }
+                  }
+                ]
+              },
+              {
+                "tool_calls": [
+                  {
+                    "name": "get_order",
+                    "arguments": {
+                      "order_id": "ORD-23345"
+                    }
+                  }
+                ]
+              },
+              {
+                "tool_calls": [
+                  {
+                    "name": "get_order",
+                    "arguments": {
+                      "order_id": "ORD-23345"
+                    }
+                  }
+                ]
+              },
+              {
+                "tool_calls": [
+                  {
+                    "name": "get_order",
+                    "arguments": {
+                      "order_id": "ORD-23345"
+                    }
+                  }
+                ]
+              }
+            ],
+            "Where is ORD-23345?",
+            3
+          ],
+          "returns": [
+            null,
+            3,
+            [
+              37,
+              57,
+              80
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "Hello!"
+            ],
+            "Hi",
+            2
+          ],
+          "returns": [
+            "Hello!",
+            1,
+            [
+              30
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "It is being prepared. 2\n[37, 57]\nNone 3\n[37, 57, 80]"
+    }
+  ]
+}

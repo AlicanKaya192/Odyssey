@@ -1,0 +1,113 @@
+{
+  "id": "mark-repeats",
+  "title": {
+    "tr": "Tekrarı yakala",
+    "en": "Catch repetition"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Görülen anahtarları bir kümede tut.",
+      "en": "Keep the keys seen in a set."
+    },
+    {
+      "tr": "`sort_keys=True` anahtar sırasını eşitler.",
+      "en": "`sort_keys=True` makes the key order equal."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport json\n\n\ndef mark_repeats(calls):\n    seen, marks = set(), []\n    for call in calls:\n        key = json.dumps(call, sort_keys=True)\n        marks.append(\"repeat\" if key in seen else \"run\")\n        seen.add(key)\n    return marks\n\n\nA = {\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-1\"}}\nB = {\"arguments\": {\"order_id\": \"ORD-1\"}, \"name\": \"get_order\"}\nC = {\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-2\"}}\nprint(mark_repeats([A, C, B, C]))\n```",
+      "en": "The full solution:\n\n```python\nimport json\n\n\ndef mark_repeats(calls):\n    seen, marks = set(), []\n    for call in calls:\n        key = json.dumps(call, sort_keys=True)\n        marks.append(\"repeat\" if key in seen else \"run\")\n        seen.add(key)\n    return marks\n\n\nA = {\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-1\"}}\nB = {\"arguments\": {\"order_id\": \"ORD-1\"}, \"name\": \"get_order\"}\nC = {\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-2\"}}\nprint(mark_repeats([A, C, B, C]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mark_repeats",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "name": "get_order",
+                "arguments": {
+                  "order_id": "ORD-1"
+                }
+              },
+              {
+                "name": "get_order",
+                "arguments": {
+                  "order_id": "ORD-2"
+                }
+              },
+              {
+                "arguments": {
+                  "order_id": "ORD-1"
+                },
+                "name": "get_order"
+              },
+              {
+                "name": "get_order",
+                "arguments": {
+                  "order_id": "ORD-2"
+                }
+              }
+            ]
+          ],
+          "returns": [
+            "run",
+            "run",
+            "repeat",
+            "repeat"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "name": "get_order",
+                "arguments": {
+                  "order_id": "ORD-1"
+                }
+              },
+              {
+                "name": "get_order",
+                "arguments": {
+                  "order_id": "ORD-1"
+                }
+              },
+              {
+                "name": "get_order",
+                "arguments": {
+                  "order_id": "ORD-1"
+                }
+              }
+            ]
+          ],
+          "returns": [
+            "run",
+            "repeat",
+            "repeat"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['run', 'run', 'repeat', 'repeat']"
+    }
+  ]
+}

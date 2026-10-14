@@ -1,0 +1,115 @@
+{
+  "id": "loop-steps",
+  "title": {
+    "tr": "Adım sınırı",
+    "en": "The step limit"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İlk `max_steps` eylemi gez: `enumerate(actions[:max_steps], 1)`.",
+      "en": "Go through the first `max_steps` actions: `enumerate(actions[:max_steps], 1)`."
+    },
+    {
+      "tr": "Cevap yoksa dönülen tur: `min(len(actions), max_steps)`.",
+      "en": "Without an answer the rounds run: `min(len(actions), max_steps)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef loop_steps(actions, max_steps):\n    for step, action in enumerate(actions[:max_steps], 1):\n        if action == \"answer\":\n            return [step, True]\n    return [min(len(actions), max_steps), False]\n\n\nprint(loop_steps([\"tool\", \"tool\", \"answer\"], 5))\nprint(loop_steps([\"tool\"] * 9, 5))\n```",
+      "en": "The full solution:\n\n```python\ndef loop_steps(actions, max_steps):\n    for step, action in enumerate(actions[:max_steps], 1):\n        if action == \"answer\":\n            return [step, True]\n    return [min(len(actions), max_steps), False]\n\n\nprint(loop_steps([\"tool\", \"tool\", \"answer\"], 5))\nprint(loop_steps([\"tool\"] * 9, 5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "loop_steps",
+      "cases": [
+        {
+          "args": [
+            [
+              "tool",
+              "tool",
+              "answer"
+            ],
+            5
+          ],
+          "returns": [
+            3,
+            true
+          ]
+        },
+        {
+          "args": [
+            [
+              "tool",
+              "tool",
+              "tool",
+              "tool",
+              "tool",
+              "tool",
+              "tool",
+              "tool",
+              "tool"
+            ],
+            5
+          ],
+          "returns": [
+            5,
+            false
+          ]
+        },
+        {
+          "args": [
+            [
+              "answer"
+            ],
+            5
+          ],
+          "returns": [
+            1,
+            true
+          ]
+        },
+        {
+          "args": [
+            [
+              "tool",
+              "tool"
+            ],
+            5
+          ],
+          "returns": [
+            2,
+            false
+          ]
+        },
+        {
+          "args": [
+            [
+              "tool",
+              "tool",
+              "answer"
+            ],
+            2
+          ],
+          "returns": [
+            2,
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, True]\n[5, False]"
+    }
+  ]
+}
