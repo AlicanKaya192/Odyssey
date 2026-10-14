@@ -1,0 +1,138 @@
+{
+  "id": "split-sets",
+  "title": {
+    "tr": "Kümeleri ayır",
+    "en": "Split the sets"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her kategoride kaç mesaj görüldüğünü bir sözlükte say.",
+      "en": "Count in a dictionary how many messages of each category were seen."
+    },
+    {
+      "tr": "Sayı `per_label`'ı geçmediyse geliştirme kümesi.",
+      "en": "If the count has not passed `per_label`, development set."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom shop_data import TICKETS\n\n\ndef split_sets(tickets, per_label):\n    seen, dev, test = {}, [], []\n    for t in tickets:\n        seen[t[\"label\"]] = seen.get(t[\"label\"], 0) + 1\n        if seen[t[\"label\"]] <= per_label:\n            dev.append(t[\"id\"])\n        else:\n            test.append(t[\"id\"])\n    return [dev, test]\n\n\ndev, test = split_sets(TICKETS, 4)\nprint(len(dev), len(test))\nprint(dev[:6])\nprint(test[:6])\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom shop_data import TICKETS\n\n\ndef split_sets(tickets, per_label):\n    seen, dev, test = {}, [], []\n    for t in tickets:\n        seen[t[\"label\"]] = seen.get(t[\"label\"], 0) + 1\n        if seen[t[\"label\"]] <= per_label:\n            dev.append(t[\"id\"])\n        else:\n            test.append(t[\"id\"])\n    return [dev, test]\n\n\ndev, test = split_sets(TICKETS, 4)\nprint(len(dev), len(test))\nprint(dev[:6])\nprint(test[:6])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "split_sets",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "id": 1,
+                "label": "a"
+              },
+              {
+                "id": 2,
+                "label": "b"
+              },
+              {
+                "id": 3,
+                "label": "a"
+              },
+              {
+                "id": 4,
+                "label": "a"
+              },
+              {
+                "id": 5,
+                "label": "b"
+              }
+            ],
+            1
+          ],
+          "returns": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4,
+              5
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "id": 1,
+                "label": "a"
+              },
+              {
+                "id": 2,
+                "label": "b"
+              },
+              {
+                "id": 3,
+                "label": "a"
+              },
+              {
+                "id": 4,
+                "label": "a"
+              },
+              {
+                "id": 5,
+                "label": "b"
+              }
+            ],
+            2
+          ],
+          "returns": [
+            [
+              1,
+              2,
+              3,
+              5
+            ],
+            [
+              4
+            ]
+          ]
+        },
+        {
+          "args": [
+            [],
+            3
+          ],
+          "returns": [
+            [],
+            []
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "20 20\n[1, 2, 3, 4, 5, 6]\n[21, 22, 23, 24, 25, 26]"
+    }
+  ]
+}

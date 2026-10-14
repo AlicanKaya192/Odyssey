@@ -1,0 +1,70 @@
+{
+  "id": "toy-model",
+  "title": {
+    "tr": "Oyuncak model",
+    "en": "The toy model"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satırlar: `re.findall(r\"^- (\\w+): (.+)$\", prompt, re.M)`.",
+      "en": "The lines: `re.findall(r\"^- (\\w+): (.+)$\", prompt, re.M)`."
+    },
+    {
+      "tr": "Eşitlikte değiştirmemek için `>` kullan, `>=` değil.",
+      "en": "To keep the first on a tie use `>`, not `>=`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef toy_model(prompt, text):\n    words = set(re.findall(r\"[a-z]+\", text.lower()))\n    best, best_hits = \"unknown\", 0\n    for label, listed in re.findall(r\"^- (\\w+): (.+)$\", prompt, re.M):\n        hits = sum(word in words for word in listed.split(\", \"))\n        if hits > best_hits:\n            best, best_hits = label, hits\n    return best\n\n\nPROMPT = \"\"\"Classify.\n- shipping: parcel, courier\n- returns: return, back\n- refunds: refund, money\"\"\"\nfor text in [\"Where is my parcel?\", \"I want my money back.\",\n             \"The zip broke.\"]:\n    print(toy_model(PROMPT, text))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef toy_model(prompt, text):\n    words = set(re.findall(r\"[a-z]+\", text.lower()))\n    best, best_hits = \"unknown\", 0\n    for label, listed in re.findall(r\"^- (\\w+): (.+)$\", prompt, re.M):\n        hits = sum(word in words for word in listed.split(\", \"))\n        if hits > best_hits:\n            best, best_hits = label, hits\n    return best\n\n\nPROMPT = \"\"\"Classify.\n- shipping: parcel, courier\n- returns: return, back\n- refunds: refund, money\"\"\"\nfor text in [\"Where is my parcel?\", \"I want my money back.\",\n             \"The zip broke.\"]:\n    print(toy_model(PROMPT, text))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "toy_model",
+      "cases": [
+        {
+          "args": [
+            "Classify.\n- shipping: parcel, courier\n- returns: return, back\n- refunds: refund, money",
+            "Where is my parcel?"
+          ],
+          "returns": "shipping"
+        },
+        {
+          "args": [
+            "Classify.\n- shipping: parcel, courier\n- returns: return, back\n- refunds: refund, money",
+            "I want my money back."
+          ],
+          "returns": "returns"
+        },
+        {
+          "args": [
+            "Classify.\n- shipping: parcel, courier\n- returns: return, back\n- refunds: refund, money",
+            "The zip broke."
+          ],
+          "returns": "unknown"
+        },
+        {
+          "args": [
+            "Classify.\n- shipping: parcel, courier\n- returns: return, back\n- refunds: refund, money",
+            "Send it back, refund the money"
+          ],
+          "returns": "refunds"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "shipping\nreturns\nunknown"
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "id": "ablation",
+  "title": {
+    "tr": "Ablasyon",
+    "en": "Ablation"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tam başarıyı bir kez ölç: `full = accuracy(render(definitions), tickets)`.",
+      "en": "Measure the full success once: `full = accuracy(render(definitions), tickets)`."
+    },
+    {
+      "tr": "Kelimesiz sözlük: `{k: [w for w in ws if (k, w) != (label, word)] ...}`.",
+      "en": "The dictionary without the word: `{k: [w for w in ws if (k, w) != (label, word)] ...}`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nfrom shop_data import TICKETS\n\n\ndef render(definitions):\n    lines = [f\"- {label}: {', '.join(words)}\"\n             for label, words in definitions.items()]\n    return \"Classify the message into one category.\\n\" + \"\\n\".join(lines)\n\n\ndef toy_model(prompt, text):\n    words = set(re.findall(r\"[a-z]+\", text.lower()))\n    best, best_hits = \"unknown\", 0\n    for label, listed in re.findall(r\"^- (\\w+): (.+)$\", prompt, re.M):\n        hits = sum(word in words for word in listed.split(\", \"))\n        if hits > best_hits:\n            best, best_hits = label, hits\n    return best\n\n\ndef accuracy(prompt, tickets):\n    right = sum(toy_model(prompt, t[\"text\"]) == t[\"label\"] for t in tickets)\n    return right / len(tickets)\n\ndef ablation(definitions, base, tickets):\n    full = accuracy(render(definitions), tickets)\n    result = []\n    for label, words in definitions.items():\n        for word in words:\n            if word in base.get(label, []):\n                continue\n            smaller = {k: [w for w in ws if (k, w) != (label, word)]\n                       for k, ws in definitions.items()}\n            change = round(accuracy(render(smaller), tickets) - full, 2)\n            if change:\n                result.append([word, change])\n    return result\n\n\nBASE = {\"shipping\": [\"parcel\"], \"returns\": [\"return\"],\n        \"refunds\": [\"refund\"], \"warranty\": [\"warranty\"],\n        \"payment\": [\"pay\"]}\nNEW = {\"shipping\": [\"parcel\", \"tracking\", \"deliver\"],\n       \"returns\": [\"return\", \"back\", \"send\"],\n       \"refunds\": [\"refund\", \"money\"],\n       \"warranty\": [\"warranty\", \"seam\"],\n       \"payment\": [\"pay\", \"card\"]}\nfor word, change in ablation(NEW, BASE, TICKETS[:20]):\n    print(word, change)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nfrom shop_data import TICKETS\n\n\ndef render(definitions):\n    lines = [f\"- {label}: {', '.join(words)}\"\n             for label, words in definitions.items()]\n    return \"Classify the message into one category.\\n\" + \"\\n\".join(lines)\n\n\ndef toy_model(prompt, text):\n    words = set(re.findall(r\"[a-z]+\", text.lower()))\n    best, best_hits = \"unknown\", 0\n    for label, listed in re.findall(r\"^- (\\w+): (.+)$\", prompt, re.M):\n        hits = sum(word in words for word in listed.split(\", \"))\n        if hits > best_hits:\n            best, best_hits = label, hits\n    return best\n\n\ndef accuracy(prompt, tickets):\n    right = sum(toy_model(prompt, t[\"text\"]) == t[\"label\"] for t in tickets)\n    return right / len(tickets)\n\ndef ablation(definitions, base, tickets):\n    full = accuracy(render(definitions), tickets)\n    result = []\n    for label, words in definitions.items():\n        for word in words:\n            if word in base.get(label, []):\n                continue\n            smaller = {k: [w for w in ws if (k, w) != (label, word)]\n                       for k, ws in definitions.items()}\n            change = round(accuracy(render(smaller), tickets) - full, 2)\n            if change:\n                result.append([word, change])\n    return result\n\n\nBASE = {\"shipping\": [\"parcel\"], \"returns\": [\"return\"],\n        \"refunds\": [\"refund\"], \"warranty\": [\"warranty\"],\n        \"payment\": [\"pay\"]}\nNEW = {\"shipping\": [\"parcel\", \"tracking\", \"deliver\"],\n       \"returns\": [\"return\", \"back\", \"send\"],\n       \"refunds\": [\"refund\", \"money\"],\n       \"warranty\": [\"warranty\", \"seam\"],\n       \"payment\": [\"pay\", \"card\"]}\nfor word, change in ablation(NEW, BASE, TICKETS[:20]):\n    print(word, change)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ablation",
+      "cases": [
+        {
+          "args": [
+            {
+              "shipping": [
+                "parcel",
+                "tracking",
+                "deliver"
+              ],
+              "returns": [
+                "return",
+                "back",
+                "send"
+              ],
+              "refunds": [
+                "refund",
+                "money"
+              ],
+              "warranty": [
+                "warranty",
+                "seam"
+              ],
+              "payment": [
+                "pay",
+                "card"
+              ]
+            },
+            {
+              "shipping": [
+                "parcel"
+              ],
+              "returns": [
+                "return"
+              ],
+              "refunds": [
+                "refund"
+              ],
+              "warranty": [
+                "warranty"
+              ],
+              "payment": [
+                "pay"
+              ]
+            },
+            [
+              {
+                "id": 1,
+                "text": "The tracking page is stuck.",
+                "label": "shipping"
+              },
+              {
+                "id": 2,
+                "text": "No money back yet",
+                "label": "refunds"
+              },
+              {
+                "id": 3,
+                "text": "Send it back",
+                "label": "returns"
+              }
+            ]
+          ],
+          "returns": [
+            [
+              "tracking",
+              -0.33
+            ],
+            [
+              "back",
+              0.33
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "shipping": [
+                "parcel"
+              ],
+              "returns": [
+                "return"
+              ],
+              "refunds": [
+                "refund"
+              ],
+              "warranty": [
+                "warranty"
+              ],
+              "payment": [
+                "pay"
+              ]
+            },
+            {
+              "shipping": [
+                "parcel"
+              ],
+              "returns": [
+                "return"
+              ],
+              "refunds": [
+                "refund"
+              ],
+              "warranty": [
+                "warranty"
+              ],
+              "payment": [
+                "pay"
+              ]
+            },
+            [
+              {
+                "id": 1,
+                "text": "Pay?",
+                "label": "payment"
+              }
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "tracking -0.05\ndeliver -0.05\nback 0.05\nseam -0.05\ncard -0.05"
+    }
+  ]
+}
