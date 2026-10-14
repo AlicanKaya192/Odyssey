@@ -1,0 +1,90 @@
+{
+  "id": "reward-fit",
+  "title": {
+    "tr": "Ödül modelini öğren",
+    "en": "Learn the reward model"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Listeyi diziye çevir: `D = np.array(diffs, dtype=float)`; `w = np.zeros(D.shape[1])`.",
+      "en": "Turn the list into an array: `D = np.array(diffs, dtype=float)`; `w = np.zeros(D.shape[1])`."
+    },
+    {
+      "tr": "Güncelleme bir çıkış adımı (ödül büyür): `w += ...`.",
+      "en": "The update is an ascent step (the reward grows): `w += ...`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef fit_reward(diffs, steps, lr):\n    D = np.array(diffs, dtype=float)\n    w = np.zeros(D.shape[1])\n    for _ in range(steps):\n        p = 1 / (1 + np.exp(-D @ w))\n        w += lr * D.T @ (1 - p) / len(D)\n    return [round(float(v), 2) for v in w]\n\n\nprint(fit_reward([[1, 0], [1, 1], [0, 1], [1, -1]], 2000, 0.5))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef fit_reward(diffs, steps, lr):\n    D = np.array(diffs, dtype=float)\n    w = np.zeros(D.shape[1])\n    for _ in range(steps):\n        p = 1 / (1 + np.exp(-D @ w))\n        w += lr * D.T @ (1 - p) / len(D)\n    return [round(float(v), 2) for v in w]\n\n\nprint(fit_reward([[1, 0], [1, 1], [0, 1], [1, -1]], 2000, 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fit_reward",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                -1
+              ]
+            ],
+            2000,
+            0.5
+          ],
+          "returns": [
+            9.3,
+            4.44
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0
+              ],
+              [
+                -1.0
+              ],
+              [
+                1.0
+              ]
+            ],
+            500,
+            0.5
+          ],
+          "returns": [
+            0.69
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[9.3, 4.44]"
+    }
+  ]
+}

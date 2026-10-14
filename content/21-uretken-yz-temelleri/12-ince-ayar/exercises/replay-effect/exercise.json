@@ -1,0 +1,86 @@
+{
+  "id": "replay-effect",
+  "title": {
+    "tr": "Eskiyi karıştır",
+    "en": "Mix in the old"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "finetune_tools.py",
+      "readonly": true
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Yeni örnekler: `few = np.concatenate([np.where(y_new[:400] == d)[0][:10] for d in range(5, 10)])`.",
+      "en": "The new examples: `few = np.concatenate([np.where(y_new[:400] == d)[0][:10] for d in range(5, 10)])`."
+    },
+    {
+      "tr": "Karıştırma `np.concatenate([Xs, X_old[pick]])` ve etiketler için aynısı.",
+      "en": "Mix with `np.concatenate([Xs, X_old[pick]])` and the same for the labels."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom finetune_tools import X_old, y_old, X_new, y_new, init, train, accuracy\n\n\ndef replay_effect(k, seed):\n    rng = np.random.default_rng(seed)\n    base = train(init([64, 32, 10], rng), X_old[:700], y_old[:700], 500)\n    few = np.concatenate([np.where(y_new[:400] == d)[0][:10] for d in range(5, 10)])\n    Xs, ys = X_new[few], y_new[few]\n    if k > 0:\n        pick = rng.choice(700, k, replace=False)\n        Xs, ys = np.concatenate([Xs, X_old[pick]]), np.concatenate([ys, y_old[pick]])\n    net = train(base, Xs, ys, 300)\n    return [accuracy(net, X_new[400:], y_new[400:]), accuracy(net, X_old[700:], y_old[700:])]\n\n\nfor k in [0, 50]:\n    print(k, replay_effect(k, 0))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom finetune_tools import X_old, y_old, X_new, y_new, init, train, accuracy\n\n\ndef replay_effect(k, seed):\n    rng = np.random.default_rng(seed)\n    base = train(init([64, 32, 10], rng), X_old[:700], y_old[:700], 500)\n    few = np.concatenate([np.where(y_new[:400] == d)[0][:10] for d in range(5, 10)])\n    Xs, ys = X_new[few], y_new[few]\n    if k > 0:\n        pick = rng.choice(700, k, replace=False)\n        Xs, ys = np.concatenate([Xs, X_old[pick]]), np.concatenate([ys, y_old[pick]])\n    net = train(base, Xs, ys, 300)\n    return [accuracy(net, X_new[400:], y_new[400:]), accuracy(net, X_old[700:], y_old[700:])]\n\n\nfor k in [0, 50]:\n    print(k, replay_effect(k, 0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "replay_effect",
+      "cases": [
+        {
+          "args": [
+            0,
+            0
+          ],
+          "returns": [
+            0.931,
+            0.065
+          ]
+        },
+        {
+          "args": [
+            50,
+            0
+          ],
+          "returns": [
+            0.901,
+            0.95
+          ]
+        },
+        {
+          "args": [
+            20,
+            1
+          ],
+          "returns": [
+            0.897,
+            0.871
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 [0.931, 0.065]\n50 [0.901, 0.95]"
+    }
+  ]
+}
