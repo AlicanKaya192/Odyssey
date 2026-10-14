@@ -37,6 +37,21 @@ lecture note does not mean downloading the whole application again.
   RNNs, the attention mechanism and the transformer block, pretraining, text
   generation and evaluation, ending with a semantic search engine. The models
   are built from scratch with NumPy.
+- **Generative AI (GenAI) path.** From generative models to an application
+  that works with a language model. **Generative AI Fundamentals** (17
+  sections): drawing samples from a distribution, the autoencoder, VAE, GAN
+  and diffusion; how a language model generates, tokens and cost,
+  hallucination; splitting documents, vector search, RAG and its
+  evaluation; fine-tuning, alignment and LoRA; bias and personal data,
+  ending with a document question-answering system. **Prompt Engineering
+  and LLM Applications** (17 sections): clear instructions, few-shot
+  prompts, step-by-step reasoning, structured output, the system message,
+  templates and chains, tool calling, the agent loop and conversation
+  memory, measuring prompts and improving them systematically, defending
+  against prompt injection, errors and cost, ending with a support
+  assistant with tools. The application connects to no AI service: the
+  models are built from scratch with NumPy, and the language model
+  exercises run on recorded example answers.
 - **All your notes without leaving the section.** In a section, the library
   button in the "Take a note" panel opens all your notes; search them by
   name or by a word inside, then read or edit the one you want next to the

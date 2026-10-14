@@ -34,6 +34,20 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   RNN, dikkat mekanizması ve transformer bloğu, ön eğitim, metin üretimi ve
   değerlendirme; sonunda bir anlamsal arama motoru. Modeller NumPy ile
   sıfırdan kuruluyor.
+- **Üretken Yapay Zekâ (GenAI) patikası.** Üretken modellerden dil
+  modeliyle çalışan bir uygulamaya kadar. **Üretken Yapay Zekâ Temelleri**
+  (17 bölüm): dağılımdan örnek çekmek, otomatik kodlayıcı, VAE, GAN ve
+  difüzyon; bir dil modelinin nasıl ürettiği, token ve maliyet,
+  halüsinasyon; belgeleri parçalamak, vektör arama, RAG ve değerlendirmesi;
+  ince ayar, hizalama ve LoRA; önyargı ve kişisel veri; sonunda bir belge
+  soru-cevap sistemi. **Prompt Mühendisliği ve LLM Uygulamaları** (17
+  bölüm): net talimat, örnekli prompt, adım adım düşündürmek, yapılı çıktı,
+  sistem mesajı, şablonlar ve zincirler, araç çağırma, ajan döngüsü ve
+  sohbet belleği, promptları ölçmek ve sistemli iyileştirmek, prompt
+  injection'a karşı savunma, hatalar ve maliyet; sonunda araçlı bir destek
+  asistanı. Program hiçbir yapay zekâ servisine bağlanmıyor: modeller NumPy
+  ile sıfırdan kuruluyor, dil modeli alıştırmaları kayıtlı örnek cevaplarla
+  çalışıyor.
 - **Bölümden çıkmadan bütün notlarınız.** Bir bölümde "Not al" panelindeki
   kitaplık düğmesi bütün notlarınızı açıyor; adına ya da içindeki bir
   kelimeye göre arayıp istediğinizi alıştırmanın ya da dersin yanında
