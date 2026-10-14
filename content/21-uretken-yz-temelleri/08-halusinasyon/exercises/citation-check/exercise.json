@@ -1,0 +1,84 @@
+{
+  "id": "citation-check",
+  "title": {
+    "tr": "Kaynak numaralarını denetle",
+    "en": "Check the source numbers"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Numarayı bul: `cite = re.search(r\"\\[(\\d+)\\]\", sentence)`; numara `int(cite.group(1))`.",
+      "en": "Find the number: `cite = re.search(r\"\\[(\\d+)\\]\", sentence)`; the number is `int(cite.group(1))`."
+    },
+    {
+      "tr": "Cümlenin sayılarını numarayı çıkardıktan sonra al: `re.findall(r\"\\d+\", sentence.replace(cite.group(0), \"\"))`.",
+      "en": "Take the sentence's numbers after removing the citation: `re.findall(r\"\\d+\", sentence.replace(cite.group(0), \"\"))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nSOURCES = [\n    \"Returns are accepted within 30 days of delivery.\",\n    \"Standard delivery takes 3 to 5 working days.\",\n    \"Refunds are paid within 7 days.\",\n]\n\n\ndef check_citations(answer, sources):\n    results = []\n    for sentence in answer.split(\". \"):\n        cite = re.search(r\"\\[(\\d+)\\]\", sentence)\n        if not cite or not 1 <= int(cite.group(1)) <= len(sources):\n            results.append(False)\n            continue\n        source = sources[int(cite.group(1)) - 1]\n        claims = re.findall(r\"\\d+\", sentence.replace(cite.group(0), \"\"))\n        known = set(re.findall(r\"\\d+\", source))\n        results.append(all(c in known for c in claims))\n    return results\n\n\nanswer = \"Delivery takes 3 to 5 days [2]. Returns are accepted for 60 days [1]. Call us [4].\"\nprint(check_citations(answer, SOURCES))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nSOURCES = [\n    \"Returns are accepted within 30 days of delivery.\",\n    \"Standard delivery takes 3 to 5 working days.\",\n    \"Refunds are paid within 7 days.\",\n]\n\n\ndef check_citations(answer, sources):\n    results = []\n    for sentence in answer.split(\". \"):\n        cite = re.search(r\"\\[(\\d+)\\]\", sentence)\n        if not cite or not 1 <= int(cite.group(1)) <= len(sources):\n            results.append(False)\n            continue\n        source = sources[int(cite.group(1)) - 1]\n        claims = re.findall(r\"\\d+\", sentence.replace(cite.group(0), \"\"))\n        known = set(re.findall(r\"\\d+\", source))\n        results.append(all(c in known for c in claims))\n    return results\n\n\nanswer = \"Delivery takes 3 to 5 days [2]. Returns are accepted for 60 days [1]. Call us [4].\"\nprint(check_citations(answer, SOURCES))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_citations",
+      "cases": [
+        {
+          "args": [
+            "Delivery takes 3 to 5 days [2]. Returns are accepted for 60 days [1]. Call us [4].",
+            [
+              "Returns are accepted within 30 days of delivery.",
+              "Standard delivery takes 3 to 5 working days.",
+              "Refunds are paid within 7 days."
+            ]
+          ],
+          "returns": [
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "args": [
+            "Refunds take 7 days [3]. Returns: 30 days [1].",
+            [
+              "Returns are accepted within 30 days of delivery.",
+              "Standard delivery takes 3 to 5 working days.",
+              "Refunds are paid within 7 days."
+            ]
+          ],
+          "returns": [
+            true,
+            true
+          ]
+        },
+        {
+          "args": [
+            "No source here.",
+            [
+              "Returns are accepted within 30 days of delivery.",
+              "Standard delivery takes 3 to 5 working days.",
+              "Refunds are paid within 7 days."
+            ]
+          ],
+          "returns": [
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[True, False, False]"
+    }
+  ]
+}

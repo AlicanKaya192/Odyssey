@@ -1,0 +1,84 @@
+{
+  "id": "consistency-gate",
+  "title": {
+    "tr": "Emin değilsen söyleme",
+    "en": "If unsure, do not say it"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "tiny_chat.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`ask` bir demet döndürür; metin `[0]`. Cevapları `Counter` ile say.",
+      "en": "`ask` returns a tuple; the text is `[0]`. Count the answers with `Counter`."
+    },
+    {
+      "tr": "Eşitliği çözmek için `sorted(answers.items(), key=lambda kv: (-kv[1], kv[0]))[0]`; pay `count / n`.",
+      "en": "To break ties `sorted(answers.items(), key=lambda kv: (-kv[1], kv[0]))[0]`; the share is `count / n`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom collections import Counter\nfrom tiny_chat import ask\n\n\ndef gate(country, n, threshold):\n    answers = Counter(ask(country, temperature=1.0, seed=s)[0] for s in range(n))\n    answer, count = sorted(answers.items(), key=lambda kv: (-kv[1], kv[0]))[0]\n    return answer if count / n >= threshold else \"I am not sure.\"\n\n\nfor country in [\"japan\", \"chile\"]:\n    print(country, gate(country, 20, 0.6))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom collections import Counter\nfrom tiny_chat import ask\n\n\ndef gate(country, n, threshold):\n    answers = Counter(ask(country, temperature=1.0, seed=s)[0] for s in range(n))\n    answer, count = sorted(answers.items(), key=lambda kv: (-kv[1], kv[0]))[0]\n    return answer if count / n >= threshold else \"I am not sure.\"\n\n\nfor country in [\"japan\", \"chile\"]:\n    print(country, gate(country, 20, 0.6))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "gate",
+      "cases": [
+        {
+          "args": [
+            "japan",
+            20,
+            0.6
+          ],
+          "returns": "the capital of japan is tokyo ."
+        },
+        {
+          "args": [
+            "chile",
+            20,
+            0.6
+          ],
+          "returns": "I am not sure."
+        },
+        {
+          "args": [
+            "chile",
+            20,
+            0.3
+          ],
+          "returns": "the capital of canada is ottawa ."
+        },
+        {
+          "args": [
+            "turkey",
+            10,
+            0.6
+          ],
+          "returns": "I am not sure."
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "japan the capital of japan is tokyo .\nchile I am not sure."
+    }
+  ]
+}

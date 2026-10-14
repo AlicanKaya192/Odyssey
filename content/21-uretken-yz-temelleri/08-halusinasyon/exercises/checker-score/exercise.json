@@ -1,0 +1,100 @@
+{
+  "id": "checker-score",
+  "title": {
+    "tr": "Denetçiyi ölç",
+    "en": "Measure the checker"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her örnekte `flagged = bool(unsupported(answer, source))`; dört durumdan birini artır.",
+      "en": "In every example `flagged = bool(unsupported(answer, source))`; increase one of the four counts."
+    },
+    {
+      "tr": "Sıfıra bölmeyi önle: `round(tp / (tp + fp), 2) if tp + fp else 0.0`.",
+      "en": "Avoid dividing by zero: `round(tp / (tp + fp), 2) if tp + fp else 0.0`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nPOLICY = (\"Orders over 50 euros ship for free. Standard delivery takes \"\n          \"3 to 5 working days. Returns are accepted within 30 days of \"\n          \"delivery. Customer service is open Monday to Friday, 9:00 to 17:00.\")\nEXAMPLES = [['Shipping is free over 50 euros.', True],\n            ['Delivery takes 1 to 2 days.', False],\n            ['Returns within 30 days.', True],\n            ['Returns within 60 days.', False],\n            ['Open every day, even Sunday.', False],\n            ['Refunds go to a gift card.', False]]\nDETAIL = re.compile(r\"\\d+(?::\\d+)?|[A-Z][a-z]+\")\n\n\ndef details(text):\n    found = DETAIL.findall(text)\n    first = text.split()[0].strip(\",.\")\n    return [d for d in found if d != first]\n\n\ndef unsupported(answer, source):\n    known = set(DETAIL.findall(source))\n    return [d for d in details(answer) if d not in known]\n\n\ndef score(examples, source):\n    tp = fp = fn = tn = 0\n    for answer, faithful in examples:\n        flagged = bool(unsupported(answer, source))\n        if flagged and not faithful:\n            tp += 1\n        elif flagged:\n            fp += 1\n        elif not faithful:\n            fn += 1\n        else:\n            tn += 1\n    precision = round(tp / (tp + fp), 2) if tp + fp else 0.0\n    recall = round(tp / (tp + fn), 2) if tp + fn else 0.0\n    return [tp, fp, fn, tn, precision, recall]\n\n\nprint(score(EXAMPLES, POLICY))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nPOLICY = (\"Orders over 50 euros ship for free. Standard delivery takes \"\n          \"3 to 5 working days. Returns are accepted within 30 days of \"\n          \"delivery. Customer service is open Monday to Friday, 9:00 to 17:00.\")\nEXAMPLES = [['Shipping is free over 50 euros.', True],\n            ['Delivery takes 1 to 2 days.', False],\n            ['Returns within 30 days.', True],\n            ['Returns within 60 days.', False],\n            ['Open every day, even Sunday.', False],\n            ['Refunds go to a gift card.', False]]\nDETAIL = re.compile(r\"\\d+(?::\\d+)?|[A-Z][a-z]+\")\n\n\ndef details(text):\n    found = DETAIL.findall(text)\n    first = text.split()[0].strip(\",.\")\n    return [d for d in found if d != first]\n\n\ndef unsupported(answer, source):\n    known = set(DETAIL.findall(source))\n    return [d for d in details(answer) if d not in known]\n\n\ndef score(examples, source):\n    tp = fp = fn = tn = 0\n    for answer, faithful in examples:\n        flagged = bool(unsupported(answer, source))\n        if flagged and not faithful:\n            tp += 1\n        elif flagged:\n            fp += 1\n        elif not faithful:\n            fn += 1\n        else:\n            tn += 1\n    precision = round(tp / (tp + fp), 2) if tp + fp else 0.0\n    recall = round(tp / (tp + fn), 2) if tp + fn else 0.0\n    return [tp, fp, fn, tn, precision, recall]\n\n\nprint(score(EXAMPLES, POLICY))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "score",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "Shipping is free over 50 euros.",
+                true
+              ],
+              [
+                "Delivery takes 1 to 2 days.",
+                false
+              ],
+              [
+                "Returns within 30 days.",
+                true
+              ],
+              [
+                "Returns within 60 days.",
+                false
+              ],
+              [
+                "Open every day, even Sunday.",
+                false
+              ],
+              [
+                "Refunds go to a gift card.",
+                false
+              ]
+            ],
+            "Orders over 50 euros ship for free. Standard delivery takes 3 to 5 working days. Returns are accepted within 30 days of delivery. Customer service is open Monday to Friday, 9:00 to 17:00."
+          ],
+          "returns": [
+            3,
+            0,
+            1,
+            2,
+            1.0,
+            0.75
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "Returns within 30 days.",
+                true
+              ]
+            ],
+            "Returns are accepted within 30 days."
+          ],
+          "returns": [
+            0,
+            0,
+            0,
+            1,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, 0, 1, 2, 1.0, 0.75]"
+    }
+  ]
+}

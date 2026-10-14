@@ -1,0 +1,76 @@
+{
+  "id": "extract-details",
+  "title": {
+    "tr": "Ayrıntıları çıkar",
+    "en": "Extract the details"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce bütün eşleşmeler: `re.findall(DESEN, text)`; ilk kelime `text.split()[0].strip(\",.\")`.",
+      "en": "First all matches: `re.findall(PATTERN, text)`; the first word is `text.split()[0].strip(\",.\")`."
+    },
+    {
+      "tr": "Liste kavramasıyla ilk kelimeyi ayıkla: `[d for d in found if d != first]`.",
+      "en": "Filter out the first word with a list comprehension: `[d for d in found if d != first]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nDETAIL = re.compile(r\"\\d+(?::\\d+)?|[A-Z][a-z]+\")\n\n\ndef details(text):\n    found = DETAIL.findall(text)\n    first = text.split()[0].strip(\",.\")\n    return [d for d in found if d != first]\n\n\nprint(details(\"Open Monday to Friday, 9:00 to 17:00.\"))\nprint(details(\"Yes, we ship to Canada in 10 days.\"))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nDETAIL = re.compile(r\"\\d+(?::\\d+)?|[A-Z][a-z]+\")\n\n\ndef details(text):\n    found = DETAIL.findall(text)\n    first = text.split()[0].strip(\",.\")\n    return [d for d in found if d != first]\n\n\nprint(details(\"Open Monday to Friday, 9:00 to 17:00.\"))\nprint(details(\"Yes, we ship to Canada in 10 days.\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "details",
+      "cases": [
+        {
+          "args": [
+            "Open Monday to Friday, 9:00 to 17:00."
+          ],
+          "returns": [
+            "Monday",
+            "Friday",
+            "9:00",
+            "17:00"
+          ]
+        },
+        {
+          "args": [
+            "Yes, we ship to Canada in 10 days."
+          ],
+          "returns": [
+            "Canada",
+            "10"
+          ]
+        },
+        {
+          "args": [
+            "The refund is paid as store credit."
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "Paris is the capital of France."
+          ],
+          "returns": [
+            "France"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['Monday', 'Friday', '9:00', '17:00']\n['Canada', '10']"
+    }
+  ]
+}
