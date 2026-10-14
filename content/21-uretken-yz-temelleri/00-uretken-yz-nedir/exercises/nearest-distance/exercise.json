@@ -1,0 +1,104 @@
+{
+  "id": "nearest-distance",
+  "title": {
+    "tr": "Kopya mı?",
+    "en": "Is it a copy?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ölçek: `scale = part.std(axis=0)`; noktaları ve gerçek balıkları buna böl.",
+      "en": "The scale: `scale = part.std(axis=0)`; divide both the points and the real fish by it."
+    },
+    {
+      "tr": "Bütün çiftlerin farkı: `a[:, None, :] - b[None, :, :]`; karelerin toplamının karekökü, sonra `min(axis=1)`.",
+      "en": "The difference of every pair: `a[:, None, :] - b[None, :, :]`; the square root of the sum of squares, then `min(axis=1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import make_fish\n\nX, y = make_fish()\ny = np.array(y)\n\n\ndef nearest_distances(points, name):\n    part = X[y == name]\n    scale = part.std(axis=0)\n    a = np.asarray(points, dtype=float) / scale\n    b = part / scale\n    d = np.sqrt(((a[:, None, :] - b[None, :, :]) ** 2).sum(axis=2))\n    return d.min(axis=1).round(3).tolist()\n\n\nfish = [[33.5, 595.6], [29.0, 520.0], [45.0, 900.0]]\nprint(nearest_distances(fish, \"bream\"))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import make_fish\n\nX, y = make_fish()\ny = np.array(y)\n\n\ndef nearest_distances(points, name):\n    part = X[y == name]\n    scale = part.std(axis=0)\n    a = np.asarray(points, dtype=float) / scale\n    b = part / scale\n    d = np.sqrt(((a[:, None, :] - b[None, :, :]) ** 2).sum(axis=2))\n    return d.min(axis=1).round(3).tolist()\n\n\nfish = [[33.5, 595.6], [29.0, 520.0], [45.0, 900.0]]\nprint(nearest_distances(fish, \"bream\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "nearest_distances",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                33.5,
+                595.6
+              ]
+            ],
+            "bream"
+          ],
+          "returns": [
+            0.0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                29.0,
+                520.0
+              ],
+              [
+                45.0,
+                900.0
+              ]
+            ],
+            "bream"
+          ],
+          "returns": [
+            0.012,
+            1.657
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                22.5,
+                281.5
+              ],
+              [
+                24.0,
+                304.5
+              ]
+            ],
+            "perch"
+          ],
+          "returns": [
+            0.0,
+            0.078
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.0, 0.012, 1.657]"
+    }
+  ]
+}

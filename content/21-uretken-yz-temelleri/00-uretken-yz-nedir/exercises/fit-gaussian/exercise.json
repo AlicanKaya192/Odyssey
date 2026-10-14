@@ -1,0 +1,94 @@
+{
+  "id": "fit-gaussian",
+  "title": {
+    "tr": "Dağılımı uydur",
+    "en": "Fit the distribution"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`rowvar=False` yazmazsan NumPy her satırı bir değişken sayar ve 600×600 matris çıkar.",
+      "en": "Without `rowvar=False` NumPy treats each row as a variable and you get a 600×600 matrix."
+    },
+    {
+      "tr": "Sonuç 2×2 olmalı: `np.cov(part, rowvar=False).round(2).tolist()`.",
+      "en": "The result should be 2×2: `np.cov(part, rowvar=False).round(2).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import make_fish\n\nX, y = make_fish()\ny = np.array(y)\n\n\ndef fit_gaussian(name):\n    part = X[y == name]\n    mean = part.mean(axis=0)\n    cov = np.cov(part, rowvar=False)\n    return {\"mean\": mean.round(2).tolist(), \"cov\": cov.round(2).tolist()}\n\n\nresult = fit_gaussian(\"perch\")\nprint(result[\"mean\"])\nfor row in result[\"cov\"]:\n    print(row)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import make_fish\n\nX, y = make_fish()\ny = np.array(y)\n\n\ndef fit_gaussian(name):\n    part = X[y == name]\n    mean = part.mean(axis=0)\n    cov = np.cov(part, rowvar=False)\n    return {\"mean\": mean.round(2).tolist(), \"cov\": cov.round(2).tolist()}\n\n\nresult = fit_gaussian(\"perch\")\nprint(result[\"mean\"])\nfor row in result[\"cov\"]:\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fit_gaussian",
+      "cases": [
+        {
+          "args": [
+            "perch"
+          ],
+          "returns": {
+            "mean": [
+              24.04,
+              304.46
+            ],
+            "cov": [
+              [
+                15.38,
+                192.76
+              ],
+              [
+                192.76,
+                4431.61
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            "bream"
+          ],
+          "returns": {
+            "mean": [
+              30.97,
+              555.51
+            ],
+            "cov": [
+              [
+                14.12,
+                305.42
+              ],
+              [
+                305.42,
+                10918.92
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[24.04, 304.46]\n[15.38, 192.76]\n[192.76, 4431.61]"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "generative-classify",
+  "title": {
+    "tr": "Üretken sınıflandırıcı",
+    "en": "A generative classifier"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her tür için puan: `log_density([length, weight], mean, cov) + np.log(np.mean(y == name))`.",
+      "en": "The score for each species: `log_density([length, weight], mean, cov) + np.log(np.mean(y == name))`."
+    },
+    {
+      "tr": "İki türü dolaş, en büyük puanlı türün adını sakla ve döndür.",
+      "en": "Loop over the two species, keep the name with the largest score and return it."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import make_fish\n\nX, y = make_fish()\ny = np.array(y)\n\n\ndef log_density(point, mean, cov):\n    diff = np.asarray(point, dtype=float) - mean\n    inv = np.linalg.inv(cov)\n    _, logdet = np.linalg.slogdet(cov)\n    return -0.5 * (diff @ inv @ diff + logdet + 2 * np.log(2 * np.pi))\n\n\ndef classify(length, weight):\n    best, best_score = None, None\n    for name in [\"perch\", \"bream\"]:\n        part = X[y == name]\n        mean = part.mean(axis=0)\n        cov = np.cov(part, rowvar=False)\n        score = log_density([length, weight], mean, cov) + np.log(np.mean(y == name))\n        if best_score is None or score > best_score:\n            best, best_score = name, score\n    return best\n\n\nfor length, weight in [(22, 250), (33, 620), (27, 420), (29, 380)]:\n    print(length, weight, classify(length, weight))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import make_fish\n\nX, y = make_fish()\ny = np.array(y)\n\n\ndef log_density(point, mean, cov):\n    diff = np.asarray(point, dtype=float) - mean\n    inv = np.linalg.inv(cov)\n    _, logdet = np.linalg.slogdet(cov)\n    return -0.5 * (diff @ inv @ diff + logdet + 2 * np.log(2 * np.pi))\n\n\ndef classify(length, weight):\n    best, best_score = None, None\n    for name in [\"perch\", \"bream\"]:\n        part = X[y == name]\n        mean = part.mean(axis=0)\n        cov = np.cov(part, rowvar=False)\n        score = log_density([length, weight], mean, cov) + np.log(np.mean(y == name))\n        if best_score is None or score > best_score:\n            best, best_score = name, score\n    return best\n\n\nfor length, weight in [(22, 250), (33, 620), (27, 420), (29, 380)]:\n    print(length, weight, classify(length, weight))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "classify",
+      "cases": [
+        {
+          "args": [
+            22,
+            250
+          ],
+          "returns": "perch"
+        },
+        {
+          "args": [
+            33,
+            620
+          ],
+          "returns": "bream"
+        },
+        {
+          "args": [
+            27,
+            420
+          ],
+          "returns": "bream"
+        },
+        {
+          "args": [
+            29,
+            380
+          ],
+          "returns": "perch"
+        },
+        {
+          "args": [
+            26,
+            450
+          ],
+          "returns": "bream"
+        },
+        {
+          "args": [
+            30,
+            700
+          ],
+          "returns": "bream"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "22 250 perch\n33 620 bream\n27 420 bream\n29 380 perch"
+    }
+  ]
+}
