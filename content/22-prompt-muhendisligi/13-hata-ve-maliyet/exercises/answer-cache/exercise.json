@@ -1,0 +1,91 @@
+{
+  "id": "answer-cache",
+  "title": {
+    "tr": "Cevap önbelleği",
+    "en": "An answer cache"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Görülen anahtarlar için bir küme yeter.",
+      "en": "A set is enough for the seen keys."
+    },
+    {
+      "tr": "Kazanılan token isabet olan isteğin kendi metniyle sayılır.",
+      "en": "Saved tokens are counted with the hit request's own text."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import count_message_tokens\n\nSYSTEM = \"You are the support assistant of an outdoor shop.\"\n\n\ndef messages_for(text):\n    return [{\"role\": \"system\", \"content\": SYSTEM},\n            {\"role\": \"user\", \"content\": text}]\n\n\ndef cache_run(requests):\n    cache, calls, hits, saved = set(), 0, 0, 0\n    for text in requests:\n        key = \" \".join(text.lower().split())\n        if key in cache:\n            hits += 1\n            saved += count_message_tokens(messages_for(text))\n        else:\n            cache.add(key)\n            calls += 1\n    return [calls, hits, saved]\n\n\nREQUESTS = [\"How much is shipping?\", \"how much is  shipping?\",\n            \"Where is ORD-10077?\", \"How much is shipping?\"]\nprint(cache_run(REQUESTS))\nprint(cache_run([]))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import count_message_tokens\n\nSYSTEM = \"You are the support assistant of an outdoor shop.\"\n\n\ndef messages_for(text):\n    return [{\"role\": \"system\", \"content\": SYSTEM},\n            {\"role\": \"user\", \"content\": text}]\n\n\ndef cache_run(requests):\n    cache, calls, hits, saved = set(), 0, 0, 0\n    for text in requests:\n        key = \" \".join(text.lower().split())\n        if key in cache:\n            hits += 1\n            saved += count_message_tokens(messages_for(text))\n        else:\n            cache.add(key)\n            calls += 1\n    return [calls, hits, saved]\n\n\nREQUESTS = [\"How much is shipping?\", \"how much is  shipping?\",\n            \"Where is ORD-10077?\", \"How much is shipping?\"]\nprint(cache_run(REQUESTS))\nprint(cache_run([]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cache_run",
+      "cases": [
+        {
+          "args": [
+            [
+              "How much is shipping?",
+              "how much is  shipping?",
+              "Where is ORD-10077?",
+              "How much is shipping?"
+            ]
+          ],
+          "returns": [
+            2,
+            2,
+            60
+          ]
+        },
+        {
+          "args": [
+            [
+              "Hi",
+              "Hello",
+              "hi "
+            ]
+          ],
+          "returns": [
+            2,
+            1,
+            25
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 2, 60]\n[0, 0, 0]"
+    }
+  ]
+}

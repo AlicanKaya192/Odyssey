@@ -1,0 +1,100 @@
+{
+  "id": "cut-answer",
+  "title": {
+    "tr": "Kesilen cevap",
+    "en": "A cut answer"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her çağrıda `answer.input_tokens` ve `answer.output_tokens` toplanır; kesilen çağrılar da.",
+      "en": "Add `answer.input_tokens` and `answer.output_tokens` on every call; the cut calls too."
+    },
+    {
+      "tr": "Döngü bitince sığmamış demektir.",
+      "en": "When the loop ends, it did not fit."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient\n\nMESSAGES = [{\"role\": \"user\", \"content\": \"Where is my order?\"}]\n\n\ndef ask(reply, max_tokens, tries):\n    client = ChatClient([reply] * tries)\n    paid_in = paid_out = 0\n    for _ in range(tries):\n        answer = client.chat(MESSAGES, max_tokens=max_tokens)\n        paid_in += answer.input_tokens\n        paid_out += answer.output_tokens\n        if answer.finish_reason != \"length\":\n            return [answer.text, paid_in, paid_out]\n        max_tokens *= 2\n    return [None, paid_in, paid_out]\n\n\nREPLY = \"Your parcel left the depot today and arrives tomorrow.\"\nfor start, tries in [(4, 3), (20, 3), (2, 2)]:\n    text, paid_in, paid_out = ask(REPLY, start, tries)\n    print(start, text is not None, paid_in, paid_out)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient\n\nMESSAGES = [{\"role\": \"user\", \"content\": \"Where is my order?\"}]\n\n\ndef ask(reply, max_tokens, tries):\n    client = ChatClient([reply] * tries)\n    paid_in = paid_out = 0\n    for _ in range(tries):\n        answer = client.chat(MESSAGES, max_tokens=max_tokens)\n        paid_in += answer.input_tokens\n        paid_out += answer.output_tokens\n        if answer.finish_reason != \"length\":\n            return [answer.text, paid_in, paid_out]\n        max_tokens *= 2\n    return [None, paid_in, paid_out]\n\n\nREPLY = \"Your parcel left the depot today and arrives tomorrow.\"\nfor start, tries in [(4, 3), (20, 3), (2, 2)]:\n    text, paid_in, paid_out = ask(REPLY, start, tries)\n    print(start, text is not None, paid_in, paid_out)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ask",
+      "cases": [
+        {
+          "args": [
+            "Your parcel left the depot today and arrives tomorrow.",
+            4,
+            3
+          ],
+          "returns": [
+            "Your parcel left the depot today and arrives tomorrow.",
+            39,
+            26
+          ]
+        },
+        {
+          "args": [
+            "Your parcel left the depot today and arrives tomorrow.",
+            20,
+            3
+          ],
+          "returns": [
+            "Your parcel left the depot today and arrives tomorrow.",
+            13,
+            15
+          ]
+        },
+        {
+          "args": [
+            "Your parcel left the depot today and arrives tomorrow.",
+            2,
+            2
+          ],
+          "returns": [
+            null,
+            26,
+            5
+          ]
+        },
+        {
+          "args": [
+            "Your parcel left the depot today and arrives tomorrow.",
+            8,
+            1
+          ],
+          "returns": [
+            null,
+            13,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4 True 39 26\n20 True 13 15\n2 False 26 5"
+    }
+  ]
+}

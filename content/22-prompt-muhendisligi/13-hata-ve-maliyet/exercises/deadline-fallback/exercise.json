@@ -1,0 +1,144 @@
+{
+  "id": "deadline-fallback",
+  "title": {
+    "tr": "Süre sınırı ve yedek cevap",
+    "en": "A time limit and a fallback"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce kaydet, sonra karar ver: `log.append(str(error))`.",
+      "en": "Log first, then decide: `log.append(str(error))`."
+    },
+    {
+      "tr": "Sınır denetimi: `sum(waits) + wait > deadline`.",
+      "en": "The limit check: `sum(waits) + wait > deadline`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient, ContextLengthError, RateLimitError, ServerError\n\nFALLBACK = \"We cannot answer right now; an agent will reply.\"\nERRORS = {\"429\": RateLimitError, \"503\": ServerError}\nRETRYABLE = (RateLimitError, ServerError)\nMESSAGES = [{\"role\": \"user\", \"content\": \"Where is my order ORD-48213?\"}]\n\n\ndef make_script(spec):\n    return [ERRORS[item](item) if item in ERRORS else item for item in spec]\n\n\ndef resilient(spec, deadline):\n    client = ChatClient(make_script(spec))\n    waits, log = [], []\n    for attempt in range(5):\n        try:\n            return [client.chat(MESSAGES, max_tokens=40).text, waits, log]\n        except RETRYABLE as error:\n            log.append(str(error))\n            wait = 2.0 ** attempt\n            if attempt == 4 or sum(waits) + wait > deadline:\n                return [FALLBACK, waits, log]\n            waits.append(wait)\n\n\nfor spec, deadline in [([\"503\", \"ok\"], 10), ([\"429\"] * 5, 10),\n                       ([\"429\"] * 5, 100)]:\n    text, waits, log = resilient(spec, deadline)\n    short = \"fallback\" if text == FALLBACK else text\n    print(short, sum(waits), \",\".join(log))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient, ContextLengthError, RateLimitError, ServerError\n\nFALLBACK = \"We cannot answer right now; an agent will reply.\"\nERRORS = {\"429\": RateLimitError, \"503\": ServerError}\nRETRYABLE = (RateLimitError, ServerError)\nMESSAGES = [{\"role\": \"user\", \"content\": \"Where is my order ORD-48213?\"}]\n\n\ndef make_script(spec):\n    return [ERRORS[item](item) if item in ERRORS else item for item in spec]\n\n\ndef resilient(spec, deadline):\n    client = ChatClient(make_script(spec))\n    waits, log = [], []\n    for attempt in range(5):\n        try:\n            return [client.chat(MESSAGES, max_tokens=40).text, waits, log]\n        except RETRYABLE as error:\n            log.append(str(error))\n            wait = 2.0 ** attempt\n            if attempt == 4 or sum(waits) + wait > deadline:\n                return [FALLBACK, waits, log]\n            waits.append(wait)\n\n\nfor spec, deadline in [([\"503\", \"ok\"], 10), ([\"429\"] * 5, 10),\n                       ([\"429\"] * 5, 100)]:\n    text, waits, log = resilient(spec, deadline)\n    short = \"fallback\" if text == FALLBACK else text\n    print(short, sum(waits), \",\".join(log))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "resilient",
+      "cases": [
+        {
+          "args": [
+            [
+              "503",
+              "ok"
+            ],
+            10
+          ],
+          "returns": [
+            "ok",
+            [
+              1.0
+            ],
+            [
+              "503"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "429",
+              "429",
+              "429",
+              "429",
+              "429"
+            ],
+            10
+          ],
+          "returns": [
+            "We cannot answer right now; an agent will reply.",
+            [
+              1.0,
+              2.0,
+              4.0
+            ],
+            [
+              "429",
+              "429",
+              "429",
+              "429"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "429",
+              "429",
+              "429",
+              "429",
+              "429"
+            ],
+            100
+          ],
+          "returns": [
+            "We cannot answer right now; an agent will reply.",
+            [
+              1.0,
+              2.0,
+              4.0,
+              8.0
+            ],
+            [
+              "429",
+              "429",
+              "429",
+              "429",
+              "429"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "503",
+              "503",
+              "ok"
+            ],
+            2
+          ],
+          "returns": [
+            "We cannot answer right now; an agent will reply.",
+            [
+              1.0
+            ],
+            [
+              "503",
+              "503"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok 1.0 503\nfallback 7.0 429,429,429,429\nfallback 15.0 429,429,429,429,429"
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "id": "retry-call",
+  "title": {
+    "tr": "Yeniden deneyen çağrı",
+    "en": "A retrying call"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Geçici hatalar tek `except RETRYABLE:` ile yakalanır.",
+      "en": "Temporary errors are caught with one `except RETRYABLE:`."
+    },
+    {
+      "tr": "Pencere hatası istek gönderilmeden gelir; senaryodaki hata hiç görülmez.",
+      "en": "The window error comes before the request is sent; the error in the script is never seen."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient, ContextLengthError, RateLimitError, ServerError\n\nERRORS = {\"429\": RateLimitError, \"503\": ServerError}\nRETRYABLE = (RateLimitError, ServerError)\nMESSAGES = [{\"role\": \"user\", \"content\": \"Where is my order ORD-48213?\"}]\n\n\ndef make_script(spec):\n    return [ERRORS[item](item) if item in ERRORS else item for item in spec]\n\n\ndef retry(spec, attempts, window):\n    client = ChatClient(make_script(spec), context_window=window)\n    waits = []\n    for attempt in range(attempts):\n        try:\n            return [client.chat(MESSAGES, max_tokens=40).text, waits]\n        except RETRYABLE:\n            if attempt == attempts - 1:\n                return [\"gave up\", waits]\n            waits.append(2.0 ** attempt)\n        except ContextLengthError:\n            return [\"too long\", waits]\n\n\nprint(retry([\"429\", \"503\", \"ok\"], 4, 200))\nprint(retry([\"429\", \"429\", \"429\"], 3, 200))\nprint(retry([\"503\", \"ok\"], 3, 40))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient, ContextLengthError, RateLimitError, ServerError\n\nERRORS = {\"429\": RateLimitError, \"503\": ServerError}\nRETRYABLE = (RateLimitError, ServerError)\nMESSAGES = [{\"role\": \"user\", \"content\": \"Where is my order ORD-48213?\"}]\n\n\ndef make_script(spec):\n    return [ERRORS[item](item) if item in ERRORS else item for item in spec]\n\n\ndef retry(spec, attempts, window):\n    client = ChatClient(make_script(spec), context_window=window)\n    waits = []\n    for attempt in range(attempts):\n        try:\n            return [client.chat(MESSAGES, max_tokens=40).text, waits]\n        except RETRYABLE:\n            if attempt == attempts - 1:\n                return [\"gave up\", waits]\n            waits.append(2.0 ** attempt)\n        except ContextLengthError:\n            return [\"too long\", waits]\n\n\nprint(retry([\"429\", \"503\", \"ok\"], 4, 200))\nprint(retry([\"429\", \"429\", \"429\"], 3, 200))\nprint(retry([\"503\", \"ok\"], 3, 40))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "retry",
+      "cases": [
+        {
+          "args": [
+            [
+              "429",
+              "503",
+              "ok"
+            ],
+            4,
+            200
+          ],
+          "returns": [
+            "ok",
+            [
+              1.0,
+              2.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "429",
+              "429",
+              "429",
+              "429"
+            ],
+            4,
+            200
+          ],
+          "returns": [
+            "gave up",
+            [
+              1.0,
+              2.0,
+              4.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "429",
+              "ok"
+            ],
+            1,
+            200
+          ],
+          "returns": [
+            "gave up",
+            []
+          ]
+        },
+        {
+          "args": [
+            [
+              "ok"
+            ],
+            3,
+            40
+          ],
+          "returns": [
+            "too long",
+            []
+          ]
+        },
+        {
+          "args": [
+            [
+              "503",
+              "ok"
+            ],
+            3,
+            40
+          ],
+          "returns": [
+            "too long",
+            []
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['ok', [1.0, 2.0]]\n['gave up', [1.0, 2.0]]\n['too long', []]"
+    }
+  ]
+}
