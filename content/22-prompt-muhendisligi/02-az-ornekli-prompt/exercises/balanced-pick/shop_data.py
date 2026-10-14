@@ -1,8 +1,9 @@
-"""Support messages of a fictional outdoor shop, with their categories (read-only).
+"""Support messages and orders of a fictional outdoor shop (read-only).
 
 TICKETS: customer messages with the category a support agent gave them.
-LABELS: the five categories. Every message is written by hand for the
-lessons; none of them comes from a real customer.
+LABELS: the five categories. ORDERS: a few orders the assistant's tools
+can look up. Everything is written by hand for the lessons; nothing comes
+from a real customer.
 """
 
 LABELS = ["shipping", "returns", "refunds", "warranty", "payment"]
@@ -64,3 +65,17 @@ TICKETS = []
 for _i in range(8):
     for _label in LABELS:
         TICKETS.append({"id": len(TICKETS) + 1, "text": _TEXTS[_label][_i], "label": _label})
+
+# items: [product, unit price in euros, count]
+ORDERS = {
+    "ORD-48213": {"status": "shipped", "date": "2026-10-09",
+                  "items": [["Trail 40 backpack", 89.90, 1]]},
+    "ORD-10077": {"status": "delivered", "date": "2026-09-28",
+                  "items": [["Dome 2 tent", 189.90, 1], ["Wool socks", 12.50, 2]]},
+    "ORD-23345": {"status": "processing", "date": "2026-10-13",
+                  "items": [["Head torch", 24.90, 1]]},
+    "ORD-55102": {"status": "returned", "date": "2026-09-15",
+                  "items": [["Rain jacket", 129.00, 1]]},
+    "ORD-61890": {"status": "processing", "date": "2026-10-14",
+                  "items": [["Camping stove", 59.00, 1], ["Gas cartridge", 6.50, 3]]},
+}

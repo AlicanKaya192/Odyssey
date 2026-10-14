@@ -1,0 +1,108 @@
+{
+  "id": "confirm-gate",
+  "title": {
+    "tr": "Onay kapısı",
+    "en": "The confirmation gate"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Onay koşulu: `if tool[\"confirm\"] and not confirmed:`.",
+      "en": "The confirmation condition: `if tool[\"confirm\"] and not confirmed:`."
+    },
+    {
+      "tr": "Çalıştırmak: `tool[\"function\"](**call[\"arguments\"])`.",
+      "en": "Running it: `tool[\"function\"](**call[\"arguments\"])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom shop_data import ORDERS\n\n\ndef get_order(order_id):\n    order = ORDERS.get(order_id)\n    if order is None:\n        return {\"error\": f\"no order {order_id}\"}\n    return {\"order_id\": order_id, \"status\": order[\"status\"]}\n\n\ndef cancel_order(order_id):\n    return {\"order_id\": order_id, \"cancelled\": True}\n\n\nTOOLS = {\"get_order\": {\"function\": get_order, \"confirm\": False},\n         \"cancel_order\": {\"function\": cancel_order, \"confirm\": True}}\n\n\ndef dispatch(call, confirmed):\n    tool = TOOLS.get(call[\"name\"])\n    if tool is None:\n        return {\"error\": f\"unknown tool {call['name']}\"}\n    if tool[\"confirm\"] and not confirmed:\n        return {\"pending\": \"needs the customer's confirmation\"}\n    return tool[\"function\"](**call[\"arguments\"])\n\n\ncancel = {\"name\": \"cancel_order\", \"arguments\": {\"order_id\": \"ORD-23345\"}}\nlook = {\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-23345\"}}\nfor call, confirmed in [(cancel, False), (cancel, True), (look, False)]:\n    print(sorted(dispatch(call, confirmed)))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom shop_data import ORDERS\n\n\ndef get_order(order_id):\n    order = ORDERS.get(order_id)\n    if order is None:\n        return {\"error\": f\"no order {order_id}\"}\n    return {\"order_id\": order_id, \"status\": order[\"status\"]}\n\n\ndef cancel_order(order_id):\n    return {\"order_id\": order_id, \"cancelled\": True}\n\n\nTOOLS = {\"get_order\": {\"function\": get_order, \"confirm\": False},\n         \"cancel_order\": {\"function\": cancel_order, \"confirm\": True}}\n\n\ndef dispatch(call, confirmed):\n    tool = TOOLS.get(call[\"name\"])\n    if tool is None:\n        return {\"error\": f\"unknown tool {call['name']}\"}\n    if tool[\"confirm\"] and not confirmed:\n        return {\"pending\": \"needs the customer's confirmation\"}\n    return tool[\"function\"](**call[\"arguments\"])\n\n\ncancel = {\"name\": \"cancel_order\", \"arguments\": {\"order_id\": \"ORD-23345\"}}\nlook = {\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-23345\"}}\nfor call, confirmed in [(cancel, False), (cancel, True), (look, False)]:\n    print(sorted(dispatch(call, confirmed)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "dispatch",
+      "cases": [
+        {
+          "args": [
+            {
+              "name": "cancel_order",
+              "arguments": {
+                "order_id": "ORD-23345"
+              }
+            },
+            false
+          ],
+          "returns": {
+            "pending": "needs the customer's confirmation"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "cancel_order",
+              "arguments": {
+                "order_id": "ORD-23345"
+              }
+            },
+            true
+          ],
+          "returns": {
+            "order_id": "ORD-23345",
+            "cancelled": true
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "get_order",
+              "arguments": {
+                "order_id": "ORD-23345"
+              }
+            },
+            false
+          ],
+          "returns": {
+            "order_id": "ORD-23345",
+            "status": "processing"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "wipe",
+              "arguments": {}
+            },
+            true
+          ],
+          "returns": {
+            "error": "unknown tool wipe"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['pending']\n['cancelled', 'order_id']\n['order_id', 'status']"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "id": "tool-loop",
+  "title": {
+    "tr": "Araçlı cevap döngüsü",
+    "en": "An answer loop with tools"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Araç çağrıları `reply.tool_calls`'ta; boşsa ilk cevap son cevaptır.",
+      "en": "The tool calls are in `reply.tool_calls`; if empty, the first answer is the last one."
+    },
+    {
+      "tr": "Araç sonucu metin olmalı: `json.dumps(run_tool(call))`.",
+      "en": "The tool result must be text: `json.dumps(run_tool(call))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport json\n\nfrom llm_client import ChatClient\nfrom shop_data import ORDERS\n\nSYSTEM = \"You are a shop assistant. Use the tools to look up orders.\"\nSCHEMA = [{\"name\": \"get_order\", \"description\": \"Look up an order.\",\n           \"parameters\": [\"order_id\"]}]\n\n\ndef run_tool(call):\n    if call[\"name\"] != \"get_order\":\n        return {\"error\": f\"unknown tool {call['name']}\"}\n    order = ORDERS.get(call[\"arguments\"].get(\"order_id\"))\n    if order is None:\n        return {\"error\": \"no such order\"}\n    return {\"status\": order[\"status\"], \"date\": order[\"date\"]}\n\n\ndef answer(script, question):\n    client = ChatClient(script)\n    messages = [{\"role\": \"system\", \"content\": SYSTEM},\n                {\"role\": \"user\", \"content\": question}]\n    reply = client.chat(messages, tools=SCHEMA)\n    if reply.tool_calls:\n        messages.append({\"role\": \"assistant\", \"content\": \"\",\n                         \"tool_calls\": reply.tool_calls})\n        for call in reply.tool_calls:\n            messages.append({\"role\": \"tool\",\n                             \"content\": json.dumps(run_tool(call))})\n        reply = client.chat(messages, tools=SCHEMA)\n    return [reply.text, [m[\"role\"] for m in messages], len(client.calls)]\n\n\nSCRIPT = [{\"tool_calls\": [{\"name\": \"get_order\",\n                           \"arguments\": {\"order_id\": \"ORD-23345\"}}]},\n          \"Your order is being prepared.\"]\ntext, roles, calls = answer(SCRIPT, \"Where is ORD-23345?\")\nprint(text)\nprint(roles)\nprint(calls)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport json\n\nfrom llm_client import ChatClient\nfrom shop_data import ORDERS\n\nSYSTEM = \"You are a shop assistant. Use the tools to look up orders.\"\nSCHEMA = [{\"name\": \"get_order\", \"description\": \"Look up an order.\",\n           \"parameters\": [\"order_id\"]}]\n\n\ndef run_tool(call):\n    if call[\"name\"] != \"get_order\":\n        return {\"error\": f\"unknown tool {call['name']}\"}\n    order = ORDERS.get(call[\"arguments\"].get(\"order_id\"))\n    if order is None:\n        return {\"error\": \"no such order\"}\n    return {\"status\": order[\"status\"], \"date\": order[\"date\"]}\n\n\ndef answer(script, question):\n    client = ChatClient(script)\n    messages = [{\"role\": \"system\", \"content\": SYSTEM},\n                {\"role\": \"user\", \"content\": question}]\n    reply = client.chat(messages, tools=SCHEMA)\n    if reply.tool_calls:\n        messages.append({\"role\": \"assistant\", \"content\": \"\",\n                         \"tool_calls\": reply.tool_calls})\n        for call in reply.tool_calls:\n            messages.append({\"role\": \"tool\",\n                             \"content\": json.dumps(run_tool(call))})\n        reply = client.chat(messages, tools=SCHEMA)\n    return [reply.text, [m[\"role\"] for m in messages], len(client.calls)]\n\n\nSCRIPT = [{\"tool_calls\": [{\"name\": \"get_order\",\n                           \"arguments\": {\"order_id\": \"ORD-23345\"}}]},\n          \"Your order is being prepared.\"]\ntext, roles, calls = answer(SCRIPT, \"Where is ORD-23345?\")\nprint(text)\nprint(roles)\nprint(calls)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "answer",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "tool_calls": [
+                  {
+                    "name": "get_order",
+                    "arguments": {
+                      "order_id": "ORD-23345"
+                    }
+                  }
+                ]
+              },
+              "Your order is being prepared."
+            ],
+            "Where is ORD-23345?"
+          ],
+          "returns": [
+            "Your order is being prepared.",
+            [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              "We are open until six."
+            ],
+            "When do you close?"
+          ],
+          "returns": [
+            "We are open until six.",
+            [
+              "system",
+              "user"
+            ],
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Your order is being prepared.\n['system', 'user', 'assistant', 'tool']\n2"
+    }
+  ]
+}

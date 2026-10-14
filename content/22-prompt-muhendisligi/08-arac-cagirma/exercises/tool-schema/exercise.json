@@ -1,0 +1,84 @@
+{
+  "id": "tool-schema",
+  "title": {
+    "tr": "Modele giden şema",
+    "en": "The schema that goes to the model"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Argüman adları: `list(tool[\"parameters\"])`; sözlükten liste anahtarları verir.",
+      "en": "The argument names: `list(tool[\"parameters\"])`; a list of a dictionary gives its keys."
+    },
+    {
+      "tr": "Bir liste kavraması yeter: `for name, tool in tools.items()`.",
+      "en": "One list comprehension is enough: `for name, tool in tools.items()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef schema(tools):\n    return [{\"name\": name, \"description\": tool[\"description\"],\n             \"parameters\": list(tool[\"parameters\"])}\n            for name, tool in tools.items()]\n\n\nTOOLS = {\n    \"get_order\": {\"description\": \"Look up an order.\",\n                  \"parameters\": {\"order_id\": r\"ORD-\\d{5}\"}},\n    \"order_total\": {\"description\": \"Total of an order.\",\n                    \"parameters\": {\"order_id\": r\"ORD-\\d{5}\",\n                                   \"currency\": r\"[A-Z]{3}\"}},\n}\nfor item in schema(TOOLS):\n    print(item[\"name\"], item[\"parameters\"])\n```",
+      "en": "The full solution:\n\n```python\ndef schema(tools):\n    return [{\"name\": name, \"description\": tool[\"description\"],\n             \"parameters\": list(tool[\"parameters\"])}\n            for name, tool in tools.items()]\n\n\nTOOLS = {\n    \"get_order\": {\"description\": \"Look up an order.\",\n                  \"parameters\": {\"order_id\": r\"ORD-\\d{5}\"}},\n    \"order_total\": {\"description\": \"Total of an order.\",\n                    \"parameters\": {\"order_id\": r\"ORD-\\d{5}\",\n                                   \"currency\": r\"[A-Z]{3}\"}},\n}\nfor item in schema(TOOLS):\n    print(item[\"name\"], item[\"parameters\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "schema",
+      "cases": [
+        {
+          "args": [
+            {
+              "get_order": {
+                "description": "Look up an order.",
+                "parameters": {
+                  "order_id": "ORD-\\d{5}"
+                }
+              },
+              "order_total": {
+                "description": "Total of an order.",
+                "parameters": {
+                  "order_id": "ORD-\\d{5}",
+                  "currency": "[A-Z]{3}"
+                }
+              }
+            }
+          ],
+          "returns": [
+            {
+              "name": "get_order",
+              "description": "Look up an order.",
+              "parameters": [
+                "order_id"
+              ]
+            },
+            {
+              "name": "order_total",
+              "description": "Total of an order.",
+              "parameters": [
+                "order_id",
+                "currency"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "get_order ['order_id']\norder_total ['order_id', 'currency']"
+    }
+  ]
+}

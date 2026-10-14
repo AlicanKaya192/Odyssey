@@ -1,0 +1,87 @@
+{
+  "id": "order-total-tool",
+  "title": {
+    "tr": "Tutar aracı",
+    "en": "An amount tool"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ürünleri açarak topla: `sum(price * count for _, price, count in order[\"items\"])`.",
+      "en": "Sum while unpacking the items: `sum(price * count for _, price, count in order[\"items\"])`."
+    },
+    {
+      "tr": "Bu araç sayesinde model hesap yapmaz; Adım Adım Düşündürmek bölümündeki kural.",
+      "en": "Thanks to this tool the model does no calculation; the rule from the Step-by-Step Reasoning section."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom shop_data import ORDERS\n\n\ndef order_total(order_id):\n    order = ORDERS.get(order_id)\n    if order is None:\n        return {\"error\": f\"no order {order_id}\"}\n    total = sum(price * count for _, price, count in order[\"items\"])\n    return {\"order_id\": order_id, \"total\": round(total, 2)}\n\n\nfor order_id in [\"ORD-10077\", \"ORD-61890\", \"ORD-00000\"]:\n    print(order_total(order_id))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom shop_data import ORDERS\n\n\ndef order_total(order_id):\n    order = ORDERS.get(order_id)\n    if order is None:\n        return {\"error\": f\"no order {order_id}\"}\n    total = sum(price * count for _, price, count in order[\"items\"])\n    return {\"order_id\": order_id, \"total\": round(total, 2)}\n\n\nfor order_id in [\"ORD-10077\", \"ORD-61890\", \"ORD-00000\"]:\n    print(order_total(order_id))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "order_total",
+      "cases": [
+        {
+          "args": [
+            "ORD-10077"
+          ],
+          "returns": {
+            "order_id": "ORD-10077",
+            "total": 214.9
+          }
+        },
+        {
+          "args": [
+            "ORD-61890"
+          ],
+          "returns": {
+            "order_id": "ORD-61890",
+            "total": 78.5
+          }
+        },
+        {
+          "args": [
+            "ORD-00000"
+          ],
+          "returns": {
+            "error": "no order ORD-00000"
+          }
+        },
+        {
+          "args": [
+            "ORD-48213"
+          ],
+          "returns": {
+            "order_id": "ORD-48213",
+            "total": 89.9
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'order_id': 'ORD-10077', 'total': 214.9}\n{'order_id': 'ORD-61890', 'total': 78.5}\n{'error': 'no order ORD-00000'}"
+    }
+  ]
+}

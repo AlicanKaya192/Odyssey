@@ -1,0 +1,117 @@
+{
+  "id": "check-call",
+  "title": {
+    "tr": "Çağrıyı doğrula",
+    "en": "Validate the call"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Argümanlar: `call.get(\"arguments\", {})`; ad kümeleri: `set(args) != set(params)`.",
+      "en": "The arguments: `call.get(\"arguments\", {})`; name sets: `set(args) != set(params)`."
+    },
+    {
+      "tr": "Kalıp denetimi: `re.fullmatch(pattern, str(args[name]))`.",
+      "en": "The pattern check: `re.fullmatch(pattern, str(args[name]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef check_call(call, specs):\n    params = specs.get(call[\"name\"])\n    if params is None:\n        return f\"unknown tool {call['name']}\"\n    args = call.get(\"arguments\", {})\n    if set(args) != set(params):\n        return \"arguments must be \" + \", \".join(params)\n    for name, pattern in params.items():\n        if not re.fullmatch(pattern, str(args[name])):\n            return f\"{name} has the wrong form\"\n    return \"ok\"\n\n\nSPECS = {\"get_order\": {\"order_id\": r\"ORD-\\d{5}\"}}\nfor call in [{\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-48213\"}},\n             {\"name\": \"get_order\", \"arguments\": {\"id\": \"ORD-48213\"}},\n             {\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-1\"}},\n             {\"name\": \"refund\", \"arguments\": {}}]:\n    print(check_call(call, SPECS))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef check_call(call, specs):\n    params = specs.get(call[\"name\"])\n    if params is None:\n        return f\"unknown tool {call['name']}\"\n    args = call.get(\"arguments\", {})\n    if set(args) != set(params):\n        return \"arguments must be \" + \", \".join(params)\n    for name, pattern in params.items():\n        if not re.fullmatch(pattern, str(args[name])):\n            return f\"{name} has the wrong form\"\n    return \"ok\"\n\n\nSPECS = {\"get_order\": {\"order_id\": r\"ORD-\\d{5}\"}}\nfor call in [{\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-48213\"}},\n             {\"name\": \"get_order\", \"arguments\": {\"id\": \"ORD-48213\"}},\n             {\"name\": \"get_order\", \"arguments\": {\"order_id\": \"ORD-1\"}},\n             {\"name\": \"refund\", \"arguments\": {}}]:\n    print(check_call(call, SPECS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_call",
+      "cases": [
+        {
+          "args": [
+            {
+              "name": "get_order",
+              "arguments": {
+                "order_id": "ORD-48213"
+              }
+            },
+            {
+              "get_order": {
+                "order_id": "ORD-\\d{5}"
+              }
+            }
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            {
+              "name": "get_order",
+              "arguments": {
+                "id": "ORD-48213"
+              }
+            },
+            {
+              "get_order": {
+                "order_id": "ORD-\\d{5}"
+              }
+            }
+          ],
+          "returns": "arguments must be order_id"
+        },
+        {
+          "args": [
+            {
+              "name": "get_order",
+              "arguments": {
+                "order_id": "ORD-1"
+              }
+            },
+            {
+              "get_order": {
+                "order_id": "ORD-\\d{5}"
+              }
+            }
+          ],
+          "returns": "order_id has the wrong form"
+        },
+        {
+          "args": [
+            {
+              "name": "refund",
+              "arguments": {}
+            },
+            {
+              "get_order": {
+                "order_id": "ORD-\\d{5}"
+              }
+            }
+          ],
+          "returns": "unknown tool refund"
+        },
+        {
+          "args": [
+            {
+              "name": "get_order"
+            },
+            {
+              "get_order": {
+                "order_id": "ORD-\\d{5}"
+              }
+            }
+          ],
+          "returns": "arguments must be order_id"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\narguments must be order_id\norder_id has the wrong form\nunknown tool refund"
+    }
+  ]
+}
