@@ -1,0 +1,87 @@
+{
+  "id": "storage-filter",
+  "title": {
+    "tr": "Saklama süzgeci",
+    "en": "A storage filter"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Süzgeçten geçmeyen metinde `continue` ile sonrakine geç.",
+      "en": "For a text that fails the filter, go to the next with `continue`."
+    },
+    {
+      "tr": "`re.I` sayesinde \"Password\" da yakalanır.",
+      "en": "Thanks to `re.I`, \"Password\" is caught too."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nSECRET = re.compile(r\"password|passcode|\\b\\d{4} \\d{4} \\d{4} \\d{4}\\b\", re.I)\nORDER = re.compile(r\"\\bORD-\\d{5}\\b\")\n\n\ndef store_all(texts):\n    statuses, orders = [], []\n    for text in texts:\n        if SECRET.search(text):\n            statuses.append(\"not stored\")\n            continue\n        statuses.append(\"stored\")\n        orders += ORDER.findall(text)\n    return [statuses, orders]\n\n\nTEXTS = [\"Order ORD-48213 please.\",\n         \"My Password is secret1 for ORD-10077.\",\n         \"Card 1234 5678 9012 3456\",\n         \"Also ORD-23345 and ORD-55102.\"]\nstatuses, orders = store_all(TEXTS)\nfor status in statuses:\n    print(status)\nprint(orders)\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nSECRET = re.compile(r\"password|passcode|\\b\\d{4} \\d{4} \\d{4} \\d{4}\\b\", re.I)\nORDER = re.compile(r\"\\bORD-\\d{5}\\b\")\n\n\ndef store_all(texts):\n    statuses, orders = [], []\n    for text in texts:\n        if SECRET.search(text):\n            statuses.append(\"not stored\")\n            continue\n        statuses.append(\"stored\")\n        orders += ORDER.findall(text)\n    return [statuses, orders]\n\n\nTEXTS = [\"Order ORD-48213 please.\",\n         \"My Password is secret1 for ORD-10077.\",\n         \"Card 1234 5678 9012 3456\",\n         \"Also ORD-23345 and ORD-55102.\"]\nstatuses, orders = store_all(TEXTS)\nfor status in statuses:\n    print(status)\nprint(orders)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "store_all",
+      "cases": [
+        {
+          "args": [
+            [
+              "Order ORD-48213 please.",
+              "My Password is secret1 for ORD-10077.",
+              "Card 1234 5678 9012 3456",
+              "Also ORD-23345 and ORD-55102."
+            ]
+          ],
+          "returns": [
+            [
+              "stored",
+              "not stored",
+              "not stored",
+              "stored"
+            ],
+            [
+              "ORD-48213",
+              "ORD-23345",
+              "ORD-55102"
+            ]
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": [
+            [],
+            []
+          ]
+        },
+        {
+          "args": [
+            [
+              "password reset for ORD-12345"
+            ]
+          ],
+          "returns": [
+            [
+              "not stored"
+            ],
+            []
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "stored\nnot stored\nnot stored\nstored\n['ORD-48213', 'ORD-23345', 'ORD-55102']"
+    }
+  ]
+}

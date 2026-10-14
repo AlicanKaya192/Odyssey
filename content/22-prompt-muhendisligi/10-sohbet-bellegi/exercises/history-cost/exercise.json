@@ -1,0 +1,94 @@
+{
+  "id": "history-cost",
+  "title": {
+    "tr": "Bütün geçmiş mi, son mesajlar mı?",
+    "en": "The whole history or the last messages?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki toplamı aynı döngüde biriktir.",
+      "en": "Accumulate both totals in the same loop."
+    },
+    {
+      "tr": "Cevap, token sayıldıktan **sonra** eklenir.",
+      "en": "The reply is added **after** the tokens are counted."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import count_message_tokens\n\nSYSTEM = {\"role\": \"system\", \"content\": \"You are a shop assistant.\"}\nREPLY = \"Thanks, I am looking into it.\"\n\n\ndef compare(questions, keep):\n    history, full, windowed = [], 0, 0\n    for text in questions:\n        history.append({\"role\": \"user\", \"content\": text})\n        full += count_message_tokens([SYSTEM] + history)\n        windowed += count_message_tokens([SYSTEM] + history[-keep:])\n        history.append({\"role\": \"assistant\", \"content\": REPLY})\n    return [full, windowed]\n\n\nQUESTIONS = [\"Hi.\", \"Where is ORD-48213?\", \"It is late.\",\n             \"Can you check?\", \"Thanks.\"]\nprint(compare(QUESTIONS, 2))\nprint(compare(QUESTIONS, 10))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import count_message_tokens\n\nSYSTEM = {\"role\": \"system\", \"content\": \"You are a shop assistant.\"}\nREPLY = \"Thanks, I am looking into it.\"\n\n\ndef compare(questions, keep):\n    history, full, windowed = [], 0, 0\n    for text in questions:\n        history.append({\"role\": \"user\", \"content\": text})\n        full += count_message_tokens([SYSTEM] + history)\n        windowed += count_message_tokens([SYSTEM] + history[-keep:])\n        history.append({\"role\": \"assistant\", \"content\": REPLY})\n    return [full, windowed]\n\n\nQUESTIONS = [\"Hi.\", \"Where is ORD-48213?\", \"It is late.\",\n             \"Can you check?\", \"Thanks.\"]\nprint(compare(QUESTIONS, 2))\nprint(compare(QUESTIONS, 10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "compare",
+      "cases": [
+        {
+          "args": [
+            [
+              "Hi.",
+              "Where is ORD-48213?",
+              "It is late.",
+              "Can you check?",
+              "Thanks."
+            ],
+            2
+          ],
+          "returns": [
+            337,
+            168
+          ]
+        },
+        {
+          "args": [
+            [
+              "Hi.",
+              "Where is ORD-48213?",
+              "It is late.",
+              "Can you check?",
+              "Thanks."
+            ],
+            10
+          ],
+          "returns": [
+            337,
+            337
+          ]
+        },
+        {
+          "args": [
+            [],
+            3
+          ],
+          "returns": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[337, 168]\n[337, 337]"
+    }
+  ]
+}

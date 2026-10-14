@@ -1,0 +1,82 @@
+{
+  "id": "extract-facts",
+  "title": {
+    "tr": "Bilgileri çıkar",
+    "en": "Extract the facts"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kopya: `updated = dict(memory)`.",
+      "en": "A copy: `updated = dict(memory)`."
+    },
+    {
+      "tr": "Her kalıp için `pattern.search(text)`; eşleşme yoksa `None`.",
+      "en": "For each pattern `pattern.search(text)`; `None` if no match."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nFACTS = {\"name\": re.compile(r\"my name is (\\w+)\", re.I),\n         \"order\": re.compile(r\"\\bORD-\\d{5}\\b\")}\n\n\ndef remember(memory, text):\n    updated = dict(memory)\n    for key, pattern in FACTS.items():\n        found = pattern.search(text)\n        if found:\n            updated[key] = found.group(found.lastindex or 0)\n    return updated\n\n\nmemory = {}\nfor text in [\"Hi, my name is Ada.\", \"Order ORD-48213 is late.\", \"Thanks!\"]:\n    memory = remember(memory, text)\n    print(memory)\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nFACTS = {\"name\": re.compile(r\"my name is (\\w+)\", re.I),\n         \"order\": re.compile(r\"\\bORD-\\d{5}\\b\")}\n\n\ndef remember(memory, text):\n    updated = dict(memory)\n    for key, pattern in FACTS.items():\n        found = pattern.search(text)\n        if found:\n            updated[key] = found.group(found.lastindex or 0)\n    return updated\n\n\nmemory = {}\nfor text in [\"Hi, my name is Ada.\", \"Order ORD-48213 is late.\", \"Thanks!\"]:\n    memory = remember(memory, text)\n    print(memory)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "remember",
+      "cases": [
+        {
+          "args": [
+            {},
+            "Hi, my name is Ada."
+          ],
+          "returns": {
+            "name": "Ada"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "Ada"
+            },
+            "Order ORD-48213 is late."
+          ],
+          "returns": {
+            "name": "Ada",
+            "order": "ORD-48213"
+          }
+        },
+        {
+          "args": [
+            {
+              "order": "ORD-11111"
+            },
+            "My name is Bo, see ORD-22222."
+          ],
+          "returns": {
+            "order": "ORD-22222",
+            "name": "Bo"
+          }
+        },
+        {
+          "args": [
+            {},
+            "Thanks!"
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'name': 'Ada'}\n{'name': 'Ada', 'order': 'ORD-48213'}\n{'name': 'Ada', 'order': 'ORD-48213'}"
+    }
+  ]
+}

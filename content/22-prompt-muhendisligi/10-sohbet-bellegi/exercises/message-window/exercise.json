@@ -1,0 +1,177 @@
+{
+  "id": "message-window",
+  "title": {
+    "tr": "Son mesajlar",
+    "en": "The last messages"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sistem mesajı `history[0]`; kalanlar `history[1:]`.",
+      "en": "The system message is `history[0]`; the rest `history[1:]`."
+    },
+    {
+      "tr": "Son `keep` tanesi: `history[1:][-keep:]`; liste kısaysa dilim hepsini verir.",
+      "en": "The last `keep` ones: `history[1:][-keep:]`; if the list is short the slice gives all."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef window(history, keep):\n    return [history[0]] + history[1:][-keep:]\n\n\nHISTORY = [{\"role\": \"system\", \"content\": \"S\"}] + [\n    {\"role\": \"user\" if i % 2 == 0 else \"assistant\", \"content\": f\"m{i}\"}\n    for i in range(6)]\nprint([m[\"content\"] for m in window(HISTORY, 3)])\nprint([m[\"content\"] for m in window(HISTORY, 10)])\n```",
+      "en": "The full solution:\n\n```python\ndef window(history, keep):\n    return [history[0]] + history[1:][-keep:]\n\n\nHISTORY = [{\"role\": \"system\", \"content\": \"S\"}] + [\n    {\"role\": \"user\" if i % 2 == 0 else \"assistant\", \"content\": f\"m{i}\"}\n    for i in range(6)]\nprint([m[\"content\"] for m in window(HISTORY, 3)])\nprint([m[\"content\"] for m in window(HISTORY, 10)])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "window",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "role": "system",
+                "content": "S"
+              },
+              {
+                "role": "user",
+                "content": "m0"
+              },
+              {
+                "role": "assistant",
+                "content": "m1"
+              },
+              {
+                "role": "user",
+                "content": "m2"
+              },
+              {
+                "role": "assistant",
+                "content": "m3"
+              },
+              {
+                "role": "user",
+                "content": "m4"
+              },
+              {
+                "role": "assistant",
+                "content": "m5"
+              }
+            ],
+            3
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "S"
+            },
+            {
+              "role": "assistant",
+              "content": "m3"
+            },
+            {
+              "role": "user",
+              "content": "m4"
+            },
+            {
+              "role": "assistant",
+              "content": "m5"
+            }
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "role": "system",
+                "content": "S"
+              },
+              {
+                "role": "user",
+                "content": "m0"
+              },
+              {
+                "role": "assistant",
+                "content": "m1"
+              },
+              {
+                "role": "user",
+                "content": "m2"
+              },
+              {
+                "role": "assistant",
+                "content": "m3"
+              },
+              {
+                "role": "user",
+                "content": "m4"
+              },
+              {
+                "role": "assistant",
+                "content": "m5"
+              }
+            ],
+            10
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "S"
+            },
+            {
+              "role": "user",
+              "content": "m0"
+            },
+            {
+              "role": "assistant",
+              "content": "m1"
+            },
+            {
+              "role": "user",
+              "content": "m2"
+            },
+            {
+              "role": "assistant",
+              "content": "m3"
+            },
+            {
+              "role": "user",
+              "content": "m4"
+            },
+            {
+              "role": "assistant",
+              "content": "m5"
+            }
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "role": "system",
+                "content": "S"
+              }
+            ],
+            2
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "S"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['S', 'm3', 'm4', 'm5']\n['S', 'm0', 'm1', 'm2', 'm3', 'm4', 'm5']"
+    }
+  ]
+}
