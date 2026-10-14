@@ -1,0 +1,97 @@
+{
+  "id": "finish-time",
+  "title": {
+    "tr": "Ne Zaman Biter?",
+    "en": "When Does It Finish?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç: `start = 0`; her beklenen iş için `start = max(start, finish_time(name, needs, minutes))`.",
+      "en": "Start: `start = 0`; for each awaited job, `start = max(start, finish_time(name, needs, minutes))`."
+    },
+    {
+      "tr": "Döngüden sonra `return start + minutes[job]`.",
+      "en": "After the loop, `return start + minutes[job]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef finish_time(job, needs, minutes):\n    start = 0\n    for name in needs[job]:\n        start = max(start, finish_time(name, needs, minutes))\n    return start + minutes[job]\n\n\nneeds = {\"lint\": [], \"test\": [], \"build\": [\"lint\", \"test\"], \"deploy\": [\"build\"]}\nminutes = {\"lint\": 2, \"test\": 5, \"build\": 3, \"deploy\": 1}\nfor job in needs:\n    print(job, finish_time(job, needs, minutes))\n```",
+      "en": "The full solution:\n\n```python\ndef finish_time(job, needs, minutes):\n    start = 0\n    for name in needs[job]:\n        start = max(start, finish_time(name, needs, minutes))\n    return start + minutes[job]\n\n\nneeds = {\"lint\": [], \"test\": [], \"build\": [\"lint\", \"test\"], \"deploy\": [\"build\"]}\nminutes = {\"lint\": 2, \"test\": 5, \"build\": 3, \"deploy\": 1}\nfor job in needs:\n    print(job, finish_time(job, needs, minutes))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "finish_time",
+      "cases": [
+        {
+          "args": [
+            "a",
+            {
+              "a": []
+            },
+            {
+              "a": 4
+            }
+          ],
+          "returns": 4
+        },
+        {
+          "args": [
+            "c",
+            {
+              "a": [],
+              "b": [
+                "a"
+              ],
+              "c": [
+                "a",
+                "b"
+              ]
+            },
+            {
+              "a": 1,
+              "b": 2,
+              "c": 3
+            }
+          ],
+          "returns": 6
+        },
+        {
+          "args": [
+            "d",
+            {
+              "a": [],
+              "b": [],
+              "c": [],
+              "d": [
+                "a",
+                "b",
+                "c"
+              ]
+            },
+            {
+              "a": 5,
+              "b": 2,
+              "c": 9,
+              "d": 1
+            }
+          ],
+          "returns": 10
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "lint 2\ntest 5\nbuild 8\ndeploy 9"
+    }
+  ]
+}

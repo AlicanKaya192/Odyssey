@@ -1,0 +1,89 @@
+{
+  "id": "unknown-needs",
+  "title": {
+    "tr": "Olmayan İş",
+    "en": "A Job That Does Not Exist"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki döngü: dıştaki `needs.items()`, içteki işin beklediği adlar.",
+      "en": "Two loops: the outer one over `needs.items()`, the inner one over the names the job waits for."
+    },
+    {
+      "tr": "Bir adın iş olup olmadığını `name not in needs` sorar.",
+      "en": "`name not in needs` asks whether a name is not a job."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef unknown_needs(needs):\n    problems = []\n    for job, waited in needs.items():\n        for name in waited:\n            if name not in needs:\n                problems.append(job + \" -> \" + name)\n    return problems\n\n\njobs = {\n    \"lint\": [],\n    \"test\": [],\n    \"build\": [\"lint\", \"tests\"],\n    \"deploy\": [\"build\", \"approve\"],\n}\nprint(unknown_needs(jobs))\nprint(unknown_needs({\"a\": [], \"b\": [\"a\"]}))\n```",
+      "en": "The full solution:\n\n```python\ndef unknown_needs(needs):\n    problems = []\n    for job, waited in needs.items():\n        for name in waited:\n            if name not in needs:\n                problems.append(job + \" -> \" + name)\n    return problems\n\n\njobs = {\n    \"lint\": [],\n    \"test\": [],\n    \"build\": [\"lint\", \"tests\"],\n    \"deploy\": [\"build\", \"approve\"],\n}\nprint(unknown_needs(jobs))\nprint(unknown_needs({\"a\": [], \"b\": [\"a\"]}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "unknown_needs",
+      "cases": [
+        {
+          "args": [
+            {
+              "a": [
+                "b"
+              ]
+            }
+          ],
+          "returns": [
+            "a -> b"
+          ]
+        },
+        {
+          "args": [
+            {
+              "a": [],
+              "b": [
+                "a"
+              ],
+              "c": [
+                "a",
+                "b"
+              ]
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "x": [
+                "y",
+                "z"
+              ],
+              "y": []
+            }
+          ],
+          "returns": [
+            "x -> z"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['build -> tests', 'deploy -> approve']\n[]"
+    }
+  ]
+}

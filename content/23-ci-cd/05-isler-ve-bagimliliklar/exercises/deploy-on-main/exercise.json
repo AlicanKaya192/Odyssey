@@ -1,0 +1,66 @@
+{
+  "id": "deploy-on-main",
+  "title": {
+    "tr": "Yalnızca Ana Dalda Dağıtım",
+    "en": "Deploy Only on the Main Branch"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "deploy.sh",
+      "readonly": true
+    },
+    {
+      "name": "test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Koşul: `if: github.event_name == 'push' && github.ref == 'refs/heads/main'`. Metinler tek tırnakla.",
+      "en": "The condition: `if: github.event_name == 'push' && github.ref == 'refs/heads/main'`. Text in single quotes."
+    },
+    {
+      "tr": "`deploy:` öteki işlerle aynı hizada (iki boşluk), altındaki anahtarlar dört boşluk içeride.",
+      "en": "`deploy:` is in the same column as the other jobs (two spaces), the keys under it four spaces in."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: pip install ruff\n      - run: ruff check .\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n  build:\n    needs: [lint, test]\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: python -m pip wheel . -w dist\n  deploy:\n    needs: build\n    if: github.event_name == 'push' && github.ref == 'refs/heads/main'\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: ./deploy.sh\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: pip install ruff\n      - run: ruff check .\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n  build:\n    needs: [lint, test]\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: python -m pip wheel . -w dist\n  deploy:\n    needs: build\n    if: github.event_name == 'push' && github.ref == 'refs/heads/main'\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: ./deploy.sh\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "deploy",
+      "needs": [
+        "build"
+      ],
+      "if": "(?=.*github\\.event_name\\s*==\\s*'push')(?=.*github\\.ref\\s*==\\s*'refs/heads/main')",
+      "show_if": "github.event_name == 'push' && github.ref == 'refs/heads/main'",
+      "steps": [
+        {
+          "run": "deploy\\.sh",
+          "show": "run: ./deploy.sh"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "order-jobs",
+  "title": {
+    "tr": "Önce Testler",
+    "en": "Tests First"
+  },
+  "difficulty": 1,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "deploy.sh",
+      "readonly": true
+    },
+    {
+      "name": "test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "İşin altında, `runs-on` ile aynı hizada `needs:`.",
+      "en": "Under the job, in the same column as `runs-on`: `needs:`."
+    },
+    {
+      "tr": "İki iş için liste: `needs: [lint, test]`.",
+      "en": "For two jobs, a list: `needs: [lint, test]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: pip install ruff\n      - run: ruff check .\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n  build:\n    needs: [lint, test]\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: python -m pip wheel . -w dist\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: pip install ruff\n      - run: ruff check .\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n  build:\n    needs: [lint, test]\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: python -m pip wheel . -w dist\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "build",
+      "needs": [
+        "lint",
+        "test"
+      ]
+    }
+  ]
+}
