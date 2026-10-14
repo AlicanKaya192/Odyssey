@@ -1,0 +1,97 @@
+{
+  "id": "key-recall",
+  "title": {
+    "tr": "Cevap bulundu mu?",
+    "en": "Was the answer found?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`any(key in chunk for chunk in chunks)` bir soruda en az bir parçanın ifadeyi içerip içermediğini söyler.",
+      "en": "`any(key in chunk for chunk in chunks)` tells whether at least one chunk contains the phrase for a question."
+    },
+    {
+      "tr": "`zip(results, keys)` ile birlikte gez; `True` toplamda 1 sayılır.",
+      "en": "Walk them together with `zip(results, keys)`; `True` counts as 1 in a sum."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef key_recall(results, keys):\n    found = sum(any(key in chunk for chunk in chunks) for chunks, key in zip(results, keys))\n    return round(found / len(keys), 2)\n\n\nresults = [[\"valid for 3 years\", \"x\"], [\"free shipping\"], [\"y\", \"30 days\"]]\nprint(key_recall(results, [\"3 years\", \"4.90\", \"30 days\"]))\n```",
+      "en": "The full solution:\n\n```python\ndef key_recall(results, keys):\n    found = sum(any(key in chunk for chunk in chunks) for chunks, key in zip(results, keys))\n    return round(found / len(keys), 2)\n\n\nresults = [[\"valid for 3 years\", \"x\"], [\"free shipping\"], [\"y\", \"30 days\"]]\nprint(key_recall(results, [\"3 years\", \"4.90\", \"30 days\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "key_recall",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "valid for 3 years",
+                "x"
+              ],
+              [
+                "free shipping"
+              ],
+              [
+                "y",
+                "30 days"
+              ]
+            ],
+            [
+              "3 years",
+              "4.90",
+              "30 days"
+            ]
+          ],
+          "returns": 0.67
+        },
+        {
+          "args": [
+            [
+              [
+                "a"
+              ],
+              [
+                "b"
+              ]
+            ],
+            [
+              "a",
+              "b"
+            ]
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              [
+                "a"
+              ],
+              []
+            ],
+            [
+              "z",
+              "a"
+            ]
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.67"
+    }
+  ]
+}

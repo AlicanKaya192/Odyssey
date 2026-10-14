@@ -1,0 +1,76 @@
+{
+  "id": "sentence-search",
+  "title": {
+    "tr": "Hangi makale?",
+    "en": "Which article?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "doc_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Vektörleştiriciyi ve matrisi fonksiyonun dışında bir kez kur; her soruda yalnızca soruyu dönüştür.",
+      "en": "Build the vectorizer and the matrix once outside the function; for every question only transform the question."
+    },
+    {
+      "tr": "Puanlar `(MATRIX @ VECTORIZER.transform([question]).T).toarray().ravel()`; en iyisi `np.argmax(scores)`.",
+      "en": "The scores are `(MATRIX @ VECTORIZER.transform([question]).T).toarray().ravel()`; the best is `np.argmax(scores)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom doc_data import DOCS\n\nSENTENCES = [(d[\"id\"], s) for d in DOCS for s in re.split(r\"(?<=\\.) \", d[\"text\"])]\nVECTORIZER = TfidfVectorizer(stop_words=\"english\")\nMATRIX = VECTORIZER.fit_transform([s for _, s in SENTENCES])\n\n\ndef best_doc(question):\n    scores = (MATRIX @ VECTORIZER.transform([question]).T).toarray().ravel()\n    return SENTENCES[int(np.argmax(scores))][0]\n\n\nfor question in [\"Do gift cards expire?\", \"When can I call customer service?\"]:\n    print(best_doc(question))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\nimport numpy as np\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom doc_data import DOCS\n\nSENTENCES = [(d[\"id\"], s) for d in DOCS for s in re.split(r\"(?<=\\.) \", d[\"text\"])]\nVECTORIZER = TfidfVectorizer(stop_words=\"english\")\nMATRIX = VECTORIZER.fit_transform([s for _, s in SENTENCES])\n\n\ndef best_doc(question):\n    scores = (MATRIX @ VECTORIZER.transform([question]).T).toarray().ravel()\n    return SENTENCES[int(np.argmax(scores))][0]\n\n\nfor question in [\"Do gift cards expire?\", \"When can I call customer service?\"]:\n    print(best_doc(question))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "best_doc",
+      "cases": [
+        {
+          "args": [
+            "Do gift cards expire?"
+          ],
+          "returns": "giftcards"
+        },
+        {
+          "args": [
+            "When can I call customer service?"
+          ],
+          "returns": "service"
+        },
+        {
+          "args": [
+            "How do I stop mould in my tent?"
+          ],
+          "returns": "tents"
+        },
+        {
+          "args": [
+            "How long does a repair take?"
+          ],
+          "returns": "repairs"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "giftcards\nservice"
+    }
+  ]
+}

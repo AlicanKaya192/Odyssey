@@ -1,0 +1,92 @@
+{
+  "id": "token-budget",
+  "title": {
+    "tr": "Bütçeye sığan parçalar",
+    "en": "Chunks that fit the budget"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her parçanın token'ı `count_tokens(chunk)`; eklemeden önce `used + cost > budget` mi diye bak.",
+      "en": "Each chunk's tokens are `count_tokens(chunk)`; check `used + cost > budget` before adding."
+    },
+    {
+      "tr": "Aşacak ilk parçada `break`: sıradaki küçük parçalar atlanmaz, sıra korunur.",
+      "en": "`break` at the first chunk that would exceed: smaller later chunks are not picked, the order is kept."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import count_tokens\n\n\ndef fit_chunks(chunks, budget):\n    taken, used = 0, 0\n    for chunk in chunks:\n        cost = count_tokens(chunk)\n        if used + cost > budget:\n            break\n        taken, used = taken + 1, used + cost\n    return [taken, used]\n\n\nchunks = [\"Gift cards are valid for 3 years.\", \"Points expire after 12 months.\", \"Repairs take 3 weeks.\"]\nprint(fit_chunks(chunks, 12))\nprint(fit_chunks(chunks, 100))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import count_tokens\n\n\ndef fit_chunks(chunks, budget):\n    taken, used = 0, 0\n    for chunk in chunks:\n        cost = count_tokens(chunk)\n        if used + cost > budget:\n            break\n        taken, used = taken + 1, used + cost\n    return [taken, used]\n\n\nchunks = [\"Gift cards are valid for 3 years.\", \"Points expire after 12 months.\", \"Repairs take 3 weeks.\"]\nprint(fit_chunks(chunks, 12))\nprint(fit_chunks(chunks, 100))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fit_chunks",
+      "cases": [
+        {
+          "args": [
+            [
+              "Gift cards are valid for 3 years.",
+              "Points expire after 12 months.",
+              "Repairs take 3 weeks."
+            ],
+            12
+          ],
+          "returns": [
+            1,
+            11
+          ]
+        },
+        {
+          "args": [
+            [
+              "Gift cards are valid for 3 years.",
+              "Points expire after 12 months.",
+              "Repairs take 3 weeks."
+            ],
+            100
+          ],
+          "returns": [
+            3,
+            28
+          ]
+        },
+        {
+          "args": [
+            [
+              "a b c"
+            ],
+            0
+          ],
+          "returns": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 11]\n[3, 28]"
+    }
+  ]
+}
