@@ -110,6 +110,13 @@ def _check_triggers(check: dict, data: dict, _path: Path) -> dict | None:
         for branch in branches:
             if branch not in found:
                 return _fail("branch_missing", event=event, branch=branch)
+    for event, filters in (check.get("filters") or {}).items():
+        config = triggers.get(event)
+        for key, values in filters.items():
+            found = _as_list(config.get(key)) if isinstance(config, dict) else []
+            for value in values:
+                if value not in found:
+                    return _fail("filter_missing", event=event, key=key, value=value)
     if "cron" in check:
         crons = [str(item.get("cron", "")) for item in _as_list(triggers.get("schedule"))
                  if isinstance(item, dict)]
