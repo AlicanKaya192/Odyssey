@@ -1,0 +1,117 @@
+{
+  "id": "authority-by-source",
+  "title": {
+    "tr": "Kaynağa göre yetki",
+    "en": "Authority by source"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce aracı bul: `spec = tools.get(tool)`.",
+      "en": "Find the tool first: `spec = tools.get(tool)`."
+    },
+    {
+      "tr": "Geri alınamaz ve kaynak kullanıcı değilse `False`.",
+      "en": "Irreversible and the source is not the user: `False`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef allowed(tool, source, tools):\n    spec = tools.get(tool)\n    if spec is None:\n        return False\n    if spec[\"irreversible\"] and source != \"user\":\n        return False\n    return True\n\n\nTOOLS = {\"get_order\": {\"irreversible\": False},\n         \"cancel_order\": {\"irreversible\": True}}\nfor tool, source in [(\"get_order\", \"document\"), (\"cancel_order\", \"document\"),\n                     (\"cancel_order\", \"user\"), (\"refund\", \"user\")]:\n    print(tool, source, allowed(tool, source, TOOLS))\n```",
+      "en": "The full solution:\n\n```python\ndef allowed(tool, source, tools):\n    spec = tools.get(tool)\n    if spec is None:\n        return False\n    if spec[\"irreversible\"] and source != \"user\":\n        return False\n    return True\n\n\nTOOLS = {\"get_order\": {\"irreversible\": False},\n         \"cancel_order\": {\"irreversible\": True}}\nfor tool, source in [(\"get_order\", \"document\"), (\"cancel_order\", \"document\"),\n                     (\"cancel_order\", \"user\"), (\"refund\", \"user\")]:\n    print(tool, source, allowed(tool, source, TOOLS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "allowed",
+      "cases": [
+        {
+          "args": [
+            "get_order",
+            "document",
+            {
+              "get_order": {
+                "irreversible": false
+              },
+              "cancel_order": {
+                "irreversible": true
+              }
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "cancel_order",
+            "document",
+            {
+              "get_order": {
+                "irreversible": false
+              },
+              "cancel_order": {
+                "irreversible": true
+              }
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "cancel_order",
+            "user",
+            {
+              "get_order": {
+                "irreversible": false
+              },
+              "cancel_order": {
+                "irreversible": true
+              }
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "refund",
+            "user",
+            {
+              "get_order": {
+                "irreversible": false
+              },
+              "cancel_order": {
+                "irreversible": true
+              }
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "cancel_order",
+            "tool",
+            {
+              "get_order": {
+                "irreversible": false
+              },
+              "cancel_order": {
+                "irreversible": true
+              }
+            }
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "get_order document True\ncancel_order document False\ncancel_order user True\nrefund user False"
+    }
+  ]
+}

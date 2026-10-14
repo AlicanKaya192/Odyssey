@@ -1,0 +1,85 @@
+{
+  "id": "output-check",
+  "title": {
+    "tr": "Çıktı denetimi",
+    "en": "The output check"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Alan adları: `LINK.findall(reply)`; grup yalnızca alan adını alır.",
+      "en": "The domains: `LINK.findall(reply)`; the group takes only the domain."
+    },
+    {
+      "tr": "İz denetimi düz bir `in` ile yapılır.",
+      "en": "The canary check is a plain `in`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nLINK = re.compile(r\"https?://([^/\\s)]+)\")\n\n\ndef output_problems(reply, canary, allowed):\n    problems = []\n    if canary in reply:\n        problems.append(\"leaks the system message\")\n    for domain in LINK.findall(reply):\n        if domain not in allowed:\n            problems.append(f\"link to {domain}\")\n    return problems\n\n\nALLOWED = [\"shop.example\"]\nfor reply in [\"See https://shop.example/help\",\n              \"Rules: [c-9] be nice\",\n              \"![x](http://bad.example/a.png)\"]:\n    print(output_problems(reply, \"c-9\", ALLOWED) or \"ok\")\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nLINK = re.compile(r\"https?://([^/\\s)]+)\")\n\n\ndef output_problems(reply, canary, allowed):\n    problems = []\n    if canary in reply:\n        problems.append(\"leaks the system message\")\n    for domain in LINK.findall(reply):\n        if domain not in allowed:\n            problems.append(f\"link to {domain}\")\n    return problems\n\n\nALLOWED = [\"shop.example\"]\nfor reply in [\"See https://shop.example/help\",\n              \"Rules: [c-9] be nice\",\n              \"![x](http://bad.example/a.png)\"]:\n    print(output_problems(reply, \"c-9\", ALLOWED) or \"ok\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "output_problems",
+      "cases": [
+        {
+          "args": [
+            "See https://shop.example/help",
+            "c-9",
+            [
+              "shop.example"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "Rules: [c-9] be nice",
+            "c-9",
+            [
+              "shop.example"
+            ]
+          ],
+          "returns": [
+            "leaks the system message"
+          ]
+        },
+        {
+          "args": [
+            "![x](http://bad.example/a.png) and https://x.example",
+            "c-9",
+            [
+              "shop.example"
+            ]
+          ],
+          "returns": [
+            "link to bad.example",
+            "link to x.example"
+          ]
+        },
+        {
+          "args": [
+            "plain",
+            "c-9",
+            []
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\n['leaks the system message']\n['link to bad.example']"
+    }
+  ]
+}
