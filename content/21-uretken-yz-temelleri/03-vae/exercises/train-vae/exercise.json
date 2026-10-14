@@ -1,0 +1,86 @@
+{
+  "id": "train-vae",
+  "title": {
+    "tr": "Kodlayıcıya giden türev",
+    "en": "The gradient into the encoder"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    },
+    {
+      "name": "vae_model.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Örnekleme adımında `z = mu + std * eps`: `mu`'ya türev `d_z`, `logvar`'a türev `d_z * eps * 0.5 * std`.",
+      "en": "In the sampling step `z = mu + std * eps`: the gradient to `mu` is `d_z`, to `logvar` `d_z * eps * 0.5 * std`."
+    },
+    {
+      "tr": "KL'nin türevleri `mu` ve `0.5 * (std ** 2 - 1)`; ikisi de `beta / n` ile çarpılıp eklenir.",
+      "en": "The KL's gradients are `mu` and `0.5 * (std ** 2 - 1)`; both are multiplied by `beta / n` and added."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\nfrom vae_model import encode, decode\n\n\ndef train(beta, steps):\n    rng = np.random.default_rng(0)\n    sizes = {\"W1\": (64, 32), \"Wm\": (32, 2), \"Wv\": (32, 2),\n             \"W3\": (2, 32), \"W4\": (32, 64)}\n    P = {}\n    for name, (a, b) in sizes.items():\n        P[name] = rng.normal(0, np.sqrt(1 / a), (a, b))\n        P[\"b\" + name[1:]] = np.zeros(b)\n    m = {name: 0 * p for name, p in P.items()}\n    v = {name: 0 * p for name, p in P.items()}\n    n = len(X_train)\n    for t in range(1, steps + 1):\n        h, mu, logvar = encode(X_train, P)\n        std = np.exp(0.5 * logvar)\n        eps = rng.normal(size=mu.shape)\n        z = mu + std * eps\n        g, out = decode(z, P)\n        d_out = (out - X_train) / n\n        d_g = d_out @ P[\"W4\"].T * (1 - g ** 2)\n        d_z = d_g @ P[\"W3\"].T\n        d_mu = d_z + beta * mu / n\n        d_lv = d_z * eps * 0.5 * std + beta * 0.5 * (std ** 2 - 1) / n\n        d_h = (d_mu @ P[\"Wm\"].T + d_lv @ P[\"Wv\"].T) * (1 - h ** 2)\n        grads = {\"W4\": g.T @ d_out, \"b4\": d_out.sum(0),\n                 \"W3\": z.T @ d_g, \"b3\": d_g.sum(0),\n                 \"Wm\": h.T @ d_mu, \"bm\": d_mu.sum(0),\n                 \"Wv\": h.T @ d_lv, \"bv\": d_lv.sum(0),\n                 \"W1\": X_train.T @ d_h, \"b1\": d_h.sum(0)}\n        for name, grad in grads.items():\n            m[name] = 0.9 * m[name] + 0.1 * grad\n            v[name] = 0.999 * v[name] + 0.001 * grad ** 2\n            m_hat = m[name] / (1 - 0.9 ** t)\n            v_hat = v[name] / (1 - 0.999 ** t)\n            P[name] = P[name] - 0.01 * m_hat / (np.sqrt(v_hat) + 1e-8)\n    _, mu, logvar = encode(X_test, P)\n    error = ((X_test - decode(mu, P)[1]) ** 2).mean()\n    kl = (0.5 * (mu ** 2 + np.exp(logvar) - logvar - 1).sum(axis=1)).mean()\n    return [round(float(error), 3), round(float(kl), 3)]\n\n\nprint(train(1.0, 300))\nprint(train(0.0, 300))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\nfrom vae_model import encode, decode\n\n\ndef train(beta, steps):\n    rng = np.random.default_rng(0)\n    sizes = {\"W1\": (64, 32), \"Wm\": (32, 2), \"Wv\": (32, 2),\n             \"W3\": (2, 32), \"W4\": (32, 64)}\n    P = {}\n    for name, (a, b) in sizes.items():\n        P[name] = rng.normal(0, np.sqrt(1 / a), (a, b))\n        P[\"b\" + name[1:]] = np.zeros(b)\n    m = {name: 0 * p for name, p in P.items()}\n    v = {name: 0 * p for name, p in P.items()}\n    n = len(X_train)\n    for t in range(1, steps + 1):\n        h, mu, logvar = encode(X_train, P)\n        std = np.exp(0.5 * logvar)\n        eps = rng.normal(size=mu.shape)\n        z = mu + std * eps\n        g, out = decode(z, P)\n        d_out = (out - X_train) / n\n        d_g = d_out @ P[\"W4\"].T * (1 - g ** 2)\n        d_z = d_g @ P[\"W3\"].T\n        d_mu = d_z + beta * mu / n\n        d_lv = d_z * eps * 0.5 * std + beta * 0.5 * (std ** 2 - 1) / n\n        d_h = (d_mu @ P[\"Wm\"].T + d_lv @ P[\"Wv\"].T) * (1 - h ** 2)\n        grads = {\"W4\": g.T @ d_out, \"b4\": d_out.sum(0),\n                 \"W3\": z.T @ d_g, \"b3\": d_g.sum(0),\n                 \"Wm\": h.T @ d_mu, \"bm\": d_mu.sum(0),\n                 \"Wv\": h.T @ d_lv, \"bv\": d_lv.sum(0),\n                 \"W1\": X_train.T @ d_h, \"b1\": d_h.sum(0)}\n        for name, grad in grads.items():\n            m[name] = 0.9 * m[name] + 0.1 * grad\n            v[name] = 0.999 * v[name] + 0.001 * grad ** 2\n            m_hat = m[name] / (1 - 0.9 ** t)\n            v_hat = v[name] / (1 - 0.999 ** t)\n            P[name] = P[name] - 0.01 * m_hat / (np.sqrt(v_hat) + 1e-8)\n    _, mu, logvar = encode(X_test, P)\n    error = ((X_test - decode(mu, P)[1]) ** 2).mean()\n    kl = (0.5 * (mu ** 2 + np.exp(logvar) - logvar - 1).sum(axis=1)).mean()\n    return [round(float(error), 3), round(float(kl), 3)]\n\n\nprint(train(1.0, 300))\nprint(train(0.0, 300))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "train",
+      "cases": [
+        {
+          "args": [
+            1.0,
+            300
+          ],
+          "returns": [
+            0.044,
+            2.012
+          ]
+        },
+        {
+          "args": [
+            0.5,
+            300
+          ],
+          "returns": [
+            0.042,
+            2.953
+          ]
+        },
+        {
+          "args": [
+            2.0,
+            200
+          ],
+          "returns": [
+            0.057,
+            0.657
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.044, 2.012]\n[0.047, 59.204]"
+    }
+  ]
+}

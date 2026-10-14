@@ -1,0 +1,184 @@
+{
+  "id": "vae-loss",
+  "title": {
+    "tr": "VAE kaybı",
+    "en": "The VAE loss"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce toplamı satır içinde al (`.sum(axis=1)`), sonra örnekler üzerinden ortalamasını (`.mean()`).",
+      "en": "First sum within each row (`.sum(axis=1)`), then take the mean over the examples (`.mean()`)."
+    },
+    {
+      "tr": "`beta` yalnızca KL'yi çarpar: `rec + beta * kl`.",
+      "en": "`beta` only multiplies the KL: `rec + beta * kl`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\nx = [[0.0, 1.0, 1.0], [1.0, 0.0, 0.0]]\nout = [[0.1, 0.8, 0.7], [0.9, 0.2, 0.4]]\nmu = [[0.5, -1.0], [0.0, 2.0]]\nlogvar = [[0.0, -1.0], [0.5, 0.0]]\n\n\ndef vae_loss(x, out, mu, logvar, beta):\n    x, out = np.array(x), np.array(out)\n    mu, logvar = np.array(mu), np.array(logvar)\n    rec = -(x * np.log(out) + (1 - x) * np.log(1 - out)).sum(axis=1).mean()\n    kl = (0.5 * (mu ** 2 + np.exp(logvar) - logvar - 1).sum(axis=1)).mean()\n    return [round(float(rec), 4), round(float(kl), 4), round(float(rec + beta * kl), 4)]\n\n\nprint(vae_loss(x, out, mu, logvar, 1.0))\nprint(vae_loss(x, out, mu, logvar, 0.5))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\nx = [[0.0, 1.0, 1.0], [1.0, 0.0, 0.0]]\nout = [[0.1, 0.8, 0.7], [0.9, 0.2, 0.4]]\nmu = [[0.5, -1.0], [0.0, 2.0]]\nlogvar = [[0.0, -1.0], [0.5, 0.0]]\n\n\ndef vae_loss(x, out, mu, logvar, beta):\n    x, out = np.array(x), np.array(out)\n    mu, logvar = np.array(mu), np.array(logvar)\n    rec = -(x * np.log(out) + (1 - x) * np.log(1 - out)).sum(axis=1).mean()\n    kl = (0.5 * (mu ** 2 + np.exp(logvar) - logvar - 1).sum(axis=1)).mean()\n    return [round(float(rec), 4), round(float(kl), 4), round(float(rec + beta * kl), 4)]\n\n\nprint(vae_loss(x, out, mu, logvar, 1.0))\nprint(vae_loss(x, out, mu, logvar, 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "vae_loss",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0,
+                1.0,
+                1.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                0.1,
+                0.8,
+                0.7
+              ],
+              [
+                0.9,
+                0.2,
+                0.4
+              ]
+            ],
+            [
+              [
+                0.5,
+                -1.0
+              ],
+              [
+                0.0,
+                2.0
+              ]
+            ],
+            [
+              [
+                0.0,
+                -1.0
+              ],
+              [
+                0.5,
+                0.0
+              ]
+            ],
+            1.0
+          ],
+          "returns": [
+            0.7623,
+            1.4417,
+            2.2039
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            [
+              [
+                0.5,
+                0.5
+              ]
+            ],
+            [
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            2.0
+          ],
+          "returns": [
+            1.3863,
+            0.0,
+            1.3863
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0.0,
+                1.0,
+                1.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                0.1,
+                0.8,
+                0.7
+              ],
+              [
+                0.9,
+                0.2,
+                0.4
+              ]
+            ],
+            [
+              [
+                0.5,
+                -1.0
+              ],
+              [
+                0.0,
+                2.0
+              ]
+            ],
+            [
+              [
+                0.0,
+                -1.0
+              ],
+              [
+                0.5,
+                0.0
+              ]
+            ],
+            4.0
+          ],
+          "returns": [
+            0.7623,
+            1.4417,
+            6.5289
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.7623, 1.4417, 2.2039]\n[0.7623, 1.4417, 1.4831]"
+    }
+  ]
+}

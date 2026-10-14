@@ -1,0 +1,102 @@
+{
+  "id": "sample-stats",
+  "title": {
+    "tr": "Dağılımdan kod çek",
+    "en": "Draw codes from a distribution"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Listeleri önce diziye çevir: `np.array(mu)`; böylece `mu + std * ...` eleman eleman çalışır.",
+      "en": "Turn the lists into arrays first: `np.array(mu)`; then `mu + std * ...` works element by element."
+    },
+    {
+      "tr": "Boyut başına ortalama `z.mean(axis=0)`, standart sapma `z.std(axis=0)`.",
+      "en": "The mean per dimension is `z.mean(axis=0)`, the standard deviation `z.std(axis=0)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef sample_stats(mu, logvar, n, seed):\n    rng = np.random.default_rng(seed)\n    mu = np.array(mu)\n    std = np.exp(0.5 * np.array(logvar))\n    z = mu + std * rng.normal(size=(n, len(mu)))\n    means = [round(float(a), 2) for a in z.mean(axis=0)]\n    stds = [round(float(a), 2) for a in z.std(axis=0)]\n    return means + stds\n\n\nprint(sample_stats([1.5, -0.5], [-2.0, 0.0], 10000, 0))\nprint(sample_stats([0.0], [1.0], 5000, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef sample_stats(mu, logvar, n, seed):\n    rng = np.random.default_rng(seed)\n    mu = np.array(mu)\n    std = np.exp(0.5 * np.array(logvar))\n    z = mu + std * rng.normal(size=(n, len(mu)))\n    means = [round(float(a), 2) for a in z.mean(axis=0)]\n    stds = [round(float(a), 2) for a in z.std(axis=0)]\n    return means + stds\n\n\nprint(sample_stats([1.5, -0.5], [-2.0, 0.0], 10000, 0))\nprint(sample_stats([0.0], [1.0], 5000, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sample_stats",
+      "cases": [
+        {
+          "args": [
+            [
+              1.5,
+              -0.5
+            ],
+            [
+              -2.0,
+              0.0
+            ],
+            10000,
+            0
+          ],
+          "returns": [
+            1.5,
+            -0.5,
+            0.37,
+            1.0
+          ]
+        },
+        {
+          "args": [
+            [
+              0.0
+            ],
+            [
+              1.0
+            ],
+            5000,
+            3
+          ],
+          "returns": [
+            0.01,
+            1.66
+          ]
+        },
+        {
+          "args": [
+            [
+              3.0,
+              0.0,
+              -1.0
+            ],
+            [
+              0.0,
+              -4.0,
+              2.0
+            ],
+            20000,
+            7
+          ],
+          "returns": [
+            2.99,
+            -0.0,
+            -0.99,
+            0.99,
+            0.13,
+            2.73
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.5, -0.5, 0.37, 1.0]\n[0.01, 1.66]"
+    }
+  ]
+}

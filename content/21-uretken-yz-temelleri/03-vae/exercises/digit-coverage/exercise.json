@@ -1,0 +1,86 @@
+{
+  "id": "digit-coverage",
+  "title": {
+    "tr": "Kaç rakam çıkıyor?",
+    "en": "How many digits come out?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    },
+    {
+      "name": "vae_model.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Rakam başına sayı: `np.bincount(judge.predict(images), minlength=10)`.",
+      "en": "Count per digit: `np.bincount(judge.predict(images), minlength=10)`."
+    },
+    {
+      "tr": "Emin olma: `judge.predict_proba(images).max(axis=1) > 0.9`; ortalaması oran verir.",
+      "en": "Being sure: `judge.predict_proba(images).max(axis=1) > 0.9`; its mean gives the share."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\nfrom sklearn.linear_model import LogisticRegression\nfrom vae_model import train_vae, decode\n\njudge = LogisticRegression(max_iter=2000).fit(X_train, y[order[:1500]])\nP = train_vae(X_train, 2, beta=1.0)\n\n\ndef coverage(n, seed):\n    z = np.random.default_rng(seed).normal(size=(n, 2))\n    images = decode(z, P)[1]\n    counts = np.bincount(judge.predict(images), minlength=10)\n    seen = int((counts >= 0.05 * n).sum())\n    sure = judge.predict_proba(images).max(axis=1) > 0.9\n    return [seen, round(float(sure.mean()), 3)]\n\n\nprint(coverage(1000, 1))\nprint(coverage(500, 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\nfrom sklearn.linear_model import LogisticRegression\nfrom vae_model import train_vae, decode\n\njudge = LogisticRegression(max_iter=2000).fit(X_train, y[order[:1500]])\nP = train_vae(X_train, 2, beta=1.0)\n\n\ndef coverage(n, seed):\n    z = np.random.default_rng(seed).normal(size=(n, 2))\n    images = decode(z, P)[1]\n    counts = np.bincount(judge.predict(images), minlength=10)\n    seen = int((counts >= 0.05 * n).sum())\n    sure = judge.predict_proba(images).max(axis=1) > 0.9\n    return [seen, round(float(sure.mean()), 3)]\n\n\nprint(coverage(1000, 1))\nprint(coverage(500, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "coverage",
+      "cases": [
+        {
+          "args": [
+            1000,
+            1
+          ],
+          "returns": [
+            10,
+            0.333
+          ]
+        },
+        {
+          "args": [
+            500,
+            2
+          ],
+          "returns": [
+            10,
+            0.332
+          ]
+        },
+        {
+          "args": [
+            2000,
+            3
+          ],
+          "returns": [
+            10,
+            0.343
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[10, 0.333]\n[10, 0.332]"
+    }
+  ]
+}
