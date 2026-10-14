@@ -1,0 +1,85 @@
+{
+  "id": "conversation-cost",
+  "title": {
+    "tr": "Sohbetin bedeli",
+    "en": "The cost of a conversation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İstemciyi fonksiyonun içinde kur; her çağrı senaryodan bir yanıt tüketir.",
+      "en": "Create the client inside the function; every call uses up one reply from the script."
+    },
+    {
+      "tr": "Maliyet `(tokens_in * price_in + tokens_out * price_out) / 1_000_000`.",
+      "en": "The cost is `(tokens_in * price_in + tokens_out * price_out) / 1_000_000`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient\n\nQUESTIONS = [\"Hi, I am Ada.\", \"What is the capital of Peru?\", \"And its currency?\"]\nREPLIES = [\"Hello Ada!\", \"The capital of Peru is Lima.\", \"Peru uses the sol.\"]\n\n\ndef chat_cost(price_in, price_out):\n    client = ChatClient(REPLIES)\n    history = []\n    tokens_in = tokens_out = 0\n    for question in QUESTIONS:\n        history.append({\"role\": \"user\", \"content\": question})\n        reply = client.chat(history, max_tokens=50)\n        history.append({\"role\": \"assistant\", \"content\": reply.text})\n        tokens_in += reply.input_tokens\n        tokens_out += reply.output_tokens\n    cost = (tokens_in * price_in + tokens_out * price_out) / 1_000_000\n    return [tokens_in, tokens_out, round(cost, 8)]\n\n\nprint(chat_cost(0.5, 1.5))\nprint(chat_cost(2.0, 8.0))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient\n\nQUESTIONS = [\"Hi, I am Ada.\", \"What is the capital of Peru?\", \"And its currency?\"]\nREPLIES = [\"Hello Ada!\", \"The capital of Peru is Lima.\", \"Peru uses the sol.\"]\n\n\ndef chat_cost(price_in, price_out):\n    client = ChatClient(REPLIES)\n    history = []\n    tokens_in = tokens_out = 0\n    for question in QUESTIONS:\n        history.append({\"role\": \"user\", \"content\": question})\n        reply = client.chat(history, max_tokens=50)\n        history.append({\"role\": \"assistant\", \"content\": reply.text})\n        tokens_in += reply.input_tokens\n        tokens_out += reply.output_tokens\n    cost = (tokens_in * price_in + tokens_out * price_out) / 1_000_000\n    return [tokens_in, tokens_out, round(cost, 8)]\n\n\nprint(chat_cost(0.5, 1.5))\nprint(chat_cost(2.0, 8.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "chat_cost",
+      "cases": [
+        {
+          "args": [
+            0.5,
+            1.5
+          ],
+          "returns": [
+            97,
+            17,
+            7.4e-05
+          ]
+        },
+        {
+          "args": [
+            2.0,
+            8.0
+          ],
+          "returns": [
+            97,
+            17,
+            0.00033
+          ]
+        },
+        {
+          "args": [
+            0.0,
+            1.0
+          ],
+          "returns": [
+            97,
+            17,
+            1.7e-05
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[97, 17, 7.4e-05]\n[97, 17, 0.00033]"
+    }
+  ]
+}

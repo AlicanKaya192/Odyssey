@@ -1,0 +1,82 @@
+{
+  "id": "finish-length",
+  "title": {
+    "tr": "Kesilen cevabı tamamla",
+    "en": "Complete a cut answer"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngü koşulu `while reply.finish_reason == \"length\":`; içinde önce sınırı iki katına çıkar.",
+      "en": "The loop condition is `while reply.finish_reason == \"length\":`; inside it double the limit first."
+    },
+    {
+      "tr": "Senaryoda beş yanıt var; 5'ten başlayınca 5, 10, 20, 40 yeter.",
+      "en": "The script has five replies; starting at 5, 5, 10, 20, 40 is enough."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient\n\nANSWER = \"Lima is the capital and the largest city of Peru, on the Pacific coast.\"\nMESSAGES = [{\"role\": \"user\", \"content\": \"Tell me about Lima.\"}]\n\n\ndef ask_complete(start):\n    client = ChatClient([ANSWER] * 5)\n    limit = start\n    reply = client.chat(MESSAGES, max_tokens=limit)\n    while reply.finish_reason == \"length\":\n        limit *= 2\n        reply = client.chat(MESSAGES, max_tokens=limit)\n    return [reply.text, limit, len(client.calls)]\n\n\nfor start in [5, 40]:\n    text, limit, calls = ask_complete(start)\n    print(start, limit, calls, text.endswith(\"coast.\"))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient\n\nANSWER = \"Lima is the capital and the largest city of Peru, on the Pacific coast.\"\nMESSAGES = [{\"role\": \"user\", \"content\": \"Tell me about Lima.\"}]\n\n\ndef ask_complete(start):\n    client = ChatClient([ANSWER] * 5)\n    limit = start\n    reply = client.chat(MESSAGES, max_tokens=limit)\n    while reply.finish_reason == \"length\":\n        limit *= 2\n        reply = client.chat(MESSAGES, max_tokens=limit)\n    return [reply.text, limit, len(client.calls)]\n\n\nfor start in [5, 40]:\n    text, limit, calls = ask_complete(start)\n    print(start, limit, calls, text.endswith(\"coast.\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ask_complete",
+      "cases": [
+        {
+          "args": [
+            5
+          ],
+          "returns": [
+            "Lima is the capital and the largest city of Peru, on the Pacific coast.",
+            20,
+            3
+          ]
+        },
+        {
+          "args": [
+            40
+          ],
+          "returns": [
+            "Lima is the capital and the largest city of Peru, on the Pacific coast.",
+            40,
+            1
+          ]
+        },
+        {
+          "args": [
+            10
+          ],
+          "returns": [
+            "Lima is the capital and the largest city of Peru, on the Pacific coast.",
+            20,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "5 20 3 True\n40 40 1 True"
+    }
+  ]
+}

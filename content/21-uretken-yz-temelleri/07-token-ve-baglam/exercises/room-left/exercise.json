@@ -1,0 +1,101 @@
+{
+  "id": "room-left",
+  "title": {
+    "tr": "Cevaba ne kadar yer kaldı?",
+    "en": "How much room is left for the answer?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`count_message_tokens(messages)` rol işaretlerini de sayar.",
+      "en": "`count_message_tokens(messages)` also counts the role markers."
+    },
+    {
+      "tr": "Negatif olmasın: `max(0, window - used)`.",
+      "en": "Keep it from going negative: `max(0, window - used)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import count_message_tokens\n\n\ndef room(messages, window):\n    used = count_message_tokens(messages)\n    return [used, max(0, window - used)]\n\n\nmessages = [{\"role\": \"user\", \"content\": \"What is the capital of Peru?\"}]\nprint(room(messages, 100))\nprint(room(messages, 10))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import count_message_tokens\n\n\ndef room(messages, window):\n    used = count_message_tokens(messages)\n    return [used, max(0, window - used)]\n\n\nmessages = [{\"role\": \"user\", \"content\": \"What is the capital of Peru?\"}]\nprint(room(messages, 100))\nprint(room(messages, 10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "room",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "role": "user",
+                "content": "What is the capital of Peru?"
+              }
+            ],
+            100
+          ],
+          "returns": [
+            14,
+            86
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "role": "user",
+                "content": "What is the capital of Peru?"
+              }
+            ],
+            10
+          ],
+          "returns": [
+            14,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "role": "system",
+                "content": "Be brief."
+              },
+              {
+                "role": "user",
+                "content": "Hi"
+              }
+            ],
+            50
+          ],
+          "returns": [
+            15,
+            35
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[14, 86]\n[14, 0]"
+    }
+  ]
+}

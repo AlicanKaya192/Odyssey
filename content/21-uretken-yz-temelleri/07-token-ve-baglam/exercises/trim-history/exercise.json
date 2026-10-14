@@ -1,0 +1,157 @@
+{
+  "id": "trim-history",
+  "title": {
+    "tr": "Geçmişi bütçeye sığdır",
+    "en": "Fit the history into a budget"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kopya üzerinde çalış: `kept = list(messages)`; en eski sohbet mesajı `kept[1]`.",
+      "en": "Work on a copy: `kept = list(messages)`; the oldest conversation message is `kept[1]`."
+    },
+    {
+      "tr": "Döngü koşulu: `while len(kept) > 1 and count_message_tokens(kept) > budget:`.",
+      "en": "The loop condition: `while len(kept) > 1 and count_message_tokens(kept) > budget:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import count_message_tokens\n\nHISTORY = [\n    {\"role\": \"system\", \"content\": \"You are a helpful travel assistant.\"},\n    {\"role\": \"user\", \"content\": \"My name is Ada.\"},\n    {\"role\": \"assistant\", \"content\": \"Nice to meet you, Ada.\"},\n    {\"role\": \"user\", \"content\": \"What is the capital of Peru?\"},\n    {\"role\": \"assistant\", \"content\": \"The capital of Peru is Lima.\"},\n    {\"role\": \"user\", \"content\": \"Which currency do they use?\"},\n]\n\n\ndef trim(messages, budget):\n    kept = list(messages)\n    while len(kept) > 1 and count_message_tokens(kept) > budget:\n        del kept[1]\n    return [len(kept), count_message_tokens(kept)]\n\n\nprint(trim(HISTORY, 60))\nprint(trim(HISTORY, 1000))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import count_message_tokens\n\nHISTORY = [\n    {\"role\": \"system\", \"content\": \"You are a helpful travel assistant.\"},\n    {\"role\": \"user\", \"content\": \"My name is Ada.\"},\n    {\"role\": \"assistant\", \"content\": \"Nice to meet you, Ada.\"},\n    {\"role\": \"user\", \"content\": \"What is the capital of Peru?\"},\n    {\"role\": \"assistant\", \"content\": \"The capital of Peru is Lima.\"},\n    {\"role\": \"user\", \"content\": \"Which currency do they use?\"},\n]\n\n\ndef trim(messages, budget):\n    kept = list(messages)\n    while len(kept) > 1 and count_message_tokens(kept) > budget:\n        del kept[1]\n    return [len(kept), count_message_tokens(kept)]\n\n\nprint(trim(HISTORY, 60))\nprint(trim(HISTORY, 1000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "trim",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "role": "system",
+                "content": "You are a helpful travel assistant."
+              },
+              {
+                "role": "user",
+                "content": "My name is Ada."
+              },
+              {
+                "role": "assistant",
+                "content": "Nice to meet you, Ada."
+              },
+              {
+                "role": "user",
+                "content": "What is the capital of Peru?"
+              },
+              {
+                "role": "assistant",
+                "content": "The capital of Peru is Lima."
+              },
+              {
+                "role": "user",
+                "content": "Which currency do they use?"
+              }
+            ],
+            60
+          ],
+          "returns": [
+            4,
+            53
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "role": "system",
+                "content": "You are a helpful travel assistant."
+              },
+              {
+                "role": "user",
+                "content": "My name is Ada."
+              },
+              {
+                "role": "assistant",
+                "content": "Nice to meet you, Ada."
+              },
+              {
+                "role": "user",
+                "content": "What is the capital of Peru?"
+              },
+              {
+                "role": "assistant",
+                "content": "The capital of Peru is Lima."
+              },
+              {
+                "role": "user",
+                "content": "Which currency do they use?"
+              }
+            ],
+            1000
+          ],
+          "returns": [
+            6,
+            73
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "role": "system",
+                "content": "You are a helpful travel assistant."
+              },
+              {
+                "role": "user",
+                "content": "My name is Ada."
+              },
+              {
+                "role": "assistant",
+                "content": "Nice to meet you, Ada."
+              },
+              {
+                "role": "user",
+                "content": "What is the capital of Peru?"
+              },
+              {
+                "role": "assistant",
+                "content": "The capital of Peru is Lima."
+              },
+              {
+                "role": "user",
+                "content": "Which currency do they use?"
+              }
+            ],
+            30
+          ],
+          "returns": [
+            2,
+            29
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[4, 53]\n[6, 73]"
+    }
+  ]
+}
