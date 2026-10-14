@@ -21,7 +21,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [1.1.0] — yayınlanmadı
+## [1.1.0] — 14 Ekim 2026
 
 ### Eklendi
 - **Doğal Dil İşleme (NLP) patikası.** Metni temizlemekten bir dil modelinin
@@ -54,7 +54,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   okuyabilir, düzenleyebilirsiniz. "Bu dersin notu" sizi geri götürüyor.
 
 ### Değişti
-- **Seviyeler yeni patikaya göre genişletildi.** Bir sonraki seviye için
+- **Seviyeler yeni patikalara göre genişletildi.** Bir sonraki seviye için
   gereken XP biraz arttı; mevcut seviyeniz birkaç basamak düşebilir.
   Kazandığınız unvanlar sizde kalıyor.
 - **Sınav sürerken not paneli kapalı.** Sınav başlayınca panel kapanıyor

@@ -23,7 +23,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [1.1.0] — unreleased
+## [1.1.0] — 14 October 2026
 
 ### Added
 - **Natural Language Processing (NLP) path.** From cleaning text to
@@ -58,7 +58,7 @@ lecture note does not mean downloading the whole application again.
   exercise or the lesson. "This lesson's note" takes you back.
 
 ### Changed
-- **Levels were widened for the new path.** The XP needed for the next level
+- **Levels were widened for the new paths.** The XP needed for the next level
   went up a little; your current level may drop by a few steps. The titles
   you have earned stay yours.
 - **The note panel is closed during a quiz.** It closes when the quiz
