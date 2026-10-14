@@ -51,7 +51,7 @@ def check_workflow(check: dict, workspace: Path) -> dict:
     if problem:
         return problem
 
-    for test in (_check_triggers, _check_job, _check_permissions, _check_text):
+    for test in (_check_triggers, _check_job, _check_keys, _check_permissions, _check_text):
         problem = test(check, data, path)
         if problem:
             return problem
@@ -177,6 +177,13 @@ def _check_matrix(check: dict, job_id: str, job: dict) -> dict | None:
         for value in values:
             if str(value) not in found:
                 return _fail("matrix_missing", job=job_id, key=key, value=str(value))
+    for part in ("include", "exclude"):
+        given = [_as_text(item) for item in _as_list(matrix.get(part)) if isinstance(item, dict)]
+        for wanted in check.get("matrix_" + part, []):
+            want = _as_text(wanted)
+            if not any(all(entry.get(key) == value for key, value in want.items()) for entry in given):
+                shown = ", ".join(f"{key}: {value}" for key, value in want.items())
+                return _fail("matrix_entry_missing", job=job_id, part=part, entry=shown)
     return None
 
 
@@ -213,6 +220,16 @@ def _show_step(spec: dict) -> str:
         if field in spec:
             return f"{field}: {spec[field].replace(chr(92), '')}"
     return ""
+
+
+def _check_keys(check: dict, data: dict, _path: Path) -> dict | None:
+    """`keys`: noktalı yol → değerin metninde aranan desen (`jobs.test.strategy.fail-fast`)."""
+    shows = check.get("show_keys") or {}
+    for path, pattern in (check.get("keys") or {}).items():
+        value = _lookup(data, path)
+        if value is _MISSING or not re.search(pattern, str(value)):
+            return _fail("key_missing", path=path, expected=shows.get(path, pattern))
+    return None
 
 
 def _check_permissions(check: dict, data: dict, _path: Path) -> dict | None:
@@ -257,6 +274,29 @@ def _triggers(data: dict) -> dict:
     if isinstance(raw, dict):
         return {str(key): value for key, value in raw.items()}
     return {}
+
+
+_MISSING = object()
+
+
+def _lookup(data: dict, path: str):
+    """Noktalı yolu ağaçta izler; `on` anahtarı YAML 1.1'de `True` okunduğu için ikisine de bakılır."""
+    node = data
+    for part in path.split("."):
+        if not isinstance(node, dict):
+            return _MISSING
+        if part in node:
+            node = node[part]
+        elif part == "on" and True in node:
+            node = node[True]
+        else:
+            return _MISSING
+    return node
+
+
+def _as_text(entry: dict) -> dict:
+    """Matris girdisinin değerleri metin olarak (`3.14` ile `"3.14"`, `true` ile `True` aynı)."""
+    return {str(key): str(value) for key, value in entry.items()}
 
 
 def _as_list(value) -> list:
