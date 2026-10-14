@@ -1,0 +1,78 @@
+{
+  "id": "one-pass-render",
+  "title": {
+    "tr": "Tek geçişte doldur",
+    "en": "Fill in one pass"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Değiştirme fonksiyonu: `lambda m: str(values[m.group(1)])`.",
+      "en": "The replacement function: `lambda m: str(values[m.group(1)])`."
+    },
+    {
+      "tr": "Hata metni: `f\"missing {sorted(missing)}, unused {sorted(unused)}\"`.",
+      "en": "The error text: `f\"missing {sorted(missing)}, unused {sorted(unused)}\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nSLOT = re.compile(r\"\\{\\{(\\w+)\\}\\}\")\n\n\ndef render(template, values):\n    names = set(SLOT.findall(template))\n    missing, unused = names - values.keys(), values.keys() - names\n    if missing or unused:\n        return f\"missing {sorted(missing)}, unused {sorted(unused)}\"\n    return SLOT.sub(lambda m: str(values[m.group(1)]), template)\n\n\nT = \"{{name}} wrote: {{message}}\"\nprint(render(T, {\"name\": \"Ada\", \"message\": \"Is {{name}} ok?\"}))\nprint(render(T, {\"name\": \"Ada\"}))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nSLOT = re.compile(r\"\\{\\{(\\w+)\\}\\}\")\n\n\ndef render(template, values):\n    names = set(SLOT.findall(template))\n    missing, unused = names - values.keys(), values.keys() - names\n    if missing or unused:\n        return f\"missing {sorted(missing)}, unused {sorted(unused)}\"\n    return SLOT.sub(lambda m: str(values[m.group(1)]), template)\n\n\nT = \"{{name}} wrote: {{message}}\"\nprint(render(T, {\"name\": \"Ada\", \"message\": \"Is {{name}} ok?\"}))\nprint(render(T, {\"name\": \"Ada\"}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "render",
+      "cases": [
+        {
+          "args": [
+            "{{name}} wrote: {{message}}",
+            {
+              "name": "Ada",
+              "message": "Is {{name}} ok?"
+            }
+          ],
+          "returns": "Ada wrote: Is {{name}} ok?"
+        },
+        {
+          "args": [
+            "{{name}} wrote: {{message}}",
+            {
+              "name": "Ada"
+            }
+          ],
+          "returns": "missing ['message'], unused []"
+        },
+        {
+          "args": [
+            "{{n}}",
+            {
+              "n": 5,
+              "x": 1
+            }
+          ],
+          "returns": "missing [], unused ['x']"
+        },
+        {
+          "args": [
+            "plain",
+            {}
+          ],
+          "returns": "plain"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Ada wrote: Is {{name}} ok?\nmissing ['message'], unused []"
+    }
+  ]
+}

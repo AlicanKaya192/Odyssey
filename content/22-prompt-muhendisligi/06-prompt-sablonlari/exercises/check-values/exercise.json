@@ -1,0 +1,100 @@
+{
+  "id": "check-values",
+  "title": {
+    "tr": "Eksik ve fazla değişken",
+    "en": "Missing and extra variables"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Adlar kümesi: `set(SLOT.findall(template))`; sözlüğün anahtarları da küme gibi çıkarılabilir: `values.keys() - names`.",
+      "en": "The set of names: `set(SLOT.findall(template))`; the dictionary's keys can be subtracted like a set: `values.keys() - names`."
+    },
+    {
+      "tr": "Sonuçları `sorted` ile listeye çevir.",
+      "en": "Turn the results into lists with `sorted`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nSLOT = re.compile(r\"\\{\\{(\\w+)\\}\\}\")\n\n\ndef check_values(template, values):\n    names = set(SLOT.findall(template))\n    return [sorted(names - values.keys()), sorted(values.keys() - names)]\n\n\nT = \"Hi {{name}}, order {{order_id}}: {{message}}\"\nprint(check_values(T, {\"name\": \"Ada\", \"order\": \"ORD-1\"}))\nprint(check_values(T, {\"name\": \"A\", \"order_id\": 1, \"message\": \"x\"}))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nSLOT = re.compile(r\"\\{\\{(\\w+)\\}\\}\")\n\n\ndef check_values(template, values):\n    names = set(SLOT.findall(template))\n    return [sorted(names - values.keys()), sorted(values.keys() - names)]\n\n\nT = \"Hi {{name}}, order {{order_id}}: {{message}}\"\nprint(check_values(T, {\"name\": \"Ada\", \"order\": \"ORD-1\"}))\nprint(check_values(T, {\"name\": \"A\", \"order_id\": 1, \"message\": \"x\"}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_values",
+      "cases": [
+        {
+          "args": [
+            "Hi {{name}}, order {{order_id}}: {{message}}",
+            {
+              "name": "Ada",
+              "order": "ORD-1"
+            }
+          ],
+          "returns": [
+            [
+              "message",
+              "order_id"
+            ],
+            [
+              "order"
+            ]
+          ]
+        },
+        {
+          "args": [
+            "Hi {{name}}, order {{order_id}}: {{message}}",
+            {
+              "name": "A",
+              "order_id": 1,
+              "message": "x"
+            }
+          ],
+          "returns": [
+            [],
+            []
+          ]
+        },
+        {
+          "args": [
+            "No slots",
+            {}
+          ],
+          "returns": [
+            [],
+            []
+          ]
+        },
+        {
+          "args": [
+            "{{a}} {{a}}",
+            {
+              "b": 1
+            }
+          ],
+          "returns": [
+            [
+              "a"
+            ],
+            [
+              "b"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[['message', 'order_id'], ['order']]\n[[], []]"
+    }
+  ]
+}

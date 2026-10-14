@@ -1,0 +1,107 @@
+{
+  "id": "latest-template",
+  "title": {
+    "tr": "En son sürüm",
+    "en": "The latest version"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Metin olarak karşılaştırınca `\"2\" > \"10\"`; `max(versions, key=int)` sayı olarak seçer.",
+      "en": "Compared as text, `\"2\" > \"10\"`; `max(versions, key=int)` picks as a number."
+    },
+    {
+      "tr": "Ad yoksa `templates.get(name, {})` boş sözlük verir.",
+      "en": "If the name is missing, `templates.get(name, {})` gives an empty dictionary."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef render_latest(templates, name, values):\n    versions = templates.get(name, {})\n    if not versions:\n        return [0, \"\"]\n    latest = max(versions, key=int)\n    return [int(latest), versions[latest].format(**values)]\n\n\nTEMPLATES = {\n    \"classify\": {\"1\": \"Category of: {message}\",\n                 \"2\": \"One category for: {message}\",\n                 \"10\": \"Pick one category: {message}\"},\n    \"reply\": {\"1\": \"Reply to {name}: {message}\"},\n}\nversion, text = render_latest(TEMPLATES, \"classify\", {\"message\": \"Hi\"})\nprint(version)\nprint(text)\nprint(render_latest(TEMPLATES, \"summary\", {}))\n```",
+      "en": "The full solution:\n\n```python\ndef render_latest(templates, name, values):\n    versions = templates.get(name, {})\n    if not versions:\n        return [0, \"\"]\n    latest = max(versions, key=int)\n    return [int(latest), versions[latest].format(**values)]\n\n\nTEMPLATES = {\n    \"classify\": {\"1\": \"Category of: {message}\",\n                 \"2\": \"One category for: {message}\",\n                 \"10\": \"Pick one category: {message}\"},\n    \"reply\": {\"1\": \"Reply to {name}: {message}\"},\n}\nversion, text = render_latest(TEMPLATES, \"classify\", {\"message\": \"Hi\"})\nprint(version)\nprint(text)\nprint(render_latest(TEMPLATES, \"summary\", {}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "render_latest",
+      "cases": [
+        {
+          "args": [
+            {
+              "classify": {
+                "1": "Category of: {message}",
+                "2": "One category for: {message}",
+                "10": "Pick one category: {message}"
+              },
+              "reply": {
+                "1": "Reply to {name}: {message}"
+              }
+            },
+            "classify",
+            {
+              "message": "Hi"
+            }
+          ],
+          "returns": [
+            10,
+            "Pick one category: Hi"
+          ]
+        },
+        {
+          "args": [
+            {
+              "classify": {
+                "1": "Category of: {message}",
+                "2": "One category for: {message}",
+                "10": "Pick one category: {message}"
+              },
+              "reply": {
+                "1": "Reply to {name}: {message}"
+              }
+            },
+            "reply",
+            {
+              "name": "Ada",
+              "message": "x"
+            }
+          ],
+          "returns": [
+            1,
+            "Reply to Ada: x"
+          ]
+        },
+        {
+          "args": [
+            {
+              "classify": {
+                "1": "Category of: {message}",
+                "2": "One category for: {message}",
+                "10": "Pick one category: {message}"
+              },
+              "reply": {
+                "1": "Reply to {name}: {message}"
+              }
+            },
+            "summary",
+            {}
+          ],
+          "returns": [
+            0,
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "10\nPick one category: Hi\n[0, '']"
+    }
+  ]
+}
