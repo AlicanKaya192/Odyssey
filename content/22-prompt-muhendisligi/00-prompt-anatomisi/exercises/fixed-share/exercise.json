@@ -1,0 +1,91 @@
+{
+  "id": "fixed-share",
+  "title": {
+    "tr": "Sabit kısmın payı",
+    "en": "The fixed part's share"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sistem içeriğinin token'ı `count_tokens(system)`; her çağrıda bir kez gider.",
+      "en": "The system content's tokens are `count_tokens(system)`; it goes once in every call."
+    },
+    {
+      "tr": "Toplam sıfırsa bölme: `round(fixed / total, 2) if total else 0.0`.",
+      "en": "Do not divide if the total is zero: `round(fixed / total, 2) if total else 0.0`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import count_tokens, count_message_tokens\n\n\ndef fixed_share(system, inputs):\n    total = 0\n    for text in inputs:\n        messages = [{\"role\": \"system\", \"content\": system},\n                    {\"role\": \"user\", \"content\": text}]\n        total += count_message_tokens(messages)\n    fixed = count_tokens(system) * len(inputs)\n    share = round(fixed / total, 2) if total else 0.0\n    return [total, fixed, share]\n\n\nprint(fixed_share(\"Classify the message.\", [\"Hi\", \"Where is my parcel?\"]))\nprint(fixed_share(\"You are a careful support assistant. Answer with one word.\",\n                  [\"Hi\", \"Where is my parcel?\"]))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import count_tokens, count_message_tokens\n\n\ndef fixed_share(system, inputs):\n    total = 0\n    for text in inputs:\n        messages = [{\"role\": \"system\", \"content\": system},\n                    {\"role\": \"user\", \"content\": text}]\n        total += count_message_tokens(messages)\n    fixed = count_tokens(system) * len(inputs)\n    share = round(fixed / total, 2) if total else 0.0\n    return [total, fixed, share]\n\n\nprint(fixed_share(\"Classify the message.\", [\"Hi\", \"Where is my parcel?\"]))\nprint(fixed_share(\"You are a careful support assistant. Answer with one word.\",\n                  [\"Hi\", \"Where is my parcel?\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fixed_share",
+      "cases": [
+        {
+          "args": [
+            "Classify the message.",
+            [
+              "Hi",
+              "Where is my parcel?"
+            ]
+          ],
+          "returns": [
+            40,
+            12,
+            0.3
+          ]
+        },
+        {
+          "args": [
+            "You are a careful support assistant. Answer with one word.",
+            [
+              "Hi",
+              "Where is my parcel?"
+            ]
+          ],
+          "returns": [
+            62,
+            34,
+            0.55
+          ]
+        },
+        {
+          "args": [
+            "Be brief.",
+            []
+          ],
+          "returns": [
+            0,
+            0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[40, 12, 0.3]\n[62, 34, 0.55]"
+    }
+  ]
+}

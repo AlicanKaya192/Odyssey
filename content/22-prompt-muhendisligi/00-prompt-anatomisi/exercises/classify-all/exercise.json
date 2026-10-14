@@ -1,0 +1,110 @@
+{
+  "id": "classify-all",
+  "title": {
+    "tr": "Her çağrıda ne gitti?",
+    "en": "What went in every call?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İstemciyi fonksiyonun içinde kur; her `chat` çağrısı senaryodan bir yanıt alır.",
+      "en": "Create the client inside the function; every `chat` call takes one reply from the script."
+    },
+    {
+      "tr": "Sistemli çağrılar: `sum(call[\"messages\"][0][\"role\"] == \"system\" for call in client.calls)`.",
+      "en": "Calls with a system message: `sum(call[\"messages\"][0][\"role\"] == \"system\" for call in client.calls)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient\n\nLABELS = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\nSYSTEM = \"Put the message into one category. Answer with one word.\"\nSCRIPT = [\"shipping\", \"Warranty.\", \"a refund, I think\"]\n\n\ndef parse_label(text):\n    label = text.strip().lower().rstrip(\".!\")\n    return label if label in LABELS else \"needs_review\"\n\n\ndef classify_all(texts):\n    client = ChatClient(SCRIPT)\n    labels = []\n    for text in texts:\n        messages = [{\"role\": \"system\", \"content\": SYSTEM},\n                    {\"role\": \"user\", \"content\": text}]\n        reply = client.chat(messages, max_tokens=5, temperature=0.0)\n        labels.append(parse_label(reply.text))\n    with_system = sum(call[\"messages\"][0][\"role\"] == \"system\" for call in client.calls)\n    return [labels, len(client.calls), with_system]\n\n\nlabels, calls, with_system = classify_all(\n    [\"Where is my parcel?\", \"My zip broke.\", \"I want my money back.\"])\nprint(labels)\nprint(calls, with_system)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import ChatClient\n\nLABELS = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\nSYSTEM = \"Put the message into one category. Answer with one word.\"\nSCRIPT = [\"shipping\", \"Warranty.\", \"a refund, I think\"]\n\n\ndef parse_label(text):\n    label = text.strip().lower().rstrip(\".!\")\n    return label if label in LABELS else \"needs_review\"\n\n\ndef classify_all(texts):\n    client = ChatClient(SCRIPT)\n    labels = []\n    for text in texts:\n        messages = [{\"role\": \"system\", \"content\": SYSTEM},\n                    {\"role\": \"user\", \"content\": text}]\n        reply = client.chat(messages, max_tokens=5, temperature=0.0)\n        labels.append(parse_label(reply.text))\n    with_system = sum(call[\"messages\"][0][\"role\"] == \"system\" for call in client.calls)\n    return [labels, len(client.calls), with_system]\n\n\nlabels, calls, with_system = classify_all(\n    [\"Where is my parcel?\", \"My zip broke.\", \"I want my money back.\"])\nprint(labels)\nprint(calls, with_system)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "classify_all",
+      "cases": [
+        {
+          "args": [
+            [
+              "Where is my parcel?",
+              "My zip broke.",
+              "I want my money back."
+            ]
+          ],
+          "returns": [
+            [
+              "shipping",
+              "warranty",
+              "needs_review"
+            ],
+            3,
+            3
+          ]
+        },
+        {
+          "args": [
+            [
+              "Where is my parcel?"
+            ]
+          ],
+          "returns": [
+            [
+              "shipping"
+            ],
+            1,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "returns": [
+            [
+              "shipping",
+              "warranty"
+            ],
+            2,
+            2
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": [
+            [],
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['shipping', 'warranty', 'needs_review']\n3 3"
+    }
+  ]
+}

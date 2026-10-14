@@ -1,0 +1,109 @@
+{
+  "id": "part-tokens",
+  "title": {
+    "tr": "Hangi parça ne kadar yer tutuyor?",
+    "en": "How much room does each part take?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce çiftleri kur: `[[name, count_tokens(text)] for name, text in parts.items()]`.",
+      "en": "Build the pairs first: `[[name, count_tokens(text)] for name, text in parts.items()]`."
+    },
+    {
+      "tr": "Sıralama anahtarı `(-pair[1], pair[0])`: token'a göre azalan, sonra ada göre.",
+      "en": "The sort key is `(-pair[1], pair[0])`: tokens descending, then by name."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom llm_client import count_tokens\n\n\ndef part_tokens(parts):\n    pairs = [[name, count_tokens(text)] for name, text in parts.items()]\n    return sorted(pairs, key=lambda pair: (-pair[1], pair[0]))\n\n\nPARTS = {\n    \"role\": \"You are a support assistant.\",\n    \"format\": \"One word, lower case.\",\n    \"labels\": \"shipping, returns, refunds\",\n    \"input\": \"Where is my parcel?\",\n}\nfor name, tokens in part_tokens(PARTS):\n    print(name, tokens)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom llm_client import count_tokens\n\n\ndef part_tokens(parts):\n    pairs = [[name, count_tokens(text)] for name, text in parts.items()]\n    return sorted(pairs, key=lambda pair: (-pair[1], pair[0]))\n\n\nPARTS = {\n    \"role\": \"You are a support assistant.\",\n    \"format\": \"One word, lower case.\",\n    \"labels\": \"shipping, returns, refunds\",\n    \"input\": \"Where is my parcel?\",\n}\nfor name, tokens in part_tokens(PARTS):\n    print(name, tokens)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "part_tokens",
+      "cases": [
+        {
+          "args": [
+            {
+              "role": "You are a support assistant.",
+              "format": "One word, lower case.",
+              "labels": "shipping, returns, refunds",
+              "input": "Where is my parcel?"
+            }
+          ],
+          "returns": [
+            [
+              "role",
+              9
+            ],
+            [
+              "labels",
+              8
+            ],
+            [
+              "format",
+              7
+            ],
+            [
+              "input",
+              7
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "b": "one two",
+              "a": "one two",
+              "c": "x"
+            }
+          ],
+          "returns": [
+            [
+              "a",
+              2
+            ],
+            [
+              "b",
+              2
+            ],
+            [
+              "c",
+              1
+            ]
+          ]
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "role 9\nlabels 8\nformat 7\ninput 7"
+    }
+  ]
+}

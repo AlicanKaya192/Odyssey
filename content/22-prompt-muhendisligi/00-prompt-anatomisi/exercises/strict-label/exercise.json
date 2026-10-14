@@ -1,0 +1,120 @@
+{
+  "id": "strict-label",
+  "title": {
+    "tr": "Cevabı katı ayrıştır",
+    "en": "Parse the answer strictly"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Zincirle: `text.strip().lower().rstrip(\".!\")`.",
+      "en": "Chain them: `text.strip().lower().rstrip(\".!\")`."
+    },
+    {
+      "tr": "`\"Returns?\"` soru işaretiyle bittiği için kabul edilmez; yalnızca `.` ve `!` atılıyor.",
+      "en": "`\"Returns?\"` ends with a question mark, so it is not accepted; only `.` and `!` are removed."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nLABELS = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\n\n\ndef parse_label(text, labels):\n    label = text.strip().lower().rstrip(\".!\")\n    return label if label in labels else \"needs_review\"\n\n\nfor text in [\"Refunds.\", \" payment\\n\", \"Returns?\", \"It is shipping.\"]:\n    print(repr(text), parse_label(text, LABELS))\n```",
+      "en": "The full solution:\n\n```python\nLABELS = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\n\n\ndef parse_label(text, labels):\n    label = text.strip().lower().rstrip(\".!\")\n    return label if label in labels else \"needs_review\"\n\n\nfor text in [\"Refunds.\", \" payment\\n\", \"Returns?\", \"It is shipping.\"]:\n    print(repr(text), parse_label(text, LABELS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_label",
+      "cases": [
+        {
+          "args": [
+            "Refunds.",
+            [
+              "shipping",
+              "returns",
+              "refunds",
+              "warranty",
+              "payment"
+            ]
+          ],
+          "returns": "refunds"
+        },
+        {
+          "args": [
+            " payment\n",
+            [
+              "shipping",
+              "returns",
+              "refunds",
+              "warranty",
+              "payment"
+            ]
+          ],
+          "returns": "payment"
+        },
+        {
+          "args": [
+            "Returns?",
+            [
+              "shipping",
+              "returns",
+              "refunds",
+              "warranty",
+              "payment"
+            ]
+          ],
+          "returns": "needs_review"
+        },
+        {
+          "args": [
+            "It is shipping.",
+            [
+              "shipping",
+              "returns",
+              "refunds",
+              "warranty",
+              "payment"
+            ]
+          ],
+          "returns": "needs_review"
+        },
+        {
+          "args": [
+            "WARRANTY!",
+            [
+              "shipping",
+              "returns",
+              "refunds",
+              "warranty",
+              "payment"
+            ]
+          ],
+          "returns": "warranty"
+        },
+        {
+          "args": [
+            "",
+            [
+              "shipping",
+              "returns",
+              "refunds",
+              "warranty",
+              "payment"
+            ]
+          ],
+          "returns": "needs_review"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "'Refunds.' refunds\n' payment\\n' payment\n'Returns?' needs_review\n'It is shipping.' needs_review"
+    }
+  ]
+}

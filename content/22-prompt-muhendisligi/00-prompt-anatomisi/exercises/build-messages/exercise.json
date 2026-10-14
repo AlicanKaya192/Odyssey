@@ -1,0 +1,96 @@
+{
+  "id": "build-messages",
+  "title": {
+    "tr": "Mesaj listesini kur",
+    "en": "Build the message list"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sistem içeriği: `\" \".join([role, task, fmt])`.",
+      "en": "The system content: `\" \".join([role, task, fmt])`."
+    },
+    {
+      "tr": "Liste iki sözlük: `{\"role\": \"system\", \"content\": system}` ve `{\"role\": \"user\", \"content\": text}`.",
+      "en": "The list has two dictionaries: `{\"role\": \"system\", \"content\": system}` and `{\"role\": \"user\", \"content\": text}`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef build_messages(role, task, fmt, text):\n    system = \" \".join([role, task, fmt])\n    return [{\"role\": \"system\", \"content\": system},\n            {\"role\": \"user\", \"content\": text}]\n\n\nmsgs = build_messages(\"Be a shop assistant.\", \"Classify.\",\n                      \"One word.\", \"Where is my parcel?\")\nprint(len(msgs))\nprint(msgs[0][\"content\"])\nprint(msgs[1][\"role\"], msgs[1][\"content\"])\n```",
+      "en": "The full solution:\n\n```python\ndef build_messages(role, task, fmt, text):\n    system = \" \".join([role, task, fmt])\n    return [{\"role\": \"system\", \"content\": system},\n            {\"role\": \"user\", \"content\": text}]\n\n\nmsgs = build_messages(\"Be a shop assistant.\", \"Classify.\",\n                      \"One word.\", \"Where is my parcel?\")\nprint(len(msgs))\nprint(msgs[0][\"content\"])\nprint(msgs[1][\"role\"], msgs[1][\"content\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "build_messages",
+      "cases": [
+        {
+          "args": [
+            "Be a shop assistant.",
+            "Classify.",
+            "One word.",
+            "Where is my parcel?"
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "Be a shop assistant. Classify. One word."
+            },
+            {
+              "role": "user",
+              "content": "Where is my parcel?"
+            }
+          ]
+        },
+        {
+          "args": [
+            "A.",
+            "B.",
+            "C.",
+            "Hi"
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "A. B. C."
+            },
+            {
+              "role": "user",
+              "content": "Hi"
+            }
+          ]
+        },
+        {
+          "args": [
+            "You help hikers.",
+            "Answer the question.",
+            "Be brief.",
+            "Is it cold in July?"
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "You help hikers. Answer the question. Be brief."
+            },
+            {
+              "role": "user",
+              "content": "Is it cold in July?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\nBe a shop assistant. Classify. One word.\nuser Where is my parcel?"
+    }
+  ]
+}
