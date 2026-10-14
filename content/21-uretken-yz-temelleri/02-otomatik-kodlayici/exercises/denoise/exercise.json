@@ -1,0 +1,96 @@
+{
+  "id": "denoise",
+  "title": {
+    "tr": "Gürültü temizle",
+    "en": "Remove noise"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yönler temiz eğitim verisinden; geri kurulan ise gürültülü test resimleri.",
+      "en": "The directions come from the clean training data; what is rebuilt is the noisy test images."
+    },
+    {
+      "tr": "Hata her iki durumda da temiz `X_test`'e göre: `((rebuilt - X_test) ** 2).mean()`.",
+      "en": "In both cases the error is against the clean `X_test`: `((rebuilt - X_test) ** 2).mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\n\n\ndef denoise(k, sigma, seed):\n    noisy = X_test + np.random.default_rng(seed).normal(0, sigma, X_test.shape)\n    mean = X_train.mean(axis=0)\n    _, _, Vt = np.linalg.svd(X_train - mean, full_matrices=False)\n    rebuilt = ((noisy - mean) @ Vt[:k].T) @ Vt[:k] + mean\n    before = ((noisy - X_test) ** 2).mean()\n    after = ((rebuilt - X_test) ** 2).mean()\n    return [round(float(before), 4), round(float(after), 4)]\n\n\nfor k in [8, 16, 32]:\n    print(k, denoise(k, 0.2, 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\n\n\ndef denoise(k, sigma, seed):\n    noisy = X_test + np.random.default_rng(seed).normal(0, sigma, X_test.shape)\n    mean = X_train.mean(axis=0)\n    _, _, Vt = np.linalg.svd(X_train - mean, full_matrices=False)\n    rebuilt = ((noisy - mean) @ Vt[:k].T) @ Vt[:k] + mean\n    before = ((noisy - X_test) ** 2).mean()\n    after = ((rebuilt - X_test) ** 2).mean()\n    return [round(float(before), 4), round(float(after), 4)]\n\n\nfor k in [8, 16, 32]:\n    print(k, denoise(k, 0.2, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "denoise",
+      "cases": [
+        {
+          "args": [
+            8,
+            0.2,
+            3
+          ],
+          "returns": [
+            0.0396,
+            0.0296
+          ]
+        },
+        {
+          "args": [
+            16,
+            0.2,
+            3
+          ],
+          "returns": [
+            0.0396,
+            0.0213
+          ]
+        },
+        {
+          "args": [
+            32,
+            0.2,
+            3
+          ],
+          "returns": [
+            0.0396,
+            0.0222
+          ]
+        },
+        {
+          "args": [
+            16,
+            0.4,
+            5
+          ],
+          "returns": [
+            0.1621,
+            0.0525
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "8 [0.0396, 0.0296]\n16 [0.0396, 0.0213]\n32 [0.0396, 0.0222]"
+    }
+  ]
+}

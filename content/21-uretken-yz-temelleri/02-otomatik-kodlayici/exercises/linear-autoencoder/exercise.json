@@ -1,0 +1,79 @@
+{
+  "id": "linear-autoencoder",
+  "title": {
+    "tr": "Doğrusal ağı eğit",
+    "en": "Train a linear network"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "İki gradyanı aynı `err` ile, ağırlıkları güncellemeden önce hesapla.",
+      "en": "Compute both gradients with the same `err`, before updating the weights."
+    },
+    {
+      "tr": "2000 adımda hata PCA'nın 8 boyutlu hatasına (0,0245) iner; ilk alıştırmayla karşılaştır.",
+      "en": "In 2000 steps the error reaches PCA's 8-dimensional error (0.0245); compare with the first exercise."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\n\n\ndef train_linear(k, steps, lr, seed):\n    mean = X_train.mean(axis=0)\n    A = X_train - mean\n    rng = np.random.default_rng(seed)\n    E = rng.normal(0, 0.1, (64, k))\n    D = rng.normal(0, 0.1, (k, 64))\n    for _ in range(steps):\n        code = A @ E\n        err = code @ D - A\n        gD = code.T @ err * 2 / err.size\n        gE = A.T @ (err @ D.T) * 2 / err.size\n        E -= lr * gE\n        D -= lr * gD\n    rebuilt = (X_test - mean) @ E @ D + mean\n    return round(float(((X_test - rebuilt) ** 2).mean()), 4)\n\n\nprint(train_linear(8, 500, 5.0, 0))\nprint(train_linear(8, 2000, 5.0, 0))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\n\n\ndef train_linear(k, steps, lr, seed):\n    mean = X_train.mean(axis=0)\n    A = X_train - mean\n    rng = np.random.default_rng(seed)\n    E = rng.normal(0, 0.1, (64, k))\n    D = rng.normal(0, 0.1, (k, 64))\n    for _ in range(steps):\n        code = A @ E\n        err = code @ D - A\n        gD = code.T @ err * 2 / err.size\n        gE = A.T @ (err @ D.T) * 2 / err.size\n        E -= lr * gE\n        D -= lr * gD\n    rebuilt = (X_test - mean) @ E @ D + mean\n    return round(float(((X_test - rebuilt) ** 2).mean()), 4)\n\n\nprint(train_linear(8, 500, 5.0, 0))\nprint(train_linear(8, 2000, 5.0, 0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "train_linear",
+      "cases": [
+        {
+          "args": [
+            8,
+            500,
+            5.0,
+            0
+          ],
+          "returns": 0.0248
+        },
+        {
+          "args": [
+            8,
+            2000,
+            5.0,
+            0
+          ],
+          "returns": 0.0245
+        },
+        {
+          "args": [
+            2,
+            1000,
+            5.0,
+            1
+          ],
+          "returns": 0.0539
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.0248\n0.0245"
+    }
+  ]
+}

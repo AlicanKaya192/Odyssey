@@ -27,3 +27,14 @@ def make_fish(n=600, seed=7):
         mean, cov = _FISH[name]
         X[mask] = rng.multivariate_normal(mean, cov, size=mask.sum())
     return X.round(1), labels.tolist()
+
+
+def load_digit_images():
+    """Return (X, y): the 1797 handwritten 8x8 digits bundled with scikit-learn.
+
+    X is (1797, 64) with pixels scaled to 0-1; y is the digit (0-9) of each image.
+    """
+    from sklearn.datasets import load_digits
+
+    digits = load_digits()
+    return digits.data / 16.0, digits.target.tolist()

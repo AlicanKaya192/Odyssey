@@ -1,0 +1,79 @@
+{
+  "id": "anomaly-errors",
+  "title": {
+    "tr": "Farklı olanı bul",
+    "en": "Find what is different"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce yalnızca görülen rakamları seç: `seen = X_train[y_train < 5]`; ortalama ve SVD onlardan.",
+      "en": "First select only the seen digits: `seen = X_train[y_train < 5]`; the mean and SVD come from them."
+    },
+    {
+      "tr": "Resim başına hata `((X_test - rebuilt) ** 2).mean(axis=1)`; sonra `y_test < 5` ile ikiye ayır.",
+      "en": "The error per image is `((X_test - rebuilt) ** 2).mean(axis=1)`; then split it in two with `y_test < 5`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\n\n\ndef anomaly_errors(k):\n    y_train, y_test = y[order[:1500]], y[order[1500:]]\n    seen = X_train[y_train < 5]\n    mean = seen.mean(axis=0)\n    _, _, Vt = np.linalg.svd(seen - mean, full_matrices=False)\n    rebuilt = ((X_test - mean) @ Vt[:k].T) @ Vt[:k] + mean\n    errors = ((X_test - rebuilt) ** 2).mean(axis=1)\n    return [round(float(errors[y_test < 5].mean()), 4), round(float(errors[y_test >= 5].mean()), 4)]\n\n\nprint(anomaly_errors(8))\nprint(anomaly_errors(16))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\n\n\ndef anomaly_errors(k):\n    y_train, y_test = y[order[:1500]], y[order[1500:]]\n    seen = X_train[y_train < 5]\n    mean = seen.mean(axis=0)\n    _, _, Vt = np.linalg.svd(seen - mean, full_matrices=False)\n    rebuilt = ((X_test - mean) @ Vt[:k].T) @ Vt[:k] + mean\n    errors = ((X_test - rebuilt) ** 2).mean(axis=1)\n    return [round(float(errors[y_test < 5].mean()), 4), round(float(errors[y_test >= 5].mean()), 4)]\n\n\nprint(anomaly_errors(8))\nprint(anomaly_errors(16))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "anomaly_errors",
+      "cases": [
+        {
+          "args": [
+            8
+          ],
+          "returns": [
+            0.0199,
+            0.0398
+          ]
+        },
+        {
+          "args": [
+            16
+          ],
+          "returns": [
+            0.009,
+            0.0214
+          ]
+        },
+        {
+          "args": [
+            4
+          ],
+          "returns": [
+            0.032,
+            0.0577
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.0199, 0.0398]\n[0.009, 0.0214]"
+    }
+  ]
+}

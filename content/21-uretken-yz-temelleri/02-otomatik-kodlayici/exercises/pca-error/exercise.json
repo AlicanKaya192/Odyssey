@@ -1,0 +1,76 @@
+{
+  "id": "pca-error",
+  "title": {
+    "tr": "PCA ile geri kurma",
+    "en": "Rebuilding with PCA"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "gen_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yönler: `_, _, Vt = np.linalg.svd(X_train - mean, full_matrices=False)`.",
+      "en": "The directions: `_, _, Vt = np.linalg.svd(X_train - mean, full_matrices=False)`."
+    },
+    {
+      "tr": "Kod `(X_test - mean) @ Vt[:k].T`, geri kurma `code @ Vt[:k] + mean`.",
+      "en": "The code `(X_test - mean) @ Vt[:k].T`, the rebuild `code @ Vt[:k] + mean`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\n\n\ndef pca_error(k):\n    mean = X_train.mean(axis=0)\n    _, _, Vt = np.linalg.svd(X_train - mean, full_matrices=False)\n    code = (X_test - mean) @ Vt[:k].T\n    rebuilt = code @ Vt[:k] + mean\n    return round(float(((X_test - rebuilt) ** 2).mean()), 4)\n\n\nfor k in [2, 8, 16]:\n    print(k, pca_error(k))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom gen_data import load_digit_images\n\nX, y = load_digit_images()\ny = np.array(y)\norder = np.random.default_rng(0).permutation(len(X))\nX_train, X_test = X[order[:1500]], X[order[1500:]]\n\n\ndef pca_error(k):\n    mean = X_train.mean(axis=0)\n    _, _, Vt = np.linalg.svd(X_train - mean, full_matrices=False)\n    code = (X_test - mean) @ Vt[:k].T\n    rebuilt = code @ Vt[:k] + mean\n    return round(float(((X_test - rebuilt) ** 2).mean()), 4)\n\n\nfor k in [2, 8, 16]:\n    print(k, pca_error(k))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pca_error",
+      "cases": [
+        {
+          "args": [
+            2
+          ],
+          "returns": 0.0539
+        },
+        {
+          "args": [
+            8
+          ],
+          "returns": 0.0245
+        },
+        {
+          "args": [
+            16
+          ],
+          "returns": 0.0115
+        },
+        {
+          "args": [
+            40
+          ],
+          "returns": 0.0009
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2 0.0539\n8 0.0245\n16 0.0115"
+    }
+  ]
+}
