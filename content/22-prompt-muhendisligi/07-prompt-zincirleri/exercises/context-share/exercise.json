@@ -1,0 +1,103 @@
+{
+  "id": "context-share",
+  "title": {
+    "tr": "Tek kuralın payı",
+    "en": "The share of one rule"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "doc_data.py",
+      "readonly": true
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Metinleri bir sözlüğe koy: `{doc[\"id\"]: doc[\"text\"] for doc in DOCS}`.",
+      "en": "Put the texts into a dictionary: `{doc[\"id\"]: doc[\"text\"] for doc in DOCS}`."
+    },
+    {
+      "tr": "Toplam: `sum(count_tokens(texts[i]) for i in doc_ids)`.",
+      "en": "The total: `sum(count_tokens(texts[i]) for i in doc_ids)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom doc_data import DOCS\nfrom llm_client import count_tokens\n\n\ndef context_share(doc_id, doc_ids):\n    texts = {doc[\"id\"]: doc[\"text\"] for doc in DOCS}\n    one = count_tokens(texts[doc_id])\n    everything = sum(count_tokens(texts[i]) for i in doc_ids)\n    return [one, everything, round(one / everything, 2)]\n\n\nALL = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\nprint(context_share(\"shipping\", ALL))\nprint(context_share(\"payment\", ALL))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom doc_data import DOCS\nfrom llm_client import count_tokens\n\n\ndef context_share(doc_id, doc_ids):\n    texts = {doc[\"id\"]: doc[\"text\"] for doc in DOCS}\n    one = count_tokens(texts[doc_id])\n    everything = sum(count_tokens(texts[i]) for i in doc_ids)\n    return [one, everything, round(one / everything, 2)]\n\n\nALL = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\nprint(context_share(\"shipping\", ALL))\nprint(context_share(\"payment\", ALL))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "context_share",
+      "cases": [
+        {
+          "args": [
+            "shipping",
+            [
+              "shipping",
+              "returns",
+              "refunds",
+              "warranty",
+              "payment"
+            ]
+          ],
+          "returns": [
+            94,
+            361,
+            0.26
+          ]
+        },
+        {
+          "args": [
+            "payment",
+            [
+              "shipping",
+              "returns",
+              "refunds",
+              "warranty",
+              "payment"
+            ]
+          ],
+          "returns": [
+            50,
+            361,
+            0.14
+          ]
+        },
+        {
+          "args": [
+            "refunds",
+            [
+              "refunds"
+            ]
+          ],
+          "returns": [
+            64,
+            64,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[94, 361, 0.26]\n[50, 361, 0.14]"
+    }
+  ]
+}

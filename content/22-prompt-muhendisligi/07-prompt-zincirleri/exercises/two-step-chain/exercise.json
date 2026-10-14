@@ -1,0 +1,114 @@
+{
+  "id": "two-step-chain",
+  "title": {
+    "tr": "İki adımlı zincir",
+    "en": "A two-step chain"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kategori: `data.get(\"category\") if isinstance(data, dict) else None`.",
+      "en": "The category: `data.get(\"category\") if isinstance(data, dict) else None`."
+    },
+    {
+      "tr": "`POLICY`'de olmayan bir kategori (`payment`) de durdurur; ikinci çağrı yapılmaz.",
+      "en": "A category missing from `POLICY` (`payment`) also stops it; no second call is made."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport json\n\nfrom llm_client import ChatClient\n\nLABELS = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\nPOLICY = {\"shipping\": \"Delivery takes 3 to 5 working days.\",\n          \"refunds\": \"Refunds arrive within 7 days.\"}\nCLASSIFY = 'Give the category as JSON: {\"category\": ...}'\n\n\ndef ask(client, instruction, text):\n    messages = [{\"role\": \"system\", \"content\": instruction},\n                {\"role\": \"user\", \"content\": text}]\n    return client.chat(messages, max_tokens=80).text\n\n\ndef two_steps(script, message):\n    client = ChatClient(script)\n    try:\n        data = json.loads(ask(client, CLASSIFY, message))\n    except json.JSONDecodeError:\n        data = None\n    category = data.get(\"category\") if isinstance(data, dict) else None\n    if category not in POLICY:\n        return [[\"classify\", False], None]\n    instruction = \"Answer using only this policy: \" + POLICY[category]\n    answer = ask(client, instruction, message)\n    return [[\"classify\", True], answer]\n\n\nfor script in [['{\"category\": \"shipping\"}', \"It arrives in 3 to 5 days.\"],\n               [\"shipping\"],\n               ['{\"category\": \"payment\"}']]:\n    step, answer = two_steps(script, \"Where is my parcel?\")\n    print(step[1], answer)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport json\n\nfrom llm_client import ChatClient\n\nLABELS = [\"shipping\", \"returns\", \"refunds\", \"warranty\", \"payment\"]\nPOLICY = {\"shipping\": \"Delivery takes 3 to 5 working days.\",\n          \"refunds\": \"Refunds arrive within 7 days.\"}\nCLASSIFY = 'Give the category as JSON: {\"category\": ...}'\n\n\ndef ask(client, instruction, text):\n    messages = [{\"role\": \"system\", \"content\": instruction},\n                {\"role\": \"user\", \"content\": text}]\n    return client.chat(messages, max_tokens=80).text\n\n\ndef two_steps(script, message):\n    client = ChatClient(script)\n    try:\n        data = json.loads(ask(client, CLASSIFY, message))\n    except json.JSONDecodeError:\n        data = None\n    category = data.get(\"category\") if isinstance(data, dict) else None\n    if category not in POLICY:\n        return [[\"classify\", False], None]\n    instruction = \"Answer using only this policy: \" + POLICY[category]\n    answer = ask(client, instruction, message)\n    return [[\"classify\", True], answer]\n\n\nfor script in [['{\"category\": \"shipping\"}', \"It arrives in 3 to 5 days.\"],\n               [\"shipping\"],\n               ['{\"category\": \"payment\"}']]:\n    step, answer = two_steps(script, \"Where is my parcel?\")\n    print(step[1], answer)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "two_steps",
+      "cases": [
+        {
+          "args": [
+            [
+              "{\"category\": \"shipping\"}",
+              "It arrives in 3 to 5 days."
+            ],
+            "Where is my parcel?"
+          ],
+          "returns": [
+            [
+              "classify",
+              true
+            ],
+            "It arrives in 3 to 5 days."
+          ]
+        },
+        {
+          "args": [
+            [
+              "shipping"
+            ],
+            "Where is my parcel?"
+          ],
+          "returns": [
+            [
+              "classify",
+              false
+            ],
+            null
+          ]
+        },
+        {
+          "args": [
+            [
+              "{\"category\": \"payment\"}"
+            ],
+            "Where is my parcel?"
+          ],
+          "returns": [
+            [
+              "classify",
+              false
+            ],
+            null
+          ]
+        },
+        {
+          "args": [
+            [
+              "{\"category\": \"refunds\"}",
+              "Within 7 days."
+            ],
+            "Where is my parcel?"
+          ],
+          "returns": [
+            [
+              "classify",
+              true
+            ],
+            "Within 7 days."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True It arrives in 3 to 5 days.\nFalse None\nFalse None"
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "id": "stopped-at",
+  "title": {
+    "tr": "Zincir nerede durdu?",
+    "en": "Where did the chain stop?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Toplamı önce hesapla: `sum(tokens for _, _, tokens in log)`.",
+      "en": "Compute the total first: `sum(tokens for _, _, tokens in log)`."
+    },
+    {
+      "tr": "Döngüde ilk `not ok` adımında hemen döndür.",
+      "en": "Return at once at the first `not ok` step in the loop."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef stopped_at(log):\n    total = sum(tokens for _, _, tokens in log)\n    for step, ok, _ in log:\n        if not ok:\n            return [step, total]\n    return [\"done\", total]\n\n\nprint(stopped_at([[\"classify\", True, 38], [\"extract\", False, 45]]))\nprint(stopped_at([[\"classify\", True, 38], [\"reply\", True, 132]]))\n```",
+      "en": "The full solution:\n\n```python\ndef stopped_at(log):\n    total = sum(tokens for _, _, tokens in log)\n    for step, ok, _ in log:\n        if not ok:\n            return [step, total]\n    return [\"done\", total]\n\n\nprint(stopped_at([[\"classify\", True, 38], [\"extract\", False, 45]]))\nprint(stopped_at([[\"classify\", True, 38], [\"reply\", True, 132]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "stopped_at",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "classify",
+                true,
+                38
+              ],
+              [
+                "extract",
+                false,
+                45
+              ]
+            ]
+          ],
+          "returns": [
+            "extract",
+            83
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "classify",
+                true,
+                38
+              ],
+              [
+                "reply",
+                true,
+                132
+              ]
+            ]
+          ],
+          "returns": [
+            "done",
+            170
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": [
+            "done",
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                false,
+                5
+              ],
+              [
+                "b",
+                false,
+                6
+              ]
+            ]
+          ],
+          "returns": [
+            "a",
+            11
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['extract', 83]\n['done', 170]"
+    }
+  ]
+}
