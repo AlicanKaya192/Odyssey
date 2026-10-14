@@ -1,0 +1,62 @@
+{
+  "id": "nightly",
+  "title": {
+    "tr": "Gece Çalışması",
+    "en": "The Nightly Run"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Türkiye UTC'den 3 saat ileride: 06:00 Türkiye = 03:00 UTC → `\"0 3 * * *\"`.",
+      "en": "Turkey is 3 hours ahead of UTC: 06:00 Turkey = 03:00 UTC → `\"0 3 * * *\"`."
+    },
+    {
+      "tr": "`schedule:` bir liste: altında `- cron: \"...\"`. Elle başlatma için ayarsız `workflow_dispatch:`.",
+      "en": "`schedule:` is a list: `- cron: \"...\"` under it. For starting by hand, `workflow_dispatch:` with no settings."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  schedule:\n    - cron: \"0 3 * * *\"\n  workflow_dispatch:\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  schedule:\n    - cron: \"0 3 * * *\"\n  workflow_dispatch:\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "on": [
+        "push",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "branches": {
+        "push": [
+          "main"
+        ]
+      },
+      "cron": "^0 3 \\* \\* \\*$",
+      "show_cron": "0 3 * * *"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "skip-docs",
+  "title": {
+    "tr": "Belgeler İçin Çalışma",
+    "en": "No Run for Documentation"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Süzgecin adı `paths-ignore`; `branches` ile aynı hizada.",
+      "en": "The filter's name is `paths-ignore`; in the same column as `branches`."
+    },
+    {
+      "tr": "`**` ile başlayan değeri tırnakla yaz: `- \"**.md\"`. Tırnaksız `*` YAML'da başka anlama gelir.",
+      "en": "Write a value starting with `**` in quotes: `- \"**.md\"`. An unquoted `*` means something else in YAML."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n    paths-ignore:\n      - \"docs/**\"\n      - \"**.md\"\n  pull_request:\n    branches: [main]\n    paths-ignore:\n      - \"docs/**\"\n      - \"**.md\"\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n    paths-ignore:\n      - \"docs/**\"\n      - \"**.md\"\n  pull_request:\n    branches: [main]\n    paths-ignore:\n      - \"docs/**\"\n      - \"**.md\"\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "branches": {
+        "push": [
+          "main"
+        ],
+        "pull_request": [
+          "main"
+        ]
+      },
+      "filters": {
+        "push": {
+          "paths-ignore": [
+            "docs/**",
+            "**.md"
+          ]
+        },
+        "pull_request": {
+          "paths-ignore": [
+            "docs/**",
+            "**.md"
+          ]
+        }
+      }
+    }
+  ]
+}

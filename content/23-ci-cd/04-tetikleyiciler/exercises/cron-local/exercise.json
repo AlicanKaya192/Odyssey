@@ -1,0 +1,72 @@
+{
+  "id": "cron-local",
+  "title": {
+    "tr": "Türkiye Saati",
+    "en": "Turkey Time"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başa dönmek için kalan: `(int(hour) + 3) % 24`.",
+      "en": "To wrap around, use the remainder: `(int(hour) + 3) % 24`."
+    },
+    {
+      "tr": "İki haneli yazmak için `str(n).zfill(2)`: `\"6\"` → `\"06\"`.",
+      "en": "To write two digits, `str(n).zfill(2)`: `\"6\"` → `\"06\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef turkey_time(cron):\n    fields = cron.split()\n    minute = fields[0]\n    hour = fields[1]\n    if hour == \"*\":\n        return \"every hour at minute \" + minute\n    local = (int(hour) + 3) % 24\n    return str(local).zfill(2) + \":\" + minute.zfill(2)\n\n\nprint(turkey_time(\"0 3 * * *\"))\nprint(turkey_time(\"17 3 * * *\"))\nprint(turkey_time(\"30 22 * * 0\"))\nprint(turkey_time(\"5 * * * *\"))\n```",
+      "en": "The full solution:\n\n```python\ndef turkey_time(cron):\n    fields = cron.split()\n    minute = fields[0]\n    hour = fields[1]\n    if hour == \"*\":\n        return \"every hour at minute \" + minute\n    local = (int(hour) + 3) % 24\n    return str(local).zfill(2) + \":\" + minute.zfill(2)\n\n\nprint(turkey_time(\"0 3 * * *\"))\nprint(turkey_time(\"17 3 * * *\"))\nprint(turkey_time(\"30 22 * * 0\"))\nprint(turkey_time(\"5 * * * *\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "turkey_time",
+      "cases": [
+        {
+          "args": [
+            "0 0 * * *"
+          ],
+          "returns": "03:00"
+        },
+        {
+          "args": [
+            "45 21 * * *"
+          ],
+          "returns": "00:45"
+        },
+        {
+          "args": [
+            "9 9 1 * *"
+          ],
+          "returns": "12:09"
+        },
+        {
+          "args": [
+            "30 * * * 1"
+          ],
+          "returns": "every hour at minute 30"
+        },
+        {
+          "args": [
+            "0 23 * * 5"
+          ],
+          "returns": "02:00"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "06:00\n06:17\n01:30\nevery hour at minute 5"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "id": "should-run",
+  "title": {
+    "tr": "Çalışır mı?",
+    "en": "Will It Run?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Üst klasör: `path.split(\"/\")[0]`.",
+      "en": "The top folder: `path.split(\"/\")[0]`."
+    },
+    {
+      "tr": "Döngüde yoksayılmayan ilk dosyayı bulunca hemen `return True`; döngü bitince `return False`.",
+      "en": "In the loop, `return True` as soon as you find the first file that is not ignored; after the loop, `return False`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef should_run(branch, files, branches, ignored_dirs):\n    if branch not in branches:\n        return False\n    for path in files:\n        if path.split(\"/\")[0] not in ignored_dirs:\n            return True\n    return False\n\n\nprint(should_run(\"main\", [\"docs/setup.md\"], [\"main\"], [\"docs\"]))\nprint(should_run(\"main\", [\"docs/setup.md\", \"app/core.py\"], [\"main\"], [\"docs\"]))\nprint(should_run(\"main\", [\"README.md\"], [\"main\"], [\"docs\"]))\nprint(should_run(\"feature/login\", [\"app/core.py\"], [\"main\"], [\"docs\"]))\n```",
+      "en": "The full solution:\n\n```python\ndef should_run(branch, files, branches, ignored_dirs):\n    if branch not in branches:\n        return False\n    for path in files:\n        if path.split(\"/\")[0] not in ignored_dirs:\n            return True\n    return False\n\n\nprint(should_run(\"main\", [\"docs/setup.md\"], [\"main\"], [\"docs\"]))\nprint(should_run(\"main\", [\"docs/setup.md\", \"app/core.py\"], [\"main\"], [\"docs\"]))\nprint(should_run(\"main\", [\"README.md\"], [\"main\"], [\"docs\"]))\nprint(should_run(\"feature/login\", [\"app/core.py\"], [\"main\"], [\"docs\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "should_run",
+      "cases": [
+        {
+          "args": [
+            "main",
+            [
+              "a/x.py"
+            ],
+            [
+              "main"
+            ],
+            []
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "dev",
+            [
+              "a/x.py"
+            ],
+            [
+              "main",
+              "dev"
+            ],
+            [
+              "a"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "main",
+            [],
+            [
+              "main"
+            ],
+            [
+              "docs"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "release",
+            [
+              "docs/a.md"
+            ],
+            [
+              "main"
+            ],
+            [
+              "docs"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "main",
+            [
+              "docs/a.md",
+              "docs/b.md"
+            ],
+            [
+              "main"
+            ],
+            [
+              "docs",
+              "img"
+            ]
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False\nTrue\nTrue\nFalse"
+    }
+  ]
+}
