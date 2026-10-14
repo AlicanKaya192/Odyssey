@@ -1,0 +1,155 @@
+{
+  "id": "bounded-agent",
+  "title": {
+    "tr": "Sınırlı ajan",
+    "en": "A bounded agent"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "shop_data.py",
+      "readonly": true
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tur sayısı 1'den başlar: `range(1, max_rounds + 1)`.",
+      "en": "The round number starts at 1: `range(1, max_rounds + 1)`."
+    },
+    {
+      "tr": "Araç sonucunu metne çevir: `json.dumps(result)`.",
+      "en": "Turn the tool result into text: `json.dumps(result)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport json\n\nfrom llm_client import ChatClient\nfrom shop_data import ORDERS\n\nTOOLS = [{\"name\": \"get_order\", \"description\": \"Look up an order.\",\n          \"parameters\": [\"order_id\"]}]\n\n\ndef get_order(order_id):\n    order = ORDERS.get(order_id)\n    if order is None:\n        return {\"error\": f\"no order {order_id}\"}\n    return {\"status\": order[\"status\"], \"date\": order[\"date\"]}\n\n\ndef run_agent(script, question, max_rounds):\n    client = ChatClient(script)\n    messages = [{\"role\": \"user\", \"content\": question}]\n    for round_number in range(1, max_rounds + 1):\n        reply = client.chat(messages, tools=TOOLS)\n        if not reply.tool_calls:\n            return [reply.text, round_number]\n        messages.append({\"role\": \"assistant\", \"content\": \"\",\n                         \"tool_calls\": reply.tool_calls})\n        for call in reply.tool_calls:\n            if call[\"name\"] == \"get_order\":\n                result = get_order(**call[\"arguments\"])\n            else:\n                result = {\"error\": \"unknown tool\"}\n            messages.append({\"role\": \"tool\", \"content\": json.dumps(result)})\n    return [None, max_rounds]\n\n\nCALL = {\"tool_calls\": [{\"name\": \"get_order\",\n                        \"arguments\": {\"order_id\": \"ORD-48213\"}}]}\nprint(run_agent([CALL, \"It shipped on 2026-10-09.\"], \"Where?\", 3))\nprint(run_agent([CALL, CALL, CALL], \"Where?\", 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport json\n\nfrom llm_client import ChatClient\nfrom shop_data import ORDERS\n\nTOOLS = [{\"name\": \"get_order\", \"description\": \"Look up an order.\",\n          \"parameters\": [\"order_id\"]}]\n\n\ndef get_order(order_id):\n    order = ORDERS.get(order_id)\n    if order is None:\n        return {\"error\": f\"no order {order_id}\"}\n    return {\"status\": order[\"status\"], \"date\": order[\"date\"]}\n\n\ndef run_agent(script, question, max_rounds):\n    client = ChatClient(script)\n    messages = [{\"role\": \"user\", \"content\": question}]\n    for round_number in range(1, max_rounds + 1):\n        reply = client.chat(messages, tools=TOOLS)\n        if not reply.tool_calls:\n            return [reply.text, round_number]\n        messages.append({\"role\": \"assistant\", \"content\": \"\",\n                         \"tool_calls\": reply.tool_calls})\n        for call in reply.tool_calls:\n            if call[\"name\"] == \"get_order\":\n                result = get_order(**call[\"arguments\"])\n            else:\n                result = {\"error\": \"unknown tool\"}\n            messages.append({\"role\": \"tool\", \"content\": json.dumps(result)})\n    return [None, max_rounds]\n\n\nCALL = {\"tool_calls\": [{\"name\": \"get_order\",\n                        \"arguments\": {\"order_id\": \"ORD-48213\"}}]}\nprint(run_agent([CALL, \"It shipped on 2026-10-09.\"], \"Where?\", 3))\nprint(run_agent([CALL, CALL, CALL], \"Where?\", 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "run_agent",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "tool_calls": [
+                  {
+                    "name": "get_order",
+                    "arguments": {
+                      "order_id": "ORD-48213"
+                    }
+                  }
+                ]
+              },
+              "It shipped on 2026-10-09."
+            ],
+            "Where?",
+            3
+          ],
+          "returns": [
+            "It shipped on 2026-10-09.",
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "tool_calls": [
+                  {
+                    "name": "get_order",
+                    "arguments": {
+                      "order_id": "ORD-48213"
+                    }
+                  }
+                ]
+              },
+              {
+                "tool_calls": [
+                  {
+                    "name": "get_order",
+                    "arguments": {
+                      "order_id": "ORD-48213"
+                    }
+                  }
+                ]
+              },
+              {
+                "tool_calls": [
+                  {
+                    "name": "get_order",
+                    "arguments": {
+                      "order_id": "ORD-48213"
+                    }
+                  }
+                ]
+              }
+            ],
+            "Where?",
+            3
+          ],
+          "returns": [
+            null,
+            3
+          ]
+        },
+        {
+          "args": [
+            [
+              "Hello!"
+            ],
+            "Hi",
+            2
+          ],
+          "returns": [
+            "Hello!",
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "tool_calls": [
+                  {
+                    "name": "refund",
+                    "arguments": {}
+                  }
+                ]
+              },
+              "I cannot do that."
+            ],
+            "Refund",
+            2
+          ],
+          "returns": [
+            "I cannot do that.",
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['It shipped on 2026-10-09.', 2]\n[None, 3]"
+    }
+  ]
+}

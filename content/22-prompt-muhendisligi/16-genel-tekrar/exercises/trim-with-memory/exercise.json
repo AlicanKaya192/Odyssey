@@ -1,0 +1,197 @@
+{
+  "id": "trim-with-memory",
+  "title": {
+    "tr": "Bellekli kırpma",
+    "en": "Trimming with memory"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`rest[-0:]` bütün listeyi verir; `keep` sıfırsa boş liste kullan.",
+      "en": "`rest[-0:]` gives the whole list; use an empty list when `keep` is zero."
+    },
+    {
+      "tr": "Anahtar sırası için `sorted(facts.items())`.",
+      "en": "For key order `sorted(facts.items())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef trim_history(messages, keep, facts):\n    system = [m for m in messages if m[\"role\"] == \"system\"]\n    rest = [m for m in messages if m[\"role\"] != \"system\"]\n    memory = []\n    if facts:\n        note = \"; \".join(f\"{key}: {value}\" for key, value in sorted(facts.items()))\n        memory = [{\"role\": \"system\", \"content\": \"Known facts: \" + note}]\n    return system + memory + (rest[-keep:] if keep else [])\n\n\nHISTORY = [{\"role\": \"system\", \"content\": \"Be brief.\"},\n           {\"role\": \"user\", \"content\": \"Order ORD-48213?\"},\n           {\"role\": \"assistant\", \"content\": \"It shipped.\"},\n           {\"role\": \"user\", \"content\": \"When?\"},\n           {\"role\": \"assistant\", \"content\": \"On 2026-10-09.\"},\n           {\"role\": \"user\", \"content\": \"Thanks!\"}]\nfor m in trim_history(HISTORY, 2, {\"order\": \"ORD-48213\"}):\n    print(m[\"role\"], \"|\", m[\"content\"])\n```",
+      "en": "The full solution:\n\n```python\ndef trim_history(messages, keep, facts):\n    system = [m for m in messages if m[\"role\"] == \"system\"]\n    rest = [m for m in messages if m[\"role\"] != \"system\"]\n    memory = []\n    if facts:\n        note = \"; \".join(f\"{key}: {value}\" for key, value in sorted(facts.items()))\n        memory = [{\"role\": \"system\", \"content\": \"Known facts: \" + note}]\n    return system + memory + (rest[-keep:] if keep else [])\n\n\nHISTORY = [{\"role\": \"system\", \"content\": \"Be brief.\"},\n           {\"role\": \"user\", \"content\": \"Order ORD-48213?\"},\n           {\"role\": \"assistant\", \"content\": \"It shipped.\"},\n           {\"role\": \"user\", \"content\": \"When?\"},\n           {\"role\": \"assistant\", \"content\": \"On 2026-10-09.\"},\n           {\"role\": \"user\", \"content\": \"Thanks!\"}]\nfor m in trim_history(HISTORY, 2, {\"order\": \"ORD-48213\"}):\n    print(m[\"role\"], \"|\", m[\"content\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "trim_history",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "role": "system",
+                "content": "Be brief."
+              },
+              {
+                "role": "user",
+                "content": "Order ORD-48213?"
+              },
+              {
+                "role": "assistant",
+                "content": "It shipped."
+              },
+              {
+                "role": "user",
+                "content": "When?"
+              },
+              {
+                "role": "assistant",
+                "content": "On 2026-10-09."
+              },
+              {
+                "role": "user",
+                "content": "Thanks!"
+              }
+            ],
+            2,
+            {
+              "order": "ORD-48213"
+            }
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "Be brief."
+            },
+            {
+              "role": "system",
+              "content": "Known facts: order: ORD-48213"
+            },
+            {
+              "role": "assistant",
+              "content": "On 2026-10-09."
+            },
+            {
+              "role": "user",
+              "content": "Thanks!"
+            }
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "role": "system",
+                "content": "Be brief."
+              },
+              {
+                "role": "user",
+                "content": "Order ORD-48213?"
+              },
+              {
+                "role": "assistant",
+                "content": "It shipped."
+              },
+              {
+                "role": "user",
+                "content": "When?"
+              },
+              {
+                "role": "assistant",
+                "content": "On 2026-10-09."
+              },
+              {
+                "role": "user",
+                "content": "Thanks!"
+              }
+            ],
+            0,
+            {}
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "Be brief."
+            }
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "role": "system",
+                "content": "Be brief."
+              },
+              {
+                "role": "user",
+                "content": "Order ORD-48213?"
+              },
+              {
+                "role": "assistant",
+                "content": "It shipped."
+              },
+              {
+                "role": "user",
+                "content": "When?"
+              },
+              {
+                "role": "assistant",
+                "content": "On 2026-10-09."
+              },
+              {
+                "role": "user",
+                "content": "Thanks!"
+              }
+            ],
+            9,
+            {
+              "b": "2",
+              "a": "1"
+            }
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "Be brief."
+            },
+            {
+              "role": "system",
+              "content": "Known facts: a: 1; b: 2"
+            },
+            {
+              "role": "user",
+              "content": "Order ORD-48213?"
+            },
+            {
+              "role": "assistant",
+              "content": "It shipped."
+            },
+            {
+              "role": "user",
+              "content": "When?"
+            },
+            {
+              "role": "assistant",
+              "content": "On 2026-10-09."
+            },
+            {
+              "role": "user",
+              "content": "Thanks!"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "system | Be brief.\nsystem | Known facts: order: ORD-48213\nassistant | On 2026-10-09.\nuser | Thanks!"
+    }
+  ]
+}

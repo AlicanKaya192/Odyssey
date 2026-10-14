@@ -279,7 +279,7 @@ missed it in the Prompt Injection and Defence section too), but the output
 check caught the "cancelled" claim: this is exactly layered defence. Four
 temporary errors were counted: one in the Switzerland scenario, three in
 the express scenario; there the attempts ran out and the fallback answer
-was shown. With the example prices from the Generative AI Foundations
+was shown. With the example prices from the Generative AI Fundamentals
 module, 10,000 messages cost 0.74 units; real prices differ by service.
 
 Remember: we wrote the expected outcomes ourselves and made the fix by
@@ -299,7 +299,7 @@ This assistant is a start; what it lacks for a real product:
   Conversation History and Memory section.
 - **Answers from documents.** Information such as the return rule is for
   now in the model's example answer; it should be given from the shop's own
-  documents, with its source, using RAG from the Generative AI Foundations
+  documents, with its source, using RAG from the Generative AI Fundamentals
   module.
 - **Logging and monitoring.** Every message handed over or blocked is
   logged; new kinds of errors are added to the evaluation set.

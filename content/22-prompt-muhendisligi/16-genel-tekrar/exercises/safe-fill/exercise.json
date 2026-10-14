@@ -1,0 +1,93 @@
+{
+  "id": "safe-fill",
+  "title": {
+    "tr": "Güvenli şablon",
+    "en": "A safe template"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Eksikler: `[n for n in names if n not in values]`.",
+      "en": "The missing ones: `[n for n in names if n not in values]`."
+    },
+    {
+      "tr": "`str.format` kullanma; metindeki başka süslü parantezleri bozar.",
+      "en": "Do not use `str.format`; it breaks other braces in the text."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef fill(template, values):\n    names = re.findall(r\"\\{(\\w+)\\}\", template)\n    missing = [name for name in names if name not in values]\n    if missing:\n        return [None, missing]\n    text = template\n    for name in names:\n        text = text.replace(\"{\" + name + \"}\", str(values[name]))\n    return [text, []]\n\n\nTEMPLATE = \"Hello {name}, order {order} is {status}.\"\nprint(fill(TEMPLATE, {\"name\": \"Ada\", \"order\": \"ORD-48213\",\n                      \"status\": \"shipped\"})[0])\nprint(fill(TEMPLATE, {\"name\": \"Ada\"}))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef fill(template, values):\n    names = re.findall(r\"\\{(\\w+)\\}\", template)\n    missing = [name for name in names if name not in values]\n    if missing:\n        return [None, missing]\n    text = template\n    for name in names:\n        text = text.replace(\"{\" + name + \"}\", str(values[name]))\n    return [text, []]\n\n\nTEMPLATE = \"Hello {name}, order {order} is {status}.\"\nprint(fill(TEMPLATE, {\"name\": \"Ada\", \"order\": \"ORD-48213\",\n                      \"status\": \"shipped\"})[0])\nprint(fill(TEMPLATE, {\"name\": \"Ada\"}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fill",
+      "cases": [
+        {
+          "args": [
+            "Hello {name}, order {order} is {status}.",
+            {
+              "name": "Ada",
+              "order": "ORD-48213",
+              "status": "shipped"
+            }
+          ],
+          "returns": [
+            "Hello Ada, order ORD-48213 is shipped.",
+            []
+          ]
+        },
+        {
+          "args": [
+            "Hello {name}, order {order} is {status}.",
+            {
+              "name": "Ada"
+            }
+          ],
+          "returns": [
+            null,
+            [
+              "order",
+              "status"
+            ]
+          ]
+        },
+        {
+          "args": [
+            "No placeholders.",
+            {}
+          ],
+          "returns": [
+            "No placeholders.",
+            []
+          ]
+        },
+        {
+          "args": [
+            "{a}{a}",
+            {
+              "a": 1
+            }
+          ],
+          "returns": [
+            "11",
+            []
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Hello Ada, order ORD-48213 is shipped.\n[None, ['order', 'status']]"
+    }
+  ]
+}

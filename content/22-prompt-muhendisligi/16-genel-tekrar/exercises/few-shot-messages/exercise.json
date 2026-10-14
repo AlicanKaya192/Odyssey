@@ -1,0 +1,101 @@
+{
+  "id": "few-shot-messages",
+  "title": {
+    "tr": "Örnekli mesaj listesi",
+    "en": "A few-shot message list"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her örnek iki mesaj ekler.",
+      "en": "Every example adds two messages."
+    },
+    {
+      "tr": "Mesaj bir sözlük: `{\"role\": ..., \"content\": ...}`.",
+      "en": "A message is a dictionary: `{\"role\": ..., \"content\": ...}`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef few_shot_messages(system, examples, question):\n    messages = [{\"role\": \"system\", \"content\": system}]\n    for text, label in examples:\n        messages.append({\"role\": \"user\", \"content\": text})\n        messages.append({\"role\": \"assistant\", \"content\": label})\n    messages.append({\"role\": \"user\", \"content\": question})\n    return messages\n\n\nEXAMPLES = [[\"Where is my parcel?\", \"shipping\"],\n            [\"My card was declined.\", \"payment\"]]\nmessages = few_shot_messages(\"Classify.\", EXAMPLES, \"Refund?\")\nfor m in messages:\n    print(m[\"role\"], \"|\", m[\"content\"])\n```",
+      "en": "The full solution:\n\n```python\ndef few_shot_messages(system, examples, question):\n    messages = [{\"role\": \"system\", \"content\": system}]\n    for text, label in examples:\n        messages.append({\"role\": \"user\", \"content\": text})\n        messages.append({\"role\": \"assistant\", \"content\": label})\n    messages.append({\"role\": \"user\", \"content\": question})\n    return messages\n\n\nEXAMPLES = [[\"Where is my parcel?\", \"shipping\"],\n            [\"My card was declined.\", \"payment\"]]\nmessages = few_shot_messages(\"Classify.\", EXAMPLES, \"Refund?\")\nfor m in messages:\n    print(m[\"role\"], \"|\", m[\"content\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "few_shot_messages",
+      "cases": [
+        {
+          "args": [
+            "Classify.",
+            [
+              [
+                "Where is my parcel?",
+                "shipping"
+              ],
+              [
+                "My card was declined.",
+                "payment"
+              ]
+            ],
+            "Refund?"
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "Classify."
+            },
+            {
+              "role": "user",
+              "content": "Where is my parcel?"
+            },
+            {
+              "role": "assistant",
+              "content": "shipping"
+            },
+            {
+              "role": "user",
+              "content": "My card was declined."
+            },
+            {
+              "role": "assistant",
+              "content": "payment"
+            },
+            {
+              "role": "user",
+              "content": "Refund?"
+            }
+          ]
+        },
+        {
+          "args": [
+            "Classify.",
+            [],
+            "Hi"
+          ],
+          "returns": [
+            {
+              "role": "system",
+              "content": "Classify."
+            },
+            {
+              "role": "user",
+              "content": "Hi"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "system | Classify.\nuser | Where is my parcel?\nassistant | shipping\nuser | My card was declined.\nassistant | payment\nuser | Refund?"
+    }
+  ]
+}

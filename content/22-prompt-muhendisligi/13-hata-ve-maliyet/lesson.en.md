@@ -211,7 +211,7 @@ function raises an error.
 
 ## Cost: a cache
 
-We saw how cost is calculated in the Generative AI Foundations module:
+We saw how cost is calculated in the Generative AI Fundamentals module:
 input tokens × input price + output tokens × output price. The ways of
 lowering the cost in an application mostly came up in earlier sections: a
 short system message, as many examples as needed, a trimmed history, as
