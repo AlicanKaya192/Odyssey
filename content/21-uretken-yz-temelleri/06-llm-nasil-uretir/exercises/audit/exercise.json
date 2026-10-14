@@ -1,0 +1,92 @@
+{
+  "id": "audit",
+  "title": {
+    "tr": "Modeli denetle",
+    "en": "Audit the model"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "tiny_chat.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Cevabı kelimelere böl: `words = ask(country)[0].split()`; ülke `words[3]`, başkent `words[5]`.",
+      "en": "Split the answer into words: `words = ask(country)[0].split()`; the country is `words[3]`, the capital `words[5]`."
+    },
+    {
+      "tr": "`ask` bir demet döndürür: `(metin, bitiş nedeni)`; metin `[0]`.",
+      "en": "`ask` returns a tuple: `(text, finish reason)`; the text is `[0]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom tiny_chat import ask, CAPITALS\n\n\ndef audit(countries):\n    correct = wrong = other = 0\n    for country in countries:\n        words = ask(country)[0].split()\n        asked_about, capital = words[3], words[5]\n        if capital == CAPITALS[country]:\n            correct += 1\n        elif asked_about != country:\n            other += 1\n        else:\n            wrong += 1\n    return [correct, wrong, other]\n\n\nprint(audit([\"france\", \"turkey\", \"japan\", \"chile\"]))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom tiny_chat import ask, CAPITALS\n\n\ndef audit(countries):\n    correct = wrong = other = 0\n    for country in countries:\n        words = ask(country)[0].split()\n        asked_about, capital = words[3], words[5]\n        if capital == CAPITALS[country]:\n            correct += 1\n        elif asked_about != country:\n            other += 1\n        else:\n            wrong += 1\n    return [correct, wrong, other]\n\n\nprint(audit([\"france\", \"turkey\", \"japan\", \"chile\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "audit",
+      "cases": [
+        {
+          "args": [
+            [
+              "france",
+              "turkey",
+              "japan",
+              "chile"
+            ]
+          ],
+          "returns": [
+            2,
+            0,
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              "peru",
+              "norway"
+            ]
+          ],
+          "returns": [
+            2,
+            0,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              "chile"
+            ]
+          ],
+          "returns": [
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 0, 2]"
+    }
+  ]
+}

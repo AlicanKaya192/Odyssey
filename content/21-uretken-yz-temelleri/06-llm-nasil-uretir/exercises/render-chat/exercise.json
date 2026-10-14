@@ -1,0 +1,82 @@
+{
+  "id": "render-chat",
+  "title": {
+    "tr": "Sohbet şablonu",
+    "en": "The chat template"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Parçaları bir listede topla, sonunda `\" \".join(parts)`.",
+      "en": "Collect the pieces in a list and finish with `\" \".join(parts)`."
+    },
+    {
+      "tr": "Rol işareti `\"<\" + m[\"role\"] + \">\"`; boş listede sonuç yalnızca `\"<assistant>\"`.",
+      "en": "The role marker is `\"<\" + m[\"role\"] + \">\"`; for an empty list the result is just `\"<assistant>\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef render_chat(messages):\n    parts = []\n    for m in messages:\n        parts.append(\"<\" + m[\"role\"] + \">\")\n        parts.append(m[\"content\"])\n    parts.append(\"<assistant>\")\n    return \" \".join(parts)\n\n\nmessages = [\n    {\"role\": \"system\", \"content\": \"be brief .\"},\n    {\"role\": \"user\", \"content\": \"hi\"},\n]\nprint(render_chat(messages))\n```",
+      "en": "The full solution:\n\n```python\ndef render_chat(messages):\n    parts = []\n    for m in messages:\n        parts.append(\"<\" + m[\"role\"] + \">\")\n        parts.append(m[\"content\"])\n    parts.append(\"<assistant>\")\n    return \" \".join(parts)\n\n\nmessages = [\n    {\"role\": \"system\", \"content\": \"be brief .\"},\n    {\"role\": \"user\", \"content\": \"hi\"},\n]\nprint(render_chat(messages))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "render_chat",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "role": "user",
+                "content": "hi !"
+              }
+            ]
+          ],
+          "returns": "<user> hi ! <assistant>"
+        },
+        {
+          "args": [
+            [
+              {
+                "role": "system",
+                "content": "be short ."
+              },
+              {
+                "role": "user",
+                "content": "hello"
+              },
+              {
+                "role": "assistant",
+                "content": "hi"
+              },
+              {
+                "role": "user",
+                "content": "bye"
+              }
+            ]
+          ],
+          "returns": "<system> be short . <user> hello <assistant> hi <user> bye <assistant>"
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": "<assistant>"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "<system> be brief . <user> hi <assistant>"
+    }
+  ]
+}

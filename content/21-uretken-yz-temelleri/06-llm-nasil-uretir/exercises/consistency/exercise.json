@@ -1,0 +1,82 @@
+{
+  "id": "consistency",
+  "title": {
+    "tr": "Cevaplar tutarlı mı?",
+    "en": "Are the answers consistent?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`Counter(answers)` her cevabın kaç kez geldiğini sayar.",
+      "en": "`Counter(answers)` counts how often each answer came."
+    },
+    {
+      "tr": "Eşitliği çözmek için sırala: `sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0]`.",
+      "en": "Sort to break ties: `sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef consistency(answers):\n    counts = Counter(answers)\n    answer, n = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0]\n    return [answer, round(n / len(answers), 2)]\n\n\nprint(consistency([\"oslo\", \"lima\", \"oslo\", \"oslo\"]))\nprint(consistency([\"a\", \"b\", \"c\", \"a\", \"b\"]))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef consistency(answers):\n    counts = Counter(answers)\n    answer, n = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0]\n    return [answer, round(n / len(answers), 2)]\n\n\nprint(consistency([\"oslo\", \"lima\", \"oslo\", \"oslo\"]))\nprint(consistency([\"a\", \"b\", \"c\", \"a\", \"b\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "consistency",
+      "cases": [
+        {
+          "args": [
+            [
+              "oslo",
+              "lima",
+              "oslo",
+              "oslo"
+            ]
+          ],
+          "returns": [
+            "oslo",
+            0.75
+          ]
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b",
+              "c",
+              "a",
+              "b"
+            ]
+          ],
+          "returns": [
+            "a",
+            0.4
+          ]
+        },
+        {
+          "args": [
+            [
+              "x"
+            ]
+          ],
+          "returns": [
+            "x",
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['oslo', 0.75]\n['a', 0.4]"
+    }
+  ]
+}

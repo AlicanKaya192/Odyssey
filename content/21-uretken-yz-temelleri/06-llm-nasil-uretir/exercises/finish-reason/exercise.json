@@ -1,0 +1,98 @@
+{
+  "id": "finish-reason",
+  "title": {
+    "tr": "Cevap nerede biter?",
+    "en": "Where does the answer end?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce sınırı denetle: `len(out) == max_tokens` ise `length`; sonra token `\"<end>\"` mı diye bak.",
+      "en": "Check the limit first: if `len(out) == max_tokens` it is `length`; then see whether the token is `\"<end>\"`."
+    },
+    {
+      "tr": "`[\"a\", \"b\", \"<end>\"]` ve `max_tokens=2` için iki token üretildikten sonra sınır dolar: `length`.",
+      "en": "For `[\"a\", \"b\", \"<end>\"]` and `max_tokens=2` the limit is reached after two tokens: `length`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef finish(proposed, max_tokens):\n    out = []\n    for token in proposed:\n        if len(out) == max_tokens:\n            return [\" \".join(out), \"length\"]\n        if token == \"<end>\":\n            return [\" \".join(out), \"stop\"]\n        out.append(token)\n    return [\" \".join(out), \"length\"]\n\n\nprint(finish([\"paris\", \".\", \"<end>\", \"extra\"], 10))\nprint(finish([\"the\", \"capital\", \"of\", \"peru\"], 3))\n```",
+      "en": "The full solution:\n\n```python\ndef finish(proposed, max_tokens):\n    out = []\n    for token in proposed:\n        if len(out) == max_tokens:\n            return [\" \".join(out), \"length\"]\n        if token == \"<end>\":\n            return [\" \".join(out), \"stop\"]\n        out.append(token)\n    return [\" \".join(out), \"length\"]\n\n\nprint(finish([\"paris\", \".\", \"<end>\", \"extra\"], 10))\nprint(finish([\"the\", \"capital\", \"of\", \"peru\"], 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "finish",
+      "cases": [
+        {
+          "args": [
+            [
+              "paris",
+              ".",
+              "<end>",
+              "extra"
+            ],
+            10
+          ],
+          "returns": [
+            "paris .",
+            "stop"
+          ]
+        },
+        {
+          "args": [
+            [
+              "the",
+              "capital",
+              "of",
+              "peru"
+            ],
+            3
+          ],
+          "returns": [
+            "the capital of",
+            "length"
+          ]
+        },
+        {
+          "args": [
+            [
+              "<end>"
+            ],
+            5
+          ],
+          "returns": [
+            "",
+            "stop"
+          ]
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b",
+              "<end>"
+            ],
+            2
+          ],
+          "returns": [
+            "a b",
+            "length"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['paris .', 'stop']\n['the capital of', 'length']"
+    }
+  ]
+}

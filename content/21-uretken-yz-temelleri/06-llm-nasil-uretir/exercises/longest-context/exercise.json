@@ -1,0 +1,85 @@
+{
+  "id": "longest-context",
+  "title": {
+    "tr": "En uzun bağlam",
+    "en": "The longest context"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tablo sözlüğünün anahtarı bağlam demeti: `tables.setdefault(tuple(d[i - n:i]), Counter())[d[i]] += 1`.",
+      "en": "The table dictionary's key is the context tuple: `tables.setdefault(tuple(d[i - n:i]), Counter())[d[i]] += 1`."
+    },
+    {
+      "tr": "Uzun bağlamdan kısaya dene: `for n in range(min(len(tokens), 7), 0, -1)`; eşitlikte `sorted(..., key=lambda kv: (-kv[1], kv[0]))`.",
+      "en": "Try from the long context to the short: `for n in range(min(len(tokens), 7), 0, -1)`; on a tie `sorted(..., key=lambda kv: (-kv[1], kv[0]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\nDIALOGUES = [\n    \"<user> hi <assistant> hello <end>\",\n    \"<user> bye <assistant> goodbye <end>\",\n    \"<user> hi there <assistant> hello friend <end>\",\n]\n\n\ndef next_word(dialogues, context):\n    tables = {}\n    for text in dialogues:\n        d = text.split()\n        for i in range(1, len(d)):\n            for n in range(1, min(i, 7) + 1):\n                tables.setdefault(tuple(d[i - n:i]), Counter())[d[i]] += 1\n    tokens = context.split()\n    for n in range(min(len(tokens), 7), 0, -1):\n        counts = tables.get(tuple(tokens[-n:]))\n        if counts:\n            return sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]\n    return \"\"\n\n\nprint(next_word(DIALOGUES, \"<user> hi <assistant>\"))\nprint(next_word(DIALOGUES, \"hi there <assistant>\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\nDIALOGUES = [\n    \"<user> hi <assistant> hello <end>\",\n    \"<user> bye <assistant> goodbye <end>\",\n    \"<user> hi there <assistant> hello friend <end>\",\n]\n\n\ndef next_word(dialogues, context):\n    tables = {}\n    for text in dialogues:\n        d = text.split()\n        for i in range(1, len(d)):\n            for n in range(1, min(i, 7) + 1):\n                tables.setdefault(tuple(d[i - n:i]), Counter())[d[i]] += 1\n    tokens = context.split()\n    for n in range(min(len(tokens), 7), 0, -1):\n        counts = tables.get(tuple(tokens[-n:]))\n        if counts:\n            return sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]\n    return \"\"\n\n\nprint(next_word(DIALOGUES, \"<user> hi <assistant>\"))\nprint(next_word(DIALOGUES, \"hi there <assistant>\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "next_word",
+      "cases": [
+        {
+          "args": [
+            [
+              "<user> hi <assistant> hello <end>",
+              "<user> bye <assistant> goodbye <end>"
+            ],
+            "<user> hi <assistant>"
+          ],
+          "returns": "hello"
+        },
+        {
+          "args": [
+            [
+              "<user> hi <assistant> hello <end>",
+              "<user> bye <assistant> goodbye <end>",
+              "<user> hi there <assistant> hello friend <end>"
+            ],
+            "hi there <assistant> hello"
+          ],
+          "returns": "friend"
+        },
+        {
+          "args": [
+            [
+              "a b c",
+              "a b d",
+              "x b d"
+            ],
+            "b"
+          ],
+          "returns": "d"
+        },
+        {
+          "args": [
+            [
+              "a b c",
+              "a b d",
+              "x b d"
+            ],
+            "a b"
+          ],
+          "returns": "c"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "hello\nhello"
+    }
+  ]
+}
