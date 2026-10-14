@@ -1,0 +1,124 @@
+{
+  "id": "check-rules",
+  "title": {
+    "tr": "Kurallara göre denetle",
+    "en": "Check against the rules"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kural yoksa atla: `if \"max_words\" in rules and ...`; listeler için `rules.get(\"must_include\", [])`.",
+      "en": "Skip a missing rule: `if \"max_words\" in rules and ...`; for lists `rules.get(\"must_include\", [])`."
+    },
+    {
+      "tr": "Cümleler: `[s for s in re.split(r\"[.!?]+\", text) if s.strip()]`.",
+      "en": "Sentences: `[s for s in re.split(r\"[.!?]+\", text) if s.strip()]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nRULES = {\"max_words\": 12, \"max_sentences\": 1,\n         \"must_include\": [\"tent\"], \"must_not_include\": [\"!\"]}\n\n\ndef check(text, rules):\n    failed = []\n    if \"max_words\" in rules and len(text.split()) > rules[\"max_words\"]:\n        failed.append(\"max_words\")\n    sentences = [s for s in re.split(r\"[.!?]+\", text) if s.strip()]\n    if \"max_sentences\" in rules and len(sentences) > rules[\"max_sentences\"]:\n        failed.append(\"max_sentences\")\n    lowered = text.lower()\n    if any(w.lower() not in lowered for w in rules.get(\"must_include\", [])):\n        failed.append(\"must_include\")\n    if any(w in text for w in rules.get(\"must_not_include\", [])):\n        failed.append(\"must_not_include\")\n    return failed\n\n\nfor text in [\"The tent is warm and easy to set up.\",\n             \"Great tent! Warm. Easy.\",\n             \"Warm and easy to set up.\"]:\n    print(check(text, RULES) or \"ok\")\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nRULES = {\"max_words\": 12, \"max_sentences\": 1,\n         \"must_include\": [\"tent\"], \"must_not_include\": [\"!\"]}\n\n\ndef check(text, rules):\n    failed = []\n    if \"max_words\" in rules and len(text.split()) > rules[\"max_words\"]:\n        failed.append(\"max_words\")\n    sentences = [s for s in re.split(r\"[.!?]+\", text) if s.strip()]\n    if \"max_sentences\" in rules and len(sentences) > rules[\"max_sentences\"]:\n        failed.append(\"max_sentences\")\n    lowered = text.lower()\n    if any(w.lower() not in lowered for w in rules.get(\"must_include\", [])):\n        failed.append(\"must_include\")\n    if any(w in text for w in rules.get(\"must_not_include\", [])):\n        failed.append(\"must_not_include\")\n    return failed\n\n\nfor text in [\"The tent is warm and easy to set up.\",\n             \"Great tent! Warm. Easy.\",\n             \"Warm and easy to set up.\"]:\n    print(check(text, RULES) or \"ok\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check",
+      "cases": [
+        {
+          "args": [
+            "The tent is warm and easy to set up.",
+            {
+              "max_words": 12,
+              "max_sentences": 1,
+              "must_include": [
+                "tent"
+              ],
+              "must_not_include": [
+                "!"
+              ]
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "Great tent! Warm. Easy.",
+            {
+              "max_words": 12,
+              "max_sentences": 1,
+              "must_include": [
+                "tent"
+              ],
+              "must_not_include": [
+                "!"
+              ]
+            }
+          ],
+          "returns": [
+            "max_sentences",
+            "must_not_include"
+          ]
+        },
+        {
+          "args": [
+            "Warm and easy to set up.",
+            {
+              "max_words": 12,
+              "max_sentences": 1,
+              "must_include": [
+                "tent"
+              ],
+              "must_not_include": [
+                "!"
+              ]
+            }
+          ],
+          "returns": [
+            "must_include"
+          ]
+        },
+        {
+          "args": [
+            "A TENT",
+            {
+              "must_include": [
+                "tent"
+              ]
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "one two three",
+            {
+              "max_words": 2
+            }
+          ],
+          "returns": [
+            "max_words"
+          ]
+        },
+        {
+          "args": [
+            "",
+            {}
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\n['max_sentences', 'must_not_include']\n['must_include']"
+    }
+  ]
+}

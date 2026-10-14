@@ -1,0 +1,83 @@
+{
+  "id": "render-rules",
+  "title": {
+    "tr": "Kurallardan talimat",
+    "en": "Instructions from rules"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her kural için `if \"max_words\" in rules:` gibi bir koşul; satırları bir listeye ekle.",
+      "en": "One condition per rule, such as `if \"max_words\" in rules:`; add the lines to a list."
+    },
+    {
+      "tr": "Sonunda `\"\\n\".join(lines)`; kural yoksa boş metin çıkar.",
+      "en": "At the end `\"\\n\".join(lines)`; with no rules an empty text comes out."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef render_rules(rules):\n    lines = []\n    if \"max_words\" in rules:\n        lines.append(f\"Words: at most {rules['max_words']}.\")\n    if \"max_sentences\" in rules:\n        lines.append(f\"Sentences: at most {rules['max_sentences']}.\")\n    if \"must_include\" in rules:\n        lines.append(\"Mention: \" + \", \".join(rules[\"must_include\"]) + \".\")\n    if \"must_not_include\" in rules:\n        lines.append(\"Do not use: \" + \" \".join(rules[\"must_not_include\"]))\n    return \"\\n\".join(lines)\n\n\nprint(render_rules({\"max_words\": 15, \"must_include\": [\"tent\", \"zip\"]}))\nprint(\"---\")\nprint(render_rules({\"max_sentences\": 2}))\n```",
+      "en": "The full solution:\n\n```python\ndef render_rules(rules):\n    lines = []\n    if \"max_words\" in rules:\n        lines.append(f\"Words: at most {rules['max_words']}.\")\n    if \"max_sentences\" in rules:\n        lines.append(f\"Sentences: at most {rules['max_sentences']}.\")\n    if \"must_include\" in rules:\n        lines.append(\"Mention: \" + \", \".join(rules[\"must_include\"]) + \".\")\n    if \"must_not_include\" in rules:\n        lines.append(\"Do not use: \" + \" \".join(rules[\"must_not_include\"]))\n    return \"\\n\".join(lines)\n\n\nprint(render_rules({\"max_words\": 15, \"must_include\": [\"tent\", \"zip\"]}))\nprint(\"---\")\nprint(render_rules({\"max_sentences\": 2}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "render_rules",
+      "cases": [
+        {
+          "args": [
+            {
+              "max_words": 15,
+              "must_include": [
+                "tent",
+                "zip"
+              ]
+            }
+          ],
+          "returns": "Words: at most 15.\nMention: tent, zip."
+        },
+        {
+          "args": [
+            {
+              "max_sentences": 2
+            }
+          ],
+          "returns": "Sentences: at most 2."
+        },
+        {
+          "args": [
+            {
+              "max_words": 12,
+              "max_sentences": 1,
+              "must_include": [
+                "tent"
+              ],
+              "must_not_include": [
+                "!"
+              ]
+            }
+          ],
+          "returns": "Words: at most 12.\nSentences: at most 1.\nMention: tent.\nDo not use: !"
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Words: at most 15.\nMention: tent, zip.\n---\nSentences: at most 2."
+    }
+  ]
+}

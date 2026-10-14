@@ -1,0 +1,99 @@
+{
+  "id": "summary-gate",
+  "title": {
+    "tr": "Özeti kapıda denetle",
+    "en": "Check the summary at the gate"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "llm_client.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her yorum için bir `client.chat(messages, max_tokens=40)`; kullanıcı mesajı `wrap(\"review\", review)`.",
+      "en": "One `client.chat(messages, max_tokens=40)` per review; the user message is `wrap(\"review\", review)`."
+    },
+    {
+      "tr": "`failed = check(reply.text, RULES)`; boşsa cevap kabul.",
+      "en": "`failed = check(reply.text, RULES)`; if empty the answer is accepted."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport re\n\nfrom llm_client import ChatClient\n\nRULES = {\"max_words\": 12, \"max_sentences\": 1, \"must_include\": [\"tent\"]}\nSYSTEM = (\"Summarize the review between <review> tags. \"\n          \"Words: at most 12. Sentences: at most 1. Mention: tent.\")\nSCRIPT = [\"The tent is warm and quick to pitch.\",\n          \"A warm tent that is quick to pitch even in strong wind at night.\",\n          \"Warm and quick to pitch.\"]\nREVIEWS = [\"Warm tent, quick to pitch.\", \"Pitched it in a storm. Warm!\",\n           \"Quick to pitch, very warm inside.\"]\n\n\ndef wrap(tag, text):\n    clean = text.replace(\"&\", \"&amp;\")\n    clean = clean.replace(\"<\", \"&lt;\").replace(\">\", \"&gt;\")\n    return f\"<{tag}>\\n{clean}\\n</{tag}>\"\n\n\ndef check(text, rules):\n    failed = []\n    if len(text.split()) > rules[\"max_words\"]:\n        failed.append(\"max_words\")\n    sentences = [s for s in re.split(r\"[.!?]+\", text) if s.strip()]\n    if len(sentences) > rules[\"max_sentences\"]:\n        failed.append(\"max_sentences\")\n    if any(w.lower() not in text.lower() for w in rules[\"must_include\"]):\n        failed.append(\"must_include\")\n    return failed\n\n\ndef summarize(reviews):\n    client = ChatClient(SCRIPT)\n    accepted, failures = [], []\n    for review in reviews:\n        messages = [{\"role\": \"system\", \"content\": SYSTEM},\n                    {\"role\": \"user\", \"content\": wrap(\"review\", review)}]\n        reply = client.chat(messages, max_tokens=40)\n        failed = check(reply.text, RULES)\n        failures.append(failed)\n        if not failed:\n            accepted.append(reply.text)\n    return [accepted, failures]\n\n\naccepted, failures = summarize(REVIEWS)\nprint(len(accepted))\nfor failed in failures:\n    print(failed or \"ok\")\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport re\n\nfrom llm_client import ChatClient\n\nRULES = {\"max_words\": 12, \"max_sentences\": 1, \"must_include\": [\"tent\"]}\nSYSTEM = (\"Summarize the review between <review> tags. \"\n          \"Words: at most 12. Sentences: at most 1. Mention: tent.\")\nSCRIPT = [\"The tent is warm and quick to pitch.\",\n          \"A warm tent that is quick to pitch even in strong wind at night.\",\n          \"Warm and quick to pitch.\"]\nREVIEWS = [\"Warm tent, quick to pitch.\", \"Pitched it in a storm. Warm!\",\n           \"Quick to pitch, very warm inside.\"]\n\n\ndef wrap(tag, text):\n    clean = text.replace(\"&\", \"&amp;\")\n    clean = clean.replace(\"<\", \"&lt;\").replace(\">\", \"&gt;\")\n    return f\"<{tag}>\\n{clean}\\n</{tag}>\"\n\n\ndef check(text, rules):\n    failed = []\n    if len(text.split()) > rules[\"max_words\"]:\n        failed.append(\"max_words\")\n    sentences = [s for s in re.split(r\"[.!?]+\", text) if s.strip()]\n    if len(sentences) > rules[\"max_sentences\"]:\n        failed.append(\"max_sentences\")\n    if any(w.lower() not in text.lower() for w in rules[\"must_include\"]):\n        failed.append(\"must_include\")\n    return failed\n\n\ndef summarize(reviews):\n    client = ChatClient(SCRIPT)\n    accepted, failures = [], []\n    for review in reviews:\n        messages = [{\"role\": \"system\", \"content\": SYSTEM},\n                    {\"role\": \"user\", \"content\": wrap(\"review\", review)}]\n        reply = client.chat(messages, max_tokens=40)\n        failed = check(reply.text, RULES)\n        failures.append(failed)\n        if not failed:\n            accepted.append(reply.text)\n    return [accepted, failures]\n\n\naccepted, failures = summarize(REVIEWS)\nprint(len(accepted))\nfor failed in failures:\n    print(failed or \"ok\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "summarize",
+      "cases": [
+        {
+          "args": [
+            [
+              "Warm tent, quick to pitch.",
+              "Pitched it in a storm. Warm!",
+              "Quick to pitch, very warm inside."
+            ]
+          ],
+          "returns": [
+            [
+              "The tent is warm and quick to pitch."
+            ],
+            [
+              [],
+              [
+                "max_words"
+              ],
+              [
+                "must_include"
+              ]
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "Warm tent, quick to pitch."
+            ]
+          ],
+          "returns": [
+            [
+              "The tent is warm and quick to pitch."
+            ],
+            [
+              []
+            ]
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": [
+            [],
+            []
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\nok\n['max_words']\n['must_include']"
+    }
+  ]
+}
