@@ -220,9 +220,9 @@ def main() -> int:
     intro = IntroLink.launch(store.setting("theme", "dark"), store.setting("language", ""),
                              sound=celebration_sound.supported() and celebration_sound.enabled(store))
 
-    # `main_window` burada içe aktarılmıyor: QtWebEngine'i o zincir yüklüyor
-    # ve birkaç saniye sürüyor. Açılış ekranı tam o beklemeyi göstermek için
-    # var, dolayısıyla ondan **sonra** aktarılıyor.
+    # `main_window` burada içe aktarılmıyor: modüllerinin yüklenmesi zaman
+    # alıyor. Açılış ekranı o beklemeyi göstermek için var, dolayısıyla
+    # ondan **sonra** aktarılıyor.
 
     application = QApplication(sys.argv)
     application.setApplicationName("Odyssey")
@@ -255,6 +255,7 @@ def main() -> int:
         saved_language = system_language()
         store.set_setting("language", saved_language)
     language = LanguageManager(saved_language)
+    times.mark("qt")
 
     # Açılış ekranı, ağır kurulum başlamadan önce açılıyor: o kurulum bitene
     # kadar ekranda hiçbir belirti olmuyordu ve uygulama açılmamış gibi
@@ -275,9 +276,13 @@ def main() -> int:
         if splash is not None:
             splash.set_stage(language.t(key), value)
 
-    # Ağır kısım burada: bu satır QtWebEngine'i yüklüyor.
+    # Ana pencerenin modülleri. Tarayıcı bileşeni (QtWebEngine) artık burada
+    # yüklenmiyor: belge alanlı ekranlar pencere göründükten sonra kuruluyor
+    # (`MainWindow.start_deferred_warm_up`, 15 Ekim).
     stage("splash.stage_engine", 0.25)
     from app.ui.main_window import MainWindow
+
+    times.mark("moduller")
 
     stage("splash.stage_content", 0.55)
     window = MainWindow(language, theme, store)
@@ -342,6 +347,9 @@ def main() -> int:
     # Arama dizini açılışı geciktirmesin diye pencere göründükten sonra,
     # belirme geçişi bittiğinde arka planda kuruluyor.
     QTimer.singleShot(SEARCH_INDEX_DELAY_MS, window.start_search_index)
+    # Belge alanlı ekranlar (bölüm, Rotalar, Notlarım...) pencere göründükten
+    # sonra; önce tarayıcı bileşeninin dosyaları arka planda okunuyor.
+    QTimer.singleShot(0, lambda: window.start_deferred_warm_up(times))
 
     # Hoş geldiniz penceresi pencere göründükten sonra çıkıyor; boş ekranın önünde
     # açılan bir kutu, uygulamanın açılmadığı izlenimi veriyor.

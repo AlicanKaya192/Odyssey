@@ -15,6 +15,8 @@ Ekranlar:
 from __future__ import annotations
 
 import threading
+import time
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QEvent, QPoint, QThread, Qt, QTimer
 from PySide6.QtGui import QColor
@@ -58,13 +60,12 @@ from .search_palette import SearchPalette
 from ..core.search import SearchItem, build_index, plain
 from .profile_view import ProfileView
 from .rail import Rail, RailToggle
-from .release_view import ReleaseView
+from .release_view import ReleaseView, latest_version as latest_release
 from .roadmap_view import RoadmapView
 from .settings_dialog import SettingsDialog
 from .update_check import StarWorker, UpdateWorker
 from .update_notice import UpdateNoticeDialog
 from ..core import updates
-from .topic_view import TopicView
 from ..widgets.toast import ToastData, ToastManager
 from ..widgets.confetti import Confetti
 from ..resources.logos import logo_key
@@ -79,6 +80,10 @@ from ..core.celebration_sound import CelebrationSound
 from ..core import study_timer as timer_core
 from ..widgets.study_timer_ui import TimerChip, TimerPanel
 from ..widgets.fade_stack import FORWARD as _FORWARD
+
+if TYPE_CHECKING:
+    # Bölüm ekranı tarayıcı bileşenini yüklüyor; ilk gerektiğinde içe aktarılıyor.
+    from .topic_view import TopicView
 
 
 class Screen(QWidget):
@@ -96,6 +101,20 @@ class Screen(QWidget):
         if subbar is not None:
             layout.addWidget(subbar)
         layout.addWidget(body, 1)
+
+
+class _Slot(QWidget):
+    """Ekranın gövdesi; içindeki görünüm ilk gerektiğinde konuyor."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.setProperty("role", "bare")
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+    def fill(self, view: QWidget) -> None:
+        self.layout().addWidget(view)
 
 
 # Discord'da bölüm dışındaki ekranların alt satırı (üst satır ekranın adı,
@@ -333,42 +352,40 @@ class MainWindow(QMainWindow):
         # başlığın altındaki seçiciyle değişiyor, Hakkında'daki sekmeler gibi.
         # Seçiciler sağ üstteydi; Alican bölüm sekmeleri gibi başlığın
         # altında istedi (29 Eylül). Sağ üstte yalnızca bölümün "Not al"ı kaldı.
-        self._roadmap = RoadmapView(self._catalog, self._language, self._store)
-        self._roadmap.track_opened.connect(self._open_track)
-        self._roadmap.section_opened.connect(self._open_section)
+        #
+        # Rotalar, Notlarım, Hakkında ve Sürüm Notları belge alanı (Chromium)
+        # taşıyor ve açılışta görünmüyor. Gövdeleri boş bir yuva; görünüm ilk
+        # gerektiğinde kuruluyor (`_view`). Açılışta kurulduklarında
+        # bilgisayar yeni açılmışken ana pencere 15 sn'yi geçiyordu (15 Ekim,
+        # günlük); pencere göründükten sonra `start_deferred_warm_up` kuruyor.
+        self._views: dict[str, QWidget] = {}
+        # Ekranın kurulduğu an (`time.monotonic`), açılış günlüğü için.
+        self._built_at: dict[str, float] = {}
+        self._engine_prefetch = None
+        self._slots = {key: _Slot() for key in ("roadmap", "notes", "about", "releases")}
         self._roadmap_header = ScreenHeader(self._language)
         self._roadmap_segments = SegmentedControl()
-        self._roadmap_segments.set_items(self._roadmap.route_labels())
-        self._roadmap_segments.set_current(self._roadmap.route_index, notify=False)
-        self._roadmap_segments.changed.connect(self._roadmap.show_index)
         # Rota değişince Discord'daki "Rota: ..." satırı da.
         self._roadmap_segments.changed.connect(lambda _: self._refresh_presence())
         self._roadmap_screen = Screen(
-            self._roadmap_header, self._roadmap, _subbar(self._roadmap_segments)
+            self._roadmap_header, self._slots["roadmap"], _subbar(self._roadmap_segments)
         )
 
         # Notlarım
-        self._notebook = NotebookView(self._catalog, self._language, self._store)
-        self._notebook.open_section.connect(self._open_section)
-        self._notebook.changed.connect(self._refresh_progress)
         self._notebook_header = ScreenHeader(self._language)
-        self._notebook_screen = Screen(self._notebook_header, self._notebook)
+        self._notebook_screen = Screen(self._notebook_header, self._slots["notes"])
 
         # Hakkında: Bilgi, SSS, Bağlantılarım, Ekstra İçerikler ve Lisans
         # tek ekranda, başlıktaki sekmelerle.
-        self._about = AboutView(self._language)
         self._about_header = ScreenHeader(self._language)
         self._about_segments = SegmentedControl()
-        self._about_segments.changed.connect(self._about.show_index)
-        self._about.section_changed.connect(lambda _: self._update_headers())
         self._about_screen = Screen(
-            self._about_header, self._about, _subbar(self._about_segments)
+            self._about_header, self._slots["about"], _subbar(self._about_segments)
         )
 
         # Sürüm notları
-        self._releases = ReleaseView(self._language)
         self._releases_header = ScreenHeader(self._language)
-        self._releases_screen = Screen(self._releases_header, self._releases)
+        self._releases_screen = Screen(self._releases_header, self._slots["releases"])
 
         for widget in (
             self._journey_screen,
@@ -393,9 +410,12 @@ class MainWindow(QMainWindow):
         """
         if self._topic_view is None:
             self._topic_view = self._build_topic()
+            self._built_at["topic"] = time.monotonic()
         return self._topic_view
 
     def _build_topic(self) -> TopicView:
+        from .topic_view import TopicView
+
         topic = TopicView(self._catalog, self._language, self._store)
         topic.back_requested.connect(self._topic_back)
         topic.focus_mode_requested.connect(self.toggle_focus_mode)
@@ -411,6 +431,66 @@ class MainWindow(QMainWindow):
         topic.retranslate()
         self._stack.insertWidget(1, topic)
         return topic
+
+    @property
+    def _roadmap(self) -> RoadmapView:
+        return self._view("roadmap")
+
+    @property
+    def _notebook(self) -> NotebookView:
+        return self._view("notes")
+
+    @property
+    def _about(self) -> AboutView:
+        return self._view("about")
+
+    @property
+    def _releases(self) -> ReleaseView:
+        return self._view("releases")
+
+    def _view(self, key: str):
+        """Belge alanlı ekranın görünümü; ilk gerektiğinde kuruluyor.
+
+        Açılış yolundaki tema, dil ve kapanış çağrıları kurulmamış
+        görünümü atlıyor (`self._views`); kurulan, o anki tema ve dille
+        başlıyor.
+        """
+        view = self._views.get(key)
+        if view is None:
+            builders = {
+                "roadmap": self._build_roadmap,
+                "notes": self._build_notebook,
+                "about": self._build_about,
+                "releases": lambda: ReleaseView(self._language),
+            }
+            view = builders[key]()
+            view.set_mode(self._theme.effective_mode)
+            self._slots[key].fill(view)
+            self._views[key] = view
+            self._built_at[key] = time.monotonic()
+            self._update_headers()
+        return view
+
+    def _build_roadmap(self) -> RoadmapView:
+        roadmap = RoadmapView(self._catalog, self._language, self._store)
+        roadmap.track_opened.connect(self._open_track)
+        roadmap.section_opened.connect(self._open_section)
+        self._roadmap_segments.set_items(roadmap.route_labels())
+        self._roadmap_segments.set_current(roadmap.route_index, notify=False)
+        self._roadmap_segments.changed.connect(roadmap.show_index)
+        return roadmap
+
+    def _build_notebook(self) -> NotebookView:
+        notebook = NotebookView(self._catalog, self._language, self._store)
+        notebook.open_section.connect(self._open_section)
+        notebook.changed.connect(self._refresh_progress)
+        return notebook
+
+    def _build_about(self) -> AboutView:
+        about = AboutView(self._language)
+        self._about_segments.changed.connect(about.show_index)
+        about.section_changed.connect(lambda _: self._update_headers())
+        return about
 
     def warm_up(self) -> None:
         """Bütün ekranları bir kez çizdirir.
@@ -433,42 +513,116 @@ class MainWindow(QMainWindow):
         for _ in self.warm_up_steps():
             pass
 
+    # Belge alanlı ekranlar, kurulma sırasıyla: en sık girilen bölüm ekranı önce.
+    WEB_SCREENS = ("topic", "roadmap", "notes", "about", "releases")
+
     def warm_up_steps(self):
         """Görünen ekran dışındakileri birer adımda çizdirir (üreteç).
 
         Açılış animasyonu varken açık ekran çizilince `ready` gidiyor ve bu
         adımlar animasyonun son geçişi sırasında atılıyor (pencere hâlâ
         görünmez); hepsi önceden yapılınca ana pencere animasyondan ~0,3 sn
-        geç hazır oluyordu (14 Ekim, ölçüldü). Bölüm ekranı da burada
-        kuruluyor (`_topic`). Yarıda bırakılırsa (`close`) açık ekran yerine
-        konuyor; kurulmamış ekranlar ilk gerektiğinde kuruluyor.
+        geç hazır oluyordu (14 Ekim, ölçüldü). Yarıda bırakılırsa (`close`)
+        açık ekran yerine konuyor.
+
+        Belge alanlı ekranlar (bölüm, Rotalar, Notlarım, Hakkında, Sürüm
+        Notları) Chromium'u yüklüyor; bilgisayar yeni açılmışken pencere
+        onlar yüzünden 15 sn'yi geçiyordu (15 Ekim, günlük). Önce tarayıcı
+        bileşeninin dosyaları arka planda okunuyor; okuma animasyon bitmeden
+        biterse (dosyalar zaten bellekteyse) ekranlar burada, görünmez
+        pencerede kurulup çiziliyor. Bitmezse pencere beklemiyor; kalanları
+        pencere göründükten sonra `start_deferred_warm_up` kuruyor.
         """
         from PySide6.QtWidgets import QApplication
 
+        self.start_engine_prefetch()
         onceki = self._stack.currentWidget()
         try:
-            # Konu ekranı kendi içinde birden fazla belge alanı taşıyor ve
-            # açılıştan sonra en sık girilen yer; önce o kuruluyor, sonra
-            # çiziliyor.
-            topic = self._topic
-            yield
-            self._stack.setCurrentWidget(topic)
-            topic.warm_up()
-            yield
             for index in range(self._stack.count()):
-                if self._stack.widget(index) in (onceki, self._topic_view):
+                if self._stack.widget(index) is onceki:
                     continue
                 self._stack.setCurrentIndex(index)
                 QApplication.processEvents()
                 yield
-            # Notlarım'ın okuma alanı açılışta boş ekranın arkasında duruyor;
-            # ilk not seçilince siyah kare görünmesin.
-            self._stack.setCurrentWidget(self._notebook_screen)
-            self._notebook.warm_up()
+            while not self._engine_prefetch.done:
+                self._engine_prefetch.wait(0.01)
+                yield
+            for key in self.WEB_SCREENS:
+                self._build_web(key)
+                yield
+                # Her belge alanı ilk gösterildiğinde yüzeyi oluşana kadar
+                # siyah kalıyor; o ilk çizim kullanıcı görmeden yapılıyor.
+                self._stack.setCurrentWidget(self._web_screen(key))
+                if key == "topic":
+                    self._topic_view.warm_up()
+                elif key == "notes":
+                    self._notebook.warm_up()
+                else:
+                    QApplication.processEvents()
+                yield
         finally:
             if onceki is not None:
                 self._stack.setCurrentWidget(onceki)
             QApplication.processEvents()
+
+    def start_engine_prefetch(self) -> None:
+        """Tarayıcı bileşeninin dosyalarını arka planda okumaya başlar.
+
+        Kurulum dosyaları bellekte bulsun; okuma süresince arayüz donmuyor
+        (`engine_prefetch`).
+        """
+        if self._engine_prefetch is None:
+            from ..core import engine_prefetch
+
+            self._engine_prefetch = engine_prefetch.Prefetch()
+
+    def _build_web(self, key: str) -> QWidget:
+        return self._topic if key == "topic" else self._view(key)
+
+    def _web_screen(self, key: str) -> QWidget:
+        screens = {
+            "topic": self._topic_view,
+            "roadmap": self._roadmap_screen,
+            "notes": self._notebook_screen,
+            "about": self._about_screen,
+            "releases": self._releases_screen,
+        }
+        return screens[key]
+
+    def start_deferred_warm_up(self, times=None) -> None:
+        """Pencere göründükten sonra kurulmamış belge alanlı ekranları kurar.
+
+        Dosyaların okunması bitince her olay turunda bir ekran. Kişi bu
+        arada bir ekrana tıklarsa o ekran hemen kuruluyor (`_view`,
+        `_topic`). `times` verilirse hepsi bitince süreler günlüğe yazılıyor.
+        """
+        self.start_engine_prefetch()
+        pending = iter(self.WEB_SCREENS)
+
+        def next_step() -> None:
+            if self._shutting_down:
+                return
+            if not self._engine_prefetch.done:
+                QTimer.singleShot(100, next_step)
+                return
+            for key in pending:
+                if key not in self._built_at:
+                    self._build_web(key)
+                    QTimer.singleShot(0, next_step)
+                    return
+            if times is not None:
+                self._log_warm_up(times)
+
+        next_step()
+
+    def _log_warm_up(self, times) -> None:
+        from ..core import log
+
+        if self._engine_prefetch.finished_at is not None:
+            times.mark("on_okuma", self._engine_prefetch.finished_at)
+        for key, at in self._built_at.items():
+            times.mark(key, at)
+        log.get("odyssey").info("Arka plan hazırlığı (sn, süreç başlangıcından): %s", times.summary())
 
     def start_update_check(self) -> None:
         """Açılışta yeni sürüm var mı diye bakar.
@@ -734,7 +888,7 @@ class MainWindow(QMainWindow):
         Nokta süs değil: `CHANGELOG.md`'deki en yeni sürüm, kullanıcının en
         son baktığı sürümden farklıysa çıkıyor.
         """
-        latest = self._releases.latest_version()
+        latest = latest_release(self._language)
         seen = self._store.setting("seen_version", "")
         self._rail.set_notification("releases", bool(latest) and latest != seen)
 
@@ -1315,7 +1469,8 @@ class MainWindow(QMainWindow):
         self._roadmap_header.set_titles(
             self._language.t("nav.roadmap"), self._language.t("app.title")
         )
-        self._roadmap_segments.set_labels(self._roadmap.route_labels())
+        if "roadmap" in self._views:
+            self._roadmap_segments.set_labels(self._roadmap.route_labels())
         # Başlıkta ekranın adı sabit; hangi sekmede olduğumuzu sağdaki
         # seçici zaten gösteriyor.
         self._about_header.set_titles(
@@ -1327,7 +1482,8 @@ class MainWindow(QMainWindow):
         self._about_segments.set_labels(
             [self._language.t(f"nav.{name}") for name in ABOUT_SECTIONS]
         )
-        self._about_segments.set_current(self._about.section_index, notify=False)
+        if "about" in self._views:
+            self._about_segments.set_current(self._about.section_index, notify=False)
         self._apply_header_accents(self._theme.effective_mode)
         self._releases_header.set_titles(
             self._language.t("release.title"), self._language.t("app.title")
@@ -1424,15 +1580,13 @@ class MainWindow(QMainWindow):
         self._journey_header.set_mode(mode)
         if self._topic_view is not None:
             self._topic_view.set_mode(mode)
-        self._roadmap.set_mode(mode)
+        for view in self._views.values():
+            view.set_mode(mode)
         self._roadmap_header.set_mode(mode)
-        self._notebook.set_mode(mode)
         self._notebook_header.set_mode(mode)
         self._profile.set_mode(mode)
         self._profile_header.set_mode(mode)
-        self._about.set_mode(mode)
         self._about_header.set_mode(mode)
-        self._releases.set_mode(mode)
         self._releases_header.set_mode(mode)
         self._footer.set_mode(mode)
         self._toasts.set_mode(mode)
@@ -1451,11 +1605,9 @@ class MainWindow(QMainWindow):
         self._journey.retranslate()
         if self._topic_view is not None:
             self._topic_view.retranslate()
-        self._roadmap.retranslate()
-        self._notebook.retranslate()
+        for view in self._views.values():
+            view.retranslate()
         self._profile.retranslate()
-        self._about.retranslate()
-        self._releases.retranslate()
         self._search.retranslate()
         self._shortcut_panel.retranslate()
         self._timer_panel.retranslate()
@@ -1639,7 +1791,8 @@ class MainWindow(QMainWindow):
 
         # Notta yazılıp henüz kaydedilmemiş son harfler (Notlarım ve
         # bölümdeki not paneli).
-        self._notebook.flush()
+        if "notes" in self._views:
+            self._notebook.flush()
         if self._topic_view is not None:
             self._topic_view.flush_note()
             # Sınavın ortasında kapatıldıysa o ana kadarki cevaplar geçmişe.

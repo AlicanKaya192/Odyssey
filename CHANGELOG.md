@@ -29,6 +29,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   sisteme dönüştürmeye kadar. **CI/CD ve DevOps** ile **MLOps ve ML Sistem
   Tasarımı** modülleri yazılıyor.
 
+### Düzeltildi
+- **Bilgisayar yeni açıldığında program daha hızlı açılıyor.** Program
+  bir süredir kullanılmadıysa açılış animasyonu "Hazırlanıyor" yazısında
+  15 saniyeyi aşan bir süre bekleyebiliyordu. Ders, not ve sürüm notu
+  sayfalarını gösteren bileşen artık program açıldıktan sonra arka planda
+  hazırlanıyor; pencere onu beklemiyor.
+
 ## [1.1.0] — 14 Ekim 2026
 
 ### Eklendi

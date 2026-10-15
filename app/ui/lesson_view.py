@@ -22,9 +22,8 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ..core import math_text
 from ..core.language import LanguageManager
+from ..core.lesson_markdown import MARKDOWN_EXTENSIONS
 from ..widgets.document_view import DocumentView
-
-MARKDOWN_EXTENSIONS = ["fenced_code", "tables", "sane_lists", "toc"]
 
 # Metnin altındaki hazır HTML'in (ipucu kutusu) kapsayıcısı; yerinde
 # değiştirilirken bu kimlikle bulunuyor.

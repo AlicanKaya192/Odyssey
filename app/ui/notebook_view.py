@@ -64,7 +64,6 @@ from ..core.user_notes import (
 )
 from ..resources.icons import icon
 from ..resources.theme.tokens import RAIL_COLORS, PALETTES, READING_WIDTH, SPACING
-from ..widgets.document_view import DocumentView
 from ..widgets.note_editor import NoteEditor
 from ..widgets.note_toolbar import NoteToolbar
 from . import titlebar
@@ -391,6 +390,10 @@ class NotebookView(QWidget):
         self._empty = EmptyState()
         self._empty.action.connect(self.new_note)
         self._pages.addWidget(self._empty)
+
+        # Tarayıcı bileşeni burada yükleniyor, modülün başında değil: ana
+        # pencere bu ekranı ilk gerektiğinde kuruyor (açılış, 15 Ekim).
+        from ..widgets.document_view import DocumentView
 
         self._reader = DocumentView()
         self._pages.addWidget(self._reader)

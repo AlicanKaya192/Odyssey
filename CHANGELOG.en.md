@@ -31,6 +31,13 @@ lecture note does not mean downloading the whole application again.
   reliable system. The **CI/CD and DevOps** and **MLOps and ML System
   Design** modules are being written.
 
+### Fixed
+- **Odyssey opens faster right after the computer starts.** When the
+  application had not been used for a while, the start-up animation could
+  wait on "Preparing" for more than 15 seconds. The component that shows
+  lessons, notes and release notes is now prepared in the background after
+  Odyssey opens; the window no longer waits for it.
+
 ## [1.1.0] — 14 October 2026
 
 ### Added

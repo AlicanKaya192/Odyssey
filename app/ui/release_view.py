@@ -26,7 +26,6 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ..core.language import LanguageManager
 from ..paths import install_root
-from ..widgets.document_view import DocumentView
 
 # Sürüm başlığı iki şart taşıyor:
 #   `(?!#)`  — `### Eklendi` gibi alt başlıklar sürüm sanılmasın.
@@ -136,6 +135,28 @@ def parse_changelog(path: Path) -> list[Release]:
     return releases
 
 
+def changelog_path(language: LanguageManager) -> Path:
+    """Seçili dilin sürüm notu dosyası.
+
+    İngilizcesi yoksa Türkçesine düşer; sürüm notu boş kalmasın.
+    """
+    if language.language != "tr":
+        wanted = install_root() / f"CHANGELOG.{language.language}.md"
+        if wanted.exists():
+            return wanted
+    return install_root() / "CHANGELOG.md"
+
+
+def latest_version(language: LanguageManager) -> str:
+    """En yeni sürüm numarası; şeritteki bildirim noktası buna bakıyor.
+
+    Ekran kurulmadan okunabiliyor: açılışta Sürüm Notları ekranı (tarayıcı
+    bileşeni) kurulmuyor.
+    """
+    releases = parse_changelog(changelog_path(language))
+    return releases[0].version if releases else ""
+
+
 class ReleaseView(QWidget):
     """Sürüm notlarının listelendiği ekran."""
 
@@ -148,6 +169,10 @@ class ReleaseView(QWidget):
 
         self._page = 0
 
+        # Tarayıcı bileşeni burada yükleniyor, modülün başında değil: ana
+        # pencere bu ekranı ilk gerektiğinde kuruyor (açılış, 15 Ekim).
+        from ..widgets.document_view import DocumentView
+
         self._document = DocumentView(self)
         self._document.action.connect(self._on_action)
         layout.addWidget(self._document)
@@ -155,20 +180,10 @@ class ReleaseView(QWidget):
         self.refresh()
 
     def _changelog_path(self) -> Path:
-        """Seçili dilin sürüm notu dosyası.
-
-        İngilizcesi yoksa Türkçesine düşer; sürüm notu boş kalmasın.
-        """
-        if self._language.language != "tr":
-            wanted = install_root() / f"CHANGELOG.{self._language.language}.md"
-            if wanted.exists():
-                return wanted
-        return install_root() / "CHANGELOG.md"
+        return changelog_path(self._language)
 
     def latest_version(self) -> str:
-        """En yeni sürüm numarası; bildirim noktası buna bakıyor."""
-        releases = parse_changelog(self._changelog_path())
-        return releases[0].version if releases else ""
+        return latest_version(self._language)
 
     def _on_action(self, action: str) -> None:
         """Sayfa değiştirme bağlantıları."""

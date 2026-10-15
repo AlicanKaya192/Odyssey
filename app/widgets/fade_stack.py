@@ -29,10 +29,7 @@ from PySide6.QtCore import QPoint, QPointF, Qt
 from PySide6.QtGui import QColor, QPainter, QPixmap, QRegion
 from PySide6.QtWidgets import QStackedWidget, QWidget
 
-try:  # Belge alanları; yoksa (test ortamı) hiçbir sayfa tarayıcı içermiyor sayılır.
-    from PySide6.QtWebEngineWidgets import QWebEngineView
-except ImportError:  # pragma: no cover
-    QWebEngineView = None
+import sys
 
 from ..resources.theme.motion import DISTANCE, DURATION, in_cubic, out_cubic, spring
 from . import motion
@@ -209,8 +206,13 @@ class FadeStack(QStackedWidget):
 
     @staticmethod
     def _has_web(widget: QWidget) -> bool:
-        if QWebEngineView is None:
+        # Tarayıcı bileşeni burada içe aktarılmıyor: açılışta 203 MB'lık
+        # DLL'i yüklüyordu (15 Ekim). Henüz yüklenmediyse hiçbir sayfada
+        # belge alanı yok demektir.
+        module = sys.modules.get("PySide6.QtWebEngineWidgets")
+        if module is None:
             return False
+        QWebEngineView = module.QWebEngineView  # noqa: N806 (Qt sınıf adı)
         if isinstance(widget, QWebEngineView):
             return True
         return any(v.isVisibleTo(widget) for v in widget.findChildren(QWebEngineView))

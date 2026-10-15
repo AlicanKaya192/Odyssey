@@ -30,7 +30,6 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ..core.language import LanguageManager
 from ..paths import content_dir, install_root
-from ..widgets.document_view import DocumentView
 
 # Sekmelerin sırası. Önce uygulamanın kendisi — ne olduğu, sık sorulanlar,
 # hangi lisansla dağıtıldığı — sonra benimle ilgili olanlar: bağlantılarım
@@ -77,6 +76,10 @@ class AboutView(QWidget):
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+
+        # Tarayıcı bileşeni burada yükleniyor, modülün başında değil: ana
+        # pencere bu ekranı ilk gerektiğinde kuruyor (açılış, 15 Ekim).
+        from ..widgets.document_view import DocumentView
 
         self._document = DocumentView(self)
         self._document.action.connect(self._on_action)

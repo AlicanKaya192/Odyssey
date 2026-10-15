@@ -134,7 +134,7 @@ def heading_ids(source: str) -> list[str]:
     """
     import markdown
 
-    from ..ui.lesson_view import MARKDOWN_EXTENSIONS
+    from .lesson_markdown import MARKDOWN_EXTENSIONS
 
     satirlar = []
     kodda = False

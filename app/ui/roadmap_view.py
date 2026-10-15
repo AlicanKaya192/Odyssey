@@ -35,7 +35,6 @@ from ..core.progress import ProgressStore
 from ..core.unlock import is_unlocked
 from ..paths import content_dir
 from ..resources.logos import logo_key, logo_svg
-from ..widgets.document_view import DocumentView
 
 # Seçilen rota hatırlanıyor; ekrana her dönüşte baştan seçtirmek gereksiz.
 ROUTE_SETTING = "roadmap_route"
@@ -88,6 +87,10 @@ class RoadmapView(QWidget):
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+
+        # Tarayıcı bileşeni burada yükleniyor, modülün başında değil: ana
+        # pencere bu ekranı ilk gerektiğinde kuruyor (açılış, 15 Ekim).
+        from ..widgets.document_view import DocumentView
 
         self._document = DocumentView(self)
         self._document.action.connect(self._on_action)
