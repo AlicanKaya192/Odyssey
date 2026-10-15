@@ -1,0 +1,80 @@
+{
+  "id": "debug-ready",
+  "title": {
+    "tr": "Hata Ayıklamaya Hazır Hat",
+    "en": "A Pipeline Ready for Debugging"
+  },
+  "difficulty": 1,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "pyproject.toml",
+      "readonly": true
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "shop.py",
+      "readonly": true
+    },
+    {
+      "name": "tests/test_shop.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`timeout-minutes` işin bir anahtarı: `runs-on` ile aynı hizada.",
+      "en": "`timeout-minutes` is a key of the job: at the same level as `runs-on`."
+    },
+    {
+      "tr": "Yükleme adımında `if: failure()` ve `with:` altında `name` ile `path`.",
+      "en": "On the upload step, `if: failure()` and `name` and `path` under `with:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q --junitxml=report.xml\n      - uses: actions/upload-artifact@v4\n        if: failure()\n        with:\n          name: test-report\n          path: report.xml\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q --junitxml=report.xml\n      - uses: actions/upload-artifact@v4\n        if: failure()\n        with:\n          name: test-report\n          path: report.xml\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "keys": {
+        "jobs.test.timeout-minutes": "^15$"
+      },
+      "show_keys": {
+        "jobs.test.timeout-minutes": "timeout-minutes: 15"
+      },
+      "steps": [
+        {
+          "run": "pytest .*--junitxml=report\\.xml",
+          "show": "run: python -m pytest -q --junitxml=report.xml"
+        },
+        {
+          "uses": "^actions/upload-artifact@",
+          "if": "failure\\(\\)",
+          "with": {
+            "name": "^test-report$",
+            "path": "^report\\.xml$"
+          },
+          "show": "uses: actions/upload-artifact@v4 (if: failure(), name: test-report, path: report.xml)"
+        }
+      ]
+    }
+  ]
+}

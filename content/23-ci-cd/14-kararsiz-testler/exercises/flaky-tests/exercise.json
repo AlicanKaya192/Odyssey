@@ -1,0 +1,119 @@
+{
+  "id": "flaky-tests",
+  "title": {
+    "tr": "Kararsız Testleri Bul",
+    "en": "Find the Flaky Tests"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`results.setdefault((commit, test), set()).add(result)` her çift için bir küme kurar.",
+      "en": "`results.setdefault((commit, test), set()).add(result)` builds a set for each pair."
+    },
+    {
+      "tr": "Kümede hem `\"pass\"` hem `\"fail\"` varsa testi ekle; sonda `sorted(...)`.",
+      "en": "If the set has both `\"pass\"` and `\"fail\"`, add the test; `sorted(...)` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef flaky_tests(runs):\n    results = {}\n    for commit, test, result in runs:\n        results.setdefault((commit, test), set()).add(result)\n    flaky = set()\n    for (commit, test), seen in results.items():\n        if \"pass\" in seen and \"fail\" in seen:\n            flaky.add(test)\n    return sorted(flaky)\n\n\nruns = [\n    [\"a1f\", \"test_login\", \"pass\"],\n    [\"a1f\", \"test_cart\", \"pass\"],\n    [\"a1f\", \"test_login\", \"fail\"],\n    [\"b2e\", \"test_cart\", \"fail\"],\n    [\"b2e\", \"test_report\", \"pass\"],\n    [\"c3d\", \"test_cart\", \"pass\"],\n    [\"b2e\", \"test_report\", \"fail\"],\n]\nprint(flaky_tests(runs))\nprint(flaky_tests(runs[:2]))\n```",
+      "en": "The full solution:\n\n```python\ndef flaky_tests(runs):\n    results = {}\n    for commit, test, result in runs:\n        results.setdefault((commit, test), set()).add(result)\n    flaky = set()\n    for (commit, test), seen in results.items():\n        if \"pass\" in seen and \"fail\" in seen:\n            flaky.add(test)\n    return sorted(flaky)\n\n\nruns = [\n    [\"a1f\", \"test_login\", \"pass\"],\n    [\"a1f\", \"test_cart\", \"pass\"],\n    [\"a1f\", \"test_login\", \"fail\"],\n    [\"b2e\", \"test_cart\", \"fail\"],\n    [\"b2e\", \"test_report\", \"pass\"],\n    [\"c3d\", \"test_cart\", \"pass\"],\n    [\"b2e\", \"test_report\", \"fail\"],\n]\nprint(flaky_tests(runs))\nprint(flaky_tests(runs[:2]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "flaky_tests",
+      "cases": [
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "c",
+                "t",
+                "pass"
+              ],
+              [
+                "d",
+                "t",
+                "fail"
+              ]
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "c",
+                "t",
+                "fail"
+              ],
+              [
+                "c",
+                "t",
+                "pass"
+              ],
+              [
+                "c",
+                "t",
+                "pass"
+              ]
+            ]
+          ],
+          "returns": [
+            "t"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "c",
+                "b",
+                "pass"
+              ],
+              [
+                "c",
+                "a",
+                "fail"
+              ],
+              [
+                "c",
+                "b",
+                "fail"
+              ],
+              [
+                "c",
+                "a",
+                "pass"
+              ]
+            ]
+          ],
+          "returns": [
+            "a",
+            "b"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['test_login', 'test_report']\n[]"
+    }
+  ]
+}

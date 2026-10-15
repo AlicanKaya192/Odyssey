@@ -1,0 +1,74 @@
+{
+  "id": "reruns-needed",
+  "title": {
+    "tr": "Kaç Çalıştırmada Yakalanır?",
+    "en": "How Many Runs to Catch It?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `if rate <= 0: return None`; sonra `runs = 1`.",
+      "en": "First `if rate <= 0: return None`; then `runs = 1`."
+    },
+    {
+      "tr": "`while 1 - (1 - rate) ** runs < confidence: runs += 1`.",
+      "en": "`while 1 - (1 - rate) ** runs < confidence: runs += 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef reruns_needed(rate, confidence=0.95):\n    if rate <= 0:\n        return None\n    runs = 1\n    while 1 - (1 - rate) ** runs < confidence:\n        runs += 1\n    return runs\n\n\nfor rate in [0.5, 0.1, 0.02]:\n    print(rate, reruns_needed(rate))\nprint(0.1, reruns_needed(0.1, 0.99))\nprint(0.0, reruns_needed(0.0))\n```",
+      "en": "The full solution:\n\n```python\ndef reruns_needed(rate, confidence=0.95):\n    if rate <= 0:\n        return None\n    runs = 1\n    while 1 - (1 - rate) ** runs < confidence:\n        runs += 1\n    return runs\n\n\nfor rate in [0.5, 0.1, 0.02]:\n    print(rate, reruns_needed(rate))\nprint(0.1, reruns_needed(0.1, 0.99))\nprint(0.0, reruns_needed(0.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "reruns_needed",
+      "cases": [
+        {
+          "args": [
+            1.0
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            0.5,
+            0.75
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            0.3
+          ],
+          "returns": 9
+        },
+        {
+          "args": [
+            -0.1
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            0.05,
+            0.5
+          ],
+          "returns": 14
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.5 5\n0.1 29\n0.02 149\n0.1 44\n0.0 None"
+    }
+  ]
+}
