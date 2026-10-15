@@ -1,0 +1,88 @@
+{
+  "id": "parse-title",
+  "title": {
+    "tr": "PR Başlığını Çöz",
+    "en": "Parse the PR Title"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İfade: `^(feat|fix|docs|test|chore)(\\(([a-z-]+)\\))?(!)?: (\\S.*)$`; beş grup var.",
+      "en": "The expression: `^(feat|fix|docs|test|chore)(\\(([a-z-]+)\\))?(!)?: (\\S.*)$`; there are five groups."
+    },
+    {
+      "tr": "`kind, _, scope, bang, summary = match.groups()`; uyumsuz `bang == \"!\"`.",
+      "en": "`kind, _, scope, bang, summary = match.groups()`; breaking is `bang == \"!\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nPATTERN = re.compile(r\"^(feat|fix|docs|test|chore)(\\(([a-z-]+)\\))?(!)?: (\\S.*)$\")\n\n\ndef parse_title(title):\n    match = PATTERN.match(title)\n    if match is None:\n        return None\n    kind, _, scope, bang, summary = match.groups()\n    return [kind, scope, bang == \"!\", summary]\n\n\ntitles = [\n    \"feat(login): remember me\",\n    \"fix!: drop the old api\",\n    \"docs: explain the setup\",\n    \"Fix login bug\",\n    \"chore(deps):bump pytest\",\n]\nfor title in titles:\n    print(parse_title(title))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nPATTERN = re.compile(r\"^(feat|fix|docs|test|chore)(\\(([a-z-]+)\\))?(!)?: (\\S.*)$\")\n\n\ndef parse_title(title):\n    match = PATTERN.match(title)\n    if match is None:\n        return None\n    kind, _, scope, bang, summary = match.groups()\n    return [kind, scope, bang == \"!\", summary]\n\n\ntitles = [\n    \"feat(login): remember me\",\n    \"fix!: drop the old api\",\n    \"docs: explain the setup\",\n    \"Fix login bug\",\n    \"chore(deps):bump pytest\",\n]\nfor title in titles:\n    print(parse_title(title))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_title",
+      "cases": [
+        {
+          "args": [
+            "test: add cases"
+          ],
+          "returns": [
+            "test",
+            null,
+            false,
+            "add cases"
+          ]
+        },
+        {
+          "args": [
+            "feat(api-v2)!: new routes"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "fix(API): upper"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "chore:  two spaces"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "docs(readme): fix typo"
+          ],
+          "returns": [
+            "docs",
+            "readme",
+            false,
+            "fix typo"
+          ]
+        },
+        {
+          "args": [
+            "feat!:"
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['feat', 'login', False, 'remember me']\n['fix', None, True, 'drop the old api']\n['docs', None, False, 'explain the setup']\nNone\nNone"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "pr-triggers",
+  "title": {
+    "tr": "PR'da ve Kuyrukta Çalıştır",
+    "en": "Run in PRs and in the Queue"
+  },
+  "difficulty": 1,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "scripts/check_title.py",
+      "readonly": true
+    },
+    {
+      "name": "app.py",
+      "readonly": true
+    },
+    {
+      "name": "tests/test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`on:` altında `push:` ile aynı hizada `pull_request:` ve onun altında `branches: [main]`.",
+      "en": "Under `on:`, at the same level as `push:`, `pull_request:` with `branches: [main]` under it."
+    },
+    {
+      "tr": "`merge_group:` ayarsız yazılır: iki noktadan sonra hiçbir şey yok.",
+      "en": "`merge_group:` is written without settings: nothing after the colon."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n  merge_group:\n\npermissions:\n  contents: read\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: python -m pip install ruff\n      - run: python -m ruff check .\n  test:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        python: [\"3.12\", \"3.13\"]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python }}\n      - run: python -m pip install pytest\n      - run: python -m pytest -q\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n  merge_group:\n\npermissions:\n  contents: read\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: python -m pip install ruff\n      - run: python -m ruff check .\n  test:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        python: [\"3.12\", \"3.13\"]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python }}\n      - run: python -m pip install pytest\n      - run: python -m pytest -q\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "on": [
+        "push",
+        "pull_request",
+        "merge_group"
+      ],
+      "branches": {
+        "push": [
+          "main"
+        ],
+        "pull_request": [
+          "main"
+        ]
+      }
+    }
+  ]
+}

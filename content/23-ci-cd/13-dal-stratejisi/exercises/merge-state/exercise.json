@@ -1,0 +1,132 @@
+{
+  "id": "merge-state",
+  "title": {
+    "tr": "PR Birleşebilir mi?",
+    "en": "Can the PR Merge?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`latest = {}` ve `for name, status in runs: latest[name] = status`; sonraki sonuç öncekinin üstüne yazılır.",
+      "en": "`latest = {}` and `for name, status in runs: latest[name] = status`; a later result overwrites the earlier one."
+    },
+    {
+      "tr": "İki ayrı döngü: önce `failure` ara, sonra `latest.get(name) not in (\"success\", \"skipped\")`.",
+      "en": "Two separate loops: look for `failure` first, then `latest.get(name) not in (\"success\", \"skipped\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef merge_state(required, runs):\n    latest = {}\n    for name, status in runs:\n        latest[name] = status\n    for name in required:\n        if latest.get(name) == \"failure\":\n            return f\"blocked by {name}\"\n    for name in required:\n        if latest.get(name) not in (\"success\", \"skipped\"):\n            return f\"waiting for {name}\"\n    return \"ready\"\n\n\nrequired = [\"lint\", \"test (3.12)\", \"test (3.13)\"]\nprint(merge_state(required, [[\"lint\", \"success\"]]))\nprint(merge_state(required, [\n    [\"lint\", \"success\"],\n    [\"test (3.12)\", \"failure\"],\n    [\"test (3.13)\", \"success\"],\n    [\"test (3.12)\", \"success\"],\n]))\nprint(merge_state(required, [\n    [\"lint\", \"skipped\"],\n    [\"test (3.12)\", \"success\"],\n    [\"test (3.13)\", \"failure\"],\n]))\n```",
+      "en": "The full solution:\n\n```python\ndef merge_state(required, runs):\n    latest = {}\n    for name, status in runs:\n        latest[name] = status\n    for name in required:\n        if latest.get(name) == \"failure\":\n            return f\"blocked by {name}\"\n    for name in required:\n        if latest.get(name) not in (\"success\", \"skipped\"):\n            return f\"waiting for {name}\"\n    return \"ready\"\n\n\nrequired = [\"lint\", \"test (3.12)\", \"test (3.13)\"]\nprint(merge_state(required, [[\"lint\", \"success\"]]))\nprint(merge_state(required, [\n    [\"lint\", \"success\"],\n    [\"test (3.12)\", \"failure\"],\n    [\"test (3.13)\", \"success\"],\n    [\"test (3.12)\", \"success\"],\n]))\nprint(merge_state(required, [\n    [\"lint\", \"skipped\"],\n    [\"test (3.12)\", \"success\"],\n    [\"test (3.13)\", \"failure\"],\n]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "merge_state",
+      "cases": [
+        {
+          "args": [
+            [],
+            []
+          ],
+          "returns": "ready"
+        },
+        {
+          "args": [
+            [
+              "a"
+            ],
+            []
+          ],
+          "returns": "waiting for a"
+        },
+        {
+          "args": [
+            [
+              "a"
+            ],
+            [
+              [
+                "a",
+                "failure"
+              ],
+              [
+                "a",
+                "success"
+              ]
+            ]
+          ],
+          "returns": "ready"
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              [
+                "b",
+                "failure"
+              ],
+              [
+                "a",
+                "pending"
+              ]
+            ]
+          ],
+          "returns": "blocked by b"
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              [
+                "a",
+                "success"
+              ],
+              [
+                "b",
+                "failure"
+              ],
+              [
+                "a",
+                "failure"
+              ]
+            ]
+          ],
+          "returns": "blocked by a"
+        },
+        {
+          "args": [
+            [
+              "a"
+            ],
+            [
+              [
+                "a",
+                "cancelled"
+              ]
+            ]
+          ],
+          "returns": "waiting for a"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "waiting for test (3.12)\nready\nblocked by test (3.13)"
+    }
+  ]
+}
