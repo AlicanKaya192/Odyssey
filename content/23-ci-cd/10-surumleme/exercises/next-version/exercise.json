@@ -1,0 +1,104 @@
+{
+  "id": "next-version",
+  "title": {
+    "tr": "Sıradaki Sürüm",
+    "en": "The Next Version"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`prefix = message.split(\":\")[0]`; önce ANA koşuluna bak, sonra `elif` ile `feat`, sonra `fix`.",
+      "en": "`prefix = message.split(\":\")[0]`; check the MAJOR condition first, then `feat` and `fix` with `elif`."
+    },
+    {
+      "tr": "Seviyeyi `level = max(level, 2)` gibi büyüt; sonda `bump(version, [\"patch\", \"minor\", \"major\"][level - 1])`.",
+      "en": "Raise the level like `level = max(level, 2)`; at the end `bump(version, [\"patch\", \"minor\", \"major\"][level - 1])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef bump(version, part):\n    major, minor, patch = (int(p) for p in version.split(\".\"))\n    if part == \"major\":\n        return f\"{major + 1}.0.0\"\n    if part == \"minor\":\n        return f\"{major}.{minor + 1}.0\"\n    return f\"{major}.{minor}.{patch + 1}\"\n\n\ndef next_version(version, messages):\n    level = 0\n    for message in messages:\n        prefix = message.split(\":\")[0]\n        if prefix.endswith(\"!\") or \"BREAKING CHANGE\" in message:\n            level = max(level, 3)\n        elif prefix.startswith(\"feat\"):\n            level = max(level, 2)\n        elif prefix.startswith(\"fix\"):\n            level = max(level, 1)\n    if level == 0:\n        return version\n    return bump(version, [\"patch\", \"minor\", \"major\"][level - 1])\n\n\nprint(next_version(\"1.4.2\", [\"fix: handle empty input\", \"docs: fix typo\"]))\nprint(next_version(\"1.4.2\", [\"feat: add export\", \"fix: crash on start\"]))\nprint(next_version(\"1.4.2\", [\"fix(cli): wrong flag\", \"feat!: new config format\"]))\nprint(next_version(\"1.4.2\", [\"ci: cache pip\", \"test: more cases\"]))\nprint(next_version(\"0.9.0\", [\"refactor: split module\", \"chore: BREAKING CHANGE in api\"]))\n```",
+      "en": "The full solution:\n\n```python\ndef bump(version, part):\n    major, minor, patch = (int(p) for p in version.split(\".\"))\n    if part == \"major\":\n        return f\"{major + 1}.0.0\"\n    if part == \"minor\":\n        return f\"{major}.{minor + 1}.0\"\n    return f\"{major}.{minor}.{patch + 1}\"\n\n\ndef next_version(version, messages):\n    level = 0\n    for message in messages:\n        prefix = message.split(\":\")[0]\n        if prefix.endswith(\"!\") or \"BREAKING CHANGE\" in message:\n            level = max(level, 3)\n        elif prefix.startswith(\"feat\"):\n            level = max(level, 2)\n        elif prefix.startswith(\"fix\"):\n            level = max(level, 1)\n    if level == 0:\n        return version\n    return bump(version, [\"patch\", \"minor\", \"major\"][level - 1])\n\n\nprint(next_version(\"1.4.2\", [\"fix: handle empty input\", \"docs: fix typo\"]))\nprint(next_version(\"1.4.2\", [\"feat: add export\", \"fix: crash on start\"]))\nprint(next_version(\"1.4.2\", [\"fix(cli): wrong flag\", \"feat!: new config format\"]))\nprint(next_version(\"1.4.2\", [\"ci: cache pip\", \"test: more cases\"]))\nprint(next_version(\"0.9.0\", [\"refactor: split module\", \"chore: BREAKING CHANGE in api\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "next_version",
+      "cases": [
+        {
+          "args": [
+            "1.0.0",
+            []
+          ],
+          "returns": "1.0.0"
+        },
+        {
+          "args": [
+            "1.0.0",
+            [
+              "fix: a"
+            ]
+          ],
+          "returns": "1.0.1"
+        },
+        {
+          "args": [
+            "1.0.0",
+            [
+              "feat: a",
+              "fix: b"
+            ]
+          ],
+          "returns": "1.1.0"
+        },
+        {
+          "args": [
+            "1.2.3",
+            [
+              "docs: fix readme"
+            ]
+          ],
+          "returns": "1.2.3"
+        },
+        {
+          "args": [
+            "1.2.3",
+            [
+              "fix!: drop flag"
+            ]
+          ],
+          "returns": "2.0.0"
+        },
+        {
+          "args": [
+            "0.1.0",
+            [
+              "feat(ui): theme"
+            ]
+          ],
+          "returns": "0.2.0"
+        },
+        {
+          "args": [
+            "2.0.0",
+            [
+              "fix a typo"
+            ]
+          ],
+          "returns": "2.0.1"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.4.3\n1.5.0\n2.0.0\n1.4.2\n1.0.0"
+    }
+  ]
+}

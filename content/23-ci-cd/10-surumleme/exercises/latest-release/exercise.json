@@ -1,0 +1,92 @@
+{
+  "id": "latest-release",
+  "title": {
+    "tr": "En Yeni Sürüm Etiketi",
+    "en": "The Newest Release Tag"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`parts = tag[1:].split(\".\")`; geçerli olması için `len(parts) == 3` ve `all(part.isdigit() for part in parts)`.",
+      "en": "`parts = tag[1:].split(\".\")`; to be valid, `len(parts) == 3` and `all(part.isdigit() for part in parts)`."
+    },
+    {
+      "tr": "Karşılaştırma anahtarı `tuple(int(part) for part in parts)`; en büyük anahtarın etiketini sakla.",
+      "en": "The comparison key is `tuple(int(part) for part in parts)`; keep the tag with the largest key."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef latest_release(tags):\n    best = None\n    best_key = None\n    for tag in tags:\n        if not tag.startswith(\"v\"):\n            continue\n        parts = tag[1:].split(\".\")\n        if len(parts) != 3 or not all(part.isdigit() for part in parts):\n            continue\n        key = tuple(int(part) for part in parts)\n        if best_key is None or key > best_key:\n            best = tag\n            best_key = key\n    return best\n\n\ntags = [\"v1.2.0\", \"v1.10.0\", \"nightly\", \"v1.9.3\", \"v2.0.0rc1\", \"v1.10\"]\nprint(latest_release(tags))\nprint(latest_release([\"docs\", \"v0.1.0-beta\"]))\nprint(latest_release([\"v0.9.12\", \"v0.10.0\"]))\n```",
+      "en": "The full solution:\n\n```python\ndef latest_release(tags):\n    best = None\n    best_key = None\n    for tag in tags:\n        if not tag.startswith(\"v\"):\n            continue\n        parts = tag[1:].split(\".\")\n        if len(parts) != 3 or not all(part.isdigit() for part in parts):\n            continue\n        key = tuple(int(part) for part in parts)\n        if best_key is None or key > best_key:\n            best = tag\n            best_key = key\n    return best\n\n\ntags = [\"v1.2.0\", \"v1.10.0\", \"nightly\", \"v1.9.3\", \"v2.0.0rc1\", \"v1.10\"]\nprint(latest_release(tags))\nprint(latest_release([\"docs\", \"v0.1.0-beta\"]))\nprint(latest_release([\"v0.9.12\", \"v0.10.0\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "latest_release",
+      "cases": [
+        {
+          "args": [
+            []
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            [
+              "v1.0.0"
+            ]
+          ],
+          "returns": "v1.0.0"
+        },
+        {
+          "args": [
+            [
+              "v1.0.0",
+              "v0.9.9"
+            ]
+          ],
+          "returns": "v1.0.0"
+        },
+        {
+          "args": [
+            [
+              "v1.2.3rc1",
+              "v1.2.2"
+            ]
+          ],
+          "returns": "v1.2.2"
+        },
+        {
+          "args": [
+            [
+              "v10.0.0",
+              "v9.9.9",
+              "v10.0"
+            ]
+          ],
+          "returns": "v10.0.0"
+        },
+        {
+          "args": [
+            [
+              "release-1.0.0"
+            ]
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "v1.10.0\nNone\nv0.10.0"
+    }
+  ]
+}

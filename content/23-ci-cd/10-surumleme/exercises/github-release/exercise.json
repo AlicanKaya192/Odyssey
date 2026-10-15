@@ -1,0 +1,92 @@
+{
+  "id": "github-release",
+  "title": {
+    "tr": "GitHub Sürümü",
+    "en": "A GitHub Release"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "pyproject.toml",
+      "readonly": true
+    },
+    {
+      "name": "scripts/check_version.py",
+      "readonly": true
+    },
+    {
+      "name": "greeter/__init__.py",
+      "readonly": true
+    },
+    {
+      "name": "test_greeter.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "İşin içinde `needs: build`, `runs-on`, ve `permissions:` altında `contents: write`.",
+      "en": "Inside the job: `needs: build`, `runs-on`, and `contents: write` under `permissions:`."
+    },
+    {
+      "tr": "Kod çekilmediği için `--repo \"$GITHUB_REPOSITORY\"` şart; `env:` altında `GH_TOKEN`.",
+      "en": "Since the code is not fetched, `--repo \"$GITHUB_REPOSITORY\"` is required; `GH_TOKEN` under `env:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Release\n\non:\n  push:\n    tags: [\"v*\"]\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n  build:\n    needs: test\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python scripts/check_version.py \"$GITHUB_REF_NAME\"\n      - run: python -m pip install build\n      - run: python -m build\n      - uses: actions/upload-artifact@v4\n        with:\n          name: dist\n          path: dist/\n  release:\n    needs: build\n    runs-on: ubuntu-latest\n    permissions:\n      contents: write\n    steps:\n      - uses: actions/download-artifact@v4\n        with:\n          name: dist\n          path: dist\n      - run: |\n          gh release create \"$GITHUB_REF_NAME\" dist/* \\\n            --repo \"$GITHUB_REPOSITORY\" --generate-notes\n        env:\n          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Release\n\non:\n  push:\n    tags: [\"v*\"]\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n  build:\n    needs: test\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python scripts/check_version.py \"$GITHUB_REF_NAME\"\n      - run: python -m pip install build\n      - run: python -m build\n      - uses: actions/upload-artifact@v4\n        with:\n          name: dist\n          path: dist/\n  release:\n    needs: build\n    runs-on: ubuntu-latest\n    permissions:\n      contents: write\n    steps:\n      - uses: actions/download-artifact@v4\n        with:\n          name: dist\n          path: dist\n      - run: |\n          gh release create \"$GITHUB_REF_NAME\" dist/* \\\n            --repo \"$GITHUB_REPOSITORY\" --generate-notes\n        env:\n          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "release",
+      "needs": [
+        "build"
+      ],
+      "permissions": {
+        "contents": "write"
+      },
+      "steps": [
+        {
+          "uses": "^actions/download-artifact@",
+          "with": {
+            "name": "^dist$"
+          },
+          "show": "uses: actions/download-artifact@v4 (name: dist)"
+        },
+        {
+          "run": "(?s)gh release create \\\"?\\$GITHUB_REF_NAME.*--repo",
+          "env": {
+            "GH_TOKEN": "^\\$\\{\\{\\s*secrets\\.GITHUB_TOKEN\\s*\\}\\}$"
+          },
+          "show": "run: gh release create \"$GITHUB_REF_NAME\" dist/* --repo \"$GITHUB_REPOSITORY\" (env: GH_TOKEN)"
+        }
+      ]
+    },
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "permissions": {
+        "contents": "read"
+      }
+    }
+  ]
+}

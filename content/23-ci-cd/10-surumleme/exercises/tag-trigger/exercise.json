@@ -1,0 +1,89 @@
+{
+  "id": "tag-trigger",
+  "title": {
+    "tr": "Etiketle Başla",
+    "en": "Start with a Tag"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "pyproject.toml",
+      "readonly": true
+    },
+    {
+      "name": "scripts/check_version.py",
+      "readonly": true
+    },
+    {
+      "name": "greeter/__init__.py",
+      "readonly": true
+    },
+    {
+      "name": "test_greeter.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`push:` altında `branches: [main]` yerine `tags: [\"v*\"]`.",
+      "en": "Under `push:`, `tags: [\"v*\"]` instead of `branches: [main]`."
+    },
+    {
+      "tr": "Denetim adımı `- run: python -m pip install build` satırından önce.",
+      "en": "The check step goes before the `- run: python -m pip install build` line."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Release\n\non:\n  push:\n    tags: [\"v*\"]\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python scripts/check_version.py \"$GITHUB_REF_NAME\"\n      - run: python -m pip install build\n      - run: python -m build\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Release\n\non:\n  push:\n    tags: [\"v*\"]\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python scripts/check_version.py \"$GITHUB_REF_NAME\"\n      - run: python -m pip install build\n      - run: python -m build\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "on": [
+        "push"
+      ],
+      "filters": {
+        "push": {
+          "tags": [
+            "v*"
+          ]
+        }
+      },
+      "forbid": [
+        {
+          "pattern": "branches:",
+          "show": "branches: [main]"
+        }
+      ],
+      "job": "build",
+      "steps": [
+        {
+          "run": "check_version\\.py \\\"?\\$GITHUB_REF_NAME",
+          "show": "run: python scripts/check_version.py \"$GITHUB_REF_NAME\""
+        },
+        {
+          "run": "^python -m build$",
+          "show": "run: python -m build"
+        }
+      ]
+    }
+  ]
+}
