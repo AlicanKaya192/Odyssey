@@ -74,6 +74,7 @@ BADGE_TAGS = {
     "calliope": "nlp2-complete",
     "pygmalion": "genai1-complete",
     "ariadne": "genai2-complete",
+    "hephaestus": "cicd-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200

@@ -62,6 +62,7 @@ NLP1_CHAPTER = "19-nlp-temelleri"
 NLP2_CHAPTER = "20-gommeler-ve-dil-modelleri"
 GENAI1_CHAPTER = "21-uretken-yz-temelleri"
 GENAI2_CHAPTER = "22-prompt-muhendisligi"
+CICD_CHAPTER = "23-ci-cd"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -127,6 +128,9 @@ GENAI1_LORA_SECTION = (GENAI1_CHAPTER, "13-lora")
 GENAI2_STRUCTURED_SECTION = (GENAI2_CHAPTER, "04-yapili-cikti")
 GENAI2_TOOLS_SECTION = (GENAI2_CHAPTER, "08-arac-cagirma")
 GENAI2_INJECTION_SECTION = (GENAI2_CHAPTER, "12-prompt-injection")
+CICD_WORKFLOW_SECTION = (CICD_CHAPTER, "03-is-akisi-anatomisi")
+CICD_SECRETS_SECTION = (CICD_CHAPTER, "09-gizli-degerler")
+CICD_DEPLOY_SECTION = (CICD_CHAPTER, "11-dagitim-stratejileri")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -150,6 +154,7 @@ NLP1_SECTION_COUNT = 17
 NLP2_SECTION_COUNT = 17
 GENAI1_SECTION_COUNT = 17
 GENAI2_SECTION_COUNT = 17
+CICD_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -310,6 +315,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "first-tool-call": GENAI2_TOOLS_SECTION in bitenler,
         "layered-defence": GENAI2_INJECTION_SECTION in bitenler,
         "genai2-complete": modul_basina.get(GENAI2_CHAPTER, 0) >= GENAI2_SECTION_COUNT,
+        "first-workflow": CICD_WORKFLOW_SECTION in bitenler,
+        "secret-keeper": CICD_SECRETS_SECTION in bitenler,
+        "first-deploy": CICD_DEPLOY_SECTION in bitenler,
+        "cicd-complete": modul_basina.get(CICD_CHAPTER, 0) >= CICD_SECTION_COUNT,
     }
 
 

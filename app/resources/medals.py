@@ -402,6 +402,25 @@ GLYPHS: dict[str, str] = {
                       '<path d="M5.5 8.5c1.5-2 3-2 4.5 0s3 2 4.5 0" stroke-width="1.2"/>'
                       '<path d="M12.5 16.5c2 0 3 1.5 4.5 3s3 1 3.8-.8" stroke-width="1.1"/>'
                       '<g fill="#fff" stroke="none"><circle cx="21" cy="18.2" r="1.2"/></g>'),
+    "workflow-file": ('<path d="M5.5 2.5h8.5l4.5 4.5v14.5h-13z" stroke-width="1.4"/>'
+                      '<path d="M14 2.5V7h4.5" stroke-width="1.2"/>'
+                      '<path d="M10.2 11.6l3.1 2.2M13.3 15.6l-3.1 2.2" stroke-width="1.2"/>'
+                      '<g fill="#fff" stroke="none"><circle cx="9.2" cy="10.9" r="1.4"/>'
+                      '<circle cx="14.3" cy="14.6" r="1.4"/><circle cx="9.2" cy="18.4" r="1.4"/></g>'),
+    "secret-vault": ('<rect x="3" y="3.5" width="18" height="15.5" rx="2" stroke-width="1.5"/>'
+                     '<circle cx="10.5" cy="11.25" r="4.2" stroke-width="1.3"/>'
+                     '<path d="M10.5 8.6v2.65l1.9 1.1" stroke-width="1.2"/>'
+                     '<path d="M17.5 8.5v5.5M6 19v2M15 19v2" stroke-width="1.5"/>'),
+    "deploy-launch": ('<rect x="2.5" y="14" width="11" height="6.5" rx="1.2" stroke-width="1.4"/>'
+                      '<rect x="10.5" y="3.5" width="11" height="6.5" rx="1.2" stroke-width="1.4"/>'
+                      '<path d="M6.5 13.5c0-4.2 1.4-6.75 3.2-6.75" stroke-width="1.3"/>'
+                      '<path d="M8.3 5.1l1.6 1.65-1.6 1.65" stroke-width="1.3"/>'
+                      '<g fill="#fff" stroke="none"><circle cx="5.2" cy="17.25" r="0.9"/>'
+                      '<circle cx="18.8" cy="6.75" r="0.9"/></g>'),
+    "ci-loop": ('<path d="M12 12c-2-2.8-3.5-4.5-5.8-4.5a4.5 4.5 0 0 0 0 9c2.3 0 3.8-1.7 5.8-4.5'
+                's3.5-4.5 5.8-4.5a4.5 4.5 0 0 1 0 9c-2.3 0-3.8-1.7-5.8-4.5z" stroke-width="1.6"/>'
+                '<path d="M16.6 5.7l1.8 1.8-1.9 1.6" stroke-width="1.3"/>'
+                '<g fill="#fff" stroke="none"><circle cx="6.2" cy="12" r="1.3"/></g>'),
 }
 
 
