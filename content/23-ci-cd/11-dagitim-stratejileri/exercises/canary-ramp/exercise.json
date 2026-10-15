@@ -1,0 +1,122 @@
+{
+  "id": "canary-ramp",
+  "title": {
+    "tr": "Kanaryayı Büyüt",
+    "en": "Grow the Canary"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`old_rate = old[0] / old[1]`; `for share, errors, requests in stages:`.",
+      "en": "`old_rate = old[0] / old[1]`; `for share, errors, requests in stages:`."
+    },
+    {
+      "tr": "Önce istek sayısına, sonra orana bak; metin `f\"waiting at {share}%\"`.",
+      "en": "Check the request count first, then the rate; the text is `f\"waiting at {share}%\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef ramp(old, stages, max_increase=0.01, min_requests=500):\n    old_rate = old[0] / old[1]\n    for share, errors, requests in stages:\n        if requests < min_requests:\n            return f\"waiting at {share}%\"\n        if errors / requests > old_rate + max_increase:\n            return f\"rolled back at {share}%\"\n    return \"fully promoted\"\n\n\nold = [40, 10000]\nprint(ramp(old, [[5, 2, 600], [25, 10, 2500], [50, 30, 5000], [100, 50, 10000]]))\nprint(ramp(old, [[5, 1, 600], [25, 60, 2500], [50, 0, 5000]]))\nprint(ramp(old, [[5, 0, 120], [25, 0, 2500]]))\n```",
+      "en": "The full solution:\n\n```python\ndef ramp(old, stages, max_increase=0.01, min_requests=500):\n    old_rate = old[0] / old[1]\n    for share, errors, requests in stages:\n        if requests < min_requests:\n            return f\"waiting at {share}%\"\n        if errors / requests > old_rate + max_increase:\n            return f\"rolled back at {share}%\"\n    return \"fully promoted\"\n\n\nold = [40, 10000]\nprint(ramp(old, [[5, 2, 600], [25, 10, 2500], [50, 30, 5000], [100, 50, 10000]]))\nprint(ramp(old, [[5, 1, 600], [25, 60, 2500], [50, 0, 5000]]))\nprint(ramp(old, [[5, 0, 120], [25, 0, 2500]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ramp",
+      "cases": [
+        {
+          "args": [
+            [
+              10,
+              1000
+            ],
+            []
+          ],
+          "returns": "fully promoted"
+        },
+        {
+          "args": [
+            [
+              10,
+              1000
+            ],
+            [
+              [
+                10,
+                3,
+                1000
+              ]
+            ]
+          ],
+          "returns": "fully promoted"
+        },
+        {
+          "args": [
+            [
+              10,
+              1000
+            ],
+            [
+              [
+                10,
+                30,
+                1000
+              ]
+            ]
+          ],
+          "returns": "rolled back at 10%"
+        },
+        {
+          "args": [
+            [
+              10,
+              1000
+            ],
+            [
+              [
+                10,
+                3,
+                1000
+              ],
+              [
+                50,
+                3,
+                400
+              ]
+            ]
+          ],
+          "returns": "waiting at 50%"
+        },
+        {
+          "args": [
+            [
+              0,
+              1000
+            ],
+            [
+              [
+                5,
+                10,
+                1000
+              ]
+            ],
+            0.02
+          ],
+          "returns": "fully promoted"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "fully promoted\nrolled back at 25%\nwaiting at 5%"
+    }
+  ]
+}

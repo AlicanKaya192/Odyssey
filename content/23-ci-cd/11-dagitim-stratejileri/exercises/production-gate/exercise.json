@@ -1,0 +1,87 @@
+{
+  "id": "production-gate",
+  "title": {
+    "tr": "Canlıya Kapı",
+    "en": "The Gate to Production"
+  },
+  "difficulty": 3,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "pyproject.toml",
+      "readonly": true
+    },
+    {
+      "name": "scripts/deploy.py",
+      "readonly": true
+    },
+    {
+      "name": "scripts/check_health.py",
+      "readonly": true
+    },
+    {
+      "name": "greeter/__init__.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`environment:` altında iki satır: `name:` ve `url:`; `concurrency:` altında `group:` ve `cancel-in-progress:`.",
+      "en": "Two lines under `environment:`: `name:` and `url:`; `group:` and `cancel-in-progress:` under `concurrency:`."
+    },
+    {
+      "tr": "İş `needs: deploy-staging` ile başlar; adımlar staging işindekilerle aynı, yalnızca hedef `production`.",
+      "en": "The job starts with `needs: deploy-staging`; the steps are the same as the staging job's, only the target is `production`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Deploy\n\non:\n  push:\n    branches: [main]\n    tags: [\"v*\"]\n\npermissions:\n  contents: read\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install build\n      - run: python -m build\n      - uses: actions/upload-artifact@v4\n        with:\n          name: dist\n          path: dist/\n  deploy-staging:\n    needs: build\n    runs-on: ubuntu-latest\n    environment: staging\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/download-artifact@v4\n        with:\n          name: dist\n          path: dist\n      - run: python scripts/deploy.py staging\n  deploy-production:\n    needs: deploy-staging\n    if: startsWith(github.ref, 'refs/tags/v')\n    runs-on: ubuntu-latest\n    environment:\n      name: production\n      url: https://app.example.com\n    concurrency:\n      group: deploy-production\n      cancel-in-progress: false\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/download-artifact@v4\n        with:\n          name: dist\n          path: dist\n      - run: python scripts/deploy.py production\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Deploy\n\non:\n  push:\n    branches: [main]\n    tags: [\"v*\"]\n\npermissions:\n  contents: read\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install build\n      - run: python -m build\n      - uses: actions/upload-artifact@v4\n        with:\n          name: dist\n          path: dist/\n  deploy-staging:\n    needs: build\n    runs-on: ubuntu-latest\n    environment: staging\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/download-artifact@v4\n        with:\n          name: dist\n          path: dist\n      - run: python scripts/deploy.py staging\n  deploy-production:\n    needs: deploy-staging\n    if: startsWith(github.ref, 'refs/tags/v')\n    runs-on: ubuntu-latest\n    environment:\n      name: production\n      url: https://app.example.com\n    concurrency:\n      group: deploy-production\n      cancel-in-progress: false\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/download-artifact@v4\n        with:\n          name: dist\n          path: dist\n      - run: python scripts/deploy.py production\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "deploy-production",
+      "needs": [
+        "deploy-staging"
+      ],
+      "if": "startsWith\\(\\s*github\\.ref\\s*,\\s*'refs/tags/v'\\s*\\)",
+      "show_if": "if: startsWith(github.ref, 'refs/tags/v')",
+      "keys": {
+        "jobs.deploy-production.environment.name": "^production$",
+        "jobs.deploy-production.concurrency.group": "^deploy-production$",
+        "jobs.deploy-production.concurrency.cancel-in-progress": "^False$"
+      },
+      "show_keys": {
+        "jobs.deploy-production.environment.name": "environment: name: production",
+        "jobs.deploy-production.concurrency.group": "concurrency: group: deploy-production",
+        "jobs.deploy-production.concurrency.cancel-in-progress": "cancel-in-progress: false"
+      },
+      "steps": [
+        {
+          "uses": "^actions/download-artifact@",
+          "with": {
+            "name": "^dist$"
+          },
+          "show": "uses: actions/download-artifact@v4 (name: dist)"
+        },
+        {
+          "run": "deploy\\.py production$",
+          "show": "run: python scripts/deploy.py production"
+        }
+      ]
+    }
+  ]
+}
