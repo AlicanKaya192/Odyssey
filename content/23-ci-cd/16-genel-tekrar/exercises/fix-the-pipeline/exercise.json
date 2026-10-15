@@ -1,0 +1,102 @@
+{
+  "id": "fix-the-pipeline",
+  "title": {
+    "tr": "Hattı Onar",
+    "en": "Fix the Pipeline"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "scripts/deploy.py",
+      "readonly": true
+    },
+    {
+      "name": "tempconv/__init__.py",
+      "readonly": true
+    },
+    {
+      "name": "tempconv/convert.py",
+      "readonly": true
+    },
+    {
+      "name": "tests/test_convert.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`permissions:` bir sözlük olur: altında `contents: read`.",
+      "en": "`permissions:` becomes a dictionary: `contents: read` under it."
+    },
+    {
+      "tr": "Başlık adımının altına `env:` ve `TITLE: ...`; komutta yalnızca `$TITLE`.",
+      "en": "Under the title step, `env:` and `TITLE: ...`; only `$TITLE` in the command."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: echo \"Testing $TITLE\"\n        env:\n          TITLE: ${{ github.event.pull_request.title }}\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: echo \"Testing $TITLE\"\n        env:\n          TITLE: ${{ github.event.pull_request.title }}\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "keys": {
+        "permissions.contents": "^read$",
+        "jobs.test.timeout-minutes": "^15$"
+      },
+      "show_keys": {
+        "permissions.contents": "permissions: contents: read",
+        "jobs.test.timeout-minutes": "timeout-minutes: 15"
+      },
+      "steps": [
+        {
+          "uses": "^actions/checkout@",
+          "show": "uses: actions/checkout@v4"
+        },
+        {
+          "run": "^echo \\\"Testing \\$TITLE\\\"$",
+          "env": {
+            "TITLE": "^\\$\\{\\{\\s*github\\.event\\.pull_request\\.title\\s*\\}\\}$"
+          },
+          "show": "run: echo \"Testing $TITLE\" (env: TITLE: ${{ github.event.pull_request.title }})"
+        },
+        {
+          "run": "^python -m pytest",
+          "show": "run: python -m pytest -q"
+        }
+      ],
+      "forbid": [
+        {
+          "pattern": "write-all",
+          "show": "permissions: write-all"
+        },
+        {
+          "pattern": "run:.*\\$\\{\\{\\s*github\\.event\\.",
+          "show": "run: ... ${{ github.event... }}"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "id": "critical-path",
+  "title": {
+    "tr": "Kritik Yol",
+    "en": "The Critical Path"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`finish = {}` ve iç fonksiyon `done(name)`: `minutes + max((done(n) for n in needs), default=0)`.",
+      "en": "`finish = {}` and an inner function `done(name)`: `minutes + max((done(n) for n in needs), default=0)`."
+    },
+    {
+      "tr": "`last = max(jobs, key=done)`; sonra `while jobs[path[-1]][1]:` ile geriye yürü, sonda `path[::-1]`.",
+      "en": "`last = max(jobs, key=done)`; then walk back with `while jobs[path[-1]][1]:`, `path[::-1]` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef critical_path(jobs):\n    finish = {}\n\n    def done(name):\n        if name not in finish:\n            minutes, needs = jobs[name]\n            finish[name] = minutes + max((done(need) for need in needs), default=0)\n        return finish[name]\n\n    last = max(jobs, key=done)\n    path = [last]\n    while jobs[path[-1]][1]:\n        path.append(max(jobs[path[-1]][1], key=done))\n    return [done(last), path[::-1]]\n\n\njobs = {\n    \"lint\": [1, []],\n    \"test\": [4, [\"lint\"]],\n    \"docs\": [2, []],\n    \"build\": [1, [\"test\", \"docs\"]],\n    \"ci-ok\": [0, [\"lint\", \"test\", \"build\", \"docs\"]],\n}\nprint(critical_path(jobs))\njobs[\"docs\"] = [7, []]\nprint(critical_path(jobs))\n```",
+      "en": "The full solution:\n\n```python\ndef critical_path(jobs):\n    finish = {}\n\n    def done(name):\n        if name not in finish:\n            minutes, needs = jobs[name]\n            finish[name] = minutes + max((done(need) for need in needs), default=0)\n        return finish[name]\n\n    last = max(jobs, key=done)\n    path = [last]\n    while jobs[path[-1]][1]:\n        path.append(max(jobs[path[-1]][1], key=done))\n    return [done(last), path[::-1]]\n\n\njobs = {\n    \"lint\": [1, []],\n    \"test\": [4, [\"lint\"]],\n    \"docs\": [2, []],\n    \"build\": [1, [\"test\", \"docs\"]],\n    \"ci-ok\": [0, [\"lint\", \"test\", \"build\", \"docs\"]],\n}\nprint(critical_path(jobs))\njobs[\"docs\"] = [7, []]\nprint(critical_path(jobs))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "critical_path",
+      "cases": [
+        {
+          "args": [
+            {
+              "a": [
+                3,
+                []
+              ]
+            }
+          ],
+          "returns": [
+            3,
+            [
+              "a"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "a": [
+                1,
+                []
+              ],
+              "b": [
+                2,
+                [
+                  "a"
+                ]
+              ],
+              "c": [
+                5,
+                []
+              ]
+            }
+          ],
+          "returns": [
+            5,
+            [
+              "c"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "a": [
+                2,
+                []
+              ],
+              "b": [
+                2,
+                []
+              ],
+              "c": [
+                1,
+                [
+                  "a",
+                  "b"
+                ]
+              ]
+            }
+          ],
+          "returns": [
+            3,
+            [
+              "a",
+              "c"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "x": [
+                0,
+                []
+              ],
+              "y": [
+                0,
+                [
+                  "x"
+                ]
+              ]
+            }
+          ],
+          "returns": [
+            0,
+            [
+              "x"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[6, ['lint', 'test', 'build']]\n[8, ['docs', 'build']]"
+    }
+  ]
+}

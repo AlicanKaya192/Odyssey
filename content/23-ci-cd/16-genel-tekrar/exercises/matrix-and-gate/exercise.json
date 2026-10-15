@@ -1,0 +1,118 @@
+{
+  "id": "matrix-and-gate",
+  "title": {
+    "tr": "Matris ve Kapı",
+    "en": "Matrix and Gate"
+  },
+  "difficulty": 3,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "scripts/deploy.py",
+      "readonly": true
+    },
+    {
+      "name": "tempconv/__init__.py",
+      "readonly": true
+    },
+    {
+      "name": "tempconv/convert.py",
+      "readonly": true
+    },
+    {
+      "name": "tests/test_convert.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`exclude:` matrisin içinde bir liste; öğesi iki anahtarlı: `os` ve `python`.",
+      "en": "`exclude:` is a list inside the matrix; its item has two keys: `os` and `python`."
+    },
+    {
+      "tr": "Kapının koşulu `if: >-` ile iki satır.",
+      "en": "The gate's condition is two lines with `if: >-`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ${{ matrix.os }}\n    timeout-minutes: 15\n    strategy:\n      fail-fast: false\n      matrix:\n        os: [ubuntu-latest, windows-latest]\n        python: [\"3.12\", \"3.13\"]\n        exclude:\n          - os: windows-latest\n            python: \"3.12\"\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python }}\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n  ci-ok:\n    if: always()\n    needs: test\n    runs-on: ubuntu-latest\n    steps:\n      - run: exit 1\n        if: >-\n          contains(needs.*.result, 'failure')\n          || contains(needs.*.result, 'cancelled')\n      - run: echo \"all tests passed\"\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ${{ matrix.os }}\n    timeout-minutes: 15\n    strategy:\n      fail-fast: false\n      matrix:\n        os: [ubuntu-latest, windows-latest]\n        python: [\"3.12\", \"3.13\"]\n        exclude:\n          - os: windows-latest\n            python: \"3.12\"\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python }}\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n  ci-ok:\n    if: always()\n    needs: test\n    runs-on: ubuntu-latest\n    steps:\n      - run: exit 1\n        if: >-\n          contains(needs.*.result, 'failure')\n          || contains(needs.*.result, 'cancelled')\n      - run: echo \"all tests passed\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "runs_on": "\\$\\{\\{\\s*matrix\\.os\\s*\\}\\}",
+      "show_runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "os": [
+          "ubuntu-latest",
+          "windows-latest"
+        ],
+        "python": [
+          "3.12",
+          "3.13"
+        ]
+      },
+      "matrix_exclude": [
+        {
+          "os": "windows-latest",
+          "python": "3.12"
+        }
+      ],
+      "keys": {
+        "jobs.test.strategy.fail-fast": "^False$"
+      },
+      "show_keys": {
+        "jobs.test.strategy.fail-fast": "fail-fast: false"
+      },
+      "steps": [
+        {
+          "uses": "^actions/setup-python@",
+          "with": {
+            "python-version": "\\$\\{\\{\\s*matrix\\.python\\s*\\}\\}",
+            "cache": "^pip$"
+          },
+          "show": "uses: actions/setup-python@v5 (python-version: ${{ matrix.python }}, cache: pip)"
+        }
+      ]
+    },
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "ci-ok",
+      "needs": [
+        "test"
+      ],
+      "if": "always\\(\\)",
+      "show_if": "if: always()",
+      "steps": [
+        {
+          "run": "^exit 1$",
+          "if": "(?s)'failure'.*'cancelled'",
+          "show": "run: exit 1 (if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled'))"
+        }
+      ]
+    }
+  ]
+}

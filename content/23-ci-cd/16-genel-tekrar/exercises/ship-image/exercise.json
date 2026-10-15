@@ -1,0 +1,104 @@
+{
+  "id": "ship-image",
+  "title": {
+    "tr": "İmajı Gönder ve Dağıt",
+    "en": "Send the Image and Deploy"
+  },
+  "difficulty": 3,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "scripts/deploy.py",
+      "readonly": true
+    },
+    {
+      "name": "tempconv/__init__.py",
+      "readonly": true
+    },
+    {
+      "name": "tempconv/convert.py",
+      "readonly": true
+    },
+    {
+      "name": "tests/test_convert.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`permissions:` işin içinde, `steps`'ten önce; `push: false` → `push: true`.",
+      "en": "`permissions:` inside the job, before `steps`; `push: false` → `push: true`."
+    },
+    {
+      "tr": "Dağıtım işi on birinci bölümdeki canlı işine benzer; imaj adı SHA ile, değişmeyen etiket.",
+      "en": "The deploy job is like the production job in the eleventh section; the image name with the SHA, a tag that does not change."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Ship\n\non:\n  push:\n    tags: [\"v*\"]\n\npermissions:\n  contents: read\n\njobs:\n  publish:\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n      packages: write\n    steps:\n      - uses: actions/checkout@v4\n      - uses: docker/setup-buildx-action@v3\n      - uses: docker/login-action@v3\n        with:\n          registry: ghcr.io\n          username: ${{ github.actor }}\n          password: ${{ secrets.GITHUB_TOKEN }}\n      - uses: docker/build-push-action@v6\n        with:\n          context: .\n          push: true\n          tags: ghcr.io/ada/tempconv:${{ github.sha }}\n  deploy-production:\n    needs: publish\n    runs-on: ubuntu-latest\n    environment: production\n    concurrency:\n      group: deploy-production\n      cancel-in-progress: false\n    steps:\n      - uses: actions/checkout@v4\n      - run: python scripts/deploy.py \"ghcr.io/ada/tempconv:$GITHUB_SHA\"\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Ship\n\non:\n  push:\n    tags: [\"v*\"]\n\npermissions:\n  contents: read\n\njobs:\n  publish:\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n      packages: write\n    steps:\n      - uses: actions/checkout@v4\n      - uses: docker/setup-buildx-action@v3\n      - uses: docker/login-action@v3\n        with:\n          registry: ghcr.io\n          username: ${{ github.actor }}\n          password: ${{ secrets.GITHUB_TOKEN }}\n      - uses: docker/build-push-action@v6\n        with:\n          context: .\n          push: true\n          tags: ghcr.io/ada/tempconv:${{ github.sha }}\n  deploy-production:\n    needs: publish\n    runs-on: ubuntu-latest\n    environment: production\n    concurrency:\n      group: deploy-production\n      cancel-in-progress: false\n    steps:\n      - uses: actions/checkout@v4\n      - run: python scripts/deploy.py \"ghcr.io/ada/tempconv:$GITHUB_SHA\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "publish",
+      "permissions": {
+        "packages": "write"
+      },
+      "steps": [
+        {
+          "uses": "^docker/build-push-action@",
+          "with": {
+            "push": "^True$",
+            "tags": "^ghcr\\.io/ada/tempconv:\\$\\{\\{\\s*github\\.sha\\s*\\}\\}$"
+          },
+          "show": "uses: docker/build-push-action@v6 (push: true, tags: ghcr.io/ada/tempconv:${{ github.sha }})"
+        }
+      ]
+    },
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "deploy-production",
+      "needs": [
+        "publish"
+      ],
+      "keys": {
+        "jobs.deploy-production.environment": "^production$",
+        "jobs.deploy-production.concurrency.group": "^deploy-production$",
+        "jobs.deploy-production.concurrency.cancel-in-progress": "^False$"
+      },
+      "show_keys": {
+        "jobs.deploy-production.environment": "environment: production",
+        "jobs.deploy-production.concurrency.group": "concurrency: group: deploy-production",
+        "jobs.deploy-production.concurrency.cancel-in-progress": "cancel-in-progress: false"
+      },
+      "steps": [
+        {
+          "run": "deploy\\.py \\\"ghcr\\.io/ada/tempconv:\\$GITHUB_SHA\\\"",
+          "show": "run: python scripts/deploy.py \"ghcr.io/ada/tempconv:$GITHUB_SHA\""
+        }
+      ]
+    }
+  ]
+}
