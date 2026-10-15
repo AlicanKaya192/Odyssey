@@ -1,0 +1,107 @@
+{
+  "id": "capstone-gate",
+  "title": {
+    "tr": "Paket ve Kapı",
+    "en": "The Package and the Gate"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "pyproject.toml",
+      "readonly": true
+    },
+    {
+      "name": "requirements-dev.txt",
+      "readonly": true
+    },
+    {
+      "name": "scripts/check_version.py",
+      "readonly": true
+    },
+    {
+      "name": "tempconv/__init__.py",
+      "readonly": true
+    },
+    {
+      "name": "tempconv/convert.py",
+      "readonly": true
+    },
+    {
+      "name": "tests/test_convert.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`build` işi sekizinci bölümdeki derleme işiyle aynı; `needs: test`.",
+      "en": "The `build` job is the same as the build job from the eighth section; `needs: test`."
+    },
+    {
+      "tr": "Kapının `needs` listesi: `[lint, test, build]`; koşul `if: >-` ile iki satır.",
+      "en": "The gate's `needs` list: `[lint, test, build]`; the condition in two lines with `if: >-`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n    tags: [\"v*\"]\n  pull_request:\n    branches: [main]\n  merge_group:\n\npermissions:\n  contents: read\n\nconcurrency:\n  group: ${{ github.workflow }}-${{ github.ref }}\n  cancel-in-progress: ${{ github.event_name == 'pull_request' }}\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install ruff\n      - run: python -m ruff check .\n      - run: python -m ruff format --check .\n  test:\n    needs: lint\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    strategy:\n      fail-fast: false\n      matrix:\n        python: [\"3.12\", \"3.13\"]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python }}\n          cache: pip\n      - run: python -m pip install -r requirements-dev.txt\n      - run: python -m pytest -q --cov=tempconv --cov-fail-under=90\n  build:\n    needs: test\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install build\n      - run: python -m build\n      - uses: actions/upload-artifact@v4\n        with:\n          name: dist\n          path: dist/\n  ci-ok:\n    if: always()\n    needs: [lint, test, build]\n    runs-on: ubuntu-latest\n    steps:\n      - run: exit 1\n        if: >-\n          contains(needs.*.result, 'failure')\n          || contains(needs.*.result, 'cancelled')\n      - run: echo \"all checks passed\"\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n    tags: [\"v*\"]\n  pull_request:\n    branches: [main]\n  merge_group:\n\npermissions:\n  contents: read\n\nconcurrency:\n  group: ${{ github.workflow }}-${{ github.ref }}\n  cancel-in-progress: ${{ github.event_name == 'pull_request' }}\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install ruff\n      - run: python -m ruff check .\n      - run: python -m ruff format --check .\n  test:\n    needs: lint\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    strategy:\n      fail-fast: false\n      matrix:\n        python: [\"3.12\", \"3.13\"]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python }}\n          cache: pip\n      - run: python -m pip install -r requirements-dev.txt\n      - run: python -m pytest -q --cov=tempconv --cov-fail-under=90\n  build:\n    needs: test\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install build\n      - run: python -m build\n      - uses: actions/upload-artifact@v4\n        with:\n          name: dist\n          path: dist/\n  ci-ok:\n    if: always()\n    needs: [lint, test, build]\n    runs-on: ubuntu-latest\n    steps:\n      - run: exit 1\n        if: >-\n          contains(needs.*.result, 'failure')\n          || contains(needs.*.result, 'cancelled')\n      - run: echo \"all checks passed\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "build",
+      "needs": [
+        "test"
+      ],
+      "steps": [
+        {
+          "run": "pip install build$",
+          "show": "run: python -m pip install build"
+        },
+        {
+          "run": "^python -m build$",
+          "show": "run: python -m build"
+        },
+        {
+          "uses": "^actions/upload-artifact@",
+          "with": {
+            "name": "^dist$",
+            "path": "^dist/?$"
+          },
+          "show": "uses: actions/upload-artifact@v4 (name: dist, path: dist/)"
+        }
+      ]
+    },
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "ci-ok",
+      "needs": [
+        "lint",
+        "test",
+        "build"
+      ],
+      "if": "always\\(\\)",
+      "show_if": "if: always()",
+      "steps": [
+        {
+          "run": "^exit 1$",
+          "if": "(?s)'failure'.*'cancelled'",
+          "show": "run: exit 1 (if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled'))"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "check-version",
+  "title": {
+    "tr": "Etiket ve Sürüm",
+    "en": "Tag and Version"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`if not tag.startswith(\"v\"): return f\"tag {tag} must start with v\"`.",
+      "en": "`if not tag.startswith(\"v\"): return f\"tag {tag} must start with v\"`."
+    },
+    {
+      "tr": "`version = tomllib.loads(pyproject)[\"project\"][\"version\"]`, sonra `tag != f\"v{version}\"`.",
+      "en": "`version = tomllib.loads(pyproject)[\"project\"][\"version\"]`, then `tag != f\"v{version}\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport tomllib\n\n\ndef check_version(tag, pyproject):\n    if not tag.startswith(\"v\"):\n        return f\"tag {tag} must start with v\"\n    version = tomllib.loads(pyproject)[\"project\"][\"version\"]\n    if tag != f\"v{version}\":\n        return f\"tag {tag} does not match version {version}\"\n    return \"ok\"\n\n\npyproject = \"\"\"\n[project]\nname = \"tempconv\"\nversion = \"0.3.0\"\n\"\"\"\nprint(check_version(\"v0.3.0\", pyproject))\nprint(check_version(\"v0.3.1\", pyproject))\nprint(check_version(\"0.3.0\", pyproject))\n```",
+      "en": "The full solution:\n\n```python\nimport tomllib\n\n\ndef check_version(tag, pyproject):\n    if not tag.startswith(\"v\"):\n        return f\"tag {tag} must start with v\"\n    version = tomllib.loads(pyproject)[\"project\"][\"version\"]\n    if tag != f\"v{version}\":\n        return f\"tag {tag} does not match version {version}\"\n    return \"ok\"\n\n\npyproject = \"\"\"\n[project]\nname = \"tempconv\"\nversion = \"0.3.0\"\n\"\"\"\nprint(check_version(\"v0.3.0\", pyproject))\nprint(check_version(\"v0.3.1\", pyproject))\nprint(check_version(\"0.3.0\", pyproject))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_version",
+      "cases": [
+        {
+          "args": [
+            "v1.0.0",
+            "[project]\nversion = \"1.0.0\"\n"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "v1.0",
+            "[project]\nversion = \"1.0.0\"\n"
+          ],
+          "returns": "tag v1.0 does not match version 1.0.0"
+        },
+        {
+          "args": [
+            "release-1.0.0",
+            "[project]\nversion = \"1.0.0\"\n"
+          ],
+          "returns": "tag release-1.0.0 must start with v"
+        },
+        {
+          "args": [
+            "v2.0.0rc1",
+            "[project]\nversion = \"2.0.0rc1\"\n"
+          ],
+          "returns": "ok"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\ntag v0.3.1 does not match version 0.3.0\ntag 0.3.0 must start with v"
+    }
+  ]
+}

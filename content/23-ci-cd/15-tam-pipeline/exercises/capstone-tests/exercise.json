@@ -1,0 +1,106 @@
+{
+  "id": "capstone-tests",
+  "title": {
+    "tr": "Test İşi",
+    "en": "The Test Job"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "pyproject.toml",
+      "readonly": true
+    },
+    {
+      "name": "requirements-dev.txt",
+      "readonly": true
+    },
+    {
+      "name": "scripts/check_version.py",
+      "readonly": true
+    },
+    {
+      "name": "tempconv/__init__.py",
+      "readonly": true
+    },
+    {
+      "name": "tempconv/convert.py",
+      "readonly": true
+    },
+    {
+      "name": "tests/test_convert.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "İşin anahtarları: `needs`, `runs-on`, `timeout-minutes`, `strategy` (içinde `fail-fast` ve `matrix`), `steps`.",
+      "en": "The job's keys: `needs`, `runs-on`, `timeout-minutes`, `strategy` (with `fail-fast` and `matrix` inside), `steps`."
+    },
+    {
+      "tr": "`setup-python`'ın `with:` kısmında iki satır: `python-version` ve `cache`.",
+      "en": "Two lines in `setup-python`'s `with:` part: `python-version` and `cache`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n    tags: [\"v*\"]\n  pull_request:\n    branches: [main]\n  merge_group:\n\npermissions:\n  contents: read\n\nconcurrency:\n  group: ${{ github.workflow }}-${{ github.ref }}\n  cancel-in-progress: ${{ github.event_name == 'pull_request' }}\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install ruff\n      - run: python -m ruff check .\n      - run: python -m ruff format --check .\n  test:\n    needs: lint\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    strategy:\n      fail-fast: false\n      matrix:\n        python: [\"3.12\", \"3.13\"]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python }}\n          cache: pip\n      - run: python -m pip install -r requirements-dev.txt\n      - run: python -m pytest -q --cov=tempconv --cov-fail-under=90\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n    tags: [\"v*\"]\n  pull_request:\n    branches: [main]\n  merge_group:\n\npermissions:\n  contents: read\n\nconcurrency:\n  group: ${{ github.workflow }}-${{ github.ref }}\n  cancel-in-progress: ${{ github.event_name == 'pull_request' }}\n\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install ruff\n      - run: python -m ruff check .\n      - run: python -m ruff format --check .\n  test:\n    needs: lint\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    strategy:\n      fail-fast: false\n      matrix:\n        python: [\"3.12\", \"3.13\"]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python }}\n          cache: pip\n      - run: python -m pip install -r requirements-dev.txt\n      - run: python -m pytest -q --cov=tempconv --cov-fail-under=90\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "needs": [
+        "lint"
+      ],
+      "matrix": {
+        "python": [
+          "3.12",
+          "3.13"
+        ]
+      },
+      "keys": {
+        "jobs.test.timeout-minutes": "^15$",
+        "jobs.test.strategy.fail-fast": "^False$"
+      },
+      "show_keys": {
+        "jobs.test.timeout-minutes": "timeout-minutes: 15",
+        "jobs.test.strategy.fail-fast": "fail-fast: false"
+      },
+      "steps": [
+        {
+          "uses": "^actions/checkout@",
+          "show": "uses: actions/checkout@v4"
+        },
+        {
+          "uses": "^actions/setup-python@",
+          "with": {
+            "python-version": "\\$\\{\\{\\s*matrix\\.python\\s*\\}\\}",
+            "cache": "^pip$"
+          },
+          "show": "uses: actions/setup-python@v5 (python-version: ${{ matrix.python }}, cache: pip)"
+        },
+        {
+          "run": "pip install -r requirements-dev\\.txt$",
+          "show": "run: python -m pip install -r requirements-dev.txt"
+        },
+        {
+          "run": "pytest .*--cov=tempconv .*--cov-fail-under=90",
+          "show": "run: python -m pytest -q --cov=tempconv --cov-fail-under=90"
+        }
+      ]
+    }
+  ]
+}

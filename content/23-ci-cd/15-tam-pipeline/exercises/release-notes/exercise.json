@@ -1,0 +1,77 @@
+{
+  "id": "release-notes",
+  "title": {
+    "tr": "Sürüm Notunu Çıkar",
+    "en": "Extract the Release Notes"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`body = None` ile başla; başlık satırında `body = []` yap. `None` olması \"henüz bulunmadı\" demek.",
+      "en": "Start with `body = None`; on the heading line set `body = []`. `None` means \"not found yet\"."
+    },
+    {
+      "tr": "`body` doluyken `## [` ile başlayan satırda `break`; sonda `\"\\n\".join(body).strip()`.",
+      "en": "While `body` is being filled, `break` on a line starting with `## [`; at the end `\"\\n\".join(body).strip()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef release_notes(changelog, version):\n    lines = changelog.splitlines()\n    head = f\"## [{version}]\"\n    body = None\n    for line in lines:\n        if line.startswith(head):\n            body = []\n        elif line.startswith(\"## [\") and body is not None:\n            break\n        elif body is not None:\n            body.append(line)\n    if body is None:\n        return None\n    return \"\\n\".join(body).strip()\n\n\nchangelog = \"\"\"# Changelog\n\n## [0.4.0] - 2026-10-15\n\n- Add kelvin conversion.\n- Round results to two places.\n\n## [0.3.0] - 2026-09-01\n\n- First release.\n\"\"\"\nprint(release_notes(changelog, \"0.4.0\"))\nprint(\"---\")\nprint(release_notes(changelog, \"0.3.0\"))\nprint(\"---\")\nprint(release_notes(changelog, \"9.9.9\"))\n```",
+      "en": "The full solution:\n\n```python\ndef release_notes(changelog, version):\n    lines = changelog.splitlines()\n    head = f\"## [{version}]\"\n    body = None\n    for line in lines:\n        if line.startswith(head):\n            body = []\n        elif line.startswith(\"## [\") and body is not None:\n            break\n        elif body is not None:\n            body.append(line)\n    if body is None:\n        return None\n    return \"\\n\".join(body).strip()\n\n\nchangelog = \"\"\"# Changelog\n\n## [0.4.0] - 2026-10-15\n\n- Add kelvin conversion.\n- Round results to two places.\n\n## [0.3.0] - 2026-09-01\n\n- First release.\n\"\"\"\nprint(release_notes(changelog, \"0.4.0\"))\nprint(\"---\")\nprint(release_notes(changelog, \"0.3.0\"))\nprint(\"---\")\nprint(release_notes(changelog, \"9.9.9\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "release_notes",
+      "cases": [
+        {
+          "args": [
+            "## [1.0.0]\n- a\n",
+            "1.0.0"
+          ],
+          "returns": "- a"
+        },
+        {
+          "args": [
+            "## [1.0.0]\n- a\n## [0.9.0]\n- b\n",
+            "0.9.0"
+          ],
+          "returns": "- b"
+        },
+        {
+          "args": [
+            "# Log\n",
+            "1.0.0"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "## [1.0.0] - 2026-01-01\n\n- x\n\n## [0.1.0]\n",
+            "1.0.0"
+          ],
+          "returns": "- x"
+        },
+        {
+          "args": [
+            "## [1.0.0]\n## [0.1.0]\n- y\n",
+            "1.0.0"
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "- Add kelvin conversion.\n- Round results to two places.\n---\n- First release.\n---\nNone"
+    }
+  ]
+}
