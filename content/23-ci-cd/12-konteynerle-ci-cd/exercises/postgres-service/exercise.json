@@ -1,0 +1,80 @@
+{
+  "id": "postgres-service",
+  "title": {
+    "tr": "Testin Yanında Veritabanı",
+    "en": "A Database Next to the Tests"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "app.py",
+      "readonly": true
+    },
+    {
+      "name": "tests/test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "`services:` işin içinde, `runs-on` ile `steps` arasında; `postgres:` onun bir alt satırı.",
+      "en": "`services:` goes inside the job, between `runs-on` and `steps`; `postgres:` is one level under it."
+    },
+    {
+      "tr": "`options: >-` sonraki satırları tek satır gibi birleştirir; üç seçenek alt alta.",
+      "en": "`options: >-` joins the following lines as one line; the three options one under another."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    services:\n      postgres:\n        image: postgres:17\n        env:\n          POSTGRES_PASSWORD: test\n        ports:\n          - \"5432:5432\"\n        options: >-\n          --health-cmd \"pg_isready -U postgres\"\n          --health-interval 5s\n          --health-retries 10\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n        env:\n          DATABASE_URL: postgresql://postgres:test@localhost:5432/postgres\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    services:\n      postgres:\n        image: postgres:17\n        env:\n          POSTGRES_PASSWORD: test\n        ports:\n          - \"5432:5432\"\n        options: >-\n          --health-cmd \"pg_isready -U postgres\"\n          --health-interval 5s\n          --health-retries 10\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n        env:\n          DATABASE_URL: postgresql://postgres:test@localhost:5432/postgres\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "test",
+      "keys": {
+        "jobs.test.services.postgres.image": "^postgres:17$",
+        "jobs.test.services.postgres.env.POSTGRES_PASSWORD": "^test$",
+        "jobs.test.services.postgres.ports": "'5432:5432'",
+        "jobs.test.services.postgres.options": "--health-cmd"
+      },
+      "show_keys": {
+        "jobs.test.services.postgres.image": "services: postgres: image: postgres:17",
+        "jobs.test.services.postgres.env.POSTGRES_PASSWORD": "env: POSTGRES_PASSWORD: test",
+        "jobs.test.services.postgres.ports": "ports: - \"5432:5432\"",
+        "jobs.test.services.postgres.options": "options: --health-cmd ..."
+      },
+      "steps": [
+        {
+          "run": "^python -m pytest",
+          "env": {
+            "DATABASE_URL": "^postgresql://postgres:test@localhost:5432/postgres$"
+          },
+          "show": "run: python -m pytest -q (env: DATABASE_URL: postgresql://postgres:test@localhost:5432/postgres)"
+        }
+      ]
+    }
+  ]
+}

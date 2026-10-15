@@ -1,0 +1,94 @@
+{
+  "id": "ghcr-publish",
+  "title": {
+    "tr": "İmajı Depoya Gönder",
+    "en": "Send the Image to the Registry"
+  },
+  "difficulty": 3,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "app.py",
+      "readonly": true
+    },
+    {
+      "name": "tests/test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "İşin içinde `permissions:` ve altında iki satır; adımlardan önce.",
+      "en": "Inside the job, `permissions:` with two lines under it; before the steps."
+    },
+    {
+      "tr": "Giriş adımının `with:` kısmında üç satır: `registry`, `username`, `password`.",
+      "en": "Three lines in the login step's `with:` part: `registry`, `username`, `password`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n\npermissions:\n  contents: read\n\njobs:\n  image:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: docker/setup-buildx-action@v3\n      - uses: docker/build-push-action@v6\n        with:\n          context: .\n          load: true\n          tags: greeter:test\n      - run: docker run --rm greeter:test python -m pytest -q\n  publish:\n    needs: image\n    if: github.event_name == 'push'\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n      packages: write\n    steps:\n      - uses: actions/checkout@v4\n      - uses: docker/setup-buildx-action@v3\n      - uses: docker/login-action@v3\n        with:\n          registry: ghcr.io\n          username: ${{ github.actor }}\n          password: ${{ secrets.GITHUB_TOKEN }}\n      - uses: docker/build-push-action@v6\n        with:\n          context: .\n          push: true\n          tags: ghcr.io/ada/greeter:${{ github.sha }}\n          cache-from: type=gha\n          cache-to: type=gha,mode=max\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n\npermissions:\n  contents: read\n\njobs:\n  image:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: docker/setup-buildx-action@v3\n      - uses: docker/build-push-action@v6\n        with:\n          context: .\n          load: true\n          tags: greeter:test\n      - run: docker run --rm greeter:test python -m pytest -q\n  publish:\n    needs: image\n    if: github.event_name == 'push'\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n      packages: write\n    steps:\n      - uses: actions/checkout@v4\n      - uses: docker/setup-buildx-action@v3\n      - uses: docker/login-action@v3\n        with:\n          registry: ghcr.io\n          username: ${{ github.actor }}\n          password: ${{ secrets.GITHUB_TOKEN }}\n      - uses: docker/build-push-action@v6\n        with:\n          context: .\n          push: true\n          tags: ghcr.io/ada/greeter:${{ github.sha }}\n          cache-from: type=gha\n          cache-to: type=gha,mode=max\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "publish",
+      "needs": [
+        "image"
+      ],
+      "if": "github\\.event_name\\s*==\\s*'push'",
+      "show_if": "if: github.event_name == 'push'",
+      "permissions": {
+        "packages": "write"
+      },
+      "secrets": [
+        "GITHUB_TOKEN"
+      ],
+      "steps": [
+        {
+          "uses": "^docker/setup-buildx-action@",
+          "show": "uses: docker/setup-buildx-action@v3"
+        },
+        {
+          "uses": "^docker/login-action@",
+          "with": {
+            "registry": "^ghcr\\.io$",
+            "password": "^\\$\\{\\{\\s*secrets\\.GITHUB_TOKEN\\s*\\}\\}$"
+          },
+          "show": "uses: docker/login-action@v3 (registry: ghcr.io, password: ${{ secrets.GITHUB_TOKEN }})"
+        },
+        {
+          "uses": "^docker/build-push-action@",
+          "with": {
+            "push": "^True$",
+            "tags": "^ghcr\\.io/ada/greeter:\\$\\{\\{\\s*github\\.sha\\s*\\}\\}$",
+            "cache-from": "^type=gha$",
+            "cache-to": "^type=gha,mode=max$"
+          },
+          "show": "uses: docker/build-push-action@v6 (push: true, tags, cache-from, cache-to)"
+        }
+      ]
+    }
+  ]
+}

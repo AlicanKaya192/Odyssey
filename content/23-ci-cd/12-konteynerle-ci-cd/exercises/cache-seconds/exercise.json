@@ -1,0 +1,126 @@
+{
+  "id": "cache-seconds",
+  "title": {
+    "tr": "Önbellek Kaç Saniye Kazandırır?",
+    "en": "How Many Seconds Does the Cache Save?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for number, changed in enumerate(builds):` ve her derlemede `running = number == 0`.",
+      "en": "`for number, changed in enumerate(builds):` and in each build `running = number == 0`."
+    },
+    {
+      "tr": "Adım döngüsünde: `if set(files) & set(changed): running = True`, sonra `if running: total += seconds`.",
+      "en": "In the step loop: `if set(files) & set(changed): running = True`, then `if running: total += seconds`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef total_seconds(steps, builds):\n    total = 0\n    for number, changed in enumerate(builds):\n        running = number == 0\n        for instruction, files, seconds in steps:\n            if set(files) & set(changed):\n                running = True\n            if running:\n                total += seconds\n    return total\n\n\ngood = [\n    [\"FROM python:3.13-slim\", [], 5],\n    [\"COPY requirements.txt .\", [\"requirements.txt\"], 1],\n    [\"RUN pip install -r requirements.txt\", [], 60],\n    [\"COPY . .\", [\"app.py\", \"requirements.txt\"], 1],\n    [\"CMD python app.py\", [], 0],\n]\nbad = [\n    [\"FROM python:3.13-slim\", [], 5],\n    [\"COPY . .\", [\"app.py\", \"requirements.txt\"], 1],\n    [\"RUN pip install -r requirements.txt\", [], 60],\n    [\"CMD python app.py\", [], 0],\n]\nbuilds = [[], [\"app.py\"], [\"app.py\"], [\"requirements.txt\"], [\"app.py\"]]\nprint(\"good order:\", total_seconds(good, builds))\nprint(\"bad order:\", total_seconds(bad, builds))\n```",
+      "en": "The full solution:\n\n```python\ndef total_seconds(steps, builds):\n    total = 0\n    for number, changed in enumerate(builds):\n        running = number == 0\n        for instruction, files, seconds in steps:\n            if set(files) & set(changed):\n                running = True\n            if running:\n                total += seconds\n    return total\n\n\ngood = [\n    [\"FROM python:3.13-slim\", [], 5],\n    [\"COPY requirements.txt .\", [\"requirements.txt\"], 1],\n    [\"RUN pip install -r requirements.txt\", [], 60],\n    [\"COPY . .\", [\"app.py\", \"requirements.txt\"], 1],\n    [\"CMD python app.py\", [], 0],\n]\nbad = [\n    [\"FROM python:3.13-slim\", [], 5],\n    [\"COPY . .\", [\"app.py\", \"requirements.txt\"], 1],\n    [\"RUN pip install -r requirements.txt\", [], 60],\n    [\"CMD python app.py\", [], 0],\n]\nbuilds = [[], [\"app.py\"], [\"app.py\"], [\"requirements.txt\"], [\"app.py\"]]\nprint(\"good order:\", total_seconds(good, builds))\nprint(\"bad order:\", total_seconds(bad, builds))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "total_seconds",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "A",
+                [],
+                5
+              ]
+            ],
+            [
+              []
+            ]
+          ],
+          "returns": 5
+        },
+        {
+          "args": [
+            [
+              [
+                "A",
+                [],
+                5
+              ],
+              [
+                "B",
+                [
+                  "x"
+                ],
+                2
+              ]
+            ],
+            [
+              [],
+              [
+                "y"
+              ],
+              [
+                "x"
+              ]
+            ]
+          ],
+          "returns": 9
+        },
+        {
+          "args": [
+            [
+              [
+                "A",
+                [
+                  "x"
+                ],
+                1
+              ],
+              [
+                "B",
+                [],
+                10
+              ]
+            ],
+            [
+              [],
+              [
+                "x"
+              ],
+              [
+                "x"
+              ]
+            ]
+          ],
+          "returns": 33
+        },
+        {
+          "args": [
+            [
+              [
+                "A",
+                [],
+                3
+              ]
+            ],
+            []
+          ],
+          "returns": 0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "good order: 132\nbad order: 310"
+    }
+  ]
+}

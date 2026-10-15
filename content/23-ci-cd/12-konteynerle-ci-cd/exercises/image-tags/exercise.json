@@ -1,0 +1,97 @@
+{
+  "id": "image-tags",
+  "title": {
+    "tr": "İmaja Etiket Ver",
+    "en": "Tag the Image"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`tags = [f\"{image}:{sha[:7]}\"]` ile başla; `main` için `tags.append(...)`.",
+      "en": "Start with `tags = [f\"{image}:{sha[:7]}\"]`; for `main`, `tags.append(...)`."
+    },
+    {
+      "tr": "`version = ref.removeprefix(\"refs/tags/v\")`; harf yoksa `major, minor, _ = version.split(\".\")`.",
+      "en": "`version = ref.removeprefix(\"refs/tags/v\")`; if there are no letters, `major, minor, _ = version.split(\".\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef image_tags(image, ref, sha):\n    tags = [f\"{image}:{sha[:7]}\"]\n    if ref == \"refs/heads/main\":\n        tags.append(f\"{image}:latest\")\n    if ref.startswith(\"refs/tags/v\"):\n        version = ref.removeprefix(\"refs/tags/v\")\n        tags.append(f\"{image}:{version}\")\n        if not any(char.isalpha() for char in version):\n            major, minor, _ = version.split(\".\")\n            tags.append(f\"{image}:{major}.{minor}\")\n            tags.append(f\"{image}:{major}\")\n    return tags\n\n\nimage = \"ghcr.io/ada/shop\"\nsha = \"9c1e4b7a2f80d3c5\"\nrefs = [\"refs/heads/main\", \"refs/heads/cart\",\n        \"refs/tags/v2.3.1\", \"refs/tags/v3.0.0rc1\"]\nfor ref in refs:\n    print(ref)\n    for tag in image_tags(image, ref, sha):\n        print(\"  \" + tag)\n```",
+      "en": "The full solution:\n\n```python\ndef image_tags(image, ref, sha):\n    tags = [f\"{image}:{sha[:7]}\"]\n    if ref == \"refs/heads/main\":\n        tags.append(f\"{image}:latest\")\n    if ref.startswith(\"refs/tags/v\"):\n        version = ref.removeprefix(\"refs/tags/v\")\n        tags.append(f\"{image}:{version}\")\n        if not any(char.isalpha() for char in version):\n            major, minor, _ = version.split(\".\")\n            tags.append(f\"{image}:{major}.{minor}\")\n            tags.append(f\"{image}:{major}\")\n    return tags\n\n\nimage = \"ghcr.io/ada/shop\"\nsha = \"9c1e4b7a2f80d3c5\"\nrefs = [\"refs/heads/main\", \"refs/heads/cart\",\n        \"refs/tags/v2.3.1\", \"refs/tags/v3.0.0rc1\"]\nfor ref in refs:\n    print(ref)\n    for tag in image_tags(image, ref, sha):\n        print(\"  \" + tag)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "image_tags",
+      "cases": [
+        {
+          "args": [
+            "app",
+            "refs/heads/main",
+            "abcdef1234"
+          ],
+          "returns": [
+            "app:abcdef1",
+            "app:latest"
+          ]
+        },
+        {
+          "args": [
+            "app",
+            "refs/pull/7/merge",
+            "1234567890"
+          ],
+          "returns": [
+            "app:1234567"
+          ]
+        },
+        {
+          "args": [
+            "app",
+            "refs/tags/v2.0.0",
+            "aaaaaaaaaa"
+          ],
+          "returns": [
+            "app:aaaaaaa",
+            "app:2.0.0",
+            "app:2.0",
+            "app:2"
+          ]
+        },
+        {
+          "args": [
+            "app",
+            "refs/tags/v2.1.0b1",
+            "bbbbbbbbbb"
+          ],
+          "returns": [
+            "app:bbbbbbb",
+            "app:2.1.0b1"
+          ]
+        },
+        {
+          "args": [
+            "app",
+            "refs/heads/dev",
+            "cccccccccc"
+          ],
+          "returns": [
+            "app:ccccccc"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "refs/heads/main\n  ghcr.io/ada/shop:9c1e4b7\n  ghcr.io/ada/shop:latest\nrefs/heads/cart\n  ghcr.io/ada/shop:9c1e4b7\nrefs/tags/v2.3.1\n  ghcr.io/ada/shop:9c1e4b7\n  ghcr.io/ada/shop:2.3.1\n  ghcr.io/ada/shop:2.3\n  ghcr.io/ada/shop:2\nrefs/tags/v3.0.0rc1\n  ghcr.io/ada/shop:9c1e4b7\n  ghcr.io/ada/shop:3.0.0rc1"
+    }
+  ]
+}

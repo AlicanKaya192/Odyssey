@@ -1,0 +1,83 @@
+{
+  "id": "image-test",
+  "title": {
+    "tr": "İmajı Derle ve Sına",
+    "en": "Build and Test the Image"
+  },
+  "difficulty": 1,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "Dockerfile",
+      "readonly": true
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "app.py",
+      "readonly": true
+    },
+    {
+      "name": "tests/test_app.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Derleme adımının altına `with:` ve içinde üç satır: `context`, `load`, `tags`.",
+      "en": "Under the build step, `with:` with three lines inside: `context`, `load`, `tags`."
+    },
+    {
+      "tr": "`load: true` olmadan `docker run` imajı bulamaz.",
+      "en": "Without `load: true`, `docker run` cannot find the image."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n\npermissions:\n  contents: read\n\njobs:\n  image:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: docker/setup-buildx-action@v3\n      - uses: docker/build-push-action@v6\n        with:\n          context: .\n          load: true\n          tags: greeter:test\n      - run: docker run --rm greeter:test python -m pytest -q\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n\npermissions:\n  contents: read\n\njobs:\n  image:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: docker/setup-buildx-action@v3\n      - uses: docker/build-push-action@v6\n        with:\n          context: .\n          load: true\n          tags: greeter:test\n      - run: docker run --rm greeter:test python -m pytest -q\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "image",
+      "runs_on": "ubuntu-latest",
+      "steps": [
+        {
+          "uses": "^actions/checkout@",
+          "show": "uses: actions/checkout@v4"
+        },
+        {
+          "uses": "^docker/setup-buildx-action@",
+          "show": "uses: docker/setup-buildx-action@v3"
+        },
+        {
+          "uses": "^docker/build-push-action@",
+          "with": {
+            "context": "^\\.$",
+            "load": "^True$",
+            "tags": "^greeter:test$"
+          },
+          "show": "uses: docker/build-push-action@v6 (context: ., load: true, tags: greeter:test)"
+        },
+        {
+          "run": "^docker run --rm greeter:test python -m pytest",
+          "show": "run: docker run --rm greeter:test python -m pytest -q"
+        }
+      ]
+    }
+  ]
+}
