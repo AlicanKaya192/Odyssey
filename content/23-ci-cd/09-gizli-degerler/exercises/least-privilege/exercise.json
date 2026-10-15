@@ -1,0 +1,65 @@
+{
+  "id": "least-privilege",
+  "title": {
+    "tr": "En Az Yetki",
+    "en": "Least Privilege"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "greeter/__init__.py",
+      "readonly": true
+    },
+    {
+      "name": "test_greeter.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "En üstte, `jobs:`'tan önce: `permissions:` ve altında `contents: read`.",
+      "en": "At the top, before `jobs:`: `permissions:` with `contents: read` under it."
+    },
+    {
+      "tr": "`release` işinin içinde, `runs-on` ile aynı hizada ikinci bir `permissions:` bloğu: `contents: write`.",
+      "en": "Inside the `release` job, a second `permissions:` block at the same level as `runs-on`: `contents: write`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Release\n\non:\n  push:\n    tags: [\"v*\"]\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n  release:\n    needs: test\n    runs-on: ubuntu-latest\n    permissions:\n      contents: write\n    steps:\n      - uses: actions/checkout@v4\n      - run: gh release create \"$GITHUB_REF_NAME\" --generate-notes\n        env:\n          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Release\n\non:\n  push:\n    tags: [\"v*\"]\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: pip install -r requirements.txt\n      - run: python -m pytest\n  release:\n    needs: test\n    runs-on: ubuntu-latest\n    permissions:\n      contents: write\n    steps:\n      - uses: actions/checkout@v4\n      - run: gh release create \"$GITHUB_REF_NAME\" --generate-notes\n        env:\n          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "permissions": {
+        "contents": "read"
+      }
+    },
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "release",
+      "permissions": {
+        "contents": "write"
+      }
+    }
+  ]
+}

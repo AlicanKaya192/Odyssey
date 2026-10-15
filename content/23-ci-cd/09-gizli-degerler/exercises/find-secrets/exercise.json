@@ -1,0 +1,89 @@
+{
+  "id": "find-secrets",
+  "title": {
+    "tr": "Anahtar Avı",
+    "en": "Key Hunt"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for name in sorted(files):` ve içinde `for number, line in enumerate(files[name].splitlines(), start=1):`.",
+      "en": "`for name in sorted(files):` and inside it `for number, line in enumerate(files[name].splitlines(), start=1):`."
+    },
+    {
+      "tr": "İki ayrı `if`: önce `API_KEY.search(line)`, sonra `PASSWORD.search(line)`; satır `f\"{name}:{number}: api-key\"`.",
+      "en": "Two separate `if`s: first `API_KEY.search(line)`, then `PASSWORD.search(line)`; the line is `f\"{name}:{number}: api-key\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nAPI_KEY = re.compile(r\"apikey_[A-Za-z0-9]{20}\")\nPASSWORD = re.compile(r'password\\s*=\\s*\"[^\"]+\"')\n\n\ndef find_secrets(files):\n    found = []\n    for name in sorted(files):\n        for number, line in enumerate(files[name].splitlines(), start=1):\n            if API_KEY.search(line):\n                found.append(f\"{name}:{number}: api-key\")\n            if PASSWORD.search(line):\n                found.append(f\"{name}:{number}: password\")\n    return found\n\n\nfiles = {\n    \"settings.py\": 'DEBUG = True\\npassword = \"hunter2\"\\n',\n    \"app.py\": 'import os\\nkey = os.environ[\"API_KEY\"]\\n',\n    \"old_config.py\": 'KEY = \"apikey_7Hq2Lm9Xc4Vb8Nz1Rt5W\"\\npassword = \"\"\\n',\n}\nfor line in find_secrets(files):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nAPI_KEY = re.compile(r\"apikey_[A-Za-z0-9]{20}\")\nPASSWORD = re.compile(r'password\\s*=\\s*\"[^\"]+\"')\n\n\ndef find_secrets(files):\n    found = []\n    for name in sorted(files):\n        for number, line in enumerate(files[name].splitlines(), start=1):\n            if API_KEY.search(line):\n                found.append(f\"{name}:{number}: api-key\")\n            if PASSWORD.search(line):\n                found.append(f\"{name}:{number}: password\")\n    return found\n\n\nfiles = {\n    \"settings.py\": 'DEBUG = True\\npassword = \"hunter2\"\\n',\n    \"app.py\": 'import os\\nkey = os.environ[\"API_KEY\"]\\n',\n    \"old_config.py\": 'KEY = \"apikey_7Hq2Lm9Xc4Vb8Nz1Rt5W\"\\npassword = \"\"\\n',\n}\nfor line in find_secrets(files):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "find_secrets",
+      "cases": [
+        {
+          "args": [
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a.py": "x = 1"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "b.py": "password = \"pw\"\n",
+              "a.py": "k = apikey_AAAAAAAAAAAAAAAAAAAA"
+            }
+          ],
+          "returns": [
+            "a.py:1: api-key",
+            "b.py:1: password"
+          ]
+        },
+        {
+          "args": [
+            {
+              "c.py": "line\npassword = \"\"\npassword=\"x\""
+            }
+          ],
+          "returns": [
+            "c.py:3: password"
+          ]
+        },
+        {
+          "args": [
+            {
+              "d.py": "password = \"apikey_BBBBBBBBBBBBBBBBBBBB\""
+            }
+          ],
+          "returns": [
+            "d.py:1: api-key",
+            "d.py:1: password"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "old_config.py:1: api-key\nsettings.py:2: password"
+    }
+  ]
+}

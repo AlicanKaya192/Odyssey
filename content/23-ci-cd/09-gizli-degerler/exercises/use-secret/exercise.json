@@ -1,0 +1,65 @@
+{
+  "id": "use-secret",
+  "title": {
+    "tr": "Anahtarı Kasaya Taşı",
+    "en": "Move the Key to the Store"
+  },
+  "difficulty": 1,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "send_report.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Gizli değere `${{ secrets.AD }}` ile ulaşılır.",
+      "en": "A secret is reached with `${{ secrets.NAME }}`."
+    },
+    {
+      "tr": "Satır `REPORT_API_KEY: ${{ secrets.REPORT_API_KEY }}` olsun; eski değeri yorum olarak da bırakma.",
+      "en": "The line should be `REPORT_API_KEY: ${{ secrets.REPORT_API_KEY }}`; do not leave the old value as a comment either."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Report\n\non:\n  push:\n    branches: [main]\n\njobs:\n  report:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python send_report.py\n        env:\n          REPORT_API_KEY: ${{ secrets.REPORT_API_KEY }}\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Report\n\non:\n  push:\n    branches: [main]\n\njobs:\n  report:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n      - run: python send_report.py\n        env:\n          REPORT_API_KEY: ${{ secrets.REPORT_API_KEY }}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "report",
+      "secrets": [
+        "REPORT_API_KEY"
+      ],
+      "steps": [
+        {
+          "run": "send_report\\.py",
+          "env": {
+            "REPORT_API_KEY": "^\\$\\{\\{\\s*secrets\\.REPORT_API_KEY\\s*\\}\\}$"
+          },
+          "show": "run: python send_report.py (env: REPORT_API_KEY: ${{ secrets.REPORT_API_KEY }})"
+        }
+      ],
+      "forbid": [
+        {
+          "pattern": "apikey_[A-Za-z0-9]",
+          "show": "apikey_7Hq2Lm9Xc4Vb8Nz1Rt5W"
+        }
+      ]
+    }
+  ]
+}

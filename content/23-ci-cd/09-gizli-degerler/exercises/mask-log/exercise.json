@@ -1,0 +1,102 @@
+{
+  "id": "mask-log",
+  "title": {
+    "tr": "Kaydı Maskele",
+    "en": "Mask the Log"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Boş olmayanlar: `[secret for secret in secrets if secret]`.",
+      "en": "The non-empty ones: `[secret for secret in secrets if secret]`."
+    },
+    {
+      "tr": "Uzundan kısaya: `sorted(..., key=len, reverse=True)`. Her satırda bu sırayla `line.replace(secret, \"***\")`.",
+      "en": "Longest to shortest: `sorted(..., key=len, reverse=True)`. In each line, `line.replace(secret, \"***\")` in that order."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef mask_log(lines, secrets):\n    ordered = sorted([secret for secret in secrets if secret], key=len, reverse=True)\n    masked = []\n    for line in lines:\n        for secret in ordered:\n            line = line.replace(secret, \"***\")\n        masked.append(line)\n    return masked\n\n\nlog = [\"Login as admin\", \"Using token abc123XYZ\", \"Retry with abc123XYZ-backup\", \"Done\"]\nfor line in mask_log(log, [\"abc123XYZ\", \"\", \"abc123XYZ-backup\"]):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\ndef mask_log(lines, secrets):\n    ordered = sorted([secret for secret in secrets if secret], key=len, reverse=True)\n    masked = []\n    for line in lines:\n        for secret in ordered:\n            line = line.replace(secret, \"***\")\n        masked.append(line)\n    return masked\n\n\nlog = [\"Login as admin\", \"Using token abc123XYZ\", \"Retry with abc123XYZ-backup\", \"Done\"]\nfor line in mask_log(log, [\"abc123XYZ\", \"\", \"abc123XYZ-backup\"]):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mask_log",
+      "cases": [
+        {
+          "args": [
+            [
+              "a b a"
+            ],
+            [
+              "a"
+            ]
+          ],
+          "returns": [
+            "*** b ***"
+          ]
+        },
+        {
+          "args": [
+            [
+              "x"
+            ],
+            [
+              ""
+            ]
+          ],
+          "returns": [
+            "x"
+          ]
+        },
+        {
+          "args": [
+            [
+              "key=abcdef"
+            ],
+            [
+              "abc",
+              "abcdef"
+            ]
+          ],
+          "returns": [
+            "key=***"
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              "s"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "no secret"
+            ],
+            []
+          ],
+          "returns": [
+            "no secret"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Login as admin\nUsing token ***\nRetry with ***\nDone"
+    }
+  ]
+}

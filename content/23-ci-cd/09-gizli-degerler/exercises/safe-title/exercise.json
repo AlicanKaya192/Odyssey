@@ -1,0 +1,69 @@
+{
+  "id": "safe-title",
+  "title": {
+    "tr": "Başlığı Güvenle Kullan",
+    "en": "Use the Title Safely"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Adımın altına `env:` ve içinde `TITLE: ${{ github.event.pull_request.title }}`.",
+      "en": "Under the step, `env:` with `TITLE: ${{ github.event.pull_request.title }}` inside it."
+    },
+    {
+      "tr": "Komutta `${{ }}` kalmasın, yalnızca `$TITLE` ve `$BRANCH`.",
+      "en": "No `${{ }}` should remain in the command, only `$TITLE` and `$BRANCH`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: PR Check\n\non:\n  pull_request:\n    branches: [main]\n\njobs:\n  title:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \"Checking PR $TITLE\"\n        env:\n          TITLE: ${{ github.event.pull_request.title }}\n      - run: echo \"From branch $BRANCH\"\n        env:\n          BRANCH: ${{ github.head_ref }}\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: PR Check\n\non:\n  pull_request:\n    branches: [main]\n\njobs:\n  title:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \"Checking PR $TITLE\"\n        env:\n          TITLE: ${{ github.event.pull_request.title }}\n      - run: echo \"From branch $BRANCH\"\n        env:\n          BRANCH: ${{ github.head_ref }}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "title",
+      "steps": [
+        {
+          "run": "\\$TITLE",
+          "env": {
+            "TITLE": "github\\.event\\.pull_request\\.title"
+          },
+          "show": "run: echo \"Checking PR $TITLE\" (env: TITLE: ${{ github.event.pull_request.title }})"
+        },
+        {
+          "run": "\\$BRANCH",
+          "env": {
+            "BRANCH": "github\\.head_ref"
+          },
+          "show": "run: echo \"From branch $BRANCH\" (env: BRANCH: ${{ github.head_ref }})"
+        }
+      ],
+      "forbid": [
+        {
+          "pattern": "(?m)^(?!\\s*TITLE:).*\\$\\{\\{\\s*github\\.event\\.pull_request\\.title",
+          "show": "run: ... ${{ github.event.pull_request.title }}"
+        },
+        {
+          "pattern": "(?m)^(?!\\s*BRANCH:).*\\$\\{\\{\\s*github\\.head_ref",
+          "show": "run: ... ${{ github.head_ref }}"
+        }
+      ]
+    }
+  ]
+}
