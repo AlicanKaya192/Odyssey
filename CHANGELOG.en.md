@@ -37,6 +37,8 @@ lecture note does not mean downloading the whole application again.
   wait on "Preparing" for more than 15 seconds. The component that shows
   lessons, notes and release notes is now prepared in the background after
   Odyssey opens; the window no longer waits for it.
+- **The Glossary shows the headings of the NLP and Generative AI terms.**
+  These two groups had a raw label instead of a heading.
 
 ## [1.1.0] — 14 October 2026
 

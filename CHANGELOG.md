@@ -35,6 +35,8 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   15 saniyeyi aşan bir süre bekleyebiliyordu. Ders, not ve sürüm notu
   sayfalarını gösteren bileşen artık program açıldıktan sonra arka planda
   hazırlanıyor; pencere onu beklemiyor.
+- **Sözlükte NLP ve Üretken Yapay Zekâ terimlerinin başlığı görünüyor.** Bu
+  iki grubun başlığı yerine ham bir etiket yazıyordu.
 
 ## [1.1.0] — 14 Ekim 2026
 
