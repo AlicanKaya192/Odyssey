@@ -13,12 +13,14 @@ nasıl geri döneceğimizi görüyoruz.
 Kod doğrudan gerçek kullanıcılara gitmez. Arada en az bir **ortam**
 (environment) olur:
 
-<figure class="fig flow">
-  <span class="node">Test</span>
-  <span class="arrow">→</span>
-  <span class="node">staging</span>
-  <span class="arrow">→</span>
-  <span class="node acc">production</span>
+<figure class="fig">
+  <div class="flow">
+    <span class="node">Test</span>
+    <span class="arrow">→</span>
+    <span class="node">staging</span>
+    <span class="arrow">→</span>
+    <span class="node acc">production</span>
+  </div>
 </figure>
 
 - **staging** (hazırlık): gerçeğe olabildiğince benzeyen ama kullanıcısı

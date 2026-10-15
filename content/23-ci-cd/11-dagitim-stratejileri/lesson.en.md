@@ -13,12 +13,14 @@ back when something goes wrong.
 Code does not go straight to real users. There is at least one
 **environment** in between:
 
-<figure class="fig flow">
-  <span class="node">Test</span>
-  <span class="arrow">→</span>
-  <span class="node">staging</span>
-  <span class="arrow">→</span>
-  <span class="node acc">production</span>
+<figure class="fig">
+  <div class="flow">
+    <span class="node">Test</span>
+    <span class="arrow">→</span>
+    <span class="node">staging</span>
+    <span class="arrow">→</span>
+    <span class="node acc">production</span>
+  </div>
 </figure>
 
 - **staging**: an environment as close to the real one as possible, but
