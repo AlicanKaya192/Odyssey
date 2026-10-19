@@ -23,13 +23,20 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [1.2.0] — unreleased
+## [1.2.0] — 20 October 2026
 
 ### Added
-- **System Design (CI/CD) path.** From building the pipeline that tests
-  every change and prepares it for release to turning a model into a
-  reliable system. The **CI/CD and DevOps** and **MLOps and ML System
-  Design** modules are being written.
+- **The System Design (CI/CD) path is open.** The first module, **CI/CD
+  and DevOps** (17 sections): automated tests and quality gates, the
+  structure of a GitHub Actions workflow, triggers, jobs and dependencies,
+  matrices, caching, artifacts and packaging, secrets, versioning and tags,
+  deployment strategies, CI/CD with containers, branch strategy and PR
+  checks, flaky tests, ending with the full pipeline of a Python project.
+  In the workflow exercises you write the YAML file and Odyssey checks it
+  against GitHub's rules; nothing is run and no account is needed. The
+  second module, **MLOps and ML System Design**, comes in a later release.
+- New badges, the "Hephaestus" title, CI/CD terms in the glossary, and a
+  CI/CD step in the Data Engineer and ML Engineer routes.
 
 ### Fixed
 - **Odyssey opens faster right after the computer starts.** When the

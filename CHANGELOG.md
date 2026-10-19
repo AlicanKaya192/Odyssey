@@ -21,13 +21,21 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [1.2.0] — yayınlanmadı
+## [1.2.0] — 20 Ekim 2026
 
 ### Eklendi
-- **Sistem Tasarımı (CI/CD) patikası.** Kodu her değişiklikte kendiliğinden
-  test eden ve yayına hazırlayan hattı kurmaktan bir modeli güvenilir bir
-  sisteme dönüştürmeye kadar. **CI/CD ve DevOps** ile **MLOps ve ML Sistem
-  Tasarımı** modülleri yazılıyor.
+- **Sistem Tasarımı (CI/CD) patikası açıldı.** İlk modül **CI/CD ve
+  DevOps** (17 bölüm): otomatik testler ve kalite kapıları, GitHub Actions
+  iş akışının yapısı, tetikleyiciler, işler ve bağımlılıklar, matris,
+  önbellek, artifact ve paketleme, gizli değerler, sürümleme ve etiketler,
+  dağıtım stratejileri, konteynerle CI/CD, dal stratejisi ve PR
+  kontrolleri, kararsız testler; sonunda bir Python projesinin baştan sona
+  hattı. İş akışı alıştırmalarında YAML dosyasını siz yazıyorsunuz, Odyssey
+  onu GitHub'ın kurallarına göre denetliyor; hiçbir şey çalıştırılmıyor,
+  hesap gerekmiyor. İkinci modül **MLOps ve ML Sistem Tasarımı** sonraki
+  sürümlerde geliyor.
+- Yeni rozetler, "Hefaistos" unvanı, sözlükte CI/CD terimleri, Veri
+  Mühendisi ve ML Mühendisi rotalarında CI/CD adımı.
 
 ### Düzeltildi
 - **Bilgisayar yeni açıldığında program daha hızlı açılıyor.** Program
