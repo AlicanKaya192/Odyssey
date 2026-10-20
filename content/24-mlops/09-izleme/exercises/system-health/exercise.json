@@ -1,0 +1,175 @@
+{
+  "id": "system-health",
+  "title": {
+    "tr": "Sistemin Sağlığı",
+    "en": "The System's Health"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Süreleri sırala: `times = sorted(r[\"ms\"] for r in requests)`; `rank = math.ceil(0.95 * len(times))`, değer `times[rank - 1]`.",
+      "en": "Sort the durations: `times = sorted(r[\"ms\"] for r in requests)`; `rank = math.ceil(0.95 * len(times))`, the value `times[rank - 1]`."
+    },
+    {
+      "tr": "Hata: `r[\"status\"] >= 500`; reddedilen: `r[\"status\"] == 422`. 422 bir hata değil, bir reddediş: ikisi ayrı izlenir.",
+      "en": "Error: `r[\"status\"] >= 500`; rejected: `r[\"status\"] == 422`. 422 is not an error but a rejection: the two are watched separately."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef system_health(requests):\n    times = sorted(r[\"ms\"] for r in requests)\n    rank = math.ceil(0.95 * len(times))\n    errors = sum(1 for r in requests if r[\"status\"] >= 500)\n    rejected = sum(1 for r in requests if r[\"status\"] == 422)\n    return {\"p95_ms\": times[rank - 1],\n            \"error_rate\": round(errors / len(requests), 3),\n            \"rejected_rate\": round(rejected / len(requests), 3)}\n\n\nrequests = [\n    {\"ms\": 12, \"status\": 200}, {\"ms\": 15, \"status\": 200}, {\"ms\": 11, \"status\": 422},\n    {\"ms\": 90, \"status\": 200}, {\"ms\": 13, \"status\": 500}, {\"ms\": 14, \"status\": 200},\n    {\"ms\": 12, \"status\": 200}, {\"ms\": 16, \"status\": 200}, {\"ms\": 13, \"status\": 200},\n    {\"ms\": 250, \"status\": 503},\n]\nhealth = system_health(requests)\nprint(\"p95:\", health[\"p95_ms\"])\nprint(\"errors:\", health[\"error_rate\"])\nprint(\"rejected:\", health[\"rejected_rate\"])\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef system_health(requests):\n    times = sorted(r[\"ms\"] for r in requests)\n    rank = math.ceil(0.95 * len(times))\n    errors = sum(1 for r in requests if r[\"status\"] >= 500)\n    rejected = sum(1 for r in requests if r[\"status\"] == 422)\n    return {\"p95_ms\": times[rank - 1],\n            \"error_rate\": round(errors / len(requests), 3),\n            \"rejected_rate\": round(rejected / len(requests), 3)}\n\n\nrequests = [\n    {\"ms\": 12, \"status\": 200}, {\"ms\": 15, \"status\": 200}, {\"ms\": 11, \"status\": 422},\n    {\"ms\": 90, \"status\": 200}, {\"ms\": 13, \"status\": 500}, {\"ms\": 14, \"status\": 200},\n    {\"ms\": 12, \"status\": 200}, {\"ms\": 16, \"status\": 200}, {\"ms\": 13, \"status\": 200},\n    {\"ms\": 250, \"status\": 503},\n]\nhealth = system_health(requests)\nprint(\"p95:\", health[\"p95_ms\"])\nprint(\"errors:\", health[\"error_rate\"])\nprint(\"rejected:\", health[\"rejected_rate\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "system_health",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "ms": 10,
+                "status": 200
+              },
+              {
+                "ms": 30,
+                "status": 500
+              },
+              {
+                "ms": 20,
+                "status": 422
+              }
+            ]
+          ],
+          "returns": {
+            "p95_ms": 30,
+            "error_rate": 0.333,
+            "rejected_rate": 0.333
+          }
+        },
+        {
+          "args": [
+            [
+              {
+                "ms": 10,
+                "status": 200
+              }
+            ]
+          ],
+          "returns": {
+            "p95_ms": 10,
+            "error_rate": 0.0,
+            "rejected_rate": 0.0
+          }
+        },
+        {
+          "args": [
+            [
+              {
+                "ms": 10,
+                "status": 200
+              },
+              {
+                "ms": 30,
+                "status": 500
+              },
+              {
+                "ms": 20,
+                "status": 422
+              },
+              {
+                "ms": 10,
+                "status": 200
+              },
+              {
+                "ms": 30,
+                "status": 500
+              },
+              {
+                "ms": 20,
+                "status": 422
+              },
+              {
+                "ms": 10,
+                "status": 200
+              },
+              {
+                "ms": 30,
+                "status": 500
+              },
+              {
+                "ms": 20,
+                "status": 422
+              },
+              {
+                "ms": 10,
+                "status": 200
+              },
+              {
+                "ms": 30,
+                "status": 500
+              },
+              {
+                "ms": 20,
+                "status": 422
+              },
+              {
+                "ms": 10,
+                "status": 200
+              },
+              {
+                "ms": 30,
+                "status": 500
+              },
+              {
+                "ms": 20,
+                "status": 422
+              },
+              {
+                "ms": 10,
+                "status": 200
+              },
+              {
+                "ms": 30,
+                "status": 500
+              },
+              {
+                "ms": 20,
+                "status": 422
+              },
+              {
+                "ms": 10,
+                "status": 200
+              },
+              {
+                "ms": 30,
+                "status": 500
+              },
+              {
+                "ms": 20,
+                "status": 422
+              }
+            ]
+          ],
+          "returns": {
+            "p95_ms": 30,
+            "error_rate": 0.333,
+            "rejected_rate": 0.333
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "p95: 250\nerrors: 0.2\nrejected: 0.1"
+    }
+  ]
+}

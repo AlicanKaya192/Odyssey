@@ -1,0 +1,125 @@
+{
+  "id": "first-warning",
+  "title": {
+    "tr": "İlk Kim Uyardı?",
+    "en": "Who Warned First?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kaç ay bakılacağı en uzun listenin boyu: `max((len(v) for v in signals.values()), default=0)`.",
+      "en": "How many months to look at is the length of the longest list: `max((len(v) for v in signals.values()), default=0)`."
+    },
+    {
+      "tr": "Her ayda çalanlar: `sorted(name for name, values in signals.items() if month < len(values) and values[month])`.",
+      "en": "The ones firing in each month: `sorted(name for name, values in signals.items() if month < len(values) and values[month])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef first_warning(signals):\n    months = max((len(values) for values in signals.values()), default=0)\n    for month in range(months):\n        fired = sorted(name for name, values in signals.items()\n                       if month < len(values) and values[month])\n        if fired:\n            return [month, fired]\n    return None\n\n\nsignals = {\n    \"accuracy\": [False, False, False, False, True, True],\n    \"predicted_rate\": [False, False, True, True, True, True],\n    \"usage_mean\": [False, False, True, True, True, True],\n}\nprint(first_warning(signals))\nprint(first_warning({\"accuracy\": [False, False]}))\n```",
+      "en": "The full solution:\n\n```python\ndef first_warning(signals):\n    months = max((len(values) for values in signals.values()), default=0)\n    for month in range(months):\n        fired = sorted(name for name, values in signals.items()\n                       if month < len(values) and values[month])\n        if fired:\n            return [month, fired]\n    return None\n\n\nsignals = {\n    \"accuracy\": [False, False, False, False, True, True],\n    \"predicted_rate\": [False, False, True, True, True, True],\n    \"usage_mean\": [False, False, True, True, True, True],\n}\nprint(first_warning(signals))\nprint(first_warning({\"accuracy\": [False, False]}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "first_warning",
+      "cases": [
+        {
+          "args": [
+            {
+              "a": [
+                false,
+                true
+              ],
+              "b": [
+                false,
+                true,
+                true
+              ]
+            }
+          ],
+          "returns": [
+            1,
+            [
+              "a",
+              "b"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "x": [
+                false
+              ],
+              "y": [
+                false,
+                false
+              ]
+            }
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            {
+              "b": [
+                true
+              ],
+              "a": [
+                true
+              ]
+            }
+          ],
+          "returns": [
+            0,
+            [
+              "a",
+              "b"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {
+              "a": [
+                false,
+                false,
+                false
+              ],
+              "b": [
+                false,
+                false,
+                true
+              ]
+            }
+          ],
+          "returns": [
+            2,
+            [
+              "b"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, ['predicted_rate', 'usage_mean']]\nNone"
+    }
+  ]
+}
