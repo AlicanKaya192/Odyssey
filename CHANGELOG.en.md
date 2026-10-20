@@ -47,6 +47,10 @@ lecture note does not mean downloading the whole application again.
 - **The comparison boxes in the lessons are side by side.** In some
   "not like this / like this" boxes in the Python Fundamentals and CI/CD
   lessons, the two sides were drawn one under the other as a single block.
+- **Fewer short stutters when moving between screens.** Going back from
+  a section to the Learning Path and opening a section are smoother, and
+  the interface no longer stutters a few seconds after start-up while
+  search is being prepared.
 
 ## [1.2.0] — 20 October 2026
 

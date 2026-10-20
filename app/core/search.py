@@ -22,17 +22,20 @@ Aramadaki bütün sözcükler geçmeli (VE).
 from __future__ import annotations
 
 import html
+import json
+import os
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from .catalog import resolve_localized
 
-_FOLD = str.maketrans({
-    "İ": "i", "I": "i", "ı": "i",
-    "Ş": "s", "ş": "s", "Ç": "c", "ç": "c", "Ğ": "g", "ğ": "g",
-    "Ö": "o", "ö": "o", "Ü": "u", "ü": "u",
-    "Â": "a", "â": "a", "Î": "i", "î": "i", "Û": "u", "û": "u",
-})
+_FOLD_PAIRS = (
+    ("İ", "i"), ("I", "i"), ("ı", "i"),
+    ("Ş", "s"), ("ş", "s"), ("Ç", "c"), ("ç", "c"), ("Ğ", "g"), ("ğ", "g"),
+    ("Ö", "o"), ("ö", "o"), ("Ü", "u"), ("ü", "u"),
+    ("Â", "a"), ("â", "a"), ("Î", "i"), ("î", "i"), ("Û", "u"), ("û", "u"),
+)
 
 KIND_WEIGHT = {
     "screen": 12,
@@ -56,8 +59,17 @@ _SPACE = re.compile(r"\s+")
 
 
 def fold(text: str) -> str:
-    """Aramada kullanılan hâl: küçük harf, Türkçe harfler katlanmış."""
-    return text.translate(_FOLD).lower()
+    """Aramada kullanılan hâl: küçük harf, Türkçe harfler katlanmış.
+
+    `str.translate` sözlükle karakter karakter çalışıyordu; dizinin 7 MB
+    metninde 250–400 ms. Harf başına bir `replace` aynı sonucu (iki dilde
+    bütün dizinde sınandı) yarısından kısa sürede veriyor. `İ` küçük harfe
+    çevrilmeden önce değiştirilmeli: `"İ".lower()` iki karakter.
+    """
+    for harf, yerine in _FOLD_PAIRS:
+        if harf in text:
+            text = text.replace(harf, yerine)
+    return text.lower()
 
 
 def plain(text: str) -> str:
@@ -223,6 +235,85 @@ def build_index(catalog, language: str, pick) -> list[SearchItem]:
                     )
                 )
     return items
+
+
+# --- dizin önbelleği ---------------------------------------------------------------
+#
+# Dizini kurmak ~2,6 sn saf Python (her ders, not ve yönerge okunuyor; başlık
+# çapaları için markdown). Arka plandaki iş parçacığında olsa da GIL'i ana iş
+# parçacığıyla paylaşıyor: açılıştan sonraki ilk saniyelerde arayüz
+# takılıyordu (20 Ekim ölçüldü, tek seferde ~700 ms). İçerik program
+# çalışırken değişmiyor; dizin bir kez kurulup JSON olarak saklanıyor
+# (pickle değil: kullanıcı klasöründeki bir dosyadan kod çalıştırılmasın).
+# Anahtar tutmazsa (sürüm, dil, içerik değişti) ya da dosya bozuksa yeniden
+# kuruluyor.
+
+CACHE_FORMAT = 1
+
+
+def save_index_cache(path: Path, key: dict, items: list[SearchItem]) -> None:
+    payload = {
+        "format": CACHE_FORMAT,
+        "key": key,
+        "items": [[i.kind, i.title, i.subtitle, i.target, i.body, i.match_title] for i in items],
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    gecici = path.with_name(path.name + ".tmp")
+    gecici.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    os.replace(gecici, path)
+
+
+def load_index_cache(path: Path, key: dict) -> list[SearchItem] | None:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(data, dict) or data.get("format") != CACHE_FORMAT or data.get("key") != key:
+        return None
+    try:
+        return [
+            SearchItem(str(kind), str(title), str(subtitle), dict(target), body=str(body),
+                       match_title=bool(match_title))
+            for kind, title, subtitle, target, body, match_title in data["items"]
+        ]
+    except (TypeError, ValueError, KeyError):
+        return None
+
+
+def cached_index(catalog, language: str, pick, path: Path, key: dict) -> list[SearchItem]:
+    """Önbellekteki dizin; yoksa ya da eskiyse kurulup kaydediliyor."""
+    items = load_index_cache(path, key)
+    if items is not None:
+        return items
+    items = build_index(catalog, language, pick)
+    try:
+        save_index_cache(path, key, items)
+    except OSError:
+        # Arama yine çalışıyor; bir dahaki açılışta dizin yeniden kurulur.
+        from . import log
+
+        log.get(__name__).exception("Arama dizini önbelleğe yazılamadı")
+    return items
+
+
+def content_signature(directory: Path) -> list[int]:
+    """İçerik klasöründeki dosya sayısı ve en yeni değişiklik zamanı.
+
+    Yalnızca geliştirme ortamında anahtara giriyor (~270 ms): kurulu
+    programda içerik yalnızca güncellemeyle, sürüm numarasıyla birlikte
+    değişiyor.
+    """
+    sayi = son = 0
+    bekleyen = [directory]
+    while bekleyen:
+        with os.scandir(bekleyen.pop()) as girdiler:
+            for girdi in girdiler:
+                if girdi.is_dir(follow_symlinks=False):
+                    bekleyen.append(girdi.path)
+                else:
+                    sayi += 1
+                    son = max(son, girdi.stat(follow_symlinks=False).st_mtime_ns)
+    return [sayi, son]
 
 
 def _snippet(item: SearchItem, token: str) -> str:

@@ -431,6 +431,8 @@ class Section:
     blocks: list[Block] = field(default_factory=list)
     # `exercises` ilk erişimde bir kez okunuyor; bkz. oradaki not.
     _exercises: list | None = field(default=None, init=False, repr=False, compare=False)
+    # `exercise_count` de bir kez sayılıyor; bkz. oradaki not.
+    _exercise_count: int | None = field(default=None, init=False, repr=False, compare=False)
 
     @property
     def title(self) -> dict[str, str]:
@@ -487,14 +489,20 @@ class Section:
 
         Karşılama kartındaki toplam için bütün bölümlerin `exercises`'ı
         okunuyordu: açılışta 1980 `exercise.json` yalnızca saymak için
-        (~0,5 sn, 14 Ekim ölçüldü).
+        (~0,5 sn, 14 Ekim ölçüldü). Sayı da bir kez hesaplanıyor: her
+        çağrıda klasörleri diske sormak, Öğrenme Yolu her yenilendiğinde
+        ~2000 `exists()` demekti; bölümden geri dönüşün ve bölüm açılışının
+        donmasının büyük kısmı buydu (20 Ekim ölçüldü). İçerik program
+        çalışırken değişmiyor.
         """
         if self._exercises is not None:
             return len(self._exercises)
-        return sum(
-            1 for block in self.blocks_of("exercise")
-            if block.exercise_dir and block.exercise_dir.exists()
-        )
+        if self._exercise_count is None:
+            self._exercise_count = sum(
+                1 for block in self.blocks_of("exercise")
+                if block.exercise_dir and block.exercise_dir.exists()
+            )
+        return self._exercise_count
 
     @classmethod
     def load(cls, directory: Path, chapter_id: str) -> "Section":

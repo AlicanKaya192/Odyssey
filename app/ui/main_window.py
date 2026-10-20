@@ -44,8 +44,8 @@ from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.unlock import is_unlocked
 from ..core.theme import ThemeManager
-from ..paths import content_dir
-from ..version import APP_VERSION
+from ..paths import content_dir, is_frozen, user_data_dir
+from ..version import APP_VERSION, CONTENT_VERSION
 from .header import ScreenHeader
 from ..widgets.common import HairlineFrame, SegmentedControl
 from .about_view import SECTIONS as ABOUT_SECTIONS, AboutView
@@ -57,7 +57,7 @@ from .footer import Footer
 from .journey_view import JourneyView
 from .notebook_view import NotebookView
 from .search_palette import SearchPalette
-from ..core.search import SearchItem, build_index, plain
+from ..core.search import SearchItem, cached_index, content_signature, plain
 from .profile_view import ProfileView
 from .rail import Rail, RailToggle
 from .release_view import ReleaseView, latest_version as latest_release
@@ -1012,7 +1012,7 @@ class MainWindow(QMainWindow):
 
         def build() -> None:
             try:
-                items = build_index(self._catalog, dil, self._language.pick)
+                items = self._load_index(dil)
             except Exception:
                 from ..core import log
 
@@ -1035,8 +1035,17 @@ class MainWindow(QMainWindow):
             self._index_thread.join()
         dil = self._language.language
         if self._search_index[0] != dil:
-            self._search_index = (dil, build_index(self._catalog, dil, self._language.pick))
+            self._search_index = (dil, self._load_index(dil))
         return self._search_index[1]
+
+    def _load_index(self, language: str) -> list[SearchItem]:
+        """Dizin diskteki önbellekten; yoksa kurulup kaydediliyor (bkz. `search.cached_index`)."""
+        key = {"app": APP_VERSION, "content": CONTENT_VERSION, "language": language}
+        if not is_frozen():
+            # Geliştirirken içerik sürüm numarası değişmeden düzenleniyor.
+            key["files"] = content_signature(content_dir())
+        path = user_data_dir() / "cache" / f"search-index-{language}.json"
+        return cached_index(self._catalog, language, self._language.pick, path, key)
 
     def _search_items(self) -> list[SearchItem]:
         """Aranabilecek her şey: ekranlar, kullanıcının notları, katalog."""

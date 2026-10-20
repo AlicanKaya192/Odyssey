@@ -45,6 +45,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Derslerdeki karşılaştırma kutuları yan yana görünüyor.** Python
   Temelleri ve CI/CD derslerindeki bazı "şöyle değil / böyle"
   kutularında iki taraf alt alta, tek blok hâlinde çiziliyordu.
+- **Ekranlar arasında geçerken kısa takılmalar azaldı.** Bölümden
+  Öğrenme Yolu'na dönmek ve bir bölümü açmak daha akıcı; program
+  açıldıktan birkaç saniye sonra arama hazırlanırken arayüz artık
+  takılmıyor.
 
 ## [1.2.0] — 20 Ekim 2026
 

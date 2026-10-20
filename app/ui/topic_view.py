@@ -545,7 +545,12 @@ class TopicView(QWidget):
         """
         if self._section is None or self._touring():
             return
-        self._store.mark_lesson_read(self._section.chapter_id, self._section.id)
+        # Zaten okunmuş ders, bugün zaten çalışılmışken her açılışta yeniden
+        # "okundu" bildiriyor (kısa ders ya da sonuna inilmiş sayfa). O zaman
+        # değişen bir şey yok; Öğrenme Yolu, rozet ve seviye hesabını baştan
+        # yapmak bölüm açılışını ~100 ms donduruyordu (20 Ekim ölçüldü).
+        if not self._store.mark_lesson_read(self._section.chapter_id, self._section.id):
+            return
         self._refresh_progress()
         self.progress_changed.emit()
 

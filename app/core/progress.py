@@ -408,13 +408,14 @@ class ProgressStore:
         gunler = [g for g in gunler if g is not None]
         return max(gunler) if gunler else None
 
-    def mark_study_day(self) -> None:
-        """Bugün çalışıldı olarak işaretlenir (gün serisi için)."""
+    def mark_study_day(self) -> bool:
+        """Bugün çalışıldı olarak işaretlenir (gün serisi için). Bugün ilk kezse `True`."""
         with self._write() as connection:
-            connection.execute(
+            imlec = connection.execute(
                 "INSERT OR IGNORE INTO study_days (day) VALUES (?)",
                 (date.today().isoformat(),),
             )
+            return imlec.rowcount > 0
 
     def add_focus_session(self, minutes: int) -> None:
         """Bir odak evresini kaydeder (çalışma zamanlayıcısı)."""
@@ -649,7 +650,8 @@ class ProgressStore:
                 (chapter_id, section_id, _now()),
             )
 
-    def mark_lesson_read(self, chapter_id: str, section_id: str) -> None:
+    def mark_lesson_read(self, chapter_id: str, section_id: str) -> bool:
+        """Ders okundu. Bir şey değiştiyse (ilk okuma ya da günün ilk çalışması) `True`."""
         self._touch_section(chapter_id, section_id)
 
         # Olay yalnızca **ilk** okumada yazılıyor. Aynı dersi beş kez açmak
@@ -670,7 +672,8 @@ class ProgressStore:
             )
         if ilk_kez:
             self.record_activity("lesson", chapter_id, section_id)
-        self.mark_study_day()
+        yeni_gun = self.mark_study_day()
+        return ilk_kez or yeni_gun
 
     def mark_note_read(self, chapter_id: str, section_id: str, document_id: str) -> bool:
         """Ders notu sonuna kadar okundu. İlk kez okunduysa `True`."""
