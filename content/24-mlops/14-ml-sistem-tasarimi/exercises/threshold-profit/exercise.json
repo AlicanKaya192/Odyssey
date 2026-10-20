@@ -1,0 +1,167 @@
+{
+  "id": "threshold-profit",
+  "title": {
+    "tr": "Eşiğin Kârı",
+    "en": "The Profit of a Threshold"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`zip(probs, labels)` her müşterinin olasılığını ve etiketini birlikte verir.",
+      "en": "`zip(probs, labels)` gives each customer's probability and label together."
+    },
+    {
+      "tr": "Eşiğe eşit olan da teklif alır: `p >= threshold`.",
+      "en": "One equal to the threshold also gets an offer: `p >= threshold`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef profit(probs, labels, threshold, saved, cost):\n    offers, total = 0, 0\n    for p, y in zip(probs, labels):\n        if p >= threshold:\n            offers += 1\n            total += saved * y - cost\n    return [offers, total]\n\n\nprobs = [0.9, 0.6, 0.4, 0.2, 0.1]\nlabels = [1, 0, 1, 0, 0]\nprint(profit(probs, labels, 0.5, 18, 5))\nprint(profit(probs, labels, 0.3, 18, 5))\nprint(profit(probs, labels, 0.95, 18, 5))\n```",
+      "en": "The full solution:\n\n```python\ndef profit(probs, labels, threshold, saved, cost):\n    offers, total = 0, 0\n    for p, y in zip(probs, labels):\n        if p >= threshold:\n            offers += 1\n            total += saved * y - cost\n    return [offers, total]\n\n\nprobs = [0.9, 0.6, 0.4, 0.2, 0.1]\nlabels = [1, 0, 1, 0, 0]\nprint(profit(probs, labels, 0.5, 18, 5))\nprint(profit(probs, labels, 0.3, 18, 5))\nprint(profit(probs, labels, 0.95, 18, 5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "profit",
+      "cases": [
+        {
+          "args": [
+            [
+              0.9,
+              0.6,
+              0.4,
+              0.35,
+              0.2,
+              0.1
+            ],
+            [
+              1,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            0.5,
+            18,
+            5
+          ],
+          "returns": [
+            2,
+            8
+          ]
+        },
+        {
+          "args": [
+            [
+              0.9,
+              0.6,
+              0.4,
+              0.35,
+              0.2,
+              0.1
+            ],
+            [
+              1,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            0.3,
+            18,
+            5
+          ],
+          "returns": [
+            4,
+            34
+          ]
+        },
+        {
+          "args": [
+            [
+              0.9,
+              0.6,
+              0.4,
+              0.35,
+              0.2,
+              0.1
+            ],
+            [
+              1,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            0.95,
+            18,
+            5
+          ],
+          "returns": [
+            0,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              0.9,
+              0.6,
+              0.4,
+              0.35,
+              0.2,
+              0.1
+            ],
+            [
+              1,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            0.0,
+            18,
+            5
+          ],
+          "returns": [
+            6,
+            24
+          ]
+        },
+        {
+          "args": [
+            [
+              0.5
+            ],
+            [
+              1
+            ],
+            0.5,
+            10,
+            2
+          ],
+          "returns": [
+            1,
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 8]\n[3, 21]\n[0, 0]"
+    }
+  ]
+}

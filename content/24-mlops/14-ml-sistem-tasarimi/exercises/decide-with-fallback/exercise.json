@@ -1,0 +1,92 @@
+{
+  "id": "decide-with-fallback",
+  "title": {
+    "tr": "Yedekli Karar",
+    "en": "A Decision With a Fallback"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`None` ile karşılaştırma `is None` ile yapılır.",
+      "en": "Compare with `None` using `is None`."
+    },
+    {
+      "tr": "Model çalıştıysa müşterinin arama sayısına bakılmaz; yalnızca skor.",
+      "en": "If the model ran, the customer's call count isn't looked at; only the score."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef decide(score, threshold, customer):\n    if score is None:\n        offer = customer[\"support_calls\"] >= 2\n    else:\n        offer = score >= threshold\n    return \"offer\" if offer else \"no offer\"\n\n\ncustomer = {\"support_calls\": 3}\nprint(decide(0.42, 0.31, customer))\nprint(decide(0.12, 0.31, customer))\nprint(decide(None, 0.31, customer))\nprint(decide(None, 0.31, {\"support_calls\": 1}))\n```",
+      "en": "The full solution:\n\n```python\ndef decide(score, threshold, customer):\n    if score is None:\n        offer = customer[\"support_calls\"] >= 2\n    else:\n        offer = score >= threshold\n    return \"offer\" if offer else \"no offer\"\n\n\ncustomer = {\"support_calls\": 3}\nprint(decide(0.42, 0.31, customer))\nprint(decide(0.12, 0.31, customer))\nprint(decide(None, 0.31, customer))\nprint(decide(None, 0.31, {\"support_calls\": 1}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "decide",
+      "cases": [
+        {
+          "args": [
+            0.42,
+            0.31,
+            {
+              "support_calls": 0
+            }
+          ],
+          "returns": "offer"
+        },
+        {
+          "args": [
+            0.12,
+            0.31,
+            {
+              "support_calls": 5
+            }
+          ],
+          "returns": "no offer"
+        },
+        {
+          "args": [
+            null,
+            0.31,
+            {
+              "support_calls": 2
+            }
+          ],
+          "returns": "offer"
+        },
+        {
+          "args": [
+            null,
+            0.31,
+            {
+              "support_calls": 1
+            }
+          ],
+          "returns": "no offer"
+        },
+        {
+          "args": [
+            0.31,
+            0.31,
+            {
+              "support_calls": 0
+            }
+          ],
+          "returns": "offer"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "offer\nno offer\noffer\nno offer"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "id": "design-sections",
+  "title": {
+    "tr": "Tasarım Belgesinin Bölümleri",
+    "en": "The Design Document's Sections"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`doc.splitlines()` belgeyi satırlara böler; `line.startswith(\"## \")` başlığı bulur.",
+      "en": "`doc.splitlines()` splits the document into lines; `line.startswith(\"## \")` finds a heading."
+    },
+    {
+      "tr": "`# ` ve `### ` başlık sayılmaz: yalnızca tam olarak `## ` ile başlayanlar.",
+      "en": "`# ` and `### ` don't count: only lines starting exactly with `## `."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef missing_sections(doc, required):\n    headings = set()\n    for line in doc.splitlines():\n        if line.startswith(\"## \"):\n            headings.add(line[3:].strip())\n    return [name for name in required if name not in headings]\n\n\ndoc = \"\"\"# Churn model\n## Goal\nReduce churn.\n## Data\nCustomer table.\n## Serving\nNightly batch.\n\"\"\"\nrequired = [\"Goal\", \"Data\", \"Model\", \"Serving\", \"Monitoring\"]\nprint(missing_sections(doc, required))\nprint(missing_sections(\"## Goal\\n## Model\", [\"Goal\", \"Model\"]))\n```",
+      "en": "The full solution:\n\n```python\ndef missing_sections(doc, required):\n    headings = set()\n    for line in doc.splitlines():\n        if line.startswith(\"## \"):\n            headings.add(line[3:].strip())\n    return [name for name in required if name not in headings]\n\n\ndoc = \"\"\"# Churn model\n## Goal\nReduce churn.\n## Data\nCustomer table.\n## Serving\nNightly batch.\n\"\"\"\nrequired = [\"Goal\", \"Data\", \"Model\", \"Serving\", \"Monitoring\"]\nprint(missing_sections(doc, required))\nprint(missing_sections(\"## Goal\\n## Model\", [\"Goal\", \"Model\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "missing_sections",
+      "cases": [
+        {
+          "args": [
+            "# T\n## Goal\nx\n## Data\ny\n## Serving\nz\n",
+            [
+              "Goal",
+              "Data",
+              "Model",
+              "Serving",
+              "Monitoring"
+            ]
+          ],
+          "returns": [
+            "Model",
+            "Monitoring"
+          ]
+        },
+        {
+          "args": [
+            "# T\n## Goal\nx\n## Data\ny\n## Serving\nz\n",
+            [
+              "Goal"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "",
+            [
+              "Goal",
+              "Data"
+            ]
+          ],
+          "returns": [
+            "Goal",
+            "Data"
+          ]
+        },
+        {
+          "args": [
+            "# Goal\n### Data",
+            [
+              "Goal",
+              "Data"
+            ]
+          ],
+          "returns": [
+            "Goal",
+            "Data"
+          ]
+        },
+        {
+          "args": [
+            "## Goal  \n## Data",
+            [
+              "Data",
+              "Goal"
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['Model', 'Monitoring']\n[]"
+    }
+  ]
+}
