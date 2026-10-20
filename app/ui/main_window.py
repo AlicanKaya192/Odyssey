@@ -181,6 +181,8 @@ class MainWindow(QMainWindow):
 
         # Klavye kısayollarının listesi; alt şeritteki klavye düğmesi ve F1.
         self._shortcut_panel = ShortcutPanel(language, self)
+        # Hızlı başvuru çekmecesi: ilk açılışta kuruluyor (Ctrl+R, alt şerit).
+        self._reference = None
 
         central = QWidget()
         self.setCentralWidget(central)
@@ -269,6 +271,7 @@ class MainWindow(QMainWindow):
         self._install_shortcuts()
 
         self._footer.shortcuts_clicked.connect(self._toggle_shortcuts)
+        self._footer.reference_clicked.connect(self._toggle_reference)
         self._footer.set_stars(github_stars.cached(self._store))
 
         # Çalışma zamanlayıcısı: alt şeritte küçük sayaç, tıklayınca panel.
@@ -899,6 +902,23 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence(Qt.Key.Key_F1), self, self._toggle_shortcuts)
         QShortcut(QKeySequence(Qt.Key.Key_F11), self, self.toggle_focus_mode)
         QShortcut(QKeySequence(Qt.Key.Key_Escape), self, self._escape)
+        QShortcut(QKeySequence("Ctrl+R"), self, self._toggle_reference)
+
+    def _toggle_reference(self) -> None:
+        """Hızlı başvuru çekmecesi; bölümdeyken o bölümün, değilse son bölümün notu."""
+        if self._reference is not None and self._reference.is_open:
+            self._reference.close_drawer()
+            return
+        if self._reference is None:
+            from .reference_drawer import ReferenceDrawer
+
+            self._reference = ReferenceDrawer(self._catalog, self._language, self._central)
+            self._reference.set_mode(self._theme.effective_mode)
+        acik = self._topic_view is not None and self._stack.currentWidget() is self._topic_view
+        bolum = self._topic_view.section if acik else None
+        anahtar = (bolum.chapter_id, bolum.id) if bolum is not None else self._store.last_visited()
+        self._reference.reposition(self._footer.height() if self._footer.isVisible() else 0)
+        self._reference.open_for(anahtar)
 
     def _toggle_shortcuts(self) -> None:
         """Kısayol listesini açar ya da kapatır (klavye düğmesi, F1)."""
@@ -920,6 +940,8 @@ class MainWindow(QMainWindow):
         for panel in (self._shortcut_panel, self._timer_panel):
             if panel.isVisible():
                 panel.close()
+        if self._reference is not None:
+            self._reference.close_drawer()
         self.tour_active = True
         katman = TourOverlay(self._language, steps_for(self), self._theme.effective_mode, self._central)
         self._tour = katman
@@ -1420,6 +1442,9 @@ class MainWindow(QMainWindow):
             if panel.isVisible():
                 panel.close()
                 return
+        if self._reference is not None and self._reference.is_open:
+            self._reference.close_drawer()
+            return
         current = self._stack.currentWidget()
         if current is self._topic_view:
             self._topic_back()
@@ -1601,6 +1626,8 @@ class MainWindow(QMainWindow):
         self._toasts.set_mode(mode)
         self._shortcut_panel.set_mode(mode)
         self._timer_panel.set_mode(mode)
+        if self._reference is not None:
+            self._reference.set_mode(mode)
         self._timer_chip.set_mode(mode)
         self._search.set_mode(mode)
         self._apply_header_accents(mode)
@@ -1620,6 +1647,8 @@ class MainWindow(QMainWindow):
         self._search.retranslate()
         self._shortcut_panel.retranslate()
         self._timer_panel.retranslate()
+        if self._reference is not None:
+            self._reference.retranslate()
         self._update_headers()
         # Discord'daki yazı da kullanıcının dilinde; `retranslate` onu
         # yeniden üretmezse orada eski dil kalıyor.
@@ -1722,6 +1751,8 @@ class MainWindow(QMainWindow):
             self._search.setGeometry(self.rect())
         self._shortcut_panel.reposition()
         self._timer_panel.reposition()
+        if self._reference is not None:
+            self._reference.reposition(self._footer.height() if self._footer.isVisible() else 0)
         tur = getattr(self, "_tour", None)
         if tur is not None:
             tur.reposition()

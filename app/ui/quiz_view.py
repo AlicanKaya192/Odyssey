@@ -25,6 +25,7 @@ import json
 import math
 import time
 from pathlib import Path
+from urllib.parse import unquote
 
 from PySide6.QtCore import Property, QEvent, QPointF, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
@@ -42,7 +43,8 @@ from PySide6.QtWidgets import (
 
 from ..core.language import LanguageManager
 from ..core.quiz_shuffle import prepare
-from .attempt_history import quiz_answers, quiz_markdown, when
+from ..core.quiz_spots import WEAK_LIMIT, QuizSpots
+from .attempt_history import REVIEW_NOTE, REVIEW_SPOT, quiz_answers, quiz_markdown, when
 from ..resources.icons import icon, pixmap
 from ..resources.theme.motion import DISTANCE, bounce, out_cubic
 from ..resources.theme.tokens import PALETTES, SPACING, mix
@@ -457,6 +459,10 @@ class QuizView(QWidget):
     # Sorular açıldı (True) ya da sınav bitti / bırakıldı (False); sınav
     # sürerken bölümün not paneli kapalı.
     running_changed = Signal(bool)
+    # Zayıf konu: "Derse git" ile dersin bu çapasına (bkz. `core.quiz_spots`),
+    # "Nota git" ile bölümün kaçıncı notunun hangi çapasına.
+    lesson_requested = Signal(str)
+    note_requested = Signal(int, str)
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -480,6 +486,12 @@ class QuizView(QWidget):
         self._last_correct = 0
         # Geçmiş denemeler: bölüm ekranı sağlıyor (`set_history_provider`).
         self._history_provider = None
+        # Zayıf konunun aranacağı ders metni: bölüm ekranı veriyor (genel
+        # tekrarda boş). Başlıklar dil başına bir kez bulunuyor.
+        self.lesson_source = lambda: ""
+        self.notes_source = lambda: []
+        self._spots: QuizSpots | None = None
+        self._spots_language = ""
         self._review_view = None
         self._review_back = 0
         self._review_attempts: list[dict] = []
@@ -682,6 +694,26 @@ class QuizView(QWidget):
             satir.addWidget(kutu, 1)
         card.body.addLayout(satir)
         card.body.addSpacing(SPACING["md"])
+        # Zayıf konu: yanlış soruların en çok gösterdiği ders başlıkları.
+        self._weak_box = QWidget()
+        self._weak_box.setProperty("role", "bare")
+        zayif = QVBoxLayout(self._weak_box)
+        zayif.setContentsMargins(0, 0, 0, SPACING["md"])
+        zayif.setSpacing(2)
+        self._weak_title = QLabel()
+        self._weak_title.setProperty("role", "muted")
+        zayif.addWidget(self._weak_title)
+        zayif.addSpacing(SPACING["xs"])
+        self._weak_buttons: list[QPushButton] = []
+        for _ in range(WEAK_LIMIT):
+            dugme = QPushButton()
+            dugme.setProperty("variant", "toc")
+            dugme.setCursor(Qt.CursorShape.PointingHandCursor)
+            dugme.clicked.connect(lambda _=False, d=dugme: self._go_spot(d.property("spot")))
+            zayif.addWidget(dugme)
+            self._weak_buttons.append(dugme)
+        self._weak_box.hide()
+        card.body.addWidget(self._weak_box)
         # Üç düğme tek satırda dar kartta sığmıyor, yazılar kırpılıyordu
         # ("Yanlışlarımı gör" → "nlışlarımı g"). Üstte ikincil ikisi eşit
         # genişlikte yan yana, altta "devam" tam genişlikte.
@@ -804,6 +836,7 @@ class QuizView(QWidget):
             from .lesson_view import LessonView
 
             self._review_view = LessonView(self._language, compact=False)
+            self._review_view.action.connect(self._on_review_action)
             self._review_view.set_mode(self._mode)
             self._review_holder.addWidget(self._review_view)
         self._fill_review_pick()
@@ -833,7 +866,8 @@ class QuizView(QWidget):
         i = max(0, self._review_pick.currentIndex())
         deneme = self._review_attempts[min(i, len(self._review_attempts) - 1)]
         self._review_view.show_text(quiz_markdown(
-            self._language, self._questions, deneme, self._review_only_wrong.isChecked()))
+            self._language, self._questions, deneme, self._review_only_wrong.isChecked(),
+            spot_for=self._spot_for))
 
     # --- yükleme --------------------------------------------------------------
 
@@ -849,6 +883,7 @@ class QuizView(QWidget):
         with path.open(encoding="utf-8") as handle:
             data = json.load(handle)
         self._questions = data.get("questions", [])
+        self._spots = None
         self._clear()
         self._show_start()
 
@@ -1071,6 +1106,64 @@ class QuizView(QWidget):
                 (str(bos), t("quiz.stat_empty"), "text_muted"),
                 (format_clock(getattr(self, "_last_seconds", 0)), t("quiz.stat_time"), "text"))):
             kutu.set_values(deger, ad, ton)
+        self._render_weak()
+
+    # --- zayıf konu -----------------------------------------------------------
+
+    def _spot_finder(self) -> QuizSpots:
+        """Ders başlıkları seçili dilde; dil değişince yeniden kuruluyor."""
+        dil = self._language.language
+        if self._spots is None or self._spots_language != dil:
+            self._spots = QuizSpots(self.lesson_source() or "", dil, self.notes_source() or [])
+            self._spots_language = dil
+        return self._spots
+
+    def _spot_for(self, index: int):
+        if not (0 <= index < len(self._questions)):
+            return None
+        return self._spot_finder().spot(index, self._questions[index])
+
+    def _render_weak(self) -> None:
+        """Yanlış ya da boş soruların en çok gösterdiği başlıklar."""
+        indeksler = [kart.question.get("_index", -1) for kart in self._cards
+                     if not (kart.is_answered and kart.is_correct)]
+        kacirilan = [(i, self._questions[i]) for i in indeksler if 0 <= i < len(self._questions)]
+        zayif = self._spot_finder().weak(kacirilan) if kacirilan else []
+        self._weak_box.setVisible(bool(zayif))
+        if not zayif:
+            return
+        t = self._language.t
+        self._weak_title.setText(t("quiz.weak_title"))
+        olcu = self._weak_buttons[0].fontMetrics()
+        genislik = max(160, self._result_card.width() - 90)
+        for dugme, kayit in zip(self._weak_buttons, zayif + [None] * WEAK_LIMIT):
+            dugme.setVisible(kayit is not None)
+            if kayit is None:
+                continue
+            yer, sayi = kayit
+            sayac = t("quiz.weak_count", count=sayi)
+            baslik = olcu.elidedText(yer.title.replace("`", ""), Qt.TextElideMode.ElideRight,
+                                     genislik - olcu.horizontalAdvance(f"  ·  {sayac}  →"))
+            dugme.setText(f"{baslik}  ·  {sayac}  →")
+            dugme.setToolTip(t("quiz.weak_tip_note" if yer.in_notes else "quiz.weak_tip",
+                               title=yer.title.replace("`", "")))
+            dugme.setProperty("spot", (yer.note, yer.anchor))
+
+    def _go_spot(self, spot: tuple[int, str]) -> None:
+        """(not sırası, çapa): not -1 ise ders."""
+        note, anchor = spot
+        if note >= 0:
+            self.note_requested.emit(note, anchor)
+        else:
+            self.lesson_requested.emit(anchor)
+
+    def _on_review_action(self, action: str) -> None:
+        if action.startswith(REVIEW_SPOT):
+            self.lesson_requested.emit(unquote(action[len(REVIEW_SPOT):]))
+        elif action.startswith(REVIEW_NOTE):
+            note, _, anchor = action[len(REVIEW_NOTE):].partition("/")
+            if note.isdigit():
+                self.note_requested.emit(int(note), unquote(anchor))
 
     def _reset(self) -> None:
         """Baştan dene: başlangıç kartına dönüyor, sorular yeniden karışıyor."""

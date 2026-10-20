@@ -44,7 +44,7 @@ class LessonSpot:
     anchor: str  # "" = dersin başı
 
 
-def _code_words(code: str) -> set[str]:
+def code_words(code: str) -> set[str]:
     """Koddaki adlar (yorumlar ve metin sabitleri hariç)."""
     kelimeler: set[str] = set()
     try:
@@ -56,7 +56,7 @@ def _code_words(code: str) -> set[str]:
     return kelimeler - _STOP
 
 
-def _prose_words(text: str) -> set[str]:
+def prose_words(text: str) -> set[str]:
     return {w.lower() for w in _PROSE.findall(text)} - _STOP
 
 
@@ -64,28 +64,36 @@ def _prose_words(text: str) -> set[str]:
 _SIDE = re.compile(r"^(makine öğrenmesinde|in machine learning|özet|summary|sık yapılan|common mistake|yapma)", re.I)
 
 
-def find_spot(lesson_source: str, code: str, prompt: str, override: str = "",
-              title: str = "") -> LessonSpot | None:
-    """Alıştırmanın dayandığı ders parçası; ders yoksa None."""
-    if not lesson_source.strip():
-        return None
+def lesson_spots(lesson_source: str) -> list[LessonSpot]:
+    """Dersin `## ` parçaları sırasıyla; ilki başlıksız giriş (çapası "")."""
     parcalar = lesson_chunks(lesson_source)
     capalar = heading_ids(lesson_source)
-    basliklar = [(baslik, capalar[i - 1] if 0 < i <= len(capalar) else "") for i, (baslik, _m) in enumerate(parcalar)]
-    if override:
-        for baslik, capa in basliklar:
-            if capa == override:
-                return LessonSpot(baslik, capa)
+    return [LessonSpot(baslik, capalar[i - 1] if 0 < i <= len(capalar) else "")
+            for i, (baslik, _m) in enumerate(parcalar)]
 
+
+def chunk_scores(lesson_source: str, aranan: dict[str, float]) -> list[float]:
+    """Her ders parçasının aranan kelimelere (kelime → ağırlık) göre puanı.
+
+    Giriş parçası (başlıksız) ders tek parçadan ibaret değilse 0 alıyor.
+    """
+    parcalar = lesson_chunks(lesson_source)
+    return unit_scores(parcalar, aranan, skip={0} if len(parcalar) > 1 else set())
+
+
+def unit_scores(parcalar: list[tuple[str, str]], aranan: dict[str, float],
+                skip: set[int] = frozenset()) -> list[float]:
+    """(başlık, metin) parçalarının aranan kelimelere (kelime → ağırlık) göre puanı.
+
+    Kelime kaç parçada geçiyorsa o kadar az değerli (bütün parçalar sayılıyor,
+    `skip` dahil); başlığın kendisinde geçiyorsa iki kat. `skip` 0 alıyor.
+    """
     metinler = [(baslik + "\n" + metin).lower() for baslik, metin in parcalar]
-    aranan = {w: 1.0 for w in _prose_words(prompt)}
-    aranan.update({w: 2.0 for w in _code_words(code)})  # kod adları daha belirleyici
-    aranan.update({w: 3.0 for w in _prose_words(title)})  # alıştırmanın adı en belirleyici
-
-    en_iyi, en_iyi_puan = 0, 0.0
+    puanlar = []
     for i, metin in enumerate(metinler):
-        if i == 0 and len(metinler) > 1:
-            continue  # giriş parçası (başlıksız) ancak tek parçaysa
+        if i in skip:
+            puanlar.append(0.0)
+            continue
         puan = 0.0
         for kelime, agirlik in aranan.items():
             if kelime not in metin:
@@ -96,12 +104,31 @@ def find_spot(lesson_source: str, code: str, prompt: str, override: str = "",
             puan += deger * (2 if kelime in parcalar[i][0].lower() else 1)
         if _SIDE.match(parcalar[i][0]):
             puan /= 2
-        if puan > en_iyi_puan:
-            en_iyi, en_iyi_puan = i, puan
+        puanlar.append(puan)
+    return puanlar
+
+
+def find_spot(lesson_source: str, code: str, prompt: str, override: str = "",
+              title: str = "") -> LessonSpot | None:
+    """Alıştırmanın dayandığı ders parçası; ders yoksa None."""
+    if not lesson_source.strip():
+        return None
+    yerler = lesson_spots(lesson_source)
+    if override:
+        for yer in yerler:
+            if yer.anchor == override:
+                return yer
+
+    aranan = {w: 1.0 for w in prose_words(prompt)}
+    aranan.update({w: 2.0 for w in code_words(code)})  # kod adları daha belirleyici
+    aranan.update({w: 3.0 for w in prose_words(title)})  # alıştırmanın adı en belirleyici
+
+    puanlar = chunk_scores(lesson_source, aranan)
+    en_iyi_puan = max(puanlar)
     if en_iyi_puan <= 0:
         return LessonSpot("", "")
-    baslik, capa = basliklar[en_iyi]
-    return LessonSpot(baslik, capa)
+    # Eşitlikte önceki parça (önceki döngü yalnızca büyükse değiştiriyordu).
+    return yerler[puanlar.index(en_iyi_puan)]
 
 
 def failures_since_pass(attempts: list[dict]) -> int:

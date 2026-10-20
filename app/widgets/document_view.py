@@ -510,6 +510,11 @@ class DocumentView(QWebEngineView):
             return
         self._scroll_now(anchor)
 
+    def scroll_after_load(self, anchor: str) -> None:
+        """Bir sonraki yükleme bitince çapaya kaydırır (çizimi ertelenmiş
+        belge: `_loaded` henüz eski sayfayı gösteriyor)."""
+        self._pending_anchor = anchor
+
     def _scroll_now(self, anchor: str) -> None:
         if not anchor:
             # Boş çapa: belgenin başı ("Takıldın mı?" kartından dersin başına).

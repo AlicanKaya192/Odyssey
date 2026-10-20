@@ -342,8 +342,16 @@ class LessonView(QWidget):
         self._render(keep_scroll=ayni)
 
     def scroll_to(self, anchor: str) -> None:
-        """Başlığın çapasına kaydırır (arama sonucundan gelince)."""
-        self._document.scroll_to(anchor)
+        """Başlığın çapasına kaydırır (arama sonucundan gelince).
+
+        Çizim bir sonraki olay turuna ertelendiyse (`_render`) kaydırma yeni
+        sayfanın yüklemesine bırakılıyor; yoksa eski sayfaya gidip kayboluyordu
+        (sınavdan bir nota gitmekte ölçüldü).
+        """
+        if getattr(self, "_pending_render", None) is not None:
+            self._document.scroll_after_load(anchor)
+        else:
+            self._document.scroll_to(anchor)
 
     def set_meta(self, items: list[str]) -> None:
         """Başlığın altındaki bilgi satırı: süre, alıştırma ve sınav sayısı."""

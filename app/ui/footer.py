@@ -54,6 +54,8 @@ class Footer(QFrame):
     update_clicked = Signal()
     # Klavye düğmesi: kısayol listesi açılsın.
     shortcuts_clicked = Signal()
+    # Başvuru düğmesi: hızlı başvuru çekmecesi (`ui/reference_drawer.py`).
+    reference_clicked = Signal()
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -88,6 +90,8 @@ class Footer(QFrame):
         )
         self.shortcut_button = ShortcutButton()
         self.shortcut_button.clicked.connect(self.shortcuts_clicked)
+        self.reference_button = ShortcutButton("file-text")
+        self.reference_button.clicked.connect(self.reference_clicked)
 
         self._left = QWidget()
         sol = QHBoxLayout(self._left)
@@ -98,6 +102,8 @@ class Footer(QFrame):
         sag = QHBoxLayout(self._right)
         sag.setContentsMargins(0, 0, 0, 0)
         sag.addStretch(1)
+        sag.addWidget(self.reference_button)
+        sag.addSpacing(10)
         sag.addWidget(self.shortcut_button)
 
         layout.addWidget(self._left)
@@ -107,15 +113,15 @@ class Footer(QFrame):
         self.retranslate()
 
     def add_timer(self, chip: QWidget) -> None:
-        """Çalışma zamanlayıcısının sayacını klavye düğmesinin soluna koyar."""
+        """Çalışma zamanlayıcısının sayacını başvuru ve klavye düğmelerinin soluna koyar."""
         self.timer_chip = chip
         sag = self._right.layout()
-        sag.insertWidget(sag.indexOf(self.shortcut_button), chip)
-        sag.insertSpacing(sag.indexOf(self.shortcut_button), 6)
+        sag.insertWidget(sag.indexOf(self.reference_button), chip)
+        sag.insertSpacing(sag.indexOf(self.reference_button), 6)
         self._balance()
 
     def _balance(self) -> None:
-        sag = self.shortcut_button.width()
+        sag = self.shortcut_button.width() + 10 + self.reference_button.width()
         chip = getattr(self, "timer_chip", None)
         if chip is not None:
             sag += chip.width() + 6
@@ -144,6 +150,7 @@ class Footer(QFrame):
         self._link_color = PALETTES.get(mode, PALETTES["dark"])["accent"]
         self.star_button.set_mode(mode)
         self.shortcut_button.set_mode(mode)
+        self.reference_button.set_mode(mode)
         self.retranslate()
 
     def retranslate(self) -> None:
@@ -168,6 +175,7 @@ class Footer(QFrame):
 
         self._label.setText(" · ".join(parts))
         self.shortcut_button.setToolTip(self._language.t("shortcut.tooltip"))
+        self.reference_button.setToolTip(self._language.t("reference.tooltip"))
         sayi = self.star_button.count
         self.star_button.setToolTip(
             self._language.t("footer.star_tooltip_count", count=sayi)

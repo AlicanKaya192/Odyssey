@@ -181,9 +181,13 @@ class NotesView(QWidget):
         self._tabs.set_done([d.get("id", "") in self._read_ids for d in self._documents])
         self._selector.setVisible(len(self._documents) > 1)
 
-    def select(self, index: int) -> None:
-        """Verilen sıradaki notu açar (arama sonucundan gelince)."""
-        self._select(index)
+    def select(self, index: int, anchor: str = "") -> None:
+        """Verilen sıradaki notu açar (arama sonucundan, sınavın zayıf
+        konusundan gelince); `anchor` verilirse o başlığa kaydırır."""
+        if index != self._current or not anchor:
+            self._select(index)
+        if anchor:
+            self._reader.scroll_to(anchor)
 
     def _select(self, index: int) -> None:
         self._current = max(0, min(index, len(self._documents) - 1))

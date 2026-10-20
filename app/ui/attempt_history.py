@@ -20,12 +20,18 @@ import hashlib
 import html
 import json
 from datetime import datetime
+from urllib.parse import quote
 
 from ..core import workspace_files
 from ..core.grader import describe
 from ..core.language import AVAILABLE_LANGUAGES, LanguageManager
 
 _MANAGERS: dict[str, LanguageManager] = {}
+
+# Sınav dökümündeki "Derse git" bağlantısı: `app:lesson-spot/<çapa>`;
+# "Nota git": `app:note-spot/<notun sırası>/<çapa>`.
+REVIEW_SPOT = "lesson-spot/"
+REVIEW_NOTE = "note-spot/"
 
 
 def _manager(language: str) -> LanguageManager:
@@ -203,8 +209,12 @@ def quiz_answers(cards) -> str:
 
 
 def quiz_markdown(language: LanguageManager, questions: list[dict], attempt: dict,
-                  only_wrong: bool) -> str:
-    """Bir sınav denemesinin soru soru dökümü."""
+                  only_wrong: bool, spot_for=None) -> str:
+    """Bir sınav denemesinin soru soru dökümü.
+
+    `spot_for(soru_indeksi)` sorunun dayandığı ders başlığını verirse
+    (`core.quiz_spots`) yanlış sorunun altına "Derse git" bağlantısı konur.
+    """
     t = language.t
     try:
         cevaplar = json.loads(attempt.get("answers") or "[]")
@@ -245,6 +255,14 @@ def quiz_markdown(language: LanguageManager, questions: list[dict], attempt: dic
         aciklama = language.pick(soru.get("explanation"), "")
         if aciklama:
             parcalar.append("\n".join(f"> {satir}" for satir in aciklama.splitlines()))
+        yer = spot_for(indeks) if spot_for and not cevap.get("ok") else None
+        if yer is not None:
+            baslik = html.escape(yer.title.replace("`", ""))
+            if yer.in_notes:
+                adres, yazi = f"{REVIEW_NOTE}{yer.note}/{quote(yer.anchor)}", "quiz_history.go_note"
+            else:
+                adres, yazi = f"{REVIEW_SPOT}{quote(yer.anchor)}", "quiz_history.go_lesson"
+            parcalar.append(f'<a class="spot" href="app:{adres}">{t(yazi, title=baslik)}</a>')
     if not gosterilen:
         parcalar.append(t("quiz_history.all_right"))
     return "\n\n".join(parcalar)

@@ -175,6 +175,11 @@ class TopicView(QWidget):
         # ders sekmesinde o başlığa götürüyor.
         self._exercise.lesson_source = self._lesson_text
         self._exercise.lesson_requested.connect(self._open_lesson_at)
+        # Sınavdan sonra zayıf konu: yanlış sorunun dayandığı başlık.
+        self._quiz.lesson_source = self._quiz_lesson_text
+        self._quiz.notes_source = self._quiz_notes
+        self._quiz.lesson_requested.connect(self._open_lesson_at)
+        self._quiz.note_requested.connect(self._open_note_at)
 
         # İçerik solda, not paneli sağda.
         body = QWidget()
@@ -338,6 +343,40 @@ class TopicView(QWidget):
                 if resolved and resolved.exists:
                     return resolved.path.read_text(encoding="utf-8")
         return ""
+
+    @property
+    def section(self) -> Section | None:
+        """Açık bölüm (hızlı başvuru çekmecesi bakıyor)."""
+        return self._section
+
+    def _quiz_lesson_text(self) -> str:
+        """Zayıf konu için ders; genel tekrarda yok (cevaplar başka bölümlerde)."""
+        if self._section is None or "genel-tekrar" in self._section.id:
+            return ""
+        return self._lesson_text()
+
+    def _quiz_notes(self) -> list[tuple[str, str]]:
+        """Zayıf konu için ders notları: (adı, ekranda çizilen metni), notlar
+        sekmesindeki sırayla; genel tekrarda yok."""
+        if self._section is None or "genel-tekrar" in self._section.id:
+            return []
+        bloklar = [b for b in self._section.blocks_of("notes") if b.documents]
+        if not bloklar:
+            return []
+        blok, dil = bloklar[-1], self._language.language  # sekmede gösterilen
+        notlar = []
+        for belge in blok.documents:
+            sablon = belge.get("file", "")
+            yol = blok.directory / sablon.replace("{lang}", dil)
+            if not yol.exists():
+                yol = blok.directory / sablon.replace("{lang}", "tr")
+            ad = self._language.pick(belge.get("title"))
+            govde = yol.read_text(encoding="utf-8") if sablon and yol.is_file() else ""
+            notlar.append((ad, f"# {ad}\n\n{govde}"))
+        return notlar
+
+    def _open_note_at(self, index: int, anchor: str) -> None:
+        self.focus("notes", index, anchor)
 
     def _open_lesson_at(self, anchor: str) -> None:
         if "lesson" not in self._panes:
@@ -781,7 +820,7 @@ class TopicView(QWidget):
             return
         self._segments.set_current(self._panes.index(pane))
         if pane == "notes":
-            self._notes.select(index)
+            self._notes.select(index, anchor)
         elif pane == "exercise":
             self._go_exercise(index)
         elif pane == "lesson" and anchor:

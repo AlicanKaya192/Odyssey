@@ -35,6 +35,19 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   anlatılıyor.
 - Yeni rozetler, "Argos" unvanı, sözlükte MLOps terimleri, Veri Mühendisi
   ve ML Mühendisi rotalarında MLOps bölümleri.
+- **Hızlı başvuru çekmecesi.** Alt şeritteki düğme ya da `Ctrl+R` ile her
+  ekrandan açılıyor: bölümdeyseniz o bölümün başvuru kartı ("Komut Kartı",
+  "… Başvurusu" gibi), değilseniz en son çalıştığınız bölümünkü. Başka
+  bölümlerin notları üstteki kutudan aranıyor. Çekmece açıkken ders ve
+  alıştırma kullanılmaya devam ediyor; alıştırma yazarken komutlara bakmak
+  için.
+- **Sınavdan sonra tekrar edilecek başlıklar.** Sonuç kartında yanlış
+  yaptığınız soruların dayandığı ders ya da ders notu başlıkları
+  listeleniyor; birine tıklayınca ders ya da not o başlıkta açılıyor.
+  "Yanlışlarımı gör"de de her yanlış sorunun altında "Derse git" ya da
+  "Nota git" bağlantısı var.
+- **"Sistem" teması.** Ayarlar › Görünüm'de Açık ve Koyu'nun yanında:
+  Windows'un teması değişince program da hemen değişiyor.
 
 ### Değişti
 - **Seviyeler yeni patikalara göre genişletildi.** Bir sonraki seviye için

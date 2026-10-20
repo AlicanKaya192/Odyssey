@@ -532,6 +532,7 @@ def steps_for(win) -> list[Step]:  # noqa: C901 — adım listesi uzun ama düz
         Step("tour.s_search_title", "tour.s_search_text", prepare=nav("journey"), wait=450,
              targets=lambda: [rail._buttons.get("search")]),
         Step("tour.s_timer_title", "tour.s_timer_text", targets=lambda: [footer.timer_chip]),
+        Step("tour.s_reference_title", "tour.s_reference_text", targets=lambda: [footer.reference_button]),
         Step("tour.s_shortcuts_title", "tour.s_shortcuts_text", targets=lambda: [footer.shortcut_button]),
         Step("tour.s_settings_title", "tour.s_settings_text", targets=lambda: [rail._buttons.get("settings")]),
         Step("tour.s_about_title", "tour.s_about_text",

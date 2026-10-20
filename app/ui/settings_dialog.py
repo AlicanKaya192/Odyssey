@@ -70,7 +70,8 @@ LANGUAGE_OPTIONS = [("tr", "Türkçe"), ("en", "English")]
 # demek olduğu ancak açıklamayı okuyunca anlaşılıyordu. Dil seçicisiyle
 # aynı bileşen kullanılıyor.
 # Prototipte simge ve yazı birlikte ("☀ Açık", "☾ Koyu"); yazı `retranslate`te.
-THEME_OPTIONS = [("light", "", "sun"), ("dark", "", "moon")]
+# "Sistem": Windows'un açık/koyu teması, değişince program da değişiyor.
+THEME_OPTIONS = [("light", "", "sun"), ("dark", "", "moon"), ("system", "", "monitor")]
 
 # Soldaki kategoriler ve simgeleri. Sıra ekranda görünen sıra.
 # SQL ve Docker ayrı sayfalardı; ikisi de "alıştırmaların kapladığı yer"
@@ -824,7 +825,7 @@ class SettingsDialog(QDialog):
 
         `set_checked` sinyal yaymadığı için bu, ayarları yeniden yazmıyor.
         """
-        self._theme_picker.set_value(self._theme.effective_mode)
+        self._theme_picker.set_value(self._theme.mode)
         self._language_picker.set_value(self._language.language)
         self._unlock_row.switch.set_checked(
             unlock_all(self._store), animate=False
@@ -1211,6 +1212,7 @@ class SettingsDialog(QDialog):
         self._close_button.setToolTip(t("common.close"))
         self._theme_picker.button("light").setText(" " + t("settings.theme_light_short"))
         self._theme_picker.button("dark").setText(" " + t("settings.theme_dark_short"))
+        self._theme_picker.button("system").setText(" " + t("settings.theme_system_short"))
         for ad, button in self._nav_buttons.items():
             button.setText(t(f"settings.nav_{ad}"))
         self._render_page_header()
@@ -1220,6 +1222,7 @@ class SettingsDialog(QDialog):
         self._theme_picker.set_tooltips({
             "dark": t("settings.theme_dark"),
             "light": t("settings.theme_light"),
+            "system": t("settings.theme_system"),
         })
 
         self._language_row.title.setText(t("settings.language"))

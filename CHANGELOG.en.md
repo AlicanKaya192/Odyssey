@@ -37,6 +37,19 @@ lecture note does not mean downloading the whole application again.
   churn), and every result is shown by measuring it.
 - New badges, the "Argus" title, MLOps terms in the Glossary, MLOps sections
   in the Data Engineer and ML Engineer routes.
+- **Quick reference drawer.** Opens from every screen with the button in the
+  bottom bar or `Ctrl+R`: in a section you get that section's reference card
+  ("Command Sheet", "… Reference" and so on), elsewhere the one from the
+  section you studied last. The notes of other sections are searched from
+  the box at the top. The lesson and the exercise stay usable while the
+  drawer is open, so you can check commands while writing an exercise.
+- **Topics to review after a quiz.** The result card lists the lesson or
+  lecture note headings the questions you got wrong are based on; clicking
+  one opens the lesson or the note at that heading. "See my mistakes" also
+  has a "Go to the lesson" or "Go to the note" link under every wrong
+  question.
+- **"System" theme.** In Settings › Appearance, next to Light and Dark: when
+  the Windows theme changes, the program changes with it right away.
 
 ### Changed
 - **Levels were widened for the new paths.** The XP needed for the next level

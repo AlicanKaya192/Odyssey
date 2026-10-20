@@ -564,6 +564,12 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
     margin-left: 8px; background: transparent; color: {p['accent']};
     border: 1px solid {p['accent']}; padding: 6px 13px;
 }}
+/* Sınav dökümünde yanlış sorunun ders başlığı (core/quiz_spots.py). */
+a.spot {{
+    display: inline-block; padding: 5px 12px; border-radius: 10px; text-decoration: none;
+    border: 1px solid {p['accent']}; color: {p['accent']}; font-size: 13.5px; font-weight: 650;
+}}
+a.spot:hover {{ background: {p['accent_soft']}; }}
 .hintbox {{
     margin-top: 26px; border: 1px solid {p['border']};
     border-radius: 18px; overflow: hidden;

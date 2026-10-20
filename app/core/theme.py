@@ -151,6 +151,23 @@ class ThemeManager(QObject):
     def __init__(self, mode: str = "system") -> None:
         super().__init__()
         self._mode = mode if mode in MODES else "system"
+        # Ekrana en son uygulanan mod ("light" / "dark"); "" = henüz yok.
+        self._applied = ""
+        self._watch_system()
+
+    def _watch_system(self) -> None:
+        """Windows'un açık/koyu teması değişince "system" kipinde canlı uyar."""
+        if QGuiApplication.instance() is None:
+            return
+        sinyal = getattr(QGuiApplication.styleHints(), "colorSchemeChanged", None)
+        if sinyal is not None:
+            sinyal.connect(self._on_system_scheme)
+
+    def _on_system_scheme(self, *_args) -> None:
+        if self._mode != "system" or self.effective_mode == self._applied:
+            return
+        self.apply()
+        self.theme_changed.emit(self.effective_mode)
 
     @property
     def mode(self) -> str:
@@ -175,6 +192,7 @@ class ThemeManager(QObject):
         font.setPointSizeF(FONT_SIZES["md"] * 0.75)  # px -> pt
         app.setFont(font)
 
+        self._applied = self.effective_mode
         app.setPalette(build_palette(self.effective_mode))
         # Kendisi çizen widget'lar (sekme hapı, göstergeler) renkleri buradan
         # okuyor: `widgets.effects.theme_palette()`.
@@ -215,6 +233,10 @@ class ThemeManager(QObject):
         if mode not in MODES or mode == self._mode:
             return
         self._mode = mode
+        # Koyudan "sistem"e geçen ve Windows'u koyu olan biri için ekranda
+        # bir şey değişmiyor; yeniden boyamak 450–730 ms sürüyor.
+        if self.effective_mode == self._applied:
+            return
         self.apply()
         self.theme_changed.emit(self.effective_mode)
 

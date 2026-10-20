@@ -34,6 +34,7 @@ SHORTCUTS = [
     ("general", [
         (["Ctrl", "K"], "shortcut.search"),
         (["Ctrl", "N"], "shortcut.note"),
+        (["Ctrl", "R"], "shortcut.reference"),
         (["Ctrl", ","], "shortcut.settings"),
         (["Ctrl", "M"], "shortcut.menu"),
         (["F11"], "shortcut.focus"),
@@ -135,14 +136,15 @@ class ShortcutPanel(Popover):
 
 
 class ShortcutButton(QPushButton):
-    """Alt şeridin sağ ucundaki klavye düğmesi."""
+    """Alt şeridin sağ ucundaki klavye düğmesi (başka simgeyle başvuru düğmesi)."""
 
     SIZE = 18
     ICON = 14
 
-    def __init__(self, parent: QWidget | None = None) -> None:
+    def __init__(self, icon_name: str = "keyboard", parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._mode = "dark"
+        self._icon_name = icon_name
         self.setProperty("variant", "footer-icon")
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setFixedSize(self.SIZE, self.SIZE)
@@ -151,5 +153,5 @@ class ShortcutButton(QPushButton):
     def set_mode(self, mode: str) -> None:
         self._mode = mode
         palette = PALETTES.get(mode, PALETTES["dark"])
-        self.setIcon(icon("keyboard", palette["text_muted"], self.ICON))
+        self.setIcon(icon(self._icon_name, palette["text_muted"], self.ICON))
         self.setIconSize(QSize(self.ICON, self.ICON))

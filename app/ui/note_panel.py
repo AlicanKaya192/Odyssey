@@ -59,8 +59,11 @@ ROLE_WHERE = Qt.ItemDataRole.UserRole + 1
 ROW_HEIGHT = 50
 
 
-class _NoteRow(QStyledItemDelegate):
-    """Tüm notlar listesinin satırı: notun adı, altında klasörü ya da dersi."""
+class NoteRow(QStyledItemDelegate):
+    """Tüm notlar listesinin satırı: notun adı, altında klasörü ya da dersi.
+
+    Hızlı başvuru çekmecesi de kullanıyor (bölümün adı, altında modülü).
+    """
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -258,7 +261,7 @@ class NotePanel(QFrame):
 
         self._list = QListWidget()
         self._list.setProperty("role", "search-results")
-        self._row = _NoteRow(self._list)
+        self._row = NoteRow(self._list)
         self._list.setItemDelegate(self._row)
         self._list.setUniformItemSizes(True)
         self._list.setMouseTracking(True)
