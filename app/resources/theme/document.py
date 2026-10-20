@@ -510,28 +510,32 @@ figure.fig svg .dot3 {{ fill: {p['success']}; }}
     font-size: 17px;
 }}
 
-/* Yan yana karşılaştırma: solda "böyle değil", sağda "böyle". */
-.fig .versus {{ display: flex; gap: 14px; flex-wrap: wrap; }}
-.fig .versus > div {{ flex: 1 1 210px; min-width: 0; }}
+/* Yan yana karşılaştırma: solda "böyle değil", sağda "böyle".
+ * İki yazım var: `<figure class="fig"><div class="versus">` ve
+ * `<figure class="fig versus">` (16 derste; ikincisinde alt yazı da
+ * esnek kutunun içinde kalıyor, kendi satırına iniyor). */
+:is(.fig .versus, .fig.versus) {{ display: flex; gap: 14px; flex-wrap: wrap; }}
+:is(.fig .versus, .fig.versus) > div {{ flex: 1 1 210px; min-width: 0; }}
 /* Başlık iki etiketle de yazılmış (`h4` 104, `h5` 36 yerde); ikisi de
  * aynı görünüyor. */
-.fig .versus h4,
-.fig .versus h5 {{
+:is(.fig .versus, .fig.versus) h4,
+:is(.fig .versus, .fig.versus) h5 {{
     font-size: 12.5px;
     font-weight: 660;
     letter-spacing: .02em;
     margin-bottom: 8px;
     text-align: left;
 }}
-.fig .versus .no h4,
-.fig .versus .no h5 {{ color: {p['danger']}; }}
-.fig .versus .ok h4,
-.fig .versus .ok h5 {{ color: {p['success']}; }}
+:is(.fig .versus, .fig.versus) .no h4,
+:is(.fig .versus, .fig.versus) .no h5 {{ color: {p['danger']}; }}
+:is(.fig .versus, .fig.versus) .ok h4,
+:is(.fig .versus, .fig.versus) .ok h5 {{ color: {p['success']}; }}
 /* Yanlis degil, yalnizca daha az bilgi veren taraf. Kirmizi kullanilirsa
  * ogrenci onu hata sanip duzeltmeye calisiyor. */
-.fig .versus .dim h4,
-.fig .versus .dim h5 {{ color: {p['text_muted']}; }}
-.fig .versus pre {{ margin: 0; }}
+:is(.fig .versus, .fig.versus) .dim h4,
+:is(.fig .versus, .fig.versus) .dim h5 {{ color: {p['text_muted']}; }}
+:is(.fig .versus, .fig.versus) pre {{ margin: 0; }}
+.fig.versus > figcaption {{ flex-basis: 100%; }}
 
 /* --- alıştırma yönergesi -------------------------------------------- */
 
