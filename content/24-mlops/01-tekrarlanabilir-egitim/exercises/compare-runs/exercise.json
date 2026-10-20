@@ -1,0 +1,147 @@
+{
+  "id": "compare-runs",
+  "title": {
+    "tr": "İki Eğitimi Karşılaştır",
+    "en": "Compare Two Runs"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Değişenleri bir listede topla: `for key in [\"config\", \"data\", \"library\"]:` içinde `if a[key] != b[key]:`.",
+      "en": "Collect the changed ones in a list: inside `for key in [\"config\", \"data\", \"library\"]:` write `if a[key] != b[key]:`."
+    },
+    {
+      "tr": "Listeyi metne çevirmek için `\", \".join(changed)`. Liste boşsa doğruluğa bak.",
+      "en": "To turn the list into text, use `\", \".join(changed)`. If the list is empty, look at the accuracy."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef compare_runs(a, b):\n    changed = []\n    for key in [\"config\", \"data\", \"library\"]:\n        if a[key] != b[key]:\n            changed.append(key)\n    if changed:\n        return \"changed: \" + \", \".join(changed)\n    if a[\"accuracy\"] == b[\"accuracy\"]:\n        return \"reproducible\"\n    return \"not reproducible\"\n\n\na = {\"config\": {\"seed\": 0}, \"data\": \"d1\", \"library\": \"1.9.1\", \"accuracy\": 0.77}\nprint(compare_runs(a, dict(a)))\nprint(compare_runs(a, {**a, \"accuracy\": 0.75}))\nprint(compare_runs(a, {**a, \"data\": \"d2\", \"accuracy\": 0.75}))\nprint(compare_runs(a, {**a, \"config\": {\"seed\": 1}, \"library\": \"1.8.0\"}))\n```",
+      "en": "The full solution:\n\n```python\ndef compare_runs(a, b):\n    changed = []\n    for key in [\"config\", \"data\", \"library\"]:\n        if a[key] != b[key]:\n            changed.append(key)\n    if changed:\n        return \"changed: \" + \", \".join(changed)\n    if a[\"accuracy\"] == b[\"accuracy\"]:\n        return \"reproducible\"\n    return \"not reproducible\"\n\n\na = {\"config\": {\"seed\": 0}, \"data\": \"d1\", \"library\": \"1.9.1\", \"accuracy\": 0.77}\nprint(compare_runs(a, dict(a)))\nprint(compare_runs(a, {**a, \"accuracy\": 0.75}))\nprint(compare_runs(a, {**a, \"data\": \"d2\", \"accuracy\": 0.75}))\nprint(compare_runs(a, {**a, \"config\": {\"seed\": 1}, \"library\": \"1.8.0\"}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "compare_runs",
+      "cases": [
+        {
+          "args": [
+            {
+              "config": {
+                "seed": 0
+              },
+              "data": "d1",
+              "library": "1.9.1",
+              "accuracy": 0.77
+            },
+            {
+              "config": {
+                "seed": 0
+              },
+              "data": "d1",
+              "library": "1.9.1",
+              "accuracy": 0.77
+            }
+          ],
+          "returns": "reproducible"
+        },
+        {
+          "args": [
+            {
+              "config": {
+                "seed": 0
+              },
+              "data": "d1",
+              "library": "1.9.1",
+              "accuracy": 0.77
+            },
+            {
+              "config": {
+                "seed": 0
+              },
+              "data": "d1",
+              "library": "1.9.1",
+              "accuracy": 0.7
+            }
+          ],
+          "returns": "not reproducible"
+        },
+        {
+          "args": [
+            {
+              "config": {
+                "seed": 0
+              },
+              "data": "d1",
+              "library": "1.9.1",
+              "accuracy": 0.77
+            },
+            {
+              "config": {
+                "seed": 0
+              },
+              "data": "d9",
+              "library": "1.9.1",
+              "accuracy": 0.77
+            }
+          ],
+          "returns": "changed: data"
+        },
+        {
+          "args": [
+            {
+              "config": {
+                "seed": 0
+              },
+              "data": "d1",
+              "library": "1.9.1",
+              "accuracy": 0.77
+            },
+            {
+              "config": {
+                "seed": 4
+              },
+              "data": "d1",
+              "library": "2.0",
+              "accuracy": 0.77
+            }
+          ],
+          "returns": "changed: config, library"
+        },
+        {
+          "args": [
+            {
+              "config": {
+                "seed": 0
+              },
+              "data": "d1",
+              "library": "1.9.1",
+              "accuracy": 0.77
+            },
+            {
+              "config": {
+                "seed": 1
+              },
+              "data": "d2",
+              "library": "1.0",
+              "accuracy": 0.77
+            }
+          ],
+          "returns": "changed: config, data, library"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "reproducible\nnot reproducible\nchanged: data\nchanged: config, library"
+    }
+  ]
+}

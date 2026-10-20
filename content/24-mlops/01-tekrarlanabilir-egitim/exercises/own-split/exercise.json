@@ -1,0 +1,189 @@
+{
+  "id": "own-split",
+  "title": {
+    "tr": "Kendi Bölmen",
+    "en": "Your Own Split"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`shuffled = list(items)` yeni bir liste kurar; `shuffle` asıl listeyi değil onu karıştırır.",
+      "en": "`shuffled = list(items)` builds a new list; `shuffle` mixes that one, not the original."
+    },
+    {
+      "tr": "`rng = random.Random(seed)` ve `rng.shuffle(shuffled)`. Sonra dilimle: `shuffled[:n_test]` test, `shuffled[n_test:]` eğitim.",
+      "en": "`rng = random.Random(seed)` and `rng.shuffle(shuffled)`. Then slice: `shuffled[:n_test]` is the test set, `shuffled[n_test:]` the training set."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport random\n\n\ndef split(items, test_share, seed):\n    shuffled = list(items)\n    random.Random(seed).shuffle(shuffled)\n    n_test = round(len(shuffled) * test_share)\n    return shuffled[n_test:], shuffled[:n_test]\n\n\ncustomers = [\"C1\", \"C2\", \"C3\", \"C4\", \"C5\", \"C6\", \"C7\", \"C8\", \"C9\", \"C10\"]\ntrain, test = split(customers, 0.3, 1)\nprint(\"test:\", test)\nprint(\"again:\", split(customers, 0.3, 1)[1])\nprint(\"other seed:\", split(customers, 0.3, 2)[1])\nprint(\"original:\", customers[:3])\n```",
+      "en": "The full solution:\n\n```python\nimport random\n\n\ndef split(items, test_share, seed):\n    shuffled = list(items)\n    random.Random(seed).shuffle(shuffled)\n    n_test = round(len(shuffled) * test_share)\n    return shuffled[n_test:], shuffled[:n_test]\n\n\ncustomers = [\"C1\", \"C2\", \"C3\", \"C4\", \"C5\", \"C6\", \"C7\", \"C8\", \"C9\", \"C10\"]\ntrain, test = split(customers, 0.3, 1)\nprint(\"test:\", test)\nprint(\"again:\", split(customers, 0.3, 1)[1])\nprint(\"other seed:\", split(customers, 0.3, 2)[1])\nprint(\"original:\", customers[:3])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "split",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            0.3,
+            1
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                7,
+                5,
+                3,
+                0,
+                4,
+                1,
+                2
+              ],
+              [
+                6,
+                8,
+                9
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            0.3,
+            2
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                4,
+                6,
+                7,
+                2,
+                8,
+                1,
+                0
+              ],
+              [
+                5,
+                9,
+                3
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b",
+              "c",
+              "d"
+            ],
+            0.5,
+            0
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                "b",
+                "d"
+              ],
+              [
+                "c",
+                "a"
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            0.2,
+            5
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                3,
+                1,
+                0,
+                5,
+                2,
+                4
+              ],
+              [
+                6
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [],
+            0.3,
+            1
+          ],
+          "returns": {
+            "__tuple__": [
+              [],
+              []
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "call": "seed",
+      "hint": {
+        "tr": "Ortak üretecin tohumuna dokunma; `random.Random(seed)` ile kendi üretecini kur.",
+        "en": "Don't touch the shared generator's seed; build your own with `random.Random(seed)`."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "test: ['C7', 'C9', 'C10']\nagain: ['C7', 'C9', 'C10']\nother seed: ['C6', 'C10', 'C4']\noriginal: ['C1', 'C2', 'C3']"
+    }
+  ]
+}

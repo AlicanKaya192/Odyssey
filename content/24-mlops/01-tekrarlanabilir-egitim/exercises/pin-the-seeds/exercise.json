@@ -1,0 +1,46 @@
+{
+  "id": "pin-the-seeds",
+  "title": {
+    "tr": "Tohumları Sabitle",
+    "en": "Pin the Seeds"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ml_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki rastgele adım var: `train_test_split(...)` ve `RandomForestClassifier(...)`. İkisi de `random_state` alır.",
+      "en": "There are two random steps: `train_test_split(...)` and `RandomForestClassifier(...)`. Both take `random_state`."
+    },
+    {
+      "tr": "Yalnızca birine tohum verirsen öbürü hâlâ rastgele kalır; çıktıyı iki kez çalıştırıp karşılaştır.",
+      "en": "If you give a seed to only one, the other stays random; run it twice and compare the output."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.model_selection import train_test_split\nfrom ml_data import make_customers, NUMERIC\n\n\ndef to_xy(rows):\n    X = [[r[c] for c in NUMERIC] + [1 if r[\"plan\"] == \"pro\" else 0] for r in rows]\n    y = [r[\"churned\"] for r in rows]\n    return X, y\n\n\nX, y = to_xy(make_customers(1000))\n\nfor attempt in [1, 2, 3]:\n    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)\n    model = RandomForestClassifier(n_estimators=30, random_state=0)\n    model.fit(X_train, y_train)\n    print(\"attempt\", attempt, \"accuracy:\", round(model.score(X_test, y_test), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.model_selection import train_test_split\nfrom ml_data import make_customers, NUMERIC\n\n\ndef to_xy(rows):\n    X = [[r[c] for c in NUMERIC] + [1 if r[\"plan\"] == \"pro\" else 0] for r in rows]\n    y = [r[\"churned\"] for r in rows]\n    return X, y\n\n\nX, y = to_xy(make_customers(1000))\n\nfor attempt in [1, 2, 3]:\n    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)\n    model = RandomForestClassifier(n_estimators=30, random_state=0)\n    model.fit(X_train, y_train)\n    print(\"attempt\", attempt, \"accuracy:\", round(model.score(X_test, y_test), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "attempt 1 accuracy: 0.78\nattempt 2 accuracy: 0.78\nattempt 3 accuracy: 0.78"
+    }
+  ]
+}

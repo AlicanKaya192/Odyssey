@@ -1,0 +1,117 @@
+{
+  "id": "train-from-config",
+  "title": {
+    "tr": "Yapılandırmadan Eğit",
+    "en": "Train From a Configuration"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ml_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Dersteki `train` fonksiyonuna çok benziyor; fark `test_size`'ın da `config[\"test_share\"]`'den gelmesi.",
+      "en": "It is very close to the lesson's `train` function; the difference is that `test_size` also comes from `config[\"test_share\"]`."
+    },
+    {
+      "tr": "Son satır: `return round(model.score(X_test, y_test), 3)`.",
+      "en": "The last line: `return round(model.score(X_test, y_test), 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.model_selection import train_test_split\nfrom ml_data import make_customers, NUMERIC\n\n\ndef to_xy(rows):\n    X = [[r[c] for c in NUMERIC] + [1 if r[\"plan\"] == \"pro\" else 0] for r in rows]\n    y = [r[\"churned\"] for r in rows]\n    return X, y\n\n\ndef train(config):\n    X, y = to_xy(make_customers(config[\"rows\"], seed=config[\"data_seed\"]))\n    X_train, X_test, y_train, y_test = train_test_split(\n        X, y, test_size=config[\"test_share\"], random_state=config[\"split_seed\"])\n    model = RandomForestClassifier(n_estimators=config[\"n_estimators\"],\n                                   random_state=config[\"model_seed\"])\n    model.fit(X_train, y_train)\n    return round(model.score(X_test, y_test), 3)\n\n\nCONFIG = {\"rows\": 800, \"data_seed\": 7, \"test_share\": 0.25,\n          \"split_seed\": 0, \"n_estimators\": 30, \"model_seed\": 0}\nprint(\"accuracy:\", train(CONFIG))\nprint(\"again:\", train(CONFIG))\nprint(\"more trees:\", train({**CONFIG, \"n_estimators\": 60}))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.model_selection import train_test_split\nfrom ml_data import make_customers, NUMERIC\n\n\ndef to_xy(rows):\n    X = [[r[c] for c in NUMERIC] + [1 if r[\"plan\"] == \"pro\" else 0] for r in rows]\n    y = [r[\"churned\"] for r in rows]\n    return X, y\n\n\ndef train(config):\n    X, y = to_xy(make_customers(config[\"rows\"], seed=config[\"data_seed\"]))\n    X_train, X_test, y_train, y_test = train_test_split(\n        X, y, test_size=config[\"test_share\"], random_state=config[\"split_seed\"])\n    model = RandomForestClassifier(n_estimators=config[\"n_estimators\"],\n                                   random_state=config[\"model_seed\"])\n    model.fit(X_train, y_train)\n    return round(model.score(X_test, y_test), 3)\n\n\nCONFIG = {\"rows\": 800, \"data_seed\": 7, \"test_share\": 0.25,\n          \"split_seed\": 0, \"n_estimators\": 30, \"model_seed\": 0}\nprint(\"accuracy:\", train(CONFIG))\nprint(\"again:\", train(CONFIG))\nprint(\"more trees:\", train({**CONFIG, \"n_estimators\": 60}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "train",
+      "cases": [
+        {
+          "args": [
+            {
+              "rows": 400,
+              "data_seed": 7,
+              "test_share": 0.25,
+              "split_seed": 0,
+              "n_estimators": 20,
+              "model_seed": 0
+            }
+          ],
+          "returns": 0.81
+        },
+        {
+          "args": [
+            {
+              "rows": 400,
+              "data_seed": 7,
+              "test_share": 0.25,
+              "split_seed": 1,
+              "n_estimators": 20,
+              "model_seed": 0
+            }
+          ],
+          "returns": 0.72
+        },
+        {
+          "args": [
+            {
+              "rows": 400,
+              "data_seed": 7,
+              "test_share": 0.25,
+              "split_seed": 0,
+              "n_estimators": 20,
+              "model_seed": 3
+            }
+          ],
+          "returns": 0.79
+        },
+        {
+          "args": [
+            {
+              "rows": 600,
+              "data_seed": 7,
+              "test_share": 0.4,
+              "split_seed": 0,
+              "n_estimators": 20,
+              "model_seed": 0
+            }
+          ],
+          "returns": 0.75
+        },
+        {
+          "args": [
+            {
+              "rows": 400,
+              "data_seed": 11,
+              "test_share": 0.25,
+              "split_seed": 0,
+              "n_estimators": 20,
+              "model_seed": 0
+            }
+          ],
+          "returns": 0.78
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "accuracy: 0.75\nagain: 0.75\nmore trees: 0.775"
+    }
+  ]
+}

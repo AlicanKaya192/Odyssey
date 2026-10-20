@@ -1,0 +1,127 @@
+{
+  "id": "column-fingerprint",
+  "title": {
+    "tr": "Sütunların Parmak İzi",
+    "en": "A Fingerprint of the Columns"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ml_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sütunları tutmak için kavrama: `kept = [{c: row[c] for c in columns} for row in rows]`.",
+      "en": "To keep the columns, use a comprehension: `kept = [{c: row[c] for c in columns} for row in rows]`."
+    },
+    {
+      "tr": "`hashlib.sha256(text.encode(\"utf-8\")).hexdigest()` 64 karakter verir; `[:12]` ilk 12'sini alır.",
+      "en": "`hashlib.sha256(text.encode(\"utf-8\")).hexdigest()` gives 64 characters; `[:12]` takes the first 12."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport hashlib\nimport json\nfrom ml_data import make_customers, FEATURES\n\n\ndef fingerprint(rows, columns):\n    kept = [{c: row[c] for c in columns} for row in rows]\n    text = json.dumps(kept, sort_keys=True)\n    return hashlib.sha256(text.encode(\"utf-8\")).hexdigest()[:12]\n\n\nrows = make_customers(200)\nprint(\"features:\", fingerprint(rows, FEATURES))\nfor row in rows:\n    row[\"id\"] = \"X\" + row[\"id\"]\nprint(\"new ids:\", fingerprint(rows, FEATURES))\nrows[0][\"tenure\"] = rows[0][\"tenure\"] + 1\nprint(\"one change:\", fingerprint(rows, FEATURES))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport hashlib\nimport json\nfrom ml_data import make_customers, FEATURES\n\n\ndef fingerprint(rows, columns):\n    kept = [{c: row[c] for c in columns} for row in rows]\n    text = json.dumps(kept, sort_keys=True)\n    return hashlib.sha256(text.encode(\"utf-8\")).hexdigest()[:12]\n\n\nrows = make_customers(200)\nprint(\"features:\", fingerprint(rows, FEATURES))\nfor row in rows:\n    row[\"id\"] = \"X\" + row[\"id\"]\nprint(\"new ids:\", fingerprint(rows, FEATURES))\nrows[0][\"tenure\"] = rows[0][\"tenure\"] + 1\nprint(\"one change:\", fingerprint(rows, FEATURES))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fingerprint",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "a": 1,
+                "b": 2,
+                "id": "x"
+              }
+            ],
+            [
+              "a",
+              "b"
+            ]
+          ],
+          "returns": "1176b831c374"
+        },
+        {
+          "args": [
+            [
+              {
+                "b": 2,
+                "id": "y",
+                "a": 1
+              }
+            ],
+            [
+              "a",
+              "b"
+            ]
+          ],
+          "returns": "1176b831c374"
+        },
+        {
+          "args": [
+            [
+              {
+                "a": 1,
+                "b": 3,
+                "id": "x"
+              }
+            ],
+            [
+              "a",
+              "b"
+            ]
+          ],
+          "returns": "a78c5b2d81a3"
+        },
+        {
+          "args": [
+            [
+              {
+                "a": 1,
+                "b": 2
+              },
+              {
+                "a": 5,
+                "b": 6
+              }
+            ],
+            [
+              "a"
+            ]
+          ],
+          "returns": "a39ed2ec6fcf"
+        },
+        {
+          "args": [
+            [],
+            [
+              "a"
+            ]
+          ],
+          "returns": "4f53cda18c2b"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "features: 3f27fa9366f6\nnew ids: 3f27fa9366f6\none change: 945c38617509"
+    }
+  ]
+}
