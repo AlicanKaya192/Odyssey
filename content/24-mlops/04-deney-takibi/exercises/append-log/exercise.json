@@ -1,0 +1,36 @@
+{
+  "id": "append-log",
+  "title": {
+    "tr": "Kayıt Defteri",
+    "en": "The Log File"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`Path(path).exists()` dosyanın olup olmadığını söyler. Okumak: `Path(path).read_text(encoding=\"utf-8\").splitlines()`.",
+      "en": "`Path(path).exists()` tells whether the file exists. Reading: `Path(path).read_text(encoding=\"utf-8\").splitlines()`."
+    },
+    {
+      "tr": "Yazmak: `with open(path, \"a\", encoding=\"utf-8\") as f:` ve `f.write(json.dumps(record) + \"\\n\")`. Satır sonunu unutursan iki deney aynı satıra yapışır.",
+      "en": "Writing: `with open(path, \"a\", encoding=\"utf-8\") as f:` and `f.write(json.dumps(record) + \"\\n\")`. If you forget the line break, two experiments stick to the same line."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport json\nfrom pathlib import Path\n\n\ndef load_runs(path):\n    path = Path(path)\n    if not path.exists():\n        return []\n    return [json.loads(line) for line in path.read_text(encoding=\"utf-8\").splitlines()]\n\n\ndef log_run(path, params, metrics):\n    run_id = len(load_runs(path)) + 1\n    record = {\"run\": run_id, \"params\": params, \"metrics\": metrics}\n    with open(path, \"a\", encoding=\"utf-8\") as f:\n        f.write(json.dumps(record) + \"\\n\")\n    return run_id\n\n\nprint(log_run(\"runs.jsonl\", {\"model\": \"baseline\"}, {\"val_accuracy\": 0.75}))\nprint(log_run(\"runs.jsonl\", {\"model\": \"logistic\", \"C\": 1}, {\"val_accuracy\": 0.83}))\nruns = load_runs(\"runs.jsonl\")\nprint(len(runs), runs[-1][\"run\"], runs[-1][\"params\"][\"C\"])\nprint(load_runs(\"missing.jsonl\"))\n```",
+      "en": "The full solution:\n\n```python\nimport json\nfrom pathlib import Path\n\n\ndef load_runs(path):\n    path = Path(path)\n    if not path.exists():\n        return []\n    return [json.loads(line) for line in path.read_text(encoding=\"utf-8\").splitlines()]\n\n\ndef log_run(path, params, metrics):\n    run_id = len(load_runs(path)) + 1\n    record = {\"run\": run_id, \"params\": params, \"metrics\": metrics}\n    with open(path, \"a\", encoding=\"utf-8\") as f:\n        f.write(json.dumps(record) + \"\\n\")\n    return run_id\n\n\nprint(log_run(\"runs.jsonl\", {\"model\": \"baseline\"}, {\"val_accuracy\": 0.75}))\nprint(log_run(\"runs.jsonl\", {\"model\": \"logistic\", \"C\": 1}, {\"val_accuracy\": 0.83}))\nruns = load_runs(\"runs.jsonl\")\nprint(len(runs), runs[-1][\"run\"], runs[-1][\"params\"][\"C\"])\nprint(load_runs(\"missing.jsonl\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\n2\n2 2 1\n[]"
+    }
+  ]
+}

@@ -1,0 +1,199 @@
+{
+  "id": "mean-by-param",
+  "title": {
+    "tr": "Ayarın Etkisi",
+    "en": "The Effect of a Setting"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir sözlükte grupla: `groups.setdefault(value, []).append(score)`. Python sözlükleri ekleme sırasını korur.",
+      "en": "Group in a dictionary: `groups.setdefault(value, []).append(score)`. Python dictionaries keep the insertion order."
+    },
+    {
+      "tr": "Sonra `[[value, round(sum(s) / len(s), 3)] for value, s in groups.items()]`.",
+      "en": "Then `[[value, round(sum(s) / len(s), 3)] for value, s in groups.items()]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef mean_by_param(runs, param, metric):\n    groups = {}\n    for run in runs:\n        if param not in run[\"params\"]:\n            continue\n        value = run[\"params\"][param]\n        groups.setdefault(value, []).append(run[\"metrics\"][metric])\n    return [[value, round(sum(scores) / len(scores), 3)] for value, scores in groups.items()]\n\n\nruns = [\n    {\"run\": 1, \"params\": {\"max_depth\": 3, \"seed\": 0}, \"metrics\": {\"val_accuracy\": 0.78}},\n    {\"run\": 2, \"params\": {\"max_depth\": 5, \"seed\": 0}, \"metrics\": {\"val_accuracy\": 0.81}},\n    {\"run\": 3, \"params\": {\"max_depth\": 3, \"seed\": 1}, \"metrics\": {\"val_accuracy\": 0.79}},\n    {\"run\": 4, \"params\": {\"max_depth\": 5, \"seed\": 1}, \"metrics\": {\"val_accuracy\": 0.82}},\n    {\"run\": 5, \"params\": {\"C\": 1}, \"metrics\": {\"val_accuracy\": 0.83}},\n]\nfor value, mean in mean_by_param(runs, \"max_depth\", \"val_accuracy\"):\n    print(\"max_depth\", value, mean)\n```",
+      "en": "The full solution:\n\n```python\ndef mean_by_param(runs, param, metric):\n    groups = {}\n    for run in runs:\n        if param not in run[\"params\"]:\n            continue\n        value = run[\"params\"][param]\n        groups.setdefault(value, []).append(run[\"metrics\"][metric])\n    return [[value, round(sum(scores) / len(scores), 3)] for value, scores in groups.items()]\n\n\nruns = [\n    {\"run\": 1, \"params\": {\"max_depth\": 3, \"seed\": 0}, \"metrics\": {\"val_accuracy\": 0.78}},\n    {\"run\": 2, \"params\": {\"max_depth\": 5, \"seed\": 0}, \"metrics\": {\"val_accuracy\": 0.81}},\n    {\"run\": 3, \"params\": {\"max_depth\": 3, \"seed\": 1}, \"metrics\": {\"val_accuracy\": 0.79}},\n    {\"run\": 4, \"params\": {\"max_depth\": 5, \"seed\": 1}, \"metrics\": {\"val_accuracy\": 0.82}},\n    {\"run\": 5, \"params\": {\"C\": 1}, \"metrics\": {\"val_accuracy\": 0.83}},\n]\nfor value, mean in mean_by_param(runs, \"max_depth\", \"val_accuracy\"):\n    print(\"max_depth\", value, mean)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mean_by_param",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "run": 1,
+                "params": {
+                  "d": 3
+                },
+                "metrics": {
+                  "m": 0.5
+                }
+              },
+              {
+                "run": 2,
+                "params": {
+                  "d": 5
+                },
+                "metrics": {
+                  "m": 0.7
+                }
+              },
+              {
+                "run": 3,
+                "params": {
+                  "d": 3
+                },
+                "metrics": {
+                  "m": 0.6
+                }
+              },
+              {
+                "run": 4,
+                "params": {
+                  "x": 1
+                },
+                "metrics": {
+                  "m": 0.9
+                }
+              }
+            ],
+            "d",
+            "m"
+          ],
+          "returns": [
+            [
+              3,
+              0.55
+            ],
+            [
+              5,
+              0.7
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "run": 1,
+                "params": {
+                  "d": 3
+                },
+                "metrics": {
+                  "m": 0.5
+                }
+              },
+              {
+                "run": 2,
+                "params": {
+                  "d": 5
+                },
+                "metrics": {
+                  "m": 0.7
+                }
+              },
+              {
+                "run": 3,
+                "params": {
+                  "d": 3
+                },
+                "metrics": {
+                  "m": 0.6
+                }
+              },
+              {
+                "run": 4,
+                "params": {
+                  "x": 1
+                },
+                "metrics": {
+                  "m": 0.9
+                }
+              }
+            ],
+            "x",
+            "m"
+          ],
+          "returns": [
+            [
+              1,
+              0.9
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "run": 1,
+                "params": {
+                  "d": 3
+                },
+                "metrics": {
+                  "m": 0.5
+                }
+              },
+              {
+                "run": 2,
+                "params": {
+                  "d": 5
+                },
+                "metrics": {
+                  "m": 0.7
+                }
+              },
+              {
+                "run": 3,
+                "params": {
+                  "d": 3
+                },
+                "metrics": {
+                  "m": 0.6
+                }
+              },
+              {
+                "run": 4,
+                "params": {
+                  "x": 1
+                },
+                "metrics": {
+                  "m": 0.9
+                }
+              }
+            ],
+            "y",
+            "m"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [],
+            "d",
+            "m"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "max_depth 3 0.785\nmax_depth 5 0.815"
+    }
+  ]
+}

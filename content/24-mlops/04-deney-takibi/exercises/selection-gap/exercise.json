@@ -1,0 +1,122 @@
+{
+  "id": "selection-gap",
+  "title": {
+    "tr": "Seçimin Payı",
+    "en": "The Share of the Choice"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "En iyiyi bir döngüyle bul: `for val, test in scores:` içinde `if val > best_val:`; böylece eşitlikte önceki kalır.",
+      "en": "Find the best with a loop: inside `for val, test in scores:` write `if val > best_val:`; that way the earlier one stays on a tie."
+    },
+    {
+      "tr": "Ortalamalar: `sum(val for val, _ in scores) / len(scores)` ve test için aynısı.",
+      "en": "The means: `sum(val for val, _ in scores) / len(scores)` and the same for test."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef selection_gap(scores):\n    best_val, its_test = scores[0]\n    for val, test in scores:\n        if val > best_val:\n            best_val, its_test = val, test\n    val_mean = sum(val for val, _ in scores) / len(scores)\n    test_mean = sum(test for _, test in scores) / len(scores)\n    return {\"val_lead\": round(best_val - val_mean, 3), \"test_lead\": round(its_test - test_mean, 3)}\n\n\nscores = [[0.80, 0.76], [0.83, 0.77], [0.79, 0.78], [0.81, 0.75]]\ngap = selection_gap(scores)\nprint(\"validation lead:\", gap[\"val_lead\"])\nprint(\"test lead:\", gap[\"test_lead\"])\n```",
+      "en": "The full solution:\n\n```python\ndef selection_gap(scores):\n    best_val, its_test = scores[0]\n    for val, test in scores:\n        if val > best_val:\n            best_val, its_test = val, test\n    val_mean = sum(val for val, _ in scores) / len(scores)\n    test_mean = sum(test for _, test in scores) / len(scores)\n    return {\"val_lead\": round(best_val - val_mean, 3), \"test_lead\": round(its_test - test_mean, 3)}\n\n\nscores = [[0.80, 0.76], [0.83, 0.77], [0.79, 0.78], [0.81, 0.75]]\ngap = selection_gap(scores)\nprint(\"validation lead:\", gap[\"val_lead\"])\nprint(\"test lead:\", gap[\"test_lead\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "selection_gap",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.8,
+                0.7
+              ],
+              [
+                0.9,
+                0.7
+              ],
+              [
+                0.7,
+                0.7
+              ]
+            ]
+          ],
+          "returns": {
+            "val_lead": 0.1,
+            "test_lead": 0.0
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                0.5,
+                0.6
+              ],
+              [
+                0.5,
+                0.4
+              ]
+            ]
+          ],
+          "returns": {
+            "val_lead": 0.0,
+            "test_lead": 0.1
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                0.82,
+                0.8
+              ]
+            ]
+          ],
+          "returns": {
+            "val_lead": 0.0,
+            "test_lead": 0.0
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                0.6,
+                0.62
+              ],
+              [
+                0.7,
+                0.61
+              ],
+              [
+                0.65,
+                0.66
+              ],
+              [
+                0.62,
+                0.6
+              ]
+            ]
+          ],
+          "returns": {
+            "val_lead": 0.057,
+            "test_lead": -0.013
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "validation lead: 0.022\ntest lead: 0.005"
+    }
+  ]
+}
