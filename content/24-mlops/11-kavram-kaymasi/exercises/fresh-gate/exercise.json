@@ -1,0 +1,157 @@
+{
+  "id": "fresh-gate",
+  "title": {
+    "tr": "Güncel Kapı",
+    "en": "The Current Gate"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Güncel kümeler bir liste kavramasıyla: `[s for s in sets if now - s[\"month\"] <= max_age]`.",
+      "en": "The current sets with a list comprehension: `[s for s in sets if now - s[\"month\"] <= max_age]`."
+    },
+    {
+      "tr": "Boş liste kontrolü bölmeden önce gelmeli; yoksa sıfıra bölme hatası.",
+      "en": "The empty-list check must come before the division; otherwise a division by zero."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef fresh_gate(sets, now, max_age, min_gain):\n    fresh = [s for s in sets if now - s[\"month\"] <= max_age]\n    if not fresh:\n        return [\"no fresh set\", 0]\n    gain = round(sum(s[\"new\"] - s[\"old\"] for s in fresh) / len(fresh), 3)\n    if gain >= min_gain:\n        return [\"promote\", gain]\n    return [\"keep\", gain]\n\n\nsets = [\n    {\"month\": 0, \"old\": 0.813, \"new\": 0.718},\n    {\"month\": 5, \"old\": 0.681, \"new\": 0.837},\n]\nprint(fresh_gate(sets, 5, 1, 0.003))\nprint(fresh_gate(sets[:1], 0, 1, 0.003))\nprint(fresh_gate(sets, 9, 1, 0.003))\n```",
+      "en": "The full solution:\n\n```python\ndef fresh_gate(sets, now, max_age, min_gain):\n    fresh = [s for s in sets if now - s[\"month\"] <= max_age]\n    if not fresh:\n        return [\"no fresh set\", 0]\n    gain = round(sum(s[\"new\"] - s[\"old\"] for s in fresh) / len(fresh), 3)\n    if gain >= min_gain:\n        return [\"promote\", gain]\n    return [\"keep\", gain]\n\n\nsets = [\n    {\"month\": 0, \"old\": 0.813, \"new\": 0.718},\n    {\"month\": 5, \"old\": 0.681, \"new\": 0.837},\n]\nprint(fresh_gate(sets, 5, 1, 0.003))\nprint(fresh_gate(sets[:1], 0, 1, 0.003))\nprint(fresh_gate(sets, 9, 1, 0.003))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fresh_gate",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "month": 0,
+                "old": 0.813,
+                "new": 0.718
+              },
+              {
+                "month": 5,
+                "old": 0.681,
+                "new": 0.837
+              }
+            ],
+            5,
+            1,
+            0.003
+          ],
+          "returns": [
+            "promote",
+            0.156
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "month": 0,
+                "old": 0.813,
+                "new": 0.718
+              },
+              {
+                "month": 5,
+                "old": 0.681,
+                "new": 0.837
+              }
+            ],
+            5,
+            5,
+            0.003
+          ],
+          "returns": [
+            "promote",
+            0.03
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "month": 0,
+                "old": 0.813,
+                "new": 0.718
+              },
+              {
+                "month": 5,
+                "old": 0.681,
+                "new": 0.837
+              }
+            ],
+            9,
+            1,
+            0.003
+          ],
+          "returns": [
+            "no fresh set",
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "month": 3,
+                "old": 0.7,
+                "new": 0.703
+              },
+              {
+                "month": 4,
+                "old": 0.7,
+                "new": 0.701
+              }
+            ],
+            4,
+            1,
+            0.002
+          ],
+          "returns": [
+            "promote",
+            0.002
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "month": 3,
+                "old": 0.7,
+                "new": 0.703
+              },
+              {
+                "month": 4,
+                "old": 0.7,
+                "new": 0.701
+              }
+            ],
+            4,
+            0,
+            0.002
+          ],
+          "returns": [
+            "keep",
+            0.001
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['promote', 0.156]\n['keep', -0.095]\n['no fresh set', 0]"
+    }
+  ]
+}

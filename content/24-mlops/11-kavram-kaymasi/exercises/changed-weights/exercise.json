@@ -1,0 +1,139 @@
+{
+  "id": "changed-weights",
+  "title": {
+    "tr": "Değişen Ağırlıklar",
+    "en": "Changed Weights"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`zip(names, old, new)` üçünü birlikte gezer.",
+      "en": "`zip(names, old, new)` walks all three together."
+    },
+    {
+      "tr": "`sorted(..., key=lambda pair: -abs(pair[1]))` büyükten küçüğe dizer; `sorted` eşitlerin sırasını korur.",
+      "en": "`sorted(..., key=lambda pair: -abs(pair[1]))` sorts from largest to smallest; `sorted` keeps the order of ties."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef changed_weights(names, old, new, limit):\n    changes = []\n    for name, a, b in zip(names, old, new):\n        diff = round(b - a, 2)\n        if abs(diff) > limit:\n            changes.append([name, diff])\n    return sorted(changes, key=lambda pair: -abs(pair[1]))\n\n\nnames = [\"tenure\", \"fee\", \"calls\"]\nfor row in changed_weights(names, [-1.25, 0.87, 1.02], [-1.31, 1.89, 0.24], 0.5):\n    print(row)\nprint(changed_weights(names, [1, 2, 3], [1, 2, 3], 0.1))\n```",
+      "en": "The full solution:\n\n```python\ndef changed_weights(names, old, new, limit):\n    changes = []\n    for name, a, b in zip(names, old, new):\n        diff = round(b - a, 2)\n        if abs(diff) > limit:\n            changes.append([name, diff])\n    return sorted(changes, key=lambda pair: -abs(pair[1]))\n\n\nnames = [\"tenure\", \"fee\", \"calls\"]\nfor row in changed_weights(names, [-1.25, 0.87, 1.02], [-1.31, 1.89, 0.24], 0.5):\n    print(row)\nprint(changed_weights(names, [1, 2, 3], [1, 2, 3], 0.1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "changed_weights",
+      "cases": [
+        {
+          "args": [
+            [
+              "a",
+              "b",
+              "c"
+            ],
+            [
+              -1.25,
+              0.87,
+              1.02
+            ],
+            [
+              -1.31,
+              1.89,
+              0.24
+            ],
+            0.5
+          ],
+          "returns": [
+            [
+              "b",
+              1.02
+            ],
+            [
+              "c",
+              -0.78
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            0.1
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b",
+              "c"
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              -1,
+              2
+            ],
+            0.5
+          ],
+          "returns": [
+            [
+              "c",
+              2
+            ],
+            [
+              "a",
+              1
+            ],
+            [
+              "b",
+              -1
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              "a"
+            ],
+            [
+              0.3
+            ],
+            [
+              0.1
+            ],
+            0.2
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['fee', 1.02]\n['calls', -0.78]\n[]"
+    }
+  ]
+}
