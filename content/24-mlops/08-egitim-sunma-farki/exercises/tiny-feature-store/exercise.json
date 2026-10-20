@@ -1,0 +1,36 @@
+{
+  "id": "tiny-feature-store",
+  "title": {
+    "tr": "Küçük Özellik Deposu",
+    "en": "A Tiny Feature Store"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`write`: `self.history.setdefault(customer, []).append([day, values])`.",
+      "en": "`write`: `self.history.setdefault(customer, []).append([day, values])`."
+    },
+    {
+      "tr": "Olmayan müşteri için `self.history.get(customer, [])` boş liste verir; `online`'da önce `if customer not in self.history: return None`.",
+      "en": "For a missing customer, `self.history.get(customer, [])` gives an empty list; in `online`, first `if customer not in self.history: return None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nclass FeatureStore:\n    def __init__(self):\n        self.history = {}\n\n    def write(self, customer, day, values):\n        self.history.setdefault(customer, []).append([day, values])\n\n    def offline(self, customer, day):\n        value = None\n        for when, known in self.history.get(customer, []):\n            if when <= day:\n                value = known\n            else:\n                break\n        return value\n\n    def online(self, customer):\n        if customer not in self.history:\n            return None\n        return self.history[customer][-1][1]\n\n\nstore = FeatureStore()\nstore.write(\"C7\", \"2026-01-01\", {\"support_calls\": 0})\nstore.write(\"C7\", \"2026-02-01\", {\"support_calls\": 1})\nstore.write(\"C7\", \"2026-03-01\", {\"support_calls\": 4})\nstore.write(\"C9\", \"2026-02-10\", {\"support_calls\": 2})\nprint(\"training C7:\", store.offline(\"C7\", \"2026-02-15\"))\nprint(\"training C9:\", store.offline(\"C9\", \"2026-02-01\"))\nprint(\"serving C7:\", store.online(\"C7\"))\nprint(\"serving C5:\", store.online(\"C5\"))\n```",
+      "en": "The full solution:\n\n```python\nclass FeatureStore:\n    def __init__(self):\n        self.history = {}\n\n    def write(self, customer, day, values):\n        self.history.setdefault(customer, []).append([day, values])\n\n    def offline(self, customer, day):\n        value = None\n        for when, known in self.history.get(customer, []):\n            if when <= day:\n                value = known\n            else:\n                break\n        return value\n\n    def online(self, customer):\n        if customer not in self.history:\n            return None\n        return self.history[customer][-1][1]\n\n\nstore = FeatureStore()\nstore.write(\"C7\", \"2026-01-01\", {\"support_calls\": 0})\nstore.write(\"C7\", \"2026-02-01\", {\"support_calls\": 1})\nstore.write(\"C7\", \"2026-03-01\", {\"support_calls\": 4})\nstore.write(\"C9\", \"2026-02-10\", {\"support_calls\": 2})\nprint(\"training C7:\", store.offline(\"C7\", \"2026-02-15\"))\nprint(\"training C9:\", store.offline(\"C9\", \"2026-02-01\"))\nprint(\"serving C7:\", store.online(\"C7\"))\nprint(\"serving C5:\", store.online(\"C5\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "training C7: {'support_calls': 1}\ntraining C9: None\nserving C7: {'support_calls': 4}\nserving C5: None"
+    }
+  ]
+}

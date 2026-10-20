@@ -1,0 +1,114 @@
+{
+  "id": "one-definition",
+  "title": {
+    "tr": "Tek Tanım",
+    "en": "One Definition"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for name in spec:` içinde `if name == \"is_pro\":` ayrı, değilse `row[name]`.",
+      "en": "Inside `for name in spec:`, handle `if name == \"is_pro\":` separately, otherwise `row[name]`."
+    },
+    {
+      "tr": "Satırın kendi sırası önemli değil; vektörün sırasını yalnızca `spec` belirler.",
+      "en": "The row's own order doesn't matter; only `spec` decides the vector's order."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef vector(row, spec):\n    values = []\n    for name in spec:\n        if name == \"is_pro\":\n            values.append(1 if row[\"plan\"] == \"pro\" else 0)\n        else:\n            values.append(row[name])\n    return values\n\n\nSPEC = [\"tenure\", \"monthly_fee\", \"support_calls\", \"usage_hours\", \"is_pro\"]\nrow = {\"plan\": \"pro\", \"usage_hours\": 5.0, \"tenure\": 2, \"support_calls\": 6, \"monthly_fee\": 45.0}\nprint(vector(row, SPEC))\nprint(vector({**row, \"plan\": \"basic\"}, [\"is_pro\", \"tenure\"]))\n```",
+      "en": "The full solution:\n\n```python\ndef vector(row, spec):\n    values = []\n    for name in spec:\n        if name == \"is_pro\":\n            values.append(1 if row[\"plan\"] == \"pro\" else 0)\n        else:\n            values.append(row[name])\n    return values\n\n\nSPEC = [\"tenure\", \"monthly_fee\", \"support_calls\", \"usage_hours\", \"is_pro\"]\nrow = {\"plan\": \"pro\", \"usage_hours\": 5.0, \"tenure\": 2, \"support_calls\": 6, \"monthly_fee\": 45.0}\nprint(vector(row, SPEC))\nprint(vector({**row, \"plan\": \"basic\"}, [\"is_pro\", \"tenure\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "vector",
+      "cases": [
+        {
+          "args": [
+            {
+              "plan": "basic",
+              "usage_hours": 30.0,
+              "tenure": 12,
+              "support_calls": 1,
+              "monthly_fee": 20.0
+            },
+            [
+              "tenure",
+              "is_pro"
+            ]
+          ],
+          "returns": [
+            12,
+            0
+          ]
+        },
+        {
+          "args": [
+            {
+              "plan": "basic",
+              "usage_hours": 30.0,
+              "tenure": 12,
+              "support_calls": 1,
+              "monthly_fee": 20.0
+            },
+            [
+              "is_pro",
+              "monthly_fee",
+              "usage_hours"
+            ]
+          ],
+          "returns": [
+            0,
+            20.0,
+            30.0
+          ]
+        },
+        {
+          "args": [
+            {
+              "plan": "basic",
+              "usage_hours": 30.0,
+              "tenure": 12,
+              "support_calls": 1,
+              "monthly_fee": 20.0
+            },
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "plan": "pro",
+              "usage_hours": 30.0,
+              "tenure": 12,
+              "support_calls": 1,
+              "monthly_fee": 20.0
+            },
+            [
+              "support_calls",
+              "is_pro"
+            ]
+          ],
+          "returns": [
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 45.0, 6, 5.0, 1]\n[0, 2]"
+    }
+  ]
+}

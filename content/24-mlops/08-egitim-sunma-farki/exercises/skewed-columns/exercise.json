@@ -1,0 +1,130 @@
+{
+  "id": "skewed-columns",
+  "title": {
+    "tr": "Kayan Sütunlar",
+    "en": "Skewed Columns"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Üçünü birlikte gezmek için `zip(names, trained, live)`.",
+      "en": "To walk all three together, `zip(names, trained, live)`."
+    },
+    {
+      "tr": "Önce `if old == 0:` durumunu ayır; değilse `abs(new - old) > tolerance * abs(old)`.",
+      "en": "First separate the `if old == 0:` case; otherwise `abs(new - old) > tolerance * abs(old)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef skewed_columns(names, trained, live, tolerance):\n    flagged = []\n    for name, old, new in zip(names, trained, live):\n        if old == 0:\n            if new != 0:\n                flagged.append(name)\n        elif abs(new - old) > tolerance * abs(old):\n            flagged.append(name)\n    return flagged\n\n\nnames = [\"tenure\", \"monthly_fee\", \"support_calls\", \"is_pro\"]\ntrained = [36.7, 30.2, 0.74, 0.4]\nlive = [36.1, 0.75, 30.1, 0.0]\nprint(skewed_columns(names, trained, live, 0.5))\nprint(skewed_columns(names, trained, trained, 0.5))\n```",
+      "en": "The full solution:\n\n```python\ndef skewed_columns(names, trained, live, tolerance):\n    flagged = []\n    for name, old, new in zip(names, trained, live):\n        if old == 0:\n            if new != 0:\n                flagged.append(name)\n        elif abs(new - old) > tolerance * abs(old):\n            flagged.append(name)\n    return flagged\n\n\nnames = [\"tenure\", \"monthly_fee\", \"support_calls\", \"is_pro\"]\ntrained = [36.7, 30.2, 0.74, 0.4]\nlive = [36.1, 0.75, 30.1, 0.0]\nprint(skewed_columns(names, trained, live, 0.5))\nprint(skewed_columns(names, trained, trained, 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "skewed_columns",
+      "cases": [
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              10.0,
+              2.0
+            ],
+            [
+              10.4,
+              5.0
+            ],
+            0.5
+          ],
+          "returns": [
+            "b"
+          ]
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b",
+              "c"
+            ],
+            [
+              0.0,
+              1.0,
+              4.0
+            ],
+            [
+              0.2,
+              1.0,
+              1.0
+            ],
+            0.5
+          ],
+          "returns": [
+            "a",
+            "c"
+          ]
+        },
+        {
+          "args": [
+            [
+              "a"
+            ],
+            [
+              0.0
+            ],
+            [
+              0.0
+            ],
+            0.1
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [],
+            [],
+            [],
+            0.5
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              -4.0,
+              3.0
+            ],
+            [
+              -1.0,
+              3.2
+            ],
+            0.5
+          ],
+          "returns": [
+            "a"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['monthly_fee', 'support_calls', 'is_pro']\n[]"
+    }
+  ]
+}

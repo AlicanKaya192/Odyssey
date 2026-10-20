@@ -1,0 +1,172 @@
+{
+  "id": "calls-as-of",
+  "title": {
+    "tr": "Zamanında Sayım",
+    "en": "A Count in Time"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki koşul birlikte: `who == customer and when < day`. `<=` değil: o günkü arama sayılmaz.",
+      "en": "Two conditions together: `who == customer and when < day`. Not `<=`: that day's call doesn't count."
+    },
+    {
+      "tr": "Saymak için `sum(1 for who, when in calls if ...)`.",
+      "en": "To count: `sum(1 for who, when in calls if ...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef calls_as_of(labels, calls):\n    result = []\n    for customer, day in labels:\n        count = sum(1 for who, when in calls if who == customer and when < day)\n        result.append([customer, day, count])\n    return result\n\n\nlabels = [[\"C1\", \"2026-02-15\"], [\"C2\", \"2026-02-15\"], [\"C1\", \"2026-03-10\"]]\ncalls = [[\"C1\", \"2026-01-20\"], [\"C1\", \"2026-02-15\"], [\"C1\", \"2026-03-01\"], [\"C2\", \"2026-04-01\"]]\nfor row in calls_as_of(labels, calls):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\ndef calls_as_of(labels, calls):\n    result = []\n    for customer, day in labels:\n        count = sum(1 for who, when in calls if who == customer and when < day)\n        result.append([customer, day, count])\n    return result\n\n\nlabels = [[\"C1\", \"2026-02-15\"], [\"C2\", \"2026-02-15\"], [\"C1\", \"2026-03-10\"]]\ncalls = [[\"C1\", \"2026-01-20\"], [\"C1\", \"2026-02-15\"], [\"C1\", \"2026-03-01\"], [\"C2\", \"2026-04-01\"]]\nfor row in calls_as_of(labels, calls):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "calls_as_of",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "A",
+                "2026-02-01"
+              ],
+              [
+                "B",
+                "2026-02-01"
+              ]
+            ],
+            [
+              [
+                "A",
+                "2026-01-01"
+              ],
+              [
+                "A",
+                "2026-02-01"
+              ],
+              [
+                "B",
+                "2026-01-31"
+              ],
+              [
+                "A",
+                "2025-12-01"
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "A",
+              "2026-02-01",
+              2
+            ],
+            [
+              "B",
+              "2026-02-01",
+              1
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "A",
+                "2026-02-01"
+              ],
+              [
+                "B",
+                "2026-02-01"
+              ]
+            ],
+            []
+          ],
+          "returns": [
+            [
+              "A",
+              "2026-02-01",
+              0
+            ],
+            [
+              "B",
+              "2026-02-01",
+              0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              [
+                "A",
+                "2026-01-01"
+              ],
+              [
+                "A",
+                "2026-02-01"
+              ],
+              [
+                "B",
+                "2026-01-31"
+              ],
+              [
+                "A",
+                "2025-12-01"
+              ]
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "A",
+                "2026-01-01"
+              ]
+            ],
+            [
+              [
+                "A",
+                "2026-01-01"
+              ],
+              [
+                "A",
+                "2026-02-01"
+              ],
+              [
+                "B",
+                "2026-01-31"
+              ],
+              [
+                "A",
+                "2025-12-01"
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "A",
+              "2026-01-01",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['C1', '2026-02-15', 1]\n['C2', '2026-02-15', 0]\n['C1', '2026-03-10', 3]"
+    }
+  ]
+}
