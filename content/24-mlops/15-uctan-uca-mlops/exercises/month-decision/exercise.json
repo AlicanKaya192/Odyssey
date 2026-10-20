@@ -1,0 +1,102 @@
+{
+  "id": "month-decision",
+  "title": {
+    "tr": "Ayın Kararı",
+    "en": "The Month's Decision"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra önemli: veri reddedildiyse aday hiç eğitilmez, skoruna bakılmaz.",
+      "en": "The order matters: if the data is rejected, the candidate isn't trained and its score isn't looked at."
+    },
+    {
+      "tr": "Dersteki fonksiyonun `if`'lerini al; metinler yerine yalnızca karar adlarını döndür.",
+      "en": "Take the `if`s of the lesson's function; return only the decision names instead of the messages."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nMAX_DROP, MAX_DRIFT, MAX_INVALID, MIN_GAIN = 0.05, 0.25, 0.05, 0.003\n\n\ndef decide_month(live, base, drift, invalid, candidate):\n    if live >= base - MAX_DROP and drift <= MAX_DRIFT:\n        return \"keep\"\n    if invalid > MAX_INVALID:\n        return \"data rejected\"\n    if candidate < live + MIN_GAIN:\n        return \"kept out\"\n    return \"promoted\"\n\n\nprint(decide_month(0.813, 0.813, 0.07, 0.0, 0.0))\nprint(decide_month(0.778, 0.813, 0.578, 0.0, 0.782))\nprint(decide_month(0.787, 0.782, 0.326, 0.0, 0.784))\nprint(decide_month(0.691, 0.782, 0.575, 1.0, 0.784))\n```",
+      "en": "The full solution:\n\n```python\nMAX_DROP, MAX_DRIFT, MAX_INVALID, MIN_GAIN = 0.05, 0.25, 0.05, 0.003\n\n\ndef decide_month(live, base, drift, invalid, candidate):\n    if live >= base - MAX_DROP and drift <= MAX_DRIFT:\n        return \"keep\"\n    if invalid > MAX_INVALID:\n        return \"data rejected\"\n    if candidate < live + MIN_GAIN:\n        return \"kept out\"\n    return \"promoted\"\n\n\nprint(decide_month(0.813, 0.813, 0.07, 0.0, 0.0))\nprint(decide_month(0.778, 0.813, 0.578, 0.0, 0.782))\nprint(decide_month(0.787, 0.782, 0.326, 0.0, 0.784))\nprint(decide_month(0.691, 0.782, 0.575, 1.0, 0.784))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "decide_month",
+      "cases": [
+        {
+          "args": [
+            0.813,
+            0.813,
+            0.07,
+            0.0,
+            0.0
+          ],
+          "returns": "keep"
+        },
+        {
+          "args": [
+            0.778,
+            0.813,
+            0.578,
+            0.0,
+            0.782
+          ],
+          "returns": "promoted"
+        },
+        {
+          "args": [
+            0.787,
+            0.782,
+            0.326,
+            0.0,
+            0.784
+          ],
+          "returns": "kept out"
+        },
+        {
+          "args": [
+            0.691,
+            0.782,
+            0.575,
+            1.0,
+            0.784
+          ],
+          "returns": "data rejected"
+        },
+        {
+          "args": [
+            0.7,
+            0.8,
+            0.1,
+            0.0,
+            0.9
+          ],
+          "returns": "promoted"
+        },
+        {
+          "args": [
+            0.7,
+            0.8,
+            0.1,
+            0.06,
+            0.9
+          ],
+          "returns": "data rejected"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "keep\npromoted\nkept out\ndata rejected"
+    }
+  ]
+}

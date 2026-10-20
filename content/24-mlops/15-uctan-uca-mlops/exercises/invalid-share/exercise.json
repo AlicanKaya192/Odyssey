@@ -1,0 +1,139 @@
+{
+  "id": "invalid-share",
+  "title": {
+    "tr": "Geçersiz Satır Payı",
+    "en": "The Invalid Share"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`row.get(name)` sütun yoksa `None` verir; eksik ve `None` aynı yoldan yakalanır.",
+      "en": "`row.get(name)` gives `None` if the column is missing; missing and `None` are caught the same way."
+    },
+    {
+      "tr": "Bir satırda ilk sorunda `break`: satır iki kez sayılmasın.",
+      "en": "`break` at the first problem in a row: a row must not be counted twice."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef invalid_share(rows, limits):\n    bad = 0\n    for row in rows:\n        for name, (low, high) in limits.items():\n            value = row.get(name)\n            if value is None or not low <= value <= high:\n                bad += 1\n                break\n    return round(bad / len(rows), 3)\n\n\nlimits = {\"fee\": [5, 100], \"calls\": [0, 10]}\nrows = [{\"fee\": 30, \"calls\": 2}, {\"fee\": 3000, \"calls\": 1},\n        {\"fee\": 40}, {\"fee\": 50, \"calls\": 11}]\nprint(invalid_share(rows, limits))\nprint(invalid_share(rows[:1], limits))\n```",
+      "en": "The full solution:\n\n```python\ndef invalid_share(rows, limits):\n    bad = 0\n    for row in rows:\n        for name, (low, high) in limits.items():\n            value = row.get(name)\n            if value is None or not low <= value <= high:\n                bad += 1\n                break\n    return round(bad / len(rows), 3)\n\n\nlimits = {\"fee\": [5, 100], \"calls\": [0, 10]}\nrows = [{\"fee\": 30, \"calls\": 2}, {\"fee\": 3000, \"calls\": 1},\n        {\"fee\": 40}, {\"fee\": 50, \"calls\": 11}]\nprint(invalid_share(rows, limits))\nprint(invalid_share(rows[:1], limits))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "invalid_share",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "a": 1
+              },
+              {
+                "a": 50
+              }
+            ],
+            {
+              "a": [
+                0,
+                10
+              ]
+            }
+          ],
+          "returns": 0.5
+        },
+        {
+          "args": [
+            [
+              {
+                "a": 1
+              }
+            ],
+            {
+              "a": [
+                0,
+                10
+              ]
+            }
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              {
+                "a": 1
+              },
+              {
+                "b": 2
+              }
+            ],
+            {
+              "a": [
+                0,
+                10
+              ]
+            }
+          ],
+          "returns": 0.5
+        },
+        {
+          "args": [
+            [
+              {
+                "a": null
+              },
+              {
+                "a": 10
+              },
+              {
+                "a": 0
+              }
+            ],
+            {
+              "a": [
+                0,
+                10
+              ]
+            }
+          ],
+          "returns": 0.333
+        },
+        {
+          "args": [
+            [
+              {
+                "a": 5,
+                "b": 99
+              }
+            ],
+            {
+              "a": [
+                0,
+                10
+              ],
+              "b": [
+                0,
+                10
+              ]
+            }
+          ],
+          "returns": 1.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.75\n0.0"
+    }
+  ]
+}

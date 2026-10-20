@@ -1,0 +1,93 @@
+{
+  "id": "monthly-pipeline",
+  "title": {
+    "tr": "Aylık Hat",
+    "en": "The Monthly Pipeline"
+  },
+  "difficulty": 3,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "pipeline.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "cron alanları: dakika, saat, ayın günü, ay, haftanın günü: `\"0 3 1 * *\"`. Tırnaklı yaz.",
+      "en": "The cron fields: minute, hour, day of month, month, day of week: `\"0 3 1 * *\"`. Write it in quotes."
+    },
+    {
+      "tr": "`retrain` işinin ilk üç adımı `test`'inkiyle aynı; sonra `python pipeline.py` ve `if: always()` ile yükleme.",
+      "en": "The first three steps of `retrain` are the same as `test`'s; then `python pipeline.py` and the upload with `if: always()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Monthly model\n\non:\n  schedule:\n    - cron: \"0 3 1 * *\"\n  workflow_dispatch:\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n\n  retrain:\n    needs: test\n    runs-on: ubuntu-latest\n    timeout-minutes: 30\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python pipeline.py\n      - uses: actions/upload-artifact@v4\n        if: always()\n        with:\n          name: pipeline-report\n          path: report.txt\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: Monthly model\n\non:\n  schedule:\n    - cron: \"0 3 1 * *\"\n  workflow_dispatch:\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n\n  retrain:\n    needs: test\n    runs-on: ubuntu-latest\n    timeout-minutes: 30\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python pipeline.py\n      - uses: actions/upload-artifact@v4\n        if: always()\n        with:\n          name: pipeline-report\n          path: report.txt\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "on": [
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "cron": "^0 3 1 \\* \\*$",
+      "show_cron": "0 3 1 * *",
+      "job": "retrain",
+      "needs": [
+        "test"
+      ],
+      "keys": {
+        "jobs.retrain.timeout-minutes": "^30$"
+      },
+      "show_keys": {
+        "jobs.retrain.timeout-minutes": "timeout-minutes: 30"
+      },
+      "steps": [
+        {
+          "uses": "^actions/checkout@",
+          "show": "uses: actions/checkout@v4"
+        },
+        {
+          "uses": "^actions/setup-python@",
+          "show": "uses: actions/setup-python@v5"
+        },
+        {
+          "run": "pip install -r requirements\\.txt",
+          "show": "run: python -m pip install -r requirements.txt"
+        },
+        {
+          "run": "python pipeline\\.py",
+          "show": "run: python pipeline.py"
+        },
+        {
+          "uses": "^actions/upload-artifact@",
+          "if": "always\\(\\)",
+          "with": {
+            "name": "^pipeline-report$",
+            "path": "^report\\.txt$"
+          },
+          "show": "uses: actions/upload-artifact@v4 (if: always(), name: pipeline-report, path: report.txt)"
+        }
+      ]
+    }
+  ]
+}
