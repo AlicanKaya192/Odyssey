@@ -421,6 +421,28 @@ GLYPHS: dict[str, str] = {
                 's3.5-4.5 5.8-4.5a4.5 4.5 0 0 1 0 9c-2.3 0-3.8-1.7-5.8-4.5z" stroke-width="1.6"/>'
                 '<path d="M16.6 5.7l1.8 1.8-1.9 1.6" stroke-width="1.3"/>'
                 '<g fill="#fff" stroke="none"><circle cx="6.2" cy="12" r="1.3"/></g>'),
+    "version-stack": ('<path d="M8 6.5V4h12.5v10.5H18" stroke-width="1.2"/>'
+                      '<path d="M5.5 9V6.6H18v10.4h-2.2" stroke-width="1.3"/>'
+                      '<rect x="3" y="9.2" width="12.8" height="11.3" rx="1.3" stroke-width="1.5"/>'
+                      '<path d="M5.8 13.2h4.6l2 1.9-2 1.9H5.8z" stroke-width="1.2"/>'
+                      '<g fill="#fff" stroke="none"><circle cx="7.4" cy="15.1" r="0.8"/></g>'),
+    "drift-curves": ('<path d="M2.5 20h19" stroke-width="1.3"/>'
+                     '<path d="M3 19.6c2.2 0 3-8.6 5.6-8.6s3.4 8.6 5.6 8.6" stroke-width="1.5"/>'
+                     '<path d="M9.8 19.6c2.2 0 3-12 5.6-12s3.4 12 5.6 12" stroke-width="1.3"/>'
+                     '<path d="M6.5 4.5h7M11.3 2.6l2.2 1.9-2.2 1.9" stroke-width="1.3"/>'),
+    "canary-bird": ('<path d="M3.5 17.6c1.6-.5 3.2-.7 4.8-.6.1-4.5 3-7.8 6.9-7.8a3.6 3.6 0 0 1 3.4 2.3'
+                    'l2.9.9-2.8 1c-.3 4.5-3.6 7.1-7.9 7.1-3 0-5.5-1-7.3-2.9z" stroke-width="1.4"/>'
+                    '<path d="M10.2 13.8c1.6 1.7 3.6 2.1 5.5 1.4" stroke-width="1.2"/>'
+                    '<path d="M11 20.6v1.9M14.2 20.6v1.9" stroke-width="1.2"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="16.3" cy="11.6" r="0.9"/></g>'),
+    "mlops-cycle": ('<path d="M7.2 4.9A8.6 8.6 0 0 1 19.4 7.6" stroke-width="1.5"/>'
+                    '<path d="M19.6 4.6l-.1 3.1-3.1-.3" stroke-width="1.3"/>'
+                    '<path d="M20.4 13.3a8.6 8.6 0 0 1-8.6 7.3" stroke-width="1.5"/>'
+                    '<path d="M14.2 22.2l-2.4-1.6 1.7-2.4" stroke-width="1.3"/>'
+                    '<path d="M6.1 18.3A8.6 8.6 0 0 1 4.3 9.5" stroke-width="1.5"/>'
+                    '<path d="M2.6 11.6l1.7-2.2 2.3 1.6" stroke-width="1.3"/>'
+                    '<rect x="9" y="9.3" width="6" height="6" rx="1.2" stroke-width="1.4"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="12" cy="12.3" r="1.1"/></g>'),
 }
 
 

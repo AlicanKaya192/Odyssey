@@ -63,6 +63,7 @@ NLP2_CHAPTER = "20-gommeler-ve-dil-modelleri"
 GENAI1_CHAPTER = "21-uretken-yz-temelleri"
 GENAI2_CHAPTER = "22-prompt-muhendisligi"
 CICD_CHAPTER = "23-ci-cd"
+MLOPS_CHAPTER = "24-mlops"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -131,6 +132,9 @@ GENAI2_INJECTION_SECTION = (GENAI2_CHAPTER, "12-prompt-injection")
 CICD_WORKFLOW_SECTION = (CICD_CHAPTER, "03-is-akisi-anatomisi")
 CICD_SECRETS_SECTION = (CICD_CHAPTER, "09-gizli-degerler")
 CICD_DEPLOY_SECTION = (CICD_CHAPTER, "11-dagitim-stratejileri")
+MLOPS_REGISTRY_SECTION = (MLOPS_CHAPTER, "05-model-kaydi")
+MLOPS_DRIFT_SECTION = (MLOPS_CHAPTER, "10-veri-kaymasi")
+MLOPS_CANARY_SECTION = (MLOPS_CHAPTER, "12-ab-golge-kanarya")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -155,6 +159,7 @@ NLP2_SECTION_COUNT = 17
 GENAI1_SECTION_COUNT = 17
 GENAI2_SECTION_COUNT = 17
 CICD_SECTION_COUNT = 17
+MLOPS_SECTION_COUNT = 17
 
 
 def _completed_sections(
@@ -319,6 +324,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "secret-keeper": CICD_SECRETS_SECTION in bitenler,
         "first-deploy": CICD_DEPLOY_SECTION in bitenler,
         "cicd-complete": modul_basina.get(CICD_CHAPTER, 0) >= CICD_SECTION_COUNT,
+        "model-archivist": MLOPS_REGISTRY_SECTION in bitenler,
+        "drift-detector": MLOPS_DRIFT_SECTION in bitenler,
+        "canary-watcher": MLOPS_CANARY_SECTION in bitenler,
+        "mlops-complete": modul_basina.get(MLOPS_CHAPTER, 0) >= MLOPS_SECTION_COUNT,
     }
 
 
