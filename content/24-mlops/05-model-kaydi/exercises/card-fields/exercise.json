@@ -1,0 +1,102 @@
+{
+  "id": "card-fields",
+  "title": {
+    "tr": "Kartta Eksik Var mı?",
+    "en": "Is the Card Missing Anything?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for field in REQUIRED:` içinde iki durum: `field not in card` ya da değer boş.",
+      "en": "Inside `for field in REQUIRED:` there are two cases: `field not in card`, or the value is empty."
+    },
+    {
+      "tr": "Boşluğu tek koşulla sor: `card[field] in (\"\", None, {}, [])`. Sürüm `0` olsaydı boş sayılmazdı; `not card[field]` yazma.",
+      "en": "Ask about emptiness with one condition: `card[field] in (\"\", None, {}, [])`. A version of `0` wouldn't count as empty; don't write `not card[field]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nREQUIRED = [\"name\", \"version\", \"intended_use\", \"data\", \"metrics\", \"limitations\"]\n\n\ndef missing_fields(card):\n    missing = []\n    for field in REQUIRED:\n        if field not in card or card[field] in (\"\", None, {}, []):\n            missing.append(field)\n    return missing\n\n\ncard = {\n    \"name\": \"churn\",\n    \"version\": 3,\n    \"intended_use\": \"choose customers to call\",\n    \"data\": \"\",\n    \"metrics\": {\"accuracy\": 0.818},\n}\nprint(missing_fields(card))\ncard[\"data\"] = \"5000 customers, month 0\"\ncard[\"limitations\"] = \"this service only\"\nprint(missing_fields(card))\n```",
+      "en": "The full solution:\n\n```python\nREQUIRED = [\"name\", \"version\", \"intended_use\", \"data\", \"metrics\", \"limitations\"]\n\n\ndef missing_fields(card):\n    missing = []\n    for field in REQUIRED:\n        if field not in card or card[field] in (\"\", None, {}, []):\n            missing.append(field)\n    return missing\n\n\ncard = {\n    \"name\": \"churn\",\n    \"version\": 3,\n    \"intended_use\": \"choose customers to call\",\n    \"data\": \"\",\n    \"metrics\": {\"accuracy\": 0.818},\n}\nprint(missing_fields(card))\ncard[\"data\"] = \"5000 customers, month 0\"\ncard[\"limitations\"] = \"this service only\"\nprint(missing_fields(card))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "missing_fields",
+      "cases": [
+        {
+          "args": [
+            {}
+          ],
+          "returns": [
+            "name",
+            "version",
+            "intended_use",
+            "data",
+            "metrics",
+            "limitations"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "m",
+              "version": 1,
+              "intended_use": "x",
+              "data": "d",
+              "metrics": {
+                "a": 1
+              },
+              "limitations": "l"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "name": "m",
+              "version": 1,
+              "intended_use": "",
+              "data": null,
+              "metrics": {},
+              "limitations": []
+            }
+          ],
+          "returns": [
+            "intended_use",
+            "data",
+            "metrics",
+            "limitations"
+          ]
+        },
+        {
+          "args": [
+            {
+              "limitations": "l",
+              "name": "m"
+            }
+          ],
+          "returns": [
+            "version",
+            "intended_use",
+            "data",
+            "metrics"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['data', 'limitations']\n[]"
+    }
+  ]
+}

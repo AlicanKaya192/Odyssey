@@ -1,0 +1,96 @@
+{
+  "id": "should-promote",
+  "title": {
+    "tr": "Kapı Kararı",
+    "en": "The Gate Decision"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce ölçüm denetimi: `if \"accuracy\" not in candidate: return \"keep\"`. Sıra önemli: ölçümsüz aday ilk sürüm bile olamaz.",
+      "en": "First the measurement check: `if \"accuracy\" not in candidate: return \"keep\"`. The order matters: an unmeasured candidate can't even be the first version."
+    },
+    {
+      "tr": "Kazanç: `candidate[\"accuracy\"] - current[\"accuracy\"] >= min_gain`.",
+      "en": "The gain: `candidate[\"accuracy\"] - current[\"accuracy\"] >= min_gain`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef should_promote(candidate, current, min_gain):\n    if \"accuracy\" not in candidate:\n        return \"keep\"\n    if current is None:\n        return \"promote\"\n    if candidate[\"accuracy\"] - current[\"accuracy\"] >= min_gain:\n        return \"promote\"\n    return \"keep\"\n\n\nprint(should_promote({\"accuracy\": 0.82}, {\"accuracy\": 0.81}, 0.003))\nprint(should_promote({\"accuracy\": 0.812}, {\"accuracy\": 0.81}, 0.003))\nprint(should_promote({\"accuracy\": 0.79}, None, 0.003))\nprint(should_promote({\"loss\": 0.4}, {\"accuracy\": 0.81}, 0.003))\n```",
+      "en": "The full solution:\n\n```python\ndef should_promote(candidate, current, min_gain):\n    if \"accuracy\" not in candidate:\n        return \"keep\"\n    if current is None:\n        return \"promote\"\n    if candidate[\"accuracy\"] - current[\"accuracy\"] >= min_gain:\n        return \"promote\"\n    return \"keep\"\n\n\nprint(should_promote({\"accuracy\": 0.82}, {\"accuracy\": 0.81}, 0.003))\nprint(should_promote({\"accuracy\": 0.812}, {\"accuracy\": 0.81}, 0.003))\nprint(should_promote({\"accuracy\": 0.79}, None, 0.003))\nprint(should_promote({\"loss\": 0.4}, {\"accuracy\": 0.81}, 0.003))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "should_promote",
+      "cases": [
+        {
+          "args": [
+            {
+              "accuracy": 0.82
+            },
+            {
+              "accuracy": 0.81
+            },
+            0.003
+          ],
+          "returns": "promote"
+        },
+        {
+          "args": [
+            {
+              "accuracy": 0.811
+            },
+            {
+              "accuracy": 0.81
+            },
+            0.003
+          ],
+          "returns": "keep"
+        },
+        {
+          "args": [
+            {
+              "accuracy": 0.5
+            },
+            null,
+            0.003
+          ],
+          "returns": "promote"
+        },
+        {
+          "args": [
+            {},
+            null,
+            0.003
+          ],
+          "returns": "keep"
+        },
+        {
+          "args": [
+            {
+              "accuracy": 0.8
+            },
+            {
+              "accuracy": 0.81
+            },
+            0.0
+          ],
+          "returns": "keep"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "promote\nkeep\npromote\nkeep"
+    }
+  ]
+}

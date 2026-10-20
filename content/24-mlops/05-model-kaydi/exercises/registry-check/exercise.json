@@ -1,0 +1,137 @@
+{
+  "id": "registry-check",
+  "title": {
+    "tr": "Kaydın Sağlığı",
+    "en": "The Registry's Health"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Var olan sürüm numaralarını bir kümede topla: `known = {info[\"version\"] for info in entry[\"versions\"]}`.",
+      "en": "Collect the existing version numbers in a set: `known = {info[\"version\"] for info in entry[\"versions\"]}`."
+    },
+    {
+      "tr": "Dosya için iki durum: `if info[\"file\"] not in disk:` ve `elif disk[info[\"file\"]] != info[\"sha256\"]:`.",
+      "en": "Two cases for the file: `if info[\"file\"] not in disk:` and `elif disk[info[\"file\"]] != info[\"sha256\"]:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef check_registry(entry, disk):\n    problems = []\n    known = {info[\"version\"] for info in entry[\"versions\"]}\n    for alias, version in entry[\"aliases\"].items():\n        if version not in known:\n            problems.append(f\"{alias}: version {version} does not exist\")\n    for info in entry[\"versions\"]:\n        if info[\"file\"] not in disk:\n            problems.append(f\"v{info['version']}: file missing\")\n        elif disk[info[\"file\"]] != info[\"sha256\"]:\n            problems.append(f\"v{info['version']}: hash mismatch\")\n    return problems\n\n\nentry = {\n    \"versions\": [\n        {\"version\": 1, \"file\": \"v1.pkl\", \"sha256\": \"aaa\"},\n        {\"version\": 2, \"file\": \"v2.pkl\", \"sha256\": \"bbb\"},\n        {\"version\": 3, \"file\": \"v3.pkl\", \"sha256\": \"ccc\"},\n    ],\n    \"aliases\": {\"production\": 2, \"staging\": 4},\n}\ndisk = {\"v1.pkl\": \"aaa\", \"v2.pkl\": \"xxx\"}\nfor problem in check_registry(entry, disk):\n    print(problem)\n```",
+      "en": "The full solution:\n\n```python\ndef check_registry(entry, disk):\n    problems = []\n    known = {info[\"version\"] for info in entry[\"versions\"]}\n    for alias, version in entry[\"aliases\"].items():\n        if version not in known:\n            problems.append(f\"{alias}: version {version} does not exist\")\n    for info in entry[\"versions\"]:\n        if info[\"file\"] not in disk:\n            problems.append(f\"v{info['version']}: file missing\")\n        elif disk[info[\"file\"]] != info[\"sha256\"]:\n            problems.append(f\"v{info['version']}: hash mismatch\")\n    return problems\n\n\nentry = {\n    \"versions\": [\n        {\"version\": 1, \"file\": \"v1.pkl\", \"sha256\": \"aaa\"},\n        {\"version\": 2, \"file\": \"v2.pkl\", \"sha256\": \"bbb\"},\n        {\"version\": 3, \"file\": \"v3.pkl\", \"sha256\": \"ccc\"},\n    ],\n    \"aliases\": {\"production\": 2, \"staging\": 4},\n}\ndisk = {\"v1.pkl\": \"aaa\", \"v2.pkl\": \"xxx\"}\nfor problem in check_registry(entry, disk):\n    print(problem)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_registry",
+      "cases": [
+        {
+          "args": [
+            {
+              "versions": [
+                {
+                  "version": 1,
+                  "file": "a",
+                  "sha256": "1"
+                },
+                {
+                  "version": 2,
+                  "file": "b",
+                  "sha256": "2"
+                }
+              ],
+              "aliases": {
+                "production": 1
+              }
+            },
+            {
+              "a": "1",
+              "b": "2"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "versions": [
+                {
+                  "version": 1,
+                  "file": "a",
+                  "sha256": "1"
+                },
+                {
+                  "version": 2,
+                  "file": "b",
+                  "sha256": "2"
+                }
+              ],
+              "aliases": {
+                "production": 1
+              }
+            },
+            {
+              "a": "1"
+            }
+          ],
+          "returns": [
+            "v2: file missing"
+          ]
+        },
+        {
+          "args": [
+            {
+              "versions": [
+                {
+                  "version": 1,
+                  "file": "a",
+                  "sha256": "1"
+                },
+                {
+                  "version": 2,
+                  "file": "b",
+                  "sha256": "2"
+                }
+              ],
+              "aliases": {
+                "production": 1
+              }
+            },
+            {
+              "a": "9",
+              "b": "2"
+            }
+          ],
+          "returns": [
+            "v1: hash mismatch"
+          ]
+        },
+        {
+          "args": [
+            {
+              "versions": [],
+              "aliases": {
+                "production": 1
+              }
+            },
+            {}
+          ],
+          "returns": [
+            "production: version 1 does not exist"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "staging: version 4 does not exist\nv2: hash mismatch\nv3: file missing"
+    }
+  ]
+}

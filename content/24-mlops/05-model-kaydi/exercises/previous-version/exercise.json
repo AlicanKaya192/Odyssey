@@ -1,0 +1,129 @@
+{
+  "id": "previous-version",
+  "title": {
+    "tr": "Neye Geri Dönülür?",
+    "en": "Roll Back to What?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce sürümleri süz: `versions = [v for name, v in history if name == alias]`.",
+      "en": "First filter the versions: `versions = [v for name, v in history if name == alias]`."
+    },
+    {
+      "tr": "`for version in reversed(versions):` içinde `if version != current: return version`. Liste boşsa `current` da `None` olmalı.",
+      "en": "Inside `for version in reversed(versions):` write `if version != current: return version`. If the list is empty, `current` should be `None` too."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef previous_version(history, alias):\n    versions = [version for name, version in history if name == alias]\n    current = versions[-1] if versions else None\n    for version in reversed(versions):\n        if version != current:\n            return version\n    return None\n\n\nhistory = [\n    [\"production\", 1],\n    [\"staging\", 2],\n    [\"production\", 3],\n    [\"staging\", 4],\n]\nprint(previous_version(history, \"production\"))\nprint(previous_version(history, \"staging\"))\nprint(previous_version([[\"production\", 1]], \"production\"))\n```",
+      "en": "The full solution:\n\n```python\ndef previous_version(history, alias):\n    versions = [version for name, version in history if name == alias]\n    current = versions[-1] if versions else None\n    for version in reversed(versions):\n        if version != current:\n            return version\n    return None\n\n\nhistory = [\n    [\"production\", 1],\n    [\"staging\", 2],\n    [\"production\", 3],\n    [\"staging\", 4],\n]\nprint(previous_version(history, \"production\"))\nprint(previous_version(history, \"staging\"))\nprint(previous_version([[\"production\", 1]], \"production\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "previous_version",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "p",
+                1
+              ],
+              [
+                "p",
+                3
+              ],
+              [
+                "p",
+                3
+              ]
+            ],
+            "p"
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              [
+                "p",
+                1
+              ],
+              [
+                "s",
+                2
+              ],
+              [
+                "p",
+                1
+              ]
+            ],
+            "p"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            [],
+            "p"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            [
+              [
+                "p",
+                1
+              ],
+              [
+                "p",
+                2
+              ],
+              [
+                "p",
+                1
+              ]
+            ],
+            "p"
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            [
+              [
+                "s",
+                5
+              ],
+              [
+                "p",
+                1
+              ],
+              [
+                "s",
+                6
+              ]
+            ],
+            "s"
+          ],
+          "returns": 5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\n2\nNone"
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "id": "resolve-alias",
+  "title": {
+    "tr": "Etiketi Çöz",
+    "en": "Resolve the Alias"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki erken dönüş: `if name not in registry: return None` ve etiket için aynısı.",
+      "en": "Two early returns: `if name not in registry: return None`, and the same for the alias."
+    },
+    {
+      "tr": "Sürümü numarasıyla ara: `for info in entry[\"versions\"]:` içinde `if info[\"version\"] == version: return info[\"file\"]`. Döngü bulamazsa sonda `return None`.",
+      "en": "Look the version up by number: inside `for info in entry[\"versions\"]:` write `if info[\"version\"] == version: return info[\"file\"]`. If the loop finds nothing, `return None` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef resolve(registry, name, alias):\n    if name not in registry:\n        return None\n    entry = registry[name]\n    if alias not in entry[\"aliases\"]:\n        return None\n    version = entry[\"aliases\"][alias]\n    for info in entry[\"versions\"]:\n        if info[\"version\"] == version:\n            return info[\"file\"]\n    return None\n\n\nregistry = {\n    \"churn\": {\n        \"versions\": [\n            {\"version\": 1, \"file\": \"models/churn-v1.pkl\"},\n            {\"version\": 2, \"file\": \"models/churn-v2.pkl\"},\n        ],\n        \"aliases\": {\"production\": 2, \"staging\": 1},\n    }\n}\nprint(resolve(registry, \"churn\", \"production\"))\nprint(resolve(registry, \"churn\", \"staging\"))\nprint(resolve(registry, \"churn\", \"canary\"))\nprint(resolve(registry, \"fraud\", \"production\"))\n```",
+      "en": "The full solution:\n\n```python\ndef resolve(registry, name, alias):\n    if name not in registry:\n        return None\n    entry = registry[name]\n    if alias not in entry[\"aliases\"]:\n        return None\n    version = entry[\"aliases\"][alias]\n    for info in entry[\"versions\"]:\n        if info[\"version\"] == version:\n            return info[\"file\"]\n    return None\n\n\nregistry = {\n    \"churn\": {\n        \"versions\": [\n            {\"version\": 1, \"file\": \"models/churn-v1.pkl\"},\n            {\"version\": 2, \"file\": \"models/churn-v2.pkl\"},\n        ],\n        \"aliases\": {\"production\": 2, \"staging\": 1},\n    }\n}\nprint(resolve(registry, \"churn\", \"production\"))\nprint(resolve(registry, \"churn\", \"staging\"))\nprint(resolve(registry, \"churn\", \"canary\"))\nprint(resolve(registry, \"fraud\", \"production\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "resolve",
+      "cases": [
+        {
+          "args": [
+            {
+              "m": {
+                "versions": [
+                  {
+                    "version": 1,
+                    "file": "a.pkl"
+                  },
+                  {
+                    "version": 2,
+                    "file": "b.pkl"
+                  }
+                ],
+                "aliases": {
+                  "production": 2,
+                  "staging": 1,
+                  "old": 7
+                }
+              }
+            },
+            "m",
+            "production"
+          ],
+          "returns": "b.pkl"
+        },
+        {
+          "args": [
+            {
+              "m": {
+                "versions": [
+                  {
+                    "version": 1,
+                    "file": "a.pkl"
+                  },
+                  {
+                    "version": 2,
+                    "file": "b.pkl"
+                  }
+                ],
+                "aliases": {
+                  "production": 2,
+                  "staging": 1,
+                  "old": 7
+                }
+              }
+            },
+            "m",
+            "staging"
+          ],
+          "returns": "a.pkl"
+        },
+        {
+          "args": [
+            {
+              "m": {
+                "versions": [
+                  {
+                    "version": 1,
+                    "file": "a.pkl"
+                  },
+                  {
+                    "version": 2,
+                    "file": "b.pkl"
+                  }
+                ],
+                "aliases": {
+                  "production": 2,
+                  "staging": 1,
+                  "old": 7
+                }
+              }
+            },
+            "m",
+            "old"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            {
+              "m": {
+                "versions": [
+                  {
+                    "version": 1,
+                    "file": "a.pkl"
+                  },
+                  {
+                    "version": 2,
+                    "file": "b.pkl"
+                  }
+                ],
+                "aliases": {
+                  "production": 2,
+                  "staging": 1,
+                  "old": 7
+                }
+              }
+            },
+            "m",
+            "canary"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            {
+              "m": {
+                "versions": [
+                  {
+                    "version": 1,
+                    "file": "a.pkl"
+                  },
+                  {
+                    "version": 2,
+                    "file": "b.pkl"
+                  }
+                ],
+                "aliases": {
+                  "production": 2,
+                  "staging": 1,
+                  "old": 7
+                }
+              }
+            },
+            "x",
+            "production"
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "models/churn-v2.pkl\nmodels/churn-v1.pkl\nNone\nNone"
+    }
+  ]
+}
