@@ -1,0 +1,133 @@
+{
+  "id": "trace-lineage",
+  "title": {
+    "tr": "Soyu İzle",
+    "en": "Trace the Lineage"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir `while name is not None:` döngüsü kur; her turda `name = records[name][\"from\"]`.",
+      "en": "Build a `while name is not None:` loop; on every turn `name = records[name][\"from\"]`."
+    },
+    {
+      "tr": "Döngünün başında `if name not in records:` ise `chain.append(name + \" (missing)\")` ve `break`.",
+      "en": "At the start of the loop, if `name not in records:`, do `chain.append(name + \" (missing)\")` and `break`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef trace(records, start):\n    chain = []\n    name = start\n    while name is not None:\n        if name not in records:\n            chain.append(name + \" (missing)\")\n            break\n        chain.append(name)\n        name = records[name][\"from\"]\n    return chain\n\n\nrecords = {\n    \"model-3\": {\"from\": \"data-v3\"},\n    \"data-v3\": {\"from\": \"data-v2\"},\n    \"data-v2\": {\"from\": \"data-v1\"},\n    \"data-v1\": {\"from\": None},\n    \"model-4\": {\"from\": \"data-v5\"},\n}\nfor name in trace(records, \"model-3\"):\n    print(name)\nprint(\"---\")\nfor name in trace(records, \"model-4\"):\n    print(name)\n```",
+      "en": "The full solution:\n\n```python\ndef trace(records, start):\n    chain = []\n    name = start\n    while name is not None:\n        if name not in records:\n            chain.append(name + \" (missing)\")\n            break\n        chain.append(name)\n        name = records[name][\"from\"]\n    return chain\n\n\nrecords = {\n    \"model-3\": {\"from\": \"data-v3\"},\n    \"data-v3\": {\"from\": \"data-v2\"},\n    \"data-v2\": {\"from\": \"data-v1\"},\n    \"data-v1\": {\"from\": None},\n    \"model-4\": {\"from\": \"data-v5\"},\n}\nfor name in trace(records, \"model-3\"):\n    print(name)\nprint(\"---\")\nfor name in trace(records, \"model-4\"):\n    print(name)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "trace",
+      "cases": [
+        {
+          "args": [
+            {
+              "m": {
+                "from": "d2"
+              },
+              "d2": {
+                "from": "d1"
+              },
+              "d1": {
+                "from": null
+              },
+              "x": {
+                "from": "gone"
+              }
+            },
+            "m"
+          ],
+          "returns": [
+            "m",
+            "d2",
+            "d1"
+          ]
+        },
+        {
+          "args": [
+            {
+              "m": {
+                "from": "d2"
+              },
+              "d2": {
+                "from": "d1"
+              },
+              "d1": {
+                "from": null
+              },
+              "x": {
+                "from": "gone"
+              }
+            },
+            "d1"
+          ],
+          "returns": [
+            "d1"
+          ]
+        },
+        {
+          "args": [
+            {
+              "m": {
+                "from": "d2"
+              },
+              "d2": {
+                "from": "d1"
+              },
+              "d1": {
+                "from": null
+              },
+              "x": {
+                "from": "gone"
+              }
+            },
+            "x"
+          ],
+          "returns": [
+            "x",
+            "gone (missing)"
+          ]
+        },
+        {
+          "args": [
+            {
+              "m": {
+                "from": "d2"
+              },
+              "d2": {
+                "from": "d1"
+              },
+              "d1": {
+                "from": null
+              },
+              "x": {
+                "from": "gone"
+              }
+            },
+            "unknown"
+          ],
+          "returns": [
+            "unknown (missing)"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "model-3\ndata-v3\ndata-v2\ndata-v1\n---\nmodel-4\ndata-v5 (missing)"
+    }
+  ]
+}

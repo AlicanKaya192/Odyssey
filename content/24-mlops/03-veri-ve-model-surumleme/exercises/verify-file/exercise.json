@@ -1,0 +1,97 @@
+{
+  "id": "verify-file",
+  "title": {
+    "tr": "Getirileni Denetle",
+    "en": "Check What Came Back"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`data = text.encode(\"utf-8\")`; ilk denetim `if len(data) != pointer[\"size\"]:`.",
+      "en": "`data = text.encode(\"utf-8\")`; the first check is `if len(data) != pointer[\"size\"]:`."
+    },
+    {
+      "tr": "İkinci denetim `hashlib.sha256(data).hexdigest() != pointer[\"sha256\"]`. Sıra önemli: aynı boyda ama farklı içerik `\"hash mismatch\"` verir.",
+      "en": "The second check is `hashlib.sha256(data).hexdigest() != pointer[\"sha256\"]`. The order matters: the same size with different contents gives `\"hash mismatch\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef verify(pointer, text):\n    data = text.encode(\"utf-8\")\n    if len(data) != pointer[\"size\"]:\n        return \"size mismatch\"\n    if hashlib.sha256(data).hexdigest() != pointer[\"sha256\"]:\n        return \"hash mismatch\"\n    return \"ok\"\n\n\npointer = {\"path\": \"data.csv\", \"sha256\": hashlib.sha256(b\"id,plan\").hexdigest(), \"size\": 7}\nprint(verify(pointer, \"id,plan\"))\nprint(verify(pointer, \"id,plan,fee\"))\nprint(verify(pointer, \"id,PLAN\"))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef verify(pointer, text):\n    data = text.encode(\"utf-8\")\n    if len(data) != pointer[\"size\"]:\n        return \"size mismatch\"\n    if hashlib.sha256(data).hexdigest() != pointer[\"sha256\"]:\n        return \"hash mismatch\"\n    return \"ok\"\n\n\npointer = {\"path\": \"data.csv\", \"sha256\": hashlib.sha256(b\"id,plan\").hexdigest(), \"size\": 7}\nprint(verify(pointer, \"id,plan\"))\nprint(verify(pointer, \"id,plan,fee\"))\nprint(verify(pointer, \"id,PLAN\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify",
+      "cases": [
+        {
+          "args": [
+            {
+              "path": "a",
+              "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+              "size": 3
+            },
+            "abc"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            {
+              "path": "a",
+              "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+              "size": 3
+            },
+            "abd"
+          ],
+          "returns": "hash mismatch"
+        },
+        {
+          "args": [
+            {
+              "path": "a",
+              "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+              "size": 3
+            },
+            "abcd"
+          ],
+          "returns": "size mismatch"
+        },
+        {
+          "args": [
+            {
+              "path": "a",
+              "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+              "size": 4
+            },
+            "abc"
+          ],
+          "returns": "size mismatch"
+        },
+        {
+          "args": [
+            {
+              "path": "a",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            ""
+          ],
+          "returns": "ok"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\nsize mismatch\nhash mismatch"
+    }
+  ]
+}

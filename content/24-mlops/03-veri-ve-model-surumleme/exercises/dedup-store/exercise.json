@@ -1,0 +1,92 @@
+{
+  "id": "dedup-store",
+  "title": {
+    "tr": "Bir Kez Sakla",
+    "en": "Store It Once"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Adı her durumda kaydet: `store[\"names\"][name] = digest`, sonra `if digest in store[\"objects\"]:`.",
+      "en": "Record the name in every case: `store[\"names\"][name] = digest`, then `if digest in store[\"objects\"]:`."
+    },
+    {
+      "tr": "Erken dön: zaten varsa `return \"already stored\"`; yoksa sakla ve `return \"stored\"`.",
+      "en": "Return early: if it's already there, `return \"already stored\"`; otherwise store it and `return \"stored\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef add(store, name, text):\n    digest = hashlib.sha256(text.encode(\"utf-8\")).hexdigest()\n    store[\"names\"][name] = digest\n    if digest in store[\"objects\"]:\n        return \"already stored\"\n    store[\"objects\"][digest] = text\n    return \"stored\"\n\n\nstore = {\"objects\": {}, \"names\": {}}\nprint(add(store, \"v1.csv\", \"a,b\"))\nprint(add(store, \"v2.csv\", \"a,b,c\"))\nprint(add(store, \"backup.csv\", \"a,b\"))\nprint(\"names:\", len(store[\"names\"]), \"objects:\", len(store[\"objects\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef add(store, name, text):\n    digest = hashlib.sha256(text.encode(\"utf-8\")).hexdigest()\n    store[\"names\"][name] = digest\n    if digest in store[\"objects\"]:\n        return \"already stored\"\n    store[\"objects\"][digest] = text\n    return \"stored\"\n\n\nstore = {\"objects\": {}, \"names\": {}}\nprint(add(store, \"v1.csv\", \"a,b\"))\nprint(add(store, \"v2.csv\", \"a,b,c\"))\nprint(add(store, \"backup.csv\", \"a,b\"))\nprint(\"names:\", len(store[\"names\"]), \"objects:\", len(store[\"objects\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "add",
+      "cases": [
+        {
+          "args": [
+            {
+              "objects": {},
+              "names": {}
+            },
+            "a.txt",
+            "hi"
+          ],
+          "returns": "stored"
+        },
+        {
+          "args": [
+            {
+              "objects": {
+                "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4": "hi"
+              },
+              "names": {
+                "a.txt": "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4"
+              }
+            },
+            "b.txt",
+            "hi"
+          ],
+          "returns": "already stored"
+        },
+        {
+          "args": [
+            {
+              "objects": {
+                "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4": "hi"
+              },
+              "names": {}
+            },
+            "c.txt",
+            "bye"
+          ],
+          "returns": "stored"
+        },
+        {
+          "args": [
+            {
+              "objects": {},
+              "names": {}
+            },
+            "empty.txt",
+            ""
+          ],
+          "returns": "stored"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "stored\nstored\nalready stored\nnames: 3 objects: 2"
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "id": "diff-versions",
+  "title": {
+    "tr": "Sürüm Farkı",
+    "en": "The Version Diff"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce iki sözlük: `old_rows = {row[\"id\"]: row for row in old}`, aynısı `new` için.",
+      "en": "First two dictionaries: `old_rows = {row[\"id\"]: row for row in old}`, the same for `new`."
+    },
+    {
+      "tr": "Değişen: `[i for i in old_rows if i in new_rows and old_rows[i] != new_rows[i]]`. Döndürürken her listeye `sorted(...)`.",
+      "en": "Changed: `[i for i in old_rows if i in new_rows and old_rows[i] != new_rows[i]]`. When returning, apply `sorted(...)` to every list."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef diff_versions(old, new):\n    old_rows = {row[\"id\"]: row for row in old}\n    new_rows = {row[\"id\"]: row for row in new}\n    added = [i for i in new_rows if i not in old_rows]\n    removed = [i for i in old_rows if i not in new_rows]\n    changed = [i for i in old_rows if i in new_rows and old_rows[i] != new_rows[i]]\n    return {\"added\": sorted(added), \"removed\": sorted(removed), \"changed\": sorted(changed)}\n\n\nold = [{\"id\": \"C1\", \"plan\": \"basic\"}, {\"id\": \"C2\", \"plan\": \"pro\"}, {\"id\": \"C3\", \"plan\": \"pro\"}]\nnew = [{\"id\": \"C3\", \"plan\": \"pro\"}, {\"id\": \"C2\", \"plan\": \"basic\"}, {\"id\": \"C4\", \"plan\": \"pro\"}]\nfor key, ids in diff_versions(old, new).items():\n    print(key, ids)\n```",
+      "en": "The full solution:\n\n```python\ndef diff_versions(old, new):\n    old_rows = {row[\"id\"]: row for row in old}\n    new_rows = {row[\"id\"]: row for row in new}\n    added = [i for i in new_rows if i not in old_rows]\n    removed = [i for i in old_rows if i not in new_rows]\n    changed = [i for i in old_rows if i in new_rows and old_rows[i] != new_rows[i]]\n    return {\"added\": sorted(added), \"removed\": sorted(removed), \"changed\": sorted(changed)}\n\n\nold = [{\"id\": \"C1\", \"plan\": \"basic\"}, {\"id\": \"C2\", \"plan\": \"pro\"}, {\"id\": \"C3\", \"plan\": \"pro\"}]\nnew = [{\"id\": \"C3\", \"plan\": \"pro\"}, {\"id\": \"C2\", \"plan\": \"basic\"}, {\"id\": \"C4\", \"plan\": \"pro\"}]\nfor key, ids in diff_versions(old, new).items():\n    print(key, ids)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "diff_versions",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "id": "a",
+                "x": 1
+              },
+              {
+                "id": "b",
+                "x": 2
+              }
+            ],
+            [
+              {
+                "id": "b",
+                "x": 2
+              },
+              {
+                "id": "a",
+                "x": 1
+              }
+            ]
+          ],
+          "returns": {
+            "added": [],
+            "removed": [],
+            "changed": []
+          }
+        },
+        {
+          "args": [
+            [
+              {
+                "id": "a",
+                "x": 1
+              }
+            ],
+            [
+              {
+                "id": "b",
+                "x": 1
+              }
+            ]
+          ],
+          "returns": {
+            "added": [
+              "b"
+            ],
+            "removed": [
+              "a"
+            ],
+            "changed": []
+          }
+        },
+        {
+          "args": [
+            [
+              {
+                "id": "b",
+                "x": 1
+              },
+              {
+                "id": "a",
+                "x": 1
+              }
+            ],
+            [
+              {
+                "id": "a",
+                "x": 5
+              },
+              {
+                "id": "b",
+                "x": 1
+              },
+              {
+                "id": "c",
+                "x": 0
+              }
+            ]
+          ],
+          "returns": {
+            "added": [
+              "c"
+            ],
+            "removed": [],
+            "changed": [
+              "a"
+            ]
+          }
+        },
+        {
+          "args": [
+            [],
+            [
+              {
+                "id": "z",
+                "x": 0
+              },
+              {
+                "id": "y",
+                "x": 0
+              }
+            ]
+          ],
+          "returns": {
+            "added": [
+              "y",
+              "z"
+            ],
+            "removed": [],
+            "changed": []
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "added ['C4']\nremoved ['C1']\nchanged ['C2']"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "id": "make-pointer",
+  "title": {
+    "tr": "İşaret Dosyası",
+    "en": "A Pointer File"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce baytlar: `data = text.encode(\"utf-8\")`. Boy `len(data)`.",
+      "en": "First the bytes: `data = text.encode(\"utf-8\")`. The size is `len(data)`."
+    },
+    {
+      "tr": "Özet `hashlib.sha256(data).hexdigest()`; bu kez kısaltma yok.",
+      "en": "The hash is `hashlib.sha256(data).hexdigest()`; no shortening this time."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef make_pointer(name, text):\n    data = text.encode(\"utf-8\")\n    return {\"path\": name, \"sha256\": hashlib.sha256(data).hexdigest(), \"size\": len(data)}\n\n\npointer = make_pointer(\"notes.txt\", \"hello\")\nprint(pointer[\"path\"], pointer[\"size\"])\nprint(pointer[\"sha256\"][:12])\nprint(len(pointer[\"sha256\"]))\nprint(make_pointer(\"copy.txt\", \"hello\")[\"sha256\"] == pointer[\"sha256\"])\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef make_pointer(name, text):\n    data = text.encode(\"utf-8\")\n    return {\"path\": name, \"sha256\": hashlib.sha256(data).hexdigest(), \"size\": len(data)}\n\n\npointer = make_pointer(\"notes.txt\", \"hello\")\nprint(pointer[\"path\"], pointer[\"size\"])\nprint(pointer[\"sha256\"][:12])\nprint(len(pointer[\"sha256\"]))\nprint(make_pointer(\"copy.txt\", \"hello\")[\"sha256\"] == pointer[\"sha256\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "make_pointer",
+      "cases": [
+        {
+          "args": [
+            "a.txt",
+            "hello"
+          ],
+          "returns": {
+            "path": "a.txt",
+            "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+            "size": 5
+          }
+        },
+        {
+          "args": [
+            "b.txt",
+            "hello"
+          ],
+          "returns": {
+            "path": "b.txt",
+            "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+            "size": 5
+          }
+        },
+        {
+          "args": [
+            "empty.txt",
+            ""
+          ],
+          "returns": {
+            "path": "empty.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          }
+        },
+        {
+          "args": [
+            "data.csv",
+            "id,plan\nC1,pro\n"
+          ],
+          "returns": {
+            "path": "data.csv",
+            "sha256": "59ca51560f61d217ca6fda2cb2be190d37f0409e852c595d52fabfb815bdb286",
+            "size": 15
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "notes.txt 5\n2cf24dba5fb0\n64\nTrue"
+    }
+  ]
+}
