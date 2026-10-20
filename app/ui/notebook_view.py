@@ -28,7 +28,7 @@ from datetime import datetime
 from pathlib import Path
 
 from PySide6.QtCore import QElapsedTimer, QPoint, QPointF, QRectF, QSize, QStandardPaths, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QFont, QIcon, QKeySequence, QPainter, QPen, QShortcut, QTextCursor
+from PySide6.QtGui import QColor, QFont, QFontMetrics, QIcon, QKeySequence, QPainter, QPen, QShortcut, QTextCursor
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -53,6 +53,7 @@ from ..widgets import motion
 from ..core.catalog import Catalog
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
+from ..core.search import fold
 from ..core.user_notes import (
     FOLDER_MAX_LENGTH,
     TITLE_MAX_LENGTH,
@@ -104,6 +105,7 @@ class _TreeDelegate(QStyledItemDelegate):
     """
 
     FOLDER_HEIGHT = 40
+    TWO_LINE_HEIGHT = 58
     NOTE_HEIGHT = 34
     LOGO = 24
 
@@ -119,8 +121,45 @@ class _TreeDelegate(QStyledItemDelegate):
         self.turn: dict = {}
 
     def sizeHint(self, option, index) -> QSize:  # noqa: N802
-        boy = self.NOTE_HEIGHT if index.parent().isValid() else self.FOLDER_HEIGHT
-        return QSize(option.rect.width(), boy)
+        if index.parent().isValid():
+            return QSize(option.rect.width(), self.NOTE_HEIGHT)
+        # Modül adları uzun ("Veri Bilimi ve Makine Öğrenmesi..."); sığmayan
+        # ad kırpılmıyor, iki satıra iniyor ve satır uzuyor.
+        genislik = self.parent().viewport().width()
+        satirlar = self._name_lines(option.font, index.data(Qt.ItemDataRole.DisplayRole) or "",
+                                    genislik, index.data(ROLE_COUNT))
+        boy = self.TWO_LINE_HEIGHT if len(satirlar) > 1 else self.FOLDER_HEIGHT
+        return QSize(genislik, boy)
+
+    @staticmethod
+    def _name_font(base: QFont) -> QFont:
+        font = QFont(base)
+        font.setWeight(QFont.Weight.DemiBold)
+        font.setPixelSize(14)
+        return font
+
+    def _name_lines(self, base: QFont, text: str, row_width: float, count) -> list[str]:
+        """Klasör adı en fazla iki satır; ikinci satır sığmazsa kısaltılıyor.
+
+        Yer `paint`'teki hesapla aynı: kenar payları, logo, ok ve sayı
+        düşülüyor.
+        """
+        sayi = QFont(base)
+        sayi.setWeight(QFont.Weight.Normal)
+        sayi_genis = QFontMetrics(sayi).horizontalAdvance(str(count)) + 10 if count is not None else 0
+        yer = max(0.0, row_width - 4 - 8 - self.LOGO - 10 - 10 - 20 - sayi_genis)
+        olcu = QFontMetrics(self._name_font(base))
+        if olcu.horizontalAdvance(text) <= yer:
+            return [text]
+        kelimeler = text.split()
+        ilk = ""
+        for i, kelime in enumerate(kelimeler):
+            aday = f"{ilk} {kelime}".strip()
+            if ilk and olcu.horizontalAdvance(aday) > yer:
+                kalan = " ".join(kelimeler[i:])
+                return [ilk, olcu.elidedText(kalan, Qt.TextElideMode.ElideRight, int(yer))]
+            ilk = aday
+        return [olcu.elidedText(text, Qt.TextElideMode.ElideRight, int(yer))]
 
     def paint(self, painter, option, index) -> None:
         if index.parent().isValid():
@@ -187,13 +226,17 @@ class _TreeDelegate(QStyledItemDelegate):
                              int(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter), yazi)
             sag -= genis + 10
 
-        font.setWeight(QFont.Weight.DemiBold)
-        font.setPixelSize(14)
-        painter.setFont(font)
+        painter.setFont(self._name_font(opt.font))
         painter.setPen(self.text_color)
-        ad = painter.fontMetrics().elidedText(opt.text, Qt.TextElideMode.ElideRight, int(max(0, sag - x)))
-        painter.drawText(QRectF(x, r.top(), max(0, sag - x), r.height()),
-                         int(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter), ad)
+        satirlar = self._name_lines(opt.font, opt.text, opt.rect.width(), count)
+        if opt.rect.height() < self.TWO_LINE_HEIGHT:
+            satirlar = [painter.fontMetrics().elidedText(opt.text, Qt.TextElideMode.ElideRight,
+                                                         int(max(0, sag - x)))]
+        satir_boy = painter.fontMetrics().height()
+        ust = r.center().y() - satir_boy * len(satirlar) / 2
+        for i, satir in enumerate(satirlar):
+            painter.drawText(QRectF(x, ust + i * satir_boy, max(0, sag - x), satir_boy),
+                             int(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter), satir)
         painter.restore()
 
 
@@ -248,6 +291,12 @@ class NotebookView(QWidget):
         self._collapsed: set[str] = set()
         # "Yeni not" hangi klasörü önersin: en son tıklanan klasör ya da not.
         self._folder_hint = ""
+        # Notu olmayan modüller varsayılan olarak gizli: 25 modülün hepsi
+        # alt alta dizilince notlar listenin içinde kayboluyordu (Alican,
+        # 20 Ekim). Kendi klasörleri boş da olsa görünüyor.
+        self._show_empty = store.setting("notebook_show_empty") == "1"
+        # Arama: eşleşen notların kimlikleri; arama yoksa None.
+        self._matches: set[int] | None = None
 
         self._save_timer = QTimer(self)
         self._save_timer.setSingleShot(True)
@@ -316,6 +365,11 @@ class NotebookView(QWidget):
         transfer.addWidget(self._upload_button, 1)
         column.addLayout(transfer)
 
+        self._search = QLineEdit()
+        self._search.setClearButtonEnabled(True)
+        self._search.textChanged.connect(self._on_search)
+        column.addWidget(self._search)
+
         self._tree = QTreeWidget()
         self._tree.setProperty("role", "notebook-tree")
         self._tree_style = None
@@ -344,6 +398,19 @@ class NotebookView(QWidget):
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._tree.customContextMenuRequested.connect(self._tree_menu)
         column.addWidget(self._tree, 1)
+
+        self._no_match = QLabel()
+        self._no_match.setProperty("role", "muted")
+        self._no_match.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._no_match.setWordWrap(True)
+        self._no_match.hide()
+        column.addWidget(self._no_match, 1)
+
+        self._empty_toggle = QPushButton()
+        self._empty_toggle.setProperty("variant", "ghost")
+        self._empty_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._empty_toggle.clicked.connect(self._toggle_empty)
+        column.addWidget(self._empty_toggle)
 
         self._status = QLabel()
         self._status.setProperty("role", "muted")
@@ -450,8 +517,31 @@ class NotebookView(QWidget):
         if self._current is not None and all(e["id"] != self._current for e in self._entries):
             self._current = None
             self._editing = False
+        self._compute_matches()
         self._rebuild_tree()
         self._show_current()
+
+    def _compute_matches(self) -> None:
+        """Arama kutusundaki kelimelerin hepsini adında, klasöründe ya da gövdesinde taşıyan notlar."""
+        kelimeler = fold(self._search.text()).split()
+        if not kelimeler:
+            self._matches = None
+            return
+        self._matches = set()
+        for entry in self._store.notebook_entries_with_body():
+            metin = fold(f"{entry['title']} {self._folder_title(self._entry_key(entry))} {entry['body']}")
+            if all(kelime in metin for kelime in kelimeler):
+                self._matches.add(entry["id"])
+
+    def _on_search(self) -> None:
+        self.flush()
+        self._compute_matches()
+        self._rebuild_tree()
+
+    def _toggle_empty(self) -> None:
+        self._show_empty = not self._show_empty
+        self._store.set_setting("notebook_show_empty", "1" if self._show_empty else "0")
+        self._rebuild_tree()
 
     def _folders(self) -> list[tuple[str, str, str, str]]:
         """(anahtar, ad, simge, renk): patikalar, kendi klasörleri, gerekirse "Diğer"."""
@@ -502,10 +592,17 @@ class NotebookView(QWidget):
 
         grouped: dict[str, list[dict]] = {}
         for entry in self._entries:
-            grouped.setdefault(self._entry_key(entry), []).append(entry)
+            if self._matches is None or entry["id"] in self._matches:
+                grouped.setdefault(self._entry_key(entry), []).append(entry)
 
+        gizli = 0
         for key, title, icon_name, color in self._folders():
             notes = grouped.get(key, [])
+            if self._matches is not None and not notes:
+                continue
+            if not notes and not self._show_empty and self._custom_id(key) is None:
+                gizli += 1
+                continue
             folder = QTreeWidgetItem([title])
             folder.setData(0, ROLE_KIND, "folder")
             folder.setData(0, ROLE_ID, key)
@@ -529,7 +626,20 @@ class NotebookView(QWidget):
                 if entry["id"] == self._current:
                     self._tree.setCurrentItem(child)
 
-            folder.setExpanded(key not in self._collapsed)
+            # Aramada eşleşen her klasör açık: sonuç kapalı klasörde saklanmasın.
+            folder.setExpanded(self._matches is not None or key not in self._collapsed)
+
+        t = self._language.t
+        arama = self._matches is not None
+        bos_sonuc = arama and self._tree.topLevelItemCount() == 0
+        self._tree.setVisible(not bos_sonuc)
+        self._no_match.setText(t("notebook.no_match"))
+        self._no_match.setVisible(bos_sonuc)
+        if self._show_empty:
+            self._empty_toggle.setText(t("notebook.hide_empty"))
+        else:
+            self._empty_toggle.setText(t("notebook.show_empty", count=gizli))
+        self._empty_toggle.setVisible(not arama and (self._show_empty or gizli > 0))
 
     def _turn_arrow(self, item: QTreeWidgetItem, hedef: float) -> None:
         anahtar = item.data(0, ROLE_ID)
@@ -1146,6 +1256,7 @@ class NotebookView(QWidget):
         self._download_button.setText(f"  {t('notebook.download')}  ▾")
         self._upload_button.setText(f"  {t('notebook.upload')}")
         self._upload_button.setToolTip(t("notebook.upload_hint"))
+        self._search.setPlaceholderText(t("notebook.search_notes"))
         self._title_edit.setPlaceholderText(t("notebook.title_placeholder"))
         self._editor.setPlaceholderText(t("notebook.body_placeholder"))
         self._toolbar.retranslate(t)

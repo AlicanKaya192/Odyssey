@@ -40,6 +40,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Seviyeler yeni patikalara göre genişletildi.** Bir sonraki seviye için
   gereken XP biraz arttı; mevcut seviyeniz birkaç basamak düşebilir.
   Kazandığınız unvanlar sizde kalıyor.
+- **Notlarım'ın sol menüsü sadeleşti.** Yalnızca notu olan modüller ve
+  kendi klasörleriniz görünüyor; boş modüller tek tıkla açılıyor. Üstte
+  notların adında ve içinde arama var, uzun modül adları kırpılmadan iki
+  satıra iniyor.
 
 ### Düzeltildi
 - **Derslerdeki karşılaştırma kutuları yan yana görünüyor.** Python

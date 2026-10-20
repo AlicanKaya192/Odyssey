@@ -42,6 +42,10 @@ lecture note does not mean downloading the whole application again.
 - **Levels were widened for the new paths.** The XP needed for the next level
   went up a little; your current level may drop by a few steps. The titles
   you have earned stay yours.
+- **The My Notes sidebar is tidier.** Only modules that have notes and
+  your own folders are listed; empty modules are one click away. A search
+  box at the top looks through note titles and text, and long module names
+  wrap onto two lines instead of being cut off.
 
 ### Fixed
 - **The comparison boxes in the lessons are side by side.** In some
