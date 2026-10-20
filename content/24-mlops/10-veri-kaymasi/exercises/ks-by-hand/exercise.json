@@ -1,0 +1,96 @@
+{
+  "id": "ks-by-hand",
+  "title": {
+    "tr": "Elle KS",
+    "en": "KS by Hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki listedeki bütün farklı değerler: `sorted(set(a) | set(b))`.",
+      "en": "All the distinct values in both lists: `sorted(set(a) | set(b))`."
+    },
+    {
+      "tr": "Her `x` için `abs(bisect.bisect_right(a, x) / len(a) - bisect.bisect_right(b, x) / len(b))`; en büyüğünü `max` ile tut.",
+      "en": "For every `x`, `abs(bisect.bisect_right(a, x) / len(a) - bisect.bisect_right(b, x) / len(b))`; keep the largest with `max`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport bisect\n\n\ndef ks_statistic(a, b):\n    a, b = sorted(a), sorted(b)\n    largest = 0\n    for x in sorted(set(a) | set(b)):\n        share_a = bisect.bisect_right(a, x) / len(a)\n        share_b = bisect.bisect_right(b, x) / len(b)\n        largest = max(largest, abs(share_a - share_b))\n    return round(largest, 3)\n\n\na = [1, 2, 3, 4, 5]\nprint(ks_statistic(a, a))\nprint(ks_statistic(a, [3, 4, 5, 6, 7]))\nprint(ks_statistic([1, 1, 2], [2, 2, 3]))\n```",
+      "en": "The full solution:\n\n```python\nimport bisect\n\n\ndef ks_statistic(a, b):\n    a, b = sorted(a), sorted(b)\n    largest = 0\n    for x in sorted(set(a) | set(b)):\n        share_a = bisect.bisect_right(a, x) / len(a)\n        share_b = bisect.bisect_right(b, x) / len(b)\n        largest = max(largest, abs(share_a - share_b))\n    return round(largest, 3)\n\n\na = [1, 2, 3, 4, 5]\nprint(ks_statistic(a, a))\nprint(ks_statistic(a, [3, 4, 5, 6, 7]))\nprint(ks_statistic([1, 1, 2], [2, 2, 3]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ks_statistic",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "returns": 0.25
+        },
+        {
+          "args": [
+            [
+              5
+            ],
+            [
+              1,
+              5,
+              9
+            ]
+          ],
+          "returns": 0.333
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0\n0.4\n0.667"
+    }
+  ]
+}
