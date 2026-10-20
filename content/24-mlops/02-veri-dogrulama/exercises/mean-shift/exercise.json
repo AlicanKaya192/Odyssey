@@ -1,0 +1,140 @@
+{
+  "id": "mean-shift",
+  "title": {
+    "tr": "Ortalamanın Kayması",
+    "en": "How Far the Mean Moved"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ml_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Değerleri kavramayla topla: `[row[column] for row in rows if row[column] is not None]`.",
+      "en": "Collect the values with a comprehension: `[row[column] for row in rows if row[column] is not None]`."
+    },
+    {
+      "tr": "`abs(statistics.mean(new) - statistics.mean(old))` farkı verir; `statistics.pstdev(old)`'a bölüp `round(..., 2)`.",
+      "en": "`abs(statistics.mean(new) - statistics.mean(old))` gives the difference; divide by `statistics.pstdev(old)` and `round(..., 2)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport statistics\nfrom ml_data import make_customers, NUMERIC\n\n\ndef mean_shift(reference, rows, column):\n    old = [row[column] for row in reference if row[column] is not None]\n    new = [row[column] for row in rows if row[column] is not None]\n    distance = abs(statistics.mean(new) - statistics.mean(old))\n    return round(distance / statistics.pstdev(old), 2)\n\n\nreference = make_customers(1000)\nlater = make_customers(1000, seed=21, month=3)\nfor column in NUMERIC:\n    shift = mean_shift(reference, later, column)\n    print(column, shift, \"CHECK\" if shift > 0.5 else \"ok\")\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport statistics\nfrom ml_data import make_customers, NUMERIC\n\n\ndef mean_shift(reference, rows, column):\n    old = [row[column] for row in reference if row[column] is not None]\n    new = [row[column] for row in rows if row[column] is not None]\n    distance = abs(statistics.mean(new) - statistics.mean(old))\n    return round(distance / statistics.pstdev(old), 2)\n\n\nreference = make_customers(1000)\nlater = make_customers(1000, seed=21, month=3)\nfor column in NUMERIC:\n    shift = mean_shift(reference, later, column)\n    print(column, shift, \"CHECK\" if shift > 0.5 else \"ok\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mean_shift",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "x": 1
+              },
+              {
+                "x": 3
+              }
+            ],
+            [
+              {
+                "x": 5
+              }
+            ],
+            "x"
+          ],
+          "returns": 3.0
+        },
+        {
+          "args": [
+            [
+              {
+                "x": 1
+              },
+              {
+                "x": null
+              },
+              {
+                "x": 3
+              }
+            ],
+            [
+              {
+                "x": 2
+              },
+              {
+                "x": null
+              }
+            ],
+            "x"
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              {
+                "x": 0
+              },
+              {
+                "x": 10
+              }
+            ],
+            [
+              {
+                "x": 0
+              },
+              {
+                "x": 4
+              }
+            ],
+            "x"
+          ],
+          "returns": 0.6
+        },
+        {
+          "args": [
+            [
+              {
+                "x": 2.5
+              },
+              {
+                "x": 3.5
+              },
+              {
+                "x": 6.0
+              }
+            ],
+            [
+              {
+                "x": 1.0
+              }
+            ],
+            "x"
+          ],
+          "returns": 2.04
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "tenure 0.03 ok\nmonthly_fee 0.27 ok\nsupport_calls 0.53 CHECK\nusage_hours 0.54 CHECK"
+    }
+  ]
+}

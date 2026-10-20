@@ -1,0 +1,175 @@
+{
+  "id": "infer-schema",
+  "title": {
+    "tr": "Şemayı Veriden Çıkar",
+    "en": "Infer the Schema From Data"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ml_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Pay: `extra = margin * (high - low)`. Alt sınır `round(max(0.0, low - extra), 2)`, üst sınır `round(high + extra, 2)`.",
+      "en": "The margin: `extra = margin * (high - low)`. The lower limit is `round(max(0.0, low - extra), 2)`, the upper `round(high + extra, 2)`."
+    },
+    {
+      "tr": "Kategoriler için `sorted(set(row[column] for row in rows))`: tekrarları atar ve sıraya dizer.",
+      "en": "For the categories, `sorted(set(row[column] for row in rows))`: drops the repeats and sorts them."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom ml_data import make_customers\n\n\ndef infer_schema(rows, numeric, categorical, margin):\n    schema = {}\n    for column in numeric:\n        values = [row[column] for row in rows]\n        low, high = min(values), max(values)\n        extra = margin * (high - low)\n        schema[column] = {\"min\": round(max(0.0, low - extra), 2), \"max\": round(high + extra, 2)}\n    for column in categorical:\n        schema[column] = {\"allowed\": sorted(set(row[column] for row in rows))}\n    return schema\n\n\nschema = infer_schema(make_customers(2000), [\"monthly_fee\", \"usage_hours\"], [\"plan\"], 0.1)\nfor column, rule in schema.items():\n    print(column, rule)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom ml_data import make_customers\n\n\ndef infer_schema(rows, numeric, categorical, margin):\n    schema = {}\n    for column in numeric:\n        values = [row[column] for row in rows]\n        low, high = min(values), max(values)\n        extra = margin * (high - low)\n        schema[column] = {\"min\": round(max(0.0, low - extra), 2), \"max\": round(high + extra, 2)}\n    for column in categorical:\n        schema[column] = {\"allowed\": sorted(set(row[column] for row in rows))}\n    return schema\n\n\nschema = infer_schema(make_customers(2000), [\"monthly_fee\", \"usage_hours\"], [\"plan\"], 0.1)\nfor column, rule in schema.items():\n    print(column, rule)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "infer_schema",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "a": 10,
+                "c": "y"
+              },
+              {
+                "a": 20,
+                "c": "x"
+              }
+            ],
+            [
+              "a"
+            ],
+            [
+              "c"
+            ],
+            0.1
+          ],
+          "returns": {
+            "a": {
+              "min": 9.0,
+              "max": 21.0
+            },
+            "c": {
+              "allowed": [
+                "x",
+                "y"
+              ]
+            }
+          }
+        },
+        {
+          "args": [
+            [
+              {
+                "a": 1,
+                "c": "x"
+              },
+              {
+                "a": 5,
+                "c": "x"
+              }
+            ],
+            [
+              "a"
+            ],
+            [
+              "c"
+            ],
+            0.5
+          ],
+          "returns": {
+            "a": {
+              "min": 0.0,
+              "max": 7.0
+            },
+            "c": {
+              "allowed": [
+                "x"
+              ]
+            }
+          }
+        },
+        {
+          "args": [
+            [
+              {
+                "a": 3.5,
+                "b": 1.0
+              },
+              {
+                "a": 3.5,
+                "b": 2.0
+              }
+            ],
+            [
+              "a",
+              "b"
+            ],
+            [],
+            0.2
+          ],
+          "returns": {
+            "a": {
+              "min": 3.5,
+              "max": 3.5
+            },
+            "b": {
+              "min": 0.8,
+              "max": 2.2
+            }
+          }
+        },
+        {
+          "args": [
+            [
+              {
+                "c": "b"
+              },
+              {
+                "c": "a"
+              },
+              {
+                "c": "b"
+              }
+            ],
+            [],
+            [
+              "c"
+            ],
+            0.1
+          ],
+          "returns": {
+            "c": {
+              "allowed": [
+                "a",
+                "b"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "monthly_fee {'min': 1.1, 'max': 63.41}\nusage_hours {'min': 0.0, 'max': 74.09}\nplan {'allowed': ['basic', 'pro']}"
+    }
+  ]
+}

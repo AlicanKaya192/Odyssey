@@ -1,0 +1,179 @@
+{
+  "id": "unexpected-columns",
+  "title": {
+    "tr": "Beklenmeyen Sütunlar",
+    "en": "Unexpected Columns"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dersteki fonksiyonun sonuna ikinci bir döngü ekle: `for column in row:` içinde `if column not in schema:`.",
+      "en": "Add a second loop at the end of the lesson's function: inside `for column in row:` write `if column not in schema:`."
+    },
+    {
+      "tr": "Beklenmeyen sütunun mesajı `f\"{column}: unexpected\"`. Bu döngü şemadaki denetimlerden **sonra** gelmeli ki sıra doğru olsun.",
+      "en": "The message for an unexpected column is `f\"{column}: unexpected\"`. This loop must come **after** the schema checks so the order is right."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef check_row(row, schema):\n    problems = []\n    for column, rule in schema.items():\n        value = row.get(column)\n        if value is None:\n            problems.append(f\"{column}: missing\")\n        elif \"allowed\" in rule:\n            if value not in rule[\"allowed\"]:\n                problems.append(f\"{column}: {value!r} is not allowed\")\n        elif not isinstance(value, (int, float)):\n            problems.append(f\"{column}: {value!r} is not a number\")\n        elif not rule[\"min\"] <= value <= rule[\"max\"]:\n            problems.append(f\"{column}: {value} is out of range\")\n    for column in row:\n        if column not in schema:\n            problems.append(f\"{column}: unexpected\")\n    return problems\n\n\nSCHEMA = {\"tenure\": {\"min\": 1, \"max\": 72}, \"plan\": {\"allowed\": [\"basic\", \"pro\"]}}\n\n\ndef show(row):\n    problems = check_row(row, SCHEMA)\n    print(len(problems), \"problem(s)\")\n    for problem in problems:\n        print(\" \", problem)\n\n\nshow({\"tenure\": 12, \"plan\": \"pro\"})\nshow({\"tenure\": 99, \"plan\": \"Pro\"})\nshow({\"plan\": \"basic\", \"tenure_months\": 12})\nshow({\"tenure\": \"12\", \"plan\": None, \"note\": \"vip\"})\n```",
+      "en": "The full solution:\n\n```python\ndef check_row(row, schema):\n    problems = []\n    for column, rule in schema.items():\n        value = row.get(column)\n        if value is None:\n            problems.append(f\"{column}: missing\")\n        elif \"allowed\" in rule:\n            if value not in rule[\"allowed\"]:\n                problems.append(f\"{column}: {value!r} is not allowed\")\n        elif not isinstance(value, (int, float)):\n            problems.append(f\"{column}: {value!r} is not a number\")\n        elif not rule[\"min\"] <= value <= rule[\"max\"]:\n            problems.append(f\"{column}: {value} is out of range\")\n    for column in row:\n        if column not in schema:\n            problems.append(f\"{column}: unexpected\")\n    return problems\n\n\nSCHEMA = {\"tenure\": {\"min\": 1, \"max\": 72}, \"plan\": {\"allowed\": [\"basic\", \"pro\"]}}\n\n\ndef show(row):\n    problems = check_row(row, SCHEMA)\n    print(len(problems), \"problem(s)\")\n    for problem in problems:\n        print(\" \", problem)\n\n\nshow({\"tenure\": 12, \"plan\": \"pro\"})\nshow({\"tenure\": 99, \"plan\": \"Pro\"})\nshow({\"plan\": \"basic\", \"tenure_months\": 12})\nshow({\"tenure\": \"12\", \"plan\": None, \"note\": \"vip\"})\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_row",
+      "cases": [
+        {
+          "args": [
+            {
+              "tenure": 12,
+              "plan": "pro"
+            },
+            {
+              "tenure": {
+                "min": 1,
+                "max": 72
+              },
+              "plan": {
+                "allowed": [
+                  "basic",
+                  "pro"
+                ]
+              }
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "tenure": 0,
+              "plan": "gold"
+            },
+            {
+              "tenure": {
+                "min": 1,
+                "max": 72
+              },
+              "plan": {
+                "allowed": [
+                  "basic",
+                  "pro"
+                ]
+              }
+            }
+          ],
+          "returns": [
+            "tenure: 0 is out of range",
+            "plan: 'gold' is not allowed"
+          ]
+        },
+        {
+          "args": [
+            {
+              "plan": "basic",
+              "tenure_months": 3,
+              "x": 1
+            },
+            {
+              "tenure": {
+                "min": 1,
+                "max": 72
+              },
+              "plan": {
+                "allowed": [
+                  "basic",
+                  "pro"
+                ]
+              }
+            }
+          ],
+          "returns": [
+            "tenure: missing",
+            "tenure_months: unexpected",
+            "x: unexpected"
+          ]
+        },
+        {
+          "args": [
+            {
+              "tenure": "7",
+              "plan": null
+            },
+            {
+              "tenure": {
+                "min": 1,
+                "max": 72
+              },
+              "plan": {
+                "allowed": [
+                  "basic",
+                  "pro"
+                ]
+              }
+            }
+          ],
+          "returns": [
+            "tenure: '7' is not a number",
+            "plan: missing"
+          ]
+        },
+        {
+          "args": [
+            {
+              "tenure": 72.0,
+              "plan": "basic"
+            },
+            {
+              "tenure": {
+                "min": 1,
+                "max": 72
+              },
+              "plan": {
+                "allowed": [
+                  "basic",
+                  "pro"
+                ]
+              }
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {},
+            {
+              "tenure": {
+                "min": 1,
+                "max": 72
+              },
+              "plan": {
+                "allowed": [
+                  "basic",
+                  "pro"
+                ]
+              }
+            }
+          ],
+          "returns": [
+            "tenure: missing",
+            "plan: missing"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 problem(s)\n2 problem(s)\n  tenure: 99 is out of range\n  plan: 'Pro' is not allowed\n2 problem(s)\n  tenure: missing\n  tenure_months: unexpected\n3 problem(s)\n  tenure: '12' is not a number\n  plan: missing\n  note: unexpected"
+    }
+  ]
+}
