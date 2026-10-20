@@ -1,0 +1,131 @@
+{
+  "id": "canary-rollout",
+  "title": {
+    "tr": "Kanarya Yayını",
+    "en": "The Canary Rollout"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra numarası `index` 0'dan başlar; `stages[index]` o anki pay.",
+      "en": "The index starts at 0; `stages[index]` is the current share."
+    },
+    {
+      "tr": "`rollback` görünce `0` ekle ve `break` ile döngüden çık.",
+      "en": "When you see `rollback`, add `0` and leave the loop with `break`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef rollout(stages, decisions):\n    index = 0\n    history = []\n    for decision in decisions:\n        if decision == \"rollback\":\n            history.append(0)\n            break\n        if decision == \"advance\" and index < len(stages) - 1:\n            index += 1\n        history.append(stages[index])\n    return history\n\n\nstages = [1, 5, 25, 100]\nprint(rollout(stages, [\"wait\", \"advance\", \"advance\", \"advance\", \"advance\"]))\nprint(rollout(stages, [\"advance\", \"rollback\", \"advance\"]))\nprint(rollout(stages, []))\n```",
+      "en": "The full solution:\n\n```python\ndef rollout(stages, decisions):\n    index = 0\n    history = []\n    for decision in decisions:\n        if decision == \"rollback\":\n            history.append(0)\n            break\n        if decision == \"advance\" and index < len(stages) - 1:\n            index += 1\n        history.append(stages[index])\n    return history\n\n\nstages = [1, 5, 25, 100]\nprint(rollout(stages, [\"wait\", \"advance\", \"advance\", \"advance\", \"advance\"]))\nprint(rollout(stages, [\"advance\", \"rollback\", \"advance\"]))\nprint(rollout(stages, []))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "rollout",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              5,
+              25,
+              100
+            ],
+            [
+              "wait",
+              "advance",
+              "advance",
+              "advance",
+              "advance"
+            ]
+          ],
+          "returns": [
+            1,
+            5,
+            25,
+            100,
+            100
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              5,
+              25,
+              100
+            ],
+            [
+              "advance",
+              "rollback",
+              "advance"
+            ]
+          ],
+          "returns": [
+            5,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              5,
+              25,
+              100
+            ],
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              1,
+              5,
+              25,
+              100
+            ],
+            [
+              "rollback"
+            ]
+          ],
+          "returns": [
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              10,
+              50
+            ],
+            [
+              "advance",
+              "wait",
+              "advance"
+            ]
+          ],
+          "returns": [
+            50,
+            50,
+            50
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 5, 25, 100, 100]\n[5, 0]\n[]"
+    }
+  ]
+}

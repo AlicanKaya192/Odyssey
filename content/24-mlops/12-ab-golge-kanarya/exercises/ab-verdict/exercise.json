@@ -1,0 +1,150 @@
+{
+  "id": "ab-verdict",
+  "title": {
+    "tr": "A/B Kararı",
+    "en": "The A/B Verdict"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dersteki gibi: `sorted(aa_gaps)[int(0.95 * len(aa_gaps))]`.",
+      "en": "As in the lesson: `sorted(aa_gaps)[int(0.95 * len(aa_gaps))]`."
+    },
+    {
+      "tr": "Fark eksi olabilir (yeni model daha kötü); karşılaştırmada `abs(diff)` kullan.",
+      "en": "The difference can be negative (the new model is worse); use `abs(diff)` in the comparison."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef ab_verdict(diff, aa_gaps):\n    ordered = sorted(aa_gaps)\n    band = round(ordered[int(0.95 * len(ordered))], 3)\n    if abs(diff) > band:\n        return [\"real\", band]\n    return [\"noise\", band]\n\n\ngaps = [0.005 * i for i in range(20)]\nprint(ab_verdict(0.136, gaps))\nprint(ab_verdict(-0.05, gaps))\nprint(ab_verdict(0.2, gaps))\n```",
+      "en": "The full solution:\n\n```python\ndef ab_verdict(diff, aa_gaps):\n    ordered = sorted(aa_gaps)\n    band = round(ordered[int(0.95 * len(ordered))], 3)\n    if abs(diff) > band:\n        return [\"real\", band]\n    return [\"noise\", band]\n\n\ngaps = [0.005 * i for i in range(20)]\nprint(ab_verdict(0.136, gaps))\nprint(ab_verdict(-0.05, gaps))\nprint(ab_verdict(0.2, gaps))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ab_verdict",
+      "cases": [
+        {
+          "args": [
+            0.136,
+            [
+              0.0,
+              0.005,
+              0.01,
+              0.015,
+              0.02,
+              0.025,
+              0.03,
+              0.035,
+              0.04,
+              0.045,
+              0.05,
+              0.055,
+              0.06,
+              0.065,
+              0.07,
+              0.075,
+              0.08,
+              0.085,
+              0.09,
+              0.095
+            ]
+          ],
+          "returns": [
+            "real",
+            0.095
+          ]
+        },
+        {
+          "args": [
+            -0.05,
+            [
+              0.0,
+              0.005,
+              0.01,
+              0.015,
+              0.02,
+              0.025,
+              0.03,
+              0.035,
+              0.04,
+              0.045,
+              0.05,
+              0.055,
+              0.06,
+              0.065,
+              0.07,
+              0.075,
+              0.08,
+              0.085,
+              0.09,
+              0.095
+            ]
+          ],
+          "returns": [
+            "noise",
+            0.095
+          ]
+        },
+        {
+          "args": [
+            0.2,
+            [
+              0.0,
+              0.005,
+              0.01,
+              0.015,
+              0.02,
+              0.025,
+              0.03,
+              0.035,
+              0.04,
+              0.045,
+              0.05,
+              0.055,
+              0.06,
+              0.065,
+              0.07,
+              0.075,
+              0.08,
+              0.085,
+              0.09,
+              0.095
+            ]
+          ],
+          "returns": [
+            "real",
+            0.095
+          ]
+        },
+        {
+          "args": [
+            0.03,
+            [
+              0.05,
+              0.01,
+              0.02,
+              0.04
+            ]
+          ],
+          "returns": [
+            "noise",
+            0.05
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['real', 0.095]\n['noise', 0.095]\n['real', 0.095]"
+    }
+  ]
+}

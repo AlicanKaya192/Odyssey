@@ -1,0 +1,77 @@
+{
+  "id": "canary-route",
+  "title": {
+    "tr": "Kanarya Kovası",
+    "en": "The Canary Bucket"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`zlib.crc32` bayt ister: önce `.encode()`.",
+      "en": "`zlib.crc32` needs bytes: `.encode()` first."
+    },
+    {
+      "tr": "`% 100` sonucu 0 ile 99 arasıdır; `percent` 0 ise hiç kimse, 100 ise herkes yeni modele gider.",
+      "en": "`% 100` gives a number from 0 to 99; with `percent` 0 nobody, with 100 everyone goes to the new model."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport zlib\n\n\ndef route(customer_id, percent):\n    bucket = zlib.crc32(customer_id.encode()) % 100\n    if bucket < percent:\n        return \"new\"\n    return \"old\"\n\n\nids = [\"C06-%05d\" % i for i in range(1, 1001)]\nprint(sum(route(i, 5) == \"new\" for i in ids))\nprint(route(\"C06-00001\", 0), route(\"C06-00001\", 100))\nprint(all(route(i, 25) == \"new\" for i in ids if route(i, 5) == \"new\"))\n```",
+      "en": "The full solution:\n\n```python\nimport zlib\n\n\ndef route(customer_id, percent):\n    bucket = zlib.crc32(customer_id.encode()) % 100\n    if bucket < percent:\n        return \"new\"\n    return \"old\"\n\n\nids = [\"C06-%05d\" % i for i in range(1, 1001)]\nprint(sum(route(i, 5) == \"new\" for i in ids))\nprint(route(\"C06-00001\", 0), route(\"C06-00001\", 100))\nprint(all(route(i, 25) == \"new\" for i in ids if route(i, 5) == \"new\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "route",
+      "cases": [
+        {
+          "args": [
+            "C06-00001",
+            5
+          ],
+          "returns": "old"
+        },
+        {
+          "args": [
+            "C06-00001",
+            100
+          ],
+          "returns": "new"
+        },
+        {
+          "args": [
+            "C06-00001",
+            0
+          ],
+          "returns": "old"
+        },
+        {
+          "args": [
+            "C06-00042",
+            50
+          ],
+          "returns": "new"
+        },
+        {
+          "args": [
+            "A-7",
+            30
+          ],
+          "returns": "old"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "39\nold new\nTrue"
+    }
+  ]
+}
