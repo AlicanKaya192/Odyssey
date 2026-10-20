@@ -1,0 +1,120 @@
+{
+  "id": "gate-failures",
+  "title": {
+    "tr": "Kapının Listesi",
+    "en": "The Gate's List"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Üç ayrı `if`; her biri listeye kendi adını ekler. İkinci kural ilkinden bağımsız: ikisi birden düşebilir.",
+      "en": "Three separate `if`s; each adds its own name to the list. The second rule is independent of the first: both can fail."
+    },
+    {
+      "tr": "Dilimleri abece sırasıyla gezmek için `for name in sorted(metrics[\"slices\"]):`.",
+      "en": "To walk the slices in alphabetical order, `for name in sorted(metrics[\"slices\"]):`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef gate_failures(metrics, rules):\n    failures = []\n    if metrics[\"accuracy\"] < rules[\"min_accuracy\"]:\n        failures.append(\"accuracy\")\n    if metrics[\"accuracy\"] < metrics[\"baseline\"] + rules[\"min_lift\"]:\n        failures.append(\"lift\")\n    for name in sorted(metrics[\"slices\"]):\n        if metrics[\"slices\"][name] < rules[\"min_slice\"]:\n            failures.append(\"slice:\" + name)\n    return failures\n\n\nRULES = {\"min_accuracy\": 0.78, \"min_lift\": 0.05, \"min_slice\": 0.75}\ngood = {\"accuracy\": 0.81, \"baseline\": 0.70, \"slices\": {\"pro\": 0.80, \"basic\": 0.82}}\nweak = {\"accuracy\": 0.70, \"baseline\": 0.70, \"slices\": {\"pro\": 0.65, \"basic\": 0.74}}\nprint(gate_failures(good, RULES))\nfor failure in gate_failures(weak, RULES):\n    print(failure)\n```",
+      "en": "The full solution:\n\n```python\ndef gate_failures(metrics, rules):\n    failures = []\n    if metrics[\"accuracy\"] < rules[\"min_accuracy\"]:\n        failures.append(\"accuracy\")\n    if metrics[\"accuracy\"] < metrics[\"baseline\"] + rules[\"min_lift\"]:\n        failures.append(\"lift\")\n    for name in sorted(metrics[\"slices\"]):\n        if metrics[\"slices\"][name] < rules[\"min_slice\"]:\n            failures.append(\"slice:\" + name)\n    return failures\n\n\nRULES = {\"min_accuracy\": 0.78, \"min_lift\": 0.05, \"min_slice\": 0.75}\ngood = {\"accuracy\": 0.81, \"baseline\": 0.70, \"slices\": {\"pro\": 0.80, \"basic\": 0.82}}\nweak = {\"accuracy\": 0.70, \"baseline\": 0.70, \"slices\": {\"pro\": 0.65, \"basic\": 0.74}}\nprint(gate_failures(good, RULES))\nfor failure in gate_failures(weak, RULES):\n    print(failure)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "gate_failures",
+      "cases": [
+        {
+          "args": [
+            {
+              "accuracy": 0.81,
+              "baseline": 0.7,
+              "slices": {
+                "x": 0.8
+              }
+            },
+            {
+              "min_accuracy": 0.78,
+              "min_lift": 0.05,
+              "min_slice": 0.75
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "accuracy": 0.7,
+              "baseline": 0.7,
+              "slices": {
+                "b": 0.6,
+                "a": 0.7
+              }
+            },
+            {
+              "min_accuracy": 0.78,
+              "min_lift": 0.05,
+              "min_slice": 0.75
+            }
+          ],
+          "returns": [
+            "accuracy",
+            "lift",
+            "slice:a",
+            "slice:b"
+          ]
+        },
+        {
+          "args": [
+            {
+              "accuracy": 0.79,
+              "baseline": 0.76,
+              "slices": {}
+            },
+            {
+              "min_accuracy": 0.78,
+              "min_lift": 0.05,
+              "min_slice": 0.75
+            }
+          ],
+          "returns": [
+            "lift"
+          ]
+        },
+        {
+          "args": [
+            {
+              "accuracy": 0.77,
+              "baseline": 0.6,
+              "slices": {
+                "z": 0.9,
+                "m": 0.74
+              }
+            },
+            {
+              "min_accuracy": 0.78,
+              "min_lift": 0.05,
+              "min_slice": 0.75
+            }
+          ],
+          "returns": [
+            "accuracy",
+            "slice:m"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[]\naccuracy\nlift\nslice:basic\nslice:pro"
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "id": "slice-accuracy",
+  "title": {
+    "tr": "Dilim Dilim Doğruluk",
+    "en": "Accuracy Slice by Slice"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satırı ve tahmini birlikte gezmek için `zip(rows, predictions)`. Her grupta `predicted == row[\"churned\"]` değerlerini topla.",
+      "en": "To walk a row and its prediction together, `zip(rows, predictions)`. Collect the `predicted == row[\"churned\"]` values in each group."
+    },
+    {
+      "tr": "`True` 1 sayıldığı için `sum(hits) / len(hits)` doğruluğu verir. Sıralı gezmek için `sorted(groups.items())`.",
+      "en": "Since `True` counts as 1, `sum(hits) / len(hits)` gives the accuracy. To walk them sorted, `sorted(groups.items())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef slice_accuracy(rows, predictions, column):\n    groups = {}\n    for row, predicted in zip(rows, predictions):\n        groups.setdefault(row[column], []).append(predicted == row[\"churned\"])\n    return [[value, round(sum(hits) / len(hits), 3)] for value, hits in sorted(groups.items())]\n\n\nrows = [\n    {\"plan\": \"pro\", \"churned\": 1}, {\"plan\": \"basic\", \"churned\": 0},\n    {\"plan\": \"pro\", \"churned\": 0}, {\"plan\": \"basic\", \"churned\": 1},\n    {\"plan\": \"pro\", \"churned\": 1}, {\"plan\": \"basic\", \"churned\": 0},\n]\npredictions = [1, 0, 1, 0, 1, 0]\nfor value, accuracy in slice_accuracy(rows, predictions, \"plan\"):\n    print(value, accuracy)\n```",
+      "en": "The full solution:\n\n```python\ndef slice_accuracy(rows, predictions, column):\n    groups = {}\n    for row, predicted in zip(rows, predictions):\n        groups.setdefault(row[column], []).append(predicted == row[\"churned\"])\n    return [[value, round(sum(hits) / len(hits), 3)] for value, hits in sorted(groups.items())]\n\n\nrows = [\n    {\"plan\": \"pro\", \"churned\": 1}, {\"plan\": \"basic\", \"churned\": 0},\n    {\"plan\": \"pro\", \"churned\": 0}, {\"plan\": \"basic\", \"churned\": 1},\n    {\"plan\": \"pro\", \"churned\": 1}, {\"plan\": \"basic\", \"churned\": 0},\n]\npredictions = [1, 0, 1, 0, 1, 0]\nfor value, accuracy in slice_accuracy(rows, predictions, \"plan\"):\n    print(value, accuracy)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "slice_accuracy",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "c": "b",
+                "churned": 1
+              },
+              {
+                "c": "a",
+                "churned": 0
+              },
+              {
+                "c": "b",
+                "churned": 0
+              },
+              {
+                "c": "a",
+                "churned": 1
+              }
+            ],
+            [
+              1,
+              0,
+              1,
+              0
+            ],
+            "c"
+          ],
+          "returns": [
+            [
+              "a",
+              0.5
+            ],
+            [
+              "b",
+              0.5
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "c": "b",
+                "churned": 1
+              },
+              {
+                "c": "a",
+                "churned": 0
+              },
+              {
+                "c": "b",
+                "churned": 0
+              },
+              {
+                "c": "a",
+                "churned": 1
+              }
+            ],
+            [
+              1,
+              1,
+              0,
+              1
+            ],
+            "c"
+          ],
+          "returns": [
+            [
+              "a",
+              0.5
+            ],
+            [
+              "b",
+              1.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [],
+            [],
+            "c"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "c": "b",
+                "churned": 1
+              }
+            ],
+            [
+              1
+            ],
+            "c"
+          ],
+          "returns": [
+            [
+              "b",
+              1.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "basic 0.667\npro 0.667"
+    }
+  ]
+}

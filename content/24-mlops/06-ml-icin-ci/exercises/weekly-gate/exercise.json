@@ -1,0 +1,77 @@
+{
+  "id": "weekly-gate",
+  "title": {
+    "tr": "Haftalık Kapı",
+    "en": "The Weekly Gate"
+  },
+  "difficulty": 3,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "train.py",
+      "readonly": true
+    },
+    {
+      "name": "check_quality.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "cron'un beşinci alanı haftanın günü; pazartesi `1`: `\"0 6 * * 1\"`. Tırnaklı yaz.",
+      "en": "The fifth field of cron is the day of the week; Monday is `1`: `\"0 6 * * 1\"`. Write it in quotes."
+    },
+    {
+      "tr": "Her durumda çalışması için adıma `if: always()`; `with:` altında `name` ve `path`.",
+      "en": "To run in every case, give the step `if: always()`; `name` and `path` under `with:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: ML CI\n\non:\n  pull_request:\n    branches: [main]\n  schedule:\n    - cron: \"0 6 * * 1\"\n  workflow_dispatch:\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n\n  model-gate:\n    needs: test\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python train.py\n      - run: python check_quality.py\n      - uses: actions/upload-artifact@v4\n        if: always()\n        with:\n          name: metrics\n          path: metrics.json\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: ML CI\n\non:\n  pull_request:\n    branches: [main]\n  schedule:\n    - cron: \"0 6 * * 1\"\n  workflow_dispatch:\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n\n  model-gate:\n    needs: test\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python train.py\n      - run: python check_quality.py\n      - uses: actions/upload-artifact@v4\n        if: always()\n        with:\n          name: metrics\n          path: metrics.json\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "on": [
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "cron": "^0 6 \\* \\* 1$",
+      "show_cron": "0 6 * * 1",
+      "job": "model-gate",
+      "steps": [
+        {
+          "run": "python check_quality\\.py",
+          "show": "run: python check_quality.py"
+        },
+        {
+          "uses": "^actions/upload-artifact@",
+          "if": "always\\(\\)",
+          "with": {
+            "name": "^metrics$",
+            "path": "^metrics\\.json$"
+          },
+          "show": "uses: actions/upload-artifact@v4 (if: always(), name: metrics, path: metrics.json)"
+        }
+      ]
+    }
+  ]
+}

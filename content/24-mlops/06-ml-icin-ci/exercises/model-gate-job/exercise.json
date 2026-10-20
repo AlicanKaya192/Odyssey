@@ -1,0 +1,80 @@
+{
+  "id": "model-gate-job",
+  "title": {
+    "tr": "Kapı İşi",
+    "en": "The Gate Job"
+  },
+  "difficulty": 2,
+  "language": "workflow",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": ".github/workflows/ci.yml",
+  "files": [
+    {
+      "name": ".github/workflows/ci.yml",
+      "starter": "starter-ci.{lang}.yml",
+      "solution": "solution-ci.yml"
+    },
+    {
+      "name": "requirements.txt",
+      "readonly": true
+    },
+    {
+      "name": "train.py",
+      "readonly": true
+    },
+    {
+      "name": "check_quality.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "İşin başı: `needs: test` ve `runs-on: ubuntu-latest`. Adımlar `test` işininkine çok benziyor.",
+      "en": "The start of the job: `needs: test` and `runs-on: ubuntu-latest`. The steps are very close to the `test` job's."
+    },
+    {
+      "tr": "`test` işinin ilk dört adımını kopyala, sonuna iki `run` ekle: `python train.py` ve `python check_quality.py`.",
+      "en": "Copy the first four steps of the `test` job and add two `run`s at the end: `python train.py` and `python check_quality.py`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: ML CI\n\non:\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n\n  model-gate:\n    needs: test\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python train.py\n      - run: python check_quality.py\n```",
+      "en": "The full solution:\n\n**.github/workflows/ci.yml**\n\n```yaml\nname: ML CI\n\non:\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python -m pytest -q\n\n  model-gate:\n    needs: test\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.13\"\n          cache: pip\n      - run: python -m pip install -r requirements.txt\n      - run: python train.py\n      - run: python check_quality.py\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "workflow",
+      "file": ".github/workflows/ci.yml",
+      "job": "model-gate",
+      "needs": [
+        "test"
+      ],
+      "steps": [
+        {
+          "uses": "^actions/checkout@",
+          "show": "uses: actions/checkout@v4"
+        },
+        {
+          "uses": "^actions/setup-python@",
+          "show": "uses: actions/setup-python@v5"
+        },
+        {
+          "run": "pip install -r requirements\\.txt",
+          "show": "run: python -m pip install -r requirements.txt"
+        },
+        {
+          "run": "python train\\.py",
+          "show": "run: python train.py"
+        },
+        {
+          "run": "python check_quality\\.py",
+          "show": "run: python check_quality.py"
+        }
+      ]
+    }
+  ]
+}
