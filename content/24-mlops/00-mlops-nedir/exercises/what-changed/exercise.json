@@ -1,0 +1,132 @@
+{
+  "id": "what-changed",
+  "title": {
+    "tr": "Ne Değişti?",
+    "en": "What Changed?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki doğru/yanlış değer hazırla: `inputs_changed = old[\"code\"] != new[\"code\"] or old[\"data\"] != new[\"data\"]` ve `model_changed`.",
+      "en": "Prepare two true/false values: `inputs_changed = old[\"code\"] != new[\"code\"] or old[\"data\"] != new[\"data\"]` and `model_changed`."
+    },
+    {
+      "tr": "Dört durum bu iki değerin dört birleşimi: ikisi de `False`, yalnızca biri `True`, ikisi de `True`.",
+      "en": "The four cases are the four combinations of these two values: both `False`, only one `True`, both `True`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef review(old, new):\n    inputs_changed = old[\"code\"] != new[\"code\"] or old[\"data\"] != new[\"data\"]\n    model_changed = old[\"model\"] != new[\"model\"]\n    if not inputs_changed and not model_changed:\n        return \"nothing\"\n    if inputs_changed and not model_changed:\n        return \"retrain\"\n    if model_changed and not inputs_changed:\n        return \"unknown model\"\n    return \"ok\"\n\n\nold = {\"code\": \"c1\", \"data\": \"d1\", \"model\": \"m1\"}\nprint(review(old, {\"code\": \"c1\", \"data\": \"d1\", \"model\": \"m1\"}))\nprint(review(old, {\"code\": \"c1\", \"data\": \"d2\", \"model\": \"m1\"}))\nprint(review(old, {\"code\": \"c1\", \"data\": \"d1\", \"model\": \"m2\"}))\nprint(review(old, {\"code\": \"c2\", \"data\": \"d1\", \"model\": \"m2\"}))\n```",
+      "en": "The full solution:\n\n```python\ndef review(old, new):\n    inputs_changed = old[\"code\"] != new[\"code\"] or old[\"data\"] != new[\"data\"]\n    model_changed = old[\"model\"] != new[\"model\"]\n    if not inputs_changed and not model_changed:\n        return \"nothing\"\n    if inputs_changed and not model_changed:\n        return \"retrain\"\n    if model_changed and not inputs_changed:\n        return \"unknown model\"\n    return \"ok\"\n\n\nold = {\"code\": \"c1\", \"data\": \"d1\", \"model\": \"m1\"}\nprint(review(old, {\"code\": \"c1\", \"data\": \"d1\", \"model\": \"m1\"}))\nprint(review(old, {\"code\": \"c1\", \"data\": \"d2\", \"model\": \"m1\"}))\nprint(review(old, {\"code\": \"c1\", \"data\": \"d1\", \"model\": \"m2\"}))\nprint(review(old, {\"code\": \"c2\", \"data\": \"d1\", \"model\": \"m2\"}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "review",
+      "cases": [
+        {
+          "args": [
+            {
+              "code": "c1",
+              "data": "d1",
+              "model": "m1"
+            },
+            {
+              "code": "c1",
+              "data": "d1",
+              "model": "m1"
+            }
+          ],
+          "returns": "nothing"
+        },
+        {
+          "args": [
+            {
+              "code": "c1",
+              "data": "d1",
+              "model": "m1"
+            },
+            {
+              "code": "c2",
+              "data": "d1",
+              "model": "m1"
+            }
+          ],
+          "returns": "retrain"
+        },
+        {
+          "args": [
+            {
+              "code": "c1",
+              "data": "d1",
+              "model": "m1"
+            },
+            {
+              "code": "c1",
+              "data": "d2",
+              "model": "m1"
+            }
+          ],
+          "returns": "retrain"
+        },
+        {
+          "args": [
+            {
+              "code": "c1",
+              "data": "d1",
+              "model": "m1"
+            },
+            {
+              "code": "c1",
+              "data": "d1",
+              "model": "m2"
+            }
+          ],
+          "returns": "unknown model"
+        },
+        {
+          "args": [
+            {
+              "code": "c1",
+              "data": "d1",
+              "model": "m1"
+            },
+            {
+              "code": "c1",
+              "data": "d2",
+              "model": "m2"
+            }
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            {
+              "code": "c1",
+              "data": "d1",
+              "model": "m1"
+            },
+            {
+              "code": "c2",
+              "data": "d2",
+              "model": "m2"
+            }
+          ],
+          "returns": "ok"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "nothing\nretrain\nunknown model\nok"
+    }
+  ]
+}

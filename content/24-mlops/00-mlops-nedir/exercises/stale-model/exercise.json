@@ -1,0 +1,46 @@
+{
+  "id": "stale-model",
+  "title": {
+    "tr": "Eskiyen Model",
+    "en": "The Ageing Model"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ml_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for month in range(7):` 0'dan 6'ya kadar döner. Döngüden önce `alarm = None` yaz.",
+      "en": "`for month in range(7):` goes from 0 to 6. Write `alarm = None` before the loop."
+    },
+    {
+      "tr": "Yalnızca ilk düşüşü saklamak için iki koşul birden: `if accuracy < 0.75 and alarm is None: alarm = month`.",
+      "en": "To keep only the first drop, use two conditions together: `if accuracy < 0.75 and alarm is None: alarm = month`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom sklearn.linear_model import LogisticRegression\nfrom ml_data import make_customers, NUMERIC\n\n\ndef to_xy(rows):\n    X = [[r[c] for c in NUMERIC] + [1 if r[\"plan\"] == \"pro\" else 0] for r in rows]\n    y = [r[\"churned\"] for r in rows]\n    return X, y\n\n\nX, y = to_xy(make_customers(2000))\nmodel = LogisticRegression(max_iter=1000).fit(X, y)\n\nalarm = None\nfor month in range(7):\n    X_new, y_new = to_xy(make_customers(1000, seed=99, month=month))\n    accuracy = round(model.score(X_new, y_new), 3)\n    print(\"month\", month, \"accuracy:\", accuracy)\n    if accuracy < 0.75 and alarm is None:\n        alarm = month\nif alarm is None:\n    print(\"no alarm\")\nelse:\n    print(\"alarm at month:\", alarm)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom sklearn.linear_model import LogisticRegression\nfrom ml_data import make_customers, NUMERIC\n\n\ndef to_xy(rows):\n    X = [[r[c] for c in NUMERIC] + [1 if r[\"plan\"] == \"pro\" else 0] for r in rows]\n    y = [r[\"churned\"] for r in rows]\n    return X, y\n\n\nX, y = to_xy(make_customers(2000))\nmodel = LogisticRegression(max_iter=1000).fit(X, y)\n\nalarm = None\nfor month in range(7):\n    X_new, y_new = to_xy(make_customers(1000, seed=99, month=month))\n    accuracy = round(model.score(X_new, y_new), 3)\n    print(\"month\", month, \"accuracy:\", accuracy)\n    if accuracy < 0.75 and alarm is None:\n        alarm = month\nif alarm is None:\n    print(\"no alarm\")\nelse:\n    print(\"alarm at month:\", alarm)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "month 0 accuracy: 0.813\nmonth 1 accuracy: 0.82\nmonth 2 accuracy: 0.777\nmonth 3 accuracy: 0.782\nmonth 4 accuracy: 0.674\nmonth 5 accuracy: 0.682\nmonth 6 accuracy: 0.686\nalarm at month: 4"
+    }
+  ]
+}

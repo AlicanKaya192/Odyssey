@@ -1,0 +1,145 @@
+{
+  "id": "model-card",
+  "title": {
+    "tr": "Model Kartı",
+    "en": "A Model Card"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ml_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İptal edenlerin sayısı `sum(r[\"churned\"] for r in rows)`. Bölmeden önce listenin boş olmadığına bak: boş listede `len(rows)` sıfır.",
+      "en": "The number who cancelled is `sum(r[\"churned\"] for r in rows)`. Check the list is not empty before dividing: `len(rows)` is zero for an empty list."
+    },
+    {
+      "tr": "Sözlüğü `return {\"rows\": len(rows), ...}` diye tek seferde yaz; `round(x, 3)` üç basamağa yuvarlar.",
+      "en": "Write the dictionary in one go with `return {\"rows\": len(rows), ...}`; `round(x, 3)` rounds to three digits."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom ml_data import make_customers, FEATURES\n\n\ndef model_card(rows, accuracy):\n    if rows:\n        churn_rate = sum(r[\"churned\"] for r in rows) / len(rows)\n    else:\n        churn_rate = 0.0\n    return {\n        \"rows\": len(rows),\n        \"churn_rate\": round(churn_rate, 3),\n        \"features\": FEATURES,\n        \"accuracy\": round(accuracy, 3),\n    }\n\n\nrows = make_customers(500)\ncard = model_card(rows, 0.81274)\nprint(\"rows =\", card[\"rows\"])\nprint(\"churn_rate =\", card[\"churn_rate\"])\nprint(\"accuracy =\", card[\"accuracy\"])\nprint(\"features:\")\nfor name in card[\"features\"]:\n    print(\"-\", name)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom ml_data import make_customers, FEATURES\n\n\ndef model_card(rows, accuracy):\n    if rows:\n        churn_rate = sum(r[\"churned\"] for r in rows) / len(rows)\n    else:\n        churn_rate = 0.0\n    return {\n        \"rows\": len(rows),\n        \"churn_rate\": round(churn_rate, 3),\n        \"features\": FEATURES,\n        \"accuracy\": round(accuracy, 3),\n    }\n\n\nrows = make_customers(500)\ncard = model_card(rows, 0.81274)\nprint(\"rows =\", card[\"rows\"])\nprint(\"churn_rate =\", card[\"churn_rate\"])\nprint(\"accuracy =\", card[\"accuracy\"])\nprint(\"features:\")\nfor name in card[\"features\"]:\n    print(\"-\", name)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "model_card",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "churned": 1
+              },
+              {
+                "churned": 0
+              },
+              {
+                "churned": 0
+              }
+            ],
+            0.8
+          ],
+          "returns": {
+            "rows": 3,
+            "churn_rate": 0.333,
+            "features": [
+              "tenure",
+              "monthly_fee",
+              "support_calls",
+              "usage_hours",
+              "plan"
+            ],
+            "accuracy": 0.8
+          }
+        },
+        {
+          "args": [
+            [
+              {
+                "churned": 1
+              }
+            ],
+            0.12345
+          ],
+          "returns": {
+            "rows": 1,
+            "churn_rate": 1.0,
+            "features": [
+              "tenure",
+              "monthly_fee",
+              "support_calls",
+              "usage_hours",
+              "plan"
+            ],
+            "accuracy": 0.123
+          }
+        },
+        {
+          "args": [
+            [],
+            0.5
+          ],
+          "returns": {
+            "rows": 0,
+            "churn_rate": 0.0,
+            "features": [
+              "tenure",
+              "monthly_fee",
+              "support_calls",
+              "usage_hours",
+              "plan"
+            ],
+            "accuracy": 0.5
+          }
+        },
+        {
+          "args": [
+            [
+              {
+                "churned": 0
+              },
+              {
+                "churned": 0
+              }
+            ],
+            0.9999
+          ],
+          "returns": {
+            "rows": 2,
+            "churn_rate": 0.0,
+            "features": [
+              "tenure",
+              "monthly_fee",
+              "support_calls",
+              "usage_hours",
+              "plan"
+            ],
+            "accuracy": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "rows = 500\nchurn_rate = 0.302\naccuracy = 0.813\nfeatures:\n- tenure\n- monthly_fee\n- support_calls\n- usage_hours\n- plan"
+    }
+  ]
+}

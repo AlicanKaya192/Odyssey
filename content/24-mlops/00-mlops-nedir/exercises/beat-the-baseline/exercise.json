@@ -1,0 +1,46 @@
+{
+  "id": "beat-the-baseline",
+  "title": {
+    "tr": "Hep Kalır Demekten İyi mi?",
+    "en": "Better Than Always Saying Stay?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ml_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`model = LogisticRegression(max_iter=1000).fit(X, y)` modeli eğitir; `fit` modelin kendisini döndürür.",
+      "en": "`model = LogisticRegression(max_iter=1000).fit(X, y)` trains the model; `fit` returns the model itself."
+    },
+    {
+      "tr": "`sum(y_test)` iptal edenlerin sayısı; `len(y_test)`'e bölünce iptal oranı çıkar, `1`'den çıkarınca kalanların oranı.",
+      "en": "`sum(y_test)` is the number who cancelled; divided by `len(y_test)` it gives the churn rate, and subtracted from `1` the share who stay."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom sklearn.linear_model import LogisticRegression\nfrom ml_data import make_customers, NUMERIC\n\n\ndef to_xy(rows):\n    X = [[r[c] for c in NUMERIC] + [1 if r[\"plan\"] == \"pro\" else 0] for r in rows]\n    y = [r[\"churned\"] for r in rows]\n    return X, y\n\n\nX, y = to_xy(make_customers(2000))\nX_test, y_test = to_xy(make_customers(1000, seed=99))\n\nmodel = LogisticRegression(max_iter=1000).fit(X, y)\nstay = 1 - sum(y_test) / len(y_test)\nprint(\"model accuracy:\", round(model.score(X_test, y_test), 3))\nprint(\"always stay:\", round(stay, 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom sklearn.linear_model import LogisticRegression\nfrom ml_data import make_customers, NUMERIC\n\n\ndef to_xy(rows):\n    X = [[r[c] for c in NUMERIC] + [1 if r[\"plan\"] == \"pro\" else 0] for r in rows]\n    y = [r[\"churned\"] for r in rows]\n    return X, y\n\n\nX, y = to_xy(make_customers(2000))\nX_test, y_test = to_xy(make_customers(1000, seed=99))\n\nmodel = LogisticRegression(max_iter=1000).fit(X, y)\nstay = 1 - sum(y_test) / len(y_test)\nprint(\"model accuracy:\", round(model.score(X_test, y_test), 3))\nprint(\"always stay:\", round(stay, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "model accuracy: 0.813\nalways stay: 0.703"
+    }
+  ]
+}
