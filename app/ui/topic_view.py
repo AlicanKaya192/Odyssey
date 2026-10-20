@@ -321,7 +321,10 @@ class TopicView(QWidget):
         self._lesson.set_footer(self._footer_items())
         # Bölümü açmak okumak değil: "okundu" işareti, kullanıcı metnin
         # sonuna indiğinde `lesson-read` bildirimiyle konuyor.
-        self.retranslate()
+        # Sekmeler az önce bu dilde yüklendi; onları yeniden çevirmek
+        # (yönergeyi ve denemeleri baştan çizmek) bölüm açılışına 10–20 ms
+        # ekliyordu (20 Ekim'de ölçüldü).
+        self.retranslate(panes=False)
         # Sekme adları kurulduktan sonra: onaylar yeni sekmelere yazılsın.
         self._update_progress_box(state)
         self._segments.set_current(0, notify=False)
@@ -976,7 +979,8 @@ class TopicView(QWidget):
         self._quiz.set_mode(mode)
         self._exercise.set_mode(mode)
 
-    def retranslate(self) -> None:
+    def retranslate(self, panes: bool = True) -> None:
+        """Dile bağlı metinler; `panes=False` sekmelerin içine dokunmuyor."""
         labels = self._pane_labels()
         self._segments.set_labels([labels[name] for name in self._panes])
         simgeler = {"lesson": "book", "notes": "file-text", "pdf": "file-text", "quiz": "clipboard",
@@ -998,9 +1002,10 @@ class TopicView(QWidget):
 
         self._report_button.setToolTip(tips.rich(t("report.title"), t("report.help")))
         self._focus_button.setToolTip(tips.rich(t("focus.title") + "  (F11)", t("focus.help")))
-        for document in self._documents:
-            document.enable_quote(t("notebook.add_selection"), t("notebook.copy"))
-        self._note_panel.retranslate()
+        if panes:
+            for document in self._documents:
+                document.enable_quote(t("notebook.add_selection"), t("notebook.copy"))
+            self._note_panel.retranslate()
         if self._section is not None:
             self._note_panel.set_section_title(self._language.pick(self._section.title))
 
@@ -1013,9 +1018,10 @@ class TopicView(QWidget):
                 f"{self._language.t('common.minutes')}",
             )
 
-        self._reload_lesson_language()
-        self._lesson.retranslate()
-        self._notes.retranslate()
-        self._quiz.retranslate()
-        self._exercise.retranslate()
+        if panes:
+            self._reload_lesson_language()
+            self._lesson.retranslate()
+            self._notes.retranslate()
+            self._quiz.retranslate()
+            self._exercise.retranslate()
         self._update_switcher()
