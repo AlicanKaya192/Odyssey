@@ -27,9 +27,21 @@ lecture note does not mean downloading the whole application again.
 
 ### Added
 - **The second module of the System Design path: MLOps and ML System
-  Design.** Taking a model out of the notebook and turning it into a
-  reliable system: reproducible training, data validation, versioning,
-  serving, monitoring, drift and retraining. The module is being written.
+  Design** (17 sections). Taking a model out of the notebook and turning it
+  into a reliable system: reproducible training, data validation, data and
+  model versioning, experiment tracking, the model registry and quality
+  gate, serving, training-serving skew, monitoring, data and concept drift,
+  shadow, canary and A/B tests, scaling and ML system design; at the end, a
+  pipeline that monitors, retrains and passes the new model through a gate
+  every month by itself. The whole module uses a single example (subscription
+  churn), and every result is shown by measuring it.
+- New badges, the "Argus" title, MLOps terms in the Glossary, MLOps sections
+  in the Data Engineer and ML Engineer routes.
+
+### Changed
+- **Levels were widened for the new paths.** The XP needed for the next level
+  went up a little; your current level may drop by a few steps. The titles
+  you have earned stay yours.
 
 ### Fixed
 - **The comparison boxes in the lessons are side by side.** In some

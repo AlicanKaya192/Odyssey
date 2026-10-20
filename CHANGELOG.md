@@ -25,9 +25,21 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ### Eklendi
 - **Sistem Tasarımı patikasının ikinci modülü: MLOps ve ML Sistem
-  Tasarımı.** Bir modeli defterden çıkarıp güvenilir bir sisteme
-  dönüştürmek: tekrarlanabilir eğitim, veri doğrulama, sürümleme, model
-  sunma, izleme, kayma ve yeniden eğitim. Modül yazılıyor.
+  Tasarımı** (17 bölüm). Bir modeli defterden çıkarıp güvenilir bir sisteme
+  dönüştürmek: tekrarlanabilir eğitim, veri doğrulama, veri ve model
+  sürümleme, deney takibi, model kaydı ve kalite kapısı, model sunma,
+  eğitim-sunma farkı, izleme, veri ve kavram kayması, gölge, kanarya ve
+  A/B testi, ölçeklenme ve ML sistem tasarımı; sonunda her ay kendiliğinden
+  izleyen, yeniden eğiten ve yeni modeli kapıdan geçiren bir hat. Bütün
+  modül tek bir örnek (abonelik iptali) üzerinde, her sonuç ölçülerek
+  anlatılıyor.
+- Yeni rozetler, "Argos" unvanı, sözlükte MLOps terimleri, Veri Mühendisi
+  ve ML Mühendisi rotalarında MLOps bölümleri.
+
+### Değişti
+- **Seviyeler yeni patikalara göre genişletildi.** Bir sonraki seviye için
+  gereken XP biraz arttı; mevcut seviyeniz birkaç basamak düşebilir.
+  Kazandığınız unvanlar sizde kalıyor.
 
 ### Düzeltildi
 - **Derslerdeki karşılaştırma kutuları yan yana görünüyor.** Python
