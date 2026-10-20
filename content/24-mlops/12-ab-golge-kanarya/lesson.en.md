@@ -104,7 +104,7 @@ for percent in [1, 5, 25, 50]:
 ```
 
 ```text
-1% -> 8 customers
+  1% -> 8 customers
   5% -> 39 customers
  25% -> 238 customers
  50% -> 491 customers
@@ -145,7 +145,7 @@ for percent in [1, 5, 25]:
 ```
 
 ```text
-1% n=8    healthy 0.875 broken 0.500
+  1% n=8    healthy 0.875 broken 0.500
   5% n=39   healthy 0.795 broken 0.538
  25% n=238  healthy 0.832 broken 0.529
 ```

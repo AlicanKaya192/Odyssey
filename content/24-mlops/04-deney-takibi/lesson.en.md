@@ -146,7 +146,7 @@ for r in runs:
 ```
 
 ```text
-3  0.832  model=logistic, C=0.1
+  3  0.832  model=logistic, C=0.1
   5  0.830  model=logistic, C=10
   2  0.828  model=logistic, C=0.01
   4  0.828  model=logistic, C=1
