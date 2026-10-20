@@ -23,6 +23,19 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [1.3.0] — unreleased
+
+### Added
+- **The second module of the System Design path: MLOps and ML System
+  Design.** Taking a model out of the notebook and turning it into a
+  reliable system: reproducible training, data validation, versioning,
+  serving, monitoring, drift and retraining. The module is being written.
+
+### Fixed
+- **The comparison boxes in the lessons are side by side.** In some
+  "not like this / like this" boxes in the Python Fundamentals and CI/CD
+  lessons, the two sides were drawn one under the other as a single block.
+
 ## [1.2.0] — 20 October 2026
 
 ### Added

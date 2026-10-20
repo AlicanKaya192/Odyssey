@@ -21,6 +21,19 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [1.3.0] — yayınlanmadı
+
+### Eklendi
+- **Sistem Tasarımı patikasının ikinci modülü: MLOps ve ML Sistem
+  Tasarımı.** Bir modeli defterden çıkarıp güvenilir bir sisteme
+  dönüştürmek: tekrarlanabilir eğitim, veri doğrulama, sürümleme, model
+  sunma, izleme, kayma ve yeniden eğitim. Modül yazılıyor.
+
+### Düzeltildi
+- **Derslerdeki karşılaştırma kutuları yan yana görünüyor.** Python
+  Temelleri ve CI/CD derslerindeki bazı "şöyle değil / böyle"
+  kutularında iki taraf alt alta, tek blok hâlinde çiziliyordu.
+
 ## [1.2.0] — 20 Ekim 2026
 
 ### Eklendi
