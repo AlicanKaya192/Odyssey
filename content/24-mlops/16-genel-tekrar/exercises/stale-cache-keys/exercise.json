@@ -1,0 +1,85 @@
+{
+  "id": "stale-cache-keys",
+  "title": {
+    "tr": "Bayat Önbellek",
+    "en": "The Stale Cache"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`customer, version = key.split(\"@\")` iki parçayı birlikte verir.",
+      "en": "`customer, version = key.split(\"@\")` gives both parts together."
+    },
+    {
+      "tr": "Listeye anahtarın tamamını değil yalnızca müşteriyi ekle.",
+      "en": "Add only the customer to the list, not the whole key."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef stale_keys(keys, live_version):\n    stale = []\n    for key in keys:\n        customer, version = key.split(\"@\")\n        if version != live_version:\n            stale.append(customer)\n    return stale\n\n\nkeys = [\"C1@v2\", \"C2@v3\", \"C3@v2\", \"C4@v3\"]\nprint(stale_keys(keys, \"v3\"))\nprint(stale_keys(keys, \"v2\"))\nprint(stale_keys([], \"v3\"))\n```",
+      "en": "The full solution:\n\n```python\ndef stale_keys(keys, live_version):\n    stale = []\n    for key in keys:\n        customer, version = key.split(\"@\")\n        if version != live_version:\n            stale.append(customer)\n    return stale\n\n\nkeys = [\"C1@v2\", \"C2@v3\", \"C3@v2\", \"C4@v3\"]\nprint(stale_keys(keys, \"v3\"))\nprint(stale_keys(keys, \"v2\"))\nprint(stale_keys([], \"v3\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "stale_keys",
+      "cases": [
+        {
+          "args": [
+            [
+              "C1@v2",
+              "C2@v3",
+              "C3@v2",
+              "C4@v3"
+            ],
+            "v3"
+          ],
+          "returns": [
+            "C1",
+            "C3"
+          ]
+        },
+        {
+          "args": [
+            [
+              "C1@v2",
+              "C2@v3"
+            ],
+            "v2"
+          ],
+          "returns": [
+            "C2"
+          ]
+        },
+        {
+          "args": [
+            [],
+            "v3"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "X@v1"
+            ],
+            "v1"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['C1', 'C3']\n['C2', 'C4']\n[]"
+    }
+  ]
+}

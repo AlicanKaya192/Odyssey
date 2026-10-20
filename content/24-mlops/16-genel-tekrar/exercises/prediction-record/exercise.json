@@ -1,0 +1,98 @@
+{
+  "id": "prediction-record",
+  "title": {
+    "tr": "Tahmin Kaydı",
+    "en": "The Prediction Record"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Karar için koşullu ifade: `\"offer\" if score >= threshold else \"no offer\"`.",
+      "en": "A conditional expression for the decision: `\"offer\" if score >= threshold else \"no offer\"`."
+    },
+    {
+      "tr": "Skoru kayda yuvarlanmış yaz; karar yuvarlanmamış skorla verilir.",
+      "en": "Write the score rounded in the record; the decision is made with the unrounded score."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef prediction_record(customer_id, score, version, threshold):\n    decision = \"offer\" if score >= threshold else \"no offer\"\n    return {\"id\": customer_id, \"version\": version,\n            \"score\": round(score, 3), \"decision\": decision}\n\n\nrecord = prediction_record(\"C06-00001\", 0.42571, 3, 0.31)\nprint(record[\"id\"], record[\"version\"])\nprint(record[\"score\"], record[\"decision\"])\nprint(prediction_record(\"C06-00002\", 0.1, 3, 0.31)[\"decision\"])\n```",
+      "en": "The full solution:\n\n```python\ndef prediction_record(customer_id, score, version, threshold):\n    decision = \"offer\" if score >= threshold else \"no offer\"\n    return {\"id\": customer_id, \"version\": version,\n            \"score\": round(score, 3), \"decision\": decision}\n\n\nrecord = prediction_record(\"C06-00001\", 0.42571, 3, 0.31)\nprint(record[\"id\"], record[\"version\"])\nprint(record[\"score\"], record[\"decision\"])\nprint(prediction_record(\"C06-00002\", 0.1, 3, 0.31)[\"decision\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "prediction_record",
+      "cases": [
+        {
+          "args": [
+            "C06-00001",
+            0.42571,
+            3,
+            0.31
+          ],
+          "returns": {
+            "id": "C06-00001",
+            "version": 3,
+            "score": 0.426,
+            "decision": "offer"
+          }
+        },
+        {
+          "args": [
+            "C06-00002",
+            0.1,
+            3,
+            0.31
+          ],
+          "returns": {
+            "id": "C06-00002",
+            "version": 3,
+            "score": 0.1,
+            "decision": "no offer"
+          }
+        },
+        {
+          "args": [
+            "A",
+            0.31,
+            1,
+            0.31
+          ],
+          "returns": {
+            "id": "A",
+            "version": 1,
+            "score": 0.31,
+            "decision": "offer"
+          }
+        },
+        {
+          "args": [
+            "B",
+            0.99999,
+            2,
+            0.5
+          ],
+          "returns": {
+            "id": "B",
+            "version": 2,
+            "score": 1.0,
+            "decision": "offer"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "C06-00001 3\n0.426 offer\nno offer"
+    }
+  ]
+}

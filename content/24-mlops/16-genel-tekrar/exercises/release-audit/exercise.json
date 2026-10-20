@@ -1,0 +1,148 @@
+{
+  "id": "release-audit",
+  "title": {
+    "tr": "Yayın Denetimi",
+    "en": "The Release Audit"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dersteki `audit` fonksiyonundan başla; uzun mesajlar yerine kısa kodlar ekle.",
+      "en": "Start from the lesson's `audit` function; add short codes instead of long messages."
+    },
+    {
+      "tr": "Boş metin yanlış sayılır: `if not release[\"data_digest\"]`.",
+      "en": "An empty string counts as false: `if not release[\"data_digest\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef audit_codes(release, min_gain):\n    codes = []\n    if release[\"seed\"] is None:\n        codes.append(\"seed\")\n    if not release[\"data_digest\"]:\n        codes.append(\"digest\")\n    if release[\"gate_month\"] < release[\"trained_month\"]:\n        codes.append(\"gate\")\n    if release[\"gain\"] < min_gain:\n        codes.append(\"gain\")\n    if release[\"threshold\"] == 0.5:\n        codes.append(\"threshold\")\n    if release[\"fallback\"] is None:\n        codes.append(\"fallback\")\n    for needed in [\"drift\", \"calibration\"]:\n        if needed not in release[\"monitors\"]:\n            codes.append(needed)\n    return codes\n\n\nrelease = {\"seed\": None, \"data_digest\": \"\", \"trained_month\": 5,\n           \"gate_month\": 0, \"gain\": 0.001, \"threshold\": 0.5,\n           \"fallback\": None, \"monitors\": [\"accuracy\"]}\nfor code in audit_codes(release, 0.003):\n    print(code)\ngood = {\"seed\": 7, \"data_digest\": \"2448b83141ea\", \"trained_month\": 5,\n        \"gate_month\": 5, \"gain\": 0.01, \"threshold\": 0.31,\n        \"fallback\": \"rule\", \"monitors\": [\"drift\", \"calibration\"]}\nprint(audit_codes(good, 0.003))\n```",
+      "en": "The full solution:\n\n```python\ndef audit_codes(release, min_gain):\n    codes = []\n    if release[\"seed\"] is None:\n        codes.append(\"seed\")\n    if not release[\"data_digest\"]:\n        codes.append(\"digest\")\n    if release[\"gate_month\"] < release[\"trained_month\"]:\n        codes.append(\"gate\")\n    if release[\"gain\"] < min_gain:\n        codes.append(\"gain\")\n    if release[\"threshold\"] == 0.5:\n        codes.append(\"threshold\")\n    if release[\"fallback\"] is None:\n        codes.append(\"fallback\")\n    for needed in [\"drift\", \"calibration\"]:\n        if needed not in release[\"monitors\"]:\n            codes.append(needed)\n    return codes\n\n\nrelease = {\"seed\": None, \"data_digest\": \"\", \"trained_month\": 5,\n           \"gate_month\": 0, \"gain\": 0.001, \"threshold\": 0.5,\n           \"fallback\": None, \"monitors\": [\"accuracy\"]}\nfor code in audit_codes(release, 0.003):\n    print(code)\ngood = {\"seed\": 7, \"data_digest\": \"2448b83141ea\", \"trained_month\": 5,\n        \"gate_month\": 5, \"gain\": 0.01, \"threshold\": 0.31,\n        \"fallback\": \"rule\", \"monitors\": [\"drift\", \"calibration\"]}\nprint(audit_codes(good, 0.003))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "audit_codes",
+      "cases": [
+        {
+          "args": [
+            {
+              "seed": null,
+              "data_digest": "",
+              "trained_month": 5,
+              "gate_month": 0,
+              "gain": 0.001,
+              "threshold": 0.5,
+              "fallback": null,
+              "monitors": [
+                "accuracy"
+              ]
+            },
+            0.003
+          ],
+          "returns": [
+            "seed",
+            "digest",
+            "gate",
+            "gain",
+            "threshold",
+            "fallback",
+            "drift",
+            "calibration"
+          ]
+        },
+        {
+          "args": [
+            {
+              "seed": 7,
+              "data_digest": "abc",
+              "trained_month": 5,
+              "gate_month": 5,
+              "gain": 0.01,
+              "threshold": 0.31,
+              "fallback": "rule",
+              "monitors": [
+                "drift",
+                "calibration"
+              ]
+            },
+            0.003
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "seed": 7,
+              "data_digest": "abc",
+              "trained_month": 5,
+              "gate_month": 5,
+              "gain": 0.002,
+              "threshold": 0.31,
+              "fallback": "rule",
+              "monitors": [
+                "drift",
+                "calibration"
+              ]
+            },
+            0.003
+          ],
+          "returns": [
+            "gain"
+          ]
+        },
+        {
+          "args": [
+            {
+              "seed": 7,
+              "data_digest": "abc",
+              "trained_month": 5,
+              "gate_month": 5,
+              "gain": 0.01,
+              "threshold": 0.31,
+              "fallback": "rule",
+              "monitors": [
+                "calibration"
+              ]
+            },
+            0.003
+          ],
+          "returns": [
+            "drift"
+          ]
+        },
+        {
+          "args": [
+            {
+              "seed": 7,
+              "data_digest": "abc",
+              "trained_month": 5,
+              "gate_month": 6,
+              "gain": 0.01,
+              "threshold": 0.31,
+              "fallback": "rule",
+              "monitors": [
+                "drift",
+                "calibration"
+              ]
+            },
+            0.003
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "seed\ndigest\ngate\ngain\nthreshold\nfallback\ndrift\ncalibration\n[]"
+    }
+  ]
+}
