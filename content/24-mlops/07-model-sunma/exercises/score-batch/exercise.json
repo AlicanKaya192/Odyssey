@@ -1,0 +1,154 @@
+{
+  "id": "score-batch",
+  "title": {
+    "tr": "Toplu Puanlama",
+    "en": "Batch Scoring"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "scorer.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Boş bir liste kur, her satır için `churn_probability(row)`'u hesaplayıp `round(..., 3)` ile ekle.",
+      "en": "Build an empty list, compute `churn_probability(row)` for every row and add it with `round(..., 3)`."
+    },
+    {
+      "tr": "Eklenen öğe: `[row[\"id\"], probability, VERSION]`.",
+      "en": "The item to add: `[row[\"id\"], probability, VERSION]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom scorer import VERSION, churn_probability\n\n\ndef score_batch(rows):\n    scored = []\n    for row in rows:\n        probability = round(churn_probability(row), 3)\n        scored.append([row[\"id\"], probability, VERSION])\n    return scored\n\n\ncustomers = [\n    {\"id\": \"C1\", \"tenure\": 2, \"monthly_fee\": 45.0, \"support_calls\": 6, \"usage_hours\": 5.0},\n    {\"id\": \"C2\", \"tenure\": 60, \"monthly_fee\": 20.0, \"support_calls\": 0, \"usage_hours\": 40.0},\n    {\"id\": \"C3\", \"tenure\": 12, \"monthly_fee\": 30.0, \"support_calls\": 1, \"usage_hours\": 30.0},\n]\nfor line in score_batch(customers):\n    print(line)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom scorer import VERSION, churn_probability\n\n\ndef score_batch(rows):\n    scored = []\n    for row in rows:\n        probability = round(churn_probability(row), 3)\n        scored.append([row[\"id\"], probability, VERSION])\n    return scored\n\n\ncustomers = [\n    {\"id\": \"C1\", \"tenure\": 2, \"monthly_fee\": 45.0, \"support_calls\": 6, \"usage_hours\": 5.0},\n    {\"id\": \"C2\", \"tenure\": 60, \"monthly_fee\": 20.0, \"support_calls\": 0, \"usage_hours\": 40.0},\n    {\"id\": \"C3\", \"tenure\": 12, \"monthly_fee\": 30.0, \"support_calls\": 1, \"usage_hours\": 30.0},\n]\nfor line in score_batch(customers):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "score_batch",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "id": "A",
+                "tenure": 10,
+                "monthly_fee": 30.0,
+                "support_calls": 2,
+                "usage_hours": 20.0
+              }
+            ]
+          ],
+          "returns": [
+            [
+              "A",
+              0.917,
+              3
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "id": "A",
+                "tenure": 10,
+                "monthly_fee": 30.0,
+                "support_calls": 2,
+                "usage_hours": 20.0
+              },
+              {
+                "id": "B",
+                "tenure": 70,
+                "monthly_fee": 25.0,
+                "support_calls": 0,
+                "usage_hours": 50.0
+              }
+            ]
+          ],
+          "returns": [
+            [
+              "A",
+              0.917,
+              3
+            ],
+            [
+              "B",
+              0.003,
+              3
+            ]
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "id": "B",
+                "tenure": 70,
+                "monthly_fee": 25.0,
+                "support_calls": 0,
+                "usage_hours": 50.0
+              },
+              {
+                "id": "A",
+                "tenure": 10,
+                "monthly_fee": 30.0,
+                "support_calls": 2,
+                "usage_hours": 20.0
+              },
+              {
+                "id": "B",
+                "tenure": 70,
+                "monthly_fee": 25.0,
+                "support_calls": 0,
+                "usage_hours": 50.0
+              }
+            ]
+          ],
+          "returns": [
+            [
+              "B",
+              0.003,
+              3
+            ],
+            [
+              "A",
+              0.917,
+              3
+            ],
+            [
+              "B",
+              0.003,
+              3
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['C1', 1.0, 3]\n['C2', 0.01, 3]\n['C3', 0.618, 3]"
+    }
+  ]
+}

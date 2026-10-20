@@ -1,0 +1,46 @@
+{
+  "id": "load-once",
+  "title": {
+    "tr": "Bir Kez Yükle",
+    "en": "Load It Once"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "store.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Fonksiyonun içinde modül değişkenini değiştirmek için önce `global _model` yazılır.",
+      "en": "To change a module variable inside a function, first write `global _model`."
+    },
+    {
+      "tr": "`if _model is None: _model = read_model()` ve sonra `return _model`.",
+      "en": "`if _model is None: _model = read_model()` and then `return _model`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom store import read_model, reads\n\n_model = None\n\n\ndef get_model():\n    global _model\n    if _model is None:\n        _model = read_model()\n    return _model\n\n\nfor request in range(5):\n    model = get_model()\nprint(\"reads:\", reads[\"count\"])\nprint(\"same object:\", get_model() is get_model())\nprint(\"version:\", get_model()[\"version\"])\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom store import read_model, reads\n\n_model = None\n\n\ndef get_model():\n    global _model\n    if _model is None:\n        _model = read_model()\n    return _model\n\n\nfor request in range(5):\n    model = get_model()\nprint(\"reads:\", reads[\"count\"])\nprint(\"same object:\", get_model() is get_model())\nprint(\"version:\", get_model()[\"version\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "reads: 1\nsame object: True\nversion: 3"
+    }
+  ]
+}

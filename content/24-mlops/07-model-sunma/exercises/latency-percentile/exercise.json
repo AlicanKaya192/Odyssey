@@ -1,0 +1,103 @@
+{
+  "id": "latency-percentile",
+  "title": {
+    "tr": "Gecikme Yüzdeliği",
+    "en": "A Latency Percentile"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`math.ceil` yukarı yuvarlar: `math.ceil(1.2)` 2. Listeler 0'dan sayıldığı için `ordered[rank - 1]`.",
+      "en": "`math.ceil` rounds up: `math.ceil(1.2)` is 2. Lists count from 0, so `ordered[rank - 1]`."
+    },
+    {
+      "tr": "`p` 0 iken `rank - 1` -1 olur ve son elemanı verirdi; `max(rank, 1)` bunu önler.",
+      "en": "When `p` is 0, `rank - 1` would be -1 and give the last element; `max(rank, 1)` prevents that."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef percentile(values, p):\n    if not values:\n        return None\n    ordered = sorted(values)\n    rank = math.ceil(p / 100 * len(ordered))\n    return ordered[max(rank, 1) - 1]\n\n\nlatencies = [12, 15, 11, 14, 13, 90, 12, 16, 13, 14,\n             12, 15, 13, 11, 14, 12, 13, 15, 14, 250]\nprint(\"p50:\", percentile(latencies, 50))\nprint(\"p95:\", percentile(latencies, 95))\nprint(\"p99:\", percentile(latencies, 99))\nprint(\"empty:\", percentile([], 50))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef percentile(values, p):\n    if not values:\n        return None\n    ordered = sorted(values)\n    rank = math.ceil(p / 100 * len(ordered))\n    return ordered[max(rank, 1) - 1]\n\n\nlatencies = [12, 15, 11, 14, 13, 90, 12, 16, 13, 14,\n             12, 15, 13, 11, 14, 12, 13, 15, 14, 250]\nprint(\"p50:\", percentile(latencies, 50))\nprint(\"p95:\", percentile(latencies, 95))\nprint(\"p99:\", percentile(latencies, 99))\nprint(\"empty:\", percentile([], 50))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "percentile",
+      "cases": [
+        {
+          "args": [
+            [
+              5,
+              1,
+              3
+            ],
+            50
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            [
+              5,
+              1,
+              3
+            ],
+            100
+          ],
+          "returns": 5
+        },
+        {
+          "args": [
+            [
+              5,
+              1,
+              3
+            ],
+            0
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              7
+            ],
+            95
+          ],
+          "returns": 7
+        },
+        {
+          "args": [
+            [],
+            50
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            [
+              10,
+              20,
+              30,
+              40
+            ],
+            75
+          ],
+          "returns": 30
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "p50: 13\np95: 90\np99: 250\nempty: None"
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "id": "predict-endpoint",
+  "title": {
+    "tr": "Tahmin Uç Noktası",
+    "en": "The Prediction Endpoint"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "scorer.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sınırlar `Field(ge=..., le=...)` ile; paket için `Literal[\"basic\", \"pro\"]`.",
+      "en": "The limits with `Field(ge=..., le=...)`; for the plan, `Literal[\"basic\", \"pro\"]`."
+    },
+    {
+      "tr": "Uç noktada `customer.model_dump()` sözlüğü `churn_probability`'ye verilir.",
+      "en": "In the endpoint, the `customer.model_dump()` dictionary is given to `churn_probability`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom typing import Literal\n\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field\nfrom scorer import VERSION, churn_probability\n\napp = FastAPI()\n\n\nclass Customer(BaseModel):\n    tenure: int = Field(ge=1, le=72)\n    monthly_fee: float = Field(ge=5, le=100)\n    support_calls: int = Field(ge=0, le=10)\n    usage_hours: float = Field(ge=0, le=100)\n    plan: Literal[\"basic\", \"pro\"]\n\n\n@app.post(\"/predict\")\ndef predict(customer: Customer):\n    probability = churn_probability(customer.model_dump())\n    return {\"churn_probability\": round(probability, 3), \"model_version\": VERSION}\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom typing import Literal\n\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, Field\nfrom scorer import VERSION, churn_probability\n\napp = FastAPI()\n\n\nclass Customer(BaseModel):\n    tenure: int = Field(ge=1, le=72)\n    monthly_fee: float = Field(ge=5, le=100)\n    support_calls: int = Field(ge=0, le=10)\n    usage_hours: float = Field(ge=0, le=100)\n    plan: Literal[\"basic\", \"pro\"]\n\n\n@app.post(\"/predict\")\ndef predict(customer: Customer):\n    probability = churn_probability(customer.model_dump())\n    return {\"churn_probability\": round(probability, 3), \"model_version\": VERSION}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "http",
+      "steps": [
+        {
+          "method": "POST",
+          "path": "/predict",
+          "json": {
+            "tenure": 2,
+            "monthly_fee": 45.0,
+            "support_calls": 6,
+            "usage_hours": 5.0,
+            "plan": "pro"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "churn_probability": 1.0,
+              "model_version": 3
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/predict",
+          "json": {
+            "tenure": 60,
+            "monthly_fee": 20.0,
+            "support_calls": 0,
+            "usage_hours": 40.0,
+            "plan": "basic"
+          },
+          "expect": {
+            "status": 200,
+            "json": {
+              "churn_probability": 0.01,
+              "model_version": 3
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/predict",
+          "json": {
+            "tenure": 2,
+            "monthly_fee": 45.0,
+            "support_calls": 6,
+            "usage_hours": 5.0,
+            "plan": "PRO"
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/predict",
+          "json": {
+            "tenure": 0,
+            "monthly_fee": 45.0,
+            "support_calls": 6,
+            "usage_hours": 5.0,
+            "plan": "pro"
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/predict",
+          "json": {
+            "tenure": 2,
+            "monthly_fee": 45.0,
+            "support_calls": 11,
+            "usage_hours": 5.0,
+            "plan": "pro"
+          },
+          "expect": {
+            "status": 422
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/predict",
+          "json": {
+            "tenure": 5,
+            "plan": "pro"
+          },
+          "expect": {
+            "status": 422
+          }
+        }
+      ]
+    }
+  ]
+}
