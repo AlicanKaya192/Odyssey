@@ -31,7 +31,7 @@ GROUPS = ("python", "data", "ml", "sql", "math", "ts", "api", "docker", "git", "
 
 GROUP_CHAPTERS = {
     "python": ("00-python-temelleri", "15-python-baslangic-kutuphaneleri",
-               "16-python-ileri-kutuphaneleri"),
+               "16-python-ileri-kutuphaneleri", "25-cs50-python"),
     "data": ("01-veri-bilimi", "17-veri-bilimi-kutuphaneleri"),
     "ml": ("02-makine-ogrenmesi", "18-ml-kutuphaneleri"),
     "sql": ("03-sql",),

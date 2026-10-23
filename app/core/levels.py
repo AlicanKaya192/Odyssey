@@ -77,6 +77,7 @@ BADGE_TAGS = {
     "ariadne": "genai2-complete",
     "hephaestus": "cicd-complete",
     "argus": "mlops-complete",
+    "chiron": "cs50-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200

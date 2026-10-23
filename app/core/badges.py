@@ -140,6 +140,9 @@ CICD_DEPLOY_SECTION = (CICD_CHAPTER, "11-dagitim-stratejileri")
 MLOPS_REGISTRY_SECTION = (MLOPS_CHAPTER, "05-model-kaydi")
 MLOPS_DRIFT_SECTION = (MLOPS_CHAPTER, "10-veri-kaymasi")
 MLOPS_CANARY_SECTION = (MLOPS_CHAPTER, "12-ab-golge-kanarya")
+CS50_LIBRARY_SECTION = (CS50_CHAPTER, "04-kutuphaneler")
+CS50_FILES_SECTION = (CS50_CHAPTER, "06-dosya-islemleri")
+CS50_OOP_SECTION = (CS50_CHAPTER, "08-nesne-yonelimli-programlama")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -165,6 +168,7 @@ GENAI1_SECTION_COUNT = 17
 GENAI2_SECTION_COUNT = 17
 CICD_SECTION_COUNT = 17
 MLOPS_SECTION_COUNT = 17
+CS50_SECTION_COUNT = 11
 
 
 def note_section_opened(store, chapter_id: str) -> bool:
@@ -342,6 +346,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "canary-watcher": MLOPS_CANARY_SECTION in bitenler,
         "mlops-complete": modul_basina.get(MLOPS_CHAPTER, 0) >= MLOPS_SECTION_COUNT,
         "harvard-mom": bool(store.setting(CS50_STARTED_SETTING)),
+        "cow-says": CS50_LIBRARY_SECTION in bitenler,
+        "shirt-workshop": CS50_FILES_SECTION in bitenler,
+        "certified": CS50_OOP_SECTION in bitenler,
+        "cs50-complete": modul_basina.get(CS50_CHAPTER, 0) >= CS50_SECTION_COUNT,
     }
 
 

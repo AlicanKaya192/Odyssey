@@ -492,6 +492,10 @@ def steps_for(win) -> list[Step]:  # noqa: C901 — adım listesi uzun ama düz
         if track is not None:
             journey.open_track(track.id)
 
+    def cs50_karti():
+        kartlar_ = getattr(getattr(journey, "tracks", None), "_cards", [])
+        return [k for k in kartlar_ if getattr(getattr(k, "_track", None), "id", "") == "cs50"]
+
     def seviye_karti():
         kart = getattr(journey.path, "_placement", None)
         return [kart] if kart is not None else []
@@ -501,6 +505,7 @@ def steps_for(win) -> list[Step]:  # noqa: C901 — adım listesi uzun ama düz
         Step("tour.s_rail_title", "tour.s_rail_text", targets=lambda: [rail]),
         Step("tour.s_hero_title", "tour.s_hero_text", targets=hero),
         Step("tour.s_tracks_title", "tour.s_tracks_text", targets=kartlar),
+        Step("tour.s_cs50_title", "tour.s_cs50_text", targets=cs50_karti),
         Step("tour.s_placement_title", "tour.s_placement_text", prepare=python_yolu, wait=900,
              targets=seviye_karti),
         Step("tour.s_section_title", "tour.s_section_text",

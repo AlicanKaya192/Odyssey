@@ -448,6 +448,30 @@ GLYPHS: dict[str, str] = {
                     ' 1.6 0 3 .9 3.9 2.3.9-1.4 2.3-2.3 3.9-2.3 1.9 0 3.5 1.5 3.5 3.5 0 2.5-2.4 5.1-7.4 8.5z"/>'
                     '<path fill="#fff" stroke="none" d="m12 2.4 7.6 3.5-7.6 3.5-7.6-3.5z"/>'
                     '<path d="M19.6 6v3.6" stroke-width="1.3"/>'),
+    # CS50 Kütüphaneler: konuşan inek (cowsay, ilk dış paket).
+    "cow-says": ('<path d="M12.5 1.8h8.6a1.7 1.7 0 0 1 1.7 1.7v4.6a1.7 1.7 0 0 1-1.7 1.7h-3.6l-2.6 2.3V9.8h-2.4'
+                 'a1.7 1.7 0 0 1-1.7-1.7V3.5a1.7 1.7 0 0 1 1.7-1.7z" stroke-width="1.4"/>'
+                 '<path d="M14.2 5.8h5.6" stroke-width="1.3"/>'
+                 '<path d="M3.4 11.6c-1.2-.3-1.9-1.3-2-2.6M11.4 11.6c1.2-.3 1.9-1.3 2-2.6" stroke-width="1.4"/>'
+                 '<path fill="#fff" stroke="none" d="M2.8 15c0-2.6 2-4.4 4.6-4.4S12 12.4 12 15v2.2H2.8z"/>'
+                 '<ellipse cx="7.4" cy="18.6" rx="4.4" ry="3" fill="#fff" stroke="none" opacity=".75"/>'
+                 '<g fill="#000" fill-opacity=".55" stroke="none"><circle cx="5.4" cy="14.4" r=".9"/>'
+                 '<circle cx="9.4" cy="14.4" r=".9"/><circle cx="5.9" cy="18.7" r=".7"/><circle cx="8.9" cy="18.7" r=".7"/></g>'),
+    # CS50 Dosya İşlemleri: P-Shirt'ün tişörtü.
+    "t-shirt": ('<path fill="#fff" fill-opacity=".3" d="M8 3.2 2.8 6.4l2.2 4.2 2.4-1.2V21h9.2V9.4l2.4 1.2 2.2-4.2L16 3.2'
+                'c-.6 1.6-2.1 2.6-4 2.6S8.6 4.8 8 3.2z"/>'
+                '<path d="M8 3.2 2.8 6.4l2.2 4.2 2.4-1.2V21h9.2V9.4l2.4 1.2 2.2-4.2L16 3.2'
+                'c-.6 1.6-2.1 2.6-4 2.6S8.6 4.8 8 3.2z" stroke-width="1.5"/>'
+                '<path d="M10 13.5h4" stroke-width="1.3"/>'),
+    # CS50 Nesne Yönelimli Programlama: Shirtificate'in sertifikası.
+    "certificate": ('<rect x="2.5" y="3.5" width="19" height="13" rx="1.6" stroke-width="1.5"/>'
+                    '<path d="M6 7.5h12M6 10.5h7" stroke-width="1.3"/>'
+                    '<path d="M14.2 17.8 13.4 22l2.6-1.4 2.6 1.4-.8-4.2" stroke-width="1.2"/>'
+                    '<circle cx="16" cy="15.4" r="3" fill="#fff" stroke="none"/>'),
+    # CS50 Python'un tamamı: CS50'nin yazısı (patika logosundaki gibi).
+    "cs50-mark": ('<text x="12" y="15.2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" '
+                  'font-size="9.2" font-weight="700" letter-spacing="-.3" fill="#fff" stroke="none">CS50</text>'
+                  '<path d="M4 18.8h16" stroke-width="1.3"/>'),
 }
 
 
