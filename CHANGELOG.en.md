@@ -35,6 +35,9 @@ lecture note does not mean downloading the whole application again.
   Variables, Conditionals, Loops, Exceptions, Libraries, Unit Tests, File
   I/O, Regular Expressions, Object-Oriented Programming, Et Cetera and an
   Overall Review. A small surprise badge awaits anyone who starts CS50.
+- New badges and the "Chiron" title for CS50 Python; the Python terms of
+  the glossary are explained in the CS50 lessons too. A PDF your code
+  produces (like the Shirtificate) shows its first page in the Output tab.
 - **The second module of the System Design path: MLOps and ML System
   Design** (17 sections). Taking a model out of the notebook and turning it
   into a reliable system: reproducible training, data validation, data and

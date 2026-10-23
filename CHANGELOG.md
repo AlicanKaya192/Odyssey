@@ -33,6 +33,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   Döngüler, İstisnalar, Kütüphaneler, Birim Testleri, Dosya İşlemleri,
   Düzenli İfadeler, Nesne Yönelimli Programlama, Son Dokunuşlar ve Genel
   Tekrar. CS50'ye başlayanı küçük bir sürpriz rozet bekliyor.
+- CS50 Python için yeni rozetler ve "Kiron" unvanı; sözlükteki Python
+  terimleri CS50 derslerinde de açıklamalı. Kodunuzun ürettiği PDF
+  (Shirtificate gibi) Çıktı sekmesinde ilk sayfasıyla görünüyor.
 - **Sistem Tasarımı patikasının ikinci modülü: MLOps ve ML Sistem
   Tasarımı** (17 bölüm). Bir modeli defterden çıkarıp güvenilir bir sisteme
   dönüştürmek: tekrarlanabilir eğitim, veri doğrulama, veri ve model
