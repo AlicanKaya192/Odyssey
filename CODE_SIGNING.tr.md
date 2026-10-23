@@ -61,6 +61,11 @@ göndermez:
   ekranda ya da bölümde olduğunuzu bilgisayarınızdaki Discord uygulaması
   üzerinden Discord durumunuzda gösterir. Notlarınızın adı ve içeriği asla
   gönderilmez. Ayarlar › Görünüm'den kapatılır.
+- **CS50 Python videoları.** Bir CS50 Python bölümünün Video sekmesi
+  açılınca dersin kaydı YouTube'dan (`www.youtube.com`) programın içinde
+  oynatılır. Oynatıcı çerez ve önbelleği diske yazmayan geçici bir
+  profilde açılır; altyazılar programın içinde gelir, YouTube'dan
+  indirilmez.
 - **Tıkladığınız bağlantılar** kendi tarayıcınızda açılır.
 
 SQL alıştırmaları internete değil, kendi bilgisayarınızdaki SQL Server'a

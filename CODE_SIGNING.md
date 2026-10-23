@@ -60,6 +60,11 @@ personal data in any of them:
   which screen or section you are on in your Discord status, through the
   Discord app on your computer. The titles and contents of your notes are
   never sent. Turned off in Settings › Appearance.
+- **CS50 Python videos.** When you open the Video tab of a CS50 Python
+  section, the lecture recording plays from YouTube (`www.youtube.com`)
+  inside the program. The player runs in a temporary profile that writes
+  no cookies or cache to disk; the subtitles ship with the program and are
+  not downloaded from YouTube.
 - **Links you click** open in your own web browser.
 
 The SQL exercises connect to the SQL Server instance on your own computer,

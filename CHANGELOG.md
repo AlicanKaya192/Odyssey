@@ -21,9 +21,18 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [1.3.0] — yayınlanmadı
+## [1.3.0] — 23 Ekim 2026
 
 ### Eklendi
+- **CS50 Python patikası.** Harvard'ın CS50 Python ile Programlamaya Giriş
+  dersi, Odyssey'nin içinde (11 bölüm): her haftanın ders videosu
+  programda oynuyor, İngilizce ya da Türkçe altyazıyla; yanında iki dilde
+  ders, ders notları, sınav, dersten alıştırmalar ve aynı bölümde o
+  haftanın CS50 problem seti. Problemleri Odyssey denetliyor; hesap ya da
+  ek kurulum gerekmiyor. Haftalar: Fonksiyonlar ve Değişkenler, Koşullar,
+  Döngüler, İstisnalar, Kütüphaneler, Birim Testleri, Dosya İşlemleri,
+  Düzenli İfadeler, Nesne Yönelimli Programlama, Son Dokunuşlar ve Genel
+  Tekrar. CS50'ye başlayanı küçük bir sürpriz rozet bekliyor.
 - **Sistem Tasarımı patikasının ikinci modülü: MLOps ve ML Sistem
   Tasarımı** (17 bölüm). Bir modeli defterden çıkarıp güvenilir bir sisteme
   dönüştürmek: tekrarlanabilir eğitim, veri doğrulama, veri ve model
@@ -35,6 +44,14 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   anlatılıyor.
 - Yeni rozetler, "Argos" unvanı, sözlükte MLOps terimleri, Veri Mühendisi
   ve ML Mühendisi rotalarında MLOps bölümleri.
+- **Tarihi bulmak ve çözmek.** NLP Temelleri › Kural Tabanlı Bilgi Çıkarma
+  ile Prompt Mühendisliği › Yapılı Çıktı ve Doğrulama bölümlerine yeni
+  kısımlar: "tomorrow at 7pm" gibi göreli bir ifadeyi referans an ve saat
+  dilimiyle takvim saatine çevirmek, "tomorrow at 7" gibi belirsiz bir
+  ifadede tahmin etmek yerine sormak, `03/04/2026`'yı açık bir ABD ya da
+  gün-önce kuralıyla okumak ve şemadan geçen ama anlamca belirsiz bir model
+  cevabını yakalamak. Yeni alıştırmalar kabul, ret ve açıklama gereken
+  durumları ayrı ayrı puanlıyor.
 - **Hızlı başvuru çekmecesi.** Alt şeritteki düğme ya da `Ctrl+R` ile her
   ekrandan açılıyor: bölümdeyseniz o bölümün başvuru kartı ("Komut Kartı",
   "… Başvurusu" gibi), değilseniz en son çalıştığınız bölümünkü. Başka
@@ -62,6 +79,11 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Derslerdeki karşılaştırma kutuları yan yana görünüyor.** Python
   Temelleri ve CI/CD derslerindeki bazı "şöyle değil / böyle"
   kutularında iki taraf alt alta, tek blok hâlinde çiziliyordu.
+- **Test yazma alıştırmalarında doğru testler artık düşmüyor.** Testinizin
+  bozuk kodu yakalayıp yakalamadığı denetlenirken bazı alıştırmalarda
+  (örneğin CI/CD › Otomatik Testler) bozuk sürüm arada bir hiç
+  çalıştırılmıyordu; iyi yazılmış testler de "hatayı yakalamadı" diye
+  düşebiliyordu.
 - **Ekranlar arasında geçerken kısa takılmalar azaldı.** Bölümden
   Öğrenme Yolu'na dönmek ve bir bölümü açmak daha akıcı; program
   açıldıktan birkaç saniye sonra arama hazırlanırken arayüz artık

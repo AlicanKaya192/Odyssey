@@ -23,9 +23,18 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [1.3.0] — unreleased
+## [1.3.0] — 23 October 2026
 
 ### Added
+- **The CS50 Python path.** Harvard's CS50 Introduction to Programming with
+  Python, inside Odyssey (11 sections): each week's lecture video plays in
+  the program, with English or Turkish subtitles; alongside it a lesson in
+  both languages, lecture notes, a quiz, exercises from the lecture and, in
+  the same section, that week's CS50 problem set. Odyssey checks the
+  problems; no account or extra setup is needed. Weeks: Functions and
+  Variables, Conditionals, Loops, Exceptions, Libraries, Unit Tests, File
+  I/O, Regular Expressions, Object-Oriented Programming, Et Cetera and an
+  Overall Review. A small surprise badge awaits anyone who starts CS50.
 - **The second module of the System Design path: MLOps and ML System
   Design** (17 sections). Taking a model out of the notebook and turning it
   into a reliable system: reproducible training, data validation, data and
@@ -37,6 +46,15 @@ lecture note does not mean downloading the whole application again.
   churn), and every result is shown by measuring it.
 - New badges, the "Argus" title, MLOps terms in the Glossary, MLOps sections
   in the Data Engineer and ML Engineer routes.
+- **Finding a date and resolving it.** New parts in NLP Fundamentals ›
+  Rule-Based Information Extraction and Prompt Engineering › Structured
+  Output and Validation: turning a relative phrase such as "tomorrow at
+  7pm" into a calendar time with a reference time and time zone, asking
+  instead of guessing when a phrase such as "tomorrow at 7" is ambiguous,
+  reading `03/04/2026` with an explicit US or day-first policy, and catching
+  a model answer that passes the schema but is ambiguous in meaning. New
+  exercises score accepted, rejected and needs-clarification cases
+  separately.
 - **Quick reference drawer.** Opens from every screen with the button in the
   bottom bar or `Ctrl+R`: in a section you get that section's reference card
   ("Command Sheet", "… Reference" and so on), elsewhere the one from the
@@ -64,6 +82,10 @@ lecture note does not mean downloading the whole application again.
 - **The comparison boxes in the lessons are side by side.** In some
   "not like this / like this" boxes in the Python Fundamentals and CI/CD
   lessons, the two sides were drawn one under the other as a single block.
+- **Correct tests no longer fail in test-writing exercises.** When checking
+  whether your tests catch broken code, some exercises (for example CI/CD ›
+  Automated Tests) occasionally did not run the broken version at all, so
+  well-written tests could fail with "did not catch the bug".
 - **Fewer short stutters when moving between screens.** Going back from
   a section to the Learning Path and opening a section are smoother, and
   the interface no longer stutters a few seconds after start-up while
