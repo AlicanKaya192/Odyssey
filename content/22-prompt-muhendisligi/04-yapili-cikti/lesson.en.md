@@ -189,6 +189,118 @@ and use the repair only for the cases that remain. If the limit of tries
 is reached, the answer goes to a person or a default path
 (`needs_review`).
 
+## An answer that passes the schema but is ambiguous
+
+A schema checks the form, not the meaning. Say a customer writes "Call me
+tomorrow at 7". While extracting a callback time, the model cannot know
+whether that is morning or evening, but because the schema asks for a time
+it still **picks** one: `"07:00"`. The answer is flawless JSON and passes
+the schema, yet the right answer is to ask the customer. As we saw in the
+Information Extraction section of NLP Fundamentals, "tomorrow" only
+becomes a day once today is known; so we give the model the reference
+time as **context** and also ask for the source of the answer, the
+customer's own words (`source`).
+
+The five **example replies** below are answers that such an instruction
+could get. The program sorts each one into one of three results:
+`accepted`, `rejected` or `needs_clarification`:
+
+```python
+import json
+from collections import Counter
+from datetime import datetime, timedelta
+
+NOW = "2026-03-14T01:30:00+03:00"
+SYSTEM = ("Extract the callback time as JSON with date (YYYY-MM-DD), "
+          "time (HH:MM, 24-hour) and source (the customer's exact words). "
+          "The current time is " + NOW + ".")
+CASES = [  # customer message, example reply, expected result
+    ("Call me tomorrow at 7pm.",
+     '{"date": "2026-03-15", "time": "19:00", "source": "tomorrow at 7pm"}',
+     "accepted"),
+    ("Call me tomorrow at 7.",
+     '{"date": "2026-03-15", "time": "07:00", "source": "tomorrow at 7"}',
+     "needs_clarification"),
+    ("Call me today at 9am.",
+     '{"date": "2026-03-15", "time": "09:00", "source": "today at 9am"}',
+     "rejected"),
+    ("Please call me back.",
+     '{"date": "2026-03-14", "time": "10:00", "source": "today at 10am"}',
+     "rejected"),
+    ("Tomorrow at 12pm works.",
+     '{"date": "2026-03-15", "time": "12:00", "source": "Tomorrow at 12pm"}',
+     "accepted"),
+]
+PHRASE = r"(today|tomorrow) at (\d{1,2})(am|pm)?"
+KEYS = {"date", "time", "source"}
+
+
+def schema_only(message, data, now):
+    keys_ok = isinstance(data, dict) and set(data) == KEYS
+    return "accepted" if keys_ok else "rejected"
+
+
+def check_callback(message, data, now):
+    if schema_only(message, data, now) == "rejected":
+        return "rejected"
+    m = re.fullmatch(PHRASE, str(data["source"]).lower())
+    if m is None or str(data["source"]).lower() not in message.lower():
+        return "rejected"
+    if m[3] is None:
+        return "needs_clarification"
+    hour = int(m[2]) % 12 + (12 if m[3] == "pm" else 0)
+    days = 1 if m[1] == "tomorrow" else 0
+    day = datetime.fromisoformat(now).date() + timedelta(days=days)
+    if (data["date"], data["time"]) != (day.isoformat(), f"{hour:02d}:00"):
+        return "rejected"
+    return "accepted"
+
+
+client = ChatClient([reply for _, reply, _ in CASES])
+outcomes = []
+for message, _, expected in CASES:
+    question = [{"role": "system", "content": SYSTEM},
+                {"role": "user", "content": message}]
+    data, stage = parse_json(client.chat(question, max_tokens=60).text)
+    got = check_callback(message, data, NOW)
+    outcomes.append((expected, schema_only(message, data, NOW), got))
+    print(f"{message:25} {got}")
+totals = Counter(e for e, _, _ in outcomes)
+print(f"{'':20} schema  check")
+for label in ["accepted", "rejected", "needs_clarification"]:
+    schema = sum(e == s for e, s, _ in outcomes if e == label)
+    check = sum(e == g for e, _, g in outcomes if e == label)
+    print(f"{label:20} {schema}/{totals[label]}     {check}/{totals[label]}")
+```
+
+```text
+Call me tomorrow at 7pm.  accepted
+Call me tomorrow at 7.    needs_clarification
+Call me today at 9am.     rejected
+Please call me back.      rejected
+Tomorrow at 12pm works.   accepted
+                     schema  check
+accepted             2/2     2/2
+rejected             0/2     2/2
+needs_clarification  0/1     1/1
+```
+
+- All five answers are valid JSON with the three fields of the schema. A
+  check that looks only at the schema (the `schema` column) accepts all
+  five: it misses the two answers that should be rejected and the one that
+  should be asked about.
+- In the second answer the model made up `"07:00"`. The customer's words
+  have no `am`/`pm`; the program sees this in the source and chooses to
+  ask.
+- In the third the model turned "today" into 15 March; the program does
+  the same calculation itself with the reference time and rejects the
+  answer when they differ. In the fourth the `source` does not appear in
+  the customer's message at all: the model made the time up.
+- We count the results **separately**. A single accuracy rate does not
+  tell an error that "accepts" a case needing clarification from one that
+  accepts an answer that should be rejected; the two cost different
+  things.
+
 ## Summary
 
 - If more than one piece of information is wanted, ask for the answer in
@@ -203,3 +315,7 @@ is reached, the answer goes to a person or a default path
   model when an answer is invalid; limit the number of tries.
 - The repair sends more tokens with every try; the real fix is a clear
   instruction that reduces invalid answers.
+- Passing the schema does not show the meaning is right. Give the model
+  context such as the reference time, ask for the source and let the
+  program check it; do not accept an ambiguous answer, ask. Measure the
+  accepted, rejected and needs-clarification cases separately.

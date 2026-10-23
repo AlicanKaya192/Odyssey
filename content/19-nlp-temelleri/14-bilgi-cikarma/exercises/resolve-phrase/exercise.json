@@ -1,0 +1,84 @@
+{
+  "id": "resolve-phrase",
+  "title": {
+    "tr": "Göreli tarihi çöz",
+    "en": "Resolve a relative date"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Referansı `datetime.fromisoformat(reference)` ile oku; ifadeyi `r\"(today|tomorrow|in (\\d+) days) at (\\d{1,2})(am|pm)?\"` ile `re.fullmatch` et.",
+      "en": "Read the reference with `datetime.fromisoformat(reference)`; `re.fullmatch` the phrase with `r\"(today|tomorrow|in (\\d+) days) at (\\d{1,2})(am|pm)?\"`."
+    },
+    {
+      "tr": "Saat `hour % 12 + (12 if ampm == \"pm\" else 0)`; gün `now.date() + timedelta(days=...)`, saat dilimi `now.tzinfo`.",
+      "en": "The hour is `hour % 12 + (12 if ampm == \"pm\" else 0)`; the day `now.date() + timedelta(days=...)`, the time zone `now.tzinfo`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\nfrom datetime import datetime, timedelta\n\nPATTERN = r\"(today|tomorrow|in (\\d+) days) at (\\d{1,2})(am|pm)?\"\n\n\ndef resolve(phrase, reference):\n    now = datetime.fromisoformat(reference)\n    m = re.fullmatch(PATTERN, phrase.lower().strip())\n    if m is None:\n        return \"rejected\"\n    if m[4] is None:\n        return \"needs_clarification\"\n    hour = int(m[3])\n    if not 1 <= hour <= 12:\n        return \"rejected\"\n    hour = hour % 12 + (12 if m[4] == \"pm\" else 0)\n    if m[1] == \"today\":\n        days = 0\n    elif m[1] == \"tomorrow\":\n        days = 1\n    else:\n        days = int(m[2])\n    day = now.date() + timedelta(days=days)\n    when = datetime(day.year, day.month, day.day, hour, tzinfo=now.tzinfo)\n    return when.isoformat()\n\nREF = \"2026-03-14T01:30:00+03:00\"\nprint(resolve(\"in 2 days at 9am\", REF))\nprint(resolve(\"Tomorrow at 12am\", REF))\nprint(resolve(\"tomorrow at 7\", REF))\nprint(resolve(\"next friday at 5pm\", REF))\n```",
+      "en": "The full solution:\n\n```python\nimport re\nfrom datetime import datetime, timedelta\n\nPATTERN = r\"(today|tomorrow|in (\\d+) days) at (\\d{1,2})(am|pm)?\"\n\n\ndef resolve(phrase, reference):\n    now = datetime.fromisoformat(reference)\n    m = re.fullmatch(PATTERN, phrase.lower().strip())\n    if m is None:\n        return \"rejected\"\n    if m[4] is None:\n        return \"needs_clarification\"\n    hour = int(m[3])\n    if not 1 <= hour <= 12:\n        return \"rejected\"\n    hour = hour % 12 + (12 if m[4] == \"pm\" else 0)\n    if m[1] == \"today\":\n        days = 0\n    elif m[1] == \"tomorrow\":\n        days = 1\n    else:\n        days = int(m[2])\n    day = now.date() + timedelta(days=days)\n    when = datetime(day.year, day.month, day.day, hour, tzinfo=now.tzinfo)\n    return when.isoformat()\n\nREF = \"2026-03-14T01:30:00+03:00\"\nprint(resolve(\"in 2 days at 9am\", REF))\nprint(resolve(\"Tomorrow at 12am\", REF))\nprint(resolve(\"tomorrow at 7\", REF))\nprint(resolve(\"next friday at 5pm\", REF))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "resolve",
+      "cases": [
+        {
+          "args": [
+            "tomorrow at 7pm",
+            "2026-03-13T22:30:00+00:00"
+          ],
+          "returns": "2026-03-14T19:00:00+00:00"
+        },
+        {
+          "args": [
+            "today at 12pm",
+            "2026-03-14T01:30:00+03:00"
+          ],
+          "returns": "2026-03-14T12:00:00+03:00"
+        },
+        {
+          "args": [
+            "in 10 days at 9am",
+            "2026-03-25T08:00:00+03:00"
+          ],
+          "returns": "2026-04-04T09:00:00+03:00"
+        },
+        {
+          "args": [
+            "in 3 days at 0am",
+            "2026-03-14T01:30:00+03:00"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "TODAY AT 5",
+            "2026-03-14T01:30:00+03:00"
+          ],
+          "returns": "needs_clarification"
+        },
+        {
+          "args": [
+            "tomorrow at 7pm please",
+            "2026-03-14T01:30:00+03:00"
+          ],
+          "returns": "rejected"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2026-03-16T09:00:00+03:00\n2026-03-15T00:00:00+03:00\nneeds_clarification\nrejected"
+    }
+  ]
+}

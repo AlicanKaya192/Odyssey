@@ -211,6 +211,113 @@ print(sum(bool(re.search(r"\bNice\b", r)) for r in reviews))
 - The list method is weak against **ambiguity**: "Paris" is a city and a
   name, "Apple" a company and a fruit. Telling them apart needs context.
 
+## Finding a date, resolving a date
+
+The date rule at the start found the `2026-03-14` format. Customers, though,
+often write "tomorrow at 7pm". **Recognising** that phrase is easy, but
+**resolving** it to a calendar time needs two more facts: the moment the
+ticket was written (the reference time) and the time zone. The text itself
+does not say either. Some phrases cannot be resolved even with them:
+"tomorrow at 7" could be 7 in the morning or 7 in the evening. There the
+right answer is not a date but a question to the user.
+
+So the resolver returns one of three results: a date (accepted), `rejected`
+(not recognised) or `needs_clarification`. We give the time zone as a fixed
+offset, so the result is the same on every computer:
+
+```python
+from datetime import datetime, timedelta, timezone
+
+ISTANBUL = timezone(timedelta(hours=3))
+NOW = datetime(2026, 3, 14, 1, 30, tzinfo=ISTANBUL)  # ticket written at
+TIME = r"(?P<day>today|tomorrow) at (?P<hour>\d{1,2})(?P<ampm>am|pm)?"
+
+
+def resolve(phrase, now):
+    m = re.fullmatch(TIME, phrase.lower().strip())
+    if m is None:
+        return "rejected"
+    if m["ampm"] is None:
+        return "needs_clarification"
+    hour = int(m["hour"])
+    if not 1 <= hour <= 12:
+        return "rejected"
+    hour = hour % 12 + (12 if m["ampm"] == "pm" else 0)
+    day = now.date() + timedelta(days=1 if m["day"] == "tomorrow" else 0)
+    when = datetime(day.year, day.month, day.day, hour, tzinfo=now.tzinfo)
+    return when.isoformat()
+
+
+PHRASES = ["tomorrow at 7pm", "tomorrow at 7", "today at 13pm", "next week"]
+for phrase in PHRASES:
+    print(f"{phrase:16} {resolve(phrase, NOW)}")
+print(resolve("tomorrow at 7pm", NOW.astimezone(timezone.utc)))
+```
+
+```text
+tomorrow at 7pm  2026-03-15T19:00:00+03:00
+tomorrow at 7    needs_clarification
+today at 13pm    rejected
+next week        rejected
+2026-03-14T19:00:00+00:00
+```
+
+- `re.fullmatch` needs the **whole** phrase to match; "next week" is a format
+  the rule does not know, so instead of guessing it returns `rejected`.
+- "tomorrow at 7" fits the rule, but morning or evening is unclear:
+  `needs_clarification`. A perfectly formed answer can still be ambiguous in
+  meaning.
+- The last line gives the same moment in Greenwich time (UTC). At 01:30 at
+  night in Istanbul it is still the evening of 13 March in UTC, so
+  "tomorrow" becomes 14 March, not 15 March. The time zone changes the hour
+  and even the day.
+- `12am` is midnight and `12pm` is noon: `hour % 12` first turns 12 into 0.
+
+Language is not enough for dates written in digits either. `03/04/2026` is
+4 March in the US and 3 April in Turkey and most of Europe. A **policy**
+decides which one it is, not the text:
+
+```python
+def read_numeric(text, policy):
+    m = re.fullmatch(r"(\d{2})/(\d{2})/(\d{4})", text)
+    if m is None:
+        return "rejected"
+    a, b, year = int(m[1]), int(m[2]), int(m[3])
+    if policy == "US":
+        month, day = a, b
+    elif policy == "day-first":
+        day, month = a, b
+    elif a <= 12 and b <= 12 and a != b:
+        return "needs_clarification"
+    else:
+        day, month = (a, b) if a > 12 else (b, a)
+    try:
+        return datetime(year, month, day).date().isoformat()
+    except ValueError:
+        return "rejected"
+
+
+DATES = ["03/04/2026", "13/04/2026"]
+for policy in ["US", "day-first", None]:
+    print(policy, [read_numeric(d, policy) for d in DATES])
+```
+
+```text
+US ['2026-03-04', 'rejected']
+day-first ['2026-04-03', '2026-04-13']
+None ['needs_clarification', '2026-04-13']
+```
+
+- With a policy, `03/04/2026` resolves to two different days. Without one,
+  both numbers are 12 or less, so no choice can be made:
+  `needs_clarification`.
+- Under the US policy `13/04/2026` means month 13, which does not exist:
+  `datetime` raises `ValueError` and the result is `rejected`. Without a
+  policy, 13 cannot be a month, so it must be the day; the date is clear.
+- The policy comes from outside the text: the user's setting, the company's
+  country, the language of the form. If it is unknown, asking is better
+  than booking the wrong day.
+
 ## Summary
 
 - Information with a known format (numbers, amounts, emails, dates, codes) is
@@ -220,5 +327,8 @@ print(sum(bool(re.search(r"\bNice\b", r)) for r in reviews))
   standard; a rule only catches the formats you thought of.
 - Once extracted information is in a table, ordinary analysis turns it into
   answers.
+- Finding a date is not resolving it: the reference time, the time zone and
+  the date order policy come from outside the text. The resolver returns a
+  date, `rejected` or `needs_clarification`; when unsure, it asks.
 - Context rules and lists give a quick start, but as ambiguity and context
   grow more complex, models that learn become necessary.

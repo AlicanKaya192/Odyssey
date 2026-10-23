@@ -210,6 +210,111 @@ print(sum(bool(re.search(r"\bNice\b", r)) for r in reviews))
   şehir ve bir isim, "Apple" bir şirket ve bir meyve. Ayırmak için bağlama
   bakmak gerekir.
 
+## Tarihi bulmak, tarihi çözmek
+
+Baştaki tarih kuralı `2026-03-14` biçimini buluyordu. Müşteriler ise çoğu
+zaman "tomorrow at 7pm" (yarın akşam 7) yazar. Bu ifadeyi **tanımak**
+kolay, ama bir takvim saatine **çözmek** için iki bilgi daha gerekir: talebin
+yazıldığı an (referans an) ve saat dilimi (time zone). Metnin kendisi bu
+ikisini söylemez. Bazı ifadeler ise bu bilgilerle bile çözülmez:
+"tomorrow at 7" sabah 7 de olabilir, akşam 7 de. Burada doğru cevap bir
+tarih değil, kullanıcıya sormaktır.
+
+Bu yüzden çözücü üç sonuçtan birini verir: tarih (kabul), `rejected`
+(tanınmadı) ya da `needs_clarification` (açıklama gerekiyor). Saat dilimini
+sabit bir farkla veriyoruz, böylece sonuç her bilgisayarda aynı çıkıyor:
+
+```python
+from datetime import datetime, timedelta, timezone
+
+ISTANBUL = timezone(timedelta(hours=3))
+NOW = datetime(2026, 3, 14, 1, 30, tzinfo=ISTANBUL)  # talebin yazıldığı an
+TIME = r"(?P<day>today|tomorrow) at (?P<hour>\d{1,2})(?P<ampm>am|pm)?"
+
+
+def resolve(phrase, now):
+    m = re.fullmatch(TIME, phrase.lower().strip())
+    if m is None:
+        return "rejected"
+    if m["ampm"] is None:
+        return "needs_clarification"
+    hour = int(m["hour"])
+    if not 1 <= hour <= 12:
+        return "rejected"
+    hour = hour % 12 + (12 if m["ampm"] == "pm" else 0)
+    day = now.date() + timedelta(days=1 if m["day"] == "tomorrow" else 0)
+    when = datetime(day.year, day.month, day.day, hour, tzinfo=now.tzinfo)
+    return when.isoformat()
+
+
+PHRASES = ["tomorrow at 7pm", "tomorrow at 7", "today at 13pm", "next week"]
+for phrase in PHRASES:
+    print(f"{phrase:16} {resolve(phrase, NOW)}")
+print(resolve("tomorrow at 7pm", NOW.astimezone(timezone.utc)))
+```
+
+```text
+tomorrow at 7pm  2026-03-15T19:00:00+03:00
+tomorrow at 7    needs_clarification
+today at 13pm    rejected
+next week        rejected
+2026-03-14T19:00:00+00:00
+```
+
+- `re.fullmatch` ifadenin **tamamını** ister; "next week" kuralın bilmediği
+  bir biçim, tahmin etmek yerine `rejected` dönüyor.
+- "tomorrow at 7" kurala uyuyor ama sabah mı akşam mı belli değil:
+  `needs_clarification`. Biçimi kusursuz bir cevap da anlamca belirsiz
+  olabilir.
+- Son satır aynı anı Greenwich saatiyle (UTC) veriyor. İstanbul'da gece
+  01:30 iken UTC'de hâlâ 13 Mart akşamı; "yarın" bu yüzden 15 değil 14 Mart
+  oluyor. Saat dilimi saati de, günü de değiştirir.
+- `12am` gece yarısı, `12pm` öğlen: `hour % 12` önce 12'yi 0 yapıyor.
+
+Rakamlarla yazılmış tarihte de dil yetmez. `03/04/2026` ABD'de 4 Mart,
+Türkiye'de ve Avrupa'nın çoğunda 3 Nisan. Hangisi olduğuna metin değil bir
+**kural** (policy) karar verir:
+
+```python
+def read_numeric(text, policy):
+    m = re.fullmatch(r"(\d{2})/(\d{2})/(\d{4})", text)
+    if m is None:
+        return "rejected"
+    a, b, year = int(m[1]), int(m[2]), int(m[3])
+    if policy == "US":
+        month, day = a, b
+    elif policy == "day-first":
+        day, month = a, b
+    elif a <= 12 and b <= 12 and a != b:
+        return "needs_clarification"
+    else:
+        day, month = (a, b) if a > 12 else (b, a)
+    try:
+        return datetime(year, month, day).date().isoformat()
+    except ValueError:
+        return "rejected"
+
+
+DATES = ["03/04/2026", "13/04/2026"]
+for policy in ["US", "day-first", None]:
+    print(policy, [read_numeric(d, policy) for d in DATES])
+```
+
+```text
+US ['2026-03-04', 'rejected']
+day-first ['2026-04-03', '2026-04-13']
+None ['needs_clarification', '2026-04-13']
+```
+
+- Kural verilince `03/04/2026` iki ayrı güne çözülüyor. Kural yoksa iki
+  sayı da 12 ya da daha küçük olduğu için seçim yapılamıyor:
+  `needs_clarification`.
+- `13/04/2026` ABD kuralında 13. ay demek, öyle bir ay yok: `datetime`
+  `ValueError` veriyor ve sonuç `rejected`. Kural yokken 13 ay olamayacağı
+  için gün olmak zorunda; tarih açık.
+- Kural verisi metnin dışından gelir: kullanıcının ayarı, şirketin ülkesi,
+  formun dili. Bilinmiyorsa sormak, yanlış güne randevu vermekten iyidir.
+
 ## Özet
 
 - Biçimi belli bilgiler (numara, tutar, e-posta, tarih, kod) düzenli
@@ -218,5 +323,8 @@ print(sum(bool(re.search(r"\bNice\b", r)) for r in reviews))
 - Kuralı küçük bir el etiketli altın standartta kesinlik ve duyarlılıkla
   ölç; kural yalnızca aklına gelen biçimleri yakalar.
 - Çıkan bilgi tabloya girince sıradan analizle soruya dönüşür.
+- Tarihi bulmak onu çözmek değildir: referans an, saat dilimi ve tarih
+  sırası kuralı metnin dışından gelir. Çözücü tarih, `rejected` ya da
+  `needs_clarification` döndürür; belirsizse sorar.
 - Bağlam kuralları ve sözlükler hızlı başlangıç verir, ama belirsizlik ve
   bağlam karmaşıklaştıkça öğrenen modellere ihtiyaç doğar.

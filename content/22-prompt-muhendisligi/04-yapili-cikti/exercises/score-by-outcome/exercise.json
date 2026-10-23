@@ -1,0 +1,145 @@
+{
+  "id": "score-by-outcome",
+  "title": {
+    "tr": "Sonuçları ayrı puanla",
+    "en": "Score the outcomes separately"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her sonuç için: `cases = [got for expected, got in pairs if expected == label]`, sonra `[cases.count(label), len(cases)]`.",
+      "en": "For every outcome: `cases = [got for expected, got in pairs if expected == label]`, then `[cases.count(label), len(cases)]`."
+    },
+    {
+      "tr": "Yanlış kabul: `g == \"accepted\" and e != \"accepted\"` olan çiftleri say.",
+      "en": "False accepts: count the pairs where `g == \"accepted\" and e != \"accepted\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nLABELS = [\"accepted\", \"rejected\", \"needs_clarification\"]\n\n\ndef score_outcomes(pairs):\n    score = {}\n    for label in LABELS:\n        cases = [got for expected, got in pairs if expected == label]\n        score[label] = [cases.count(label), len(cases)]\n    wrong = [e for e, g in pairs if g == \"accepted\" and e != \"accepted\"]\n    score[\"false_accept\"] = len(wrong)\n    return score\n\n\nPAIRS = [[\"accepted\", \"accepted\"], [\"rejected\", \"accepted\"],\n         [\"rejected\", \"rejected\"], [\"needs_clarification\", \"accepted\"],\n         [\"accepted\", \"rejected\"]]\nscore = score_outcomes(PAIRS)\nfor label in LABELS:\n    print(label, score.get(label))\nprint(\"false_accept\", score.get(\"false_accept\"))\n```",
+      "en": "The full solution:\n\n```python\nLABELS = [\"accepted\", \"rejected\", \"needs_clarification\"]\n\n\ndef score_outcomes(pairs):\n    score = {}\n    for label in LABELS:\n        cases = [got for expected, got in pairs if expected == label]\n        score[label] = [cases.count(label), len(cases)]\n    wrong = [e for e, g in pairs if g == \"accepted\" and e != \"accepted\"]\n    score[\"false_accept\"] = len(wrong)\n    return score\n\n\nPAIRS = [[\"accepted\", \"accepted\"], [\"rejected\", \"accepted\"],\n         [\"rejected\", \"rejected\"], [\"needs_clarification\", \"accepted\"],\n         [\"accepted\", \"rejected\"]]\nscore = score_outcomes(PAIRS)\nfor label in LABELS:\n    print(label, score.get(label))\nprint(\"false_accept\", score.get(\"false_accept\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "score_outcomes",
+      "cases": [
+        {
+          "args": [
+            []
+          ],
+          "returns": {
+            "accepted": [
+              0,
+              0
+            ],
+            "rejected": [
+              0,
+              0
+            ],
+            "needs_clarification": [
+              0,
+              0
+            ],
+            "false_accept": 0
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "needs_clarification",
+                "needs_clarification"
+              ]
+            ]
+          ],
+          "returns": {
+            "accepted": [
+              0,
+              0
+            ],
+            "rejected": [
+              0,
+              0
+            ],
+            "needs_clarification": [
+              1,
+              1
+            ],
+            "false_accept": 0
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "accepted",
+                "needs_clarification"
+              ]
+            ]
+          ],
+          "returns": {
+            "accepted": [
+              0,
+              1
+            ],
+            "rejected": [
+              0,
+              0
+            ],
+            "needs_clarification": [
+              0,
+              0
+            ],
+            "false_accept": 0
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                "rejected",
+                "accepted"
+              ],
+              [
+                "rejected",
+                "accepted"
+              ],
+              [
+                "accepted",
+                "accepted"
+              ]
+            ]
+          ],
+          "returns": {
+            "accepted": [
+              1,
+              1
+            ],
+            "rejected": [
+              0,
+              2
+            ],
+            "needs_clarification": [
+              0,
+              0
+            ],
+            "false_accept": 2
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "accepted [1, 2]\nrejected [1, 2]\nneeds_clarification [0, 1]\nfalse_accept 2"
+    }
+  ]
+}

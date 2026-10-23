@@ -1,0 +1,84 @@
+{
+  "id": "dates-in-text",
+  "title": {
+    "tr": "Tarihleri kurala göre oku",
+    "en": "Read dates by a policy"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tarihleri `re.findall(r\"\\b\\d{2}/\\d{2}/\\d{4}\\b\", text)` ile bul, her birini derste `read_numeric` gibi bir yardımcıyla oku.",
+      "en": "Find the dates with `re.findall(r\"\\b\\d{2}/\\d{2}/\\d{4}\\b\", text)` and read each with a helper like `read_numeric` in the lesson."
+    },
+    {
+      "tr": "Olmayan günü `try: datetime(year, month, day)` / `except ValueError:` ile yakala.",
+      "en": "Catch a day that does not exist with `try: datetime(year, month, day)` / `except ValueError:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\nfrom datetime import datetime\n\n\ndef read_numeric(day_month, policy):\n    a, b, year = [int(x) for x in day_month.split(\"/\")]\n    if policy == \"US\":\n        month, day = a, b\n    elif policy == \"day-first\":\n        day, month = a, b\n    elif a <= 12 and b <= 12 and a != b:\n        return \"needs_clarification\"\n    else:\n        day, month = (a, b) if a > 12 else (b, a)\n    try:\n        return datetime(year, month, day).date().isoformat()\n    except ValueError:\n        return \"rejected\"\n\n\ndef dates_in(text, policy):\n    found = re.findall(r\"\\b\\d{2}/\\d{2}/\\d{4}\\b\", text)\n    return [read_numeric(d, policy) for d in found]\n\nTEXT = \"Ordered 03/04/2026, delivered 13/04/2026.\"\nprint(dates_in(TEXT, \"US\"))\nprint(dates_in(TEXT, None))\n```",
+      "en": "The full solution:\n\n```python\nimport re\nfrom datetime import datetime\n\n\ndef read_numeric(day_month, policy):\n    a, b, year = [int(x) for x in day_month.split(\"/\")]\n    if policy == \"US\":\n        month, day = a, b\n    elif policy == \"day-first\":\n        day, month = a, b\n    elif a <= 12 and b <= 12 and a != b:\n        return \"needs_clarification\"\n    else:\n        day, month = (a, b) if a > 12 else (b, a)\n    try:\n        return datetime(year, month, day).date().isoformat()\n    except ValueError:\n        return \"rejected\"\n\n\ndef dates_in(text, policy):\n    found = re.findall(r\"\\b\\d{2}/\\d{2}/\\d{4}\\b\", text)\n    return [read_numeric(d, policy) for d in found]\n\nTEXT = \"Ordered 03/04/2026, delivered 13/04/2026.\"\nprint(dates_in(TEXT, \"US\"))\nprint(dates_in(TEXT, None))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "dates_in",
+      "cases": [
+        {
+          "args": [
+            "Due 31/02/2026",
+            "day-first"
+          ],
+          "returns": [
+            "rejected"
+          ]
+        },
+        {
+          "args": [
+            "05/05/2026 and 12/11/2026",
+            null
+          ],
+          "returns": [
+            "2026-05-05",
+            "needs_clarification"
+          ]
+        },
+        {
+          "args": [
+            "no dates here",
+            "US"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "Paid 07/09/2026",
+            "day-first"
+          ],
+          "returns": [
+            "2026-09-07"
+          ]
+        },
+        {
+          "args": [
+            "Ref 123/04/20266",
+            "US"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['2026-03-04', 'rejected']\n['needs_clarification', '2026-04-13']"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "id": "check-callback",
+  "title": {
+    "tr": "Geri arama saatini denetle",
+    "en": "Check the callback time"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `try: data = json.loads(reply)` / `except json.JSONDecodeError:`, sonra `set(data) != {\"date\", \"time\", \"source\"}`.",
+      "en": "First `try: data = json.loads(reply)` / `except json.JSONDecodeError:`, then `set(data) != {\"date\", \"time\", \"source\"}`."
+    },
+    {
+      "tr": "Beklenen gün `datetime.fromisoformat(now).date() + timedelta(days=...)`, beklenen saat `f\"{hour:02d}:00\"`; ikisini birlikte karşılaştır.",
+      "en": "The expected day is `datetime.fromisoformat(now).date() + timedelta(days=...)`, the expected time `f\"{hour:02d}:00\"`; compare the two together."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport json\nimport re\nfrom datetime import datetime, timedelta\n\nPHRASE = r\"(today|tomorrow) at (\\d{1,2})(am|pm)?\"\nKEYS = {\"date\", \"time\", \"source\"}\n\n\ndef check_callback(message, reply, now):\n    try:\n        data = json.loads(reply)\n    except json.JSONDecodeError:\n        return \"rejected\"\n    if not isinstance(data, dict) or set(data) != KEYS:\n        return \"rejected\"\n    source = str(data[\"source\"]).lower()\n    m = re.fullmatch(PHRASE, source)\n    if m is None or source not in message.lower():\n        return \"rejected\"\n    if m[3] is None:\n        return \"needs_clarification\"\n    if not 1 <= int(m[2]) <= 12:\n        return \"rejected\"\n    hour = int(m[2]) % 12 + (12 if m[3] == \"pm\" else 0)\n    days = 1 if m[1] == \"tomorrow\" else 0\n    day = datetime.fromisoformat(now).date() + timedelta(days=days)\n    if (data[\"date\"], data[\"time\"]) != (day.isoformat(), f\"{hour:02d}:00\"):\n        return \"rejected\"\n    return \"accepted\"\n\n\nNOW = \"2026-03-14T01:30:00+03:00\"\nGOOD = ('{\"date\": \"2026-03-15\", \"time\": \"19:00\", '\n        '\"source\": \"tomorrow at 7pm\"}')\nVAGUE = ('{\"date\": \"2026-03-15\", \"time\": \"07:00\", '\n         '\"source\": \"tomorrow at 7\"}')\nprint(check_callback(\"Call me tomorrow at 7pm.\", GOOD, NOW))\nprint(check_callback(\"Call me tomorrow at 7.\", VAGUE, NOW))\nprint(check_callback(\"Call me tomorrow at 7pm.\", \"Sure, 7pm!\", NOW))\n```",
+      "en": "The full solution:\n\n```python\nimport json\nimport re\nfrom datetime import datetime, timedelta\n\nPHRASE = r\"(today|tomorrow) at (\\d{1,2})(am|pm)?\"\nKEYS = {\"date\", \"time\", \"source\"}\n\n\ndef check_callback(message, reply, now):\n    try:\n        data = json.loads(reply)\n    except json.JSONDecodeError:\n        return \"rejected\"\n    if not isinstance(data, dict) or set(data) != KEYS:\n        return \"rejected\"\n    source = str(data[\"source\"]).lower()\n    m = re.fullmatch(PHRASE, source)\n    if m is None or source not in message.lower():\n        return \"rejected\"\n    if m[3] is None:\n        return \"needs_clarification\"\n    if not 1 <= int(m[2]) <= 12:\n        return \"rejected\"\n    hour = int(m[2]) % 12 + (12 if m[3] == \"pm\" else 0)\n    days = 1 if m[1] == \"tomorrow\" else 0\n    day = datetime.fromisoformat(now).date() + timedelta(days=days)\n    if (data[\"date\"], data[\"time\"]) != (day.isoformat(), f\"{hour:02d}:00\"):\n        return \"rejected\"\n    return \"accepted\"\n\n\nNOW = \"2026-03-14T01:30:00+03:00\"\nGOOD = ('{\"date\": \"2026-03-15\", \"time\": \"19:00\", '\n        '\"source\": \"tomorrow at 7pm\"}')\nVAGUE = ('{\"date\": \"2026-03-15\", \"time\": \"07:00\", '\n         '\"source\": \"tomorrow at 7\"}')\nprint(check_callback(\"Call me tomorrow at 7pm.\", GOOD, NOW))\nprint(check_callback(\"Call me tomorrow at 7.\", VAGUE, NOW))\nprint(check_callback(\"Call me tomorrow at 7pm.\", \"Sure, 7pm!\", NOW))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_callback",
+      "cases": [
+        {
+          "args": [
+            "Call me today at 9am.",
+            "{\"date\": \"2026-03-14\", \"time\": \"09:00\", \"source\": \"today at 9am\"}",
+            "2026-03-14T01:30:00+03:00"
+          ],
+          "returns": "accepted"
+        },
+        {
+          "args": [
+            "Call me today at 9am.",
+            "{\"date\": \"2026-03-14\", \"time\": \"21:00\", \"source\": \"today at 9am\"}",
+            "2026-03-14T01:30:00+03:00"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "Call me back.",
+            "{\"date\": \"2026-03-14\", \"time\": \"10:00\", \"source\": \"today at 10am\"}",
+            "2026-03-14T01:30:00+03:00"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "TOMORROW AT 12AM please",
+            "{\"date\": \"2026-03-15\", \"time\": \"00:00\", \"source\": \"tomorrow at 12am\"}",
+            "2026-03-14T01:30:00+03:00"
+          ],
+          "returns": "accepted"
+        },
+        {
+          "args": [
+            "Call me tomorrow at 13pm.",
+            "{\"date\": \"2026-03-15\", \"time\": \"13:00\", \"source\": \"tomorrow at 13pm\"}",
+            "2026-03-14T01:30:00+03:00"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "Call me tomorrow at 5",
+            "{\"date\": \"2026-03-15\", \"time\": \"05:00\", \"source\": \"tomorrow at 5\", \"note\": \"x\"}",
+            "2026-03-14T01:30:00+03:00"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "Call me tomorrow at 7pm.",
+            "[1, 2]",
+            "2026-03-14T01:30:00+03:00"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "Call me tomorrow at 7pm.",
+            "{\"date\": \"2026-03-14\", \"time\": \"19:00\", \"source\": \"tomorrow at 7pm\"}",
+            "2026-03-13T22:30:00+00:00"
+          ],
+          "returns": "accepted"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "accepted\nneeds_clarification\nrejected"
+    }
+  ]
+}

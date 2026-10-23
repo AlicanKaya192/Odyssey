@@ -184,6 +184,113 @@ talimatı ve örnekleri iyileştirip geçersiz cevapları azaltmak, onarımı
 yalnızca kalan durumlar için kullanmak gerekir. Deneme sınırı dolarsa
 cevap bir insana ya da varsayılan bir yola (`needs_review`) gider.
 
+## Şemadan geçen ama belirsiz cevap
+
+Şema biçimi denetler, anlamı denetlemez. Müşteri "Call me tomorrow at 7"
+(yarın 7'de ara) yazdı diyelim. Model bir geri arama saati çıkarırken
+sabah mı akşam mı olduğunu bilemez, ama şema bir saat istediği için yine
+de birini **seçer**: `"07:00"`. Cevap kusursuz bir JSON'dur ve şemadan
+geçer, oysa doğru cevap müşteriye sormaktır. NLP Temelleri'nin Bilgi
+Çıkarma bölümünde gördüğümüz gibi, "yarın" ancak bugün bilinince bir güne
+dönüşür; o yüzden referans anı modele **bağlam** olarak veririz ve
+cevabın kaynağını, müşterinin kendi sözlerini (`source`) de isteriz.
+
+Aşağıdaki beş **örnek yanıt** böyle bir talimata gelebilecek cevaplar.
+Program her birini üç sonuçtan birine ayırır: `accepted` (kabul),
+`rejected` (ret) ya da `needs_clarification` (açıklama gerekiyor):
+
+```python
+import json
+from collections import Counter
+from datetime import datetime, timedelta
+
+NOW = "2026-03-14T01:30:00+03:00"
+SYSTEM = ("Extract the callback time as JSON with date (YYYY-MM-DD), "
+          "time (HH:MM, 24-hour) and source (the customer's exact words). "
+          "The current time is " + NOW + ".")
+CASES = [  # müşteri mesajı, örnek yanıt, beklenen sonuç
+    ("Call me tomorrow at 7pm.",
+     '{"date": "2026-03-15", "time": "19:00", "source": "tomorrow at 7pm"}',
+     "accepted"),
+    ("Call me tomorrow at 7.",
+     '{"date": "2026-03-15", "time": "07:00", "source": "tomorrow at 7"}',
+     "needs_clarification"),
+    ("Call me today at 9am.",
+     '{"date": "2026-03-15", "time": "09:00", "source": "today at 9am"}',
+     "rejected"),
+    ("Please call me back.",
+     '{"date": "2026-03-14", "time": "10:00", "source": "today at 10am"}',
+     "rejected"),
+    ("Tomorrow at 12pm works.",
+     '{"date": "2026-03-15", "time": "12:00", "source": "Tomorrow at 12pm"}',
+     "accepted"),
+]
+PHRASE = r"(today|tomorrow) at (\d{1,2})(am|pm)?"
+KEYS = {"date", "time", "source"}
+
+
+def schema_only(message, data, now):
+    keys_ok = isinstance(data, dict) and set(data) == KEYS
+    return "accepted" if keys_ok else "rejected"
+
+
+def check_callback(message, data, now):
+    if schema_only(message, data, now) == "rejected":
+        return "rejected"
+    m = re.fullmatch(PHRASE, str(data["source"]).lower())
+    if m is None or str(data["source"]).lower() not in message.lower():
+        return "rejected"
+    if m[3] is None:
+        return "needs_clarification"
+    hour = int(m[2]) % 12 + (12 if m[3] == "pm" else 0)
+    days = 1 if m[1] == "tomorrow" else 0
+    day = datetime.fromisoformat(now).date() + timedelta(days=days)
+    if (data["date"], data["time"]) != (day.isoformat(), f"{hour:02d}:00"):
+        return "rejected"
+    return "accepted"
+
+
+client = ChatClient([reply for _, reply, _ in CASES])
+outcomes = []
+for message, _, expected in CASES:
+    question = [{"role": "system", "content": SYSTEM},
+                {"role": "user", "content": message}]
+    data, stage = parse_json(client.chat(question, max_tokens=60).text)
+    got = check_callback(message, data, NOW)
+    outcomes.append((expected, schema_only(message, data, NOW), got))
+    print(f"{message:25} {got}")
+totals = Counter(e for e, _, _ in outcomes)
+print(f"{'':20} schema  check")
+for label in ["accepted", "rejected", "needs_clarification"]:
+    schema = sum(e == s for e, s, _ in outcomes if e == label)
+    check = sum(e == g for e, _, g in outcomes if e == label)
+    print(f"{label:20} {schema}/{totals[label]}     {check}/{totals[label]}")
+```
+
+```text
+Call me tomorrow at 7pm.  accepted
+Call me tomorrow at 7.    needs_clarification
+Call me today at 9am.     rejected
+Please call me back.      rejected
+Tomorrow at 12pm works.   accepted
+                     schema  check
+accepted             2/2     2/2
+rejected             0/2     2/2
+needs_clarification  0/1     1/1
+```
+
+- Beş cevabın beşi de geçerli JSON ve şemadaki üç alana sahip. Yalnızca
+  şemaya bakan denetim (`schema` sütunu) beşini de kabul ediyor:
+  reddedilmesi gereken iki cevabı ve sorulması gereken birini kaçırıyor.
+- İkinci cevapta model `"07:00"` uydurdu. Müşterinin sözlerinde `am`/`pm`
+  yok, program bunu kaynaktan görüyor ve sormayı seçiyor.
+- Üçüncüde model "today"yi 15 Mart'a çevirmiş; program aynı hesabı referans
+  anla kendisi yapıyor ve tutmayınca reddediyor. Dördüncüde `source`
+  müşterinin mesajında hiç geçmiyor: model saati uydurmuş.
+- Sonuçları **ayrı ayrı** sayıyoruz. Tek bir doğruluk oranı, açıklama
+  gereken bir durumu "kabul" sayan bir hatayı, reddedilmesi gereken bir
+  cevabı kabul eden hatadan ayırmaz; ikisinin bedeli farklıdır.
+
 ## Özet
 
 - Birden fazla bilgi isteniyorsa cevabı JSON gibi yapılı bir biçimde iste
@@ -197,3 +304,6 @@ cevap bir insana ya da varsayılan bir yola (`needs_review`) gider.
   göndererek yeniden sor; deneme sayısına sınır koy.
 - Onarım her denemede daha çok token gönderir; asıl çözüm geçersiz
   cevapları azaltan net bir talimat.
+- Şemadan geçmek anlamın doğru olduğunu göstermez. Referans an gibi
+  bağlamı modele ver, kaynağı iste ve program kendisi denetlesin; belirsiz
+  cevabı kabul etme, sor. Kabul, ret ve açıklama gereken durumları ayrı ölç.
