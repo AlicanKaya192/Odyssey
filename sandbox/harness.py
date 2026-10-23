@@ -1043,8 +1043,9 @@ def format_user_traceback(exc: BaseException, user_files: str | set, name_of=Non
 
 
 # Kullanıcının kodu bir dosya üretmişse (grafik, rapor) onu görebilmeli.
-# Toplanan biçimler ve sınırlar:
-IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".svg", ".gif"}
+# Toplanan biçimler ve sınırlar. PDF'in ilk sayfasını uygulama resme
+# çeviriyor (`core/pdf_preview.py`; CS50 Shirtificate).
+IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".svg", ".gif", ".pdf"}
 
 # Dört dosya, bir alıştırmanın üretebileceği makul en fazla görsel:
 # "yan yana iki grafik" alıştırmasında bile tek dosya çıkıyor.

@@ -32,7 +32,7 @@ import time
 from pathlib import Path
 
 from ..widgets.feedback import ButtonSpinner, EdgeFlash
-from ..core import workspace_files
+from ..core import pdf_preview, workspace_files
 from ..core.catalog import Exercise
 from ..core.grader import describe, summarise
 from ..core.language import LanguageManager
@@ -1203,9 +1203,13 @@ class ExerciseView(QWidget):
         if result.artifacts:
             parcalar.append(f"## {t('output.produced')}")
             for yol in result.artifacts:
+                resim = pdf_preview.first_page(yol) if yol.suffix.lower() == ".pdf" else yol
+                if resim is None:
+                    parcalar.append(f"<p><code>{html.escape(yol.name)}</code></p>")
+                    continue
                 # Aynı adlı dosya her çalıştırmada yeniden yazılıyor; sorgu
                 # eki olmadan tarayıcı eski grafiği önbellekten gösteriyordu.
-                kaynak = f"{yol.as_uri()}?v={damga}"
+                kaynak = f"{resim.as_uri()}?v={damga}"
                 parcalar.append(
                     f'<figure class="fig"><img class="out" src="{html.escape(kaynak)}" alt="">'
                     f"<figcaption>{html.escape(yol.name)}</figcaption></figure>"
