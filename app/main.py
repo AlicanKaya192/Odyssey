@@ -343,6 +343,7 @@ def main() -> int:
         show_window(window)
     times.mark("belirdi")
     log.get("odyssey").info("Açılış süreleri (sn, süreç başlangıcından): %s", times.summary())
+    log.get("odyssey").info("Açılış koşulları: %s", times.conditions())
 
     # Arama dizini açılışı geciktirmesin diye pencere göründükten sonra,
     # belirme geçişi bittiğinde arka planda kuruluyor.
