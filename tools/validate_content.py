@@ -16,6 +16,7 @@ Kullanım:
 from __future__ import annotations
 
 import json
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -25,6 +26,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.catalog import Catalog, ContentError  # noqa: E402
 from app.core.problem_check import parse_number  # noqa: E402
+from app.core.subtitles import load as load_subtitles  # noqa: E402
 from app.core.workspace_files import safe_name  # noqa: E402
 from app.paths import content_dir  # noqa: E402
 
@@ -69,6 +71,57 @@ def check_localized_file(directory: Path, template: str) -> set[str]:
         for lang in LANGUAGES
         if (directory / template.replace("{lang}", lang)).exists()
     }
+
+
+YOUTUBE_ID = re.compile(r"[A-Za-z0-9_-]{11}")
+
+
+def check_video_block(where: str, raw: dict) -> list[str]:
+    """`video` bloğu: `youtube` alanı adres değil, 11 karakterlik kimlik."""
+    kimlik = str(raw.get("youtube", ""))
+    if not YOUTUBE_ID.fullmatch(kimlik):
+        return [f"{where}: video bloğunda geçerli bir YouTube kimliği yok ('{kimlik}')"]
+    return []
+
+
+def check_subtitles(where: str, files: dict) -> list[str]:
+    """Videonun kendi altyazıları: bilinen dil, dosya var, okunuyor, sıralı ve örtüşmüyor."""
+    problems = []
+    for dil, yol in files.items():
+        if dil not in ("en", "tr"):
+            problems.append(f"{where}: altyazı dili bilinmiyor ({dil})")
+            continue
+        cues = load_subtitles(yol)
+        if not cues:
+            problems.append(f"{where}: {dil} altyazısı yok ya da okunamıyor ({yol.name})")
+        elif any(a[1] > b[0] + 0.001 for a, b in zip(cues, cues[1:])):
+            problems.append(f"{where}: {dil} altyazısında üst üste binen satırlar var ({yol.name})")
+    return problems
+
+
+def check_stdio(where: str, check: dict) -> list[str]:
+    """`stdio` kontrolü: en az bir durum; her durum çıktı ya da çıkış kodu
+    bekliyor, `stdin` metin, `argv` liste."""
+    cases = check.get("cases")
+    if not isinstance(cases, list) or not cases:
+        return [f"{where}: stdio kontrolünde durum yok"]
+    problems = []
+    for index, case in enumerate(cases, start=1):
+        if "stdout" not in case and "exit" not in case and not case.get("expect_files"):
+            problems.append(f"{where}: stdio durumu {index} ne çıktı ne çıkış kodu ne dosya bekliyor")
+        for key in ("files", "expect_files"):
+            files = case.get(key, {})
+            if not isinstance(files, dict):
+                problems.append(f"{where}: stdio durumu {index}: {key} sözlük olmalı")
+                continue
+            for name in files:
+                if not safe_name(name):
+                    problems.append(f"{where}: stdio durumu {index}: {key} adı güvensiz: {name}")
+        if not isinstance(case.get("stdin", ""), str):
+            problems.append(f"{where}: stdio durumu {index}: stdin metin olmalı")
+        if not isinstance(case.get("argv", []), list):
+            problems.append(f"{where}: stdio durumu {index}: argv liste olmalı")
+    return problems
 
 
 def collect(catalog: Catalog) -> tuple[list[Coverage], list[str]]:
@@ -118,6 +171,10 @@ def collect(catalog: Catalog) -> tuple[list[Coverage], list[str]]:
                             Coverage(where, "not başlığı", document.get("id", "?"),
                                      check_localized_dict(document.get("title")))
                         )
+
+                elif block.type == "video":
+                    problems.extend(check_video_block(where, block.raw))
+                    problems.extend(check_subtitles(where, block.subtitles))
 
                 elif block.type == "quiz":
                     resolved = block.file_for(REFERENCE)
@@ -238,6 +295,15 @@ def _check_ascii(where: str, exercise) -> list[str]:
                 denetle("beklenen dönüş", case.get("returns"))
         elif kind == "stdout":
             denetle("beklenen çıktı", check.get("expected"))
+        elif kind == "stdio":
+            problems.extend(check_stdio(f"{where}/{exercise.id}", check))
+            for case in check.get("cases", []):
+                # `unicode_output`: çıktıyı kişi değil kütüphane üretiyor (CS50
+                # Emojize: `:thumbs_up:` yazılır, emoji basılır); girdi yine ASCII.
+                if not check.get("unicode_output"):
+                    denetle("beklenen çıktı", case.get("stdout"))
+                denetle("örnek girdi", case.get("stdin"))
+                denetle("komut argümanı", case.get("argv"))
         elif kind == "method":
             denetle("sınıf adı", check.get("class"))
             for argument in check.get("args", []):
@@ -249,6 +315,14 @@ def _check_ascii(where: str, exercise) -> list[str]:
                     denetle("örnek argüman", argument)
                 denetle("beklenen dönüş", case.get("returns"))
                 denetle("beklenen değer", case.get("equals"))
+                # CS50 Hafta 8: str(nesne), atama (özellik ayarlayıcısı), dönen nesnenin dizesi.
+                # `unicode_output`: dizeyi kişi değil hazır sabit üretiyor (Cookie Jar'ın
+                # `COOKIE = "🍪"`'si başlangıç kodunda); kişinin yazdığı yine ASCII.
+                if not check.get("unicode_output"):
+                    denetle("beklenen str", case.get("str"))
+                denetle("atanan özellik", case.get("set"))
+                denetle("atanan değer", case.get("value"))
+                denetle("dönenin str hâli", case.get("returns_str"))
         elif kind == "annotation":
             denetle("fonksiyon adı", check.get("name"))
             denetle("değişken adı", check.get("variable"))
@@ -286,6 +360,8 @@ DILE_OZEL_KONTROLLER = {
     "python": {
         "variable", "function", "ast_require", "ast_forbid",
         "annotation", "method", "requests",
+        # CS50 tarzı: programa girdi ve argüman verip çıktıyı karşılaştırmak.
+        "stdio",
         # API 2: FastAPI uygulaması sunucusuz çağrılıyor, kişinin testleri koşuyor.
         "http", "pytest",
         # Sistem Tasarımı: testlerle birlikte yazılan iş akışı dosyası.

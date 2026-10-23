@@ -1,0 +1,143 @@
+{
+  "id": "testing-my-twttr",
+  "title": {
+    "tr": "twttr'ımı Test Etmek",
+    "en": "Testing my twttr"
+  },
+  "difficulty": 2,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "twttr.py",
+  "files": [
+    {
+      "name": "twttr.py",
+      "starter": "starter-twttr.{lang}.py",
+      "solution": "solution-twttr.py"
+    },
+    {
+      "name": "test_twttr.py",
+      "starter": "starter-test_twttr.{lang}.py",
+      "solution": "solution-test_twttr.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`shorten`'ın gövdesi Problem Set 2'deki döngü; sonunda `print(result)` yerine `return result`.",
+      "en": "The body of `shorten` is the loop from Problem Set 2; at the end, `return result` instead of `print(result)`."
+    },
+    {
+      "tr": "Testlerde büyük harfli bir kelime, rakam ve noktalama işareti de dene: bozuk sürümler bunları yanlış işliyor.",
+      "en": "In the tests, also try an uppercase word, digits and punctuation: the broken versions handle those wrongly."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**twttr.py**\n\n```python\ndef main():\n    word = input(\"Input: \")\n    print(shorten(word))\n\n\ndef shorten(word):\n    result = \"\"\n    for c in word:\n        if c.lower() not in \"aeiou\":\n            result += c\n    return result\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_twttr.py**\n\n```python\nfrom twttr import shorten\n\n\ndef test_lowercase():\n    assert shorten(\"twitter\") == \"twttr\"\n\n\ndef test_uppercase():\n    assert shorten(\"TWITTER\") == \"TWTTR\"\n    assert shorten(\"Twitter\") == \"Twttr\"\n\n\ndef test_numbers():\n    assert shorten(\"CS50\") == \"CS50\"\n\n\ndef test_punctuation():\n    assert shorten(\"What's your name?\") == \"Wht's yr nm?\"\n```",
+      "en": "The full solution:\n\n**twttr.py**\n\n```python\ndef main():\n    word = input(\"Input: \")\n    print(shorten(word))\n\n\ndef shorten(word):\n    result = \"\"\n    for c in word:\n        if c.lower() not in \"aeiou\":\n            result += c\n    return result\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_twttr.py**\n\n```python\nfrom twttr import shorten\n\n\ndef test_lowercase():\n    assert shorten(\"twitter\") == \"twttr\"\n\n\ndef test_uppercase():\n    assert shorten(\"TWITTER\") == \"TWTTR\"\n    assert shorten(\"Twitter\") == \"Twttr\"\n\n\ndef test_numbers():\n    assert shorten(\"CS50\") == \"CS50\"\n\n\ndef test_punctuation():\n    assert shorten(\"What's your name?\") == \"Wht's yr nm?\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "Twitter\n",
+          "stdout": "Twttr"
+        },
+        {
+          "stdin": "What's your name?\n",
+          "stdout": "Wht's yr nm?"
+        },
+        {
+          "stdin": "CS50\n",
+          "stdout": "CS50"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "shorten",
+      "cases": [
+        {
+          "args": [
+            "Twitter"
+          ],
+          "returns": "Twttr"
+        },
+        {
+          "args": [
+            "AEIOU and aeiou"
+          ],
+          "returns": " nd "
+        },
+        {
+          "args": [
+            "CS50"
+          ],
+          "returns": "CS50"
+        },
+        {
+          "args": [
+            "What's your name?"
+          ],
+          "returns": "Wht's yr nm?"
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "type": "pytest",
+      "file": "test_twttr.py",
+      "min": 1,
+      "mutants": [
+        {
+          "file": "twttr.py",
+          "source": "def main():\n    word = input(\"Input: \")\n    print(shorten(word))\n\n\ndef shorten(word):\n    result = \"\"\n    for c in word:\n        if c not in \"aeiou\":\n            result += c\n    return result\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "yalnızca küçük sesli harfler atılıyor.",
+            "en": "only lowercase vowels are omitted."
+          }
+        },
+        {
+          "file": "twttr.py",
+          "source": "def main():\n    word = input(\"Input: \")\n    print(shorten(word))\n\n\ndef shorten(word):\n    result = \"\"\n    for c in word:\n        if c not in \"AEIOU\":\n            result += c\n    return result\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "yalnızca büyük sesli harfler atılıyor.",
+            "en": "only uppercase vowels are omitted."
+          }
+        },
+        {
+          "file": "twttr.py",
+          "source": "def main():\n    word = input(\"Input: \")\n    print(shorten(word))\n\n\ndef shorten(word):\n    result = \"\"\n    for c in word:\n        if c.lower() not in \"aeiou\" and not c.isdigit():\n            result += c\n    return result\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "rakamlar da atılıyor.",
+            "en": "digits are omitted too."
+          }
+        },
+        {
+          "file": "twttr.py",
+          "source": "def main():\n    word = input(\"Input: \")\n    print(shorten(word))\n\n\ndef shorten(word):\n    result = \"\"\n    for c in word:\n        if c.lower() not in \"aeiou\" and c.isalnum():\n            result += c\n    return result\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "noktalama işaretleri ve boşluklar da atılıyor.",
+            "en": "punctuation and spaces are omitted too."
+          }
+        },
+        {
+          "file": "twttr.py",
+          "source": "def main():\n    word = input(\"Input: \")\n    print(shorten(word))\n\n\ndef shorten(word):\n    result = \"\"\n    for c in word:\n        if c.lower() not in \"aeiou\":\n            result += c\n    return result.upper()\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "sonuç büyük harfe çevriliyor.",
+            "en": "the result is turned into uppercase."
+          }
+        }
+      ]
+    }
+  ]
+}

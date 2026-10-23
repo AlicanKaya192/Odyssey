@@ -1,0 +1,3 @@
+# students.csv'yi oku
+# Her satırı böl: name, house = ...
+# Cümleleri listeye topla, sıralı yaz

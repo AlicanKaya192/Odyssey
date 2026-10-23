@@ -1,0 +1,175 @@
+{
+  "id": "numb3rs",
+  "title": {
+    "tr": "NUMB3RS",
+    "en": "NUMB3RS"
+  },
+  "difficulty": 2,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "numb3rs.py",
+  "files": [
+    {
+      "name": "numb3rs.py",
+      "starter": "starter-numb3rs.{lang}.py",
+      "solution": "solution-numb3rs.py"
+    },
+    {
+      "name": "test_numb3rs.py",
+      "starter": "starter-test_numb3rs.{lang}.py",
+      "solution": "solution-test_numb3rs.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Biçim: `re.fullmatch(r\"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\", ip)`; sonra `ip.split(\".\")` ile her sayıyı `int` yapıp 255'ten büyük mü bak.",
+      "en": "The format: `re.fullmatch(r\"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\", ip)`; then make each number an `int` with `ip.split(\".\")` and see whether it is above 255."
+    },
+    {
+      "tr": "Testlerde her dört sayının aralığını ayrı dene: bozuk sürümlerden biri yalnızca ilk sayıya bakıyor.",
+      "en": "In the tests, try the range of each of the four numbers separately: one broken version only looks at the first number."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**numb3rs.py**\n\n```python\nimport re\n\n\ndef main():\n    print(validate(input(\"IPv4 Address: \")))\n\n\ndef validate(ip):\n    if not re.fullmatch(r\"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\", ip):\n        return False\n    for number in ip.split(\".\"):\n        if int(number) > 255:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_numb3rs.py**\n\n```python\nfrom numb3rs import validate\n\n\ndef test_valid():\n    assert validate(\"127.0.0.1\") is True\n    assert validate(\"255.255.255.255\") is True\n    assert validate(\"0.0.0.0\") is True\n\n\ndef test_range():\n    assert validate(\"256.1.1.1\") is False\n    assert validate(\"1.256.1.1\") is False\n    assert validate(\"1.1.256.1\") is False\n    assert validate(\"1.1.1.256\") is False\n\n\ndef test_format():\n    assert validate(\"1.2.3\") is False\n    assert validate(\"1.2.3.4.5\") is False\n    assert validate(\"cat\") is False\n    assert validate(\"1.2.3.-4\") is False\n```",
+      "en": "The full solution:\n\n**numb3rs.py**\n\n```python\nimport re\n\n\ndef main():\n    print(validate(input(\"IPv4 Address: \")))\n\n\ndef validate(ip):\n    if not re.fullmatch(r\"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\", ip):\n        return False\n    for number in ip.split(\".\"):\n        if int(number) > 255:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_numb3rs.py**\n\n```python\nfrom numb3rs import validate\n\n\ndef test_valid():\n    assert validate(\"127.0.0.1\") is True\n    assert validate(\"255.255.255.255\") is True\n    assert validate(\"0.0.0.0\") is True\n\n\ndef test_range():\n    assert validate(\"256.1.1.1\") is False\n    assert validate(\"1.256.1.1\") is False\n    assert validate(\"1.1.256.1\") is False\n    assert validate(\"1.1.1.256\") is False\n\n\ndef test_format():\n    assert validate(\"1.2.3\") is False\n    assert validate(\"1.2.3.4.5\") is False\n    assert validate(\"cat\") is False\n    assert validate(\"1.2.3.-4\") is False\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "127.0.0.1\n",
+          "stdout": "True"
+        },
+        {
+          "stdin": "255.255.255.255\n",
+          "stdout": "True"
+        },
+        {
+          "stdin": "512.512.512.512\n",
+          "stdout": "False"
+        },
+        {
+          "stdin": "1.2.3.1000\n",
+          "stdout": "False"
+        },
+        {
+          "stdin": "cat\n",
+          "stdout": "False"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "validate",
+      "cases": [
+        {
+          "args": [
+            "127.0.0.1"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "255.255.255.255"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "0.0.0.0"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "256.255.255.255"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "1.2.3.256"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "1.2.3"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "1.2.3.4.5"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "cat"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "1.2.3.4 "
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "pytest",
+      "file": "test_numb3rs.py",
+      "min": 2,
+      "mutants": [
+        {
+          "file": "numb3rs.py",
+          "source": "import re\n\n\ndef main():\n    print(validate(input(\"IPv4 Address: \")))\n\n\ndef validate(ip):\n    if not re.fullmatch(r\"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\", ip):\n        return False\n    for number in ip.split(\".\")[:1]:\n        if int(number) > 255:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "yalnızca ilk sayının aralığına bakılıyor (`1.2.3.999` geçerli).",
+            "en": "only the first number's range is checked (`1.2.3.999` is valid)."
+          }
+        },
+        {
+          "file": "numb3rs.py",
+          "source": "import re\n\n\ndef main():\n    print(validate(input(\"IPv4 Address: \")))\n\n\ndef validate(ip):\n    if not re.fullmatch(r\"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\", ip):\n        return False\n    for number in ip.split(\".\"):\n        if False:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "sayıların aralığına hiç bakılmıyor (`512.512.512.512` geçerli).",
+            "en": "the numbers' range is never checked (`512.512.512.512` is valid)."
+          }
+        },
+        {
+          "file": "numb3rs.py",
+          "source": "import re\n\n\ndef main():\n    print(validate(input(\"IPv4 Address: \")))\n\n\ndef validate(ip):\n    if not re.fullmatch(r\"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(\\.\\d{1,3})?\", ip):\n        return False\n    for number in ip.split(\".\"):\n        if int(number) > 255:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "beş sayılı adres (`1.2.3.4.5`) geçerli sayılıyor.",
+            "en": "a five-number address (`1.2.3.4.5`) counts as valid."
+          }
+        },
+        {
+          "file": "numb3rs.py",
+          "source": "import re\n\n\ndef main():\n    print(validate(input(\"IPv4 Address: \")))\n\n\ndef validate(ip):\n    if not re.fullmatch(r\"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(\\.\\d{1,3})?\", ip):\n        return False\n    for number in ip.split(\".\"):\n        if int(number) > 255:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "üç sayılı adres (`1.2.3`) geçerli sayılıyor.",
+            "en": "a three-number address (`1.2.3`) counts as valid."
+          }
+        },
+        {
+          "file": "numb3rs.py",
+          "source": "import re\n\n\ndef main():\n    print(validate(input(\"IPv4 Address: \")))\n\n\ndef validate(ip):\n    if not re.fullmatch(r\"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\", ip):\n        return False\n    for number in ip.split(\".\"):\n        if int(number) > 256:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`256` geçerli sayılıyor.",
+            "en": "`256` counts as valid."
+          }
+        }
+      ]
+    }
+  ]
+}

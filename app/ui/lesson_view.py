@@ -79,6 +79,12 @@ SCROLL_SPY = """
     if (mark && on) {
       mark.style.transform = 'translateY(' + on.offsetTop + 'px)';
       mark.style.height = on.offsetHeight + 'px';
+      // Liste kendi içinde kayıyorsa seçili başlık görünür kalsın
+      // (scrollIntoView sayfanın kendisini de kaydırırdı).
+      const box = on.parentElement;
+      if (on.offsetTop < box.scrollTop) box.scrollTop = on.offsetTop;
+      else if (on.offsetTop + on.offsetHeight > box.scrollTop + box.clientHeight)
+        box.scrollTop = on.offsetTop + on.offsetHeight - box.clientHeight;
     }
   }
 

@@ -1,0 +1,207 @@
+{
+  "id": "seasons-of-love",
+  "title": {
+    "tr": "Seasons of Love",
+    "en": "Seasons of Love"
+  },
+  "difficulty": 3,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "seasons.py",
+  "files": [
+    {
+      "name": "seasons.py",
+      "starter": "starter-seasons.{lang}.py",
+      "solution": "solution-seasons.py"
+    },
+    {
+      "name": "test_seasons.py",
+      "starter": "starter-test_seasons.{lang}.py",
+      "solution": "solution-test_seasons.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki `date` nesnesinin farkı bir `timedelta`; gün sayısı `.days`.",
+      "en": "The difference of two `date` objects is a `timedelta`; the number of days is `.days`."
+    },
+    {
+      "tr": "`main`'de `try` içinde `minutes_between`'i çağır; `except ValueError:` içinde `sys.exit(\"Invalid date\")`.",
+      "en": "In `main`, call `minutes_between` inside `try`; inside `except ValueError:`, `sys.exit(\"Invalid date\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**seasons.py**\n\n```python\nimport sys\nfrom datetime import date\n\nimport inflect\n\np = inflect.engine()\n\n\ndef main():\n    birth = input(\"Date of Birth: \")\n    try:\n        minutes = minutes_between(birth, date.today().isoformat())\n    except ValueError:\n        sys.exit(\"Invalid date\")\n    print(sing(minutes))\n\n\ndef minutes_between(birth, today):\n    days = (date.fromisoformat(today) - date.fromisoformat(birth)).days\n    return days * 24 * 60\n\n\ndef sing(minutes):\n    words = p.number_to_words(minutes, andword=\"\")\n    return words.capitalize() + \" minutes\"\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_seasons.py**\n\n```python\nimport pytest\n\nfrom seasons import minutes_between, sing\n\n\ndef test_minutes_between():\n    assert minutes_between(\"1999-01-01\", \"2000-01-01\") == 525600\n    assert minutes_between(\"2000-01-01\", \"2001-01-01\") == 527040\n    assert minutes_between(\"1998-06-20\", \"2000-06-20\") == 1052640\n\n\ndef test_invalid_date():\n    with pytest.raises(ValueError):\n        minutes_between(\"January 1, 1999\", \"2000-01-01\")\n    with pytest.raises(ValueError):\n        minutes_between(\"1999-02-30\", \"2000-01-01\")\n\n\ndef test_sing():\n    assert sing(525600) == \"Five hundred twenty-five thousand, six hundred minutes\"\n    assert sing(527040) == \"Five hundred twenty-seven thousand forty minutes\"\n    assert sing(1051200) == \"One million, fifty-one thousand, two hundred minutes\"\n```",
+      "en": "The full solution:\n\n**seasons.py**\n\n```python\nimport sys\nfrom datetime import date\n\nimport inflect\n\np = inflect.engine()\n\n\ndef main():\n    birth = input(\"Date of Birth: \")\n    try:\n        minutes = minutes_between(birth, date.today().isoformat())\n    except ValueError:\n        sys.exit(\"Invalid date\")\n    print(sing(minutes))\n\n\ndef minutes_between(birth, today):\n    days = (date.fromisoformat(today) - date.fromisoformat(birth)).days\n    return days * 24 * 60\n\n\ndef sing(minutes):\n    words = p.number_to_words(minutes, andword=\"\")\n    return words.capitalize() + \" minutes\"\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_seasons.py**\n\n```python\nimport pytest\n\nfrom seasons import minutes_between, sing\n\n\ndef test_minutes_between():\n    assert minutes_between(\"1999-01-01\", \"2000-01-01\") == 525600\n    assert minutes_between(\"2000-01-01\", \"2001-01-01\") == 527040\n    assert minutes_between(\"1998-06-20\", \"2000-06-20\") == 1052640\n\n\ndef test_invalid_date():\n    with pytest.raises(ValueError):\n        minutes_between(\"January 1, 1999\", \"2000-01-01\")\n    with pytest.raises(ValueError):\n        minutes_between(\"1999-02-30\", \"2000-01-01\")\n\n\ndef test_sing():\n    assert sing(525600) == \"Five hundred twenty-five thousand, six hundred minutes\"\n    assert sing(527040) == \"Five hundred twenty-seven thousand forty minutes\"\n    assert sing(1051200) == \"One million, fifty-one thousand, two hundred minutes\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "January 1, 1999\n",
+          "exit": 1
+        },
+        {
+          "stdin": "1999-02-30\n",
+          "exit": 1
+        },
+        {
+          "stdin": "cat\n",
+          "exit": 1
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "minutes_between",
+      "cases": [
+        {
+          "args": [
+            "1999-01-01",
+            "2000-01-01"
+          ],
+          "returns": 525600
+        },
+        {
+          "args": [
+            "2000-01-01",
+            "2001-01-01"
+          ],
+          "returns": 527040
+        },
+        {
+          "args": [
+            "2001-01-01",
+            "2003-01-01"
+          ],
+          "returns": 1051200
+        },
+        {
+          "args": [
+            "1998-06-20",
+            "2000-06-20"
+          ],
+          "returns": 1052640
+        },
+        {
+          "args": [
+            "2000-01-01",
+            "2000-01-01"
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "1999-12-31",
+            "2000-03-01"
+          ],
+          "returns": 87840
+        },
+        {
+          "args": [
+            "January 1, 1999",
+            "2000-01-01"
+          ],
+          "raises": "ValueError"
+        },
+        {
+          "args": [
+            "1999-02-30",
+            "2000-01-01"
+          ],
+          "raises": "ValueError"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "sing",
+      "cases": [
+        {
+          "args": [
+            525600
+          ],
+          "returns": "Five hundred twenty-five thousand, six hundred minutes"
+        },
+        {
+          "args": [
+            527040
+          ],
+          "returns": "Five hundred twenty-seven thousand forty minutes"
+        },
+        {
+          "args": [
+            1051200
+          ],
+          "returns": "One million, fifty-one thousand, two hundred minutes"
+        },
+        {
+          "args": [
+            1052640
+          ],
+          "returns": "One million, fifty-two thousand, six hundred forty minutes"
+        }
+      ]
+    },
+    {
+      "type": "pytest",
+      "file": "test_seasons.py",
+      "min": 1,
+      "mutants": [
+        {
+          "file": "seasons.py",
+          "source": "import sys\nfrom datetime import date\n\nimport inflect\n\np = inflect.engine()\n\n\ndef main():\n    birth = input(\"Date of Birth: \")\n    try:\n        minutes = minutes_between(birth, date.today().isoformat())\n    except ValueError:\n        sys.exit(\"Invalid date\")\n    print(sing(minutes))\n\n\ndef minutes_between(birth, today):\n    days = (date.fromisoformat(today) - date.fromisoformat(birth)).days\n    return days * 24\n\n\ndef sing(minutes):\n    words = p.number_to_words(minutes, andword=\"\")\n    return words.capitalize() + \" minutes\"\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "dakika değil saat döndürüyor.",
+            "en": "it returns hours, not minutes."
+          }
+        },
+        {
+          "file": "seasons.py",
+          "source": "import sys\nfrom datetime import date\n\nimport inflect\n\np = inflect.engine()\n\n\ndef main():\n    birth = input(\"Date of Birth: \")\n    try:\n        minutes = minutes_between(birth, date.today().isoformat())\n    except ValueError:\n        sys.exit(\"Invalid date\")\n    print(sing(minutes))\n\n\ndef minutes_between(birth, today):\n    days = (date.fromisoformat(birth) - date.fromisoformat(today)).days\n    return days * 24 * 60\n\n\ndef sing(minutes):\n    words = p.number_to_words(minutes, andword=\"\")\n    return words.capitalize() + \" minutes\"\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "fark ters alınıyor, sonuç eksi.",
+            "en": "the difference is reversed; the result is negative."
+          }
+        },
+        {
+          "file": "seasons.py",
+          "source": "import sys\nfrom datetime import date\n\nimport inflect\n\np = inflect.engine()\n\n\ndef main():\n    birth = input(\"Date of Birth: \")\n    try:\n        minutes = minutes_between(birth, date.today().isoformat())\n    except ValueError:\n        sys.exit(\"Invalid date\")\n    print(sing(minutes))\n\n\ndef minutes_between(birth, today):\n    days = (date.fromisoformat(today) - date.fromisoformat(birth)).days\n    return days * 24 * 60\n\n\ndef sing(minutes):\n    words = p.number_to_words(minutes)\n    return words.capitalize() + \" minutes\"\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "yazıda `and` var (`five hundred and twenty-five...`).",
+            "en": "the words contain `and` (`five hundred and twenty-five...`)."
+          }
+        },
+        {
+          "file": "seasons.py",
+          "source": "import sys\nfrom datetime import date\n\nimport inflect\n\np = inflect.engine()\n\n\ndef main():\n    birth = input(\"Date of Birth: \")\n    try:\n        minutes = minutes_between(birth, date.today().isoformat())\n    except ValueError:\n        sys.exit(\"Invalid date\")\n    print(sing(minutes))\n\n\ndef minutes_between(birth, today):\n    days = (date.fromisoformat(today) - date.fromisoformat(birth)).days\n    return days * 24 * 60\n\n\ndef sing(minutes):\n    words = p.number_to_words(minutes, andword=\"\")\n    return words + \" minutes\"\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "büyük harfle başlamıyor.",
+            "en": "it does not start with a capital letter."
+          }
+        },
+        {
+          "file": "seasons.py",
+          "source": "import sys\nfrom datetime import date\n\nimport inflect\n\np = inflect.engine()\n\n\ndef main():\n    birth = input(\"Date of Birth: \")\n    try:\n        minutes = minutes_between(birth, date.today().isoformat())\n    except ValueError:\n        sys.exit(\"Invalid date\")\n    print(sing(minutes))\n\n\ndef minutes_between(birth, today):\n    days = (date.fromisoformat(today) - date.fromisoformat(birth)).days\n    return days * 24 * 60\n\n\ndef sing(minutes):\n    words = p.number_to_words(minutes, andword=\"\")\n    return words.capitalize() \n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "sonunda `minutes` yok.",
+            "en": "`minutes` is missing at the end."
+          }
+        },
+        {
+          "file": "seasons.py",
+          "source": "import sys\nfrom datetime import date\n\nimport inflect\n\np = inflect.engine()\n\n\ndef main():\n    birth = input(\"Date of Birth: \")\n    try:\n        minutes = minutes_between(birth, date.today().isoformat())\n    except ValueError:\n        sys.exit(\"Invalid date\")\n    print(sing(minutes))\n\n\ndef minutes_between(birth, today):\n    days = (date.fromisoformat(today) - date.fromisoformat(birth)).days // 365 * 365\n    return days * 24 * 60\n\n\ndef sing(minutes):\n    words = p.number_to_words(minutes, andword=\"\")\n    return words.capitalize() + \" minutes\"\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "artık yılları ve yarım yılları yok sayıyor (yalnızca tam 365 günlük yıllar).",
+            "en": "it ignores leap days and partial years (whole 365-day years only)."
+          }
+        }
+      ]
+    }
+  ]
+}

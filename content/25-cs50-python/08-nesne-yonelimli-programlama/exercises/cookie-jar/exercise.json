@@ -1,0 +1,237 @@
+{
+  "id": "cookie-jar",
+  "title": {
+    "tr": "Kurabiye Kavanozu",
+    "en": "Cookie Jar"
+  },
+  "difficulty": 3,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "jar.py",
+  "files": [
+    {
+      "name": "jar.py",
+      "starter": "starter-jar.{lang}.py",
+      "solution": "solution-jar.py"
+    },
+    {
+      "name": "test_jar.py",
+      "starter": "starter-test_jar.{lang}.py",
+      "solution": "solution-test_jar.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Değerleri `self._capacity` ve `self._size`'da sakla; özellikler onları döndürsün. `size` başta 0.",
+      "en": "Store the values in `self._capacity` and `self._size`; let the properties return them. `size` starts at 0."
+    },
+    {
+      "tr": "`isinstance(capacity, int)` tür denetimi; `capacity < 0` ise de hata.",
+      "en": "`isinstance(capacity, int)` checks the type; `capacity < 0` is an error too."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**jar.py**\n\n```python\nCOOKIE = \"🍪\"\n\n\nclass Jar:\n    def __init__(self, capacity=12):\n        if not isinstance(capacity, int) or capacity < 0:\n            raise ValueError(\"Invalid capacity\")\n        self._capacity = capacity\n        self._size = 0\n\n    def __str__(self):\n        return COOKIE * self.size\n\n    def deposit(self, n):\n        if self.size + n > self.capacity:\n            raise ValueError(\"Too many cookies\")\n        self._size += n\n\n    def withdraw(self, n):\n        if n > self.size:\n            raise ValueError(\"Not enough cookies\")\n        self._size -= n\n\n    @property\n    def capacity(self):\n        return self._capacity\n\n    @property\n    def size(self):\n        return self._size\n```\n\n**test_jar.py**\n\n```python\nimport pytest\n\nfrom jar import COOKIE, Jar\n\n\ndef test_init():\n    jar = Jar()\n    assert jar.capacity == 12\n    assert jar.size == 0\n    assert Jar(3).capacity == 3\n    with pytest.raises(ValueError):\n        Jar(-1)\n\n\ndef test_str():\n    jar = Jar()\n    assert str(jar) == \"\"\n    jar.deposit(3)\n    assert str(jar) == COOKIE * 3\n\n\ndef test_deposit():\n    jar = Jar(5)\n    jar.deposit(2)\n    jar.deposit(3)\n    assert jar.size == 5\n    with pytest.raises(ValueError):\n        jar.deposit(1)\n\n\ndef test_withdraw():\n    jar = Jar()\n    jar.deposit(4)\n    jar.withdraw(3)\n    assert jar.size == 1\n    with pytest.raises(ValueError):\n        jar.withdraw(2)\n```",
+      "en": "The full solution:\n\n**jar.py**\n\n```python\nCOOKIE = \"🍪\"\n\n\nclass Jar:\n    def __init__(self, capacity=12):\n        if not isinstance(capacity, int) or capacity < 0:\n            raise ValueError(\"Invalid capacity\")\n        self._capacity = capacity\n        self._size = 0\n\n    def __str__(self):\n        return COOKIE * self.size\n\n    def deposit(self, n):\n        if self.size + n > self.capacity:\n            raise ValueError(\"Too many cookies\")\n        self._size += n\n\n    def withdraw(self, n):\n        if n > self.size:\n            raise ValueError(\"Not enough cookies\")\n        self._size -= n\n\n    @property\n    def capacity(self):\n        return self._capacity\n\n    @property\n    def size(self):\n        return self._size\n```\n\n**test_jar.py**\n\n```python\nimport pytest\n\nfrom jar import COOKIE, Jar\n\n\ndef test_init():\n    jar = Jar()\n    assert jar.capacity == 12\n    assert jar.size == 0\n    assert Jar(3).capacity == 3\n    with pytest.raises(ValueError):\n        Jar(-1)\n\n\ndef test_str():\n    jar = Jar()\n    assert str(jar) == \"\"\n    jar.deposit(3)\n    assert str(jar) == COOKIE * 3\n\n\ndef test_deposit():\n    jar = Jar(5)\n    jar.deposit(2)\n    jar.deposit(3)\n    assert jar.size == 5\n    with pytest.raises(ValueError):\n        jar.deposit(1)\n\n\ndef test_withdraw():\n    jar = Jar()\n    jar.deposit(4)\n    jar.withdraw(3)\n    assert jar.size == 1\n    with pytest.raises(ValueError):\n        jar.withdraw(2)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "method",
+      "class": "Jar",
+      "args": [],
+      "unicode_output": true,
+      "cases": [
+        {
+          "attribute": "capacity",
+          "equals": 12
+        },
+        {
+          "attribute": "size",
+          "equals": 0
+        },
+        {
+          "str": ""
+        },
+        {
+          "method": "deposit",
+          "args": [
+            3
+          ]
+        },
+        {
+          "attribute": "size",
+          "equals": 3
+        },
+        {
+          "str": "🍪🍪🍪"
+        },
+        {
+          "method": "withdraw",
+          "args": [
+            1
+          ]
+        },
+        {
+          "attribute": "size",
+          "equals": 2
+        },
+        {
+          "str": "🍪🍪"
+        },
+        {
+          "method": "deposit",
+          "args": [
+            10
+          ]
+        },
+        {
+          "attribute": "size",
+          "equals": 12
+        },
+        {
+          "method": "deposit",
+          "args": [
+            1
+          ],
+          "raises": "ValueError"
+        },
+        {
+          "method": "withdraw",
+          "args": [
+            13
+          ],
+          "raises": "ValueError"
+        },
+        {
+          "attribute": "size",
+          "equals": 12
+        }
+      ]
+    },
+    {
+      "type": "method",
+      "class": "Jar",
+      "args": [
+        3
+      ],
+      "cases": [
+        {
+          "attribute": "capacity",
+          "equals": 3
+        },
+        {
+          "method": "deposit",
+          "args": [
+            4
+          ],
+          "raises": "ValueError"
+        },
+        {
+          "method": "withdraw",
+          "args": [
+            1
+          ],
+          "raises": "ValueError"
+        },
+        {
+          "method": "deposit",
+          "args": [
+            3
+          ]
+        },
+        {
+          "attribute": "size",
+          "equals": 3
+        }
+      ]
+    },
+    {
+      "type": "method",
+      "class": "Jar",
+      "args": [
+        0
+      ],
+      "cases": [
+        {
+          "attribute": "capacity",
+          "equals": 0
+        }
+      ]
+    },
+    {
+      "type": "method",
+      "class": "Jar",
+      "args": [
+        -1
+      ],
+      "raises": "ValueError"
+    },
+    {
+      "type": "method",
+      "class": "Jar",
+      "args": [
+        "12"
+      ],
+      "raises": "ValueError"
+    },
+    {
+      "type": "pytest",
+      "file": "test_jar.py",
+      "min": 4,
+      "mutants": [
+        {
+          "file": "jar.py",
+          "source": "COOKIE = \"🍪\"\n\n\nclass Jar:\n    def __init__(self, capacity=12):\n        if not isinstance(capacity, int):\n            raise ValueError(\"Invalid capacity\")\n        self._capacity = capacity\n        self._size = 0\n\n    def __str__(self):\n        return COOKIE * self.size\n\n    def deposit(self, n):\n        if self.size + n > self.capacity:\n            raise ValueError(\"Too many cookies\")\n        self._size += n\n\n    def withdraw(self, n):\n        if n > self.size:\n            raise ValueError(\"Not enough cookies\")\n        self._size -= n\n\n    @property\n    def capacity(self):\n        return self._capacity\n\n    @property\n    def size(self):\n        return self._size\n",
+          "bug": {
+            "tr": "negatif kapasite kabul ediliyor (`Jar(-1)`).",
+            "en": "a negative capacity is accepted (`Jar(-1)`)."
+          }
+        },
+        {
+          "file": "jar.py",
+          "source": "COOKIE = \"🍪\"\n\n\nclass Jar:\n    def __init__(self, capacity=10):\n        if not isinstance(capacity, int) or capacity < 0:\n            raise ValueError(\"Invalid capacity\")\n        self._capacity = capacity\n        self._size = 0\n\n    def __str__(self):\n        return COOKIE * self.size\n\n    def deposit(self, n):\n        if self.size + n > self.capacity:\n            raise ValueError(\"Too many cookies\")\n        self._size += n\n\n    def withdraw(self, n):\n        if n > self.size:\n            raise ValueError(\"Not enough cookies\")\n        self._size -= n\n\n    @property\n    def capacity(self):\n        return self._capacity\n\n    @property\n    def size(self):\n        return self._size\n",
+          "bug": {
+            "tr": "varsayılan kapasite 12 değil 10.",
+            "en": "the default capacity is 10, not 12."
+          }
+        },
+        {
+          "file": "jar.py",
+          "source": "COOKIE = \"🍪\"\n\n\nclass Jar:\n    def __init__(self, capacity=12):\n        if not isinstance(capacity, int) or capacity < 0:\n            raise ValueError(\"Invalid capacity\")\n        self._capacity = capacity\n        self._size = 0\n\n    def __str__(self):\n        return COOKIE * self.capacity\n\n    def deposit(self, n):\n        if self.size + n > self.capacity:\n            raise ValueError(\"Too many cookies\")\n        self._size += n\n\n    def withdraw(self, n):\n        if n > self.size:\n            raise ValueError(\"Not enough cookies\")\n        self._size -= n\n\n    @property\n    def capacity(self):\n        return self._capacity\n\n    @property\n    def size(self):\n        return self._size\n",
+          "bug": {
+            "tr": "`str` kurabiye sayısı yerine kapasite kadar 🍪 yazıyor.",
+            "en": "`str` shows as many 🍪 as the capacity, not the cookies."
+          }
+        },
+        {
+          "file": "jar.py",
+          "source": "COOKIE = \"🍪\"\n\n\nclass Jar:\n    def __init__(self, capacity=12):\n        if not isinstance(capacity, int) or capacity < 0:\n            raise ValueError(\"Invalid capacity\")\n        self._capacity = capacity\n        self._size = 0\n\n    def __str__(self):\n        return COOKIE * self.size\n\n    def deposit(self, n):\n        self._size += n\n\n    def withdraw(self, n):\n        if n > self.size:\n            raise ValueError(\"Not enough cookies\")\n        self._size -= n\n\n    @property\n    def capacity(self):\n        return self._capacity\n\n    @property\n    def size(self):\n        return self._size\n",
+          "bug": {
+            "tr": "`deposit` kapasiteyi denetlemiyor.",
+            "en": "`deposit` does not check the capacity."
+          }
+        },
+        {
+          "file": "jar.py",
+          "source": "COOKIE = \"🍪\"\n\n\nclass Jar:\n    def __init__(self, capacity=12):\n        if not isinstance(capacity, int) or capacity < 0:\n            raise ValueError(\"Invalid capacity\")\n        self._capacity = capacity\n        self._size = 0\n\n    def __str__(self):\n        return COOKIE * self.size\n\n    def deposit(self, n):\n        if self.size + n > self.capacity:\n            raise ValueError(\"Too many cookies\")\n        self._size += n\n\n    def withdraw(self, n):\n        self._size -= n\n\n    @property\n    def capacity(self):\n        return self._capacity\n\n    @property\n    def size(self):\n        return self._size\n",
+          "bug": {
+            "tr": "`withdraw` yeterince kurabiye var mı bakmıyor.",
+            "en": "`withdraw` does not check whether there are enough cookies."
+          }
+        },
+        {
+          "file": "jar.py",
+          "source": "COOKIE = \"🍪\"\n\n\nclass Jar:\n    def __init__(self, capacity=12):\n        if not isinstance(capacity, int) or capacity < 0:\n            raise ValueError(\"Invalid capacity\")\n        self._capacity = capacity\n        self._size = 0\n\n    def __str__(self):\n        return COOKIE * self.size\n\n    def deposit(self, n):\n        if self.size + n > self.capacity:\n            raise ValueError(\"Too many cookies\")\n        self._size += n\n\n    def withdraw(self, n):\n        if n > self.size:\n            raise ValueError(\"Not enough cookies\")\n        self._size -= 1\n\n    @property\n    def capacity(self):\n        return self._capacity\n\n    @property\n    def size(self):\n        return self._size\n",
+          "bug": {
+            "tr": "`withdraw` her zaman bir kurabiye alıyor.",
+            "en": "`withdraw` always removes one cookie."
+          }
+        }
+      ]
+    }
+  ]
+}

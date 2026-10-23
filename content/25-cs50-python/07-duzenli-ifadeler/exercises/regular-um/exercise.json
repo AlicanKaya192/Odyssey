@@ -1,0 +1,153 @@
+{
+  "id": "regular-um",
+  "title": {
+    "tr": "Düzenli, ııı, İfadeler?",
+    "en": "Regular, um, Regular Expressions?"
+  },
+  "difficulty": 2,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "um.py",
+  "files": [
+    {
+      "name": "um.py",
+      "starter": "starter-um.{lang}.py",
+      "solution": "solution-um.py"
+    },
+    {
+      "name": "test_um.py",
+      "starter": "starter-test_um.{lang}.py",
+      "solution": "solution-test_um.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`\\b` kelime sınırı: bir kelime karakteriyle kelime karakteri olmayan arasındaki yer. `re.findall(r\"\\bum\\b\", s, re.IGNORECASE)` ve `len`.",
+      "en": "`\\b` is a word boundary: the place between a word character and a non-word character. `re.findall(r\"\\bum\\b\", s, re.IGNORECASE)` and `len`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**um.py**\n\n```python\nimport re\n\n\ndef main():\n    print(count(input(\"Text: \")))\n\n\ndef count(s):\n    return len(re.findall(r\"\\bum\\b\", s, re.IGNORECASE))\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_um.py**\n\n```python\nfrom um import count\n\n\ndef test_one():\n    assert count(\"um\") == 1\n    assert count(\"hello, um, world\") == 1\n\n\ndef test_case():\n    assert count(\"Um, thanks, UM...\") == 2\n\n\ndef test_inside_words():\n    assert count(\"yummy\") == 0\n    assert count(\"umbrella\") == 0\n    assert count(\"Um, thanks for the album.\") == 1\n```",
+      "en": "The full solution:\n\n**um.py**\n\n```python\nimport re\n\n\ndef main():\n    print(count(input(\"Text: \")))\n\n\ndef count(s):\n    return len(re.findall(r\"\\bum\\b\", s, re.IGNORECASE))\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_um.py**\n\n```python\nfrom um import count\n\n\ndef test_one():\n    assert count(\"um\") == 1\n    assert count(\"hello, um, world\") == 1\n\n\ndef test_case():\n    assert count(\"Um, thanks, UM...\") == 2\n\n\ndef test_inside_words():\n    assert count(\"yummy\") == 0\n    assert count(\"umbrella\") == 0\n    assert count(\"Um, thanks for the album.\") == 1\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "hello, um, world\n",
+          "stdout": "1"
+        },
+        {
+          "stdin": "Um, thanks for the album.\n",
+          "stdout": "1"
+        },
+        {
+          "stdin": "Um, thanks, um...\n",
+          "stdout": "2"
+        },
+        {
+          "stdin": "yummy\n",
+          "stdout": "0"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "count",
+      "cases": [
+        {
+          "args": [
+            "um"
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            "um?"
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            "Um, thanks, um..."
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            "UM um Um"
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            "yummy"
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "album"
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "umbrella"
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": 0
+        }
+      ]
+    },
+    {
+      "type": "pytest",
+      "file": "test_um.py",
+      "min": 3,
+      "mutants": [
+        {
+          "file": "um.py",
+          "source": "import re\n\n\ndef main():\n    print(count(input(\"Text: \")))\n\n\ndef count(s):\n    return len(re.findall(r\"um\", s, re.IGNORECASE))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "kelimelerin içindeki `um` da sayılıyor (`yummy`).",
+            "en": "an `um` inside a word counts too (`yummy`)."
+          }
+        },
+        {
+          "file": "um.py",
+          "source": "import re\n\n\ndef main():\n    print(count(input(\"Text: \")))\n\n\ndef count(s):\n    return len(re.findall(r\"\\bum\\b\", s))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "büyük harfli `Um` sayılmıyor.",
+            "en": "an uppercase `Um` is not counted."
+          }
+        },
+        {
+          "file": "um.py",
+          "source": "import re\n\n\ndef main():\n    print(count(input(\"Text: \")))\n\n\ndef count(s):\n    return len(re.findall(r\" um \", s, re.IGNORECASE))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "yalnızca iki yanında boşluk olan `um` sayılıyor (`um,` sayılmıyor).",
+            "en": "only an `um` with spaces on both sides counts (`um,` does not)."
+          }
+        },
+        {
+          "file": "um.py",
+          "source": "import re\n\n\ndef main():\n    print(count(input(\"Text: \")))\n\n\ndef count(s):\n    return len(re.findall(r\"\\bum\", s, re.IGNORECASE))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`um` ile başlayan kelimeler de sayılıyor (`umbrella`).",
+            "en": "words starting with `um` count too (`umbrella`)."
+          }
+        }
+      ]
+    }
+  ]
+}

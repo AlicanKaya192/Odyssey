@@ -1,0 +1,3 @@
+def houses(students):
+    # Boş bir küme kur, her öğrencinin binasını ekle, sıralı listeyi döndür
+    ...

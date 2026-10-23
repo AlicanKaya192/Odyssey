@@ -1,0 +1,68 @@
+{
+  "id": "test-the-initials",
+  "title": {
+    "tr": "Baş Harfleri Test Et",
+    "en": "Test the Initials"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "test_initials.py",
+  "files": [
+    {
+      "name": "test_initials.py",
+      "starter": "starter-test_initials.{lang}.py",
+      "solution": "solution-test_initials.py"
+    },
+    {
+      "name": "initials.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Küçük harfle yazılmış bir ad dene: `assert initials(\"ada lovelace\") == \"AL\"`.",
+      "en": "Try a name written in lowercase: `assert initials(\"ada lovelace\") == \"AL\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test_initials.py**\n\n```python\nfrom initials import initials\n\n\ndef test_two_words():\n    assert initials(\"David Malan\") == \"DM\"\n\n\ndef test_lowercase():\n    assert initials(\"ada lovelace\") == \"AL\"\n\n\ndef test_one_word():\n    assert initials(\"Cher\") == \"C\"\n```",
+      "en": "The full solution:\n\n**test_initials.py**\n\n```python\nfrom initials import initials\n\n\ndef test_two_words():\n    assert initials(\"David Malan\") == \"DM\"\n\n\ndef test_lowercase():\n    assert initials(\"ada lovelace\") == \"AL\"\n\n\ndef test_one_word():\n    assert initials(\"Cher\") == \"C\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "test_initials.py",
+      "min": 2,
+      "mutants": [
+        {
+          "file": "initials.py",
+          "source": "def main():\n    name = input(\"Name: \")\n    print(initials(name))\n\n\ndef initials(name):\n    return \"\".join(word[0] for word in name.split())\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "küçük harfli adda harfler küçük kalıyor.",
+            "en": "lowercase names keep lowercase letters."
+          }
+        },
+        {
+          "file": "initials.py",
+          "source": "def main():\n    name = input(\"Name: \")\n    print(initials(name))\n\n\ndef initials(name):\n    return name[0].upper()\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "yalnızca ilk kelimenin harfi alınıyor.",
+            "en": "only the first word's letter is taken."
+          }
+        },
+        {
+          "file": "initials.py",
+          "source": "def main():\n    name = input(\"Name: \")\n    print(initials(name))\n\n\ndef initials(name):\n    return \" \".join(word[0].upper() for word in name.split())\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "harflerin arasına boşluk konuyor: `D M`.",
+            "en": "spaces are put between the letters: `D M`."
+          }
+        }
+      ]
+    }
+  ]
+}

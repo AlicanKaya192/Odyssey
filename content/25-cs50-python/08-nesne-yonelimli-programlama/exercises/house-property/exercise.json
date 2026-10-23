@@ -1,0 +1,95 @@
+{
+  "id": "house-property",
+  "title": {
+    "tr": "Bina Özelliği",
+    "en": "The House Property"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Alıcı: `@property` ve altında `def house(self): return self._house`. Ayarlayıcı: `@house.setter` ve altında `def house(self, house):`, önce denetim, sonra `self._house = house`.",
+      "en": "Getter: `@property` and below it `def house(self): return self._house`. Setter: `@house.setter` and below it `def house(self, house):`, the check first, then `self._house = house`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nclass Student:\n    def __init__(self, name, house):\n        self.name = name\n        self.house = house\n\n    def __str__(self):\n        return f\"{self.name} from {self.house}\"\n\n    @property\n    def name(self):\n        return self._name\n\n    @name.setter\n    def name(self, name):\n        if not name:\n            raise ValueError(\"Missing name\")\n        self._name = name\n\n    @property\n    def house(self):\n        return self._house\n\n    @house.setter\n    def house(self, house):\n        if house not in [\"Gryffindor\", \"Hufflepuff\", \"Ravenclaw\", \"Slytherin\"]:\n            raise ValueError(\"Invalid house\")\n        self._house = house\n```",
+      "en": "The full solution:\n\n```python\nclass Student:\n    def __init__(self, name, house):\n        self.name = name\n        self.house = house\n\n    def __str__(self):\n        return f\"{self.name} from {self.house}\"\n\n    @property\n    def name(self):\n        return self._name\n\n    @name.setter\n    def name(self, name):\n        if not name:\n            raise ValueError(\"Missing name\")\n        self._name = name\n\n    @property\n    def house(self):\n        return self._house\n\n    @house.setter\n    def house(self, house):\n        if house not in [\"Gryffindor\", \"Hufflepuff\", \"Ravenclaw\", \"Slytherin\"]:\n            raise ValueError(\"Invalid house\")\n        self._house = house\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "method",
+      "class": "Student",
+      "args": [
+        "Harry",
+        "Gryffindor"
+      ],
+      "cases": [
+        {
+          "str": "Harry from Gryffindor"
+        },
+        {
+          "set": "house",
+          "value": "Number Four, Privet Drive",
+          "raises": "ValueError"
+        },
+        {
+          "attribute": "house",
+          "equals": "Gryffindor"
+        },
+        {
+          "set": "house",
+          "value": "Slytherin"
+        },
+        {
+          "attribute": "house",
+          "equals": "Slytherin"
+        },
+        {
+          "set": "name",
+          "value": "",
+          "raises": "ValueError"
+        },
+        {
+          "attribute": "name",
+          "equals": "Harry"
+        },
+        {
+          "set": "name",
+          "value": "Draco"
+        },
+        {
+          "str": "Draco from Slytherin"
+        },
+        {
+          "attribute": "_house",
+          "equals": "Slytherin"
+        }
+      ]
+    },
+    {
+      "type": "method",
+      "class": "Student",
+      "args": [
+        "",
+        "Gryffindor"
+      ],
+      "raises": "ValueError"
+    },
+    {
+      "type": "method",
+      "class": "Student",
+      "args": [
+        "Harry",
+        "Privet Drive"
+      ],
+      "raises": "ValueError"
+    }
+  ]
+}

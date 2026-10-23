@@ -1,0 +1,68 @@
+{
+  "id": "three-test-functions",
+  "title": {
+    "tr": "Testleri Böl",
+    "en": "Split the Tests"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "test_calculator.py",
+  "files": [
+    {
+      "name": "test_calculator.py",
+      "starter": "starter-test_calculator.{lang}.py",
+      "solution": "solution-test_calculator.py"
+    },
+    {
+      "name": "calculator.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her fonksiyonun adı `test_` ile başlamalı, yoksa `pytest` onu test saymaz.",
+      "en": "Each function's name must start with `test_`, or `pytest` will not count it as a test."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test_calculator.py**\n\n```python\nfrom calculator import cube\n\n\ndef test_positive():\n    assert cube(2) == 8\n    assert cube(3) == 27\n\n\ndef test_negative():\n    assert cube(-2) == -8\n    assert cube(-3) == -27\n\n\ndef test_zero():\n    assert cube(0) == 0\n```",
+      "en": "The full solution:\n\n**test_calculator.py**\n\n```python\nfrom calculator import cube\n\n\ndef test_positive():\n    assert cube(2) == 8\n    assert cube(3) == 27\n\n\ndef test_negative():\n    assert cube(-2) == -8\n    assert cube(-3) == -27\n\n\ndef test_zero():\n    assert cube(0) == 0\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "test_calculator.py",
+      "min": 3,
+      "mutants": [
+        {
+          "file": "calculator.py",
+          "source": "def main():\n    x = int(input(\"What's x? \"))\n    print(\"x cubed is\", cube(x))\n\n\ndef cube(n):\n    return n * n * abs(n)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "negatif sayıların küpü artı çıkıyor: `cube(-2)` 8.",
+            "en": "negative numbers cube to a positive: `cube(-2)` is 8."
+          }
+        },
+        {
+          "file": "calculator.py",
+          "source": "def main():\n    x = int(input(\"What's x? \"))\n    print(\"x cubed is\", cube(x))\n\n\ndef cube(n):\n    return n * 3\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`n * n * n` yerine `n * 3`: `cube(2)` 6.",
+            "en": "`n * 3` instead of `n * n * n`: `cube(2)` is 6."
+          }
+        },
+        {
+          "file": "calculator.py",
+          "source": "def main():\n    x = int(input(\"What's x? \"))\n    print(\"x cubed is\", cube(x))\n\n\ndef cube(n):\n    if n == 0:\n        return 1\n    return n * n * n\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`cube(0)` 1 veriyor.",
+            "en": "`cube(0)` gives 1."
+          }
+        }
+      ]
+    }
+  ]
+}

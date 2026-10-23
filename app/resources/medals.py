@@ -443,6 +443,11 @@ GLYPHS: dict[str, str] = {
                     '<path d="M2.6 11.6l1.7-2.2 2.3 1.6" stroke-width="1.3"/>'
                     '<rect x="9" y="9.3" width="6" height="6" rx="1.2" stroke-width="1.4"/>'
                     '<g fill="#fff" stroke="none"><circle cx="12" cy="12.3" r="1.1"/></g>'),
+    # Kepli kalp: "Anne, Harvardlı Oldum!" (CS50'ye başlamak, şaka rozeti).
+    "proud-heart": ('<path fill="#fff" stroke="none" d="M12 21.6C7 18.2 4.6 15.6 4.6 13.1c0-2 1.6-3.5 3.5-3.5'
+                    ' 1.6 0 3 .9 3.9 2.3.9-1.4 2.3-2.3 3.9-2.3 1.9 0 3.5 1.5 3.5 3.5 0 2.5-2.4 5.1-7.4 8.5z"/>'
+                    '<path fill="#fff" stroke="none" d="m12 2.4 7.6 3.5-7.6 3.5-7.6-3.5z"/>'
+                    '<path d="M19.6 6v3.6" stroke-width="1.3"/>'),
 }
 
 

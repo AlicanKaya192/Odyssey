@@ -1,0 +1,68 @@
+{
+  "id": "leap-year-tests",
+  "title": {
+    "tr": "Artık Yıl Testleri",
+    "en": "Leap Year Tests"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "test_leap.py",
+  "files": [
+    {
+      "name": "test_leap.py",
+      "starter": "starter-test_leap.{lang}.py",
+      "solution": "solution-test_leap.py"
+    },
+    {
+      "name": "leap.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "1900 4'e bölünüyor ama artık yıl değil: `assert is_leap(1900) == False`. 2000 ise artık yıl.",
+      "en": "1900 is divisible by 4 but is not a leap year: `assert is_leap(1900) == False`. 2000 is one."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test_leap.py**\n\n```python\nfrom leap import is_leap\n\n\ndef test_divisible_by_4():\n    assert is_leap(2024) == True\n    assert is_leap(2023) == False\n\n\ndef test_century():\n    assert is_leap(1900) == False\n\n\ndef test_divisible_by_400():\n    assert is_leap(2000) == True\n```",
+      "en": "The full solution:\n\n**test_leap.py**\n\n```python\nfrom leap import is_leap\n\n\ndef test_divisible_by_4():\n    assert is_leap(2024) == True\n    assert is_leap(2023) == False\n\n\ndef test_century():\n    assert is_leap(1900) == False\n\n\ndef test_divisible_by_400():\n    assert is_leap(2000) == True\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "test_leap.py",
+      "min": 3,
+      "mutants": [
+        {
+          "file": "leap.py",
+          "source": "def main():\n    year = int(input(\"Year: \"))\n    if is_leap(year):\n        print(\"Leap year\")\n    else:\n        print(\"Not a leap year\")\n\n\ndef is_leap(year):\n    return year % 4 == 0\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "100 kuralı unutulmuş: 1900 artık yıl sayılıyor.",
+            "en": "the 100 rule is forgotten: 1900 counts as a leap year."
+          }
+        },
+        {
+          "file": "leap.py",
+          "source": "def main():\n    year = int(input(\"Year: \"))\n    if is_leap(year):\n        print(\"Leap year\")\n    else:\n        print(\"Not a leap year\")\n\n\ndef is_leap(year):\n    return year % 4 == 0 and year % 100 != 0\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "400 kuralı unutulmuş: 2000 artık yıl sayılmıyor.",
+            "en": "the 400 rule is forgotten: 2000 does not count as a leap year."
+          }
+        },
+        {
+          "file": "leap.py",
+          "source": "def main():\n    year = int(input(\"Year: \"))\n    if is_leap(year):\n        print(\"Leap year\")\n    else:\n        print(\"Not a leap year\")\n\n\ndef is_leap(year):\n    return year % 400 == 0\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "yalnızca 400'e bakılıyor: 2024 artık yıl sayılmıyor.",
+            "en": "only 400 is checked: 2024 does not count as a leap year."
+          }
+        }
+      ]
+    }
+  ]
+}

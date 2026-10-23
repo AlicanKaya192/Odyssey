@@ -1,0 +1,114 @@
+{
+  "id": "p-shirt",
+  "title": {
+    "tr": "P-Shirt",
+    "en": "P-Shirt"
+  },
+  "difficulty": 3,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`photo = ImageOps.fit(photo, shirt.size)`; `fit` yeni bir resim döndürür.",
+      "en": "`photo = ImageOps.fit(photo, shirt.size)`; `fit` returns a new image."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport os\nimport sys\n\nfrom PIL import Image, ImageOps\n\nEXTENSIONS = (\".jpg\", \".jpeg\", \".png\")\n\nif len(sys.argv) < 3:\n    sys.exit(\"Too few command-line arguments\")\nif len(sys.argv) > 3:\n    sys.exit(\"Too many command-line arguments\")\n\nbefore, after = sys.argv[1], sys.argv[2]\nbefore_ext = os.path.splitext(before)[1].lower()\nafter_ext = os.path.splitext(after)[1].lower()\nif before_ext not in EXTENSIONS:\n    sys.exit(\"Invalid input\")\nif after_ext not in EXTENSIONS:\n    sys.exit(\"Invalid output\")\nif before_ext != after_ext:\n    sys.exit(\"Input and output have different extensions\")\n\ntry:\n    photo = Image.open(before)\nexcept FileNotFoundError:\n    sys.exit(\"Input does not exist\")\n\nshirt = Image.open(\"shirt.png\")\nphoto = ImageOps.fit(photo, shirt.size)\nphoto.paste(shirt, shirt)\nphoto.save(after)\n```",
+      "en": "The full solution:\n\n```python\nimport os\nimport sys\n\nfrom PIL import Image, ImageOps\n\nEXTENSIONS = (\".jpg\", \".jpeg\", \".png\")\n\nif len(sys.argv) < 3:\n    sys.exit(\"Too few command-line arguments\")\nif len(sys.argv) > 3:\n    sys.exit(\"Too many command-line arguments\")\n\nbefore, after = sys.argv[1], sys.argv[2]\nbefore_ext = os.path.splitext(before)[1].lower()\nafter_ext = os.path.splitext(after)[1].lower()\nif before_ext not in EXTENSIONS:\n    sys.exit(\"Invalid input\")\nif after_ext not in EXTENSIONS:\n    sys.exit(\"Invalid output\")\nif before_ext != after_ext:\n    sys.exit(\"Input and output have different extensions\")\n\ntry:\n    photo = Image.open(before)\nexcept FileNotFoundError:\n    sys.exit(\"Input does not exist\")\n\nshirt = Image.open(\"shirt.png\")\nphoto = ImageOps.fit(photo, shirt.size)\nphoto.paste(shirt, shirt)\nphoto.save(after)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "run": {
+        "argv": [
+          "before1.jpg",
+          "after1.jpg"
+        ]
+      },
+      "cases": [
+        {
+          "argv": [],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "before1.jpg",
+            "before2.jpg",
+            "before3.jpg"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "before1.jpg",
+            "invalid_format.bmp"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "before1.jpg",
+            "after1.png"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "non_existent_image.jpg",
+            "after1.jpg"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "before1.jpg",
+            "after1.jpg"
+          ],
+          "expect_files": {
+            "after1.jpg": {
+              "image": {
+                "like": "expected/after1.jpg",
+                "tolerance": 4
+              }
+            }
+          }
+        },
+        {
+          "argv": [
+            "before2.jpg",
+            "after2.jpg"
+          ],
+          "expect_files": {
+            "after2.jpg": {
+              "image": {
+                "like": "expected/after2.jpg",
+                "tolerance": 4
+              }
+            }
+          }
+        },
+        {
+          "argv": [
+            "before3.jpg",
+            "after3.jpg"
+          ],
+          "expect_files": {
+            "after3.jpg": {
+              "image": {
+                "like": "expected/after3.jpg",
+                "tolerance": 4
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

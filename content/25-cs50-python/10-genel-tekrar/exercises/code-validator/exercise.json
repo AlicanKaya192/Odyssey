@@ -1,0 +1,166 @@
+{
+  "id": "code-validator",
+  "title": {
+    "tr": "Kod Doğrulayıcı",
+    "en": "Code Validator"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "validate.py",
+  "files": [
+    {
+      "name": "validate.py",
+      "starter": "starter-validate.{lang}.py",
+      "solution": "solution-validate.py"
+    },
+    {
+      "name": "test_validate.py",
+      "starter": "starter-test_validate.{lang}.py",
+      "solution": "solution-test_validate.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`re.fullmatch` bütün metnin kalıba uymasını ister: `[A-Z]{2}-[1-9][0-9]{3}`. Sonuç bir eşleşme nesnesi ya da `None`; `is not None` ile `True`/`False` yap.",
+      "en": "`re.fullmatch` requires the whole text to match the pattern: `[A-Z]{2}-[1-9][0-9]{3}`. The result is a match object or `None`; turn it into `True`/`False` with `is not None`."
+    },
+    {
+      "tr": "Testlerde her kural için bir bozuk kod dene: küçük harf, baştaki 0, eksik ya da fazla rakam, tiresiz, önünde fazladan harf.",
+      "en": "In the tests, try one broken code per rule: lowercase, a leading 0, too few or too many digits, no hyphen, an extra letter in front."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**validate.py**\n\n```python\nimport re\n\n\ndef main():\n    if is_valid(input(\"Code: \")):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(code):\n    return re.fullmatch(r\"[A-Z]{2}-[1-9][0-9]{3}\", code) is not None\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_validate.py**\n\n```python\nfrom validate import is_valid\n\n\ndef test_valid():\n    assert is_valid(\"AB-1234\")\n    assert is_valid(\"ZZ-9000\")\n\n\ndef test_letters():\n    assert not is_valid(\"ab-1234\")\n    assert not is_valid(\"A-1234\")\n    assert not is_valid(\"ABC-1234\")\n\n\ndef test_digits():\n    assert not is_valid(\"AB-0123\")\n    assert not is_valid(\"AB-123\")\n    assert not is_valid(\"AB-12345\")\n\n\ndef test_format():\n    assert not is_valid(\"AB1234\")\n    assert not is_valid(\"XAB-1234\")\n    assert not is_valid(\"AB-1234 \")\n```",
+      "en": "The full solution:\n\n**validate.py**\n\n```python\nimport re\n\n\ndef main():\n    if is_valid(input(\"Code: \")):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(code):\n    return re.fullmatch(r\"[A-Z]{2}-[1-9][0-9]{3}\", code) is not None\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_validate.py**\n\n```python\nfrom validate import is_valid\n\n\ndef test_valid():\n    assert is_valid(\"AB-1234\")\n    assert is_valid(\"ZZ-9000\")\n\n\ndef test_letters():\n    assert not is_valid(\"ab-1234\")\n    assert not is_valid(\"A-1234\")\n    assert not is_valid(\"ABC-1234\")\n\n\ndef test_digits():\n    assert not is_valid(\"AB-0123\")\n    assert not is_valid(\"AB-123\")\n    assert not is_valid(\"AB-12345\")\n\n\ndef test_format():\n    assert not is_valid(\"AB1234\")\n    assert not is_valid(\"XAB-1234\")\n    assert not is_valid(\"AB-1234 \")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "AB-1234\n",
+          "stdout": "Valid"
+        },
+        {
+          "stdin": "AB-0123\n",
+          "stdout": "Invalid"
+        },
+        {
+          "stdin": "ab-1234\n",
+          "stdout": "Invalid"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "is_valid",
+      "cases": [
+        {
+          "args": [
+            "AB-1234"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "ZZ-9000"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "AB-0123"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "ab-1234"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "AB1234"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "AB-12345"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "XAB-1234"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "AB-123"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "pytest",
+      "file": "test_validate.py",
+      "min": 1,
+      "mutants": [
+        {
+          "file": "validate.py",
+          "source": "import re\n\n\ndef main():\n    if is_valid(input(\"Code: \")):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(code):\n    return re.search(r\"[A-Z]{2}-[1-9][0-9]{3}\", code) is not None\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "kodun önünde ya da arkasında başka metin olsa da geçiyor.",
+            "en": "text before or after the code still passes."
+          }
+        },
+        {
+          "file": "validate.py",
+          "source": "import re\n\n\ndef main():\n    if is_valid(input(\"Code: \")):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(code):\n    return re.fullmatch(r\"[A-Z]{2}-[0-9][0-9]{3}\", code) is not None\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "0 ile başlayan rakamlar kabul ediliyor.",
+            "en": "digits starting with 0 are accepted."
+          }
+        },
+        {
+          "file": "validate.py",
+          "source": "import re\n\n\ndef main():\n    if is_valid(input(\"Code: \")):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(code):\n    return re.fullmatch(r\"[A-Za-z]{2}-[1-9][0-9]{3}\", code) is not None\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "küçük harfler kabul ediliyor.",
+            "en": "lowercase letters are accepted."
+          }
+        },
+        {
+          "file": "validate.py",
+          "source": "import re\n\n\ndef main():\n    if is_valid(input(\"Code: \")):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(code):\n    return re.fullmatch(r\"[A-Z]{2}-[1-9][0-9]{3,4}\", code) is not None\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "beş rakam da kabul ediliyor.",
+            "en": "five digits are accepted too."
+          }
+        },
+        {
+          "file": "validate.py",
+          "source": "import re\n\n\ndef main():\n    if is_valid(input(\"Code: \")):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(code):\n    return re.fullmatch(r\"[A-Z]{2}-?[1-9][0-9]{3}\", code) is not None\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "tiresiz kod kabul ediliyor.",
+            "en": "a code without a hyphen is accepted."
+          }
+        }
+      ]
+    }
+  ]
+}

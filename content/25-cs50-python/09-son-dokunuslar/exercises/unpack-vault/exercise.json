@@ -1,0 +1,133 @@
+{
+  "id": "unpack-vault",
+  "title": {
+    "tr": "Kasayı Aç",
+    "en": "Unpack the Vault"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Liste `total(*coins)`, sözlük `total(**coins)`. `total_all` içinde `vaults` bir demet; her `vault`'u yine `*` ile aç ve topla.",
+      "en": "A list is `total(*coins)`, a dictionary `total(**coins)`. Inside `total_all`, `vaults` is a tuple; unpack each `vault` with `*` again and add them up."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef total(galleons, sickles, knuts):\n    return (galleons * 17 + sickles) * 29 + knuts\n\n\ndef total_from_list(coins):\n    return total(*coins)\n\n\ndef total_from_dict(coins):\n    return total(**coins)\n\n\ndef total_all(*vaults):\n    return sum(total(*vault) for vault in vaults)\n```",
+      "en": "The full solution:\n\n```python\ndef total(galleons, sickles, knuts):\n    return (galleons * 17 + sickles) * 29 + knuts\n\n\ndef total_from_list(coins):\n    return total(*coins)\n\n\ndef total_from_dict(coins):\n    return total(**coins)\n\n\ndef total_all(*vaults):\n    return sum(total(*vault) for vault in vaults)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "total_from_list",
+      "cases": [
+        {
+          "args": [
+            [
+              100,
+              50,
+              25
+            ]
+          ],
+          "returns": 50775
+        },
+        {
+          "args": [
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              1,
+              0,
+              0
+            ]
+          ],
+          "returns": 493
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "total_from_dict",
+      "cases": [
+        {
+          "args": [
+            {
+              "knuts": 25,
+              "galleons": 100,
+              "sickles": 50
+            }
+          ],
+          "returns": 50775
+        },
+        {
+          "args": [
+            {
+              "galleons": 2,
+              "sickles": 3,
+              "knuts": 4
+            }
+          ],
+          "returns": 1077
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "total_all",
+      "cases": [
+        {
+          "args": [
+            [
+              100,
+              50,
+              25
+            ],
+            [
+              1,
+              0,
+              0
+            ]
+          ],
+          "returns": 51268
+        },
+        {
+          "args": [
+            [
+              0,
+              1,
+              0
+            ]
+          ],
+          "returns": 29
+        },
+        {
+          "args": [],
+          "returns": 0
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "Subscript",
+      "strict": true,
+      "hint": {
+        "tr": "`coins[0]` gibi indeksle değil, `*` ve `**` ile aç.",
+        "en": "Don't index like `coins[0]`; unpack with `*` and `**`."
+      }
+    }
+  ]
+}

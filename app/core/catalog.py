@@ -106,6 +106,19 @@ class Block:
         return resolve_localized(self.directory, template, language)
 
     @property
+    def youtube(self) -> str:
+        """`video` bloğundaki YouTube video kimliği (11 karakter, adres değil)."""
+        return str(self.raw.get("youtube", ""))
+
+    @property
+    def subtitles(self) -> dict[str, Path]:
+        """`video` bloğunun kendi altyazıları: {dil: SRT dosyası} (`subtitles.tr.srt` gibi)."""
+        alan = self.raw.get("subtitles")
+        if not isinstance(alan, dict):
+            return {}
+        return {str(dil): self.directory / str(ad) for dil, ad in alan.items()}
+
+    @property
     def exercise_dir(self) -> Path | None:
         relative = self.raw.get("dir")
         return self.directory / relative if relative else None
@@ -214,6 +227,11 @@ class Exercise:
     @property
     def is_problem(self) -> bool:
         return self.kind == "problem"
+
+    @property
+    def group(self) -> str:
+        """`pset`: bölümün "Problem Seti" sekmesinde (CS50 ödevleri); boş: "Alıştırma"."""
+        return str(self.raw.get("group", ""))
 
     @property
     def is_terminal(self) -> bool:

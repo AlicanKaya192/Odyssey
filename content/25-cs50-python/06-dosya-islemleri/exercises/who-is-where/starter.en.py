@@ -1,0 +1,3 @@
+# Read students.csv
+# Split each line: name, house = ...
+# Collect the sentences, print them sorted

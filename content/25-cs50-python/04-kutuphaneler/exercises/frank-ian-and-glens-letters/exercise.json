@@ -1,0 +1,94 @@
+{
+  "id": "frank-ian-and-glens-letters",
+  "title": {
+    "tr": "Frank, Ian ve Glen'in Harfleri",
+    "en": "Frank, Ian and Glen's Letters"
+  },
+  "difficulty": 2,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`len(sys.argv)` 1 ise argüman yok, 3 ise iki argüman var (`sys.argv[0]` programın adı).",
+      "en": "`len(sys.argv)` is 1 with no arguments and 3 with two (`sys.argv[0]` is the program's name)."
+    },
+    {
+      "tr": "Yazı tipi adını denetlemek için: `sys.argv[2] in figlet.getFonts()`.",
+      "en": "To check the font name: `sys.argv[2] in figlet.getFonts()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport random\nimport sys\n\nfrom pyfiglet import Figlet\n\nfiglet = Figlet()\nfonts = figlet.getFonts()\n\nif len(sys.argv) == 1:\n    font = random.choice(fonts)\nelif len(sys.argv) == 3 and sys.argv[1] in (\"-f\", \"--font\") and sys.argv[2] in fonts:\n    font = sys.argv[2]\nelse:\n    sys.exit(\"Invalid usage\")\n\ntext = input(\"Input: \")\nfiglet.setFont(font=font)\nprint(\"Output:\")\nprint(figlet.renderText(text))\n```",
+      "en": "The full solution:\n\n```python\nimport random\nimport sys\n\nfrom pyfiglet import Figlet\n\nfiglet = Figlet()\nfonts = figlet.getFonts()\n\nif len(sys.argv) == 1:\n    font = random.choice(fonts)\nelif len(sys.argv) == 3 and sys.argv[1] in (\"-f\", \"--font\") and sys.argv[2] in fonts:\n    font = sys.argv[2]\nelse:\n    sys.exit(\"Invalid usage\")\n\ntext = input(\"Input: \")\nfiglet.setFont(font=font)\nprint(\"Output:\")\nprint(figlet.renderText(text))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "run": {
+        "argv": [
+          "-f",
+          "slant"
+        ],
+        "stdin": "CS50\n"
+      },
+      "cases": [
+        {
+          "argv": [
+            "test"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "-a",
+            "slant"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "-f",
+            "invalid_font"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "-f",
+            "slant"
+          ],
+          "stdin": "CS50\n",
+          "stdout": "Output:\n   ___________ __________\n  / ____/ ___// ____/ __ \\\n / /    \\__ \\/___ \\/ / / /\n/ /___ ___/ /___/ / /_/ /\n\\____//____/_____/\\____/\n"
+        },
+        {
+          "argv": [
+            "-f",
+            "rectangles"
+          ],
+          "stdin": "Hello\n",
+          "stdout": "Output:\n\n _____     _ _\n|  |  |___| | |___\n|     | -_| | | . |\n|__|__|___|_|_|___|\n"
+        },
+        {
+          "argv": [
+            "--font",
+            "alphabet"
+          ],
+          "stdin": "Moo\n",
+          "stdout": "Output:\nM   M\nMM MM\nM M M ooo ooo\nM   M o o o o\nM   M ooo ooo\n\n"
+        },
+        {
+          "argv": [],
+          "stdin": "hi\n",
+          "seed": 1,
+          "exit": 0
+        }
+      ]
+    }
+  ]
+}

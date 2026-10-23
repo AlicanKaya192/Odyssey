@@ -64,6 +64,11 @@ GENAI1_CHAPTER = "21-uretken-yz-temelleri"
 GENAI2_CHAPTER = "22-prompt-muhendisligi"
 CICD_CHAPTER = "23-ci-cd"
 MLOPS_CHAPTER = "24-mlops"
+CS50_CHAPTER = "25-cs50-python"
+
+# Şaka rozeti (Alican 23 Ekim): CS50'de bir bölümü açmak yetiyor. Açmak
+# ilerleme kaydı bırakmadığı için ilk açılış bu ayara yazılıyor.
+CS50_STARTED_SETTING = "cs50_started"
 
 # Tek bir bölüme bağlı rozetler için: (modül kimliği, bölüm kimliği).
 #
@@ -160,6 +165,14 @@ GENAI1_SECTION_COUNT = 17
 GENAI2_SECTION_COUNT = 17
 CICD_SECTION_COUNT = 17
 MLOPS_SECTION_COUNT = 17
+
+
+def note_section_opened(store, chapter_id: str) -> bool:
+    """Bölüm açıldı. CS50'nin ilk açılışıysa kaydeder ve `True` döndürür."""
+    if chapter_id != CS50_CHAPTER or store.setting(CS50_STARTED_SETTING):
+        return False
+    store.set_setting(CS50_STARTED_SETTING, "1")
+    return True
 
 
 def _completed_sections(
@@ -328,6 +341,7 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "drift-detector": MLOPS_DRIFT_SECTION in bitenler,
         "canary-watcher": MLOPS_CANARY_SECTION in bitenler,
         "mlops-complete": modul_basina.get(MLOPS_CHAPTER, 0) >= MLOPS_SECTION_COUNT,
+        "harvard-mom": bool(store.setting(CS50_STARTED_SETTING)),
     }
 
 

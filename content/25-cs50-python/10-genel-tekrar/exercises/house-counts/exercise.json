@@ -1,0 +1,72 @@
+{
+  "id": "house-counts",
+  "title": {
+    "tr": "Bina Sayıları",
+    "en": "House Counts"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sayım için sözlük: `counts[house] = counts.get(house, 0) + 1`; satırlar `csv.DictReader` ile, böylece sütun sırası önemsiz. Olmayan dosya `FileNotFoundError` verir.",
+      "en": "A dictionary for counting: `counts[house] = counts.get(house, 0) + 1`; rows with `csv.DictReader`, so the column order does not matter. A missing file gives `FileNotFoundError`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport csv\nimport sys\n\n\ndef main():\n    if len(sys.argv) < 2:\n        sys.exit(\"Too few command-line arguments\")\n    if len(sys.argv) > 2:\n        sys.exit(\"Too many command-line arguments\")\n    if not sys.argv[1].endswith(\".csv\"):\n        sys.exit(\"Not a CSV file\")\n    try:\n        print_counts(sys.argv[1])\n    except FileNotFoundError:\n        sys.exit(\"File does not exist\")\n\n\ndef print_counts(path):\n    counts = {}\n    with open(path) as file:\n        for row in csv.DictReader(file):\n            counts[row[\"house\"]] = counts.get(row[\"house\"], 0) + 1\n    for house in sorted(counts):\n        print(f\"{house}: {counts[house]}\")\n\n\nif __name__ == \"__main__\":\n    main()\n```",
+      "en": "The full solution:\n\n```python\nimport csv\nimport sys\n\n\ndef main():\n    if len(sys.argv) < 2:\n        sys.exit(\"Too few command-line arguments\")\n    if len(sys.argv) > 2:\n        sys.exit(\"Too many command-line arguments\")\n    if not sys.argv[1].endswith(\".csv\"):\n        sys.exit(\"Not a CSV file\")\n    try:\n        print_counts(sys.argv[1])\n    except FileNotFoundError:\n        sys.exit(\"File does not exist\")\n\n\ndef print_counts(path):\n    counts = {}\n    with open(path) as file:\n        for row in csv.DictReader(file):\n            counts[row[\"house\"]] = counts.get(row[\"house\"], 0) + 1\n    for house in sorted(counts):\n        print(f\"{house}: {counts[house]}\")\n\n\nif __name__ == \"__main__\":\n    main()\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "run": {
+        "argv": [
+          "students.csv"
+        ]
+      },
+      "cases": [
+        {
+          "argv": [
+            "students.csv"
+          ],
+          "stdout": "Gryffindor: 3\nHufflepuff: 1\nRavenclaw: 2\nSlytherin: 1"
+        },
+        {
+          "argv": [
+            "club.csv"
+          ],
+          "stdout": "Hufflepuff: 1\nSlytherin: 2"
+        },
+        {
+          "argv": [],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "students.csv",
+            "club.csv"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "students.txt"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "missing.csv"
+          ],
+          "exit": 1
+        }
+      ]
+    }
+  ]
+}

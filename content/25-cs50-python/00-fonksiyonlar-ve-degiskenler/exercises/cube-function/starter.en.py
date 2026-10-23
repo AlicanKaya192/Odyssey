@@ -1,0 +1,3 @@
+# main(): get the number, print x cubed is ...
+# cube(n): return the cube of n
+# Call main() at the end of the file

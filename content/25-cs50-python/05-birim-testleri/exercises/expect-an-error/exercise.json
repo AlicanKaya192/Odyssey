@@ -1,0 +1,68 @@
+{
+  "id": "expect-an-error",
+  "title": {
+    "tr": "Hatayı Bekle",
+    "en": "Expect an Error"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "test_calculator.py",
+  "files": [
+    {
+      "name": "test_calculator.py",
+      "starter": "starter-test_calculator.{lang}.py",
+      "solution": "solution-test_calculator.py"
+    },
+    {
+      "name": "calculator.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "```python\ndef test_str():\n    with pytest.raises(TypeError):\n        square(\"cat\")\n```",
+      "en": "```python\ndef test_str():\n    with pytest.raises(TypeError):\n        square(\"cat\")\n```"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test_calculator.py**\n\n```python\nimport pytest\n\nfrom calculator import square\n\n\ndef test_numbers():\n    assert square(2) == 4\n    assert square(-3) == 9\n    assert square(0) == 0\n\n\ndef test_str():\n    with pytest.raises(TypeError):\n        square(\"cat\")\n```",
+      "en": "The full solution:\n\n**test_calculator.py**\n\n```python\nimport pytest\n\nfrom calculator import square\n\n\ndef test_numbers():\n    assert square(2) == 4\n    assert square(-3) == 9\n    assert square(0) == 0\n\n\ndef test_str():\n    with pytest.raises(TypeError):\n        square(\"cat\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "test_calculator.py",
+      "min": 2,
+      "mutants": [
+        {
+          "file": "calculator.py",
+          "source": "def main():\n    x = int(input(\"What's x? \"))\n    print(\"x squared is\", square(x))\n\n\ndef square(n):\n    if isinstance(n, str):\n        return n\n    return n * n\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "metin verilince hata vermiyor, metni döndürüyor.",
+            "en": "it raises no error for a string; it returns the string."
+          }
+        },
+        {
+          "file": "calculator.py",
+          "source": "def main():\n    x = int(input(\"What's x? \"))\n    print(\"x squared is\", square(x))\n\n\ndef square(n):\n    return n + n\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`*` yerine `+`: `square(3)` 6 veriyor.",
+            "en": "`+` instead of `*`: `square(3)` gives 6."
+          }
+        },
+        {
+          "file": "calculator.py",
+          "source": "def main():\n    x = int(input(\"What's x? \"))\n    print(\"x squared is\", square(x))\n\n\ndef square(n):\n    return n * abs(n)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "negatif sayıların karesi eksi çıkıyor: `square(-2)` -4.",
+            "en": "negative numbers square to a negative: `square(-2)` is -4."
+          }
+        }
+      ]
+    }
+  ]
+}

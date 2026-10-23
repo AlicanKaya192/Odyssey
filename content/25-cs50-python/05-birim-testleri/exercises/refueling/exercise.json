@@ -1,0 +1,227 @@
+{
+  "id": "refueling",
+  "title": {
+    "tr": "Yeniden Yakıt Almak",
+    "en": "Refueling"
+  },
+  "difficulty": 3,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "fuel.py",
+  "files": [
+    {
+      "name": "fuel.py",
+      "starter": "starter-fuel.{lang}.py",
+      "solution": "solution-fuel.py"
+    },
+    {
+      "name": "test_fuel.py",
+      "starter": "starter-test_fuel.{lang}.py",
+      "solution": "solution-test_fuel.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`convert`'te sıra önemli: `1/0` için `X > Y` de doğru, ama beklenen `ZeroDivisionError`; önce `Y`'nin 0 olup olmadığına bak.",
+      "en": "Order matters in `convert`: for `1/0`, `X > Y` is also true, but the expected error is `ZeroDivisionError`; check whether `Y` is 0 first."
+    },
+    {
+      "tr": "`main`'de `try` içinde `convert`'i çağır; `except (ValueError, ZeroDivisionError):` yeniden sorsun.",
+      "en": "In `main`, call `convert` inside `try`; let `except (ValueError, ZeroDivisionError):` ask again."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**fuel.py**\n\n```python\ndef main():\n    while True:\n        fraction = input(\"Fraction: \")\n        try:\n            percentage = convert(fraction)\n        except (ValueError, ZeroDivisionError):\n            continue\n        break\n    print(gauge(percentage))\n\n\ndef convert(fraction):\n    x, y = fraction.split(\"/\")\n    x = int(x)\n    y = int(y)\n    if y == 0:\n        raise ZeroDivisionError\n    if x < 0 or x > y:\n        raise ValueError\n    return round(x / y * 100)\n\n\ndef gauge(percentage):\n    if percentage <= 1:\n        return \"E\"\n    if percentage >= 99:\n        return \"F\"\n    return f\"{percentage}%\"\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_fuel.py**\n\n```python\nimport pytest\n\nfrom fuel import convert, gauge\n\n\ndef test_convert():\n    assert convert(\"1/4\") == 25\n    assert convert(\"3/4\") == 75\n    assert convert(\"2/3\") == 67\n\n\ndef test_convert_errors():\n    with pytest.raises(ValueError):\n        convert(\"5/4\")\n    with pytest.raises(ValueError):\n        convert(\"cat/dog\")\n    with pytest.raises(ZeroDivisionError):\n        convert(\"1/0\")\n\n\ndef test_gauge():\n    assert gauge(1) == \"E\"\n    assert gauge(0) == \"E\"\n    assert gauge(99) == \"F\"\n    assert gauge(100) == \"F\"\n    assert gauge(50) == \"50%\"\n    assert gauge(2) == \"2%\"\n```",
+      "en": "The full solution:\n\n**fuel.py**\n\n```python\ndef main():\n    while True:\n        fraction = input(\"Fraction: \")\n        try:\n            percentage = convert(fraction)\n        except (ValueError, ZeroDivisionError):\n            continue\n        break\n    print(gauge(percentage))\n\n\ndef convert(fraction):\n    x, y = fraction.split(\"/\")\n    x = int(x)\n    y = int(y)\n    if y == 0:\n        raise ZeroDivisionError\n    if x < 0 or x > y:\n        raise ValueError\n    return round(x / y * 100)\n\n\ndef gauge(percentage):\n    if percentage <= 1:\n        return \"E\"\n    if percentage >= 99:\n        return \"F\"\n    return f\"{percentage}%\"\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_fuel.py**\n\n```python\nimport pytest\n\nfrom fuel import convert, gauge\n\n\ndef test_convert():\n    assert convert(\"1/4\") == 25\n    assert convert(\"3/4\") == 75\n    assert convert(\"2/3\") == 67\n\n\ndef test_convert_errors():\n    with pytest.raises(ValueError):\n        convert(\"5/4\")\n    with pytest.raises(ValueError):\n        convert(\"cat/dog\")\n    with pytest.raises(ZeroDivisionError):\n        convert(\"1/0\")\n\n\ndef test_gauge():\n    assert gauge(1) == \"E\"\n    assert gauge(0) == \"E\"\n    assert gauge(99) == \"F\"\n    assert gauge(100) == \"F\"\n    assert gauge(50) == \"50%\"\n    assert gauge(2) == \"2%\"\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "3/4\n",
+          "stdout": "75%"
+        },
+        {
+          "stdin": "1/100\n",
+          "stdout": "E"
+        },
+        {
+          "stdin": "99/100\n",
+          "stdout": "F"
+        },
+        {
+          "stdin": "cat\n5/4\n1/0\n1/2\n",
+          "stdout": "50%"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "convert",
+      "cases": [
+        {
+          "args": [
+            "3/4"
+          ],
+          "returns": 75
+        },
+        {
+          "args": [
+            "1/4"
+          ],
+          "returns": 25
+        },
+        {
+          "args": [
+            "4/4"
+          ],
+          "returns": 100
+        },
+        {
+          "args": [
+            "0/4"
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "2/3"
+          ],
+          "returns": 67
+        },
+        {
+          "args": [
+            "5/4"
+          ],
+          "raises": "ValueError"
+        },
+        {
+          "args": [
+            "cat/dog"
+          ],
+          "raises": "ValueError"
+        },
+        {
+          "args": [
+            "1.5/3"
+          ],
+          "raises": "ValueError"
+        },
+        {
+          "args": [
+            "1/0"
+          ],
+          "raises": "ZeroDivisionError"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "gauge",
+      "cases": [
+        {
+          "args": [
+            0
+          ],
+          "returns": "E"
+        },
+        {
+          "args": [
+            1
+          ],
+          "returns": "E"
+        },
+        {
+          "args": [
+            2
+          ],
+          "returns": "2%"
+        },
+        {
+          "args": [
+            75
+          ],
+          "returns": "75%"
+        },
+        {
+          "args": [
+            98
+          ],
+          "returns": "98%"
+        },
+        {
+          "args": [
+            99
+          ],
+          "returns": "F"
+        },
+        {
+          "args": [
+            100
+          ],
+          "returns": "F"
+        }
+      ]
+    },
+    {
+      "type": "pytest",
+      "file": "test_fuel.py",
+      "min": 2,
+      "mutants": [
+        {
+          "file": "fuel.py",
+          "source": "def main():\n    while True:\n        fraction = input(\"Fraction: \")\n        try:\n            percentage = convert(fraction)\n        except (ValueError, ZeroDivisionError):\n            continue\n        break\n    print(gauge(percentage))\n\n\ndef convert(fraction):\n    x, y = fraction.split(\"/\")\n    x = int(x)\n    y = int(y)\n    if y == 0:\n        raise ZeroDivisionError\n    if x < 0 or x > y:\n        raise ValueError\n    return str(round(x / y * 100))\n\n\ndef gauge(percentage):\n    if percentage <= 1:\n        return \"E\"\n    if percentage >= 99:\n        return \"F\"\n    return f\"{percentage}%\"\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`convert` sayı yerine metin döndürüyor.",
+            "en": "`convert` returns a string instead of a number."
+          }
+        },
+        {
+          "file": "fuel.py",
+          "source": "def main():\n    while True:\n        fraction = input(\"Fraction: \")\n        try:\n            percentage = convert(fraction)\n        except (ValueError, ZeroDivisionError):\n            continue\n        break\n    print(gauge(percentage))\n\n\ndef convert(fraction):\n    x, y = fraction.split(\"/\")\n    x = int(x)\n    y = int(y)\n    if y == 0:\n        raise ZeroDivisionError\n    if x < 0:\n        raise ValueError\n    return round(x / y * 100)\n\n\ndef gauge(percentage):\n    if percentage <= 1:\n        return \"E\"\n    if percentage >= 99:\n        return \"F\"\n    return f\"{percentage}%\"\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`convert(\"5/4\")` hata vermiyor, 125 döndürüyor.",
+            "en": "`convert(\"5/4\")` raises no error; it returns 125."
+          }
+        },
+        {
+          "file": "fuel.py",
+          "source": "def main():\n    while True:\n        fraction = input(\"Fraction: \")\n        try:\n            percentage = convert(fraction)\n        except (ValueError, ZeroDivisionError):\n            continue\n        break\n    print(gauge(percentage))\n\n\ndef convert(fraction):\n    x, y = fraction.split(\"/\")\n    x = int(x)\n    y = int(y)\n    if y == 0:\n        return 0\n    if x < 0 or x > y:\n        raise ValueError\n    return round(x / y * 100)\n\n\ndef gauge(percentage):\n    if percentage <= 1:\n        return \"E\"\n    if percentage >= 99:\n        return \"F\"\n    return f\"{percentage}%\"\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`convert(\"1/0\")` hata vermiyor, 0 döndürüyor.",
+            "en": "`convert(\"1/0\")` raises no error; it returns 0."
+          }
+        },
+        {
+          "file": "fuel.py",
+          "source": "def main():\n    while True:\n        fraction = input(\"Fraction: \")\n        try:\n            percentage = convert(fraction)\n        except (ValueError, ZeroDivisionError):\n            continue\n        break\n    print(gauge(percentage))\n\n\ndef convert(fraction):\n    x, y = fraction.split(\"/\")\n    x = int(x)\n    y = int(y)\n    if y == 0:\n        raise ZeroDivisionError\n    if x < 0 or x > y:\n        raise ValueError\n    return round(x / y * 100)\n\n\ndef gauge(percentage):\n    if percentage <= 1:\n        return \"E\"\n    if percentage >= 99:\n        return \"F\"\n    return str(percentage)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`gauge` `%` işaretini koymuyor.",
+            "en": "`gauge` drops the `%`."
+          }
+        },
+        {
+          "file": "fuel.py",
+          "source": "def main():\n    while True:\n        fraction = input(\"Fraction: \")\n        try:\n            percentage = convert(fraction)\n        except (ValueError, ZeroDivisionError):\n            continue\n        break\n    print(gauge(percentage))\n\n\ndef convert(fraction):\n    x, y = fraction.split(\"/\")\n    x = int(x)\n    y = int(y)\n    if y == 0:\n        raise ZeroDivisionError\n    if x < 0 or x > y:\n        raise ValueError\n    return round(x / y * 100)\n\n\ndef gauge(percentage):\n    if percentage < 1:\n        return \"E\"\n    if percentage >= 99:\n        return \"F\"\n    return f\"{percentage}%\"\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`gauge(1)` `E` değil `1%` döndürüyor.",
+            "en": "`gauge(1)` returns `1%`, not `E`."
+          }
+        },
+        {
+          "file": "fuel.py",
+          "source": "def main():\n    while True:\n        fraction = input(\"Fraction: \")\n        try:\n            percentage = convert(fraction)\n        except (ValueError, ZeroDivisionError):\n            continue\n        break\n    print(gauge(percentage))\n\n\ndef convert(fraction):\n    x, y = fraction.split(\"/\")\n    x = int(x)\n    y = int(y)\n    if y == 0:\n        raise ZeroDivisionError\n    if x < 0 or x > y:\n        raise ValueError\n    return round(x / y * 100)\n\n\ndef gauge(percentage):\n    if percentage <= 1:\n        return \"E\"\n    if percentage > 99:\n        return \"F\"\n    return f\"{percentage}%\"\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`gauge(99)` `F` değil `99%` döndürüyor.",
+            "en": "`gauge(99)` returns `99%`, not `F`."
+          }
+        }
+      ]
+    }
+  ]
+}

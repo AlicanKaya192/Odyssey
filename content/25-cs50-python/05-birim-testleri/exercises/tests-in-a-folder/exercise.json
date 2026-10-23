@@ -1,0 +1,75 @@
+{
+  "id": "tests-in-a-folder",
+  "title": {
+    "tr": "Testler Klasörde",
+    "en": "Tests in a Folder"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "test/test_calculator.py",
+  "files": [
+    {
+      "name": "test/test_calculator.py",
+      "starter": "starter-test-test_calculator.{lang}.py",
+      "solution": "solution-test-test_calculator.py"
+    },
+    {
+      "name": "calculator.py",
+      "readonly": true
+    },
+    {
+      "name": "hello.py",
+      "readonly": true
+    },
+    {
+      "name": "test/__init__.py",
+      "readonly": true
+    },
+    {
+      "name": "test/test_hello.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Test klasörün içinde olsa da içe aktarma aynı: `from calculator import square`.",
+      "en": "Even though the test is inside the folder, the import is the same: `from calculator import square`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test/test_calculator.py**\n\n```python\nfrom calculator import square\n\n\ndef test_positive():\n    assert square(3) == 9\n\n\ndef test_negative():\n    assert square(-2) == 4\n```",
+      "en": "The full solution:\n\n**test/test_calculator.py**\n\n```python\nfrom calculator import square\n\n\ndef test_positive():\n    assert square(3) == 9\n\n\ndef test_negative():\n    assert square(-2) == 4\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "files": [
+        "test/test_hello.py",
+        "test/test_calculator.py"
+      ],
+      "min": 3,
+      "mutants": [
+        {
+          "file": "calculator.py",
+          "source": "def main():\n    x = int(input(\"What's x? \"))\n    print(\"x squared is\", square(x))\n\n\ndef square(n):\n    return n + n\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`*` yerine `+`: `square(3)` 6 veriyor.",
+            "en": "`+` instead of `*`: `square(3)` gives 6."
+          }
+        },
+        {
+          "file": "calculator.py",
+          "source": "def main():\n    x = int(input(\"What's x? \"))\n    print(\"x squared is\", square(x))\n\n\ndef square(n):\n    return n * abs(n)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "negatif sayıların karesi eksi çıkıyor: `square(-2)` -4.",
+            "en": "negative numbers square to a negative: `square(-2)` is -4."
+          }
+        }
+      ]
+    }
+  ]
+}

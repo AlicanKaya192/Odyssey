@@ -10,13 +10,13 @@ kısayol eklenince (`QShortcut`) buraya da bir satır eklenir.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QPoint, QSize, Qt
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
     QPushButton,
+    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
 from ..core.language import LanguageManager
 from ..resources.icons import icon
 from ..resources.theme.tokens import PALETTES, SPACING
-from .popover import Popover
+from .popover import ANCHOR_GAP, ARROW_HEIGHT, EDGE_GAP, Popover
 
 PANEL_WIDTH = 330
 
@@ -58,6 +58,9 @@ SHORTCUTS = [
         (["Ctrl", "B"], "shortcut.bold"),
         (["↑", "↓", "Enter"], "shortcut.pick"),
     ]),
+    ("video", [
+        (["C"], "shortcut.captions"),
+    ]),
 ]
 
 
@@ -87,7 +90,16 @@ class ShortcutPanel(Popover):
             SPACING["md"], SPACING["sm"], SPACING["md"], SPACING["md"]
         )
         self._rows.setSpacing(SPACING["xs"])
-        self.content.addWidget(self._body)
+        # Liste uzayınca (Video grubu, 23 Ekim) 1280×800 pencerede panel
+        # pencereden taşıyordu; sığmayan kısım kendi içinde kayıyor.
+        self._scroll = QScrollArea()
+        self._scroll.setWidgetResizable(True)
+        self._scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self._scroll.setProperty("role", "bare")
+        self._scroll.viewport().setProperty("role", "bare")
+        self._scroll.setWidget(self._body)
+        self.content.addWidget(self._scroll)
 
         self._labels: list[tuple[QLabel, str]] = []
         self._build()
@@ -126,7 +138,14 @@ class ShortcutPanel(Popover):
         return satir
 
     def show_above(self, anchor: QWidget) -> None:
-        self.fit_height(self._title.sizeHint().height() + 1 + self._body.sizeHint().height())
+        ust = self._title.sizeHint().height() + 1
+        istenen = ust + self._body.sizeHint().height()
+        parent = self.parentWidget()
+        if parent is not None:
+            # Düğmenin üstünde kalan yer: kenar payı, düğmeyle aradaki boşluk ve ok.
+            tepe = parent.mapFromGlobal(anchor.mapToGlobal(QPoint(0, 0))).y()
+            istenen = min(istenen, tepe - EDGE_GAP - ANCHOR_GAP - ARROW_HEIGHT)
+        self.fit_height(max(ust + 80, istenen))
         super().show_above(anchor)
 
     def retranslate(self) -> None:

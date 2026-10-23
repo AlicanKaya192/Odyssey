@@ -1,0 +1,69 @@
+{
+  "id": "outdated",
+  "title": {
+    "tr": "Eski Usul Tarih",
+    "en": "Outdated"
+  },
+  "difficulty": 3,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İlk biçim `split(\"/\")` ile üç parça; ikinci biçim `split(\" \")` ile `September`, `8,`, `1636`.",
+      "en": "The first format gives three parts with `split(\"/\")`; the second gives `September`, `8,`, `1636` with `split(\" \")`."
+    },
+    {
+      "tr": "Gün parçası virgülle bitmeli; `\"8,\".removesuffix(\",\")` → `\"8\"`.",
+      "en": "The day part must end with a comma; `\"8,\".removesuffix(\",\")` → `\"8\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nmonths = [\n    \"January\",\n    \"February\",\n    \"March\",\n    \"April\",\n    \"May\",\n    \"June\",\n    \"July\",\n    \"August\",\n    \"September\",\n    \"October\",\n    \"November\",\n    \"December\",\n]\n\nwhile True:\n    date = input(\"Date: \").strip()\n    try:\n        if \"/\" in date:\n            month, day, year = date.split(\"/\")\n            month = int(month)\n        else:\n            name, day, year = date.split(\" \")\n            if not day.endswith(\",\"):\n                continue\n            day = day.removesuffix(\",\")\n            month = months.index(name) + 1\n        day = int(day)\n        year = int(year)\n    except ValueError:\n        continue\n    if 1 <= month <= 12 and 1 <= day <= 31:\n        break\n\nprint(f\"{year}-{month:02}-{day:02}\")\n```",
+      "en": "The full solution:\n\n```python\nmonths = [\n    \"January\",\n    \"February\",\n    \"March\",\n    \"April\",\n    \"May\",\n    \"June\",\n    \"July\",\n    \"August\",\n    \"September\",\n    \"October\",\n    \"November\",\n    \"December\",\n]\n\nwhile True:\n    date = input(\"Date: \").strip()\n    try:\n        if \"/\" in date:\n            month, day, year = date.split(\"/\")\n            month = int(month)\n        else:\n            name, day, year = date.split(\" \")\n            if not day.endswith(\",\"):\n                continue\n            day = day.removesuffix(\",\")\n            month = months.index(name) + 1\n        day = int(day)\n        year = int(year)\n    except ValueError:\n        continue\n    if 1 <= month <= 12 and 1 <= day <= 31:\n        break\n\nprint(f\"{year}-{month:02}-{day:02}\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "9/8/1636\n",
+          "stdout": "1636-09-08"
+        },
+        {
+          "stdin": "September 8, 1636\n",
+          "stdout": "1636-09-08"
+        },
+        {
+          "stdin": "23/6/1912\n6/23/1912\n",
+          "stdout": "1912-06-23"
+        },
+        {
+          "stdin": "December 80, 1980\n12/25/1980\n",
+          "stdout": "1980-12-25"
+        },
+        {
+          "stdin": "September 8 1636\n1/1/2000\n",
+          "stdout": "2000-01-01"
+        },
+        {
+          "stdin": "  10/9/1701 \n",
+          "stdout": "1701-10-09"
+        },
+        {
+          "stdin": "Octobr 9, 1701\nOctober 9, 1701\n",
+          "stdout": "1701-10-09"
+        }
+      ]
+    },
+    {
+      "type": "ast_require",
+      "node": "Try"
+    }
+  ]
+}

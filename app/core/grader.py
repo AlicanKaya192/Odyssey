@@ -106,6 +106,53 @@ REASON_CHECKS = DOCKER_CHECKS | {"http", "pytest", "git_state", "git_command", "
 REASON_COMPARISONS = DOCKER_COMPARISONS | {"json", "json_has", "file", "head_file"}
 
 
+def _stdio_when(detail: dict, language: LanguageManager) -> str:
+    """Tutmayan durumun girdisi: "'David' girdisiyle", "with the command ..."."""
+    satirlar = ", ".join(f"'{s}'" for s in str(detail.get("stdin", "")).splitlines())
+    argv = detail.get("argv") or []
+    komut = " ".join(["python", detail.get("program", "cozum.py"), *argv])
+    if argv and satirlar:
+        return language.t("check.stdio.when_both", command=komut, lines=satirlar)
+    if argv:
+        return language.t("check.stdio.when_command", command=komut)
+    if satirlar:
+        return language.t("check.stdio.when_input", lines=satirlar)
+    return language.t("check.stdio.when_none")
+
+
+def _describe_stdio(detail: dict, language: LanguageManager) -> Feedback:
+    """Girdi verilen program: hangi girdide neyin tutmadığı."""
+    if detail.get("not_run"):
+        return Feedback(passed=False, message=language.t("check.stdio.not_run"))
+    when = _stdio_when(detail, language)
+    if detail.get("error"):
+        return Feedback(passed=False,
+                        message=language.t("check.stdio.error", when=when, error=detail["error"]))
+    if "expected_exit" in detail:
+        return Feedback(passed=False, message=language.t(
+            "check.stdio.exit", when=when, expected=detail["expected_exit"], actual=detail.get("exit")))
+    if "file" in detail:
+        # Dosya yazan program (CS50 Hafta 6): hangi dosya, neyi tutmadı.
+        name = detail["file"]
+        if detail.get("missing_file"):
+            return Feedback(passed=False, message=language.t("check.stdio.file_missing", when=when, file=name))
+        if "image" in detail:
+            image = detail["image"]
+            return Feedback(passed=False, message=language.t(
+                f"check.stdio.image_{image.get('reason', 'pixels')}", when=when, file=name,
+                expected=image.get("expected", ""), actual=image.get("actual", "")))
+        if "pdf" in detail:
+            # CS50 Shirtificate: sayfa, boyut, metin, beyaz yazı, ortadaki resim.
+            pdf = detail["pdf"]
+            return Feedback(passed=False, message=language.t(
+                f"check.stdio.pdf_{pdf.get('reason', 'not_pdf')}", when=when, file=name,
+                expected=pdf.get("expected", ""), actual=pdf.get("actual", ""), text=pdf.get("text", "")))
+        return Feedback(passed=False, message=language.t("check.stdio.file_differs", when=when, file=name),
+                        expected=detail.get("expected", ""), actual=detail.get("actual", ""))
+    return Feedback(passed=False, message=language.t("check.stdio.failed", when=when),
+                    expected=detail.get("expected", ""), actual=detail.get("actual", ""))
+
+
 def describe_check(check: CheckResult, language: LanguageManager) -> Feedback:
     """Tek bir kontrolü cümleye çevirir."""
     detail = check.detail
@@ -120,6 +167,9 @@ def describe_check(check: CheckResult, language: LanguageManager) -> Feedback:
             expected=detail.get("expected", ""),
             actual=detail.get("actual", ""),
         )
+
+    if check.type == "stdio":
+        return _describe_stdio(detail, language)
 
     if check.type == "variable":
         name = detail.get("name", "")
@@ -156,6 +206,19 @@ def describe_check(check: CheckResult, language: LanguageManager) -> Feedback:
                 passed=False,
                 message=language.t("check.function.missing", name=name),
             )
+        if detail.get("expected_raise"):
+            key = "check.function.wrong_error" if detail.get("raised") else "check.function.no_error"
+            return Feedback(
+                passed=False,
+                message=language.t(
+                    key,
+                    name=name,
+                    args=detail.get("args", ""),
+                    expected=detail["expected_raise"],
+                    error=detail.get("raised", ""),
+                    actual=detail.get("actual", ""),
+                ),
+            )
         if detail.get("raised"):
             return Feedback(
                 passed=False,
@@ -186,6 +249,41 @@ def describe_check(check: CheckResult, language: LanguageManager) -> Feedback:
             return Feedback(passed=False, message=language.t("check.method.missing", name=cls))
         if detail.get("not_class"):
             return Feedback(passed=False, message=language.t("check.method.not_class", name=cls))
+        if detail.get("init_no_error"):
+            return Feedback(passed=False, message=language.t(
+                "check.method.init_no_error", name=cls, args=detail.get("args", ""),
+                expected=detail["init_no_error"]))
+        if detail.get("init_wrong_error"):
+            return Feedback(passed=False, message=language.t(
+                "check.method.init_wrong_error", name=cls, args=detail.get("args", ""),
+                expected=detail["init_wrong_error"], error=detail.get("init_raised", "")))
+        if detail.get("str"):
+            return Feedback(passed=False, message=language.t(
+                "check.method.str_failed", name=cls,
+                expected=detail.get("expected", ""), actual=detail.get("actual", "")))
+        if detail.get("set"):
+            values = {"name": cls, "attribute": detail["set"], "value": detail.get("value", "")}
+            if detail.get("set_no_error"):
+                return Feedback(passed=False, message=language.t(
+                    "check.method.set_no_error", expected=detail["set_no_error"], **values))
+            if detail.get("set_wrong_error"):
+                return Feedback(passed=False, message=language.t(
+                    "check.method.set_wrong_error", expected=detail["set_wrong_error"],
+                    error=detail.get("raised", ""), **values))
+            return Feedback(passed=False, message=language.t(
+                "check.method.set_raised", error=detail.get("raised", ""), **values))
+        if detail.get("expected_raise"):
+            values = {"name": cls, "method": detail.get("method", ""), "args": detail.get("args", ""),
+                      "expected": detail["expected_raise"]}
+            if detail.get("raised"):
+                return Feedback(passed=False, message=language.t(
+                    "check.method.wrong_error", error=detail["raised"], **values))
+            return Feedback(passed=False, message=language.t(
+                "check.method.no_error", actual=detail.get("actual", ""), **values))
+        if detail.get("as_str"):
+            return Feedback(passed=False, message=language.t(
+                "check.method.returns_str_failed", name=cls, method=detail.get("method", ""),
+                args=detail.get("args", ""), expected=detail.get("expected", ""), actual=detail.get("actual", "")))
         if detail.get("init_raised"):
             return Feedback(
                 passed=False,

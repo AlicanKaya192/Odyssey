@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import contextlib
 import importlib
+import importlib.util
 import io
 import json
 import sys
@@ -248,6 +249,17 @@ def _forget_workspace_modules(workspace: Path) -> None:
             del sys.modules[name]
 
 
+def _drop_bytecode(source: Path) -> None:
+    """Dosyanın `__pycache__`'teki derlenmiş hâlini siler.
+
+    Python önbelleği kaynağın boyutuna ve saniye çözünürlüklü saatine bakıyor:
+    bozuk sürüm doğrusuyla aynı uzunluktaysa (`n * n` → `n + n`) ve aynı
+    saniyede yazıldıysa eski derlenmiş hâl kullanılıyor, bozuk kod hiç
+    çalışmıyordu (iyi test "hatayı kaçırdı" sayıldı; ölçüldü, 5'te 3)."""
+    with contextlib.suppress(OSError, ValueError):
+        Path(importlib.util.cache_from_source(str(source))).unlink(missing_ok=True)
+
+
 def _run_pytest(files: list[str], workspace: Path) -> tuple[_Collector, int, str]:
     import pytest
 
@@ -291,10 +303,12 @@ def check_pytest(check: dict, workspace: Path) -> dict:
         original = target.read_text(encoding="utf-8")
         try:
             target.write_text(str(mutant["source"]), encoding="utf-8")
+            _drop_bytecode(target)
             _forget_workspace_modules(workspace)
             caught, _c, _o = _run_pytest(files, workspace)
         finally:
             target.write_text(original, encoding="utf-8")
+            _drop_bytecode(target)
             _forget_workspace_modules(workspace)
         if not caught.failed and not caught.collect_errors:
             # `bug` iki dilli olabilir ({tr, en}); dili grader seçiyor.

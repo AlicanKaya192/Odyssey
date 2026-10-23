@@ -51,6 +51,7 @@ from .note_panel import NotePanel
 from .notes_view import NotesView
 from .pdf_view import PdfView
 from .quiz_view import QuizView
+from .video_view import VideoView
 
 # Bir bölümde bu kadar süre (pencere öndeyken) geçirmek o günü "çalışıldı"
 # yapıyor; seri ve hatırlatmalar buna bakıyor.
@@ -86,6 +87,10 @@ class TopicView(QWidget):
         self._panes: list[str] = []
         self._note_ids = []
         self._exercises: list = []
+        self._all_exercises: list = []
+        self._groups: dict[str, list] = {}
+        self._group_index: dict[str, int] = {}
+        self._group = "exercise"
         self._exercise_index = 0
         # Ders metninin hangi dilde okunduğu; dil değişince yeniden okumak
         # için gerekiyor.
@@ -159,8 +164,12 @@ class TopicView(QWidget):
         self._pdf = PdfView(language)
         self._quiz = QuizView(language)
         self._exercise = ExerciseView(language, store)
+        # CS50 haftalarının ders videosu (`video` bloğu).
+        self._video = VideoView(language, settings=(store.setting, store.set_setting))
+        self._video.fullscreen_changed.connect(self._on_video_fullscreen)
+        self._focus_on = False
 
-        for widget in (self._lesson, self._notes, self._pdf, self._quiz, self._exercise):
+        for widget in (self._video, self._lesson, self._notes, self._pdf, self._quiz, self._exercise):
             self._stack.addWidget(widget)
 
         self._lesson.action.connect(self._on_lesson_action)
@@ -264,7 +273,16 @@ class TopicView(QWidget):
             return
 
         self._section = section
-        self._exercises = section.exercises
+        # Alıştırmalar iki sekmede olabiliyor: "Alıştırma" ve CS50'nin
+        # ödevleri "Problem Seti" (`"group": "pset"`). `_exercises` açık
+        # sekmenin listesi; tamamlanma ve ilerleme `_all_exercises`'a bakıyor.
+        self._all_exercises = section.exercises
+        gruplar = {"exercise": [e for e in self._all_exercises if e.group != "pset"],
+                   "pset": [e for e in self._all_exercises if e.group == "pset"]}
+        self._groups = {ad: liste for ad, liste in gruplar.items() if liste}
+        self._group_index = {ad: 0 for ad in self._groups}
+        self._group = next(iter(self._groups), "exercise")
+        self._exercises = self._groups.get(self._group, [])
         self._exercise_index = 0
         # Sekme çizgisi patika renginde; yeni bölümde adım şeridi baştan
         # (önceki bölümün çözümleri "yeni çözüldü" diye oynamasın).
@@ -275,11 +293,17 @@ class TopicView(QWidget):
         self._note_ids = []
 
         language_code = self._language.language
-        state = self._store.section_state(chapter_id, section_id, self._exercises)
+        state = self._store.section_state(chapter_id, section_id, self._all_exercises)
         completed = state.status(section.requires_quiz, section.requires_exercises) == "completed"
 
+        video = None
         for block in section.blocks:
-            if block.type == "lesson":
+            if block.type == "video" and block.youtube:
+                video = block
+                self._video.show_video(block.youtube, block.raw.get("credit"), block.subtitles)
+                self._panes.append("video")
+
+            elif block.type == "lesson":
                 self._load_lesson(block, completed)
                 self._panes.append("lesson")
 
@@ -316,9 +340,11 @@ class TopicView(QWidget):
                     )
                     self._panes.append("quiz")
 
+        self._panes.extend(self._groups)
         if self._exercises:
-            self._panes.append("exercise")
             self._load_exercise()
+        if video is None:
+            self._video.unload()
 
         self._note_panel.set_section(chapter_id, section_id, self._language.pick(section.title))
 
@@ -412,7 +438,7 @@ class TopicView(QWidget):
             return
 
         state = self._store.section_state(
-            self._section.chapter_id, self._section.id, self._exercises
+            self._section.chapter_id, self._section.id, self._all_exercises
         )
         completed = state.status(
             self._section.requires_quiz, self._section.requires_exercises
@@ -456,9 +482,9 @@ class TopicView(QWidget):
         """
         items = [f"📖  {section.estimated_minutes} {self._language.t('common.minutes')}"]
 
-        if self._exercises:
+        if self._all_exercises:
             items.append(
-                f"✏️  {len(self._exercises)} {self._exercise_word().lower()}"
+                f"✏️  {len(self._all_exercises)} {self._exercise_word().lower()}"
             )
         if "quiz" in self._panes:
             items.append(
@@ -482,7 +508,7 @@ class TopicView(QWidget):
 
     def _all_problems(self) -> bool:
         """Bölümün alıştırmalarının hepsi matematik problemi mi?"""
-        return bool(self._exercises) and all(e.is_problem for e in self._exercises)
+        return bool(self._all_exercises) and all(e.is_problem for e in self._all_exercises)
 
     def _exercise_word(self) -> str:
         """Sekmenin adı: kod alıştırmasında "Alıştırma", matematikte "Problem"."""
@@ -491,11 +517,13 @@ class TopicView(QWidget):
     def _pane_labels(self) -> dict[str, str]:
         """Bölüm sekmelerinin seçili dildeki adları."""
         return {
+            "video": self._language.t("tabs.video"),
             "lesson": self._language.t("tabs.lesson"),
             "notes": self._language.t("tabs.pdf"),
             "pdf": self._language.t("tabs.pdf_file"),
             "quiz": self._language.t("tabs.quiz"),
             "exercise": self._exercise_word(),
+            "pset": self._language.t("tabs.pset"),
         }
 
     def _pane_after(self, name: str) -> str | None:
@@ -668,7 +696,9 @@ class TopicView(QWidget):
                     self._language.t("problem.next" if self._all_problems() else "exercise.next")
                 )
             else:
-                self._exercise.set_advance_label(genel)
+                # Alıştırmaların sonunda Problem Seti sekmesi varsa oraya.
+                sonraki = self._pane_after(self._group)
+                self._exercise.set_advance_label(labels[sonraki] if sonraki in self._groups else genel)
 
     def _on_quiz_advance(self) -> None:
         """Sınav sonucundaki düğme: sonraki sekme, yoksa sonraki bölüm."""
@@ -683,7 +713,22 @@ class TopicView(QWidget):
         if self._exercise_index < len(self._exercises) - 1:
             self._go_exercise(self._exercise_index + 1)
             return
+        sonraki = self._pane_after(self._group)
+        if sonraki in self._groups:
+            self._segments.set_current(self._panes.index(sonraki))
+            return
         self._go_next_section()
+
+    def _select_group(self, name: str) -> None:
+        """Alıştırma ↔ Problem Seti: her sekme kendi kaldığı alıştırmada açılıyor."""
+        if name == self._group or name not in self._groups:
+            return
+        self._group_index[self._group] = self._exercise_index
+        self._group = name
+        self._exercises = self._groups[name]
+        self._exercise_index = self._group_index[name]
+        self._stepper.reset()
+        self._load_exercise()
 
     def _go_next_section(self) -> None:
         # Kilit kuralı burada da uygulanıyor: düğme kilitliyken zaten
@@ -705,7 +750,7 @@ class TopicView(QWidget):
 
     def _update_switcher(self) -> None:
         many = len(self._exercises) > 1
-        self._switcher.setVisible(many and self._current_pane() == "exercise")
+        self._switcher.setVisible(many and self._current_pane() in self._groups)
         if not many:
             return
 
@@ -795,18 +840,26 @@ class TopicView(QWidget):
                 self._segments.set_current(self._panes.index("quiz"), notify=False)
                 return
         widget = {
+            "video": self._video,
             "lesson": self._lesson,
             "notes": self._notes,
             "pdf": self._pdf,
             "quiz": self._quiz,
             "exercise": self._exercise,
+            "pset": self._exercise,
         }[name]
+        self._select_group(name)
         # Sekmedeki belge hazır olunca girsin (içerik sonradan belirmesin).
         self._stack.slide_to(widget, wait=lambda basla: self.when_ready(basla, 250))
+        # Video yalnızca kendi sekmesinde oynuyor; başka sekmede duraklıyor.
+        if name == "video":
+            self._video.activate()
+        else:
+            self._video.deactivate()
         self._update_switcher()
         # "Kodumu ekle" yalnızca alıştırmadayken anlamlı.
         self._note_panel.set_code_source(
-            self._exercise.code_for_note if name == "exercise" else None
+            self._exercise.code_for_note if name in self._groups else None
         )
 
     def focus(self, pane: str, index: int = 0, anchor: str = "") -> None:
@@ -816,13 +869,23 @@ class TopicView(QWidget):
         kaçıncı not, alıştırmada kaçıncı alıştırma; konu anlatımında
         `anchor` başlığın çapası.
         """
+        if pane == "exercise":
+            # Arama bölümün bütün alıştırmaları içindeki sırayı veriyor;
+            # alıştırma Problem Seti'ndeyse o sekmeye gidiliyor.
+            if not 0 <= index < len(self._all_exercises):
+                return
+            hedef = self._all_exercises[index]
+            grup = "pset" if hedef.group == "pset" else "exercise"
+            if grup not in self._panes:
+                return
+            self._segments.set_current(self._panes.index(grup))
+            self._go_exercise(self._groups[grup].index(hedef))
+            return
         if pane not in self._panes:
             return
         self._segments.set_current(self._panes.index(pane))
         if pane == "notes":
             self._notes.select(index, anchor)
-        elif pane == "exercise":
-            self._go_exercise(index)
         elif pane == "lesson" and anchor:
             self._lesson.scroll_to(anchor)
 
@@ -897,7 +960,7 @@ class TopicView(QWidget):
         if self._section is None:
             return
         state = self._store.section_state(
-            self._section.chapter_id, self._section.id, self._exercises
+            self._section.chapter_id, self._section.id, self._all_exercises
         )
         self._update_progress_box(state)
 
@@ -928,10 +991,16 @@ class TopicView(QWidget):
             score = f"{state.quiz_score}" if state.quiz_score is not None else ""
             steps.append((self._language.t("progress.quiz"), bool(state.quiz_passed), score))
 
-        if self._exercises:
-            total = len(self._exercises)
-            solved = state.exercises_solved
-            steps.append((self._language.t("progress.exercises"), solved >= total, f"{solved}/{total}"))
+        # Alıştırma ve Problem Seti ayrı satır (tek grupta eskisi gibi tek satır).
+        cozulen = {}
+        for grup, liste in self._groups.items():
+            if len(self._groups) == 1:
+                cozulen[grup] = state.exercises_solved
+            else:
+                cozulen[grup] = sum(1 for e in liste if self._store.exercise_solved(
+                    self._section.chapter_id, self._section.id, e.id))
+            ad = self._language.t("progress.pset" if grup == "pset" else "progress.exercises")
+            steps.append((ad, cozulen[grup] >= len(liste), f"{cozulen[grup]}/{len(liste)}"))
 
         self._lesson.set_progress(steps)
         # Sekmelerde tamamlanma onayı (ui-taslak.md F1).
@@ -940,7 +1009,7 @@ class TopicView(QWidget):
             # Notlar hep işaretsiz kalıyordu: okunduklarına dair kayıt yoktu (29 Eylül).
             "notes": notlar_bitti,
             "quiz": bool(state.quiz_passed),
-            "exercise": bool(self._exercises) and state.exercises_solved >= len(self._exercises),
+            **{grup: cozulen[grup] >= len(liste) for grup, liste in self._groups.items()},
         }
         self._segments.set_done([bitti.get(name, False) for name in self._panes])
 
@@ -974,10 +1043,29 @@ class TopicView(QWidget):
 
     # --- tema ve dil ------------------------------------------------------
 
+    def close_popups(self) -> bool:
+        """Bölümün içinde açık bir liste varsa (videonun hız/kalite seçicisi)
+        kapatır; kapattıysa True ve Esc bölümden çıkarmaz."""
+        return self._video.close_menu()
+
     def set_focus_mode(self, on: bool) -> None:
         """Okuma odağında bölüm başlığı ve sekme şeridi gizleniyor."""
+        self._focus_on = on
         self.header.setVisible(not on)
         self._subbar.setVisible(not on)
+        if not on:
+            self._video.exit_fullscreen()
+
+    def _on_video_fullscreen(self, on: bool) -> None:
+        """Oynatıcının tam ekran düğmesi okuma odağını açıp kapatıyor
+        (pencere tam ekran, yalnızca bölümün içeriği)."""
+        if on != self._focus_on:
+            self.focus_mode_requested.emit()
+
+    def hideEvent(self, event) -> None:  # noqa: N802
+        # Bölümden başka ekrana geçildi: video arkada çalmasın.
+        self._video.deactivate()
+        super().hideEvent(event)
 
     def _report(self) -> None:
         """Tarayıcıda bu sayfa için önceden doldurulmuş hata bildirimi açar."""
@@ -988,7 +1076,7 @@ class TopicView(QWidget):
         if self._section is None:
             return
         sekme = getattr(self, "_pane_now", "") or "lesson"
-        alistirma = self._exercise.current_exercise_id if sekme == "exercise" else ""
+        alistirma = self._exercise.current_exercise_id if sekme in self._groups else ""
         webbrowser.open(issue_url(self._section.chapter_id, self._section.id,
                                   self._language.pick(self._section.title), sekme, alistirma,
                                   self._language.language))
@@ -1013,6 +1101,7 @@ class TopicView(QWidget):
             f" border-color: {palette['border']}; }}")
         self._note_panel.set_mode(mode)
         refresh_shadow(self._note_panel, "dark", True)
+        self._video.set_mode(mode)
         self._lesson.set_mode(mode)
         self._notes.set_mode(mode)
         self._quiz.set_mode(mode)
@@ -1022,8 +1111,8 @@ class TopicView(QWidget):
         """Dile bağlı metinler; `panes=False` sekmelerin içine dokunmuyor."""
         labels = self._pane_labels()
         self._segments.set_labels([labels[name] for name in self._panes])
-        simgeler = {"lesson": "book", "notes": "file-text", "pdf": "file-text", "quiz": "clipboard",
-                    "exercise": "sigma" if self._all_problems() else "terminal"}
+        simgeler = {"video": "play", "lesson": "book", "notes": "file-text", "pdf": "file-text", "quiz": "clipboard",
+                    "exercise": "sigma" if self._all_problems() else "terminal", "pset": "clipboard-check"}
         self._segments.set_icons([simgeler.get(name, "") for name in self._panes])
 
         # Son ders notunun altındaki düğme, notlardan sonra ne geliyorsa
@@ -1059,6 +1148,7 @@ class TopicView(QWidget):
 
         if panes:
             self._reload_lesson_language()
+            self._video.retranslate()
             self._lesson.retranslate()
             self._notes.retranslate()
             self._quiz.retranslate()

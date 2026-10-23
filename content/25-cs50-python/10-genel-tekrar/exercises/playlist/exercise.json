@@ -1,0 +1,128 @@
+{
+  "id": "playlist",
+  "title": {
+    "tr": "Çalma Listesi",
+    "en": "Playlist"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce denetle, sonra ekle: aynı çağrıdaki tekrarı `len(set(songs)) != len(songs)` yakalar. `@property def songs(self): return list(self._songs)`; ayarlayıcı yazmazsan atama hata verir.",
+      "en": "Check first, then add: a repeat within one call is caught by `len(set(songs)) != len(songs)`. `@property def songs(self): return list(self._songs)`; without a setter, assignment fails."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nclass Playlist:\n    def __init__(self, name):\n        if not name:\n            raise ValueError(\"Missing name\")\n        self.name = name\n        self._songs = []\n\n    def __str__(self):\n        return f\"{self.name}: {len(self._songs)} songs\"\n\n    def __len__(self):\n        return len(self._songs)\n\n    @property\n    def songs(self):\n        return list(self._songs)\n\n    def add(self, *songs):\n        if len(set(songs)) != len(songs) or any(song in self._songs for song in songs):\n            raise ValueError(\"Duplicate song\")\n        self._songs.extend(songs)\n```",
+      "en": "The full solution:\n\n```python\nclass Playlist:\n    def __init__(self, name):\n        if not name:\n            raise ValueError(\"Missing name\")\n        self.name = name\n        self._songs = []\n\n    def __str__(self):\n        return f\"{self.name}: {len(self._songs)} songs\"\n\n    def __len__(self):\n        return len(self._songs)\n\n    @property\n    def songs(self):\n        return list(self._songs)\n\n    def add(self, *songs):\n        if len(set(songs)) != len(songs) or any(song in self._songs for song in songs):\n            raise ValueError(\"Duplicate song\")\n        self._songs.extend(songs)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "method",
+      "class": "Playlist",
+      "args": [
+        "Road Trip"
+      ],
+      "cases": [
+        {
+          "str": "Road Trip: 0 songs"
+        },
+        {
+          "method": "__len__",
+          "args": [],
+          "returns": 0
+        },
+        {
+          "method": "add",
+          "args": [
+            "Yesterday",
+            "Imagine"
+          ]
+        },
+        {
+          "method": "__len__",
+          "args": [],
+          "returns": 2
+        },
+        {
+          "str": "Road Trip: 2 songs"
+        },
+        {
+          "attribute": "songs",
+          "equals": [
+            "Yesterday",
+            "Imagine"
+          ]
+        },
+        {
+          "method": "add",
+          "args": [
+            "Help",
+            "Imagine"
+          ],
+          "raises": "ValueError"
+        },
+        {
+          "method": "__len__",
+          "args": [],
+          "returns": 2
+        },
+        {
+          "method": "add",
+          "args": [
+            "Help",
+            "Help"
+          ],
+          "raises": "ValueError"
+        },
+        {
+          "attribute": "songs",
+          "equals": [
+            "Yesterday",
+            "Imagine"
+          ]
+        },
+        {
+          "set": "songs",
+          "value": [],
+          "raises": "AttributeError"
+        },
+        {
+          "method": "add",
+          "args": [
+            "Help"
+          ]
+        },
+        {
+          "method": "add",
+          "args": []
+        },
+        {
+          "attribute": "songs",
+          "equals": [
+            "Yesterday",
+            "Imagine",
+            "Help"
+          ]
+        },
+        {
+          "str": "Road Trip: 3 songs"
+        }
+      ]
+    },
+    {
+      "type": "method",
+      "class": "Playlist",
+      "args": [
+        ""
+      ],
+      "raises": "ValueError"
+    }
+  ]
+}

@@ -1321,6 +1321,8 @@ class MainWindow(QMainWindow):
 
         self._topic.show_section(chapter_id, section_id)
         self._set_presence_location(chapter_id, section_id)
+        if badge_core.note_section_opened(self._store, chapter_id):
+            self._refresh_progress()
         # Geçiş ders sayfası yüklenince oynuyor: bölüm içeriğiyle birlikte
         # kayarak giriyor (prototip `pgFwd`); o ana kadar eski ekranın
         # görüntüsü üstte duruyor.
@@ -1446,6 +1448,8 @@ class MainWindow(QMainWindow):
             self._reference.close_drawer()
             return
         current = self._stack.currentWidget()
+        if current is self._topic_view and self._topic_view.close_popups():
+            return
         if current is self._topic_view:
             self._topic_back()
         elif current is self._journey_screen and not self._journey.showing_tracks:

@@ -101,6 +101,9 @@ class Footer(QFrame):
         self._right = QWidget()
         sag = QHBoxLayout(self._right)
         sag.setContentsMargins(0, 0, 0, 0)
+        # Aralıklar elle veriliyor ve `_balance` yalnızca onları sayıyor; stilin
+        # varsayılan aralığı kalırsa düğmeler sabit boylarının altına sıkışıyordu.
+        sag.setSpacing(0)
         sag.addStretch(1)
         sag.addWidget(self.reference_button)
         sag.addSpacing(10)

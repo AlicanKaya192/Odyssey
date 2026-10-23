@@ -82,6 +82,16 @@ aside.toc {{ grid-column: 3; padding-left: 48px; }}
 
 /* Sayfa kayarken başlık listesi yerinde kalsın; asıl derdi bu çözüyor. */
 .toc-inner {{ position: sticky; top: 24px; }}
+/* Uzun başlık listesi pencereden taşınca ilerleme kutusu görünmez oluyordu
+   (CS50 haftası, 15 başlık): liste kendi içinde kayıyor, kutu hep altta. */
+.toc-inner {{ display: flex; flex-direction: column; max-height: calc(100vh - 48px); }}
+.toc-inner .h, .toc-inner .prog {{ flex: none; }}
+.toc-links {{ flex: 0 1 auto; min-height: 60px; overflow-y: auto; }}
+/* `scrollbar-width` yazılmaz: Chromium onu görünce ::-webkit-scrollbar
+   stilini bırakıp koyu temada da beyaz, oklu çubuk çiziyordu. */
+.toc-links::-webkit-scrollbar {{ width: 8px; }}
+.toc-links::-webkit-scrollbar-button {{ display: none; height: 0; }}
+.toc-links::-webkit-scrollbar-thumb {{ border: 2px solid {p['bg']}; border-radius: 4px; }}
 
 .toc-inner .h {{
     font-size: 11.5px; font-weight: 750; letter-spacing: 1px;
@@ -195,6 +205,9 @@ aside.toc {{ grid-column: 3; padding-left: 48px; }}
     font-family: {FONTS['mono']}; font-size: 13.5px;
     background: {p['code_bg']}; padding: 2px 6px;
     border-radius: 6px; color: {p['accent']};
+    /* Boşluksuz uzun satır içi kod (`Let's...implement...hello`) dar yönerge
+       panelinde satırı taşırıyordu; sığmayınca kırılsın. */
+    overflow-wrap: anywhere;
 }}
 .content pre {{
     font-family: {FONTS['mono']}; font-size: 13.5px;

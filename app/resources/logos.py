@@ -129,6 +129,15 @@ GLYPHS: dict[str, dict[str, object]] = {
         '<path d="m17.5 6.5 1.5 2-2.3.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" '
         'stroke-linejoin="round"/>'
     )},
+    # CS50 Python: mezuniyet kepi ve altında CS50'nin yazısı, küçük (Alican 22 Ekim:
+    # logo dursun ama göze batmasın; 23 Ekim: yalnızca yazı boş duruyordu).
+    "cs50": {"svg": (
+        '<path d="M12 3.2 21 7l-9 3.8L3 7z" fill="#fff"/>'
+        '<path d="M7 9v3.2c1.4 1 3 1.4 5 1.4s3.6-.4 5-1.4V9l-5 2.1z" fill="#fff" opacity=".8"/>'
+        '<path d="M20 7.4v3.6" stroke="#fff" stroke-width="1" stroke-linecap="round"/>'
+        '<text x="12" y="21.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" '
+        'font-size="7.4" font-weight="700" letter-spacing="-.2" fill="#fff">CS50</text>'
+    )},
 }
 
 # `tracks.json` ve `chapter.json` içindeki `icon` adından logo anahtarına.
@@ -136,7 +145,7 @@ ICON_TO_LOGO = {
     "python": "python", "chart": "data", "network": "ml", "database": "sql",
     "calculator": "math", "link": "api", "package": "docker", "clock": "time", "git-branch": "git",
     "message": "nlp", "sparkles": "genai", "cpu": "algo", "library": "lib",
-    "server": "sys", "layers": "big",
+    "server": "sys", "layers": "big", "graduation-cap": "cs50",
 }
 
 # Matematik patikasının iki modülü kendi işaretini taşıyor.

@@ -1,0 +1,3 @@
+Önceki alıştırmadaki denetim yalnızca nesne oluşturulurken çalışıyordu; `student.house = "Number Four, Privet Drive"` yine geçiyordu. `Student`'ı **özelliklerle** yaz: `name` ve `house` birer özellik (`@property`); ayarlayıcıları (`@name.setter`, `@house.setter`) boş adı ve geçersiz binayı `ValueError` ile reddeder. Değerleri `self._name` ve `self._house`'ta sakla; `__init__` `self.name = name` ve `self.house = house` yazsın, denetim böylece tek yerde olur. `__str__` `Harry from Gryffindor` döndürür.
+
+Odyssey sınıfını gerçekten kurup metotlarını çağırarak denetliyor; dosyanın sonunda deneme kodu yazabilirsin.

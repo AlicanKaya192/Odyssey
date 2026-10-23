@@ -1,0 +1,8774 @@
+1
+00:00:00,000 --> 00:00:00,998
+[CROWD MURMURING]
+
+2
+00:00:00,998 --> 00:00:03,992
+[MUSIC PLAYING]
+
+3
+00:00:03,992 --> 00:00:24,980
+
+
+4
+00:00:24,980 --> 00:00:27,710
+DAVID MALAN: All right,
+this is CS50's Introduction
+
+5
+00:00:27,710 --> 00:00:29,030
+to Programming with Python.
+
+6
+00:00:29,030 --> 00:00:33,500
+My name is David Malan, and this is
+our week on File I/O, Input and Output
+
+7
+00:00:33,500 --> 00:00:34,100
+of files.
+
+8
+00:00:34,100 --> 00:00:37,020
+So up until now, most every
+program we've written just
+
+9
+00:00:37,020 --> 00:00:39,800
+stores all the information
+that it collects in memory--
+
+10
+00:00:39,800 --> 00:00:43,910
+that is, in variables or inside of the
+program itself, a downside of which
+
+11
+00:00:43,910 --> 00:00:46,520
+is that, as soon as the program
+exits, anything you typed in,
+
+12
+00:00:46,520 --> 00:00:49,220
+anything that you did
+with that program is lost.
+
+13
+00:00:49,220 --> 00:00:53,240
+Now, with files, of course, on your Mac
+or PC, you can hang on to information
+
+14
+00:00:53,240 --> 00:00:53,960
+long term.
+
+15
+00:00:53,960 --> 00:00:56,180
+And File I/O within the
+context of programming
+
+16
+00:00:56,180 --> 00:01:00,170
+is all about writing code that can
+read from, that is load information
+
+17
+00:01:00,170 --> 00:01:04,709
+from, or write to, that is save
+information to, files themselves.
+
+18
+00:01:04,709 --> 00:01:06,980
+So let's see if we can't
+transition then from only
+
+19
+00:01:06,980 --> 00:01:10,130
+using memory and variables and
+the like to actually writing
+
+20
+00:01:10,130 --> 00:01:14,150
+code that saves some files for us
+and, therefore, data persistently.
+
+21
+00:01:14,150 --> 00:01:18,050
+Well, to do this, let me propose that
+we first consider a familiar data
+
+22
+00:01:18,050 --> 00:01:21,830
+structure, a familiar type of variable
+that we've seen before, that of a list.
+
+23
+00:01:21,830 --> 00:01:24,890
+And using lists, we've been able
+to store more than one piece
+
+24
+00:01:24,890 --> 00:01:26,180
+of information in the past.
+
+25
+00:01:26,180 --> 00:01:28,620
+Using one variable, we
+typically store one value.
+
+26
+00:01:28,620 --> 00:01:31,950
+But if that variable is a list,
+we can store multiple values.
+
+27
+00:01:31,950 --> 00:01:34,890
+Unfortunately, lists are stored
+in the computer's memory.
+
+28
+00:01:34,890 --> 00:01:38,390
+And so once your program exits, even
+the contents of those disappear.
+
+29
+00:01:38,390 --> 00:01:40,920
+But let's at least give
+ourselves a starting point.
+
+30
+00:01:40,920 --> 00:01:42,440
+So I'm over here in VS Code.
+
+31
+00:01:42,440 --> 00:01:45,020
+And I'm going to go ahead and
+create a simple program using
+
+32
+00:01:45,020 --> 00:01:49,790
+code of names.py, a program that
+just collects people's names,
+
+33
+00:01:49,790 --> 00:01:51,230
+students' names, if you will.
+
+34
+00:01:51,230 --> 00:01:53,330
+And I'm going to do it
+super simply initially
+
+35
+00:01:53,330 --> 00:01:56,390
+in a manner consistent with what we've
+done in the past to get user input
+
+36
+00:01:56,390 --> 00:01:57,560
+and print it back out.
+
+37
+00:01:57,560 --> 00:02:01,910
+I'm going to say something like this,
+name equals input, quote/unquote,
+
+38
+00:02:01,910 --> 00:02:03,170
+what's your name?
+
+39
+00:02:03,170 --> 00:02:06,350
+Thereby storing in a
+variable called name
+
+40
+00:02:06,350 --> 00:02:08,690
+the return value of input, as always.
+
+41
+00:02:08,690 --> 00:02:11,060
+And as always, I'm going
+to go ahead and very simply
+
+42
+00:02:11,060 --> 00:02:14,090
+print out a nice f string
+that says, hello, comma,
+
+43
+00:02:14,090 --> 00:02:17,720
+and then, in curly braces, name to
+print out Hello, David, hello, world,
+
+44
+00:02:17,720 --> 00:02:20,060
+whoever happens to be using the program.
+
+45
+00:02:20,060 --> 00:02:23,060
+Let me go ahead and run this just to
+remind myself what I should expect.
+
+46
+00:02:23,060 --> 00:02:26,750
+And if I run python of names.py and
+hit Enter, type in my name like David,
+
+47
+00:02:26,750 --> 00:02:29,520
+of course, I now see
+Hello, comma, David.
+
+48
+00:02:29,520 --> 00:02:32,720
+Suppose, though, that we wanted to
+add support not just for one name,
+
+49
+00:02:32,720 --> 00:02:35,870
+but multiple names-- maybe three
+names for the sake of discussion
+
+50
+00:02:35,870 --> 00:02:39,740
+so that we can begin to accumulate
+some amount of information
+
+51
+00:02:39,740 --> 00:02:42,080
+in the program, such
+that it's really going
+
+52
+00:02:42,080 --> 00:02:46,190
+to be a downside if we keep throwing
+it away once the program exits.
+
+53
+00:02:46,190 --> 00:02:49,430
+Well, let me go back into
+names.py up here at top.
+
+54
+00:02:49,430 --> 00:02:52,820
+Let me proactively give myself a
+variable, this time called names,
+
+55
+00:02:52,820 --> 00:02:53,510
+plural.
+
+56
+00:02:53,510 --> 00:02:55,570
+And set it equal to an empty list.
+
+57
+00:02:55,570 --> 00:02:58,820
+Recall that the square bracket notation,
+especially if nothing's inside of it,
+
+58
+00:02:58,820 --> 00:03:03,140
+just means, give me an empty list
+that we can add things to over time.
+
+59
+00:03:03,140 --> 00:03:04,790
+Well, what do we want to add to it?
+
+60
+00:03:04,790 --> 00:03:07,130
+Well, let's add three
+names, each from the user.
+
+61
+00:03:07,130 --> 00:03:11,930
+And let me say something like
+this, for underscore in range of 3,
+
+62
+00:03:11,930 --> 00:03:16,160
+let me go ahead and prompt the
+user with the input function
+
+63
+00:03:16,160 --> 00:03:18,050
+and getting their name in this variable.
+
+64
+00:03:18,050 --> 00:03:25,400
+And then using list syntax, I can
+say, names.append name to that list.
+
+65
+00:03:25,400 --> 00:03:28,370
+And now I have, in that
+list, that given name--
+
+66
+00:03:28,370 --> 00:03:30,200
+1, 2, 3 of them.
+
+67
+00:03:30,200 --> 00:03:32,780
+Other points to note is, I
+could use a variable here,
+
+68
+00:03:32,780 --> 00:03:34,280
+like i, which is conventional.
+
+69
+00:03:34,280 --> 00:03:37,640
+But if I'm not actually using i
+explicitly on any subsequent lines,
+
+70
+00:03:37,640 --> 00:03:40,730
+I might as well just use underscore,
+which is a Pythonic convention.
+
+71
+00:03:40,730 --> 00:03:43,790
+And actually, if I want to clean
+this up a little bit right now,
+
+72
+00:03:43,790 --> 00:03:46,610
+notice that my name
+variable doesn't really
+
+73
+00:03:46,610 --> 00:03:48,830
+need to exist because
+I'm assigning it a value
+
+74
+00:03:48,830 --> 00:03:50,360
+and then immediately appending it.
+
+75
+00:03:50,360 --> 00:03:54,440
+Well, I could tighten this up further
+by just getting rid of that variable
+
+76
+00:03:54,440 --> 00:03:59,300
+altogether and just appending
+immediately the return value of input.
+
+77
+00:03:59,300 --> 00:04:01,888
+I think we could go both
+ways in terms of design here.
+
+78
+00:04:01,888 --> 00:04:04,430
+On the one hand, it's a pretty
+short line, and it's readable.
+
+79
+00:04:04,430 --> 00:04:06,950
+On the other hand, if I were to
+eventually change this phrase
+
+80
+00:04:06,950 --> 00:04:08,950
+to be not what's your
+name but something longer,
+
+81
+00:04:08,950 --> 00:04:11,390
+we might want to break it
+out again into two lines.
+
+82
+00:04:11,390 --> 00:04:13,310
+But for now, I think
+it's pretty readable.
+
+83
+00:04:13,310 --> 00:04:17,180
+Now later in the program, let's just go
+ahead and print out those same names,
+
+84
+00:04:17,180 --> 00:04:20,540
+but let's sort them alphabetically
+so that it makes sense
+
+85
+00:04:20,540 --> 00:04:24,510
+to be gathering them all together,
+then sorting them, and printing them.
+
+86
+00:04:24,510 --> 00:04:25,580
+So how can I do that?
+
+87
+00:04:25,580 --> 00:04:28,490
+Well, in Python, the simplest
+way to sort a list in a loop
+
+88
+00:04:28,490 --> 00:04:30,170
+is probably to do something like this.
+
+89
+00:04:30,170 --> 00:04:32,780
+For name in names--
+
+90
+00:04:32,780 --> 00:04:33,410
+but wait.
+
+91
+00:04:33,410 --> 00:04:34,910
+Let's sort the names first.
+
+92
+00:04:34,910 --> 00:04:36,920
+Recall that there's a
+function called sorted
+
+93
+00:04:36,920 --> 00:04:40,050
+which will return a sorted
+version of that list.
+
+94
+00:04:40,050 --> 00:04:44,960
+Now let's go ahead and print out an
+f string that says, again, hello,
+
+95
+00:04:44,960 --> 00:04:47,623
+bracket, name, close quotes.
+
+96
+00:04:47,623 --> 00:04:49,290
+All right, let me go ahead and run this.
+
+97
+00:04:49,290 --> 00:04:52,910
+So Python of names.py,
+and let me go ahead
+
+98
+00:04:52,910 --> 00:04:54,590
+and type in a few names this time.
+
+99
+00:04:54,590 --> 00:04:56,090
+How about Hermione?
+
+100
+00:04:56,090 --> 00:04:57,680
+How about Harry?
+
+101
+00:04:57,680 --> 00:04:58,940
+How about Ron?
+
+102
+00:04:58,940 --> 00:05:02,190
+And notice that they're not
+quite in alphabetical order.
+
+103
+00:05:02,190 --> 00:05:04,910
+But when I hit Enter
+and that loop kicks in,
+
+104
+00:05:04,910 --> 00:05:07,520
+it's going to print out, hello,
+Harry, hello, Hermione, hello,
+
+105
+00:05:07,520 --> 00:05:10,310
+Ron, in sorted order.
+
+106
+00:05:10,310 --> 00:05:13,730
+But of course, now, if I run this
+program again, all of the names
+
+107
+00:05:13,730 --> 00:05:14,420
+are lost.
+
+108
+00:05:14,420 --> 00:05:16,235
+And if this is a bigger
+program than this,
+
+109
+00:05:16,235 --> 00:05:18,110
+that might actually be
+pretty painful to have
+
+110
+00:05:18,110 --> 00:05:21,090
+to re-input the same information
+again, and again, and again.
+
+111
+00:05:21,090 --> 00:05:23,780
+Wouldn't it be nice, like
+most any program today
+
+112
+00:05:23,780 --> 00:05:26,240
+on a phone, or a laptop,
+or desktop, or cloud
+
+113
+00:05:26,240 --> 00:05:30,330
+to be able to save this
+information somehow instead?
+
+114
+00:05:30,330 --> 00:05:32,360
+And that's where File I/O comes in.
+
+115
+00:05:32,360 --> 00:05:33,890
+And that's where files come in.
+
+116
+00:05:33,890 --> 00:05:37,910
+They are a way of storing information
+persistently on your own phone, or Mac,
+
+117
+00:05:37,910 --> 00:05:42,020
+or PC, or some cloud server's disk
+so that they're there when you
+
+118
+00:05:42,020 --> 00:05:44,010
+come back and run the program again.
+
+119
+00:05:44,010 --> 00:05:50,030
+So how can we go about saving all three
+of these names on in a file as opposed
+
+120
+00:05:50,030 --> 00:05:52,627
+to having to type them again and again?
+
+121
+00:05:52,627 --> 00:05:54,710
+Let me go ahead and simplify
+this file and, again,
+
+122
+00:05:54,710 --> 00:05:57,050
+give myself just a single
+variable called name,
+
+123
+00:05:57,050 --> 00:06:01,890
+and set the return value of
+input equal to that variable.
+
+124
+00:06:01,890 --> 00:06:04,550
+So what's your name, as
+before, quote/unquote.
+
+125
+00:06:04,550 --> 00:06:08,540
+And now let me go ahead, and let me
+do something more with this value.
+
+126
+00:06:08,540 --> 00:06:11,750
+Instead of just adding it to a list
+or printing it immediately out,
+
+127
+00:06:11,750 --> 00:06:14,030
+let's save the value
+of the person's name
+
+128
+00:06:14,030 --> 00:06:15,950
+that's just been typed in to a file.
+
+129
+00:06:15,950 --> 00:06:17,600
+Well, how do we go about doing that?
+
+130
+00:06:17,600 --> 00:06:20,600
+Well, in Python, there's this function
+called open whose purpose in life
+
+131
+00:06:20,600 --> 00:06:25,320
+is to do just that, to open a file,
+but to open it up programmatically
+
+132
+00:06:25,320 --> 00:06:28,580
+so that you, the programmer, can
+actually read information from it
+
+133
+00:06:28,580 --> 00:06:30,440
+or write information to it.
+
+134
+00:06:30,440 --> 00:06:33,560
+So open is like the programmer's
+equivalent of double clicking
+
+135
+00:06:33,560 --> 00:06:35,480
+on an icon on your Mac or PC.
+
+136
+00:06:35,480 --> 00:06:37,580
+But it's a programmer's
+technique because it's
+
+137
+00:06:37,580 --> 00:06:40,070
+going to allow you to
+specify exactly what you want
+
+138
+00:06:40,070 --> 00:06:42,980
+to read from or write to that file.
+
+139
+00:06:42,980 --> 00:06:45,440
+Formally, it's documentation
+is here, and you'll
+
+140
+00:06:45,440 --> 00:06:48,037
+see that it's usage is
+relatively straightforward.
+
+141
+00:06:48,037 --> 00:06:50,870
+It minimally just requires the name
+of the file that we want to open
+
+142
+00:06:50,870 --> 00:06:53,700
+and, optionally, how we want to open it.
+
+143
+00:06:53,700 --> 00:06:57,650
+So let me go back to VS Code here,
+and let me propose now that I do this.
+
+144
+00:06:57,650 --> 00:07:01,190
+I'm going to go ahead and call
+this function called open, passing
+
+145
+00:07:01,190 --> 00:07:05,150
+in an argument for names.txt, which
+is the name of the file I would
+
+146
+00:07:05,150 --> 00:07:07,400
+like to store all of these names in.
+
+147
+00:07:07,400 --> 00:07:08,750
+I could call it anything I want.
+
+148
+00:07:08,750 --> 00:07:10,670
+But because it's going
+to be just text, it's
+
+149
+00:07:10,670 --> 00:07:13,280
+conventional to call it something.txt.
+
+150
+00:07:13,280 --> 00:07:15,590
+But I'm also going to
+tell the open function
+
+151
+00:07:15,590 --> 00:07:18,150
+that I plan to write to this file.
+
+152
+00:07:18,150 --> 00:07:21,530
+So as a second argument to open, I'm
+going to put literally, quote/unquote,
+
+153
+00:07:21,530 --> 00:07:25,160
+w, for Write, and that's
+going to tell open to open
+
+154
+00:07:25,160 --> 00:07:28,070
+the file in a way that's going to
+allow me to change the content.
+
+155
+00:07:28,070 --> 00:07:29,960
+And better yet, if it
+doesn't even exist yet,
+
+156
+00:07:29,960 --> 00:07:32,030
+it's going to create the file for me.
+
+157
+00:07:32,030 --> 00:07:35,540
+Now, open returns what's
+called a file handle,
+
+158
+00:07:35,540 --> 00:07:39,020
+a special value that allows me
+to access that file subsequently.
+
+159
+00:07:39,020 --> 00:07:42,560
+So I'm going to go ahead and sign
+it equal to a variable like file.
+
+160
+00:07:42,560 --> 00:07:45,020
+And now I'm going to go
+ahead and, quite simply,
+
+161
+00:07:45,020 --> 00:07:47,640
+write this person's name to that file.
+
+162
+00:07:47,640 --> 00:07:52,790
+So I'm going to literally type file,
+which is the variable linking to that
+
+163
+00:07:52,790 --> 00:07:57,230
+file, .write, which is a function
+otherwise known as a method that comes
+
+164
+00:07:57,230 --> 00:08:00,920
+with open files that allows me
+to write that name to the file.
+
+165
+00:08:00,920 --> 00:08:03,500
+And then lastly, I'm going
+to quite simply going
+
+166
+00:08:03,500 --> 00:08:07,310
+to go ahead and say, file.close,
+which will close and effectively save
+
+167
+00:08:07,310 --> 00:08:08,092
+the file.
+
+168
+00:08:08,092 --> 00:08:11,300
+So these three lines of code here are
+essentially the programmer's equivalent
+
+169
+00:08:11,300 --> 00:08:13,820
+to double clicking an
+icon on your Mac or PC,
+
+170
+00:08:13,820 --> 00:08:16,760
+making some changes in Microsoft
+Word or some other program,
+
+171
+00:08:16,760 --> 00:08:18,020
+and going to File, Save.
+
+172
+00:08:18,020 --> 00:08:21,560
+We're doing that all in code
+with just these three lines here.
+
+173
+00:08:21,560 --> 00:08:24,210
+Well, let's see, now, how this works.
+
+174
+00:08:24,210 --> 00:08:30,440
+Let me go ahead now and run
+python of names.py and Enter.
+
+175
+00:08:30,440 --> 00:08:31,740
+Let's type in a name.
+
+176
+00:08:31,740 --> 00:08:34,789
+I'll type in Hermione, Enter.
+
+177
+00:08:34,789 --> 00:08:37,370
+All right, where did she end up?
+
+178
+00:08:37,370 --> 00:08:41,630
+Well, let me go ahead now
+and type code of names.txt,
+
+179
+00:08:41,630 --> 00:08:43,850
+which is a file that
+happens now to exist
+
+180
+00:08:43,850 --> 00:08:45,950
+because I opened it in write mode.
+
+181
+00:08:45,950 --> 00:08:49,700
+And if I open this in a tab,
+we'll see there is Hermione.
+
+182
+00:08:49,700 --> 00:08:52,520
+Well, let's go ahead and
+run names.py once more.
+
+183
+00:08:52,520 --> 00:08:57,290
+I'm going to go ahead and run python
+of names.py, Enter, and this time,
+
+184
+00:08:57,290 --> 00:08:58,760
+I'll type in Harry.
+
+185
+00:08:58,760 --> 00:09:00,590
+Let me go ahead and
+run it one more time.
+
+186
+00:09:00,590 --> 00:09:02,480
+And this time, I'll type in Ron.
+
+187
+00:09:02,480 --> 00:09:07,010
+And now let me go up to names.txt,
+where, hopefully, I'll see all three
+
+188
+00:09:07,010 --> 00:09:08,570
+of them here.
+
+189
+00:09:08,570 --> 00:09:09,650
+But no.
+
+190
+00:09:09,650 --> 00:09:12,350
+I've just actually seen Ron.
+
+191
+00:09:12,350 --> 00:09:16,250
+What might explain what
+happened to Hermione and Harry,
+
+192
+00:09:16,250 --> 00:09:19,040
+even though I'm pretty sure I
+ran the program three times,
+
+193
+00:09:19,040 --> 00:09:24,170
+and I definitely wrote the code
+that writes their name to that file?
+
+194
+00:09:24,170 --> 00:09:26,425
+What's going on here, do you think?
+
+195
+00:09:26,425 --> 00:09:28,550
+AUDIENCE: I think because
+we're not appending them,
+
+196
+00:09:28,550 --> 00:09:30,650
+we should append the names.
+
+197
+00:09:30,650 --> 00:09:34,430
+Since we are writing directly,
+it is erasing the old content,
+
+198
+00:09:34,430 --> 00:09:40,605
+and it is replacing with the last
+set of characters that we mentioned.
+
+199
+00:09:40,605 --> 00:09:41,480
+DAVID MALAN: Exactly.
+
+200
+00:09:41,480 --> 00:09:44,240
+Unfortunately, quote/unquote
+w is a little dangerous.
+
+201
+00:09:44,240 --> 00:09:46,160
+Not only will it create
+the file for you,
+
+202
+00:09:46,160 --> 00:09:49,250
+it will also recreate the
+file for you every time you
+
+203
+00:09:49,250 --> 00:09:50,610
+open the file in that mode.
+
+204
+00:09:50,610 --> 00:09:52,940
+So if you open the file
+once and write Hermione,
+
+205
+00:09:52,940 --> 00:09:54,478
+that worked just fine, as we saw.
+
+206
+00:09:54,478 --> 00:09:57,020
+But if you do it again for Harry,
+if you do it again for Ron,
+
+207
+00:09:57,020 --> 00:09:58,100
+the code is working.
+
+208
+00:09:58,100 --> 00:10:02,240
+But each time, it's opening the file and
+recreating it with brand-new contents,
+
+209
+00:10:02,240 --> 00:10:04,940
+so we had one version with Hermione,
+and one version with Harry,
+
+210
+00:10:04,940 --> 00:10:06,650
+and one final version with Ron.
+
+211
+00:10:06,650 --> 00:10:09,500
+But ideally, I think we
+probably want to be appending,
+
+212
+00:10:09,500 --> 00:10:11,960
+as Vishal says, each of
+those names to the file,
+
+213
+00:10:11,960 --> 00:10:15,630
+not just clobbering-- that is,
+overwriting the file each time.
+
+214
+00:10:15,630 --> 00:10:16,520
+So how can I do this?
+
+215
+00:10:16,520 --> 00:10:18,500
+It's actually a relatively easy fix.
+
+216
+00:10:18,500 --> 00:10:20,610
+Let me go ahead and do this as follows.
+
+217
+00:10:20,610 --> 00:10:23,630
+I'm going to first remove
+the old version of names.txt.
+
+218
+00:10:23,630 --> 00:10:26,550
+And now I'm going to
+change my code to do this.
+
+219
+00:10:26,550 --> 00:10:29,840
+I'm going to change the w,
+quote/unquote, to just a,
+
+220
+00:10:29,840 --> 00:10:32,990
+quote/unquote-- a for Append,
+which means to add to the bottom,
+
+221
+00:10:32,990 --> 00:10:34,940
+to the bottom, to the
+bottom, again and again.
+
+222
+00:10:34,940 --> 00:10:39,320
+Now let me go ahead and rerun
+python of names.py, Enter.
+
+223
+00:10:39,320 --> 00:10:41,990
+I'll again start from
+scratch with Hermione
+
+224
+00:10:41,990 --> 00:10:44,090
+because I'm creating the file new.
+
+225
+00:10:44,090 --> 00:10:49,700
+Notice that if I now do code
+of names.txt, Enter, we do
+
+226
+00:10:49,700 --> 00:10:51,170
+see that Hermione is back.
+
+227
+00:10:51,170 --> 00:10:54,590
+So after removing the
+file, it did get recreated,
+
+228
+00:10:54,590 --> 00:10:56,670
+even though I'm using
+append, which is good.
+
+229
+00:10:56,670 --> 00:11:00,380
+But now let's see what happens
+when I go back to my terminal.
+
+230
+00:11:00,380 --> 00:11:03,260
+And this time, I run
+python of names.py again--
+
+231
+00:11:03,260 --> 00:11:04,850
+this time, typing in Harry.
+
+232
+00:11:04,850 --> 00:11:06,720
+And let me run it one more time--
+
+233
+00:11:06,720 --> 00:11:08,120
+this time, typing in Ron.
+
+234
+00:11:08,120 --> 00:11:10,850
+So hopefully, this time, in
+that second tab, names.txt,
+
+235
+00:11:10,850 --> 00:11:13,670
+I should now see all three of them.
+
+236
+00:11:13,670 --> 00:11:17,030
+But, but, but, but this
+doesn't look ideal.
+
+237
+00:11:17,030 --> 00:11:21,213
+What have I clearly done wrong?
+
+238
+00:11:21,213 --> 00:11:23,630
+Something tells me, even though
+all three names are there,
+
+239
+00:11:23,630 --> 00:11:26,180
+it's not going to be easy to
+read those back unless you
+
+240
+00:11:26,180 --> 00:11:29,300
+know where each name ends and begins.
+
+241
+00:11:29,300 --> 00:11:33,200
+AUDIENCE: The English
+format is not correct.
+
+242
+00:11:33,200 --> 00:11:35,510
+The English format is not correct.
+
+243
+00:11:35,510 --> 00:11:36,620
+It's incorrect.
+
+244
+00:11:36,620 --> 00:11:38,540
+It's concatenating them.
+
+245
+00:11:38,540 --> 00:11:40,910
+DAVID MALAN: It is.
+
+246
+00:11:40,910 --> 00:11:43,070
+Well, it appears to be concatenating.
+
+247
+00:11:43,070 --> 00:11:46,280
+But technically speaking, it's
+just appending to the file--
+
+248
+00:11:46,280 --> 00:11:48,710
+first Hermione, then Harry, then Ron.
+
+249
+00:11:48,710 --> 00:11:50,840
+It has the effect of
+combining them back to back,
+
+250
+00:11:50,840 --> 00:11:52,298
+but it's not concatenating, per se.
+
+251
+00:11:52,298 --> 00:11:53,690
+It really is just appending.
+
+252
+00:11:53,690 --> 00:11:55,370
+Let's go to another hand here.
+
+253
+00:11:55,370 --> 00:11:58,100
+What really have I done wrong?
+
+254
+00:11:58,100 --> 00:12:01,010
+Or equivalently, how might I fix?
+
+255
+00:12:01,010 --> 00:12:05,000
+It would be nice if there were some
+kind of gaps between each of the names,
+
+256
+00:12:05,000 --> 00:12:07,460
+so we could read them more cleanly.
+
+257
+00:12:07,460 --> 00:12:08,210
+AUDIENCE: Hello.
+
+258
+00:12:08,210 --> 00:12:13,160
+We should add a new line
+before we write new name.
+
+259
+00:12:13,160 --> 00:12:13,910
+DAVID MALAN: Good.
+
+260
+00:12:13,910 --> 00:12:15,470
+We want to add a new line ourselves.
+
+261
+00:12:15,470 --> 00:12:19,430
+So whereas print by default, recall,
+always outputs, automatically,
+
+262
+00:12:19,430 --> 00:12:20,990
+a line ending of backslash n.
+
+263
+00:12:20,990 --> 00:12:24,410
+Unless we override it with the
+named parameter called end,
+
+264
+00:12:24,410 --> 00:12:25,640
+write does not do that.
+
+265
+00:12:25,640 --> 00:12:26,810
+Write takes you literally.
+
+266
+00:12:26,810 --> 00:12:29,120
+And if you say write
+Hermione, that's it.
+
+267
+00:12:29,120 --> 00:12:30,680
+You're getting the H through the e.
+
+268
+00:12:30,680 --> 00:12:33,740
+If you say, write Harry,
+you get the H through the y.
+
+269
+00:12:33,740 --> 00:12:36,810
+You don't get any extra
+new lines automatically.
+
+270
+00:12:36,810 --> 00:12:40,760
+So if you want to have a new line
+at the end of each of these names,
+
+271
+00:12:40,760 --> 00:12:42,150
+we've got to do that manually.
+
+272
+00:12:42,150 --> 00:12:46,350
+So let me, again, close names.txt,
+and let me remove the current file.
+
+273
+00:12:46,350 --> 00:12:48,200
+And let me go back up to my code here.
+
+274
+00:12:48,200 --> 00:12:49,920
+And I can fix this in
+any number of ways,
+
+275
+00:12:49,920 --> 00:12:51,712
+but I'm just going to
+go ahead and do this.
+
+276
+00:12:51,712 --> 00:12:55,700
+I'm going to write out an f string
+that contains name and backslash
+
+277
+00:12:55,700 --> 00:12:56,522
+n at the end.
+
+278
+00:12:56,522 --> 00:12:57,980
+We could do this in different ways.
+
+279
+00:12:57,980 --> 00:13:00,952
+We could manually print just the
+new line or some other technique,
+
+280
+00:13:00,952 --> 00:13:04,160
+but I'm going to go ahead and use my f
+strings, as I'm in the habit of doing,
+
+281
+00:13:04,160 --> 00:13:07,290
+and just print the name and
+the new line all at once.
+
+282
+00:13:07,290 --> 00:13:11,150
+I'm going to go ahead now and down to my
+terminal window, run python of names.py
+
+283
+00:13:11,150 --> 00:13:12,230
+again, Enter.
+
+284
+00:13:12,230 --> 00:13:13,790
+We'll type in Hermione.
+
+285
+00:13:13,790 --> 00:13:15,890
+I'm going to run it
+again, type in Harry.
+
+286
+00:13:15,890 --> 00:13:18,500
+I'm going to type it
+again and this time, Ron.
+
+287
+00:13:18,500 --> 00:13:22,430
+Now I'm going to run code of
+names.txt and open that file.
+
+288
+00:13:22,430 --> 00:13:25,730
+And now it looks like the
+file is a bit cleaner.
+
+289
+00:13:25,730 --> 00:13:28,130
+Indeed, I have each of
+the name on its own line
+
+290
+00:13:28,130 --> 00:13:32,810
+as well as a line ending, which
+ensures that we can separate one
+
+291
+00:13:32,810 --> 00:13:33,750
+from the other.
+
+292
+00:13:33,750 --> 00:13:38,030
+Now, if I were writing code, I
+bet I could parse, that is, read
+
+293
+00:13:38,030 --> 00:13:39,950
+the previous file by
+looking at differences
+
+294
+00:13:39,950 --> 00:13:41,727
+between lowercase and uppercase letters.
+
+295
+00:13:41,727 --> 00:13:43,310
+But that's going to get messy quickly.
+
+296
+00:13:43,310 --> 00:13:46,640
+Generally speaking, when storing
+data long-term in a file,
+
+297
+00:13:46,640 --> 00:13:50,750
+you should probably do it somehow
+cleanly, like doing one name at a time.
+
+298
+00:13:50,750 --> 00:13:52,662
+Well, let's now go
+back, and I'll propose
+
+299
+00:13:52,662 --> 00:13:54,620
+that this code is now
+working correctly, but we
+
+300
+00:13:54,620 --> 00:13:56,300
+can design it a little bit better.
+
+301
+00:13:56,300 --> 00:14:00,410
+It turns out that it's all too easy
+when writing code to sometimes forget
+
+302
+00:14:00,410 --> 00:14:01,460
+to close files.
+
+303
+00:14:01,460 --> 00:14:03,770
+And sometimes, this isn't
+necessarily a big deal.
+
+304
+00:14:03,770 --> 00:14:05,450
+But sometimes, it can create problems.
+
+305
+00:14:05,450 --> 00:14:08,210
+Files could get corrupted or
+accidentally deleted or the like,
+
+306
+00:14:08,210 --> 00:14:09,990
+depending on what happens in your code.
+
+307
+00:14:09,990 --> 00:14:14,660
+So it turns out that you don't strictly
+need to call close on the file yourself
+
+308
+00:14:14,660 --> 00:14:16,550
+if you take another approach instead.
+
+309
+00:14:16,550 --> 00:14:21,950
+More Pythonic when manipulating
+files is to do this,
+
+310
+00:14:21,950 --> 00:14:25,370
+to introduce this other
+keyword called, quite simply,
+
+311
+00:14:25,370 --> 00:14:29,220
+with that allows you to
+specify that, in this context,
+
+312
+00:14:29,220 --> 00:14:33,030
+I want you to open and
+automatically close some file.
+
+313
+00:14:33,030 --> 00:14:34,520
+So how do we use with?
+
+314
+00:14:34,520 --> 00:14:35,970
+It simply looks like this.
+
+315
+00:14:35,970 --> 00:14:37,430
+Let me go back to my code here.
+
+316
+00:14:37,430 --> 00:14:39,320
+I've gotten rid of the close line.
+
+317
+00:14:39,320 --> 00:14:41,360
+And I'm now just going
+to say this instead.
+
+318
+00:14:41,360 --> 00:14:44,240
+Instead of saying, file
+equals open, I'm going
+
+319
+00:14:44,240 --> 00:14:48,290
+to say, with open, then the
+same arguments as before,
+
+320
+00:14:48,290 --> 00:14:51,860
+and somewhat curiously, I'm going to
+put the variable at the end of the line.
+
+321
+00:14:51,860 --> 00:14:52,400
+Why?
+
+322
+00:14:52,400 --> 00:14:54,080
+That's just the way this is done.
+
+323
+00:14:54,080 --> 00:14:56,840
+You say, with, you call
+the function in question,
+
+324
+00:14:56,840 --> 00:15:00,320
+and then you say as and specify the
+name of the variable that should
+
+325
+00:15:00,320 --> 00:15:03,110
+be assigned the return value of open.
+
+326
+00:15:03,110 --> 00:15:05,870
+Then I'm going to go ahead and
+indent the line underneath so
+
+327
+00:15:05,870 --> 00:15:08,330
+that the line of code
+that's writing the name
+
+328
+00:15:08,330 --> 00:15:12,770
+is now in the context of this with
+statement, which just ensures that,
+
+329
+00:15:12,770 --> 00:15:15,560
+automatically, if I had
+more code in this file
+
+330
+00:15:15,560 --> 00:15:19,970
+down below no longer indented, the
+file would be automatically closed
+
+331
+00:15:19,970 --> 00:15:22,130
+as soon as line 4 is done executing.
+
+332
+00:15:22,130 --> 00:15:24,050
+So it doesn't change
+what has just happened,
+
+333
+00:15:24,050 --> 00:15:26,900
+but it does automate the process
+of at least closing things for us
+
+334
+00:15:26,900 --> 00:15:31,490
+just to ensure I don't forget and
+so that something doesn't go wrong.
+
+335
+00:15:31,490 --> 00:15:35,630
+But suppose, now, that I wanted
+to read these names from the file.
+
+336
+00:15:35,630 --> 00:15:38,580
+All I've done thus far is write
+code that writes names to the file.
+
+337
+00:15:38,580 --> 00:15:41,720
+But let's assume, now, that we have
+all of these names in the file.
+
+338
+00:15:41,720 --> 00:15:43,880
+And heck, let's go
+ahead and add one more.
+
+339
+00:15:43,880 --> 00:15:47,270
+Let me go ahead and run this one
+more time-- python of names.py.
+
+340
+00:15:47,270 --> 00:15:49,680
+And let's add in Draco to the mix.
+
+341
+00:15:49,680 --> 00:15:52,100
+So now that we have all
+four of these names here,
+
+342
+00:15:52,100 --> 00:15:54,650
+how might we want to read them back?
+
+343
+00:15:54,650 --> 00:15:57,203
+Well, let me propose that
+we go into names.py now,
+
+344
+00:15:57,203 --> 00:15:59,120
+or we could create another
+program altogether.
+
+345
+00:15:59,120 --> 00:16:02,660
+But I'm going to keep reusing the same
+name just to keep us focused on this.
+
+346
+00:16:02,660 --> 00:16:07,850
+And now I'm going to write code that
+reads an existing file with Hermione,
+
+347
+00:16:07,850 --> 00:16:10,550
+Harry, Ron, and Draco together.
+
+348
+00:16:10,550 --> 00:16:11,802
+And how do I do this?
+
+349
+00:16:11,802 --> 00:16:13,010
+Well, it's similar in spirit.
+
+350
+00:16:13,010 --> 00:16:15,605
+I'm going to start this
+time with with open,
+
+351
+00:16:15,605 --> 00:16:18,230
+and then the first argument is
+going to be the name of the file
+
+352
+00:16:18,230 --> 00:16:19,910
+that I want to open, as before.
+
+353
+00:16:19,910 --> 00:16:23,780
+And I'm going to open it, this time,
+in read mode-- quote/unquote, r.
+
+354
+00:16:23,780 --> 00:16:27,360
+And to read a file just means
+to load it, not to save it.
+
+355
+00:16:27,360 --> 00:16:30,462
+And I'm going to name
+the return value file.
+
+356
+00:16:30,462 --> 00:16:31,670
+And now I'm going to do this.
+
+357
+00:16:31,670 --> 00:16:33,462
+And there's a number
+of ways I can do this,
+
+358
+00:16:33,462 --> 00:16:37,100
+but one way to read all of the lines
+from the file at once would be this.
+
+359
+00:16:37,100 --> 00:16:39,230
+Let me declare a variable called lines.
+
+360
+00:16:39,230 --> 00:16:42,680
+Let me access that file and
+call a function or a method that
+
+361
+00:16:42,680 --> 00:16:44,730
+comes with it called readlines.
+
+362
+00:16:44,730 --> 00:16:47,720
+So if you read the documentation
+on File I/O in Python,
+
+363
+00:16:47,720 --> 00:16:51,740
+you'll see that open files come with
+a special method whose purpose in life
+
+364
+00:16:51,740 --> 00:16:56,550
+is to read all the lines from the
+file and return them to me as a list.
+
+365
+00:16:56,550 --> 00:16:59,750
+So what this line 2 is doing is
+it's reading all of the lines
+
+366
+00:16:59,750 --> 00:17:03,230
+from that file, storing them
+in a variable called lines.
+
+367
+00:17:03,230 --> 00:17:05,839
+Now, suppose I want to iterate
+over all of those lines
+
+368
+00:17:05,839 --> 00:17:07,760
+and print out each of those names.
+
+369
+00:17:07,760 --> 00:17:12,349
+For line in lines, this is just
+a standard for loop in Python.
+
+370
+00:17:12,349 --> 00:17:13,880
+Lines as a list.
+
+371
+00:17:13,880 --> 00:17:16,760
+Line is the variable that
+will be automatically set
+
+372
+00:17:16,760 --> 00:17:17,930
+to each of those lines.
+
+373
+00:17:17,930 --> 00:17:22,609
+Let me go ahead and print out
+something like, oh, hello, comma,
+
+374
+00:17:22,609 --> 00:17:25,750
+and then I'll print out the line itself.
+
+375
+00:17:25,750 --> 00:17:30,790
+All right, so let me go to my terminal
+window, run python of names.py now--
+
+376
+00:17:30,790 --> 00:17:34,360
+I have not deleted names.txt,
+so it still contains all four
+
+377
+00:17:34,360 --> 00:17:38,590
+of those names-- and hit
+Enter, and OK, it's not bad,
+
+378
+00:17:38,590 --> 00:17:41,290
+but it's a little ugly here.
+
+379
+00:17:41,290 --> 00:17:42,430
+What's going on?
+
+380
+00:17:42,430 --> 00:17:45,940
+When I ran names.py, it's saying
+Hello to Hermione, to Harry, to Ron,
+
+381
+00:17:45,940 --> 00:17:46,540
+to Draco.
+
+382
+00:17:46,540 --> 00:17:50,640
+But there's these gaps
+now between the lines.
+
+383
+00:17:50,640 --> 00:17:53,100
+What explains that symptom?
+
+384
+00:17:53,100 --> 00:17:55,230
+If nothing else, it just looks ugly.
+
+385
+00:17:55,230 --> 00:17:57,360
+AUDIENCE: It happens
+because in the text file,
+
+386
+00:17:57,360 --> 00:18:01,620
+we have new line symbols
+in between those names,
+
+387
+00:18:01,620 --> 00:18:05,850
+and the print always adds
+another new line at the end.
+
+388
+00:18:05,850 --> 00:18:08,695
+So you use the same symbol twice.
+
+389
+00:18:08,695 --> 00:18:09,570
+DAVID MALAN: Perfect.
+
+390
+00:18:09,570 --> 00:18:12,460
+And here's a good example of
+a bug, a mistake in a program.
+
+391
+00:18:12,460 --> 00:18:14,760
+But if you just think about
+those first principles,
+
+392
+00:18:14,760 --> 00:18:18,103
+like, how do each of the lines
+of code work that I'm using?
+
+393
+00:18:18,103 --> 00:18:21,270
+You should be able to reason, exactly
+as Ripal there to say that, all right,
+
+394
+00:18:21,270 --> 00:18:24,450
+well, one of those new lines is
+coming from the file after each name.
+
+395
+00:18:24,450 --> 00:18:26,760
+And then, of course, print,
+all of these weeks later,
+
+396
+00:18:26,760 --> 00:18:29,370
+is still giving us for
+free that extra new line.
+
+397
+00:18:29,370 --> 00:18:31,530
+So there's a couple possible solutions.
+
+398
+00:18:31,530 --> 00:18:34,110
+I could certainly do this,
+which we've done in the past,
+
+399
+00:18:34,110 --> 00:18:38,040
+and pass in a named argument
+to print, like end="".
+
+400
+00:18:38,040 --> 00:18:39,330
+And that's fine.
+
+401
+00:18:39,330 --> 00:18:41,730
+I would argue a little better
+than that might actually
+
+402
+00:18:41,730 --> 00:18:46,530
+be to do this, to strip off of the
+end of the line the actual new line
+
+403
+00:18:46,530 --> 00:18:50,370
+itself so that print is handling the
+printing of everything, the person's
+
+404
+00:18:50,370 --> 00:18:52,050
+name as well as the new line.
+
+405
+00:18:52,050 --> 00:18:55,500
+But you're just stripping off what
+is really just an implementation
+
+406
+00:18:55,500 --> 00:18:56,700
+detail in the file.
+
+407
+00:18:56,700 --> 00:19:01,420
+We chose to use new lines in my text
+file to separate one name from another.
+
+408
+00:19:01,420 --> 00:19:05,040
+So arguably, it should be a
+little cleaner in terms of design
+
+409
+00:19:05,040 --> 00:19:07,740
+to strip that off and
+then let print print out
+
+410
+00:19:07,740 --> 00:19:09,283
+what is really just now a name.
+
+411
+00:19:09,283 --> 00:19:10,950
+But that's ultimately a design decision.
+
+412
+00:19:10,950 --> 00:19:14,340
+The effect is going to
+be exactly the same.
+
+413
+00:19:14,340 --> 00:19:18,540
+Well, if I'm going to open this
+file and read all the lines
+
+414
+00:19:18,540 --> 00:19:21,870
+and then iterate over all of those
+lines and print them each out,
+
+415
+00:19:21,870 --> 00:19:23,910
+I could actually combine
+this into one thing
+
+416
+00:19:23,910 --> 00:19:26,130
+because, right now, I'm
+doing twice as much work.
+
+417
+00:19:26,130 --> 00:19:30,300
+I'm reading all of the lines, then I'm
+iterating over all of the lines just
+
+418
+00:19:30,300 --> 00:19:32,140
+to print out each of them.
+
+419
+00:19:32,140 --> 00:19:34,770
+Well, in Python, with files,
+you can actually do this.
+
+420
+00:19:34,770 --> 00:19:37,060
+I'm going to erase
+almost all of these lines
+
+421
+00:19:37,060 --> 00:19:39,960
+now, keeping only with statement at top.
+
+422
+00:19:39,960 --> 00:19:45,960
+And inside of this with statement, I'm
+going to say this, for line in file,
+
+423
+00:19:45,960 --> 00:19:50,872
+go ahead and print out, quote/unquote,
+hello, comma, and then line.rstrip.
+
+424
+00:19:50,872 --> 00:19:53,830
+So I'm going to take the approach of
+stripping off the end of the line.
+
+425
+00:19:53,830 --> 00:19:57,130
+But notice how elegant
+this is, so to speak.
+
+426
+00:19:57,130 --> 00:19:59,320
+I've opened the file in line 1.
+
+427
+00:19:59,320 --> 00:20:01,860
+And if I want to iterate
+over every line in the file,
+
+428
+00:20:01,860 --> 00:20:05,280
+I don't have to very
+explicitly read all the lines,
+
+429
+00:20:05,280 --> 00:20:06,900
+then iterate over all of the lines.
+
+430
+00:20:06,900 --> 00:20:08,440
+I can combine this into one thought.
+
+431
+00:20:08,440 --> 00:20:11,407
+In Python, you can simply
+say, for line in file,
+
+432
+00:20:11,407 --> 00:20:14,490
+and that's going to have the effect
+of giving you a for loop that iterates
+
+433
+00:20:14,490 --> 00:20:18,240
+over every line in the file, one
+at a time, and on each iteration,
+
+434
+00:20:18,240 --> 00:20:22,110
+updating the value of this
+variable line to be Hermione,
+
+435
+00:20:22,110 --> 00:20:24,990
+then Harry, then Ron, then Draco.
+
+436
+00:20:24,990 --> 00:20:28,080
+So this, again, is one of the
+appealing aspects of Python
+
+437
+00:20:28,080 --> 00:20:32,140
+is that it reads rather like English--
+for line in file, print this.
+
+438
+00:20:32,140 --> 00:20:35,190
+It's a little more compact
+when written this way.
+
+439
+00:20:35,190 --> 00:20:38,580
+Well, what if, though, I don't
+want quite this behavior?
+
+440
+00:20:38,580 --> 00:20:42,450
+Because notice now, if I run
+python of names.py, it's correct.
+
+441
+00:20:42,450 --> 00:20:45,060
+I'm seeing each of the names
+and each of the hellos,
+
+442
+00:20:45,060 --> 00:20:47,320
+and there's no extra spaces in between.
+
+443
+00:20:47,320 --> 00:20:52,440
+But just to be difficult, I'd really
+like us to be sorting these hellos.
+
+444
+00:20:52,440 --> 00:20:56,610
+Really, I'd like to see Draco first,
+then Harry, then Hermione, then Ron,
+
+445
+00:20:56,610 --> 00:20:58,890
+no matter what order
+they appear in the file.
+
+446
+00:20:58,890 --> 00:21:02,127
+So I could go in, of course, to the
+file and manually change the file.
+
+447
+00:21:02,127 --> 00:21:03,960
+But if that file is
+changing over time based
+
+448
+00:21:03,960 --> 00:21:06,203
+on who is typing their
+name into the program,
+
+449
+00:21:06,203 --> 00:21:07,620
+that's not really a good solution.
+
+450
+00:21:07,620 --> 00:21:10,412
+In code, I should be able to load
+the file, no matter what it looks
+
+451
+00:21:10,412 --> 00:21:12,930
+like, and just sort it all at once.
+
+452
+00:21:12,930 --> 00:21:17,100
+Now, here is a reason to
+not do what I've just done.
+
+453
+00:21:17,100 --> 00:21:21,510
+I can't iterate over each line
+in the file and print it out
+
+454
+00:21:21,510 --> 00:21:23,550
+but sort everything in advance.
+
+455
+00:21:23,550 --> 00:21:27,750
+Logically, if I'm looking at each line
+one at a time and printing it out,
+
+456
+00:21:27,750 --> 00:21:29,310
+it's too late to sort.
+
+457
+00:21:29,310 --> 00:21:32,970
+I really need to read all of the
+lines first without printing them,
+
+458
+00:21:32,970 --> 00:21:34,990
+sort them, then print them.
+
+459
+00:21:34,990 --> 00:21:38,110
+So we have to take a step back in
+order to add now this new feature.
+
+460
+00:21:38,110 --> 00:21:39,340
+So how can I do this?
+
+461
+00:21:39,340 --> 00:21:42,030
+Well, let me combine
+some ideas from before.
+
+462
+00:21:42,030 --> 00:21:44,310
+Let me go ahead and
+start fresh with this.
+
+463
+00:21:44,310 --> 00:21:48,330
+Let me give myself a list called
+names, and assign it an empty list,
+
+464
+00:21:48,330 --> 00:21:52,140
+just so I have a variable in which
+to accumulate all of these lines.
+
+465
+00:21:52,140 --> 00:21:56,550
+And now let me open the file with
+open, quote/unquote, names.txt.
+
+466
+00:21:56,550 --> 00:21:58,840
+And it turns out, I can
+tighten this up a little bit.
+
+467
+00:21:58,840 --> 00:22:00,960
+It turns out, if you're
+opening a file to read it,
+
+468
+00:22:00,960 --> 00:22:03,420
+you don't need to
+specify, quote/unquote, r.
+
+469
+00:22:03,420 --> 00:22:05,130
+That is the implicit default.
+
+470
+00:22:05,130 --> 00:22:08,160
+So you can tighten things up
+by just saying, open names.txt.
+
+471
+00:22:08,160 --> 00:22:10,680
+And you'll be able to read
+the file but not write it.
+
+472
+00:22:10,680 --> 00:22:13,590
+I'm going to give myself a
+variable called file, as before.
+
+473
+00:22:13,590 --> 00:22:17,730
+I am going to iterate over the file
+in the same way, for line in file.
+
+474
+00:22:17,730 --> 00:22:21,450
+But instead of printing each
+line, I'm going to do this.
+
+475
+00:22:21,450 --> 00:22:25,170
+I'm going to take my names
+list and append to it.
+
+476
+00:22:25,170 --> 00:22:27,930
+And this is appending
+to a list in memory,
+
+477
+00:22:27,930 --> 00:22:30,617
+not appending to the file itself.
+
+478
+00:22:30,617 --> 00:22:32,700
+I'm going to go ahead and
+append the current line,
+
+479
+00:22:32,700 --> 00:22:35,400
+but I'm going to strip off
+the new line at the end
+
+480
+00:22:35,400 --> 00:22:39,600
+so that all I'm adding to this list
+is each of the students' names.
+
+481
+00:22:39,600 --> 00:22:42,660
+Now I can use that familiar
+technique from before.
+
+482
+00:22:42,660 --> 00:22:46,740
+Let me go outside of this with statement
+because now I've read the entire file,
+
+483
+00:22:46,740 --> 00:22:47,310
+presumably.
+
+484
+00:22:47,310 --> 00:22:50,238
+So by the time I'm done
+with lines 4 and 5,
+
+485
+00:22:50,238 --> 00:22:52,530
+again, and again, and again,
+for each line in the file,
+
+486
+00:22:52,530 --> 00:22:53,610
+I'm done with the file.
+
+487
+00:22:53,610 --> 00:22:54,390
+It can close.
+
+488
+00:22:54,390 --> 00:22:57,870
+I now have all of the students'
+names in this list variable.
+
+489
+00:22:57,870 --> 00:22:58,890
+Let me do this.
+
+490
+00:22:58,890 --> 00:23:04,110
+For name in, not just
+names, but the sorted names,
+
+491
+00:23:04,110 --> 00:23:08,250
+using our Python function sorted,
+which does just that, and do print,
+
+492
+00:23:08,250 --> 00:23:10,950
+quote/unquote, with an
+f string, hello, comma,
+
+493
+00:23:10,950 --> 00:23:13,780
+and now I'll plug in bracket name.
+
+494
+00:23:13,780 --> 00:23:15,700
+So now, what have I done?
+
+495
+00:23:15,700 --> 00:23:18,060
+I'm creating a list
+at the beginning, just
+
+496
+00:23:18,060 --> 00:23:20,010
+so I have a place to gather my data.
+
+497
+00:23:20,010 --> 00:23:23,910
+I then, on lines 3 through 5, iterate
+over the file from top to bottom,
+
+498
+00:23:23,910 --> 00:23:27,000
+reading in each line, one at a
+time, stripping off the new line
+
+499
+00:23:27,000 --> 00:23:29,200
+and adding just the
+student's name to this list.
+
+500
+00:23:29,200 --> 00:23:32,280
+And the reason I'm doing
+that is so that on line 7,
+
+501
+00:23:32,280 --> 00:23:35,850
+I can sort all of those names,
+now that they're all in memory,
+
+502
+00:23:35,850 --> 00:23:37,450
+and print them in order.
+
+503
+00:23:37,450 --> 00:23:40,720
+I need to load them all into
+memory before I can sort them.
+
+504
+00:23:40,720 --> 00:23:42,720
+Otherwise, I'd be printing
+them out prematurely,
+
+505
+00:23:42,720 --> 00:23:45,240
+and Draco would end up
+last instead of first.
+
+506
+00:23:45,240 --> 00:23:48,720
+So let me go ahead in my terminal
+window and run python of names.py
+
+507
+00:23:48,720 --> 00:23:50,280
+now, and hit Enter.
+
+508
+00:23:50,280 --> 00:23:51,360
+And there we go.
+
+509
+00:23:51,360 --> 00:23:54,900
+The same list of four hellos,
+but now they're sorted.
+
+510
+00:23:54,900 --> 00:23:56,460
+And this is a very common technique.
+
+511
+00:23:56,460 --> 00:23:58,710
+When dealing with files
+and information more
+
+512
+00:23:58,710 --> 00:24:03,300
+generally, if you want to change that
+data in some way, like sorting it,
+
+513
+00:24:03,300 --> 00:24:06,690
+creating some kind of variable at
+the top of your program, like a list,
+
+514
+00:24:06,690 --> 00:24:10,620
+adding or appending information to
+it just to collect it in one place,
+
+515
+00:24:10,620 --> 00:24:14,070
+and then do something interesting
+with that collection, that list,
+
+516
+00:24:14,070 --> 00:24:16,140
+is exactly what I've done here.
+
+517
+00:24:16,140 --> 00:24:18,840
+Now, I should note that if we
+just want to sort the file,
+
+518
+00:24:18,840 --> 00:24:21,960
+we can actually do this even more
+simply in Python, particularly
+
+519
+00:24:21,960 --> 00:24:25,980
+by not bothering with this names
+list, nor the second for loop.
+
+520
+00:24:25,980 --> 00:24:28,690
+And let me go ahead and, instead,
+just do more simply this.
+
+521
+00:24:28,690 --> 00:24:31,020
+Let me go ahead and tell
+Python that we want the file
+
+522
+00:24:31,020 --> 00:24:34,050
+itself to be sorted using
+that same sorted function,
+
+523
+00:24:34,050 --> 00:24:36,015
+but this time on the file itself.
+
+524
+00:24:36,015 --> 00:24:38,640
+And then inside of that for loop,
+let's just go ahead and print
+
+525
+00:24:38,640 --> 00:24:42,300
+right away our hello, comma,
+followed by the line itself,
+
+526
+00:24:42,300 --> 00:24:46,110
+but still stripping off of the
+end of it any white space therein.
+
+527
+00:24:46,110 --> 00:24:48,330
+If we go ahead and run
+this same program now
+
+528
+00:24:48,330 --> 00:24:51,660
+with python of names.py and hit
+Enter, we get the same result.
+
+529
+00:24:51,660 --> 00:24:53,550
+But of course, it's a lot more compact.
+
+530
+00:24:53,550 --> 00:24:55,950
+But for the sake of
+discussion, let's assume
+
+531
+00:24:55,950 --> 00:24:59,850
+that we do actually want to potentially
+make some changes to the data
+
+532
+00:24:59,850 --> 00:25:00,870
+as we iterate over it.
+
+533
+00:25:00,870 --> 00:25:03,210
+So let me undo those
+changes, leave things as is.
+
+534
+00:25:03,210 --> 00:25:06,240
+Whereby now, we'll continue to
+accumulate all of the names first
+
+535
+00:25:06,240 --> 00:25:08,910
+into a list, maybe do something
+to them, maybe forcing them
+
+536
+00:25:08,910 --> 00:25:13,365
+to uppercase or lowercase or the like,
+and then sort and print out each item.
+
+537
+00:25:13,365 --> 00:25:15,240
+Let me pause and see if
+there's any questions
+
+538
+00:25:15,240 --> 00:25:21,180
+now on File I/O reading or writing or
+now accumulating all of these values
+
+539
+00:25:21,180 --> 00:25:22,138
+in some list.
+
+540
+00:25:22,138 --> 00:25:22,680
+AUDIENCE: Hi.
+
+541
+00:25:22,680 --> 00:25:25,920
+Is there a way to sort the files--
+
+542
+00:25:25,920 --> 00:25:29,490
+instead if you want it from
+alphabetically from A to Z,
+
+543
+00:25:29,490 --> 00:25:32,490
+is there a way to
+reverse it from Z to A.
+
+544
+00:25:32,490 --> 00:25:35,460
+Is there a little extension that
+you can add to the end to do that?
+
+545
+00:25:35,460 --> 00:25:37,680
+Or would you have to
+create a new function?
+
+546
+00:25:37,680 --> 00:25:40,560
+DAVID MALAN: If you wanted to
+reverse the contents of the file?
+
+547
+00:25:40,560 --> 00:25:43,920
+AUDIENCE: Yeah, so if you, instead
+of sorting them from A to Z
+
+548
+00:25:43,920 --> 00:25:47,640
+in ascending order, if you
+wanted them in descending order,
+
+549
+00:25:47,640 --> 00:25:49,470
+is there an extension for that?
+
+550
+00:25:49,470 --> 00:25:50,790
+DAVID MALAN: There is, indeed.
+
+551
+00:25:50,790 --> 00:25:53,313
+And as always, the
+documentation is your friend.
+
+552
+00:25:53,313 --> 00:25:55,980
+So if the goal is to sort them,
+not in alphabetical order, which
+
+553
+00:25:55,980 --> 00:25:58,410
+is the default, but maybe
+reverse alphabetical order,
+
+554
+00:25:58,410 --> 00:26:01,660
+you can take a look, for instance, at
+the formal Python documentation there.
+
+555
+00:26:01,660 --> 00:26:03,540
+And what you'll see is this summary.
+
+556
+00:26:03,540 --> 00:26:06,870
+You'll see that the sorted function
+takes the first argument, generally
+
+557
+00:26:06,870 --> 00:26:08,160
+known as an iterable.
+
+558
+00:26:08,160 --> 00:26:11,100
+And something that's iterable
+means that you can iterate over it.
+
+559
+00:26:11,100 --> 00:26:13,620
+That is you can loop over
+it one thing at a time.
+
+560
+00:26:13,620 --> 00:26:17,520
+What the rest of this line here means
+is that you can specify a key, like,
+
+561
+00:26:17,520 --> 00:26:19,600
+how you want to sort it,
+but more on that later.
+
+562
+00:26:19,600 --> 00:26:22,200
+But this last named
+parameter here is reverse.
+
+563
+00:26:22,200 --> 00:26:25,140
+And by default, per the
+documentation, it's false.
+
+564
+00:26:25,140 --> 00:26:28,560
+It will not be reversed by default.
+But if we change that to true,
+
+565
+00:26:28,560 --> 00:26:29,650
+I bet we can do that.
+
+566
+00:26:29,650 --> 00:26:32,350
+So let me go back to VS
+Code here and do just that.
+
+567
+00:26:32,350 --> 00:26:34,590
+Let me go ahead and pass
+in a second argument
+
+568
+00:26:34,590 --> 00:26:38,970
+to sorted in addition to this
+iterable, which is my names list--
+
+569
+00:26:38,970 --> 00:26:42,120
+iterable, again, in the sense
+that it can be looped over.
+
+570
+00:26:42,120 --> 00:26:47,740
+And let me pass in reverse=True,
+thereby overriding the default of false.
+
+571
+00:26:47,740 --> 00:26:49,830
+Let me now run python of names.py.
+
+572
+00:26:49,830 --> 00:26:53,410
+And now Ron's at the top,
+and Draco's at the bottom.
+
+573
+00:26:53,410 --> 00:26:56,490
+So there, too, whenever you have a
+question like that moving forward,
+
+574
+00:26:56,490 --> 00:26:58,650
+consider, what does
+the documentation say?
+
+575
+00:26:58,650 --> 00:27:01,290
+And see if there's a germ of an
+idea there because, odds are,
+
+576
+00:27:01,290 --> 00:27:03,480
+if you have some problem,
+odds are, some programmer
+
+577
+00:27:03,480 --> 00:27:05,910
+before you has had the same question.
+
+578
+00:27:05,910 --> 00:27:07,320
+Other thoughts?
+
+579
+00:27:07,320 --> 00:27:11,130
+AUDIENCE: Can we limit the
+number or numbers of names?
+
+580
+00:27:11,130 --> 00:27:15,812
+And the second question, can we
+find a specific name in list?
+
+581
+00:27:15,812 --> 00:27:17,520
+DAVID MALAN: Really
+good question, can we
+
+582
+00:27:17,520 --> 00:27:19,270
+limit the number of
+the names in the file?
+
+583
+00:27:19,270 --> 00:27:20,730
+And can we find a specific one?
+
+584
+00:27:20,730 --> 00:27:22,380
+We absolutely could.
+
+585
+00:27:22,380 --> 00:27:25,500
+If we were to write code,
+we could, for instance,
+
+586
+00:27:25,500 --> 00:27:29,580
+open the file first, count how
+many lines are already there,
+
+587
+00:27:29,580 --> 00:27:32,250
+and then if there's too
+many already, we could just
+
+588
+00:27:32,250 --> 00:27:35,760
+exit with sys.exit or some other
+message to indicate to the user
+
+589
+00:27:35,760 --> 00:27:37,290
+that, sorry, the class is full.
+
+590
+00:27:37,290 --> 00:27:40,500
+As for finding someone
+specifically, absolutely.
+
+591
+00:27:40,500 --> 00:27:44,490
+You could imagine opening the file,
+iterating over it with a for loop
+
+592
+00:27:44,490 --> 00:27:46,620
+again and again and then
+adding a conditional.
+
+593
+00:27:46,620 --> 00:27:51,397
+Like, if the current line equals equals
+Harry, then we found the chosen run.
+
+594
+00:27:51,397 --> 00:27:52,980
+And you can print something like that.
+
+595
+00:27:52,980 --> 00:27:55,590
+So you can absolutely combine
+these ideas with previous ideas,
+
+596
+00:27:55,590 --> 00:27:58,470
+like conditionals, to
+ask those same questions.
+
+597
+00:27:58,470 --> 00:28:02,160
+How about one other
+question on File I/O?
+
+598
+00:28:02,160 --> 00:28:08,670
+AUDIENCE: So I just thought about this
+function, like read all the lines.
+
+599
+00:28:08,670 --> 00:28:14,280
+And it looks like it's
+separate all the lines
+
+600
+00:28:14,280 --> 00:28:17,520
+by this special character, backslash.
+
+601
+00:28:17,520 --> 00:28:24,480
+And but it looks like we don't need
+it character, and we always strip it.
+
+602
+00:28:24,480 --> 00:28:28,920
+And it looks like some
+bad design or function.
+
+603
+00:28:28,920 --> 00:28:33,910
+Why wouldn't we just strip
+it inside this function?
+
+604
+00:28:33,910 --> 00:28:35,410
+DAVID MALAN: A really good question.
+
+605
+00:28:35,410 --> 00:28:40,140
+So we are, in my examples
+thus far, using rstrip
+
+606
+00:28:40,140 --> 00:28:43,290
+to strip from the end of the
+line all of this white space.
+
+607
+00:28:43,290 --> 00:28:45,000
+You might not want to do that.
+
+608
+00:28:45,000 --> 00:28:49,560
+In this case, I am stripping it away
+because I know that each of those lines
+
+609
+00:28:49,560 --> 00:28:51,000
+isn't some generic line of text.
+
+610
+00:28:51,000 --> 00:28:55,050
+Each line really represents a
+name that I have put there myself.
+
+611
+00:28:55,050 --> 00:28:58,320
+I'm using the new line just to
+separate one value from another.
+
+612
+00:28:58,320 --> 00:29:00,600
+In other scenarios, you
+might very well want
+
+613
+00:29:00,600 --> 00:29:03,990
+to keep that line ending because
+it's a very long series of text,
+
+614
+00:29:03,990 --> 00:29:06,240
+or a paragraph, or something
+like that, where you want
+
+615
+00:29:06,240 --> 00:29:07,740
+to keep it distinct from the others.
+
+616
+00:29:07,740 --> 00:29:09,150
+But it's just a convention.
+
+617
+00:29:09,150 --> 00:29:13,950
+We have to use something, presumably,
+to separate one chunk of text
+
+618
+00:29:13,950 --> 00:29:14,700
+from another.
+
+619
+00:29:14,700 --> 00:29:18,870
+There are other functions in Python
+that will, in fact, handle the removal
+
+620
+00:29:18,870 --> 00:29:20,490
+of that white space for you.
+
+621
+00:29:20,490 --> 00:29:22,590
+Readlines, though, does
+literally that, though.
+
+622
+00:29:22,590 --> 00:29:25,110
+It reads all of the lines as is.
+
+623
+00:29:25,110 --> 00:29:28,780
+Well, allow me to turn our attention
+back to where we left off here,
+
+624
+00:29:28,780 --> 00:29:33,450
+which is just names to propose that,
+with names.txt, we have an ability,
+
+625
+00:29:33,450 --> 00:29:36,690
+it seems, to store each of these
+names pretty straightforwardly.
+
+626
+00:29:36,690 --> 00:29:39,750
+But what if we wanted to keep
+track of other information as well?
+
+627
+00:29:39,750 --> 00:29:42,700
+Suppose that we wanted
+to store information,
+
+628
+00:29:42,700 --> 00:29:47,550
+including a student's name
+and their house at Hogwarts,
+
+629
+00:29:47,550 --> 00:29:50,230
+be it Gryffindor, or
+Slytherin, or something else.
+
+630
+00:29:50,230 --> 00:29:52,770
+Well, where do we go about putting that?
+
+631
+00:29:52,770 --> 00:29:55,020
+Hermione lives in Gryffindor,
+so we could do something
+
+632
+00:29:55,020 --> 00:29:56,520
+like this in our text file.
+
+633
+00:29:56,520 --> 00:29:58,980
+Harry lives in Gryffindor,
+so we could do that.
+
+634
+00:29:58,980 --> 00:30:01,170
+Ron lives in Gryffindor,
+so we could do that.
+
+635
+00:30:01,170 --> 00:30:03,900
+And Draco lives in Slytherin,
+so we could do that.
+
+636
+00:30:03,900 --> 00:30:06,600
+But I worry here--
+
+637
+00:30:06,600 --> 00:30:09,990
+but I worry now that we're mixing
+apples and oranges, so to speak.
+
+638
+00:30:09,990 --> 00:30:11,220
+Some lines are names.
+
+639
+00:30:11,220 --> 00:30:12,610
+Some lines are houses.
+
+640
+00:30:12,610 --> 00:30:15,870
+So this probably isn't the best
+design, if only because it's confusing,
+
+641
+00:30:15,870 --> 00:30:17,010
+or it's ambiguous.
+
+642
+00:30:17,010 --> 00:30:19,470
+So maybe what we could
+do is adopt a convention.
+
+643
+00:30:19,470 --> 00:30:22,140
+And indeed, this is, in fact,
+what a lot of programmers do.
+
+644
+00:30:22,140 --> 00:30:26,190
+They change this file not to
+be names.txt, but instead, let
+
+645
+00:30:26,190 --> 00:30:28,860
+me create a new file called names.csv.
+
+646
+00:30:28,860 --> 00:30:31,650
+CSV stands for Comma-Separated Values.
+
+647
+00:30:31,650 --> 00:30:35,490
+And it's a very common convention to
+store multiple pieces of information
+
+648
+00:30:35,490 --> 00:30:37,860
+that are related in the same file.
+
+649
+00:30:37,860 --> 00:30:41,250
+And so to do this, I'm going to
+separate each of these types of data,
+
+650
+00:30:41,250 --> 00:30:44,400
+not with another new line,
+but simply with a comma.
+
+651
+00:30:44,400 --> 00:30:46,860
+I'm going to keep each
+student on their own line,
+
+652
+00:30:46,860 --> 00:30:49,980
+but I'm going to separate the
+information about each student using
+
+653
+00:30:49,980 --> 00:30:51,340
+a comma instead.
+
+654
+00:30:51,340 --> 00:30:54,600
+And so now we sort of have a
+two-dimensional file, if you will.
+
+655
+00:30:54,600 --> 00:30:56,830
+Row by row, we have our students.
+
+656
+00:30:56,830 --> 00:30:59,510
+But if you think of these
+commas as representing a column,
+
+657
+00:30:59,510 --> 00:31:02,760
+even though it's not perfectly straight
+because of the lengths of these names,
+
+658
+00:31:02,760 --> 00:31:05,310
+it's a little jagged.
+
+659
+00:31:05,310 --> 00:31:07,950
+You can think of these commas
+as representing a column.
+
+660
+00:31:07,950 --> 00:31:11,190
+And it turns out, these
+CSV files are very commonly
+
+661
+00:31:11,190 --> 00:31:14,700
+used when you use something like
+Microsoft Excel, Apple Numbers,
+
+662
+00:31:14,700 --> 00:31:17,550
+or Google Spreadsheets, and you
+want to export the data to share
+
+663
+00:31:17,550 --> 00:31:20,160
+with someone else as a CSV file.
+
+664
+00:31:20,160 --> 00:31:23,460
+Or conversely, if you
+want to import a CSV
+
+665
+00:31:23,460 --> 00:31:25,860
+file into your preferred
+spreadsheet software,
+
+666
+00:31:25,860 --> 00:31:29,590
+like Excel, or Numbers, or Google
+Spreadsheets, you can do that as well.
+
+667
+00:31:29,590 --> 00:31:33,150
+So CSV is a very common,
+very simple text format
+
+668
+00:31:33,150 --> 00:31:37,290
+that just separates values with
+commas and different types of values,
+
+669
+00:31:37,290 --> 00:31:39,280
+ultimately, with new lines as well.
+
+670
+00:31:39,280 --> 00:31:42,210
+Let me go ahead and run
+code of students.csv
+
+671
+00:31:42,210 --> 00:31:44,520
+to create a brand-new file
+that's initially empty.
+
+672
+00:31:44,520 --> 00:31:48,820
+And we'll add to it those same names
+but also some other information as well.
+
+673
+00:31:48,820 --> 00:31:52,860
+So if I now have this new file,
+students.csv, inside of which
+
+674
+00:31:52,860 --> 00:31:56,370
+is one column of names, so to
+speak, and one column of houses,
+
+675
+00:31:56,370 --> 00:32:00,540
+how do I go about changing my code
+to read not just those names but also
+
+676
+00:32:00,540 --> 00:32:03,240
+those names and houses so that
+they're not all on one line--
+
+677
+00:32:03,240 --> 00:32:06,970
+we somehow have access to
+both type of value separately?
+
+678
+00:32:06,970 --> 00:32:11,340
+Well, let me go ahead and create a
+new program here called students.py.
+
+679
+00:32:11,340 --> 00:32:13,950
+And in this program,
+let's go about reading,
+
+680
+00:32:13,950 --> 00:32:17,610
+not a text file, per se, but a
+specific type of text file, a CSV,
+
+681
+00:32:17,610 --> 00:32:19,800
+a Comma-Separated Values file.
+
+682
+00:32:19,800 --> 00:32:22,200
+And to do this, I'm going to
+use similar code as before.
+
+683
+00:32:22,200 --> 00:32:26,897
+I'm going to say with open,
+quote/unquote, students.csv.
+
+684
+00:32:26,897 --> 00:32:28,980
+I'm not going to bother
+specifying, quote/unquote,
+
+685
+00:32:28,980 --> 00:32:30,670
+r because, again, that's the default.
+
+686
+00:32:30,670 --> 00:32:33,390
+But I'm going to give myself
+a variable name of file.
+
+687
+00:32:33,390 --> 00:32:36,150
+And then in this file, I'm
+going to go ahead and do this.
+
+688
+00:32:36,150 --> 00:32:41,220
+For line in file, as before, and
+now I have to be a bit clever here.
+
+689
+00:32:41,220 --> 00:32:45,180
+Let me go back to students.csv,
+looking at this file,
+
+690
+00:32:45,180 --> 00:32:47,940
+and it seems that on my
+loop on each iteration,
+
+691
+00:32:47,940 --> 00:32:51,000
+I'm going to get access
+to the whole line of text.
+
+692
+00:32:51,000 --> 00:32:52,920
+I'm not going to
+automatically get access
+
+693
+00:32:52,920 --> 00:32:55,170
+to just Hermione or just Gryffindor.
+
+694
+00:32:55,170 --> 00:32:58,960
+Recall that the loop is going to
+give me each full line of text.
+
+695
+00:32:58,960 --> 00:33:01,590
+So logically, what would
+you propose that we
+
+696
+00:33:01,590 --> 00:33:05,520
+do inside of a for loop that's
+reading a whole line of text at once,
+
+697
+00:33:05,520 --> 00:33:08,490
+but we now want to get access
+to the individual values,
+
+698
+00:33:08,490 --> 00:33:11,670
+like Hermione and Gryffindor,
+Harry and Gryffindor?
+
+699
+00:33:11,670 --> 00:33:14,160
+How do we go about
+taking one line of text
+
+700
+00:33:14,160 --> 00:33:16,740
+and gaining access to those
+individual values, do you think?
+
+701
+00:33:16,740 --> 00:33:20,040
+Just instinctively, even if you're not
+sure what the name of the functions
+
+702
+00:33:20,040 --> 00:33:20,820
+would be.
+
+703
+00:33:20,820 --> 00:33:24,810
+AUDIENCE: You can access it as you
+would as if you were using a dictionary,
+
+704
+00:33:24,810 --> 00:33:26,195
+like using a key and value.
+
+705
+00:33:26,195 --> 00:33:29,070
+DAVID MALAN: So ideally, we would
+access it using it a key and value.
+
+706
+00:33:29,070 --> 00:33:32,100
+But at this point in the story,
+all we have is this loop,
+
+707
+00:33:32,100 --> 00:33:35,580
+and this loop is giving me one
+line of text that is the time.
+
+708
+00:33:35,580 --> 00:33:36,570
+I'm the programmer now.
+
+709
+00:33:36,570 --> 00:33:37,470
+I have to solve this.
+
+710
+00:33:37,470 --> 00:33:39,480
+There is no dictionary yet in question.
+
+711
+00:33:39,480 --> 00:33:41,760
+How about another suggestion here?
+
+712
+00:33:41,760 --> 00:33:45,818
+AUDIENCE: So you can somehow split
+the two words based on the comma?
+
+713
+00:33:45,818 --> 00:33:47,610
+DAVID MALAN: Yeah, even
+if you're not quite
+
+714
+00:33:47,610 --> 00:33:49,940
+sure what function is going
+to do this, intuitively,
+
+715
+00:33:49,940 --> 00:33:51,690
+you want to take this
+whole line of text--
+
+716
+00:33:51,690 --> 00:33:55,320
+Hermione, comma, Gryffindor, Harry,
+comma, Gryffindor, and so forth--
+
+717
+00:33:55,320 --> 00:33:58,253
+and split that line into
+two pieces, if you will.
+
+718
+00:33:58,253 --> 00:34:00,420
+And it turns out wonderfully,
+the function we'll use
+
+719
+00:34:00,420 --> 00:34:03,780
+is actually called split that
+can split on any characters,
+
+720
+00:34:03,780 --> 00:34:06,100
+but you can tell it
+what character to use.
+
+721
+00:34:06,100 --> 00:34:09,633
+So I'm going to go back into
+students.py, and inside of this loop,
+
+722
+00:34:09,633 --> 00:34:11,050
+I'm going to go ahead and do this.
+
+723
+00:34:11,050 --> 00:34:12,540
+I'm going to take the current line.
+
+724
+00:34:12,540 --> 00:34:17,159
+I'm going to remove the white space at
+the end, as always, using rstrip here.
+
+725
+00:34:17,159 --> 00:34:19,260
+And then whatever the
+result of that is, I'm
+
+726
+00:34:19,260 --> 00:34:23,250
+going to now call split
+and, quote/unquote, comma.
+
+727
+00:34:23,250 --> 00:34:27,330
+So the split function or
+method comes with strings.
+
+728
+00:34:27,330 --> 00:34:31,570
+Strs in Python-- any str
+has this method built-in.
+
+729
+00:34:31,570 --> 00:34:36,659
+And if you pass in an argument, like a
+comma, what this split function will do
+
+730
+00:34:36,659 --> 00:34:41,880
+is split that current string into 1,
+2, 3, maybe more pieces by looking
+
+731
+00:34:41,880 --> 00:34:46,530
+for that character again and again.
+
+732
+00:34:46,530 --> 00:34:48,540
+Ultimately, split is
+going to return to us
+
+733
+00:34:48,540 --> 00:34:51,570
+a list of all of the
+individual parts to the left
+
+734
+00:34:51,570 --> 00:34:53,260
+and to the right of those commas.
+
+735
+00:34:53,260 --> 00:34:55,949
+So I can give myself a
+variable called row here.
+
+736
+00:34:55,949 --> 00:34:57,360
+And this is a common paradigm.
+
+737
+00:34:57,360 --> 00:35:01,390
+When you know you're iterating
+over a file, specifically a CSV,
+
+738
+00:35:01,390 --> 00:35:04,500
+it's common to think of
+each line of it as being
+
+739
+00:35:04,500 --> 00:35:09,790
+a row and each of the values therein
+separated by commas as columns,
+
+740
+00:35:09,790 --> 00:35:10,570
+so to speak.
+
+741
+00:35:10,570 --> 00:35:13,170
+So I'm going to deliberately
+name my variable row, just
+
+742
+00:35:13,170 --> 00:35:14,880
+to be consistent with that convention.
+
+743
+00:35:14,880 --> 00:35:17,430
+And now what do I want to print?
+
+744
+00:35:17,430 --> 00:35:19,140
+Well, I'm going to go
+ahead and say this.
+
+745
+00:35:19,140 --> 00:35:26,250
+Print, how about the following, an f
+string that starts with curly braces--
+
+746
+00:35:26,250 --> 00:35:29,610
+well, how do I get access to
+the first thing in that row?
+
+747
+00:35:29,610 --> 00:35:31,590
+Well, the row is going
+to have how many parts?
+
+748
+00:35:31,590 --> 00:35:35,580
+Two, because if I'm splitting on
+commas, and there's one comma per line,
+
+749
+00:35:35,580 --> 00:35:37,980
+that's going to give me a
+left part and a right part,
+
+750
+00:35:37,980 --> 00:35:41,100
+like Hermione and Gryffindor,
+Harry and Gryffindor.
+
+751
+00:35:41,100 --> 00:35:45,820
+When I have a list like row, how do
+I get access to individual values?
+
+752
+00:35:45,820 --> 00:35:47,320
+Well, I can do this.
+
+753
+00:35:47,320 --> 00:35:50,310
+I can say, row, bracket, 0.
+
+754
+00:35:50,310 --> 00:35:52,920
+And that's going to go to the
+first element of the list, which
+
+755
+00:35:52,920 --> 00:35:54,720
+should hopefully be the student's name.
+
+756
+00:35:54,720 --> 00:35:57,240
+Then after that, I'm
+going to say, is in,
+
+757
+00:35:57,240 --> 00:36:01,830
+and I'm going to have another curly
+brace here for row, bracket, 1.
+
+758
+00:36:01,830 --> 00:36:03,705
+And then I'm going to
+close my whole quote.
+
+759
+00:36:03,705 --> 00:36:05,580
+So it looks a little
+cryptic at first glance.
+
+760
+00:36:05,580 --> 00:36:09,660
+But most of this is just f string syntax
+with curly braces to plug in values.
+
+761
+00:36:09,660 --> 00:36:11,430
+And what values am I plugging in?
+
+762
+00:36:11,430 --> 00:36:15,210
+Well, row, again, is a list, and
+it has two elements, presumably--
+
+763
+00:36:15,210 --> 00:36:19,030
+Hermione in one and Gryffindor
+in the other, and so forth.
+
+764
+00:36:19,030 --> 00:36:22,440
+So bracket 0 is the first
+element because, remember,
+
+765
+00:36:22,440 --> 00:36:25,050
+we start indexing at 0 in Python.
+
+766
+00:36:25,050 --> 00:36:27,520
+And 1 is going to be the second element.
+
+767
+00:36:27,520 --> 00:36:30,330
+So let me go ahead and run
+this now and see what happens--
+
+768
+00:36:30,330 --> 00:36:35,880
+python of students.py, Enter.
+
+769
+00:36:35,880 --> 00:36:37,993
+And we see Hermione is in Gryffindor.
+
+770
+00:36:37,993 --> 00:36:38,910
+Harry's in Gryffindor.
+
+771
+00:36:38,910 --> 00:36:39,960
+Ron is in Gryffindor.
+
+772
+00:36:39,960 --> 00:36:41,970
+And Draco is in Slytherin.
+
+773
+00:36:41,970 --> 00:36:48,180
+So we have now implemented our own
+code from scratch that actually parses,
+
+774
+00:36:48,180 --> 00:36:53,010
+that is, reads and interprets
+a CSV file ultimately here.
+
+775
+00:36:53,010 --> 00:36:55,390
+Now, let me pause to see
+if there's any questions.
+
+776
+00:36:55,390 --> 00:36:59,080
+But we'll make this even easier
+to read in just a moment.
+
+777
+00:36:59,080 --> 00:37:03,090
+Any questions on what we've just
+done here by splitting by comma?
+
+778
+00:37:03,090 --> 00:37:08,610
+AUDIENCE: So my question is, can we
+edit any line of code any time we want?
+
+779
+00:37:08,610 --> 00:37:13,620
+Or the only option that we
+have is to append the lines?
+
+780
+00:37:13,620 --> 00:37:18,780
+Or let's say, we want to,
+let's say, change Harry's house
+
+781
+00:37:18,780 --> 00:37:22,500
+to Slytherin or some other house.
+
+782
+00:37:22,500 --> 00:37:24,250
+DAVID MALAN: Yeah, a
+really good question.
+
+783
+00:37:24,250 --> 00:37:28,740
+What if you want to, in Python,
+change a line in the file and not just
+
+784
+00:37:28,740 --> 00:37:30,130
+append to the end?
+
+785
+00:37:30,130 --> 00:37:32,290
+You would have to implement
+that logic yourself.
+
+786
+00:37:32,290 --> 00:37:35,880
+So for instance, you could
+imagine now opening the file
+
+787
+00:37:35,880 --> 00:37:39,660
+and reading all of the contents
+in, then maybe iterating over
+
+788
+00:37:39,660 --> 00:37:40,650
+each of those lines.
+
+789
+00:37:40,650 --> 00:37:43,830
+And as soon as you see that the
+current name equals equals Harry,
+
+790
+00:37:43,830 --> 00:37:47,100
+you could maybe change
+his house to Slytherin.
+
+791
+00:37:47,100 --> 00:37:51,030
+And then it would be up to you,
+though, to write all of those changes
+
+792
+00:37:51,030 --> 00:37:52,060
+back to the file.
+
+793
+00:37:52,060 --> 00:37:54,360
+So in that case, you might
+want to, in simplest form,
+
+794
+00:37:54,360 --> 00:37:56,610
+read the file once and let it close.
+
+795
+00:37:56,610 --> 00:38:00,300
+Then open it again, but open for
+writing, and change the whole file.
+
+796
+00:38:00,300 --> 00:38:04,770
+It's not really possible or easy to go
+in and change just part of the file,
+
+797
+00:38:04,770 --> 00:38:05,760
+though you can do it.
+
+798
+00:38:05,760 --> 00:38:09,630
+It's easier to actually read the whole
+file, make your changes in memory,
+
+799
+00:38:09,630 --> 00:38:11,100
+then write the whole file out.
+
+800
+00:38:11,100 --> 00:38:13,920
+But for larger files where
+that might be quite slow,
+
+801
+00:38:13,920 --> 00:38:16,200
+you can be more clever than that.
+
+802
+00:38:16,200 --> 00:38:19,980
+Well, let me propose now that we clean
+this up a little bit because I actually
+
+803
+00:38:19,980 --> 00:38:23,370
+think this is a little cryptic to
+read-- row, bracket, 0, row, bracket,
+
+804
+00:38:23,370 --> 00:38:27,090
+1-- it's not that well-written
+at the moment, I would say.
+
+805
+00:38:27,090 --> 00:38:32,050
+But it turns out that when you have
+a variable that's a list like row,
+
+806
+00:38:32,050 --> 00:38:35,250
+you don't have to throw all of
+those variables into a list.
+
+807
+00:38:35,250 --> 00:38:38,580
+You can actually unpack
+that whole sequence at once.
+
+808
+00:38:38,580 --> 00:38:42,630
+That is to say, if you know that a
+function like split returns a list,
+
+809
+00:38:42,630 --> 00:38:45,090
+but you know in advance
+that it's going to return
+
+810
+00:38:45,090 --> 00:38:48,330
+two values in a list,
+the first and the second,
+
+811
+00:38:48,330 --> 00:38:51,750
+you don't have to throw them all into
+a variable that itself is a list.
+
+812
+00:38:51,750 --> 00:38:55,840
+You can actually unpack them
+simultaneously into two variables,
+
+813
+00:38:55,840 --> 00:38:57,630
+doing name, comma, house.
+
+814
+00:38:57,630 --> 00:39:01,680
+So this is a nice Python technique
+to not only create, but assign,
+
+815
+00:39:01,680 --> 00:39:05,580
+automatically, in parallel,
+two variables at once,
+
+816
+00:39:05,580 --> 00:39:06,880
+rather than just one.
+
+817
+00:39:06,880 --> 00:39:10,230
+So this will have the effect of
+putting the name in the left, Hermione,
+
+818
+00:39:10,230 --> 00:39:12,360
+and it will have the effect
+of putting Gryffindor
+
+819
+00:39:12,360 --> 00:39:14,040
+the house in the right variable.
+
+820
+00:39:14,040 --> 00:39:15,643
+And we now no longer have a row.
+
+821
+00:39:15,643 --> 00:39:18,810
+We can now make our code a little more
+readable by now literally just saying
+
+822
+00:39:18,810 --> 00:39:22,020
+name down here and, for
+instance, house down here.
+
+823
+00:39:22,020 --> 00:39:25,020
+So just a little more readable,
+even though, functionally, the code
+
+824
+00:39:25,020 --> 00:39:28,430
+now is exactly the same.
+
+825
+00:39:28,430 --> 00:39:30,470
+All right, so this now works.
+
+826
+00:39:30,470 --> 00:39:34,070
+And I'll confirm as much by just running
+it once more-- python of students.py,
+
+827
+00:39:34,070 --> 00:39:34,580
+Enter.
+
+828
+00:39:34,580 --> 00:39:37,340
+And we see that the text is as intended.
+
+829
+00:39:37,340 --> 00:39:39,590
+But suppose, for the sake
+of discussion, that I'd
+
+830
+00:39:39,590 --> 00:39:42,650
+like to sort this list of output.
+
+831
+00:39:42,650 --> 00:39:46,310
+I'd like to say hello, again, to
+Draco first, then hello to Harry,
+
+832
+00:39:46,310 --> 00:39:47,960
+then Hermione, then Ron.
+
+833
+00:39:47,960 --> 00:39:49,770
+How can I go about doing this?
+
+834
+00:39:49,770 --> 00:39:52,520
+Well, let's take some inspiration
+from the previous example, where
+
+835
+00:39:52,520 --> 00:39:57,680
+we were only dealing with names and,
+instead, do it with these full phrases.
+
+836
+00:39:57,680 --> 00:39:59,480
+So and so is in house.
+
+837
+00:39:59,480 --> 00:40:01,080
+Well, let me go ahead and do this.
+
+838
+00:40:01,080 --> 00:40:05,660
+I'm going to go ahead and start scratch
+and give myself a list called students,
+
+839
+00:40:05,660 --> 00:40:07,370
+equal to an empty list, initially.
+
+840
+00:40:07,370 --> 00:40:14,060
+And then with open students.csv as file,
+I'm going to go ahead and say this--
+
+841
+00:40:14,060 --> 00:40:16,405
+for line in file.
+
+842
+00:40:16,405 --> 00:40:19,280
+And then below this, I'm going to
+do exactly as before-- name, comma,
+
+843
+00:40:19,280 --> 00:40:23,240
+house equals the current line, stripping
+off the white space at the end,
+
+844
+00:40:23,240 --> 00:40:24,840
+splitting it on a comma--
+
+845
+00:40:24,840 --> 00:40:26,670
+so that's exact same as before.
+
+846
+00:40:26,670 --> 00:40:32,180
+But this time, before I go
+about printing the sentence,
+
+847
+00:40:32,180 --> 00:40:34,370
+I'm going to store it
+temporarily in a list
+
+848
+00:40:34,370 --> 00:40:38,010
+so that I can accumulate all of these
+sentences and then sort them later.
+
+849
+00:40:38,010 --> 00:40:39,380
+So let me go ahead and do this.
+
+850
+00:40:39,380 --> 00:40:42,770
+Students, which is my list, .append--
+
+851
+00:40:42,770 --> 00:40:45,320
+let me append the actual
+sentence I want to show
+
+852
+00:40:45,320 --> 00:40:46,820
+on the screen-- so another f string.
+
+853
+00:40:46,820 --> 00:40:50,640
+So name is in house, just as before.
+
+854
+00:40:50,640 --> 00:40:52,520
+But notice, I'm not
+printing that sentence.
+
+855
+00:40:52,520 --> 00:40:56,600
+I'm appending it to my list--
+not a file, but to my list.
+
+856
+00:40:56,600 --> 00:40:58,050
+Why am I doing this?
+
+857
+00:40:58,050 --> 00:41:00,140
+Well, just because, as
+before, I want to do this.
+
+858
+00:41:00,140 --> 00:41:04,070
+For student in the
+sorted students, I want
+
+859
+00:41:04,070 --> 00:41:07,590
+to go ahead and print
+out students, like this.
+
+860
+00:41:07,590 --> 00:41:11,900
+Well, let me go ahead and run python
+of students.py, and hit Enter now.
+
+861
+00:41:11,900 --> 00:41:14,713
+And I think we'll see,
+indeed, Draco is now first.
+
+862
+00:41:14,713 --> 00:41:15,380
+Harry is second.
+
+863
+00:41:15,380 --> 00:41:16,310
+Hermione is third.
+
+864
+00:41:16,310 --> 00:41:18,380
+And Ron is fourth.
+
+865
+00:41:18,380 --> 00:41:21,980
+But this is arguably a
+little sloppy, right?
+
+866
+00:41:21,980 --> 00:41:25,490
+It seems a little hackish that
+I'm constructing these sentences.
+
+867
+00:41:25,490 --> 00:41:29,150
+And even though I technically
+want to sort by name,
+
+868
+00:41:29,150 --> 00:41:32,490
+I'm technically sorting by
+these whole English sentences.
+
+869
+00:41:32,490 --> 00:41:33,530
+So it's not wrong.
+
+870
+00:41:33,530 --> 00:41:36,590
+It's achieving the intended
+result, but it's not really
+
+871
+00:41:36,590 --> 00:41:39,480
+well designed because I'm just
+getting lucky that English
+
+872
+00:41:39,480 --> 00:41:40,730
+is reading from left to right.
+
+873
+00:41:40,730 --> 00:41:43,700
+And therefore, when I print
+this out, it's sorting properly.
+
+874
+00:41:43,700 --> 00:41:46,760
+It would be better, really, to come
+up with a technique for sorting
+
+875
+00:41:46,760 --> 00:41:50,600
+by the students' names, not
+by some English sentence
+
+876
+00:41:50,600 --> 00:41:53,360
+that I've constructed here on line 6.
+
+877
+00:41:53,360 --> 00:41:57,200
+So to achieve this, I'm going to
+need to make my life more complicated
+
+878
+00:41:57,200 --> 00:41:57,980
+for a moment.
+
+879
+00:41:57,980 --> 00:42:02,330
+And I'm going to need to collect
+information about each student
+
+880
+00:42:02,330 --> 00:42:04,950
+before I bother
+assembling that sentence.
+
+881
+00:42:04,950 --> 00:42:06,750
+So let me propose that we do this.
+
+882
+00:42:06,750 --> 00:42:09,960
+Let me go ahead and undo
+these last few lines of code
+
+883
+00:42:09,960 --> 00:42:14,480
+so that we currently have two
+variables, name and house, each of which
+
+884
+00:42:14,480 --> 00:42:16,560
+has name and the student's
+house respectively.
+
+885
+00:42:16,560 --> 00:42:19,130
+And we still have our
+global variable, students.
+
+886
+00:42:19,130 --> 00:42:20,360
+But let me do this.
+
+887
+00:42:20,360 --> 00:42:22,610
+Recall that Python
+supports dictionaries.
+
+888
+00:42:22,610 --> 00:42:25,770
+And dictionaries are just
+collections of keys and values.
+
+889
+00:42:25,770 --> 00:42:28,160
+So you can associate
+something with something else,
+
+890
+00:42:28,160 --> 00:42:32,000
+like, a name with Hermione,
+like, a house with Gryffindor.
+
+891
+00:42:32,000 --> 00:42:33,660
+That really is a dictionary.
+
+892
+00:42:33,660 --> 00:42:34,610
+So let me do this.
+
+893
+00:42:34,610 --> 00:42:39,950
+Let me temporarily create a dictionary
+that stores this association of name
+
+894
+00:42:39,950 --> 00:42:40,950
+with house.
+
+895
+00:42:40,950 --> 00:42:42,240
+Let me go ahead and do this.
+
+896
+00:42:42,240 --> 00:42:45,950
+Let me say that the student here is
+going to be represented initially
+
+897
+00:42:45,950 --> 00:42:46,908
+by an empty dictionary.
+
+898
+00:42:46,908 --> 00:42:49,575
+And just like you can create an
+empty list with square brackets,
+
+899
+00:42:49,575 --> 00:42:51,990
+you can create an empty
+dictionary with curly braces.
+
+900
+00:42:51,990 --> 00:42:57,050
+So give me an empty dictionary that
+will soon have two keys, name and house.
+
+901
+00:42:57,050 --> 00:42:58,140
+How do I do that?
+
+902
+00:42:58,140 --> 00:43:01,070
+Well, I could do it this
+way-- student, open bracket,
+
+903
+00:43:01,070 --> 00:43:05,870
+name equals the student's name
+that we got from the line.
+
+904
+00:43:05,870 --> 00:43:10,490
+Student, bracket, house equals the
+house that we got from the line.
+
+905
+00:43:10,490 --> 00:43:14,450
+And now I'm going to append
+to the students list--
+
+906
+00:43:14,450 --> 00:43:17,660
+plural-- that particular student.
+
+907
+00:43:17,660 --> 00:43:18,920
+Now, why have I done this?
+
+908
+00:43:18,920 --> 00:43:21,060
+I've admittedly made my
+code more complicated.
+
+909
+00:43:21,060 --> 00:43:23,870
+It's more lines of code,
+but I've now collected
+
+910
+00:43:23,870 --> 00:43:27,560
+all of the information I have
+about students while still keeping
+
+911
+00:43:27,560 --> 00:43:29,960
+track-- what's a name, what's a house.
+
+912
+00:43:29,960 --> 00:43:34,100
+The list, meanwhile, has all of the
+students' names and houses together.
+
+913
+00:43:34,100 --> 00:43:35,630
+Now, why have I done this?
+
+914
+00:43:35,630 --> 00:43:38,150
+Well, let me, for the moment,
+just do something simple.
+
+915
+00:43:38,150 --> 00:43:43,220
+Let me do for student in students,
+and let me very simply now say, print
+
+916
+00:43:43,220 --> 00:43:48,980
+the following f string, the
+current student with this name
+
+917
+00:43:48,980 --> 00:43:53,390
+is in this current student's house.
+
+918
+00:43:53,390 --> 00:43:55,460
+And now notice one detail.
+
+919
+00:43:55,460 --> 00:43:59,390
+Inside of this f string, I'm
+using my curly braces, as always.
+
+920
+00:43:59,390 --> 00:44:03,590
+I'm using, inside of those curly braces,
+the name of a variable, as always.
+
+921
+00:44:03,590 --> 00:44:07,970
+But then I'm using not bracket 0 or
+1 because these are dictionaries now,
+
+922
+00:44:07,970 --> 00:44:08,840
+not list.
+
+923
+00:44:08,840 --> 00:44:16,090
+But why am I using single quotes to
+surround house and to surround name?
+
+924
+00:44:16,090 --> 00:44:25,850
+Why single quotes inside of this
+f string to access those keys?
+
+925
+00:44:25,850 --> 00:44:30,960
+AUDIENCE: Yes, because you have
+double quotes in that line 12.
+
+926
+00:44:30,960 --> 00:44:34,222
+And so you have to tell
+Python to differentiate.
+
+927
+00:44:34,222 --> 00:44:35,930
+DAVID MALAN: Exactly,
+because I'm already
+
+928
+00:44:35,930 --> 00:44:39,620
+using double quotes outside of the
+f string, if I want to put quotes
+
+929
+00:44:39,620 --> 00:44:41,750
+around any strings on
+the inside, which I do
+
+930
+00:44:41,750 --> 00:44:44,810
+need to do for dictionaries
+because, recall, when you index
+
+931
+00:44:44,810 --> 00:44:47,570
+into a dictionary, you don't
+use numbers like lists--
+
+932
+00:44:47,570 --> 00:44:49,100
+0, 1, 2, onward--
+
+933
+00:44:49,100 --> 00:44:51,760
+you, instead, use strings,
+which need to be quoted.
+
+934
+00:44:51,760 --> 00:44:53,510
+But if you're already
+using double quotes,
+
+935
+00:44:53,510 --> 00:44:55,820
+it's easiest to then use
+single quotes on the inside,
+
+936
+00:44:55,820 --> 00:44:59,360
+so Python doesn't get confused
+about what lines up with what.
+
+937
+00:44:59,360 --> 00:45:02,120
+So at the moment, when
+I run this program,
+
+938
+00:45:02,120 --> 00:45:04,130
+it's going to print out those hellos.
+
+939
+00:45:04,130 --> 00:45:05,990
+But they're not yet sorted.
+
+940
+00:45:05,990 --> 00:45:10,340
+In fact, what I now have
+is a list of dictionaries,
+
+941
+00:45:10,340 --> 00:45:12,110
+and nothing is yet sorted.
+
+942
+00:45:12,110 --> 00:45:14,540
+But let me tighten up the
+code too to point out that it
+
+943
+00:45:14,540 --> 00:45:16,340
+doesn't need to be quite as verbose.
+
+944
+00:45:16,340 --> 00:45:20,210
+If you're in the habit of creating an
+empty dictionary, like this on line 6,
+
+945
+00:45:20,210 --> 00:45:23,480
+and then immediately putting
+in two keys, name and house,
+
+946
+00:45:23,480 --> 00:45:26,315
+each with two values, name
+and house respectively, you
+
+947
+00:45:26,315 --> 00:45:27,690
+can actually do this all at once.
+
+948
+00:45:27,690 --> 00:45:29,870
+So let me show you a
+slightly different syntax.
+
+949
+00:45:29,870 --> 00:45:30,920
+I can do this.
+
+950
+00:45:30,920 --> 00:45:34,550
+Give me a variable called student,
+and let me use curly braces
+
+951
+00:45:34,550 --> 00:45:35,760
+on the right-hand side here.
+
+952
+00:45:35,760 --> 00:45:38,780
+But instead of leaving them empty,
+let's just define those keys
+
+953
+00:45:38,780 --> 00:45:40,070
+and those values now.
+
+954
+00:45:40,070 --> 00:45:45,620
+Quote/unquote name will be name, and
+quote/unquote house will be house.
+
+955
+00:45:45,620 --> 00:45:49,850
+This achieves the exact same effect
+in one line instead of three.
+
+956
+00:45:49,850 --> 00:45:53,692
+It creates a new non-empty
+dictionary containing a name key,
+
+957
+00:45:53,692 --> 00:45:55,400
+the value of which is
+the student's name,
+
+958
+00:45:55,400 --> 00:45:58,610
+and a house key, the value of
+which is the student's house.
+
+959
+00:45:58,610 --> 00:45:59,870
+Nothing else needs to change.
+
+960
+00:45:59,870 --> 00:46:03,955
+That will still just work so that if
+I, again, run python of students.py,
+
+961
+00:46:03,955 --> 00:46:06,080
+I'm still seeing those
+greetings, but they're still
+
+962
+00:46:06,080 --> 00:46:08,960
+not quite actually sorted.
+
+963
+00:46:08,960 --> 00:46:12,290
+Well, what might I go about
+doing here in order to--
+
+964
+00:46:12,290 --> 00:46:15,410
+what could I do to
+improve upon this further?
+
+965
+00:46:15,410 --> 00:46:19,850
+Well, we need some mechanism
+now of sorting those students.
+
+966
+00:46:19,850 --> 00:46:22,820
+But unfortunately, you can't do this.
+
+967
+00:46:22,820 --> 00:46:28,413
+We can't sort all of the students now
+because those students are not names
+
+968
+00:46:28,413 --> 00:46:29,330
+like they were before.
+
+969
+00:46:29,330 --> 00:46:31,310
+They aren't sentences
+like they were before.
+
+970
+00:46:31,310 --> 00:46:34,400
+Each of the students is a
+dictionary, and it's not obvious
+
+971
+00:46:34,400 --> 00:46:37,830
+how you would sort a
+dictionary inside of a list.
+
+972
+00:46:37,830 --> 00:46:40,280
+So ideally, what do we want to do?
+
+973
+00:46:40,280 --> 00:46:45,440
+If at the moment we hit line 9, we
+have a list of all of these students,
+
+974
+00:46:45,440 --> 00:46:48,620
+and inside of that list is
+one dictionary per student,
+
+975
+00:46:48,620 --> 00:46:52,040
+and each of those dictionaries
+has two keys, name and house,
+
+976
+00:46:52,040 --> 00:46:57,050
+wouldn't it be nice if there were way
+in code to tell Python, sort this list
+
+977
+00:46:57,050 --> 00:46:59,960
+by looking at this key
+in each dictionary?
+
+978
+00:46:59,960 --> 00:47:03,830
+Because that would give us the ability
+to sort either by name, or even
+
+979
+00:47:03,830 --> 00:47:07,800
+by house, or even by any other
+field that we add to that file.
+
+980
+00:47:07,800 --> 00:47:09,980
+So it turns out, we can do this.
+
+981
+00:47:09,980 --> 00:47:14,000
+We can tell the sorted function
+not just to reverse things or not.
+
+982
+00:47:14,000 --> 00:47:16,250
+It takes another positional--
+
+983
+00:47:16,250 --> 00:47:19,520
+it takes another named
+parameter called key,
+
+984
+00:47:19,520 --> 00:47:23,990
+where you can specify what key
+should be used in order to sort
+
+985
+00:47:23,990 --> 00:47:25,370
+some list of dictionaries.
+
+986
+00:47:25,370 --> 00:47:27,410
+And I'm going to
+propose that we do this.
+
+987
+00:47:27,410 --> 00:47:31,940
+I'm going to first define a function--
+temporarily, for now-- called get_name.
+
+988
+00:47:31,940 --> 00:47:35,090
+And this function's purpose
+in life, given a student,
+
+989
+00:47:35,090 --> 00:47:38,480
+is to, quite simply,
+return the student's name
+
+990
+00:47:38,480 --> 00:47:40,500
+from that particular dictionary.
+
+991
+00:47:40,500 --> 00:47:43,910
+So if student is a dictionary,
+this is going to return literally
+
+992
+00:47:43,910 --> 00:47:45,470
+the student's name, and that's it.
+
+993
+00:47:45,470 --> 00:47:48,530
+That's the sole purpose
+of this function in life.
+
+994
+00:47:48,530 --> 00:47:50,120
+What do I now want to do?
+
+995
+00:47:50,120 --> 00:47:52,670
+Well now that I have a
+function that, given a student,
+
+996
+00:47:52,670 --> 00:47:56,130
+will return to me the
+student's name, I can do this.
+
+997
+00:47:56,130 --> 00:47:59,630
+I can change sorted to
+say, use a key that's
+
+998
+00:47:59,630 --> 00:48:03,350
+equal to whatever the
+return value of get_name is.
+
+999
+00:48:03,350 --> 00:48:05,810
+And this now is a feature of Python.
+
+1000
+00:48:05,810 --> 00:48:12,300
+Python allows you to pass functions
+as arguments into other functions.
+
+1001
+00:48:12,300 --> 00:48:14,180
+So get_name is a function.
+
+1002
+00:48:14,180 --> 00:48:15,710
+Sorted is a function.
+
+1003
+00:48:15,710 --> 00:48:22,610
+And I'm passing in get_name to sorted
+as the value of that key parameter.
+
+1004
+00:48:22,610 --> 00:48:24,540
+Now, why am I doing that?
+
+1005
+00:48:24,540 --> 00:48:26,600
+Well, if you think of
+the get_name function,
+
+1006
+00:48:26,600 --> 00:48:30,080
+it's just a block of code that
+will get the name of a student.
+
+1007
+00:48:30,080 --> 00:48:33,410
+That's handy because that's the
+capability that sorted needs.
+
+1008
+00:48:33,410 --> 00:48:36,470
+When given a list of students,
+each of which is a dictionary,
+
+1009
+00:48:36,470 --> 00:48:38,990
+sorted needs to know, how do
+I get the name of the student?
+
+1010
+00:48:38,990 --> 00:48:40,882
+In order to do alphabetical
+sorting for you.
+
+1011
+00:48:40,882 --> 00:48:42,590
+The authors of Python
+didn't know that we
+
+1012
+00:48:42,590 --> 00:48:44,880
+were going to be creating
+students here in this class,
+
+1013
+00:48:44,880 --> 00:48:47,540
+so they couldn't have anticipated
+writing code in advance
+
+1014
+00:48:47,540 --> 00:48:51,770
+that specifically sorts on a field
+called student, let alone called name,
+
+1015
+00:48:51,770 --> 00:48:53,150
+let alone house.
+
+1016
+00:48:53,150 --> 00:48:54,950
+So what did they do?
+
+1017
+00:48:54,950 --> 00:48:57,590
+They instead built into
+the sorted function
+
+1018
+00:48:57,590 --> 00:49:01,490
+this named parameter key that
+allows us, all these years later,
+
+1019
+00:49:01,490 --> 00:49:06,060
+to tell their function sorted how
+to sort this list of dictionaries.
+
+1020
+00:49:06,060 --> 00:49:07,910
+So now watch what happens.
+
+1021
+00:49:07,910 --> 00:49:11,540
+If I run python of
+students.py and hit Enter,
+
+1022
+00:49:11,540 --> 00:49:14,150
+I now have a sorted list of output.
+
+1023
+00:49:14,150 --> 00:49:14,810
+Why?
+
+1024
+00:49:14,810 --> 00:49:17,750
+Because now that list
+of dictionaries has all
+
+1025
+00:49:17,750 --> 00:49:20,570
+been sorted by the student's name.
+
+1026
+00:49:20,570 --> 00:49:22,020
+I can further do this.
+
+1027
+00:49:22,020 --> 00:49:24,840
+If, as before, we want to reverse
+the whole thing by saying reverse
+
+1028
+00:49:24,840 --> 00:49:26,740
+equals true, we can do that too.
+
+1029
+00:49:26,740 --> 00:49:28,980
+Let me rerun Python of
+students.py, and hit Enter.
+
+1030
+00:49:28,980 --> 00:49:29,880
+Now it's reversed.
+
+1031
+00:49:29,880 --> 00:49:32,610
+Now it's Ron, then
+Hermione, Harry, and Draco.
+
+1032
+00:49:32,610 --> 00:49:34,590
+But we can do something
+different as well.
+
+1033
+00:49:34,590 --> 00:49:39,150
+What if I want to sort, for
+instance, by house name reversed?
+
+1034
+00:49:39,150 --> 00:49:40,230
+I could do this.
+
+1035
+00:49:40,230 --> 00:49:43,110
+I could change this function
+from get_name to get_house.
+
+1036
+00:49:43,110 --> 00:49:46,320
+I could change the implementation
+up here to be get_house.
+
+1037
+00:49:46,320 --> 00:49:49,660
+And I can return not the student's
+name but the student's house.
+
+1038
+00:49:49,660 --> 00:49:56,250
+And so now notice, if I run python
+of students.py, Enter, notice now
+
+1039
+00:49:56,250 --> 00:49:59,730
+it is sorted by house in reverse order.
+
+1040
+00:49:59,730 --> 00:50:02,400
+Slytherin is first, and then Gryffindor.
+
+1041
+00:50:02,400 --> 00:50:07,110
+If I get rid of the reverse but keep
+the get_house and rerun this program,
+
+1042
+00:50:07,110 --> 00:50:09,390
+now it's sorted by house.
+
+1043
+00:50:09,390 --> 00:50:11,970
+Gryffindor is first,
+and Slytherin is last.
+
+1044
+00:50:11,970 --> 00:50:15,990
+And the upside now of this is, because
+I'm using this list of dictionaries
+
+1045
+00:50:15,990 --> 00:50:19,620
+and keeping the students data
+together until the last minute
+
+1046
+00:50:19,620 --> 00:50:21,780
+when I'm finally doing
+the printing, I now
+
+1047
+00:50:21,780 --> 00:50:25,800
+have full control over the information
+itself, and I can sort by this or that.
+
+1048
+00:50:25,800 --> 00:50:29,100
+I don't have to construct those
+sentences in advance, like I
+
+1049
+00:50:29,100 --> 00:50:31,587
+rather hackishly did the first time.
+
+1050
+00:50:31,587 --> 00:50:32,670
+All right, that was a lot.
+
+1051
+00:50:32,670 --> 00:50:36,000
+Let me pause here to see
+if there are questions.
+
+1052
+00:50:36,000 --> 00:50:40,050
+AUDIENCE: So when we are
+sorting the files, every time,
+
+1053
+00:50:40,050 --> 00:50:48,090
+should we use the loops, or a text
+dictionary, or any kind of list?
+
+1054
+00:50:48,090 --> 00:50:55,440
+Can we sort by just sorting, not
+looping or any kind of stuff?
+
+1055
+00:50:55,440 --> 00:50:58,890
+DAVID MALAN: A good question,
+and the short answer with Python
+
+1056
+00:50:58,890 --> 00:51:00,630
+alone, you're the programmer.
+
+1057
+00:51:00,630 --> 00:51:01,890
+You need to do the sorting.
+
+1058
+00:51:01,890 --> 00:51:05,160
+With libraries and other
+techniques, absolutely.
+
+1059
+00:51:05,160 --> 00:51:08,100
+You can do more of this
+automatically because someone else
+
+1060
+00:51:08,100 --> 00:51:09,180
+has written that code.
+
+1061
+00:51:09,180 --> 00:51:12,420
+What we're doing at the moment is doing
+everything from scratch ourselves.
+
+1062
+00:51:12,420 --> 00:51:15,045
+But absolutely, with other
+functions or libraries, some of this
+
+1063
+00:51:15,045 --> 00:51:18,120
+could be made more easily done.
+
+1064
+00:51:18,120 --> 00:51:20,590
+Some of this could be made easier.
+
+1065
+00:51:20,590 --> 00:51:23,400
+Other questions on this technique here?
+
+1066
+00:51:23,400 --> 00:51:28,050
+AUDIENCE: If equal to the
+return value of the function,
+
+1067
+00:51:28,050 --> 00:51:36,152
+can it be equal to just
+a variable or a value?
+
+1068
+00:51:36,152 --> 00:51:37,110
+DAVID MALAN: Well, yes.
+
+1069
+00:51:37,110 --> 00:51:39,240
+It should equal a value.
+
+1070
+00:51:39,240 --> 00:51:42,630
+And I should clarify, actually,
+since this was not obvious.
+
+1071
+00:51:42,630 --> 00:51:46,950
+So when you pass in a function
+like get_name or get_house
+
+1072
+00:51:46,950 --> 00:51:49,620
+to the sorted function
+as the value of key,
+
+1073
+00:51:49,620 --> 00:51:55,830
+that function is automatically
+called by the sorted function for you
+
+1074
+00:51:55,830 --> 00:51:58,740
+on each of the dictionaries in the list.
+
+1075
+00:51:58,740 --> 00:52:02,250
+And it uses the return value
+of get_name or get_house
+
+1076
+00:52:02,250 --> 00:52:07,080
+to decide what strings to actually
+use to compare in order to decide
+
+1077
+00:52:07,080 --> 00:52:09,150
+which is alphabetically correct.
+
+1078
+00:52:09,150 --> 00:52:12,120
+So this function, which
+you pass just by name, you
+
+1079
+00:52:12,120 --> 00:52:14,790
+do not pass in
+parentheses at the end, is
+
+1080
+00:52:14,790 --> 00:52:18,690
+called by the sorted function
+in order to figure out for you
+
+1081
+00:52:18,690 --> 00:52:21,790
+how to compare these same values.
+
+1082
+00:52:21,790 --> 00:52:25,230
+AUDIENCE: How can we
+use nested dictionaries?
+
+1083
+00:52:25,230 --> 00:52:28,920
+I have read about nested dictionaries.
+
+1084
+00:52:28,920 --> 00:52:31,500
+What is the difference
+between nested dictionaries
+
+1085
+00:52:31,500 --> 00:52:34,380
+and the dictionary inside a list?
+
+1086
+00:52:34,380 --> 00:52:35,460
+I think it is that.
+
+1087
+00:52:35,460 --> 00:52:36,930
+DAVID MALAN: Sure.
+
+1088
+00:52:36,930 --> 00:52:39,280
+So we are using a list of dictionaries.
+
+1089
+00:52:39,280 --> 00:52:39,780
+Why?
+
+1090
+00:52:39,780 --> 00:52:42,450
+Because each of those
+dictionaries represents a student.
+
+1091
+00:52:42,450 --> 00:52:45,270
+And a student has a name and a
+house, and we want to, I claim,
+
+1092
+00:52:45,270 --> 00:52:46,782
+maintain that association.
+
+1093
+00:52:46,782 --> 00:52:49,740
+And it's a list of students because
+we've got multiple students-- four,
+
+1094
+00:52:49,740 --> 00:52:50,580
+in this case.
+
+1095
+00:52:50,580 --> 00:52:54,570
+You could create a structure that
+is a dictionary of dictionaries.
+
+1096
+00:52:54,570 --> 00:52:56,700
+But I would argue, it just
+doesn't solve a problem.
+
+1097
+00:52:56,700 --> 00:52:58,367
+I don't need a dictionary of dictionary.
+
+1098
+00:52:58,367 --> 00:53:00,660
+I need a list of
+key-value pairs right now.
+
+1099
+00:53:00,660 --> 00:53:01,800
+That's all.
+
+1100
+00:53:01,800 --> 00:53:05,460
+So let me propose, if we go
+back to students.py here,
+
+1101
+00:53:05,460 --> 00:53:10,140
+and we revert back to the approach
+where we have get_name as the function,
+
+1102
+00:53:10,140 --> 00:53:14,700
+both used and defined here, and that
+function returns the student's name,
+
+1103
+00:53:14,700 --> 00:53:19,920
+what happens to be clear is that the
+sorted function will use the value
+
+1104
+00:53:19,920 --> 00:53:22,020
+of key-- get_name, in this case--
+
+1105
+00:53:22,020 --> 00:53:25,890
+calling that function on
+every dictionary in the list
+
+1106
+00:53:25,890 --> 00:53:27,540
+that it's supposed to sort.
+
+1107
+00:53:27,540 --> 00:53:30,930
+And that function,
+get_name, returns the string
+
+1108
+00:53:30,930 --> 00:53:33,600
+that sorted will actually
+use to decide whether things
+
+1109
+00:53:33,600 --> 00:53:36,630
+go in this order, left-right,
+or in this order, right-left.
+
+1110
+00:53:36,630 --> 00:53:39,790
+It alphabetizes these things
+based on that return value.
+
+1111
+00:53:39,790 --> 00:53:43,020
+So notice that I'm not calling
+the function get_name here
+
+1112
+00:53:43,020 --> 00:53:43,920
+with parentheses.
+
+1113
+00:53:43,920 --> 00:53:47,340
+I'm passing it in only by its
+name so that the sorted function
+
+1114
+00:53:47,340 --> 00:53:50,520
+can call that get name function for me.
+
+1115
+00:53:50,520 --> 00:53:53,940
+Now, it turns out, as always,
+if you're defining something,
+
+1116
+00:53:53,940 --> 00:53:57,750
+be it a variable or, in this case, a
+function, and then immediately using
+
+1117
+00:53:57,750 --> 00:54:01,530
+it but never, once again, needing
+the name of that function,
+
+1118
+00:54:01,530 --> 00:54:04,950
+like, get_name, we can actually
+tighten this code up further.
+
+1119
+00:54:04,950 --> 00:54:06,300
+I can actually do this.
+
+1120
+00:54:06,300 --> 00:54:09,180
+I can get rid of the get_name
+function all together,
+
+1121
+00:54:09,180 --> 00:54:12,750
+just like I could get rid of a
+variable that isn't strictly necessary.
+
+1122
+00:54:12,750 --> 00:54:16,350
+And instead of passing key,
+the name of a function,
+
+1123
+00:54:16,350 --> 00:54:19,680
+I can actually pass key
+what's called a lambda
+
+1124
+00:54:19,680 --> 00:54:22,410
+function, which is an anonymous
+function, a function that
+
+1125
+00:54:22,410 --> 00:54:23,460
+just has no name.
+
+1126
+00:54:23,460 --> 00:54:24,000
+Why?
+
+1127
+00:54:24,000 --> 00:54:27,150
+Because you don't need to give it a name
+if you're only going to call it in one
+
+1128
+00:54:27,150 --> 00:54:27,690
+place.
+
+1129
+00:54:27,690 --> 00:54:30,220
+And the syntax for this in
+Python is a little weird.
+
+1130
+00:54:30,220 --> 00:54:35,100
+But if I do key equals literally
+the word lambda, then something
+
+1131
+00:54:35,100 --> 00:54:37,560
+like student, which is
+the name of the parameter
+
+1132
+00:54:37,560 --> 00:54:41,550
+I expect this function to take, and
+then I don't even type the Return key.
+
+1133
+00:54:41,550 --> 00:54:45,150
+I instead just say,
+student, bracket, name.
+
+1134
+00:54:45,150 --> 00:54:47,620
+So what am I doing here with my code?
+
+1135
+00:54:47,620 --> 00:54:52,560
+This code here that I've highlighted
+is equivalent to the get_name function
+
+1136
+00:54:52,560 --> 00:54:54,270
+I implemented a moment ago.
+
+1137
+00:54:54,270 --> 00:54:56,320
+The syntax is admittedly
+a little different.
+
+1138
+00:54:56,320 --> 00:54:57,330
+I don't use def.
+
+1139
+00:54:57,330 --> 00:54:59,580
+I didn't even give it
+a name, like get_name.
+
+1140
+00:54:59,580 --> 00:55:03,850
+I, instead, am using this other keyword
+in Python called lambda, which says,
+
+1141
+00:55:03,850 --> 00:55:06,660
+hey, Python, here comes a
+function, but it has no name.
+
+1142
+00:55:06,660 --> 00:55:07,650
+It's anonymous.
+
+1143
+00:55:07,650 --> 00:55:10,050
+That function takes a parameter.
+
+1144
+00:55:10,050 --> 00:55:11,520
+I could call it anything I want.
+
+1145
+00:55:11,520 --> 00:55:12,580
+I'm calling it student.
+
+1146
+00:55:12,580 --> 00:55:13,080
+Why?
+
+1147
+00:55:13,080 --> 00:55:16,230
+Because this function
+that's passed in as key
+
+1148
+00:55:16,230 --> 00:55:20,010
+is called on every one of
+the students in that list,
+
+1149
+00:55:20,010 --> 00:55:22,200
+every one of the
+dictionaries in that list.
+
+1150
+00:55:22,200 --> 00:55:24,990
+What do I want this
+anonymous function to return?
+
+1151
+00:55:24,990 --> 00:55:28,560
+Well given a student, I want
+to index into that dictionary
+
+1152
+00:55:28,560 --> 00:55:32,910
+and access their name so that the
+string Hermione, and Harry, and Ron,
+
+1153
+00:55:32,910 --> 00:55:34,900
+and Draco is ultimately returned.
+
+1154
+00:55:34,900 --> 00:55:37,680
+And that's what the sorted
+function uses to decide
+
+1155
+00:55:37,680 --> 00:55:42,450
+how to sort these bigger dictionaries
+that have other keys, like house,
+
+1156
+00:55:42,450 --> 00:55:43,600
+as well.
+
+1157
+00:55:43,600 --> 00:55:47,640
+So if I now go back to my terminal
+window and run python of students.py,
+
+1158
+00:55:47,640 --> 00:55:52,140
+it still seems to work the same, but
+it's arguably a little better design
+
+1159
+00:55:52,140 --> 00:55:55,110
+because I didn't waste lines of code
+by defining some other function,
+
+1160
+00:55:55,110 --> 00:55:57,180
+calling it in one and only one place.
+
+1161
+00:55:57,180 --> 00:56:00,948
+I've done it all sort of
+in one breath, if you will.
+
+1162
+00:56:00,948 --> 00:56:03,990
+All right, let me pause here to see
+if there's any questions specifically
+
+1163
+00:56:03,990 --> 00:56:10,470
+about lambda, or anonymous functions,
+and this tightening up of the code.
+
+1164
+00:56:10,470 --> 00:56:14,850
+AUDIENCE: I have a question, like
+whether we could define lambda twice.
+
+1165
+00:56:14,850 --> 00:56:17,040
+DAVID MALAN: You can use lambda twice.
+
+1166
+00:56:17,040 --> 00:56:19,890
+You can create as many anonymous
+functions as you'd like.
+
+1167
+00:56:19,890 --> 00:56:22,710
+And you generally use them
+in contexts like this,
+
+1168
+00:56:22,710 --> 00:56:25,390
+where you want to pass
+to some other function
+
+1169
+00:56:25,390 --> 00:56:27,960
+a function that itself
+does not need a name.
+
+1170
+00:56:27,960 --> 00:56:30,570
+So you can absolutely use
+it in more than one place.
+
+1171
+00:56:30,570 --> 00:56:32,460
+I just have only one use case for it.
+
+1172
+00:56:32,460 --> 00:56:36,390
+How about one other question on lambda
+or anonymous functions specifically?
+
+1173
+00:56:36,390 --> 00:56:43,900
+AUDIENCE: What if our lambda would
+take more than one line, for example?
+
+1174
+00:56:43,900 --> 00:56:45,900
+DAVID MALAN: Sure, if
+your lambda function takes
+
+1175
+00:56:45,900 --> 00:56:48,070
+multiple parameters, that is fine.
+
+1176
+00:56:48,070 --> 00:56:52,350
+You can simply specify commas followed
+by the names of those parameters,
+
+1177
+00:56:52,350 --> 00:56:55,960
+maybe x and y or so forth,
+after the name student.
+
+1178
+00:56:55,960 --> 00:56:58,080
+So here too, lambda
+looks a little different
+
+1179
+00:56:58,080 --> 00:57:00,255
+from def in that you
+don't have parentheses,
+
+1180
+00:57:00,255 --> 00:57:02,880
+you don't have the keyword def,
+you don't have a function name.
+
+1181
+00:57:02,880 --> 00:57:05,080
+But ultimately, they
+achieve that same effect.
+
+1182
+00:57:05,080 --> 00:57:08,940
+They create a function anonymously
+and allow you to pass it in,
+
+1183
+00:57:08,940 --> 00:57:11,020
+for instance, as some value here.
+
+1184
+00:57:11,020 --> 00:57:14,040
+So let's now change
+students.csv to contain
+
+1185
+00:57:14,040 --> 00:57:17,700
+not students' houses at Hogwarts,
+but their homes where they grew up.
+
+1186
+00:57:17,700 --> 00:57:21,120
+So Draco, for instance,
+grew up in Malfoy Manor.
+
+1187
+00:57:21,120 --> 00:57:24,090
+Ron grew up in The Burrow.
+
+1188
+00:57:24,090 --> 00:57:29,640
+Harry grew up in Number
+Four, Privet Drive.
+
+1189
+00:57:29,640 --> 00:57:33,117
+And according to the internet, no
+one knows where Hermione grew up.
+
+1190
+00:57:33,117 --> 00:57:35,950
+The movies apparently took certain
+liberties with where she grew up.
+
+1191
+00:57:35,950 --> 00:57:37,658
+So for this purpose,
+we're actually going
+
+1192
+00:57:37,658 --> 00:57:40,900
+to remove Hermione because it is
+unknown exactly where she was born.
+
+1193
+00:57:40,900 --> 00:57:43,030
+So we still have some three students.
+
+1194
+00:57:43,030 --> 00:57:47,550
+But if anyone can spot
+the potential problem now,
+
+1195
+00:57:47,550 --> 00:57:49,738
+how might this be a bad thing?
+
+1196
+00:57:49,738 --> 00:57:51,780
+Well, let's go and try
+and run our own code here.
+
+1197
+00:57:51,780 --> 00:57:53,940
+Let me go back to students.py here.
+
+1198
+00:57:53,940 --> 00:57:56,340
+And let me propose that I
+just change my semantics
+
+1199
+00:57:56,340 --> 00:57:59,640
+because I'm now not thinking about
+Hogwarts houses but the students'
+
+1200
+00:57:59,640 --> 00:58:00,158
+own homes.
+
+1201
+00:58:00,158 --> 00:58:01,950
+So I'm just going to
+change some variables.
+
+1202
+00:58:01,950 --> 00:58:06,000
+I'm going to change this house
+to a home, this house to a home,
+
+1203
+00:58:06,000 --> 00:58:07,500
+as well as this one here.
+
+1204
+00:58:07,500 --> 00:58:09,720
+I'm still going to sort
+the students by name,
+
+1205
+00:58:09,720 --> 00:58:13,950
+but I'm going to say that they're not
+in a house, but rather, from a home.
+
+1206
+00:58:13,950 --> 00:58:17,460
+So I've just changed the names of my
+variables and my grammar in English
+
+1207
+00:58:17,460 --> 00:58:20,400
+here, ultimately, to print
+out that, for instance, Harry
+
+1208
+00:58:20,400 --> 00:58:23,860
+is from Number Four,
+Privet Drive, and so forth.
+
+1209
+00:58:23,860 --> 00:58:25,800
+But let's see what
+happens here when I run
+
+1210
+00:58:25,800 --> 00:58:30,930
+Python of this version of students.py,
+having changed students.csv
+
+1211
+00:58:30,930 --> 00:58:33,360
+to contain those homes and not houses.
+
+1212
+00:58:33,360 --> 00:58:34,854
+Enter.
+
+1213
+00:58:34,854 --> 00:58:40,770
+Huh, our first value error, like
+the program just doesn't work.
+
+1214
+00:58:40,770 --> 00:58:43,340
+What might explain this value error?
+
+1215
+00:58:43,340 --> 00:58:45,920
+The explanation of
+which rather cryptically
+
+1216
+00:58:45,920 --> 00:58:48,410
+is, too many values to unpack.
+
+1217
+00:58:48,410 --> 00:58:52,520
+And the line in question is
+this one involving split.
+
+1218
+00:58:52,520 --> 00:58:57,230
+How did, all of a sudden, after all of
+these successful runs of this program,
+
+1219
+00:58:57,230 --> 00:59:00,260
+did line 5 suddenly now break?
+
+1220
+00:59:00,260 --> 00:59:04,100
+AUDIENCE: In the line in
+students.csv, you have three values.
+
+1221
+00:59:04,100 --> 00:59:07,842
+There's a line that you have
+three values and in students.
+
+1222
+00:59:07,842 --> 00:59:09,800
+DAVID MALAN: Yeah, I
+spent a lot of time trying
+
+1223
+00:59:09,800 --> 00:59:12,800
+to figure out where every
+student should be from so that we
+
+1224
+00:59:12,800 --> 00:59:14,540
+could create this problem for us.
+
+1225
+00:59:14,540 --> 00:59:16,940
+And wonderfully, like, the
+first sentence of the book
+
+1226
+00:59:16,940 --> 00:59:19,070
+is Number Four, Privet Drive.
+
+1227
+00:59:19,070 --> 00:59:23,160
+And so the fact that address has
+a comma in it is problematic.
+
+1228
+00:59:23,160 --> 00:59:23,660
+Why?
+
+1229
+00:59:23,660 --> 00:59:27,200
+Because you and I decided sometime
+ago to just standardize on commas--
+
+1230
+00:59:27,200 --> 00:59:33,530
+CSV, Comma-Separated
+Values-- to denote the--
+
+1231
+00:59:33,530 --> 00:59:37,800
+we standardized on commas in order
+to delineate one value from another.
+
+1232
+00:59:37,800 --> 00:59:41,720
+And if we have commas grammatically
+in the student's home,
+
+1233
+00:59:41,720 --> 00:59:44,750
+we're clearly confusing
+it as this special symbol.
+
+1234
+00:59:44,750 --> 00:59:47,690
+And the split function
+is now, for just Harry,
+
+1235
+00:59:47,690 --> 00:59:50,870
+trying to split it into
+three values, not just two.
+
+1236
+00:59:50,870 --> 00:59:53,660
+And that's why there's
+too many values to unpack
+
+1237
+00:59:53,660 --> 00:59:57,920
+because we're only trying to assign
+two variables, name and house.
+
+1238
+00:59:57,920 --> 00:59:59,460
+Now, what could we do here?
+
+1239
+00:59:59,460 --> 01:00:02,120
+Well, we could just change
+our approach, for instance.
+
+1240
+01:00:02,120 --> 01:00:08,540
+One paradigm that is not uncommon is
+to use something a little less common,
+
+1241
+01:00:08,540 --> 01:00:10,130
+like a vertical bar.
+
+1242
+01:00:10,130 --> 01:00:13,550
+So I could go in and change all
+of my commas to vertical bars.
+
+1243
+01:00:13,550 --> 01:00:15,710
+That, too, could eventually
+come back to bite us
+
+1244
+01:00:15,710 --> 01:00:18,410
+in that if my file eventually
+has vertical bars somewhere,
+
+1245
+01:00:18,410 --> 01:00:19,520
+it might still break.
+
+1246
+01:00:19,520 --> 01:00:21,530
+So maybe that's not the best approach.
+
+1247
+01:00:21,530 --> 01:00:23,370
+I could maybe do something like this.
+
+1248
+01:00:23,370 --> 01:00:25,880
+I could escape the data,
+as I've done in the past.
+
+1249
+01:00:25,880 --> 01:00:30,230
+And maybe I could put quotes
+around any English string
+
+1250
+01:00:30,230 --> 01:00:32,300
+that itself contains a comma.
+
+1251
+01:00:32,300 --> 01:00:33,230
+And that's fine.
+
+1252
+01:00:33,230 --> 01:00:36,350
+I could do that, but then
+my code, students.py,
+
+1253
+01:00:36,350 --> 01:00:40,250
+is going to have to change too
+because I can't just naively split on
+
+1254
+01:00:40,250 --> 01:00:41,240
+a comma now.
+
+1255
+01:00:41,240 --> 01:00:43,760
+I'm going to have to
+be smarter about it.
+
+1256
+01:00:43,760 --> 01:00:45,710
+I'm going to have to
+take into account split
+
+1257
+01:00:45,710 --> 01:00:48,800
+only on the commas that
+are not inside of quotes.
+
+1258
+01:00:48,800 --> 01:00:51,260
+And oh, it's getting complicated fast.
+
+1259
+01:00:51,260 --> 01:00:53,810
+And at this point, you need to
+take a step back and consider,
+
+1260
+01:00:53,810 --> 01:00:57,320
+you know what, if we're having this
+problem, odds are, many other people
+
+1261
+01:00:57,320 --> 01:00:59,420
+before us have had this same problem.
+
+1262
+01:00:59,420 --> 01:01:02,750
+It is incredibly common
+to store data in files.
+
+1263
+01:01:02,750 --> 01:01:06,420
+It is incredibly common to
+use CSV files specifically.
+
+1264
+01:01:06,420 --> 01:01:07,740
+And so you know what.
+
+1265
+01:01:07,740 --> 01:01:10,760
+Why don't we see if there's
+a library in Python that
+
+1266
+01:01:10,760 --> 01:01:14,690
+exists to read and/or write CSV files?
+
+1267
+01:01:14,690 --> 01:01:16,910
+Rather than reinvent
+the wheel, so to speak,
+
+1268
+01:01:16,910 --> 01:01:20,540
+let's see if we can write better code by
+standing on the shoulders of others who
+
+1269
+01:01:20,540 --> 01:01:22,610
+have come before us--
+programmers passed--
+
+1270
+01:01:22,610 --> 01:01:26,090
+and actually use their code to do
+the reading and writing of CSVs,
+
+1271
+01:01:26,090 --> 01:01:30,210
+so we can focus on the part of our
+problem that you and I care about.
+
+1272
+01:01:30,210 --> 01:01:32,930
+So let's propose that we
+go back to our code here
+
+1273
+01:01:32,930 --> 01:01:35,960
+and see how we might
+use the CSV library.
+
+1274
+01:01:35,960 --> 01:01:40,370
+Indeed, within Python, there
+is a module called CSV.
+
+1275
+01:01:40,370 --> 01:01:43,010
+The documentation for
+it is at this URL here
+
+1276
+01:01:43,010 --> 01:01:44,720
+in Python's official documentation.
+
+1277
+01:01:44,720 --> 01:01:49,040
+But there's a few functions that are
+pretty readily accessible if we just
+
+1278
+01:01:49,040 --> 01:01:49,940
+dive right in.
+
+1279
+01:01:49,940 --> 01:01:52,050
+And let me propose that we do this.
+
+1280
+01:01:52,050 --> 01:01:53,840
+Let me go back to my code here.
+
+1281
+01:01:53,840 --> 01:01:58,370
+And instead of re-inventing this wheel
+and reading the file line by line,
+
+1282
+01:01:58,370 --> 01:02:02,390
+and splitting on commas, and dealing
+now with quotes, and Privet Drives,
+
+1283
+01:02:02,390 --> 01:02:04,640
+and so forth, let's do this instead.
+
+1284
+01:02:04,640 --> 01:02:10,010
+At the start of my program, let me
+go up and import the CSV module.
+
+1285
+01:02:10,010 --> 01:02:12,530
+Let's use this library
+that someone else has
+
+1286
+01:02:12,530 --> 01:02:16,130
+written that's dealing with all of
+these corner cases, if you will.
+
+1287
+01:02:16,130 --> 01:02:18,980
+I'm still going to give myself
+a list, initially empty,
+
+1288
+01:02:18,980 --> 01:02:20,630
+in which to store all these students.
+
+1289
+01:02:20,630 --> 01:02:23,930
+But I'm going to change my approach
+here now just a little bit.
+
+1290
+01:02:23,930 --> 01:02:28,220
+When I open this file with
+with, let me go in here
+
+1291
+01:02:28,220 --> 01:02:30,080
+and change this a little bit.
+
+1292
+01:02:30,080 --> 01:02:33,620
+I'm going to go in
+here now and say this.
+
+1293
+01:02:33,620 --> 01:02:38,630
+Reader equals csv.reader,
+passing in file as input.
+
+1294
+01:02:38,630 --> 01:02:42,230
+So it turns out, if you read the
+documentation for the CSV module,
+
+1295
+01:02:42,230 --> 01:02:45,650
+it comes with a function called
+reader whose purpose in life
+
+1296
+01:02:45,650 --> 01:02:50,450
+is to read a CSV file for you and
+figure out, where are the commas, where
+
+1297
+01:02:50,450 --> 01:02:53,450
+are the quotes, where are all
+the potential corner cases,
+
+1298
+01:02:53,450 --> 01:02:55,380
+and just deal with them for you.
+
+1299
+01:02:55,380 --> 01:02:57,860
+You can override certain
+defaults or assumptions in case
+
+1300
+01:02:57,860 --> 01:03:00,260
+you're using not a comma,
+but a pipe or something else.
+
+1301
+01:03:00,260 --> 01:03:02,910
+But by default, I think
+it's just going to work.
+
+1302
+01:03:02,910 --> 01:03:07,070
+Now, how do I integrate over a
+reader and not the raw file itself?
+
+1303
+01:03:07,070 --> 01:03:08,060
+It's almost the same.
+
+1304
+01:03:08,060 --> 01:03:10,220
+The library allows you still to do this.
+
+1305
+01:03:10,220 --> 01:03:13,220
+For each row in the reader--
+
+1306
+01:03:13,220 --> 01:03:15,890
+so you're not iterating
+over the file directly now.
+
+1307
+01:03:15,890 --> 01:03:18,020
+You're iterating over the
+reader, which is, again,
+
+1308
+01:03:18,020 --> 01:03:22,130
+going to handle all of the parsing
+of commas, and new lines, and more.
+
+1309
+01:03:22,130 --> 01:03:25,070
+For each row in the reader,
+what am I going to do?
+
+1310
+01:03:25,070 --> 01:03:27,080
+Well, at the moment,
+I'm going to do this.
+
+1311
+01:03:27,080 --> 01:03:32,060
+I'm going to append to my students list
+the following dictionary, a dictionary
+
+1312
+01:03:32,060 --> 01:03:36,680
+that has a name whose value is
+the current row's first column,
+
+1313
+01:03:36,680 --> 01:03:41,240
+and whose house, or rather,
+home now is the row's second.
+
+1314
+01:03:41,240 --> 01:03:41,870
+column.
+
+1315
+01:03:41,870 --> 01:03:45,890
+Now, it's worth noting that the
+reader for each line in the file,
+
+1316
+01:03:45,890 --> 01:03:47,480
+indeed, returns to me a row.
+
+1317
+01:03:47,480 --> 01:03:50,210
+But it returns to me a
+row that's a list, which
+
+1318
+01:03:50,210 --> 01:03:52,310
+is to say that the first
+element of that list
+
+1319
+01:03:52,310 --> 01:03:54,560
+is going to be the
+student's name, as before.
+
+1320
+01:03:54,560 --> 01:03:59,030
+The second element of that list is
+going to be the student's home, as now
+
+1321
+01:03:59,030 --> 01:03:59,810
+before.
+
+1322
+01:03:59,810 --> 01:04:02,430
+But if I want to access
+each of those elements,
+
+1323
+01:04:02,430 --> 01:04:04,310
+remember that lists are 0 indexed.
+
+1324
+01:04:04,310 --> 01:04:07,490
+We start counting at 0 and then
+1, rather than 1 and then 2.
+
+1325
+01:04:07,490 --> 01:04:10,380
+So if I want to get at the student's
+name, I use row, bracket, 0.
+
+1326
+01:04:10,380 --> 01:04:13,130
+And if I want to get at the student's
+home, I use row, bracket, 1.
+
+1327
+01:04:13,130 --> 01:04:17,060
+But in my for loop, we can do
+that same unpacking as before.
+
+1328
+01:04:17,060 --> 01:04:21,030
+If I know the CSV is only
+going to have two columns,
+
+1329
+01:04:21,030 --> 01:04:25,280
+I could even do this--
+for name, home in reader.
+
+1330
+01:04:25,280 --> 01:04:27,710
+And now I don't need
+to use list notation.
+
+1331
+01:04:27,710 --> 01:04:32,360
+I can unpack things all at once
+and say, name here, and home here.
+
+1332
+01:04:32,360 --> 01:04:35,270
+The rest of my code can stay
+exactly the same because,
+
+1333
+01:04:35,270 --> 01:04:36,890
+what am I doing now on line 8?
+
+1334
+01:04:36,890 --> 01:04:39,770
+I'm still constructing the
+same dictionary as before,
+
+1335
+01:04:39,770 --> 01:04:42,050
+albeit for homes instead of houses.
+
+1336
+01:04:42,050 --> 01:04:45,200
+And I'm grabbing those values
+now, not from the file itself
+
+1337
+01:04:45,200 --> 01:04:47,062
+and my use of split, but the reader.
+
+1338
+01:04:47,062 --> 01:04:48,770
+And again, what the
+reader is going to do
+
+1339
+01:04:48,770 --> 01:04:51,320
+is figure out, where are those
+commas, where are the quotes?
+
+1340
+01:04:51,320 --> 01:04:53,700
+And just solve that problem for you.
+
+1341
+01:04:53,700 --> 01:04:57,560
+So let me go now down to my terminal
+window and run python of students.py,
+
+1342
+01:04:57,560 --> 01:04:58,400
+and hit Enter.
+
+1343
+01:04:58,400 --> 01:05:04,040
+And now we see successfully, sorted no
+less, that Draco is from Malfoy Manor.
+
+1344
+01:05:04,040 --> 01:05:07,250
+Harry is from Number
+Four, comma, Privet Drive.
+
+1345
+01:05:07,250 --> 01:05:09,950
+And Ron is from The Burrow.
+
+1346
+01:05:09,950 --> 01:05:17,420
+Questions now on this technique of using
+CSV reader from that CSV module, which,
+
+1347
+01:05:17,420 --> 01:05:20,990
+again, is just getting us out of the
+business of reading each line ourself
+
+1348
+01:05:20,990 --> 01:05:23,330
+and reading each of those
+commas and splitting?
+
+1349
+01:05:23,330 --> 01:05:27,500
+AUDIENCE: So my questions are
+related to something in the past.
+
+1350
+01:05:27,500 --> 01:05:31,670
+I recognize that you are
+reading a file every time--
+
+1351
+01:05:31,670 --> 01:05:39,080
+well, we assume that we have the CSV
+file to hand already in this case.
+
+1352
+01:05:39,080 --> 01:05:44,540
+Is it possible to make a
+file readable and writable?
+
+1353
+01:05:44,540 --> 01:05:50,960
+So in this case, you could
+write such stuff to the file,
+
+1354
+01:05:50,960 --> 01:05:53,510
+but then at the same
+time, you could have
+
+1355
+01:05:53,510 --> 01:05:57,590
+another function that reads through
+the file and does changes to it
+
+1356
+01:05:57,590 --> 01:05:58,257
+as you go along?
+
+1357
+01:05:58,257 --> 01:05:59,757
+DAVID MALAN: A really good question.
+
+1358
+01:05:59,757 --> 01:06:01,070
+And the short answer is, yes.
+
+1359
+01:06:01,070 --> 01:06:05,000
+However, historically, the mental model
+for a file is that of a cassette tape.
+
+1360
+01:06:05,000 --> 01:06:08,300
+Years ago, not really in use
+anymore, but cassette tapes
+
+1361
+01:06:08,300 --> 01:06:10,830
+are sequential whereby they
+start at the beginning,
+
+1362
+01:06:10,830 --> 01:06:12,747
+and if you want to get
+to the end, you kind of
+
+1363
+01:06:12,747 --> 01:06:14,690
+have to unwind the tape
+to get to that point.
+
+1364
+01:06:14,690 --> 01:06:18,307
+The closest analog nowadays would be
+something like Netflix or any streaming
+
+1365
+01:06:18,307 --> 01:06:21,140
+service, where there's a scrubber
+that you have to go left to right.
+
+1366
+01:06:21,140 --> 01:06:22,910
+You can't just jump there or jump there.
+
+1367
+01:06:22,910 --> 01:06:24,450
+You don't have random access.
+
+1368
+01:06:24,450 --> 01:06:27,290
+So the problem with files, if
+you want to read and write them,
+
+1369
+01:06:27,290 --> 01:06:31,010
+you or some library needs to keep
+track of where you are in the file
+
+1370
+01:06:31,010 --> 01:06:34,200
+so that if you're reading from the
+top and then you write at the bottom,
+
+1371
+01:06:34,200 --> 01:06:37,170
+and you want to start reading again,
+you seek back to the beginning.
+
+1372
+01:06:37,170 --> 01:06:39,045
+So it's not something
+we'll do here in class.
+
+1373
+01:06:39,045 --> 01:06:41,360
+It's more involved, but
+it's absolutely doable.
+
+1374
+01:06:41,360 --> 01:06:44,402
+For our purposes, we'll generally
+recommend, read the file.
+
+1375
+01:06:44,402 --> 01:06:46,610
+And then if you want to
+change it, write it back out,
+
+1376
+01:06:46,610 --> 01:06:49,880
+rather than trying to make more
+piecemeal changes, which is good
+
+1377
+01:06:49,880 --> 01:06:53,480
+if, though, the file is massive,
+and it would just be very expensive
+
+1378
+01:06:53,480 --> 01:06:55,680
+time-wise to change the whole thing.
+
+1379
+01:06:55,680 --> 01:06:59,690
+Other questions on this CSV reader?
+
+1380
+01:06:59,690 --> 01:07:05,170
+AUDIENCE: It's possible to
+write a paragraph in that file?
+
+1381
+01:07:05,170 --> 01:07:06,170
+DAVID MALAN: Absolutely.
+
+1382
+01:07:06,170 --> 01:07:09,590
+Right now, I'm writing very small
+strings, just names or houses,
+
+1383
+01:07:09,590 --> 01:07:10,460
+as I did before.
+
+1384
+01:07:10,460 --> 01:07:15,730
+But you can absolutely write as
+much text as you want, indeed.
+
+1385
+01:07:15,730 --> 01:07:18,040
+Other questions on CSV reader?
+
+1386
+01:07:18,040 --> 01:07:22,780
+AUDIENCE: Can a user
+chose himself a key?
+
+1387
+01:07:22,780 --> 01:07:26,920
+Like, input key will be a name or code.
+
+1388
+01:07:26,920 --> 01:07:29,950
+DAVID MALAN: So short answer,
+yes, we could absolutely
+
+1389
+01:07:29,950 --> 01:07:32,680
+write a program that
+prompts the user for a name
+
+1390
+01:07:32,680 --> 01:07:34,240
+and a home, a name and a home.
+
+1391
+01:07:34,240 --> 01:07:35,740
+And we could write out those values.
+
+1392
+01:07:35,740 --> 01:07:38,770
+And in a moment, we'll see how
+you can write to a CSV file.
+
+1393
+01:07:38,770 --> 01:07:44,530
+For now, I'm assuming, as the programmer
+who created students.csv, that I
+
+1394
+01:07:44,530 --> 01:07:46,270
+know what the columns are going to be.
+
+1395
+01:07:46,270 --> 01:07:48,770
+And therefore, I'm naming
+my variables accordingly.
+
+1396
+01:07:48,770 --> 01:07:53,470
+However, this is a good segue to one
+final feature of reading CSVs, which
+
+1397
+01:07:53,470 --> 01:07:57,520
+is that you don't have to rely
+on either getting a row as a list
+
+1398
+01:07:57,520 --> 01:08:00,520
+and using bracket 0 or
+bracket 1, and, you don't have
+
+1399
+01:08:00,520 --> 01:08:02,500
+to unpack things manually in this way.
+
+1400
+01:08:02,500 --> 01:08:05,260
+We could actually be
+smarter and start storing
+
+1401
+01:08:05,260 --> 01:08:08,500
+the names of these columns
+in the CSV file itself.
+
+1402
+01:08:08,500 --> 01:08:12,310
+And in fact, if any of you have ever
+opened a spreadsheet file before, be it
+
+1403
+01:08:12,310 --> 01:08:16,210
+in Excel, Apple Numbers, Google
+Spreadsheets or the like, odds are,
+
+1404
+01:08:16,210 --> 01:08:20,149
+you've noticed that the first row,
+very frequently, is a little different.
+
+1405
+01:08:20,149 --> 01:08:22,270
+It actually is boldface
+sometimes, or it actually
+
+1406
+01:08:22,270 --> 01:08:26,710
+contains the names of those columns,
+the names of those attributes below.
+
+1407
+01:08:26,710 --> 01:08:27,939
+And we can do this here.
+
+1408
+01:08:27,939 --> 01:08:30,580
+In students.csv, I
+don't have to just keep
+
+1409
+01:08:30,580 --> 01:08:32,830
+assuming that the
+student's name is first
+
+1410
+01:08:32,830 --> 01:08:34,840
+and that the student's home is second.
+
+1411
+01:08:34,840 --> 01:08:39,010
+I can explicitly bake that
+information into the file just
+
+1412
+01:08:39,010 --> 01:08:41,950
+to reduce the probability
+of mistakes down the road.
+
+1413
+01:08:41,950 --> 01:08:46,810
+I can literally use the first row of
+this file and say, name, comma, home.
+
+1414
+01:08:46,810 --> 01:08:50,622
+So notice that name is not
+literally someone's name,
+
+1415
+01:08:50,622 --> 01:08:52,330
+and home is not
+literally someone's home.
+
+1416
+01:08:52,330 --> 01:08:57,050
+It is literally the words, name
+and home, separated by comma.
+
+1417
+01:08:57,050 --> 01:09:01,630
+And if I now go back into
+students.py and don't use CSV reader,
+
+1418
+01:09:01,630 --> 01:09:04,540
+but instead, I use a
+dictionary reader, I
+
+1419
+01:09:04,540 --> 01:09:09,290
+can actually treat my CSV file even
+more flexibly, not just for this,
+
+1420
+01:09:09,290 --> 01:09:10,630
+but for other examples too.
+
+1421
+01:09:10,630 --> 01:09:11,740
+Let me do this.
+
+1422
+01:09:11,740 --> 01:09:14,380
+Instead of using a
+CSV reader, let me use
+
+1423
+01:09:14,380 --> 01:09:19,870
+a CSV dict reader, which will now
+iterate over the file top to bottom,
+
+1424
+01:09:19,870 --> 01:09:24,250
+loading in each line of text
+not as a list of columns
+
+1425
+01:09:24,250 --> 01:09:26,712
+but as a dictionary of columns.
+
+1426
+01:09:26,712 --> 01:09:28,420
+What's nice about this
+is that it's going
+
+1427
+01:09:28,420 --> 01:09:32,200
+to give me automatic access
+now to those columns' names.
+
+1428
+01:09:32,200 --> 01:09:35,470
+I'm going to revert to just
+saying, for row in reader,
+
+1429
+01:09:35,470 --> 01:09:38,319
+and now I'm going to
+append a name and a home.
+
+1430
+01:09:38,319 --> 01:09:41,890
+But how am I going to get
+access to the current row's
+
+1431
+01:09:41,890 --> 01:09:44,740
+name and the current row's home?
+
+1432
+01:09:44,740 --> 01:09:48,790
+Well, earlier, I used bracket 0 for
+the first and bracket 1 for the second
+
+1433
+01:09:48,790 --> 01:09:50,800
+when I was using a reader.
+
+1434
+01:09:50,800 --> 01:09:52,569
+A reader returns lists.
+
+1435
+01:09:52,569 --> 01:09:57,920
+A dict reader or dictionary reader
+returns dictionaries, one at a time.
+
+1436
+01:09:57,920 --> 01:10:01,210
+And so if I want to access
+the current row's name,
+
+1437
+01:10:01,210 --> 01:10:03,400
+I can say, row, quote/unquote, name.
+
+1438
+01:10:03,400 --> 01:10:06,790
+I can say here for home,
+row, quote/unquote, home.
+
+1439
+01:10:06,790 --> 01:10:09,220
+And I now have access
+to those same values.
+
+1440
+01:10:09,220 --> 01:10:12,130
+The only change I had to make,
+to be clear, was in my CSV file,
+
+1441
+01:10:12,130 --> 01:10:16,060
+I had to include, on the
+very first row, little hints
+
+1442
+01:10:16,060 --> 01:10:17,830
+as to what these columns are.
+
+1443
+01:10:17,830 --> 01:10:21,220
+And if I now run this code, I
+think it should behave pretty much
+
+1444
+01:10:21,220 --> 01:10:23,080
+the same-- python of students.py.
+
+1445
+01:10:23,080 --> 01:10:25,000
+And indeed, we get the same sentences.
+
+1446
+01:10:25,000 --> 01:10:29,950
+But now my code is more robust
+against changes in this data.
+
+1447
+01:10:29,950 --> 01:10:34,270
+If I were to open the CSV file in
+Excel, or Google Spreadsheets, or Apple
+
+1448
+01:10:34,270 --> 01:10:37,272
+Numbers, and for whatever reason
+change the columns around,
+
+1449
+01:10:37,272 --> 01:10:39,730
+maybe this is a file that you're
+sharing with someone else,
+
+1450
+01:10:39,730 --> 01:10:42,850
+and just because, they decide
+to sort things differently left
+
+1451
+01:10:42,850 --> 01:10:46,390
+to right by moving the columns
+around, previously, my code
+
+1452
+01:10:46,390 --> 01:10:50,020
+would have broken because I was
+assuming that name is always first,
+
+1453
+01:10:50,020 --> 01:10:51,940
+and home is always second.
+
+1454
+01:10:51,940 --> 01:10:53,800
+But if I did this--
+
+1455
+01:10:53,800 --> 01:10:57,490
+be it manually in one of those
+programs or here-- home, comma, name,
+
+1456
+01:10:57,490 --> 01:10:59,530
+and suppose, I reversed all of this.
+
+1457
+01:10:59,530 --> 01:11:04,600
+The home comes first, followed by
+Harry, The Burrow, then by Ron,
+
+1458
+01:11:04,600 --> 01:11:08,020
+and then lastly, Malfoy
+Manor, then Draco,
+
+1459
+01:11:08,020 --> 01:11:10,285
+notice that my file is
+now completely flipped.
+
+1460
+01:11:10,285 --> 01:11:12,910
+The first column is now the
+second, and the second's the first.
+
+1461
+01:11:12,910 --> 01:11:17,950
+But I took care to update the
+header of that file, the first row.
+
+1462
+01:11:17,950 --> 01:11:21,070
+Notice my Python code, I'm
+not going to touch it at all.
+
+1463
+01:11:21,070 --> 01:11:24,940
+I'm going to rerun python of
+students.py, and hit Enter.
+
+1464
+01:11:24,940 --> 01:11:26,830
+And it still just works.
+
+1465
+01:11:26,830 --> 01:11:29,890
+And this, too, is an example
+of coding defensively.
+
+1466
+01:11:29,890 --> 01:11:32,530
+What if someone changes your
+CSV file, your data file?
+
+1467
+01:11:32,530 --> 01:11:33,830
+Ideally, that won't happen.
+
+1468
+01:11:33,830 --> 01:11:37,840
+But even if it does now, because
+I'm using a dictionary reader that's
+
+1469
+01:11:37,840 --> 01:11:42,490
+going to infer from that first row
+for me what the columns are called,
+
+1470
+01:11:42,490 --> 01:11:44,350
+my code just keeps working.
+
+1471
+01:11:44,350 --> 01:11:47,990
+And so it keeps getting, if
+you will, better and better.
+
+1472
+01:11:47,990 --> 01:11:50,920
+Any questions now on this approach?
+
+1473
+01:11:50,920 --> 01:11:54,008
+AUDIENCE: Yeah, what is the importance
+of new line in the CSV file?
+
+1474
+01:11:54,008 --> 01:11:56,800
+DAVID MALAN: What's the importance
+of the new line in the CSV file?
+
+1475
+01:11:56,800 --> 01:11:58,270
+It's partly a convention.
+
+1476
+01:11:58,270 --> 01:12:00,670
+In the world of text
+files, we humans have just
+
+1477
+01:12:00,670 --> 01:12:04,810
+been, for decades, in the habit
+of storing data line by line.
+
+1478
+01:12:04,810 --> 01:12:06,370
+It's visually convenient.
+
+1479
+01:12:06,370 --> 01:12:09,400
+It's just easy to extract
+from the file because you just
+
+1480
+01:12:09,400 --> 01:12:10,450
+look for the new lines.
+
+1481
+01:12:10,450 --> 01:12:14,800
+So the new line just separates
+some data from some other data.
+
+1482
+01:12:14,800 --> 01:12:17,710
+We could use any other
+symbol on the keyboard,
+
+1483
+01:12:17,710 --> 01:12:21,250
+but it's just common to hit Enter to
+just move the data to the next line.
+
+1484
+01:12:21,250 --> 01:12:22,810
+Just a convention.
+
+1485
+01:12:22,810 --> 01:12:23,710
+Other questions?
+
+1486
+01:12:23,710 --> 01:12:28,010
+AUDIENCE: It seems to be working
+fine if you just have name and home.
+
+1487
+01:12:28,010 --> 01:12:32,155
+I'm wondering what will happen
+if you want to put in more data.
+
+1488
+01:12:32,155 --> 01:12:34,750
+
+
+1489
+01:12:34,750 --> 01:12:40,115
+Say, you wanted to add a house
+to both the name and the home.
+
+1490
+01:12:40,115 --> 01:12:43,240
+DAVID MALAN: Sure, if you wanted to
+add the house back-- so if I go in here
+
+1491
+01:12:43,240 --> 01:12:47,980
+and add house last, and I go here
+and say, Gryffindor for Harry,
+
+1492
+01:12:47,980 --> 01:12:53,890
+Gryffindor for Ron, and Slytherin
+for Draco, now I have three columns,
+
+1493
+01:12:53,890 --> 01:12:57,010
+effectively, if you will-- home
+on the left, name in the middle,
+
+1494
+01:12:57,010 --> 01:13:00,640
+house on the right, each separated
+by commas with weird things,
+
+1495
+01:13:00,640 --> 01:13:03,610
+like Number Four, comma,
+Privet Drive still quoted.
+
+1496
+01:13:03,610 --> 01:13:07,540
+Notice, if I go back to students.py,
+and I don't change the code at all
+
+1497
+01:13:07,540 --> 01:13:11,230
+and run python of students.py,
+it still just works.
+
+1498
+01:13:11,230 --> 01:13:14,140
+And this is what's so powerful
+about a dictionary reader.
+
+1499
+01:13:14,140 --> 01:13:15,730
+It can change over time.
+
+1500
+01:13:15,730 --> 01:13:17,620
+It can have more and more columns.
+
+1501
+01:13:17,620 --> 01:13:20,290
+Your existing code is
+not going to break.
+
+1502
+01:13:20,290 --> 01:13:23,500
+Your code would break, would be
+much more fragile, so to speak,
+
+1503
+01:13:23,500 --> 01:13:26,860
+if you were making assumptions like, the
+first column's always going to be name.
+
+1504
+01:13:26,860 --> 01:13:28,810
+The second column is
+always going to be house.
+
+1505
+01:13:28,810 --> 01:13:32,590
+Things will break fast if
+those assumptions break down--
+
+1506
+01:13:32,590 --> 01:13:34,750
+so not a problem in this case.
+
+1507
+01:13:34,750 --> 01:13:37,720
+Well, let me propose that,
+besides reading CSVs,
+
+1508
+01:13:37,720 --> 01:13:40,960
+let's at least take a peek at
+how we might write a CSV too.
+
+1509
+01:13:40,960 --> 01:13:44,410
+If you're writing a program in which you
+want to store not just students' names,
+
+1510
+01:13:44,410 --> 01:13:48,920
+but maybe their homes as well in a file,
+how can we keep adding to this file?
+
+1511
+01:13:48,920 --> 01:13:52,460
+Let me go ahead and delete
+the contents of students.csv
+
+1512
+01:13:52,460 --> 01:13:56,300
+and just re-add a single
+simple row, name, comma, home,
+
+1513
+01:13:56,300 --> 01:14:00,530
+so as to anticipate inserting more
+names and homes into this file.
+
+1514
+01:14:00,530 --> 01:14:03,780
+And then let me go to students.py,
+and let me just start fresh
+
+1515
+01:14:03,780 --> 01:14:05,600
+so as to write out data this time.
+
+1516
+01:14:05,600 --> 01:14:07,730
+I'm still going to go
+ahead and Import CSV.
+
+1517
+01:14:07,730 --> 01:14:11,870
+I'm going to go ahead now and
+prompt the user for their name-- so
+
+1518
+01:14:11,870 --> 01:14:15,410
+input, quote/unquote, What's your name?
+
+1519
+01:14:15,410 --> 01:14:18,170
+And I'm going to go ahead and
+prompt the user for their home--
+
+1520
+01:14:18,170 --> 01:14:23,780
+so home equals input,
+quote/unquote, Where's your home?
+
+1521
+01:14:23,780 --> 01:14:26,000
+Now I'm going to go
+ahead and open the file,
+
+1522
+01:14:26,000 --> 01:14:29,090
+but this time for writing
+instead of reading, as follows--
+
+1523
+01:14:29,090 --> 01:14:32,900
+with open, quote/unquote, students.csv.
+
+1524
+01:14:32,900 --> 01:14:35,210
+I'm going to open it in
+append mode so that I
+
+1525
+01:14:35,210 --> 01:14:38,210
+keep adding more and more
+students and homes to the file,
+
+1526
+01:14:38,210 --> 01:14:40,820
+rather than just overwriting
+the entire file itself.
+
+1527
+01:14:40,820 --> 01:14:43,250
+And I'm going to use a
+variable name of file.
+
+1528
+01:14:43,250 --> 01:14:46,460
+I'm then going to go ahead and give
+myself a variable called writer,
+
+1529
+01:14:46,460 --> 01:14:49,790
+and I'm going to set it equal to
+the return value of another function
+
+1530
+01:14:49,790 --> 01:14:53,060
+in the CSV module called csv.writer.
+
+1531
+01:14:53,060 --> 01:14:59,600
+And that writer function takes as its
+sole argument the file variable there.
+
+1532
+01:14:59,600 --> 01:15:01,460
+Now I'm going to go
+ahead and just do this.
+
+1533
+01:15:01,460 --> 01:15:04,220
+I'm going to say,
+writer.writerow, and I'm
+
+1534
+01:15:04,220 --> 01:15:09,020
+going to pass into writerow the line
+that I want to write to the file
+
+1535
+01:15:09,020 --> 01:15:10,470
+specifically as a list.
+
+1536
+01:15:10,470 --> 01:15:13,890
+So I'm going to give this a
+list of name, comma, home,
+
+1537
+01:15:13,890 --> 01:15:16,140
+which, of course, are the
+contents of those variables.
+
+1538
+01:15:16,140 --> 01:15:18,170
+Now I'm going to go
+ahead and save the file.
+
+1539
+01:15:18,170 --> 01:15:22,220
+I'm going to go ahead and rerun
+python of students.py, hit Enter.
+
+1540
+01:15:22,220 --> 01:15:23,270
+And what's your name?
+
+1541
+01:15:23,270 --> 01:15:28,870
+Well, let me go ahead and type in
+Harry as my name and Number Four,
+
+1542
+01:15:28,870 --> 01:15:31,690
+comma, Privet Drive, Enter.
+
+1543
+01:15:31,690 --> 01:15:34,750
+Now notice, that input
+itself did have a comma.
+
+1544
+01:15:34,750 --> 01:15:37,450
+And so if I go to my
+CSV file now, notice
+
+1545
+01:15:37,450 --> 01:15:40,090
+that it's automatically
+been quoted for me so
+
+1546
+01:15:40,090 --> 01:15:41,860
+that subsequent reads
+from this file don't
+
+1547
+01:15:41,860 --> 01:15:46,007
+confuse that comma with the actual
+comma between Harry and his home.
+
+1548
+01:15:46,007 --> 01:15:48,340
+Well, let me go ahead and run
+it a couple of more times.
+
+1549
+01:15:48,340 --> 01:15:51,340
+Let me go ahead and rerun
+python of students.py.
+
+1550
+01:15:51,340 --> 01:15:55,300
+Let me go ahead and input this time
+Ron and his home as The Burrow.
+
+1551
+01:15:55,300 --> 01:15:58,210
+Let's go back to students.csv
+to see what it looks like.
+
+1552
+01:15:58,210 --> 01:16:02,140
+Now we see Ron, comma, The Burrow has
+been added automatically to the file.
+
+1553
+01:16:02,140 --> 01:16:03,520
+And let's do one more--
+
+1554
+01:16:03,520 --> 01:16:06,190
+python of students.py, Enter.
+
+1555
+01:16:06,190 --> 01:16:10,900
+Let's go ahead and give Draco's name and
+his home, which would be Malfoy Manor,
+
+1556
+01:16:10,900 --> 01:16:11,590
+Enter.
+
+1557
+01:16:11,590 --> 01:16:14,200
+And if we go back to
+students.csv, now, we
+
+1558
+01:16:14,200 --> 01:16:15,940
+see that Draco is in the file itself.
+
+1559
+01:16:15,940 --> 01:16:19,060
+And the library took care of not
+only writing each of those rows,
+
+1560
+01:16:19,060 --> 01:16:20,140
+per the function's name.
+
+1561
+01:16:20,140 --> 01:16:23,710
+It also handled the escaping,
+so to speak, of any strings
+
+1562
+01:16:23,710 --> 01:16:27,018
+that themselves contained a
+comma, like Harry's own home.
+
+1563
+01:16:27,018 --> 01:16:28,810
+Well, it turns out,
+there's yet another way
+
+1564
+01:16:28,810 --> 01:16:32,920
+we could implement this same program
+without having to worry about precisely
+
+1565
+01:16:32,920 --> 01:16:35,650
+that order again and again
+and just passing in a list.
+
+1566
+01:16:35,650 --> 01:16:39,580
+It turns out, if we're keeping track
+of what's the name and what's the home,
+
+1567
+01:16:39,580 --> 01:16:42,100
+we could use something like
+a dictionary to associate
+
+1568
+01:16:42,100 --> 01:16:43,580
+those keys with those values.
+
+1569
+01:16:43,580 --> 01:16:46,720
+So let me go ahead and back up and
+remove these students from the file,
+
+1570
+01:16:46,720 --> 01:16:49,660
+leaving only the header row
+again-- name, comma, home.
+
+1571
+01:16:49,660 --> 01:16:51,550
+And let me go over to students.py.
+
+1572
+01:16:51,550 --> 01:16:54,130
+And this time, instead
+of using CSV writer,
+
+1573
+01:16:54,130 --> 01:16:57,010
+I'm going to go ahead
+and use csv.DictWriter,
+
+1574
+01:16:57,010 --> 01:16:58,900
+which is a dictionary
+writer, that's going
+
+1575
+01:16:58,900 --> 01:17:00,890
+to open the file in much the same way.
+
+1576
+01:17:00,890 --> 01:17:04,840
+But rather than write a
+row as this list of name,
+
+1577
+01:17:04,840 --> 01:17:08,050
+comma, home, what I'm now
+going to do is follows.
+
+1578
+01:17:08,050 --> 01:17:11,950
+I'm going to first output
+an actual dictionary,
+
+1579
+01:17:11,950 --> 01:17:14,550
+the first key of which
+is name, colon, and then
+
+1580
+01:17:14,550 --> 01:17:17,050
+the value thereof is going to
+be the name that was typed in.
+
+1581
+01:17:17,050 --> 01:17:19,468
+And I'm going to pass in a
+key of home, quote/unquote,
+
+1582
+01:17:19,468 --> 01:17:22,010
+the value of which, of course,
+is the home that was typed in.
+
+1583
+01:17:22,010 --> 01:17:24,520
+But with DictWriter,
+I do need to give it
+
+1584
+01:17:24,520 --> 01:17:29,440
+a hint as to the order in which those
+columns are when writing it out so
+
+1585
+01:17:29,440 --> 01:17:33,530
+that, subsequently, they could be
+read, even if those orderings change.
+
+1586
+01:17:33,530 --> 01:17:36,070
+Let me go ahead and pass
+in fieldnames, which
+
+1587
+01:17:36,070 --> 01:17:39,460
+is a second argument to
+DictWriter, equals, and then
+
+1588
+01:17:39,460 --> 01:17:41,890
+a list of the actual
+columns that I know are
+
+1589
+01:17:41,890 --> 01:17:45,340
+in this file, which, of
+course, are name, comma, home.
+
+1590
+01:17:45,340 --> 01:17:47,410
+Those times, in quotes
+because that's, indeed,
+
+1591
+01:17:47,410 --> 01:17:50,200
+the string names of the
+columns, so to speak,
+
+1592
+01:17:50,200 --> 01:17:52,390
+that I intend to write to in that file.
+
+1593
+01:17:52,390 --> 01:17:55,340
+All right, now let me go ahead
+and go to my terminal window,
+
+1594
+01:17:55,340 --> 01:17:57,190
+run python of students.py.
+
+1595
+01:17:57,190 --> 01:17:59,860
+This time, I'll type
+in Harry's name again.
+
+1596
+01:17:59,860 --> 01:18:05,170
+I'll, again, type in Number
+Four, comma, Privet Drive, Enter.
+
+1597
+01:18:05,170 --> 01:18:07,360
+Let's now go back to students.csv.
+
+1598
+01:18:07,360 --> 01:18:11,380
+And voila, Harry is back in the file,
+and it's properly escaped or quoted.
+
+1599
+01:18:11,380 --> 01:18:14,830
+I'm sure that if we do this
+again with Ron and The Burrow,
+
+1600
+01:18:14,830 --> 01:18:20,320
+and let's go ahead and run it one
+third time with Draco and Malfoy Manor,
+
+1601
+01:18:20,320 --> 01:18:21,100
+Enter.
+
+1602
+01:18:21,100 --> 01:18:22,810
+Let's go back to students.csv.
+
+1603
+01:18:22,810 --> 01:18:26,200
+And via this dictionary
+writer, we now have all three
+
+1604
+01:18:26,200 --> 01:18:27,530
+of those students as well.
+
+1605
+01:18:27,530 --> 01:18:31,480
+So whereas with CSV
+writer, the onus is on us
+
+1606
+01:18:31,480 --> 01:18:34,270
+to pass in a list of all
+of the values that we
+
+1607
+01:18:34,270 --> 01:18:37,870
+want to put from left to right, with
+a dictionary writer, technically,
+
+1608
+01:18:37,870 --> 01:18:39,760
+they could be in any
+order in the dictionary.
+
+1609
+01:18:39,760 --> 01:18:43,120
+In fact, I could just
+have correctly done this,
+
+1610
+01:18:43,120 --> 01:18:45,640
+passing in home followed by name.
+
+1611
+01:18:45,640 --> 01:18:46,720
+But it's a dictionary.
+
+1612
+01:18:46,720 --> 01:18:50,322
+And so the ordering in this case does
+not matter so long as the key is there
+
+1613
+01:18:50,322 --> 01:18:51,280
+and the value is there.
+
+1614
+01:18:51,280 --> 01:18:55,660
+And because I have passed in field names
+as the second argument to DictWriter,
+
+1615
+01:18:55,660 --> 01:18:59,410
+it ensures that the library
+knows exactly which column
+
+1616
+01:18:59,410 --> 01:19:02,920
+contains name or home, respectively.
+
+1617
+01:19:02,920 --> 01:19:07,300
+Are there any questions now on
+dictionary reading, dictionary writing,
+
+1618
+01:19:07,300 --> 01:19:10,480
+or CSVs more generally?
+
+1619
+01:19:10,480 --> 01:19:14,200
+AUDIENCE: In any
+specific situation for me
+
+1620
+01:19:14,200 --> 01:19:17,110
+to use a single quotation
+or double quotation?
+
+1621
+01:19:17,110 --> 01:19:20,980
+Because after the print,
+we use single quotation
+
+1622
+01:19:20,980 --> 01:19:24,220
+to represent the key of the dictionary.
+
+1623
+01:19:24,220 --> 01:19:30,363
+But after the reading or writing,
+we use the double quotation.
+
+1624
+01:19:30,363 --> 01:19:31,780
+DAVID MALAN: It's a good question.
+
+1625
+01:19:31,780 --> 01:19:36,340
+In Python, you can generally use double
+quotes, or you can use single quotes.
+
+1626
+01:19:36,340 --> 01:19:37,430
+And it doesn't matter.
+
+1627
+01:19:37,430 --> 01:19:40,660
+You should just be self-consistent
+so that stylistically your code
+
+1628
+01:19:40,660 --> 01:19:42,340
+looks the same all throughout.
+
+1629
+01:19:42,340 --> 01:19:45,610
+Sometimes, though, it is
+necessary to alternate.
+
+1630
+01:19:45,610 --> 01:19:49,870
+If you're already using double quotes,
+as I was earlier for a long f string,
+
+1631
+01:19:49,870 --> 01:19:52,780
+but inside that f string,
+I was interpolating
+
+1632
+01:19:52,780 --> 01:19:55,240
+the values of some variables
+using curly braces,
+
+1633
+01:19:55,240 --> 01:19:57,760
+and those variables were dictionaries.
+
+1634
+01:19:57,760 --> 01:20:02,230
+And in order to index into a
+dictionary, you use square brackets
+
+1635
+01:20:02,230 --> 01:20:03,370
+and then quotes.
+
+1636
+01:20:03,370 --> 01:20:05,690
+But if you're already using
+double quotes out here,
+
+1637
+01:20:05,690 --> 01:20:09,250
+you should generally use single
+quotes here, or vise versa.
+
+1638
+01:20:09,250 --> 01:20:12,683
+But otherwise, I'm in the habit
+of using double quotes everywhere.
+
+1639
+01:20:12,683 --> 01:20:15,100
+Others are in the habit of
+using single quotes everywhere.
+
+1640
+01:20:15,100 --> 01:20:20,676
+It only matters sometimes if one
+might be confused for the other.
+
+1641
+01:20:20,676 --> 01:20:24,200
+Other questions on dictionary
+writing or reading?
+
+1642
+01:20:24,200 --> 01:20:30,790
+AUDIENCE: Yeah, my question is, can we
+use multiple CSV files in any program?
+
+1643
+01:20:30,790 --> 01:20:31,790
+DAVID MALAN: Absolutely.
+
+1644
+01:20:31,790 --> 01:20:33,830
+You can use as many
+CSV files as you want.
+
+1645
+01:20:33,830 --> 01:20:37,190
+And it's just one of the formats
+that you can use to save data.
+
+1646
+01:20:37,190 --> 01:20:40,910
+Other questions on CSVs or File I/O?
+
+1647
+01:20:40,910 --> 01:20:43,110
+AUDIENCE: Thanks for taking my question.
+
+1648
+01:20:43,110 --> 01:20:49,580
+So when you're reading from
+the file as a dictionary,
+
+1649
+01:20:49,580 --> 01:20:52,910
+you had the fields called.
+
+1650
+01:20:52,910 --> 01:20:55,280
+When you're reading, couldn't
+you just call the row?
+
+1651
+01:20:55,280 --> 01:21:03,830
+the previous version of the students.py
+file, when you're reading each row,
+
+1652
+01:21:03,830 --> 01:21:07,490
+you were splitting out
+the fields by name.
+
+1653
+01:21:07,490 --> 01:21:10,370
+
+
+1654
+01:21:10,370 --> 01:21:13,310
+Yeah, so when you're appending
+to the students list,
+
+1655
+01:21:13,310 --> 01:21:20,200
+couldn't you just call for row
+and reader, students.append row,
+
+1656
+01:21:20,200 --> 01:21:22,340
+rather than naming each of the fields?
+
+1657
+01:21:22,340 --> 01:21:23,690
+DAVID MALAN: Oh, very clever.
+
+1658
+01:21:23,690 --> 01:21:28,880
+Short answer, yes, in so
+far as DictReader returns
+
+1659
+01:21:28,880 --> 01:21:32,480
+one dictionary at a time,
+when you loop over it,
+
+1660
+01:21:32,480 --> 01:21:34,550
+row is already going to be a dictionary.
+
+1661
+01:21:34,550 --> 01:21:38,060
+So yes, you could actually
+get away with doing this.
+
+1662
+01:21:38,060 --> 01:21:41,510
+And the effect would really
+be the same in this case.
+
+1663
+01:21:41,510 --> 01:21:42,620
+Good observation.
+
+1664
+01:21:42,620 --> 01:21:46,100
+How about one more question on CSVs?
+
+1665
+01:21:46,100 --> 01:21:51,260
+AUDIENCE: Yeah, when reading in
+CSVs from my past work with data,
+
+1666
+01:21:51,260 --> 01:21:53,550
+a lot of things can go wrong.
+
+1667
+01:21:53,550 --> 01:21:57,170
+I don't know if it's a fair question
+that you can answer in a few sentences.
+
+1668
+01:21:57,170 --> 01:22:04,472
+But are there any best practices to
+double check that no mistakes occurred?
+
+1669
+01:22:04,472 --> 01:22:06,180
+DAVID MALAN: It's a
+really good question.
+
+1670
+01:22:06,180 --> 01:22:10,730
+And I would say, in general, if
+you're using code to generate the CSVs
+
+1671
+01:22:10,730 --> 01:22:14,330
+and to read the CSVs, and
+you're using a good library,
+
+1672
+01:22:14,330 --> 01:22:16,080
+theoretically, nothing should go wrong.
+
+1673
+01:22:16,080 --> 01:22:20,960
+It should be 100% correct if
+the libraries are 100% correct.
+
+1674
+01:22:20,960 --> 01:22:22,850
+You and I tend to be the problem.
+
+1675
+01:22:22,850 --> 01:22:27,110
+When you let a human touch the CSV,
+or when Excel, or Apple Numbers,
+
+1676
+01:22:27,110 --> 01:22:29,030
+or some other tools
+involved that might not
+
+1677
+01:22:29,030 --> 01:22:30,980
+be aligned with your
+code's expectations,
+
+1678
+01:22:30,980 --> 01:22:33,500
+things then, yes, can break.
+
+1679
+01:22:33,500 --> 01:22:37,100
+The goal-- sometimes, honestly,
+the solution is manual fixes.
+
+1680
+01:22:37,100 --> 01:22:40,610
+You go in and fix the CSV, or
+you have a lot of error checking,
+
+1681
+01:22:40,610 --> 01:22:44,450
+or you have a lot of try, except just
+to tolerate mistakes in the data.
+
+1682
+01:22:44,450 --> 01:22:47,900
+But generally, I would say, if
+you're using CSV or any file format
+
+1683
+01:22:47,900 --> 01:22:50,990
+internally to a program
+to both read and write it,
+
+1684
+01:22:50,990 --> 01:22:52,580
+you shouldn't have concerns there.
+
+1685
+01:22:52,580 --> 01:22:55,190
+You and I, the humans,
+are the problem, generally
+
+1686
+01:22:55,190 --> 01:22:59,000
+speaking-- and not the programmers,
+the users of those files, instead.
+
+1687
+01:22:59,000 --> 01:23:02,930
+All right, allow me to propose that
+we leave CSVs behind but to note
+
+1688
+01:23:02,930 --> 01:23:04,850
+that they're not the
+only file format you
+
+1689
+01:23:04,850 --> 01:23:07,310
+can use in order to read or write data.
+
+1690
+01:23:07,310 --> 01:23:10,760
+In fact, they're a popular format,
+as is just raw text files--
+
+1691
+01:23:10,760 --> 01:23:11,690
+.txt files.
+
+1692
+01:23:11,690 --> 01:23:14,210
+But you can store data,
+really, any way that you want.
+
+1693
+01:23:14,210 --> 01:23:16,730
+We've just picked CSVs
+because it's representative
+
+1694
+01:23:16,730 --> 01:23:18,800
+of how you might read
+and write from a file
+
+1695
+01:23:18,800 --> 01:23:22,910
+and do so in a structured way, where
+you can somehow have multiple keys,
+
+1696
+01:23:22,910 --> 01:23:26,930
+multiple values all in the same file
+without having to resort to what would
+
+1697
+01:23:26,930 --> 01:23:29,160
+be otherwise known as a binary file.
+
+1698
+01:23:29,160 --> 01:23:32,750
+So a binary file is a file that's
+really just zeros and ones.
+
+1699
+01:23:32,750 --> 01:23:36,890
+And they can be laid out in any
+pattern you might want, particularly
+
+1700
+01:23:36,890 --> 01:23:39,080
+if you want to store
+not textual information,
+
+1701
+01:23:39,080 --> 01:23:43,200
+but maybe graphical, or audio,
+or video information as well.
+
+1702
+01:23:43,200 --> 01:23:45,560
+So it turns out that
+Python is really good
+
+1703
+01:23:45,560 --> 01:23:48,320
+when it comes to having libraries
+for, really, everything.
+
+1704
+01:23:48,320 --> 01:23:50,660
+And in fact, there's a
+popular library called
+
+1705
+01:23:50,660 --> 01:23:55,340
+pillow that allows you to
+navigate image files as well
+
+1706
+01:23:55,340 --> 01:23:57,980
+and to perform operations
+on image files.
+
+1707
+01:23:57,980 --> 01:24:00,230
+You can apply filters, a la Instagram.
+
+1708
+01:24:00,230 --> 01:24:02,670
+You can animate them as well.
+
+1709
+01:24:02,670 --> 01:24:05,900
+And so what I thought we'd do is
+leave behind text files for now
+
+1710
+01:24:05,900 --> 01:24:08,150
+and tackle one more
+demonstration, this time,
+
+1711
+01:24:08,150 --> 01:24:13,290
+focusing on this particular
+library and image files instead.
+
+1712
+01:24:13,290 --> 01:24:16,250
+So let me propose that we
+go over here to VS Code
+
+1713
+01:24:16,250 --> 01:24:19,910
+and create a program, ultimately,
+that creates an animated GIF.
+
+1714
+01:24:19,910 --> 01:24:23,225
+These things are everywhere nowadays
+in the form of memes, and animations,
+
+1715
+01:24:23,225 --> 01:24:24,350
+and stickers, and the like.
+
+1716
+01:24:24,350 --> 01:24:27,380
+And an animated GIF is
+really just an image file
+
+1717
+01:24:27,380 --> 01:24:29,840
+that has multiple images inside of it.
+
+1718
+01:24:29,840 --> 01:24:34,790
+And your computer or your phone shows
+you those images, one after another,
+
+1719
+01:24:34,790 --> 01:24:37,820
+sometimes on an endless
+loop, again and again.
+
+1720
+01:24:37,820 --> 01:24:41,480
+And so long as there's enough images,
+it creates the illusion of animation
+
+1721
+01:24:41,480 --> 01:24:44,600
+because your mind and mine kind
+of fills in the gaps visually
+
+1722
+01:24:44,600 --> 01:24:47,630
+and just assumes that if something
+is moving, even though you're only
+
+1723
+01:24:47,630 --> 01:24:51,230
+seeing one frame per second,
+or some sequence thereof,
+
+1724
+01:24:51,230 --> 01:24:52,730
+it looks like an animation.
+
+1725
+01:24:52,730 --> 01:24:55,700
+So it's like a simplistic
+version of a video file.
+
+1726
+01:24:55,700 --> 01:25:00,710
+Well, let me propose that we start
+with maybe a couple of costumes
+
+1727
+01:25:00,710 --> 01:25:02,600
+from another popular
+programming language.
+
+1728
+01:25:02,600 --> 01:25:05,780
+And let me go ahead and open up
+my first costume here, number 1.
+
+1729
+01:25:05,780 --> 01:25:09,260
+So suppose here that this is a costume
+or, really, just a static image
+
+1730
+01:25:09,260 --> 01:25:11,150
+here, costume1.gif.
+
+1731
+01:25:11,150 --> 01:25:14,600
+And it's just a static picture
+of a cat, no movement at all.
+
+1732
+01:25:14,600 --> 01:25:18,770
+Let me go ahead now and open
+up a second one, costume2.gif,
+
+1733
+01:25:18,770 --> 01:25:20,910
+that looks a little bit different.
+
+1734
+01:25:20,910 --> 01:25:23,510
+Notice-- and I'll go back
+and forth-- this cat's legs
+
+1735
+01:25:23,510 --> 01:25:27,530
+are a little bit aligned differently
+so that this was version 1,
+
+1736
+01:25:27,530 --> 01:25:29,570
+and this was version 2.
+
+1737
+01:25:29,570 --> 01:25:32,150
+Now, these cats come from a
+programming language from MIT
+
+1738
+01:25:32,150 --> 01:25:34,490
+called scratch that allows
+you, very graphically,
+
+1739
+01:25:34,490 --> 01:25:36,410
+to animate all this and more.
+
+1740
+01:25:36,410 --> 01:25:41,600
+But we'll use just these two static
+images, costume1 and costume2
+
+1741
+01:25:41,600 --> 01:25:44,660
+to create our own animated
+GIF that, after this, you
+
+1742
+01:25:44,660 --> 01:25:48,800
+could text to a friend or message
+them, much like any meme online.
+
+1743
+01:25:48,800 --> 01:25:52,270
+Well, let me propose that we
+create this animated GIF, not
+
+1744
+01:25:52,270 --> 01:25:54,770
+by just using some off-the-shelf
+program that we downloaded,
+
+1745
+01:25:54,770 --> 01:25:56,450
+but by writing our own code.
+
+1746
+01:25:56,450 --> 01:25:59,630
+Let me go ahead and
+run code of costumes.py
+
+1747
+01:25:59,630 --> 01:26:02,090
+and create our very own
+program that's going to take,
+
+1748
+01:26:02,090 --> 01:26:07,460
+as input, two or even more image files
+and then generate an animated GIF
+
+1749
+01:26:07,460 --> 01:26:12,230
+from them by essentially creating this
+animated GIF by toggling back and forth
+
+1750
+01:26:12,230 --> 01:26:14,627
+endlessly between those two images.
+
+1751
+01:26:14,627 --> 01:26:15,960
+Well, how am I going to do this?
+
+1752
+01:26:15,960 --> 01:26:19,520
+Well, let's assume that this will
+be a program called costumes.py that
+
+1753
+01:26:19,520 --> 01:26:22,280
+expects two command line
+arguments, the names
+
+1754
+01:26:22,280 --> 01:26:26,490
+of the files, the individual costumes
+that we want to animate back and forth.
+
+1755
+01:26:26,490 --> 01:26:29,060
+So to do that, I'm going to
+import sys so that we ultimately
+
+1756
+01:26:29,060 --> 01:26:31,190
+have access to sys.argv.
+
+1757
+01:26:31,190 --> 01:26:35,090
+I'm then, from this pillow library,
+going to import support for images
+
+1758
+01:26:35,090 --> 01:26:35,750
+specifically.
+
+1759
+01:26:35,750 --> 01:26:41,520
+So from PIL import Image-- capital I,
+as per the library's documentation.
+
+1760
+01:26:41,520 --> 01:26:44,270
+Now I'm going to give myself
+an empty list called images,
+
+1761
+01:26:44,270 --> 01:26:48,230
+just so I have a list in which to store
+one, or two, or more of these images.
+
+1762
+01:26:48,230 --> 01:26:50,150
+And now let me do this.
+
+1763
+01:26:50,150 --> 01:26:56,540
+For each argument in sys.argv, I'm
+going to go ahead and create a new image
+
+1764
+01:26:56,540 --> 01:27:03,650
+variable, set it equal to this
+Image.open function, passing in arg.
+
+1765
+01:27:03,650 --> 01:27:05,030
+Now, what is this doing?
+
+1766
+01:27:05,030 --> 01:27:07,400
+I'm proposing that,
+eventually, I want to be
+
+1767
+01:27:07,400 --> 01:27:10,190
+able to run python of
+costumes.py, and then
+
+1768
+01:27:10,190 --> 01:27:14,330
+as command line argument, specify
+costume1.gif, space, costume2.gif.
+
+1769
+01:27:14,330 --> 01:27:18,740
+So I want to take in those file names
+from the command line as my arguments.
+
+1770
+01:27:18,740 --> 01:27:20,370
+So what am I doing here?
+
+1771
+01:27:20,370 --> 01:27:25,670
+Well, I'm iterating over sys.argv all of
+the words in my command line arguments.
+
+1772
+01:27:25,670 --> 01:27:27,620
+I'm creating a variable
+called image, and I'm
+
+1773
+01:27:27,620 --> 01:27:30,200
+passing to this function,
+Image.open from the pillow
+
+1774
+01:27:30,200 --> 01:27:32,330
+library, that specific argument.
+
+1775
+01:27:32,330 --> 01:27:35,810
+And that library is essentially
+going to open that image
+
+1776
+01:27:35,810 --> 01:27:38,960
+in a way that gives me a lot of
+functionality for manipulating it,
+
+1777
+01:27:38,960 --> 01:27:40,040
+like animating.
+
+1778
+01:27:40,040 --> 01:27:48,180
+Now I'm going to go ahead and append to
+my images list that particular image.
+
+1779
+01:27:48,180 --> 01:27:48,840
+And that's it.
+
+1780
+01:27:48,840 --> 01:27:51,890
+So this loop's purpose in life is
+just to iterate over the command line
+
+1781
+01:27:51,890 --> 01:27:55,310
+arguments and open those
+images using this library.
+
+1782
+01:27:55,310 --> 01:27:57,783
+The last line is pretty straightforward.
+
+1783
+01:27:57,783 --> 01:27:58,700
+I'm going to say this.
+
+1784
+01:27:58,700 --> 01:28:02,120
+I'm going to grab the first of those
+images, which is going to be in my list
+
+1785
+01:28:02,120 --> 01:28:05,870
+at location 0, and I'm
+going to save it to disk.
+
+1786
+01:28:05,870 --> 01:28:08,060
+That is, I'm going to save this file.
+
+1787
+01:28:08,060 --> 01:28:10,730
+Now, in the past when we
+use CSVs or text files,
+
+1788
+01:28:10,730 --> 01:28:12,590
+I had to do the file opening.
+
+1789
+01:28:12,590 --> 01:28:15,340
+I had to do the file writing,
+maybe even the closing.
+
+1790
+01:28:15,340 --> 01:28:17,090
+I don't need to do
+that with this library.
+
+1791
+01:28:17,090 --> 01:28:20,750
+The pillow library takes care of the
+opening, the closing, and the saving
+
+1792
+01:28:20,750 --> 01:28:23,000
+for me by just calling save.
+
+1793
+01:28:23,000 --> 01:28:24,780
+I'm going to call this save function.
+
+1794
+01:28:24,780 --> 01:28:27,740
+And just to leave space, because I
+have a number of arguments to pass,
+
+1795
+01:28:27,740 --> 01:28:29,780
+I'm going to move to
+another line so it fits.
+
+1796
+01:28:29,780 --> 01:28:33,290
+I'm going to pass in the name of
+the file that I want to create,
+
+1797
+01:28:33,290 --> 01:28:34,730
+costumes.gif--
+
+1798
+01:28:34,730 --> 01:28:37,310
+that will be the name
+of my animated GIF.
+
+1799
+01:28:37,310 --> 01:28:41,510
+I'm going to tell this library
+to save all of the frames
+
+1800
+01:28:41,510 --> 01:28:44,870
+that I pass to it-- so the first
+costume, the second costume, and even
+
+1801
+01:28:44,870 --> 01:28:46,190
+more if I gave them.
+
+1802
+01:28:46,190 --> 01:28:49,220
+I'm going to then append
+to this first image--
+
+1803
+01:28:49,220 --> 01:28:55,310
+the images 0-- the following
+images, equals this list of images.
+
+1804
+01:28:55,310 --> 01:28:57,650
+And this is a bit clever,
+but I'm going to do this.
+
+1805
+01:28:57,650 --> 01:29:01,640
+I want to append the next
+image there, images[1].
+
+1806
+01:29:01,640 --> 01:29:05,180
+And now I want to specify a
+duration of 200 milliseconds
+
+1807
+01:29:05,180 --> 01:29:08,730
+for each of these frames, and
+I want this to loop forever.
+
+1808
+01:29:08,730 --> 01:29:12,170
+And if you specify
+loop=0, that is time 0,
+
+1809
+01:29:12,170 --> 01:29:15,620
+it means it's just not going to
+loop a finite number of times,
+
+1810
+01:29:15,620 --> 01:29:18,080
+but an infinite number of times instead.
+
+1811
+01:29:18,080 --> 01:29:20,210
+And I need to do one other thing.
+
+1812
+01:29:20,210 --> 01:29:24,740
+Recall that sys.argv
+contains not just the words I
+
+1813
+01:29:24,740 --> 01:29:29,960
+typed after my program's name, but
+what else does sys.argv contain?
+
+1814
+01:29:29,960 --> 01:29:33,710
+If you think back to our discussion
+of command line arguments,
+
+1815
+01:29:33,710 --> 01:29:38,240
+what else is sys.argv besides
+the words I'm about to type,
+
+1816
+01:29:38,240 --> 01:29:41,510
+like costume1.gif and costume2?
+
+1817
+01:29:41,510 --> 01:29:45,530
+AUDIENCE: Yeah, so we'll actually
+get the original name of the program
+
+1818
+01:29:45,530 --> 01:29:48,053
+we want to run, the costumes.py.
+
+1819
+01:29:48,053 --> 01:29:50,720
+DAVID MALAN: Indeed, we'll get
+the original name of the program,
+
+1820
+01:29:50,720 --> 01:29:53,270
+costumes.py in this case,
+which is not a GIF, obviously.
+
+1821
+01:29:53,270 --> 01:29:57,230
+So remember that using slices
+in Python, we can do this.
+
+1822
+01:29:57,230 --> 01:30:01,670
+If sys.argv is a list, and we want to
+get a slice of that list, everything
+
+1823
+01:30:01,670 --> 01:30:05,330
+after the first element, we
+can do 1, colon, which says,
+
+1824
+01:30:05,330 --> 01:30:10,220
+start it location 1, not 0, and
+take a slice all the way to the end.
+
+1825
+01:30:10,220 --> 01:30:12,620
+So give me everything
+except the first thing
+
+1826
+01:30:12,620 --> 01:30:16,700
+in that list, which, to McKenzie's
+point, is the name of the program.
+
+1827
+01:30:16,700 --> 01:30:19,980
+Now, if I haven't made any
+mistakes, let's see what happens.
+
+1828
+01:30:19,980 --> 01:30:22,880
+I'm going to run python of
+costumes.py, and now I'm
+
+1829
+01:30:22,880 --> 01:30:25,400
+going to specify the two
+images that I want to animate--
+
+1830
+01:30:25,400 --> 01:30:30,290
+so costume1.gif and costume2.gif.
+
+1831
+01:30:30,290 --> 01:30:32,240
+What is the code now going to do?
+
+1832
+01:30:32,240 --> 01:30:34,520
+Well, to recap, we're
+using the sys library
+
+1833
+01:30:34,520 --> 01:30:36,380
+to access those command line arguments.
+
+1834
+01:30:36,380 --> 01:30:39,140
+We're using the pillow
+library to treat those files
+
+1835
+01:30:39,140 --> 01:30:42,680
+as images and with all the functionality
+that comes with that library.
+
+1836
+01:30:42,680 --> 01:30:46,490
+I'm using this images list just to
+accumulate all of these images, one
+
+1837
+01:30:46,490 --> 01:30:48,110
+at a time from the command line.
+
+1838
+01:30:48,110 --> 01:30:52,520
+And in lines 7 through 9, I'm just
+using a loop to iterate over all of them
+
+1839
+01:30:52,520 --> 01:30:56,750
+and just add them to this list
+after opening them with the library.
+
+1840
+01:30:56,750 --> 01:31:00,170
+And the last step, which is really just
+one line of code broken onto three so
+
+1841
+01:31:00,170 --> 01:31:02,990
+that it all fits, I'm going
+to save the first image,
+
+1842
+01:31:02,990 --> 01:31:07,340
+but I'm asking the library to
+append this other image to it
+
+1843
+01:31:07,340 --> 01:31:09,550
+as well-- not bracket 0, but bracket 1.
+
+1844
+01:31:09,550 --> 01:31:12,010
+And if I had more, I could
+express those as well.
+
+1845
+01:31:12,010 --> 01:31:14,260
+I want to save all of
+these files together.
+
+1846
+01:31:14,260 --> 01:31:17,680
+I want to pause 200
+milliseconds-- a fifth of a second
+
+1847
+01:31:17,680 --> 01:31:18,940
+in between each frame.
+
+1848
+01:31:18,940 --> 01:31:21,860
+And I want it to loop
+infinitely many times.
+
+1849
+01:31:21,860 --> 01:31:27,520
+So now if I cross my fingers
+as always, hit Enter,
+
+1850
+01:31:27,520 --> 01:31:30,710
+nothing bad happened, and that's
+almost always a good thing.
+
+1851
+01:31:30,710 --> 01:31:38,480
+Let me now run code of costumes.gif
+to open up in VS Code the final image.
+
+1852
+01:31:38,480 --> 01:31:42,610
+And what I think I should
+see is a very happy cat?
+
+1853
+01:31:42,610 --> 01:31:43,510
+And indeed.
+
+1854
+01:31:43,510 --> 01:31:47,320
+So now we've seen not only that we can
+read and write files, be it textually.
+
+1855
+01:31:47,320 --> 01:31:51,405
+We can read and now write files
+that are binary zeros and ones.
+
+1856
+01:31:51,405 --> 01:31:52,780
+We've just scratched the surface.
+
+1857
+01:31:52,780 --> 01:31:54,790
+This is using the library called pillow.
+
+1858
+01:31:54,790 --> 01:31:58,120
+But ultimately, this is going to give
+us the ability to read and write files
+
+1859
+01:31:58,120 --> 01:31:59,240
+however we want.
+
+1860
+01:31:59,240 --> 01:32:03,340
+So we've now seen that via File I/O, we
+can manipulate not just textual files,
+
+1861
+01:32:03,340 --> 01:32:06,790
+be it TXT files, or CSVs, but
+even binary files as well.
+
+1862
+01:32:06,790 --> 01:32:08,840
+In this case, they happen to be images.
+
+1863
+01:32:08,840 --> 01:32:11,950
+But if we dived in deeper, we
+could explore audio, and video,
+
+1864
+01:32:11,950 --> 01:32:15,400
+and so much more all by way of these
+simple primitives, this ability,
+
+1865
+01:32:15,400 --> 01:32:18,250
+somehow, to read and write files.
+
+1866
+01:32:18,250 --> 01:32:19,460
+That's it for now.
+
+1867
+01:32:19,460 --> 01:32:21,840
+We'll see you next time.
+
+1868
+01:32:21,840 --> 01:32:25,000

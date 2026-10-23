@@ -1,0 +1,169 @@
+{
+  "id": "re-requesting-a-vanity-plate",
+  "title": {
+    "tr": "Kişisel Plakayı Yeniden İstemek",
+    "en": "Re-requesting a Vanity Plate"
+  },
+  "difficulty": 3,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "plates.py",
+  "files": [
+    {
+      "name": "plates.py",
+      "starter": "starter-plates.{lang}.py",
+      "solution": "solution-plates.py"
+    },
+    {
+      "name": "test_plates.py",
+      "starter": "starter-test_plates.{lang}.py",
+      "solution": "solution-test_plates.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`is_valid` Problem Set 2'deki fonksiyonun aynısı; değişen dosyanın sonu: `main()` yerine `if __name__ == \"__main__\":` altında `main()`.",
+      "en": "`is_valid` is the same function as in Problem Set 2; what changes is the end of the file: `main()` under `if __name__ == \"__main__\":` instead of a bare `main()`."
+    },
+    {
+      "tr": "Noktalama şartını rakamsız bir plakayla da dene (`CS 50`, `CS.50`): `PI3.14`'ü rakam kuralı da yakalıyor.",
+      "en": "Try the punctuation rule with a plate whose punctuation comes before the numbers too (`CS 50`, `CS.50`): the number rule catches `PI3.14` as well."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**plates.py**\n\n```python\ndef main():\n    plate = input(\"Plate: \")\n    if is_valid(plate):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(s):\n    if len(s) < 2 or len(s) > 6:\n        return False\n    if not s[0].isalpha() or not s[1].isalpha():\n        return False\n    if not s.isalnum():\n        return False\n    number_started = False\n    for c in s:\n        if c.isdigit():\n            if not number_started and c == \"0\":\n                return False\n            number_started = True\n        elif number_started:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_plates.py**\n\n```python\nfrom plates import is_valid\n\n\ndef test_length():\n    assert is_valid(\"CS\") == True\n    assert is_valid(\"H\") == False\n    assert is_valid(\"OUTATIME\") == False\n\n\ndef test_start():\n    assert is_valid(\"CS50\") == True\n    assert is_valid(\"50CS\") == False\n    assert is_valid(\"C50\") == False\n\n\ndef test_numbers():\n    assert is_valid(\"AAA222\") == True\n    assert is_valid(\"AAA22A\") == False\n    assert is_valid(\"CS05\") == False\n\n\ndef test_punctuation():\n    assert is_valid(\"CS 50\") == False\n    assert is_valid(\"PI3.14\") == False\n```",
+      "en": "The full solution:\n\n**plates.py**\n\n```python\ndef main():\n    plate = input(\"Plate: \")\n    if is_valid(plate):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(s):\n    if len(s) < 2 or len(s) > 6:\n        return False\n    if not s[0].isalpha() or not s[1].isalpha():\n        return False\n    if not s.isalnum():\n        return False\n    number_started = False\n    for c in s:\n        if c.isdigit():\n            if not number_started and c == \"0\":\n                return False\n            number_started = True\n        elif number_started:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_plates.py**\n\n```python\nfrom plates import is_valid\n\n\ndef test_length():\n    assert is_valid(\"CS\") == True\n    assert is_valid(\"H\") == False\n    assert is_valid(\"OUTATIME\") == False\n\n\ndef test_start():\n    assert is_valid(\"CS50\") == True\n    assert is_valid(\"50CS\") == False\n    assert is_valid(\"C50\") == False\n\n\ndef test_numbers():\n    assert is_valid(\"AAA222\") == True\n    assert is_valid(\"AAA22A\") == False\n    assert is_valid(\"CS05\") == False\n\n\ndef test_punctuation():\n    assert is_valid(\"CS 50\") == False\n    assert is_valid(\"PI3.14\") == False\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "CS50\n",
+          "stdout": "Valid"
+        },
+        {
+          "stdin": "CS05\n",
+          "stdout": "Invalid"
+        },
+        {
+          "stdin": "PI3.14\n",
+          "stdout": "Invalid"
+        },
+        {
+          "stdin": "H\n",
+          "stdout": "Invalid"
+        },
+        {
+          "stdin": "OUTATIME\n",
+          "stdout": "Invalid"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "is_valid",
+      "cases": [
+        {
+          "args": [
+            "CS50"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "CS05"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "ECTO88"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "AB 12"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "A1"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "ZZ"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "AAA22A"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "OUTATIME"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "pytest",
+      "file": "test_plates.py",
+      "min": 4,
+      "mutants": [
+        {
+          "file": "plates.py",
+          "source": "def main():\n    plate = input(\"Plate: \")\n    if is_valid(plate):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(s):\n    if len(s) < 2:\n        return False\n    if not s[0].isalpha() or not s[1].isalpha():\n        return False\n    if not s.isalnum():\n        return False\n    number_started = False\n    for c in s:\n        if c.isdigit():\n            if not number_started and c == \"0\":\n                return False\n            number_started = True\n        elif number_started:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "6 karakterden uzun plakalar geçerli sayılıyor.",
+            "en": "plates longer than 6 characters count as valid."
+          }
+        },
+        {
+          "file": "plates.py",
+          "source": "def main():\n    plate = input(\"Plate: \")\n    if is_valid(plate):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(s):\n    if len(s) < 2 or len(s) > 6:\n        return False\n    if not s[0].isalpha():\n        return False\n    if not s.isalnum():\n        return False\n    number_started = False\n    for c in s:\n        if c.isdigit():\n            if not number_started and c == \"0\":\n                return False\n            number_started = True\n        elif number_started:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "tek harfle başlayan plakalar (`C50`) geçerli sayılıyor.",
+            "en": "plates starting with one letter (`C50`) count as valid."
+          }
+        },
+        {
+          "file": "plates.py",
+          "source": "def main():\n    plate = input(\"Plate: \")\n    if is_valid(plate):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(s):\n    if len(s) < 2 or len(s) > 6:\n        return False\n    if not s[0].isalpha() or not s[1].isalpha():\n        return False\n    number_started = False\n    for c in s:\n        if c.isdigit():\n            if not number_started and c == \"0\":\n                return False\n            number_started = True\n        elif number_started:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "noktalama ve boşluk denetlenmiyor (`CS 50` geçerli).",
+            "en": "punctuation and spaces are not checked (`CS 50` is valid)."
+          }
+        },
+        {
+          "file": "plates.py",
+          "source": "def main():\n    plate = input(\"Plate: \")\n    if is_valid(plate):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(s):\n    if len(s) < 2 or len(s) > 6:\n        return False\n    if not s[0].isalpha() or not s[1].isalpha():\n        return False\n    if not s.isalnum():\n        return False\n    number_started = False\n    for c in s:\n        if c.isdigit():\n            if False:\n                return False\n            number_started = True\n        elif number_started:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "ilk rakam 0 olabiliyor (`CS05` geçerli).",
+            "en": "the first number can be 0 (`CS05` is valid)."
+          }
+        },
+        {
+          "file": "plates.py",
+          "source": "def main():\n    plate = input(\"Plate: \")\n    if is_valid(plate):\n        print(\"Valid\")\n    else:\n        print(\"Invalid\")\n\n\ndef is_valid(s):\n    if len(s) < 2 or len(s) > 6:\n        return False\n    if not s[0].isalpha() or not s[1].isalpha():\n        return False\n    if not s.isalnum():\n        return False\n    number_started = False\n    for c in s:\n        if c.isdigit():\n            if not number_started and c == \"0\":\n                return False\n            number_started = True\n    return True\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "rakamdan sonra harf gelebiliyor (`AAA22A` geçerli).",
+            "en": "letters can follow numbers (`AAA22A` is valid)."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "id": "test-the-square",
+  "title": {
+    "tr": "Kareyi Test Et",
+    "en": "Test the Square"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "test_calculator.py",
+  "files": [
+    {
+      "name": "test_calculator.py",
+      "starter": "starter-test_calculator.{lang}.py",
+      "solution": "solution-test_calculator.py"
+    },
+    {
+      "name": "calculator.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her satır bir iddia: `assert square(3) == 9`. Eksi sayının karesi artı: `assert square(-2) == 4`.",
+      "en": "Each line is one claim: `assert square(3) == 9`. A negative number's square is positive: `assert square(-2) == 4`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**test_calculator.py**\n\n```python\nfrom calculator import square\n\n\ndef test_square():\n    assert square(2) == 4\n    assert square(3) == 9\n    assert square(-2) == 4\n    assert square(-3) == 9\n    assert square(0) == 0\n```",
+      "en": "The full solution:\n\n**test_calculator.py**\n\n```python\nfrom calculator import square\n\n\ndef test_square():\n    assert square(2) == 4\n    assert square(3) == 9\n    assert square(-2) == 4\n    assert square(-3) == 9\n    assert square(0) == 0\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "pytest",
+      "file": "test_calculator.py",
+      "min": 1,
+      "mutants": [
+        {
+          "file": "calculator.py",
+          "source": "def main():\n    x = int(input(\"What's x? \"))\n    print(\"x squared is\", square(x))\n\n\ndef square(n):\n    return n + n\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`*` yerine `+`: `square(3)` 6 veriyor.",
+            "en": "`+` instead of `*`: `square(3)` gives 6."
+          }
+        },
+        {
+          "file": "calculator.py",
+          "source": "def main():\n    x = int(input(\"What's x? \"))\n    print(\"x squared is\", square(x))\n\n\ndef square(n):\n    return n * abs(n)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "negatif sayıların karesi eksi çıkıyor: `square(-2)` -4.",
+            "en": "negative numbers square to a negative: `square(-2)` is -4."
+          }
+        },
+        {
+          "file": "calculator.py",
+          "source": "def main():\n    x = int(input(\"What's x? \"))\n    print(\"x squared is\", square(x))\n\n\ndef square(n):\n    if n == 0:\n        return 1\n    return n * n\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`square(0)` 1 veriyor.",
+            "en": "`square(0)` gives 1."
+          }
+        }
+      ]
+    }
+  ]
+}

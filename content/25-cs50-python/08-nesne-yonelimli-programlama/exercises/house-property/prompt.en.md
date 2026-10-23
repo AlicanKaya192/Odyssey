@@ -1,0 +1,3 @@
+The checks in the previous exercise only ran when the object was created; `student.house = "Number Four, Privet Drive"` still went through. Write `Student` with **properties**: `name` and `house` are properties (`@property`); their setters (`@name.setter`, `@house.setter`) reject an empty name and an invalid house with `ValueError`. Store the values in `self._name` and `self._house`; let `__init__` write `self.name = name` and `self.house = house`, so the checks are in one place. `__str__` returns `Harry from Gryffindor`.
+
+Odyssey checks your class by really creating it and calling its methods; you may write test code at the end of the file.

@@ -39,8 +39,10 @@ import contextlib
 import io
 import json
 import os
+import re
 import sys
 import traceback
+import zlib
 from pathlib import Path
 
 # Kardeş modüller (`sql_runner`) import edilebilsin.
@@ -268,6 +270,348 @@ def compare_stdout(check: dict, stdout: str) -> dict:
     }
 
 
+# --- Girdi verilen programlar (CS50 tarzı) ----------------------------------
+
+
+def scripted_input(text: str, sink, echo: bool):
+    """`input()` yerine: satırları sırayla verir, bitince `EOFError`.
+
+    Soru metni (`input("Name: ")`) `sink`'e yazılıyor; `echo` açıksa
+    okunan satır da, terminalde yazılmış gibi. Gerçek `input()` soruyu
+    stdout'a yazdığı için karşılaştırmaya karışırdı; burada karışmıyor.
+    """
+    satirlar = iter(str(text).splitlines())
+
+    def girdi(prompt: object = "") -> str:
+        sink.write(str(prompt))
+        try:
+            satir = next(satirlar)
+        except StopIteration:
+            raise EOFError("EOF when reading a line") from None
+        if echo:
+            sink.write(satir + "\n")
+        return satir
+
+    return girdi
+
+
+@contextlib.contextmanager
+def exit_quietly(err):
+    """`sys.exit` programı bitirsin ama denetleyiciyi değil; `sys.exit("mesaj")`
+    gerçek terminaldeki gibi mesajını stderr'e yazar."""
+    try:
+        yield
+    except SystemExit as exc:
+        if isinstance(exc.code, str):
+            err.write(exc.code + "\n")
+
+
+def stdio_demo(checks: list[dict]) -> dict | None:
+    """Terminalde gösterilecek çalıştırmanın girdisi: `run` ya da ilk durum."""
+    for check in checks:
+        if check.get("type") == "stdio":
+            return check.get("run") or (check.get("cases") or [{}])[0]
+    return None
+
+
+def write_case_files(folder: Path, case: dict) -> None:
+    """Durumun başlangıç dosyaları (`files`: {ad: metin})."""
+    for name, text in (case.get("files") or {}).items():
+        path = folder / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+
+@contextlib.contextmanager
+def case_folder(case: dict):
+    """Dosya okuyan ya da yazan durum (`files`, `expect_files`) kendi klasöründe.
+
+    Çalışma klasörünün kopyası: alıştırmanın veri dosyaları yerinde, ama bir
+    durumun (ya da terminaldeki örnek çalıştırmanın) yazdığı dosya öteki
+    duruma sızmıyor. Beklenen dosya kopyada varsa siliniyor; yoksa yazmayan
+    program örneğin bıraktığıyla geçerdi. Dosyasız durumda klasör değişmiyor.
+    """
+    if not (case.get("files") or case.get("expect_files")):
+        yield None
+        return
+    import shutil
+    import tempfile
+
+    kaynak = Path.cwd()
+    hedef = Path(tempfile.mkdtemp(prefix="case-"))
+    shutil.copytree(kaynak, hedef, dirs_exist_ok=True,
+                    ignore=shutil.ignore_patterns("job.json", "result.json", "__pycache__"))
+    for name in case.get("expect_files") or {}:
+        if name not in (case.get("files") or {}):
+            (hedef / name).unlink(missing_ok=True)
+    write_case_files(hedef, case)
+    os.chdir(hedef)
+    try:
+        yield kaynak, hedef
+    finally:
+        os.chdir(kaynak)
+        shutil.rmtree(hedef, ignore_errors=True)
+
+
+def normalize_text_file(text: str) -> str:
+    """Satır sonları ve satır sonundaki boşluklar karşılaştırmaya girmiyor.
+
+    `\\r` hiç sayılmıyor: Windows'ta `newline=""` olmadan `csv.writer`
+    satırları `\\r\\r\\n` ile bitiriyor; içerik doğru, kişi düşmesin.
+    """
+    lines = [line.rstrip() for line in text.replace("\r", "").split("\n")]
+    return "\n".join(lines).strip("\n")
+
+
+def _frames(image) -> list:
+    from PIL import ImageSequence
+
+    return [frame.convert("RGBA") for frame in ImageSequence.Iterator(image)]
+
+
+def image_report(path: Path, like: Path, spec: dict) -> dict:
+    """Programın yazdığı resim örnek resme benziyor mu?
+
+    Boyut ve kare sayısı aynı olmalı; her karede piksel başına ortalama fark
+    (0–255) `tolerance`'ı (varsayılan 2) geçmemeli. Birebir eşitlik
+    istenmiyor: JPEG kalitesi gibi küçük farklar resmi yanlış yapmıyor.
+    """
+    from PIL import Image, ImageChops, ImageStat
+
+    if not path.is_file():
+        return {"missing": True}
+    try:
+        with Image.open(path) as actual_image, Image.open(like) as expected_image:
+            gelen, beklenen = _frames(actual_image), _frames(expected_image)
+    except Exception:  # noqa: BLE001 (kişinin dosyası her şey olabilir)
+        return {"ok": False, "reason": "not_image"}
+    if gelen[0].size != beklenen[0].size:
+        return {"ok": False, "reason": "size", "expected": "×".join(map(str, beklenen[0].size)),
+                "actual": "×".join(map(str, gelen[0].size))}
+    if len(gelen) != len(beklenen):
+        return {"ok": False, "reason": "frames", "expected": len(beklenen), "actual": len(gelen)}
+    tolerance = float(spec.get("tolerance", 2))
+    fark = max(sum(ImageStat.Stat(ImageChops.difference(a, b)).mean) / 4 for a, b in zip(gelen, beklenen))
+    if fark > tolerance:
+        return {"ok": False, "reason": "pixels", "expected": tolerance, "actual": round(fark, 1)}
+    return {"ok": True}
+
+
+A4_POINTS = (595.28, 841.89)
+PDF_TOKENS = re.compile(
+    rb"(?P<str>\((?:\\.|[^\\)])*\))\s*(?:Tj|')"            # (metin) Tj
+    rb"|(?P<rgb>[\d.]+\s+[\d.]+\s+[\d.]+)\s+rg\b"          # dolgu rengi (yazı rengi)
+    rb"|(?<![\d.])(?P<gray>[\d.]+)\s+g\b"                  # gri ton
+    rb"|(?<![\w/])(?P<save>q)(?![\w])|(?<![\w/])(?P<restore>Q)(?![\w])"
+)
+
+
+def _pdf_unescape(raw: bytes) -> str:
+    out, i = bytearray(), 0
+    while i < len(raw):
+        if raw[i] == 0x5C and i + 1 < len(raw):  # ters bölü
+            nxt = raw[i + 1:i + 2]
+            out += {b"n": b"\n", b"r": b"\r", b"t": b"\t"}.get(nxt, nxt)
+            i += 2
+        else:
+            out.append(raw[i])
+            i += 1
+    return out.decode("latin-1")
+
+
+def _pdf_texts(data: bytes) -> list[tuple[str, bool]]:
+    """İçerik akışlarındaki metinler, yazıldıkları anda renk beyaz mıydı.
+
+    fpdf2 çekirdek yazı tipleriyle (Helvetica) metni sıkıştırılmış akışta
+    düz dize olarak yazıyor: `1 1 1 rg (Harry took CS50) Tj`. TrueType yazı
+    tipinde glif numaraları yazılır; o durumda metin bulunamaz (CS50 de
+    çekirdek yazı tipi kullanıyor).
+    """
+    texts = []
+    for m in re.finditer(rb"stream\r?\n(.*?)\r?\nendstream", data, re.S):
+        try:
+            content = zlib.decompress(m.group(1))
+        except zlib.error:
+            content = m.group(1)
+        white, stack = False, []
+        for tok in PDF_TOKENS.finditer(content):
+            if tok.group("save"):
+                stack.append(white)
+            elif tok.group("restore"):
+                white = stack.pop() if stack else False
+            elif tok.group("rgb"):
+                white = all(float(v) >= 0.99 for v in tok.group("rgb").split())
+            elif tok.group("gray"):
+                white = float(tok.group("gray")) >= 0.99
+            else:
+                texts.append((_pdf_unescape(tok.group("str")[1:-1]), white))
+    return texts
+
+
+def pdf_report(path: Path, spec: dict) -> dict:
+    """Programın yazdığı PDF şartlara uyuyor mu (CS50 Shirtificate)?
+
+    `pages` sayfa sayısı, `size: "A4"` dikey A4, `text` sayfada geçmesi
+    gereken metinler, `white` beyaz yazılması gerekenler, `image_centered`
+    bir resim var ve yatayda ortada (2 pt pay). Görünüş birebir
+    karşılaştırılmıyor: CS50 de "örnekle aynı olması gerekmez" diyor.
+    """
+    if not path.is_file():
+        return {"missing": True}
+    data = path.read_bytes()
+    if not data.startswith(b"%PDF"):
+        return {"ok": False, "reason": "not_pdf"}
+    pages = len(re.findall(rb"/Type\s*/Page(?![s\w])", data))
+    if "pages" in spec and pages != spec["pages"]:
+        return {"ok": False, "reason": "pages", "expected": spec["pages"], "actual": pages}
+    boxes = re.findall(rb"/MediaBox\s*\[\s*([\d.\s-]+)\]", data)
+    width = height = 0.0
+    if boxes:
+        x0, y0, x1, y1 = (float(v) for v in boxes[0].split()[:4])
+        width, height = x1 - x0, y1 - y0
+    if spec.get("size") == "A4" and not (abs(width - A4_POINTS[0]) < 1 and abs(height - A4_POINTS[1]) < 1):
+        return {"ok": False, "reason": "size", "actual": f"{round(width / 72 * 25.4)}×{round(height / 72 * 25.4)} mm"}
+    texts = _pdf_texts(data)
+    for wanted in spec.get("text", []):
+        if not any(wanted in t for t, _ in texts):
+            return {"ok": False, "reason": "text", "text": wanted}
+    for wanted in spec.get("white", []):
+        if not any(wanted in t and white for t, white in texts):
+            return {"ok": False, "reason": "white", "text": wanted}
+    if spec.get("image_centered"):
+        images = []
+        for m in re.finditer(rb"stream\r?\n(.*?)\r?\nendstream", data, re.S):
+            try:
+                content = zlib.decompress(m.group(1))
+            except zlib.error:
+                continue
+            images += re.findall(rb"([\d.]+)\s+0\s+0\s+([\d.]+)\s+([\d.-]+)\s+([\d.-]+)\s+cm\s*/\w+\s+Do", content)
+        if not images:
+            return {"ok": False, "reason": "image"}
+        if not any(abs(float(x) + float(w) / 2 - width / 2) <= 2 for w, _, x, _ in images):
+            return {"ok": False, "reason": "image_center"}
+    return {"ok": True}
+
+
+def written_files(case: dict, folders) -> dict:
+    """Beklenen dosyaların durum bitince hâli: metin, resim raporu ya da yok (`None`)."""
+    out: dict = {}
+    if folders is None:
+        return out
+    kaynak, hedef = folders
+    for name, expected in (case.get("expect_files") or {}).items():
+        path = hedef / name
+        if isinstance(expected, dict) and "image" in expected:
+            spec = expected["image"]
+            out[name] = {"image": image_report(path, kaynak / spec.get("like", ""), spec)}
+        elif isinstance(expected, dict) and "pdf" in expected:
+            out[name] = {"pdf": pdf_report(path, expected["pdf"])}
+        elif path.is_file():
+            out[name] = normalize_text_file(path.read_bytes().decode("utf-8", errors="replace"))
+        else:
+            out[name] = None
+    return out
+
+
+def run_stdio_case(compiled, code_path: str, case: dict) -> dict:
+    """Programı bir durum için baştan, temiz bir modülde çalıştırır.
+
+    Çıktı ikiye ayrılıyor: `stdout` yalnızca programın yazdıkları
+    (karşılaştırılan), `transcript` soru ve girdilerle birlikte (gösterilen).
+    Dosyalı durum kendi klasöründe (`case_folder`); yazılan dosyalar `files`.
+    """
+    with case_folder(case) as folders:
+        run = _run_stdio_case(compiled, code_path, case)
+        run["files"] = written_files(case, folders)
+    return run
+
+
+def _run_stdio_case(compiled, code_path: str, case: dict) -> dict:
+    import builtins
+    import types
+
+    prints, transcript = io.StringIO(), io.StringIO()
+
+    class _Tee(io.TextIOBase):
+        def write(self, text: str) -> int:
+            prints.write(text)
+            transcript.write(text)
+            return len(text)
+
+    modul = types.ModuleType("__main__")
+    modul.__file__ = code_path
+    onceki = (sys.modules.get("__main__"), sys.argv, builtins.input, sys.stdin)
+    sys.modules["__main__"] = modul
+    sys.argv = [Path(code_path).name] + [str(a) for a in case.get("argv", [])]
+    builtins.input = scripted_input(case.get("stdin", ""), transcript, echo=True)
+    sys.stdin = io.StringIO(str(case.get("stdin", "")))
+    if "seed" in case:
+        # Rastgele sayı üreten program (tahmin oyunu gibi): durumun tohumu
+        # her çalıştırmada aynı sayıları verir, beklenen çıktı sabit kalır.
+        import random
+
+        random.seed(case["seed"])
+    exit_code, error = 0, None
+    try:
+        with contextlib.redirect_stdout(_Tee()), contextlib.redirect_stderr(io.StringIO()):
+            exec(compiled, modul.__dict__)
+    except SystemExit as exc:
+        # `sys.exit("mesaj")` Python'da 1 ile çıkar, mesaj stderr'e gider;
+        # terminalde göründüğü gibi dökümde de görünsün (karşılaştırılmaz).
+        exit_code = exc.code if isinstance(exc.code, int) else (0 if exc.code is None else 1)
+        if isinstance(exc.code, str):
+            transcript.write(exc.code + "\n")
+    except BaseException as exc:  # noqa: BLE001 (kişinin kodu her şeyi atabilir)
+        error = f"{type(exc).__name__}: {exc}"
+    finally:
+        sys.modules["__main__"], sys.argv, builtins.input, sys.stdin = onceki
+    return {"stdout": prints.getvalue(), "transcript": transcript.getvalue(),
+            "exit": exit_code, "error": error, "program": Path(code_path).name}
+
+
+def check_stdio(check: dict, rerun) -> dict:
+    """Her durumda programı çalıştırıp çıktısını ve çıkış kodunu karşılaştırır.
+
+    İlk tutmayan durumda duruyor; ayrıntıda o durumun girdisi var ki kişi
+    "hangi girdide yanlış" sorusunun cevabını görsün.
+    """
+    cases = check.get("cases", [])
+    if rerun is None:
+        return {"passed": False, "detail": {"not_run": True}}
+    for index, case in enumerate(cases):
+        run = rerun(case)
+        ortak = {"case": index, "program": run["program"], "stdin": str(case.get("stdin", "")),
+                 "argv": [str(a) for a in case.get("argv", [])],
+                 "transcript": clip(run["transcript"], MAX_REPR_CHARS)[0]}
+        if run["error"]:
+            return {"passed": False, "detail": {**ortak, "error": run["error"]}}
+        if "stdout" in case:
+            karsilastir = compare_stdout(
+                {"expected": case["stdout"], "match": check.get("match", "trimmed_lines")},
+                run["stdout"])
+            if not karsilastir["passed"]:
+                return {"passed": False, "detail": {**ortak, **karsilastir["detail"]}}
+        if "exit" in case and run["exit"] != case["exit"]:
+            return {"passed": False,
+                    "detail": {**ortak, "exit": run["exit"], "expected_exit": case["exit"]}}
+        for name, expected in (case.get("expect_files") or {}).items():
+            actual = run.get("files", {}).get(name)
+            if isinstance(expected, dict) and ("image" in expected or "pdf" in expected):
+                kind = "image" if "image" in expected else "pdf"
+                report = (actual or {}).get(kind, {"missing": True})
+                if report.get("missing"):
+                    return {"passed": False, "detail": {**ortak, "file": name, "missing_file": True}}
+                if not report.get("ok"):
+                    return {"passed": False, "detail": {**ortak, "file": name, kind: report}}
+            elif actual is None:
+                return {"passed": False, "detail": {**ortak, "file": name, "missing_file": True}}
+            elif actual != normalize_text_file(str(expected)):
+                return {"passed": False, "detail": {**ortak, "file": name,
+                                                    "expected": clip(normalize_text_file(str(expected)))[0],
+                                                    "actual": clip(actual)[0]}}
+    return {"passed": True, "detail": {"cases": len(cases)}}
+
+
 def find_value_holder(namespace: dict, expected) -> str:
     """Beklenen degeri tutan baska bir degiskenin adini dondurur.
 
@@ -340,18 +684,26 @@ def compare_function(check: dict, namespace: dict) -> dict:
     for case in check.get("cases", []):
         args = case.get("args", [])
         expected = case.get("returns")
+        # `raises`: çağrı bu adlı hatayı vermeli (CS50 Refueling: `convert("3/2")`
+        # `ValueError`). Hata vermezse ya da başka hata verirse düşer.
+        expected_raise = case.get("raises")
+        args_text = ", ".join(safe_repr(a) for a in args)
 
         try:
             actual = target(*args)
         except Exception as exc:
+            if expected_raise and type(exc).__name__ == expected_raise:
+                continue
+            detail = {"name": name, "missing": False, "args": args_text, "raised": f"{type(exc).__name__}: {exc}"}
+            if expected_raise:
+                detail["expected_raise"] = expected_raise
+            return {"passed": False, "detail": detail}
+
+        if expected_raise:
             return {
                 "passed": False,
-                "detail": {
-                    "name": name,
-                    "missing": False,
-                    "args": ", ".join(safe_repr(a) for a in args),
-                    "raised": f"{type(exc).__name__}: {exc}",
-                },
+                "detail": {"name": name, "missing": False, "args": args_text,
+                           "expected_raise": expected_raise, "actual": safe_repr(actual)},
             }
 
         if actual != expected:
@@ -392,16 +744,48 @@ def compare_method(check: dict, namespace: dict) -> dict:
         return {"passed": False, "detail": {"cls": name, "not_class": True}}
 
     args = check.get("args", [])
+    args_text = ", ".join(safe_repr(a) for a in args)
+    # `raises`: kurucu bu hatayı vermeli (CS50 Hafta 8: adı boş öğrenci
+    # `ValueError`). Nesne kurulursa ya da başka hata verirse düşer.
+    expected_raise = check.get("raises")
     try:
         instance = target(*args)
     except Exception as exc:
-        return {
-            "passed": False,
-            "detail": {"cls": name, "init_raised": f"{type(exc).__name__}: {exc}",
-                       "args": ", ".join(safe_repr(a) for a in args)},
-        }
+        if expected_raise and type(exc).__name__ == expected_raise:
+            return {"passed": True, "detail": {"cls": name}}
+        detail = {"cls": name, "init_raised": f"{type(exc).__name__}: {exc}", "args": args_text}
+        if expected_raise:
+            detail["init_wrong_error"] = expected_raise
+        return {"passed": False, "detail": detail}
+    if expected_raise:
+        return {"passed": False, "detail": {"cls": name, "init_no_error": expected_raise, "args": args_text}}
 
     for case in check.get("cases", []):
+        if "str" in case:
+            actual = str(instance)
+            if actual != case["str"]:
+                return {"passed": False, "detail": {"cls": name, "str": True, "expected": safe_repr(case["str"]),
+                                                    "actual": safe_repr(actual)}}
+            continue
+
+        if "set" in case:
+            # Atama: özellik ayarlayıcısı (`@house.setter`) geçersiz değeri reddetmeli.
+            attribute, value = case["set"], case.get("value")
+            detail = {"cls": name, "set": attribute, "value": safe_repr(value)}
+            try:
+                setattr(instance, attribute, value)
+            except Exception as exc:
+                if case.get("raises") and type(exc).__name__ == case["raises"]:
+                    continue
+                detail["raised"] = f"{type(exc).__name__}: {exc}"
+                if case.get("raises"):
+                    detail["set_wrong_error"] = case["raises"]
+                return {"passed": False, "detail": detail}
+            if case.get("raises"):
+                detail["set_no_error"] = case["raises"]
+                return {"passed": False, "detail": detail}
+            continue
+
         attribute = case.get("attribute")
         if attribute:
             if not hasattr(instance, attribute):
@@ -422,24 +806,50 @@ def compare_method(check: dict, namespace: dict) -> dict:
             return {"passed": False,
                     "detail": {"cls": name, "method": method, "no_member": True}}
 
-        call_args = case.get("args", [])
+        # `{"__instance__": [...]}`: aynı sınıftan yeni bir nesne (Vault.__add__ gibi
+        # başka bir nesne alan metotlar; JSON nesne taşıyamıyor).
+        call_args, shown = [], []
+        for a in case.get("args", []):
+            if isinstance(a, dict) and "__instance__" in a:
+                try:
+                    call_args.append(target(*a["__instance__"]))
+                except Exception as exc:
+                    return {"passed": False, "detail": {
+                        "cls": name, "init_raised": f"{type(exc).__name__}: {exc}",
+                        "args": ", ".join(safe_repr(x) for x in a["__instance__"])}}
+                shown.append(f"{name}({', '.join(safe_repr(x) for x in a['__instance__'])})")
+            else:
+                call_args.append(a)
+                shown.append(safe_repr(a))
+        call_text = ", ".join(shown)
+        method_raise = case.get("raises")
         try:
             actual = bound(*call_args)
         except Exception as exc:
-            return {
-                "passed": False,
-                "detail": {"cls": name, "method": method,
-                           "args": ", ".join(safe_repr(a) for a in call_args),
-                           "raised": f"{type(exc).__name__}: {exc}"},
-            }
+            if method_raise and type(exc).__name__ == method_raise:
+                continue
+            detail = {"cls": name, "method": method, "args": call_text, "raised": f"{type(exc).__name__}: {exc}"}
+            if method_raise:
+                detail["expected_raise"] = method_raise
+            return {"passed": False, "detail": detail}
+        if method_raise:
+            return {"passed": False, "detail": {"cls": name, "method": method, "args": call_text,
+                                                "expected_raise": method_raise, "actual": safe_repr(actual)}}
 
         if "returns" in case and actual != case["returns"]:
             return {
                 "passed": False,
                 "detail": {"cls": name, "method": method,
-                           "args": ", ".join(safe_repr(a) for a in call_args),
+                           "args": call_text,
                            "expected": safe_repr(case["returns"]),
                            "actual": safe_repr(actual)},
+            }
+        if "returns_str" in case and str(actual) != case["returns_str"]:
+            return {
+                "passed": False,
+                "detail": {"cls": name, "method": method, "args": call_text,
+                           "expected": safe_repr(case["returns_str"]),
+                           "actual": safe_repr(str(actual)), "as_str": True},
             }
 
     return {"passed": True, "detail": {"cls": name}}
@@ -503,6 +913,7 @@ def run_checks(
     api_log: list[dict] | None = None,
     workspace: Path | None = None,
     http_log: list[dict] | None = None,
+    rerun=None,
 ) -> list[dict]:
     """Bütün kontrolleri sırayla uygular.
 
@@ -519,6 +930,8 @@ def run_checks(
 
         if kind == "stdout":
             outcome = compare_stdout(check, stdout)
+        elif kind == "stdio":
+            outcome = check_stdio(check, rerun)
         elif kind == "variable":
             outcome = compare_variable(check, namespace)
         elif kind == "function":
@@ -631,7 +1044,7 @@ def format_user_traceback(exc: BaseException, user_files: str | set, name_of=Non
 
 # Kullanıcının kodu bir dosya üretmişse (grafik, rapor) onu görebilmeli.
 # Toplanan biçimler ve sınırlar:
-IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".svg"}
+IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".svg", ".gif"}
 
 # Dört dosya, bir alıştırmanın üretebileceği makul en fazla görsel:
 # "yan yana iki grafik" alıştırmasında bile tek dosya çıkıyor.
@@ -863,9 +1276,12 @@ def main() -> int:
     #
     # Eklenen tek klasör, o çalıştırmaya özel geçici çalışma klasörü:
     # içinde yalnızca kullanıcının kodu ve alıştırmanın kendi dosyaları var.
-    workspace = str(Path(code_path).parent)
-    if workspace not in sys.path:
-        sys.path.insert(0, workspace)
+    # Giriş dosyası alt klasörde olabilir (CS50 Hafta 5: `test/test_calculator.py`
+    # `calculator`'ı kökten içe aktarıyor); kök, işin `workspace` alanı.
+    workspace = str(Path(job.get("workspace") or Path(code_path).parent).resolve())
+    for klasor in (str(Path(code_path).parent), workspace):
+        if klasor not in sys.path:
+            sys.path.insert(0, klasor)
 
     # Çok dosyalı alıştırma: kişinin bütün .py dosyaları (giriş dosyası önde).
     diger = [str(Path(p).resolve()) for p in job.get("user_files", [])]
@@ -951,13 +1367,28 @@ def main() -> int:
     izle = bool(job.get("trace"))
     steps: list = []
     steps_full = False
+    compiled = None
 
     try:
         compiled = compile(tree, filename=code_path, mode="exec")
         # input() çağrısı süreci sonsuza kadar bekletmesin diye stdin boş.
         with contextlib.redirect_stdout(out_buffer), contextlib.redirect_stderr(err_buffer):
-            with contextlib.suppress(SystemExit):
+            with exit_quietly(err_buffer):
                 sys.stdin = io.StringIO()
+                # Girdi isteyen alıştırma (`stdio`): terminalde örnek bir
+                # çalıştırma görünsün; soru ve yazılan satır çıktıda.
+                demo = stdio_demo(checks)
+                if demo is not None:
+                    import builtins
+
+                    builtins.input = scripted_input(demo.get("stdin", ""), sys.stdout, echo=True)
+                    sys.stdin = io.StringIO(str(demo.get("stdin", "")))
+                    sys.argv = [Path(code_path).name] + [str(a) for a in demo.get("argv", [])]
+                    write_case_files(workspace_dir, demo)
+                    if "seed" in demo:
+                        import random
+
+                        random.seed(demo["seed"])
                 if izle:
                     steps_full = run_traced(compiled, namespace, user_files, out_buffer, steps, name_of)
                 else:
@@ -1000,7 +1431,9 @@ def main() -> int:
     api_log = api.summary() if api is not None else []
     http_log: list[dict] = []
     result["checks"] = run_checks(checks, tree, stdout, namespace, result["artifacts"], trees, api_log,
-                                  workspace_dir, http_log)
+                                  workspace_dir, http_log,
+                                  rerun=None if compiled is None
+                                  else lambda case: run_stdio_case(compiled, code_path, case))
     if api is not None or http_log:
         result["requests"] = _request_lines(api_log + http_log)
     if api is not None:

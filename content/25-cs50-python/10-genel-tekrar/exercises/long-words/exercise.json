@@ -1,0 +1,60 @@
+{
+  "id": "long-words",
+  "title": {
+    "tr": "Uzun Kelimeler",
+    "en": "Long Words"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for line in file:` ve `for word in line.split():`; `split()` boş satırda boş liste verir. `main`'de `for i, word in enumerate(long_words(\"words.txt\", length), start=1):`.",
+      "en": "`for line in file:` and `for word in line.split():`; `split()` gives an empty list for an empty line. In `main`, `for i, word in enumerate(long_words(\"words.txt\", length), start=1):`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef main():\n    length = int(input(\"Minimum length: \"))\n    for i, word in enumerate(long_words(\"words.txt\", length), start=1):\n        print(f\"{i}. {word}\")\n\n\ndef long_words(path, length):\n    with open(path) as file:\n        for line in file:\n            for word in line.split():\n                if len(word) >= length:\n                    yield word\n\n\nif __name__ == \"__main__\":\n    main()\n```",
+      "en": "The full solution:\n\n```python\ndef main():\n    length = int(input(\"Minimum length: \"))\n    for i, word in enumerate(long_words(\"words.txt\", length), start=1):\n        print(f\"{i}. {word}\")\n\n\ndef long_words(path, length):\n    with open(path) as file:\n        for line in file:\n            for word in line.split():\n                if len(word) >= length:\n                    yield word\n\n\nif __name__ == \"__main__\":\n    main()\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "6\n",
+          "stdout": "1. Python\n2. generators\n3. values\n4. without\n5. holding\n6. everything\n7. memory"
+        },
+        {
+          "stdin": "9\n",
+          "stdout": "1. generators\n2. everything"
+        },
+        {
+          "stdin": "20\n",
+          "stdout": ""
+        }
+      ]
+    },
+    {
+      "type": "ast_require",
+      "node": "Yield",
+      "hint": {
+        "tr": "`long_words` bir üreteç değil: `yield` yok.",
+        "en": "`long_words` is not a generator: there is no `yield`."
+      }
+    },
+    {
+      "type": "ast_forbid",
+      "call": "append",
+      "hint": {
+        "tr": "Üreteç listeye eklemez, `yield` ile verir.",
+        "en": "A generator does not append to a list; it yields."
+      }
+    }
+  ]
+}

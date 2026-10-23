@@ -1,0 +1,157 @@
+{
+  "id": "back-to-the-bank",
+  "title": {
+    "tr": "Bankaya Dönüş",
+    "en": "Back to the Bank"
+  },
+  "difficulty": 2,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "bank.py",
+  "files": [
+    {
+      "name": "bank.py",
+      "starter": "starter-bank.{lang}.py",
+      "solution": "solution-bank.py"
+    },
+    {
+      "name": "test_bank.py",
+      "starter": "starter-test_bank.{lang}.py",
+      "solution": "solution-test_bank.py"
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`value` önce küçültür: `greeting = greeting.lower()`; sonra `startswith`. Sıra önemli: önce `hello`.",
+      "en": "`value` lowercases first: `greeting = greeting.lower()`; then `startswith`. Order matters: `hello` first."
+    },
+    {
+      "tr": "Testlerde büyük harfle başlayan bir selam ve `hello, Newman` gibi uzun bir selam da dene.",
+      "en": "In the tests, also try a greeting starting with an uppercase letter and a longer one like `hello, Newman`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**bank.py**\n\n```python\ndef main():\n    greeting = input(\"Greeting: \").strip()\n    print(f\"${value(greeting)}\")\n\n\ndef value(greeting):\n    greeting = greeting.lower()\n    if greeting.startswith(\"hello\"):\n        return 0\n    if greeting.startswith(\"h\"):\n        return 20\n    return 100\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_bank.py**\n\n```python\nfrom bank import value\n\n\ndef test_hello():\n    assert value(\"hello\") == 0\n    assert value(\"hello, Newman\") == 0\n\n\ndef test_h():\n    assert value(\"hey\") == 20\n    assert value(\"How you doing?\") == 20\n\n\ndef test_other():\n    assert value(\"What's happening?\") == 100\n\n\ndef test_case():\n    assert value(\"HELLO\") == 0\n    assert value(\"Hey\") == 20\n```",
+      "en": "The full solution:\n\n**bank.py**\n\n```python\ndef main():\n    greeting = input(\"Greeting: \").strip()\n    print(f\"${value(greeting)}\")\n\n\ndef value(greeting):\n    greeting = greeting.lower()\n    if greeting.startswith(\"hello\"):\n        return 0\n    if greeting.startswith(\"h\"):\n        return 20\n    return 100\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n**test_bank.py**\n\n```python\nfrom bank import value\n\n\ndef test_hello():\n    assert value(\"hello\") == 0\n    assert value(\"hello, Newman\") == 0\n\n\ndef test_h():\n    assert value(\"hey\") == 20\n    assert value(\"How you doing?\") == 20\n\n\ndef test_other():\n    assert value(\"What's happening?\") == 100\n\n\ndef test_case():\n    assert value(\"HELLO\") == 0\n    assert value(\"Hey\") == 20\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "Hello\n",
+          "stdout": "$0"
+        },
+        {
+          "stdin": "Hello, Newman\n",
+          "stdout": "$0"
+        },
+        {
+          "stdin": "How you doing?\n",
+          "stdout": "$20"
+        },
+        {
+          "stdin": "What's happening?\n",
+          "stdout": "$100"
+        },
+        {
+          "stdin": "   hey\n",
+          "stdout": "$20"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "value",
+      "cases": [
+        {
+          "args": [
+            "hello"
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "Hello, Newman"
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "hey"
+          ],
+          "returns": 20
+        },
+        {
+          "args": [
+            "How you doing?"
+          ],
+          "returns": 20
+        },
+        {
+          "args": [
+            "What's happening?"
+          ],
+          "returns": 100
+        },
+        {
+          "args": [
+            "HELLO"
+          ],
+          "returns": 0
+        }
+      ]
+    },
+    {
+      "type": "pytest",
+      "file": "test_bank.py",
+      "min": 3,
+      "mutants": [
+        {
+          "file": "bank.py",
+          "source": "def main():\n    greeting = input(\"Greeting: \").strip()\n    print(f\"${value(greeting)}\")\n\n\ndef value(greeting):\n    if greeting.startswith(\"hello\"):\n        return 0\n    if greeting.startswith(\"h\"):\n        return 20\n    return 100\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "büyük harfli selamlar yanlış: `Hello` 100 alıyor.",
+            "en": "greetings with uppercase letters are wrong: `Hello` gets 100."
+          }
+        },
+        {
+          "file": "bank.py",
+          "source": "def main():\n    greeting = input(\"Greeting: \").strip()\n    print(f\"${value(greeting)}\")\n\n\ndef value(greeting):\n    greeting = greeting.lower()\n    if greeting == \"hello\":\n        return 0\n    if greeting.startswith(\"h\"):\n        return 20\n    return 100\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`hello, Newman` gibi uzun selamlar 20 alıyor.",
+            "en": "longer greetings like `hello, Newman` get 20."
+          }
+        },
+        {
+          "file": "bank.py",
+          "source": "def main():\n    greeting = input(\"Greeting: \").strip()\n    print(f\"${value(greeting)}\")\n\n\ndef value(greeting):\n    greeting = greeting.lower()\n    if greeting.startswith(\"hello\"):\n        return 20\n    if greeting.startswith(\"h\"):\n        return 20\n    return 100\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`hello` 0 değil 20 alıyor.",
+            "en": "`hello` gets 20, not 0."
+          }
+        },
+        {
+          "file": "bank.py",
+          "source": "def main():\n    greeting = input(\"Greeting: \").strip()\n    print(f\"${value(greeting)}\")\n\n\ndef value(greeting):\n    greeting = greeting.lower()\n    if greeting.startswith(\"hello\"):\n        return 0\n    if greeting.startswith(\"h\"):\n        return 100\n    return 100\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "`h` ile başlayan selamlar 100 alıyor.",
+            "en": "greetings starting with `h` get 100."
+          }
+        },
+        {
+          "file": "bank.py",
+          "source": "def main():\n    greeting = input(\"Greeting: \").strip()\n    print(f\"${value(greeting)}\")\n\n\ndef value(greeting):\n    greeting = greeting.lower()\n    if greeting.startswith(\"hello\"):\n        return 0\n    if greeting.startswith(\"h\"):\n        return 20\n    return 0\n\n\nif __name__ == \"__main__\":\n    main()\n",
+          "bug": {
+            "tr": "başka selamlar 0 alıyor.",
+            "en": "other greetings get 0."
+          }
+        }
+      ]
+    }
+  ]
+}

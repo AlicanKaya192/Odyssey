@@ -1,0 +1,3 @@
+# Import inflect, p = inflect.engine()
+# Add names to a list until EOFError
+# Print Adieu, adieu, to ...

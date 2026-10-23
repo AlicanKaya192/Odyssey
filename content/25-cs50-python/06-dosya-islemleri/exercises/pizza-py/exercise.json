@@ -1,0 +1,76 @@
+{
+  "id": "pizza-py",
+  "title": {
+    "tr": "Pizza Py",
+    "en": "Pizza Py"
+  },
+  "difficulty": 2,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`from tabulate import tabulate`; sonra `print(tabulate(menu, headers=\"keys\", tablefmt=\"grid\"))`.",
+      "en": "`from tabulate import tabulate`; then `print(tabulate(menu, headers=\"keys\", tablefmt=\"grid\"))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport csv\nimport sys\n\nfrom tabulate import tabulate\n\nif len(sys.argv) < 2:\n    sys.exit(\"Too few command-line arguments\")\nif len(sys.argv) > 2:\n    sys.exit(\"Too many command-line arguments\")\nif not sys.argv[1].endswith(\".csv\"):\n    sys.exit(\"Not a CSV file\")\n\ntry:\n    with open(sys.argv[1]) as file:\n        menu = list(csv.DictReader(file))\nexcept FileNotFoundError:\n    sys.exit(\"File does not exist\")\n\nprint(tabulate(menu, headers=\"keys\", tablefmt=\"grid\"))\n```",
+      "en": "The full solution:\n\n```python\nimport csv\nimport sys\n\nfrom tabulate import tabulate\n\nif len(sys.argv) < 2:\n    sys.exit(\"Too few command-line arguments\")\nif len(sys.argv) > 2:\n    sys.exit(\"Too many command-line arguments\")\nif not sys.argv[1].endswith(\".csv\"):\n    sys.exit(\"Not a CSV file\")\n\ntry:\n    with open(sys.argv[1]) as file:\n        menu = list(csv.DictReader(file))\nexcept FileNotFoundError:\n    sys.exit(\"File does not exist\")\n\nprint(tabulate(menu, headers=\"keys\", tablefmt=\"grid\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "run": {
+        "argv": [
+          "regular.csv"
+        ]
+      },
+      "cases": [
+        {
+          "argv": [],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "regular.csv",
+            "sicilian.csv"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "non_existent.csv"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "sicilian.txt"
+          ],
+          "files": {
+            "sicilian.txt": "Sicilian Pizza,Small,Large\nCheese,$25.50,$39.95\n1 item,$27.50,$41.95\n2 items,$29.50,$43.95\n3 items,$31.50,$45.95\nSpecial,$33.50,$47.95\n"
+          },
+          "exit": 1
+        },
+        {
+          "argv": [
+            "regular.csv"
+          ],
+          "stdout": "+-----------------+---------+---------+\n| Regular Pizza   | Small   | Large   |\n+=================+=========+=========+\n| Cheese          | $13.50  | $18.95  |\n+-----------------+---------+---------+\n| 1 topping       | $14.75  | $20.95  |\n+-----------------+---------+---------+\n| 2 toppings      | $15.95  | $22.95  |\n+-----------------+---------+---------+\n| 3 toppings      | $16.95  | $24.95  |\n+-----------------+---------+---------+\n| Special         | $18.50  | $26.95  |\n+-----------------+---------+---------+"
+        },
+        {
+          "argv": [
+            "sicilian.csv"
+          ],
+          "stdout": "+------------------+---------+---------+\n| Sicilian Pizza   | Small   | Large   |\n+==================+=========+=========+\n| Cheese           | $25.50  | $39.95  |\n+------------------+---------+---------+\n| 1 item           | $27.50  | $41.95  |\n+------------------+---------+---------+\n| 2 items          | $29.50  | $43.95  |\n+------------------+---------+---------+\n| 3 items          | $31.50  | $45.95  |\n+------------------+---------+---------+\n| Special          | $33.50  | $47.95  |\n+------------------+---------+---------+"
+        }
+      ]
+    }
+  ]
+}

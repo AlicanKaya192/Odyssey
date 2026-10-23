@@ -140,6 +140,24 @@ COLLECT = [
     "locket",
     "cloudpickle",
     "packaging",
+    # CS50 Python, hafta 4: dersin ve problem setinin üçüncü taraf paketleri
+    # (pyfiglet yazı tiplerini paket verisi olarak taşıyor). Yalnızca kişinin
+    # kodu import ediyor.
+    "cowsay",
+    "emoji",
+    "pyfiglet",
+    "inflect",
+    "more_itertools",
+    "typeguard",
+    "jaraco",
+    # CS50 Python, hafta 6: Pizza Py'nin tablosu ve P-Shirt'ün resimleri.
+    "tabulate",
+    "PIL",
+    # Hafta 7 ve 8: Response Validation ve Shirtificate.
+    "validators",
+    "fpdf",
+    "fontTools",
+    "defusedxml",
 ]
 
 # Yalnızca denetleyicinin kullandığı standart kütüphane modülleri.

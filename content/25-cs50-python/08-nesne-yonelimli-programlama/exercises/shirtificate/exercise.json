@@ -1,0 +1,77 @@
+{
+  "id": "shirtificate",
+  "title": {
+    "tr": "CS50 Tişört Sertifikası",
+    "en": "CS50 Shirtificate"
+  },
+  "difficulty": 3,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Otomatik sayfa sonunu kapat: `pdf.set_auto_page_break(False)`; yoksa resim ikinci sayfaya taşabilir.",
+      "en": "Turn automatic page breaks off: `pdf.set_auto_page_break(False)`; otherwise the image may spill onto a second page."
+    },
+    {
+      "tr": "Ortalamak için resmin x'i `(pdf.w - genişlik) / 2`; yazı için genişliği `pdf.w` olan bir hücre ve `align=\"C\"`. Beyaz: `pdf.set_text_color(255, 255, 255)`.",
+      "en": "To center, the image's x is `(pdf.w - width) / 2`; for the text, a cell as wide as `pdf.w` with `align=\"C\"`. White: `pdf.set_text_color(255, 255, 255)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom fpdf import FPDF\n\n\ndef main():\n    name = input(\"Name: \")\n    make_shirtificate(name)\n\n\ndef make_shirtificate(name):\n    pdf = FPDF(orientation=\"P\", format=\"A4\")\n    pdf.set_auto_page_break(False)\n    pdf.add_page()\n    pdf.set_font(\"helvetica\", \"B\", 42)\n    pdf.cell(0, 50, \"CS50 Shirtificate\", align=\"C\")\n    width = 180\n    pdf.image(\"shirtificate.png\", x=(pdf.w - width) / 2, y=70, w=width)\n    pdf.set_font_size(24)\n    pdf.set_text_color(255, 255, 255)\n    pdf.set_xy(0, 120)\n    pdf.cell(pdf.w, 10, f\"{name} took CS50\", align=\"C\")\n    pdf.output(\"shirtificate.pdf\")\n\n\nif __name__ == \"__main__\":\n    main()\n```",
+      "en": "The full solution:\n\n```python\nfrom fpdf import FPDF\n\n\ndef main():\n    name = input(\"Name: \")\n    make_shirtificate(name)\n\n\ndef make_shirtificate(name):\n    pdf = FPDF(orientation=\"P\", format=\"A4\")\n    pdf.set_auto_page_break(False)\n    pdf.add_page()\n    pdf.set_font(\"helvetica\", \"B\", 42)\n    pdf.cell(0, 50, \"CS50 Shirtificate\", align=\"C\")\n    width = 180\n    pdf.image(\"shirtificate.png\", x=(pdf.w - width) / 2, y=70, w=width)\n    pdf.set_font_size(24)\n    pdf.set_text_color(255, 255, 255)\n    pdf.set_xy(0, 120)\n    pdf.cell(pdf.w, 10, f\"{name} took CS50\", align=\"C\")\n    pdf.output(\"shirtificate.pdf\")\n\n\nif __name__ == \"__main__\":\n    main()\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "Harry\n",
+          "stdout": "",
+          "expect_files": {
+            "shirtificate.pdf": {
+              "pdf": {
+                "pages": 1,
+                "size": "A4",
+                "text": [
+                  "CS50 Shirtificate",
+                  "Harry took CS50"
+                ],
+                "white": [
+                  "Harry took CS50"
+                ],
+                "image_centered": true
+              }
+            }
+          }
+        },
+        {
+          "stdin": "Ada Lovelace\n",
+          "stdout": "",
+          "expect_files": {
+            "shirtificate.pdf": {
+              "pdf": {
+                "pages": 1,
+                "size": "A4",
+                "text": [
+                  "CS50 Shirtificate",
+                  "Ada Lovelace took CS50"
+                ],
+                "white": [
+                  "Ada Lovelace took CS50"
+                ],
+                "image_centered": true
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

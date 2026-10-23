@@ -1,0 +1,3 @@
+def houses(students):
+    # Build an empty set, add each student's house, return the sorted list
+    ...

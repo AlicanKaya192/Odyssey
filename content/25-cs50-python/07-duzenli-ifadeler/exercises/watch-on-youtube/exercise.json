@@ -1,0 +1,91 @@
+{
+  "id": "watch-on-youtube",
+  "title": {
+    "tr": "YouTube'da İzle",
+    "en": "Watch on YouTube"
+  },
+  "difficulty": 3,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`src`'nin önündeki özellikleri `[^>]*` geçer (tırnak kapanmadan `>` gelmez). Video kimliğini yakala: `youtube\\.com/embed/([\\w-]+)`.",
+      "en": "`[^>]*` skips the attributes before `src` (no `>` comes before the tag closes). Capture the video ID: `youtube\\.com/embed/([\\w-]+)`."
+    },
+    {
+      "tr": "Kalıp tutmazsa `parse` `None` döndürsün; `main` onu `None` diye yazar.",
+      "en": "If the pattern does not match, let `parse` return `None`; `main` prints it as `None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef main():\n    print(parse(input(\"HTML: \")))\n\n\ndef parse(s):\n    if matches := re.search(r'<iframe[^>]*\\ssrc=\"(?:https?://)?(?:www\\.)?youtube\\.com/embed/([\\w-]+)\"', s):\n        return f\"https://youtu.be/{matches.group(1)}\"\n    return None\n\n\nif __name__ == \"__main__\":\n    main()\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef main():\n    print(parse(input(\"HTML: \")))\n\n\ndef parse(s):\n    if matches := re.search(r'<iframe[^>]*\\ssrc=\"(?:https?://)?(?:www\\.)?youtube\\.com/embed/([\\w-]+)\"', s):\n        return f\"https://youtu.be/{matches.group(1)}\"\n    return None\n\n\nif __name__ == \"__main__\":\n    main()\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "stdin": "<iframe src=\"http://www.youtube.com/embed/xvFZjo5PgG0\"></iframe>\n",
+          "stdout": "https://youtu.be/xvFZjo5PgG0"
+        },
+        {
+          "stdin": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/xvFZjo5PgG0\" title=\"YouTube video player\" frameborder=\"0\" allowfullscreen></iframe>\n",
+          "stdout": "https://youtu.be/xvFZjo5PgG0"
+        },
+        {
+          "stdin": "<iframe src=\"https://cs50.harvard.edu/python\"></iframe>\n",
+          "stdout": "None"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "parse",
+      "cases": [
+        {
+          "args": [
+            "<iframe src=\"http://youtube.com/embed/xvFZjo5PgG0\"></iframe>"
+          ],
+          "returns": "https://youtu.be/xvFZjo5PgG0"
+        },
+        {
+          "args": [
+            "<iframe src=\"https://youtube.com/embed/xvFZjo5PgG0\"></iframe>"
+          ],
+          "returns": "https://youtu.be/xvFZjo5PgG0"
+        },
+        {
+          "args": [
+            "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/xvFZjo5PgG0\" title=\"YouTube video player\" frameborder=\"0\" allowfullscreen></iframe>"
+          ],
+          "returns": "https://youtu.be/xvFZjo5PgG0"
+        },
+        {
+          "args": [
+            "<iframe width=\"560\" src=\"https://www.youtube.com/embed/a-b_C9\"></iframe>"
+          ],
+          "returns": "https://youtu.be/a-b_C9"
+        },
+        {
+          "args": [
+            "<iframe src=\"https://cs50.harvard.edu/python\"></iframe>"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "no video here"
+          ],
+          "returns": null
+        }
+      ]
+    }
+  ]
+}

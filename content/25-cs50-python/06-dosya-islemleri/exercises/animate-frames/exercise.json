@@ -1,0 +1,69 @@
+{
+  "id": "animate-frames",
+  "title": {
+    "tr": "Kareleri Canlandır",
+    "en": "Animate the Frames"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`frames[0].save(\"animation.gif\", save_all=True, append_images=frames[1:])`: ilk kare dışındakiler `frames[1:]`.",
+      "en": "`frames[0].save(\"animation.gif\", save_all=True, append_images=frames[1:])`: everything but the first frame is `frames[1:]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport sys\n\nfrom PIL import Image\n\nif len(sys.argv) < 3:\n    sys.exit(\"Usage: python cozum.py FRAME FRAME ...\")\n\nframes = []\nfor name in sys.argv[1:]:\n    frames.append(Image.open(name))\n\nframes[0].save(\"animation.gif\", save_all=True, append_images=frames[1:], duration=200, loop=0)\n```",
+      "en": "The full solution:\n\n```python\nimport sys\n\nfrom PIL import Image\n\nif len(sys.argv) < 3:\n    sys.exit(\"Usage: python cozum.py FRAME FRAME ...\")\n\nframes = []\nfor name in sys.argv[1:]:\n    frames.append(Image.open(name))\n\nframes[0].save(\"animation.gif\", save_all=True, append_images=frames[1:], duration=200, loop=0)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "argv": [
+            "costume1.gif",
+            "costume2.gif"
+          ],
+          "expect_files": {
+            "animation.gif": {
+              "image": {
+                "like": "expected/one-two.gif"
+              }
+            }
+          }
+        },
+        {
+          "argv": [
+            "costume2.gif",
+            "costume1.gif",
+            "costume2.gif"
+          ],
+          "expect_files": {
+            "animation.gif": {
+              "image": {
+                "like": "expected/two-one-two.gif"
+              }
+            }
+          }
+        },
+        {
+          "argv": [
+            "costume1.gif"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [],
+          "exit": 1
+        }
+      ]
+    }
+  ]
+}

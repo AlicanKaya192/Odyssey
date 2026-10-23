@@ -1,0 +1,84 @@
+{
+  "id": "scourgify",
+  "title": {
+    "tr": "Scourgify",
+    "en": "Scourgify"
+  },
+  "difficulty": 3,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`last, first = student[\"name\"].split(\", \")`: virgül ve boşluktan böl.",
+      "en": "`last, first = student[\"name\"].split(\", \")`: split at the comma and the space."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport csv\nimport sys\n\nif len(sys.argv) < 3:\n    sys.exit(\"Too few command-line arguments\")\nif len(sys.argv) > 3:\n    sys.exit(\"Too many command-line arguments\")\n\ntry:\n    with open(sys.argv[1]) as file:\n        students = list(csv.DictReader(file))\nexcept FileNotFoundError:\n    sys.exit(f\"Could not read {sys.argv[1]}\")\n\nwith open(sys.argv[2], \"w\", newline=\"\") as file:\n    writer = csv.DictWriter(file, fieldnames=[\"first\", \"last\", \"house\"])\n    writer.writeheader()\n    for student in students:\n        last, first = student[\"name\"].split(\", \")\n        writer.writerow({\"first\": first, \"last\": last, \"house\": student[\"house\"]})\n```",
+      "en": "The full solution:\n\n```python\nimport csv\nimport sys\n\nif len(sys.argv) < 3:\n    sys.exit(\"Too few command-line arguments\")\nif len(sys.argv) > 3:\n    sys.exit(\"Too many command-line arguments\")\n\ntry:\n    with open(sys.argv[1]) as file:\n        students = list(csv.DictReader(file))\nexcept FileNotFoundError:\n    sys.exit(f\"Could not read {sys.argv[1]}\")\n\nwith open(sys.argv[2], \"w\", newline=\"\") as file:\n    writer = csv.DictWriter(file, fieldnames=[\"first\", \"last\", \"house\"])\n    writer.writeheader()\n    for student in students:\n        last, first = student[\"name\"].split(\", \")\n        writer.writerow({\"first\": first, \"last\": last, \"house\": student[\"house\"]})\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "run": {
+        "argv": [
+          "before.csv",
+          "after.csv"
+        ]
+      },
+      "cases": [
+        {
+          "argv": [],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "1.csv",
+            "2.csv",
+            "3.csv"
+          ],
+          "files": {
+            "1.csv": "",
+            "2.csv": "",
+            "3.csv": ""
+          },
+          "exit": 1
+        },
+        {
+          "argv": [
+            "invalid_file.csv",
+            "output.csv"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "before.csv",
+            "after.csv"
+          ],
+          "expect_files": {
+            "after.csv": "first,last,house\nHannah,Abbott,Hufflepuff\nKatie,Bell,Gryffindor\nSusan,Bones,Hufflepuff\nTerry,Boot,Ravenclaw\nLavender,Brown,Gryffindor\nMillicent,Bulstrode,Slytherin\nCho,Chang,Ravenclaw\nVincent,Crabbe,Slytherin"
+          }
+        },
+        {
+          "argv": [
+            "class.csv",
+            "clean.csv"
+          ],
+          "files": {
+            "class.csv": "name,house\n\"Granger, Hermione\",Gryffindor\n\"Lovegood, Luna\",Ravenclaw\n"
+          },
+          "expect_files": {
+            "clean.csv": "first,last,house\nHermione,Granger,Gryffindor\nLuna,Lovegood,Ravenclaw"
+          }
+        }
+      ]
+    }
+  ]
+}

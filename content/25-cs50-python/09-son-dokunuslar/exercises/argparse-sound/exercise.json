@@ -1,0 +1,83 @@
+{
+  "id": "argparse-sound",
+  "title": {
+    "tr": "Komut Satırından Ses",
+    "en": "A Sound from the Command Line"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kısa ve uzun ad birlikte: `parser.add_argument(\"-n\", \"--number\", default=1, type=int)`; değer uzun addan gelir: `args.number`.",
+      "en": "Short and long name together: `parser.add_argument(\"-n\", \"--number\", default=1, type=int)`; the value comes from the long name: `args.number`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport argparse\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=\"Make an animal sound\")\n    parser.add_argument(\"-n\", \"--number\", default=1, type=int, help=\"number of times\")\n    parser.add_argument(\"-s\", \"--sound\", default=\"meow\", help=\"the sound to make\")\n    args = parser.parse_args()\n    for _ in range(args.number):\n        print(args.sound)\n\n\nif __name__ == \"__main__\":\n    main()\n```",
+      "en": "The full solution:\n\n```python\nimport argparse\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=\"Make an animal sound\")\n    parser.add_argument(\"-n\", \"--number\", default=1, type=int, help=\"number of times\")\n    parser.add_argument(\"-s\", \"--sound\", default=\"meow\", help=\"the sound to make\")\n    args = parser.parse_args()\n    for _ in range(args.number):\n        print(args.sound)\n\n\nif __name__ == \"__main__\":\n    main()\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "run": {
+        "argv": [
+          "-n",
+          "2",
+          "-s",
+          "purr"
+        ]
+      },
+      "cases": [
+        {
+          "argv": [],
+          "stdout": "meow"
+        },
+        {
+          "argv": [
+            "-n",
+            "3"
+          ],
+          "stdout": "meow\nmeow\nmeow"
+        },
+        {
+          "argv": [
+            "-n",
+            "2",
+            "-s",
+            "purr"
+          ],
+          "stdout": "purr\npurr"
+        },
+        {
+          "argv": [
+            "--sound",
+            "woof",
+            "--number",
+            "2"
+          ],
+          "stdout": "woof\nwoof"
+        },
+        {
+          "argv": [
+            "-s",
+            "hiss"
+          ],
+          "stdout": "hiss"
+        },
+        {
+          "argv": [
+            "-n",
+            "dog"
+          ],
+          "exit": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "id": "lines-of-code",
+  "title": {
+    "tr": "Kod Satırları",
+    "en": "Lines of Code"
+  },
+  "difficulty": 2,
+  "group": "pset",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `line.lstrip()`: baştaki boşluklar gidince boş satır `\"\"` olur, girintili yorum `#` ile başlar.",
+      "en": "First `line.lstrip()`: without the leading whitespace a blank line becomes `\"\"` and an indented comment starts with `#`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport sys\n\nif len(sys.argv) < 2:\n    sys.exit(\"Too few command-line arguments\")\nif len(sys.argv) > 2:\n    sys.exit(\"Too many command-line arguments\")\nif not sys.argv[1].endswith(\".py\"):\n    sys.exit(\"Not a Python file\")\n\ntry:\n    with open(sys.argv[1]) as file:\n        lines = file.readlines()\nexcept FileNotFoundError:\n    sys.exit(\"File does not exist\")\n\ncount = 0\nfor line in lines:\n    code = line.lstrip()\n    if code and not code.startswith(\"#\"):\n        count += 1\nprint(count)\n```",
+      "en": "The full solution:\n\n```python\nimport sys\n\nif len(sys.argv) < 2:\n    sys.exit(\"Too few command-line arguments\")\nif len(sys.argv) > 2:\n    sys.exit(\"Too many command-line arguments\")\nif not sys.argv[1].endswith(\".py\"):\n    sys.exit(\"Not a Python file\")\n\ntry:\n    with open(sys.argv[1]) as file:\n        lines = file.readlines()\nexcept FileNotFoundError:\n    sys.exit(\"File does not exist\")\n\ncount = 0\nfor line in lines:\n    code = line.lstrip()\n    if code and not code.startswith(\"#\"):\n        count += 1\nprint(count)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "run": {
+        "argv": [
+          "hello.py"
+        ],
+        "files": {
+          "hello.py": "# Say hello\n\nname = input(\"What's your name? \")\nprint(f\"hello, {name}\")\n"
+        }
+      },
+      "cases": [
+        {
+          "argv": [],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "hello.py",
+            "goodbye.py"
+          ],
+          "files": {
+            "hello.py": "# Say hello\n\nname = input(\"What's your name? \")\nprint(f\"hello, {name}\")\n",
+            "goodbye.py": "print('bye')\n"
+          },
+          "exit": 1
+        },
+        {
+          "argv": [
+            "invalid_extension.txt"
+          ],
+          "files": {
+            "invalid_extension.txt": "hello\n"
+          },
+          "exit": 1
+        },
+        {
+          "argv": [
+            "non_existent_file.py"
+          ],
+          "exit": 1
+        },
+        {
+          "argv": [
+            "hello.py"
+          ],
+          "files": {
+            "hello.py": "# Say hello\n\nname = input(\"What's your name? \")\nprint(f\"hello, {name}\")\n"
+          },
+          "stdout": "2"
+        },
+        {
+          "argv": [
+            "grade.py"
+          ],
+          "files": {
+            "grade.py": "\"\"\"Print a letter grade.\"\"\"\n\n\ndef main():\n    # Ask for a score\n    score = int(input(\"Score: \"))\n    print(grade(score))\n\n\ndef grade(score):\n    \"\"\"Turn a score into a letter.\"\"\"\n    if score >= 90:\n        return \"A\"\n        # no else needed\n    return \"B\"  # good enough\n\n\nprint(\"# this line is code, not a comment\")\nmain()"
+          },
+          "stdout": "11"
+        }
+      ]
+    }
+  ]
+}
