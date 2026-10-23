@@ -9,8 +9,8 @@ yazarken komut kartına bakmak: editöre tıklamak çekmeceyi kapatsaydı her
 bakışta yeniden açmak gerekirdi. Kapatmak: çarpı, `Esc`, `Ctrl+R`, düğme.
 
 **Pencerenin içinde bir katman** (kısayol paneli gibi), ayrı pencere değil.
-Belge görünümü (Chromium) ilk açılışta kuruluyor: açılışta tarayıcı
-bileşeni yüklenmiyor (CLAUDE.md → Açılış animasyonu, 15 Ekim).
+Belge görünümü (Chromium) ilk açılışta kuruluyor: program açılırken
+tarayıcı bileşeni yüklenmiyor (15 Ekim, açılış süresi).
 """
 
 from __future__ import annotations
