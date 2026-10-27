@@ -26,6 +26,13 @@ FALLBACK_LANGUAGE = "tr"
 SINGLE_FILE_NAMES = {"python": "cozum.py", "tsql": "sorgu.sql", "docker": "Dockerfile"}
 
 
+# Kurulu programda modüllerin ve bölümlerin JSON'u tek dosyada
+# (`tools/build_exe.py` derlemede yazıyor). Soğuk açılışta ~490 küçük
+# dosyayı tek tek açmak 9,9 sn sürüyordu, sıcakta 0,07 (27 Ekim, ölçüldü).
+# Kaynaktan çalışırken bu dosya yok; içerik her açılışta taranıyor.
+BUNDLE_NAME = "catalog.json"
+
+
 class ContentError(Exception):
     """İçerik dosyalarında yapısal bir sorun olduğunda atılır."""
 
@@ -524,7 +531,10 @@ class Section:
 
     @classmethod
     def load(cls, directory: Path, chapter_id: str) -> "Section":
-        raw = _read_json(directory / "section.json")
+        return cls.from_raw(directory, chapter_id, _read_json(directory / "section.json"))
+
+    @classmethod
+    def from_raw(cls, directory: Path, chapter_id: str, raw: dict) -> "Section":
         section_id = raw.get("id") or directory.name
 
         blocks = []
@@ -692,12 +702,35 @@ class Catalog:
         if not content_dir.exists():
             raise ContentError(f"İçerik klasörü bulunamadı: {content_dir}")
 
+        bundle = content_dir / BUNDLE_NAME
+        if bundle.exists():
+            chapters = cls._chapters_from_bundle(content_dir, _read_json(bundle))
+        else:
+            chapters = cls._scan_chapters(content_dir)
+        return cls(chapters=chapters, tracks=cls._load_tracks(content_dir, chapters))
+
+    @staticmethod
+    def _scan_chapters(content_dir: Path) -> list[Chapter]:
         directories = sorted(
             p for p in content_dir.iterdir()
             if p.is_dir() and (p / "chapter.json").exists()
         )
-        chapters = [Chapter.load(p) for p in directories]
-        return cls(chapters=chapters, tracks=cls._load_tracks(content_dir, chapters))
+        return [Chapter.load(p) for p in directories]
+
+    @staticmethod
+    def _chapters_from_bundle(content_dir: Path, bundle: dict) -> list[Chapter]:
+        chapters = []
+        for entry in bundle["chapters"]:
+            directory = content_dir / entry["dir"]
+            chapter_id = entry["raw"].get("id") or directory.name
+            sections = [
+                Section.from_raw(directory / item["dir"], chapter_id, item["raw"])
+                for item in entry["sections"]
+            ]
+            chapters.append(
+                Chapter(id=chapter_id, directory=directory, raw=entry["raw"], sections=sections)
+            )
+        return chapters
 
     @staticmethod
     def _load_tracks(content_dir: Path, chapters: list[Chapter]) -> list[Track]:
@@ -746,3 +779,22 @@ class Catalog:
                 following = sections[index + 1] if index + 1 < len(sections) else None
                 return previous, following
         return None, None
+
+
+def write_bundle(content_dir: Path, target: Path) -> None:
+    """İçeriği tarayıp `BUNDLE_NAME` dosyasını yazar (derlemede, paketin içine)."""
+    chapters = Catalog._scan_chapters(content_dir)
+    data = {
+        "chapters": [
+            {
+                "dir": chapter.directory.name,
+                "raw": chapter.raw,
+                "sections": [
+                    {"dir": section.directory.name, "raw": section.raw}
+                    for section in chapter.sections
+                ],
+            }
+            for chapter in chapters
+        ]
+    }
+    target.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

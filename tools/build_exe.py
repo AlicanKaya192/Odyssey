@@ -29,6 +29,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from app.core.catalog import BUNDLE_NAME, write_bundle  # noqa: E402
 from app.version import APP_VERSION  # noqa: E402
 
 APP_NAME = "Odyssey"
@@ -331,6 +332,16 @@ def main() -> int:
     exe = output / (
         f"{APP_NAME}.exe" if sys.platform == "win32" else APP_NAME
     )
+
+    # Katalog tek dosyadan okunsun: soğuk açılışta ~490 JSON'u tek tek
+    # açmak 9,9 sn sürüyordu (`app/core/catalog.py` → `BUNDLE_NAME`).
+    packaged_content = output / "_internal" / "content"
+    if packaged_content.is_dir():
+        write_bundle(packaged_content, packaged_content / BUNDLE_NAME)
+        print(f"Katalog paketi yazıldı: {BUNDLE_NAME}")
+    else:
+        print("Paketin içerik klasörü bulunamadı:", packaged_content)
+        return 1
 
     print()
     if exe.exists():
