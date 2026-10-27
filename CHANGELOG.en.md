@@ -23,6 +23,15 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [1.4.0] — unreleased
+
+### Added
+- **Share your code as an image.** A new button in the exercise's run bar
+  turns the code you wrote into a card with the exercise's name, its
+  section and its status (solved or attempted); save the card as a PNG or
+  copy it to the clipboard and paste it straight into Discord. The card is
+  drawn on your computer and sent nowhere.
+
 ## [1.3.0] — 23 October 2026
 
 ### Added

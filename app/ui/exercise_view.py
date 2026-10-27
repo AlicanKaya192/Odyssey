@@ -13,7 +13,7 @@ Kod arka planda ayrı bir süreçte çalıştırılır; çalışırken arayüz d
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtCore import QEvent, Qt, QThread, Signal
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QFrame,
@@ -256,6 +256,8 @@ class ExerciseView(QWidget):
         self._exercise: Exercise | None = None
         self._chapter_id = ""
         self._section_id = ""
+        # Çözüm kartındaki "modül · bölüm" satırı; bölüm ekranı veriyor (dil alır).
+        self.place_for = None
         self._worker: RunWorker | None = None
         self._trace_worker: TraceWorker | None = None
         # API 2: istek paneli ve "Sunucuyu başlat".
@@ -794,6 +796,13 @@ class ExerciseView(QWidget):
         self._tables_button.hide()
         layout.addWidget(self._tables_button)
 
+        # Kodu resim olarak paylaşmak (`ui/solution_card.py`): PNG kaydet ya da
+        # panoya kopyala. Yalnızca kod alıştırmalarında (çalıştır çubuğu orada).
+        self._share_button = QPushButton()
+        self._share_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._share_button.clicked.connect(self._show_share_menu)
+        layout.addWidget(self._share_button)
+
         self._reset_button = QPushButton()
         self._reset_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._reset_button.clicked.connect(self._reset)
@@ -823,7 +832,120 @@ class ExerciseView(QWidget):
         self._run_spinner = ButtonSpinner(self._run_button)
         layout.addWidget(self._run_button)
 
+        self._runbar = bar
+        self._fitting_runbar = False
+        bar.installEventFilter(self)
         return bar
+
+    def eventFilter(self, watched, event) -> bool:  # noqa: N802 (Qt adlandırması)
+        if watched is self._runbar and event.type() == QEvent.Type.Resize:
+            self._fit_runbar()
+        return super().eventFilter(watched, event)
+
+    def _fit_runbar(self) -> None:
+        """Dar pencerede çubuk sırayla küçülüyor, düğmeler kırpılmasın.
+
+        1080 piksellik pencerede API 2'nin çubuğu (sunucu düğmesiyle) zaten
+        taşıyordu, Paylaş gelince Python'unki de taşıdı (27 Ekim, ölçüldü).
+        Önce yalnızca bilgi veren "Ctrl + Enter" gizleniyor; yetmezse Paylaş
+        ve Baştan başla yalnızca simgeye iniyor (adları ipucunda). Geniş
+        pencerede hepsi yazılı: yalnızca simge Paylaş'ı anlatmıyordu.
+        """
+        if self._fitting_runbar:
+            return
+        self._fitting_runbar = True
+        t = self._language.t
+        yazilar = {self._share_button: t("solution_card.button"), self._reset_button: t("exercise.reset")}
+        self._shortcut_hint.setVisible(True)
+        for dugme, yazi in yazilar.items():
+            dugme.setText("  " + yazi)
+        adimlar = [lambda: self._shortcut_hint.setVisible(False),
+                   lambda: self._share_button.setText(""),
+                   lambda: self._reset_button.setText("")]
+        for adim in adimlar:
+            if self._runbar.width() >= self._runbar_needed():
+                break
+            adim()
+        self._reset_button.setToolTip(t("exercise.reset") if not self._reset_button.text() else "")
+        self._fitting_runbar = False
+
+    def _runbar_needed(self) -> int:
+        """Çubuktaki görünür parçaların doğal genişlikleri ve aralıkları."""
+        spacing = self._runbar.layout().spacing()
+        parcalar = [w for w in (self._shortcut_hint, self._tables_button, self._share_button,
+                                self._reset_button, self._trace_button, self._server_button,
+                                self._run_button) if not w.isHidden()]
+        return sum(max(w.sizeHint().width(), w.minimumWidth()) + spacing for w in parcalar)
+
+    # --- çözüm kartı ------------------------------------------------------
+
+    def _show_share_menu(self) -> None:
+        from PySide6.QtWidgets import QMenu
+
+        t = self._language.t
+        menu = QMenu(self)
+        menu.addAction(t("solution_card.save")).triggered.connect(self.save_solution_card)
+        menu.addAction(t("solution_card.copy")).triggered.connect(self.copy_solution_card)
+        menu.exec(self._share_button.mapToGlobal(self._share_button.rect().bottomLeft()))
+
+    def solution_card_data(self):
+        """Öndeki dosyanın kodu, alıştırmanın adı, yeri ve durumu."""
+        from .profile_card import GITHUB_KEY
+        from .solution_card import CardData
+
+        ex = self._exercise
+        dil = self._language.language
+        t = self._language.t
+        dosya = next((item for item in ex.files if self._editors.get(item.name) is self._editor),
+                     ex.files[0])
+        if self._store.exercise_solved(self._chapter_id, self._section_id, ex.id):
+            durum = "solved"
+        elif self._store.exercise_attempts(self._chapter_id, self._section_id, ex.id):
+            durum = "attempted"
+        else:
+            durum = ""
+        return CardData(
+            title=ex.title.get(dil) or ex.title.get("tr", ""),
+            place=self.place_for(dil) if self.place_for else "",
+            file_name=dosya.name,
+            language=dosya.language,
+            code=self._editor.toPlainText(),
+            status=durum,
+            github=self._store.setting(GITHUB_KEY) or "",
+            labels={key: t(f"solution_card.{key}") for key in ("solved", "attempted", "more_lines")},
+        )
+
+    def save_solution_card(self) -> None:
+        from PySide6.QtCore import QStandardPaths
+        from PySide6.QtWidgets import QFileDialog
+
+        from .solution_card import render
+
+        t = self._language.t
+        klasor = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)
+        oneri = str(Path(klasor) / f"Odyssey-{self._exercise.id}.png")
+        yol, _ = QFileDialog.getSaveFileName(self, t("solution_card.save"), oneri, "PNG (*.png)")
+        if not yol:
+            return
+        if not yol.lower().endswith(".png"):
+            yol += ".png"
+        tamam = render(self.solution_card_data()).save(yol, "PNG")
+        self._share_feedback(t("solution_card.saved" if tamam else "solution_card.failed"))
+
+    def copy_solution_card(self) -> None:
+        from PySide6.QtWidgets import QApplication
+
+        from .solution_card import render
+
+        QApplication.clipboard().setImage(render(self.solution_card_data()))
+        self._share_feedback(self._language.t("solution_card.copied"))
+
+    def _share_feedback(self, text: str) -> None:
+        """Düğmenin altında kısa bir onay (ipucu kartı)."""
+        from ..widgets import tips
+
+        b = self._share_button
+        tips.show_text(b.mapToGlobal(b.rect().bottomLeft()), text, b)
 
     # --- içerik -----------------------------------------------------------
 
@@ -925,6 +1047,7 @@ class ExerciseView(QWidget):
         # API 2: önceki alıştırmanın sunucusu kapanıyor, istek paneli sıfırlanıyor.
         self.stop_server()
         self._server_button.setVisible(self._is_api_app())
+        self._fit_runbar()
         self._request_panel.reset(self._first_path())
         self.close_trace()
         if self._tables_window is not None:
@@ -1615,6 +1738,7 @@ class ExerciseView(QWidget):
         if self._run_spinner._saved_icon is None:  # noqa: SLF001
             self._run_button.setIcon(icon("play", "#FFFFFF", 16))
         self._reset_button.setIcon(icon("refresh", p["text"], 16))
+        self._share_button.setIcon(icon("image", p["text"], 16))
         if self._trace_spinner._saved_icon is None:  # noqa: SLF001
             self._trace_button.setIcon(icon("steps", p["text"], 16))
         for editor in {self._main_editor, *self._editors.values()}:
@@ -1640,8 +1764,12 @@ class ExerciseView(QWidget):
         self._server_button.setToolTip(self._language.t("server.tip"))
         self._request_panel.retranslate()
         self._trace_button.setToolTip(self._language.t("trace.button_tip"))
+        # Yalnızca simge ne işe yaradığını anlatmıyordu (Alican 27 Ekim): yazılı.
+        self._share_button.setText("  " + self._language.t("solution_card.button"))
+        self._share_button.setToolTip(self._language.t("solution_card.tip"))
         self._trace.retranslate(self._language.t)
         self._fix_run_width()
+        self._fit_runbar()
         self._tables_button.setText(self._language.t("tables.button"))
         self._file_tabs.set_texts(self._language.t("files.readonly"), self._language.t("files.error_here"))
         if self._tables_window is not None:

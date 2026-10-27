@@ -21,6 +21,16 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [1.4.0] — yayınlanmadı
+
+### Eklendi
+- **Kodunuzu resim olarak paylaşın.** Alıştırmanın çalıştır çubuğundaki
+  yeni düğme, yazdığınız kodu alıştırmanın adı, bölümü ve durumuyla
+  (çözüldü ya da denendi) bir karta basıyor; kartı PNG olarak
+  kaydedebilir ya da panoya kopyalayıp doğrudan Discord'a
+  yapıştırabilirsiniz. Kart bilgisayarınızda çiziliyor, hiçbir yere
+  gönderilmiyor.
+
 ## [1.3.0] — 23 Ekim 2026
 
 ### Eklendi

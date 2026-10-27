@@ -524,6 +524,9 @@ MODERN: dict[str, tuple[str, str]] = {
               '<path d="M12 21.5c-4 0-7-2.8-7-6.7 0-3.5 2.5-5.6 3.9-7.5.3 2 1.3 3.4 2.6 3.9C11.1 7.8 12.2 4.6 15 2.5c.2 3.4 4 6.3 4 11.3 0 4.3-3 7.7-7 7.7z"/>'),
     "target": ('<circle cx="12" cy="12" r="9"/>',
                '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>'),
+    "image": ('<rect x="3" y="4" width="18" height="16" rx="2.5"/>',
+              '<rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="9.5" r="1.8"/>'
+              '<path d="M21 15.5l-4.5-4.5L6 20"/>'),
     "copy": ('<rect x="8" y="8" width="12" height="12" rx="2.5"/>',
              '<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>'),
 }

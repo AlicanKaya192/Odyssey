@@ -737,9 +737,19 @@ class TopicView(QWidget):
         if target is not None:
             self.show_section(target.chapter_id, target.id)
 
+    def _place_for(self, language: str) -> str:
+        """Çözüm kartı için "modül · bölüm"."""
+        if self._section is None:
+            return ""
+        chapter = self._catalog.chapter(self._section.chapter_id)
+        parcalar = [chapter.title.get(language, "") if chapter else "",
+                    self._section.title.get(language, "")]
+        return " · ".join(p for p in parcalar if p)
+
     def _load_exercise(self) -> None:
         if not self._exercises or self._section is None:
             return
+        self._exercise.place_for = self._place_for
         self._exercise.show_exercise(
             self._exercises[self._exercise_index],
             self._section.chapter_id,
