@@ -1,43 +1,48 @@
-"""Hızlı başvuru çekmecesi: bölümlerin başvuru notları, her ekrandan.
+"""Hızlı başvuru çekmecesi: kişinin kendi başvuru kartı, her ekrandan.
 
-Alt şeritteki düğme ya da `Ctrl+R` ile sağdan kayarak açılıyor. Bölümdeyken
-o bölümün notu, dışarıdayken en son açılan bölümünkü; üstteki kutudan başka
-bölümlerin notları aranıyor. İçerik `core.reference_notes`'tan.
+Alt şeritteki düğme ya da `Ctrl+R` ile sağdan kayarak açılıyor. Kartta kişinin
+dersten, ders notundan ya da alıştırma yönergesinden seçip sağ tıkla eklediği
+parçalar duruyor (`DocumentView.card_requested`, kayıt `reference_cards`).
+Açık bölümünkiler (bölüm dışındayken en son açılanınkiler) üstte; arama
+bütün kartta. Her parçada kopyala ve kaldır.
+
+27 Ekim'e kadar çekmece bölümün ders notlarını ikinci kez gösteriyordu; kişi
+onları kendi notu sanıp silmeye çalıştı (Alican). Şimdi kart boşken yalnızca
+nasıl ekleneceği ve bölümün başvuru notuna bir bağlantı var; not, bölümün
+Ders Notu sekmesinde açılıyor.
 
 **Kip değil, dışarı tıklayınca kapanmıyor.** Asıl kullanımı alıştırma
-yazarken komut kartına bakmak: editöre tıklamak çekmeceyi kapatsaydı her
-bakışta yeniden açmak gerekirdi. Kapatmak: çarpı, `Esc`, `Ctrl+R`, düğme.
+yazarken karta bakmak: editöre tıklamak çekmeceyi kapatsaydı her bakışta
+yeniden açmak gerekirdi. Kapatmak: çarpı, `Esc`, `Ctrl+R`, düğme.
 
 **Pencerenin içinde bir katman** (kısayol paneli gibi), ayrı pencere değil.
-Belge görünümü (Chromium) ilk açılışta kuruluyor: program açılırken
-tarayıcı bileşeni yüklenmiyor (15 Ekim, açılış süresi).
 """
 
 from __future__ import annotations
 
-from PySide6.QtCore import QEvent, Qt, Signal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
+    QApplication,
     QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QListWidget,
-    QListWidgetItem,
     QPushButton,
+    QScrollArea,
     QSizePolicy,
     QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
 
-from ..core import reference_notes
 from ..core.catalog import Catalog
 from ..core.language import LanguageManager
+from ..core.progress import ProgressStore
+from ..core.reference_notes import reference_note
+from ..core.search import fold
 from ..resources.icons import icon, pixmap
 from ..resources.theme.tokens import PALETTES, SPACING
 from ..widgets import motion
-from ..widgets.common import DropdownBox
-from .note_panel import ROLE_ID, ROLE_WHERE, NoteRow
 
 # Genişlik: pencerenin en fazla bu oranı, en az / en çok bu kadar piksel.
 WIDTH_SHARE = 0.42
@@ -45,29 +50,102 @@ MIN_WIDTH = 380
 MAX_WIDTH = 520
 # Pencere kenarlarıyla arası (bölümdeki not paneli gibi yüzen kart).
 MARGIN = 12
+# "Kopyalandı" işaretinin süresi (ms).
+COPIED_MS = 1200
 
-PAGE_READ = 0
-PAGE_RESULTS = 1
+PAGE_LIST = 0
+PAGE_EMPTY = 1
+
+
+class CardPiece(QFrame):
+    """Karttaki tek parça: bölümün adı, metin ya da kod, kopyala ve kaldır."""
+
+    removed = Signal(int)
+
+    def __init__(self, card: dict, where: str, language: LanguageManager, palette: dict) -> None:
+        super().__init__()
+        self.card = card
+        self._language = language
+        self._palette = palette
+        self.setProperty("role", "ref-card")
+
+        duzen = QVBoxLayout(self)
+        duzen.setContentsMargins(12, 8, 8, 12)
+        duzen.setSpacing(6)
+
+        ust = QHBoxLayout()
+        ust.setSpacing(2)
+        self.where = QLabel(where)
+        self.where.setProperty("role", "drawer-sub")
+        self.where.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        ust.addWidget(self.where, 1)
+        self.copy_button = self._small_button(self._copy)
+        self.remove_button = self._small_button(lambda: self.removed.emit(self.card["id"]))
+        ust.addWidget(self.copy_button)
+        ust.addWidget(self.remove_button)
+        duzen.addLayout(ust)
+
+        self.body = QLabel(card["body"])
+        self.body.setProperty("role", "ref-code" if card["is_code"] else "ref-body")
+        self.body.setTextFormat(Qt.TextFormat.PlainText)
+        self.body.setWordWrap(True)
+        self.body.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        # Uzun kod satırı kartı genişletmesin; sığmayan kısım kırpılıyor.
+        self.body.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        duzen.addWidget(self.body)
+
+        self._copied = QTimer(self)
+        self._copied.setSingleShot(True)
+        self._copied.timeout.connect(self._paint_buttons)
+        self._paint_buttons()
+
+    def set_palette(self, palette: dict) -> None:
+        self._palette = palette
+        self._paint_buttons()
+
+    def _small_button(self, slot) -> QPushButton:
+        dugme = QPushButton()
+        dugme.setProperty("variant", "round")
+        dugme.setFixedSize(26, 26)
+        dugme.setCursor(Qt.CursorShape.PointingHandCursor)
+        dugme.clicked.connect(slot)
+        return dugme
+
+    def _copy(self) -> None:
+        QApplication.clipboard().setText(self.card["body"])
+        self._copied.start(COPIED_MS)
+        self._paint_buttons()
+
+    def _paint_buttons(self) -> None:
+        p, t = self._palette, self._language.t
+        kopyalandi = self._copied.isActive()
+        self.copy_button.setIcon(icon("check" if kopyalandi else "clipboard",
+                                      p["success"] if kopyalandi else p["text_muted"], 14))
+        self.copy_button.setToolTip(t("reference.copied" if kopyalandi else "reference.copy"))
+        self.remove_button.setIcon(icon("trash", p["text_muted"], 14))
+        self.remove_button.setToolTip(t("reference.remove"))
 
 
 class ReferenceDrawer(QFrame):
-    """Sağda yüzen başvuru paneli."""
+    """Sağda yüzen başvuru kartı."""
 
     closed = Signal()
+    # Boş karttaki bağlantı: (modül, bölüm, Ders Notu sekmesindeki sırası).
+    note_requested = Signal(str, str, int)
 
-    def __init__(self, catalog: Catalog, language: LanguageManager, parent: QWidget) -> None:
+    def __init__(self, catalog: Catalog, store: ProgressStore, language: LanguageManager,
+                 parent: QWidget) -> None:
         super().__init__(parent)
+        self._catalog = catalog
+        self._store = store
         self._language = language
         self._mode = "dark"
-        self._entries = reference_notes.build_entries(catalog)
-        self._by_key = {kayit.key: kayit for kayit in self._entries}
-        self._entry: reference_notes.ReferenceEntry | None = None
-        self._note = 0
-        self._missing_key: tuple[str, str] | None = None
+        self._key: tuple[str, str] | None = None
+        self._cards: list[dict] = []
+        self._pieces: list[CardPiece] = []
         self._bottom = 0
         self._slide = 1.0  # 0 = yerinde, 1 = pencerenin dışında
         self._closing = False
-        self._reader = None  # LessonView, ilk açılışta
 
         self.setProperty("role", "note-panel")
         self.hide()
@@ -106,72 +184,55 @@ class ReferenceDrawer(QFrame):
         icerik.setSpacing(SPACING["sm"])
         self._search = QLineEdit()
         self._search.setClearButtonEnabled(True)
-        self._search.textChanged.connect(self._on_search)
-        self._search.returnPressed.connect(self._open_first)
-        self._search.installEventFilter(self)
+        self._search.textChanged.connect(lambda _metin: self._fill_list())
         icerik.addWidget(self._search)
 
         self._pages = QStackedWidget()
         self._pages.setProperty("role", "bare")
-        self._pages.addWidget(self._build_read_page())
-        self._pages.addWidget(self._build_results_page())
+        self._pages.addWidget(self._build_list_page())
+        self._pages.addWidget(self._build_empty_page())
         icerik.addWidget(self._pages, 1)
         dis.addWidget(govde, 1)
 
         self.set_mode(self._mode)
         self.retranslate()
 
-    def _build_read_page(self) -> QWidget:
+    def _build_list_page(self) -> QWidget:
+        self._list_body = QWidget()
+        self._list_body.setProperty("role", "bare")
+        self._list_layout = QVBoxLayout(self._list_body)
+        self._list_layout.setContentsMargins(0, 0, 4, 0)
+        self._list_layout.setSpacing(SPACING["sm"])
+        self._list_layout.addStretch(1)
+        alan = QScrollArea()
+        alan.setProperty("role", "bare")
+        alan.setWidgetResizable(True)
+        alan.setFrameShape(QFrame.Shape.NoFrame)
+        alan.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        alan.setWidget(self._list_body)
+        alan.viewport().setProperty("role", "bare")
+        self._scroll = alan
+        return alan
+
+    def _build_empty_page(self) -> QWidget:
         sayfa = QWidget()
         sayfa.setProperty("role", "bare")
-        self._read_layout = QVBoxLayout(sayfa)
-        self._read_layout.setContentsMargins(0, 0, 0, 0)
-        self._read_layout.setSpacing(SPACING["sm"])
-        # Bölümde birden çok not varsa seçim; başvuru notu ilk sırada.
-        self._picker = DropdownBox()
-        self._picker.currentIndexChanged.connect(self._on_pick)
-        self._picker.hide()
-        self._read_layout.addWidget(self._picker)
+        duzen = QVBoxLayout(sayfa)
+        duzen.setContentsMargins(8, 0, 8, 0)
+        duzen.setSpacing(SPACING["md"])
+        duzen.addStretch(1)
         self._empty = QLabel()
         self._empty.setProperty("role", "drawer-sub")
         self._empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._empty.setWordWrap(True)
-        self._empty.hide()
-        self._read_layout.addWidget(self._empty, 1)
+        duzen.addWidget(self._empty)
+        self._note_link = QPushButton()
+        self._note_link.setProperty("variant", "small")
+        self._note_link.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._note_link.clicked.connect(self._open_note)
+        duzen.addWidget(self._note_link, 0, Qt.AlignmentFlag.AlignHCenter)
+        duzen.addStretch(2)
         return sayfa
-
-    def _build_results_page(self) -> QWidget:
-        sayfa = QWidget()
-        sayfa.setProperty("role", "bare")
-        duzen = QVBoxLayout(sayfa)
-        duzen.setContentsMargins(0, 0, 0, 0)
-        self._list = QListWidget()
-        self._list.setProperty("role", "search-results")
-        self._row = NoteRow(self._list)
-        self._list.setItemDelegate(self._row)
-        self._list.setUniformItemSizes(True)
-        self._list.setMouseTracking(True)
-        self._list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self._list.itemClicked.connect(self._open_item)
-        self._list.itemActivated.connect(self._open_item)
-        duzen.addWidget(self._list, 1)
-        self._no_match = QLabel()
-        self._no_match.setProperty("role", "drawer-sub")
-        self._no_match.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._no_match.setWordWrap(True)
-        self._no_match.hide()
-        duzen.addWidget(self._no_match)
-        duzen.addStretch(0)
-        return sayfa
-
-    def _ensure_reader(self):
-        if self._reader is None:
-            from .lesson_view import LessonView
-
-            self._reader = LessonView(self._language, compact=True, glossary=True)
-            self._reader.set_mode(self._mode)
-            self._read_layout.addWidget(self._reader, 1)
-        return self._reader
 
     # --- açma / kapama -------------------------------------------------------
 
@@ -181,15 +242,12 @@ class ReferenceDrawer(QFrame):
         return self.isVisible() and not self._closing
 
     def open_for(self, key: tuple[str, str] | None) -> None:
-        """Çekmeceyi açar; `key` (modül, bölüm) varsa o bölümün notuyla."""
+        """Çekmeceyi açar; `key` (modül, bölüm) parçaları üste alınan bölüm."""
+        self._key = key
         self._search.blockSignals(True)
         self._search.clear()
         self._search.blockSignals(False)
-        if key is not None and key in self._by_key:
-            self._show_entry(self._by_key[key], 0)
-        else:
-            self._missing_key = key
-            self._show_missing()
+        self.refresh()
         self._closing = False
         if not self.isVisible():
             self._slide = 1.0
@@ -198,8 +256,6 @@ class ReferenceDrawer(QFrame):
         self.raise_()
         if self._slide > 0:
             motion.animate(self, "slide", self._slide, 0.0, self._set_slide, "base", "out")
-        if self._entry is None:
-            self._search.setFocus()
 
     def close_drawer(self) -> None:
         if not self.is_open:
@@ -235,114 +291,105 @@ class ReferenceDrawer(QFrame):
 
     # --- içerik --------------------------------------------------------------
 
-    def _show_entry(self, kayit: reference_notes.ReferenceEntry, note: int) -> None:
-        self._entry = kayit
-        self._missing_key = None
-        self._note = max(0, min(note, len(kayit.documents) - 1))
-        self._pages.setCurrentIndex(PAGE_READ)
-        self._empty.hide()
-        self._fill_picker()
-        self._render_note()
+    def refresh(self) -> None:
+        """Parçaları veritabanından yeniden okur (eklenince, kaldırılınca)."""
+        self._cards = self._store.cards()
         self._update_where()
-
-    def _show_missing(self) -> None:
-        """Bölümün notu yok ya da hiç bölüm açılmamış: aramaya yönlendir."""
-        self._entry = None
-        self._pages.setCurrentIndex(PAGE_READ)
-        self._picker.hide()
-        if self._reader is not None:
-            self._reader.hide()
-        t = self._language.t
-        self._empty.setText(t("reference.no_notes" if self._missing_key else "reference.start"))
-        self._empty.show()
-        self._update_where()
-
-    def _fill_picker(self) -> None:
-        kayit = self._entry
-        self._picker.blockSignals(True)
-        self._picker.clear()
-        if kayit is not None:
-            for not_kaydi in kayit.documents:
-                self._picker.addItem(self._language.pick(not_kaydi.get("title")))
-            self._picker.setCurrentIndex(self._note)
-        self._picker.blockSignals(False)
-        self._picker.setVisible(kayit is not None and len(kayit.documents) > 1)
-
-    def _on_pick(self, index: int) -> None:
-        if self._entry is not None and index >= 0:
-            self._note = index
-            self._render_note()
-
-    def _render_note(self) -> None:
-        kayit = self._entry
-        if kayit is None:
+        self._search.setVisible(bool(self._cards))
+        if not self._cards:
+            self._show_empty()
             return
-        okuyucu = self._ensure_reader()
-        okuyucu.show()
-        dil = self._language.language
-        yol = kayit.path_for(self._note, dil)
-        baslik = self._language.pick(kayit.documents[self._note].get("title"))
-        if yol is None or not yol.exists():
-            govde = f"*{self._language.t('content.not_found', path=kayit.documents[self._note].get('file', '-'))}*"
-        else:
-            govde = yol.read_text(encoding="utf-8")
-        # Notun görselleri ve sözlük kapsamı notun klasöründen.
-        okuyucu.set_base_dir(yol.parent if yol is not None else kayit.directory)
-        okuyucu.show_text(f"# {baslik}\n\n{govde}")
+        self._pages.setCurrentIndex(PAGE_LIST)
+        self._fill_list()
+
+    def _section_name(self, chapter_id: str, section_id: str) -> str:
+        bolum = self._catalog.section(chapter_id, section_id)
+        return self._language.pick(bolum.title) if bolum is not None else section_id
 
     def _update_where(self) -> None:
-        kayit = self._entry
-        if kayit is None:
+        if self._key is None or self._catalog.section(*self._key) is None:
             self._where.setText("")
             return
-        self._where.setText(f"{self._language.pick(kayit.chapter_title)} · "
-                            f"{self._language.pick(kayit.section_title)}")
+        modul = self._catalog.chapter(self._key[0])
+        self._where.setText(f"{self._language.pick(modul.title) if modul else ''} · "
+                            f"{self._section_name(*self._key)}")
 
-    # --- arama ---------------------------------------------------------------
+    def _show_empty(self) -> None:
+        t = self._language.t
+        self._empty.setText(t("reference.empty"))
+        bolum = self._catalog.section(*self._key) if self._key is not None else None
+        not_ = reference_note(bolum) if bolum is not None else None
+        if not_ is not None:
+            self._note_link.setText(t("reference.open_note", title=self._language.pick(not_[1].get("title"))))
+        self._note_link.setVisible(not_ is not None)
+        self._pages.setCurrentIndex(PAGE_EMPTY)
 
-    def _on_search(self, text: str) -> None:
-        if not text.strip():
-            if self._entry is not None:
-                self._pages.setCurrentIndex(PAGE_READ)
-            else:
-                self._show_missing()
+    def _open_note(self) -> None:
+        bolum = self._catalog.section(*self._key) if self._key is not None else None
+        not_ = reference_note(bolum) if bolum is not None else None
+        if not_ is not None:
+            self.note_requested.emit(self._key[0], self._key[1], not_[0])
+
+    def _matches(self, card: dict, words: list[str]) -> bool:
+        modul = self._catalog.chapter(card["chapter_id"])
+        metin = fold(" ".join((card["body"], self._section_name(card["chapter_id"], card["section_id"]),
+                               self._language.pick(modul.title) if modul else "")))
+        return all(kelime in metin for kelime in words)
+
+    def _fill_list(self) -> None:
+        if not self._cards:
             return
-        dil = self._language.language
-        sonuclar = reference_notes.search(self._entries, text, dil)
-        self._list.clear()
-        for kayit in sonuclar:
-            notlar = ", ".join(self._language.pick(n.get("title")) for n in kayit.documents)
-            item = QListWidgetItem(self._language.pick(kayit.section_title))
-            item.setData(ROLE_ID, kayit.key)
-            item.setData(ROLE_WHERE, f"{self._language.pick(kayit.chapter_title)} · {notlar}")
-            self._list.addItem(item)
-        self._no_match.setText(self._language.t("reference.no_match"))
-        self._no_match.setVisible(not sonuclar)
-        self._list.setVisible(bool(sonuclar))
-        self._pages.setCurrentIndex(PAGE_RESULTS)
+        kelimeler = fold(self._search.text()).split()
+        secilen = [kart for kart in self._cards if not kelimeler or self._matches(kart, kelimeler)]
+        burada = [k for k in secilen if self._key and (k["chapter_id"], k["section_id"]) == self._key]
+        oteki = [k for k in secilen if k not in burada]
 
-    def _open_first(self) -> None:
-        if self._pages.currentIndex() == PAGE_RESULTS and self._list.count():
-            self._open_item(self._list.item(0))
+        while self._list_layout.count() > 1:  # sondaki esneme kalıyor
+            oge = self._list_layout.takeAt(0)
+            if oge.widget() is not None:
+                oge.widget().deleteLater()
+        self._pieces = []
 
-    def _open_item(self, item: QListWidgetItem) -> None:
-        kayit = self._by_key.get(tuple(item.data(ROLE_ID)))
-        if kayit is None:
+        t = self._language.t
+        p = PALETTES.get(self._mode, PALETTES["dark"])
+        ikisi = bool(burada) and bool(oteki)
+        for baslik, grup in (("reference.group_here", burada), ("reference.group_other", oteki)):
+            if not grup:
+                continue
+            if ikisi:
+                self._add_row(self._group_label(t(baslik)))
+            for kart in grup:
+                parca = CardPiece(kart, self._section_name(kart["chapter_id"], kart["section_id"]),
+                                  self._language, p)
+                parca.removed.connect(self._remove)
+                self._pieces.append(parca)
+                self._add_row(parca)
+        if not secilen:
+            bos = QLabel(t("reference.no_match"))
+            bos.setProperty("role", "drawer-sub")
+            bos.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            bos.setWordWrap(True)
+            self._add_row(bos)
+
+    def _group_label(self, text: str) -> QLabel:
+        etiket = QLabel(text)
+        etiket.setProperty("role", "ref-group")
+        return etiket
+
+    def _add_row(self, widget: QWidget) -> None:
+        self._list_layout.insertWidget(self._list_layout.count() - 1, widget)
+
+    def _remove(self, card_id: int) -> None:
+        self._store.remove_card(card_id)
+        kaydirma = self._scroll.verticalScrollBar().value()
+        self._cards = [kart for kart in self._cards if kart["id"] != card_id]
+        self._search.setVisible(bool(self._cards))
+        if not self._cards:
+            self._search.clear()
+            self._show_empty()
             return
-        self._search.blockSignals(True)
-        self._search.clear()
-        self._search.blockSignals(False)
-        self._show_entry(kayit, 0)
-
-    def eventFilter(self, watched, event) -> bool:  # noqa: N802
-        """Arama kutusunda ↓ sonuç listesine iner (Enter ile açılır)."""
-        if (watched is self._search and event.type() == QEvent.Type.KeyPress
-                and event.key() == Qt.Key.Key_Down and self._pages.currentIndex() == PAGE_RESULTS
-                and self._list.count()):
-            self._list.setFocus()
-            self._list.setCurrentRow(0)
-            return True
-        return super().eventFilter(watched, event)
+        self._fill_list()
+        QTimer.singleShot(0, lambda: self._scroll.verticalScrollBar().setValue(kaydirma))
 
     # --- tema ve dil -----------------------------------------------------------
 
@@ -351,24 +398,15 @@ class ReferenceDrawer(QFrame):
         p = PALETTES.get(mode, PALETTES["dark"])
         self._head_icon.setPixmap(pixmap("file-text", p["accent"], 18))
         self._close_button.setIcon(icon("x", p["text_muted"], 15))
-        self._picker.set_arrow_color(p["text_muted"])
-        self._row.palette = p
-        self._list.viewport().update()
-        if self._reader is not None:
-            self._reader.set_mode(mode)
+        for parca in self._pieces:
+            parca.set_palette(p)
 
     def retranslate(self) -> None:
         t = self._language.t
         self._heading.setText(t("reference.title"))
         self._close_button.setToolTip(t("common.close") + "  (Esc)")
         self._search.setPlaceholderText(t("reference.search"))
-        if self._entry is not None:
-            self._fill_picker()
-            self._render_note()
-            self._update_where()
-            if self._search.text().strip():
-                self._on_search(self._search.text())
-        elif self.isVisible():
-            self._show_missing()
-        if self._reader is not None:
-            self._reader.retranslate()
+        # Parçaların metni kişinin seçtiği dilde kalıyor; bölüm adları ve
+        # öteki yazılar yeni dilde yeniden kuruluyor.
+        if self.isVisible():
+            self.refresh()

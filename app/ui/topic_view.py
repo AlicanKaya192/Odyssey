@@ -19,7 +19,7 @@ from __future__ import annotations
 from datetime import date
 
 from PySide6.QtCore import QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtGui import QCursor, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -71,6 +71,8 @@ class TopicView(QWidget):
     open_notebook = Signal(int)
     # Panelde ilk kez yazılı bir not kaydedildi (rozet koşulu).
     notes_changed = Signal()
+    # Belgeden hızlı başvuru kartına parça eklendi (açık çekmece tazelensin).
+    card_added = Signal()
 
     def __init__(
         self,
@@ -220,11 +222,12 @@ class TopicView(QWidget):
         body.installEventFilter(self)
         layout.addWidget(body, 1)
 
-        # Seçimi nota ekleme: bölümdeki bütün belge alanları (ders, ders
-        # notu, alıştırma yönergesi).
+        # Seçimi nota ya da hızlı başvuru kartına ekleme: bölümdeki bütün
+        # belge alanları (ders, ders notu, alıştırma yönergesi).
         self._documents = self.findChildren(DocumentView)
         for document in self._documents:
             document.quote_requested.connect(self._on_quote)
+            document.card_requested.connect(self._on_card)
 
         kisayol = QShortcut(QKeySequence("Ctrl+N"), self, lambda: self.toggle_note())
         kisayol.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
@@ -961,6 +964,18 @@ class TopicView(QWidget):
         self.toggle_note(True)
         self._note_panel.add_quote(text)
 
+    def _on_card(self, text: str, is_code: bool) -> None:
+        """Belgede seçilip "Hızlı başvuruya ekle" denen parça; imlecin yanında
+        kısa bir onay."""
+        if self._section is None:
+            return
+        self._store.add_card(self._section.chapter_id, self._section.id, text, is_code)
+        self.card_added.emit()
+        from ..widgets import tips
+
+        tips.show_text(QCursor.pos(), self._language.t("reference.added"), self)
+        QTimer.singleShot(1500, tips.hide_text)
+
     def flush_note(self) -> None:
         """Panelde yazılıp henüz kaydedilmemiş son harfler."""
         self._note_panel.flush()
@@ -1142,7 +1157,8 @@ class TopicView(QWidget):
         self._focus_button.setToolTip(tips.rich(t("focus.title") + "  (F11)", t("focus.help")))
         if panes:
             for document in self._documents:
-                document.enable_quote(t("notebook.add_selection"), t("notebook.copy"))
+                document.enable_quote(t("notebook.add_selection"), t("notebook.copy"),
+                                      t("reference.add_selection"))
             self._note_panel.retranslate()
         if self._section is not None:
             self._note_panel.set_section_title(self._language.pick(self._section.title))

@@ -455,6 +455,7 @@ class MainWindow(QMainWindow):
         # İlk yazılı not bir rozet koşulu; ilerleme hesabı rozetleri de
         # kaydedip bildirime düşürüyor.
         topic.notes_changed.connect(self._refresh_progress)
+        topic.card_added.connect(self._refresh_reference)
         mode = self._theme.effective_mode
         topic.set_mode(mode)
         topic.header.set_accent(RAIL_COLORS.get(mode, RAIL_COLORS["light"])["journey"])
@@ -970,20 +971,37 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence("Ctrl+R"), self, self._toggle_reference)
 
     def _toggle_reference(self) -> None:
-        """Hızlı başvuru çekmecesi; bölümdeyken o bölümün, değilse son bölümün notu."""
+        """Hızlı başvuru kartı; bölümdeyken o bölümün, değilse son bölümün
+        parçaları üstte."""
         if self._reference is not None and self._reference.is_open:
             self._reference.close_drawer()
             return
         if self._reference is None:
             from .reference_drawer import ReferenceDrawer
 
-            self._reference = ReferenceDrawer(self._catalog, self._language, self._central)
+            self._reference = ReferenceDrawer(self._catalog, self._store, self._language, self._central)
             self._reference.set_mode(self._theme.effective_mode)
+            self._reference.note_requested.connect(self._open_reference_note)
         acik = self._topic_view is not None and self._stack.currentWidget() is self._topic_view
         bolum = self._topic_view.section if acik else None
         anahtar = (bolum.chapter_id, bolum.id) if bolum is not None else self._store.last_visited()
         self._reference.reposition(self._footer.height() if self._footer.isVisible() else 0)
         self._reference.open_for(anahtar)
+
+    def _refresh_reference(self) -> None:
+        if self._reference is not None and self._reference.is_open:
+            self._reference.refresh()
+
+    def _open_reference_note(self, chapter_id: str, section_id: str, index: int) -> None:
+        """Boş karttaki bağlantı: bölümün başvuru notu, Ders Notu sekmesinde."""
+        self._reference.close_drawer()
+        acik = self._topic_view is not None and self._stack.currentWidget() is self._topic_view
+        bolum = self._topic_view.section if acik else None
+        if bolum is not None and (bolum.chapter_id, bolum.id) == (chapter_id, section_id):
+            self._topic.focus("notes", index)
+            return
+        self._on_search({"type": "course_note", "chapter": chapter_id, "section": section_id,
+                         "document": index})
 
     def _toggle_shortcuts(self) -> None:
         """Kısayol listesini açar ya da kapatır (klavye düğmesi, F1)."""

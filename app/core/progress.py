@@ -268,6 +268,19 @@ MIGRATIONS: list[str] = [
     );
     CREATE INDEX IF NOT EXISTS idx_review_due ON review_items (due_day);
     """,
+    # 13 — hızlı başvuru kartı (1.4.0; `ui/reference_drawer.py`). Kişinin
+    # dersten, ders notundan ya da yönergeden seçip eklediği parça; seçildiği
+    # dilde olduğu gibi saklanıyor. `is_code` kod bloğundan seçildiyse.
+    """
+    CREATE TABLE IF NOT EXISTS reference_cards (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        chapter_id  TEXT NOT NULL,
+        section_id  TEXT NOT NULL,
+        body        TEXT NOT NULL,
+        is_code     INTEGER NOT NULL DEFAULT 0,
+        created_at  TEXT NOT NULL
+    );
+    """,
 ]
 
 # Bir alıştırma için saklanan en fazla deneme; eskiler siliniyor.
@@ -929,6 +942,26 @@ class ProgressStore:
                     "UPDATE review_items SET stage = ?, due_day = ? WHERE chapter_id = ? "
                     "AND section_id = ? AND question_key = ?",
                     (stage, due.isoformat(), chapter_id, section_id, key))
+
+    def add_card(self, chapter_id: str, section_id: str, body: str, is_code: bool) -> int:
+        """Hızlı başvuru kartına parça ekler; yeni kaydın kimliği."""
+        with self._write() as connection:
+            cursor = connection.execute(
+                "INSERT INTO reference_cards (chapter_id, section_id, body, is_code, created_at) "
+                "VALUES (?, ?, ?, ?, ?)", (chapter_id, section_id, body, int(is_code), _now()))
+        return int(cursor.lastrowid)
+
+    def cards(self) -> list[dict]:
+        """Kartın bütün parçaları, en yenisi başta."""
+        rows = self._connection.execute(
+            "SELECT id, chapter_id, section_id, body, is_code, created_at "
+            "FROM reference_cards ORDER BY id DESC"
+        ).fetchall()
+        return [dict(row) | {"is_code": bool(row["is_code"])} for row in rows]
+
+    def remove_card(self, card_id: int) -> None:
+        with self._write() as connection:
+            connection.execute("DELETE FROM reference_cards WHERE id = ?", (card_id,))
 
     def last_finished_quiz_answers(self) -> list[tuple[str, str, str]]:
         """Her bölümün son bitmiş (yarıda bırakılmamış) sınav denemesinin cevapları."""

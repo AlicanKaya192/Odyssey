@@ -56,6 +56,14 @@ lecture note does not mean downloading the whole application again.
   you have started is marked "In progress". The filter above
   shows only the tracks you have started or a single group, and remembers
   your choice.
+- **Quick reference is now your own card.** Select a paragraph or some
+  code in a lesson, a lecture note or an exercise brief, right-click and
+  choose "Add to quick reference"; the piece goes into the drawer that
+  `Ctrl+R` opens, with the name of its section. Pieces from the open
+  section stay at the top, search covers the whole card, and each piece
+  can be copied or removed with one click. Lecture notes no longer open in
+  the drawer but in the section's Lecture Notes tab; while your card is
+  empty, a link takes you to the section's reference note.
 
 ## [1.3.0] — 23 October 2026
 

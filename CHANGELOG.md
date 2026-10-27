@@ -51,6 +51,14 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   patikanın kartında önce hangi patikanın önerildiği yazıyor, başladığınız
   patika "Devam ediyor" diye işaretleniyor. Üstteki süzgeçle yalnızca başladığınız
   patikaları ya da tek bir grubu görebilirsiniz; seçiminiz hatırlanıyor.
+- **Hızlı başvuru artık sizin kartınız.** Derste, ders notunda ya da
+  alıştırma yönergesinde bir paragrafı ya da kodu seçip sağ tıklayın ve
+  "Hızlı başvuruya ekle"yi seçin; parça `Ctrl+R` ile açılan çekmeceye
+  bölümün adıyla eklenir. Açık bölümden eklediğiniz parçalar üstte durur,
+  arama bütün kartta yapılır; her parçayı tek tıkla kopyalayabilir ya da
+  karttan kaldırabilirsiniz. Ders notları artık çekmecede değil, bölümün
+  Ders Notu sekmesinde; kartınız boşken bölümün başvuru notuna bir
+  bağlantı çıkar.
 
 ## [1.3.0] — 23 Ekim 2026
 

@@ -191,12 +191,31 @@ class DocumentPage(QWebEnginePage):
         pass
 
 
+# Seçim kod bloğunda mı: tamamı bir `<pre>`'nin içindeyse ya da seçilen
+# yazının (boşluksuz) en az %90'ı kod bloklarındaysa (bloğu baştan sona
+# sürükleyince seçim bir sonraki paragrafın başına taşabiliyor).
+SELECTION_IS_CODE = r"""(function () {
+  var s = window.getSelection();
+  if (!s || !s.rangeCount) return false;
+  var r = s.getRangeAt(0), n = r.commonAncestorContainer;
+  if (n.nodeType !== 1) n = n.parentElement;
+  if (n && n.closest('pre')) return true;
+  var f = r.cloneContents(), hepsi = f.textContent.replace(/\s/g, '').length;
+  if (!hepsi) return false;
+  var kod = 0;
+  f.querySelectorAll('pre').forEach(function (p) { kod += p.textContent.replace(/\s/g, '').length; });
+  return kod >= hepsi * 0.9;
+})()"""
+
+
 class DocumentView(QWebEngineView):
     """Markdown'dan üretilmiş HTML'i gösterir."""
 
     action = Signal(str)
     # Sağ tıkta "Nota ekle": seçili metin.
     quote_requested = Signal(str)
+    # Sağ tıkta "Hızlı başvuruya ekle": seçili metin, kod bloğundan mı.
+    card_requested = Signal(str, bool)
     # Okuyan kişi metnin sonuna indi ya da oradan ayrıldı.
     at_end_changed = Signal(bool)
 
@@ -208,9 +227,9 @@ class DocumentView(QWebEngineView):
         # Sayfa yüklendi mi; yüklenirken istenen kaydırma burada bekliyor.
         self._loaded = False
         self._pending_anchor = ""
-        # (Nota ekle, Kopyala) etiketleri. Verilmemişse Chromium'un kendi
-        # sağ tık menüsü çıkıyor.
-        self._quote_labels: tuple[str, str] | None = None
+        # (Nota ekle, Kopyala, Hızlı başvuruya ekle) etiketleri. Verilmemişse
+        # Chromium'un kendi sağ tık menüsü çıkıyor; üçüncüsü boşsa o eylem yok.
+        self._quote_labels: tuple[str, str, str] | None = None
 
         self._page = DocumentPage(self)
         self._page.action.connect(self.action)
@@ -423,14 +442,15 @@ class DocumentView(QWebEngineView):
             "})()"
         )
 
-    def enable_quote(self, add_label: str, copy_label: str) -> None:
-        """Sağ tıkta seçimi nota ekleyen menüyü açar; etiketler dilde.
+    def enable_quote(self, add_label: str, copy_label: str, card_label: str = "") -> None:
+        """Sağ tıkta seçimi nota (ve `card_label` verilmişse hızlı başvuru
+        kartına) ekleyen menüyü açar; etiketler dilde.
 
         Chromium'un kendi menüsü (Geri, Yeniden yükle, Kaynağı gör...) bu
         belgelerde bir işe yaramıyor. Menü yalnızca bir şey seçiliyken
         çıkıyor: seçimsiz sağ tıkta sunulacak bir iş yok.
         """
-        self._quote_labels = (add_label, copy_label)
+        self._quote_labels = (add_label, copy_label, card_label)
 
     def contextMenuEvent(self, event) -> None:  # noqa: N802
         if self._quote_labels is None:
@@ -438,7 +458,8 @@ class DocumentView(QWebEngineView):
             return
 
         event.accept()
-        secim = self.selectedText().strip()
+        ham = self.selectedText()
+        secim = ham.strip()
         if not secim:
             return
 
@@ -446,13 +467,29 @@ class DocumentView(QWebEngineView):
 
         # Eylemler kendi sinyalleriyle bağlanıyor; `exec`'in döndürdüğü
         # eylemi kimliğiyle karşılaştırmaya güvenilmiyor.
-        add_label, copy_label = self._quote_labels
+        add_label, copy_label, card_label = self._quote_labels
         menu = QMenu(self)
         menu.addAction(copy_label).triggered.connect(
             lambda: self.page().triggerAction(QWebEnginePage.WebAction.Copy)
         )
         menu.addAction(add_label).triggered.connect(lambda: self.quote_requested.emit(secim))
+        if card_label:
+            menu.addAction(card_label).triggered.connect(lambda: self._request_card(ham))
         menu.exec(event.globalPos())
+
+    def _request_card(self, selected: str) -> None:
+        """Seçim kod bloğunda mı, sayfaya sorup `card_requested` yayar.
+
+        Kodda girinti korunuyor (yalnızca baştaki ve sondaki boş satırlar
+        atılıyor); düz metin kenarlarından kırpılıyor.
+        """
+        def bitti(is_code) -> None:
+            metin = selected.replace("\r\n", "\n")
+            govde = metin.strip("\n").rstrip() if is_code else metin.strip()
+            if govde:
+                self.card_requested.emit(govde, bool(is_code))
+
+        self.page().runJavaScript(SELECTION_IS_CODE, 0, bitti)
 
     def replace_inner(self, element_id: str, fragment: str, *, body: str, fallback) -> None:
         """Bir öğenin içini sayfayı yeniden yüklemeden değiştirir.
