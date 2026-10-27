@@ -149,17 +149,25 @@ class MainWindow(QMainWindow):
         theme: ThemeManager,
         store: ProgressStore,
     ) -> None:
+        # Soğuk açılışta (bilgisayar yeni açılmışken) bu kurucu 14,7 sn
+        # sürüyor, sıcakta 1,5 sn (27 Ekim). Hangi adımın uzadığını görmek
+        # için adım süreleri toplanıyor; `main.py` günlüğe yazıyor.
+        self.build_steps: list[tuple[str, float]] = []
+        self._step_started = time.monotonic()
         super().__init__()
         self._language = language
         self._theme = theme
         self._store = store
         self._store.mark_seen()
+        self._build_step("qt_pencere")
         self._catalog = Catalog.load(content_dir())
+        self._build_step("katalog")
         # Bitmiş bölüm bitmiş kalır: ekranlar kurulmadan önce işaretleniyor
         # (sonradan alıştırma eklenen bölümler; `core/completion.py`).
         from ..core import completion
 
         completion.stamp(self._catalog, self._store)
+        self._build_step("tamamlanma")
         # Animasyonlar ayarı ekranlar kurulmadan önce: ilk girişler de ona uyuyor.
         motion.set_enabled(animations.enabled(store))
 
@@ -228,8 +236,10 @@ class MainWindow(QMainWindow):
 
         row.addWidget(content, 1)
         root.addWidget(body)
+        self._build_step("iskelet")
 
         self._build_screens()
+        self._build_step("ekranlar")
 
         # Bölüm bitince ve rozet kazanılınca sağ altta beliren kartlar. Alt
         # şeridin hemen üstüne diziliyorlar. Pencere ilk kez görünene kadar
@@ -246,6 +256,7 @@ class MainWindow(QMainWindow):
         self._sound_kinds: set[str] = set()
         # Açılıştaki biten bölümler; yalnızca bundan sonra bitenler kutlanıyor.
         self._done_sections = badge_core.completed_sections(self._catalog, self._store)
+        self._build_step("biten_bolumler")
 
         # Sol alttaki GitHub yıldızı: önce son bilinen sayı, sonra arka planda
         # güncel olanı (`start_update_check` sırasında).
@@ -282,17 +293,22 @@ class MainWindow(QMainWindow):
         self._timer.changed.connect(self._footer._balance)  # noqa: SLF001
         self._timer.phase_finished.connect(self._on_timer_phase)
         self._timer_panel = TimerPanel(self._timer, store, language, self)
+        self._build_step("arama_zamanlayici")
 
         language.language_changed.connect(self._on_language_changed)
         theme.theme_changed.connect(self._on_theme_changed)
 
         # Temayı pencere kendisi uyguluyor; çağıranın hatırlamasına gerek yok.
         self._on_theme_changed(theme.effective_mode)
+        self._build_step("tema")
 
         self._navigate("journey")
+        self._build_step("ogrenme_yolu")
         self._refresh_release_dot()
         self._refresh_progress()
+        self._build_step("ilerleme")
         self.retranslate()
+        self._build_step("ceviri")
 
         # Güncelleme denetimi açılışta bir kez, arka planda. Pencere
         # kurulurken başlatılmıyor: ağ yavaşsa açılışı bekletmesin diye
@@ -318,6 +334,13 @@ class MainWindow(QMainWindow):
         # görmüyordu.
         self._set_presence_location()
         self._presence.start()
+        self._build_step("son")
+
+    def _build_step(self, name: str) -> None:
+        """Kurucunun bir adımının süresini `build_steps`'e ekler."""
+        now = time.monotonic()
+        self.build_steps.append((name, now - self._step_started))
+        self._step_started = now
 
     # --- ekranlar ---------------------------------------------------------
 

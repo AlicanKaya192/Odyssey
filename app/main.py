@@ -344,6 +344,10 @@ def main() -> int:
     times.mark("belirdi")
     log.get("odyssey").info("Açılış süreleri (sn, süreç başlangıcından): %s", times.summary())
     log.get("odyssey").info("Açılış koşulları: %s", times.conditions())
+    log.get("odyssey").info(
+        "Pencere kurulumu (sn, adım adım): %s",
+        ", ".join(f"{name} {seconds:.2f}" for name, seconds in window.build_steps),
+    )
 
     # Arama dizini açılışı geciktirmesin diye pencere göründükten sonra,
     # belirme geçişi bittiğinde arka planda kuruluyor.
