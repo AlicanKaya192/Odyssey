@@ -78,7 +78,7 @@ from ..core import levels as level_core
 from ..core import github_stars
 from ..core.celebration_sound import CelebrationSound
 from ..core import study_timer as timer_core
-from ..core import weekly_goal
+from ..core import review_box, weekly_goal
 from ..widgets.study_timer_ui import TimerChip, TimerPanel
 from ..widgets.fade_stack import FORWARD as _FORWARD
 
@@ -168,6 +168,8 @@ class MainWindow(QMainWindow):
         from ..core import completion
 
         completion.stamp(self._catalog, self._store)
+        # Tekrar kutusu açılmadan önceki sınavların yanlışları (bir kez).
+        review_box.backfill(self._store)
         self._build_step("tamamlanma")
         # Animasyonlar ayarı ekranlar kurulmadan önce: ilk girişler de ona uyuyor.
         motion.set_enabled(animations.enabled(store))
@@ -349,6 +351,7 @@ class MainWindow(QMainWindow):
         # Öğrenme yolu
         self._journey = JourneyView(self._catalog, self._language, self._store)
         self._journey.section_opened.connect(self._open_section)
+        self._journey.review_requested.connect(self._open_review)
         # Seviye tespiti kilitleri değiştiriyor; patika kartları ve rotalar tazelensin.
         self._journey.path.placement_finished.connect(self._journey.tracks.refresh)
         self._journey.view_changed.connect(self._update_headers)
@@ -806,6 +809,26 @@ class MainWindow(QMainWindow):
             self._sound.play("timer")
         else:
             self._sound.play("badge" if turler & {"badge", "tag"} else "section")
+
+    def _open_review(self) -> None:
+        """Tekrar kutusu penceresi; kapanınca kart ve seri yenileniyor."""
+        from .modal import Backdrop
+        from .review_dialog import ReviewDialog
+
+        perde = Backdrop(self)
+        perde.show()
+        dialog = ReviewDialog(self._language, self._store, self._catalog,
+                              self._theme.effective_mode, self)
+        self.review_dialog = dialog
+
+        def kapandi(_sonuc) -> None:
+            perde.deleteLater()
+            self._journey.refresh()
+            if dialog.answered:
+                self._refresh_progress()
+
+        dialog.finished.connect(kapandi)
+        dialog.open()
 
     def _goal_toast(self, goal) -> ToastData:
         p = PALETTES.get(self._theme.effective_mode, PALETTES["dark"])

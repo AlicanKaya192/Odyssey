@@ -34,6 +34,11 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   Ayarlar › Öğrenme'de haftada kaç bölüm, kaç dakika odak ya da kaç gün
   çalışmak istediğinizi seçin; bu haftaki durum karşılama kartında
   görünür, hedef tutunca bir kutlama kartı çıkar. Hafta Pazartesi başlar.
+- **Tekrar kutusu.** Sınavda yanlış yaptığınız ya da boş bıraktığınız
+  sorular kutuya girer ve 1, 3, 7 ve 14 gün arayla yeniden sorulur; doğru
+  bildikçe aralık uzar, yanlışta başa döner. Karşılama kartındaki
+  "Tekrar et" düğmesi günü gelen soruları açar (günde en fazla 20).
+  Daha önceki sınavlarınızdaki yanlışlar da ilk açılışta kutuya eklenir.
 
 ### Değişti
 - **Öğrenme Yolu ekranı yenilendi.** Patikalar dört başlık altında

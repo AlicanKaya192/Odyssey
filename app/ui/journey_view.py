@@ -56,7 +56,7 @@ from ..core.completion import is_completed
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.unlock import blocking_section
-from ..core import weekly_goal
+from ..core import review_box, weekly_goal
 from ..resources.icons import icon, pixmap
 from ..resources.theme.tokens import CONTENT_WIDTH, FONTS, PALETTES, RADIUS, SPACING, mix
 from ..widgets.common import StatBlock, horizontal_rule, section_label
@@ -339,6 +339,8 @@ class HeroCard(QFrame):
     """
 
     resume = Signal()
+    # Tekrar kutusunu aç (`core/review_box.py`).
+    review = Signal()
 
     GRADIENT = ("#4F46E5", "#7C3AED")
 
@@ -447,8 +449,28 @@ class HeroCard(QFrame):
         # Düğme yerleşimin dışında bir yuvada; kayarken kart yeniden
         # yerleşmiyor.
         self._continue_slot = ShiftSlot(self._continue, 3)
+        # Tekrar kutusu: bugün sorulacak soru varsa yanında, daha sade.
+        self._review = QPushButton()
+        self._review.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._review.setIcon(icon("repeat", "#FFFFFF", 16))
+        self._review.setStyleSheet(
+            "QPushButton { color:#FFFFFF; font-weight:600; font-size:13.5px; padding:9px 14px 9px 12px;"
+            " background: transparent; border:1px solid rgba(255,255,255,0.30);"
+            " border-radius:14px; min-height:0px; }"
+            " QPushButton:hover { background: rgba(255,255,255,0.14); }"
+            " QPushButton:pressed { background: rgba(255,255,255,0.22); }"
+        )
+        self._review.clicked.connect(self.review)
+        self._review_slot = ShiftSlot(self._review, 3)
+        self._review_slot.hide()
+        self._reviews = 0
+        dugmeler = QHBoxLayout()
+        dugmeler.setSpacing(SPACING["sm"])
+        dugmeler.addWidget(self._continue_slot)
+        dugmeler.addWidget(self._review_slot)
+        dugmeler.addStretch(1)
         layout.addSpacing(SPACING["sm"])
-        layout.addWidget(self._continue_slot, 0, Qt.AlignmentFlag.AlignLeft)
+        layout.addLayout(dugmeler)
         layout.addSpacing(SPACING["sm"])
 
         stats = QHBoxLayout()
@@ -640,6 +662,7 @@ class HeroCard(QFrame):
         progress: int,
         studied_today: bool = False,
         goal=None,
+        reviews: int = 0,
     ) -> None:
         """Şeritteki dört sayıyı yeniler.
 
@@ -670,6 +693,8 @@ class HeroCard(QFrame):
         self._streak = streak
         self._studied_today = studied_today
         self._goal = goal
+        self._reviews = reviews
+        self._review_slot.setVisible(reviews > 0)
         self._stats["goal"].setVisible(goal is not None)
         if goal is not None:
             self._stats["goal"].set_value(f"{goal.done}/{goal.target}")
@@ -766,6 +791,9 @@ class HeroCard(QFrame):
                              self._language.t("home.stat_progress"))
         self._continue.setText("  " + self._language.t("home.continue"))
         self._continue_slot.fit()
+        self._review.setText("  " + self._language.t("home.review", count=self._reviews))
+        self._review.setToolTip(self._language.t("home.review_tip"))
+        self._review_slot.fit()
         self._render_flame()
 
 
@@ -1217,6 +1245,7 @@ class TracksView(QWidget):
 
     track_opened = Signal(str)
     resume_requested = Signal()
+    review_requested = Signal()
 
     def __init__(
         self,
@@ -1250,6 +1279,7 @@ class TracksView(QWidget):
         # Prototip: karşılama kartı en fazla 1030 px, ortada.
         self._hero.setMaximumWidth(HERO_WIDTH)
         self._hero.resume.connect(self.resume_requested)
+        self._hero.review.connect(self.review_requested)
         hero_satir = QHBoxLayout()
         hero_satir.setContentsMargins(SHADOW_ROOM, 0, SHADOW_ROOM, 0)
         hero_satir.addStretch(1)
@@ -1394,6 +1424,7 @@ class TracksView(QWidget):
             progress=round(biten * 100 / toplam) if toplam else 0,
             studied_today=self._store.last_study_day() == date.today(),
             goal=weekly_goal.current(self._store),
+            reviews=review_box.today_count(self._store),
         )
         self.retranslate()
         # "Başladıklarım" yeni başlanan patikayı da göstersin.
@@ -1458,6 +1489,7 @@ class ModulesView(QWidget):
 
     module_opened = Signal(str)
     resume_requested = Signal()
+    review_requested = Signal()
 
     def __init__(
         self,
@@ -1488,6 +1520,7 @@ class ModulesView(QWidget):
         self._hero = HeroCard(language)
         self._hero.setFixedWidth(CONTENT_WIDTH)
         self._hero.resume.connect(self.resume_requested)
+        self._hero.review.connect(self.review_requested)
         self._page_layout.addWidget(self._hero, alignment=Qt.AlignmentFlag.AlignHCenter)
 
         self._modules_label = section_label("")
@@ -1556,6 +1589,7 @@ class ModulesView(QWidget):
             streak=self._store.streak(),
             progress=round(completed_sections * 100 / total_sections) if total_sections else 0,
             goal=weekly_goal.current(self._store),
+            reviews=review_box.today_count(self._store),
         )
         self._modules_label.setText(self._language.t_upper("home.modules"))
 
@@ -2419,6 +2453,8 @@ class JourneyView(FadeStack):
     section_opened = Signal(str, str)
     # Başlık şeridindeki geri düğmesi buna bakarak görünüp kayboluyor.
     view_changed = Signal()
+    # Karşılama kartındaki "Tekrar et": tekrar kutusu penceresi.
+    review_requested = Signal()
 
     def __init__(
         self,
@@ -2442,6 +2478,8 @@ class JourneyView(FadeStack):
         self.tracks.track_opened.connect(self.open_track)
         self.tracks.resume_requested.connect(self._resume)
         self.modules.resume_requested.connect(self._resume)
+        self.tracks.review_requested.connect(self.review_requested)
+        self.modules.review_requested.connect(self.review_requested)
         self.modules.module_opened.connect(self.open_module)
         self.path.section_opened.connect(self.section_opened)
 

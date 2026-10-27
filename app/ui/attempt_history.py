@@ -16,7 +16,6 @@ dilde kalırdı. Kayıt anında iki dilin metni birden yazılıyor (`detail`).
 from __future__ import annotations
 
 import difflib
-import hashlib
 import html
 import json
 from datetime import datetime
@@ -24,6 +23,7 @@ from urllib.parse import quote
 
 from ..core import workspace_files
 from ..core.grader import describe
+from ..core.review_box import question_key
 from ..core.language import AVAILABLE_LANGUAGES, LanguageManager
 
 _MANAGERS: dict[str, LanguageManager] = {}
@@ -46,13 +46,6 @@ def run_detail(result) -> str:
     for dil in AVAILABLE_LANGUAGES:
         detay[dil] = [f.message for f in describe(result, _manager(dil)) if not f.passed][:4]
     return json.dumps(detay, ensure_ascii=False)
-
-
-def question_key(question: dict) -> str:
-    """Sorunun kısa parmak izi: soru sonradan değişirse eski cevap ona
-    uygulanmasın."""
-    metin = json.dumps(question.get("text", {}), ensure_ascii=False, sort_keys=True)
-    return hashlib.sha1(metin.encode("utf-8")).hexdigest()[:10]
 
 
 def when(language: LanguageManager, stamp: str) -> str:

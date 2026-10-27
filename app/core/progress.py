@@ -17,7 +17,7 @@ from __future__ import annotations
 import sqlite3
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from ..paths import database_path
@@ -250,6 +250,23 @@ MIGRATIONS: list[str] = [
     # eklenince bitirmiş olan "yarım kaldı"ya düşmesin (`core/completion.py`).
     """
     ALTER TABLE section_progress ADD COLUMN completed_at TEXT;
+    """,
+    # 12 — tekrar kutusu (aralıklı tekrar, 1.4.0; `core/review_box.py`).
+    # Sınavda yanlış ya da boş bırakılan soru; `stage` kaçıncı aralıkta
+    # olduğu, `due_day` yeniden sorulacağı gün. Soru dosyadaki sırasıyla ve
+    # parmak iziyle tutuluyor (sınav kayıtları gibi, `attempt_history`).
+    """
+    CREATE TABLE IF NOT EXISTS review_items (
+        chapter_id     TEXT NOT NULL,
+        section_id     TEXT NOT NULL,
+        question_key   TEXT NOT NULL,
+        question_index INTEGER NOT NULL,
+        stage          INTEGER NOT NULL DEFAULT 0,
+        due_day        TEXT NOT NULL,
+        added_at       TEXT NOT NULL,
+        PRIMARY KEY (chapter_id, section_id, question_key)
+    );
+    CREATE INDEX IF NOT EXISTS idx_review_due ON review_items (due_day);
     """,
 ]
 
@@ -842,13 +859,18 @@ class ProgressStore:
 
     def add_quiz_attempt(
         self, chapter_id: str, section_id: str, score: int, passed: bool, answers: str,
-        abandoned: bool = False,
+        abandoned: bool = False, today: date | None = None,
     ) -> None:
         """Bir sınav denemesini cevaplarıyla kaydeder (`answers` JSON).
 
         `abandoned`: sınav bitirilmeden çıkıldı; yalnızca cevaplanan sorular
-        var, puan sayılmıyor (bölümün sınav notuna yazılmıyor).
+        var, puan sayılmıyor (bölümün sınav notuna yazılmıyor). Yanlış (ve
+        bitmiş sınavda boş) sorular tekrar kutusuna giriyor, ertesi gün.
         """
+        from .review_box import wrong_questions
+
+        yarin = (today or date.today()) + timedelta(days=1)
+        self.add_review_items(chapter_id, section_id, wrong_questions(answers, abandoned), yarin)
         with self._write() as connection:
             connection.execute(
                 "INSERT INTO quiz_attempts (chapter_id, section_id, score, passed, answers, "
@@ -862,6 +884,60 @@ class ProgressStore:
                 "ORDER BY id DESC LIMIT ?)",
                 (chapter_id, section_id, chapter_id, section_id, MAX_QUIZ_ATTEMPTS),
             )
+
+    # --- Tekrar kutusu (`core/review_box.py`) -------------------------------
+
+    def add_review_items(self, chapter_id: str, section_id: str,
+                         questions: list[tuple[int, str]], due: date) -> None:
+        """Soruları (sıra, parmak izi) kutuya koyar; zaten varsa başa döner."""
+        if not questions:
+            return
+        with self._write() as connection:
+            connection.executemany(
+                "INSERT INTO review_items (chapter_id, section_id, question_key, question_index, "
+                "stage, due_day, added_at) VALUES (?, ?, ?, ?, 0, ?, ?) "
+                "ON CONFLICT (chapter_id, section_id, question_key) DO UPDATE SET "
+                "stage = 0, due_day = excluded.due_day, question_index = excluded.question_index",
+                [(chapter_id, section_id, key, index, due.isoformat(), _now())
+                 for index, key in questions],
+            )
+
+    def due_reviews(self, today: date, limit: int) -> list[dict]:
+        """Vadesi gelmiş sorular; en eski vade önce."""
+        rows = self._connection.execute(
+            "SELECT chapter_id, section_id, question_key, question_index, stage, due_day "
+            "FROM review_items WHERE due_day <= ? ORDER BY due_day, added_at, rowid LIMIT ?",
+            (today.isoformat(), limit),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+    def due_review_count(self, today: date) -> int:
+        return int(self._connection.execute(
+            "SELECT COUNT(*) FROM review_items WHERE due_day <= ?", (today.isoformat(),)
+        ).fetchone()[0])
+
+    def set_review(self, chapter_id: str, section_id: str, key: str,
+                   stage: int | None, due: date | None = None) -> None:
+        """Sorunun aşamasını ve vadesini yazar; `stage` `None` ise kutudan çıkarır."""
+        with self._write() as connection:
+            if stage is None:
+                connection.execute(
+                    "DELETE FROM review_items WHERE chapter_id = ? AND section_id = ? "
+                    "AND question_key = ?", (chapter_id, section_id, key))
+            else:
+                connection.execute(
+                    "UPDATE review_items SET stage = ?, due_day = ? WHERE chapter_id = ? "
+                    "AND section_id = ? AND question_key = ?",
+                    (stage, due.isoformat(), chapter_id, section_id, key))
+
+    def last_finished_quiz_answers(self) -> list[tuple[str, str, str]]:
+        """Her bölümün son bitmiş (yarıda bırakılmamış) sınav denemesinin cevapları."""
+        rows = self._connection.execute(
+            "SELECT chapter_id, section_id, answers FROM quiz_attempts q WHERE abandoned = 0 "
+            "AND id = (SELECT MAX(id) FROM quiz_attempts WHERE chapter_id = q.chapter_id "
+            "AND section_id = q.section_id AND abandoned = 0)"
+        ).fetchall()
+        return [(row["chapter_id"], row["section_id"], row["answers"]) for row in rows]
 
     def quiz_attempts(self, chapter_id: str, section_id: str) -> list[dict]:
         """Sınav denemeleri, en yenisi başta."""

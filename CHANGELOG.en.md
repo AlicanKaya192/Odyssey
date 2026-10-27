@@ -36,6 +36,12 @@ lecture note does not mean downloading the whole application again.
   or study days you want each week; this week's progress shows on the
   welcome card and a celebration card appears when you reach it. The week
   starts on Monday.
+- **Review box.** Questions you got wrong or left blank in a quiz go into
+  the box and come back after 1, 3, 7 and 14 days; the gap grows as you
+  get them right and starts over when you miss one. The Review button on
+  the welcome card opens the ones that are due (at most 20 a day).
+  Mistakes from your earlier quizzes are added the first time you open the
+  app.
 
 ### Changed
 - **A refreshed Learning Path screen.** Tracks are grouped under four
