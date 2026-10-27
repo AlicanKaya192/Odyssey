@@ -13,7 +13,7 @@ gerekmez; yalnızca değişen içerik paketi iner.
 # Ayrıntısı CHANGELOG.md'nin başında yazılı.
 
 # Uygulama kodunun sürümü.
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.4.0"
 
 # Müfredat içeriğinin sürümü. Uygulama kodundan ayrı ilerliyor.
 CONTENT_VERSION = "0.7.0"

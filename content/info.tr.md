@@ -48,14 +48,19 @@ XP, seviyeler ve unvanlar, çalışma zamanlayıcısı, önerilen rotalar, kendi
 notlarınız, genel arama, tanıtım turu, Türkçe/İngilizce arayüz, açık/koyu
 tema ve uygulama içi güncelleme hazırdır.
 
-On patika tamamlanmıştır: **Python Temelleri**, **Git**, **Veri Bilimi**,
-**Makine Öğrenmesi**, **SQL**, **Zaman Serileri**, **Matematik**, **API**,
-**Docker** ve **Büyük Veri**. Matematik patikası iki modülden oluşur:
-sıfırdan başlayan biri için temel matematik ve makine öğrenmesinin dayandığı
-doğrusal cebir, kalkülüs, olasılık ve istatistik. API patikası da iki
-modüldür: REST API kullanmak ve FastAPI ile API yazmak. Toplamda 227 bölüm,
-6194 sınav sorusu, 879 alıştırma ve 300 matematik problemi bulunur. Doğal
-Dil İşleme ve diğer patikalar hazırlanmaktadır.
+On altı patika tamamlanmıştır: **Python Temelleri**, **CS50 Python**,
+**Git**, **Algoritmalar**, **Temel Kütüphaneler**, **SQL**, **Matematik**,
+**Veri Bilimi**, **Makine Öğrenmesi**, **Zaman Serileri**,
+**Doğal Dil İşleme**, **Büyük Veri**, **API**, **Docker**,
+**GenAI ve Prompt Mühendisliği** ve **Sistem Tasarımı**. Bazı patikalar
+birden fazla modülden oluşur: Matematik, sıfırdan başlayan biri için temel
+matematik ile makine öğrenmesinin dayandığı doğrusal cebir, kalkülüs,
+olasılık ve istatistik; Algoritmalar, temel algoritmalardan sıfırdan
+yazılan makine öğrenmesi algoritmalarına üç modül; Temel Kütüphaneler,
+standart kütüphaneden scikit-learn'e dört modül; Sistem Tasarımı, CI/CD ve
+MLOps. CS50 Python, Harvard'ın CS50 programlamaya giriş dersinin videolu ve
+Türkçe altyazılı uyarlamasıdır. Toplamda 466 bölüm, 12165 sınav sorusu,
+2140 alıştırma ve 300 matematik problemi bulunur.
 
 Programı ilk kez kullanıyorsanız **Ayarlar › Öğrenme › Tanıtım turu**
 bütün ekranları sırayla gösterir.
