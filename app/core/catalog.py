@@ -691,11 +691,34 @@ class Track:
 
 
 @dataclass
+class TrackGroup:
+    """Ana ekranda bir başlık altında toplanan patikalar ("Temeller" gibi).
+
+    Sıra ve üyelik `tracks.json` → `groups`. Hiçbir gruba yazılmamış patika
+    sondaki başlıksız gruba düşüyor; patika eklenip gruba yazılmayı
+    unutulursa ekrandan kaybolmasın.
+    """
+
+    id: str
+    raw: dict
+    tracks: list[Track] = field(default_factory=list)
+
+    @property
+    def title(self) -> dict[str, str]:
+        return self.raw.get("title", {})
+
+    @property
+    def description(self) -> dict[str, str]:
+        return self.raw.get("description", {})
+
+
+@dataclass
 class Catalog:
     """Bütün müfredat."""
 
     chapters: list[Chapter] = field(default_factory=list)
     tracks: list[Track] = field(default_factory=list)
+    groups: list[TrackGroup] = field(default_factory=list)
 
     @classmethod
     def load(cls, content_dir: Path) -> "Catalog":
@@ -707,7 +730,8 @@ class Catalog:
             chapters = cls._chapters_from_bundle(content_dir, _read_json(bundle))
         else:
             chapters = cls._scan_chapters(content_dir)
-        return cls(chapters=chapters, tracks=cls._load_tracks(content_dir, chapters))
+        tracks, groups = cls._load_tracks(content_dir, chapters)
+        return cls(chapters=chapters, tracks=tracks, groups=groups)
 
     @staticmethod
     def _scan_chapters(content_dir: Path) -> list[Chapter]:
@@ -733,25 +757,38 @@ class Catalog:
         return chapters
 
     @staticmethod
-    def _load_tracks(content_dir: Path, chapters: list[Chapter]) -> list[Track]:
-        """`tracks.json` varsa patikaları kurar.
-
-        Dosya yoksa tek bir patika üretiliyor: eski davranış korunuyor ve
-        ekran boş kalmıyor.
-        """
+    def _load_tracks(
+        content_dir: Path, chapters: list[Chapter]
+    ) -> tuple[list[Track], list[TrackGroup]]:
+        """`tracks.json` varsa patikaları ve gruplarını kurar."""
         path = content_dir / "tracks.json"
         if not path.exists():
-            return []
+            return [], []
 
+        data = _read_json(path)
         by_id = {chapter.id: chapter for chapter in chapters}
         tracks: list[Track] = []
-        for raw in _read_json(path).get("tracks", []):
+        for raw in data.get("tracks", []):
             track_id = raw.get("id", "")
             secili = [
                 by_id[cid] for cid in raw.get("chapters", []) if cid in by_id
             ]
             tracks.append(Track(id=track_id, raw=raw, chapters=secili))
-        return tracks
+
+        by_track = {track.id: track for track in tracks}
+        groups = [
+            TrackGroup(
+                id=raw.get("id", ""),
+                raw=raw,
+                tracks=[by_track[t] for t in raw.get("tracks", []) if t in by_track],
+            )
+            for raw in data.get("groups", [])
+        ]
+        grouped = {track.id for group in groups for track in group.tracks}
+        rest = [track for track in tracks if track.id not in grouped]
+        if rest:
+            groups.append(TrackGroup(id="", raw={}, tracks=rest))
+        return tracks, groups
 
     def track(self, track_id: str) -> Track | None:
         return next((t for t in self.tracks if t.id == track_id), None)

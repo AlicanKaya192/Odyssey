@@ -21,7 +21,6 @@ from PySide6.QtCore import Property, QEvent, QPointF, QRect, QRectF, QSize, Qt, 
 from PySide6.QtGui import (
     QColor,
     QFont,
-    QFontMetrics,
     QIcon,
     QLinearGradient,
     QPainter,
@@ -29,6 +28,7 @@ from PySide6.QtGui import (
     QPen,
 )
 from PySide6.QtWidgets import (
+    QButtonGroup,
     QGraphicsOpacityEffect,
     QFrame,
     QGridLayout,
@@ -45,20 +45,20 @@ from PySide6.QtWidgets import (
 )
 
 from ..widgets.fade_stack import BACK, FORWARD, NONE, FadeStack
-from ..widgets.lift_card import GlowCard, LiftSlot
+from ..widgets.lift_card import ENTER, LIFT, GlowCard, LiftSlot
 from ..widgets.logo_mark import LogoMark
 from ..widgets.progress_bar import ProgressBar
 from ..widgets import motion
 from ..widgets.path_node import PAD as NODE_PAD, NodeButton
 from ..resources.logos import logo_key
-from ..core.catalog import Catalog, Chapter, Track
+from ..core.catalog import Catalog, Chapter, Track, TrackGroup
 from ..core.completion import is_completed
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.unlock import blocking_section
 from ..resources.icons import icon, pixmap
 from ..resources.theme.tokens import CONTENT_WIDTH, FONTS, PALETTES, RADIUS, SPACING, mix
-from ..widgets.common import ElidedText, StatBlock, horizontal_rule, section_label
+from ..widgets.common import StatBlock, horizontal_rule, section_label
 from ..widgets.streak_flame import FlickerFlame, hero_flame_pixmap, next_tier, tier_for
 from ..widgets.effects import apply_shadow, refresh_shadow
 
@@ -840,107 +840,109 @@ class ModuleCard(GlowCard):
         self._description.setText(self._language.pick(self._chapter.description))
 
 
-# Patika kartı başlığının denenen yazı boyutları; ilki QSS'teki boyut.
-TITLE_SIZES = (17, 16, 15, 14, 13)
-TITLE_LINES = 2
-
 # Kilitli patikada logonun köşesindeki kilit rozetinin çapı.
 LOCK_BADGE = 22
 
+# Ana ekranın süzgeçleri: hepsi, başlanmışlar, sonra her grup (`tracks.json`).
+FILTER_ALL = "all"
+FILTER_STARTED = "started"
+FILTER_SETTING = "journey_filter"
+# Kart gölgesinin (bulanıklık 24) grup bileşeninin içinde kalan payı. Gölge
+# kartı taşıyan bileşenin sınırında kesiliyor; pay yokken açık temada
+# ızgaranın iki yanında düz kenarlı gri bir dikdörtgen görünüyordu.
+SHADOW_ROOM = 24
+
 
 class TrackCard(GlowCard):
-    """Bir öğrenme patikasını temsil eden kart (prototipteki `.tcard`).
+    """Bir öğrenme patikasının kartı (27 Ekim taslağı A, `Plan/tasarim/ana-ekran`).
 
-    Üstte logo (50 px) ve yanında başlık ile "17 bölüm" alt satırı; altında
-    iki satırlık açıklama; en altta ilerleme çubuğu ve "1 / 17 bölüm · %6".
-    Kilitli patikada kart kesik çerçeveli ve soluk zeminli, logo gri, sağ üstte
-    zeminli bir kilit kutusu ve en altta bilgi simgeli ön koşul satırı var.
+    Solda logo, sağda başlık (başlanmışsa yanında "Devam ediyor"), açıklamanın
+    tamamı ve en altta ilerleme çubuğu ile "3 / 19 bölüm · %16". Başlanmamış
+    patikada çubuk 0'da, sağda yüzde yerine önerilen ön koşul ("Önce:
+    Python"). Önce açıklamalar iki satırda kesiliyordu (Alican: daha
+    okunabilir, daha ferah). Boyu grup veriyor: aynı sıradaki iki kart aynı
+    boyda (`TrackGroupSection`).
     """
 
     clicked = Signal()
 
     PAD = 20
-    LOGO = 50
+    LOGO = 44
 
     def __init__(self, track: Track, language: LanguageManager, mode: str,
-                 parent: QWidget | None = None) -> None:
+                 prerequisite: Track | None = None, parent: QWidget | None = None) -> None:
         super().__init__(parent, interactive=not track.locked)
         self._track = track
+        self._prerequisite = prerequisite
         self._language = language
         self._completed = 0
-        self._total = 0
+        self._total = sum(len(chapter.sections) for chapter in track.chapters)
+        self._started = False
         self._mode = mode
-        self._radius = 20
+        self._radius = 18
         self.set_accent(track.color)
         self.set_card_mode(mode)
         self.setProperty("variant", "track")
         self.setProperty("locked", "true" if track.locked else "false")
-        # Bütün kartlar aynı boyda: genişlik ızgaradan, yükseklik `_fix_height`.
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         if not track.locked:
             self.setCursor(Qt.CursorShape.PointingHandCursor)
-            apply_shadow(self, mode, radius=20)
+            apply_shadow(self, mode, radius=18)
 
-        layout = QVBoxLayout(self)
+        layout = QHBoxLayout(self)
         layout.setContentsMargins(self.PAD, self.PAD, self.PAD, self.PAD)
-        layout.setSpacing(12)
-
-        header = QHBoxLayout()
-        header.setSpacing(14)
+        layout.setSpacing(16)
         self._icon = LogoMark(logo_key(track.icon, track.id), track.color, self.LOGO, locked=track.locked)
         self.hovered.connect(self._icon.set_hovered)
-        header.addWidget(self._icon, 0, Qt.AlignmentFlag.AlignVCenter)
-        baslik = QVBoxLayout()
-        baslik.setSpacing(1)
-        baslik.addStretch(1)
+        layout.addWidget(self._icon, 0, Qt.AlignmentFlag.AlignTop)
+
+        body = QVBoxLayout()
+        body.setSpacing(0)
+        baslik = QHBoxLayout()
+        baslik.setSpacing(10)
         self._title = QLabel()
         self._title.setWordWrap(True)
         self._title.setProperty("role", "track-title")
         baslik.addWidget(self._title)
-        self._sub = QLabel()
-        self._sub_names = ""
-        self._sub.setProperty("role", "track-sub")
-        baslik.addWidget(self._sub)
+        self._chip = QLabel()
+        self._chip.setProperty("role", "track-chip")
+        self._chip.hide()
+        baslik.addWidget(self._chip, 0, Qt.AlignmentFlag.AlignVCenter)
         baslik.addStretch(1)
-        header.addLayout(baslik, 1)
-        self._lock: QLabel | None = None
-        if track.locked:
-            # Tıklanınca sallanıyor: neden açılmadığını anlatıyor (C2).
-            # Logonun sağ alt köşesinde küçük rozet (kilitli madalyalar gibi),
-            # yerleşimin dışında. Önce başlık satırının sağında 44 piksel
-            # tutuyordu ve dar kartta başlık sığmıyordu ("Algoritmal").
-            self._lock = QLabel(self)
-            self._lock.setProperty("role", "lock-chip")
-            self._lock.setFixedSize(LOCK_BADGE, LOCK_BADGE)
-            self._lock.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self._lock.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        layout.addLayout(header)
-
-        self._description = ElidedText(lines=2)
+        body.addLayout(baslik)
+        body.addSpacing(6)
+        self._description = QLabel()
+        self._description.setWordWrap(True)
         self._description.setProperty("role", "track-desc")
-        layout.addWidget(self._description)
-        layout.addStretch(1)
+        body.addWidget(self._description)
+        body.addSpacing(14)
+        body.addStretch(1)
 
-        # Alt blok: açıkta çubuk + "1 / 17 bölüm · %6", kilitlide ön koşul satırı.
-        self._foot = QWidget()
-        self._foot.setProperty("role", "bare")
-        alt = QVBoxLayout(self._foot)
-        alt.setContentsMargins(0, 0, 0, 0)
-        alt.setSpacing(8)
         self._bar = ProgressBar(f"track:{track.id}")
         self._bar.set_color(track.color)
         self._bar.set_mode(mode)
-        alt.addWidget(self._bar)
+        self._bar.hide()
+        body.addWidget(self._bar)
         meta = QHBoxLayout()
-        meta.setSpacing(8)
+        meta.setContentsMargins(0, 0, 0, 0)
+        meta.setSpacing(12)
         self._meta_left = QLabel()
         self._meta_left.setProperty("role", "track-meta")
         self._meta_right = QLabel()
         self._meta_right.setProperty("role", "track-meta")
+        self._pre = QLabel()
+        self._pre.setProperty("role", "track-meta")
         meta.addWidget(self._meta_left)
         meta.addStretch(1)
-        meta.addWidget(self._meta_right)
-        alt.addLayout(meta)
+        for parca in (self._meta_right, self._pre):
+            meta.addWidget(parca)
+        self._meta_space = QWidget()
+        self._meta_space.setProperty("role", "bare")
+        self._meta_space.setFixedHeight(8)
+        body.addWidget(self._meta_space)
+        body.addLayout(meta)
+
+        # Kilitli patika (içeriği yazılmamış): bilgi simgeli satır, kilit rozeti.
         self._why_row = QWidget()
         self._why_row.setProperty("role", "bare")
         why = QHBoxLayout(self._why_row)
@@ -949,16 +951,23 @@ class TrackCard(GlowCard):
         self._why_icon = QLabel()
         self._why_icon.setFixedWidth(16)
         why.addWidget(self._why_icon, 0, Qt.AlignmentFlag.AlignTop)
-        self._caption = ElidedText(lines=2)
+        self._caption = QLabel()
+        self._caption.setWordWrap(True)
         self._caption.setProperty("role", "track-why")
         why.addWidget(self._caption, 1)
-        alt.addWidget(self._why_row)
-        for parca in (self._bar,):
-            parca.setVisible(not track.locked)
-        self._meta_left.setVisible(not track.locked)
-        self._meta_right.setVisible(not track.locked)
         self._why_row.setVisible(track.locked)
-        layout.addWidget(self._foot)
+        body.addWidget(self._why_row)
+        layout.addLayout(body, 1)
+
+        self._lock: QLabel | None = None
+        if track.locked:
+            # Tıklanınca sallanıyor: neden açılmadığını anlatıyor (C2).
+            self._lock = QLabel(self)
+            self._lock.setProperty("role", "lock-chip")
+            self._lock.setFixedSize(LOCK_BADGE, LOCK_BADGE)
+            self._lock.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self._lock.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self._show_progress()
         self._paint_icons()
 
     def _paint_icons(self) -> None:
@@ -967,54 +976,61 @@ class TrackCard(GlowCard):
             self._lock.setPixmap(pixmap("lock", p["text_muted"], 12))
         self._why_icon.setPixmap(pixmap("info", p["text_muted"], 14))
 
-    def showEvent(self, event) -> None:  # noqa: N802 (Qt adlandırması)
-        # Ölçü ekrana gelince alınıyor: kurulurken yazı tipi henüz stil
-        # dosyasından gelmemiş olabiliyor.
-        super().showEvent(event)
-        self._fix_height()
-        QTimer.singleShot(0, self._place_lock)
-
-    def changeEvent(self, event) -> None:  # noqa: N802
-        super().changeEvent(event)
-        if event.type() == event.Type.StyleChange and self.isVisible():
-            self._fix_height()
-
-    def _fix_height(self) -> None:
-        """Kart yüksekliği: en kalabalık hâlin sığacağı sabit boy (hepsi aynı)."""
-        for label in (self._description, self._caption):
+    def height_for(self, width: int) -> int:
+        """Bu genişlikte içeriğin sığdığı en küçük boy."""
+        self.ensurePolished()
+        for label in (self._title, self._description, self._chip, self._pre, self._meta_left, self._meta_right, self._caption):
             label.ensurePolished()
-            label._reflow()
-        self._meta_left.ensurePolished()
-        self._title.ensurePolished()
-        ust = self.LOGO + 12
-        alt_acik = self._bar.sizeHint().height() + 8 + self._meta_left.sizeHint().height()
-        alt_kilitli = self._caption.height()
-        height = (2 * self.PAD + ust + 12 + self._description.height() + 12
-                  + max(alt_acik, alt_kilitli) + 4)
-        self.setFixedHeight(height)
+        return self.layout().totalHeightForWidth(width)
+
+    def showEvent(self, event) -> None:  # noqa: N802 (Qt adlandırması)
+        super().showEvent(event)
+        QTimer.singleShot(0, self._place_lock)
 
     @property
     def track_id(self) -> str:
         return self._track.id
 
-    def update_progress(self, completed: int, total: int) -> None:
-        """Patikanın altındaki modüllerin toplam ilerlemesi."""
+    @property
+    def started(self) -> bool:
+        return self._started
+
+    def update_progress(self, completed: int, total: int, started: bool) -> None:
+        """Patikanın toplam ilerlemesi; `started`: bir bölümünde etkinlik var."""
         self._completed = completed
         self._total = total
+        self._started = started
         percent = round(completed * 100 / total) if total else 0
         self._bar.set_percent(percent)
+        self._show_progress()
         self._render_meta()
 
+    def _show_progress(self) -> None:
+        acik = not self._track.locked
+        devam = acik and self._started
+        # Başlanmamış patikada da çubuk 0'da duruyor (Alican 27 Ekim); sağda
+        # yüzde yerine önerilen ön koşul.
+        on_kosul = acik and not devam and self._prerequisite is not None
+        self._bar.setVisible(acik)
+        self._chip.setVisible(devam)
+        self._meta_left.setVisible(acik)
+        self._meta_right.setVisible(acik and not on_kosul)
+        self._pre.setVisible(on_kosul)
+        self._meta_space.setVisible(acik)
+
     def _render_meta(self) -> None:
+        t = self._language.t
         percent = round(self._completed * 100 / self._total) if self._total else 0
         p = PALETTES.get(self._mode, PALETTES["dark"])
         self._meta_left.setText(
             f"<span style='color:{p['text']};font-weight:700'>{self._completed}</span>"
-            + self._language.t("track.meta_sections", total=self._total))
-        self._meta_right.setText(self._language.t("home.percent", value=percent))
+            + t("track.meta_sections", total=self._total))
+        self._meta_right.setText(t("home.percent", value=percent))
+        if self._prerequisite is not None:
+            self._pre.setText(t("track.before", name=self._language.pick(self._prerequisite.title)))
 
     def _shake_lock(self) -> None:
-        """Kilit ±4 px üç kez sallanır, alttaki ön koşul yazısı bir an vurgulanır."""
+        """Kilit ±4 px üç kez sallanır, alttaki açıklama bir an vurgulanır."""
         from ..resources.theme.motion import DISTANCE
 
         kilit = self._lock
@@ -1053,7 +1069,6 @@ class TrackCard(GlowCard):
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
-        self._fit_title()
         self._place_lock()
 
     def _place_lock(self) -> None:
@@ -1062,99 +1077,113 @@ class TrackCard(GlowCard):
             return
         logo = self._icon.geometry()
         if logo.isEmpty():
-            # Yerleşim henüz kurulmadı; logo kenar boşluğunda, dikeyde ortada.
             logo = self._icon.rect().translated(self.PAD, self.PAD)
         self._lock.move(logo.right() - LOCK_BADGE + 6, logo.bottom() - LOCK_BADGE + 6)
         self._lock.raise_()
 
-    def _fit_title(self) -> None:
-        """Başlık yazısını kartın genişliğine sığdırır; kartın boyu değişmez.
-
-        Kartlar pencereyle ölçeklenince dar kalan başlık kırpılıyordu:
-        "Algoritmalar" "Algoritmal", "Kütüphaneler" "Kütüphane" oluyordu,
-        "GenAI ve Prompt Eng." üç satıra taşıyordu (Alican bildirdi). Yazı
-        her kelime tek parça ve en fazla iki satır olacak kadar küçülüyor.
-        """
-        metin = self._title.text()
-        if not metin:
-            return
-        # Logonun gerçek sağ kenarından: logo bileşeni çizdiği 50 pikselden
-        # geniş, sabitten hesaplanınca oda 14 piksel fazla çıkıyordu.
-        logo = self._icon.geometry()
-        sol = logo.right() + 1 if not logo.isEmpty() else self.PAD + self._icon.sizeHint().width()
-        # Son 8 piksel pay: etiketin kendi satır kırması ölçümden birkaç
-        # piksel dar davranıyor ("System Design" sığar görünüp bölünüyordu).
-        oda = self.width() - self.PAD - sol - 14 - 8
-        if oda <= 0:
-            return
-        self._title.ensurePolished()
-        font = QFont(self._title.font())
-        secilen = TITLE_SIZES[-1]
-        for boyut in TITLE_SIZES:
-            font.setPixelSize(boyut)
-            olcu = QFontMetrics(font)
-            satir, satirlar = "", 1
-            sigdi = True
-            for kelime in metin.split():
-                if olcu.horizontalAdvance(kelime) > oda:
-                    sigdi = False
-                    break
-                aday = f"{satir} {kelime}".strip()
-                if olcu.horizontalAdvance(aday) > oda:
-                    satirlar += 1
-                    satir = kelime
-                else:
-                    satir = aday
-            if sigdi and satirlar <= TITLE_LINES:
-                secilen = boyut
-                break
-        stil = "" if secilen == TITLE_SIZES[0] else f"font-size: {secilen}px;"
-        if self._title.styleSheet() != stil:
-            self._title.setStyleSheet(stil)
-        self._fit_sub(oda)
-
-    def _fit_sub(self, oda: int) -> None:
-        """Modül adları sığmazsa alt satırda modül sayısı yazılır.
-
-        Algoritmalar patikasının modülleri "ALG 1" gibi numarayla değil adıyla
-        anılınca (Alican: tıklamadan hangisi olduğu anlaşılmıyordu) üç ad kart
-        başlığının altına sığmadı ve kırpıldı.
-        """
-        if not self._sub_names:
-            return
-        self._sub.ensurePolished()
-        if self._sub.fontMetrics().horizontalAdvance(self._sub_names) <= oda:
-            metin = self._sub_names
-        else:
-            metin = self._language.t("track.modules", count=len(self._track.chapters))
-        if self._sub.text() != metin:
-            self._sub.setText(metin)
-
     def retranslate(self) -> None:
+        t = self._language.t
         self._title.setText(self._language.pick(self._track.title))
-        self._fit_title()
-        self._description.set_full_text(self._language.pick(self._track.description))
-        self._sub_names = ""
+        self._description.setText(self._language.pick(self._track.description))
+        self._chip.setText(t("track.in_progress"))
         if self._track.locked:
-            self._sub.setText("")
-            self._caption.set_full_text(
-                self._language.t("track.prerequisite") if self._track.prerequisite
-                else self._language.t("track.locked"))
-        else:
-            if self._track.chapter_tabs and len(self._track.chapters) > 1:
-                kisa = [self._language.pick(c.raw.get("short"), "") for c in self._track.chapters]
-                self._sub_names = " · ".join(k for k in kisa if k)
-                self._sub.setText(self._sub_names)
-            else:
-                # Bölüm sayısı kartın altında ("1 / 17 bölüm") zaten yazıyor.
-                self._sub.setText("")
-        self._sub.setVisible(bool(self._sub.text()))
-        self._fit_title()
+            self._caption.setText(
+                t("track.prerequisite") if self._track.prerequisite else t("track.locked"))
         self._render_meta()
 
 
+class TrackGroupSection(QWidget):
+    """Bir grup başlığı ("Temeller" + kısa açıklama) ve altında iki sütun kart."""
+
+    COLUMNS = 2
+
+    def __init__(self, group: TrackGroup, language: LanguageManager, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setProperty("role", "bare")
+        self._group = group
+        self._language = language
+        self.cards: list[TrackCard] = []
+        self._shown: list[TrackCard] = []
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(14)
+        self._header = QWidget()
+        self._header.setProperty("role", "bare")
+        baslik = QHBoxLayout(self._header)
+        baslik.setContentsMargins(SHADOW_ROOM + 2, 0, SHADOW_ROOM + 2, 0)
+        baslik.setSpacing(12)
+        self._title = QLabel()
+        self._title.setProperty("role", "group-title")
+        self._description = QLabel()
+        self._description.setProperty("role", "group-desc")
+        baslik.addWidget(self._title, 0, Qt.AlignmentFlag.AlignBaseline)
+        baslik.addWidget(self._description, 1, Qt.AlignmentFlag.AlignBaseline)
+        self._header.setVisible(bool(group.title))
+        layout.addWidget(self._header)
+
+        self._body = QWidget()
+        self._body.setProperty("role", "bare")
+        self._grid = QGridLayout(self._body)
+        self._grid.setContentsMargins(SHADOW_ROOM, 0, SHADOW_ROOM, SHADOW_ROOM)
+        self._grid.setHorizontalSpacing(SPACING["md"])
+        self._grid.setVerticalSpacing(SPACING["md"] - LIFT - ENTER)
+        for column in range(self.COLUMNS):
+            self._grid.setColumnStretch(column, 1)
+        layout.addWidget(self._body)
+
+    def header_text(self) -> str:
+        return self._title.text()
+
+    def add_card(self, card: TrackCard) -> None:
+        self.cards.append(card)
+        LiftSlot(card, self._body)
+
+    def show_cards(self, visible: list[TrackCard]) -> None:
+        """Yalnızca verilen kartları sırayla dizer; gizlenen kart yer tutmaz.
+
+        `QGridLayout` gizli widget'ın satırını çöktürüyor ve kalan kartlar
+        yanlış sütuna kayıyor; bu yüzden ızgara her süzgeçte baştan kuruluyor.
+        """
+        while self._grid.count():
+            self._grid.takeAt(0)
+        for card in self.cards:
+            card.parentWidget().setVisible(card in visible)
+        self._shown = [card for card in self.cards if card in visible]
+        for index, card in enumerate(self._shown):
+            self._grid.addWidget(card.parentWidget(), index // self.COLUMNS, index % self.COLUMNS)
+        self.setVisible(bool(self._shown))
+        self._equalize()
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._equalize()
+
+    def _equalize(self) -> None:
+        """Aynı sıradaki kartlar en uzun olanın boyunda."""
+        if not self._shown:
+            return
+        genislik = (self._body.width() - 2 * SHADOW_ROOM
+                    - self._grid.horizontalSpacing() * (self.COLUMNS - 1)) // self.COLUMNS
+        if genislik <= 0:
+            return
+        for start in range(0, len(self._shown), self.COLUMNS):
+            sira = self._shown[start:start + self.COLUMNS]
+            boy = max(card.height_for(genislik) for card in sira)
+            for card in sira:
+                if card.height() != boy:
+                    card.setFixedHeight(boy)
+
+    def retranslate(self) -> None:
+        self._title.setText(self._language.pick(self._group.title))
+        self._description.setText(self._language.pick(self._group.description))
+        for card in self.cards:
+            card.retranslate()
+        self._equalize()
+
+
 class TracksView(QWidget):
-    """Patika kartlarının 2x2 dizildiği ana ekran."""
+    """Ana ekran: karşılama kartı, süzgeç şeridi ve gruplu patika kartları."""
 
     track_opened = Signal(str)
     resume_requested = Signal()
@@ -1172,72 +1201,135 @@ class TracksView(QWidget):
         self._store = store
         self._mode = "light"
         self._cards: list[TrackCard] = []
+        self._groups: list[TrackGroupSection] = []
+        self._filter = store.setting(FILTER_SETTING, FILTER_ALL) or FILTER_ALL
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
 
         column = QWidget()
         self._page_layout = QVBoxLayout(column)
+        # Yanlarda gölge payı kadar az: grupların içindeki ızgara o payı
+        # kendisi bırakıyor, kartlar yine karşılama kartıyla aynı hizada.
         self._page_layout.setContentsMargins(
-            SPACING["xl"], SPACING["xl"], SPACING["xl"], SPACING["xxl"]
+            SPACING["xl"] - SHADOW_ROOM, SPACING["xl"], SPACING["xl"] - SHADOW_ROOM, SPACING["xxl"]
         )
-        self._page_layout.setSpacing(SPACING["lg"])
+        self._page_layout.setSpacing(0)
 
         self._hero = HeroCard(language)
         # Prototip: karşılama kartı en fazla 1030 px, ortada.
         self._hero.setMaximumWidth(HERO_WIDTH)
         self._hero.resume.connect(self.resume_requested)
         hero_satir = QHBoxLayout()
+        hero_satir.setContentsMargins(SHADOW_ROOM, 0, SHADOW_ROOM, 0)
         hero_satir.addStretch(1)
         hero_satir.addWidget(self._hero, 1000)
         hero_satir.addStretch(1)
         self._page_layout.addLayout(hero_satir)
-        self._page_layout.addSpacing(14)
+        self._page_layout.addSpacing(36)
 
-        self._label = section_label("")
-        self._page_layout.addWidget(self._label, alignment=Qt.AlignmentFlag.AlignHCenter)
+        # Süzgeç şeridi: Tümü, Başladıklarım ve her grup (seçim hatırlanıyor).
+        self._filters = QWidget()
+        self._filters.setProperty("role", "bare")
+        serit = QHBoxLayout(self._filters)
+        serit.setContentsMargins(SHADOW_ROOM, 0, SHADOW_ROOM, 0)
+        serit.setSpacing(SPACING["sm"])
+        self._filter_label = QLabel()
+        self._filter_label.setProperty("role", "filter-label")
+        serit.addWidget(self._filter_label)
+        serit.addSpacing(4)
+        self._filter_buttons: dict[str, QPushButton] = {}
+        self._filter_group = QButtonGroup(self)
+        self._filter_group.setExclusive(True)
+        keys = [FILTER_ALL, FILTER_STARTED] + [g.id for g in catalog.groups if g.title]
+        for key in keys:
+            button = QPushButton()
+            button.setCheckable(True)
+            button.setProperty("variant", "filter-chip")
+            button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.clicked.connect(lambda _=False, k=key: self.set_filter(k))
+            self._filter_group.addButton(button)
+            self._filter_buttons[key] = button
+            serit.addWidget(button)
+        serit.addStretch(1)
+        self._page_layout.addWidget(self._filters)
+        if self._filter not in self._filter_buttons:
+            self._filter = FILTER_ALL
 
-        self._grid = QGridLayout()
-        self._grid.setSpacing(SPACING["md"])
-        self._page_layout.addLayout(self._grid)
+        self._empty = QLabel()
+        self._empty.setProperty("role", "filter-empty")
+        self._empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._empty.setWordWrap(True)
+        self._empty.hide()
+        self._page_layout.addSpacing(8)
+        self._page_layout.addWidget(self._empty)
+
+        self._build_cards()
         self._page_layout.addStretch(1)
 
         # Sütun karşılama kartı genişliğinde: patika kartları kartla aynı
         # kenarlardan başlayıp bitiyor (Alican: sayfa hizalı olsun).
         outer.addWidget(scroll_page(centered_column(column, max_width=HERO_WIDTH + 2 * SPACING["xl"])))
-        self._build_cards()
+        self._apply_filter()
 
     def _build_cards(self) -> None:
-        for index, track in enumerate(self._catalog.tracks):
-            card = TrackCard(track, self._language, self._mode)
-            card.clicked.connect(lambda t=track.id: self.track_opened.emit(t))
-            self._grid.addWidget(LiftSlot(card), index // 4, index % 4)
-            self._cards.append(card)
+        by_id = {track.id: track for track in self._catalog.tracks}
+        for group in self._catalog.groups:
+            section = TrackGroupSection(group, self._language)
+            for track in group.tracks:
+                card = TrackCard(track, self._language, self._mode,
+                                 prerequisite=by_id.get(track.prerequisite))
+                card.clicked.connect(lambda t=track.id: self.track_opened.emit(t))
+                section.add_card(card)
+                self._cards.append(card)
+            # Gruplar arası 28 px; önceki grubun alttaki gölge payı da sayılıyor.
+            self._page_layout.addSpacing(28 if not self._groups else 28 - SHADOW_ROOM)
+            self._page_layout.addWidget(section)
+            self._groups.append(section)
         self._entered = False
-        # Sütunlar eşit paylaşılıyor; yoksa her sütun içindeki en geniş
-        # kartın isteğine göre büyüyordu (233 ile 247 piksel arası).
-        for column in range(4):
-            self._grid.setColumnStretch(column, 1)
+
+    def set_filter(self, key: str) -> None:
+        """Süzgeci seçer ve hatırlar (`journey_filter` ayarı)."""
+        if key not in self._filter_buttons:
+            key = FILTER_ALL
+        self._filter = key
+        self._store.set_setting(FILTER_SETTING, key)
+        self._apply_filter()
+
+    def _apply_filter(self) -> None:
+        self._filter_buttons[self._filter].setChecked(True)
+        toplam = 0
+        for section in self._groups:
+            if self._filter == FILTER_STARTED:
+                visible = [card for card in section.cards if card.started]
+            elif self._filter == FILTER_ALL or self._filter == section._group.id:
+                visible = list(section.cards)
+            else:
+                visible = []
+            section.show_cards(visible)
+            toplam += len(visible)
+        self._empty.setVisible(toplam == 0)
 
     def showEvent(self, event) -> None:  # noqa: N802
         super().showEvent(event)
         # Oturumdaki ilk gösterimde prototipteki gibi: karşılama kartı ve
-        # başlık 16 px aşağıdan (ekranın `pgIn`'i), kartlar sırayla (`sIn`).
+        # süzgeç 16 px aşağıdan (ekranın `pgIn`'i), kartlar sırayla (`sIn`).
         if not self._entered:
             self._entered = True
             from ..widgets.pop_effect import enter
             hepsi = [enter(self._hero, 16, "spring", hold=True),
-                     enter(self._label, 16, "spring", hold=True)]
-            hepsi += stagger_cards(self._cards)
+                     enter(self._filters, 16, "spring", hold=True)]
+            hepsi += stagger_cards([card for card in self._cards if card.isVisibleTo(self)])
             hepsi = [b for b in hepsi if b]
             # İlk çizim bittikten sonra başlasın (bkz. `enter`, `hold`).
             QTimer.singleShot(0, self, lambda: QTimer.singleShot(
                 16, self, lambda: [b() for b in hepsi]))
 
-    def _chapter_progress(self, chapter, active) -> tuple[int, int]:
-        """Bir modülde kaç bölüm tamamlandı, kaç bölüm var."""
+    def _chapter_progress(self, chapter, active) -> tuple[int, int, bool]:
+        """Bir modülde kaç bölüm tamamlandı, kaç bölüm var, etkinlik var mı."""
         biten = sum(1 for section in chapter.sections if is_completed(self._store, section, active))
-        return biten, len(chapter.sections)
+        basladi = any((chapter.id, section.id) in active for section in chapter.sections)
+        return biten, len(chapter.sections), basladi
 
     def refresh(self) -> None:
         toplam = 0
@@ -1249,11 +1341,13 @@ class TracksView(QWidget):
             if track is None:
                 continue
             t_biten = t_toplam = 0
+            t_basladi = False
             for chapter in track.chapters:
-                b, s = self._chapter_progress(chapter, active)
+                b, s, basladi = self._chapter_progress(chapter, active)
                 t_biten += b
                 t_toplam += s
-            card.update_progress(t_biten, t_toplam)
+                t_basladi = t_basladi or basladi
+            card.update_progress(t_biten, t_toplam, t_basladi)
             biten += t_biten
             toplam += t_toplam
 
@@ -1271,6 +1365,8 @@ class TracksView(QWidget):
             studied_today=self._store.last_study_day() == date.today(),
         )
         self.retranslate()
+        # "Başladıklarım" yeni başlanan patikayı da göstersin.
+        self._apply_filter()
 
     def resume_target(self) -> tuple[str, str] | None:
         """"Devam et" düğmesinin açacağı bölüm: son ziyaret ya da ilk bölüm."""
@@ -1307,15 +1403,23 @@ class TracksView(QWidget):
             card.set_mode(mode)
 
     def retranslate(self) -> None:
-        self._label.setText(self._language.t_upper("track.section_label"))
+        t = self._language.t
+        self._filter_label.setText(t("track.filter_label"))
+        for key, button in self._filter_buttons.items():
+            if key in (FILTER_ALL, FILTER_STARTED):
+                button.setText(t(f"track.filter_{key}"))
+            else:
+                group = next(g for g in self._catalog.groups if g.id == key)
+                button.setText(self._language.pick(group.title))
+        self._empty.setText(t("track.filter_empty"))
         # "Kaldığın yer" satırı bölüm adını taşıyor ve o ad dile bağlı;
         # yeniden üretilmesi gerekiyor. **`refresh()` çağrılmıyor:** o da
         # sonunda `retranslate` çağırıyor ve ikisi birbirini sonsuza kadar
         # tetikliyor (denendi, `RecursionError`).
         self._hero.set_resume(self._resume_text())
         self._hero.retranslate()
-        for card in self._cards:
-            card.retranslate()
+        for section in self._groups:
+            section.retranslate()
 
 
 class ModulesView(QWidget):

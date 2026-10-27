@@ -32,6 +32,15 @@ lecture note does not mean downloading the whole application again.
   copy it to the clipboard and paste it straight into Discord. The card is
   drawn on your computer and sent nowhere.
 
+### Changed
+- **A refreshed Learning Path screen.** Tracks are grouped under four
+  headings (Foundations, Working with data, Artificial intelligence,
+  Software engineering) and wider cards show their descriptions in full.
+  A track you have not started shows which track to take first, and one
+  you have started is marked "In progress". The filter above
+  shows only the tracks you have started or a single group, and remembers
+  your choice.
+
 ## [1.3.0] — 23 October 2026
 
 ### Added

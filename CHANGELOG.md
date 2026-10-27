@@ -31,6 +31,14 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   yapıştırabilirsiniz. Kart bilgisayarınızda çiziliyor, hiçbir yere
   gönderilmiyor.
 
+### Değişti
+- **Öğrenme Yolu ekranı yenilendi.** Patikalar dört başlık altında
+  toplanıyor (Temeller, Veriyle çalışmak, Yapay zekâ, Yazılım mühendisliği)
+  ve geniş kartlarda açıklamalar kesilmeden okunuyor. Başlamadığınız
+  patikanın kartında önce hangi patikanın önerildiği yazıyor, başladığınız
+  patika "Devam ediyor" diye işaretleniyor. Üstteki süzgeçle yalnızca başladığınız
+  patikaları ya da tek bir grubu görebilirsiniz; seçiminiz hatırlanıyor.
+
 ## [1.3.0] — 23 Ekim 2026
 
 ### Eklendi
