@@ -1951,7 +1951,8 @@ class PlacementBanner(QFrame):
 
     requested = Signal()
 
-    def __init__(self, title: str, text: str, button: str, mode: str) -> None:
+    def __init__(self, title: str, text: str, button: str, mode: str,
+                 icon_name: str = "target") -> None:
         super().__init__()
         p = PALETTES.get(mode, PALETTES["light"])
         self.setObjectName("placementBanner")
@@ -1964,7 +1965,7 @@ class PlacementBanner(QFrame):
         satir.setContentsMargins(SPACING["lg"], SPACING["md"], SPACING["md"], SPACING["md"])
         satir.setSpacing(SPACING["md"])
         simge = QLabel()
-        simge.setPixmap(pixmap("target", p["accent"], 26))
+        simge.setPixmap(pixmap(icon_name, p["accent"], 26))
         satir.addWidget(simge, 0, Qt.AlignmentFlag.AlignVCenter)
         yazilar = QVBoxLayout()
         yazilar.setSpacing(2)
@@ -2350,32 +2351,78 @@ class PathView(QWidget):
         """Seviye tespit kartı; modülde yeterli bölüm yoksa ya da bütün
         bölümler bittiyse yok. Kilit kaldırılmışken de görünüyor (Alican):
         kişi nereden başlayacağını, neyi tekrar etmesi gerektiğini görsün."""
-        from ..core import placement
+        from ..core import placement, practice_exam
 
-        if not placement.available(chapter, self._language.language):
-            return None
-        bolumler = [s for s in outline if not isinstance(s, dict)]
-        if bolumler and all(self._state_of(chapter.id, s) == "completed" for s in bolumler):
-            return None
+        kartlar = []
         t = self._language.t
-        sonuc = placement.load(self._store, chapter.id)
-        if sonuc:
-            acilan = placement.reach_index(self._store, chapter) + 1
-            kart = PlacementBanner(t("placement.banner_done_title"),
-                                   t("placement.banner_done", count=acilan),
-                                   t("placement.retry"), self._mode)
-        else:
-            kart = PlacementBanner(t("placement.banner_title"), t("placement.banner_text"),
-                                   t("placement.banner_button"), self._mode)
-        kart.requested.connect(lambda: self.open_placement(chapter.id))
-        self._placement = kart
+        bolumler = [s for s in outline if not isinstance(s, dict)]
+        hepsi_bitti = bool(bolumler) and all(
+            self._state_of(chapter.id, s) == "completed" for s in bolumler)
+        if placement.available(chapter, self._language.language) and not hepsi_bitti:
+            sonuc = placement.load(self._store, chapter.id)
+            if sonuc:
+                acilan = placement.reach_index(self._store, chapter) + 1
+                kart = PlacementBanner(t("placement.banner_done_title"),
+                                       t("placement.banner_done", count=acilan),
+                                       t("placement.retry"), self._mode)
+            else:
+                kart = PlacementBanner(t("placement.banner_title"), t("placement.banner_text"),
+                                       t("placement.banner_button"), self._mode)
+            kart.requested.connect(lambda: self.open_placement(chapter.id))
+            self._placement = kart
+            kartlar.append(kart)
+        # Tekrar sınavı: en az üç bölüm bitince (Alican 27 Ekim). Seviye
+        # tespit kartı onaylı davranışıyla yerinde kalıyor; ikisi alt alta.
+        biten = len(practice_exam.done_sections(chapter, self._store, self._language.language))
+        if biten >= practice_exam.MIN_DONE:
+            son = practice_exam.load(self._store, chapter.id)
+            metin = t("practice.banner_text", count=biten, questions=practice_exam.TOTAL)
+            if son:
+                metin = t("practice.banner_last", correct=son.get("correct", 0),
+                          total=son.get("total", 0)) + " " + metin
+            kart = PlacementBanner(t("practice.title"), metin, t("practice.start"), self._mode,
+                                   icon_name="repeat")
+            kart.requested.connect(lambda: self.open_practice(chapter.id))
+            self._practice = kart
+            kartlar.append(kart)
+        if not kartlar:
+            return None
         # Altında nefes payı: yol düğmeleri komşularına biniyor (`OverlapColumn`).
         sarmal = QWidget()
         sarmal.setProperty("role", "bare")
         duzen = QVBoxLayout(sarmal)
         duzen.setContentsMargins(0, 0, 0, SPACING["xl"])
-        duzen.addWidget(kart)
+        duzen.setSpacing(SPACING["sm"])
+        for kart in kartlar:
+            duzen.addWidget(kart)
         return sarmal
+
+    def open_practice(self, chapter_id: str, rng=None):
+        """Tekrar sınavı penceresi; kapanınca kart son sonucu gösteriyor."""
+        from .modal import Backdrop
+        from .review_dialog import PracticeDialog
+
+        chapter = self._catalog.chapter(chapter_id)
+        if chapter is None:
+            return None
+        kok = self.window()
+        perde = Backdrop(kok)
+        perde.show()
+        dialog = PracticeDialog(self._language, self._store, chapter, self._mode, kok, rng=rng)
+        self.practice_dialog = dialog
+
+        def kapandi(_sonuc) -> None:
+            perde.deleteLater()
+            if dialog.answered:
+                self._rebuild()
+                # Seri ve tekrar kutusu değişti: karşılama kartları da yenilensin.
+                self.placement_finished.emit()
+            dialog.deleteLater()
+            self.practice_dialog = None
+
+        dialog.finished.connect(kapandi)
+        dialog.open()
+        return dialog
 
     def open_placement(self, chapter_id: str, rng=None):
         """Seviye tespit penceresini açar; sonuç kaydedildiyse yolu yeniden kurar."""

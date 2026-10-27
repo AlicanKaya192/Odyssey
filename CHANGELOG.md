@@ -39,6 +39,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   bildikçe aralık uzar, yanlışta başa döner. Karşılama kartındaki
   "Tekrar et" düğmesi günü gelen soruları açar (günde en fazla 20).
   Daha önceki sınavlarınızdaki yanlışlar da ilk açılışta kutuya eklenir.
+- **Tekrar sınavı.** Bir modülde en az üç bölüm bitirince yolun başında
+  çıkar: bitirdiğiniz bölümlerin sınavlarından karışık 20 soru, süresiz;
+  her cevaptan sonra doğrusu gösterilir. Sonunda bölüm bölüm kaç doğru
+  yaptığınız yazar, yanlışlarınız tekrar kutusuna girer.
 
 ### Değişti
 - **Öğrenme Yolu ekranı yenilendi.** Patikalar dört başlık altında

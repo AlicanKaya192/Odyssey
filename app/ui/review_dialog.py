@@ -10,6 +10,8 @@ Klavye: 1–4 / A–D şık, Enter cevapla / sonraki (sınav ekranıyla aynı).
 
 from __future__ import annotations
 
+import html
+
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import (
@@ -23,7 +25,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..core import review_box
+from datetime import date, timedelta
+
+from ..core import practice_exam, review_box
 from ..core.language import LanguageManager
 from ..core.quiz_shuffle import prepare
 from ..resources.theme.tokens import SPACING
@@ -35,9 +39,16 @@ DIALOG_HEIGHT = 640
 
 
 class ReviewDialog(QDialog):
-    """Bugünün tekrar soruları; cevaplar o an işleniyor."""
+    """Bugünün tekrar soruları; cevaplar o an işleniyor.
 
-    def __init__(self, language: LanguageManager, store, catalog, mode: str = "light",
+    `source` soruların kaynağı: burada katalog, tekrar sınavında modül
+    (`PracticeDialog`). Alt sınıf `_load_items`, `_record` ve
+    `_result_texts`'i değiştiriyor; akış ve klavye ortak.
+    """
+
+    TITLE_KEY = "review.title"
+
+    def __init__(self, language: LanguageManager, store, source, mode: str = "light",
                  parent: QWidget | None = None, today=None, rng=None) -> None:
         super().__init__(parent)
         self._language = language
@@ -45,7 +56,7 @@ class ReviewDialog(QDialog):
         self._mode = mode
         self._today = today
         self._rng = rng
-        self._items = self._resolve(catalog)
+        self._items = self._load_items(source)
         self._index = 0
         self._correct = 0
         self._answered = 0
@@ -69,7 +80,7 @@ class ReviewDialog(QDialog):
         s = QVBoxLayout(sorular)
         s.setContentsMargins(0, 0, 0, 0)
         s.setSpacing(SPACING["sm"])
-        baslik = QLabel(t("review.title"))
+        baslik = QLabel(t(self.TITLE_KEY))
         baslik.setProperty("role", "modal-title")
         s.addWidget(baslik)
         self._progress = QLabel()
@@ -114,6 +125,7 @@ class ReviewDialog(QDialog):
         self._result_title.setWordWrap(True)
         r.addWidget(self._result_title)
         self._result_text = QLabel()
+        self._result_text.setTextFormat(Qt.TextFormat.RichText)
         self._result_text.setProperty("role", "muted")
         self._result_text.setWordWrap(True)
         r.addWidget(self._result_text)
@@ -134,7 +146,7 @@ class ReviewDialog(QDialog):
         else:
             self._finish()
 
-    def _resolve(self, catalog) -> list[tuple[dict, object, dict]]:
+    def _load_items(self, catalog) -> list[tuple[dict, object, dict]]:
         """Bugünün kayıtları → (kayıt, bölüm, soru). Sorusu artık dosyada
         olmayan (bölüm kalkmış ya da soru değişmiş) kayıt kutudan çıkıyor."""
         sonuc = []
@@ -220,15 +232,17 @@ class ReviewDialog(QDialog):
         self._store.mark_study_day()
         self._store.record_activity("review", item["chapter_id"], item["section_id"])
 
-    def _finish(self) -> None:
+    def _result_texts(self) -> tuple[str, str]:
         t = self._language.t
         if self._answered:
-            self._result_title.setText(t("review.result_title"))
-            self._result_text.setText(t("review.result_text", correct=self._correct,
-                                        total=self._answered))
-        else:
-            self._result_title.setText(t("review.title"))
-            self._result_text.setText(t("review.result_none"))
+            return t("review.result_title"), html.escape(
+                t("review.result_text", correct=self._correct, total=self._answered))
+        return t("review.title"), html.escape(t("review.result_none"))
+
+    def _finish(self) -> None:
+        baslik, metin = self._result_texts()
+        self._result_title.setText(baslik)
+        self._result_text.setText(metin)
         # Soru sayfası yığından çıkıyor: yığın en büyük sayfanın en küçük
         # boyunu koruyor, sonuç sayfası küçülemiyordu.
         self._stack.setCurrentWidget(self._result_page)
@@ -268,3 +282,57 @@ class ReviewDialog(QDialog):
             self.accept()
             return
         super().keyPressEvent(event)
+
+
+class PracticeDialog(ReviewDialog):
+    """Tekrar sınavı (`core/practice_exam.py`): modülde bitirilen
+    bölümlerden karışık sorular. Yanlışlar tekrar kutusuna giriyor; kilit,
+    XP ve rozet değişmiyor."""
+
+    TITLE_KEY = "practice.title"
+
+    def __init__(self, language: LanguageManager, store, chapter, mode: str = "light",
+                 parent: QWidget | None = None, today=None, rng=None) -> None:
+        self._chapter = chapter
+        self._per_section: dict[str, list[int]] = {}
+        super().__init__(language, store, chapter, mode, parent, today, rng)
+
+    def _load_items(self, chapter) -> list[tuple[dict, object, dict]]:
+        bolumler = practice_exam.done_sections(chapter, self._store, self._language.language)
+        sonuc = []
+        for soru in practice_exam.build(bolumler, self._language.language, self._rng):
+            bolum = soru["section"]
+            kayit = {"chapter_id": bolum.chapter_id, "section_id": bolum.id,
+                     "question_index": soru["index"],
+                     "question_key": review_box.question_key(soru["question"])}
+            sonuc.append((kayit, bolum, prepare([soru["question"]], self._rng)[0]))
+        return sonuc
+
+    def _record(self, correct: bool) -> None:
+        item, section, _soru = self._items[self._index]
+        self._answered += 1
+        self._correct += int(correct)
+        sayac = self._per_section.setdefault(section.id, [0, 0])
+        sayac[0] += int(correct)
+        sayac[1] += 1
+        if not correct:
+            yarin = (self._today or date.today()) + timedelta(days=1)
+            self._store.add_review_items(item["chapter_id"], item["section_id"],
+                                         [(item["question_index"], item["question_key"])], yarin)
+        self._store.mark_study_day()
+        self._store.record_activity("practice", item["chapter_id"], item["section_id"])
+
+    def _result_texts(self) -> tuple[str, str]:
+        t = self._language.t
+        if not self._answered:
+            return t(self.TITLE_KEY), html.escape(t("practice.result_none"))
+        practice_exam.save(self._store, self._chapter.id, self._correct, self._answered, self._today)
+        yanlis = self._answered - self._correct
+        metin = (t("practice.result_wrong", correct=self._correct, total=self._answered, wrong=yanlis)
+                 if yanlis else t("practice.result_all", total=self._answered))
+        # Bölüm bölüm: hangi konuya dönmeli. Sorulma sırasıyla değil modüldeki sırayla.
+        adlar = {bolum.id: self._language.pick(bolum.title) for _k, bolum, _s in self._items}
+        sira = [b.id for b in self._chapter.sections if b.id in self._per_section]
+        satirlar = [f"{html.escape(adlar[i])}: {self._per_section[i][0]}/{self._per_section[i][1]}"
+                    for i in sira]
+        return t("practice.result_title"), html.escape(metin) + "<br><br>" + "<br>".join(satirlar)

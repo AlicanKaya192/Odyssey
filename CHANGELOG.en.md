@@ -42,6 +42,11 @@ lecture note does not mean downloading the whole application again.
   the welcome card opens the ones that are due (at most 20 a day).
   Mistakes from your earlier quizzes are added the first time you open the
   app.
+- **Practice test.** Once you finish at least three sections of a module,
+  it appears at the top of the path: 20 mixed questions from the quizzes
+  of the sections you finished, with no time limit and the right answer
+  shown after each one. At the end you see how many you got right in each
+  section, and the ones you missed go into the review box.
 
 ### Changed
 - **A refreshed Learning Path screen.** Tracks are grouped under four
