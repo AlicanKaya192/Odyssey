@@ -30,6 +30,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   kaydedebilir ya da panoya kopyalayıp doğrudan Discord'a
   yapıştırabilirsiniz. Kart bilgisayarınızda çiziliyor, hiçbir yere
   gönderilmiyor.
+- **Haftalık hedef.** Her gün çalışamayanlar için serinin yanında:
+  Ayarlar › Öğrenme'de haftada kaç bölüm, kaç dakika odak ya da kaç gün
+  çalışmak istediğinizi seçin; bu haftaki durum karşılama kartında
+  görünür, hedef tutunca bir kutlama kartı çıkar. Hafta Pazartesi başlar.
 
 ### Değişti
 - **Öğrenme Yolu ekranı yenilendi.** Patikalar dört başlık altında

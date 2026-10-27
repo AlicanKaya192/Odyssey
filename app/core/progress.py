@@ -433,6 +433,21 @@ class ProgressStore:
         ).fetchone()
         return int(row["m"]), int(row["n"])
 
+    def week_totals(self, since: date) -> dict[str, int]:
+        """`since` gününden (dahil) bu yana: biten bölüm, odak dakikası,
+        çalışma günü (`core/weekly_goal.py`)."""
+        gun = since.isoformat()
+        bolum = self._connection.execute(
+            "SELECT COUNT(*) FROM section_progress WHERE completed_at >= ?", (gun,)
+        ).fetchone()[0]
+        odak = self._connection.execute(
+            "SELECT COALESCE(SUM(minutes), 0) FROM focus_sessions WHERE day >= ?", (gun,)
+        ).fetchone()[0]
+        gunler = self._connection.execute(
+            "SELECT COUNT(*) FROM study_days WHERE day >= ?", (gun,)
+        ).fetchone()[0]
+        return {"sections": int(bolum), "focus": int(odak), "days": int(gunler)}
+
     def record_activity(
         self,
         kind: str,

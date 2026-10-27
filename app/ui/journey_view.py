@@ -56,6 +56,7 @@ from ..core.completion import is_completed
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.unlock import blocking_section
+from ..core import weekly_goal
 from ..resources.icons import icon, pixmap
 from ..resources.theme.tokens import CONTENT_WIDTH, FONTS, PALETTES, RADIUS, SPACING, mix
 from ..widgets.common import StatBlock, horizontal_rule, section_label
@@ -454,7 +455,7 @@ class HeroCard(QFrame):
         stats.setSpacing(30)
         self._stats = {
             key: StatBlock("0", "", inverse=True)
-            for key in ("sections", "exercises", "streak")
+            for key in ("sections", "exercises", "streak", "goal")
         }
         for block in self._stats.values():
             # Sayılar etiketleriyle birlikte sola yaslı (örnekteki gibi).
@@ -464,6 +465,9 @@ class HeroCard(QFrame):
             stats.addWidget(block)
         stats.addStretch(1)
         layout.addLayout(stats)
+        # Haftalık hedef yalnızca açıksa görünüyor (`core/weekly_goal.py`).
+        self._goal = None
+        self._stats["goal"].hide()
 
     def showEvent(self, event) -> None:  # noqa: N802
         super().showEvent(event)
@@ -635,6 +639,7 @@ class HeroCard(QFrame):
         streak: int,
         progress: int,
         studied_today: bool = False,
+        goal=None,
     ) -> None:
         """Şeritteki dört sayıyı yeniler.
 
@@ -664,6 +669,10 @@ class HeroCard(QFrame):
         self._progress = progress
         self._streak = streak
         self._studied_today = studied_today
+        self._goal = goal
+        self._stats["goal"].setVisible(goal is not None)
+        if goal is not None:
+            self._stats["goal"].set_value(f"{goal.done}/{goal.target}")
         self.retranslate()
 
     def set_mode(self, mode: str) -> None:
@@ -751,12 +760,30 @@ class HeroCard(QFrame):
         self._stats["sections"].set_label(self._language.t("home.stat_sections", total=toplam[0]))
         self._stats["exercises"].set_label(self._language.t("home.stat_exercises", total=toplam[1]))
         self._stats["streak"].set_label(self._language.t("home.stat_streak"))
+        self._render_goal()
         # Yüzde işareti dile göre: Türkçede önde (%40), İngilizcede sonda (40%).
         self._ring.set_texts(self._language.t("home.percent", value=self._progress),
                              self._language.t("home.stat_progress"))
         self._continue.setText("  " + self._language.t("home.continue"))
         self._continue_slot.fit()
         self._render_flame()
+
+
+    def _render_goal(self) -> None:
+        """Haftalık hedefin etiketi ve ipucu (dil değişince de)."""
+        goal = self._goal
+        if goal is None:
+            return
+        from ..widgets import tips
+
+        t = self._language.t
+        blok = self._stats["goal"]
+        blok.set_label(t(f"home.stat_goal_{goal.kind}"))
+        if goal.reached:
+            durum, ton = t("goal.tip_done"), "success"
+        else:
+            durum, ton = t(f"goal.tip_left_{goal.kind}", n=goal.target - goal.done), "accent"
+        blok.setToolTip(tips.rich(t("goal.tip_title"), t("goal.tip_body"), durum, ton))
 
 
 class ModuleCard(GlowCard):
@@ -1366,6 +1393,7 @@ class TracksView(QWidget):
             streak=self._store.streak(),
             progress=round(biten * 100 / toplam) if toplam else 0,
             studied_today=self._store.last_study_day() == date.today(),
+            goal=weekly_goal.current(self._store),
         )
         self.retranslate()
         # "Başladıklarım" yeni başlanan patikayı da göstersin.
@@ -1527,6 +1555,7 @@ class ModulesView(QWidget):
             total_exercises=total_exercises,
             streak=self._store.streak(),
             progress=round(completed_sections * 100 / total_sections) if total_sections else 0,
+            goal=weekly_goal.current(self._store),
         )
         self._modules_label.setText(self._language.t_upper("home.modules"))
 

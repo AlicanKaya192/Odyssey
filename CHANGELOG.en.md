@@ -31,6 +31,11 @@ lecture note does not mean downloading the whole application again.
   section and its status (solved or attempted); save the card as a PNG or
   copy it to the clipboard and paste it straight into Discord. The card is
   drawn on your computer and sent nowhere.
+- **Weekly goal.** For those who cannot study every day, alongside the
+  streak: in Settings › Learning, choose how many sections, focus minutes
+  or study days you want each week; this week's progress shows on the
+  welcome card and a celebration card appears when you reach it. The week
+  starts on Monday.
 
 ### Changed
 - **A refreshed Learning Path screen.** Tracks are grouped under four

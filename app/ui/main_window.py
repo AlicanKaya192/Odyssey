@@ -78,6 +78,7 @@ from ..core import levels as level_core
 from ..core import github_stars
 from ..core.celebration_sound import CelebrationSound
 from ..core import study_timer as timer_core
+from ..core import weekly_goal
 from ..widgets.study_timer_ui import TimerChip, TimerPanel
 from ..widgets.fade_stack import FORWARD as _FORWARD
 
@@ -750,6 +751,11 @@ class MainWindow(QMainWindow):
         for unvan in guncel.new_tags:
             self._toast(self._tag_toast(unvan))
 
+        # Haftalık hedef bu hafta ilk kez tuttu: bir kez kart.
+        hedef = weekly_goal.celebrate(self._store)
+        if hedef is not None:
+            self._toast(self._goal_toast(hedef))
+
         # Patikanın tamamı bitti (efsanevi rozet): bir kez konfeti (D2).
         if any(tier_of(t) == "legendary" for t in yeniler):
             self._confetti([t for t in yeniler if tier_of(t) == "legendary"][0])
@@ -800,6 +806,19 @@ class MainWindow(QMainWindow):
             self._sound.play("timer")
         else:
             self._sound.play("badge" if turler & {"badge", "tag"} else "section")
+
+    def _goal_toast(self, goal) -> ToastData:
+        p = PALETTES.get(self._theme.effective_mode, PALETTES["dark"])
+        return ToastData(
+            kind="goal",
+            eyebrow=self._language.t_upper("toast.goal_eyebrow"),
+            title=self._language.t("toast.goal_title"),
+            subtitle=self._language.t(f"toast.goal_text_{goal.kind}", n=goal.done),
+            icon="target",
+            color=p["success"],
+            color2=p["accent"],
+            payload=("goal",),
+        )
 
     def _badge_toast(self, tanim: dict) -> ToastData:
         p = PALETTES.get(self._theme.effective_mode, PALETTES["dark"])
@@ -1566,6 +1585,7 @@ class MainWindow(QMainWindow):
         # Süre ayarı da aynı şekilde: açık bir sınav varsa sayaç o an
         # duruyor ya da geri geliyor.
         dialog.timing_changed.connect(self._on_timing_changed)
+        dialog.goal_changed.connect(self._journey.refresh)
         # Discord ayarı da anında uygulanıyor: kapatıldığında yazı hemen
         # siliniyor, açıldığında hemen görünüyor. Ayarın etkisini görmek
         # için uygulamayı kapatıp açmak gerekmiyor.

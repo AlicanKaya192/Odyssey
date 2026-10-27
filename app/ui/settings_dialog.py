@@ -40,7 +40,7 @@ from ..core.quiz_timing import UNTIMED_QUIZ_KEY, untimed_quiz
 from ..core.unlock import UNLOCK_ALL_KEY, unlock_all
 from ..core.theme import ThemeManager
 from ..core import updates
-from ..core import celebration_sound, reminder_service, reminders
+from ..core import celebration_sound, reminder_service, reminders, weekly_goal
 from .reminder_prompt import TIMES as REMINDER_TIMES
 from ..widgets.common import DropdownBox
 from .update_check import UpdateWorker
@@ -322,6 +322,8 @@ class SettingsDialog(QDialog):
     restart_requested = Signal()
     # Sınav süresi ayarı: açık bir sınav varken de o an uygulanıyor.
     timing_changed = Signal()
+    # Haftalık hedef: karşılama kartındaki sayı o an değişiyor.
+    goal_changed = Signal()
 
     presence_changed = Signal()
     # Animasyonlar ayarı: açık ekranlardaki döngüsel hareketler hemen duruyor.
@@ -529,9 +531,60 @@ class SettingsDialog(QDialog):
         self._tour_button.clicked.connect(self._on_tour)
         self._tour_row = SettingRow(self._tour_button)
 
-        layout.addWidget(self._group([self._unlock_row, self._untimed_row, self._tour_row]))
+        # Haftalık hedef: tür ve sayı iki açılır kutu (`core/weekly_goal.py`).
+        renk = PALETTES.get(self._theme.effective_mode, PALETTES["dark"])["text_muted"]
+        self._goal_kind = DropdownBox(color=renk)
+        self._goal_kind.setFixedWidth(150)
+        self._goal_kind.currentIndexChanged.connect(self._on_goal_kind)
+        self._goal_target = DropdownBox(color=renk)
+        self._goal_target.setFixedWidth(110)
+        self._goal_target.currentIndexChanged.connect(self._on_goal_target)
+        kutular = QWidget()
+        kutular.setProperty("role", "bare")
+        sira = QHBoxLayout(kutular)
+        sira.setContentsMargins(0, 0, 0, 0)
+        sira.setSpacing(SPACING["sm"])
+        sira.addWidget(self._goal_kind)
+        sira.addWidget(self._goal_target)
+        self._goal_row = SettingRow(kutular)
+
+        layout.addWidget(self._group(
+            [self._unlock_row, self._untimed_row, self._goal_row, self._tour_row]
+        ))
         layout.addStretch(1)
         return sayfa
+
+    def _fill_goal_boxes(self) -> None:
+        """Haftalık hedefin kutularını kayıtlı değerle (ve bu dille) doldurur."""
+        t = self._language.t
+        goal = weekly_goal.current(self._store)
+        kind = goal.kind if goal else ""
+        self._goal_kind.blockSignals(True)
+        self._goal_kind.clear()
+        for anahtar in ("", *weekly_goal.KINDS):
+            self._goal_kind.addItem(t(f"settings.goal_{anahtar or 'off'}"), anahtar)
+        self._goal_kind.setCurrentIndex(self._goal_kind.findData(kind))
+        self._goal_kind.blockSignals(False)
+        self._goal_target.blockSignals(True)
+        self._goal_target.clear()
+        for sayi in weekly_goal.TARGETS.get(kind, ()):
+            metin = t("settings.goal_minutes", n=sayi) if kind == "focus" else str(sayi)
+            self._goal_target.addItem(metin, sayi)
+        if goal is not None:
+            self._goal_target.setCurrentIndex(self._goal_target.findData(goal.target))
+        self._goal_target.setEnabled(goal is not None)
+        self._goal_target.blockSignals(False)
+
+    def _on_goal_kind(self, _index: int) -> None:
+        kind = self._goal_kind.currentData() or ""
+        weekly_goal.set_goal(self._store, kind, weekly_goal.DEFAULT_TARGET.get(kind, 0))
+        self._fill_goal_boxes()
+        self.goal_changed.emit()
+
+    def _on_goal_target(self, _index: int) -> None:
+        kind = self._goal_kind.currentData() or ""
+        weekly_goal.set_goal(self._store, kind, self._goal_target.currentData())
+        self.goal_changed.emit()
 
     def _on_tour(self) -> None:
         self.tour_requested.emit()
@@ -857,6 +910,7 @@ class SettingsDialog(QDialog):
         )
         self._reminder_time.blockSignals(False)
         self._sync_reminder_rows()
+        self._fill_goal_boxes()
 
     def _paint_switches(self, mode: str) -> None:
         p = PALETTES.get(mode, PALETTES["light"])
@@ -865,6 +919,8 @@ class SettingsDialog(QDialog):
         self._theme_picker.set_icon_colors(p["text_muted"], p["text"])
         self._paint_nav_icons()
         self._reminder_time.set_arrow_color(p["text_muted"])
+        self._goal_kind.set_arrow_color(p["text_muted"])
+        self._goal_target.set_arrow_color(p["text_muted"])
         for row in (self._unlock_row, self._untimed_row,
                     self._presence_row, self._update_row, self._reminder_row,
                     self._sound_row, self._animations_row, self._docker_autostop_row):
@@ -1236,6 +1292,9 @@ class SettingsDialog(QDialog):
 
         self._untimed_row.title.setText(t("settings.untimed_quiz"))
         self._untimed_row.description.setText(t("settings.untimed_quiz_help"))
+        self._goal_row.title.setText(t("settings.weekly_goal"))
+        self._goal_row.description.setText(t("settings.weekly_goal_help"))
+        self._fill_goal_boxes()
         self._presence_row.title.setText(t("settings.discord"))
         self._presence_row.description.setText(t("settings.discord_help"))
         self._animations_row.title.setText(t("settings.animations"))
