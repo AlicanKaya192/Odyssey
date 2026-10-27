@@ -163,7 +163,10 @@ class WaveEmoji(QWidget):
         g.translate(self.width() * 0.7, self.height() * 0.8)
         g.rotate(aci)
         g.translate(-self.width() * 0.7, -self.height() * 0.8)
+        # Emoji yazı tipi açıkça: arayüz yazı tipinde 👋 yok ve Qt yedek
+        # yazı tipi ararken bütün sistem yazı tiplerini tarıyor (`tokens.FONTS`).
         f = QFont(self.font())
+        f.setFamily("Segoe UI Emoji")
         f.setPixelSize(22)
         g.setFont(f)
         g.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "👋")

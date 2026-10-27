@@ -10,6 +10,10 @@ değişirse burası da değişir.
 
 from __future__ import annotations
 
+import os
+import sys
+from pathlib import Path
+
 # --- Boşluk ölçeği (8px tabanlı) -------------------------------------------
 SPACING = {
     "xs": 4,
@@ -84,6 +88,29 @@ FONTS = {
         "monospace"
     ),
 }
+
+
+def _windows_font_installed(file_name: str) -> bool:
+    """Yazı tipi dosyası sistemde ya da kullanıcının yazı tiplerinde var mı."""
+    folders = (
+        Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts",
+        Path(os.environ.get("LOCALAPPDATA", "")) / "Microsoft" / "Windows" / "Fonts",
+    )
+    return any((folder / file_name).exists() for folder in folders)
+
+
+# Windows'ta her liste tek ad (27 Ekim). Qt 6.11'in yazı tipi veritabanı
+# birden fazla adlı bir listeyi ya da sistemde olmayan bir adı ilk gördüğünde
+# Windows'taki bütün yazı tiplerini açıp tarıyor (342 dosya, 409 MB; ölçüldü).
+# Sıcakta 0,3 sn, bilgisayar yeni açılmışken 3,4 sn: soğuk açılıştaki
+# gecikmenin kaynağı buydu. Segoe UI Variable Windows 11'de var, 10'da yok.
+if sys.platform == "win32":
+    _VARIABLE = _windows_font_installed("SegUIVar.ttf")
+    FONTS = {
+        "ui": '"Segoe UI Variable Text"' if _VARIABLE else '"Segoe UI"',
+        "display": '"Segoe UI Variable Display"' if _VARIABLE else '"Segoe UI"',
+        "mono": '"Cascadia Mono"' if _windows_font_installed("CascadiaMono.ttf") else '"Consolas"',
+    }
 
 FONT_SIZES = {
     "xs": 12,

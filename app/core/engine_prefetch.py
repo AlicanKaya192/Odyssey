@@ -32,6 +32,8 @@ FILES = (
     "resources/qtwebengine_resources_200p.pak",
 )
 
+FONT_SUFFIXES = (".ttf", ".ttc", ".otf")
+
 CHUNK_BYTES = 1 << 20
 
 
@@ -41,6 +43,28 @@ def engine_files() -> list[Path]:
 
     base = Path(PySide6.__file__).parent
     return [base / name for name in FILES if (base / name).is_file()]
+
+
+def font_files() -> list[Path]:
+    """Windows'un yazı tipi dosyaları (sistemin ve kullanıcının).
+
+    Bileşenin profili kurulurken Qt yazı tipi veritabanını dolduruyor ve
+    bunların hepsini açıp tarıyor (342 dosya, 409 MB; 27 Ekim, ölçüldü).
+    Bellekte değillerse tarama soğuk açılışta ~3,4 sn sürüyor.
+    """
+    import os
+
+    folders = (
+        Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts",
+        Path(os.environ.get("LOCALAPPDATA", "")) / "Microsoft" / "Windows" / "Fonts",
+    )
+    files = []
+    for folder in folders:
+        try:
+            files += [p for p in folder.iterdir() if p.suffix.lower() in FONT_SUFFIXES]
+        except OSError:
+            continue
+    return files
 
 
 def read_ahead(paths: list[Path]) -> int:
@@ -62,13 +86,13 @@ class Prefetch:
 
     def __init__(self) -> None:
         self.finished_at: float | None = None
-        self._thread = threading.Thread(target=self._run, args=(engine_files(),),
-                                        name="engine-prefetch", daemon=True)
+        self._thread = threading.Thread(target=self._run, name="engine-prefetch", daemon=True)
         self._thread.start()
 
-    def _run(self, paths: list[Path]) -> None:
+    def _run(self) -> None:
         try:
-            read_ahead(paths)
+            # Klasör listesi de diske gidebilir; iş parçacığında alınıyor.
+            read_ahead(engine_files() + font_files())
         finally:
             self.finished_at = time.monotonic()
 

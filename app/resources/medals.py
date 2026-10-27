@@ -469,7 +469,7 @@ GLYPHS: dict[str, str] = {
                     '<path d="M14.2 17.8 13.4 22l2.6-1.4 2.6 1.4-.8-4.2" stroke-width="1.2"/>'
                     '<circle cx="16" cy="15.4" r="3" fill="#fff" stroke="none"/>'),
     # CS50 Python'un tamamı: CS50'nin yazısı (patika logosundaki gibi).
-    "cs50-mark": ('<text x="12" y="15.2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" '
+    "cs50-mark": ('<text x="12" y="15.2" text-anchor="middle" font-family="Arial" '
                   'font-size="9.2" font-weight="700" letter-spacing="-.3" fill="#fff" stroke="none">CS50</text>'
                   '<path d="M4 18.8h16" stroke-width="1.3"/>'),
 }

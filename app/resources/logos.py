@@ -135,7 +135,7 @@ GLYPHS: dict[str, dict[str, object]] = {
         '<path d="M12 3.2 21 7l-9 3.8L3 7z" fill="#fff"/>'
         '<path d="M7 9v3.2c1.4 1 3 1.4 5 1.4s3.6-.4 5-1.4V9l-5 2.1z" fill="#fff" opacity=".8"/>'
         '<path d="M20 7.4v3.6" stroke="#fff" stroke-width="1" stroke-linecap="round"/>'
-        '<text x="12" y="21.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" '
+        '<text x="12" y="21.6" text-anchor="middle" font-family="Arial" '
         'font-size="7.4" font-weight="700" letter-spacing="-.2" fill="#fff">CS50</text>'
     )},
 }
