@@ -16,6 +16,7 @@
   <img alt="Türkçe ve İngilizce" src="https://img.shields.io/badge/D%C4%B0L-TR%20%7C%20EN-7466EE?style=for-the-badge&labelColor=1E1A3C">
   <img alt="Çevrimdışı çalışır" src="https://img.shields.io/badge/%C3%87ALI%C5%9EIR-%C3%87EVR%C4%B0MDI%C5%9EI-7466EE?style=for-the-badge&labelColor=1E1A3C">
   <a href="https://github.com/AlicanKaya192/Odyssey/stargazers"><img alt="GitHub yıldızları" src="https://img.shields.io/github/stars/AlicanKaya192/Odyssey?style=for-the-badge&logo=github&color=7466EE&labelColor=1E1A3C"></a>
+  <a href="https://hub.xerj.org/contributors/AlicanKaya192"><img alt="XERJ Corpus Hub katkıcısı" src="https://hub.xerj.org/contributors/AlicanKaya192/badge.svg"></a>
 </p>
 
 Python, Git, algoritmalar, Python ekosisteminin temel kütüphaneleri, veri bilimi, makine öğrenmesi, SQL, zaman serileri, API, Docker, büyük veri ve bunların arkasındaki matematiği bölüm bölüm öğreten, çevrimdışı çalışan bir masaüstü uygulaması.

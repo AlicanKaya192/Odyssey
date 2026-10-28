@@ -16,6 +16,7 @@
   <img alt="Turkish and English" src="https://img.shields.io/badge/Languages-TR%20%7C%20EN-7466EE?style=for-the-badge&labelColor=1E1A3C">
   <img alt="Works offline" src="https://img.shields.io/badge/Works-offline-7466EE?style=for-the-badge&labelColor=1E1A3C">
   <a href="https://github.com/AlicanKaya192/Odyssey/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/AlicanKaya192/Odyssey?style=for-the-badge&logo=github&color=7466EE&labelColor=1E1A3C"></a>
+  <a href="https://hub.xerj.org/contributors/AlicanKaya192"><img alt="XERJ Corpus Hub contributor" src="https://hub.xerj.org/contributors/AlicanKaya192/badge.svg"></a>
 </p>
 
 An offline desktop application that teaches Python, Git, algorithms, the core libraries of the Python ecosystem, data science, machine learning, SQL, time series, APIs, Docker, big data and the mathematics behind them, one section at a time.
