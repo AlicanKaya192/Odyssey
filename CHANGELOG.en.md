@@ -23,39 +23,43 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [1.4.0] — unreleased
+## [1.4.0] — 28 October 2026
 
 ### Added
-- **Share your code as an image.** A new button in the exercise's run bar
-  turns the code you wrote into a card with the exercise's name, its
-  section and its status (solved or attempted); save the card as a PNG or
-  copy it to the clipboard and paste it straight into Discord. The card is
-  drawn on your computer and sent nowhere.
-- **Weekly goal.** For those who cannot study every day, alongside the
-  streak: in Settings › Learning, choose how many sections, focus minutes
-  or study days you want each week; this week's progress shows on the
-  welcome card and a celebration card appears when you reach it. The week
-  starts on Monday.
 - **Review box.** Questions you got wrong or left blank in a quiz go into
   the box and come back after 1, 3, 7 and 14 days; the gap grows as you
   get them right and starts over when you miss one. The Review button on
   the welcome card opens the ones that are due (at most 20 a day).
   Mistakes from your earlier quizzes are added the first time you open the
-  app.
+  app. After you answer, one click takes you to the lesson heading or note
+  where the question is explained. You can also add a term from the
+  glossary (About › Glossary) or from its card in a lesson; you are asked
+  what it means, with four choices.
 - **Practice test.** Once you finish at least three sections of a module,
   it appears at the top of the path: 20 mixed questions from the quizzes
   of the sections you finished, with no time limit and the right answer
-  shown after each one. At the end you see how many you got right in each
-  section, and the ones you missed go into the review box.
+  shown after each one, along with where the lesson covers it. At the end
+  you see how many you got right in each section, and the ones you missed
+  go into the review box.
+- **Weekly goal.** For those who cannot study every day, alongside the
+  streak: in Settings › Learning, choose how many sections, focus minutes
+  or study days you want each week; this week's progress shows on the
+  welcome card and a celebration card appears when you reach it. The week
+  starts on Monday. The activity card on your profile shows how many weeks
+  in a row you have reached it, and the last 12 weeks.
+- **Share your code as an image.** A new button in the exercise's run bar
+  turns the code you wrote into a card with the exercise's name, its
+  section and its status (solved or attempted); save the card as a PNG or
+  copy it to the clipboard and paste it straight into Discord. The card is
+  drawn on your computer and sent nowhere.
 
 ### Changed
 - **A refreshed Learning Path screen.** Tracks are grouped under four
   headings (Foundations, Working with data, Artificial intelligence,
   Software engineering) and wider cards show their descriptions in full.
   A track you have not started shows which track to take first, and one
-  you have started is marked "In progress". The filter above
-  shows only the tracks you have started or a single group, and remembers
-  your choice.
+  you have started is marked "In progress". The filter above shows only
+  the tracks you have started or a single group, and remembers your choice.
 - **Quick reference is now your own card.** Select a paragraph or some
   code in a lesson, a lecture note or an exercise brief, right-click and
   choose "Add to quick reference"; the piece goes into the drawer that
@@ -63,7 +67,14 @@ lecture note does not mean downloading the whole application again.
   section stay at the top, search covers the whole card, and each piece
   can be copied or removed with one click. Lecture notes no longer open in
   the drawer but in the section's Lecture Notes tab; while your card is
-  empty, a link takes you to the section's reference note.
+  empty, a link takes you to the section's reference note. You can save
+  your card as Markdown or as a printable PDF.
+
+### Fixed
+- **The window ran off the top of small screens.** On scaled displays in
+  Windows (for example 1920×1200 at 125%) the top of the window opened
+  off screen and its title bar could not be grabbed to move it. The window
+  now fits the screen it opens on.
 
 ## [1.3.0] — 23 October 2026
 

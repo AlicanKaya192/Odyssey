@@ -21,36 +21,43 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [1.4.0] — yayınlanmadı
+## [1.4.0] — 28 Ekim 2026
 
 ### Eklendi
+- **Tekrar kutusu.** Sınavda yanlış yaptığınız ya da boş bıraktığınız
+  sorular kutuya girer ve 1, 3, 7 ve 14 gün arayla yeniden sorulur; doğru
+  bildikçe aralık uzar, yanlışta başa döner. Karşılama kartındaki
+  "Tekrar et" düğmesi günü gelen soruları açar (günde en fazla 20).
+  Daha önceki sınavlarınızdaki yanlışlar da ilk açılışta kutuya eklenir.
+  Cevaptan sonra sorunun anlatıldığı ders başlığına ya da nota tek tıkla
+  gidebilirsiniz. Sözlükte (Hakkında › Sözlük) ya da derste terimin
+  açıklama kartında bir terimi de kutuya ekleyebilirsiniz; terimin ne
+  demek olduğu dört şık arasından sorulur.
+- **Tekrar sınavı.** Bir modülde en az üç bölüm bitirince yolun başında
+  çıkar: bitirdiğiniz bölümlerin sınavlarından karışık 20 soru, süresiz;
+  her cevaptan sonra doğrusu ve dersteki yeri gösterilir. Sonunda bölüm
+  bölüm kaç doğru yaptığınız yazar, yanlışlarınız tekrar kutusuna girer.
+- **Haftalık hedef.** Her gün çalışamayanlar için serinin yanında:
+  Ayarlar › Öğrenme'de haftada kaç bölüm, kaç dakika odak ya da kaç gün
+  çalışmak istediğinizi seçin; bu haftaki durum karşılama kartında
+  görünür, hedef tutunca bir kutlama kartı çıkar. Hafta Pazartesi başlar.
+  Profildeki etkinlik kartında hedefi kaç hafta üst üste tuttuğunuz ve son
+  12 hafta görünür.
 - **Kodunuzu resim olarak paylaşın.** Alıştırmanın çalıştır çubuğundaki
   yeni düğme, yazdığınız kodu alıştırmanın adı, bölümü ve durumuyla
   (çözüldü ya da denendi) bir karta basıyor; kartı PNG olarak
   kaydedebilir ya da panoya kopyalayıp doğrudan Discord'a
   yapıştırabilirsiniz. Kart bilgisayarınızda çiziliyor, hiçbir yere
   gönderilmiyor.
-- **Haftalık hedef.** Her gün çalışamayanlar için serinin yanında:
-  Ayarlar › Öğrenme'de haftada kaç bölüm, kaç dakika odak ya da kaç gün
-  çalışmak istediğinizi seçin; bu haftaki durum karşılama kartında
-  görünür, hedef tutunca bir kutlama kartı çıkar. Hafta Pazartesi başlar.
-- **Tekrar kutusu.** Sınavda yanlış yaptığınız ya da boş bıraktığınız
-  sorular kutuya girer ve 1, 3, 7 ve 14 gün arayla yeniden sorulur; doğru
-  bildikçe aralık uzar, yanlışta başa döner. Karşılama kartındaki
-  "Tekrar et" düğmesi günü gelen soruları açar (günde en fazla 20).
-  Daha önceki sınavlarınızdaki yanlışlar da ilk açılışta kutuya eklenir.
-- **Tekrar sınavı.** Bir modülde en az üç bölüm bitirince yolun başında
-  çıkar: bitirdiğiniz bölümlerin sınavlarından karışık 20 soru, süresiz;
-  her cevaptan sonra doğrusu gösterilir. Sonunda bölüm bölüm kaç doğru
-  yaptığınız yazar, yanlışlarınız tekrar kutusuna girer.
 
 ### Değişti
 - **Öğrenme Yolu ekranı yenilendi.** Patikalar dört başlık altında
   toplanıyor (Temeller, Veriyle çalışmak, Yapay zekâ, Yazılım mühendisliği)
   ve geniş kartlarda açıklamalar kesilmeden okunuyor. Başlamadığınız
   patikanın kartında önce hangi patikanın önerildiği yazıyor, başladığınız
-  patika "Devam ediyor" diye işaretleniyor. Üstteki süzgeçle yalnızca başladığınız
-  patikaları ya da tek bir grubu görebilirsiniz; seçiminiz hatırlanıyor.
+  patika "Devam ediyor" diye işaretleniyor. Üstteki süzgeçle yalnızca
+  başladığınız patikaları ya da tek bir grubu görebilirsiniz; seçiminiz
+  hatırlanıyor.
 - **Hızlı başvuru artık sizin kartınız.** Derste, ders notunda ya da
   alıştırma yönergesinde bir paragrafı ya da kodu seçip sağ tıklayın ve
   "Hızlı başvuruya ekle"yi seçin; parça `Ctrl+R` ile açılan çekmeceye
@@ -58,7 +65,14 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   arama bütün kartta yapılır; her parçayı tek tıkla kopyalayabilir ya da
   karttan kaldırabilirsiniz. Ders notları artık çekmecede değil, bölümün
   Ders Notu sekmesinde; kartınız boşken bölümün başvuru notuna bir
-  bağlantı çıkar.
+  bağlantı çıkar. Kartınızı Markdown ya da yazdırılabilir PDF olarak
+  kaydedebilirsiniz.
+
+### Düzeltildi
+- **Pencere küçük ekranda üstten taşıyordu.** Windows'ta ölçeği büyütülmüş
+  ekranlarda (örneğin %125'te 1920×1200) program açılınca pencerenin üstü
+  ekranın dışında kalıyor, başlık çubuğu tutulup taşınamıyordu. Pencere
+  artık açıldığı ekrana sığdırılıyor.
 
 ## [1.3.0] — 23 Ekim 2026
 
