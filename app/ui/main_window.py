@@ -352,6 +352,10 @@ class MainWindow(QMainWindow):
         self._journey = JourneyView(self._catalog, self._language, self._store)
         self._journey.section_opened.connect(self._open_section)
         self._journey.review_requested.connect(self._open_review)
+        self._journey.spot_requested.connect(self._on_search)
+        # Dersteki terim kartında "+ Tekrar kutusu" (`LessonView`); kutu değişince
+        # karşılama kartındaki "Tekrar et" sayısı tazeleniyor.
+        review_box.connect_live(self._store, self._journey.refresh)
         # Seviye tespiti kilitleri değiştiriyor; patika kartları ve rotalar tazelensin.
         self._journey.path.placement_finished.connect(self._journey.tracks.refresh)
         self._journey.view_changed.connect(self._update_headers)
@@ -375,6 +379,7 @@ class MainWindow(QMainWindow):
         self._profile = ProfileView(self._catalog, self._language, self._store)
         self._profile.saved.connect(self._journey.refresh)
         self._profile.saved.connect(self._rail.refresh_avatar)
+        self._profile.settings_requested.connect(self._open_settings)
         self._profile_header = ScreenHeader(self._language)
         self._profile_screen = Screen(self._profile_header, self._profile)
 
@@ -518,7 +523,8 @@ class MainWindow(QMainWindow):
         return notebook
 
     def _build_about(self) -> AboutView:
-        about = AboutView(self._language)
+        about = AboutView(self._language, store=self._store)
+        about.review_changed.connect(self._journey.refresh)
         self._about_segments.changed.connect(about.show_index)
         about.section_changed.connect(lambda _: self._update_headers())
         return about
@@ -829,6 +835,7 @@ class MainWindow(QMainWindow):
                 self._refresh_progress()
 
         dialog.finished.connect(kapandi)
+        dialog.spot_requested.connect(self._on_search)
         dialog.open()
 
     def _goal_toast(self, goal) -> ToastData:
@@ -1332,7 +1339,7 @@ class MainWindow(QMainWindow):
         if kind == "lesson":
             self._topic.focus("lesson", anchor=target.get("anchor", ""))
         elif kind == "course_note":
-            self._topic.focus("notes", target.get("document", 0))
+            self._topic.focus("notes", target.get("document", 0), target.get("anchor", ""))
         elif kind == "exercise":
             self._topic.focus("exercise", target.get("exercise", 0))
 
@@ -1612,8 +1619,12 @@ class MainWindow(QMainWindow):
 
     # --- ayarlar ----------------------------------------------------------
 
-    def _open_settings(self) -> None:
+    def _open_settings(self, page: str = "") -> None:
+        """Ayarlar penceresi; `page` verilirse o sayfada açılıyor (profildeki
+        "Haftalık hedef · kapalı" Öğrenme'yi açıyor)."""
         dialog = SettingsDialog(self._language, self._theme, self._store, self)
+        if page:
+            dialog.show_page(page)
         self._language.language_changed.connect(dialog.retranslate)
         # Kilit ayarı değişir değişmez ekranlar yenileniyor: yol ekranındaki
         # halkalar ve açık bölümün alt gezinme düğmeleri o an güncelleniyor.
@@ -1627,6 +1638,7 @@ class MainWindow(QMainWindow):
         # duruyor ya da geri geliyor.
         dialog.timing_changed.connect(self._on_timing_changed)
         dialog.goal_changed.connect(self._journey.refresh)
+        dialog.goal_changed.connect(self._profile.refresh_goal)
         # Discord ayarı da anında uygulanıyor: kapatıldığında yazı hemen
         # siliniyor, açıldığında hemen görünüyor. Ayarın etkisini görmek
         # için uygulamayı kapatıp açmak gerekmiyor.
@@ -1865,6 +1877,32 @@ class MainWindow(QMainWindow):
 
             log.get(__name__).exception("Program yeniden başlatılamadı")
         self.close_for_update()
+
+    def fit_to_screen(self) -> None:
+        """Pencere bulunduğu ekrana sığmıyorsa küçültür ve içeri alır.
+
+        1400×900 pencere, Windows ölçeği %125 olan 1920×1200'lük dizüstü
+        ekranında (kullanılabilir boy 912) başlık çubuğuyla sığmıyordu;
+        Windows üstünü ekranın dışına itiyor, pencere tutulup taşınamıyordu
+        (Alican 28 Ekim). `show()`'dan sonra, pencere daha görünmezken
+        çağrılıyor: çerçevenin boyu ancak o zaman belli.
+        """
+        ekran = self.screen()
+        if ekran is None or self.isMaximized() or self.isFullScreen():
+            return
+        alan = ekran.availableGeometry()
+        cerceve, ic = self.frameGeometry(), self.geometry()
+        pay_w, pay_h = cerceve.width() - ic.width(), cerceve.height() - ic.height()
+        genislik = max(self.minimumWidth(), min(ic.width(), alan.width() - pay_w))
+        boy = max(self.minimumHeight(), min(ic.height(), alan.height() - pay_h))
+        if (genislik, boy) != (ic.width(), ic.height()):
+            self.resize(genislik, boy)
+            cerceve = self.frameGeometry()
+        # Başlık çubuğu ekranın içinde kalsın; sığmayan pencerede sol üst köşe öncelikli.
+        x = max(alan.left(), min(cerceve.left(), alan.right() + 1 - cerceve.width()))
+        y = max(alan.top(), min(cerceve.top(), alan.bottom() + 1 - cerceve.height()))
+        if (x, y) != (cerceve.left(), cerceve.top()):
+            self.move(x, y)
 
     def close_for_update(self) -> None:
         """Güncelleme yardımcısına yer açmak için onay sormadan kapanır.

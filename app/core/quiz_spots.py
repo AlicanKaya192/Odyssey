@@ -167,6 +167,51 @@ class QuizSpots:
         return sorted(sayac.items(), key=lambda kv: (-kv[1], sira.get(kv[0], 0)))[:WEAK_LIMIT]
 
 
+def _pick_text(values, language: str) -> str:
+    if not isinstance(values, dict):
+        return str(values or "")
+    return values.get(language) or values.get("tr") or ""
+
+
+def section_lesson(section, language: str) -> str:
+    """Zayıf konu için bölümün ders metni; genel tekrarda yok (cevaplar
+    başka bölümlerde)."""
+    if section is None or "genel-tekrar" in section.id:
+        return ""
+    for block in section.blocks:
+        if block.type == "lesson":
+            resolved = block.file_for(language)
+            if resolved and resolved.exists:
+                return resolved.path.read_text(encoding="utf-8")
+    return ""
+
+
+def section_notes(section, language: str) -> list[tuple[str, str]]:
+    """Zayıf konu için ders notları: (adı, ekranda çizilen metni), notlar
+    sekmesindeki sırayla; genel tekrarda yok."""
+    if section is None or "genel-tekrar" in section.id:
+        return []
+    bloklar = [b for b in section.blocks_of("notes") if b.documents]
+    if not bloklar:
+        return []
+    blok = bloklar[-1]  # sekmede gösterilen
+    notlar = []
+    for belge in blok.documents:
+        sablon = belge.get("file", "")
+        yol = blok.directory / sablon.replace("{lang}", language)
+        if not yol.exists():
+            yol = blok.directory / sablon.replace("{lang}", "tr")
+        ad = _pick_text(belge.get("title"), language)
+        govde = yol.read_text(encoding="utf-8") if sablon and yol.is_file() else ""
+        notlar.append((ad, f"# {ad}\n\n{govde}"))
+    return notlar
+
+
+def for_section(section, language: str) -> QuizSpots:
+    """Bölümün dersi ve notlarıyla hazır `QuizSpots` (tekrar kutusu)."""
+    return QuizSpots(section_lesson(section, language), language, section_notes(section, language))
+
+
 def _pick(puanlar: list[float]) -> int | None:
     """En iyi parça; hiç eşleşme yoksa ya da ikinciden belirgin güçlü değilse None."""
     sirali = sorted(puanlar, reverse=True)

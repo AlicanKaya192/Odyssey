@@ -21,6 +21,7 @@ from PySide6.QtCore import QTimer, Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ..core import math_text
+from ..core.glossary import REVIEW_TERM
 from ..core.language import LanguageManager
 from ..core.lesson_markdown import MARKDOWN_EXTENSIONS
 from ..widgets.document_view import DocumentView
@@ -262,7 +263,7 @@ class LessonView(QWidget):
         layout.setSpacing(0)
 
         self._document = DocumentView(self)
-        self._document.action.connect(self.action)
+        self._document.action.connect(self._on_document_action)
         layout.addWidget(self._document)
 
         # Okuma takibi: dersin sonuna inilince bir kez `lesson-read`
@@ -270,6 +271,50 @@ class LessonView(QWidget):
         self._read_reported = False
         if track_reading:
             self._document.at_end_changed.connect(self._check_read)
+
+    def _review_texts(self) -> dict | None:
+        """Terim kartındaki tekrar kutusu bağlantısının verisi."""
+        from ..core import review_box
+
+        # Ana pencere kaydı veriyor (`review_box.connect_live`); yoksa (testler)
+        # kartta bağlantı yok.
+        if review_box.live_store is None:
+            return None
+        t = self._language.t
+        return {"in_box": review_box.term_ids(review_box.live_store),
+                "add": t("glossary.review_add"), "on": t("glossary.review_in"),
+                "add_tip": t("glossary.review_add_tip"), "on_tip": t("glossary.review_remove_tip")}
+
+    def _on_document_action(self, action: str) -> None:
+        """Terim kartındaki bağlantı burada işleniyor; ötekiler dışarı."""
+        from ..core import review_box
+
+        if action.startswith(REVIEW_TERM) and review_box.live_store is not None:
+            self.toggle_review_term(action[len(REVIEW_TERM):])
+            return
+        self.action.emit(action)
+
+    def toggle_review_term(self, term_id: str) -> bool:
+        """Terimi tekrar kutusuna koyar ya da çıkarır; sayfadaki bağlantının
+        yazısı yeniden yüklemeden değişiyor. Yeni durum."""
+        from ..core import glossary, review_box
+
+        if not any(term["id"] == term_id for term in glossary.load()):
+            return False
+        yeni = review_box.toggle_term(review_box.live_store, term_id)
+        t = self._language.t
+        yazi = json.dumps(t("glossary.review_in" if yeni else "glossary.review_add"))
+        ipucu = json.dumps(t("glossary.review_remove_tip" if yeni else "glossary.review_add_tip"))
+        kimlik = json.dumps(term_id)
+        if self._document._loaded:  # noqa: SLF001
+            self._document.page().runJavaScript(
+                "document.querySelectorAll('a.term-add').forEach(function(a){"
+                f"if(a.dataset.id!=={kimlik})return;a.textContent={yazi};a.title={ipucu};"
+                f"a.classList.toggle('on',{str(yeni).lower()});}});"
+            )
+        if review_box.live_changed is not None:
+            review_box.live_changed()
+        return yeni
 
     # --- içerik -----------------------------------------------------------
 
@@ -488,7 +533,7 @@ class LessonView(QWidget):
 
             patika = glossary.chapter_from_path(self._document._base_override)  # noqa: SLF001
             if patika:
-                scripts += glossary.page_script(patika, self._language.language)
+                scripts += glossary.page_script(patika, self._language.language, self._review_texts())
         return f'<div class="{page_class}">{content}{aside}</div>{scripts}'
 
     def _banner_html(self, tone: str, text: str) -> str:

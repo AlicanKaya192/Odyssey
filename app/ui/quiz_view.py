@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QSpacerItem,
     QStackedWidget,
     QVBoxLayout,
     QWidget,
@@ -569,11 +570,15 @@ class QuizView(QWidget):
             cips.addWidget(c)
         cips.addStretch(1)
         card.body.addLayout(cips)
-        card.body.addSpacing(SPACING["lg"])
+        # Alçak pencerede (1280×800) kart kaydırma çubuğu çıkarıyordu
+        # (68 px, 28 Ekim); bu iki boşluk ve sayfa kenarı orada daralıyor
+        # (`resizeEvent`).
+        self._start_gaps = [QSpacerItem(0, SPACING["lg"]), QSpacerItem(0, 22)]
+        card.body.addItem(self._start_gaps[0])
 
         self._preview_ring = TimerRing(132, 9)
         card.body.addWidget(self._preview_ring, 0, Qt.AlignmentFlag.AlignHCenter)
-        card.body.addSpacing(22)
+        card.body.addItem(self._start_gaps[1])
 
         self._previous_label = QLabel()
         self._previous_label.setWordWrap(True)
@@ -610,7 +615,27 @@ class QuizView(QWidget):
         self._start_keys.setAlignment(Qt.AlignmentFlag.AlignCenter)
         card.body.addSpacing(SPACING["xs"])
         card.body.addWidget(self._start_keys)
-        return self._centered(card, 460)
+        sayfa = self._centered(card, 460)
+        self._start_outer = sayfa.layout()
+        self._start_short = False
+        return sayfa
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        # Olağan düzenin boyu bir kez ölçülüp saklanıyor (gidip gelmesin).
+        alan = self._stack.widget(0)
+        if not self._start_short:
+            self._start_need = alan.widget().sizeHint().height()
+        kisa = alan.viewport().height() < self._start_need
+        if kisa == self._start_short:
+            return
+        self._start_short = kisa
+        kenar = SPACING["sm"] if kisa else SPACING["xl"]
+        self._start_outer.setContentsMargins(SPACING["xl"], kenar, SPACING["xl"], kenar)
+        for bosluk, olagan in zip(self._start_gaps, (SPACING["lg"], 22)):
+            bosluk.changeSize(0, SPACING["sm"] if kisa else olagan)
+        self._start_card.body.setContentsMargins(*(4 * [22 if kisa else 30]))
+        self._start_card.body.invalidate()
 
     def _build_quiz_page(self) -> QWidget:
         page = QWidget()

@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
 
 from ..widgets import motion
 from .note_panel import PANEL_WIDTH as NOTE_PANEL_WIDTH
+from ..core import quiz_spots
 from ..core.catalog import Catalog, Section
 from ..core.language import LanguageManager
 from ..core.quiz_timing import untimed_quiz
@@ -380,29 +381,11 @@ class TopicView(QWidget):
 
     def _quiz_lesson_text(self) -> str:
         """Zayıf konu için ders; genel tekrarda yok (cevaplar başka bölümlerde)."""
-        if self._section is None or "genel-tekrar" in self._section.id:
-            return ""
-        return self._lesson_text()
+        return quiz_spots.section_lesson(self._section, self._language.language)
 
     def _quiz_notes(self) -> list[tuple[str, str]]:
-        """Zayıf konu için ders notları: (adı, ekranda çizilen metni), notlar
-        sekmesindeki sırayla; genel tekrarda yok."""
-        if self._section is None or "genel-tekrar" in self._section.id:
-            return []
-        bloklar = [b for b in self._section.blocks_of("notes") if b.documents]
-        if not bloklar:
-            return []
-        blok, dil = bloklar[-1], self._language.language  # sekmede gösterilen
-        notlar = []
-        for belge in blok.documents:
-            sablon = belge.get("file", "")
-            yol = blok.directory / sablon.replace("{lang}", dil)
-            if not yol.exists():
-                yol = blok.directory / sablon.replace("{lang}", "tr")
-            ad = self._language.pick(belge.get("title"))
-            govde = yol.read_text(encoding="utf-8") if sablon and yol.is_file() else ""
-            notlar.append((ad, f"# {ad}\n\n{govde}"))
-        return notlar
+        """Zayıf konu için ders notları (`quiz_spots.section_notes`)."""
+        return quiz_spots.section_notes(self._section, self._language.language)
 
     def _open_note_at(self, index: int, anchor: str) -> None:
         self.focus("notes", index, anchor)

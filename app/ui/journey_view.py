@@ -1996,6 +1996,8 @@ class PathView(QWidget):
     back_requested = Signal()
     # Seviye tespiti kaydedildi: kilitler değişti, başka ekranlar tazelensin.
     placement_finished = Signal()
+    # Tekrar sınavında "Derse git" (arama sonucu biçiminde hedef).
+    spot_requested = Signal(dict)
 
     def __init__(
         self,
@@ -2421,6 +2423,7 @@ class PathView(QWidget):
             self.practice_dialog = None
 
         dialog.finished.connect(kapandi)
+        dialog.spot_requested.connect(self.spot_requested)
         dialog.open()
         return dialog
 
@@ -2502,6 +2505,7 @@ class JourneyView(FadeStack):
     view_changed = Signal()
     # Karşılama kartındaki "Tekrar et": tekrar kutusu penceresi.
     review_requested = Signal()
+    spot_requested = Signal(dict)
 
     def __init__(
         self,
@@ -2529,6 +2533,7 @@ class JourneyView(FadeStack):
         self.modules.review_requested.connect(self.review_requested)
         self.modules.module_opened.connect(self.open_module)
         self.path.section_opened.connect(self.section_opened)
+        self.path.spot_requested.connect(self.spot_requested)
 
         self._track_id = ""
         self._skipped_modules = False

@@ -183,6 +183,17 @@ aside.toc {{ grid-column: 3; padding-left: 48px; }}
 .term:hover .term-card, .term:focus .term-card {{ display: block; animation: sIn 140ms var(--out); }}
 .term.flip .term-card {{ left: auto; right: -6px; }}
 .term.up .term-card {{ top: auto; bottom: calc(100% + 8px); }}
+/* Terim ile kart arasındaki 8 px: fare karta inerken kart kapanmasın
+ * (karttaki tekrar kutusu bağlantısına ulaşılsın). */
+.term-card::before {{ content: ""; position: absolute; left: 0; right: 0; top: -10px; height: 10px; }}
+.term.up .term-card::before {{ top: auto; bottom: -10px; }}
+.content .term-card a.term-add {{
+    display: inline-block; margin-top: 8px; font-size: 12.5px; font-weight: 600;
+    color: {p['text_muted']}; text-decoration: none; border: 1px solid {p['border']};
+    border-radius: 999px; padding: 2px 10px;
+}}
+.content .term-card a.term-add:hover {{ color: {p['accent']}; border-color: {p['accent']}; }}
+.content .term-card a.term-add.on {{ color: {p['success']}; border-color: {p['success']}; }}
 /* Hakkında › Sözlük */
 .gl-list {{ display: grid; gap: 10px; margin: 14px 0 30px; }}
 .gl {{
@@ -192,6 +203,14 @@ aside.toc {{ grid-column: 3; padding-left: 48px; }}
 .gl b {{ display: block; color: {p['text']}; font-size: 15px; font-weight: 650; margin-bottom: 4px; }}
 .content .gl p {{ margin: 0; color: {p['text_muted']}; font-size: 14px; line-height: 1.55; }}
 .gl.hit {{ border-color: {p['accent']}; animation: glowOnce 1.2s var(--out); }}
+.gl .gl-head {{ display: flex; align-items: baseline; gap: 12px; }}
+.gl .gl-head b {{ flex: 1; }}
+.content .gl a.gl-review {{
+    flex: none; font-size: 12.5px; font-weight: 600; color: {p['text_muted']};
+    text-decoration: none; border: 1px solid {p['border']}; border-radius: 999px; padding: 2px 10px;
+}}
+.content .gl a.gl-review:hover {{ color: {p['accent']}; border-color: {p['accent']}; }}
+.content .gl a.gl-review.on {{ color: {p['success']}; border-color: {p['success']}; }}
 .content hr {{ border: none; border-top: 1px solid {p['border']}; margin: 32px 0; }}
 
 .meta {{
@@ -684,6 +703,15 @@ a.spot:hover {{ background: {p['accent_soft']}; }}
 .about .linkcard {{ padding: 16px 22px; }}
 .about .linkcard p {{ margin-top: 6px; }}
 .about .linkcard .url {{ margin-top: 8px; }}
+/* Kısa pencere (dizüstü ekranında sığdırılmış pencere, 28 Ekim): Ekstra
+ * İçerikler 52 px taşıyordu; üst boşluk, kart içi ve aralar sıkılaşıyor. */
+@media (max-height: 780px) {{
+    .page.narrow.about {{ padding-top: 22px; padding-bottom: 16px; }}
+    .about .cardgrid {{ gap: 10px; }}
+    .about .linkcard {{ padding: 12px 20px; }}
+    .about .linkcard p {{ margin-top: 4px; }}
+    .about .linkcard .url {{ margin-top: 4px; }}
+}}
 .linkcard .row {{ display: flex; align-items: center; gap: 12px; }}
 .linkcard b {{ font-size: 16.5px; font-weight: 660; color: {p['text']}; }}
 .linkcard .go {{

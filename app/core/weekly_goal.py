@@ -24,6 +24,9 @@ TARGETS = {
     "days": (1, 2, 3, 4, 5, 6, 7),
 }
 DEFAULT_TARGET = {"sections": 3, "focus": 120, "days": 4}
+# Geçmiş bu kadar haftaya bakıyor (seri ve en uzun); profilde son `RECENT_WEEKS`.
+HISTORY_WEEKS = 104
+RECENT_WEEKS = 12
 
 
 @dataclass(frozen=True)
@@ -83,6 +86,44 @@ def set_goal(store, kind: str, target: int, today: date | None = None) -> None:
     goal = current(store, today)
     if goal is not None and goal.reached:
         store.set_setting(CELEBRATED_KEY, week_key(today))
+
+
+@dataclass(frozen=True)
+class History:
+    """Hedefin geçmişi: üst üste tutan hafta (seri gibi), en uzunu ve son
+    haftalar (eskiden yeniye, sonuncusu bu hafta)."""
+
+    streak: int
+    best: int
+    recent: tuple[bool, ...]
+
+
+def history(store, today: date | None = None, weeks: int = HISTORY_WEEKS) -> History | None:
+    """Bugünkü hedefle geçmiş haftalar; hedef kapalıysa `None`.
+
+    Geçmiş de bugünkü tür ve sayıyla ölçülüyor (hedef saklanmıyor,
+    hesaplanıyor). Süren hafta tutmadıysa seriyi bozmuyor: hafta henüz
+    bitmedi, seri geçen haftadan sayılıyor.
+    """
+    ayar = _setting(store)
+    if ayar is None:
+        return None
+    kind, target = ayar
+    bu_hafta = week_start(today or date.today())
+    tuttu = []  # yeniden eskiye
+    for geri in range(weeks):
+        bas = bu_hafta - timedelta(weeks=geri)
+        tuttu.append(store.week_totals(bas, bas + timedelta(weeks=1))[kind] >= target)
+    seri = 0
+    for hafta in (tuttu if tuttu[0] else tuttu[1:]):
+        if not hafta:
+            break
+        seri += 1
+    en_uzun = sure = 0
+    for hafta in tuttu:
+        sure = sure + 1 if hafta else 0
+        en_uzun = max(en_uzun, sure)
+    return History(seri, en_uzun, tuple(reversed(tuttu[:RECENT_WEEKS])))
 
 
 def celebrate(store, today: date | None = None) -> Goal | None:

@@ -20,13 +20,17 @@ yeniden açmak gerekirdi. Kapatmak: çarpı, `Esc`, `Ctrl+R`, düğme.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QTimer, Signal
+from pathlib import Path
+
+from PySide6.QtCore import QPoint, QStandardPaths, Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QApplication,
+    QFileDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMenu,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -35,6 +39,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..core import card_export, log
 from ..core.catalog import Catalog
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
@@ -42,7 +47,7 @@ from ..core.reference_notes import reference_note
 from ..core.search import fold
 from ..resources.icons import icon, pixmap
 from ..resources.theme.tokens import PALETTES, SPACING
-from ..widgets import motion
+from ..widgets import motion, tips
 
 # Genişlik: pencerenin en fazla bu oranı, en az / en çok bu kadar piksel.
 WIDTH_SHARE = 0.42
@@ -169,6 +174,12 @@ class ReferenceDrawer(QFrame):
         self._where.setProperty("role", "drawer-sub")
         self._where.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         top.addWidget(self._where, 1)
+        self._export_button = QPushButton()
+        self._export_button.setProperty("variant", "round")
+        self._export_button.setFixedSize(28, 28)
+        self._export_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._export_button.clicked.connect(self._show_export_menu)
+        top.addWidget(self._export_button)
         self._close_button = QPushButton()
         self._close_button.setProperty("variant", "round")
         self._close_button.setFixedSize(28, 28)
@@ -296,6 +307,7 @@ class ReferenceDrawer(QFrame):
         self._cards = self._store.cards()
         self._update_where()
         self._search.setVisible(bool(self._cards))
+        self._export_button.setVisible(bool(self._cards))
         if not self._cards:
             self._show_empty()
             return
@@ -384,12 +396,66 @@ class ReferenceDrawer(QFrame):
         kaydirma = self._scroll.verticalScrollBar().value()
         self._cards = [kart for kart in self._cards if kart["id"] != card_id]
         self._search.setVisible(bool(self._cards))
+        self._export_button.setVisible(bool(self._cards))
         if not self._cards:
             self._search.clear()
             self._show_empty()
             return
         self._fill_list()
         QTimer.singleShot(0, lambda: self._scroll.verticalScrollBar().setValue(kaydirma))
+
+    # --- dışa aktarma ----------------------------------------------------------
+
+    def _show_export_menu(self) -> None:
+        t = self._language.t
+        menu = QMenu(self)
+        menu.addAction(t("reference.export_md")).triggered.connect(lambda: self.export_markdown())
+        menu.addAction(t("reference.export_pdf")).triggered.connect(lambda: self.export_pdf())
+        menu.exec(self._export_button.mapToGlobal(QPoint(0, self._export_button.height() + 4)))
+
+    def _export_groups(self) -> list:
+        return card_export.grouped(self._store.cards(), self._catalog, self._language.language)
+
+    def _ask_path(self, suffix: str, file_filter: str) -> Path | None:
+        klasor = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
+        oneri = str(Path(klasor) / f"{self._language.t('reference.export_file')}.{suffix}")
+        yol, _ = QFileDialog.getSaveFileName(self, self._language.t("reference.export"), oneri, file_filter)
+        if not yol:
+            return None
+        return Path(yol if yol.lower().endswith(f".{suffix}") else f"{yol}.{suffix}")
+
+    def export_markdown(self, path: Path | None = None) -> bool:
+        """Bütün kartı `.md` olarak kaydeder; `path` verilmezse sorar."""
+        path = path or self._ask_path("md", "Markdown (*.md)")
+        if path is None:
+            return False
+        metin = card_export.to_markdown(self._export_groups(), self._language.t("reference.title"))
+        try:
+            path.write_text(metin, encoding="utf-8")
+        except OSError:
+            log.get(__name__).exception("Hızlı başvuru kaydedilemedi")
+            return self._exported(path, False)
+        return self._exported(path, True)
+
+    def export_pdf(self, path: Path | None = None) -> bool:
+        """Bütün kartı yazdırılabilir A4 PDF olarak kaydeder."""
+        path = path or self._ask_path("pdf", "PDF (*.pdf)")
+        if path is None:
+            return False
+        try:
+            card_export.write_pdf(self._export_groups(), self._language.t("reference.title"), path)
+        except OSError:
+            log.get(__name__).exception("Hızlı başvuru PDF olarak kaydedilemedi")
+            return self._exported(path, False)
+        return self._exported(path, True)
+
+    def _exported(self, path: Path, ok: bool) -> bool:
+        t = self._language.t
+        metin = t("reference.exported", name=path.name) if ok else t("reference.export_failed")
+        dugme = self._export_button
+        tips.show_text(dugme.mapToGlobal(QPoint(0, dugme.height() + 6)), metin, dugme)
+        QTimer.singleShot(COPIED_MS * 2, tips.hide_text)
+        return ok
 
     # --- tema ve dil -----------------------------------------------------------
 
@@ -398,6 +464,7 @@ class ReferenceDrawer(QFrame):
         p = PALETTES.get(mode, PALETTES["dark"])
         self._head_icon.setPixmap(pixmap("file-text", p["accent"], 18))
         self._close_button.setIcon(icon("x", p["text_muted"], 15))
+        self._export_button.setIcon(icon("download", p["text_muted"], 15))
         for parca in self._pieces:
             parca.set_palette(p)
 
@@ -405,6 +472,7 @@ class ReferenceDrawer(QFrame):
         t = self._language.t
         self._heading.setText(t("reference.title"))
         self._close_button.setToolTip(t("common.close") + "  (Esc)")
+        self._export_button.setToolTip(t("reference.export"))
         self._search.setPlaceholderText(t("reference.search"))
         # Parçaların metni kişinin seçtiği dilde kalıyor; bölüm adları ve
         # öteki yazılar yeni dilde yeniden kuruluyor.

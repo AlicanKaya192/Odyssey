@@ -11,8 +11,9 @@ Klavye: 1–4 / A–D şık, Enter cevapla / sonraki (sınav ekranıyla aynı).
 from __future__ import annotations
 
 import html
+import random
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import (
     QDialog,
@@ -27,7 +28,7 @@ from PySide6.QtWidgets import (
 
 from datetime import date, timedelta
 
-from ..core import practice_exam, review_box
+from ..core import glossary, practice_exam, quiz_spots, review_box
 from ..core.language import LanguageManager
 from ..core.quiz_shuffle import prepare
 from ..resources.theme.tokens import SPACING
@@ -47,6 +48,9 @@ class ReviewDialog(QDialog):
     """
 
     TITLE_KEY = "review.title"
+    # Cevaptan sonraki "Derse git": arama sonucu biçiminde hedef
+    # (`MainWindow._on_search`); pencere kapanıyor, kalan sorular kutuda.
+    spot_requested = Signal(dict)
 
     def __init__(self, language: LanguageManager, store, source, mode: str = "light",
                  parent: QWidget | None = None, today=None, rng=None) -> None:
@@ -61,6 +65,8 @@ class ReviewDialog(QDialog):
         self._correct = 0
         self._answered = 0
         self._card: QuestionCard | None = None
+        self._finders: dict[tuple[str, str], quiz_spots.QuizSpots] = {}
+        self._spot_target: dict | None = None
         t = language.t
 
         modal.prepare(self)
@@ -96,6 +102,15 @@ class ReviewDialog(QDialog):
         self._scroll.setFrameShape(QScrollArea.Shape.NoFrame)
         self._scroll.setProperty("role", "bare")
         s.addWidget(self._scroll, 1)
+        # Cevaptan sonra: sorunun anlatıldığı ders başlığı ya da not
+        # (sınav sonundaki zayıf konu yolu, `core.quiz_spots`).
+        self._spot_button = QPushButton()
+        self._spot_button.setProperty("variant", "toc")
+        self._spot_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._spot_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self._spot_button.clicked.connect(self._go_spot)
+        self._spot_button.hide()
+        s.addWidget(self._spot_button)
         alt = QHBoxLayout()
         bitir = QPushButton(t("review.finish"))
         bitir.setProperty("variant", "ghost")
@@ -151,7 +166,18 @@ class ReviewDialog(QDialog):
         olmayan (bölüm kalkmış ya da soru değişmiş) kayıt kutudan çıkıyor."""
         sonuc = []
         dosyalar: dict[tuple[str, str], list[dict]] = {}
+        terimler = None
         for item in review_box.today_items(self._store, self._today):
+            if item["chapter_id"] == review_box.GLOSSARY:
+                if terimler is None:
+                    terimler = {term["id"]: term for term in glossary.load()}
+                soru = self._term_question(item, terimler)
+                if soru is None:
+                    self._store.set_review(item["chapter_id"], item["section_id"],
+                                           item["question_key"], None)
+                    continue
+                sonuc.append((item, None, prepare([soru], self._rng)[0]))
+                continue
             anahtar = (item["chapter_id"], item["section_id"])
             section = catalog.section(*anahtar)
             if anahtar not in dosyalar:
@@ -163,6 +189,15 @@ class ReviewDialog(QDialog):
                 continue
             sonuc.append((item, section, prepare([soru], self._rng)[0]))
         return sonuc
+
+    def _term_question(self, item: dict, terms: dict[str, dict]) -> dict | None:
+        """Sözlük teriminin dört şıklı sorusu; terim sözlükten kalktıysa `None`."""
+        term = terms.get(item["section_id"])
+        if term is None:
+            return None
+        return review_box.term_question(term, tuple(terms.values()), self._language.language,
+                                        self._language.t("review.term_question"),
+                                        self._rng or random.Random())
 
     @property
     def answered(self) -> int:
@@ -178,7 +213,8 @@ class ReviewDialog(QDialog):
         t = self._language.t
         item, section, soru = self._items[self._index]
         self._progress.setText(t("review.progress", n=self._index + 1, total=len(self._items)))
-        self._section_label.setText(self._language.pick(section.title))
+        self._section_label.setText(t("review.term_label") if section is None
+                                    else self._language.pick(section.title))
         kart = QuestionCard(self._index, soru, self._language, self._mode)
         kart.picked.connect(self._sync_button)
         self._card = kart
@@ -192,9 +228,34 @@ class ReviewDialog(QDialog):
         if eski is not None:
             eski.deleteLater()
         self._scroll.setWidget(tasiyici)
+        self._spot_button.hide()
+        self._spot_target = None
         self._revealed = False
         self._sync_button()
+        self._fit_height()
         self.setFocus()
+
+    def _fit_height(self) -> None:
+        """Soru (ve cevaptan sonra açıklaması) sığmıyorsa pencere uzuyor.
+
+        Kaydırma çubuğu istenmiyor (Alican 28 Ekim): ölçümde 790 sorunun
+        85'inde açıklama 640 piksellik pencereye sığmıyordu. Pencere yalnızca
+        büyüyor (soru soru küçülüp zıplamasın) ve ekranın kullanılabilir
+        boyunu geçmiyor; ancak ondan da uzun bir soruda çubuk kalıyor.
+        """
+        tasiyici = self._scroll.widget()
+        if tasiyici is None or tasiyici.layout() is None:
+            return
+        tasiyici.layout().activate()
+        self.layout().activate()  # "Derse git" düğmesi az önce açılmış olabilir
+        genislik = self._scroll.width() - self._scroll.verticalScrollBar().sizeHint().width()
+        gereken = tasiyici.layout().totalHeightForWidth(genislik)
+        cerceve = self.height() - self._scroll.viewport().height()
+        ekran = self.screen().availableGeometry().height() if self.screen() else DIALOG_HEIGHT
+        boy = min(max(self.height(), cerceve + gereken + 2), ekran - 40)
+        if boy > self.height():
+            self.setFixedHeight(boy)
+            modal.center(self)
 
     def _sync_button(self) -> None:
         t = self._language.t
@@ -215,13 +276,54 @@ class ReviewDialog(QDialog):
             self._record(self._card.is_correct)
             self._card.reveal()
             self._revealed = True
+            self._show_spot()
             self._sync_button()
+            self._fit_height()
             return
         self._index += 1
         if self._index >= len(self._items):
             self._finish()
         else:
             self._show_question()
+
+    def _show_spot(self) -> None:
+        """Cevaplanan sorunun dersteki yeri; belirgin değilse düğme yok."""
+        item, section, soru = self._items[self._index]
+        t = self._language.t
+        if section is None:  # sözlük terimi: sözlükteki yerine
+            self._spot_button.setText(f"{t('review.spot_term')}  →")
+            self._spot_button.setToolTip("")
+            self._spot_target = {"type": "term", "id": item["section_id"]}
+            self._spot_button.show()
+            return
+        anahtar = (section.chapter_id, section.id)
+        if anahtar not in self._finders:
+            self._finders[anahtar] = quiz_spots.for_section(section, self._language.language)
+        yer = self._finders[anahtar].spot(item["question_index"], soru)
+        if yer is None:
+            return
+        baslik = yer.title.replace("`", "")
+        olcu = self._spot_button.fontMetrics()
+        on_ek = t("review.spot_note" if yer.in_notes else "review.spot_lesson")
+        sigan = olcu.elidedText(baslik, Qt.TextElideMode.ElideRight,
+                                DIALOG_WIDTH - 2 * SPACING["xl"] - 40
+                                - olcu.horizontalAdvance(f"{on_ek}  →"))
+        self._spot_button.setText(f"{on_ek} {sigan}  →")
+        self._spot_button.setToolTip(baslik)
+        hedef = {"chapter": section.chapter_id, "section": section.id, "anchor": yer.anchor}
+        if yer.in_notes:
+            hedef.update(type="course_note", document=yer.note)
+        else:
+            hedef["type"] = "lesson"
+        self._spot_target = hedef
+        self._spot_button.show()
+
+    def _go_spot(self) -> None:
+        if self._spot_target is None:
+            return
+        hedef = self._spot_target
+        self.accept()
+        self.spot_requested.emit(hedef)
 
     def _record(self, correct: bool) -> None:
         item, section, _soru = self._items[self._index]

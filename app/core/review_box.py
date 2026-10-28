@@ -20,12 +20,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from datetime import date, timedelta
 
 # Doğru bilinince sıradaki aralık (gün). Kutuya giren soru ilk kez ertesi gün.
 INTERVALS = (1, 3, 7, 14)
 DAILY_LIMIT = 20
 BACKFILL_KEY = "review_backfilled"
+# Sözlük terimlerinin kayıtlarında modül yerine bu (bkz. `add_term`).
+GLOSSARY = "glossary"
 
 
 def question_key(question: dict) -> str:
@@ -88,6 +91,89 @@ def answer(store, item: dict, correct: bool, today: date | None = None) -> None:
         stage = 0
     store.set_review(item["chapter_id"], item["section_id"], item["question_key"], stage,
                      today + timedelta(days=INTERVALS[stage]))
+
+
+# --- sözlük terimleri ------------------------------------------------------
+#
+# Alican 28 Ekim: sözlükte işaretlenen terim de kutuya giriyor ve aynı
+# aralıklarla soruluyor. Kayıt sınav sorularıyla aynı tabloda, "modül"
+# yerine `GLOSSARY`, bölüm ve parmak izi yerine terimin kimliği. Soru dört
+# şıklı: terimin tanımı ve aynı gruptan (yetmezse başka gruptan) üç tanım.
+
+
+def add_term(store, term_id: str, today: date | None = None) -> None:
+    """Terimi kutuya koyar; ilk kez ertesi gün soruluyor."""
+    yarin = (today or date.today()) + timedelta(days=INTERVALS[0])
+    store.add_review_items(GLOSSARY, term_id, [(0, term_id)], yarin)
+
+
+def remove_term(store, term_id: str) -> None:
+    store.set_review(GLOSSARY, term_id, term_id, None)
+
+
+def term_ids(store) -> set[str]:
+    """Kutudaki terimler."""
+    return store.review_sections(GLOSSARY)
+
+
+# Dersteki terim kartı (`LessonView`) her yerde kuruluyor (ders, not, yönerge);
+# kaydı ana pencere bir kez veriyor. Verilmemişse (testler) kartta bağlantı yok.
+live_store = None
+live_changed = None
+
+
+def connect_live(store, changed=None) -> None:
+    """Terim kartındaki bağlantının kullanacağı kayıt ve kutu değişince
+    çağrılacak işlev (karşılama kartındaki sayı)."""
+    global live_store, live_changed
+    live_store, live_changed = store, changed
+
+
+def toggle_term(store, term_id: str, today: date | None = None) -> bool:
+    """Terim kutudaysa çıkarır, değilse koyar; yeni durum (kutuda mı).
+    Sözlük sayfası ve dersteki terim kartı bunu kullanıyor."""
+    if term_id in term_ids(store):
+        remove_term(store, term_id)
+        return False
+    add_term(store, term_id, today)
+    return True
+
+
+def term_question(term: dict, terms: tuple[dict, ...] | list[dict], language: str,
+                  prompt: str, rng) -> dict | None:
+    """Terimin dört şıklı sorusu (`QuestionCard` biçiminde, tek dil).
+
+    Tanımda terimin adı geçiyorsa `___` ile örtülüyor: cevabı ele vermesin.
+    Tanımı olmayan terim için `None`.
+    """
+    def tanim(t: dict) -> str:
+        metin = (t.get("text") or {}).get(language) or (t.get("text") or {}).get("tr") or ""
+        ad = (t.get("title") or {}).get(language) or ""
+        # Kelime başında (Türkçe ek serbest: "listeler" → "___ler").
+        return re.sub(r"(?<!\w)" + re.escape(ad), "___", metin, flags=re.IGNORECASE) if ad else metin
+
+    dogru = tanim(term)
+    if not dogru:
+        return None
+    ayni = [t for t in terms if t["id"] != term["id"] and t.get("group") == term.get("group")]
+    baska = [t for t in terms if t["id"] != term["id"] and t.get("group") != term.get("group")]
+    rng.shuffle(ayni)
+    rng.shuffle(baska)
+    celdiriciler: list[str] = []
+    for aday in ayni + baska:
+        metin = tanim(aday)
+        if metin and metin != dogru and metin not in celdiriciler:
+            celdiriciler.append(metin)
+        if len(celdiriciler) == 3:
+            break
+    if not celdiriciler:
+        return None
+    baslik = (term.get("title") or {}).get(language) or (term.get("title") or {}).get("tr") or term["id"]
+    return {
+        "text": {language: prompt.format(term=baslik)},
+        "options": {language: [dogru, *celdiriciler]},
+        "answer": 0,
+    }
 
 
 def load_questions(section, language: str) -> list[dict]:

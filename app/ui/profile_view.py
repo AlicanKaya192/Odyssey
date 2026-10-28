@@ -21,6 +21,7 @@ boşluk bırakıyordu.
 
 from __future__ import annotations
 
+import html
 from pathlib import Path
 
 from datetime import date
@@ -34,6 +35,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QSpacerItem,
     QVBoxLayout,
     QWidget,
 )
@@ -41,6 +43,7 @@ from PySide6.QtWidgets import (
 from ..core.avatar import load_avatar
 from ..core import badges as badge_core
 from ..core import levels as level_core
+from ..core import weekly_goal
 from ..core.catalog import Catalog
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
@@ -63,6 +66,8 @@ PAGE_LABEL_PX = 13
 
 # Üst karttaki fotoğrafın çapı.
 AVATAR_SIZE = 140  # 124 px daire + 8 px halka payı
+# Kısa ekranda (`ProfileView._fit_density`).
+AVATAR_SIZE_COMPACT = 108
 
 # Sol sütunun genişliği. Artık yalnızca gösteriyor — düzenleme ayrı bir
 # pencerede olduğu için buraya form sığdırmak gerekmiyor.
@@ -73,6 +78,51 @@ IDENTITY_WIDTH = 380
 # istatistik etiketleri kırpılıyordu ("Üst üste çalışılan gün" tek
 # satırda 234 piksel istiyor).
 PROFILE_WIDTH = 1116
+
+
+class WeekStrip(QWidget):
+    """Haftalık hedefin son haftaları: tutan hafta dolu, tutmayan boş;
+    sonuncusu bu hafta (henüz tutmadıysa kesik değil ince çerçeveli)."""
+
+    CELL = 12
+    GAP = 4
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._weeks: tuple[bool, ...] = ()
+        self._colors = ("#22C55E", "#2A2F3A", "#8B5CF6")
+        self.setFixedHeight(self.CELL)
+
+    def set_weeks(self, weeks: tuple[bool, ...]) -> None:
+        self._weeks = weeks
+        self.setFixedWidth(max(0, len(weeks) * (self.CELL + self.GAP) - self.GAP))
+        self.update()
+
+    def set_colors(self, met: str, empty: str, current: str) -> None:
+        self._colors = (met, empty, current)
+        self.update()
+
+    def set_off(self, off: bool, outline: str = "") -> None:
+        """Hedef kapalı: kutular yalnızca soluk çerçeve."""
+        self._off = outline if off else ""
+        self.update()
+
+    def paintEvent(self, _event) -> None:  # noqa: N802
+        boya = QPainter(self)
+        boya.setRenderHint(QPainter.RenderHint.Antialiasing)
+        dolu, bos, simdi = (QColor(c) for c in self._colors)
+        kapali = getattr(self, "_off", "")
+        for i, tuttu in enumerate(self._weeks):
+            kutu = QRectF(i * (self.CELL + self.GAP) + 0.5, 0.5, self.CELL - 1, self.CELL - 1)
+            if kapali:
+                boya.setPen(QColor(kapali))
+                boya.setBrush(Qt.BrushStyle.NoBrush)
+                boya.drawRoundedRect(kutu, 3, 3)
+                continue
+            son = i == len(self._weeks) - 1
+            boya.setPen(simdi if son and not tuttu else Qt.PenStyle.NoPen)
+            boya.setBrush(dolu if tuttu else bos)
+            boya.drawRoundedRect(kutu, 3, 3)
 
 
 class ProgressBar(QFrame):
@@ -153,6 +203,8 @@ class ProfileView(QWidget):
     """Kullanıcının profili, ilerleme özeti ve etkinlik geçmişi."""
 
     saved = Signal()
+    # Hedef kapalıyken satırdaki bağlantı: Ayarlar bu sayfada açılsın.
+    settings_requested = Signal(str)
 
     def __init__(
         self,
@@ -174,6 +226,11 @@ class ProfileView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         scroll = QScrollArea()
+        self._scroll = scroll
+        # Boşluklar: (olağan, sıkı); bkz. `_apply_density`.
+        self._spacers: list[tuple[QSpacerItem, int, int]] = []
+        self._compact = False
+        self._normal_need = 0
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -181,6 +238,7 @@ class ProfileView(QWidget):
         container = QWidget()
         row = QHBoxLayout(container)
         row.setContentsMargins(32, 32, 32, 32)
+        self._page_row = row
         row.addStretch(1)
 
         column = QWidget()
@@ -264,7 +322,7 @@ class ProfileView(QWidget):
         self._card_button.clicked.connect(self._save_card)
         sag.addWidget(self._card_button, 0, Qt.AlignmentFlag.AlignHCenter)
 
-        sag.addSpacing(10)
+        self._spacer(sag, 10, 4)
         satir = QHBoxLayout()
         # Seviye ve o seviyenin içindeki XP. Burada önce genel ilerleme
         # yüzdesi vardı; aynı yüzde Öğrenme Yolu'nda duruyor.
@@ -279,14 +337,54 @@ class ProfileView(QWidget):
         self._progress = ProgressBar()
         sag.addWidget(self._progress)
 
-
-        sag.addSpacing(12)
+        self._spacer(sag, 12, 6)
         self._edit_button = QPushButton()
         self._edit_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._edit_button.clicked.connect(self._open_editor)
         sag.addWidget(self._edit_button)
         sag.addStretch(1)
         return card
+
+    # --- yoğunluk ----------------------------------------------------------
+
+    def _spacer(self, layout, normal: int, compact: int) -> None:
+        bosluk = QSpacerItem(0, normal, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        layout.addItem(bosluk)
+        self._spacers.append((bosluk, normal, compact))
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._fit_density()
+
+    def _fit_density(self) -> None:
+        """Sayfa görünür alana sığmıyorsa sıkı düzen, sığıyorsa olağan.
+
+        Alican'ın dizüstü ekranında (1536×912, pencere sığdırılınca) profil
+        77 px kayıyordu (28 Ekim, "scrollbar olmasın"). Sıkı düzen kenar ve
+        kart içi boşlukları, fotoğrafı küçültüyor; büyük ekranda tasarım
+        olduğu gibi. Olağan düzenin boyu bir kez ölçülüp saklanıyor, ikisi
+        arasında gidip gelmesin.
+        """
+        if not self._compact:
+            self._normal_need = self._scroll.widget().sizeHint().height()
+        sikis = self._scroll.viewport().height() < self._normal_need
+        if sikis != self._compact:
+            self._apply_density(sikis)
+
+    def _apply_density(self, compact: bool) -> None:
+        self._compact = compact
+        kenar = 18 if compact else 32
+        self._page_row.setContentsMargins(32, kenar, 32, kenar)
+        self._column.setSpacing(16 if compact else 26)
+        self._identity_card.body.setContentsMargins(*(4 * [20 if compact else 28]))
+        self._avatar.setFixedSize(*(2 * [AVATAR_SIZE_COMPACT if compact else AVATAR_SIZE]))
+        self._badges_card.body.setContentsMargins(24, 16 if compact else 22, 24, 16 if compact else 22)
+        self._activity_card.body.setContentsMargins(*(4 * [18 if compact else 24]))
+        for bosluk, olagan, siki in self._spacers:
+            bosluk.changeSize(0, siki if compact else olagan, QSizePolicy.Policy.Minimum,
+                              QSizePolicy.Policy.Fixed)
+        for duzen in (self._identity_card.body, self._badges_card.body, self._column, self._page_row):
+            duzen.invalidate()
 
     # --- rozetler ---------------------------------------------------------
 
@@ -312,7 +410,7 @@ class ProfileView(QWidget):
         ust.addWidget(self._badge_prev)
         ust.addWidget(self._badge_next)
         govde.addLayout(ust)
-        govde.addSpacing(14)
+        self._spacer(govde, 14, 8)
 
         self._badge_wall = BadgeWall()
         self._badge_wall.paging_changed.connect(self._refresh_paging)
@@ -321,18 +419,18 @@ class ProfileView(QWidget):
         # Sayfa noktaları rozetlerin altında, ortada; açık sayfanın noktası
         # uzun ve vurgu renginde, sayfa değişince yayla uzayıp kısalıyor.
         self._badge_page_label = PagerDots()
-        govde.addSpacing(12)
+        self._spacer(govde, 12, 6)
         govde.addWidget(self._badge_page_label, 0, Qt.AlignmentFlag.AlignHCenter)
 
         # Rozet / gün seri / bölüm: rozetlerin altında ince çizgiyle ayrılmış
         # ayrı bir bölüm (Alican: kimlik kartında boşluk bırakıyordu, rozet
         # kartında da altta boşluk kalıyordu).
-        govde.addSpacing(18)
+        self._spacer(govde, 18, 10)
         cizgi = QFrame()
         cizgi.setProperty("role", "divider")
         cizgi.setFixedHeight(1)
         govde.addWidget(cizgi)
-        govde.addSpacing(18)
+        self._spacer(govde, 18, 10)
         sag = govde
         # Üç küçük sayı (prototip `.minis`).
         minis = QHBoxLayout()
@@ -467,9 +565,26 @@ class ProfileView(QWidget):
         orta.addWidget(self._year_holder, 0, Qt.AlignmentFlag.AlignTop)
         card.body.addLayout(orta)
 
-        # Renk ölçeği açıklaması.
+        # Solda haftalık hedefin geçmişi (yalnızca hedef açıksa; üst üste
+        # tutan hafta ve son haftaların şeridi, `core.weekly_goal.history`),
+        # sağda renk ölçeği açıklaması. Hedef, açıklamanın boş duran sol
+        # yanında: kimlik kartına konunca sayfa uzuyor, 1280 piksellik
+        # pencerede kaydırma çubuğu büyüyordu (ölçüldü, 28 Ekim).
         legend = QHBoxLayout()
         legend.setSpacing(SPACING["xs"])
+        self._goal_box = QWidget()
+        self._goal_box.setProperty("role", "bare")
+        hedef = QHBoxLayout(self._goal_box)
+        hedef.setContentsMargins(0, 0, 0, 0)
+        hedef.setSpacing(SPACING["sm"])
+        self._goal_caption = QLabel()
+        self._goal_caption.setProperty("role", "muted")
+        self._goal_caption.linkActivated.connect(self.settings_requested)
+        hedef.addWidget(self._goal_caption)
+        self._goal_weeks = WeekStrip()
+        hedef.addWidget(self._goal_weeks, 0, Qt.AlignmentFlag.AlignVCenter)
+        self._goal_box.hide()
+        legend.addWidget(self._goal_box)
         legend.addStretch(1)
         self._legend_less = QLabel()
         self._legend_less.setProperty("role", "muted")
@@ -590,6 +705,7 @@ class ProfileView(QWidget):
             self._catalog, self._store, content_dir(), record=False
         )
         self._progress.set_ratio(self._levels.state.ratio)
+        self._goal_history = weekly_goal.history(self._store)
 
         self.retranslate()
         if self._fresh_badges:
@@ -727,6 +843,49 @@ class ProfileView(QWidget):
             self._tag_button.style().unpolish(self._tag_button)
             self._tag_button.style().polish(self._tag_button)
 
+    def refresh_goal(self) -> None:
+        """Ayarlarda hedef değişti: yalnızca hedef satırı yeniden hesaplanıyor."""
+        self._goal_history = weekly_goal.history(self._store)
+        self._render_goal()
+
+    def _render_goal(self) -> None:
+        """Haftalık hedef satırı. Hedef kapalıyken de görünüyor: "kapalı" ve
+        nereden açılacağı yazıyor, şerit soluk (Alican 28 Ekim: sürüm notunu
+        okuyan "nerede" demesin)."""
+        from ..widgets import tips
+
+        gecmis = getattr(self, "_goal_history", None)
+        t = self._language.t
+        p = PALETTES.get(self._mode, PALETTES["light"])
+        self._goal_box.show()
+        if gecmis is None:
+            # "Ayarlar › Öğrenme" tıklanınca o sayfa açılıyor.
+            self._goal_caption.setTextFormat(Qt.TextFormat.RichText)
+            bag = (f"<a href='learning' style='color:{p['accent']}; text-decoration:none'>"
+                   f"{html.escape(t('profile.goal_off_link'))}</a>")
+            self._goal_caption.setText(
+                f"{html.escape(t('profile.goal_title'))} · {html.escape(t('profile.goal_off_short'))} ({bag})")
+            self._goal_caption.setCursor(Qt.CursorShape.PointingHandCursor)
+            self._goal_weeks.set_weeks((False,) * weekly_goal.RECENT_WEEKS)
+            self._goal_weeks.set_off(True, p["border"])
+            ipucu = tips.rich(t("profile.goal_title"), t("profile.goal_off_tip"), t("profile.goal_off"), "muted")
+            for parca in (self._goal_caption, self._goal_weeks):
+                parca.setToolTip(ipucu)
+            return
+        self._goal_weeks.set_off(False)
+        self._goal_caption.setTextFormat(Qt.TextFormat.PlainText)
+        self._goal_caption.unsetCursor()
+        self._goal_caption.setText(f"{t('profile.goal_title')} · {t('profile.goal_streak', n=gecmis.streak)}")
+        self._goal_weeks.set_weeks(gecmis.recent)
+        self._goal_weeks.set_colors(p["success"], p["surface_alt"], p["accent"])
+        tuttu = sum(gecmis.recent)
+        ipucu = tips.rich(t("profile.goal_title"),
+                          t("profile.goal_tip", met=tuttu, weeks=len(gecmis.recent)),
+                          t("profile.goal_best", n=gecmis.best),
+                          "success" if gecmis.streak else "muted")
+        for parca in (self._goal_caption, self._goal_weeks):
+            parca.setToolTip(ipucu)
+
     def _open_tags(self) -> None:
         """Unvan penceresini açar; seçilen unvan hemen kullanılıyor."""
         from .modal import Backdrop
@@ -814,6 +973,7 @@ class ProfileView(QWidget):
         self._refresh_name()
 
         self._render_level()
+        self._render_goal()
 
         self._badges_title.setText(t("profile.badges"))
         kazanilan = sum(1 for b in self._badge_list if b.earned)

@@ -316,6 +316,8 @@ def main() -> int:
     if intro is not None:
         window.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
     window.show()
+    # Küçük ya da ölçekli ekranda başlık çubuğu ekranın dışında kalmasın.
+    window.fit_to_screen()
     if intro is not None:
         window.lower()
         # Yalnızca açılışta görünecek ekran çizilip `ready` gidiyor; ötekiler

@@ -463,18 +463,22 @@ class ProgressStore:
         ).fetchone()
         return int(row["m"]), int(row["n"])
 
-    def week_totals(self, since: date) -> dict[str, int]:
-        """`since` gününden (dahil) bu yana: biten bölüm, odak dakikası,
-        çalışma günü (`core/weekly_goal.py`)."""
+    def week_totals(self, since: date, until: date | None = None) -> dict[str, int]:
+        """`since` gününden (dahil) bu yana, `until` verilirse o güne kadar
+        (hariç): biten bölüm, odak dakikası, çalışma günü
+        (`core/weekly_goal.py`)."""
         gun = since.isoformat()
+        son = until.isoformat() if until is not None else "9999-12-31"
         bolum = self._connection.execute(
-            "SELECT COUNT(*) FROM section_progress WHERE completed_at >= ?", (gun,)
+            "SELECT COUNT(*) FROM section_progress WHERE completed_at >= ? AND completed_at < ?",
+            (gun, son),
         ).fetchone()[0]
         odak = self._connection.execute(
-            "SELECT COALESCE(SUM(minutes), 0) FROM focus_sessions WHERE day >= ?", (gun,)
+            "SELECT COALESCE(SUM(minutes), 0) FROM focus_sessions WHERE day >= ? AND day < ?",
+            (gun, son),
         ).fetchone()[0]
         gunler = self._connection.execute(
-            "SELECT COUNT(*) FROM study_days WHERE day >= ?", (gun,)
+            "SELECT COUNT(*) FROM study_days WHERE day >= ? AND day < ?", (gun, son)
         ).fetchone()[0]
         return {"sections": int(bolum), "focus": int(odak), "days": int(gunler)}
 
@@ -923,6 +927,11 @@ class ProgressStore:
             (today.isoformat(), limit),
         ).fetchall()
         return [dict(row) for row in rows]
+
+    def review_sections(self, chapter_id: str) -> set[str]:
+        """Bir "modülün" kutudaki bölüm kimlikleri (sözlük terimleri için)."""
+        return {row[0] for row in self._connection.execute(
+            "SELECT section_id FROM review_items WHERE chapter_id = ?", (chapter_id,))}
 
     def due_review_count(self, today: date) -> int:
         return int(self._connection.execute(

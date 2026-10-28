@@ -813,6 +813,10 @@ class SettingsDialog(QDialog):
         layout.addStretch(1)
         return sayfa
 
+    def show_page(self, name: str) -> None:
+        """Pencere bu sayfada açılsın (başka bir ekrandan gelen bağlantı)."""
+        self._show_page(name)
+
     def _show_page(self, name: str) -> None:
         """Görünen sayfayı değiştirir. Pencerenin boyu değişmiyor."""
         if name not in PAGES:

@@ -70,6 +70,11 @@ def text_html(text: str) -> str:
     return _CODE.sub(r"<code>\1</code>", html.escape(text, quote=False))
 
 
+# Tekrar kutusu bağlantısı (Sözlük sayfası ve dersteki terim kartı):
+# `app:review-term:<terim>`.
+REVIEW_TERM = "review-term:"
+
+
 def anchor(term_id: str) -> str:
     return f"term-{term_id}"
 
@@ -113,6 +118,7 @@ def chapter_from_path(path) -> str:
 _SCRIPT = """<script>
 (function () {
   var TERMS = %s;
+  var REVIEW = %s;
   if (!TERMS.length) return;
   var SKIP = /^(PRE|CODE|A|H[1-6]|FIGURE|SVG|BUTTON|SCRIPT|STYLE|TEXTAREA|KBD)$/i;
   var root = document.querySelector('.content') || document.body;
@@ -155,6 +161,16 @@ _SCRIPT = """<script>
     card.className = 'term-card';
     card.innerHTML = '<b></b>' + best.t.d;
     card.firstChild.textContent = best.t.t;
+    if (REVIEW) {
+      // Tekrar kutusu bağlantısı (Hakkında › Sözlük'tekiyle aynı iş).
+      var a = document.createElement('a');
+      a.className = 'term-add' + (best.t.r ? ' on' : '');
+      a.dataset.id = best.t.id;
+      a.href = 'app:%s' + best.t.id;
+      a.textContent = best.t.r ? REVIEW.on : REVIEW.add;
+      a.title = best.t.r ? REVIEW.on_tip : REVIEW.add_tip;
+      card.appendChild(a);
+    }
     span.appendChild(card);
     rest.parentNode.replaceChild(span, rest);
     // Aynı düğümün geri kalanında başka terimler olabilir.
@@ -173,13 +189,26 @@ _SCRIPT = """<script>
 </script>"""
 
 
-def page_script(chapter: str, language: str) -> str:
-    """Ders sayfasının sonuna eklenen işaretleme betiği; terim yoksa boş."""
+def page_script(chapter: str, language: str, review: dict | None = None) -> str:
+    """Ders sayfasının sonuna eklenen işaretleme betiği; terim yoksa boş.
+
+    `review` verilirse kartta tekrar kutusu bağlantısı var: `in_box` (kutudaki
+    terimler) ve yazılar `add`, `on`, `add_tip`, `on_tip`.
+    """
     terimler = page_terms(chapter, language)
     if not terimler:
         return ""
-    veri = json.dumps(terimler, ensure_ascii=False).replace("</", "<\\/")
-    return _SCRIPT % veri
+    yazilar = None
+    if review is not None:
+        kutuda = review.get("in_box", set())
+        for term in terimler:
+            term["r"] = term["id"] in kutuda
+        yazilar = {k: review[k] for k in ("add", "on", "add_tip", "on_tip")}
+
+    def js(deger) -> str:
+        return json.dumps(deger, ensure_ascii=False).replace("</", "<\\/")
+
+    return _SCRIPT % (js(terimler), js(yazilar), REVIEW_TERM)
 
 
 _TR_ORDER = "aAbBcCçÇdDeEfFgGğĞhHıIiİjJkKlLmMnNoOöÖpPqQrRsSşŞtTuUüÜvVwWxXyYzZ"

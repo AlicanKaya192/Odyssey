@@ -28,6 +28,7 @@ from PySide6.QtCore import QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
+from ..core.glossary import REVIEW_TERM
 from ..core.language import LanguageManager
 from ..paths import content_dir, install_root
 
@@ -67,9 +68,15 @@ class AboutView(QWidget):
     # Sekme değişince yayılıyor; başlığın rengi ve alt yazısı buna bakıyor.
     section_changed = Signal(str)
 
-    def __init__(self, language: LanguageManager, parent: QWidget | None = None) -> None:
+    # Sözlükte bir terim tekrar kutusuna eklendi ya da çıkarıldı (karşılama
+    # kartındaki sayı tazelensin).
+    review_changed = Signal()
+
+    def __init__(self, language: LanguageManager, parent: QWidget | None = None,
+                 store=None) -> None:
         super().__init__(parent)
         self._language = language
+        self._store = store
         self._data = load_about()
         self._faq = load_faq()
         self._section = SECTIONS[0]
@@ -125,9 +132,36 @@ class AboutView(QWidget):
             self.show_section(SECTIONS[index])
 
     def _on_action(self, action: str) -> None:
-        """Sayfa içindeki bağlantılar sistem tarayıcısında açılır."""
+        """Sayfa içindeki bağlantılar sistem tarayıcısında açılır; sözlükteki
+        "Tekrar kutusuna ekle" terimi kutuya koyar ya da çıkarır."""
         if action.startswith("open:"):
             QDesktopServices.openUrl(QUrl(action[len("open:"):]))
+        elif action.startswith(REVIEW_TERM) and self._store is not None:
+            self.toggle_review_term(action[len(REVIEW_TERM):])
+
+    def toggle_review_term(self, term_id: str) -> bool:
+        """Terimi tekrar kutusuna koyar (yoksa) ya da çıkarır; yeni durum.
+        Sayfa yeniden yüklenmiyor, yalnızca bağlantının yazısı değişiyor."""
+        from ..core import glossary, review_box
+
+        if not any(term["id"] == term_id for term in glossary.load()):
+            return False
+        yeni = review_box.toggle_term(self._store, term_id)
+        kimlik = json.dumps(glossary.anchor(term_id))
+        yazi = json.dumps(self._review_label(yeni))
+        ipucu = json.dumps(self._language.t("glossary.review_remove_tip" if yeni
+                                            else "glossary.review_add_tip"))
+        if self._document._loaded:  # noqa: SLF001
+            self._document.page().runJavaScript(
+                f"(function(){{var e=document.getElementById({kimlik});if(!e)return;"
+                "var a=e.querySelector('a.gl-review');if(!a)return;"
+                f"a.textContent={yazi};a.title={ipucu};a.classList.toggle('on',{str(yeni).lower()});}})();"
+            )
+        self.review_changed.emit()
+        return yeni
+
+    def _review_label(self, in_box: bool) -> str:
+        return self._language.t("glossary.review_in" if in_box else "glossary.review_add")
 
     # --- çizim ------------------------------------------------------------
 
@@ -231,13 +265,15 @@ class AboutView(QWidget):
         return f"{intro}<div class='faqlist'>{''.join(parts)}</div>"
 
     def _glossary_html(self) -> str:
-        """Terimler sözlüğü: patikalara göre gruplu, gruplar içinde abece sırası."""
-        from ..core import glossary
+        """Terimler sözlüğü: patikalara göre gruplu, gruplar içinde abece sırası.
+        Her terimde tekrar kutusu bağlantısı (`core.review_box.add_term`)."""
+        from ..core import glossary, review_box
 
         dil = self._language.language
         t = self._language.t
         parts = [f'<p class="meta">{html.escape(t("about.glossary_intro"))}</p>']
         terimler = glossary.load()
+        kutuda = review_box.term_ids(self._store) if self._store is not None else set()
         for grup in glossary.GROUPS:
             grubun = sorted(
                 (term for term in terimler if term.get("group") == grup),
@@ -247,9 +283,16 @@ class AboutView(QWidget):
                 continue
             parts.append(f"<h2>{html.escape(t(f'glossary.group_{grup}'))}</h2><div class='gl-list'>")
             for term in grubun:
+                bag = ""
+                if self._store is not None:
+                    on = term["id"] in kutuda
+                    ipucu = t("glossary.review_remove_tip" if on else "glossary.review_add_tip")
+                    bag = (f"<a class='gl-review{' on' if on else ''}' "
+                           f"href='app:{REVIEW_TERM}{html.escape(term['id'])}' "
+                           f"title='{html.escape(ipucu)}'>{html.escape(self._review_label(on))}</a>")
                 parts.append(
                     f"<div class='gl' id='{glossary.anchor(term['id'])}'>"
-                    f"<b>{html.escape(term['title'].get(dil, ''))}</b>"
+                    f"<div class='gl-head'><b>{html.escape(term['title'].get(dil, ''))}</b>{bag}</div>"
                     f"<p>{glossary.text_html(term['text'].get(dil, ''))}</p></div>"
                 )
             parts.append("</div>")
