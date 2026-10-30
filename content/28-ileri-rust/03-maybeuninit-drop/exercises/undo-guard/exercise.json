@@ -1,0 +1,57 @@
+{
+  "id": "undo-guard",
+  "title": {
+    "tr": "Geri Alan Koruyucu",
+    "en": "An Undoing Guard"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let undo = Undo { list, keep };`, sonra öğeleri `undo.list`'e ekle.",
+      "en": "`let undo = Undo { list, keep };`, then add items to `undo.list`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nstruct Undo<'a> {\n    list: &'a mut Vec<String>,\n    keep: usize,\n}\n\nimpl Drop for Undo<'_> {\n    fn drop(&mut self) {\n        self.list.truncate(self.keep);\n    }\n}\n\nfn add_all(list: &mut Vec<String>, items: &[&str]) -> Result<(), String> {\n    let keep = list.len();\n    let undo = Undo { list, keep };\n    for item in items {\n        if item.is_empty() {\n            return Err(String::from(\"empty item\"));\n        }\n        undo.list.push(item.to_string());\n    }\n    std::mem::forget(undo);\n    Ok(())\n}\n\nfn main() {\n    let mut list = vec![String::from(\"a\")];\n    println!(\"{:?}\", add_all(&mut list, &[\"b\", \"\"]));\n    println!(\"{list:?}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nstruct Undo<'a> {\n    list: &'a mut Vec<String>,\n    keep: usize,\n}\n\nimpl Drop for Undo<'_> {\n    fn drop(&mut self) {\n        self.list.truncate(self.keep);\n    }\n}\n\nfn add_all(list: &mut Vec<String>, items: &[&str]) -> Result<(), String> {\n    let keep = list.len();\n    let undo = Undo { list, keep };\n    for item in items {\n        if item.is_empty() {\n            return Err(String::from(\"empty item\"));\n        }\n        undo.list.push(item.to_string());\n    }\n    std::mem::forget(undo);\n    Ok(())\n}\n\nfn main() {\n    let mut list = vec![String::from(\"a\")];\n    println!(\"{:?}\", add_all(&mut list, &[\"b\", \"\"]));\n    println!(\"{list:?}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut l = vec![String::from(\"a\")]; assert!(add_all(&mut l, &[\"b\", \"c\"]).is_ok()); assert_eq!(l, [\"a\", \"b\", \"c\"]);",
+          "label": {
+            "tr": "başarı",
+            "en": "success"
+          }
+        },
+        {
+          "code": "let mut l = vec![String::from(\"a\")]; assert_eq!(add_all(&mut l, &[\"b\", \"\"]), Err(String::from(\"empty item\"))); assert_eq!(l, [\"a\"]);",
+          "label": {
+            "tr": "geri alma",
+            "en": "undo"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "impl\\s*<?'?_?>?\\s*Drop\\s+for\\s+Undo|impl\\s+Drop\\s+for\\s+Undo",
+      "show": "impl Drop for Undo"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "mem::forget",
+      "show": "mem::forget"
+    }
+  ]
+}

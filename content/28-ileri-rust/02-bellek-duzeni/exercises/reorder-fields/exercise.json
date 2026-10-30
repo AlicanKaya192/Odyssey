@@ -1,0 +1,57 @@
+{
+  "id": "reorder-fields",
+  "title": {
+    "tr": "Boşluğu Azalt",
+    "en": "Reduce the Gaps"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "En büyük hizalı alan (`u32`) öne.",
+      "en": "The field with the largest alignment (`u32`) goes first."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\n#[repr(C)]\nstruct Record {\n    id: u32,\n    active: u8,\n    level: u8,\n}\n\nfn make() -> Record {\n    Record { active: 1, id: 7, level: 2 }\n}\n\nfn main() {\n    let r = make();\n    println!(\"{} {} {}\", r.active, r.id, r.level);\n    println!(\"{}\", size_of::<Record>());\n}\n```",
+      "en": "The full solution:\n\n```rust\n#[repr(C)]\nstruct Record {\n    id: u32,\n    active: u8,\n    level: u8,\n}\n\nfn make() -> Record {\n    Record { active: 1, id: 7, level: 2 }\n}\n\nfn main() {\n    let r = make();\n    println!(\"{} {} {}\", r.active, r.id, r.level);\n    println!(\"{}\", size_of::<Record>());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(size_of::<Record>(), 8);",
+          "label": {
+            "tr": "8 bayt",
+            "en": "8 bytes"
+          }
+        },
+        {
+          "code": "let r = make(); assert_eq!((r.active, r.id, r.level), (1, 7, 2));",
+          "label": {
+            "tr": "değerler",
+            "en": "values"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "repr\\(C\\)",
+      "show": "repr(C)"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "packed",
+      "show": "packed"
+    }
+  ]
+}

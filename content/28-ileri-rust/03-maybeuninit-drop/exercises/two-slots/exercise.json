@@ -1,0 +1,57 @@
+{
+  "id": "two-slots",
+  "title": {
+    "tr": "İki Yerlik Kutu",
+    "en": "A Two-Slot Box"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`for slot in &mut self.slots[..self.len]`",
+      "en": "`for slot in &mut self.slots[..self.len]`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::mem::MaybeUninit;\n\nstruct TwoSlots {\n    slots: [MaybeUninit<String>; 2],\n    len: usize,\n}\n\nimpl TwoSlots {\n    fn new() -> Self {\n        TwoSlots { slots: [const { MaybeUninit::uninit() }; 2], len: 0 }\n    }\n\n    fn push(&mut self, text: String) -> bool {\n        if self.len == self.slots.len() {\n            return false;\n        }\n        self.slots[self.len].write(text);\n        self.len += 1;\n        true\n    }\n\n    fn get(&self, i: usize) -> Option<&str> {\n        if i >= self.len {\n            return None;\n        }\n        // SAFETY: every slot below len was written.\n        Some(unsafe { self.slots[i].assume_init_ref() })\n    }\n}\n\nimpl Drop for TwoSlots {\n    fn drop(&mut self) {\n        for slot in &mut self.slots[..self.len] {\n            // SAFETY: every slot below len was written and is dropped once.\n            unsafe { slot.assume_init_drop() };\n        }\n    }\n}\n\nfn main() {\n    let mut t = TwoSlots::new();\n    println!(\"{}\", t.push(String::from(\"a\")));\n    println!(\"{:?}\", t.get(0));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::mem::MaybeUninit;\n\nstruct TwoSlots {\n    slots: [MaybeUninit<String>; 2],\n    len: usize,\n}\n\nimpl TwoSlots {\n    fn new() -> Self {\n        TwoSlots { slots: [const { MaybeUninit::uninit() }; 2], len: 0 }\n    }\n\n    fn push(&mut self, text: String) -> bool {\n        if self.len == self.slots.len() {\n            return false;\n        }\n        self.slots[self.len].write(text);\n        self.len += 1;\n        true\n    }\n\n    fn get(&self, i: usize) -> Option<&str> {\n        if i >= self.len {\n            return None;\n        }\n        // SAFETY: every slot below len was written.\n        Some(unsafe { self.slots[i].assume_init_ref() })\n    }\n}\n\nimpl Drop for TwoSlots {\n    fn drop(&mut self) {\n        for slot in &mut self.slots[..self.len] {\n            // SAFETY: every slot below len was written and is dropped once.\n            unsafe { slot.assume_init_drop() };\n        }\n    }\n}\n\nfn main() {\n    let mut t = TwoSlots::new();\n    println!(\"{}\", t.push(String::from(\"a\")));\n    println!(\"{:?}\", t.get(0));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut t = TwoSlots::new(); assert!(t.push(String::from(\"a\"))); assert!(t.push(String::from(\"b\"))); assert!(!t.push(String::from(\"c\"))); assert_eq!(t.get(1), Some(\"b\")); assert_eq!(t.get(2), None);",
+          "label": {
+            "tr": "doldurma",
+            "en": "filling"
+          }
+        },
+        {
+          "code": "let t = TwoSlots::new(); assert_eq!(t.get(0), None);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "impl\\s+Drop\\s+for\\s+TwoSlots",
+      "show": "impl Drop for TwoSlots"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "assume_init_drop",
+      "show": "assume_init_drop"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "bytes-of",
+  "title": {
+    "tr": "Sayının Baytları",
+    "en": "A Number's Bytes"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let p = &raw const n as *const u8;` sonra `*p.add(i)`.",
+      "en": "`let p = &raw const n as *const u8;` then `*p.add(i)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn bytes_of(n: u32) -> [u8; 4] {\n    let p = &raw const n as *const u8;\n    let mut out = [0; 4];\n    for i in 0..4 {\n        // SAFETY: a u32 has four bytes, and any byte value is a valid u8.\n        out[i] = unsafe { *p.add(i) };\n    }\n    out\n}\n\nfn main() {\n    println!(\"{:?}\", bytes_of(1));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn bytes_of(n: u32) -> [u8; 4] {\n    let p = &raw const n as *const u8;\n    let mut out = [0; 4];\n    for i in 0..4 {\n        // SAFETY: a u32 has four bytes, and any byte value is a valid u8.\n        out[i] = unsafe { *p.add(i) };\n    }\n    out\n}\n\nfn main() {\n    println!(\"{:?}\", bytes_of(1));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(bytes_of(1), 1u32.to_ne_bytes());",
+          "label": {
+            "tr": "bir",
+            "en": "one"
+          }
+        },
+        {
+          "code": "assert_eq!(bytes_of(0x01020304), 0x01020304u32.to_ne_bytes());",
+          "label": {
+            "tr": "dört bayt",
+            "en": "four bytes"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "to_[lnb]e_bytes",
+      "show": "to_le_bytes"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "transmute",
+      "show": "transmute"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "as\\s+\\*const\\s+u8|cast::<u8>",
+      "show": "*const u8"
+    }
+  ]
+}

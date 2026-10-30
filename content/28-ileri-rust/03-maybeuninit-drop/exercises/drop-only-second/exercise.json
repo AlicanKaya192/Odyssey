@@ -1,0 +1,50 @@
+{
+  "id": "drop-only-second",
+  "title": {
+    "tr": "Yalnızca İkinci",
+    "en": "Only the Second"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`unsafe { ManuallyDrop::drop(&mut second) };`",
+      "en": "`unsafe { ManuallyDrop::drop(&mut second) };`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::mem::ManuallyDrop;\nuse std::sync::atomic::{AtomicU32, Ordering};\n\nstatic DROPS: AtomicU32 = AtomicU32::new(0);\n\nstruct Counted;\n\nimpl Drop for Counted {\n    fn drop(&mut self) {\n        DROPS.fetch_add(1, Ordering::SeqCst);\n    }\n}\n\nfn drop_only_second() -> u32 {\n    let _first = ManuallyDrop::new(Counted);\n    let mut second = ManuallyDrop::new(Counted);\n    // SAFETY: second is not used after this line.\n    unsafe { ManuallyDrop::drop(&mut second) };\n    DROPS.load(Ordering::SeqCst)\n}\n\nfn main() {\n    println!(\"{}\", drop_only_second());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::mem::ManuallyDrop;\nuse std::sync::atomic::{AtomicU32, Ordering};\n\nstatic DROPS: AtomicU32 = AtomicU32::new(0);\n\nstruct Counted;\n\nimpl Drop for Counted {\n    fn drop(&mut self) {\n        DROPS.fetch_add(1, Ordering::SeqCst);\n    }\n}\n\nfn drop_only_second() -> u32 {\n    let _first = ManuallyDrop::new(Counted);\n    let mut second = ManuallyDrop::new(Counted);\n    // SAFETY: second is not used after this line.\n    unsafe { ManuallyDrop::drop(&mut second) };\n    DROPS.load(Ordering::SeqCst)\n}\n\nfn main() {\n    println!(\"{}\", drop_only_second());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(drop_only_second(), 1);",
+          "label": {
+            "tr": "bir kez",
+            "en": "once"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "ManuallyDrop::drop",
+      "show": "ManuallyDrop::drop"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "mem::forget",
+      "show": "mem::forget"
+    }
+  ]
+}

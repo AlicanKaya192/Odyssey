@@ -1,0 +1,57 @@
+{
+  "id": "vec-push-pop",
+  "title": {
+    "tr": "push ve pop",
+    "en": "push and pop"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`if self.len == self.cap { self.grow(); }`",
+      "en": "`if self.len == self.cap { self.grow(); }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::alloc::{self, Layout};\nuse std::ptr::{self, NonNull};\n\nstruct MyVec<T> {\n    ptr: NonNull<T>,\n    cap: usize,\n    len: usize,\n}\n\nimpl<T> MyVec<T> {\n    fn new() -> Self {\n        assert!(size_of::<T>() != 0, \"zero-sized types are not handled\");\n        MyVec { ptr: NonNull::dangling(), cap: 0, len: 0 }\n    }\n\n    fn grow(&mut self) {\n        let new_cap = if self.cap == 0 { 4 } else { self.cap * 2 };\n        let new_layout = Layout::array::<T>(new_cap).unwrap();\n\n        let new_ptr = if self.cap == 0 {\n            // SAFETY: T is not zero-sized, so the layout size is not zero.\n            unsafe { alloc::alloc(new_layout) }\n        } else {\n            let old_layout = Layout::array::<T>(self.cap).unwrap();\n            let old_ptr = self.ptr.as_ptr().cast::<u8>();\n            // SAFETY: old_ptr came from alloc with old_layout.\n            unsafe { alloc::realloc(old_ptr, old_layout, new_layout.size()) }\n        };\n\n        self.ptr = match NonNull::new(new_ptr.cast::<T>()) {\n            Some(p) => p,\n            None => alloc::handle_alloc_error(new_layout),\n        };\n        self.cap = new_cap;\n    }\n}\n\nimpl<T> MyVec<T> {\n    fn push(&mut self, value: T) {\n        if self.len == self.cap {\n            self.grow();\n        }\n        // SAFETY: len < cap, so the place is inside the allocation and empty.\n        unsafe { ptr::write(self.ptr.as_ptr().add(self.len), value) };\n        self.len += 1;\n    }\n\n    fn pop(&mut self) -> Option<T> {\n        if self.len == 0 {\n            return None;\n        }\n        self.len -= 1;\n        // SAFETY: the place was filled, and len no longer covers it.\n        Some(unsafe { ptr::read(self.ptr.as_ptr().add(self.len)) })\n    }\n}\n\nfn main() {\n    let mut v = MyVec::new();\n    v.push(1);\n    println!(\"{:?}\", v.pop());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::alloc::{self, Layout};\nuse std::ptr::{self, NonNull};\n\nstruct MyVec<T> {\n    ptr: NonNull<T>,\n    cap: usize,\n    len: usize,\n}\n\nimpl<T> MyVec<T> {\n    fn new() -> Self {\n        assert!(size_of::<T>() != 0, \"zero-sized types are not handled\");\n        MyVec { ptr: NonNull::dangling(), cap: 0, len: 0 }\n    }\n\n    fn grow(&mut self) {\n        let new_cap = if self.cap == 0 { 4 } else { self.cap * 2 };\n        let new_layout = Layout::array::<T>(new_cap).unwrap();\n\n        let new_ptr = if self.cap == 0 {\n            // SAFETY: T is not zero-sized, so the layout size is not zero.\n            unsafe { alloc::alloc(new_layout) }\n        } else {\n            let old_layout = Layout::array::<T>(self.cap).unwrap();\n            let old_ptr = self.ptr.as_ptr().cast::<u8>();\n            // SAFETY: old_ptr came from alloc with old_layout.\n            unsafe { alloc::realloc(old_ptr, old_layout, new_layout.size()) }\n        };\n\n        self.ptr = match NonNull::new(new_ptr.cast::<T>()) {\n            Some(p) => p,\n            None => alloc::handle_alloc_error(new_layout),\n        };\n        self.cap = new_cap;\n    }\n}\n\nimpl<T> MyVec<T> {\n    fn push(&mut self, value: T) {\n        if self.len == self.cap {\n            self.grow();\n        }\n        // SAFETY: len < cap, so the place is inside the allocation and empty.\n        unsafe { ptr::write(self.ptr.as_ptr().add(self.len), value) };\n        self.len += 1;\n    }\n\n    fn pop(&mut self) -> Option<T> {\n        if self.len == 0 {\n            return None;\n        }\n        self.len -= 1;\n        // SAFETY: the place was filled, and len no longer covers it.\n        Some(unsafe { ptr::read(self.ptr.as_ptr().add(self.len)) })\n    }\n}\n\nfn main() {\n    let mut v = MyVec::new();\n    v.push(1);\n    println!(\"{:?}\", v.pop());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut v = MyVec::new(); v.push(1); v.push(2); assert_eq!(v.pop(), Some(2)); assert_eq!(v.pop(), Some(1)); assert_eq!(v.pop(), None);",
+          "label": {
+            "tr": "sıra",
+            "en": "order"
+          }
+        },
+        {
+          "code": "let mut v = MyVec::new(); for i in 0..100 { v.push(i); } assert_eq!(v.len, 100); assert_eq!(v.cap, 128); assert_eq!(v.pop(), Some(99));",
+          "label": {
+            "tr": "büyüme",
+            "en": "growth"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "ptr::write",
+      "show": "ptr::write"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "ptr::read",
+      "show": "ptr::read"
+    }
+  ]
+}

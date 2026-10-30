@@ -1,0 +1,71 @@
+{
+  "id": "level-codes",
+  "title": {
+    "tr": "Sayıya Çevrilen Enum",
+    "en": "An Enum Converted to a Number"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`level as u8`; tersi için `match n`.",
+      "en": "`level as u8`; for the reverse, `match n`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\n#[repr(u8)]\n#[derive(Debug, PartialEq, Clone, Copy)]\nenum Level {\n    Low = 1,\n    Mid = 2,\n    High = 10,\n}\n\nfn code(level: Level) -> u8 {\n    level as u8\n}\n\nfn from_code(n: u8) -> Option<Level> {\n    match n {\n        1 => Some(Level::Low),\n        2 => Some(Level::Mid),\n        10 => Some(Level::High),\n        _ => None,\n    }\n}\n\nfn main() {\n    println!(\"{}\", code(Level::High));\n}\n```",
+      "en": "The full solution:\n\n```rust\n#[repr(u8)]\n#[derive(Debug, PartialEq, Clone, Copy)]\nenum Level {\n    Low = 1,\n    Mid = 2,\n    High = 10,\n}\n\nfn code(level: Level) -> u8 {\n    level as u8\n}\n\nfn from_code(n: u8) -> Option<Level> {\n    match n {\n        1 => Some(Level::Low),\n        2 => Some(Level::Mid),\n        10 => Some(Level::High),\n        _ => None,\n    }\n}\n\nfn main() {\n    println!(\"{}\", code(Level::High));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(code(Level::High), 10);",
+          "label": {
+            "tr": "kod",
+            "en": "code"
+          }
+        },
+        {
+          "code": "assert_eq!(from_code(2), Some(Level::Mid));",
+          "label": {
+            "tr": "geri",
+            "en": "back"
+          }
+        },
+        {
+          "code": "assert_eq!(from_code(3), None);",
+          "label": {
+            "tr": "geçersiz",
+            "en": "invalid"
+          }
+        },
+        {
+          "code": "assert_eq!(size_of::<Level>(), 1);",
+          "label": {
+            "tr": "boyut",
+            "en": "size"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "repr\\(u8\\)",
+      "show": "repr(u8)"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "transmute",
+      "show": "transmute"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+`add_all(list, items)`: add the items. On an empty item return `Err("empty item")`, and those added so far are removed. Do this with the `Undo` guard: `Drop` truncates the list to `keep`, and `mem::forget` on success.

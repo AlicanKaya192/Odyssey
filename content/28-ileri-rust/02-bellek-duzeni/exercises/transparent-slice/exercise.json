@@ -1,0 +1,64 @@
+{
+  "id": "transparent-slice",
+  "title": {
+    "tr": "Sarmalayıcı Dilimi",
+    "en": "A Wrapper Slice"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`slice::from_raw_parts(list.as_ptr().cast::<f64>(), list.len())`",
+      "en": "`slice::from_raw_parts(list.as_ptr().cast::<f64>(), list.len())`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::slice;\n\n#[repr(transparent)]\nstruct Celsius(f64);\n\nfn as_numbers(list: &[Celsius]) -> &[f64] {\n    // SAFETY: Celsius has the layout of f64.\n    unsafe { slice::from_raw_parts(list.as_ptr().cast::<f64>(), list.len()) }\n}\n\nfn main() {\n    println!(\"{:?}\", as_numbers(&[Celsius(1.5)]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::slice;\n\n#[repr(transparent)]\nstruct Celsius(f64);\n\nfn as_numbers(list: &[Celsius]) -> &[f64] {\n    // SAFETY: Celsius has the layout of f64.\n    unsafe { slice::from_raw_parts(list.as_ptr().cast::<f64>(), list.len()) }\n}\n\nfn main() {\n    println!(\"{:?}\", as_numbers(&[Celsius(1.5)]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let l = [Celsius(1.5), Celsius(2.0)]; assert_eq!(as_numbers(&l), &[1.5, 2.0]);",
+          "label": {
+            "tr": "çeviri",
+            "en": "conversion"
+          }
+        },
+        {
+          "code": "let l = [Celsius(1.0)]; assert_eq!(as_numbers(&l).as_ptr() as usize, l.as_ptr() as usize);",
+          "label": {
+            "tr": "kopya yok",
+            "en": "no copy"
+          }
+        },
+        {
+          "code": "assert!(as_numbers(&[]).is_empty());",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "repr\\(transparent\\)",
+      "show": "repr(transparent)"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "from_raw_parts",
+      "show": "from_raw_parts"
+    }
+  ]
+}
