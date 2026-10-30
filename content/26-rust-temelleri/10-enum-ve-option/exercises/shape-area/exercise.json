@@ -1,0 +1,54 @@
+{
+  "id": "shape-area",
+  "title": {
+    "tr": "Şekillerin Alanı",
+    "en": "Areas of Shapes"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`match self` içinde `Shape::Square(side) => side * side` gibi. Değerler ödünç geldiği için `*` gerekmez, çarpım referanslarda da tanımlı.",
+      "en": "Inside `match self`, like `Shape::Square(side) => side * side`. The values are borrowed but no `*` is needed since multiplication is defined on references too."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nenum Shape {\n    Circle { radius: f64 },\n    Rect { width: f64, height: f64 },\n    Square(f64),\n}\n\nimpl Shape {\n    fn area(&self) -> f64 {\n        match self {\n            Shape::Circle { radius } => std::f64::consts::PI * radius * radius,\n            Shape::Rect { width, height } => width * height,\n            Shape::Square(side) => side * side,\n        }\n    }\n}\n\nfn main() {\n    println!(\"{}\", Shape::Square(3.0).area());\n}\n```",
+      "en": "The full solution:\n\n```rust\nenum Shape {\n    Circle { radius: f64 },\n    Rect { width: f64, height: f64 },\n    Square(f64),\n}\n\nimpl Shape {\n    fn area(&self) -> f64 {\n        match self {\n            Shape::Circle { radius } => std::f64::consts::PI * radius * radius,\n            Shape::Rect { width, height } => width * height,\n            Shape::Square(side) => side * side,\n        }\n    }\n}\n\nfn main() {\n    println!(\"{}\", Shape::Square(3.0).area());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(Shape::Square(3.0).area(), 9.0);",
+          "label": {
+            "tr": "kare",
+            "en": "square"
+          }
+        },
+        {
+          "code": "assert_eq!(Shape::Rect { width: 2.0, height: 5.0 }.area(), 10.0);",
+          "label": {
+            "tr": "dikdörtgen",
+            "en": "rectangle"
+          }
+        },
+        {
+          "code": "assert!((Shape::Circle { radius: 1.0 }.area() - 3.14159).abs() < 0.001);",
+          "label": {
+            "tr": "daire",
+            "en": "circle"
+          }
+        }
+      ]
+    }
+  ]
+}

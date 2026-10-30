@@ -354,7 +354,7 @@ def _check_ascii(where: str, exercise) -> list[str]:
 # Tanınan alıştırma dilleri ve her birinin kabul ettiği kontrol tipleri.
 # Yanlış eşleşme sessizce geçmesin: bir Python alıştırmasına `rows`
 # yazıldığında kontrol hiç çalışmıyor ama alıştırma "geçti" görünüyor.
-DILLER = ("python", "tsql", "docker", "workflow")
+DILLER = ("python", "tsql", "docker", "workflow", "rust")
 ORTAK_KONTROLLER = {"stdout", "artifact"}
 DILE_OZEL_KONTROLLER = {
     "python": {
@@ -376,6 +376,8 @@ DILE_OZEL_KONTROLLER = {
     "docker": {"dockerfile", "compose", "command", "container", "compose_up"},
     # Yalnızca iş akışı dosyası: çalışan kod yok, YAML durağan denetleniyor.
     "workflow": {"workflow"},
+    # Gerçek derleyici: çıktı, girdi verilen program, yazarın ve kişinin testleri.
+    "rust": {"stdio", "rust_test", "rust_tests", "rust_require", "rust_forbid"},
 }
 ORTAKSIZ_DILLER = {"docker", "workflow"}
 
@@ -433,8 +435,8 @@ def _check_files(where: str, exercise) -> list[str]:
     """Çok dosyalı alıştırma (`files`): adlar, şablonlar, giriş dosyası."""
     yer = f"{where}/{exercise.id}"
     problems: list[str] = []
-    if exercise.language not in ("python", "docker", "workflow"):
-        problems.append(f"{yer}: çok dosyalı alıştırma yalnızca python, docker ve workflow")
+    if exercise.language not in ("python", "docker", "workflow", "rust"):
+        problems.append(f"{yer}: çok dosyalı alıştırma yalnızca python, docker, workflow ve rust")
     if exercise.raw.get("starter") or exercise.raw.get("solution"):
         problems.append(f"{yer}: files varken starter/solution dosyanın içinde yazılır")
 

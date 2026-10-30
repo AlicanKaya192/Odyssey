@@ -1,0 +1,52 @@
+{
+  "id": "borrow-name",
+  "title": {
+    "tr": "Adı Ödünç Ver",
+    "en": "Lend the Name"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`&self.name` alanı ödünç verir; `self.name` sahipliği verir (çünkü `self` alındı).",
+      "en": "`&self.name` lends the field; `self.name` gives ownership (because `self` was taken)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nstruct Person {\n    name: String,\n}\n\nimpl Person {\n    fn name(&self) -> &str {\n        &self.name\n    }\n\n    fn into_name(self) -> String {\n        self.name\n    }\n}\n\nfn main() {\n    let p = Person { name: String::from(\"Ada\") };\n    println!(\"{}\", p.name());\n    let owned = p.into_name();\n    println!(\"{owned}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nstruct Person {\n    name: String,\n}\n\nimpl Person {\n    fn name(&self) -> &str {\n        &self.name\n    }\n\n    fn into_name(self) -> String {\n        self.name\n    }\n}\n\nfn main() {\n    let p = Person { name: String::from(\"Ada\") };\n    println!(\"{}\", p.name());\n    let owned = p.into_name();\n    println!(\"{owned}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let p = Person { name: String::from(\"Ada\") }; assert_eq!(p.name(), \"Ada\"); assert_eq!(p.name(), \"Ada\");",
+          "label": {
+            "tr": "name iki kez",
+            "en": "name twice"
+          }
+        },
+        {
+          "code": "let p = Person { name: String::from(\"Ada\") }; let s: String = p.into_name(); assert_eq!(s, \"Ada\");",
+          "label": {
+            "tr": "into_name",
+            "en": "into_name"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.clone\\(\\)",
+      "show": ".clone()"
+    }
+  ]
+}

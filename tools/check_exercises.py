@@ -60,7 +60,7 @@ LANGUAGES = ("tr", "en")
 
 # İpucundaki kod bloğu. Dil etiketi alıştırmanın diline göre değişiyor
 # (`python` / `sql`); ikisi de kabul ediliyor.
-KOD_BLOGU = re.compile(r"```(?:python|sql|tsql|dockerfile)\n(.*?)```", re.S)
+KOD_BLOGU = re.compile(r"```(?:python|sql|tsql|dockerfile|rust)\n(.*?)```", re.S)
 # Çok dosyalı ipucu: `**models.py**` (ya da **`models.py`**) ve altındaki blok.
 DOSYA_BLOGU = re.compile(r"\*\*`?([\w./-]+)`?\*\*[ \t]*\n+```[\w-]*\n(.*?)```", re.S)
 
@@ -71,7 +71,7 @@ DOSYA_BLOGU = re.compile(r"\*\*`?([\w./-]+)`?\*\*[ \t]*\n+```[\w-]*\n(.*?)```", 
 ISCI_SAYISI = 6
 
 # Başlangıç kodunda yorum satırının nasıl başladığı.
-YORUM_ONEKI = {"python": "#", "tsql": "--", "docker": "#", "workflow": "#"}
+YORUM_ONEKI = {"python": "#", "tsql": "--", "docker": "#", "workflow": "#", "rust": "//"}
 
 
 def hint_kodu(exercise: Exercise, language: str) -> str | None:

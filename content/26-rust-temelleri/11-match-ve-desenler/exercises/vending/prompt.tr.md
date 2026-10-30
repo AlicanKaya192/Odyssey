@@ -1,0 +1,1 @@
+Durum makinesi yaz. `State`: `Idle`, `HasCoin`, `Dispensing`. `Event`: `Coin`, `Select`, `Done`. `fn step(state: State, event: Event) -> State`: `Idle` + `Coin` → `HasCoin`; `HasCoin` + `Select` → `Dispensing`; `Dispensing` + `Done` → `Idle`; başka her durumda durum değişmez.

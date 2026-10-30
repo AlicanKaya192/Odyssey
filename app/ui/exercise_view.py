@@ -1216,7 +1216,8 @@ class ExerciseView(QWidget):
 
     def _runtime_name(self) -> str:
         dil = self._exercise.language if self._exercise is not None else "python"
-        return {"tsql": "SQL Server", "docker": "Docker", "workflow": "GitHub Actions"}.get(dil, "Python")
+        return {"tsql": "SQL Server", "docker": "Docker", "workflow": "GitHub Actions",
+                "rust": "Rust"}.get(dil, "Python")
 
     def _command_name(self) -> str:
         if self._exercise is not None and self._exercise.language == "tsql":
@@ -1225,6 +1226,10 @@ class ExerciseView(QWidget):
             # Odyssey'nin denetimi; Docker'ın kendi komutları (build, run)
             # çıktının içinde ayrı satırlar olarak geliyor.
             return "odyssey check"
+        if self._exercise is not None and self._exercise.language == "rust":
+            if any(item.name == "Cargo.toml" for item in self._exercise.files):
+                return "cargo run"
+            return "rustc main.rs && ./main"
         if self._exercise is not None and self._exercise.is_multi_file:
             return f"python {self._exercise.entry}"
         return "python cozum.py"
@@ -1261,6 +1266,8 @@ class ExerciseView(QWidget):
         docker = result.docker.get("state", "")
         if docker in ("missing", "stopped"):
             parcalar.append(self._prose(t(f"terminal.docker_{docker}"), "warn", prefix="🐳 "))
+        elif result.rust.get("state") in ("missing", "no_linker", "blocked"):
+            parcalar.append(self._prose(t(f"terminal.rust_{result.rust['state']}"), "warn", prefix="🦀 "))
         elif not (result.stdout.strip() or result.stderr.strip()):
             parcalar.append(line(t("terminal.no_output"), "dim"))
 

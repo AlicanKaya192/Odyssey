@@ -5,7 +5,7 @@ boyanmış HTML'e çevriliyor. Pygments gibi bir bağımlılık eklemedim; kural
 editördekiyle aynı olsun diye tek yerden yönetiliyor.
 
 Python ve SQL (T-SQL) dışında API ve Docker için Dockerfile, YAML, shell,
-JSON ve TOML tanınıyor. Kod bloğunun etiketi (```` ```sql ````) hangisinin
+JSON ve TOML, Rust patikası için Rust tanınıyor. Kod bloğunun etiketi (```` ```sql ````) hangisinin
 kullanılacağını söylüyor; etiketsiz blok Python sayılıyor, tanınmayan
 etiket (```` ```text ````) boyanmıyor. SQL kelime listeleri burada duruyor ve kod
 editörü de (`widgets/code_editor.py`) buradan alıyor: ders metni, not,
@@ -30,6 +30,7 @@ LANGUAGE_DOCKERFILE = "dockerfile"
 LANGUAGE_SHELL = "shell"
 LANGUAGE_JSON = "json"
 LANGUAGE_TOML = "toml"
+LANGUAGE_RUST = "rust"
 
 # Kod bloğu etiketinden dile.
 LANGUAGE_TAGS = {
@@ -50,6 +51,8 @@ LANGUAGE_TAGS = {
     "json": LANGUAGE_JSON,
     "toml": LANGUAGE_TOML,
     "ini": LANGUAGE_TOML,
+    "rust": LANGUAGE_RUST,
+    "rs": LANGUAGE_RUST,
 }
 
 KEYWORDS = {
@@ -219,7 +222,33 @@ SHELL_KEYWORDS = (
     "esac", "function", "export",
 )
 
+RUST_KEYWORDS = (
+    "as", "async", "await", "break", "const", "continue", "crate", "dyn", "else",
+    "enum", "extern", "fn", "for", "if", "impl", "in", "let", "loop", "match",
+    "mod", "move", "mut", "pub", "ref", "return", "self", "Self", "static",
+    "struct", "super", "trait", "type", "unsafe", "use", "where", "while",
+)
+
+RUST_PRIMITIVES = (
+    "bool", "char", "str", "f32", "f64", "i8", "i16", "i32", "i64", "i128",
+    "isize", "u8", "u16", "u32", "u64", "u128", "usize",
+)
+
 LINE_PATTERNS = {
+    LANGUAGE_RUST: re.compile(
+        rf"""
+        (?P<comment>//[^\n]*|/\*.*?\*/)
+      | (?P<string>b?r(?P<hashes>\#*)".*?"(?P=hashes)|b?"(?:\\.|[^"\\])*"|b?'(?:\\.[^']*|[^\\'\n])')
+      | (?P<decorator>\#!?\[[^\]\n]*\])
+      | (?P<builtin>\b[a-z_]\w*!)
+      | (?P<keyword>\b(?:{'|'.join(RUST_KEYWORDS)})\b)
+      | (?P<constant>\b(?:true|false|None|Some|Ok|Err)\b)
+      | (?P<definition>\b(?:{'|'.join(RUST_PRIMITIVES)})\b|\b[A-Z]\w*\b)
+      | (?P<variable>'[a-z_]\w*\b)
+      | (?P<number>\b\d[\d_]*(?:\.\d[\d_]*)?(?:[iuf]\d+|[iu]size)?\b)
+        """,
+        re.VERBOSE | re.DOTALL,
+    ),
     LANGUAGE_DOCKERFILE: re.compile(
         rf"""
         (?P<comment>^[ \t]*\#[^\n]*)
@@ -285,6 +314,7 @@ def pattern_tokens(language: str, source: str) -> Iterator[tuple[str | None, str
         if match.end() == match.start():
             continue
         yield None, source[position:match.start()]
+        # Rust'ın ham metni iç grup (`hashes`) taşıyor; `lastgroup` dış grup.
         yield match.lastgroup, match.group()
         position = match.end()
     yield None, source[position:]

@@ -1,0 +1,68 @@
+{
+  "id": "vending",
+  "title": {
+    "tr": "Otomat",
+    "en": "Vending Machine"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`match (state, event)` ve son kol `(other, _) => other`.",
+      "en": "`match (state, event)` with a last arm `(other, _) => other`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\n#[derive(Debug, PartialEq, Clone, Copy)]\nenum State {\n    Idle,\n    HasCoin,\n    Dispensing,\n}\n\nenum Event {\n    Coin,\n    Select,\n    Done,\n}\n\nfn step(state: State, event: Event) -> State {\n    match (state, event) {\n        (State::Idle, Event::Coin) => State::HasCoin,\n        (State::HasCoin, Event::Select) => State::Dispensing,\n        (State::Dispensing, Event::Done) => State::Idle,\n        (other, _) => other,\n    }\n}\n\nfn main() {\n    println!(\"{:?}\", step(State::Idle, Event::Coin));\n}\n```",
+      "en": "The full solution:\n\n```rust\n#[derive(Debug, PartialEq, Clone, Copy)]\nenum State {\n    Idle,\n    HasCoin,\n    Dispensing,\n}\n\nenum Event {\n    Coin,\n    Select,\n    Done,\n}\n\nfn step(state: State, event: Event) -> State {\n    match (state, event) {\n        (State::Idle, Event::Coin) => State::HasCoin,\n        (State::HasCoin, Event::Select) => State::Dispensing,\n        (State::Dispensing, Event::Done) => State::Idle,\n        (other, _) => other,\n    }\n}\n\nfn main() {\n    println!(\"{:?}\", step(State::Idle, Event::Coin));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(step(State::Idle, Event::Coin), State::HasCoin);",
+          "label": {
+            "tr": "para at",
+            "en": "insert coin"
+          }
+        },
+        {
+          "code": "assert_eq!(step(State::HasCoin, Event::Select), State::Dispensing);",
+          "label": {
+            "tr": "seç",
+            "en": "select"
+          }
+        },
+        {
+          "code": "assert_eq!(step(State::Dispensing, Event::Done), State::Idle);",
+          "label": {
+            "tr": "bitti",
+            "en": "done"
+          }
+        },
+        {
+          "code": "assert_eq!(step(State::Idle, Event::Select), State::Idle);",
+          "label": {
+            "tr": "parasız seçim",
+            "en": "select with no coin"
+          }
+        },
+        {
+          "code": "assert_eq!(step(State::Dispensing, Event::Coin), State::Dispensing);",
+          "label": {
+            "tr": "verirken para",
+            "en": "coin while dispensing"
+          }
+        }
+      ]
+    }
+  ]
+}

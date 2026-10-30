@@ -23,7 +23,7 @@ FALLBACK_LANGUAGE = "tr"
 
 # Tek dosyalı alıştırmada kişinin dosyasının adı (terminaldeki komut da
 # bunu yazıyor: `python cozum.py`, `sqlcmd -i sorgu.sql`).
-SINGLE_FILE_NAMES = {"python": "cozum.py", "tsql": "sorgu.sql", "docker": "Dockerfile"}
+SINGLE_FILE_NAMES = {"python": "cozum.py", "tsql": "sorgu.sql", "docker": "Dockerfile", "rust": "main.rs"}
 
 
 # Kurulu programda modüllerin ve bölümlerin JSON'u tek dosyada

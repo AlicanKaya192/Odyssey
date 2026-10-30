@@ -1,0 +1,1 @@
+Write an `Account` type: `owner: String`, `balance: i64`. `Account::new(owner: &str)` has balance 0. `deposit(&mut self, amount: i64)` adds. `withdraw(&mut self, amount: i64) -> bool` withdraws and gives `true` if enough, otherwise does nothing and gives `false`. `summary(&self) -> String` returns text in the form `Ada: 150`.

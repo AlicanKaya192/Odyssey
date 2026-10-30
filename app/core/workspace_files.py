@@ -16,6 +16,7 @@ from pathlib import PurePosixPath
 SUFFIX_LANGUAGES = {
     ".py": "python",
     ".sql": "tsql",
+    ".rs": "rust",
     ".yaml": "yaml",
     ".yml": "yaml",
     ".sh": "shell",

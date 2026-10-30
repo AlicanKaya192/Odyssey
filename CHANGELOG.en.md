@@ -23,6 +23,16 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [1.5.0] — Unreleased
+
+### Added
+- **Rust path.** Three modules from no code at all to a very advanced level:
+  Rust Fundamentals (everything up to ownership and beyond), Going Deeper in
+  Rust (generics, traits, threads, serde, clap), Advanced Rust (unsafe, atomics,
+  your own async executor, tokio, macros, FFI). Exercises compile with the real
+  Rust compiler on your computer; the first section covers installation, and
+  compile errors are explained.
+
 ## [1.4.0] — 28 October 2026
 
 ### Added

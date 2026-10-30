@@ -1,0 +1,85 @@
+{
+  "id": "first-prime-after",
+  "title": {
+    "tr": "Sonraki Asal",
+    "en": "The Next Prime"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Bölen `d` için `d * d <= n` yeterli. `break candidate;` değeri döndürür.",
+      "en": "For a divisor `d`, `d * d <= n` is enough. `break candidate;` returns the value."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn is_prime(n: u32) -> bool {\n    if n < 2 {\n        return false;\n    }\n    let mut d = 2;\n    while d * d <= n {\n        if n % d == 0 {\n            return false;\n        }\n        d += 1;\n    }\n    true\n}\n\nfn next_prime(n: u32) -> u32 {\n    let mut candidate = n + 1;\n    loop {\n        if is_prime(candidate) {\n            break candidate;\n        }\n        candidate += 1;\n    }\n}\n\nfn main() {\n    println!(\"{}\", next_prime(14));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn is_prime(n: u32) -> bool {\n    if n < 2 {\n        return false;\n    }\n    let mut d = 2;\n    while d * d <= n {\n        if n % d == 0 {\n            return false;\n        }\n        d += 1;\n    }\n    true\n}\n\nfn next_prime(n: u32) -> u32 {\n    let mut candidate = n + 1;\n    loop {\n        if is_prime(candidate) {\n            break candidate;\n        }\n        candidate += 1;\n    }\n}\n\nfn main() {\n    println!(\"{}\", next_prime(14));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert!(!is_prime(1));",
+          "label": {
+            "tr": "1 asal değil",
+            "en": "1 is not prime"
+          }
+        },
+        {
+          "code": "assert!(is_prime(2));",
+          "label": {
+            "tr": "2 asal",
+            "en": "2 is prime"
+          }
+        },
+        {
+          "code": "assert!(!is_prime(9));",
+          "label": {
+            "tr": "9 asal değil",
+            "en": "9 is not prime"
+          }
+        },
+        {
+          "code": "assert!(is_prime(97));",
+          "label": {
+            "tr": "97 asal",
+            "en": "97 is prime"
+          }
+        },
+        {
+          "code": "assert_eq!(next_prime(14), 17);",
+          "label": {
+            "tr": "next_prime(14)",
+            "en": "next_prime(14)"
+          }
+        },
+        {
+          "code": "assert_eq!(next_prime(1), 2);",
+          "label": {
+            "tr": "next_prime(1)",
+            "en": "next_prime(1)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\bloop\\b",
+      "show": "loop"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\bbreak\\b",
+      "show": "break"
+    }
+  ]
+}

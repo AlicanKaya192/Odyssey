@@ -1,0 +1,66 @@
+{
+  "id": "first-word",
+  "title": {
+    "tr": "İlk Kelime",
+    "en": "The First Word"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`text.char_indices()` her harfin bayt konumunu da verir; bu konum dilim için güvenlidir.",
+      "en": "`text.char_indices()` also gives each letter's byte position; that position is safe for slicing."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn first_word(text: &str) -> &str {\n    for (position, letter) in text.char_indices() {\n        if letter == ' ' {\n            return &text[..position];\n        }\n    }\n    text\n}\n\nfn main() {\n    println!(\"{}\", first_word(\"hello world\"));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn first_word(text: &str) -> &str {\n    for (position, letter) in text.char_indices() {\n        if letter == ' ' {\n            return &text[..position];\n        }\n    }\n    text\n}\n\nfn main() {\n    println!(\"{}\", first_word(\"hello world\"));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(first_word(\"hello world\"), \"hello\");",
+          "label": {
+            "tr": "iki kelime",
+            "en": "two words"
+          }
+        },
+        {
+          "code": "assert_eq!(first_word(\"single\"), \"single\");",
+          "label": {
+            "tr": "tek kelime",
+            "en": "one word"
+          }
+        },
+        {
+          "code": "assert_eq!(first_word(\" x\"), \"\");",
+          "label": {
+            "tr": "boşlukla başlayan",
+            "en": "starting with a space"
+          }
+        },
+        {
+          "code": "assert_eq!(first_word(\"\\u{15F}u kod\"), \"\\u{15F}u\");",
+          "label": {
+            "tr": "Türkçe harf",
+            "en": "Turkish letter"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "split_whitespace",
+      "show": "split_whitespace"
+    }
+  ]
+}

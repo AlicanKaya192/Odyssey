@@ -1,0 +1,6 @@
+// fn is_prime ...
+// fn next_prime ...
+
+fn main() {
+    println!("{}", next_prime(14));
+}

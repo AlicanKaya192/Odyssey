@@ -1,0 +1,61 @@
+{
+  "id": "bank-account",
+  "title": {
+    "tr": "Banka Hesabı",
+    "en": "Bank Account"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`new` içinde `owner.to_string()`, `summary` içinde `format!`.",
+      "en": "In `new` use `owner.to_string()`, and in `summary` use `format!`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nstruct Account {\n    owner: String,\n    balance: i64,\n}\n\nimpl Account {\n    fn new(owner: &str) -> Self {\n        Self { owner: owner.to_string(), balance: 0 }\n    }\n\n    fn deposit(&mut self, amount: i64) {\n        self.balance += amount;\n    }\n\n    fn withdraw(&mut self, amount: i64) -> bool {\n        if amount > self.balance {\n            return false;\n        }\n        self.balance -= amount;\n        true\n    }\n\n    fn summary(&self) -> String {\n        format!(\"{}: {}\", self.owner, self.balance)\n    }\n}\n\nfn main() {\n    let mut a = Account::new(\"Ada\");\n    a.deposit(200);\n    println!(\"{}\", a.withdraw(50));\n    println!(\"{}\", a.summary());\n}\n```",
+      "en": "The full solution:\n\n```rust\nstruct Account {\n    owner: String,\n    balance: i64,\n}\n\nimpl Account {\n    fn new(owner: &str) -> Self {\n        Self { owner: owner.to_string(), balance: 0 }\n    }\n\n    fn deposit(&mut self, amount: i64) {\n        self.balance += amount;\n    }\n\n    fn withdraw(&mut self, amount: i64) -> bool {\n        if amount > self.balance {\n            return false;\n        }\n        self.balance -= amount;\n        true\n    }\n\n    fn summary(&self) -> String {\n        format!(\"{}: {}\", self.owner, self.balance)\n    }\n}\n\nfn main() {\n    let mut a = Account::new(\"Ada\");\n    a.deposit(200);\n    println!(\"{}\", a.withdraw(50));\n    println!(\"{}\", a.summary());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(Account::new(\"Ada\").summary(), \"Ada: 0\");",
+          "label": {
+            "tr": "yeni hesap",
+            "en": "a new account"
+          }
+        },
+        {
+          "code": "let mut a = Account::new(\"Ada\"); a.deposit(200); assert!(a.withdraw(50)); assert_eq!(a.summary(), \"Ada: 150\");",
+          "label": {
+            "tr": "yeterli çekim",
+            "en": "enough to withdraw"
+          }
+        },
+        {
+          "code": "let mut a = Account::new(\"Ada\"); a.deposit(10); assert!(!a.withdraw(50)); assert_eq!(a.summary(), \"Ada: 10\");",
+          "label": {
+            "tr": "yetersiz çekim",
+            "en": "not enough"
+          }
+        },
+        {
+          "code": "let mut a = Account::new(\"Ada\"); a.deposit(10); assert!(a.withdraw(10)); assert_eq!(a.summary(), \"Ada: 0\");",
+          "label": {
+            "tr": "tam çekim",
+            "en": "exact amount"
+          }
+        }
+      ]
+    }
+  ]
+}

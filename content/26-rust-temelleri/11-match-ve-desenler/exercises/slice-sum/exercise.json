@@ -1,0 +1,71 @@
+{
+  "id": "slice-sum",
+  "title": {
+    "tr": "Dilimle Özyineleme",
+    "en": "Recursion with Slices"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`first` bir `&i32`; `*first` değeri verir. Kalanın en büyüğünü bulup karşılaştır.",
+      "en": "`first` is a `&i32`; `*first` gives the value. Find the largest of the rest and compare."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn largest(values: &[i32]) -> Option<i32> {\n    match values {\n        [] => None,\n        [first, rest @ ..] => match largest(rest) {\n            Some(best) if best > *first => Some(best),\n            _ => Some(*first),\n        },\n    }\n}\n\nfn main() {\n    println!(\"{:?}\", largest(&[3, 9, 2]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn largest(values: &[i32]) -> Option<i32> {\n    match values {\n        [] => None,\n        [first, rest @ ..] => match largest(rest) {\n            Some(best) if best > *first => Some(best),\n            _ => Some(*first),\n        },\n    }\n}\n\nfn main() {\n    println!(\"{:?}\", largest(&[3, 9, 2]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(largest(&[3, 9, 2]), Some(9));",
+          "label": {
+            "tr": "ortada",
+            "en": "in the middle"
+          }
+        },
+        {
+          "code": "assert_eq!(largest(&[]), None);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert_eq!(largest(&[-5]), Some(-5));",
+          "label": {
+            "tr": "tek",
+            "en": "one"
+          }
+        },
+        {
+          "code": "assert_eq!(largest(&[-5, -1, -9]), Some(-1));",
+          "label": {
+            "tr": "eksiler",
+            "en": "negatives"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\b(for|while|loop)\\b",
+      "show": "for / while / loop"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "rest\\s*@\\s*\\.\\.",
+      "show": "rest @ .."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+`fn is_prime(n: u32) -> bool` ve `fn next_prime(n: u32) -> u32` yaz. `next_prime`, `n`'den büyük ilk asal sayıyı döndürsün: `next_prime(14)` 17'dir. 2'den küçük sayılar asal değildir. `loop` ve `break` kullan.

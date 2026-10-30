@@ -1,0 +1,59 @@
+{
+  "id": "title-case",
+  "title": {
+    "tr": "Baş Harfler",
+    "en": "Title Case"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Kelimenin harflerini `word.chars()` ile al: `.next()` ilk harfi çıkarır, `.as_str()` kalanı verir. `if let Some(first) = ...` ilk harf varsa çalışır (ileride ayrıntısı var).",
+      "en": "Take a word's letters with `word.chars()`: `.next()` takes the first, `.as_str()` gives the rest. `if let Some(first) = ...` runs if there is a first letter (details later)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn title_case(text: &str) -> String {\n    let mut out = String::new();\n    for word in text.split_whitespace() {\n        if !out.is_empty() {\n            out.push(' ');\n        }\n        let mut letters = word.chars();\n        if let Some(first) = letters.next() {\n            out.push_str(&first.to_uppercase().to_string());\n            out.push_str(&letters.as_str().to_lowercase());\n        }\n    }\n    out\n}\n\nfn main() {\n    println!(\"{}\", title_case(\"rUST  is fun\"));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn title_case(text: &str) -> String {\n    let mut out = String::new();\n    for word in text.split_whitespace() {\n        if !out.is_empty() {\n            out.push(' ');\n        }\n        let mut letters = word.chars();\n        if let Some(first) = letters.next() {\n            out.push_str(&first.to_uppercase().to_string());\n            out.push_str(&letters.as_str().to_lowercase());\n        }\n    }\n    out\n}\n\nfn main() {\n    println!(\"{}\", title_case(\"rUST  is fun\"));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(title_case(\"rUST  is fun\"), \"Rust Is Fun\");",
+          "label": {
+            "tr": "karışık",
+            "en": "mixed"
+          }
+        },
+        {
+          "code": "assert_eq!(title_case(\"\"), \"\");",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert_eq!(title_case(\"a\"), \"A\");",
+          "label": {
+            "tr": "tek harf",
+            "en": "one letter"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.chars\\(\\)",
+      "show": ".chars()"
+    }
+  ]
+}

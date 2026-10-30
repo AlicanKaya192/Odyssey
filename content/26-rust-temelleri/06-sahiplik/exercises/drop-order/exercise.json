@@ -1,0 +1,38 @@
+{
+  "id": "drop-order",
+  "title": {
+    "tr": "Silinme Sırası",
+    "en": "Drop Order"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`b` bloğun içinde. Blok bitince önce o silinir; sonra `main` bitince ters sırayla `c`, `a`.",
+      "en": "`b` is inside the block. When the block ends it goes first; then when `main` ends, `c` and `a` in reverse order."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nstruct Tracker(&'static str);\n\nimpl Drop for Tracker {\n    fn drop(&mut self) {\n        println!(\"drop {}\", self.0);\n    }\n}\n\nfn main() {\n    let _a = Tracker(\"a\");\n    {\n        let _b = Tracker(\"b\");\n        println!(\"inner end\");\n    }\n    let _c = Tracker(\"c\");\n    println!(\"outer end\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nstruct Tracker(&'static str);\n\nimpl Drop for Tracker {\n    fn drop(&mut self) {\n        println!(\"drop {}\", self.0);\n    }\n}\n\nfn main() {\n    let _a = Tracker(\"a\");\n    {\n        let _b = Tracker(\"b\");\n        println!(\"inner end\");\n    }\n    let _c = Tracker(\"c\");\n    println!(\"outer end\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "inner end\ndrop b\nouter end\ndrop c\ndrop a"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bdrop\\s*\\(\\s*_",
+      "show": "drop(...)"
+    }
+  ]
+}

@@ -49,7 +49,7 @@ LANGUAGE_TEXT = "text"
 
 COMMENT_PREFIX = {
     LANGUAGE_PYTHON: "#", LANGUAGE_SQL: "--",
-    "yaml": "#", "dockerfile": "#", "shell": "#", "toml": "#",
+    "yaml": "#", "dockerfile": "#", "shell": "#", "toml": "#", "rust": "//",
 }
 
 BRACKET_PAIRS = {"(": ")", "[": "]", "{": "}"}

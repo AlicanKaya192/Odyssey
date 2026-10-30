@@ -1,0 +1,1 @@
+Write a state machine. `State`: `Idle`, `HasCoin`, `Dispensing`. `Event`: `Coin`, `Select`, `Done`. `fn step(state: State, event: Event) -> State`: `Idle` + `Coin` → `HasCoin`; `HasCoin` + `Select` → `Dispensing`; `Dispensing` + `Done` → `Idle`; in any other case the state stays.

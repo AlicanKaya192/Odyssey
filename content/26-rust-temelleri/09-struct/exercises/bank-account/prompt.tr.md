@@ -1,0 +1,1 @@
+`Account` türü yaz: `owner: String`, `balance: i64`. `Account::new(owner: &str)` bakiye 0. `deposit(&mut self, amount: i64)` ekler. `withdraw(&mut self, amount: i64) -> bool` yeterliyse çeker ve `true`, yetmezse hiçbir şey yapmaz ve `false`. `summary(&self) -> String` `Ada: 150` biçiminde metin döndürür.

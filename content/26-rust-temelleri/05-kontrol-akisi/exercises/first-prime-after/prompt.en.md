@@ -1,0 +1,1 @@
+Write `fn is_prime(n: u32) -> bool` and `fn next_prime(n: u32) -> u32`. `next_prime` returns the first prime greater than `n`: `next_prime(14)` is 17. Numbers below 2 are not prime. Use `loop` and `break`.

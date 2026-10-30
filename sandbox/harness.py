@@ -12,7 +12,7 @@ Kullanım:
       "code_path":   çalıştırılacak dosya,
       "result_path": sonucun yazılacağı dosya,
       "checks":      uygulanacak kontroller,
-      "language":    "python" (varsayılan), "tsql", "docker" ya da "workflow",
+      "language":    "python" (varsayılan), "tsql", "docker", "workflow" ya da "rust",
       "user_files":  çok dosyalı alıştırmada kişinin bütün .py dosyaları
     }
 
@@ -1253,6 +1253,18 @@ def main() -> int:
         import workflow_check
 
         sonuc = workflow_check.run(job)
+        result_path.write_text(json.dumps(sonuc, ensure_ascii=False), encoding="utf-8")
+        return 0
+
+    # Rust: kod bu süreçte değil, derlenip ayrı program olarak çalışıyor.
+    if job.get("language") == "rust":
+        import rust_runner
+
+        try:
+            sonuc = rust_runner.run(job, compare_stdout)
+        except Exception as exc:  # noqa: BLE001 - sonuç yine yazılmalı
+            sonuc = {"status": "error", "stdout": "", "stderr": traceback.format_exc()[-4000:],
+                     "error": {"type": type(exc).__name__, "message": str(exc)}, "checks": []}
         result_path.write_text(json.dumps(sonuc, ensure_ascii=False), encoding="utf-8")
         return 0
 

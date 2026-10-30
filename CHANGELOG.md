@@ -21,6 +21,16 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [1.5.0] — Yayınlanmadı
+
+### Eklendi
+- **Rust patikası.** Hiç kod bilmeden başlayıp çok ileri düzeye kadar üç
+  modül: Rust Temelleri (sahipliğe kadar her şey), Rust'ta Derinleşmek
+  (generic, trait, iş parçacığı, serde, clap), İleri Rust (unsafe, atomikler,
+  kendi async çalıştırıcın, tokio, makrolar, FFI). Alıştırmalar
+  bilgisayarınızdaki gerçek Rust derleyicisiyle derleniyor; ilk bölüm kurulumu
+  anlatıyor, derleme hataları Türkçe açıklanıyor.
+
 ## [1.4.0] — 28 Ekim 2026
 
 ### Eklendi

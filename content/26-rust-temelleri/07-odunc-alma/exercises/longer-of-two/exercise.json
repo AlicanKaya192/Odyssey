@@ -1,0 +1,59 @@
+{
+  "id": "longer-of-two",
+  "title": {
+    "tr": "Sahiplik Tasarımı",
+    "en": "Designing Ownership"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`push_str` bir `&str` ister; `&String` kendiliğinden ona dönüşür. `target.push_str(a)` yeterli.",
+      "en": "`push_str` wants a `&str`; a `&String` turns into one by itself. `target.push_str(a)` is enough."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn append_longer(target: &mut String, a: &String, b: &String) {\n    if b.len() > a.len() {\n        target.push_str(b);\n    } else {\n        target.push_str(a);\n    }\n}\n\nfn main() {\n    let mut out = String::from(\"> \");\n    let a = String::from(\"short\");\n    let b = String::from(\"longer one\");\n    append_longer(&mut out, &a, &b);\n    println!(\"{out} ({a}, {b})\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn append_longer(target: &mut String, a: &String, b: &String) {\n    if b.len() > a.len() {\n        target.push_str(b);\n    } else {\n        target.push_str(a);\n    }\n}\n\nfn main() {\n    let mut out = String::from(\"> \");\n    let a = String::from(\"short\");\n    let b = String::from(\"longer one\");\n    append_longer(&mut out, &a, &b);\n    println!(\"{out} ({a}, {b})\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let (mut t, a, b) = (String::new(), String::from(\"ab\"), String::from(\"abc\")); append_longer(&mut t, &a, &b); assert_eq!(t, \"abc\");",
+          "label": {
+            "tr": "b uzun",
+            "en": "b longer"
+          }
+        },
+        {
+          "code": "let (mut t, a, b) = (String::new(), String::from(\"abc\"), String::from(\"ab\")); append_longer(&mut t, &a, &b); assert_eq!(t, \"abc\");",
+          "label": {
+            "tr": "a uzun",
+            "en": "a longer"
+          }
+        },
+        {
+          "code": "let (mut t, a, b) = (String::from(\"x\"), String::from(\"aa\"), String::from(\"bb\")); append_longer(&mut t, &a, &b); assert_eq!(t, \"xaa\");",
+          "label": {
+            "tr": "eşit",
+            "en": "equal"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.clone\\(\\)",
+      "show": ".clone()"
+    }
+  ]
+}

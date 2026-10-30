@@ -102,7 +102,7 @@ DOCKER_CHECKS = {"dockerfile", "compose", "command", "container", "compose_up"}
 DOCKER_COMPARISONS = {"logs", "http_body", "http_json"}
 # API 2 (FastAPI) kontrolleri de aynı biçimde sebep + değer veriyor.
 REASON_CHECKS = DOCKER_CHECKS | {"http", "pytest", "git_state", "git_command", "shell_state", "git_config",
-                                 "workflow"}
+                                 "workflow", "rust", "rust_test", "rust_tests", "rust_require", "rust_forbid"}
 REASON_COMPARISONS = DOCKER_COMPARISONS | {"json", "json_has", "file", "head_file"}
 
 
@@ -110,7 +110,7 @@ def _stdio_when(detail: dict, language: LanguageManager) -> str:
     """Tutmayan durumun girdisi: "'David' girdisiyle", "with the command ..."."""
     satirlar = ", ".join(f"'{s}'" for s in str(detail.get("stdin", "")).splitlines())
     argv = detail.get("argv") or []
-    komut = " ".join(["python", detail.get("program", "cozum.py"), *argv])
+    komut = detail.get("command") or " ".join(["python", detail.get("program", "cozum.py"), *argv])
     if argv and satirlar:
         return language.t("check.stdio.when_both", command=komut, lines=satirlar)
     if argv:
@@ -571,7 +571,8 @@ def summarise(result: RunResult, language: LanguageManager) -> str:
 
 
 # Sonucu değil yöntemi denetleyen kontroller.
-METHOD_CHECKS = {"ast_require", "ast_forbid", "sql_require", "sql_forbid", "annotation"}
+METHOD_CHECKS = {"ast_require", "ast_forbid", "sql_require", "sql_forbid", "annotation",
+                 "rust_require", "rust_forbid"}
 
 
 def _only_method_failed(result: RunResult) -> bool:

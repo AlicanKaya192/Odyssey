@@ -86,6 +86,12 @@ GLYPHS: dict[str, dict[str, object]] = {
         '<path d="M2.4 12.6h16.9c.7-1.5 2.1-2 2.9-1.7-.2 1-1 1.8-1.9 2.1-1.4 4.2-5 6.8-10 6.8-4.6 0-7.4-2.6-7.9-7.2z"/></g>'
         '<circle cx="7" cy="15.3" r=".8" fill="#1D63ED"/>'
     )},
+    "rust": {"svg": (
+        '<circle cx="12" cy="12" r="9.1" fill="none" stroke="#fff" stroke-width="1.5"/>'
+        '<circle cx="12" cy="12" r="10.1" fill="none" stroke="#fff" stroke-width="1.9" stroke-dasharray="1.6 1.57"/>'
+        '<path d="M8.6 17V7.2h4c2 0 3.2 1.1 3.2 2.8 0 1.4-.8 2.3-2 2.6l2.5 4.4M8.6 12.7h4" fill="none" stroke="#fff" '
+        'stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>'
+    )},
     "git": {"svg": (
         '<path d="M7 5v10.4" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/>'
         '<path d="M17 9.3c0 4.4-3.5 7-8 7.4" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/>'
@@ -145,7 +151,7 @@ ICON_TO_LOGO = {
     "python": "python", "chart": "data", "network": "ml", "database": "sql",
     "calculator": "math", "link": "api", "package": "docker", "clock": "time", "git-branch": "git",
     "message": "nlp", "sparkles": "genai", "cpu": "algo", "library": "lib",
-    "server": "sys", "layers": "big", "graduation-cap": "cs50",
+    "server": "sys", "layers": "big", "graduation-cap": "cs50", "wrench": "rust",
 }
 
 # Matematik patikasının iki modülü kendi işaretini taşıyor.

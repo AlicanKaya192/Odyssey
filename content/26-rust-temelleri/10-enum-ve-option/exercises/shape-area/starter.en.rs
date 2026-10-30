@@ -1,0 +1,6 @@
+// enum Shape ...
+// impl Shape ...
+
+fn main() {
+    println!("{}", Shape::Square(3.0).area());
+}

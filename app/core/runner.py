@@ -52,6 +52,9 @@ SKIPPED_PREFIXES = ("starter", "solution", "prompt")
 # `tsql` bir MSSQL sunucusuna gidiyor. Uzantı yalnızca hata mesajlarında
 # görünüyor ama orada da doğru olması gerekiyor.
 LANGUAGE_SUFFIX = {"python": ".py", "tsql": ".sql"}
+# Dosya adı önemli olan diller: Docker `Dockerfile` ister, Rust dosya adından
+# crate adı türetir ve derste `main.rs` anlatılıyor.
+FIXED_FILE_NAMES = {"docker": "Dockerfile", "rust": "main.rs"}
 
 # Sayısal kütüphanelerin iş parçacığı sayısı. Varsayılanı çekirdek sayısı
 # kadar ve her iş parçacığı ~67 MB ayırıyor (ölçüldü, M12): 16 çekirdekte
@@ -129,6 +132,10 @@ class RunResult:
     # Docker alıştırmasında Docker'ın durumu: {"state": "ok" | "missing" |
     # "stopped" | "" (gerçek kontrol yoksa), "version"}.
     docker: dict = field(default_factory=dict)
+
+    # Rust alıştırmasında derleyicinin durumu: {"state": "ok" | "missing" |
+    # "no_linker" | "blocked"}.
+    rust: dict = field(default_factory=dict)
 
     @property
     def passed(self) -> bool:
@@ -323,8 +330,7 @@ def run_code(
     if isinstance(code, dict):
         code_path = workspace / (entry or next(iter(code), "main.py"))
     else:
-        code_path = workspace / ("Dockerfile" if language == "docker"
-                                 else f"cozum{LANGUAGE_SUFFIX.get(language, '.py')}")
+        code_path = workspace / FIXED_FILE_NAMES.get(language, f"cozum{LANGUAGE_SUFFIX.get(language, '.py')}")
 
     try:
         if isinstance(code, dict):
@@ -332,7 +338,7 @@ def run_code(
                 _write_files(workspace, code)
             except ValueError as exc:
                 return RunResult(status="crashed", stderr=str(exc), timeout_sec=timeout_sec)
-            user_files = [str(workspace / name) for name in code if name.endswith(".py")]
+            user_files = [str(workspace / name) for name in code if name.endswith((".py", ".rs"))]
         else:
             code_path.write_text(code, encoding="utf-8")
         job_path.write_text(
@@ -443,6 +449,7 @@ def run_code(
             steps_truncated=raw.get("steps_truncated", False),
             requests=raw.get("requests", []),
             docker=raw.get("docker") or {},
+            rust=raw.get("rust") or {},
         )
 
     finally:

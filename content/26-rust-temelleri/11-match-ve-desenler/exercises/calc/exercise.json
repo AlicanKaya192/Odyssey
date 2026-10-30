@@ -1,0 +1,68 @@
+{
+  "id": "calc",
+  "title": {
+    "tr": "Hesap Makinesi",
+    "en": "Calculator"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Korumalı kol: `Op::Div if b == 0 => None,`. Hemen altında korumasız `Op::Div` kolu gerekli.",
+      "en": "A guarded arm: `Op::Div if b == 0 => None,`. An unguarded `Op::Div` arm must follow it."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nenum Op {\n    Add,\n    Sub,\n    Mul,\n    Div,\n}\n\nfn apply(op: Op, a: i32, b: i32) -> Option<i32> {\n    match op {\n        Op::Add => Some(a + b),\n        Op::Sub => Some(a - b),\n        Op::Mul => Some(a * b),\n        Op::Div if b == 0 => None,\n        Op::Div => Some(a / b),\n    }\n}\n\nfn main() {\n    println!(\"{:?}\", apply(Op::Div, 6, 0));\n}\n```",
+      "en": "The full solution:\n\n```rust\nenum Op {\n    Add,\n    Sub,\n    Mul,\n    Div,\n}\n\nfn apply(op: Op, a: i32, b: i32) -> Option<i32> {\n    match op {\n        Op::Add => Some(a + b),\n        Op::Sub => Some(a - b),\n        Op::Mul => Some(a * b),\n        Op::Div if b == 0 => None,\n        Op::Div => Some(a / b),\n    }\n}\n\nfn main() {\n    println!(\"{:?}\", apply(Op::Div, 6, 0));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(apply(Op::Add, 2, 3), Some(5));",
+          "label": {
+            "tr": "toplama",
+            "en": "add"
+          }
+        },
+        {
+          "code": "assert_eq!(apply(Op::Sub, 2, 3), Some(-1));",
+          "label": {
+            "tr": "çıkarma",
+            "en": "sub"
+          }
+        },
+        {
+          "code": "assert_eq!(apply(Op::Mul, 2, 3), Some(6));",
+          "label": {
+            "tr": "çarpma",
+            "en": "mul"
+          }
+        },
+        {
+          "code": "assert_eq!(apply(Op::Div, 6, 3), Some(2));",
+          "label": {
+            "tr": "bölme",
+            "en": "div"
+          }
+        },
+        {
+          "code": "assert_eq!(apply(Op::Div, 6, 0), None);",
+          "label": {
+            "tr": "sıfıra bölme",
+            "en": "division by zero"
+          }
+        }
+      ]
+    }
+  ]
+}
