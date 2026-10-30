@@ -1,0 +1,66 @@
+{
+  "id": "largest-by",
+  "title": {
+    "tr": "Ölçüye Göre En Büyük",
+    "en": "The Largest by a Measure"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let mut best = list.first()?;` ile başla.",
+      "en": "Start with `let mut best = list.first()?;`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn largest_by<T, F>(list: &[T], key: F) -> Option<&T>\nwhere\n    F: Fn(&T) -> usize,\n{\n    let mut best = list.first()?;\n    for item in list {\n        if key(item) > key(best) {\n            best = item;\n        }\n    }\n    Some(best)\n}\n\nfn main() {\n    let words = [\"a\", \"ccc\", \"bb\"];\n    println!(\"{:?}\", largest_by(&words, |w| w.len()));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn largest_by<T, F>(list: &[T], key: F) -> Option<&T>\nwhere\n    F: Fn(&T) -> usize,\n{\n    let mut best = list.first()?;\n    for item in list {\n        if key(item) > key(best) {\n            best = item;\n        }\n    }\n    Some(best)\n}\n\nfn main() {\n    let words = [\"a\", \"ccc\", \"bb\"];\n    println!(\"{:?}\", largest_by(&words, |w| w.len()));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(largest_by(&[\"a\", \"ccc\", \"bb\"], |w| w.len()), Some(&\"ccc\"));",
+          "label": {
+            "tr": "metin",
+            "en": "text"
+          }
+        },
+        {
+          "code": "let e: [i32; 0] = []; assert_eq!(largest_by(&e, |_| 0), None);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert_eq!(largest_by(&[3, 1], |n: &i32| 10 - *n as usize), Some(&1));",
+          "label": {
+            "tr": "başka ölçü",
+            "en": "another measure"
+          }
+        },
+        {
+          "code": "assert_eq!(largest_by(&[\"aa\", \"bb\"], |w| w.len()), Some(&\"aa\"));",
+          "label": {
+            "tr": "eşitlik",
+            "en": "tie"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "max_by_key",
+      "show": "max_by_key"
+    }
+  ]
+}

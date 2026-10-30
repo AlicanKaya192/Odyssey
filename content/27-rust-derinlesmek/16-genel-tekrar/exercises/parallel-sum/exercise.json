@@ -1,0 +1,69 @@
+{
+  "id": "parallel-sum",
+  "title": {
+    "tr": "Parçalı Toplam",
+    "en": "A Sum in Parts"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let size = list.len().div_ceil(parts).max(1);` sonra `list.chunks(size)`.",
+      "en": "`let size = list.len().div_ceil(parts).max(1);` then `list.chunks(size)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::Mutex;\nuse std::thread;\n\nfn parallel_sum(list: &[i64], parts: usize) -> i64 {\n    let total = Mutex::new(0);\n    let size = list.len().div_ceil(parts).max(1);\n    thread::scope(|s| {\n        for part in list.chunks(size) {\n            let total = &total;\n            s.spawn(move || {\n                let sum: i64 = part.iter().sum();\n                *total.lock().unwrap() += sum;\n            });\n        }\n    });\n    total.into_inner().unwrap()\n}\n\nfn main() {\n    println!(\"{}\", parallel_sum(&[1, 2, 3, 4, 5], 2));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::Mutex;\nuse std::thread;\n\nfn parallel_sum(list: &[i64], parts: usize) -> i64 {\n    let total = Mutex::new(0);\n    let size = list.len().div_ceil(parts).max(1);\n    thread::scope(|s| {\n        for part in list.chunks(size) {\n            let total = &total;\n            s.spawn(move || {\n                let sum: i64 = part.iter().sum();\n                *total.lock().unwrap() += sum;\n            });\n        }\n    });\n    total.into_inner().unwrap()\n}\n\nfn main() {\n    println!(\"{}\", parallel_sum(&[1, 2, 3, 4, 5], 2));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(parallel_sum(&[1, 2, 3, 4, 5], 2), 15);",
+          "label": {
+            "tr": "iki parça",
+            "en": "two parts"
+          }
+        },
+        {
+          "code": "assert_eq!(parallel_sum(&[], 3), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert_eq!(parallel_sum(&[7], 4), 7);",
+          "label": {
+            "tr": "parça çok",
+            "en": "many parts"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "thread::scope",
+      "show": "thread::scope"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Mutex::new",
+      "show": "Mutex::new"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.chunks\\(",
+      "show": "chunks"
+    }
+  ]
+}

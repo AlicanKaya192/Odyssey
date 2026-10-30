@@ -1,0 +1,54 @@
+{
+  "id": "shape-box",
+  "title": {
+    "tr": "Şekil Listesi",
+    "en": "A List of Shapes"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`shapes.iter().max_by_key(|s| s.area()).map(|s| s.name())`",
+      "en": "`shapes.iter().max_by_key(|s| s.area()).map(|s| s.name())`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\ntrait Shape {\n    fn area(&self) -> u32;\n    fn name(&self) -> String;\n}\n\nstruct Square(u32);\nstruct Rect(u32, u32);\n\nimpl Shape for Square {\n    fn area(&self) -> u32 {\n        self.0 * self.0\n    }\n    fn name(&self) -> String {\n        String::from(\"square\")\n    }\n}\n\nimpl Shape for Rect {\n    fn area(&self) -> u32 {\n        self.0 * self.1\n    }\n    fn name(&self) -> String {\n        String::from(\"rect\")\n    }\n}\n\nfn total_area(shapes: &[Box<dyn Shape>]) -> u32 {\n    shapes.iter().map(|s| s.area()).sum()\n}\n\nfn biggest_name(shapes: &[Box<dyn Shape>]) -> Option<String> {\n    shapes.iter().max_by_key(|s| s.area()).map(|s| s.name())\n}\n\nfn main() {\n    let shapes: Vec<Box<dyn Shape>> = vec![Box::new(Square(2)), Box::new(Rect(2, 3))];\n    println!(\"{}\", total_area(&shapes));\n}\n```",
+      "en": "The full solution:\n\n```rust\ntrait Shape {\n    fn area(&self) -> u32;\n    fn name(&self) -> String;\n}\n\nstruct Square(u32);\nstruct Rect(u32, u32);\n\nimpl Shape for Square {\n    fn area(&self) -> u32 {\n        self.0 * self.0\n    }\n    fn name(&self) -> String {\n        String::from(\"square\")\n    }\n}\n\nimpl Shape for Rect {\n    fn area(&self) -> u32 {\n        self.0 * self.1\n    }\n    fn name(&self) -> String {\n        String::from(\"rect\")\n    }\n}\n\nfn total_area(shapes: &[Box<dyn Shape>]) -> u32 {\n    shapes.iter().map(|s| s.area()).sum()\n}\n\nfn biggest_name(shapes: &[Box<dyn Shape>]) -> Option<String> {\n    shapes.iter().max_by_key(|s| s.area()).map(|s| s.name())\n}\n\nfn main() {\n    let shapes: Vec<Box<dyn Shape>> = vec![Box::new(Square(2)), Box::new(Rect(2, 3))];\n    println!(\"{}\", total_area(&shapes));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let v: Vec<Box<dyn Shape>> = vec![Box::new(Square(2)), Box::new(Rect(2, 3))]; assert_eq!(total_area(&v), 10);",
+          "label": {
+            "tr": "toplam",
+            "en": "total"
+          }
+        },
+        {
+          "code": "let v: Vec<Box<dyn Shape>> = vec![Box::new(Square(2)), Box::new(Rect(2, 3))]; assert_eq!(biggest_name(&v), Some(String::from(\"rect\")));",
+          "label": {
+            "tr": "en büyük",
+            "en": "largest"
+          }
+        },
+        {
+          "code": "let v: Vec<Box<dyn Shape>> = vec![]; assert_eq!(biggest_name(&v), None); assert_eq!(total_area(&v), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    }
+  ]
+}

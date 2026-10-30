@@ -1,0 +1,73 @@
+{
+  "id": "config-port",
+  "title": {
+    "tr": "Port Okumak",
+    "en": "Reading a Port"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`line.strip_prefix(\"port=\")` satır uyuyorsa `Some(kalan)` verir.",
+      "en": "`line.strip_prefix(\"port=\")` gives `Some(rest)` if the line matches."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::fmt;\nuse std::num::ParseIntError;\n\n#[derive(Debug, PartialEq)]\nenum ConfigError {\n    Missing(String),\n    BadPort(ParseIntError),\n}\n\nimpl fmt::Display for ConfigError {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        match self {\n            ConfigError::Missing(key) => write!(f, \"{key} is missing\"),\n            ConfigError::BadPort(_) => write!(f, \"port is not a number\"),\n        }\n    }\n}\n\nimpl std::error::Error for ConfigError {}\n\nimpl From<ParseIntError> for ConfigError {\n    fn from(e: ParseIntError) -> Self {\n        ConfigError::BadPort(e)\n    }\n}\n\nfn read_port(lines: &[&str]) -> Result<u16, ConfigError> {\n    let value = lines\n        .iter()\n        .find_map(|line| line.strip_prefix(\"port=\"))\n        .ok_or_else(|| ConfigError::Missing(String::from(\"port\")))?;\n    Ok(value.parse()?)\n}\n\nfn main() {\n    println!(\"{:?}\", read_port(&[\"host=a\", \"port=80\"]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::fmt;\nuse std::num::ParseIntError;\n\n#[derive(Debug, PartialEq)]\nenum ConfigError {\n    Missing(String),\n    BadPort(ParseIntError),\n}\n\nimpl fmt::Display for ConfigError {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        match self {\n            ConfigError::Missing(key) => write!(f, \"{key} is missing\"),\n            ConfigError::BadPort(_) => write!(f, \"port is not a number\"),\n        }\n    }\n}\n\nimpl std::error::Error for ConfigError {}\n\nimpl From<ParseIntError> for ConfigError {\n    fn from(e: ParseIntError) -> Self {\n        ConfigError::BadPort(e)\n    }\n}\n\nfn read_port(lines: &[&str]) -> Result<u16, ConfigError> {\n    let value = lines\n        .iter()\n        .find_map(|line| line.strip_prefix(\"port=\"))\n        .ok_or_else(|| ConfigError::Missing(String::from(\"port\")))?;\n    Ok(value.parse()?)\n}\n\nfn main() {\n    println!(\"{:?}\", read_port(&[\"host=a\", \"port=80\"]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(read_port(&[\"host=a\", \"port=80\"]), Ok(80));",
+          "label": {
+            "tr": "bulur",
+            "en": "finds"
+          }
+        },
+        {
+          "code": "assert_eq!(read_port(&[\"host=a\"]), Err(ConfigError::Missing(String::from(\"port\"))));",
+          "label": {
+            "tr": "yok",
+            "en": "missing"
+          }
+        },
+        {
+          "code": "assert_eq!(read_port(&[\"host=a\"]).unwrap_err().to_string(), \"port is missing\");",
+          "label": {
+            "tr": "metin",
+            "en": "text"
+          }
+        },
+        {
+          "code": "let e = read_port(&[\"port=x\"]).unwrap_err(); assert!(matches!(e, ConfigError::BadPort(_))); assert_eq!(e.to_string(), \"port is not a number\");",
+          "label": {
+            "tr": "sayı değil",
+            "en": "not a number"
+          }
+        },
+        {
+          "code": "assert!(read_port(&[\"port=99999\"]).is_err());",
+          "label": {
+            "tr": "çok büyük",
+            "en": "too large"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\?",
+      "show": "?"
+    }
+  ]
+}

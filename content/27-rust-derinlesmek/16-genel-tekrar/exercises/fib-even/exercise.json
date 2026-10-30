@@ -1,0 +1,76 @@
+{
+  "id": "fib-even",
+  "title": {
+    "tr": "Çift Fibonacci",
+    "en": "Even Fibonacci"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`fib().take_while(|n| *n <= limit).filter(|n| n % 2 == 0).sum()`",
+      "en": "`fib().take_while(|n| *n <= limit).filter(|n| n % 2 == 0).sum()`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nstruct Fib {\n    a: u64,\n    b: u64,\n}\n\nfn fib() -> Fib {\n    Fib { a: 1, b: 2 }\n}\n\nimpl Iterator for Fib {\n    type Item = u64;\n\n    fn next(&mut self) -> Option<u64> {\n        let value = self.a;\n        self.a = self.b;\n        self.b += value;\n        Some(value)\n    }\n}\n\nfn even_sum(limit: u64) -> u64 {\n    fib().take_while(|n| *n <= limit).filter(|n| n % 2 == 0).sum()\n}\n\nfn main() {\n    println!(\"{}\", even_sum(100));\n}\n```",
+      "en": "The full solution:\n\n```rust\nstruct Fib {\n    a: u64,\n    b: u64,\n}\n\nfn fib() -> Fib {\n    Fib { a: 1, b: 2 }\n}\n\nimpl Iterator for Fib {\n    type Item = u64;\n\n    fn next(&mut self) -> Option<u64> {\n        let value = self.a;\n        self.a = self.b;\n        self.b += value;\n        Some(value)\n    }\n}\n\nfn even_sum(limit: u64) -> u64 {\n    fib().take_while(|n| *n <= limit).filter(|n| n % 2 == 0).sum()\n}\n\nfn main() {\n    println!(\"{}\", even_sum(100));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(fib().take(5).collect::<Vec<_>>(), vec![1, 2, 3, 5, 8]);",
+          "label": {
+            "tr": "dizi",
+            "en": "sequence"
+          }
+        },
+        {
+          "code": "assert_eq!(even_sum(100), 44);",
+          "label": {
+            "tr": "100",
+            "en": "100"
+          }
+        },
+        {
+          "code": "assert_eq!(even_sum(1), 0);",
+          "label": {
+            "tr": "çift yok",
+            "en": "no evens"
+          }
+        },
+        {
+          "code": "assert_eq!(even_sum(8), 10);",
+          "label": {
+            "tr": "sınır dahil",
+            "en": "boundary included"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bwhile\\b",
+      "show": "while"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bloop\\b",
+      "show": "loop"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "take_while",
+      "show": "take_while"
+    }
+  ]
+}
