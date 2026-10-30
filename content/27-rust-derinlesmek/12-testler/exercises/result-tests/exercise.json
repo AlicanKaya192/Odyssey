@@ -1,0 +1,59 @@
+{
+  "id": "result-tests",
+  "title": {
+    "tr": "Result Dönen Test",
+    "en": "A Test Returning Result"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`fn reads_a_pair() -> Result<(), String> { assert_eq!(parse_pair(\"1,2\")?, (1, 2)); Ok(()) }`",
+      "en": "`fn reads_a_pair() -> Result<(), String> { assert_eq!(parse_pair(\"1,2\")?, (1, 2)); Ok(()) }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn parse_pair(text: &str) -> Result<(i32, i32), String> {\n    let (a, b) = text.split_once(',').ok_or(\"no comma\")?;\n    let x = a.parse::<i32>().map_err(|_| \"bad first\")?;\n    let y = b.parse::<i32>().map_err(|_| \"bad second\")?;\n    Ok((x, y))\n}\n\nfn main() {\n    println!(\"{:?}\", parse_pair(\"1,2\"));\n}\n\n#[cfg(test)]\nmod tests {\n    use super::*;\n\n    #[test]\n    fn reads_a_pair() -> Result<(), String> {\n        assert_eq!(parse_pair(\"1,2\")?, (1, 2));\n        Ok(())\n    }\n\n    #[test]\n    fn no_comma() {\n        assert_eq!(parse_pair(\"1\"), Err(String::from(\"no comma\")));\n    }\n\n    #[test]\n    fn bad_parts() {\n        assert_eq!(parse_pair(\"x,2\"), Err(String::from(\"bad first\")));\n        assert_eq!(parse_pair(\"1,y\"), Err(String::from(\"bad second\")));\n    }\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn parse_pair(text: &str) -> Result<(i32, i32), String> {\n    let (a, b) = text.split_once(',').ok_or(\"no comma\")?;\n    let x = a.parse::<i32>().map_err(|_| \"bad first\")?;\n    let y = b.parse::<i32>().map_err(|_| \"bad second\")?;\n    Ok((x, y))\n}\n\nfn main() {\n    println!(\"{:?}\", parse_pair(\"1,2\"));\n}\n\n#[cfg(test)]\nmod tests {\n    use super::*;\n\n    #[test]\n    fn reads_a_pair() -> Result<(), String> {\n        assert_eq!(parse_pair(\"1,2\")?, (1, 2));\n        Ok(())\n    }\n\n    #[test]\n    fn no_comma() {\n        assert_eq!(parse_pair(\"1\"), Err(String::from(\"no comma\")));\n    }\n\n    #[test]\n    fn bad_parts() {\n        assert_eq!(parse_pair(\"x,2\"), Err(String::from(\"bad first\")));\n        assert_eq!(parse_pair(\"1,y\"), Err(String::from(\"bad second\")));\n    }\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_tests",
+      "min": 3,
+      "mutants": [
+        {
+          "replace": [
+            "|_| \"bad second\"",
+            "|_| \"bad first\""
+          ],
+          "bug": {
+            "tr": "İkinci hata metni yanlış",
+            "en": "The second error text is wrong"
+          }
+        },
+        {
+          "replace": [
+            "Ok((x, y))",
+            "Ok((y, x))"
+          ],
+          "bug": {
+            "tr": "Çift ters",
+            "en": "The pair is reversed"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "->\\s*Result<\\(\\),\\s*String>",
+      "show": "-> Result<(), String>"
+    }
+  ]
+}

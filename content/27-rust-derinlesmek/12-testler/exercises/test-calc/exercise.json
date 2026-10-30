@@ -1,0 +1,64 @@
+{
+  "id": "test-calc",
+  "title": {
+    "tr": "Hesabı Sına",
+    "en": "Test the Calculation"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`assert_eq!(clamp_score(101), 100);` ve `assert_eq!(clamp_score(-1), 0);`.",
+      "en": "`assert_eq!(clamp_score(101), 100);` and `assert_eq!(clamp_score(-1), 0);`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn safe_div(a: i32, b: i32) -> Option<i32> {\n    if b == 0 {\n        None\n    } else {\n        Some(a / b)\n    }\n}\n\nfn clamp_score(value: i32) -> i32 {\n    if value < 0 {\n        0\n    } else if value > 100 {\n        100\n    } else {\n        value\n    }\n}\n\nfn main() {\n    println!(\"{:?} {}\", safe_div(6, 3), clamp_score(120));\n}\n\n#[cfg(test)]\nmod tests {\n    use super::*;\n\n    #[test]\n    fn divides() {\n        assert_eq!(safe_div(6, 3), Some(2));\n    }\n\n    #[test]\n    fn zero_gives_none() {\n        assert_eq!(safe_div(1, 0), None);\n    }\n\n    #[test]\n    fn clamps_low_and_high() {\n        assert_eq!(clamp_score(-1), 0);\n        assert_eq!(clamp_score(101), 100);\n    }\n\n    #[test]\n    fn keeps_boundaries() {\n        assert_eq!(clamp_score(0), 0);\n        assert_eq!(clamp_score(100), 100);\n        assert_eq!(clamp_score(50), 50);\n    }\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn safe_div(a: i32, b: i32) -> Option<i32> {\n    if b == 0 {\n        None\n    } else {\n        Some(a / b)\n    }\n}\n\nfn clamp_score(value: i32) -> i32 {\n    if value < 0 {\n        0\n    } else if value > 100 {\n        100\n    } else {\n        value\n    }\n}\n\nfn main() {\n    println!(\"{:?} {}\", safe_div(6, 3), clamp_score(120));\n}\n\n#[cfg(test)]\nmod tests {\n    use super::*;\n\n    #[test]\n    fn divides() {\n        assert_eq!(safe_div(6, 3), Some(2));\n    }\n\n    #[test]\n    fn zero_gives_none() {\n        assert_eq!(safe_div(1, 0), None);\n    }\n\n    #[test]\n    fn clamps_low_and_high() {\n        assert_eq!(clamp_score(-1), 0);\n        assert_eq!(clamp_score(101), 100);\n    }\n\n    #[test]\n    fn keeps_boundaries() {\n        assert_eq!(clamp_score(0), 0);\n        assert_eq!(clamp_score(100), 100);\n        assert_eq!(clamp_score(50), 50);\n    }\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_tests",
+      "min": 4,
+      "mutants": [
+        {
+          "replace": [
+            "if b == 0 {\n        None",
+            "if b == 1 {\n        None"
+          ],
+          "bug": {
+            "tr": "safe_div sıfırı denetlemiyor",
+            "en": "safe_div does not check zero"
+          }
+        },
+        {
+          "replace": [
+            "value > 100",
+            "value > 101"
+          ],
+          "bug": {
+            "tr": "101 sınırda kalıyor",
+            "en": "101 stays inside"
+          }
+        },
+        {
+          "replace": [
+            "value < 0 {\n        0",
+            "value < -1 {\n        0"
+          ],
+          "bug": {
+            "tr": "-1 sınırda kalıyor",
+            "en": "-1 stays inside"
+          }
+        }
+      ]
+    }
+  ]
+}

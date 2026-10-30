@@ -50,7 +50,7 @@ CRASH_CODE_MIN = 0xC0000000
 NO_TOOLCHAIN = re.compile(r"could not choose a version|no override and no default toolchain", re.I)
 NO_LINKER = re.compile(r"linker `[^`]*` not found|link\.exe.*not found", re.I)
 PANIC = re.compile(r"panicked at ([^\n]+?):(\d+):\d+:\n([^\n]*)")
-TEST_LINE = re.compile(r"^test (\S+) \.\.\. (ok|FAILED)\s*$", re.M)
+TEST_LINE = re.compile(r"^test (\S+)(?: - should panic)? \.\.\. (ok|FAILED)\s*$", re.M)
 FAILURE_BLOCK = re.compile(r"^---- (\S+) stdout ----\n(.*?)(?=^---- |^failures:|\Z)", re.M | re.S)
 # Yorum, metin ve karakter sabitleri. `'a` ömrü kapanış tırnağı olmadığı için
 # karakter sabiti sanılmıyor; `'"'` metin başlangıcı sanılmıyor.

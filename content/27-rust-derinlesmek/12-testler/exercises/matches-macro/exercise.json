@@ -1,0 +1,64 @@
+{
+  "id": "matches-macro",
+  "title": {
+    "tr": "matches!",
+    "en": "matches!"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`matches!(read_number(text), Err(ParseError::Empty))`",
+      "en": "`matches!(read_number(text), Err(ParseError::Empty))`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\n#[derive(Debug, PartialEq)]\nenum ParseError {\n    Empty,\n    NotNumber,\n}\n\nfn read_number(text: &str) -> Result<i32, ParseError> {\n    if text.is_empty() {\n        return Err(ParseError::Empty);\n    }\n    text.parse().map_err(|_| ParseError::NotNumber)\n}\n\nfn is_empty_error(text: &str) -> bool {\n    matches!(read_number(text), Err(ParseError::Empty))\n}\n\nfn main() {\n    println!(\"{}\", is_empty_error(\"\"));\n}\n```",
+      "en": "The full solution:\n\n```rust\n#[derive(Debug, PartialEq)]\nenum ParseError {\n    Empty,\n    NotNumber,\n}\n\nfn read_number(text: &str) -> Result<i32, ParseError> {\n    if text.is_empty() {\n        return Err(ParseError::Empty);\n    }\n    text.parse().map_err(|_| ParseError::NotNumber)\n}\n\nfn is_empty_error(text: &str) -> bool {\n    matches!(read_number(text), Err(ParseError::Empty))\n}\n\nfn main() {\n    println!(\"{}\", is_empty_error(\"\"));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert!(is_empty_error(\"\"));",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert!(!is_empty_error(\"x\"));",
+          "label": {
+            "tr": "başka hata",
+            "en": "another error"
+          }
+        },
+        {
+          "code": "assert!(!is_empty_error(\"5\"));",
+          "label": {
+            "tr": "başarı",
+            "en": "success"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "matches!",
+      "show": "matches!"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bmatch\\b",
+      "show": "match"
+    }
+  ]
+}

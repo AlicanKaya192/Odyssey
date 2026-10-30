@@ -1,0 +1,59 @@
+{
+  "id": "should-panic",
+  "title": {
+    "tr": "Panik Bekle",
+    "en": "Expect a Panic"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`#[test]` altına `#[should_panic(expected = \"negative\")]`.",
+      "en": "Under `#[test]`, `#[should_panic(expected = \"negative\")]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn checked_age(age: i32) -> i32 {\n    if age < 0 {\n        panic!(\"age must not be negative\");\n    }\n    age\n}\n\nfn main() {\n    println!(\"{}\", checked_age(3));\n}\n\n#[cfg(test)]\nmod tests {\n    use super::*;\n\n    #[test]\n    #[should_panic(expected = \"negative\")]\n    fn negative_panics() {\n        checked_age(-1);\n    }\n\n    #[test]\n    fn keeps_zero() {\n        assert_eq!(checked_age(0), 0);\n    }\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn checked_age(age: i32) -> i32 {\n    if age < 0 {\n        panic!(\"age must not be negative\");\n    }\n    age\n}\n\nfn main() {\n    println!(\"{}\", checked_age(3));\n}\n\n#[cfg(test)]\nmod tests {\n    use super::*;\n\n    #[test]\n    #[should_panic(expected = \"negative\")]\n    fn negative_panics() {\n        checked_age(-1);\n    }\n\n    #[test]\n    fn keeps_zero() {\n        assert_eq!(checked_age(0), 0);\n    }\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_tests",
+      "min": 2,
+      "mutants": [
+        {
+          "replace": [
+            "if age < 0 {",
+            "if age < -5 {"
+          ],
+          "bug": {
+            "tr": "-1 panik yapmıyor",
+            "en": "-1 does not panic"
+          }
+        },
+        {
+          "replace": [
+            "if age < 0 {",
+            "if age <= 0 {"
+          ],
+          "bug": {
+            "tr": "0 panik yapıyor",
+            "en": "0 panics"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "should_panic",
+      "show": "should_panic"
+    }
+  ]
+}
