@@ -1,0 +1,47 @@
+{
+  "id": "gather-words",
+  "title": {
+    "tr": "Kelimeleri Topla",
+    "en": "Gather the Words"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`list.lock().unwrap().push(word.to_uppercase());`, sonda `.clone()` ve `sort`.",
+      "en": "`list.lock().unwrap().push(word.to_uppercase());`, at the end `.clone()` and `sort`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::{Arc, Mutex};\nuse std::thread;\n\nfn gather(words: Vec<String>) -> Vec<String> {\n    let list = Arc::new(Mutex::new(Vec::new()));\n    let mut handles = Vec::new();\n    for word in words {\n        let list = Arc::clone(&list);\n        handles.push(thread::spawn(move || {\n            list.lock().unwrap().push(word.to_uppercase());\n        }));\n    }\n    for h in handles {\n        h.join().unwrap();\n    }\n    let mut out = list.lock().unwrap().clone();\n    out.sort();\n    out\n}\n\nfn main() {\n    println!(\"{:?}\", gather(vec![String::from(\"b\"), String::from(\"a\")]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::{Arc, Mutex};\nuse std::thread;\n\nfn gather(words: Vec<String>) -> Vec<String> {\n    let list = Arc::new(Mutex::new(Vec::new()));\n    let mut handles = Vec::new();\n    for word in words {\n        let list = Arc::clone(&list);\n        handles.push(thread::spawn(move || {\n            list.lock().unwrap().push(word.to_uppercase());\n        }));\n    }\n    for h in handles {\n        h.join().unwrap();\n    }\n    let mut out = list.lock().unwrap().clone();\n    out.sort();\n    out\n}\n\nfn main() {\n    println!(\"{:?}\", gather(vec![String::from(\"b\"), String::from(\"a\")]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(gather(vec![String::from(\"b\"), String::from(\"a\")]), vec![\"A\", \"B\"]);",
+          "label": {
+            "tr": "iki",
+            "en": "two"
+          }
+        },
+        {
+          "code": "assert!(gather(vec![]).is_empty());",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    }
+  ]
+}

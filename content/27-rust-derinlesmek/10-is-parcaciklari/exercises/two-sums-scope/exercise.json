@@ -1,0 +1,52 @@
+{
+  "id": "two-sums-scope",
+  "title": {
+    "tr": "İki Toplam",
+    "en": "Two Sums"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`thread::scope(|s| { let a = s.spawn(|| ...); ... })`",
+      "en": "`thread::scope(|s| { let a = s.spawn(|| ...); ... })`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::thread;\n\nfn two_sums(left: &[i32], right: &[i32]) -> (i32, i32) {\n    thread::scope(|s| {\n        let a = s.spawn(|| left.iter().sum::<i32>());\n        let b = s.spawn(|| right.iter().sum::<i32>());\n        (a.join().unwrap(), b.join().unwrap())\n    })\n}\n\nfn main() {\n    println!(\"{:?}\", two_sums(&[1, 2], &[3, 4]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::thread;\n\nfn two_sums(left: &[i32], right: &[i32]) -> (i32, i32) {\n    thread::scope(|s| {\n        let a = s.spawn(|| left.iter().sum::<i32>());\n        let b = s.spawn(|| right.iter().sum::<i32>());\n        (a.join().unwrap(), b.join().unwrap())\n    })\n}\n\nfn main() {\n    println!(\"{:?}\", two_sums(&[1, 2], &[3, 4]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(two_sums(&[1, 2], &[3, 4]), (3, 7));",
+          "label": {
+            "tr": "iki",
+            "en": "two"
+          }
+        },
+        {
+          "code": "assert_eq!(two_sums(&[], &[5]), (0, 5));",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "thread::scope",
+      "show": "thread::scope"
+    }
+  ]
+}

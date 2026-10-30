@@ -1,0 +1,52 @@
+{
+  "id": "ref-objects",
+  "title": {
+    "tr": "Referans Nesneleri",
+    "en": "Reference Objects"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`items.iter().map(|i| i.price()).sum()`",
+      "en": "`items.iter().map(|i| i.price()).sum()`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\ntrait Item {\n    fn price(&self) -> u32;\n}\n\nstruct Book {\n    pages: u32,\n}\n\nstruct Pen;\n\nimpl Item for Book {\n    fn price(&self) -> u32 {\n        self.pages / 10\n    }\n}\n\nimpl Item for Pen {\n    fn price(&self) -> u32 {\n        2\n    }\n}\n\nfn total(items: &[&dyn Item]) -> u32 {\n    items.iter().map(|i| i.price()).sum()\n}\n\nfn main() {\n    println!(\"{}\", total(&[&Book { pages: 100 }, &Pen]));\n}\n```",
+      "en": "The full solution:\n\n```rust\ntrait Item {\n    fn price(&self) -> u32;\n}\n\nstruct Book {\n    pages: u32,\n}\n\nstruct Pen;\n\nimpl Item for Book {\n    fn price(&self) -> u32 {\n        self.pages / 10\n    }\n}\n\nimpl Item for Pen {\n    fn price(&self) -> u32 {\n        2\n    }\n}\n\nfn total(items: &[&dyn Item]) -> u32 {\n    items.iter().map(|i| i.price()).sum()\n}\n\nfn main() {\n    println!(\"{}\", total(&[&Book { pages: 100 }, &Pen]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(total(&[&Book { pages: 100 }, &Pen]), 12);",
+          "label": {
+            "tr": "ikisi",
+            "en": "both"
+          }
+        },
+        {
+          "code": "assert_eq!(total(&[]), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bBox\\b",
+      "show": "Box"
+    }
+  ]
+}

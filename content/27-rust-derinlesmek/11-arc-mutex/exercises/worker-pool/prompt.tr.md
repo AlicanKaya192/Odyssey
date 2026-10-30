@@ -1,0 +1,1 @@
+`fn pool(jobs: Vec<i32>, workers: usize) -> Vec<i32>` yaz: `workers` çalışan, işleri ortak kanaldan alıp `n + 1` sonucunu ayrı kanala göndersin. Sonuçlar **sıralı**. Kilidi yalnızca `recv` satırında tut.

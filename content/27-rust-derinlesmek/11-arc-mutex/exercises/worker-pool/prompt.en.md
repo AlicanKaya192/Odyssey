@@ -1,0 +1,1 @@
+Write `fn pool(jobs: Vec<i32>, workers: usize) -> Vec<i32>`: `workers` workers take jobs from a shared channel and send `n + 1` to a separate channel. Results are **sorted**. Hold the lock only on the `recv` line.

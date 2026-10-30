@@ -1,0 +1,47 @@
+{
+  "id": "parallel-workers",
+  "title": {
+    "tr": "Paralel Çalışanlar",
+    "en": "Parallel Workers"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Döngüde `let tx = tx.clone();`, sonda `drop(tx);`.",
+      "en": "In the loop `let tx = tx.clone();`, and `drop(tx);` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::mpsc;\nuse std::thread;\n\nfn run_workers(jobs: Vec<i32>) -> Vec<i32> {\n    let (tx, rx) = mpsc::channel();\n    for job in jobs {\n        let tx = tx.clone();\n        thread::spawn(move || {\n            tx.send(job * 2).unwrap();\n        });\n    }\n    drop(tx);\n    let mut out: Vec<i32> = rx.iter().collect();\n    out.sort();\n    out\n}\n\nfn main() {\n    println!(\"{:?}\", run_workers(vec![3, 1, 2]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::mpsc;\nuse std::thread;\n\nfn run_workers(jobs: Vec<i32>) -> Vec<i32> {\n    let (tx, rx) = mpsc::channel();\n    for job in jobs {\n        let tx = tx.clone();\n        thread::spawn(move || {\n            tx.send(job * 2).unwrap();\n        });\n    }\n    drop(tx);\n    let mut out: Vec<i32> = rx.iter().collect();\n    out.sort();\n    out\n}\n\nfn main() {\n    println!(\"{:?}\", run_workers(vec![3, 1, 2]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(run_workers(vec![3, 1, 2]), vec![2, 4, 6]);",
+          "label": {
+            "tr": "üç",
+            "en": "three"
+          }
+        },
+        {
+          "code": "assert_eq!(run_workers(vec![]), Vec::<i32>::new());",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "shared-counter",
+  "title": {
+    "tr": "Ortak Sayaç",
+    "en": "A Shared Counter"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Her kol için `let counter = Arc::clone(&counter);`.",
+      "en": "For each branch, `let counter = Arc::clone(&counter);`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::{Arc, Mutex};\nuse std::thread;\n\nfn count_up(branches: usize, each: u32) -> u32 {\n    let counter = Arc::new(Mutex::new(0));\n    let mut handles = Vec::new();\n    for _ in 0..branches {\n        let counter = Arc::clone(&counter);\n        handles.push(thread::spawn(move || {\n            for _ in 0..each {\n                *counter.lock().unwrap() += 1;\n            }\n        }));\n    }\n    for h in handles {\n        h.join().unwrap();\n    }\n    let total = *counter.lock().unwrap();\n    total\n}\n\nfn main() {\n    println!(\"{}\", count_up(4, 100));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::{Arc, Mutex};\nuse std::thread;\n\nfn count_up(branches: usize, each: u32) -> u32 {\n    let counter = Arc::new(Mutex::new(0));\n    let mut handles = Vec::new();\n    for _ in 0..branches {\n        let counter = Arc::clone(&counter);\n        handles.push(thread::spawn(move || {\n            for _ in 0..each {\n                *counter.lock().unwrap() += 1;\n            }\n        }));\n    }\n    for h in handles {\n        h.join().unwrap();\n    }\n    let total = *counter.lock().unwrap();\n    total\n}\n\nfn main() {\n    println!(\"{}\", count_up(4, 100));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(count_up(4, 100), 400);",
+          "label": {
+            "tr": "dört kol",
+            "en": "four branches"
+          }
+        },
+        {
+          "code": "assert_eq!(count_up(0, 100), 0);",
+          "label": {
+            "tr": "kol yok",
+            "en": "no branches"
+          }
+        },
+        {
+          "code": "assert_eq!(count_up(1, 1), 1);",
+          "label": {
+            "tr": "tek",
+            "en": "one"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Arc::clone",
+      "show": "Arc::clone"
+    }
+  ]
+}

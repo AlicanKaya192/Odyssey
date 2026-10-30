@@ -1,0 +1,45 @@
+{
+  "id": "traffic-state",
+  "title": {
+    "tr": "Trafik Işığı",
+    "en": "A Traffic Light"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`Box::new(Green)` döndür; `self` kullanılmasa da kalır.",
+      "en": "Return `Box::new(Green)`; `self` stays even if unused."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\ntrait Light {\n    fn next(self: Box<Self>) -> Box<dyn Light>;\n    fn color(&self) -> String;\n}\n\nstruct Red;\nstruct Green;\n\nimpl Light for Red {\n    fn next(self: Box<Self>) -> Box<dyn Light> {\n        Box::new(Green)\n    }\n\n    fn color(&self) -> String {\n        String::from(\"red\")\n    }\n}\n\nimpl Light for Green {\n    fn next(self: Box<Self>) -> Box<dyn Light> {\n        Box::new(Red)\n    }\n\n    fn color(&self) -> String {\n        String::from(\"green\")\n    }\n}\n\nfn main() {\n    let mut l: Box<dyn Light> = Box::new(Red);\n    l = l.next();\n    println!(\"{}\", l.color());\n}\n```",
+      "en": "The full solution:\n\n```rust\ntrait Light {\n    fn next(self: Box<Self>) -> Box<dyn Light>;\n    fn color(&self) -> String;\n}\n\nstruct Red;\nstruct Green;\n\nimpl Light for Red {\n    fn next(self: Box<Self>) -> Box<dyn Light> {\n        Box::new(Green)\n    }\n\n    fn color(&self) -> String {\n        String::from(\"red\")\n    }\n}\n\nimpl Light for Green {\n    fn next(self: Box<Self>) -> Box<dyn Light> {\n        Box::new(Red)\n    }\n\n    fn color(&self) -> String {\n        String::from(\"green\")\n    }\n}\n\nfn main() {\n    let mut l: Box<dyn Light> = Box::new(Red);\n    l = l.next();\n    println!(\"{}\", l.color());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let l: Box<dyn Light> = Box::new(Red); assert_eq!(l.color(), \"red\"); let l = l.next(); assert_eq!(l.color(), \"green\"); let l = l.next(); assert_eq!(l.color(), \"red\");",
+          "label": {
+            "tr": "döngü",
+            "en": "a cycle"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "self\\s*:\\s*Box<Self>",
+      "show": "self: Box<Self>"
+    }
+  ]
+}

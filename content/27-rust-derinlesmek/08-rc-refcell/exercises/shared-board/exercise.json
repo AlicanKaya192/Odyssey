@@ -1,0 +1,40 @@
+{
+  "id": "shared-board",
+  "title": {
+    "tr": "Ortak Pano",
+    "en": "A Shared Board"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`self.board.borrow_mut().push(text.to_string());`",
+      "en": "`self.board.borrow_mut().push(text.to_string());`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::cell::RefCell;\nuse std::rc::Rc;\n\nstruct Member {\n    board: Rc<RefCell<Vec<String>>>,\n}\n\nimpl Member {\n    fn post(&self, text: &str) {\n        self.board.borrow_mut().push(text.to_string());\n    }\n}\n\nfn main() {\n    let board = Rc::new(RefCell::new(Vec::new()));\n    let a = Member { board: Rc::clone(&board) };\n    let b = Member { board: Rc::clone(&board) };\n    a.post(\"hi\");\n    b.post(\"yo\");\n    println!(\"{:?}\", board.borrow());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::cell::RefCell;\nuse std::rc::Rc;\n\nstruct Member {\n    board: Rc<RefCell<Vec<String>>>,\n}\n\nimpl Member {\n    fn post(&self, text: &str) {\n        self.board.borrow_mut().push(text.to_string());\n    }\n}\n\nfn main() {\n    let board = Rc::new(RefCell::new(Vec::new()));\n    let a = Member { board: Rc::clone(&board) };\n    let b = Member { board: Rc::clone(&board) };\n    a.post(\"hi\");\n    b.post(\"yo\");\n    println!(\"{:?}\", board.borrow());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let b = Rc::new(RefCell::new(Vec::new())); let x = Member { board: Rc::clone(&b) }; let y = Member { board: Rc::clone(&b) }; x.post(\"a\"); y.post(\"b\"); assert_eq!(*b.borrow(), vec![String::from(\"a\"), String::from(\"b\")]);",
+          "label": {
+            "tr": "ikisi",
+            "en": "both"
+          }
+        }
+      ]
+    }
+  ]
+}

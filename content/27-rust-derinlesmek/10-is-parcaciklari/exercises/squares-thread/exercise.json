@@ -1,0 +1,52 @@
+{
+  "id": "squares-thread",
+  "title": {
+    "tr": "Kolda Hesapla",
+    "en": "Compute on a Branch"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`thread::spawn(move || { ... })` ve `handle.join().unwrap()`.",
+      "en": "`thread::spawn(move || { ... })` and `handle.join().unwrap()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::thread;\n\nfn squares(list: Vec<i32>) -> Vec<i32> {\n    let handle = thread::spawn(move || {\n        let mut out = Vec::new();\n        for n in list {\n            out.push(n * n);\n        }\n        out\n    });\n    handle.join().unwrap()\n}\n\nfn main() {\n    println!(\"{:?}\", squares(vec![1, 2, 3]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::thread;\n\nfn squares(list: Vec<i32>) -> Vec<i32> {\n    let handle = thread::spawn(move || {\n        let mut out = Vec::new();\n        for n in list {\n            out.push(n * n);\n        }\n        out\n    });\n    handle.join().unwrap()\n}\n\nfn main() {\n    println!(\"{:?}\", squares(vec![1, 2, 3]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(squares(vec![1, 2, 3]), vec![1, 4, 9]);",
+          "label": {
+            "tr": "üç",
+            "en": "three"
+          }
+        },
+        {
+          "code": "assert_eq!(squares(vec![]), Vec::<i32>::new());",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "thread::spawn",
+      "show": "thread::spawn"
+    }
+  ]
+}

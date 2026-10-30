@@ -1,0 +1,47 @@
+{
+  "id": "weak-parent",
+  "title": {
+    "tr": "Zayıf Ebeveyn",
+    "en": "A Weak Parent"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`node.parent.borrow().upgrade().map(|p| p.name.clone())`",
+      "en": "`node.parent.borrow().upgrade().map(|p| p.name.clone())`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::cell::RefCell;\nuse std::rc::{Rc, Weak};\n\nstruct Node {\n    name: String,\n    parent: RefCell<Weak<Node>>,\n}\n\nfn parent_name(node: &Node) -> Option<String> {\n    node.parent.borrow().upgrade().map(|p| p.name.clone())\n}\n\nfn main() {\n    let root = Rc::new(Node { name: String::from(\"root\"), parent: RefCell::new(Weak::new()) });\n    let leaf = Node { name: String::from(\"leaf\"), parent: RefCell::new(Rc::downgrade(&root)) };\n    println!(\"{:?} {}\", parent_name(&leaf), leaf.name);\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::cell::RefCell;\nuse std::rc::{Rc, Weak};\n\nstruct Node {\n    name: String,\n    parent: RefCell<Weak<Node>>,\n}\n\nfn parent_name(node: &Node) -> Option<String> {\n    node.parent.borrow().upgrade().map(|p| p.name.clone())\n}\n\nfn main() {\n    let root = Rc::new(Node { name: String::from(\"root\"), parent: RefCell::new(Weak::new()) });\n    let leaf = Node { name: String::from(\"leaf\"), parent: RefCell::new(Rc::downgrade(&root)) };\n    println!(\"{:?} {}\", parent_name(&leaf), leaf.name);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let r = Rc::new(Node { name: String::from(\"r\"), parent: RefCell::new(Weak::new()) }); let l = Node { name: String::from(\"l\"), parent: RefCell::new(Rc::downgrade(&r)) }; assert_eq!(parent_name(&l), Some(String::from(\"r\")));",
+          "label": {
+            "tr": "yaşıyor",
+            "en": "alive"
+          }
+        },
+        {
+          "code": "let l = { let r = Rc::new(Node { name: String::from(\"r\"), parent: RefCell::new(Weak::new()) }); Node { name: String::from(\"l\"), parent: RefCell::new(Rc::downgrade(&r)) } }; assert_eq!(parent_name(&l), None);",
+          "label": {
+            "tr": "silinmiş",
+            "en": "deleted"
+          }
+        }
+      ]
+    }
+  ]
+}

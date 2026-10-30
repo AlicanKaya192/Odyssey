@@ -1,0 +1,54 @@
+{
+  "id": "closure-pipeline",
+  "title": {
+    "tr": "Closure Hattı",
+    "en": "A Closure Pipeline"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`Box::new(move |x| x + n)`",
+      "en": "`Box::new(move |x| x + n)`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn run(steps: &[Box<dyn Fn(i32) -> i32>], start: i32) -> i32 {\n    let mut value = start;\n    for step in steps {\n        value = step(value);\n    }\n    value\n}\n\nfn add(n: i32) -> Box<dyn Fn(i32) -> i32> {\n    Box::new(move |x| x + n)\n}\n\nfn main() {\n    println!(\"{}\", run(&[add(2), Box::new(|x| x * 3)], 1));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn run(steps: &[Box<dyn Fn(i32) -> i32>], start: i32) -> i32 {\n    let mut value = start;\n    for step in steps {\n        value = step(value);\n    }\n    value\n}\n\nfn add(n: i32) -> Box<dyn Fn(i32) -> i32> {\n    Box::new(move |x| x + n)\n}\n\nfn main() {\n    println!(\"{}\", run(&[add(2), Box::new(|x| x * 3)], 1));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(run(&[add(2), Box::new(|x| x * 3)], 1), 9);",
+          "label": {
+            "tr": "iki adım",
+            "en": "two steps"
+          }
+        },
+        {
+          "code": "assert_eq!(run(&[], 5), 5);",
+          "label": {
+            "tr": "adım yok",
+            "en": "no steps"
+          }
+        },
+        {
+          "code": "assert_eq!(add(4)(1), 5);",
+          "label": {
+            "tr": "add",
+            "en": "add"
+          }
+        }
+      ]
+    }
+  ]
+}

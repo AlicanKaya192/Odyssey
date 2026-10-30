@@ -1,0 +1,54 @@
+{
+  "id": "share-rc",
+  "title": {
+    "tr": "Paylaş",
+    "en": "Share It"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Döngüde `out.push(Rc::clone(value));`",
+      "en": "In a loop, `out.push(Rc::clone(value));`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::rc::Rc;\n\nfn share(value: &Rc<String>, times: usize) -> Vec<Rc<String>> {\n    let mut out = Vec::new();\n    for _ in 0..times {\n        out.push(Rc::clone(value));\n    }\n    out\n}\n\nfn main() {\n    let a = Rc::new(String::from(\"x\"));\n    let list = share(&a, 2);\n    println!(\"{} {}\", list.len(), Rc::strong_count(&a));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::rc::Rc;\n\nfn share(value: &Rc<String>, times: usize) -> Vec<Rc<String>> {\n    let mut out = Vec::new();\n    for _ in 0..times {\n        out.push(Rc::clone(value));\n    }\n    out\n}\n\nfn main() {\n    let a = Rc::new(String::from(\"x\"));\n    let list = share(&a, 2);\n    println!(\"{} {}\", list.len(), Rc::strong_count(&a));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let a = Rc::new(String::from(\"x\")); let l = share(&a, 2); assert_eq!(l.len(), 2); assert_eq!(Rc::strong_count(&a), 3);",
+          "label": {
+            "tr": "sayaç",
+            "en": "the counter"
+          }
+        },
+        {
+          "code": "let a = Rc::new(String::from(\"x\")); let l = share(&a, 0); assert!(l.is_empty()); assert_eq!(Rc::strong_count(&a), 1);",
+          "label": {
+            "tr": "sıfır",
+            "en": "zero"
+          }
+        },
+        {
+          "code": "let a = Rc::new(String::from(\"x\")); let l = share(&a, 1); assert!(Rc::ptr_eq(&a, &l[0]));",
+          "label": {
+            "tr": "aynı değer",
+            "en": "the same value"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+// fn run ...
+// fn add ...
+
+fn main() {
+    println!("{}", run(&[add(2), Box::new(|x| x * 3)], 1));
+}

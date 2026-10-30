@@ -1,0 +1,57 @@
+{
+  "id": "atomic-even",
+  "title": {
+    "tr": "Atomik Sayım",
+    "en": "An Atomic Count"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let count = &count;`, sonra `s.spawn(move || ...)`.",
+      "en": "`let count = &count;`, then `s.spawn(move || ...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::atomic::{AtomicU32, Ordering};\nuse std::thread;\n\nfn count_even(list: &[u32]) -> u32 {\n    let count = AtomicU32::new(0);\n    thread::scope(|s| {\n        for part in list.chunks(2) {\n            let count = &count;\n            s.spawn(move || {\n                for n in part {\n                    if n % 2 == 0 {\n                        count.fetch_add(1, Ordering::SeqCst);\n                    }\n                }\n            });\n        }\n    });\n    count.load(Ordering::SeqCst)\n}\n\nfn main() {\n    println!(\"{}\", count_even(&[1, 2, 3, 4, 6]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::atomic::{AtomicU32, Ordering};\nuse std::thread;\n\nfn count_even(list: &[u32]) -> u32 {\n    let count = AtomicU32::new(0);\n    thread::scope(|s| {\n        for part in list.chunks(2) {\n            let count = &count;\n            s.spawn(move || {\n                for n in part {\n                    if n % 2 == 0 {\n                        count.fetch_add(1, Ordering::SeqCst);\n                    }\n                }\n            });\n        }\n    });\n    count.load(Ordering::SeqCst)\n}\n\nfn main() {\n    println!(\"{}\", count_even(&[1, 2, 3, 4, 6]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(count_even(&[1, 2, 3, 4, 6]), 3);",
+          "label": {
+            "tr": "üç çift",
+            "en": "three evens"
+          }
+        },
+        {
+          "code": "assert_eq!(count_even(&[]), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "Mutex",
+      "show": "Mutex"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "fetch_add",
+      "show": "fetch_add"
+    }
+  ]
+}

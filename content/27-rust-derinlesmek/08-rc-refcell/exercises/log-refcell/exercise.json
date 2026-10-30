@@ -1,0 +1,40 @@
+{
+  "id": "log-refcell",
+  "title": {
+    "tr": "Kayıt Defteri",
+    "en": "A Log Book"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`self.lines.borrow_mut().push(line.to_string());`",
+      "en": "`self.lines.borrow_mut().push(line.to_string());`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::cell::RefCell;\n\nstruct Log {\n    lines: RefCell<Vec<String>>,\n}\n\nimpl Log {\n    fn new() -> Log {\n        Log { lines: RefCell::new(Vec::new()) }\n    }\n\n    fn write(&self, line: &str) {\n        self.lines.borrow_mut().push(line.to_string());\n    }\n\n    fn count(&self) -> usize {\n        self.lines.borrow().len()\n    }\n}\n\nfn main() {\n    let log = Log::new();\n    log.write(\"a\");\n    println!(\"{}\", log.count());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::cell::RefCell;\n\nstruct Log {\n    lines: RefCell<Vec<String>>,\n}\n\nimpl Log {\n    fn new() -> Log {\n        Log { lines: RefCell::new(Vec::new()) }\n    }\n\n    fn write(&self, line: &str) {\n        self.lines.borrow_mut().push(line.to_string());\n    }\n\n    fn count(&self) -> usize {\n        self.lines.borrow().len()\n    }\n}\n\nfn main() {\n    let log = Log::new();\n    log.write(\"a\");\n    println!(\"{}\", log.count());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let l = Log::new(); assert_eq!(l.count(), 0); l.write(\"a\"); l.write(\"b\"); assert_eq!(l.count(), 2);",
+          "label": {
+            "tr": "iki satır",
+            "en": "two lines"
+          }
+        }
+      ]
+    }
+  ]
+}

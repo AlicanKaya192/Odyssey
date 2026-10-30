@@ -1,0 +1,52 @@
+{
+  "id": "channel-lengths",
+  "title": {
+    "tr": "Kanalda Uzunluklar",
+    "en": "Lengths on a Channel"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`rx.iter().collect()` `tx` kapanınca biter.",
+      "en": "`rx.iter().collect()` ends when `tx` closes."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::mpsc;\nuse std::thread;\n\nfn lengths(words: Vec<String>) -> Vec<usize> {\n    let (tx, rx) = mpsc::channel();\n    thread::spawn(move || {\n        for w in words {\n            tx.send(w.len()).unwrap();\n        }\n    });\n    rx.iter().collect()\n}\n\nfn main() {\n    println!(\"{:?}\", lengths(vec![String::from(\"go\"), String::from(\"rust\")]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::mpsc;\nuse std::thread;\n\nfn lengths(words: Vec<String>) -> Vec<usize> {\n    let (tx, rx) = mpsc::channel();\n    thread::spawn(move || {\n        for w in words {\n            tx.send(w.len()).unwrap();\n        }\n    });\n    rx.iter().collect()\n}\n\nfn main() {\n    println!(\"{:?}\", lengths(vec![String::from(\"go\"), String::from(\"rust\")]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(lengths(vec![String::from(\"go\"), String::from(\"rust\")]), vec![2, 4]);",
+          "label": {
+            "tr": "iki",
+            "en": "two"
+          }
+        },
+        {
+          "code": "assert_eq!(lengths(vec![]), Vec::<usize>::new());",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "mpsc::channel",
+      "show": "mpsc::channel"
+    }
+  ]
+}

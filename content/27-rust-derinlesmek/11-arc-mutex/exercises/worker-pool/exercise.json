@@ -1,0 +1,54 @@
+{
+  "id": "worker-pool",
+  "title": {
+    "tr": "Çalışan Havuzu",
+    "en": "A Worker Pool"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 15,
+  "hints": [
+    {
+      "tr": "Çalışan: `let job = job_rx.lock().unwrap().recv();` sonra `match`. İki `tx`'i de `drop` et.",
+      "en": "A worker: `let job = job_rx.lock().unwrap().recv();` then `match`. `drop` both `tx`s."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::{mpsc, Arc, Mutex};\nuse std::thread;\n\nfn pool(jobs: Vec<i32>, workers: usize) -> Vec<i32> {\n    let (job_tx, job_rx) = mpsc::channel::<i32>();\n    let (out_tx, out_rx) = mpsc::channel();\n    let job_rx = Arc::new(Mutex::new(job_rx));\n    for _ in 0..workers {\n        let job_rx = Arc::clone(&job_rx);\n        let out_tx = out_tx.clone();\n        thread::spawn(move || loop {\n            let job = job_rx.lock().unwrap().recv();\n            match job {\n                Ok(n) => out_tx.send(n + 1).unwrap(),\n                Err(_) => break,\n            }\n        });\n    }\n    drop(out_tx);\n    for j in jobs {\n        job_tx.send(j).unwrap();\n    }\n    drop(job_tx);\n    let mut got: Vec<i32> = out_rx.iter().collect();\n    got.sort();\n    got\n}\n\nfn main() {\n    println!(\"{:?}\", pool(vec![1, 2, 3], 2));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::{mpsc, Arc, Mutex};\nuse std::thread;\n\nfn pool(jobs: Vec<i32>, workers: usize) -> Vec<i32> {\n    let (job_tx, job_rx) = mpsc::channel::<i32>();\n    let (out_tx, out_rx) = mpsc::channel();\n    let job_rx = Arc::new(Mutex::new(job_rx));\n    for _ in 0..workers {\n        let job_rx = Arc::clone(&job_rx);\n        let out_tx = out_tx.clone();\n        thread::spawn(move || loop {\n            let job = job_rx.lock().unwrap().recv();\n            match job {\n                Ok(n) => out_tx.send(n + 1).unwrap(),\n                Err(_) => break,\n            }\n        });\n    }\n    drop(out_tx);\n    for j in jobs {\n        job_tx.send(j).unwrap();\n    }\n    drop(job_tx);\n    let mut got: Vec<i32> = out_rx.iter().collect();\n    got.sort();\n    got\n}\n\nfn main() {\n    println!(\"{:?}\", pool(vec![1, 2, 3], 2));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(pool(vec![1, 2, 3], 2), vec![2, 3, 4]);",
+          "label": {
+            "tr": "üç iş",
+            "en": "three jobs"
+          }
+        },
+        {
+          "code": "assert!(pool(vec![], 2).is_empty());",
+          "label": {
+            "tr": "iş yok",
+            "en": "no jobs"
+          }
+        },
+        {
+          "code": "assert_eq!(pool(vec![5], 1), vec![6]);",
+          "label": {
+            "tr": "tek",
+            "en": "one"
+          }
+        }
+      ]
+    }
+  ]
+}
