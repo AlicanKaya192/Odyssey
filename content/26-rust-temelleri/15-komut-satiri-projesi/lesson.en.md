@@ -173,7 +173,27 @@ Results go to stdout and errors to stderr. So when `search rust notes.txt > out.
 
 Let us try it:
 
-{{F_session}}
+```text
+$ search Rust notes.txt
+1: Rust is fast
+(exit code 0)
+
+$ search rust notes.txt --ignore-case
+1: Rust is fast
+3: rust has no garbage collector
+(exit code 0)
+
+$ search java notes.txt
+(exit code 1)
+
+$ search Rust
+usage: search <pattern> <file> [--ignore-case]
+(exit code 2)
+
+$ search Rust missing.txt
+error: cannot read missing.txt
+(exit code 2)
+```
 
 ## About the layout
 
@@ -209,7 +229,14 @@ mod tests {
 
 `cargo test` runs the tests (here we show only the test part):
 
-{{F_tests}}
+```text
+running 2 tests
+test tests::finds_the_line ... ok
+test tests::ignores_case_when_asked ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in
+0.00s
+```
 
 | Part | Meaning |
 |---|---|
@@ -220,7 +247,27 @@ mod tests {
 
 What happens when a test fails? Let us break one on purpose:
 
-{{F_testfail}}
+```text
+running 1 test
+test tests::doubles ... FAILED
+
+failures:
+
+---- tests::doubles stdout ----
+
+thread 'tests::doubles' panicked at main.rs:11:9:
+assertion `left == right` failed
+  left: 5
+ right: 4
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::doubles
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished
+in 0.00s
+```
 
 `left` and `right` show the real values of the two sides.
 
