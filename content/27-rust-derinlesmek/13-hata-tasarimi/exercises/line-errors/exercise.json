@@ -1,0 +1,76 @@
+{
+  "id": "line-errors",
+  "title": {
+    "tr": "Hangi Satır?",
+    "en": "Which Line?"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`.map(|(i, s)| s.parse::<i32>().map_err(|_| LineError { line: i + 1, text: s.to_string() }))`",
+      "en": "`.map(|(i, s)| s.parse::<i32>().map_err(|_| LineError { line: i + 1, text: s.to_string() }))`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::fmt;\n\n#[derive(Debug, PartialEq)]\nstruct LineError {\n    line: usize,\n    text: String,\n}\n\nimpl fmt::Display for LineError {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        write!(f, \"line {}: bad number {}\", self.line, self.text)\n    }\n}\n\nfn parse_all(lines: &[&str]) -> Result<Vec<i32>, LineError> {\n    lines\n        .iter()\n        .enumerate()\n        .map(|(i, s)| {\n            s.parse::<i32>().map_err(|_| LineError {\n                line: i + 1,\n                text: s.to_string(),\n            })\n        })\n        .collect()\n}\n\nfn main() {\n    println!(\"{:?}\", parse_all(&[\"1\", \"2\"]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::fmt;\n\n#[derive(Debug, PartialEq)]\nstruct LineError {\n    line: usize,\n    text: String,\n}\n\nimpl fmt::Display for LineError {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        write!(f, \"line {}: bad number {}\", self.line, self.text)\n    }\n}\n\nfn parse_all(lines: &[&str]) -> Result<Vec<i32>, LineError> {\n    lines\n        .iter()\n        .enumerate()\n        .map(|(i, s)| {\n            s.parse::<i32>().map_err(|_| LineError {\n                line: i + 1,\n                text: s.to_string(),\n            })\n        })\n        .collect()\n}\n\nfn main() {\n    println!(\"{:?}\", parse_all(&[\"1\", \"2\"]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(parse_all(&[\"1\", \"2\"]), Ok(vec![1, 2]));",
+          "label": {
+            "tr": "hepsi iyi",
+            "en": "all good"
+          }
+        },
+        {
+          "code": "assert_eq!(parse_all(&[\"1\", \"x\", \"y\"]), Err(LineError { line: 2, text: String::from(\"x\") }));",
+          "label": {
+            "tr": "ilk bozuk",
+            "en": "first bad"
+          }
+        },
+        {
+          "code": "assert_eq!(parse_all(&[]), Ok(vec![]));",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert_eq!(parse_all(&[\"z\"]).unwrap_err().to_string(), \"line 1: bad number z\");",
+          "label": {
+            "tr": "metin",
+            "en": "text"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bfor\\b[^{]*\\bin\\b",
+      "show": "for"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bwhile\\b",
+      "show": "while"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.collect\\(",
+      "show": "collect"
+    }
+  ]
+}

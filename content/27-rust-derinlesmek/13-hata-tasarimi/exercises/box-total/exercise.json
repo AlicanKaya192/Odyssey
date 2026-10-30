@@ -1,0 +1,54 @@
+{
+  "id": "box-total",
+  "title": {
+    "tr": "Kutulu Hata",
+    "en": "A Boxed Error"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`return Err(\"nothing to add\".into());`",
+      "en": "`return Err(\"nothing to add\".into());`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::error::Error;\n\nfn total_of(text: &str) -> Result<i32, Box<dyn Error>> {\n    if text.trim().is_empty() {\n        return Err(\"nothing to add\".into());\n    }\n    let mut total = 0;\n    for part in text.split_whitespace() {\n        total += part.parse::<i32>()?;\n    }\n    Ok(total)\n}\n\nfn main() {\n    println!(\"{:?}\", total_of(\"1 2 3\").unwrap());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::error::Error;\n\nfn total_of(text: &str) -> Result<i32, Box<dyn Error>> {\n    if text.trim().is_empty() {\n        return Err(\"nothing to add\".into());\n    }\n    let mut total = 0;\n    for part in text.split_whitespace() {\n        total += part.parse::<i32>()?;\n    }\n    Ok(total)\n}\n\nfn main() {\n    println!(\"{:?}\", total_of(\"1 2 3\").unwrap());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(total_of(\"1 2 3\").unwrap(), 6);",
+          "label": {
+            "tr": "toplam",
+            "en": "total"
+          }
+        },
+        {
+          "code": "assert_eq!(total_of(\"  \").unwrap_err().to_string(), \"nothing to add\");",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert_eq!(total_of(\"1 x\").unwrap_err().to_string(), \"invalid digit found in string\");",
+          "label": {
+            "tr": "sayı değil",
+            "en": "not a number"
+          }
+        }
+      ]
+    }
+  ]
+}

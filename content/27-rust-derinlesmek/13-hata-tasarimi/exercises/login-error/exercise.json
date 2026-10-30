@@ -1,0 +1,54 @@
+{
+  "id": "login-error",
+  "title": {
+    "tr": "Okunur Hata",
+    "en": "A Readable Error"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`write!(f, \"password has only {n} letters\")`",
+      "en": "`write!(f, \"password has only {n} letters\")`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::fmt;\n\n#[derive(Debug, PartialEq)]\nenum LoginError {\n    Empty,\n    TooShort(usize),\n}\n\nimpl fmt::Display for LoginError {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        match self {\n            LoginError::Empty => write!(f, \"password is empty\"),\n            LoginError::TooShort(n) => write!(f, \"password has only {n} letters\"),\n        }\n    }\n}\n\nimpl std::error::Error for LoginError {}\n\nfn check_password(text: &str) -> Result<(), LoginError> {\n    if text.is_empty() {\n        return Err(LoginError::Empty);\n    }\n    if text.len() < 8 {\n        return Err(LoginError::TooShort(text.len()));\n    }\n    Ok(())\n}\n\nfn main() {\n    if let Err(e) = check_password(\"abc\") {\n        println!(\"{e}\");\n    }\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::fmt;\n\n#[derive(Debug, PartialEq)]\nenum LoginError {\n    Empty,\n    TooShort(usize),\n}\n\nimpl fmt::Display for LoginError {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        match self {\n            LoginError::Empty => write!(f, \"password is empty\"),\n            LoginError::TooShort(n) => write!(f, \"password has only {n} letters\"),\n        }\n    }\n}\n\nimpl std::error::Error for LoginError {}\n\nfn check_password(text: &str) -> Result<(), LoginError> {\n    if text.is_empty() {\n        return Err(LoginError::Empty);\n    }\n    if text.len() < 8 {\n        return Err(LoginError::TooShort(text.len()));\n    }\n    Ok(())\n}\n\nfn main() {\n    if let Err(e) = check_password(\"abc\") {\n        println!(\"{e}\");\n    }\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(LoginError::Empty.to_string(), \"password is empty\");",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert_eq!(LoginError::TooShort(3).to_string(), \"password has only 3 letters\");",
+          "label": {
+            "tr": "kısa",
+            "en": "short"
+          }
+        },
+        {
+          "code": "let e: Box<dyn std::error::Error> = Box::new(LoginError::Empty); assert!(e.source().is_none());",
+          "label": {
+            "tr": "Error trait",
+            "en": "Error trait"
+          }
+        }
+      ]
+    }
+  ]
+}

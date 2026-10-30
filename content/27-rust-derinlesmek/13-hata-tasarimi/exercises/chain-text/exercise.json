@@ -1,0 +1,59 @@
+{
+  "id": "chain-text",
+  "title": {
+    "tr": "Zinciri Yaz",
+    "en": "Write the Chain"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let mut current = err.source(); while let Some(cause) = current { ... current = cause.source(); }`",
+      "en": "`let mut current = err.source(); while let Some(cause) = current { ... current = cause.source(); }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::error::Error;\nuse std::fmt;\nuse std::num::ParseIntError;\n\n#[derive(Debug)]\nstruct FieldError {\n    field: String,\n    cause: ParseIntError,\n}\n\nimpl fmt::Display for FieldError {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        write!(f, \"bad field {}\", self.field)\n    }\n}\n\nimpl Error for FieldError {\n    fn source(&self) -> Option<&(dyn Error + 'static)> {\n        Some(&self.cause)\n    }\n}\n\nfn read_field(name: &str, text: &str) -> Result<i32, FieldError> {\n    text.parse().map_err(|e| FieldError {\n        field: name.to_string(),\n        cause: e,\n    })\n}\n\nfn chain_text(err: &dyn Error) -> String {\n    let mut text = err.to_string();\n    let mut current = err.source();\n    while let Some(cause) = current {\n        text.push_str(\" -> \");\n        text.push_str(&cause.to_string());\n        current = cause.source();\n    }\n    text\n}\n\nfn main() {\n    let e = read_field(\"age\", \"x\").unwrap_err();\n    println!(\"{}\", chain_text(&e));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::error::Error;\nuse std::fmt;\nuse std::num::ParseIntError;\n\n#[derive(Debug)]\nstruct FieldError {\n    field: String,\n    cause: ParseIntError,\n}\n\nimpl fmt::Display for FieldError {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        write!(f, \"bad field {}\", self.field)\n    }\n}\n\nimpl Error for FieldError {\n    fn source(&self) -> Option<&(dyn Error + 'static)> {\n        Some(&self.cause)\n    }\n}\n\nfn read_field(name: &str, text: &str) -> Result<i32, FieldError> {\n    text.parse().map_err(|e| FieldError {\n        field: name.to_string(),\n        cause: e,\n    })\n}\n\nfn chain_text(err: &dyn Error) -> String {\n    let mut text = err.to_string();\n    let mut current = err.source();\n    while let Some(cause) = current {\n        text.push_str(\" -> \");\n        text.push_str(&cause.to_string());\n        current = cause.source();\n    }\n    text\n}\n\nfn main() {\n    let e = read_field(\"age\", \"x\").unwrap_err();\n    println!(\"{}\", chain_text(&e));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let e = read_field(\"age\", \"x\").unwrap_err(); assert_eq!(chain_text(&e), \"bad field age -> invalid digit found in string\");",
+          "label": {
+            "tr": "iki halka",
+            "en": "two links"
+          }
+        },
+        {
+          "code": "let e = read_field(\"age\", \"x\").unwrap_err(); assert!(e.source().is_some());",
+          "label": {
+            "tr": "source",
+            "en": "source"
+          }
+        },
+        {
+          "code": "let inner = \"x\".parse::<i32>().unwrap_err(); assert_eq!(chain_text(&inner), \"invalid digit found in string\");",
+          "label": {
+            "tr": "tek halka",
+            "en": "one link"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "while\\s+let|loop",
+      "show": "while let"
+    }
+  ]
+}
