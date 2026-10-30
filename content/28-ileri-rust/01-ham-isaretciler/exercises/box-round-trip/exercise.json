@@ -1,0 +1,57 @@
+{
+  "id": "box-round-trip",
+  "title": {
+    "tr": "Box'tan Çıkıp Dönmek",
+    "en": "Out of a Box and Back"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`*Box::from_raw(p)` kutunun içini verir.",
+      "en": "`*Box::from_raw(p)` gives the box's contents."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn append_through_raw(text: String, tail: &str) -> String {\n    let p = Box::into_raw(Box::new(text));\n    // SAFETY: p came from Box::into_raw and is taken back exactly once.\n    unsafe {\n        (*p).push_str(tail);\n        *Box::from_raw(p)\n    }\n}\n\nfn main() {\n    println!(\"{}\", append_through_raw(String::from(\"a\"), \"b\"));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn append_through_raw(text: String, tail: &str) -> String {\n    let p = Box::into_raw(Box::new(text));\n    // SAFETY: p came from Box::into_raw and is taken back exactly once.\n    unsafe {\n        (*p).push_str(tail);\n        *Box::from_raw(p)\n    }\n}\n\nfn main() {\n    println!(\"{}\", append_through_raw(String::from(\"a\"), \"b\"));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(append_through_raw(String::from(\"a\"), \"b\"), \"ab\");",
+          "label": {
+            "tr": "ekleme",
+            "en": "appending"
+          }
+        },
+        {
+          "code": "assert_eq!(append_through_raw(String::new(), \"\"), \"\");",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "into_raw",
+      "show": "into_raw"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "from_raw",
+      "show": "from_raw"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "swap-raw",
+  "title": {
+    "tr": "Ham İşaretçiyle Değiştir",
+    "en": "Swap with Raw Pointers"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let saved = *pa; *pa = *pb; *pb = saved;`",
+      "en": "`let saved = *pa; *pa = *pb; *pb = saved;`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn swap_values(a: &mut i32, b: &mut i32) {\n    let pa = a as *mut i32;\n    let pb = b as *mut i32;\n    // SAFETY: two &mut are never the same place, and both are alive.\n    unsafe {\n        let saved = *pa;\n        *pa = *pb;\n        *pb = saved;\n    }\n}\n\nfn main() {\n    let (mut x, mut y) = (1, 2);\n    swap_values(&mut x, &mut y);\n    println!(\"{x} {y}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn swap_values(a: &mut i32, b: &mut i32) {\n    let pa = a as *mut i32;\n    let pb = b as *mut i32;\n    // SAFETY: two &mut are never the same place, and both are alive.\n    unsafe {\n        let saved = *pa;\n        *pa = *pb;\n        *pb = saved;\n    }\n}\n\nfn main() {\n    let (mut x, mut y) = (1, 2);\n    swap_values(&mut x, &mut y);\n    println!(\"{x} {y}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let (mut x, mut y) = (1, 2); swap_values(&mut x, &mut y); assert_eq!((x, y), (2, 1));",
+          "label": {
+            "tr": "değişti",
+            "en": "swapped"
+          }
+        },
+        {
+          "code": "let (mut x, mut y) = (5, 5); swap_values(&mut x, &mut y); assert_eq!((x, y), (5, 5));",
+          "label": {
+            "tr": "eşit",
+            "en": "equal"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "swap\\(",
+      "show": "swap("
+    },
+    {
+      "type": "rust_require",
+      "pattern": "unsafe",
+      "show": "unsafe"
+    }
+  ]
+}

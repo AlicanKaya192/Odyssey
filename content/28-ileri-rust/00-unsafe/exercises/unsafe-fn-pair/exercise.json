@@ -1,0 +1,69 @@
+{
+  "id": "unsafe-fn-pair",
+  "title": {
+    "tr": "unsafe fn ve Kabuğu",
+    "en": "An unsafe fn and Its Shell"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`Some(unsafe { item_unchecked(list, list.len() - 1) })`",
+      "en": "`Some(unsafe { item_unchecked(list, list.len() - 1) })`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\n/// Returns the item at `i`.\n///\n/// # Safety\n///\n/// `i` must be smaller than `list.len()`.\nunsafe fn item_unchecked(list: &[i32], i: usize) -> i32 {\n    // SAFETY: the caller guarantees i is in bounds.\n    unsafe { *list.get_unchecked(i) }\n}\n\nfn last_item(list: &[i32]) -> Option<i32> {\n    if list.is_empty() {\n        return None;\n    }\n    // SAFETY: len - 1 is in bounds because the list is not empty.\n    Some(unsafe { item_unchecked(list, list.len() - 1) })\n}\n\nfn main() {\n    println!(\"{:?}\", last_item(&[1, 2]));\n}\n```",
+      "en": "The full solution:\n\n```rust\n/// Returns the item at `i`.\n///\n/// # Safety\n///\n/// `i` must be smaller than `list.len()`.\nunsafe fn item_unchecked(list: &[i32], i: usize) -> i32 {\n    // SAFETY: the caller guarantees i is in bounds.\n    unsafe { *list.get_unchecked(i) }\n}\n\nfn last_item(list: &[i32]) -> Option<i32> {\n    if list.is_empty() {\n        return None;\n    }\n    // SAFETY: len - 1 is in bounds because the list is not empty.\n    Some(unsafe { item_unchecked(list, list.len() - 1) })\n}\n\nfn main() {\n    println!(\"{:?}\", last_item(&[1, 2]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(last_item(&[1, 2]), Some(2));",
+          "label": {
+            "tr": "son",
+            "en": "last"
+          }
+        },
+        {
+          "code": "assert_eq!(last_item(&[]), None);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert_eq!(unsafe { item_unchecked(&[7, 8], 0) }, 7);",
+          "label": {
+            "tr": "unsafe fn",
+            "en": "unsafe fn"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "unsafe\\s+fn\\s+item_unchecked",
+      "show": "unsafe fn item_unchecked"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.last\\(",
+      "show": ".last("
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "list\\[",
+      "show": "list["
+    }
+  ]
+}

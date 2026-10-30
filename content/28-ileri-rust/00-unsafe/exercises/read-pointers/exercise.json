@@ -1,0 +1,52 @@
+{
+  "id": "read-pointers",
+  "title": {
+    "tr": "İşaretçiden Oku",
+    "en": "Read Through Pointers"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`unsafe { *pa + *pb }`",
+      "en": "`unsafe { *pa + *pb }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn add_through(a: &i32, b: &i32) -> i32 {\n    let pa = a as *const i32;\n    let pb = b as *const i32;\n    // SAFETY: both pointers come from live references.\n    unsafe { *pa + *pb }\n}\n\nfn main() {\n    println!(\"{}\", add_through(&2, &3));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn add_through(a: &i32, b: &i32) -> i32 {\n    let pa = a as *const i32;\n    let pb = b as *const i32;\n    // SAFETY: both pointers come from live references.\n    unsafe { *pa + *pb }\n}\n\nfn main() {\n    println!(\"{}\", add_through(&2, &3));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(add_through(&2, &3), 5);",
+          "label": {
+            "tr": "toplam",
+            "en": "sum"
+          }
+        },
+        {
+          "code": "assert_eq!(add_through(&-1, &1), 0);",
+          "label": {
+            "tr": "eksi",
+            "en": "negative"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "unsafe",
+      "show": "unsafe"
+    }
+  ]
+}

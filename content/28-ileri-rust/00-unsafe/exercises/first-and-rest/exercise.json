@@ -1,0 +1,64 @@
+{
+  "id": "first-and-rest",
+  "title": {
+    "tr": "İlk ve Kalan",
+    "en": "The First and the Rest"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`&mut *p` ilk öğe, `slice::from_raw_parts_mut(p.add(1), len - 1)` kalan.",
+      "en": "`&mut *p` is the first item, `slice::from_raw_parts_mut(p.add(1), len - 1)` the rest."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::slice;\n\nfn first_and_rest(list: &mut [i32]) -> Option<(&mut i32, &mut [i32])> {\n    if list.is_empty() {\n        return None;\n    }\n    let len = list.len();\n    let p = list.as_mut_ptr();\n    // SAFETY: the list has at least one item, and the two parts do not overlap.\n    unsafe { Some((&mut *p, slice::from_raw_parts_mut(p.add(1), len - 1))) }\n}\n\nfn main() {\n    let mut list = [1, 2, 3];\n    if let Some((first, rest)) = first_and_rest(&mut list) {\n        *first = 10;\n        rest[0] = 20;\n    }\n    println!(\"{list:?}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::slice;\n\nfn first_and_rest(list: &mut [i32]) -> Option<(&mut i32, &mut [i32])> {\n    if list.is_empty() {\n        return None;\n    }\n    let len = list.len();\n    let p = list.as_mut_ptr();\n    // SAFETY: the list has at least one item, and the two parts do not overlap.\n    unsafe { Some((&mut *p, slice::from_raw_parts_mut(p.add(1), len - 1))) }\n}\n\nfn main() {\n    let mut list = [1, 2, 3];\n    if let Some((first, rest)) = first_and_rest(&mut list) {\n        *first = 10;\n        rest[0] = 20;\n    }\n    println!(\"{list:?}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut l = [1, 2, 3]; let (a, b) = first_and_rest(&mut l).unwrap(); *a = 9; b[1] = 8; assert_eq!(l, [9, 2, 8]);",
+          "label": {
+            "tr": "yazma",
+            "en": "writing"
+          }
+        },
+        {
+          "code": "let mut l: [i32; 0] = []; assert!(first_and_rest(&mut l).is_none());",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "let mut l = [4]; let (a, b) = first_and_rest(&mut l).unwrap(); assert_eq!(*a, 4); assert!(b.is_empty());",
+          "label": {
+            "tr": "tek öğe",
+            "en": "one item"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "split_first_mut|split_at_mut",
+      "show": "split_first_mut"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "from_raw_parts_mut",
+      "show": "from_raw_parts_mut"
+    }
+  ]
+}

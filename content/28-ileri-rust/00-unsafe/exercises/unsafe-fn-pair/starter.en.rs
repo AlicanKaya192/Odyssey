@@ -1,0 +1,6 @@
+// unsafe fn item_unchecked(list: &[i32], i: usize) -> i32 ...
+// fn last_item(list: &[i32]) -> Option<i32> ...
+
+fn main() {
+    println!("{:?}", last_item(&[1, 2]));
+}

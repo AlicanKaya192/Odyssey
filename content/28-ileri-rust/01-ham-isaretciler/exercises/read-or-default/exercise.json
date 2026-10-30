@@ -1,0 +1,57 @@
+{
+  "id": "read-or-default",
+  "title": {
+    "tr": "Boşsa Varsayılan",
+    "en": "A Default If Null"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`match unsafe { p.as_ref() } { Some(value) => *value, None => default }`",
+      "en": "`match unsafe { p.as_ref() } { Some(value) => *value, None => default }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::ptr;\n\n/// Reads `p`, or returns `default` if it is null.\n///\n/// # Safety\n///\n/// If `p` is not null, it must point to a live `i32`.\nunsafe fn read_or(p: *const i32, default: i32) -> i32 {\n    // SAFETY: the caller guarantees a non-null p is valid.\n    match unsafe { p.as_ref() } {\n        Some(value) => *value,\n        None => default,\n    }\n}\n\nfn main() {\n    let value = 3;\n    // SAFETY: both pointers are valid or null.\n    unsafe {\n        println!(\"{}\", read_or(&value, 0));\n        println!(\"{}\", read_or(ptr::null(), 9));\n    }\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::ptr;\n\n/// Reads `p`, or returns `default` if it is null.\n///\n/// # Safety\n///\n/// If `p` is not null, it must point to a live `i32`.\nunsafe fn read_or(p: *const i32, default: i32) -> i32 {\n    // SAFETY: the caller guarantees a non-null p is valid.\n    match unsafe { p.as_ref() } {\n        Some(value) => *value,\n        None => default,\n    }\n}\n\nfn main() {\n    let value = 3;\n    // SAFETY: both pointers are valid or null.\n    unsafe {\n        println!(\"{}\", read_or(&value, 0));\n        println!(\"{}\", read_or(ptr::null(), 9));\n    }\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let v = 4; assert_eq!(unsafe { read_or(&v, 0) }, 4);",
+          "label": {
+            "tr": "dolu",
+            "en": "non-null"
+          }
+        },
+        {
+          "code": "assert_eq!(unsafe { read_or(std::ptr::null(), 9) }, 9);",
+          "label": {
+            "tr": "boş",
+            "en": "null"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "unsafe\\s+fn\\s+read_or",
+      "show": "unsafe fn read_or"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.as_ref\\(",
+      "show": ".as_ref("
+    }
+  ]
+}

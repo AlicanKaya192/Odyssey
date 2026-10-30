@@ -1,0 +1,60 @@
+{
+  "id": "replace-quietly",
+  "title": {
+    "tr": "Sessizce Değiştir",
+    "en": "Replace Quietly"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Önce `let old = ptr::read(slot);`, hemen sonra `ptr::write(slot, new);`.",
+      "en": "First `let old = ptr::read(slot);`, right after `ptr::write(slot, new);`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::ptr;\n\nfn replace_quietly(slot: &mut String, new: String) -> String {\n    // SAFETY: the old value is returned and the slot is overwritten at once.\n    unsafe {\n        let old = ptr::read(slot);\n        ptr::write(slot, new);\n        old\n    }\n}\n\nfn main() {\n    let mut name = String::from(\"old\");\n    let previous = replace_quietly(&mut name, String::from(\"new\"));\n    println!(\"{previous} {name}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::ptr;\n\nfn replace_quietly(slot: &mut String, new: String) -> String {\n    // SAFETY: the old value is returned and the slot is overwritten at once.\n    unsafe {\n        let old = ptr::read(slot);\n        ptr::write(slot, new);\n        old\n    }\n}\n\nfn main() {\n    let mut name = String::from(\"old\");\n    let previous = replace_quietly(&mut name, String::from(\"new\"));\n    println!(\"{previous} {name}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut s = String::from(\"a\"); assert_eq!(replace_quietly(&mut s, String::from(\"b\")), \"a\"); assert_eq!(s, \"b\");",
+          "label": {
+            "tr": "değişti",
+            "en": "replaced"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "ptr::read",
+      "show": "ptr::read"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "ptr::write",
+      "show": "ptr::write"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "mem::",
+      "show": "mem::"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "clone",
+      "show": "clone"
+    }
+  ]
+}

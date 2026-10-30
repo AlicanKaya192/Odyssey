@@ -1,0 +1,62 @@
+{
+  "id": "sum-raw",
+  "title": {
+    "tr": "İşaretçiyle Topla",
+    "en": "Sum with a Pointer"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`*p.add(i)`",
+      "en": "`*p.add(i)`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn sum_raw(list: &[i32]) -> i32 {\n    let p = list.as_ptr();\n    let mut total = 0;\n    for i in 0..list.len() {\n        // SAFETY: i < len, so p.add(i) is inside the slice.\n        total += unsafe { *p.add(i) };\n    }\n    total\n}\n\nfn main() {\n    println!(\"{}\", sum_raw(&[1, 2, 3]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn sum_raw(list: &[i32]) -> i32 {\n    let p = list.as_ptr();\n    let mut total = 0;\n    for i in 0..list.len() {\n        // SAFETY: i < len, so p.add(i) is inside the slice.\n        total += unsafe { *p.add(i) };\n    }\n    total\n}\n\nfn main() {\n    println!(\"{}\", sum_raw(&[1, 2, 3]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(sum_raw(&[1, 2, 3]), 6);",
+          "label": {
+            "tr": "toplam",
+            "en": "sum"
+          }
+        },
+        {
+          "code": "assert_eq!(sum_raw(&[]), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.add\\(",
+      "show": ".add("
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.iter\\(",
+      "show": ".iter("
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "list\\[",
+      "show": "list["
+    }
+  ]
+}

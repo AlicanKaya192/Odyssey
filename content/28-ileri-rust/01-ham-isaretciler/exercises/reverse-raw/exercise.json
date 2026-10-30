@@ -1,0 +1,74 @@
+{
+  "id": "reverse-raw",
+  "title": {
+    "tr": "İki Uçtan Çevir",
+    "en": "Reverse from Both Ends"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`for i in 0..len / 2`; öbür uç `p.add(len - 1 - i)`.",
+      "en": "`for i in 0..len / 2`; the other end is `p.add(len - 1 - i)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn reverse_raw(list: &mut [i32]) {\n    let len = list.len();\n    let p = list.as_mut_ptr();\n    for i in 0..len / 2 {\n        // SAFETY: i and len - 1 - i are in bounds and are never the same.\n        unsafe {\n            let left = p.add(i);\n            let right = p.add(len - 1 - i);\n            let saved = *left;\n            *left = *right;\n            *right = saved;\n        }\n    }\n}\n\nfn main() {\n    let mut list = [1, 2, 3];\n    reverse_raw(&mut list);\n    println!(\"{list:?}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn reverse_raw(list: &mut [i32]) {\n    let len = list.len();\n    let p = list.as_mut_ptr();\n    for i in 0..len / 2 {\n        // SAFETY: i and len - 1 - i are in bounds and are never the same.\n        unsafe {\n            let left = p.add(i);\n            let right = p.add(len - 1 - i);\n            let saved = *left;\n            *left = *right;\n            *right = saved;\n        }\n    }\n}\n\nfn main() {\n    let mut list = [1, 2, 3];\n    reverse_raw(&mut list);\n    println!(\"{list:?}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut l = [1, 2, 3]; reverse_raw(&mut l); assert_eq!(l, [3, 2, 1]);",
+          "label": {
+            "tr": "tek",
+            "en": "odd"
+          }
+        },
+        {
+          "code": "let mut l = [1, 2]; reverse_raw(&mut l); assert_eq!(l, [2, 1]);",
+          "label": {
+            "tr": "çift",
+            "en": "even"
+          }
+        },
+        {
+          "code": "let mut l: [i32; 0] = []; reverse_raw(&mut l);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "as_mut_ptr",
+      "show": "as_mut_ptr"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.reverse",
+      "show": ".reverse"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.swap\\(",
+      "show": ".swap("
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "list\\[",
+      "show": "list["
+    }
+  ]
+}

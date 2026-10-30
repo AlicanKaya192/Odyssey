@@ -1,0 +1,69 @@
+{
+  "id": "checked-unchecked",
+  "title": {
+    "tr": "Önce Denetle",
+    "en": "Check First"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`if i >= list.len() { return 0; }` önce gelir.",
+      "en": "`if i >= list.len() { return 0; }` comes first."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn get_or_zero(list: &[i32], i: usize) -> i32 {\n    if i >= list.len() {\n        return 0;\n    }\n    // SAFETY: i < len was checked just above.\n    unsafe { *list.get_unchecked(i) }\n}\n\nfn main() {\n    println!(\"{}\", get_or_zero(&[5, 6], 1));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn get_or_zero(list: &[i32], i: usize) -> i32 {\n    if i >= list.len() {\n        return 0;\n    }\n    // SAFETY: i < len was checked just above.\n    unsafe { *list.get_unchecked(i) }\n}\n\nfn main() {\n    println!(\"{}\", get_or_zero(&[5, 6], 1));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(get_or_zero(&[5, 6], 1), 6);",
+          "label": {
+            "tr": "içeride",
+            "en": "inside"
+          }
+        },
+        {
+          "code": "assert_eq!(get_or_zero(&[5, 6], 2), 0);",
+          "label": {
+            "tr": "sınırda",
+            "en": "at the boundary"
+          }
+        },
+        {
+          "code": "assert_eq!(get_or_zero(&[], 0), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "get_unchecked",
+      "show": "get_unchecked"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "list\\[",
+      "show": "list["
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.get\\(",
+      "show": ".get("
+    }
+  ]
+}
