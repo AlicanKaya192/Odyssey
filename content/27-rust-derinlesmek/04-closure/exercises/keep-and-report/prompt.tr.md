@@ -1,0 +1,1 @@
+İki fonksiyon yaz. `keep<F: Fn(i32) -> bool>(values: &[i32], test: F) -> Vec<i32>` koşula uyanları döndürsün. `each_total(values: &[i32], report: impl FnMut(i32))` her adımda o ana kadarki toplamı `report`'a versin.

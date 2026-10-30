@@ -1,0 +1,47 @@
+{
+  "id": "stateful-counter",
+  "title": {
+    "tr": "Durumlu Sayaç",
+    "en": "A Stateful Counter"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let mut total = 0;` closure'dan önce, `move ||` içinde güncelle.",
+      "en": "`let mut total = 0;` before the closure, updated inside `move ||`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn counter(step: u32) -> impl FnMut() -> u32 {\n    let mut total = 0;\n    move || {\n        total += step;\n        total\n    }\n}\n\nfn main() {\n    let mut c = counter(2);\n    println!(\"{} {}\", c(), c());\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn counter(step: u32) -> impl FnMut() -> u32 {\n    let mut total = 0;\n    move || {\n        total += step;\n        total\n    }\n}\n\nfn main() {\n    let mut c = counter(2);\n    println!(\"{} {}\", c(), c());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut c = counter(2); assert_eq!(c(), 2); assert_eq!(c(), 4); assert_eq!(c(), 6);",
+          "label": {
+            "tr": "adım 2",
+            "en": "step 2"
+          }
+        },
+        {
+          "code": "let mut a = counter(1); let mut b = counter(1); a(); a(); assert_eq!(b(), 1);",
+          "label": {
+            "tr": "bağımsız",
+            "en": "independent"
+          }
+        }
+      ]
+    }
+  ]
+}

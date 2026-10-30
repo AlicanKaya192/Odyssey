@@ -1,0 +1,1 @@
+Write two functions. `keep<F: Fn(i32) -> bool>(values: &[i32], test: F) -> Vec<i32>` returns those passing. `each_total(values: &[i32], report: impl FnMut(i32))` gives the running total to `report` at each step.

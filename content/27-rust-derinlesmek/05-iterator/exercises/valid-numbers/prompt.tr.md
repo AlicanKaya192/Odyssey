@@ -1,0 +1,1 @@
+İki fonksiyon. `sum_valid(items: &[&str]) -> i32` geçerli sayıları toplasın, bozukları atlasın. `all_or_error(items: &[&str]) -> Result<Vec<i32>, ParseIntError>` biri bozuksa hata döndürsün. İkisi de tek zincir, `for` yok.

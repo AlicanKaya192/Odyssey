@@ -1,0 +1,54 @@
+{
+  "id": "keep-and-report",
+  "title": {
+    "tr": "Süz ve Bildir",
+    "en": "Filter and Report"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`report`'u `mut` almayı unutma: `mut report: impl FnMut(i32)`.",
+      "en": "Do not forget `mut`: `mut report: impl FnMut(i32)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn keep<F: Fn(i32) -> bool>(values: &[i32], test: F) -> Vec<i32> {\n    let mut out = Vec::new();\n    for v in values {\n        if test(*v) {\n            out.push(*v);\n        }\n    }\n    out\n}\n\nfn each_total(values: &[i32], mut report: impl FnMut(i32)) {\n    let mut total = 0;\n    for v in values {\n        total += v;\n        report(total);\n    }\n}\n\nfn main() {\n    let limit = 2;\n    println!(\"{:?}\", keep(&[1, 2, 3], |n| n > limit));\n    let mut seen = Vec::new();\n    each_total(&[1, 2, 3], |t| seen.push(t));\n    println!(\"{:?}\", seen);\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn keep<F: Fn(i32) -> bool>(values: &[i32], test: F) -> Vec<i32> {\n    let mut out = Vec::new();\n    for v in values {\n        if test(*v) {\n            out.push(*v);\n        }\n    }\n    out\n}\n\nfn each_total(values: &[i32], mut report: impl FnMut(i32)) {\n    let mut total = 0;\n    for v in values {\n        total += v;\n        report(total);\n    }\n}\n\nfn main() {\n    let limit = 2;\n    println!(\"{:?}\", keep(&[1, 2, 3], |n| n > limit));\n    let mut seen = Vec::new();\n    each_total(&[1, 2, 3], |t| seen.push(t));\n    println!(\"{:?}\", seen);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(keep(&[1, 2, 3], |n| n > 1), vec![2, 3]);",
+          "label": {
+            "tr": "süz",
+            "en": "filter"
+          }
+        },
+        {
+          "code": "assert_eq!(keep(&[], |_| true), Vec::<i32>::new());",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "let mut s = Vec::new(); each_total(&[2, 2], |t| s.push(t)); assert_eq!(s, vec![2, 4]);",
+          "label": {
+            "tr": "toplam",
+            "en": "totals"
+          }
+        }
+      ]
+    }
+  ]
+}

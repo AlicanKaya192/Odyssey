@@ -1,0 +1,66 @@
+{
+  "id": "valid-numbers",
+  "title": {
+    "tr": "Geçerli Sayılar",
+    "en": "Valid Numbers"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`filter_map(|s| s.parse::<i32>().ok())` ve `collect` ile `Result<Vec<_>, _>`.",
+      "en": "`filter_map(|s| s.parse::<i32>().ok())` and `collect` with `Result<Vec<_>, _>`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn sum_valid(items: &[&str]) -> i32 {\n    items.iter().filter_map(|s| s.parse::<i32>().ok()).sum()\n}\n\nfn all_or_error(items: &[&str]) -> Result<Vec<i32>, std::num::ParseIntError> {\n    items.iter().map(|s| s.parse::<i32>()).collect()\n}\n\nfn main() {\n    println!(\"{}\", sum_valid(&[\"1\", \"x\", \"3\"]));\n    println!(\"{:?}\", all_or_error(&[\"1\", \"2\"]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn sum_valid(items: &[&str]) -> i32 {\n    items.iter().filter_map(|s| s.parse::<i32>().ok()).sum()\n}\n\nfn all_or_error(items: &[&str]) -> Result<Vec<i32>, std::num::ParseIntError> {\n    items.iter().map(|s| s.parse::<i32>()).collect()\n}\n\nfn main() {\n    println!(\"{}\", sum_valid(&[\"1\", \"x\", \"3\"]));\n    println!(\"{:?}\", all_or_error(&[\"1\", \"2\"]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(sum_valid(&[\"1\", \"x\", \"3\"]), 4);",
+          "label": {
+            "tr": "atlar",
+            "en": "skips"
+          }
+        },
+        {
+          "code": "assert_eq!(sum_valid(&[]), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert_eq!(all_or_error(&[\"1\", \"2\"]), Ok(vec![1, 2]));",
+          "label": {
+            "tr": "hepsi",
+            "en": "all"
+          }
+        },
+        {
+          "code": "assert!(all_or_error(&[\"1\", \"x\"]).is_err());",
+          "label": {
+            "tr": "hata",
+            "en": "an error"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bfor\\b",
+      "show": "for"
+    }
+  ]
+}

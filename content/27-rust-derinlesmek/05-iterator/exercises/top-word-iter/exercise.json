@@ -1,0 +1,59 @@
+{
+  "id": "top-word-iter",
+  "title": {
+    "tr": "En Sık Kelime",
+    "en": "The Top Word"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Anahtar bir demet olabilir: `(*count, Reverse(*word))`.",
+      "en": "A key can be a tuple: `(*count, Reverse(*word))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::collections::HashMap;\n\nfn top_word(text: &str) -> Option<String> {\n    let mut counts: HashMap<&str, u32> = HashMap::new();\n    for word in text.split_whitespace() {\n        *counts.entry(word).or_insert(0) += 1;\n    }\n    counts\n        .into_iter()\n        .max_by_key(|(word, count)| (*count, std::cmp::Reverse(*word)))\n        .map(|(word, _)| word.to_string())\n}\n\nfn main() {\n    println!(\"{:?}\", top_word(\"a b b c\"));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::collections::HashMap;\n\nfn top_word(text: &str) -> Option<String> {\n    let mut counts: HashMap<&str, u32> = HashMap::new();\n    for word in text.split_whitespace() {\n        *counts.entry(word).or_insert(0) += 1;\n    }\n    counts\n        .into_iter()\n        .max_by_key(|(word, count)| (*count, std::cmp::Reverse(*word)))\n        .map(|(word, _)| word.to_string())\n}\n\nfn main() {\n    println!(\"{:?}\", top_word(\"a b b c\"));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(top_word(\"a b b c\"), Some(String::from(\"b\")));",
+          "label": {
+            "tr": "b",
+            "en": "b"
+          }
+        },
+        {
+          "code": "assert_eq!(top_word(\"x y\"), Some(String::from(\"x\")));",
+          "label": {
+            "tr": "eşitlik",
+            "en": "a tie"
+          }
+        },
+        {
+          "code": "assert_eq!(top_word(\"\"), None);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "max_by_key",
+      "show": "max_by_key"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+Two functions. `sum_valid(items: &[&str]) -> i32` adds valid numbers, skipping bad ones. `all_or_error(items: &[&str]) -> Result<Vec<i32>, ParseIntError>` returns an error if one is bad. Both are a single chain, no `for`.
