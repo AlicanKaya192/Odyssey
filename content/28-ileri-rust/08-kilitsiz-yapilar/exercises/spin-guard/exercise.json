@@ -1,0 +1,57 @@
+{
+  "id": "spin-guard",
+  "title": {
+    "tr": "Koruyucu",
+    "en": "The Guard"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`self.lock.locked.store(false, Ordering::Release);`",
+      "en": "`self.lock.locked.store(false, Ordering::Release);`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::cell::UnsafeCell;\nuse std::ops::{Deref, DerefMut};\nuse std::sync::atomic::{AtomicBool, Ordering};\nuse std::thread;\n\npub struct SpinLock<T> {\n    locked: AtomicBool,\n    value: UnsafeCell<T>,\n}\n\n// SAFETY: the flag gives one access at a time.\nunsafe impl<T: Send> Sync for SpinLock<T> {}\n\nimpl<T> SpinLock<T> {\n    pub fn new(value: T) -> Self {\n        SpinLock { locked: AtomicBool::new(false), value: UnsafeCell::new(value) }\n    }\n\n    pub fn lock(&self) -> Guard<'_, T> {\n        while self\n            .locked\n            .compare_exchange_weak(false, true, Ordering::Acquire, Ordering::Relaxed)\n            .is_err()\n        {\n            std::hint::spin_loop();\n        }\n        Guard { lock: self }\n    }\n}\n\npub struct Guard<'a, T> {\n    lock: &'a SpinLock<T>,\n}\n\nimpl<T> Deref for Guard<'_, T> {\n    type Target = T;\n\n    fn deref(&self) -> &T {\n        // SAFETY: the guard exists, so this branch holds the lock.\n        unsafe { &*self.lock.value.get() }\n    }\n}\n\nimpl<T> DerefMut for Guard<'_, T> {\n    fn deref_mut(&mut self) -> &mut T {\n        // SAFETY: as above, and &mut self is unique.\n        unsafe { &mut *self.lock.value.get() }\n    }\n}\n\nimpl<T> Drop for Guard<'_, T> {\n    fn drop(&mut self) {\n        self.lock.locked.store(false, Ordering::Release);\n    }\n}\n\nfn main() {\n    let lock = SpinLock::new(0);\n    thread::scope(|s| {\n        s.spawn(|| *lock.lock() += 1);\n    });\n    println!(\"{}\", *lock.lock());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::cell::UnsafeCell;\nuse std::ops::{Deref, DerefMut};\nuse std::sync::atomic::{AtomicBool, Ordering};\nuse std::thread;\n\npub struct SpinLock<T> {\n    locked: AtomicBool,\n    value: UnsafeCell<T>,\n}\n\n// SAFETY: the flag gives one access at a time.\nunsafe impl<T: Send> Sync for SpinLock<T> {}\n\nimpl<T> SpinLock<T> {\n    pub fn new(value: T) -> Self {\n        SpinLock { locked: AtomicBool::new(false), value: UnsafeCell::new(value) }\n    }\n\n    pub fn lock(&self) -> Guard<'_, T> {\n        while self\n            .locked\n            .compare_exchange_weak(false, true, Ordering::Acquire, Ordering::Relaxed)\n            .is_err()\n        {\n            std::hint::spin_loop();\n        }\n        Guard { lock: self }\n    }\n}\n\npub struct Guard<'a, T> {\n    lock: &'a SpinLock<T>,\n}\n\nimpl<T> Deref for Guard<'_, T> {\n    type Target = T;\n\n    fn deref(&self) -> &T {\n        // SAFETY: the guard exists, so this branch holds the lock.\n        unsafe { &*self.lock.value.get() }\n    }\n}\n\nimpl<T> DerefMut for Guard<'_, T> {\n    fn deref_mut(&mut self) -> &mut T {\n        // SAFETY: as above, and &mut self is unique.\n        unsafe { &mut *self.lock.value.get() }\n    }\n}\n\nimpl<T> Drop for Guard<'_, T> {\n    fn drop(&mut self) {\n        self.lock.locked.store(false, Ordering::Release);\n    }\n}\n\nfn main() {\n    let lock = SpinLock::new(0);\n    thread::scope(|s| {\n        s.spawn(|| *lock.lock() += 1);\n    });\n    println!(\"{}\", *lock.lock());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let l = SpinLock::new(1); *l.lock() += 1; assert_eq!(*l.lock(), 2);",
+          "label": {
+            "tr": "yazma",
+            "en": "writing"
+          }
+        },
+        {
+          "code": "let l = SpinLock::new(0); thread::scope(|s| { for _ in 0..4 { s.spawn(|| { for _ in 0..500 { *l.lock() += 1; } }); } }); assert_eq!(*l.lock(), 2000);",
+          "label": {
+            "tr": "kollar",
+            "en": "branches"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "impl<T>\\s+Drop\\s+for\\s+Guard",
+      "show": "impl<T> Drop for Guard"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Ordering::Release",
+      "show": "Ordering::Release"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "spin-with",
+  "title": {
+    "tr": "Kapanışlı Kilit",
+    "en": "A Lock with a Closure"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let result = work(unsafe { &mut *self.value.get() });`",
+      "en": "`let result = work(unsafe { &mut *self.value.get() });`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::cell::UnsafeCell;\nuse std::sync::atomic::{AtomicBool, Ordering};\nuse std::thread;\n\nstruct SpinLock<T> {\n    locked: AtomicBool,\n    value: UnsafeCell<T>,\n}\n\n// SAFETY: the flag gives one access at a time.\nunsafe impl<T: Send> Sync for SpinLock<T> {}\n\nimpl<T> SpinLock<T> {\n    fn new(value: T) -> Self {\n        SpinLock { locked: AtomicBool::new(false), value: UnsafeCell::new(value) }\n    }\n\n    fn with<R>(&self, work: impl FnOnce(&mut T) -> R) -> R {\n        while self\n            .locked\n            .compare_exchange_weak(false, true, Ordering::Acquire, Ordering::Relaxed)\n            .is_err()\n        {\n            std::hint::spin_loop();\n        }\n        // SAFETY: the flag was taken, so this branch has the only access.\n        let result = work(unsafe { &mut *self.value.get() });\n        self.locked.store(false, Ordering::Release);\n        result\n    }\n}\n\nfn main() {\n    let lock = SpinLock::new(1);\n    println!(\"{}\", lock.with(|n| { *n += 1; *n }));\n    thread::scope(|s| {\n        s.spawn(|| lock.with(|n| *n += 1));\n    });\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::cell::UnsafeCell;\nuse std::sync::atomic::{AtomicBool, Ordering};\nuse std::thread;\n\nstruct SpinLock<T> {\n    locked: AtomicBool,\n    value: UnsafeCell<T>,\n}\n\n// SAFETY: the flag gives one access at a time.\nunsafe impl<T: Send> Sync for SpinLock<T> {}\n\nimpl<T> SpinLock<T> {\n    fn new(value: T) -> Self {\n        SpinLock { locked: AtomicBool::new(false), value: UnsafeCell::new(value) }\n    }\n\n    fn with<R>(&self, work: impl FnOnce(&mut T) -> R) -> R {\n        while self\n            .locked\n            .compare_exchange_weak(false, true, Ordering::Acquire, Ordering::Relaxed)\n            .is_err()\n        {\n            std::hint::spin_loop();\n        }\n        // SAFETY: the flag was taken, so this branch has the only access.\n        let result = work(unsafe { &mut *self.value.get() });\n        self.locked.store(false, Ordering::Release);\n        result\n    }\n}\n\nfn main() {\n    let lock = SpinLock::new(1);\n    println!(\"{}\", lock.with(|n| { *n += 1; *n }));\n    thread::scope(|s| {\n        s.spawn(|| lock.with(|n| *n += 1));\n    });\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let l = SpinLock::new(1); assert_eq!(l.with(|n| { *n += 1; *n }), 2);",
+          "label": {
+            "tr": "dönüş",
+            "en": "return"
+          }
+        },
+        {
+          "code": "let l = SpinLock::new(0); thread::scope(|s| { for _ in 0..4 { s.spawn(|| { for _ in 0..1000 { l.with(|n| *n += 1); } }); } }); assert_eq!(l.with(|n| *n), 4000);",
+          "label": {
+            "tr": "kollar",
+            "en": "branches"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Ordering::Acquire",
+      "show": "Ordering::Acquire"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Ordering::Release",
+      "show": "Ordering::Release"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "Mutex",
+      "show": "Mutex"
+    }
+  ]
+}

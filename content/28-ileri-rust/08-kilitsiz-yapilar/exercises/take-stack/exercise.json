@@ -1,0 +1,69 @@
+{
+  "id": "take-stack",
+  "title": {
+    "tr": "Kilitsiz Yığın",
+    "en": "A Lock-Free Stack"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`unsafe { (*node).next = head };`, sonra `compare_exchange_weak(head, node, ...)`.",
+      "en": "`unsafe { (*node).next = head };`, then `compare_exchange_weak(head, node, ...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::ptr;\nuse std::sync::atomic::{AtomicPtr, Ordering};\nuse std::thread;\n\nstruct Node<T> {\n    value: T,\n    next: *mut Node<T>,\n}\n\nstruct TakeStack<T> {\n    head: AtomicPtr<Node<T>>,\n}\n\n// SAFETY: values move between branches, and the head is atomic.\nunsafe impl<T: Send> Sync for TakeStack<T> {}\n\nimpl<T> TakeStack<T> {\n    fn new() -> Self {\n        TakeStack { head: AtomicPtr::new(ptr::null_mut()) }\n    }\n\n    fn push(&self, value: T) {\n        let node = Box::into_raw(Box::new(Node { value, next: ptr::null_mut() }));\n        let mut head = self.head.load(Ordering::Relaxed);\n        loop {\n            // SAFETY: the node is not shared yet.\n            unsafe { (*node).next = head };\n            let result = self.head.compare_exchange_weak(\n                head,\n                node,\n                Ordering::Release,\n                Ordering::Relaxed,\n            );\n            match result {\n                Ok(_) => return,\n                Err(actual) => head = actual,\n            }\n        }\n    }\n\n    fn take_all(&self) -> Vec<T> {\n        let mut current = self.head.swap(ptr::null_mut(), Ordering::Acquire);\n        let mut out = Vec::new();\n        while !current.is_null() {\n            // SAFETY: swap gave the whole chain to this branch alone.\n            let node = unsafe { Box::from_raw(current) };\n            current = node.next;\n            out.push(node.value);\n        }\n        out\n    }\n}\n\nimpl<T> Drop for TakeStack<T> {\n    fn drop(&mut self) {\n        self.take_all();\n    }\n}\n\nfn main() {\n    let stack = TakeStack::new();\n    stack.push(1);\n    stack.push(2);\n    println!(\"{:?}\", stack.take_all());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::ptr;\nuse std::sync::atomic::{AtomicPtr, Ordering};\nuse std::thread;\n\nstruct Node<T> {\n    value: T,\n    next: *mut Node<T>,\n}\n\nstruct TakeStack<T> {\n    head: AtomicPtr<Node<T>>,\n}\n\n// SAFETY: values move between branches, and the head is atomic.\nunsafe impl<T: Send> Sync for TakeStack<T> {}\n\nimpl<T> TakeStack<T> {\n    fn new() -> Self {\n        TakeStack { head: AtomicPtr::new(ptr::null_mut()) }\n    }\n\n    fn push(&self, value: T) {\n        let node = Box::into_raw(Box::new(Node { value, next: ptr::null_mut() }));\n        let mut head = self.head.load(Ordering::Relaxed);\n        loop {\n            // SAFETY: the node is not shared yet.\n            unsafe { (*node).next = head };\n            let result = self.head.compare_exchange_weak(\n                head,\n                node,\n                Ordering::Release,\n                Ordering::Relaxed,\n            );\n            match result {\n                Ok(_) => return,\n                Err(actual) => head = actual,\n            }\n        }\n    }\n\n    fn take_all(&self) -> Vec<T> {\n        let mut current = self.head.swap(ptr::null_mut(), Ordering::Acquire);\n        let mut out = Vec::new();\n        while !current.is_null() {\n            // SAFETY: swap gave the whole chain to this branch alone.\n            let node = unsafe { Box::from_raw(current) };\n            current = node.next;\n            out.push(node.value);\n        }\n        out\n    }\n}\n\nimpl<T> Drop for TakeStack<T> {\n    fn drop(&mut self) {\n        self.take_all();\n    }\n}\n\nfn main() {\n    let stack = TakeStack::new();\n    stack.push(1);\n    stack.push(2);\n    println!(\"{:?}\", stack.take_all());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let s = TakeStack::new(); s.push(1); s.push(2); assert_eq!(s.take_all(), vec![2, 1]); assert!(s.take_all().is_empty());",
+          "label": {
+            "tr": "sıra",
+            "en": "order"
+          }
+        },
+        {
+          "code": "let s = TakeStack::new(); thread::scope(|t| { for n in 0..4 { let s = &s; t.spawn(move || { for i in 0..250 { s.push(n * 1000 + i); } }); } }); let mut a = s.take_all(); a.sort(); a.dedup(); assert_eq!(a.len(), 1000);",
+          "label": {
+            "tr": "kollar",
+            "en": "branches"
+          }
+        },
+        {
+          "code": "let a = std::rc::Rc::new(()); { struct W(std::rc::Rc<()>); unsafe impl Send for W {} let s = TakeStack::new(); s.push(W(a.clone())); } assert_eq!(std::rc::Rc::strong_count(&a), 1);",
+          "label": {
+            "tr": "düşürme",
+            "en": "dropping"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "compare_exchange_weak",
+      "show": "compare_exchange_weak"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.swap\\(",
+      "show": ".swap("
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Box::from_raw",
+      "show": "Box::from_raw"
+    }
+  ]
+}

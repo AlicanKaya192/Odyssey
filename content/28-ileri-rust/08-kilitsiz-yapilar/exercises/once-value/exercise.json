@@ -1,0 +1,62 @@
+{
+  "id": "once-value",
+  "title": {
+    "tr": "Bir Kez Yazılan",
+    "en": "Written Once"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`compare_exchange(EMPTY, WRITING, ...)`, yaz, `store(READY, Ordering::Release)`.",
+      "en": "`compare_exchange(EMPTY, WRITING, ...)`, write, `store(READY, Ordering::Release)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::cell::UnsafeCell;\nuse std::sync::atomic::{AtomicU8, Ordering};\n\nconst EMPTY: u8 = 0;\nconst WRITING: u8 = 1;\nconst READY: u8 = 2;\n\nstruct OnceValue<T> {\n    state: AtomicU8,\n    value: UnsafeCell<Option<T>>,\n}\n\n// SAFETY: the state orders the single write, and readers see only &T afterwards.\nunsafe impl<T: Send + Sync> Sync for OnceValue<T> {}\n\nimpl<T> OnceValue<T> {\n    fn new() -> Self {\n        OnceValue { state: AtomicU8::new(EMPTY), value: UnsafeCell::new(None) }\n    }\n\n    fn set(&self, value: T) -> bool {\n        if self.state.compare_exchange(EMPTY, WRITING, Ordering::Acquire, Ordering::Relaxed).is_err() {\n            return false;\n        }\n        // SAFETY: only the branch moving EMPTY to WRITING reaches here.\n        unsafe { *self.value.get() = Some(value) };\n        self.state.store(READY, Ordering::Release);\n        true\n    }\n\n    fn get(&self) -> Option<&T> {\n        if self.state.load(Ordering::Acquire) != READY {\n            return None;\n        }\n        // SAFETY: READY means the write is finished and never happens again.\n        unsafe { (*self.value.get()).as_ref() }\n    }\n}\n\nfn main() {\n    let once = OnceValue::new();\n    println!(\"{} {}\", once.set(1), once.set(2));\n    println!(\"{:?}\", once.get());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::cell::UnsafeCell;\nuse std::sync::atomic::{AtomicU8, Ordering};\n\nconst EMPTY: u8 = 0;\nconst WRITING: u8 = 1;\nconst READY: u8 = 2;\n\nstruct OnceValue<T> {\n    state: AtomicU8,\n    value: UnsafeCell<Option<T>>,\n}\n\n// SAFETY: the state orders the single write, and readers see only &T afterwards.\nunsafe impl<T: Send + Sync> Sync for OnceValue<T> {}\n\nimpl<T> OnceValue<T> {\n    fn new() -> Self {\n        OnceValue { state: AtomicU8::new(EMPTY), value: UnsafeCell::new(None) }\n    }\n\n    fn set(&self, value: T) -> bool {\n        if self.state.compare_exchange(EMPTY, WRITING, Ordering::Acquire, Ordering::Relaxed).is_err() {\n            return false;\n        }\n        // SAFETY: only the branch moving EMPTY to WRITING reaches here.\n        unsafe { *self.value.get() = Some(value) };\n        self.state.store(READY, Ordering::Release);\n        true\n    }\n\n    fn get(&self) -> Option<&T> {\n        if self.state.load(Ordering::Acquire) != READY {\n            return None;\n        }\n        // SAFETY: READY means the write is finished and never happens again.\n        unsafe { (*self.value.get()).as_ref() }\n    }\n}\n\nfn main() {\n    let once = OnceValue::new();\n    println!(\"{} {}\", once.set(1), once.set(2));\n    println!(\"{:?}\", once.get());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let o = OnceValue::new(); assert_eq!(o.get(), None); assert!(o.set(1)); assert!(!o.set(2)); assert_eq!(o.get(), Some(&1));",
+          "label": {
+            "tr": "bir kez",
+            "en": "once"
+          }
+        },
+        {
+          "code": "let o = OnceValue::new(); let wins = std::sync::atomic::AtomicU8::new(0); std::thread::scope(|s| { for n in 0..8 { let (o, w) = (&o, &wins); s.spawn(move || { if o.set(n) { w.fetch_add(1, Ordering::SeqCst); } }); } }); assert_eq!(wins.load(Ordering::SeqCst), 1); assert!(o.get().is_some());",
+          "label": {
+            "tr": "kollarda tek",
+            "en": "one across branches"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "OnceLock",
+      "show": "OnceLock"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Ordering::Release",
+      "show": "Ordering::Release"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Ordering::Acquire",
+      "show": "Ordering::Acquire"
+    }
+  ]
+}
