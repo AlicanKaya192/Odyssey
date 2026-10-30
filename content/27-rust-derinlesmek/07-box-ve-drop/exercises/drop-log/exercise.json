@@ -1,0 +1,47 @@
+{
+  "id": "drop-log",
+  "title": {
+    "tr": "Çıkışta Kayıt",
+    "en": "A Log on Exit"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`fn drop(&mut self) { self.lines.push(format!(\"end {}\", self.name)); }`",
+      "en": "`fn drop(&mut self) { self.lines.push(format!(\"end {}\", self.name)); }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nstruct Log<'a> {\n    lines: &'a mut Vec<String>,\n    name: String,\n}\n\nimpl Drop for Log<'_> {\n    fn drop(&mut self) {\n        self.lines.push(format!(\"end {}\", self.name));\n    }\n}\n\nfn run(lines: &mut Vec<String>) {\n    let _log = Log { lines, name: String::from(\"run\") };\n}\n\nfn main() {\n    let mut lines = Vec::new();\n    run(&mut lines);\n    println!(\"{:?}\", lines);\n}\n```",
+      "en": "The full solution:\n\n```rust\nstruct Log<'a> {\n    lines: &'a mut Vec<String>,\n    name: String,\n}\n\nimpl Drop for Log<'_> {\n    fn drop(&mut self) {\n        self.lines.push(format!(\"end {}\", self.name));\n    }\n}\n\nfn run(lines: &mut Vec<String>) {\n    let _log = Log { lines, name: String::from(\"run\") };\n}\n\nfn main() {\n    let mut lines = Vec::new();\n    run(&mut lines);\n    println!(\"{:?}\", lines);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut l = Vec::new(); run(&mut l); assert_eq!(l, vec![String::from(\"end run\")]);",
+          "label": {
+            "tr": "tek",
+            "en": "one"
+          }
+        },
+        {
+          "code": "let mut l = Vec::new(); { let _a = Log { lines: &mut l, name: String::from(\"x\") }; } assert_eq!(l.len(), 1);",
+          "label": {
+            "tr": "blok sonu",
+            "en": "end of block"
+          }
+        }
+      ]
+    }
+  ]
+}

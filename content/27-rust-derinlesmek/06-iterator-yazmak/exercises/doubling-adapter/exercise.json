@@ -1,0 +1,59 @@
+{
+  "id": "doubling-adapter",
+  "title": {
+    "tr": "İki Katına Uyarlayıcı",
+    "en": "A Doubling Adapter"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`self.inner.next().map(|x| x * 2)`",
+      "en": "`self.inner.next().map(|x| x * 2)`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nstruct Doubled<I> {\n    inner: I,\n}\n\nimpl<I: Iterator<Item = i32>> Iterator for Doubled<I> {\n    type Item = i32;\n\n    fn next(&mut self) -> Option<i32> {\n        self.inner.next().map(|x| x * 2)\n    }\n}\n\nfn main() {\n    let d = Doubled { inner: vec![1, 2].into_iter() };\n    println!(\"{:?}\", d.collect::<Vec<i32>>());\n}\n```",
+      "en": "The full solution:\n\n```rust\nstruct Doubled<I> {\n    inner: I,\n}\n\nimpl<I: Iterator<Item = i32>> Iterator for Doubled<I> {\n    type Item = i32;\n\n    fn next(&mut self) -> Option<i32> {\n        self.inner.next().map(|x| x * 2)\n    }\n}\n\nfn main() {\n    let d = Doubled { inner: vec![1, 2].into_iter() };\n    println!(\"{:?}\", d.collect::<Vec<i32>>());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(Doubled { inner: vec![1, 2].into_iter() }.collect::<Vec<i32>>(), vec![2, 4]);",
+          "label": {
+            "tr": "liste",
+            "en": "a list"
+          }
+        },
+        {
+          "code": "assert_eq!(Doubled { inner: 1..4 }.sum::<i32>(), 12);",
+          "label": {
+            "tr": "aralık",
+            "en": "a range"
+          }
+        },
+        {
+          "code": "assert_eq!(Doubled { inner: Vec::new().into_iter() }.next(), None);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "impl\\s*<\\s*I\\s*:\\s*Iterator",
+      "show": "impl<I: Iterator<Item = i32>>"
+    }
+  ]
+}

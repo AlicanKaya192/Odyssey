@@ -1,0 +1,45 @@
+{
+  "id": "linked-queue",
+  "title": {
+    "tr": "Bağlı Yığın",
+    "en": "A Linked Stack"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let next = self.head.take();` sonra `self.head = Some(Box::new(Item { value, next }));`",
+      "en": "`let next = self.head.take();` then `self.head = Some(Box::new(Item { value, next }));`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\n#[derive(Debug)]\nstruct Queue {\n    head: Option<Box<Item>>,\n}\n\n#[derive(Debug)]\nstruct Item {\n    value: i32,\n    next: Option<Box<Item>>,\n}\n\nimpl Queue {\n    fn new() -> Queue {\n        Queue { head: None }\n    }\n\n    fn push_front(&mut self, value: i32) {\n        let next = self.head.take();\n        self.head = Some(Box::new(Item { value, next }));\n    }\n\n    fn pop_front(&mut self) -> Option<i32> {\n        let item = self.head.take()?;\n        self.head = item.next;\n        Some(item.value)\n    }\n}\n\nfn main() {\n    let mut q = Queue::new();\n    q.push_front(1);\n    q.push_front(2);\n    println!(\"{:?}\", q.pop_front());\n}\n```",
+      "en": "The full solution:\n\n```rust\n#[derive(Debug)]\nstruct Queue {\n    head: Option<Box<Item>>,\n}\n\n#[derive(Debug)]\nstruct Item {\n    value: i32,\n    next: Option<Box<Item>>,\n}\n\nimpl Queue {\n    fn new() -> Queue {\n        Queue { head: None }\n    }\n\n    fn push_front(&mut self, value: i32) {\n        let next = self.head.take();\n        self.head = Some(Box::new(Item { value, next }));\n    }\n\n    fn pop_front(&mut self) -> Option<i32> {\n        let item = self.head.take()?;\n        self.head = item.next;\n        Some(item.value)\n    }\n}\n\nfn main() {\n    let mut q = Queue::new();\n    q.push_front(1);\n    q.push_front(2);\n    println!(\"{:?}\", q.pop_front());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut q = Queue::new(); assert_eq!(q.pop_front(), None); q.push_front(1); q.push_front(2); assert_eq!(q.pop_front(), Some(2)); assert_eq!(q.pop_front(), Some(1)); assert_eq!(q.pop_front(), None);",
+          "label": {
+            "tr": "sıra",
+            "en": "order"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.take\\(\\)",
+      "show": ".take()"
+    }
+  ]
+}

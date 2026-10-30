@@ -1,0 +1,59 @@
+{
+  "id": "two-windows",
+  "title": {
+    "tr": "İkili Pencere",
+    "en": "A Window of Two"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`impl<'a, T> Iterator for Windows2<'a, T>` ve `&self.items[self.index..self.index + 2]`.",
+      "en": "`impl<'a, T> Iterator for Windows2<'a, T>` and `&self.items[self.index..self.index + 2]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nstruct Windows2<'a, T> {\n    items: &'a [T],\n    index: usize,\n}\n\nimpl<'a, T> Iterator for Windows2<'a, T> {\n    type Item = &'a [T];\n\n    fn next(&mut self) -> Option<&'a [T]> {\n        if self.index + 2 > self.items.len() {\n            return None;\n        }\n        let part = &self.items[self.index..self.index + 2];\n        self.index += 1;\n        Some(part)\n    }\n}\n\nfn main() {\n    let list = [1, 2, 3];\n    for w in (Windows2 { items: &list, index: 0 }) {\n        println!(\"{:?}\", w);\n    }\n}\n```",
+      "en": "The full solution:\n\n```rust\nstruct Windows2<'a, T> {\n    items: &'a [T],\n    index: usize,\n}\n\nimpl<'a, T> Iterator for Windows2<'a, T> {\n    type Item = &'a [T];\n\n    fn next(&mut self) -> Option<&'a [T]> {\n        if self.index + 2 > self.items.len() {\n            return None;\n        }\n        let part = &self.items[self.index..self.index + 2];\n        self.index += 1;\n        Some(part)\n    }\n}\n\nfn main() {\n    let list = [1, 2, 3];\n    for w in (Windows2 { items: &list, index: 0 }) {\n        println!(\"{:?}\", w);\n    }\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let l = [1, 2, 3]; let v: Vec<&[i32]> = Windows2 { items: &l, index: 0 }.collect(); assert_eq!(v, vec![&[1, 2][..], &[2, 3][..]]);",
+          "label": {
+            "tr": "üç",
+            "en": "three"
+          }
+        },
+        {
+          "code": "let l = [1]; assert_eq!(Windows2 { items: &l, index: 0 }.count(), 0);",
+          "label": {
+            "tr": "tek eleman",
+            "en": "a single element"
+          }
+        },
+        {
+          "code": "let l: [i32; 0] = []; assert_eq!(Windows2 { items: &l, index: 0 }.count(), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.windows\\(",
+      "show": ".windows("
+    }
+  ]
+}
