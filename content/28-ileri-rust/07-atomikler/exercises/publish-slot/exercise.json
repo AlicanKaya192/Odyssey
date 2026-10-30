@@ -1,0 +1,55 @@
+{
+  "id": "publish-slot",
+  "title": {
+    "tr": "Yayınla ve Bekle",
+    "en": "Publish and Wait"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`while !slot.ready.load(Ordering::Acquire) { std::hint::spin_loop(); }`",
+      "en": "`while !slot.ready.load(Ordering::Acquire) { std::hint::spin_loop(); }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::atomic::{AtomicBool, AtomicU32, Ordering};\nuse std::thread;\n\nstruct Slot {\n    data: AtomicU32,\n    ready: AtomicBool,\n}\n\nfn publish(slot: &Slot, value: u32) {\n    slot.data.store(value, Ordering::Relaxed);\n    slot.ready.store(true, Ordering::Release);\n}\n\nfn wait_for(slot: &Slot) -> u32 {\n    while !slot.ready.load(Ordering::Acquire) {\n        std::hint::spin_loop();\n    }\n    slot.data.load(Ordering::Relaxed)\n}\n\nfn main() {\n    let slot = Slot { data: AtomicU32::new(0), ready: AtomicBool::new(false) };\n    thread::scope(|s| {\n        s.spawn(|| publish(&slot, 9));\n        println!(\"{}\", wait_for(&slot));\n    });\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::atomic::{AtomicBool, AtomicU32, Ordering};\nuse std::thread;\n\nstruct Slot {\n    data: AtomicU32,\n    ready: AtomicBool,\n}\n\nfn publish(slot: &Slot, value: u32) {\n    slot.data.store(value, Ordering::Relaxed);\n    slot.ready.store(true, Ordering::Release);\n}\n\nfn wait_for(slot: &Slot) -> u32 {\n    while !slot.ready.load(Ordering::Acquire) {\n        std::hint::spin_loop();\n    }\n    slot.data.load(Ordering::Relaxed)\n}\n\nfn main() {\n    let slot = Slot { data: AtomicU32::new(0), ready: AtomicBool::new(false) };\n    thread::scope(|s| {\n        s.spawn(|| publish(&slot, 9));\n        println!(\"{}\", wait_for(&slot));\n    });\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let s = Slot { data: AtomicU32::new(0), ready: AtomicBool::new(false) }; thread::scope(|t| { t.spawn(|| publish(&s, 9)); assert_eq!(wait_for(&s), 9); });",
+          "label": {
+            "tr": "kollar arası",
+            "en": "across branches"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Ordering::Release",
+      "show": "Ordering::Release"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Ordering::Acquire",
+      "show": "Ordering::Acquire"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "spin_loop",
+      "show": "spin_loop"
+    }
+  ]
+}

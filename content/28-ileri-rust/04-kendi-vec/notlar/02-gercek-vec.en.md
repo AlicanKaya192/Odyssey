@@ -16,8 +16,8 @@ The real `Vec` is split into `RawVec`, managing memory, and `Vec`, managing item
 
 | Method | Copies in 1000 `push`es |
 |---|---|
-| +1 each time | About 500 000 |
-| Doubling | Fewer than 1000 |
+| +1 each time | 500 500 |
+| Doubling from 4 | 1020 |
 
 Doubling means constant work per `push` on average. The price is that half the capacity may stay empty. If you know the size up front, `with_capacity` prevents all of it.
 

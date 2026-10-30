@@ -1,0 +1,64 @@
+{
+  "id": "vec-promise",
+  "title": {
+    "tr": "Sözü Yaz",
+    "en": "Write the Promise"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`unsafe impl<T: Send> Send for MyVec<T> {}`",
+      "en": "`unsafe impl<T: Send> Send for MyVec<T> {}`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::ptr::NonNull;\nuse std::thread;\n\nstruct MyVec<T> {\n    ptr: NonNull<T>,\n    len: usize,\n}\n\nimpl<T> MyVec<T> {\n    fn from_one(value: T) -> Self {\n        let raw = Box::into_raw(Box::new(value));\n        // SAFETY: Box::into_raw never gives null.\n        MyVec { ptr: unsafe { NonNull::new_unchecked(raw) }, len: 1 }\n    }\n\n    fn first(&self) -> &T {\n        // SAFETY: ptr is valid until Drop.\n        unsafe { self.ptr.as_ref() }\n    }\n}\n\nimpl<T> Drop for MyVec<T> {\n    fn drop(&mut self) {\n        // SAFETY: ptr came from Box::into_raw and is taken back once.\n        unsafe { drop(Box::from_raw(self.ptr.as_ptr())) };\n    }\n}\n\n// SAFETY: MyVec owns its items, like Vec.\nunsafe impl<T: Send> Send for MyVec<T> {}\n// SAFETY: &MyVec gives only &T.\nunsafe impl<T: Sync> Sync for MyVec<T> {}\n\nfn main() {\n    let list = MyVec::from_one(5);\n    let handle = thread::spawn(move || println!(\"{}\", list.first()));\n    handle.join().unwrap();\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::ptr::NonNull;\nuse std::thread;\n\nstruct MyVec<T> {\n    ptr: NonNull<T>,\n    len: usize,\n}\n\nimpl<T> MyVec<T> {\n    fn from_one(value: T) -> Self {\n        let raw = Box::into_raw(Box::new(value));\n        // SAFETY: Box::into_raw never gives null.\n        MyVec { ptr: unsafe { NonNull::new_unchecked(raw) }, len: 1 }\n    }\n\n    fn first(&self) -> &T {\n        // SAFETY: ptr is valid until Drop.\n        unsafe { self.ptr.as_ref() }\n    }\n}\n\nimpl<T> Drop for MyVec<T> {\n    fn drop(&mut self) {\n        // SAFETY: ptr came from Box::into_raw and is taken back once.\n        unsafe { drop(Box::from_raw(self.ptr.as_ptr())) };\n    }\n}\n\n// SAFETY: MyVec owns its items, like Vec.\nunsafe impl<T: Send> Send for MyVec<T> {}\n// SAFETY: &MyVec gives only &T.\nunsafe impl<T: Sync> Sync for MyVec<T> {}\n\nfn main() {\n    let list = MyVec::from_one(5);\n    let handle = thread::spawn(move || println!(\"{}\", list.first()));\n    handle.join().unwrap();\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "fn s<T: Send>() {} s::<MyVec<i32>>();",
+          "label": {
+            "tr": "Send",
+            "en": "Send"
+          }
+        },
+        {
+          "code": "fn y<T: Sync>() {} y::<MyVec<i32>>();",
+          "label": {
+            "tr": "Sync",
+            "en": "Sync"
+          }
+        },
+        {
+          "code": "let l = MyVec::from_one(4); let v = std::thread::spawn(move || *l.first()).join().unwrap(); assert_eq!(v, 4);",
+          "label": {
+            "tr": "kolda",
+            "en": "in a branch"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "unsafe\\s+impl<T:\\s*Send>\\s+Send\\s+for\\s+MyVec<T>",
+      "show": "unsafe impl<T: Send> Send for MyVec<T>"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "unsafe\\s+impl<T:\\s*Sync>\\s+Sync\\s+for\\s+MyVec<T>",
+      "show": "unsafe impl<T: Sync> Sync for MyVec<T>"
+    }
+  ]
+}

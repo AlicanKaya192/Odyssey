@@ -1,0 +1,59 @@
+{
+  "id": "length-units",
+  "title": {
+    "tr": "Birimli Uzunluk",
+    "en": "A Length with Units"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`length(self.value + other.value)`",
+      "en": "`length(self.value + other.value)`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::marker::PhantomData;\nuse std::ops::Add;\n\nstruct Meters;\nstruct Feet;\n\nstruct Length<U> {\n    value: i64,\n    _unit: PhantomData<U>,\n}\n\nfn length<U>(value: i64) -> Length<U> {\n    Length { value, _unit: PhantomData }\n}\n\nimpl<U> Add for Length<U> {\n    type Output = Length<U>;\n\n    fn add(self, other: Length<U>) -> Length<U> {\n        length(self.value + other.value)\n    }\n}\n\nimpl Length<Meters> {\n    fn to_feet_rounded(&self) -> Length<Feet> {\n        length(self.value * 3)\n    }\n}\n\nfn main() {\n    let a: Length<Meters> = length(2) + length(3);\n    println!(\"{}\", a.value);\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::marker::PhantomData;\nuse std::ops::Add;\n\nstruct Meters;\nstruct Feet;\n\nstruct Length<U> {\n    value: i64,\n    _unit: PhantomData<U>,\n}\n\nfn length<U>(value: i64) -> Length<U> {\n    Length { value, _unit: PhantomData }\n}\n\nimpl<U> Add for Length<U> {\n    type Output = Length<U>;\n\n    fn add(self, other: Length<U>) -> Length<U> {\n        length(self.value + other.value)\n    }\n}\n\nimpl Length<Meters> {\n    fn to_feet_rounded(&self) -> Length<Feet> {\n        length(self.value * 3)\n    }\n}\n\nfn main() {\n    let a: Length<Meters> = length(2) + length(3);\n    println!(\"{}\", a.value);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let a: Length<Meters> = length(2) + length(3); assert_eq!(a.value, 5);",
+          "label": {
+            "tr": "toplam",
+            "en": "sum"
+          }
+        },
+        {
+          "code": "let a: Length<Meters> = length(2); assert_eq!(a.to_feet_rounded().value, 6);",
+          "label": {
+            "tr": "çeviri",
+            "en": "conversion"
+          }
+        },
+        {
+          "code": "assert_eq!(size_of::<Length<Feet>>(), 8);",
+          "label": {
+            "tr": "boyut",
+            "en": "size"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "impl<U>\\s+Add\\s+for\\s+Length<U>",
+      "show": "impl<U> Add for Length<U>"
+    }
+  ]
+}

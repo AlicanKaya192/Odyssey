@@ -1,0 +1,53 @@
+{
+  "id": "not-send",
+  "title": {
+    "tr": "Sözü Geri Al",
+    "en": "Take the Promise Back"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`_not_send: PhantomData<*const ()>` ve `Local { value, _not_send: PhantomData }`.",
+      "en": "`_not_send: PhantomData<*const ()>` and `Local { value, _not_send: PhantomData }`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::marker::PhantomData;\n\nstruct Local {\n    value: i32,\n    _not_send: PhantomData<*const ()>,\n}\n\nfn make_local(value: i32) -> Local {\n    Local { value, _not_send: PhantomData }\n}\n\nfn main() {\n    println!(\"{}\", make_local(3).value);\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::marker::PhantomData;\n\nstruct Local {\n    value: i32,\n    _not_send: PhantomData<*const ()>,\n}\n\nfn make_local(value: i32) -> Local {\n    Local { value, _not_send: PhantomData }\n}\n\nfn main() {\n    println!(\"{}\", make_local(3).value);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "<Local as AmbiguousIfSend<_>>::check(); assert_eq!(make_local(3).value, 3);",
+          "label": {
+            "tr": "Send değil",
+            "en": "not Send"
+          }
+        },
+        {
+          "code": "assert_eq!(size_of::<Local>(), 4);",
+          "label": {
+            "tr": "boyut",
+            "en": "size"
+          }
+        }
+      ],
+      "prelude": "trait AmbiguousIfSend<A> {\n        fn check() {}\n    }\n    impl<T: ?Sized> AmbiguousIfSend<()> for T {}\n    struct Invalid;\n    impl<T: ?Sized + Send> AmbiguousIfSend<Invalid> for T {}\n"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "PhantomData<\\*const \\(\\)>",
+      "show": "PhantomData<*const ()>"
+    }
+  ]
+}

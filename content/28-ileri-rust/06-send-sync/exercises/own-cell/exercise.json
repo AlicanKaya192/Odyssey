@@ -1,0 +1,57 @@
+{
+  "id": "own-cell",
+  "title": {
+    "tr": "Kendi Cell'imiz",
+    "en": "Our Own Cell"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`unsafe { *self.value.get() = value };`",
+      "en": "`unsafe { *self.value.get() = value };`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::cell::UnsafeCell;\n\nstruct MyCell<T> {\n    value: UnsafeCell<T>,\n}\n\nimpl<T: Copy> MyCell<T> {\n    fn new(value: T) -> Self {\n        MyCell { value: UnsafeCell::new(value) }\n    }\n\n    fn get(&self) -> T {\n        // SAFETY: MyCell is not Sync and gives no references.\n        unsafe { *self.value.get() }\n    }\n\n    fn set(&self, value: T) {\n        // SAFETY: as above.\n        unsafe { *self.value.get() = value };\n    }\n\n    fn update(&self, change: impl Fn(T) -> T) {\n        self.set(change(self.get()));\n    }\n}\n\nfn main() {\n    let c = MyCell::new(1);\n    c.update(|n| n + 1);\n    println!(\"{}\", c.get());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::cell::UnsafeCell;\n\nstruct MyCell<T> {\n    value: UnsafeCell<T>,\n}\n\nimpl<T: Copy> MyCell<T> {\n    fn new(value: T) -> Self {\n        MyCell { value: UnsafeCell::new(value) }\n    }\n\n    fn get(&self) -> T {\n        // SAFETY: MyCell is not Sync and gives no references.\n        unsafe { *self.value.get() }\n    }\n\n    fn set(&self, value: T) {\n        // SAFETY: as above.\n        unsafe { *self.value.get() = value };\n    }\n\n    fn update(&self, change: impl Fn(T) -> T) {\n        self.set(change(self.get()));\n    }\n}\n\nfn main() {\n    let c = MyCell::new(1);\n    c.update(|n| n + 1);\n    println!(\"{}\", c.get());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let c = MyCell::new(1); c.set(5); assert_eq!(c.get(), 5);",
+          "label": {
+            "tr": "yazma",
+            "en": "writing"
+          }
+        },
+        {
+          "code": "let c = MyCell::new(1); let r = &c; r.update(|n| n + 1); c.update(|n| n * 10); assert_eq!(c.get(), 20);",
+          "label": {
+            "tr": "ortak",
+            "en": "shared"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "UnsafeCell::new",
+      "show": "UnsafeCell::new"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bCell::new\\(",
+      "show": "Cell::new"
+    }
+  ]
+}

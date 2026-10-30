@@ -1,0 +1,57 @@
+{
+  "id": "door-state",
+  "title": {
+    "tr": "Durumlu Kapı",
+    "en": "A Door with State"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`Door { name: self.name, _state: PhantomData }`",
+      "en": "`Door { name: self.name, _state: PhantomData }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::marker::PhantomData;\n\nstruct Open;\nstruct Closed;\n\nstruct Door<State> {\n    name: String,\n    _state: PhantomData<State>,\n}\n\nfn new_door(name: &str) -> Door<Closed> {\n    Door { name: name.to_string(), _state: PhantomData }\n}\n\nimpl Door<Closed> {\n    fn open(self) -> Door<Open> {\n        Door { name: self.name, _state: PhantomData }\n    }\n}\n\nimpl Door<Open> {\n    fn close(self) -> Door<Closed> {\n        Door { name: self.name, _state: PhantomData }\n    }\n\n    fn enter(&self) -> String {\n        format!(\"through {}\", self.name)\n    }\n}\n\nfn main() {\n    let door = new_door(\"front\").open();\n    println!(\"{}\", door.enter());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::marker::PhantomData;\n\nstruct Open;\nstruct Closed;\n\nstruct Door<State> {\n    name: String,\n    _state: PhantomData<State>,\n}\n\nfn new_door(name: &str) -> Door<Closed> {\n    Door { name: name.to_string(), _state: PhantomData }\n}\n\nimpl Door<Closed> {\n    fn open(self) -> Door<Open> {\n        Door { name: self.name, _state: PhantomData }\n    }\n}\n\nimpl Door<Open> {\n    fn close(self) -> Door<Closed> {\n        Door { name: self.name, _state: PhantomData }\n    }\n\n    fn enter(&self) -> String {\n        format!(\"through {}\", self.name)\n    }\n}\n\nfn main() {\n    let door = new_door(\"front\").open();\n    println!(\"{}\", door.enter());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(new_door(\"a\").open().enter(), \"through a\");",
+          "label": {
+            "tr": "giriş",
+            "en": "entering"
+          }
+        },
+        {
+          "code": "assert_eq!(new_door(\"a\").open().close().open().enter(), \"through a\");",
+          "label": {
+            "tr": "kapa, aç",
+            "en": "close, open"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "impl\\s+Door<Closed>",
+      "show": "impl Door<Closed>"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "impl\\s+Door<Open>",
+      "show": "impl Door<Open>"
+    }
+  ]
+}

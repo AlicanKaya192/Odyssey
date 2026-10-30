@@ -1,0 +1,57 @@
+{
+  "id": "unique-ids",
+  "title": {
+    "tr": "Eşsiz Kimlik",
+    "en": "Unique Ids"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`NEXT.fetch_add(1, Ordering::Relaxed)`",
+      "en": "`NEXT.fetch_add(1, Ordering::Relaxed)`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::atomic::{AtomicU64, Ordering};\nuse std::thread;\n\nstatic NEXT: AtomicU64 = AtomicU64::new(1);\n\nfn next_id() -> u64 {\n    NEXT.fetch_add(1, Ordering::Relaxed)\n}\n\nfn main() {\n    println!(\"{} {}\", next_id() > 0, next_id() > 1);\n    let handle = thread::spawn(next_id);\n    println!(\"{}\", handle.join().unwrap() > 2);\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::atomic::{AtomicU64, Ordering};\nuse std::thread;\n\nstatic NEXT: AtomicU64 = AtomicU64::new(1);\n\nfn next_id() -> u64 {\n    NEXT.fetch_add(1, Ordering::Relaxed)\n}\n\nfn main() {\n    println!(\"{} {}\", next_id() > 0, next_id() > 1);\n    let handle = thread::spawn(next_id);\n    println!(\"{}\", handle.join().unwrap() > 2);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let a = next_id(); let b = next_id(); assert_ne!(a, b);",
+          "label": {
+            "tr": "farklı",
+            "en": "different"
+          }
+        },
+        {
+          "code": "let mut all: Vec<u64> = std::thread::scope(|s| { let hs: Vec<_> = (0..16).map(|_| s.spawn(|| { (0..100).map(|_| next_id()).collect::<Vec<u64>>() })).collect(); hs.into_iter().flat_map(|h| h.join().unwrap()).collect() }); let n = all.len(); all.sort(); all.dedup(); assert_eq!(all.len(), n);",
+          "label": {
+            "tr": "kollarda eşsiz",
+            "en": "unique across branches"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.load\\(|\\.store\\(",
+      "show": "load"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "fetch_add",
+      "show": "fetch_add"
+    }
+  ]
+}

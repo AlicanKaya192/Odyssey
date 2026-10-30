@@ -1,0 +1,54 @@
+{
+  "id": "borrowing-iter",
+  "title": {
+    "tr": "Ödünç Alan Iterator",
+    "en": "A Borrowing Iterator"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`self.ptr = unsafe { self.ptr.add(1) };`",
+      "en": "`self.ptr = unsafe { self.ptr.add(1) };`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::marker::PhantomData;\n\nstruct Iter<'a, T> {\n    ptr: *const T,\n    left: usize,\n    _borrow: PhantomData<&'a T>,\n}\n\nfn iter_of<T>(list: &[T]) -> Iter<'_, T> {\n    Iter { ptr: list.as_ptr(), left: list.len(), _borrow: PhantomData }\n}\n\nimpl<'a, T> Iterator for Iter<'a, T> {\n    type Item = &'a T;\n\n    fn next(&mut self) -> Option<&'a T> {\n        if self.left == 0 {\n            return None;\n        }\n        // SAFETY: left items remain from ptr, and the list is borrowed for 'a.\n        let item = unsafe { &*self.ptr };\n        self.ptr = unsafe { self.ptr.add(1) };\n        self.left -= 1;\n        Some(item)\n    }\n}\n\nfn main() {\n    let list = [1, 2];\n    println!(\"{}\", iter_of(&list).count());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::marker::PhantomData;\n\nstruct Iter<'a, T> {\n    ptr: *const T,\n    left: usize,\n    _borrow: PhantomData<&'a T>,\n}\n\nfn iter_of<T>(list: &[T]) -> Iter<'_, T> {\n    Iter { ptr: list.as_ptr(), left: list.len(), _borrow: PhantomData }\n}\n\nimpl<'a, T> Iterator for Iter<'a, T> {\n    type Item = &'a T;\n\n    fn next(&mut self) -> Option<&'a T> {\n        if self.left == 0 {\n            return None;\n        }\n        // SAFETY: left items remain from ptr, and the list is borrowed for 'a.\n        let item = unsafe { &*self.ptr };\n        self.ptr = unsafe { self.ptr.add(1) };\n        self.left -= 1;\n        Some(item)\n    }\n}\n\nfn main() {\n    let list = [1, 2];\n    println!(\"{}\", iter_of(&list).count());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let l = [1, 2, 3]; assert_eq!(iter_of(&l).copied().collect::<Vec<i32>>(), vec![1, 2, 3]);",
+          "label": {
+            "tr": "sıra",
+            "en": "order"
+          }
+        },
+        {
+          "code": "let l: [i32; 0] = []; assert_eq!(iter_of(&l).count(), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "let l = vec![String::from(\"a\")]; let first = iter_of(&l).next().unwrap(); assert_eq!(first, \"a\");",
+          "label": {
+            "tr": "ödünç",
+            "en": "a borrow"
+          }
+        }
+      ]
+    }
+  ]
+}

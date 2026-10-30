@@ -1,0 +1,69 @@
+{
+  "id": "parallel-even",
+  "title": {
+    "tr": "Kollarla Sayma",
+    "en": "Counting with Branches"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`thread::scope` içinde `for chunk in list.chunks(2)`.",
+      "en": "Inside `thread::scope`, `for chunk in list.chunks(2)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::atomic::{AtomicU32, Ordering};\nuse std::thread;\n\nfn count_even(list: &[u32]) -> u32 {\n    let count = AtomicU32::new(0);\n    thread::scope(|s| {\n        for chunk in list.chunks(2) {\n            let count = &count;\n            s.spawn(move || {\n                for n in chunk {\n                    if n % 2 == 0 {\n                        count.fetch_add(1, Ordering::Relaxed);\n                    }\n                }\n            });\n        }\n    });\n    count.load(Ordering::Relaxed)\n}\n\nfn main() {\n    println!(\"{}\", count_even(&[1, 2, 4]));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::atomic::{AtomicU32, Ordering};\nuse std::thread;\n\nfn count_even(list: &[u32]) -> u32 {\n    let count = AtomicU32::new(0);\n    thread::scope(|s| {\n        for chunk in list.chunks(2) {\n            let count = &count;\n            s.spawn(move || {\n                for n in chunk {\n                    if n % 2 == 0 {\n                        count.fetch_add(1, Ordering::Relaxed);\n                    }\n                }\n            });\n        }\n    });\n    count.load(Ordering::Relaxed)\n}\n\nfn main() {\n    println!(\"{}\", count_even(&[1, 2, 4]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(count_even(&[1, 2, 4]), 2);",
+          "label": {
+            "tr": "iki",
+            "en": "two"
+          }
+        },
+        {
+          "code": "assert_eq!(count_even(&[]), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert_eq!(count_even(&[2, 2, 2, 2, 2]), 5);",
+          "label": {
+            "tr": "hepsi",
+            "en": "all"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "fetch_add",
+      "show": "fetch_add"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Ordering::Relaxed",
+      "show": "Ordering::Relaxed"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "Mutex",
+      "show": "Mutex"
+    }
+  ]
+}

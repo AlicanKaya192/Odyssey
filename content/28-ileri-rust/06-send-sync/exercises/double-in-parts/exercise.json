@@ -1,0 +1,69 @@
+{
+  "id": "double-in-parts",
+  "title": {
+    "tr": "İki Kola Böl",
+    "en": "Split into Two Branches"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`left.get()` yaz, `left.0` değil: Kapanış yalnızca alanı yakalar ve `*mut i32` `Send` değildir.",
+      "en": "Write `left.get()`, not `left.0`: the closure captures only the field, and `*mut i32` is not `Send`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::thread;\n\nstruct SendPtr(*mut i32);\n\n// SAFETY: each branch writes only to its own part of the list.\nunsafe impl Send for SendPtr {}\n\nimpl SendPtr {\n    fn get(&self) -> *mut i32 {\n        self.0\n    }\n}\n\nfn double_in_parts(list: &mut [i32]) {\n    let len = list.len();\n    let mid = len / 2;\n    let left = SendPtr(list.as_mut_ptr());\n    // SAFETY: mid <= len, so the pointer stays inside the slice.\n    let right = SendPtr(unsafe { list.as_mut_ptr().add(mid) });\n    thread::scope(|s| {\n        s.spawn(move || {\n            for i in 0..mid {\n                // SAFETY: i < mid, and this part belongs only to this branch.\n                unsafe { *left.get().add(i) *= 2 };\n            }\n        });\n        s.spawn(move || {\n            for i in 0..len - mid {\n                // SAFETY: mid + i < len, and this part belongs only to this branch.\n                unsafe { *right.get().add(i) *= 2 };\n            }\n        });\n    });\n}\n\nfn main() {\n    let mut list = [1, 2, 3];\n    double_in_parts(&mut list);\n    println!(\"{list:?}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::thread;\n\nstruct SendPtr(*mut i32);\n\n// SAFETY: each branch writes only to its own part of the list.\nunsafe impl Send for SendPtr {}\n\nimpl SendPtr {\n    fn get(&self) -> *mut i32 {\n        self.0\n    }\n}\n\nfn double_in_parts(list: &mut [i32]) {\n    let len = list.len();\n    let mid = len / 2;\n    let left = SendPtr(list.as_mut_ptr());\n    // SAFETY: mid <= len, so the pointer stays inside the slice.\n    let right = SendPtr(unsafe { list.as_mut_ptr().add(mid) });\n    thread::scope(|s| {\n        s.spawn(move || {\n            for i in 0..mid {\n                // SAFETY: i < mid, and this part belongs only to this branch.\n                unsafe { *left.get().add(i) *= 2 };\n            }\n        });\n        s.spawn(move || {\n            for i in 0..len - mid {\n                // SAFETY: mid + i < len, and this part belongs only to this branch.\n                unsafe { *right.get().add(i) *= 2 };\n            }\n        });\n    });\n}\n\nfn main() {\n    let mut list = [1, 2, 3];\n    double_in_parts(&mut list);\n    println!(\"{list:?}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut l = [1, 2, 3]; double_in_parts(&mut l); assert_eq!(l, [2, 4, 6]);",
+          "label": {
+            "tr": "tek",
+            "en": "odd"
+          }
+        },
+        {
+          "code": "let mut l = [1]; double_in_parts(&mut l); assert_eq!(l, [2]);",
+          "label": {
+            "tr": "bir öğe",
+            "en": "one item"
+          }
+        },
+        {
+          "code": "let mut l: [i32; 0] = []; double_in_parts(&mut l);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "split_at_mut|chunks_mut",
+      "show": "split_at_mut"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "thread::scope",
+      "show": "thread::scope"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.get\\(\\)",
+      "show": ".get()"
+    }
+  ]
+}

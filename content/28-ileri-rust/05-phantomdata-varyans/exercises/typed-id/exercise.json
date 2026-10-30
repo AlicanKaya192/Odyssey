@@ -1,0 +1,52 @@
+{
+  "id": "typed-id",
+  "title": {
+    "tr": "Türlü Kimlik",
+    "en": "A Typed Id"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`Id { value, _marker: PhantomData }`",
+      "en": "`Id { value, _marker: PhantomData }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::marker::PhantomData;\n\nstruct User;\n\nstruct Id<T> {\n    value: u32,\n    _marker: PhantomData<fn() -> T>,\n}\n\nimpl<T> Id<T> {\n    fn new(value: u32) -> Self {\n        Id { value, _marker: PhantomData }\n    }\n\n    fn value(&self) -> u32 {\n        self.value\n    }\n}\n\nfn main() {\n    let id: Id<User> = Id::new(3);\n    println!(\"{}\", id.value());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::marker::PhantomData;\n\nstruct User;\n\nstruct Id<T> {\n    value: u32,\n    _marker: PhantomData<fn() -> T>,\n}\n\nimpl<T> Id<T> {\n    fn new(value: u32) -> Self {\n        Id { value, _marker: PhantomData }\n    }\n\n    fn value(&self) -> u32 {\n        self.value\n    }\n}\n\nfn main() {\n    let id: Id<User> = Id::new(3);\n    println!(\"{}\", id.value());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let i: Id<User> = Id::new(3); assert_eq!(i.value(), 3);",
+          "label": {
+            "tr": "değer",
+            "en": "value"
+          }
+        },
+        {
+          "code": "assert_eq!(size_of::<Id<String>>(), 4);",
+          "label": {
+            "tr": "boyut",
+            "en": "size"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "PhantomData<fn\\(\\)\\s*->\\s*T>",
+      "show": "PhantomData<fn() -> T>"
+    }
+  ]
+}

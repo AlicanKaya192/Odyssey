@@ -1,0 +1,57 @@
+{
+  "id": "rc-to-arc",
+  "title": {
+    "tr": "Kola Uygun Hâle Getir",
+    "en": "Make It Fit for a Branch"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`Arc::new(Mutex::new(0))` ve `.lock().unwrap()`.",
+      "en": "`Arc::new(Mutex::new(0))` and `.lock().unwrap()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::{Arc, Mutex};\nuse std::thread;\n\nfn count_up(n: u32) -> u32 {\n    let total = Arc::new(Mutex::new(0));\n    let copy = Arc::clone(&total);\n    let handle = thread::spawn(move || {\n        for _ in 0..n {\n            *copy.lock().unwrap() += 1;\n        }\n    });\n    handle.join().unwrap();\n    let result = *total.lock().unwrap();\n    result\n}\n\nfn main() {\n    println!(\"{}\", count_up(5));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::{Arc, Mutex};\nuse std::thread;\n\nfn count_up(n: u32) -> u32 {\n    let total = Arc::new(Mutex::new(0));\n    let copy = Arc::clone(&total);\n    let handle = thread::spawn(move || {\n        for _ in 0..n {\n            *copy.lock().unwrap() += 1;\n        }\n    });\n    handle.join().unwrap();\n    let result = *total.lock().unwrap();\n    result\n}\n\nfn main() {\n    println!(\"{}\", count_up(5));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(count_up(5), 5);",
+          "label": {
+            "tr": "beş",
+            "en": "five"
+          }
+        },
+        {
+          "code": "assert_eq!(count_up(0), 0);",
+          "label": {
+            "tr": "sıfır",
+            "en": "zero"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bRc\\b",
+      "show": "Rc"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "RefCell",
+      "show": "RefCell"
+    }
+  ]
+}

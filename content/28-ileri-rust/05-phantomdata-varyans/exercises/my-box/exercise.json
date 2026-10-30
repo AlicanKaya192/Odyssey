@@ -1,0 +1,64 @@
+{
+  "id": "my-box",
+  "title": {
+    "tr": "Kendi Box'ımız",
+    "en": "Our Own Box"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`self.ptr.as_ref()` ve `self.ptr.as_mut()` referans verir.",
+      "en": "`self.ptr.as_ref()` and `self.ptr.as_mut()` give references."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::marker::PhantomData;\nuse std::ops::{Deref, DerefMut};\nuse std::ptr::NonNull;\n\nstruct MyBox<T> {\n    ptr: NonNull<T>,\n    _owns: PhantomData<T>,\n}\n\nimpl<T> MyBox<T> {\n    fn new(value: T) -> Self {\n        let raw = Box::into_raw(Box::new(value));\n        // SAFETY: Box::into_raw never gives null.\n        let ptr = unsafe { NonNull::new_unchecked(raw) };\n        MyBox { ptr, _owns: PhantomData }\n    }\n}\n\nimpl<T> Deref for MyBox<T> {\n    type Target = T;\n\n    fn deref(&self) -> &T {\n        // SAFETY: ptr is valid until Drop.\n        unsafe { self.ptr.as_ref() }\n    }\n}\n\nimpl<T> DerefMut for MyBox<T> {\n    fn deref_mut(&mut self) -> &mut T {\n        // SAFETY: ptr is valid until Drop, and &mut self is unique.\n        unsafe { self.ptr.as_mut() }\n    }\n}\n\nimpl<T> Drop for MyBox<T> {\n    fn drop(&mut self) {\n        // SAFETY: ptr came from Box::into_raw and is taken back once.\n        unsafe { drop(Box::from_raw(self.ptr.as_ptr())) };\n    }\n}\n\nfn main() {\n    let mut b = MyBox::new(1);\n    *b += 1;\n    println!(\"{}\", *b);\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::marker::PhantomData;\nuse std::ops::{Deref, DerefMut};\nuse std::ptr::NonNull;\n\nstruct MyBox<T> {\n    ptr: NonNull<T>,\n    _owns: PhantomData<T>,\n}\n\nimpl<T> MyBox<T> {\n    fn new(value: T) -> Self {\n        let raw = Box::into_raw(Box::new(value));\n        // SAFETY: Box::into_raw never gives null.\n        let ptr = unsafe { NonNull::new_unchecked(raw) };\n        MyBox { ptr, _owns: PhantomData }\n    }\n}\n\nimpl<T> Deref for MyBox<T> {\n    type Target = T;\n\n    fn deref(&self) -> &T {\n        // SAFETY: ptr is valid until Drop.\n        unsafe { self.ptr.as_ref() }\n    }\n}\n\nimpl<T> DerefMut for MyBox<T> {\n    fn deref_mut(&mut self) -> &mut T {\n        // SAFETY: ptr is valid until Drop, and &mut self is unique.\n        unsafe { self.ptr.as_mut() }\n    }\n}\n\nimpl<T> Drop for MyBox<T> {\n    fn drop(&mut self) {\n        // SAFETY: ptr came from Box::into_raw and is taken back once.\n        unsafe { drop(Box::from_raw(self.ptr.as_ptr())) };\n    }\n}\n\nfn main() {\n    let mut b = MyBox::new(1);\n    *b += 1;\n    println!(\"{}\", *b);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut b = MyBox::new(1); *b += 1; assert_eq!(*b, 2);",
+          "label": {
+            "tr": "yazma",
+            "en": "writing"
+          }
+        },
+        {
+          "code": "let a = std::rc::Rc::new(()); { let _b = MyBox::new(a.clone()); assert_eq!(std::rc::Rc::strong_count(&a), 2); } assert_eq!(std::rc::Rc::strong_count(&a), 1);",
+          "label": {
+            "tr": "düşürme",
+            "en": "dropping"
+          }
+        },
+        {
+          "code": "let b = MyBox::new(String::from(\"hi\")); assert_eq!(b.len(), 2);",
+          "label": {
+            "tr": "yöntem",
+            "en": "method"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Box::into_raw",
+      "show": "Box::into_raw"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Box::from_raw",
+      "show": "Box::from_raw"
+    }
+  ]
+}

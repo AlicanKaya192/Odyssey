@@ -1,0 +1,64 @@
+{
+  "id": "store-min",
+  "title": {
+    "tr": "En Küçüğü Tut",
+    "en": "Keep the Smallest"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`while value < current` ve `Err(actual) => current = actual`.",
+      "en": "`while value < current` and `Err(actual) => current = actual`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::atomic::{AtomicU32, Ordering};\n\nfn store_min(slot: &AtomicU32, value: u32) {\n    let mut current = slot.load(Ordering::SeqCst);\n    while value < current {\n        match slot.compare_exchange(current, value, Ordering::SeqCst, Ordering::SeqCst) {\n            Ok(_) => return,\n            Err(actual) => current = actual,\n        }\n    }\n}\n\nfn main() {\n    let slot = AtomicU32::new(5);\n    store_min(&slot, 3);\n    println!(\"{}\", slot.load(Ordering::SeqCst));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::atomic::{AtomicU32, Ordering};\n\nfn store_min(slot: &AtomicU32, value: u32) {\n    let mut current = slot.load(Ordering::SeqCst);\n    while value < current {\n        match slot.compare_exchange(current, value, Ordering::SeqCst, Ordering::SeqCst) {\n            Ok(_) => return,\n            Err(actual) => current = actual,\n        }\n    }\n}\n\nfn main() {\n    let slot = AtomicU32::new(5);\n    store_min(&slot, 3);\n    println!(\"{}\", slot.load(Ordering::SeqCst));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let s = AtomicU32::new(5); store_min(&s, 3); assert_eq!(s.load(Ordering::SeqCst), 3);",
+          "label": {
+            "tr": "küçük",
+            "en": "smaller"
+          }
+        },
+        {
+          "code": "let s = AtomicU32::new(5); store_min(&s, 9); assert_eq!(s.load(Ordering::SeqCst), 5);",
+          "label": {
+            "tr": "büyük",
+            "en": "larger"
+          }
+        },
+        {
+          "code": "let s = AtomicU32::new(100); std::thread::scope(|t| { for n in 1..=8 { let s = &s; t.spawn(move || store_min(s, n * 3)); } }); assert_eq!(s.load(Ordering::SeqCst), 3);",
+          "label": {
+            "tr": "kollarla",
+            "en": "with branches"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "compare_exchange",
+      "show": "compare_exchange"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "fetch_min|fetch_update",
+      "show": "fetch_min"
+    }
+  ]
+}

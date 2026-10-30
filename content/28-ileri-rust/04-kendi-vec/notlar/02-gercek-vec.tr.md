@@ -16,8 +16,8 @@ Gerçek `Vec`, belleği yöneten `RawVec` ile öğeleri yöneten `Vec`'e bölün
 
 | Yöntem | 1000 `push`'ta kopya sayısı |
 |---|---|
-| Her seferinde +1 | Yaklaşık 500 000 |
-| İkiye katlama | 1000'den az |
+| Her seferinde +1 | 500 500 |
+| 4'ten başlayıp ikiye katlama | 1020 |
 
 İkiye katlama, ortalama `push` başına sabit iş demektir. Bedeli, kapasitenin yarısının boş kalabilmesi. Boyutu baştan biliyorsan `with_capacity` hepsini önler.
 
