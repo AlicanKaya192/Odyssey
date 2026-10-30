@@ -1,0 +1,1 @@
+`Config` is ready. Write `fn parse_args(args: &[String]) -> Result<Config, String>`: if the list does not have exactly 3 elements, return the error `usage: search <pattern> <file>`. `args[0]` is the program's path.

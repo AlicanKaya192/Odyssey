@@ -1,0 +1,64 @@
+{
+  "id": "catch-the-bug",
+  "title": {
+    "tr": "Hatayı Yakalayan Test",
+    "en": "A Test That Catches the Bug"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`assert!(!is_short(\"a b c\"));` sınırı dener, `assert_eq!(word_count(\"\"), 0);` boş metni.",
+      "en": "`assert!(!is_short(\"a b c\"));` tries the boundary, `assert_eq!(word_count(\"\"), 0);` empty text."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn word_count(text: &str) -> usize {\n    text.split_whitespace().count()\n}\n\nfn is_short(text: &str) -> bool {\n    word_count(text) < 3\n}\n\nfn main() {\n    println!(\"{}\", is_short(\"a b\"));\n}\n\n#[cfg(test)]\nmod tests {\n    use super::*;\n\n    #[test]\n    fn counts_words() {\n        assert_eq!(word_count(\"a b  c\"), 3);\n        assert_eq!(word_count(\"\"), 0);\n    }\n\n    #[test]\n    fn two_words_are_short() {\n        assert!(is_short(\"a b\"));\n    }\n\n    #[test]\n    fn three_words_are_not_short() {\n        assert!(!is_short(\"a b c\"));\n    }\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn word_count(text: &str) -> usize {\n    text.split_whitespace().count()\n}\n\nfn is_short(text: &str) -> bool {\n    word_count(text) < 3\n}\n\nfn main() {\n    println!(\"{}\", is_short(\"a b\"));\n}\n\n#[cfg(test)]\nmod tests {\n    use super::*;\n\n    #[test]\n    fn counts_words() {\n        assert_eq!(word_count(\"a b  c\"), 3);\n        assert_eq!(word_count(\"\"), 0);\n    }\n\n    #[test]\n    fn two_words_are_short() {\n        assert!(is_short(\"a b\"));\n    }\n\n    #[test]\n    fn three_words_are_not_short() {\n        assert!(!is_short(\"a b c\"));\n    }\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_tests",
+      "min": 3,
+      "mutants": [
+        {
+          "replace": [
+            "word_count(text) < 3",
+            "word_count(text) <= 3"
+          ],
+          "bug": {
+            "tr": "is_short tam 3 kelimede de doğru diyor",
+            "en": "is_short also says true at exactly 3 words"
+          }
+        },
+        {
+          "replace": [
+            "text.split_whitespace().count()",
+            "text.split(' ').count()"
+          ],
+          "bug": {
+            "tr": "word_count boş metinde 1 diyor",
+            "en": "word_count says 1 for empty text"
+          }
+        },
+        {
+          "replace": [
+            "word_count(text) < 3",
+            "word_count(text) < 2"
+          ],
+          "bug": {
+            "tr": "is_short 2 kelimede yanlış diyor",
+            "en": "is_short says false at 2 words"
+          }
+        }
+      ]
+    }
+  ]
+}

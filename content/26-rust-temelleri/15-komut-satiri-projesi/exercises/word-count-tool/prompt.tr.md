@@ -1,0 +1,1 @@
+Bütün programı yaz. `wc <file>`: Dosyanın satır ve kelime sayısını `4 6` biçiminde yazsın. Argüman sayısı yanlışsa ya da dosya okunamazsa stderr'e mesaj yazıp **2** koduyla çıksın. Klasörde `notes.txt` hazır (4 satır, 6 kelime). Denetim programı argümanlarla çalıştırır; Çalıştır düğmesi argümansız çalıştırdığı için orada 2 ile çıkması doğrudur.

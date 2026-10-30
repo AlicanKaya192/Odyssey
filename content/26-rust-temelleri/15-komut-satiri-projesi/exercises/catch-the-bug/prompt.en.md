@@ -1,0 +1,1 @@
+`word_count` and `is_short` are ready and correct. Write at least **3 tests** in the `tests` module. The check breaks the code on purpose and looks at whether your tests fail: also try empty text and the boundary of **exactly 3 words**.

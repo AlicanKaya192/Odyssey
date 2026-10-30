@@ -1,0 +1,75 @@
+{
+  "id": "rpn-calculator",
+  "title": {
+    "tr": "Yığınla Hesap Makinesi",
+    "en": "A Stack Calculator"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Önce `b`, sonra `a` çıkar: `a - b`. `stack.pop().ok_or(\"too few values\")?` `&str`'yi `String`'e çevirir.",
+      "en": "Take `b` first, then `a`: `a - b`. `stack.pop().ok_or(\"too few values\")?` turns `&str` into `String`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn eval(expr: &str) -> Result<i32, String> {\n    let mut stack = Vec::new();\n    for token in expr.split_whitespace() {\n        match token {\n            \"+\" | \"-\" | \"*\" => {\n                let b = stack.pop().ok_or(\"too few values\")?;\n                let a = stack.pop().ok_or(\"too few values\")?;\n                stack.push(match token {\n                    \"+\" => a + b,\n                    \"-\" => a - b,\n                    _ => a * b,\n                });\n            }\n            _ => {\n                let n = token.parse::<i32>().map_err(|_| format!(\"bad token: {token}\"))?;\n                stack.push(n);\n            }\n        }\n    }\n    if stack.len() != 1 {\n        return Err(String::from(\"too many values\"));\n    }\n    Ok(stack[0])\n}\n\nfn main() {\n    println!(\"{:?}\", eval(\"2 3 + 4 *\"));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn eval(expr: &str) -> Result<i32, String> {\n    let mut stack = Vec::new();\n    for token in expr.split_whitespace() {\n        match token {\n            \"+\" | \"-\" | \"*\" => {\n                let b = stack.pop().ok_or(\"too few values\")?;\n                let a = stack.pop().ok_or(\"too few values\")?;\n                stack.push(match token {\n                    \"+\" => a + b,\n                    \"-\" => a - b,\n                    _ => a * b,\n                });\n            }\n            _ => {\n                let n = token.parse::<i32>().map_err(|_| format!(\"bad token: {token}\"))?;\n                stack.push(n);\n            }\n        }\n    }\n    if stack.len() != 1 {\n        return Err(String::from(\"too many values\"));\n    }\n    Ok(stack[0])\n}\n\nfn main() {\n    println!(\"{:?}\", eval(\"2 3 + 4 *\"));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(eval(\"2 3 + 4 *\"), Ok(20));",
+          "label": {
+            "tr": "örnek",
+            "en": "the example"
+          }
+        },
+        {
+          "code": "assert_eq!(eval(\"5 1 -\"), Ok(4));",
+          "label": {
+            "tr": "sıra önemli",
+            "en": "order matters"
+          }
+        },
+        {
+          "code": "assert_eq!(eval(\"+\"), Err(String::from(\"too few values\")));",
+          "label": {
+            "tr": "eksik değer",
+            "en": "too few"
+          }
+        },
+        {
+          "code": "assert_eq!(eval(\"1 x\"), Err(String::from(\"bad token: x\")));",
+          "label": {
+            "tr": "bozuk parça",
+            "en": "bad piece"
+          }
+        },
+        {
+          "code": "assert_eq!(eval(\"1 2\"), Err(String::from(\"too many values\")));",
+          "label": {
+            "tr": "fazla değer",
+            "en": "too many"
+          }
+        },
+        {
+          "code": "assert_eq!(eval(\"\"), Err(String::from(\"too many values\")));",
+          "label": {
+            "tr": "boş girdi",
+            "en": "empty input"
+          }
+        }
+      ]
+    }
+  ]
+}

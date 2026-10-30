@@ -472,6 +472,24 @@ GLYPHS: dict[str, str] = {
     "cs50-mark": ('<text x="12" y="15.2" text-anchor="middle" font-family="Arial" '
                   'font-size="9.2" font-weight="700" letter-spacing="-.3" fill="#fff" stroke="none">CS50</text>'
                   '<path d="M4 18.8h16" stroke-width="1.3"/>'),
+    # Rust'ta ilk derleme: dişlinin ortasında onay.
+    "gear-check": ('<circle cx="12" cy="12" r="6.4" stroke-width="1.5"/>'
+                   '<path d="M12 2.4v3.2M12 18.4v3.2M2.4 12h3.2M18.4 12h3.2M5.2 5.2l2.3 2.3M16.5 16.5l2.3 2.3'
+                   'M5.2 18.8l2.3-2.3M16.5 7.5l2.3-2.3" stroke-width="1.7"/>'
+                   '<path d="M9.2 12.2l2 2 3.6-4" stroke-width="1.6"/>'),
+    # Sahiplik: tek anahtar, tek sahip.
+    "owner-key": ('<circle cx="8" cy="8" r="4.6" stroke-width="1.6"/>'
+                  '<circle cx="8" cy="8" r="1.3" fill="#fff" stroke="none"/>'
+                  '<path d="M11.4 11.4l9.2 9.2M17 17l2.6-2.6M14.4 14.4l2-2" stroke-width="1.7"/>'),
+    # Komut satırı aracı: terminal penceresi ve istem.
+    "terminal-tool": ('<rect x="2.6" y="4.4" width="18.8" height="15.2" rx="2.2" stroke-width="1.5"/>'
+                      '<path d="M6.4 9.2l3.4 2.8-3.4 2.8" stroke-width="1.6"/>'
+                      '<path d="M12 15.4h5.4" stroke-width="1.6"/>'),
+    # Rust Temelleri'nin tamamı: patika logosundaki gibi dişli ve R.
+    "rust-gear": ('<circle cx="12" cy="12" r="7.4" stroke-width="1.5"/>'
+                  '<path d="M12 1.8v2.8M12 19.4v2.8M1.8 12h2.8M19.4 12h2.8M4.8 4.8l2 2M17.2 17.2l2 2'
+                  'M4.8 19.2l2-2M17.2 6.8l2-2" stroke-width="1.7"/>'
+                  '<path d="M9.8 16V8.2h3.2a2.2 2.2 0 0 1 0 4.4H9.8M12.6 12.6l2.2 3.4" stroke-width="1.6"/>'),
 }
 
 

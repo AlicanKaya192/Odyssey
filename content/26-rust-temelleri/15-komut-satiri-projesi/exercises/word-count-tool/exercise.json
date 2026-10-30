@@ -1,0 +1,67 @@
+{
+  "id": "word-count-tool",
+  "title": {
+    "tr": "Kelime Sayma Aracı",
+    "en": "A Word-Count Tool"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.rs",
+  "files": [
+    {
+      "name": "main.rs",
+      "starter": "starter-main.{lang}.rs",
+      "solution": "solution-main.rs"
+    },
+    {
+      "name": "notes.txt",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`text.lines().count()` ve `text.split_whitespace().count()`.",
+      "en": "`text.lines().count()` and `text.split_whitespace().count()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.rs**\n\n```rust\nuse std::env;\nuse std::fs;\nuse std::process;\n\nfn main() {\n    let args: Vec<String> = env::args().collect();\n    if args.len() != 2 {\n        eprintln!(\"usage: wc <file>\");\n        process::exit(2);\n    }\n    let text = match fs::read_to_string(&args[1]) {\n        Ok(text) => text,\n        Err(_) => {\n            eprintln!(\"cannot read {}\", args[1]);\n            process::exit(2);\n        }\n    };\n    println!(\"{} {}\", text.lines().count(), text.split_whitespace().count());\n}\n```",
+      "en": "The full solution:\n\n**main.rs**\n\n```rust\nuse std::env;\nuse std::fs;\nuse std::process;\n\nfn main() {\n    let args: Vec<String> = env::args().collect();\n    if args.len() != 2 {\n        eprintln!(\"usage: wc <file>\");\n        process::exit(2);\n    }\n    let text = match fs::read_to_string(&args[1]) {\n        Ok(text) => text,\n        Err(_) => {\n            eprintln!(\"cannot read {}\", args[1]);\n            process::exit(2);\n        }\n    };\n    println!(\"{} {}\", text.lines().count(), text.split_whitespace().count());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "argv": [
+            "notes.txt"
+          ],
+          "stdout": "4 6",
+          "exit": 0
+        },
+        {
+          "argv": [],
+          "exit": 2
+        },
+        {
+          "argv": [
+            "a",
+            "b"
+          ],
+          "exit": 2
+        },
+        {
+          "argv": [
+            "missing.txt"
+          ],
+          "exit": 2
+        }
+      ]
+    }
+  ]
+}

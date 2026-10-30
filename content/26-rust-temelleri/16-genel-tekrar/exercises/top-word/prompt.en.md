@@ -1,0 +1,1 @@
+Write two functions. `word_counts(text: &str) -> BTreeMap<String, u32>`: count in lowercase. `most_common(counts: &BTreeMap<String, u32>) -> Option<&str>`: return the top word; on a tie the alphabetically first, `None` if empty.

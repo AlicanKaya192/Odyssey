@@ -1,0 +1,1 @@
+`fn parse_pair(line: &str) -> Result<(String, i32), String>` yaz. `a = 1` gibi satırı `("a", 1)` yapsın, boşlukları kırpsın. `=` yoksa `no equals: <satir>`, sayı bozuksa `bad value: <deger>` hatası dönsün (hata metninde değer kırpılmamış hâliyle).

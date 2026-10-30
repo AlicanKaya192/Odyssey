@@ -1,0 +1,52 @@
+{
+  "id": "guarded-account",
+  "title": {
+    "tr": "Korunan Hesap",
+    "en": "A Guarded Account"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Alan `balance: i64` yazılır, başında `pub` yok.",
+      "en": "The field is written `balance: i64`, with no `pub`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nmod bank {\n    pub struct Account {\n        balance: i64,\n    }\n\n    impl Account {\n        pub fn new() -> Account {\n            Account { balance: 0 }\n        }\n\n        pub fn deposit(&mut self, amount: i64) -> Result<(), String> {\n            if amount <= 0 {\n                return Err(String::from(\"amount must be positive\"));\n            }\n            self.balance += amount;\n            Ok(())\n        }\n\n        pub fn balance(&self) -> i64 {\n            self.balance\n        }\n    }\n}\n\nfn main() {\n    let mut a = bank::Account::new();\n    println!(\"{:?}\", a.deposit(5));\n    println!(\"{}\", a.balance());\n}\n```",
+      "en": "The full solution:\n\n```rust\nmod bank {\n    pub struct Account {\n        balance: i64,\n    }\n\n    impl Account {\n        pub fn new() -> Account {\n            Account { balance: 0 }\n        }\n\n        pub fn deposit(&mut self, amount: i64) -> Result<(), String> {\n            if amount <= 0 {\n                return Err(String::from(\"amount must be positive\"));\n            }\n            self.balance += amount;\n            Ok(())\n        }\n\n        pub fn balance(&self) -> i64 {\n            self.balance\n        }\n    }\n}\n\nfn main() {\n    let mut a = bank::Account::new();\n    println!(\"{:?}\", a.deposit(5));\n    println!(\"{}\", a.balance());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut a = bank::Account::new(); assert_eq!(a.deposit(5), Ok(())); assert_eq!(a.deposit(7), Ok(())); assert_eq!(a.balance(), 12);",
+          "label": {
+            "tr": "iki yatırma",
+            "en": "two deposits"
+          }
+        },
+        {
+          "code": "let mut a = bank::Account::new(); assert_eq!(a.deposit(0), Err(String::from(\"amount must be positive\"))); assert_eq!(a.deposit(-3), Err(String::from(\"amount must be positive\"))); assert_eq!(a.balance(), 0);",
+          "label": {
+            "tr": "geçersiz tutar",
+            "en": "invalid amount"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "pub\\s+balance\\s*:",
+      "show": "pub balance:"
+    }
+  ]
+}

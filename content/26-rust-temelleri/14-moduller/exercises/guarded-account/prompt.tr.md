@@ -1,0 +1,1 @@
+`bank` modülünde `pub struct Account` yaz; `balance: i64` alanı **gizli** olsun. `new()` bakiye 0, `deposit(&mut self, amount: i64) -> Result<(), String>` sıfır ya da eksi tutarda `"amount must be positive"` hatası, `balance(&self) -> i64` okuma.

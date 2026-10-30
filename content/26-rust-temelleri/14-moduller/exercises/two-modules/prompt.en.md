@@ -1,0 +1,1 @@
+`main.rs` and `stats.rs` are yours. In `stats.rs` write `pub fn mean(values: &[f64]) -> Option<f64>` (`None` if empty). In `main.rs` link the module and print the result of `mean(&[1.0, 2.0, 6.0])` with `{:?}`.

@@ -1,0 +1,1 @@
+Write the whole program. `wc <file>`: write the file's line and word counts as `4 6`. If the argument count is wrong or the file cannot be read, write a message to stderr and exit with code **2**. `notes.txt` is ready in the folder (4 lines, 6 words). The check runs the program with arguments; the Run button runs it without any, so exiting with 2 there is correct.

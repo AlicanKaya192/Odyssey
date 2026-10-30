@@ -1,0 +1,61 @@
+{
+  "id": "parse-pair",
+  "title": {
+    "tr": "Anahtar ve Değer",
+    "en": "Key and Value"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`line.split_once('=')` `Option` verir, `.ok_or(...)?` ile aç.",
+      "en": "`line.split_once('=')` gives an `Option`; open it with `.ok_or(...)?`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn parse_pair(line: &str) -> Result<(String, i32), String> {\n    let (key, value) = line.split_once('=').ok_or(format!(\"no equals: {line}\"))?;\n    let number = value.trim().parse::<i32>().map_err(|_| format!(\"bad value: {value}\"))?;\n    Ok((key.trim().to_string(), number))\n}\n\nfn main() {\n    println!(\"{:?}\", parse_pair(\"a = 1\"));\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn parse_pair(line: &str) -> Result<(String, i32), String> {\n    let (key, value) = line.split_once('=').ok_or(format!(\"no equals: {line}\"))?;\n    let number = value.trim().parse::<i32>().map_err(|_| format!(\"bad value: {value}\"))?;\n    Ok((key.trim().to_string(), number))\n}\n\nfn main() {\n    println!(\"{:?}\", parse_pair(\"a = 1\"));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(parse_pair(\"a = 1\"), Ok((String::from(\"a\"), 1)));",
+          "label": {
+            "tr": "boşluklu",
+            "en": "with spaces"
+          }
+        },
+        {
+          "code": "assert_eq!(parse_pair(\"b=-2\"), Ok((String::from(\"b\"), -2)));",
+          "label": {
+            "tr": "boşluksuz",
+            "en": "no spaces"
+          }
+        },
+        {
+          "code": "assert_eq!(parse_pair(\"abc\"), Err(String::from(\"no equals: abc\")));",
+          "label": {
+            "tr": "eşittir yok",
+            "en": "no equals"
+          }
+        },
+        {
+          "code": "assert_eq!(parse_pair(\"a=x\"), Err(String::from(\"bad value: x\")));",
+          "label": {
+            "tr": "bozuk sayı",
+            "en": "bad number"
+          }
+        }
+      ]
+    }
+  ]
+}

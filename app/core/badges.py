@@ -65,6 +65,7 @@ GENAI2_CHAPTER = "22-prompt-muhendisligi"
 CICD_CHAPTER = "23-ci-cd"
 MLOPS_CHAPTER = "24-mlops"
 CS50_CHAPTER = "25-cs50-python"
+RUST1_CHAPTER = "26-rust-temelleri"
 
 # Şaka rozeti (Alican 23 Ekim): CS50'de bir bölümü açmak yetiyor. Açmak
 # ilerleme kaydı bırakmadığı için ilk açılış bu ayara yazılıyor.
@@ -143,6 +144,9 @@ MLOPS_CANARY_SECTION = (MLOPS_CHAPTER, "12-ab-golge-kanarya")
 CS50_LIBRARY_SECTION = (CS50_CHAPTER, "04-kutuphaneler")
 CS50_FILES_SECTION = (CS50_CHAPTER, "06-dosya-islemleri")
 CS50_OOP_SECTION = (CS50_CHAPTER, "08-nesne-yonelimli-programlama")
+RUST_FIRST_SECTION = (RUST1_CHAPTER, "00-rust-ve-kurulum")
+RUST_OWNERSHIP_SECTION = (RUST1_CHAPTER, "06-sahiplik")
+RUST_TOOL_SECTION = (RUST1_CHAPTER, "15-komut-satiri-projesi")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -169,6 +173,7 @@ GENAI2_SECTION_COUNT = 17
 CICD_SECTION_COUNT = 17
 MLOPS_SECTION_COUNT = 17
 CS50_SECTION_COUNT = 11
+RUST1_SECTION_COUNT = 17
 
 
 def note_section_opened(store, chapter_id: str) -> bool:
@@ -350,6 +355,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "shirt-workshop": CS50_FILES_SECTION in bitenler,
         "certified": CS50_OOP_SECTION in bitenler,
         "cs50-complete": modul_basina.get(CS50_CHAPTER, 0) >= CS50_SECTION_COUNT,
+        "rust-first-compile": RUST_FIRST_SECTION in bitenler,
+        "rust-owner": RUST_OWNERSHIP_SECTION in bitenler,
+        "rust-first-tool": RUST_TOOL_SECTION in bitenler,
+        "rust1-complete": modul_basina.get(RUST1_CHAPTER, 0) >= RUST1_SECTION_COUNT,
     }
 
 

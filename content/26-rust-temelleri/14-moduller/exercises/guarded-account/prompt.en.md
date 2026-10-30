@@ -1,0 +1,1 @@
+In a `bank` module write `pub struct Account`; the field `balance: i64` must be **private**. `new()` gives balance 0, `deposit(&mut self, amount: i64) -> Result<(), String>` errors with `"amount must be positive"` on zero or negative, `balance(&self) -> i64` reads.

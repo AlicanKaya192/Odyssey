@@ -1,0 +1,1 @@
+İki fonksiyon yaz. `word_counts(text: &str) -> BTreeMap<String, u32>`: Küçük harfe çevirerek say. `most_common(counts: &BTreeMap<String, u32>) -> Option<&str>`: En sık kelimeyi döndür; eşitlikte abece sırasında önce geleni, boşsa `None`.

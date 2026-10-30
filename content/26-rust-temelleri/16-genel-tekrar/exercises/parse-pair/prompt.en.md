@@ -1,0 +1,1 @@
+Write `fn parse_pair(line: &str) -> Result<(String, i32), String>`. Turn a line like `a = 1` into `("a", 1)`, trimming spaces. Without `=` return `no equals: <line>`, on a bad number `bad value: <value>` (the value untrimmed in the error text).

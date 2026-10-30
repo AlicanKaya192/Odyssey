@@ -1,0 +1,54 @@
+{
+  "id": "parse-config",
+  "title": {
+    "tr": "Argümanları Ayrıştır",
+    "en": "Parse the Arguments"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`args[1].clone()` ile kendi kopyasını al.",
+      "en": "Take its own copy with `args[1].clone()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nstruct Config {\n    pattern: String,\n    path: String,\n}\n\nfn parse_args(args: &[String]) -> Result<Config, String> {\n    if args.len() != 3 {\n        return Err(String::from(\"usage: search <pattern> <file>\"));\n    }\n    Ok(Config { pattern: args[1].clone(), path: args[2].clone() })\n}\n\nfn main() {\n    let args = vec![String::from(\"search\"), String::from(\"a\"), String::from(\"f.txt\")];\n    let config = parse_args(&args).expect(\"valid\");\n    println!(\"{} {}\", config.pattern, config.path);\n}\n```",
+      "en": "The full solution:\n\n```rust\nstruct Config {\n    pattern: String,\n    path: String,\n}\n\nfn parse_args(args: &[String]) -> Result<Config, String> {\n    if args.len() != 3 {\n        return Err(String::from(\"usage: search <pattern> <file>\"));\n    }\n    Ok(Config { pattern: args[1].clone(), path: args[2].clone() })\n}\n\nfn main() {\n    let args = vec![String::from(\"search\"), String::from(\"a\"), String::from(\"f.txt\")];\n    let config = parse_args(&args).expect(\"valid\");\n    println!(\"{} {}\", config.pattern, config.path);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let a = vec![String::from(\"s\"), String::from(\"x\"), String::from(\"y\")]; let c = parse_args(&a).ok().expect(\"ok\"); assert_eq!(c.pattern, \"x\"); assert_eq!(c.path, \"y\");",
+          "label": {
+            "tr": "üç eleman",
+            "en": "three elements"
+          }
+        },
+        {
+          "code": "let a = vec![String::from(\"s\"), String::from(\"x\")]; assert_eq!(parse_args(&a).err(), Some(String::from(\"usage: search <pattern> <file>\")));",
+          "label": {
+            "tr": "eksik",
+            "en": "missing"
+          }
+        },
+        {
+          "code": "let a = vec![String::from(\"s\"), String::from(\"x\"), String::from(\"y\"), String::from(\"z\")]; assert!(parse_args(&a).is_err());",
+          "label": {
+            "tr": "fazla",
+            "en": "too many"
+          }
+        }
+      ]
+    }
+  ]
+}

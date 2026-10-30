@@ -1,0 +1,54 @@
+{
+  "id": "top-word",
+  "title": {
+    "tr": "En Sık Kelime",
+    "en": "The Top Word"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`BTreeMap` zaten abece sırasıyla gezer: Yalnızca daha büyük sayı gelince değiştir.",
+      "en": "A `BTreeMap` already walks alphabetically: replace only on a strictly larger count."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::collections::BTreeMap;\n\nfn word_counts(text: &str) -> BTreeMap<String, u32> {\n    let mut counts = BTreeMap::new();\n    for word in text.split_whitespace() {\n        *counts.entry(word.to_lowercase()).or_insert(0) += 1;\n    }\n    counts\n}\n\nfn most_common(counts: &BTreeMap<String, u32>) -> Option<&str> {\n    let mut best: Option<(&str, u32)> = None;\n    for (word, count) in counts {\n        match best {\n            Some((_, top)) if top >= *count => {}\n            _ => best = Some((word, *count)),\n        }\n    }\n    best.map(|(word, _)| word)\n}\n\nfn main() {\n    let counts = word_counts(\"a b A\");\n    println!(\"{:?}\", most_common(&counts));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::collections::BTreeMap;\n\nfn word_counts(text: &str) -> BTreeMap<String, u32> {\n    let mut counts = BTreeMap::new();\n    for word in text.split_whitespace() {\n        *counts.entry(word.to_lowercase()).or_insert(0) += 1;\n    }\n    counts\n}\n\nfn most_common(counts: &BTreeMap<String, u32>) -> Option<&str> {\n    let mut best: Option<(&str, u32)> = None;\n    for (word, count) in counts {\n        match best {\n            Some((_, top)) if top >= *count => {}\n            _ => best = Some((word, *count)),\n        }\n    }\n    best.map(|(word, _)| word)\n}\n\nfn main() {\n    let counts = word_counts(\"a b A\");\n    println!(\"{:?}\", most_common(&counts));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let c = word_counts(\"a b A\"); assert_eq!(c.get(\"a\"), Some(&2)); assert_eq!(c.get(\"b\"), Some(&1)); assert_eq!(most_common(&c), Some(\"a\"));",
+          "label": {
+            "tr": "sayım",
+            "en": "counting"
+          }
+        },
+        {
+          "code": "let c = word_counts(\"x y\"); assert_eq!(most_common(&c), Some(\"x\"));",
+          "label": {
+            "tr": "eşitlik",
+            "en": "a tie"
+          }
+        },
+        {
+          "code": "let c = word_counts(\"\"); assert_eq!(most_common(&c), None);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    }
+  ]
+}

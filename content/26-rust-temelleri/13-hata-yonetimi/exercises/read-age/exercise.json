@@ -1,0 +1,68 @@
+{
+  "id": "read-age",
+  "title": {
+    "tr": "Yaşı Oku",
+    "en": "Read the Age"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Önce `map_err(|_| AgeError::NotANumber)?`, sonra aralık denetimi.",
+      "en": "First `map_err(|_| AgeError::NotANumber)?`, then the range check."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\n#[derive(Debug, PartialEq)]\nenum AgeError {\n    NotANumber,\n    OutOfRange(i32),\n}\n\nfn read_age(text: &str) -> Result<i32, AgeError> {\n    let age = text.parse::<i32>().map_err(|_| AgeError::NotANumber)?;\n    if age < 0 || age > 150 {\n        return Err(AgeError::OutOfRange(age));\n    }\n    Ok(age)\n}\n\nfn main() {\n    println!(\"{:?}\", read_age(\"36\"));\n}\n```",
+      "en": "The full solution:\n\n```rust\n#[derive(Debug, PartialEq)]\nenum AgeError {\n    NotANumber,\n    OutOfRange(i32),\n}\n\nfn read_age(text: &str) -> Result<i32, AgeError> {\n    let age = text.parse::<i32>().map_err(|_| AgeError::NotANumber)?;\n    if age < 0 || age > 150 {\n        return Err(AgeError::OutOfRange(age));\n    }\n    Ok(age)\n}\n\nfn main() {\n    println!(\"{:?}\", read_age(\"36\"));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(read_age(\"36\"), Ok(36));",
+          "label": {
+            "tr": "geçerli",
+            "en": "valid"
+          }
+        },
+        {
+          "code": "assert_eq!(read_age(\"x\"), Err(AgeError::NotANumber));",
+          "label": {
+            "tr": "sayı değil",
+            "en": "not a number"
+          }
+        },
+        {
+          "code": "assert_eq!(read_age(\"200\"), Err(AgeError::OutOfRange(200)));",
+          "label": {
+            "tr": "çok büyük",
+            "en": "too large"
+          }
+        },
+        {
+          "code": "assert_eq!(read_age(\"-1\"), Err(AgeError::OutOfRange(-1)));",
+          "label": {
+            "tr": "eksi",
+            "en": "negative"
+          }
+        },
+        {
+          "code": "assert_eq!(read_age(\"150\"), Ok(150));",
+          "label": {
+            "tr": "sınır",
+            "en": "boundary"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "question-mark",
+  "title": {
+    "tr": "Soru İşareti",
+    "en": "The Question Mark"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let x = a.parse::<i32>()?;` ve sonda `Ok(x + y)`.",
+      "en": "`let x = a.parse::<i32>()?;` and `Ok(x + y)` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::num::ParseIntError;\n\nfn add_numbers(a: &str, b: &str) -> Result<i32, ParseIntError> {\n    let x = a.parse::<i32>()?;\n    let y = b.parse::<i32>()?;\n    Ok(x + y)\n}\n\nfn main() {\n    println!(\"{:?}\", add_numbers(\"2\", \"3\"));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::num::ParseIntError;\n\nfn add_numbers(a: &str, b: &str) -> Result<i32, ParseIntError> {\n    let x = a.parse::<i32>()?;\n    let y = b.parse::<i32>()?;\n    Ok(x + y)\n}\n\nfn main() {\n    println!(\"{:?}\", add_numbers(\"2\", \"3\"));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(add_numbers(\"2\", \"3\"), Ok(5));",
+          "label": {
+            "tr": "iki sayı",
+            "en": "two numbers"
+          }
+        },
+        {
+          "code": "assert!(add_numbers(\"x\", \"3\").is_err());",
+          "label": {
+            "tr": "ilki bozuk",
+            "en": "first is bad"
+          }
+        },
+        {
+          "code": "assert!(add_numbers(\"2\", \"x\").is_err());",
+          "label": {
+            "tr": "ikincisi bozuk",
+            "en": "second is bad"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\?",
+      "show": "?"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bmatch\\b",
+      "show": "match"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.unwrap\\(\\)",
+      "show": ".unwrap()"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+`fn eval(expr: &str) -> Result<i32, String>` yaz. Girdi ters Polonya gösterimi: `2 3 + 4 *` demek `(2 + 3) * 4`. Sayıyı yığına koy; işleçte iki değer çıkarıp sonucu koy. İşleçler `+ - *`. Yığında yetersiz değer varsa `too few values`, bozuk parçada `bad token: <parca>`, sonda tek değer kalmazsa `too many values` hatası dönsün.
