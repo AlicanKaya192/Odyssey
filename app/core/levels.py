@@ -79,6 +79,7 @@ BADGE_TAGS = {
     "argus": "mlops-complete",
     "chiron": "cs50-complete",
     "talos": "rust1-complete",
+    "atlas": "rust2-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200

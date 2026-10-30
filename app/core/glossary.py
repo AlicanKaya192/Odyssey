@@ -46,7 +46,7 @@ GROUP_CHAPTERS = {
     "genai": ("21-uretken-yz-temelleri", "22-prompt-muhendisligi"),
     "cicd": ("23-ci-cd",),
     "mlops": ("24-mlops",),
-    "rust": ("26-rust-temelleri",),
+    "rust": ("26-rust-temelleri", "27-rust-derinlesmek"),
 }
 
 _CODE = re.compile(r"`([^`]+)`")

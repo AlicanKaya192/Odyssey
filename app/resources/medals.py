@@ -485,6 +485,24 @@ GLYPHS: dict[str, str] = {
     "terminal-tool": ('<rect x="2.6" y="4.4" width="18.8" height="15.2" rx="2.2" stroke-width="1.5"/>'
                       '<path d="M6.4 9.2l3.4 2.8-3.4 2.8" stroke-width="1.6"/>'
                       '<path d="M12 15.4h5.4" stroke-width="1.6"/>'),
+    # Ömür: iki uçlu aralık ve içinde kısa kalan ödünç.
+    "lifetime-span": ('<path d="M4 5v14M20 5v14" stroke-width="1.7"/>'
+                      '<path d="M4 9h16" stroke-width="1.6"/>'
+                      '<path d="M8 15h8" stroke-width="1.6"/>'
+                      '<circle cx="8" cy="15" r="1.4" fill="#fff" stroke="none"/>'
+                      '<circle cx="16" cy="15" r="1.4" fill="#fff" stroke="none"/>'),
+    # Kendi iterator'ü: halka halka zincir.
+    "iter-chain": ('<rect x="2.4" y="8.6" width="8.4" height="6.8" rx="3.4" stroke-width="1.6"/>'
+                   '<rect x="13.2" y="8.6" width="8.4" height="6.8" rx="3.4" stroke-width="1.6"/>'
+                   '<path d="M8 12h8" stroke-width="1.7"/>'),
+    # Korkusuz kollar: iki kol bir kilitte birleşiyor.
+    "locked-threads": ('<rect x="7.6" y="11.6" width="8.8" height="7.6" rx="1.6" stroke-width="1.6"/>'
+                       '<path d="M9.6 11.6V9.4a2.4 2.4 0 0 1 4.8 0v2.2" stroke-width="1.5"/>'
+                       '<path d="M2.4 5.4c2.2 0 3 1.6 3.4 3.4l.8 5M21.6 5.4c-2.2 0-3 1.6-3.4 3.4l-.8 5" stroke-width="1.6"/>'),
+    # Rust'ta Derinleşmek'in tamamı: dişli ve aşağı inen ok.
+    "rust-depth": ('<circle cx="12" cy="9" r="5.6" stroke-width="1.5"/>'
+                   '<path d="M12 1.4v2M4.4 9h2M17.6 9h2M6.6 3.6l1.4 1.4M16 13l1.4 1.4M6.6 14.4L8 13M16 5l1.4-1.4" stroke-width="1.6"/>'
+                   '<path d="M12 6.4v15M8.6 18.2l3.4 3.4 3.4-3.4" stroke-width="1.7"/>'),
     # Rust Temelleri'nin tamamı: patika logosundaki gibi dişli ve R.
     "rust-gear": ('<circle cx="12" cy="12" r="7.4" stroke-width="1.5"/>'
                   '<path d="M12 1.8v2.8M12 19.4v2.8M1.8 12h2.8M19.4 12h2.8M4.8 4.8l2 2M17.2 17.2l2 2'
