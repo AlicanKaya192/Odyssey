@@ -1,0 +1,1 @@
+Write `fn pick<'a>(text: &'a str, label: &str) -> &'a str`: if `label` is `first` return the **first** comma-separated piece, otherwise the **last**. `main` is ready: `label` lives briefly, so writing `'a` on `label` will not compile.

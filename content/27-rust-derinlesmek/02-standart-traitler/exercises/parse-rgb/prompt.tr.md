@@ -1,0 +1,1 @@
+`struct Rgb { r: u8, g: u8, b: u8 }` için `FromStr` yaz (`type Err = String`). `"1,2,3"` geçerli. Parça sayısı 3 değilse `need three parts`, sayı bozuk ya da 255'ten büyükse `bad number` hatası dönsün.

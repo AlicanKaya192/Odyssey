@@ -1,0 +1,1 @@
+Write `FromStr` for `struct Rgb { r: u8, g: u8, b: u8 }` (`type Err = String`). `"1,2,3"` is valid. If there are not 3 parts return `need three parts`; if a number is bad or above 255 return `bad number`.

@@ -1,0 +1,1 @@
+Write `trait Converter`: `type Output;` and `fn convert(&self, input: &str) -> Option<Self::Output>;`. `ToInt` turns text into a number (`Output = i32`, `None` if bad), `ToUpper` into capitals (`Output = String`, `None` if empty).

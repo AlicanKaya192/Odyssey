@@ -1,0 +1,61 @@
+{
+  "id": "area-trait",
+  "title": {
+    "tr": "Alan Trait'i",
+    "en": "An Area Trait"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Varsayılan gövde: `self.area() > 100.0`. `self.0` tek alanlı struct'ın alanı.",
+      "en": "The default body: `self.area() > 100.0`. `self.0` is a tuple struct's field."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\ntrait Area {\n    fn area(&self) -> f64;\n\n    fn is_large(&self) -> bool {\n        self.area() > 100.0\n    }\n}\n\nstruct Square(f64);\nstruct Rect(f64, f64);\n\nimpl Area for Square {\n    fn area(&self) -> f64 {\n        self.0 * self.0\n    }\n}\n\nimpl Area for Rect {\n    fn area(&self) -> f64 {\n        self.0 * self.1\n    }\n}\n\nfn main() {\n    println!(\"{}\", Square(2.0).area());\n    println!(\"{}\", Rect(20.0, 6.0).is_large());\n}\n```",
+      "en": "The full solution:\n\n```rust\ntrait Area {\n    fn area(&self) -> f64;\n\n    fn is_large(&self) -> bool {\n        self.area() > 100.0\n    }\n}\n\nstruct Square(f64);\nstruct Rect(f64, f64);\n\nimpl Area for Square {\n    fn area(&self) -> f64 {\n        self.0 * self.0\n    }\n}\n\nimpl Area for Rect {\n    fn area(&self) -> f64 {\n        self.0 * self.1\n    }\n}\n\nfn main() {\n    println!(\"{}\", Square(2.0).area());\n    println!(\"{}\", Rect(20.0, 6.0).is_large());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(Square(2.0).area(), 4.0);",
+          "label": {
+            "tr": "kare",
+            "en": "square"
+          }
+        },
+        {
+          "code": "assert_eq!(Rect(2.0, 3.0).area(), 6.0);",
+          "label": {
+            "tr": "dikdörtgen",
+            "en": "rectangle"
+          }
+        },
+        {
+          "code": "assert!(Rect(20.0, 6.0).is_large());",
+          "label": {
+            "tr": "büyük",
+            "en": "large"
+          }
+        },
+        {
+          "code": "assert!(!Square(10.0).is_large());",
+          "label": {
+            "tr": "tam 100 büyük değil",
+            "en": "exactly 100 is not large"
+          }
+        }
+      ]
+    }
+  ]
+}

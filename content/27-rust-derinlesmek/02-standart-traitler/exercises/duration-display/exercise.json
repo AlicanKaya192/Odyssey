@@ -1,0 +1,54 @@
+{
+  "id": "duration-display",
+  "title": {
+    "tr": "Süreyi Yazdır",
+    "en": "Print a Duration"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`{:02}` iki hane ister: `write!(f, \"{}m {:02}s\", ...)`.",
+      "en": "`{:02}` wants two digits: `write!(f, \"{}m {:02}s\", ...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::fmt;\n\nstruct Duration {\n    seconds: u32,\n}\n\nimpl fmt::Display for Duration {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        write!(f, \"{}m {:02}s\", self.seconds / 60, self.seconds % 60)\n    }\n}\n\nfn main() {\n    println!(\"{}\", Duration { seconds: 125 });\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::fmt;\n\nstruct Duration {\n    seconds: u32,\n}\n\nimpl fmt::Display for Duration {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        write!(f, \"{}m {:02}s\", self.seconds / 60, self.seconds % 60)\n    }\n}\n\nfn main() {\n    println!(\"{}\", Duration { seconds: 125 });\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(Duration { seconds: 125 }.to_string(), \"2m 05s\");",
+          "label": {
+            "tr": "125",
+            "en": "125"
+          }
+        },
+        {
+          "code": "assert_eq!(Duration { seconds: 0 }.to_string(), \"0m 00s\");",
+          "label": {
+            "tr": "sıfır",
+            "en": "zero"
+          }
+        },
+        {
+          "code": "assert_eq!(Duration { seconds: 3599 }.to_string(), \"59m 59s\");",
+          "label": {
+            "tr": "büyük",
+            "en": "large"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+`fn pick<'a>(text: &'a str, label: &str) -> &'a str` yaz: `label` `first` ise virgülle ayrılan **ilk**, değilse **son** parçayı döndürsün. `main` hazır: `label` kısa yaşıyor, yani `label`'e `'a` yazarsan derlenmez.

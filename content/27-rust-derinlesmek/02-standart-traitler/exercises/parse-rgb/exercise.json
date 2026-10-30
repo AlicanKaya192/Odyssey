@@ -1,0 +1,61 @@
+{
+  "id": "parse-rgb",
+  "title": {
+    "tr": "Rengi Oku",
+    "en": "Parse a Color"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`text.split(',').collect()` ile `Vec<&str>`; `u8` 300'ü kendisi reddeder.",
+      "en": "`text.split(',').collect()` into a `Vec<&str>`; `u8` rejects 300 by itself."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::str::FromStr;\n\n#[derive(Debug, PartialEq)]\nstruct Rgb {\n    r: u8,\n    g: u8,\n    b: u8,\n}\n\nimpl FromStr for Rgb {\n    type Err = String;\n\n    fn from_str(text: &str) -> Result<Rgb, String> {\n        let parts: Vec<&str> = text.split(',').collect();\n        if parts.len() != 3 {\n            return Err(String::from(\"need three parts\"));\n        }\n        let r = parts[0].parse::<u8>().map_err(|_| \"bad number\")?;\n        let g = parts[1].parse::<u8>().map_err(|_| \"bad number\")?;\n        let b = parts[2].parse::<u8>().map_err(|_| \"bad number\")?;\n        Ok(Rgb { r, g, b })\n    }\n}\n\nfn main() {\n    println!(\"{:?}\", \"1,2,3\".parse::<Rgb>());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::str::FromStr;\n\n#[derive(Debug, PartialEq)]\nstruct Rgb {\n    r: u8,\n    g: u8,\n    b: u8,\n}\n\nimpl FromStr for Rgb {\n    type Err = String;\n\n    fn from_str(text: &str) -> Result<Rgb, String> {\n        let parts: Vec<&str> = text.split(',').collect();\n        if parts.len() != 3 {\n            return Err(String::from(\"need three parts\"));\n        }\n        let r = parts[0].parse::<u8>().map_err(|_| \"bad number\")?;\n        let g = parts[1].parse::<u8>().map_err(|_| \"bad number\")?;\n        let b = parts[2].parse::<u8>().map_err(|_| \"bad number\")?;\n        Ok(Rgb { r, g, b })\n    }\n}\n\nfn main() {\n    println!(\"{:?}\", \"1,2,3\".parse::<Rgb>());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(\"1,2,3\".parse::<Rgb>(), Ok(Rgb { r: 1, g: 2, b: 3 }));",
+          "label": {
+            "tr": "geçerli",
+            "en": "valid"
+          }
+        },
+        {
+          "code": "assert_eq!(\"1,2\".parse::<Rgb>(), Err(String::from(\"need three parts\")));",
+          "label": {
+            "tr": "eksik",
+            "en": "missing"
+          }
+        },
+        {
+          "code": "assert_eq!(\"1,2,300\".parse::<Rgb>(), Err(String::from(\"bad number\")));",
+          "label": {
+            "tr": "taşan",
+            "en": "too large"
+          }
+        },
+        {
+          "code": "assert_eq!(\"a,2,3\".parse::<Rgb>(), Err(String::from(\"bad number\")));",
+          "label": {
+            "tr": "bozuk",
+            "en": "bad"
+          }
+        }
+      ]
+    }
+  ]
+}

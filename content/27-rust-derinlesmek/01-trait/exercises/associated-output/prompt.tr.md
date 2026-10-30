@@ -1,0 +1,1 @@
+`trait Converter` yaz: `type Output;` ve `fn convert(&self, input: &str) -> Option<Self::Output>;`. `ToInt` sayıya çevirsin (`Output = i32`, bozuksa `None`), `ToUpper` büyük harfe (`Output = String`, boşsa `None`).

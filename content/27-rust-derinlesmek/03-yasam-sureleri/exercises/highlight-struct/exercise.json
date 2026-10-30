@@ -1,0 +1,54 @@
+{
+  "id": "highlight-struct",
+  "title": {
+    "tr": "Vurgu Yapısı",
+    "en": "A Highlight Struct"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`part` `&'a str` döndürüyor, `&self`'in süresine bağlı değil: `&self.text[self.start..self.end]`.",
+      "en": "`part` returns `&'a str`, not tied to `&self`: `&self.text[self.start..self.end]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nstruct Highlight<'a> {\n    text: &'a str,\n    start: usize,\n    end: usize,\n}\n\nimpl<'a> Highlight<'a> {\n    fn part(&self) -> &'a str {\n        &self.text[self.start..self.end]\n    }\n\n    fn len(&self) -> usize {\n        self.end - self.start\n    }\n}\n\nfn main() {\n    let h = Highlight { text: \"hello world\", start: 6, end: 11 };\n    println!(\"{} {}\", h.part(), h.len());\n}\n```",
+      "en": "The full solution:\n\n```rust\nstruct Highlight<'a> {\n    text: &'a str,\n    start: usize,\n    end: usize,\n}\n\nimpl<'a> Highlight<'a> {\n    fn part(&self) -> &'a str {\n        &self.text[self.start..self.end]\n    }\n\n    fn len(&self) -> usize {\n        self.end - self.start\n    }\n}\n\nfn main() {\n    let h = Highlight { text: \"hello world\", start: 6, end: 11 };\n    println!(\"{} {}\", h.part(), h.len());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let h = Highlight { text: \"hello world\", start: 6, end: 11 }; assert_eq!(h.part(), \"world\"); assert_eq!(h.len(), 5);",
+          "label": {
+            "tr": "world",
+            "en": "world"
+          }
+        },
+        {
+          "code": "let h = Highlight { text: \"ab\", start: 1, end: 1 }; assert_eq!(h.part(), \"\"); assert_eq!(h.len(), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "let text = String::from(\"xyz\"); let p; { let h = Highlight { text: &text, start: 0, end: 1 }; p = h.part(); } assert_eq!(p, \"x\");",
+          "label": {
+            "tr": "struct'tan uzun yaşar",
+            "en": "outlives the struct"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "vec2-ops",
+  "title": {
+    "tr": "Vektör İşleçleri",
+    "en": "Vector Operators"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`impl Mul<f64> for Vec2 { type Output = Vec2; fn mul(self, k: f64) -> Vec2 { ... } }`",
+      "en": "`impl Mul<f64> for Vec2 { type Output = Vec2; fn mul(self, k: f64) -> Vec2 { ... } }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::ops::{Add, Mul};\n\n#[derive(Debug, Clone, Copy, PartialEq)]\nstruct Vec2 {\n    x: f64,\n    y: f64,\n}\n\nimpl Add for Vec2 {\n    type Output = Vec2;\n\n    fn add(self, other: Vec2) -> Vec2 {\n        Vec2 { x: self.x + other.x, y: self.y + other.y }\n    }\n}\n\nimpl Mul<f64> for Vec2 {\n    type Output = Vec2;\n\n    fn mul(self, k: f64) -> Vec2 {\n        Vec2 { x: self.x * k, y: self.y * k }\n    }\n}\n\nfn main() {\n    let a = Vec2 { x: 1.0, y: 2.0 };\n    println!(\"{:?}\", (a + a) * 0.5);\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::ops::{Add, Mul};\n\n#[derive(Debug, Clone, Copy, PartialEq)]\nstruct Vec2 {\n    x: f64,\n    y: f64,\n}\n\nimpl Add for Vec2 {\n    type Output = Vec2;\n\n    fn add(self, other: Vec2) -> Vec2 {\n        Vec2 { x: self.x + other.x, y: self.y + other.y }\n    }\n}\n\nimpl Mul<f64> for Vec2 {\n    type Output = Vec2;\n\n    fn mul(self, k: f64) -> Vec2 {\n        Vec2 { x: self.x * k, y: self.y * k }\n    }\n}\n\nfn main() {\n    let a = Vec2 { x: 1.0, y: 2.0 };\n    println!(\"{:?}\", (a + a) * 0.5);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let a = Vec2 { x: 1.0, y: 2.0 }; assert_eq!(a + a, Vec2 { x: 2.0, y: 4.0 });",
+          "label": {
+            "tr": "toplama",
+            "en": "addition"
+          }
+        },
+        {
+          "code": "let a = Vec2 { x: 1.0, y: 2.0 }; assert_eq!(a * 3.0, Vec2 { x: 3.0, y: 6.0 });",
+          "label": {
+            "tr": "çarpma",
+            "en": "multiplication"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "impl\\s+Mul\\s*<\\s*f64\\s*>\\s+for\\s+Vec2",
+      "show": "impl Mul<f64> for Vec2"
+    }
+  ]
+}

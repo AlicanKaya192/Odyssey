@@ -1,0 +1,54 @@
+{
+  "id": "total-price",
+  "title": {
+    "tr": "Toplam Fiyat",
+    "en": "Total Price"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`item.price()` her eleman için çağrılır.",
+      "en": "`item.price()` is called for each element."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\ntrait Priced {\n    fn price(&self) -> u32;\n}\n\nstruct Apple;\nstruct Melon(u32);\n\nimpl Priced for Apple {\n    fn price(&self) -> u32 {\n        3\n    }\n}\n\nimpl Priced for Melon {\n    fn price(&self) -> u32 {\n        self.0 * 2\n    }\n}\n\nfn total<T: Priced>(items: &[T]) -> u32 {\n    let mut sum = 0;\n    for item in items {\n        sum += item.price();\n    }\n    sum\n}\n\nfn main() {\n    println!(\"{}\", total(&[Apple, Apple]));\n    println!(\"{}\", total(&[Melon(4)]));\n}\n```",
+      "en": "The full solution:\n\n```rust\ntrait Priced {\n    fn price(&self) -> u32;\n}\n\nstruct Apple;\nstruct Melon(u32);\n\nimpl Priced for Apple {\n    fn price(&self) -> u32 {\n        3\n    }\n}\n\nimpl Priced for Melon {\n    fn price(&self) -> u32 {\n        self.0 * 2\n    }\n}\n\nfn total<T: Priced>(items: &[T]) -> u32 {\n    let mut sum = 0;\n    for item in items {\n        sum += item.price();\n    }\n    sum\n}\n\nfn main() {\n    println!(\"{}\", total(&[Apple, Apple]));\n    println!(\"{}\", total(&[Melon(4)]));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(total(&[Apple, Apple]), 6);",
+          "label": {
+            "tr": "iki elma",
+            "en": "two apples"
+          }
+        },
+        {
+          "code": "assert_eq!(total(&[Melon(4), Melon(1)]), 10);",
+          "label": {
+            "tr": "kavunlar",
+            "en": "melons"
+          }
+        },
+        {
+          "code": "assert_eq!(total::<Apple>(&[]), 0);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    }
+  ]
+}

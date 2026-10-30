@@ -1,0 +1,59 @@
+{
+  "id": "blanket-label",
+  "title": {
+    "tr": "Kapsayıcı Etiket",
+    "en": "A Blanket Label"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`impl<T: Debug> Label for T`, gövde `format!(\"<{:?}>\", self)`.",
+      "en": "`impl<T: Debug> Label for T`, with the body `format!(\"<{:?}>\", self)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::fmt::Debug;\n\ntrait Label {\n    fn label(&self) -> String;\n}\n\nimpl<T: Debug> Label for T {\n    fn label(&self) -> String {\n        format!(\"<{:?}>\", self)\n    }\n}\n\nfn main() {\n    println!(\"{}\", 5.label());\n    println!(\"{}\", \"hi\".label());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::fmt::Debug;\n\ntrait Label {\n    fn label(&self) -> String;\n}\n\nimpl<T: Debug> Label for T {\n    fn label(&self) -> String {\n        format!(\"<{:?}>\", self)\n    }\n}\n\nfn main() {\n    println!(\"{}\", 5.label());\n    println!(\"{}\", \"hi\".label());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(5.label(), \"<5>\");",
+          "label": {
+            "tr": "sayı",
+            "en": "number"
+          }
+        },
+        {
+          "code": "assert_eq!(\"hi\".label(), \"<\\\"hi\\\">\");",
+          "label": {
+            "tr": "metin",
+            "en": "text"
+          }
+        },
+        {
+          "code": "assert_eq!(vec![1].label(), \"<[1]>\");",
+          "label": {
+            "tr": "liste",
+            "en": "list"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "impl\\s*<\\s*T\\s*:\\s*Debug\\s*>\\s*Label\\s+for\\s+T",
+      "show": "impl<T: Debug> Label for T"
+    }
+  ]
+}

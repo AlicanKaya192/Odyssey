@@ -1,0 +1,6 @@
+// enum Size ...
+// fn largest ...
+
+fn main() {
+    println!("{:?}", largest(&[Size::Small, Size::Large]));
+}

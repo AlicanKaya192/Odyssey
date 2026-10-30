@@ -1,0 +1,59 @@
+{
+  "id": "two-impls",
+  "title": {
+    "tr": "İki impl",
+    "en": "Two impl Blocks"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Kısıt yalnızca `bigger`'ın bloğunda: `String` `Copy` değil.",
+      "en": "The bound is only on `bigger`'s block: `String` is not `Copy`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\n#[derive(Debug)]\nstruct Pair<T> {\n    first: T,\n    second: T,\n}\n\nimpl<T> Pair<T> {\n    fn swapped(self) -> Pair<T> {\n        Pair { first: self.second, second: self.first }\n    }\n}\n\nimpl<T: PartialOrd + Copy> Pair<T> {\n    fn bigger(&self) -> T {\n        if self.first > self.second {\n            self.first\n        } else {\n            self.second\n        }\n    }\n}\n\nfn main() {\n    let p = Pair { first: 1, second: 2 };\n    println!(\"{}\", p.bigger());\n    println!(\"{:?}\", p.swapped());\n}\n```",
+      "en": "The full solution:\n\n```rust\n#[derive(Debug)]\nstruct Pair<T> {\n    first: T,\n    second: T,\n}\n\nimpl<T> Pair<T> {\n    fn swapped(self) -> Pair<T> {\n        Pair { first: self.second, second: self.first }\n    }\n}\n\nimpl<T: PartialOrd + Copy> Pair<T> {\n    fn bigger(&self) -> T {\n        if self.first > self.second {\n            self.first\n        } else {\n            self.second\n        }\n    }\n}\n\nfn main() {\n    let p = Pair { first: 1, second: 2 };\n    println!(\"{}\", p.bigger());\n    println!(\"{:?}\", p.swapped());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(Pair { first: 1, second: 2 }.bigger(), 2);",
+          "label": {
+            "tr": "ikinci büyük",
+            "en": "second is larger"
+          }
+        },
+        {
+          "code": "assert_eq!(Pair { first: 'z', second: 'a' }.bigger(), 'z');",
+          "label": {
+            "tr": "harf",
+            "en": "letters"
+          }
+        },
+        {
+          "code": "let p = Pair { first: String::from(\"a\"), second: String::from(\"b\") }.swapped(); assert_eq!(p.first, \"b\");",
+          "label": {
+            "tr": "String çevrilir",
+            "en": "String swaps"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "impl\\s*<\\s*T\\s*>\\s*Pair",
+      "show": "impl<T> Pair<T>"
+    }
+  ]
+}

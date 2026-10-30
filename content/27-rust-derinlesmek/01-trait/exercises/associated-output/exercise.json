@@ -1,0 +1,66 @@
+{
+  "id": "associated-output",
+  "title": {
+    "tr": "İlişkili Çıktı",
+    "en": "An Associated Output"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`input.parse().ok()` `Result`'ı `Option` yapar.",
+      "en": "`input.parse().ok()` turns the `Result` into an `Option`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\ntrait Converter {\n    type Output;\n\n    fn convert(&self, input: &str) -> Option<Self::Output>;\n}\n\nstruct ToInt;\nstruct ToUpper;\n\nimpl Converter for ToInt {\n    type Output = i32;\n\n    fn convert(&self, input: &str) -> Option<i32> {\n        input.parse().ok()\n    }\n}\n\nimpl Converter for ToUpper {\n    type Output = String;\n\n    fn convert(&self, input: &str) -> Option<String> {\n        if input.is_empty() {\n            return None;\n        }\n        Some(input.to_uppercase())\n    }\n}\n\nfn main() {\n    println!(\"{:?}\", ToInt.convert(\"5\"));\n    println!(\"{:?}\", ToUpper.convert(\"hi\"));\n}\n```",
+      "en": "The full solution:\n\n```rust\ntrait Converter {\n    type Output;\n\n    fn convert(&self, input: &str) -> Option<Self::Output>;\n}\n\nstruct ToInt;\nstruct ToUpper;\n\nimpl Converter for ToInt {\n    type Output = i32;\n\n    fn convert(&self, input: &str) -> Option<i32> {\n        input.parse().ok()\n    }\n}\n\nimpl Converter for ToUpper {\n    type Output = String;\n\n    fn convert(&self, input: &str) -> Option<String> {\n        if input.is_empty() {\n            return None;\n        }\n        Some(input.to_uppercase())\n    }\n}\n\nfn main() {\n    println!(\"{:?}\", ToInt.convert(\"5\"));\n    println!(\"{:?}\", ToUpper.convert(\"hi\"));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(ToInt.convert(\"5\"), Some(5));",
+          "label": {
+            "tr": "sayı",
+            "en": "number"
+          }
+        },
+        {
+          "code": "assert_eq!(ToInt.convert(\"x\"), None);",
+          "label": {
+            "tr": "bozuk",
+            "en": "bad"
+          }
+        },
+        {
+          "code": "assert_eq!(ToUpper.convert(\"hi\"), Some(String::from(\"HI\")));",
+          "label": {
+            "tr": "metin",
+            "en": "text"
+          }
+        },
+        {
+          "code": "assert_eq!(ToUpper.convert(\"\"), None);",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "type\\s+Output\\s*=\\s*i32",
+      "show": "type Output = i32"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "only-one-mark",
+  "title": {
+    "tr": "Tek İşaret",
+    "en": "A Single Mark"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`text.split(',').next()` ilk, `text.rsplit(',').next()` son parça.",
+      "en": "`text.split(',').next()` is the first piece, `text.rsplit(',').next()` the last."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nfn pick<'a>(text: &'a str, label: &str) -> &'a str {\n    if label == \"first\" {\n        text.split(',').next().unwrap_or(\"\")\n    } else {\n        text.rsplit(',').next().unwrap_or(\"\")\n    }\n}\n\nfn main() {\n    let line = String::from(\"a,b,c\");\n    let found;\n    {\n        let label = String::from(\"last\");\n        found = pick(&line, &label);\n    }\n    println!(\"{found}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nfn pick<'a>(text: &'a str, label: &str) -> &'a str {\n    if label == \"first\" {\n        text.split(',').next().unwrap_or(\"\")\n    } else {\n        text.rsplit(',').next().unwrap_or(\"\")\n    }\n}\n\nfn main() {\n    let line = String::from(\"a,b,c\");\n    let found;\n    {\n        let label = String::from(\"last\");\n        found = pick(&line, &label);\n    }\n    println!(\"{found}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "c"
+    },
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(pick(\"a,b,c\", \"first\"), \"a\");",
+          "label": {
+            "tr": "ilk",
+            "en": "first"
+          }
+        },
+        {
+          "code": "assert_eq!(pick(\"a,b,c\", \"x\"), \"c\");",
+          "label": {
+            "tr": "son",
+            "en": "last"
+          }
+        },
+        {
+          "code": "assert_eq!(pick(\"solo\", \"first\"), \"solo\");",
+          "label": {
+            "tr": "virgülsüz",
+            "en": "no comma"
+          }
+        }
+      ]
+    }
+  ]
+}

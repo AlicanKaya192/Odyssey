@@ -1,0 +1,1 @@
+Write `struct Pair<T> { first: T, second: T }` (with `#[derive(Debug)]`). `swapped(self) -> Pair<T>` for every type, and `bigger(&self) -> T` only for `T: PartialOrd + Copy`: two separate `impl` blocks.
