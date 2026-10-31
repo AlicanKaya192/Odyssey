@@ -1,0 +1,43 @@
+{
+  "id": "tracking-allocator",
+  "title": {
+    "tr": "Bayt Sayan Ayırıcı",
+    "en": "A Byte-Counting Allocator"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`BYTES.fetch_add(layout.size(), Ordering::Relaxed);`",
+      "en": "`BYTES.fetch_add(layout.size(), Ordering::Relaxed);`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::sync::atomic::{AtomicUsize, Ordering};\n\nstruct Tracking;\n\nstatic BYTES: AtomicUsize = AtomicUsize::new(0);\n\n// SAFETY: every call is passed on to the system allocator unchanged.\nunsafe impl GlobalAlloc for Tracking {\n    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {\n        BYTES.fetch_add(layout.size(), Ordering::Relaxed);\n        unsafe { System.alloc(layout) }\n    }\n\n    unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {\n        BYTES.fetch_sub(layout.size(), Ordering::Relaxed);\n        unsafe { System.dealloc(pointer, layout) }\n    }\n}\n\n#[global_allocator]\nstatic ALLOCATOR: Tracking = Tracking;\n\nfn main() {\n    let before = BYTES.load(Ordering::Relaxed);\n    let values = std::hint::black_box(vec![0u8; 1024]);\n    let during = BYTES.load(Ordering::Relaxed);\n    drop(values);\n    let after = BYTES.load(Ordering::Relaxed);\n    println!(\"{}\", during - before);\n    println!(\"{}\", after - before);\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::sync::atomic::{AtomicUsize, Ordering};\n\nstruct Tracking;\n\nstatic BYTES: AtomicUsize = AtomicUsize::new(0);\n\n// SAFETY: every call is passed on to the system allocator unchanged.\nunsafe impl GlobalAlloc for Tracking {\n    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {\n        BYTES.fetch_add(layout.size(), Ordering::Relaxed);\n        unsafe { System.alloc(layout) }\n    }\n\n    unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {\n        BYTES.fetch_sub(layout.size(), Ordering::Relaxed);\n        unsafe { System.dealloc(pointer, layout) }\n    }\n}\n\n#[global_allocator]\nstatic ALLOCATOR: Tracking = Tracking;\n\nfn main() {\n    let before = BYTES.load(Ordering::Relaxed);\n    let values = std::hint::black_box(vec![0u8; 1024]);\n    let during = BYTES.load(Ordering::Relaxed);\n    drop(values);\n    let after = BYTES.load(Ordering::Relaxed);\n    println!(\"{}\", during - before);\n    println!(\"{}\", after - before);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1024\n0"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "unsafe\\s+impl\\s+GlobalAlloc",
+      "show": "unsafe impl GlobalAlloc"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "System\\.alloc",
+      "show": "System.alloc"
+    }
+  ]
+}

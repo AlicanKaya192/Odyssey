@@ -1,0 +1,63 @@
+{
+  "id": "fixed-writer",
+  "title": {
+    "tr": "Sabit Tampona Yazmak",
+    "en": "Writing to a Fixed Buffer"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "tiny/src/lib.rs",
+      "starter": "starter-tiny-src-lib.{lang}.rs",
+      "solution": "solution-tiny-src-lib.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    },
+    {
+      "name": "tiny/Cargo.toml",
+      "readonly": true
+    },
+    {
+      "name": "src/main.rs",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`self.bytes[self.len..end].copy_from_slice(text.as_bytes());`",
+      "en": "`self.bytes[self.len..end].copy_from_slice(text.as_bytes());`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**tiny/src/lib.rs**\n\n```rust\n#![no_std]\n\nuse core::fmt::{self, Write};\n\npub struct Buffer<'a> {\n    bytes: &'a mut [u8],\n    len: usize,\n}\n\nimpl<'a> Buffer<'a> {\n    pub fn new(bytes: &'a mut [u8]) -> Self {\n        Buffer { bytes, len: 0 }\n    }\n\n    pub fn as_bytes(&self) -> &[u8] {\n        &self.bytes[..self.len]\n    }\n}\n\nimpl Write for Buffer<'_> {\n    fn write_str(&mut self, text: &str) -> fmt::Result {\n        let end = self.len + text.len();\n        if end > self.bytes.len() {\n            return Err(fmt::Error);\n        }\n        self.bytes[self.len..end].copy_from_slice(text.as_bytes());\n        self.len = end;\n        Ok(())\n    }\n}\n\npub fn report(out: &mut Buffer, name: &str, value: i32) -> fmt::Result {\n    write!(out, \"{name}={value}\")\n}\n```",
+      "en": "The full solution:\n\n**tiny/src/lib.rs**\n\n```rust\n#![no_std]\n\nuse core::fmt::{self, Write};\n\npub struct Buffer<'a> {\n    bytes: &'a mut [u8],\n    len: usize,\n}\n\nimpl<'a> Buffer<'a> {\n    pub fn new(bytes: &'a mut [u8]) -> Self {\n        Buffer { bytes, len: 0 }\n    }\n\n    pub fn as_bytes(&self) -> &[u8] {\n        &self.bytes[..self.len]\n    }\n}\n\nimpl Write for Buffer<'_> {\n    fn write_str(&mut self, text: &str) -> fmt::Result {\n        let end = self.len + text.len();\n        if end > self.bytes.len() {\n            return Err(fmt::Error);\n        }\n        self.bytes[self.len..end].copy_from_slice(text.as_bytes());\n        self.len = end;\n        Ok(())\n    }\n}\n\npub fn report(out: &mut Buffer, name: &str, value: i32) -> fmt::Result {\n    write!(out, \"{name}={value}\")\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Ok(())\na=5\nErr(Error)\ntrue"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "#!\\[no_std\\]",
+      "show": "#![no_std]",
+      "file": "tiny/src/lib.rs"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "write!\\(",
+      "show": "write!(",
+      "file": "tiny/src/lib.rs"
+    }
+  ]
+}

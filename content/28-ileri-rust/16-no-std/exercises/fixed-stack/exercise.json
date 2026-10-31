@@ -1,0 +1,57 @@
+{
+  "id": "fixed-stack",
+  "title": {
+    "tr": "Sabit Kapasiteli Yığın",
+    "en": "A Fixed-Capacity Stack"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "tiny/src/lib.rs",
+      "starter": "starter-tiny-src-lib.{lang}.rs",
+      "solution": "solution-tiny-src-lib.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    },
+    {
+      "name": "tiny/Cargo.toml",
+      "readonly": true
+    },
+    {
+      "name": "src/main.rs",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`self.items[self.len].take()`",
+      "en": "`self.items[self.len].take()`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**tiny/src/lib.rs**\n\n```rust\n#![no_std]\n\npub struct Stack<T, const N: usize> {\n    items: [Option<T>; N],\n    len: usize,\n}\n\nimpl<T, const N: usize> Stack<T, N> {\n    pub fn new() -> Self {\n        Stack { items: [const { None }; N], len: 0 }\n    }\n\n    pub fn push(&mut self, value: T) -> Result<(), T> {\n        if self.len == N {\n            return Err(value);\n        }\n        self.items[self.len] = Some(value);\n        self.len += 1;\n        Ok(())\n    }\n\n    pub fn pop(&mut self) -> Option<T> {\n        if self.len == 0 {\n            return None;\n        }\n        self.len -= 1;\n        self.items[self.len].take()\n    }\n}\n```",
+      "en": "The full solution:\n\n**tiny/src/lib.rs**\n\n```rust\n#![no_std]\n\npub struct Stack<T, const N: usize> {\n    items: [Option<T>; N],\n    len: usize,\n}\n\nimpl<T, const N: usize> Stack<T, N> {\n    pub fn new() -> Self {\n        Stack { items: [const { None }; N], len: 0 }\n    }\n\n    pub fn push(&mut self, value: T) -> Result<(), T> {\n        if self.len == N {\n            return Err(value);\n        }\n        self.items[self.len] = Some(value);\n        self.len += 1;\n        Ok(())\n    }\n\n    pub fn pop(&mut self) -> Option<T> {\n        if self.len == 0 {\n            return None;\n        }\n        self.len -= 1;\n        self.items[self.len].take()\n    }\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "None\nOk(())\nOk(())\nErr(\"c\")\nSome(\"b\")\nSome(\"a\")\nNone"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "#!\\[no_std\\]",
+      "show": "#![no_std]",
+      "file": "tiny/src/lib.rs"
+    }
+  ]
+}
