@@ -1,0 +1,71 @@
+{
+  "id": "c-length",
+  "title": {
+    "tr": "Güvenli Sarmalayıcı",
+    "en": "A Safe Wrapper"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let text = CString::new(text).ok()?;`",
+      "en": "`let text = CString::new(text).ok()?;`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::ffi::{CString, c_char};\n\nunsafe extern \"C\" {\n    fn strlen(text: *const c_char) -> usize;\n}\n\nfn c_length(text: &str) -> Option<usize> {\n    let text = CString::new(text).ok()?;\n    // SAFETY: text is a valid, NUL-terminated string for the whole call.\n    Some(unsafe { strlen(text.as_ptr()) })\n}\n\nfn main() {\n    println!(\"{:?}\", c_length(\"hello\"));\n    println!(\"{:?}\", c_length(\"a\\0b\"));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::ffi::{CString, c_char};\n\nunsafe extern \"C\" {\n    fn strlen(text: *const c_char) -> usize;\n}\n\nfn c_length(text: &str) -> Option<usize> {\n    let text = CString::new(text).ok()?;\n    // SAFETY: text is a valid, NUL-terminated string for the whole call.\n    Some(unsafe { strlen(text.as_ptr()) })\n}\n\nfn main() {\n    println!(\"{:?}\", c_length(\"hello\"));\n    println!(\"{:?}\", c_length(\"a\\0b\"));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(c_length(\"hello\"), Some(5));",
+          "label": {
+            "tr": "metin",
+            "en": "text"
+          }
+        },
+        {
+          "code": "assert_eq!(c_length(\"\"), Some(0));",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "assert_eq!(c_length(\"a\\0b\"), None);",
+          "label": {
+            "tr": "içte NUL",
+            "en": "an inner NUL"
+          }
+        },
+        {
+          "code": "assert_eq!(c_length(\"\\u{e7}\"), Some(2));",
+          "label": {
+            "tr": "bayt sayar",
+            "en": "counts bytes"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "strlen\\(",
+      "show": "strlen("
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.len\\(\\)",
+      "show": ".len()"
+    }
+  ]
+}

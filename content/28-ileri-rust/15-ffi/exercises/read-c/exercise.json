@@ -1,0 +1,64 @@
+{
+  "id": "read-c",
+  "title": {
+    "tr": "C Metnini Oku",
+    "en": "Read a C String"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`text.to_str().ok().map(String::from)`",
+      "en": "`text.to_str().ok().map(String::from)`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::ffi::{CStr, c_char};\nuse std::ptr;\n\n/// # Safety\n/// `pointer` must be null or a valid, NUL-terminated string.\nunsafe fn read_c(pointer: *const c_char) -> Option<String> {\n    if pointer.is_null() {\n        return None;\n    }\n    // SAFETY: the caller promised a valid, NUL-terminated string.\n    let text = unsafe { CStr::from_ptr(pointer) };\n    text.to_str().ok().map(String::from)\n}\n\nfn main() {\n    let text = unsafe { read_c(c\"hello\".as_ptr()) };\n    println!(\"{text:?}\");\n    println!(\"{:?}\", unsafe { read_c(ptr::null()) });\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::ffi::{CStr, c_char};\nuse std::ptr;\n\n/// # Safety\n/// `pointer` must be null or a valid, NUL-terminated string.\nunsafe fn read_c(pointer: *const c_char) -> Option<String> {\n    if pointer.is_null() {\n        return None;\n    }\n    // SAFETY: the caller promised a valid, NUL-terminated string.\n    let text = unsafe { CStr::from_ptr(pointer) };\n    text.to_str().ok().map(String::from)\n}\n\nfn main() {\n    let text = unsafe { read_c(c\"hello\".as_ptr()) };\n    println!(\"{text:?}\");\n    println!(\"{:?}\", unsafe { read_c(ptr::null()) });\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(unsafe { read_c(c\"hi\".as_ptr()) }, Some(String::from(\"hi\")));",
+          "label": {
+            "tr": "metin",
+            "en": "text"
+          }
+        },
+        {
+          "code": "assert_eq!(unsafe { read_c(ptr::null()) }, None);",
+          "label": {
+            "tr": "boş işaretçi",
+            "en": "a null pointer"
+          }
+        },
+        {
+          "code": "assert_eq!(unsafe { read_c(c\"\\xFF\".as_ptr()) }, None);",
+          "label": {
+            "tr": "geçersiz UTF-8",
+            "en": "invalid UTF-8"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "is_null\\(\\)",
+      "show": "is_null()"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "from_ptr",
+      "show": "from_ptr"
+    }
+  ]
+}

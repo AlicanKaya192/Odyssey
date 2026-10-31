@@ -1,0 +1,64 @@
+{
+  "id": "sort-descending",
+  "title": {
+    "tr": "C ile Ters Sıralama",
+    "en": "Reverse Sorting with C"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Ters sıra için `b.cmp(&a) as c_int`.",
+      "en": "For the reverse order, `b.cmp(&a) as c_int`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::ffi::{c_int, c_void};\n\nunsafe extern \"C\" {\n    fn qsort(\n        base: *mut c_void,\n        count: usize,\n        size: usize,\n        compare: extern \"C\" fn(*const c_void, *const c_void) -> c_int,\n    );\n}\n\nextern \"C\" fn compare(a: *const c_void, b: *const c_void) -> c_int {\n    // SAFETY: qsort gives pointers into the i32 slice we passed.\n    let (a, b) = unsafe { (*(a as *const i32), *(b as *const i32)) };\n    b.cmp(&a) as c_int\n}\n\nfn sort_descending(values: &mut [i32]) {\n    // SAFETY: the pointer, count and size all describe the same slice.\n    unsafe {\n        qsort(values.as_mut_ptr().cast(), values.len(), size_of::<i32>(), compare);\n    }\n}\n\nfn main() {\n    let mut values = [3, -1, 2];\n    sort_descending(&mut values);\n    println!(\"{values:?}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::ffi::{c_int, c_void};\n\nunsafe extern \"C\" {\n    fn qsort(\n        base: *mut c_void,\n        count: usize,\n        size: usize,\n        compare: extern \"C\" fn(*const c_void, *const c_void) -> c_int,\n    );\n}\n\nextern \"C\" fn compare(a: *const c_void, b: *const c_void) -> c_int {\n    // SAFETY: qsort gives pointers into the i32 slice we passed.\n    let (a, b) = unsafe { (*(a as *const i32), *(b as *const i32)) };\n    b.cmp(&a) as c_int\n}\n\nfn sort_descending(values: &mut [i32]) {\n    // SAFETY: the pointer, count and size all describe the same slice.\n    unsafe {\n        qsort(values.as_mut_ptr().cast(), values.len(), size_of::<i32>(), compare);\n    }\n}\n\nfn main() {\n    let mut values = [3, -1, 2];\n    sort_descending(&mut values);\n    println!(\"{values:?}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut v = [3, -1, 2]; sort_descending(&mut v); assert_eq!(v, [3, 2, -1]);",
+          "label": {
+            "tr": "sıra",
+            "en": "order"
+          }
+        },
+        {
+          "code": "let mut v: [i32; 0] = []; sort_descending(&mut v); assert!(v.is_empty());",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        },
+        {
+          "code": "let mut v = vec![1; 3]; v.push(9); sort_descending(&mut v); assert_eq!(v, [9, 1, 1, 1]);",
+          "label": {
+            "tr": "eşitler",
+            "en": "equal values"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "qsort\\(",
+      "show": "qsort("
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.sort",
+      "show": ".sort"
+    }
+  ]
+}

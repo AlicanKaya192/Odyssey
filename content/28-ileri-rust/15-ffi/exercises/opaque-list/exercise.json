@@ -1,0 +1,62 @@
+{
+  "id": "opaque-list",
+  "title": {
+    "tr": "Opak Tutamaç",
+    "en": "An Opaque Handle"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`Box::into_raw(Box::new(List { values: Vec::new() }))`",
+      "en": "`Box::into_raw(Box::new(List { values: Vec::new() }))`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\npub struct List {\n    values: Vec<i32>,\n}\n\n#[unsafe(no_mangle)]\npub extern \"C\" fn list_new() -> *mut List {\n    Box::into_raw(Box::new(List { values: Vec::new() }))\n}\n\n/// # Safety\n/// `list` must come from `list_new` and must not be freed yet.\n#[unsafe(no_mangle)]\npub unsafe extern \"C\" fn list_push(list: *mut List, value: i32) {\n    let list = unsafe { &mut *list };\n    list.values.push(value);\n}\n\n/// # Safety\n/// `list` must come from `list_new` and must not be freed yet.\n#[unsafe(no_mangle)]\npub unsafe extern \"C\" fn list_sum(list: *const List) -> i32 {\n    let list = unsafe { &*list };\n    list.values.iter().sum()\n}\n\n/// # Safety\n/// `list` must come from `list_new` and is invalid after this call.\n#[unsafe(no_mangle)]\npub unsafe extern \"C\" fn list_free(list: *mut List) {\n    if !list.is_null() {\n        drop(unsafe { Box::from_raw(list) });\n    }\n}\n\nfn main() {\n    let list = list_new();\n    unsafe {\n        list_push(list, 2);\n        list_push(list, 3);\n        println!(\"{}\", list_sum(list));\n        list_free(list);\n    }\n}\n```",
+      "en": "The full solution:\n\n```rust\npub struct List {\n    values: Vec<i32>,\n}\n\n#[unsafe(no_mangle)]\npub extern \"C\" fn list_new() -> *mut List {\n    Box::into_raw(Box::new(List { values: Vec::new() }))\n}\n\n/// # Safety\n/// `list` must come from `list_new` and must not be freed yet.\n#[unsafe(no_mangle)]\npub unsafe extern \"C\" fn list_push(list: *mut List, value: i32) {\n    let list = unsafe { &mut *list };\n    list.values.push(value);\n}\n\n/// # Safety\n/// `list` must come from `list_new` and must not be freed yet.\n#[unsafe(no_mangle)]\npub unsafe extern \"C\" fn list_sum(list: *const List) -> i32 {\n    let list = unsafe { &*list };\n    list.values.iter().sum()\n}\n\n/// # Safety\n/// `list` must come from `list_new` and is invalid after this call.\n#[unsafe(no_mangle)]\npub unsafe extern \"C\" fn list_free(list: *mut List) {\n    if !list.is_null() {\n        drop(unsafe { Box::from_raw(list) });\n    }\n}\n\nfn main() {\n    let list = list_new();\n    unsafe {\n        list_push(list, 2);\n        list_push(list, 3);\n        println!(\"{}\", list_sum(list));\n        list_free(list);\n    }\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let l = list_new(); unsafe { assert_eq!(list_sum(l), 0); list_push(l, 2); list_push(l, -5); assert_eq!(list_sum(l), -3); list_free(l); }",
+          "label": {
+            "tr": "akış",
+            "en": "the flow"
+          }
+        },
+        {
+          "code": "unsafe { list_free(std::ptr::null_mut()); }",
+          "label": {
+            "tr": "boş işaretçiyi silmek",
+            "en": "freeing null"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "no_mangle",
+      "show": "no_mangle"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Box::into_raw",
+      "show": "Box::into_raw"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Box::from_raw",
+      "show": "Box::from_raw"
+    }
+  ]
+}

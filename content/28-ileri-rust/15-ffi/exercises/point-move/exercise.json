@@ -1,0 +1,64 @@
+{
+  "id": "point-move",
+  "title": {
+    "tr": "Hata Kodlu Fonksiyon",
+    "en": "A Function with an Error Code"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`if point.is_null() { return -1; }`",
+      "en": "`if point.is_null() { return -1; }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::ffi::c_int;\n\n#[repr(C)]\nstruct Point {\n    x: i32,\n    y: i32,\n}\n\n/// # Safety\n/// `point` must be null or valid for writing.\n#[unsafe(no_mangle)]\nunsafe extern \"C\" fn point_move(point: *mut Point, dx: i32, dy: i32) -> c_int {\n    if point.is_null() {\n        return -1;\n    }\n    // SAFETY: the caller promised a valid pointer, and it is not null.\n    let point = unsafe { &mut *point };\n    point.x += dx;\n    point.y += dy;\n    0\n}\n\nfn main() {\n    let mut point = Point { x: 1, y: 2 };\n    println!(\"{}\", unsafe { point_move(&mut point, 2, 3) });\n    println!(\"{} {}\", point.x, point.y);\n    println!(\"{}\", unsafe { point_move(std::ptr::null_mut(), 2, 3) });\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::ffi::c_int;\n\n#[repr(C)]\nstruct Point {\n    x: i32,\n    y: i32,\n}\n\n/// # Safety\n/// `point` must be null or valid for writing.\n#[unsafe(no_mangle)]\nunsafe extern \"C\" fn point_move(point: *mut Point, dx: i32, dy: i32) -> c_int {\n    if point.is_null() {\n        return -1;\n    }\n    // SAFETY: the caller promised a valid pointer, and it is not null.\n    let point = unsafe { &mut *point };\n    point.x += dx;\n    point.y += dy;\n    0\n}\n\nfn main() {\n    let mut point = Point { x: 1, y: 2 };\n    println!(\"{}\", unsafe { point_move(&mut point, 2, 3) });\n    println!(\"{} {}\", point.x, point.y);\n    println!(\"{}\", unsafe { point_move(std::ptr::null_mut(), 2, 3) });\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut p = Point { x: 1, y: 2 }; assert_eq!(unsafe { point_move(&mut p, 2, 3) }, 0); assert_eq!((p.x, p.y), (3, 5));",
+          "label": {
+            "tr": "taşıma",
+            "en": "moving"
+          }
+        },
+        {
+          "code": "assert_eq!(unsafe { point_move(std::ptr::null_mut(), 1, 1) }, -1);",
+          "label": {
+            "tr": "boş işaretçi",
+            "en": "a null pointer"
+          }
+        },
+        {
+          "code": "assert_eq!(size_of::<Point>(), 8);",
+          "label": {
+            "tr": "düzen",
+            "en": "the layout"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "#\\[repr\\(C\\)\\]",
+      "show": "#[repr(C)]"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "is_null\\(\\)",
+      "show": "is_null()"
+    }
+  ]
+}
