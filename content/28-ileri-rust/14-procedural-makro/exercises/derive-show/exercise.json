@@ -1,0 +1,57 @@
+{
+  "id": "derive-show",
+  "title": {
+    "tr": "Alanları Gezen derive",
+    "en": "A derive That Walks Fields"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "my_macros/src/lib.rs",
+      "starter": "starter-my_macros-src-lib.{lang}.rs",
+      "solution": "solution-my_macros-src-lib.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    },
+    {
+      "name": "my_macros/Cargo.toml",
+      "readonly": true
+    },
+    {
+      "name": "src/main.rs",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`mark.as_char() == ':' && mark.spacing() == Spacing::Alone`",
+      "en": "`mark.as_char() == ':' && mark.spacing() == Spacing::Alone`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**my_macros/src/lib.rs**\n\n```rust\nuse proc_macro::{Delimiter, Spacing, TokenStream, TokenTree};\n\n#[proc_macro_derive(Show)]\npub fn show(input: TokenStream) -> TokenStream {\n    let tokens: Vec<TokenTree> = input.into_iter().collect();\n\n    let mut iter = tokens.iter();\n    let mut name = String::new();\n    while let Some(token) = iter.next() {\n        if token.to_string() == \"struct\" {\n            name = iter.next().unwrap().to_string();\n            break;\n        }\n    }\n\n    let body = tokens.iter().find_map(|token| match token {\n        TokenTree::Group(group) if group.delimiter() == Delimiter::Brace => Some(group),\n        _ => None,\n    });\n    let inner: Vec<TokenTree> = body.unwrap().stream().into_iter().collect();\n    let fields: Vec<String> = inner\n        .windows(2)\n        .filter_map(|pair| match pair {\n            [TokenTree::Ident(field), TokenTree::Punct(mark)]\n                if mark.as_char() == ':' && mark.spacing() == Spacing::Alone =>\n            {\n                Some(field.to_string())\n            }\n            _ => None,\n        })\n        .collect();\n\n    let parts: Vec<String> = fields.iter().map(|f| format!(\"{f}: {{:?}}\")).collect();\n    let args: Vec<String> = fields.iter().map(|f| format!(\"self.{f}\")).collect();\n    let text = format!(\"{name} {{{{ {} }}}}\", parts.join(\", \"));\n    format!(\n        \"impl {name} {{\n            fn show(&self) -> String {{\n                format!({text:?}, {})\n            }}\n        }}\",\n        args.join(\", \")\n    )\n    .parse()\n    .unwrap()\n}\n```",
+      "en": "The full solution:\n\n**my_macros/src/lib.rs**\n\n```rust\nuse proc_macro::{Delimiter, Spacing, TokenStream, TokenTree};\n\n#[proc_macro_derive(Show)]\npub fn show(input: TokenStream) -> TokenStream {\n    let tokens: Vec<TokenTree> = input.into_iter().collect();\n\n    let mut iter = tokens.iter();\n    let mut name = String::new();\n    while let Some(token) = iter.next() {\n        if token.to_string() == \"struct\" {\n            name = iter.next().unwrap().to_string();\n            break;\n        }\n    }\n\n    let body = tokens.iter().find_map(|token| match token {\n        TokenTree::Group(group) if group.delimiter() == Delimiter::Brace => Some(group),\n        _ => None,\n    });\n    let inner: Vec<TokenTree> = body.unwrap().stream().into_iter().collect();\n    let fields: Vec<String> = inner\n        .windows(2)\n        .filter_map(|pair| match pair {\n            [TokenTree::Ident(field), TokenTree::Punct(mark)]\n                if mark.as_char() == ':' && mark.spacing() == Spacing::Alone =>\n            {\n                Some(field.to_string())\n            }\n            _ => None,\n        })\n        .collect();\n\n    let parts: Vec<String> = fields.iter().map(|f| format!(\"{f}: {{:?}}\")).collect();\n    let args: Vec<String> = fields.iter().map(|f| format!(\"self.{f}\")).collect();\n    let text = format!(\"{name} {{{{ {} }}}}\", parts.join(\", \"));\n    format!(\n        \"impl {name} {{\n            fn show(&self) -> String {{\n                format!({text:?}, {})\n            }}\n        }}\",\n        args.join(\", \")\n    )\n    .parse()\n    .unwrap()\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Point { x: 1, y: 2 }\nUser { name: \"ada\", age: 36, tags: [1, 2] }"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Spacing::Alone",
+      "show": "Spacing::Alone",
+      "file": "my_macros/src/lib.rs"
+    }
+  ]
+}

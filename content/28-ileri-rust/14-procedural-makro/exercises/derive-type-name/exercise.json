@@ -1,0 +1,57 @@
+{
+  "id": "derive-type-name",
+  "title": {
+    "tr": "Kendi derive'ımız",
+    "en": "Our Own derive"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "my_macros/src/lib.rs",
+      "starter": "starter-my_macros-src-lib.{lang}.rs",
+      "solution": "solution-my_macros-src-lib.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    },
+    {
+      "name": "my_macros/Cargo.toml",
+      "readonly": true
+    },
+    {
+      "name": "src/main.rs",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`{name:?}` adı tırnaklı metin olarak yazar.",
+      "en": "`{name:?}` writes the name as quoted text."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**my_macros/src/lib.rs**\n\n```rust\nuse proc_macro::TokenStream;\n\n#[proc_macro_derive(TypeName)]\npub fn type_name(input: TokenStream) -> TokenStream {\n    let mut tokens = input.into_iter();\n    let mut name = String::new();\n    while let Some(token) = tokens.next() {\n        let word = token.to_string();\n        if word == \"struct\" || word == \"enum\" {\n            name = tokens.next().unwrap().to_string();\n            break;\n        }\n    }\n    format!(\n        \"impl {name} {{\n            fn type_name() -> &'static str {{\n                {name:?}\n            }}\n        }}\"\n    )\n    .parse()\n    .unwrap()\n}\n```",
+      "en": "The full solution:\n\n**my_macros/src/lib.rs**\n\n```rust\nuse proc_macro::TokenStream;\n\n#[proc_macro_derive(TypeName)]\npub fn type_name(input: TokenStream) -> TokenStream {\n    let mut tokens = input.into_iter();\n    let mut name = String::new();\n    while let Some(token) = tokens.next() {\n        let word = token.to_string();\n        if word == \"struct\" || word == \"enum\" {\n            name = tokens.next().unwrap().to_string();\n            break;\n        }\n    }\n    format!(\n        \"impl {name} {{\n            fn type_name() -> &'static str {{\n                {name:?}\n            }}\n        }}\"\n    )\n    .parse()\n    .unwrap()\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Point\nColor"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "proc_macro_derive\\(TypeName\\)",
+      "show": "proc_macro_derive(TypeName)",
+      "file": "my_macros/src/lib.rs"
+    }
+  ]
+}

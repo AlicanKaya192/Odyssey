@@ -1,0 +1,63 @@
+{
+  "id": "attribute-tag",
+  "title": {
+    "tr": "Argümanlı Attribute",
+    "en": "An Attribute with Arguments"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "my_macros/src/lib.rs",
+      "starter": "starter-my_macros-src-lib.{lang}.rs",
+      "solution": "solution-my_macros-src-lib.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    },
+    {
+      "name": "my_macros/Cargo.toml",
+      "readonly": true
+    },
+    {
+      "name": "src/main.rs",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`tokens.push(TokenTree::Group(Group::new(Delimiter::Brace, new_body)));`",
+      "en": "`tokens.push(TokenTree::Group(Group::new(Delimiter::Brace, new_body)));`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**my_macros/src/lib.rs**\n\n```rust\nuse proc_macro::{Delimiter, Group, TokenStream, TokenTree};\n\n#[proc_macro_attribute]\npub fn tag(args: TokenStream, item: TokenStream) -> TokenStream {\n    let label = args.to_string();\n    let mut tokens: Vec<TokenTree> = item.into_iter().collect();\n\n    let mut iter = tokens.iter();\n    let mut name = String::new();\n    while let Some(token) = iter.next() {\n        if token.to_string() == \"fn\" {\n            name = iter.next().unwrap().to_string();\n            break;\n        }\n    }\n\n    let Some(TokenTree::Group(body)) = tokens.pop() else {\n        panic!(\"tag works only on functions\");\n    };\n    let mut new_body: TokenStream =\n        format!(\"println!(\\\"[{label}] {name}\\\");\").parse().unwrap();\n    new_body.extend(body.stream());\n    tokens.push(TokenTree::Group(Group::new(Delimiter::Brace, new_body)));\n    tokens.into_iter().collect()\n}\n```",
+      "en": "The full solution:\n\n**my_macros/src/lib.rs**\n\n```rust\nuse proc_macro::{Delimiter, Group, TokenStream, TokenTree};\n\n#[proc_macro_attribute]\npub fn tag(args: TokenStream, item: TokenStream) -> TokenStream {\n    let label = args.to_string();\n    let mut tokens: Vec<TokenTree> = item.into_iter().collect();\n\n    let mut iter = tokens.iter();\n    let mut name = String::new();\n    while let Some(token) = iter.next() {\n        if token.to_string() == \"fn\" {\n            name = iter.next().unwrap().to_string();\n            break;\n        }\n    }\n\n    let Some(TokenTree::Group(body)) = tokens.pop() else {\n        panic!(\"tag works only on functions\");\n    };\n    let mut new_body: TokenStream =\n        format!(\"println!(\\\"[{label}] {name}\\\");\").parse().unwrap();\n    new_body.extend(body.stream());\n    tokens.push(TokenTree::Group(Group::new(Delimiter::Brace, new_body)));\n    tokens.into_iter().collect()\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[db] load\n1\n[net] send\n2"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "proc_macro_attribute",
+      "show": "proc_macro_attribute",
+      "file": "my_macros/src/lib.rs"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Group::new",
+      "show": "Group::new",
+      "file": "my_macros/src/lib.rs"
+    }
+  ]
+}
