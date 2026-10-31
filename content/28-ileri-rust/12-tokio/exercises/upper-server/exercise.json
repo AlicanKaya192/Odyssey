@@ -1,0 +1,53 @@
+{
+  "id": "upper-server",
+  "title": {
+    "tr": "Büyük Harf Sunucusu",
+    "en": "An Uppercase Server"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "src/main.rs",
+      "starter": "starter-src-main.{lang}.rs",
+      "solution": "solution-src-main.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 300,
+  "hints": [
+    {
+      "tr": "Dış `tokio::spawn` içinde `loop` ile `accept`, her bağlantıya ayrı `tokio::spawn`. Cevap: `to_uppercase()`, `write_all`.",
+      "en": "`loop` with `accept` inside an outer `tokio::spawn`, a separate `tokio::spawn` for each connection. The answer: `to_uppercase()`, `write_all`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**src/main.rs**\n\n```rust\nuse tokio::io::{AsyncReadExt, AsyncWriteExt};\nuse tokio::net::{TcpListener, TcpStream};\n\n#[tokio::main]\nasync fn main() -> std::io::Result<()> {\n    let listener = TcpListener::bind(\"127.0.0.1:0\").await?;\n    let address = listener.local_addr()?;\n    tokio::spawn(async move {\n        loop {\n            let (mut socket, _) = listener.accept().await.unwrap();\n            tokio::spawn(async move {\n                let mut buffer = [0; 64];\n                let n = socket.read(&mut buffer).await.unwrap();\n                let upper = String::from_utf8_lossy(&buffer[..n]).to_uppercase();\n                socket.write_all(upper.as_bytes()).await.unwrap();\n            });\n        }\n    });\n\n    for word in [\"rust\", \"tokio\"] {\n        let mut client = TcpStream::connect(address).await?;\n        client.write_all(word.as_bytes()).await?;\n        let mut buffer = [0; 64];\n        let n = client.read(&mut buffer).await?;\n        println!(\"{}\", String::from_utf8_lossy(&buffer[..n]));\n    }\n    Ok(())\n}\n```",
+      "en": "The full solution:\n\n**src/main.rs**\n\n```rust\nuse tokio::io::{AsyncReadExt, AsyncWriteExt};\nuse tokio::net::{TcpListener, TcpStream};\n\n#[tokio::main]\nasync fn main() -> std::io::Result<()> {\n    let listener = TcpListener::bind(\"127.0.0.1:0\").await?;\n    let address = listener.local_addr()?;\n    tokio::spawn(async move {\n        loop {\n            let (mut socket, _) = listener.accept().await.unwrap();\n            tokio::spawn(async move {\n                let mut buffer = [0; 64];\n                let n = socket.read(&mut buffer).await.unwrap();\n                let upper = String::from_utf8_lossy(&buffer[..n]).to_uppercase();\n                socket.write_all(upper.as_bytes()).await.unwrap();\n            });\n        }\n    });\n\n    for word in [\"rust\", \"tokio\"] {\n        let mut client = TcpStream::connect(address).await?;\n        client.write_all(word.as_bytes()).await?;\n        let mut buffer = [0; 64];\n        let n = client.read(&mut buffer).await?;\n        println!(\"{}\", String::from_utf8_lossy(&buffer[..n]));\n    }\n    Ok(())\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "RUST\nTOKIO"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "listener\\.accept\\(\\)",
+      "show": "listener.accept()"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "to_uppercase",
+      "show": "to_uppercase"
+    }
+  ]
+}

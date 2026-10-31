@@ -1,0 +1,48 @@
+{
+  "id": "with-deadline",
+  "title": {
+    "tr": "Son Tarih",
+    "en": "A Deadline"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "src/main.rs",
+      "starter": "starter-src-main.{lang}.rs",
+      "solution": "solution-src-main.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 300,
+  "hints": [
+    {
+      "tr": "`match timeout(Duration::from_millis(50), fetch(wait_ms)).await { ... }`",
+      "en": "`match timeout(Duration::from_millis(50), fetch(wait_ms)).await { ... }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**src/main.rs**\n\n```rust\nuse std::time::Duration;\nuse tokio::time::{sleep, timeout};\n\nasync fn fetch(wait_ms: u64) -> i32 {\n    sleep(Duration::from_millis(wait_ms)).await;\n    7\n}\n\nasync fn fetch_or_default(wait_ms: u64) -> i32 {\n    match timeout(Duration::from_millis(50), fetch(wait_ms)).await {\n        Ok(value) => value,\n        Err(_) => -1,\n    }\n}\n\n#[tokio::main]\nasync fn main() {\n    println!(\"{}\", fetch_or_default(1).await);\n    println!(\"{}\", fetch_or_default(2000).await);\n}\n```",
+      "en": "The full solution:\n\n**src/main.rs**\n\n```rust\nuse std::time::Duration;\nuse tokio::time::{sleep, timeout};\n\nasync fn fetch(wait_ms: u64) -> i32 {\n    sleep(Duration::from_millis(wait_ms)).await;\n    7\n}\n\nasync fn fetch_or_default(wait_ms: u64) -> i32 {\n    match timeout(Duration::from_millis(50), fetch(wait_ms)).await {\n        Ok(value) => value,\n        Err(_) => -1,\n    }\n}\n\n#[tokio::main]\nasync fn main() {\n    println!(\"{}\", fetch_or_default(1).await);\n    println!(\"{}\", fetch_or_default(2000).await);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "7\n-1"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "timeout\\(",
+      "show": "timeout("
+    }
+  ]
+}

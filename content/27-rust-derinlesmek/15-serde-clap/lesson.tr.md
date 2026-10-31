@@ -90,7 +90,7 @@ fn main() {
 
 ## Yanlış veri bir hatadır
 
-Python'da JSON okuyunca sözlük gelir ve yanlış alan ancak kullanıldığında patlar. Burada hedef tür bellidir, uymayan veri
+Birçok dilde JSON okuyunca sözlük gelir ve yanlış alan ancak kullanıldığında patlar. Burada hedef tür bellidir, uymayan veri
 daha okunurken reddedilir ve hata nerede olduğunu söyler:
 
 ```rust
@@ -231,7 +231,7 @@ sana bırakır; şekli biliyorsan struct yaz.
 
 ## clap: Komut satırı
 
-Argümanları Python'daki gibi `std::env::args` ile elle ayrıştırmak zordur: bayraklar, varsayılanlar, yardım metni, hata
+Argümanları `std::env::args` ile elle ayrıştırmak zordur: bayraklar, varsayılanlar, yardım metni, hata
 mesajları. clap'te bir struct yazarsın, gerisi ondan üretilir:
 
 ```rust

@@ -1,0 +1,58 @@
+{
+  "id": "add-later",
+  "title": {
+    "tr": "Sonra Topla",
+    "en": "Add Later"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "src/main.rs",
+      "starter": "starter-src-main.{lang}.rs",
+      "solution": "solution-src-main.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 300,
+  "hints": [
+    {
+      "tr": "`tokio::time::sleep(Duration::from_millis(10)).await;`, sonra `a + b`.",
+      "en": "`tokio::time::sleep(Duration::from_millis(10)).await;`, then `a + b`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**src/main.rs**\n\n```rust\nuse std::time::Duration;\n\nasync fn add_later(a: i32, b: i32) -> i32 {\n    tokio::time::sleep(Duration::from_millis(10)).await;\n    a + b\n}\n\n#[tokio::main]\nasync fn main() {\n    println!(\"sum: {}\", add_later(40, 2).await);\n}\n```",
+      "en": "The full solution:\n\n**src/main.rs**\n\n```rust\nuse std::time::Duration;\n\nasync fn add_later(a: i32, b: i32) -> i32 {\n    tokio::time::sleep(Duration::from_millis(10)).await;\n    a + b\n}\n\n#[tokio::main]\nasync fn main() {\n    println!(\"sum: {}\", add_later(40, 2).await);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "sum: 42"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "tokio::main",
+      "show": "#[tokio::main]"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "async\\s+fn\\s+add_later",
+      "show": "async fn add_later"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.await",
+      "show": ".await"
+    }
+  ]
+}

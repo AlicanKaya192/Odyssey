@@ -1,0 +1,43 @@
+{
+  "id": "run-together",
+  "title": {
+    "tr": "Birlikte Çalıştır",
+    "en": "Run Together"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "src/main.rs",
+      "starter": "starter-src-main.{lang}.rs",
+      "solution": "solution-src-main.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 300,
+  "hints": [
+    {
+      "tr": "`let (a, b, c) = tokio::join!(job(1), job(2), job(3));`",
+      "en": "`let (a, b, c) = tokio::join!(job(1), job(2), job(3));`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**src/main.rs**\n\n```rust\nuse std::time::{Duration, Instant};\n\nasync fn job(n: u32) -> u32 {\n    tokio::time::sleep(Duration::from_millis(200)).await;\n    n * 2\n}\n\n#[tokio::main]\nasync fn main() {\n    let start = Instant::now();\n    let (a, b, c) = tokio::join!(job(1), job(2), job(3));\n    println!(\"{a} {b} {c}\");\n    println!(\"fast: {}\", start.elapsed().as_millis() < 500);\n}\n```",
+      "en": "The full solution:\n\n**src/main.rs**\n\n```rust\nuse std::time::{Duration, Instant};\n\nasync fn job(n: u32) -> u32 {\n    tokio::time::sleep(Duration::from_millis(200)).await;\n    n * 2\n}\n\n#[tokio::main]\nasync fn main() {\n    let start = Instant::now();\n    let (a, b, c) = tokio::join!(job(1), job(2), job(3));\n    println!(\"{a} {b} {c}\");\n    println!(\"fast: {}\", start.elapsed().as_millis() < 500);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2 4 6\nfast: true"
+    }
+  ]
+}

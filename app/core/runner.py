@@ -425,6 +425,8 @@ def run_code(
         if bulunan:
             _LAST_SERVER = bulunan
         durum = raw.get("status", "ok")
+        # Rust: toplam süre derleme için uzun, program kendi sınırına takıldı.
+        timeout_sec = raw.get("run_limit_sec", timeout_sec)
         # Sınıra çarpan kod `MemoryError` ile düşüyor (ölçüldü). Onu
         # sıradan bir hata gibi değil, bellek sınırı olarak anlatıyoruz.
         if sinira_carpti and durum == "error":

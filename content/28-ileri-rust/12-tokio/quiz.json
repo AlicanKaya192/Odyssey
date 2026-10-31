@@ -1,0 +1,628 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "answer": 0,
+      "text": {
+        "tr": "Rust'ın standart kütüphanesi neden async çalışma ortamı içermez?",
+        "en": "Why does Rust's standard library not include an async runtime?"
+      },
+      "options": {
+        "tr": [
+          "Dil yalnızca Future'ı tanımlar, ortam seçime kalır",
+          "Async yasaktır",
+          "Yavaş olur",
+          "Windows'ta çalışmaz"
+        ],
+        "en": [
+          "The language only defines Future and the runtime is a choice",
+          "Async is forbidden",
+          "It would be slow",
+          "It does not work on Windows"
+        ]
+      },
+      "explanation": {
+        "tr": "Kendi çalıştırıcımızı bu yüzden yazabildik.",
+        "en": "That is why we could write our own executor."
+      }
+    },
+    {
+      "id": "q2",
+      "answer": 0,
+      "text": {
+        "tr": "`#[tokio::main]` ne yapar?",
+        "en": "What does `#[tokio::main]` do?"
+      },
+      "options": {
+        "tr": [
+          "Çalışma ortamı kurup async main'i block_on ile çalıştırır",
+          "main'i siler",
+          "İş parçacığı yasaklar",
+          "Derlemeyi hızlandırır"
+        ],
+        "en": [
+          "Builds a runtime and runs the async main with block_on",
+          "Deletes main",
+          "Forbids threads",
+          "Speeds up compilation"
+        ]
+      },
+      "explanation": {
+        "tr": "Bir attribute makrodur.",
+        "en": "It is an attribute macro."
+      }
+    },
+    {
+      "id": "q3",
+      "answer": 0,
+      "text": {
+        "tr": "Varsayılan tokio çalışma ortamı nasıldır?",
+        "en": "What is the default tokio runtime like?"
+      },
+      "options": {
+        "tr": [
+          "Çok iş parçacıklı, işçiler birbirinden iş çalar",
+          "Tek iş parçacıklı",
+          "Her göreve bir iş parçacığı",
+          "İş parçacıksız"
+        ],
+        "en": [
+          "Multi-threaded, with workers stealing work from each other",
+          "Single-threaded",
+          "One thread per task",
+          "Without threads"
+        ]
+      },
+      "explanation": {
+        "tr": "`flavor = \"current_thread\"` tek iş parçacığı seçer.",
+        "en": "`flavor = \"current_thread\"` selects a single thread."
+      }
+    },
+    {
+      "id": "q4",
+      "answer": 0,
+      "text": {
+        "tr": "Ard arda iki `.await` nasıl çalışır?",
+        "en": "How do two `.await`s in a row run?"
+      },
+      "options": {
+        "tr": [
+          "Biri bitince öteki başlar",
+          "Aynı anda",
+          "Rastgele",
+          "İkincisi atlanır"
+        ],
+        "en": [
+          "One starts when the other ends",
+          "At the same time",
+          "At random",
+          "The second is skipped"
+        ]
+      },
+      "explanation": {
+        "tr": "Eşzamanlılık kendiliğinden gelmez.",
+        "en": "Concurrency does not come by itself."
+      }
+    },
+    {
+      "id": "q5",
+      "answer": 0,
+      "text": {
+        "tr": "`tokio::join!` ne yapar?",
+        "en": "What does `tokio::join!` do?"
+      },
+      "options": {
+        "tr": [
+          "Future'ları aynı görevde birlikte yürütür, hepsini bekler",
+          "İlk biteni döner",
+          "Yeni iş parçacığı açar",
+          "İptal eder"
+        ],
+        "en": [
+          "Runs the futures together in the same task and waits for all",
+          "Returns the first to finish",
+          "Opens a new thread",
+          "Cancels them"
+        ]
+      },
+      "explanation": {
+        "tr": "Sonuçlar demet olarak gelir.",
+        "en": "The results come as a tuple."
+      }
+    },
+    {
+      "id": "q6",
+      "answer": 0,
+      "text": {
+        "tr": "`tokio::spawn` ile `join!` farkı nedir?",
+        "en": "What is the difference between `tokio::spawn` and `join!`?"
+      },
+      "options": {
+        "tr": [
+          "spawn yeni görev açar, başka iş parçacığında çalışabilir",
+          "Fark yok",
+          "join! daha çok iş parçacığı açar",
+          "spawn beklemez, sonuç veremez"
+        ],
+        "en": [
+          "spawn makes a new task that can run on another thread",
+          "No difference",
+          "join! opens more threads",
+          "spawn does not wait and cannot give a result"
+        ]
+      },
+      "explanation": {
+        "tr": "`join!` tek görev içindedir.",
+        "en": "`join!` stays within one task."
+      }
+    },
+    {
+      "id": "q7",
+      "answer": 0,
+      "text": {
+        "tr": "`tokio::spawn` future'dan ne ister?",
+        "en": "What does `tokio::spawn` require of the future?"
+      },
+      "options": {
+        "tr": [
+          "Send ve 'static",
+          "Clone",
+          "Unpin",
+          "Copy"
+        ],
+        "en": [
+          "Send and 'static",
+          "Clone",
+          "Unpin",
+          "Copy"
+        ]
+      },
+      "explanation": {
+        "tr": "Başka iş parçacığına taşınabilir ve yerel veriye dayanamaz.",
+        "en": "It can move to another thread and cannot rely on local data."
+      }
+    },
+    {
+      "id": "q8",
+      "answer": 0,
+      "text": {
+        "tr": "`spawn`'daki görev paniklerse ne olur?",
+        "en": "What happens if a task in `spawn` panics?"
+      },
+      "options": {
+        "tr": [
+          "JoinHandle Err döner, program sürer",
+          "Program hep durur",
+          "Hiçbir şey olmaz, haber gelmez",
+          "Derlenmez"
+        ],
+        "en": [
+          "The JoinHandle returns Err and the program goes on",
+          "The program always stops",
+          "Nothing, no word comes",
+          "It does not compile"
+        ]
+      },
+      "explanation": {
+        "tr": "`is_panic()` ile anlaşılır.",
+        "en": "`is_panic()` tells you."
+      }
+    },
+    {
+      "id": "q9",
+      "answer": 0,
+      "text": {
+        "tr": "`tokio::select!` ne yapar?",
+        "en": "What does `tokio::select!` do?"
+      },
+      "options": {
+        "tr": [
+          "İlk biten dalı çalıştırır, ötekileri düşürür",
+          "Hepsini bekler",
+          "Rastgele dal seçip sonucu bekler",
+          "Bir kanal açar"
+        ],
+        "en": [
+          "Runs the branch that finishes first and drops the others",
+          "Waits for all",
+          "Picks a random branch and waits",
+          "Opens a channel"
+        ]
+      },
+      "explanation": {
+        "tr": "Düşürülen future iptal edilmiş olur.",
+        "en": "A dropped future has been cancelled."
+      }
+    },
+    {
+      "id": "q10",
+      "answer": 0,
+      "text": {
+        "tr": "`timeout(d, f).await` süre dolarsa ne döner?",
+        "en": "What does `timeout(d, f).await` return when time runs out?"
+      },
+      "options": {
+        "tr": [
+          "Err(Elapsed)",
+          "None",
+          "Panik",
+          "f'nin sonucu"
+        ],
+        "en": [
+          "Err(Elapsed)",
+          "None",
+          "A panic",
+          "f's result"
+        ]
+      },
+      "explanation": {
+        "tr": "`f` düşürülür.",
+        "en": "`f` is dropped."
+      }
+    },
+    {
+      "id": "q11",
+      "answer": 0,
+      "text": {
+        "tr": "Görevi dışarıdan durdurmak için ne çağrılır?",
+        "en": "What is called to stop a task from outside?"
+      },
+      "options": {
+        "tr": [
+          "handle.abort()",
+          "handle.kill()",
+          "drop(handle)",
+          "handle.stop()"
+        ],
+        "en": [
+          "handle.abort()",
+          "handle.kill()",
+          "drop(handle)",
+          "handle.stop()"
+        ]
+      },
+      "explanation": {
+        "tr": "Sıradaki await noktasında durur. `drop(handle)` görevi durdurmaz.",
+        "en": "It stops at the next await point. `drop(handle)` does not stop the task."
+      }
+    },
+    {
+      "id": "q12",
+      "answer": 0,
+      "text": {
+        "tr": "Async kodda iptal nerede gerçekleşir?",
+        "en": "Where does cancellation happen in async code?"
+      },
+      "options": {
+        "tr": [
+          "Await noktalarında",
+          "Herhangi bir satırda",
+          "Yalnızca panikte",
+          "Program sonunda"
+        ],
+        "en": [
+          "At await points",
+          "On any line",
+          "Only on panic",
+          "At the end of the program"
+        ]
+      },
+      "explanation": {
+        "tr": "Future düşürülür, await'ten sonrası hiç çalışmaz.",
+        "en": "The future is dropped, and what follows the await never runs."
+      }
+    },
+    {
+      "id": "q13",
+      "answer": 0,
+      "text": {
+        "tr": "`mpsc` kanalda `recv` ne zaman `None` döner?",
+        "en": "When does `recv` return `None` on an `mpsc` channel?"
+      },
+      "options": {
+        "tr": [
+          "Bütün göndericiler düşünce",
+          "Kanal boşalınca",
+          "İlk mesajdan sonra",
+          "Hiçbir zaman"
+        ],
+        "en": [
+          "When all senders are dropped",
+          "When the channel is empty",
+          "After the first message",
+          "Never"
+        ]
+      },
+      "explanation": {
+        "tr": "Boşsa bekler; bu yüzden `drop(sender)` gerekir.",
+        "en": "If empty it waits; that is why `drop(sender)` is needed."
+      }
+    },
+    {
+      "id": "q14",
+      "answer": 0,
+      "text": {
+        "tr": "`mpsc::channel(8)` içindeki 8 nedir?",
+        "en": "What is the 8 in `mpsc::channel(8)`?"
+      },
+      "options": {
+        "tr": [
+          "Dolunca göndericiyi bekleten sınır",
+          "Gönderici sayısı",
+          "Mesaj boyutu",
+          "Saniye"
+        ],
+        "en": [
+          "The limit that makes senders wait when full",
+          "The number of senders",
+          "The message size",
+          "Seconds"
+        ]
+      },
+      "explanation": {
+        "tr": "Buna geri basınç (backpressure) denir.",
+        "en": "This is called backpressure."
+      }
+    },
+    {
+      "id": "q15",
+      "answer": 0,
+      "text": {
+        "tr": "`oneshot` kanal ne için kullanılır?",
+        "en": "What is an `oneshot` channel for?"
+      },
+      "options": {
+        "tr": [
+          "Tek bir cevap göndermek için",
+          "Çok mesaj için",
+          "Dosya okumak için",
+          "Kilit için"
+        ],
+        "en": [
+          "Sending a single answer",
+          "Many messages",
+          "Reading files",
+          "Locking"
+        ]
+      },
+      "explanation": {
+        "tr": "İsteğin içine konup cevabı döndürür.",
+        "en": "It goes inside a request and brings back the answer."
+      }
+    },
+    {
+      "id": "q16",
+      "answer": 0,
+      "text": {
+        "tr": "`broadcast` ile `watch` farkı nedir?",
+        "en": "What is the difference between `broadcast` and `watch`?"
+      },
+      "options": {
+        "tr": [
+          "broadcast her mesajı herkese, watch yalnızca son değeri verir",
+          "Fark yok",
+          "watch daha çok mesaj tutar",
+          "broadcast tek alıcılıdır"
+        ],
+        "en": [
+          "broadcast gives each message to all, watch only the latest value",
+          "No difference",
+          "watch holds more messages",
+          "broadcast has one receiver"
+        ]
+      },
+      "explanation": {
+        "tr": "`watch` ayar gibi durumlar içindir.",
+        "en": "`watch` is for states such as settings."
+      }
+    },
+    {
+      "id": "q17",
+      "answer": 0,
+      "text": {
+        "tr": "Async kodda `std::sync::Mutex` ne zaman uygundur?",
+        "en": "When is `std::sync::Mutex` fine in async code?"
+      },
+      "options": {
+        "tr": [
+          "Kilit await boyunca tutulmuyorsa",
+          "Hiçbir zaman",
+          "Her zaman",
+          "Yalnızca main'de"
+        ],
+        "en": [
+          "If the lock is not held across an await",
+          "Never",
+          "Always",
+          "Only in main"
+        ]
+      },
+      "explanation": {
+        "tr": "Kısa kritik bölümler için daha hızlıdır.",
+        "en": "It is faster for short critical sections."
+      }
+    },
+    {
+      "id": "q18",
+      "answer": 0,
+      "text": {
+        "tr": "Kilidi await boyunca tutan `spawn` neden derlenmez?",
+        "en": "Why does a `spawn` that holds the lock across an await not compile?"
+      },
+      "options": {
+        "tr": [
+          "MutexGuard Send değildir",
+          "Mutex async'te yasak",
+          "await kilit açar",
+          "Arc eksik"
+        ],
+        "en": [
+          "MutexGuard is not Send",
+          "Mutex is forbidden in async",
+          "await unlocks",
+          "Arc is missing"
+        ]
+      },
+      "explanation": {
+        "tr": "`future cannot be sent between threads safely`.",
+        "en": "`future cannot be sent between threads safely`."
+      }
+    },
+    {
+      "id": "q19",
+      "answer": 0,
+      "text": {
+        "tr": "`Semaphore` ne işe yarar?",
+        "en": "What is a `Semaphore` for?"
+      },
+      "options": {
+        "tr": [
+          "Aynı anda çalışan iş sayısını sınırlar",
+          "Mesaj gönderir",
+          "Süre ölçer",
+          "Görev iptal eder"
+        ],
+        "en": [
+          "It limits how many jobs run at once",
+          "It sends messages",
+          "It measures time",
+          "It cancels tasks"
+        ]
+      },
+      "explanation": {
+        "tr": "`acquire` izin bekler; izin düşünce sıradaki girer.",
+        "en": "`acquire` waits for a permit; when it is dropped the next goes in."
+      }
+    },
+    {
+      "id": "q20",
+      "answer": 0,
+      "text": {
+        "tr": "Async fonksiyonda `std::thread::sleep` neden kötüdür?",
+        "en": "Why is `std::thread::sleep` bad in an async function?"
+      },
+      "options": {
+        "tr": [
+          "İşçi iş parçacığını durdurur, başka görev çalışamaz",
+          "Derlenmez",
+          "Süre doğru değildir",
+          "Panikler"
+        ],
+        "en": [
+          "It stops the worker thread, so no other task can run",
+          "It does not compile",
+          "The time is not right",
+          "It panics"
+        ]
+      },
+      "explanation": {
+        "tr": "`tokio::time::sleep(...).await` sırayı bırakır.",
+        "en": "`tokio::time::sleep(...).await` gives up the turn."
+      }
+    },
+    {
+      "id": "q21",
+      "answer": 0,
+      "text": {
+        "tr": "Yoğun hesap ya da engelleyen kütüphane için ne kullanılır?",
+        "en": "What do you use for heavy computing or a blocking library?"
+      },
+      "options": {
+        "tr": [
+          "spawn_blocking",
+          "tokio::spawn",
+          "select!",
+          "yield_now"
+        ],
+        "en": [
+          "spawn_blocking",
+          "tokio::spawn",
+          "select!",
+          "yield_now"
+        ]
+      },
+      "explanation": {
+        "tr": "Ayrı bir iş parçacığı havuzunda çalışır.",
+        "en": "It runs in a separate thread pool."
+      }
+    },
+    {
+      "id": "q22",
+      "answer": 0,
+      "text": {
+        "tr": "`work();` yazıp `.await` unutulursa ne olur?",
+        "en": "What happens if you write `work();` and forget `.await`?"
+      },
+      "options": {
+        "tr": [
+          "Gövde hiç çalışmaz, derleyici uyarır",
+          "Gövde çalışır",
+          "Derlenmez",
+          "Panik"
+        ],
+        "en": [
+          "The body never runs, and the compiler warns",
+          "The body runs",
+          "It does not compile",
+          "A panic"
+        ]
+      },
+      "explanation": {
+        "tr": "`futures do nothing unless you .await or poll them`.",
+        "en": "`futures do nothing unless you .await or poll them`."
+      }
+    },
+    {
+      "id": "q23",
+      "answer": 0,
+      "text": {
+        "tr": "`TcpListener::bind(\"127.0.0.1:0\")` içindeki 0 ne demek?",
+        "en": "What does the 0 in `TcpListener::bind(\"127.0.0.1:0\")` mean?"
+      },
+      "options": {
+        "tr": [
+          "İşletim sistemi boş port seçsin",
+          "Port 0 kullan",
+          "Hiç port açma",
+          "İlk bağlantıyı reddet"
+        ],
+        "en": [
+          "Let the operating system pick a free port",
+          "Use port 0",
+          "Open no port",
+          "Reject the first connection"
+        ]
+      },
+      "explanation": {
+        "tr": "`local_addr` seçileni söyler. `127.0.0.1` dışarı açılmaz.",
+        "en": "`local_addr` tells you which. `127.0.0.1` is not open to the outside."
+      }
+    },
+    {
+      "id": "q24",
+      "answer": 0,
+      "text": {
+        "tr": "Async testler nasıl yazılır?",
+        "en": "How are async tests written?"
+      },
+      "options": {
+        "tr": [
+          "#[tokio::test] ile",
+          "#[test] ile",
+          "#[tokio::main] ile",
+          "Yazılamaz"
+        ],
+        "en": [
+          "With #[tokio::test]",
+          "With #[test]",
+          "With #[tokio::main]",
+          "They cannot be"
+        ]
+      },
+      "explanation": {
+        "tr": "Her teste küçük bir çalışma ortamı kurar.",
+        "en": "It builds a small runtime for each test."
+      }
+    }
+  ]
+}

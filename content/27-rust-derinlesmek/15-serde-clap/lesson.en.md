@@ -90,7 +90,7 @@ fn main() {
 
 ## Wrong data is an error
 
-In Python, reading JSON gives you a dictionary, and a wrong field only blows up when it is used. Here the target type is
+In many languages, reading JSON gives you a dictionary, and a wrong field only blows up when it is used. Here the target type is
 known, so data that does not fit is rejected while reading, and the error says where:
 
 ```rust

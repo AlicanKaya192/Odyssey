@@ -34,6 +34,9 @@ from docker_runner import _fail, _ok
 
 MAX_OUTPUT_BYTES = 100_000
 MAX_DETAIL_CHARS = 1_500
+# Paketli alıştırmanın toplam süresi ilk derleme için uzun; asılı kalan program
+# o kadar beklemesin (ör. kanalın göndericisini düşürmeyi unutmak).
+RUN_LIMIT_SEC = 30
 BUILD_DIR = ".odyssey-build"
 EDITION = "2024"
 HIDDEN_MODULE = "odyssey_hidden"
@@ -247,8 +250,12 @@ class _Project:
         return text.replace(str(self.workspace) + os.sep, "").replace(str(self.workspace), ".").strip()
 
 
+class ProgramTimeout(Exception):
+    """Program `RUN_LIMIT_SEC` içinde bitmedi."""
+
+
 def execute(program: Path, cwd: Path, argv: list[str], stdin: str) -> Execution:
-    """Programı çalıştırır; çıktı sınırı aşılırsa durdurur (süre dış sürecin işi)."""
+    """Programı çalıştırır; çıktı ya da çalışma süresi sınırı aşılırsa durdurur."""
     try:
         process = subprocess.Popen(
             [str(program), *argv], cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -280,7 +287,12 @@ def execute(program: Path, cwd: Path, argv: list[str], stdin: str) -> Execution:
         process.stdin.close()
     except OSError:
         pass  # Program girdiyi okumadan bitti ya da kapattı; hata değil.
-    code = process.wait()
+    try:
+        code = process.wait(timeout=RUN_LIMIT_SEC)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
+        raise ProgramTimeout from None
     for reader in readers:
         reader.join()
     return Execution(
@@ -531,3 +543,5 @@ def run(job: dict, compare_stdout) -> dict:
         return result
     except ToolchainProblem as problem:
         return _unavailable(problem.state)
+    except ProgramTimeout:
+        return {"status": "timeout", "run_limit_sec": RUN_LIMIT_SEC, "checks": [], "rust": {"state": "ok"}}
