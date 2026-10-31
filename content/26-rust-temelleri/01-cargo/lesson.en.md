@@ -71,7 +71,7 @@ cargo build
 
 ```text
 Compiling hello v0.1.0 (C:\projects\hello)
-Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.43s
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.42s
 ```
 
 That line teaches something: this build used the `dev` profile, the **fast build, slow program** setting.
@@ -88,7 +88,7 @@ cargo run
 ```
 
 ```text
-Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
 Running `target\debug\hello.exe`
 Hello, world!
 ```
@@ -107,7 +107,7 @@ cargo check
 
 ```text
 Checking hello v0.1.0 (C:\projects\hello)
-Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
 ```
 
 ## A fast program: --release
@@ -120,7 +120,7 @@ cargo build --release
 
 ```text
 Compiling hello v0.1.0 (C:\projects\hello)
-Finished `release` profile [optimized] target(s) in 0.26s
+Finished `release` profile [optimized] target(s) in 0.17s
 ```
 
 Now the profile is `release` and the result is `optimized`: the build takes longer and the program runs
@@ -130,8 +130,8 @@ To measure the difference we ran the same program under both profiles. It perfor
 times in a loop. On this computer:
 
 ```text
-debug:   2.20 s
-release: 0.54 s
+debug:   1.59 s
+release: 0.46 s
 ```
 
 Do not forget `--release` when measuring a program's speed. Numbers measured on a debug build mislead.

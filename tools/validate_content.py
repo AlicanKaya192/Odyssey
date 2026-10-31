@@ -213,8 +213,25 @@ def collect(catalog: Catalog) -> tuple[list[Coverage], list[str]]:
                 f"{len(chapter.sections)} tanesinde seviye var, "
                 "ya hepsinde olmalı ya hiçbirinde"
             )
+        problems.extend(_check_level_order(chapter))
 
     return coverage, problems
+
+
+def _check_level_order(chapter) -> list[str]:
+    """Yolda her seviye tek başlık altında durmalı; bölünürse başlık iki kez çıkar."""
+    biten: list[str] = []
+    onceki = ""
+    for entry in chapter.outline:
+        seviye = entry.get("level", "") if isinstance(entry, dict) else entry.level
+        if seviye == onceki:
+            continue
+        if seviye in biten:
+            return [f"{chapter.id}: '{seviye}' seviyesi yolda bölünmüş (başlık iki kez çıkıyor)"]
+        if onceki:
+            biten.append(onceki)
+        onceki = seviye
+    return []
 
 
 def _check_quiz(where: str, path: Path, coverage: list[Coverage]) -> list[str]:

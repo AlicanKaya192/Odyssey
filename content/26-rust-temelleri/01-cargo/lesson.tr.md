@@ -72,7 +72,7 @@ cargo build
 
 ```text
 Compiling hello v0.1.0 (C:\projects\hello)
-Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.43s
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.42s
 ```
 
 Satırda bir şey öğreniyoruz: Bu derleme `dev` profiliyle yapıldı, yani **hızlı derleme, yavaş
@@ -89,7 +89,7 @@ cargo run
 ```
 
 ```text
-Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
 Running `target\debug\hello.exe`
 Hello, world!
 ```
@@ -108,7 +108,7 @@ cargo check
 
 ```text
 Checking hello v0.1.0 (C:\projects\hello)
-Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
 ```
 
 ## Hızlı program: --release
@@ -121,7 +121,7 @@ cargo build --release
 
 ```text
 Compiling hello v0.1.0 (C:\projects\hello)
-Finished `release` profile [optimized] target(s) in 0.26s
+Finished `release` profile [optimized] target(s) in 0.17s
 ```
 
 Bu kez profil `release`, sonuç `optimized`: derleme daha uzun sürer, program daha hızlı çalışır.
@@ -131,8 +131,8 @@ Farkı ölçmek için aynı programı iki profille çalıştırdık. Program bir
 yapıyor. Bu bilgisayarda:
 
 ```text
-debug:   2.20 s
-release: 0.54 s
+debug:   1.59 s
+release: 0.46 s
 ```
 
 Bir programın hızını ölçerken `--release` kullanmayı unutma. Debug derlemede ölçülen sayılar yanıltır.
