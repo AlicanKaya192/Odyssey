@@ -1,0 +1,57 @@
+{
+  "id": "slim-enum",
+  "title": {
+    "tr": "Enum'u Küçült",
+    "en": "Shrink the Enum"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`Blob(Box<[u8; 256]>),` ve `Message::Blob(Box::new([0; 256]))`.",
+      "en": "`Blob(Box<[u8; 256]>),` and `Message::Blob(Box::new([0; 256]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nenum Message {\n    Ping,\n    Text(String),\n    Blob(Box<[u8; 256]>),\n}\n\nimpl Message {\n    fn text(value: &str) -> Self {\n        Message::Text(value.to_string())\n    }\n\n    fn blob() -> Self {\n        Message::Blob(Box::new([0; 256]))\n    }\n\n    fn payload(&self) -> usize {\n        match self {\n            Message::Ping => 0,\n            Message::Text(text) => text.len(),\n            Message::Blob(bytes) => bytes.len(),\n        }\n    }\n}\n\nfn main() {\n    let messages = [Message::Ping, Message::text(\"hi\"), Message::blob()];\n    let sizes: Vec<usize> = messages.iter().map(Message::payload).collect();\n    println!(\"{sizes:?}\");\n    println!(\"{}\", size_of::<Message>() <= 24);\n}\n```",
+      "en": "The full solution:\n\n```rust\nenum Message {\n    Ping,\n    Text(String),\n    Blob(Box<[u8; 256]>),\n}\n\nimpl Message {\n    fn text(value: &str) -> Self {\n        Message::Text(value.to_string())\n    }\n\n    fn blob() -> Self {\n        Message::Blob(Box::new([0; 256]))\n    }\n\n    fn payload(&self) -> usize {\n        match self {\n            Message::Ping => 0,\n            Message::Text(text) => text.len(),\n            Message::Blob(bytes) => bytes.len(),\n        }\n    }\n}\n\nfn main() {\n    let messages = [Message::Ping, Message::text(\"hi\"), Message::blob()];\n    let sizes: Vec<usize> = messages.iter().map(Message::payload).collect();\n    println!(\"{sizes:?}\");\n    println!(\"{}\", size_of::<Message>() <= 24);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 2, 256]\ntrue"
+    },
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert!(size_of::<Message>() <= 24);",
+          "label": {
+            "tr": "boyut",
+            "en": "the size"
+          }
+        },
+        {
+          "code": "assert_eq!(Message::blob().payload(), 256);",
+          "label": {
+            "tr": "içerik",
+            "en": "the contents"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Box<\\[u8;\\s*256\\]>",
+      "show": "Box<[u8; 256]>"
+    }
+  ]
+}

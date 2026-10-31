@@ -1,0 +1,43 @@
+{
+  "id": "reuse-buffer",
+  "title": {
+    "tr": "Tamponu Yeniden Kullan",
+    "en": "Reuse the Buffer"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`buffer.clear(); buffer.push_str(word); buffer.make_ascii_uppercase();`",
+      "en": "`buffer.clear(); buffer.push_str(word); buffer.make_ascii_uppercase();`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::hint::black_box;\nuse std::sync::atomic::{AtomicUsize, Ordering};\n\nstruct Counting;\n\nstatic COUNT: AtomicUsize = AtomicUsize::new(0);\n\n// SAFETY: every call is passed on to the system allocator unchanged.\nunsafe impl GlobalAlloc for Counting {\n    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.alloc(layout) }\n    }\n\n    unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {\n        unsafe { System.dealloc(pointer, layout) }\n    }\n\n    unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, size: usize) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.realloc(pointer, layout, size) }\n    }\n}\n\n#[global_allocator]\nstatic ALLOCATOR: Counting = Counting;\n\nfn count_of(work: impl FnOnce()) -> usize {\n    let before = COUNT.load(Ordering::Relaxed);\n    work();\n    COUNT.load(Ordering::Relaxed) - before\n}\n\nfn upper_total(words: &[&str]) -> usize {\n    let mut buffer = String::with_capacity(32);\n    let mut total = 0;\n    for word in words {\n        buffer.clear();\n        buffer.push_str(word);\n        buffer.make_ascii_uppercase();\n        total += black_box(&buffer).len();\n    }\n    total\n}\n\nfn main() {\n    let words = [\"alpha\", \"beta\", \"gamma\", \"delta\", \"epsilon\"];\n    let mut total = 0;\n    let count = count_of(|| {\n        total = upper_total(&words);\n    });\n    println!(\"{total}\");\n    println!(\"under two: {}\", count < 2);\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::hint::black_box;\nuse std::sync::atomic::{AtomicUsize, Ordering};\n\nstruct Counting;\n\nstatic COUNT: AtomicUsize = AtomicUsize::new(0);\n\n// SAFETY: every call is passed on to the system allocator unchanged.\nunsafe impl GlobalAlloc for Counting {\n    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.alloc(layout) }\n    }\n\n    unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {\n        unsafe { System.dealloc(pointer, layout) }\n    }\n\n    unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, size: usize) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.realloc(pointer, layout, size) }\n    }\n}\n\n#[global_allocator]\nstatic ALLOCATOR: Counting = Counting;\n\nfn count_of(work: impl FnOnce()) -> usize {\n    let before = COUNT.load(Ordering::Relaxed);\n    work();\n    COUNT.load(Ordering::Relaxed) - before\n}\n\nfn upper_total(words: &[&str]) -> usize {\n    let mut buffer = String::with_capacity(32);\n    let mut total = 0;\n    for word in words {\n        buffer.clear();\n        buffer.push_str(word);\n        buffer.make_ascii_uppercase();\n        total += black_box(&buffer).len();\n    }\n    total\n}\n\nfn main() {\n    let words = [\"alpha\", \"beta\", \"gamma\", \"delta\", \"epsilon\"];\n    let mut total = 0;\n    let count = count_of(|| {\n        total = upper_total(&words);\n    });\n    println!(\"{total}\");\n    println!(\"under two: {}\", count < 2);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "26\nunder two: true"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "to_uppercase|to_ascii_uppercase",
+      "show": "to_uppercase"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.clear\\(\\)",
+      "show": ".clear()"
+    }
+  ]
+}

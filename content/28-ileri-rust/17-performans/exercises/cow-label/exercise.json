@@ -1,0 +1,43 @@
+{
+  "id": "cow-label",
+  "title": {
+    "tr": "Gerekirse Kopyala",
+    "en": "Copy Only If Needed"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`if text.contains(' ') { Cow::Owned(text.replace(' ', \"_\")) } else { Cow::Borrowed(text) }`",
+      "en": "`if text.contains(' ') { Cow::Owned(text.replace(' ', \"_\")) } else { Cow::Borrowed(text) }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::borrow::Cow;\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::hint::black_box;\nuse std::sync::atomic::{AtomicUsize, Ordering};\n\nstruct Counting;\n\nstatic COUNT: AtomicUsize = AtomicUsize::new(0);\n\n// SAFETY: every call is passed on to the system allocator unchanged.\nunsafe impl GlobalAlloc for Counting {\n    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.alloc(layout) }\n    }\n\n    unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {\n        unsafe { System.dealloc(pointer, layout) }\n    }\n\n    unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, size: usize) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.realloc(pointer, layout, size) }\n    }\n}\n\n#[global_allocator]\nstatic ALLOCATOR: Counting = Counting;\n\nfn count_of(work: impl FnOnce()) -> usize {\n    let before = COUNT.load(Ordering::Relaxed);\n    work();\n    COUNT.load(Ordering::Relaxed) - before\n}\n\nfn trim_label(text: &str) -> Cow<'_, str> {\n    if text.contains(' ') {\n        Cow::Owned(text.replace(' ', \"_\"))\n    } else {\n        Cow::Borrowed(text)\n    }\n}\n\nfn main() {\n    let mut first = Cow::Borrowed(\"\");\n    println!(\"{}\", count_of(|| {\n        first = trim_label(\"ready\");\n    }));\n    println!(\"{first} {}\", matches!(first, Cow::Borrowed(_)));\n\n    let mut second = Cow::Borrowed(\"\");\n    let count = count_of(|| {\n        second = trim_label(\"a b\");\n    });\n    println!(\"{}\", count >= 1);\n    println!(\"{second} {}\", matches!(second, Cow::Owned(_)));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::borrow::Cow;\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::hint::black_box;\nuse std::sync::atomic::{AtomicUsize, Ordering};\n\nstruct Counting;\n\nstatic COUNT: AtomicUsize = AtomicUsize::new(0);\n\n// SAFETY: every call is passed on to the system allocator unchanged.\nunsafe impl GlobalAlloc for Counting {\n    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.alloc(layout) }\n    }\n\n    unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {\n        unsafe { System.dealloc(pointer, layout) }\n    }\n\n    unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, size: usize) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.realloc(pointer, layout, size) }\n    }\n}\n\n#[global_allocator]\nstatic ALLOCATOR: Counting = Counting;\n\nfn count_of(work: impl FnOnce()) -> usize {\n    let before = COUNT.load(Ordering::Relaxed);\n    work();\n    COUNT.load(Ordering::Relaxed) - before\n}\n\nfn trim_label(text: &str) -> Cow<'_, str> {\n    if text.contains(' ') {\n        Cow::Owned(text.replace(' ', \"_\"))\n    } else {\n        Cow::Borrowed(text)\n    }\n}\n\nfn main() {\n    let mut first = Cow::Borrowed(\"\");\n    println!(\"{}\", count_of(|| {\n        first = trim_label(\"ready\");\n    }));\n    println!(\"{first} {}\", matches!(first, Cow::Borrowed(_)));\n\n    let mut second = Cow::Borrowed(\"\");\n    let count = count_of(|| {\n        second = trim_label(\"a b\");\n    });\n    println!(\"{}\", count >= 1);\n    println!(\"{second} {}\", matches!(second, Cow::Owned(_)));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0\nready true\ntrue\na_b true"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Cow::Borrowed",
+      "show": "Cow::Borrowed"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Cow::Owned",
+      "show": "Cow::Owned"
+    }
+  ]
+}

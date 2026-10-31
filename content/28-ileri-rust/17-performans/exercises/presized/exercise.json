@@ -1,0 +1,38 @@
+{
+  "id": "presized",
+  "title": {
+    "tr": "Tek Ayırma",
+    "en": "One Allocation"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`Vec::with_capacity(n as usize)`",
+      "en": "`Vec::with_capacity(n as usize)`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::hint::black_box;\nuse std::sync::atomic::{AtomicUsize, Ordering};\n\nstruct Counting;\n\nstatic COUNT: AtomicUsize = AtomicUsize::new(0);\n\n// SAFETY: every call is passed on to the system allocator unchanged.\nunsafe impl GlobalAlloc for Counting {\n    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.alloc(layout) }\n    }\n\n    unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {\n        unsafe { System.dealloc(pointer, layout) }\n    }\n\n    unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, size: usize) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.realloc(pointer, layout, size) }\n    }\n}\n\n#[global_allocator]\nstatic ALLOCATOR: Counting = Counting;\n\nfn count_of(work: impl FnOnce()) -> usize {\n    let before = COUNT.load(Ordering::Relaxed);\n    work();\n    COUNT.load(Ordering::Relaxed) - before\n}\n\nfn squares(n: u32) -> Vec<u32> {\n    let mut out = Vec::with_capacity(n as usize);\n    for i in 0..n {\n        out.push(i * i);\n    }\n    out\n}\n\nfn main() {\n    println!(\"{}\", count_of(|| {\n        black_box(squares(1000));\n    }));\n    println!(\"{:?}\", squares(4));\n    println!(\"{:?}\", squares(0));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::hint::black_box;\nuse std::sync::atomic::{AtomicUsize, Ordering};\n\nstruct Counting;\n\nstatic COUNT: AtomicUsize = AtomicUsize::new(0);\n\n// SAFETY: every call is passed on to the system allocator unchanged.\nunsafe impl GlobalAlloc for Counting {\n    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.alloc(layout) }\n    }\n\n    unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {\n        unsafe { System.dealloc(pointer, layout) }\n    }\n\n    unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, size: usize) -> *mut u8 {\n        COUNT.fetch_add(1, Ordering::Relaxed);\n        unsafe { System.realloc(pointer, layout, size) }\n    }\n}\n\n#[global_allocator]\nstatic ALLOCATOR: Counting = Counting;\n\nfn count_of(work: impl FnOnce()) -> usize {\n    let before = COUNT.load(Ordering::Relaxed);\n    work();\n    COUNT.load(Ordering::Relaxed) - before\n}\n\nfn squares(n: u32) -> Vec<u32> {\n    let mut out = Vec::with_capacity(n as usize);\n    for i in 0..n {\n        out.push(i * i);\n    }\n    out\n}\n\nfn main() {\n    println!(\"{}\", count_of(|| {\n        black_box(squares(1000));\n    }));\n    println!(\"{:?}\", squares(4));\n    println!(\"{:?}\", squares(0));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\n[0, 1, 4, 9]\n[]"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "with_capacity",
+      "show": "with_capacity"
+    }
+  ]
+}
