@@ -1,33 +1,3 @@
-## Arithmetic
-
-```rust
-fn main() {
-    println!("{}", 7 + 2);
-    println!("{}", 7 - 2);
-    println!("{}", 7 * 2);
-    println!("{}", 7 / 2);
-    println!("{}", 7 % 2);
-    println!("{}", 7.0 / 2.0);
-    println!("{}", -7 / 2);
-    println!("{}", -7 % 2);
-}
-```
-
-```text
-9
-5
-14
-3
-1
-3.5
--3
--1
-```
-
-**Integer division discards the fractional part:** `7 / 2` is `3`, not `3.5`. For a decimal result write `7.0 / 2.0`. `%` gives the remainder.
-
-Careful with negative numbers: `-7 / 2` is `-3` and `-7 % 2` is `-1`. The result is truncated towards zero.
-
 ## Common number methods
 
 | Method | Example | Result |
@@ -41,16 +11,4 @@ Careful with negative numbers: `-7 / 2` is `-3` and `-7 % 2` is `-1`. The result
 
 When calling a method you may need to state the number's type: `9.0.sqrt()` does not compile because the compiler cannot tell whether it is `f32` or `f64`. So you write `9.0_f64`.
 
-## Comparison and logic
-
-| Sign | Meaning |
-|---|---|
-| `==` `!=` | Equal, not equal |
-| `<` `>` `<=` `>=` | Less, greater, less or equal, greater or equal |
-| `&&` <code>&#124;&#124;</code> `!` | And, or, not |
-
-`&&` and `||` short-circuit: if the left side decides the result, the right side never runs.
-
-## In a comparison the types must match
-
-`let a: i32 = 5; let b: i64 = 5; a == b` does not compile. Here too Rust does not turn `i32` into `i64` by itself: write `a as i64 == b`.
+Arithmetic, comparison and logic operators are in the next section.

@@ -153,7 +153,7 @@ error[E0502]: cannot borrow `s` as mutable because it is also borrowed as immuta
 
 ## Neden önemli: Listeyi değiştirirken okumak
 
-"Tek iş parçacığında ne zararı var?" diye düşünebilirsin. İşte zararı. `Vec` büyüyen bir listedir (on ikinci bölümde görüyoruz). Listeye eleman
+"Tek iş parçacığında ne zararı var?" diye düşünebilirsin. İşte zararı. `Vec` büyüyen bir listedir (Koleksiyonlar bölümünde görüyoruz). Listeye eleman
 eklemek belleği taşıyabilir, o zaman ilk elemana alınan referans silinmiş belleği gösterir:
 
 ```rust

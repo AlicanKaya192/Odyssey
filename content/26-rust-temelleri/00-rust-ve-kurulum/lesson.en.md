@@ -3,7 +3,7 @@
 This path is written so that someone who has never written code can walk it too.
 Every new word is explained where it first appears. If you already know another
 language you will move quickly through the first few sections; the genuinely new
-ideas begin in section six.
+ideas begin in the Ownership section.
 
 ## What is a program, what is a compiler?
 
@@ -37,7 +37,7 @@ back when it is no longer needed. Most languages solve this in one of two ways:
 Rust chose a third way: **ownership** rules. When each piece of data is handed back is
 proven at compile time. No helper runs in the background, and code that breaks the rules
 does not compile. The result is speed close to C together with memory safety. We will
-go through these rules step by step in section six.
+go through these rules step by step in the Ownership section.
 
 Let us state the price openly too: **the compiler is strict.** At first your code will
 be rejected often. That is not failure; it is how Rust works. The compiler's messages
@@ -51,7 +51,7 @@ compiler, fetches new versions and brings along two more tools:
 | Tool | What it does |
 |---|---|
 | `rustc` | The compiler: turns source code into a program |
-| `cargo` | The project manager: builds, runs, downloads packages (next section) |
+| `cargo` | The project manager: builds, runs, downloads packages (it gets its own section later) |
 | `rustup` | The installation manager: updates Rust itself |
 
 On Windows the steps are:
@@ -153,7 +153,6 @@ error: cannot find macro `prinln` in this scope
 2 |     prinln!("Hello");
   |     ^^^^^^
   |
- --> /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library\std\src\macros.rs:143:0
   |
   = note: similarly named macro `println` defined here
 help: a macro with a similar name exists

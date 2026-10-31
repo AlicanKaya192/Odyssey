@@ -74,7 +74,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 Here `.len()` gives the text's length and `as u8` converts it to `u8`, so the compiler cannot see the number in
-advance. In a `--release` build this check is off and the number wraps around (255 + 1 = 0). Because of this
+advance. When the final version of a program is built (the `--release` setting, covered in the Cargo section)
+this check is off and the number wraps around (255 + 1 = 0). Because of this
 difference it is best to be explicit where overflow is possible:
 
 ```rust
@@ -196,7 +197,7 @@ true
 true
 ```
 
-`&&` means "and", `||` means "or", `!` means "not".
+`&&` means "and", `||` means "or", `!` means "not". The next section covers all the operators.
 
 ## Characters: char
 
@@ -218,6 +219,83 @@ R 🦀
 ```
 
 Single quotes make a `char`, double quotes make text: `'a'` and `"a"` are different types.
+
+## Text: `&str` and `String`
+
+Double-quoted writing is a value too and can go into a variable. Rust has two text types because text can live in two
+different places: embedded in the program, or in memory set aside while the program runs.
+
+```rust
+fn main() {
+    let city = "Izmir";
+    let mut message = String::from("Hello");
+    message.push_str(", ");
+    message.push_str(city);
+    println!("{message}");
+}
+```
+
+```text
+Hello, Izmir
+```
+
+| | `&str` | `String` |
+|---|---|---|
+| Written as | `"Izmir"` | `String::from("Hello")` |
+| Can it change | No | Yes, with `mut` |
+| When | Fixed text, only reading | Text that forms or grows while running |
+
+We will see why there are two types in the Ownership and Slices sections. For now this rule is enough: if you only write
+it and move on, `"..."`; if you will change it, `String`.
+
+The handiest way to make text is `format!`: it is written like `println!` but gives a `String` instead of printing.
+`to_string` turns a number into text.
+
+```rust
+fn main() {
+    let first = "Ada";
+    let age = 36;
+    let label = format!("{first} ({age})");
+    println!("{label}");
+    let digits = age.to_string();
+    println!("{}", digits);
+}
+```
+
+```text
+Ada (36)
+36
+```
+
+A few common methods:
+
+```rust
+fn main() {
+    let text = "  Rust is fun  ";
+    println!("[{}]", text.trim());
+    println!("{}", text.to_uppercase());
+    println!("{}", text.contains("is"));
+    println!("{}", text.replace("fun", "fast"));
+    println!("{}", "abc" == "abc");
+    println!("{}", "seker".len());
+    println!("{}", "şeker".len());
+    println!("{}", "şeker".chars().count());
+}
+```
+
+```text
+[Rust is fun]
+  RUST IS FUN
+true
+  Rust is fast
+true
+5
+6
+5
+```
+
+Look at the last two lines: `len` counts **bytes**, not letters, and since `ş` takes two bytes `"şeker"` gives 6. To count
+letters you write `chars().count()`.
 
 ## Several values: tuples
 
@@ -293,4 +371,5 @@ This **panic** is an error, but a controlled one: rather than continuing with no
 - Integers are `i32`, `u8`, `usize` and so on; the default is `i32`. Overflow panics in a development build.
 - Decimals are `f64`; `0.1 + 0.2` is not exactly `0.3`.
 - Numbers do not mix by themselves; `as` is an explicit conversion and may cut silently.
-- `bool`, single-quoted `char`, and fixed-size tuples and arrays are the basic compound types.
+- `bool` and single-quoted `char` hold one value; tuples and arrays are fixed-size compound types.
+- Text comes in two forms: fixed `&str` (`"Ada"`) and changeable `String` (`String::from("Ada")`).

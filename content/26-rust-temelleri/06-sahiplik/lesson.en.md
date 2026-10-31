@@ -21,7 +21,7 @@ twice, and the program breaks. Rust's answer is three rules.
 
 ## Our first heap type: String
 
-The `"Ada"` texts so far were embedded in the program and could not change. A `String` lives on the heap and can grow:
+In the Data Types section we saw two text types. `"Ada"` is embedded in the program and cannot change. A `String` lives on the heap and can grow:
 
 ```rust
 fn main() {

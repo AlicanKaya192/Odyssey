@@ -1,52 +1,80 @@
-A program can take data from outside. The simplest way is to read one line from **standard input**.
+We saw how to read input in the Input and Formatting section. Combined with a loop, a program can keep running until the
+user stops typing.
+
+## Until the input ends
 
 ```rust
+use std::io;
+
 fn main() {
+    let mut total = 0;
     let mut line = String::new();
-    std::io::stdin().read_line(&mut line).expect("read failed");
-    let name = line.trim();
-    println!("Hello, {name}!");
+    loop {
+        line.clear();
+        let bytes = io::stdin().read_line(&mut line).expect("could not read");
+        if bytes == 0 || line.trim() == "end" {
+            break;
+        }
+        let n: i32 = line.trim().parse().expect("not a number");
+        total += n;
+    }
+    println!("total: {total}");
 }
 ```
 
-With `Ada` as input:
+With the input lines `4`, `5`, `end`, `7`:
 
 ```text
-Hello, Ada!
+total: 9
 ```
 
-Line by line:
-
-| Code | Meaning |
+| Line | Why |
 |---|---|
-| `String::new()` | Opens an empty text that can grow |
-| `std::io::stdin()` | Standard input: the keyboard or redirected data |
-| `.read_line(&mut line)` | Appends one line to the text `line` |
-| `.expect("...")` | Stops with this message if reading fails |
-| `.trim()` | Removes spaces at the start and end, and the line ending |
+| `line.clear()` | `read_line` adds to the end; each round starts afresh |
+| `let bytes = ...` | `read_line` gives the number of bytes read |
+| `bytes == 0` | The input ended: 0 bytes were read |
+| `line.trim() == "end"` | The user wants to finish |
 
-`&mut line` says "I lend you line so that you can change it". We will see this in section seven. For now write it as a pattern.
+The `7` after `end` was never read, because the loop ended there.
 
-## Turning text into a number
+## A small game
+
+`if`, `else if` and `break` together make a guessing game:
 
 ```rust
+use std::io;
+
 fn main() {
+    let secret = 7;
     let mut line = String::new();
-    std::io::stdin().read_line(&mut line).expect("read failed");
-    let n: i32 = line.trim().parse().expect("not a number");
-    println!("{}", n * 2);
+    loop {
+        line.clear();
+        let bytes = io::stdin().read_line(&mut line).expect("could not read");
+        if bytes == 0 {
+            println!("no more input");
+            break;
+        }
+        let guess: i32 = line.trim().parse().expect("not a number");
+        if guess < secret {
+            println!("{guess}: too low");
+        } else if guess > secret {
+            println!("{guess}: too high");
+        } else {
+            println!("{guess}: found");
+            break;
+        }
+    }
 }
 ```
 
-With `21` as input:
+With the input lines `3`, `9`, `7`, `1`:
 
 ```text
-42
+3: too low
+9: too high
+7: found
 ```
-
-`.parse()` tries to turn text into a number. `: i32` says which type to turn it into. It can fail (the text may be `abc`), so `.expect` is needed. We will
-learn to handle errors gently in section thirteen.
 
 ## In this path
 
-In exercises that want input, Odyssey gives your program prepared input. It does not wait for you to type like a user.
+In exercises that need input, Odyssey hands the program ready-made input. It does not wait for you to type like a user.

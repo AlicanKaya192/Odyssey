@@ -25,7 +25,7 @@ Ada
 ```
 
 You cannot see the warning text above because the program ran successfully and warnings appear while compiling. In
-your own project, `cargo build` prints `variable does not need to be mutable`.
+your own project, building it prints `variable does not need to be mutable`.
 
 **Using a variable with no value.** You may write `let x;`, but you cannot read it before giving it a value:
 

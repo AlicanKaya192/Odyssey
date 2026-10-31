@@ -195,7 +195,7 @@ fn main() {
 ## Yorum satırları
 
 Kod içine not bırakmak için `//` kullanılır. Üç eğik çizgi `///` belge yorumudur: Hemen altındaki öğeyi anlatır
-ve `cargo doc` onlardan belge sayfası üretir.
+ve `cargo doc` komutu (Cargo'yu ileride göreceğiz) onlardan belge sayfası üretir.
 
 ```rust
 /// Returns the area of a rectangle.

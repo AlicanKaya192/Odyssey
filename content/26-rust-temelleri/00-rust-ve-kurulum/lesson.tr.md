@@ -2,7 +2,7 @@
 
 Bu patika hiç kod yazmamış birinin de yürüyebileceği şekilde yazıldı. Her
 yeni kelime ilk geçtiği yerde açıklanıyor. Daha önce başka bir dil bildiysen
-ilk birkaç bölümden hızlı geçersin; asıl yeni olan şeyler altıncı bölümde
+ilk birkaç bölümden hızlı geçersin; asıl yeni olan şeyler Sahiplik bölümünde
 başlıyor.
 
 ## Program ne, derleyici ne?
@@ -36,7 +36,7 @@ geri verilmelidir. Dillerin çoğu bu işi iki yoldan biriyle çözer:
 Rust üçüncü yolu seçti: **sahiplik** kuralları. Hangi verinin ne zaman geri
 verileceği derleme sırasında kanıtlanır. Çalışırken arkada bir yardımcı yoktur ve
 bu kuralları çiğneyen kod derlenmez. Sonuç, C'ye yakın hız ve bellek güvenliğidir.
-Bu kuralları altıncı bölümde adım adım göreceğiz.
+Bu kuralları Sahiplik bölümünde adım adım göreceğiz.
 
 Bedeli de açıkça söyleyelim: **Derleyici sıkıdır.** Başlarda kodun sık sık
 reddedilecek. Bu bir başarısızlık değil, Rust'ın çalışma şekli. Derleyicinin
@@ -50,7 +50,7 @@ yeni sürümleri getirir ve yanına iki araç daha koyar:
 | Araç | Ne işe yarar |
 |---|---|
 | `rustc` | Derleyici: kaynak kodu programa çevirir |
-| `cargo` | Proje yöneticisi: derler, çalıştırır, paket indirir (sonraki bölüm) |
+| `cargo` | Proje yöneticisi: derler, çalıştırır, paket indirir (ileride kendi bölümü var) |
 | `rustup` | Kurulum yöneticisi: Rust'ın kendisini günceller |
 
 Windows'ta adımlar şöyle:
@@ -152,7 +152,6 @@ error: cannot find macro `prinln` in this scope
 2 |     prinln!("Hello");
   |     ^^^^^^
   |
- --> /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library\std\src\macros.rs:143:0
   |
   = note: similarly named macro `println` defined here
 help: a macro with a similar name exists

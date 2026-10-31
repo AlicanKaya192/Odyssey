@@ -1,51 +1,79 @@
-Program dışarıdan veri alabilir. En basit yol **standart girdiden** bir satır okumaktır.
+Girdi okumayı Girdi ve Biçimlendirme bölümünde gördük. Döngüyle birleşince program kullanıcı yazmayı bırakana kadar
+çalışabilir.
+
+## Girdi bitene kadar
 
 ```rust
+use std::io;
+
 fn main() {
+    let mut total = 0;
     let mut line = String::new();
-    std::io::stdin().read_line(&mut line).expect("read failed");
-    let name = line.trim();
-    println!("Hello, {name}!");
+    loop {
+        line.clear();
+        let bytes = io::stdin().read_line(&mut line).expect("could not read");
+        if bytes == 0 || line.trim() == "end" {
+            break;
+        }
+        let n: i32 = line.trim().parse().expect("not a number");
+        total += n;
+    }
+    println!("total: {total}");
 }
 ```
 
-Girdi olarak `Ada` verilirse:
+Girdi satırları `4`, `5`, `end`, `7` iken:
 
 ```text
-Hello, Ada!
+total: 9
 ```
 
-Satır satır:
-
-| Kod | Anlamı |
+| Satır | Neden |
 |---|---|
-| `String::new()` | Büyüyebilen boş bir metin açar |
-| `std::io::stdin()` | Standart girdi: klavye ya da yönlendirilen veri |
-| `.read_line(&mut line)` | Bir satırı `line` metnine ekler |
-| `.expect("...")` | Okuma başarısız olursa bu mesajla durur |
-| `.trim()` | Baştaki ve sondaki boşlukları, satır sonunu atar |
+| `line.clear()` | `read_line` sonuna ekler; her turda baştan başlıyoruz |
+| `let bytes = ...` | `read_line` okunan bayt sayısını verir |
+| `bytes == 0` | Girdi bitti: 0 bayt okundu |
+| `line.trim() == "end"` | Kullanıcı bitirmek istedi |
 
-`&mut line` "line'ı değiştirmen için ödünç veriyorum" demektir. Bunu yedinci bölümde göreceğiz. Şimdilik kalıp olarak yaz.
+`end`'den sonraki `7` hiç okunmadı, çünkü döngü orada bitti.
 
-## Metni sayıya çevirmek
+## Küçük bir oyun
+
+`if`, `else if` ve `break` birlikte bir tahmin oyunu yapar:
 
 ```rust
+use std::io;
+
 fn main() {
+    let secret = 7;
     let mut line = String::new();
-    std::io::stdin().read_line(&mut line).expect("read failed");
-    let n: i32 = line.trim().parse().expect("not a number");
-    println!("{}", n * 2);
+    loop {
+        line.clear();
+        let bytes = io::stdin().read_line(&mut line).expect("could not read");
+        if bytes == 0 {
+            println!("no more input");
+            break;
+        }
+        let guess: i32 = line.trim().parse().expect("not a number");
+        if guess < secret {
+            println!("{guess}: too low");
+        } else if guess > secret {
+            println!("{guess}: too high");
+        } else {
+            println!("{guess}: found");
+            break;
+        }
+    }
 }
 ```
 
-Girdi olarak `21` verilirse:
+Girdi satırları `3`, `9`, `7`, `1` iken:
 
 ```text
-42
+3: too low
+9: too high
+7: found
 ```
-
-`.parse()` metni sayıya çevirmeyi dener. Hangi türe çevireceğini `: i32` söylüyor. Başarısız olabilir (metin `abc` olabilir), onun için `.expect`
-gerekiyor. Hataları nazikçe ele almayı on üçüncü bölümde öğreneceğiz.
 
 ## Bu patikada
 

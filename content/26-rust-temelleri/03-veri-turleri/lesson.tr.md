@@ -74,7 +74,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 Burada `.len()` metnin uzunluğunu veriyor ve `as u8` onu `u8`'e çeviriyor, böylece sayıyı derleyici önceden
-göremiyor. `--release` derlemesinde bu denetim kapalıdır ve sayı başa sarar (255 + 1 = 0). Bu fark yüzünden
+göremiyor. Programın son hâli derlenirken (`--release` ayarı, Cargo bölümünde göreceğiz) bu denetim kapalıdır
+ve sayı başa sarar (255 + 1 = 0). Bu fark yüzünden
 taşabilecek yerde açık davranmak en iyisidir:
 
 ```rust
@@ -197,7 +198,7 @@ true
 true
 ```
 
-`&&` "ve", `||` "ya da", `!` "değil" demektir.
+`&&` "ve", `||` "ya da", `!` "değil" demektir. Bütün işleçleri bir sonraki bölümde ele alıyoruz.
 
 ## Karakter: char
 
@@ -219,6 +220,83 @@ R 🦀
 ```
 
 Tek tırnak `char`, çift tırnak metindir: `'a'` ile `"a"` farklı türlerdir.
+
+## Metin: `&str` ve `String`
+
+Çift tırnaklı yazı da bir değerdir, değişkene konabilir. Rust'ta iki metin türü var, çünkü metin iki farklı
+yerde durabilir: Programın içine gömülü olarak ya da program çalışırken ayrılan bellekte.
+
+```rust
+fn main() {
+    let city = "Izmir";
+    let mut message = String::from("Hello");
+    message.push_str(", ");
+    message.push_str(city);
+    println!("{message}");
+}
+```
+
+```text
+Hello, Izmir
+```
+
+| | `&str` | `String` |
+|---|---|---|
+| Nasıl yazılır | `"Izmir"` | `String::from("Hello")` |
+| Değişebilir mi | Hayır | Evet, `mut` ile |
+| Ne zaman | Sabit metin, yalnızca okumak | Program çalışırken oluşan ya da büyüyen metin |
+
+Neden iki tür olduğunu Sahiplik ve Dilimler bölümlerinde göreceğiz. Şimdilik şu kural yeter: Yazıp geçeceksen
+`"..."`, değiştireceksen `String`.
+
+Metin üreten en rahat yol `format!`: `println!` gibi yazılır ama ekrana basmak yerine bir `String` verir.
+Sayıyı metne `to_string` çevirir.
+
+```rust
+fn main() {
+    let first = "Ada";
+    let age = 36;
+    let label = format!("{first} ({age})");
+    println!("{label}");
+    let digits = age.to_string();
+    println!("{}", digits);
+}
+```
+
+```text
+Ada (36)
+36
+```
+
+Sık kullanılan birkaç metot:
+
+```rust
+fn main() {
+    let text = "  Rust is fun  ";
+    println!("[{}]", text.trim());
+    println!("{}", text.to_uppercase());
+    println!("{}", text.contains("is"));
+    println!("{}", text.replace("fun", "fast"));
+    println!("{}", "abc" == "abc");
+    println!("{}", "seker".len());
+    println!("{}", "şeker".len());
+    println!("{}", "şeker".chars().count());
+}
+```
+
+```text
+[Rust is fun]
+  RUST IS FUN
+true
+  Rust is fast
+true
+5
+6
+5
+```
+
+Son iki satıra dikkat: `len` harf değil **bayt** sayar ve `ş` iki bayt tuttuğu için `"şeker"` 6 çıkar. Harf saymak
+için `chars().count()` yazılır.
 
 ## Birden fazla değer: demet
 
@@ -294,4 +372,5 @@ Bu **panik** bir hatadır ama kontrollüdür: Program saçma veriyle devam etmek
 - Tam sayılar `i32`, `u8`, `usize` gibi; varsayılan `i32`. Taşma geliştirme derlemesinde paniğe yol açar.
 - Ondalıklı `f64`; `0.1 + 0.2` tam `0.3` değildir.
 - Sayılar kendiliğinden karışmaz; `as` açık dönüşümdür ve sessizce kesebilir.
-- `bool`, tek tırnaklı `char`, sabit boyutlu demet ve dizi temel birleşik türlerdir.
+- `bool` ve tek tırnaklı `char` tek değer, demet ve dizi sabit boyutlu birleşik türlerdir.
+- Metin iki türlüdür: Sabit `&str` (`"Ada"`), değişebilen `String` (`String::from("Ada")`).

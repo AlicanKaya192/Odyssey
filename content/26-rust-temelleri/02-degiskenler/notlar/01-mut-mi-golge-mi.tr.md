@@ -25,7 +25,7 @@ Ada
 ```
 
 Uyarı metnini yukarıda göremezsin çünkü program başarıyla çalıştı ve uyarı derleme sırasında çıkıyor. Kendi
-projende `cargo build` sırasında `variable does not need to be mutable` yazar.
+projende derlerken `variable does not need to be mutable` yazar.
 
 **Değer vermeden kullanmak.** `let x;` yazabilirsin ama değer vermeden okuyamazsın:
 

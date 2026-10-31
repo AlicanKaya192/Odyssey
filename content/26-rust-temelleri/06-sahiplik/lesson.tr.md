@@ -22,7 +22,7 @@ program bozulur. Rust'ın cevabı üç kuraldır.
 
 ## İlk öbek türümüz: String
 
-Şimdiye kadarki `"Ada"` metinleri programın içine gömülüydü ve değişmezdi. `String` ise öbekte durur, büyüyebilir:
+Veri Türleri bölümünde iki metin türü görmüştük. `"Ada"` programın içine gömülüdür ve değişmez. `String` ise öbekte durur, büyüyebilir:
 
 ```rust
 fn main() {

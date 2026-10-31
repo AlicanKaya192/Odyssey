@@ -9,6 +9,8 @@
 | Ondalıklı | `f64` | Hassas ve hızlı |
 | Evet/hayır | `bool` | |
 | Tek harf | `char` | Dört bayt, her alfabeyi tutar |
+| Sabit metin | `&str` | `"Ada"` gibi, değişmez |
+| Değişen, büyüyen metin | `String` | `String::from("Ada")` |
 
 ## Bayt boyutları
 
@@ -48,6 +50,6 @@ bilgisayarda 8 bayttır.
 | `7u8` | 7 | Tür sayının üstünde yazılır |
 | `2.5e3` | 2500.0 | Bilimsel gösterim |
 
-## Metin türleri nerede?
+## Metin türlerinin ayrıntısı
 
-Metin (`String`, `&str`) burada yok, çünkü sahipliği anlamadan anlatılamaz. Sekizinci bölümde kendi başına ele alınıyor.
+İki metin türünün neden var olduğu sahipliği anlamadan anlatılamaz. Dilimler ve Metin bölümünde kendi başına ele alınıyor.

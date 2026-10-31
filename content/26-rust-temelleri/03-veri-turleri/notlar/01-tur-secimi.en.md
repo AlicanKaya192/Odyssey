@@ -9,6 +9,8 @@
 | A decimal | `f64` | Precise and fast |
 | Yes/no | `bool` | |
 | One letter | `char` | Four bytes, holds any alphabet |
+| Fixed text | `&str` | Such as `"Ada"`, does not change |
+| Text that changes or grows | `String` | `String::from("Ada")` |
 
 ## Sizes in bytes
 
@@ -48,6 +50,6 @@ a 64-bit computer.
 | `7u8` | 7 | The type written on the number |
 | `2.5e3` | 2500.0 | Scientific notation |
 
-## Where are the text types?
+## More on the text types
 
-Text (`String`, `&str`) is not here, because it cannot be explained without understanding ownership. Section eight deals with it on its own.
+Why there are two text types cannot be explained without understanding ownership. The Slices and Text section deals with it on its own.

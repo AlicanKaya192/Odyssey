@@ -194,7 +194,7 @@ The `let (low, high) = ...` line opens the returned tuple into two variables.
 ## Comments
 
 `//` leaves a note in the code. Three slashes `///` make a documentation comment: it describes the item directly below it,
-and `cargo doc` produces a documentation page from them.
+and the `cargo doc` command (Cargo comes later) produces a documentation page from them.
 
 ```rust
 /// Returns the area of a rectangle.

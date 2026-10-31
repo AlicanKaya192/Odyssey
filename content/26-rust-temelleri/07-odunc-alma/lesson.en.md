@@ -152,7 +152,7 @@ error[E0502]: cannot borrow `s` as mutable because it is also borrowed as immuta
 
 ## Why it matters: reading while changing a list
 
-You may wonder "what harm in a single thread?". Here is the harm. A `Vec` is a list that grows (we see it in section twelve). Adding an element may move the memory, and
+You may wonder "what harm in a single thread?". Here is the harm. A `Vec` is a list that grows (we see it in the Collections section). Adding an element may move the memory, and
 then a reference taken to the first element points at dropped memory:
 
 ```rust
