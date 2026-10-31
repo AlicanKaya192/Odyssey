@@ -28,8 +28,9 @@ kurallarla denetlenir: çıktı karşılaştırması, değişken ve fonksiyon
 denetimleri, kodun yapısına bakan kontroller. Aynı kod her çalıştırmada aynı
 sonucu verir. Uygulamada dil modeli bulunmaz ve dışarıdaki bir servise
 istek gönderilmez; API alıştırmalarının sunucusu da programın içinde çalışır.
-Yalnızca Docker Desktop'ın taban imajları indirmesi ve FastAPI sunucusunun
-tarayıcıda açılan belge sayfası internete çıkar.
+Yalnızca Docker Desktop'ın taban imajları indirmesi, `rustup`'ın Rust
+derleyicisini kurması ve FastAPI sunucusunun tarayıcıda açılan belge sayfası
+internete çıkar.
 
 **Verileriniz cihazınızda kalır.** İlerleme, yazdığınız kod ve ayarlar
 `%APPDATA%\Odyssey` klasöründeki yerel bir veritabanında tutulur. Hiçbir veri
@@ -48,19 +49,19 @@ XP, seviyeler ve unvanlar, çalışma zamanlayıcısı, önerilen rotalar, kendi
 notlarınız, genel arama, tanıtım turu, Türkçe/İngilizce arayüz, açık/koyu
 tema ve uygulama içi güncelleme hazırdır.
 
-On altı patika tamamlanmıştır: **Python Temelleri**, **CS50 Python**,
+On yedi patika tamamlanmıştır: **Python Temelleri**, **CS50 Python**,
 **Git**, **Algoritmalar**, **Temel Kütüphaneler**, **SQL**, **Matematik**,
 **Veri Bilimi**, **Makine Öğrenmesi**, **Zaman Serileri**,
 **Doğal Dil İşleme**, **Büyük Veri**, **API**, **Docker**,
-**GenAI ve Prompt Mühendisliği** ve **Sistem Tasarımı**. Bazı patikalar
+**GenAI ve Prompt Mühendisliği**, **Sistem Tasarımı** ve **Rust**. Bazı patikalar
 birden fazla modülden oluşur: Matematik, sıfırdan başlayan biri için temel
 matematik ile makine öğrenmesinin dayandığı doğrusal cebir, kalkülüs,
 olasılık ve istatistik; Algoritmalar, temel algoritmalardan sıfırdan
 yazılan makine öğrenmesi algoritmalarına üç modül; Temel Kütüphaneler,
 standart kütüphaneden scikit-learn'e dört modül; Sistem Tasarımı, CI/CD ve
-MLOps. CS50 Python, Harvard'ın CS50 programlamaya giriş dersinin videolu ve
-Türkçe altyazılı uyarlamasıdır. Toplamda 466 bölüm, 12165 sınav sorusu,
-2140 alıştırma ve 300 matematik problemi bulunur.
+MLOps; Rust, sıfırdan çok ileri düzeye üç modül. CS50 Python, Harvard'ın CS50 programlamaya giriş dersinin videolu ve
+Türkçe altyazılı uyarlamasıdır. Toplamda 522 bölüm, 13557 sınav sorusu,
+2421 alıştırma ve 300 matematik problemi bulunur.
 
 Programı ilk kez kullanıyorsanız **Ayarlar › Öğrenme › Tanıtım turu**
 bütün ekranları sırayla gösterir.

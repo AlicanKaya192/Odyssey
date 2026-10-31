@@ -25,11 +25,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ### Eklendi
 - **Rust patikası.** Hiç kod bilmeden başlayıp çok ileri düzeye kadar üç
-  modül: Rust Temelleri (sahipliğe kadar her şey), Rust'ta Derinleşmek
-  (generic, trait, iş parçacığı, serde, clap), İleri Rust (unsafe, atomikler,
-  kendi async çalıştırıcın, tokio, makrolar, FFI). Alıştırmalar
-  bilgisayarınızdaki gerçek Rust derleyicisiyle derleniyor; ilk bölüm kurulumu
-  anlatıyor, derleme hataları Türkçe açıklanıyor.
+  modül: Rust Temelleri (türler, işleçler, girdi, sahiplik, hata yönetimi),
+  Rust'ta Derinleşmek (generic, trait, iş parçacığı, serde, clap), İleri Rust
+  (unsafe, atomikler, kendi async çalıştırıcınız, tokio, makrolar, FFI).
+  Alıştırmalar bilgisayarınızdaki gerçek Rust derleyicisiyle derleniyor; ilk
+  bölüm kurulumu anlatıyor, derleme hataları açıklanıyor. serde, clap ve tokio
+  programla geliyor, internet gerekmiyor; önbelleği Ayarlar › Depolama'dan
+  silebilirsiniz.
 
 ## [1.4.0] — 28 Ekim 2026
 

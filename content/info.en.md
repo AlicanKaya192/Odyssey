@@ -28,8 +28,9 @@ in advance: output comparison, variable and function checks, and checks that
 look at the structure of the code. The same code gives the same result on
 every run. The application contains no language model and sends no
 requests to outside services; even the API exercises' server runs inside
-the program. Only Docker Desktop downloading its base images and the
-documentation page of a FastAPI server, opened in your browser, go online.
+the program. Only Docker Desktop downloading its base images, `rustup` installing the Rust
+compiler and the documentation page of a FastAPI server, opened in your
+browser, go online.
 
 **Your data stays on your machine.** Progress, the code you write and your
 settings are kept in a local database inside the `%APPDATA%\Odyssey` folder.
@@ -48,19 +49,19 @@ badges, XP, levels and titles, a study timer, suggested routes, your own
 notes, a global search, a guided tour, a Turkish/English interface, light
 and dark themes and in-app updates are all in place.
 
-Sixteen paths are complete: **Python Fundamentals**, **CS50 Python**,
+Seventeen paths are complete: **Python Fundamentals**, **CS50 Python**,
 **Git**, **Algorithms**, **Core Libraries**, **SQL**, **Mathematics**,
 **Data Science**, **Machine Learning**, **Time Series**,
 **Natural Language Processing**, **Big Data**, **API**, **Docker**,
-**GenAI and Prompt Engineering** and **System Design**. Some paths have
+**GenAI and Prompt Engineering**, **System Design** and **Rust**. Some paths have
 several modules: Mathematics covers foundational mathematics for someone
 starting from zero and the linear algebra, calculus, probability and
 statistics that machine learning rests on; Algorithms runs in three modules
 from core algorithms to machine learning algorithms written from scratch;
 Core Libraries in four, from the standard library to scikit-learn; System
-Design covers CI/CD and MLOps. CS50 Python is an adaptation of Harvard's
+Design covers CI/CD and MLOps; Rust runs in three modules from zero to a very advanced level. CS50 Python is an adaptation of Harvard's
 CS50 introduction to programming, with the lecture videos and Turkish
-subtitles. Together they hold 466 sections, 12165 quiz questions, 2140
+subtitles. Together they hold 522 sections, 13557 quiz questions, 2421
 exercises and 300 mathematics problems.
 
 If you are new to the application, **Settings › Learning › Guided tour**

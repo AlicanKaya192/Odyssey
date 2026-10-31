@@ -41,6 +41,7 @@ class Rule:
 # Sıra önemli: ilk eşleşen kural kazanır, özel kalıplar genel olanlardan önce.
 RULES: list[Rule] = [
     # --- Rust: derleyici hatalari (kod) ve panik mesajlari ------------------
+    Rule("rustc", r"no matching package", "mistake.rust_no_crate"),
     Rule("rustc", r"E0382", "mistake.rust_e0382"),
     Rule("rustc", r"E0499", "mistake.rust_e0499"),
     Rule("rustc", r"E0502", "mistake.rust_e0502"),

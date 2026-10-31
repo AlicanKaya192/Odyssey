@@ -44,7 +44,7 @@ from ..core import celebration_sound, reminder_service, reminders, weekly_goal
 from .reminder_prompt import TIMES as REMINDER_TIMES
 from ..widgets.common import DropdownBox
 from .update_check import UpdateWorker
-from ..core import docker_admin
+from ..core import docker_admin, rust_cache
 from ..core.runner import sql_admin
 from .confirm_dialog import ConfirmDialog
 from ..resources.theme.tokens import PALETTES, SPACING
@@ -654,8 +654,10 @@ class SettingsDialog(QDialog):
         self._sql_button = dugme(self._on_sql_clear)
         self._sql_row = SettingRow(self._sql_button)
         self._sql_status = self._sql_row.description
+        self._rust_button = dugme(self._on_rust_clear)
+        self._rust_row = SettingRow(self._rust_button)
         layout.addWidget(self._sql_heading)
-        layout.addWidget(self._group([self._sql_row]))
+        layout.addWidget(self._group([self._sql_row, self._rust_row]))
 
         # SQL kartı gibi yalnızca depolama satırları. Önce üstte bir durum
         # satırı vardı ve Docker kapalıyken satırlar gizlenip yalnızca o
@@ -674,10 +676,10 @@ class SettingsDialog(QDialog):
         # Pencere sabit boyutlu; sayfa kaydırma çubuğu çıkarmadan sığsın diye
         # kapatma anahtarı ayrı kart değil, Docker kartının son satırı ve bu
         # sayfadaki satırların dikey iç boşluğu 14 yerine 10 (ölçüldü: ayrı
-        # kartla 471 piksel gerekiyordu, görünen alan 416).
-        for row in (self._sql_row, self._docker_row, self._docker_base_row,
+        # kartla 471 piksel gerekiyordu, görünen alan 416). Rust satırı gelince 6 (447 > 435, ölçüldü).
+        for row in (self._sql_row, self._rust_row, self._docker_row, self._docker_base_row,
                     self._docker_cache_row, self._docker_autostop_row):
-            row.layout().setContentsMargins(18, 10, 18, 10)
+            row.layout().setContentsMargins(18, 6, 18, 6)
         layout.addWidget(self._group([self._docker_row, self._docker_base_row,
                                       self._docker_cache_row, self._docker_autostop_row]))
         layout.addStretch(1)
@@ -1159,6 +1161,23 @@ class SettingsDialog(QDialog):
         self._sql_databases = []
         self._sql_button.setEnabled(False)
 
+    # --- Rust önbelleği ----------------------------------------------------
+
+    def _rust_refresh(self) -> None:
+        boyut = rust_cache.size_mb()
+        t = self._language.t
+        self._rust_row.description.setText(
+            t("settings.rust_cache_usage", size=_size_label(boyut)) if boyut else t("settings.rust_cache_none")
+        )
+        self._rust_button.setEnabled(boyut > 0)
+
+    def _on_rust_clear(self) -> None:
+        if not self._confirm("rust_cache", size=_size_label(rust_cache.size_mb())):
+            return
+        rust_cache.clear()
+        self._rust_row.description.setText(self._language.t("settings.rust_cache_cleared"))
+        self._rust_button.setEnabled(False)
+
     # --- Docker imajları --------------------------------------------------
 
     def _docker_buttons(self, enabled: bool) -> None:
@@ -1319,6 +1338,9 @@ class SettingsDialog(QDialog):
         # Durum satırı sayı taşıyor; dil değişince yeniden üretilmesi
         # gerekiyor, yoksa eski dilde kalıyor.
         self._sql_refresh()
+        self._rust_row.title.setText(t("settings.rust_cache"))
+        self._rust_button.setText(t("settings.rust_cache_clear"))
+        self._rust_refresh()
 
         self._docker_heading.setText(t("settings.storage_docker").upper())
         self._docker_row.title.setText(t("settings.docker_images"))
