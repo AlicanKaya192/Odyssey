@@ -1,0 +1,59 @@
+{
+  "id": "map-macro",
+  "title": {
+    "tr": "Harita Makrosu",
+    "en": "A Map Macro"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Kalıp: `( $( $key:expr => $value:expr ),* $(,)? )`",
+      "en": "The pattern: `( $( $key:expr => $value:expr ),* $(,)? )`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::collections::HashMap;\n\nmacro_rules! map {\n    ( $( $key:expr => $value:expr ),* $(,)? ) => {{\n        let mut out = HashMap::new();\n        $( out.insert($key, $value); )*\n        out\n    }};\n}\n\nfn main() {\n    let ages = map! { \"ada\" => 36, \"alan\" => 41, };\n    println!(\"{}\", ages[\"ada\"] + ages[\"alan\"]);\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::collections::HashMap;\n\nmacro_rules! map {\n    ( $( $key:expr => $value:expr ),* $(,)? ) => {{\n        let mut out = HashMap::new();\n        $( out.insert($key, $value); )*\n        out\n    }};\n}\n\nfn main() {\n    let ages = map! { \"ada\" => 36, \"alan\" => 41, };\n    println!(\"{}\", ages[\"ada\"] + ages[\"alan\"]);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let m = map! { \"a\" => 1, \"b\" => 2 }; assert_eq!(m[\"a\"], 1); assert_eq!(m.len(), 2);",
+          "label": {
+            "tr": "iki öğe",
+            "en": "two items"
+          }
+        },
+        {
+          "code": "let m = map! { 1 => \"x\", }; assert_eq!(m[&1], \"x\");",
+          "label": {
+            "tr": "sondaki virgül",
+            "en": "a trailing comma"
+          }
+        },
+        {
+          "code": "let m: HashMap<u8, u8> = map! {}; assert!(m.is_empty());",
+          "label": {
+            "tr": "boş",
+            "en": "empty"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "macro_rules!\\s+map",
+      "show": "macro_rules! map"
+    }
+  ]
+}

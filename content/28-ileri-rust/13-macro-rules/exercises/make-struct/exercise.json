@@ -1,0 +1,62 @@
+{
+  "id": "make-struct",
+  "title": {
+    "tr": "Yapı Üreten Makro",
+    "en": "A Macro That Produces a Struct"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Kalıp: `($name:ident { $( $field:ident : $t:ty ),* $(,)? })`",
+      "en": "The pattern: `($name:ident { $( $field:ident : $t:ty ),* $(,)? })`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nmacro_rules! make_struct {\n    ($name:ident { $( $field:ident : $t:ty ),* $(,)? }) => {\n        struct $name {\n            $( $field: $t, )*\n        }\n\n        impl $name {\n            $(\n                fn $field(&self) -> &$t {\n                    &self.$field\n                }\n            )*\n        }\n    };\n}\n\nmake_struct!(Point { x: i32, y: i32 });\n\nfn main() {\n    let point = Point { x: 3, y: 4 };\n    println!(\"{} {}\", point.x(), point.y());\n}\n```",
+      "en": "The full solution:\n\n```rust\nmacro_rules! make_struct {\n    ($name:ident { $( $field:ident : $t:ty ),* $(,)? }) => {\n        struct $name {\n            $( $field: $t, )*\n        }\n\n        impl $name {\n            $(\n                fn $field(&self) -> &$t {\n                    &self.$field\n                }\n            )*\n        }\n    };\n}\n\nmake_struct!(Point { x: i32, y: i32 });\n\nfn main() {\n    let point = Point { x: 3, y: 4 };\n    println!(\"{} {}\", point.x(), point.y());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let p = Point { x: 3, y: 4 }; assert_eq!(*p.x(), 3); assert_eq!(*p.y(), 4);",
+          "label": {
+            "tr": "okuyucular",
+            "en": "the getters"
+          }
+        },
+        {
+          "code": "make_struct!(Named { name: String }); let n = Named { name: String::from(\"ada\") }; assert_eq!(n.name(), \"ada\");",
+          "label": {
+            "tr": "başka yapı",
+            "en": "another struct"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\$name:ident",
+      "show": "$name:ident"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\$field:ident",
+      "show": "$field:ident"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\$t:ty",
+      "show": "$t:ty"
+    }
+  ]
+}

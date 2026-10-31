@@ -1,0 +1,64 @@
+{
+  "id": "impl-zero",
+  "title": {
+    "tr": "Birçok Tür İçin Aynı impl",
+    "en": "The Same impl for Many Types"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "Şablon: `$( impl Zero for $t { fn zero() -> Self { $value } } )*`",
+      "en": "The template: `$( impl Zero for $t { fn zero() -> Self { $value } } )*`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\ntrait Zero {\n    fn zero() -> Self;\n}\n\nmacro_rules! impl_zero {\n    ( $( $t:ty => $value:expr ),* $(,)? ) => {\n        $(\n            impl Zero for $t {\n                fn zero() -> Self {\n                    $value\n                }\n            }\n        )*\n    };\n}\n\nimpl_zero!(i32 => 0, f64 => 0.0, String => String::new());\n\nfn main() {\n    println!(\"{} {} {:?}\", i32::zero(), f64::zero(), String::zero());\n}\n```",
+      "en": "The full solution:\n\n```rust\ntrait Zero {\n    fn zero() -> Self;\n}\n\nmacro_rules! impl_zero {\n    ( $( $t:ty => $value:expr ),* $(,)? ) => {\n        $(\n            impl Zero for $t {\n                fn zero() -> Self {\n                    $value\n                }\n            }\n        )*\n    };\n}\n\nimpl_zero!(i32 => 0, f64 => 0.0, String => String::new());\n\nfn main() {\n    println!(\"{} {} {:?}\", i32::zero(), f64::zero(), String::zero());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(i32::zero(), 0);",
+          "label": {
+            "tr": "i32",
+            "en": "i32"
+          }
+        },
+        {
+          "code": "assert_eq!(f64::zero(), 0.0);",
+          "label": {
+            "tr": "f64",
+            "en": "f64"
+          }
+        },
+        {
+          "code": "assert_eq!(String::zero(), \"\");",
+          "label": {
+            "tr": "String",
+            "en": "String"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\$t:ty",
+      "show": "$t:ty"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "impl\\s+Zero\\s+for\\s+(i32|f64|String)",
+      "show": "impl Zero for i32"
+    }
+  ]
+}

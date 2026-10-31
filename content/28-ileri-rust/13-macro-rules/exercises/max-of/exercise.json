@@ -1,0 +1,66 @@
+{
+  "id": "max-of",
+  "title": {
+    "tr": "En Büyüğü Bulan Makro",
+    "en": "A Macro That Finds the Maximum"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "İkinci kol `let first = $x;` ile başlar; `max_of!($($rest),+)` kendini çağırır.",
+      "en": "The second arm starts with `let first = $x;`; `max_of!($($rest),+)` calls itself."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nmacro_rules! max_of {\n    ($x:expr) => {\n        $x\n    };\n    ($x:expr, $($rest:expr),+) => {{\n        let first = $x;\n        let other = max_of!($($rest),+);\n        if first > other { first } else { other }\n    }};\n}\n\nfn main() {\n    println!(\"{}\", max_of!(4));\n    println!(\"{}\", max_of!(1, 9, 3));\n}\n```",
+      "en": "The full solution:\n\n```rust\nmacro_rules! max_of {\n    ($x:expr) => {\n        $x\n    };\n    ($x:expr, $($rest:expr),+) => {{\n        let first = $x;\n        let other = max_of!($($rest),+);\n        if first > other { first } else { other }\n    }};\n}\n\nfn main() {\n    println!(\"{}\", max_of!(4));\n    println!(\"{}\", max_of!(1, 9, 3));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(max_of!(4), 4);",
+          "label": {
+            "tr": "tek",
+            "en": "one"
+          }
+        },
+        {
+          "code": "assert_eq!(max_of!(1, 9, 3), 9);",
+          "label": {
+            "tr": "ortada",
+            "en": "in the middle"
+          }
+        },
+        {
+          "code": "assert_eq!(max_of!(1.5, 0.5), 1.5);",
+          "label": {
+            "tr": "ondalık",
+            "en": "decimals"
+          }
+        },
+        {
+          "code": "let mut c = 0; let mut next = || { c += 1; c }; let m = max_of!(next(), next(), next()); assert_eq!(m, 3); assert_eq!(c, 3);",
+          "label": {
+            "tr": "bir kez değerlendirir",
+            "en": "evaluates once"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "macro_rules!\\s+max_of",
+      "show": "macro_rules! max_of"
+    }
+  ]
+}
