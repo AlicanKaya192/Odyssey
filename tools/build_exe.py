@@ -51,6 +51,7 @@ ICON = (
 DATA = [
     ("content", "content"),
     ("sandbox", "sandbox"),
+    ("rust-vendor", "rust-vendor"),
     ("app/i18n", "app/i18n"),
     ("app/resources", "app/resources"),
     ("LICENSE", "."),

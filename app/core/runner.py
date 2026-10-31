@@ -29,7 +29,9 @@ import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..paths import artifacts_dir, exercise_python, is_frozen, sandbox_dir, workspace_dir
+from ..paths import (
+    artifacts_dir, exercise_python, is_frozen, rust_build_dir, rust_vendor_dir, sandbox_dir, workspace_dir,
+)
 from .memory_limit import CREATE_SUSPENDED, MemoryJob
 from .workspace_files import safe_name
 
@@ -358,6 +360,9 @@ def run_code(
                     "run_id": workspace.name,
                     "workspace": str(workspace),
                     "timeout_sec": timeout_sec,
+                    # Rust: programla gelen paketler ve onların derleme önbelleği.
+                    "rust_vendor": str(rust_vendor_dir()),
+                    "rust_target": str(rust_build_dir()),
                 },
                 ensure_ascii=False,
             ),

@@ -38,6 +38,7 @@ BUILD_DIR = ".odyssey-build"
 EDITION = "2024"
 HIDDEN_MODULE = "odyssey_hidden"
 HIDDEN_TEST = "check_"
+VENDOR_SOURCE = "vendored-sources"
 
 # Uygulama denetiminin çalıştırmayı engellediğini söyleyen Windows hataları
 # (`updater.BLOCKED_ERRORS` ile aynı ölçüm: 4551 uygulama denetimi).
@@ -142,6 +143,24 @@ def _json_lines(text: str) -> list[dict]:
     return items
 
 
+DEPENDENCY_TABLE = re.compile(r"^\[(?:dev-|build-)?dependencies\]$")
+DEPENDENCY_SUBTABLE = re.compile(r"^\[(?:dev-|build-)?dependencies\.[\w-]+\]$")
+
+
+def _uses_crates(manifest: str) -> bool:
+    """`Cargo.toml` dışarıdan paket istiyor mu? Yol bağımlılığı (`path = ...`) saymaz."""
+    in_table = False
+    for raw in manifest.splitlines():
+        line = raw.strip()
+        if line.startswith("["):
+            if DEPENDENCY_SUBTABLE.match(line):
+                return True
+            in_table = bool(DEPENDENCY_TABLE.match(line))
+        elif in_table and line and not line.startswith("#") and "path" not in line:
+            return True
+    return False
+
+
 def _hidden_window_flags() -> int:
     return subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
 
@@ -149,9 +168,11 @@ def _hidden_window_flags() -> int:
 class _Project:
     """Tek dosya (`rustc`) ya da Cargo projesi: derleme ayrıntısı burada kalıyor."""
 
-    def __init__(self, workspace: Path, entry: Path):
+    def __init__(self, workspace: Path, entry: Path, vendor: str = "", shared_target: str = ""):
         self.workspace = workspace
         self.entry = entry
+        self.vendor = vendor
+        self.shared_target = shared_target
         self.is_cargo = (workspace / "Cargo.toml").is_file()
         self.tool = find_tool("cargo" if self.is_cargo else "rustc")
         if self.tool is None:
@@ -191,6 +212,14 @@ class _Project:
     def _cargo(self, tests: bool) -> Build:
         env = {**os.environ, "CARGO_TARGET_DIR": str(self.workspace / BUILD_DIR), "CARGO_TERM_COLOR": "never"}
         args = [self.tool, "test", "--no-run"] if tests else [self.tool, "build"]
+        if self.vendor:
+            # crates.io yerine programla gelen kopya; internete çıkılmıyor.
+            args += ["--config", f'source.crates-io.replace-with="{VENDOR_SOURCE}"',
+                     "--config", f'source.{VENDOR_SOURCE}.directory="{Path(self.vendor).as_posix()}"']
+        if self.shared_target and self._needs_crates():
+            # Çalışma klasörü her çalıştırmada yeni: Paketler orada derlenseydi her
+            # seferinde baştan derlenirdi (soğuk ~10 sn, önbellekle ~1 sn; ölçüldü).
+            env.update(CARGO_TARGET_DIR=self.shared_target, CARGO_PROFILE_DEV_DEBUG="0")
         done = self._call([*args, "--offline", "--message-format=json", "--quiet"], env)
         diagnostics: list[Diagnostic] = []
         executables: list[Path] = []
@@ -206,8 +235,15 @@ class _Project:
             return Build(False, diagnostics, raw_error="" if diagnostics else self._clean(done.stderr))
         return Build(True, diagnostics, executables=executables)
 
+    def _needs_crates(self) -> bool:
+        manifests = self.workspace.rglob("Cargo.toml")
+        return any(_uses_crates(m.read_text(encoding="utf-8", errors="replace")) for m in manifests)
+
     def _clean(self, text: str) -> str:
-        """Geçici klasörün yolu (kullanıcı adını taşıyor) ekrana gitmesin."""
+        """Klasör yolları (kullanıcı adını taşıyor) ekrana gitmesin."""
+        for folder, label in ((self.vendor, "rust-vendor"), (self.shared_target, "rust-build")):
+            if folder:
+                text = text.replace(folder, label).replace(Path(folder).as_posix(), label)
         return text.replace(str(self.workspace) + os.sep, "").replace(str(self.workspace), ".").strip()
 
 
@@ -469,7 +505,7 @@ def run(job: dict, compare_stdout) -> dict:
     checks = job.get("checks", [])
     multi_file = bool(job.get("user_files"))
     try:
-        project = _Project(workspace, entry)
+        project = _Project(workspace, entry, job.get("rust_vendor", ""), job.get("rust_target", ""))
         build = project.build()
         if not build.ok:
             return _compile_failure(build, multi_file)

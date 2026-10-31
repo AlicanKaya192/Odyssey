@@ -57,6 +57,11 @@ def content_dir() -> Path:
     return install_root() / "content"
 
 
+def rust_vendor_dir() -> Path:
+    """Programla gelen Rust paketlerinin (crate) kaynak kodu."""
+    return install_root() / "rust-vendor"
+
+
 def sandbox_dir() -> Path:
     """Kullanıcı kodunu çalıştıran yardımcı scriptin bulunduğu klasör."""
     return install_root() / "sandbox"
@@ -99,6 +104,11 @@ def _migrate_legacy_data(target: Path) -> None:
             # kalır, veri hiçbir durumda silinmez.
             shutil.copytree(source, target, dirs_exist_ok=True)
         return
+
+
+def rust_build_dir() -> Path:
+    """Paketli Rust alıştırmalarının paylaştığı derleme önbelleği."""
+    return user_data_dir() / "rust-build"
 
 
 def user_data_dir() -> Path:
