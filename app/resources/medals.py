@@ -503,6 +503,23 @@ GLYPHS: dict[str, str] = {
     "rust-depth": ('<circle cx="12" cy="9" r="5.6" stroke-width="1.5"/>'
                    '<path d="M12 1.4v2M4.4 9h2M17.6 9h2M6.6 3.6l1.4 1.4M16 13l1.4 1.4M6.6 14.4L8 13M16 5l1.4-1.4" stroke-width="1.6"/>'
                    '<path d="M12 6.4v15M8.6 18.2l3.4 3.4 3.4-3.4" stroke-width="1.7"/>'),
+    # Kendi Vec'in: yan yana hücreler ve başı gösteren işaretçi.
+    "owned-vec": ('<rect x="2.6" y="11" width="18.8" height="6.4" rx="1" stroke-width="1.5"/>'
+                  '<path d="M8.8 11v6.4M15 11v6.4" stroke-width="1.4"/>'
+                  '<path d="M5.7 3.4v5.4M3.2 6.4l2.5 2.6 2.5-2.6" stroke-width="1.7"/>'),
+    # Kendi çalıştırıcın: dönen ok ve ortada uyanma noktası.
+    "wake-loop": ('<path d="M19.6 12a7.6 7.6 0 1 1-2.4-5.6" stroke-width="1.7"/>'
+                  '<path d="M17.6 2.6v4.2h-4.2" stroke-width="1.7"/>'
+                  '<circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/>'),
+    # Procedural makro: süslü parantez içinde token'lar.
+    "token-braces": ('<path d="M8.4 3.6c-2.4 0-3 1-3 2.8v2.8c0 1.6-.8 2.4-2.2 2.8 1.4.4 2.2 1.2 2.2 2.8v2.8c0 1.8.6 2.8 3 2.8" stroke-width="1.6"/>'
+                     '<path d="M15.6 3.6c2.4 0 3 1 3 2.8v2.8c0 1.6.8 2.4 2.2 2.8-1.4.4-2.2 1.2-2.2 2.8v2.8c0 1.8-.6 2.8-3 2.8" stroke-width="1.6"/>'
+                     '<circle cx="9.4" cy="12" r="1.1" fill="currentColor" stroke="none"/>'
+                     '<circle cx="14.6" cy="12" r="1.1" fill="currentColor" stroke="none"/>'),
+    # İleri Rust'ın tamamı: dişli üstünde zirve.
+    "rust-summit": ('<circle cx="12" cy="15" r="5.2" stroke-width="1.5"/>'
+                    '<path d="M12 7.8v1.8M12 20.4v1.8M4.8 15h1.8M17.4 15h1.8M6.9 9.9l1.3 1.3M15.8 18.8l1.3 1.3M6.9 20.1l1.3-1.3M15.8 11.2l1.3-1.3" stroke-width="1.5"/>'
+                    '<path d="M7.4 6.4L12 1.8l4.6 4.6" stroke-width="1.8"/>'),
     # Rust Temelleri'nin tamamı: patika logosundaki gibi dişli ve R.
     "rust-gear": ('<circle cx="12" cy="12" r="7.4" stroke-width="1.5"/>'
                   '<path d="M12 1.8v2.8M12 19.4v2.8M1.8 12h2.8M19.4 12h2.8M4.8 4.8l2 2M17.2 17.2l2 2'

@@ -67,6 +67,7 @@ MLOPS_CHAPTER = "24-mlops"
 CS50_CHAPTER = "25-cs50-python"
 RUST1_CHAPTER = "26-rust-temelleri"
 RUST2_CHAPTER = "27-rust-derinlesmek"
+RUST3_CHAPTER = "28-ileri-rust"
 
 # Şaka rozeti (Alican 23 Ekim): CS50'de bir bölümü açmak yetiyor. Açmak
 # ilerleme kaydı bırakmadığı için ilk açılış bu ayara yazılıyor.
@@ -151,6 +152,9 @@ RUST_TOOL_SECTION = (RUST1_CHAPTER, "15-komut-satiri-projesi")
 RUST_LIFETIME_SECTION = (RUST2_CHAPTER, "03-yasam-sureleri")
 RUST_ITERATOR_SECTION = (RUST2_CHAPTER, "06-iterator-yazmak")
 RUST_THREADS_SECTION = (RUST2_CHAPTER, "11-arc-mutex")
+RUST_OWN_VEC_SECTION = (RUST3_CHAPTER, "04-kendi-vec")
+RUST_EXECUTOR_SECTION = (RUST3_CHAPTER, "10-calistirici")
+RUST_PROC_MACRO_SECTION = (RUST3_CHAPTER, "14-procedural-makro")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -179,6 +183,7 @@ MLOPS_SECTION_COUNT = 17
 CS50_SECTION_COUNT = 11
 RUST1_SECTION_COUNT = 17
 RUST2_SECTION_COUNT = 17
+RUST3_SECTION_COUNT = 20
 
 
 def note_section_opened(store, chapter_id: str) -> bool:
@@ -368,6 +373,10 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "rust-own-iterator": RUST_ITERATOR_SECTION in bitenler,
         "rust-fearless": RUST_THREADS_SECTION in bitenler,
         "rust2-complete": modul_basina.get(RUST2_CHAPTER, 0) >= RUST2_SECTION_COUNT,
+        "rust-own-vec": RUST_OWN_VEC_SECTION in bitenler,
+        "rust-own-executor": RUST_EXECUTOR_SECTION in bitenler,
+        "rust-token-smith": RUST_PROC_MACRO_SECTION in bitenler,
+        "rust3-complete": modul_basina.get(RUST3_CHAPTER, 0) >= RUST3_SECTION_COUNT,
     }
 
 

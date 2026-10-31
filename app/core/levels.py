@@ -29,13 +29,13 @@ SECTION_XP = 60
 TIER_XP = {"bronze": 100, "silver": 200, "gold": 400, "legendary": 1000}
 
 MAX_LEVEL = 50
-# Bir sonraki seviye için gereken XP: 1 → 2 için 100, her seviyede 100 artıyor.
+# Bir sonraki seviye için gereken XP: 1 → 2 için 100, her seviyede 110 artıyor.
 # (1.0'da 40'tan önce 55'e, Temel Kütüphaneler'in üç modülüyle 70'e, 1.1'de
 # NLP patikasıyla 80'e, GenAI patikasıyla 90'a, 1.3'te Sistem Tasarımı
-# patikasıyla 100'e çıktı: içeriğin tamamı her seferinde 40'a ulaşmıştı; 40 ve
-# 50 ileride yazılacak patikalara kalsın.)
+# patikasıyla 100'e, 1.5'te Rust patikasıyla 110'a çıktı: içeriğin tamamı her
+# seferinde 40'a ulaşmıştı; 40 ve 50 ileride yazılacak patikalara kalsın.)
 FIRST_STEP = 100
-STEP_GROWTH = 100
+STEP_GROWTH = 110
 
 SEEN_LEVEL_KEY = "level_seen"
 EARNED_TAGS_KEY = "tags_earned"
@@ -80,6 +80,7 @@ BADGE_TAGS = {
     "chiron": "cs50-complete",
     "talos": "rust1-complete",
     "atlas": "rust2-complete",
+    "cyclops": "rust3-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200
