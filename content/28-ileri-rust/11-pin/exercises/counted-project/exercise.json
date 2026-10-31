@@ -1,0 +1,62 @@
+{
+  "id": "counted-project",
+  "title": {
+    "tr": "Yoklama Sayan Sarmalayıcı",
+    "en": "A Poll-Counting Wrapper"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let this = unsafe { self.get_unchecked_mut() };`",
+      "en": "`let this = unsafe { self.get_unchecked_mut() };`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\nstruct Yield {\n    done: bool,\n}\n\nimpl Future for Yield {\n    type Output = ();\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        if self.done {\n            return Poll::Ready(());\n        }\n        self.done = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nasync fn pause() {\n    Yield { done: false }.await;\n}\n\nstruct Counted<F> {\n    inner: F,\n    polls: u32,\n}\n\nimpl<F: Future> Future for Counted<F> {\n    type Output = F::Output;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<F::Output> {\n        // SAFETY: inner is never moved out of self.\n        let this = unsafe { self.get_unchecked_mut() };\n        this.polls += 1;\n        // SAFETY: self is pinned, so its inner field stays in place too.\n        let inner = unsafe { Pin::new_unchecked(&mut this.inner) };\n        inner.poll(cx)\n    }\n}\n\nfn main() {\n    let mut future = pin!(Counted { inner: pause(), polls: 0 });\n    let mut cx = Context::from_waker(Waker::noop());\n    while future.as_mut().poll(&mut cx).is_pending() {}\n    println!(\"{}\", future.polls);\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\nstruct Yield {\n    done: bool,\n}\n\nimpl Future for Yield {\n    type Output = ();\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        if self.done {\n            return Poll::Ready(());\n        }\n        self.done = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nasync fn pause() {\n    Yield { done: false }.await;\n}\n\nstruct Counted<F> {\n    inner: F,\n    polls: u32,\n}\n\nimpl<F: Future> Future for Counted<F> {\n    type Output = F::Output;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<F::Output> {\n        // SAFETY: inner is never moved out of self.\n        let this = unsafe { self.get_unchecked_mut() };\n        this.polls += 1;\n        // SAFETY: self is pinned, so its inner field stays in place too.\n        let inner = unsafe { Pin::new_unchecked(&mut this.inner) };\n        inner.poll(cx)\n    }\n}\n\nfn main() {\n    let mut future = pin!(Counted { inner: pause(), polls: 0 });\n    let mut cx = Context::from_waker(Waker::noop());\n    while future.as_mut().poll(&mut cx).is_pending() {}\n    println!(\"{}\", future.polls);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut f = pin!(Counted { inner: pause(), polls: 0 }); let mut cx = Context::from_waker(Waker::noop()); assert!(f.as_mut().poll(&mut cx).is_pending()); assert_eq!(f.polls, 1); assert!(f.as_mut().poll(&mut cx).is_ready()); assert_eq!(f.polls, 2);",
+          "label": {
+            "tr": "iki yoklama",
+            "en": "two polls"
+          }
+        },
+        {
+          "code": "let mut f = pin!(Counted { inner: async { let v = 4; let r = &v; pause().await; *r + 1 }, polls: 0 }); let mut cx = Context::from_waker(Waker::noop()); while f.as_mut().poll(&mut cx).is_pending() {} assert_eq!(f.polls, 2);",
+          "label": {
+            "tr": "kendini gösteren iç future",
+            "en": "a self-referencing inner future"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "Unpin",
+      "show": "Unpin"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "Box::pin",
+      "show": "Box::pin"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Pin::new_unchecked",
+      "show": "Pin::new_unchecked"
+    }
+  ]
+}

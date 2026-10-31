@@ -1,0 +1,69 @@
+{
+  "id": "finishes-at-once",
+  "title": {
+    "tr": "İlk Yoklamada Bitti mi?",
+    "en": "Finished on the First Poll?"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let future = pin!(future);`, sonra `future.poll(&mut cx).is_ready()`.",
+      "en": "`let future = pin!(future);`, then `future.poll(&mut cx).is_ready()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\nstruct Yield {\n    done: bool,\n}\n\nimpl Future for Yield {\n    type Output = ();\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        if self.done {\n            return Poll::Ready(());\n        }\n        self.done = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nasync fn pause() {\n    Yield { done: false }.await;\n}\n\nfn finishes_at_once<F: Future>(future: F) -> bool {\n    let future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    future.poll(&mut cx).is_ready()\n}\n\nfn main() {\n    println!(\"{}\", finishes_at_once(async { 1 }));\n    println!(\"{}\", finishes_at_once(pause()));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\nstruct Yield {\n    done: bool,\n}\n\nimpl Future for Yield {\n    type Output = ();\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        if self.done {\n            return Poll::Ready(());\n        }\n        self.done = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nasync fn pause() {\n    Yield { done: false }.await;\n}\n\nfn finishes_at_once<F: Future>(future: F) -> bool {\n    let future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    future.poll(&mut cx).is_ready()\n}\n\nfn main() {\n    println!(\"{}\", finishes_at_once(async { 1 }));\n    println!(\"{}\", finishes_at_once(pause()));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert!(finishes_at_once(async { 1 }));",
+          "label": {
+            "tr": "hemen biter",
+            "en": "finishes at once"
+          }
+        },
+        {
+          "code": "assert!(!finishes_at_once(pause()));",
+          "label": {
+            "tr": "bekler",
+            "en": "waits"
+          }
+        },
+        {
+          "code": "let holds = async { let v = 1; let r = &v; pause().await; *r }; assert!(!finishes_at_once(holds));",
+          "label": {
+            "tr": "kendini gösteren future",
+            "en": "a self-referencing future"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "Unpin",
+      "show": "Unpin"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "Box::pin",
+      "show": "Box::pin"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "pin!\\(",
+      "show": "pin!("
+    }
+  ]
+}

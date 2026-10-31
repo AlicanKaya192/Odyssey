@@ -1,0 +1,70 @@
+{
+  "id": "join-pinned",
+  "title": {
+    "tr": "Kutusuz Join",
+    "en": "Join Without a Box"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let a = unsafe { Pin::new_unchecked(&mut this.a) };`",
+      "en": "`let a = unsafe { Pin::new_unchecked(&mut this.a) };`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\nstruct Yield {\n    done: bool,\n}\n\nimpl Future for Yield {\n    type Output = ();\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        if self.done {\n            return Poll::Ready(());\n        }\n        self.done = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nasync fn pause() {\n    Yield { done: false }.await;\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    loop {\n        if let Poll::Ready(value) = future.as_mut().poll(&mut cx) {\n            return value;\n        }\n    }\n}\n\nstruct Join<A: Future, B: Future> {\n    a: A,\n    b: B,\n    a_out: Option<A::Output>,\n    b_out: Option<B::Output>,\n    a_done: bool,\n    b_done: bool,\n}\n\nimpl<A: Future, B: Future> Future for Join<A, B> {\n    type Output = (A::Output, B::Output);\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {\n        // SAFETY: a and b are never moved out; the outputs are not pinned.\n        let this = unsafe { self.get_unchecked_mut() };\n        if !this.a_done {\n            // SAFETY: self is pinned, so a stays in place too.\n            let a = unsafe { Pin::new_unchecked(&mut this.a) };\n            if let Poll::Ready(value) = a.poll(cx) {\n                this.a_out = Some(value);\n                this.a_done = true;\n            }\n        }\n        if !this.b_done {\n            // SAFETY: self is pinned, so b stays in place too.\n            let b = unsafe { Pin::new_unchecked(&mut this.b) };\n            if let Poll::Ready(value) = b.poll(cx) {\n                this.b_out = Some(value);\n                this.b_done = true;\n            }\n        }\n        if this.a_done && this.b_done {\n            let a = this.a_out.take().expect(\"polled after completion\");\n            let b = this.b_out.take().expect(\"polled after completion\");\n            Poll::Ready((a, b))\n        } else {\n            Poll::Pending\n        }\n    }\n}\n\nasync fn after(pauses: u32, value: u32) -> u32 {\n    for _ in 0..pauses {\n        pause().await;\n    }\n    value\n}\n\nfn main() {\n    let join = Join {\n        a: after(2, 10),\n        b: after(0, 20),\n        a_out: None,\n        b_out: None,\n        a_done: false,\n        b_done: false,\n    };\n    println!(\"{:?}\", block_on(join));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\nstruct Yield {\n    done: bool,\n}\n\nimpl Future for Yield {\n    type Output = ();\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        if self.done {\n            return Poll::Ready(());\n        }\n        self.done = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nasync fn pause() {\n    Yield { done: false }.await;\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    loop {\n        if let Poll::Ready(value) = future.as_mut().poll(&mut cx) {\n            return value;\n        }\n    }\n}\n\nstruct Join<A: Future, B: Future> {\n    a: A,\n    b: B,\n    a_out: Option<A::Output>,\n    b_out: Option<B::Output>,\n    a_done: bool,\n    b_done: bool,\n}\n\nimpl<A: Future, B: Future> Future for Join<A, B> {\n    type Output = (A::Output, B::Output);\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {\n        // SAFETY: a and b are never moved out; the outputs are not pinned.\n        let this = unsafe { self.get_unchecked_mut() };\n        if !this.a_done {\n            // SAFETY: self is pinned, so a stays in place too.\n            let a = unsafe { Pin::new_unchecked(&mut this.a) };\n            if let Poll::Ready(value) = a.poll(cx) {\n                this.a_out = Some(value);\n                this.a_done = true;\n            }\n        }\n        if !this.b_done {\n            // SAFETY: self is pinned, so b stays in place too.\n            let b = unsafe { Pin::new_unchecked(&mut this.b) };\n            if let Poll::Ready(value) = b.poll(cx) {\n                this.b_out = Some(value);\n                this.b_done = true;\n            }\n        }\n        if this.a_done && this.b_done {\n            let a = this.a_out.take().expect(\"polled after completion\");\n            let b = this.b_out.take().expect(\"polled after completion\");\n            Poll::Ready((a, b))\n        } else {\n            Poll::Pending\n        }\n    }\n}\n\nasync fn after(pauses: u32, value: u32) -> u32 {\n    for _ in 0..pauses {\n        pause().await;\n    }\n    value\n}\n\nfn main() {\n    let join = Join {\n        a: after(2, 10),\n        b: after(0, 20),\n        a_out: None,\n        b_out: None,\n        a_done: false,\n        b_done: false,\n    };\n    println!(\"{:?}\", block_on(join));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let j = Join { a: after(2, 10), b: after(0, 20), a_out: None, b_out: None, a_done: false, b_done: false }; assert_eq!(block_on(j), (10, 20));",
+          "label": {
+            "tr": "sayılar",
+            "en": "numbers"
+          }
+        },
+        {
+          "code": "let j = Join { a: async { pause().await; String::from(\"x\") }, b: async { 2u8 }, a_out: None, b_out: None, a_done: false, b_done: false }; assert_eq!(block_on(j), (String::from(\"x\"), 2));",
+          "label": {
+            "tr": "farklı türler",
+            "en": "different types"
+          }
+        },
+        {
+          "code": "let j = Join { a: after(2, 1), b: after(2, 2), a_out: None, b_out: None, a_done: false, b_done: false }; assert_eq!(polls(j), ((1, 2), 3));",
+          "label": {
+            "tr": "birlikte ilerler",
+            "en": "they advance together"
+          }
+        }
+      ],
+      "prelude": "fn polls<F: Future>(future: F) -> (F::Output, u32) {\n    let mut future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    let mut count = 0;\n    loop {\n        count += 1;\n        if let Poll::Ready(value) = future.as_mut().poll(&mut cx) {\n            return (value, count);\n        }\n    }\n}\n"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "Unpin",
+      "show": "Unpin"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "Box::pin",
+      "show": "Box::pin"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Pin::new_unchecked",
+      "show": "Pin::new_unchecked"
+    }
+  ]
+}

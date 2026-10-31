@@ -1,0 +1,64 @@
+{
+  "id": "self-ref",
+  "title": {
+    "tr": "Güvenli Kendini Gösteren Yapı",
+    "en": "A Safe Self-Reference"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let pointer: *const String = &boxed.value;`",
+      "en": "`let pointer: *const String = &boxed.value;`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::marker::PhantomPinned;\nuse std::pin::Pin;\nuse std::ptr;\n\nstruct SelfRef {\n    value: String,\n    pointer: *const String,\n    _pin: PhantomPinned,\n}\n\nimpl SelfRef {\n    fn new(text: &str) -> Pin<Box<Self>> {\n        let mut boxed = Box::pin(SelfRef {\n            value: text.to_string(),\n            pointer: ptr::null(),\n            _pin: PhantomPinned,\n        });\n        let pointer: *const String = &boxed.value;\n        // SAFETY: writing a field does not move the struct.\n        unsafe { boxed.as_mut().get_unchecked_mut().pointer = pointer };\n        boxed\n    }\n\n    fn read(self: Pin<&Self>) -> &str {\n        // SAFETY: the struct is pinned, so the pointer still shows its field.\n        unsafe { &*self.pointer }\n    }\n}\n\nfn main() {\n    let a = SelfRef::new(\"hello\");\n    let moved = a;\n    println!(\"{}\", moved.as_ref().read());\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::marker::PhantomPinned;\nuse std::pin::Pin;\nuse std::ptr;\n\nstruct SelfRef {\n    value: String,\n    pointer: *const String,\n    _pin: PhantomPinned,\n}\n\nimpl SelfRef {\n    fn new(text: &str) -> Pin<Box<Self>> {\n        let mut boxed = Box::pin(SelfRef {\n            value: text.to_string(),\n            pointer: ptr::null(),\n            _pin: PhantomPinned,\n        });\n        let pointer: *const String = &boxed.value;\n        // SAFETY: writing a field does not move the struct.\n        unsafe { boxed.as_mut().get_unchecked_mut().pointer = pointer };\n        boxed\n    }\n\n    fn read(self: Pin<&Self>) -> &str {\n        // SAFETY: the struct is pinned, so the pointer still shows its field.\n        unsafe { &*self.pointer }\n    }\n}\n\nfn main() {\n    let a = SelfRef::new(\"hello\");\n    let moved = a;\n    println!(\"{}\", moved.as_ref().read());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let a = SelfRef::new(\"x\"); assert_eq!(a.as_ref().read(), \"x\");",
+          "label": {
+            "tr": "okuma",
+            "en": "reading"
+          }
+        },
+        {
+          "code": "let a = SelfRef::new(\"x\"); let before = a.pointer; let moved = a; assert_eq!(before, &moved.value as *const String); assert_eq!(moved.as_ref().read(), \"x\");",
+          "label": {
+            "tr": "kutu taşınınca da doğru",
+            "en": "correct after the box moves"
+          }
+        },
+        {
+          "code": "let mut a = SelfRef::new(\"x\"); let mut b = SelfRef::new(\"y\"); std::mem::swap(&mut a, &mut b); assert_eq!(a.value, a.as_ref().read()); assert_eq!(a.as_ref().read(), \"y\");",
+          "label": {
+            "tr": "takas",
+            "en": "a swap"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Box::pin",
+      "show": "Box::pin"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "get_unchecked_mut",
+      "show": "get_unchecked_mut"
+    }
+  ]
+}

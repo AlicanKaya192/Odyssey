@@ -1,0 +1,74 @@
+{
+  "id": "map-future",
+  "title": {
+    "tr": "Sonucu Dönüştüren Future",
+    "en": "A Future That Maps Its Result"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let func = this.func.take().expect(\"polled after completion\");`",
+      "en": "`let func = this.func.take().expect(\"polled after completion\");`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\nstruct Yield {\n    done: bool,\n}\n\nimpl Future for Yield {\n    type Output = ();\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        if self.done {\n            return Poll::Ready(());\n        }\n        self.done = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nasync fn pause() {\n    Yield { done: false }.await;\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    loop {\n        if let Poll::Ready(value) = future.as_mut().poll(&mut cx) {\n            return value;\n        }\n    }\n}\n\nstruct Map<F, C> {\n    inner: F,\n    func: Option<C>,\n}\n\nimpl<F, C, R> Future for Map<F, C>\nwhere\n    F: Future,\n    C: FnOnce(F::Output) -> R,\n{\n    type Output = R;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<R> {\n        // SAFETY: inner is never moved out, and func is not pinned.\n        let this = unsafe { self.get_unchecked_mut() };\n        // SAFETY: self is pinned, so its inner field stays in place too.\n        let inner = unsafe { Pin::new_unchecked(&mut this.inner) };\n        match inner.poll(cx) {\n            Poll::Ready(value) => {\n                let func = this.func.take().expect(\"polled after completion\");\n                Poll::Ready(func(value))\n            }\n            Poll::Pending => Poll::Pending,\n        }\n    }\n}\n\nasync fn seven() -> u32 {\n    pause().await;\n    7\n}\n\nfn main() {\n    let future = Map { inner: seven(), func: Some(|n: u32| n + 1) };\n    println!(\"{}\", block_on(future));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\nstruct Yield {\n    done: bool,\n}\n\nimpl Future for Yield {\n    type Output = ();\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        if self.done {\n            return Poll::Ready(());\n        }\n        self.done = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nasync fn pause() {\n    Yield { done: false }.await;\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    loop {\n        if let Poll::Ready(value) = future.as_mut().poll(&mut cx) {\n            return value;\n        }\n    }\n}\n\nstruct Map<F, C> {\n    inner: F,\n    func: Option<C>,\n}\n\nimpl<F, C, R> Future for Map<F, C>\nwhere\n    F: Future,\n    C: FnOnce(F::Output) -> R,\n{\n    type Output = R;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<R> {\n        // SAFETY: inner is never moved out, and func is not pinned.\n        let this = unsafe { self.get_unchecked_mut() };\n        // SAFETY: self is pinned, so its inner field stays in place too.\n        let inner = unsafe { Pin::new_unchecked(&mut this.inner) };\n        match inner.poll(cx) {\n            Poll::Ready(value) => {\n                let func = this.func.take().expect(\"polled after completion\");\n                Poll::Ready(func(value))\n            }\n            Poll::Pending => Poll::Pending,\n        }\n    }\n}\n\nasync fn seven() -> u32 {\n    pause().await;\n    7\n}\n\nfn main() {\n    let future = Map { inner: seven(), func: Some(|n: u32| n + 1) };\n    println!(\"{}\", block_on(future));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(block_on(Map { inner: async { 1 }, func: Some(|n: u32| n + 1) }), 2);",
+          "label": {
+            "tr": "hemen biten",
+            "en": "finishing at once"
+          }
+        },
+        {
+          "code": "let f = Map { inner: async { pause().await; 3 }, func: Some(|n: u32| n.to_string()) }; assert_eq!(block_on(f), \"3\");",
+          "label": {
+            "tr": "bekleyen, tür değişir",
+            "en": "waiting, the type changes"
+          }
+        },
+        {
+          "code": "let text = String::from(\"moved\"); let f = Map { inner: pause(), func: Some(move |_: ()| text) }; assert_eq!(block_on(f), \"moved\");",
+          "label": {
+            "tr": "FnOnce",
+            "en": "FnOnce"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "Unpin",
+      "show": "Unpin"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "Box::pin",
+      "show": "Box::pin"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.take\\(\\)",
+      "show": ".take()"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Pin::new_unchecked",
+      "show": "Pin::new_unchecked"
+    }
+  ]
+}
