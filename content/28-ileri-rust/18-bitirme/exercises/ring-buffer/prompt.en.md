@@ -1,0 +1,1 @@
+`push`: if full, give the value back in `Err`; otherwise write to the slot and increase `tail` with `Release`. `pop`: `None` if empty; otherwise read and increase `head` with `Release`. `Drop`: drop the unread values.

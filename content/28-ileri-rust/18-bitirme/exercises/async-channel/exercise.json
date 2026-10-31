@@ -1,0 +1,53 @@
+{
+  "id": "async-channel",
+  "title": {
+    "tr": "Async Kanal",
+    "en": "An Async Channel"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.rs",
+  "files": [
+    {
+      "name": "main.rs",
+      "starter": "starter-main.{lang}.rs",
+      "solution": "solution-main.rs"
+    },
+    {
+      "name": "rt.rs",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`if state.senders == 0 { return Poll::Ready(None); }`",
+      "en": "`if state.senders == 0 { return Poll::Ready(None); }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.rs**\n\n```rust\nmod rt;\n\nuse rt::{Yield, executor, run};\nuse std::collections::VecDeque;\nuse std::future::Future;\nuse std::pin::Pin;\nuse std::sync::{Arc, Mutex};\nuse std::task::{Context, Poll, Waker};\n\nstruct ChanState<T> {\n    items: VecDeque<T>,\n    waker: Option<Waker>,\n    senders: usize,\n}\n\npub struct ChanSender<T> {\n    state: Arc<Mutex<ChanState<T>>>,\n}\n\npub struct ChanReceiver<T> {\n    state: Arc<Mutex<ChanState<T>>>,\n}\n\npub fn async_channel<T>() -> (ChanSender<T>, ChanReceiver<T>) {\n    let state = ChanState { items: VecDeque::new(), waker: None, senders: 1 };\n    let state = Arc::new(Mutex::new(state));\n    (ChanSender { state: state.clone() }, ChanReceiver { state })\n}\n\nimpl<T> ChanSender<T> {\n    pub fn send(&self, value: T) {\n        let waker = {\n            let mut state = self.state.lock().unwrap();\n            state.items.push_back(value);\n            state.waker.take()\n        };\n        if let Some(waker) = waker {\n            waker.wake();\n        }\n    }\n}\n\nimpl<T> Clone for ChanSender<T> {\n    fn clone(&self) -> Self {\n        self.state.lock().unwrap().senders += 1;\n        ChanSender { state: self.state.clone() }\n    }\n}\n\nimpl<T> Drop for ChanSender<T> {\n    fn drop(&mut self) {\n        let waker = {\n            let mut state = self.state.lock().unwrap();\n            state.senders -= 1;\n            state.waker.take()\n        };\n        if let Some(waker) = waker {\n            waker.wake();\n        }\n    }\n}\n\nimpl<T> ChanReceiver<T> {\n    pub fn recv(&mut self) -> Recv<'_, T> {\n        Recv { receiver: self }\n    }\n}\n\npub struct Recv<'a, T> {\n    receiver: &'a mut ChanReceiver<T>,\n}\n\nimpl<T> Future for Recv<'_, T> {\n    type Output = Option<T>;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<T>> {\n        let mut state = self.receiver.state.lock().unwrap();\n        if let Some(value) = state.items.pop_front() {\n            return Poll::Ready(Some(value));\n        }\n        if state.senders == 0 {\n            return Poll::Ready(None);\n        }\n        state.waker = Some(cx.waker().clone());\n        Poll::Pending\n    }\n}\n\nfn main() {\n    let (spawner, queue) = executor();\n    let (sender, mut receiver) = async_channel();\n    let second = sender.clone();\n    spawner.detach(async move {\n        sender.send(1);\n        Yield { done: false }.await;\n        sender.send(2);\n    });\n    spawner.detach(async move {\n        second.send(3);\n    });\n    spawner.detach(async move {\n        let mut total = 0;\n        while let Some(value) = receiver.recv().await {\n            total += value;\n        }\n        println!(\"{total}\");\n    });\n    drop(spawner);\n    run(queue);\n}\n```",
+      "en": "The full solution:\n\n**main.rs**\n\n```rust\nmod rt;\n\nuse rt::{Yield, executor, run};\nuse std::collections::VecDeque;\nuse std::future::Future;\nuse std::pin::Pin;\nuse std::sync::{Arc, Mutex};\nuse std::task::{Context, Poll, Waker};\n\nstruct ChanState<T> {\n    items: VecDeque<T>,\n    waker: Option<Waker>,\n    senders: usize,\n}\n\npub struct ChanSender<T> {\n    state: Arc<Mutex<ChanState<T>>>,\n}\n\npub struct ChanReceiver<T> {\n    state: Arc<Mutex<ChanState<T>>>,\n}\n\npub fn async_channel<T>() -> (ChanSender<T>, ChanReceiver<T>) {\n    let state = ChanState { items: VecDeque::new(), waker: None, senders: 1 };\n    let state = Arc::new(Mutex::new(state));\n    (ChanSender { state: state.clone() }, ChanReceiver { state })\n}\n\nimpl<T> ChanSender<T> {\n    pub fn send(&self, value: T) {\n        let waker = {\n            let mut state = self.state.lock().unwrap();\n            state.items.push_back(value);\n            state.waker.take()\n        };\n        if let Some(waker) = waker {\n            waker.wake();\n        }\n    }\n}\n\nimpl<T> Clone for ChanSender<T> {\n    fn clone(&self) -> Self {\n        self.state.lock().unwrap().senders += 1;\n        ChanSender { state: self.state.clone() }\n    }\n}\n\nimpl<T> Drop for ChanSender<T> {\n    fn drop(&mut self) {\n        let waker = {\n            let mut state = self.state.lock().unwrap();\n            state.senders -= 1;\n            state.waker.take()\n        };\n        if let Some(waker) = waker {\n            waker.wake();\n        }\n    }\n}\n\nimpl<T> ChanReceiver<T> {\n    pub fn recv(&mut self) -> Recv<'_, T> {\n        Recv { receiver: self }\n    }\n}\n\npub struct Recv<'a, T> {\n    receiver: &'a mut ChanReceiver<T>,\n}\n\nimpl<T> Future for Recv<'_, T> {\n    type Output = Option<T>;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<T>> {\n        let mut state = self.receiver.state.lock().unwrap();\n        if let Some(value) = state.items.pop_front() {\n            return Poll::Ready(Some(value));\n        }\n        if state.senders == 0 {\n            return Poll::Ready(None);\n        }\n        state.waker = Some(cx.waker().clone());\n        Poll::Pending\n    }\n}\n\nfn main() {\n    let (spawner, queue) = executor();\n    let (sender, mut receiver) = async_channel();\n    let second = sender.clone();\n    spawner.detach(async move {\n        sender.send(1);\n        Yield { done: false }.await;\n        sender.send(2);\n    });\n    spawner.detach(async move {\n        second.send(3);\n    });\n    spawner.detach(async move {\n        let mut total = 0;\n        while let Some(value) = receiver.recv().await {\n            total += value;\n        }\n        println!(\"{total}\");\n    });\n    drop(spawner);\n    run(queue);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "senders",
+      "show": "senders"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "mpsc",
+      "show": "mpsc"
+    }
+  ]
+}

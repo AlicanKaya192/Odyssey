@@ -1,0 +1,48 @@
+{
+  "id": "join-handle",
+  "title": {
+    "tr": "Sonucu Olan Görev",
+    "en": "A Task with a Result"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.rs",
+  "files": [
+    {
+      "name": "main.rs",
+      "starter": "starter-main.{lang}.rs",
+      "solution": "solution-main.rs"
+    },
+    {
+      "name": "rt.rs",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let value = future.await;`, sonra `state.value = Some(value);` ve `waker.wake();`",
+      "en": "`let value = future.await;`, then `state.value = Some(value);` and `waker.wake();`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.rs**\n\n```rust\nmod rt;\n\nuse rt::{Spawner, Yield, executor, run};\nuse std::future::Future;\nuse std::pin::Pin;\nuse std::sync::{Arc, Mutex};\nuse std::task::{Context, Poll, Waker};\n\nstruct JoinState<T> {\n    value: Option<T>,\n    waker: Option<Waker>,\n}\n\npub struct JoinHandle<T> {\n    state: Arc<Mutex<JoinState<T>>>,\n}\n\nimpl<T> Future for JoinHandle<T> {\n    type Output = T;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<T> {\n        let mut state = self.state.lock().unwrap();\n        if let Some(value) = state.value.take() {\n            return Poll::Ready(value);\n        }\n        state.waker = Some(cx.waker().clone());\n        Poll::Pending\n    }\n}\n\npub fn spawn<F>(spawner: &Spawner, future: F) -> JoinHandle<F::Output>\nwhere\n    F: Future + Send + 'static,\n    F::Output: Send + 'static,\n{\n    let state = Arc::new(Mutex::new(JoinState { value: None, waker: None }));\n    let shared = state.clone();\n    spawner.detach(async move {\n        let value = future.await;\n        let waker = {\n            let mut state = shared.lock().unwrap();\n            state.value = Some(value);\n            state.waker.take()\n        };\n        if let Some(waker) = waker {\n            waker.wake();\n        }\n    });\n    JoinHandle { state }\n}\n\nfn main() {\n    let (spawner, queue) = executor();\n    let first = spawn(&spawner, async {\n        Yield { done: false }.await;\n        2\n    });\n    let second = spawn(&spawner, async { String::from(\"three\") });\n    spawner.detach(async move {\n        let text = second.await;\n        let number = first.await;\n        println!(\"{text} {number}\");\n    });\n    drop(spawner);\n    run(queue);\n}\n```",
+      "en": "The full solution:\n\n**main.rs**\n\n```rust\nmod rt;\n\nuse rt::{Spawner, Yield, executor, run};\nuse std::future::Future;\nuse std::pin::Pin;\nuse std::sync::{Arc, Mutex};\nuse std::task::{Context, Poll, Waker};\n\nstruct JoinState<T> {\n    value: Option<T>,\n    waker: Option<Waker>,\n}\n\npub struct JoinHandle<T> {\n    state: Arc<Mutex<JoinState<T>>>,\n}\n\nimpl<T> Future for JoinHandle<T> {\n    type Output = T;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<T> {\n        let mut state = self.state.lock().unwrap();\n        if let Some(value) = state.value.take() {\n            return Poll::Ready(value);\n        }\n        state.waker = Some(cx.waker().clone());\n        Poll::Pending\n    }\n}\n\npub fn spawn<F>(spawner: &Spawner, future: F) -> JoinHandle<F::Output>\nwhere\n    F: Future + Send + 'static,\n    F::Output: Send + 'static,\n{\n    let state = Arc::new(Mutex::new(JoinState { value: None, waker: None }));\n    let shared = state.clone();\n    spawner.detach(async move {\n        let value = future.await;\n        let waker = {\n            let mut state = shared.lock().unwrap();\n            state.value = Some(value);\n            state.waker.take()\n        };\n        if let Some(waker) = waker {\n            waker.wake();\n        }\n    });\n    JoinHandle { state }\n}\n\nfn main() {\n    let (spawner, queue) = executor();\n    let first = spawn(&spawner, async {\n        Yield { done: false }.await;\n        2\n    });\n    let second = spawn(&spawner, async { String::from(\"three\") });\n    spawner.detach(async move {\n        let text = second.await;\n        let number = first.await;\n        println!(\"{text} {number}\");\n    });\n    drop(spawner);\n    run(queue);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "three 2"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "spawner\\.detach",
+      "show": "spawner.detach"
+    }
+  ]
+}

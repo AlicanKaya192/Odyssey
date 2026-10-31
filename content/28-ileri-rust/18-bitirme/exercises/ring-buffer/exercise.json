@@ -1,0 +1,74 @@
+{
+  "id": "ring-buffer",
+  "title": {
+    "tr": "Halka Tampon",
+    "en": "A Ring Buffer"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`if tail - head == N { return Err(value); }`",
+      "en": "`if tail - head == N { return Err(value); }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::cell::UnsafeCell;\nuse std::mem::MaybeUninit;\nuse std::sync::atomic::{AtomicUsize, Ordering};\nuse std::thread;\n\npub struct Ring<T, const N: usize> {\n    slots: [UnsafeCell<MaybeUninit<T>>; N],\n    head: AtomicUsize,\n    tail: AtomicUsize,\n}\n\n// SAFETY: head and tail hand each slot between one producer and one consumer.\nunsafe impl<T: Send, const N: usize> Sync for Ring<T, N> {}\n\nimpl<T, const N: usize> Ring<T, N> {\n    pub fn new() -> Self {\n        Ring {\n            slots: std::array::from_fn(|_| UnsafeCell::new(MaybeUninit::uninit())),\n            head: AtomicUsize::new(0),\n            tail: AtomicUsize::new(0),\n        }\n    }\n\n    pub fn split(&mut self) -> (Producer<'_, T, N>, Consumer<'_, T, N>) {\n        (Producer { ring: self }, Consumer { ring: self })\n    }\n}\n\npub struct Producer<'a, T, const N: usize> {\n    ring: &'a Ring<T, N>,\n}\n\npub struct Consumer<'a, T, const N: usize> {\n    ring: &'a Ring<T, N>,\n}\n\nimpl<T, const N: usize> Producer<'_, T, N> {\n    pub fn push(&mut self, value: T) -> Result<(), T> {\n        let tail = self.ring.tail.load(Ordering::Relaxed);\n        let head = self.ring.head.load(Ordering::Acquire);\n        if tail - head == N {\n            return Err(value);\n        }\n        let slot = self.ring.slots[tail % N].get();\n        // SAFETY: this slot is empty, and only this producer writes.\n        unsafe { (*slot).write(value) };\n        self.ring.tail.store(tail + 1, Ordering::Release);\n        Ok(())\n    }\n}\n\nimpl<T, const N: usize> Consumer<'_, T, N> {\n    pub fn pop(&mut self) -> Option<T> {\n        let head = self.ring.head.load(Ordering::Relaxed);\n        let tail = self.ring.tail.load(Ordering::Acquire);\n        if head == tail {\n            return None;\n        }\n        let slot = self.ring.slots[head % N].get();\n        // SAFETY: Acquire saw this slot written, and only this consumer reads.\n        let value = unsafe { (*slot).assume_init_read() };\n        self.ring.head.store(head + 1, Ordering::Release);\n        Some(value)\n    }\n}\n\nimpl<T, const N: usize> Drop for Ring<T, N> {\n    fn drop(&mut self) {\n        let (head, tail) = (*self.head.get_mut(), *self.tail.get_mut());\n        for index in head..tail {\n            // SAFETY: slots from head to tail hold values nobody has read.\n            unsafe { self.slots[index % N].get_mut().assume_init_drop() };\n        }\n    }\n}\n\nfn main() {\n    let mut ring = Ring::<u32, 16>::new();\n    let (mut producer, mut consumer) = ring.split();\n    let sum = thread::scope(|s| {\n        s.spawn(move || {\n            for value in 1..=100_000 {\n                let mut value = value;\n                while let Err(back) = producer.push(value) {\n                    value = back;\n                    thread::yield_now();\n                }\n            }\n        });\n        let mut sum = 0u64;\n        let mut seen = 0;\n        while seen < 100_000 {\n            match consumer.pop() {\n                Some(value) => {\n                    sum += u64::from(value);\n                    seen += 1;\n                }\n                None => thread::yield_now(),\n            }\n        }\n        sum\n    });\n    println!(\"{sum}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::cell::UnsafeCell;\nuse std::mem::MaybeUninit;\nuse std::sync::atomic::{AtomicUsize, Ordering};\nuse std::thread;\n\npub struct Ring<T, const N: usize> {\n    slots: [UnsafeCell<MaybeUninit<T>>; N],\n    head: AtomicUsize,\n    tail: AtomicUsize,\n}\n\n// SAFETY: head and tail hand each slot between one producer and one consumer.\nunsafe impl<T: Send, const N: usize> Sync for Ring<T, N> {}\n\nimpl<T, const N: usize> Ring<T, N> {\n    pub fn new() -> Self {\n        Ring {\n            slots: std::array::from_fn(|_| UnsafeCell::new(MaybeUninit::uninit())),\n            head: AtomicUsize::new(0),\n            tail: AtomicUsize::new(0),\n        }\n    }\n\n    pub fn split(&mut self) -> (Producer<'_, T, N>, Consumer<'_, T, N>) {\n        (Producer { ring: self }, Consumer { ring: self })\n    }\n}\n\npub struct Producer<'a, T, const N: usize> {\n    ring: &'a Ring<T, N>,\n}\n\npub struct Consumer<'a, T, const N: usize> {\n    ring: &'a Ring<T, N>,\n}\n\nimpl<T, const N: usize> Producer<'_, T, N> {\n    pub fn push(&mut self, value: T) -> Result<(), T> {\n        let tail = self.ring.tail.load(Ordering::Relaxed);\n        let head = self.ring.head.load(Ordering::Acquire);\n        if tail - head == N {\n            return Err(value);\n        }\n        let slot = self.ring.slots[tail % N].get();\n        // SAFETY: this slot is empty, and only this producer writes.\n        unsafe { (*slot).write(value) };\n        self.ring.tail.store(tail + 1, Ordering::Release);\n        Ok(())\n    }\n}\n\nimpl<T, const N: usize> Consumer<'_, T, N> {\n    pub fn pop(&mut self) -> Option<T> {\n        let head = self.ring.head.load(Ordering::Relaxed);\n        let tail = self.ring.tail.load(Ordering::Acquire);\n        if head == tail {\n            return None;\n        }\n        let slot = self.ring.slots[head % N].get();\n        // SAFETY: Acquire saw this slot written, and only this consumer reads.\n        let value = unsafe { (*slot).assume_init_read() };\n        self.ring.head.store(head + 1, Ordering::Release);\n        Some(value)\n    }\n}\n\nimpl<T, const N: usize> Drop for Ring<T, N> {\n    fn drop(&mut self) {\n        let (head, tail) = (*self.head.get_mut(), *self.tail.get_mut());\n        for index in head..tail {\n            // SAFETY: slots from head to tail hold values nobody has read.\n            unsafe { self.slots[index % N].get_mut().assume_init_drop() };\n        }\n    }\n}\n\nfn main() {\n    let mut ring = Ring::<u32, 16>::new();\n    let (mut producer, mut consumer) = ring.split();\n    let sum = thread::scope(|s| {\n        s.spawn(move || {\n            for value in 1..=100_000 {\n                let mut value = value;\n                while let Err(back) = producer.push(value) {\n                    value = back;\n                    thread::yield_now();\n                }\n            }\n        });\n        let mut sum = 0u64;\n        let mut seen = 0;\n        while seen < 100_000 {\n            match consumer.pop() {\n                Some(value) => {\n                    sum += u64::from(value);\n                    seen += 1;\n                }\n                None => thread::yield_now(),\n            }\n        }\n        sum\n    });\n    println!(\"{sum}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut r = Ring::<u8, 2>::new(); let (mut p, mut c) = r.split(); assert_eq!(c.pop(), None); assert_eq!(p.push(1), Ok(())); assert_eq!(p.push(2), Ok(())); assert_eq!(p.push(3), Err(3)); assert_eq!(c.pop(), Some(1)); assert_eq!(p.push(3), Ok(())); assert_eq!(c.pop(), Some(2)); assert_eq!(c.pop(), Some(3)); assert_eq!(c.pop(), None);",
+          "label": {
+            "tr": "doluluk ve sıra",
+            "en": "fullness and order"
+          }
+        },
+        {
+          "code": "let a = std::sync::Arc::new(()); { let mut r = Ring::<_, 4>::new(); let (mut p, mut c) = r.split(); for _ in 0..3 { assert!(p.push(a.clone()).is_ok()); } drop(c.pop()); assert_eq!(std::sync::Arc::strong_count(&a), 3); } assert_eq!(std::sync::Arc::strong_count(&a), 1);",
+          "label": {
+            "tr": "okunmayanlar düşer",
+            "en": "unread values drop"
+          }
+        },
+        {
+          "code": "let mut r = Ring::<u32, 8>::new(); let (mut p, mut c) = r.split(); let got = thread::scope(|s| { s.spawn(move || { for mut v in 0..20_000u32 { while let Err(b) = p.push(v) { v = b; thread::yield_now(); } } }); let mut out = Vec::new(); while out.len() < 20_000 { match c.pop() { Some(v) => out.push(v), None => thread::yield_now() } } out }); assert!(got.iter().enumerate().all(|(i, v)| i as u32 == *v));",
+          "label": {
+            "tr": "iki kolda sıra korunur",
+            "en": "order holds on two branches"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Ordering::Release",
+      "show": "Ordering::Release"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "Ordering::Acquire",
+      "show": "Ordering::Acquire"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "assume_init_read",
+      "show": "assume_init_read"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "assume_init_drop",
+      "show": "assume_init_drop"
+    }
+  ]
+}

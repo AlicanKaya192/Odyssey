@@ -1,0 +1,53 @@
+{
+  "id": "word-pipeline",
+  "title": {
+    "tr": "Hepsi Bir Arada",
+    "en": "All Together"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.rs",
+  "files": [
+    {
+      "name": "main.rs",
+      "starter": "starter-main.{lang}.rs",
+      "solution": "solution-main.rs"
+    },
+    {
+      "name": "rt.rs",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`while let Some(word) = receiver.recv().await { *totals.entry(word).or_insert(0) += 1; }`",
+      "en": "`while let Some(word) = receiver.recv().await { *totals.entry(word).or_insert(0) += 1; }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.rs**\n\n```rust\nmod rt;\n\nuse rt::{ChanReceiver, Spawner, async_channel, executor, run, spawn};\nuse std::collections::BTreeMap;\n\nasync fn count_words(mut receiver: ChanReceiver<String>) -> BTreeMap<String, u32> {\n    let mut totals = BTreeMap::new();\n    while let Some(word) = receiver.recv().await {\n        *totals.entry(word).or_insert(0) += 1;\n    }\n    totals\n}\n\nfn word_totals(spawner: &Spawner, lines: Vec<&'static str>) -> rt::JoinHandle<BTreeMap<String, u32>> {\n    let (sender, receiver) = async_channel();\n    for line in lines {\n        let sender = sender.clone();\n        spawner.detach(async move {\n            for word in line.split(' ') {\n                sender.send(word.to_string());\n            }\n        });\n    }\n    spawn(spawner, count_words(receiver))\n}\n\nfn main() {\n    let (spawner, queue) = executor();\n    let lines = vec![\"one two\", \"two three\", \"three three\"];\n    let handle = word_totals(&spawner, lines);\n    spawner.detach(async move {\n        println!(\"{:?}\", handle.await);\n    });\n    drop(spawner);\n    run(queue);\n}\n```",
+      "en": "The full solution:\n\n**main.rs**\n\n```rust\nmod rt;\n\nuse rt::{ChanReceiver, Spawner, async_channel, executor, run, spawn};\nuse std::collections::BTreeMap;\n\nasync fn count_words(mut receiver: ChanReceiver<String>) -> BTreeMap<String, u32> {\n    let mut totals = BTreeMap::new();\n    while let Some(word) = receiver.recv().await {\n        *totals.entry(word).or_insert(0) += 1;\n    }\n    totals\n}\n\nfn word_totals(spawner: &Spawner, lines: Vec<&'static str>) -> rt::JoinHandle<BTreeMap<String, u32>> {\n    let (sender, receiver) = async_channel();\n    for line in lines {\n        let sender = sender.clone();\n        spawner.detach(async move {\n            for word in line.split(' ') {\n                sender.send(word.to_string());\n            }\n        });\n    }\n    spawn(spawner, count_words(receiver))\n}\n\nfn main() {\n    let (spawner, queue) = executor();\n    let lines = vec![\"one two\", \"two three\", \"three three\"];\n    let handle = word_totals(&spawner, lines);\n    spawner.detach(async move {\n        println!(\"{:?}\", handle.await);\n    });\n    drop(spawner);\n    run(queue);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{\"one\": 1, \"three\": 3, \"two\": 2}"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.recv\\(\\)\\.await",
+      "show": ".recv().await"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "spawn\\(",
+      "show": "spawn("
+    }
+  ]
+}

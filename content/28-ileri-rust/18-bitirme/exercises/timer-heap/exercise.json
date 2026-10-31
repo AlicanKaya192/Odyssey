@@ -1,0 +1,53 @@
+{
+  "id": "timer-heap",
+  "title": {
+    "tr": "Tek Kollu Zamanlayıcı",
+    "en": "A Single-Branch Timer"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.rs",
+  "files": [
+    {
+      "name": "main.rs",
+      "starter": "starter-main.{lang}.rs",
+      "solution": "solution-main.rs"
+    },
+    {
+      "name": "rt.rs",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`other.deadline.cmp(&self.deadline)`",
+      "en": "`other.deadline.cmp(&self.deadline)`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.rs**\n\n```rust\nmod rt;\n\nuse rt::{executor, run};\nuse std::collections::BinaryHeap;\nuse std::future::Future;\nuse std::pin::Pin;\nuse std::sync::{Arc, Condvar, Mutex};\nuse std::task::{Context, Poll, Waker};\nuse std::thread;\nuse std::time::{Duration, Instant};\n\nstruct Entry {\n    deadline: Instant,\n    waker: Waker,\n}\n\nimpl PartialEq for Entry {\n    fn eq(&self, other: &Self) -> bool {\n        self.deadline == other.deadline\n    }\n}\n\nimpl Eq for Entry {}\n\nimpl PartialOrd for Entry {\n    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {\n        Some(self.cmp(other))\n    }\n}\n\nimpl Ord for Entry {\n    fn cmp(&self, other: &Self) -> std::cmp::Ordering {\n        other.deadline.cmp(&self.deadline)\n    }\n}\n\n#[derive(Clone)]\npub struct Timers {\n    shared: Arc<(Mutex<BinaryHeap<Entry>>, Condvar)>,\n}\n\nimpl Timers {\n    pub fn new() -> Self {\n        let shared = Arc::new((Mutex::new(BinaryHeap::new()), Condvar::new()));\n        let for_thread = shared.clone();\n        thread::spawn(move || {\n            let (heap, wakeup) = &*for_thread;\n            let mut heap = heap.lock().unwrap();\n            loop {\n                let now = Instant::now();\n                while heap.peek().is_some_and(|entry: &Entry| entry.deadline <= now) {\n                    heap.pop().unwrap().waker.wake();\n                }\n                heap = match heap.peek() {\n                    Some(entry) => {\n                        let wait = entry.deadline - now;\n                        wakeup.wait_timeout(heap, wait).unwrap().0\n                    }\n                    None => wakeup.wait(heap).unwrap(),\n                };\n            }\n        });\n        Timers { shared }\n    }\n\n    pub fn sleep(&self, ms: u64) -> Sleep {\n        Sleep {\n            deadline: Instant::now() + Duration::from_millis(ms),\n            timers: self.clone(),\n        }\n    }\n}\n\npub struct Sleep {\n    deadline: Instant,\n    timers: Timers,\n}\n\nimpl Future for Sleep {\n    type Output = ();\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        if Instant::now() >= self.deadline {\n            return Poll::Ready(());\n        }\n        let (heap, wakeup) = &*self.timers.shared;\n        let waker = cx.waker().clone();\n        heap.lock().unwrap().push(Entry { deadline: self.deadline, waker });\n        wakeup.notify_one();\n        Poll::Pending\n    }\n}\n\nfn main() {\n    let (spawner, queue) = executor();\n    let timers = Timers::new();\n    let order = Arc::new(Mutex::new(Vec::new()));\n    for (id, ms) in [(1, 120), (2, 40), (3, 80)] {\n        let (timers, order) = (timers.clone(), order.clone());\n        spawner.detach(async move {\n            timers.sleep(ms).await;\n            order.lock().unwrap().push(id);\n        });\n    }\n    drop(spawner);\n    run(queue);\n    println!(\"{:?}\", order.lock().unwrap());\n}\n```",
+      "en": "The full solution:\n\n**main.rs**\n\n```rust\nmod rt;\n\nuse rt::{executor, run};\nuse std::collections::BinaryHeap;\nuse std::future::Future;\nuse std::pin::Pin;\nuse std::sync::{Arc, Condvar, Mutex};\nuse std::task::{Context, Poll, Waker};\nuse std::thread;\nuse std::time::{Duration, Instant};\n\nstruct Entry {\n    deadline: Instant,\n    waker: Waker,\n}\n\nimpl PartialEq for Entry {\n    fn eq(&self, other: &Self) -> bool {\n        self.deadline == other.deadline\n    }\n}\n\nimpl Eq for Entry {}\n\nimpl PartialOrd for Entry {\n    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {\n        Some(self.cmp(other))\n    }\n}\n\nimpl Ord for Entry {\n    fn cmp(&self, other: &Self) -> std::cmp::Ordering {\n        other.deadline.cmp(&self.deadline)\n    }\n}\n\n#[derive(Clone)]\npub struct Timers {\n    shared: Arc<(Mutex<BinaryHeap<Entry>>, Condvar)>,\n}\n\nimpl Timers {\n    pub fn new() -> Self {\n        let shared = Arc::new((Mutex::new(BinaryHeap::new()), Condvar::new()));\n        let for_thread = shared.clone();\n        thread::spawn(move || {\n            let (heap, wakeup) = &*for_thread;\n            let mut heap = heap.lock().unwrap();\n            loop {\n                let now = Instant::now();\n                while heap.peek().is_some_and(|entry: &Entry| entry.deadline <= now) {\n                    heap.pop().unwrap().waker.wake();\n                }\n                heap = match heap.peek() {\n                    Some(entry) => {\n                        let wait = entry.deadline - now;\n                        wakeup.wait_timeout(heap, wait).unwrap().0\n                    }\n                    None => wakeup.wait(heap).unwrap(),\n                };\n            }\n        });\n        Timers { shared }\n    }\n\n    pub fn sleep(&self, ms: u64) -> Sleep {\n        Sleep {\n            deadline: Instant::now() + Duration::from_millis(ms),\n            timers: self.clone(),\n        }\n    }\n}\n\npub struct Sleep {\n    deadline: Instant,\n    timers: Timers,\n}\n\nimpl Future for Sleep {\n    type Output = ();\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        if Instant::now() >= self.deadline {\n            return Poll::Ready(());\n        }\n        let (heap, wakeup) = &*self.timers.shared;\n        let waker = cx.waker().clone();\n        heap.lock().unwrap().push(Entry { deadline: self.deadline, waker });\n        wakeup.notify_one();\n        Poll::Pending\n    }\n}\n\nfn main() {\n    let (spawner, queue) = executor();\n    let timers = Timers::new();\n    let order = Arc::new(Mutex::new(Vec::new()));\n    for (id, ms) in [(1, 120), (2, 40), (3, 80)] {\n        let (timers, order) = (timers.clone(), order.clone());\n        spawner.detach(async move {\n            timers.sleep(ms).await;\n            order.lock().unwrap().push(id);\n        });\n    }\n    drop(spawner);\n    run(queue);\n    println!(\"{:?}\", order.lock().unwrap());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 3, 1]"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "notify_one",
+      "show": "notify_one"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "other\\.deadline\\.cmp",
+      "show": "other.deadline.cmp"
+    }
+  ]
+}
