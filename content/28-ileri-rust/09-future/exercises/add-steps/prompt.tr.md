@@ -1,0 +1,1 @@
+`AddSteps` için `Future` yaz, `async` kullanma. `First`: İçteki `Later` bitince değeri `a` olsun, `Second(a, Later::new(a * 2))` durumuna geç. `Second`: Bitince değeri `b` olsun, `Done`'a geç ve `Ready(a + b)` döndür. `Done`: Panik. Üç yoklamada biter.

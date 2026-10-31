@@ -1,0 +1,64 @@
+{
+  "id": "add-steps",
+  "title": {
+    "tr": "Elle Durum Makinesi",
+    "en": "A State Machine by Hand"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`let this = self.get_mut();` ve `loop { match this { ... } }`.",
+      "en": "`let this = self.get_mut();` and `loop { match this { ... } }`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::future::Future;\nuse std::pin::Pin;\nuse std::task::{Context, Poll, Waker};\n\nstruct Later {\n    value: u32,\n    waited: bool,\n}\n\nimpl Later {\n    fn new(value: u32) -> Self {\n        Later { value, waited: false }\n    }\n}\n\nimpl Future for Later {\n    type Output = u32;\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<u32> {\n        if self.waited {\n            return Poll::Ready(self.value);\n        }\n        self.waited = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nenum AddSteps {\n    First(Later),\n    Second(u32, Later),\n    Done,\n}\n\nimpl Future for AddSteps {\n    type Output = u32;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<u32> {\n        let this = self.get_mut();\n        loop {\n            match this {\n                AddSteps::First(later) => {\n                    let Poll::Ready(a) = Pin::new(later).poll(cx) else {\n                        return Poll::Pending;\n                    };\n                    *this = AddSteps::Second(a, Later::new(a * 2));\n                }\n                AddSteps::Second(a, later) => {\n                    let a = *a;\n                    let Poll::Ready(b) = Pin::new(later).poll(cx) else {\n                        return Poll::Pending;\n                    };\n                    *this = AddSteps::Done;\n                    return Poll::Ready(a + b);\n                }\n                AddSteps::Done => panic!(\"polled after completion\"),\n            }\n        }\n    }\n}\n\nfn main() {\n    let mut future = AddSteps::First(Later::new(5));\n    let mut cx = Context::from_waker(Waker::noop());\n    for _ in 0..3 {\n        println!(\"{:?}\", Pin::new(&mut future).poll(&mut cx));\n    }\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::future::Future;\nuse std::pin::Pin;\nuse std::task::{Context, Poll, Waker};\n\nstruct Later {\n    value: u32,\n    waited: bool,\n}\n\nimpl Later {\n    fn new(value: u32) -> Self {\n        Later { value, waited: false }\n    }\n}\n\nimpl Future for Later {\n    type Output = u32;\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<u32> {\n        if self.waited {\n            return Poll::Ready(self.value);\n        }\n        self.waited = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nenum AddSteps {\n    First(Later),\n    Second(u32, Later),\n    Done,\n}\n\nimpl Future for AddSteps {\n    type Output = u32;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<u32> {\n        let this = self.get_mut();\n        loop {\n            match this {\n                AddSteps::First(later) => {\n                    let Poll::Ready(a) = Pin::new(later).poll(cx) else {\n                        return Poll::Pending;\n                    };\n                    *this = AddSteps::Second(a, Later::new(a * 2));\n                }\n                AddSteps::Second(a, later) => {\n                    let a = *a;\n                    let Poll::Ready(b) = Pin::new(later).poll(cx) else {\n                        return Poll::Pending;\n                    };\n                    *this = AddSteps::Done;\n                    return Poll::Ready(a + b);\n                }\n                AddSteps::Done => panic!(\"polled after completion\"),\n            }\n        }\n    }\n}\n\nfn main() {\n    let mut future = AddSteps::First(Later::new(5));\n    let mut cx = Context::from_waker(Waker::noop());\n    for _ in 0..3 {\n        println!(\"{:?}\", Pin::new(&mut future).poll(&mut cx));\n    }\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut f = AddSteps::First(Later::new(5)); let mut cx = Context::from_waker(Waker::noop()); assert_eq!(Pin::new(&mut f).poll(&mut cx), Poll::Pending); assert_eq!(Pin::new(&mut f).poll(&mut cx), Poll::Pending); assert_eq!(Pin::new(&mut f).poll(&mut cx), Poll::Ready(15));",
+          "label": {
+            "tr": "üç yoklama",
+            "en": "three polls"
+          }
+        },
+        {
+          "code": "let mut f = AddSteps::First(Later::new(5)); let mut cx = Context::from_waker(Waker::noop()); while Pin::new(&mut f).poll(&mut cx).is_pending() {} assert!(matches!(f, AddSteps::Done));",
+          "label": {
+            "tr": "sonda Done",
+            "en": "Done at the end"
+          }
+        },
+        {
+          "code": "let mut f = AddSteps::Done; let mut cx = Context::from_waker(Waker::noop()); let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| { let _ = Pin::new(&mut f).poll(&mut cx); })); assert!(r.is_err());",
+          "label": {
+            "tr": "bitince panik",
+            "en": "a panic after the end"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\basync\\b",
+      "show": "async"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\.await",
+      "show": ".await"
+    }
+  ]
+}

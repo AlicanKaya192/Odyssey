@@ -1,0 +1,55 @@
+{
+  "id": "ready-after",
+  "title": {
+    "tr": "Birkaç Yoklama Sonra Hazır",
+    "en": "Ready After a Few Polls"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`cx.waker().wake_by_ref();`, sonra `Poll::Pending`.",
+      "en": "`cx.waker().wake_by_ref();`, then `Poll::Pending`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::future::Future;\nuse std::pin::Pin;\nuse std::task::{Context, Poll, Waker};\n\nstruct ReadyAfter {\n    left: u32,\n    value: u32,\n}\n\nimpl Future for ReadyAfter {\n    type Output = u32;\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<u32> {\n        if self.left == 0 {\n            return Poll::Ready(self.value);\n        }\n        self.left -= 1;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nfn main() {\n    let mut future = ReadyAfter { left: 1, value: 5 };\n    let mut cx = Context::from_waker(Waker::noop());\n    println!(\"{:?}\", Pin::new(&mut future).poll(&mut cx));\n    println!(\"{:?}\", Pin::new(&mut future).poll(&mut cx));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::future::Future;\nuse std::pin::Pin;\nuse std::task::{Context, Poll, Waker};\n\nstruct ReadyAfter {\n    left: u32,\n    value: u32,\n}\n\nimpl Future for ReadyAfter {\n    type Output = u32;\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<u32> {\n        if self.left == 0 {\n            return Poll::Ready(self.value);\n        }\n        self.left -= 1;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nfn main() {\n    let mut future = ReadyAfter { left: 1, value: 5 };\n    let mut cx = Context::from_waker(Waker::noop());\n    println!(\"{:?}\", Pin::new(&mut future).poll(&mut cx));\n    println!(\"{:?}\", Pin::new(&mut future).poll(&mut cx));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut f = ReadyAfter { left: 0, value: 9 }; let mut cx = Context::from_waker(Waker::noop()); assert_eq!(Pin::new(&mut f).poll(&mut cx), Poll::Ready(9));",
+          "label": {
+            "tr": "hemen hazır",
+            "en": "ready at once"
+          }
+        },
+        {
+          "code": "let mut f = ReadyAfter { left: 2, value: 5 }; let mut cx = Context::from_waker(Waker::noop()); assert_eq!(Pin::new(&mut f).poll(&mut cx), Poll::Pending); assert_eq!(Pin::new(&mut f).poll(&mut cx), Poll::Pending); assert_eq!(Pin::new(&mut f).poll(&mut cx), Poll::Ready(5));",
+          "label": {
+            "tr": "iki bekleme",
+            "en": "two waits"
+          }
+        },
+        {
+          "code": "let c = Arc::new(Wakes(AtomicU32::new(0))); let w = Waker::from(c.clone()); let mut cx = Context::from_waker(&w); let mut f = ReadyAfter { left: 2, value: 5 }; while Pin::new(&mut f).poll(&mut cx).is_pending() {} assert_eq!(c.0.load(Ordering::SeqCst), 2);",
+          "label": {
+            "tr": "her Pending'de haber",
+            "en": "a wake on each Pending"
+          }
+        }
+      ],
+      "prelude": "use std::sync::Arc;\nuse std::sync::atomic::{AtomicU32, Ordering};\nuse std::task::Wake;\nstruct Wakes(AtomicU32);\nimpl Wake for Wakes {\n    fn wake(self: Arc<Self>) {\n        self.0.fetch_add(1, Ordering::SeqCst);\n    }\n}\n"
+    }
+  ]
+}

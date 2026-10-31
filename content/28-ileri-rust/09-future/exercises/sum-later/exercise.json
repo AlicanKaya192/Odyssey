@@ -1,0 +1,65 @@
+{
+  "id": "sum-later",
+  "title": {
+    "tr": "Bekleyerek Topla",
+    "en": "Sum While Waiting"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`sum += Later { value, waited: false }.await;`",
+      "en": "`sum += Later { value, waited: false }.await;`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\nstruct Later {\n    value: u32,\n    waited: bool,\n}\n\nimpl Future for Later {\n    type Output = u32;\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<u32> {\n        if self.waited {\n            return Poll::Ready(self.value);\n        }\n        self.waited = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    loop {\n        if let Poll::Ready(value) = future.as_mut().poll(&mut cx) {\n            return value;\n        }\n    }\n}\n\nasync fn sum_later(values: Vec<u32>) -> u32 {\n    let mut sum = 0;\n    for value in values {\n        sum += Later { value, waited: false }.await;\n    }\n    sum\n}\n\nfn main() {\n    println!(\"{}\", block_on(sum_later(vec![1, 2, 3])));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\nstruct Later {\n    value: u32,\n    waited: bool,\n}\n\nimpl Future for Later {\n    type Output = u32;\n\n    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<u32> {\n        if self.waited {\n            return Poll::Ready(self.value);\n        }\n        self.waited = true;\n        cx.waker().wake_by_ref();\n        Poll::Pending\n    }\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    loop {\n        if let Poll::Ready(value) = future.as_mut().poll(&mut cx) {\n            return value;\n        }\n    }\n}\n\nasync fn sum_later(values: Vec<u32>) -> u32 {\n    let mut sum = 0;\n    for value in values {\n        sum += Later { value, waited: false }.await;\n    }\n    sum\n}\n\nfn main() {\n    println!(\"{}\", block_on(sum_later(vec![1, 2, 3])));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "assert_eq!(block_on(sum_later(vec![])), 0);",
+          "label": {
+            "tr": "boş liste",
+            "en": "an empty list"
+          }
+        },
+        {
+          "code": "assert_eq!(block_on(sum_later(vec![1, 2, 3])), 6);",
+          "label": {
+            "tr": "toplam",
+            "en": "the sum"
+          }
+        },
+        {
+          "code": "assert_eq!(polls(sum_later(vec![4, 5, 6])), (15, 4));",
+          "label": {
+            "tr": "üç bekleme, dört yoklama",
+            "en": "three waits, four polls"
+          }
+        }
+      ],
+      "prelude": "fn polls<F: Future>(future: F) -> (F::Output, u32) {\n    let mut future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    let mut count = 0;\n    loop {\n        count += 1;\n        if let Poll::Ready(value) = future.as_mut().poll(&mut cx) {\n            return (value, count);\n        }\n    }\n}\n"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "async\\s+fn\\s+sum_later",
+      "show": "async fn sum_later"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.await",
+      "show": ".await"
+    }
+  ]
+}

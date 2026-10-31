@@ -1,0 +1,1 @@
+Write `Future` for `AddSteps` without `async`. `First`: when the inner `Later` finishes with `a`, move to `Second(a, Later::new(a * 2))`. `Second`: when it finishes with `b`, move to `Done` and return `Ready(a + b)`. `Done`: panic. It finishes in three polls.
