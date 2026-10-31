@@ -1,0 +1,53 @@
+{
+  "id": "book-to-json",
+  "title": {
+    "tr": "Kitabı JSON Yap",
+    "en": "Turn a Book into JSON"
+  },
+  "difficulty": 1,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "src/main.rs",
+      "starter": "starter-src-main.{lang}.rs",
+      "solution": "solution-src-main.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 300,
+  "hints": [
+    {
+      "tr": "`#[derive(Serialize, Deserialize)]`, sonra `serde_json::to_string(&book).unwrap()`.",
+      "en": "`#[derive(Serialize, Deserialize)]`, then `serde_json::to_string(&book).unwrap()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**src/main.rs**\n\n```rust\nuse serde::{Deserialize, Serialize};\n\n#[derive(Serialize, Deserialize)]\nstruct Book {\n    title: String,\n    pages: u32,\n}\n\nfn main() {\n    let book = Book { title: \"Dune\".to_string(), pages: 412 };\n    println!(\"{}\", serde_json::to_string(&book).unwrap());\n}\n```",
+      "en": "The full solution:\n\n**src/main.rs**\n\n```rust\nuse serde::{Deserialize, Serialize};\n\n#[derive(Serialize, Deserialize)]\nstruct Book {\n    title: String,\n    pages: u32,\n}\n\nfn main() {\n    let book = Book { title: \"Dune\".to_string(), pages: 412 };\n    println!(\"{}\", serde_json::to_string(&book).unwrap());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{\"title\":\"Dune\",\"pages\":412}"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "to_string\\(&",
+      "show": "serde_json::to_string(&...)"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "derive\\([^)]*Serialize",
+      "show": "derive(Serialize)"
+    }
+  ]
+}

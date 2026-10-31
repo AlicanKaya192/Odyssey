@@ -1,0 +1,96 @@
+{
+  "id": "todo-tool",
+  "title": {
+    "tr": "Yapılacaklar Aracı",
+    "en": "A To-Do Tool"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "src/main.rs",
+      "starter": "starter-src-main.{lang}.rs",
+      "solution": "solution-src-main.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 300,
+  "hints": [
+    {
+      "tr": "`load`: `fs::read_to_string` başarısızsa boş `Vec` dön. `add`: en büyük id + 1, sonra `save`.",
+      "en": "`load`: if `fs::read_to_string` fails, return an empty `Vec`. `add`: the largest id + 1, then `save`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**src/main.rs**\n\n```rust\nuse clap::{Parser, Subcommand};\nuse serde::{Deserialize, Serialize};\nuse std::error::Error;\nuse std::fs;\n\nconst FILE: &str = \"todo.json\";\n\n#[derive(Parser)]\nstruct Cli {\n    #[command(subcommand)]\n    command: Command,\n}\n\n#[derive(Subcommand)]\nenum Command {\n    Count,\n    Add { text: String },\n    List,\n}\n\n#[derive(Serialize, Deserialize)]\nstruct Task {\n    id: u32,\n    text: String,\n}\n\nfn load() -> Result<Vec<Task>, Box<dyn Error>> {\n    match fs::read_to_string(FILE) {\n        Ok(text) => Ok(serde_json::from_str(&text)?),\n        Err(_) => Ok(Vec::new()),\n    }\n}\n\nfn save(tasks: &[Task]) -> Result<(), Box<dyn Error>> {\n    fs::write(FILE, serde_json::to_string(tasks)?)?;\n    Ok(())\n}\n\nfn main() -> Result<(), Box<dyn Error>> {\n    let cli = Cli::parse();\n    let mut tasks = load()?;\n    match cli.command {\n        Command::Count => println!(\"{}\", tasks.len()),\n        Command::Add { text } => {\n            let id = tasks.iter().map(|t| t.id).max().unwrap_or(0) + 1;\n            tasks.push(Task { id, text });\n            save(&tasks)?;\n            println!(\"added {id}\");\n        }\n        Command::List => {\n            for task in &tasks {\n                println!(\"{} {}\", task.id, task.text);\n            }\n        }\n    }\n    Ok(())\n}\n```",
+      "en": "The full solution:\n\n**src/main.rs**\n\n```rust\nuse clap::{Parser, Subcommand};\nuse serde::{Deserialize, Serialize};\nuse std::error::Error;\nuse std::fs;\n\nconst FILE: &str = \"todo.json\";\n\n#[derive(Parser)]\nstruct Cli {\n    #[command(subcommand)]\n    command: Command,\n}\n\n#[derive(Subcommand)]\nenum Command {\n    Count,\n    Add { text: String },\n    List,\n}\n\n#[derive(Serialize, Deserialize)]\nstruct Task {\n    id: u32,\n    text: String,\n}\n\nfn load() -> Result<Vec<Task>, Box<dyn Error>> {\n    match fs::read_to_string(FILE) {\n        Ok(text) => Ok(serde_json::from_str(&text)?),\n        Err(_) => Ok(Vec::new()),\n    }\n}\n\nfn save(tasks: &[Task]) -> Result<(), Box<dyn Error>> {\n    fs::write(FILE, serde_json::to_string(tasks)?)?;\n    Ok(())\n}\n\nfn main() -> Result<(), Box<dyn Error>> {\n    let cli = Cli::parse();\n    let mut tasks = load()?;\n    match cli.command {\n        Command::Count => println!(\"{}\", tasks.len()),\n        Command::Add { text } => {\n            let id = tasks.iter().map(|t| t.id).max().unwrap_or(0) + 1;\n            tasks.push(Task { id, text });\n            save(&tasks)?;\n            println!(\"added {id}\");\n        }\n        Command::List => {\n            for task in &tasks {\n                println!(\"{} {}\", task.id, task.text);\n            }\n        }\n    }\n    Ok(())\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "argv": [
+            "count"
+          ],
+          "stdout": "0",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "add",
+            "tea"
+          ],
+          "stdout": "added 1",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "add",
+            "milk"
+          ],
+          "stdout": "added 2",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "list"
+          ],
+          "stdout": "1 tea\n2 milk",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "count"
+          ],
+          "stdout": "2",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "remove"
+          ],
+          "exit": 2
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "derive\\([^)]*Subcommand",
+      "show": "#[derive(Subcommand)]"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "from_str",
+      "show": "serde_json::from_str"
+    }
+  ]
+}

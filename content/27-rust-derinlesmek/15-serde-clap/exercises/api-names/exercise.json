@@ -1,0 +1,43 @@
+{
+  "id": "api-names",
+  "title": {
+    "tr": "API'nin Adları",
+    "en": "The API's Names"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "src/main.rs",
+      "starter": "starter-src-main.{lang}.rs",
+      "solution": "solution-src-main.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 300,
+  "hints": [
+    {
+      "tr": "Struct'ın üstüne `#[serde(rename_all = \"camelCase\")]`, alanın üstüne `#[serde(skip_serializing_if = \"Option::is_none\")]`.",
+      "en": "`#[serde(rename_all = \"camelCase\")]` above the struct, `#[serde(skip_serializing_if = \"Option::is_none\")]` above the field."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**src/main.rs**\n\n```rust\nuse serde::{Deserialize, Serialize};\n\n#[derive(Serialize, Deserialize)]\n#[serde(rename_all = \"camelCase\")]\nstruct Account {\n    user_id: u32,\n    #[serde(skip_serializing_if = \"Option::is_none\")]\n    nick_name: Option<String>,\n}\n\nfn main() {\n    let first = Account { user_id: 1, nick_name: None };\n    let second = Account { user_id: 2, nick_name: Some(\"gh\".to_string()) };\n    println!(\"{}\", serde_json::to_string(&first).unwrap());\n    println!(\"{}\", serde_json::to_string(&second).unwrap());\n}\n```",
+      "en": "The full solution:\n\n**src/main.rs**\n\n```rust\nuse serde::{Deserialize, Serialize};\n\n#[derive(Serialize, Deserialize)]\n#[serde(rename_all = \"camelCase\")]\nstruct Account {\n    user_id: u32,\n    #[serde(skip_serializing_if = \"Option::is_none\")]\n    nick_name: Option<String>,\n}\n\nfn main() {\n    let first = Account { user_id: 1, nick_name: None };\n    let second = Account { user_id: 2, nick_name: Some(\"gh\".to_string()) };\n    println!(\"{}\", serde_json::to_string(&first).unwrap());\n    println!(\"{}\", serde_json::to_string(&second).unwrap());\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{\"userId\":1}\n{\"userId\":2,\"nickName\":\"gh\"}"
+    }
+  ]
+}

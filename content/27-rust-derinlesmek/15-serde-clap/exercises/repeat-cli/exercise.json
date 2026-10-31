@@ -1,0 +1,86 @@
+{
+  "id": "repeat-cli",
+  "title": {
+    "tr": "Tekrar Eden Araç",
+    "en": "A Repeating Tool"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "src/main.rs",
+  "files": [
+    {
+      "name": "src/main.rs",
+      "starter": "starter-src-main.{lang}.rs",
+      "solution": "solution-src-main.rs"
+    },
+    {
+      "name": "Cargo.toml",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 300,
+  "hints": [
+    {
+      "tr": "Üç alan: `word: String`, `#[arg(short, long, default_value_t = 1)] times: u32`, `#[arg(short, long)] upper: bool`.",
+      "en": "Three fields: `word: String`, `#[arg(short, long, default_value_t = 1)] times: u32`, `#[arg(short, long)] upper: bool`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**src/main.rs**\n\n```rust\nuse clap::Parser;\n\n#[derive(Parser)]\nstruct Cli {\n    word: String,\n    #[arg(short, long, default_value_t = 1)]\n    times: u32,\n    #[arg(short, long)]\n    upper: bool,\n}\n\nfn main() {\n    let cli = Cli::parse();\n    let word = if cli.upper { cli.word.to_uppercase() } else { cli.word };\n    for _ in 0..cli.times {\n        println!(\"{word}\");\n    }\n}\n```",
+      "en": "The full solution:\n\n**src/main.rs**\n\n```rust\nuse clap::Parser;\n\n#[derive(Parser)]\nstruct Cli {\n    word: String,\n    #[arg(short, long, default_value_t = 1)]\n    times: u32,\n    #[arg(short, long)]\n    upper: bool,\n}\n\nfn main() {\n    let cli = Cli::parse();\n    let word = if cli.upper { cli.word.to_uppercase() } else { cli.word };\n    for _ in 0..cli.times {\n        println!(\"{word}\");\n    }\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdio",
+      "cases": [
+        {
+          "argv": [
+            "hi"
+          ],
+          "stdout": "hi",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "hi",
+            "-t",
+            "2"
+          ],
+          "stdout": "hi\nhi",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "hi",
+            "--times",
+            "3",
+            "-u"
+          ],
+          "stdout": "HI\nHI\nHI",
+          "exit": 0
+        },
+        {
+          "argv": [],
+          "exit": 2
+        },
+        {
+          "argv": [
+            "hi",
+            "-t",
+            "x"
+          ],
+          "exit": 2
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "derive\\(Parser\\)",
+      "show": "#[derive(Parser)]"
+    }
+  ]
+}
