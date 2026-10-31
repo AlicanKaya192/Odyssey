@@ -1,0 +1,61 @@
+{
+  "id": "select-first",
+  "title": {
+    "tr": "İlk Biten Kazanır",
+    "en": "The First to Finish Wins"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`if let Poll::Ready(value) = Pin::new(&mut this.a).poll(cx) { return Poll::Ready(Either::Left(value)); }`",
+      "en": "`if let Poll::Ready(value) = Pin::new(&mut this.a).poll(cx) { return Poll::Ready(Either::Left(value)); }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\n#[derive(Debug, PartialEq)]\nenum Either<A, B> {\n    Left(A),\n    Right(B),\n}\n\nstruct Select<A, B> {\n    a: A,\n    b: B,\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    loop {\n        if let Poll::Ready(value) = future.as_mut().poll(&mut cx) {\n            return value;\n        }\n    }\n}\n\nimpl<A, B> Future for Select<A, B>\nwhere\n    A: Future + Unpin,\n    B: Future + Unpin,\n{\n    type Output = Either<A::Output, B::Output>;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {\n        let this = self.get_mut();\n        if let Poll::Ready(value) = Pin::new(&mut this.a).poll(cx) {\n            return Poll::Ready(Either::Left(value));\n        }\n        if let Poll::Ready(value) = Pin::new(&mut this.b).poll(cx) {\n            return Poll::Ready(Either::Right(value));\n        }\n        Poll::Pending\n    }\n}\n\nfn main() {\n    let never = std::future::pending::<u32>();\n    let race = Select { a: never, b: std::future::ready(\"won\") };\n    println!(\"{:?}\", block_on(race));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::task::{Context, Poll, Waker};\n\n#[derive(Debug, PartialEq)]\nenum Either<A, B> {\n    Left(A),\n    Right(B),\n}\n\nstruct Select<A, B> {\n    a: A,\n    b: B,\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let mut cx = Context::from_waker(Waker::noop());\n    loop {\n        if let Poll::Ready(value) = future.as_mut().poll(&mut cx) {\n            return value;\n        }\n    }\n}\n\nimpl<A, B> Future for Select<A, B>\nwhere\n    A: Future + Unpin,\n    B: Future + Unpin,\n{\n    type Output = Either<A::Output, B::Output>;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {\n        let this = self.get_mut();\n        if let Poll::Ready(value) = Pin::new(&mut this.a).poll(cx) {\n            return Poll::Ready(Either::Left(value));\n        }\n        if let Poll::Ready(value) = Pin::new(&mut this.b).poll(cx) {\n            return Poll::Ready(Either::Right(value));\n        }\n        Poll::Pending\n    }\n}\n\nfn main() {\n    let never = std::future::pending::<u32>();\n    let race = Select { a: never, b: std::future::ready(\"won\") };\n    println!(\"{:?}\", block_on(race));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let r = block_on(Select { a: std::future::ready(1), b: std::future::pending::<u8>() }); assert_eq!(r, Either::Left(1));",
+          "label": {
+            "tr": "a kazanır",
+            "en": "a wins"
+          }
+        },
+        {
+          "code": "let r = block_on(Select { a: std::future::pending::<u8>(), b: std::future::ready(2) }); assert_eq!(r, Either::Right(2));",
+          "label": {
+            "tr": "b kazanır",
+            "en": "b wins"
+          }
+        },
+        {
+          "code": "let r = block_on(Select { a: std::future::ready(1), b: std::future::ready(2) }); assert_eq!(r, Either::Left(1));",
+          "label": {
+            "tr": "ikisi hazırsa a",
+            "en": "a if both are ready"
+          }
+        },
+        {
+          "code": "let a = std::rc::Rc::new(()); let keep = a.clone(); let loser = Box::pin(async move { let _k = keep; std::future::pending::<()>().await; }); let mut race = Select { a: loser, b: std::future::ready(()) }; assert_eq!(std::rc::Rc::strong_count(&a), 2); let r = Pin::new(&mut race).poll(&mut Context::from_waker(Waker::noop())); assert!(matches!(r, Poll::Ready(Either::Right(())))); drop(race); assert_eq!(std::rc::Rc::strong_count(&a), 1);",
+          "label": {
+            "tr": "kaybeden düşer",
+            "en": "the loser is dropped"
+          }
+        }
+      ]
+    }
+  ]
+}

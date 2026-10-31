@@ -1,0 +1,59 @@
+{
+  "id": "oneshot",
+  "title": {
+    "tr": "Tek Atımlık Kanal",
+    "en": "A One-Shot Channel"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`if let Some(value) = state.value.take() { return Poll::Ready(value); }`",
+      "en": "`if let Some(value) = state.value.take() { return Poll::Ready(value); }`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::sync::{Arc, Mutex};\nuse std::task::{Context, Poll, Wake, Waker};\nuse std::thread::{self, Thread};\nuse std::time::Duration;\n\nstruct ThreadWaker(Thread);\n\nimpl Wake for ThreadWaker {\n    fn wake(self: Arc<Self>) {\n        self.0.unpark();\n    }\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));\n    let mut cx = Context::from_waker(&waker);\n    loop {\n        match future.as_mut().poll(&mut cx) {\n            Poll::Ready(value) => return value,\n            Poll::Pending => thread::park(),\n        }\n    }\n}\n\nstruct State<T> {\n    value: Option<T>,\n    waker: Option<Waker>,\n}\n\nstruct OneSender<T> {\n    state: Arc<Mutex<State<T>>>,\n}\n\nstruct OneReceiver<T> {\n    state: Arc<Mutex<State<T>>>,\n}\n\nfn oneshot<T>() -> (OneSender<T>, OneReceiver<T>) {\n    let state = Arc::new(Mutex::new(State { value: None, waker: None }));\n    (OneSender { state: state.clone() }, OneReceiver { state })\n}\n\nimpl<T> OneSender<T> {\n    fn send(self, value: T) {\n        let waker = {\n            let mut state = self.state.lock().unwrap();\n            state.value = Some(value);\n            state.waker.take()\n        };\n        if let Some(waker) = waker {\n            waker.wake();\n        }\n    }\n}\n\nimpl<T> Future for OneReceiver<T> {\n    type Output = T;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<T> {\n        let mut state = self.state.lock().unwrap();\n        if let Some(value) = state.value.take() {\n            return Poll::Ready(value);\n        }\n        state.waker = Some(cx.waker().clone());\n        Poll::Pending\n    }\n}\n\nfn main() {\n    let (sender, receiver) = oneshot();\n    thread::spawn(move || {\n        thread::sleep(Duration::from_millis(20));\n        sender.send(7);\n    });\n    println!(\"{}\", block_on(receiver));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::sync::{Arc, Mutex};\nuse std::task::{Context, Poll, Wake, Waker};\nuse std::thread::{self, Thread};\nuse std::time::Duration;\n\nstruct ThreadWaker(Thread);\n\nimpl Wake for ThreadWaker {\n    fn wake(self: Arc<Self>) {\n        self.0.unpark();\n    }\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));\n    let mut cx = Context::from_waker(&waker);\n    loop {\n        match future.as_mut().poll(&mut cx) {\n            Poll::Ready(value) => return value,\n            Poll::Pending => thread::park(),\n        }\n    }\n}\n\nstruct State<T> {\n    value: Option<T>,\n    waker: Option<Waker>,\n}\n\nstruct OneSender<T> {\n    state: Arc<Mutex<State<T>>>,\n}\n\nstruct OneReceiver<T> {\n    state: Arc<Mutex<State<T>>>,\n}\n\nfn oneshot<T>() -> (OneSender<T>, OneReceiver<T>) {\n    let state = Arc::new(Mutex::new(State { value: None, waker: None }));\n    (OneSender { state: state.clone() }, OneReceiver { state })\n}\n\nimpl<T> OneSender<T> {\n    fn send(self, value: T) {\n        let waker = {\n            let mut state = self.state.lock().unwrap();\n            state.value = Some(value);\n            state.waker.take()\n        };\n        if let Some(waker) = waker {\n            waker.wake();\n        }\n    }\n}\n\nimpl<T> Future for OneReceiver<T> {\n    type Output = T;\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<T> {\n        let mut state = self.state.lock().unwrap();\n        if let Some(value) = state.value.take() {\n            return Poll::Ready(value);\n        }\n        state.waker = Some(cx.waker().clone());\n        Poll::Pending\n    }\n}\n\nfn main() {\n    let (sender, receiver) = oneshot();\n    thread::spawn(move || {\n        thread::sleep(Duration::from_millis(20));\n        sender.send(7);\n    });\n    println!(\"{}\", block_on(receiver));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let (s, r) = oneshot(); s.send(5); assert_eq!(block_on(r), 5);",
+          "label": {
+            "tr": "önce gönder",
+            "en": "send first"
+          }
+        },
+        {
+          "code": "let (s, r) = oneshot(); thread::spawn(move || { thread::sleep(Duration::from_millis(30)); s.send(String::from(\"hi\")); }); assert_eq!(block_on(r), \"hi\");",
+          "label": {
+            "tr": "sonra gönder",
+            "en": "send later"
+          }
+        },
+        {
+          "code": "let (s, r) = oneshot(); let got = block_on(async move { thread::spawn(move || s.send(1)); r.await + 1 }); assert_eq!(got, 2);",
+          "label": {
+            "tr": ".await ile",
+            "en": "with .await"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "mpsc",
+      "show": "mpsc"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "timer-future",
+  "title": {
+    "tr": "Zamanlayıcı Future",
+    "en": "A Timer Future"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`state.waker = Some(cx.waker().clone());`",
+      "en": "`state.waker = Some(cx.waker().clone());`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::sync::{Arc, Mutex};\nuse std::task::{Context, Poll, Wake, Waker};\nuse std::thread::{self, Thread};\nuse std::time::Duration;\n\nstruct Shared {\n    done: bool,\n    waker: Option<Waker>,\n}\n\nstruct Timer {\n    shared: Arc<Mutex<Shared>>,\n}\n\nimpl Timer {\n    fn new(ms: u64) -> Self {\n        let shared = Arc::new(Mutex::new(Shared { done: false, waker: None }));\n        let for_thread = shared.clone();\n        thread::spawn(move || {\n            thread::sleep(Duration::from_millis(ms));\n            let waker = {\n                let mut state = for_thread.lock().unwrap();\n                state.done = true;\n                state.waker.take()\n            };\n            if let Some(waker) = waker {\n                waker.wake();\n            }\n        });\n        Timer { shared }\n    }\n}\n\nimpl Future for Timer {\n    type Output = ();\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        let mut state = self.shared.lock().unwrap();\n        if state.done {\n            return Poll::Ready(());\n        }\n        state.waker = Some(cx.waker().clone());\n        Poll::Pending\n    }\n}\n\nstruct ThreadWaker(Thread);\n\nimpl Wake for ThreadWaker {\n    fn wake(self: Arc<Self>) {\n        self.0.unpark();\n    }\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));\n    let mut cx = Context::from_waker(&waker);\n    loop {\n        match future.as_mut().poll(&mut cx) {\n            Poll::Ready(value) => return value,\n            Poll::Pending => thread::park(),\n        }\n    }\n}\n\nfn main() {\n    block_on(Timer::new(20));\n    println!(\"timer finished\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::future::Future;\nuse std::pin::{Pin, pin};\nuse std::sync::{Arc, Mutex};\nuse std::task::{Context, Poll, Wake, Waker};\nuse std::thread::{self, Thread};\nuse std::time::Duration;\n\nstruct Shared {\n    done: bool,\n    waker: Option<Waker>,\n}\n\nstruct Timer {\n    shared: Arc<Mutex<Shared>>,\n}\n\nimpl Timer {\n    fn new(ms: u64) -> Self {\n        let shared = Arc::new(Mutex::new(Shared { done: false, waker: None }));\n        let for_thread = shared.clone();\n        thread::spawn(move || {\n            thread::sleep(Duration::from_millis(ms));\n            let waker = {\n                let mut state = for_thread.lock().unwrap();\n                state.done = true;\n                state.waker.take()\n            };\n            if let Some(waker) = waker {\n                waker.wake();\n            }\n        });\n        Timer { shared }\n    }\n}\n\nimpl Future for Timer {\n    type Output = ();\n\n    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {\n        let mut state = self.shared.lock().unwrap();\n        if state.done {\n            return Poll::Ready(());\n        }\n        state.waker = Some(cx.waker().clone());\n        Poll::Pending\n    }\n}\n\nstruct ThreadWaker(Thread);\n\nimpl Wake for ThreadWaker {\n    fn wake(self: Arc<Self>) {\n        self.0.unpark();\n    }\n}\n\nfn block_on<F: Future>(future: F) -> F::Output {\n    let mut future = pin!(future);\n    let waker = Waker::from(Arc::new(ThreadWaker(thread::current())));\n    let mut cx = Context::from_waker(&waker);\n    loop {\n        match future.as_mut().poll(&mut cx) {\n            Poll::Ready(value) => return value,\n            Poll::Pending => thread::park(),\n        }\n    }\n}\n\nfn main() {\n    block_on(Timer::new(20));\n    println!(\"timer finished\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let start = std::time::Instant::now(); block_on(Timer::new(40)); assert!(start.elapsed() >= Duration::from_millis(40));",
+          "label": {
+            "tr": "süre",
+            "en": "the duration"
+          }
+        },
+        {
+          "code": "let first = Arc::new(Wakes(AtomicU32::new(0))); let second = Arc::new(Wakes(AtomicU32::new(0))); let (w1, w2) = (Waker::from(first.clone()), Waker::from(second.clone())); let mut t = Timer::new(60); assert!(Pin::new(&mut t).poll(&mut Context::from_waker(&w1)).is_pending()); assert!(Pin::new(&mut t).poll(&mut Context::from_waker(&w2)).is_pending()); let start = std::time::Instant::now(); while second.0.load(Ordering::SeqCst) == 0 && start.elapsed() < Duration::from_secs(3) { thread::sleep(Duration::from_millis(5)); } assert_eq!(second.0.load(Ordering::SeqCst), 1); assert_eq!(first.0.load(Ordering::SeqCst), 0);",
+          "label": {
+            "tr": "son waker uyanır",
+            "en": "the latest waker wakes"
+          }
+        }
+      ],
+      "prelude": "use std::sync::atomic::{AtomicU32, Ordering};\nstruct Wakes(AtomicU32);\nimpl Wake for Wakes {\n    fn wake(self: Arc<Self>) {\n        self.0.fetch_add(1, Ordering::SeqCst);\n    }\n}\n"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "thread::spawn",
+      "show": "thread::spawn"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\.wake\\(\\)",
+      "show": ".wake()"
+    }
+  ]
+}

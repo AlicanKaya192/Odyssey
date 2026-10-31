@@ -1,0 +1,1 @@
+Write `Wake` for `Task`: it puts the task back on the queue. Write `run`: take a task from the queue, poll it with `Waker::from(task.clone())`, and set `None` when it finishes. It ends when the queue closes.
